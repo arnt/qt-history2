@@ -34,6 +34,8 @@ public:
 	QString help = QString::null, QString defAction = QString::null,
 	QString accelerator = QString::null, State s = Normal );
 
+    ~QAccessibleWidget();
+
     int		controlAt( int x, int y ) const;
     QRect	rect( int control ) const;
     int		navigate( NavDirection direction, int startControl ) const;
@@ -51,6 +53,8 @@ public:
     bool	setSelected( int control, bool on, bool extend );
     void	clearSelection();
     QMemArray<int> selection() const;
+
+    static ulong objects;
 
 protected:
     QWidget *widget() const;

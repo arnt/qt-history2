@@ -5,7 +5,7 @@
 #include <qtoolbar.h>
 #include <qvariant.h>
 
-class AccessibleFactory : public QAccessibleFactoryInterface
+class AccessibleFactory : public QAccessibleFactoryInterface, public QLibraryInterface
 {
 public:
     AccessibleFactory();
@@ -15,6 +15,10 @@ public:
 
     QStringList featureList() const;
     QRESULT createAccessibleInterface( const QString &classname, QObject *object, QAccessibleInterface **iface );
+
+    bool init();
+    void cleanup();
+    bool canUnload() const;
 
 private:
     ulong ref;
@@ -29,11 +33,13 @@ QRESULT AccessibleFactory::queryInterface( const QUuid &iid, QUnknownInterface *
 {
     *iface = 0;
     if ( iid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)(QFeatureListInterface*)(QAccessibleFactoryInterface*)this;
     else if ( iid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
     else if ( iid == IID_QAccessibleFactory )
 	*iface = (QAccessibleFactoryInterface*)this;
+    else if ( iid == IID_QLibrary )
+	*iface = (QLibraryInterface*)this;
     else
 	return QE_NOINTERFACE;
 
@@ -196,9 +202,23 @@ QRESULT AccessibleFactory::createAccessibleInterface( const QString &classname, 
 	*iface = new QAccessibleWidget( object );
     } else
 	return QE_NOINTERFACE;
-    
+
     (*iface)->addRef();
     return QS_OK;
+}
+
+bool AccessibleFactory::init()
+{
+    return TRUE;
+}
+
+void AccessibleFactory::cleanup()
+{
+}
+
+bool AccessibleFactory::canUnload() const
+{
+    return (QAccessibleWidget::objects == 0);
 }
 
 Q_EXPORT_INTERFACE()

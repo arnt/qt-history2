@@ -97,6 +97,8 @@ QString hotKey( const QString &text )
   \brief The QAccessibleWidget class implements the QAccessibleInterface for QWidgets.
 */
 
+ulong QAccessibleWidget::objects = 0;
+
 /*!
   Creates a QAccessibleWidget object for \a o. 
   \a role, \a name, \a description, \a value, \a help, \a defAction, 
@@ -109,6 +111,12 @@ QAccessibleWidget::QAccessibleWidget( QObject *o, Role role, QString name,
       description_(description),value_(value),help_(help), 
       defAction_(defAction), accelerator_(accelerator), state_(state)
 {
+    objects++;
+}
+
+QAccessibleWidget::~QAccessibleWidget()
+{
+    objects--;
 }
 
 /*! Returns the widget. */
@@ -197,7 +205,7 @@ int QAccessibleWidget::navigate( NavDirection dir, int startControl ) const
 	    QWidget *parent = w->parentWidget();
 	    QObjectList *sl = parent ? parent->queryList( "QWidget", 0, FALSE, FALSE ) : 0;
 	    if ( !sl )
-		return 0;
+		return -1;
 	    QObject *sib;
 	    QObjectListIt it( *sl );
 	    int index;
