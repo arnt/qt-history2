@@ -6,6 +6,8 @@
 #include <qstyle.h>
 #include <private/qobject_p.h>
 
+#include <private/qabstractitemview_p.h>
+
 /*!
   \class QGenericTableView qgenerictableview.h
 
@@ -15,21 +17,23 @@
   on a QGenericItemModel.
 */
 
-class QGenericTableViewPrivate
+class QGenericTableViewPrivate: public QAbstractItemViewPrivate
 {
+    Q_DECLARE_PUBLIC(QGenericTableView);
 public:
-    QGenericTableViewPrivate(QGenericTableView *owner)
-	: showGrid(true), topHeader(0), leftHeader(0), q(owner) {}
+    QGenericTableViewPrivate()
+	: showGrid(true), topHeader(0), leftHeader(0) {}
 
     bool showGrid;
     QGenericHeader *topHeader, *leftHeader;
     QModelIndex topLeft, bottomRight; // Used for optimization in setSelection
-    QGenericTableView *q;
 };
 
+#define d d_func()
+#define q q_func()
+
 QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(model, parent, name),
-      d(new QGenericTableViewPrivate(this))
+    : QAbstractItemView(*new QGenericTableViewPrivate, model, parent, name)
 {
     setLeftHeader(new QGenericHeader(model, Vertical, this, "leftHeader"));
     d->leftHeader->setClickable(true);
@@ -41,7 +45,6 @@ QGenericTableView::QGenericTableView(QGenericItemModel *model, QWidget *parent, 
 
 QGenericTableView::~QGenericTableView()
 {
-    delete d;
 }
 
 QGenericHeader *QGenericTableView::topHeader() const
@@ -66,7 +69,7 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 	disconnect(d->topHeader, SIGNAL(sectionClicked(int, ButtonState)),
 		   this, SLOT(selectColumn(int, ButtonState)));
 	disconnect(d->topHeader, SIGNAL(sectionCountChanged(int, int)),
-		   this, SLOT(columnCountChanged(int, int)));	
+		   this, SLOT(columnCountChanged(int, int)));
     }
 
     d->topHeader = header;
@@ -81,7 +84,7 @@ void QGenericTableView::setTopHeader(QGenericHeader *header)
 	    this, SLOT(selectColumn(int, ButtonState)));
     connect(d->topHeader, SIGNAL(sectionCountChanged(int, int)),
 	    this, SLOT(columnCountChanged(int, int)));
-    
+
     // FIXME: this needs to be set in setSelectionModel too
     d->topHeader->setSelectionModel(selectionModel());
     columnCountChanged(0, d->topHeader->count());

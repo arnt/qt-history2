@@ -8,6 +8,8 @@
 #include <qevent.h>
 #include <private/qobject_p.h>
 
+#include <private/qabstractitemview_p.h>
+
 template <typename T>
 int bsearch(const QVector<T> &vec, const T &item, int first, int last)
 {
@@ -334,30 +336,31 @@ public:
     uint visited : 16;
 };
 
-class QGenericListViewPrivate
+class QGenericListViewPrivate: public QAbstractItemViewPrivate
 {
+    Q_DECLARE_PUBLIC(QGenericListView);
 public:
-    QGenericListViewPrivate(QGenericListView *owner)
-	: q(owner),
-	  flow(QGenericListView::TopToBottom),
-	  wrap(QGenericListView::Off),
-	  movement(QGenericListView::Static),
-	  spacing(5),
-	  arrange(false),
-	  layoutStart(0),
-	  translate(0),
-	  layoutWraps(0) {}
+    QGenericListViewPrivate()
+        : QAbstractItemViewPrivate(),
+            flow(QGenericListView::TopToBottom),
+            wrap(QGenericListView::Off),
+            movement(QGenericListView::Static),
+            spacing(5),
+            arrange(false),
+            layoutStart(0),
+            translate(0),
+            layoutWraps(0) {}
     ~QGenericListViewPrivate() {}
 
     void prepareItemsLayout();
     void intersectingDynamicSet(const QRect &area) const;
-    void intersectingStaticSet(const QRect &area);
+    void intersectingStaticSet(const QRect &area) const;
     void createItems(int to);
     void drawDraggedItems(QPainter *painter, const QPoint &pos) const;
 
     QGenericListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QGenericListViewItem item) const
-    { return q->model()->index(itemIndex(item), 0, q->root()); }
+    { return q_func()->model()->index(itemIndex(item), 0, q_func()->root()); }
     int itemIndex(const QGenericListViewItem item) const;
     static void addLeaf(QVector<int> &leaf,
  			const QRect &area, uint visited, void *data);
@@ -367,7 +370,6 @@ public:
 			    const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds);
 
-    QGenericListView *q;
     QGenericListView::Flow flow;
     QGenericListView::Wrap wrap;
     QGenericListView::Movement movement;
@@ -394,16 +396,17 @@ public:
     QSize itemSize; // used when all items are of the same height
 };
 
+#define d d_func()
+#define q q_func()
+
 QGenericListView::QGenericListView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(model, parent, name),
-      d(new QGenericListViewPrivate(this))
+    : QAbstractItemView(*new QGenericListViewPrivate, model, parent, name)
 {
     d->prepareItemsLayout(); // initialize structures
 }
 
 QGenericListView::~QGenericListView()
 {
-    delete d;
 }
 
 void QGenericListView::setMovement(Movement movement)
@@ -1067,7 +1070,7 @@ void QGenericListViewPrivate::prepareItemsLayout()
     }
 }
 
-void QGenericListViewPrivate::intersectingStaticSet(const QRect &area)
+void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
 {
     intersectVector.clear();
     QGenericItemModel *model = q->model();

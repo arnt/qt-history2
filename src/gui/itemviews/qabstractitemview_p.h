@@ -1,6 +1,8 @@
 #ifndef QABSTRACTITEMVIEW_P_H
 #define QABSTRACTITEMVIEW_P_H
 
+#include <qpointer.h>
+
 #include "private/qscrollview_p.h"
 
 class QAbstractItemViewPrivate: public QScrollViewPrivate
@@ -22,7 +24,7 @@ public:
 //     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
 
     QGenericItemModel *model;
-    QGuardedPtr<QWidget> currentEditor;
+    QPointer<QWidget> currentEditor;
     QModelIndex editItem;
     mutable QItemDelegate *delegate;
     QItemSelectionModelPointer selectionModel;

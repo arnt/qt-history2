@@ -8,6 +8,8 @@
 #include <qevent.h>
 #include <qpen.h>
 
+#include <private/qabstractitemview_p.h>
+
 //#include "cpu_time.h"
 
 
@@ -67,12 +69,13 @@ struct QGenericTreeViewItem { // 20 bytes
   This class implements a QViewItem working on a QGenericTreeView.
 */
 
-class QGenericTreeViewPrivate
+class QGenericTreeViewPrivate: public QAbstractItemViewPrivate
 {
+    Q_DECLARE_PUBLIC(QGenericTreeView);
 public:
 
-    QGenericTreeViewPrivate(QGenericTreeView *owner)
-	: q(owner), header(0), indent(20), itemHeight(-1) { }
+    QGenericTreeViewPrivate()
+        : QAbstractItemViewPrivate(), header(0), indent(20), itemHeight(-1) { }
 
     ~QGenericTreeViewPrivate() {}
 
@@ -96,7 +99,6 @@ public:
     void drawRow(QPainter *painter, QItemOptions *options, QItemDelegate *delegate, int i) const;
     void drawBranches(QPainter *painter, int i, int height) const;
 
-    QGenericTreeView *q;
     QGenericHeader *header;
     int indent;
 
@@ -112,9 +114,12 @@ public:
     int to;
 };
 
+#define d d_func()
+#define q q_func()
+
+
 QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent, const char *name)
-    : QAbstractItemView(model, parent, name),
-      d(new QGenericTreeViewPrivate(this))
+    : QAbstractItemView(*new QGenericTreeViewPrivate, model, parent, name)
 {
     setHeader(new QGenericHeader(model, Horizontal, this, "treeview_header"));
     d->header->setMovable(true);
@@ -125,7 +130,6 @@ QGenericTreeView::QGenericTreeView(QGenericItemModel *model, QWidget *parent, co
 
 QGenericTreeView::~QGenericTreeView()
 {
-    delete d;
 }
 
 QGenericHeader *QGenericTreeView::header() const
@@ -346,7 +350,7 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
 {
     if (!(topLeft.isValid() && bottomRight.isValid()))
 	return;
-    
+
     QModelIndex parent = model()->parent(topLeft);
     // do a local relayout of the items
     if (parent.isValid()) {

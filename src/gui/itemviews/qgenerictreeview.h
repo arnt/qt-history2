@@ -11,8 +11,7 @@ class QGenericHeader;
 class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
 {
     Q_OBJECT
-
-    friend class QGenericTreeViewPrivate;
+    Q_DECLARE_PRIVATE(QGenericTreeView);
 
 public:
     QGenericTreeView(QGenericItemModel *model, QWidget *parent = 0, const char *name = 0);
@@ -51,9 +50,6 @@ protected:
     void contentsMousePressEvent(QMouseEvent *e);
 
     void updateGeometries();
-
-private:
-    QGenericTreeViewPrivate *d;
 };
 
 #endif

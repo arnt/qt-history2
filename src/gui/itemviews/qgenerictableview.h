@@ -11,6 +11,7 @@ class QGenericTableViewPrivate;
 class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGenericTableView);
 
 public:
     QGenericTableView(QGenericItemModel *model, QWidget *parent = 0, const char *name = 0);
@@ -63,8 +64,6 @@ protected:
 
     int rowSizeHint(int row) const;
     int columnSizeHint(int column) const;
-private:
-    QGenericTableViewPrivate *d;
 };
 
 #endif

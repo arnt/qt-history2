@@ -10,9 +10,8 @@ class QGenericListViewPrivate;
 
 class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 {
-    friend class QGenericListViewPrivate;
-
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QGenericListView);
 
 public:
     enum Flow { TopToBottom = 0, LeftToRight = 1 };
@@ -64,9 +63,6 @@ protected:
     void moveItem(int index, const QPoint &dest);
 
     void updateGeometries();
-
-private:
-    QGenericListViewPrivate *d;
 };
 
 #endif /* QGENERICLISTVIEW_H */
