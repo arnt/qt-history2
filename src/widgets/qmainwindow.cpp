@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#82 $
 **
 ** Implementation of QMainWindow class
 **
@@ -295,9 +295,9 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	if ( !next || idx > start && linew + nsh.width() > r.width() ) {
 	    //linebreak
 	    if ( !testonly ) {
-		int right = fill ? r.right() : linew - spacing();
-		qGeomCalc( *array, start, idx-start, r.left(), 
-			   right-r.left()+1, spacing() );
+		int width = fill ? r.width() : linew - spacing();
+		qGeomCalc( *array, start, idx-start, r.left(), width,
+			   spacing() );
 		for ( int i = start; i < idx; i++ ) {
 		    QRect g( (*array)[i].pos,
 			     up ? r.y() + r.bottom() - y - lineh : y,
