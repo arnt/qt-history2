@@ -70,6 +70,9 @@
 #if defined (_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
 #endif
+#ifdef Q_OS_MAC
+#include "qt_mac.h"
+#endif
 
 static QPtrList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0
@@ -1615,6 +1618,15 @@ const char* QTextCodec::locale()
 {
     static QCString lang;
     lang = getenv( "LANG" );
+
+#if defined(Q_OS_MAC)
+    if ( !lang.isEmpty() )
+	return lang;
+
+    char mac_ret[255];
+    if(!LocaleRefGetPartString(NULL, kLocaleLanguageMask | kLocaleRegionMask, 255, mac_ret))
+	lang = mac_ret;
+#endif
 
 #if defined(Q_WS_WIN)
     if ( !lang.isEmpty() )
