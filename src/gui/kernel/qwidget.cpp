@@ -1230,47 +1230,9 @@ QRect QWidgetPrivate::clipRect() const
 
 void QPixmap::fill( const QWidget *widget, const QPoint &off )
 {
-    QPoint offset = off;
-    QVector<QWidget*> layers;
-    QWidget *w = const_cast<QWidget*>(widget);
-    layers += w;
-
-    // Build the stack of widgets to composite
-    while (w->d_func()->isBackgroundInherited()) {
-        offset += w->pos();
-        layers += (w = w->parentWidget());
-    }
-
-    QWidget *top = w;
-    for (int i=layers.size() - 1; i>=0; --i) {
-        w = layers.at(i);
-
-        // Remove the offset for previous layer.
-        if (top != w)
-            offset -= w->pos();
-
-        // Do the background if needed.
-        QBrush bgBrush = w->palette().brush(w->d_func()->bg_role);
-        if (w == top || (!bgBrush.isOpaque() && w->testAttribute(Qt::WA_SetPalette))) {
-            QPainter bgPainter(this);
-            bgPainter.setBrushOrigin(-offset);
-            bgPainter.fillRect(rect(), bgBrush);
-        }
-
-        // Propagate contents if enabled and w is not the actual widget.
-        if (w->testAttribute(Qt::WA_ContentsPropagated) && i>0) {
-            // Setup redirection from w to this widget.
-            QRect rr = rect();
-            rr.translate(offset);
-            bool was_in_paint_event = w->testAttribute(Qt::WA_WState_InPaintEvent);
-            w->setAttribute(Qt::WA_WState_InPaintEvent);
-            QPainter::setRedirected(w, this, offset);
-            QPaintEvent e(rr);
-            QApplication::sendEvent(w, &e);
-            w->setAttribute(Qt::WA_WState_InPaintEvent, was_in_paint_event);
-            QPainter::restoreRedirected(w);
-        }
-    }
+    QPainter::setRedirected(widget, this, off);
+    const_cast<QWidget *>(widget)->d_func()->composeBackground(widget->rect());
+    QPainter::restoreRedirected(widget);
 }
 
 /*!
