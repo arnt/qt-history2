@@ -1803,36 +1803,22 @@ static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features()
     if (!qt_resolved_gdiplus)
         qt_resolve_gdiplus();
 
-    if (qt_gdiplus_support) { // GDI+ combined engine...
-        return QPaintEngine::PaintEngineFeatures(
+    QPaintEngine::PaintEngineFeatures commonFeatures =
 #ifndef NO_NATIVE_XFORM
-                                                 QPaintEngine::CoordTransform
-                                                 | QPaintEngine::PenWidthTransform
-                                                 | QPaintEngine::PixmapTransform
-                                                 | QPaintEngine::PixmapScale
-                                                 | QPaintEngine::ClipTransform
-                                                 |
+        QPaintEngine::CoordTransform
+        | QPaintEngine::PenWidthTransform
+        | QPaintEngine::PixmapTransform
+        | QPaintEngine::PixmapScale
+        | QPaintEngine::ClipTransform
 #endif
-                                                 QPaintEngine::UsesFontEngine
-                                                 | QPaintEngine::SolidAlphaFill
-                                                 | QPaintEngine::LinearGradients
-                                                 | QPaintEngine::PainterPaths
-                                                 );
-    } else { // GDI only
-        return QPaintEngine::PaintEngineFeatures(
-#ifndef NO_NATIVE_XFORM
-                                                 QPaintEngine::CoordTransform
-                                                 | QPaintEngine::PenWidthTransform
-                                                 | QPaintEngine::PixmapTransform
-                                                 | QPaintEngine::PixmapScale
-                                                 | QPaintEngine::ClipTransform
-                                                 |
-#endif
-                                                 QPaintEngine::UsesFontEngine
-                                                 | QPaintEngine::LinearGradients
-                                                 | QPaintEngine::PainterPaths
-                                                 );
-    }
+        | QPaintEngine::PainterPaths
+        | QPaintEngine::UsesFontEngine
+        | QPaintEngine::LinearGradients;
+
+    if (qt_gdiplus_support)
+        commonFeatures |= QPaintEngine::SolidAlphaFill;
+
+    return commonFeatures;
 }
 
 
