@@ -306,7 +306,7 @@ do
 	;;
     -embedded)
 	# this option may or may not be followed by an argument
-	if echo $2 | grep '^-' >/dev/null 2>&1
+	if [ -z $2 ] || echo $2 | grep '^-' >/dev/null 2>&1
 	then
 	    CFG_EMBEDDED=auto
 	else
