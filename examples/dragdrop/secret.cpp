@@ -36,7 +36,7 @@ bool SecretDrag::decode( QDropEvent* e, QString& str )
     if ( payload.size() ) {
 	e->accept();
 	QString msg;
-	msg.sprintf("The secret number is %d", payload[0] );
+	msg.sprintf("The secret number is %d", (int)payload[0] );
 	str = msg;
 	return TRUE;
     }
