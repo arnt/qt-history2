@@ -11,7 +11,7 @@ $initstr =
 .nr bs 0
 .ad l
 .nh
-.ls 1.30
+.ls 1.40
 .nr \$v 120
 .sp 8
 .ft CR
@@ -20,7 +20,7 @@ $initstr =
 Troll Tech AS
 .sp 2
 .sz 36
-Qt 1.30
+Qt 1.40
 .sz 24
 Tutorial and Reference
 .sz 18
@@ -65,13 +65,13 @@ Associates (for example) publishes good books on both:
 .(l
 Andrew Oram and Steve Talbott: Managing Projects with make, second edition
 ISBN 0-937175-90-0
-152 pages\nhttp://www.ora.com/gnn/bus/ora/item/make2.html
+152 pages\nhttp://www.oreilly.com/catalog/make2/
 .)l
 .pp
 .(l
 Steve Oualline: Practical C++ Programming
 ISBN 1-56592-139-9
-584 pages\nhttp://www.ora.com/gnn/bus/ora/item/cplus.html
+584 pages\nhttp://www.oreilly.com/catalog/cplus/
 .)l
 .pp
 The class reference documents each class in Qt in strictly
@@ -215,8 +215,9 @@ sub parseclassfile {
     local ($title );
     
     # strip head and tail
-    s/^.*?<body[^>]*>\s*//s;
+    s/^.*?<body[^>]*>\s*.*?<br(?:\s[^>]*)?>//s;
     s/<hr><p>\s+This file is part of the.*$//s;
+    s/<hr><p>\s*Search the doc.*$//s;
 
     # get rid of nonbreakspace
     s/ / /gs;
@@ -241,7 +242,7 @@ sub parseclassfile {
 
     # preformatted stuff
     s-\s*(?:\.pp\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
-    s/\s*<br>\n?/\n.br\n/gs;
+    s/\s*<br(?:\s[^>]*)?>\n?/\n.br\n/gs;
 
     # do the list voodoo
     $_ =~ s/\n\.sh 2.*?"Detailed Description"/\n.sh 2 "Detailed Description"/s;
@@ -272,7 +273,7 @@ sub parsetutfile {
     local ($title );
 
     # strip head, tail and centering
-    s/^.*?<body[^>]*>\s*//s;
+    s/^.*?<body[^>]*>\s*.*?<br(?:\s[^>]*)?>//s;
     s/<p>\s*You may now go on to.*$//gs;
     s-<center>\s*(.*?)</center>-\1-gs;
 
@@ -293,7 +294,7 @@ sub parsetutfile {
 
     # preformatted stuff
     s-\s*(?:\.pp\s*)?<pre>(.*?)</pre>\s*-&parsepre($1)-gse;
-    s/\s*<br>\n?/\n.br\n/gs;
+    s/\s*<br(?:\s[^>]*)?>\n?/\n.br\n/gs;
 
     # do the list voodoo
     $_ = &parselist( $_ );
@@ -345,40 +346,44 @@ for $a ( sort grep( /-members.html$/, readdir( DIR ) ) ) {
 }
 closedir DIR;
 
-open( O, "> /tmp/qtdoc-1.30.me" ) || die;
+open( O, "> /tmp/qtdoc-1.40.me" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.30.me\n";
+print "/tmp/qtdoc-1.40.me\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.30-a4.ps" ) || die;
+open( O, "| sed 's/^\.PSPIC.*/\\fB[Image Omitted]\\fP/' | groff -Tascii -me | col -b > /tmp/qtdoc-1.40.txt" )
+  || die;
+print O $initstr, $intro, $roff;
+close O;
+print "/tmp/qtdoc-1.40.txt\n";
+
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.40-a4.ps" ) || die;
 print O $a4, $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.30-a4.ps\n";
+print "/tmp/qtdoc-1.40-a4.ps\n";
 
-open( O, "| groff -me -Tps > /tmp/qtdoc-1.30-letter.ps" ) || die;
+open( O, "| groff -me -Tps > /tmp/qtdoc-1.40-letter.ps" ) || die;
 print O $initstr, $intro, $roff;
 close O;
-print "/tmp/qtdoc-1.30-letter.ps\n";
+print "/tmp/qtdoc-1.40-letter.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.30-a4.ps |" )
+open( I, "psnup -I -N -p 2 /tmp/qtdoc-1.40-a4.ps |" )
     || die;
 $_ = <I>;
 close I;
-s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.30-a4-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.40-a4-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.30-a4-2.ps\n";
+print "/tmp/qtdoc-1.40-a4-2.ps\n";
 
-open( I, "multi -o /proc/self/fd/1 -2 -d -f /tmp/qtdoc-1.30-letter.ps |" )
+open( I, "psnup -I -N -p 2 /tmp/qtdoc-1.40-letter.ps |" )
     || die;
 $_ = <I>;
 close I;
-s/\n%[^\n]*//gs; # strip all comments except the first - this isn't viewable
-open( O, "> /tmp/qtdoc-1.30-letter-2.ps" ) || die;
+open( O, "> /tmp/qtdoc-1.40-letter-2.ps" ) || die;
 print O $_;
 close O;
-print "/tmp/qtdoc-1.30-letter-2.ps\n";
+print "/tmp/qtdoc-1.40-letter-2.ps\n";
 
 foreach ( keys %delete ) {
     unlink $_ if ( -f $_ );
