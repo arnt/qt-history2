@@ -461,7 +461,7 @@ bool QWin32PaintEngine::end()
 void QWin32PaintEngine::drawLine(const QLineF &line)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " -> drawLine()" << line;
+    qDebug() << " -> QWin32PAintEngine::drawLine()" << line;
 #endif
     Q_ASSERT(isActive());
 
@@ -525,7 +525,7 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
 void QWin32PaintEngine::drawRect(const QRectF &r)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " -> drawRect()" << r;
+    qDebug() << " -> QWin32PaintEngine::drawRect()" << r;
 #endif
 
 #ifdef QT_NO_NATIVE_GRADIENT
@@ -633,7 +633,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
 void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug() << " -> drawPolygon()" << p.size() << mode;
+    qDebug() << " -> QWin32PaintEngine::drawPolygon()" << p.size() << mode;
     for (int i=0; i<p.size(); ++i)
         qDebug() << " --->" << p.at(i);
 #endif
@@ -894,6 +894,14 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
 
 void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
+    HANDLE brush = SelectObject(d->hdc, stock_whiteBrush);
+    Rectangle(d->hdc, 0, 0, 300, 300);
+    SelectObject(d->hdc, brush);
+
+#ifdef QT_DEBUG_DRAW
+    printf(" - QWin32PaintEngine::drawTextItem(), (%d,%d), flags=%x, string=%s\n",
+           int(p.x()), int(p.y()), textFlags, QString::fromRawData(ti.chars, ti.num_chars).latin1());
+#endif
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawTextItem(p, ti, textFlags);
         return;
@@ -909,7 +917,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QWin32PaintEngine::updatePen(), style=%d, color=%p\n", pen.style(), pen.color().rgb());
+    printf(" - QWin32PaintEngine::updatePen(), style=%d, color=%p\n", pen.style(), pen.color().rgb());
 #endif
     d->pen = pen;
     d->penStyle = pen.style();
@@ -1008,7 +1016,7 @@ set:
 void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QWin32PaintEngine::updateBrush(), style=%d, color=%p\n", brush.style(), brush.color().rgb());
+    printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p\n", brush.style(), brush.color().rgb());
 #endif
     d->brush = brush;
     d->brushStyle = brush.style();
@@ -1253,7 +1261,7 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, bool clipEnabled)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QWin32PaintEngine::updateClipRegion, size=%d, bounds=[%d, %d, %d, %d]\n",
+    printf(" - QWin32PaintEngine::updateClipRegion, size=%d, bounds=[%d, %d, %d, %d]\n",
            region.rects().size(),
            region.boundingRect().x(),
            region.boundingRect().y(),
