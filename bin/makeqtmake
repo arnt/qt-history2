@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 ############################################################################
-# $Id: //depot/qt/main/bin/makeqtmake#2 $
+# $Id: //depot/qt/main/bin/makeqtmake#3 $
 #
 # Makes Qt makefiles and a project file - internal Troll Tech tool.
 #
@@ -39,7 +39,7 @@ $project || die "No project name specified";
 
 $win32make =
 "#############################################################################
-# \$Id: //depot/qt/main/bin/makeqtmake#2 $
+# \$Id: //depot/qt/main/bin/makeqtmake#3 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -54,7 +54,7 @@ $libtarget
 
 $unixmake =
 "#############################################################################
-# \$Id: //depot/qt/main/bin/makeqtmake#2 $
+# \$Id: //depot/qt/main/bin/makeqtmake#3 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
