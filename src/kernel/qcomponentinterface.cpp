@@ -23,7 +23,7 @@
 /*!
   \fn QUuid::QUuid()
 
-  Creates a null UUID.
+  Creates the null UUID {00000000-0000-0000-0000-000000000000}.
 */
 
 /*!
@@ -46,8 +46,8 @@
 
 /*!
   Creates a QUuid object from the string \a text. Right now, the function 
-  can only convert the format {00000000-0000-0000-0000-000000000000} and
-  will create the NULL UUID when the conversion fails.
+  can only convert the format {12345678-1234-1234-1234-123456789ABC} and
+  will create the null UUID when the conversion fails.
 */
 QUuid::QUuid( const QString &text )
 {
@@ -98,7 +98,7 @@ QUuid::QUuid( const QString &text )
 /*!
   QString QUuid::toString() const
 
-  Returns a string in {00000000-0000-0000-0000-000000000000} format.
+  Returns a string in {12345678-1234-1234-1234-123456789ABC} format.
 */
 QString QUuid::toString() const
 {
@@ -156,7 +156,8 @@ QString QUuid::toString() const
       QUnknownInterface *iface = 0;
       if ( request == IID_QUnknownInterface )
           return (QUnknownInterface*)this;
-      else if ( request == ... )
+      else if ( request == IID_... )
+	  return (...*)this;
       ...
 
       if ( iface )
@@ -283,49 +284,16 @@ QString QUuid::toString() const
 */
 
 /*!
-  \class QRefCountInterface qcomponentinterface.h
-  \brief The QRefCountInterface class provides a standard reference count implementation interfaces.
+  \class QFeatureListInterface
+  \brief The QFeatureListInterface struct defines an interface to retrieve information about features provided by a component.
+
+  \sa 
 */
 
 /*!
-  Creates a QRefCountInterface object with the refcounter being zero.
+  \fn QStringList QFeatureListInterface::featureList() const
+
+  Returns a list of features implemented in this component.
 */
-
-QRefCountInterface::QRefCountInterface()
-: ref( 0 )
-{
-    qWarning( "Dear Troll developer, please don't use this interface!" );
-}
-
-/*!
-  Destroys the object.
-*/
-
-QRefCountInterface::~QRefCountInterface()
-{
-}
-
-/*!
-  Increases the reference counter by one and returns the old value.
-*/
-
-ulong QRefCountInterface::addRef()
-{
-    return ref++;
-}
-
-/*!
-  Decreases the reference counter by one and returns the new value. If the counter reaches zero,
-  the object gets automatically destroyed.
-*/
-
-ulong QRefCountInterface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
 
 #endif // QT_NO_COMPONENT

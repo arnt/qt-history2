@@ -2,7 +2,7 @@
 #define QCOMPONENTINTERFACE_H
 
 #ifndef QT_H
-#include <qstring.h>
+#include <qstringlist.h>
 #include <quuiddefs.h>
 #endif // QT_H
 
@@ -30,17 +30,9 @@ struct Q_EXPORT QLibraryInterface : public QUnknownInterface
     virtual bool canUnload() const = 0;
 };
 
-class Q_EXPORT QRefCountInterface : public QUnknownInterface
+struct Q_EXPORT QFeatureListInterface : public QUnknownInterface
 {
-public:
-    QRefCountInterface();
-    virtual ~QRefCountInterface();
-
-    ulong addRef();
-    ulong release();
-
-private:
-    ulong ref;
+    virtual QStringList featureList() const = 0;
 };
 
 #ifndef Q_CREATE_INSTANCE
@@ -84,8 +76,8 @@ private:
 #endif
 
 // {3F8FDC44-3015-4f3e-B6D6-E4AAAABDEAAD}
-#ifndef IID_QRefCountInterface 
-#define IID_QRefCountInterface QUuid(0x3f8fdc44, 0x3015, 0x4f3e, 0xb6, 0xd6, 0xe4, 0xaa, 0xaa, 0xbd, 0xea, 0xad)
+#ifndef IID_QFeatureListInterface 
+#define IID_QFeatureListInterface  QUuid(0x3f8fdc44, 0x3015, 0x4f3e, 0xb6, 0xd6, 0xe4, 0xaa, 0xaa, 0xbd, 0xea, 0xad)
 #endif
 
 #endif //QT_NO_COMPONENT

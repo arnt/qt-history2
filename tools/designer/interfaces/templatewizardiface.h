@@ -22,7 +22,6 @@
 #define TEMPLATEWIZARDIFACE_H
 
 #include <qcomponentinterface.h>
-#include <qstringlist.h>
 
 class QWidget;
 struct DesignerFormWindow;
@@ -32,10 +31,9 @@ struct DesignerFormWindow;
 #define IID_TemplateWizardInterface QUuid( 0x983d3eab, 0xfea3, 0x49cc, 0x97, 0xad, 0xd8, 0xcc, 0x89, 0xb7, 0xc1, 0x7b )
 #endif
 
-class TemplateWizardInterface : public QUnknownInterface
+class TemplateWizardInterface : public QFeatureListInterface
 {
 public:
-    virtual QStringList featureList() const = 0;
     virtual void setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *appIface ) = 0;
 
 };

@@ -24,14 +24,13 @@
 #include <qcomponentinterface.h>
 #include <qwidgetlist.h>
 #include <qcstring.h>
-#include <qstringlist.h>
 
 // {5c168ee7-4bee-469f-9995-6afdb04ce5a2}
 #ifndef IID_PreferenceInterface
 #define IID_PreferenceInterface QUuid( 0x5c168ee7, 0x4bee, 0x469f, 0x99, 0x95, 0x6a, 0xfd, 0xb0, 0x4c, 0xe5, 0xa2 )
 #endif
 
-struct PreferenceInterface : public QUnknownInterface
+struct PreferenceInterface : public QFeatureListInterface
 {
     struct Preference
     {
@@ -42,7 +41,6 @@ struct PreferenceInterface : public QUnknownInterface
 	const char *accept_slot;
     };
 
-    virtual QStringList featureList() const = 0;
     virtual Preference *globalPreference( const QString &feature ) = 0;
     virtual Preference *projectSetting( const QString &feature ) = 0;
     virtual QStringList projectSettings() const = 0;
