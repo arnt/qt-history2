@@ -57,6 +57,8 @@ public:
     static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
+    QList<QTreeWidgetItem*> find(const QRegExp &rx, int column) const;
+
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void invalidatePersistentIndex(QTreeWidgetItem *item);
     
@@ -505,6 +507,32 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
 
     // everything has changed
     emit reset();
+}
+
+/*!
+  \internal
+*/
+
+QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
+{
+    QList<QTreeWidgetItem*> result;
+    QList<QTreeWidgetItem*> parents;
+    QList<QTreeWidgetItem*> children = tree;
+    do {
+        QList<QTreeWidgetItem*>::iterator it = children.begin();
+        for (; it != children.end(); ++it) {
+            if (rx.exactMatch((*it)->text(column)))
+                result << (*it);
+            if ((*it)->children.count()) // depth first: push_bach
+                parents.push_back(*it);  // breath first: push_front
+        }
+        if (parents.count()) {
+            children = parents.back()->children;
+            parents.pop_back();
+        }
+    } while (!parents.isEmpty());
+    
+    return result;
 }
 
 /*!
@@ -1663,21 +1691,12 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
-  Returns a list of items that match the given \a text, using the criteria
-  given by the \a flags (see QAbstractItemModel::MatchFlags).
+  Returns a list of items that match the given \a rx.
 */
 
-QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
-                                               QAbstractItemModel::MatchFlags flags) const
+QList<QTreeWidgetItem*> QTreeWidget::findItems(const QRegExp &rx) const
 {
-    QModelIndex topLeft = d->model()->index(0, 0);
-    int role = QAbstractItemModel::DisplayRole;
-    int hits = d->model()->rowCount(QModelIndex());
-    QModelIndexList indexes = d->model()->match(topLeft, role, text, hits, flags);
-    QList<QTreeWidgetItem*> items;
-    for (int i = 0; i < indexes.count(); ++i)
-        items << d->model()->item(indexes.at(i));
-    return items;
+    return d->model()->find(rx, 0); // FIXME: search in column 0
 }
 
 /*!

@@ -163,10 +163,7 @@ public:
     bool isSelected(const QTreeWidgetItem *item) const;
     void setSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
-
-    QList<QTreeWidgetItem*> findItems(const QString &text,
-                                      QAbstractItemModel::MatchFlags flags
-                                      = QAbstractItemModel::MatchDefault) const;
+    QList<QTreeWidgetItem*> findItems(const QRegExp &rx) const;
 
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);
