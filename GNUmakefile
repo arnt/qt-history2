@@ -36,7 +36,7 @@ tools-install: sub-tools
 qmake-install: src-qmake
 	cd qmake && $(MAKE) install
 
-plugins-install: src-plugins
+plugins-install: sub-plugins
 	cd plugins/src && $(MAKE) install
 
 src-qmake: symlinks FORCE

@@ -8,7 +8,7 @@ DESTDIR		= ../../bin
 
 PROJECTNAME	= Qt Configuration
 
-target.path=$$QT_INSTALL_BINPATH
+target.path=$$bin.path
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS	+= target
 FORMS	= mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui 

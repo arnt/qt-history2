@@ -10,6 +10,6 @@ isEmpty(QT_SOURCE_TREE):QT_SOURCE_TREE=$(QTDIR)
 
 INCLUDEPATH	+= $$QT_SOURCE_TREE/tools/designer/interfaces
 
-target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
-INSTALLS += target
+isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+target.path += $$plugins.path/designer
+INSTALLS 	+= target

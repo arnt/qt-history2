@@ -1,5 +1,5 @@
 #always install the library
-target.path=$$QT_INSTALL_LIBPATH
+target.path=$$libs.path
 isEmpty(target.path):target.path=$$QT_PREFIX/lib
 INSTALLS += target
 

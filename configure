@@ -275,7 +275,8 @@ QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
-### what about QT_INSTALL_SHARED or QT_INSTALL_TEMPLATES for Qt Designer?
+QT_INSTALL_PLUGINS=
+QT_INSTALL_DATA=
 
 # parse the arguments, setting things to "yes" or "no"
 while [ -n "$1" ]
@@ -295,6 +296,14 @@ do
     -headerdir)
 	shift
 	QT_INSTALL_HEADERS=$1
+	;;
+    -plugindir)
+        shift
+	QT_INSTALL_PLUGINS=$1
+	;;
+    -datadir)
+        shift
+	QT_INSTALL_DATA=$1
 	;;
     -libdir)
 	shift
@@ -1282,7 +1291,7 @@ then
 
     cat <<EOF
 Usage:  $relconf [-prefix dir] \\
-	[-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
+	[-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir] \\
 	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] [-stl] [-no-st] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] \\
@@ -1307,6 +1316,10 @@ Installation options:
 			  (default PREFIX/doc)
     -headerdir dir ..... Headers will be installed to dir
 			  (default PREFIX/include)
+    -plugindir dir ..... Plugins will be installed to dir 
+                          (default PREFIX/plugins)
+    -datadir dir ....... Data used by Qt programs will be installed to dir
+                          (default PREFIX)
 
 Configure options:
 
@@ -1738,17 +1751,15 @@ then
 	    EXTRA_LFLAGS="$EXTRA_LFLAGS \$(CARBON_LFLAGS)"
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS \$(CARBON_CFLAGS)"
         fi
-	if [ -z "$QT_INSTALL_BINS" ]
-	then
-	    BIN_DIR="${QT_INSTALL_PREFIX}/bin"
-	else
-	    BIN_DIR="$QT_INSTALL_BINS"
-        fi
+	QMAKE_BIN_DIR="$QT_INSTALL_BINS"
+	[ -z "$QMAKE_BIN_DIR" ] && QMAKE_BIN_DIR="${QT_INSTALL_PREFIX}/bin"
+	QMAKE_DATA_DIR="$QT_INSTALL_DATA"
+	[ -z "$QMAKE_DATA_DIR" ] && QMAKE_DATA_DIR="${QT_INSTALL_PREFIX}"
         echo >>$mkfile
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
-	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$BIN_DIR,g" \
-	    -e "s,@QT_INSTALL_PREFIX@,\$(INSTALL_ROOT)$QT_INSTALL_PREFIX,g" \
+	    -e "s,@QT_INSTALL_BINS@,\$(INSTALL_ROOT)$QMAKE_BIN_DIR,g" \
+	    -e "s,@QT_INSTALL_DATA@,\$(INSTALL_ROOT)$QMAKE_DATA_DIR,g" \
 	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
@@ -1894,6 +1905,8 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 
 // Compile time features
 EOF
+[ '!' -z "$QT_INSTALL_PLUGINS" ] && echo "$define QT_INSTALL_PLUGINS ${QT_INSTALL_PLUGINS}" >>qconfig.h.new
+[ '!' -z "$QT_INSTALL_DATA" ]    && echo "$define QT_INSTALL_DATA    ${QT_INSTALL_DATA}"    >>qconfig.h.new
 if [ "$CFG_STL" = "no" ]
 then
     QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STL"
@@ -2093,17 +2106,10 @@ fi
 QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
 [ '!' -z "$QT_INSTALL_DOCS" ] && QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
 [ '!' -z "$QT_INSTALL_HEADERS" ] && QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
-[ '!' -z "$QT_INSTALL_LIBS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_LIBPATH=${QT_INSTALL_LIBS}\""
-if [ '!' -z "$QT_INSTALL_BINS" ]
-then
-    QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
-else
-    QT_INSTALL_BINS=${QT_INSTALL_PREFIX}/bin
-fi
-
-sed "s,\(INSTALL_BIN_DIR=\).*$,\1${QT_INSTALL_BINS}," Makefile >Makefile.tmp
-mv -f Makefile.tmp Makefile
-
+[ '!' -z "$QT_INSTALL_PLUGINS" ] && QMAKE_VARS="$QMAKE_VARS \"plugins.path=${QT_INSTALL_PLUGINS}\""
+[ '!' -z "$QT_INSTALL_LIBS" ] && QMAKE_VARS="$QMAKE_VARS \"libs.path=${QT_INSTALL_LIBS}\""
+[ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"bins.path=${QT_INSTALL_BINS}\""
+[ '!' -z "$QT_INSTALL_DATA" ] && QMAKE_VARS="$QMAKE_VARS \"data.path=${QT_INSTALL_DATA}\""
 
 #-------------------------------------------------------------------------------
 # part of configuration information goes into qmodules.h

@@ -30,6 +30,6 @@ REQUIRES	= sql
 TARGET		= qsqltds
 DESTDIR		= ../../../sqldrivers
 
-target.path=$$plugins.path/sqldrivers
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins/sqldrivers
+isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+target.path += $$plugins.path/sqldrivers
 INSTALLS += target

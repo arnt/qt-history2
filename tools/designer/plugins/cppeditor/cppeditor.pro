@@ -9,12 +9,12 @@ TARGET		= cppeditor
 DESTDIR		= ../../../../plugins/designer
 VERSION		= 1.0.0
 
-target.path=$$plugins.path
-isEmpty(target.path):target.path=$$QT_PREFIX/plugins/designer
-INSTALLS 	+= target
-
 INCLUDEPATH	+= ../../../../src/kernel ../../interfaces ../../editor
 win32:LIBS	+= $(QTDIR)/lib/editor100.lib
 unix:LIBS	+= -leditor
 DBFILE		= cppeditor.db
 LANGUAGE	= C++
+
+isEmpty(plugins.path):plugins.path=$$QT_PREFIX/plugins
+target.path += $$plugins.path/designer
+INSTALLS 	+= target

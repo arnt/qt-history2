@@ -37,7 +37,7 @@ macx:LIBS += -framework Carbon
 
 TARGET		= moc
 
-target.path=$$QT_INSTALL_BINPATH
+target.path=$$bin.path
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS       += target
 

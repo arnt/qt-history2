@@ -22,6 +22,6 @@ mac:!system-zlib:LIBS	+= -lz
 DEFINES 	+= UIC
 DESTDIR		= ../../../bin
 
-target.path=$$QT_INSTALL_BINPATH
+target.path=$$bin.path
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target

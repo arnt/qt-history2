@@ -44,10 +44,12 @@ win32 {
 macx-*: LIBS += -framework Carbon
 
 #installation
-target.path=$$QT_INSTALL_BINPATH
+target.path=$$bin.path
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
 
-mkspecs.path=$$QT_PREFIX/mkspecs
+
+isEmpty(data.path):data.path=$$QT_PREFIX
+mkspecs.path=$$data.path/mkspecs
 mkspecs.files=$(QTDIR)/mkspecs
 INSTALLS        += mkspecs

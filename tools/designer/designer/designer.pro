@@ -51,11 +51,12 @@ LANGUAGE	= C++
 
 PROJECTNAME	= Qt Designer
 
-target.path=$$QT_INSTALL_BINPATH
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
+target.path=$$libs.path
+isEmpty(target.path):target.path=$$QT_PREFIX/lib
 INSTALLS        += target
 
-isEmpty(templates.path):templates.path=$$QT_PREFIX/tools/designer/templates
+isEmpty(data.path):data.path=$$QT_PREFIX
+templates.path=$$data.path/templates
 templates.files = ../templates/*
 INSTALLS += templates
 

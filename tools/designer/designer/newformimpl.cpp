@@ -283,12 +283,14 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 #ifdef QT_INSTALL_PREFIX
 	    templRoots << QT_INSTALL_PREFIX;
 #endif
-	    for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
-		QString path = (*it) + "/tools/designer/templates";
-		if ( QFile::exists( path )) {
-		    templPath = path;
-		    break;
-		}
+#ifdef QT_INSTALL_DATA
+	    templRoots << QT_INSTALL_DATA;
+#endif
+	for ( QStringList::Iterator it = templRoots.begin(); it != templRoots.end(); ++it ) {
+	    QString path = (*it) + "/tools/designer/templates";
+	    if ( QFile::exists( path )) {
+		templPath = path;
+		break;
 	    }
 	}
 	if ( !templPath.isEmpty() ) {
