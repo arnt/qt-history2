@@ -619,6 +619,8 @@ void QLineEdit::setMaxLength( int m )
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
+    d->blinkTimer.stop();
+    blinkOn();
     int cursorPos = cursorPosition();
     if ( e->key() == Key_Enter || e->key() == Key_Return ) {
 #ifdef QT_NO_VALIDATOR
