@@ -634,9 +634,14 @@ QSize QLabel::minimumSizeHint() const
     if ( doc )
 	return QSize( d->minimumWidth, -1 );
 #endif
+    QSize s(-1, -1);
     if ( (align & WordBreak) == 0 )
-	return sizeHint();
-    return QSize( -1, -1 );
+	s = sizeHint();
+    if ( sizePolicy().horData() == QSizePolicy::Ignored )
+	s.rwidth() = -1;
+    if ( sizePolicy().verData() == QSizePolicy::Ignored )
+	s.rheight() = -1;
+    return s;
 }
 
 /*!
@@ -918,7 +923,7 @@ void QLabel::setBuddy( QWidget *buddy )
 	return;
 #ifndef QT_NO_RICHTEXT
     if ( !( textformat == RichText || (textformat == AutoText &&
-				       QStyleSheet::mightBeRichText(ltext) ) ) ) 
+				       QStyleSheet::mightBeRichText(ltext) ) ) )
 #endif
     {
 	int p = QAccel::shortcutKey( ltext );

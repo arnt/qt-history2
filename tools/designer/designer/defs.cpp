@@ -34,6 +34,8 @@ int size_type_to_int( QSizePolicy::SizeType t )
 	return 4;
     if ( t == QSizePolicy::Expanding )
 	return 5;
+    if ( t == QSizePolicy::Ignored )
+	return 6;
     return 0;
 }
 
