@@ -1,28 +1,28 @@
 #include <qstyleplugin.h>
 #include <qwindowsstyle.h>
 
-class Qt::WindowsStyle : public QStylePlugin
+class WindowsStyle : public QStylePlugin
 {
 public:
-    Qt::WindowsStyle();
+    WindowsStyle();
 
     QStringList keys() const;
     QStyle *create(const QString&);
 };
 
-Qt::WindowsStyle::WindowsStyle()
+WindowsStyle::WindowsStyle()
 : QStylePlugin()
 {
 }
 
-QStringList Qt::WindowsStyle::keys() const
+QStringList WindowsStyle::keys() const
 {
     QStringList list;
     list << "Windows";
     return list;
 }
 
-QStyle* Qt::WindowsStyle::create(const QString& s)
+QStyle* WindowsStyle::create(const QString& s)
 {
     if (s.toLower() == "windows")
         return new QWindowsStyle();
@@ -30,5 +30,5 @@ QStyle* Qt::WindowsStyle::create(const QString& s)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(Qt::WindowsStyle)
+Q_EXPORT_PLUGIN(WindowsStyle)
 

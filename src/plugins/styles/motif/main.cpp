@@ -1,28 +1,28 @@
 #include <qstyleplugin.h>
 #include <qmotifstyle.h>
 
-class Qt::MotifStyle : public QStylePlugin
+class MotifStyle : public QStylePlugin
 {
 public:
-    Qt::MotifStyle();
+    MotifStyle();
 
     QStringList keys() const;
     QStyle *create(const QString&);
 };
 
-Qt::MotifStyle::MotifStyle()
+MotifStyle::MotifStyle()
 : QStylePlugin()
 {
 }
 
-QStringList Qt::MotifStyle::keys() const
+QStringList MotifStyle::keys() const
 {
     QStringList list;
     list << "Motif";
     return list;
 }
 
-QStyle* Qt::MotifStyle::create(const QString& s)
+QStyle* MotifStyle::create(const QString& s)
 {
     if (s.toLower() == "motif")
         return new QMotifStyle();
@@ -30,5 +30,5 @@ QStyle* Qt::MotifStyle::create(const QString& s)
     return 0;
 }
 
-Q_EXPORT_PLUGIN(Qt::MotifStyle)
+Q_EXPORT_PLUGIN(MotifStyle)
 
