@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#94 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -15,6 +15,7 @@
 #include "qwidcoll.h"
 #include "qpainter.h"
 #include "qpmcache.h"
+#define gettimeofday	__hide_gettimeofday
 #include <stdlib.h>
 #include <signal.h>
 #include <ctype.h>
@@ -24,6 +25,8 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#undef gettimeofday
+extern "C" int gettimeofday( struct timeval *, struct timezone * );
 
 #if defined(DEBUG) && !defined(CHECK_MEMORY)
 #define	 CHECK_MEMORY
@@ -31,7 +34,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#93 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#94 $";
 #endif
 
 
@@ -234,7 +237,7 @@ void qt_init( int *argcptr, char **argv )
     QFont::initialize();
     QCursor::initialize();
     QPainter::initialize();
-    X_GETTIMEOFDAY( &watchtime );
+    gettimeofday( &watchtime, 0 );
 
     qApp->setName( appName );
     if ( appFont ) {				// set application font
@@ -1252,7 +1255,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 
 static inline void getTime( timeval &t )	// get time of day
 {
-    X_GETTIMEOFDAY( &t );
+    gettimeofday( &t, 0 );
 #if defined(_OS_SUN_)
     while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
 	t.tv_usec -= 1000000;
