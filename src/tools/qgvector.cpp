@@ -212,7 +212,7 @@ QGVector& QGVector::operator=( const QGVector &v )
     numItems = v.numItems;
     if ( len == 0 ) {
 	vec = 0;
-	return;
+	return *this;
     }
     vec = NEW(Item,len);				// create new vector
     Q_CHECK_PTR( vec );
@@ -357,7 +357,7 @@ bool QGVector::resize( uint newsize )		// resize array
 	if ( newsize == 0 ) {
 	    DELETE(vec);
 	    vec = 0;
-	    return;
+	    return FALSE;
 	}	
 	Item *newvec = NEW(Item,newsize);		// manual realloc
 	memcpy( newvec, vec, (len < newsize ? len : newsize)*sizeof(Item) );
