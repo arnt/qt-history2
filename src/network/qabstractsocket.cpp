@@ -1060,8 +1060,10 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
+        connectTimeElapsed += stopWatch.elapsed();
+        
         // if we timed out and there are no more address then report timeout error
-        if (timedOut && addresses.isEmpty()) {
+        if (timedOut && (addresses.isEmpty() || connectTimeElapsed >= d->blockingTimeout)) {
 #if defined(QABSTRACTSOCKET_DEBUG)
             qDebug("QAbstractSocketPrivate::connectToNextAddress(), connection timed out");
 #endif
@@ -1073,7 +1075,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
             return;
         }
 
-        connectTimeElapsed += stopWatch.elapsed();
+        
 
         // Check if the connection has been established.
         testConnection();
@@ -1264,7 +1266,7 @@ bool QAbstractSocket::isValid() const
     returns false.
 
     QAbstractSocket first enters Qt::HostLookupState, then performs a
-    host name lookup of \a hostName. If the lookup suceeds,
+    host name lookup of \a hostName. If the lookup succeeds,
     hostFound() is emitted and QAbstractSocket enters
     Qt::ConnectingState. It then attempts to connect to the address
     or addresses returned by the lookup. Finally, if a connection is
