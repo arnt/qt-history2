@@ -2647,9 +2647,8 @@ int QFont::pixelSize() const
 }
 
 
-/*!
-  Sets the logical pixel height of characters in the font if shown on
-  the screen.
+/*! Sets the logical pixel height of font characters when shown on
+  the screen to \a pixelSize().
 */
 void QFont::setPixelSizeFloat( float pixelSize )
 {
@@ -2968,8 +2967,7 @@ int QFontMetrics::leading() const
 }
 
 
-/*!
-  Returns the distance from one base line to the next.
+/*! Returns the distance from one base line to the next.
 
   This value is always equal to leading()+height().
 
@@ -2981,18 +2979,22 @@ int QFontMetrics::lineSpacing() const
 }
 
 
-/*! \overload int QFontMetrics::width( char c ) const
+/*! \fn int QFontMetrics::width( char c ) const
 
+  \overload 
   \obsolete
 
   Provided to aid porting from Qt 1.x.
 */
 
 
-/*!
-  <img src="bearings.png" align=right> Returns the logical width of a
-  \e ch in pixels.  This is a distance appropriate for drawing a
-  subsequent character after \e ch.
+/*! \overload
+
+  <img src="bearings.png" align=right> 
+
+  Returns the logical width of a
+  \a ch in pixels.  This is a distance appropriate for drawing a
+  subsequent character after \a ch.
 
   Some of the metrics are described in the image to the right.  The
   tall dark rectangle covers the logical width() of a character.  The
@@ -3004,7 +3006,7 @@ int QFontMetrics::lineSpacing() const
   or non spacing marks in the middle of a string , as
   the glyph shaping  and positioning of marks  that happens when processing
   strings can not be taken into account.
-  Use \a charWidth() instead if you aren't looking for the width of isolated
+  Use charWidth() instead if you aren't looking for the width of isolated
   characters.
 
   \sa boundingRect(), charWidth()
@@ -3053,12 +3055,11 @@ int QFontMetrics::width(QChar ch) const
 }
 
 
-/*!
-  Returns the width of the character at position \e pos in the string \e str.
+/*! Returns the width of the character at position \a pos in the string \a str.
 
   The whole string is needed, as the glyph drawn may change depending on the
   context (the letter before and after the current one) for some languages
-  (eg. Arabic).
+  (e.g. Arabic).
 
   Also takes non spacing marks and ligatures into account.
 */
@@ -3107,13 +3108,12 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 }
 
 
-/*!
-  Returns the width in pixels of the first \e len characters of \e str.
-  If \e len is negative (the default value is), the whole string is used.
+/*! Returns the width in pixels of the first \a len characters of \a str.
+  If \a len is negative (the default value is), the whole string is used.
 
   Note that this value is \e not equal to boundingRect().width();
   boundingRect() returns a rectangle describing the pixels this string
-  will cover whereas width() r eturns the distance to where the next string
+  will cover whereas width() returns the distance to where the next string
   should be drawn.
 
   \sa boundingRect()
@@ -3137,11 +3137,10 @@ int QFontMetrics::width( const QString &str, int len ) const
 }
 
 
-/*!
-  Returns the bounding rectangle of the first \e len characters of \e str,
+/*! Returns the bounding rectangle of the first \a len characters of \a str,
   which is the set of pixels the text would cover if drawn at (0,0).
 
-  If \e len is negative (default value), the whole string is used.
+  If \a len is negative (default value), the whole string is used.
 
   Note that the bounding rectangle may extend to the left of (0,0),
   e.g. for italicized fonts, and that the text output may cover \e all

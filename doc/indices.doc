@@ -512,6 +512,7 @@ Qt base classes: assorted examples
 Pages:
 <ul>
 <li> \link qaction-examples.html QAction and QActionGroup \endlink
+<li> \link qfont-examples.html QFont, QFontMetrics, QFontInfo and QFontDatabase \endlink
 </ul>
 
 <table cellpadding=2 cellspacing=1 border=0  width=100% bgcolor=#E5E5E5>
@@ -557,6 +558,15 @@ Miscellaneous
 
 The following example programs show how to use the 
 QAction and QActionGroup classes.
+
+*/
+
+/*! \defgroup qfont-examples 
+
+\title QFont examples 
+
+The following example programs show how to use the 
+classes QFont, QFontMetrics, QFontInfo, and QFontDatabase. 
 
 */
 

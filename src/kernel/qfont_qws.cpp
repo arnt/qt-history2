@@ -321,6 +321,10 @@ void QFont::cleanup()
 }
 
 
+/*! \internal 
+
+  This function is needed for Qt/X11 and does nothing in Qt/Embedded.
+*/
 void QFont::cacheStatistics()
 {
 }
@@ -682,7 +686,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
   will ever be required on the target device, passing FALSE for the
   \a all parameter can save significant disk space.
 
-  \note Only applicable on Qt/Embedded.
+  Note that this function is only applicable on Qt/Embedded.
 */
 void QFont::qwsRenderToDisk(bool all)
 {
