@@ -36,6 +36,7 @@
 #include <qapplication.h>
 #include <qaccel.h>
 #include <qregexp.h>
+#include <qguardedptr.h>
 #include <qmessagebox.h>
 #include <qdockwindow.h>
 #include <qdockarea.h>
@@ -93,9 +94,9 @@ public:
 	    DisposeMenuBar(mac_menubar);
 	    mac_menubar = NULL;
 	}
-    }
+    }	
 };
-static QMenuBar* activeMenuBar = NULL; //The current global menubar
+static QGuardedPtr<QMenuBar> activeMenuBar; //The current global menubar
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
 //event callbacks
@@ -567,7 +568,7 @@ void QMenuBar::macRemoveNativeMenubar()
 	    menubars->remove((int)topLevelWidget());
     }
     mac_eaten_menubar = FALSE;
-    if(activeMenuBar == this) {
+    if(this == activeMenuBar) {
 	activeMenuBar = NULL;
 	ClearMenuBar();
 	InvalMenuBar();
@@ -637,7 +638,7 @@ void QMenuBar::macUpdateMenuBar()
 	while(w && !w->testWFlags(WShowModal) && !mb) 
 	    mb = menubars->find((int)(w = w->parentWidget()));
   	if(mb) {
-	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))
+	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar))) 
 		return;
 	    activeMenuBar = mb;
 	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
@@ -649,8 +650,9 @@ void QMenuBar::macUpdateMenuBar()
 		InvalMenuBar();
 	    }
 	} else {
-	    first = FALSE;
-	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup) ) {
+	    if(!first || !w || 
+		(!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup) ) {
+	    	first = FALSE;
 		ClearMenuBar();
 		InvalMenuBar();
 	    }
