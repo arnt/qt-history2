@@ -728,7 +728,6 @@ copy_dist_file()
 	   cat ${out_file} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%FREEONLY[^%]*%//g; $crap =~ s/%COMMERCIALONLY([^%]*)%/$1/g; print $crap' >${TMP_FILE}
 	fi
 	mv "${TMP_FILE}" "$out_file"
-	less "$out_file"
    else
         cp -ar "$in_file" "$out_file"
    fi
