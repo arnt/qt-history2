@@ -24,11 +24,13 @@ internal:MODULES	+= $$MODULES_ENT
 
 CONFIG		+= $$MODULES
 
-internal:CONFIG	+= png zlib  # Done differently in external system
+# internal:CONFIG	+= png zlib  # Done differently in external system
 embedded:CONFIG	+= png zlib
 win32:CONFIG	+= png zlib
 internal:CONFIG -= opengl
-#internal:CONFIG += thread
+internal:LIBS += -lpng -lz
+
+thread:TARGET = qt-mt
 thread:DEFINES += QT_THREAD_SUPPORT
 
 embedded:CONFIG -= opengl
@@ -216,6 +218,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qthread.h \
+		  $$KERNEL_H/qthread_p.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \

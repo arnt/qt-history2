@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#37 $
+# $Id: //depot/qt/main/GNUmakefile.inc#38 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
@@ -94,6 +94,8 @@ static: static-debug
 
 gcc: gcc-debug
 
+thread: thread-debug
+
 GNUmakefile$(PROJMAK).debug: $(PROJECT).pro
 ifeq ($(LIBTARGET),1)
 	$(SYNCQT)
@@ -179,7 +181,23 @@ endif
 	tmake $(TMAKEPREHACK) "OBJECTS_DIR=.obj/$(PROJOBJ)gcc-static-release" $(PROJECT).pro -o GNUmakefile$(PROJMAK).gcc-static-release \
 	    "CONFIG+=staticlib release" "TMAKE_CXX=gcc" $(TMAKEHACK)
 
+GNUmakefile$(PROJMAK).thread-debug: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	$(SYNCQT)
+endif
+	@mkdir -p .obj/$(PROJOBJ)thread-debug
+	tmake $(TMAKEPREHACK) "CONFIG+=thread debug" \
+		"OBJECTS_DIR=.obj/$(PROJOBJ)thread-debug" \
+		$(PROJECT).pro -o GNUmakefile$(PROJMAK).thread-debug
 
+GNUmakefile$(PROJMAK).thread-release: $(PROJECT).pro GNUmakefile
+ifeq ($(LIBTARGET),1)
+	$(SYNCQT)
+endif
+	@mkdir -p .obj/$(PROJOBJ)thread-release
+	tmake $(TMAKEPREHACK) "CONFIG+=thread release" \
+		"OBJECTS_DIR=.obj/$(PROJOBJ)thread-release" \
+		$(PROJECT).pro -o GNUmakefile$(PROJMAK).thread-release
 
 showfiles:
 	@tmake $(TMAKEPREHACK) $(PROJECT).pro -e 'Expand("HEADERS","SOURCES")'

@@ -39,9 +39,8 @@
 
   In version 2.2, Qt introduced thread support to Qt in the shape of some basic
 platform-independent threading classes, a thread-safe way of posting
-events, a global Qt library lock that allows you to call Qt methods
-from different threads and the ability to transfer the event loop from 
-thread to thread.
+events and a global Qt library lock that allows you to call Qt methods
+from different threads.
 
 <h2>Preface</h2>
 
