@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#2 $
 **
 ** Implementation of QDialog class
 **
@@ -14,14 +14,12 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qdialog.cpp#2 $";
 #endif
 
 
-/*!
-\class QDialog qdialog.h
-\brief The QDialog class is the base class of modal dialog views.
-*/
+/*! \class QDialog qdialog.h
+\brief The QDialog class is the base class of modal dialog views. */
 
 
 /*!
@@ -45,10 +43,8 @@ QDialog::~QDialog()
 }
 
 
-/*!
-Starts the dialog and returns the result code. Same as calling show(), then
-result().
-*/
+/*! Starts the dialog and returns the result code. Same as calling
+  show(), then result(). */
 
 int QDialog::exec()
 {
