@@ -584,12 +584,20 @@ void QSlider::keyPressEvent( QKeyEvent *e )
     bool sloppy = bool(style().styleHint(QStyle::SH_Slider_SloppyKeyEvents, this));
     switch ( e->key() ) {
     case Key_Left:
-	if ( sloppy || orient == Horizontal )
-	    subtractLine();
+	if ( sloppy || orient == Horizontal ) {
+	    if (QApplication::reverseLayout())
+		addLine();
+	    else
+		subtractLine();
+	}
 	break;
     case Key_Right:
-	if ( sloppy || orient == Horizontal )
-	    addLine();
+	if ( sloppy || orient == Horizontal ) {
+	    if (QApplication::reverseLayout())
+		subtractLine();
+	    else
+		addLine();
+	}
 	break;
     case Key_Up:
 	if ( sloppy || orient == Vertical )
