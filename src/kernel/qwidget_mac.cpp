@@ -218,13 +218,15 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     GetWindowAttributes((WindowRef)w->handle(), &attr);
     if(remove_grip) {
 	if(attr & kWindowResizableAttribute) {
-	    ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
+	    ChangeWindowAttributes((WindowRef)w->handle(), kWindowNoAttributes, 
+				    kWindowResizableAttribute);
 	    w->dirtyClippedRegion(true);
 	    ReshapeCustomWindow((WindowPtr)w->handle());
 	    qt_dirty_wndw_rgn("Remove size grip", w, w->rect());
 	}
     } else if(!(attr & kWindowResizableAttribute)) {
-	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
+	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute,
+			       kWindowNoAttributes);
 	w->dirtyClippedRegion(true);
 	ReshapeCustomWindow((WindowPtr)w->handle());
 	qt_dirty_wndw_rgn("Add size grip", w, w->rect());
@@ -782,15 +784,12 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 			else
 			    wclass = kFloatingWindowClass;
 		    }
-		    if(wclass == kDocumentWindowClass)
-			wattr |= kWindowStandardDocumentAttributes;
-		    if(wclass == kFloatingWindowClass)
-			wattr |= kWindowStandardFloatingAttributes;
 		}
 		// Only add extra decorations (well, buttons) for widgets that can have them
 		// and have an actual border we can put them on.
-		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass &&
-		   wclass != kSheetWindowClass && wclass != kPlainWindowClass && !testWFlags(WStyle_NoBorder)) {
+		if (wclass != kModalWindowClass && wclass != kMovableModalWindowClass
+			&& wclass != kSheetWindowClass && wclass != kPlainWindowClass 
+			&& !testWFlags(WStyle_NoBorder)) {
 		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
 		    if(testWFlags(WStyle_Minimize))
@@ -893,8 +892,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
-	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
-				   kWindowNoActivatesAttribute);
+	    ChangeWindowAttributes((WindowRef)id, kWindowNoAttributes, 
+				    kWindowHideOnSuspendAttribute | kWindowNoActivatesAttribute);
 #if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
 	    SetDrawerParent((WindowRef)id, (WindowRef)parentWidget()->handle());
@@ -1718,10 +1717,15 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(QWExtra *extra = d->extraData()) {	// any size restrictions?
 	if(isTopLevel()) {
 	    qt_mac_update_sizer(this);
-	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh)
-		ChangeWindowAttributes((WindowRef)handle(), 0, kWindowFullZoomAttribute);
-	    else
-		ChangeWindowAttributes((WindowRef)handle(), kWindowFullZoomAttribute, 0);
+	    if (testWFlags(WStyle_Maximize)) {
+		if (extra->maxw && extra->maxh && extra->maxw == extra->minw
+			&& extra->maxh == extra->minh)
+		    ChangeWindowAttributes((WindowRef)handle(), kWindowNoAttributes,
+					   kWindowFullZoomAttribute);
+		else
+		    ChangeWindowAttributes((WindowRef)handle(), kWindowFullZoomAttribute,
+					   kWindowNoAttributes);
+	    }
 	}
 	w = qMin(w,extra->maxw);
 	h = qMin(h,extra->maxh);
