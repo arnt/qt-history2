@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#214 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#215 $
 **
 ** Implementation of QListBox widget class
 **
@@ -668,6 +668,8 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	item->p = 0;
 	d->head = item;
 	item->dirty = TRUE;
+	if ( item->n )
+	    item->n->p = item;
     } else {
 	QListBoxItem * i = d->head;
 	while ( i->n && index > 1 ) {
@@ -814,29 +816,11 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 
 void QListBox::changeItem( const QListBoxItem *lbi, int index )
 {
-    if ( !lbi )
+    if ( !lbi || index < 0 || index >= count() );
 	return;
 
-#if defined(CHECK_RANGE)
-    if ( index > (int)count() )
-	warning( "QListBox::changeItem: (%s) Index %i out of range",
-		 name(), index );
-#endif
-
-    QListBoxItem * i = item( index );
-    if ( !i )
-	return;
-
-    QListBoxItem * item = (QListBoxItem *)lbi;
-    item->n = i->n;
-    item->p = i->p;
-    if ( item->n )
-	item->n->p = item;
-    if ( item->p )
-	item->p->n = item;
-    i->n = i->p = 0;
-    delete i;
-    triggerUpdate( TRUE );
+    removeItem( index );
+    insert(tem( lbi, index );
 }
 
 
