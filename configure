@@ -248,7 +248,6 @@ CFG_GIF=no
 CFG_SM=auto
 CFG_XSHAPE=auto
 CFG_XINERAMA=auto
-CFG_BIG_CODECS=yes
 CFG_ZLIB=auto
 CFG_PNG=auto
 CFG_LIBPNG=auto
@@ -381,7 +380,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -854,13 +853,6 @@ while [ "$#" -gt 0 ]; do
     nas-sound)
 	if [ "$VAL" = "system" ] || [ "$VAL" = "no" ]; then
 	    CFG_NAS="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
-	;;
-    big-codecs)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_BIG_CODECS="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -3105,7 +3097,6 @@ fi
 [ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"
 [ "$CFG_NAS" = "system" ] && QT_CONFIG="$QT_CONFIG nas"
-[ "$CFG_BIG_CODECS" = "yes" ] && QT_CONFIG="$QT_CONFIG bigcodecs"
 
 [ "$CFG_QWS_FREETYPE" = "yes" -a "x$CFG_EMBEDDED" != "xno" ] && QT_CONFIG="$QT_CONFIG ft"
 if [ "$PLATFORM_X11" = "yes" ]; then
@@ -3280,7 +3271,6 @@ esac
 #     largefile
 #     nis
 #     nas
-#     bigcodecs
 #     tablet
 #     ipv6
 #
@@ -3519,7 +3509,6 @@ done
 [ "$CFG_ZLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ZLIB"
 
 [ "$CFG_EXCEPTION_SUPPORT" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
-[ "$CFG_BIG_CODECS" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_BIG_CODECS"
 [ "$CFG_TABLET" = "yes" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_TABLET_SUPPORT"
 [ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
 
