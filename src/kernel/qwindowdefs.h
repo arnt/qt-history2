@@ -184,10 +184,5 @@ typedef void (*QtCleanUpFunction)();
 Q_EXPORT void qAddPostRoutine( QtCleanUpFunction );
 Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction );
 
-#if !defined(QT_CLEAN_NAMESPACE)
-// source compatibility with Qt 2.x
-typedef QtCleanUpFunction Q_CleanUpFunction;
-#endif
-
 
 #endif // QWINDOWDEFS_H
