@@ -39,7 +39,7 @@
 #include <pwd.h>
 #include <signal.h>
 #include <dlfcn.h>
-#define QT_RTLD_FLAGS	RTLD_LAZY|RTLD_GLOBAL
+#define QT_RTLD_FLAGS	RTLD_LAZY
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
