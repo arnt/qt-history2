@@ -57,7 +57,7 @@ unix {
 win32 {
    SOURCES += qfile_win.cpp qfileinfo_win.cpp qdir_win.cpp \
               qsettings_win.cpp qlibrary_win.cpp
-   *-msvc:LIBS += ole32.lib advapi32.lib
+   win32-msvc*:LIBS += ole32.lib advapi32.lib
 }
 macx-*: LIBS += -framework CoreServices
 
@@ -80,3 +80,5 @@ INSTALLS        += mkspecs
   QMAKE_CXXFLAGS = -pg
   QMAKE_LFLAGS = -pg
 }
+
+PRECOMPILED_HEADER = qmake_pch.h
