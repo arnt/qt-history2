@@ -219,8 +219,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 
     \warning Note that QPainter does not attempt to work around
     coordinate limitations in the underlying window system. Some
-    platforms may behave incorrectly with coordinates as small as
-    +/-4000.
+    platforms may behave incorrectly with coordinates outside +/-4000.
 
     \headerfile qdrawutil.h
 
@@ -235,14 +234,6 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     \internal
 
     \value LineAntialiasing
-*/
-
-/*!
-    \enum QPainter::CoordinateMode
-    \value CoordDevice
-    \value CoordPainter
-
-    \sa clipRegion()
 */
 
 /*!
@@ -670,11 +661,9 @@ void QPainter::setClipping(bool enable)
 /*!
     Returns the currently set clip region. Note that the clip region
     is given in physical device coordinates and \e not subject to any
-    \link coordsys.html coordinate transformation \endlink if \a m is
-    equal to \c CoordDevice (the default). If \a m equals \c
-    CoordPainter the returned region is in model coordinates.
+    \link coordsys.html coordinate transformation \endlink.
 
-    \sa setClipRegion(), setClipRect(), setClipping() QPainter::CoordinateMode
+    \sa setClipRegion(), setClipRect(), setClipping()
 */
 
 QRegion QPainter::clipRegion() const
@@ -683,19 +672,12 @@ QRegion QPainter::clipRegion() const
 }
 
 /*!
-    \fn void QPainter::setClipRect(int x, int y, int w, int h, CoordinateMode mode)
+    \fn void QPainter::setClipRect(int x, int y, int w, int h)
 
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
-    enables clipping. The clip mode is set to \a mode.
+    enables clipping.
 
-    If \a mode is \c CoordDevice (the default), the coordinates given for
-    the clip region are taken to be physical device coordinates and
-    are \e not subject to any \link coordsys.html coordinate
-    transformations\endlink. If \a mode is \c CoordPainter, the
-    coordinates given for the clip region are taken to be model
-    coordinates.
-
-    \sa setClipRegion(), clipRegion(), setClipping() QPainter::CoordinateMode
+    \sa setClipRegion(), clipRegion(), setClipping()
 */
 
 /*!
@@ -709,14 +691,13 @@ void QPainter::setClipRect(const QRect &rect) // ### inline?
 }
 
 /*!
-    Sets the clip region to \a r and enables clipping. The clip mode
-    is set to \a m.
+    Sets the clip region to \a r and enables clipping.
 
     Note that the clip region is given in physical device coordinates
     and \e not subject to any \link coordsys.html coordinate
     transformation.\endlink
 
-    \sa setClipRect(), clipRegion(), setClipping() CoordinateMode
+    \sa setClipRect(), clipRegion(), setClipping()
 */
 
 void QPainter::setClipRegion(const QRegion &r)

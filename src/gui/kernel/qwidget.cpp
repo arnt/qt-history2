@@ -577,7 +577,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WStyle_Splash  indicates that the window is a splash screen.
     On X11, we try to follow NETWM standard for a splash screen window if the
     window manager supports is otherwise it is equivalent to \c WX11BypassWM. On
-    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacNoSheet \c |
+    other platforms, it is equivalent to \c WStyle_NoBorder \c | \c WMacSheet \c |
     \c WStyle_Tool \c | \c WWinOwnDC
 
     Modifier flags:
@@ -616,7 +616,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     \value WSubWindow
     \value WWinOwnDC
     \value WX11BypassWM
-    \value WMacNoSheet
+    \value WMacSheet
     \value WMacDrawer
     \value WMacMetal
     \value WStyle_Mask

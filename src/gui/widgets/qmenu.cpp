@@ -489,53 +489,56 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 
 /*!
     \class QMenu qmenu.h
-    \brief The QMenu class provides a menu widget for use in QMenuBar
-    or context menus.
+    \brief The QMenu class provides a menu widget for use in menu
+    bars, context menus, and similar.
 
     \ingroup application
     \ingroup basic
     \mainclass
 
     A menu widget is a selection menu. It can be either a pull-down
-    menu in a menu bar or a standalone context menu.  Pull-down menus
+    menu in a menu bar or a standalone context menu. Pull-down menus
     are shown by the menu bar when the user clicks on the respective
     item or presses the specified shortcut key. Use
-    QMenuBar::addAction() to insert a menu into a menu bar.  Show a
-    context menu either asynchronously with popup() or synchronously
-    with exec().
+    QMenuBar::addAction() to insert a menu into a menu bar. Context
+    menus are usually invoked by some special keyboard key or by
+    right-clicking. They can be executed either asynchronously with
+    popup() or synchronously with exec(). Menus can also be invoked in
+    response to button presses; these are just like context menus
+    except for how they are invoked.
 
-    Technically, a menu consists of a list of action items. You add
-    actions with addAction(). An action is represented vertically and
-    rendered by QStyle. In addition, items can have a text label, an
-    optional icon drawn on the very left side, and an accelerator key
-    such as "Ctrl+X".
+    A menu consists of a list of action items. Actions are added with
+    addAction(). An action is represented vertically and rendered by
+    QStyle. In addition, actions can have a text label, an optional
+    icon drawn on the very left side, and shortcut key sequence such
+    as "Ctrl+X".
 
-    There are three kinds of action items: separators, action items
-    that perform an action and menu items that show a
-    submenu. Separators are inserted with addSeparator(). For submenus
-    use addMenu(). All other items are considered action items.
+    There are three kinds of action items: separators, actions that
+    show a submenu, and actions that perform an action. Separators are
+    inserted with addSeparator(). For submenus use addMenu(). All
+    other items are considered action items.
 
     When inserting action items you usually specify a receiver and a
-    slot. The receiver will be notifed whenever the item is selected.
-    In addition, QMenu provides two signals, activated() and
-    highlighted(), which signal the QAction that was triggered from
-    the menu. 
+    slot. The receiver will be notifed whenever the item is
+    triggered(). In addition, QMenu provides two signals, activated()
+    and highlighted(), which signal the QAction that was triggered
+    from the menu.
 
-    You clear a menu with clear() and remove single items with
-    removeAction().
+    You clear a menu with clear() and remove individual action items
+    with removeAction().
 
-    A menu can display check marks for certain items when enabled with
-    setCheckable(true). 
+    If isCheckable() is true (which is the default for Windows), any
+    of the menu's action items can be checked.
 
     A QMenu can also provide a tear-off menu. A tear-off menu is a
     top-level window that contains a copy of the menu. This makes it
     possible for the user to "tear off" frequently used menus and
     position them in a convenient place on the screen. If you want
-    that functionality for a certain menu, insert a tear-off handle
-    with setTearOffEnabled(). When using tear-off menus, bear in
-    mind that the concept isn't typically used on Microsoft Windows so
-    users may not be familiar with it. Consider using a QToolBar
-    instead. 
+    this functionality for a particular menu, insert a tear-off handle
+    with setTearOffEnabled(). When using tear-off menus, bear in mind
+    that the concept isn't typically used on Microsoft Windows so
+    some users may not be familiar with it. Consider using a QToolBar
+    instead.
 
     \link menu-example.html menu/menu.cpp\endlink is an example of
     QMenuBar and QMenu use.
@@ -583,15 +586,13 @@ QMenu::~QMenu()
 }
 
 /*!
-  \overload
+    \overload
 
-  Appends an action with text \a text to the list of actions.
+    This convenience function creates a new action with the text \a
+    text, and adds the new action to the menu's list of actions. It
+    returns the newly created action.
 
-  This convenience function will create a new QAction, setting its
-  text, append it to the list of actions, and finally return the newly
-  created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QString &text)
 {
@@ -601,16 +602,13 @@ QAction *QMenu::addAction(const QString &text)
 }
 
 /*!
-  \overload
+    \overload
 
-  Appends an action with text \a text and icon \a icon to the list of
-  actions.
+    This convenience function creates a new action with the icon \a
+    icon, and text \a text, and adds the new action to the menu's list
+    of actions. It returns the newly created action.
 
-  This convenience function will create a new QAction, setting its
-  text and icon, append it to the list of actions, and finally return the
-  newly created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
 {
@@ -620,17 +618,14 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text)
 }
 
 /*!
-  \overload
+    \overload
 
-  Appends an action with text \a text to the list of actions. This
-  will automatically QObject::connect() the created QAction's
-  triggered() signal to object's \a receiver function \a member.
+    This convenience function creates a new action with the text \a
+    text, and adds the new action to the menu's list of actions. The
+    action's triggered() signal is connected to the \a receiver's \a
+    member slot. The function returns the newly created action.
 
-  This convenience function will create a new QAction, setting its
-  text, append it to the list of actions, and finally return the
-  newly created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QString &text, const QObject *receiver, const char* member)
 {
@@ -641,18 +636,15 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 }
 
 /*!
-  \overload
+    \overload
 
-  Appends an action with text \a text and icon \a icon to the list of
-  actions. This will automatically QObject::connect() the created
-  QAction's triggered() signal to object's \a receiver function \a
-  member.
+    This convenience function creates a new action with the icon \a
+    icon, and the text \a text, and adds the new action to the menu's
+    list of actions. The action's triggered() signal is connected to
+    the \a receiver's \a member slot. The function returns the newly
+    created action.
 
-  This convenience function will create a new QAction, setting its
-  text and icon, append it to the list of actions, and finally
-  return the newly created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, const char* member)
 {
@@ -663,16 +655,11 @@ QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObje
 }
 
 /*!
-  \overload
+    This convenience function creates a new action with the text \a
+    text, and submenu \a menu, and adds the new action to this menu's
+    list of actions. It returns the newly created action.
 
-  Appends an action with text \a text and menu \a menu to the list of
-  actions.
-
-  This convenience function will create a new QAction, setting its
-  text and menu, append it to the list of actions, and finally
-  return the newly created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 {
@@ -682,14 +669,12 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 }
 
 /*!
-  \overload
+    This convenience function creates a new separator action, i.e. an
+    action with QAction::separator() set to true, and adds the new
+    action to this menu's list of actions. It returns the newly
+    created action.
 
-  Appends an action with QAction::separator() set to true.
-
-  This convenience function will create a new QAction, append it to
-  the list of actions, and finally return the newly created action.
-
-  \sa QWidget::addAction()
+    \sa QWidget::addAction()
 */
 QAction *QMenu::addSeparator()
 {
@@ -700,15 +685,12 @@ QAction *QMenu::addSeparator()
 }
 
 /*!
-  \overload
+    This convenience function creates a new action with the text \a
+    text, and submenu \a menu, and inserts the new action into this
+    menu's list of actions before action \a before. It returns the
+    newly created action.
 
-  Inserts an action with text \a text and menu \a menu into the list
-  of actions before \a before.
-
-  This convenience function will create a new QAction, insert it to
-  the list of actions, and finally return the newly created action.
-
-  \sa QWidget::insertAction() addMenu()
+    \sa QWidget::insertAction() addMenu()
 */
 QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 {
@@ -718,15 +700,12 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 }
 
 /*!
-  \overload
+    This convenience function creates a new separator action, i.e. an
+    action with QAction::separator() set to true, and inserts the new
+    action to this menu's list of actions before action \a before. It
+    returns the newly created action.
 
-  Inserts an action with QAction::separator() set to true into the
-  list of actions before \a before.
-
-  This convenience function will create a new QAction, insert it to
-  the list of actions, and finally return the newly created action.
-
-  \sa QWidget::insertAction() addSeparator()
+    \sa QWidget::insertAction() addSeparator()
 */
 QAction *QMenu::insertSeparator(QAction *before)
 {
@@ -740,9 +719,10 @@ QAction *QMenu::insertSeparator(QAction *before)
     \property QMenu::tearOffEnabled
     \brief whether the menu supports being torn off
 
-    When true QMenu has a special menu item that creates a copy of the
-    menu when the menu is selected. This "torn-off" copy lives in a
-    separate window. It contains the same menu items as the original
+    When true, QMenu has a special menu item (often shown as a dashed
+    line at the top of the menu) that creates a copy of the menu when
+    the tear-off menu item is triggered. This "torn-off" copy lives in
+    a separate window. It contains the same menu items as the original
     menu, with the exception of the tear-off handle.
 */
 void QMenu::setTearOffEnabled(bool b)
@@ -788,9 +768,9 @@ bool QMenu::isCheckable() const
     return d->checkable;
 }
 
-/*!  
-  Returns the QAction that is currently highlighted. A null pointer
-  will be returned if no action is currently selected.
+/*!
+    Returns the QAction that is currently highlighted, or a null
+    pointer if no action is currently highlighted.
 */
 QAction *QMenu::activeAction() const
 {
@@ -798,7 +778,7 @@ QAction *QMenu::activeAction() const
 }
 
 /*!
-    Removes all actions.
+    Removes all the menu's actions.
 
     \sa removeAction()
 */
@@ -811,7 +791,7 @@ void QMenu::clear()
 
 /*!
   \internal
-  
+
   If a menu does not fit on the screen it lays itself out so that it
   does fit. It is style dependent what layout means (for example, on
   Windows it will use multiple columns).
@@ -892,7 +872,7 @@ QSize QMenu::sizeHint() const
     you cannot rely on the menu's current size(). For performance
     reasons, the menu adapts its size only when necessary, so in many
     cases, the size before and after the show is different. Instead,
-    use sizeHint(). It calculates the proper size depending on the
+    use sizeHint() which calculates the proper size depending on the
     menu's current contents.
 
     \sa QWidget::mapToGlobal(), exec()
@@ -998,24 +978,22 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 }
 
 /*!
-    \overload
-
     Executes this menu synchronously.
 
-    This is equivalent to \c{exec(mapToGlobal(QPoint(0,0)))}. 
+    This is equivalent to \c{exec(mapToGlobal(QPoint(0,0)))}.
 
-    This returns the selected QAction in either the popup menu or one
-    of its submenus, or 0 if no item is selected (normally because the
-    user pressed Esc).
+    This returns the triggered QAction in either the popup menu or one
+    of its submenus, or 0 if no item was triggered (normally because
+    the user pressed Esc).
 
     In most situations you'll want to specify the position yourself,
-    for example at the current mouse position: 
+    for example, the current mouse position:
     \code
-      exec(QCursor::pos()); 
-    \endcode 
-    or aligned to a widget: 
+      exec(QCursor::pos());
+    \endcode
+    or aligned to a widget:
     \code
-      exec(somewidget.mapToGlobal(QPoint(0,0))); 
+      exec(somewidget.mapToGlobal(QPoint(0,0)));
     \endcode
 */
 QAction *QMenu::exec()
@@ -1029,13 +1007,13 @@ QAction *QMenu::exec()
 
     Executes this menu synchronously.
 
-    Opens the menu so that the action \a action will be at the
+    Pops up the menu so that the action \a action will be at the
     specified \e global position \a p. To translate a widget's local
     coordinates into global coordinates, use QWidget::mapToGlobal().
 
-    This returns the selected QAction in either the popup menu or one
-    of its submenus, or 0 if no item is selected (normally because the
-    user pressed Esc).
+    This returns the triggered QAction in either the popup menu or one
+    of its submenus, or 0 if no item was triggered (normally because
+    the user pressed Esc).
 
     Note that all signals are emitted as usual. If you connect a
     QAction to a slot and call the menu's exec(), you get the result
@@ -1056,7 +1034,7 @@ QAction *QMenu::exec()
     you cannot rely on the menu's current size(). For performance
     reasons, the menu adapts its size only when necessary. So in many
     cases, the size before and after the show is different. Instead,
-    use sizeHint(). It calculates the proper size depending on the
+    use sizeHint() which calculates the proper size depending on the
     menu's current contents.
 
     \sa popup(), QWidget::mapToGlobal()
@@ -1078,15 +1056,21 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
 
     Executes this menu synchronously.
 
-    This returns the selected QAction in either the popup menu or one
-    of its submenus, or 0 if no item is selected (normally because the
-    user pressed Esc).
+    The menu's actions are given by the list of \a actions. The menu
+    will pop up so that the specified action, \a at, appears at global
+    position \a pos. If \a at is not specified then the menu appears
+    at position \a pos.
 
-    This is equivelant to:
+    The function returns the triggered QAction in either the popup
+    menu or one of its submenus, or 0 if no item was triggered
+    (normally because the user pressed Esc).
+
+    This is equivalent to:
     \code
        QMenu menu;
+       QAction *at = actions[0]; // Assumes actions is not empty
        foreach (QAction *a, actions)
-          menu->addAction(a);
+          menu.addAction(a);
        menu.exec(pos, at);
     \endcode
 
@@ -1689,13 +1673,14 @@ void QMenu::internalDelayedPopup()
 /*!
     \fn void QMenu::activated(QAction *action)
 
-    This signal is emitted when a menu action is selected; \a action
-    is the action that caused the event to be sent.
+    This signal is emitted when a menu action is triggered; \a action
+    is the action that caused the signal to be emitted.
 
-    Normally, you connect each menu action to a single slot using
-    QAction::triggered(), but sometimes you will want to connect
-    several items to a single slot (most often if the user selects
-    from an array). This signal is useful in such cases.
+    Normally, you connect each menu action's triggered() signal to its
+    own custom  slot, but sometimes you will want to connect several
+    actions to a single slot, for example, when you have a group of
+    closely related actions, such as "left justify", "center", "right
+    justify".
 
     \sa highlighted(), QAction::triggered()
 */
@@ -1704,7 +1689,7 @@ void QMenu::internalDelayedPopup()
     \fn void QMenu::highlighted(QAction *action)
 
     This signal is emitted when a menu action is highlighted; \a action
-    is the action that caused the event to be sent.
+    is the action that caused the signal to be emitted.
 
     Often this is used to update status information.
 
