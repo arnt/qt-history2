@@ -4,11 +4,12 @@ Bug-fixes, optimizations and improved documentation, of course.
 QClipboard is new.
 
 There are some changes in the API (Qt header files).  Some functions have
-been renamed or the arguments have changed. These functions have been
-obsoleted. A call to an obsoleted function will by default generate a
-runtime warning the first time it is called, but it will be executed
-correctly. If you really need to ship code fast, you can turn off the
-runtime obsolescence warnings by calling qSuppressObsoleteWarnings().
+been renamed or the arguments have changed. The old versions of these
+functions have been obsoleted. A call to an obsoleted function will by
+default generate a runtime warning the first time it is called, but it
+will be executed correctly. If you really need to ship code fast, you can
+turn off the runtime obsolescence warnings by calling
+qSuppressObsoleteWarnings().
 
 Obsoleted functions will disappear in a future release.  To get
 compile-time errors for each use of an obsoleted function, compile your
