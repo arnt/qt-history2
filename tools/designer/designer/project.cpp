@@ -246,7 +246,7 @@ QString Project::makeRelative( const QString &f )
 
 void Project::save()
 {
-    if ( filename == "<No Project>" )
+    if ( proName == "<No Project>" )
 	return;
     QFile f( filename );
     QString contents;
