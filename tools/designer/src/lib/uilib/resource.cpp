@@ -24,6 +24,7 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 #include <QtGui/QPixmap>
+#include <QtGui/QListWidget>
 
 #include <QtXml/QDomDocument>
 
@@ -723,6 +724,7 @@ DomWidget *Resource::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool
     }
     ui_widget->setElementWidget(ui_widgets);
 
+    saveExtraInfo(widget, ui_widget, ui_parentWidget);
     return ui_widget;
 }
 
@@ -1057,6 +1059,46 @@ DomTabStops *Resource::saveTabStops()
 DomResources *Resource::saveResources()
 {
     return 0;
+}
+
+void Resource::saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget)
+{
+    Q_UNUSED(ui_parentWidget);
+
+    if (QListWidget *listWidget = qobject_cast<QListWidget*>(widget)) {
+        QList<DomItem*> ui_items = ui_widget->elementItem();
+
+        for (int i=0; i<listWidget->count(); ++i) {
+            QListWidgetItem *item = listWidget->item(i);
+            DomItem *ui_item = new DomItem();
+
+            QList<DomProperty*> properties;
+
+            // text
+            DomString *str = new DomString;
+            str->setText(item->text());
+
+            DomProperty *p = 0;
+
+            p = new DomProperty;
+            p->setAttributeName(QLatin1String("text"));
+            p->setElementString(str);
+            properties.append(p);
+
+#if 0 // ### implement me
+            p = new DomProperty;
+            p->setAttributeName(QLatin1String("icon"));
+            p->setElementIconSet();
+            properties.append(p);
+#endif
+
+            ui_item->setElementProperty(properties);
+
+            ui_items.append(ui_item);
+        }
+
+        ui_widget->setElementItem(ui_items);
+    }
 }
 
 #include "resource.moc"

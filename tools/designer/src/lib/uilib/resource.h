@@ -88,6 +88,8 @@ protected:
 //
 // save
 //
+    virtual void saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
+
     virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual DomWidget *createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive = true);
     virtual DomLayout *createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget);
