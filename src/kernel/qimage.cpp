@@ -943,6 +943,10 @@ void QImage::fill( uint pixel )
 
   If the depth is not 32, the argument \a invertAlpha has no meaning.
 
+  Note that inverting an 8-bit image means to replace all pixels using
+  color index \e i with a pixel using color index 255 minus \e i. Similarly
+  for a 1-bit image. The color table is not changed.
+
   \sa fill() depth() hasAlphaBuffer()
 */
 
