@@ -184,16 +184,22 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
 
 QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) const
 {
-    int r = tree.count();
     int c = header->columnCount();
-    if (row < 0 || row >= r || column < 0 || column >= c)
+
+    if (row < 0 || column < 0 || column >= c)
         return QModelIndex::Null;
-    if (!parent.isValid()) {// toplevel
+
+    // toplevel items
+    if (!parent.isValid()) {
+        if (row >= tree.count())
+            return QModelIndex::Null;
         QTreeWidgetItem *itm = tree.at(row);
         if (itm)
             return createIndex(row, column, itm);
         return QModelIndex::Null;
     }
+
+    // children
     QTreeWidgetItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
         QTreeWidgetItem *itm = static_cast<QTreeWidgetItem*>(parentItem->child(row));
@@ -201,6 +207,7 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent) co
             return createIndex(row, column, itm);
         return QModelIndex::Null;
     }
+
     return QModelIndex::Null;
 }
 
