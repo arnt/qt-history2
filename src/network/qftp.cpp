@@ -471,7 +471,18 @@ void QFtp::closed()
 void QFtp::readyRead()
 {
     while ( commandSocket->canReadLine() ) {
-	QCString s = commandSocket->readLine().utf8();
+	// read line with respect to line continuation
+	static QCString s;
+	QCString line = commandSocket->readLine().utf8();
+	if ( s.isEmpty() )
+	    s = line.left( 3 ) + " "; // add reply code for the first line
+	while ( !(line[0]==s[0] && line[1]==s[1] && line[1]==s[1] && line[3]==' ') ) {
+	    s += line.mid( 4 ); // strip reply codes
+	    if ( !commandSocket->canReadLine() )
+		return;
+	    line = commandSocket->readLine().utf8();
+	}
+	s += line.mid( 4 );
 
 	if ( !url() )
 	    return;
@@ -502,6 +513,8 @@ void QFtp::readyRead()
 	    errorForNow( code, s );
 	else if ( s.left( 1 ) == "5" )
 	    errorForgetIt( code, s );
+
+	s = "";
     }
 }
 
