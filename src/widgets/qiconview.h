@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#51 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#52 $
 **
 ** Definition of QIconView widget class
 **
@@ -272,7 +272,7 @@ public:
 	Right
     };
 
-    QIconView( QWidget *parent = 0, const char *name = 0 );
+    QIconView( QWidget *parent = 0, const char *name = 0, WFlags f = 0 );
     virtual ~QIconView();
 
     virtual void insertItem( QIconViewItem *item, QIconViewItem *after = 0L );
