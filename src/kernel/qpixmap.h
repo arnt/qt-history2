@@ -132,6 +132,7 @@ public:
 			      const char* format=0,
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format, int quality = -1 ) const;
+    bool	save( QIODevice* device, const char* format, int quality = -1 ) const;
 #endif
 
 #if defined(Q_WS_WIN)
@@ -220,6 +221,9 @@ protected:
 	Optimization optim;
     } *data;
 private:
+#ifndef QT_NO_IMAGEIO
+    bool doImageIO( QImageIO* io, int quality ) const;
+#endif
     QPixmap( int w, int h, int depth, bool, Optimization );
     void	init( int, int, int, bool, Optimization );
     void	deref();
@@ -243,7 +247,7 @@ private:
 				      const QPaintDevice *, int, int, int, int, 
 				      Qt::RasterOp, bool, bool);
 #endif
-
+    
     friend class QBitmap;
     friend class QPaintDevice;
     friend class QPainter;

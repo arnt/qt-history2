@@ -192,6 +192,8 @@ public:
     bool	loadFromData( QByteArray data, const char* format=0 );
     bool	save( const QString &fileName, const char* format,
 		      int quality=-1 ) const;
+    bool	save( QIODevice * device, const char* format,
+		      int quality=-1 ) const;
 #endif //QT_NO_IMAGEIO
 
     bool	valid( int x, int y ) const;
@@ -240,6 +242,9 @@ private:
     } *data;
 #ifndef QT_NO_IMAGE_TEXT
     QImageDataMisc& misc() const;
+#endif
+#ifndef QT_NO_IMAGEIO
+    bool doImageIO( QImageIO* io, int quality ) const;
 #endif
     friend Q_EXPORT void bitBlt( QImage* dst, int dx, int dy,
 				 const QImage* src, int sx, int sy,

@@ -1023,15 +1023,46 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
     if ( isNull() )
 	return FALSE;				// nothing to save
     QImageIO io( fileName, format );
-    io.setImage( convertToImage() );
+    return doImageIO( &io, quality );
+}
+
+/*! \overload
+    This function writes a QPixmap to a QIODevice. This can be used to
+    e.g. save a pixmap directly into a QByteArray:
+    \code
+    QPixmap pixmap;
+    QByteArray ba;
+    QBuffer buffer( ba );
+    buffer.open( IO_WriteOnly );
+    pixmap.save( &buffer, "PNG" ); // writes pixmap into ba in PNG format
+    \endcode
+*/
+
+bool QPixmap::save( QIODevice* device, const char* format, int quality ) const
+{
+    if ( isNull() )
+	return FALSE;				// nothing to save
+    QImageIO io( device, format );
+    return doImageIO( &io, quality );
+}
+
+/*! \internal
+*/
+
+bool QPixmap::doImageIO( QImageIO* io, int quality ) const
+{
+    if ( !io )
+	return FALSE;
+    io->setImage( convertToImage() );
 #if defined(QT_CHECK_RANGE)
     if ( quality > 100  || quality < -1 )
 	qWarning( "QPixmap::save: quality out of range [-1,100]" );
 #endif
     if ( quality >= 0 )
-	io.setQuality( QMIN(quality,100) );
-    return io.write();
+	io->setQuality( QMIN(quality,100) );
+    return io->write();
 }
+
 #endif //QT_NO_IMAGEIO
 
 /*!
