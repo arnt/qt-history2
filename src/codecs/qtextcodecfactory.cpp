@@ -66,7 +66,7 @@ QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
 {
     manager =
 	new QInterfaceManager<QTextCodecInterface>(IID_QTextCodecInterface,
-						   QString::null, "*.dll;*.so",
+						   QString::null,
 						   QLibrary::Delayed, FALSE);
 
     QString defpath(getenv("QTDIR"));

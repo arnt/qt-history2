@@ -70,7 +70,7 @@ QInterfaceManager<QStyleInterface> *QStyleFactoryPrivate::manager = 0;
 QStyleFactoryPrivate::QStyleFactoryPrivate()
 : QObject( qApp )
 {
-    manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, "*.dll; *.so", QLibrary::Delayed, FALSE );
+    manager = new QInterfaceManager<QStyleInterface>( IID_QStyleInterface, QString::null, QLibrary::Delayed, FALSE );
 
     QString defpath(getenv("QTDIR"));
     if (! defpath.isNull() && ! defpath.isEmpty()) {
