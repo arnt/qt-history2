@@ -545,11 +545,11 @@ QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
     }
     case QInputContext::SelectionFormat: {
         bg = pal.text().color();
-        fmt.setTextColor(pal.background().color());
+        fmt.setForeground(pal.background());
         break;
     }
     }
-    fmt.setBackgroundColor(bg);
+    fmt.setBackground(QBrush(bg));
     return fmt;
 }
 

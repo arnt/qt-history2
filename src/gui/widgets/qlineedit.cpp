@@ -1905,14 +1905,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
         if (d->selstart < d->selend) {
             o.start = d->selstart;
             o.length = d->selend - d->selstart;
-            o.format.setBackgroundColor(pal.color(QPalette::Highlight));
-            o.format.setTextColor(pal.color(QPalette::HighlightedText));
+            o.format.setBackground(pal.brush(QPalette::Highlight));
+            o.format.setForeground(pal.brush(QPalette::HighlightedText));
         } else {
             // mask selection
             o.start = d->cursor;
             o.length = 1;
-            o.format.setBackgroundColor(pal.color(QPalette::Text));
-            o.format.setTextColor(pal.color(QPalette::Background));
+            o.format.setBackground(pal.brush(QPalette::Text));
+            o.format.setForeground(pal.brush(QPalette::Background));
         }
         selections.append(o);
     }

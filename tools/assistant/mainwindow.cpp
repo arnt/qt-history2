@@ -575,7 +575,7 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
     hw->viewport()->setUpdatesEnabled(false);
 
     QTextCharFormat marker;
-    marker.setTextColor(Qt::red);
+    marker.setForeground(Qt::red);
 
     QTextCursor firstHit;
 

@@ -30,9 +30,9 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
     QPixmap pm;
 
     const bool hasWidth = format.hasProperty(QTextFormat::ImageWidth);
-    const int width = format.width();
+    const int width = qRound(format.width());
     const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
-    const int height = format.height();
+    const int height = qRound(format.height());
 
     QTextBrowser *browser = qobject_cast<QTextBrowser *>(doc->parent());
 

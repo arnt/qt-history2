@@ -470,7 +470,7 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
         format.setFontPointSize(fontPointSize);
     format.setFontWeight(fontWeight);
     if (color.isValid())
-        format.setTextColor(color);
+        format.setForeground(QBrush(color));
     if (verticalAlignment != QTextCharFormat::AlignNormal)
         format.setVerticalAlignment(verticalAlignment);
     if (isAnchor) {

@@ -484,7 +484,7 @@ void QTextHTMLImporter::import()
         } else if (node->id == Html_body) {
             d->containsCompleteDocument = true;
             if (node->bgColor.isValid())
-                d->rootFrameFormat.setBackgroundColor(node->bgColor);
+                d->rootFrameFormat.setBackground(QBrush(node->bgColor));
         } else if (node->isListStart) {
 
             QTextListFormat::Style style = node->listStyle;
@@ -540,7 +540,7 @@ void QTextHTMLImporter::import()
             }
 
             // collapse
-            block.setTopMargin(qMax(block.topMargin(), topMargin(i)));
+            block.setTopMargin(qMax(block.topMargin(), (qreal)topMargin(i)));
 
             int bottomMargin = this->bottomMargin(i);
 
@@ -583,7 +583,7 @@ void QTextHTMLImporter::import()
                 charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
 
                 if (node->bgColor.isValid())
-                    charFmt.setTableCellBackgroundColor(node->bgColor);
+                    charFmt.setBackground(QBrush(node->bgColor));
 
                 charFmt.setTableCellColumnSpan(node->tableCellColSpan);
                 charFmt.setTableCellRowSpan(node->tableCellRowSpan);
@@ -602,7 +602,7 @@ void QTextHTMLImporter::import()
                 block.setNonBreakableLines(true);
 
             if (node->bgColor.isValid())
-                block.setBackgroundColor(node->bgColor);
+                block.setBackground(QBrush(node->bgColor));
 
             if (hasBlock && !node->isEmptyParagraph) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
@@ -754,9 +754,9 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     fmt.setCellPadding(node.tableCellPadding);
     fmt.setAlignment(node.alignment);
     if (node.bgColor.isValid())
-        fmt.setBackgroundColor(node.bgColor);
+        fmt.setBackground(QBrush(node.bgColor));
     else
-        fmt.clearBackgroundColor();
+        fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
     fmt.setColumns(table->columns);

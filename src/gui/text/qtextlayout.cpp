@@ -1118,6 +1118,28 @@ void QTextLine::layout_helper(int maxGlyphs)
             line.ascent = qMax(line.ascent, current.ascent);
             line.descent = qMax(line.descent, current.descent);
             continue;
+        } else if (current.isTab &&
+                   (eng->option.alignment() & Qt::AlignLeft)) {
+            qreal x = line.x + line.textWidth;
+
+            QList<qreal> tabArray = eng->option.tabArray();
+            if (!tabArray.isEmpty()) {
+                // ##################
+            } else {
+                qreal tab = eng->option.tabStop();
+                if (tab == 0)
+                    tab = 80; // default
+                qreal nx = ((int)(x/tab) + 1)*tab;
+                eng->layoutData->items[item].width = nx - x;
+            }
+            QGlyphLayout *glyph = eng->glyphs(&current);
+            glyph->advance.rx() = current.width;
+            line.textWidth += current.width;
+            qDebug("isTab width=%f", current.width);
+            line.length++;
+            ++item;
+            ++glyphCount;
+            continue;
         }
 
         int length = eng->length(item);
@@ -1300,15 +1322,15 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
 
 static void setPenAndDrawBackground(QPainter *p, const QPen &defaultPen, const QTextCharFormat &chf, const QRectF &r)
 {
-    QColor c = chf.textColor();
-    if (!c.isValid())
+    QBrush c = chf.foreground();
+    if (c == Qt::NoBrush)
         p->setPen(defaultPen);
 
-    QColor bg = chf.backgroundColor();
-    if (bg.isValid())
+    QBrush bg = chf.background();
+    if (bg.style() != Qt::NoBrush)
         p->fillRect(r, bg);
-    if (c.isValid())
-        p->setPen(c);
+    if (c != Qt::NoBrush)
+        p->setPen(QPen(c, 0));
 }
 
 /*!
@@ -1348,6 +1370,12 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
     QRectF outlineRect;
+    QPen outlinePen(Qt::NoPen);
+    if (selection) {
+        QVariant outline = selection->format.property(QTextFormat::OutlinePen);
+        if (outline.type() == QVariant::Pen)
+            outlinePen = qVariantValue<QPen>(outline);
+    }
 
     QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
@@ -1366,18 +1394,20 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 if (selection)
                     format.merge(selection->format);
                 setPenAndDrawBackground(p, pen, format, QRectF(x, y - line.ascent, si.width, line.height()));
-                QRectF itemRect(x, y-si.ascent, si.width, si.height());
-                eng->docLayout()->drawInlineObject(p, itemRect,
-                                                   QTextInlineObject(item, eng), format);
-                if (selection) {
-                    QColor bg = format.backgroundColor();
-                    if (bg.isValid()) {
-                        bg.setAlpha(128);
-                        p->fillRect(itemRect, bg);
+                if (si.isObject) {
+                    QRectF itemRect(x, y-si.ascent, si.width, si.height());
+                    eng->docLayout()->drawInlineObject(p, itemRect,
+                                                       QTextInlineObject(item, eng), format);
+                    if (selection) {
+                        QBrush bg = format.background();
+                        if (bg.style() != Qt::NoBrush) {
+                            QColor c = bg.color();
+                            c.setAlpha(128);
+                            p->fillRect(itemRect, c);
+                        }
+                        if (outlinePen.style() != Qt::NoPen)
+                            outlineRect = outlineRect.unite(itemRect);
                     }
-                    int outline = format.intProperty(QTextFormat::OutlineWidth);
-                    if (outline)
-                        outlineRect = outlineRect.unite(itemRect);
                 }
                 p->restore();
             }
@@ -1443,8 +1473,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             }
 
             QRectF rect(x + soff, y - line.ascent, swidth, line.height());
-            int outline = selection->format.intProperty(QTextFormat::OutlineWidth);
-            if (outline)
+            if (outlinePen.style() != Qt::NoPen)
                 outlineRect = outlineRect.unite(rect);
             p->save();
             p->setClipRect(rect);
@@ -1492,7 +1521,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
     }
 
     if (outlineRect.isValid()) {
-        p->setPen(QPen(Qt::black, 1, Qt::DotLine));
+        p->setPen(outlinePen);
         p->drawRect(outlineRect);
     }
 

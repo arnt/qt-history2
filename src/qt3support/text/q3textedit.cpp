@@ -1563,8 +1563,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
                 c2.setIndex(c.index() + a.start + a.length);
                 doc->setSelectionEnd(preeditSelectionBase + d->numPreeditSelections, c2);
 
-                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.backgroundColor());
-                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.textColor());
+                doc->setSelectionColor(preeditSelectionBase + d->numPreeditSelections, f.background().color());
+                doc->setSelectionTextColor(preeditSelectionBase + d->numPreeditSelections, f.foreground().color());
                 ++d->numPreeditSelections;
             }
         }

@@ -485,8 +485,8 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
     }
 
     {
-        const QColor bgCol = frame->frameFormat().backgroundColor();
-        if (bgCol.isValid()) {
+        const QBrush bg = frame->frameFormat().background();
+        if (bg != Qt::NoBrush) {
             QRectF bgRect = QRectF(off, fd->size);
             const qreal margin = fd->margin + fd->border;
             bgRect.adjust(margin, margin, -margin, -margin);
@@ -494,7 +494,7 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
             if (frame == q->document()->rootFrame())
                 bgRect = context.clip;
 
-            painter->fillRect(bgRect, bgCol);
+            painter->fillRect(bgRect, bg);
         }
     }
 
@@ -553,9 +553,9 @@ void QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *pain
                 }
 
                 {
-                    const QColor bgCol = cell.format().tableCellBackgroundColor();
-                    if (bgCol.isValid())
-                        painter->fillRect(cellRect, bgCol);
+                    const QBrush bg = cell.format().background();
+                    if (bg != Qt::NoBrush)
+                        painter->fillRect(cellRect, bg);
                 }
 
                 QAbstractTextDocumentLayout::PaintContext cell_context = context;
@@ -618,11 +618,11 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *pain
     else
         cursor = -1;
 
-    QColor bgCol = blockFormat.backgroundColor();
-    if (bgCol.isValid()) {
+    QBrush bg = blockFormat.background();
+    if (bg != Qt::NoBrush) {
         QRectF r = bl.layout()->boundingRect();
         r.translate(bl.layout()->position() + offset);
-        painter->fillRect(r, bgCol);
+        painter->fillRect(r, bg);
     }
 
     QVector<QTextLayout::FormatRange> selections;
@@ -713,13 +713,13 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     painter->save();
 
     if (selectionFormat) {
-        painter->setPen(selectionFormat->textColor());
-        painter->fillRect(r, selectionFormat->backgroundColor());
+        painter->setPen(QPen(selectionFormat->foreground(), 0));
+        painter->fillRect(r, selectionFormat->background());
     } else {
-        QColor col = charFormat.textColor();
-        if (!col.isValid())
-            col = context.palette.text().color();
-        painter->setPen(col);
+        QBrush fg = charFormat.foreground();
+        if (fg == Qt::NoBrush)
+            fg = context.palette.text();
+        painter->setPen(QPen(fg, 0));
     }
 
     QBrush brush = context.palette.brush(QPalette::Text);

@@ -569,7 +569,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
 
     }
     label = new QLabel(q);
-    label->setAlignment(Qt::AlignTop);
+    label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
     if ((button2 && !button1) || (button1 && !button0)) {
         qWarning("QMessageBox: Inconsistent button parameters");

@@ -241,7 +241,7 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     and toImageFormat().
 
     A format's properties can be set with the setProperty() functions,
-    and retrieved with boolProperty(), intProperty(), floatProperty(),
+    and retrieved with boolProperty(), intProperty(), doubleProperty(),
     and stringProperty() as appropriate. All the property IDs used in
     the format can be retrieved with allPropertyIds(). One format can
     be merged into another using merge().
@@ -565,7 +565,7 @@ QTextImageFormat QTextFormat::toImageFormat() const
     Returns the value of the property specified by \a propertyId. If the
     property isn't of \c QTextFormat::Bool type, false is returned instead.
 
-    \sa setProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 bool QTextFormat::boolProperty(int propertyId) const
 {
@@ -579,7 +579,7 @@ bool QTextFormat::boolProperty(int propertyId) const
     Returns the value of the property specified by \a propertyId. If the
     property is not of \c QTextFormat::Integer type, 0 is returned instead.
 
-    \sa setProperty() boolProperty() floatProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 int QTextFormat::intProperty(int propertyId) const
 {
@@ -591,11 +591,11 @@ int QTextFormat::intProperty(int propertyId) const
 
 /*!
     Returns the value of the property specified by \a propertyId. If the
-    property isn't of \c QTextFormat::Float type, 0 is returned instead.
+    property isn't of \c QVariant::Double type, 0 is returned instead.
 
     \sa setProperty() boolProperty() intProperty() stringProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
-float QTextFormat::floatProperty(int propertyId) const
+double QTextFormat::doubleProperty(int propertyId) const
 {
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Double)
@@ -605,10 +605,10 @@ float QTextFormat::floatProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::String type, a null string is
+    property isn't of \c QVariant::String type, a null string is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() colorProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 QString QTextFormat::stringProperty(int propertyId) const
 {
@@ -620,10 +620,10 @@ QString QTextFormat::stringProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QTextFormat::Color type, an invalid color is
+    property isn't of \c QVariant::Color type, an invalid color is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
 */
 QColor QTextFormat::colorProperty(int propertyId) const
 {
@@ -634,9 +634,39 @@ QColor QTextFormat::colorProperty(int propertyId) const
 }
 
 /*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QVariant::Pen type, Qt::NoPen is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+*/
+QPen QTextFormat::penProperty(int propertyId) const
+{
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Pen)
+        return QPen(Qt::NoPen);
+    return qvariant_cast<QPen>(prop);
+}
+
+/*!
+    Returns the value of the property given by \a propertyId; if the
+    property isn't of \c QVariant::Brush type, Qt::NoBrush is
+    returned instead.
+
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() PropertyType
+*/
+QBrush QTextFormat::brushProperty(int propertyId) const
+{
+    const QVariant prop = d->properties().value(propertyId);
+    if (prop.type() != QVariant::Brush)
+        return QBrush(Qt::NoBrush);
+    return qvariant_cast<QBrush>(prop);
+}
+
+/*!
     Returns the value of the property given by \a propertyId.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthVectorProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthVectorProperty() PropertyType
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
@@ -648,7 +678,7 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
     property isn't of \c QTextFormat::LengthVector type, an empty length
     vector is returned instead.
 
-    \sa setProperty() boolProperty() intProperty() floatProperty() stringProperty() colorProperty() lengthProperty() PropertyType
+    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() colorProperty() lengthProperty() PropertyType
 */
 QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 {
@@ -685,72 +715,6 @@ void QTextFormat::setProperty(int propertyId, const QVariant &value)
         clearProperty(propertyId);
     else
         d->insertProperty(propertyId, value);
-}
-
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value.
-
-    \sa boolProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, bool value)
-{
-    d->insertProperty(propertyId, value);
-}
-
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value.
-    \sa intProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, int value)
-{
-    d->insertProperty(propertyId, value);
-}
-
-/*!
-    \overload
-
-    Sets the value of the property given by \a propertyId to \a value.
-
-    \sa floatProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, float value)
-{
-    d->insertProperty(propertyId, value);
-}
-
-/*!
-    Sets the value of the property given by \a propertyId to \a value.
-
-    \sa stringProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, const QString &value)
-{
-    d->insertProperty(propertyId, value);
-}
-
-/*!
-    Sets the value of the property given by \a propertyId to \a value.
-
-    \sa colorProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, const QColor &value)
-{
-    d->insertProperty(propertyId, value);
-}
-
-
-/*!
-    Sets the value of the property given by \a propertyId to \a value.
-
-    \sa lengthProperty() PropertyType
-*/
-void QTextFormat::setProperty(int propertyId, const QTextLength &value)
-{
-    d->insertProperty(propertyId, value);
 }
 
 /*!

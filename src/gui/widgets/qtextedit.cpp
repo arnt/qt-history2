@@ -234,7 +234,7 @@ void QTextEditPrivate::updateCurrentCharFormat()
 #ifdef QT3_SUPPORT
     // compat signals
     emit q->currentFontChanged(fmt.font());
-    emit q->currentColorChanged(fmt.textColor());
+    emit q->currentColorChanged(fmt.foreground().color());
 #endif
     q->updateMicroFocus();
 }
@@ -379,7 +379,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
         QTextCharFormat fmt;
         fmt.setFont(q->font());
-        fmt.setTextColor(q->palette().color(QPalette::Text));
+        fmt.setForeground(q->palette().brush(QPalette::Text));
         cursor.movePosition(QTextCursor::Start);
         cursor.setBlockCharFormat(fmt);
     }
@@ -1001,7 +1001,7 @@ bool QTextEdit::fontItalic() const
 QColor QTextEdit::textColor() const
 {
     Q_D(const QTextEdit);
-    return d->cursor.charFormat().textColor();
+    return d->cursor.charFormat().foreground().color();
 }
 
 /*!
@@ -1189,7 +1189,7 @@ void QTextEdit::setTextColor(const QColor &c)
     if (d->readOnly)
 	return;
     QTextCharFormat fmt;
-    fmt.setTextColor(c);
+    fmt.setForeground(QBrush(c));
     mergeCurrentCharFormat(fmt);
 }
 
@@ -1536,7 +1536,7 @@ process:
                 d->createAutoBulletList();
             }
 
-            if (!text.isEmpty() && text.at(0).isPrint()) {
+            if (!text.isEmpty() && (text.at(0).isPrint() || text.at(0) == QLatin1Char('\t'))) {
                 d->cursor.insertText(text);
                 d->selectionChanged();
             } else {
@@ -1652,14 +1652,15 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     if (cursor.hasSelection()) {
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = cursor;
-        selection.format.setBackgroundColor(q->palette().color(QPalette::Highlight));
-        selection.format.setTextColor(q->palette().color(QPalette::HighlightedText));
+        selection.format.setBackground(q->palette().brush(QPalette::Highlight));
+        selection.format.setForeground(q->palette().brush(QPalette::HighlightedText));
         ctx.selections.append(selection);
     }
     if (focusIndicator.hasSelection()) {
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = focusIndicator;
-        selection.format.setProperty(QTextFormat::OutlineWidth, 1);
+        QPen outline(q->palette().color(QPalette::Text), 1, Qt::DotLine);
+        selection.format.setProperty(QTextFormat::OutlinePen, outline);
         ctx.selections.append(selection);
     }
     ctx.clip = r;

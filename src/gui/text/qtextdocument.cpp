@@ -969,8 +969,9 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
             .arg(defaultCharFormat.fontItalic() ? "italic" : "normal");
 
     const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
-    if (fmt.backgroundColor().isValid())
-        emitAttribute("bgcolor", fmt.backgroundColor().name());
+    QBrush bg = fmt.background();
+    if (bg != Qt::NoBrush)
+        emitAttribute("bgcolor", bg.color().name());
 
     html += QLatin1Char('>');
 
@@ -1061,9 +1062,9 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         html.chop(qstrlen(decorationTag.latin1()));
     }
 
-    if (format.textColor() != defaultCharFormat.textColor()) {
+    if (format.foreground() != defaultCharFormat.foreground()) {
         html += QLatin1String(" color:");
-        html += format.textColor().name();
+        html += format.foreground().color().name();
         html += QLatin1Char(';');
         attributesEmitted = true;
     }
@@ -1219,10 +1220,10 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     QTextBlockFormat format = block.blockFormat();
     emitAlignment(format.alignment());
 
-    QTextBlockFormat::Direction dir = format.direction();
-    if (dir == QTextBlockFormat::LeftToRight)
+    Qt::LayoutDirection dir = format.layoutDirection();
+    if (dir == Qt::LeftToRight)
         html += QLatin1String(" dir='ltr'");
-    else if (dir == QTextBlockFormat::RightToLeft)
+    else
         html += QLatin1String(" dir='rtl'");
 
     bool hasStyle = false;
@@ -1280,8 +1281,9 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     else
         html.chop(qstrlen(style.latin1()));
 
-    if (format.hasProperty(QTextFormat::BlockBackgroundColor))
-        emitAttribute("bgcolor", format.backgroundColor().name());
+    QBrush bg = format.background();
+    if (bg != Qt::NoBrush)
+        emitAttribute("bgcolor", bg.color().name());
 }
 
 void QTextHtmlExporter::emitBlock(const QTextBlock &block)
@@ -1402,8 +1404,9 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
     if (format.hasProperty(QTextFormat::TableCellPadding))
         emitAttribute("cellpadding", QString::number(format.cellPadding()));
 
-    if (format.hasProperty(QTextFormat::FrameBackgroundColor))
-        emitAttribute("bgcolor", format.backgroundColor().name());
+    QBrush bg = format.background();
+    if (bg != Qt::NoBrush)
+        emitAttribute("bgcolor", bg.color().name());
 
     html += QLatin1Char('>');
 
@@ -1448,8 +1451,9 @@ void QTextHtmlExporter::emitTable(const QTextTable *table)
                 emitAttribute("rowspan", QString::number(cell.rowSpan()));
 
             const QTextCharFormat cellFormat = cell.format();
-            if (cellFormat.hasProperty(QTextFormat::TableCellBackgroundColor))
-                emitAttribute("bgcolor", cellFormat.tableCellBackgroundColor().name());
+            QBrush bg = cellFormat.background();
+            if (bg != Qt::NoBrush)
+                emitAttribute("bgcolor", bg.color().name());
 
             html += QLatin1Char('>');
 
