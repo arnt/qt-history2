@@ -4809,9 +4809,13 @@ void QTable::clearCellWidget( int row, int col )
 	widgets.resize( numRows() * numCols() );
 
     QWidget *w = cellWidget( row, col );
-    if ( w )
+    if ( w ) {
 	w->removeEventFilter( this );
+	w->deferredDelete();
+    }
+    widgets.setAutoDelete( FALSE );
     widgets.remove( indexOf( row, col ) );
+    widgets.setAutoDelete( TRUE );
 }
 
 /*! \fn void QTable::dropped ( QDropEvent * e )
