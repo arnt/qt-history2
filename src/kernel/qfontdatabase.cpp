@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#19 $
 **
 ** Implementation of font database class.
 **
@@ -499,7 +499,7 @@ const QtFontStyle *QtFontCharSet::style( const QString &s ) const
 
 bool QtFontCharSet::isLocaleCharSet() const
 {			
-    return charSet() == QFont::charSetForLocale() || isUnicode();
+    return charSet() == QFont::charSetForLocale();
 }
 
 bool QtFontCharSet::isUnicode() const
@@ -618,18 +618,28 @@ void QtFontCharSet::refresh() const
 
 const QStringList &QtFontFamily::charSets( bool onlyForLocale ) const
 {
+    QtFontFamily *that = (QtFontFamily*)this; // mutable function
     if ( namesDirty ) {
-	QtFontFamily *that = (QtFontFamily*)this; // mutable function
 	QDictIterator<QtFontCharSet> iter( charSetDict );
 	QtFontCharSet *tmp;
+	QString unicode;
+	QString local;
 	for( ; (tmp = iter.current()) ; ++iter ) {
-	    if ( !onlyForLocale || tmp->isLocaleCharSet() )
+	    if ( tmp->isLocaleCharSet() )
+		local = tmp->name();
+	    else if ( tmp->isUnicode() )
+		unicode = tmp->name();
+	    else if ( !onlyForLocale )
 		that->charSetNames.append( tmp->name() );
 	}
 	that->charSetNames.sort();
+	if ( !!unicode )
+	    that->charSetNames.prepend( unicode ); // preferred second
+	if ( !!local )
+	    that->charSetNames.prepend( local ); // preferred first
 	that->namesDirty = FALSE;
     }
-    return charSetNames;
+    return that->charSetNames;
 }
 
 static
@@ -666,7 +676,7 @@ bool QtFontFamily::hasLocaleCharSet() const
 	QtFontCharSet *tmp;
 	that->supportsLocale = FALSE;
 	for( ; (tmp = iter.current()) ; ++iter ) {
-	    if ( tmp->isLocaleCharSet() ) {
+	    if ( tmp->isLocaleCharSet() || tmp->isUnicode() ) {
 		that->supportsLocale = TRUE;
 		break;
 	    }
