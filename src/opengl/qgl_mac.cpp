@@ -25,7 +25,6 @@
 #include <qpixmap.h>
 #include <qtimer.h>
 #include <qapplication.h>
-#include <qintdict.h>
 #if !defined(QMAC_OPENGL_DOUBLEBUFFER)
 #include <qobjectlist.h>
 #endif
