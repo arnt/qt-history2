@@ -908,7 +908,8 @@ void QMessageBox::adjustSize()
     if ( !testWState(WState_Polished) )
 	polish();
     resizeButtons();
-    label->adjustSize();
+    QSize labelSize( label->sizeHint() );
+
     QSize smax = mbd->buttonSize;
     int border = smax.height()/2;
     if ( border == 0 )
@@ -916,18 +917,34 @@ void QMessageBox::adjustSize()
     else if ( style() == MotifStyle )
 	border += 6;
     int bw = mbd->numButtons * smax.width() + (mbd->numButtons-1)*border;
-    int w = QMAX( bw, label->width() ) + 2*border;
+    int w = QMAX( bw, labelSize.width() ) + 2*border;
     int h = smax.height();
-    if ( label->height() )
-	h += label->height() + 3*border;
+    if ( labelSize.height() )
+	h += labelSize.height() + 3*border;
     else
 	h += 2*border;
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )  {
 	mbd->iconLabel.adjustSize();
-	w += mbd->iconLabel.pixmap()->width() + border;
+	int iw = mbd->iconLabel.pixmap()->width() + border;
+	w += iw;
+	bw += iw;
 	if ( h < mbd->iconLabel.pixmap()->height() + 3*border + smax.height() )
 	    h = mbd->iconLabel.pixmap()->height() + 3*border + smax.height();
     }
+
+    // if the box is a bit wider than its parent, and can be narrowed
+    // down without trouble, do that.
+    if ( parentWidget() && parentWidget()->width() < w && 
+	 parentWidget()->width() > bw &&
+	 parentWidget()->width() > (w-labelSize.width()/3) ) {
+	int lw = labelSize.width() - ( w - parentWidget()->width() );
+	int lh = label->heightForWidth( lw );
+	w = parentWidget()->width();
+	h = h + lh - labelSize.height();
+	labelSize = QSize( lw, lh );
+    }
+    label->resize( labelSize );
+    
     resize( w, h );
 }
 
@@ -952,8 +969,6 @@ void QMessageBox::resizeEvent( QResizeEvent * )
     mbd->iconLabel.move( border, border );
     if ( mbd->iconLabel.pixmap() && mbd->iconLabel.pixmap()->width() )
 	lmargin += mbd->iconLabel.pixmap()->width() + border;
-//     label->move( (width() + lmargin)/2 - label->width()/2,
-// 		 (height() - border - bh - label->height()) / 2 );
     label->setGeometry( lmargin+border,
 			border,
 			width() - lmargin -2*border,
