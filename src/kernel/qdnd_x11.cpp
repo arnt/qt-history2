@@ -946,24 +946,20 @@ void QDragManager::updateMode( ButtonState newstate )
 	global_requested_action = QDropEvent::Link;
     } else {
 	bool local = qt_xdnd_source_object != 0;
-	switch ( drag_mode ) {
-	  case QDragObject::DragMove:
-	  case QDragObject::DragCopy:
-	    goto mode_prechosen;
-	  case QDragObject::DragDefault:
-	    global_requested_action =
-		local ? QDropEvent::Move : QDropEvent::Copy;
-	    break;
-	  case QDragObject::DragCopyOrMove:
-	    global_requested_action = QDropEvent::Copy;
-	    break;
-	}
-	if ( newstate & ShiftButton )
+	if ( drag_mode == QDragObject::DragMove )
 	    global_requested_action = QDropEvent::Move;
-	else if ( newstate & ControlButton )
+	else if ( drag_mode == QDragObject::DragCopy )
 	    global_requested_action = QDropEvent::Copy;
-    mode_prechosen:
-	;
+	else {
+	    if ( drag_mode == QDragObject::DragDefault && local )
+		global_requested_action = QDropEvent::Move;
+	    else
+		global_requested_action = QDropEvent::Copy;
+	    if ( newstate & ShiftButton )
+		global_requested_action = QDropEvent::Move;
+	    else if ( newstate & ControlButton )
+		global_requested_action = QDropEvent::Copy;
+	}
     }
     oldstate = newstate;
 }
