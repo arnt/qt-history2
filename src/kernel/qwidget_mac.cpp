@@ -728,6 +728,16 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		grp = GetWindowGroupOfClass(kMovableModalWindowClass);
 		wclass = kSheetWindowClass;
 	    } else {
+		grp = GetWindowGroupOfClass(wclass);
+		if(testWFlags(WStyle_NoBorder)) {
+		    if(wclass == kDocumentWindowClass)
+			wclass = kPlainWindowClass;
+		    else if(wclass == kFloatingWindowClass)
+			wclass = kToolbarWindowClass;
+		} else {
+		    if(wclass != kModalWindowClass)
+			wattr |= kWindowResizableAttribute;
+		}
 		if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
 		    if(wclass == kToolbarWindowClass)
 			wclass = kFloatingWindowClass;
@@ -736,17 +746,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		    if(wclass == kFloatingWindowClass)
 			wattr |= kWindowStandardFloatingAttributes;
 		}
-		grp = GetWindowGroupOfClass(wclass);
-		if(testWFlags(WStyle_NoBorder)) {
-		    if(wclass == kDocumentWindowClass)
-			wclass = kSheetWindowClass;
-		    else if(wclass == kFloatingWindowClass)
-			wclass = kToolbarWindowClass;
-		} else {
-		    if(wclass != kModalWindowClass)
-			wattr |= kWindowResizableAttribute;
-		}
-		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass) { //no choice for these..
+		if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass && //no choice for these..
+		   wclass != kSheetWindowClass && wclass != kPlainWindowClass) {
 		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
 		    if(testWFlags(WStyle_Minimize))
@@ -756,13 +757,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		}
 	    }
 	}
-
 	wattr |= kWindowLiveResizeAttribute;
-#if 0 //we use share activation instead now..
-	if(popup || testWFlags(WStyle_Tool) ||
-	   (!testWFlags(WShowModal) && dialog && parentWidget() && !parentWidget()->topLevelWidget()->isDesktop()))
-	    wattr |= kWindowNoActivatesAttribute;
-#endif
 
 #ifdef DEBUG_WINDOW_CREATE
 #define ADD_DEBUG_WINDOW_NAME(x) { x, #x }
@@ -780,6 +775,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ADD_DEBUG_WINDOW_NAME(kWindowCloseBoxAttribute),
 	    { 0, NULL }
 	}, known_classes[] = {
+	    ADD_DEBUG_WINDOW_NAME(kPlainWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kDrawerWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kUtilityWindowClass),
 	    ADD_DEBUG_WINDOW_NAME(kToolbarWindowClass),
@@ -882,7 +878,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		from = "Created";
 	    else if(grpf == grp)
 		from = "Copied";
-	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s", cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
+	    qDebug("Qt: internal: With window group '%s' [%p] @ %d: %s", 
+		   cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
 	} else {
 	    qDebug("Qt: internal: No window group!!!");
 	}
