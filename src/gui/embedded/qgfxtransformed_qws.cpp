@@ -198,7 +198,7 @@ QRect QTransformedScreen::mapFromDevice(const QRect &r, const QSize &s) const
 
 template<class T>
 static inline void rotateLoopTemplate(
-        uchar *src, int srcBytesPerLine,
+        const uchar *src, int srcBytesPerLine,
         uchar *dst, int dstBytesPerLine,
         int width, int height,
         QTransformedScreen::Transformation trans, bool mapToDevice)
@@ -277,7 +277,7 @@ QImage QTransformedScreen::mapToDevice(const QImage &img) const
     if (d == 8 || d == 16 || d == 32) {
         int srcBytesPerLine = img.bytesPerLine();
         int dstBytesPerLine = rimg.bytesPerLine();
-        uchar *srcBits = img.bits();
+        const uchar *srcBits = img.bits();
         uchar *dstBits = rimg.bits();
         switch (d) {
             case 8:
@@ -357,7 +357,7 @@ QImage QTransformedScreen::mapFromDevice(const QImage &img) const
     if (d == 8 || d == 16 || d == 32) {
         int srcBytesPerLine = img.bytesPerLine();
         int dstBytesPerLine = rimg.bytesPerLine();
-        uchar *srcBits = img.bits();
+        const uchar *srcBits = img.bits();
         uchar *dstBits = rimg.bits();
         switch (d) {
             case 8:
