@@ -78,7 +78,7 @@ void DatabaseConnection::doConnect()
 	    // ### error handling
 	    delete conn;
 	}
-    } else { // sync // ### should this do something else?
+    } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...
 	Project::DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
 	conn->connect();
     }
