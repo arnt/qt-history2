@@ -14,10 +14,10 @@ void snippet_ctor2()
 
     QSettings settings;
 
-    settings.setValue("wrapMargin", 68);
-    int margin = settings.value("wrapMargin").toInt();
+    settings.setValue("editor/wrapMargin", 68);
+    int margin = settings.value("editor/wrapMargin").toInt();
     {
-    int margin = settings.value("wrapMargin", 80).toInt();
+    int margin = settings.value("editor/wrapMargin", 80).toInt();
     }
 
     settings.setValue("mainwindow/size", win->size());
