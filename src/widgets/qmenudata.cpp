@@ -1349,6 +1349,9 @@ QString QMenuData::whatsThis( int id ) const
 
   menu/menu.cpp shows a simply example how custom menu items can be used.
 
+  Please note: the current implementation of QCustomMenuItem will not recognize
+  shortcut keys that are from text with ampersands.  Normal accelerators work though.
+
   <img src=qpopmenu-fancy.png>
 
 

@@ -100,7 +100,7 @@ public:
     void paint( QPainter* p, const QColorGroup& /*cg*/, bool /*act*/, bool /*enabled*/, int x, int y, int w, int h )
     {
 	p->setFont ( font );
-	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | ShowPrefix | DontClip, string );
+	p->drawText( x, y, w, h, AlignLeft | AlignVCenter | DontClip, string );
     }
 
     QSize sizeHint()
@@ -157,12 +157,12 @@ MenuExample::MenuExample( QWidget *parent, const char *name )
     options->polish(); // adjust system settings
     QFont f = options->font();
     f.setBold( TRUE );
-    boldID = options->insertItem( new MyMenuItem( "&Bold", f ) );
+    boldID = options->insertItem( new MyMenuItem( "Bold", f ) );
     options->setAccel( CTRL+Key_B, boldID );
     options->connectItem( boldID, this, SLOT(bold()) );
     f = font();
     f.setUnderline( TRUE );
-    underlineID = options->insertItem( new MyMenuItem( "&Underline", f ) );
+    underlineID = options->insertItem( new MyMenuItem( "Underline", f ) );
     options->setAccel( CTRL+Key_U, underlineID );
     options->connectItem( underlineID, this, SLOT(underline()) );
 

@@ -213,7 +213,6 @@ struct QLineEditPrivate {
     int preeditStart, preeditLength;
     QString txtBuffer;  // semi-persistant storage for text()
     QChar passwordChar;
-    
 };
 
 QPixmap* QLineEditPrivate::pm = 0;

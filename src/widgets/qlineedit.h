@@ -122,6 +122,7 @@ public:
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
+
 #ifndef QT_NO_COMPAT
     bool hasMarkedText() const { return hasSelectedText(); }
     QString markedText() const { return selectedText(); }

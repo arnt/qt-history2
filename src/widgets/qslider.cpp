@@ -81,6 +81,8 @@ static int sliderStartVal = 0; //##### class member?
 
   <img src=qslider-m.png> <img src=qslider-w.png>
 
+  \important setRange
+
   \sa QScrollBar QSpinBox
   \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
 */
@@ -166,10 +168,10 @@ void QSlider::init()
     initTicks();
 
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
 				    QSizePolicy::Fixed ) );
     else
-	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, 
+	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed,
 				     QSizePolicy::Expanding ) );
 
 }
@@ -326,10 +328,10 @@ void QSlider::setOrientation( Orientation orientation )
     orient = orientation;
 
     if ( orient == Horizontal )
-	setSizePolicy( QSizePolicy( QSizePolicy::Expanding, 
+	setSizePolicy( QSizePolicy( QSizePolicy::Expanding,
 				    QSizePolicy::Fixed ) );
     else
-	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed, 
+	setSizePolicy( QSizePolicy(  QSizePolicy::Fixed,
 				     QSizePolicy::Expanding ) );
     rangeChange();
     update();
@@ -405,7 +407,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
     if ( e->button() == RightButton )
 	return;
-    
+
     if ( r.contains( e->pos() ) ) {
 	state = Dragging;
 	clickOffset = (QCOORD)( goodPart( e->pos() ) - sliderPos );
