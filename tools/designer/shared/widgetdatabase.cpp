@@ -514,6 +514,7 @@ void WidgetDatabase::setupDataBase()
 	r->isContainer = iface->isContainer( *it );
 	r->name = *it;
 	append( r );
+	iface->release();
     }
 }
 
