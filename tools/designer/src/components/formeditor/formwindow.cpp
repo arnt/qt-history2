@@ -394,9 +394,8 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
         current = p;
     }
-    selectWidget(current);
 
-    blockSelectionChanged(blocked);
+    selectWidget(current);
 
     QDesignerResource builder(this);
 
@@ -420,6 +419,8 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 
     if (sel.count())
         core()->formWindowManager()->dragItems(item_list, this);
+
+    blockSelectionChanged(blocked);
 
     emitSelectionChanged(); // ensure the selection is updated!
 }
