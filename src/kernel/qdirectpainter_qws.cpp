@@ -65,6 +65,7 @@ public:
     QPoint offset;
     int w,h;
     QRect change;
+    QRegion rgn;
 };
 
 /*!
