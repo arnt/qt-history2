@@ -1533,6 +1533,8 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     }
     parser_info pi = parser;
     QStack<ScopeBlock> sc = scope_blocks;
+    IteratorBlock *it = iterator;
+    FunctionBlock *fu = function;
     bool parsed = false;
     if(flags & IncludeFlagNewProject) {
         QMakeProject proj(place);
@@ -1548,6 +1550,8 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     else
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
                  pi.file.toLatin1().constData(), pi.line_no, orig_file.toLatin1().constData());
+    iterator = it;
+    function = fu;
     parser = pi;
     scope_blocks = sc;
     qmake_setpwd(oldpwd);
