@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#203 $
 **
 ** Implementation of QApplication class
 **
@@ -453,7 +453,7 @@ void QApplication::setStyle( QStyle *style )
 	    while ( (w=it.current()) ) {		// for all widgets...
 		++it;
 		if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		     && w->testWState(QWS_Polished) ) { // (and have been polished)
+		     && w->testWState(WState_Polished) ) { // (and have been polished)
 		    old->unPolish(w);
 		}
 	    }
@@ -468,7 +468,7 @@ void QApplication::setStyle( QStyle *style )
 	    while ( (w=it.current()) ) {		// for all widgets...
 		++it;
 		if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		     && w->testWState(QWS_Polished)) { // (and have been polished)
+		     && w->testWState(WState_Polished)) { // (and have been polished)
 		    app_style->polish(w);
 		    w->styleChange(old->guiStyle());
 		    if (w->isVisible()){
@@ -682,7 +682,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		 && w->testWState(QWS_PaletteFixed) ) // (and except fixed palettes)
+		 && w->testWState(WState_PaletteFixed) ) // (and except fixed palettes)
 		w->setPalette( *QApplication::palette( w ) );
 	}
     }
@@ -762,7 +762,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets, const char
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
 	    if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		 && w->testWState(QWS_FontFixed) ) // (and except fixed fonts)
+		 && w->testWState(WState_FontFixed) ) // (and except fixed fonts)
 		w->setFont( *QApplication::font( w ) );
 	}
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#208 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#209 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -879,7 +879,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	}
     }
 
-    if ( (conversion_flags & DitherMode_Mask) == PreferDither ) {
+    if ( (conversion_flags & Qt::DitherMode_Mask) == Qt::PreferDither ) {
 	do_quant = TRUE;
     } else {
 	for ( y=0; y<src->height(); y++ ) {	// check if <= 256 colors
@@ -971,7 +971,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	int* line1[3];
 	int* line2[3];
 	int* pv[3];
-	if ( ( conversion_flags & Dither_Mask ) == DiffuseDither ) {
+	if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::DiffuseDither ) {
 	    line1[0] = new int[src->width()];
 	    line2[0] = new int[src->width()];
 	    line1[1] = new int[src->width()];
@@ -989,7 +989,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	    QRgb *end = p + sw;
 
 	    // perform quantization
-	    if ( ( conversion_flags & Dither_Mask ) == ThresholdDither ) {
+	    if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::ThresholdDither ) {
 #define DITHER(p,m) ((uchar) ((p * (m) + 127) / 255))
 		while ( p < end ) {
 		    rc = qRed( *p );
@@ -1006,7 +1006,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 		    p++;
 		}
 #undef DITHER
-	    } else if ( ( conversion_flags & Dither_Mask ) == OrderedDither ) {
+	    } else if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::OrderedDither ) {
 #define DITHER(p,d,m) ((uchar) ((((256 * (m) + (m) + 1)) * (p) + (d)) / 65536 ))
 
 		int x = 0;
@@ -1112,7 +1112,7 @@ static bool convert_32_to_8( const QImage *src, QImage *dst, int conversion_flag
 	    }
 	}
 
-	if ( ( conversion_flags & Dither_Mask ) == DiffuseDither ) {
+	if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::DiffuseDither ) {
 	    delete line1[0];
 	    delete line2[0];
 	    delete line1[1];
@@ -1229,16 +1229,16 @@ static bool dither_to_1( const QImage *src, QImage *dst,
     enum { Threshold, Ordered, Diffuse } dithermode;
 
     if ( fromalpha ) {
-	if ( ( conversion_flags & AlphaDither_Mask ) == DiffuseAlphaDither )
+	if ( ( conversion_flags & Qt::AlphaDither_Mask ) == Qt::DiffuseAlphaDither )
 	    dithermode = Diffuse;
-	else if ( ( conversion_flags & AlphaDither_Mask ) == OrderedAlphaDither )
+	else if ( ( conversion_flags & Qt::AlphaDither_Mask ) == Qt::OrderedAlphaDither )
 	    dithermode = Ordered;
 	else
 	    dithermode = Threshold;
     } else {
-	if ( ( conversion_flags & Dither_Mask ) == ThresholdDither )
+	if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::ThresholdDither )
 	    dithermode = Threshold;
-	else if ( ( conversion_flags & Dither_Mask ) == OrderedDither )
+	else if ( ( conversion_flags & Qt::Dither_Mask ) == Qt::OrderedDither )
 	    dithermode = Ordered;
 	else
 	    dithermode = Diffuse;
@@ -2039,7 +2039,7 @@ QImage QImage::createAlphaMask( int conversion_flags ) const
 {
     if ( conversion_flags == 1 ) {
 	// Old code is passing "TRUE".
-	conversion_flags = DiffuseAlphaDither;
+	conversion_flags = Qt::DiffuseAlphaDither;
     }
 
     if ( isNull() || !hasAlphaBuffer() ) {
@@ -4274,7 +4274,7 @@ QImage QImage::convertDepthWithPalette( int d, QRgb* palette, int palette_count,
     } else {
 	QImage result;
 	convert_32_to_8( this, &result,
-	    (conversion_flags&~DitherMode_Mask) | AvoidDither,
+	    (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither,
 	    palette, palette_count );
 	return result.convertDepth( d );
     }
@@ -4338,7 +4338,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
     } else if ( dst->depth() != 32 ) {
 	QImage dstconv = dst->convertDepth( 32 );
 	bitBlt( &dstconv, dx, dy, src, sx, sy, sw, sh,
-	   (conversion_flags&~DitherMode_Mask) | AvoidDither );
+	   (conversion_flags&~Qt::DitherMode_Mask) | Qt::AvoidDither );
 	*dst = dstconv.convertDepthWithPalette( dst->depth(),
 	    dst->colorTable(), dst->numColors() );
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#244 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#245 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -495,7 +495,7 @@ static void msgHandler( QtMsgType t, const char* str )
 }
 
 
-Q_EXPORT void qAddPostRoutine( CleanUpFunction p )
+Q_EXPORT void qAddPostRoutine( Q_CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
@@ -776,7 +776,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 	r = configRequests->dequeue();
 	QWidget *w = QWidget::find( r->id );
 	if ( w ) {				// widget exists
-	    if ( w->testWState(QWS_ConfigPending) ) // biting our tail
+	    if ( w->testWState(WState_ConfigPending) ) // biting our tail
 		return;
 	    if ( r->req == 0 )
 		w->move( r->x, r->y );
@@ -2337,12 +2337,12 @@ bool QETWidget::translatePaintEvent( const MSG & )
     QPaintEvent e( reg );
 #endif
 
-    setWState( QWS_InPaintEvent );
+    setWState( WState_InPaintEvent );
     hdc = BeginPaint( winId(), &ps );
     QApplication::sendEvent( this, (QEvent*) &e );
     EndPaint( winId(), &ps );
     hdc = 0;
-    clearWState( QWS_InPaintEvent );
+    clearWState( WState_InPaintEvent );
     return TRUE;
 }
 
@@ -2352,9 +2352,9 @@ bool QETWidget::translatePaintEvent( const MSG & )
 
 bool QETWidget::translateConfigEvent( const MSG &msg )
 {
-    if ( !testWState(QWS_Created) )		// in QWidget::create()
+    if ( !testWState(WState_Created) )		// in QWidget::create()
 	return TRUE;
-    setWState( QWS_ConfigPending );		// set config flag
+    setWState( WState_ConfigPending );		// set config flag
     QRect r = geometry();
     WORD a = LOWORD(msg.lParam);
     WORD b = HIWORD(msg.lParam);
@@ -2369,7 +2369,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		// being "hidden"
 		if ( isVisible() ) {
-		    clearWState( QWS_Visible );
+		    clearWState( WState_Visible );
 		    QHideEvent e(TRUE);
 		    QApplication::sendEvent( this, &e );
 		    extra->topextra->iconic = 1;
@@ -2377,7 +2377,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    } else if ( extra->topextra->iconic ) {
 		// being shown
 		if ( !isVisible() ) {
-		    setWState( QWS_Visible );
+		    setWState( WState_Visible );
 		    QShowEvent e(TRUE);
 		    QApplication::sendEvent( this, &e );
 		}
@@ -2413,7 +2413,7 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    }
 	}
     }
-    clearWState( QWS_ConfigPending );		// clear config flag
+    clearWState( WState_ConfigPending );		// clear config flag
     return TRUE;
 }
 

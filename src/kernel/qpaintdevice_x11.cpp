@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#94 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -448,7 +448,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	src_pm = 0;
 	mono_src = FALSE;
 	mask = 0;
-	include_inferiors = ((QWidget*)src)->testWFlags(WPaintUnclipped);
+	include_inferiors = ((QWidget*)src)->testWFlags(Qt::WPaintUnclipped);
 	graphics_exposure = td == QInternal::Widget;
     }
     if ( td == QInternal::Pixmap ) {
@@ -457,7 +457,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else {
 	mono_dst = FALSE;
 	include_inferiors = include_inferiors ||
-	    ((QWidget*)dst)->testWFlags(WPaintUnclipped);
+	    ((QWidget*)dst)->testWFlags(Qt::WPaintUnclipped);
     }
 
     if ( mono_dst && !mono_src ) {	// dest is 1-bit pixmap, source is not

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#207 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#208 $
 **
 ** Definition of QWidget class
 **
@@ -461,7 +461,7 @@ inline bool QWidget::isDesktop() const
 { return testWFlags(WType_Desktop); }
 
 inline bool QWidget::isEnabled() const
-{ return !testWState(QWS_Disabled); }
+{ return !testWState(WState_Disabled); }
 
 inline QRect QWidget::frameGeometry() const
 { return QRect(fpos,frameSize()); }
@@ -521,7 +521,7 @@ inline QFontInfo QWidget::fontInfo() const
 { return QFontInfo(font()); }
 
 inline bool QWidget::hasMouseTracking() const
-{ return testWState(QWS_MouseTracking); }
+{ return testWState(WState_MouseTracking); }
 
 inline bool  QWidget::isFocusEnabled() const
 { return (FocusPolicy)focus_policy != NoFocus; }
@@ -530,7 +530,7 @@ inline QWidget::FocusPolicy QWidget::focusPolicy() const
 { return (FocusPolicy)focus_policy; }
 
 inline bool QWidget::isUpdatesEnabled() const
-{ return !testWState(QWS_BlockUpdates); }
+{ return !testWState(WState_BlockUpdates); }
 
 inline void QWidget::update( const QRect &r )
 { update( r.x(), r.y(), r.width(), r.height() ); }
@@ -554,7 +554,7 @@ inline bool QWidget::close()
 { return close( FALSE ); }
 
 inline bool QWidget::isVisible() const
-{ return testWState(QWS_Visible); }
+{ return testWState(WState_Visible); }
 
 inline void QWidget::move( const QPoint &p )
 { move( p.x(), p.y() ); }
@@ -574,7 +574,7 @@ inline QWidget *QWidget::parentWidget() const
 inline QWidgetMapper *QWidget::wmapper()
 { return mapper; }
 
-inline WFlags QWidget::getWState() const
+inline Qt::WFlags QWidget::getWState() const
 { return widget_state; }
 
 inline void QWidget::setWState( WFlags f )
@@ -583,7 +583,7 @@ inline void QWidget::setWState( WFlags f )
 inline void QWidget::clearWState( WFlags f )
 { widget_state &= ~f; }
 
-inline WFlags QWidget::getWFlags() const
+inline Qt::WFlags QWidget::getWFlags() const
 { return widget_flags; }
 
 inline void QWidget::setWFlags( WFlags f )

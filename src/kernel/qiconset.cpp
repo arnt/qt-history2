@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#25 $
 **
 ** Implementation of QIconSet class
 **
@@ -277,7 +277,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		if ( !p->large.pm->mask() ) {
 		    i = i.createHeuristicMask();
 		    QBitmap tmp;
-		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    p->large.pm->setMask( tmp );
 		}
 	    }
@@ -304,7 +304,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    p->largeDisabled.pm->convertFromImage( i );
 		    if ( !p->largeDisabled.pm->mask() ) {
 			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		} else {
 		    if (pixmap( Large, Normal).mask())
@@ -312,7 +312,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    else {
 			i = pixmap( Large, Normal ).convertToImage();
 			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		    p->largeDisabled.pm
 			= new QPixmap( p->large.pm->width()+1,
@@ -354,7 +354,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		if ( !p->small.pm->mask() ) {
 		    i = i.createHeuristicMask();
 		    QBitmap tmp;
-		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    p->small.pm->setMask( tmp );
 		}
 	    }
@@ -381,7 +381,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    p->smallDisabled.pm->convertFromImage( i );
 		    if ( !p->smallDisabled.pm->mask() ) {
 			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		} else {
 		    if ( pixmap( Small, Normal).mask())
@@ -389,7 +389,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    else {
 			i = pixmap( Small, Normal ).convertToImage();
 			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 		    }
 		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,

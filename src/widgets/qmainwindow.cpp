@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#49 $
 **
 ** Implementation of QMainWindow class
 **
@@ -602,7 +602,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     int cw = 0;
     do {
 	bool nl = t->nl;
-	if (t->t->isVisible() && !t->t->testWState(QWS_ForceHide))
+	if (t->t->isVisible() && !t->t->testWState(Qt::WState_ForceHide))
 	    cw += t->t->sizeHint().width();
 	if ( cw > tl->mainWidget()->width() )
 	    nl = TRUE;
@@ -616,7 +616,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	    toolBarRowLayout = new QBoxLayout( direction );
 	    dockLayout->addLayout( toolBarRowLayout, 0 );
 	}
-	if ( t->t->isVisible() && !t->t->testWState(QWS_ForceHide) ) {
+	if ( t->t->isVisible() && !t->t->testWState(Qt::WState_ForceHide) ) {
 	    toolBarRowLayout->addWidget( t->t, 0 );
 	    anyToolBars = TRUE;
 	}
@@ -658,7 +658,7 @@ void QMainWindow::setUpLayout()
     delete d->tll;
     d->tll = new QBoxLayout( this, QBoxLayout::Down );
 
-    if ( d->mb && !d->mb->testWState(QWS_ForceHide) )
+    if ( d->mb && !d->mb->testWState(Qt::WState_ForceHide) )
 	d->tll->setMenuBar( d->mb );
     if ( style() == WindowsStyle )
 	d->tll->addSpacing( 1 );
@@ -671,7 +671,7 @@ void QMainWindow::setUpLayout()
     addToolBarToLayout( d->left, mwl,
 			QBoxLayout::Down, QBoxLayout::LeftToRight, FALSE,
 			d->justify, style() );
-    if ( centralWidget() && !centralWidget()->testWState(QWS_ForceHide) )
+    if ( centralWidget() && !centralWidget()->testWState(Qt::WState_ForceHide) )
 	mwl->addWidget( centralWidget(), 1 );
     else
 	mwl->addStretch( 1 );
@@ -682,7 +682,7 @@ void QMainWindow::setUpLayout()
 			QBoxLayout::LeftToRight, QBoxLayout::Up, TRUE,
 			d->justify, style() );
 
-    if ( d->sb && !d->sb->testWState(QWS_ForceHide) )
+    if ( d->sb && !d->sb->testWState(Qt::WState_ForceHide) )
 	d->tll->addWidget( d->sb, 0 );
     //debug( "act %d, %d", x(), y() );
     d->tll->activate();

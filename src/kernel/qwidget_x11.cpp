@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#327 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#328 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -121,11 +121,11 @@ void qt_XDestroyWindow( const QWidget *destroyer,
 
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if ( testWState(QWS_Created) && window == 0 )
+    if ( testWState(WState_Created) && window == 0 )
 	return;
-    setWState( QWS_Created );			// set created flag
-    clearWState( QWS_USPositionX );
-    clearWState( QWS_DND );
+    setWState( WState_Created );			// set created flag
+    clearWState( WState_USPositionX );
+    clearWState( WState_DND );
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -296,15 +296,15 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XChangeWindowAttributes( dpy, id, CWBitGravity, &wsa );
     }
 
-    setWState( QWS_MouseTracking );
+    setWState( WState_MouseTracking );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
-	setWState( QWS_Visible );
+	setWState( WState_Visible );
     } else if ( topLevel ) {			// set X cursor
 	QCursor *oc = QApplication::overrideCursor();
 	if ( initializeWindow )
 	    XDefineCursor( dpy, winid, oc ? oc->handle() : cursor().handle() );
-	setWState( QWS_OwnCursor );
+	setWState( WState_OwnCursor );
     }
 
     if ( window ) {				// got window from outside
@@ -313,9 +313,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	crect.setRect( a.x, a.y, a.width, a.height );
 	fpos = crect.topLeft();
 	if ( a.map_state == IsUnmapped )
-	    clearWState( QWS_Visible );
+	    clearWState( WState_Visible );
 	else
-	    setWState( QWS_Visible );
+	    setWState( WState_Visible );
     }
 
     if ( destroyw )
@@ -340,8 +340,8 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     if ( qt_button_down == this )
 	qt_button_down = 0;
 
-    if ( testWState(QWS_Created) ) {
-	clearWState( QWS_Created );
+    if ( testWState(WState_Created) ) {
+	clearWState( WState_Created );
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *obj;
@@ -414,7 +414,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
-    clearWState( QWS_Created | QWS_Visible );
+    clearWState( WState_Created | WState_Visible );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -597,7 +597,7 @@ void QWidget::setCursor( const QCursor &cursor )
 	createExtra();
 	extra->curs = new QCursor(cursor);
     }
-    setWState( QWS_OwnCursor );
+    setWState( WState_OwnCursor );
     QCursor *oc = QApplication::overrideCursor();
     XDefineCursor( x11Display(), winId(),
 		   oc ? oc->handle() : cursor.handle() );
@@ -621,7 +621,7 @@ void QWidget::unsetCursor()
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
-	clearWState( QWS_OwnCursor );
+	clearWState( WState_OwnCursor );
 	XDefineCursor( x11Display(), winId(), None );
 	XFlush( x11Display() );
     }
@@ -698,13 +698,13 @@ void QWidget::setIconText( const QString &iconText )
 void QWidget::setMouseTracking( bool enable )
 {
     bool gmt = QApplication::hasGlobalMouseTracking();
-    if ( enable == testWState(QWS_MouseTracking) && !gmt )
+    if ( enable == testWState(WState_MouseTracking) && !gmt )
 	return;
     uint m = (enable || gmt) ? (uint)PointerMotionMask : 0;
     if ( enable )
-	setWState( QWS_MouseTracking );
+	setWState( WState_MouseTracking );
     else
-	clearWState( QWS_MouseTracking );
+	clearWState( WState_MouseTracking );
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	if ( testWFlags(WPaintDesktop) )	// get desktop paint events
 	    XSelectInput( x11Display(), winId(),
@@ -930,7 +930,7 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible )
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
 	XClearArea( x11Display(), winId(), 0, 0, 0, 0, TRUE );
 }
 
@@ -951,7 +951,7 @@ void QWidget::update()
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( w && h &&
-	 (widget_flags & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+	 (widget_flags & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -999,7 +999,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -1030,7 +1030,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( erase )
 	    this->erase(reg);
 	QPaintEvent e( reg );
@@ -1050,8 +1050,8 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    setWState( QWS_Visible );
-    clearWState( QWS_ForceHide );
+    setWState( WState_Visible );
+    clearWState( WState_ForceHide );
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
     XMapWindow( x11Display(), winId() );
@@ -1235,18 +1235,18 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     // We only care about stuff that changes the geometry, or may
     // cause the window manager to change its state
     if ( r.size() == olds && oldp == r.topLeft() &&
-	 (isTopLevel() == FALSE || testWState(QWS_USPositionX)) )
+	 (isTopLevel() == FALSE || testWState(WState_USPositionX)) )
 	return;
 
     setCRect( r );
 
     if ( isTopLevel() ) {
-	setWState( QWS_ConfigPending );
+	setWState( WState_ConfigPending );
 	XSizeHints size_hints;
 	size_hints.flags = USSize | PSize;
 	if ( isMove )
-	    setWState(QWS_USPositionX);
-	if ( testWState(QWS_USPositionX) )
+	    setWState(WState_USPositionX);
+	if ( testWState(WState_USPositionX) )
 	    // also restore the usposition, otherwise it would be cleared
 	    size_hints.flags |= USPosition;
 	size_hints.x = x;
@@ -1550,7 +1550,7 @@ void QWidget::scroll( int dx, int dy )
 
 void QWidget::drawText( int x, int y, const QString &str )
 {
-    if ( testWState(QWS_Visible) ) {
+    if ( testWState(WState_Visible) ) {
 	QPainter paint;
 	paint.begin( this );
 	paint.drawText( x, y, str );
@@ -1634,7 +1634,7 @@ void QWidget::deleteTLSysExtra()
 
 bool QWidget::acceptDrops() const
 {
-    return testWState(QWS_DND);
+    return testWState(WState_DND);
 }
 
 /*!
@@ -1648,9 +1648,9 @@ bool QWidget::acceptDrops() const
 
 void QWidget::setAcceptDrops( bool on )
 {
-    if ( testWState(QWS_DND) != on ) {
+    if ( testWState(WState_DND) != on ) {
 	if ( on ) {
-	    setWState(QWS_DND);
+	    setWState(WState_DND);
 	    QWidget * tlw = topLevelWidget();
 
 	    extern Atom qt_xdnd_aware;
@@ -1659,7 +1659,7 @@ void QWidget::setAcceptDrops( bool on )
 			      XA_ATOM, 32, PropModeReplace,
 			      (unsigned char *)&qt_xdnd_version, 1 );
 	} else {
-	    clearWState(QWS_DND);
+	    clearWState(WState_DND);
 	}
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#173 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#174 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -63,9 +63,9 @@ extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if ( testWState(QWS_Created) && window == 0 )
+    if ( testWState(WState_Created) && window == 0 )
 	return;
-    setWState( QWS_Created );			// set created flag
+    setWState( WState_Created );			// set created flag
 
     if ( !parentWidget() )
 	setWFlags( WType_TopLevel );		// top-level widget
@@ -163,10 +163,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( testWFlags(WStyle_Title) )
 	title = qAppName();
 
-	// The QWS_Created flag is checked by translateConfigEvent() in
+	// The WState_Created flag is checked by translateConfigEvent() in
         // qapplication_win.cpp. We switch it off temporarily to avoid move
         // and resize events during creation
-    clearWState( QWS_Created );
+    clearWState( WState_Created );
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow )
@@ -209,7 +209,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( desktop ) {
-	setWState( QWS_Visible );
+	setWState( WState_Visible );
     } else {
 	RECT  fr, cr;
 	POINT pt;
@@ -251,14 +251,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
     }
 
-    setWState( QWS_Created );			// accept move/resize events
+    setWState( WState_Created );			// accept move/resize events
     hdc = 0;					// no display context
 
     if ( window ) {				// got window from outside
 	if ( IsWindowVisible(window) )
-	    setWState( QWS_Visible );
+	    setWState( WState_Visible );
 	else
-	    clearWState( QWS_Visible );
+	    clearWState( WState_Visible );
     }
 
     if ( destroyw ) {
@@ -269,8 +269,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
 void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
-    if ( testWState(QWS_Created) ) {
-	clearWState( QWS_Created );
+    if ( testWState(WState_Created) ) {
+	clearWState( WState_Created );
 	if ( children() ) {
 	    QObjectListIt it(*children());
 	    register QObject *obj;
@@ -322,7 +322,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
-    clearWState( QWS_Created | QWS_Visible );
+    clearWState( WState_Created | WState_Visible );
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
@@ -445,7 +445,7 @@ void QWidget::setCursor( const QCursor &cursor )
 	createExtra();
 	extra->curs = new QCursor(cursor);
     }
-    setWState( QWS_OwnCursor );
+    setWState( WState_OwnCursor );
     qt_set_cursor( this, QWidget::cursor() );
 }
 
@@ -456,7 +456,7 @@ void QWidget::unsetCursor()
 	    delete extra->curs;
 	    extra->curs = 0;
 	}
-	clearWState( QWS_OwnCursor );
+	clearWState( WState_OwnCursor );
 	qt_set_cursor( this, cursor() );
     }
 }
@@ -637,14 +637,14 @@ void QWidget::setActiveWindow()
 
 void QWidget::update()
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible )
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible )
 	InvalidateRect( winId(), 0, TRUE );
 }
 
 void QWidget::update( int x, int y, int w, int h )
 {
     if ( w && h &&
-	 (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+	 (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	RECT r;
 	r.left = x;
 	r.top  = y;
@@ -663,7 +663,7 @@ void QWidget::update( int x, int y, int w, int h )
 
 void QWidget::repaint( int x, int y, int w, int h, bool erase )
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	if ( w < 0 )
 	    w = crect.width()  - x;
 	if ( h < 0 )
@@ -677,7 +677,7 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 
 void QWidget::repaint( const QRegion& reg, bool erase )
 {
-    if ( (widget_state & (QWS_Visible|QWS_BlockUpdates)) == QWS_Visible ) {
+    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	QPaintEvent e( reg );
 	if ( erase )
 	    this->erase( reg );
@@ -699,8 +699,8 @@ void QWidget::showWindow()
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     else
 	ShowWindow( winId(), SW_SHOW );
-    setWState( QWS_Visible );
-    clearWState( QWS_ForceHide );
+    setWState( WState_Visible );
+    clearWState( WState_ForceHide );
 
     QShowEvent e(FALSE);
     QApplication::sendEvent( this, &e );
@@ -783,7 +783,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     QSize  olds( size() );
     if ( isMove == FALSE && olds.width()==w && olds.height()==h )
 	return;
-    if ( testWState(QWS_ConfigPending) ) {	// processing config event
+    if ( testWState(WState_ConfigPending) ) {	// processing config event
 	qWinRequestConfig( winId(), 2, x, y, w, h );
     } else {
 	if ( extra && extra->topextra ) {
@@ -793,9 +793,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    h += fs.height() - crect.height();
 	}
 	setFRect( QRect(x,y,w,h) );
-	setWState( QWS_ConfigPending );
+	setWState( WState_ConfigPending );
 	MoveWindow( winId(), x, y, w, h, TRUE );
-	clearWState( QWS_ConfigPending );
+	clearWState( WState_ConfigPending );
     }
 
 }
@@ -905,7 +905,7 @@ void QWidget::scroll( int dx, int dy )
 
 void QWidget::drawText( int x, int y, const QString &str )
 {
-    if ( testWState(QWS_Visible) ) {
+    if ( testWState(WState_Visible) ) {
 	QPainter paint;
 	paint.begin( this );
 	paint.drawText( x, y, str );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#5 $
 **
 ** Localization database support.
 **
@@ -77,7 +77,7 @@ public:
     uint l;
 
     // for mmap'ed files, this is what needs to be unmapped.
-    void * unmapPointer;
+    char * unmapPointer;
     unsigned int unmapLength;
 
     // for squeezed but non-file data, this is what needs to be deleted

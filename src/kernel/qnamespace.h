@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#18 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#19 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -88,6 +88,91 @@ public:
 	ShowPrefix	= 0x0200,
 	WordBreak	= 0x0400,
 	DontPrint	= 0x1000		// internal
+    };
+
+    // QWidget state flags (internal)
+    enum WidgetState {
+	WState_Created		= 0x00000001,
+	WState_Disabled		= 0x00000002,
+	WState_Visible		= 0x00000004,
+	WState_ForceHide	= 0x00000008,
+	WState_OwnCursor	= 0x00000010,
+	WState_MouseTracking	= 0x00000020,
+	WState_CompressKeys	= 0x00000040,
+	WState_BlockUpdates	= 0x00000080,
+	WState_InPaintEvent	= 0x00000100,
+	WState_Reparented	= 0x00000200,
+	WState_ConfigPending	= 0x00000400,
+	WState_Resized		= 0x00000800,
+	WState_AutoMask		= 0x00001000,
+	WState_Polished		= 0x00002000,
+	WState_DND		= 0x00004000,
+	WState_USPositionX	= 0x00008000,
+	WState_PaletteSet	= 0x00010000,
+	WState_PaletteFixed	= 0x00020000,
+	WState_FontSet		= 0x00040000,
+	WState_FontFixed	= 0x00080000
+    };
+
+    // Widget flags
+    typedef uint WFlags;
+
+    enum WidgetFlags {
+	WType_TopLevel		= 0x00000001,	// widget type flags
+	WType_Modal		= 0x00000002,
+	WType_Popup		= 0x00000004,
+	WType_Desktop		= 0x00000008,
+	WType_Mask		= 0x0000000f,
+
+	WStyle_Customize	= 0x00000010,	// window style flags
+	WStyle_NormalBorder	= 0x00000020,
+	WStyle_DialogBorder	= 0x00000040,
+	WStyle_NoBorder		= 0x00000000,
+	WStyle_Title		= 0x00000080,
+	WStyle_SysMenu		= 0x00000100,
+	WStyle_Minimize		= 0x00000200,
+	WStyle_Maximize		= 0x00000400,
+	WStyle_MinMax		= WStyle_Minimize | WStyle_Maximize,
+	WStyle_Tool		= 0x00000800,
+	WStyle_Reserved1	= 0x00001000,
+	WStyle_Reserved2	= 0x00002000,
+	WStyle_Reserved3	= 0x00004000,
+	WStyle_Reserved4	= 0x00008000,
+	WStyle_Mask		= 0x0000fff0,
+
+	WDestructiveClose	= 0x00010000,	// misc flags
+	WPaintDesktop		= 0x00020000,
+	WPaintUnclipped		= 0x00040000,
+	WPaintClever		= 0x00080000,
+	WResizeNoErase		= 0x00100000,
+	WMouseNoMask		= 0x00200000
+    };
+
+    // Image conversion flags
+    // The unusual ordering is caused by compatibility and default requirements.
+    enum ImageConversionFlags {
+	ColorMode_Mask		= 0x00000003,
+	AutoColor		= 0x00000000,
+	ColorOnly		= 0x00000003,
+	MonoOnly		= 0x00000002,
+	//	  Reserved	= 0x00000001,
+
+	AlphaDither_Mask	= 0x0000000c,
+	ThresholdAlphaDither	= 0x00000000,
+	OrderedAlphaDither	= 0x00000004,
+	DiffuseAlphaDither	= 0x00000008,
+	//	  ReservedAlphaDither	= 0x0000000c,
+
+	Dither_Mask		= 0x00000030,
+	DiffuseDither		= 0x00000000,
+	OrderedDither		= 0x00000010,
+	ThresholdDither		= 0x00000020,
+	//	  ReservedDither= 0x00000030,
+
+	DitherMode_Mask		= 0x000000c0,
+	AutoDither		= 0x00000000,
+	PreferDither		= 0x00000040,
+	AvoidDither		= 0x00000080,
     };
 
     enum BGMode	{				// background mode

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#30 $
 **
 ** Implementation of QCursor class
 **
@@ -131,7 +131,7 @@ QDataStream &operator>>( QDataStream &s, QCursor &c )
 QCursor::QCursor( const QPixmap &pixmap, int hotX, int hotY )
 {
     QImage img = pixmap.convertToImage().
-		    convertDepth(8,ThresholdDither|AvoidDither);
+		    convertDepth(8,Qt::ThresholdDither|Qt::AvoidDither);
     QBitmap bm;
     bm.convertFromImage(img);
     QBitmap bmm;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#435 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#436 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1050,9 +1050,8 @@ void qt_updated_rootinfo()
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
 
-  CleanUpFunctions is defined as <code> typedef void
-  (*CleanUpFunction)(); </code>, i.e. a pointer to a function that
-  takes no arguments and returns nothing.
+  
+  The function given by \a p should take no arguments and return nothing.
 
   Example of use:
   \code
@@ -1071,7 +1070,7 @@ void qt_updated_rootinfo()
   \endcode
 */
 
-void qAddPostRoutine( CleanUpFunction p )
+void qAddPostRoutine( Q_CleanUpFunction p )
 {
     if ( !postRList ) {
 	postRList = new QVFuncList;
@@ -1324,7 +1323,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	if ( w->testWState(QWS_OwnCursor) )	//   set a cursor
+	if ( w->testWState(WState_OwnCursor) )	//   set a cursor
 	    XDefineCursor( w->x11Display(), w->winId(), app_cursor->handle() );
 	++it;
     }
@@ -1356,7 +1355,7 @@ void QApplication::restoreOverrideCursor()
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
-	if ( w->testWState(QWS_OwnCursor) )
+	if ( w->testWState(WState_OwnCursor) )
 	    XDefineCursor( w->x11Display(), w->winId(),
 			   app_cursor ? app_cursor->handle()
 			   : w->cursor().handle() );
@@ -1410,13 +1409,13 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	register QWidget *w;
 	while ( (w=it.current()) ) {
 	    if ( app_tracking > 0 ) {		// switch on
-		if ( !w->testWState(QWS_MouseTracking) ) {
+		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
-		    w->clearWState(QWS_MouseTracking);
+		    w->clearWState(WState_MouseTracking);
 		}
 	    } else {				// switch off
-		if ( !w->testWState(QWS_MouseTracking) ) {
-		    w->setWState(QWS_MouseTracking);
+		if ( !w->testWState(WState_MouseTracking) ) {
+		    w->setWState(WState_MouseTracking);
 		    w->setMouseTracking( FALSE );
 		}
 	    }
@@ -1607,18 +1606,18 @@ void qPRCreate( const QWidget *widget, Window oldwin )
     }
     wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
     QETWidget *w = (QETWidget *)widget;
-    w->setWState( QWS_Reparented );		// set reparented flag
+    w->setWState( Qt::WState_Reparented );	// set reparented flag
 }
 
 void qPRCleanup( QETWidget *widget )
 {
-    if ( !(wPRmapper && widget->testWState(QWS_Reparented)) )
+    if ( !(wPRmapper && widget->testWState(Qt::WState_Reparented)) )
 	return;					// not a reparented widget
     QWidgetIntDictIt it(*wPRmapper);
     QWidget *w;
     while ( (w=it.current()) ) {
 	if ( w == widget ) {			// found widget
-	    widget->clearWState( QWS_Reparented ); // clear reparented flag
+	    widget->clearWState( Qt::WState_Reparented ); // clear reparented flag
 	    wPRmapper->remove( it.currentKey());// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
@@ -1977,7 +1976,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		break;
 	    }
 	}
-	else if ( widget->testWState(QWS_Reparented) )
+	else if ( widget->testWState(WState_Reparented) )
 	    qPRCleanup( widget );		// remove from alt mapper
     }
 
@@ -2047,8 +2046,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case GraphicsExpose:
     case Expose:				// paint event
-	if ( widget->testWState(QWS_ForceHide) ) {
-	    widget->setWState( QWS_Visible );
+	if ( widget->testWState(WState_ForceHide) ) {
+	    widget->setWState( WState_Visible );
 	    widget->hide();
 	} else {
 	    widget->translatePaintEvent( event );
@@ -2099,16 +2098,16 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case UnmapNotify:			// window hidden
-	if ( widget->testWState( QWS_Visible ) ) {
-	    widget->clearWState( QWS_Visible );
+	if ( widget->testWState( WState_Visible ) ) {
+	    widget->clearWState( WState_Visible );
 	    QHideEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}
 	break;
 	
     case MapNotify:				// window shown
-	if ( !widget->testWState(QWS_Visible) ) {
-	    widget->setWState( QWS_Visible );
+	if ( !widget->testWState(WState_Visible) ) {
+	    widget->setWState( WState_Visible );
 	    QShowEvent e(TRUE);
 	    QApplication::sendEvent( widget, &e );
 	}
@@ -2400,13 +2399,13 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-    if ( widget->testWFlags(WStyle_Tool) )	// allow tool windows
+    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return TRUE;
 
     QWidget *modal=0, *top=modal_stack->getFirst();
 
     widget = widget->topLevelWidget();
-    if ( widget->testWFlags(WType_Modal) )	// widget is modal
+    if ( widget->testWFlags(Qt::WType_Modal) )	// widget is modal
 	modal = widget;
     if ( modal == top )				// don't block event
 	return TRUE;
@@ -3434,7 +3433,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	isAccel = a.isAccepted();
     }
 
-    if ( !isAccel && !text.isEmpty() && testWState(QWS_CompressKeys) ) {
+    if ( !isAccel && !text.isEmpty() && testWState(WState_CompressKeys) ) {
 	// the widget wants key compression so it gets it
 	int	codeIntern = -1;
 	int	countIntern = 0;
@@ -3708,9 +3707,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     QPaintEvent e( paintRegion );
-    setWState( QWS_InPaintEvent );
+    setWState( WState_InPaintEvent );
     QApplication::sendEvent( this, &e );
-    clearWState( QWS_InPaintEvent );
+    clearWState( WState_InPaintEvent );
     return TRUE;
 }
 
@@ -3750,7 +3749,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     if ( !testWFlags(WType_TopLevel) )
 	return TRUE;				// child widget
 
-    clearWState(QWS_ConfigPending);
+    clearWState(WState_ConfigPending);
 
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
 

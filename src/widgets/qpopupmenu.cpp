@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#201 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#202 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -931,7 +931,7 @@ void QPopupMenu::setFont( const QFont &font )
 
 void QPopupMenu::show()
 {
-    if ( testWState(QWS_Visible) ){
+    if ( testWState(WState_Visible) ){
 	supressAboutToShow = FALSE;
 	return;
     }
