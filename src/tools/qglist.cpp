@@ -486,10 +486,14 @@ QLNode *QGList::unlink()
 	    n->next->prev = n->prev;
 	}
     }
-    
-    // change current node
-    curNode = n->next;
 
+    if ( n->next ) {                            // change current node
+        curNode = n->next;
+    } else if ( n->prev ) {
+        curNode = n->prev;
+        curIndex--;
+    }
+    
     if ( iterators )
 	iterators->notifyRemove( n, curNode );
     numNodes--;

@@ -227,7 +227,7 @@
 /*!
   \fn bool QPtrList::isEmpty() const
   Returns TRUE if the list is empty; otherwise returns FALSE.
-  
+
   \sa count()
 */
 
@@ -304,9 +304,7 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list.  If the last item
-  is removed, the new last item becomes the current item in Qt 2.x.
-  In 3.0, the current item will be set to null.  The current item is
-  set to null if the list becomes empty.
+  is removed, the new last item becomes the current item.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -326,9 +324,8 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list. If the last item
-  is removed, the the current item will be set to null. (In Qt 2.x, if
-  the last item was removed the current item pointed to the new last
-  item.) The current item is set to null if the list becomes empty.
+  is removed, the new last item becomes the current item. The current
+  item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -353,9 +350,8 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list. If the last item
-  is removed, the the current item will be set to null. (In Qt 2.x, if
-  the last item was removed the current item pointed to the new last
-  item.) The current item is set to null if the list becomes empty.
+  is removed, the new last item becomes the current item. The current
+  item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -384,9 +380,8 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list. If the last item
-  is removed, the the current item will be set to null. (In Qt 2.x, if
-  the last item was removed the current item pointed to the new last
-  item.) The current item is set to null if the list becomes empty.
+  is removed, the new last item becomes the current item. The current
+  item is set to null if the list becomes empty.
 
   All list iterators that refer to the removed item will be set to point
   to the new current item.
@@ -461,9 +456,8 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list. If the last item
-  is removed, the the current item will be set to null. (In Qt 2.x, if
-  the last item was removed the current item pointed to the new last
-  item.) The current item is set to null if the list becomes empty.
+  is removed, the new last item becomes the current item. The current
+  item is set to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.
@@ -481,9 +475,8 @@
 
   The item after the removed item becomes the new current list item if
   the removed item is not the last item in the list. If the last item
-  is removed, the the current item will be set to null. (In Qt 2.x, if
-  the last item was removed the current item pointed to the new last
-  item.) The current item is set to null if the list becomes empty.
+  is removed, the new last item becomes the current item. The current
+  item is set to null if the list becomes empty.
 
   All list iterators that refer to the taken item will be set to point to
   the new current item.
