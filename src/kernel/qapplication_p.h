@@ -29,12 +29,12 @@
 //
 //
 
-#include "qapplication.h"
 #include "qfont.h"
 #include "qcursor.h"
 #include "qmutex.h"
 
 #include "qkernelapplication_p.h"
+#include "qapplication.h"
 
 class QWidget;
 class QObject;
@@ -70,7 +70,7 @@ extern int qt_ncols_option;
 extern void qt_dispatchEnterLeave( QWidget*, QWidget* );
 extern bool qt_tryModalHelper( QWidget *, QWidget ** = 0 );
 
-class QApplicationPrivate : public QKernelApplicationPrivate
+struct QApplicationPrivate : public QKernelApplicationPrivate
 {
     Q_DECL_PUBLIC(QApplication);
 

@@ -4,7 +4,7 @@
 #include "qobject_p.h"
 #include "qkernelapplication.h"
 
-class QKernelApplicationPrivate : public QObjectPrivate
+struct QKernelApplicationPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC(QKernelApplication);
 public:

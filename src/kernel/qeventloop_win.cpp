@@ -16,16 +16,16 @@
 #include "qapplication.h"
 #include "qwidget.h"
 #include "qevent.h"
-#include <private/qinputcontext_p.h>
-#include "qintdict.h"
 #include "qptrqueue.h"
 #include "qptrvector.h"
+#include "qintdict.h"
+#include <private/qinputcontext_p.h>
+#define d d_func()
+#define q q_func()
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
 #endif // QT_THREAD_SUPPORT
-
-#define d d_func()
 
 extern uint qGlobalPostedEventsCount();
 extern bool qt_winEventFilter( MSG* msg, long &result );
@@ -82,8 +82,6 @@ static bool winGetMessage( MSG* msg, HWND hWnd, UINT wMsgFilterMin,
   Safe configuration (move,resize,setGeometry) mechanism to avoid
   recursion when processing messages.
  *****************************************************************************/
-
-#include "qptrqueue.h"
 
 struct QWinConfigRequest {
     WId	 id;					// widget to be configured
@@ -173,9 +171,6 @@ Q_EXPORT void qWinProcessConfigRequests()		// perform requests in queue
 //
 // Internal data structure for timers
 //
-
-#include "qptrvector.h"
-#include "qintdict.h"
 
 struct TimerInfo {				// internal timer info
     uint     ind;				// - Qt timer identifier - 1
