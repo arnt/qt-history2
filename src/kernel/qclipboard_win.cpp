@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#23 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -245,3 +245,39 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     CloseClipboard();
 }
+
+
+QMimeSource* QClipboard::data() const
+{
+    fatal("QClipboard::data() is not implemented yet");
+
+    /*
+    if ( !storeddata ) {
+    } else {
+	make storeddata from X clipboard
+    }
+    return *storeddata;
+    */
+    static QMimeSource* dummy;
+    return dummy; // never happens
+}
+
+void QClipboard::setData( QMimeSource* src )
+{
+    fatal("QClipboard::putData() is not implemented yet");
+
+    /*
+    delete storeddata;
+    */
+
+    if ( !src ) {
+	clear();
+    } else {
+	/*
+	storeddata = src;
+	put it on X clipboard
+	*/
+    }
+}
+
+

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard.h#20 $
+** $Id: //depot/qt/main/src/kernel/qclipboard.h#21 $
 **
 ** Definition of QClipboard class
 **
@@ -42,8 +42,8 @@ private:
 public:
     void	clear();
 
-    const QMimeSource& data() const;
-    void  putData( QMimeSource* );
+    QMimeSource* data() const;
+    void  setData( QMimeSource* );
 
     QString     text()	 const;
     void	setText( const QString &);

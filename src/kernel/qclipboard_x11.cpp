@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#40 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -25,8 +25,10 @@
 
 #include "qclipboard.h"
 #include "qapplication.h"
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qdatetime.h"
+#include "qdragobject.h"
+#include "qbuffer.h"
 #include "qt_x11.h"
 
 
@@ -36,16 +38,15 @@
 
 extern Time qt_x_clipboardtime;			// def. in qapplication_x11.cpp
 extern Atom qt_selection_property;
+extern Atom* qt_xdnd_str_to_atom( const char *mimeType );
+extern const char* qt_xdnd_atom_to_str( Atom );
 
 
 static QWidget * owner = 0;
-static QByteArray * buf = 0;
 
 static void cleanup() {
     // ### when qapp stops deleting no-parent widgets, we must delete owner
     owner = 0;
-    delete buf;
-    buf = 0;
 }
 
 static
@@ -54,21 +55,9 @@ void setupOwner()
     if ( owner )
 	return;
     owner = new QWidget( 0, "internal clibpoard owner" );
-    buf = new QByteArray;
     qAddPostRoutine( cleanup );
 }
 
-
-enum ClipboardFormat { CFNothing, CFText, CFPixmap };
-
-static ClipboardFormat getFormat( const char *format )
-{
-    if ( strcmp(format,"TEXT") == 0 )
-	 return CFText;
-    else if ( strcmp(format,"PIXMAP") == 0 )
-	return CFPixmap;
-    return CFNothing;
-}
 
 class QClipboardData
 {
@@ -76,64 +65,32 @@ public:
     QClipboardData();
    ~QClipboardData();
 
-    ClipboardFormat	format() const;
-
-    QString		text() const;
-    void		setText( const QString& );
-    QPixmap	        pixmap() const;
-    void		setPixmap( QPixmap );
+    void		setSource(QMimeSource* s)
+	{ delete src; src = s; }
+    QMimeSource*	source()
+	{ return src; }
 
     void		clear();
 
 private:
-    ClipboardFormat	f;
-    QString		t;
-    QPixmap		p;
-
+    // NEW
+    QMimeSource* src;
 };
 
 QClipboardData::QClipboardData()
 {
-    f = CFNothing;
-    p = 0;
+    src = 0;
 }
 
 QClipboardData::~QClipboardData()
 {
-}
-
-inline ClipboardFormat QClipboardData::format() const
-{
-    return f;
-}
-
-inline QString QClipboardData::text() const
-{
-    return t;
-}
-
-inline void QClipboardData::setText( const QString &text )
-{
-    t = text;
-    f = CFText;
-}
-
-inline QPixmap QClipboardData::pixmap() const
-{
-    return p;
-}
-
-inline void QClipboardData::setPixmap( QPixmap pixmap )
-{
-    p = pixmap;
-    f = CFPixmap;
+    delete src;
 }
 
 void QClipboardData::clear()
 {
-    t = QString::null;
-    p = QPixmap();
-    f = CFNothing;
+    delete src;
+    src = 0;
 }
 
 
@@ -329,63 +286,8 @@ QByteArray qt_xclb_read_incremental_property( Display *dpy, Window win,
 
 void *QClipboard::data( const char *format ) const
 {
-    ClipboardFormat f = getFormat( format );
-    switch ( f ) {
-	case CFText:
-	    break;				// text is ok
-	case CFPixmap:
-#if defined(CHECK_RANGE)
-	    warning( "QClipboard::data: PIXMAP format not supported" );
-#endif
-	    return 0;
-	default:
-#if defined(CHECK_RANGE)
-	    warning( "QClipboard::data: Unknown format: %s", format );
-#endif
-	    return 0;
-    }
-
-    QClipboardData *d = clipboardData();
-    setupOwner();
-    Window   win   = owner->winId();
-    Display *dpy   = owner->x11Display();
-
-    if ( d->format() != CFNothing ) {
-#if defined(CHECK_RANGE)
-	warning( "QClipboard::data: use text() or pixmap()" );
-#endif
-    }
-
-    if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
-	return 0;
-
-    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_property, win,
-		       CurrentTime );
-    XFlush( dpy );
-
-    XEvent xevent;
-    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
-	return 0;
-
-    Atom   type;
-
-    if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
-			       buf,0,&type,0,TRUE) ) {
-	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
-	    int nbytes = buf->size() >= 4 ? *((int*)buf->data()) : 0;
-	    *buf = qt_xclb_read_incremental_property( dpy, win,
-						      qt_selection_property,
-						      nbytes, TRUE );
-	} else if ( type != XA_STRING ) {
-#if 0
-	    // For debugging
-	    char *n = XGetAtomName( dpy, type );
-	    debug( "Qt clipboard: unknown atom = %s",n);
-	    XFree( n );
-#endif
-	}
-    }
-    return buf->data();
+    // TODO: use new system in some trivial way (eg. "qt/void" mime type)
+    return (void*)format;
 }
 
 
@@ -436,7 +338,8 @@ bool QClipboard::event( QEvent *e )
 	    clipboardData()->clear();
 	    break;
 
-	case SelectionRequest: {		// someone wants our data
+	case SelectionRequest:
+	  {		// someone wants our data
 	    XSelectionRequestEvent *req = &xevent->xselectionrequest;
 	    XEvent evt;
 	    evt.xselection.type = SelectionNotify;
@@ -446,17 +349,96 @@ bool QClipboard::event( QEvent *e )
 	    evt.xselection.target	= req->target;
 	    evt.xselection.property	= None;
 	    evt.xselection.time = req->time;
-	    if ( req->target == XA_STRING ) {
-		XChangeProperty ( dpy, req->requestor, req->property,
-				  XA_STRING, 8,
-				  PropModeReplace,
-				  (uchar *)d->text().ascii(),
-				  d->text().length() );
-		evt.xselection.property = req->property;
+	    // ### Should we check that we own the clipboard?
+	    
+	    const char* fmt;
+	    QByteArray data;
+	    static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
+	    static Atom xa_multiple = *qt_xdnd_str_to_atom( "MULTIPLE" );
+	    struct AtomPair { Atom target; Atom property; } *multi = 0;
+	    int nmulti = 0;
+	    int imulti = -1;
+	    if ( req->target == xa_multiple ) {
+		if ( qt_xclb_read_property( dpy,
+			   req->requestor, req->property,
+			   FALSE, &data, 0, 0, 0, 0 ) )
+		{
+		    nmulti = data.size()/sizeof(*multi);
+		    multi = new AtomPair[nmulti];
+		    memcpy(multi,data.data(),data.size());
+		}
+		imulti = 0;
 	    }
-	    XSendEvent( dpy, req->requestor, False, 0, &evt );
+
+	    while ( imulti < nmulti ) {
+		Window target;
+		Atom property;
+
+		if ( multi ) {
+		    target = multi[imulti].target;
+		    property = multi[imulti].property;
+		    imulti++;
+		} else {
+		    target = req->target;
+		    property = req->property;
+		}
+
+		if ( target == xa_targets ) {
+		    int n = 0;
+		    while (d->source()->format(n))
+			n++;
+		    data = QByteArray(n*sizeof(Atom));
+		    Atom* target = (Atom*)data.data();
+		    n = 0;
+		    while ((fmt=d->source()->format(n))) {
+			target[n++] = *qt_xdnd_str_to_atom(fmt);
+		    }
+		    XChangeProperty ( dpy, req->requestor, property,
+				      xa_targets, 32,
+				      PropModeReplace,
+				      (uchar *)data.data(),
+				      data.size() );
+		    evt.xselection.property = property;
+		} else {
+		    bool already_done = FALSE;
+		    if ( target == XA_STRING ) {
+			fmt = "text/plain";
+		    } else if ( target == XA_PIXMAP ) {
+			fmt = "image/ppm";
+			data = d->source()->encodedData(fmt);
+			QPixmap pm;
+			pm.loadFromData(data);
+			Pixmap ph = pm.handle();
+			XChangeProperty ( dpy, req->requestor, property,
+					  target, 32,
+					  PropModeReplace,
+					  (uchar *)&ph,
+					  sizeof(Pixmap));
+			evt.xselection.property = property;
+			already_done = TRUE;
+		    } else {
+			fmt = qt_xdnd_atom_to_str(target);
+			if ( fmt && !d->source()->provides(fmt) )
+			    fmt = 0; // Not a MIME type we can produce
+		    }
+		    if ( fmt ) {
+			if ( !already_done ) {
+			    data = d->source()->encodedData(fmt);
+			    XChangeProperty ( dpy, req->requestor, property,
+					      target, 8,
+					      PropModeReplace,
+					      (uchar *)data.data(),
+					      data.size() );
+			    evt.xselection.property = property;
+			}
+		    }
+		}
+		XSendEvent( dpy, req->requestor, False, 0, &evt );
+		if ( !nmulti )
+		    break;
 	    }
-	    break;
+	  }
+	  break;
     }
 
     return TRUE;
@@ -470,44 +452,9 @@ bool QClipboard::event( QEvent *e )
 
 QString QClipboard::text() const
 {
-    QClipboardData *d = clipboardData();
-    setupOwner();
-    Window   win   = owner->winId();
-    Display *dpy   = owner->x11Display();
-
-    if ( d->format() == CFText ) // We own the clipboard
-	return d->text();
-
-    if ( XGetSelectionOwner(dpy,XA_PRIMARY) == None )
-	return QString::null;
-
-    XConvertSelection( dpy, XA_PRIMARY, XA_STRING, qt_selection_property, win,
-		       CurrentTime );
-    XFlush( dpy );
-
-    XEvent xevent;
-    if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
-	return QString::null;
-
-    Atom   type;
-
-    if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
-			       buf,0,&type,0,TRUE) ) {
-	if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
-	    int nbytes = buf->size() >= 4 ? *((int*)buf->data()) : 0;
-	    *buf = qt_xclb_read_incremental_property( dpy, win,
-						      qt_selection_property,
-						      nbytes, TRUE );
-	} else if ( type != XA_STRING ) {
-#if 0
-	    // For debugging
-	    char *n = XGetAtomName( dpy, type );
-	    debug( "Qt clipboard: unknown atom = %s",n);
-	    XFree( n );
-#endif
-	}
-    }
-    return *buf;
+    QString r;
+    QTextDrag::decode(data(),r);
+    return r;
 }
 
 /*!
@@ -517,31 +464,7 @@ QString QClipboard::text() const
 
 void QClipboard::setText( const QString &text )
 {
-    QClipboardData *d = clipboardData();
-    setupOwner();
-    Window   win   = owner->winId();
-    Display *dpy   = owner->x11Display();
-
-    if ( d->format() != CFNothing ) {		// we own the clipboard
-#if defined(DEBUG)
-	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
-#endif
-	d->setText( text );
-	emit dataChanged();
-	return;
-    }
-
-    d->clear();
-    d->setText( text );
-    emit dataChanged();
-
-    XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
-    if ( XGetSelectionOwner(dpy,XA_PRIMARY) != win ) {
-#if defined(DEBUG)
-	warning( "QClipboard::setData: Cannot set X11 selection owner" );
-#endif
-	return;
-    }
+    setData(new QTextDrag(text));
 }
 
 
@@ -553,7 +476,9 @@ void QClipboard::setText( const QString &text )
 
 QPixmap QClipboard::pixmap() const
 {
-    return *((QPixmap *)data("PIXMAP"));
+    QPixmap r;
+    QImageDrag::decode(data(),r);
+    return r;
 }
 
 /*!
@@ -563,22 +488,155 @@ QPixmap QClipboard::pixmap() const
 
 void QClipboard::setPixmap( const QPixmap &pixmap )
 {
+    setData(new QImageDrag(pixmap.convertToImage()));
+}
+
+
+class QClipboardWatcher : public QMimeSource {
+public:
+    QClipboardWatcher()
+    {
+	setupOwner();
+    }
+
+    bool empty() const
+    {
+	Display *dpy   = owner->x11Display();
+	return XGetSelectionOwner(dpy,XA_PRIMARY) == None;
+    }
+
+    const char* format( int n ) const
+    {
+	if ( empty() ) return 0;
+
+	// TODO: record these once
+	static Atom xa_targets = *qt_xdnd_str_to_atom( "TARGETS" );
+	QByteArray targets = getDataInFormat(xa_targets);
+	if ( targets.size()/sizeof(Atom) > (uint)n ) {
+	    Atom* target = (Atom*)targets.data();
+	    const char* fmt = qt_xdnd_atom_to_str(target[n]);
+	    return fmt;
+	} else {
+	    if ( n == 0 )
+		return "text/plain";
+	}
+	return 0;
+    }
+
+    QByteArray encodedData( const char* fmt ) const
+    {
+	if ( empty() ) return 0;
+
+	Atom fmtatom = 0;
+
+	if ( 0==qstrcmp(fmt,"text/plain") ) {
+	    fmtatom = XA_STRING;
+	} else if ( 0==qstrcmp(fmt,"image/ppm") ) {
+	    fmtatom = XA_PIXMAP;
+	    QByteArray pmd = getDataInFormat(fmtatom);
+	    if ( pmd.size() == sizeof(Pixmap) ) {
+		Pixmap xpm = *((Pixmap*)pmd.data());
+		Display *dpy   = owner->x11Display();
+		Window r;
+		int x,y;
+		uint w,h,bw,d;
+		XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
+		QImageIO iio;
+		GC gc = XCreateGC( dpy, xpm, 0, 0 );
+		if ( d == 1 ) {
+		    QBitmap qbm(w,h);
+		    XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
+		    iio.setFormat("PBMRAW");
+		    iio.setImage(qbm.convertToImage());
+		} else {
+		    QPixmap qpm(w,h);
+		    XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
+		    iio.setFormat("PPMRAW");
+		    iio.setImage(qpm.convertToImage());
+		}
+		XFreeGC(dpy,gc);
+		QBuffer buf;
+		buf.open(IO_WriteOnly);
+		iio.setIODevice(&buf);
+		iio.write();
+		return buf.buffer();
+	    } else {
+		fmtatom = *qt_xdnd_str_to_atom(fmt);
+	    }
+	} else {
+	    // TODO: X11 pixmap standard (XA_PIXMAP?)
+
+	    fmtatom = *qt_xdnd_str_to_atom(fmt);
+	}
+	return getDataInFormat(fmtatom);
+    }
+
+    QByteArray getDataInFormat(Atom fmtatom) const
+    {
+	QByteArray buf;
+
+	Window   win   = owner->winId();
+	Display *dpy   = owner->x11Display();
+
+	XConvertSelection( dpy, XA_PRIMARY, fmtatom,
+			   qt_selection_property, win, CurrentTime );
+	XFlush( dpy );
+
+	XEvent xevent;
+	if ( !qt_xclb_wait_for_event(dpy,win,SelectionNotify,&xevent,5000) )
+	    return buf;
+
+	Atom   type;
+
+	if ( qt_xclb_read_property(dpy,win,qt_selection_property,TRUE,
+				   &buf,0,&type,0,FALSE) ) {
+	    if ( type == XInternAtom(dpy,"INCR",FALSE) ) {
+		int nbytes = buf.size() >= 4 ? *((int*)buf.data()) : 0;
+		buf = qt_xclb_read_incremental_property( dpy, win,
+							  qt_selection_property,
+							  nbytes, FALSE );
+	    }
+	}
+
+	return buf;
+    }
+};
+
+
+/*!
+  Returns a reference to a QMimeSource representation
+  of the current clipboard data.
+*/
+QMimeSource* QClipboard::data() const
+{
+    QClipboardData *d = clipboardData();
+
+    if ( !d->source() )
+	d->setSource(new QClipboardWatcher());
+
+    return d->source();
+}
+
+/*!
+  Sets the clipboard data.  Ownership of the data is transferred
+  to the clipboard - the only way to remove this data is to set
+  something else, or to call clear().  The QDragObject subclasses
+  are reasonable things to put on the clipboard (but do not try
+  to \link QDragObject::drag() drag\endlink the same object).
+  Do not put QDragMoveEvent or QDropEvent subclasses on the clipboard,
+  as they do not belong to the event handler which receives them.
+
+  The setText() and setPixmap() functions are shorthand ways
+  of setting the data.
+*/
+void QClipboard::setData( QMimeSource* src )
+{
     QClipboardData *d = clipboardData();
     setupOwner();
     Window   win   = owner->winId();
     Display *dpy   = owner->x11Display();
 
-    if ( d->format() != CFNothing ) {		// we own the clipboard
-#if defined(DEBUG)
-	ASSERT( XGetSelectionOwner(dpy,XA_PRIMARY) == win );
-#endif
-	d->setPixmap( pixmap );
-	emit dataChanged();
-	return;
-    }
-
-    d->clear();
-    d->setPixmap( pixmap );
+    d->setSource( src );
     emit dataChanged();
 
     XSetSelectionOwner( dpy, XA_PRIMARY, win, qt_x_clipboardtime );
@@ -589,5 +647,3 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 	return;
     }
 }
-
-
