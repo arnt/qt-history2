@@ -546,7 +546,7 @@ bool QX11PaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool un
     d->dpy = d->xinfo->display();                   // get display variable
     d->scrn = d->xinfo->screen();			// get screen variable
     d->hd = d->pdev->handle();                       // get handle to drawable - NB! double buffering might change the handle
-    d->rendhd = d->pdev->x11RenderHandle();
+    d->rendhd = (X11->has_xft) ? d->pdev->x11RenderHandle() : 0;
 
     if (d->xinfo->depth() != QX11Info::appDepth(d->scrn)) { // non-standard depth
         setf(NoCache);
