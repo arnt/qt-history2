@@ -231,10 +231,10 @@ QProcessManager::QProcessManager() : sn(0)
     // The SIGCHLD handler writes to a socket to tell the manager that
     // something happened. This is done to get the processing in sync with the
     // event reporting.
-#ifndef Q_OS_QNX6
-    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigchldFd)) {
-#else
+#ifdef Q_OS_QNX6
     if (qnx6SocketPairReplacement (sigchldFd)) {
+#else
+    if (::socketpair(AF_UNIX, SOCK_STREAM, 0, sigchldFd)) {
 #endif
         sigchldFd[0] = 0;
         sigchldFd[1] = 0;
@@ -661,17 +661,17 @@ bool QProcess::start(QStringList *env)
     int sStderr[2];
 
     // open sockets for piping
-#ifndef Q_OS_QNX6
-    if ((comms & Stdin) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdin) == -1) {
-#else
+#ifdef Q_OS_QNX6
     if ((comms & Stdin) && qnx6SocketPairReplacement(sStdin) == -1) {
+#else
+    if ((comms & Stdin) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdin) == -1) {
 #endif
         return false;
     }
-#ifndef Q_OS_QNX6
-    if ((comms & Stderr) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStderr) == -1) {
-#else
+#ifdef Q_OS_QNX6
     if ((comms & Stderr) && qnx6SocketPairReplacement(sStderr) == -1) {
+#else
+    if ((comms & Stderr) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStderr) == -1) {
 #endif
         if (comms & Stdin) {
             ::close(sStdin[0]);
@@ -679,10 +679,10 @@ bool QProcess::start(QStringList *env)
         }
         return false;
     }
-#ifndef Q_OS_QNX6
-    if ((comms & Stdout) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdout) == -1) {
-#else
+#ifdef Q_OS_QNX6
     if ((comms & Stdout) && qnx6SocketPairReplacement(sStdout) == -1) {
+#else
+    if ((comms & Stdout) && ::socketpair(AF_UNIX, SOCK_STREAM, 0, sStdout) == -1) {
 #endif
         if (comms & Stdin) {
             ::close(sStdin[0]);
@@ -786,10 +786,10 @@ bool QProcess::start(QStringList *env)
                     command = fileInfo.absFilePath().local8Bit();
             }
 #endif
-#ifndef Q_OS_QNX4
-            ::execvp(command.toLocal8Bit(), (char*const*)arglist); // ### cast not nice
-#else
+#ifdef Q_OS_QNX4
             ::execvp(command.toLocal8Bit(), (char const*const*)arglist); // ### cast not nice
+#else
+            ::execvp(command.toLocal8Bit(), (char*const*)arglist); // ### cast not nice
 #endif
         } else { // start process with environment settins as specified in env
             // construct the environment for exec
@@ -862,10 +862,10 @@ bool QProcess::start(QStringList *env)
                 }
             }
 #endif
-#ifndef Q_OS_QNX4
-            ::execve(arglist[0], (char*const*)arglist, (char*const*)envlist); // ### casts not nice
-#else
+#ifdef Q_OS_QNX4
             ::execve(arglist[0], (char const*const*)arglist,(char const*const*)envlist); // ### casts not nice
+#else
+            ::execve(arglist[0], (char*const*)arglist, (char*const*)envlist); // ### casts not nice
 #endif
         }
         if (fd[1]) {
