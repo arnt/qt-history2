@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#27 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#28 $
 **
 ** Implementation of QMessageBox class
 **
@@ -13,7 +13,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#27 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#28 $");
 
 
 /*!
@@ -38,6 +38,8 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#27 $");
     mb.setButtonText( "Yes!" );
     mb.show();
   \endcode
+
+  <img src=qmsgbox-m.gif> <img src=qmsgbox-w.gif>
 */
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#73 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#73 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -101,6 +101,8 @@ static QLineEditExtra * lookInLEDict( const QLineEdit * that )
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
+
+  <img src=qlined-m.gif> <img src=qlined-w.gif>
 */
 
 

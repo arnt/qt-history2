@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#32 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#31 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#32 $");
 
 
 static const int motifBorder = 2;
@@ -47,6 +47,8 @@ static int sliderStartVal = 0; //##### class member?
   A slider can be controlled by the keyboard, but it has a
   default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
   enable keyboard focus.
+
+  <img src=qslider-m.gif> <img src=qslider-w.gif>
 */
 
 

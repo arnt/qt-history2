@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#86 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#86 $");
 
 
 /*!
@@ -33,6 +33,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#85 $");
   A push button has \c TabFocus as a default focusPolicy(), i.e. it can 
   get keyboard focus by tabbing but not by clicking.
 
+  <img src=qpushbt-m.gif> <img src=qpushbt-w.gif>
 */
 
 const int extraMotifWidth = 10;

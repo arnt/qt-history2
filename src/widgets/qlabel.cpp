@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#53 $
 **
 ** Implementation of QLabel widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#52 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#53 $");
 
 #if QT_VERSION == 200
 #error "Remove QLabel dict!"
@@ -85,6 +85,8 @@ static void cleanupLabel()
   \endcode
 
   Both lines are flush with the right side of the label.
+
+  <img src=qlabel-m.gif> <img src=qlabel-w.gif>
 */
 
 /*!
@@ -145,7 +147,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     QLineEdit *phone   = new QLineEdit( this );
     QLabel    *phone_l = new QLabel( phone, "&Phone:", this );
     // geometry management setup not shown
-  \\endcode
+  \endcode
 
   With the code above, the focus jumps to the Name field when the user
   presses Alt-N, and to the Phone field when the user presses Alt-P.

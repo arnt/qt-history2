@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#72 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,7 +15,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#72 $");
 
 
 /*!
@@ -37,6 +37,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#71 $");
   enable keyboard focus.
 
   \ingroup realwidgets
+
+  <img src=qscrbar-m.gif> <img src=qscrbar-w.gif>
 */
 
 

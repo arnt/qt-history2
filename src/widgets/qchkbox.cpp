@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qchkbox.cpp#54 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#54 $");
 
 
 /*!
@@ -27,6 +27,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qchkbox.cpp#53 $");
   QCheckBox and QRadioButton are both toggle buttons, but a check box
   represents an independent switch that can be on (checked) or off
   (unchecked).
+
+  <img src=qchkbox-m.gif> <img src=qchkbox-w.gif>
 */
 
 

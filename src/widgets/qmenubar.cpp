@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#69 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#69 $");
 
 
 /*!
@@ -31,6 +31,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#68 $");
   resized.
 
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
+
+  <img src=qmenubar-m.gif> <img src=qmenubar-w.gif>
 
   \sa QPopupMenu
 */

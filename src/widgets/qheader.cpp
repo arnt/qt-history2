@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#8 $
 **
 **  Table header
 **
@@ -90,6 +90,7 @@ static unsigned char vsplitm_bits[] = {
   This class can be used without a table view, if you need to control
   table-like structures.
 
+  <img src=qheader-m.gif> <img src=qheader-w.gif>
  */
 
 

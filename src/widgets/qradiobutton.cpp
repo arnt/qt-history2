@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#52 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#52 $");
 
 
 /*!
@@ -32,6 +32,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#51 $");
   switched on at a time.
 
   The QButtonGroup widget is very useful for defining groups of radio buttons.
+
+  <img src=qradiobt-m.gif> <img src=qradiobt-w.gif>
 */
 
 

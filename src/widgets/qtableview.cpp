@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#54 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#54 $");
 
 
 const int sbDim = 16;
@@ -104,6 +104,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
   coordinate systems, but if we were to provide a flexible and
   powerful base class, there wasn't any way around it.  
 
+  <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
 */
 
 

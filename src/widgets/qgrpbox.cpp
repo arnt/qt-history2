@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#23 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#23 $");
 
 
 /*!
@@ -24,6 +24,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#22 $");
 
   The button group widget, QButtonGroup, is an "intelligent" group box that is
   very useful for organizing button widgets in a group.
+
+  <img src=qgrpbox-m.gif> <img src=qgrpbox-w.gif>
 */
 
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#58 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -34,6 +34,8 @@
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
+
+  <img src=qmlined-m.gif> <img src=qmlined-w.gif>
  */
 
 static const int BORDER = 3;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#30 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#31 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#31 $");
 
 
 /*!
@@ -52,6 +52,8 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#30 $");
 
     open( s ); // open() being your function to read the file
   \endcode
+
+  <img src=qfiledlg-m.gif> <img src=qfiledlg-w.gif>
 
   \sa QPrintDialog
 */

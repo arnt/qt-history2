@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#101 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#102 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#102 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -362,6 +362,8 @@ int QListBoxPixmap::width( const QListBox * ) const
 
   \warning The list box assumes ownership of all list box items
   and will delete them when they are not needed.
+
+  <img src=qlistbox-m.gif> <img src=qlistbox-w.gif>
 */
 
 

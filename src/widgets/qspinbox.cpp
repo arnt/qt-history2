@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#10 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -22,6 +22,8 @@
   up-down widget, little arrows widget or spin button.
 
   The spin box deviates from Motif look a bit.
+
+  <img src=qspinbox-m.gif> <img src=qspinbox-w.gif>
 */
 
 

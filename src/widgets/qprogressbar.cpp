@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#2 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogressbar.cpp#2 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress bar.
@@ -65,6 +65,8 @@ static const int spacing     = 4;
     }
     pb.setProgress(steps);
   \endcode
+
+  <img src=qprogbar-m.gif> <img src=qprogbar-w.gif>
 */
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#34 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $
 **
 ** Implementation of QTabDialog class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#34 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#35 $");
 
 
 /*!
@@ -130,6 +130,7 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#34 $");
 
   </ol>
 
+  <img src=qtabdlg-m.gif> <img src=qtabdlg-w.gif>
 */
 
 // add comments about delete, ok and apply
