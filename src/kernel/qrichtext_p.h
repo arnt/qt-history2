@@ -1150,6 +1150,7 @@ private:
     int outerborder;
     int stretch;
     int innerborder;
+    int us_ib, us_b;
     int lastX, lastY;
 
     int currCell;
@@ -1541,7 +1542,7 @@ inline int QTextFormat::ascent() const
     if ( !painter || !painter->isActive() )
 	return asc;
     painter->setFont( fn );
-    return painter->fontMetrics().height() + painter->fontMetrics().leading();
+    return painter->fontMetrics().ascent() + painter->fontMetrics().leading();
 }
 
 inline int QTextFormat::descent() const
