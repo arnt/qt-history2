@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qatomic.h"
 #include "qbytearray.h"
+#include "qmetaobject.h"
 #endif // QT_H
 
 #ifndef QT_NO_VARIANT
@@ -79,63 +80,6 @@ class Q_CORE_EXPORT QCoreVariant
         UserType = 35
     };
 
-    class UserData {
-    public:
-        typedef void (*Destructor)(void *);
-        typedef void *(*CopyConstructor)(const void *);
-
-        inline UserData(void *data, const char *description, Destructor destructor = 0,
-                        CopyConstructor copyConstructor = 0)
-            : ptr(data), desc(description), destr(destructor), copy(copyConstructor)
-        {
-            if (ptr && copy)
-                ptr = copy(ptr);
-        }
-
-        inline UserData(const UserData &other)
-            : ptr(other.ptr), desc(other.desc), destr(other.destr), copy(other.copy)
-        {
-            if (copy)
-                ptr = copy(other.ptr);
-        }
-        
-        ~UserData()
-        {
-            if (destr)
-                destr(ptr);
-        }
-
-        inline UserData &operator=(const UserData &other)
-        {
-            if (ptr == other.ptr)
-                return *this;
-            if (destr)
-                destr(ptr);
-                
-            ptr = other.ptr;
-            desc = other.desc;
-            destr = other.destr;
-            copy = other.copy;
-            if (copy)
-                ptr = copy(ptr);
-            return *this;
-        }
-
-        inline bool operator==(const UserData &other) const
-        { return ptr == other.ptr && desc == other.desc; }
-        inline bool operator!=(const UserData &other) const
-        { return ptr != other.ptr || desc != other.desc; }
-
-        inline void *data() const { return ptr; }
-        inline QByteArray description() const { return desc; }
-
-    private:
-        void *ptr;
-        QByteArray desc;
-        Destructor destr;
-        CopyConstructor copy;
-    };
-
     inline QCoreVariant();
     inline ~QCoreVariant();
     inline QCoreVariant(Type type);
@@ -166,7 +110,6 @@ class Q_CORE_EXPORT QCoreVariant
     inline QCoreVariant(const QList<QCoreVariant> &list);
     inline QCoreVariant(const QMap<QString,QCoreVariant> &map);
 #endif
-    inline QCoreVariant(const UserData &userData);
 
     QCoreVariant& operator=(const QCoreVariant &other);
 
@@ -206,7 +149,6 @@ class Q_CORE_EXPORT QCoreVariant
     QList<QCoreVariant> toList() const;
     QMap<QString,QCoreVariant> toMap() const;
 #endif
-    UserData toUserType() const;
 
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
@@ -302,42 +244,18 @@ protected:
     void *castOrDetach(Type t);
 };
 
-
-template <typename T>
-void qVariantDeleteHelper(T *t)
-{
-    delete t;
-}
-
-template <typename T>
-void *qVariantCopyHelper(const T *t)
-{
-    if (!t)
-        return 0;
-    return new T(*static_cast<const T*>(t));
-}
-
 template <typename T>
 void qVariantSet(QCoreVariant &v, const T &t, const char *typeName)
 {
-    typedef void*(*CopyPtr)(const T*);
-    CopyPtr cptr = qVariantCopyHelper<T>;
-    typedef void(*DeletePtr)(T*);
-    DeletePtr dptr = qVariantDeleteHelper<T>;
-
-    QCoreVariant::UserData data((T*)&t, typeName,
-        (QCoreVariant::UserData::Destructor)dptr,
-        (QCoreVariant::UserData::CopyConstructor)cptr);
-    v = QCoreVariant(data);
+    v = QCoreVariant((QCoreVariant::Type)qRegisterMetaType<T>(typeName), (void*)&t); //FIXME
 }
 
 template <typename T>
 bool qVariantGet(const QCoreVariant &v, T &t, const char *typeName)
 {
-    QCoreVariant::UserData data = v.toUserType();
-    if (typeName != data.description() || !data.data())
+    if (qstrcmp(v.typeName(), typeName) != 0)
         return false;
-    t = *static_cast<T *>(data.data());
+    t = *static_cast<const T *>(v.constData());
     return true;
 }
 
@@ -391,11 +309,9 @@ inline QCoreVariant::QCoreVariant(const QList<QCoreVariant> &val)
 inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
 { d = create(Map, &val); }
 #endif
-inline QCoreVariant::QCoreVariant(const UserData &userData)
-{ d = create(UserType, &userData); }
 
 inline QCoreVariant::Type QCoreVariant::type() const
-{ return (Type)d->type; }
+{ return d->type >= QMetaType::User ? UserType : (Type)d->type; }
 inline bool QCoreVariant::isValid() const
 { return d->type != Invalid; }
 
@@ -460,8 +376,6 @@ template<> inline Q_ULLONG QVariant_to_helper<Q_ULLONG>(const QCoreVariant &v, c
 template<> inline bool QVariant_to_helper<bool>(const QCoreVariant &v, const bool*) { return v.toBool(); }
 template<> inline double QVariant_to_helper<double>(const QCoreVariant &v, const double*) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to_helper<QByteArray>(const QCoreVariant &v, const QByteArray*) { return v.toByteArray(); }
-template<> inline QCoreVariant::UserData QVariant_to_helper<QCoreVariant::UserData>(const QCoreVariant &v, const QCoreVariant::UserData*)
-{ return v.toUserType(); }
 
 template<> QBitArray QVariant_to_helper<QBitArray>(const QCoreVariant &v, const QBitArray*);
 template<> QString QVariant_to_helper<QString>(const QCoreVariant &v, const QString*);
@@ -486,7 +400,6 @@ template<> inline Q_ULLONG QVariant_to<Q_ULLONG>(const QCoreVariant &v) { return
 template<> inline bool QVariant_to<bool>(const QCoreVariant &v) { return v.toBool(); }
 template<> inline double QVariant_to<double>(const QCoreVariant &v) { return v.toDouble(); }
 template<> inline QByteArray QVariant_to<QByteArray>(const QCoreVariant &v) { return v.toByteArray(); }
-template<> inline QCoreVariant::UserData QVariant_to<QCoreVariant::UserData>(const QCoreVariant &v) { return v.toUserType(); }
 
 template<> QBitArray QVariant_to<QBitArray>(const QCoreVariant &v);
 template<> QString QVariant_to<QString>(const QCoreVariant &v);

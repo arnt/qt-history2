@@ -90,7 +90,6 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
 #endif
     inline QVariant(const QPen &pen);
     inline QVariant(const QSizePolicy &sp);
-    inline QVariant(const UserData &userData);
 
     // Copied from qcorevariant.h
     inline QVariant(Type type, void *v);
@@ -222,7 +221,6 @@ inline QVariant::QVariant(const QMap<QString, QVariant> &map)
     : QCoreVariant(*reinterpret_cast<const QMap<QString, QCoreVariant>*>(&map)) {};
 inline QVariant::QVariant(const QMap<QString, QCoreVariant> &map) : QCoreVariant(map) {};
 #endif
-inline QVariant::QVariant(const UserData &userData) : QCoreVariant(userData) {};
 inline QVariant::QVariant(const QPoint &pt)
 { d = create(Point, &pt); }
 inline QVariant::QVariant(const QRect &r)

@@ -143,14 +143,12 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = *static_cast<const Q_ULLONG *>(v);
             break;
-        case QCoreVariant::UserType:
-            x->value.ptr = new QCoreVariant::UserData(
-                    *static_cast<const QCoreVariant::UserData *>(v));
-            break;
         case QCoreVariant::Invalid:
             break;
         default:
-            Q_ASSERT(0);
+            x->value.ptr = QMetaType::copy(x->type, v);
+            Q_ASSERT_X(x->value.ptr, "QCoreVariant::construct()", "Unknown datatype");
+            break;
         }
         x->is_null = false;
     } else {
@@ -204,13 +202,12 @@ static void construct(QCoreVariant::Private *x, const void *v)
         case QCoreVariant::ULongLong:
             x->value.ull = Q_ULLONG(0);
             break;
-        case QCoreVariant::UserType:
-            x->value.ptr = new QCoreVariant::UserData(0, 0);
-            break;
         default:
-            Q_ASSERT(0);
+            Q_ASSERT_X(QMetaType::isRegistered(x->type), "QCoreVariant::construct()",
+                       "Unknown datatype");
+            x->value.ptr = 0;
+            break;
         }
-
     }
 }
 
@@ -252,9 +249,6 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::BitArray:
         QCLEAR(QBitArray);
         break;
-    case QCoreVariant::UserType:
-        delete static_cast<QCoreVariant::UserData *>(p->value.ptr);
-        break;
     case QCoreVariant::Invalid:
     case QCoreVariant::Int:
     case QCoreVariant::UInt:
@@ -264,7 +258,12 @@ static void clear(QCoreVariant::Private *p)
     case QCoreVariant::Double:
         break;
     default:
-        qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
+        if (QMetaType::isRegistered(p->type))
+            QMetaType::destroy(p->type, p->value.ptr);
+        else
+            qFatal("cannot handle GUI types of QCoreVariant "
+                   "without a Gui application");
+        break;
     }
 
     p->type = QCoreVariant::Invalid;
@@ -309,10 +308,12 @@ static bool isNull(const QCoreVariant::Private *d)
     case QCoreVariant::ULongLong:
     case QCoreVariant::Bool:
     case QCoreVariant::Double:
-    case QCoreVariant::UserType:
         break;
     default:
-        qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
+        if (!QMetaType::isRegistered(d->type))
+            qFatal("cannot handle GUI types of QCoreVariant "
+                   "without a Gui application");
+        break;
     }
     return d->is_null;
 }
@@ -385,9 +386,6 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     case QCoreVariant::BitArray:
         QLOAD(QBitArray);
         break;
-    case QCoreVariant::UserType:
-        qFatal("QCoreVariant cannot read user data from stream!");
-        break;
     default:
         qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
     }
@@ -451,9 +449,6 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
         break;
     case QCoreVariant::Invalid:
         s << QString();
-        break;
-    case QCoreVariant::UserType:
-        qFatal("QCoreVariant cannot write user data to stream!");
         break;
     default:
         qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
@@ -519,12 +514,11 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
         QCOMPARE(QBitArray);
     case QCoreVariant::Invalid:
         return true;
-        break;
-    case QCoreVariant::UserType:
-        QCOMPARE(QCoreVariant::UserData);
-        break;
     default:
-        qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
+        if (!QMetaType::isRegistered(a->type))
+            qFatal("cannot handle GUI types of QCoreVariant "
+                   "without a Gui application");
+        return a->value.ptr == b->value.ptr;
     }
     return false;
 }
@@ -1366,7 +1360,7 @@ static const char* const type_map[ntypes] =
 const char *QCoreVariant::typeToName(Type typ)
 {
     if ((int)typ >= ntypes)
-        return 0;
+        return QMetaType::typeName(typ);
     return type_map[typ];
 }
 
@@ -1802,17 +1796,6 @@ QCoreVariantList QCoreVariant::toList() const
 #endif
 
 /*!
-    Returns the variant as a ###
-*/
-QCoreVariant::UserData QCoreVariant::toUserType() const
-{
-    if (d->type == UserType)
-        return *static_cast<UserData*>(d->value.ptr);
-
-    return UserData(0, 0);
-}
-
-/*!
     Returns true if the variant's type can be cast to the requested
     type, \a t. Such casting is done automatically when calling the
     toInt(), toBool(), ... or asInt(), asBool(), ... methods.
@@ -1973,8 +1956,6 @@ const void *QCoreVariant::constData() const
         QDATA(QByteArray);
     case QCoreVariant::BitArray:
         QDATA(QBitArray);
-    case QCoreVariant::UserType:
-        return static_cast<UserData*>(d->value.ptr);
     default:
         return d->value.ptr;
     }
