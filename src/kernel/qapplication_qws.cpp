@@ -1343,7 +1343,7 @@ static int parseGeometry( const char* string,
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-    extern int qwidget_tlw_gravity;		// in qwidget_qws.cpp
+    extern int qt_widget_tlw_gravity;		// in qwidget_qws.cpp
 
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
@@ -1370,11 +1370,11 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	    h = QMAX(h,minSize.height());
 	    if ( (m & XNegative) ) {
 		x = desktop()->width()  + x - w;
-		qwidget_tlw_gravity = 3;
+		qt_widget_tlw_gravity = 3;
 	    }
 	    if ( (m & YNegative) ) {
 		y = desktop()->height() + y - h;
-		qwidget_tlw_gravity = (m & XNegative) ? 9 : 7;
+		qt_widget_tlw_gravity = (m & XNegative) ? 9 : 7;
 	    }
 	    main_widget->setGeometry( x, y, w, h );
 	}
