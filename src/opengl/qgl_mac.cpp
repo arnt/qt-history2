@@ -437,7 +437,9 @@ protected:
 
 OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
+#if 0 //not really needed right now, but just so I remember
     QMacGLWindowChangeEvent *change = static_cast<QMacGLWindowChangeEvent*>(data);
+#endif
     UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
     switch(eclass) {
     case kEventClassControl:
