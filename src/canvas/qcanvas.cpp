@@ -1656,9 +1656,9 @@ void QCanvas::setTiles( QPixmap p,
 
   Returns the tile at position (\a x, \a y). Initially, all tiles are 0.
 
-  \warning The parameters must be within range, i.e.
-    <tt>0 < x < tilesHorizontally()</tt>
-    <tt>0 < y < tilesVertically()</tt>.
+  The parameters must be within range, i.e.
+    0 \< \a x \< tilesHorizontally() and
+    0 \< \a y \< tilesVertically().
 
   \sa setTile()
 */
