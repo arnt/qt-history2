@@ -21,7 +21,6 @@
 #include <qfont.h>
 #include <qdom.h>
 #include <qcstring.h>
-#include <qmap.h>
 
 /*!
   \class DomTool domtool.h
@@ -353,25 +352,20 @@ void DomTool::fixDocument( QDomDocument& doc )
     if ( e.tagName() != "UI" )
 	return;
 
-//     QMap<QString,QString> classNames;
-//     classNames[""] = "";
-    QMap<QString,QString> propertyNames;
-    propertyNames["resizeable"] = "resizable"; // we need to fix a spelling error in 3.0
-
     // rename classes and properties
-//     nl = doc.elementsByTagName( "class" );
-//     fixNodeList( nl, classNames );
-    nl = doc.elementsByTagName( "property" );
-    fixNodeList( nl, propertyNames );
+    double version = ( e.hasAttribute("version") ? e.attribute("version").toDouble() : 0.0 );
+    nl = e.childNodes();
+    fixAttributes( nl, version );
 
     // 3.x don't do anything more
     if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
 	return;
 
     // in versions smaller than 3.0 we need to change more
+    
     e.setAttribute( "version", 3.0 );
-
     e.setAttribute("stdsetdef", 1 );
+    nl = e.elementsByTagName( "property" );
     for ( i = 0; i <  (int) nl.length(); i++ ) {
 	e = nl.item(i).toElement();
 	QString name;
@@ -434,19 +428,66 @@ void DomTool::fixDocument( QDomDocument& doc )
 
 }
 
-/*!
-  Change names in the node list to the names specified in the QMap.
-*/
-void DomTool::fixNodeList( QDomNodeList &nl, QMap<QString,QString> &fromTo )
+struct widgetName {
+    widgetName( double v, QString b, QString a )
+	: version( v ), before( b ), after( a ) {}
+    double version;
+    QString before;
+    QString after;
+};
+
+struct propertyName : public widgetName {
+    propertyName( double v, QString b, QString a, QString c = QString::null )
+	: widgetName( v, b, a ), clss( c ) {}
+    QString clss;
+};
+
+const int widgs = 1;
+widgetName widgetTable[1] = {
+    widgetName( 3.3, "before", "after" ),
+};
+
+const int props = 1;
+propertyName propertyTable[1] = {
+    propertyName( 3.0, "resizeable", "resizable" ), // we need to fix a spelling error in 3.0
+};
+
+void DomTool::fixAttributes( QDomNodeList &nodes, double version )
 {
-    // Rename properties
-    QMap<QString,QString>::Iterator it;
-    for ( int i = 0; i <  (int) nl.length(); i++ ) {
-	QDomElement el = nl.item(i).toElement();
-	it = fromTo.find( el.attribute( "name" ) );
-	if ( it != fromTo.end() ) {
-	   el.removeAttribute( "name" );
-	   el.setAttribute( "name", it.data() );
-	}
+    QDomNode n;
+    QDomNodeList nl;
+    for ( int i = 0; i < (int) nodes.count(); ++i ) {
+	n = nodes.item( i );
+	fixAttribute( n, version );
+	nl = n.childNodes();
+	fixAttributes( nl, version );
+    }
+}
+
+void DomTool::fixAttribute( QDomNode &node, double version )
+{
+    QString tagName =  node.toElement().tagName();
+    if ( tagName == "widget" ) {
+	QString clss = node.toElement().attribute( "class" );
+	for ( int i = 0; i < widgs; ++i )
+	    if ( ( version < widgetTable[i].version )
+		 && ( clss == widgetTable[i].before ) ) {
+		node.toElement().setAttribute( "class", propertyTable[i].after );
+		return;
+	    }
+	return;
+    }
+    if ( tagName == "property" ) {
+	QDomElement e = node.parentNode().toElement();
+	QString clss = e.attribute( "class" );
+	QString name = node.toElement().attribute( "name", "" );
+	for ( int i = 0; i < props; ++i )
+	    if ( ( version < propertyTable[i].version )
+		 && ( clss == propertyTable[i].clss )
+		 && ( propertyTable[i].before == QString::null
+		      || name == propertyTable[i].before ) ) {
+		node.toElement().setAttribute( "name", propertyTable[i].after );
+		return;
+	    }
     }
 }

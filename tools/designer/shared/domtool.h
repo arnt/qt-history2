@@ -18,8 +18,8 @@
 
 class QDomElement;
 class QDomDocument;
+class QDomNode;
 class QDomNodeList;
-template <class Key, class T> class QMap;
 
 class DomTool : public Qt
 {
@@ -35,7 +35,8 @@ public:
     static bool hasAttribute( const QDomElement& e, const QString& name );
     static QColor readColor( const QDomElement &e );
     static void fixDocument( QDomDocument& );
-    static void fixNodeList( QDomNodeList&, QMap<QString,QString>& );
+    static void fixAttributes( QDomNodeList&, double );
+    static void fixAttribute( QDomNode&, double );
 };
 
 
