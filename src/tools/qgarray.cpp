@@ -149,6 +149,7 @@ QGArray::~QGArray()
 	if ( shd->data )			// is lost
 	    DELETE(shd->data);
 	deleteData( shd );
+	shd = 0;
     }
 }
 
