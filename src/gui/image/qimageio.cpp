@@ -2036,17 +2036,17 @@ static void write_xbm_image(QImageIO *iio)
     register char *p = buf;
     uchar *b = image.scanLine(0);
     int         x=0, y=0;
-    int nbytes = image.numBytes();
     w = (w+7)/8;
-    while (nbytes--) {                        // write all bytes
+    while (y < h && x < w) {                        // write all bytes
         *p++ = '0';  *p++ = 'x';
-        *p++ = hexrep[*b >> 4];
-        *p++ = hexrep[*b++ & 0xf];
+        *p++ = hexrep[(*b) >> 4];
+        *p++ = hexrep[(*b) & 0xf];
+        ++b;
         if (++x == w && y < h-1) {
             b = image.scanLine(++y);
             x = 0;
         }
-        if (nbytes > 0) {
+        if (y < h && x < w) {
             *p++ = ',';
             if (++bcnt > 14) {
                 *p++ = '\n';
