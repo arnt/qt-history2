@@ -201,6 +201,8 @@ void QToolBarButton::actionEvent(QActionEvent *event)
         hide();
         deleteLater();
         break;
+    default:
+        break;
     }
 
     QAbstractButton::actionEvent(event);

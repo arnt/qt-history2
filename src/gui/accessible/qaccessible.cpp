@@ -425,7 +425,6 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
     QEvent e(QEvent::Accessibility);
     QApplication::sendEvent(object, &e);
 
-    QAccessibleFactoryInterface *factory = 0;
     const QMetaObject *mo = object->metaObject();
     while (mo) {
         const QLatin1String cn(mo->className());

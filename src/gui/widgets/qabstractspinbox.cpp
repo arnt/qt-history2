@@ -1376,7 +1376,7 @@ QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should pr
         int daysInt = (int)days;
         days -= daysInt;
         long msecs = (long)((TIME_MIN.msecsTo(arg1.toDateTime().time()) * multiplier) + (days * (24 * 3600 * 1000)));
-        ret = QDateTime(QDate().addDays(days), QTime().addMSecs(msecs));
+        ret = QDateTime(QDate().addDays(int(days)), QTime().addMSecs(msecs));
         break;
     }
     default: ret = arg1; break;

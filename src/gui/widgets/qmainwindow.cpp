@@ -110,7 +110,6 @@ Qt::DockWindowArea QMainWindow::corner(Qt::Corner corner) const
 void QMainWindow::setDockWindowState(const QString &state)
 {
     Q_ASSERT_X(false, "QMainWindow::setDockWindowState", "unimplemented");
-    Q_UNUSED(state);
 }
 
 QString QMainWindow::dockWindowState() const

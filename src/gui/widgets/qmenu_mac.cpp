@@ -460,7 +460,7 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
     //find text (and accel)
     action->ignore_accel = 0;
     QString text = action->action->text();
-    QKeySequence accel = action->action->accel();
+    QKeySequence accel = action->action->shortcut();
     {
         int st = text.lastIndexOf('\t');
         if(st != -1) {

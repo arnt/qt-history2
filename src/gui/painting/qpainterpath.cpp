@@ -84,23 +84,23 @@ void QPainterSubpath::addBezier(const QPoint &p1, const QPoint &p2, const QPoint
 void QPainterSubpath::addArc(const QRect &rect, int startAngle, int arcLength)
 {
 #define RHAT sqrt( (rx*rx*ry*ry) / ( ry*ry*sintheta + ry*ry*costheta ) )
-    const int THETAFACOTR = 2 * M_PI / (16.0 * 360);
+    const int THETAFACTOR = int(2 * M_PI / (16.0 * 360));
 
     double rx = rect.width() / 2.0;
     double ry = rect.height() / 2.0;
-    double theta = startAngle * THETAFACOTR;
+    double theta = startAngle * THETAFACTOR;
     double cx = rect.x() + rx;
     double cy = rect.y() + ry;
     double sintheta = sin(theta);
     double costheta = cos(theta);
     double rhat = RHAT;
 
-    QPoint firstPoint(cx + rhat * costheta, cy + rhat * sintheta);
-    theta = (startAngle + arcLength) * THETAFACOTR;
+    QPoint firstPoint(int(cx + rhat * costheta), int(cy + rhat * sintheta));
+    theta = (startAngle + arcLength) * THETAFACTOR;
     sintheta = sin(theta);
     costheta = cos(theta);
     rhat =  RHAT;
-    QPoint lastPoint(cx + rhat * costheta, cy + rhat * sintheta);
+    QPoint lastPoint(int(cx + rhat * costheta), int(cy + rhat * sintheta));
 
     connectLast(firstPoint);
     this->lastPoint = lastPoint;
