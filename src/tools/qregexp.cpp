@@ -1390,7 +1390,10 @@ void QRegExpEngine::setupBadCharHeuristic( int minLen,
 					   const QMemArray<int>& firstOcc )
 {
     minl = minLen;
-    occ1 = cs ? firstOcc : *firstOccurrenceAtZero;
+    if (cs) 
+	occ1 = firstOcc;
+    else 
+	occ1 = *firstOccurrenceAtZero;
 }
 
 /*
