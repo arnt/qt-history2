@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#53 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#53 $")
 
 
 // Mac style parameters
@@ -621,6 +621,7 @@ void QPopupMenu::show()
 void QPopupMenu::hide()
 {
     actItem = popupActive = -1;
+    mouseBtDn = FALSE;				// mouse button up
     hidePopups();
     killTimers();
     QWidget::hide();
