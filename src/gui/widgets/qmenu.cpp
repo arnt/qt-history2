@@ -206,7 +206,10 @@ void Q4MenuPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 	activeMenu->d->causedPopup = q;
 	if(activeMenu->parent() != q)
 	    activeMenu->setParent(q, activeMenu->getWFlags());
-	activeMenu->popup(q->mapToGlobal(QPoint(q->width(), actionRect(action).top())));
+	QPoint pos(q->width(), actionRect(action).top());
+	if(QApplication::reverseLayout())
+	    pos.setX(-activeMenu->sizeHint().width());
+	activeMenu->popup(q->mapToGlobal(pos));
 	if(activateFirst)
 	    activeMenu->d->setFirstActionActive();
     }
@@ -232,6 +235,7 @@ void Q4MenuPrivate::setFirstActionActive()
 
 void Q4MenuPrivate::setCurrentAction(Q4MenuAction *action, bool popup, bool activateFirst)
 {
+    d->tearoffHighlighted = 0;
     if(action == currentAction)
 	return;
     if(activeMenu) {
@@ -827,8 +831,17 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 		Q4MenuAction *act = d->actionItems.at(i);
 		if(act == d->currentAction) {
 		    if(key == Key_Up) {
-			if(i > 0) {
-			    nextAction = d->actionItems.at(i-1);
+			for(int next_i = i+1; true; next_i++) {
+			    if(next_i == d->actionItems.count())
+				next_i = 0;
+			    Q4MenuAction *next = d->actionItems.at(next_i);
+			    if(next == d->currentAction)
+				break;
+			    if(next->action->isSeparator() ||
+			       (!next->action->isEnabled() && 
+				!style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)))
+				continue;
+			    nextAction = next;
 			    if(d->scroll && (d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollUp)) {
 				int topVisible = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
 				if(d->tearoff)
@@ -837,9 +850,20 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 				    scroll_direction = Q4MenuPrivate::Q4MenuScroller::ScrollUp;
 			    }
 			}
+			if(!nextAction && d->tearoff)
+			    d->tearoffHighlighted = 1;
 		    } else {
-			if(i < d->actionItems.count()-1) {
-			    nextAction = d->actionItems.at(i+1);
+			for(int next_i = i-1; true; next_i--) {
+			    if(next_i == -1)
+				next_i = d->actionItems.count()-1;
+			    Q4MenuAction *next = d->actionItems.at(next_i);
+			    if(next == d->currentAction)
+				break;
+			    if(next->action->isSeparator() ||
+			       (!next->action->isEnabled() && 
+				!style().styleHint(QStyle::SH_PopupMenu_AllowActiveAndDisabled, this)))
+				continue;
+			    nextAction = next;
 			    if(d->scroll && (d->scroll->scrollFlags & Q4MenuPrivate::Q4MenuScroller::ScrollDown)) {
 				const int scrollerHeight = style().pixelMetric(QStyle::PM_MenuScrollerHeight, this);
 				int bottomVisible = height()-scrollerHeight;
@@ -855,12 +879,6 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
 		    break;
 		}
 		y += act->rect.height();
-	    }
-	    if(!nextAction && !d->scroll) {
-		if(key == Key_Up)
-		    nextAction = d->actionItems.last();
-		else
-		    nextAction = d->actionItems.first();
 	    }
 	}
 	if(nextAction) {
@@ -954,12 +972,10 @@ void Q4Menu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {				// send to menu bar
-	qDebug("blah blah..");
 	if(QWidget *caused = d->causedPopup) {
 	    while(Q4Menu *m = qt_cast<Q4Menu*>(caused))
 		caused = m->d->causedPopup;
 	    if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
-		qDebug("sending to menubar..");
 		Q4MenuAction *oldAct = mb->d->currentAction;
 		QApplication::sendEvent(mb, e);
 		if(mb->d->currentAction != oldAct)
@@ -1174,7 +1190,10 @@ void Q4MenuBarPrivate::popupAction(Q4MenuAction *action, bool activateFirst)
 	if(activeMenu->parent() != q)
 	    activeMenu->setParent(q, activeMenu->getWFlags());
 	QRect adjustedActionRect = actionRect(action);
-	activeMenu->popup(q->mapToGlobal(QPoint(adjustedActionRect.left(), adjustedActionRect.bottom())));
+	QPoint pos(adjustedActionRect.left(), adjustedActionRect.bottom());
+	if(QApplication::reverseLayout())
+	    pos.setX((pos.x()+adjustedActionRect.width())-activeMenu->sizeHint().width());
+	activeMenu->popup(q->mapToGlobal(pos));
 	if(activateFirst)
 	    activeMenu->d->setFirstActionActive();
 	q->update(actionRect(action));
@@ -1224,6 +1243,7 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 	if(action->isSeparator()) {
 	    if(q->style().styleHint(QStyle::SH_GUIStyle, q) == MotifStyle)
 		separator = ret.count();
+	    continue; //we don't really position these!
 	} else {
 	    QString s = action->text();
 	    int w = fm.width( s );
@@ -1252,9 +1272,12 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 
     //calculate position
     int x = 0, y = 0;
+    const bool reverse = QApplication::reverseLayout();
     const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
     for(int i = 0; i != ret.count(); i++) {
 	Q4MenuAction *item = ret.at(i);
+	//resize
+	item->rect.setHeight(max_item_height);
 
 	//move
 	if(separator != -1 && i >= separator) { //after the separator
@@ -1273,10 +1296,12 @@ QList<Q4MenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
 		item->rect.moveLeft(x);
 	    }
 	}
+	if(reverse)
+	    item->rect.moveLeft(max_width - item->rect.right());
 	item->rect.moveTop(y);
 
-	x += item->rect.width() + itemSpacing; //keep moving along..
-	item->rect.setHeight(max_item_height); //uniform height
+	//keep moving along..
+	x += item->rect.width() + itemSpacing; 
     }
     return ret;
 }
@@ -1628,8 +1653,12 @@ QSize Q4MenuBar::sizeHint() const
 {
     const_cast<Q4MenuBar*>(this)->d->updateActions();
     QSize s(0, height());
-    for(int i = 0; i < d->actionItems.count(); ++i)
-	s.setWidth(s.width() + d->actionItems[i]->rect.width() + 2);
+    for(int i = 0; i < d->actionItems.count(); ++i) {
+	QRect actionRect(d->actionItems[i]->rect);
+	s.setWidth(s.width() + actionRect.width() + 2);
+	if(actionRect.bottom() > s.height())
+	    s.setHeight(actionRect.bottom());
+    }
     return (style().sizeFromContents(QStyle::CT_MenuBar, this, 
 				     s.expandedTo(QApplication::globalStrut())));
 }
