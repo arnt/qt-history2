@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#52 $
 **
 ** Implementation of QUrl class
 **
@@ -449,10 +449,10 @@ bool QUrl::parse( const QString& url )
 	    relPath = TRUE;
     }
 #endif
-    
+
     int cs = url.find( ":/" );
     table[ 4 ][ 1 ] = User;
-    if ( cs == -1 || relPath ) { // we have a relative file (no path, host, protocol, etc.)
+    if ( cs == -1 ) { // we have a relative file (no path, host, protocol, etc.)
 	table[ 0 ][ 1 ] = Path;
 	relPath = TRUE;
     } else { // some checking
