@@ -495,6 +495,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 
     Q_ASSERT(d->engine->isActive());
     d->engine->updateState(d->state);
+    d->engine->setRenderHint(QPainter::LineAntialiasing, false);
     ++d->device->painters;
     return true;
 }
