@@ -325,12 +325,6 @@
 # define QT_NO_DOM
 #endif
 
-/*!
-  Scalable Vector Graphics (SVG)
-*/
-#if defined(QT_NO_DOM)
-# define QT_NO_SVG
-#endif
 
 // Sound
 /*!
@@ -578,6 +572,15 @@
     Scaling and rotation
 */
 //#define QT_NO_TRANSFORMATIONS
+
+/*!
+  Scalable Vector Graphics (SVG)
+*/
+#if defined(QT_NO_DOM) || defined(QT_NO_TRANSFORMATIONS)
+# define QT_NO_SVG
+#endif
+
+
 
 /*!
     Printing

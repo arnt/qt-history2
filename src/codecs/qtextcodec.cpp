@@ -363,7 +363,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 {
     setup();
     QPtrListIterator<QTextCodec> i(*all);
-    QTextCodec* result;
+    QTextCodec* result=0;
     for ( ; (result=i); ++i ) {
         if ( result->mibEnum()==mib )
             return result;
@@ -372,7 +372,7 @@ QTextCodec* QTextCodec::codecForMib(int mib)
 #ifndef QT_NO_COMPONENT
 #ifndef QT_LITE_COMPONENT
 
-    if (result->mibEnum() != mib) {
+    if (result && result->mibEnum() != mib) {
         QTextCodec *codec = QTextCodecFactory::createForMib(mib);
 
         if (codec)
