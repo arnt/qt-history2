@@ -61,6 +61,11 @@ static long qAxModuleRef = 0;
 static HANDLE hEventShutdown;
 static CRITICAL_SECTION qAxModuleSection;
 static DWORD dwThreadID;
+static DWORD *classRegistration = 0;
+
+/////////////////////////////////////////////////////////////////////////////
+// Server control
+/////////////////////////////////////////////////////////////////////////////
 
 void qAxInit()
 {
@@ -150,8 +155,77 @@ static bool StartMonitor()
     return (h != NULL);
 }
 
+typedef int (*QWinEventFilter) (MSG*);
+extern int QAxEventFilter( MSG *pMsg );
+extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
 extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
 
+
+/*
+    Start the COM server (if necessary).
+*/
+bool QAxFactory::startServer()
+{
+    if (qAxIsServer)
+	return TRUE;
+	    
+    HRESULT hRes = CoInitialize(NULL);
+
+    const QStringList keys = qAxFactory()->featureList();
+    if ( !keys.count() )
+	return FALSE;
+
+    if ( !qAxFactory()->isService() )
+	StartMonitor();
+
+    classRegistration = new DWORD[keys.count()];
+    int object = 0;
+    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object ) {
+	IUnknown* p = 0;
+	CLSID clsid = qAxFactory()->classID( *key );
+
+	// Create a QClassFactory (implemented in qaxserverbase.cpp)
+	HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
+	if ( SUCCEEDED(hRes) )
+	    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, classRegistration+object );
+	if ( p )
+	    p->Release();
+    }
+
+    qt_set_win_event_filter( QAxEventFilter );
+    qAxIsServer = TRUE;
+    return TRUE;
+}
+
+/*
+    Stop the COM server (if necessary).
+*/
+bool QAxFactory::stopServer()
+{
+    if (!qAxIsServer || !classRegistration)
+	return TRUE;
+
+    qAxIsServer = FALSE;
+    qt_set_win_event_filter(0);
+
+    const QStringList keys = qAxFactory()->featureList();
+    int object = 0;
+    for ( QStringList::ConstIterator key = keys.begin(); key != keys.end(); ++key, ++object )
+	CoRevokeClassObject( classRegistration[object] );
+    
+    delete []classRegistration;
+    classRegistration = 0;
+
+    Sleep(dwPause); //wait for any threads to finish
+
+    CoUninitialize();
+
+    return TRUE;
+}
+
+/////////////////////////////////////////////////////////////////////////////
+// Registry
+/////////////////////////////////////////////////////////////////////////////
 
 // (Un)Register the ActiveX server in the registry.
 // The QAxFactory implementation provides the information.
@@ -303,6 +377,10 @@ HRESULT UpdateRegistry(BOOL bRegister)
     return S_OK;
 }
 
+/////////////////////////////////////////////////////////////////////////////
+// IDL generator
+/////////////////////////////////////////////////////////////////////////////
+
 static QStrList *enums = 0;
 static QStrList *subtypes = 0;
 
@@ -368,25 +446,15 @@ static const char* const keyword_map[][2] =
     { "boolean",	"boolval"	    },
     { "broadcast",	"broadCast"	    },
     { "callback",	"callBack"	    },
-    { "code",		"code_"		    },
-    { "control",	"ctrl"		    },
-    { "custom"		"custom_"	    },
     { "decode",		"deCode"	    },
     { "default",	"defaulted"	    },
     { "defaultbind",	"defaultBind"	    },
     { "defaultvalue",	"defaultValue"	    },
-    { "dual"		"dual_"		    },
     { "encode"		"enCode"	    },
     { "endpoint",	"endPoint"	    },
-    { "entry",		"entry_"	    },
-    { "helpcontext",	"helpContext"	    },
-    { "helpfile",	"helpFile"	    },
-    { "helpstring",	"helpString"	    },
     { "hidden",		"isHidden"	    },
-    { "id",		"ID"		    },
     { "ignore",		"ignore_"	    },
     { "local",		"local_"	    },
-    { "message",	"message_"	    },
     { "notify",		"notify_"	    },
     { "object",		"object_"	    },
     { "optimize",	"optimize_"	    },
@@ -395,9 +463,7 @@ static const char* const keyword_map[][2] =
     { "pipe",		"pipe_"		    },
     { "proxy",		"proxy_"	    },
     { "ptr",		"pointer"	    },
-    { "range",		"range_"	    },
     { "readonly",	"readOnly"	    },
-    { "shape",		"shape_"	    },
     { "small",		"small_"	    },
     { "source",		"source_"	    },
     { "string",		"string_"	    },
@@ -535,6 +601,9 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
     int signaloff = pmo ? pmo->signalOffset() : mo->signalOffset();
 
+    int qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+    int qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+
     QString classID = qAxFactory()->classID( className ).toString().upper();
     STRIPCB(classID);
     QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
@@ -591,7 +660,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	const QMetaProperty *property = mo->property( i, TRUE );
 	if ( !property || property->testFlags( QMetaProperty::Override ) )
 	    continue;
-	if ( ignore( property->name(), ignore_props ) )
+	if ( i <= qtProps && ignore( property->name(), ignore_props ) )
 	    continue;
 	if ( mo->findProperty( property->name(), TRUE ) > i )
 	    continue;
@@ -636,7 +705,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    continue;
 
 	bool ok = TRUE;
-	if ( ignore( slotdata->method->name, ignore_slots ) )
+	if ( i <= qtSlots && ignore( slotdata->method->name, ignore_slots ) )
 	    continue;
 
 	QString slot = renameOverloads( replaceKeyword( slotdata->method->name ) );
@@ -960,10 +1029,8 @@ STDAPI DumpIDL( const QString &outfile, const QString &ver )
 }
 
 /////////////////////////////////////////////////////////////////////////////
-//
-typedef int (*QWinEventFilter) (MSG*);
-extern int QAxEventFilter( MSG *pMsg );
-extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
+// Startup routine. Replaces implementation in qtmain.lib
+/////////////////////////////////////////////////////////////////////////////
 
 #if defined(NEEDS_QMAIN)
 extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
@@ -989,21 +1056,21 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 
     QStringList cmds = QStringList::split( " ", cmdLine );
     int nRet = 0;
-    bool bRun = TRUE;
-    bool bRunMain = TRUE;
+    bool run = TRUE;
+    bool runServer = TRUE;
     for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
 	QString cmd = (*it).lower();
 	if ( cmd == "-activex" || cmd == "/activex" ) {
-	    bRunMain = FALSE;
+	    runServer = TRUE;
 	} else if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
 	    qWarning( "Unregistering COM objects in %s", cmds[0].latin1() );
  	    nRet = UpdateRegistry(FALSE);
-            bRun = FALSE;
+            run = FALSE;
 	    break;
 	} else if ( cmd == "-regserver" || cmd == "/regserver" ) {
 	    qWarning( "Registering COM objects in %s", cmds[0].latin1() );
  	    nRet = UpdateRegistry(TRUE);
-            bRun = FALSE;
+            run = FALSE;
             break;
 	} else if ( cmd == "-dumpidl" || cmd == "/dumpidl" ) {
 	    ++it;
@@ -1023,12 +1090,12 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 	    } else {
 		qWarning( "Wrong commandline syntax: <app> -dumpidl <idl file> [-version <x.y.z>]" );
 	    }
-	    bRun = FALSE;
+	    run = FALSE;
 	    break;
 	}
     }
 
-    if (bRun) {
+    if (run) {
 	int argc;
 	char* cmdp = 0;
 	cmdp = new char[ cmdLine.length() + 1 ];
@@ -1036,54 +1103,13 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 
 	QMemArray<pchar> argv( 8 );
 	qWinMain( hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv );
-	if ( bRunMain ) {
-	    nRet = main( argc, argv.data() );
-	} else {
-	    HRESULT hRes = CoInitialize(NULL);
-	    qAxInit();
+	qAxInit();
+	if (runServer)
+	    QAxFactory::startServer();
+	nRet = main( argc, argv.data() );
+	QAxFactory::stopServer();
+	qAxCleanup();
 
-	    QStringList keys = qAxFactory()->featureList();
-	    if ( !keys.count() )
-		return nRet;
-
-	    if ( !qAxFactory()->isService() )
-		StartMonitor();
-
-	    int object = 0;
-	    DWORD *dwRegister = new DWORD[keys.count()];
-	    QStringList::Iterator key;
-
-	    object = 0;
-	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {
-		IUnknown* p = 0;
-		CLSID clsid = qAxFactory()->classID( *key );
-
-		// Create a QClassFactory (implemented in qaxserverbase.cpp)
-		HRESULT hRes = GetClassObject( clsid, IID_IClassFactory, (void**)&p );
-		if ( SUCCEEDED(hRes) )
-		    hRes = CoRegisterClassObject( clsid, p, CLSCTX_LOCAL_SERVER, REGCLS_MULTIPLEUSE, dwRegister+object );
-		if ( p )
-		    p->Release();
-	    }
-
-	    qAxIsServer = TRUE;
-
-	    QWinEventFilter old = qt_set_win_event_filter( QAxEventFilter );
-
-	    nRet = main( argc, argv.data() );
-
-	    qt_set_win_event_filter( old );
-
-	    object = 0;
-	    for ( key = keys.begin(); key != keys.end(); ++key, ++object ) {
-		CoRevokeClassObject( dwRegister[object] );
-	    }
-
-	    Sleep(dwPause); //wait for any threads to finish
-
-	    qAxCleanup();
-	    CoUninitialize();
-	}
 	delete[] cmdp;
     }
 

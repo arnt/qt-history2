@@ -78,6 +78,8 @@ public:
     bool isService() const;
 
     static bool isServer();
+    static bool startServer();
+    static bool stopServer();
 
 private:
     QUuid typelib;

@@ -1534,11 +1534,14 @@ void QAxServerBase::readMetaData()
 	proplist = new QIntDict<QMetaProperty>;
 	proplist2 = new QMap<int,DISPID>;
 
+	int qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
+	int qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+
 	const QMetaObject *mo = qt.object->metaObject();
 	for ( int islot = mo->numSlots( TRUE )-1; islot >=0 ; --islot ) {
 	    const QMetaData *slot = mo->slot( islot, TRUE );
 
-	    if ( ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public )
+	    if (islot <= qtSlots && ignoreSlots( slot->method->name ) || slot->access != QMetaData::Public)
 		continue;
 
 	    BSTR bstrNames = QStringToBSTR( slot->method->name );
@@ -1605,7 +1608,7 @@ void QAxServerBase::readMetaData()
 	for ( int iproperty = mo->numProperties( TRUE )-1; iproperty >= 0; --iproperty ) {
 	    const QMetaProperty *property = mo->property( iproperty, TRUE );
 
-	    if ( ignoreProps( property->name() ) )
+	    if (iproperty <= qtProps && ignoreProps( property->name() ))
 		continue;
 
 	    BSTR bstrNames = QStringToBSTR( property->name() );

@@ -377,3 +377,35 @@ bool QAxFactory::isService() const
 {
     return FALSE;
 }
+
+/*!
+    \fn bool QAxFactory::startServer();
+
+    Starts the COM server and returns TRUE if successful, otherwise 
+    returns FALSE.
+
+    Calling this function if the server is already running (or for an
+    in-process server) does nothing and returns TRUE.
+
+    The server is started automatically before the main() function is 
+    called if the server executable has been started with the \c -activex 
+    command line parameter.
+*/
+// implementation in qaxservermain.cpp
+
+/*!
+    \fn bool QAxFactory::stopServer();
+
+    Stops the COM server and returns TRUE if successful, otherwise 
+    returns FALSE.
+
+    Calling this function if the server is not running (or for an
+    in-process server) does nothing and returns TRUE.
+
+    Stopping the server will not invalidate existing objects, but no
+    new objects can be created from the existing server process. Usually
+    COM will start a new server process if additional objects are requested.
+
+    The server is stopped automatically when the main() function returns.
+*/
+// implementation in qaxservermain.cpp
