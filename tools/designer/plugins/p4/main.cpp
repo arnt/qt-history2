@@ -8,7 +8,7 @@
 #include <qpainter.h>
 
 /* XPM */
-static const char * const check_xpm[] ={
+static const char * const editmark_xpm[] ={
 "12 8 2 1",
 ". c None",
 "c c #ff0000",
@@ -21,6 +21,33 @@ static const char * const check_xpm[] ={
 "...ccc......",
 "....c.......",
 };
+/* XPM */
+static const char * const addmark_xpm[]={
+"8 8 3 1",
+"b c #000000",
+". c None",
+"d c #ffff00",
+"..bbbb..",
+"..bddb..",
+"bbbddbbb",
+"bddddddb",
+"bddddddb",
+"bbbddbbb",
+"..bddb..",
+"..bbbb.."};
+/* XPM */
+static const char * const deletemark_xpm[]={
+"8 7 3 1",
+"d c #800000",
+"# c #808080",
+". c None",
+".....dd#",
+"ddd#dd#.",
+"..ddd#..",
+"...ddd..",
+"..dd.dd.",
+".dd#.#dd",
+".d#...#d"};
 /* XPM */
 static const char * const sync_xpm[]={
 "16 16 5 1",
@@ -401,7 +428,7 @@ void P4Interface::p4Sync()
     P4Sync *sync = new P4Sync( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( sync, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( sync, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    sync->sync();
+    sync->execute();
 }
 
 void P4Interface::p4Edit()
@@ -417,7 +444,7 @@ void P4Interface::p4Edit()
     P4Edit *edit = new P4Edit( fwIface->requestProperty( "fileName" ).toString().latin1(), TRUE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    edit->edit();
+    edit->execute();
 }
 
 void P4Interface::p4Submit()
@@ -433,9 +460,7 @@ void P4Interface::p4Submit()
     P4Submit *submit = new P4Submit( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( submit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( submit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    submit->submit();
-
-    qDebug( "P4Interface::p4Submit %s", fwIface->requestProperty( "fileName" ).toString().latin1() );
+    submit->execute();
 }
 
 void P4Interface::p4Revert()
@@ -451,7 +476,7 @@ void P4Interface::p4Revert()
     P4Revert *revert = new P4Revert( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( revert, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( revert, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    revert->revert();
+    revert->execute();
 
 }
 
@@ -468,7 +493,7 @@ void P4Interface::p4Add()
     P4Add *add = new P4Add( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( add, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( add, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    add->add();
+    add->execute();
 }
 
 void P4Interface::p4Delete()
@@ -484,7 +509,7 @@ void P4Interface::p4Delete()
     P4Delete *del = new P4Delete( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( del, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( del, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    del->del();
+    del->execute();
 }
 
 void P4Interface::p4Diff()
@@ -500,7 +525,7 @@ void P4Interface::p4Diff()
     P4Diff *diff = new P4Diff( fwIface->requestProperty( "fileName" ).toString().latin1() );
     connect( diff, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( diff, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    diff->diff();
+    diff->execute();
 }
 
 void P4Interface::p4Refresh()
@@ -519,7 +544,7 @@ void P4Interface::p4Refresh()
 	    P4FStat* fs = new P4FStat( filename );
 	    connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
 	    connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-	    fs->fstat();
+	    fs->execute();
 	}
 	++it;
     }
@@ -536,7 +561,7 @@ void P4Interface::p4MightEdit( bool b, const QString &filename )
     P4Edit *edit = new P4Edit( filename, FALSE );
     connect( edit, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
     connect( edit, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-    edit->edit();
+    edit->execute();
 }
 
 void P4Interface::formChanged()
@@ -563,7 +588,7 @@ void P4Interface::formChanged()
 	P4FStat* fs = new P4FStat( filename );
 	connect( fs, SIGNAL(finished(const QString&, P4Info*)), this, SLOT(p4Info(const QString&,P4Info*)) );
 	connect( fs, SIGNAL( showStatusBarMessage( const QString & ) ), this, SLOT( statusMessage( const QString & ) ) );
-	fs->fstat();
+	fs->execute();
 	return;
     }
     p4Info( filename, p4i );
@@ -573,25 +598,6 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 {
     if ( !p4i )
 	return;
-
-    P4Info* oldP4i =  P4Info::files[filename];
-    if ( !oldP4i || (*oldP4i) != (*p4i) ) {
-	if ( oldP4i )
-	    P4Info::files.remove( filename );
-	QString status;
-	if ( p4i->controlled ) {
-	    if ( p4i->opened )
-		status = tr( "opened for edit" );
-	    else if ( !p4i->uptodate )
-		status = tr( "file needs update" );
-	    else
-		status = tr( "file up-to-date" );
-	} else {
-	    status = tr( "not in this client view" );
-	}
-	statusMessage( tr("P4: %1 -> %2 - %3").arg(p4i->depotFile).arg(filename).arg(status) );
-	P4Info::files.insert( filename, p4i );
-    }
 
     DesignerFormListInterface *flIface = 0;
     
@@ -617,9 +623,30 @@ void P4Interface::p4Info( const QString& filename, P4Info* p4i )
 	paint.setRasterOp( CopyROP );
 	actionAdd->setEnabled( FALSE );
 	actionDelete->setEnabled( TRUE );
-	if ( p4i->opened ) {
-	    QPixmap check( (const char**)check_xpm );
-	    paint.drawPixmap( ( pix.width() - check.width() ) / 2, ( pix.height() - check.height() ) / 2, check );
+	if ( p4i->action != P4Info::None ) {
+	    switch ( p4i->action ) {
+	    case P4Info::Edit:
+		{
+		    QPixmap check( (const char**)editmark_xpm );
+		    paint.drawPixmap( ( pix.width() - check.width() ) / 2, ( pix.height() - check.height() ) / 2, check );
+		}
+		break;
+	    case P4Info::Add:
+		{
+		    QPixmap add( (const char**)addmark_xpm );
+		    paint.drawPixmap( ( pix.width() - add.width() ) / 2, ( pix.height() - add.height() ) / 2, add );
+		}
+		break;
+	    case P4Info::Delete:
+		{
+		    QPixmap del( (const char**)deletemark_xpm );
+		    paint.drawPixmap( ( pix.width() - del.width() ) / 2, ( pix.height() - del.height() ) / 2, del );
+		}
+		break;
+	    default:
+		break;
+	    }
+	    
 	    actionSync->setEnabled( FALSE );
 	    actionEdit->setEnabled( FALSE );
 	    actionSubmit->setEnabled( TRUE );

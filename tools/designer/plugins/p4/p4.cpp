@@ -2,7 +2,11 @@
 #include <qprocess.h>
 #include <qmessagebox.h>
 #include <qtextview.h>
+#include <qlistview.h>
+#include <qheader.h>
+#include <qmultilineedit.h>
 #include "diffdialog.h"
+#include "submitdialog.h"
 
 QDict<P4Info> P4Info::files = QDict<P4Info>(53);
 
@@ -29,47 +33,75 @@ bool P4Action::run( const QString &command )
     return process->start();
 }
 
+void P4Action::updateStats()
+{
+    emit showStatusBarMessage( data() );
+    P4FStat* fstat = new P4FStat( fileName() );
+    connect( fstat, SIGNAL(finished(const QString&,P4Info*)), this, SLOT(newStats(const QString&,P4Info*)) );
+    fstat->execute();
+}
+
 void P4Action::newData( const QString &s )
 {
     p4Data += s;
 }
 
-bool P4Action::success()
+void P4Action::newStats( const QString &s, P4Info *p4i )
 {
-    return process && process->normalExit();
+    emit finished( s, p4i );
 }
 
+bool P4Action::success()
+{
+    return process && process->exitStatus() == 0;
+}
 
 P4FStat::P4FStat( const QString& filename )
 : P4Action( filename )
 {
 }
 
-void P4FStat::fstat()
+bool P4FStat::execute()
 {
-    run( QString("p4 fstat \"%1\"").arg( fileName() ) );
+    return run( QString("p4 fstat \"%1\"").arg( fileName() ) );
 }
 
 void P4FStat::processExited()
 {
+    P4Info *old = P4Info::files[ fileName() ];
+    if ( old ) {
+	P4Info::files.remove( fileName() );
+	delete old;
+    }
+
     P4Info* p4i = new P4Info;
+    QStringList entries = QStringList::split( '\n', data() );
 
     if ( data().find( "clientFile" ) == -1 ) {
 	p4i->controlled = FALSE;
-	p4i->opened = FALSE;
+	p4i->action = P4Info::None;
     } else {
-	p4i->controlled = TRUE;
-	int dpfIndex = data().find( "depotFile" );
-	dpfIndex = data().find( ' ', dpfIndex, TRUE ) + 1;
-	int dpfEnd = data().find( ' ', dpfIndex, TRUE );
-	p4i->depotFile = data().mid( dpfIndex, dpfEnd-dpfIndex );
-	if ( data().find( "... action edit" ) == -1 )
-	    p4i->opened = FALSE;
-	else
-	    p4i->opened = TRUE;
+	QStringList dfEntry = entries.grep( "depotFile" );
+	if ( dfEntry.count() ) {
+	    p4i->controlled = TRUE;
+	    p4i->action = P4Info::None;
+	    p4i->depotFile = QStringList::split( ' ', dfEntry[0] )[2];
+	    QStringList actionEntry = entries.grep( "... action" );
+	    if ( actionEntry.count() ) {
+		QString act = QStringList::split( ' ', actionEntry[0] )[2];
+		act.contains( "edit", FALSE );
+		if ( act.contains( "edit", FALSE ) )
+		    p4i->action = P4Info::Edit;
+		else if ( act.contains( "add", FALSE ) )
+		    p4i->action = P4Info::Add;
+		else if ( act.contains( "delete", FALSE ) )
+		    p4i->action = P4Info::Delete;
+	    }
+	}
     }
-    emit finished( fileName(), p4i );
+    P4Info::files.insert( fileName(), p4i );
 
+    emit finished( fileName(), p4i );
     delete this;
 }
 
@@ -78,23 +110,14 @@ P4Sync::P4Sync( const QString &filename )
 {
 }
 
-void P4Sync::sync()
+bool P4Sync::execute()
 {
-    run( QString("p4 sync %1").arg( fileName() ) );
+    return run( QString("p4 sync %1").arg( fileName() ) );
 }
 
 void P4Sync::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->controlled = TRUE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 P4Edit::P4Edit( const QString &filename, bool s )
@@ -102,31 +125,22 @@ P4Edit::P4Edit( const QString &filename, bool s )
 {
 }
 
-void P4Edit::edit()
+bool P4Edit::execute()
 {
     P4Info* p4i = P4Info::files[fileName()];
     if ( !p4i ) {
 	P4FStat* fstat = new P4FStat( fileName() );
-	fstat->fstat();
 	connect( fstat, SIGNAL(finished( const QString&, P4Info* )), this, SLOT(fStatResults(const QString&,P4Info*) ) );
-	run( QString( "p4 fstat \"%1\"").arg( fileName() ) );
+	return fstat->execute();
     }  else {
 	fStatResults( fileName(), p4i );
     }
+    return TRUE;
 }
 
 void P4Edit::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->opened = TRUE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
@@ -140,7 +154,7 @@ void P4Edit::fStatResults( const QString& filename, P4Info *p4i)
 	    emit showStatusBarMessage( tr( "P4: Opening file %1 for edit failed!" ).arg( fileName() ) );
 	return;
     } 
-    if ( !p4i->opened ) {
+    if ( p4i->action == P4Info::None ) {
 	if ( !silent ) {
 	    if ( QMessageBox::information( 0, tr( "P4 Edit" ), tr( "The file\n%1\nis under Perforce Source Control and not " 
 								   "opened for edit.\n"
@@ -161,28 +175,47 @@ P4Submit::P4Submit( const QString &filename )
 {
 }
 
-void P4Submit::submit()
+bool P4Submit::execute()
 {
-    if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "Are you sure you want to submit the file\n%1?" ).
-					    arg( fileName() ),
-					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	return;
+    SubmitDialog *dialog = new SubmitDialog( 0, 0, TRUE );
+    dialog->fileList->header()->hide();
 
-    run( QString("p4 submit %1").arg( fileName() ) );
+    QDictIterator<P4Info> it( P4Info::files );
+    while ( it.current() ) {
+	if ( it.current()->controlled && it.current()->action != P4Info::None )
+	    (void)new QCheckListItem( dialog->fileList, it.currentKey(), QCheckListItem::CheckBox );
+	++it;
+    }
+
+    if ( dialog->exec() != QDialog::Accepted )
+	return FALSE;
+
+    QString description = dialog->description->text().replace( QRegExp("\\n"), "\n\t" );
+    QString buffer = "Description:\n\t";
+    buffer += description + "\n";
+    buffer += "Files:\n";
+
+    QListViewItemIterator lvit( dialog->fileList );
+    while ( lvit.current() ) {
+	QCheckListItem* item = (QCheckListItem*)lvit.current();
+	if ( !item->isOn() )
+	    continue;
+	P4Info* p4i = P4Info::files[ item->text( 0 ) ];
+	if ( !p4i )
+	    continue;
+	buffer += "\t" + p4i->depotFile + "\n";
+	++lvit;
+    }
+
+    qDebug( buffer );
+
+    return TRUE;
+//    run( QString("p4 submit -i %1 < %2").arg( fileName() ).arg( buffer ) );
 }
 
 void P4Submit::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->opened = FALSE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 
@@ -191,29 +224,20 @@ P4Revert::P4Revert( const QString &filename )
 {
 }
 
-void P4Revert::revert()
+bool P4Revert::execute()
 {
     if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "Reverting will overwrite all changes to the file\n%1!\n"
 					    "Proceed with revert?" ).
 					    arg( fileName() ),
 					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	return;
+	return FALSE;
 
-    run( QString("p4 revert %1").arg( fileName() ) );
+    return run( QString("p4 revert %1").arg( fileName() ) );
 }
 
 void P4Revert::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->opened = FALSE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 P4Add::P4Add( const QString &filename )
@@ -221,23 +245,14 @@ P4Add::P4Add( const QString &filename )
 {
 }
 
-void P4Add::add()
+bool P4Add::execute()
 {
-    run( QString("p4 add %1").arg( fileName() ) );
+    return run( QString("p4 add %1").arg( fileName() ) );
 }
 
 void P4Add::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->controlled = TRUE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 P4Delete::P4Delete( const QString &filename )
@@ -245,29 +260,20 @@ P4Delete::P4Delete( const QString &filename )
 {
 }
 
-void P4Delete::del()
+bool P4Delete::execute()
 {
     if ( QMessageBox::information( 0, tr( "P4 Submit" ), tr( "The file\n%1\nwill be deleted by the next sync.\n"
 					    "Proceed with delete?" ).
 					    arg( fileName() ),
 					    tr( "&Yes" ), tr( "&No" ) ) == 1 )
-	return;
+	return FALSE;
 
-    run( QString("p4 delete %1").arg( fileName() ) );
+    return run( QString("p4 delete %1").arg( fileName() ) );
 }
 
 void P4Delete::processExited()
 {
-    emit showStatusBarMessage( data() );
-    if ( success() ) {
-	P4Info* p4i = P4Info::files[ fileName() ];
-	if ( p4i )
-	    p4i->controlled = FALSE;
-
-	emit finished( fileName(), p4i );
-    }
-
-    delete this;
+    updateStats();
 }
 
 P4Diff::P4Diff( const QString &filename )
@@ -275,9 +281,9 @@ P4Diff::P4Diff( const QString &filename )
 {
 }
 
-void P4Diff::diff()
+bool P4Diff::execute()
 {
-    run( QString("p4 diff %1").arg( fileName() ) );
+    return run( QString("p4 diff %1").arg( fileName() ) );
 }
 
 void P4Diff::processExited()
