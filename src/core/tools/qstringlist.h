@@ -30,7 +30,7 @@ class QRegExp;
 typedef QListIterator<QString> QStringListIterator;
 typedef QListMutableIterator<QString> QStringListMutableIterator;
 
-class Q_CORE_EXPORT QStringList : public QList<QString>
+class QStringList : public QList<QString>
 {
 public:
     inline QStringList() { }
@@ -38,16 +38,16 @@ public:
     inline QStringList(const QStringList &l) : QList<QString>(l) { }
     inline QStringList(const QList<QString> &l) : QList<QString>(l) { }
 
-    void sort();
+    inline void sort();
 
-    QString join(const QString &sep) const;
+    inline QString join(const QString &sep) const;
 
-    QStringList find(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
-    QStringList find(const QRegExp &rx) const;
-    QBool contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    inline QStringList find(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
+    inline QStringList find(const QRegExp &rx) const;
+    inline QBool contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
-    QStringList &replace(const QString &before, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
-    QStringList &replace(const QRegExp &rx, const QString &after);
+    inline QStringList &replace(const QString &before, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
+    inline QStringList &replace(const QRegExp &rx, const QString &after);
 
     inline QStringList operator+(const QStringList &other) const
     { QStringList n = *this; n += other; return n; }
@@ -55,8 +55,8 @@ public:
     { append(str); return *this; }
 
 #ifndef QT_NO_REGEXP
-    int indexOf(const QRegExp &rx, int from = 0) const;
-    int lastIndexOf(const QRegExp &rx, int from = -1) const;
+    inline int indexOf(const QRegExp &rx, int from = 0) const;
+    inline int lastIndexOf(const QRegExp &rx, int from = -1) const;
 #endif
 #if !defined(Q_NO_USING_KEYWORD)
     using QList<QString>::indexOf;
@@ -70,9 +70,9 @@ public:
     inline void replace(int i, const QString &s) { QList<QString>::replace(i, s); }
 #endif
 #ifdef QT_COMPAT
-    static QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
-    static QT_COMPAT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
-    static QT_COMPAT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
+    static inline QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
+    static inline QT_COMPAT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
+    static inline QT_COMPAT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
     inline QT_COMPAT QStringList grep(const QString &str, bool cs = true) const
         { return find(str, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
     inline QT_COMPAT QStringList grep(const QRegExp &rx) const { return find(rx); }
@@ -84,6 +84,103 @@ public:
     inline ConstIterator QT_COMPAT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
 };
+
+namespace QtPrivate {
+    void Q_CORE_EXPORT QStringList_sort(QStringList *that);
+    QString Q_CORE_EXPORT QStringList_join(const QStringList *that, const QString &sep);
+    QStringList Q_CORE_EXPORT QStringList_find(const QStringList *that, const QString &str,
+                                               Qt::CaseSensitivity cs);
+    QStringList Q_CORE_EXPORT QStringList_find(const QStringList *that, const QRegExp &re);
+
+    QBool Q_CORE_EXPORT QStringList_contains(const QStringList *that, const QString &str, Qt::CaseSensitivity cs);
+    void Q_CORE_EXPORT QStringList_replace(QStringList *that, const QString &before, const QString &after,
+                                      Qt::CaseSensitivity cs);
+    void Q_CORE_EXPORT QStringList_replace(QStringList *that, const QRegExp &rx, const QString &after);
+
+#ifndef QT_NO_REGEXP
+    int Q_CORE_EXPORT QStringList_indexOf(const QStringList *that, const QRegExp &rx, int from);
+    int Q_CORE_EXPORT QStringList_lastIndexOf(const QStringList *that, const QRegExp &rx, int from);
+#endif
+}
+
+inline void QStringList::sort()
+{
+    QtPrivate::QStringList_sort(this);
+}
+
+inline QString QStringList::join(const QString &sep) const
+{
+    return QtPrivate::QStringList_join(this, sep);
+}
+
+inline QStringList QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
+{
+    return QtPrivate::QStringList_find(this, str, cs);
+}
+
+inline QStringList QStringList::find(const QRegExp &rx) const
+{
+    return QtPrivate::QStringList_find(this, rx);
+}
+
+inline QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
+{
+    return QtPrivate::QStringList_contains(this, str, cs);
+}
+
+inline QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
+{
+    QtPrivate::QStringList_replace(this, before, after, cs);
+    return *this;
+}
+
+inline QStringList &QStringList::replace(const QRegExp &rx, const QString &after)
+{
+    QtPrivate::QStringList_replace(this, rx, after);
+    return *this;
+}
+
+#ifndef QT_NO_REGEXP
+inline int QStringList::indexOf(const QRegExp &rx, int from) const
+{
+    return QtPrivate::QStringList_indexOf(this, rx, from);
+}
+
+inline int QStringList::lastIndexOf(const QRegExp &rx, int from) const
+{
+    return QtPrivate::QStringList_lastIndexOf(this, rx, from);
+}
+#endif
+
+
+#ifdef QT_COMPAT
+inline QStringList QStringList::split(const QChar &sep, const QString &str, bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
+
+inline QStringList QStringList::split(const QString &sep, const QString &str, bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
+
+#ifndef QT_NO_REGEXP
+inline QStringList QStringList::split(const QRegExp &sep, const QString &str, bool allowEmptyEntries)
+{
+    if (str.isEmpty())
+        return QStringList();
+    return str.split(sep, allowEmptyEntries ? QString::KeepEmptyParts
+                                            : QString::SkipEmptyParts);
+}
+#endif // QT_NO_REGEXP
+
+#endif // QT_COMPAT
 
 
 #ifndef QT_NO_DATASTREAM
