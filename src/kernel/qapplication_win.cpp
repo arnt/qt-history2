@@ -3265,15 +3265,15 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	    d->createTLExtra();
 	    if ( msg.wParam == SIZE_MINIMIZED ) {
 		// being "hidden"
-		d->extra->topextra->iconic = 1;
+		setMinimized();
 		if ( isVisible() ) {
 		    QHideEvent e;
 		    QApplication::sendSpontaneousEvent( this, &e );
 		    hideChildren( TRUE );
 		}
-	    } else if ( d->extra->topextra->iconic ) {
+	    } else if ( isMinimized() ) {
 		// being shown
-		d->extra->topextra->iconic = 0;
+		setMinimized(FALSE);
 		showChildren( TRUE );
 		QShowEvent e;
 		QApplication::sendSpontaneousEvent( this, &e );
