@@ -3320,8 +3320,18 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
 {
     if ( d->layoutDirty )
 	doLayout();
-    int x = p.x() + contentsX();
-    int y = p.y() + contentsY();
+    QPoint np = p;
+
+    /* take into acount frame margin to get to viewport */
+    np -= QPoint(margin(), margin());
+    if ((np.x() < 0) || (np.y() < 0))
+	return 0;
+
+    /* take into account contents position */
+    np = viewportToContents(np);
+
+    int x = np.x();
+    int y = np.y();
 
     // return 0 when y is below the last row
     if ( y > d->rowPos[ numRows() ] )
@@ -3332,11 +3342,11 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
 
     QListBoxItem *i = item( col * numRows()  +row );
     if ( i && numColumns() > 1 ) {
-	if ( d->columnPos[ col ] + i->width( this ) >=  p.x() + contentsX() )
+	if ( d->columnPos[ col ] + i->width( this ) >= x )
 	    return i;
 	return 0;
     } else {
-	if ( d->columnPos[ col + 1 ] + contentsX() >=  p.x() + contentsX() )
+	if ( d->columnPos[ col + 1 ] >= x )
 	    return i;
 	return 0;
     }
