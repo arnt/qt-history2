@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#18 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -13,8 +13,6 @@
 #include "qpainter.h"
 #include "qpaintdc.h"
 #include "qwidget.h"
-#include "qpntarry.h"
-#include "qwmatrix.h"
 #include "qbitmap.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -22,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#18 $";
 #endif
 
 
@@ -273,16 +271,12 @@ QPainter::QPainter()
 {
     if ( !list )				// create list
 	list = new QPnList;
-    flags = 0;
+    flags = IsStartingUp;
     bg_col = white;				// default background color
     bg_mode = TransparentMode;			// default background mode
     rop = CopyROP;				// default ROP
     tabstops = 0;				// default tabbing
     tabarray = 0;
-    wxmat  = new QWorldMatrix;			// create wxform matrices
-    CHECK_PTR( wxmat );
-    wixmat = new QWorldMatrix;
-    CHECK_PTR( wixmat );
     ps_stack = 0;
     list->insert( this );			// add to list of painters
 }
@@ -295,10 +289,15 @@ QPainter::~QPainter()
 #endif
 	end();
     }
-    delete wxmat;
-    delete wixmat;
-    killPStack();
+    if ( ps_stack )
+	killPStack();
     list->remove( this );			// remove from painter list
+#if defined(DEBUG)
+    if ( list->isEmpty() ) {			// make sure we get no memory
+	delete list;				//   leaks!
+	list = 0;
+    }
+#endif
 }
 
 
@@ -513,7 +512,7 @@ static char *pat_tbl[] = {
 	if ( rop != CopyROP )			// update raster op for brush
 	    setRasterOp( (RasterOp)rop );
 	if ( testf(ClipOn) )
-	    XSetRegion( dpy, gc_brush, crgn.data->rgn );
+	    XSetRegion( dpy, gc_brush, crgn.handle() );
 	if ( bro.x() != 0 || bro.y() != 0 )
 	    XSetTSOrigin( dpy, gc_brush, bro.x(), bro.y() );
     }
@@ -552,12 +551,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	return FALSE;
     }
 
-    QFont  defaultFont;				// default drawing tools
-    QPen   defaultPen;
-    QBrush defaultBrush;
-    cfont = defaultFont;			// set these drawing tools
-    cpen = defaultPen;
-    cbrush = defaultBrush;
+    bool reinit = flags != IsStartingUp;	// 2nd or 3rd etc. time called
     flags = DirtyFont | DirtyPen | DirtyBrush;	// default flags
     pdev = pdev_ov ? pdev_ov : (QPaintDevice *)pd;
     if ( pdev->devFlags & PDF_EXTDEV )
@@ -572,17 +566,28 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	    return FALSE;
 	}
     }
-    else if ( pdev->devType() != PDT_WIDGET )
-	gc = XCreateGC( dpy, hd, 0, 0 );
+    else if ( pdev->devType() != PDT_WIDGET ) {	// i.e. pixmap device
+	if ( reinit ) {
+	    QFont  defaultFont;			// default drawing tools
+	    QPen   defaultPen;
+	    QBrush defaultBrush;
+	    cfont  = defaultFont;		// set these drawing tools
+	    cpen   = defaultPen;
+	    cbrush = defaultBrush;
+	}
+	gc = XCreateGC( dpy, hd, 0, 0 );	// create GC
+    }
     setf( IsActive );				// painter becomes active
     pdev->devFlags |= PDF_PAINTACTIVE;		// also tell paint device
     gc_brush = 0;
-    bg_col = white;				// default background color
     bro = curPt = QPoint( 0, 0 );
-    wxmat->reset();				// reset world xform matrix
+    if ( reinit ) {
+	bg_col = white;				// default background color
+	wxmat.reset();				// reset world xform matrix
+	tabstops = 0;				// default tabbing
+	tabarray = 0;
+    }
     sx = sy = tx = ty = 0;			// default view origins
-    tabstops = 0;				// default tabbing
-    tabarray = 0;
     if ( pdev->devType() == PDT_WIDGET ) {	// device is a widget
 	QWidget *w = (QWidget*)pdev;
 	cfont = w->font();			// use widget font
@@ -591,6 +596,9 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	sh = th = w->clientSize().height();
 	cpen = QPen( w->foregroundColor() );	// use widget fg color
 	flags &= ~DirtyPen;			// pen is ok
+	if ( reinit ) {
+	    cbrush = QBrush( NoBrush );
+	}
 	gc = w->getGC();
 	borrowWidgetGC = TRUE;			// optimize gc
 	if ( w->testFlag(WPaintUnclipped) ) {	// paint direct on device
@@ -804,7 +812,7 @@ void QPainter::setWorldXForm( bool onOff )	// set world xform on/off
     updateXForm();
 }
 
-QWorldMatrix *QPainter::worldMatrix() const	// get world xform matrix
+QWorldMatrix QPainter::worldMatrix() const	// get world xform matrix
 {
     return wxmat;
 }
@@ -812,12 +820,12 @@ QWorldMatrix *QPainter::worldMatrix() const	// get world xform matrix
 void QPainter::setWorldMatrix( const QWorldMatrix &m, bool concat )
 {						// set world xform matrix
     if ( concat )
-	*wxmat = m * *wxmat;			// concatenate
+	wxmat = m * wxmat;			// concatenate
     else
-	*wxmat = m;				// set    
+	wxmat = m;				// set    
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
-	param[0].matrix = wxmat;
+	param[0].matrix = &wxmat;
 	param[1].ival = concat;
 	pdev->cmd( PDC_SETWMATRIX, param );
 	return;
@@ -836,23 +844,28 @@ void QPainter::updateXForm()			// update xform params
 	m.translate( tx, ty );
 	m.scale( 1.0*tw/sw, 1.0*th/sh );
 	m.translate( -sx, -sy );
-	m = *wxmat * m;
+	m = wxmat * m;
     }
     else
-	m = *wxmat;
+	m = wxmat;
     wm11 = (int)(m.m11()*65536.0);
     wm12 = (int)(m.m12()*65536.0);
     wm21 = (int)(m.m21()*65536.0);
     wm22 = (int)(m.m22()*65536.0);
     wdx  = (int)(m.dx() *65536.0);
     wdy  = (int)(m.dy() *65536.0);
-    *wixmat = m.invert();			// invert matrix
-    im11 = (int)(wixmat->m11()*65536.0);
-    im12 = (int)(wixmat->m12()*65536.0);
-    im21 = (int)(wixmat->m21()*65536.0);
-    im22 = (int)(wixmat->m22()*65536.0);
-    idx  = (int)(wixmat->dx() *65536.0);
-    idy  = (int)(wixmat->dy() *65536.0);
+    bool invertible;
+    m = m.invert( &invertible );		// invert matrix
+#if defined(CHECK_RANGE)
+    if ( !invertible )
+	warning( "QPainter::updateXForm: World xform matrix not invertible" );
+#endif
+    im11 = (int)(m.m11()*65536.0);
+    im12 = (int)(m.m12()*65536.0);
+    im21 = (int)(m.m21()*65536.0);
+    im22 = (int)(m.m22()*65536.0);
+    idx  = (int)(m.dx() *65536.0);
+    idy  = (int)(m.dy() *65536.0);
 }
 
 
@@ -1016,9 +1029,9 @@ void QPainter::setClipping( bool onOff )	// set clipping on/off
     if ( borrowWidgetGC )
 	createOwnGC();
     if ( testf(ClipOn) ) {
-	XSetRegion( dpy, gc, crgn.data->rgn );
+	XSetRegion( dpy, gc, crgn.handle() );
 	if ( gc_brush )
-	    XSetRegion( dpy, gc_brush, crgn.data->rgn );
+	    XSetRegion( dpy, gc_brush, crgn.handle() );
     }
     else {
 	XSetClipMask( dpy, gc, None );
@@ -1795,6 +1808,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	return;
     if ( len < 0 )
 	len = strlen( str );
+#if defined(CHECK_RANGE)
+    else if ( len > strlen(str) )
+	warning( "QPainter::drawText: Length arg exceeds real string length ");
+#endif
     if ( len == 0 )				// empty string
 	return;
     if ( testf(DirtyPen|DirtyFont|ExtDev|VxF|WxF) ) {
@@ -1806,8 +1823,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QPDevCmdParam param[2];
 	    QPoint p( x, y );
 	    QString newstr = str;
-	    if ( len >= 0 )
-		newstr.resize( len );
+	    newstr.resize( len+1 );
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
 	    pdev->cmd( PDC_DRAWTEXT, param );
@@ -1884,7 +1900,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    if ( do_clip ) {
 		delete draw_bm;
 		XSetClipOrigin( dpy, gc, 0, 0 );
-		XSetRegion( dpy, gc, crgn.data->rgn );
+		XSetRegion( dpy, gc, crgn.handle() );
 	    }
 	    if ( create_new_bm )
 		ins_text_bitmap( eff_mat, str, len, wx_bm );
@@ -1900,6 +1916,51 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 }
 
 
+class QIntPainter : public QPainter {		// internal painter functions
+public:
+    void addClipRect( int, int, int, int );
+    void restoreClipping();
+};
+
+void QIntPainter::addClipRect( int x, int y, int w, int h )
+{
+    if ( borrowWidgetGC )
+	createOwnGC();
+    QRect r( x, y, w, h );
+    if ( testf(WxF) ) {				// world xform active
+	QPointArray a( r );			// complex region
+	a = xForm( a );
+	QRegion new_rgn( a );
+	if ( testf(ClipOn) )
+	    new_rgn = new_rgn.intersect( crgn );
+	setClipRegion( new_rgn );
+    }
+    else {					// simple region
+	Region rgn;
+	r = xForm( r );
+	XRectangle xr;
+	xr.x = r.x();
+	xr.y = r.y();
+	xr.width = r.width();
+	xr.height = r.height();
+	rgn = XCreateRegion();			// create X region directly
+	XUnionRectWithRegion( &xr, rgn, rgn );
+	if ( testf(ClipOn) )			// clipping on
+	    XIntersectRegion( rgn, crgn.handle(), rgn );
+	XSetRegion( dpy, gc, rgn );
+	XDestroyRegion( rgn );			// no longer needed
+    }
+}
+
+void QIntPainter::restoreClipping()
+{
+    if ( testf(ClipOn) )			// set original region
+	XSetRegion( dpy, gc, crgn.handle() );
+    else
+	XSetClipMask( dpy, gc, None );
+}
+
+
 void QPainter::drawText( int x, int y, int w, int h, int tf,
 			 const char *str, int len )
 {
@@ -1907,6 +1968,10 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	return;
     if ( len < 0 )
 	len = strlen( str );
+#if defined(CHECK_RANGE)
+    else if ( len > strlen(str) )
+	warning( "QPainter::drawText: Length arg exceeds real string length ");
+#endif
     if ( len == 0 )				// empty string
 	return;
     if ( testf(DirtyPen|DirtyFont|ExtDev) ) {
@@ -1915,7 +1980,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( testf(DirtyFont) )	    
 	    updateFont();
 	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[5];
+	    QPDevCmdParam param[3];
 	    QPoint p( x, y );
 	    QString newstr = str;
 	    if ( len >= 0 )
@@ -1923,8 +1988,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    param[0].point = &p;
 	    param[1].str = newstr.data();
 	    param[2].ival = flags;
-	    param[3].ival = tabstops;
-	    param[4].ivec = tabarray;		// TO BE CHANGED!!!
 	    pdev->cmd( PDC_DRAWTEXTFRMT, param );
 	    return;
 	}
@@ -1934,79 +1997,88 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-    int nlines = 0;				// number of lines
-    int k;
-    register char *p;
-    int xp, yp, tw;
+
     QFontMetrics fm( cfont );
     int fascent  = fm.ascent();			// get font measurements
-    int fdescent = fm.ascent();
+    int fdescent = fm.descent();
     int fheight  = fm.height();
-    if ( (tf & ClipText) == ClipText ) {	// clip text
-	if ( borrowWidgetGC )
-	    createOwnGC();
-	Region tmprgn;
-	QRect r( x, y, w, h );
-	if ( testf(WxF) && (wm12 != 0 || wm21 != 0) ) {
-	    QPointArray a( r, TRUE );		// complex region
-	    a = xForm( a );
-	    tmprgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule);
+    QRegion save_rgn = crgn;			// save the current region
+    int xp, yp, tw;
+    register char *p;
+    int nlines = 1;				// number of lines
+    int k;
+
+    if ( (tf & (SingleLine|ExpandTabs|ShowPrefix)) == SingleLine ) {
+	tw = fm.width( str );			// simple text line
+	if ( tw < w )
+	    tf |= DontClip;
+	else if ( (tf & DontClip) == 0 )	// clipping necessary
+	    ((QIntPainter*)this)->addClipRect( x, y, w, h );
+	if ( tf & (AlignCenter|AlignRight) ) {
+	    if ( tf & AlignRight )		// right aligned
+		x += w - tw;
+	    else				// centered text
+		x += w/2 - tw/2;
 	}
-	else {					// simple region
-	    tmprgn = XCreateRegion();
-	    r = xForm( r );
-	    XRectangle xr;
-	    xr.x = r.x();
-	    xr.y = r.y();
-	    xr.width = r.width();
-	    xr.height = r.height();
-	    XUnionRectWithRegion( &xr, tmprgn, tmprgn );
+	if ( tf & AlignVCenter )		// vertically centered text
+	    y += h/2 + fascent - fheight/2;
+	else if ( tf & AlignBottom )		// bottom aligned
+	    y += h - fdescent;
+	else					// top aligned
+	    y += fascent;
+	drawText( x, y, str, len );
+	if ( (tf & DontClip) == 0 ) {		// restore clipping
+	    ((QIntPainter*)this)->restoreClipping();
+	    if ( save_rgn.handle() != crgn.handle() )
+		setClipRegion( save_rgn );
 	}
-	if ( testf(ClipOn) )			// clipping active
-	    XIntersectRegion( tmprgn, crgn.data->rgn, tmprgn );
-	XSetRegion( dpy, gc, tmprgn );
-	XDestroyRegion( tmprgn );		// no longer needed
+	return;
     }
-    if ( (tf & SingleLineText) != SingleLineText ) {
+
+#if 0
+    k = len;
+    while ( k-- ) {
+	switch ( *p++ ) {
+	    case '\t':
+		containsTab = TRUE;
+		break;
+	    case '\n':
+		containsNL = TRUE;
+		break;
+	    case '&':
+		containsAmpersand = TRUE;
+		break;
+	}
+    }
+
+#endif
+
+    if ( (tf & DontClip) == 0 )			// clip text
+	((QIntPainter*)this)->addClipRect( x, y, w, h );
+
+    if ( (tf & SingleLine) != SingleLine ) {
 	k = len;
 	p = (char *)str;
-	while ( k-- && *p ) {			// string contains newline?
+	while ( k-- ) {				// string contains newline?
 	    if ( *p++ == '\n' )
 		nlines++;
 	}
     }
-    if ( nlines ) {				// draw multi-line text
-	nlines++;
-	if ( tf & AlignVerCenter )		// vertically centered text
-	    yp = h/2 - nlines*fheight/2;
-	else if ( tf & AlignBottom )		// bottom aligned
-	    yp = h - nlines*fheight;
-	else					// top aligned
-	    yp = 0;
-	yp += fascent;
-	k = len;
-	do {
-	    p = (char *)str;
-	    while ( k-- && *p && *p != '\n' )
-		p++;
-	    int linelen = (int)p - (int)str;
-	    if ( tf & (AlignCenter|AlignRight) ) {
-		tw = fm.width( str, linelen );	// get width of line
-		if ( tf & AlignRight )		// right aligned
-		    xp = w - tw;
-		else				// centered text
-		    xp = w/2 - tw/2;
-	    }
-	    else				// left aligned
-		xp = 0;
-	    drawText( x+xp, y+yp, str, linelen );
-	    yp += fheight;
-	    str = p+1;
-	} while ( k && *p );
-    }
-    else {					// draw single-line text
+    if ( tf & AlignVCenter )			// vertically centered text
+	yp = h/2 - nlines*fheight/2;
+    else if ( tf & AlignBottom )		// bottom aligned
+	yp = h - nlines*fheight;
+    else					// top aligned
+	yp = 0;
+    yp += fascent;
+    k = len;
+    do {
+	p = (char *)str;
+	while ( k-- && *p && *p != '\n' )
+	    p++;
+	int linelen = (int)p - (int)str;
 	if ( tf & (AlignCenter|AlignRight) ) {
-	    tw = fm.width( str, len );		// get text width
+	    tw = fm.width( str, linelen );	// get width of line
 	    if ( tf & AlignRight )		// right aligned
 		xp = w - tw;
 	    else				// centered text
@@ -2014,19 +2086,15 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	}
 	else					// left aligned
 	    xp = 0;
-	if ( tf & AlignVerCenter )		// vertically centered text
-	    yp = h/2 + fascent - fheight/2;
-	else if ( tf & AlignBottom )		// bottom aligned
-	    yp = h - fdescent;
-	else					// top aligned
-	    yp = fascent;
-	drawText( xp+x, yp+y, str, len );
-    }
-    if ( (tf & ClipText) == ClipText ) {	// restore clipping
-	if ( testf(ClipOn) )			// set original region
-	    XSetRegion( dpy, gc, crgn.data->rgn );
-	else
-	    XSetClipMask( dpy, gc, None );
+	drawText( x+xp, y+yp, str, linelen );
+	yp += fheight;
+	str = p+1;
+    } while ( k && *p );
+
+    if ( (tf & DontClip) == 0 ) {		// restore clipping
+	((QIntPainter*)this)->restoreClipping();
+	if ( save_rgn.handle() != crgn.handle() )
+	    setClipRegion( save_rgn );
     }
 }
 
@@ -2038,7 +2106,7 @@ QRect QPainter::calcRect( int x, int y, int w, int h, int tf,
 	len = strlen( str );
     QFontMetrics fm( font() );
     int fheight = fm.height();
-    if ( tf & SingleLineText ) {
+    if ( tf & SingleLine ) {
 	w = fm.width( str );
 	h = fheight;
     }
