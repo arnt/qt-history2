@@ -298,7 +298,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
     QStyle::SFlags flags = QStyle::Style_Default;
     if (isEnabled())
 	flags |= QStyle::Style_Enabled;
-    if (hasFocus())
+    if (hasFocus() || focusProxy() && focusProxy()->hasFocus())
 	flags |= QStyle::Style_HasFocus;
 
     QStyle::SCFlags active;
