@@ -1684,7 +1684,8 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 		    int index = QMAX( curpar->length(),1) - 1;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    curpar->append( QChar('*') );
-		    curpar->setFormat( index, 1, &format );
+		    QTextFormat* f = formatCollection()->format( &format );
+		    curpar->setFormat( index, 1, f );
 		    curpar->at( index )->setCustomItem( custom );
 		    if ( !curtag.anchorHref.isEmpty() )
  			curpar->at(index)->setAnchor( QString::null, curtag.anchorHref );
