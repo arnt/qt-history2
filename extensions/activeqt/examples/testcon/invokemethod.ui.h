@@ -46,6 +46,7 @@ void InvokeMethod::methodSelected( const QString &method )
 	return;
     
     listParameters->clear();
+    listParameters->setSorting( -1 );
     const QMetaObject *mo = activex->metaObject();
     const QMetaData *data = mo->slot( mo->findSlot( method, FALSE ), TRUE );
     const QUMethod *slot = data ? data->method : 0;
