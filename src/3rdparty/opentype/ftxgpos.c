@@ -44,6 +44,8 @@
     FT_UShort        load_flags;  /* how the glyph should be loaded */
     FT_Bool          r2l;
 
+    FT_UShort        first;       /* the first glyph in a chain of
+                                     cursive connections           */
     FT_UShort        last;        /* the last valid glyph -- used
                                      with cursive positioning     */
     FT_Pos           anchor_x;    /* the coordinates of the anchor point */
@@ -1714,7 +1716,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     TTO_GPOSHeader*  gpos = gpi->gpos;
 
 
-    if ( in->pos >= in->length )
+    if ( in->pos >= in->length - 1 )
       return TTO_Err_Not_Covered;           /* Not enough glyphs in stream */
 
     if ( context_length != 0xFFFF && context_length < 2 )
@@ -1955,7 +1957,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
 
     /* Now comes the messiest part of the whole OpenType
        specification.  At first glance, cursive connections seem easy
-       to understand, but there are pitfalls!  The reason is, that
+       to understand, but there are pitfalls!  The reason is that
        the specs don't mention how to compute the advance values
        resp. glyph offsets.  I was told it would be an omission, to
        be fixed in the next OpenType version...  Again many thanks to
@@ -2103,6 +2105,8 @@ static FT_Error  default_mmfunc( FT_Face      face,
       gpi->last = 0xFFFF;
     else
     {
+      if ( gpi->first == 0xFFFF )
+        gpi->first  = in->pos;
       gpi->last     = in->pos;
       gpi->anchor_x = exit_x;
       gpi->anchor_y = exit_y;
@@ -2357,7 +2361,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
                          flags, &property ) )
       return error;
 
-    /* now we search backwards for a base glyph */
+    /* now we search backwards for a non-mark glyph */
 
     i = 1;
     j = in->pos - 1;
@@ -2369,21 +2373,18 @@ static FT_Error  default_mmfunc( FT_Face      face,
       if ( error )
         return error;
 
-      if ( property != TTO_MARK )
+      if ( !( property == TTO_MARK || property & IGNORE_SPECIAL_MARKS ) )
         break;
 
       i++;
       j--;
     }
 
-    /*
-      According to the specs this should only be used on base glyphs, but MS mangal
-      defines the attachments for [Consonant+Nukta] in here (even though the ligature
-      [Consonant+Nukta] has TTO_LIGATURE property. Well, if the font is correctly built, there will
-      not be attachments to the ligatures defined here, so allowing this to proceed can't really hurt
-    */
-    if ( property != TTO_BASE_GLYPH && property != TTO_LIGATURE )
+    /* The following assertion is too strong -- at least for mangal.ttf. */
+#if 0
+    if ( property != TTO_BASE_GLYPH )
       return TTO_Err_Not_Covered;
+#endif
 
     if ( i > in->pos )
       return TTO_Err_Not_Covered;
@@ -2770,7 +2771,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( CHECK_Property( gpos->gdef, mark_glyph, flags, &property ) )
       return error;
 
-    /* now we search backwards for a ligature */
+    /* now we search backwards for a non-mark glyph */
 
     i = 1;
     j = in->pos - 1;
@@ -2782,15 +2783,19 @@ static FT_Error  default_mmfunc( FT_Face      face,
       if ( error )
         return error;
 
-      if ( property != TTO_MARK )
+      if ( !( property == TTO_MARK || property & IGNORE_SPECIAL_MARKS ) )
         break;
 
       i++;
       j--;
     }
 
+    /* Similar to Lookup_MarkBasePos(), I suspect that this assertion is
+       too strong, thus it is commented out.                             */
+#if 0
     if ( property != TTO_LIGATURE )
       return TTO_Err_Not_Covered;
+#endif
 
     if ( i > in->pos )
       return TTO_Err_Not_Covered;
@@ -4792,12 +4797,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
     if ( class_offset )
       {
         if ( !FILE_Seek( class_offset + base_offset ) )
-          error = Load_ClassDefinition( cd, limit, stream ) == TT_Err_Ok;
+          error = Load_ClassDefinition( cd, limit, stream );
       }
     else
        error = Load_EmptyClassDefinition ( cd, stream );
 
-    (void)FILE_Seek( cur_offset );
+    if (error == TT_Err_Ok)
+      (void)FILE_Seek( cur_offset ); /* Changes error as a side-effect */
 
     return error;
   }
@@ -5272,7 +5278,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
         curr_pos = 0;
         s_in     = &in->string[curr_pos];
 
-        for ( i = bgc, j = in->pos - 1; i > 0; i--, j-- )
+        for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
         {
           while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
           {
@@ -5285,11 +5291,21 @@ static FT_Error  default_mmfunc( FT_Face      face,
               break;
           }
 
-          if ( s_in[j] != curr_cpr.Backtrack[i - 1] )
+          /* In OpenType 1.3, it is undefined whether the offsets of
+             backtrack glyphs is in logical order or not.  Version 1.4
+             will clarify this:
+
+               Logical order -      a  b  c  d  e  f  g  h  i  j
+                                                i
+               Input offsets -                  0  1
+               Backtrack offsets -  3  2  1  0
+               Lookahead offsets -                    0  1  2  3           */
+
+          if ( s_in[j] != curr_cpr.Backtrack[i] )
             break;
         }
 
-        if ( i != 0 )
+        if ( i != bgc )
           continue;
       }
 
@@ -5321,7 +5337,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos = j;
+      curr_pos += j;
       s_in     = &in->string[curr_pos];
 
       for ( i = 0, j = 0; i < lgc; i++, j++ )
@@ -5473,7 +5489,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
             known_backtrack_classes = i;
           }
 
-          if ( bc[bgc - 1 - i] != backtrack_classes[i] )
+          if ( bc[i] != backtrack_classes[i] )
             break;
         }
 
@@ -5519,7 +5535,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos = j;
+      curr_pos += j;
       s_in     = &in->string[curr_pos];
       lc       = cpcr.Lookahead;
 
@@ -5621,7 +5637,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
       s_in     = &in->string[curr_pos];
       bc       = ccpf3->BacktrackCoverage;
 
-      for ( i = bgc, j = in->pos - 1; i > 0; i--, j-- )
+      for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
       {
         while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
@@ -5634,7 +5650,7 @@ static FT_Error  default_mmfunc( FT_Face      face,
             return TTO_Err_Not_Covered;
         }
 
-        error = Coverage_Index( &bc[i - 1], s_in[j], &index );
+        error = Coverage_Index( &bc[i], s_in[j], &index );
         if ( error )
           return error;
       }
@@ -5644,11 +5660,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
     s_in     = &in->string[curr_pos];
     ic       = ccpf3->InputCoverage;
 
-    /* Start at 1 because [0] is implied */
-
-    for ( i = 1, j = 1; i < igc; i++, j++ )
+    for ( i = 0, j = 0; i < igc; i++, j++ )
     {
-      while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+      /* We already called CHECK_Property for s_in[0] */
+      while ( j > 0 && CHECK_Property( gdef, s_in[j], flags, &property ) )
       {
         if ( error && error != TTO_Err_Not_Covered )
           return error;
@@ -5664,10 +5679,10 @@ static FT_Error  default_mmfunc( FT_Face      face,
         return error;
     }
 
-    /* we are starting for lookahead glyphs right after the last context
-       glyph                                                             */
+    /* we are starting to check for lookahead glyphs right after the
+       last context glyph                                            */
 
-    curr_pos = j;
+    curr_pos += j;
     s_in     = &in->string[curr_pos];
     lc       = ccpf3->LookaheadCoverage;
 
@@ -6128,10 +6143,13 @@ static FT_Error  default_mmfunc( FT_Face      face,
   {
     FT_Error         error = TTO_Err_Not_Covered;
 
-    int      nesting_level = 0;
+    int       nesting_level = 0;
+    FT_UShort i;
+    FT_Pos    offset;
 
 
-    gpi->last = 0xFFFF;      /* no last valid glyph for cursive pos. */
+    gpi->first = 0xFFFF;
+    gpi->last  = 0xFFFF;     /* no last valid glyph for cursive pos. */
 
     in->pos = 0;
 
@@ -6160,6 +6178,22 @@ static FT_Error  default_mmfunc( FT_Face      face,
         gpi->last = 0xFFFF;
 
         error = TTO_Err_Not_Covered;
+      }
+
+      /* test whether we have to adjust the offsets for cursive connections */
+
+      if ( gpi->first != 0xFFFF && gpi->last == 0xFFFF &&
+           gpi->gpos->LookupList.Lookup[lookup_index].LookupFlag & RIGHT_TO_LEFT )
+      {
+        offset = out[in->pos].y_pos;
+
+        /* no horizontal offsets (for vertical writing direction)
+           supported yet                                          */
+
+        for ( i = gpi->first; i <= in->pos; i++ )
+          out[i].y_pos -= offset;
+
+        gpi->first = 0xFFFF;
       }
 
       if ( error == TTO_Err_Not_Covered )

@@ -194,7 +194,7 @@
       gdef->GlyphClassDef.loaded = FALSE;
 
     if ( ACCESS_Frame( 2L ) )
-      goto Fail0;
+      goto Fail1;
 
     new_offset = GET_UShort();
 
@@ -215,7 +215,7 @@
       gdef->AttachList.loaded = FALSE;
 
     if ( ACCESS_Frame( 2L ) )
-      return error;
+      goto Fail2;
 
     new_offset = GET_UShort();
 
@@ -237,9 +237,20 @@
 
     /* OpenType 1.2 has introduced the `MarkAttachClassDef' field.  We
        first have to scan the LookupFlag values to find out whether we
-       must load it or not.  Here we only store the current file offset. */
+       must load it or not.  Here we only store the offset of the table. */
 
-    gdef->MarkAttachClassDef_offset = FILE_Pos();
+    if ( ACCESS_Frame( 2L ) )
+      goto Fail3;
+
+    new_offset = GET_UShort();
+
+    FORGET_Frame();
+
+    if ( new_offset )
+      gdef->MarkAttachClassDef_offset = new_offset + base_offset;
+    else
+      gdef->MarkAttachClassDef_offset = 0;
+
     gdef->MarkAttachClassDef.loaded = FALSE;
 
     gdef->LastGlyph       = 0;
@@ -249,6 +260,9 @@
 
     return TT_Err_Ok;
 
+  Fail3:
+    Free_LigCaretList( &gdef->LigCaretList, memory );
+    
   Fail2:
     Free_AttachList( &gdef->AttachList, memory );
 
@@ -1127,18 +1141,40 @@
 
     if ( gdef )
     {
+      FT_UShort basic_glyph_class;
+      FT_UShort desired_attachment_class;
+	    
       error = TT_GDEF_Get_Glyph_Property( gdef, index, property );
       if ( error )
         return error;
 
-      /* This is OpenType 1.2 */
+      /* If the glyph was found in the MarkAttachmentClass table,
+       * then that class value is the high byte of the result,
+       * otherwise the low byte contains the basic type of the glyph
+       * as defined by the GlyphClassDef table.
+       */
+      if ( *property & IGNORE_SPECIAL_MARKS  )
+	basic_glyph_class = TTO_MARK;
+      else
+	basic_glyph_class = *property;
 
-      if ( flags & IGNORE_SPECIAL_MARKS )
-        if ( (flags & 0xFF00) != *property )
-          return TTO_Err_Not_Covered;
-
-      if ( flags & *property )
-        return TTO_Err_Not_Covered;
+      /* Return Not_Covered, if, for example, basic_glyph_class
+       * is TTO_LIGATURE and LookFlags includes IGNORE_LIGATURES
+       */
+      if ( flags & basic_glyph_class )
+	return TTO_Err_Not_Covered;
+      
+      /* The high byte of LookupFlags has the meaning
+       * "ignore marks of attachment type different than
+       * the attachment type specified."
+       */
+      desired_attachment_class = flags & IGNORE_SPECIAL_MARKS;
+      if ( desired_attachment_class )
+      {
+	if ( basic_glyph_class == TTO_MARK &&
+	     *property != desired_attachment_class )
+	  return TTO_Err_Not_Covered;
+      }
     }
 
     return TT_Err_Ok;

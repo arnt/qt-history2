@@ -329,19 +329,6 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
         if ( lo[i].LookupFlag & IGNORE_SPECIAL_MARKS )
         {
           if ( FILE_Seek( gdef->MarkAttachClassDef_offset ) ||
-               ACCESS_Frame( 2L ) )
-            goto Fail1;
-
-          new_offset = GET_UShort();
-
-          FORGET_Frame();
-
-          if ( !new_offset )
-            return TTO_Err_Invalid_GDEF_SubTable;
-
-          new_offset += base_offset;
-
-          if ( FILE_Seek( new_offset ) ||
                ( error = Load_ClassDefinition( &gdef->MarkAttachClassDef,
                                                256, stream ) ) != TT_Err_Ok )
             goto Fail1;
@@ -1197,7 +1184,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     if ( CHECK_Property( gdef, in->string[in->pos], flags, &property ) )
       return error;
 
-    if ( property == TTO_MARK )
+    if ( property == TTO_MARK || property & IGNORE_SPECIAL_MARKS )
       first_is_mark = TRUE;
 
     if ( index >= ls->LigatureSetCount )
@@ -1233,7 +1220,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
             break;
         }
 
-        if ( property != TTO_MARK )
+        if ( !( property == TTO_MARK || property & IGNORE_SPECIAL_MARKS ) )
           is_mark = FALSE;
 
         if ( s_in[j] != c[i - 1] )
@@ -2921,12 +2908,13 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     if ( class_offset )
       {
         if ( !FILE_Seek( class_offset + base_offset ) )
-          error = Load_ClassDefinition( cd, limit, stream ) == TT_Err_Ok;
+          error = Load_ClassDefinition( cd, limit, stream );
       }
     else
        error = Load_EmptyClassDefinition ( cd, stream );
 
-    (void)FILE_Seek( cur_offset );
+    if (error == TT_Err_Ok)
+      (void)FILE_Seek( cur_offset ); /* Changes error as a side-effect */
 
     return error;
   }
@@ -3398,13 +3386,13 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
 
       if ( bgc )
       {
-        /* Since we don't know in advance the number of glyphs to inspect,
+        /* since we don't know in advance the number of glyphs to inspect,
            we search backwards for matches in the backtrack glyph array    */
 
         curr_pos = 0;
         s_in     = &in->string[curr_pos];
 
-        for ( i = bgc, j = in->pos - 1; i > 0; i--, j-- )
+        for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
         {
           while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
           {
@@ -3417,11 +3405,21 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
               break;
           }
 
-          if ( s_in[j] != curr_csr.Backtrack[i - 1] )
+          /* In OpenType 1.3, it is undefined whether the offsets of
+             backtrack glyphs is in logical order or not.  Version 1.4
+             will clarify this:
+
+               Logical order -      a  b  c  d  e  f  g  h  i  j
+                                                i
+               Input offsets -                  0  1
+               Backtrack offsets -  3  2  1  0
+               Lookahead offsets -                    0  1  2  3           */
+
+          if ( s_in[j] != curr_csr.Backtrack[i] )
             break;
         }
 
-        if ( i != 0 )
+        if ( i != bgc )
           continue;
       }
 
@@ -3453,7 +3451,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos = j;
+      curr_pos += j;
       s_in     = &in->string[curr_pos];
 
       for ( i = 0, j = 0; i < lgc; i++, j++ )
@@ -3605,7 +3603,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
             known_backtrack_classes = i;
           }
 
-          if ( bc[bgc - 1 - i] != backtrack_classes[i] )
+          if ( bc[i] != backtrack_classes[i] )
             break;
         }
 
@@ -3651,7 +3649,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       /* we are starting to check for lookahead glyphs right after the
          last context glyph                                            */
 
-      curr_pos = j;
+      curr_pos += j;
       s_in     = &in->string[curr_pos];
       lc       = ccsr.Lookahead;
 
@@ -3752,7 +3750,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
       s_in     = &in->string[curr_pos];
       bc       = ccsf3->BacktrackCoverage;
 
-      for ( i = bgc, j = in->pos - 1; i > 0; i--, j-- )
+      for ( i = 0, j = in->pos - 1; i < bgc; i++, j-- )
       {
         while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
         {
@@ -3765,7 +3763,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
             return TTO_Err_Not_Covered;
         }
 
-        error = Coverage_Index( &bc[i - 1], s_in[j], &index );
+        error = Coverage_Index( &bc[i], s_in[j], &index );
         if ( error )
           return error;
       }
@@ -3775,11 +3773,10 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     s_in     = &in->string[curr_pos];
     ic       = ccsf3->InputCoverage;
 
-    /* Start at 1 because [0] is implied */
-
-    for ( i = 1, j = 1; i < igc; i++, j++ )
+    for ( i = 0, j = 0; i < igc; i++, j++ )
     {
-      while ( CHECK_Property( gdef, s_in[j], flags, &property ) )
+      /* We already called CHECK_Property for s_in[0] */
+      while ( j > 0 && CHECK_Property( gdef, s_in[j], flags, &property ) )
       {
         if ( error && error != TTO_Err_Not_Covered )
           return error;
@@ -3798,7 +3795,7 @@ static inline void glyph_copy( TTO_GSUB_String*  in,
     /* we are starting for lookahead glyphs right after the last context
        glyph                                                             */
 
-    curr_pos = j;
+    curr_pos += j;
     s_in     = &in->string[curr_pos];
     lc       = ccsf3->LookaheadCoverage;
 

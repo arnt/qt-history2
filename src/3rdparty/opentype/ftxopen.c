@@ -573,6 +573,8 @@
 
     TTO_SubTable*  st;
 
+    FT_Bool        is_extension = FALSE;
+
 
     base_offset = FILE_Pos();
 
@@ -592,6 +594,10 @@
 
     st = l->SubTable;
 
+    if ( ( type == GSUB && l->LookupType == GSUB_LOOKUP_EXTENSION ) ||
+         ( type == GPOS && l->LookupType == GPOS_LOOKUP_EXTENSION ) )
+      is_extension = TRUE;
+
     for ( n = 0; n < count; n++ )
     {
       if ( ACCESS_Frame( 2L ) )
@@ -602,6 +608,19 @@
       FORGET_Frame();
 
       cur_offset = FILE_Pos();
+
+      if ( is_extension )
+      {
+        if ( FILE_Seek( new_offset ) || ACCESS_Frame( 8L ) )
+          goto Fail;
+
+        (void)GET_UShort();                     /* format should be 1 */
+        l->LookupType = GET_UShort();
+        new_offset = GET_ULong() + base_offset;
+
+        FORGET_Frame();
+      }
+
       if ( FILE_Seek( new_offset ) ||
            ( error = Load_SubTable( &st[n], stream,
                                     type, l->LookupType ) ) != TT_Err_Ok )
@@ -1219,7 +1238,8 @@
                                FT_UShort*            klass,
                                FT_UShort*            index )
   {
-    *index = 0;
+    if (index)
+      *index = 0;
 
     if ( glyphID >= cdf1->StartGlyph &&
          glyphID <= cdf1->StartGlyph + cdf1->GlyphCount )
@@ -1401,7 +1421,7 @@
 
     f = d->DeltaFormat;
 
-    if ( size >= d->StartSize && size <= d->EndSize )
+    if ( d->DeltaValue && size >= d->StartSize && size <= d->EndSize )
     {
       s    = size - d->StartSize;
       byte = d->DeltaValue[s >> ( 4 - f )];

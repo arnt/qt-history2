@@ -40,6 +40,7 @@ extern "C" {
 #define GPOS_LOOKUP_MARKMARK  6
 #define GPOS_LOOKUP_CONTEXT   7
 #define GPOS_LOOKUP_CHAIN     8
+#define GPOS_LOOKUP_EXTENSION  9
 
 
   /* A pointer to a function which loads a glyph.  Its parameters are
