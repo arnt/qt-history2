@@ -1,7 +1,8 @@
 TEMPLATE	= lib
 CONFIG+= qt warn_off release plugin
 
-HEADERS		= ../../../../include/qaquastyle.h
+HEADERS		= ../../../../include/qaquastyle.h \
+		  ../../../../src/styles/qaquastyle_p.h
 
 SOURCES		= main.cpp \
 		  ../../../../src/styles/qaquastyle.cpp
