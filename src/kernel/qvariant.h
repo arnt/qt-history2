@@ -118,7 +118,9 @@ class Q_GUI_EXPORT QVariant : public QCoreVariant
     inline QVariant(const QTime &time);
     inline QVariant(const QDateTime &datetime);
 #ifndef QT_NO_TEMPLATE_VARIANT
+    inline QVariant(const QList<QVariant> &list);
     inline QVariant(const QList<QCoreVariant> &list);
+    inline QVariant(const QMap<QString, QVariant> &map);
     inline QVariant(const QMap<QString,QCoreVariant> &map);
 #endif
 
@@ -212,8 +214,12 @@ inline QVariant::QVariant(const QDate &date) : QCoreVariant(date) {};
 inline QVariant::QVariant(const QTime &time) : QCoreVariant(time) {};
 inline QVariant::QVariant(const QDateTime &datetime) : QCoreVariant(datetime) {};
 #ifndef QT_NO_TEMPLATE_VARIANT
+inline QVariant::QVariant(const QList<QVariant> &list) 
+    : QCoreVariant(*reinterpret_cast<const QList<QCoreVariant>*>(&list)) {};
 inline QVariant::QVariant(const QList<QCoreVariant> &list) : QCoreVariant(list) {};
-inline QVariant::QVariant(const QMap<QString,QCoreVariant> &map) : QCoreVariant(map) {};
+inline QVariant::QVariant(const QMap<QString, QVariant> &map) 
+    : QCoreVariant(*reinterpret_cast<const QMap<QString, QCoreVariant>*>(&map)) {};
+inline QVariant::QVariant(const QMap<QString, QCoreVariant> &map) : QCoreVariant(map) {};
 #endif
 inline QVariant::QVariant(const QPoint &pt)
 { d = create(Point, &pt); }

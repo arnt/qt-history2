@@ -45,7 +45,7 @@ template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const
 { return v.toMap(); }
 #endif
 
-QCoreVariant::Private QCoreVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
+QCoreVariant::Private QCoreVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0}, 0 };
 
 static void construct(QCoreVariant::Private *x, const void *v)
 {
@@ -214,6 +214,10 @@ static void clear(QCoreVariant::Private *p)
 
     p->type = QCoreVariant::Invalid;
     p->is_null = true;
+    if (p->str_cache) {
+	reinterpret_cast<QString *>(&p->str_cache)->~QString();
+	p->str_cache = 0;
+    }
 }
 
 static bool isNull(const QCoreVariant::Private *d)
@@ -451,7 +455,7 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
 
 static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
 {
-    Q_ASSERT(d->type !=t);
+    Q_ASSERT(d->type != (uint)t);
     switch (t) {
     case QCoreVariant::String: {
 	QString *str = static_cast<QString *>(result);
@@ -768,7 +772,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 
 static bool canCast(QCoreVariant::Private *d, QCoreVariant::Type t)
 {
-    if (d->type == t)
+    if (d->type == (uint)t)
 	return true;
 
     switch ( t ) {
@@ -998,6 +1002,7 @@ QCoreVariant::Private *QCoreVariant::create(Type t, const void *v)
     x->ref = 1;
     x->type = t;
     x->is_null = true;
+    x->str_cache = 0;
     handler->construct(x, v);
     return x;
 }
@@ -1031,6 +1036,7 @@ QCoreVariant::QCoreVariant(QDataStream &s)
     d = new Private;
     d->ref = 1;
     d->is_null = true;
+    d->str_cache = 0;
     s >> *this;
 }
 #endif //QT_NO_DATASTREAM
@@ -1167,6 +1173,9 @@ void QCoreVariant::detach_helper()
     x->is_null = true;
     handler->construct(x, data());
     x->is_null = d->is_null;
+    x->str_cache = 0;
+    if (d->str_cache)
+	new (&x->str_cache) QString(*reinterpret_cast<QString *>(&d->str_cache));
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
 	cleanUp(x);
@@ -1180,7 +1189,7 @@ void QCoreVariant::detach_helper()
 */
 const char *QCoreVariant::typeName() const
 {
-    return typeToName(d->type);
+    return typeToName((Type)d->type);
 }
 
 /*!
@@ -1297,6 +1306,7 @@ void QCoreVariant::load(QDataStream &s)
     s >> u;
     QCoreVariant::Private *x = create((QCoreVariant::Type)u, 0);
     x->is_null = false;
+    x->str_cache = 0;
     handler->load(x, s);
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
@@ -1395,7 +1405,6 @@ Q##f QCoreVariant::to##f() const { \
     return ret; \
 }
 
-Q_VARIANT_TO(String)
 #ifndef QT_NO_STRINGLIST
 Q_VARIANT_TO(StringList)
 #endif
@@ -1437,6 +1446,19 @@ Q_VARIANT_TO(ByteArray)
 */
 
 
+
+QString QCoreVariant::toString() const
+{
+    if (d->type == String)
+	return *static_cast<QString *>(d->value.ptr);
+    if (d->str_cache)
+	return *reinterpret_cast<QString *>(&d->str_cache);
+
+    QString ret;
+    handler->cast(d, String, &ret, 0);
+    new (&d->str_cache) QString(ret);
+    return ret;
+}
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
     Returns the variant as a QMap<QString,QCoreVariant> if the variant has
@@ -2079,8 +2101,14 @@ bool QCoreVariant::canCast(Type t) const
 
 bool QCoreVariant::cast(Type t)
 {
-    if (d->type == t)
+    if (d->type == (uint)t)
 	return true;
+
+    // clear str_cache
+    if (d->str_cache) {
+	reinterpret_cast<QString *>(&d->str_cache)->~QString();
+	d->str_cache = 0;
+    }
 
     bool c = handler->canCast(d, t);
 
@@ -2102,9 +2130,9 @@ bool QCoreVariant::operator==(const QCoreVariant &v) const
 {
     QCoreVariant v2 = v;
     if (d->type != v2.d->type) {
-	if (!v2.canCast(d->type))
+	if (!v2.canCast((Type)d->type))
 	    return false;
-	v2.cast(d->type);
+	v2.cast((Type)d->type);
     }
     return handler->compare(d, v2.d);
 }
@@ -2170,7 +2198,7 @@ void* QCoreVariant::data()
  */
 void *QCoreVariant::castOrDetach(Type t)
 {
-    if ( d->type != t )
+    if ( d->type != (uint)t )
 	cast(t);
     else
 	detach();

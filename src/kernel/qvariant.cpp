@@ -256,6 +256,10 @@ static void clear(QVariant::Private *p)
 
     p->type = QVariant::Invalid;
     p->is_null = true;
+    if (p->str_cache) {
+        reinterpret_cast<QString *>(&p->str_cache)->~QString();
+        p->str_cache = 0;
+    }
 }
 
 
@@ -624,7 +628,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 
 static bool canCast(QVariant::Private *d, QVariant::Type t)
 {
-    if (d->type == t)
+    if (d->type == (uint)t)
 	return true;
 
     switch ( t ) {

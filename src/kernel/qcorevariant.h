@@ -112,6 +112,7 @@ class Q_CORE_EXPORT QCoreVariant
 #endif
 
     QCoreVariant& operator=(const QCoreVariant &other);
+
     bool operator==(const QCoreVariant &other) const;
     inline bool operator!=(const QCoreVariant &other) const
     { return !(other == *this); }
@@ -147,25 +148,27 @@ class Q_CORE_EXPORT QCoreVariant
     QMap<QString,QCoreVariant> toMap() const;
 #endif
 
-    inline int &asInt();
-    inline uint &asUInt();
-    inline Q_LLONG &asLongLong();
-    inline Q_ULLONG &asULongLong();
-    inline bool &asBool();
-    inline double &asDouble();
-    inline QByteArray &asByteArray();
-    inline QBitArray &asBitArray();
-    inline QString &asString();
+#ifdef QT_COMPAT
+    inline QT_COMPAT int &asInt();
+    inline QT_COMPAT uint &asUInt();
+    inline QT_COMPAT Q_LLONG &asLongLong();
+    inline QT_COMPAT Q_ULLONG &asULongLong();
+    inline QT_COMPAT bool &asBool();
+    inline QT_COMPAT double &asDouble();
+    inline QT_COMPAT QByteArray &asByteArray();
+    inline QT_COMPAT QBitArray &asBitArray();
+    inline QT_COMPAT QString &asString();
 #ifndef QT_NO_STRINGLIST
-    inline QStringList &asStringList();
+    inline QT_COMPAT QStringList &asStringList();
 #endif
-    inline QDate &asDate();
-    inline QTime &asTime();
-    inline QDateTime &asDateTime();
+    inline QT_COMPAT QDate &asDate();
+    inline QT_COMPAT QTime &asTime();
+    inline QT_COMPAT QDateTime &asDateTime();
 #ifndef QT_NO_TEMPLATE_VARIANT
-    inline QList<QCoreVariant> &asList();
-    inline QMap<QString,QCoreVariant> &asMap();
+    inline QT_COMPAT QList<QCoreVariant> &asList();
+    inline QT_COMPAT QMap<QString,QCoreVariant> &asMap();
 #endif
+#endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
     void load(QDataStream &ds);
@@ -175,9 +178,9 @@ class Q_CORE_EXPORT QCoreVariant
     static Type nameToType(const char *name);
 
 #ifdef QT_COMPAT
-    inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
-    inline QT_COMPAT QByteArray &asCString() { return asByteArray(); }
     QCoreVariant(bool, int);
+    inline QT_COMPAT const QByteArray toCString() const { return toByteArray(); }
+    inline QT_COMPAT QByteArray &asCString() { return *static_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
 
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
@@ -190,8 +193,8 @@ class Q_CORE_EXPORT QCoreVariant
     struct Private
     {
 	QAtomic ref;
-	Type type;
-	bool is_null;
+	uint type : 31;
+	uint is_null : 1;
 	union
 	{
 	    uint u;
@@ -202,6 +205,7 @@ class Q_CORE_EXPORT QCoreVariant
 	    double d;
 	    void *ptr;
 	} value;
+	mutable void *str_cache;
     };
  public:
     typedef void (*f_construct)(Private *, const void *);
@@ -289,10 +293,11 @@ inline QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &val)
 #endif
 
 inline QCoreVariant::Type QCoreVariant::type() const
-{ return d->type; }
+{ return (Type)d->type; }
 inline bool QCoreVariant::isValid() const
 { return d->type != Invalid; }
 
+#ifdef QT_COMPAT
 inline int &QCoreVariant::asInt()
 { return *static_cast<int *>(castOrDetach(Int)); }
 inline uint &QCoreVariant::asUInt()
@@ -327,6 +332,7 @@ inline QList<QCoreVariant>& QCoreVariant::asList()
 inline QMap<QString, QCoreVariant>& QCoreVariant::asMap()
 { return *static_cast<QMap<QString, QCoreVariant> *>(castOrDetach(Map)); }
 #endif
+#endif //QT_COMPAT
 
 #ifndef QT_NO_DATASTREAM
 Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant& p );
