@@ -129,7 +129,7 @@ static void build_scale_table( uint **table, uint nBits )
 }
 */
 
-static QList<QShared*> *qws_pixmapData = 0;
+static QList<QSharedTemporary*> *qws_pixmapData = 0;
 static bool qws_trackPixmapData = TRUE;
 
 class QwsPixmap : public QPixmap
@@ -202,7 +202,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     int dd = defaultDepth();
 
     if ( !qws_pixmapData )
-	qws_pixmapData = new QList<QShared*>;
+	qws_pixmapData = new QList<QSharedTemporary*>;
 
     if ( optim == DefaultOptim )		// use default optimization
 	optim = defOptim;
