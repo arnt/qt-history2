@@ -505,7 +505,11 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 						   pos+QPoint(width(),0) : pos );
     else
 	screen_num = QApplication::desktop()->screenNumber( this );
+#ifdef Q_WS_MAC
     QRect screen = QApplication::desktop()->availableGeometry( screen_num );
+#else
+    QRect screen = QApplication::desktop()->screenGeometry( screen_num );
+#endif
     int sw = screen.width();			// screen width
     int sh = screen.height();			// screen height
     int sx = screen.x();			// screen pos
@@ -1123,7 +1127,7 @@ void QPopupMenu::updateSize()
 	    ++it;
 	    if ( !mi->isVisible() )
 		continue;
- 
+
 	    int itemh = itemHeight( mi );
 
 	    sz = style().sizeFromContents(QStyle::CT_PopupMenuItem, this,
