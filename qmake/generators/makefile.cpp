@@ -480,7 +480,8 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 				QString file = Option::fixPathToTargetOS((*it));
 				if(file.section(Option::dir_sep, -(inc.contains('/')+1)) == inc) {
-				    fqn = file;
+				    fqn = fileFixify(*it, QDir::currentDirPath(),
+						     Option::output_dir);
 				    if(mocs[moc] == "_HDRMOC") {
 					l.remove(it);
 					project->variables()["_SRCMOC"].append(file);
