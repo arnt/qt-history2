@@ -104,6 +104,6 @@ void merge( MetaTranslator *tor, const MetaTranslator *virginTor, bool verbose )
     applyNumberHeuristic( tor, verbose );
 
     if ( verbose )
-        fprintf( stderr, " %d known, %d new and %d obsoleted messages\n", known,
+        fprintf( stderr, " %d known, %d new, and %d obsoleted messages\n", known,
                  neww, obsoleted );
 }
