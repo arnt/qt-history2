@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#144 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#145 $
 **
 ** Global type declarations and definitions
 **
@@ -96,8 +96,6 @@
 #define _OS_OSF_
 #elif defined(bsdi) || defined(__bsdi__)
 #define _OS_BSDI_
-#elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
-#define _OS_SCO_
 #elif defined(_AIX)
 #define _OS_AIX_
 #elif defined(__Lynx__)
@@ -108,10 +106,14 @@
 #define _OS_GNU_
 #elif defined(DGUX)
 #define _OS_DGUX_
-#elif defined(sco) || defined(_UNIXWARE7) || __SCO_VERSION__ == 300199811L
-#define _OS_UNIXWARE7_
 #elif defined(__QNX__)
 #define _OS_QNX_
+#elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
+#define _OS_SCO_
+#elif defined(sco) || defined(_UNIXWARE7)
+#define _OS_UNIXWARE7_
+#elif !defined(_SCO_DS) && defined(__USLC__) && defined(__SCO_VERSION__)
+#define _OS_UNIXWARE7_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
