@@ -119,7 +119,6 @@ ApplicationsTab::ApplicationsTab(const QFileInfo &fileInfo, QWidget *parent)
     QLabel *topLabel = new QLabel(tr("Open with:"), this);
 
     QListWidget *applicationsListBox = new QListWidget(this);
-    applicationsListBox->setDraggableItems(false);
     QStringList applications;
 
     for (int i = 1; i <= 30; ++i)
