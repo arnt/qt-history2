@@ -166,7 +166,9 @@ struct QLineEditPrivate : public Qt
     inline bool hasSelectedText() const { return !text.isEmpty() && selend > selstart; }
     inline void deselect() { selDirty |= (selend > selstart); selstart = selend = 0; }
     void removeSelectedText();
+#ifndef QT_NO_CLIPBOARD
     void copy( bool clipboard = true ) const;
+#endif
     inline bool inSelection( int x ) const
     { if ( selstart >= selend ) return FALSE;
     int pos = xToPos( x, QTextItem::OnCharacters );  return pos >= selstart && pos < selend; }
@@ -621,13 +623,13 @@ void QLineEdit::setCursorPosition( int pos )
 bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 				 int newMarkAnchor, int newMarkDrag )
 {
-    int undoState = d->undoState;
+    int priorState = d->undoState;
     d->selstart = 0;
     d->selend = d->text.length();
     d->removeSelectedText();
     d->insert( newText );
-    d->finishChange( undoState );
-    if ( d->undoState > undoState ) {
+    d->finishChange( priorState );
+    if ( d->undoState > priorState ) {
 	d->cursor = newPos;
 	d->selstart = QMIN( newMarkAnchor, newMarkDrag );
 	d->selend = QMAX( newMarkAnchor, newMarkDrag );
@@ -756,7 +758,7 @@ void QLineEdit::cursorWordBackward( bool mark )
 */
 void QLineEdit::backspace()
 {
-    int undoState = d->undoState;
+    int priorState = d->undoState;
     if ( d->hasSelectedText() ) {
 	d->removeSelectedText();
     } else if ( d->cursor ) {
@@ -765,7 +767,7 @@ void QLineEdit::backspace()
 		d->prevMaskBlank();
 	    d->del( TRUE );
     }
-    d->finishChange( undoState );
+    d->finishChange( priorState );
 }
 
 /*!
@@ -779,7 +781,7 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
-    int undoState = d->undoState;
+    int priorState = d->undoState;
     if ( d->hasSelectedText() ) {
 	d->removeSelectedText();
     } else {
@@ -787,7 +789,7 @@ void QLineEdit::del()
 	while ( n-- )
 	    d->del();
     }
-    d->finishChange( undoState );
+    d->finishChange( priorState );
 }
 
 /*!
@@ -1075,10 +1077,10 @@ void QLineEdit::clearValidator()
 void QLineEdit::insert( const QString & text )
 {
 //     q->resetInputContext(); //#### FIX ME IN QT
-    int undoState = d->undoState;
+    int priorState = d->undoState;
     d->removeSelectedText();
     d->insert( text.left( d->maxLength - (d->maskData ? d->cursor : d->text.length()) ) );
-    d->finishChange( undoState );
+    d->finishChange( priorState );
 }
 
 /*!
@@ -1086,13 +1088,13 @@ void QLineEdit::insert( const QString & text )
 */
 void QLineEdit::clear()
 {
-    int undoState = d->undoState;
+    int priorState = d->undoState;
     resetInputContext();
     d->selstart = 0;
     d->selend = d->text.length();
     d->removeSelectedText();
     d->separate();
-    d->finishChange( undoState );
+    d->finishChange( priorState );
 }
 
 /*!
@@ -1144,6 +1146,7 @@ void QLineEdit::setReadOnly( bool enable )
 }
 
 
+#ifndef QT_NO_CLIPBOARD
 /*!
     Copies the selected text to the clipboard and deletes it, if there
     is any, and if echoMode() is \c Normal.
@@ -1190,6 +1193,19 @@ void QLineEdit::paste()
     d->removeSelectedText();
     insert( QApplication::clipboard()->text( QClipboard::Clipboard ) );
 }
+
+void QLineEditPrivate::copy( bool clipboard ) const
+{
+    QString t = q->selectedText();
+    if ( !t.isEmpty() && echoMode == QLineEdit::Normal ) {
+	q->disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), q, 0);
+	QApplication::clipboard()->setText( t, clipboard ? QClipboard::Clipboard : QClipboard::Selection );
+	q->connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
+		 q, SLOT(clipboardChanged()) );
+    }
+}
+
+#endif // !QT_NO_CLIPBOARD
 
 /*!\reimp
 */
@@ -1316,12 +1332,24 @@ void QLineEdit::mouseMoveEvent( QMouseEvent * e )
 */
 void QLineEdit::mouseReleaseEvent( QMouseEvent* e )
 {
-
 #ifndef QT_NO_DRAGANDDROP
-    if ( e->button() && LeftButton && d->dndTimer ) {
-	killTimer( d->dndTimer );
-	d->dndTimer = 0;
-	deselect();
+    if ( e->button() == LeftButton ) {
+	if ( d->dndTimer ) {
+	    killTimer( d->dndTimer );
+	    d->dndTimer = 0;
+	    deselect();
+	    return;
+	}
+    }
+#endif
+#ifndef QT_NO_CLIPBOARD
+    if (QApplication::clipboard()->supportsSelection() ) {
+	if ( e->button() == LeftButton ) {
+	    d->copy( FALSE );
+	} else if ( e->button() == MidButton ) {
+	    d->deselect();
+	    insert( QApplication::clipboard()->text( QClipboard::Selection ) );
+	}
     }
 #endif
 }
@@ -1334,7 +1362,11 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent* e )
 	deselect();
 	d->cursor = d->xToPos( e->pos().x() );
 	d->cursor = d->textLayout.previousCursorPosition( d->cursor, QTextLayout::SkipWords );
-	d->moveCursor( d->textLayout.nextCursorPosition( d->cursor, QTextLayout::SkipWords ), TRUE );
+	// ## text layout should support end of words.
+	int end = d->textLayout.nextCursorPosition( d->cursor, QTextLayout::SkipWords );
+	while ( end > d->cursor && d->text[end-1].isSpace() )
+	    --end;
+	d->moveCursor( end, TRUE );
 	d->tripleClickTimer = startTimer( qApp->doubleClickInterval() );
 	d->tripleClick = e->pos();
     }
@@ -1433,11 +1465,11 @@ void QLineEdit::keyPressEvent( QKeyEvent * e )
 	    break;
 	case Key_K:
 	    if ( !d->readOnly ) {
-		int undoState = d->undoState;
+		int priorState = d->undoState;
 		d->deselect();
 		while ( d->cursor < (int) d->text.length() )
 		    d->del();
-		d->finishChange( undoState );
+		d->finishChange( priorState );
 	    }
 	    break;
 #if defined(Q_WS_X11)
@@ -1841,9 +1873,9 @@ void QLineEditPrivate::drag()
     dndTimer = 0;
     QTextDrag *tdo = new QTextDrag( q->selectedText(), q );
     if ( tdo->drag() && !readOnly ) {
-	int us = undoState;
+	int priorState = undoState;
 	removeSelectedText();
-	finishChange( us );
+	finishChange( priorState );
     }
 #ifndef QT_NO_CURSOR
     q->setCursor( readOnly ? arrowCursor : ibeamCursor );
@@ -2314,17 +2346,6 @@ void QLineEditPrivate::removeSelectedText()
 	    cursor -= QMIN( cursor, selend ) - selstart;
 	deselect();
 	textDirty = TRUE;
-    }
-}
-
-void QLineEditPrivate::copy( bool clipboard ) const
-{
-    QString t = q->selectedText();
-    if ( !t.isEmpty() && echoMode == QLineEdit::Normal ) {
-	q->disconnect( QApplication::clipboard(), SIGNAL(selectionChanged()), q, 0);
-	QApplication::clipboard()->setText( t, clipboard ? QClipboard::Clipboard : QClipboard::Selection );
-	q->connect( QApplication::clipboard(), SIGNAL(selectionChanged()),
-		 q, SLOT(clipboardChanged()) );
     }
 }
 

@@ -160,9 +160,11 @@ public slots:
     virtual void setSelection( int, int );
     virtual void setCursorPosition( int );
     virtual void setAlignment( int flag );
+#ifndef QT_NO_CLIPBOARD
     virtual void cut();
     virtual void copy() const;
     virtual void paste();
+#endif
     virtual void setDragEnabled( bool b );
 
 signals:
