@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#211 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#212 $
 **
 ** Implementation of QListView widget class
 **
@@ -835,7 +835,7 @@ void QListViewItem::setSelectable( bool enable )
 }
 
 
-/*! \fn bool QListViewItem::isExpandable() const { return expnadable; }
+/*! \fn bool QListViewItem::isExpandable() const
 
   Returns TRUE if this item is expandable even when it has no
   children.
