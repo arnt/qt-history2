@@ -15,6 +15,7 @@
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
+//#define DEBUG_SIZE_CONSTRAINT
 
 #include <private/qmacstylepixmaps_mac_p.h>
 #include <private/qpaintengine_mac_p.h>
@@ -469,9 +470,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
             if (!bt->icon().isNull()) {
                 QSize iconSize = bt->iconSize();
-                QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
-                width = qMax(width, qMax(iconSize.width(), pm.width()));
-                height = qMax(height, qMax(iconSize.height(), pm.height()));
+                QSize pmSize = bt->icon().actualSize(QSize(32, 32), QIcon::Normal);
+                width = qMax(width, qMax(iconSize.width(), pmSize.width()));
+                height = qMax(height, qMax(iconSize.height(), pmSize.height()));
             }
             if (!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
                 int text_width = bt->fontMetrics().width(bt->text()),
@@ -681,7 +682,8 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
             size_desc = "Large";
         else if (sz == &mini)
             size_desc = "Mini";
-        qDebug("%s - %s: %s taken (%d, %d) [%d, %d]", widg ? widg->name() : "*Unknown*",
+        qDebug("%s - %s: %s taken (%d, %d) [%d, %d]",
+               widg ? widg->objectName().toLatin1().constData() : "*Unknown*",
                widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(),
                sz->width(), sz->height());
     }
@@ -1295,16 +1297,7 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
         pal.setBrush(QPalette::Background, background);
         pal.setBrush(QPalette::Button, background);
         w->setPalette(pal);
-    }
-
-#ifndef QT_NO_MAINWINDOW
-    else if (QToolBar *bar = qobject_cast<QToolBar*>(w)) {
-        QLayout *layout = bar->layout();
-        layout->setSpacing(0);
-        layout->setMargin(0);
-    }
-#endif
-    else if (QRubberBand *rubber = qobject_cast<QRubberBand*>(w)) {
+    } else if (QRubberBand *rubber = qobject_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
     }
     q->QWindowsStyle::polish(w);
