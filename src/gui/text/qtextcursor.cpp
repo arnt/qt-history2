@@ -782,7 +782,9 @@ QTextCharFormat QTextCursor::charFormat() const
     int idx = it.value()->format;
 
     QTextCharFormat cfmt = d->pieceTable->formatCollection()->charFormat(idx);
-    cfmt.setObject(0);
+    // ##### we miss a clearProperty here
+    if (cfmt.object())
+        cfmt.setObject(0);
     Q_ASSERT(cfmt.isValid());
     return cfmt;
 }
