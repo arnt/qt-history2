@@ -12,4 +12,5 @@ SQL_P =         sql
 
 include(kernel/kernel.pri)
 include(drivers/drivers.pri)
+include(gui/gui.pri)
 

@@ -1,0 +1,58 @@
+/****************************************************************************
+ **
+ ** Definition of QSqlModel class.
+ **
+ ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+ **
+ ** This file is part of the sql module of the Qt GUI Toolkit.
+ ** EDITIONS: FREE, ENTERPRISE
+ **
+ ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+ ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+ **
+ ****************************************************************************/
+
+#ifndef QSQLMODEL_H
+#define QSQLMODEL_H
+
+#include <qabstractitemmodel.h>
+
+class QSqlModelPrivate;
+class QSqlError;
+class QSqlField;
+class QSqlQuery;
+
+class QSqlModel: public QAbstractItemModel
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QSqlModel);
+
+public:
+    QSqlModel(QObject *parent = 0);
+    virtual ~QSqlModel();
+
+    int rowCount(const QModelIndex &parent = 0) const;
+    int columnCount(const QModelIndex &parent = 0) const;
+    QSqlField field(int column) const;
+
+    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Display) const;
+    bool setData(const QModelIndex &index, int role, const QVariant &value);
+
+    bool insertColumn(int column, const QModelIndex &parent = 0, int count = 1);
+    bool removeColumn(int column, const QModelIndex &parent = 0, int count = 1);
+
+    virtual void setQuery(const QSqlQuery &query);
+    const QSqlQuery query() const;
+
+    QSqlError lastError() const;
+
+public slots:
+    void fetchMore();
+
+protected:
+    QModelIndex dataIndex(const QModelIndex &item) const;
+    void setLastError(const QSqlError &error);
+    QSqlModel(QSqlModelPrivate &d, QObject *parent);
+};
+
+#endif
