@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#10 $
+# $Id: //depot/qt/main/Makefile.inc#11 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -34,7 +34,7 @@ $(PROJECT).pro:
 dsp: $(PROJECT).dsp
 
 $(PROJECT).dsp: FORCE
-	tmake $(PROJECT).pro -t $(VCTEMPLATE) -o $(PROJECT).dsp
+	tmake $(PROJECT).pro "CONFIG+=debug" "DEFINES+=QT_DLL" -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
 
 debug: NMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
