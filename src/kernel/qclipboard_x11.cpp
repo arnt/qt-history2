@@ -1017,6 +1017,8 @@ QByteArray QClipboardWatcher::encodedData( const char* fmt ) const
 	    Window r;
 	    int x,y;
 	    uint w,h,bw,d;
+	    if ( ! xmp )
+		return QByteArray( 0 );
 	    XGetGeometry(dpy,xpm, &r,&x,&y,&w,&h,&bw,&d);
 	    QImageIO iio;
 	    GC gc = XCreateGC( dpy, xpm, 0, 0 );
