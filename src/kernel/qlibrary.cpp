@@ -53,7 +53,7 @@
   and does the unload magic using a QTimer.
 */
 #ifndef QT_LITE_COMPONENT
-class QLibrary::QLibraryPrivate : private QObject
+class QLibrary::QLibraryPrivate : public QObject
 {
     Q_OBJECT
 public:
