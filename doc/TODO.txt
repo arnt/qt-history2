@@ -271,6 +271,7 @@ QLCDNumber
 
 QToolBar
   Allow the ability to insert a toolbutton into a certain position (see qt-bugs/arc-10/21771)
+  Make the resizing more Office and Visual Studio like (see qt-bugs/arc-12/24807)
 
 QListBoxItem::setEnabled()
   Allow the user to be able to set a list box item to be disabled.
