@@ -102,7 +102,10 @@ protected:
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
-    void startDrag();
+    void startDrag(QDrag::DropActions supportedActions);
+
+    void internalDrop(QDropEvent *e);
+    void internalDrag(QDrag::DropActions supportedActions);
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);

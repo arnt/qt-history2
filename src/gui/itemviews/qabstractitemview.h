@@ -199,7 +199,7 @@ protected:
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event = 0) const;
 
-    virtual void startDrag();
+    virtual void startDrag(QDrag::DropActions supportedActions);
 
     virtual QStyleOptionViewItem viewOptions() const;
 

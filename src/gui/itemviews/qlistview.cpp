@@ -749,54 +749,69 @@ void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 */
 void QListView::dropEvent(QDropEvent *e)
 {
-    if (e->source() == this && d->movement != Static) {
-        QPoint offset(horizontalOffset(), verticalOffset());
-        QPoint end = e->pos() + offset;
-        QPoint start = d->pressedPosition;
-        QPoint delta = (d->movement == Snap ?
-                        d->snapToGrid(end) - d->snapToGrid(start) : end - start);
-        QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
-        for (int i = 0; i < indexes.count(); ++i) {
-            QModelIndex index = indexes.at(i);
-            QRect rect = itemRect(index);
-            d->viewport->update(d->mapToViewport(rect));
-            QPoint dest = rect.topLeft() + delta;
-            if (isRightToLeft())
-                dest.setX(d->flipX(dest.x()) - rect.width());
-            d->moveItem(index.row(), dest);
-            d->viewport->update(itemViewportRect(index));
-        }
-        stopAutoScroll();
-        d->draggedItems.clear();
-    } else {
+    if (e->source() == this && d->movement != Static)
+        internalDrop(e);
+    else
         QAbstractItemView::dropEvent(e);
-    }
 }
 
 /*!
   \reimp
 */
-void QListView::startDrag()
+void QListView::startDrag(QDrag::DropActions supportedActions)
 {
-    if (d->movement == Free) {
-        // This function does the same thing as in QAbstractItemView,
-        // plus adding viewitems to the draggedItems list.
-        // We need these items to draw the drag items
-        QModelIndexList indexes = selectionModel()->selectedIndexes();
-        if (indexes.count() > 0 ) {
-            QModelIndexList::ConstIterator it = indexes.begin();
-            for (; it != indexes.end(); ++it)
-                if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
-                    d->draggedItems.push_back(*it);
-            QDrag *drag = new QDrag(this);
-            drag->setMimeData(model()->mimeData(indexes));
-            QDrag::DropAction action = drag->start();
-            d->draggedItems.clear();
-            if (action == QDrag::MoveAction)
-                d->removeSelectedRows();
-        }
-    } else {
-        QAbstractItemView::startDrag();
+    if (d->movement == Free)
+        internalDrag(supportedActions);
+    else
+        QAbstractItemView::startDrag(supportedActions);
+}
+
+/*!
+  Called whenever items from the view is dropped on the viewport.
+ */
+void QListView::internalDrop(QDropEvent *e)
+{
+    QPoint offset(horizontalOffset(), verticalOffset());
+    QPoint end = e->pos() + offset;
+    QPoint start = d->pressedPosition;
+    QPoint delta = (d->movement == Snap ?
+                    d->snapToGrid(end) - d->snapToGrid(start) : end - start);
+    QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
+    for (int i = 0; i < indexes.count(); ++i) {
+        QModelIndex index = indexes.at(i);
+        QRect rect = itemRect(index);
+        d->viewport->update(d->mapToViewport(rect));
+        QPoint dest = rect.topLeft() + delta;
+        if (isRightToLeft())
+            dest.setX(d->flipX(dest.x()) - rect.width());
+        d->moveItem(index.row(), dest);
+        d->viewport->update(itemViewportRect(index));
+    }
+    stopAutoScroll();
+    d->draggedItems.clear();
+}
+
+/*!
+  Called whenever the user starts dragging items and the items are movable,
+  enabling internal dragging and dropping of items.
+ */
+void QListView::internalDrag(QDrag::DropActions supportedActions)
+{
+    // This function does the same thing as in QAbstractItemView::startDrag(),
+    // plus adding viewitems to the draggedItems list.
+    // We need these items to draw the drag items
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    if (indexes.count() > 0 ) {
+        QModelIndexList::ConstIterator it = indexes.begin();
+        for (; it != indexes.end(); ++it)
+            if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
+                d->draggedItems.push_back(*it);
+        QDrag *drag = new QDrag(this);
+        drag->setMimeData(model()->mimeData(indexes));
+        QDrag::DropAction action = drag->start(supportedActions);
+        d->draggedItems.clear();
+        if (action == QDrag::MoveAction)
+            d->removeSelectedRows();
     }
 }
 

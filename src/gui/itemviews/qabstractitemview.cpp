@@ -954,7 +954,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
-            startDrag();
+            startDrag(model()->supportedDropActions());
             setState(NoState); // the startDrag will return when the dnd operation is done
             stopAutoScroll();
         }
@@ -1839,9 +1839,9 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 }
 
 /*!
-    Starts a drag by calling drag->start().
+    Starts a drag by calling drag->start() using the given \a supportedActions.
 */
-void QAbstractItemView::startDrag()
+void QAbstractItemView::startDrag(QDrag::DropActions supportedActions)
 {
     QModelIndexList indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0) {
@@ -1869,7 +1869,7 @@ void QAbstractItemView::startDrag()
         QDrag *drag = new QDrag(this);
         drag->setPixmap(pixmap);
         drag->setMimeData(model()->mimeData(indexes));
-        if (drag->start() == QDrag::MoveAction)
+        if (drag->start(supportedActions) == QDrag::MoveAction)
             d->removeSelectedRows();
     }
 }
