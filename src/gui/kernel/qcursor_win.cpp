@@ -87,6 +87,37 @@ void QCursor::setPos(int x, int y)
     SetCursorPos(x, y);
 }
 
+extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
+
+static HCURSOR create32BitCursor(const QPixmap &pixmap, int hx, int hy)
+{
+    HCURSOR cur = 0;
+
+    QBitmap mask;
+    if (!pixmap.mask().isNull()) {
+        mask = pixmap.mask();
+    } else {
+        mask = QBitmap(pixmap.size());
+        mask.fill(Qt::color1);
+    }
+
+    HBITMAP ic = pixmap.toWinHBITMAP();
+    HBITMAP im = qt_createIconMask(mask);
+
+    ICONINFO ii;
+    ii.fIcon     = 0;
+    ii.xHotspot  = hx;
+    ii.yHotspot  = hy;
+    ii.hbmMask   = im;
+    ii.hbmColor  = ic;
+
+    cur = CreateIconIndirect(&ii);
+    
+    DeleteObject(ic);
+    DeleteObject(im);
+
+    return cur;
+}
 
 void QCursorData::update()
 {
@@ -94,6 +125,13 @@ void QCursorData::update()
         QCursorData::initialize();
     if (hcurs)
         return;
+
+    if (cshape == Qt::BitmapCursor && !pixmap.isNull()) {
+        hcurs = create32BitCursor(pixmap, hx, hy);
+        if (hcurs)
+            return;
+    }
+
 
     // Non-standard Windows cursors are created from bitmaps
 

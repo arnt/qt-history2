@@ -19,10 +19,9 @@
 #include "qevent.h"
 #include "qpainter.h"
 #include "qwidget.h"
-#include "qimage.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
-#include "qbitmap.h"
+#include "qcursor.h"
 #include "qt_windows.h"
 #include <shlobj.h>
 #ifndef QT_NO_ACCESSIBILITY
@@ -118,8 +117,7 @@ public:
 
 private:
     Qt::DropAction currentAction;
-    int numCursors;
-    HCURSOR * cursor;
+    QMap <Qt::DropAction, QCursor> cursors;
 
     ULONG m_refs;
 };
@@ -172,25 +170,12 @@ STDAPI_(LPENUMFORMATETC)
 QOleDropSource::QOleDropSource()
 {
     m_refs = 1;
-    currentAction = Qt::CopyAction;
-    numCursors = 0;
-    cursor = 0;
+    currentAction = Qt::IgnoreAction;
 }
 
 QOleDropSource::~QOleDropSource()
 {
-    if (cursor) {
-#ifndef Q_OS_TEMP
-        for (int i=0; i<numCursors; i++) {
-            DestroyCursor(cursor[i]);
-        }
-#endif
-        delete [] cursor;
-        cursor = 0;
-    }
 }
-
-extern HBITMAP qt_createIconMask(const QBitmap &bitmap);
 
 void QOleDropSource::createCursors()
 {
@@ -201,9 +186,8 @@ void QOleDropSource::createCursors()
         QPixmap pm = manager->object->pixmap();
         QList<Qt::DropAction> actions;
         actions << Qt::MoveAction << Qt::CopyAction << Qt::LinkAction;
-        cursor = new HCURSOR[actions.size()];
         QPoint hotSpot = manager->object->hotSpot();
-        for (int cnum=0; cnum<actions.size(); cnum++) {
+        for (int cnum = 0; cnum < actions.size(); ++cnum) {
             QPixmap cpm = manager->dragCursor(actions.at(cnum));
             int w = cpm.width();
             int h = cpm.height();
@@ -247,18 +231,8 @@ void QOleDropSource::createCursors()
                 newCursor = cpm;
             }
 
-            QBitmap cursorMask = newCursor.mask();
-
-            HBITMAP im = qt_createIconMask(cursorMask);
-            ICONINFO ii;
-            ii.fIcon     = false;
-            ii.xHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.x());
-            ii.yHotspot  = pm.isNull() ? 0 : qMax(0,hotSpot.y());
-            ii.hbmMask   = im;
-            ii.hbmColor  = newCursor.toWinHBITMAP();
-            cursor[cnum] = CreateIconIndirect(&ii);
-            DeleteObject(ii.hbmColor);
-            DeleteObject(im);
+            cursors[actions.at(cnum)] = QCursor(newCursor, pm.isNull() ? 0 : qMax(0,hotSpot.x()), 
+                                                pm.isNull() ? 0 : qMax(0,hotSpot.y()));
         }
     }
 }
@@ -334,15 +308,8 @@ QOleDropSource::GiveFeedback(DWORD dwEffect)
         QDragManager::self()->emitActionChanged(currentAction);
     }
 
-    if (cursor) {
-        if (currentAction == Qt::MoveAction)
-            SetCursor(cursor[0]);
-        else if (currentAction == Qt::CopyAction)
-            SetCursor(cursor[1]);
-        else if (currentAction == Qt::LinkAction)
-            SetCursor(cursor[2]);
-        else
-            return ResultFromScode(DRAGDROP_S_USEDEFAULTCURSORS);
+    if (cursors.contains(currentAction)) {
+        SetCursor(cursors[currentAction].handle());
         return ResultFromScode(S_OK);
     }
 

@@ -200,7 +200,7 @@ Qt::DropAction QDrag::start(Qt::DropActions request)
 void QDrag::setDragCursor(const QPixmap &cursor, Qt::DropAction action)
 {
     Q_D(QDrag);
-    if (action != Qt::CopyAction || action != Qt::MoveAction || action != Qt::LinkAction)
+    if (action != Qt::CopyAction && action != Qt::MoveAction && action != Qt::LinkAction)
         return;
     if (cursor.isNull())
         d->customCursors.remove(action);
