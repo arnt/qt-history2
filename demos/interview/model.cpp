@@ -34,7 +34,7 @@ QModelIndex Model::index(int row, int column, const QModelIndex &parent) const
     if (row < rc && row >= 0 && column < cc && column >= 0) {
 	Node *n = node(row, static_cast<Node*>(parent.data()));
 	if (n)
-	    return createIndex(row, column);
+	    return createIndex(row, column, n);
     }
     return QModelIndex::Null;
 }
