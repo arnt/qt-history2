@@ -648,6 +648,8 @@ DspMakefileGenerator::init()
     } else {
 	if ( !project->first("OBJECTS_DIR").isEmpty() )
 	    project->variables()["MSVCDSP_OBJECTSDIRREL"] = project->first("OBJECTS_DIR");
+	else
+	    project->variables()["MSVCDSP_OBJECTSDIRREL"] = "Release";
 	project->variables()["MSVCDSP_OBJECTSDIRDEB"] = "Debug";
 	if ( !project->first("DESTDIR").isEmpty() )
 	    project->variables()["MSVCDSP_TARGETDIRREL"] = project->first("DESTDIR");
