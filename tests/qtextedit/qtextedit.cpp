@@ -582,16 +582,17 @@ void QTextEdit::drawCursor( bool visible )
     h = cursor->parag()->lineHeightOfChar( cursor->index(), &bl, &y );
 
     bool fill = TRUE;
-    if ( cursor->parag()->hasSelection( QTextEditDocument::Standard ) ) {
-	if ( cursor->parag()->selectionStart( QTextEditDocument::Standard ) <= cursor->index() &&
-	     cursor->parag()->selectionEnd( QTextEditDocument::Standard ) > cursor->index() ) {
-	    painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
-	    painter.fillRect( chr->x, y, cw, h,
-			      doc->selectionColor( QTextEditDocument::Standard ) );
+    for ( int i = 0; i < doc->numSelections; ++i ) {
+	if ( cursor->parag()->hasSelection( i ) &&
+	     ( cursor->parag()->selectionStart( i ) <= cursor->index() &&
+	       cursor->parag()->selectionEnd( i ) > cursor->index() ) ) {
+	    if ( doc->invertSelectionText( i ) )
+		painter.setPen( QPen( colorGroup().color( QColorGroup::HighlightedText ) ) );
+	    painter.fillRect( chr->x, y, cw, h, doc->selectionColor( i ) );
 	    fill = FALSE;
 	}
     }
-
+	
     if ( fill )
 	painter.fillRect( chr->x, y, cw, h,
 			  colorGroup().color( QColorGroup::Base ) );
