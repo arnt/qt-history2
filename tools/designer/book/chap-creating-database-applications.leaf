@@ -1346,6 +1346,18 @@ Qt's SQL module provides two approaches to dealing with foreign
 	    id in the \Class QMap, otherwise we look up the given
 	    author name and set id appropriately.
 
+	    \i
+
+	    Before we perform an update we need to know who the book's
+	    author is, and we need to update the combobox.
+
+\quotefile book/book8/editbook.ui.h
+\skipto ::primeUpdateBook
+\printuntil break
+\printline
+\printline
+\printline
+
 	    \endlist
 
 \index Databases!Foreign Keys

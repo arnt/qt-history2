@@ -51,9 +51,8 @@ that should be linked against, or an extra include path.
 
 \section3 '#' comments
 
-You can add comments to project files. Comments should be placed on
-their own line and begin with the '#' symbol; they run to the end of
-the line.
+You can add comments to project files. Comments begin with the '#'
+symbol and run to the end of the line.
 
 \section2 Templates
 

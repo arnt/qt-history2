@@ -19,9 +19,8 @@ configurations and internal variables used by the cross-platform
 makefile generation utility \e qmake.
 
 In addition to the variables and functions described in the following
-sections, \e qmake project files may also include comments. Comments
-should be placed on their own line and begin with the '#' symbol; they
-run to the end of the line.
+sections, \e qmake project files may also include comments. 
+Comments begin with the '#' symbol and run to the end of the line.
 
 \target Commands
 \section1 Command Line Options

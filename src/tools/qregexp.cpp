@@ -3337,11 +3337,10 @@ QString QRegExp::pattern() const
 }
 
 /*!
-  Sets the pattern string to \a pattern and returns a reference to
-  this regular expression. The case sensitivity, wildcard and minimal
-  matching options are not changed.
+    Sets the pattern string to \a pattern. The case sensitivity,
+    wildcard and minimal matching options are not changed.
 
-  \sa pattern()
+    \sa pattern()
 */
 void QRegExp::setPattern( const QString& pattern )
 {

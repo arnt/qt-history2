@@ -20,20 +20,34 @@
 
 \title Tutorial #2
 
-\tableofcontents
-
-
-\target introduction
-\section1 Introduction
-
 This tutorial presents a more "real world" example of Qt programming
 than the first tutorial. It introduces many aspects of Qt programming,
 including the creation of menus (including a recent files list),
 toolbars and dialogs, loading and saving user settings, etc. 
 
-In this tutorial we will develop a single application \c chart, which
-is used to display simple pie and bar charts based on data that the
-user enters. 
+If you're completely new to Qt, please read \link how-to-learn-qt.html
+How to Learn Qt\endlink if you haven't already done so.
+
+\list
+\i \link tutorial2-01.html Introduction\endlink
+\i \link tutorial2-02.html The 'Big Picture'\endlink
+\i \link tutorial2-03.html Data Elements\endlink
+\endlist
+
+<p align=right>
+<a href="tutorial2-01.html">&raquo; Introduction</a> 
+</p>
+*/
+
+/*!
+
+\page tutorial2-01.html
+
+\title Introduction
+
+In this tutorial we will develop a single application called \c chart,
+which is used to display simple pie and bar charts based on data that
+the user enters. 
 
 The tutorial gives an overview of the development of the application
 and includes code snippets and accompanying explanations. The complete
@@ -41,20 +55,30 @@ source for the application is in \c examples/chart.
 
 \img chart-main.png The chart application
 
-\target the-big-picture
-\section1 The 'Big Picture'
+<p align=right>
+<a href="tutorial2.html">&laquo; Contents</a> |
+<a href="tutorial2-02.html">&raquo; The 'Big Picture'</a>
+</p>
+
+*/
+
+/*!
+
+\page tutorial2-02.html
+
+\title The 'Big Picture'
 
 The \c chart program allows users to create, save, load and visualise
 simple data sets. Each data element that the user enters can be given
 a color and pattern for the pie segment or bar, some label text and
-the text's position and colour. 
+the text's position and color. 
 
 The program consists of a simple \c main.cpp that loads the chart
 form. The chart form has a menubar and toolbar which provide access to
 the program's functionality. The program provides two dialogs, one to
-set options (preferences), and the other to create and edit a data
-set. Both dialogs are launched from chart form menu options or toolbar
-buttons.
+set options (also called preferences or settings), and the other to
+create and edit a data set. Both dialogs are launched from chart form
+menu options or toolbar buttons.
 
 The chart form's main widget is a QCanvasView which displays the
 QCanvas on which we draw the pie chart or bar graph. We subclass
@@ -65,10 +89,22 @@ since we require slightly more than the standard class provides.
 The project file, \c chart.pro, is used to create the Makefile that is
 used to build the application.
 
-\target data-elements
-\section1 Data Elements
+<p align=right>
+<a href="tutorial2-01.html">&laquo; Introduction</a> |
+<a href="tutorial2.html">Contents</a> |
+<a href="tutorial2-03.html">&raquo; Data Elements</a>
+</p>
 
-We will use a C++ class called \c Element to store data elements.
+*/
+
+/*!
+
+\page tutorial2-03.html
+
+\title Data Elements
+
+We will use a C++ class called \c Element to provide storage and
+access for data elements.
 
 \quotefile chart/element.h
 \skipto #include
@@ -79,14 +115,14 @@ The \c Element class is a purely internal data class, yet it
 toolkit it provides many non-GUI classes to support most aspects of
 application programming. We use \c qcolor.h so that we can hold the
 paint color and text color in the \c Element class. The use of \c
-qnamespace.h is more obscure. Most Qt classes are derived from the Qt
-superclass which contains various enumerations. The \c Element class
-does not derive from Qt, so we need to include \c qnamespace.h to have
-access to the Qt enum names. An alternative approach would have been
-to have made \c Element a Qt subclass. We include \c qstring.h to make
-use of Qt's Unicode strings. As a convenience we will \c typedef a
-vector container for Elements, which is why we pull in the \c
-qvaluevector.h.
+qnamespace.h is slightly obscure. Most Qt classes are derived from the
+Qt superclass which contains various enumerations. The \c Element
+class does not derive from Qt, so we need to include \c qnamespace.h
+to have access to the Qt enum names. An alternative approach would
+have been to have made \c Element a Qt subclass. We include \c
+qstring.h to make use of Qt's Unicode strings. As a convenience we
+will \c typedef a vector container for Elements, which is why we pull
+in the \c qvaluevector.h.
 
 \skipto QValueVector
 \printline
@@ -108,7 +144,7 @@ greater than \c EPSILON to be positive and valid.
 \printto Element(
 
 We define three public enums for Elements. \c INVALID is used by the
-isValid() function. It is useful because we are going to used a fixed
+isValid() function. It is useful because we are going to use a fixed
 size vector of Elements, and can mark unused Elements by giving them
 \c INVALID values. The \c NO_POSITION enum is used to signify that the
 user has not positioned the Element's label; any positive position
@@ -125,5 +161,12 @@ have used a vector to store these points and dynamically resized it
 depending on how many chart types are available. 
 
 \printto Element()
+
+
+<p align=right>
+<a href="tutorial2-02.html">&laquo; The 'Big Picture'</a> |
+<a href="tutorial2.html">Contents</a> |
+<a href="tutorial2-03.html">&raquo; ????</a>
+</p>
 
 */
