@@ -1783,7 +1783,8 @@ void TrWindow::setupMenuBar()
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
-				   this, SLOT(newPhraseBook()) );
+				   this, SLOT(newPhraseBook()),
+				   QAccel::stringToKey(tr("Ctrl+N")));
     openPhraseBookAct = new Action( phrasep, tr("&Open Phrase Book..."),
 				    this, SLOT(openPhraseBook()),
 				    QAccel::stringToKey(tr("Ctrl+H")) );
