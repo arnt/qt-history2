@@ -851,7 +851,7 @@ void QWidget::showWindow()
 	if(!isDesktop())
 	    setActiveWindow();
     } else { 
-	qt_dirty_wndw_rgn("showwindow",this, mac_rect(posInWindow(this), geometry().size()));
+	update();
     }
 }
 
@@ -862,20 +862,18 @@ void QWidget::hideWindow()
     if ( isTopLevel() ) {
 	ShowHide((WindowPtr)hd, 0);
 
-	if(isActiveWindow()) { //we should try to activate somebody..
-	    QWidget *w = NULL;
-	    if(parentWidget()) {
-		w = parentWidget()->topLevelWidget();
-		if(w && !w->isVisible())
-		    w = NULL;
-	    }
-	    if(!w)
-		w = QWidget::find( (WId)FrontWindow() );
-	    if(w) 
-		w->setActiveWindow();
+	QWidget *w = NULL;
+	if(parentWidget()) {
+	    w = parentWidget()->topLevelWidget();
+	    if(w && !w->isVisible())
+		w = NULL;
 	}
+	if(!w)
+	    w = QWidget::find( (WId)FrontWindow() );
+	if(w) 
+	    w->setActiveWindow();
     } else if(isVisible()) {
-	qt_dirty_wndw_rgn("hidewindow",this, mac_rect(posInWindow(this), geometry().size()));
+	update();
     }
 }
 
