@@ -10,6 +10,7 @@ struct QUrlInfoPrivate;
 class QUrlInfo
 {
 public:
+    QUrlInfo() {}
     QUrlInfo( const QString &name, int permissions, const QString &owner,
 	      const QString &group, uint size, const QDateTime &lastModified,
 	      const QDateTime &lastRead, bool isDir, bool isFile, bool isSymLink,
@@ -37,7 +38,7 @@ public:
     bool isReadable() const;
     bool isExecutable() const;
 
-    QString makeUrl( const QUrl &path, bool withProtocolWhenLocal = FALSE );
+    QString makeUrl( const QUrl &path, bool withProtocolWhenLocal = FALSE ) const;
 
 private:
     QUrlInfoPrivate *d;

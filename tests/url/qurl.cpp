@@ -19,6 +19,7 @@ struct QUrlPrivate
     bool isMalformed;
     int port;
     QString nameFilter;
+    QString url;
 };
 
 /*!
@@ -48,6 +49,7 @@ QUrl::QUrl()
     d = new QUrlPrivate;
     d->isMalformed = TRUE;
     d->nameFilter = "*";
+    d->url = QString::null;
 }
 
 QUrl::QUrl( const QString& url )
@@ -57,9 +59,11 @@ QUrl::QUrl( const QString& url )
     d->protocol = "file";
     d->port = -1;
     d->nameFilter = "*";
-
+    d->url = url;
+    
     QString tmp = url.stripWhiteSpace();
-    tmp.prepend( "file:" );
+    if ( tmp[ 0 ] == '/' )
+	tmp.prepend( "file:" );
     parse( tmp );
 }
 
@@ -73,6 +77,7 @@ QUrl::QUrl( const QUrl& url )
 QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 {
     d = new QUrlPrivate;
+    d->url = QString( url + "/" + relUrl_ );
     QString relUrl = relUrl_.stripWhiteSpace();
 
     // relUrl starts in the root ?
@@ -114,7 +119,7 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl_ )
 
 QUrl::~QUrl()
 {
-    delete d;
+    //delete d;
 }
 
 QString QUrl::protocol() const
@@ -384,7 +389,18 @@ NodeErr:
 QUrl& QUrl::operator=( const QString& url )
 {
     reset();
-    parse( url );
+ 
+    d->protocol = "file";
+    d->port = -1;
+    d->nameFilter = "*";
+    
+    QString tmp = url.stripWhiteSpace();
+    if ( tmp[ 0 ] == '/' )
+	tmp.prepend( "file:" );
+    parse( tmp );
+    d->url = tmp;
+
+//     parse( url );
 
     return *this;
 }
@@ -558,7 +574,7 @@ QString QUrl::path( int trailing ) const
     return QString::null;
 }
 
-bool QUrl::isLocalFile()
+bool QUrl::isLocalFile() const
 {
     return d->protocol == "file";
 }
@@ -778,6 +794,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 			int sortSpec   = QDir::DefaultSort )
 {
     if ( isLocalFile() ) {
+	emit start();
 	QDir dir( d->path );
 	const QFileInfoList *filist = dir.entryInfoList( nameFilter, filterSpec, sortSpec );
 	QFileInfoListIterator it( *filist );
@@ -789,6 +806,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 			  fi->isSymLink(), fi->isWritable(), fi->isReadable(), fi->isExecutable() );
 	    emit entry( inf );
 	}
+	emit finished();
     }
 }
 
@@ -811,4 +829,19 @@ QUrlInfo QUrl::makeInfo() const
 			  fi.isSymLink(), fi.isWritable(), fi.isReadable(), fi.isExecutable() );
 	return inf;
     }
+
+    return QUrlInfo();
+}
+
+QUrl::operator QString() const
+{
+    return d->url;
+}
+
+bool QUrl::cdUp()
+{
+    QString tmp = d->url + "/..";
+    parse( tmp );
+    d->url = tmp;
+    return TRUE;
 }

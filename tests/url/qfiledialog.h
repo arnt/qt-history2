@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.h#1 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.h#2 $
 **
 ** Definition of QFileDialog class
 **
@@ -39,6 +39,8 @@ class QTimer;
 #include "qlistbox.h"
 #include "qlineedit.h"
 #include "qlistview.h"
+#include "qurl.h"
+#include "qurlinfo.h"
 #endif // QT_H
 
 
@@ -49,6 +51,7 @@ public:
     QFileIconProvider( QObject * parent = 0, const char* name = 0 );
 
     virtual const QPixmap * pixmap( const QFileInfo & );
+    virtual const QPixmap * pixmap( const QUrlInfo & );
 };
 
 class QRenameEdit : public QLineEdit
@@ -179,9 +182,9 @@ class Q_EXPORT QFilePreview
 public:
     QFilePreview() : filename( QString::null ), fi() {}
     virtual ~QFilePreview() {}
-    
+
     virtual void drawPreview( QPainter *p, const QRect &r ) = 0;
-    
+
     virtual void setPreviewFileName( const QString &fn ) {
 	filename = fn;
 	fi = QFileInfo( filename );
@@ -192,11 +195,11 @@ public:
     virtual const QFileInfo &fileInfo() const {
 	return fi;
     }
-    
+
 protected:
     QString filename;
     QFileInfo fi;
-    
+
 };
 
 
@@ -257,6 +260,8 @@ public:
 
     void setFilePreview( QFilePreview *p );
     QFilePreview *filePreview() const;
+
+    QUrl url() const;
     
 public slots:
     void setDir( const QString& );
@@ -273,7 +278,7 @@ protected slots:
     void detailViewSelectionChanged();
     void listBoxSelectionChanged();
     void changeMode( int );
-    
+
 private slots:
     void fileSelected( int );
     void fileHighlighted( int );
@@ -308,6 +313,8 @@ protected:
 private slots:
     void updateGeometries();
     void modeButtonsDestroyed();
+    void clearView();
+    void insertEntry( const QUrlInfo &fi );
 
 private:
     enum PopupAction {
@@ -325,7 +332,7 @@ private:
     };
 
     void init();
-    bool trySetSelection( const QFileInfo&, bool );
+    bool trySetSelection( const QUrlInfo&, const QUrl &, bool );
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );

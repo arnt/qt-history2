@@ -62,7 +62,10 @@ QUrlInfo::QUrlInfo( const QUrl &url, int permissions, const QString &owner,
 
 QUrlInfo::QUrlInfo( const QUrl &path, const QString &file )
 {
-    // ### todo
+    d = new QUrlInfoPrivate;
+    QUrl u( path, file );
+    QUrlInfo inf = u.makeInfo();
+    *d = *inf.d;
 }
 
 QUrlInfo::QUrlInfo( const QUrlInfo &ui )
@@ -147,7 +150,7 @@ bool QUrlInfo::isExecutable() const
     return d->isExecutable;
 }
 
-QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal )
+QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal ) const
 {
     QString url = QString::null;
     if ( path.isLocalFile() ) {
@@ -155,7 +158,7 @@ QString QUrlInfo::makeUrl( const QUrl &path, bool withProtocolWhenLocal )
 	    url = path.protocol();
 	    url += "://";
 	}
-	url += path.path();
+	url = path.path();
 	url += "/" + d->name;
     } else
 	;// ### todo

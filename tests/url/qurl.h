@@ -54,7 +54,7 @@ public:
 
     bool isMalformed() const;
 
-    bool isLocalFile();
+    bool isLocalFile() const;
 
     void addPath( const QString& path );
     void setFileName( const QString& txt );
@@ -85,12 +85,16 @@ public:
     QString nameFilter() const;
 
     QUrlInfo makeInfo() const;
+    operator QString() const;
+
+    bool cdUp();
     
 signals:
     void entry( const QUrlInfo & );
     void error( int, const QString & );
     void finished();
-
+    void start();
+    
 protected:
     void reset();
     void parse( const QString& url );
