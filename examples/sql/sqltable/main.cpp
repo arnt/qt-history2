@@ -47,7 +47,7 @@ int main( int argc, char ** argv )
 
     if( !db->open() ){
 	qWarning( "Unable to open database: " + db->lastError().databaseText() );
-	return 0;
+	return 1;
     }
 
     SimpleCursor cursor;
