@@ -2394,10 +2394,12 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                         app->setActiveWindow(tlw);
                     }
                 }
+                QFocusEvent::setReason(QFocusEvent::ActiveWindow);
                 if(widget->focusWidget())
                     widget->focusWidget()->setFocus();
                 else
                     widget->setFocus();
+                QFocusEvent::resetReason();
                 QMenuBar::macUpdateMenuBar();
             }
         } else if(ekind == kEventWindowDeactivated) {
