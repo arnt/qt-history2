@@ -43,7 +43,7 @@ public:
     bool hasChildren(const QModelIndex &parent) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
     bool setHeaderData(int section, Qt::Orientation orientation, int role, const QVariant &value);
@@ -312,7 +312,7 @@ QVariant QTreeModel::data(const QModelIndex &index, int role) const
   Returns true if successful; otherwise returns false.
 */
 
-bool QTreeModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
         return false;

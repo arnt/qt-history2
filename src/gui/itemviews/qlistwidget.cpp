@@ -37,7 +37,7 @@ public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     bool insertRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
     bool removeRows(int row, int count = 1, const QModelIndex &parent = QModelIndex());
@@ -143,7 +143,7 @@ QVariant QListModel::data(const QModelIndex &index, int role) const
     return lst.at(index.row())->data(role);
 }
 
-bool QListModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool QListModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || index.row() >= lst.count())
         return false;
