@@ -48,6 +48,7 @@ main(int argc, char **argv)
                     break;
                 }
                 prefix = argv[++i];
+                prefix = prefix.replace('\\', '/');
                 if(prefix.isEmpty() || prefix[0] != '/') 
                     error = "Prefix must start with a /";
             } else if(opt == "compress") {
