@@ -800,6 +800,13 @@
             <FILELIST>
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
+                    <PATH>$$TARGET.mocs</PATH>
+                    <PATHFORMAT>MacOS</PATHFORMAT>
+                    <FILEKIND>Library</FILEKIND>
+                    <FILEFLAGS>$$CODEWARRIOR_DEBUG</FILEFLAGS>
+                </FILE>
+                <FILE>
+                    <PATHTYPE>Name</PATHTYPE>
                     <PATH>libqt.Lib</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
@@ -938,6 +945,6 @@
             $$CODEWARRIOR_HEADERS_GROUP
             $$CODEWARRIOR_SOURCES_GROUP
         </GROUP>
-
+    </GROUPLIST>
 </PROJECT>
 
