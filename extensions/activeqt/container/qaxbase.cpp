@@ -3480,3 +3480,9 @@ bool QAxBase::isNull() const
     provided by the COM server and can be used to provide useful feedback to the end user. \a help includes
     the help file, and the help context ID in brackets, e.g. "filename [id]".
 */
+
+//### dummy implementation to avoid linking errors
+IDispatch *create_object_wrapper( QObject * )
+{
+    return 0;
+}
