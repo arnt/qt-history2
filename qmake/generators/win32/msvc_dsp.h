@@ -16,7 +16,6 @@
 #define __MSVC_DSP_H__
 
 #include "winmakefile.h"
-#include <qvaluestack.h>
 
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
