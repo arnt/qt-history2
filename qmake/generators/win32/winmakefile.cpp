@@ -314,6 +314,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 				    (*it) = lib_tmpl.arg(ver);
 				else
 				    (*it) = lib_tmpl.arg("");
+				break;
 			    } 
 			}
 		    }
