@@ -1,4 +1,4 @@
-// $Id: unicode.doc,v 1.1 1999/10/25 14:50:44 arnt Exp $
+// $Id: unicode.doc,v 1.2 1999/10/28 10:10:12 paul Exp $
 
 /*! \page unicode.html
   
@@ -26,7 +26,7 @@ of documents available, including<ul>
 A technical introduction to Unicode</a>
 
 <li><a href="http://www.unicode.org/unicode/standard/standard.html">
-The home page for the standard</a>nn
+The home page for the standard</a>
 
 <li><a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
 The home page of the upcoming version 3.0</a>
@@ -45,9 +45,10 @@ The Unicode Standard, version 2.0.</a>  See also the
 
 <li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
 The Unicode Standard, version 3.0.</a> (Finalized, but not yet published
-ath the time of writing.)  See also
+at the time of writing.)  See also
 <a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
 its home page.</a>
 
+</ul>
 */
 
