@@ -828,7 +828,7 @@ bool QApplication::x11_apply_settings()
 
     QString str;
     QStringList strlist;
-    int i, num;
+    int /* i, */ num;
     QPalette pal(QApplication::palette());
     /*
     strlist = settings.readListEntry("/qt/Palette/active");
@@ -1053,7 +1053,7 @@ static bool qt_set_desktop_properties()
 
 	pal.setColor(QPalette::Disabled, QColorGroup::Foreground, disfg);
     }
-    
+
     // the palette in 2.x did not support links
     pal.setColor( QColorGroup::Link, Qt::blue );
     pal.setColor( QColorGroup::LinkVisited, Qt::magenta );
