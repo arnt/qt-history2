@@ -22,6 +22,7 @@
 #include <qradiobutton.h>
 #include <qcombobox.h>
 #include <qlistbox.h>
+#include <private/qtitlebar_p.h>
 
 #include <qt_windows.h>
 #include <uxtheme.h>
@@ -267,27 +268,20 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_Indicator:
 	name = L"BUTTON";
 	partId = BP_CHECKBOX;
-	if ( !flags & Style_Enabled ) {
-	    if ( flags & Style_On )
-		stateId = 8;
-	    else
-		stateId = 4;
-	} else if ( flags & Style_Down ) {
-	    if ( flags & Style_On )
-		stateId = 7;
-	    else
-		stateId = 3;
-	} else if ( flags & Style_MouseOver ) {
-	    if ( flags & Style_On )
-		stateId = 6;
-	    else
-		stateId = 2;
-	} else {
-	    if ( flags & Style_On )
-		stateId = 5;
-	    else
-		stateId = 1;
-	}
+	if ( !(flags & Style_Enabled) )
+	    stateId = CBS_UNCHECKEDDISABLED;
+	else if ( flags & Style_Down )
+	    stateId = CBS_UNCHECKEDPRESSED;
+	else if ( flags & Style_MouseOver )
+	    stateId = CBS_UNCHECKEDHOT;
+	else
+	    stateId = CBS_UNCHECKEDNORMAL;
+
+	if ( flags & Style_On )
+	    stateId += CBS_CHECKEDNORMAL-1;
+	else if ( flags & Style_NoChange )
+	    stateId += CBS_MIXEDNORMAL-1;
+
 	break;
     case PE_IndicatorMask:
         break;
@@ -295,27 +289,17 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_ExclusiveIndicator:
 	name = L"BUTTON";
 	partId = BP_RADIOBUTTON;
-	if ( !(flags & Style_Enabled) ) {
-	    if ( flags & Style_On )
-		stateId = 8;
-	    else
-		stateId = 4;
-	} else if ( flags & Style_Down ) {
-	    if ( flags & Style_On )
-		stateId = 7;
-	    else
-		stateId = 3;
-	} else if ( flags & Style_MouseOver ) {
-	    if ( flags & Style_On )
-		stateId = 6;
-	    else
-		stateId = 2;
-	} else {
-	    if ( flags & Style_On )
-		stateId = 5;
-	    else
-		stateId = 1;
-	}
+	if ( !(flags & Style_Enabled) )
+	    stateId = RBS_UNCHECKEDDISABLED;
+	else if ( flags & Style_Down )
+	    stateId = RBS_UNCHECKEDPRESSED;
+	else if ( flags & Style_MouseOver )
+	    stateId = RBS_UNCHECKEDHOT;
+	else
+	    stateId = RBS_UNCHECKEDNORMAL;
+
+	if ( flags & Style_On )
+	    stateId += RBS_CHECKEDNORMAL-1;
 	break;
 	
     case PE_ExclusiveIndicatorMask:
@@ -340,11 +324,11 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
 	name = L"HEADER";
 	partId = HP_HEADERITEM;
 	if ( flags & Style_Down )
-	    stateId = 3;
+	    stateId = HIS_PRESSED;
 	else if ( r == d->hotHeader )
-	    stateId = 2;
+	    stateId = HIS_HOT;
 	else
-	    stateId = 1;
+	    stateId = HIS_NORMAL;
 	break;
 	
     case PE_StatusBarSection:
@@ -356,7 +340,10 @@ void QWindowsXPStyle::drawPrimitive( PrimitiveElement op,
     case PE_GroupBoxFrame:
 	name = L"BUTTON";
 	partId = BP_GROUPBOX;
-	stateId = 1;
+	if ( !(flags & Style_Enabled) )
+	    stateId = GBS_DISABLED;
+	else
+	    stateId = GBS_NORMAL;
 	break;
 
     case PE_SizeGrip:
@@ -429,6 +416,8 @@ void QWindowsXPStyle::drawControl( ControlElement element,
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
+    if ( widget->hasMouse() )
+	flags |= Style_MouseOver;
    
     switch ( element ) {
     case CE_PushButton:
@@ -438,15 +427,15 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    partId = BP_PUSHBUTTON;
 	    QPushButton *pb = (QPushButton*)widget;
 	    if ( !(flags & Style_Enabled) )
-		stateId = 4;
-	    else if ( pb->isDown() )
-		stateId = 3;
-	    else if ( d->hotWidget == pb )
-		stateId  =2;
-	    else if ( pb->isDefault() )
-		stateId = 5;
+		stateId = PBS_DISABLED;
+	    else if ( flags & Style_Down || flags & Style_Sunken )
+		stateId = PBS_PRESSED;
+	    else if ( flags & Style_MouseOver )
+		stateId = PBS_HOT;
+	    else if ( flags & Style_Default )
+		stateId = PBS_DEFAULTED;
 	    else
-		stateId = 1;
+		stateId = PBS_NORMAL;
 	}
 	break;
 
@@ -476,13 +465,15 @@ void QWindowsXPStyle::drawControl( ControlElement element,
 	    partId = TABP_TABITEM;
     
 	    if ( !(flags & Style_Enabled) )
-		stateId = 4;
+		stateId = TIS_DISABLED;
+	    else if ( flags & Style_HasFocus )
+		stateId = TIS_FOCUSED;
 	    else if ( flags & Style_Selected )
-		stateId = widget->hasFocus() ? 2 : 3;
+		stateId = TIS_SELECTED;
 	    else if ( t && d->hotTab == t )
-		stateId = 2;
+		stateId = TIS_HOT;
 	    else 
-		stateId = 1;
+		stateId = TIS_NORMAL;
 	}
 	break;
 
@@ -525,6 +516,8 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
     LPCWSTR name = 0;
     int partId = 0;
     int stateId = 0;
+    if ( w->hasFocus() )
+	flags |= Style_MouseOver;
     
     switch ( control ) {
     case CC_SpinWidget:
@@ -540,26 +533,26 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetUp, data );
 		partId = SPNP_UP;
 		if ( !spin->isUpEnabled() )
-		    stateId = 4;
+		    stateId = UPS_DISABLED;
 		else if ( subActive == SC_SpinWidgetUp )
-		    stateId = 3;
-		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-		    stateId = 2;
+		    stateId = UPS_PRESSED;
+		else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
+		    stateId = UPS_HOT;
 		else
-		    stateId = 1;
+		    stateId = UPS_NORMAL;
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
 	    if ( sub & SC_SpinWidgetDown ) {
 		theme.rec = querySubControlMetrics( CC_SpinWidget, w, SC_SpinWidgetDown, data );
 		partId = SPNP_DOWN;
 		if ( !spin->isDownEnabled() )
-		    stateId = 4;
+		    stateId = DNS_DISABLED;
 		else if ( subActive == SC_SpinWidgetDown )
-		    stateId = 3;
-		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-		    stateId = 2;
+		    stateId = DNS_PRESSED;
+		else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
+		    stateId = DNS_HOT;
 		else
-		    stateId = 1;
+		    stateId = DNS_NORMAL;
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
         }
@@ -580,13 +573,13 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 		    subActive = SC_ComboBoxArrow;
     
 		if ( !w->isEnabled() )
-		    stateId = 4;
+		    stateId = CBXS_DISABLED;
 		else if ( subActive == SC_ComboBoxArrow )
-		    stateId = 3;
-		else if ( d->hotWidget == w && theme.rec.contains( d->hotSpot ) )
-		    stateId = 2;
+		    stateId = CBXS_PRESSED;
+		else if ( flags & Style_MouseOver && theme.rec.contains( d->hotSpot ) )
+		    stateId = CBXS_HOT;
 		else
-		    stateId = 1;
+		    stateId = CBXS_NORMAL;
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 	    }
         }
@@ -770,38 +763,61 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	*/
     case CC_TitleBar:
 	{
+	    const QTitleBar *titlebar = (const QTitleBar *) w;
+
 	    XPThemeData theme;
 	    theme.name = L"WINDOW";
-	    if ( sub & SC_TitleBarSysMenu ) {
-	    }
-	    if ( sub & SC_TitleBarMinButton ) {
-		partId = 13;
-		stateId = 1;
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-	    }
-	    if ( sub & SC_TitleBarMaxButton ) {
-		partId = 14;
-		stateId = 1;
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-	    }
-	    if ( sub & SC_TitleBarCloseButton ) {
-		partId = 16;
-		stateId = 1;
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-	    }
 	    if ( sub & SC_TitleBarLabel ) {
-		partId = 6;
-		stateId = 1;
+		theme.rec = titlebar->rect();
+		partId = WP_CAPTION;
+		if ( titlebar->isActive() )
+		    stateId = CS_ACTIVE;
+		else
+		    stateId = CS_INACTIVE;
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+
+		QRect ir = querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel );
+		QColorGroup cgroup = titlebar->isActive() || !titlebar->window() ?
+		    titlebar->palette().active() : titlebar->palette().inactive();
+		p->setPen( cgroup.highlightedText() );
+		p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
+			    AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText() );
 	    }
-	    if ( sub & SC_TitleBarNormalButton ) {
-		partId = 19;
-		stateId = 1;
-		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
-	    }
-	    if ( sub & SC_TitleBarShadeButton ) {
-	    }
-	    if ( sub & SC_TitleBarUnshadeButton ) {
+	    if ( titlebar->window() ) {
+		if ( sub & SC_TitleBarSysMenu ) {
+		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarSysMenu );
+		    partId = WP_SYSBUTTON;
+		    stateId = 1;
+		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		}
+		if ( sub & SC_TitleBarMinButton ) {
+		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMinButton );
+		    partId = WP_MINBUTTON;
+		    stateId = 1;
+		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		}
+		if ( sub & SC_TitleBarMaxButton ) {
+		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMaxButton );
+		    partId = WP_MAXBUTTON;
+		    stateId = 1;
+		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		}
+		if ( sub & SC_TitleBarCloseButton ) {
+		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton );
+		    partId = WP_CLOSEBUTTON;
+		    stateId = 1;
+		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		}
+		if ( sub & SC_TitleBarNormalButton ) {
+		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarNormalButton );
+		    partId = WP_RESTOREBUTTON;
+		    stateId = 1;
+		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
+		}
+		if ( sub & SC_TitleBarShadeButton ) {
+		}
+		if ( sub & SC_TitleBarUnshadeButton ) {
+		}
 	    }
 	}
 	break;
@@ -998,6 +1014,11 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
             widget->repaint( FALSE );
         }
         break;
+
+    case QEvent::FocusOut:
+    case QEvent::FocusIn:
+	widget->repaint( FALSE );
+	break;
 
     default:
         break;
