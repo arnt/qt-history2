@@ -2518,7 +2518,9 @@ void QFileDialog::setFilter( const QString & newFilter )
 void QFileDialog::setDir( const QString & pathstr )
 {
     QString dr = pathstr;
-
+    if ( dr.isEmpty() )
+	return;
+    
 #if defined(UNIX)
     if ( dr.length() && dr[0] == '~' ) {
 	struct passwd *pw;
