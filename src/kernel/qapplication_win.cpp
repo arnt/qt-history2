@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#469 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#470 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -907,10 +907,15 @@ void QApplication::restoreOverrideCursor()
   Internal function called from QWidget::setCursor()
 */
 
-void qt_set_cursor( QWidget *w, const QCursor& c )
+void qt_set_cursor( QWidget *w, const QCursor& /* c */)
 {
-    if ( w->winId() == curWin )			// set immediately
-	SetCursor( c.handle() );
+    if ( !curWin )
+	return;
+    QWidget* cW = QWidget::find( curWin );
+    if ( !cW || cW->topLevelWidget() != w->topLevelWidget() )
+	return;
+    
+    SetCursor( cW->cursor().handle() );
 }
 
 
