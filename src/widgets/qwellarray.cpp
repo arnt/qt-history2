@@ -70,12 +70,6 @@ QWellArray::QWellArray( QWidget *parent, const char * name, bool popup )
     setNumRows( nRows );
     setCellWidth( w );
     setCellHeight( h );
-    /*    setTableFlags( Tbl_vScrollBar |
-	  Tbl_hScrollBar |
-	  Tbl_clipCellPainting |
-	  Tbl_smoothScrolling);
-	  */
-
     curCol = 0;
     curRow = 0;
     selCol = -1;
@@ -101,21 +95,13 @@ QSize QWellArray::sizeHint() const
 
 void QWellArray::paintCell( QPainter* p, int row, int col )
 {
-    //	debug( "::repaint%d", xOffset() );
-
     int w = cellWidth( col );			// width of cell in pixels
     int h = cellHeight( row );			// height of cell in pixels
-
-    //    int x = 0;
-    //    int y = 0;
-    //    int x2 = w - 1;
-    //    int y2 = h - 1;
-
     int b = 1;
 
-//     if ( !smallStyle )
-// 	b = 2; //#####
-
+    if ( !smallStyle )
+	b = 3;
+    
     const QColorGroup & g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
     if ( !smallStyle && row ==selRow && col == selCol &&
@@ -135,7 +121,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 			     g, TRUE, 2 );
 	    b += 2;
 	} else {
-	    int t = ( row == selRow && col == selCol ) ? 3 : 0;
+	    int t = ( row == selRow && col == selCol ) ? 2 : 0;
 	    b -= t;
 	    qDrawShadePanel( p, b, b ,  w - 2*b,  h - 2*b,
 			     g, TRUE, 2 );
