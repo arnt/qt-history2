@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#33 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -16,6 +16,7 @@
 
 static const int MINSIZE  = 8;
 static const int MARKSIZE = 32;
+static const int QH_MARGIN = 4;
 
 
 #if QT_VERSION >= 140
@@ -442,7 +443,7 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     if ( style() == WindowsStyle  &&
 	 i==handleIdx && ( state == Pressed || state == Moving ) )
 	d = 1;
-    QRect r( 4+d, 2+d, size - 6, height() - 4 ); //#####
+    QRect r( QH_MARGIN+d, 2+d, size - 6, height() - 4 ); //#####
 
     if ( 0 && orient == Vertical ) { // we can't do that...
 	QWMatrix m;
@@ -657,7 +658,7 @@ const char* QHeader::label( int i )
 /*!
   Adds a new section, with label text \a s. Returns the index.
   If \a size is non-negative, the section width is set to \a size,
-  otherwise an \e unspecified default value is used.
+  otherwise a size currently sufficient for the label text is used.
 */
 
 int QHeader::addLabel( const char *s, int size )
@@ -666,7 +667,13 @@ int QHeader::addLabel( const char *s, int size )
     labels.resize( n + 1 );
     labels[n-1] = qstrdup(s);
     sizes.resize( n + 1 );
-    sizes[n-1] = size<0 ? size : 88; //####### use font metrics?
+    if ( size < 0 ) {
+	QFontMetrics fm = fontMetrics();
+        size = -fm.minLeftBearing()
+            +fm.width( s )
+            -fm.minRightBearing() + QH_MARGIN*2;
+    }
+    sizes[n-1] = size;
     a2l.resize( n + 1 );
     l2a.resize( n + 1 );
     a2l[n-1] = n-1;

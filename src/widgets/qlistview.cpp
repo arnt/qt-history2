@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#73 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#73 $");
 
 
 const int Unsorted = 32767;
@@ -694,7 +694,7 @@ const char * QListViewItem::text( int column ) const
   \sa paintBranches(), QListView::drawContentsOffset()
 */
 
-#define QLVI_MARGIN 2    // Shouldn't ALL items use this?
+#define QLVI_MARGIN 2    // ### Should be listview property?
 
 void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			       int column, int width ) const
@@ -1446,7 +1446,7 @@ void QListView::clear()
 void QListView::setColumn( const char * label, int size, int column )
 {
     if ( column < 0 )
-	addColumn( label, column );
+	addColumn( label, size );
     else
 	d->h->setLabel( column, label, size );
 }
