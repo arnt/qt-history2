@@ -1,3 +1,3 @@
-HEADERS	+= regexp.h
-SOURCES	+= regexp.cpp
+HEADERS	+= regexpdialog.h
+SOURCES	+= regexpdialog.cpp
 SOURCES	+= main.cpp
