@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#51 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#50 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#51 $";
 #endif
 
 
@@ -482,6 +482,62 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	setWorldXForm( TRUE );
     else
 	updateXForm();
+}
+
+
+/*!
+  Translates the coordinate system by \e (dx,dy).
+  \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
+*/
+
+void QPainter::translate( float dx, float dy )
+{
+    wxmat.translate( dx, dy );
+    setWorldMatrix( wxmat );
+}
+
+/*!
+  Scales the coordinate system by \e (sx,sy).
+  \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
+*/
+
+void QPainter::scale( float sx, float sy )
+{
+    wxmat.scale( sx, sy );
+    setWorldMatrix( wxmat );
+}
+
+/*!
+  Shears the coordinate system \e (sh,sv).
+  \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(), QWMatrix
+*/
+
+void QPainter::shear( float sh, float sv )
+{
+    wxmat.shear( sv, sh );
+    setWorldMatrix( wxmat );
+}
+
+/*!
+  Rotates the coordinate system \e a degrees.
+  \sa translate(), scale(), shear(), resetXForm(), setWorldMatrix(), QWMatrix
+*/
+
+void QPainter::rotate( float a )
+{
+    wxmat.rotate( a );
+    setWorldMatrix( wxmat );
+}
+
+/*!
+  Resets any transformations that were made using translate(), scale(),
+  shear(), rotate() and setWorldMatrix()
+*/
+
+void QPainter::resetXForm()
+{
+    wxmat = QWMatrix();
+    setWorldXForm( FALSE );
 }
 
 
