@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#70 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#71 $
 **
 ** Implementation of QTabDialog class
 **
@@ -494,7 +494,7 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
 	    while( l->current() && !l->current()->isWidgetType() )
 		l->next();
 	    w = (QWidget *)(l->current());
-	    if ( l->current() && d->stack->id( w ) ) {
+	    if ( w && d->stack->id(w) ) {
 		r = w->isEnabled();
 		delete l;
 		return r;
@@ -507,7 +507,8 @@ bool QTabDialog::isTabEnabled( const QString &name ) const
 }
 
 
-/*! Finds the page with object name \a name, enables/disables it
+/*!
+  Finds the page with object name \a name, enables/disables it
   according to the value of \a enable, and redraws the page's tab
   appropriately.
 
@@ -536,10 +537,12 @@ void QTabDialog::setTabEnabled( const QString &name, bool enable )
 	    while( l->current() && !l->current()->isWidgetType() )
 		l->next();
 	    w = (QWidget *)(l->current());
-	    if ( l->current() && d->stack->id( w ) ) {
-		int id = d->stack->id( (QWidget *)l->current() );
-		((QWidget *)l->current())->setEnabled( enable );
-		d->tabs->setTabEnabled( id, enable );
+	    if ( w ) {
+		int id = d->stack->id( w );
+		if ( id ) {
+		    w->setEnabled( enable );
+		    d->tabs->setTabEnabled( id, enable );
+		}
 		delete l;
 		return;
 	    }
