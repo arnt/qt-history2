@@ -1705,12 +1705,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    qt_replay_event = CopyEvent(event);
 	    return 0;
 	}
-	mouse_button_state = after_state;
-	if ( widget && app_do_modal && !qt_try_modal(widget, event) )
+	//This mouse button state stuff looks like this on purpose
+	//although it looks hacky it is VERY intentional..
+	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
+	    mouse_button_state = after_state;
 	    return 1;
-
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
+	}
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) {
+	    mouse_button_state = 0;
 	    return 0;
+	}
+	mouse_button_state = after_state;
 
 	switch(ekind) {
 	case kEventMouseDragged:
