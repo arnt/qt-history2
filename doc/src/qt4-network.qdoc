@@ -79,6 +79,9 @@
     QUrl is used by QTextBrowser, it is part of the QtGui library and
     not of QtNetwork.)
 
+    See the \l{network.html}{Network Module Overview} for a more
+    detailed overview of the module.
+
     \section1 Example Code
 
     All the code snippets presented here are quoted from
@@ -213,8 +216,8 @@
 
     \section1 Future Work
 
-    The network classes's API and implementation are mostly finished,
-    with the exception of QFtp and QHttp. We plan to add support for
-    proxies, user names and password, and FTP active mode transfer
-    before the first Qt 4.0 beta release.
+    The network classes's API, implementation, and documentation are
+    mostly finished, with the exception of QFtp and QHttp. We plan to
+    add support for proxies, user names and password, and FTP active
+    mode transfer before the first Qt 4.0 beta release.
 */

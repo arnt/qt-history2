@@ -1,5 +1,5 @@
-/*! \page qt4-networking.html
-    \title Qt 4: The Network Module
+/*! \page networking.html
+    \title The Network Module
 
         * all classes in the network module are \l{reentrant}
 
@@ -124,23 +124,26 @@
     reason, QTcpSocket should only be used synchronously from a
     non-GUI thread or in a non-GUI application.
 
-    Neither QTcpSocket nor QTcpServer require the Qt event loop to
-    operate. This makes it possible to use these classes in any
-    thread without having to set up an event loop. ### Without an
-    event loop, Qt is unable to notify QTcpSocket of incoming data,
-    and QTcpSocket is unable to automatically flush outgoing data.
-    Calling QTcpSocket::setBlocking(true) is the best way to avoid
-    these problems. Otherwise, whenever bytesToWrite() returns more
-    than 0, flush() must be called manually to write data to the
-    socket, and waitForReadyRead() must be called to get the
-    readyRead() signal.
+    QTcpSocket and QTcpServer can be used without an event loop. In
+    addition, the classes are \l{reentrant}, meaning that distinct
+    instances of the classes can be used simultaneously in different
+    threads.
 
-    See examples/network/fortuneclient and
-    examples/network/fortuneserver for examples on how to use
-    QTcpSocket and QTcpServer. See also
-    examples/network/blockingfortuneclient for an example on how to
-    use a synchronous QTcpSocket in a separate thread, without using
-    the event loop.
+    Note that without an event loop, Qt is unable to notify
+    QTcpSocket of incoming data, and QTcpSocket is unable to
+    automatically flush outgoing data. Calling
+    QTcpSocket::setBlocking(true) is the best way to avoid these
+    problems. The alternative is to fall QTcpSocket::flush() whenever
+    QTcpSocket::bytesToWrite() returns a non-zero value. You must
+    then also call QTcpSocket::flush() manually to write data to the
+    socket, and QTcpSocket::waitForReadyRead() to get the
+    QTcpSocket::readyRead() signal.
+
+    The network/fortuneclient and network/fortuneserver examples show
+    how to use QTcpSocket and QTcpServer to write TCP client-server
+    applications. See also network/blockingfortuneclient for an
+    example on how to use a synchronous QTcpSocket in a separate
+    thread, without using an event loop.
 
     \section1 Using UDP with QUdpSocket
 
@@ -159,14 +162,14 @@
     and port of the datagram's sender and receiver in addition to the
     data being transferred.
 
-    QUdpSocket supports IPv4 broadcasting. Broadcasting is very
-    useful for implementing network discovery protocols, such as
-    finding which host on the network has the most free hard disk
-    space. One host broadcasts a datagram to the network that all
-    other hosts receive. Each host that receives a request then sends
-    a reply back to the sender with its current amount of free disk
-    space. The originator waits until it has received replies from
-    all hosts, and can then choose the server with most free space to
+    QUdpSocket supports IPv4 broadcasting. Broadcasting is often used
+    to implement network discovery protocols, such as finding which
+    host on the network has the most free hard disk space. One host
+    broadcasts a datagram to the network that all other hosts
+    receive. Each host that receives a request then sends a reply
+    back to the sender with its current amount of free disk space.
+    The originator waits until it has received replies from all
+    hosts, and can then choose the server with most free space to
     store data. To broadcast a datagram, simply send it to the
     special address QHostAddress::Broadcast (127.0.0.1).
 
@@ -180,8 +183,9 @@
     examples show how to write a UDP sender and a UDP receiver using
     Qt.
 
+    \omit
     \section1 Resolving Host Names with QDns
 
     inline eksempel
-
+    \endomit
 */
