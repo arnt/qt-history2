@@ -88,7 +88,7 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	introText->setText( QString( fileData.data() ) );
     }
     // Optionspage
-    installPath->setText( QString( "C:\\Qt\\" ) + QT_VERSION_STR );
+    installPath->setText( QString( "C:\\Qt\\" ) + QString(QT_VERSION_STR).replace( QRegExp("-"), "" ) );
     sysGroup->setButton( 0 );
     // Folderspage
     QByteArray buffer( 256 );
@@ -710,7 +710,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 	folder = new QCheckListItem( imfolder, "PNG" );
 	folder->setOpen( true );
-	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Plugin", &settingsOK );
+	entry = settings.readEntry( "/Trolltech/Qt/Styles/Image Formats/PNG", "Direct", &settingsOK );
 	pngPlugin = new QCheckListItem( folder, "Plugin", QCheckListItem::RadioButton );
 	pngPlugin->setOn( entry == "Plugin" );
 	pngPresent = new QCheckListItem( folder, "Present", QCheckListItem::RadioButton );
