@@ -3058,7 +3058,7 @@ void Resource::savePopupMenu( PopupMenuEditor *pm, QMainWindow *mw, QTextStream 
 	PopupMenuEditor *s =  i->subMenu();
 	if ( s && s->count() ) {
 	    QString n = a->name();
-	    n.replace( "Action", "Menu" );
+	    formwindow->unify/ i, n, TRUE );
 	    ts << makeIndent( indent ) << "<item text=\"" << entitize( a->menuText() )
 	       << "\" name=\"" << entitize( n )
 	       << "\" accel=\"" << entitize( a->accel() )
@@ -3143,7 +3143,11 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
 	}
 	if ( n.tagName() == "item" ) {
 	    PopupMenuEditorItem *i = p->at( p->find( a ) );
-	    if ( i )
+	    if ( i ) {
+		QString name = n.attribute( "name" );
+		formwindow->unify( i, name, TRUE );
+		i->setName( name );
+		MetaDataBase::addEntry( i );
 		loadPopupMenu( i->subMenu(), n );
 	} else if ( n.tagName() == "separator" ) {
 	    a = new QSeparatorAction( 0 );
