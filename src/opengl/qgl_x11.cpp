@@ -452,13 +452,13 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     static bool useTranspExt = FALSE;
     static bool useTranspExtChecked = FALSE;
     if ( f.plane() && !useTranspExtChecked && d->paintDevice ) {
-	QCString estr( glXQueryExtensionsString( d->paintDevice->x11Display(),
-						 d->paintDevice->x11Screen() ) );
+	QByteArray estr( glXQueryExtensionsString( d->paintDevice->x11Display(),
+						   d->paintDevice->x11Screen() ) );
 	useTranspExt = estr.contains( "GLX_EXT_visual_info" );
 	//# (A bit simplistic; that could theoretically be a substring)
 	if ( useTranspExt ) {
-	    QCString cstr( glXGetClientString( d->paintDevice->x11Display(),
-					       GLX_VENDOR ) );
+	    QByteArray cstr( glXGetClientString( d->paintDevice->x11Display(),
+						 GLX_VENDOR ) );
 	    useTranspExt = !cstr.contains( "Xi Graphics" ); // bug workaround
 	    if ( useTranspExt ) {
 		// bug workaround - some systems (eg. FireGL) refuses to return an overlay
