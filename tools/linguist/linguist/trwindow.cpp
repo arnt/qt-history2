@@ -58,30 +58,6 @@
 
 #include <stdlib.h> // getenv()
 
-#define check_danger_mask_width 17
-#define check_danger_mask_height 13
-static const uchar check_danger_mask_bits[] = {
-   0x00, 0x00, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00,
-   0x80, 0x03, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00 };
-
-#define check_off_mask_width 17
-#define check_off_mask_height 13
-static const uchar check_off_mask_bits[] = {
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xc0, 0x07, 0x00, 0xe0, 0x0e, 0x00,
-   0xe0, 0x0e, 0x00, 0x00, 0x07, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00,
-   0x00, 0x00, 0x00, 0x80, 0x03, 0x00, 0x80, 0x03, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00 };
-
-#define check_on_mask_width 17
-#define check_on_mask_height 13
-static const uchar check_on_mask_bits[] = {
-   0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x08, 0x00, 0x00, 0x1c, 0x00,
-   0x00, 0x1e, 0x00, 0x10, 0x0f, 0x00, 0xb0, 0x07, 0x00, 0xf0, 0x03, 0x00,
-   0xe0, 0x01, 0x00, 0xc0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-   0x00, 0x00, 0x00 };
-
 #define pagecurl_mask_width 53
 #define pagecurl_mask_height 51
 static const uchar pagecurl_mask_bits[] = {
@@ -246,21 +222,10 @@ TrWindow::TrWindow()
 #endif
 
     // Create the application global listview symbols
-    pxOn  = new QPixmap( QPixmap::fromMimeSource( "check_on.xpm" ) );
-    pxOff = new QPixmap( QPixmap::fromMimeSource( "check_off.xpm" ) );
-    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "check_obs.xpm" ) );
-    pxDanger = new QPixmap( QPixmap::fromMimeSource( "check_danger.xpm" ) );
-
-    QBitmap onMask( check_on_mask_width, check_on_mask_height,
-		    check_on_mask_bits, TRUE );
-    QBitmap offMask( check_off_mask_width, check_off_mask_height,
-		     check_off_mask_bits, TRUE );
-    QBitmap dangerMask( check_danger_mask_width, check_danger_mask_height,
-			check_danger_mask_bits, TRUE );
-    pxOn->setMask( onMask );
-    pxOff->setMask( offMask );
-    pxObsolete->setMask( onMask );
-    pxDanger->setMask( dangerMask );
+    pxOn  = new QPixmap( QPixmap::fromMimeSource( "s_check_on.png" ) );
+    pxOff = new QPixmap( QPixmap::fromMimeSource( "s_check_off.png" ) );
+    pxObsolete = new QPixmap( QPixmap::fromMimeSource( "s_check_obs.png" ) );
+    pxDanger = new QPixmap( QPixmap::fromMimeSource( "s_check_danger.png" ) );
 
     // Set up the Scope dock window
     QDockWindow * dwScope = new QDockWindow( QDockWindow::InDock, this,

@@ -24,10 +24,14 @@ FORMS		= about.ui
 
 IMAGES		+= images/accelerator.png \
 		   images/book.png \
-		   images/check_danger.xpm \
-		   images/check_obs.xpm \
-		   images/check_off.xpm \
-		   images/check_on.xpm \
+		   images/s_check_danger.png \
+		   images/s_check_obs.png \
+		   images/s_check_off.png \
+		   images/s_check_on.png \
+		   images/d_s_check_danger.png \
+		   images/d_s_check_obs.png \
+		   images/d_s_check_off.png \
+		   images/d_s_check_on.png \
 		   images/d_accelerator.png \
 		   images/d_book.png \
 		   images/d_doneandnext.png \
