@@ -40,7 +40,7 @@ SOURCES += \
 	painting/qregion.cpp \
 	painting/qmatrix.cpp
 
-win32 {
+win32|x11 {
 	DEFINES += _STANDALONE_ QT_RASTER_PAINTENGINE
 	SOURCES += 					\
 	 	painting/qpaintengine_raster.cpp	\
@@ -53,7 +53,8 @@ win32 {
 		painting/qrasterdefs_p.h		\
 		painting/qgrayraster_p.h		\
 		painting/qblackraster_p.h
-
+}
+win32 {
 	HEADERS += \
 		painting/qpaintengine_win_p.h \
 		painting/qprintengine_win_p.h

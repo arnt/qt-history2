@@ -578,24 +578,6 @@ bool QRasterPaintEngine::end()
         flush(d->pdev);
 #endif
 
-#ifdef Q_WS_X11
-    if (d->pdev->devType() == QInternal::Widget){
-        QWidget *w = static_cast<QWidget *>(d->pdev);
-        GC gc = XCreateGC(QX11Info::display(), w->winId(), 0, 0);
-
-        QImage image((uchar *)d->rasterBuffer->buffer(), d->rasterBuffer->width(), d->rasterBuffer->height(), 32, 0, 0, QImage::LittleEndian);
-        QPixmap pm = image;
-        XCopyArea(QX11Info::display(), pm.handle(), w->winId(), gc,
-                  0, 0, w->width(), w->height(), 0, 0);
-//             XPutImage(QX11Info::display(), w->winId(), gc,
-//                   QRasterBuffer::instance()->m_ximg,
-//                   0, 0, 0, 0, w->width(), w->height());
-        XFreeGC(QX11Info::display(), gc);
-    } else {
-        printf("QRasterPaintEngine::end(), can't blit to anything but widgets yet..\n");
-    }
-#endif
-
     d->clipEnabled = false;
 
     setActive(false);
@@ -989,8 +971,6 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     d->antialiased = aa;
     return;
 #endif // Q_WS_WIN
-
-
 }
 
 
@@ -2245,6 +2225,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
             qErrnoWarning("SetGraphicsMode failed");
     }
 }
+#endif
 
 QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rdata )
 {
@@ -2427,4 +2408,3 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
     return image;
 }
 
-#endif

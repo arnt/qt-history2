@@ -9,7 +9,8 @@ enum CPUFeatures {
 uint detectCPUFeatures() {
     uint result;
     /* see p. 79 of amd64 instruction set manual Vol 1 */
-    asm ("pushf\n"
+    asm ("push %%ebx\n"
+         "pushf\n"
          "pop %%eax\n"
          "mov %%eax, %%ebx\n"
          "xor $0x00200000, %%eax\n"
@@ -25,9 +26,10 @@ uint detectCPUFeatures() {
          "cpuid\n"
          "1:\n"
          "mov %%edx, %0\n"
+         "pop %%ebx\n"
         : "=m" (result)
         :
-        : "%eax", "%ebx", "%ecx", "%edx"
+        : "%eax", "%ecx", "%edx"
         );
 
     uint features = 0;

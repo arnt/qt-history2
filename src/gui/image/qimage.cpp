@@ -25,7 +25,16 @@
 #include <limits.h>
 #include <math.h>
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_X11)
+#include <private/qt_x11_p.h>
+
+QImage::Endian qX11BitmapBitOrder()
+{
+    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian;
+}
+#endif
+
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
 #include <private/qpaintengine_raster_p.h>
 #else
 #include <qpaintengine.h>
@@ -3661,15 +3670,6 @@ void QImage::setText(const char* key, const char* lang, const QString& s)
     \sa systemByteOrder()
 */
 
-#if defined(Q_WS_X11)
-#include <private/qt_x11_p.h>
-
-QImage::Endian qX11BitmapBitOrder()
-{
-    return BitmapBitOrder(qt_xdisplay()) == MSBFirst ? QImage::BigEndian : QImage::LittleEndian;
-}
-#endif
-
 
 /*!
     \internal
@@ -3679,7 +3679,7 @@ QImage::Endian qX11BitmapBitOrder()
 
 QPaintEngine *QImage::paintEngine() const
 {
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_X11)
     if (!d->paintEngine) {
         d->paintEngine = new QRasterPaintEngine();
     }
