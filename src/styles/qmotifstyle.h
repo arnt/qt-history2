@@ -73,7 +73,7 @@ public:
 			const QRect &r,
 			const QColorGroup &cg,
 			PFlags flags = PStyle_Default,
-			void *data = 0 ) const;
+			void **data = 0 ) const;
 
     void drawControl( ControlElement element,
 		      QPainter *p,
@@ -81,7 +81,7 @@ public:
 		      const QRect &r,
 		      const QColorGroup &cg,
 		      CFlags how = CStyle_Default,
-		      void *data = 0 ) const;
+		      void **data = 0 ) const;
 
     void drawComplexControl( ComplexControl control,
 			     QPainter *p,
@@ -91,7 +91,7 @@ public:
 			     CFlags flags = CStyle_Default,
 			     SCFlags sub = SC_None,
 			     SCFlags subActive = SC_None,
-			     void* data = 0 ) const;
+			     void **data = 0 ) const;
 
     void drawSubControl( SCFlags subCtrl,
 			 QPainter* p,
@@ -100,12 +100,12 @@ public:
 			 const QColorGroup& cg,
 			 CFlags flags = CStyle_Default,
 			 SCFlags subActive = SC_None,
-			 void* data = 0 ) const;
+			 void **data = 0 ) const;
 
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
 				  SubControl sc,
-				  void *data = 0 ) const;
+				  void **data = 0 ) const;
 
 
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
@@ -113,7 +113,7 @@ public:
     QSize sizeFromContents( ContentsType contents,
 			   const QWidget *w,
 			   const QSize &contentsSize,
-			   void *data ) const;
+			   void **data ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
