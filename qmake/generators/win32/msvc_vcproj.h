@@ -93,7 +93,7 @@ inline QString VcprojGenerator::defaultMakefile() const
 
 inline bool VcprojGenerator::findLibraries()
 { 
-    return Win32MakefileGenerator::findLibraries("MSVCVCPROJ_LIBS");
+    return Win32MakefileGenerator::findLibraries("MSVCPROJ_LIBS");
 }
 
 #endif /* __MSVC_VCPROJ_H__ */
