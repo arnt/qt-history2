@@ -14,8 +14,11 @@ class Q_EXPORT QBitArray
 public:
     inline QBitArray(){};
     QBitArray(int size, bool val = false);
+    inline QBitArray &operator=(const QBitArray &other) { d = other.d; return *this; }
 
-    int size() const;
+
+    inline int size() const { return (d.size() << 3) - *d.constData(); }
+
     void resize(int size);
 
     inline void  detach() { d.detach(); }
@@ -42,15 +45,14 @@ public:
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
 
 #ifndef QT_NO_COMPAT
-    inline bool fill(bool val, int size = -1){ *this=QBitArray(size<0?d.size():size,val); return true; }
+    inline bool fill(bool val, int size = -1)
+	{ *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
     inline bool isNull() { return d.isNull(); }
 #endif
 
     inline bool ensure_constructed()
     { return d.ensure_constructed(); }
 };
-
-inline int QBitArray::size() const { return d.size() * 8 - *d.constData(); }
 
 QBitArray operator&(const QBitArray &, const QBitArray &);
 QBitArray operator|(const QBitArray &, const QBitArray &);
