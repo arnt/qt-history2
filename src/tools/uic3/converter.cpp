@@ -291,6 +291,8 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
         className = QLatin1String("Q3ButtonGroup");
     else if (className == QLatin1String("QTextEdit"))
         className = QLatin1String("Q3TextEdit");
+    else if (className == QLatin1String("QMainWindow"))
+        className = QLatin1String("Q3MainWindow");
 
     bool isMenuBar = className == QLatin1String("QMenuBar");
 

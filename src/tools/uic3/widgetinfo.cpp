@@ -44,6 +44,8 @@
 #include <qiconview.h>
 #include <qaction.h>
 #include <q3buttongroup.h>
+#include <q3mainwindow.h>
+#include <q3dockwindow.h>
 
 WidgetInfo::WidgetInfo()
 {
@@ -111,7 +113,7 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QScrollBar::staticMetaObject;
     else if (widgetName == QLatin1String("QFrame"))
         return &QFrame::staticMetaObject;
-    else if (widgetName == QLatin1String("Q3MainWindow"))
+    else if (widgetName == QLatin1String("QMainWindow"))
         return &Q3MainWindow::staticMetaObject;
     else if (widgetName == QLatin1String("QToolBox"))
         return &QToolBox::staticMetaObject;

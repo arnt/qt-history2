@@ -151,31 +151,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
         }
     }
 
-#if 0 // ### uic4
-    nl = e.parentNode().toElement().elementsByTagName("include");
-    for (i = 0; i < (int) nl.length(); i++) {
-        QDomElement n2 = nl.item(i).toElement();
-        QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
-             n2.attribute("location") != QLatin1String("local")) {
-            if (s.right(5) == QLatin1String(".ui.h"))
-                continue;
-            globalIncludes += s;
-        }
-    }
-
-    for (i = 0; i < (int) nl.length(); i++) {
-        QDomElement n2 = nl.item(i).toElement();
-        QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
-             n2.attribute("location") == QLatin1String("local") &&!globalIncludes.contains(s)) {
-            if (s.right(5) == QLatin1String(".ui.h"))
-                continue;
-            localIncludes += s;
-        }
-    }
-#endif
-
     QStringList::Iterator it;
 
     globalIncludes = unique(globalIncludes);
@@ -189,16 +164,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
             out << "#include \"" << *it << "\"" << endl;
     }
     out << endl;
-
-#if 0 // ### not needed
-    // forward declarations for child widgets and layouts
-    if (objClass == QLatin1String("QMainWindow")) {
-        out << "class QAction;" << endl;
-        out << "class QActionGroup;" << endl;
-        out << "class QToolBar;" << endl;
-        out << "class QPopupMenu;" << endl;
-    }
-#endif
 
     bool dbForm = FALSE;
     registerDatabases(e);
@@ -225,24 +190,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     nl = e.parentNode().toElement().elementsByTagName("forward");
     for (i = 0; i < (int) nl.length(); i++)
         forwardDecl2 << nl.item(i).toElement().firstChild().toText().data();
-
-#if 0 // ### uic4
-    nl = e.parentNode().toElement().elementsByTagName("include");
-    for (i = 0; i < (int) nl.length(); i++) {
-        QDomElement n2 = nl.item(i).toElement();
-        QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
-             n2.attribute("location") != QLatin1String("local"))
-            globalIncludes += s;
-    }
-    for (i = 0; i < (int) nl.length(); i++) {
-        QDomElement n2 = nl.item(i).toElement();
-        QString s = n2.firstChild().toText().data();
-        if (n2.attribute("impldecl", "in implementation") == QLatin1String("in declaration") &&
-             n2.attribute("location") == QLatin1String("local") && !globalIncludes.contains(s))
-            localIncludes += s;
-    }
-#endif
 
     nl = e.parentNode().toElement().elementsByTagName("exportmacro");
     if (nl.length() == 1)
