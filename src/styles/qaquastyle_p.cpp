@@ -45,8 +45,6 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase, QWidget *w)
 {
     if(noerase)
 	setAttribute(WA_NoSystemBackground, true);
-    if(w)
-	setFocusWidget(w);
 }
 #if 0
 /* It's a real bummer I cannot use this, but you'll notice that sometimes
