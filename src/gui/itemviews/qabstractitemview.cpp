@@ -804,7 +804,7 @@ QItemSelectionModel::SelectionBehavior QAbstractItemView::selectionBehavior() co
 
 QItemSelectionModel::SelectionUpdateMode QAbstractItemView::selectionUpdateMode(ButtonState state, const QModelIndex &item) const
 {
-    if (selectionModel()->isSelected(item) && !state & ControlButton)
+    if (selectionModel()->isSelected(item) && !(state & ControlButton))
 	return QItemSelectionModel::NoUpdate;
     if (selectionMode() == QItemSelectionModel::Single)
 	return QItemSelectionModel::ClearAndSelect;
