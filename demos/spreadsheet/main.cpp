@@ -135,7 +135,7 @@ QVariant SpreadSheetItem::display() const
 QPoint SpreadSheetItem::convertCoords(const QString coords) const
 {
     int r = 0;
-    int c = coords.at(0).toUpper().ascii() - 'A';
+    int c = coords.at(0).toUpper().toAscii() - 'A';
     for (int i = 1; i < coords.count(); ++i) {
         r *= 10;
         r += coords.at(i).digitValue();
