@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#75 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#76 $
 **
 **  Splitter widget
 **
@@ -537,12 +537,16 @@ void QSplitter::moveBefore( int pos, int id, bool upLeft )
 
 void QSplitter::moveAfter( int pos, int id, bool upLeft )
 {
-    QSplitterLayoutStruct *s = data->list.at(id);
+    QSplitterLayoutStruct *s = id < int(data->list.count()) ?
+			       data->list.at(id) : 0;
     if ( !s )
 	return;
     QWidget *w = s->wid;
     if ( w->testWState(WState_ForceHide) ) {
 	moveAfter( pos, id+1, upLeft );
+    } else if ( pick( w->pos() ) == pos ) {
+	//No need to do anything if it's already there.
+	return;
     } else if ( s->isSplitter ) {
 	int dd = s->sizer;
 	if ( upLeft ) {
@@ -559,8 +563,7 @@ void QSplitter::moveAfter( int pos, int id, bool upLeft )
 	dd = QMAX( pick(minSize(w)), QMIN(dd, pick(w->maximumSize())));
 	int newRight = pos+dd-1;
 	setG( w, pos, dd );
-	if ( right != newRight )
-	    moveAfter( newRight+1, id+1, upLeft );
+	moveAfter( newRight+1, id+1, upLeft );
     }
 }
 
