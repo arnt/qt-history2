@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#19 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#19 $";
 #endif
 
 
@@ -177,8 +177,9 @@ void QEvent::peErrMsg()				// posted event error message
 
   Mouse events occur when a mouse button is pressed or released inside a
   widget, or when the mouse cursor is moved.
-  Mouse move events will only occur unless \link QWidget::setMouseTracking()
-  mouse tracking\endlink has been enabled.
+  Mouse move events will only occur when some mouse button is pressed down,
+  unless \link QWidget::setMouseTracking() mouse tracking\endlink has been
+  enabled.
 
   Qt make an automatic mouse grab when a mouse button is pressed inside a
   widget, and the widget will continue to receive mouse events until the
