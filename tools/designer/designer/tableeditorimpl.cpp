@@ -76,10 +76,40 @@ void TableEditor::currentRowChanged( QListBoxItem *i )
 
 void TableEditor::deleteColumnClicked()
 {
+    if ( listColumns->currentItem() == -1 )
+	return;
+    table->setNumCols( table->numCols() - 1 );
+    int j = 0;
+    delete listColumns->item( listColumns->currentItem() );
+    for ( QListBoxItem *i = listColumns->firstItem(); i; i = i->next(), ++j ) {
+	if ( i->pixmap() )
+	    table->horizontalHeader()->setLabel( j, *i->pixmap(), i->text() );
+	else
+	    table->horizontalHeader()->setLabel( j, i->text() );
+    }
+    if ( listColumns->firstItem() ) {
+	listColumns->setCurrentItem( listColumns->firstItem() );
+	listColumns->setSelected( listColumns->firstItem(), TRUE );
+    }
 }
 
 void TableEditor::deleteRowClicked()
 {
+    if ( listRows->currentItem() == -1 )
+	return;
+    table->setNumRows( table->numRows() - 1 );
+    int j = 0;
+    delete listRows->item( listRows->currentItem() );
+    for ( QListBoxItem *i = listRows->firstItem(); i; i = i->next(), ++j ) {
+	if ( i->pixmap() )
+	    table->verticalHeader()->setLabel( j, *i->pixmap(), i->text() );
+	else
+	    table->verticalHeader()->setLabel( j, i->text() );
+    }
+    if ( listRows->firstItem() ) {
+	listRows->setCurrentItem( listRows->firstItem() );
+	listRows->setSelected( listRows->firstItem(), TRUE );
+    }
 }
 
 void TableEditor::newColumnClicked()
