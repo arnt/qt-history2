@@ -28,7 +28,7 @@ class QMenu;
 class QDecorationAction : public QAction
 {
 public:
-    explicit QDecorationAction(const QString &text, QObject* parent, int region)
+    QDecorationAction(const QString &text, QObject* parent, int region)
         : QAction(text, parent), reg(region) {}
     int reg;
 };

@@ -186,7 +186,7 @@ class QGfxRasterBase : public QGfx {
 
 public:
 
-    explicit QGfxRasterBase(unsigned char *, int w, int h);
+    QGfxRasterBase(unsigned char *, int w, int h);
     ~QGfxRasterBase();
 
     virtual void setPen(const QPen &);

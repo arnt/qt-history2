@@ -527,7 +527,7 @@ class QWSClient : public QObject
 {
     Q_OBJECT
 public:
-    explicit QWSClient(QObject* parent, QTcpSocket *, int id);
+    QWSClient(QObject* parent, QTcpSocket *, int id);
     ~QWSClient();
 
     int socket() const;
