@@ -73,8 +73,7 @@ class Q_EXPORT QLineEdit : public QFrame
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoAvailable READ isUndoAvailable )
     Q_PROPERTY( bool redoAvailable READ isRedoAvailable )
-    Q_PROPERTY( QString mask READ mask WRITE setMask )
-    Q_PROPERTY( bool hasMask READ hasMask )
+    Q_PROPERTY( QString inputMask READ inputMask WRITE setInputMask )
 
 public:
     QLineEdit( QWidget* parent, const char* name=0 );
@@ -139,11 +138,9 @@ public:
     bool dragEnabled() const;
     int characterAt( int xpos, QChar *chr ) const;
 
-    bool isValidInput() const;
-    void setMask( const QString &mask = QString::null );
-    bool hasMask() const;
-    void clearMask();
-    QString mask() const;
+    bool hasValidInput() const;
+    void setInputMask( const QString &mask );
+    QString inputMask() const;
 
 public slots:
     virtual void setText( const QString &);
@@ -176,7 +173,6 @@ signals:
     void returnPressed();
     void lostFocus();
     void selectionChanged();
-    void invalidInput();
 
 protected:
     bool event( QEvent * );
