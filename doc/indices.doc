@@ -62,6 +62,7 @@ Reference Documentation
 <li><a href="dnd.html">Drag and Drop (D'n'D)</a>
 <li><a href="i18n.html">Internationalization (I18n)</a>
 <li><a href="debug.html">Debugging Techniques</a>
+<li><a href="network.html">Network Programming</a>
 </ul>
 
 </td></tr><tr><td width="50%" valign="top">
@@ -164,7 +165,7 @@ The Qt API consists the following modules:
 <dd>Classes providing access to the low-level parts of Qt
 
 <dt><a href="misc.html">Miscellaneous</a>
-<dd>Various other useful classes 
+<dd>Various other useful classes
 
 </dl>
 
@@ -183,7 +184,7 @@ The Qt API consists the following modules:
 <dd>Digital image coding, decoding and manipulation
 
 <dt><a href="time.html">Time And Date Handling</a>
-<dd>OS-independent Classes for handling date and time. 
+<dd>OS-independent Classes for handling date and time.
 
 </dl>
 
@@ -197,7 +198,7 @@ The tool classes are general-purpose collection classes that may be used
 independently of the GUI classes.
 
 <p>In particular, these classes do not depend on QApplication at all,
-and so can be used in non-GUI programs.  
+and so can be used in non-GUI programs.
 
 <p>See also the <a href="collection.html">introduction to Qt collection
 classes</a> and <a href="qtl.html">The Qt Template Libarary</a>.
@@ -263,7 +264,7 @@ These classes are used for manipulating images.
 
 <h1 align="center">Drawing Classes</h1><br clear="all">
 
-These classes provide powerful graphics drawing primitives. 
+These classes provide powerful graphics drawing primitives.
 
 <p>See also this introduction to the <a href="coordsys.html">Qt
 coordinate system</a>.
@@ -290,7 +291,7 @@ be passed around as arguments, even though they may seem heavyweight.
 
 These classes provide system-independent date and time abstractions.
 
-<p>Also available: <a href="y2k.html">Qt Year 2000 Compliance Statement</a>. 
+<p>Also available: <a href="y2k.html">Qt Year 2000 Compliance Statement</a>.
 */
 
 
