@@ -142,7 +142,6 @@ Main::Main() :
     menu->insertItem("&Edit", edit);
 
     options = new QPopupMenu;
-    sra_id = options->insertItem("Show redraw areas", this, SLOT(toggleRedraws()));
     dbf_id = options->insertItem("Double buffer", this, SLOT(toggleDoubleBuffer()));
     options->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Options",options);
@@ -160,13 +159,6 @@ Main::Main() :
 	addRectangle();
 	addSprite();
     }
-}
-
-void Main::toggleRedraws()
-{
-    bool s = !options->isItemChecked(sra_id);
-    options->setItemChecked(sra_id,s);
-    canvas.setRedrawAreaDisplay(s);
 }
 
 void Main::toggleDoubleBuffer()

@@ -45,7 +45,6 @@ private slots:
     void addHexagon();
     void addPolygon();
     void addRectangle();
-    void toggleRedraws();
     void toggleDoubleBuffer();
 
 private:
@@ -53,7 +52,6 @@ private:
     FigureEditor *editor;
 
     QPopupMenu* options;
-    int sra_id;
     int dbf_id;
 };
 
