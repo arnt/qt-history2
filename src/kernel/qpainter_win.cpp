@@ -1579,13 +1579,10 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    return;
 	fix_neg_rect( &x, &y, &w, &h );
     }
-    if ( cpen.style() == NoPen ) {
-	w++;
-	h++;
-    }
+
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cbrush.data->color) );
-    Ellipse( hdc, x, y, x+w, y+h );
+    Ellipse( hdc, x, y, x+w-1, y+h-1 );
     if ( nocolBrush )
 	SetTextColor( hdc, COLOR_VALUE(cpen.data->color) );
 }

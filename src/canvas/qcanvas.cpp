@@ -3896,10 +3896,7 @@ QPointArray QCanvasRectangle::chunks() const
 */
 QRect QCanvasPolygonalItem::boundingRect() const
 {
-    QRect r = areaPoints().boundingRect();
-    r.setWidth(r.width()-1);
-    r.setHeight(r.height()-1);
-    return r;
+    return areaPoints().boundingRect();
 }
 
 /*!
@@ -4639,7 +4636,7 @@ QPointArray QCanvasEllipse::areaPoints() const
 {
     QPointArray r;
     // makeArc at 0,0, then translate so that fixed point math doesn't overflow
-    r.makeArc(int(-w/2.0-1),int(-h/2.0-1),w+2,h+3,a1,a2);
+    r.makeArc(int(-w/2.0)-1,int(-h/2.0)-1,w+3,h+3,a1,a2);
     r.translate(int(x()),int(y()));
     r.resize(r.size()+1);
     r.setPoint(r.size()-1,int(x()),int(y()));
