@@ -660,6 +660,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 		continue;
 	    if ( ignore( property->name(), ignore_props ) )
 		continue;
+	    if ( mo->findProperty( property->name(), TRUE ) > i )
+		continue;
 
 	    bool read = TRUE;
 	    bool write = property->writable();
