@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#3 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#4 $
 **
 ** Definition of QApplication class
 **
 ** Author  : Haavard Nord
 ** Created : 931107
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,9 @@
 #include "qwidget.h"
 
 
+#if !defined(NO_APPNOTIFY)
 #define USE_APPNOTIFY				// undefine for faster events
+#endif
 
 
 class QApplication				// application class
