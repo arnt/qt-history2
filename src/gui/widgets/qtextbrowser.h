@@ -62,6 +62,7 @@ public:
 
 private:
     Q_DISABLE_COPY(QTextBrowser)
+    Q_PRIVATE_SLOT(d, void documentModified())
 };
 
 #endif // QTEXTBROWSER_H

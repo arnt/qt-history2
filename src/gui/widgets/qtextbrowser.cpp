@@ -35,7 +35,7 @@ class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
-    QTextBrowserPrivate() : textOrSourceChanged(false) {}
+    QTextBrowserPrivate() : textOrSourceChanged(false), forceLoadOnSourceChange(false) {}
 
     QStack<QString> stack;
     QStack<QString> forwardStack;
@@ -48,7 +48,15 @@ public:
       setSource() */
     bool textOrSourceChanged;
 
+    bool forceLoadOnSourceChange;
+
     QString resolvePath(const QString &name) const;
+
+    inline void documentModified()
+    {
+        textOrSourceChanged = true;
+        forceLoadOnSourceChange = true;
+    }
 };
 
 static bool isAbsoluteFileName(const QString &name)
@@ -128,6 +136,7 @@ QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     setReadOnly(true);
     setUndoRedoEnabled(false);
     d->viewport->setMouseTracking(true);
+    connect(document(), SIGNAL(contentsChanged()), q, SLOT(documentModified()));
 }
 #endif
 
@@ -147,8 +156,8 @@ QTextBrowser::~QTextBrowser()
 
     When setting this property QTextBrowser tries to find a document
     with the specified name in the directory of the current source,
-    unless the value is an absolute file path. It also checks for 
-    optional anchors and scrolls the document accordingly.
+    unless the value is an absolute file path. It also checks for
+    optional anchors and scrolls the document accordingly
 
     If the first tag in the document is \c{<qt type=detail>}, the
     document is displayed as a popup rather than as new document in
@@ -161,7 +170,7 @@ QString QTextBrowser::source() const
     if (d->stack.isEmpty())
         return QString::null;
     else
-        return d->stack.top();
+        return d->resolvePath(d->stack.top());
 }
 
 /*!
@@ -197,7 +206,7 @@ void QTextBrowser::setSource(const QString& name)
 
     bool doSetText = false;
 
-    if (!source.isEmpty() && url != d->currentURL) {
+    if (!source.isEmpty() && (url != d->currentURL || d->forceLoadOnSourceChange)) {
         QFile f(url);
         if (f.open(IO_ReadOnly)) {
             QByteArray data = f.readAll();
@@ -222,6 +231,7 @@ void QTextBrowser::setSource(const QString& name)
         d->currentURL = url;
         doSetText = true;
     }
+    d->forceLoadOnSourceChange = false;
 
     d->currentAnchor = anchor;
 
@@ -449,13 +459,5 @@ QImage QTextBrowser::loadImage(const QString &name)
     return img;
 }
 
-/*
-void QTextBrowser::setText(const QString &txt, const QString &context)
-{
-    d->textOrSourceChanged = true;
-    d->curmark = "";
-    d->curmain = "";
-    QTextEdit::setText(txt, context);
-}
-*/
+#include "moc_qtextbrowser.cpp"
 
