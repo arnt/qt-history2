@@ -44,6 +44,8 @@ static const char* TorbensHack[] = {
   "+", "QGroupBox", "", "", "",
   "+", "QMultiLineEdit", "", "", "",
   "+", "QPopupMenu", "", "", "",
+  "+", "QSlider", "", "", "",
+  "+", "QLCDNumber", "", "", "",
 
   "+", "QFrame", "", "", "",
   "enum", "Shape",
