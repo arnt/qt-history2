@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#80 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -167,7 +167,7 @@ QPixmap::~QPixmap()
 
 
 void QPixmap::detach()
-{ 
+{
     if ( data->uninit || data->count == 1 )
 	data->uninit = FALSE;
     else
@@ -399,7 +399,7 @@ QImage QPixmap::convertToImage() const
     }
     if ( d == 1 ) {
 	// Make image bit 0 come from color0, image bit 1 come form color1
-	invertPixels();
+	image.invertPixels();
 	QRgb c0 = image.color(0);
 	image.setColor(0,image.color(1));
 	image.setColor(1,c0);

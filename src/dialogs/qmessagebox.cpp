@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#82 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#83 $
 **
 ** Implementation of QMessageBox class
 **
@@ -330,6 +330,20 @@ static const char *mb_texts[] = {
 };
 
 
+// Internal class - don't touch
+
+class QMessageBoxLabel : public QLabel
+{
+    Q_OBJECT
+public:
+    QMessageBoxLabel(QWidget *parent=0, const char *name=0)
+	: QLabel( parent, name )
+	{
+	}
+
+};
+
+
 /*!
   Constructs a message box with no text and a button with the text "OK".
 
@@ -426,7 +440,7 @@ QMessageBox::~QMessageBox()
 
 void QMessageBox::init( int button0, int button1, int button2 )
 {
-    label = new QLabel( this, "text" );
+    label = new QMessageBoxLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
 
@@ -1192,3 +1206,30 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
     information( parent, caption.isNull() ? QString("About Qt") : caption,
 		 qApp->translate( "QMessageBox", textAboutQt ) );
 }
+
+
+
+#include <qmetaobject.h>
+
+
+const char *QMessageBoxLabel::className() const
+{
+    return "QMessageBoxLabel";
+}
+
+QMetaObject *QMessageBoxLabel::metaObj = 0;
+
+void QMessageBoxLabel::initMetaObject()
+{
+    if ( metaObj )
+	return;
+    if ( strcmp(QLabel::className(), "QLabel") != 0 )
+	badSuperclassWarning("QMessageBoxLabel","QLabel");
+    if ( !QLabel::metaObject() )
+	QLabel::initMetaObject();
+    metaObj = new QMetaObject( "QMessageBoxLabel", "QLabel",
+	0, 0,
+	0, 0 );
+}
+
+

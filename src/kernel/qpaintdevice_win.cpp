@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#55 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -39,7 +39,6 @@ QPaintDevice::QPaintDevice( uint devflags )
     }
     devFlags = devflags;
     hdc = 0;
-    d = 0;
 }
 
 QPaintDevice::~QPaintDevice()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#238 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#239 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -248,7 +248,6 @@ static void qt_set_windows_resources()
 			  NULL);
 
     QString menuFontName = qt_winQString(ncm.lfMenuFont.lfFaceName);
-    debug("load menu font %s", menuFontName.data() );
     QFont menuFont(menuFontName);
     if (ncm.lfMenuFont.lfItalic)
 	menuFont.setItalic( TRUE );
@@ -264,6 +263,21 @@ static void qt_set_windows_resources()
  	QApplication::setFont( menuFont, TRUE, "QMenuBar");
     }
 
+    QString messageFontName = qt_winQString(ncm.lfMessageFont.lfFaceName);
+    QFont messageFont(messageFontName);
+    if (ncm.lfMessageFont.lfItalic)
+	messageFont.setItalic( TRUE );
+    if (ncm.lfMessageFont.lfWeight != FW_DONTCARE) {
+	messageFont.setWeight(ncm.lfMessageFont.lfWeight*99/900);
+    }
+    mps = ((double) -ncm.lfMessageFont.lfHeight*72)/
+	  ((double) GetDeviceCaps(qt_display_dc(), LOGPIXELSY));
+    messageFont.setPointSize(int(mps+0.5));
+
+    if (messageFont != QFont::defaultFont()) {
+ 	QApplication::setFont( menuFont, TRUE, "QMessageBoxLabel");
+    }
+
     // same technique could apply to set the statusbar or tooltip
     // font, but since windows does not allow to change them, we do
     // not care for now.
@@ -271,28 +285,6 @@ static void qt_set_windows_resources()
 
     // do the color settings
 
-    /*
-    debug("Windows:");
-
-     outColor("scrollbar", GetSysColor(COLOR_SCROLLBAR));
-     outColor("menu", GetSysColor(COLOR_MENU));
-     outColor("window", GetSysColor(COLOR_WINDOW));
-     outColor("windowframe", GetSysColor(COLOR_WINDOWFRAME));
-     outColor("menutext", GetSysColor(COLOR_MENUTEXT));
-     outColor("windowtext", GetSysColor(COLOR_WINDOWTEXT));
-     outColor("appworkspace", GetSysColor(COLOR_APPWORKSPACE));
-     outColor("highlight", GetSysColor(COLOR_HIGHLIGHT));
-     outColor("highlighttext", GetSysColor(COLOR_HIGHLIGHTTEXT));
-     outColor("btnface", GetSysColor(COLOR_BTNFACE));
-     outColor("btnshadow", GetSysColor(COLOR_BTNSHADOW));
-     outColor("graytext", GetSysColor(COLOR_GRAYTEXT));
-     outColor("btnhighlight", GetSysColor(COLOR_BTNHIGHLIGHT));
-     outColor("3ddkshadow", GetSysColor(COLOR_3DDKSHADOW));
-     outColor("3dlight", GetSysColor(COLOR_3DLIGHT));
-     outColor("infotext", GetSysColor(COLOR_INFOTEXT));
-     outColor("infobk", GetSysColor(COLOR_INFOBK));
-
-    */
 
     QColorGroup cg;
     cg.setForeground(QColor(GetSysColor(COLOR_WINDOWTEXT)  ));
@@ -306,7 +298,6 @@ static void qt_set_windows_resources()
     cg.setBrightText(QColor(GetSysColor(COLOR_BTNHIGHLIGHT) ));
     cg.setBase(QColor(GetSysColor(COLOR_WINDOW) ));
     cg.setBackground( QColor(GetSysColor(COLOR_BTNFACE)));
-    //    cg.setBackground( QColor(GetSysColor(COLOR_APPWORKSPACE)));
     cg.setShadow(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
     cg.setHighlight(QColor(GetSysColor(COLOR_HIGHLIGHT) ));
     cg.setHighlightedText( QColor(GetSysColor(COLOR_HIGHLIGHTTEXT)));

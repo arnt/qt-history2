@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#3 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -168,6 +168,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 		   );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
     setBackgroundMode( PaletteBase );
+    setWFlags( WResizeNoErase );
     setKeyCompression( TRUE );
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
@@ -1135,8 +1136,11 @@ void QMultiLineEdit::insertLine( const QString &txt, int line )
 	if ( nw > w ) w = nw;
     } while ( i );
 
-    setWidth( w );
     setNumRows( contents->count() );
+    // do not use setWidth(...) because we _definitely_ need the check in 
+    // QTableView, otherwise we cannot react on a new vertical scrollbar.
+    setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
+    
     if ( autoUpdate() ) //### && visibleChanges
 	repaint( FALSE );
 
@@ -2027,7 +2031,7 @@ void QMultiLineEdit::clipboardChanged()
      bool u = autoUpdate();
      setAutoUpdate( FALSE );
      mlData->maxLineWidth = w;
-     setCellWidth( QMAX( contentsRect().width(), w ) );
+     setCellWidth( w );
      setAutoUpdate( u );
  }
 
@@ -2208,9 +2212,10 @@ QSize QMultiLineEdit::sizeHint() const
 
 void QMultiLineEdit::resizeEvent( QResizeEvent *e )
 {
+    bool u = autoUpdate();
     setAutoUpdate( FALSE );
-    QTableView::resizeEvent( e );
+    setCellWidth( mlData->maxLineWidth );
     setCellWidth( QMAX( contentsRect().width(), mlData->maxLineWidth ) );
-    setAutoUpdate( TRUE );
+    setAutoUpdate( u );
     QTableView::resizeEvent( e );
 }

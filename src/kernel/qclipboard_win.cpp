@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#27 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -131,12 +131,12 @@ QString QClipboard::text() const
     ClipboardFormat f = CFText;
 
     if ( !OpenClipboard(clipboardOwner()->winId()) )
-	return 0;
+	return QString::null;
 
     HANDLE h = GetClipboardData( f );
     if ( h == 0 ) {				// no clipboard data
 	CloseClipboard();
-	return 0;
+	return QString::null;
     }
 
     QString text;

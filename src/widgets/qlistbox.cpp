@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#180 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#181 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1520,8 +1520,12 @@ void QListBox::focusOutEvent( QFocusEvent * )
 
 void QListBox::resizeEvent( QResizeEvent *e )
 {
+    bool u = autoUpdate();
+    setAutoUpdate( FALSE );
+    setCellWidth( (int)maxItemWidth() );
+    setCellWidth( QMAX( contentsRect().width(), (int)maxItemWidth()) );
+    setAutoUpdate( u );
     QTableView::resizeEvent( e );
-    setCellWidth( QMAX((int)maxItemWidth(), width() - 2*frameWidth() ) );
 }
 
 

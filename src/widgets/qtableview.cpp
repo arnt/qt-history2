@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#99 $
 **
 ** Implementation of QTableView class
 **
@@ -1385,7 +1385,7 @@ void QTableView::paintEvent( QPaintEvent *e )
 			     maxX - xPos + 1, maxY - frameWidth() + 1 );
 	if ( yPos <= maxY )	// erase under cells updated above
 	    paint.eraseRect( frameWidth(), yPos,
-			     xPos - frameWidth(), maxY - yPos + 1 );
+			     maxX - frameWidth() + 1, maxY - yPos + 1 );
     }
 }
 
@@ -2098,7 +2098,7 @@ void QTableView::updateScrollBars( uint f )
 	if ( !hScrollBar->isVisible() )
 	    hScrollBar->show();
     }
- 
+
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
 	    vScrollBar->setGeometry( width() - sbDim, 0,

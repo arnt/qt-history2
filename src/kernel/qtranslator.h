@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#2 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#3 $
 **
 ** Definition of something or other
 **
@@ -28,7 +28,7 @@ public:
 
     virtual QString find( uint, const char *, const char * ) const;
 
-    void load( const QString & filename, const QString & directory = 0 );
+    void load( const QString & filename, const QString & directory = QString::null );
     void save( const QString & filename );
     void clear();
 
