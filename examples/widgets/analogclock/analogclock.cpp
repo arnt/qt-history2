@@ -22,9 +22,8 @@ void AnalogClock::paintEvent(QPaintEvent *)
     int side = qMin(width(), height());
 
     QPainter painter(this);
-    painter.setWindow(-50, -50, 100, 100);
-    painter.setViewport((width() - side) / 2, (height() - side) / 2,
-                        side, side);
+    painter.translate(width() / 2, height() / 2);
+    painter.scale(side / 100.0, side / 100.0);
     painter.setBrush(painter.pen().color());
 
     QTime time = QTime::currentTime();
