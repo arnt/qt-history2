@@ -2277,7 +2277,7 @@ bool QTable::isRowStretchable( int row ) const
 
 void QTable::takeItem( QTableItem *i )
 {
-    QRect r = cellGeometry( i->row, i->col );
+    QRect rect = cellGeometry( i->row, i->col );
     if ( !i )
 	return;
     contents.setAutoDelete( FALSE );
@@ -2286,7 +2286,7 @@ void QTable::takeItem( QTableItem *i )
 	    clearCell( i->row + r, i->col + c );
     }
     contents.setAutoDelete( TRUE );
-    repaintContents( r, FALSE );
+    repaintContents( rect, FALSE );
     int or = i->row;
     int oc = i->col;
     i->row = i->col = -1;
