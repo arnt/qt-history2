@@ -43,8 +43,8 @@
 class DspMakefileGenerator : public Win32MakefileGenerator
 {
     QString currentGroup;
-    int beginGroupForFile(QString file, QTextStream &, const QString& filter="");
-    int endGroups(QTextStream &);
+    void beginGroupForFile(QString file, QTextStream &, const QString& filter="");
+    void endGroups(QTextStream &);
 
     bool init_flag;
     bool writeDspParts(QTextStream &);

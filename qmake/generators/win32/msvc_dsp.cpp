@@ -913,58 +913,59 @@ DspMakefileGenerator::processPrlVariable(const QString &var, const QStringList &
 }
 
 
-int
+void
 DspMakefileGenerator::beginGroupForFile(QString file, QTextStream &t,
 					const QString& filter)
 {
     if(project->isActiveConfig("flat"))
-	return 0;
+	return;
 
     fileFixify(file, QDir::currentDirPath(), QDir::currentDirPath(), TRUE);
     file = file.section(Option::dir_sep, 0, -2);
     if(file.right(Option::dir_sep.length()) != Option::dir_sep)
 	file += Option::dir_sep;
     if(file == currentGroup)
-	return 0;
+	return;
 
     if(file.isEmpty() || !QDir::isRelativePath(file)) {
 	endGroups(t);
-	return 0;
+	return;
     }
     if(file.startsWith(currentGroup))
 	file = file.mid(currentGroup.length());
-    else
-	endGroups(t);
-    int lvl = file.contains(Option::dir_sep), old_lvl = currentGroup.contains(Option::dir_sep);
-    if(lvl > old_lvl) {
-	QStringList dirs = QStringList::split(Option::dir_sep, file);
-	for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
-	    t << "# Begin Group \"" << (*dir_it) << "\"\n"
-	      << "# Prop Default_Filter \"" << filter << "\"\n";
-	}
-    } else {
-	for(int x = old_lvl - lvl; x; x--)
+    int dirSep = currentGroup.findRev( Option::dir_sep );
+    while( !file.startsWith( currentGroup ) && dirSep != -1 ) {
+	currentGroup.truncate( dirSep );
+	dirSep = currentGroup.findRev( Option::dir_sep );
+	if ( !file.startsWith( currentGroup ) && dirSep != -1 )
 	    t << "\n# End Group\n";
     }
+    if ( !file.startsWith( currentGroup ) ) {
+	t << "\n# End Group\n";
+	currentGroup = "";
+    }
+    QStringList dirs = QStringList::split(Option::dir_sep, file.right( file.length() - currentGroup.length() ) );
+    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+	t << "# Begin Group \"" << (*dir_it) << "\"\n"
+	    << "# Prop Default_Filter \"" << filter << "\"\n";
+    }
     currentGroup = file;
-    return lvl - old_lvl;
 }
 
 
-int
+void
 DspMakefileGenerator::endGroups(QTextStream &t)
 {
     if(project->isActiveConfig("flat"))
-	return 0;
+	return;
     else if(currentGroup.isEmpty())
-	return 0;
+	return;
 
     QStringList dirs = QStringList::split(Option::dir_sep, currentGroup);
     for(QStringList::Iterator dir_it = dirs.end(); dir_it != dirs.begin(); --dir_it) {
 	t << "\n# End Group\n";
     }
     currentGroup = "";
-    return dirs.count();
 }
 
 bool
