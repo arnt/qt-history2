@@ -5508,8 +5508,8 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     if ( !dir.isEmpty() ) {
 	// #### works only correct for local files
-	QUrlOperator u( dir );
-	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
+	QUrlOperator u( QFileDialogPrivate::encodeFileName(dir) );
+	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = dir;
 	} else {
 	    *workingDirectory = u.toString();

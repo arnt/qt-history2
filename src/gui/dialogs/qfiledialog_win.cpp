@@ -466,6 +466,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     QStringList result;
     QFileInfo fi;
     QDir dir;
+    QString isel;
 
     if ( initialDirectory && initialDirectory->left( 5 ) == "file:" )
 	initialDirectory->remove( 0, 5 );
@@ -473,6 +474,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 
     if ( initialDirectory && !fi.isDir() ) {
 	*initialDirectory = fi.dirPath( TRUE );
+	isel = fi.fileName();
     }
 
     if ( !fi.exists() )
@@ -496,7 +498,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	qt_enter_modal( parent );
     }
     QT_WA( {
-	OPENFILENAME* ofn = makeOFN( parent, QString::null,
+	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
 				     winFilter( filter ), ExistingFiles );
 	if ( idx )
@@ -527,7 +529,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	}
 	cleanUpOFN( &ofn );
     } , {
-	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
+	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
 				       winFilter( filter ), ExistingFiles );
 	if ( idx )
