@@ -1102,14 +1102,14 @@ QFontEngineXft::QFontEngineXft(XftFont *font, XftPattern *pattern, int cmap)
     for (int i = 0; i < _face->num_charmaps; ++i) {
  	FT_CharMap cm = _face->charmaps[i];
 //  	qDebug("font has charmap %x", cm->encoding);
- 	if (charmap == -1 && cm->encoding == FT_ENCODING_UNICODE)
+ 	if (charmap == -1 && cm->encoding == ft_encoding_unicode)
  	    charmap = i;
  	// ####### FIXME: we don't use FT_ENCODING_MS_SYMBOL in 3.3, as it maps to U+0xf0xx. All of the fonts
  	// tested also provide a FT_ENCODING_APPLE_ROMAN table that works for the basic range.
  	if (symbol == -1
 	    && (/*cm->encoding == FT_ENCODING_MS_SYMBOL ||*/
- 		cm->encoding == FT_ENCODING_ADOBE_CUSTOM
- 		|| cm->encoding == FT_ENCODING_APPLE_ROMAN)) {
+ 		cm->encoding == ft_encoding_adobe_custom
+ 		|| cm->encoding == ft_encoding_apple_roman)) {
  	    symbol = i;
 	}
     }
