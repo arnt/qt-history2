@@ -103,7 +103,6 @@ void make_top( QWidget *widg, int &x, int &y )
 {
     // Convert from local window to global coords
     // First get top left of actual window
-    Qt::HANDLE h = widg->handle();
     int xOffset = 0;
     int yOffset = 0;
 
@@ -124,7 +123,7 @@ void make_top( QWidget *widg, int &x, int &y )
 //FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
 //FIXME Perhaps we need to access the lower level Quartz API?
 //FIXME Documentation on Quartz, where is it?
-void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow )
+void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindow */ )
 {
     qDebug( "QWidget::create" );
     bg_pix = 0;
@@ -1348,7 +1347,6 @@ void QWidget::propagateUpdates(int x, int y, int x2, int y2)
     QApplication::sendEvent( this, &e );
     clearWState( WState_InPaintEvent );
 
-    int o1, o2;
     int a, b, c, d;
     const QObjectList *childList = children();
     if ( childList ) {
@@ -1389,9 +1387,11 @@ void QWidget::fixport()
     if ( !hd )
 	return;
 
+    int x = 0;
+    int y = 0;
     SetPortWindowPort( (WindowPtr)hd );
     SetOrigin( 0, 0 );
-    make_top( this, 0, 0 );
+    make_top( this, x, y );
     return; //FIXME: NO CLIPPING
 }
 
