@@ -22,6 +22,7 @@
 #ifdef Q_WS_MAC
 # include <qt_mac.h>
 #endif
+#include <qevent.h>
 
 Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget(p)
 {

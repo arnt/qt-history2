@@ -31,6 +31,7 @@
 #include <qwmatrix.h>
 #include <qpainter.h>
 #include "qanimationwriter.h"
+#include <qevent.h>
 
 #include <unistd.h>
 #include <sys/ipc.h>
