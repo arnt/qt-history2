@@ -1571,7 +1571,8 @@ void TrWindow::newPhraseBook()
     while ( TRUE ) {
 	name = QFileDialog::getSaveFileName( QString::null,
 		       tr("Qt phrase books (*.qph)\n"
-			  "All files (*)") );
+			  "All files (*)"), 0, "new_phrasebook", 
+					     tr("Create new phrase book") );
 	if ( !QFile::exists(name) )
 	    break;
 	QMessageBox::warning( this, tr("Qt Linguist"),
