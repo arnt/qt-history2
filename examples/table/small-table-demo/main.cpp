@@ -45,8 +45,7 @@ int main( int argc, char **argv )
     comboEntries << "one" << "two" << "three" << "four";
 
     for ( int i = 0; i < numRows; ++i ){
-	QComboTableItem * item = new QComboTableItem( &table, comboEntries,
-	                       TRUE );
+	QComboTableItem * item = new QComboTableItem( &table, comboEntries, FALSE );
 	item->setCurrentItem( i % 4 );
 	table.setItem( i, 5, item );
     }	
