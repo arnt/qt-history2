@@ -5488,8 +5488,10 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
 	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ||
 	     ecode == QNetworkProtocol::ErrFileNotExisting ) {
-	    d->url = d->oldUrl;
-	    rereadDir();
+	    if (d->url != d->oldUrl) {
+		d->url = d->oldUrl;
+		rereadDir();
+	    }
 	} else {
 	    // another error happened, no need to go back to last dir
 	}
