@@ -1750,7 +1750,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	int leading = fm.leading();
 	height = -leading;
 
-	qDebug("\n\nbeginLayout: lw = %d, rectwidth=%d", lineWidth , r.width());
 	int from = 0;
 	while (from < text.length()) {
 	    height += leading;
@@ -1758,7 +1757,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    height += l.ascent() + l.descent();
 	    from += l.length();
 	    width = qMax(width, l.textWidth());
-	    qDebug("line got textWidth=%d", l.textWidth());
 	}
     }
 
@@ -1772,10 +1770,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	xoff = r.width() - width;
     else if ( tf & Qt::AlignHCenter )
 	xoff = (r.width() - width)/2;
-    qDebug("width=%d, xoff=%d, textwidth=%d", r.width(), xoff, width);
     if ( brect ) {
 	*brect = QRect( r.x() + xoff, r.y() + yoff, width, height );
-	qDebug("br = %d %d %d/%d, xoff=%d, yoff=%d", brect->x(), brect->y(), brect->width(), brect->height(), xoff, yoff);
     }
 
     if (!(tf & QPainter::DontPrint)) {
@@ -1808,7 +1804,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	if (fnt.overline()) _tf |= Qt::Overline;
 	if (fnt.strikeOut()) _tf |= Qt::StrikeOut;
 
-	qDebug("have %d lines",textLayout.numLines());
 	for ( int i = 0; i < textLayout.numLines(); i++ ) {
 	    QTextLine line = textLayout.lineAt(i);
 
@@ -1819,7 +1814,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
  		qt_draw_background(painter, r.x() + line.x() + xoff, r.y() + yoff + line.y(),
 				   line.width(), line.ascent() + line.descent() + 1);
 #endif
-	    qDebug("drawing line at %d/%d", r.x() + xoff, r.y() + yoff);
 	    line.draw(painter, r.x() + xoff + line.x(), r.y() + yoff, underlinePositions);
 	}
 

@@ -887,7 +887,6 @@ int QTextLine::length() const
 
 void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions )
 {
-    qDebug("QTextLine::draw: %d/%d", x, y);
     const QScriptLine &line = eng->lines[i];
 
     if (!line.length)
@@ -911,7 +910,6 @@ void QTextLine::draw( QPainter *p, int x, int y, int *underlinePositions )
 	x += line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
 	x += (line.width - line.textWidth)/2;
-    qDebug("QTextLine::draw: drawing at %d/%d, line.width=%d, line.textWidth=%d", x, y, line.width, line.textWidth);
 
     QStackArray<int> visualOrder(nItems);
     QStackArray<unsigned char> levels(nItems);
