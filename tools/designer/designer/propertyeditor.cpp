@@ -2173,6 +2173,13 @@ void PropertyList::setupProperties()
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
+    
+    if ( editor->widget()->inherits( "QSqlTable" ) ) {
+	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
+	setPropertyValue( item );
+	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
+	    item->setChanged( TRUE, FALSE );
+    }
 
     if ( w->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
