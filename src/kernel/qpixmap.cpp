@@ -1277,6 +1277,8 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 
     Writes the pixmap \a pixmap to the stream \a s as a PNG image.
 
+    Note that writing the stream to a file will not produce a valid image file.
+
     \sa QPixmap::save()
     \link datastreamformat.html Format of the QDataStream operators \endlink
 */
