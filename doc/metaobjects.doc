@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 2.2 1996/10/10 14:02:11 agulbra Exp $
+** $Id: metaobjects.doc,v 2.3 1997/07/23 20:45:58 warwick Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -16,25 +16,25 @@ Qt toolkit - Meta Object Compiler description
 <h1 align=center>Signals, Slots and the Meta Object Compiler</h1>
 
 Signals and slots are used for communication between objects.  The
-signal/slot mechanism is a central feature of Qt and is the part that
-probably differs most from other toolkits.
+signal/slot mechanism is a central feature of Qt and probably the
+part that differs most from other toolkits.
 
 In most GUI toolkits widgets have a callback for each action they can
 trigger. This callback is a pointer to a function. In Qt, signals and
-slots have taken over for these messy function pointers.
+slots have taken over from these messy function pointers.
 
 Signals and slots can take any number of arguments of any type. They are
-completely typesafe, no more callback core dumps!
+completely typesafe: no more callback core dumps!
 
 All classes that inherit from QObject or one of its subclasses
-(e.g. QWidget) can contain signals and/or slots. Signals are emitted by
-objects when they change their state in a way that can be interesting to
+(e.g. QWidget) can contain signals and slots. Signals are emitted by
+objects when they change their state in a way that may be interesting to
 the outside world. This is all the object does to communicate. It does not
-know if somebody is receiving the signal at the other end. This is true
+know if anything is receiving the signal at the other end. This is true
 information encapsulation, and ensures that the object can be used as a
 software component.
 
-Slots can be connected to signals, they are also normal member
+Slots can be used for receiving signals, but they are normal member
 functions. A slot does not know if it has any signal(s) connected to
 it. Again, the object does not know about the communication mechanism and
 can be used as a true software component.
