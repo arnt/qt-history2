@@ -2083,12 +2083,22 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 	setSelection( dirName );
     else if ( workingDirectory && !workingDirectory->isEmpty() )
 	setDir( *workingDirectory );
-
-
+    
     if ( !filter.isEmpty() ) {
 	setFilters( filter );
+        if ( !dirName.isEmpty() ) {
+            int dotpos = dirName.find( QChar('.'), 0, FALSE );
+            if ( dotpos != -1 ) {
+                for ( int b=0 ; b<d->types->count() ; b++ ) {
+                    if ( d->types->text(b).contains( dirName.right( dirName.length() - dotpos ) ) ) {
+                        d->types->setCurrentItem( b );
+                        return;
+                    }
+                }
+            }
+        } 
     } else {
-	d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
+        d->types->insertItem( QFileDialog::tr( "All files (*)" ) );
     }
 }
 
