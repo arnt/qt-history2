@@ -833,24 +833,6 @@ class QDataStream;
 #define QT_BUILD_KEY "unspecified"
 #endif
 
-// prune to local config
-#include "qmodules.h"
-#ifndef QT_MODULE_NETWORK
-#define QT_NO_NETWORK
-#endif
-#ifndef QT_MODULE_CANVAS
-# define QT_NO_CANVAS
-#endif
-#ifndef QT_MODULE_XML
-# define QT_NO_XML
-#endif
-#ifndef QT_MODULE_OPENGL
-# define QT_NO_OPENGL
-#endif
-#if !defined(QT_MODULE_SQL)
-# define QT_NO_SQL
-#endif
-
 #if defined(Q_WS_MAC)
 #  ifndef QMAC_QMENUBAR_NO_EVENT
 #    define QMAC_QMENUBAR_NO_EVENT
