@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#8 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#8 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -241,7 +241,7 @@ QPixmap QToolButton::smallPixmap()
 
 void QToolButton::setUsesBigPixmap( bool enable )
 {
-    if ( ubp == enable )
+    if ( (bool)ubp == enable )
 	return;
 
     ubp = enable;
@@ -267,7 +267,7 @@ void QToolButton::setUsesBigPixmap( bool enable )
 
 void QToolButton::setUsesTextLabel( bool enable )
 {
-    if ( utl == enable )
+    if ( (bool)utl == enable )
 	return;
 
     utl = enable;
