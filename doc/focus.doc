@@ -127,7 +127,7 @@ it move to the 'B' button?
 We advise supporting click-to-focus for widgets that support text
 entry, and to avoid it for most widgets where a mouse click has a
 different effect. (For buttons, we also recommend adding a keyboard
-shortcut: \l QButton and its subclasses make this very easy.)
+shortcut: \l QAbstractButton and its subclasses make this very easy.)
 
 In Qt, only the \l QWidget::setFocusPolicy() function affects
 click-to-focus.
