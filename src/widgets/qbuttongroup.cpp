@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#31 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -14,7 +14,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#31 $");
 
 
 /*!
@@ -33,19 +33,19 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#30 $");
   default non-exclusive, however, it automatically becomes an exclusive
   group when a QRadioButton is \link insert() inserted\endlink.
 
-  There are two standard ways of using a button group:
+  There are two ways of using a button group:
   <ol>
-  <li>The button group is a normal parent widget for a number of buttons,
+  <li>The button group is a parent widget of a number of buttons,
   i.e. the button group is the parent argument in the button contructor.
   The buttons are assigned identifiers 0, 1, 2 etc. in the order they are
-  inserted.  Since QButtonGroup inherits QGroupBox, it can display a frame
-  and a title.
+  created. A QButtonGroup can display a frame and a title because it inherits
+  QGroupBox.
   <li>The button group is an invisible widget and the contained buttons
   have some other parent widget.  A button must then be manually inserted
   using the insert() function with an identifer.
   </ol>
 
-  \sa QButton QPushButton QCheckBox QRadioButton
+  \sa QButton, QPushButton, QCheckBox, QRadioButton
 */
 
 
@@ -143,6 +143,10 @@ void QButtonGroup::setExclusive( bool enable )
   Inserts a button with the identifier \e id into the button group.
   Returns the button identifier.
 
+  It is not necessary to manually insert buttons that have this button
+  group as their parent widget. An exception is when you want custom
+  identifiers instead of the default 0, 1, 2 etc.
+
   The button is assigned the identifier \e id or an automatically
   generated identifier.	 It works as follows: If \e id >= 0, this
   identifier is assigned.  If \e id == -1 (default), the identifier is
@@ -161,8 +165,8 @@ void QButtonGroup::setExclusive( bool enable )
 
 int QButtonGroup::insert( QButton *button, int id )
 {
-    remove( button );
-
+    if ( button->group )
+	button->group->remove( button );
     static int seq_no = -2;
     register QButtonItem *bi = new QButtonItem;
     CHECK_PTR( bi );
