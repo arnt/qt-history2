@@ -28,10 +28,6 @@
 
 enum Script {
     Common,
-    Latin = Common,
-    Greek = Common,
-    Cyrillic = Common,
-    Armenian = Common,
     Hebrew,
     Arabic,
     Syriac,
@@ -50,8 +46,14 @@ enum Script {
     Lao,
     Tibetan,
     Myanmar,
-    Georgian = Common,
     Hangul,
+    Khmer,
+    ScriptCount,
+    Latin = Common,
+    Greek = Common,
+    Cyrillic = Common,
+    Armenian = Common,
+    Georgian = Common,
     Ethiopic = Common,
     Cherokee = Common,
     CanadianAboriginal = Common,
@@ -61,7 +63,6 @@ enum Script {
     Hanunoo = Common,
     Buhid = Common,
     Tagbanwa = Common,
-    Khmer,
     Mongolian = Common,
     Limbu = Common,
     TaiLe = Common,
@@ -81,8 +82,7 @@ enum Script {
     Shavian = Common,
     Osmanya = Common,
     Cypriot = Common,
-    KatakanaOrHiragana = Common,
-    ScriptCount
+    KatakanaOrHiragana = Common
 };
 
 enum { ScriptSentinel = 32 };
