@@ -1613,7 +1613,12 @@ void QMenu::keyPressEvent(QKeyEvent *e)
             close();
             return;
         }
-        hide();
+        {
+            QWidget *caused = d->causedPopup;
+            hide(); //hide after getting causedPopup
+            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused))
+                mb->d->setCurrentAction(d->menuAction); // not sure why this is necessary at all, but it is ###
+        }
         break;
 
     case Qt::Key_Space:
