@@ -1,6 +1,6 @@
 #include <qstyleinterface.h>
 #include <qsgistyle.h>
-#include <qguardedptr.h>
+#include <qcleanuphandler.h>
 
 class SGIStyle : public QStyleInterface, public QLibraryInterface
 {
@@ -19,13 +19,13 @@ public:
     bool canUnload() const;
 
 private:
-    QGuardedPtr<QStyle> style;
+    QGuardedCleanupHandler<QStyle> styles;
 
     unsigned long ref;
 };
 
 SGIStyle::SGIStyle()
-: ref( 0 ), style( 0 )
+: ref( 0 )
 {
 }
 
@@ -68,8 +68,11 @@ QStringList SGIStyle::featureList() const
 
 QStyle* SGIStyle::create( const QString& s )
 {
-    if ( s.lower() == "sgi" )
-        return style = new QSGIStyle();
+    if ( s.lower() == "sgi" ) {
+        QStyle *style = new QSGIStyle();
+	styles.add( style );
+	return style;
+    }
     return 0;
 }
 
@@ -80,12 +83,12 @@ bool SGIStyle::init()
 
 void SGIStyle::cleanup() 
 {
-    delete style;
+    styles.clear();
 }
 
 bool SGIStyle::canUnload() const
 {
-    return style.isNull();
+    return styles.isEmpty();
 }
 
 Q_EXPORT_INTERFACE(){
