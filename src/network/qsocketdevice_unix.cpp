@@ -894,7 +894,7 @@ void QSocketDevice::fetchConnectionParameters()
     sensible as soon as a sensible value is available.
 
     Note that for Datagram sockets, this is the source port of the
-    last packet received.
+    last packet received, and that it is in native byte order.
 */
 Q_UINT16 QSocketDevice::peerPort() const
 {
@@ -908,7 +908,7 @@ Q_UINT16 QSocketDevice::peerPort() const
     sensible as soon as a sensible value is available.
 
     Note that for Datagram sockets, this is the source port of the
-    last packet received, and that it is in native byte order.
+    last packet received.
 */
 QHostAddress QSocketDevice::peerAddress() const
 {

@@ -59,11 +59,11 @@ public:
     \ingroup io
     \module network
 
-    \preliminary
-
-    This class is not really intended for use outside Qt itself. It
-    can be used to achieve some things that QSocket does not provide,
-    but it's not particularly easy to understand or use.
+    This class provides a low level API for working with sockets.  Users of
+    this class are assumed to have networking experience. For most users the
+    QSocket class provides a much easier and high level alternative, but
+    certain thing (like UDP) can't be done with QSocket and if you need a
+    platform-independent API for those, QSocketDevice is the right choice.
 
     The essential purpose of the class is to provide a QIODevice that
     works on sockets, wrapped in a platform-independent API.
