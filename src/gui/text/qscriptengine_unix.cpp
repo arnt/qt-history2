@@ -1162,7 +1162,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
     const unsigned short nukta = script_base + 0x3c;
 
     int len = syllableLength;
-    IDEBUG(">>>>> devanagari shape: from=%d, len=%d invalid=%d", from, len, invalid);
+    IDEBUG(">>>>> indic shape: from=%d, len=%d invalid=%d", from, len, invalid);
 
     QVarLengthArray<unsigned short> reordered(len+4);
     QVarLengthArray<QGlyphLayout> glyphs(len+4);
@@ -1286,7 +1286,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	    // If the base consonant is not the last one, Uniscribe
 	    // moves the halant from the base consonant to the last
 	    // one.
-	    if ( lastConsonant != base && uc[base+1] == halant ) {
+	    if ( lastConsonant > base && uc[base+1] == halant ) {
 		IDEBUG("    moving halant from %d to %d!", base+1, lastConsonant);
 		for (i = base+1; i < lastConsonant; i++)
 		    uc[i] = uc[i+1];
