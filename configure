@@ -378,7 +378,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake|-framework|-qt3support)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -499,13 +499,6 @@ while [ "$#" -gt 0 ]; do
 	else
 	    UNKNOWN_OPT=yes
         fi
-	;;
-    inputmethod)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_IM="$VAL"
-	else
-	    UNKNOWN_OPT=yes
-	fi
 	;;
     gnumake)
 	CFG_USE_GNUMAKE="$VAL"
@@ -2324,10 +2317,6 @@ Qt/X11 only:
  $XKN  -no-xkb ............ Do not compile XKB (X KeyBoard extension) support.
  $XKY  -xkb ............... Compile XKB support.
 
- $IMN  -no-inputmethod .... Do not compile immodule (extensible input method)
-			 support.
- $IMY  -inputmethod ....... Compile immodule support.
-
 EOF
 fi
 
@@ -3078,11 +3067,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
         QT_CONFIG="$QT_CONFIG xkb"
     fi
 
-    if [ "$CFG_IM" = "yes" ]; then
-        QT_CONFIG="$QT_CONFIG inputmethod"
-    elif [ "$CFG_IM" = "no" ]; then
-	QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IM"
-    fi
 elif [ "$PLATFORM_MAC" = "yes" ]; then
     if [ "$CFG_TABLET" = "yes" ]; then
 	QT_CONFIG="$QT_CONFIG tablet"
@@ -3176,16 +3160,11 @@ esac
 #   Options:
 #     minimal-config small-config medium-config large-config full-config
 #
-#   Modules:
-#     styles tools kernel widgets dialogs iconview workspace inputmethod
-#
 #   Enterprise/Open Source edition modules:
 #     network canvas table xml opengl sql
 #
 #   Options:
 #     stl
-#
-#     X11     : inputmethod-ext
 #
 # Things that do not affect the Qt API/ABI:
 #     system-jpeg no-jpeg jpeg
@@ -3205,7 +3184,7 @@ esac
 #     tablet
 #     ipv6
 #
-#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb inputmethod
+#     X11     : xftnameunparse x11sm xinerama xcursor xrandr xrender xftfreetype xkb
 #     Embedded: embedded ft
 #
 ALL_OPTIONS="stl"

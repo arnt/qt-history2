@@ -1,6 +1,5 @@
 # Qt inputmethod module
 
-#contains(QT_CONFIG, inputmethod) {
 !mac {
     HEADERS +=inputmethod/qinputcontextfactory.h \
 	      inputmethod/qinputcontextplugin.h \

@@ -368,16 +368,30 @@ bool QInputContext::filterEvent(const QEvent * /*event*/)
 */
 
 
-/*!  Sends an input method event to the current focus
+/*!
+  Sends an input method event to the current focus
   widget. Implementations of QInputContext should call this method to
   send the generated input method events and not
   QApplication::sendEvent(), as the events might have to get dispatched
   to a different application on some platforms.
 
-    \sa QInputMethodEvent, setMicroFocus()
+  Some complex input methods route the handling to several child
+  contexts (e.g. to enable language switching). To account for this,
+  QInputContext will check if the parent object is a QInputContext. If
+  yes, it will call the parents sendEvent() implementation instead of
+  sending the event directly.
+
+  \sa QInputMethodEvent, setMicroFocus()
 */
 void QInputContext::sendEvent(const QInputMethodEvent &event)
 {
+    // route events over input context parents to make chaining possible.
+    QInputContext *p = qobject_cast<QInputContext *>(parent());
+    if (p) {
+        p->sendEvent(event);
+        return;
+    }
+
     QWidget *focus = focusWidget();
     if (!focusWidget())
 	return;

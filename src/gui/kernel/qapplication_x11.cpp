@@ -330,11 +330,9 @@ static bool qt_x11EventFilter(XEvent* ev)
     return qApp->x11EventFilter(ev);
 }
 
-
 #if !defined(QT_NO_XIM)
 XIMStyle        qt_xim_preferred_style = 0;
 #endif
-
 int qt_ximComposingKeycode=0;
 QTextCodec * qt_input_mapper = 0;
 
@@ -744,13 +742,13 @@ bool QApplicationPrivate::x11_apply_settings()
         else if (ximInputStyle == QLatin1String("root"))
             qt_xim_preferred_style = XIMPreeditNothing | XIMStatusNothing;
     }
-
-    X11->default_im = settings.value("DefaultInputMethodSwitcher", QLatin1String("imsw-multi")).toString();
-#ifndef QT_NO_IM
-    if (!QInputContextFactory::keys().contains(X11->default_im))
-        X11->default_im = QLatin1String("xim");
-#endif // QT_NO_IM
 #endif
+    QStringList inputMethods = QInputContextFactory::keys();
+    if (inputMethods.size() > 2 && inputMethods.contains(QLatin1String("imsw-multi"))) {
+        X11->default_im = QLatin1String("imsw-multi");
+    } else {
+        X11->default_im = settings.value("DefaultInputMethod", QLatin1String("xim")).toString();
+    }
 
     if (update_timestamp) {
         QByteArray stamp;
@@ -4327,10 +4325,6 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
 //    Status     status;
 
     bool mb=false;
-    // commit string handling is done by
-    // QXIMInputContext::x11FilterEvent() and are passed to
-    // widgets via QInputMethodEvent regardless of XIM style, so the
-    // following code is commented out.
     if (!mb) {
         count = XLookupString(&xkeyevent,
                               chars.data(), chars.size(), &key, 0);
