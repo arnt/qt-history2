@@ -3194,7 +3194,7 @@ bool QXmlSimpleReader::parseContinue()
     if (d->parseStack == 0 || d->parseStack->isEmpty())
         return false;
     d->initData();
-    int state = state = d->parseStack->pop().state;
+    int state = d->parseStack->pop().state;
     return d->parseBeginOrContinue(state, true);
 }
 
