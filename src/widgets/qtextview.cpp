@@ -1438,12 +1438,9 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 
     if ( doc->hasSelection( QTextDocument::Standard ) ) {
 	drawCursor( FALSE );
-	QTextString str;
-	str = doc->selectedText( QTextDocument::Standard );
+	QString str = doc->selectedText( QTextDocument::Standard );
 	QTextCursor c1 = doc->selectionStartCursor( QTextDocument::Standard );
 	QTextCursor c2 = doc->selectionEndCursor( QTextDocument::Standard );
-	readFormats( c1, c2, 0, str );
-	doc->setFormat( QTextDocument::Standard, f, flags );
 	undoRedoInfo.clear();
 	emitUndoAvailable( doc->commands()->isUndoAvailable() );
 	emitRedoAvailable( doc->commands()->isRedoAvailable() );
@@ -1453,11 +1450,13 @@ void QTextView::setFormat( QTextFormat *f, int flags )
 	undoRedoInfo.eid = c2.parag()->paragId();
 	undoRedoInfo.eindex = c2.index();
 	undoRedoInfo.d->text = str;
+	readFormats( c1, c2, 0, undoRedoInfo.d->text );
 	undoRedoInfo.format = f;
 	undoRedoInfo.flags = flags;
 	undoRedoInfo.clear();
 	emitUndoAvailable( doc->commands()->isUndoAvailable() );
 	emitRedoAvailable( doc->commands()->isRedoAvailable() );
+	doc->setFormat( QTextDocument::Standard, f, flags );
 	repaintChanged();
 	formatMore();
 	drawCursor( TRUE );
