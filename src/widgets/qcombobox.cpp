@@ -1375,7 +1375,7 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
     c = currentItem();
     if ( !text( c ).isNull() )
 	emit activated( text( c ) );
-    emit highlighted( c );
+    //emit highlighted( c ); ###VOHI when doing this, we emit the signal twice, previously in setCurrentItem
     emit activated( c );
 }
 
