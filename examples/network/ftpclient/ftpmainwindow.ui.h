@@ -241,10 +241,7 @@ void FtpMainWindow::ftp_listInfo( const QUrlInfo &i )
 void FtpMainWindow::ftp_ftpCommandReply( int code, const QString &text )
 {
     if ( code == 257 ) {
-	if ( text.startsWith( "\"" ) && text.endsWith( "\"" )  )
-	    currentFtpDir = text.mid( 1, text.length()-2 );
-	else
-	    currentFtpDir = text;
+	currentFtpDir = text.section( '"', 1, 1 );
 
 	for ( int i = 0; i<remotePath->count(); i++ ) {
 	    // make sure that we don't insert duplicates
