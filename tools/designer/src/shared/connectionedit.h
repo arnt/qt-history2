@@ -22,7 +22,7 @@
 #include <QPoint>
 #include <QList>
 #include <QMap>
-#include <QPolygon>
+#include <QPolygonF>
 
 #include <qdebug.h>
 
