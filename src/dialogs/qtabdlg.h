@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#8 $
+** $Id: //depot/qt/main/src/dialogs/qtabdlg.h#9 $
 **
 ** Definition of tab dialog
 **
@@ -27,17 +27,17 @@ public:
 
     void addTab( QWidget *, const char * );
 
-    void setDefaultButton( bool enable = TRUE, const char *text = "Defaults" );
+    void setDefaultButton( const char *text = "Defaults" );
     bool hasDefaultButton() const { return db != 0; }
 
-    void setCancelButton( bool enable = TRUE, const char *text = "Cancel" );
+    void setCancelButton( const char *text = "Cancel" );
     bool hasCancelButton() const { return cb != 0; }
 
-    void setApplyButton( bool enable = TRUE, const char *text = "Apply" );
+    void setApplyButton( const char *text = "Apply" );
     bool hasApplyButton() const { return ab != 0; }
 
-    bool eventFilter( QObject *, QEvent * );
 
+    bool eventFilter( QObject *, QEvent * );
 
 protected:
     void paintEvent( QPaintEvent * );
@@ -53,6 +53,7 @@ signals:
 private:
     void showTab();
     void setSizes();
+    QRect childRect();
 
     QTab * tabs;
     QTab * currentTab;
@@ -60,12 +61,9 @@ private:
     QPushButton * cb;
     QPushButton * db;
     QPushButton * ab;
-    QRect childRect;
     int bh;
 
     friend class QTab;
 };
-
-
 
 #endif
