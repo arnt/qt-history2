@@ -498,33 +498,37 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setCursor(oldcurs);
 
     //reparent children
-    QObjectList	*chldn = queryList();
-    QObjectListIt it( *chldn );
-    for ( QObject *obj; (obj=it.current()); ++it ) {
-	if(obj->inherits("QAccel"))
-	    ((QAccel*)obj)->repairEventFilter();
-	if(obj->isWidgetType()) {
-	    QWidget *w = (QWidget *)obj;
-	    if(((WindowPtr)w->hd) == old_hd)
-		w->hd = hd; //all my children hd's are now mine!
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
-	    if(w->inherits("QMenuBar") ) {
-		QMenuBar *mb = (QMenuBar *)w;
-		int was_eaten = mb->mac_eaten_menubar;
-		mb->macRemoveNativeMenubar();
-		mb->macCreateNativeMenubar();
-		if(was_eaten)
-		    mb->menuContentsChanged();
+    if(QObjectList	*chldn = queryList()) {
+	QObjectListIt it( *chldn );
+	for ( QObject *obj; (obj=it.current()); ++it ) {
+	    if(obj->inherits("QAccel"))
+		((QAccel*)obj)->repairEventFilter();
+	    if(obj->isWidgetType()) {
+		QWidget *w = (QWidget *)obj;
+		if(((WindowPtr)w->hd) == old_hd)
+		    w->hd = hd; //all my children hd's are now mine!
 	    }
-#endif
 	}
+	delete chldn;
     }
-    delete chldn;
+#if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
+    if(QObjectList *menus = queryList("QMenuBar")) {
+	QObjectListIt menuit( *menus );
+	for ( QMenuBar *mb; (mb=(QMenuBar *)menuit.current()); ++menuit ) {
+	    int was_eaten = mb->mac_eaten_menubar;
+	    mb->macRemoveNativeMenubar();
+	    mb->macCreateNativeMenubar();
+	    if(was_eaten)
+		mb->menuContentsChanged();
+	}
+	delete menus;
+    }
+#endif
 
     if ( !parent ) {
 	QFocusData *fd = focusData( TRUE );
 	if ( fd->focusWidgets.findRef(this) < 0 )
- 	    fd->focusWidgets.append( this );
+	    fd->focusWidgets.append( this );
     }
 
     //repaint the new area, on the window parent
