@@ -274,7 +274,7 @@ public:
 #endif
 
     const QGLContext*	context() const;
-#ifnfdef Q_QDOC
+#ifndef Q_QDOC
     virtual void	setContext( QGLContext* context,
 				    const QGLContext* shareContext = 0,
 				    bool deleteOldContext = TRUE );
