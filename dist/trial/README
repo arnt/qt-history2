@@ -102,7 +102,7 @@ The ODBC client library should be available on every Windows installation.
 The Oracle (OCI) driver requires that the Oracle client is properly
 installed and configured.
 
-The TDS dirver is built with the DB-Library supplied by Microsoft. In the
+The TDS driver is built with the DB-Library supplied by Microsoft. In the
 full version of Qt Windows, it is also possible to build it against the
 Sybase Open Client.
 

@@ -54,7 +54,7 @@ Before using the evaluation version you must:
    setenv DYLD_LIBRARY_PATH $DYLD_LIBRARY_PATH:$QTDIR/lib
 
    After you have done this, you will need to login again, or re-source 
-   the profile before continuing, so that at least $QTDIR is set.  
+   the profile before continuing, so that $QTDIR is at least set.  
    The installation will give an error message and not proceed otherwise.
 
 2.  Copy Qt to a system library path. This is necesary if you plan
@@ -73,7 +73,7 @@ Before using the evaluation version you must:
     and type in your administration password when prompted.
 
 3.  You should be able to run any of the programs in $QTDIR/examples/ or
-    $QTDIR/bin/ at this point.  To link you own apps against Qt/Mac you
+    $QTDIR/bin/ at this point.  To link your own apps against Qt/Mac you
     will want to include files from $QTDIR/include and link against
     $QTDIR/lib/libqt-mt.dylib.
 
