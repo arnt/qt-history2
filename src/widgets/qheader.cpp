@@ -510,6 +510,30 @@ int QHeader::findLine( int c )
 }
 
 /*!
+    Returns the handle at position \a p, or -1 if there is no handle at \a p.
+*/
+int QHeader::handleAt(int p)
+{
+    int section = d->sectionAt( p );
+    if ( section >= 0 ) {
+	int GripMargin = (bool)d->resize[ section ] ?
+	    style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
+	int index = d->s2i[section];
+	if ( (index > 0 && p < d->positions[index] + GripMargin) ||
+	    (p > d->positions[index] + d->sizes[section] - GripMargin) ) {
+	    if ( index > 0 && p < d->positions[index]  + GripMargin )
+		section = d->i2s[--index];
+	    // dont show icon if streaching is enabled it is at the end of the last section
+	    if ( d->resize.testBit(section) && (d->fullSize == -2 || index != count() - 1)) {
+		return section;
+	    }
+	}
+    }
+
+    return -1;
+}
+
+/*!
   \obsolete
 
   Use moveSection() instead.
@@ -729,9 +753,6 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 */
 void QHeader::mouseMoveEvent( QMouseEvent *e )
 {
-    int section;
-    bool hit;
-
     int c = orient == Horizontal ? e->pos().x() : e->pos().y();
     c += offset();
 
@@ -741,30 +762,13 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 
     switch( state ) {
     case Idle:
-	hit = FALSE;
-	if ( (section = d->sectionAt( c )) >= 0 ) {
-	    int GripMargin = (bool)d->resize[ section ] ?
-		style().pixelMetric( QStyle::PM_HeaderGripMargin ) : 0;
-	    int index = d->s2i[section];
-	    if ( (index > 0 && c < d->positions[index] + GripMargin) ||
-		 (c > d->positions[index] + d->sizes[section] - GripMargin) ) {
-		if ( index > 0 && c < d->positions[index]  + GripMargin )
-		    section = d->i2s[--index];
-                // dont show icon if streaching is enabled it is at the end of the last section
-		if ( d->resize.testBit(section) && (d->fullSize == -2 || index != count() - 1)) {
-		    hit = TRUE;
 #ifndef QT_NO_CURSOR
-		    if ( orient == Horizontal )
-			setCursor( SplitHCursor );
-		    else
-			setCursor( SplitVCursor );
-#endif
-		}
-	    }
-	}
-#ifndef QT_NO_CURSOR
-	if ( !hit )
+	if ( handleAt(c) < 0 )
 	    unsetCursor();
+	else if ( orient == Horizontal )
+	    setCursor( splitHCursor );
+	else
+	    setCursor( splitVCursor );
 #endif
 	break;
     case Blocked:
@@ -809,17 +813,14 @@ void QHeader::mouseMoveEvent( QMouseEvent *e )
 
 void QHeader::mouseDoubleClickEvent( QMouseEvent *e )
 {
-    int c = orient == Horizontal ? e->pos().x() : e->pos().y();
-    c += offset();
+    int p = orient == Horizontal ? e->pos().x() : e->pos().y();
+    p += offset();
     if( reverse() )
-	c = d->lastPos - c;
+	p = d->lastPos - p;
 
-    int sec = -1;
-    if ( handleIdx != -1 )
-	sec = d->i2s[handleIdx];
-    else
-	sec = d->sectionAt( c );
-    emit sectionHandleDoubleClicked( sec );
+    int header = handleAt(p);
+    if (header >= 0)
+	emit sectionHandleDoubleClicked( header );
 }
 
 /*

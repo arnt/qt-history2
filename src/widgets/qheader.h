@@ -146,6 +146,7 @@ private:
     int		pPos( int i ) const;
     int		pSize( int i ) const;
     int 	findLine( int );
+    int		handleAt( int p );
     bool 	reverse() const;
     void 	calculatePositions( bool onlyVisible = FALSE, int start = 0 );
     void	handleColumnResize(int, int, bool, bool = TRUE );
