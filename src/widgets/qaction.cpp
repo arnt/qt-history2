@@ -626,6 +626,10 @@ void QAction::setToggleAction( bool enable )
 {
     if ( enable == (bool)d->toggleaction )
 	return;
+
+    if ( !enable )
+	d->on = FALSE;
+
     d->toggleaction = enable;
     d->update();
 }
@@ -644,7 +648,7 @@ void QAction::toggle()
 {
     if ( !isToggleAction() ) {
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAction::setOn() (%s) Only toggle actions "
+	qWarning( "QAction::toggle() (%s) Only toggle actions "
 		  "may be switched", name( "unnamed" ) );
 #endif
 	return;
