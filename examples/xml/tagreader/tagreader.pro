@@ -1,6 +1,5 @@
 TEMPLATE	= app
-CONFIG		+= qt warn_on release
-win32:CONFIG    += console
+CONFIG		+= qt console warn_on release
 HEADERS		= structureparser.h
 SOURCES		= tagreader.cpp \
                   structureparser.cpp
