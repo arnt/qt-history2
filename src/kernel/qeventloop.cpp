@@ -26,7 +26,7 @@
 
 
 #if defined(QT_THREAD_SUPPORT)
-static QThreadStorage<QPostEventList> postEventLists;
+static QThreadStorage<QPostEventList*> postEventLists;
 static QMap<Qt::HANDLE, QEventLoopPrivate *> eventloopprivate_map;
 #else
 static QEventLoopPrivate *singleton = 0;
@@ -74,7 +74,9 @@ QEventLoopPrivate::QEventLoopPrivate()
 
 #ifdef QT_THREAD_SUPPORT
     postEventLists.ensure_constructed();
-    postedEvents = &postEventLists.localData();
+    if (!postEventLists.hasLocalData())
+	postEventLists.setLocalData(new QPostEventList);
+    postedEvents = postEventLists.localData();
 
     QMutexLocker locker(qt_global_mutexpool ?
 			qt_global_mutexpool->get(&eventloopprivate_map) : 0);
