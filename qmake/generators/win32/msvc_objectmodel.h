@@ -38,6 +38,7 @@
 #include "project.h"
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qtextstream.h>
 
 /*
     This Object model is of course VERY simplyfied,

@@ -35,7 +35,6 @@
 
 #include "msvc_objectmodel.h"
 #include "msvc_vcproj.h"
-#include <qtextstream.h>
 #include <qstringlist.h>
 #include <quuid.h>
 
