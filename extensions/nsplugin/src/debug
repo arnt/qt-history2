@@ -1,0 +1,1 @@
+netscape http://dyret.troll.no/~warwick/qt/nsplugin/graph.html & ( sleep 8; gdb $(which netscape) $! )

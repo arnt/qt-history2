@@ -1,0 +1,34 @@
+<html>
+<body bgcolor=#ffffff>
+<h1>Qt-based LiveConnect Plugins for Netscape</h1>
+
+The Netscape WWW browser allows for Plugins software to be added to
+support information presentation to supplement normal WWW browsing.
+The Plugin interface is described fully
+<a href=http://home.netscape.com/comprod/products/navigator/version_2.0/plugins/index.html>
+here</a>.
+
+<p>
+The Qt Netscape Plugin software makes it easy to write such plugins such
+that they can be used on both Unix/Linux and Windows/95/NT.
+
+<h2>Examples</h2>
+
+The following example programs are available to demonstrate the use of the
+Qt GUI toolkit for making Plugins for Netscape.
+<ul>
+ <li><b><a href=examples/grapher/>Grapher</a></b> - graph data <em>without resorting to GIFs</em>
+ <li><b><a href=examples/qtimage/>QtImage</a></b> - plugin for Qt-supported image formats, <em>including PNG.</em>
+</ul>
+
+<h2>Known Bugs</h2>
+<ul>
+ <li> Some instability with Beta release Netscape Communicator.
+ <li> When grabbing (eg. popup menus), should not stop trapping Dangerous
+        events until the grabbing finishes.  Need QApplication to have
+        test of need for this (eg. popupActive()).
+ <li> Events to popups outside on-page widget area are slow?
+ <li> When do we get keyboard focus?
+</ul>
+
+
