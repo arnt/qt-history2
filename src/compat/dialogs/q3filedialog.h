@@ -37,24 +37,24 @@ class Q3FileDialogQFileListView;
 
 #ifndef QT_NO_FILEDIALOG
 
-class Q_COMPAT_EXPORT QFileIconProvider : public QObject
+class Q_COMPAT_EXPORT Q3FileIconProvider : public QObject
 {
     Q_OBJECT
 public:
-    QFileIconProvider(QObject * parent = 0, const char* name = 0);
+    Q3FileIconProvider(QObject * parent = 0, const char* name = 0);
     virtual const QPixmap * pixmap(const QFileInfo &);
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
-    QFileIconProvider(const QFileIconProvider &);
-    QFileIconProvider& operator=(const QFileIconProvider &);
+    Q3FileIconProvider(const Q3FileIconProvider &);
+    Q3FileIconProvider& operator=(const Q3FileIconProvider &);
 #endif
 };
 
-class Q_COMPAT_EXPORT QFilePreview
+class Q_COMPAT_EXPORT Q3FilePreview
 {
 public:
-    QFilePreview();
+    Q3FilePreview();
     virtual void previewUrl(const QUrl &url) = 0;
 
 };
@@ -112,8 +112,8 @@ public:
 
     // other static functions
 
-    static void setIconProvider(QFileIconProvider *);
-    static QFileIconProvider * iconProvider();
+    static void setIconProvider(Q3FileIconProvider *);
+    static Q3FileIconProvider * iconProvider();
 
     // non-static function for special needs
 
@@ -157,8 +157,8 @@ public:
     void setInfoPreviewEnabled(bool);
     void setContentsPreviewEnabled(bool);
 
-    void setInfoPreview(QWidget *w, QFilePreview *preview);
-    void setContentsPreview(QWidget *w, QFilePreview *preview);
+    void setInfoPreview(QWidget *w, Q3FilePreview *preview);
+    void setContentsPreview(QWidget *w, Q3FilePreview *preview);
 
     QUrl url() const;
 

@@ -41,7 +41,7 @@ static void cleanup_str_buffer()
     }
 }
 
-extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+extern const char qt3_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
 // Returns the wildcard part of a filter.
 struct qt_mac_filter_name {
@@ -52,7 +52,7 @@ static qt_mac_filter_name *extractFilter(const QString& rawFilter)
     qt_mac_filter_name *ret = new qt_mac_filter_name;
     ret->filter = rawFilter;
     QString result = rawFilter;
-    QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
     int index = r.indexIn(result);
     if(index >= 0) {
         ret->description = r.cap(1).trimmed();

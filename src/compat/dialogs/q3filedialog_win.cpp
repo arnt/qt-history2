@@ -82,7 +82,7 @@ static void resolveLibs()
 #endif
 
 
-extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
+extern const char qt3_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
 const int maxNameLen = 1023;
 const int maxMultiLen = 65535;
@@ -91,7 +91,7 @@ const int maxMultiLen = 65535;
 static QString extractFilter(const QString& rawFilter)
 {
     QString result = rawFilter;
-    QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
     int index = r.indexIn(result);
     if (index >= 0)
         result = r.cap(2);

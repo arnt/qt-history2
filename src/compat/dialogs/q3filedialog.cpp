@@ -437,7 +437,7 @@ static QPixmap * endCopyIcon = 0;
 static QPixmap * previewContentsViewIcon = 0;
 static QPixmap * previewInfoViewIcon = 0;
 static QPixmap *goBackIcon = 0;
-static QFileIconProvider * fileIconProvider = 0;
+static Q3FileIconProvider * fileIconProvider = 0;
 static int lastWidth = 0;
 static int lastHeight = 0;
 static QString * workingDirectory = 0;
@@ -510,7 +510,7 @@ static void resolveLibs()
 #define PtrExtractIconEx ExtractIconEx
 #endif
 
-class QWindowsIconProvider : public QFileIconProvider
+class QWindowsIconProvider : public Q3FileIconProvider
 {
 public:
     QWindowsIconProvider(QObject *parent=0, const char *name=0);
@@ -1008,7 +1008,7 @@ public:
     QSplitter *splitter;
     QUrlOperator url, oldUrl;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
-    QFilePreview *infoPreviewer, *contentsPreviewer;
+    Q3FilePreview *infoPreviewer, *contentsPreviewer;
     bool hadDotDot;
 
     bool ignoreNextKeyPress;
@@ -2176,7 +2176,7 @@ static QStringList makeFiltersList(const QString &filter)
   about the file.
 
   \code
-    class Preview : public QLabel, public QFilePreview
+    class Preview : public QLabel, public Q3FilePreview
     {
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
@@ -2194,10 +2194,10 @@ static QStringList makeFiltersList(const QString &filter)
   \endcode
 
   In the above snippet, we create a preview widget which inherits from
-  QLabel and QFilePreview. File preview widgets \e must inherit from
-  QFilePreview.
+  QLabel and Q3FilePreview. File preview widgets \e must inherit from
+  Q3FilePreview.
 
-  Inside the class we reimplement QFilePreview::previewUrl(), this is
+  Inside the class we reimplement Q3FilePreview::previewUrl(), this is
   where we determine what happens when a file is selected. In the
   above example we only show a preview of the file if it is a valid
   pixmap. Here's how to make a file dialog use a preview widget:
@@ -2226,8 +2226,8 @@ static QStringList makeFiltersList(const QString &filter)
   setInfoPreview(). Then the user will be able to switch between the
   two preview modes.
 
-  For more information about creating a QFilePreview widget see
-  \l{QFilePreview}.
+  For more information about creating a Q3FilePreview widget see
+  \l{Q3FilePreview}.
 
   <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
 
@@ -2286,8 +2286,7 @@ static QStringList makeFiltersList(const QString &filter)
   \internal
 */
 
-extern const char qt_file_dialog_filter_reg_exp[] =
-        "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
+extern const char qt3_file_dialog_filter_reg_exp[] = "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
 /*!
   Constructs a file dialog called \a name, with the parent, \a parent.
@@ -2873,7 +2872,7 @@ void Q3FileDialog::setSelectedFilter(int n)
 {
     d->types->setCurrentItem(n);
     QString f = d->types->currentText();
-    QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
     int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
@@ -2894,7 +2893,7 @@ void Q3FileDialog::setSelectedFilter(const QString& mask)
         if (d->types->text(n).contains(mask, QString::CaseInsensitive)) {
             d->types->setCurrentItem(n);
             QString f = mask;
-            QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+            QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
             int index = r.indexIn(f);
             if (index >= 0)
                 f = r.cap(2);
@@ -3046,7 +3045,7 @@ void Q3FileDialog::setFilter(const QString & newFilter)
     if (newFilter.isEmpty())
         return;
     QString f = newFilter;
-    QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
     int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
@@ -4808,19 +4807,19 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
 }
 
 
-/*! \class QFileIconProvider qfiledialog.h
+/*! \class Q3FileIconProvider qfiledialog.h
 
-  \brief The QFileIconProvider class provides icons for Q3FileDialog to
+  \brief The Q3FileIconProvider class provides icons for Q3FileDialog to
   use.
 
   \ingroup misc
 
-  By default QFileIconProvider is not used, but any application or
+  By default Q3FileIconProvider is not used, but any application or
   library can subclass it, reimplement pixmap() to return a suitable
   icon, and make all Q3FileDialog objects use it by calling the static
   function Q3FileDialog::setIconProvider().
 
-  It is advisable to make all the icons that QFileIconProvider returns be
+  It is advisable to make all the icons that Q3FileIconProvider returns be
   the same size or at least the same width. This makes the list view
   look much better.
 
@@ -4832,7 +4831,7 @@ void Q3FileDialog::keyPressEvent(QKeyEvent * ke)
   parent \a parent.
 */
 
-QFileIconProvider::QFileIconProvider(QObject * parent, const char* name)
+Q3FileIconProvider::Q3FileIconProvider(QObject * parent, const char* name)
     : QObject(parent, name)
 {
     // nothing necessary
@@ -4851,7 +4850,7 @@ QFileIconProvider::QFileIconProvider(QObject * parent, const char* name)
   If you return a pixmap here, it should measure 16x16 pixels.
 */
 
-const QPixmap * QFileIconProvider::pixmap(const QFileInfo & info)
+const QPixmap * Q3FileIconProvider::pixmap(const QFileInfo & info)
 {
     if (info.isSymLink()) {
         if (info.isFile())
@@ -4868,16 +4867,16 @@ const QPixmap * QFileIconProvider::pixmap(const QFileInfo & info)
 }
 
 /*!
-  Sets the QFileIconProvider used by the file dialog to \a provider.
+  Sets the Q3FileIconProvider used by the file dialog to \a provider.
 
-  The default is that there is no QFileIconProvider and Q3FileDialog
+  The default is that there is no Q3FileIconProvider and Q3FileDialog
   just draws a folder icon next to each directory and nothing next
   to files.
 
-  \sa QFileIconProvider, iconProvider()
+  \sa Q3FileIconProvider, iconProvider()
 */
 
-void Q3FileDialog::setIconProvider(QFileIconProvider * provider)
+void Q3FileDialog::setIconProvider(Q3FileIconProvider * provider)
 {
     fileIconProvider = provider;
 }
@@ -4887,10 +4886,10 @@ void Q3FileDialog::setIconProvider(QFileIconProvider * provider)
   Returns a pointer to the icon provider currently set on the file dialog.
   By default there is no icon provider, and this function returns 0.
 
-  \sa setIconProvider(), QFileIconProvider
+  \sa setIconProvider(), Q3FileIconProvider
 */
 
-QFileIconProvider * Q3FileDialog::iconProvider()
+Q3FileIconProvider * Q3FileDialog::iconProvider()
 {
     return fileIconProvider;
 }
@@ -4939,7 +4938,7 @@ static void initPixmap(QPixmap &pm)
 
 
 QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
-    : QFileIconProvider(parent, name)
+    : Q3FileIconProvider(parent, name)
 {
     pixw = GetSystemMetrics(SM_CXSMICON);
     pixh = GetSystemMetrics(SM_CYSMICON);
@@ -5401,7 +5400,7 @@ void Q3FileDialog::addFilter(const QString &filter)
     if (filter.isEmpty())
         return;
     QString f = filter;
-    QRegExp r(QString::fromLatin1(qt_file_dialog_filter_reg_exp));
+    QRegExp r(QString::fromLatin1(qt3_file_dialog_filter_reg_exp));
     int index = r.indexIn(f);
     if (index >= 0)
         f = r.cap(2);
@@ -5969,13 +5968,13 @@ void Q3FileDialog::setContentsPreviewEnabled(bool contents)
 /*!
   Sets the widget to be used for displaying information about the file
   to the widget \a w and a preview of that information to the
-  QFilePreview \a preview.
+  Q3FilePreview \a preview.
 
   Normally you would create a preview widget that derives from both QWidget and
-  QFilePreview, so you should pass the same widget twice.
+  Q3FilePreview, so you should pass the same widget twice.
 
   \code
-    class Preview : public QLabel, public QFilePreview
+    class Preview : public QLabel, public Q3FilePreview
     {
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
@@ -6010,7 +6009,7 @@ void Q3FileDialog::setContentsPreviewEnabled(bool contents)
 
 */
 
-void Q3FileDialog::setInfoPreview(QWidget *w, QFilePreview *preview)
+void Q3FileDialog::setInfoPreview(QWidget *w, Q3FilePreview *preview)
 {
     if (!w || !preview)
         return;
@@ -6028,13 +6027,13 @@ void Q3FileDialog::setInfoPreview(QWidget *w, QFilePreview *preview)
 /*!
   Sets the widget to be used for displaying the contents of the file
   to the widget \a w and a preview of those contents to the
-  QFilePreview \a preview.
+  Q3FilePreview \a preview.
 
   Normally you would create a preview widget that derives from both QWidget and
-  QFilePreview, so you should pass the same widget twice.
+  Q3FilePreview, so you should pass the same widget twice.
 
   \code
-    class Preview : public QLabel, public QFilePreview
+    class Preview : public QLabel, public Q3FilePreview
     {
     public:
         Preview(QWidget *parent=0) : QLabel(parent) {}
@@ -6067,7 +6066,7 @@ void Q3FileDialog::setInfoPreview(QWidget *w, QFilePreview *preview)
   \sa setContentsPreviewEnabled(), setInfoPreview(), setPreviewMode()
 */
 
-void Q3FileDialog::setContentsPreview(QWidget *w, QFilePreview *preview)
+void Q3FileDialog::setContentsPreview(QWidget *w, Q3FilePreview *preview)
 {
     if (!w || !preview)
         return;
@@ -6118,9 +6117,9 @@ void Q3FileDialog::resortDir()
         }
     }
 
-    // ##### As the QFileIconProvider only support QFileInfo and no
+    // ##### As the Q3FileIconProvider only support QFileInfo and no
     // QUrlInfo it can be only used for local files at the moment. In
-    // 3.0 we have to change the API of QFileIconProvider to work on
+    // 3.0 we have to change the API of Q3FileIconProvider to work on
     // QUrlInfo so that also remote filesystems can be show mime-type
     // specific icons.
     if (d->url.isLocalFile())
@@ -6259,9 +6258,9 @@ void Q3FileDialog::goBack()
 // preview widget from QWidget and from this class' indeed.
 
 /*!
-  \class QFilePreview qfiledialog.h
+  \class Q3FilePreview qfiledialog.h
   \ingroup misc
-  \brief The QFilePreview class provides file previewing in Q3FileDialog.
+  \brief The Q3FilePreview class provides file previewing in Q3FileDialog.
 
   This class is an abstract base class which is used to implement
   widgets that can display a preview of a file in a Q3FileDialog.
@@ -6279,15 +6278,15 @@ void Q3FileDialog::goBack()
 */
 
 /*!
-  Constructs the QFilePreview.
+  Constructs the Q3FilePreview.
 */
 
-QFilePreview::QFilePreview()
+Q3FilePreview::Q3FilePreview()
 {
 }
 
 /*!
-  \fn void QFilePreview::previewUrl(const QUrl &url)
+  \fn void Q3FilePreview::previewUrl(const QUrl &url)
 
   This function is called by Q3FileDialog if a preview
   for the \a url should be shown. Reimplement this
