@@ -71,6 +71,8 @@ public:
     COLORREF            bColor;
 
     uint 		fontFlags;
+
+    QPaintDevice        *device;
 };
 
 #endif

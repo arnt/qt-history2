@@ -281,6 +281,7 @@ bool QWin32GC::begin(const QPaintDevice *pdev, QPainterState *state, bool clipEn
 
     setActive(true);
     d->hdc = GetDC(((QWidget*)pdev)->winId());
+    d->device = const_cast<QPaintDevice *>(pdev);
     Q_ASSERT(d->hdc);
 
     QRegion *region = paintEventClipRegion;
@@ -342,13 +343,19 @@ bool QWin32GC::end()
 	RealizePalette( d->hdc );
     }
 
+    // ### use stuff below...
+    if (d->device->devType() == QInternal::Widget) {
+	ReleaseDC(static_cast<QWidget*>(d->device)->winId(), d->hdc);
+    }
+
 //     if ( pdev->devType() == QInternal::Widget ) {
 // 	if (!usesWidgetDC) {
 // 	    QWidget *w = (QWidget*)pdev;
 // 	    ReleaseDC( w->isDesktop() ? 0 : w->winId(), hdc );
 // 	    w->hdc = 0;
 // 	}
-//     } else if ( pdev->devType() == QInternal::Pixmap ) {
+//     }
+//     else if ( pdev->devType() == QInternal::Pixmap ) {
 // 	QPixmap *pm = (QPixmap*)pdev;
 // 	if ( pm->optimization() == QPixmap::MemoryOptim &&
 // 	     ( qt_winver & WV_DOS_based ) )
