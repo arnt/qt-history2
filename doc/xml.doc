@@ -132,11 +132,11 @@ To make it less abstract consider the following example:
 
 Whilst reading (a SAX2 parser is usually referred to as "reader") 
 the above document three events would be triggered:
-<OL>
-<LI> A start tag occurs (<tt>&lt;quote&gt;</tt>).
-<LI> Character data (i.e. text) is found.
-<LI> An end tag is parsed (<tt>&lt;/quote&gt;</tt>).
-</OL>
+\list 1
+ \i A start tag occurs (\c{<quote>}).
+ \i Character data (i.e. text) is found.
+ \i An end tag is parsed (\c{</quote>}).
+\endlist
 
 Each time such an event occurs the parser reports it so that 
 a suitable event handling routine can be invoked.
@@ -154,26 +154,26 @@ QXmlSimpleReader.
 
 The reader reports parsing events through special handler classes. In Qt
 the following ones are available:
-<ul>
-<li>\l QXmlContentHandler
+\list
+ \i \l QXmlContentHandler
     reports events related to the content of a document (e.g. the start tag
     or characters).
-<li>\l QXmlDTDHandler
+ \i \l QXmlDTDHandler
     reports events related to the DTD (e.g. notation declarations).
-<li>\l QXmlErrorHandler
+ \i \l QXmlErrorHandler
     reports errors or warnings that occurred during parsing.
-<li>\l QXmlEntityResolver
+ \i \l QXmlEntityResolver
     reports external entities during parsing and allows the user to resolve
     external entities him- or herself instead of leaving it to the reader.
-<li>\l QXmlDeclHandler
+ \i \l QXmlDeclHandler
     reports further DTD related events (e.g. attribute declarations).
     Usually users are not interested in them, but under certain circumstances
     this class comes handy.
-<li>\l QXmlLexicalHandler
+ \i \l QXmlLexicalHandler
     reports events related to the lexical structure of the document
     (the beginning of the DTD, comments etc.). Occasionally this
     might be useful.
-</ul>
+\endlist
 
 These classes are abstract classes describing the interface. The
 \l QXmlDefaultHandler class provides a "do nothing" default implementation for
@@ -184,17 +184,17 @@ To read input XML data a special class \l QXmlInputSource is used.
 
 Apart from the already mentioned ones the following SAX2 support classes 
 provide the user with useful functionality:
-<ul>
-<li> \l QXmlAttributes
-     is used to pass attributes in a start element event.
-<li> \l QXmlLocator
-     is used to obtain the actual parsing position of an event.
-<li> \l QXmlNamespaceSupport
-     is used to easily implement \link xml.html#namespaces namespace \endlink
-     support for a reader.
-     Note that namespaces do not change the parsing 
-     behavior. They are only reported through the handler.
-</ul>
+\list
+ \i \l QXmlAttributes
+    is used to pass attributes in a start element event.
+ \i \l QXmlLocator
+    is used to obtain the actual parsing position of an event.
+ \i \l QXmlNamespaceSupport
+    is used to easily implement \link xml.html#namespaces namespace \endlink
+    support for a reader.
+    Note that namespaces do not change the parsing 
+    behavior. They are only reported through the handler.
+\endlist
 
 
 \target sax2Features
@@ -256,16 +256,15 @@ processing. This is done by setting and unsetting the
 \e http://xml.org/sax/features/namespace-prefixes features.
  
 They influence the reporting behavior in the following way:
-<ol>
-<li>Namespace prefixes and local parts of elements and attributes can be
+\list 1
+ \i Namespace prefixes and local parts of elements and attributes can be
     reported.
-<li>The qualified names of elements and attributes are reported.
-<li>\l QXmlContentHandler::startPrefixMapping() and \l 
-QXmlContentHandler::endPrefixMapping() 
-    are called by the reader.
-<li>Attributes that declare namespaces (i.e. the attribute \e xmlns and
+ \i The qualified names of elements and attributes are reported.
+ \i \l QXmlContentHandler::startPrefixMapping() and \l
+    QXmlContentHandler::endPrefixMapping() are called by the reader.
+ \i Attributes that declare namespaces (i.e. the attribute \e xmlns and
     attributes starting with \e xmlns: ) are reported.
-</ol>
+\endlist
 
 Consider the following element:
 
