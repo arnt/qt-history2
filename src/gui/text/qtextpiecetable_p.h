@@ -171,8 +171,8 @@ private:
 
     void insert_string(int pos, uint strPos, uint length, int format, UndoCommand::Operation op);
     void insert_block(int pos, uint strPos, int format, int blockformat, UndoCommand::Operation op, int command);
-    int remove_string(int pos, uint length);
-    int remove_block(int pos, int *blockformat, int command);
+    int remove_string(int pos, uint length, UndoCommand::Operation op);
+    int remove_block(int pos, int *blockformat, int command, UndoCommand::Operation op);
 
     void adjustDocumentChanges(int from, int addedOrRemoved);
     void documentChange(int from, int length);
