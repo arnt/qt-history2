@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#21 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#21 $");
 
 
 /*!
@@ -82,6 +82,10 @@ void QGroupBox::setTitle( const char *title )
     repaint();
 }
 
+/*!
+  \fn const char*  QGroupBox::title() const
+  Returns the group box title text.
+*/
 
 /*!
   \fn int QGroupBox::alignment() const

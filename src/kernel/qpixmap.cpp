@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#54 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#54 $");
 
 
 /*!
@@ -134,6 +134,11 @@ QPixmap &QPixmap::operator=( const QImage &image )
     return *this;
 }
 
+
+/*!
+  /fn bool  QPixmap::isQBitmap() const
+  Returns TRUE if this is a QBitmap.
+*/
 
 /*!
   \fn bool QPixmap::isNull() const

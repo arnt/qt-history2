@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#102 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#102 $");
 
 
 /*!
@@ -1457,7 +1457,11 @@ QMetaObject *QObject::queryMetaObject() const
     return m;
 }
 
+/*!
+  Initializes the \link metaObject() meta object\endlink of this object.
 
+  \sa metaObject()
+ */
 void QObject::initMetaObject()
 {
     if ( metaObj )

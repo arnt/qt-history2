@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#29 $
 **
 ** Implementation of QDialog class
 **
@@ -15,7 +15,7 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#29 $");
 
 
 /*!
@@ -119,6 +119,20 @@ void QDialog::setDefault( QPushButton *pushButton )
     }
     delete list;
 }
+
+
+/*!
+  \fn int  QDialog::result() const
+
+  Returns the result code of the dialog.
+*/
+
+/*!
+  \fn int  QDialog::setResult()
+
+  Sets the result code of the dialog.
+*/
+
 
 
 /*!

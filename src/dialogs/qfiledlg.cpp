@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#22 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#23 $
 **
 ** Implementation of QFileDialog class
 **
@@ -27,7 +27,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#23 $");
 
 
 /*!
@@ -379,6 +379,24 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 #endif
 }
 
+
+/*!
+  \fn QFileDialog::fileHighlighted ( const char * )
+
+  This signal is emitted when the user highlights a file.
+  */
+
+/*!
+  \fn QFileDialog::fileSelected ( const char * )
+
+  This signal is emitted when the user selects a file.
+  */
+
+/*!
+  \fn QFileDialog::dirEntered ( const char * )
+
+  This signal is emitted when the user has selected a new directory.
+  */
 
 /*!
   \internal

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#54 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#54 $");
 
 
 /*!
@@ -225,6 +225,10 @@ void QLineEdit::setMaxLength( int m )
     paint();
 }
 
+/*!
+  \fn void  QLineEdit::returnPressed()
+  This signal is emitted when the return or enter key is pressed.
+*/
 
 /*!
   The key press event handler converts a key press to some line editor

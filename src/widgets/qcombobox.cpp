@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#46 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -20,7 +20,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#46 $");
 
 
 /*!
@@ -778,6 +778,9 @@ void QComboBox::popup()
     }
     d->poppedUp = TRUE;
 }
+/*!
+  Pops down (removes) the combo box popup list.
+*/
 
 void QComboBox::popDown()
 {

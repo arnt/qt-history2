@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qpdevmet.cpp#12 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -11,7 +11,7 @@
 
 #include "qpdevmet.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#12 $");
 
 
 /*!
@@ -31,6 +31,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpdevmet.cpp#11 $");
   \endcode
 */
 
+/*!
+  Constructs a metric for the paint device \e pd.
+*/
 QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 {
     pdev = (QPaintDevice *)pd;

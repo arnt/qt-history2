@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#47 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#48 $
 **
 ** Implementation of date and time classes
 **
@@ -35,7 +35,7 @@
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdatetime.cpp#48 $");
 
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 17520914
@@ -464,8 +464,17 @@ QTime::QTime( int h, int m, int s, int ms )
 
 
 /*!
-  Returns TRUE if the time is valid, or FALSE if the time is invalid or
-  null.	 The time 23:30:55.746 is valid, while 24:12:30 is invalid.
+  \fn bool  QTime::isNull() const
+  Returns TRUE if the time is equal to 00:00:00.000. A null time is valid.
+
+  \sa isValid()
+*/
+
+/*!
+  Returns TRUE if the time is valid, or FALSE if the time is invalid.
+  The time 23:30:55.746 is valid, while 24:12:30 is invalid.
+
+  \sa isNull()
 */
 
 bool QTime::isValid() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#40 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#40 $");
 
 
 /*****************************************************************************
@@ -361,6 +361,10 @@ void QCursor::setPos( int x, int y )
     XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
 }
 
+
+/*!
+  \overload void QCursor::setPos ( const QPoint & )
+*/
 
 /*!
   \internal Creates the cursor.
