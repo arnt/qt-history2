@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.55 1999/05/20 18:12:25 ettrich Exp $
+** $Id: porting.doc,v 1.56 1999/05/22 18:57:08 ettrich Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -35,12 +35,15 @@ your application from Qt 1.x to Qt 2.0, but to be sure, let's
 review the good reasons to do this:
 <ul>
  <li>To get access to all the new Qt 2.0 features like the rich text
-	HTML subset for formatted labels, tooltips, etc.
+	HTML subset for formatted labels, tooltips, online help etc.
 	and the much easier to use layout classes and widgets.
  <li>To make your application truly international, with support
 	for Unicode and translations for the languages of the world.
  <li>To allow your application to fit into the new look of the
-	Unix desktop with configurable, very powerful "themes".
+	Unix desktop with configurable, very powerful "themes". The
+	extended style system also integrates Qt applications better
+	on MS-Windows desktops. Qt will automatically chose the right
+	colors and fonts and obey global system setting changes.
  <li>To stay up-to-date with the version of Qt that gets all the
 	new features and bug-fixes.
  <li>To get more speed and smoother widgets display with all the
