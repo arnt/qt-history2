@@ -164,7 +164,7 @@ int main( int argc, char **argv )
     }
     if ( !error.isEmpty() ) {
 	qFatal( error.latin1() );
-	return -1;
+	return 5;
     }
     if ( input.isEmpty() ) {
 	qFatal( "No input file specified!" );
@@ -188,7 +188,7 @@ int main( int argc, char **argv )
 	QString error;
 	bool ok = attachTypeLibrary( input, 1, data, &error );
 	qWarning( error );
-	return ok ? 0 : -1;
+	return ok ? 0 : 4;
     } else if ( !!idlfile ) {
 	slashify( idlfile );
 	HMODULE hdll = 0;

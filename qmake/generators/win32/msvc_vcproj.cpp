@@ -546,25 +546,25 @@ void VcprojGenerator::initPostBuildEventTools()
 	if( project->isActiveConfig( "dll" ) ) { // In process
 	    vcProject.Configuration.postBuild.CommandLine +=
 		// call idc to generate .idl file from .dll
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
 		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
 		objdir + "dump.midl &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// register server
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /regserver";
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".dll /regserver";
 	} else { // out of process
 	    vcProject.Configuration.postBuild.CommandLine =
 		// call application to dump idl
-		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
+		vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
 		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
 		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
 		objdir + "dump.midl &amp;&amp; " +
 		// call idc to replace tlb...
-		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
+		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + ".exe /tlb " + objdir + name + ".tlb &amp;&amp; " +
 		// call app to register
 		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -regserver";
 	}
