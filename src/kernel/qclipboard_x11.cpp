@@ -48,7 +48,6 @@
 #include "qtextcodec.h"
 #include "qlist.h"
 #include "qmap.h"
-#include "qt_x11_p.h"
 #include "qapplication_p.h"
 #include "qevent.h"
 
@@ -56,6 +55,8 @@
 #include "qx11gc.h"
 #define QPaintDevice QX11GC
 #endif
+
+#include "qt_x11_p.h"
 
 // REVISED: arnt
 

@@ -17,7 +17,6 @@
 #include "string.h"
 #include "qpaintdevice.h"
 #include "qapplication.h"
-#include "qt_x11_p.h"
 #include "qintdict.h"
 #define QT_NO_DEFINE_DQ
 #include "qapplication_p.h"
@@ -26,6 +25,8 @@
 #include "qx11gc.h"
 #define QPaintDevice QX11GC
 #endif
+
+#include "qt_x11_p.h"
 
 // NOT REVISED
 

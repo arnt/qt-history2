@@ -20,7 +20,6 @@
 class QString;
 
 class QByteArray;
-class QMetaType;
 
 // The following macros are our "extensions" to C++
 // They are used, strictly speaking, only by the moc.
@@ -168,7 +167,7 @@ struct Q_KERNEL_EXPORT QMetaObject
 			int signal_index,
 			const QObject *receiver,
 			int membcode, int member_index,
-			const QMetaType **types = 0);
+			int *types = 0);
     // internal index-based disconnect
     static bool disconnect(const QObject *sender,
 			   int signal_index,

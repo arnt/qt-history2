@@ -1365,25 +1365,155 @@ const char* QMetaClassInfo::value() const
     return mobj->d.stringdata + mobj->d.data[handle + 1];
 }
 
-static QHash<QByteArray, QMetaType*> types;
 
-const QMetaType *QMetaType::find(const char *type)
+/*!
+    \class QMetaType qmetaobject.h
+    \internal
+
+    \brief The QMetaType class manages named types in the meta object system.
+
+    The class is used to queue signals and slots connections.
+*/
+
+
+static const struct { const char * typeName; int type; }types[]  = {
+    {"void*", QMetaType::VoidStar},
+    {"long", QMetaType::Long},
+    {"int", QMetaType::Int},
+    {"short", QMetaType::Short},
+    {"char", QMetaType::Char},
+    {"ulong", QMetaType::ULong},
+    {"unsigned long", QMetaType::ULong},
+    {"uint", QMetaType::UInt},
+    {"unsigned int", QMetaType::UInt},
+    {"ushort", QMetaType::UShort},
+    {"unsigned short", QMetaType::UShort},
+    {"uchar", QMetaType::UChar},
+    {"unsigned char", QMetaType::UChar},
+    {"bool", QMetaType::Bool},
+    {"float", QMetaType::Float},
+    {"double", QMetaType::Double},
+    {"QChar", QMetaType::QChar},
+    {"QByteArray", QMetaType::QByteArray},
+    {"QString", QMetaType::QString},
+    {"void", QMetaType::Void},
+    {"", QMetaType::Void},
+    {0, QMetaType::Void}
+};
+
+/*!
+  Returns a handle to the type with name \a typeName, or 0 if there is
+  no such type.
+ */
+int QMetaType::type(const char *typeName)
 {
-    types.ensure_constructed();
-    return types.value(type);
+    if (!typeName)
+	return 0;
+    int i = 0;
+    while (types[i].typeName && strcmp(typeName, types[i].typeName))
+	++i;
+    return types[i].type;
 }
 
-QMetaType::QMetaType(const char *type)
-    :t(type)
+/*
+  Returns a copy of data, assuming it is of type \a type.
+ */
+void *QMetaType::copy(int type, void *data)
 {
-    types.ensure_constructed();
-    types.insert(type, this);
+    if (!data)
+	return 0;
+    switch(type) {
+    case QMetaType::VoidStar:
+	return new void *(*static_cast<void**>(data));
+    case QMetaType::Long:
+	return new long(*static_cast<long*>(data));
+    case QMetaType::Int:
+	return new int(*static_cast<int*>(data));
+    case QMetaType::Short:
+	return new short(*static_cast<short*>(data));
+    case QMetaType::Char:
+	return new char(*static_cast<char*>(data));
+    case QMetaType::ULong:
+	return new ulong(*static_cast<ulong*>(data));
+    case QMetaType::UInt:
+	return new uint(*static_cast<uint*>(data));
+    case QMetaType::UShort:
+	return new ushort(*static_cast<ushort*>(data));
+    case QMetaType::UChar:
+	return new uchar(*static_cast<uchar*>(data));
+    case QMetaType::Bool:
+	return new bool(*static_cast<bool*>(data));
+    case QMetaType::Float:
+	return new float(*static_cast<float*>(data));
+    case QMetaType::Double:
+	return new double(*static_cast<double*>(data));
+    case QMetaType::QChar:
+	return new ::QChar(*static_cast< ::QChar*>(data));
+    case QMetaType::QByteArray:
+	return new ::QByteArray(*static_cast< ::QByteArray*>(data));
+    case QMetaType::QString:
+	return new ::QString(*static_cast< ::QString*>(data));
+    case QMetaType::Void:
+    default:
+	return 0;
+    }
 }
 
-QMetaType::~QMetaType()
+/*!
+  Destroys data, assuming it is of type \a type.
+ */
+void QMetaType::destroy(int type, void *data)
 {
-    types.ensure_constructed();
-    types.remove(t);
+    if (!data)
+	return;
+    switch(type) {
+    case QMetaType::VoidStar:
+	delete static_cast<void**>(data);
+	break;
+    case QMetaType::Long:
+	delete static_cast<long*>(data);
+	break;
+    case QMetaType::Int:
+	delete static_cast<int*>(data);
+	break;
+    case QMetaType::Short:
+	delete static_cast<short*>(data);
+	break;
+    case QMetaType::Char:
+	delete static_cast<char*>(data);
+	break;
+    case QMetaType::ULong:
+	delete static_cast<ulong*>(data);
+	break;
+    case QMetaType::UInt:
+	delete static_cast<uint*>(data);
+	break;
+    case QMetaType::UShort:
+	delete static_cast<ushort*>(data);
+	break;
+    case QMetaType::UChar:
+	delete static_cast<uchar*>(data);
+	break;
+    case QMetaType::Bool:
+	delete static_cast<bool*>(data);
+	break;
+    case QMetaType::Float:
+	delete static_cast<float*>(data);
+	break;
+    case QMetaType::Double:
+	delete static_cast<double*>(data);
+	break;
+    case QMetaType::QChar:
+	delete static_cast< ::QChar*>(data);
+	break;
+    case QMetaType::QByteArray:
+	delete static_cast< ::QByteArray*>(data);
+	break;
+    case QMetaType::QString:
+	delete static_cast< ::QString*>(data);
+	break;
+    case QMetaType::Void:
+    default:
+	break;
+    }
 }
-
-

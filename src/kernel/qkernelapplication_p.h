@@ -31,12 +31,6 @@ public:
 #ifndef QT_NO_COMPONENT
     QStringList *app_libpaths;
 #endif
-
-    QMetaTypeTemplate<bool> type_bool;
-    QMetaTypeTemplate<int> type_int;
-    QMetaTypeTemplate<QString> type_QString;
-    QMetaTypeTemplate<QByteArray> type_QByteArray;
-    QMetaTypeTemplate<void*> type_voidStar;
 };
 
 

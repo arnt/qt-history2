@@ -18,18 +18,19 @@
 #include "qpaintdevice.h"
 #include "qbitarray.h"
 #include "qcolor_p.h"
-#include "qt_x11_p.h"
 
+#if defined(QT_THREAD_SUPPORT)
+#  include "qmutex.h"
+#endif // QT_THREAD_SUPPORT
+#include "qapplication_p.h"
+
+#include "qguieventloop_p.h"
+#include "qt_x11_p.h"
 #ifdef Q_Q4PAINTER
 #include "qx11gc.h"
 #define QPaintDevice QX11GC
 #endif
 
-#if defined(QT_THREAD_SUPPORT)
-#  include "qmutex.h"
-#endif // QT_THREAD_SUPPORT
-#include "qguieventloop_p.h"
-#include "qapplication_p.h"
 #define d d_func()
 #define q q_func()
 

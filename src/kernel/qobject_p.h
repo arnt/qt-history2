@@ -45,7 +45,6 @@ private: \
     inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
     friend class Class
 
-class QMetaType;
 
 class Q_KERNEL_EXPORT QObjectPrivate : public Qt
 {
@@ -87,11 +86,11 @@ public:
 		QObject **guarded;
 	    };
 	    int member;
-	    const QMetaType **types;
+	    int *types;
 	} connections[1];
     };
     Connections *connections;
-    void addConnection(int signal, QObject *receiver, int member, const QMetaType **types = 0);
+    void addConnection(int signal, QObject *receiver, int member, int *types = 0);
     Connections::Connection *findConnection(int signal, int &i) const;
     void removeReceiver(QObject *receiver);
 

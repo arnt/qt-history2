@@ -59,7 +59,7 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 class QMetaCallEvent : public QEvent
 {
 public:
-    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0, const QMetaType **types = 0, void **args = 0);
+    QMetaCallEvent(Type type, int id, const QObject *sender = 0, int nargs = 0, int *types = 0, void **args = 0);
     ~QMetaCallEvent();
 
     int id() const { return id_; }
@@ -70,12 +70,12 @@ private:
     int id_;
     const QObject *sender_;
     int nargs_;
-    const QMetaType **types_;
+    int *types_;
     void **args_;
 };
 
 QMetaCallEvent::QMetaCallEvent(QEvent::Type type, int id, const QObject *sender,
-			       int nargs, const QMetaType **types, void **args)
+			       int nargs, int *types, void **args)
     :QEvent(type), id_(id), sender_(sender), nargs_(nargs), types_(types), args_(args)
 {};
 
@@ -83,7 +83,7 @@ QMetaCallEvent::~QMetaCallEvent()
 {
     for (int i = 0; i < nargs_; i++)
 	if (types_[i] && args_[i])
-	    types_[i]->destroy(args_[i]);
+	    QMetaType::destroy(types_[i], args_[i]);
 
     if (types_)
 	delete [] types_;
@@ -1498,7 +1498,7 @@ static void err_info_about_objects(const char * func,
 #endif // !QT_NO_DEBUG
 
 
-void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, const QMetaType **types)
+void QObjectPrivate::addConnection(int signal, QObject *receiver, int member, int *types)
 {
     int i = 0;
     if ( !connections) {
@@ -1753,7 +1753,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
     }
 #endif
 
-    const QMetaType **types = 0;
+    int *types = 0;
     if (type == QueuedConnection) {
 	const char *s = signal;
 	while (*s++ != '(') {}
@@ -1765,7 +1765,7 @@ bool QObject::connect(const QObject *sender, const char *signal,
 		++nargs;
 	}
 
-	types = new const QMetaType *[nargs + 1];
+	types = new int [nargs + 1];
 	types[nargs] = 0;
 	for (int n = 0; n < nargs; ++n) {
 	    e = s;
@@ -1775,9 +1775,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
 	    ++s;
 
 	    if (type.at(type.size()-1) == '*') {
-		types[n] = QMetaType::find("void*");
+		types[n] = QMetaType::type("void*");
 	    } else {
-		types[n] = QMetaType::find(type);
+		types[n] = QMetaType::type(type);
 	    }
 	    if (!types[n]) {
 		qWarning("QObject::connect: Cannot queue arguments of type '%s'", type.data());
@@ -2023,7 +2023,7 @@ void QObject::disconnectNotify(const char *)
 bool QMetaObject::connect(const QObject *sender, int signal_index,
 			  const QObject *receiver,
 			  int membcode, int member_index,
-			  const QMetaType **types)
+			  int *types)
 {
     if (membcode != QSLOT_CODE && membcode != QSIGNAL_CODE)
 	return false;
@@ -2086,12 +2086,12 @@ void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 	if (c->types) { // QueuedConnection
 	    int nargs = 1; // include return type
 	    while (c->types[nargs-1]) { ++nargs; }
-	    const QMetaType **types = new const QMetaType *[nargs];
+	    int *types = new int[nargs];
 	    void **args = new void *[nargs];
 	    types[0] = 0; // return type
 	    args[0] = 0; // return value
 	    for (int n = 1; n < nargs; ++n)
-		args[n] = (types[n] = c->types[n-1])->copy(argv[n]);
+		args[n] = QMetaType::copy((types[n] = c->types[n-1]), argv[n]);
 	    QKernelApplication::postEvent(c->receiver,
 					  new QMetaCallEvent((c->member & 1)
 							     ? QEvent::EmitSignal
