@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.20 1999/04/28 09:53:50 aavit Exp $
+** $Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.20 1999/04/28 09:53:50 aavit Exp $";
+static char ident[] = "$Id: examples.doc,v 2.21 1999/05/24 23:43:45 agulbra Exp $";
 #endif
 
 
@@ -187,7 +187,7 @@ static char ident[] = "$Id: examples.doc,v 2.20 1999/04/28 09:53:50 aavit Exp $"
 */
 
 
-/*! \example movies/main.cpp  
+/*! \example movies/main.cpp
 
   <h1 align=center>Movies<br>Or the Story of the Animated GIF file</h1><br clear="all">
 
@@ -318,8 +318,8 @@ magnified area as a .bmp file. */
   This example program looks like a complete modern application.  It
   has a menu bar, it has a tool bar, it has a status bar.
 
-  It also illustrates use of QPrinter.  Oh yes, and you can edit text
-  with it.
+  There is a <a href="walkthrough-application.html">walkthrough</a> of
+  this example.
 */
 
 
