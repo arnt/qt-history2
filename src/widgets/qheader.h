@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#26 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#27 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -59,7 +59,8 @@ public:
     int 	offset() const;
 
     QSize	sizeHint() const;
-
+    QSizePolicy sizePolicy() const;
+    
     int		mapToLogical( int ) const;
     int		mapToActual( int ) const;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#62 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#63 $
 **
 ** Definition of QListView widget class
 **
@@ -222,6 +222,7 @@ public:
     bool eventFilter( QObject * o, QEvent * );
 
     QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
 public slots:
     void triggerUpdate();

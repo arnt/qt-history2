@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#174 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#175 $
 **
 ** Definition of QWidget class
 **
@@ -34,6 +34,8 @@
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qstyle.h"
+#include "qabstractlayout.h"
+#include "qsizepolicy.h"
 #endif // QT_H
 
 class QLayout;
@@ -229,9 +231,9 @@ public slots:
 
 public:
     virtual QSize sizeHint() const;
+    virtual QSizePolicy sizePolicy() const;
     virtual void  adjustSize();
     QLayout *layout() const { return lay_out; }
-    void qInternalSetLayout( QLayout *l );
     virtual void reparent( QWidget *parent, WFlags, const QPoint &,
 			   bool showIt=FALSE );
 #ifndef QT_NO_COMPAT
@@ -336,13 +338,14 @@ protected:
     QFocusData	*focusData();
 
     void updateResizedBorder( QResizeEvent*, int bw );
-    
+
     void setSizeGrip(bool);
 
 private slots:
     void	 focusProxyDestroyed();
 
 private:
+    void 	 setLayout( QLayout *l );
     virtual void setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
@@ -389,7 +392,11 @@ private:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QETWidget;
-
+#ifdef TOTAL_LOSER_COMPILER
+    friend class QLayout;
+#else
+    friend void QLayout::setWidgetLayout( QWidget *, QLayout * );
+#endif
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWidget( const QWidget & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#85 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#86 $
 **
 ** Implementation of QCheckBox class
 **
@@ -288,4 +288,15 @@ void QCheckBox::updateMask()
 	}
     }
     setMask(bm);
+}
+
+
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QCheckBox::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#24 $
 **
 ** Implementation of QProgressBar class
 **
@@ -38,7 +38,7 @@
   QProgressDialog provides a fuller encapsulation.
 
   <img src=qprogbar-m.gif> <img src=qprogbar-w.gif>
-  
+
   \sa QProgressDialog
   <a href="guibooks.html#fowler">GUI Design Handbook: Progress Indicator</a>
 */
@@ -164,7 +164,17 @@ void QProgressBar::setProgress( int progress )
 QSize QProgressBar::sizeHint() const
 {
     QFontMetrics fm = fontMetrics();
-    return QSize(-1, fm.height()+8);
+    return QSize( fm.height()*4, fm.height()+8);
+}
+
+/*!
+  Specifies that this widget can use more, but is able to survive on
+  less, horizontal space; and is fixed vertically.
+*/
+
+QSizePolicy QProgressBar::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::Fixed );
 }
 
 

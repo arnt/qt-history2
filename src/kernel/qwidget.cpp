@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#292 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#293 $
 **
 ** Implementation of QWidget class
 **
@@ -2758,7 +2758,7 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
     if ( layout() )
-	return layout()->minSize();
+	return layout()->sizeHint();
     return QSize( -1, -1 );
 }
 
@@ -3644,11 +3644,26 @@ void QWidget::updateMask()
 
 
 /*!
-  \internal
-  Don't even think of using this function.
+  Sets the layout.
 */
 
-void QWidget::qInternalSetLayout( QLayout *l )
+void QWidget::setLayout( QLayout *l )
 {
     lay_out = l;
+}
+
+
+/*!
+  Reimplemented in subclasses to specify how layouts should handle this
+  widget.
+  
+  The default implementation returns the layout's size policy if there
+  is a layout for this widget, otherwis it gives a widget that can be
+  freely resized, but that prefers to be of the size specified by
+  sizeHint().
+*/
+
+QSizePolicy QWidget::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefSize, QSizePolicy::PrefSize );
 }

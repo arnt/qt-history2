@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#27 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#28 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -58,6 +58,7 @@ public:
     virtual void		setValidator( QValidator* v );
 
     QSize 		sizeHint() const;
+    QSizePolicy 	sizePolicy() const;
 
 public slots:
     virtual void	setValue( int value );

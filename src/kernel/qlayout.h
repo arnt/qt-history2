@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.h#26 $
+** $Id: //depot/qt/main/src/kernel/qlayout.h#27 $
 **
 ** Definition of layout classes
 **
@@ -25,65 +25,11 @@
 #define QLAYOUT_H
 
 #ifndef QT_H
-#include "qobject.h"
+#include "qabstractlayout.h"
 #endif // QT_H
 
-class QMenuBar;
-class QWidget;
-struct QLayoutData;
 class QLayoutArray;
 class QLayoutBox;
-
-class Q_EXPORT QLayout : public QObject
-{
-    Q_OBJECT
-public:
-    QLayout( QWidget *parent, int border=0, int autoBorder=-1,
-	     const char *name=0 );
-    QLayout( int autoBorder=-1, const char *name=0 );
-    virtual ~QLayout();
-    int defaultBorder() const { return insideSpacing; }
-    int margin() const { return outsideBorder; }
-
-    enum { unlimited = QCOORD_MAX };
-
-    void freeze( int w, int h );
-    void freeze() { freeze( 0, 0 ); }
-
-    virtual void  setMenuBar( QMenuBar *w );
-
-    QWidget *mainWidget();
-    QMenuBar *menuBar() const { return menubar; }
-    bool isTopLevel() const { return topLevel; }
-    const QRect &geometry() { return rect; }
-#if 1	//OBSOLETE
-    bool activate();
-#endif
-    virtual bool fixedWidth();
-    virtual bool fixedHeight();
-    virtual QSize minSize() = 0;
-    //    virtual void clearCache();
-    virtual void setGeometry( const QRect& );
-    virtual bool removeWidget( QWidget * ) = 0;
-protected:
-    bool  eventFilter( QObject *, QEvent * );
-    virtual void paintEvent( QPaintEvent * );
-    void addChildLayout( QLayout *l );
-private:
-    int insideSpacing;
-    int outsideBorder;
-    bool    topLevel;
-    QRect rect;
-    QLayoutData *extraData;
-    QMenuBar *menubar;
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QLayout( const QLayout & );
-    QLayout &operator=( const QLayout & );
-#endif
-
-};
-
 
 class Q_EXPORT QGridLayout : public QLayout
 {
@@ -95,21 +41,22 @@ public:
 		 const char *name=0 );
     ~QGridLayout();
 
-    QSize minSize();
+    QSize sizeHint();
 
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
 
     int numRows() const;
     int numCols() const;
-    bool fixedWidth();
-    bool fixedHeight();
+    
+    QSizePolicy sizePolicy();
     //    void clearCache();
-
+#if 0
     void add( QWidget*, int row, int col );
     void add( QWidget*, int row1, int row2, int col1, int col2 );
     void add( QLayout*, int row, int col );
     //    void add( QSize, int row, int col );
+#endif
 
     // void setAlignment( QWidget* );
 

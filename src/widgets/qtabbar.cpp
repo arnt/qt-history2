@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#43 $
 **
 ** Implementation of QTabBar class
 **
@@ -252,6 +252,16 @@ QSize QTabBar::sizeHint() const
     } else {
 	return QSize( 0, 0 );
     }
+}
+
+/*!
+  Specifies that this widget can use more, but is able to survive on
+  less, horizontal space; and may grow vertically.
+*/
+
+QSizePolicy QTabBar::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::MayGrow );
 }
 
 

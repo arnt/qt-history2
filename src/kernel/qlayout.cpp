@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#53 $
 **
 ** Implementation of layout classes
 **
@@ -22,9 +22,10 @@
 *****************************************************************************/
 
 #include "qlayout.h"
-#include "qmenubar.h"
-#include "qapplication.h"
+
+#include "qwidget.h"
 #include "qlist.h"
+#include "qsizepolicy.h"
 
 class QLayoutBox
 {
@@ -37,10 +38,10 @@ public:
 
     Type type() const { return myType; }
 
-    QSize minSize() const;
-    bool horFixed() const;
-    bool verFixed() const;
-
+    QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
+    
+    
     void setAlignment( int a ) { align = a; }
     void setGeometry( const QRect& );
 
@@ -52,8 +53,7 @@ private:
 
     int row, col;
     int width, height;
-    bool hFix;
-    bool vFix;
+    QSizePolicy sizeP;
     //union {
     QLayout *lay;
     QWidget *wid;
@@ -92,8 +92,9 @@ QLayoutBox::QLayoutBox( int w, int h, bool hStretch, bool vStretch )
     myType = Spacer;
     width = w;
     height = h;
-    hFix = !hStretch;
-    vFix = !vStretch;
+    
+    sizeP = QSizePolicy(hStretch ? QSizePolicy::WannaGrow : QSizePolicy::Fixed,
+			vStretch ? QSizePolicy::WannaGrow : QSizePolicy::Fixed);
 }
 
 void QLayoutBox::init()
@@ -139,47 +140,30 @@ void QLayoutBox::setGeometry( const QRect &r )
     }
 }
 
-bool QLayoutBox::horFixed() const
+QSizePolicy QLayoutBox::sizePolicy() const
 {
     switch ( myType ) {
     case Spacer:
-	return hFix;
+	return sizeP;
     case Layout:
-	return lay->fixedWidth();
+	return lay->sizePolicy();
     case Widget:
-	return wid->minimumSize().width() == wid->maximumSize().width();
-	//		||layoutHint...
+	return wid->sizePolicy();
     case Error:
 	warning( "QLayout error: uninitialized case B." );
 	break;
     }
-    return FALSE;
+    return QSizePolicy();
 
 }
-bool QLayoutBox::verFixed() const
-{
-    switch ( myType ) {
-    case Spacer:
-	return vFix;
-    case Layout:
-	return lay->fixedHeight();
-    case Widget:
-	return wid->minimumSize().height() == wid->maximumSize().height();
-	//		||layoutHint...
-    case Error:
-	warning( "QLayout error: uninitialized case C." );
-	break;
-    }
-    return FALSE;
-}
 
-QSize QLayoutBox::minSize() const
+QSize QLayoutBox::sizeHint() const
 {
     switch ( myType ) {
     case Spacer:
 	return QSize( width, height );
     case Layout:
-	return lay->minSize();
+	return lay->sizeHint();
     case Widget:
 	if ( wid->layout() )
 	    return QSize( QMAX( wid->sizeHint().width(), wid->minimumWidth() ),
@@ -198,13 +182,13 @@ QSize QLayoutBox::minSize() const
 
 struct LayoutStruct
 {
-    void init() { minSize = 0; fixedSize = FALSE; stretch = 0; }
+    void init() { minSize = 0; stretch = 0; }
 
     //permanent storage:
     int stretch;
     //parameters:
     int minSize;
-    bool fixedSize;
+    QSizeData sizeData;
     bool empty;
     //temporary storage:
     bool done;
@@ -233,7 +217,6 @@ static inline int fRound( int i ) {
   chain contains input and output parameters describing the geometry.
   count is the count of items in the chain,
   pos and space give the interval (relative to parentWidget topLeft.)
-
 */
 
 static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
@@ -244,6 +227,9 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
     int sumStretch = 0;
     int spacerCount = 0;
 
+    bool wannaGrow = FALSE; // anyone who really wants to grow?
+    bool canShrink = FALSE; // anyone who could be persuaded to shrink?
+    
     int i; //some hateful compilers do not handle for loops correctly
     for ( i = 0; i < count; i++ ) {
 	chain[i].done = FALSE;
@@ -251,18 +237,23 @@ static void geomCalc( QArray<LayoutStruct> &chain, int count, int pos,
 	sumStretch += chain[i].stretch;
 	if ( !chain[i].empty )
 	    spacerCount++;
+	wannaGrow = wannaGrow || chain[i].sizeData.preferGrow();
+	canShrink = canShrink || chain[i].sizeData.mayShrink();
     }
     if ( spacerCount )
 	spacerCount -= 1; //only spacers between things
     if ( space < sumMin + spacerCount*spacer ) {
 	//Not enogh space... Lets just give out minimum sizes.
+	//######## here we need to look at canShrink
 	for ( int i = 0; i < count; i++ )
 	    chain[i].size = chain[i].minSize;
     } else {
 	int n = count;
 	int space_left = space - spacerCount*spacer;
 	for ( i = 0; i < count; i++ ) {
-	    if ( !chain[i].done && chain[i].fixedSize ) {
+	    if ( !chain[i].done && ( wannaGrow ?
+				     !chain[i].sizeData.preferGrow() : 
+				     !chain[i].sizeData.mayGrow() )) {
 		//	    debug( "We have fixed size in %d", i );
 		chain[i].size = chain[i].minSize;
 		chain[i].done = TRUE;
@@ -326,8 +317,7 @@ public:
 	{ setSize( QMAX(rows,rr), QMAX(cols,cc) ); }
     void setRowStretch( int r, int s ) { expand(r+1,0); rowData[r].stretch=s; }
     void setColStretch( int c, int s ) { expand(0,c+1); colData[c].stretch=s; }
-    bool fixedWidth();
-    bool fixedHeight();
+    QSizePolicy sizePolicy();
     bool removeWidget( QWidget* );
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     //	  void setDirty() { needRecalc = TRUE; }
@@ -399,24 +389,19 @@ bool QLayoutArray::removeWidget( QWidget *w )
     return FALSE;
 }
 
-bool QLayoutArray::fixedHeight()
+QSizePolicy QLayoutArray::sizePolicy()
 {
     setupLayoutData();
-    bool fixed = TRUE;
+    QSizeData ver( QSizeData::Fixed );
+    QSizeData hor( QSizeData::Fixed );
     for ( int r = 0; r < rr; r++ ) {
-	fixed = fixed && rowData[r].fixedSize;
+	ver = ver | rowData[r].sizeData;
     }
-    return fixed;
-}
-
-bool QLayoutArray::fixedWidth()
-{
-    setupLayoutData();
-    bool fixed = TRUE;
     for ( int c = 0; c < cc; c++ ) {
-	fixed = fixed && colData[c].fixedSize;
+	hor = hor | colData[c].sizeData;
     }
-    return fixed;
+    
+    return QSizePolicy( hor, ver );
 }
 
 QSize QLayoutArray::minSize( int spacer )
@@ -486,18 +471,18 @@ void QLayoutArray::add( QLayoutBox *box,  int row1, int row2,
 
 void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 {
-    QSize min = box->minSize();
+    QSize min = box->sizeHint();
     if ( c ) {
     colData[box->col].minSize = QMAX( min.width(),
 				      colData[box->col].minSize );
-    colData[box->col].fixedSize = box->horFixed() &&
-				  colData[box->col].fixedSize;
+    colData[box->col].sizeData = box->sizePolicy().horData() &
+				  colData[box->col].sizeData;
     }
     if ( r ) {
     rowData[box->row].minSize = QMAX( min.height(),
 				      rowData[box->row].minSize );
-    rowData[box->row].fixedSize = box->verFixed() &&
-				  rowData[box->row].fixedSize;
+    rowData[box->row].sizeData = box->sizePolicy().verData() &
+				  rowData[box->row].sizeData;
     }
     if ( box->type() != QLayoutBox::Spacer ) {
 	//#### spacers do not get borders. This is ugly, but compatible.
@@ -516,12 +501,12 @@ void QLayoutArray::setupLayoutData()
     int i;
     for ( i = 0; i < rr; i++ ) {
 	rowData[i].minSize = 0;
-	rowData[i].fixedSize = TRUE;
+	rowData[i].sizeData  = QSizeData::PrefMin; //all TRUE
 	rowData[i].empty = TRUE;
     }
     for ( i = 0; i < cc; i++ ) {
 	colData[i].minSize = 0;
-	colData[i].fixedSize = TRUE;
+	colData[i].sizeData = QSizeData::PrefMin;
 	colData[i].empty = TRUE;
     }
     QListIterator<QLayoutBox> it( things );
@@ -542,15 +527,15 @@ void QLayoutArray::setupLayoutData()
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
 	    int w = 0;
-	    QSize min = box->minSize();
+	    QSize min = box->sizeHint();
 	    if ( r1 == r2 ) {
 		addData( box, TRUE, FALSE );
 	    } else {
 		int r;
 		for ( r = r1; r <= r2; r++ )
 		    w += rowData[r].minSize;
-		if ( w < min.width() ) {
-		    debug( "Overwide multicell" );
+		if ( w < min.height() ) {
+		    debug( "Overtall multicell" );
 		    //distribute the size somehow.
 		}
 	    }
@@ -560,8 +545,8 @@ void QLayoutArray::setupLayoutData()
 		int c;
 		for ( c = c1; c <= c2; c++ )
 		    w += colData[c].minSize;
-		if ( w < min.height() ) {
-		    debug( "Overtall multicell" );
+		if ( w < min.width() ) {
+		    debug( "Overwide multicell" );
 		    //distribute the size somehow.
 		}
 	    }
@@ -575,8 +560,8 @@ void QLayoutArray::distribute( QRect r, int spacing )
 {
     setupLayoutData();
 
-    geomCalc( rowData, rr, r.y(), r.height(), spacing );
     geomCalc( colData, cc, r.x(), r.width(), spacing );
+    geomCalc( rowData, rr, r.y(), r.height(), spacing );
 
     QListIterator<QLayoutBox> it( things );
     QLayoutBox * box;
@@ -618,352 +603,6 @@ void QLayoutArray::distribute( QRect r, int spacing )
 	
 	}
     }
-}
-
-/*!
-  \class QLayout qlayout.h
-  \brief The QLayout class is the base class of geometry specifiers.
-
-  \ingroup geomanagement
-
-  This is an abstract base class. The concrete layout managers
-  QBoxLayout and QGridLayout inherit from this one.
-
-  Most users of Q*Layout are likely to use some of the basic functions
-  provided by QLayout, such as	setMenuBar(), which is necessary
-  to manage a menu bar because of the special properties of menu bars,
-  and  freeze(), which allows you to freeze the widget's size and
-  layout.
-
-  To make your own layout manager, implement the functions
-  minSize(), setGeometry() and removeWidget().
-
-  Geometry management stops when the layout manager is deleted.
-*/
-
-
-/*!
-  Creates a new top-level QLayout with main widget \a
-  parent.  \a parent may not be 0.
-
-  \a border is the number of pixels between the edge of the widget and
-  the managed children.	 \a autoBorder sets the value of defaultBorder(), which
-  is interpreted by subclasses.	 If \a autoBorder is -1 the value
-  of \a border is used.
-
-  \a name is the internal object name
-
-  Having several top-level layouts for the same widget will cause
-  considerable confusion.
-
-*/
-
-QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name )
-    : QObject( parent, name )
-{
-    menubar = 0;
-    topLevel = FALSE;
-    if ( parent ) {
-	if ( parent->layout() ) {
-	    warning( "QLayout \"%s\" added to %s \"%s\","
-		     " which already had a layout.", QObject::name(),
-		     parent->className(), parent->name() );
-	} else {
-	topLevel = TRUE;
-	parent->installEventFilter( this );
-	parent->qInternalSetLayout( this );
-	}
-    }
-    outsideBorder = border;
-    if ( autoBorder < 0 )
-	insideSpacing = border;
-    else
-	insideSpacing = autoBorder;
-}
-
-/*!
-  \fn QString QLayout::name() const
-
-  Returns the internal object name.
-*/
-
-/*!
-  \fn QMenuBar* QLayout::menuBar () const
-  Returns the menu bar set for this layout, or a null pointer if no
-  menu bar is set.
- */
-
-
-
-/*!
-  \fn bool QLayout::isTopLevel () const
-
- */
-
-/*!
-  \fn const QRect& QLayout::geometry ()
-
- */
-
-
-/*!
-  \fn bool QLayout::removeWidget (QWidget *w )
-  This function is implemented in subclasses to remove \a w from geometry
-  management.
- */
-
-
-/*!
-  \fn int QLayout::margin () const
-  returns the border width.
- */
-
-
-/*!
-  Returns the main widget (parent widget) of this layout, or 0 if this
-  layout is a sub-layout which is not yet inserted.
-*/
-
-QWidget * QLayout::mainWidget()
-{
-    if ( !topLevel ) {
-	if ( parent() ) {
-	    ASSERT( parent()->inherits( "QLayout" ) );
-	    return ((QLayout*)parent())->mainWidget();
-	} else {
-	    return 0;
-	}
-    } else {
-	ASSERT( parent() && parent()->isWidgetType() );
-	return	(QWidget*)parent();
-    }
-}
-
-
-/*!
-  Constructs a new child QLayout,
-  If \a autoBorder is -1, this QLayout inherits \a parent's
-  defaultBorder(), otherwise \a autoBorder is used.
-*/
-
-QLayout::QLayout( int autoBorder, const char *name )
-    : QObject( 0, name )
-{
-    menubar = 0;
-    topLevel	 = FALSE;
-    insideSpacing = autoBorder;
-}
-
-
-
-/*!
-  This function is called whenever the parent widget receives a paint
-  event. Reimplemented in subclasses to draw decorations that depend on
-  the geometry of the layout.
-
-  The default implementation does nothing.
-
-  Note: The parent widget's \link QWidget::paintEvent()
-  paintEvent()\endlink function is called after this function. Any
-  painting done by the parent widget may obscure part or all of the
-  decoration done by this function.
- */
-
-void QLayout::paintEvent( QPaintEvent * )
-{
-    //############ must distribute to child layouts.
-}
-
-
-/*! \fn QSize QLayout::minSize()
-  Returns the minimum size this layout needs.
-*/
-
-/*! \fn	 bool removeWidget( QWidget *w )
-
-  Remove \a w from geometry management. This function is called
-  automatically whenever a child widget is deleted.
-
-  This function is implemented in subclasses. It is the
-  responsibility of the reimplementor to propagate the call to
-  sub-layouts.	This function returns TRUE if the widget was found.
- */
-
-#if 0
-/*!
-  Implemented in subclasses to remove cached values used during
-  geometry calculations, if any.
-
-  The default implementation does nothing.
-*/
-
-void QLayout::clearCache()
-{
-}
-#endif
-
-/*!
-  This function is reimplemented in subclasses to
-  perform layout.
-
-  The default implementation maintains the geometry() information.
- */
-void QLayout::setGeometry( const QRect &r )
-{
-    rect = r;
-}
-
-
-/*!
-  Performs child widget layout when the parent widget is resized.
-  Also handles removal of widgets.
-*/
-
-bool QLayout::eventFilter( QObject *o, QEvent *e )
-{
-    if ( !o->isWidgetType() )
-	return FALSE;
-
-    //	  QWidget *p = (QWidget*)o;
-    //		 if ( p != parentWidget() ) return FALSE;
-    switch ( e->type() ) {
-    case QEvent::Resize: {
-	QResizeEvent *r = (QResizeEvent*)e;
-	int mbh = 0;
-	if ( menubar )
-	    mbh = menubar->heightForWidth( r->size().width() );
-	setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-			 r->size().width() - 2*outsideBorder,
-			 r->size().height() - mbh - 2*outsideBorder ) );
-	break;
-    }
-    case QEvent::ChildRemoved: {
-	QChildEvent *c = (QChildEvent*)e;
-	if ( c->child()->isWidgetType() ) {
-	    QWidget *w = (QWidget*)c->child();
-	    if ( w == menubar )
-		menubar = 0;
-	    removeWidget( w );
-	    QEvent *lh = new QEvent( QEvent::LayoutHint );
-	    QApplication::postEvent( o, lh );
-	}
-	break;
-    }
-    case QEvent::LayoutHint:
-	activate(); //######## ######@#!#@!$ should be optimized somehow...
-	break;
-    case QEvent::Paint:
-	paintEvent( (QPaintEvent*) e );
-	break;
-    default:
-	break;
-    }
-    return FALSE;			    // standard event processing
-
-}
-
-
-
-/*!
-  Deletes all layout children. Geometry management stops when
-  a toplevel layout is deleted.
-  \internal
-  The layout classes will probably be fatally confused if you delete
-  a sublayout
-*/
-
-QLayout::~QLayout()
-{
-    //note that this function may be called during the QObject destructor,
-    //when the parent no longer is a QWidget.
-    if ( isTopLevel() && parent()->isWidgetType() &&
-	 ((QWidget*)parent())->layout() == this )
-	((QWidget*)parent())->qInternalSetLayout( 0 );
-}
-
-
-/*!
-  This function is called from addLayout functions in subclasses,
-  to add \a l layout as a sublayout.
-*/
-//############## do we like this API???
-void QLayout::addChildLayout( QLayout *l )
-{
-    if ( l->topLevel ) {
-#if defined(CHECK_NULL)
-	warning( "QLayout: Attempt to add top-level layout as child" );
-#endif
-	return;
-    }
-    insertChild( l );
-    if ( l->insideSpacing < 0 )
-	l->insideSpacing = insideSpacing;
-}
-
-/*!
-  \fn int QLayout::defaultBorder() const
-  Returns the default border for the geometry manager.
-*/
-
-/*!
-  \overload void QLayout::freeze()
-
-  This version of the method fixes the main widget at its minimum size.
-  You can also achieve this with freeze( 0, 0 );
-*/
-
-
-/*!
-  Fixes the size of the main widget and distributes the available
-  space to the child widgets. For widgets which should not be
-  resizable, but where a QLayout subclass is used to set up the initial
-  geometry.
-
-  A frozen layout cannot be unfrozen, the only sensible thing to do
-  is to delete it.
-
-  The size is adjusted to a valid value. Thus freeze(0,0) fixes the
-  widget to its minimum size.
-*/
-
-void QLayout::freeze( int w, int h )
-{
-    warning( "QLayout::freeze( %d, %d ) not implemented", w, h );
-}
-
-
-/*!
-  Makes the geometry manager take account of the menu bar \a w. All
-  child widgets are placed below the bottom edge of the menu bar.
-
-  A menu bar does its own geometry managing, never do addWidget()
-  on a menu bar.
-*/
-
-void QLayout::setMenuBar( QMenuBar *w )
-{
-    menubar = w;
-}
-
-
-/*!
-  Returns TRUE if this layout has a fixed horizontal size.
-  The default implementation returns FALSE.
-*/
-
-bool QLayout::fixedWidth()
-{
-    return FALSE;
-}
-
-/*!
-  Returns TRUE if this layout has a fixed vertical size.
-  The default implementation returns FALSE.
-*/
-
-bool QLayout::fixedHeight()
-{
-    return FALSE;
 }
 
 
@@ -1174,7 +813,7 @@ int QGridLayout::numCols() const
   Returns the minimum size needed by this grid.
 */
 
-QSize QGridLayout::minSize()
+QSize QGridLayout::sizeHint()
 {
     QSize s =  array->minSize( defaultBorder() );
     if ( isTopLevel() )
@@ -1342,21 +981,12 @@ void QGridLayout::addColSpacing( int col, int minsize )
 
 
 /*!
-  Returns TRUE if this layout has a fixed width.
+  Returns the size policy of this layout.
 */
 
-bool QGridLayout::fixedWidth()
+QSizePolicy QGridLayout::sizePolicy()
 {
-    return array->fixedWidth();
-}
-
-/*!
-  Returns TRUE if this layout has a fixed height.
-*/
-
-bool QGridLayout::fixedHeight()
-{
-    return array->fixedHeight();
+    return array->sizePolicy();
 }
 
 /*!
@@ -1745,30 +1375,4 @@ QVBoxLayout::QVBoxLayout( int autoBorder, const char *name )
 
 QVBoxLayout::~QVBoxLayout()
 {
-}
-
-
-/*!  Redoes the layout for mainWidget().  You should generally not
-  need to call this, as it is automatically called at most appropriate
-  times.
-
-  However, if you set up a QLayout for a visible widget without
-  resizing that widget, you need to call this function in order to lay
-  it out.
-*/
-
-bool QLayout::activate()
-{
-    // Paul: If adding stuff to a QLayout for a widget causes
-    // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
-    // unnecessary in that case too.
-
-#if 1
-    QSize s = mainWidget()->size();
-    int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
-    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
-			s.width() - 2*outsideBorder,
-			s.height() - mbh - 2*outsideBorder ) );
-#endif
-    return TRUE;
 }

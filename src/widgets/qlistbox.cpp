@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#164 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#165 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1950,4 +1950,15 @@ QSize QListBox::sizeHint() const
     if ( h<1000 ) sz.setHeight(h);
 
     return sz;
+}
+
+
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+
+QSizePolicy QListBox::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#29 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#30 $
 **
 ** Definition of QFrame widget class
 **
@@ -69,7 +69,7 @@ public:
     QRect	contentsRect()	const;
 
     QSize	sizeHint() const;
-
+    QSizePolicy sizePolicy() const;
 
 protected:
     virtual void	setFrameRect( const QRect & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#39 $
 **
 ** Implementation of QToolButton class
 **
@@ -206,6 +206,16 @@ QSize QToolButton::sizeHint() const
 	    w = tw;
     }
     return QSize( w + 7, h + 6 );
+}
+
+
+/*!
+  Specifies that this widget may grow.
+*/
+
+QSizePolicy QToolButton::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::MayGrow );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#69 $
 **
 ** Implementation of QSlider class
 **
@@ -935,6 +935,21 @@ QSize QSlider::sizeHint() const
 	return QSize( length, thick );
     else
 	return QSize( thick, length );
+}
+
+
+/*!
+  Specifies that this widget can use more, but is able to survive on
+  less, space in the orientation() direction; and is fixed in the other
+  direction.
+*/
+
+QSizePolicy QSlider::sizePolicy() const
+{
+    if ( orient == Horizontal )
+	return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    else
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#69 $
 **
 ** Implementation of QFrame widget class
 **
@@ -429,6 +429,28 @@ QSize QFrame::sizeHint() const
 }
 
 
+
+/*!
+  If this is a  line, it may stretch in the direction of the line, but it is 
+  fixed in the other direction. If this is a normal frame, use QWidget's
+  default behaviour.
+*/
+
+QSizePolicy QFrame::sizePolicy() const
+{
+    switch (fstyle & MShape) {
+      case HLine:
+	  return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+      case VLine:
+	  return QSizePolicy( QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
+    default:
+	return QWidget::sizePolicy();
+    }
+
+
+}
+
+
 /*!
   Handles paint events for the frame.
 
@@ -588,14 +610,14 @@ void QFrame::frameChanged()
 }
 
 /*!
-  
+
  Reimplementation of QWidget::updateMask(). Draws the mask of the
  frame when transparency is required.
- 
+
  This function calls the virtual functions drawFrameMask() and
  drawContentsMask(). These are the ones you may want to reimplement
  in subclasses.
- 
+
  \sa QWidget::setAutoMask(), drawFrameMask(), drawContentsMask()
 
 */
@@ -617,10 +639,10 @@ void QFrame::updateMask()
 
 /*!
   Virtual function that draws the mask of the frame's frame.
-  
+
   If you reimplemented drawFrame(QPainter*) and your widget should
   support transparency you probabaly have to re-implement this function as well.
-  
+
   The default implementation is empty.
 
   \sa drawFrame(), updateMask(), QWidget::setAutoMask(), QPainter::setClipRect()
@@ -683,10 +705,10 @@ void QFrame::drawFrameMask( QPainter* p )
 
 /*!
   Virtual function that draws the mask of the frame's contents.
-  
+
   If you reimplemented drawContents(QPainter*) and your widget should
   support transparency you probabaly have to re-implement this function as well.
-  
+
   The default implementation is empty.
 
   \sa drawContents(), updateMask(), QWidget::setAutoMask(), contentsRect(), QPainter::setClipRect()

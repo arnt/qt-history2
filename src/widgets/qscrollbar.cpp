@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#107 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#108 $
 **
 ** Implementation of QScrollBar class
 **
@@ -330,13 +330,25 @@ void QScrollBar::setPalette( const QPalette &p )
 
 QSize QScrollBar::sizeHint() const
 {
-    QSize s( size() );
     if ( orient == Horizontal ) {
-	s.setHeight( 16 );
+	return QSize( 30, 16 );
     } else {
-	s.setWidth( 16 );
+	return QSize( 16, 30 );
     }
-    return s;
+}
+
+/*!
+  Specifies that this widget can use more, but is able to survive on
+  less, space in the orientation() direction; and is fixed in the other
+  direction.
+*/
+
+QSizePolicy QScrollBar::sizePolicy() const
+{
+    if ( orient == Horizontal )
+	return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+    else
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
 }
 
 

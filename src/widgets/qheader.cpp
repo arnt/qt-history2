@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#62 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -689,6 +689,16 @@ QSize QHeader::sizeHint() const
 		      count() > 0
 		      ? cellSize( count()-1 ) + cellPos( count()-1 )
 		      : -1 );
+}
+
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QHeader::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#43 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#44 $
 **
 ** Definition of QPushButton class
 **
@@ -47,6 +47,7 @@ public:
     bool	isMenuButton() const;
 
     QSize	sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
     void	move( int x, int y );
     void	move( const QPoint &p );

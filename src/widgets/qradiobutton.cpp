@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#90 $
 **
 ** Implementation of QRadioButton class
 **
@@ -148,6 +148,17 @@ QSize QRadioButton::sizeHint() const
     return sz + QSize( bmsz.width()
 			+ (text().isEmpty() ? 0 : gutter+margin),
 			4 );
+}
+
+
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QRadioButton::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
 }
 
 

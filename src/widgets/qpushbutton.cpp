@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#125 $
 **
 ** Implementation of QPushButton class
 **
@@ -218,6 +218,18 @@ QSize QPushButton::sizeHint() const
 
     return QSize( w, h );
 }
+
+
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QPushButton::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+}
+
 
 
 /*!

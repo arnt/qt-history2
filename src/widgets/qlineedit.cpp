@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#159 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#160 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1187,6 +1187,16 @@ QSize QLineEdit::sizeHint() const
 	
     }
 
+}
+
+/*!
+  Specifies that this widget can use more, but is able to survive on
+  less, horizontal space; and is fixed vertically.
+*/
+
+QSizePolicy QLineEdit::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::Fixed );
 }
 
 

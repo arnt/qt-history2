@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#110 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2142,6 +2142,9 @@ void QMultiLineEdit::setAutoUpdate( bool enable )
  */
 void QMultiLineEdit::setFixedVisibleLines( int lines )
 {
+    //##################### should use sizeHint instead!!!!!!!!!
+    
+    
     // #### What about auto-scrollbars?
     int ls = fontMetrics().lineSpacing() + 1; // #### explain +1
     setFixedHeight( frameWidth()*2 + ls*lines );
@@ -2167,4 +2170,34 @@ QPoint QMultiLineEdit::cursorPoint() const
     cp.setX( BORDER + textWidthWithTabs( fm, line, col ) - 1 );
     cp.setY( (row * cellHeight()) + viewRect().y() );
     return cp;
+}
+
+
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+
+QSizePolicy QMultiLineEdit::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+}
+
+
+/*!
+  Returns a size sufficient for a few lines of text, or any value set by
+  setFixedVisibleLines().
+*/
+QSize QMultiLineEdit::sizeHint() const
+{
+
+    QFontMetrics fm( font() );
+    int h = fm.height()*6;
+    int w = fm.width( "This should be about 30-40 chars." );
+
+    int maxh = maximumSize().height();    
+    if ( maxh < QLayout::unlimited )
+	h = maxh;
+    
+    return QSize( w, h );
 }

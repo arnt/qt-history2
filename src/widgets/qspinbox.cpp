@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#52 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -381,6 +381,16 @@ QSize QSpinBox::sizeHint() const
     return r;
 }
 
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QSpinBox::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
+}
+
 
 /*!
   Sets the current value of the spin box to \a value. This is
@@ -615,7 +625,7 @@ void QSpinBox::rangeChange()
 /*!
   Sets the validator to \a v. The validator controls what keyboard
   input is accepted when the user is editing in the value field. The
-  default is to use a suitable QIntValidator. 
+  default is to use a suitable QIntValidator.
 
   Use setValidator(0) to turn off input validation (entered input will
   still be clamped to the range of the spinbox).

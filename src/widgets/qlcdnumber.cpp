@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#61 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -1094,7 +1094,7 @@ QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
 
 /*!  Returns a suitable size for this LCD number.  The size hint is on
   the small side, so as to be usable as minimum size.
-  
+
   The size hint takes numDigits() and smallDecimalPoint() into
   consideration.
 
@@ -1104,4 +1104,15 @@ QLCDNumber::SegmentStyle QLCDNumber::segmentStyle() const
 QSize QLCDNumber::sizeHint() const
 {
     return QSize( 18 * (numDigits() + (smallDecimalPoint() ? 0 : 1)), 30 );
+}
+
+
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+
+QSizePolicy QLCDNumber::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
 }

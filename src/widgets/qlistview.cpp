@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#160 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#161 $
 **
 ** Implementation of QListView widget class
 **
@@ -3531,6 +3531,18 @@ QSize QListView::sizeHint() const
 
     return s;
 }
+
+
+/*!
+  Specifies that this widget can use additional space, and that it can
+  survive on less than sizeHint().
+*/
+
+QSizePolicy QListView::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::PrefMin, QSizePolicy::PrefMin );
+}
+
 
 
 /*!  Sets \a item to be open if \a open is TRUE and \item is

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#94 $
 **
 ** Implementation of QLabel widget class
 **
@@ -489,6 +489,17 @@ QSize QLabel::sizeHint() const
 
 
 /*!
+  Specifies that this widget may stretch horizontally and
+  vertically.
+*/
+
+QSizePolicy QLabel::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::MayGrow );
+}
+
+
+/*!
   Draws the label contents using the painter \e p.
 */
 
@@ -543,7 +554,7 @@ void QLabel::setAutoMask(bool b)
 /*!
   Draws the label contents mask using the painter \e p.
   Used only in transparent mode.
-  
+
   \sa QWidget::setAutoMask();
 */
 void QLabel::drawContentsMask( QPainter *p )

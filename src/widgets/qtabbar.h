@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.h#18 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.h#19 $
 **
 ** Definition of QTabBar class
 **
@@ -66,6 +66,7 @@ public:
     bool isTabEnabled( int ) const;
 
     QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
     int currentTab() const;
     int keyboardFocusTab() const;

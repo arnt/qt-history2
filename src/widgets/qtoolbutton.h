@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#10 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#11 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -53,6 +53,7 @@ public:
     ~QToolButton();
 
     QSize sizeHint() const;
+    QSizePolicy sizePolicy() const;
 
     virtual void setIconSet( const QIconSet & );
     QIconSet iconSet() const;

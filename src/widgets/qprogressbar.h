@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.h#14 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.h#15 $
 **
 ** Definition of QProgressBar class
 **
@@ -41,6 +41,8 @@ public:
     int		progress()   const;
 
     QSize	sizeHint() const;
+    QSizePolicy sizePolicy() const;
+    
     void	show();
 
 public slots:

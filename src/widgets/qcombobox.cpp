@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#151 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#152 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -795,6 +795,17 @@ QSize QComboBox::sizeHint() const
 	  parentWidget()->inherits( "QDialog" ) && style() == WindowsStyle) )
 	maxH = 12;
     return QSize( 4 + 4 + maxW + extraW, maxH + 5 + 5 );
+}
+
+
+/*!
+  Specifies that this widget may stretch horizontally, but is fixed
+  vertically.
+*/
+
+QSizePolicy QComboBox::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
 }
 
 
