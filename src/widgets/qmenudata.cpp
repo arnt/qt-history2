@@ -18,6 +18,7 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
+#include "qsignal.h"
 
 class QMenuItemData {
 public:

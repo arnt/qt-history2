@@ -20,7 +20,6 @@
 #include "qiconset.h" // conversion QPixmap->QIconset
 #include "qkeysequence.h"
 #include "qstring.h"
-#include "qsignal.h"
 #include "qfont.h"
 #endif // QT_H
 
@@ -29,6 +28,7 @@
 class QPopupMenu;
 class QMenuDataData;
 class QObject;
+class QSignal;
 
 class QCustomMenuItem;
 class QMenuItemData;

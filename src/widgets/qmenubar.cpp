@@ -34,6 +34,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+#include "qsignal.h"
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
