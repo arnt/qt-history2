@@ -1213,23 +1213,18 @@ void QSplitter::setOpaqueResize(bool on)
 
 #ifdef QT_COMPAT
 /*!
-    Moves widget \a w to the leftmost/top position.
-*/
+\fn void QSplitter::moveToFirst(QWidget *w)
 
-void QSplitter::moveToFirst(QWidget *w)
-{
-    insertWidget(0, w);
-}
+Moves widget \a w to the leftmost/top position.
+*/
 
 
 /*!
-    Moves widget \a w to the rightmost/bottom position.
+\fn void QSplitter::moveToLast(QWidget *w)
+
+Moves widget \a w to the rightmost/bottom position.
 */
 
-void QSplitter::moveToLast(QWidget *w)
-{
-    addWidget(w);
-}
 #endif
 
 /*!
