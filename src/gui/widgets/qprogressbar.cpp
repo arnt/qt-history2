@@ -18,6 +18,7 @@
 #include "qdrawutil.h"
 #include "qpixmap.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include <private/qinternal_p.h>
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
@@ -200,6 +201,22 @@ void QProgressBar::setProgress(int progress, int totalSteps)
     This property is QString::null if progress counting has not started.
 */
 
+static Q4StyleOptionProgressBar getStyleOption(const QProgressBar *pb)
+{
+    Q4StyleOptionProgressBar opt(0);
+    opt.init(pb);
+    opt.totalSteps = pb->totalSteps();
+    opt.progress = pb->progress();
+    opt.progressString = pb->progressString();
+    opt.extras = Q4StyleOptionProgressBar::None;
+    if (pb->centerIndicator())
+        opt.extras |= Q4StyleOptionProgressBar::CenterIndicator;
+    if (pb->percentageVisible())
+        opt.extras |= Q4StyleOptionProgressBar::PercentageVisible;
+    if (pb->indicatorFollowsStyle())
+        opt.extras |= Q4StyleOptionProgressBar::IndicatorFollowsStyle;
+    return opt;
+}
 
 /*!
     \reimp
@@ -209,11 +226,10 @@ QSize QProgressBar::sizeHint() const
     ensurePolished();
     QFontMetrics fm = fontMetrics();
     int cw = style().pixelMetric(QStyle::PM_ProgressBarChunkWidth, this);
-    return style().sizeFromContents(QStyle::CT_ProgressBar, this,
-                                    QSize(cw * 7 + fm.width('0') * 4,
-                                           fm.height() + 8));
+    Q4StyleOptionProgressBar opt = getStyleOption(this);
+    return style().sizeFromContents(QStyle::CT_ProgressBar, &opt,
+                                    QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), fm, this);
 }
-
 
 /*!
     \reimp
@@ -350,24 +366,22 @@ void QProgressBar::paintEvent(QPaintEvent *)
     QPainter paint(this);
     QPainter *p = &paint;
     drawFrame(p);
-    QStyle::SFlags flags = QStyle::Style_Default;
-    if (isEnabled())
-        flags |= QStyle::Style_Enabled;
-    if (hasFocus())
-        flags |= QStyle::Style_HasFocus;
+    
+    Q4StyleOptionProgressBar opt = getStyleOption(this);
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, &opt, this), this);
+    
+    style().drawControl(QStyle::CE_ProgressBarGroove, &opt, p, this);
+    opt.rect = rect();
+    opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, &opt, this),
+                                  this);
+    style().drawControl(QStyle::CE_ProgressBarContents, &opt, p, this);
 
-    style().drawControl(QStyle::CE_ProgressBarGroove, p, this,
-                        QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarGroove, this), this),
-                        palette(), flags);
-
-    style().drawControl(QStyle::CE_ProgressBarContents, p, this,
-                        QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarContents, this), this),
-                        palette(), flags);
-
-    if (percentageVisible())
-        style().drawControl(QStyle::CE_ProgressBarLabel, p, this,
-                            QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, this), this),
-                            palette(), flags);
+    if (percentageVisible()) {
+        opt.rect = rect();
+        opt.rect = QStyle::visualRect(style().subRect(QStyle::SR_ProgressBarLabel, &opt, this),
+                                      this);
+        style().drawControl(QStyle::CE_ProgressBarLabel, &opt, p, this);
+    }
 }
 
 #endif

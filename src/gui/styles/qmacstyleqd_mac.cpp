@@ -2909,6 +2909,45 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                                        kThemeMenuSquareMenuBar);
         }
         break;
+    case CE_ProgressBarGroove:
+    case CE_ProgressBarLabel:
+        break;
+    case CE_ProgressBarContents:
+        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+            ThemeTrackDrawInfo tdi;
+            tdi.filler1 = 0;
+            switch (qt_aqua_size_constrain(widget)) {
+            case QAquaSizeUnknown:
+            case QAquaSizeLarge:
+                tdi.kind = pb->totalSteps ? kThemeLargeProgressBar : kThemeLargeIndeterminateBar;
+                break;
+            case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                    tdi.kind = pb->totalSteps ? kThemeMiniProgressBar : kThemeMiniIndeterminateBar;
+                    break;
+                }
+#endif
+            case QAquaSizeSmall:
+                tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
+                break;
+            }
+            tdi.bounds = *qt_glb_mac_rect(opt->rect, p);
+            tdi.max = pb->totalSteps;
+            tdi.min = 0;
+            tdi.value = pb->progress;
+            tdi.attributes = kThemeTrackHorizontal;
+            tdi.trackInfo.progress.phase = d->progressbarState.frame;
+            if (!qAquaActive(pb->palette))
+                tdi.enableState = kThemeTrackInactive;
+            else if (!(pb->state & Style_Enabled))
+                tdi.enableState = kThemeTrackDisabled;
+            else
+                tdi.enableState = kThemeTrackActive;
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeTrack(&tdi, 0, 0, 0);
+        }
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, widget);
     }
@@ -2928,6 +2967,12 @@ QRect QMacStyleQD::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
                       qMin(btn->rect.width() - 2 * macRect.left, macRect.right - macRect.left),
                       qMin(btn->rect.height() - 2 * macRect.top, macRect.bottom - macRect.top));
         }
+        break;
+    case SR_ProgressBarContents:
+        r = opt->rect;
+        break;
+    case SR_ProgressBarGroove:
+    case SR_ProgressBarLabel:
         break;
     default:
         r = QWindowsStyle::subRect(sr, opt, widget);

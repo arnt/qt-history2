@@ -25,7 +25,7 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QStyle::SFlags state;
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
-    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame };
+    enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -58,6 +58,18 @@ struct Q4StyleOptionTab : public Q4StyleOption {
     QString text;
     QIconSet icon;
     Q4StyleOptionTab(int version) : Q4StyleOption(version, Tab) {}
+};
+
+struct Q4StyleOptionProgressBar : public Q4StyleOption
+{
+    enum { Type = ProgressBar };
+    enum Extras { None, CenterIndicator = 0x01, PercentageVisible = 0x02, 
+                  IndicatorFollowsStyle = 0x03 };
+    uint extras;
+    QString progressString;
+    int totalSteps;
+    int progress;
+    Q4StyleOptionProgressBar(int version) : Q4StyleOption(version, ProgressBar) {}
 };
 
 struct Q4StyleOptionMenuItem : public Q4StyleOption {

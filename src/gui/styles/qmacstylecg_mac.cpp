@@ -1754,7 +1754,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
 }
 
 void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPainter *p,
-                         const QWidget *w) const
+                              const QWidget *w) const
 {
     ThemeDrawState tds = d->getDrawState(opt->state, opt->palette);
     switch (ce) {
@@ -1976,6 +1976,50 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                                              kHIThemeOrientationNormal);
                 break;
             }
+        case CE_ProgressBarContents:
+            if (const Q4StyleOptionProgressBar *pb
+                      = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+                HIThemeTrackDrawInfo tdi;
+                tdi.version = qt_mac_hitheme_version;
+                tdi.reserved = 0;
+                // Boy, I love writing this...
+                switch (qt_aqua_size_constrain(w)) {
+                case QAquaSizeUnknown:
+                case QAquaSizeLarge:
+                    tdi.kind = pb->totalSteps ? kThemeLargeProgressBar
+                                              : kThemeLargeIndeterminateBar;
+                    break;
+                case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+                    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_PANTHER) {
+                        tdi.kind = pb->totalSteps ? kThemeMiniProgressBar
+                                                  : kThemeMiniIndeterminateBar;
+                        break;
+                    }
+#endif
+                case QAquaSizeSmall:
+                    tdi.kind = pb->totalSteps ? kThemeProgressBar : kThemeIndeterminateBar;
+                    break;
+                }
+                tdi.bounds = qt_hirectForQRect(pb->rect);
+                tdi.max = pb->totalSteps;
+                tdi.min = 0;
+                tdi.value = pb->progress;
+                tdi.attributes = kThemeTrackHorizontal;
+                tdi.trackInfo.progress.phase = d->progressFrame;
+                if (!qAquaActive(pb->palette))
+                    tdi.enableState = kThemeTrackInactive;
+                else if (!(pb->state & Style_Enabled))
+                    tdi.enableState = kThemeTrackDisabled;
+                else
+                    tdi.enableState = kThemeTrackActive;
+                HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()),
+                                 kHIThemeOrientationNormal);
+            }
+            break;
+        case CE_ProgressBarLabel:
+        case CE_ProgressBarGroove:
+            break;
         default:
             QWindowsStyle::drawControl(ce, opt, p, w);
     }
@@ -2000,6 +2044,12 @@ QRect QMacStyleCG::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget *
             HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
             r = qrectForHIRect(outRect);
         }
+        break;
+    case SR_ProgressBarGroove:
+    case SR_ProgressBarLabel:
+        break;
+    case SR_ProgressBarContents:
+        r = opt->rect;
         break;
     default:
         r = QWindowsStyle::subRect(sr, opt, w);

@@ -761,6 +761,10 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
                             &frame->palette.brush(QPalette::Button));
         break;
+    case PE_ProgressBarChunk:
+        p->fillRect(opt->rect.x(), opt->rect.y() + 3, opt->rect.width() -2, opt->rect.height() - 6,
+                    opt->palette.brush(QPalette::Highlight));
+        break;        
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
@@ -1272,29 +1276,29 @@ void QCommonStyle::drawControl(ControlElement element,
 
 
 void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
-                               QPainter *p, const QWidget *w) const
+                               QPainter *p, const QWidget *widget) const
 {
     switch (ce) {
     case CE_PushButton:
         if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
             QRect br = btn->rect;
-            int dbi = pixelMetric(PM_ButtonDefaultIndicator, w);
+            int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
             if (btn->state & Style_ButtonDefault) {
-                drawPrimitive(PE_ButtonDefault, opt, p, w);
+                drawPrimitive(PE_ButtonDefault, opt, p, widget);
                 br.setCoords(br.left() + dbi, br.top() + dbi, br.right() - dbi, br.bottom() - dbi);
             }
             if (!(btn->extras & Q4StyleOptionButton::Flat)
                 || btn->state & (Style_Down | Style_On)) {
                 Q4StyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
-                drawPrimitive(PE_ButtonCommand, &tmpBtn, p, w);
+                drawPrimitive(PE_ButtonCommand, &tmpBtn, p, widget);
             }
             if (btn->extras & Q4StyleOptionButton::HasMenu) {
-                int mbi = pixelMetric(PM_MenuButtonIndicator, w);
+                int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
                 QRect ir = btn->rect;
                 Q4StyleOptionButton newBtn = *btn;
                 newBtn.rect = QRect(ir.right() - mbi, ir.height() - 20, mbi, ir.height() - 4);
-                drawPrimitive(PE_ArrowDown, &newBtn, p, w);
+                drawPrimitive(PE_ArrowDown, &newBtn, p, widget);
             }
         }
         break;
@@ -1333,14 +1337,14 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         break;
     case CE_RadioButton:
     case CE_CheckBox:
-        drawPrimitive(ce == CE_RadioButton ? PE_ExclusiveIndicator : PE_Indicator, opt, p, w);
+        drawPrimitive(ce == CE_RadioButton ? PE_ExclusiveIndicator : PE_Indicator, opt, p, widget);
         break;
     case CE_RadioButtonLabel:
     case CE_CheckBoxLabel:
         if (Q4StyleOptionButton *btn = qt_cast<Q4StyleOptionButton *>(opt)) {
             bool isRadio = (ce == CE_RadioButtonLabel);
             uint alignment = QApplication::reverseLayout() ? AlignRight : AlignLeft;
-            if (styleHint(SH_UnderlineShortcut, w, QStyleOption::Default, 0))
+            if (styleHint(SH_UnderlineShortcut, widget, QStyleOption::Default, 0))
                 alignment |= NoAccel;
             QPixmap pix;
             if (btn->icon.isNull())
@@ -1352,8 +1356,8 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
                 fropt.state = btn->state;
                 fropt.palette = btn->palette;
                 fropt.rect = visualRect(subRect(isRadio ? SR_RadioButtonFocusRect
-                                                        : SR_CheckBoxFocusRect, w), w);
-                drawPrimitive(PE_FocusRect, &fropt, p, w);
+                                                        : SR_CheckBoxFocusRect, widget), widget);
+                drawPrimitive(PE_FocusRect, &fropt, p, widget);
             }
         }
         break;
@@ -1373,11 +1377,97 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
     case CE_MenuBarItem:
         if (const Q4StyleOptionMenuItem *mbi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
             uint alignment = AlignCenter | ShowPrefix | DontClip | SingleLine;
-            if (!styleHint(SH_UnderlineShortcut, w, QStyleOption(), 0))
+            if (!styleHint(SH_UnderlineShortcut, widget, QStyleOption(), 0))
                 alignment |= NoAccel;
             QPixmap pix = mbi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
             drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
                      pix, mbi->text, -1, &mbi->palette.buttonText().color());
+        }
+        break;
+    case CE_ProgressBarGroove:
+        qDrawShadePanel(p, opt->rect, opt->palette, true, 1,
+                        &opt->palette.brush(QPalette::Background));
+        break;
+    case CE_ProgressBarLabel:
+        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+            QColor penColor = pb->palette.highlightedText();
+            QColor *pColor = 0;
+            if (pb->extras & Q4StyleOptionProgressBar::CenterIndicator
+                && !(pb->extras & Q4StyleOptionProgressBar::IndicatorFollowsStyle)
+                && pb->progress * 2 >= pb->totalSteps)
+                pColor = &penColor;
+            drawItem(p, pb->rect, AlignCenter | SingleLine, opt->palette,
+                     opt->state & Style_Enabled, pb->progressString, -1, pColor);
+        }
+        break;
+    case CE_ProgressBarContents:
+        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+            QPalette pal2 = pb->palette;
+            // Correct the highlight color if it is the same as the background
+            if (pal2.highlight() == pal2.background())
+                pal2.setColor(QPalette::Highlight, pb->palette.color(QPalette::Active,
+                                                                     QPalette::Highlight));
+            bool reverse = QApplication::reverseLayout();
+            int fw = 2;
+            int w = pb->rect.width() - 2 * fw;
+            if (!pb->totalSteps) {
+                // draw busy indicator
+                int x = pb->progress % (w * 2);
+                if (x > w)
+                    x = 2 * w - x;
+                x = reverse ? pb->rect.right() - x : x + pb->rect.x();
+                p->setPen(QPen(pal2.highlight(), 4));
+                p->drawLine(x, pb->rect.y() + 1, x, pb->rect.height() - fw);
+            } else {
+                const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
+                int u;
+                if (unit_width > 1)
+                    u = (pb->rect.width() + unit_width / 3) / unit_width;
+                else
+                    u = w / unit_width;
+                int p_v = pb->progress;
+                int t_s = pb->totalSteps ? pb->totalSteps : 1;
+
+                if (u > 0 && p_v >= INT_MAX / u && t_s >= u) {
+                    // scale down to something usable.
+                    p_v /= u;
+                    t_s /= u;
+                }
+
+                // nu < tnu, if last chunk is only a partial chunk
+                int tnu, nu;
+                tnu = nu = p_v * u / t_s;
+
+                if (nu * unit_width > w)
+                    --nu;
+
+                // Draw nu units out of a possible u of unit_width
+                // width, each a rectangle bordered by background
+                // color, all in a sunken panel with a percentage text
+                // display at the end.
+                int x = 0;
+                int x0 = reverse ? pb->rect.right() - ((unit_width > 1) ? unit_width : fw)
+                                 : pb->rect.x() + fw;
+                Q4StyleOptionProgressBar pbBits = *pb;
+                pbBits.palette = pal2;
+                int myY = pbBits.rect.y();
+                int myHeight = pbBits.rect.height();
+                pbBits.state = Style_Default;
+                for (int i = 0; i < nu; ++i) {
+                    pbBits.rect.setRect(x0 + x, myY, unit_width, myHeight);
+                    drawPrimitive(PE_ProgressBarChunk, &pbBits, p, widget);
+                    x += reverse ? -unit_width : unit_width;
+                }
+
+                // Draw the last partial chunk to fill up the
+                // progressbar entirely
+                if (nu < tnu) {
+                    int pixels_left = w - (nu * unit_width);
+                    int offset = reverse ? x0 + x + unit_width-pixels_left : x0 + x;
+                    pbBits.rect.setRect(offset, myY, pixels_left, myHeight);
+                    drawPrimitive(PE_ProgressBarChunk, &pbBits, p, widget);
+                }
+            }
         }
         break;
     default:
@@ -1684,46 +1774,6 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
         }
 #endif // QT_NO_MAINWINDOW
 
-    case SR_ProgressBarGroove:
-    case SR_ProgressBarContents:
-        {
-#ifndef QT_NO_PROGRESSBAR
-            QFontMetrics fm((widget ? widget->fontMetrics() :
-                               QApplication::fontMetrics()));
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
-            int textw = 0;
-            if (progressbar->percentageVisible())
-                textw = fm.width("100%") + 6;
-
-            if (progressbar->indicatorFollowsStyle() ||
-                ! progressbar->centerIndicator())
-                rect.setCoords(wrect.left(), wrect.top(),
-                               wrect.right() - textw, wrect.bottom());
-            else
-                rect = wrect;
-#endif
-            break;
-        }
-
-    case SR_ProgressBarLabel:
-        {
-#ifndef QT_NO_PROGRESSBAR
-            QFontMetrics fm((widget ? widget->fontMetrics() :
-                               QApplication::fontMetrics()));
-            const QProgressBar *progressbar = (const QProgressBar *) widget;
-            int textw = 0;
-            if (progressbar->percentageVisible())
-                textw = fm.width("100%") + 6;
-
-            if (progressbar->indicatorFollowsStyle() ||
-                ! progressbar->centerIndicator())
-                rect.setCoords(wrect.right() - textw, wrect.top(),
-                               wrect.right(), wrect.bottom());
-            else
-                rect = wrect;
-#endif
-            break;
-        }
 
     case SR_ToolButtonContents:
         rect = querySubControlMetrics(CC_ToolButton, widget, SC_ToolButton);
@@ -1857,6 +1907,28 @@ QRect QCommonStyle::subRect(SubRect sr, const Q4StyleOption *opt, const QWidget 
             else
                 r.setRect(tickOffset - 1, 0, thickness + 2, slider->rect.height());
             r = r.intersect(slider->rect);
+        }
+        break;
+    case SR_ProgressBarGroove:
+    case SR_ProgressBarContents:
+    case SR_ProgressBarLabel:
+        if (const Q4StyleOptionProgressBar *pb = qt_cast<const Q4StyleOptionProgressBar *>(opt)) {
+            QFontMetrics fm(w ? w->fontMetrics() : QApplication::fontMetrics());
+            int textw = 0;
+            if (pb->extras & Q4StyleOptionProgressBar::PercentageVisible)
+                textw = fm.width("100%") + 6;
+            
+            if (pb->extras & Q4StyleOptionProgressBar::IndicatorFollowsStyle
+                || !(pb->extras & Q4StyleOptionProgressBar::CenterIndicator)) {
+                if (sr != SR_ProgressBarLabel)
+                    r.setCoords(pb->rect.left(), pb->rect.top(),
+                                pb->rect.right() - textw, pb->rect.bottom());
+                else
+                    r.setCoords(pb->rect.right() - textw, pb->rect.top(),
+                                pb->rect.right(), pb->rect.bottom());
+            }
+            else
+                r = pb->rect;
         }
         break;
     default:
