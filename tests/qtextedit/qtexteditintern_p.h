@@ -168,6 +168,9 @@ public:
 
     QTextEditDocument( const QString &fn, bool tabify );
 
+    void loadPlainText( const QString &fn, bool tabify = FALSE );
+    void loadRichText( const QString &fn );
+    
     int x() const;
     int y() const;
     int width() const;
@@ -392,7 +395,7 @@ public:
 
     void setAlignment( int a );
     int alignment() const;
-    
+
 private:
     struct Selection {
 	int start, end;
@@ -415,7 +418,7 @@ private:
     int left;
     int depth;
     int align;
-    
+
 };
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -524,6 +527,8 @@ public:
     QTextEditFormatCollection *parent() const;
     QString key() const;
 
+    static QString getKey( const QFont &f, const QColor &c );
+    
     void addRef();
     void removeRef();
 
@@ -557,12 +562,17 @@ public:
     QTextEditFormat *defaultFormat() const;
     QTextEditFormat *format( QTextEditFormat *f );
     QTextEditFormat *format( QTextEditFormat *of, QTextEditFormat *nf, int flags );
+    QTextEditFormat *format( const QFont &f, const QColor &c );
     void remove( QTextEditFormat *f );
 
+    void debug();
+    
 private:
-    QTextEditFormat *defFormat, *lastFormat;
+    QTextEditFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextEditFormat> cKey;
     QTextEditFormat *cres;
+    QFont cfont;
+    QColor ccol;
     QString kof, knf;
     int cflags;
 
@@ -903,6 +913,19 @@ inline void QTextEditFormat::generateKey()
        << (int)fn.italic()
        << col.pixel()
        << fn.family();
+}
+
+inline QString QTextEditFormat::getKey( const QFont &fn, const QColor &col )
+{
+    QString k;
+    QTextOStream ts( &k );
+    ts << fn.pointSize()
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family();
+    return k;
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

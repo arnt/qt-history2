@@ -1,5 +1,6 @@
 #include "qtexteditintern_p.h"
 #include "qtextedit.h"
+#include "../../src/kernel/qrichtext_p.h"
 
 #include <qstringlist.h>
 #include <qfont.h>
@@ -9,6 +10,9 @@
 #include <qapplication.h>
 #include <qclipboard.h>
 #include <qmap.h>
+#include <qfileinfo.h>
+#include <qstylesheet.h>
+#include <qmime.h>
 
 #include <stdlib.h>
 
@@ -641,46 +645,11 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     fParag = 0;
 
     if ( !filename.isEmpty() ) {
-	QFile file( filename );
-	file.open( IO_ReadOnly );
-	QTextStream ts( &file );
-
-	QString s;
-	lParag = 0;
-	while ( !ts.atEnd() ) {
-	    lParag = new QTextEditParag( this, lParag, 0 );
-	    if ( !fParag )
-		fParag = lParag;
-	    QString s = ts.readLine();
-	    if ( !s.isEmpty() ) {
-		QChar c;
-		int i = 0;
-		int spaces = 0;
-		if ( tabify ) {
-		    for ( ; i < (int)s.length(); ++i ) {
-			c = s[ i ];
-			if ( c != ' ' && c != '\t' )
-			    break;
-			if ( c == '\t' ) {
-			    spaces = 0;
-			    s.replace( i, 1, "\t\t" );
-			    ++i;
-			} else if ( c == ' ' )
-			    ++spaces;
-			if ( spaces == 4 ) {
-			    s.replace( i  - 3, 4, "\t" );
-			    i-= 2;
-			    spaces = 0;
-			}
-		    }
-		}
-		if ( s.right( 1 ) != " " )
-		    s += " ";
-		lParag->append( s );
-	    } else {
-		lParag->append( " " );
-	    }
-	}
+	QFileInfo fi( filename );
+	if ( fi.extension().lower().contains( "htm" ) )
+	    loadRichText( filename );
+	else
+	    loadPlainText( fn, tabify );
     } else {
 	lParag = fParag = new QTextEditParag( this, 0, 0 );
 	lParag->append( " " );
@@ -695,6 +664,123 @@ QTextEditDocument::QTextEditDocument( const QString &fn, bool tabify )
     selectionColors[ ParenMatch ] = Qt::green;
     selectionColors[ Search ] = Qt::yellow;
     commandHistory = new QTextEditCommandHistory( 100 ); // ### max undo/redo steps should be configurable
+}
+
+void QTextEditDocument::loadPlainText( const QString &fn, bool tabify )
+{
+    if ( fParag ) {
+	QTextEditParag *p = 0;
+	while ( fParag ) {
+	    p = fParag->next();
+	    delete fParag;
+	    fParag = p;
+	}
+	fParag = 0;
+    }
+    
+    QFile file( fn );
+    file.open( IO_ReadOnly );
+    QTextStream ts( &file );
+
+    QString s;
+    lParag = 0;
+    while ( !ts.atEnd() ) {
+	lParag = new QTextEditParag( this, lParag, 0 );
+	if ( !fParag )
+	    fParag = lParag;
+	QString s = ts.readLine();
+	if ( !s.isEmpty() ) {
+	    QChar c;
+	    int i = 0;
+	    int spaces = 0;
+	    if ( tabify ) {
+		for ( ; i < (int)s.length(); ++i ) {
+		    c = s[ i ];
+		    if ( c != ' ' && c != '\t' )
+			break;
+		    if ( c == '\t' ) {
+			spaces = 0;
+			s.replace( i, 1, "\t\t" );
+			++i;
+		    } else if ( c == ' ' )
+			++spaces;
+		    if ( spaces == 4 ) {
+			s.replace( i  - 3, 4, "\t" );
+			i-= 2;
+			spaces = 0;
+		    }
+		}
+	    }
+	    if ( s.right( 1 ) != " " )
+		s += " ";
+	    lParag->append( s );
+	} else {
+	    lParag->append( " " );
+	}
+    }
+}
+
+void QTextEditDocument::loadRichText( const QString &fn )
+{
+    if ( fParag ) {
+	QTextEditParag *p = 0;
+	while ( fParag ) {
+	    p = fParag->next();
+	    delete fParag;
+	    fParag = p;
+	}
+	fParag = 0;
+    }
+
+    QFile file( fn );
+    file.open( IO_ReadOnly );
+    QTextStream ts( &file );
+    QRichText *rt = new QRichText( ts.read(), fCollection->defaultFormat()->font(), 
+				   QFileInfo( fn ).absFilePath(), 8, QMimeSourceFactory::defaultFactory(), 
+				   QStyleSheet::defaultSheet() );
+    QRichTextIterator it( *rt );
+    lParag = 0;
+    QTextEditFormat *fm = 0;
+    bool nextNl;
+    bool empty = TRUE;
+    do {
+	if ( !it.format()->customItem() && 
+	     ( !empty || ( empty && !it.text().simplifyWhiteSpace().isEmpty() ) ) ) {
+	    empty = FALSE;
+	    if ( !lParag || nextNl ) {
+		if ( lParag ) {
+		    if ( lParag->at( lParag->length() - 1 )->c != ' ' )
+			lParag->append( " " );
+		}
+		lParag = new QTextEditParag( this, lParag, 0 );
+		if ( it.outmostParagraph() && 
+		     it.outmostParagraph()->style ) {
+		    if ( it.outmostParagraph()->style->alignment() != -1 )
+			lParag->setAlignment( it.outmostParagraph()->style->alignment() );
+		    if ( it.outmostParagraph()->style->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			lParag->setType( QTextEditParag::BulletList );
+			lParag->setListDepth( 0 );
+		    }
+		}
+		if ( !fParag )
+		    fParag = lParag;
+	    }
+	    int i = lParag->length();
+	    int len = it.text().length();
+	    lParag->append( it.text() );
+	    fm = fCollection->format( it.format()->font(), it.format()->color() );
+	    lParag->setFormat( i, len, fm, TRUE );
+	    fm->removeRef();
+	    fm = 0;
+	    nextNl = it.text().find( '\n' ) != -1;
+	}
+    } while ( it.right( FALSE ) );
+
+#ifdef DEBUG_COLLECTION
+    fCollection->debug();
+#endif
+    
+    delete rt;
 }
 
 void QTextEditDocument::invalidate()
@@ -1675,6 +1761,7 @@ QTextEditFormatCollection::QTextEditFormatCollection()
     lastFormat = cres = 0;
     cflags = -1;
     cKey.setAutoDelete( TRUE );
+    cachedFormat = 0;
 }
 
 QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *f )
@@ -1762,13 +1849,60 @@ QTextEditFormat *QTextEditFormatCollection::format( QTextEditFormat *of, QTextEd
     return cres;
 }
 
+QTextEditFormat *QTextEditFormatCollection::format( const QFont &f, const QColor &c )
+{
+    if ( cachedFormat && cfont == f && ccol == c ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "format of font and col '%s' - best case", cachedFormat->key().latin1() );
+#endif
+	cachedFormat->addRef();
+	return cachedFormat;
+    }
+    
+    QString key = QTextEditFormat::getKey( f, c );
+    cachedFormat = cKey.find( key );
+    cfont = f;
+    ccol = c;
+
+    if ( cachedFormat ) {
+#ifdef DEBUG_COLLECTION
+	qDebug( "format of font and col '%s' - good case", cachedFormat->key().latin1() );
+#endif
+	cachedFormat->addRef();
+	return cachedFormat;
+    }
+    
+    cachedFormat = new QTextEditFormat( f, c );
+    cachedFormat->collection = this;
+    cKey.insert( cachedFormat->key(), cachedFormat );
+#ifdef DEBUG_COLLECTION
+	qDebug( "format of font and col '%s' - worst case", cachedFormat->key().latin1() );
+#endif
+    return cachedFormat;
+}
+
 void QTextEditFormatCollection::remove( QTextEditFormat *f )
 {
     if ( lastFormat == f )
 	lastFormat = 0;
     if ( cres == f )
-	cres = 0;
+ 	cres = 0;
+    if ( cachedFormat == f )
+ 	cachedFormat = 0;
     cKey.remove( f->key() );
+}
+
+void QTextEditFormatCollection::debug()
+{
+#ifdef DEBUG_COLLECTION
+    qDebug( "------------ QTextEditFormatCollection: debug --------------- BEGIN" );
+    QDictIterator<QTextEditFormat> it( cKey );
+    for ( ; it.current(); ++it ) {
+	qDebug( "format '%s' (%p): refcount: %d", it.current()->key().latin1(),
+		it.current(), it.current()->ref );
+    }
+    qDebug( "------------ QTextEditFormatCollection: debug --------------- END" );
+#endif
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
