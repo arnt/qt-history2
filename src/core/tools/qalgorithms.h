@@ -14,7 +14,6 @@
 #ifndef QALGORITHMS_H
 #define QALGORITHMS_H
 
-#include "qglobal.h"
 #include "qstring.h"
 #include "qtextstream.h"
 

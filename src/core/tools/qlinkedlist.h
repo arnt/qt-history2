@@ -14,7 +14,6 @@
 #ifndef QLINKEDLIST_H
 #define QLINKEDLIST_H
 
-#include "qglobal.h"
 #include "qiterator.h"
 #include "qatomic.h"
 

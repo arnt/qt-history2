@@ -27,5 +27,3 @@ inline int qAllocMore(int alloc, int extra)
     }
     return nalloc - extra;
 }
-
-
