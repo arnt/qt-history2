@@ -55,9 +55,12 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent ) const
     qDebug("setting qvim parent");
     qvim_set_parent( parent );
     qDebug("starting qvim_main()...");
+#if 0
     vim_main(qApp->argc(),qApp->argv()); // automatically creates editor
     qDebug("...done");
     ((EditorInterfaceImpl*)this)->vimEditor = qvim_get_editor();
+#endif
+    ((EditorInterfaceImpl*)this)->vimEditor = new VimMainWindow( parent );
     return vimEditor;
 }
 
@@ -71,7 +74,10 @@ void EditorInterfaceImpl::setText( const QString &txt )
 
 QString EditorInterfaceImpl::text() const
 {
-    return "blarg";
+    qDebug("EditorInterfaceImpl::text()");
+    if ( !vimEditor )
+	return QString::null;
+    return vimEditor->text();
 }
 
 void EditorInterfaceImpl::undo()

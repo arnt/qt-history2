@@ -99,12 +99,10 @@ myWidget::myWidget( QWidget *parent=0, const char *name=0, WFlags f=0 )
 	:QWidget(parent, name, f),
 	drawing_area(this)
 {
-    setFocusPolicy( WheelFocus );
 }
 
 void myWidget::paintEvent( QPaintEvent *e)
 {
-    dbf("myWidget::paintEvent");
     QRect r = e->rect();
     gui_redraw(r.x(), r.y(), r.width(), r.height() );
 }
@@ -115,7 +113,6 @@ void myWidget::resizeEvent ( QResizeEvent *e )
     gui_resize_window( width(), height() );
     QWidget::resizeEvent(e);
 }
-
 
 /*
  *  The main Window
@@ -148,10 +145,16 @@ VimMainWindow::VimMainWindow ( QWidget* parent, const char *name , WFlags f)
 VimMainWindow::~VimMainWindow()
 {
     qDebug("VimMainWindow::~VimMainWindow()");
+    QFile file( ".qvim_file" );
+    file.remove();
 }
 
 void VimMainWindow::setText( const QString& text )
 {
+#if 0
+    stuffcharReadbuff(ESC);
+    normal_cmd(&(((VimMainWindow*)this)->oa),TRUE);
+
     QFile file( ".qvim_file" );
     if ( !file.open( IO_WriteOnly | IO_Truncate ) ) {
 	qWarning("qvim: unable to open temporary file");
@@ -170,20 +173,46 @@ void VimMainWindow::setText( const QString& text )
     gui_redraw( r.x(), r.y(), r.width(), r.height() );
     w->drawing_area.setFocus();
     qDebug("DONE VimMainWindow::setText");
+#endif
+}
+
+QString VimMainWindow::text() const
+{
+#if 0
+    stuffcharReadbuff(ESC);
+    normal_cmd(&(((VimMainWindow*)this)->oa),TRUE);
+    QString cmd(":w! .qvim_file\n");
+    add_to_input_buf( (char_u*) cmd.latin1(), cmd.length() );
+    normal_cmd(&(((VimMainWindow*)this)->oa),TRUE);
+    QFile file( ".qvim_file" );
+    if ( !file.open( IO_ReadOnly | IO_Truncate ) ) {
+	qWarning("qvim: unable to open temporary file");
+	return QString::null;
+    }
+    QString text;
+    QTextStream stream( &file );
+    stream >> text;
+    file.close();
+    return text;
+#endif
+    return QString::null;
 }
 
 bool VimMainWindow::event(QEvent* e)
 {
+#if 0
     bool b = QFrame::event(e);
     if ( e->type() == QEvent::Show ) {
 	QRect r = w->drawing_area.geometry();
 	gui_redraw( r.x(), r.y(), r.width(), r.height() );
     }
     return b;
+#endif
 }
 
 void VimMainWindow::keyPressEvent( QKeyEvent *e )
 {
+#if 0
     const char *s = e->text().latin1();
     qDebug("VimMainWindow::keyPressEvent: %s", s);
     add_to_input_buf( (char_u*) s, strlen(s) );
@@ -275,28 +304,32 @@ void VimMainWindow::keyPressEvent( QKeyEvent *e )
     else
 	normal_cmd(&oa, TRUE);
     qDebug("DONE VimMainWindow::keyPressEvent: %s", s);
-
+#endif
 }
 
 
 void VimMainWindow::menu_activated(int dx)
 {
+#if 0
 	if (!dx) return; // tearoff
 //	printf("menu_activated : %p\n", (void*)dx);
 	gui_menu_cb((VimMenu *) dx);
+#endif
 }
 
 void VimMainWindow::focusInEvent( QFocusEvent * fe )
 {
+#if 0
     w->drawing_area.setFocus();
     gui_focus_change(true);
     if (blink_state == BLINK_NONE)
 	gui_mch_start_blink();
-
+#endif
 }
 
 void VimMainWindow::focusOutEvent( QFocusEvent * fe )
 {
+#if 0
     gui_focus_change(false);
 
     if (blink_state != BLINK_NONE)
@@ -306,18 +339,22 @@ void VimMainWindow::focusOutEvent( QFocusEvent * fe )
 #ifdef USE_XIM
     xim_set_focus(FALSE);
 #endif
+#endif
+
 }
 
 void VimMainWindow::set_blink_time( long wait, long on, long off)
 {
+#if 0
     blink_wait_time = wait;
     blink_on_time = on;
     blink_off_time = off;
+#endif
 }
 
 void VimMainWindow::start_cursor_blinking()
 {
-
+#if 0
     if (blink_timer.isActive()) blink_timer.stop();
 
     /* Only switch blinking on if none of the times is zero */
@@ -327,10 +364,11 @@ void VimMainWindow::start_cursor_blinking()
 	blink_timer.start( blink_wait_time, true);
 	gui_update_cursor(TRUE, FALSE);
     }
-
+#endif
 }
 void VimMainWindow::blink_cursor()
 {
+#if 0
     if (blink_state == BLINK_ON) {
 	// set cursor off
 	gui_undraw_cursor();
@@ -342,17 +380,19 @@ void VimMainWindow::blink_cursor()
 	blink_state = BLINK_ON;
 	blink_timer.start( blink_on_time, true);
     }
+#endif
 }
 
 void VimMainWindow::stop_cursor_blinking()
 {
+#if 0
 	if (blink_timer.isActive()) blink_timer.stop();
 
 	if (blink_state == BLINK_OFF)
 		gui_update_cursor(TRUE, FALSE);
 
 	blink_state = BLINK_NONE;
-
+#endif
 }
 
 /*

@@ -101,6 +101,7 @@ public:
 
     void setWaitForInput( bool wait ) { waitingForInput = wait; }
     void setText( const QString& text );
+    QString text() const;
 
     /* Init the blinking time */
     void set_blink_time( long, long, long );
