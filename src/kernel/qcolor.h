@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#10 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#11 $
 **
 ** Definition of QColor class
 **
@@ -16,9 +16,9 @@
 #include "qwindefs.h"
 
 
-const ulong RGB_DIRTY = 0x80000000;		// flags unset color
-const ulong RGB_INVALID = 0x40000000;		// flags invalid color
-const ulong RGB_MASK = 0x00ffffff;		// masks RGB values
+const ulong RGB_DIRTY	= 0x80000000;		// flags unset color
+const ulong RGB_INVALID	= 0x40000000;		// flags invalid color
+const ulong RGB_MASK	= 0x00ffffff;		// masks RGB values
 
 
 class QColor					// RGB based color
@@ -27,6 +27,7 @@ public:
     QColor();					// default RGB=0,0,0
     QColor( const QColor & );			// copy color
     QColor( int r, int g, int b );		// specify RGB
+    QColor( ulong rgb, ulong pix=0xffffffff) ;	// specify RGB and/or pixel
     QColor( const char *name );			// load color from database
    ~QColor();
 
@@ -112,9 +113,8 @@ inline bool QColor::operator!=( const QColor &c ) const
 // Global colors
 //
 
-extern const QColor trueColor;
-extern const QColor falseColor;
-extern const QColor FFColor;
+extern const QColor color0;
+extern const QColor color1;
 extern const QColor black;
 extern const QColor white;
 extern const QColor darkGray;
