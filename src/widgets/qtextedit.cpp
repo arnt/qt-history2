@@ -101,7 +101,7 @@ public:
     uint autoFormatting;
 };
 
-#ifndef QT_NO_DRAGANDDROP
+#ifndef QT_NO_MIME
 class QRichTextDrag : public QTextDrag
 {
 public:
@@ -3217,7 +3217,7 @@ void QTextEdit::repaintChanged()
     paintDocument( FALSE, &p, contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-#ifndef QT_NO_DRAGANDDROP
+#ifndef QT_NO_MIME
 QTextDrag *QTextEdit::dragObject( QWidget *parent ) const
 {
     if ( !doc->hasSelection( QTextDocument::Standard ) ||
@@ -3252,14 +3252,14 @@ void QTextEdit::cut()
 
 void QTextEdit::normalCopy()
 {
-#ifndef QT_NO_DRAGANDDROP
+#ifndef QT_NO_MIME
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
 #ifndef QT_NO_MIMECLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
 #endif
-#endif //QT_NO_DRAGANDDROP
+#endif //QT_NO_MIME
 }
 
 /*!
@@ -4812,8 +4812,9 @@ void QTextEdit::pasteSubType( const QByteArray &subtype )
 
 void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 {
-#ifndef QT_NO_DRAGANDDROP
+#ifndef QT_NO_MIME
     QByteArray st = subtype;
+
     if ( subtype != "x-qrichtext" )
 	st.prepend( "text/" );
     else
@@ -4917,7 +4918,7 @@ void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 	if ( !t.isEmpty() )
 	    insert( t, FALSE, TRUE );
     }
-#endif //QT_NO_DRAGANDDROP
+#endif //QT_NO_MIME
 }
 
 #ifndef QT_NO_MIMECLIPBOARD
