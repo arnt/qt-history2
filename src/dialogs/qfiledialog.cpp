@@ -3399,9 +3399,9 @@ bool Q_EXPORT qt_use_native_dialogs = TRUE;
   file dialog and not a QFileDialog, unless the style of the application
   is set to something other than the native style (Note that on Windows the
   dialog will spin a blocking modal event loop that will not dispatch any
-  QTimers and if parent is not 0 then it will position the dialog just under 
+  QTimers and if parent is not 0 then it will position the dialog just under
   the parent's titlebar).
-  
+
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
   the file dialog will change to /var/tmp after entering /usr/tmp.
@@ -4440,7 +4440,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
   symlinks as regular directories.
 
   Note that on Windows the dialog will spin a blocking modal event loop
-  that will not dispatch any QTimers and if parent is not 0 then it will 
+  that will not dispatch any QTimers and if parent is not 0 then it will
   position the dialog just under the parent's titlebar.
 
   \sa getOpenFileName(), getOpenFileNames(), getSaveFileName()
@@ -4737,9 +4737,9 @@ QFileDialog::PreviewMode QFileDialog::previewMode() const
     {
 	QLabel* label = new QLabel( "Added widgets", this );
 	QLineEdit* lineedit = new QLineEdit( this );
-	QToolButton* toolbutton = new QToolButton( this );
+	QPushButton* pushbutton = new QPushButton( this );
 
-	addWidgets( label, lineedit, toolbutton );
+	addWidgets( label, lineedit, pushbutton );
     }
   \endcode
 
@@ -5525,7 +5525,7 @@ void QFileDialog::modeButtonsDestroyed()
   file dialog and not a QFileDialog, unless the style of the application
   is set to something other than the native style. (Note that on Windows the
   dialog will spin a blocking modal event loop that will not dispatch any
-  QTimers and if parent is not 0 then it will position the dialog just under 
+  QTimers and if parent is not 0 then it will position the dialog just under
   the parent's titlebar).
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
