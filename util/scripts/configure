@@ -569,47 +569,81 @@ fi
 
 if [ ! -f configs/linux-generic-g++-shared -a $OPENGL = "auto" ]
 then
-    OPENGL=yes
     # Auto-detect opengl support
+    OPENGL=yes
+
+    if [ "$VERBOSE" = "yes" ]; then
+	echo "OpenGL auto-detection..."
+    fi
+
     LIBS=`sed -n -e '/^SYSCONF_LIBS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
+    GLDIRS=`sed -n -e '/^SYSCONF_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
+    XDIRS=`sed -n -e '/^SYSCONF_LFLAGS_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG`
+    LIBDIRS="$GLDIRS $XDIRS /usr/lib /lib"
+
     for L in $LIBS
     do
 	F=
-	for LIB in `sed -n -e '/^SYSCONF_LFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $XCONFIG` /usr/lib /lib
+	for LIBDIR in $LIBDIRS
 	do
-	    if [ "`echo $LIB/lib$L.*`" != "$LIB"/lib$L.\* ]
+	    if [ "`echo $LIBDIR/lib$L.*`" != "$LIBDIR"/lib$L.\* ]
 	    then
 		F=yes
+		if [ "$VERBOSE" = "yes" ]; then
+		    echo "Found $L lib in $LIBDIR"
+		fi
 		break
 	    fi
 	done
-	if [ "$F" = "yes" ]
-	then
-	    for I in GL/glu.h GL/gl.h
-	    do
-		G=
-		for INC in `sed -n -e '/^SYSCONF_CXXFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG` /usr/include
-		do
-		    if [ -f $INC/$I ]
-		    then
-			G=yes
-			break
-		    fi
-		done
-	    done
-
-	    if [ -z "$G" ]
-            then
-                MODULES=`echo $MODULES | sed -e 's/opengl//'`
-		OPENGL=no
-	        break
-            fi
-	else
-            MODULES=`echo $MODULES | sed -e 's/opengl//'`
+	if [ -z "$F" ]; then
+	    MODULES=`echo $MODULES | sed -e 's/opengl//'`
 	    OPENGL=no
-            break
+		if [ "$VERBOSE" = "yes" ]; then
+		    echo "Could not find $L lib anywhere in $LIBDIRS"
+		fi
+	    break
 	fi
     done
+
+    if [ "$OPENGL" = "yes" ]
+    then
+	INCS="GL/gl.h GL/glu.h"
+	GLDIRS=`sed -n -e '/^SYSCONF_CXXFLAGS_OPENGL[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+	XDIRS=`sed -n -e '/^SYSCONF_CXXFLAGS_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $XCONFIG`
+	INCDIRS="$GLDIRS $XDIRS /usr/include /include"
+
+	for I in $INCS
+	do
+	    F=
+	    for INCDIR in $INCDIRS
+	    do
+		if [ -f $INCDIR/$I ]
+		then
+		    F=yes
+		    if [ "$VERBOSE" = "yes" ]; then
+			echo "Found $I in $INCDIR"
+		    fi
+		    break
+		fi
+	    done
+	    if [ -z "$F" ]; then
+		MODULES=`echo $MODULES | sed -e 's/opengl//'`
+		OPENGL=no
+		    if [ "$VERBOSE" = "yes" ]; then
+			echo "Could not find $I anywhere in $INCDIRS"
+		    fi
+		break
+	    fi
+	done
+    fi
+
+    if [ "$VERBOSE" = "yes" ]; then
+	if [ "$OPENGL" != "yes" ]; then
+	    echo "OpenGL module disabled."
+	else
+	    echo "OpenGL module enabled."
+	fi
+    fi
 fi
 
 
@@ -943,7 +977,7 @@ for a in `find $relpath/. -name Makefile.in -print | sort` ; do
     REQ=`sed -n -e '/^REQUIRES *=/ { s/[^=]*= *//; p; }' $M`
     for r in $REQ
     do
-	if echo $MODULES | grep -v "\\<$r\\>" >/dev/null
+	if echo $MODULES | grep -v "$r" >/dev/null
 	then
 	    M=
 	    break
