@@ -487,8 +487,6 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
 	    wy2=wy+frobnitz->height();
 	    qDebug("recursive_match %d %d  %d %d  %d %d",frobnitz->x(),
 		    frobnitz->y(),wx,wy,wx2,wy2);
-	    bigx=wx;
-	    bigy=wy;
 	    if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 		return recursive_match(frobnitz,x-wx,y-wy);
 	    }
