@@ -279,6 +279,11 @@ public slots:
     void	     quit();
     void	     closeAllWindows();
 
+#if defined(Q_WS_QWS)
+protected:
+        void setArgs(int, char **);
+#endif 
+
 private:
     void	     construct( int &argc, char **argv, Type );
     bool	     processNextEvent( bool );
@@ -399,6 +404,15 @@ inline char **QApplication::argv() const
 {
     return app_argv;
 }
+
+#if defined(Q_WS_QWS)
+inline void QApplication::setArgs(int c, char **v)
+{
+        app_argc = c;
+	    app_argv = v;
+}
+#endif
+
 #ifndef QT_NO_CURSOR
 inline QCursor *QApplication::overrideCursor()
 {
