@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#58 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#58 $");
 
 
 /*!
@@ -191,8 +191,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     d->discardNextMousePress = FALSE;
     d->shortClick            = FALSE;
 
-    if ( style() == MotifStyle )
-	setAcceptFocus( TRUE );
+    setAcceptFocus( TRUE );
 }
 
 
@@ -907,49 +906,60 @@ void QComboBox::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 
-/*!  Handles key press events for the combo box.  Enter and Return pop
-  up the list box/popup, and in Motif style Space pops it up too, and
-  up and down change the selected item.
+/*!
+  Handles key press events for the combo box.
+
+  In Motif style, up and down change the selected item and both enter
+  and return pops up the list.  In Windows style, all four arrow keys
+  change the selected item, and Space pops up the list.
 */
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
+    int c;
     switch ( e->key() ) {
     case Key_Return:
     case Key_Enter:
+	if ( style() == MotifStyle ) {
+	    e->ignore();
+	    break;
+	}
+	// fall through for motif
 	e->accept();
 	popup();
 	break;
     case Key_Space:
-	if ( style() == MotifStyle ) {
-	    e->accept();
-	    popup();
-	} else {
-	    e->ignore();
-	}
+	e->accept();
+	popup();
 	break;
+    case Key_Left:
+	if ( style() != WindowsStyle ) {
+	    e->ignore();
+	    break;
+	}
+	// fall through for windows
     case Key_Up:
+	c = currentItem();
+	if ( c > 0 )
+	    setCurrentItem( c-1 );
+	else
+	    setCurrentItem( count()-1 );
+	e->accept();
+	break;
+    case Key_Right:
 	if ( style() == MotifStyle ) {
-	    int c = currentItem();
-	    if ( c > 0 )
-		setCurrentItem( c-1 );
-	    else
-		setCurrentItem( count()-1 );
-	    e->accept();
-	} else {
 	    e->ignore();
+	    break;
 	}
+	// fall through for windows
     case Key_Down:
-	if ( style() == MotifStyle ) {
-	    int c = currentItem();
-	    if ( ++c < count() )
-		setCurrentItem( c );
-	    else
-		setCurrentItem( 0 );
-	    e->accept();
-	} else {
-	    e->ignore();
-	}
+c	 = currentItem();
+	if ( ++c < count() )
+	    setCurrentItem( c );
+	else
+	    setCurrentItem( 0 );
+	e->accept();
+	break;
     default:
 	e->ignore();
 	break;
