@@ -1884,23 +1884,25 @@ static void PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
         i = NUMPTSTOBUFFER >> 1;
         if (!numFullPtBlocks)
             i = iCurPtBlock >> 1;
-        for (pts = CurPtBlock->pts; --i; pts += 2) {
-            if (pts->x() > pts[1].x())
-                continue;
-            if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom()
-                && pts[1].x() == rects->right()
-                && (numRects == 1 || rects[-1].top() != rects->top())
-                && (i && pts[2].y() > pts[1].y() )) {
-                rects->setBottom(pts[1].y());
-                continue;
-            }
-            ++numRects;
-            ++rects;
-            rects->setCoords(pts->x(), pts->y(), pts[1].x(), pts[1].y());
-            if (rects->left() < extents->left())
-                extents->setLeft( rects->left() );
-            if (rects->right() > extents->right())
-                extents->setRight( rects->right() );
+	if(i) {
+	    for (pts = CurPtBlock->pts; --i; pts += 2) {
+		if (pts->x() > pts[1].x())
+		    continue;
+		if (numRects && pts->x() == rects->left() && pts->y() == rects->bottom()
+		    && pts[1].x() == rects->right()
+		    && (numRects == 1 || rects[-1].top() != rects->top())
+		    && (i && pts[2].y() > pts[1].y() )) {
+		    rects->setBottom(pts[1].y());
+		    continue;
+		}
+		++numRects;
+		++rects;
+		rects->setCoords(pts->x(), pts->y(), pts[1].x(), pts[1].y());
+		if (rects->left() < extents->left())
+		    extents->setLeft( rects->left() );
+		if (rects->right() > extents->right())
+		    extents->setRight( rects->right() );
+	    }
         }
         CurPtBlock = CurPtBlock->next;
     }
