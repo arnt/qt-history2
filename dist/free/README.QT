@@ -124,7 +124,7 @@ libraries) provided that you accept the terms above, and in addition that:
   - Your components' documentation includes the following text:
 	[Your package] requires the Qt library, which is copyright
 	Troll Tech AS.	Freely distributable programs may generally
-	use Qt for free, see [LICENSE] for details.
+	use Qt for free, see [README.QT] for details.
   - README.QT is distributed along with your components.
   - Qt is not distributed as an integral part of your components.
 
