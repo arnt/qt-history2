@@ -1795,6 +1795,8 @@ void QLineEdit::focusInEvent( QFocusEvent* e )
 	int cft = QApplication::cursorFlashTime();
 	d->cursorTimer = cft ? startTimer( cft/2 ) : -1;
     }
+    if( !hasSelectedText() || style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ) )
+	d->setCursorVisible( TRUE );
     d->updateMicroFocusHint();
 }
 
