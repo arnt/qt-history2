@@ -2054,8 +2054,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		return TRUE; // not interesting
 	    if ( inPopupMode() ) // some delayed focus event to ignore
 		break;
-	    active_window = widget->topLevelWidget();
-	    setActiveWindow(active_window);
+	    setActiveWindow(widget);
 	    ((QETWidget *)active_window)->repaintDecoration(desktop()->rect());
 
 	    QWidget *w = widget->focusWidget();
