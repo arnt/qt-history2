@@ -987,7 +987,7 @@ MakefileGenerator::fileFixify(QString &file)
 	if(QDir::isRelativePath(file))
 	    return FALSE;
 	QString match_dir = Option::output_dir;
-	if(file.left(match_dir.length()) == match_dir.length()) {
+	if(file.left(match_dir.length()) == match_dir) {
 	    file = file.right(file.length() - match_dir.length());
 	} else {
 	    //try to make no more than two ..'s
