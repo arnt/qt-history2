@@ -5406,7 +5406,10 @@ QChar QTextDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
     pos++;
 
     if ( s.length() > 1 && s[0] == '#') {
-	return s.mid(1).toInt();
+	int num = s.mid(1).toInt();
+	if ( num == 151 ) // ### hack for designer manual
+	    return '-';
+	return num;
     }
 
     QMap<QCString, QChar>::Iterator it = htmlMap()->find(s);
