@@ -129,7 +129,7 @@ struct SWCursorData {
 };
 #endif
 
-#ifndef QT_NO_QWS_CURSOR
+#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
 # define GFX_START(r) bool swc_do_save=FALSE; \
 		     if(is_screen_gfx && gfx_swcursor) { \
                         if((*gfx_optype)) sync(); \
@@ -379,7 +379,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
 		   data->width+1, data->height+1 );
     if (save) saveUnder();
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
 }
@@ -395,7 +395,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 
 void QScreenCursor::move( int x, int y )
 {
-#if defined(QT_NO_QWS_MULTIPROCESS) || defined(QT_PAINTER_LOCKING)
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab( TRUE );
 #endif
     bool save = restoreUnder(data->bound);
@@ -1414,9 +1414,11 @@ void QGfxRasterBase::drawText(int x,int y,const QString & s)
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText grab");
 #endif
+    
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
 #endif
+    
 #ifdef DEBUG_LOCKS
     qDebug("unaccelerated drawText lock");
 #endif
@@ -2700,15 +2702,16 @@ void QGfxRaster<depth,type>::drawPoint( int x, int y )
 	return;
     x += xoffs;
     y += yoffs;
-    if (inClip(x,y)) {
-	if((*gfx_optype))
-	    sync();
-	(*gfx_optype)=0;
-	usePen();
+
     GFX_START(QRect(x,y,2,2))
+    if((*gfx_optype))
+	sync();
+    (*gfx_optype)=0;
+        usePen();
+    if (inClip(x,y)) {
 	drawPointUnclipped( x, scanLine(y) );
-    GFX_END
     }
+    GFX_END
 }
 
 /*!
@@ -2768,9 +2771,6 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 	return;
     }
 
-    if((*gfx_optype))
-	sync();
-    (*gfx_optype)=0;
     usePen();
     x1+=xoffs;
     y1+=yoffs;
@@ -2793,6 +2793,10 @@ void QGfxRaster<depth,type>::drawLine( int x1, int y1, int x2, int y2 )
 
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
+    if((*gfx_optype))
+    sync();
+    (*gfx_optype)=0;
+    
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
     if (y1 == y2 && !dashedLines && ncliprect == 1) {
@@ -3161,11 +3165,11 @@ void QGfxRaster<depth,type>::drawThickPolyline( const QPointArray &points,int in
 	cpen.width(), cpen.joinStyle(), close );
 
     usePen();
+    GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
 	sync();
     }
     (*gfx_optype)=0;
-    GFX_START(clipbounds)
     scan(pa, TRUE, 0, pa.count(), FALSE);
     GFX_END
 }
@@ -4443,12 +4447,14 @@ Draw a filled rectangle in the current brush color from \a rx,\a ry to \a w,
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::fillRect( int rx,int ry,int w,int h )
 {
+    GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+
     if((*gfx_optype))
 	sync();
     (*gfx_optype)=0;
     setAlphaType(IgnoreAlpha);
     if ( w <= 0 || h <= 0 ) return;
-    GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // ### fix for 8bpp
     // This seems to be reliable now, at least for 16bpp
@@ -4841,15 +4847,17 @@ void QGfxRaster<depth,type>::drawPolyline( const QPointArray &a,int index, int n
 	return;
     }
 
-    if((*gfx_optype))
-	sync();
-    (*gfx_optype)=0;
-    //int m=QMIN( index+npoints-1, int(a.size())-1 );
 #ifndef QT_NO_QWS_CURSOR
     GFX_START(a.boundingRect())
 #else
     GFX_START(clipbounds)
 #endif
+	
+    if((*gfx_optype))
+	sync();
+    (*gfx_optype)=0;
+    //int m=QMIN( index+npoints-1, int(a.size())-1 );
+
     int loopc;
     int end;
     end=(index+npoints) > (int)a.size() ? a.size() : index+npoints;
@@ -4875,12 +4883,12 @@ or the even-odd (alternative) fill algorithm.
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::drawPolygon( const QPointArray &pa, bool winding, int index, int npoints )
 {
+    useBrush();
+    GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
 	sync();
     }
     (*gfx_optype)=0;
-    useBrush();
-    GFX_START(clipbounds)
     if ( cbrush.style()!=NoBrush ) {
 	if ( cbrush.style()!=SolidPattern ) {
 	    srcwidth=cbrushpixmap->width();
@@ -5113,9 +5121,6 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 {
     if ( !w || !h ) return;
-    if((*gfx_optype)!=0)
-	sync();
-    (*gfx_optype)=0;
     int osrcdepth=srcdepth;
     if(srctype==SourcePen) {
 	srclinestep=0;//w;
@@ -5153,7 +5158,10 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
     QRect cursRect(rx, ry, w+1, h+1);
 
     GFX_START(cursRect);
-
+    if((*gfx_optype)!=0)
+	sync();
+    (*gfx_optype)=0;
+    
     QPoint srcoffs = srcwidgetoffs + QPoint( sx, sy );
 
     int dl = linestep();
@@ -5338,9 +5346,6 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
 					 int sw,int sh )
 {
-    if((*gfx_optype))
-	sync();
-    (*gfx_optype)=0;
     QRect cr;
     unsigned char * srcptr;
     unsigned char * data = new unsigned char [(w*depth)/8];
@@ -5387,7 +5392,9 @@ void QGfxRaster<depth,type>::stretchBlt( int rx,int ry,int w,int h,
     */
 
     GFX_START(cursRect);
-
+    if((*gfx_optype))
+	sync();
+    (*gfx_optype)=0;
     int osrcdepth=srcdepth;
     int pyp=-1;
 

@@ -432,9 +432,14 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
+
+    // Figure out distance between endpoints
+    int dx,dy;
+    dx=abs(x2-x1);
+    dy=abs(y2-y1);
+    
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_LINE) {
 	setDest();
 	// The scaler engine operates independently of the 2d engine
@@ -489,16 +494,6 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 #endif
 
     regw(DP_FRGD_CLR,tmpcol);
-
-    // Figure out distance between endpoints
-    int dx,dy;
-    dx=abs(x2-x1);
-    dy=abs(y2-y1);
-
-    // This does maintenance needed by the software mouse cursor
-    // If you're /always/ going to use a hardware cursor you can
-    // omit GFX_START/END for a small performance advantage
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
     // The clip region is defined as a series of rectangles
     // We repeatedly set up the hardware clip rectangle to one of
@@ -568,13 +563,8 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 	return;
     }
 
-    setDest();
-
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+    setDest();
 
     if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_RECT) {
 
@@ -661,9 +651,6 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     GFX_END
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
-#endif
 
 }
 
@@ -725,19 +712,15 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
+    QRect cursRect(rx, ry, w+1, h+1);
+    GFX_START(cursRect);
     bool check_result=checkSourceDest();
 
     if( (alphatype==InlineAlpha || alphatype==SolidAlpha)
 	&& check_result ) {
 	int x2=(rx+w)-1;
 	int y2=(ry+h)-1;
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+
 	// This is special handling for using the 3d engine for
 	// hardware accelerated alpha blending
 	drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
@@ -747,9 +730,6 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
     if(check_result) {
 
         // This is now a normal 2d engine blt
-
-	QRect cursRect(rx, ry, w+1, h+1);
-	GFX_START(cursRect);
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
@@ -850,14 +830,9 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 
 	GFX_END
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
 	return;
     } else {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
 	// software fallback
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
@@ -876,14 +851,16 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     if(ncliprect<1)
 	return;
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
+    if(srctype!=SourceImage) {
+	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
+	return;	
+    }
+    
+    QRect cursRect(rx, ry, w+1, h+1);
+    GFX_START(cursRect);
 
     if ( srctype!=SourceImage || !checkSourceDest() ) {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
 	return;
     }
@@ -896,9 +873,6 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 
     int xp=xoffs+rx;
     int yp=yoffs+ry;
-
-    QRect cursRect(rx, ry, w+1, h+1);
-    GFX_START(cursRect);
 
     int loopc;
     for(loopc=0;loopc<ncliprect;loopc++) {
@@ -1000,9 +974,6 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	reset_engine();
     }
     GFX_END
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
-#endif
 }
 #endif
 
@@ -1047,23 +1018,18 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
+    QRect cursRect(rx, ry, w+1, h+1);
+    GFX_START(cursRect);
 
     if ( srctype==SourceImage && !checkSourceDest() ) {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
 	QGfxRaster<depth,type>::tiledBlt(rx,ry,w,h);
 	return;
     }
 
+
     int xp=xoffs+rx;
     int yp=yoffs+ry;
-
-    QRect cursRect(rx, ry, w+1, h+1);
-    GFX_START(cursRect);
 
     if(srctype==SourceImage) {
 	if((*gfx_optype)!=1 || (*gfx_lastop)!=LASTOP_TILEDBLT) {
@@ -1167,10 +1133,6 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     GFX_END
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
-#endif
-
 }
 
 // Wait for horizontal sync at line i - can be used to reduce flickering
@@ -1209,21 +1171,15 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
     if(no3d)
 	return;
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
+    QRect cursRect(x1+xoffs, y1+yoffs, abs(x2-x1)+1, abs(y2-y1)+1);
+    GFX_START(cursRect);
 
     if(!checkSourceDest()) {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
 	return;
     }
 
     // Used the 3d/scaler pipeline, like stretchBlt
-
-    (*gfx_optype)=2;
-    (*gfx_lastop)=LASTOP_ALPHA;
 
     int xx[4];
     int yy[4];
@@ -1259,8 +1215,8 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	yy[loopc]*=4;
     }
 
-    QRect cursRect(x1+xoffs, y1+yoffs, abs(x2-x1)+1, abs(y2-y1)+1);
-    GFX_START(cursRect);
+    (*gfx_optype)=2;
+    (*gfx_lastop)=LASTOP_ALPHA;
 
     for(loopc=0;loopc<ncliprect;loopc++) {
 
@@ -1454,10 +1410,6 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
     regw(SCALE_3D_CNTL,0);
 
     GFX_END
-
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
-#endif
 
 }
 

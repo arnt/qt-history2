@@ -149,7 +149,8 @@ inline unsigned int QGfxMatrox<depth,type>::getRop(RasterOp r)
   } else if(r==NorROP) {
     return 0x1;
   } else {
-
+    qFatal("Unknown ROP!");
+    return 0;
   }
 }
 
@@ -288,13 +289,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
-    setDest();
-
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+    setDest();
 
     (*gfx_optype)=1;
     (*gfx_lastop)=LASTOP_RECT;
@@ -312,8 +308,6 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
     int x3,y3,x4,y4;
 
     QColor tmp=cbrush.color();
-
-    setDest();
 
 #ifndef QT_NO_QWS_REPEATER
     QScreen * tmp2=qt_screen;
@@ -363,9 +357,6 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 	}
     }
     GFX_END
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
-    QWSDisplay::ungrab();
-#endif
 }
 
 template<const int depth,const int type>
@@ -376,10 +367,12 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     unsigned int tmprop=getRop(myrop) << 16;
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
 
+    int dx,dy;
+    dx=abs(x2-x1);
+    dy=abs(y2-y1);
+    
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
     setDest();
 
     (*gfx_optype)=1;
@@ -389,12 +382,6 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     y1+=yoffs;
     x2+=xoffs;
     y2+=yoffs;
-
-    int dx,dy;
-    dx=abs(x2-x1);
-    dy=abs(y2-y1);
-
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
     int loopc;
 
@@ -463,10 +450,6 @@ void QGfxMatrox<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 
     GFX_END
-	
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
-    QWSDisplay::ungrab();
-#endif
 
     return;
 }
@@ -499,19 +482,14 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
+    int xp=xoffs+rx;
+    int yp=yoffs+ry;
+    QRect cursRect(xp, yp, w+1, h+1);
+    GFX_START(cursRect)
 
     if(checkSourceDest()) {
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_BLT;
-
 	unsigned int tmprop=getRop(myrop) << 16;
-
-	int xp=xoffs+rx;
-	int yp=yoffs+ry;
 	int xp2=srcwidgetoffs.x() + sx;
 	int yp2=srcwidgetoffs.y() + sy;
 
@@ -524,10 +502,9 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	    w += mx;
 	}
 
-	QRect cursRect(xp, yp, w+1, h+1);
 
-	GFX_START(cursRect)
-
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_BLT;
 
         bool rev = (yp > yp2) || ((yp == yp2) && (xp > xp2));
 	int dy = (yp > yp2) ? -1 : 1;
@@ -596,17 +573,14 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	}
 	QRect r(0,0,width,height);
 	do_scissors(r);
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
 	
 	GFX_END
 
-	    return;
+	return;
     } else {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	
+	GFX_END
+	    
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }

@@ -137,7 +137,8 @@ inline unsigned int QGfxVoodoo<depth,type>::getRop(RasterOp r)
   } else if(r==NorROP) {
     return 0x1;
   } else {
-
+    qFatal("Unknown ROP!");
+    return 0;
   }
 }
 
@@ -273,7 +274,7 @@ inline void QGfxVoodoo<depth,type>::setDest()
 }
 
 // Sets up the graphics engine's idea of bits-per-pixel for destination
-// and source, used for, example, blt's
+// and source, used for, for example, blt's
 template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkSourceDest()
 {
@@ -328,11 +329,6 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 
     // Stop anyone else trying to access optype/lastop/the graphics engine
     // to avoid synchronization problems with other processes
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
-    setDest();
 
     // This is used by the software mouse cursor to prevent corruption
     // of the cursor if a drawing operation is performed under it.
@@ -340,6 +336,7 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     // the hardware cursor
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+    setDest();
 
     int loopc;
 
@@ -451,24 +448,19 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
+    int xp=xoffs+rx;
+    int yp=yoffs+ry;
+    QRect cursRect(xp, yp, w+1, h+1);
+    GFX_START(cursRect)
+	
     if(checkSourceDest()) {
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_BLT;
-
-	int xp=xoffs+rx;
-	int yp=yoffs+ry;
 	int xp2=srcwidgetoffs.x() + sx;
 	int yp2=srcwidgetoffs.y() + sy;
 
-	QRect cursRect(xp, yp, w+1, h+1);
-
-	GFX_START(cursRect)
-
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_BLT;
+	    
         unsigned int dirmask=0;
 
 	// Tell the engine whether to copy bits from left to right,
@@ -556,15 +548,11 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	do_scissors(r);
 
 	GFX_END
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
 
 	return;
     } else {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
+	    
 	// software fallback
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
@@ -600,23 +588,18 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
+    int xp=xoffs+rx;
+    int yp=yoffs+ry;
+    QRect cursRect(xp, yp, w+1, h+1);
+    GFX_START(cursRect)
+	    
     if(checkSourceDest()) {
 
-	(*gfx_optype)=1;
-	(*gfx_lastop)=LASTOP_STRETCHBLT;
-
-	int xp=xoffs+rx;
-	int yp=yoffs+ry;
 	int xp2=srcwidgetoffs.x(); // + sx;
 	int yp2=srcwidgetoffs.y(); // + sy;
 
-	QRect cursRect(xp, yp, w+1, h+1);
-
-	GFX_START(cursRect)
+	(*gfx_optype)=1;
+	(*gfx_lastop)=LASTOP_STRETCHBLT;
 
 	wait_for_fifo(4);
 	regw(COMMAND,0x2 | (getRop(myrop) << 24));
@@ -634,14 +617,10 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	do_scissors(tmprect);
 
 	GFX_END
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+
 	return;
     } else {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-	QWSDisplay::ungrab();
-#endif
+	GFX_END
 	QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
     }
 }
@@ -656,15 +635,6 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	return;
     }
 
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab( TRUE );
-#endif
-
-    setDest();
-
-    (*gfx_optype)=1;
-    (*gfx_lastop)=LASTOP_LINE;
-
     x1+=xoffs;
     y1+=yoffs;
     x2+=xoffs;
@@ -678,6 +648,9 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     // for the line are calculated automatically
 
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+    setDest();
+    (*gfx_optype)=1;
+    (*gfx_lastop)=LASTOP_LINE;
 
     QColor tmp=cpen.color();
 
@@ -711,9 +684,6 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     do_scissors(tmprect);
 
     GFX_END
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
-#endif
     return;
 }
 

@@ -85,7 +85,7 @@ public:
     virtual void lineTo( int,int );
 
     virtual QPoint pos() const;
-    
+
     virtual void setOpaqueBackground(bool b) { opaque=b; }
     virtual void setBackgroundColor(QColor c) { backcolor=c; }
 
@@ -129,17 +129,21 @@ protected:
     void* beginTransaction( const QRect& );
     void endTransaction(void*);
 
-    void beginDraw()
+    inline void beginDraw()
     {
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
 	QWSDisplay::grab();
+#endif
 	if ( globalRegionRevision &&
 		*globalRegionRevision != currentRegionRevision ) {
 	    fixClip();
 	}
     }
-    void endDraw()
+    inline void endDraw()
     {
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
 	QWSDisplay::ungrab();
+#endif
     }
     void fixClip();
     void update_clip();
