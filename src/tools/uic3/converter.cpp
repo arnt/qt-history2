@@ -690,6 +690,10 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             name = prop->attributeName(); // sync the name
 
+            if (prop->kind() == DomProperty::Set) {
+                prop->setElementEnum(prop->elementSet());
+            }
+
             // resolve the enumerator
             if (prop->kind() == DomProperty::Enum) {
                 QString e = WidgetInfo::resolveEnumerator(className, prop->elementEnum().latin1());

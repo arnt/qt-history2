@@ -178,7 +178,7 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const char *nam
     QString scope = metaEnum.scope();
     int idx = metaEnum.keyToValue(name);
     if (idx != -1)
-        return scope + QLatin1String("::") + metaEnum.name();
+        return scope + QLatin1String("::") + name;
 
     return QString::null;
 }
