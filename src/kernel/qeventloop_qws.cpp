@@ -117,7 +117,7 @@ void QEventLoop::cleanup()
     cleanupTimers();
 }
 
-bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
+bool QEventLoop::processEvents( ProcessEventsFlags flags )
 {
     // process events from the QWS server
     int	   nevents = 0;
@@ -150,7 +150,7 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     QApplication::sendPostedEvents();
 
     // don't block if exitLoop() or exit()/quit() has been called.
-    canWait = d->exitloop || d->quitnow ? FALSE : canWait;
+    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
 
     // Process timers and socket notifiers - the common UNIX stuff
 

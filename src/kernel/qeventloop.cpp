@@ -45,9 +45,8 @@
     \ingroup application
     \ingroup events
 
-    It receives
-    events from the window system and other sources.  It then sends
-    them to QApplication for prcoessing and delivery.
+    It receives events from the window system and other sources.  It
+    then sends them to QApplication for prcoessing and delivery.
 
     QEventLoop allows the application programmer to have more control
     over event delivery.  Programs that perform long operations can
@@ -55,30 +54,33 @@
     ProcessEvent values OR'ed together to control which events should
     be delivered.
 
-    QEventLoop also allows the integration of an external event loop with
-    the Qt event loop.  The Motif Extension included with Qt includes
-    a reimplementation of QEventLoop for merging Qt and Motif events
-    together.
+    QEventLoop also allows the integration of an external event loop
+    with the Qt event loop.  The Motif Extension included with Qt
+    includes a reimplementation of QEventLoop for merging Qt and Motif
+    events together.
 */
 
 /*! \enum QEventLoop::ProcessEvents
 
     This enum controls the types of events processed by the
-    processOneEvent(), processEvents() and processNextEvent()
-    functions.
+    processEvents() functions.
 
     \value AllEvents - All events are processed
     \value ExcludeUserInput - Do not process user input events.
            ( ButtonPress, KeyPress, etc. )
     \value ExcludeSocketNotifiers - Do not process socket notifier
            events.
+    \value WaitForMore - Wait for events if no pending events
+           are available.
 
-    \sa processOneEvent(), processEvents(), processNextEvent()
+    \sa processEvents()
 */
 
 /*! \enum QEventLoop::ProcessEventsFlags
-    \internal
-*/
+    A \c typedef to allow various ProcessEvents values to be OR'ed together.
+
+    \sa ProcessEvents
+ */
 
 /*!
     Creates a QEventLoop object. The \a parent and \a name arguments
@@ -183,7 +185,7 @@ int QEventLoop::enterLoop()
 
     d->looplevel++;
     while ( ! d->exitloop )
-	processNextEvent( AllEvents, TRUE );
+	processEvents( AllEvents | WaitForMore );
     d->looplevel--;
 
     // restore the exitloop state, but if quitnow is TRUE, we need to keep
@@ -213,33 +215,37 @@ int QEventLoop::loopLevel() const
 }
 
 /*!
-    Process one, and exactly one event, that matches \a flags, waiting
-    for an event if necessary
-
-    \sa processEvents()
-*/
-void QEventLoop::processOneEvent( ProcessEventsFlags flags )
-{
-    (void) processNextEvent( flags, TRUE );
-}
-
-/*!
     Process pending events that match \a flags for a maximum of \a
     maxTime milliseconds, or until there are no more events to
     process, which ever is shorter. If this function is called without
     any arguments, then all event types are processed for a maximum of
     3 seconds (3000 milliseconds).
+
+    NOTE: Specifying the WaitForMore flag makes no sense, and will be
+    ignored.
 */
 void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
 {
     QTime start = QTime::currentTime();
     QTime now;
-    while ( ! d->quitnow && processNextEvent( flags, FALSE ) ) {
+    while ( ! d->quitnow && processEvents( flags & ~WaitForMore ) ) {
 	now = QTime::currentTime();
 	if ( start.msecsTo( now ) > maxTime )
 	    break;
     }
 }
+
+/*! \fn bool QEventLoop::processEvents( ProcessEventsFlags flags )
+
+    Processes pending events that match \a flags. If no
+    events matching \a flags are available, this function will wait
+    for the next event if the WaitForMore flag is set in \a flags,
+    otherwise it returns immediately.
+
+    Returns TRUE if an event was processed, otherwise returns FALSE.
+
+    \sa ProcessEvents
+*/
 
 /*! \fn bool QEventLoop::hasPendingEvents() const
 
@@ -316,23 +322,7 @@ void QEventLoop::processEvents( ProcessEventsFlags flags, int maxTime )
     \sa awake()
 */
 
-/*! \fn bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
-
-    Processes the next event received that matches \a flags. If no
-    events matching \a flags are available, this function will wait
-    for the next event if \a canWait is TRUE, otherwise it returns
-    immediately.
-
-    Returns TRUE if an event was processed, otherwise returns FALSE.
-*/
-
-/*! \fn int QEventLoop::macHandleSelect( timeval * )
-    \internal
-*/
-
-/*! \fn void QEventLoop::macHandleTimer( TimerInfo * )
-    \internal
-*/
-
+#if !defined(Q_WS_X11)
 void QEventLoop::appStartingUp(){}
 void QEventLoop::appClosingDown(){}
+#endif // Q_WS_X11

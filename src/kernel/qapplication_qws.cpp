@@ -2130,17 +2130,6 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
     return 0;
 }
 
-void QApplication::processEvents( int maxtime )
-{
-    QTime start = QTime::currentTime();
-    QTime now;
-    while ( !quit_now && processNextEvent(FALSE) ) {
-	now = QTime::currentTime();
-	if ( start.msecsTo(now) > maxtime )
-	    break;
-    }
-}
-
 /*!
     This virtual function is only implemented under Qt/Embedded.
 

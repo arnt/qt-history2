@@ -61,14 +61,16 @@ public:
     ~QEventLoop();
 
     enum ProcessEvents {
-	AllEvents              = 0x00,
-	ExcludeUserInput       = 0x01,
-	ExcludeSocketNotifiers = 0x02
+	AllEvents		= 0x00,
+	ExcludeUserInput	= 0x01,
+	ExcludeSocketNotifiers	= 0x02,
+	WaitForMore		= 0x04
     };
     typedef uint ProcessEventsFlags;
 
-    virtual void processOneEvent( ProcessEventsFlags flags );
-    virtual void processEvents( ProcessEventsFlags flags, int maxtime = 3000 );
+    void processEvents( ProcessEventsFlags flags, int maxtime );
+    virtual bool processEvents( ProcessEventsFlags flags );
+
     virtual bool hasPendingEvents() const;
 
     virtual void registerSocketNotifier( QSocketNotifier * );
@@ -92,15 +94,12 @@ signals:
     void awake();
     void aboutToBlock();
 
-protected:
-    virtual bool processNextEvent( ProcessEventsFlags flags, bool canWait );
-
+private:
 #if defined(Q_WS_MAC)
     int macHandleSelect(timeval *);
     void macHandleTimer(TimerInfo *);
 #endif // Q_WS_MAC
 
-private:
     // internal initialization/cleanup - implemented in various platform specific files
     void init();
     void cleanup();

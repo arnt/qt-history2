@@ -1344,16 +1344,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
   Main event loop
  *****************************************************************************/
 
-
-void QApplication::processEvents( int maxtime )
-{
-    uint ticks = (uint)GetTickCount();
-    while ( !quit_now && processNextEvent(FALSE) ) {
-	if ( (uint)GetTickCount() - ticks > (uint)maxtime )
-	    break;
-    }
-}
-
 extern uint qGlobalPostedEventsCount();
 
 /*!

@@ -377,11 +377,13 @@ void qmotif_timeout_handler( XtPointer, XtIntervalId * )
 
 /*! \reimp
  */
-bool QMotif::processNextEvent( ProcessEventsFlags flags, bool canWait )
+bool QMotif::processEvents( ProcessEventsFlags flags )
 {
     // Qt uses posted events to do lots of delayed operations, like repaints... these
     // need to be delivered before we go to sleep
     QApplication::sendPostedEvents();
+
+    bool canWait = ( flags & WaitForMore );
 
     // make sure we fire off Qt's timers
     int ttw = timeToWait();

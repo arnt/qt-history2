@@ -2334,6 +2334,22 @@ void QApplication::processEvents()
 }
 
 /*!
+    \overload
+
+    Processes pending events for \a maxtime milliseconds or until
+    there are no more events to process, whichever is shorter.
+
+    You can call this function occasionally when you program is busy
+    doing a long operation (e.g. copying a file).
+
+    \sa exec(), QTimer
+*/
+void QApplication::processEvents( int maxtime )
+{
+    eventLoop()->processEvents( QEventLoop::AllEvents, 3000 );
+}
+
+/*! \obsolete
   Waits for an event to occur, processes it, then returns.
 
   This function is useful for adapting Qt to situations where the
@@ -2347,7 +2363,8 @@ void QApplication::processEvents()
 
 void QApplication::processOneEvent()
 {
-    processNextEvent(TRUE);
+    eventLoop()->processEvents( QEventLoop::AllEvents |
+				QEventLoop::WaitForMore );
 }
 
 /*****************************************************************************
@@ -2446,22 +2463,11 @@ int QApplication::loopLevel() const
 }
 
 /*!
-    Processes the next event and returns TRUE if there was an event
-    (excluding posted events or zero-timer events) to process;
-    otherwise returns FALSE.
 
-    This function returns immediately if \a canWait is FALSE. It might
-    go into a sleep/wait state if \a canWait is TRUE.
+  Wakes up the GUI thread.
 
-    \sa processEvents()
+  \sa guiThreadAwake() \link threads.html Thread Support in Qt\endlink
 */
-
-bool QApplication::processNextEvent( bool canWait )
-{
-    return eventLoop()->processNextEvent( QEventLoop::AllEvents, canWait );
-}
-
-
 void QApplication::wakeUpGuiThread()
 {
     eventLoop()->wakeUp();
@@ -3399,14 +3405,6 @@ bool QApplication::desktopSettingsAware()
 
   \sa lock(), unlock() \link threads.html Thread Support in Qt\endlink
 */
-
-/*! \fn void QApplication::wakeUpGuiThread()
-
-  Wakes up the GUI thread.
-
-  \sa guiThreadAwake() \link threads.html Thread Support in Qt\endlink
-*/
-
 
 #if defined(QT_THREAD_SUPPORT)
 void QApplication::lock()

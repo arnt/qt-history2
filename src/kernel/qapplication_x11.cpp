@@ -3540,29 +3540,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
     return 0;
 }
 
-
-/*!
-    \overload
-
-    Processes pending events for \a maxtime milliseconds or until
-    there are no more events to process, whichever is shorter.
-
-    You can call this function occasionally when you program is busy
-    doing a long operation (e.g. copying a file).
-
-    \sa exec(), QTimer
-*/
-void QApplication::processEvents( int maxtime )
-{
-    QTime start = QTime::currentTime();
-    QTime now;
-    while ( !quit_now && processNextEvent(FALSE) ) {
-	now = QTime::currentTime();
-	if ( start.msecsTo(now) > maxtime )
-	    break;
-    }
-}
-
 /*!
     This virtual function is only implemented under X11.
 

@@ -266,7 +266,7 @@ void qt_event_request_showsheet(QWidget *w)
     PostEventToQueue(GetMainEventQueue(), ctx, kEventPriorityStandard);
     ReleaseEvent(ctx);
 }
-    
+
 static QValueList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
@@ -1152,7 +1152,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QWidget *widget = NULL;
 	    GetEventParameter(event, kEventParamQWidget, typeQWidget, NULL,
 			      sizeof(widget), NULL, &widget);
-	    if(widget) 
+	    if(widget)
 		ShowSheetWindow((WindowPtr)widget->hd, (WindowPtr)widget->parentWidget()->hd);
 	} else if(ekind == kEventQtRequestWakeup) {
 	    request_wakeup_pending = FALSE; 	    //do nothing else, we just woke up!
@@ -1928,14 +1928,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 					     NULL, sizeof(keyc), NULL, &keyc);
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    if(!QMenuBar::activateCommand(cmd.commandID)) 
+	    if(!QMenuBar::activateCommand(cmd.commandID))
 #endif
 	    {
 		if(cmd.commandID == kHICommandQuit) {
 		    QCloseEvent ev;
 		    QApplication::sendSpontaneousEvent(app, &ev);
 		    HiliteMenu(0);
-		    if(ev.isAccepted()) 
+		    if(ev.isAccepted())
 			app->quit();
 		} else if(cmd.commandID == kHICommandAbout) {
 		    QMessageBox::aboutQt(NULL);
@@ -1978,18 +1978,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     QuitApplicationEventLoop();
     return noErr; //we eat the event
 }
-
-void QApplication::processEvents(int maxtime)
-{
-    QTime now;
-    QTime start = QTime::currentTime();
-    while (!quit_now && processNextEvent(FALSE)) {
-	now = QTime::currentTime();
-	if (start.msecsTo(now) > maxtime)
-	    break;
-    }
-}
-
 
 /*!
   This virtual function is only implemented under Macintosh.

@@ -567,7 +567,7 @@ bool QEventLoop::hasPendingEvents() const
     return qGlobalPostedEventsCount() || winPeekMessage( &msg, NULL, 0, 0, PM_NOREMOVE );
 }
 
-bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
+bool QEventLoop::processEvents( ProcessEventsFlags flags )
 {
     MSG	 msg;
 
@@ -578,6 +578,8 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     emit qApp->guiThreadAwake();
 
     QApplication::sendPostedEvents();
+
+    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
 
     if ( canWait ) {				// can wait if necessary
 	if ( numZeroTimers ) {			// activate full-speed timers

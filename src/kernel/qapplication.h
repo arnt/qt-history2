@@ -290,7 +290,6 @@ protected:
 
 private:
     void construct( int &argc, char **argv, Type );
-    bool processNextEvent( bool );
     void initialize( int, char ** );
     void init_precmdline();
     void process_cmdline( int* argcptr, char ** argv );

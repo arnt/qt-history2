@@ -734,7 +734,7 @@ bool QEventLoop::hasPendingEvents() const
     return qGlobalPostedEventsCount() || GetNumEventsInQueue(GetMainEventQueue());
 }
 
-bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
+bool QEventLoop::processEvents( ProcessEventsFlags flags )
 {
 #if 0
     //TrackDrag says you may not use the EventManager things..
@@ -805,6 +805,8 @@ bool QEventLoop::processNextEvent( ProcessEventsFlags flags, bool canWait )
     }
 
     QApplication::sendPostedEvents();
+    bool canWait = d->exitloop || d->quitnow ? FALSE : (flags & WaitForMore);
+
     if(!qt_is_gui_used) {
 	timeval *tm = NULL;
 	if (!canWait) { 		// no time to wait
