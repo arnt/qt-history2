@@ -1,3 +1,5 @@
+#include <qapplication.h>
+
 void FindDialog::init()
 {
     browser = 0;
@@ -13,33 +15,17 @@ void FindDialog::doFind()
 {
     if ( !browser )
 	return;
-   
-    int para = 0;
-    int index = 0;
-    
-    if ( !radioForward->isChecked() ) {
-	para = browser->paragraphs() - 1;
-	index = browser->paragraphLength( para );
-	if ( index == -1 )
-	    index = 0;
-    }
-    
-    if ( !fromBegin ) 
+
+    int dummy = radioForward->isChecked() ? 0 : INT_MAX;
+    if ( !fromBegin )
 	fromBegin = !browser->find( comboFind->currentText(), checkCase->isChecked(),
-			checkWords->isChecked(), radioForward->isChecked() );    
-    else 
-	fromBegin = !browser->find( comboFind->currentText(), checkCase->isChecked(), 
-			checkWords->isChecked(), radioForward->isChecked(), &para, &index );    
-    
-    if ( fromBegin && firstRun ) {
+			checkWords->isChecked(), radioForward->isChecked() );
+    else
 	fromBegin = !browser->find( comboFind->currentText(), checkCase->isChecked(),
-			checkWords->isChecked(), radioForward->isChecked(), &para, &index ); 
-	if ( fromBegin )
-	    QMessageBox::information( this, tr( "Find Text" ), 
-				      tr( "Can not find requested text in this document." ) );	
-    }
-    if ( !fromBegin ) 
-	firstRun = FALSE;
+			checkWords->isChecked(), radioForward->isChecked(), &dummy, &dummy );
+    if ( fromBegin )
+	QMessageBox::information( this, tr( "Find Text" ),
+				  tr( "Can not find requested text in this document." ) );	
 }
 
 void FindDialog::setBrowser( QTextBrowser * b )

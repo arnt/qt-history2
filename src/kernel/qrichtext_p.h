@@ -254,13 +254,13 @@ public:
     bool operator==( const QTextCursor &c ) const;
     bool operator!=( const QTextCursor &c ) const { return !(*this == c); }
 
-    QTextDocument *document() const { return doc; }
-    void setDocument( QTextDocument *d );
-
     QTextParagraph *paragraph() const;
+    void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
+    QTextDocument *document() const;
     int index() const;
-    void setParagraph( QTextParagraph *s, bool restore = TRUE );
+    void setIndex( int index ) { gotoPosition(paragraph(), index ); }
 
+    void gotoPosition( QTextParagraph* p, int index = 0);
     void gotoLeft();
     void gotoRight();
     void gotoNextLetter();
@@ -287,23 +287,22 @@ public:
     bool atParagStart();
     bool atParagEnd();
 
-    void setIndex( int i, bool restore = TRUE );
+    int x() const; // x in current paragraph
+    int y() const; // y in current paragraph
 
-    void checkIndex();
+    int globalX() const;
+    int globalY() const;
 
-    int offsetX() const { return ox; }
-    int offsetY() const { return oy; }
-
-    QTextParagraph *topParagraph() const { return parags.isEmpty() ? string : parags.first(); }
-    int totalOffsetX() const;
-    int totalOffsetY() const;
+    QTextParagraph *topParagraph() const { return paras.isEmpty() ? para : paras.first(); }
+    int offsetX() const { return ox; } // inner document  offset
+    int offsetY() const { return oy; } // inner document offset
+    int totalOffsetX() const; // total document offset
+    int totalOffsetY() const; // total document offset
 
     bool place( const QPoint &pos, QTextParagraph *s ) { return place( pos, s, FALSE ); }
     bool place( const QPoint &pos, QTextParagraph *s, bool link );
     void restoreState();
 
-    int x() const;
-    int y() const;
 
     int nestedDepth() const { return (int)indices.count(); } //### size_t/int cast
     void oneUp() { if ( !indices.isEmpty() ) pop(); }
@@ -318,16 +317,14 @@ private:
     void processNesting( Operation op );
     void invalidateNested();
     void gotoIntoNested( const QPoint &globalPos );
-    QTextParagraph *string;
-    QTextDocument *doc;
+
+    QTextParagraph *para;
     int idx, tmpIndex;
     int ox, oy;
     QValueStack<int> indices;
-    QValueStack<QTextParagraph*> parags;
+    QValueStack<QTextParagraph*> paras;
     QValueStack<int> xOffsets;
     QValueStack<int> yOffsets;
-    QValueStack<bool> nestedStack;
-    uint nested : 1;
     uint valid : 1;
 
 };
@@ -772,8 +769,8 @@ public:
     void setSelectionColor( int id, const QColor &c );
     void setInvertSelectionText( int id, bool b );
     bool hasSelection( int id, bool visible = FALSE ) const;
-    void setSelectionStart( int id, QTextCursor *cursor );
-    bool setSelectionEnd( int id, QTextCursor *cursor );
+    void setSelectionStart( int id, const QTextCursor &cursor );
+    bool setSelectionEnd( int id, const QTextCursor &cursor );
     void selectAll( int id );
     bool removeSelection( int id );
     void selectionStart( int id, int &paragId, int &index );
@@ -800,7 +797,7 @@ public:
 
     QTextFormatCollection *formatCollection() const;
 
-    bool find( const QString &expr, bool cs, bool wo, bool forward, int *parag, int *index, QTextCursor *cursor );
+    bool find( QTextCursor &cursor, const QString &expr, bool cs, bool wo, bool forward);
 
     void setTextFormat( Qt::TextFormat f );
     Qt::TextFormat textFormat() const;
@@ -1634,7 +1631,7 @@ inline QRect QTextParagraph::rect() const
 
 inline QTextParagraph *QTextCursor::paragraph() const
 {
-    return string;
+    return para;
 }
 
 inline int QTextCursor::index() const
@@ -1642,35 +1639,6 @@ inline int QTextCursor::index() const
     return idx;
 }
 
-inline void QTextCursor::setIndex( int i, bool restore )
-{
-    if ( restore )
-	restoreState();
-    if ( i < 0 || i >= string->length() ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning( "QTextCursor::setIndex: %d out of range", i );
-#endif
-	i = i < 0 ? 0 : string->length() - 1;
-    }
-
-    tmpIndex = -1;
-    idx = i;
-}
-
-inline void QTextCursor::setParagraph( QTextParagraph *s, bool restore )
-{
-    if ( restore )
-	restoreState();
-    idx = 0;
-    string = s;
-    tmpIndex = -1;
-}
-
-inline void QTextCursor::checkIndex()
-{
-    if ( idx >= string->length() )
-	idx = string->length() - 1;
-}
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 

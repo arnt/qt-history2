@@ -290,7 +290,7 @@ void QMultiLineEdit::insertAndMark( const QString& str, bool mark )
 {
     insert( str );
     if ( mark )
-	document()->setSelectionEnd( QTextDocument::Standard, textCursor() );
+	document()->setSelectionEnd( QTextDocument::Standard, *textCursor() );
 }
 
 /*!  Splits the paragraph at the current cursor position.
@@ -362,7 +362,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 	selectAll( FALSE );
     QTextEdit::setCursorPosition( line, col );
     if ( mark )
-	document()->setSelectionEnd( QTextDocument::Standard, textCursor() );
+	document()->setSelectionEnd( QTextDocument::Standard, *textCursor() );
 }
 
 /*!  Returns the top center point where the cursor is drawn.

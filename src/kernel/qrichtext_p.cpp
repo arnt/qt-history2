@@ -57,7 +57,7 @@ int QTextCustomItem::minimumWidth() const { return 0; }
 
 QString QTextCustomItem::richText() const { return QString::null; }
 
-bool QTextCustomItem::enter( QTextCursor *, QTextDocument *&doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd )
+bool QTextCustomItem::enter( QTextCursor *, QTextDocument*& doc, QTextParagraph *&parag, int &idx, int &ox, int &oy, bool atEnd )
 {
     doc = doc; parag = parag; idx = idx; ox = ox; oy = oy; Q_UNUSED( atEnd ) return TRUE;
 							
@@ -108,24 +108,51 @@ void QTextFormatter::setWrapAtColumn( int c ) { wrapColumn = c; }
 
 int QTextCursor::x() const
 {
-    QTextStringChar *c = string->at( idx );
+    QTextStringChar *c = para->at( idx );
     int curx = c->x;
     if ( !c->rightToLeft &&
 	 c->c.isSpace() &&
 	 idx > 0 &&
 	 !c->lineStart &&
-	 ( string->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
-	curx = string->at( idx - 1 )->x + string->string()->width( idx - 1 );
+	 ( para->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
+	curx = para->at( idx - 1 )->x + para->string()->width( idx - 1 );
     if ( c->rightToLeft )
-	curx += string->string()->width( idx );
+	curx += para->string()->width( idx );
     return curx;
 }
 
 int QTextCursor::y() const
 {
     int dummy, line;
-    string->lineStartOfChar( idx, &dummy, &line );
-    return string->lineY( line );
+    para->lineStartOfChar( idx, &dummy, &line );
+    return para->lineY( line );
+}
+
+int QTextCursor::globalX() const { return totalOffsetX() + para->rect().x() + x(); }
+int QTextCursor::globalY() const { return totalOffsetY() + para->rect().y() + y(); }
+
+QTextDocument *QTextCursor::document() const
+{
+    return para ? para->document() : 0;
+}
+
+void QTextCursor::gotoPosition( QTextParagraph* p, int index )
+{
+    if ( para && p != para ) {
+	while ( para->document() != p->document() && !indices.isEmpty() )
+	    pop();
+	Q_ASSERT( para->document() == p->document() );
+    }
+    para = p;
+    if ( index < 0 || index >= para->length() ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QTextCursor::gotoParagraph Index: %d out of range", index );
+#endif
+	index = index < 0 ? 0 : para->length() - 1;
+    }
+
+    tmpIndex = -1;
+    idx = index;
 }
 
 bool QTextDocument::hasSelection( int id, bool visible ) const
@@ -136,11 +163,11 @@ bool QTextDocument::hasSelection( int id, bool visible ) const
 	       ( (QTextDocument*)this )->selectionEndCursor( id ) ) );
 }
 
-void QTextDocument::setSelectionStart( int id, QTextCursor *cursor )
+void QTextDocument::setSelectionStart( int id, const QTextCursor &cursor )
 {
     QTextDocumentSelection sel;
-    sel.startCursor = *cursor;
-    sel.endCursor = *cursor;
+    sel.startCursor = cursor;
+    sel.endCursor = cursor;
     sel.swapped = FALSE;
     selections[ id ] = sel;
 }
