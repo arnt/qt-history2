@@ -1806,10 +1806,13 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			if ( p && p->length() > 0 ) {
 			    QTextFormat *f = p->at( p->length() - 1 )->format();
 			    if ( f && !f->isAnchor() ) {
+				// this does not go through the format collection...
 				f = fCollection->createFormat( *f );
 				f->anchor_name = attr[ "name" ];
 				f->update();
 				p->setFormat( p->length() - 1, 1, f, TRUE, QTextFormat::Format );
+				// ... so delete it
+				delete f;
 			    }
 			}
 		    }
