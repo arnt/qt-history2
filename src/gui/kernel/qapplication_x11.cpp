@@ -252,8 +252,8 @@ QX11Data *qt_x11Data = 0;
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-static const char *appName;                        // application name
-static const char *appClass;                        // application class
+static const char *appName = 0;                        // application name
+static const char *appClass = 0;                        // application class
 static const char *appFont        = 0;                // application font
 static const char *appBGCol        = 0;                // application bg color
 static const char *appFGCol        = 0;                // application fg color
@@ -2180,9 +2180,10 @@ void qt_cleanup()
     if (X11->foreignDisplay) {
         delete [] (char *)appName;
         appName = 0;
-        delete [] (char *)appClass;
-        appClass = 0;
     }
+
+    delete [] (char *)appClass;
+    appClass = 0;
 
     if (X11->net_supported_list)
         delete [] X11->net_supported_list;
