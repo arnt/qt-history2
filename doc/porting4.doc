@@ -112,6 +112,10 @@ The following functions were incorrectly marked as virtual:
 If you specify a negative value for \e len to left() or right() then
 an empty string is returned.
 
+The QString constructor that takes a QByteArray no longer considers a 0 as
+the end of the string, but rather includes all 0 into the string. The
+resulting string has always the length of the byte array.
+
 \list
 \i local8Bit() now returns a \c const \c{char *}. If you want a
 QByteArray/QCString use toLocal8Bit()
