@@ -137,9 +137,6 @@ public:
     inline bool isDetached() const { return d->ref == 1; }
     inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
 
-    static inline bool sameKey(const Key &key1, const Key &key2)
-        { return !(qMapLessThanKey(key1, key2) || qMapLessThanKey(key2, key1)); }
-
     void clear();
 
     int remove(const Key &key);
@@ -825,5 +822,6 @@ private:
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
+Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Map)
 
 #endif // QMAP_H

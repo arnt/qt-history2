@@ -550,6 +550,7 @@ Q_OUTOFLINE_TEMPLATE QVector<T> QVector<T>::mid(int pos, int length) const
     return copy;
 }
 
-Q_DECLARE_ITERATOR(Vector)
+Q_DECLARE_SEQUENTIAL_ITERATOR(Vector)
+Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(Vector)
 
 #endif // QVECTOR_H

@@ -112,6 +112,17 @@ inline QHashData::Node *QHashData::firstNode()
     return e;
 }
 
+struct QHashDummyValue
+{
+};
+
+inline bool operator==(const QHashDummyValue & /* v1 */, const QHashDummyValue & /* v2 */)
+{
+    return true;
+}
+
+Q_DECLARE_TYPEINFO(QHashDummyValue, Q_MOVABLE_TYPE | Q_DUMMY_TYPE);
+
 template <class Key, class T>
 struct QHashNode
 {
@@ -132,6 +143,7 @@ struct QHashNode
         QHashNode *next; \
         union { uint h; key_type key; }; \
         T value; \
+\
         inline QHashNode(key_type /* key0 */, const T &value0) : value(value0) { } \
         inline bool same_key(uint h0, key_type) { return h0 == h; } \
     }
@@ -152,7 +164,7 @@ class QHash
 
     union {
         QHashData *d;
-        QHashNode<Key, T> *e;
+        Node *e;
     };
 
     static inline Node *concrete(QHashData::Node *node) {
@@ -180,9 +192,6 @@ public:
     inline void detach() { if (d->ref != 1) detach_helper(); }
     inline bool isDetached() const { return d->ref == 1; }
     inline void setSharable(bool sharable) { if (!sharable) detach(); d->sharable = sharable; }
-
-    static inline bool sameKey(const Key &key1, const Key &key2)
-        { return key1 == key2; }
 
     void clear();
 
@@ -323,24 +332,48 @@ public:
 
 private:
     void detach_helper();
-    void freeData(QHashData* d);
+    void freeData(QHashData *d);
     Node **findNode(const Key &key, uint *hp = 0) const;
     Node *createNode(uint h, const Key &key, const T &value, Node **nextNode);
+
+    static void *allocateNode();
+    static void deleteNode(Node *node);
     static QHashData::Node *duplicateNode(QHashData::Node *node);
 };
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE void *QHash<Key, T>::allocateNode()
+{
+    size_t size;
+    if (QTypeInfo<T>::isDummy) {
+        size = reinterpret_cast<char *>(&reinterpret_cast<Node *>(&QHashData::shared_null)->value)
+               - reinterpret_cast<char *>(&QHashData::shared_null);
+    } else {
+        size = sizeof(Node);
+    }
+    return qMalloc(size);
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
+{
+    node->~Node();
+    qFree(node);
+}
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::duplicateNode(QHashData::Node *node)
 {
     Node *concreteNode = concrete(node);
-    return reinterpret_cast<QHashData::Node *>(new Node(concreteNode->key, concreteNode->value));
+    return reinterpret_cast<QHashData::Node *>(
+            new (allocateNode()) Node(concreteNode->key, concreteNode->value));
 }
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE typename QHash<Key, T>::Node *
 QHash<Key, T>::createNode(uint h, const Key &key, const T &value, Node **nextNode)
 {
-    Node *node = new Node(key, value);
+    Node *node = new (allocateNode()) Node(key, value);
     node->h = h;
     node->next = *nextNode;
     *nextNode = node;
@@ -370,7 +403,7 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::freeData(QHashData *x)
         Node *cur = *bucket++;
         while (cur != e_for_x) {
             Node *next = cur->next;
-            delete cur;
+            deleteNode(cur);
             cur = next;
         }
     }
@@ -568,7 +601,7 @@ Q_OUTOFLINE_TEMPLATE int QHash<Key, T>::remove(const Key &key)
         do {
             Node *next = (*node)->next;
             deleteNext = (next != e && next->key == (*node)->key);
-            delete *node;
+            deleteNode(*node);
             *node = next;
             --d->size;
         } while (deleteNext);
@@ -587,7 +620,7 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &key)
     if (*node != e) {
         t = (*node)->value;
         Node *next = (*node)->next;
-        delete *node;
+        deleteNode(*node);
         *node = next;
         --d->size;
         d->hasShrunk();
@@ -611,7 +644,7 @@ Q_OUTOFLINE_TEMPLATE typename QHash<Key, T>::iterator QHash<Key, T>::erase(itera
     while (*node_ptr != node)
         node_ptr = &(*node_ptr)->next;
     *node_ptr = node->next;
-    delete node;
+    deleteNode(node);
     --d->size;
     return ret;
 }
@@ -704,5 +737,6 @@ private:
 };
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Hash)
+Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Hash)
 
 #endif // QHASH_H

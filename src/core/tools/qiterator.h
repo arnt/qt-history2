@@ -18,7 +18,7 @@
 
 namespace std { struct bidirectional_iterator_tag; struct random_access_iterator_tag; }
 
-#define Q_DECLARE_ITERATOR(C) \
+#define Q_DECLARE_SEQUENTIAL_ITERATOR(C) \
 \
 template <class T> \
 class Q##C##Iterator \
@@ -44,7 +44,9 @@ public: \
     inline bool findPrevious(const T &t) \
     { while (i != c.constBegin()) if (*(--i) == t) return true; \
       return false;  } \
-}; \
+};
+
+#define Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(C) \
 \
 template <class T> \
 class QMutable##C##Iterator \
@@ -112,7 +114,9 @@ public: \
     inline bool findPrevious(const T &t) \
     { while (i != c.constBegin()) if (*(n = --i) == t) return true; \
       n = c.constEnd(); return false; } \
-}; \
+};
+
+#define Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(C) \
 \
 template <class Key, class T> \
 class QMutable##C##Iterator \

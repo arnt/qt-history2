@@ -934,11 +934,6 @@ void QHashData::free()
     to isEmpty().
 */
 
-/*! \fn bool QHash::sameKey(const Key &key1, const Key &key2)
-
-    \internal
-*/
-
 /*! \typedef QHash::ConstIterator
 
     Qt-style synonym for QHash::const_iterator.

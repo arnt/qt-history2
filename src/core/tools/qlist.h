@@ -221,7 +221,7 @@ public:
 
     // comfort
     QList &operator+=(const QList &l);
-    QList operator+(const QList &l) const
+    inline QList operator+(const QList &l) const
     { QList n = *this; n += l; return n; }
     inline void operator+=(const T &t)
     { append(t); }
@@ -551,6 +551,7 @@ Q_OUTOFLINE_TEMPLATE QList<T>::QList(const QVector<T> &vector)
         append(vector.at(i));
 }
 
-Q_DECLARE_ITERATOR(List)
+Q_DECLARE_SEQUENTIAL_ITERATOR(List)
+Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR(List)
 
 #endif // QLIST_H

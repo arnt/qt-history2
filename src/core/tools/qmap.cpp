@@ -854,11 +854,6 @@ void QMapData::dump()
     to isEmpty().
 */
 
-/*! \fn bool QMap::sameKey(const Key &key1, const Key &key2)
-
-    \internal
-*/
-
 /*! \class QMap::iterator
     \brief The QMap::iterator class provides an STL-style non-const iterator for QMap and QMultiMap.
 
