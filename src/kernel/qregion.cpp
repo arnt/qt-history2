@@ -83,6 +83,10 @@
 
     QRegion is an \link shclass.html implicitly shared\endlink class.
 
+    \warning Due to window system limitations, the whole coordinate
+    space for a region is limited to the points between -32767 and
+    32767 on Windows 95/98/ME.
+
     \sa QPainter::setClipRegion(), QPainter::setClipRect()
 */
 
