@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#171 $
 **
 ** Implementation of QListBox widget class
 **
@@ -677,15 +677,18 @@ void QListBox::insertItem( const QPixmap &pixmap, int index )
   order.  inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
 
+  Returns the index at which the item is inserted.
+
   \sa insertItem()
 */
 
-void QListBox::inSort( const QListBoxItem *lbi )
+int QListBox::inSort( const QListBoxItem *lbi )
 {
     itemList->inSort( lbi );
     int index = itemList->at();
     itemList->remove();
     insertItem( lbi, index );
+    return index;
 }
 
 
@@ -693,13 +696,14 @@ void QListBox::inSort( const QListBoxItem *lbi )
   \overload void QListBox::inSort( const QString &text )
 */
 
-void QListBox::inSort( const QString &text )
+int QListBox::inSort( const QString &text )
 {
     QListBoxText lbi( text );
     itemList->inSort(&lbi);
     int index = itemList->at();
     itemList->remove();
     insertItem( text, index );
+    return index;
 }
 
 

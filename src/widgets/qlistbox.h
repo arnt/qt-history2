@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#68 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#69 $
 **
 ** Definition of QListBox widget class
 **
@@ -127,8 +127,8 @@ public:
     void	insertItem( const QListBoxItem *, int index=-1 );
     void	insertItem( const QString &text, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
-    void	inSort( const QListBoxItem * );
-    void	inSort( const QString &text );
+    int		inSort( const QListBoxItem * );
+    int		inSort( const QString &text );
 
     void	removeItem( int index );
     void	clear();
