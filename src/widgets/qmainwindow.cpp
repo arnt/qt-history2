@@ -1536,6 +1536,15 @@ void QMainWindow::setUsesTextLabel( bool enable )
 }
 
 
+/*! \property QMainWindow::toolBarsMovable
+    \obsolete
+    
+    This property is obsolete, use dockWindowsMovable now.
+
+    \sa dockWindowsMovable()
+*/
+
+
 /*! \fn void QMainWindow::pixmapSizeChanged( bool )
 
   This signal is called whenever the setUsesBigPixmaps() is called

@@ -384,7 +384,7 @@ void QLineEdit::deselect()
 /*! \property QLineEdit::text
     \brief the text in the line
 
-  Setting this property clears the selection and moves the cursor to the end 
+  Setting this property clears the selection and moves the cursor to the end
   of the line.
 
   The text is truncated to maxLength() length.
@@ -401,8 +401,8 @@ QString QLineEdit::text() const
 
 /*! \property QLineEdit::displayText
     \brief the text that is displayed
-    
-  This is normally the same as text(), but can be a string 
+
+  This is normally the same as text(), but can be a string
   like "*****" if EchoMode is Password or "" if it is NoEcho.
 
   \sa setEchoMode() text() EchoMode
@@ -415,8 +415,8 @@ QString QLineEdit::displayText() const
 
 
 
-/*! \property hasMarkedText
-    \brief whether part of the text has been marked by the user (e.g., 
+/*! \property QLineEdit::hasMarkedText
+    \brief whether part of the text has been marked by the user (e.g.,
     by clicking and dragging)
 
   \sa markedText()
@@ -1317,13 +1317,13 @@ void QLineEdit::setAlignment( int flag )
 
 /*! \property QLineEdit::alignment
     \brief the alignment of the line edit
-    
-  Possible Values are Qt::AlignAuto, Qt::AlignLeft, 
+
+  Possible Values are Qt::AlignAuto, Qt::AlignLeft,
   Qt::AlignRight and Qt::AlignHCenter.
 
-  Attempting to set the alignment to an illegal flag combination does 
+  Attempting to set the alignment to an illegal flag combination does
   nothing.
-  
+
   \sa Qt::AlignmentFlags
 */
 
@@ -1357,8 +1357,8 @@ void QLineEdit::setFrame( bool enable )
 /*! \property QLineEdit::frame
     \brief whether the line edit draws itself with a frame
 
-  If enabled (the default) the line edit draws itself inside a 
-  two-pixel frame, otherwise the line edit draws itself without 
+  If enabled (the default) the line edit draws itself inside a
+  two-pixel frame, otherwise the line edit draws itself without
   any frame.
 */
 
@@ -1383,7 +1383,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
 /*! \property QLineEdit::echoMode
     \brief the echo mode of the line edit
 
-  The initial setting is Normal, but QLineEdit also supports NoEcho 
+  The initial setting is Normal, but QLineEdit also supports NoEcho
   and Password.
 
   The widget's display and the ability to copy or drag the text is
@@ -1728,7 +1728,7 @@ void QLineEdit::setCursorPosition( int newPos )
 
 /*! \property QLineEdit::cursorPosition
     \brief the current cursor position for this line edit
-    
+
   Setting the cursor position causes a repaint when appropriate.
 */
 
