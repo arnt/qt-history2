@@ -114,9 +114,8 @@ QString QFileInfo::owner() const
     passwd *pw = getpwuid( ownerId() );
     if ( pw )
 	return QFile::decodeName( pw->pw_name );
-#else
-    return QString::null;
 #endif
+    return QString::null;
 }
 
 uint QFileInfo::ownerId() const
@@ -134,9 +133,8 @@ QString QFileInfo::group() const
     struct group *gr = getgrgid( groupId() );
     if ( gr )
 	return QFile::decodeName( gr->gr_name );
-#else
-    return QString::null;
 #endif
+    return QString::null;
 }
 
 uint QFileInfo::groupId() const

@@ -134,7 +134,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
-        macx-g++ {
+        mac {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \
@@ -150,14 +150,16 @@ kernel {
 			  $$KERNEL_CPP/qwidget_mac.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
 			  $$KERNEL_CPP/qfont_mac.cpp
-             DEFINES += ALLOW_OLD_CARBON _EVENT_HANDLERS=0 ONE_PIXEL_LOCK
-             DEFINES += ALLOW_OLD_CREATE_FOO_CONTROL_PARAMETERS=0 CARBON_ON_MACH_O=1 
-             DEFINES += ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
-	     INCLUDEPATH += /System/Library/Frameworks/QuickTime.framework/Headers/ \
-	                    /System/Library/Frameworks/Carbon.framework/Headers/ \
-			    /System/Library/Frameworks/HIToolbox.framework/Headers \
-			    /System/Library/Frameworks/PrintCore.framework/Headers
-             LIBS += -framework Carbon -framework QuickTime
+             macx-g++ {
+	                  DEFINES += ALLOW_OLD_CARBON _EVENT_HANDLERS=0 ONE_PIXEL_LOCK
+			  DEFINES += ALLOW_OLD_CREATE_FOO_CONTROL_PARAMETERS=0 CARBON_ON_MACH_O=1 
+			  DEFINES += ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
+			  INCLUDEPATH += /System/Library/Frameworks/QuickTime.framework/Headers/ \
+			                 /System/Library/Frameworks/Carbon.framework/Headers/ \
+					 /System/Library/Frameworks/HIToolbox.framework/Headers \
+					 /System/Library/Frameworks/PrintCore.framework/Headers
+		          LIBS += -framework Carbon -framework QuickTime
+	    }
         }
 
 	unix:SOURCES += $$KERNEL_CPP/qpsprinter.cpp \

@@ -266,13 +266,6 @@
 # define R_OK	4
 #endif
 
-#if defined(Q_OS_MACX)
-# define F_OK	0
-# define X_OK	1
-# define W_OK	2
-# define R_OK	4
-#endif
-
 struct QFileInfoCache
 {
     STATBUF st;
