@@ -2432,8 +2432,8 @@ void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 	if ( !str[ index ].isSpace() ) {
 	    i = startIdx;
 	    // find start of word
-	    while ( i-- >= 0 && !str[ i ].isSpace() ) {
-		startIdx = i;
+	    while ( i >= 0 && !str[ i ].isSpace() ) {
+		startIdx = i--;
 	    }
 	    i = endIdx;
 	    // find end of word..
@@ -2985,6 +2985,7 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
+	optimInsert( text, para, index );
 	return;
 #endif
     QTextParagraph *p = doc->paragAt( para );
@@ -4920,7 +4921,7 @@ void QTextEdit::pasteSubType( const QByteArray& subtype, QMimeSource *m )
 	t.replace( '\r', '\n' );
 #endif
 	QChar *uc = (QChar *)t.unicode();
-	for ( int i=0; i<t.length(); i++ ) {
+	for ( int i = 0; i < t.length(); i++ ) {
 	    if ( uc[ i ] < ' ' && uc[ i ] != '\n' && uc[ i ] != '\t' )
 		uc[ i ] = ' ';
 	}
@@ -5956,8 +5957,7 @@ void QTextEdit::optimSetText( const QString &str )
 
   Append \a tag to the tag list.
 */
-QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
-							const QString & tag )
+QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index, const QString & tag )
 {
     QTextEditOptimPrivate::Tag * t = new QTextEditOptimPrivate::Tag, * tmp;
 
@@ -5977,6 +5977,53 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
     tmp = d->od->tagIndex[ LOGOFFSET(t->line) ];
     if ( !tmp || (tmp && tmp->index > t->index) ) {
 	d->od->tagIndex.replace( LOGOFFSET(t->line), t );
+    }
+    return t;
+}
+
+/*! \internal
+
+  Insert \a tag in the tag - according to line and index numbers
+*/
+QTextEditOptimPrivate::Tag *QTextEdit::optimInsertTag(int line, int index, const QString &tag)
+{
+    QTextEditOptimPrivate::Tag *t = new QTextEditOptimPrivate::Tag, *tmp;
+
+    if (d->od->tags == 0)
+	d->od->tags = t;
+    t->bold = t->italic = t->underline = FALSE;
+    t->line  = line;
+    t->index = index;
+    t->tag   = tag;
+    t->leftTag = 0;
+    t->parent  = 0;
+
+    // find insertion pt. in tag struct.
+    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator it;
+    if ((it = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
+	tmp = *it;
+	if (tmp->index >= index) { // the exisiting tag may be placed AFTER the one we want to insert
+	    tmp = tmp->prev;
+	} else {
+	    while (tmp && tmp->next && tmp->next->line == line && tmp->next->index <= index)
+		tmp = tmp->next;
+	}
+    } else {
+	tmp = d->od->tags;
+	while (tmp && tmp->next && tmp->next->line < line)
+	    tmp = tmp->next;
+    }
+    
+    t->prev = tmp;
+    t->next = tmp ? tmp->next : 0;
+    if (t->next)
+	t->next->prev = t;
+    if (tmp)
+	tmp->next = t;
+
+    tmp = d->od->tagIndex[LOGOFFSET(t->line)];
+    if (!tmp || (tmp && tmp->index >= t->index)) {
+	d->od->tagIndex.replace(LOGOFFSET(t->line), t);
     }
     return t;
 }
@@ -6015,7 +6062,7 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
   only thing that is detected.
 
 */
-void QTextEdit::optimParseTags( QString * line )
+void QTextEdit::optimParseTags( QString * line, int lineNo, int indexOffset )
 {
     int len = line->length();
     int i, startIndex = -1, endIndex = -1, escIndex = -1;
@@ -6075,7 +6122,10 @@ void QTextEdit::optimParseTags( QString * line )
 		    underline--;
 		else
 		    format = FALSE;
-		tag = optimAppendTag( startIndex, tagStr );
+		if ( lineNo > -1 )
+		    tag = optimInsertTag( lineNo, startIndex + indexOffset, tagStr );
+		else
+		    tag = optimAppendTag( startIndex, tagStr );
 		// everything that is not a b, u or i tag is considered
 		// to be a color tag.
 		tag->type = format ? QTextEditOptimPrivate::Format
@@ -6180,11 +6230,186 @@ void QTextEdit::optimAppend( const QString &str )
 	ensureVisible( 0, contentsHeight(), 1, 1 );
     }
     // when a max log size is set, the text may not be redrawn because
-    // the size of the viewport may not have change
+    // the size of the viewport may not have changed
     if ( d->maxLogLines > -1 )
 	viewport()->update();
     emit textChanged();
 }
+
+static void qStripTags(QString *line)
+{
+    int len = line->length();
+    int i, startIndex = -1, endIndex = -1, escIndex = -1;
+    int state = 0; // 0 = outside tag, 1 = inside tag
+    bool tagOpen, tagClose;
+
+    for ( i = 0; i < len; i++ ) {
+	tagOpen = (*line)[i] == '<';
+	tagClose = (*line)[i] == '>';
+
+	// handle '&lt;' and '&gt;' and '&amp;'
+	if ( (*line)[i] == '&' ) {
+	    escIndex = i;
+	    continue;
+	} else if ( escIndex != -1 && (*line)[i] == ';' ) {
+	    QString esc = line->mid( escIndex, i - escIndex + 1 );
+	    QString c;
+	    if ( esc == "&lt;" )
+		c = '<';
+	    else if ( esc == "&gt;" )
+		c = '>';
+	    else if ( esc == "&amp;" )
+		c = '&';
+	    line->replace( escIndex, i - escIndex + 1, c );
+	    len = line->length();
+	    i -= i-escIndex;
+	    escIndex = -1;
+	    continue;
+	}
+
+	if ( state == 0 && tagOpen ) {
+	    state = 1;
+	    startIndex = i;
+	    continue;
+	}
+	if ( state == 1 && tagClose ) {
+	    state = 0;
+	    endIndex = i;
+	    if ( startIndex != -1 ) {
+		int l = (endIndex == -1) ?
+			line->length() - startIndex : endIndex - startIndex;
+		line->remove( startIndex, l+1 );
+		len = line->length();
+		i -= l+1;
+	    }
+	    continue;
+	}
+    }
+}
+
+/*! \internal
+  
+    Inserts the text into \a line at index \a index.
+*/
+
+void QTextEdit::optimInsert(const QString& text, int line, int index)
+{
+    if (text.isEmpty() || d->maxLogLines == 0)
+	return;
+    if (line < 0)
+	line = 0;
+    if (line > d->od->numLines-1)
+	line = d->od->numLines-1;
+    if (index < 0)
+	index = 0;
+    
+    QStringList strl = QStringList::split('\n', text, TRUE);
+    int numNewLines = strl.count() - 1;
+    QTextEditOptimPrivate::Tag *tag = 0;
+    QMap<int,QTextEditOptimPrivate::Tag *>::ConstIterator ii;
+    int x;
+    
+    if (numNewLines == 0) {
+	// Case 1. Fast single line case - just inject it!
+	QString stripped = text;
+	qStripTags( &stripped );
+	d->od->lines[LOGOFFSET(line)].insert(index, stripped);
+	// move the tag indices following the insertion pt.
+	if ((ii = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
+	    tag = *ii;
+	    while (tag && (LOGOFFSET(tag->line) == line && tag->index < index))
+		tag = tag->next;
+	    while (tag && (LOGOFFSET(tag->line) == line)) {
+		tag->index += stripped.length();
+		tag = tag->next;
+	    }
+	}
+	stripped = text;
+	optimParseTags(&stripped, line, index);
+    } else if (numNewLines > 0) {
+        // Case 2. We have at least 1 newline char - split at
+        // insertion pt. and make room for new lines - complex and slow!
+	QString left = d->od->lines[LOGOFFSET(line)].left(index);
+	QString right = d->od->lines[LOGOFFSET(line)].mid(index);
+
+	// rearrange lines for insertion
+	for (x = d->od->numLines - 1; x > line; x--)
+	    d->od->lines[x + numNewLines] = d->od->lines[x];
+	d->od->numLines += numNewLines;
+	
+	// fix the tag index and the tag line/index numbers - this
+	// might take a while..
+	for (x = line; x < d->od->numLines; x++) {
+	    if ((ii = d->od->tagIndex.find(LOGOFFSET(line))) != d->od->tagIndex.end()) {
+		tag = ii.data();
+		if (LOGOFFSET(tag->line) == line)
+		    while (tag && (LOGOFFSET(tag->line) == line && tag->index < index))
+			tag = tag->next;
+	    }
+	}
+
+	// relabel affected tags with new line numbers and new index
+	// positions
+	while (tag) {
+	    if (LOGOFFSET(tag->line) == line)
+		tag->index -= index;
+	    tag->line += numNewLines;
+	    tag = tag->next;
+	}
+
+	// generate a new tag index
+	d->od->tagIndex.clear();
+	tag = d->od->tags;
+	while (tag) {
+	    if (!((ii = d->od->tagIndex.find(LOGOFFSET(tag->line))) != d->od->tagIndex.end()))
+		d->od->tagIndex[LOGOFFSET(tag->line)] = tag;
+	    tag = tag->next;
+	}
+
+	// update the tag indices on the spliced line - needs to be done before new tags are added
+	QString stripped = strl[strl.count() - 1];
+	qStripTags(&stripped);
+	if ((ii = d->od->tagIndex.find(LOGOFFSET(line + numNewLines))) != d->od->tagIndex.end()) {
+	    tag = *ii;
+	    while (tag && (LOGOFFSET(tag->line) == line + numNewLines)) {
+		tag->index += stripped.length();
+		tag = tag->next;
+	    }
+	}
+	
+	// inject the new lines
+	QStringList::Iterator it = strl.begin();
+	x = line;
+	int idx;
+	for (; it != strl.end(); ++it) {
+	    stripped = *it;
+	    qStripTags(&stripped);
+	    if ( x == line ) {
+		stripped = left + stripped;
+		idx = index;
+	    } else {
+		idx = 0;
+	    }
+	    d->od->lines[LOGOFFSET(x)] = stripped;
+	    optimParseTags(&*it, x++, idx);
+	}
+	d->od->lines[LOGOFFSET(x - 1)] += right;
+    }
+    // recalculate the pixel width of the longest line - slow!
+    QFontMetrics fm( QScrollView::font() );
+    int lWidth = 0;
+    int oldMax = d->od->maxLineWidth;
+    d->od->maxLineWidth = 0;
+    for (x = 0; x < d->od->numLines-1; x++) {
+	lWidth = fm.width(d->od->lines[x]);
+	if (lWidth > d->od->maxLineWidth)
+	    d->od->maxLineWidth = lWidth;
+    }	
+    resizeContents(d->od->maxLineWidth + 4, d->od->numLines * fm.lineSpacing() + 1);
+    repaintContents();
+    emit textChanged();
+}
+
 
 /*! \internal
 

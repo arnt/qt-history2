@@ -518,6 +518,7 @@ private:
     QString optimText() const;
     void optimSetText( const QString &str );
     void optimAppend( const QString &str );
+    void optimInsert( const QString &str, int line, int index );
     void optimDrawContents( QPainter * p, int cx, int cy, int cw, int ch );
     void optimMousePressEvent( QMouseEvent * e );
     void optimMouseReleaseEvent( QMouseEvent * e );
@@ -530,11 +531,12 @@ private:
     bool optimHasSelection() const;
     QString optimSelectedText() const;
     bool optimFind( const QString & str, bool, bool, bool, int *, int * );
-    void optimParseTags( QString * str );
+    void optimParseTags( QString * str, int lineNo = -1, int indexOffset = 0 );
     QTextEditOptimPrivate::Tag * optimPreviousLeftTag( int line );
     void optimSetTextFormat( QTextDocument *, QTextCursor *, QTextFormat * f,
 			     int, int, QTextEditOptimPrivate::Tag * t );
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
+    QTextEditOptimPrivate::Tag * optimInsertTag( int line, int index, const QString & tag );
     void optimCheckLimit( const QString& str );
 
 private slots:
