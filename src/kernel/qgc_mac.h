@@ -69,13 +69,13 @@ public:
 
 protected:
     void drawPolyInternal(const QPointArray &a, bool close=true, bool inset=true);
+    void setClippedRegionInternal(QRegion *);
 
-    void internalSetClippedRegion(QRegion *);
     void setupQDFont();
     void setupQDBrush();
     void setupQDPen();
+    void setupQDPort(bool force=false, QPoint *off=NULL, QRegion *rgn=NULL);
 
-    void initPaintDevice(bool force=false, QPoint *off=NULL, QRegion *rgn=NULL);
     friend class QMacStylePainter;
     friend class QFontEngineMac;
 

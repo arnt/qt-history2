@@ -48,10 +48,10 @@ void QMacStylePainter::callFunc(QMacStylePainter::Func f)
 	if(f == SetPort) {
 #ifdef USE_CORE_GRAPHICS
 	    QRegion rgn;
-	    mgc->initPaintDevice(true, 0, &rgn);
+	    mgc->setupQDPort(true, 0, &rgn);
 	    QMacSavedPortInfo::setClipRegion(rgn);
 #else
-	    mgc->initPaintDevice(true, 0);
+	    mgc->setupQDPort(true, 0);
 #endif
 	} else if(f == UpdateFont) {
 	    mgc->setupQDFont();
@@ -1120,10 +1120,8 @@ void QMacStyle::drawControl(ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
-	if(btn->isFlat() && !(how & Style_Down)) {
-	    btn->erase();
+	if(btn->isFlat() && !(how & Style_Down)) 
 	    break;
-	}
 
 	d->addWidget(btn);
 	QString pmkey;
@@ -1580,8 +1578,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    ttdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
 	else if(subActive == SC_SliderHandle)
 	    ttdi.trackInfo.slider.pressState = kThemeThumbPressed;
-
-	sldr->erase(); //fill the area once..
 
 	//The AppManager draws outside my rectangle, so account for that difference..
 	Rect macRect;

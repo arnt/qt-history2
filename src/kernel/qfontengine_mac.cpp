@@ -146,7 +146,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const QTextEngine *engine,
 #ifndef Q_Q3PAINTER
     if(p->d->gc && (p->d->gc->type() == QAbstractGC::QuickDraw || p->d->gc->type() == QAbstractGC::CoreGraphics)) {
 	QQuickDrawGC *mgc = (QQuickDrawGC*)p->d->gc;
-	mgc->initPaintDevice(false, &off, &rgn);
+	mgc->setupQDPort(false, &off, &rgn);
 	if(rgn.isEmpty())
 	    return;
 #ifdef USE_CORE_GRAPHICS

@@ -171,7 +171,7 @@ QQuickDrawGC::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
     }
     d->unclipped = unclipped;
 #ifndef USE_CORE_GRAPHICS
-    initPaintDevice(true); //force setting paint device, this does unclipped fu
+    setupQDPort(true); //force setting paint device, this does unclipped fu
 #endif
 
     updateXForm(ps);
@@ -214,133 +214,11 @@ QQuickDrawGC::updatePen(QPainterState *ps)
     d->current.pen = ps->pen;
 }
 
-void
-QQuickDrawGC::setupQDPen()
-{
-    //pen color
-    ::RGBColor f;
-    f.red = d->current.pen.color().red()*256;
-    f.green = d->current.pen.color().green()*256;
-    f.blue = d->current.pen.color().blue()*256;
-    RGBForeColor(&f);
-
-    //pen size
-    int dot = d->current.pen.width();
-    if(dot < 1)
-	dot = 1;
-    PenSize(dot, dot);
-
-    int	ps = d->current.pen.style();
-    Pattern pat;
-    switch(ps) {
-	case DotLine:
-	case DashDotLine:
-	case DashDotDotLine:
-//	    qDebug("Penstyle not implemented %s - %d", __FILE__, __LINE__);
-	case DashLine:
-	    GetQDGlobalsGray(&pat);
-	    break;
-	default:
-	    GetQDGlobalsBlack(&pat);
-	    break;
-    }
-    PenPat(&pat);
-
-    //penmodes
-    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
-    //xor doesn't really work on an overlay widget FIXME
-    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-	qt_recreate_root_win();
-    PenMode(ropCodes[d->current.rop]);
-}
 
 void
 QQuickDrawGC::updateBrush(QPainterState *ps)
 {
     d->current.pen = ps->pen;
-}
-
-void
-QQuickDrawGC::setupQDBrush()
-{
-    static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
-    static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
-    static uchar dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
-    static uchar dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
-    static uchar dense5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
-    static uchar dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
-    static uchar dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
-    static uchar hor_pat[] = {			// horizontal pattern
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
-	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-    static uchar ver_pat[] = {			// vertical pattern
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
-    static uchar cross_pat[] = {			// cross pattern
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
-	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
-	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
-    static uchar bdiag_pat[] = {			// backward diagonal pattern
-	0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04, 0x02, 0x02, 0x01, 0x01,
-	0x80, 0x80, 0x40, 0x40, 0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04,
-	0x02, 0x02, 0x01, 0x01, 0x80, 0x80, 0x40, 0x40 };
-    static uchar fdiag_pat[] = {			// forward diagonal pattern
-	0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10, 0x20, 0x20, 0x40, 0x40,
-	0x80, 0x80, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10,
-	0x20, 0x20, 0x40, 0x40, 0x80, 0x80, 0x01, 0x01 };
-    static uchar dcross_pat[] = {			// diagonal cross pattern
-	0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
-	0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
-	0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
-    static uchar *pat_tbl[] = {
-	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
-	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
-
-    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
-    //xor doesn't really work on an overlay widget FIXME
-    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
-	qt_recreate_root_win();
-
-    //color
-    ::RGBColor f;
-    f.red = d->current.brush.color().red()*256;
-    f.green = d->current.brush.color().green()*256;
-    f.blue = d->current.brush.color().blue()*256;
-    RGBForeColor(&f);
-
-    d->brush_style_pix = 0;
-    int bs = d->current.brush.style();
-    if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
-	QString key;
-	key.sprintf("$qt-brush$%d", bs);
-	d->brush_style_pix = QPixmapCache::find(key);
-	if(!d->brush_style_pix) {                        // not already in pm dict
-	    uchar *pat=pat_tbl[bs-Dense1Pattern];
-	    int size = 16;
-	    if(bs<=Dense7Pattern)
-		size=8;
-	    else if(bs<=CrossPattern)
-		size=24;
-	    d->brush_style_pix = new QPixmap(size, size);
-	    d->brush_style_pix->setMask(QBitmap(size, size, pat, false));
-	    QPixmapCache::insert(key, d->brush_style_pix);
-	}
-	d->brush_style_pix->fill(d->current.brush.color());
-    }
-
-    //penmodes
-    PenMode(ropCodes[d->current.rop]);
 }
 
 void
@@ -350,12 +228,6 @@ QQuickDrawGC::updateFont(QPainterState *ps)
     clearf(DirtyFont);
 }
 
-void
-QQuickDrawGC::setupQDFont()
-{
-    setupQDPen();
-    d->current.font.macSetFont(d->pdev);
-}
 
 void
 QQuickDrawGC::updateRasterOp(QPainterState *ps)
@@ -379,7 +251,7 @@ QQuickDrawGC::updateXForm(QPainterState */*ps*/)
 }
 
 void
-QQuickDrawGC::internalSetClippedRegion(QRegion *rgn)
+QQuickDrawGC::setClippedRegionInternal(QRegion *rgn)
 {
     if(rgn)
 	setf(ClipOn);
@@ -394,7 +266,7 @@ void
 QQuickDrawGC::updateClipRegion(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-    internalSetClippedRegion(ps->clipEnabled ? &ps->clipRegion : 0);
+    setClippedRegionInternal(ps->clipEnabled ? &ps->clipRegion : 0);
 }
 
 void QQuickDrawGC::setRasterOp(RasterOp r)
@@ -411,7 +283,7 @@ void
 QQuickDrawGC::drawLine(int x1, int y1, int x2, int y2)
 {
     Q_ASSERT(isActive());
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
     setupQDPen();
@@ -423,7 +295,7 @@ void
 QQuickDrawGC::drawRect(int x, int y, int w, int h)
 {
     Q_ASSERT(isActive());
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
 
@@ -457,14 +329,14 @@ QQuickDrawGC::drawRect(int x, int y, int w, int h)
 		QRegion newclip(QRect(x, y, w, h));
 		if(clipon)
 		    newclip &= clip;
-		internalSetClippedRegion(&newclip);
+		setClippedRegionInternal(&newclip);
 
 		//draw the brush
 		drawTiledPixmap(x, y, w, h, *pm,
 				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
 
 		//restore the clip
-		internalSetClippedRegion(clipon ? &clip : 0);
+		setClippedRegionInternal(clipon ? &clip : 0);
 	    }
 	}
     }
@@ -479,7 +351,7 @@ QQuickDrawGC::drawPoint(int x, int y)
 {
     Q_ASSERT(isActive());
     if(d->current.pen.style() != NoPen) {
-	initPaintDevice();
+	setupQDPort();
 	if(d->clip.paintable.isEmpty())
 	    return;
 	setupQDPen();
@@ -494,7 +366,7 @@ QQuickDrawGC::drawPoints(const QPointArray &pa, int index, int npoints)
     Q_ASSERT(isActive());
 
     if(d->current.pen.style() != NoPen) {
-	initPaintDevice();
+	setupQDPort();
 	if(d->clip.paintable.isEmpty())
 	    return;
 	setupQDPen();
@@ -544,7 +416,7 @@ QQuickDrawGC::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 {
     Q_ASSERT(isActive());
 
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
 
@@ -565,7 +437,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 {
     Q_ASSERT(isActive());
 
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
 
@@ -609,7 +481,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 		QRegion newclip(pa);
 		if(clipon)
 		    newclip &= clip;
-		internalSetClippedRegion(&newclip);
+		setClippedRegionInternal(&newclip);
 
 		//draw the brush
 		QRect r(pa.boundingRect());
@@ -617,7 +489,7 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 				r.x() - d->current.bg.origin.x(), r.y() - d->current.bg.origin.y(), true);
 
 		//restore the clip
-		internalSetClippedRegion(clipon ? &clip : 0);
+		setClippedRegionInternal(clipon ? &clip : 0);
 	    }
 	}
     }
@@ -633,7 +505,7 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 {
     Q_ASSERT(isActive());
 
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
 
@@ -667,14 +539,14 @@ QQuickDrawGC::drawEllipse(int x, int y, int w, int h)
 		QRegion newclip(QRect(x, y, w, h), QRegion::Ellipse);
 		if(clipon)
 		    newclip &= clip;
-		internalSetClippedRegion(&newclip);
+		setClippedRegionInternal(&newclip);
 
 		//draw the brush
 		drawTiledPixmap(x, y, w, h, *pm,
 				x - d->current.bg.origin.x(), y - d->current.bg.origin.y(), true);
 
 		//restore the clip
-		internalSetClippedRegion(clipon ? &clip : 0);
+		setClippedRegionInternal(clipon ? &clip : 0);
 	    }
 	}
     }
@@ -703,7 +575,7 @@ QQuickDrawGC::drawLineSegments(const QPointArray &pa, int index, int nlines)
 {
     Q_ASSERT(isActive());
 
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
 
@@ -738,7 +610,7 @@ QQuickDrawGC::drawPolyline(const QPointArray &pa, int index, int npoints)
     } else {
 	plot_pixel = d->current.pen.style() == SolidLine; // plot last pixel
     }
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
     //make a region of it
@@ -841,7 +713,7 @@ QQuickDrawGC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, in
     if(pixmap.isNull())
 	return;
 
-    initPaintDevice();
+    setupQDPort();
     if(d->clip.paintable.isEmpty())
 	return;
     setupQDPen();
@@ -889,7 +761,146 @@ void QQuickDrawGC::cleanup()
 /*!
     \internal
 */
-void QQuickDrawGC::initPaintDevice(bool force, QPoint *off, QRegion *rgn)
+void
+QQuickDrawGC::setupQDPen()
+{
+    //pen color
+    ::RGBColor f;
+    f.red = d->current.pen.color().red()*256;
+    f.green = d->current.pen.color().green()*256;
+    f.blue = d->current.pen.color().blue()*256;
+    RGBForeColor(&f);
+
+    //pen size
+    int dot = d->current.pen.width();
+    if(dot < 1)
+	dot = 1;
+    PenSize(dot, dot);
+
+    int	ps = d->current.pen.style();
+    Pattern pat;
+    switch(ps) {
+	case DotLine:
+	case DashDotLine:
+	case DashDotDotLine:
+//	    qDebug("Penstyle not implemented %s - %d", __FILE__, __LINE__);
+	case DashLine:
+	    GetQDGlobalsGray(&pat);
+	    break;
+	default:
+	    GetQDGlobalsBlack(&pat);
+	    break;
+    }
+    PenPat(&pat);
+
+    //penmodes
+    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
+    //xor doesn't really work on an overlay widget FIXME
+    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
+	qt_recreate_root_win();
+    PenMode(ropCodes[d->current.rop]);
+}
+
+/*!
+    \internal
+*/
+void
+QQuickDrawGC::setupQDBrush()
+{
+    static uchar dense1_pat[] = { 0xff, 0xbb, 0xff, 0xff, 0xff, 0xbb, 0xff, 0xff };
+    static uchar dense2_pat[] = { 0x77, 0xff, 0xdd, 0xff, 0x77, 0xff, 0xdd, 0xff };
+    static uchar dense3_pat[] = { 0x55, 0xbb, 0x55, 0xee, 0x55, 0xbb, 0x55, 0xee };
+    static uchar dense4_pat[] = { 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa, 0x55, 0xaa };
+    static uchar dense5_pat[] = { 0xaa, 0x44, 0xaa, 0x11, 0xaa, 0x44, 0xaa, 0x11 };
+    static uchar dense6_pat[] = { 0x88, 0x00, 0x22, 0x00, 0x88, 0x00, 0x22, 0x00 };
+    static uchar dense7_pat[] = { 0x00, 0x44, 0x00, 0x00, 0x00, 0x44, 0x00, 0x00 };
+    static uchar hor_pat[] = {			// horizontal pattern
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xff, 0xff, 0xff,
+	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	0x00, 0x00, 0x00, 0xff, 0xff, 0xff, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+    static uchar ver_pat[] = {			// vertical pattern
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+    static uchar cross_pat[] = {			// cross pattern
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0xff, 0xff, 0xff,
+	0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20,
+	0x08, 0x82, 0x20, 0xff, 0xff, 0xff, 0x08, 0x82, 0x20, 0x08, 0x82, 0x20 };
+    static uchar bdiag_pat[] = {			// backward diagonal pattern
+	0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04, 0x02, 0x02, 0x01, 0x01,
+	0x80, 0x80, 0x40, 0x40, 0x20, 0x20, 0x10, 0x10, 0x08, 0x08, 0x04, 0x04,
+	0x02, 0x02, 0x01, 0x01, 0x80, 0x80, 0x40, 0x40 };
+    static uchar fdiag_pat[] = {			// forward diagonal pattern
+	0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10, 0x20, 0x20, 0x40, 0x40,
+	0x80, 0x80, 0x01, 0x01, 0x02, 0x02, 0x04, 0x04, 0x08, 0x08, 0x10, 0x10,
+	0x20, 0x20, 0x40, 0x40, 0x80, 0x80, 0x01, 0x01 };
+    static uchar dcross_pat[] = {			// diagonal cross pattern
+	0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14, 0x22, 0x22, 0x41, 0x41,
+	0x80, 0x80, 0x41, 0x41, 0x22, 0x22, 0x14, 0x14, 0x08, 0x08, 0x14, 0x14,
+	0x22, 0x22, 0x41, 0x41, 0x80, 0x80, 0x41, 0x41 };
+    static uchar *pat_tbl[] = {
+	dense1_pat, dense2_pat, dense3_pat, dense4_pat, dense5_pat, dense6_pat, dense7_pat,
+	hor_pat, ver_pat, cross_pat, bdiag_pat, fdiag_pat, dcross_pat };
+
+    //Throw away a desktop when you paint into it non copy mode (xor?) I do this because
+    //xor doesn't really work on an overlay widget FIXME
+    if(d->current.rop != CopyROP && d->pdev->devType() == QInternal::Widget && ((QWidget *)d->pdev)->isDesktop())
+	qt_recreate_root_win();
+
+    //color
+    ::RGBColor f;
+    f.red = d->current.brush.color().red()*256;
+    f.green = d->current.brush.color().green()*256;
+    f.blue = d->current.brush.color().blue()*256;
+    RGBForeColor(&f);
+
+    d->brush_style_pix = 0;
+    int bs = d->current.brush.style();
+    if(bs >= Dense1Pattern && bs <= DiagCrossPattern) {
+	QString key;
+	key.sprintf("$qt-brush$%d", bs);
+	d->brush_style_pix = QPixmapCache::find(key);
+	if(!d->brush_style_pix) {                        // not already in pm dict
+	    uchar *pat=pat_tbl[bs-Dense1Pattern];
+	    int size = 16;
+	    if(bs<=Dense7Pattern)
+		size=8;
+	    else if(bs<=CrossPattern)
+		size=24;
+	    d->brush_style_pix = new QPixmap(size, size);
+	    d->brush_style_pix->setMask(QBitmap(size, size, pat, false));
+	    QPixmapCache::insert(key, d->brush_style_pix);
+	}
+	d->brush_style_pix->fill(d->current.brush.color());
+    }
+
+    //penmodes
+    PenMode(ropCodes[d->current.rop]);
+}
+
+/*!
+    \internal
+*/
+void
+QQuickDrawGC::setupQDFont()
+{
+    setupQDPen();
+    d->current.font.macSetFont(d->pdev);
+}
+
+/*!
+    \internal
+*/
+void QQuickDrawGC::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 {
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
