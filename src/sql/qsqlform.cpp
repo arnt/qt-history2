@@ -220,47 +220,103 @@ void QSqlPropertyMap::installDefaultMap( QSqlPropertyMap * map )
 }
 
 /*!
-  \class QSqlFormMap qsqlform.h
-  \brief Class used for mapping database fields to widgets and vice versa
+
+  \class QSqlForm qsqlform.h
+  \brief Class used for managing and creating data entry forms
+
   \module sql
 
-  This class is used by QSqlForm to manage the mapping between SQL
-  data fields and actual widgets.
- */
+  This class is used to create and manage data entry forms.
+
+  Typical use of a QSqlForm consists of the following steps:
+
+  <ol>
+  <li>Create the QSqlForm.
+  <li>Create the widgets you want to appear in the form.
+  <li>Map each editor widget in the form to the respective QSqlField.
+  <li>Use readFields() to update the editor widgets with values from the data fields.
+  <li>Display the form and let the user edit values etc.
+  <li>Use writeFields() to update the data field values with the values in the editor widgets.
+  </ol>
+  
+  Note that a QSqlForm does \a not access the database directly, but
+  most often via QSqlFields which are part of a QSqlCursor. An
+  insert()/update() call to QSqlCursor is needed to actually write
+  values to the database.
+  
+  Some sample code to initialize a form successfully:
+
+  \code
+  QSqlCursor myCursor( "mytable" );
+  QSqlForm myForm;
+  QWidget * w;
+
+  // Create an appropriate widget for displaying/editing the field 
+  // 'myfield'  in myCursor.
+  w = QLineEdit( this );
+
+  // Get the update buffer from myCursor
+  QSqlRecord * buf = myCursor.updateBuffer();
+
+  // Associate the newly created widget with the field 'myfield' in myCursor
+  myForm.insert( w, buf->field( "myfield" ) );
+
+  // Update the widgets in the form with values from the fields in the form.
+  myForm.readFields();
+
+  // show/edit the form etc...
+
+  // When done, write the field values back to myCursor
+  myForm.writeFields();
+  
+  // Update the actual database.
+  myCursor.update();
+
+  \endcode
+
+  If you want to use custom editors for displaying/editing data
+  fields, you will have to install a custom QSqlPropertyMap. The form
+  uses this object to get or set the value of a widget (ie. the text
+  in a QLineEdit, the index in a QComboBox).
+
+  \sa installPropertyMap(), QSqlPropertyMap
+*/
+
 
 /*!
 
-  Constructs a QSqlFormMap.
+  Constructs a QSqlForm.
 */
-QSqlFormMap::QSqlFormMap()
+QSqlForm::QSqlForm( QObject * parent, const char * name )
+    : QObject( parent, name ),
+      propertyMap( 0 )
 {
-    m = 0;
 }
 
 /*!
 
   Destructor.
 */
-QSqlFormMap::~QSqlFormMap()
+QSqlForm::~QSqlForm()
 {
-    if( m )
-	delete m;
+    if( propertyMap )
+	delete propertyMap;
 }
 
 /*!
 
   Installs a custom QSqlPropertyMap. This is useful if you plan to
-  create your own custom editor widgets. <em>QSqlFormMap takes
+  create your own custom editor widgets. <em>QSqlForm takes
   ownership of \a pmap, and \a pmap is therefore deleted when
-  QSqlFormMap goes out of scope.</em>
+  QSqlForm goes out of scope.</em>
 
   \sa installEditorFactory()
 */
-void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
+void QSqlForm::installPropertyMap( QSqlPropertyMap * pmap )
 {
-    if( m )
-	delete m;
-    m = pmap;
+    if( propertyMap )
+	delete propertyMap;
+    propertyMap = pmap;
 }
 
 
@@ -268,7 +324,7 @@ void QSqlFormMap::installPropertyMap( QSqlPropertyMap * pmap )
 
   Insert a widget/field pair into the map.
 */
-void QSqlFormMap::insert( QWidget * widget, QSqlField * field )
+void QSqlForm::insert( QWidget * widget, QSqlField * field )
 {
     map[widget] = field;
 }
@@ -277,7 +333,7 @@ void QSqlFormMap::insert( QWidget * widget, QSqlField * field )
 
   Remove a widget/field pair from the map.
 */
-void QSqlFormMap::remove( QWidget * widget )
+void QSqlForm::remove( QWidget * widget )
 {
     map.remove( widget );
 }
@@ -286,7 +342,7 @@ void QSqlFormMap::remove( QWidget * widget )
 
   Clears the values of all fields in the map.
 */
-void QSqlFormMap::clearValues()
+void QSqlForm::clearValues()
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = map.begin(); it != map.end(); ++it ){
@@ -299,7 +355,7 @@ void QSqlFormMap::clearValues()
 
   Clears the map of all fields.
 */
-void QSqlFormMap::clear()
+void QSqlForm::clear()
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = map.begin(); it != map.end(); ++it ){
@@ -311,7 +367,7 @@ void QSqlFormMap::clear()
 
   Returns the number of widgets in the map.
 */
-uint QSqlFormMap::count() const
+uint QSqlForm::count() const
 {
     return map.count();
 }
@@ -321,7 +377,7 @@ uint QSqlFormMap::count() const
   Returns the i'th widget in the map to. Useful for traversing the
   map.
 */
-QWidget * QSqlFormMap::widget( uint i ) const
+QWidget * QSqlForm::widget( uint i ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     uint cnt = 0;
@@ -338,7 +394,7 @@ QWidget * QSqlFormMap::widget( uint i ) const
 
   Returns the widget which field \a field is mapped to.
 */
-QWidget * QSqlFormMap::fieldToWidget( QSqlField * field ) const
+QWidget * QSqlForm::fieldToWidget( QSqlField * field ) const
 {
     QMap< QWidget *, QSqlField * >::ConstIterator it;
     for( it = map.begin(); it != map.end(); ++it ){
@@ -352,7 +408,7 @@ QWidget * QSqlFormMap::fieldToWidget( QSqlField * field ) const
 
   Returns the field number widget \a widget is mapped to.
 */
-QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
+QSqlField * QSqlForm::widgetToField( QWidget * widget ) const
 {
     if( map.contains( widget ) )
 	return map[widget];
@@ -365,11 +421,12 @@ QSqlField * QSqlFormMap::widgetToField( QWidget * widget ) const
   Update the widgets in the map with values from the associated fields.
 
 */
-void QSqlFormMap::readFields()
+void QSqlForm::readFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (m == 0) ? QSqlPropertyMap::defaultMap() : m;
+    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+			     QSqlPropertyMap::defaultMap() : propertyMap;
 
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = widgetToField( it.key() );
@@ -382,11 +439,12 @@ void QSqlFormMap::readFields()
 
   Update the actual database fields with values from the widgets.
 */
-void QSqlFormMap::writeFields()
+void QSqlForm::writeFields()
 {
     QSqlField * f;
     QMap< QWidget *, QSqlField * >::Iterator it;
-    QSqlPropertyMap * pmap = (m == 0) ? QSqlPropertyMap::defaultMap() : m;
+    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+			     QSqlPropertyMap::defaultMap() : propertyMap;
 
     for(it = map.begin() ; it != map.end(); ++it ){
 	f = widgetToField( it.key() );
@@ -397,249 +455,35 @@ void QSqlFormMap::writeFields()
 
 /*!
 
-  \class QSqlForm qsqlform.h
-  \brief Class used for managing and creating data entry forms
-
-  \module sql
-
-  This class is used to create and manage data entry forms.
-
-  Populate the form with widgets created by the QSqlEditorFactory
-  class to get the proper widget for a certain data field. Use the
-  populate() function generate a form automatically. The generated
-  form contains a label and an editor for each field in the
-  QSqlRecord.
-
-  The form needs a valid QSqlCursor on which to perform its operations
-  like insert, update and delete.
-
-  Some sample code to initialize a form successfully:
-
-  \code
-  QSqlForm form;
-  QSqlEditorFactory * factory = QSqlEditorFactory::defaultFactory();
-  QWidget * w;
-
-  // Set the cursor the form should operate on
-  form.setCursor( &myCursor );
-
-  // Create an appropriate widget for displaying/editing
-  // field 0 in myCursor.
-  w = factory->createEditor( &form, myCursor.field( 0 ) );
-
-  // Get the insert buffer from the cursor
-  QSqlRecord* buf = myCursor.insertBuffer();
-
-  // Associate the newly created widget with field 0 in myCursor
-  form.associate( w, buf->field( 0 ) );
-
-  // Now, update the contents of the form from the fields in the form.
-  form.readFields();
-
-  // edit/save record, etc...
-
-  \endcode
-
-  If you want to use custom editors for displaying/editing data
-  fields, you will have to install a custom QSqlPropertyMap. The form
-  uses this object to get or set the value of a widget (ie. the text
-  in a QLineEdit, the index in a QComboBox).
-
-  \sa installPropertyMap(), QSqlPropertyMap
-*/
-
-/*!
-
-  Constructs an empty form.
-*/
-QSqlForm::QSqlForm( QObject * parent, const char * name )
-    : QObject( parent, name ),
-      readOnly( FALSE ),
-      factory( 0 )
-{
-}
-
-/*!
-
-  This constructor automatically generates a form, were \a widget
-  becomes the parent of the generated widgets. The form fields will be
-  spread across \a columns number of columns.
-
-  \sa populate()
-*/
-QSqlForm::QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns,
-		    QObject * parent, const char * name )
-    : QObject( parent, name ),
-      readOnly( FALSE ),
-      factory( 0 )
-{
-    populate( widget, fields, columns );
-}
-
-/*!
-
-  Destructs the form.
-*/
-QSqlForm::~QSqlForm()
-{
-}
-
-/*!
-
-  Associates a widget with a database field.
+  Update the widget \a widget with the value from the mapped database field.
+  Nothing happens if no database field is mapped to \a widget.
 
 */
-void QSqlForm::associate( QWidget * widget, QSqlField * field )
+void QSqlForm::readField( QWidget * widget )
 {
-    map.insert( widget, field );
+    QSqlField * field = 0;
+    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+			     QSqlPropertyMap::defaultMap() : propertyMap;
+    
+    field = widgetToField( widget );
+    if( field )
+        pmap->setProperty( widget, field->value() );
 }
 
 /*!
 
-  Installs a custom QSqlEditorFactory. This is used in the populate()
-  function to automatically create the widgets in the form.
-
-  \sa installPropertyMap(), QSqlEditorFactory
- */
-void QSqlForm::installEditorFactory( QSqlEditorFactory * f )
-{
-    if( factory )
-	delete factory;
-    factory = f;
-}
-
-/*!
-
- Installs a custom QSqlPropertyMap. Used together with custom field
- editors. Please note that the QSqlForm class will take ownership of
- the propery map, so don't delete it!
-
- \sa installEditorFactory(), QSqlPropertyMap
+  Update the database field mapped to \a widget with the value from \a widget.
+  Nothing happens if no database field is mapped to \a widget.
 */
-void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
+void QSqlForm::writeField( QWidget * widget )
 {
-    map.installPropertyMap( m );
+    QSqlField * field = 0;
+    QSqlPropertyMap * pmap = (propertyMap == 0) ? 
+			     QSqlPropertyMap::defaultMap() : propertyMap;
+
+    field = widgetToField( widget );
+    if( field ) 
+	field->setValue( pmap->property( widget ) );
 }
 
-/*!
-
-  Sets the form state.
- */
-void QSqlForm::setReadOnly( bool state )
-{
-    if( map.count() ){
-	for( uint i = 0; i < map.count(); i++ ){
-	    QWidget * w = map.widget( i );
-	    if( w ) w->setEnabled( !state );
-	}
-	readOnly = state;
-    }
-}
-
-/*!
-
-  Returns the form state.
- */
-bool QSqlForm::isReadOnly() const
-{
-    return readOnly;
-}
-
-/*!
-
-  Update the widgets in the form with values from the associated SQL
-  fields.
-*/
-void QSqlForm::readFields()
-{
-    map.readFields();
-}
-
-/*!
-
-  Update the associated SQL fields with the values of the editor
-  widgets in the form.
-*/
-void QSqlForm::writeFields()
-{
-    map.writeFields();
-}
-
-/*!
-
-  Clears the form, i.e. all field values are set to their empty state.
-*/
-void QSqlForm::clearValues()
-{
-    map.clearValues();
-}
-
-/*!
-
-  Clears the form of all widgets.
-*/
-void QSqlForm::clear()
-{
-    map.clear();
-}
-
-/*!
-
-  This is a convenience function used to automatically populate a form
-  with fields based on a QSqlRecord. The form will contain a name label
-  and an editor widget for each of the fields in the record. The widgets
-  are layed out vertically in a QVBoxLayout, across \a columns number
-  of columns. \a widget will become the parent of the generated widgets.
- */
-
-void QSqlForm::populate( QWidget * widget, QSqlRecord * fields, uint columns )
-{
-    // ### Remove the children from widget before populating?
-
-    if( !widget || !fields ) return;
-
-    QSqlEditorFactory * f = (factory == 0) ?
-			    QSqlEditorFactory::defaultFactory() : factory;
-    QWidget * editor;
-    QLabel * label;
-    QVBoxLayout * vb = new QVBoxLayout( widget );
-    QGridLayout * g  = new QGridLayout( vb );
-
-    g->setMargin( 5 );
-    g->setSpacing( 3 );
-
-    int visibleFields = 0;
-    for( uint i = 0; i < fields->count(); i ++ ){
-	if( fields->isVisible( fields->field( i )->name() ) )
-	    visibleFields++;
-    }
-
-    if( columns < 1 ) columns = 1;
-    int numPerColumn = visibleFields / columns;
-
-    if( (visibleFields % columns) > 0)
-	numPerColumn++;
-
-    int col = 0, currentCol = 0;
-
-    for( uint j = 0; j < fields->count(); j++ ){
-	if( col >= numPerColumn ){
-	    col = 0;
-	    currentCol += 2;
-	}
-
-	if( !fields->isVisible( fields->field( j )->name() ) )
-	    continue;
-
-	label = new QLabel( fields->displayLabel( fields->field( j )->name() ), widget );
-	g->addWidget( label, col, currentCol );
-
-	editor = f->createEditor( widget, fields->value( j ) );
-	g->addWidget( editor, col, currentCol + 1 );
-	associate( editor, fields->field( j ) );
-	col++;
-    }
-
-    readFields();
-}
 #endif // QT_NO_SQL

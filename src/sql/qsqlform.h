@@ -75,61 +75,35 @@ private:
     QMap< QString, QString > propertyMap;
 };
 
-class Q_EXPORT QSqlFormMap
+class Q_EXPORT QSqlForm : public QObject
 {
+    Q_OBJECT
 public:
-    QSqlFormMap();
-    virtual ~QSqlFormMap();
+    QSqlForm( QObject * parent = 0, const char * name = 0 );
+    ~QSqlForm();
 
     virtual void insert( QWidget * widget, QSqlField * field );
     virtual void remove( QWidget * widget );
-    virtual void clear();
-    virtual void clearValues();
     uint         count() const;
 
     QWidget *   widget( uint i ) const;
     QSqlField * widgetToField( QWidget * widget ) const;
     QWidget *   fieldToWidget( QSqlField * field ) const;
 
-    void        readFields();
-    void        writeFields();
-
     void        installPropertyMap( QSqlPropertyMap * map );
 
-private:
-    QMap< QWidget *, QSqlField * > map;
-    QSqlPropertyMap * m;
-};
-
-class Q_EXPORT QSqlForm : public QObject
-{
-    Q_OBJECT
-public:
-    QSqlForm( QObject * parent = 0, const char * name = 0 );
-    QSqlForm( QWidget * widget, QSqlRecord * fields, uint columns = 1,
-	      QObject * parent = 0, const char * name = 0 );
-    ~QSqlForm();
-
-    virtual void associate( QWidget * widget, QSqlField * field );
-    virtual void populate( QWidget * widget, QSqlRecord * fields, 
-			   uint columns = 1 );
-
-    void setReadOnly( bool enable );
-    bool isReadOnly() const;
-
-    void installEditorFactory( QSqlEditorFactory * factory );
-    void installPropertyMap( QSqlPropertyMap * map );
-
 public slots:
+    virtual void readField( QWidget * widget );
+    virtual void writeField( QWidget * widget );
     virtual void readFields();
     virtual void writeFields();
+    
     virtual void clear();
     virtual void clearValues();
 
 private:
-    bool readOnly;
-    QSqlFormMap map;
-    QSqlEditorFactory * factory;
+    QMap< QWidget *, QSqlField * > map;
+    QSqlPropertyMap * propertyMap;
 };
 
 #endif // QT_NO_SQL
