@@ -1,8 +1,3 @@
-/*! \quickclass Array
-
-    Allo!
-*/
-
 /*!
     \quickproperty Array.length : Number
     \brief the length of the array
