@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#9 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#10 $
 **
 ** Definition of QRect class
 **
@@ -61,6 +61,8 @@ public:
     QSize  size()	 const;			// get size
     QCOORD width()	 const;			// get width
     QCOORD height()	 const;			// get height
+    void   setWidth( QCOORD w );		// set width
+    void   setHeight( QCOORD h );		// set height
     void   setSize( const QSize &s );		// set size
 
     bool   contains( const QPoint &p, bool proper=FALSE ) const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#15 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#15 $";
 #endif
 
 
@@ -470,7 +470,25 @@ QCOORD QRect::height() const
 }
 
 /*!
-Sets the size of the rectangle to \e s.
+Sets the width of the rectangle to \e w. The left position is unchanged.
+*/
+
+void QRect::setWidth( QCOORD w )
+{
+    x2 = x1 + w - 1;
+}
+
+/*!
+Sets the height of the rectangle to \e h. The top position is unchanged.
+*/
+
+void QRect::setHeight( QCOORD h )
+{
+    y2 = y1 + h - 1;
+}
+
+/*!
+Sets the size of the rectangle to \e s. The top left position is unchanged.
 */
 
 void QRect::setSize( const QSize &s )
