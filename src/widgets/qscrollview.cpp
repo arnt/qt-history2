@@ -455,7 +455,7 @@ flag explicitly.
 
   <li> \c Manual - the view stays the size set by resizeContents().
 
-  <li> \c AutoOne - if there is only only child widget, the view stays
+  <li> \c AutoOne - if there is only child widget, the view stays
   the size of that widget.  Otherwise, the behaviour is undefined.
 
   </ul>
