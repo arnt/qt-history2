@@ -1107,7 +1107,7 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	    backadd=0;
     } else if(depth==8) {
 	unsigned char * myptr=(unsigned char *)m;
-	if( (x2-x1+1)<4 ) {
+	if( (x2-x1+1)<8 ) {
 	    frontadd=x2-x1+1;
 	    backadd=0;
 	    count=0;
@@ -1116,8 +1116,8 @@ inline void QGfxRaster<depth,type>::calcPacking(
 	    return;
 	}
 
-	frontadd=(((unsigned long)myptr)+(x1*2)) & 0x7;
-	backadd=(((unsigned long)myptr)+((x2+1)*2)) & 0x7;
+	frontadd=(((unsigned long)myptr)+(x1)) & 0x7;
+	backadd=(((unsigned long)myptr)+((x2+1))) & 0x7;
 	if(frontadd)
 	    frontadd=(8-frontadd);
 	count=( (x2-x1+1)-(frontadd+backadd) );
@@ -1331,9 +1331,16 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 	}
     }
 
+    // Transclut[sourceval]==destval
+
     if(depth<=8) {
 	// Now look for matches
 	for(loopc=0;loopc<numcols;loopc++) {
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    transclut[loopc]=qGray(qRed(srcclut[loopc]),
+				   qGreen(srcclut[loopc]),
+				   qBlue(srcclut[loopc]));
+#else
 	    unsigned int hold=0xfffff;
 	    unsigned int tmp;
 	    int pos=0;
@@ -1345,6 +1352,7 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
 		}
 	    }
 	    transclut[loopc]=pos;
+#endif
 	}
     }
 }
