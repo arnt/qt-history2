@@ -1185,7 +1185,7 @@ void QDnsManager::transmitQuery( int i )
 	return;
     }
 
-    int nsindex = q->step & ns->count();
+    int nsindex = q->step % ns->count();
     QHostAddress receiver = *ns->at(nsindex);
     if (receiver.isIPv4Address())
 	ipv4Socket->writeBlock(p.data(), pp, receiver, 53);
