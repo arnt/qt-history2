@@ -37,6 +37,7 @@
 
 #include "qplatformdefs.h"
 #include <private/qlibrary_p.h>
+#include <qfile.h>
 
 #ifndef QT_NO_LIBRARY
 
@@ -49,10 +50,6 @@
 # if defined(QT_DEBUG)
 #  define QT_DEBUG_COMPONENT 1
 # endif
-#endif
-
-#if defined(QT_DEBUG_COMPONENT)
-#include <qfile.h>
 #endif
 
 #if defined(Q_WS_WIN) && !defined(QT_MAKEDLL)
