@@ -11,17 +11,17 @@
 #include "../shared/widgetinterface.h"
 #include "../designer/filteriface.h"
 
-class DesignerFormListInterface : public QComponentInterface
+class DesignerFormListInterface : public QApplicationComponentInterface
 {
 public:
-    DesignerFormListInterface( QObject *li ) : QComponentInterface( li ) {}
+    DesignerFormListInterface( QObject *li ) : QApplicationComponentInterface( li ) {}
 
-    virtual const QPixmap* pixmap( QComponentInterface*, int col ) const = 0;
-    virtual void setPixmap( QComponentInterface*, int col, const QPixmap& ) = 0;
-    virtual QString text( QComponentInterface*, int col ) const = 0;
-    virtual void setText( QComponentInterface*, int col, const QString& ) = 0;
+    virtual const QPixmap* pixmap( QApplicationComponentInterface*, int col ) const = 0;
+    virtual void setPixmap( QApplicationComponentInterface*, int col, const QPixmap& ) = 0;
+    virtual QString text( QApplicationComponentInterface*, int col ) const = 0;
+    virtual void setText( QApplicationComponentInterface*, int col, const QString& ) = 0;
 
-    virtual QList<QComponentInterface> queryFormInterfaceList() = 0;
+    virtual QList<QApplicationComponentInterface>* queryFormInterfaceList() = 0;
 };
 
 #endif //DESIGNERINTERFACE_H
