@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#115 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#115 $");
 
 
 /*!
@@ -3477,7 +3477,7 @@ static void write_xpm_image( QImageIO * iio )
 
     QImage image;
     if ( iio->image().depth() != 8 )
-	image = iio->image().convertDepth( 8 );
+	image = iio->image().convertDepth( 8, DemandDither );
     else
 	image = iio->image();
 
