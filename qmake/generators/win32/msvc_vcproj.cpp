@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of VcprojGenerator class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -169,7 +169,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
   			    solution_depends.insert(newDep->target, newDep);
   			    {
   			    	QRegExp libVersion("[0-9]{3,3}\\.lib$");
-    	  			if(libVersion.match(newDep->target) != -1) 
+    	  			if(libVersion.search(newDep->target) != -1) 
 	    			   solution_depends.insert(newDep->target.left(newDep->target.length() - 
 	    						   libVersion.matchedLength()) + ".lib", newDep);
 			    }

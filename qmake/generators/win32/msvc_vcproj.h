@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of VcprojGenerator class.
 **
 ** Created : 970521
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the network module of the Qt GUI Toolkit.
 **
@@ -34,8 +34,8 @@
 ** not clear to you.
 **
 **********************************************************************/
-#ifndef __VCPROJMAKE_H__
-#define __VCPROJMAKE_H__
+#ifndef __MSVC_VCPROJ_H__
+#define __MSVC_VCPROJ_H__
 
 #include "winmakefile.h"
 #include "msvc_objectmodel.h"
@@ -126,4 +126,4 @@ inline bool VcprojGenerator::findLibraries()
     return Win32MakefileGenerator::findLibraries("MSVCVCPROJ_LIBS");
 }
 
-#endif /* __VCPROJMAKE_H__ */
+#endif /* __MSVC_VCPROJ_H__ */
