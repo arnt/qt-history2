@@ -189,14 +189,13 @@ DATE QDateTimeToDATE( const QDateTime &dt )
 
 uint QColorToOLEColor( const QColor &col )
 {
-    OLE_COLOR ole = qRgba( col.blue(), col.green(), col.red(), 0x00 );
-    return ole;
+    return qRgba( col.blue(), col.green(), col.red(), 0x00 );
 }
 
 QColor OLEColorToQColor( uint col )
 {
     COLORREF cref;
-    HRESULT hres = OleTranslateColor( col, QColor::hPal(), &cref );
+    OleTranslateColor( col, QColor::hPal(), &cref );
     return QColor( GetRValue(cref),GetGValue(cref),GetBValue(cref) );
 }
 
