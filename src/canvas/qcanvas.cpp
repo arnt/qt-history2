@@ -4410,14 +4410,7 @@ QPointArray QCanvasLine::areaPoints() const
 
 void QCanvasLine::moveBy(double dx, double dy)
 {
-    if (dx || dy) {
-	removeFromChunks();
-	x1 += (int)dx;
-	y1 += (int)dy;
-	x2 += (int)dx;
-	y2 += (int)dy;
-	addToChunks();
-    }
+    QCanvasPolygonalItem::moveBy(dx, dy);
 }
 
 /*!
