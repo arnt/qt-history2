@@ -48,14 +48,14 @@
 
 #include <stdlib.h>
 
-class QCanvasData {
+class QCanvas::QCanvasData {
 public:
     QList<QCanvasView> viewList;
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;
 };
 
-class QCanvasViewData {
+class QCanvasView::QCanvasViewData {
 public:
     QWMatrix xform;
     QWMatrix ixform;
@@ -86,16 +86,16 @@ static
 void include(QRect& r, const QRect& rect)
 {
     if (rect.left()<r.left()) {
-            r.setLeft(rect.left());
+	    r.setLeft(rect.left());
     }
     if (rect.right()>r.right()) {
-            r.setRight(rect.right());
+	    r.setRight(rect.right());
     }
     if (rect.top()<r.top()) {
-            r.setTop(rect.top());
+	    r.setTop(rect.top());
     }
     if (rect.bottom()>r.bottom()) {
-            r.setBottom(rect.bottom());
+	    r.setBottom(rect.bottom());
     }
 }
 
@@ -138,44 +138,44 @@ void QCanvasClusterizer::add(const QRect& rect)
     int cursor;
 
     for (cursor=0; cursor<count; cursor++) {
-        if (cluster[cursor].contains(rect)) {
-            // Wholly contained already.
-            return;
-        }
+	if (cluster[cursor].contains(rect)) {
+	    // Wholly contained already.
+	    return;
+	}
     }
 
     int lowestcost=9999999;
     int cheapest=-1;
     cursor = 0;
     while( cursor<count ) {
-        if (cluster[cursor].intersects(biggerrect)) {
-            QRect larger=cluster[cursor];
-            include(larger,rect);
-            int cost = larger.width()*larger.height() -
+	if (cluster[cursor].intersects(biggerrect)) {
+	    QRect larger=cluster[cursor];
+	    include(larger,rect);
+	    int cost = larger.width()*larger.height() -
 		       cluster[cursor].width()*cluster[cursor].height();
 
-            if (cost < lowestcost) {
-                bool bad=FALSE;
-                for (int c=0; c<count && !bad; c++) {
-                    bad=cluster[c].intersects(larger) && c!=cursor;
-                }
-                if (!bad) {
-                    cheapest=cursor;
-                    lowestcost=cost;
-                }
-            }
-        }
+	    if (cost < lowestcost) {
+		bool bad=FALSE;
+		for (int c=0; c<count && !bad; c++) {
+		    bad=cluster[c].intersects(larger) && c!=cursor;
+		}
+		if (!bad) {
+		    cheapest=cursor;
+		    lowestcost=cost;
+		}
+	    }
+	}
 	cursor++;
     }
 
     if (cheapest>=0) {
-        include(cluster[cheapest],rect);
-        return;
+	include(cluster[cheapest],rect);
+	return;
     }
 
     if (count < maxcl) {
-        cluster[count++]=rect;
-        return;
+	cluster[count++]=rect;
+	return;
     }
 
     // Do cheapest of:
@@ -186,20 +186,20 @@ void QCanvasClusterizer::add(const QRect& rect)
     cheapest=-1;
     cursor=0;
     while( cursor<count ) {
-        QRect larger=cluster[cursor];
-        include(larger,rect);
-        int cost=larger.width()*larger.height()
-                - cluster[cursor].width()*cluster[cursor].height();
-        if (cost < lowestcost) {
-            bool bad=FALSE;
-            for (int c=0; c<count && !bad; c++) {
-                bad=cluster[c].intersects(larger) && c!=cursor;
-            }
-            if (!bad) {
-                cheapest=cursor;
-                lowestcost=cost;
-            }
-        }
+	QRect larger=cluster[cursor];
+	include(larger,rect);
+	int cost=larger.width()*larger.height()
+		- cluster[cursor].width()*cluster[cursor].height();
+	if (cost < lowestcost) {
+	    bool bad=FALSE;
+	    for (int c=0; c<count && !bad; c++) {
+		bad=cluster[c].intersects(larger) && c!=cursor;
+	    }
+	    if (!bad) {
+		cheapest=cursor;
+		lowestcost=cost;
+	    }
+	}
 	cursor++;
     }
 
@@ -213,36 +213,36 @@ void QCanvasClusterizer::add(const QRect& rect)
     int merge1 = 0;
     while( merge1 < count ) {
 	int merge2=0;
-        while( merge2 < count ) {
-            if( merge1!=merge2) {
-                QRect larger=cluster[merge1];
-                include(larger,cluster[merge2]);
-                int cost=larger.width()*larger.height()
-                    - cluster[merge1].width()*cluster[merge1].height()
-                    - cluster[merge2].width()*cluster[merge2].height();
-                if (cost < lowestcost) {
-                    bool bad=FALSE;
-                    for (int c=0; c<count && !bad; c++) {
-                        bad=cluster[c].intersects(larger) && c!=cursor;
-                    }
-                    if (!bad) {
-                        cheapestmerge1=merge1;
-                        cheapestmerge2=merge2;
-                        lowestcost=cost;
-                    }
-                }
-            }
+	while( merge2 < count ) {
+	    if( merge1!=merge2) {
+		QRect larger=cluster[merge1];
+		include(larger,cluster[merge2]);
+		int cost=larger.width()*larger.height()
+		    - cluster[merge1].width()*cluster[merge1].height()
+		    - cluster[merge2].width()*cluster[merge2].height();
+		if (cost < lowestcost) {
+		    bool bad=FALSE;
+		    for (int c=0; c<count && !bad; c++) {
+			bad=cluster[c].intersects(larger) && c!=cursor;
+		    }
+		    if (!bad) {
+			cheapestmerge1=merge1;
+			cheapestmerge2=merge2;
+			lowestcost=cost;
+		    }
+		}
+	    }
 	    merge2++;
-        }
+	}
 	merge1++;
     }
 
     if (cheapestmerge1>=0) {
-        include(cluster[cheapestmerge1],cluster[cheapestmerge2]);
-        cluster[cheapestmerge2]=cluster[count--];
+	include(cluster[cheapestmerge1],cluster[cheapestmerge2]);
+	cluster[cheapestmerge2]=cluster[count--];
     } else {
-        // if (!cheapest) debugRectangles(rect);
-        include(cluster[cheapest],rect);
+	// if (!cheapest) debugRectangles(rect);
+	include(cluster[cheapest],rect);
     }
 
     // NB: clusters do not intersect (or intersection will
@@ -360,7 +360,7 @@ public:
     {
 	bool y = changed;
 	changed = FALSE;
-       	return y;
+	return y;
     }
 
 private:
@@ -529,7 +529,7 @@ QCanvas::QCanvas(int w, int h)
   the right and bottom will not be visible.
 */
 QCanvas::QCanvas( QPixmap p,
-        int h, int v, int tilewidth, int tileheight )
+	int h, int v, int tilewidth, int tileheight )
 {
     init(h*tilewidth, v*tileheight, scm(tilewidth,tileheight) );
     setTiles( p, h, v, tilewidth, tileheight );
@@ -871,8 +871,8 @@ void QCanvas::advance()
     // first pass.
     it.toFirst();
     while ( it.current() ) {
- 	QCanvasItem* i = (QCanvasItem*)it.currentKey();
- 	++it;
+	QCanvasItem* i = (QCanvasItem*)it.currentKey();
+	++it;
 	if ( i )
 	    i->advance(1);
     }
@@ -1332,7 +1332,7 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
   Note that this function is not a reimplementation
   of QWidget::backgroundColor() (QCanvas is not a subclass
   of QWidget), but all QCanvasViews that are viewing the
-  canvas will set their backgrounds to this 
+  canvas will set their backgrounds to this
 
   \sa setBackgroundColor(), backgroundPixmap()
 */
@@ -1543,7 +1543,7 @@ void QCanvas::setTile( int x, int y, int tilenum )
     if ( t != tilenum ) {
 	t = tilenum;
 	if ( tilew == tileh && tilew == chunksize )
-	    setChangedChunk( x, y ); 	    // common case
+	    setChangedChunk( x, y );	    // common case
 	else
 	    setChanged( QRect(x*tilew,y*tileh,tilew,tileh) );
     }
@@ -3003,7 +3003,7 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 	}
 	repaint_from_moving = FALSE;
     } else {
-        p->eraseRect(r);
+	p->eraseRect(r);
     }
 }
 
@@ -4223,10 +4223,10 @@ For example:
     // Find an item, eg. with QCanvasItem::collisions().
     ...
     if (item->rtti() == MySprite::rtti()) {
-        MySprite* s = (MySprite*)item;
-        if (s->isDamagable()) s->loseHitPoints(1000);
-        if (s->isHot()) myself->loseHitPoints(1000);
-        ...
+	MySprite* s = (MySprite*)item;
+	if (s->isDamagable()) s->loseHitPoints(1000);
+	if (s->isHot()) myself->loseHitPoints(1000);
+	...
     }
 \endcode
 */
@@ -4326,12 +4326,12 @@ Marks any chunks the sprite touches as changed.
 void QCanvasSprite::changeChunks()
 {
     if (visible() && canvas()) {
-        int chunksize=canvas()->chunkSize();
-        for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
-            for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
-                canvas()->setChangedChunk(i,j);
-            }
-        }
+	int chunksize=canvas()->chunkSize();
+	for (int j=topEdge()/chunksize; j<=bottomEdge()/chunksize; j++) {
+	    for (int i=leftEdge()/chunksize; i<=rightEdge()/chunksize; i++) {
+		canvas()->setChangedChunk(i,j);
+	    }
+	}
     }
 }
 

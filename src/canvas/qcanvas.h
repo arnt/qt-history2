@@ -61,7 +61,6 @@ class QCanvasText;
 class QCanvasLine;
 class QCanvasChunk;
 class QCanvas;
-class QCanvasData;
 class QCanvasItem;
 class QCanvasView;
 class QCanvasPixmap;
@@ -304,6 +303,7 @@ private:
     int chwidth,chheight;
     QCanvasChunk* chunks;
 
+    class QCanvasData;
     QCanvasData* d;
 
     void initTiles(QPixmap p, int h, int v, int tilewidth, int tileheight);
@@ -322,7 +322,6 @@ private:
     friend void qt_unview(QCanvas* c);
 };
 
-class QCanvasViewData;
 
 class Q_EXPORT QCanvasView : public QScrollView
 {
@@ -346,6 +345,7 @@ protected:
 
 private:
     QCanvas* viewing;
+    class QCanvasViewData;
     QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);
 
