@@ -17,12 +17,12 @@ void initializeModel(QSqlTableModel *model)
                          QObject::tr("Last name"));
 }
 
-void createView(const QString &title, QSqlTableModel *model)
+QTableView *createView(const QString &title, QSqlTableModel *model)
 {
     QTableView *view = new QTableView;
     view->setModel(model);
     view->setWindowTitle(title);
-    view->show();
+    return view;
 }
 
 int main(int argc, char *argv[])
@@ -35,8 +35,12 @@ int main(int argc, char *argv[])
 
     initializeModel(&model);
 
-    createView(QObject::tr("Table Model (View 1)"), &model);
-    createView(QObject::tr("Table Model (View 2)"), &model);
+    QTableView *view1 = createView(QObject::tr("Table Model (View 1)"), &model);
+    QTableView *view2 = createView(QObject::tr("Table Model (View 2)"), &model);
+
+    view1->show();
+    view2->move(view1->x() + view1->width() + 20, view1->y());
+    view2->show();
 
     QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
     return app.exec();
