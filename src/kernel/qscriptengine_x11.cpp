@@ -2501,13 +2501,11 @@ static int hangul_nextSyllableBoundary(const QString &s, int start, int end)
 {
     const QChar *uc = s.unicode() + start;
 
-    int pos = 0;
-
-
-    HangulType state = L;
+    HangulType state = hangul_type(uc->unicode());
+    int pos = 1;
 
     while ( pos < end - start ) {
-	HangulType newState = hangul_type(uc[pos]);
+	HangulType newState = hangul_type(uc[pos].unicode());
 	switch(newState) {
 	case X:
 	    goto finish;
