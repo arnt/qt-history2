@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#12 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#13 $
 **
 ** Implementation of Network Extension Library
 **
@@ -31,7 +31,8 @@
 #include <qregexp.h>
 
 QFtp::QFtp()
-    : QNetworkProtocol(), connectionReady( FALSE )
+    : QNetworkProtocol(), connectionReady( FALSE ),
+      passiveMode( FALSE )
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
@@ -231,30 +232,33 @@ void QFtp::readyRead()
     if ( !url )
 	return;
 
-    if ( s.contains( "220" ) ) { // expect USERNAME
+    if ( s.left( 3 ) == "220" ) { // expect USERNAME
 	QString user = url->user().isEmpty() ? QString( "anonymous" ) : url->user();
 	QString cmd = "USER " + user + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
-    } else if ( s.contains( "331" ) ) { // expect PASSWORD
+    } else if ( s.left( 3 ) == "331" ) { // expect PASSWORD
 	QString pass = url->pass().isEmpty() ? QString( "info@troll.no" ) : url->pass();
 	QString cmd = "PASS " + pass + "\r\n";
 	commandSocket->writeBlock( cmd, cmd.length() );
 	connectionReady = FALSE;
-    } else if ( s.contains( "230" ) ) { // succesfully logged in
-	connectionReady = TRUE;
-	switch ( command ) {
-	case List:
-	    commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
-	    break;
-	case Mkdir: {
-	    QString cmd( "MKD " + extraData + "\r\n" );
-	    commandSocket->writeBlock( cmd, cmd.length() );
+    } else if ( s.left( 3 ) == "230" ) { // succesfully logged in
+	if ( !passiveMode ) {
+	    connectionReady = TRUE;
+	    passiveMode = TRUE;
+	    switch ( command ) {
+	    case List:
+		commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+		break;
+	    case Mkdir: {
+		QString cmd( "MKD " + extraData + "\r\n" );
+		commandSocket->writeBlock( cmd, cmd.length() );
 	    } break;
-	case None:
-	    break;
+	    case None:
+		break;
+	    }
 	}
-    } else if ( s.contains( "227" ) ) { // open the data connection for LIST
+    } else if ( s.left( 3 ) == "227" ) { // open the data connection for LIST
 	int i = s.find( "(" );
 	int i2 = s.find( ")" );
 	s = s.mid( i + 1, i2 - i - 1 );
@@ -263,9 +267,9 @@ void QFtp::readyRead()
 	QStringList lst = QStringList::split( ',', s );
 	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
 	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
-    } else if ( s.contains( "250" ) ) { // cwd succesfully, list dir
+    } else if ( s.left( 3 ) == "250" ) { // cwd succesfully, list dir
 	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-    } else if ( s.contains( "530" ) ) { // Login incorrect
+    } else if ( s.left( 3 ) == "530" ) { // Login incorrect
 	close();
 	emit error( QUrl::ErrLoginIncorrect, tr( "Login Incorrect" ) );
 	if ( url )
@@ -295,6 +299,7 @@ void QFtp::dataClosed()
 	url->emitFinished( QUrl::ActListDirectory );
     emit finished( QUrl::ActListDirectory );
     emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
+    passiveMode = FALSE;
 }
 
 void QFtp::dataReadyRead()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#7 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#8 $
 **
 ** Implementation of Network Extension Library
 **
@@ -68,7 +68,7 @@ protected:
     QSocket *commandSocket, *dataSocket;
     QString extraData;
     Command command;
-    bool connectionReady;
+    bool connectionReady, passiveMode;
     QString tmp;
 
 protected slots:
