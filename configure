@@ -633,7 +633,7 @@ if [ -f $outpath/include/qconfig.h ]
 then
     mv -f $outpath/include/qconfig.h qconfig.h-hold
 fi
-echo "// All features enabled while configuring" >$outpath/include/qconfig.h
+echo "// All features enabled while building qmake" >$outpath/include/qconfig.h
 
 # create temporary qmodules.h for compiling qmake
 # the original file will be restored after qmake is built
@@ -641,7 +641,7 @@ if [ -f $outpath/include/qmodules.h ]
 then
     mv -f $outpath/include/qmodules.h qmodules.h-hold
 fi
-echo "// All modules enabled while configuring" >$outpath/include/qmodules.h
+echo "// All modules enabled while building qmake" >$outpath/include/qmodules.h
 
 # make sure qconfig.h and qmodules.h are restored if Ctrl+C
 # - using 130 as an exit value because on bash the return value of a
@@ -1894,7 +1894,19 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 #define QT_INSTALL_PREFIX "$QT_INSTALL_PREFIX"
 #define QT_PRODUCT_LICENSEE "$Licensee"
 #define QT_PRODUCT_LICENSE "$Products"
+
+// Compile time features
 EOF
+if [ "$CFG_STL" = "no" ]
+then
+cat >>$outpath/include/qconfig.h.new << EOF
+#ifndef QT_NO_STL
+#define QT_NO_STL
+#endif
+EOF
+else
+QMAKE_CONFIG="$QMAKE_CONFIG stl"
+fi
 
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
 if cmp -s $outpath/include/qconfig.h $outpath/include/qconfig.h.new
@@ -2104,20 +2116,6 @@ do
 	QMAKE_CONFIG="$QMAKE_CONFIG $MODULE"
     fi
 done
-cat >>$outpath/include/qmodules.h.new << EOF
-
-// Compile time features
-EOF
-if [ "$CFG_STL" = "no" ]
-then
-cat >>$outpath/include/qmodules.h.new << EOF
-#ifndef QT_NO_STL
-#define QT_NO_STL
-#endif
-EOF
-else
-QMAKE_CONFIG="$QMAKE_CONFIG stl"
-fi
 
 # avoid unecessary rebuilds by copying only if qmodules.h has changed
 if cmp -s $outpath/include/qmodules.h $outpath/include/qmodules.h.new
