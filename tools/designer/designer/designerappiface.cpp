@@ -143,6 +143,11 @@ void DesignerInterfaceImpl::showError( QWidget *widget,
     mainWindow->showErrorMessage( widget, line, message );
 }
 
+void DesignerInterfaceImpl::runFinished()
+{
+    mainWindow->finishedRun();
+}
+
 void DesignerInterfaceImpl::showStackFrame( QWidget *w, int line )
 {
     mainWindow->showStackFrame( w, line );
@@ -151,6 +156,16 @@ void DesignerInterfaceImpl::showStackFrame( QWidget *w, int line )
 void DesignerInterfaceImpl::showDebugStep( QWidget *w, int line )
 {
     mainWindow->showDebugStep( w, line );
+}
+
+void DesignerInterfaceImpl::runProjectPrecondition()
+{
+    mainWindow->runProjectPrecondition();
+}
+
+void DesignerInterfaceImpl::runProjectPostcondition( QObjectList *l )
+{
+    mainWindow->runProjectPostcondition( l );
 }
 
 DesignerProjectImpl::DesignerProjectImpl( Project *pr )
@@ -201,11 +216,6 @@ QStringList DesignerProjectImpl::formNames() const
 	l << f->formName();
     }
     return l;
-}
-
-QObjectList *DesignerProjectImpl::run()
-{
-    return project->run();
 }
 
 void DesignerProjectImpl::addForm( DesignerFormWindow * )

@@ -27,7 +27,6 @@
 #include "../interfaces/templatewizardiface.h"
 #include "../interfaces/languageinterface.h"
 #include "../interfaces/filterinterface.h"
-#include "../interfaces/programinterface.h"
 #include "../interfaces/interpreterinterface.h"
 #include "../interfaces/preferenceinterface.h"
 #include "../interfaces/projectsettingsiface.h"
@@ -341,7 +340,6 @@ private:
     void checkTempFiles();
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
-    QWidget *findRealForm( QWidget *w );
 
     QString whatsThisFrom( const QString &key );
 

@@ -50,8 +50,11 @@ public:
 
     bool singleProjectMode() const;
     void showError( QWidget *widget, int line, const QString &message );
+    void runFinished();
     void showStackFrame( QWidget *w, int line );
     void showDebugStep( QWidget *w, int line );
+    void runProjectPrecondition();
+    void runProjectPostcondition( QObjectList *l );
 
 
     QRESULT queryInterface( const QUuid &uuid, QUnknownInterface** iface );
@@ -70,7 +73,6 @@ public:
     QPtrList<DesignerFormWindow> formList() const;
     QStringList formNames() const;
     QString formFileName( const QString &form ) const;
-    QObjectList *run();
     void addForm( DesignerFormWindow * );
     void removeForm( DesignerFormWindow * );
     QString fileName() const;

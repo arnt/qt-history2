@@ -14,10 +14,10 @@ stand-alone tool dock windows. To hide a tool dock window click its close
 button. To restore a hidden tool dock window, right click the tool area,
 then click the name of the tool dock window you wish to restore.
 
-\img qd-filetoolbuttons3.png
-\caption File Toolbuttons
-
 \section1 The File Toolbar Buttons
+
+\img rtb-file.png
+\caption File Toolbuttons
 
 \list
 \i \Toolbutton New\BR Click this toolbar button (or press
@@ -39,10 +39,10 @@ toggle between the projects.
 
 \endlist
 
-\img qd-edittoolbuttons3.png
-\caption Edit Toolbuttons
-
 \section1 The Edit Toolbar Buttons
+
+\img rtb-edit.png
+\caption Edit Toolbuttons
 
 \list
 \i \Toolbutton Undo\BR Click this toolbar button (or press \Key Ctrl+Z) to
@@ -66,10 +66,10 @@ the current form or file.
 
 \endlist
 
-\img qd-searchttoolbuttons3.png
-\caption Search Toolbuttons
-
 \section1 The Search Toolbar Buttons
+
+\img rtb-search.png
+\caption Search Toolbuttons
 
 \list
 \i \Toolbutton Find\BR Click this toolbar button (or press \Key Ctrl+F) to
@@ -96,9 +96,6 @@ If you prefer to use the original toolbar setup, you can access the
 toolbars by clicking \Menu{Windows|Toolbars} and then selecting the
 toolbars you want to be visible from the context menu. 
 
-\img toolbox.png
-\caption The Toolbox
-
 The Toolbox contains categories describing the type of toolbuttons you
 can find within each catgory. Click a category name to access the
 toolbuttons in that category. To use a widget in a category, click the
@@ -106,16 +103,19 @@ widget to activate it. Click the 'x' in the right hand corner of the
 Toolbox to close it. To make the Toolbox appear again, click
 \Menu{Window|Views|Toolbox}.
 
+\img rtb-toolbox.png
+\caption The Toolbox
+
 If you want to add the same kind of widget several times to a form,
 for example, several push buttons, \e{double click} the widget's
 toolbar button. After this, each time you click the form a new widget
 will be added. Click the \Toolbutton Pointer toolbar button to leave
 this mode. 
 
-\img qd-toolstoolbuttons4.png
-\caption Tools
-
 \section2 Tools
+
+\img rtb-tools.png
+\caption Tools
 
 \list
 \i \Toolbutton Pointer\BR Click this toolbar button (or press \Key F2) to
@@ -145,12 +145,11 @@ that you want to be the buddy. Release the mouse button and the buddy is set.
 
 \endlist
 
-\img buttons.png
-
-\img qd-buttonstoolbuttons3.png
-\caption Buttons
 
 \section2 Buttons
+
+\img rtb-tbbuttons.png
+\caption Buttons
 
 \list
 \i \Toolbutton PushButton\BR Click this toolbar button, then click the form,
@@ -170,12 +169,10 @@ form, to place a CheckBox on the form.
 
 \endlist
 
-\img containers.png
-
-\img qd-containertoolbuttons3.png
-\caption Containers
-
 \section2 Containers
+
+\img rtb-tbcontain.png
+\caption Containers
 
 \list
 \i \Toolbutton GroupBox\BR Click this toolbar button, then 
@@ -194,12 +191,10 @@ Page'.
 
 \endlist
 
-\img views.png
-
-\img qd-viewstoolbuttons5.png
-\caption Views 
-
 \section2 Views
+
+\img rtb-tbviews.png
+\caption Views 
 
 \list
 \i \Toolbutton ListBox\BR Click this toolbar button, then click the
@@ -216,12 +211,10 @@ place a Table on the form.
 
 \endlist
 
-\img database.png
-
-\img qd-databasetoolbuttons3.png
-\caption Database Toolbuttons
-
 \section2 Database
+
+\img rtb-tbdatabase.png
+\caption Database Toolbuttons
 
 \list
 \i \Toolbutton DataTable\BR Click this toolbar button, then click the
@@ -235,12 +228,10 @@ form, to place a DataView on the form.
 
 \endlist
 
-\img input.png
-
-\img qd-inputtoolbuttons3.png
-\caption Input Toolbuttons
-
 \section2 Input
+
+\img rtb-tbinput.png
+\caption Input Toolbuttons
 
 \list
 \i \Toolbutton LineEdit\BR Click this toolbar button, then click the
@@ -275,12 +266,10 @@ form, to place a Dial on the form.
 
 \endlist
 
-\img display.png
-
-\img qd-displaytoolbuttons3.png
-\caption Display Toolbuttons
-
 \section2 Display
+
+\img rtb-tbdisplay.png
+\caption Display Toolbuttons
 
 \list
 \i \Toolbutton TextLabel\BR Click this toolbar button, then click the
@@ -303,10 +292,10 @@ form, to place a TextBrowser on the form.
 
 \endlist
 
-\img qd-customwidgettoolbutton.png
-\caption Custom Widget Toolbutton
-
 \section2 Custom
+
+\img rtb-tbcustom.png
+\caption Custom Widget Toolbutton
 
 \list 
 \i \Toolbutton {My Custom Widget}\BR Click this toolbar button,
@@ -316,10 +305,10 @@ toolbar button only appears if you have created a custom widget using
 
 \endlist
 
-\img qd-layouttoolbuttons3.png
-\caption Layout Toolbuttons
-
 \section2 The Layout Toolbar Buttons
+
+\img rtb-layout.png
+\caption Layout Toolbuttons
 
 \list
 \i \Toolbutton {Adjust Size}\BR Click this toolbar button (or press \Key
@@ -369,10 +358,10 @@ consumes extra space in the layout.
 
 \endlist
 
+\section1 The Help Toolbar Button
+
 \img qd-helptoolbuttons3.png
 \caption Help Toolbutton
-
-\section1 The Help Toolbar Button
 
 \list
 \i \Toolbutton{What's This?}\BR Click this menu option to invoke a small

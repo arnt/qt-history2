@@ -85,8 +85,11 @@ struct DesignerInterface : public QUnknownInterface
 
     virtual bool singleProjectMode() const = 0;
     virtual void showError( QWidget *widget, int line, const QString &message ) = 0;
+    virtual void runFinished() = 0;
     virtual void showStackFrame( QWidget *w, int line ) = 0;
     virtual void showDebugStep( QWidget *w, int line ) = 0;
+    virtual void runProjectPrecondition() = 0;
+    virtual void runProjectPostcondition( QObjectList *l ) = 0;
 
     };
 
@@ -95,7 +98,6 @@ struct DesignerProject
     virtual QPtrList<DesignerFormWindow> formList() const = 0;
     virtual QStringList formNames() const = 0;
     virtual QString formFileName( const QString &form ) const = 0;
-    virtual QObjectList *run() = 0;
     virtual void addForm( DesignerFormWindow * ) = 0;
     virtual void removeForm( DesignerFormWindow * ) = 0;
     virtual QString fileName() const = 0;

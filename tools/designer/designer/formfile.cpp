@@ -180,7 +180,6 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	}
     }
 
-    cm = FALSE;
     if ( isModified( WFormCode ) ) {
 	if ( QFile::exists( pro->makeAbsolute( codeFile() ) ) ) {
 	    QString fn( pro->makeAbsolute( codeFile() ) );
@@ -383,7 +382,7 @@ void FormFile::setCodeModified( bool m )
     if ( m == b )
 	return;
     emit somethingChanged( this );
-    cm = TRUE;
+    cm = m;
     if ( !editor() )
 	return;
     editor()->setModified( m );

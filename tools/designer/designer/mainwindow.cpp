@@ -514,7 +514,6 @@ void MainWindow::runProjectPrecondition()
 
     if ( currentTool() == ORDER_TOOL )
 	resetTool();
-    //oWindow->parentWidget()->show();
     oWindow->clearErrorMessages();
     oWindow->clearDebug();
     oWindow->showDebugTab();
@@ -3180,6 +3179,7 @@ void MainWindow::finishedRun()
 	    e->editorInterface()->setMode( EditorInterface::Editing );
 	e->clearStackFrame();
     }
+    outputWindow()->clearErrorMessages();
 }
 
 void MainWindow::enableAll( bool enable )
@@ -3187,7 +3187,9 @@ void MainWindow::enableAll( bool enable )
     menuBar()->setEnabled( enable );
     QObjectList *l = queryList( "QDockWindow" );
     for ( QObject *o = l->first(); o; o = l->next() ) {
-	if ( o == wspace->parentWidget() || o == oWindow->parentWidget() || o == hierarchyView->parentWidget() )
+	if ( o == wspace->parentWidget() ||
+	     o == oWindow->parentWidget() ||
+	     o == hierarchyView->parentWidget() )
 	    continue;
 	( (QWidget*)o )->setEnabled( enable );
     }
@@ -3328,11 +3330,6 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
     mblockNewForms = FALSE;
 }
 
-
-QWidget *MainWindow::findRealForm( QWidget *wid )
-{
-    return currentProject->findRealForm( wid );;
-}
 
 QObject *MainWindow::findRealObject( QObject *o )
 {

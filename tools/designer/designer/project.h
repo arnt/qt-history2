@@ -206,8 +206,6 @@ public:
 
     bool isCpp() const { return is_cpp; }
 
-    QObjectList *run();
-    QWidget *findRealForm( QWidget *wid );
     void designerCreated();
 
     void formOpened( FormWindow *fw );
@@ -224,12 +222,7 @@ signals:
     void formFileRemoved( FormFile* );
     void objectAdded( QObject * );
     void objectRemoved( QObject * );
-    void runtimeError( const QString &message, const QString &file, int line );
-    void runFinished();
     void newFormOpened( FormWindow *fw );
-
-private slots:
-    void emitRuntimeError( QObject *, int, const QString & );
 
 private:
     void parse();

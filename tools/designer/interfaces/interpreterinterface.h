@@ -45,16 +45,7 @@ class QObject;
 
 struct InterpreterInterface : public QUnknownInterface
 {
-    virtual void init() = 0;
-    virtual bool exec( QObject *obj, const QString &code ) = 0;
     virtual void setBreakPoints( QObject *obj, const QValueList<uint> &lst ) = 0;
-    virtual QString createVariableDeclaration( const QString &var ) = 0;
-    virtual QString createFunctionDeclaration( const QString &signature, const QString &body ) = 0;
-
-    virtual void onShowDebugStep( QObject *obj, const char *slot ) = 0;
-    virtual void onShowError( QObject *obj, const char *slot ) = 0;
-    virtual void onShowStackFrame( QObject *obj, const char *slot ) = 0;
-    virtual void onFinish( QObject *obj, const char *slot ) = 0;
 };
 
 

@@ -167,8 +167,11 @@ void ViewManager::clearStackFrame()
 {
     QTextParagraph *p = ( (Editor*)curView )->document()->firstParagraph();
     while ( p ) {
-	if ( p->extraData() )
+	if ( p->extraData() ) {
 	    ( (ParagData*)p->extraData() )->stackFrame = FALSE;
+	    if ( ( (ParagData*)p->extraData() )->marker == ParagData::Error )
+		( (ParagData*)p->extraData() )->marker = ParagData::NoMarker;
+	}
 	p = p->next();
     }
     markerWidget->doRepaint();
