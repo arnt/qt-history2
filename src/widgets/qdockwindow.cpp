@@ -903,6 +903,8 @@ QDockWindow::QDockWindow( Place p, QWidget *parent, const char *name, WFlags f )
     setFrameStyle( QFrame::StyledPanel | QFrame::Raised );
     setLineWidth( 2 );
 
+    if ( parent )
+	parent->installEventFilter( this );
     QWidget *mw = parent;
     if ( parent && parent->inherits( "QDockArea" ) ) {
 	QDockArea* da = (QDockArea*)parent;
@@ -1641,8 +1643,6 @@ void QDockWindow::undock( QWidget *w )
     if ( inherits( "QToolBar" ) )
 	adjustSize();
     if ( !w ) {
-	if ( parentWidget() )
-	    parentWidget()->installEventFilter( this );
 	if ( !parentWidget() || parentWidget()->isVisible() )
 	    show();
     } else {
@@ -1688,8 +1688,6 @@ void QDockWindow::dock()
     if ( !(QDockArea::DockWindowData*)dockWindowData ||
 	 !( (QDockArea::DockWindowData*)dockWindowData )->area )
 	return;
-    if ( parentWidget() )
-	parentWidget()->removeEventFilter( this );
     curPlace = InDock;
     lastPos = pos();
     lastSize = size();
@@ -1783,11 +1781,10 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 /*! \reimp */
 bool QDockWindow::eventFilter( QObject *o, QEvent *e )
 {
-    if ( parentWidget() == o ) {
+    if ( parent() == o ) {
 	if ( (e->type() == QEvent::WindowDeactivate ||
 	      e->type() == QEvent::WindowActivate )
-	     && place() == OutsideDock && isTopLevel()
-	     && !isActiveWindow() )
+	     && place() == OutsideDock && isTopLevel() )
 	    event( e );
     } else if ( e->type() == QEvent::KeyPress ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
