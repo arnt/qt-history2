@@ -91,14 +91,11 @@ void Main::whoosh()
 
 void Main::boom()
 {
-    QFileDialog *dlg = new QFileDialog( this );
     QStringList lst;
     lst.append( "C++ Files (*.cpp;*.cc;*.C;*.cxx;*.c++)" );
     lst.append( "Header Files (*.h;*.hxx;*.h++)" );
     lst.append( "Project files (*.pro)" );
-    dlg->setFilters( lst );
-    dlg->resize( 600, 400 );
-    dlg->show();
+    QFileDialog::getOpenFileName( lst );
 }
 
 void Main::resizeEvent(QResizeEvent*)
