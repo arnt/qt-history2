@@ -21,7 +21,7 @@ public:
     QWidgetFactory();
     virtual ~QWidgetFactory() {}
 
-    static QWidget *create( const QString &uiFile, QWidget *parent = 0, const char *name = 0 );
+    static QWidget *create( const QString &uiFile, QObject *connector = 0, QWidget *parent = 0, const char *name = 0 );
     static void addWidgetFactory( QWidgetFactory *factory );
 
     virtual QWidget *createWidget( const QString &className, QWidget *parent, const char *name ) const;
@@ -29,7 +29,7 @@ public:
 private:
     enum LayoutType { HBox, VBox, Grid, NoLayout };
     void loadImageCollection( const QDomElement &e );
-    void loadConnections( const QDomElement &e );
+    void loadConnections( const QDomElement &e, QObject *connector );
     void loadTabOrder( const QDomElement &e );
     QWidget *createWidgetInternal( const QDomElement &e, QWidget *parent, QLayout* layout );
     QLayout *createLayout( QWidget *widget, QLayout*  layout, LayoutType type );

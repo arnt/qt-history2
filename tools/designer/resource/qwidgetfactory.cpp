@@ -81,15 +81,20 @@ QWidgetFactory::QWidgetFactory()
   \a name are passed to the constructor of the toplevel widget.
 
   This function also performs signal and slot connections, tab
-  ordering, etc. as described in the ui file. Custom slots which are
-  defined in the ui file are ignored.
+  ordering, etc. as described in the ui file. In the Qt Designer it is
+  possible to add custom slots to a form and connect to them. If you
+  want that these connections are performed as well, you have to
+  create a class derived from QObject, which implementes all these
+  slots. Then pass an instance of it as \a connector to this
+  function. This way these connections to custom slots will be done
+  using the \a connector as slot.
 
   If something fails, 0 is returned.
 
   The ownership of the returned widget is passed to the caller.
 */
 
-QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const char *name )
+QWidget *QWidgetFactory::create( const QString &uiFile, QObject *connector, QWidget *parent, const char *name )
 {
     QFile f( uiFile );
     if ( !f.open( IO_ReadOnly ) )
@@ -131,7 +136,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 	w->setName( name );
 
     if ( !connections.isNull() )
-	widgetFactory->loadConnections( connections );
+	widgetFactory->loadConnections( connections, connector );
     if ( !tabOrder.isNull() )
 	widgetFactory->loadTabOrder( tabOrder );
 
@@ -730,7 +735,7 @@ struct Connection
     }	
 };
 
-void QWidgetFactory::loadConnections( const QDomElement &e )
+void QWidgetFactory::loadConnections( const QDomElement &e, QObject *connector )
 {
     QDomElement n = e.firstChild().toElement();
     while ( !n.isNull() ) {
@@ -805,7 +810,11 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 
 	    QStrList signalList = sender->metaObject()->signalNames( TRUE );
 	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
-	
+
+	    // if this is a connection to a custom slot and we have a connector, try this as receiver
+	    if ( slotList.find( conn.slot ) == -1 && receiver == toplevel && connector )
+		slotList = connector->metaObject()->slotNames( TRUE );
+	    
 	    // avoid warnings
 	    if ( signalList.find( conn.signal ) == -1 ||
 		 slotList.find( conn.slot ) == -1 ) {
@@ -814,8 +823,6 @@ void QWidgetFactory::loadConnections( const QDomElement &e )
 	    }
 	
 	    QObject::connect( sender, s, receiver, s2 );
-	} else if ( n.tagName() == "slot" ) {
-	    // #### what to do with custom slots????
 	}
 	n = n.nextSibling().toElement();
     }
