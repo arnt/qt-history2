@@ -18,7 +18,7 @@
 #include "qwidget.h"
 #include "q3ptrlist.h"
 #include "qwhatsthis.h"
-#include "q3guardedptr.h"
+#include "qpointer.h"
 #include "qstatusbar.h"
 #include "qdockwindow.h"
 #include "qevent.h"
@@ -135,7 +135,7 @@ public:
     ~Q3AccelPrivate();
     Q3AccelList aitems;
     bool enabled;
-    Q3GuardedPtr<QWidget> watch;
+    QPointer<QWidget> watch;
     bool ignorewhatsthis;
     Q3Accel* parent;
 

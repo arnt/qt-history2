@@ -13,7 +13,7 @@
 
 #include "q3signal.h"
 #include "qmetaobject.h"
-#include "q3guardedptr.h"
+#include "qpointer.h"
 #include "q3cstring.h"
 
 /*!
@@ -180,7 +180,7 @@ void  Q3Signal::activate()
 #ifndef QT_NO_VARIANT
     /* Create this Q3GuardedPtr on this, if we get destroyed after the intSignal (but before the variant signal)
        we cannot just emit the signal (because val has been destroyed already) */
-    Q3GuardedPtr<Q3Signal> me = this;
+    QPointer<Q3Signal> me = this;
     if(me)
 	emit intSignal(val.toInt());
     if(me)

@@ -20,7 +20,7 @@
 #include "qmap.h"
 #include "qdir.h"
 #include "q3ptrdict.h"
-#include "q3guardedptr.h"
+#include "qpointer.h"
 #include "q3valuelist.h"
 
 //#define Q3URLOPERATOR_DEBUG
@@ -55,7 +55,7 @@ public:
     Q3PtrDict<Q3NetworkProtocol> getOpPutProtMap;
     Q3PtrDict<Q3NetworkProtocol> getOpGetProtMap;
     Q3PtrDict<Q3NetworkOperation> getOpRemoveOpMap;
-    Q3GuardedPtr<Q3NetworkProtocol> currPut;
+    QPointer<Q3NetworkProtocol> currPut;
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;

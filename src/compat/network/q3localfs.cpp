@@ -21,7 +21,7 @@
 #include "qurlinfo.h"
 #include "qapplication.h"
 #include "q3urloperator.h"
-#include "q3guardedptr.h"
+#include "qpointer.h"
 #include "q3valuelist.h"
 
 //#define QLOCALFS_DEBUG
@@ -284,7 +284,7 @@ void Q3LocalFs::operationGet( Q3NetworkOperation *op )
 		    emit dataTransferProgress( f.size() - remaining, f.size(), op );
 		    remaining -= remaining;
 		}
-                Q3GuardedPtr<QObject> that = this;
+                QPointer<QObject> that = this;
                 qApp->processEvents();
                 if (!that)
                     return;
@@ -337,7 +337,7 @@ void Q3LocalFs::operationPut( Q3NetworkOperation *op )
 	    f.flush();
 	    emit dataTransferProgress( i + blockSize, ba.size(), op );
 	    i += blockSize;
-	    Q3GuardedPtr<QObject> that = this;
+	    QPointer<QObject> that = this;
             qApp->processEvents();
             if (!that)
                 return;
