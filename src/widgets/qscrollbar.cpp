@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#109 $
 **
 ** Implementation of QScrollBar class
 **
@@ -25,6 +25,7 @@
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qkeycode.h"
+#include "qapplication.h"
 #include <limits.h>
 
 /*!
@@ -348,7 +349,7 @@ QSizePolicy QScrollBar::sizePolicy() const
     if ( orient == Horizontal )
 	return QSizePolicy( QSizePolicy::MayGrow, QSizePolicy::Fixed );
     else
-	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow ); 
+	return QSizePolicy(  QSizePolicy::Fixed, QSizePolicy::MayGrow );
 }
 
 
@@ -402,8 +403,10 @@ void QScrollBar::timerEvent( QTimerEvent * )
 	killTimers();			// kill the threshold time timer
 	startTimer( repeatTime );	//   and start repeating
     }
-    if ( clickedAt )
+    if ( clickedAt ){
 	PRIV->action( (ScrollControl) pressedControl );
+	QApplication::syncX();
+    }
 }
 
 
