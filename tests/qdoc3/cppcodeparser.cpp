@@ -110,6 +110,7 @@ void CppCodeParser::parseSourceFile( const Location& location,
 void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
 {
     tree->resolveInheritance();
+    tree->resolveProperties();
 }
 
 void CppCodeParser::doneParsingSourceFiles( Tree *tree )
@@ -777,15 +778,15 @@ bool CppCodeParser::matchProperty( InnerNode *parent )
 	QString value = previousLexeme();
 
 	if ( key == "READ" )
-	    property->setGetter( value );
+	    tre->addPropertyFunction(property, value, PropertyNode::Getter);
 	else if ( key == "WRITE" )
-	    property->setSetter( value );
+	    tre->addPropertyFunction(property, value, PropertyNode::Setter);
 	else if ( key == "STORED" )
 	    property->setStored( value.lower() == "true" );
 	else if ( key == "DESIGNABLE" )
 	    property->setDesignable( value.lower() == "true" );
 	else if ( key == "RESET" )
-	    property->setResetter( value );
+	    tre->addPropertyFunction(property, value, PropertyNode::Resetter);
     }
     match( Tok_RightParen );
     return TRUE;
@@ -896,7 +897,7 @@ bool CppCodeParser::matchDocsAndStuff()
 	    }
 
 	    NodeList nodes;
-	    QValueList<Doc> docs;
+	    QList<Doc> docs;
 
 	    if ( command.isEmpty() ) {
 		QStringList parentPath;
@@ -930,10 +931,12 @@ bool CppCodeParser::matchDocsAndStuff()
 	    }
 
 	    NodeList::Iterator n = nodes.begin();
-	    QValueList<Doc>::Iterator d = docs.begin();
+	    QList<Doc>::Iterator d = docs.begin();
 	    while ( n != nodes.end() ) {
 		processOtherMetaCommands( *d, *n );
 		(*n)->setDoc( *d );
+		if ((*n)->isInnerNode() && ((InnerNode *)*n)->includes().isEmpty())
+		    ((InnerNode *)*n)->addInclude((*n)->location().fileName());
 		++d;
 		++n;
 	    }

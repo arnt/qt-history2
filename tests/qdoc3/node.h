@@ -7,7 +7,6 @@
 
 #include <qmap.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
 
 #include "codechunk.h"
 #include "doc.h"
@@ -28,7 +27,7 @@ public:
 
     void setAccess( Access access ) { acc = access; }
     void setLocation( const Location& location ) { loc = location; }
-    void setDoc( const Doc& doc, bool replace = FALSE );
+    void setDoc( const Doc& doc, bool replace = false );
     void setStatus( Status status ) { sta = status; }
 
     virtual bool isInnerNode() const = 0;
@@ -57,7 +56,7 @@ private:
 
 class FunctionNode;
 
-typedef QValueList<Node *> NodeList;
+typedef QList<Node *> NodeList;
 
 class InnerNode : public Node
 {
@@ -89,8 +88,7 @@ protected:
 private:
     friend class Node;
 
-    static bool isSameSignature( const FunctionNode *f1,
-				 const FunctionNode *f2 );
+    static bool isSameSignature( const FunctionNode *f1, const FunctionNode *f2 );
     void addChild( Node *child );
     void removeChild( Node *child );
 
@@ -137,15 +135,14 @@ class ClassNode : public InnerNode
 public:
     ClassNode( InnerNode *parent, const QString& name );
 
-    void addBaseClass( Access access, ClassNode *node,
-		       const QString& templateArgs = "" );
+    void addBaseClass(Access access, ClassNode *node, const QString &templateArgs = "");
 
-    const QValueList<RelatedClass>& baseClasses() const { return bas; }
-    const QValueList<RelatedClass>& derivedClasses() const { return der; }
+    const QList<RelatedClass> &baseClasses() const { return bas; }
+    const QList<RelatedClass> &derivedClasses() const { return der; }
 
 private:
-    QValueList<RelatedClass> bas;
-    QValueList<RelatedClass> der;
+    QList<RelatedClass> bas;
+    QList<RelatedClass> der;
 };
 
 class FakeNode : public InnerNode
@@ -183,11 +180,11 @@ public:
 
     void addItem( const EnumItem& item );
 
-    const QValueList<EnumItem>& items() const { return itms; }
+    const QList<EnumItem>& items() const { return itms; }
     Access itemAccess( const QString& name ) const;
 
 private:
-    QValueList<EnumItem> itms;
+    QList<EnumItem> itms;
 };
 
 class TypedefNode : public LeafNode
@@ -221,6 +218,8 @@ private:
     QString def;
 };
 
+class PropertyNode;
+
 class FunctionNode : public LeafNode
 {
 public:
@@ -236,9 +235,10 @@ public:
     void setStatic( bool statique ) { sta = statique; }
     void setOverload( bool overlode );
     void addParameter( const Parameter& parameter );
-    inline void setParameters( const QValueList<Parameter>& parameters );
+    inline void setParameters( const QList<Parameter>& parameters );
     void borrowParameterNames( const FunctionNode *source );
     void setReimplementedFrom( FunctionNode *from );
+    void setAssociatedProperty( PropertyNode *property );
 
     const QString& returnType() const { return rt; }
     Metaness metaness() const { return met; }
@@ -248,10 +248,11 @@ public:
     bool isOverload() const { return ove; }
     int overloadNumber() const;
     int numOverloads() const;
-    const QValueList<Parameter>& parameters() const { return params; }
+    const QList<Parameter>& parameters() const { return params; }
     QStringList parameterNames() const;
     const FunctionNode *reimplementedFrom() const { return rf; }
-    const QValueList<FunctionNode *>& reimplementedBy() const { return rb; }
+    const QList<FunctionNode *> &reimplementedBy() const { return rb; }
+    const PropertyNode *associatedProperty() const { return ap; }
 
 private:
     friend class InnerNode;
@@ -262,27 +263,29 @@ private:
     bool con : 1;
     bool sta : 1;
     bool ove : 1;
-    QValueList<Parameter> params;
+    QList<Parameter> params;
     const FunctionNode *rf;
-    QValueList<FunctionNode *> rb;
+    const PropertyNode *ap;
+    QList<FunctionNode *> rb;
 };
 
 class PropertyNode : public LeafNode
 {
 public:
+    enum FunctionRole { Getter, Setter, Resetter, NumFunctionRoles };
+
     PropertyNode( InnerNode *parent, const QString& name );
 
     void setDataType( const QString& dataType ) { dt = dataType; }
-    void setGetter( const QString& getter ) { get = getter; }
-    void setSetter( const QString& setter ) { set = setter; }
-    void setResetter( const QString& resetter ) { reset = resetter; }
+    void setFunction( const FunctionNode *function, FunctionRole role );
     void setStored( bool stored ) { sto = toTrool( stored ); }
     void setDesignable( bool designable ) { des = toTrool( designable ); }
 
     const QString& dataType() const { return dt; }
-    const QString& getter() const { return get; }
-    const QString& setter() const { return set; }
-    const QString& resetter() const { return reset; }
+    const FunctionNode *function(FunctionRole role) const { return funcs[(int)role]; }
+    const FunctionNode *getter() const { return function(Getter); }
+    const FunctionNode *setter() const { return function(Setter); }
+    const FunctionNode *resetter() const { return function(Resetter); }
     bool isStored() const { return fromTrool( sto, storedDefault() ); }
     bool isDesignable() const { return fromTrool( des, designableDefault() ); }
 
@@ -292,20 +295,23 @@ private:
     static Trool toTrool( bool boolean );
     static bool fromTrool( Trool troolean, bool defaultValue );
 
-    bool storedDefault() const { return TRUE; }
-    bool designableDefault() const { return !get.isEmpty(); }
+    bool storedDefault() const { return true; }
+    bool designableDefault() const { return setter() != 0; }
 
     QString dt;
-    QString get;
-    QString set;
-    QString reset;
+    const FunctionNode *funcs[(int)NumFunctionRoles];
     Trool sto : 2;
     Trool des : 2;
 };
 
-inline void FunctionNode::setParameters(
-	const QValueList<Parameter>& parameters ) {
+inline void FunctionNode::setParameters(const QList<Parameter> &parameters)
+{
     params = parameters;
+}
+
+inline void PropertyNode::setFunction(const FunctionNode *function, FunctionRole role)
+{
+    funcs[(int)role] = function;
 }
 
 #endif

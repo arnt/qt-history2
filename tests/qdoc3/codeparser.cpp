@@ -14,7 +14,7 @@
 #define COMMAND_PROTECTED               Doc::alias( "protected" )
 #define COMMAND_PUBLIC                  Doc::alias( "public" )
 
-QValueList<CodeParser *> CodeParser::parsers;
+QList<CodeParser *> CodeParser::parsers;
 
 CodeParser::CodeParser()
 {
@@ -52,7 +52,7 @@ void CodeParser::doneParsingHeaderFiles( Tree *tree )
 
 void CodeParser::initialize( const Config& config )
 {
-    QValueList<CodeParser *>::ConstIterator p = parsers.begin();
+    QList<CodeParser *>::ConstIterator p = parsers.begin();
     while ( p != parsers.end() ) {
 	(*p)->initializeParser( config );
 	++p;
@@ -61,7 +61,7 @@ void CodeParser::initialize( const Config& config )
 
 void CodeParser::terminate()
 {
-    QValueList<CodeParser *>::ConstIterator p = parsers.begin();
+    QList<CodeParser *>::ConstIterator p = parsers.begin();
     while ( p != parsers.end() ) {
 	(*p)->terminateParser();
 	++p;
@@ -70,7 +70,7 @@ void CodeParser::terminate()
 
 CodeParser *CodeParser::parserForLanguage( const QString& language )
 {
-    QValueList<CodeParser *>::ConstIterator p = parsers.begin();
+    QList<CodeParser *>::ConstIterator p = parsers.begin();
     while ( p != parsers.end() ) {
 	if ( (*p)->language() == language )
 	    return *p;

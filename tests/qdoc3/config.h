@@ -28,7 +28,7 @@ public:
     Set<QString> getStringSet( const QString& var ) const;
     QStringList getStringList( const QString& var ) const;
     QRegExp getRegExp( const QString& var ) const;
-    QValueList<QRegExp> getRegExpList( const QString& var ) const;
+    QList<QRegExp> getRegExpList( const QString& var ) const;
     Set<QString> subVars( const QString& var ) const;
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
 			     const QString& nameFilter );

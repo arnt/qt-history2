@@ -213,8 +213,8 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
     if ( f1->isConst() != f2->isConst() )
 	return FALSE;
 
-    QValueList<Parameter>::ConstIterator p1 = f1->parameters().begin(),
-					 p2 = f2->parameters().begin();
+    QList<Parameter>::ConstIterator p1 = f1->parameters().begin();
+    QList<Parameter>::ConstIterator p2 = f2->parameters().begin();
     while ( p2 != f2->parameters().end() ) {
 	if ( (*p1).hasType() && (*p2).hasType() ) {
 	    if ( (*p1).leftType() != (*p2).leftType() ||
@@ -345,7 +345,7 @@ Parameter& Parameter::operator=( const Parameter& p )
 
 FunctionNode::FunctionNode( InnerNode *parent, const QString& name )
     : LeafNode( Function, parent, name ), met( Plain ), vir( NonVirtual ),
-      con( FALSE ), sta( FALSE ), ove( FALSE ), rf( 0 )
+      con( FALSE ), sta( FALSE ), ove( FALSE ), rf( 0 ), ap( 0 )
 {
 }
 
@@ -362,8 +362,8 @@ void FunctionNode::addParameter( const Parameter& parameter )
 
 void FunctionNode::borrowParameterNames( const FunctionNode *source )
 {
-    QValueList<Parameter>::Iterator t = params.begin();
-    QValueList<Parameter>::ConstIterator s = source->params.begin();
+    QList<Parameter>::Iterator t = params.begin();
+    QList<Parameter>::ConstIterator s = source->params.begin();
     while ( s != source->params.end() && t != params.end() ) {
 	if ( !(*s).name().isEmpty() )
 	    (*t).setName( (*s).name() );
@@ -376,6 +376,11 @@ void FunctionNode::setReimplementedFrom( FunctionNode *from )
 {
     rf = from;
     from->rb.append( this );
+}
+
+void FunctionNode::setAssociatedProperty( PropertyNode *property )
+{
+    ap = property;
 }
 
 int FunctionNode::overloadNumber() const
@@ -391,7 +396,7 @@ int FunctionNode::numOverloads() const
 QStringList FunctionNode::parameterNames() const
 {
     QStringList names;
-    QValueList<Parameter>::ConstIterator p = parameters().begin();
+    QList<Parameter>::ConstIterator p = parameters().begin();
     while ( p != parameters().end() ) {
 	names << (*p).name();
 	++p;
@@ -400,9 +405,10 @@ QStringList FunctionNode::parameterNames() const
 }
 
 PropertyNode::PropertyNode( InnerNode *parent, const QString& name )
-    : LeafNode( Property, parent, name ), sto( Trool_Default ),
-      des( Trool_Default )
+    : LeafNode(Property, parent, name), sto(Trool_Default), des(Trool_Default)
 {
+    for (int i = 0; i < (int)NumFunctionRoles; ++i)
+	funcs[i] = 0;
 }
 
 PropertyNode::Trool PropertyNode::toTrool( bool boolean )

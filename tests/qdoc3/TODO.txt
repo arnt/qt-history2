@@ -1,5 +1,9 @@
-  * make it work for C++
+  * make "List of all members" entries into links
+  * make "[5 members inherited from foo]" work
+
   * optimize qdoc
   * implement \table
   * implement qbook
   * implement ASCII-art inheritance tree
+  * implement links
+  * implement page header and footer

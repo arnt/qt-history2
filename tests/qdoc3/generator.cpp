@@ -12,7 +12,7 @@
 #include "node.h"
 #include "separator.h"
 
-QValueList<Generator *> Generator::generators;
+QList<Generator *> Generator::generators;
 QMap<QString, QMap<QString, QString> > Generator::fmtLeftMaps;
 QMap<QString, QMap<QString, QString> > Generator::fmtRightMaps;
 QMap<QString, QStringList> Generator::imgFileExts;
@@ -62,7 +62,7 @@ void Generator::initialize( const Config& config )
 	}
     }
 
-    QValueList<Generator *>::ConstIterator g = generators.begin();
+    QList<Generator *>::ConstIterator g = generators.begin();
     while ( g != generators.end() ) {
 	(*g)->initializeGenerator( config );
 	++g;
@@ -121,7 +121,7 @@ void Generator::initialize( const Config& config )
 
 void Generator::terminate()
 {
-    QValueList<Generator *>::ConstIterator g = generators.begin();
+    QList<Generator *>::ConstIterator g = generators.begin();
     while ( g != generators.end() ) {
 	(*g)->terminateGenerator();
 	++g;
@@ -137,7 +137,7 @@ void Generator::terminate()
 
 Generator *Generator::generatorForFormat( const QString& format )
 {
-    QValueList<Generator *>::ConstIterator g = generators.begin();
+    QList<Generator *>::ConstIterator g = generators.begin();
     while ( g != generators.end() ) {
 	if ( (*g)->format() == format )
 	    return *g;
@@ -209,7 +209,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	const EnumNode *enume = (const EnumNode *) node;
 
 	Set<QString> definedItems;
-	QValueList<EnumItem>::ConstIterator it = enume->items().begin();
+	QList<EnumItem>::ConstIterator it = enume->items().begin();
 	while ( it != enume->items().end() ) {
 	    definedItems.insert( (*it).name() );
 	    ++it;
@@ -244,7 +244,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 	const FunctionNode *func = (const FunctionNode *) node;
 
 	Set<QString> definedParams;
-	QValueList<Parameter>::ConstIterator p = func->parameters().begin();
+	QList<Parameter>::ConstIterator p = func->parameters().begin();
 	while ( p != func->parameters().end() ) {
 	    if ( (*p).name().isEmpty() ) {
 		node->location().warning( tr("Missing parameter name") );
@@ -269,12 +269,9 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 		    if ( !best.isEmpty() )
 			details = tr( "Maybe you meant '%1'?" ).arg( best );
 
-		    node->doc().location().warning( tr("No such parameter '%1'")
-						    .arg(*a),
-						    details );
+		    node->doc().location().warning(tr("No such parameter '%1'").arg(*a), details);
 		} else if ( !documentedParams.contains(*a) ) {
-		    node->doc().location().warning( tr("Undocumented parameter"
-						       " '%1'").arg(*a) );
+		    node->doc().location().warning(tr("Undocumented parameter '%1'").arg(*a));
 		}
 		++a;
 	    }
@@ -287,7 +284,7 @@ void Generator::generateBody( const Node *node, CodeMarker *marker )
 
 void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 {
-    QValueList<Text>::ConstIterator a;
+    QList<Text>::ConstIterator a;
     int index;
 
     if ( node->doc().alsoList() != 0 && !node->doc().alsoList()->isEmpty() ) {
@@ -308,7 +305,7 @@ void Generator::generateAlsoList( const Node *node, CodeMarker *marker )
 void Generator::generateInherits( const ClassNode *classe,
 				  CodeMarker *marker )
 {
-    QValueList<RelatedClass>::ConstIterator r;
+    QList<RelatedClass>::ConstIterator r;
     int index;
 
     if ( !classe->baseClasses().isEmpty() ) {
@@ -335,7 +332,7 @@ void Generator::generateInherits( const ClassNode *classe,
 void Generator::generateInheritedBy( const ClassNode *classe,
 				     CodeMarker *marker )
 {
-    QValueList<RelatedClass>::ConstIterator r;
+    QList<RelatedClass>::ConstIterator r;
     int index;
 
     if ( !classe->derivedClasses().isEmpty() ) {
@@ -475,6 +472,14 @@ QMap<QString, QString>& Generator::formattingLeftMap()
 QMap<QString, QString>& Generator::formattingRightMap()
 {
     return fmtRightMaps[format()];
+}
+
+QString Generator::trimmedTrailing(const QString &string)
+{
+    QString trimmed = string;
+    while (trimmed.length() > 0 && trimmed[trimmed.length() - 1].isSpace())
+	trimmed.truncate(trimmed.length() - 1);
+    return trimmed;
 }
 
 void Generator::generateStatus( const Node *node, CodeMarker *marker )

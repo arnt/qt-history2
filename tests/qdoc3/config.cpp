@@ -37,7 +37,7 @@ void MetaStackEntry::close()
 /*
   ###
 */
-class MetaStack : private QValueStack<MetaStackEntry>
+class MetaStack : private QStack<MetaStackEntry>
 {
 public:
     MetaStack();
@@ -203,8 +203,8 @@ QStringList Config::getStringList( const QString& var ) const
 QRegExp Config::getRegExp( const QString& var ) const
 {
     QString pattern;
-    QValueList<QRegExp> subRegExps = getRegExpList( var );
-    QValueList<QRegExp>::ConstIterator s = subRegExps.begin();
+    QList<QRegExp> subRegExps = getRegExpList( var );
+    QList<QRegExp>::ConstIterator s = subRegExps.begin();
 
     while ( s != subRegExps.end() ) {
 	if ( !(*s).isValid() )
@@ -219,11 +219,11 @@ QRegExp Config::getRegExp( const QString& var ) const
     return QRegExp( pattern );
 }
 
-QValueList<QRegExp> Config::getRegExpList( const QString& var ) const
+QList<QRegExp> Config::getRegExpList( const QString& var ) const
 {
     QStringList strs = getStringList( var );
     QStringList::ConstIterator s = strs.begin();
-    QValueList<QRegExp> regExps;
+    QList<QRegExp> regExps;
 
     while ( s != strs.end() ) {
 	regExps += QRegExp( *s );

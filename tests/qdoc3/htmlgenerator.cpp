@@ -36,12 +36,11 @@ void HtmlGenerator::initializeGenerator( const Config& config )
     };
 
     Generator::initializeGenerator( config );
-    setImageFileExtensions( QStringList() << "png" << "jpg" << "jpeg"
-					  << "gif" );
+    setImageFileExtensions(QStringList() << "png" << "jpg" << "jpeg" << "gif");
     int i = 0;
-    while ( defaults[i].key != 0 ) {
-	formattingLeftMap().insert( defaults[i].key, defaults[i].left );
-	formattingRightMap().insert( defaults[i].key, defaults[i].right );
+    while (defaults[i].key) {
+	formattingLeftMap().insert(defaults[i].key, defaults[i].left);
+	formattingRightMap().insert(defaults[i].key, defaults[i].right);
 	i++;
     }
 }
@@ -105,8 +104,7 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	out() << formattingRightMap()[ATOM_FORMATTING_TELETYPE];
 	break;
     case Atom::Code:
-	out() << "<pre>" << protect( plainCode(indent(4, atom->string())) )
-	      << "</pre>\n";
+	out() << "<pre>" << protect(plainCode(indent(4, atom->string()))) << "</pre>\n";
 	break;
     case Atom::FootnoteLeft:
 	break;
@@ -350,8 +348,8 @@ void HtmlGenerator::generateNamespaceNode( const NamespaceNode *namespasse,
 
 void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marker)
 {
-    QValueList<ClassSection> sections;
-    QValueList<ClassSection>::ConstIterator s;
+    QList<ClassSection> sections;
+    QList<ClassSection>::ConstIterator s;
 
     QString title = classe->name() + " Class Reference";
     generateHeader( title, classe );
@@ -366,8 +364,8 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
     }
 
     if ( !classe->includes().isEmpty() ) {
-	out() << "<pre>" << highlightedCode(marker->markedUpIncludes(classe->includes()), classe)
-	      << "</pre>";
+	QString code = highlightedCode(marker->markedUpIncludes(classe->includes()), classe);
+	out() << "<pre>" << trimmedTrailing(code) << "</pre>";
     }
 
     generateInherits( classe, marker );
@@ -380,15 +378,14 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
     sections = marker->classSections( classe, CodeMarker::Summary );
     s = sections.begin();
     while ( s != sections.end() ) {
-	out() << "<a name=\"" << registerRef( (*s).name ) << "\"/>\n";
-	out() << "<h3>" << protect( (*s).name ) << "</h3>\n";
+	out() << "<a name=\"" << registerRef((*s).name) << "\"/>\n";
+	out() << "<h3>" << protect((*s).name) << "</h3>\n";
 
 	generateClassSectionList( *s, classe, marker, CodeMarker::Summary );
 
 	if ( !(*s).inherited.isEmpty() ) {
 	    out() << "<ul>\n";
-	    QValueList<QPair<ClassNode *, int> >::ConstIterator p =
-		    (*s).inherited.begin();
+	    QList<QPair<ClassNode *, int> >::ConstIterator p = (*s).inherited.begin();
 	    while ( p != (*s).inherited.end() ) {
 		out() << "<li><div class=\"fn\"/>";
 		out() << (*p).second << " ";
@@ -397,10 +394,9 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 		} else {
 		    out() << (*s).pluralMember;
 		}
-		out() << " inherited from <a href=\"" << fileName( (*p).first )
-		      << "#" << cleanRef( (*s).name ) << "\">"
-		      << protect( plainCode(marker->markedUpFullName(
-						    (*p).first, classe)) )
+		out() << " inherited from <a href=\"" << fileName((*p).first)
+		      << "#" << cleanRef((*s).name) << "\">"
+		      << protect(plainCode(marker->markedUpFullName((*p).first, classe)))
 		      << "</a></li>\n";
 		++p;
 	    }
@@ -431,6 +427,22 @@ void HtmlGenerator::generateClassNode(const ClassNode *classe, CodeMarker *marke
 		generateSynopsis( *m, classe, marker, CodeMarker::Detailed );
 		out() << "</h3>\n";
 		generateBody( *m, marker );
+                if ((*m)->type() == Node::Property) {
+		    PropertyNode *property = static_cast<PropertyNode *>(*m);
+                    ClassSection section;
+
+                    if (property->getter())
+			section.members.append(const_cast<FunctionNode *>(property->getter()));
+                    if (property->setter())
+			section.members.append(const_cast<FunctionNode *>(property->setter()));
+                    if (property->resetter())
+			section.members.append(const_cast<FunctionNode *>(property->resetter()));
+
+		    if (!section.members.isEmpty()) {
+			out() << "<p>Access functions:</p>\n";
+			generateClassSectionList(section, classe, marker, CodeMarker::Summary);
+		    }
+                }
 		generateAlsoList( *m, marker );
 	    }
 	    ++m;
@@ -560,7 +572,7 @@ void HtmlGenerator::generateNavigationBar( const NavigationBar& bar,
 QString HtmlGenerator::generateListOfAllMemberFile( const ClassNode *classe,
 						    CodeMarker *marker )
 {
-    QValueList<ClassSection> sections = marker->classSections( classe, CodeMarker::SeparateList );
+    QList<ClassSection> sections = marker->classSections( classe, CodeMarker::SeparateList );
     if (sections.size() == 1) {
         QString fileName = fileBase( classe ) + "-members." + fileExtension( classe );
         beginSubPage( classe->location(), fileName );
@@ -710,11 +722,10 @@ QString HtmlGenerator::protect( const QString& string )
     return html;
 }
 
-QString HtmlGenerator::highlightedCode( const QString& markedCode,
-					const Node *relative )
+QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *relative)
 {
-    QRegExp linkTag( "(<@link node=\"([^\"]+)\">).*(</@link>)" );
-    linkTag.setMinimal( TRUE );
+    QRegExp linkTag("(<@link node=\"([^\"]+)\">).*(</@link>)");
+    linkTag.setMinimal(true);
 
     QString html = markedCode;
 
@@ -722,8 +733,7 @@ QString HtmlGenerator::highlightedCode( const QString& markedCode,
     while ( (k = html.find(linkTag, k)) != -1 ) {
 	QString begin;
 	QString end;
-	QString link = linkForNode( CodeMarker::nodeForString(linkTag.cap(2)),
-				    relative );
+	QString link = linkForNode(CodeMarker::nodeForString(linkTag.cap(2)), relative);
 
 	if ( link.isEmpty() ) {
 	    begin = "<font color=\"red\">";
@@ -789,7 +799,7 @@ QString HtmlGenerator::fileBase( const Node *node,
 }
 #endif
 
-QString HtmlGenerator::refForNode( const Node *node )
+QString HtmlGenerator::refForNode(const Node *node)
 {
     const FunctionNode *func;
     QString ref;
@@ -806,10 +816,14 @@ QString HtmlGenerator::refForNode( const Node *node )
 	ref = node->name() + "-typedef";
 	break;
     case Node::Function:
-	ref = node->name();
-	func = (const FunctionNode *) node;
-	if ( func->overloadNumber() != 1 )
-	    ref += "-" + QString::number( func->overloadNumber() );
+	func = static_cast<const FunctionNode *>(node);
+        if (func->associatedProperty()) {
+	    return refForNode(func->associatedProperty());
+        } else {
+	    ref = func->name();
+	    if (func->overloadNumber() != 1)
+	        ref += "-" + QString::number(func->overloadNumber());
+	}
 	break;
     case Node::Property:
 	ref = node->name() + "-prop";
@@ -817,7 +831,7 @@ QString HtmlGenerator::refForNode( const Node *node )
     return registerRef( ref );
 }
 
-QString HtmlGenerator::linkForNode( const Node *node, const Node *relative )
+QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
 {
     QString aname;
     QString link;
@@ -827,16 +841,15 @@ QString HtmlGenerator::linkForNode( const Node *node, const Node *relative )
 	return "";
 
     fn = fileName( node );
-    if ( relative == 0 || fn != fileName(relative) )
+    if (relative == 0 || fn != fileName(relative))
 	link += fn;
-    if ( !node->isInnerNode() )
-	link += "#" + refForNode( node );
+    if (!node->isInnerNode())
+	link += "#" + refForNode(node);
     return link;
 }
 
-void HtmlGenerator::generateFullName( const Node *apparentNode,
-				      const Node *relative, CodeMarker *marker,
-				      const Node *actualNode )
+void HtmlGenerator::generateFullName( const Node *apparentNode, const Node *relative,
+				      CodeMarker *marker, const Node *actualNode )
 {
     if ( actualNode == 0 )
 	actualNode = apparentNode;

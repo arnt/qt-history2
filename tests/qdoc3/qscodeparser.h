@@ -69,7 +69,7 @@ private:
 
     QMap<QString, Node::Type> nodeTypeMap;
     QMap<QString, Node *> classesWithNoQuickDoc;
-    QValueList<QRegExp> replaceBefores;
+    QList<QRegExp> replaceBefores;
     QStringList replaceAfters;
     Set<QString> classesWithNoQ;
     Tree *cppTre;

@@ -41,14 +41,14 @@ Location::Location( const Location& other )
 
 Location& Location::operator=( const Location& other )
 {
-    QValueStack<StackEntry> *oldStk = stk;
+    QStack<StackEntry> *oldStk = stk;
 
     stkBottom = other.stkBottom;
     if ( other.stk == 0 ) {
 	stk = 0;
 	stkTop = &stkBottom;
     } else {
-	stk = new QValueStack<StackEntry>( *other.stk );
+	stk = new QStack<StackEntry>( *other.stk );
 	stkTop = &stk->top();
     }
     stkDepth = other.stkDepth;
@@ -92,7 +92,7 @@ void Location::push( const QString& filePath )
 {
     if ( stkDepth++ >= 1 ) {
 	if ( stk == 0 )
-	    stk = new QValueStack<StackEntry>;
+	    stk = new QStack<StackEntry>;
 	stk->push( StackEntry() );
 	stkTop = &stk->top();
     }

@@ -28,7 +28,7 @@ protected:
 private:
     QStringList fileExts;
 
-    static QValueList<ArchiveExtractor *> extractors;
+    static QList<ArchiveExtractor *> extractors;
 };
 
 #endif

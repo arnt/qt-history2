@@ -5,7 +5,7 @@
 #ifndef LOCATION_H
 #define LOCATION_H
 
-#include <qvaluestack.h>
+#include <qstack.h>
 
 #include "tr.h"
 
@@ -62,7 +62,7 @@ private:
     QString top() const;
 
     StackEntry stkBottom;
-    QValueStack<StackEntry> *stk;
+    QStack<StackEntry> *stk;
     StackEntry *stkTop;
     int stkDepth;
     bool etcetera;

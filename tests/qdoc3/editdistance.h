@@ -5,6 +5,8 @@
 #ifndef EDITDISTANCE_H
 #define EDITDISTANCE_H
 
+#include <qstring.h>
+
 #include "set.h"
 
 int editDistance( const QString& s, const QString& t );

@@ -5,10 +5,10 @@
 #ifndef GENERATOR_H
 #define GENERATOR_H
 
+#include <qlist.h>
 #include <qmap.h>
 #include <qregexp.h>
 #include <qstring.h>
-#include <qvaluelist.h>
 
 #include "text.h"
 
@@ -69,6 +69,8 @@ protected:
     QMap<QString, QString>& formattingLeftMap();
     QMap<QString, QString>& formattingRightMap();
 
+    static QString trimmedTrailing(const QString &string);
+
 private:
     const Atom *generateAtomList( const Atom *atom, const Node *relative,
 				  CodeMarker *marker, bool generate,
@@ -87,7 +89,7 @@ private:
     QRegExp quot;
     QRegExp tag;
 
-    static QValueList<Generator *> generators;
+    static QList<Generator *> generators;
     static QMap<QString, QMap<QString, QString> > fmtLeftMaps;
     static QMap<QString, QMap<QString, QString> > fmtRightMaps;
     static QMap<QString, QStringList> imgFileExts;

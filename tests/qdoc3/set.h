@@ -5,15 +5,15 @@
 #ifndef SET_H
 #define SET_H
 
+#include <qlist.h>
 #include <qmap.h>
-#include <qvaluelist.h>
 
 template <class T>
 class SetConstIterator
 {
 public:
     SetConstIterator()
-	: useMap( TRUE ) { }
+	: useMap( true ) { }
 
     bool operator==( const SetConstIterator<T>& it ) const {
 	return mapIter == it.mapIter && listIter == it.listIter;
@@ -55,7 +55,7 @@ public:
 	return old;
     }
 
-    SetConstIterator( const QMap<T, int>& map, const QValueList<T>& list )
+    SetConstIterator( const QMap<T, int>& map, const QList<T>& list )
 	: useMap( list.isEmpty() ) {
 	mapIter = map.end();
 	mapEnd = map.end();
@@ -66,8 +66,8 @@ public:
     bool useMap;
     QMap<T, int>::ConstIterator mapIter;
     QMap<T, int>::ConstIterator mapEnd;
-    QValueList<T>::ConstIterator listIter;
-    QValueList<T>::ConstIterator listEnd;
+    QList<T>::ConstIterator listIter;
+    QList<T>::ConstIterator listEnd;
 };
 
 template <class T>
@@ -77,8 +77,8 @@ public:
     typedef SetConstIterator<T> ConstIterator;
 
     Set() { }
-    Set( const QValueList<T>& values ) {
-	QValueList<T>::ConstIterator v = values.begin();
+    Set( const QList<T>& values ) {
+	QList<T>::ConstIterator v = values.begin();
 	while ( v != values.end() ) {
 	    map.insert( *v, 0 );
 	    ++v;
@@ -125,7 +125,7 @@ public:
 	    return map.contains( item );
 	}
     }
-    const QValueList<T>& asList() const {
+    const QList<T>& asList() const {
 	toList();
 	return list;
     }
@@ -157,13 +157,13 @@ public:
       to 'list'.
     */
     QMap<T, int> map;
-    QValueList<T> list;
+    QList<T> list;
 
 private:
     void toMap() const {
 	if ( !list.isEmpty() ) {
 	    Set<T> *that = (Set<T> *) this;
-	    QValueList<T>::ConstIterator li = list.begin();
+	    QList<T>::ConstIterator li = list.begin();
 	    while ( li != list.end() ) {
 		that->map.insert( *li, 0 );
 		++li;

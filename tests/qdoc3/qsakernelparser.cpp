@@ -98,10 +98,10 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 		    }
 
 		    if ( isProperty ) {
-			PropertyNode *property = new PropertyNode( classe,
-								   member );
+			PropertyNode *property = new PropertyNode(classe, member);
 			property->setLocation( tokenizer->location() );
 			property->setDataType( "Object" );
+#if 0
 			property->setGetter( member );
 			if ( isWritable ) {
 			    QString setter = member;
@@ -109,6 +109,7 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			    setter.prepend( "set" );
 			    property->setSetter( setter );
 			}
+#endif
 		    } else {
 			FunctionNode *func = new FunctionNode( classe, member );
 			func->setLocation( tokenizer->location() );

@@ -148,6 +148,7 @@ void QsCodeParser::doneParsingHeaderFiles( Tree *tree )
     }
     cppTre->root()->deleteChildren(); // save memory
     tree->resolveInheritance();
+    tree->resolveProperties();
 }
 
 void QsCodeParser::doneParsingSourceFiles( Tree *tree )
@@ -487,7 +488,7 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 	return;
     }
 
-    QValueList<RelatedClass>::ConstIterator r = qtClass->baseClasses().begin();
+    QList<RelatedClass>::ConstIterator r = qtClass->baseClasses().begin();
     while ( r != qtClass->baseClasses().end() ) {
 	ClassNode *quickBaseClass = cpp2qs.findClassNode( qsTre,
 							  (*r).node->name() );
@@ -524,9 +525,12 @@ void QsCodeParser::quickifyClass( ClassNode *quickClass )
 			if ( !propertyBlackList.contains((*c)->name()) ) {
 			    PropertyNode *property = (PropertyNode *) *c;
 			    quickifyProperty( quickClass, qtClass, property );
-			    funcBlackList.insert( property->getter() );
-			    funcBlackList.insert( property->setter() );
-			    funcBlackList.insert( property->resetter() );
+			    if (property->getter())
+				funcBlackList.insert( property->getter()->name() );
+			    if (property->setter())
+				funcBlackList.insert( property->setter()->name() );
+			    if (property->resetter())
+				funcBlackList.insert( property->resetter()->name() );
 			    propertyBlackList.insert( property->name() );
 			}
 		    }
@@ -552,7 +556,7 @@ void QsCodeParser::quickifyEnum( ClassNode *quickClass, EnumNode *enume )
     quickEnum->setAccess( Node::Protected );
 #endif
 
-    QValueList<EnumItem>::ConstIterator it = enume->items().begin();
+    QList<EnumItem>::ConstIterator it = enume->items().begin();
     while ( it != enume->items().end() ) {
 	QString name = (*it).name();
 	QString value = (*it).value();
@@ -597,7 +601,7 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
     quickFunc->setVirtualness( FunctionNode::ImpureVirtual );
     quickFunc->setOverload( func->isOverload() );
 
-    QValueList<Parameter>::ConstIterator q = func->parameters().begin();
+    QList<Parameter>::ConstIterator q = func->parameters().begin();
     while ( q != func->parameters().end() ) {
 	QString dataType = cpp2qs.convertedDataType( qsTre, (*q).leftType(),
 						     (*q).rightType() );
@@ -622,18 +626,17 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
     }
 }
 
-void QsCodeParser::quickifyProperty( ClassNode *quickClass,
-				     ClassNode * /* qtClass */,
-				     PropertyNode *property )
+void QsCodeParser::quickifyProperty(ClassNode *quickClass, ClassNode * /* qtClass */,
+				    PropertyNode *property)
 {
-    PropertyNode *quickProperty =
-	    new PropertyNode( quickClass, property->name() );
+    PropertyNode *quickProperty = new PropertyNode(quickClass, property->name());
     quickProperty->setLocation( property->location() );
-    quickProperty->setDataType(
-	    cpp2qs.convertedDataType(qsTre, property->dataType()) );
+    quickProperty->setDataType(cpp2qs.convertedDataType(qsTre, property->dataType()));
+#if 0
     quickProperty->setGetter( property->getter() );
     quickProperty->setSetter( property->setter() );
     quickProperty->setResetter( property->resetter() );
+#endif
     quickProperty->setStored( property->isStored() );
     quickProperty->setDesignable( property->isDesignable() );
 
@@ -699,7 +702,7 @@ QString QsCodeParser::quickifiedDoc( const QString& source )
 	}
     }
 
-    QValueList<QRegExp>::ConstIterator b = replaceBefores.begin();
+    QList<QRegExp>::ConstIterator b = replaceBefores.begin();
     QStringList::ConstIterator a = replaceAfters.begin();
     while ( a != replaceAfters.end() ) {
 	result.replace( *b, *a );

@@ -68,7 +68,7 @@ QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
 	synopsis += name + " (";
 	if ( !func->parameters().isEmpty() ) {
 	    synopsis += " ";
-	    QValueList<Parameter>::ConstIterator p = func->parameters().begin();
+	    QList<Parameter>::ConstIterator p = func->parameters().begin();
 	    while ( p != func->parameters().end() ) {
 		if ( p != func->parameters().begin() )
 		    synopsis += ", ";
@@ -124,8 +124,8 @@ QString CppCodeMarker::markedUpSynopsis( const Node *node, const Node *relative,
     case Node::Property:
 	property = (const PropertyNode *) node;
 	synopsis = property->dataType() + " " + name;
-	if ( style == Summary ) {
-	    if ( property->setter().isEmpty() )
+	if (style == Summary) {
+	    if (!property->setter())
 		extra += " (read only)";
 	}
 	break;
@@ -199,10 +199,9 @@ QString CppCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "^}";
 }
 
-QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
-						       SynopsisStyle style )
+QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, SynopsisStyle style)
 {
-    QValueList<ClassSection> sections;
+    QList<ClassSection> sections;
 
     if ( style == Summary ) {
 	FastClassSection privateFunctions( classe, "Private Functions",
@@ -233,57 +232,71 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 		"Static Protected Members" );
 	FastClassSection staticPublicMembers( classe, "Static Public Members" );
 
-	NodeList::ConstIterator c = classe->childNodes().begin();
-	while ( c != classe->childNodes().end() ) {
-	    bool isSlot = FALSE;
-	    bool isSignal = FALSE;
-	    bool isStatic = FALSE;
-	    if ( (*c)->type() == Node::Function ) {
-		const FunctionNode *func = (const FunctionNode *) *c;
-		isSlot = ( func->metaness() == FunctionNode::Slot );
-		isSignal = ( func->metaness() == FunctionNode::Signal );
-		isStatic = func->isStatic();
+
+	QStack<const ClassNode *> stack;
+	stack.push( classe );
+
+	while ( !stack.isEmpty() ) {
+	    const ClassNode *ancestorClass = stack.pop();
+
+	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
+	    while ( c != ancestorClass->childNodes().end() ) {
+	        bool isSlot = FALSE;
+	        bool isSignal = FALSE;
+	        bool isStatic = FALSE;
+	        if ( (*c)->type() == Node::Function ) {
+		    const FunctionNode *func = (const FunctionNode *) *c;
+		    isSlot = ( func->metaness() == FunctionNode::Slot );
+		    isSignal = ( func->metaness() == FunctionNode::Signal );
+		    isStatic = func->isStatic();
+	        }
+
+	        switch ( (*c)->access() ) {
+	        case Node::Public:
+		    if ( isSlot ) {
+		        insert( publicSlots, *c, style );
+		    } else if ( isSignal ) {
+		        insert( publicSignals, *c, style );
+		    } else if ( isStatic ) {
+		        insert( staticPublicMembers, *c, style );
+		    } else if ( (*c)->type() == Node::Property ) {
+		        insert( properties, *c, style );
+		    } else if ( (*c)->type() == Node::Function ) {
+		        insert( publicFunctions, *c, style );
+		    } else {
+		        insert( publicTypes, *c, style );
+		    }
+		    break;
+	        case Node::Protected:
+		    if ( isSlot ) {
+		        insert( protectedSlots, *c, style );
+		    } else if ( isStatic ) {
+		        insert( staticProtectedMembers, *c, style );
+		    } else if ( (*c)->type() == Node::Function ) {
+		        insert( protectedFunctions, *c, style );
+		    } else {
+		        insert( protectedTypes, *c, style );
+		    }
+		    break;
+	        case Node::Private:
+		    if ( isSlot ) {
+		        insert( privateSlots, *c, style );
+		    } else if ( isStatic ) {
+		        insert( staticPrivateMembers, *c, style );
+		    } else if ( (*c)->type() == Node::Function ) {
+		        insert( privateFunctions, *c, style );
+		    } else {
+		        insert( privateTypes, *c, style );
+		    }
+	        }
+	        ++c;
 	    }
 
-	    switch ( (*c)->access() ) {
-	    case Node::Public:
-		if ( isSlot ) {
-		    insert( publicSlots, *c, style );
-		} else if ( isSignal ) {
-		    insert( publicSignals, *c, style );
-		} else if ( isStatic ) {
-		    insert( staticPublicMembers, *c, style );
-		} else if ( (*c)->type() == Node::Property ) {
-		    insert( properties, *c, style );
-		} else if ( (*c)->type() == Node::Function ) {
-		    insert( publicFunctions, *c, style );
-		} else {
-		    insert( publicTypes, *c, style );
-		}
-		break;
-	    case Node::Protected:
-		if ( isSlot ) {
-		    insert( protectedSlots, *c, style );
-		} else if ( isStatic ) {
-		    insert( staticProtectedMembers, *c, style );
-		} else if ( (*c)->type() == Node::Function ) {
-		    insert( protectedFunctions, *c, style );
-		} else {
-		    insert( protectedTypes, *c, style );
-		}
-		break;
-	    case Node::Private:
-		if ( isSlot ) {
-		    insert( privateSlots, *c, style );
-		} else if ( isStatic ) {
-		    insert( staticPrivateMembers, *c, style );
-		} else if ( (*c)->type() == Node::Function ) {
-		    insert( privateFunctions, *c, style );
-		} else {
-		    insert( privateTypes, *c, style );
-		}
+	    QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
+	    while ( r != ancestorClass->baseClasses().end() ) {
+		stack.prepend( (*r).node );
+		++r;
 	    }
-	    ++c;
 	}
 
 	append( sections, properties );
@@ -302,12 +315,11 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	append( sections, staticPrivateMembers );
 	append( sections, relatedNonMemberFunctions );
     } else if (style == Detailed) {
-	FastClassSection memberFunctions( classe,
-		"Member Function Documentation" );
-	FastClassSection memberTypes( classe, "Member Type Documentation" );
-	FastClassSection properties( classe, "Property Documentation" );
-	FastClassSection relatedNonMemberFunctions( classe,
-		"Related Non-member Function Documentation" );
+	FastClassSection memberFunctions(classe, "Member Function Documentation");
+	FastClassSection memberTypes(classe, "Member Type Documentation");
+	FastClassSection properties(classe, "Property Documentation");
+	FastClassSection relatedNonMemberFunctions(classe,
+						   "Related Non-member Function Documentation");
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {
@@ -316,7 +328,9 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 	    } else if ( (*c)->type() == Node::Property ) {
 		insert( properties, *c, style );
 	    } else if ( (*c)->type() == Node::Function ) {
-		insert( memberFunctions, *c, style );
+		FunctionNode *function = static_cast<FunctionNode *>(*c);
+                if (!function->associatedProperty())
+		    insert( memberFunctions, function, style );
 	    }
 	    ++c;
 	}
@@ -328,7 +342,7 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
     } else {
 	FastClassSection all( classe );
 
-	QValueStack<const ClassNode *> stack;
+	QStack<const ClassNode *> stack;
 	stack.push( classe );
 
 	while ( !stack.isEmpty() ) {
@@ -341,7 +355,7 @@ QValueList<ClassSection> CppCodeMarker::classSections( const ClassNode *classe,
 		++c;
 	    }
 
-	    QValueList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
+	    QList<RelatedClass>::ConstIterator r = ancestorClass->baseClasses().begin();
 	    while ( r != ancestorClass->baseClasses().end() ) {
 		stack.prepend( (*r).node );
 		++r;
@@ -358,8 +372,7 @@ const Node *CppCodeMarker::resolveTarget( const QString& /* target */,
     return 0;
 }
 
-QString CppCodeMarker::addMarkUp( const QString& protectedCode,
-				  const Node * /* relative */,
+QString CppCodeMarker::addMarkUp( const QString& protectedCode, const Node * /* relative */,
 				  const QString& /* dirPath */ )
 {
     QStringList lines = QStringList::split( "\n", protectedCode, TRUE );

@@ -67,10 +67,10 @@ QString PlainCodeMarker::functionEndRegExp( const QString& /* funcName */ )
     return "";
 }
 
-QValueList<ClassSection> PlainCodeMarker::classSections(
+QList<ClassSection> PlainCodeMarker::classSections(
 	const ClassNode * /* classe */, SynopsisStyle /* style */ )
 {
-    return QValueList<ClassSection>();
+    return QList<ClassSection>();
 }
 
 const Node *PlainCodeMarker::resolveTarget( const QString& /* target */,

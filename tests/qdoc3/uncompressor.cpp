@@ -4,7 +4,7 @@
 
 #include "uncompressor.h"
 
-QValueList<Uncompressor *> Uncompressor::uncompressors;
+QList<Uncompressor *> Uncompressor::uncompressors;
 
 Uncompressor::Uncompressor( const QStringList& extensions )
     : fileExts( extensions )
@@ -22,7 +22,7 @@ Uncompressor *Uncompressor::uncompressorForFileName( const QString& fileName )
     int dot = -1;
     while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
         QString ext = fileName.mid( dot + 1 );
-        QValueList<Uncompressor *>::ConstIterator u = uncompressors.begin();
+        QList<Uncompressor *>::ConstIterator u = uncompressors.begin();
         while ( u != uncompressors.end() ) {
             if ( (*u)->fileExtensions().contains(ext) )
                 return *u;

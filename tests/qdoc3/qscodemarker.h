@@ -23,8 +23,7 @@ public:
     virtual QString markedUpName( const Node *node );
     virtual QString markedUpFullName( const Node *node, const Node *relative );
     virtual QString markedUpIncludes( const QStringList& includes );
-    virtual QValueList<ClassSection> classSections( const ClassNode *classe,
-						    SynopsisStyle style );
+    virtual QList<ClassSection> classSections( const ClassNode *classe, SynopsisStyle style );
     virtual QString functionBeginRegExp( const QString& funcName );
     virtual QString functionEndRegExp( const QString& funcName );
     virtual const Node *resolveTarget( const QString& target,

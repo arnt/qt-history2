@@ -5,8 +5,8 @@
 #ifndef TOKENIZER_H
 #define TOKENIZER_H
 
+#include <qstack.h>
 #include <qstring.h>
-#include <qvaluestack.h>
 
 #include <stdio.h>
 
@@ -91,7 +91,7 @@ private:
     char *yyPrevLex;
     char *yyLex;
     size_t yyLexLen;
-    QValueStack<bool> yyPreprocessorSkipping;
+    QStack<bool> yyPreprocessorSkipping;
     int yyNumPreprocessorSkipping;
     int yyBraceDepth;
     int yyParenDepth;

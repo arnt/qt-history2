@@ -19,10 +19,14 @@ struct InheritanceBound
 	  baseTemplateArgs( baseTemplateArgs0 ) { }
 };
 
+typedef QMap<PropertyNode::FunctionRole, QString> RoleMap;
+typedef QMap<PropertyNode *, RoleMap> PropertyMap;
+
 class TreePrivate
 {
 public:
-    QMap<ClassNode *, QValueList<InheritanceBound> > unresolvedInheritanceMap;
+    QMap<ClassNode *, QList<InheritanceBound> > unresolvedInheritanceMap;
+    PropertyMap unresolvedPropertyMap;
 };
 
 Tree::Tree()
@@ -79,7 +83,7 @@ FunctionNode *Tree::findFunctionNode( const QStringList& parentPath,
     if ( parent == 0 || !parent->isInnerNode() ) {
 	return 0;
     } else {
-	return ((InnerNode *) parent)->findFunctionNode( clone );
+	return ((InnerNode *)parent)->findFunctionNode( clone );
     }
 }
 
@@ -89,6 +93,13 @@ void Tree::addBaseClass( ClassNode *subclass, Node::Access access,
 {
     priv->unresolvedInheritanceMap[subclass].append(
 	    InheritanceBound(access, basePath, baseTemplateArgs) );
+}
+
+
+void Tree::addPropertyFunction(PropertyNode *property, const QString &funcName,
+			       PropertyNode::FunctionRole funcRole)
+{
+    priv->unresolvedPropertyMap[property].insert(funcRole, funcName);
 }
 
 void Tree::resolveInheritance()
@@ -104,12 +115,43 @@ void Tree::resolveInheritance()
     }
 }
 
-void Tree::resolveInheritance( int pass, ClassNode *classe )
+void Tree::resolveProperties()
+{
+    PropertyMap::ConstIterator propEntry = priv->unresolvedPropertyMap.begin();
+    while (propEntry != priv->unresolvedPropertyMap.end()) {
+	PropertyNode *property = propEntry.key();
+        InnerNode *parent = property->parent();
+	QString getterName = (*propEntry)[PropertyNode::Getter];
+	QString setterName = (*propEntry)[PropertyNode::Setter];
+	QString resetterName = (*propEntry)[PropertyNode::Resetter];
+
+	FunctionNode *getterFunc = parent->findFunctionNode(getterName);
+        FunctionNode *setterFunc = parent->findFunctionNode(setterName); // ### not good enough
+        FunctionNode *resetterFunc = parent->findFunctionNode(resetterName);
+
+	if (getterFunc) {
+	    property->setFunction(getterFunc, PropertyNode::Getter);
+            getterFunc->setAssociatedProperty(property);
+	}
+	if (setterFunc) {
+	    property->setFunction(setterFunc, PropertyNode::Setter);
+            setterFunc->setAssociatedProperty(property);
+	}
+	if (resetterFunc) {
+	    property->setFunction(resetterFunc, PropertyNode::Resetter);
+            resetterFunc->setAssociatedProperty(property);
+	}
+
+	++propEntry;
+    }
+    priv->unresolvedPropertyMap.clear();
+}
+
+void Tree::resolveInheritance(int pass, ClassNode *classe)
 {
     if ( pass == 0 ) {
-	QValueList<InheritanceBound> bounds =
-		priv->unresolvedInheritanceMap[classe];
-	QValueList<InheritanceBound>::ConstIterator b = bounds.begin();
+	QList<InheritanceBound> bounds = priv->unresolvedInheritanceMap[classe];
+	QList<InheritanceBound>::ConstIterator b = bounds.begin();
 	while ( b != bounds.end() ) {
 	    ClassNode *baseClass =
 		    (ClassNode *) findNode( (*b).basePath, Node::Class );
@@ -138,7 +180,7 @@ void Tree::resolveInheritance( int pass, ClassNode *classe )
 FunctionNode *Tree::findFunctionInBaseClasses( ClassNode *classe,
 					       FunctionNode *clone )
 {
-    QValueList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
+    QList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
     while ( r != classe->baseClasses().end() ) {
 	FunctionNode *func;
 	if ( ((func = findFunctionInBaseClasses((*r).node, clone)) != 0 ||

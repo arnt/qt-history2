@@ -41,7 +41,7 @@ public:
     const Set<QString> *omitEnumItemNames() const;
     const Set<QString> *metaCommandsUsed() const;
     QStringList metaCommandArgs( const QString& metaCommand ) const;
-    const QValueList<Text> *alsoList() const;
+    const QList<Text> *alsoList() const;
 
     static void initialize( const Config& config );
     static void terminate();

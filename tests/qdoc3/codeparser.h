@@ -42,7 +42,7 @@ protected:
 				   Node *node );
 
 private:
-    static QValueList<CodeParser *> parsers;
+    static QList<CodeParser *> parsers;
 };
 
 #endif

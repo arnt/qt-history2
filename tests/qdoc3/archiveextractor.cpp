@@ -4,7 +4,7 @@
 
 #include "archiveextractor.h"
 
-QValueList<ArchiveExtractor *> ArchiveExtractor::extractors;
+QList<ArchiveExtractor *> ArchiveExtractor::extractors;
 
 ArchiveExtractor::ArchiveExtractor( const QStringList& extensions )
     : fileExts( extensions )
@@ -23,7 +23,7 @@ ArchiveExtractor *ArchiveExtractor::extractorForFileName(
     int dot = -1;
     while ( (dot = fileName.find(".", dot + 1)) != -1 ) {
 	QString ext = fileName.mid( dot + 1 );
-	QValueList<ArchiveExtractor *>::ConstIterator e = extractors.begin();
+	QList<ArchiveExtractor *>::ConstIterator e = extractors.begin();
 	while ( e != extractors.end() ) {
 	    if ( (*e)->fileExtensions().contains(ext) )
 		return *e;

@@ -151,7 +151,7 @@ public:
     QString src;
     Text text;
     Set<QString> *params;
-    QValueList<Text> *alsoList;
+    QList<Text> *alsoList;
     Set<QString> *enumItemSet;
     Set<QString> *omitEnumItemSet;
     Set<QString> *metaCommandSet;
@@ -180,7 +180,7 @@ DocPrivate::~DocPrivate()
 void DocPrivate::addAlso( const Text& also )
 {
     if ( alsoList == 0 )
-	alsoList = new QValueList<Text>;
+	alsoList = new QList<Text>;
     alsoList->append( also );
 }
 
@@ -247,7 +247,7 @@ private:
     static QString unindent( int level, const QString& str );
     static QString slashed( const QString& str );
 
-    QValueStack<int> openedInputs;
+    QStack<int> openedInputs;
 
     QString in;
     int pos;
@@ -268,8 +268,8 @@ private:
     Doc::SectioningUnit currentSectioningUnit;
     QMap<QString, Location> targetMap;
     QMap<int, QString> pendingFormats;
-    QValueStack<int> openedCommands;
-    QValueStack<OpenedList> openedLists;
+    QStack<int> openedCommands;
+    QStack<OpenedList> openedLists;
     Quoter quoter;
 };
 
@@ -976,7 +976,7 @@ bool DocParser::openCommand( int command )
     bool ok = TRUE;
 
     if ( top != CMD_OMIT && top != CMD_LIST ) {
-	QValueList<int> ordering;
+	QList<int> ordering;
 	ordering << CMD_ABSTRACT << CMD_SIDEBAR << CMD_QUOTATION << CMD_TABLE
 		 << CMD_FOOTNOTE;
 	ok = ordering.findIndex( top ) < ordering.findIndex( command );
@@ -998,7 +998,7 @@ bool DocParser::closeCommand( int endCommand )
 	return TRUE;
     } else {
 	bool contains = FALSE;
-	QValueStack<int> opened2 = openedCommands;
+	QStack<int> opened2 = openedCommands;
 	while ( !opened2.isEmpty() ) {
 	    if ( endCommandFor(opened2.top()) == endCommand ) {
 		contains = TRUE;
@@ -1756,7 +1756,7 @@ QStringList Doc::metaCommandArgs( const QString& metaCommand ) const
     }
 }
 
-const QValueList<Text> *Doc::alsoList() const
+const QList<Text> *Doc::alsoList() const
 {
     return priv == 0 ? 0 : priv->alsoList;
 }

@@ -28,7 +28,7 @@ protected:
 private:
     QStringList fileExts;
 
-    static QValueList<Uncompressor *> uncompressors;
+    static QList<Uncompressor *> uncompressors;
 };
 
 #endif

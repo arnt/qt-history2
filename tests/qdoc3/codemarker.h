@@ -18,7 +18,7 @@ struct ClassSection
     QString singularMember;
     QString pluralMember;
     NodeList members;
-    QValueList<QPair<ClassNode *, int> > inherited;
+    QList<QPair<ClassNode *, int> > inherited;
 
     ClassSection() { }
     ClassSection( const QString& name0, const QString& singularMember0,
@@ -34,7 +34,7 @@ struct FastClassSection
     QString singularMember;
     QString pluralMember;
     QMap<QString, Node *> memberMap;
-    QValueList<QPair<ClassNode *, int> > inherited;
+    QList<QPair<ClassNode *, int> > inherited;
 
     FastClassSection( const ClassNode *classe0, const QString& name0 = "",
 		      const QString& singularMember0 = "member",
@@ -66,8 +66,7 @@ public:
     virtual QString markedUpIncludes( const QStringList& includes ) = 0;
     virtual QString functionBeginRegExp( const QString& funcName ) = 0;
     virtual QString functionEndRegExp( const QString& funcName ) = 0;
-    virtual QValueList<ClassSection> classSections( const ClassNode *classe,
-						    SynopsisStyle style ) = 0;
+    virtual QList<ClassSection> classSections( const ClassNode *classe, SynopsisStyle style ) = 0;
     virtual const Node *resolveTarget( const QString& target,
 				       const Node *relative ) = 0;
 
@@ -84,10 +83,8 @@ protected:
     QString protect( const QString& string );
     QString taggedNode( const Node *node );
     QString linkTag( const Node *node, const QString& body );
-    void insert( FastClassSection& fastSection, Node *node,
-		 SynopsisStyle style );
-    void append( QValueList<ClassSection>& sectionList,
-		 const FastClassSection& fastSection );
+    void insert(FastClassSection &fastSection, Node *node, SynopsisStyle style);
+    void append( QList<ClassSection>& sectionList, const FastClassSection& fastSection );
 
 private:
     QRegExp amp;
@@ -96,7 +93,7 @@ private:
     QRegExp quot;
 
     static QString defaultLang;
-    static QValueList<CodeMarker *> markers;
+    static QList<CodeMarker *> markers;
 };
 
 #endif

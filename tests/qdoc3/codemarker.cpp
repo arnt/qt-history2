@@ -9,7 +9,7 @@
 #include "node.h"
 
 QString CodeMarker::defaultLang;
-QValueList<CodeMarker *> CodeMarker::markers;
+QList<CodeMarker *> CodeMarker::markers;
 
 CodeMarker::CodeMarker()
     : amp( "&" ), lt( "<" ), gt( ">" ), quot( "\"" )
@@ -34,7 +34,7 @@ void CodeMarker::initialize( const Config& config )
 {
     defaultLang = config.getString( CONFIG_LANGUAGE );
 
-    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    QList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	(*m)->initializeMarker( config );
 	++m;
@@ -43,7 +43,7 @@ void CodeMarker::initialize( const Config& config )
 
 void CodeMarker::terminate()
 {
-    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    QList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	(*m)->terminateMarker();
 	++m;
@@ -56,7 +56,7 @@ CodeMarker *CodeMarker::markerForCode( const QString& code )
     if ( defaultMarker != 0 && defaultMarker->recognizeCode(code) )
 	return defaultMarker;
 
-    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    QList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	if ( (*m)->recognizeCode(code) )
 	    return *m;
@@ -73,7 +73,7 @@ CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 	QString ext = fileName.mid( dot + 1 );
 	if ( defaultMarker != 0 && defaultMarker->recognizeExtension(ext) )
 	    return defaultMarker;
-	QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+	QList<CodeMarker *>::ConstIterator m = markers.begin();
 	while ( m != markers.end() ) {
 	    if ( (*m)->recognizeExtension(ext) )
 		return *m;
@@ -85,7 +85,7 @@ CodeMarker *CodeMarker::markerForFileName( const QString& fileName )
 
 CodeMarker *CodeMarker::markerForLanguage( const QString& lang )
 {
-    QValueList<CodeMarker *>::ConstIterator m = markers.begin();
+    QList<CodeMarker *>::ConstIterator m = markers.begin();
     while ( m != markers.end() ) {
 	if ( (*m)->recognizeLanguage(lang) )
 	    return *m;
@@ -174,8 +174,7 @@ QString CodeMarker::sortName( const Node *node )
 void CodeMarker::insert( FastClassSection& fastSection, Node *node,
 			 SynopsisStyle style )
 {
-    bool inheritedMember = ( node->parent() !=
-			     (const InnerNode *) fastSection.classe );
+    bool inheritedMember = (node->parent() != (const InnerNode *) fastSection.classe);
     bool irrelevant = FALSE;
 
     if ( node->type() == Node::Function ) {
@@ -206,8 +205,7 @@ void CodeMarker::insert( FastClassSection& fastSection, Node *node,
     }
 }
 
-void CodeMarker::append( QValueList<ClassSection>& sectionList,
-			 const FastClassSection& fastSection )
+void CodeMarker::append(QList<ClassSection>& sectionList, const FastClassSection& fastSection)
 {
     if ( !fastSection.memberMap.isEmpty() ||
 	 !fastSection.inherited.isEmpty() ) {

@@ -24,7 +24,10 @@ public:
     void addBaseClass( ClassNode *subclass, Node::Access access,
 		       const QStringList& basePath,
 		       const QString& baseTemplateArgs );
+    void addPropertyFunction(PropertyNode *property, const QString &funcName,
+			     PropertyNode::FunctionRole funcRole);
     void resolveInheritance();
+    void resolveProperties();
 
     const NamespaceNode *root() const { return &roo; }
 
