@@ -151,7 +151,7 @@ const QString::Null QString::null = QString::Null();
     \reentrant
 
     QString stores a string of 16-bit \l{QChar}s, where each QChar
-    stores one Unicode character. \l{Unicode} is an international
+    stores one Unicode 4.0 character. \l{Unicode} is an international
     standard that supports most of the writing systems in use today.
     It is a superset of ASCII and Latin-1 (ISO 8859-1), and all the
     ASCII/Latin-1 characters are available at the same code

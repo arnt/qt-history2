@@ -134,7 +134,7 @@ the following stages:
 
 \section2 Use QString for All User-Visible Text
 
-Since QString uses the Unicode encoding internally, every
+Since QString uses the Unicode 4.0 encoding internally, every
 language in the world can be processed transparently using
 familiar text processing operations. Also, since all Qt
 functions that present text to the user take a QString as a

@@ -21,8 +21,7 @@
     It is also single-locale; it includes no code pages or other
     complexities that make software harder to write and test. There is no
     competing character set that's reasonably cross-platform. For these
-    reasons, Trolltech uses Unicode as the native character set for Qt
-    (since version 2.0).
+    reasons, Trolltech uses Unicode 4.0 as the native character set for Qt.
 
 
     \section1 Information about Unicode on the Web
