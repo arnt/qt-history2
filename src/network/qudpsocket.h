@@ -38,8 +38,8 @@ public:
 
     bool hasPendingDatagrams() const;
     Q_LONGLONG pendingDatagramSize() const;
-    Q_LONGLONG readDatagram(char *data, Q_LLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
-    Q_LONGLONG writeDatagram(const char *data, Q_LLONG len, const QHostAddress &host,
+    Q_LONGLONG readDatagram(char *data, Q_LONGLONG maxlen, QHostAddress *host = 0, Q_UINT16 *port = 0);
+    Q_LONGLONG writeDatagram(const char *data, Q_LONGLONG len, const QHostAddress &host,
                              Q_UINT16 port);
     inline Q_LONGLONG writeDatagram(const QByteArray &ba, const QHostAddress &host, Q_UINT16 port)
         { return writeDatagram(ba.data(), ba.size(), host, port); }
