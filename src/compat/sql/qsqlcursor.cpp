@@ -1116,8 +1116,8 @@ QSqlRecord* QSqlCursor::primeInsert()
 
 /*!
     Updates the database with the current contents of the edit buffer.
-    Returns the number of records which were updated, or 0 if there
-    was an error. For error information, use lastError().
+    Returns the number of records which were updated.
+    For error information, use lastError().
 
     Only records which meet the filter criteria specified by the
     cursor's primary index are updated. If the cursor does not contain
@@ -1162,8 +1162,8 @@ int QSqlCursor::update( bool invalidate )
 
     Updates the database with the current contents of the cursor edit
     buffer using the specified \a filter. Returns the number of
-    records which were updated, or 0 if there was an error. For error
-    information, use lastError().
+    records which were updated.
+    For error information, use lastError().
 
     Only records which meet the filter criteria are updated, otherwise
     all records in the table are updated.
@@ -1176,7 +1176,7 @@ int QSqlCursor::update( bool invalidate )
 */
 
 int QSqlCursor::update( const QString & filter, bool invalidate )
-{
+{    
     if ( ( d->md & Update ) != Update ) {
 	return FALSE;
     }
@@ -1184,7 +1184,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
     if ( k == 0 ) {
 	return 0;
     }
-
+    
     // use a prepared query if the driver supports it
     if ( driver()->hasFeature( QSqlDriver::PreparedQueries ) ) {
 	QString fList;
@@ -1223,7 +1223,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 /*!
     Deletes a record from the database using the cursor's primary
     index and the contents of the cursor edit buffer. Returns the
-    number of records which were deleted, or 0 if there was an error.
+    number of records which were deleted.
     For error information, use lastError().
 
     Only records which meet the filter criteria specified by the
