@@ -18,7 +18,7 @@
 #include <qevent.h>
 #include <qeventloop.h>
 #include <qfile.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <qhash.h>
 #include <qmap.h>
 #include <qmenubar.h>
@@ -335,7 +335,7 @@ private:
 	QWidget *widget;
 	QObject *object;
     } qt;
-    QGuardedPtr<QObject> theObject;
+    QPointer<QObject> theObject;
     unsigned isWidget		:1;
     unsigned ownObject		:1;
     unsigned initNewCalled	:1;
@@ -356,9 +356,9 @@ private:
     HOLEMENU holemenu;
     HWND hwndMenuOwner;
     QMap<HMENU, QPopupMenu*> menuMap;
-    QGuardedPtr<QMenuBar> menuBar;
-    QGuardedPtr<QStatusBar> statusBar;
-    QGuardedPtr<QPopupMenu> currentPopup;
+    QPointer<QMenuBar> menuBar;
+    QPointer<QStatusBar> statusBar;
+    QPointer<QPopupMenu> currentPopup;
 
     SIZE sizeExtent;
     RECT rcPos;
