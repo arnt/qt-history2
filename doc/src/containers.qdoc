@@ -29,7 +29,7 @@
     \l{STL-style iterators}. The Java-style iterators are easier to
     use and provide high-level functionality, whereas the STL-style
     iterators are slightly more efficient and can be used together
-    with Qt's and STL's \l{generic algorithms}.
+    with Qt's and STL's \l{qtalgorithms.h}{generic algorithms}.
 
     Qt also offers a \l{foreach} keyword that make it very easy to
     iterate over all the items stored in a container.

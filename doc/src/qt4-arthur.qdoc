@@ -10,12 +10,12 @@
 
     \section1 Architecture
 
-    The Qt 4 Paint Subsystem is primarly based on the classes \l
-    QPainter, \l QPaintDevice and \l QPaintEngine. \l QPainter is the
-    class used to perform drawing operations, for example, \c
-    drawLine() and \l drawRect(). \l QPaintDevice is an object that
-    can be painted on using a \l QPainter. Both \l QWidget and \l
-    QPixmap are QPaintDevices. \l QPaintEngine is the painter's means
+    The Qt 4 Paint Subsystem is primarly based on the classes
+    QPainter, QPaintDevice and QPaintEngine. QPainter is the
+    class used to perform drawing operations, for example,
+    drawLine() and drawRect(). QPaintDevice is an object that
+    can be painted on using a QPainter. Both QWidget and
+    QPixmap are QPaintDevices. QPaintEngine is the painter's means
     of drawing to a specific device type.
 
     \section2 A Look Back at Qt 3
@@ -42,7 +42,7 @@
 
     \section2 How Painting is Done in Qt 4
 
-    In Qt 4 we have introduced the abstract class \l QPaintEngine.
+    In Qt 4 we have introduced the abstract class QPaintEngine.
     Implementations of this class provide the concrete functionallity
     needed to draw to a specific device type. The class QPaintEngine
     is only used internally by QPainter and QPaintDevice and is hidden
@@ -51,18 +51,18 @@
     provides paint engines for the following platforms and API's:
 
     \list
-    \i GDI and GDI+ on Windows
-    \i OpenGL on all platforms
-    \i PostScript on Linux, Unix, and Mac OS X
-    \i QuickDraw and CoreGraphics on Mac OS X
-    \i X11 and the X Render Extension on Linux and Unix systems
-    \i QVFb, VNC and LinuxFb on Qt/Embedded
+    \o GDI and GDI+ on Windows
+    \o OpenGL on all platforms
+    \o PostScript on Linux, Unix, and Mac OS X
+    \o QuickDraw and CoreGraphics on Mac OS X
+    \o X11 and the X Render Extension on Linux and Unix systems
+    \o QVFb, VNC and LinuxFb on Qt/Embedded
     \endlist
 
     To implement support for a new backend, you must derive from
     QPaintEngine and reimplement its virtual functions. You also need
     to derive from QPaintDevice and reimplement the virtual function
-    \l QPaintDevice::paintEngine() to tell QPainter which paint engine
+    QPaintDevice::paintEngine() to tell QPainter which paint engine
     should be used to draw on this particular device.
 
     The main benefit of this approach is that all painting follows the
@@ -87,7 +87,7 @@
     use the term linear gradient since the transition area follows a
     line.
 
-    Setting a linear gradient brush is done using the \l QBrush constructor
+    Setting a linear gradient brush is done using the QBrush constructor
     that takes two points and two colors, as sketched below:
 
     \code
@@ -106,7 +106,7 @@
     \section2 Alpha-Blended Drawing
 
     With Qt 4 we support alpha-blended outlining and filling. The alpha
-    channel of a color is specified through \l QColor.
+    channel of a color is specified through QColor.
 
     \code
     // Specfiy semi-transparent red
@@ -261,11 +261,10 @@
     features are these:
 
     \list
-    \i Gradients cannot have alpha color on X11.
-    \i Support for querying for supported features (such as if
+    \o Gradients cannot have alpha color on X11.
+    \o Support for querying for supported features (such as if
        antialiasing is available)
     \endlist
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink
-
 */

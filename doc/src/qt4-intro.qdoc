@@ -15,9 +15,9 @@ This technology preview is licensed under a non-commercial license.
 It is not meant to be used in production code or even for application
 development. Futhermore, please do not attempt to start porting your
 Qt 3 based projects over yet. Not all backward compatibility
-functionality is in place yet, and we have not yet finished the
-porting guide and the porting tools that will help you with the
-process once the Qt 4 final release is imminent.
+functionality is in place yet, and we have not yet finished the \link
+porting.html Porting Guide \endlink and the porting tools that will
+help you with the process once the Qt 4 final release is imminent.
 
 What you \e{can} do is write new small programs to experience what
 the next generation of Qt programming with be like. In particular,
