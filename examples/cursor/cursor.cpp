@@ -131,7 +131,7 @@ CursorView::CursorView()			// construct view
     label->setAlignment( AlignCenter );
     label->setMargin( 10 );
     label->setFrameStyle( QFrame::Box | QFrame::Sunken );
-    grid->addMultiCellWidget( label, 4, 4, 1, 3 );
+    grid->addWidget(label, 4, 1, 1,  3);
 
 }
 
