@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.l#14 $
+** $Id: //depot/qt/main/src/moc/moc.l#15 $
 **
 ** Lexical analyzer for meta object compiler
 **
@@ -124,6 +124,16 @@ extern void addExpressionString( char * );
 
 <OUTSIDE>[_a-zA-Z][_a-zA-Z0-9]*  ;
 <IN_CLASS>[_a-zA-Z][_a-zA-Z0-9]* ;
+
+<OUTSIDE>\"[^"]*	{			/* discard strings */
+			  if (yytext[yyleng - 1] == '\\') {
+			    yymore();
+			  }
+			  else {
+			    Z;
+			    input();		/* discard the '"' */
+			  }
+			}
 
 <IN_CLASS>\"[^"]*	{			/* discard strings */
 			  if (yytext[yyleng - 1] == '\\') {
