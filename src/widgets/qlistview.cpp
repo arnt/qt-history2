@@ -959,6 +959,14 @@ void QListViewItem::dragLeft()
 
 void QListViewItem::insertItem( QListViewItem * newChild )
 {
+    QListView *lv = listView();
+    if ( lv && lv->currentItem() && lv->currentItem()->renameBox ) {
+	if ( lv->d->defRenameAction == QListView::Reject )
+	    lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
+	else
+	    lv->currentItem()->okRename( lv->currentItem()->renameCol );
+    }
+
     if ( !newChild || newChild->parentItem == this )
 	return;
     if ( newChild->parentItem )
@@ -972,7 +980,6 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     lsc = Unsorted;
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
-    QListView *lv = listView();
     if ( !lv )
 	return;
 
@@ -1017,6 +1024,12 @@ void QListViewItem::takeItem( QListViewItem * item )
 	return;
 
     QListView *lv = listView();
+    if ( lv && lv->currentItem() && lv->currentItem()->renameBox ) {
+	if ( lv->d->defRenameAction == QListView::Reject )
+	    lv->currentItem()->cancelRename( lv->currentItem()->renameCol );
+	else
+	    lv->currentItem()->okRename( lv->currentItem()->renameCol );
+    }
     bool was_selected = FALSE;
     bool emit_changed = FALSE;
     QListViewItem *oldCurrent = 0;
