@@ -32,8 +32,9 @@ tutorial.ps: $(targets)
 tutorial.html: $(targets)
 	sgmltools -b html tutorial.sgml > /dev/null 
 	./fiximg tutorial/*.html
-	p4 edit ../*.html
-	mv tutorial/*.html ../
+	echo "You must p4 delete then mv then p4 add!"
+#	p4 edit ../*.html
+#	mv tutorial/*.html ../
 
 
 manual.html: $(targets)

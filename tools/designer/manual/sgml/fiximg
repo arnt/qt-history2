@@ -6,6 +6,7 @@ use vars qw($prev);
 BEGIN { $prev = '' }
 
 while ( <> ) {
+    s/images\\/images\//g;
     if ( /^ALIGN="LEFT"/ and $prev =~ /^SRC="/ ) {
 	s/LEFT/center/;
     }
