@@ -406,7 +406,6 @@ Option::init(int argc, char **argv)
         Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
         if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
             Option::mkfile::qmakespec = qgetenv("QMAKESPEC");
-
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
             QString pwd = QDir::currentPath(),
@@ -415,15 +414,13 @@ Option::init(int argc, char **argv)
                 Option::mkfile::project_files.append(proj);
             } else { //last try..
                 QStringList profiles = QDir(pwd).entryList(QStringList("*" + Option::pro_ext));
-#ifndef QT_BUILD_QMAKE_LIBRARY
-                if(profiles.isEmpty())
-                    return usage(argv[0]);
-#endif
-                QString profile;
-                if(!profiles.isEmpty())
-                    profile = profiles[0];
-                Option::mkfile::project_files.append(pwd + "/" + profile);
+                if(profiles.count() == 1) 
+                    Option::mkfile::project_files.append(pwd + "/" + profiles[0]);
             }
+#ifndef QT_BUILD_QMAKE_LIBRARY
+            if(Option::mkfile::project_files.isEmpty())
+                return usage(argv[0]);
+#endif
         }
     }
 
