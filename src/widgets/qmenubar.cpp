@@ -183,8 +183,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 		  QPoint(0, 0) );
     }
 #elif defined(QMAC_QMENUBAR_NATIVE)
-      mac_dirty_menubar = 1;
-      mac_eaten_menubar = parent && !parent->parentWidget();
+    macCreateNativeMenubar(parent);
 #endif
 #endif
     isMenuBar = TRUE;
@@ -272,6 +271,9 @@ QMenuBar::~QMenuBar()
 {
 #ifndef QT_NO_ACCEL
     delete autoaccel;
+#endif
+#if defined( Q_WS_MAC ) && defined(QMAC_QMENUBAR_NATIVE)
+    macRemoveNativeMenubar();
 #endif
     if ( irects )               // Avoid purify complaint.
         delete [] irects;

@@ -204,29 +204,47 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 /*!
   Internal function that cleans up the menubar.
 */
+static QIntDict<QMenuBar> *menubars = NULL;
+void QMenuBar::macCreateNativeMenubar(QWidget *parent) 
+{
+    mac_dirty_menubar = 1;
+    if((mac_eaten_menubar = parent && !parent->parentWidget())) {
+	if(!menubars)
+	    menubars = new QIntDict<QMenuBar>();
+	menubars->insert((int)parent, this);
+    }
+}
+void QMenuBar::macRemoveNativeMenubar()
+{
+    if(menubars)
+	menubars->remove((int)parentWidget());
+}
+
 void QMenuBar::cleanup()
 {
     ClearMenuBar();
     InvalMenuBar();
     delete pdict;
+    pdict = NULL;
+    delete menubars;
+    menubars = NULL;
 }
 
 void QMenuBar::macUpdateMenuBar()
 {
     static bool first = TRUE;
     if(QWidget *w = qApp->activeWindow()) {
-	if(QObject *mb = qApp->activeWindow()->child(0, "QMenuBar", FALSE)) {
-	    QMenuBar *bar = (QMenuBar *)mb;
-	    if(!bar->mac_eaten_menubar || (!first && !bar->mac_dirty_menubar))
+	if(QMenuBar *mb = menubars->find((int)w)) {
+	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_dirty_menubar))
 		return;
 	    first = FALSE;
-	    bar->mac_dirty_menubar = 0;
-	    updateMenuBar(bar);
-	} else {
+	    mb->mac_dirty_menubar = 0;
+	    updateMenuBar(mb);
+	} else if (!first) {
 	    first = TRUE;
 	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) )
 		ClearMenuBar();
-	}
+	} 
     }
 }
 
