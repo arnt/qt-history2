@@ -1367,7 +1367,10 @@ Destructs the QCanvasItem.  It is removed from its canvas.
 */
 QCanvasItem::~QCanvasItem()
 {
-    if (cnv) cnv->removeItem(this);
+    if (cnv) {
+	cnv->removeItem(this);
+	cnv->removeAnimation(this);
+    }
     delete ext;
 }
 
