@@ -45,7 +45,6 @@
 #endif // QT_H
 
 class QTextEdit;
-class QTextPreProcessor;
 class QSyntaxHighlighterInternal;
 class QSyntaxHighlighterPrivate;
 class QTextParagraph;
