@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#218 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#219 $
 **
 ** Implementation of QListBox widget class
 **
@@ -50,7 +50,9 @@ public:
 	mouseMoveRow( -1 ), mouseMoveColumn( -1 ),
 	scrollTimer( 0 ), updateTimer( 0 ),
 	selectionMode( QListBox::Single ),
-	count( 0 )
+	count( 0 ),
+	ignoreMoves( FALSE )
+    
     {}
     ~QListBoxPrivate();
 
@@ -85,6 +87,8 @@ public:
     QListBox::SelectionMode selectionMode;
 
     int count;
+
+    bool ignoreMoves;
 };
 
 
@@ -440,8 +444,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	     this, SLOT(refreshSlot()) );
     setFrameStyle( QFrame::WinPanel | QFrame::Sunken ); // ### win/motif
     setBackgroundMode( PaletteBase );
-//     setFocusProxy( viewport() );
-    viewport()->setFocusProxy( this );
+    viewport()->setFocusProxy( this ); // ### wrong way around, kind of
     setFocusPolicy( StrongFocus );
     viewport()->setBackgroundMode( PaletteBase );
 }
@@ -1009,6 +1012,16 @@ bool QListBox::itemVisible( QListBoxItem * item )
 
 void QListBox::viewportMousePressEvent( QMouseEvent *e )
 {
+    // ### this (and the others) assume that the coordinates of this
+    // and viewport() are the same.
+    mousePressEvent( e );
+}
+
+
+/*! \reimp */
+
+void QListBox::mousePressEvent( QMouseEvent *e )
+{
     QListBoxItem * i = itemAt( e->pos() );
     switch( selectionMode() ) {
     default:
@@ -1039,6 +1052,7 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 	d->mousePressColumn = d->currentColumn;
 	d->mousePressRow = d->currentRow;
     }
+    d->ignoreMoves = FALSE;
 }
 
 
@@ -1046,17 +1060,36 @@ void QListBox::viewportMousePressEvent( QMouseEvent *e )
 
 void QListBox::viewportMouseReleaseEvent( QMouseEvent *e )
 {
-    if ( d->scrollTimer )
-	mouseMoveEvent( e );
-    delete d->scrollTimer;
-    d->scrollTimer = 0;
-    emitChangedSignal( FALSE );
+    mouseReleaseEvent( e );
 }
 
 
 /*! \reimp */
 
-void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * )
+void QListBox::mouseReleaseEvent( QMouseEvent *e )
+{
+    if ( d->scrollTimer )
+	mouseMoveEvent( e );
+    delete d->scrollTimer;
+    d->scrollTimer = 0;
+    emitChangedSignal( FALSE );
+    d->ignoreMoves = FALSE;
+    d->mousePressRow = -1;
+    d->mousePressColumn = -1;
+}
+
+
+/*! \reimp */
+
+void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * e )
+{
+    mouseDoubleClickEvent( e );
+}
+
+
+/*! \reimp */
+
+void QListBox::mouseDoubleClickEvent( QMouseEvent * )
 {
     if ( selectionMode() == Single && d->current ) {
 	QListBoxItem * i = d->current;
@@ -1066,7 +1099,7 @@ void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * )
 	if ( !tmp.isNull() )
 	    emit selected( tmp );
     }
-    // note: mouse move events may arrive and another release event will
+    d->ignoreMoves = TRUE;
 }
 
 
@@ -1074,10 +1107,26 @@ void QListBox::viewportMouseDoubleClickEvent( QMouseEvent * )
 
 void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 {
+    mouseMoveEvent( e );
+}
+
+
+/*! \reimp */
+
+void QListBox::mouseMoveEvent( QMouseEvent *e )
+{
     if ( ( (e->state() & ( RightButton | LeftButton | MidButton ) ) == 0 ) ||
-	 ( d->mousePressRow < 0 || d->mousePressColumn < 0 ) )
+	 d->ignoreMoves )
 	return;
 
+    // hack to keep the combo (and what else?) working: if we get a
+    // move outside the listbox without having seen a press, discard
+    // it.
+    if ( !rect().contains( e->pos() ) &&
+	 d->mousePressColumn < 0 && d->mousePressRow < 0 )
+	return;
+    
+    // figure out in what direction to drag-select and perhaps scroll
     int dx = 0;
     int x = e->x();
     if ( x >= viewport()->width() ) {
@@ -1088,9 +1137,18 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	dx = -1;
     }
     d->mouseMoveColumn = columnAt( x + contentsX() );
+
+    // sanitize mousePressColumn, if we got here without a mouse press event
+    if ( d->mousePressColumn < 0 && d->mouseMoveColumn >= 0 )
+	d->mousePressColumn = d->mouseMoveColumn;
+    if ( d->mousePressColumn < 0 && d->currentColumn >= 0 )
+	d->mousePressColumn = d->currentColumn;
+
+    // if it's beyond the last column, use the last one
     if ( d->mouseMoveColumn < 0 )
 	d->mouseMoveColumn = dx >= 0 ? numColumns()-1 : 0;
 
+    // repeat for y
     int dy = 0;
     int y = e->y();
     if ( y >= viewport()->height() ) {
@@ -1101,21 +1159,28 @@ void QListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	dy = -1;
     }
     d->mouseMoveRow = rowAt( y + contentsY() );
-    if ( d->mouseMoveRow < 0 )
-	d->mouseMoveRow = dy >= 0 ? numRows()-1 : 0;
+
+    if ( d->mousePressRow < 0 && d->mouseMoveRow >= 0 )
+	d->mousePressRow = d->mouseMoveRow;
+    if ( d->mousePressRow < 0 && d->currentRow >= 0 )
+	d->mousePressRow = d->currentRow;
+
+    if ( d->mousePressRow < 0 )
+	d->mousePressRow = rowAt( x + contentsX() );
 
     d->scrollPos = QPoint( dx, dy );
 
     if ( ( dx || dy ) && !d->scrollTimer ) {
+	// start autoscrolling if necessary
 	d->scrollTimer = new QTimer( this );
 	connect( d->scrollTimer, SIGNAL(timeout()),
 		 this, SLOT(doAutoScroll()) );
 	d->scrollTimer->start( 100, FALSE );
 	doAutoScroll();
     } else {
+	// or just select the required bits
 	updateSelection();
     }
-
 }
 
 
@@ -2379,7 +2444,8 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     i->paint( p );
     if ( d->current == i && hasFocus() )
 	style().drawFocusRect( p, QRect( 1, 1, cw-2, ch-2 ),
-			       g, i->selected()?&g.highlight():&g.base(), TRUE );
+			       g, i->selected() ? &g.highlight() : &g.base(),
+			       TRUE );
 }
 
 
@@ -2393,4 +2459,14 @@ long QListBox::maxItemWidth() const
 	if ( m < d->columnPos[i] )
 	    m = d->columnPos[i];
     return m;
+}
+
+
+/*! \reimp */
+
+void QListBox::showEvent( QShowEvent * )
+{
+    d->ignoreMoves = FALSE;
+    d->mousePressRow = -1;
+    d->mousePressColumn = -1;
 }
