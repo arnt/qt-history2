@@ -77,9 +77,6 @@ MetaMakefileGenerator::init()
 bool
 MetaMakefileGenerator::write(const QString &oldpwd) 
 {
-    if(!init())
-        return false;
-
     Build *glue = 0;
     if(!makefiles.first()->name.isNull()) {
         glue = new Build;
@@ -226,5 +223,7 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj)
 MetaMakefileGenerator *
 MetaMakefileGenerator::createMetaGenerator(QMakeProject *proj)
 {
-    return new MetaMakefileGenerator(proj);
+    MetaMakefileGenerator *ret = new MetaMakefileGenerator(proj);
+    ret->init();
+    return ret;
 }
