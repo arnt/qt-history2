@@ -1,8 +1,6 @@
 #include "previewstack.h"
 #include "styledbutton.h"
 #include "../../../qwidgetinterface.h"
-#include "../../../qcleanuphandler.h"
-#include <qapplication.h>
 
 #include <qworkspace.h>
 #include <qscrollview.h>
@@ -16,25 +14,17 @@
 #define LIBEXPORT
 #endif
 
-static QString* resource = 0;
-
-static QCleanUpHandler<QString> cleanUpHandler;
-
 class TestInterface : public QWidgetInterface
 {
 public:
-    TestInterface() 
-    {
-	resource = new QString( "Ich bin der String!" );
-	cleanUpHandler.addCleanUp( resource );
-    }
+    TestInterface() {}
     QString queryInterface() { return "QWidgetInterface"; }
 
     QString name() { return "Test Widgetplugin"; }
     QString description() { return "Test implementation of the QWidgetInterface"; }
     QString author() { return "vohi"; }
 
-    QStringList widgets();
+    QStringList featureList();
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
 /*    QString iconSet( const QString &classname );
     QCString includeFile( const QString &classname );
@@ -44,7 +34,7 @@ public:
     bool isContainer( const QString &classname );*/
 };
 
-QStringList TestInterface::widgets()
+QStringList TestInterface::featureList()
 {
     QStringList w;
 
