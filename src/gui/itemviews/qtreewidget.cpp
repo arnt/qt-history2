@@ -1167,6 +1167,19 @@ void QTreeWidgetItem::write(QDataStream &out) const
     out << values;
 }
 
+/*!
+  \reimpl
+*/
+void QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
+{
+    values = other.values;
+    view = other.view;
+    model = other.model;
+    par = other.par;
+    //children = other.children; // ### don't copy the children
+    itemFlags = other.itemFlags;
+}
+
 #endif // QT_NO_DATASTREAM
 
 /*!

@@ -429,6 +429,17 @@ void QListWidgetItem::write(QDataStream &out) const
 }
 
 /*!
+  \reimpl
+*/
+void QListWidgetItem::operator=(const QListWidgetItem &other)
+{
+    values = other.values;
+    view = other.view;
+    model = other.model;
+    itemFlags = other.itemFlags;
+}
+
+/*!
     \relates QListWidgetItem
 
     Writes the list widget item \a item to stream \a out.

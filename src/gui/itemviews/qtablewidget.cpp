@@ -894,6 +894,17 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
+  \reimpl
+*/
+void QTableWidgetItem::operator=(const QTableWidgetItem &other)
+{
+    values = other.values;
+    view = other.view;
+    model = other.model;
+    itemFlags = other.itemFlags;
+}
+
+/*!
     \class QTableWidget
     \brief The QTableWidget class provides an item-based table view with a default model.
 

@@ -96,6 +96,7 @@ public:
     virtual void read(QDataStream &in);
     virtual void write(QDataStream &out) const;
 #endif
+    void operator=(const QListWidgetItem &other);
 
 private:
     QVector<QWidgetItemData> values;
