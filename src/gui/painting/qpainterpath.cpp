@@ -451,9 +451,11 @@ void QPainterSubpath::removeBrokenSegments()
     in subpaths.
 
     \value MoveToElement      A new line begins at the element.
-    \value LineToElement      A line is drawn to the element.
-    \value CurveToElement     A curve is drawn to the element.
-    \value CurveToDataElement Provides extra data required to draw a curve to
+    \value LineToElement      A line is used to connect the previous element to
+                              the new current element.
+    \value CurveToElement     A curve is used to connect the previous element to
+                              the new current element.
+    \value CurveToDataElement Provides extra data required to describe a curve in
                               a \c CurveToElement element.
 */
 
@@ -471,7 +473,7 @@ void QPainterSubpath::removeBrokenSegments()
     painter path.
 
     If the current subpath is closed, a new subpath is started. The ellipse
-    is drawn as a clockwise curve, starting and finishing at zero degrees
+    is composed of a clockwise curve, starting and finishing at zero degrees
     (the 3 o'clock position).
 */
 
@@ -822,7 +824,7 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
     \a boundingRect and adds it to the painter path.
 
     If the current subpath is closed, a new subpath is started. The ellipse
-    is drawn as a clockwise curve, starting and finishing at zero degrees
+    is composed of a clockwise curve, starting and finishing at zero degrees
     (the 3 o'clock position).
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
