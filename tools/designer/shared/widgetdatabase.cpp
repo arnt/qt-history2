@@ -241,6 +241,14 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     r = new WidgetDatabaseRecord;
+    r->iconSet = "textedit.xpm";
+    r->name = "QTextEdit";
+    r->group = widgetGroup( "Input" );
+    r->toolTip = "Richtext Editor";
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
     r->iconSet = "combobox.xpm";
     r->name = "QComboBox";
     r->group = widgetGroup( "Input" );
@@ -253,6 +261,14 @@ void WidgetDatabase::setupDataBase()
     r->name = "QSlider";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Slider";
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
+    r->iconSet = "scrollbar.xpm";
+    r->name = "QScrollBar";
+    r->group = widgetGroup( "Input" );
+    r->toolTip = "Scrollbar";
 
     append( r );
 

@@ -46,6 +46,7 @@
 #include <qlineedit.h>
 #include <qspinbox.h>
 #include <qmultilineedit.h>
+#include <qtextedit.h>
 #include <qlabel.h>
 #include <qlayout.h>
 #include <qwidgetstack.h>
@@ -66,6 +67,7 @@
 #include <qwizard.h>
 #include <qvaluelist.h>
 #include <qtimer.h>
+#include <qscrollbar.h>
 
 #include <globaldefs.h>
 
@@ -512,6 +514,8 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QSpinBox( parent, name );
     else if ( className == "QMultiLineEdit" )
 	return new QMultiLineEdit( parent, name );
+    else if ( className == "QTextEdit" )
+	return new QTextEdit( parent, name );
     else if ( className == "QLabel"  || className == "TextLabel" ) {
 	QDesignerLabel *l = new QDesignerLabel( parent, name );
 	if ( init ) {
@@ -604,6 +608,17 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	return new QDial( parent, name );
     else if ( className == "QSlider" ) {
 	QSlider *s = new QSlider( parent, name );
+	if ( !r )
+	    return s;
+	if ( !r->isValid() || r->width() < 2 && r->height() < 2 )
+	    s->setOrientation( orient );
+	else if ( r->width() > r->height() )
+	    s->setOrientation( Qt::Horizontal );
+	MetaDataBase::addEntry( s );
+	MetaDataBase::setPropertyChanged( s, "orientation", TRUE );
+	return s;
+    } else if ( className == "QScrollBar" ) {
+	QScrollBar *s = new QScrollBar( parent, name );
 	if ( !r )
 	    return s;
 	if ( !r->isValid() || r->width() < 2 && r->height() < 2 )
@@ -837,7 +852,7 @@ bool WidgetFactory::hasSpecialEditor( int id )
 	return TRUE;
     if ( className.mid( 1 ) == "IconView" )
 	return TRUE;
-    if ( className == "QMultiLineEdit" )
+    if ( className == "QTextEdit" || className == "QMultiLineEdit" )
 	return TRUE;
 
     return FALSE;

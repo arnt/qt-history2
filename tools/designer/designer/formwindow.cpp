@@ -266,7 +266,7 @@ void FormWindow::insertWidget()
     bool useSizeHint = !oldRectValid || ( currRect.width() < 2 && currRect.height() < 2 );
     Orientation orient = Horizontal;
     QString n = WidgetDatabase::className( currTool );
-    if (  useSizeHint && ( n == "Spacer" || n == "QSlider" || n == "Line" ) ) {
+    if (  useSizeHint && ( n == "Spacer" || n == "QSlider" || n == "Line" || n == "QScrollBar" ) ) {
 	QPopupMenu m( mainWindow() );
 	m.insertItem( tr( "&Horizontal" ) );
 	int ver = m.insertItem( tr( "&Vertical" ) );

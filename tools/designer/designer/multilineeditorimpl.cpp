@@ -31,11 +31,13 @@ MultiLineEditor::MultiLineEditor( QWidget *parent, QWidget *editWidget, FormWind
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     mlined = (QMultiLineEdit*)editWidget;
+    // #### complete list of properties here
     preview->setAlignment( mlined->alignment() );
     preview->setMaxLines( mlined->maxLines() );
     preview->setWordWrap( mlined->wordWrap() );
     preview->setWrapColumnOrWidth( mlined->wrapColumnOrWidth() );
     preview->setWrapPolicy( mlined->wrapPolicy() );
+    preview->setTextFormat( mlined->textFormat() );
     preview->setText( mlined->text() );
     preview->setFocus();
 }

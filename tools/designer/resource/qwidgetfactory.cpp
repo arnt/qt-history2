@@ -42,6 +42,8 @@
 #include <qslider.h>
 #include <qframe.h>
 #include <qwidgetstack.h>
+#include <qtextedit.h>
+#include <qscrollbar.h>
 
 static QList<QWidgetFactory> widgetFactories;
 
@@ -252,6 +254,10 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 	QFrame *f = new QFrame( parent, name );
 	f->setFrameStyle( QFrame::HLine | QFrame::Sunken );
 	return f;
+    } else if ( className == "QTextEdit" ) {
+	return new QTextEdit( parent, name );
+    } else if ( className == "QScrollBar" ) {
+	return new QScrollBar( parent, name );
     }
 
     // maybe it is a KDE widget we support
