@@ -1,6 +1,12 @@
 #include "qcomlibrary_p.h"
 #include "qapplication.h"
 
+#ifndef QT_DEBUG_COMPONENT
+# if defined(QT_DEBUG)
+#  define QT_DEBUG_COMPONENT 1
+# endif
+#endif
+
 QComLibrary::QComLibrary( const QString &filename, QLibrary::Policy pol )
 : QLibrary( filename, pol ), entry( 0 ), libiface( 0 )
 {
