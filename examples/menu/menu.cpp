@@ -259,9 +259,9 @@ protected:
 void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
     MyFancyMenu contextMenu(tr("Context!"), this);
-    contextMenu.addAction("&New",  this, SLOT(news()))->setShortcut( Qt::CTRL+Qt::Key_N);
-    contextMenu.addAction("&Open...", this, SLOT(open()))->setShortcut( Qt::CTRL+Qt::Key_O);
-    contextMenu.addAction("&Save", this, SLOT(save()))->setShortcut( Qt::CTRL+Qt::Key_S);
+    contextMenu.addAction("&New",  this, SLOT(news()));
+    contextMenu.addAction("&Open...", this, SLOT(open()));
+    contextMenu.addAction("&Save", this, SLOT(save()));
     QMenu *submenu = new QMenu(this);
     submenu->addAction("&Print to printer", this, SLOT(printer()));
     submenu->addAction("Print to &file", this, SLOT(file()));
