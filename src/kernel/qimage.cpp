@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#42 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#41 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#42 $";
 #endif
 
 
@@ -52,9 +52,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#41 $";
     QImage image;
       // sets bit at (x,y) to 1
     if ( image.bitOrder() == QImage::LittleEndian )
-	*(image.scanLine(y) + x >> 8) |= 1 << (x & 7);
+	*(image.scanLine(y) + x >> 3) |= 1 << (x & 7);
     else
-	*(image.scanLine(y) + x >> 8) |= 1 << (7 -(x & 7));
+	*(image.scanLine(y) + x >> 3) |= 1 << (7 -(x & 7));
   \endcode
 
   If this looks complicated, it might be a good idea to convert the 1-bpp
