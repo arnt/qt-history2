@@ -542,7 +542,7 @@ void MainWindow::showSettingsDialog(int page)
     sh->item(QLatin1String("code"))->setFontFamily(family);
     sh->item(QLatin1String("tt"))->setFontFamily(family);
     */
-    tabs->currentBrowser()->setText(tabs->currentBrowser()->text());
+    tabs->currentBrowser()->reload();
     showLink(tabs->currentBrowser()->source());
 }
 
