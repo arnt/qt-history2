@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#29 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#29 $";
 #endif
 
 
@@ -148,11 +148,10 @@ bool QWidget::create()				// create widget
     if ( testFlag(WPaintUnclipped) )		// paint direct on device
 	XSetSubwindowMode( dpy, gc, IncludeInferiors );
 
-    if ( !desktop ) {
-	QCursor *c = (QCursor *)&arrowCursor;	// default cursor
-	c->update();
-	XDefineCursor( dpy, ident, c->cursor );
-	curs = *c;
+    if ( overlap ) {
+	curs = arrowCursor;
+	XDefineCursor( dpy, ident, curs.handle() );
+	setFlag( WCursorSet );
     }
     return TRUE;
 }
@@ -289,9 +288,9 @@ QCursor QWidget::cursor() const			// get cursor
 
 void QWidget::setCursor( const QCursor &cursor )// set cursor
 {
-    ((QCursor*)&cursor)->update();
-    XDefineCursor( dpy, ident, cursor.cursor );
     curs = cursor;
+    XDefineCursor( dpy, ident, curs.handle() );
+    setFlag( WCursorSet );
     XFlush( dpy );
 }
 
@@ -311,13 +310,12 @@ void QWidget::grabMouse()
 void QWidget::grabMouse( const QCursor &cursor )
 {
     if ( !testFlag(WState_MGrab) ) {
-	((QCursor*)&cursor)->update();
 	setFlag( WState_MGrab );
 	XGrabPointer( dpy, ident, TRUE,
 		      ButtonPressMask | ButtonReleaseMask | ButtonMotionMask |
 		      EnterWindowMask | LeaveWindowMask,
 		      GrabModeAsync, GrabModeAsync,
-		      None, cursor.cursor, CurrentTime );
+		      None, cursor.handle(), CurrentTime );
     }
 }
 
