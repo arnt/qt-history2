@@ -65,15 +65,17 @@ TextReplacements ReplaceToken::getTokenTextReplacements(FileSymbol *inFileSymbol
                 if(!changed)
                     changed = tokenReplacementRule->doReplace(inStream, textReplacements);
                 if(changed)
-                    break;    
+                    break;
             }
         } else if (isInterestingToken(tokenText.trimmed())) {
             foreach (TokenReplacement* value, tokenRuleLookup.values(tokenText)) {
                 changed = value->doReplace(inStream, textReplacements);
-                if(changed)
-                    break;
+                if(changed) {
+                    goto end;
+                }
             }
         }
+    end:
         inStream->nextToken();
     }
     return textReplacements;
