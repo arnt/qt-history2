@@ -88,7 +88,8 @@ void QToolBarHandle::mouseReleaseEvent(QMouseEvent *event)
 
 void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
 {
-    Q_ASSERT(state != 0);
+    if (!state)
+        return;
 
     // see if there is a main window under us, and ask it to place the
     // tool bar accordingly
