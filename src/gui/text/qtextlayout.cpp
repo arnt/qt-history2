@@ -428,13 +428,12 @@ QTextOption QTextLayout::textOption() const
 /*!
   \internal
 */
-void QTextLayout::setPalette(const QPalette &p, PaletteFlags f)
+void QTextLayout::setPalette(const QPalette &p)
 {
     if (!d->pal)
         d->pal = new QPalette(p);
     else
         *d->pal = p;
-    d->textColorFromPalette = (f & UseTextColor);
 }
 
 void QTextLayout::setPreeditArea(int position, const QString &text)
@@ -1342,12 +1341,13 @@ void QTextLine::draw(QPainter *p, const QPointF &pos) const
             else if (valign == QTextCharFormat::AlignSuperScript)
                 itemBaseLine -= (si.ascent + si.descent + 1) / 2;
             f = eng->font(si);
-            if (!c.isValid())
-                c = eng->textColorFromPalette ? eng->pal->color(QPalette::Text) : QColor(Qt::black);
+            if (!c.isValid() && eng->pal)
+                c = eng->pal->color(QPalette::Text);
 
             if (bg.isValid())
                 p->fillRect(QRectF(x, line.y, gf.width, line.height()), bg);
-            p->setPen(c);
+            if (c.isValid())
+                p->setPen(c);
         }
 
         gf.fontEngine = f.d->engineForScript((QFont::Script)si.analysis.script);

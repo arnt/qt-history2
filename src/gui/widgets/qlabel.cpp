@@ -785,7 +785,6 @@ void QLabel::paintEvent(QPaintEvent *)
         else if (align & Qt::AlignBottom)
             yo = cr.height()-rh;
         QAbstractTextDocumentLayout::PaintContext context;
-        context.textColorFromPalette = true;
         QStyleOption opt(0);
         opt.init(this);
         if (!isEnabled() && style->styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {

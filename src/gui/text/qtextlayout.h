@@ -94,11 +94,7 @@ public:
     void setTextOption(const QTextOption &option);
     QTextOption textOption() const;
 
-    enum PaletteFlags {
-        None,
-        UseTextColor
-    };
-    void setPalette(const QPalette &, PaletteFlags f = None);
+    void setPalette(const QPalette &);
 
     void setPreeditArea(int position, const QString &text);
     int preeditAreaPosition() const;

@@ -596,8 +596,7 @@ void QTextDocumentLayoutPrivate::drawBlock(const QPoint &offset, QPainter *paint
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, highlightListItem);
 
-    const_cast<QTextLayout *>(tl)->setPalette(context.palette,
-                                              context.textColorFromPalette ? QTextLayout::UseTextColor : QTextLayout::None);
+    const_cast<QTextLayout *>(tl)->setPalette(context.palette);
 
     tl->draw(painter, offset, cursor, context.rect);
 

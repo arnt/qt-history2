@@ -846,7 +846,6 @@ static void init(QTextEngine *e)
 #endif
 
     e->direction = QChar::DirON;
-    e->textColorFromPalette = false;
     e->itemization_mode = 0;
 
     e->pal = 0;

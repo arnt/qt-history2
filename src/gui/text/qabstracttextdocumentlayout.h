@@ -37,12 +37,11 @@ public:
     struct PaintContext
     {
         PaintContext()
-            : showCursor(false), textColorFromPalette(false)
+            : showCursor(false)
             {}
         QTextCursor cursor;
         QPalette palette;
         bool showCursor;
-        bool textColorFromPalette;
         QRect rect;
     };
 

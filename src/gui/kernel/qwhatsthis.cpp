@@ -324,7 +324,6 @@ void QWhatsThat::paintEvent(QPaintEvent*)
         rect.translate(-r.x(), -r.y());
         p.setClipRect(rect);
         QAbstractTextDocumentLayout::PaintContext context;
-        context.textColorFromPalette = true;
         doc->documentLayout()->draw(&p, context);
     }
     else

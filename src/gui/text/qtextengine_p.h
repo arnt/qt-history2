@@ -324,7 +324,6 @@ public:
     QTextBlock block;
 
     QChar::Direction direction : 5;
-    unsigned int textColorFromPalette : 1;
     unsigned int reserved : 7;
     unsigned int itemization_mode : 16;
     QTextOption option;
