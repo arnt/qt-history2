@@ -21,7 +21,7 @@ class QIODevice;
 
 class QImageIOHandlerPrivate
 {
-    Q_DECLARE_PUBLIC(QImageIOHandler);
+    Q_DECLARE_PUBLIC(QImageIOHandler)
 public:
     QImageIOHandlerPrivate(QImageIOHandler *q);
     virtual ~QImageIOHandlerPrivate();
