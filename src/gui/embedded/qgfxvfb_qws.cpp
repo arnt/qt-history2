@@ -543,6 +543,13 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
         else
             ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
+#ifndef QT_NO_QWS_DEPTH_24
+    } else if (d==24) {
+        if (bytes == qt_screen->base())
+            ret = new QGfxVFb<24,0>(bytes,w,h);
+        else
+            ret = new QGfxRaster<24,0>(bytes,w,h);
+#endif
 #ifndef QT_NO_QWS_DEPTH_32
     } else if (d==32) {
         if (bytes == qt_screen->base())

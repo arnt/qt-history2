@@ -42,8 +42,8 @@
 #define QGfxRaster_Generic 0
 #define QGfxRaster_VGA16   1
 
-#define GFX_8BPP_PIXEL(r,g,b) gfx_screen->alloc(r,g,b)
-#define GFX_8BPP_PIXEL_CURSOR(r,g,b) qt_screen->alloc(r,g,b)
+#define GFX_CLOSEST_PIXEL(r,g,b) gfx_screen->alloc(r,g,b)
+#define GFX_CLOSEST_PIXEL_CURSOR(r,g,b) qt_screen->alloc(r,g,b)
 
 #define MASK4BPP(x) (0xf0 >> (x))
 
@@ -171,6 +171,13 @@ inline unsigned int gfxGetRgb24(unsigned const char *d)
     return *d | (*(d+1)<<8) | (*(d+2)<<16);
 }
 
+inline void gfxGetRgb24(unsigned const char *d, int &r, int &g, int &b)
+{
+    r = *(d + 2);
+    g = *(d + 1);
+    b = *d;
+}
+
 // Utility macros and functions [end]
 //===========================================================================
 
@@ -183,9 +190,9 @@ public:
     ~QGfxRasterBase();
 
     virtual void setPen(const QPen &);
-    virtual void setBrushPixmap(const QPixmap *p) { cbrushpixmap=p; }
-    virtual void setBrushOrigin(int x, int y);
     virtual void setBrush(const QBrush &);
+    virtual void setBrushOrigin(int x, int y);
+    virtual void setBrushPixmap(const QPixmap *p) { cbrushpixmap=p; }
 
     virtual void setClipRegion(const QRegion &, Qt::ClipOperation);
     virtual void setClipDeviceRegion(const QRegion &);
@@ -332,75 +339,89 @@ protected:
 #ifndef QT_NO_QWS_CURSOR
     QScreenCursor *gfx_screencursor;
 #endif
-    bool gfx_swcursor;
+    bool gfx_swcursor;               // Software cursor?
     volatile int *gfx_lastop;
     volatile int *gfx_optype;
 
-    SourceType srctype;
-    QScreen::PixelType srcpixeltype;
-    unsigned const char *srcbits;
-    unsigned char * const buffer;
+    // Pen, brushes and colors ------------------
+    QPen cpen;
+    QBrush cbrush;
+    QPen savepen;
+    QBrush savebrush;
+    QRgb penColor;
+    QRgb brushColor;
+    unsigned long int penPixel;
+    unsigned long int brushPixel;
+    unsigned long int pixel;        // (palette) pixel used for current drawing operation
+    int srccol;                     // #### Needs to go, inconsistent
 
-    QScreen::PixelType pixeltype;
+    unsigned int srcclut[256];      // Source color table - r,g,b values
+    unsigned int transclut[256];    // Source clut transformed to destination
+                                    // values - speed optimisation
+    QRgb *clut;                     // Destination color table - r,g,b values
+    int clutcols;                   // Colours in clut
+
+    QColor backcolor;
+
+    int calpha;                     // Constant alpha value
+    int calpha2, calpha3, calpha4;  // Used for groovy accelerated effect
+
+    // Sizes and offsets ------------------------
+    int penx;
+    int peny;
+
     int width;
     int height;
     int xoffs;
     int yoffs;
     unsigned int lstep;
 
-    bool opaque;
-    QColor backcolor;
+    int srcwidth;
+    int srcheight;
+    int srcdepth;
+    int srclinestep;
 
-    QPen cpen;
-    QBrush cbrush;
+    QPoint srcwidgetoffs;            // Needed when source is widget
+    bool src_little_endian;
+    bool src_normal_palette;
+
+    // Drawing, styles, and pixmaps --------------
+    bool opaque;
+
+    QPolygonScanner::Edge stitchedges;
     QPoint brushorig;
     bool patternedbrush;
     const QPixmap *cbrushpixmap;
+
     bool dashedLines;
     char *dashes;
     int numDashes;
 
-    QPen savepen;
-    QBrush savebrush;
+    int monobitcount;
+    unsigned char monobitval;
+    int amonobitcount;
+    unsigned char amonobitval;
 
+    QScreen::PixelType pixeltype;
+    QScreen::PixelType srcpixeltype;
+    SourceType srctype;
+    unsigned const char *srcbits;
+    unsigned char *const buffer;
+
+    AlphaType alphatype;
+    unsigned char *alphabits;
+    unsigned int *alphabuf;
+    unsigned char *maskp;
+    int alphalinestep;
+    bool ismasking;
+    bool amonolittletest;
+
+    // Clipping and regions ---------------------
     bool regionClip;
     bool clipDirty;
     QRegion widgetrgn;
     QRegion cliprgn;
     QRect clipbounds;
-
-    int penx;
-    int peny;
-
-    int srcwidth;
-    int srcheight;
-    int srcdepth;
-    int srclinestep;
-    int srccol;
-    QPoint srcwidgetoffs;            // Needed when source is widget
-    bool src_little_endian;
-    bool src_normal_palette;
-    unsigned int srcclut[256];      // Source color table - r,g,b values
-    unsigned int transclut[256];    // Source clut transformed to destination
-                                    // values - speed optimisation
-
-    QRgb *clut;                     // Destination color table - r,g,b values
-    int clutcols;                   // Colours in clut
-
-    int monobitcount;
-    unsigned char monobitval;
-
-    AlphaType alphatype;
-    unsigned char *alphabits;
-    unsigned int *alphabuf;
-    int alphalinestep;
-    bool ismasking;
-    int amonobitcount;
-    unsigned char amonobitval;
-    bool amonolittletest;
-    int calpha;                     // Constant alpha value
-    int calpha2, calpha3, calpha4;  // Used for groovy accelerated effect
-    unsigned char *maskp;
 
     int clipcursor;
     QRect *cliprect;
@@ -409,10 +430,6 @@ protected:
     int globalRegionIndex;
     const int *globalRegionRevision;
     int currentRegionRevision;
-
-    unsigned long int pixel;        // == cpen.pixel() or cbrush.pixel()
-
-    QPolygonScanner::Edge stitchedges;
 
     friend class QScreenCursor;
     friend class QFontEngine;
@@ -599,7 +616,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(int sdepth, unsigned const c
         g=(hold & 0x00ff00) >> 8;
         b=(hold & 0x0000ff);
         simple_8bpp_alloc=true;
-        ret = GFX_8BPP_PIXEL(r,g,b);
+        ret = GFX_CLOSEST_PIXEL(r,g,b);
         simple_8bpp_alloc=false;
         (*srcdata)+=4;
     } else if(sdepth==16) {
@@ -609,7 +626,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(int sdepth, unsigned const c
         g=((hold & (0x3f << 5)) >> 5) << 2;
         b=(hold & 0x1f) << 3;
         simple_8bpp_alloc=true;
-        ret = GFX_8BPP_PIXEL(r,g,b);
+        ret = GFX_CLOSEST_PIXEL(r,g,b);
         simple_8bpp_alloc=false;
         (*srcdata)+=2;
     } else if (sdepth == 4) {
@@ -758,7 +775,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(int sdepth, unsigned const c
         b=(hold & 0x0000ff);
         (*srcdata)+=4;
         simple_8bpp_alloc=true;
-        ret = GFX_8BPP_PIXEL(r,g,b);
+        ret = GFX_CLOSEST_PIXEL(r,g,b);
         simple_8bpp_alloc=false;
     } else {
         qDebug("get_value_1(): Unsupported source depth %d!",sdepth);

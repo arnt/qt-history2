@@ -13,6 +13,7 @@
 
 #include "qgfxrasterbase_qws.h"
 #include "qwsregionmanager_qws.h"
+#include "qcolormap.h"
 
 // Used for synchronisation with accelerated drivers
 static int dummy_optype = 0;
@@ -54,7 +55,8 @@ struct _XRegion {
     \a w and \a h its width and height in pixels
 */
 QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
-    buffer(b),backcolor(Qt::black),cpen(Qt::black), cbrush(Qt::black)
+    cpen(Qt::black), cbrush(Qt::black), penColor(Qt::black), brushColor(Qt::black),
+    backcolor(Qt::black), buffer(b)
 {
     // Buffers should always be aligned
     if(((unsigned long)b) & 0x3) {
@@ -178,6 +180,7 @@ void QGfxRasterBase::setPen(const QPen &p)
     static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
 
     cpen=p;
+    penColor = p.color().rgb();
     switch (cpen.style()) {
         case Qt::DashLine:
             setDashes(dash_line, sizeof(dash_line));
@@ -199,6 +202,66 @@ void QGfxRasterBase::setPen(const QPen &p)
             setDashedLines(false);
             break;
     }
+
+#ifndef QT_NO_QWS_REPEATER
+    if (isScreenGfx) {
+        int r = penColor.red(), g = penColor.green(), b = penColor.blue();
+        if(depth==32||depth==24)
+            penPixel=(r << 16) | (g << 8) | b;
+        else if(depth==16)
+            penPixel=((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+        else if(depth==1)
+            penPixel=qGray(r, g, b) < 128 ? 1 : 0;
+        else
+            penPixel=gfx_screen->alloc(r, g, b);
+    } else
+#endif
+        penPixel = QColormap::instance().pixel(penColor) & 0x00ffffff;
+}
+
+/*!
+    \internal
+
+    This corresponds to QPainter::setBrush, and sets the gfx's brush to
+    \a b.
+*/
+void QGfxRasterBase::setBrush(const QBrush &b)
+{
+    cbrush = b;
+    brushColor = b.color().rgb();
+    if((cbrush.style() != Qt::NoBrush) && (cbrush.style() != Qt::SolidPattern))
+        patternedbrush = true;
+    else
+        patternedbrush = false;
+
+#ifndef QT_NO_QWS_REPEATER
+    if (isScreenGfx) {
+        int r = brushColor.red(), g = brushColor.green(), b = brushColor.blue();
+        if(depth==32||depth==24)
+            brushPixel=(r << 16) | (g << 8) | b;
+        else if(depth==16)
+            brushPixel=((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
+        else if(depth==1)
+            brushPixel=qGray(r, g, b) < 128 ? 1 : 0;
+        else
+            brushPixel=gfx_screen->alloc(r, g, b);
+    } else
+#endif
+        brushPixel = QColormap::instance().pixel(brushColor) & 0x00ffffff;
+    srccol = brushPixel; // #### Apparently, and only for now. Will be removed
+}
+
+/*!
+    \internal
+
+    This sets the offset of a pattern when drawing with a patterned
+    brush to (\a x, \a y). This is needed when clipping means the start
+    position for drawing doesn't correspond with the start position
+    requested by QPainter, for example.
+*/
+void QGfxRasterBase::setBrushOrigin(int x, int y)
+{
+    brushorig = QPoint(x, y);
 }
 
 /*!
@@ -816,47 +879,6 @@ bool QGfxRasterBase::inClip(int x, int y, QRect *cr, bool known_to_be_outside)
 /*!
     \internal
 
-    This corresponds to QPainter::setBrush, and sets the gfx's brush to
-    \a b.
-*/
-void QGfxRasterBase::setBrush(const QBrush &b)
-{
-    cbrush=b;
-    if((cbrush.style()!=Qt::NoBrush) && (cbrush.style()!=Qt::SolidPattern)) {
-        patternedbrush=true;
-    } else {
-        patternedbrush=false;
-    }
-#ifndef QT_NO_QWS_REPEATER
-    if (is_screen_gfx && qt_screen != gfx_screen) {
-        QScreen * tmp=qt_screen;
-        qt_screen=gfx_screen;
-        QColor tmpcol=b.color();
-        srccol=tmpcol.alloc();
-        qt_screen=tmp;
-    } else
-#endif
-        srccol=b.color().pixel();
-
-
-}
-
-/*!
-    \internal
-
-    This sets the offset of a pattern when drawing with a patterned
-    brush to (\a x, \a y). This is needed when clipping means the start
-    position for drawing doesn't correspond with the start position
-    requested by QPainter, for example.
-*/
-void QGfxRasterBase::setBrushOrigin(int x, int y)
-{
-    brushorig = QPoint(x, y);
-}
-
-/*!
-    \internal
-
     This tells blt()s that instead of image data a single solid value
     should be used as the source, taken from the current pen color. You
     could reproduce a fillRect() using a pen source and the IgnoreAlpha
@@ -876,10 +898,9 @@ void QGfxRasterBase::setSourcePen()
         qt_screen=tmp;
     } else
 #endif
-        srccol = cpen.color().pixel();
-
-    src_normal_palette=true;
-    srctype=SourcePen;
+    srccol = cpen.color().rgb();
+    src_normal_palette = true;
+    srctype = SourcePen;
     setSourceWidgetOffset(0, 0);
 }
 

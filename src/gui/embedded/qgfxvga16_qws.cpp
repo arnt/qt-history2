@@ -1495,6 +1495,7 @@ void QGfxVga16::fillRect(int rx,int ry,int w,int h)
 
     if((cbrush.style()!=QBrush::NoBrush) &&
         (cbrush.style()!=QBrush::SolidPattern)) {
+        Q_ASSERT(cbrushpixmap != 0);
         srcwidth=cbrushpixmap->width();
         srcheight=cbrushpixmap->height();
         if(cbrushpixmap->depth()==1) {

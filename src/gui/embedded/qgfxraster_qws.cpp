@@ -903,7 +903,7 @@ void QScreenCursor::drawCursor()
                     g = ((g-sg) * av) / 256 + sg;
                     b = ((b-sb) * av) / 256 + sb;
 
-                    *(dptr+col) = GFX_8BPP_PIXEL_CURSOR(r,g,b);
+                    *(dptr+col) = GFX_CLOSEST_PIXEL_CURSOR(r,g,b);
                 }
 # endif
             }
@@ -1248,7 +1248,7 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
 {
     if (!cols) {
-        useBrush();
+        pixel = brushPixel;
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
         if (qt_screen->depth() == 16 && depth==32) {
             srcclut[0]=qt_conv16ToRgb(pixel);
@@ -1259,7 +1259,7 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
             srcclut[0]=pixel;
             transclut[0]=pixel;
         }
-        usePen();
+        pixel = penPixel;
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
         if (qt_screen->depth() == 16 && depth==32) {
             srcclut[1]=qt_conv16ToRgb(pixel);
@@ -1297,7 +1297,7 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
 
     This draws a point in the scanline pointed to by \a l, at the position \a x,
     without taking any notice of clipping. It's an internal method called
-    by drawPoint()
+    by drawPoint(), and vLine().
 */
 template <const int depth, const int type> //screen coordinates
 GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
@@ -1334,6 +1334,86 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char 
 }
 
 /*!
+    \fn void QGfxRaster<depth,type>::drawAlphaPointUnclipped(int x, unsigned char *l)
+
+    \internal
+
+    This draws an alpha point in the scanline pointed to by \a l, at the position
+    \a x, without taking any notice of clipping. It's an internal method called
+    by drawPoint(), and vLine();
+*/
+template <const int depth, const int type> //screen coordinates
+GFX_INLINE void QGfxRaster<depth,type>::drawAlphaPointUnclipped(int x, unsigned char *l)
+{
+    int alpha = qAlpha(penColor);
+    if (depth == 32) {
+        l += x * 4;
+        QRgb *org = reinterpret_cast<QRgb *>(l);
+        int srcR = qRed(penColor);
+        int srcG = qGreen(penColor);
+        int srcB = qBlue(penColor);
+        int dstR = qRed(*org);
+        int dstG = qGreen(*org);
+        int dstB = qBlue(*org);
+        dstR += ((srcR - dstR) * alpha) >> 8;
+        dstG += ((srcG - dstG) * alpha) >> 8;
+        dstB += ((srcB - dstB) * alpha) >> 8;
+        *org = qRgba(dstR, dstG, dstB, qAlpha(*org));
+    } else if (depth == 24) {
+        l += x * 3;
+        int dstR, srcR = qRed(penColor);
+        int dstG, srcG = qGreen(penColor);
+        int dstB, srcB = qBlue(penColor);
+        gfxGetRgb24(l, dstR, dstG, dstB);
+        dstR += ((srcR - dstR) * alpha) >> 8;
+        dstG += ((srcG - dstG) * alpha) >> 8;
+        dstB += ((srcB - dstB) * alpha) >> 8;
+        gfxSetRgb24(l, dstR, dstG, dstB);
+    } else if (depth == 16) {
+        l += x * 2;
+        unsigned short *org = reinterpret_cast<unsigned short *>(l);
+        int dstR, srcR = qRed(penColor);
+        int dstG, srcG = qGreen(penColor);
+        int dstB, srcB = qBlue(penColor);
+        qt_conv16ToRgb(*org, dstR, dstG, dstB);
+        dstR += ((srcR - dstR) * alpha) >> 8;
+        dstG += ((srcG - dstG) * alpha) >> 8;
+        dstB += ((srcB - dstB) * alpha) >> 8;
+        *org = qt_convRgbTo16(dstR, dstG, dstB);
+    } else if (depth == 8) {
+        l += x;
+        QRgb conv32 = clut[*l];
+        int dstR = qRed(conv32),   srcR = qRed(penColor);
+        int dstG = qGreen(conv32), srcG = qGreen(penColor);
+        int dstB = qBlue(conv32),  srcB = qBlue(penColor);
+        dstR += ((srcR - dstR) * alpha) >> 8;
+        dstG += ((srcG - dstG) * alpha) >> 8;
+        dstB += ((srcB - dstB) * alpha) >> 8;
+        *l = GFX_CLOSEST_PIXEL(dstR, dstG, dstB);
+    } else if (depth == 4) {
+        l += x >> 1;
+        int bitShift = x & 1 ? 4 : 0;
+        QRgb conv32 = clut[ (*l >> bitShift) & 0x0f ];
+        int dstR = qRed(conv32),   srcR = qRed(penColor);
+        int dstG = qGreen(conv32), srcG = qGreen(penColor);
+        int dstB = qBlue(conv32),  srcB = qBlue(penColor);
+        dstR += ((srcR - dstR) * alpha) >> 8;
+        dstG += ((srcG - dstG) * alpha) >> 8;
+        dstB += ((srcB - dstB) * alpha) >> 8;
+        if (bitShift)
+            *l = (*l & 0x0f) | GFX_CLOSEST_PIXEL(dstR, dstG, dstB) << 4;
+        else
+            *l = (*l & 0xf0) | GFX_CLOSEST_PIXEL(dstR, dstG, dstB);;
+    } else if (depth == 1) {
+        l += x >> 3;
+        bool isPenBlack = qGray(penColor) < 0x80;
+        uchar bitNumInL = 1 << (x & 0x07);
+        if (!(*l & bitNumInL) != isPenBlack)
+            *l ^= bitNumInL;
+    }
+}
+
+/*!
     \fn void QGfxRaster<depth,type>::drawPoint(int x, int y)
 
     \internal
@@ -1356,9 +1436,12 @@ void QGfxRaster<depth,type>::drawPoint(int x, int y)
     if((*gfx_optype))
         sync();
     (*gfx_optype)=0;
-        usePen();
+        pixel = penPixel;
     if (inClip(x,y)) {
-        drawPointUnclipped(x, scanLine(y));
+        if (qAlpha(penColor) == 255)
+            drawPointUnclipped(x, scanLine(y));
+        else
+            drawAlphaPointUnclipped(x, scanLine(y));
     }
     GFX_END
 }
@@ -1377,11 +1460,12 @@ void QGfxRaster<depth,type>::drawPoints(const QPointArray &pa, int index, int np
         return;
     if(cpen.style()==Qt::NoPen)
         return;
-    usePen();
+    pixel = penPixel;
     QRect cr;
     bool in = false;
     bool foundone=(((*gfx_optype)==0) ? true : false);
 
+    bool useAlpha = (qAlpha(penColor) != 255);
     GFX_START(clipbounds);
     while (npoints--) {
         int x = pa[index].x() + xoffs;
@@ -1395,7 +1479,10 @@ void QGfxRaster<depth,type>::drawPoints(const QPointArray &pa, int index, int np
                 (*gfx_optype)=0;
                 foundone=true;
             }
-            drawPointUnclipped(x, scanLine(y));
+            if (useAlpha)
+                drawAlphaPointUnclipped(x, scanLine(y));
+            else
+                drawPointUnclipped(x, scanLine(y));
         }
         ++index;
     }
@@ -1422,7 +1509,13 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
         return;
     }
 
-    usePen();
+    pixel = penPixel;
+    setSourcePen();
+    int alphaValue = qAlpha(penColor);
+    setAlphaSource(alphaValue);
+    setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
+
+
     x1+=xoffs;
     y1+=yoffs;
     x2+=xoffs;
@@ -1457,6 +1550,7 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
     sync();
     (*gfx_optype)=0;
 
+    bool useAlpha = (qAlpha(penColor) != 255);
 #ifdef QWS_EXPERIMENTAL_FASTPATH
     // Fast path
     if (!dashedLines && !gfx_storeLine) {
@@ -1552,7 +1646,10 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
             }
 #endif
             if (doDraw && inside && (di&0x01) == 0) {
-                drawPointUnclipped(x, scanLine(y));
+                if(useAlpha)
+                    drawAlphaPointUnclipped(x, scanLine(y));
+                else
+                    drawPointUnclipped(x, scanLine(y));
             }
             if(x==x2) {
                 GFX_END
@@ -1597,7 +1694,10 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
             }
 #endif
             if (doDraw && inside && (di&0x01) == 0)
-                drawPointUnclipped(x, scanLine(y));
+                if(useAlpha)
+                    drawAlphaPointUnclipped(x, scanLine(y));
+                else
+                    drawPointUnclipped(x, scanLine(y));
             if(y==y2) {
                 GFX_END
                 return;
@@ -1634,6 +1734,7 @@ void QGfxRaster<depth,type>::vline(int x, int y1, int y2) //screen coordinates, 
         y1 = ty;
     }
 
+    bool useAlpha = (qAlpha(penColor) != 255);
     // gross clip.
     if (y1 > clipbounds.bottom() || y2 < clipbounds.top())
         return;
@@ -1657,7 +1758,10 @@ void QGfxRaster<depth,type>::vline(int x, int y1, int y2) //screen coordinates, 
             if (plot) {
                 unsigned char *sl = scanLine(y);
                 for (int r = y; r <= y2; r++) {
-                    drawPointUnclipped(x, sl);
+                    if (useAlpha)
+                        drawAlphaPointUnclipped(x, sl);
+                    else
+                        drawPointUnclipped(x, sl);
                     sl += lstep;
                 }
             }
@@ -1667,7 +1771,10 @@ void QGfxRaster<depth,type>::vline(int x, int y1, int y2) //screen coordinates, 
             if (plot) {
                 unsigned char *sl = scanLine(y);
                 for (int r = y; r <= yb; r++) {
-                    drawPointUnclipped(x, sl);
+                    if (useAlpha)
+                        drawAlphaPointUnclipped(x, sl);
+                    else
+                        drawPointUnclipped(x, sl);
                     sl += lstep;
                 }
             }
@@ -1715,7 +1822,12 @@ void QGfxRaster<depth,type>::drawThickPolyline(const QPointArray &points, int in
         close ? npoints-1 : npoints,
         cpen.width(), cpen.joinStyle(), close);
 
-    usePen();
+    pixel = penPixel;
+    setSourcePen();
+    int alphaValue = (srccol & 0xff000000) >> 24;
+    setAlphaSource(alphaValue);
+    setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
+
     GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
         sync();
@@ -1745,8 +1857,8 @@ void QGfxRaster<depth,type>::hline(int x1, int x2, int y) //screen coordinates, 
         x2 = clipbounds.right();
 
     QRect cr;
-    unsigned char *l=scanLine(y);
-    bool plot=inClip(x1,y,&cr);
+    unsigned char *l = scanLine(y);
+    bool plot = inClip(x1, y, &cr);
     int x=x1;
     for (;;) {
         int xr = cr.right();
@@ -1776,6 +1888,16 @@ template <const int depth, const int type> //screen coordinates, unclipped, x1<=
 GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned char *l)
 {
     int w = x2-x1+1;
+    // Use hAlphaLineUnclipped if we are drawing with an alpha pen
+    if (alphatype == SolidAlpha && srctype == SourcePen && calpha != 255) {
+//        printf("Using hAlphaLineUnclipped instead of hLineUnclipped!\n");
+        alphabuf = new unsigned int[w];
+        hAlphaLineUnclipped(x1, x2, l, 0, 0);
+        delete alphabuf;
+        alphabuf = 0;
+        return;
+    }
+
     if (depth == 32) {
         unsigned int *myptr=(unsigned int *)l + x1;
         while (w--)
@@ -2273,8 +2395,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsi
     This is similar to hImageLineUnclipped but handles the more complex
     alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
     Blending is a simple averaging between the source and destination r, g and b
-    values using the 8-bit source alpha value -
-    that is, for each of r, g and b the result is
+    values using the 8-bit source alpha value that is, for each of r, g and b the
+    result is
 
     (source - destination * alpha) / 256 + destination
 
@@ -2285,16 +2407,16 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsi
     pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
 */
 template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2, unsigned char* l,
-                                                            unsigned const char * srcdata,
-                                                            unsigned const char * alphas)
+GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
+                                                            unsigned const char *srcdata,
+                                                            unsigned const char *alphas)
 {
     int w=x2-x1+1;
     if (depth == 32) {
         // First read in the destination line
         unsigned int *myptr = reinterpret_cast<unsigned int *>(l);
         unsigned int *alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-        unsigned const char * avp=alphas;
+        unsigned const char *avp = alphas;
         int loopc;
 
         unsigned int *temppos = myptr+x1;
@@ -2533,6 +2655,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2, unsig
         // Now write it all out
         alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
 
+        // #### Consider having different pointer types to alphabuf, such that
+        // #### the written 16bits are aligned and we may use memcpy instead
+        // #### the hackish while loop/DUFF_WRITE_WORD below. Should be faster.
+        // #### (Packing wouldn't be an issue either)
 #ifdef QWS_NO_WRITE_PACKING
         myptr += x1;
         while (w--)
@@ -2624,12 +2750,12 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1,int x2, unsig
 
             unsigned char * tmp=reinterpret_cast<unsigned char *>(&alphabuf[loopc]);
             if(av==255) {
-                *myptr = GFX_8BPP_PIXEL(r,g,b);
+                *myptr = GFX_CLOSEST_PIXEL(r,g,b);
             } else if (av > 0) {
                 r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
                 g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
                 b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-                *myptr = GFX_8BPP_PIXEL(r,g,b);
+                *myptr = GFX_CLOSEST_PIXEL(r,g,b);
             }
             myptr++;
         }
@@ -2808,10 +2934,11 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
     // ### fix for 8bpp
     // This seems to be reliable now, at least for 16bpp
 
-    if (ncliprect == 1 && cbrush.style()==Qt::SolidPattern) {
+    bool useAlpha = (qAlpha(brushColor) != 255);
+    if (ncliprect == 1 && cbrush.style()==Qt::SolidPattern && !useAlpha) {
         // Fast path
         if(depth==16) {
-            useBrush();
+            pixel = brushPixel;
             int x1,y1,x2,y2;
             rx+=xoffs;
             ry+=yoffs;
@@ -2879,7 +3006,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
             GFX_END
             return;
         } else if(depth==32) {
-            useBrush();
+            pixel = brushPixel;
             int x1,y1,x2,y2;
             rx+=xoffs;
             ry+=yoffs;
@@ -2932,7 +3059,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
             GFX_END
             return;
         } else if(depth==8) {
-            useBrush();
+            pixel = brushPixel;
             int x1,y1,x2,y2;
             rx+=xoffs;
             ry+=yoffs;
@@ -2992,23 +3119,24 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
 #endif // QWS_EXPERIMENTAL_FASTPATH
     if((cbrush.style()!=Qt::NoBrush) &&
         (cbrush.style()!=Qt::SolidPattern)) {
+        Q_ASSERT(cbrushpixmap != 0);
         srcwidth=cbrushpixmap->width();
         srcheight=cbrushpixmap->height();
         if(cbrushpixmap->depth()==1) {
             if(opaque) {
                 setSource(cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
-                useBrush();
+                pixel = brushPixel;
                 srcclut[1]=pixel;
                 transclut[1]=pixel;
                 QBrush tmp=cbrush;
                 cbrush=QBrush(backcolor);
-                useBrush();
+                pixel = brushPixel;
                 srcclut[0]=pixel;
                 transclut[0]=pixel;
                 cbrush=tmp;
             } else {
-                useBrush();
+                pixel = brushPixel;
                 srccol=pixel;
                 srctype=SourcePen;
                 setAlphaType(LittleEndianMask);
@@ -3021,7 +3149,15 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
         }
         tiledBlt(rx,ry,w,h);
     } else if(cbrush.style()!=Qt::NoBrush) {
-        useBrush();
+        pixel = brushPixel;
+        if (useAlpha) {
+            pixel = brushPixel;
+            srccol = brushPixel;
+            srctype = SourcePen;
+            int alphaValue = qAlpha(brushColor);
+            setAlphaSource(alphaValue);
+            setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
+        }
         rx += xoffs;
         ry += yoffs;
         // Gross clip
@@ -3161,7 +3297,7 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
 {
     if (!ncliprect)
         return;
-    useBrush();
+    pixel = brushPixel;
     GFX_START(clipbounds)
     if((*gfx_optype)!=0) {
         sync();
@@ -3169,23 +3305,24 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
     (*gfx_optype)=0;
     if (cbrush.style()!=Qt::NoBrush) {
         if (cbrush.style()!=Qt::SolidPattern) {
+            Q_ASSERT(cbrushpixmap != 0);
             srcwidth=cbrushpixmap->width();
             srcheight=cbrushpixmap->height();
             if(cbrushpixmap->depth()==1) {
                 if(opaque) {
                     setSource(cbrushpixmap);
                     setAlphaType(IgnoreAlpha);
-                    useBrush();
+                    pixel = brushPixel;
                     srcclut[1]=pixel;
                     transclut[1]=pixel;
                     QBrush tmp=cbrush;
                     cbrush=QBrush(backcolor);
-                    useBrush();
+                    pixel = brushPixel;
                     srcclut[0]=pixel;
                     transclut[0]=pixel;
                     cbrush=tmp;
                 } else {
-                    useBrush();
+                    pixel = brushPixel;
                     srccol=pixel;
                     srctype=SourcePen;
                     setAlphaType(LittleEndianMask);
@@ -3196,9 +3333,22 @@ void QGfxRaster<depth,type>::drawPolygon(const QPointArray &pa, bool winding, in
                 setSource(cbrushpixmap);
                 setAlphaType(IgnoreAlpha);
             }
+        } else { // SolidPattern
+            pixel = brushPixel;
+            srccol = pixel;
+            int alphaValue = qAlpha(brushColor);
+            setAlphaSource(alphaValue);
+            setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
         }
         scan(pa,winding,index,npoints,stitchedges);
     }
+
+    pixel = penPixel;
+    setSourcePen();
+    int alphaValue = qAlpha(penColor);
+    setAlphaSource(alphaValue);
+    setAlphaType(alphaValue == 255 ? IgnoreAlpha : SolidAlpha);
+
     drawPolyline(pa, index, npoints);
     if (pa[index] != pa[index+npoints-1]) {
         drawLine(pa[index].x(), pa[index].y(),
@@ -3251,7 +3401,7 @@ void QGfxRaster<depth,type>::processSpans(int n, QPoint *point, int *width) // w
                 }
             } else {
                 int x=point->x()+xoffs;
-                hline(x,x+*width-1,point->y()+yoffs);
+                hline(x,x+*width-1,point->y()+yoffs); // ######## Make it clip by itself!
             }
         }
         point++;
@@ -3322,7 +3472,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
     if(srctype==SourcePen) {
         srclinestep=0;//w;
         srcdepth=0;
-        usePen();
+        pixel = penPixel;
     }
 
     rx += xoffs;
@@ -3700,7 +3850,7 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
         return;
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
-    useBrush();
+    pixel = brushPixel;
     unsigned char * savealphabits=alphabits;
 
     int offx = srcwidgetoffs.x() + rx - brushorig.x();
@@ -3738,66 +3888,6 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
         yOff = 0;
     }
     GFX_END
-}
-
-/*!
-    \internal
-    This takes the currently-set brush and stores its color value in the
-    variable pixel for drawing points, lines and rectangles.
-*/
-template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::useBrush()
-{
-#ifndef QT_NO_QWS_REPEATER
-    if (isScreenGfx) {
-        if(depth==32||depth==24) {
-            pixel=(cbrush.color().red() << 16) | (cbrush.color().green() << 8)
-                  | (cbrush.color().blue());
-        } else if(depth==16) {
-            pixel=((cbrush.color().red() >> 3) << 11) |
-                  ((cbrush.color().green() >> 2) << 5) |
-                  (cbrush.color().blue() >> 3);
-        } else if(depth==1) {
-            pixel=qGray(cbrush.color().red(),cbrush.color().green(),
-                        cbrush.color().blue()) < 128 ? 1 : 0;
-        } else {
-            pixel=gfx_screen->alloc(cbrush.color().red(),
-                                    cbrush.color().green(),
-                                    cbrush.color().blue());
-        }
-    } else
-#endif
-        pixel = QColormap::instance().pixel(cbrush.color()) & 0x00ffffff;
-}
-
-/*!
-    \internal
-    This takes the currently-set pen and stores its color value in the
-    variable pixel for drawing points, lines and rectangles.
-*/
-template <const int depth, const int type>
-GFX_INLINE void QGfxRaster<depth,type>::usePen()
-{
-#ifndef QT_NO_QWS_REPEATER
-    if (isScreenGfx) {
-        if(depth==32||depth==24) {
-            pixel=(cpen.color().red() << 16) | (cpen.color().green() << 8)
-                  | (cpen.color().blue());
-        } else if(depth==16) {
-            pixel=((cpen.color().red() >> 3) << 11) |
-                  ((cpen.color().green() >> 2) << 5) |
-                  (cpen.color().blue() >> 3);
-        } else if(depth==1) {
-            pixel=qGray(cpen.color().red(),cpen.color().green(),
-                        cpen.color().blue()) < 128 ? 1 : 0;
-        } else {
-            pixel=gfx_screen->alloc(cpen.color().red(),
-                                    cpen.color().green(),
-                                    cpen.color().blue());
-        }
-    } else
-#endif
-        pixel = QColormap::instance().pixel(cpen.color()) & 0x00ffffff;
 }
 
 /*!

@@ -22,9 +22,6 @@ public:
     QGfxRaster(unsigned char *, int w, int h);
     ~QGfxRaster();
 
-    void useBrush();
-    void usePen();
-
     virtual void drawPoint(int, int);
     virtual void drawPoints(const QPointArray &, int, int);
     virtual void drawLine(int, int, int, int);
@@ -59,6 +56,7 @@ protected:
     void hAlphaLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,
                              unsigned const char *alphas);
     void drawPointUnclipped(int, unsigned char *);
+    void drawAlphaPointUnclipped(int, unsigned char *);
 
     void calcPacking(void *, int, int, int &, int &, int &);
 };
