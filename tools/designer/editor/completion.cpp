@@ -437,7 +437,15 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     if ( argNum >= (int)args.count() )
 	return FALSE;
 
-    QString s = function + "( ";
+    QString func = function;
+    int pnt = -1;
+    pnt = func.findRev( '.' );
+    if ( pnt == -1 )
+	func.findRev( '>' );
+    if ( pnt != -1 )
+	func = func.mid( pnt + 1 );
+
+    QString s = func + "( ";
     i = 0;
     for ( QStringList::Iterator it = args.begin(); it != args.end(); ++it, ++i ) {
 	if ( i == argNum )
