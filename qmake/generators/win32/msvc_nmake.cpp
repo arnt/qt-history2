@@ -120,9 +120,12 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
-    t << "TARGET	=	"
-      << varGlue("TARGET",project->variables()["DESTDIR"].first() + "\\","",project->variables()["TARGET_EXT"].first())
-      << endl;
+    t << "TARGET	=	";
+    if( !project->variables()[ "DESTDIR" ].isEmpty() )
+	t << varGlue("TARGET",project->variables()["DESTDIR"].first() + "\\","",project->variables()["TARGET_EXT"].first());
+    else
+	t << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
+    t << endl;
     t << endl;
 
     t << "####### Implicit rules" << endl << endl;

@@ -111,10 +111,13 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
+			QString mocpath = var( "QMAKE_MOC" );
+			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + mocablesFromMOC[(*it)] +
 		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
 					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t%QTDIR%\\bin\\moc.exe " + mocablesFromMOC[(*it)] + " -o " +
+					"\t" + mocpath + mocablesFromMOC[(*it)] + " -o " +
 					(*it) + "\n\n" "# End Custom Build\n\n";
 
 			t << "USERDEP_" << base << "=\"" << mocablesFromMOC[(*it)] << "\"" << endl << endl;
@@ -138,10 +141,13 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			base.replace(QRegExp("\\..*$"), "").upper();
 			base.replace(QRegExp("[^a-zA-Z]"), "_");
 
+			QString mocpath = var( "QMAKE_MOC" );
+			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
 			QString build = "\n\n# Begin Custom Build - Moc'ing " + (*it) +
 		    "...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + mocablesToMOC[(*it)] +
 					"\"" " : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t%QTDIR%\\bin\\moc.exe " + (*it)  + " -o " +
+					"\t" + mocpath + (*it)  + " -o " +
 					mocablesToMOC[(*it)] + "\n\n" "# End Custom Build\n\n";
 
 			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
@@ -169,6 +175,9 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		QString uicpath = var("QMAKE_UIC");
 		uicpath = uicpath.replace(QRegExp("\\..*$"), "") + " ";
+		QString mocpath = var( "QMAKE_MOC" );
+		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
 		QStringList &list = project->variables()["INTERFACES"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
@@ -185,7 +194,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			"InputPath=.\\" + (*it) + "\n\n" "BuildCmds= \\\n\t" + uicpath + (*it) +
 		     " -o " + fname + ".h \\\n" "\t" + uicpath  + (*it) +
 		     " -i " + fname + ".h -o " + fname + ".cpp \\\n"
-		     "\t%QTDIR%\\bin\\moc " + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
+		     "\t" + mocpath + fname + ".h -o " + mocFile + "moc_" + fname + ".cpp \\\n\n"
 		     "\"" + fname + ".h\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\""  "\n"
 		     "\t$(BuildCmds)\n\n"
 		     "\"" + fname + ".cpp\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
