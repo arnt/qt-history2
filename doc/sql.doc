@@ -429,7 +429,7 @@ in the QSqlCursor constructor.
 
 The SQL executed by the <tt>cur.select()</tt> call is<br> 
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary FROM staff;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid FROM staff;
 \endcode
 
 Next, we iterate through the records returned by this select statement
@@ -448,8 +448,8 @@ meet the criteria of the filter.
 
 This select() call will execute the SQL<br>
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary 
-    FROM staff WHERE id > 100;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
+    FROM staff WHERE staff.id > 100;
 \endcode
 
 This will retrieve only those staff whose \c id is greater than 100.
@@ -469,8 +469,10 @@ Here we create a \l QSqlIndex object with one field, "surname". When
 we call the select() function we pass the index object, which
 specifies that the records should be returned sorted by
 staff.surname. Each field in the index object is used in the ORDER BY
-clause of the select statement.  The SQL executed here is \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary FROM staff ORDER BY surname ASC;
+clause of the select statement.  The SQL executed here is 
+\code
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
+    FROM staff ORDER BY staff.surname ASC;
 \endcode
 
 Combining the retrieval of a subset of records and ordering the results
@@ -481,8 +483,8 @@ is straightforward.
 We pass in a criteria string (the WHERE clause), and the \l QSqlIndex
 object to sort by (the ORDER BY clause). This produces
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary  
-    FROM staff WHERE surname LIKE 'A%' ORDER BY surname ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
+    FROM staff WHERE staff.surname LIKE 'A%' ORDER BY staff.surname ASC;
 \endcode
 
 To sort by more than one field, an index can be created which contains
@@ -501,8 +503,8 @@ in the order they are to be used. Then we create a \l QSqlIndex object
 based on these fields, finally executing the select() call using this
 index. This executes
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary 
-    FROM staff ORDER BY surname ASC, forename ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
+    FROM staff ORDER BY staff.surname ASC, staff.forename ASC;
 \endcode
 
 If we need to retrieve records with fields that match specific criteria we
@@ -517,8 +519,8 @@ can create a filter based on an index.
 
 This executes
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary 
-    FROM staff WHERE surname='Bloggs' ORDER BY id ASC, forename ASC;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
+    FROM staff WHERE staff.surname='Bloggs' ORDER BY staff.id ASC, staff.forename ASC;
 \endcode
 
 The "order" \l QSqlIndex contains two fields, "id" and "forename"
@@ -546,9 +548,10 @@ create two \l QSqlIndex objects. The first, "order", is created from the
 the filter, "surname" and "city", to the values we're interested in. Now
 we call select() which generates and executes the following SQL:
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary 
-    FROM creditors WHERE surname='Chirac' AND city='Paris' 
-    ORDER BY surname ASC, forename ASC;
+    SELECT creditors.city, creditors.surname, creditors.forename, creditors.id 
+    FROM creditors 
+    WHERE creditors.surname = 'Chirac' AND creditors.city = 'Paris' 
+    ORDER BY creditors.surname ASC, creditors.forename ASC;
 \endcode
 The filter fields are used in the WHERE clause. Their values are taken
 from the cursor's current values for those fields; we set these values
@@ -684,15 +687,15 @@ each column is given.
 <h5 align="center">From \l sql/overview/table2/main.cpp
 </h5>
 
-Once we've created the cursor we set up the display labels for the
-fields we wish to show using \l setDisplayLabel(). Columns align left by
-default but numeric fields are normally shown aligned right. We call
-setAlignment() to make the salary field align correctly. 
+Once we've created the cursor we set up the alignment for columns which
+should not be left aligned. (In fact QSqlTable aligns numbers right by
+default anyway.)
 
-Once we've set up the display characteristics we create an empty \l
-QSqlTable.  We make the table our main widget.
+Once we've set up alignments we create an empty \l QSqlTable.  We make
+the table our main widget and then we manually add the columns we want
+in the order we wish them to appear. For each column we specify the
+field name and optionally a display label. 
 
-We manually add the columns we want in the order we wish them to appear.
 We have also opted to sort the rows in the table; this could also have
 been achieved by applying the sort to the cursor itself.
 
@@ -983,15 +986,15 @@ shows us how to display the looked up values of foreign keys.
 </h5>
 
 This example is very similar to the table1 example presented earlier. We
-create a cursor, set up the display characteristics, add the fields to a
-QSqlTable, call refresh() to load the data and call show() to show the
-widget.
+create a cursor, add the fields and their display labels to a QSqlTable,
+call refresh() to load the data and call show() to show the widget.
 
 Unfortunately this example is unsatisfactory. It is tedious to set the
-table name and display characteristics for the fields every time we need
-a cursor over this table. And it would be far better if we displayed the
-name of the product rather than its pricesid. Since we know the price of
-the product and the quantity we could also show the product cost and the
+table name and any custom display characteristics, (e.g. non-default
+alignments and display labels) for the fields every time we need a cursor
+over this table. And it would be far better if we displayed the name of
+the product rather than its pricesid. Since we know the price of the
+product and the quantity we could also show the product cost and the
 cost of each invoiceitem. Finally it would be good if we could default
 some of the values when the user adds a new record. 
 
@@ -1013,7 +1016,10 @@ We have created a separate header file and subclassed QSqlCursor.
 </h5>
 
 In our class's constructor we call the QSqlCursor constructor with the
-name of the table and set the display characteristics of the fields. 
+name of the table and set the custom display characteristics of the
+fields. Although we can set the display label in the addColumn() call
+setting them in our custom cursor means that they will be correctly set
+automatically whenever the custom cursor is used.
 
 \skip InvoiceItemCursor
 \line InvoiceItemCursor
@@ -1050,6 +1056,13 @@ productname and identify it as a calculated field by calling
 setCalculated(). The first argument to setCalculated() is the field
 name, the second a bool which if TRUE signifies that calculateField()
 must be called to get the field's value.
+
+\skip addColumn
+\line addColumn
+
+We use the single argument form of addColumn() passing just the
+field name; all the characteristics we want, e.g. display name and
+alignment will be copied from the cursor automatically.
 
 We have to define our own calculateField() function. In our example
 database the pricesid in the invoiceitem table is a foreign key into the
