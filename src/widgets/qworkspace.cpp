@@ -833,7 +833,7 @@ void QWorkspace::showMaximizeControls()
 	    restoreB->setAutoRaise( TRUE );
 	    closeB->setAutoRaise( TRUE );
 	}
-	    
+	
 	d->maxcontrols->setFixedSize( 3* BUTTON_WIDTH+2+2*d->maxcontrols->frameWidth(),
 				      BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
@@ -1035,6 +1035,8 @@ void QWorkspace::cascade()
     int y = 0;
 
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	if ( c->windowWidget()->testWState( WState_ForceHide ) )
+	    continue;
 	c->showNormal();
 	c->setGeometry( x, y, w, h );
 	x += xoffset;
@@ -1052,7 +1054,12 @@ void QWorkspace::tile()
 {
     int rows = 1;
     int cols = 1;
-    int n = (int) d->windows.count();
+    int n = 0;
+    for ( QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	if ( !c->windowWidget()->testWState( WState_ForceHide ) )
+	    n++;
+    }
+
     while ( rows * cols < n ) {
 	if ( cols <= rows )
 	    cols++;
@@ -1069,6 +1076,8 @@ void QWorkspace::tile()
     int w = width() / cols;
     int h = height() / rows;
     for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	if ( c->windowWidget()->testWState( WState_ForceHide ) )
+	    continue;
 	c->showNormal();
 	used[row*cols+col] = TRUE;
 	if ( add ) {
@@ -1133,7 +1142,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* window
 	maxB->setBackgroundMode( PaletteBackground );
 	iconB->setBackgroundMode( PaletteBackground );
     }
-    
+
     if ( imode ) {
 	iconB->setIconSet( QPixmap( (const char **)normalize_xpm ) );
 	connect( iconB, SIGNAL( clicked() ),
