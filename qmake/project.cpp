@@ -155,14 +155,26 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 
 #define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
     int rep, rep_len;
-    QRegExp reg_var("\\$\\$[a-zA-Z0-9_\\.-]*");
-    while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
-	QString rep_var = UN_TMAKEIFY(vals.mid(rep + 2, rep_len - 2));
-	const QString &replacement = place[rep_var].join(" ");
-	if(Option::debug_level >= 2)
-	    printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(),
-		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
-	vals.replace(rep, rep_len, replacement);
+    QRegExp reg_var;
+    int left, right;
+    for(int x = 0; x < 2; x++) {
+	if( x == 0 ) {
+	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
+	    left = 3;
+	    right = 1;
+	} else if(x == 1) {
+	    reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
+	    left = 2;
+	    right = 0;
+	}
+	while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
+	    QString rep_var = UN_TMAKEIFY(vals.mid(rep + left, rep_len - (left + right)));
+	    const QString &replacement = place[rep_var].join(" ");
+	    if(Option::debug_level >= 2)
+		printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(),
+		       vals.mid(rep, rep_len).latin1(), replacement.latin1());
+	    vals.replace(rep, rep_len, replacement);
+	}
     }
 #undef SKIP_WS
 
@@ -415,9 +427,21 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	file.replace(QRegExp("\""), "");
 
 	int rep, rep_len;
-	QRegExp reg_var("\\$\\$[a-zA-Z0-9_\\.-]*");
-	while((rep = reg_var.match(file, 0, &rep_len)) != -1)
-	    file.replace(rep, rep_len, place[file.mid(rep + 2, rep_len - 2)].join(" "));
+	QRegExp reg_var;
+	int left, right;
+	for(int x = 0; x < 2; x++) {
+	    if( x == 0 ) {
+		reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
+		left = 3;
+		right = 1;
+	    } else if(x == 1) {
+		reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
+		left = 2;
+		right = 0;
+	    }
+	    while((rep = reg_var.match(file, 0, &rep_len)) != -1)
+		file.replace(rep, rep_len, place[file.mid(rep + left, rep_len - (left+right))].join(" "));
+	}
 
 	if(Option::debug_level)
 	    printf("Project Parser: Including file %s.\n", file.latin1());
