@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#139 $
 **
 ** Implementation of QListView widget class
 **
@@ -481,7 +481,7 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     // we try HARD not to sort.  if we're already sorted, don't.
     if ( column == (int)lsc && ascending == (bool)lso )
 	return;
-    
+
     if ( column < 0 )
 	return;
 
@@ -1102,6 +1102,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		other = dotlines[line].y();
 		while( point < end ) {
 		    dots[i++] = QPoint( point, other );
+		    if ( i == dots.size() )
+			fatal( "fatal a %d %d %d %d", i, end, point, other );
 		    point += 2;
 		}
 	    } else {
@@ -1112,6 +1114,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		other = dotlines[line].x();
 		while( point < end ) {
 		    dots[i++] = QPoint( other, point );
+		    if ( i == dots.size() )
+			fatal( "fatal b %d %d %d %d", i, end, point, other );
 		    point += 2;
 		}
 	    }
@@ -2487,6 +2491,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	e->accept();
 	break;
     case Key_Escape:
+	e->ignore();
 	break;
     default:
 	if ( e->ascii() ) {
