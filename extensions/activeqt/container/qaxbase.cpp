@@ -2680,8 +2680,6 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
 int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 {
-    bool bo = qObject()->signalsBlocked();
-
     Q_ASSERT(call == QMetaObject::InvokeSlot);
 
     // get the IDispatch
@@ -2753,11 +2751,8 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
     HRESULT hres = E_FAIL;
     EXCEPINFO excepinfo;
 
-    if (isProperty && params.cArgs == 1) {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, pret, &excepinfo, &argerr );
-    } else {
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &params, pret, &excepinfo, &argerr );
-    }
+    WORD wFlags = (isProperty && params.cArgs == 1) ? DISPATCH_PROPERTYPUT : DISPATCH_METHOD;
+    hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, wFlags, &params, pret, &excepinfo, &argerr );
 
     // set return value
     if (pret) {
