@@ -33,6 +33,10 @@
 #include <stdlib.h>
 #include <zlib.h>
 
+// see ### in widgetdatabase.cpp
+extern bool dbnounload;
+extern QStringList *dbpaths;
+
 int main( int argc, char * argv[] )
 {
     bool impl = FALSE;
@@ -84,6 +88,8 @@ int main( int argc, char * argv[] )
 		    projectName = &opt[1];
 	    } else if ( opt == "nofwd" ) {
 		nofwd = TRUE;
+	    } else if ( opt == "nounload" ) {
+		dbnounload = TRUE;
 	    } else if ( opt == "subdecl" ) {
 		subcl = TRUE;
 		if ( !(n < argc-2) ) {
@@ -111,6 +117,14 @@ int main( int argc, char * argv[] )
 		} else {
 		    trmacro = &opt[1];
 		}
+	    } else if ( opt == "L" ) {
+		if ( !(n < argc-1) ) {
+		    error = "Missing plugin path.";
+		    break;
+		}
+		if ( !dbpaths )
+		    dbpaths = new QStringList();
+		dbpaths->append( QFile::decodeName( argv[++n] ) );
 	    } else if ( opt == "v" ) {
 		fprintf( stderr,
 			 "User Interface Compiler for Qt version %s\n",
@@ -155,7 +169,9 @@ int main( int argc, char * argv[] )
 		 "Options:\n"
 		 "\t-o file         Write output to file rather than stdout\n"
 		 "\t-nofwd          Omit forward declarations of custom classes\n"
+		 "\t-nounload       Don't unload plugins after processing\n"
 		 "\t-tr func        Use func() instead of tr() for i18n\n"
+		 "\t-L path         Additional plugin search path\n"
 		 "\t-v              Display version of uic\n"
 		 , argv[0], argv[0], argv[0], argv[0], argv[0], argv[0]);
 	exit( 1 );

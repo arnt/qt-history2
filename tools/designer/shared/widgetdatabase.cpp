@@ -828,11 +828,27 @@ void WidgetDatabase::loadWhatsThis( const QString &docPath )
     whatsThisLoaded = TRUE;
 }
 
+
+// ### Qt 3.1: make these publically accessible via QWidgetDatabase API
+#if defined(UIC)
+bool dbnounload = FALSE;
+QStringList *dbpaths = 0;
+#endif
+
 QPluginManager<WidgetInterface> *widgetManager()
 {
     if ( !widgetPluginManager ) {
 	widgetPluginManager = new QPluginManager<WidgetInterface>( IID_Widget, QApplication::libraryPaths(), "/designer" );
 	cleanup_manager.add( &widgetPluginManager );
+#if defined(UIC)
+	if ( dbnounload )
+	    widgetPluginManager->setAutoUnload( FALSE );
+	if ( dbpaths ) {
+	    QStringList::ConstIterator it = dbpaths->begin();
+	    for ( ; it != dbpaths->end(); ++it )
+		widgetPluginManager->addLibraryPath( *it );
+	}
+#endif
     }
     return widgetPluginManager;
 }
