@@ -4419,7 +4419,10 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 		xend = at( paintStart )->x + str->width( paintStart );
 	    } else {
 		xstart = at( paintStart )->x;
-		xend = chr->x + str->width( i );
+		if ( i < length() - 1 && !str->at( i + 1 ).lineStart )
+		    xend = str->at( i + 1 ).x;
+		else
+		    xend = chr->x + str->width( i );
 	    }
 
 	    if ( (clipx == -1 || clipw == -1) || (xend >= clipx && xstart <= clipx + clipw) ) {
