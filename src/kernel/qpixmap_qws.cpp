@@ -38,6 +38,7 @@
 #include "qwmatrix.h"
 #include "qapplication.h"
 #include "qpainter.h"
+#include "qptrdict.h"
 #include "qwsdisplay_qws.h"
 #include "qgfx_qws.h"
 #include <stdlib.h>
@@ -142,6 +143,96 @@ static void build_scale_table( uint **table, uint nBits )
 }
 */
 
+static QList<QShared> *qws_pixmapData = 0;
+static bool qws_trackPixmapData = TRUE;
+
+class QwsPixmap : public QPixmap
+{
+public:
+    QwsPixmap() : QPixmap() {}
+    static void mapPixmaps( bool from );
+    static void freeSharedData();
+    static QPtrDict<QImage> *images;
+};
+
+QPtrDict<QImage> *QwsPixmap::images = 0;
+
+void QwsPixmap::mapPixmaps( bool from )
+{
+    if ( !qws_pixmapData )
+	return;
+    if ( !images )
+	images = new QPtrDict<QImage>;
+    qws_trackPixmapData = FALSE;
+    QListIterator<QShared> it( *qws_pixmapData );
+    while ( it.current() ) {
+	QPixmapData *d = (QPixmapData*)it.current();
+	++it;
+	if ( d->w && d->h ) {
+	    if ( from ) {
+		QwsPixmap p;
+		QPixmapData *tmp = p.data;
+		p.data = d;
+		QImage *img = new QImage(p.convertToImage());
+		images->insert( d, img );
+		p.data = tmp;
+	    } else {
+		QImage *img = images->take( d );
+		if ( img ) {
+		    if ( d->clut )
+			delete [] d->clut;
+		    if ( memorymanager )
+			memorymanager->deletePixmap(d->id);
+		    QwsPixmap p;
+		    p.convertFromImage( *img );
+		    int cnt = d->count-1;
+		    p.data->mask = d->mask;
+		    *d = *p.data;
+		    while (cnt > 0) {
+			d->ref();
+			--cnt;
+		    }
+		    delete img;
+		    delete p.data;
+		    p.data = 0;
+		}
+	    }
+	}
+    }
+    if ( !from )
+	images->clear();
+    qws_trackPixmapData = TRUE;
+}
+
+// On exit it is possible that pixmap data is stored in the vram cache.
+// We need to free this memory to ensure the cache doesn't fill up
+// with unused data.
+void QwsPixmap::freeSharedData()
+{
+    if ( !qws_pixmapData || !memorymanager )
+	return;
+    QListIterator<QShared> it( *qws_pixmapData );
+    while ( it.current() ) {
+	QPixmapData *d = (QPixmapData*)it.current();
+	++it;
+	if ( d->w && d->h && memorymanager->inVRAM(d->id) ) {
+	    memorymanager->deletePixmap(d->id);
+	    d->w = d->h = 0;
+	    d->id = 0;
+	}
+    }
+}
+
+void qws_mapPixmaps( bool from )
+{
+    QwsPixmap::mapPixmaps( from );
+}
+
+void qws_freePixmapData()
+{
+    QwsPixmap::freeSharedData();
+}
+
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
@@ -151,11 +242,17 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     static int serial = 0;
     int dd = defaultDepth();
 
+    if ( !qws_pixmapData )
+	qws_pixmapData = new QList<QShared>;
+
     if ( optim == DefaultOptim )		// use default optimization
 	optim = defOptim;
 
     data = new QPixmapData;
     Q_CHECK_PTR( data );
+
+    if ( qws_trackPixmapData )
+	qws_pixmapData->append( data );
 
     memset( data, 0, sizeof(QPixmapData) );
     data->id=0;
@@ -214,6 +311,8 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 void QPixmap::deref()
 {
     if ( data && data->deref() ) {			// last reference lost
+	if ( qws_trackPixmapData )
+	    qws_pixmapData->removeRef( data );
 	if ( data->mask )
 	    delete data->mask;
 	if ( data->clut )

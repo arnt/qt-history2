@@ -1602,6 +1602,14 @@ void QWidget::clearActivePainter() const
 	painterDict->remove( (void *)this );
 }
 
+class QWSUpdatePainter : public QPainter
+{
+    public:
+	void setGfx( QGfx *g ) {
+	    gfx = g;
+	}
+};
+
 void QWidget::updateActivePainter() const
 {
     if ( painterDict && painterDict->count() ) {
@@ -1619,11 +1627,9 @@ void QWidget::updateActivePainter() const
 	}
 	QPainter *painter = painterDict->find( (void *)this );
 	if ( painter ) {
-	    updateGraphicsContext( painter->internalGfx(), TRUE );
-	    if ( painter->hasClipping() )
-		painter->internalGfx()->setClipRegion( painter->clipRegion() );
-	    else
-		painter->internalGfx()->setClipping( FALSE );
+	    painter->save();
+	    ((QWSUpdatePainter *)painter)->setGfx( graphicsContext() );
+	    painter->restore();
 	}
     }
 }

@@ -129,6 +129,16 @@ static const int qtFontCacheSlowTimeout = 300000;
 
 QFontCache *QFontPrivate::fontCache = 0;
 
+void qws_clearLoadedFonts()
+{
+    QFontCacheIterator it(*QFontPrivate::fontCache);
+    while ( it.current() ) {
+	QFontStruct *f = it.current();
+	++it;
+	f->reset();
+    }
+}
+
 
 QFontCache::QFontCache() :
     QObject(0, "global font cache"),

@@ -94,15 +94,8 @@ QWSMouseHandler::~QWSMouseHandler()
 
 void QWSMouseHandler::limitToScreen( QPoint &pt )
 {
-    static int w = -1;
-    static int h;
-    if ( w < 0 ) {
-	w = qt_screen->deviceWidth();
-	h = qt_screen->deviceHeight();
-    }
-
-    pt.setX( QMIN( w-1, QMAX( 0, pt.x() )));
-    pt.setY( QMIN( h-1, QMAX( 0, pt.y() )));
+    pt.setX( QMIN( qt_screen->deviceWidth()-1, QMAX( 0, pt.x() )));
+    pt.setY( QMIN( qt_screen->deviceHeight()-1, QMAX( 0, pt.y() )));
 }
 
 

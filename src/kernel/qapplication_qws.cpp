@@ -116,6 +116,7 @@ const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.
 
 extern void qt_setMaxWindowRect(const QRect& r);
+extern QRect qt_maxWindowRect;
 
 static bool servermaxrect=FALSE; // set to TRUE once.
 
@@ -275,9 +276,9 @@ public:
 #ifndef QT_NO_WHEELEVENT
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
 #endif
-    void repaintHierarchy(QRegion r);
-    void repaintDecoration(QRegion r);
-    void updateDecoration();
+    void repaintHierarchy(QRegion r, bool post);
+    void repaintDecoration(QRegion r, bool post);
+    void updateRegion();
 
     bool raiseOnClick()
     {
@@ -287,7 +288,6 @@ public:
 	return !isMaximized() && !topData()->fullscreen;
     }
 };
-
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
@@ -1161,7 +1161,7 @@ void QWSDisplay::setCaption( QWidget *w, const QString &c )
 {
     if ( w->isTopLevel() ) {
 	nameRegion( w->winId(), w->name(), c );
-	((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect());
+	((QETWidget *)w)->repaintDecoration(qApp->desktop()->rect(), TRUE);
     }
 }
 
@@ -1219,6 +1219,57 @@ void QWSDisplay::setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) )
 {
     if (qt_fbdpy)
 	qt_fbdpy->d->setMouseFilter(filter);
+}
+
+#ifndef QT_NO_QWS_TRANSFORMED
+extern void qws_setScreenTransformation( int );
+extern void qws_mapPixmaps( bool from );
+extern void qws_clearLoadedFonts();
+#endif
+
+void QWSDisplay::setTransformation( int t )
+{
+#ifndef QT_NO_QWS_TRANSFORMED
+    QRect mwr = qt_screen->mapToDevice(qt_maxWindowRect,
+	QSize(qt_screen->width(), qt_screen->height()) );
+
+    QPixmapCache::clear();
+    qws_clearLoadedFonts();
+    qws_mapPixmaps( TRUE );
+    qws_setScreenTransformation( t );
+    qws_mapPixmaps( FALSE );
+
+    if ( qt_fbdpy->d->directServerConnection() ) {
+	qwsServer->resetGfx();
+	qwsServer->refresh();
+    }
+
+    QSize olds = qApp->desktop()->size();
+    qApp->desktop()->resize( qt_screen->width(), qt_screen->height() );
+    qApp->postEvent( qApp->desktop(), new QResizeEvent(qApp->desktop()->size(), olds) );
+
+    QWidgetList  *list = QApplication::topLevelWidgets();
+    if ( list ) {
+	QWidgetListIt it( *list );
+	QWidget * w;
+	while ( (w=it.current()) != 0 ) {
+	    ++it;
+	    if ( !w->testWFlags(Qt::WType_Desktop) ) {
+		QETWidget *etw = (QETWidget*)w;
+		etw->updateRegion();
+		if ( etw->isVisible() ) {
+		    etw->repaintHierarchy( etw->geometry(), TRUE );
+		    etw->repaintDecoration( qApp->desktop()->rect(), TRUE );
+		}
+	    }
+	}
+	delete list;
+    }
+
+    // only update the mwr if it is full screen.
+    if ( mwr == QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()) )
+	qt_setMaxWindowRect( mwr );
+#endif
 }
 
 static bool	qt_try_modal( QWidget *, QWSEvent * );
@@ -2056,7 +2107,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    if ( inPopupMode() ) // some delayed focus event to ignore
 		break;
 	    setActiveWindow(widget);
-	    ((QETWidget *)active_window)->repaintDecoration(desktop()->rect());
+	    ((QETWidget *)active_window)->repaintDecoration(desktop()->rect(), FALSE);
 
 	    QWidget *w = widget->focusWidget();
 	    while ( w && w->focusProxy() )
@@ -2079,7 +2130,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		setActiveWindow(0);
 		//active_window = 0;
 		if (old)
-		    old->repaintDecoration(desktop()->rect());
+		    old->repaintDecoration(desktop()->rect(), FALSE);
 #ifndef QT_NO_QWS_IM
 		QInputContext::reset();
 #endif
@@ -2204,8 +2255,8 @@ void QApplication::qwsSetDecoration( QWSDecoration *d )
 	while ( (w=it.current()) != 0 ) {
 	    ++it;
 	    if ( w->isVisible() && w != desktop() ) {
-		((QETWidget *)w)->updateDecoration();
-		((QETWidget *)w)->repaintDecoration(desktop()->rect());
+		((QETWidget *)w)->updateRegion();
+		((QETWidget *)w)->repaintDecoration(desktop()->rect(), FALSE);
 		if ( w->isMaximized() )
 		    w->showMaximized();
 	    }
@@ -2649,21 +2700,26 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     return QApplication::sendSpontaneousEvent( this, &e );
 }
 
-void QETWidget::repaintHierarchy(QRegion r)
+void QETWidget::repaintHierarchy(QRegion r, bool post)
 {
     r &= geometry();
     if (r.isEmpty())
 	return;
     r.translate(-crect.x(),-crect.y());
 
-    erase(r);
+    if ( post ) {
+	QApplication::postEvent(this,new QPaintEvent(r,
+		    !testWFlags(QWidget::WRepaintNoErase) ) );
+    } else {
+	erase(r);
 
-    QPaintEvent e( r );
-    setWState( WState_InPaintEvent );
-    qt_set_paintevent_clipping( this, r);
-    QApplication::sendEvent( this, &e );
-    qt_clear_paintevent_clipping();
-    clearWState( WState_InPaintEvent );
+	QPaintEvent e( r );
+	setWState( WState_InPaintEvent );
+	qt_set_paintevent_clipping( this, r);
+	QApplication::sendEvent( this, &e );
+	qt_clear_paintevent_clipping();
+	clearWState( WState_InPaintEvent );
+    }
 
     if ( children() ) {
 	QObjectListIt it(*children());
@@ -2673,40 +2729,60 @@ void QETWidget::repaintHierarchy(QRegion r)
 	    if ( obj->isWidgetType() ) {
 		QETWidget* w = (QETWidget*)obj;
 		if ( w->isVisible() )
-		    w->repaintHierarchy(r);
+		    w->repaintHierarchy(r, post);
 	    }
 	}
     }
 }
 
-void QETWidget::repaintDecoration(QRegion r)
+void QETWidget::repaintDecoration(QRegion r, bool post)
 {
 #ifndef QT_NO_QWS_MANAGER
     if ( testWFlags(WType_TopLevel) && topData()->qwsManager) {
 	r &= topData()->qwsManager->region();
 	r.translate(-crect.x(),-crect.y());
-	QPaintEvent e(r, FALSE);
-	setWState( WState_InPaintEvent );
-	qt_set_paintevent_clipping( this, r );
-	QApplication::sendEvent(topData()->qwsManager, &e );
-	qt_clear_paintevent_clipping();
-	clearWState( WState_InPaintEvent );
+	if ( post ) {
+	    QApplication::postEvent(topData()->qwsManager,
+		    new QPaintEvent(visibleRect(), TRUE ) );
+	} else {
+	    QPaintEvent e(r, FALSE);
+	    setWState( WState_InPaintEvent );
+	    qt_set_paintevent_clipping( this, r );
+	    QApplication::sendEvent(topData()->qwsManager, &e );
+	    qt_clear_paintevent_clipping();
+	    clearWState( WState_InPaintEvent );
+	}
     }
 #endif
 }
 
-void QETWidget::updateDecoration()
+void QETWidget::updateRegion()
 {
-#ifndef QT_NO_QWS_MANAGER
+    if ( testWFlags(WType_Desktop) )
+       return;
+    if ( extra && !extra->mask.isNull() ) {
+       req_region = extra->mask;
+       req_region.translate(crect.x(),crect.y());
+       req_region &= crect;
+    } else {
+       req_region = crect;
+    }
+    req_region = qt_screen->mapToDevice( req_region, QSize(qt_screen->width(), qt_screen->height()) );
     updateRequestedRegion( mapToGlobal(QPoint(0,0)) );
     QRegion r( req_region );
+#ifndef QT_NO_QWS_MANAGER
+    QRegion wmr;
     if ( extra && extra->topextra && extra->topextra->qwsManager ) {
-	QRegion wmr = extra->topextra->qwsManager->region();
+	wmr = extra->topextra->qwsManager->region();
 	wmr = qt_screen->mapToDevice( wmr, QSize(qt_screen->width(), qt_screen->height()) );
 	r += wmr;
     }
-    qwsDisplay()->requestRegion(winId(), r);
 #endif
+    qwsDisplay()->requestRegion(winId(), r);
+
+    setChildrenAllocatedDirty();
+    paintable_region_dirty = TRUE;
+    updateActivePainter();
 }
 
 bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *event )
@@ -2733,7 +2809,6 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
-
 	    if ( event->simpleData.nrectangles && qws_regionRequest ) {
 		extraExposed = topData()->decor_allocated_region;
 		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
@@ -2782,13 +2857,13 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 		event->rectangles[i].height() );
 */
 	updateActivePainter();
-	repaintDecoration( exposed );
+	repaintDecoration( exposed, FALSE );
 
 #ifndef QT_NO_QWS_MANAGER
 	exposed |= extraExposed;
 #endif
 
-	repaintHierarchy( exposed );
+	repaintHierarchy( exposed, FALSE );
     }
     qws_regionRequest = FALSE;
     return TRUE;

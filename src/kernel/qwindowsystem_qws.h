@@ -105,8 +105,8 @@ private:
     void setName( const QString &n );
     void setCaption( const QString &c );
 
-    void addAllocation( QWSRegionManager *, QRegion );
-    void removeAllocation( QWSRegionManager *, QRegion );
+    void addAllocation( QWSRegionManager *, const QRegion & );
+    void removeAllocation( QWSRegionManager *, const QRegion & );
 
     int  allocationIndex() const { return alloc_region_idx; }
     void setAllocationIndex( int i ) { alloc_region_idx = i; modified = TRUE; }
@@ -285,6 +285,9 @@ public:
     static void startup( int flags );
     static void closedown();
 
+    static void beginDisplayReconfigure();
+    static void endDisplayReconfigure();
+
     enum WindowEvent { Create=0x01, Destroy=0x02, Hide=0x04, Show=0x08,
 		       Raise=0x10, Lower=0x20, Geometry=0x40 };
 
@@ -375,9 +378,10 @@ private:
     void hideCursor();
     void initializeCursor();
     void paintServerRegion();
-    void paintBackground( QRegion );
+    void paintBackground( const QRegion & );
     void clearRegion( const QRegion &r, const QColor &c );
     void refreshBackground();
+    void resetGfx();
 
 private slots:
 #ifndef QT_NO_QWS_MULTIPROCESS

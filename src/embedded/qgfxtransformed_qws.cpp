@@ -44,7 +44,13 @@
 #include <fcntl.h>
 #include <errno.h>
 
-static QTransformedScreen *qt_trans_screen;
+static QTransformedScreen *qt_trans_screen = 0;
+
+void qws_setScreenTransformation( int t )
+{
+    if ( qt_trans_screen )
+	qt_trans_screen->setTransformation( (QTransformedScreen::Transformation)t );
+}
 
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
@@ -58,6 +64,15 @@ QTransformedScreen::QTransformedScreen( int display_id )
 
 QTransformedScreen::~QTransformedScreen()
 {
+}
+
+void QTransformedScreen::setTransformation( Transformation t )
+{
+    trans = t;
+
+    QSize s = mapFromDevice( QSize(dw,dh) );
+    w = s.width();
+    h = s.height();
 }
 
 bool QTransformedScreen::connect( const QString &displaySpec )
@@ -533,9 +548,6 @@ public:
 void QTransformedScreenCursor::init( SWCursorData *da, bool init )
 {
     QT_TRANS_CURSOR_BASE::init( da, init );
-    QSize s = qt_trans_screen->mapFromDevice( QSize(clipWidth, clipHeight) );
-    clipWidth = s.width();
-    clipHeight = s.height();
 }
 
 void QTransformedScreenCursor::set( const QImage &image, int hotx, int hoty )

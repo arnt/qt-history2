@@ -87,6 +87,8 @@
 #include "qkbddriverfactory_qws.h"
 #include "qmousedriverfactory_qws.h"
 
+extern void qt_setMaxWindowRect(const QRect& r);
+
 QWSServer *qwsServer=0;
 
 class QWSServerData {
@@ -303,7 +305,7 @@ void QWSWindow::setCaption( const QString &c )
   \internal
   Adds \a r to the window's allocated region.
 */
-void QWSWindow::addAllocation( QWSRegionManager *rm, QRegion r )
+void QWSWindow::addAllocation( QWSRegionManager *rm, const QRegion &r )
 {
     QRegion added = r & requested_region;
     if ( !added.isEmpty() ) {
@@ -318,7 +320,7 @@ void QWSWindow::addAllocation( QWSRegionManager *rm, QRegion r )
   \internal
   Removes \a r from the window's allocated region
 */
-void QWSWindow::removeAllocation(QWSRegionManager *rm, QRegion r)
+void QWSWindow::removeAllocation(QWSRegionManager *rm, const QRegion &r)
 {
     QRegion nr = allocated_region - r;
     if ( nr != allocated_region ) {
@@ -1664,6 +1666,40 @@ void QWSServer::sendKeyEventUnfiltered(int unicode, int keycode, int modifiers, 
     }
 }
 
+void QWSServer::beginDisplayReconfigure()
+{
+    qwsServer->enablePainting( FALSE );
+    qt_screencursor->hide();
+    QWSDisplay::grab( TRUE );
+    qt_screen->disconnect();
+}
+
+void QWSServer::endDisplayReconfigure()
+{
+    delete qwsServer->gfx;
+    qt_screen->connect( QString::null );
+    qwsServer->swidth = qt_screen->deviceWidth();
+    qwsServer->sheight = qt_screen->deviceHeight();
+    qwsServer->screenRegion = QRegion( 0, 0, qwsServer->swidth, qwsServer->sheight );
+    qwsServer->gfx = qt_screen->screenGfx();
+    QWSDisplay::ungrab();
+    qt_screencursor->show();
+    qt_setMaxWindowRect( QRect(0, 0, qt_screen->deviceWidth(), qt_screen->deviceHeight()) );
+    QSize olds = qApp->desktop()->size();
+    qApp->desktop()->resize( qt_screen->width(), qt_screen->height() );
+    qApp->postEvent( qApp->desktop(), new QResizeEvent( qApp->desktop()->size(), olds ) );
+    qwsServer->enablePainting( TRUE );
+    qwsServer->refresh();
+    qDebug( "Desktop size: %dx%d", qApp->desktop()->width(), qApp->desktop()->height() );
+}
+
+void QWSServer::resetGfx()
+{
+    qt_screencursor->hide();
+    qt_screencursor->show();
+    delete qwsServer->gfx;
+    qwsServer->gfx = qt_screen->screenGfx();
+}
 
 #ifndef QT_NO_QWS_IM
 
@@ -2309,7 +2345,7 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     gfx->setClipDeviceRegion( cr );
     gfx->scroll( br.x(), br.y(), br.width(), br.height(),
 		 br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()) );
-    gfx->setClipRegion( qt_screen->mapFromDevice( screenRegion, s ) );
+    gfx->setClipDeviceRegion( screenRegion );
 #ifndef QT_NO_PALETTE
     clearRegion( exposed, qApp->palette().color( QPalette::Active, QColorGroup::Background ) );
 #endif
@@ -2668,10 +2704,11 @@ void QWSServer::paintServerRegion()
 {
 }
 
-void QWSServer::paintBackground( QRegion r )
+void QWSServer::paintBackground( const QRegion &rr )
 {
     if ( bgImage && bgImage->isNull() )
 	return;
+    QRegion r = rr;
     if ( !r.isEmpty() ) {
 	Q_ASSERT ( qt_fbdpy );
 
@@ -2687,7 +2724,7 @@ void QWSServer::paintBackground( QRegion r )
 	    gfx->setBrushOffset( br.x(), br.y() );
 	    gfx->tiledBlt( br.x(), br.y(), br.width(), br.height() );
 	}
-	gfx->setClipRegion( QRegion() );
+	gfx->setClipDeviceRegion( screenRegion );
     }
 }
 

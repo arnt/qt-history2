@@ -124,7 +124,7 @@ volatile int * lastop = &dummy_lastop;
   Constructs a screen cursor
 */
 
-QScreenCursor::QScreenCursor()
+QScreenCursor::QScreenCursor() : gfx(0)
 {
 }
 
@@ -160,8 +160,8 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 	data->bound = QRect( data->x - data->hotx, data->y - data->hoty,
 		       data->width+1, data->height+1 );
     }
-    clipWidth = gfx->pixelWidth();
-    clipHeight = gfx->pixelHeight();
+    clipWidth = qt_screen->deviceWidth();
+    clipHeight = qt_screen->deviceHeight();
 
     int d = gfx->bitDepth();
     int cols = gfx->bitDepth() == 1 ? 0 : 256;
@@ -225,6 +225,8 @@ void QScreenCursor::hide()
 {
     if ( data->enable ) {
 	restoreUnder(data->bound);
+	delete gfx;
+	gfx = 0;
 	data->enable = FALSE;
     }
 }
@@ -241,6 +243,12 @@ void QScreenCursor::show()
 {
     if ( !data->enable ) {
 	data->enable = TRUE;
+	gfx = (QGfxRasterBase*)qt_screen->screenGfx();
+	gfx->setClipRect( 0, 0, qt_screen->width(), qt_screen->height() );
+	fb_start = qt_screen->base();
+	fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
+	clipWidth = qt_screen->deviceWidth();
+	clipHeight = qt_screen->deviceHeight();
 	saveUnder();
     }
 }
@@ -267,7 +275,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->height = image.height();
     memcpy(data->cursor, image.bits(), image.numBytes());
     data->colors = image.numColors();
-    int depth = gfx->bitDepth();
+    int depth = qt_screen->depth();
     if ( depth <= 8 ) {
 	for (int i = 0; i < image.numColors(); i++) {
 	    int r = qRed( image.colorTable()[i] );
@@ -324,7 +332,7 @@ void QScreenCursor::move( int x, int y )
 
 bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 {
-    int depth = gfx->bitDepth();
+    int depth = qt_screen->depth();
 
     if (!data || !data->enable) {
 	return FALSE;
@@ -402,7 +410,7 @@ bool QScreenCursor::restoreUnder( const QRect &r, QGfxRasterBase *g )
 
 void QScreenCursor::saveUnder()
 {
-    int depth = gfx->bitDepth();
+    int depth = qt_screen->depth();
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
@@ -4981,29 +4989,29 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 	 (depth > 8 || (depth == 8 && src_normal_palette)) &&
          myrop == CopyROP ) {
 	int bytesPerPixel = depth/8;
-	if ( xrev ) {
-	    for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
-		bool plot = mustclip ? inClip(right,ry,&cr) : TRUE;
-		int x2=right;
-		for (;;) {
-		    int x = cr.left();
-		    if ( x < rx ) {
-			x = rx;
-			if ( x2 < x ) break;
+	if ( mustclip ) {
+	    if ( xrev ) {
+		for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
+		    bool plot = inClip(right,ry,&cr);
+		    int x2=right;
+		    for (;;) {
+			int x = cr.left();
+			if ( x < rx ) {
+			    x = rx;
+			    if ( x2 < x ) break;
+			}
+			if (plot) {
+			    unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
+			    unsigned char *destptr = l + x*bytesPerPixel;
+			    memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
+			}
+			if ( x <= rx )
+			    break;
+			x2=x-1;
+			plot=inClip(x2,ry,&cr,plot);
 		    }
-		    if (plot) {
-			unsigned char *srcptr=srcline+(x-rx+srcoffs.x())*bytesPerPixel;
-			unsigned char *destptr = l + x*bytesPerPixel;
-			memmove(destptr, srcptr, (x2-x+1) * bytesPerPixel );
-		    }
-		    if ( x <= rx )
-			break;
-		    x2=x-1;
-		    plot=inClip(x2,ry,&cr,plot);
 		}
-	    }
-	} else {
-	    if ( mustclip ) {
+	    } else {
 		for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
 		    bool plot = inClip(rx,ry,&cr);
 		    int x=rx;
@@ -5024,12 +5032,13 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h, int sx, int sy )
 			plot=inClip(x,ry,&cr,plot);
 		    }
 		}
-	    } else {
-		unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
-		unsigned char *destptr = l + rx*bytesPerPixel;
-		int bytes = w * bytesPerPixel;
-		for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl)
-		    memmove( destptr, srcptr, bytes );
+	    }
+	} else {
+	    unsigned char *srcptr = srcline + srcoffs.x()*bytesPerPixel;
+	    unsigned char *destptr = l + rx*bytesPerPixel;
+	    int bytes = w * bytesPerPixel;
+	    for (; j!=tj; j+=dj,destptr+=dl,srcptr+=sl) {
+		memmove( destptr, srcptr, bytes );
 	    }
 	}
     } else {

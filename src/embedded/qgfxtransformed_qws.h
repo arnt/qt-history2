@@ -76,6 +76,8 @@ public:
     virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
     virtual int transformOrientation() const;
 
+    void setTransformation( Transformation t );
+
 private:
     Transformation trans;
     QScreen *driver;

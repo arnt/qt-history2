@@ -127,6 +127,8 @@ public:
 	{ lock->lock( write ? QLock::Write : QLock::Read ); }
     static void ungrab() { lock->unlock(); }
 
+    static void setTransformation( int t );
+
     static void setRawMouseEventFilter( void (*filter)(QWSMouseEvent *) );
 
 private:
