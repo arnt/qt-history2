@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QCursor class
 **
 ** Created : 940220
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -98,7 +98,7 @@
     \value SizeAllCursor - all directions resize
     \value BlankCursor - blank/invisible cursor
     \value SplitVCursor - vertical splitting
-    \value SplitHCursor - horziontal splitting
+    \value SplitHCursor - horizontal splitting
     \value PointingHandCursor - a pointing hand
     \value ForbiddenCursor - a slashed circle
     \value WhatsThisCursor - an arrow with a question mark
