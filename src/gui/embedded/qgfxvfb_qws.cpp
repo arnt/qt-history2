@@ -393,8 +393,8 @@ bool QVFbScreen::connect(const QString &displaySpec)
     else
         return false;
 
-    if ((int)shmrgn == -1 || shmrgn == 0) {
-        qDebug("No shmrgn %d", (int)shmrgn);
+    if ((long)shmrgn == -1 || shmrgn == 0) {
+        qDebug("No shmrgn %ld", (long)shmrgn);
         return false;
     }
 
@@ -419,7 +419,7 @@ bool QVFbScreen::connect(const QString &displaySpec)
         QWSServer::setDefaultKeyboard("None");
         mouseHandler = new QVFbMouseHandler(displayId);
         keyboardHandler = new QVFbKeyboardHandler(displayId);
-        if (hdr->dataoffset >= sizeof(QVFbHeader)) {
+        if (hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
             hdr->serverVersion = QT_VERSION;
         }
     }
@@ -429,8 +429,8 @@ bool QVFbScreen::connect(const QString &displaySpec)
 
 void QVFbScreen::disconnect()
 {
-    if ((int)shmrgn != -1 && shmrgn) {
-        if (qApp->type() == QApplication::GuiServer && hdr->dataoffset >= sizeof(QVFbHeader)) {
+    if ((long)shmrgn != -1 && shmrgn) {
+        if (qApp->type() == QApplication::GuiServer && hdr->dataoffset >= (int)sizeof(QVFbHeader)) {
             hdr->serverVersion = 0;
         }
         shmdt((char*)shmrgn);

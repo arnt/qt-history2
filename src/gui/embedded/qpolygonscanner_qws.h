@@ -21,7 +21,7 @@ class QPoint;
 
 class Q_GUI_EXPORT QWSPolygonScanner {
 public:
-    // BIC: fix for 3.0
+    virtual ~QWSPolygonScanner() {}
     void scan(const QPolygon& pa, bool winding, int index=0, int npoints=-1);
     void scan(const QPolygon& pa, bool winding, int index, int npoints, bool stitchable);
     enum Edge { Left=1, Right=2, Top=4, Bottom=8 };

@@ -2037,7 +2037,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
         w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
-    QPaintDevice::qwsDisplay()->selectCursor(w, int(qApp->d->cursor_list.first().handle()));
+    QPaintDevice::qwsDisplay()->selectCursor(w, qApp->d->cursor_list.first().handle());
 }
 
 void QApplication::restoreOverrideCursor()
@@ -2057,9 +2057,9 @@ void QApplication::restoreOverrideCursor()
         qws_overrideCursor = false;
         QWidget *upw = widgetAt_sys(*qt_last_x, *qt_last_y);
         if (upw)
-            cursor_handle = int(upw->cursor().handle());
+            cursor_handle = upw->cursor().handle();
     } else {
-        cursor_handle = int(qApp->d->cursor_list.first().handle());
+        cursor_handle = qApp->d->cursor_list.first().handle();
     }
     QPaintDevice::qwsDisplay()->selectCursor(w, cursor_handle);
 }
@@ -2268,7 +2268,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                     }
                     if (!qws_overrideCursor) {
                         if (curs)
-                            QPaintDevice::qwsDisplay()->selectCursor(widget, int(curs->handle()));
+                            QPaintDevice::qwsDisplay()->selectCursor(widget, curs->handle());
                         else
                             QPaintDevice::qwsDisplay()->selectCursor(widget, Qt::ArrowCursor);
                     }

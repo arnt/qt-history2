@@ -80,7 +80,7 @@ public:
 #elif defined(Q_WS_MAC)
     Qt::HANDLE handle() const;
 #elif defined(Q_WS_QWS)
-    Qt::HANDLE handle() const;
+    int handle() const;
 #endif
 private:
     void update() const;

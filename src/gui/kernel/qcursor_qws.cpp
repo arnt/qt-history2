@@ -43,9 +43,9 @@ QCursorData::~QCursorData()
 
 extern QCursorData *qt_cursorTable[Qt::LastCursor + 1]; // qcursor.cpp
 
-Qt::HANDLE QCursor::handle() const
+int QCursor::handle() const
 {
-    return (Qt::HANDLE)d->id;
+    return d->id;
 }
 
 

@@ -208,6 +208,7 @@ public:
     class KeyboardFilter
     {
     public:
+        virtual ~KeyboardFilter() {}
         virtual bool filter(int unicode, int keycode, int modifiers,
                             bool isPress, bool autoRepeat)=0;
     };

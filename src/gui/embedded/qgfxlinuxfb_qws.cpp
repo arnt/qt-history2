@@ -165,7 +165,7 @@ bool QLinuxFbScreen::connect(const QString &displaySpec)
                                  MAP_SHARED, fd, 0);
     data += dataoffset;
 
-    if ((int)data == -1) {
+    if ((long)data == -1) {
         perror("mapping /dev/fb0");
         qWarning("Error: failed to map framebuffer device to memory.");
         return false;
@@ -741,7 +741,7 @@ void QLinuxFbScreen::setupOffScreen()
     psize += 8;     // for alignment
     psize &= ~0x7;  // align
 
-    unsigned int pos=(unsigned int)data;
+    unsigned long pos=(unsigned long)data;
     pos += psize;
     entryp = ((int *)pos);
     lowest = ((unsigned int *)pos)+1;

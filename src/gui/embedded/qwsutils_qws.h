@@ -24,7 +24,7 @@
 #ifndef QT_NO_QWS_MULTIPROCESS
 inline int qws_read_uint(QWSSocket *socket)
 {
-    if (!socket || socket->bytesAvailable() < sizeof(int))
+    if (!socket || socket->bytesAvailable() < (int)sizeof(int))
         return -1;
 
     int i;
