@@ -389,10 +389,6 @@ static EventTypeSpec events[] = {
     { kEventClassMouse, kEventMouseDragged },
     { kEventClassMouse, kEventMouseMoved },
 
-    { kEventClassKeyboard, kEventRawKeyUp },
-    { kEventClassKeyboard, kEventRawKeyDown },
-    { kEventClassKeyboard, kEventRawKeyRepeat },
-
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
 
@@ -401,8 +397,10 @@ static EventTypeSpec events[] = {
 
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassTextInput, kEventTextInputUpdateActiveInputArea },
-    { kEventClassTextInput, kEventTextInputOffsetToPos },
-    { kEventClassTextInput, kEventTextInputShowHideBottomWindow },
+
+    { kEventClassKeyboard, kEventRawKeyRepeat },
+    { kEventClassKeyboard, kEventRawKeyUp },
+    { kEventClassKeyboard, kEventRawKeyDown },
 
     { kEventClassCommand, kEventCommandProcess },
     { kAppearanceEventClass, kAEAppearanceChanged }
@@ -1975,50 +1973,54 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     }
     case kEventClassTextInput:
-#if 0 //no need for text input since it doesn't really work yet..
 	if(!(widget=focus_widget))
 	    return 1; //no use to me!
-	if(ekind == kEventTextInputShowHideBottomWindow) {
-	    Boolean tmp = false;
-	    GetEventParameter(event, kEventParamTextInputSendShowHide, typeBoolean, NULL, sizeof(tmp), NULL, &tmp);
-	    qDebug("%d", tmp);
-
-	    tmp = false;
-	    SetEventParameter(event, kEventParamTextInputReplyShowHide, typeBoolean, sizeof(tmp), &tmp);
-	} else if(ekind == kEventTextInputUnicodeForKeyEvent) {
-	    QIMEvent imstart(QEvent::IMStart, QString::null, -1);
-	    QApplication::sendSpontaneousEvent(widget, &imstart);
-	    if(!imstart.isAccepted()) //doesn't want the event
-		return 1;
+	if(ekind == kEventTextInputUnicodeForKeyEvent) {
+	    bool send_back_event = FALSE;
 	    EventRef key_ev;
 	    GetEventParameter(event, kEventParamTextInputSendKeyboardEvent, typeEventRef, NULL,
 			      sizeof(key_ev), NULL, &key_ev);
-	    UniChar unicode;
-	    GetEventParameter(key_ev, kEventParamKeyUnicodes, typeUnicodeText, NULL,
-			      sizeof(unicode), NULL, &unicode);
-	    QString text = QChar(unicode);
-	    QIMEvent imend(QEvent::IMEnd, text, 1);
-	    QApplication::sendSpontaneousEvent(widget, &imend);
+	    UInt32 keyc;
+	    GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+	    if(!keyc) {
+		send_back_event = TRUE;
+	    } else {
+		QIMEvent imstart(QEvent::IMStart, QString::null, -1);
+		QApplication::sendSpontaneousEvent(widget, &imstart);
+		if(!imstart.isAccepted()) //doesn't want the event
+		    send_back_event = TRUE;
+		UniChar unicode;
+		GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL,
+				  sizeof(unicode), NULL, &unicode);
+		QString text = QChar(unicode);
+		QIMEvent imend(QEvent::IMEnd, text, 1);
+		QApplication::sendSpontaneousEvent(widget, &imend);
+	    }
+	    if(send_back_event) {
+		qDebug("sent back %d", keyc);
+		return globalEventProcessor(er, key_ev, data);
+	    } else {
+		qDebug("kept %d", keyc);
+	    }
+	} else if(ekind == kEventTextInputUpdateActiveInputArea) {
+	    qDebug("2");
 	} else {
 	    handled_event = FALSE;
 	}
-#else
-	handled_event = FALSE;
-#endif
 	break;
 
     case kEventClassKeyboard: {
-	char chr;
-	GetEventParameter(event, kEventParamKeyMacCharCodes, typeChar, NULL, sizeof(chr), NULL, &chr);
-	if(!chr)
-	    break;
 	UInt32 modif;
 	GetEventParameter(event, kEventParamKeyModifiers, typeUInt32, NULL, sizeof(modif), NULL, &modif);
 	int modifiers = get_modifiers(modif);
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+	UInt32 state = 0L;
+	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
+		   (modif & shiftKey) | keyc, &state);
+	if(!chr)
+	    break;
 	int mychar=get_key(chr, keyc);
-
 	static QTextCodec *c = NULL;
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
