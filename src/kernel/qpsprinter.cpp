@@ -222,7 +222,7 @@ static const char *ps_header[] = {
 "     } if",
 "     S",
 "   } if",
-"   Bst 24 eq",				// CustomPattern
+"   BSt 24 eq",				// CustomPattern
 "     ",
 "   {",
 "   } if",
