@@ -437,10 +437,11 @@ QFSFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!(filterSpec & QDir::AllDirs && isDir)) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
-                if(rx.exactMatch(fname)) {
+                QRegExp rx(*sit, 
+                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                           QRegExp::Wildcard);
+                if(rx.exactMatch(fname)) 
                     matched = true;
-                }
             }
             if(!matched)
                 continue;

@@ -44,7 +44,8 @@ public:
                       System      = 0x200,
                       AccessMask  = 0x3F0,
 
-                      AllDirs     = 0x400,
+                      AllDirs       = 0x400,
+                      CaseSensitive = 0x800,
 
                       DefaultFilter = -1 };
 

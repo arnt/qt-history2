@@ -91,9 +91,12 @@ QResourceFileEngine::entryList(int filterSpec, const QStringList &filters) const
         if(!(filterSpec & QDir::AllDirs && d->resource->isContainer())) {
             bool matched = false;
             for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-                QRegExp rx(*sit, Qt::CaseSensitive, QRegExp::Wildcard);
+                QRegExp rx(*sit, 
+                           (filterSpec & QDir::CaseSensitive) ? Qt::CaseSensitive : Qt::CaseInsensitive, 
+                           QRegExp::Wildcard);
                 if (rx.exactMatch(fn)) {
                     matched = true;
+                    break;
                 }
             }
             if(!matched)
