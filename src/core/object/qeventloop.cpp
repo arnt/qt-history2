@@ -25,6 +25,7 @@
 #define q q_func()
 
 static QStaticSpinLock spinlock = 0;
+static int eventloop_count = 0;
 static QHash<Qt::HANDLE, QEventLoop *> eventloops;
 
 QEventLoopPrivate::QEventLoopPrivate()
@@ -106,6 +107,7 @@ QEventLoop::QEventLoop(QObject *parent)
 	const Qt::HANDLE thr = thread();
 	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
 		   "Cannot have more than one event loop per thread.");
+        eventloop_count++;
 	eventloops.insert(thr, this);
     }
 
@@ -124,6 +126,7 @@ QEventLoop::QEventLoop(QEventLoopPrivate &priv, QObject *parent)
 	const Qt::HANDLE thr = thread();
 	Q_ASSERT_X(!eventloops.contains(thr), "QEventLoop",
 		   "Cannot have more than one event loop per thread.");
+        eventloop_count++;
 	eventloops.insert(thr, this);
     }
 
@@ -140,6 +143,7 @@ QEventLoop::~QEventLoop()
 
     {
 	QSpinLockLocker locker(::spinlock);
+        eventloop_count--;
 	eventloops.remove(thread());
     }
 }
@@ -157,8 +161,11 @@ QEventLoop::~QEventLoop()
  */
 QEventLoop *QEventLoop::instance(Qt::HANDLE thread)
 {
-    if (thread == 0) thread = QThread::currentThread();
+    if (thread == 0) 
+        thread = QThread::currentThread();
     QSpinLockLocker locker(::spinlock);
+    if(!eventloop_count)
+        return 0;
     eventloops.ensure_constructed();
     return eventloops.value(thread);
 }
