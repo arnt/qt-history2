@@ -684,7 +684,7 @@ void QPixmap::resize( int w, int h )
 
     Returns the mask bitmap, or 0 if no mask has been set.
 
-    \sa setMask(), QBitmap
+    \sa setMask(), QBitmap, hasAlpha()
 */
 
 /*!

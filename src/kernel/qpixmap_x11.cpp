@@ -1928,8 +1928,9 @@ void QPixmap::x11SetScreen( int screen )
 }
 
 /*!
-  Returns TRUE if painting with this pixmap might not necessarily
-  paint all pixels in its rectangular area.
+    Returns TRUE this pixmap has an alpha channel or a mask.
+
+    \sa hasAlphaChannel() mask()
 */
 bool QPixmap::hasAlpha() const
 {
@@ -1942,6 +1943,8 @@ bool QPixmap::hasAlpha() const
 
     NOTE: If the pixmap has a mask but not alpha channel, this
     function returns FALSE.
+
+    \sa hasAlpha() mask()
 */
 bool QPixmap::hasAlphaChannel() const
 {
