@@ -362,7 +362,7 @@ void ProdCons::customEvent(QCustomEvent *e)
 	    if (pe->done()) {
 		bool loop = (loopcheckbox->isChecked() && ! stopped);
 		bool save_redraw = redraw;
-		redraw = loop;
+		redraw = !loop;
 
 		stop();
 
