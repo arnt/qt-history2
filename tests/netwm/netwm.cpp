@@ -826,7 +826,7 @@ unsigned long NETRootInfo::event(XEvent *e) {
 	} else if (e->xclient.message_type == net_active_window) {
 	    dirty = ActiveWindow;
 
-	    changeActiveWindow(e->xclient.window);
+	    changeActiveWindow(e->xclient.data.l[0]);
 	} else if (e->xclient.message_type == net_wm_moveresize) {
 	    moveResize(e->xclient.window,
 		       e->xclient.data.l[0],
@@ -928,7 +928,7 @@ void NETRootInfo::update(unsigned long dirty) {
 				}
 			    }
 			}
-			
+
 			delete [] p->clients;
 		    } else {
 			unsigned long n;
