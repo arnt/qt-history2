@@ -235,13 +235,23 @@ be installed first. Note that every client that uses your application
 is required to have an ODBC driver manager installed, otherwise the
 QODBC3 plugin will not work.
 
-The QODBC3 Plugin needs an ODBC compilant driver manager version 2.0 or
-greater to work. Some ODBC drivers claim to be version 2.0 compilant,
+The QODBC3 Plugin needs an ODBC compilant driver manager version 3.0 or
+greater to work. Some ODBC drivers claim to be version 3.0 compilant,
 but do not offer all needed functionality. The QODBC3 plugin therefore
 checks whether the data source can be used after a connection has been
 established and refuses to work if the check fails. If you don't
 like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
 line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
+
+\section3 Unicode support
+
+The QODBC3 Plugin will us the unicode API if UNICODE is defined. On
+Windows NT based systems, this is the default. Note that the ODBC
+driver and the DBMS have to support unicode as well.
+
+For Oracle 9 ODBC driver (Windows), it is neccessary to check
+"SQL_WCHAR support" in the ODBC driver manager otherwise Oracle
+will convert all unicode strings to local 8 bit.
 
 \section3 How to build the plugin on Unix/Linux
 
