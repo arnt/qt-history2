@@ -25,6 +25,7 @@
 
 #include <qt_windows.h>
 #include <ocidl.h>
+#include <ctype.h>
 
 static int moduleLockCount = 0;
 static void moduleLock()
