@@ -290,13 +290,7 @@ rm -rf qt/dist qt/util qt/tmake qt/makefiles
 
 echo "Including version-specific information..." >&2
 cd ${DISTDIR}/qt
-perl -0777 -i -p \
-    -e "s/%YEAR%/$(date +%Y)/g;" \
-    -e "s/%VERSION%/$VERSION/g;" \
-    -e "s/%VERSIONWIN%/$VERSIONWIN/g;" \
-    -e "s/%SPECIAL-$SPECIAL([^%]*)%/\$1/g;" \
-    -e "s/%SPECIAL-[^%]*%//g;" \
-	[A-Z]*
+util/scripts/versionize $VERSION $VERSIONWIN $SPECIAL [A-Z]*
 
 echo "Finally packing the distribution, see ${DISTDIR} ..." >&2
 
