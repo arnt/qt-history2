@@ -340,6 +340,7 @@ ProjectGenerator::writeMakefile(QTextStream &t)
           << getWritableVar("LEXSOURCES")
           << getWritableVar("YACCSOURCES")
           << getWritableVar("SOURCES")
+          << getWritableVar("RESOURCES")
           << getWritableVar("TRANSLATIONS");
     }
     for(it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
