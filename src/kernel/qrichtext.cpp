@@ -4326,7 +4326,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    flush |= nextchr->isCustom();
 	    // when painting justified, we flush on spaces
 	    if ((alignment() & Qt::AlignJustify) == Qt::AlignJustify )
-		flush |= chr->c.isSpace();
+		flush |= QTextFormatter::isBreakable( str, i );
 	    // we flush when the string is getting too long
 	    flush |= ( i - paintStart >= 256 );
 	    // we flush when the selection state changes
@@ -5075,7 +5075,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
 }
 #endif
 
-bool QTextFormatter::isBreakable( QTextString *string, int pos ) const
+bool QTextFormatter::isBreakable( QTextString *string, int pos )
 {
     const QChar &c = string->at( pos ).c;
     char ch = c.latin1();

@@ -2378,12 +2378,16 @@ void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
 
 void QTextEdit::updateMicroFocusHint()
 {
+    QTextCursor c( *cursor );
+    if ( d->preeditStart != -1 )
+	c.setIndex( d->preeditStart );
+
     if ( hasFocus() || viewport()->hasFocus() ) {
-	int h = cursor->paragraph()->lineHeightOfChar( cursor->index() );
+	int h = c.paragraph()->lineHeightOfChar( cursor->index() );
 	if ( !readonly ) {
-	    QFont f = cursor->paragraph()->at( cursor->index() )->format()->font();
-	    setMicroFocusHint( cursor->x() - contentsX() + frameWidth(),
-			       cursor->y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
+	    QFont f = c.paragraph()->at( c.index() )->format()->font();
+	    setMicroFocusHint( c.x() - contentsX() + frameWidth(),
+			       c.y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
 	}
     }
 }

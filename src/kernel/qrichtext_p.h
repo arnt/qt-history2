@@ -1347,6 +1347,8 @@ public:
     int minimumWidth() const { return thisminw; }
     int widthUsed() const { return thiswused; }
 
+    static bool isBreakable( QTextString *string, int pos );
+
 protected:
     virtual QTextLineStart *formatLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line, QTextStringChar *start,
 					       QTextStringChar *last, int align = Qt::AlignAuto, int space = 0 );
@@ -1354,7 +1356,6 @@ protected:
     virtual QTextLineStart *bidiReorderLine( QTextParagraph *parag, QTextString *string, QTextLineStart *line, QTextStringChar *start,
 						    QTextStringChar *last, int align, int space );
 #endif
-    virtual bool isBreakable( QTextString *string, int pos ) const;
     void insertLineStart( QTextParagraph *parag, int index, QTextLineStart *ls );
 
     int thisminw;
