@@ -124,7 +124,7 @@ private:
     QCheckListItem *accOn, *accOff;
     QCheckListItem *bigCodecsOn, *bigCodecsOff;
     QCheckListItem *tabletOn, *tabletOff;
-    QCheckListItem *advancedCppOn, *advancedCppOff;
+    QCheckListItem *advancedSTL, *advancedExceptions, *advancedRTTI;
 
     QCheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
     QCheckListItem /* *jpegPresent, */ *jpegDirect, *jpegPlugin, *jpegOff;

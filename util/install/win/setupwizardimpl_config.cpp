@@ -164,11 +164,19 @@ void SetupWizardImpl::cleanDone()
     else
 	args += "-no-tablet";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Advanced C++", "Off", &settingsOK );
-    if ( entry == "On" )
+    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", &settingsOK );
+    if ( entries.contains( "STL" ) )
 	args += "-stl";
     else
 	args += "-no-stl";
+    if ( entries.contains( "Exceptions" ) )
+	args += "-exceptions";
+    else
+	args += "-no-exceptions";
+    if ( entries.contains( "RTTI" ) )
+	args += "-rtti";
+    else
+	args += "-no-rtti";
 
 #  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
@@ -818,13 +826,15 @@ void SetupWizardImpl::showPageConfig()
     item = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
     item->setOn( entry == "Direct" );
 
-    entry = settings.readEntry( "/Trolltech/Qt/Advanced C++", "Off", &settingsOK );
+    entries = settings.readListEntry( "/Trolltech/Qt/Advanced C++", &settingsOK );
     folder = new QCheckListItem( configPage->advancedList, "Advanced C++" );
     folder->setOpen( true );
-    advancedCppOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
-    advancedCppOff->setOn( entry == "Off" );
-    advancedCppOn = new QCheckListItem( folder, "On", QCheckListItem::RadioButton );
-    advancedCppOn->setOn( entry == "On" );
+    advancedRTTI = new QCheckListItem( folder, "RTTI", QCheckListItem::CheckBox );
+    advancedRTTI->setOn( entries.contains( "RTTI" ) );
+    advancedExceptions = new QCheckListItem( folder, "Exceptions", QCheckListItem::CheckBox );
+    advancedExceptions->setOn( entries.contains( "Exceptions" ) );
+    advancedSTL = new QCheckListItem( folder, "STL", QCheckListItem::CheckBox );
+    advancedSTL->setOn( entries.contains( "STL" ) );
 
     folder = new QCheckListItem( configPage->advancedList, "Tablet Support" );
     folder->setOpen( true );
@@ -1091,14 +1101,21 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 				"at http://www.pointing.com/FTP.HTM and have your INCLUDE and LIBRARY path "
 				"set appropriately." );
     } else if ( i->text(0) == "Advanced C++" ) {
-	configPage->explainOption->setText( "Qt can be built with exception handling and STL support enabled or "
-				"disabled. The default is to disable advanced C++ features." );
-    } else if ( i == advancedCppOn ) {
+	configPage->explainOption->setText( "Qt can be built with exception handling, STL support and RTTI support "
+		                "enabled or disabled.\n"
+				"The default is to disable all advanced C++ features." );
+    } else if ( i == advancedSTL ) {
 	configPage->explainOption->setText( "This option builds Qt with exception handling and STL support enabled. "
 				"Depending on your compiler, this might cause slower execution, larger "
 				"binaries, or compiler issues." );
-    } else if ( i == advancedCppOff ) {
-	configPage->explainOption->setText( "This option turns advanced C++ features off when building Qt." );
+    } else if ( i == advancedExceptions ) {
+	configPage->explainOption->setText( "This option builds Qt with exception handling enabled. "
+				"Depending on your compiler, this might cause slower execution, larger "
+				"binaries, or compiler issues." );
+    } else if ( i == advancedRTTI ) {
+	configPage->explainOption->setText( "This option builds Qt with runtime type information (RTTI). "
+				"Depending on your compiler, this might cause slower execution, larger "
+				"binaries, or compiler issues." );
     } else if ( i->text(0) == "Image Formats" ) {
 	configPage->explainOption->setText( "Qt ships with support for a wide range of common image formats. "
 				"Standard formats are always included in Qt, and some more special formats "

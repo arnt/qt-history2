@@ -31,6 +31,8 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
+    dictionary[ "EXCEPTIONS" ]	    = "no";
+    dictionary[ "RTTI" ]	    = "no";
 
     /*
 	Figure out the version number doing:
@@ -352,6 +354,16 @@ void Configure::parseCmdLine()
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
 
+	else if ( (*args) == "-exceptions" )
+	    dictionary[ "EXCEPTIONS" ] = "yes";
+	else if ( (*args) == "-no-exceptions" )
+	    dictionary[ "EXCEPTIONS" ] = "no";
+
+	else if ( (*args) == "-rtti" )
+	    dictionary[ "RTTI" ] = "yes";
+	else if ( (*args) == "-no-rtti" )
+	    dictionary[ "RTTI" ] = "no";
+
 	else if( (*args) == "-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "yes";
 	else if( (*args) == "-no-accessibility" )
@@ -558,6 +570,12 @@ bool Configure::displayHelp()
 
 	cout << "-stl                 Enable STL support." << endl;
 	cout << "-no-stl            * Disable STL support." << endl  << endl;
+
+	cout << "-exceptions          Enable C++ exception support." << endl;
+	cout << "-no-exceptions     * Disable C++ exception support." << endl  << endl;
+
+	cout << "-rtti                Enable runtime type information." << endl;
+	cout << "-no-rtti           * Disable runtime type information." << endl  << endl;
 
 	cout << "-accessibility     * Enable Windows Active Accessibility." << endl;
 	cout << "-no-accessibility    Disable Windows Active Accessibility." << endl  << endl;
@@ -860,6 +878,10 @@ void Configure::generateCachefile()
 	    configStream << " release";
 	if( dictionary[ "STL" ] == "yes" )
 	    configStream << " stl";
+	if ( dictionary[ "EXCEPTIONS" ] == "yes" )
+	    configStream << " exceptions";
+	if ( dictionary[ "RTTI" ] == "yes" )
+	    configStream << " rtti";
 	configStream << endl;
 	configFile.close();
     }
@@ -999,6 +1021,8 @@ void Configure::displayConfig()
     cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
     cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
     cout << "STL support................." << dictionary[ "STL" ] << endl;
+    cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
+    cout << "RTTI support................" << dictionary[ "RTTI" ] << endl;
     cout << "OpenGL support.............." << dictionary[ "OPENGL" ] << endl << endl;
 
     cout << "Image formats:" << endl;
