@@ -1096,6 +1096,14 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
     }
 }
 
+QString
+MakefileGenerator::filePrefixRoot(const QString &root, const QString &path)
+{
+    if(path.length() > 2 && path[1] == ':') //c:\foo
+        return path.mid(0, 2) + root + path.mid(2);
+    return root + path;
+}
+
 void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 {
@@ -1148,12 +1156,12 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                         target += "\t";
                     QString cmd =  QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
                                    Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, false), false) +
-                                   "\" \"" + root + dst + "\"\n";
+                                   "\" \"" + filePrefixRoot(root, dst) + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " \"" +
-                                  root + fileFixify(dst + filestr, FileFixifyAbsolute, false) +
+                                  filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) +
                                   "\"\n";
                     if(!uninst.isEmpty())
                         uninst.append("\n\t");
@@ -1163,7 +1171,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
                     QString("-$(DEL_FILE) -r")
 #endif
-                    + " \"" + root + fileFixify(dst + filestr, FileFixifyAbsolute, false) + "\"");
+                    + " \"" + filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\"");
                     continue;
                 }
                 fixEnvVariables(dirstr);
@@ -1180,19 +1188,19 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 #else
                         QString("-$(DEL_FILE) -r")
 #endif
-                        + " \"" + root + fileFixify(dst + file, FileFixifyAbsolute, false) +
+                        + " \"" + filePrefixRoot(root, fileFixify(dst + file, FileFixifyAbsolute, false)) +
                         "\"");
                     QFileInfo fi(Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute), true));
                     if(!target.isEmpty())
                         target += "\t";
                     QString cmd = QString(fi.isDir() ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
                                   Option::fixPathToTargetOS(fileFixify(dirstr + file, FileFixifyAbsolute, false), false) +
-                                  "\" \"" + root + fileFixify(dst, FileFixifyAbsolute) + "\"\n";
+                                  "\" \"" + filePrefixRoot(root, fileFixify(dst, FileFixifyAbsolute)) + "\"\n";
                     target += cmd;
                     if(!project->isActiveConfig("debug") &&
                        !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
                         target += QString("\t-") + var("QMAKE_STRIP") + " \"" +
-                                  root + fileFixify(dst + file, FileFixifyAbsolute, false) +
+                                  filePrefixRoot(root, fileFixify(dst + file, FileFixifyAbsolute, false)) +
                                   "\"\n";
                 }
             }
@@ -1222,13 +1230,13 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
                 if(tmp_dst.right(1) != Option::dir_sep)
                     tmp_dst += Option::dir_sep;
 #endif
-                t << mkdir_p_asstring(root+tmp_dst) << "\n\t";
+                t << mkdir_p_asstring(filePrefixRoot(root, tmp_dst)) << "\n\t";
             }
             t << target << endl << endl;
             if(!uninst.isEmpty()) {
                 t << "uninstall_" << (*it) << ": " << "\n\t"
                   << uninst.join("") << "\n\t"
-                  << "-$(DEL_DIR) \"" << (root + dst) << "\"" << endl << endl;
+                  << "-$(DEL_DIR) \"" << filePrefixRoot(root, dst) << "\"" << endl << endl;
             }
             t << endl;
 

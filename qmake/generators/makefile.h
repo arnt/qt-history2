@@ -32,6 +32,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
+    QString filePrefixRoot(const QString &, const QString &);
     void checkMultipleDefinition(const QString &, const QString &);
     QString createMocFileName(const QString &);
     QMap<QString, QString> fileFixed;
