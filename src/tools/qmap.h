@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#18 $
+** $Id: //depot/qt/main/src/tools/qmap.h#19 $
 **
 ** Definition of QMap class
 **
@@ -322,7 +322,7 @@ public:
 	// Search correct position in the tree
 	QMapNodeBase* y = header;
 	QMapNodeBase* x = header->parent;
-	bool result = true;
+	bool result = TRUE;
 	while ( x != 0 ) {
 	    result = ( k < key(x) );
 	    y = x;
