@@ -1359,12 +1359,12 @@ static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
 static QStringList emptyList;
 
 
-/*!
-  \class QFontDatabase qfontdatabase.h
+/*! \class QFontDatabase qfontdatabase.h
+
   \brief Provides information about available fonts.
   \ingroup environment
 
-  QFontDatabase provides information about the available fonts of the
+  The QFontDatabase class provides information about the available fonts of the
   underlying window system.
 
   Most often you will simply want to query the database for all font
@@ -1527,9 +1527,8 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 }
 
 
-/*!
-  Returns a QFont object that matches the settings of \a family, \a style
-  and \a pointsize. If no matching font could be created, an empty QFont
+/*! Returns a QFont object that matches the settings of \a family, \a style
+  and \a pointSize. If no matching font could be created, an empty QFont
   object is returned.
 */
 QFont QFontDatabase::font( const QString &family, const QString &style,
@@ -1618,7 +1617,7 @@ int QFontDatabase::weight( const QString &family,
   In Qt 3.0 and higher, this returns a QStringList containing only "Unicode".
 
   Previous versions returned a list of all character sets in which the
-  font \a family was available.
+  font \e family was available.
 */
 QStringList QFontDatabase::charSets( const QString & ) const
 {
