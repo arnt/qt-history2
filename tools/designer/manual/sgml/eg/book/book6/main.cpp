@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
 #include "book.h"
+#include "../login.h"
 
 bool createConnections();
 
@@ -32,11 +33,11 @@ int main( int argc, char *argv[] )
 bool createConnections()
 {
     // create the default database connection
-    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( "QPSQL6" );
-    defaultDB->setDatabaseName( "testdb" );
-    defaultDB->setUserName( "db" );
-    defaultDB->setPassword( "db" );
-    defaultDB->setHostName( "silverfish" );
+    QSqlDatabase *defaultDB = QSqlDatabase::addDatabase( DB_SALES_DRIVER );
+    defaultDB->setDatabaseName( DB_BOOKS );
+    defaultDB->setUserName( DB_BOOKS_USER );
+    defaultDB->setPassword( DB_BOOKS_PASSWD );
+    defaultDB->setHostName( DB_BOOKS_HOST );
     if ( ! defaultDB->open() ) { 
 	qWarning( "Failed to open books database: " + 
 		  defaultDB->lastError().driverText() );

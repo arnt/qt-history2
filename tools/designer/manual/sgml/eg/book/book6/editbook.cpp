@@ -1,7 +1,7 @@
 /****************************************************************************
 ** Form implementation generated from reading ui file 'editbook.ui'
 **
-** Created: Tue Jan 23 10:26:25 2001
+** Created: Wed Jan 24 12:07:23 2001
 **      by:  The User Interface Compiler (uic)
 **
 ** WARNING! All changes made in this file will be lost!
