@@ -1057,13 +1057,9 @@ void TrWindow::toggleFinished(const QModelIndex &index, Qt::MouseButton button)
 
 int TrWindow::findCurrentContextRow()
 {
-     //a better way to do this (?)
-    int strt = 0;
-
-    for (strt = 0; strt < cmdl->contextsInList(); ++strt) {
-        if (tv->selectionModel()->isRowSelected(strt, QModelIndex()))
-            return strt;
-    }
+    QModelIndex index = tv->selectionModel()->currentIndex();
+    if (index.isValid())
+        return index.row();
 
     //if no context is selected
     setCurrentContextRow(0);
@@ -1072,17 +1068,14 @@ int TrWindow::findCurrentContextRow()
 
 int TrWindow::findCurrentMessageRow()
 {
-     //a better way to do this (?)
-    int strt;
     ContextItem *cntxt = mmdl->contextItem();
 
     if (cntxt == 0)
         return -2;
 
-    for (strt = 0; strt<cntxt->messageItemsInList(); ++strt) {
-        if (stv->selectionModel()->isRowSelected(strt, QModelIndex()))
-            return strt;
-    }
+    QModelIndex index = stv->selectionModel()->currentIndex();
+    if (index.isValid())
+        return index.row();
 
     //if no message is selected, select the first one.. if it exists
     if (cntxt->messageItemsInList() <= 0)
@@ -1110,7 +1103,7 @@ bool TrWindow::setNextContext(int *currentrow, bool checkUnfinished)
         }
     }
 
-    return false; // sorry, you are done :)
+    return false; // done
 }
 
 bool TrWindow::setPrevContext(int *currentrow, bool checkUnfinished)
@@ -1131,12 +1124,11 @@ bool TrWindow::setPrevContext(int *currentrow, bool checkUnfinished)
         }
     }
 
-    return false; // sorry, you are done :)
+    return false; // done
 }
 
 bool TrWindow::setNextMessage(int *currentrow, bool checkUnfinished)
 {
-    QModelIndex mindx;
     ContextItem *cntxt = mmdl->contextItem();
     ++(*currentrow);
 
@@ -1146,20 +1138,18 @@ bool TrWindow::setNextMessage(int *currentrow, bool checkUnfinished)
             return true; //it is one more item
         }
 
-        mindx = mmdl->index(*currentrow, 0);
-        if (!cntxt->messageItem(mindx.row())->finished())
+        if (!cntxt->messageItem(*currentrow)->finished())
         {
-            setCurrentMessage(mindx);
+            setCurrentMessageRow(*currentrow);
             return true; // found a unfinished message
         }
     }
 
-    return false; // sorry, you are done in this context :)
+    return false; // done in this context
 }
 
 bool TrWindow::setPrevMessage(int *currentrow, bool checkUnfinished)
 {
-    QModelIndex mindx;
     ContextItem *cntxt = mmdl->contextItem();
     --(*currentrow);
 
@@ -1169,15 +1159,14 @@ bool TrWindow::setPrevMessage(int *currentrow, bool checkUnfinished)
             return true; //it is one more item
         }
 
-        mindx = mmdl->index(*currentrow, 0);
-        if (!cntxt->messageItem(mindx.row())->finished())
+        if (!cntxt->messageItem(*currentrow)->finished())
         {
-            setCurrentMessage(mindx);
+            setCurrentMessageRow(*currentrow);
             return true; // found a unfinished message
         }
     }
 
-    return false; // sorry, you are done in this context :)
+    return false; // done in this context
 }
 
 void TrWindow::nextUnfinished()
