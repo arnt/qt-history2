@@ -16,26 +16,29 @@
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 #define QMAC_QAQUASTYLE_SIZE_CONSTRAIN
 
+#include <private/qaquatabpix_mac_p.h>
+#include <private/qpaintengine_mac_p.h>
 #include <private/qpainter_p.h>
+#include <private/qprintengine_mac_p.h>
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcheckbox.h>
 #include <qcombobox.h>
 #include <qdockwindow.h>
 #include <qevent.h>
+#include <qfocusframe.h>
 #include <qgroupbox.h>
 #include <qhash.h>
+#include <qheaderview.h>
 #include <qlayout.h>
 #include <qlineedit.h>
 #include <qmainwindow.h>
 #include <qmap.h>
 #include <qmenubar.h>
 #include <qpaintdevice.h>
-#include <private/qpaintengine_mac_p.h>
 #include <qpainter.h>
 #include <qpixmapcache.h>
 #include <qpointer.h>
-#include <private/qprintengine_mac_p.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -46,12 +49,10 @@
 #include <qstyleoption.h>
 #include <qtextedit.h>
 #include <qtextstream.h>
+#include <qtimer.h>
 #include <qtoolbar.h>
 #include <qtoolbutton.h>
 #include <qtreeview.h>
-#include <qtimer.h>
-#include <qfocusframe.h>
-#include <private/qaquatabpix_mac_p.h>
 
 #ifndef QT_NO_DEBUG
 #include <QtCore/qdebug.h>
@@ -382,10 +383,12 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ct = QStyle::CT_ProgressBar;
         else if (qt_cast<const QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
+        else if (qt_cast<const QHeaderView *>(widg)
 #ifdef QT3_SUPPORT
-        else if (widg->inherits("Q3Header"))
-            ct = QStyle::CT_Header;
+                 || widg->inherits("Q3Header")
 #endif
+                )
+            ct = QStyle::CT_HeaderSection;
         else if (qt_cast<const QMenuBar *>(widg)
 #ifdef QT3_SUPPORT
                 || widg->inherits("Q3MenuBar")
@@ -545,8 +548,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             else
                 ret = QSize(-1, 19);
         }
-    } else if (ct == QStyle::CT_Header) {
-        if (sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg)
+    } else if (ct == QStyle::CT_HeaderSection) {
+        if (sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg->parentWidget())
 #ifdef QT3_SUPPORT
                         || widg->parentWidget()->inherits("Q3ListView")
 #endif
