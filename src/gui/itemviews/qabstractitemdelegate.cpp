@@ -31,9 +31,9 @@
 
   An item delegate can offer different ways for editing a data item.
 
-  One way to edit an item is to create a widget on top of the item,
+  One way to edit an item is to put a widget on top of the item,
   which allows editing the contents of the item. For that
-  createEditor() has to be reimplemented to create the editor widget,
+  editor() has to be reimplemented to provide the editor widget,
   setContentFromEditor() has to be reimplemented to set the edited
   contents back to the data item and updateEditor() to update the
   editor in case the data of the item changed while being edited.
@@ -70,7 +70,14 @@ QAbstractItemDelegate::EditType QAbstractItemDelegate::editType(const QModelInde
     return QAbstractItemDelegate::NoEditType;
 }
 
-QWidget *QAbstractItemDelegate::createEditor(StartEditAction, QWidget *, const QItemOptions&,
+/*!
+  Returns the editor to be used for editing this index. Ownership is
+  kept by the delegate. Subsequent calls to this function with the
+  same arguments is not guaranteed to return the same editor object.
+
+  Note: When the editor is no longer in use, call releaseEditor().
+*/
+QWidget *QAbstractItemDelegate::editor(StartEditAction, QWidget *, const QItemOptions&,
                                              const QModelIndex &)
 {
     return 0;
@@ -92,7 +99,11 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QItemOptions &
     // do nothing
 }
 
-void QAbstractItemDelegate::removeEditor(EndEditAction, QWidget *, const QModelIndex &)
+/*!
+  Notifies the delegate that the editor is no longer in use. Typically
+  the delegate should destroy the editor at this point.
+*/
+void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModelIndex &)
 {
     // do nothing
 }

@@ -75,7 +75,7 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
     b += 10;
     painter->drawRect(options.itemRect);
 #endif
-    
+
     static QPoint pt(0, 0);
     static QSize sz(border << 1, border << 1);
     QVariant variant = model()->data(item, QAbstractItemModel::Decoration);
@@ -85,7 +85,7 @@ void QItemDelegate::paint(QPainter *painter, const QItemOptions &options,
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
     doLayout(options, &pixmapRect, &textRect, false);
-    
+
     drawDecoration(painter, options, pixmapRect, pixmap);
     drawDisplay(painter, options, textRect, text);
     drawFocus(painter, options, textRect);
@@ -101,11 +101,11 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QItemOption
     QVariant variant = model()->data(index, QAbstractItemModel::Decoration);
     QPixmap pixmap = decoration(options, variant);
     QString text = model()->data(index, QAbstractItemModel::Display).toString();
-    
+
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, fontMetrics.size(0, text) + sz);
     doLayout(options, &pixmapRect, &textRect, true);
-    
+
     return pixmapRect.unite(textRect).size();
 }
 
@@ -114,8 +114,8 @@ QItemDelegate::EditType QItemDelegate::editType(const QModelIndex &) const
     return WidgetOnTyping;
 }
 
-QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
-                                     const QItemOptions &options, const QModelIndex &index)
+QWidget *QItemDelegate::editor(StartEditAction action, QWidget *parent,
+                               const QItemOptions &options, const QModelIndex &index)
 {
     if (index.type() != QModelIndex::View)
         return 0;
@@ -131,7 +131,7 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
     return 0;
 }
 
-void QItemDelegate::removeEditor(EndEditAction, QWidget *editor, const QModelIndex &)
+void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor, const QModelIndex &)
 {
     delete editor;
 }

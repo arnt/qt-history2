@@ -19,13 +19,13 @@ public:
 
     // editing
     QAbstractItemDelegate::EditType editType(const QModelIndex &item) const;
-    QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
-                          const QItemOptions &options, const QModelIndex &item);
+    QWidget *editor(QAbstractItemDelegate::StartEditAction action, QWidget *parent,
+                    const QItemOptions &options, const QModelIndex &item);
     void setContentFromEditor(QWidget *editor, const QModelIndex &index) const;
     void updateEditorContents(QWidget *editor, const QModelIndex &index) const;
     void updateEditorGeometry(QWidget *editor, const QItemOptions &options,
                               const QModelIndex &index) const;
-    void removeEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
+    void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
 
 protected:
     void drawDisplay(QPainter *painter, const QItemOptions &options, const QRect &rect,

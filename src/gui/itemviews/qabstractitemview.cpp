@@ -72,7 +72,7 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
                      q, SLOT(updateCurrentEditor()), QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
-    
+
     QApplication::postEvent(q, new QMetaCallEvent(QEvent::InvokeSlot,
                                q->metaObject()->indexOfSlot("doItemsLayout()"), q));
 }
@@ -566,11 +566,11 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 
     if (accept) {
         itemDelegate()->setContentFromEditor(d->currentEditor, index);
-        itemDelegate()->removeEditor(QAbstractItemDelegate::Accepted,
-                                  d->currentEditor, index);
+        itemDelegate()->releaseEditor(QAbstractItemDelegate::Accepted,
+                                      d->currentEditor, index);
     } else {
-        itemDelegate()->removeEditor(QAbstractItemDelegate::Cancelled,
-                                  d->currentEditor, index);
+        itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled,
+                                      d->currentEditor, index);
     }
     setFocus();
 }
@@ -1004,7 +1004,7 @@ QWidget *QAbstractItemViewPrivate::createEditor(QAbstractItemDelegate::StartEdit
         q->getViewOptions(&options);
         options.itemRect = q->itemViewportRect(index);
         options.focus = (index == q->currentItem());
-        editor = delegate->createEditor(action, viewport, options, index);
+        editor = delegate->editor(action, viewport, options, index);
     }
     if (editor) {
         editor->show();
