@@ -1754,7 +1754,7 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 		t <<  fileFixify(Option::mkfile::cachefile) << " ";
 	    if(!specdir().isEmpty()) 
 		t << specdir() << Option::dir_sep + "qmake.conf" << " ";
-	    t << fileFixify(project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"]).join(" \\\n\t\t") << "\n\t"
+	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
 	      << qmake <<endl;
 	}
 	if(project->first("QMAKE_ORIG_TARGET") != "qmake") {
@@ -1772,9 +1772,10 @@ MakefileGenerator::fileFixify(QStringList files, const QString &out_dir, const Q
     if(files.isEmpty())
 	return files;
     QStringList ret;
-    for(QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-	if(!(*it).isEmpty())
+    for(QStringList::Iterator it = files.begin(); it != files.end(); ++it) {
+	if(!(*it).isEmpty()) 
 	    ret << fileFixify((*it), out_dir, in_dir, force_fix);
+    }
     return ret;
 }
 
