@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#14 $
 **
 ** Localization database support.
 **
@@ -13,6 +13,10 @@
 #include "qfileinfo.h"
 
 #if defined(UNIX)
+#define QT_USE_MMAP
+#endif
+
+#if defined(QT_USE_MMAP)
 
 // for mmap
 #include <sys/types.h>
@@ -311,7 +315,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     // realname is now the fully qualified name of a readable file.
 
 
-#if defined(UNIX)
+#if defined(QT_USE_MMAP)
     // unix (if mmap supported)
 
 // ###### Arnt: seems some platforms don't define these
@@ -326,7 +330,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     int f;
 
-    f = ::open( realname.ascii(), O_RDONLY );
+    f = ::open( QFile::encodeName(realname), O_RDONLY );
     if ( f < 0 ) {
 	// debug( "can't open %s: %s", realname.ascii(), strerror( errno ) );
 	return FALSE;
@@ -352,14 +356,28 @@ bool QTranslator::load( const QString & filename, const QString & directory,
 
     d->unmapPointer = tmp;
     d->unmapLength = st.st_size;
-    d->s = ((const char *) tmp)+16; // 16 being the length of the magic number
+#else
+    // windows, or unix without mmap
+    QFile f(realname);
+    d->unmapLength = f.size();
+    d->unmapPointer = new char[d->unmapLength];
+    bool ok = FALSE;
+    if ( f.open(IO_ReadOnly) ) {
+	ok = d->unmapLength ==
+		    (uint)f.readBlock( d->unmapPointer, d->unmapLength );
+	f.close();
+    }
+    if ( !ok ) {
+	delete [] d->unmapPointer;
+	d->unmapPointer = 0;
+	return FALSE;
+    }
+#endif
+
+    d->s = ((const char *) d->unmapPointer)+16; // 16 = length of magic
     int scope_table_size = readlength( d->s, 0 );
     d->t = d->s + 3 + scope_table_size;
     d->l = d->unmapLength - 16 - 3 - scope_table_size;
-#else
-    // windows
-    fatal("Not written yet -- contact agulbra@troll.no");
-#endif
 
     // now that we've read it and all, check that it has the right
     // magic number, and forget all about it if it doesn't.
@@ -496,7 +514,7 @@ uint QTranslator::hash( const char * scope, const char * name )
 	h ^= g >> 24;
     h &= ~g;
 
-    // scope
+    // name
     if ( name ) {
 	k = name;
 	while ( *k ) {
@@ -521,13 +539,13 @@ void QTranslator::clear()
 {
     if ( d->t ) {
 	if ( d->unmapPointer && d->unmapLength ) {
-#if defined(UNIX)
+#if defined(QT_USE_MMAP)
 	    munmap( d->unmapPointer, d->unmapLength );
+#else
+	    delete [] d->unmapPointer;
+#endif
 	    d->unmapPointer = 0;
 	    d->unmapLength = 0;
-#else
-	    // windows stuff here.
-#endif
 	}
 	if ( d->byteArray ) {
 	    delete d->byteArray;
