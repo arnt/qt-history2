@@ -304,6 +304,52 @@ glyph_metrics_t QFontEngineMulti::boundingBox(const QGlyphLayout *glyphs_const, 
     return overall;
 }
 
+void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs_const, int numGlyphs,
+                                        QPainterPath *path)
+{
+    if (numGlyphs <= 0)
+        return;
+
+    QGlyphLayout *glyphs = const_cast<QGlyphLayout *>(glyphs_const);
+    int which = highByte(glyphs[0].glyph);
+    int start = 0;
+    int end, i;
+    for (end = 0; end < numGlyphs; ++end) {
+        const int e = highByte(glyphs[end].glyph);
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = stripped(glyphs[i].glyph);
+
+        engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path);
+
+        // reset the high byte for all glyphs and update x and y
+        const int hi = which << 24;
+        for (i = start; i < end; ++i) {
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+            x += glyphs[i].advance.x();
+            y += glyphs[i].advance.y();
+        }
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = stripped(glyphs[i].glyph);
+
+    engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path);
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
+}
+
 glyph_metrics_t QFontEngineMulti::boundingBox(glyph_t glyph)
 {
     const int which = highByte(glyph);

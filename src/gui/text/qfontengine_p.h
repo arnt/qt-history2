@@ -379,6 +379,8 @@ public:
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
+    void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *);
+
     qreal ascent() const;
     qreal descent() const;
     qreal leading() const;
