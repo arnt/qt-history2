@@ -1610,7 +1610,7 @@ void QComboBox::mousePressEvent(QMouseEvent *e)
     QStyleOptionComboBox opt = d->getStyleOption();
     QStyle::SubControl sc = style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt, e->pos(),
                                                            this);
-    if ((sc == QStyle::SC_ComboBoxArrow || (sc == QStyle::SC_ComboBoxEditField && !isEditable()))
+    if ((sc == QStyle::SC_ComboBoxArrow || !isEditable())
         && !d->container->isVisible()) {
         if (sc == QStyle::SC_ComboBoxArrow)
             d->arrowDown = true;
