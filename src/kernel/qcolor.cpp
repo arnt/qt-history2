@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#93 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#94 $
 **
 ** Implementation of QColor class
 **
@@ -363,7 +363,7 @@ QColor &QColor::operator=( const QColor &c )
 
 /*!
   \fn bool QColor::isValid() const
-  Returns TRUE if the color is invalid, i.e. it was constructed using the
+  Returns FALSE if the color is invalid, i.e. it was constructed using the
   default constructor.
 */
 
