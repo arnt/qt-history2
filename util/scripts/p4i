@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 
+$abort = 0;
 $P4 = "p4";
 
 # Simplify program name, if it is a path.
@@ -27,24 +28,29 @@ close( P4 );
 pop( @changeDescription );
 
 # This is pretty evil; essentially it picks out the "affected files" lines and
-# pushes the filename of each onto @branchFiles.
+# pushes the filename and revision of each onto @branchFiles and
+# @branchRevisions, respectively.
 grep {
     if ( /^\.\.\. (\/\/depot.*)\#([0-9]+)/ ) {
-	push ( @branchFiles, $1 );
+	push( @branchFiles, $1 );
+	push( @branchRevisions, $2 );
     }
 } @changeDescription;
 
+if ( $#branchFiles == -1 ) {
+    die "$0: No files found in changelist";
+}
+
 # Check all files in same branch
-$abort = 0;
 @pathComponents = split ( /\//, $branchFiles[0] );
 # The leading "//" will split into two empty fields, so we use 4 instead of 2
-# here.
+# here. Note that we're making assumptions about the depot layout...
 $branch = $pathComponents[4];
 print "Merging from $branch to main\n";
 
 foreach $file ( @branchFiles ) {
     @pathComponents = split ( /\//, $file );
-    if ( $pathComponents[4] != $branch ) {
+    if ( $pathComponents[4] ne $branch ) {
 	print STDERR "File $file on branch $pathComponents[4], not $branch\n";
 	$abort = 1;
     }
@@ -99,15 +105,37 @@ if ( $abort ) {
     die "$0: Exiting; not all files up-to-date.\n";
 }
 
+print "Checking for gaps in integration: $files\n";
+for ( $count = 0; $count < @branchFiles; $count++ ) {
+    open( P4, "$P4 integrate -n $branchFiles[$count]\@$change $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
+    while ( $line = <P4> ) {
+	chomp( $line );
+	($file, $message) = split( / - /, $line );
+	if ( $message ne "integrate from $branchFiles[$count]#".$branchRevisions[$count] ) {
+	    print STDERR "Gaps in integration of $file: \"$message\"\n";
+	    $message =~ s/.*\#([0-9]+),\#([0-9]+)/$1 $2/g;
+	    ($start, $end) = split( " ", $message );
+	    printNeededRevisions( $branchFiles[$count], $mainFiles[$count], $change, $start, $end);
+	    $abort = 1;
+	}
+    }
+    close( P4 );
+
+}
+
+if ( $abort ) {
+    die "$0: p4 indicated gaps in integration";
+}
+
 # Now do the integrate
 
 print "Integrating: $files\n";
 for ( $count = 0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate $branchFiles[$count] $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
+    open( P4, "$P4 integrate $branchFiles[$count]\@$change $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
 	# Discard revisions here.
-	$line =~ s/\#[0-9]+(,\#[0-9]+)*//g;
+	$line =~ s/\#[0-9]+//g;
 	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]" ) {
 	    print STDERR "$P4 returned unexpected line \"$line\"\n";
 	    $abort = 1;
@@ -121,16 +149,6 @@ if ( $abort ) {
 }
 
 # Now the complicated bit. Doing the resolution.
- 
-# First we want to be able to handle the files by name rather than in a list.
-%filesToResolve = ();
-foreach $file (@mainFiles) {
-    $filesToResolve{$file} = 1;
-}
-
-#foreach $key ( keys( %filesToResolve ) ) {
-#    print "key: $key\n";
-#}
 
 @filesToResolve = @mainFiles;
 while ( @filesToResolve ) {
@@ -144,7 +162,6 @@ while ( @filesToResolve ) {
 		push ( @skippedFiles, $file );
 		print "File $file skipped: $message\n";
 	    } else {
-		#$filesToResolve{$file} = undef;
 		print "File $file accepted\n";
 	    }
 	}
@@ -159,9 +176,18 @@ while ( @filesToResolve ) {
     @skippedFiles = ();
 }
 
-# Ok. Now, we can submit.
 
-open( P4, "| $P4 submit -i" ) || die "$0: Couldn't exec $P4: $!\n";
+print "Enter y to submit change, anything else to create changelist: ";
+$confirm = <STDIN>;
+
+if ( $confirm =~ /^[Yy]/ ) {
+    $action = "submit";
+} else {
+    $action = "change";
+}
+
+print "Running 'p4 $action'\n";
+open( P4, "| $P4 $action -i" ) || die "$0: Couldn't exec $P4: $!\n";
 
 print P4 "Change: new\n";
 print P4 "Description:\n";
@@ -173,4 +199,34 @@ print P4 "Files:\n\t".join( "\n\t", @mainFiles )."\n";
 
 close( P4 );
 
+if ( $action eq "change" ) {
+    print "Submit the above change number to complete the integration.\n";
+}
+
 print "Done.\n";
+
+sub printNeededRevisions {
+    my ($branchFile, $mainFile, $change, $start, $end) = @_;
+    my ($count, $rev, @fileLog, $revisionChange, $line);
+
+    for ($count = $start; $count <= $end; $count++ ) {
+	open( MYP4, "$P4 integrate -n $branchFile#$count,#$count $mainFile 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
+	$line = <MYP4>;
+	chomp( $line );
+	close( MYP4 );
+	if ( $line ne "$mainFile - all revision(s) already integrated." ) {
+	    open( MYP4, "$P4 filelog -m 1 $branchFile#$count |" ) || die "$0: Couldn't exec $P4: $!\n";
+	    # The first line is the filename; the second is the rev we want.
+	    $line = <MYP4>;
+	    $line = <MYP4>;
+	    chomp( $line );
+	    close( MYP4 );
+	    (undef, $rev, undef, $revisionChange, undef) = split ( " ", $line );
+	    # We don't report the change we're currently integrating as needing
+	    # integratetion.
+	    if ( $revisionChange ne $change ) {
+		print "Missing integration of $branchFile revision $rev revisionChange $revisionChange\n";
+	    }
+	}
+    }
+}
