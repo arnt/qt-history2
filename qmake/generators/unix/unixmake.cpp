@@ -273,16 +273,17 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 
     t << "MAKEFILE =	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << var("QMAKE") << endl;
+    t << "SUBDIRS =	" << varList("SUBDIRS") << endl;
 
     // subdirectory targets are sub-directory
-    t << "SUBDIRS =	";
+    t << "SUBTARGETS =	";
     QStringList subdirs = project->variables()["SUBDIRS"];
     QStringList::Iterator it = subdirs.begin();
     while (it != subdirs.end())
 	t << " \\\n\t\tsub-" << *it++;
     t << endl << endl;
 
-    t << "all: " << ofile << " $(SUBDIRS)" << endl << endl;
+    t << "all: " << ofile << " $(SUBTARGETS)" << endl << endl;
     t << "install: " << ofile << " qmake_all" << "\n\t"
       << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; "
       << "[ -f $(MAKEFILE) ] && $(MAKE) -f $(MAKEFILE) install; fi; ) ; done" << endl;
