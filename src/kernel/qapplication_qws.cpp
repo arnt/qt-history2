@@ -2033,15 +2033,13 @@ static int sn_activate()
   Main event loop
  *****************************************************************************/
 
-extern bool qt_gui_is_used;
-
 int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
 
 #if defined(QT_THREAD_SUPPORT)
-    if ( qt_gui_is_used )
+    if ( qt_is_gui_used )
 	qApp->unlock(FALSE);
 #endif
 
