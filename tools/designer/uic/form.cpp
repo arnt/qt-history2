@@ -1114,9 +1114,11 @@ void Uic::createFormImpl( const QDomElement &e )
     out << indent << "languageChange();" << endl;
 
     // take minimumSizeHint() into account, for height-for-width widgets
-    if ( !geometry.isNull() )
+    if ( !geometry.isNull() ) {
 	out << indent << "resize( QSize(" << geometry.width() << ", "
 	    << geometry.height() << ").expandedTo(minimumSizeHint()) );" << endl;
+	out << indent << "clearWState( WState_Polished );" << endl;
+    }
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
