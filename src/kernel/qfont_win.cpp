@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#177 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -158,6 +158,10 @@ void QFont::initialize()
     if ( QFontPrivate::fontCache )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
+#if defined(QT_CHECK_RANGE)
+    if ( !shared_dc )
+	qSystemWarning( "QFont::initialize() (qfont_win.cpp, 163): couldn't create device context" );
+#endif
     shared_dc_font = 0;
     QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR( QFontPrivate::fontCache );
