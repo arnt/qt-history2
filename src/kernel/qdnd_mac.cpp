@@ -64,7 +64,6 @@ static const char* default_pm[] = {
 "X X X X X X X",
 };
 //functions
-QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag );
 void qt_macdnd_unregister( QWidget *widget, QWExtra *extra );

@@ -591,7 +591,7 @@ void QApplication::setGlobalMouseTracking( bool b)
 }
 
 
-QWidget *recursive_match(QWidget *widg, int x, int y)
+QWidget *qt_recursive_match(QWidget *widg, int x, int y)
 {
     // Keep looking until we find ourselves in a widget with no kiddies
     // where the x,y is
@@ -609,8 +609,12 @@ QWidget *recursive_match(QWidget *widg, int x, int y)
 	    if(curwidg->isVisible() && !curwidg->isTopLevel()) {
 		int wx=curwidg->x(), wy=curwidg->y();
 		int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) 
-		    return recursive_match(curwidg,x-wx,y-wy);
+		if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
+		    if(curwidg->extra && !curwidg->extra->mask.isNull() &&
+		       !curwidg->extra->mask.contains(QPoint(x, y)))
+			continue;
+		    return qt_recursive_match(curwidg,x-wx,y-wy);
+		}
 	    }
 	}
     }
@@ -641,7 +645,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child)
     if(child) {
 	QMacSavedPortInfo savedInfo(widget);
 	GlobalToLocal( &p ); //now map it to the window
-	widget = recursive_match(widget, p.h, p.v);
+	widget = qt_recursive_match(widget, p.h, p.v);
     }
     return widget;
 }
@@ -1719,7 +1723,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    QMacSavedPortInfo savedInfo(popupwidget);
 	    Point gp = where;
 	    GlobalToLocal( &gp ); //now map it to the window
-	    popupwidget = recursive_match(popupwidget, gp.h, gp.v);
+	    popupwidget = qt_recursive_match(popupwidget, gp.h, gp.v);
 
 	    QPoint p( where.h, where.v );
 	    QPoint plocal(popupwidget->mapFromGlobal( p ));

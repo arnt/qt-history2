@@ -555,6 +555,7 @@ private:
     //friends, way too many - fix this immediatly!
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
+    friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend void qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend void qt_event_request_updates(QWidget *, QRegion &);
     friend QMAC_PASCAL long qt_wdef(short, WindowRef, short, long);
