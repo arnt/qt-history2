@@ -1,8 +1,8 @@
 			  INSTALLING Qt/Embedded
 
 
-This installation procedure is written for Linux/i386. It may need
-to be modified for other platforms.
+This installation procedure is written for Linux. It may need to be
+modified for other platforms.
  
 Unpack the archive if you have not done so already:
 
