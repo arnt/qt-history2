@@ -1,3 +1,3 @@
-	ar q libqt.a `lorder $(OBJECTS) $(METAOBJ) | tsort`
+	ar q libqt.a $(OBJECTS) $(METAOBJ)
 	mv libqt.a ../lib
 
