@@ -2053,7 +2053,7 @@ void QTextDocument::setRichTextInternal( const QString &text, QTextCursor* curso
 void QTextDocument::setRichTextMarginsInternal( QList< QVector<QStyleSheetItem *> *>& styles, QTextParagraph* stylesPar )
 {
     // margin and line spacing calculation
-    qDebug("setRichTextMarginsInternal: styles.size() = %d", styles.size());
+    // qDebug("setRichTextMarginsInternal: styles.size() = %d", styles.size());
     QVector<QStyleSheetItem *>* prevStyle = 0;
     int stylesIndex = 0;
     QVector<QStyleSheetItem *>* curStyle = styles.size() ? styles.first() : 0;
