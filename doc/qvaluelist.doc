@@ -82,9 +82,8 @@
   QValueList uses an STL-like syntax to manipulate and address the
   objects it contains.  For historical reasons, QValueList contains
   additional functions which essentially perform the same task.  It is
-  recommended that the STL-like functions be used in application code
-  to ease the transition to a future version of Qt.  See <a
-  href="qtl.html">this document</a> for more information.
+  recommended that the STL-like functions be used in application code.
+  See <a href="qtl.html">this document</a> for more information.
 
   Example:
   \code
@@ -121,7 +120,7 @@
 	list.push_back( joe );
 	joe.setSalary( 4000 );
 	
-	EmployeeList::Iterator it;
+	EmployeeList::iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
 	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary().latin1() );
     }
@@ -151,14 +150,13 @@
   Since end() returns a past-the-end iterator, the size() of the list
   is equal to end() - begin().
 
-  Another way to find an element in the list is by using the
-  std::find() or <a href="qtl.h#qFind">qFind()</a> algorithms.  For
-  example:
+  Another way to find an element in the list is by using the <a
+  href="qtl.h#qFind">qFind()</a> algorithm.  For example:
 
 \code
   QValueList<int> list;
   ...
-  QValueListIterator<int> it = std::find( list.begin(), list.end(), 3 );
+  QValueList<int>::iterator it = qFind( list.begin(), list.end(), 3 );
   if ( it != list.end() )
       // it points to the found element
 \endcode
@@ -231,11 +229,11 @@
 */
 
 /*! \enum QValueList::iterator 
-	The list's iterator type. */
+	The list's iterator type, QValueListIterator. */
 /*! \enum QValueList::const_iterator 
-	The list's const iterator type. */
+	The list's const iterator type, QValueListConstIterator. */
 /*! \enum QValueList::value_type 
-	The type of the object stored in the list. */
+	The type of the object stored in the list, T. */
 /*! \enum QValueList::pointer 
 	The pointer to T type. */
 /*! \enum QValueList::const_pointer 
@@ -245,9 +243,9 @@
 /*! \enum QValueList::const_reference 
 	The const reference to T type. */
 /*! \enum QValueList::size_type 
-	An unsigned integral type, \c size_t. */
+	An unsigned integral type. */
 /*! \enum QValueList::difference_type 
-	A signed integral type, \c ptrdiff_t. */
+	A signed integral type. */
 
 /*!
   \fn QValueList::QValueList()
@@ -311,7 +309,7 @@
 */
 
 /*!
-  \fn Iterator QValueList::insert( Iterator it, const T& x )
+  \fn iterator QValueList::insert( iterator it, const T& x )
   Inserts the value \e x in front of the iterator \e it.
 
   Returns an iterator pointing at the inserted item.
@@ -336,21 +334,21 @@
 */
 
 /*!
-  \fn Iterator QValueList::begin()
+  \fn iterator QValueList::begin()
   Returns an iterator pointing to the first element in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
 */
 
 /*!
-  \fn ConstIterator QValueList::begin() const
+  \fn const_iterator QValueList::begin() const
   Returns an iterator pointing to the first element in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
 */
 
 /*!
-  \fn Iterator QValueList::end()
+  \fn iterator QValueList::end()
   Returns an iterator pointing behind the last element in the list. This
   iterator equals begin() if the list is empty.
 
@@ -358,7 +356,7 @@
 */
 
 /*!
-  \fn ConstIterator QValueList::end() const
+  \fn const_iterator QValueList::end() const
   Returns an iterator pointing behind the last element in the list. This
   iterator equals begin() if the list is empty.
 
@@ -505,7 +503,7 @@
 */
 
 /*!
-  \fn Iterator QValueList::at( uint i )
+  \fn iterator QValueList::at( uint i )
 
 
   Returns an iterator pointing to the item at position \e i in the list, or
@@ -513,7 +511,7 @@
 */
 
 /*!
-  \fn ConstIterator QValueList::at( uint i ) const
+  \fn const_iterator QValueList::at( uint i ) const
 
   \warning This function is a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
@@ -525,7 +523,7 @@
 */
 
 /*!
-  \fn Iterator QValueList::fromLast()
+  \fn iterator QValueList::fromLast()
 
   Returns an iterator to the last element in the list, or end() if
   there is no last element.
@@ -535,7 +533,7 @@
 \code
   QValueList<int> l;
   ...
-  QValueListIterator<int> it = l.end();
+  QValueList<int>::iterator it = l.end();
   --it;
   if ( it != end() )
       // ...
@@ -544,7 +542,7 @@
 */
 
 /*!
-  \fn ConstIterator QValueList::fromLast() const
+  \fn const_iterator QValueList::fromLast() const
 
   Returns an iterator to the last element in the list, or end() if
   there is no last element.
@@ -554,7 +552,7 @@
 \code
   QValueList<int> l;
   ...
-  QValueListIterator<int> it = l.end();
+  QValueList<int>::iterator it = l.end();
   --it;
   if ( it != end() )
       // ...
@@ -632,7 +630,7 @@
 
 /*!
   \obsolete
-  \fn Iterator QValueList::append( const T& x )
+  \fn iterator QValueList::append( const T& x )
 
   The push_back() function should be used instead.  For example:
 
@@ -645,7 +643,7 @@
 
 /*!
   \obsolete
-  \fn Iterator QValueList::prepend( const T& x )
+  \fn iterator QValueList::prepend( const T& x )
 
   The push_front() function should be used instead.  For example:
 
@@ -659,7 +657,7 @@
 
 /*!
   \obsolete
-  \fn Iterator QValueList::remove( Iterator it )
+  \fn iterator QValueList::remove( iterator it )
 
   Use the erase() function instead.
 
@@ -669,7 +667,7 @@
 
 /*!
   \obsolete
-  \fn Iterator QValueList::find( const T& x )
+  \fn iterator QValueList::find( const T& x )
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -677,7 +675,7 @@
 
 /*!
   \obsolete
-  \fn ConstIterator QValueList::find( const T& x ) const
+  \fn const_iterator QValueList::find( const T& x ) const
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -685,7 +683,7 @@
 
 /*!
   \obsolete
-  \fn Iterator QValueList::find( Iterator it, const T& x )
+  \fn iterator QValueList::find( iterator it, const T& x )
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -693,7 +691,7 @@
 
 /*!
   \obsolete
-  \fn ConstIterator QValueList::find( ConstIterator it, const T& x ) const
+  \fn const_iterator QValueList::find( const_iterator it, const T& x ) const
 
   Use the std::find() or qFind() algorithms instead.
 
@@ -757,16 +755,16 @@
   \ingroup qtl
   \ingroup tools
 
-  An iterator is an class for iterating across container classes - a
-  generalization of the index in an array. A pointer into a
-  <code>const char *</code> and an index into an <code>int[]</code>
+  An iterator is a class for accessing the elements of a container
+  classes - a generalization of the index in an array. A pointer into
+  a <code>const char *</code> and an index into an <code>int[]</code>
   are both iterators, and the general idea is to provide that
   functionality for any data structure.
 
   The QValueListIterator class is an iterator for QValueList
-  instantiations.
+  instantiations.  You can create the appropriate iterator type by
+  using the \c iterator typedef provided by QValueList.  For example:
 
-  Example:
   \include qtl/qvaluelistiterator.cpp
 
   Program output:
@@ -777,18 +775,20 @@
 	Joe earns 50000
   \endcode
 
-  In contrast to QPtrList there are no built in functions in QValueList
-  to traverse the list. The only way to do this is to use iterators.
+  The only way to access the elements in a QValueList is to use an
+  iterator.
 
-  QValueList is highly optimized for performance and memory usage.  On
-  the other hand, this means you have to be a bit more careful with
-  what you are doing. QValueList does not know about all its iterators
+  QValueList is highly optimized for performance and memory usage.
+  This means you have to be careful with what you are
+  doing. QValueList does not know about all its iterators
   and the iterators don't know to which list they belong. That makes
   things very fast, but if you're not careful, you can get spectacular
-  bugs.
+  bugs.  Always make sure iterators are valid before dereferencing
+  them or using them as parameters to generic algorithms in the STL or
+  the <a href="qtl.html">QTL</a>.
 
-  QPtrListIterator will be able to give warnings while QValueListIterator
-  may end up in an undefined state.
+  Using an invalid iterator is undefined (your application will
+  probably crash).
 
   For every Iterator there is a ConstIterator. When accessing a
   QValueList in a const environment or if the reference or pointer to
@@ -799,10 +799,8 @@
   \sa QValueList, QValueListConstIterator
 */
 
-/*! \enum  QValueListIterator::iterator_category 
-	The type of iterator category, \c std::bidirectional_iterator_tag. */
 /*! \enum  QValueListIterator::value_type
-	The type of value, a pair. */
+	The type of value, T. */
 /*! \enum  QValueListIterator::difference_type
 	A signed integral type.*/
 /*! \enum  QValueListIterator::pointer
@@ -897,24 +895,26 @@
 
 /*!
   \class QValueListConstIterator qvaluelist.h
-  \brief The QValueListConstIterator class provides an iterator for QValueList.
+  \brief The QValueListConstIterator class provides a const iterator
+  for QValueList.
 
   \ingroup qtl
   \ingroup tools
 
   In contrast to QValueListIterator, this class is used to iterate over a const
-  list. It does not allow modification of the values of the list because it would
-  break the const semantics.
+  list. It does not allow modification of the values of the list since
+  this would break const semantics.
+
+  You can create the appropriate const iterator type by using the \c
+  const_iterator typedef provided by QValueList. 
 
   For more information on QValueList iterators, see QValueListIterator.
 
   \sa QValueListIterator, QValueList
 */
 
-/*! \enum  QValueListConstIterator::iterator_category 
-	The type of iterator category, \c std::bidirectional_iterator_tag. */
 /*! \enum  QValueListConstIterator::value_type
-	The type of value, a pair. */
+	The type of value. */
 /*! \enum  QValueListConstIterator::difference_type
 	A signed integral type.*/
 /*! \enum  QValueListConstIterator::pointer

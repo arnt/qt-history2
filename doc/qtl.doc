@@ -40,7 +40,7 @@
 
 The Qt Template Library (QTL) is a set of templates within Qt dealing
 with containers of objects.  If a suitable STL implementation is not
-available on your platform/compiler, the QTL can be used instead.  It
+available for your compiler, the QTL can be used instead.  It
 provides a list of objects, a vector (dynamic array) of objects, a map
 (or dictionary) from one type to another, and associated <a
 href="#Iterators">iterators</a> and <a
@@ -54,11 +54,11 @@ iterators, containers and function objects for use in applications.
 For example, the QTL iterators can be used with STL algorithms, since
 the STL is extensible and customizable, without using inheritance.
 The STL provides a common, standard set of container classes which
-multiple 3rd party libraries can share.  For historical reasons, the
-Qt value-based container classes contain an API which is non-standard.
-It is recommended that the STL-style API available in the QTL be used
-instead (see the class documentation for the QTL containers: QMap,
-QValueVector, QValueList, QStringList, QValueStack).
+multiple 3rd party libraries can share.  For historical reasons, some
+of the Qt value-based container classes contain an API which is
+non-standard.  It is recommended that the STL-style API available in
+the QTL be used instead (see the class documentation for the QTL
+containers: QMap, QValueVector, QValueList, QStringList, QValueStack).
 
 Compared to the STL, the QTL contains only the most important features
 of the STL container API, has no platform differences, is often a
@@ -92,11 +92,11 @@ Good candidates for value based classes are QRect, QPoint, QSize,
 QString and all simple C++ types, such as int, bool or double.
 
 The Qt Template Library is designed for speed. Iterators are extremely
-fast. On the drawback side, less error checking is done than in the
-QPtrCollection based containers. A template library container, for
-example, does not track any associated iterators. This makes certain
-validity checks, for example when removing items, impossible to
-perform automatically, however it provides extremely good performance.
+fast. To achieve this performance, less error checking is done than in
+the QPtrCollection based containers. A QTL container, for example,
+does not track any associated iterators. This makes certain validity
+checks, for example when removing items, impossible to perform
+automatically, however it provides extremely good performance.
 
 <a name="Iterators"></a><h2> Iterators </h2>
 
@@ -134,7 +134,7 @@ The same concept applies to the other container classes:
 	typedef QValueVector<int> Vector;
 	Vector vec;
 	for( Vec::iterator it = vec.begin(); it != vec.end(); ++it )
-		printf("Data=%i\n", *it );
+		printf("Data=%d\n", *it );
 \endcode
 
 There are two kind of iterators, the volatile iterator shown in the
@@ -147,8 +147,9 @@ Iterator is not allowed as it would violate const semantics.
 <a name="Algorithms"></a><h2> Algorithms </h2>
 
 The Qt Template Library defines a number of algorithms that operate on
-its containers: These algorithms are implemented as template
-functions.
+its containers.  These algorithms are implemented as template
+functions and provide useful generic code which can be applied to any
+container that provides iterators (even your own containers).
 
 qHeapSort() and qBubbleSort() provide the well known sorting
 algorithms. You can use them like this:
@@ -244,13 +245,26 @@ range of elements to an OutputIterator, in this case a
 QTextOStreamIterator:
 
 \code
-	typedef QValueList<int> List;
-	List l;
+	QValueList<int> l;
 	l.push_back( 100 );
 	l.push_back( 200 );
 	l.push_back( 300 );
 	QTextOStream str( stdout );
 	qCopy( l.begin(), l.end(), QTextOStreamIterator( str ) );
+\endcode
+
+Here is another example which copies a range of elements from one
+container into another.  It uses the qBackInserter() template function
+which creates a QBackInsertIterator<> whose job is to insert elements
+into the end of a container.  For example:
+
+\code
+	QValueList<int> l;
+	l.push_back( 100 );
+	l.push_back( 200 );
+	l.push_back( 300 );
+	QValueVector<int> v;
+	qCopy( l.begin(), l.end(), qBackInserter( v ) );
 \endcode
 
 <a name="qCopyBackward"></a>Another template function is

@@ -40,15 +40,16 @@
 
 \keyword collection classes
 
-A collection class is a class that can contain a number of items in a
-certain data structure and perform operations on the contained items;
+A collection class is a container which holds a number of items in a
+certain data structure and performs operations on the contained items;
 insert, remove, find etc.
 
 Qt has several value-based and several pointer-based collection
 classes.  The pointer based collection classes work with pointers to
 items, while the value based classes store copies of their items. The
 value-based collections are very similar to STL container classes, and
-can be used with STL algorithms and containers.
+can be used with STL algorithms and containers.  See the <a
+href="qtl.h">Qt Template Library for more information.
 
 The value based collections are:
 <ul>
