@@ -203,9 +203,9 @@ void QSplashScreen::finish( QWidget *mainWin )
 void QSplashScreen::setPixmap( const QPixmap &pixmap )
 {
     d->pixmap = pixmap;
+    QRect r(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
+    move( QApplication::desktop()->screenGeometry().center() - r.center() );
     resize( d->pixmap.size() );
-    move( QApplication::desktop()->screenGeometry().center()
-	  - rect().center() );
     repaint();
 }
 
