@@ -109,13 +109,12 @@ public:
     inline QTextFormat operator+(const QTextFormat &other) const
     { QTextFormat result(*this); result += other; return result; }
 
-    inline bool isValid() const { return type() != -1; }
+    inline bool isValid() const { return d && type() != -1; }
 
-    inline int type() const { return _type; }
-    inline int inheritedType() const { return _inheritedType; }
+    int type() const;
+    int inheritedType() const;
 
-    inline bool inheritsFormatType(int otherType) const
-    { return type() == otherType || inheritedType() == otherType; }
+    bool inheritsFormatType(int otherType) const;
 
     inline bool isCharFormat() const { return inheritsFormatType(CharFormat); }
     inline bool isBlockFormat() const { return inheritsFormatType(BlockFormat); }
@@ -150,9 +149,8 @@ public:
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
 
 private:
+    Q_EXPLICIT QTextFormat(QTextFormatPrivate *p);
     QSharedDataPointer<QTextFormatPrivate> d;
-    int _type;
-    int _inheritedType;
 };
 
 class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
