@@ -676,7 +676,7 @@ void Glade2Ui::emitGtkMenu( const QDomElement& menu )
 		    x = gnomeuiinfoMenuXItem.cap( 1 );
 		    a.menuText = yyStockMap[x];
 		    if ( x == QString("EXIT") && qtAccel == 0 )
-			qtAccel = Qt::CTRL + 'Q';
+			qtAccel = Qt::CTRL + Qt::Key_Q;
 		} else {
 		    a.menuText = accelerate( label );
 		}
