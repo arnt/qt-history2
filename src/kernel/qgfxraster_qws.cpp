@@ -35,6 +35,17 @@ extern bool qws_sw_cursor;
 
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
+/*
+  Uncomment the following for 1bpp displays with a different
+  endianness than the processor. This is endianness *within* a byte,
+  ie. whether 0x01 is the rightmost or the leftmost pixel on the
+  screen.
+
+  This code is unsupported, experimental and unfinished. It may or may
+  not be improved in future versions of Qt/Embedded.
+*/
+//#define QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt( unsigned int n );
 
@@ -733,10 +744,17 @@ void QScreenCursor::drawCursor()
 			av = srcval >> 24;
 			if (av == 0xff) {
 			    unsigned char val = data->translut[*(srcptr+col)];
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+			    if (val)
+				m |= 0x80 >> i;
+			    else
+				m &= ~( 0x80 >> i );
+#else
 			    if (val)
 				m |= 1 << i;
 			    else
 				m &= ~( 1 << i );
+#endif
 			}
 			col++;
 		    }
@@ -2511,6 +2529,14 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	    int s = (x & 1) << 2;
 	    *d = ( *d & MASK4BPP(s) ) | (pixel << s);
 	} else if ( depth == 1 )
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	    if ( is_screen_gfx ) {
+	    if ( pixel )
+		l[x/8] |= 0x80 >> (x%8);
+	    else
+		l[x/8] &= ~(0x80 >> (x%8));
+	    } else
+#endif
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -2534,6 +2560,14 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 			      ( (p ^ (pixel << s)) & MASK4BPP(4-s) );
 	    *d = e;
 	} else if ( depth == 1 )
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	    if ( is_screen_gfx ) {
+	    if ( pixel )
+		l[x/8] |= 0x80 >> (x%8);
+	    else
+		l[x/8] &= ~(0x80 >> (x%8));
+	    } else
+#endif
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -2555,6 +2589,14 @@ GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped( int x, unsigned char
 	    unsigned char p = *d;
 	    *d = (p & MASK4BPP(s)) | ((~p) & MASK4BPP(4-s));
 	} else if ( depth == 1 )
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	    if ( is_screen_gfx ) {
+	    if ( pixel )
+		l[x/8] |= 0x80 >> (x%8);
+	    else
+		l[x/8] &= ~(0x80 >> (x%8));
+	    } else
+#endif
 	    if ( pixel )
 		l[x/8] |= 1 << (x%8);
 	    else
@@ -3326,6 +3368,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 		// Same byte
 
 		uchar mask = (0xff << (x1 % 8)) & (0xff >> (7 - x2 % 8));
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+		if ( is_screen_gfx )
+		mask = (0xff >> (x1 % 8)) & (0xff << (7 - x2 % 8));
+#endif
 		if ( pixel )
 		    *l |= mask;
 		else
@@ -3333,6 +3379,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 	    } else {
 		volatile unsigned char *last = l + (x2/8-x1/8);
 		uchar mask = 0xff << (x1 % 8);
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+		if ( is_screen_gfx )
+		    mask = 0xff >> (x1 % 8);
+#endif
 		if ( pixel )
 		    *l++ |= mask;
 		else
@@ -3342,6 +3392,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped( int x1,int x2,unsigned c
 		    *l++ = byte;
 
 		mask = 0xff >> (7 - x2 % 8);
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+		if ( is_screen_gfx )
+		    mask = 0xff << (7 - x2 % 8);
+#endif
 		if ( pixel )
 		    *l |= mask;
 		else
@@ -3837,6 +3891,11 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 	// Lots of optimisation can be performed for special cases.
 	unsigned char * dp=l;
 	unsigned int gv = srccol;
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	//really ugly hack: screen is opposite endianness to everything else
+	if (srcbits==qt_screen->base())
+	    src_little_endian = !src_little_endian;
+#endif
 	if ( reverse ) {
 	    dp+=(x2/8);
 	    int skipbits = 7 - (x2%8);
@@ -3854,10 +3913,18 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    GET_MASKED(TRUE, w);
 			}
 			if ( !masked || !ismasking ) {
-			    if (gv)
-				m |= 0x80 >> i;
-			    else
-				m &= ~( 0x80 >> i );
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+			    if ( is_screen_gfx ) {
+				if (gv)
+				    m |= 0x01 << i;
+				else
+				    m &= ~( 0x01 << i );
+			    } else
+#endif
+				if (gv)
+				    m |= 0x80 >> i;
+				else
+				    m &= ~( 0x80 >> i );
 			}
 		    }
 		}
@@ -3880,16 +3947,29 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			    GET_MASKED(FALSE, w);
 			}
 			if ( !masked || !ismasking ) {
-			    if (gv)
-				m |= 1 << i;
-			    else
-				m &= ~( 1 << i );
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+			    if ( is_screen_gfx ) {
+				if (gv)
+				    m |= 0x80 >> i;
+				else
+				    m &= ~( 0x80 >> i );
+			    } else
+#endif
+				if (gv)
+				    m |= 1 << i;
+				else
+				    m &= ~( 1 << i );
 			}
 		    }
 		}
 		*(dp++) = m;
 	    }
 	}
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+	//end of really ugly hack; undo the damage
+	if (srcbits==qt_screen->base())
+	    src_little_endian = !src_little_endian;
+#endif
     }
 }
 
@@ -4414,6 +4494,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 		if ( *alphas++ >= 64 ) { // ### could be configurable (monoContrast)
 		    uchar* lx = l+(x>>3);
 		    uchar b = 1<<(x&0x7);
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+		    if ( is_screen_gfx )
+			b = 0x80>>(x&0x7);
+#endif
 		    if ( !(*lx&b) != black )
 			*lx ^= b;
 		}
