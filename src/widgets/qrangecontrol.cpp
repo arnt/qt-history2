@@ -227,7 +227,7 @@ void QRangeControl::directSetValue(int value)
 
 void QRangeControl::addPage()
 {
-    if ( value() + pageStep() > value() )
+    if ( value() + pageStep() < maxValue() )
 	setValue( value() + pageStep() );
     else
 	setValue( maxValue() );
@@ -244,7 +244,7 @@ void QRangeControl::addPage()
 
 void QRangeControl::subtractPage()
 {
-    if ( value() - pageStep() < value() )
+    if ( value() - pageStep() > minValue() )
 	setValue( value() - pageStep() );
     else
 	setValue( minValue() );
@@ -261,7 +261,7 @@ void QRangeControl::subtractPage()
 
 void QRangeControl::addLine()
 {
-    if ( value() + lineStep() > value() )
+    if ( value() + lineStep() < maxValue() )
 	setValue( value() + lineStep() );
     else
 	setValue( maxValue() );
@@ -278,7 +278,7 @@ void QRangeControl::addLine()
 
 void QRangeControl::subtractLine()
 {
-    if ( value() - lineStep() < value() )
+    if ( value() - lineStep() > minValue() )
 	setValue( value() - lineStep() );
     else
 	setValue( minValue() );
