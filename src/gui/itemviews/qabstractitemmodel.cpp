@@ -799,6 +799,18 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
     return left.row() < right.row();
 }
 
+/*!
+  Returns the 'buddy' of the item represented by \a index.
+  When the used wants to edit an item that is not editable,
+  the delegate may ask for the item's buddy, and edit that
+  item instead.
+
+  \sa isEditable()
+*/
+QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
+{
+    return QModelIndex();
+}
 
 /*!
     \enum QAbstractItemModel::ItemMatch

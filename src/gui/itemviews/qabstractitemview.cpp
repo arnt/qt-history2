@@ -960,11 +960,22 @@ bool QAbstractItemView::startEdit(const QModelIndex &index,
                                   QAbstractItemDelegate::StartEditAction action,
                                   QEvent *event)
 {
+    QModelIndex edit;
+
     if (d->shouldEdit(action, index)) {
-        itemDelegate()->event(event, index);
-        if (d->requestEditor(action, event, index))
+        edit = index;
+    } else {
+        QModelIndex buddy = d->model->buddy(index);
+        if (d->shouldEdit(action, buddy))
+            edit = buddy;
+    }
+    
+    if (edit.isValid()) {
+        itemDelegate()->event(event, edit);
+        if (d->requestEditor(action, event, edit))
             d->state = Editing;
     }
+    
     return d->state == Editing;
 }
 

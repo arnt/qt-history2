@@ -162,6 +162,8 @@ public:
     inline bool greaterThan(const QModelIndex &left, const QModelIndex &right) const
         { return lessThan(right, left); }
 
+    virtual QModelIndex buddy(const QModelIndex &index) const;
+
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                                   int hits = 1, ItemMatchFlags flags = MatchDefault) const;
 public slots:
