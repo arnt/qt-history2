@@ -2746,7 +2746,7 @@ QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
 
 QDataStream &operator>>(QDataStream &in, QDateTime &dt)
 {
-    Q_INT8 ts = (Q_UINT8)QDateTimePrivate::LocalUnknown;
+    Q_INT8 ts = (Q_INT8)QDateTimePrivate::LocalUnknown;
     in >> dt.d->date >> dt.d->time;
     if (in.version() >= 7)
         in >> ts;
