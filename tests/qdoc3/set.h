@@ -106,6 +106,10 @@ public:
 	insert( item );
 	return *this;
     }
+    Set<T>& operator+=( const Set<T>& other ) {
+	*this = reunion( *this, other );
+	return *this;
+    }
 
     bool isEmpty() const {
 	return map.isEmpty() && list.isEmpty();
@@ -273,6 +277,12 @@ Set<T> difference( const Set<T>& s, const Set<T>& t )
 	}
 	return result;
     }
+}
+
+template <class T>
+Set<T> operator+( const Set<T>& s, const Set<T>& t )
+{
+    return reunion( s, t );
 }
 
 #endif

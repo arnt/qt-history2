@@ -138,15 +138,10 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 
     if ( pattern.startsWith("/") && pattern.endsWith("/") &&
 	 pattern.length() > 2 ) {
-	QString t = pattern.mid( 1, pattern.length() - 2 );
-	if ( t.contains("(?:^|[^/])/") > 0 )
-	    docLocation.warning( tr("Unescaped '/' in regular expression '%1'")
-				 .arg(t) );
-	t.replace( QRegExp("\\\\/"), "/" );
-	QRegExp rx( t );
+	QRegExp rx( pattern.mid(1, pattern.length() - 2) );
 	if ( !silent && !rx.isValid() ) {
 	    docLocation.warning( tr("Invalid regular expression '%1'")
-				 .arg(t) );
+				 .arg(rx.pattern()) );
 	    silent = TRUE;
 	}
 	return str.find( rx ) != -1 || trimWhiteSpace( str ).find( rx ) != -1;

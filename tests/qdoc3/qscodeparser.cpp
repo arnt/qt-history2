@@ -14,6 +14,21 @@
 #define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
 #define COMMAND_REPLACE             Doc::alias( "replace" )
 
+static bool isWord( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == QChar( '_' );
+}
+
+static bool leftWordBoundary( const QString& str, int pos )
+{
+    return !isWord( str[pos - 1] ) && isWord( str[pos] );
+}
+
+static bool rightWordBoundary( const QString& str, int pos )
+{
+    return isWord( str[pos - 1] ) && !isWord( str[pos] );
+}
+
 QsCodeParser::QsCodeParser( Tree *cppTree )
     : cppTre( cppTree ), qsTre( 0 )
 {
@@ -80,9 +95,8 @@ FunctionNode *QsCodeParser::findFunctionNode( const QString& synopsis,
 
 Set<QString> QsCodeParser::topicCommands()
 {
-    return CppCodeParser::topicCommands() << COMMAND_QUICKCLASS
-					  << COMMAND_QUICKFN
-					  << COMMAND_QUICKPROPERTY;
+    return Set<QString>() << COMMAND_QUICKCLASS << COMMAND_QUICKFN
+			  << COMMAND_QUICKPROPERTY;
 }
 
 Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
@@ -144,29 +158,77 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 
 	ClassNode *quickClass = new ClassNode( qsTre->root(), arg );
 	quickifyClass( quickClass, qtClass, wrapperClass );
-	quickifyDoc( quickClass, doc );
+	setQuickDoc( quickClass, doc );
 	return 0;
     } else if ( command == COMMAND_QUICKFN ) {
 	FunctionNode *quickFunc = findFunctionNode( arg, qsTre );
-	quickifyDoc( quickFunc, doc );
+	if ( quickFunc == 0 ) {
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
+	} else {
+	    setQuickDoc( quickFunc, doc );
+	}
 	return 0;
     } else if ( command == COMMAND_QUICKPROPERTY ) {
 	QStringList path = QStringList::split( ".", arg );
 	PropertyNode *quickProperty =
 		(PropertyNode *) qsTre->findNode( path, Node::Property );
-	if ( quickProperty == 0 )
+	if ( quickProperty == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
+	} else {
+	    setQuickDoc( quickProperty, doc );
+	}
 	return 0;
     } else {
 	return 0;
     }
 }
 
+Set<QString> QsCodeParser::otherMetaCommands()
+{
+    return commonMetaCommands() << COMMAND_JUSTLIKEQT << COMMAND_QUICKIFIED
+				<< COMMAND_REPLACE;
+}
+
 ClassNode *QsCodeParser::tryClass( const QString& className )
 {
     return (ClassNode *) cppTre->findNode( className, Node::Class );
+}
+
+void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
+{
+    static QRegExp replaceRegExp( "/(.+)/([^/]*)/" );
+
+    QStringList args = doc.metaCommandArgs( COMMAND_REPLACE );
+    QStringList::ConstIterator a = args.begin();
+    while ( a != args.end() ) {
+	if ( replaceRegExp.exactMatch(*a) ) {
+	    QRegExp before( replaceRegExp.cap(1) );
+	    QString after = replaceRegExp.cap( 2 );
+
+	    if ( before.isValid() ) {
+		uint oldLen = source->length();
+		source->replace( before, after );
+
+		// this condition is sufficient but not necessary
+		if ( oldLen == source->length() && !source->contains(after) )
+		    doc.location().warning(
+			    tr("Regular expression '%1' did not match anything")
+			    .arg(before.pattern()) );
+	    } else {
+		doc.location().warning(
+			tr("Invalid regular expression '%1'")
+			.arg(before.pattern()) );
+	    }
+	} else {
+	    doc.location().warning( tr("Bad syntax in '\\%1'")
+				    .arg(COMMAND_REPLACE) );
+	}
+	++a;
+    }
 }
 
 void QsCodeParser::quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
@@ -217,10 +279,10 @@ void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 	    if ( func->parent() != (InnerNode *) qtClass ) {
 		FunctionNode *qtFunc = qtClass->findFunctionNode( func );
 		if ( qtFunc != 0 && !qtFunc->doc().isEmpty() )
-		    quickifyDoc( quickFunc, qtFunc->doc() );
+		    setQtDoc( quickFunc, qtFunc->doc() );
 	    }
 	} else {
-	    quickifyDoc( quickFunc, func->doc() );
+	    setQtDoc( quickFunc, func->doc() );
 	}
     }
 }
@@ -241,16 +303,11 @@ void QsCodeParser::quickifyProperty( ClassNode *quickClass,
     quickProperty->setDesignable( property->isDesignable() );
 
     if ( !property->doc().isEmpty() )
-	quickifyDoc( quickProperty, property->doc() );
+	setQtDoc( quickProperty, property->doc() );
 
     blackList->insert( quickProperty->getter(), 0 );
     blackList->insert( quickProperty->setter(), 0 );
     blackList->insert( quickProperty->resetter(), 0 );
-}
-
-void QsCodeParser::quickifyDoc( Node *quickNode, const Doc& qtDoc )
-{
-    quickNode->setDoc( qtDoc, TRUE );
 }
 
 QString QsCodeParser::quickifiedDataType( const QString& leftType,
@@ -316,4 +373,142 @@ QString QsCodeParser::quickifiedDataType( const QString& leftType,
 	    return "";
     }
     return s;
+}
+
+QString QsCodeParser::quickifiedCode( const QString& code )
+{
+    QString result;
+    int i = 0;
+    bool inString = FALSE;
+    QChar quote;
+
+    while ( i < (int) code.length() ) {
+	if ( inString ) {
+	    if ( code[i] == quote ) {
+		result += code[i++];
+		inString = FALSE;
+	    } else if ( code[i] == '\\' ) {
+		result += code[i++];
+		result += code[i++];
+	    } else {
+		result += code[i++];
+	    }
+	} else {
+	    if ( code[i] == '"' || code[i] == '\'' ) {
+		quote = code[i];
+		result += code[i++];
+		inString = TRUE;
+	    } else if ( code[i] == 'Q' && leftWordBoundary(code, i) ) {
+		if ( code[i + 1].lower() == code[i + 1] ) {
+		    result += code[i++];		
+		} else {
+		    i++;
+		}
+	    } else if ( (code[i] == ':' && code[i + 1] == ':') ||
+			(code[i] == '-' && code[i + 1] == '>') ) {
+		result += '.';
+		i += 2;
+	    } else {
+		result += code[i++];
+	    }
+	}
+    }
+    return result;
+}
+
+QString QsCodeParser::quickifiedDoc( const QString& source )
+{
+    QString result;
+    int i = 0;
+
+    while ( i < (int) source.length() ) {
+	if ( leftWordBoundary(source, i) ) {
+	    if ( source[i] == 'Q' ) {
+		if ( source[i + 1].lower() == source[i + 1] ) {
+		    result += source[i++];
+		} else if ( source.mid(i, 8) == "QCString" ) {
+		    i += 2;
+		} else {
+		    i++;
+		}
+	    } else if ( source[i] == 'T' && source.mid(i, 4) == "TRUE" &&
+			rightWordBoundary(source, i + 4) ) {
+		result += "true";
+		i += 4;
+	    } else if ( source[i] == 'F' && source.mid(i, 5) == "FALSE" &&
+			rightWordBoundary(source, i + 5) ) {
+		result += "false";
+		i += 5;
+	    } else if ( source[i] == 'c' && source.mid(i, 6) == "const " ) {
+		i += 6;
+	    } else {
+		result += source[i++];
+	    }
+	} else if ( (source[i] == ':' && source[i + 1] == ':') ||
+		    (source[i] == '-' && source[i + 1] == '>') ) {
+	    result += '.';
+	    i += 2;
+	} else if ( source[i] == '\\' ) {
+	    if ( source.mid(i, 5) == "\\code" ) {
+		do {
+		    result += source[i++];
+		} while ( source[i - 1] != '\n' );
+
+		int begin = i;
+		int end = source.find( "\\endcode", i );
+		if ( end != -1 ) {
+		    result += quickifiedCode( source.mid(begin, end - begin) );
+		    i = end;
+		}
+	    } else {
+		result += source[i++];
+	    }
+	} else {
+	    result += source[i++];
+	}
+    }
+    return result;
+}
+
+void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
+{
+    Doc quickDoc( doc.location(), quickifiedDoc(doc.source()),
+		  reunion(CppCodeParser::topicCommands(),
+			  CppCodeParser::otherMetaCommands()) );
+    quickNode->setDoc( quickDoc, TRUE );
+}
+
+void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
+{
+    static QRegExp justlikeqt( "\\\\" + COMMAND_JUSTLIKEQT );
+    static QRegExp quickified( "\\\\" + COMMAND_QUICKIFIED );
+
+    if ( doc.metaCommandsUsed() != 0 &&
+	 (doc.metaCommandsUsed()->contains(COMMAND_JUSTLIKEQT) ||
+	  doc.metaCommandsUsed()->contains(COMMAND_QUICKIFIED)) ) {
+	QString source = doc.source();
+	int pos;
+
+	pos = source.find( justlikeqt );
+	if ( pos != -1 ) {
+	    QString qtSource = quickNode->doc().source(); // wrong
+	    applyReplacementList( &qtSource, doc );
+	    source.replace( pos, justlikeqt.matchedLength(), qtSource );
+	}
+
+	pos = source.find( quickified );
+	if ( pos != -1 ) {
+	    QString quickifiedSource = quickNode->doc().source();
+	    applyReplacementList( &quickifiedSource, doc );
+	    source.replace( pos, quickified.matchedLength(), quickifiedSource );
+	}
+
+	Doc quickDoc( doc.location(), source,
+		      (CppCodeParser::topicCommands() + topicCommands() +
+		       CppCodeParser::otherMetaCommands()) <<
+		      COMMAND_REPLACE );
+	quickNode->setDoc( quickDoc, TRUE );
+    } else {
+	quickNode->setDoc( doc, TRUE );
+    }
 }

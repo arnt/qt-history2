@@ -163,7 +163,9 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	}
 	return func;
     } else if ( nodeTypeMap.contains(command) ) {
-	QStringList path = QStringList::split( "::", arg );
+	// ### split(" ") hack to support header file syntax
+	QStringList path = QStringList::split( "::",
+				   QStringList::split(" ", arg)[0] );
 	Node *node = tre->findNode( path, nodeTypeMap[command] );
 	if ( node == 0 ) {
 	    doc.location().warning( tr("Cannot resolve '%1' specified with"
@@ -812,8 +814,8 @@ bool CppCodeParser::matchDocsAndStuff()
 {
     Set<QString> topicsAvailable = topicCommands();
     Set<QString> otherMetaCommandsAvailable = otherMetaCommands();
-    Set<QString> metaCommandsAvailable = reunion( topicsAvailable,
-						  otherMetaCommandsAvailable );
+    Set<QString> metaCommandsAvailable = topicsAvailable +
+					 otherMetaCommandsAvailable;
 
     while ( tok != Tok_Eoi ) {
 	if ( tok == Tok_Doc ) {

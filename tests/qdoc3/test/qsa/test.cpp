@@ -1,4 +1,8 @@
 /*! \quickfn ListView.currentItem()
 
-    This is some \bold{Quick} documentation!
+    \quickified
+
+    \replace /qApp/Application/
+    \replace /(filter)\(\)/\1/
+    \replace /setEnabled\(true\)/enabled = true/
 */
