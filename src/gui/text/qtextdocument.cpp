@@ -1159,6 +1159,9 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
     }
 }
 
+/*!
+    Returns a string containing an HTML representation of the document.
+*/
 QString QTextDocument::toHtml() const
 {
     return QTextHtmlExporter(this).toHtml();

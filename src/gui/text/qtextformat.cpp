@@ -898,7 +898,7 @@ bool QTextFormat::hasProperty(int propertyId) const
     return d->properties().contains(propertyId);
 }
 
-/*!
+/*
     Returns the property type for the given \a propertyId.
 
     \sa hasProperty() allPropertyIds() PropertyType
@@ -1852,11 +1852,19 @@ QFont QTextCharFormat::font() const
 */
 
 /*!
+    \fn void QTextTableFormat::clearColumnWidthConstraints()
+
+    Clears the column width constraints for the table.
+
+    \sa columnWidthConstraints() setColumnWidthConstraints()
+*/
+
+/*!
     \fn void QTextTableFormat::setColumnWidthConstraints(const QVector<QTextLength> &constraints)
 
     Sets the column width \a constraints for the table.
 
-    \sa columnWidthConstraints()
+    \sa columnWidthConstraints() clearColumnWidthConstraints()
 */
 
 /*!

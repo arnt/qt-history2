@@ -1541,7 +1541,8 @@ void QTextCursor::insertImage(const QTextImageFormat &format)
 /*!
     \overload
 
-    Convenience method for inserting an image at the current position().
+    Convenience method for inserting the image with the given \a name at the
+    current position().
 */
 void QTextCursor::insertImage(const QString &name)
 {
