@@ -231,6 +231,7 @@ void QAlphaWidget::render()
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 	    widget->setBackgroundMode( bgm );
 	    widget->setWState( WState_Visible );
+	    widget->update();
 	}
 	q_blend = 0;
 	QTimer::singleShot( 0, this, SLOT(goodBye()) );
