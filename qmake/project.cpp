@@ -182,17 +182,20 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 #undef SKIP_WS
 
     var = UN_TMAKEIFY(var.stripWhiteSpace()); //backwards compatability
+    char sep = ' ';
+    if(var == "DEPENDPATH")
+	sep = ':';
 
     QStringList vallist;  /* vallist is the broken up list of values */
     QRegExp quoted("[^\\\\](\"[^\"]*[^\\\\]\")");
     {
 	for(int x = 0; (x = quoted.search(vals, x)) != -1; ) {
-	vallist += QStringList::split(' ', vals.left(x));
+	vallist += QStringList::split(sep, vals.left(x));
 	vallist.append(quoted.cap(1));
 	vals.remove(0, x + quoted.matchedLength());
 	}
     }
-    vallist += QStringList::split(' ', vals);
+    vallist += QStringList::split(sep, vals);
     if(!vallist.grep("=").isEmpty())
 	debug_msg(1, "****Warning*****: Detected possible line continuation: {%s} %s:%d",
 		  var.latin1(), file.latin1(), line_count);
