@@ -311,6 +311,44 @@ void QTextEditPrivate::outdent()
     }
 }
 
+void QTextEditPrivate::gotoNextTableCell()
+{
+    QTextTable *table = cursor.currentTable();
+    QTextTableCell cell = table->cellAt(cursor);
+
+    int newColumn = cell.column() + cell.columnSpan();
+    int newRow = cell.row();
+
+    if (newColumn >= table->columns()) {
+        newColumn = 0;
+        ++newRow;
+        if (newRow >= table->rows())
+            table->insertRows(table->rows(), 1);
+    }
+
+    cell = table->cellAt(newRow, newColumn);
+    cursor = cell.firstCursorPosition();
+}
+
+void QTextEditPrivate::gotoPreviousTableCell()
+{
+    QTextTable *table = cursor.currentTable();
+    QTextTableCell cell = table->cellAt(cursor);
+
+    int newColumn = cell.column() - 1;
+    int newRow = cell.row();
+
+    if (newColumn < 0) {
+        newColumn = table->columns() - 1;
+        --newRow;
+        if (newRow < 0)
+            return;
+    }
+
+    cell = table->cellAt(newRow, newColumn);
+    cursor = cell.firstCursorPosition();
+}
+
 void QTextEditPrivate::createAutoBulletList()
 {
     cursor.beginEditBlock();
@@ -1338,7 +1376,10 @@ process:
                     e->ignore();
                     return;
                 }
-                if (d->cursor.atBlockStart()) {
+                if (d->cursor.currentTable()) {
+                    d->gotoNextTableCell();
+                    break;
+                } else if (d->cursor.atBlockStart()) {
                     d->indent();
                     break;
                 }
@@ -1349,7 +1390,10 @@ process:
                     e->ignore();
                     return;
                 }
-                if (d->cursor.atBlockStart()) {
+                if (d->cursor.currentTable()) {
+                    d->gotoPreviousTableCell();
+                    break;
+                } else if (d->cursor.atBlockStart()) {
                     d->outdent();
                     break;
                 }

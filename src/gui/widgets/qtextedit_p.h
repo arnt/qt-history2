@@ -28,6 +28,9 @@ public:
     void indent();
     void outdent();
 
+    void gotoNextTableCell();
+    void gotoPreviousTableCell();
+
     void createAutoBulletList();
 
     void init(const QTextDocumentFragment &fragment = QTextDocumentFragment(),
