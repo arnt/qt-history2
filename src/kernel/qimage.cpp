@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#54 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#55 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#54 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#55 $")
 
 
 /*----------------------------------------------------------------------------
@@ -50,9 +50,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#54 $")
     QImage image;
       // sets bit at (x,y) to 1
     if ( image.bitOrder() == QImage::LittleEndian )
-	*(image.scanLine(y) + x >> 3) |= 1 << (x & 7);
+	*(image.scanLine(y) + (x >> 3)) |= 1 << (x & 7);
     else
-	*(image.scanLine(y) + x >> 3) |= 1 << (7 -(x & 7));
+	*(image.scanLine(y) + (x >> 3)) |= 1 << (7 -(x & 7));
   \endcode
 
   If this looks complicated, it might be a good idea to convert the 1-bpp
@@ -75,7 +75,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#54 $")
   \code
     QImage image;
       // sets 24 bit pixel at (x,y) to yellow.
-    *(image.scanLine(y) + 3*x) = QRGB(255, 255, 0);
+    uchar *p = image.scanLine(y) + 3*x;
+    *p++ = 255;		// red
+    *p++ = 255;		// green
+    *p   = 0;		// blue
   \endcode
 
   The scanlines are 32-bit aligned for all depths.
