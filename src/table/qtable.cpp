@@ -5146,6 +5146,9 @@ void QTable::insertRows( int row, int count )
     if ( row < 0 || count <= 0 )
 	return;
 
+    if ( curRow >= row && curRow < row + count )
+	curRow = row + count;
+
     row--;
     if ( row >= numRows() )
 	return;
@@ -5167,6 +5170,9 @@ void QTable::insertColumns( int col, int count )
 {
     if ( col < 0 || count <= 0 )
 	return;
+
+    if ( curCol >= col && curCol < col + count )
+	curCol = col + count;
 
     col--;
     if ( col >= numCols() )
