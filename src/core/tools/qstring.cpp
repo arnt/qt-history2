@@ -3569,7 +3569,7 @@ QString &QString::sprintf( const char* cformat, ... )
 		    	++ch;
 		    subst.setUnicodeCodes(buff, ch - buff);
 		} else
-	    	    subst = QLatin1String(va_arg(ap, const char*));
+	    	    subst = QString::fromUtf8(va_arg(ap, const char*));
 		if (precision != -1)
 		    subst.truncate(precision);
 		++c;
