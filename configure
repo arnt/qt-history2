@@ -3106,7 +3106,9 @@ if [ "$CFG_LARGEFILE" = "yes" ]; then
 fi
 
 if [ ! -z "$QT_MAC_VERSION" ]; then
-    echo "#define QT_MACOSX_VERSION  ${QT_MAC_VERSION}  /*from config.tests*/" >>$outpath/include/qconfig.h.new
+    echo "#ifndef QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
+    echo "# define QT_MACOSX_VERSION  `printf 0x%x ${QT_MAC_VERSION}`  /*from config.tests*/" >>$outpath/include/qconfig.h.new
+    echo "#endif QT_MACOSX_VERSION" >>$outpath/include/qconfig.h.new
 fi
 
 ## find excluded styles and add this to $QCONFIG_FLAGS
