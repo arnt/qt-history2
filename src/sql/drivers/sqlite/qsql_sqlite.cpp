@@ -36,8 +36,6 @@ static QCoreVariant::Type qSqliteType(int tp)
         return QCoreVariant::Double;
     case SQLITE_BLOB:
         return QCoreVariant::ByteArray;
-    case SQLITE_NULL:
-        return QCoreVariant::Invalid;
     case SQLITE_TEXT:
     default:
         return QCoreVariant::String;
@@ -411,7 +409,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 
     QSqlQuery q(createResult());
     q.setForwardOnly(true);
-    // finrst find a UNIQUE INDEX
+    // first find a UNIQUE INDEX
     q.exec(QLatin1String("PRAGMA index_list('") + tblname + QLatin1String("');"));
     QString indexname;
     while(q.next()) {
