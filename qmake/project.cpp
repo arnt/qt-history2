@@ -40,7 +40,6 @@ struct parser_info {
     bool from_file;
 } parser;
 
-
 struct QMakeProject::ScopeIterator
 {
     struct Parse {
@@ -55,7 +54,7 @@ struct QMakeProject::ScopeIterator
 	parser_info pi;
 	Test(const QString &f, QStringList &a, bool i) : func(f), args(a), invert(i) { pi = ::parser; }
     };
-    ScopeIterator() : scope_level(1), loop_forever(FALSE) { }
+    ScopeIterator() : scope_level(1), loop_forever(FALSE), cause_break(FALSE) { }
     bool exec(QMakeProject *p);
 
     int scope_level;
@@ -63,7 +62,7 @@ struct QMakeProject::ScopeIterator
     QList<Parse> parser;
     QString variable;
 
-    bool loop_forever;
+    bool loop_forever, cause_break;
     QStringList list;
 };
 bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
@@ -73,7 +72,10 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
     if(!loop_forever)
 	it = list.begin();
     int iterate_count = 0;
-    parser_info pi = ::parser; 	//save state
+    //save state
+    p->iterator = this;
+    parser_info pi = ::parser; 	
+    //do the loop
     while(loop_forever || it != list.end()) {
 	//set up the loop variable
 	QStringList va;
@@ -94,17 +96,12 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 	    if(!succeed)
 		break;
 	}
-	bool cause_break = FALSE;
 	if(succeed) {
 	    for(QList<Parse>::Iterator parse_it = parser.begin(); parse_it != parser.end(); 
 		++parse_it) {
 		::parser = (*parse_it).pi;
-		if((*parse_it).text == "break()" && !p->scope_blocks.top().iterate) {
-		    cause_break = TRUE;
+		if(!(ret = p->parse((*parse_it).text, p->variables()))) 
 		    break;
-		} else if(!(ret = p->parse((*parse_it).text, p->variables()))) {
-		    break;
-		}
 	    }
 	}
 	//restore the variable in the map
@@ -117,7 +114,9 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
 	if(!ret || cause_break)
 	    break;
     }
-    ::parser = pi; //restore state
+    //restore state
+    ::parser = pi; 
+    p->iterator = 0;
     return ret;
 }
 QMakeProject::ScopeBlock::~ScopeBlock()
@@ -261,11 +260,13 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 
 QMakeProject::QMakeProject()
 {
+    iterator = 0;
     prop = NULL;
 }
 
 QMakeProject::QMakeProject(QMakeProperty *p)
 {
+    iterator = 0;
     prop = p;
 }
 
@@ -693,6 +694,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	/* scope_blocks starts with one non-ignoring entity */
 	scope_blocks.clear();
 	scope_blocks.push(ScopeBlock());
+	iterator = 0;
 	QTextStream t( &qfile );
 	ret = read(t, place);
 	if(!using_stdin)
@@ -1217,6 +1219,12 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    return FALSE;
 	}
 	return system(args.first().latin1()) == 0;
+    } else if(func == "break") {
+	if(!iterator)
+	    fprintf(stderr, "%s:%d unexpected break()",parser.file.latin1(), parser.line_no);
+	else
+	    iterator->cause_break = TRUE;
+	return TRUE;
     } else if(func == "contains") {
 	if(args.count() != 2) {
 	    fprintf(stderr, "%s:%d: contains(var, val) requires two arguments.\n", parser.file.latin1(),

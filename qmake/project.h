@@ -36,6 +36,7 @@ class QMakeProject
 	uint ignore : 1, else_status : 2;
     };
     QStack<ScopeBlock> scope_blocks;
+    ScopeIterator *iterator;
 
     QString pfile, cfile;
     QMakeProperty *prop;
