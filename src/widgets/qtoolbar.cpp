@@ -434,7 +434,7 @@ bool QToolBar::event( QEvent * e )
 	QObject * child = ((QChildEvent*)e)->child();
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    bl->setStretchFactor( (QWidget*)child, 1 );
-	if ( isVisible() && child && child->isWidgetType() &&
+	if ( isVisibleTo( 0 ) && child && child->isWidgetType() &&
 	     child->parent() == this && !child->inherits( "QPopupMenu" ) )
 	    ( (QWidget*)child )->show();
     } else if ( e->type() == QEvent::ChildRemoved ) {
