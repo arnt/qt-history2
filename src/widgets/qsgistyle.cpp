@@ -926,7 +926,7 @@ QSGIStyle::drawSlider( QPainter* p, int x, int y, int w, int h, const QColorGrou
 /*! \reimp
 */
 void
-QSGIStyle::drawSliderMask( QPainter* p, int x, int y, int w, int h, const QColorGroup& /*g*/,
+QSGIStyle::drawSliderMask( QPainter* p, int x, int y, int w, int h,
                  Orientation orient, bool tickAbove, bool tickBelow )
 {
     QColorGroup g1(color1, color1, color1, color1, color1, color1, color1);
@@ -957,7 +957,7 @@ QSGIStyle::drawSliderGroove( QPainter* p, int x, int y, int w, int h,
 */
 void
 QSGIStyle::drawSliderGrooveMask( QPainter* p, int x, int y, int w, int h,
-                 const QColorGroup& /*g*/, QCOORD c, Orientation orient )
+                 QCOORD c, Orientation orient )
 {
     QColorGroup g1(color1, color1, color1, color1, color1, color1, color1);
     drawSliderGroove( p, x, y, w, h, g1, c, orient);
