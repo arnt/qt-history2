@@ -373,7 +373,8 @@ LRESULT CALLBACK axc_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
     int	   button;
     int	   state;
     int	   i;
-    if (!reentrant && lParam && nCode >= 0) {
+
+    if (!reentrant && lParam && nCode >= 0 && wParam == PM_REMOVE) {
         reentrant = true;
         MSG *msg = (MSG*)lParam;
         const uint message = msg->message;
