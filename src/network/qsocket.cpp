@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#29 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#30 $
 **
 ** Implementation of QSocket class.
 **
@@ -1014,6 +1014,14 @@ QString QSocket::readLine()
 
 void QSocket::sn_read()
 {
+    // Use alreadyCalled to avoid recursive calls of sn_read() (and as a result
+    // avoid emitting the readyRead() signal in a slot for readyRead(), if you
+    // use bytesAvailable()).
+    static bool alreadyCalled = FALSE;
+    if ( alreadyCalled )
+	return;
+    alreadyCalled = TRUE;
+
     char buf[4096];
     int  nbytes = d->socket->bytesAvailable();
     int  nread;
@@ -1024,6 +1032,7 @@ void QSocket::sn_read()
 	    tryConnection();
 	} else {
 	    // nothing to do, nothing to care about
+	    alreadyCalled = FALSE;
 	    return;
 	}
     }
@@ -1052,19 +1061,22 @@ void QSocket::sn_read()
 	    d->wba.clear();			// clear write buffer
 	    d->windex = d->wsize = 0;
 	    emit connectionClosed();
+	    alreadyCalled = FALSE;
 	    return;
 	} else {
 	    if ( nread < 0 ) {
 		if ( d->socket->error() == QSocketDevice::NoError ) {
 		    // all is fine
+		    alreadyCalled = FALSE;
 		    return;
 		}
-#if defined(QT_CHECK_RANGE)
+#if defined(QSOCKET_DEBUG)
 		qWarning( "QSocket::sn_read (%s): Close error", name() );
 #endif
 		if (d->rsn)
 		    d->rsn->setEnabled( FALSE );
 		emit error( ErrSocketRead );	// socket close error
+		alreadyCalled = FALSE;
 		return;
 	    }
 	    a = new QByteArray( nread );
@@ -1091,6 +1103,7 @@ void QSocket::sn_read()
 	if ( nread < 0 ) {
 	    if ( d->socket->error() == QSocketDevice::NoError ) {
 		// all is fine
+		alreadyCalled = FALSE;
 		return;
 	    }
 #if defined(QT_CHECK_RANGE)
@@ -1100,6 +1113,7 @@ void QSocket::sn_read()
 	    if (d->rsn)
 		d->rsn->setEnabled( FALSE );
 	    emit error( ErrSocketRead );	// socket read error
+	    alreadyCalled = FALSE;
 	    return;
 	}
 	if ( nread != (int)a->size() ) {		// unexpected
@@ -1112,6 +1126,8 @@ void QSocket::sn_read()
     d->rba.append( a );
     d->rsize += nread;
     emit readyRead();
+
+    alreadyCalled = FALSE;
 }
 
 
