@@ -206,7 +206,7 @@ default namespace we'd already declared? The answer is quite complex:
 <UL>
 <LI>attributes without a prefix don't belong to any XML namespace at all,
 even not to the default namespace;
-<LI>additionaly omitting the prefix would lead to a \e title-title clash;
+<LI>additionally omitting the prefix would lead to a \e title-title clash;
 <LI>writing it as \e xmlns:title would declare a new namespace with
 the prefix \e title instead of applying the default \e xmlns namespace. 
 </UL>
