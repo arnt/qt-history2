@@ -314,6 +314,9 @@
         <property name="text">
             <string>Close</string>
         </property>
+        <property name="menuText">
+            <string>&amp;Close</string>
+        </property>
     </action>
 </actions>
 <images>
