@@ -36,14 +36,14 @@ void Window::createControls(const QString &title)
 {
     controlsGroup = new QGroupBox(title, this);
 
-    QLabel *minimumLabel = new QLabel(tr("Minimum value:"), controlsGroup);
-    QLabel *maximumLabel = new QLabel(tr("Maximum value:"), controlsGroup);
-    QLabel *valueLabel = new QLabel(tr("Current value:"), controlsGroup);
+    minimumLabel = new QLabel(tr("Minimum value:"), controlsGroup);
+    maximumLabel = new QLabel(tr("Maximum value:"), controlsGroup);
+    valueLabel = new QLabel(tr("Current value:"), controlsGroup);
 
-    QCheckBox *invertedAppearance = new QCheckBox(tr("Inverted appearance"),
-                                                  controlsGroup);
-    QCheckBox *invertedKeyBindings = new QCheckBox(tr("Inverted key bindings"),
-                                                   controlsGroup);
+    invertedAppearance = new QCheckBox(tr("Inverted appearance"),
+                                       controlsGroup);
+    invertedKeyBindings = new QCheckBox(tr("Inverted key bindings"),
+                                        controlsGroup);
 
     minimumSpinBox = new QSpinBox(controlsGroup);
     minimumSpinBox->setRange(-100, 100);

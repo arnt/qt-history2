@@ -3,8 +3,10 @@
 
 #include <QWidget>
 
+class QCheckBox;
 class QComboBox;
 class QGroupBox;
+class QLabel;
 class QSpinBox;
 class QStackedWidget;
 class SlidersGroup;
@@ -19,15 +21,20 @@ public:
 private:
     void createControls(const QString &title);
 
-    QGroupBox *controlsGroup;
     SlidersGroup *horizontalSliders;
     SlidersGroup *verticalSliders;
     QStackedWidget *pages;
 
-    QComboBox *orientationCombo;
+    QGroupBox *controlsGroup;
+    QLabel *minimumLabel;
+    QLabel *maximumLabel;
+    QLabel *valueLabel;
+    QCheckBox *invertedAppearance;
+    QCheckBox *invertedKeyBindings;
     QSpinBox *minimumSpinBox;
     QSpinBox *maximumSpinBox;
     QSpinBox *valueSpinBox;
+    QComboBox *orientationCombo;
 };
 
 #endif
