@@ -1,11 +1,7 @@
 /*!
 \page index.html
 
-<title>Trolltech GUI Designer</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-<h1 align=center>Trolltech GUI Designer</h1><br clear="all">
+\title Trolltech GUI Designer
 
 <ul>
 <li><a href="design.html">Design Overview</a>

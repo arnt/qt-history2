@@ -1,25 +1,17 @@
 /*!
 \page qembed.html
 
-<title>QEmbed - File and Image Embedder</title>
-</head><body bgcolor="#ffffff">
+\title QEmbed - File and Image Embedder
 
-\postheader
-<h1 align=center>QEmbed - File and Image Embedder</h1><br clear="all">
+The QEmbed tool, found in <tt>qt/tools/qembed</tt>, converts arbitrary files
+into C++ code. This is useful for including image files and other resources
+directly into your application rather than loading the data from external
+files.
 
-<p>
-The QEmbed tool, found in <tt>qt/tools/qembed</tt>
-converts arbitrary files into C++ code.
-This is useful for including image files
-and other resources directly into your application rather than loading the data
-from external files.
-
-<p>
-QEmbed can also generate uncompressed versions of
-images that can be included directly into your application, thus avoiding
-both the external file and the need to parse the image file format. This
-is useful for small images such as icons for which compression is not
-a great gain.
+QEmbed can also generate uncompressed versions of images that can be included
+directly into your application, thus avoiding both the external file and the
+need to parse the image file format. This is useful for small images such as
+icons for which compression is not a great gain.
 
 <h2>Usage</h2>
 <pre>
@@ -39,7 +31,7 @@ include in a C++ source file. In that file, you should make a wrapper
 function that suites your application. Two inline functions are provided,
 and your wrapper function could just call one of these, or you can
 implement your own. To use the inline functions in the simplest way:
-<p>
+
 <pre>
     #include "generated_qembed_file.h"
 
@@ -57,7 +49,7 @@ implement your own. To use the inline functions in the simplest way:
 	return qembed_findData(name);
     }
 </pre>
-<p>
-Alternatively, look at the output from QEmbed and write a function more
-tailored to the needs of your application.
+
+Alternatively, look at the output from QEmbed and write a function
+tailored to your needs.
 */

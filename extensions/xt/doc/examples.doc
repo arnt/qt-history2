@@ -14,8 +14,8 @@ static char ident[] = "$Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $
 
 /*! \example mainlyQt/editor.cpp
 
-  <h1 align=center>Editor Example</h1>
-  <p>
+  \heading Editor Example
+
   This example shows two simple text editors, with most of the
   program written in Qt.  One editor is a Qt QMultiLineEdit, the
   other is an Athena Widgets text widget.  They are bound together
@@ -24,8 +24,8 @@ static char ident[] = "$Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $
 
 /*! \example mainlyXt/editor.cpp
 
-  <h1 align=center>Editor Example</h1>
-  <p>
+  \heading Editor Example
+
   This example shows two simple text editors, with most of the
   program written in Xt.  One editor is a Qt QMultiLineEdit, the
   other is an Athena Widgets text widget.  They are bound together
@@ -34,8 +34,8 @@ static char ident[] = "$Id: examples.doc,v 1.2 1999/07/02 19:42:02 ettrich Exp $
 
 /*! \example mainlyMotif/editor.cpp
 
-  <h1 align=center>Editor Example</h1>
-  <p>
+  \heading Editor Example
+
   This example shows two simple text editors, with most of the
   program written in Motif.  One editor is a Qt QMultiLineEdit, the
   other is a Motif text widget.  They are bound together

@@ -1,11 +1,7 @@
 /*!
 \page format.html
 
-<title>Qt UI XML Format</title>
-</head><body bgcolor="#ffffff">
-
-\postheader
-<h1 align=center>Qt UI XML Format</h1><br clear="all">
+\title Qt UI XML Format
 
 This document describes the XML format which is used by the Qt
 Designer to describe dialogs and other widgets.  The XML document has

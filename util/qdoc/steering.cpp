@@ -251,9 +251,10 @@ void Steering::emitHtml() const
 	    if ( def == groupdefs.end() || classes.key() < def.key() ) {
 		c = (*classes).begin();
 		while ( c != (*classes).end() ) {
-		    if ( (*c)->doc() != 0 ) // ###
+		    if ( (*c)->doc() != 0 )
 			warning( 3, (*c)->doc()->location(),
-				 "Undefined group '%s'", classes.key().latin1() );
+				 "Undefined group '%s'",
+				 classes.key().latin1() );
 		    ++c;
 		}
 		++classes;
@@ -263,6 +264,8 @@ void Steering::emitHtml() const
 		  a QMap with class name keys and ClassDecl * values.
 		*/
 		HtmlWriter out( config->defgroupHref((*def)->groupName()) );
+		out.setTitle( (*def)->title() );
+		out.setHeading( (*def)->heading() );
 		(*def)->printHtml( out );
 		out.enterFooter();
 		out.putsMeta( "<p>Classes:\n<ul>\n" );
@@ -288,6 +291,7 @@ void Steering::emitHtml() const
     while ( pa != pages.end() ) {
 	HtmlWriter out( (*pa)->fileName() );
 	out.setTitle( (*pa)->title() );
+	out.setHeading( (*pa)->heading() );
 	(*pa)->printHtml( out );
 	++pa;
     }
@@ -295,7 +299,11 @@ void Steering::emitHtml() const
     QValueList<ExampleDoc *>::ConstIterator ex = examples.begin();
     while ( ex != examples.end() ) {
 	HtmlWriter out( config->verbatimHref((*ex)->fileName()) );
-	out.setTitle( (*ex)->fileName() );
+	if ( (*ex)->title().isEmpty() )
+	    out.setTitle( (*ex)->fileName() + QString(" Example File") );
+	else
+	    out.setTitle( (*ex)->title() );
+	out.setHeading( (*ex)->heading() );
 	(*ex)->printHtml( out );
 	++ex;
     }
@@ -358,6 +366,6 @@ void Steering::emitHtml() const
 void Steering::addHtmlFile( const QString& fileName )
 {
     if ( htmlflist.contains(fileName) )
-	warning( 1, "Duplicate HTML file '%s'", fileName.latin1() );
+	warning( 1, "HTML file '%s' overwritten", fileName.latin1() );
     htmlflist.insert( fileName );
 }

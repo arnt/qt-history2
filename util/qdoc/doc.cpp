@@ -83,7 +83,7 @@ static QString htmlProtect( const QString& str )
 }
 
 /*
-  This function is imperfect.  If sophisticated '\index's are needed, it can
+  This function is imperfect.  If sophisticated '\keyword's are needed, it can
   always be changed.
  */
 static QString indexAnchor( const QString& str )
@@ -272,8 +272,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     QString arg, brief;
     QString className, enumName, extName, fileName, groupName, moduleName;
-    QString title, prototype, relates, x;
-    StringSet groups, headers, parameters, index;
+    QString title, heading, prototype, relates, x;
+    StringSet groups, headers, parameters, keywords;
     QStringList seeAlso, important, anamesToPrepend;
     bool obsolete = FALSE;
     int briefBegin = -1;
@@ -548,19 +548,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKindHasToBe( Doc::Class, command );
 		}
 		break;
-	    case hash( 'i', 5 ):
-		consume( "index" );
-		x = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
-		index.insert( x );
-
-		/*
-		  The <a name="..."> for '\page's is put right here, because a
-		  page can contain many topics.  Otherwise, no new
-		  <a name="..."> is created; the link given by setLink() is
-		  used.
-		*/
-		if ( kindIs == Doc::Page )
-		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
+	    case hash( 'h', 7 ):
+		consume( "heading" );
+		heading = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
 		break;
 	    case hash( 'i', 7 ):
 		consume( "ingroup" );
@@ -598,12 +588,26 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		important = getStringList();
 		setKindHasToBe( Doc::Class, command );
 		break;
+	    case hash( 'k', 7 ):
+		consume( "keyword" );
+		x = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
+		keywords.insert( x );
+
+		/*
+		  The <a name="..."> for '\page's is put right here, because a
+		  page can contain many topics.  Otherwise, no new
+		  <a name="..."> is created; the link given by setLink() is
+		  used.
+		*/
+		if ( kindIs == Doc::Page )
+		    yyOut += QString( "<a name=\"%1\"></a>" ).arg( x );
+		break;
 	    case hash( 'l', 4 ):
 		if ( command.length() != 4 )
 		    break;
 		if ( command[3] == QChar('e') ) {
 		    consume( "line" );
-		    warning( 3, location(),
+		    warning( 2, location(),
 			     "Command '%s' is obsolete, use '%s'",
 			     "\\line", "\\printline" );
 		    enterPre();
@@ -690,16 +694,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		enterPre();
 		break;
 	    case hash( 'p', 10 ):
-		if ( command.length() != 10 )
-		    break;
-		if ( command[1] == QChar('o') ) {
-		    consume( "postheader" );
-		    warning( 3, location(),
-			     "Command '\\postheader' is obsolete" );
-		} else {
-		    check( "printuntil" );
-		    enterPre();
-		}
+		check( "printuntil" );
+		enterPre();
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -730,15 +726,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 's', 4 ):
 		consume( "skip" );
-		warning( 3, location(),
-			 "Command '%s' is obsolete, use '%s'",
+		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
 			 "\\skip", "\\skipto" );
 		enterPre();
 		yyOut += QString( "\\skipto" );
-		break;
-	    case hash( 's', 5 ):
-		consume( "style" );
-		warning( 3, location(), "Command '\\style' is obsolete" );
 		break;
 	    case hash( 's', 6 ):
 		check( "skipto" );
@@ -758,8 +749,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'u', 5 ):
 		consume( "until" );
-		warning( 3, location(),
-			 "Command '%s' is obsolete, use '%s'",
+		warning( 2, location(), "Command '%s' is obsolete, use '%s'",
 			 "\\until", "\\printuntil" );
 		enterPre();
 		yyOut += QString( "\\printuntil" );
@@ -834,8 +824,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Page:
 	sanitize( fileName );
-	sanitize( title );
-	doc = new PageDoc( loc, yyOut, fileName, title );
+	doc = new PageDoc( loc, yyOut, fileName, title, heading );
 	break;
     case Doc::Base64:
 	sanitize( fileName );
@@ -847,12 +836,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Defgroup:
 	sanitize( groupName );
-	sanitize( title );
-	doc = new DefgroupDoc( loc, yyOut, groupName, title );
+	doc = new DefgroupDoc( loc, yyOut, groupName, title, heading );
 	break;
     case Doc::Example:
 	sanitize( fileName );
-	doc = new ExampleDoc( loc, yyOut, fileName );
+	doc = new ExampleDoc( loc, yyOut, fileName, title, heading );
 	break;
     default:
 	doc = new Doc( Doc::Null, loc, yyOut );
@@ -860,7 +848,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setInternal( internal );
     doc->setObsolete( obsolete );
     doc->setSeeAlso( seeAlso );
-    doc->setIndex( index );
+    doc->setKeywords( keywords );
     if ( mustquoteBegin >= 0 )
 	doc->setHtmlMustQuote( yyOut.mid(mustquoteBegin,
 					 mustquoteEnd - mustquoteBegin)
@@ -1007,7 +995,7 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 	++s;
     }
     t.replace( QRegExp(QChar(' ')), QString("[ \t\n]+") );
-    t.prepend( QString("[ \t\n]") );
+    t.prepend( QString("[ \t\n>]") );
     t.append( QString(")\\b)") );
 
     delete megaRegExp;
@@ -1397,22 +1385,26 @@ void Doc::setLink( const QString& link, const QString& title )
     }
 
     /*
-      If there are '\index' commands in this Doc, find out their full address.
+      If there are '\keyword' commands in this Doc, find out their full address.
      */
-    if ( !idx.isEmpty() ) {
+    if ( !kwords.isEmpty() ) {
 	int k = link.find( QChar('#') );
 	if ( k == -1 )
 	    k = link.length();
 
-	StringSet::ConstIterator s = idx.begin();
-	while ( s != idx.end() ) {
+	StringSet::ConstIterator s = kwords.begin();
+	while ( s != kwords.end() ) {
 	    if ( kind() == Page )
 		indexLink = link.left( k ) + QChar( '#' ) + indexAnchor( *s );
 	    else
 		indexLink = link;
+
 	    indices.insert( *s, indexLink );
+	    if ( (*s)[0] != (*s)[0].upper() )
+		indices.insert( (*s)[0].upper() + (*s).mid(1), indexLink );
 	    ++s;
 	}
+	kwords.clear();
     }
 
     /*
@@ -1682,7 +1674,7 @@ QString Doc::finalHtml() const
 		    yyOut[begin - 1] != QChar('.') )
 		begin--;
 
-	    // handle '(func())'
+	    // deal with '(func())'
 	    if ( yyOut[begin] == QChar('(') )
 		begin++;
 
@@ -1690,7 +1682,7 @@ QString Doc::finalHtml() const
 		 offsetOK(&offsetMap, yyOut.length(), yyOut.mid(begin)) ) {
 		/*
 		  It's always a good idea to include the '()', as it provides
-		  some typing (in two senses of the word).
+		  some typing (in at least two senses of the word).
 		*/
 		if ( ch == QChar('(') && yyIn.mid(yyPos, 1) == QChar(')') ) {
 		    yyOut.replace( begin, end - begin,
@@ -1725,23 +1717,26 @@ QString Doc::finalHtml() const
 
     /*
       Time to add some automatic hrefs.  Add links to class names and to
-      '\index' keywords.
+      '\keyword's.
     */
     if ( megaRegExp != 0 ) {
 	int k = 0;
 	while ( (k = yyOut.find(*megaRegExp, k)) != -1 ) {
-	    // ### I don't remember what this condition means... will find out
+	    /*
+	      Make sure we didn't match a '<pre>...</pre>' thingy, but rather
+	      skip over it.  (See the construction of megaRegExp.)
+	    */
 	    if ( yyOut[k + 1] != QChar('<') ) {
 		QString t = megaRegExp->cap( 0 ).mid( 1 ).simplifyWhiteSpace();
 
 		/*
 		  Insert a href, but rule out two cases:  (1) The current link
-		  is foo.html and the index entry is at foo.html#big-mice;
+		  is foo.html and the '\keyword' entry is at foo.html#big-mice;
 		  (2) The current doc and the entry are both at
 		  foo.html#printBar.
 		*/
-		if ( lnk != indices[t].left(lnk.length())
-		     && offsetOK(&offsetMap, yyOut.length(), t) ) {
+		if ( lnk != indices[t].left(lnk.length()) &&
+		     offsetOK(&offsetMap, yyOut.length(), t) ) {
 		    yyOut.replace( k + 1, t.length(),
 				   QString("<a href=\"%1\">%2</a>")
 				   .arg(indices[t]).arg(t) );
@@ -1756,8 +1751,8 @@ QString Doc::finalHtml() const
     */
     if ( !q.isEmpty() ) {
 	warning( 1, location(), "Ignored '\\mustquote' (fix qdoc)" );
-    } else if ( !idx.isEmpty() ) {
-	warning( 1, location(), "Ignored '\\index' (fix qdoc)" );
+    } else if ( !kwords.isEmpty() ) {
+	warning( 1, location(), "Ignored '\\keyword' (fix qdoc)" );
     }
 
     return yyOut;
@@ -1852,9 +1847,39 @@ EnumDoc::EnumDoc( const Location& loc, const QString& html,
 {
 }
 
+PageLikeDoc::PageLikeDoc( Kind kind, const Location& loc, const QString& html,
+			  const QString& title, const QString& heading )
+    : Doc( kind, loc, html ), ttl( title ), hding( heading )
+{
+}
+
+QString PageLikeDoc::heading() const
+{
+    static QRegExp linkEndlink( QString("\\\\link(.*)\\\\endlink") );
+    int k = linkEndlink.search( hding );
+    if ( k == -1 ) {
+	return hding;
+    } else {
+	QStringList toks = QStringList::split( QChar(' '),
+		linkEndlink.cap(1).stripWhiteSpace() );
+	if ( toks.count() < 2 ) {
+	    warning( 2, location(),
+		     "Bad '\\link ... \\endlink' syntax in '\\heading'" );
+	    return hding;
+	}
+
+	QString name = toks.first();
+	toks.remove( toks.begin() );
+	QString text = toks.join( QChar(' ') );
+	return hding.left( k ) + href( name, text ) +
+	       hding.mid( k + linkEndlink.matchedLength() );
+    }
+}
+
 PageDoc::PageDoc( const Location& loc, const QString& html,
-		  const QString& fileName, const QString& title )
-    : Doc( Page, loc, html ), fname( fileName ), titl( title )
+		  const QString& fileName, const QString& title,
+		  const QString& heading )
+    : PageLikeDoc( Page, loc, html, title, heading ), fname( fileName )
 {
 }
 
@@ -1881,13 +1906,16 @@ void Base256Doc::print( BinaryWriter& out )
 }
 
 DefgroupDoc::DefgroupDoc( const Location& loc, const QString& html,
-			  const QString& groupName, const QString& title )
-    : Doc( Defgroup, loc, html ), gname( groupName ), titl( title )
+			  const QString& groupName, const QString& title,
+			  const QString& heading )
+    : PageLikeDoc( Defgroup, loc, html, title, heading ),
+      gname( groupName )
 {
 }
 
 ExampleDoc::ExampleDoc( const Location& loc, const QString& html,
-			const QString& fileName )
-    : Doc( Example, loc, html ), fname( fileName )
+			const QString& fileName, const QString& title,
+			const QString& heading )
+    : PageLikeDoc( Example, loc, html, title, heading ), fname( fileName )
 {
 }

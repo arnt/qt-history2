@@ -740,7 +740,7 @@ static void matchDocsAndStuff( Steering *steering )
 		    }
 		} else {
 		    warning( 3, fn->location(),
-			     "Can't tie this documentation to anything" );
+			     "Cannot tie this documentation to anything" );
 		}
 
 		if ( !fn->prototype().isEmpty() ) {

@@ -3,19 +3,19 @@
 
 \title Porting applications to Hebrew and Arabic
 
-Even though Qt tries to remove most of the burden of enabling applications
-for Hebrew and Arabic from the programmer, there are a few points left where
-the programmer has to take care. This document will try to describe most of the
+Even though Qt tries to remove most of the burden of enabling applications for
+Hebrew and Arabic from the programmer, there are a few points left where the
+programmer has to take care. This document will try to describe most of the
 problems that can occur when trying to translate and use the application in
 Hebrew or Arabic.
 
-<h1>Difference to other languages</h1>
+<h2>Difference with other languages</h2>
 
-Hebrew and arabic are different from most other languages in that they are written from 
-right to left. Numbers and english words embedded in a hebrew or arabic sentence however are
-still written left to right. Text is however stored on disk in the logical order, so displaying 
-and editing has to use an algorithm to reorder the string into the visual order the user
-would expect.
+Hebrew and arabic are different from most other languages in that they are
+written from right to left. Numbers and english words embedded in a hebrew or
+arabic sentence however are still written left to right. Text is however stored
+on disk in the logical order, so displaying and editing has to use an algorithm
+to reorder the string into the visual order the user would expect.
 
 A simple example is the following string (big letters are Hebrew or Arabic):
 <pre>
@@ -28,24 +28,28 @@ The visual output of this would be:
 .DROW english NA SI SIHT
 </pre>
 
-Qt takes care of all these formatting and reordering issues internally, so you will not have to care about it.
+Qt takes care of all these formatting and reordering issues internally, so you
+will not have to care about it.
 
-<p>
-Another big difference is that the whole user interface is mirrored. So a dialog which would usually be laid out
-from left to right will be laid out right to left in Hebrew and Arabic. If you use QLayouts, this will be
-done automatically inside of Qt, and all dialogs should come out reversed if the app is translated to hebrew
-or arabic. You can try this effect yourself, by starting the app with the -reverse command line switch.
+Another big difference is that the whole user interface is mirrored. So a
+dialog which would usually be laid out from left to right will be laid out
+right to left in Hebrew and Arabic. If you use QLayout, this will be done
+automatically inside of Qt, and all dialogs should come out reversed if the app
+is translated to hebrew or arabic. You can try this effect yourself, by
+starting the app with the -reverse command line switch.
 
-<h1>Things ot take care of</h1>
+<h2>Things ot take care of</h2>
 
-First of all, as for any other app that is supposed to be internationalized, don't use fixed layouts. 
-Use QLayouts instead. This will ensure automatically, that your application will look the right way when 
-translated to hebrew or arabic.
+First of all, as for any other app that is supposed to be internationalized,
+don't use fixed layouts.  Use QLayout instead. This will ensure automatically,
+that your application will look the right way when  translated to hebrew or
+arabic.
 
-There are a few functions kept for compatibilty with older applications that might lead to unexpected 
-or wrong results when used in a right to left language
+There are a few functions kept for compatibilty with older applications that
+might lead to unexpected  or wrong results when used in a right to left
+language
 
-<h2>Functions you shouldn't use</h2>
+<h2>Functions you should avoid</h2>
 
 QHeader::cellPos()
 

@@ -41,14 +41,14 @@ static char ident[] = "$Id: indices.doc,v 2.35 1999/06/15 12:58:13 weis Exp $";
 
 \title Enabling the Linux framebuffer
 
-<h1>How to enable framebuffer support in the Linux kernel</h1>
+\heading How to enable framebuffer support in the Linux kernel
 
 <p>
 This is only a short guide.
 See <a href="file:/usr/src/linux/README"><tt>/usr/src/linux/README</tt></a> and
 <a href="file:/usr/src/linux/Documentation/fb/"><tt>/usr/src/linux/Documentation/fb/</tt></a>
 for detailed information.
-There is also a detailed explanation at:
+There is also a detailed explanation at
 <a href="http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html">
 http://www.linuxdoc.org/HOWTO/Framebuffer-HOWTO.html</a>
 
@@ -184,7 +184,7 @@ Do not change any lines in the file; just add new ones.
 
 <li> Testing
 <p>
-   Here's a short C program that opens the frame buffer and draws a
+   Here's a short program that opens the frame buffer and draws a
    gradient-filled red square.
 <pre>
 #include <unistd.h>

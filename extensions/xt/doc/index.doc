@@ -13,15 +13,8 @@ static char ident[] = "$Id: index.doc,v 1.5 1998/10/31 02:27:25 agulbra Exp $";
 
 /*! \page xt.html
 
-<title>Qt Xt/Motif Support Extension</title>
-</head>
+\title Qt Xt/Motif Support Extension
 
-<body bgcolor=#ffffff>
-<h1 align=center>Qt Xt/Motif Support Extension</h1>
-
-<hr>
-
-<p>
 The Qt Xt/Motif Support Extension assists the migration of old
 Xt and Motif based code to the more comfortable Qt toolkit.
 
@@ -43,7 +36,6 @@ The Qt Xt/Motif Extension consists of the following classes:
  <li>Decide whether you are writing a new Qt application reusing
 	old Xt widgets, or introducing new Qt widgets into an existing
 	Xt/Motif application. See the corresponding example program.
-
 </ol>
 
 <h2>Example Programs</h2>
@@ -59,8 +51,7 @@ The Qt Xt/Motif Extension consists of the following classes:
 This extension is under development.  The following problems exist:
 
 <ul>
- <li> The different focus models of Xt, Motif, and Qt interfere.
+ <li> The different focus models of Xt, Motif and Qt interfere.
  <li> Clipboard handling between Xt/Motif and Qt does not work properly.
 </ul>
-
 */

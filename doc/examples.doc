@@ -40,7 +40,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example application/main.cpp
 
-  <h1 align=center>A Complete Application Window</h1><br clear="all">
+  \heading A Complete Application Window
 
   This example program looks like a complete modern application.  It
   has a menu bar, it has a tool bar, it has a status bar and works
@@ -69,7 +69,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example action/main.cpp
 
-  <h1 align=center>A Complete Application Window with Actions</h1><br clear="all">
+  \heading A Complete Application Window with Actions
 
   This example program is just like the application example, 
   QAction to build the menu and the toolbar.
@@ -94,7 +94,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example mdi/main.cpp
 
-  <h1 align=center>A MDI Application</h1><br clear="all">
+  \heading A MDI Application
 
   This example program is just like the application example, but designed as
   Multiple Document Interface (MDI).
@@ -119,7 +119,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example buttongroups/main.cpp
 
-  <h1 align=center>Buttons and Groupboxes</h1><br clear="all">
+  \heading Buttons and Groupboxes
 
   This examples shows different types of Groupboxes (Buttongroups, etc.) and lots
   of different kinds of Buttons (Checkboxes, Radiobuttons, Pushbuttons, etc.)
@@ -144,7 +144,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example checklists/main.cpp
 
-  <h1 align=center>Listviews with Checkable Items</h1><br clear="all">
+  \heading Listviews with Checkable Items
 
   This example program shows how to use Listviews with different types of
   checkable Items.
@@ -169,7 +169,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example cursor/cursor.cpp
 
-  <h1 align=center>Cursors</h1><br clear="all">
+  \heading Cursors
 
   This example shows how to set a mouse cursor for a widget.
 
@@ -181,7 +181,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example customlayout/main.cpp
 
-  <h1 align=center>Customized Layoutmanager</h1><br clear="all">
+  \heading Customized Layoutmanager
 
   This examples demonstrates how to write a customized layout (geometry) manager,
   like a Card-Layout, Border-Layout and Flow-Layout.
@@ -232,7 +232,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example desktop/desktop.cpp
 
-  <h1 align=center>Painting on the Desktop</h1><br clear="all">
+  \heading Painting on the Desktop
 
   The desktop demo contains three routines, each of which draws
   something on the desktop.  It does some nice stuff with QPainter,
@@ -247,7 +247,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example dirview/main.cpp
 
-  <h1 align=center>A Directory Browser</h1><br clear="all">
+  \heading A Directory Browser
 
   This example program demonstrates how to use a ListView and
   ListView Items to build a multi-column hierarchical, memory- and
@@ -277,7 +277,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example drawdemo/drawdemo.cpp
 
-  <h1 align=center>Draw Demo</h1><br clear="all">
+  \heading Draw Demo
 
   This example demonstrates several drawing functions and printer output.
   You can easily add you own drawing functions.  See "ourDrawFunctions".
@@ -290,7 +290,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example drawlines/connect.cpp
 
-  <h1 align=center>Connect the Points</h1><br clear="all">
+  \heading Connect the Points
 
   This example shows very simple mouse-based user interaction and
   painting without any world transform matrix or other advanced
@@ -305,7 +305,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example forever/forever.cpp
 
-  <h1 align=center>A Rectangle Draw "Benchmark"</h1><br clear="all">
+  \heading A Rectangle Draw "Benchmark"
 
   This example continuously draws rectangles in a window and
   has another widget that counts the number of rectangles that
@@ -325,7 +325,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example hello/main.cpp
 
-  <h1 align=center>Hello, World</h1><br clear="all">
+  \heading Hello, World
 
   This example brings up the words "Hello, World" moving up and down,
   and in different colors.
@@ -349,7 +349,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 */
 
 /*! \example i18n/main.cpp
-  <h1 align=center>Internationalization</h1><br clear="all">
+  \heading Internationalization
 
   This example shows how to internationalize applications. Start it with
   <pre># i18n de</pre>
@@ -379,7 +379,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example layout/layout.cpp
 
-  <h1 align=center>Layout Managers</h1><br clear="all">
+  \heading Layout Managers
 
   This example shows simple and intermediate use of Qt's layout
   classes, QGridLayout, QBoxLayout etc.
@@ -392,7 +392,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example lineedits/main.cpp
 
-  <h1 align=center>Line Edits</h1><br clear="all">
+  \heading Line Edits
 
   The Lineedits example shows how to work with single Lineedit widgets, and
   how to use different Echo Modes and Validators.
@@ -417,7 +417,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example listboxcombo/main.cpp
 
-  <h1 align=center>Listboxes and Comboboxes</h1><br clear="all">
+  \heading Listboxes and Comboboxes
 
   This example program demonstrates how to use Listboxes (with single selection
   and multi selection) and Comboboxes (editable and non-editable).
@@ -442,7 +442,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example listbox/main.cpp
 
-  <h1 align=center>Listboxe Example</h1><br clear="all">
+  \heading Listboxe Example
 
   This example shows how to use the different modes (single columns, multipe columns,
   fixed number of rows, etc.) of QListBox.
@@ -467,7 +467,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example listviews/main.cpp
 
-  <h1 align=center>Listviews</h1><br clear="all">
+  \heading Listviews
 
   This examples shows how to work with Listviews (hierarchical and multi-column).
   It also shows how to subclass Listview Items for special reasons. It looks
@@ -493,7 +493,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example menu/menu.cpp
 
-  <h1 align=center>Using menus</h1><br clear="all">
+  \heading Using menus
 
   This example demonstrates simple use of menus (a menu bar and
   pull-down menus).  Qt also supports popup menus, but this example
@@ -526,7 +526,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 */
 
 /*! \example picture/picture.cpp
-  <h1 align=center>Picture</h1><br clear="all">
+  \heading Picture
 
   This example shows how to make, store to file, and read a picture as
   a set of drawing commands.
@@ -539,7 +539,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example popup/popup.cpp
 
-  <h1 align=center>Popup Widgets</h1><br clear="all">
+  \heading Popup Widgets
 
   This examples shows how to implement widgets which should
   popup.
@@ -558,7 +558,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example progress/progress.cpp
 
-  <h1 align=center>Progress Bar and Dialog Example</h1><br clear="all">
+  \heading Progress Bar and Dialog Example
 
   This example displays either a simple (text-only) or a
   custom-labelled (user-supplied widget) progress dialog.  It also
@@ -571,7 +571,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example progressbar/main.cpp
 
-  <h1 align=center>Progress Bar</h1><br clear="all">
+  \heading Progress Bar
 
   This example shows how to use a progressbar.
 
@@ -595,7 +595,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example iconview/main.cpp
 
-  <h1 align=center>Iconview</h1><br clear="all">
+  \heading Iconview
 
   This example implements a flexible icon view which can store
   lots of icon items. It supports Drag'n'Drop, different selection modes,
@@ -607,7 +607,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example rangecontrols/main.cpp
 
-  <h1 align=center>Rangecontrols</h1><br clear="all">
+  \heading Rangecontrols
 
   This examples shows the different types of Rangecontrols which
   are supported by Qt. These are Dials, Spinboxes and Sliders.
@@ -632,7 +632,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example richtext/main.cpp
 
-  <h1 align=center>Richtext</h1><br clear="all">
+  \heading Richtext
 
   In this examples it's demonstrated how to display rich text, using
   Qt, in a widget. In this example some sayings taken from the famous
@@ -658,7 +658,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example rot13/rot13.cpp
 
-  <h1 align=center>Rot13</h1><br clear="all">
+  \heading Rot13
 
   In this example you can enter a text in one Mulitilineedit widget
   and it is displayed in the edit widget at the right transformed using
@@ -678,7 +678,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example scrollview/scrollview.cpp
 
-  <h1 align=center>Scrollview</h1><br clear="all">
+  \heading Scrollview
 
   This example shows how to use Qt's Scrollview. This is a widget
   which can contain a very large contents and is very optimized for
@@ -692,7 +692,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example splitter/splitter.cpp
 
-  <h1 align=center>Splitter</h1><br clear="all">
+  \heading Splitter
 
   This example shows how to use Splitters. Splitters can contain
   multiple child items and using the Splitter the user can
@@ -706,7 +706,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example tabdialog/main.cpp
 
-  <h1 align=center>Tabdialog</h1><br clear="all">
+  \heading Tabdialog
 
   This example shows how to use a dialog with multiple tabs
   (pages). When starting it you have to specify a filename
@@ -733,7 +733,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example themes/main.cpp
 
-  <h1 align=center>Themes (Styles)</h1><br clear="all">
+  \heading Themes (Styles)
 
   This examples demonstrates how to let widgets draw in different
   styles (themes). As example, themes looking like wood and metal
@@ -784,7 +784,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example tooltip/main.cpp
 
-  <h1 align=center>Advanced use of tool tips</h1><br clear="all">
+  \heading Advanced use of tool tips
 
   This example widget demonstrates how to use tool tips for static and
   dynamic regions within a widget.
@@ -813,7 +813,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example validator/main.cpp
 
-  <h1 align=center>Validators</h1><br clear="all">
+  \heading Validators
 
   In this example you see how to write and use an own validator.
 
@@ -849,7 +849,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example wizard/main.cpp
 
-  <h1 align=center>Wizard</h1><br clear="all">
+  \heading Wizard
 
   This example shows the usage of Qt's wizard class. A wizard
   should be used to help a user with complicated actions.
@@ -874,7 +874,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example xform/xform.cpp
 
-  <h1 align=center>Transformed Graphics Demo</h1><br clear="all">
+  \heading Transformed Graphics Demo
 
   This example lets the user rotate, shear and scale text and graphics
   arbitrarily.
@@ -887,7 +887,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example aclock/main.cpp
 
-  <h1 align=center>Analog Clock</h1><br clear="all">
+  \heading Analog Clock
 
   This example displays an analog clock widget.
 
@@ -911,7 +911,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example addressbook/main.cpp
 
-  <h1 align=center>Simple Addressbook</h1><br clear="all">
+  \heading Simple Addressbook
 
   This examples shows how to write a very simple, but complete application
   using a very simple addressbook as example.
@@ -948,7 +948,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example biff/main.cpp
 
-  <h1 align=center>Biff (UNIX only)</h1><br clear="all">
+  \heading Biff (UNIX only)
 
   Biff is a simple graphical program to indicate whether there is new
   mail; it looks exactly like xbiff but is much shorter.
@@ -975,7 +975,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example dclock/main.cpp
 
-  <h1 align=center>Digital Clock</h1><br clear="all">
+  \heading Digital Clock
 
   This example displays a digital LCD clock and can switch between time
   and date.
@@ -1000,7 +1000,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example life/main.cpp
 
-  <h1 align=center>Conway's Game of Life</h1><br clear="all">
+  \heading Conway's Game of Life
 
   ???
 
@@ -1024,7 +1024,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example movies/main.cpp
 
-  <h1 align=center>Movies<br>Or the Story of the Animated GIF file</h1><br clear="all">
+  \heading Movies<br>Or the Story of the Animated GIF file
 
   The Movies example displays animated GIF files using the QMovie and
   QLabel classes.
@@ -1037,7 +1037,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example helpviewer/main.cpp
 
-  <h1 align=center>Simple HTML Help Browser</h1><br clear="all">
+  \heading Simple HTML Help Browser
 
   The HelpViewer example implements a simple HTML help browser using
   Qt's richtext capabilities.
@@ -1062,7 +1062,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example qdir/qdir.cpp
 
-  <h1 align=center>QDir</h1><br clear="all">
+  \heading QDir
 
   ???
 
@@ -1074,7 +1074,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example qfd/qfd.cpp
 
-  <h1 align=center>Font Displayer</h1><br clear="all">
+  \heading Font Displayer
 
   This example program displays all characters of a font.
 
@@ -1098,7 +1098,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example fileiconview/main.cpp
 
-  <h1 align=center>Simple Filemanager</h1><br clear="all">
+  \heading Simple Filemanager
 
   This example implements a simple and not full functional file manager using
   a widget derived from QIconView to display the current directory and the
@@ -1136,7 +1136,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example qmag/qmag.cpp
 
-<h1 align=center>QMag</h1><br clear="all">
+  \heading QMag
 
   This is a simple magnifier-type program.  It shows how one can do
   some quite low-level operations portably using Qt.
@@ -1155,7 +1155,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example qwerty/main.cpp
 
-  <h1 align=center>Simple HTML Browser</h1><br clear="all">
+  \heading Simple HTML Browser
 
   ???
 
@@ -1179,7 +1179,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example scribble/main.cpp
 
-  <h1 align=center>Simple Painting Application</h1><br clear="all">
+  \heading Simple Painting Application
 
   This example implements the famous scribble example. You can draw around
   in the canvas with different pens and save the result as picture.
@@ -1204,10 +1204,10 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example showimg/main.cpp
 
-  <h1 align=center>Show Image</h1><br clear="all">
+  \heading Show Image
 
   This example reads and displays an image in any supported image
-  format (GIF, BMP, PPM, XMP etc.)
+  format (GIF, BMP, PPM, XMP, etc.)
 
   <hr>
 
@@ -1229,7 +1229,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example tictac/main.cpp
 
-  <h1 align=center>Tic Tac Toe</h1><br clear="all">
+  \heading Tic Tac Toe
 
   This is an implementation of the Tic-tac-toe game.
 
@@ -1258,7 +1258,7 @@ static char ident[] = "$Id: examples.doc,v 2.29 1999/07/07 09:57:05 reggie Exp $
 
 /*! \example tetrix/tetrix.cpp
 
-  <h1 align=center>Tetrix</h1><br clear="all">
+  \heading Tetrix
 
   This is the Qt implementation of the well known game Tetris.
 

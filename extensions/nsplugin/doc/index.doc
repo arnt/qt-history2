@@ -13,15 +13,12 @@ static char ident[] = "$Id: index.doc,v 1.8 1999/06/16 20:04:48 agulbra Exp $";
 
 /*! \page nsplugin.html
 
-<title>Qt-based LiveConnect Plugins</title>
-</head>
+\title Qt-based LiveConnect Plugins
 
-<body bgcolor=#ffffff>
-<h1 align=center>Qt-based LiveConnect Plugins for Netscape and Explorer</h1>
+\heading Qt-based LiveConnect Plugins for Netscape and Explorer
 
 <hr>
 
-<p>
 The Qt-based Netscape Plugin software makes it easy to write
 plugins
 such that they can be used on both Unix/Linux and Windows/95/NT,

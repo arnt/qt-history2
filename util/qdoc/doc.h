@@ -50,7 +50,7 @@ public:
     void setInternal( bool internal ) { inter = internal; }
     void setObsolete( bool obsolete ) { obs = obsolete; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
-    void setIndex( const StringSet& index ) { idx = index; }
+    void setKeywords( const StringSet& keywords ) { kwords = keywords; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
 
@@ -81,7 +81,7 @@ private:
     bool inter;
     bool obs;
     QString q;
-    StringSet idx;
+    StringSet kwords;
     QString lnk;
 
     static const Resolver *res;
@@ -159,18 +159,30 @@ private:
     QString ename;
 };
 
-class PageDoc : public Doc
+class PageLikeDoc : public Doc
+{
+public:
+    PageLikeDoc( Kind kind, const Location& loc, const QString& html,
+		 const QString& title, const QString& heading );
+
+    const QString& title() const { return ttl; }
+    QString heading() const;
+
+private:
+    QString ttl;
+    QString hding;
+};
+
+class PageDoc : public PageLikeDoc
 {
 public:
     PageDoc( const Location& loc, const QString& html, const QString& fileName,
-	     const QString& title );
+	     const QString& title, const QString& heading );
 
     const QString& fileName() const { return fname; }
-    const QString& title() const { return titl; }
 
 private:
     QString fname;
-    QString titl;
 };
 
 class Base64Doc : public Doc
@@ -201,25 +213,25 @@ private:
     QString fname;
 };
 
-class DefgroupDoc : public Doc
+class DefgroupDoc : public PageLikeDoc
 {
 public:
     DefgroupDoc( const Location& loc, const QString& html,
-		 const QString& groupName, const QString& title );
+		 const QString& groupName, const QString& title,
+		 const QString& heading );
 
     const QString& groupName() const { return gname; }
-    const QString& title() const { return titl; }
 
 private:
     QString gname;
-    QString titl;
 };
 
-class ExampleDoc : public Doc
+class ExampleDoc : public PageLikeDoc
 {
 public:
     ExampleDoc( const Location& loc, const QString& html,
-		const QString& fileName );
+		const QString& fileName, const QString& title,
+		const QString& heading );
 
     const QString& fileName() const { return fname; }
 

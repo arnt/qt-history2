@@ -14,28 +14,28 @@ static char ident[] = "$Id: examples.doc,v 1.9 1999/07/02 18:18:24 paul Exp $";
 
 /*! \example grapher/grapher.cpp
 
-  <h1 align=center>Grapher Plugin</h1>
-  <p>
+  \heading Grapher Plugin
+
   This example graphs data from a simple text file.  It
   demonstrates the use of the QNPInstance::writeReady()
   and QNPInstance::write() functions.
-  <p>
+
   To build the example, you must first build the
   <a href=xt.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/grapher/</tt>
   and copy the resulting <tt>grapher.so</tt> or <tt>npgrapher.dll</tt>
   to the Plugins directory of your WWW browser.
-  <p>
+
   <EMBED ALIGN=LEFT WIDTH=49% HEIGHT=300 SRC=graph.g1n
     graphstyle=pie fontfamily=times fontsize=18>
-  <p>
+
   The text file it accepts as input has a title line, then
   a sequence of lines with a number, then a string.  The
   plugin displays a pie chart of the numbers, each segment
   labelled by the associated string.  The user can select
   a bar chart view of the same data by selecting from the
   menu that appears when they point at the plugin.
-  <p>
+
   The HTML tag used to embed the graph is:
 <small>
 <pre>
@@ -73,14 +73,14 @@ num label
 
 /*! \example qtimage/qtimage.cpp
 
-  <h1 align=center>Display Images in Qt-supported Formats</h1>
-  <p>
+  \heading Display Images in Qt-supported Formats
+
   This example displays images which are in any format
   supported by Qt.  Combining this with the Qt ImageIO
   Extension adds PNG image support to your browser.
   It demonstrates the use of the QNPInstance::streamAsFile()
   function.
-  <p>
+
   To build the example, you must first build the
   <a href=imageio.html>Qt Image IO Extension library</a>
   and of course the
@@ -88,19 +88,19 @@ num label
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/qtimage/</tt>
   and copy the resulting <tt>qtimage.so</tt> or <tt>npqtimage.dll</tt>
   to the Plugins directory of your WWW browser.
-  <p>
+
 <table>
 <tr>
 <td valign=top><EMBED src=pnglogo.png WIDTH=256 HEIGHT=192>
 <td valign=top>
   This plugin displays a <a href=http://www.cdrom.com/pub/png/>PNG format</a> image.
-  <p>
+
   New image format can be supported by
   adding new image I/O handlers to the Qt library
   (see QImage::defineIOHandler), thus providing the functionality in both
   applications and WWW plugins from the same code.
 </table>
-  <p>
+
 This plugin supports transparency and scaling of the image, just like
 GIFs in most WWW browsers.
 
@@ -549,19 +549,17 @@ A6ADoAOgA+A/A+AfEHi7mjvJcdAAAAAASUVORK5CYII=
 
 /*! \example trivial/trivial.cpp
 
-  <h1 align=center>Very Trivial Example</h1>
+  \heading Trivial Example
 
-  This example is extremely trivial, and thus useful for
+  This example is trivial, and thus useful for
   investigating problems you might have installing the
   extension.
-  <p>
+
   To build the example, you must first build the
   <a href=nsplugin.html>Qt Netscape Plugin Extension</a> library.
   Then type <tt>make</tt> in <tt>extensions/nsplugin/examples/trivial/</tt>
   and copy the resulting <tt>trivial.so</tt> or <tt>nptrivial.dll</tt>
   to the Plugins directory of your WWW browser.
-  <p>
+
   <EMBED TYPE=trivial/very WIDTH=100 HEIGHT=100>
 */
-
-

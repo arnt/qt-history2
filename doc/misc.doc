@@ -36,20 +36,18 @@
 /*! \page aboutqt.html
 \title About Qt
 
-<p>Qt is a cross-platform C++ GUI application framework. It provides
+Qt is a cross-platform C++ GUI application framework. It provides
 application developers with all the functionality needed to build
 state-of-the-art graphical user interfaces. Qt is fully
 object-oriented, easily extensible, and allows true component
 programming.
 
-<p>
 Since its commercial introduction in early
 1996, Qt has formed the basis of many thousands of successful
 applications worldwide. Qt is also the basis of the popular
 <a class="r" href="http://www.kde.org/">KDE</a> Linux
 desktop environment, a standard component of all major Linux distributions.
 
-<p>
 Qt is supported on the following platforms:
 <ul>
  <li><b>MS/Windows</b> - 95, 98, NT, and 2000
@@ -58,10 +56,8 @@ Qt is supported on the following platforms:
  <li><b>Embedded</b> - Linux platforms with framebuffer support.
 </ul>
 
-<p>
 Qt is a product of <a href="troll.html">Trolltech</a>.
 
-<p>
 Qt is released in different editions:
 
 <dl>
@@ -278,59 +274,59 @@ Other common problems are covered by the online
 As usual, large sections of the documentation have been revised and
 lots of new documentation has been added.
 
-<p>Much work went into existing classes, based on all the feedback we got
+Much work went into existing classes, based on all the feedback we got
 from our users.  A warm thank you to you all at this point, we
 honestly hope to satisfy most of your wishes with the new release.
 
-<p>Among the things that got a lot of polishing is the new geometry
+Among the things that got a lot of polishing is the new geometry
 management system that was introduced with the 2.x series.  Some
 classes, such as QBoxLayout, have been rewritten and many size hints
 and size policies were optimized.  As usual with newly introduced
 systems, the occasional bug has been fixed as well.  As a result,
 layout in Qt-2.1 is not only nicer but also faster.
 
-<p>Big parts of the file dialog have been rewritten.  It is now
+Big parts of the file dialog have been rewritten.  It is now
 synchronized in terms of features with the common Windows dialog,
 including fancy drag'n'drop and in-place renaming.  You can customize
 both parts of the dialog, the front-end with info and preview widgets,
 the back-end with different network protocols (see the QFileDialog and
 QNetworkProtocol documentation for details).
 
-<p>Especially interesting for dynamic Qt applications is the newly
+Especially interesting for dynamic Qt applications is the newly
 introduced property system.  Many interesting things, from scripting
 up to graphical user interface builders, become easier.  The
 technology requires a new macro Q_PROPERTY and a new revision of Qt's
 meta object compiler (moc).  See the Qt documentation for details.
 
-<p>Due to strong customer demand, we added a cross-platform way to easily
+Due to strong customer demand, we added a cross-platform way to easily
 implement multi-document interfaces (known as 'MDI').  The widget is
 called QWorkspace and makes this task trivial.
 
-<p>On X11, text dropping from Motif drag'n'drop applications has been
+On X11, text dropping from Motif drag'n'drop applications has been
 added, to make your Qt applications inter-operable with those Motif
 applications that survived Y2K.
 
-<p>The rich text system, first introduced in Qt 2.0, has been revised.
+The rich text system, first introduced in Qt 2.0, has been revised.
 Apart from great speed improvements, it now supports HTML tables as
 well as floating images.
 
-<p>QMultiLineEdit, the text input field in Qt, got the missing word wrap
+QMultiLineEdit, the text input field in Qt, got the missing word wrap
 functionality.  It's probably the last big extension we will add to
 that widget.  In Qt 3.0, it will be replaced by a fancier, faster and
 more powerful QTextEdit widget that also deals with different colors
 and fonts in a way similar to the existing QTextView.
 
-<p>Qt follows the respective GUI style guides even more closely.  This
+Qt follows the respective GUI style guides even more closely.  This
 includes honoring desktop settings, and keyboard shortcuts such as
 Ctrl-Z/Y for undo/redo in line edit and multi-line edit controls.
 Dialog handling for both modal and non-modal dialogs has been improved
 to follow the platform conventions precisely.
 
-<p>With QIconView, we added a powerful new visualization widget similar
+With QIconView, we added a powerful new visualization widget similar
 to QListView and QListBox.  It contains optinally labelled pixmap
 items that the user can select, drag around, rename, delete and more.
 
-<p>Compared to the previous release, we have managed to reduce overall
+Compared to the previous release, we have managed to reduce overall
 memory consumption while improving execution speed and features.
 
 */
@@ -1090,35 +1086,34 @@ ensure the mailing lists are virtually free from spam.</small>
 
 /*! \page easteregg.html
 
-<title>Qt Official Easter Egg</title>
-<meta http-equiv="refresh" content="60"; URL="easteregg2.html">
-</head><body bgcolor="#ffffff">
+\title Qt Official Easter Egg
 
-<center><h1>Congratulations!<br>
-You've found our oldest easter egg</h1><br clear="all">
-<p><small>No prizes, though</small>
+\heading Congratulations!<br> You've found our oldest easter egg
+
+<center>
+<small>No prizes, though</small>
 </center>
 
-<p>A friend of mine forwarded the following little snippet to me,
+A friend of mine forwarded the following little snippet to me,
 probably because of my views on pretty pictures versus actual content.
 It probably originates on USENET somewhere, but I don't know where.
 <blockquote>
-<p>
+
 It sounds like there may be a near-term need for a new
 newsgroup in the alt.recovery hierarchy.
-<p>
+
 "Hi, my name is Geoff and I was a N*tscapeaholic."
-<p>
+
 "Hi, Geoff."
-<p>
+
 "It started as a little Under Construction picture, then I found
 myself using graphics for horizontal rules and bullets.  The next
 thing I knew, I had GIF's for all of my text and my pages took
 longer to download than to read.
-<p>
+
 "A guy I knew at work tried to get me hooked on PDF.  I saw the
 power, and I was ready to make the switch.
-<p>
+
 "That's when a close friend of mine stepped in.  She erased
 N*tscape from my hard drive and made me use Lynx.  Thanks to her,
 I'm here today and I'm ready to walk the long road back to
@@ -1129,34 +1124,34 @@ Amen!
 
 /*! \page easteregg2.html
 
-<title>Qt Official Easter Egg</title>
-</head><body bgcolor="#ffffff">
+\title Qt Official Easter Egg
 
-<center><h1>Congratulations!<br>
-You've found our oldest easter egg</h1><br clear="all">
-<p><small>No prizes, though</small>
+\heading Congratulations!<br> You've found our oldest easter egg
+
+<center>
+<small>No prizes, though</small>
 </center>
 
-<p>A friend of mine forwarded the following little snippet to me,
+A friend of mine forwarded the following little snippet to me,
 probably because of my views on pretty pictures versus actual content.
 It probably originates on USENET somewhere, but I don't know where.
 <blockquote><blink>
-<p>
+
 It sounds like there may be a near-term need for a new
 newsgroup in the alt.recovery hierarchy.
-<p>
+
 "Hi, my name is Geoff and I was a N*tscapeaholic."
-<p>
+
 "Hi, Geoff."
-<p>
+
 "It started as a little Under Construction picture, then I found
 myself using graphics for horizontal rules and bullets.  The next
 thing I knew, I had GIF's for all of my text and my pages took
 longer to download than to read.
-<p>
+
 "A guy I knew at work tried to get me hooked on PDF.  I saw the
 power, and I was ready to make the switch.
-<p>
+
 "That's when a close friend of mine stepped in.  She erased
 N*tscape from my hard drive and made me use Lynx.  Thanks to her,
 I'm here today and I'm ready to walk the long road back to
@@ -1252,12 +1247,12 @@ links, Amazon.com gives about 15% of the purchase price to
 
 /*! \page qnetworkegg.html
 
-<title>Food-for-thought Easter Egg</title></head><body bgcolor="#ffffff">
+\title Food-for-thought Easter Egg
 
-<h1 align="center">The Twelve Networking Truths</h1>
+\heading The Twelve Networking Truths
 
-<p>This is <a href="http://info.internet.isi.edu/1/in-notes/rfc">RFC
-1925</a> - copied in here since its truths are even less limited than
+This is <a href="http://info.internet.isi.edu/1/in-notes/rfc">RFC
+1925</a> - copied in here since its truths are less limited than
 the author says.  5, 6, 6a and 7 in particular can often be quoted
 during software development discussions.
 
@@ -1506,5 +1501,3 @@ This method works on both MS-Windows and most existing X11 window
 managers.
 
 */
-
-
