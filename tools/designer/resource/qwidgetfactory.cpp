@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include <qtooltip.h>
 #include <qwhatsthis.h>
+#include <zlib.h>
 
 // include all Qt widgets
 #include <qpushbutton.h>
@@ -46,24 +47,24 @@ static QList<QWidgetFactory> widgetFactories;
 
 /*!
   \class QWidgetFactory
-  
+
   \brief A class to dynamically create widgets from Qt Designer user
   interface description files
-  
+
   This offers basically to things:
-  
+
   <ul>
-  
+
   <li>Dynamically creating widgets from Qt Designer user interface
   files. You can do that using the static function
   QWidgetFactory::create(). This function performs signal and slot
   connections as defined in the ui file and returns the toplevel
   widget of the ui file. After that you can use QObject::child() and
   QObject::queryList() to access child widgets of this returned widget.
-  
+
   <li>Adding additional widget factories to be able to create custom
   widgets. See createWidget() for details.
-  
+
   </ul>
 */
 
@@ -76,9 +77,9 @@ QWidgetFactory::QWidgetFactory()
 /*! Loads the Qt Designer user interface description file \a uiFile
   and returns the toplevel widget of that description. \a parent and
   \a name are passed to the constructor of the toplevel widget.
-  
+
   If something fails, 0 is returned.
-  
+
   The ownership of the returned widget is passed to the caller.
 */
 
@@ -93,7 +94,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 	return 0;
 
     QWidgetFactory *widgetFactory = new QWidgetFactory;
-    
+
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
     while ( firstWidget.tagName() != "widget" )
@@ -124,7 +125,7 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 	widgetFactory->loadTabOrder( tabOrder );
 
     delete widgetFactory;
-  
+
     return w;
 }
 
@@ -144,16 +145,16 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
   installed widget plugins are asked to create that widget. If this
   fails all installed widget factories are asked to create it (see
   addWidgetFactory()). If this fails as well, 0 is returned.
-  
+
   If you have a custom widget, and want it to be created using the
-  widget factory, you have two possibilities to add it: 
-  
+  widget factory, you have two possibilities to add it:
+
   <ul>
-  
+
   <li>First you can write a widget plugin. This allows you to use that
   widget in the Qt Designer and in this QWidgetFactory. See the widget
   plugin documentation for further details .
-  
+
   <li>The other possibility is to subclass QWidgetFactory. Then
   reimplement this function and create and return an instance of your
   custom widget, if \a className equals the name of your widget,
@@ -161,9 +162,9 @@ void QWidgetFactory::addWidgetFactory( QWidgetFactory *factory )
   want to use the widget factory to create widgets do a
   QWidgetFactory::addWidgetFactory( new MyWidgetFactory ); (where
   MyWidgetFactory is your QWidgetFactory subclass)
-  
+
   </ul>
-  
+
 */
 
 QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent, const char *name ) const
@@ -244,7 +245,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     w = widgetManager()->create( className, parent, name );
     if ( w )
 	return w;
-    
+
     // hope we have a factory which can do it
     for ( QWidgetFactory* f = widgetFactories.first(); f; f = widgetFactories.next() ) {
 	QWidget *w = f->createWidget( className, parent, name );
@@ -254,10 +255,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // no success
     return 0;
-}
-
-void QWidgetFactory::loadImageCollection( const QDomElement &e )
-{
 }
 
 void QWidgetFactory::loadConnections( const QDomElement &e )
@@ -527,7 +524,6 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	}
     }
 
-#if 0 // no pixmaps, palettes, etc. yet ####
     if ( e.tagName() == "pixmap" ) {
 	QPixmap pix = loadPixmap( e );
 	v = QVariant( pix );
@@ -566,8 +562,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	    l.append( *it );
 	v = QVariant( p->keysToValue( l ) );
     }	
-#endif
-    
+
     if ( prop == "geometry" ) {
 	if ( obj->isWidgetType() )
 	    ( (QWidget*)obj )->resize( v.toRect().size() );
@@ -584,7 +579,7 @@ void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
     int col = e.attribute( "column" ).toInt();
     int rowspan = e.attribute( "rowspan" ).toInt();
     int colspan = e.attribute( "colspan" ).toInt();
-    
+
     Qt::Orientation orient;
     int w = 0, h = 0;
     QSizePolicy::SizeType sizeType = QSizePolicy::Preferred;
@@ -629,7 +624,102 @@ void QWidgetFactory::createSpacer( const QDomElement &e, QLayout *layout )
 	if ( layout->inherits( "QBoxLayout" ) )
 	    ( (QBoxLayout*)layout )->addItem( item );
 	else
-	    ( (QGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1, 
+	    ( (QGridLayout*)layout )->addMultiCell( item, row, row + rowspan - 1, col, col + colspan - 1,
 						    orient == Qt::Horizontal ? Qt::AlignVCenter : Qt::AlignHCenter );
     }
+}
+
+static QImage loadImageData( QDomElement &n2 )
+{
+    QImage img;
+    QString data = n2.firstChild().toText().data();
+    char *ba = new char[ data.length() / 2 ];
+    for ( int i = 0; i < (int)data.length() / 2; ++i ) {
+	char h = data[ 2 * i ].latin1();
+	char l = data[ 2 * i  + 1 ].latin1();
+	uchar r = 0;
+	if ( h <= '9' )
+	    r += h - '0';
+	else
+	    r += h - 'a' + 10;
+	r = r << 4;
+	if ( l <= '9' )
+	    r += l - '0';
+	else
+	    r += l - 'a' + 10;
+	ba[ i ] = r;
+    }
+    QString format = n2.attribute( "format", "PNG" );
+    if ( format == "XPM.GZ" ) {
+	ulong len = n2.attribute( "length" ).toULong();
+	if ( len < data.length() * 5 )
+	    len = data.length() * 5;
+	QByteArray baunzip( len );
+	::uncompress( (uchar*) baunzip.data(), &len, (uchar*) ba, data.length()/2 );
+	img.loadFromData( (const uchar*)baunzip.data(), len, "XPM" );
+    }  else {
+	img.loadFromData( (const uchar*)ba, data.length() / 2, format );
+    }
+    delete [] ba;
+
+    return img;
+}
+
+void QWidgetFactory::loadImageCollection( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "image" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    Image img;
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "name" )
+		    img.name = n2.firstChild().toText().data();
+		else if ( n2.tagName() == "data" )
+		    img.img = loadImageData( n2 );
+		n2 = n2.nextSibling().toElement();
+	    }
+	    images.append( img );
+	    n = n.nextSibling().toElement();
+	}
+    }
+}
+
+QImage QWidgetFactory::loadFromCollection( const QString &name )
+{
+    QValueList<Image>::Iterator it = images.begin();
+    for ( ; it != images.end(); ++it ) {
+	if ( ( *it ).name == name )
+	    return ( *it ).img;
+    }
+    return QImage();
+}
+
+QPixmap QWidgetFactory::loadPixmap( const QDomElement &e )
+{
+    QString arg = e.firstChild().toText().data();
+    QImage img = loadFromCollection( arg );
+    QPixmap pix;
+    pix.convertFromImage( img );
+    return pix;
+}
+
+QColorGroup QWidgetFactory::loadColorGroup( const QDomElement &e )
+{
+    QColorGroup cg;
+    int r = -1;
+    QDomElement n = e.firstChild().toElement();
+    QColor col;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "color" ) {
+	    r++;
+	    cg.setColor( (QColorGroup::ColorRole)r, (col = DomTool::readColor( n ) ) );
+	} else if ( n.tagName() == "pixmap" ) {
+	    QImage img = loadFromCollection( n.firstChild().toText().data() );
+	    QPixmap pix = loadPixmap( n );
+	    cg.setBrush( (QColorGroup::ColorRole)r, QBrush( col, pix ) );
+	}
+	n = n.nextSibling().toElement();
+    }
+    return cg;
 }

@@ -6,6 +6,7 @@
 #include "qcstring.h"
 #include "qlist.h"
 #include "qimage.h"
+#include "qpixmap.h"
 #include "qvaluelist.h"
 #endif // QT_H
 
@@ -18,7 +19,7 @@ class QWidgetFactory
 public:
     QWidgetFactory();
     virtual ~QWidgetFactory() {}
-    
+
     static QWidget *create( const QString &uiFile, QWidget *parent = 0, const char *name = 0 );
     static void addWidgetFactory( QWidgetFactory *factory );
 
@@ -34,6 +35,9 @@ private:
     LayoutType layoutType( QLayout *l ) const;
     void setProperty( QObject* widget, const QString &prop, const QDomElement &e );
     void createSpacer( const QDomElement &e, QLayout *layout );
+    QImage loadFromCollection( const QString &name );
+    QPixmap loadPixmap( const QDomElement &e );
+    QColorGroup loadColorGroup( const QDomElement &e );
 
 private:
     struct Image {
