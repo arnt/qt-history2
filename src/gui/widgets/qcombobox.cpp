@@ -656,7 +656,7 @@ void QComboBoxPrivate::rowsInserted(const QModelIndex &parent, int start, int en
         q->updateGeometry();
     }
 
-    // make sure if the combobox was empty and no the current index is
+    // make sure if the combobox was empty and the current index is
     // not valid that the first item is set to be current
     if (start == 0 && (end - start + 1) == q->count() && !currentIndex.isValid())
         q->setCurrentIndex(0);
