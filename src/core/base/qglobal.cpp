@@ -180,7 +180,7 @@ static QSysInfo::MacVersion macVersion()
     }
     return QSysInfo::MV_Unknown;
 }
-QSysInfo::MacVersion QSysInfo::MacintoshVersion = macVersion();
+const QSysInfo::MacVersion QSysInfo::MacintoshVersion = macVersion();
 #elif defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN) || defined(Q_OS_TEMP)
 
 #include "qt_windows.h"
