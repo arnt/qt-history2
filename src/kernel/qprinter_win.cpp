@@ -195,8 +195,12 @@ bool QPrinter::newPage()
             success = TRUE;
         else
             state = PST_ABORTED;
-        if ( restorePainter )
+        if ( restorePainter ) {
+	    SetMapMode(hdc, MM_ANISOTROPIC);
+	    SetWindowExtEx(hdc, res, res, NULL);
+	    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
             painter->restore();
+	}
         if ( (qWinVersion()& Qt::WV_DOS_based) ) {
             if ( fullPage() ) {
                 QSize margs = margins();
