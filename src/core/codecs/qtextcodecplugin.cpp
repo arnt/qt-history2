@@ -44,7 +44,7 @@
 */
 
 /*!
-    \fn QTextCodec *QTextCodecPlugin::createForName(const QString &name);
+    \fn QTextCodec *QTextCodecPlugin::createForName(const QByteArray &name)
 
     Creates a QTextCodec object for the codec called \a name.
 
@@ -77,7 +77,7 @@
     invoked automatically by the \c Q_EXPORT_PLUGIN macro.
 */
 QTextCodecPlugin::QTextCodecPlugin(QObject *parent)
-    :QObject(parent)
+    : QObject(parent)
 {
 }
 

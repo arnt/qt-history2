@@ -829,8 +829,6 @@ QString Q3HttpResponseHeader::toString() const
     Q3HttpHeader::value() value()\endlink, etc. are also available.
 
     \sa Q3HttpResponseHeader Q3Http
-
-    \important value() setValue()
 */
 
 /*!

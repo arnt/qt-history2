@@ -55,7 +55,7 @@
 */
 
 /*!
-    \enum QDecoration::Region
+    \enum QDecoration::DecorationRegion
 
     This enum describes the regions in the window decorations.
 
@@ -82,21 +82,23 @@
 */
 
 /*!
-    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, Region type)
+    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, DecorationRegion type)
 
     Returns the requested region \a type which will contain \a widget
     with geometry \a rect.
 */
 
 /*!
-    \fn void QDecoration::paint(QPainter *painter, const QWidget *widget)
+    \fn void QDecoration::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
+                                DecorationState state)
+)
 
     Override to paint the border and title decoration around \a widget
     using \a painter.
 */
 
 /*!
-    \fn void QDecoration::paintButton(QPainter *painter, const QWidget *widget, Region type, int state)
+    \fn void QDecoration::paintButton(QPainter *painter, const QWidget *widget, DecorationRegion type, int state)
 
     Override to paint a button of type \a type using \a painter.
 

@@ -14,8 +14,7 @@
 /*!
     \class QBig5Codec
     \brief The QBig5Codec class provides conversion to and from the Big5 encoding.
-
-    \ingroup i18n
+    \internal
 
     QBig5Codec was originally contributed by Ming-Che Chuang
     \<mingche@cobra.ee.ntu.edu.tw\> for the Big-5+ encoding, and was

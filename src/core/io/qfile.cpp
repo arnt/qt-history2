@@ -814,7 +814,10 @@ QFile::handle() const
     return -1;
 }
 
-/*! \reimp
+/*!
+    Returns true if the file is open; otherwise returns false.
+
+    \sa open(), close()
 */
 bool QFile::isOpen() const
 {
@@ -1173,7 +1176,7 @@ QFile::unsetError()
     d->setError(QFile::NoError);
 }
 
-/*!
+/*
     Returns a human-readable description of an error that occurred on
     the device. The error described by the string corresponds to
     changes of QFile::error(). If the status is reset, the error

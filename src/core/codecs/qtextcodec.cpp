@@ -117,22 +117,17 @@ static QTextCodec *localeMapper = 0;
 QTextCodec *QTextCodec::cftr = 0;
 
 
-/*!
-    Deletes all the created codecs.
-
-    \internal
-
-    Qt calls this function just before exiting to delete any
-    QTextCodec objects that may be lying around. Since various other
-    classes hold pointers to QTextCodec objects, it is not safe to
-    call this function earlier.
-*/
 class QTextCodecCleanup
 {
 public:
     ~QTextCodecCleanup();
 };
 
+/*
+    Deletes all the created codecs. This destructor is called just
+    before exiting to delete any QTextCodec objects that may be lying
+    around.
+*/
 QTextCodecCleanup::~QTextCodecCleanup()
 {
     if (!all)
@@ -810,7 +805,8 @@ QList<QByteArray> QTextCodec::aliases() const
 }
 
 /*!
-  \fn QTextCodec::convertToUnicode(const char *chars, int len, ConverterState *state)
+    \fn QString QTextCodec::convertToUnicode(const char *chars, int len,
+                                             ConverterState *state) const
 
     QTextCodec subclasses must reimplement this function.
 
@@ -824,7 +820,8 @@ QList<QByteArray> QTextCodec::aliases() const
 */
 
 /*!
-  \fn QTextCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *state)
+    \fn QByteArray QTextCodec::convertFromUnicode(const QChar *in, int length,
+                                                  ConverterState *state) const
 
     QTextCodec subclasses must reimplement this function.
 
@@ -973,11 +970,7 @@ QTextEncoder::~QTextEncoder()
 }
 
 /*!
-    \fn QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
-
-    Converts \a lenInOut characters (not bytes) from \a uc, producing
-    a QByteArray. \a lenInOut will be set to the \link
-    QByteArray::length() length\endlink of the result (in bytes).
+    Converts the Unicode string \a str into an encoded QByteArray.
 */
 QByteArray QTextEncoder::fromUnicode(const QString& str)
 {
@@ -986,7 +979,10 @@ QByteArray QTextEncoder::fromUnicode(const QString& str)
 }
 
 /*!
-  \overload
+    \overload
+
+    Converts \a len characters (not bytes) from \a uc, producing a
+    QByteArray.
 */
 QByteArray QTextEncoder::fromUnicode(const QChar *uc, int len)
 {

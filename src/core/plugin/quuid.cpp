@@ -148,11 +148,6 @@ QUuid::QUuid(const char *text)
     *this = QUuid(QString::fromLatin1(text));
 }
 #endif
-/*!
-    \fn QUuid QUuid::operator=(const QUuid &uuid)
-
-    Assigns the value of \a uuid to this QUuid object.
-*/
 
 /*!
     \fn bool QUuid::operator==(const QUuid &other) const

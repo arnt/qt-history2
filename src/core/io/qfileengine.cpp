@@ -452,7 +452,7 @@ void QFileEngine::unmap(uchar * /* data */)
  */
 
 /*!
-    \fn uint QFileEngine::fileFlags(uint type) const
+    \fn uint QFileEngine::fileFlags(FileFlags type) const
 
     This function should return the set of OR'd \c
     QFileEngine::FileInfo members that are true for the file engine's
@@ -547,7 +547,7 @@ link to. (This will be empty if this file is not a link.)
 */
 
 /*!
-    \enum QFileEngine::FileInfo
+    \enum QFileEngine::FileFlag
 
     The permissions and types of a file, suitable for OR'ing together.
 

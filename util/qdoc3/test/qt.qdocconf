@@ -18,6 +18,7 @@ exampledirs		= $QTDIR/doc/src \
 			  $QTDIR/demos \
 			  $QTDIR \
                           $QTDIR/extensions/activeqt/examples \
+                          $QTDIR/extensions/motif/examples \
 			  $QTDIR/qmake/examples \
 			  $QTDIR/tools/linguist/tutorial
 imagedirs		= $QTDIR/doc/src/images \

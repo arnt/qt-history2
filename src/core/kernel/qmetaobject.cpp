@@ -84,12 +84,6 @@
 */
 
 /*!
-    \fn void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
-
-    \internal
-*/
-
-/*!
     \enum QMetaMember::Access
 
     \internal

@@ -17,7 +17,7 @@
 
 /*! \class QSjisCodec qsjiscodec.h
     \reentrant
-    \ingroup i18n
+    \internal
   \brief The QSjisCodec class provides conversion to and from Shift-JIS.
 
   More precisely, the QSjisCodec class subclasses QTextCodec to

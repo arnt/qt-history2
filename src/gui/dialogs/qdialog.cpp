@@ -886,7 +886,7 @@ QSize QDialog::minimumSizeHint() const
     return QWidget::minimumSizeHint();
 }
 
-/*! \property QDialog::isModal
+/*! \property QDialog::modal
     \brief whether show() should pop up the dialog as modal or modeless
 
     By default, this property is false and show() pops up the dialog as

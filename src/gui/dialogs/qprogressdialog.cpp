@@ -526,11 +526,6 @@ void QProgressDialog::cancel()
 }
 
 
-
-/*!
-    \property QProgressDialog::value
-    \brief the current value of the dialog's progress bar
-*/
 int QProgressDialog::value() const
 {
     return d->bar->value();

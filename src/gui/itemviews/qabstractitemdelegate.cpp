@@ -132,21 +132,21 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 }
 
 /*!
-    \fn virtual void QAbstractItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0;
+    \fn void QAbstractItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const = 0;
 
     This pure abstract function must be reimplemented if you want to
     provide custom rendering. Use the \a painter and style \a option to
-    render the item specified by the \a model and the item \a index.
+    render the item specified by the item \a index.
 
     If you reimplement this you must also reimplement sizeHint().
 */
 
 /*!
-    \fn QSize QAbstractItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QAbstractItemModel *model, const QModelIndex &index) const = 0
+    \fn QSize QAbstractItemDelegate::sizeHint(const QStyleOptionViewItem &option, const QModelIndex &index) const = 0
 
     This pure abstract function must be reimplemented if you want to
-    provide custom rendering. The options are specified by \a option,
-    the model by \a model, and the model item by \a index.
+    provide custom rendering. The options are specified by \a option
+    and the model item by \a index.
 
     If you reimplement this you must also reimplement paint().
 */

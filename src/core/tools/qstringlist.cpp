@@ -332,11 +332,6 @@ QStringList QtPrivate::QStringList_filter(const QStringList *that, const QRegExp
 }
 #endif
 
-/*! \fn void QStringList::replace(int i, const QString &s)
-
-    \internal
-*/
-
 /*!
     \fn QStringList &QStringList::replaceInStrings(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 
@@ -365,7 +360,7 @@ void QtPrivate::QStringList_replaceInStrings(QStringList *that, const QString &b
 
 #ifndef QT_NO_REGEXP
 /*!
-    \fn QStringList &QStringList::replace(const QRegExp &rx, const QString &after)
+    \fn QStringList &QStringList::replaceInStrings(const QRegExp &rx, const QString &after)
 
     \overload
 

@@ -17,7 +17,7 @@
 
 /*! \class QEucJpCodec qeucjpcodec.h
     \reentrant
-    \ingroup i18n
+    \internal
 
   \brief The QEucJpCodec class provides conversion to and from EUC-JP character sets.
 

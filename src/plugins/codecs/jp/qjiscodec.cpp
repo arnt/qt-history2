@@ -17,7 +17,7 @@
 
 /*! \class QJisCodec
     \reentrant
-    \ingroup i18n
+    \internal
 
   \brief The QJisCodec class provides conversion to and from JIS character sets.
 

@@ -492,55 +492,6 @@ QPixmap *QIconPrivate::defaultGenerator(const QIcon &, Qt::IconSize, QIcon::Mode
   \sa setPixmap(), reset()
 */
 
-/*!
-    \fn void QIcon::setPixmap(const QPixmap &pixmap, Qt::IconSize size, QIcon::Mode mode, QIcon::State state)
-
-    Sets the pixmap for the icon to the given \a pixmap for the specified
-    combination of \a size, \a mode, and \a state.
-
-    \sa pixmap()
-*/
-
-/*!
-    \fn void QIcon::setPixmap(const QString &fileName, Qt::IconSize size, QIcon::Mode mode, QIcon::State state)
-
-    Sets the pixmap for the icon to the pixmap from the file specified by
-    \a fileName. The pixmap is used when the icon needs to be displayed with
-    a particular combination of \a size, \a mode, and \a state.
-
-    \sa pixmap()
-*/
-
-/*!
-    QPixmap QIcon::pixmap(Qt::IconSize size, QIcon::Mode mode, QIcon::State state) const
-
-    Returns the pixmap displayed by the icon for the given combination of
-    \a size, \a mode, and \a state.
-
-    \sa setPixmap()
-*/
-
-/*!
-    \fn QPixmap QIcon::pixmap(Qt::IconSize size, bool enabled, QIcon::State state) const
-
-    Returns the pixmap displayed by the icon with the specified \a size and
-    \a mode. If \a enabled is true, the pixmap returned is the one used when
-    the icon is enabled; otherwise the pixmap returned is the one used when
-    the icon is disabled.
-
-    \sa setPixmap()
-*/
-
-/*!
-    \fn bool QIcon::isGenerated(Qt::IconSize size, QIcon::Mode mode, QIcon::State state) const
-
-    Returns true if the pixmap used for the icon with the given combination of
-    \a size, \a mode, and \a state is generated from another pixmap; otherwise
-    returns false.
-
-    \sa pixmap() setPixmap()
-*/
-
 QIcon::PixmapGeneratorFn QIcon::defaultGeneratorFn = QIconPrivate::defaultGenerator;
 
 QIcon::QIcon()
@@ -634,21 +585,21 @@ void QIcon::reset(const QPixmap &pixmap, Qt::IconSize size)
 }
 
 /*!
-  Sets the pixmap for this icon to be the given \a pixmap for requests
-  of the same \a size, \a mode, and \a state. The icon may also use
-  \a pixmap for generating other pixmaps if they are not explicitly set.
+    Sets the pixmap for this icon to be the given \a pixmap for requests
+    of the same \a size, \a mode, and \a state. The icon may also use
+    \a pixmap for generating other pixmaps if they are not explicitly set.
 
-  The \a size can be one of \c Automatic, \c Large or \c Small.
-  If \c Automatic is used, QIcon will determine if the pixmap is \c Small
-  or \c Large from its pixel size.
+    The \a size can be one of \c Automatic, \c Large or \c Small.
+    If \c Automatic is used, QIcon will determine if the pixmap is \c Small
+    or \c Large from its pixel size.
 
-  Pixmaps less than the width of a small generated icon are
-  considered to be Small. You can use setPixmapSize() to set the preferred
-  size of a generated icon.
+    Pixmaps less than the width of a small generated icon are
+    considered to be Small. You can use setPixmapSize() to set the preferred
+    size of a generated icon.
 
-  This function does nothing if \a pixmap is a null pixmap.
+    This function does nothing if \a pixmap is a null pixmap.
 
-  \sa reset()
+    \sa reset()
 */
 void QIcon::setPixmap(const QPixmap &pixmap, Qt::IconSize size, Mode mode, State state)
 {
@@ -740,9 +691,11 @@ QPixmap QIcon::pixmap() const
 }
 
 /*!
-  Returns true if the pixmap with size \a size, mode \a mode and
-  state \a state is generated from other pixmaps; otherwise returns
-  false.
+    Returns true if the pixmap used for the icon with the given combination of
+    \a size, \a mode, and \a state is generated from another pixmap; otherwise
+    returns false.
+
+    \sa pixmap() setPixmap()
 */
 bool QIcon::isGenerated(Qt::IconSize size, Mode mode, State state) const
 {

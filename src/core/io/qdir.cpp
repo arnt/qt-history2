@@ -1207,7 +1207,7 @@ bool QDir::isRoot() const
 }
 
 /*!
-    \fn bool QDir::isAbsolute()
+    \fn bool QDir::isAbsolute() const
 
     Returns true if the directory's path is absolute; otherwise
     returns false. See isAbsolutePath().
@@ -1839,14 +1839,16 @@ void QDir::setNameFilter(const QString &nameFilter)
 */
 
 /*!
-    \fn QStringList QDir::entryList(const QString &nameFilter, QDir::Filters filters, QDir::SortFlags sort) const
+    \fn QStringList QDir::entryList(const QString &nameFilter, Filters filters,
+                                    SortFlags sort) const
 
     Use the overload that takes a name filter string list as first
     argument instead.
 */
 
 /*!
-    \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, QDir::Filters filters, QDir::SortFlags sort) const
+    \fn QFileInfoList QDir::entryInfoList(const QString &nameFilter, Filters filters,
+                                          SortFlags sort) const
 
     Use the overload that takes a name filter string list as first
     argument instead.

@@ -76,7 +76,7 @@
 */
 
 /*!
-    \fn QStringList languages( const QString &key )
+    \fn QStringList QInputContextPlugin::languages(const QString &key)
 
     Returns what languages are supported by the QInputContext instance
     specified by \a key.
@@ -93,7 +93,7 @@
 */
 
 /*!
-    \fn QString displayName( const QString &key )
+    \fn QString QInputContextPlugin::displayName(const QString &key)
 
     Returns a user friendly i18n-ized name of the QInputContext
     instance specified by \a key. This string may be appeared in a
@@ -115,7 +115,7 @@
 */
 
 /*!
-    \fn QString description( const QString &key )
+    \fn QString QInputContextPlugin::description(const QString &key)
 
     Returns a i18n-ized brief description of the QInputContext
     instance specified by \a key. This string may be appeared in some

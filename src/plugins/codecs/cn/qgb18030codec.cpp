@@ -13,7 +13,7 @@
 
 /*! \class QGb18030Codec qgb18030codec.h
   \reentrant
-  \ingroup i18n
+  \internal
 
   \brief The QGb18030Codec class provides conversion to and from the Chinese
   GB18030/GBK/GB2312 encoding.

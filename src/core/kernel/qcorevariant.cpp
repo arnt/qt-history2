@@ -2511,19 +2511,19 @@ QDebug operator<<(QDebug dbg, const QCoreVariant &v)
 */
 
 /*!
-    \fn QPoint& QVariant::asPoint()
+    \fn QPoint &QCoreVariant::asPoint()
 
     Use toPoint() instead.
  */
 
 /*!
-    \fn QRect& QVariant::asRect()
+    \fn QRect &QCoreVariant::asRect()
 
     Use toRect() instead.
  */
 
 /*!
-    \fn QSize &QVariant::asSize()
+    \fn QSize &QCoreVariant::asSize()
 
     Use toSize() instead.
  */

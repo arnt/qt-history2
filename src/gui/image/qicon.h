@@ -42,14 +42,14 @@ public:
     QIcon &operator=(const QIcon &other);
 
     void reset(const QPixmap &pixmap, Qt::IconSize size);
-    void setPixmap(const QPixmap &pixmap, Qt::IconSize size, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);
-    void setPixmap(const QString &fileName, Qt::IconSize size, QIcon::Mode mode = QIcon::Normal, QIcon::State state = QIcon::Off);
-    QPixmap pixmap(Qt::IconSize size, QIcon::Mode mode, QIcon::State state = QIcon::Off) const;
-    QPixmap pixmap(Qt::IconSize size, bool enabled, QIcon::State state = QIcon::Off) const;
+    void setPixmap(const QPixmap &pixmap, Qt::IconSize size, Mode mode = Normal, State state = Off);
+    void setPixmap(const QString &fileName, Qt::IconSize size, Mode mode = Normal, State state = Off);
+    QPixmap pixmap(Qt::IconSize size, Mode mode, State state = Off) const;
+    QPixmap pixmap(Qt::IconSize size, bool enabled, State state = Off) const;
     QPixmap pixmap() const;
-    bool isGenerated(Qt::IconSize size, QIcon::Mode mode, QIcon::State state = QIcon::Off) const;
+    bool isGenerated(Qt::IconSize size, Mode mode, State state = Off) const;
     void clearGenerated();
-    typedef QPixmap *(*PixmapGeneratorFn)(const QIcon &icon, Qt::IconSize size, QIcon::Mode mode, QIcon::State state);
+    typedef QPixmap *(*PixmapGeneratorFn)(const QIcon &icon, Qt::IconSize size, Mode mode, State state);
     void setPixmapGeneratorFn(PixmapGeneratorFn func);
 
     bool isNull() const;

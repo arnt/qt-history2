@@ -54,16 +54,6 @@
     \sa QEventLoop
 */
 
-/*!
-    \enum QAbstractEventDispatcher::ProcessEventHandler
-    \internal
-*/
-
-/*!
-    \enum QAbstractEventDispatcher::EventFilter
-    \internal
-*/
-
 /*! \enum QAbstractEventDispatcher::ProcessEvents
 
     This enum controls the types of events processed by the
@@ -78,12 +68,6 @@
            are available.
 
     \sa processEvents()
-*/
-
-/*! \enum QAbstractEventDispatcher::ProcessEventsFlags
-    A \c typedef to allow various ProcessEvents values to be OR'ed together.
-
-    \sa ProcessEvents
 */
 
 QAbstractEventDispatcher::QAbstractEventDispatcher(QObject *parent)

@@ -66,7 +66,6 @@ public:
     { return QList<QString>::indexOf(str, from); }
     inline int lastIndexOf(const QString &str, int from = -1) const
     { return QList<QString>::lastIndexOf(str, from); }
-    inline void replace(int i, const QString &s) { QList<QString>::replace(i, s); }
 #endif
 #ifdef QT_COMPAT
     static inline QT_COMPAT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);

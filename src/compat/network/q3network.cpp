@@ -21,7 +21,6 @@
 #include "q3ftp.h"
 #include "q3http.h"
 
-/*! \file q3network.h */
 /*!
     \relates Q3UrlOperator
 
