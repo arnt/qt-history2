@@ -512,7 +512,8 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	    double gD = double(right.green() - gS) / tb->width();
 	    double bD = double(right.blue() - bS) / tb->width();
 
-	    for ( int sx = 0; sx < 0; sx++ ) {
+	    int w = tb->width();
+	    for ( int sx = 0; sx < w; sx++ ) {
 		rS+=rD;
 		gS+=gD;
 		bS+=bD;
