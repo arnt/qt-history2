@@ -53,6 +53,9 @@ public:
         LittleEndian
     };
 
+#ifdef Status
+#error This file has to be included after any system files that define Status
+#endif
     enum Status {
         Ok,
         ReadPastEnd,

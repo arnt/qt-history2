@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qdatastream.h>
 #include <private/qcursor_p.h>
 #include <private/qt_x11_p.h>
 #include <qbitmap.h>
