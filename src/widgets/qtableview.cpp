@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#107 $
 **
 ** Implementation of QTableView class
 **
@@ -141,7 +141,7 @@ void QCornerSquare::paintEvent( QPaintEvent * )
   cell width\endlink are set to 0.
 
   Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed,
-  see QFrame::setStyle().
+  see QFrame::setFrameStyle().
 
   Note that the \a f argument is \e not \link setTableFlags() table
   flags \endlink but rather \link QWidget::QWidget() widget
