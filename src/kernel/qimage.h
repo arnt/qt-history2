@@ -141,8 +141,17 @@ public:
 #endif
     QImage	convertDepth( int, int conversion_flags ) const;
     QImage	convertBitOrder( Endian ) const;
+
+    enum ScaleMode {
+	ScaleFree,
+	ScaleMin,
+	ScaleMax
+    };
+    QImage scale( int w, int h, ScaleMode mode=ScaleFree ) const;
+    QImage scale( const QSize& s, ScaleMode mode=ScaleFree ) const;
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    QImage	smoothScale(int width, int height) const;
+    QImage smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const;
+    QImage smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const;
 #endif
     QImage	createAlphaMask( int conversion_flags=0 ) const;
     QImage	createHeuristicMask( bool clipTight=TRUE ) const;
@@ -193,6 +202,7 @@ private:
     void	reinit();
     void	freeBits();
     static void	warningIndexRange( const char *, int );
+    QSize	scaleSize( const QSize &s, ScaleMode mode ) const;
 
     struct QImageData : public QShared {	// internal image data
 	int	w;				// image width

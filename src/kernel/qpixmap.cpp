@@ -174,6 +174,19 @@ QPixmap::QPixmap()
 }
 
 /*!
+  Constructs a pixmap from the QImage \a image.
+
+  \sa convertFromImage()
+*/
+
+QPixmap::QPixmap( const QImage& image )
+    : QPaintDevice( QInternal::Pixmap )
+{
+    init( 0, 0, 0, FALSE, defOptim );
+    convertFromImage( image );
+}
+
+/*!
   Constructs a pixmap with \e w width, \e h height and \e depth bits per
   pixels.
 
@@ -683,79 +696,6 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
 const char* QPixmap::imageFormat( const QString &fileName )
 {
     return QImageIO::imageFormat(fileName);
-}
-
-#ifndef QT_NO_TRANSFORMATIONS
-/*!
-  Returns a pixmap that is a scaled version of this pixmap with width \w and
-  height \a h. This function uses a quite simple algorithm for doing this task;
-  if you need a better quality, use smoothScale() instead.
-
-  \sa smoothScale() xForm()
-*/
-
-QPixmap QPixmap::scale( int w, int h, ScaleMode mode ) const
-{
-    return scale( QSize( w, h ), mode );
-}
-
-/*! \overload
-*/
-
-QPixmap QPixmap::scale( const QSize& size, ScaleMode mode ) const
-{
-    QSize ss = scaleSize( size, mode );
-
-    QWMatrix wm;
-    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
-    QPixmap p = xForm( wm );
-    if ( p.width() != ss.width() || p.height() != ss.height() )
-	p.resize( ss.width(), ss.height() );
-    return p;
-}
-#endif
-
-/*!
-  Returns a pixmap that is a scaled version of this pixmap with width \w and
-  height \a h. This function uses QImage::smoothScale() for this. The quality
-  of the result is better than scale(), but it also takes more time. If you
-  need a faster algorithm, use scale() instead.
-
-  \sa scale() QImage::smoothScale()
-*/
-
-QPixmap QPixmap::smoothScale( int w, int h, ScaleMode mode ) const
-{
-    return smoothScale( QSize( w, h ), mode );
-}
-
-/*!
-  This private function calculates the size that is actually used for scaling
-  with the scale mode \a mode. \a size is the wanted size, specified to the
-  scaling function scale() or smoothScale().
-*/
-
-QSize QPixmap::scaleSize( const QSize &size, ScaleMode mode ) const
-{
-    if ( mode == ScaleFree ) {
-	return size;
-    }
-
-    bool useHeight = TRUE;
-    double ratio = (double)width() / height();
-    int rw = (int)( ratio * size.height() );
-
-    if ( mode == ScaleMin ) {
-	if ( rw > size.width() )
-	    useHeight = FALSE;
-    } else if ( mode == ScaleMax ) {
-	if ( rw < size.width() )
-	    useHeight = FALSE;
-    }
-
-    if ( useHeight )
-	return QSize( rw, size.height() );
-    return QSize( size.width(), (int)(size.width()/ratio) );
 }
 
 /*!

@@ -62,6 +62,7 @@ public:
 			NormalOptim, BestOptim };
 
     QPixmap();
+    QPixmap( const QImage& image );
     QPixmap( int w, int h,  int depth = -1, Optimization = DefaultOptim );
     QPixmap( const QSize &, int depth = -1, Optimization = DefaultOptim );
     QPixmap( const QString& fileName, const char *format=0,
@@ -104,18 +105,6 @@ public:
     QPixmap	    xForm( const QWMatrix & ) const;
     static QWMatrix trueMatrix( const QWMatrix &, int w, int h );
 #endif
-
-    enum ScaleMode {
-	ScaleFree,
-	ScaleMin,
-	ScaleMax
-    };
-#ifndef QT_NO_TRANSFORMATIONS
-    QPixmap scale( int w, int h, ScaleMode mode=ScaleFree ) const;
-    QPixmap scale( const QSize& size, ScaleMode mode=ScaleFree ) const;
-#endif
-    QPixmap smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const;
-    QPixmap smoothScale( const QSize& size, ScaleMode mode=ScaleFree ) const;
 
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
@@ -229,7 +218,6 @@ private:
     void	init( int, int, int, bool, Optimization );
     void	deref();
     QPixmap	copy( bool ignoreMask = FALSE ) const;
-    QSize	scaleSize( const QSize &size, ScaleMode mode ) const;
     static Optimization defOptim;
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QPaintDevice *,

@@ -48,6 +48,7 @@
 #include "qjpegio.h"
 #include "qmap.h"
 #include "qcleanuphandler.h"
+#include "qwmatrix.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -2423,7 +2424,16 @@ void pnmscale(const QImage& src, QImage& dst)
   \sa mirror()
 */
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-QImage QImage::smoothScale(int w, int h) const
+QImage QImage::smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const
+{
+    return smoothScale( QSize( w, h ), mode );
+}
+#endif
+
+/*! \overload
+*/
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
+QImage QImage::smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const
 {
     if ( isNull() ) {
 #if defined(QT_CHECK_RANGE)
@@ -2432,23 +2442,91 @@ QImage QImage::smoothScale(int w, int h) const
 	return *this;
     }
 
-    if ( w == width() && h == height() )
+    QSize ss = scaleSize( s, mode );
+    if ( ss == size() )
 	return *this; // nothing to do
 
-    if (depth()==32) {
-	QImage img(w, h, 32);
+    if ( depth() == 32 ) {
+	QImage img( ss, 32 );
 	// 32-bpp to 32-bpp
-	pnmscale(*this,img);
+	pnmscale( *this, img );
 	return img;
-    } else if ( depth() != 16 && allGray() && !hasAlphaBuffer()) {
+    } else if ( depth() != 16 && allGray() && !hasAlphaBuffer() ) {
 	// Inefficient
-	return convertDepth(32).smoothScale(w,h).convertDepth(8);
+	return convertDepth(32).smoothScale(ss,mode).convertDepth(8);
     } else {
 	// Inefficient
-	return convertDepth(32).smoothScale(w,h);
+	return convertDepth(32).smoothScale(ss,mode);
     }
 }
 #endif
+
+/*!
+  Returns a pixmap that is a scaled version of this pixmap with width \w and
+  height \a h. This function uses a quite simple algorithm for doing this task;
+  if you need a better quality, use smoothScale() instead.
+ 
+  \sa smoothScale()
+*/
+QImage QImage::scale( int w, int h, ScaleMode mode=ScaleFree ) const
+{
+    return scale( QSize( w, h ), mode );
+}
+
+/*! \overload
+*/
+QImage QImage::scale( const QSize& s, ScaleMode mode=ScaleFree ) const
+{
+    if ( isNull() ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QImage::smoothScale: Image is a null image" );
+#endif
+	return *this;
+    }
+
+    QSize ss = scaleSize( s, mode );
+    if ( ss == size() )
+	return *this; // nothing to do
+
+    // ### change this to something meaningful
+    QPixmap p;
+    p.convertFromImage( *this );
+    QWMatrix wm;
+    wm.scale( (double)ss.width()/width(), (double)ss.height()/height() );
+    p = p.xForm( wm );
+    if ( p.width() != ss.width() || p.height() != ss.height() )
+	p.resize( ss.width(), ss.height() );
+    return p.convertToImage();
+}
+
+/*!
+  This private function calculates the size that is actually used for scaling
+  with the scale mode \a mode. \a size is the wanted size, specified to the
+  scaling function scale() or smoothScale().
+*/
+QSize QImage::scaleSize( const QSize &size, ScaleMode mode ) const
+{
+    if ( mode == ScaleFree ) {
+	return size;
+    }
+
+    bool useHeight = TRUE;
+    double ratio = (double)width() / height();
+    int rw = (int)( ratio * size.height() );
+
+    if ( mode == ScaleMin ) {
+	if ( rw > size.width() )
+	    useHeight = FALSE;
+    } else if ( mode == ScaleMax ) {
+	if ( rw < size.width() )
+	    useHeight = FALSE;
+    }
+
+    if ( useHeight )
+	return QSize( rw, size.height() );
+    return QSize( size.width(), (int)(size.width()/ratio) );
+}
+
 /*!
   Builds and returns a 1-bpp mask from the alpha buffer in this image.
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink

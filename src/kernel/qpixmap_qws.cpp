@@ -811,16 +811,6 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 #endif // QT_NO_TRANSFORMATIONS
 
 
-QPixmap QPixmap::smoothScale( const QSize& size, ScaleMode mode ) const
-{
-    // ### can you optimize this?
-    QPixmap p;
-    QSize ss = scaleSize( size, mode );
-    p.convertFromImage( convertToImage().smoothScale( ss.width(), ss.height() ) );
-    return p;
-}
-
-
 // CALLER DELETES
 QGfx * QPixmap::graphicsContext(bool) const
 {
