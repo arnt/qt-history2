@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#45 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#46 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#46 $";
 #endif
 
 
@@ -1035,8 +1035,12 @@ QString QString::simplifyWhiteSpace() const
 	    break;
 	while (*from && !isspace(*from))
 	    *to++ = *from++;
-	*to++ = ' ';
-	finalspace = TRUE;
+	if ( *from ) {
+	    *to++ = ' ';
+	    finalspace = TRUE;
+	}
+	else
+	    break;
     }
     if (finalspace)
 	to--;
