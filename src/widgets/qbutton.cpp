@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#11 $
 **
 ** Implementation of QButton class
 **
@@ -18,7 +18,7 @@ declare(QDictM,QPixMap);			// internal pixmap dict
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#11 $";
 #endif
 
 
@@ -98,7 +98,7 @@ void QButton::switchOn()			// switch button on
     bool lastOn = buttonOn;
     buttonOn = TRUE;
     if ( !lastOn )				// changed state
-	paintEvent( 0 );			// redraw
+	repaint( FALSE );			// redraw
 }
 
 void QButton::switchOff()			// switch button off
@@ -110,7 +110,7 @@ void QButton::switchOff()			// switch button off
     bool lastOn = buttonOn;
     buttonOn = FALSE;
     if ( lastOn )				// changed state
-	paintEvent( 0 );			// redraw
+	repaint( FALSE );			// redraw
 }
 
 
@@ -139,7 +139,7 @@ void QButton::mousePressEvent( QMouseEvent *e ) // mouse press
     if ( hit ) {				// mouse press on button
 	mlbDown = TRUE;				// left mouse button down
 	buttonDown = TRUE;
-	paintEvent(0);
+	repaint( FALSE );
 	emit pressed();
     }
 }
@@ -154,12 +154,12 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)// mouse release
     if ( hit ) {				// mouse release on button
 	if ( onOffButton )
 	    buttonOn = !buttonOn;
-	paintEvent( 0 );
+	repaint( FALSE );
 	emit released();
 	emit clicked();
     }
     else {
-	paintEvent( 0 );
+	repaint( FALSE );
 	emit released();
     }
 }
@@ -172,14 +172,14 @@ void QButton::mouseMoveEvent( QMouseEvent *e )	// mouse move event
     if ( hit ) {				// mouse move in button
 	if ( !buttonDown ) {
 	    buttonDown = TRUE;
-	    paintEvent(0);
+	    repaint( FALSE );
 	    emit pressed();
 	}
     }
     else {					// mouse move outside button
 	if ( buttonDown ) {
 	    buttonDown = FALSE;
-	    paintEvent(0);
+	    repaint( FALSE );
 	    emit released();
 	}
     }
