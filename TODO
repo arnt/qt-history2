@@ -1,0 +1,16 @@
+reimplement keyPressEvent i QMessageBox og fjern ugle hack i
+QDialog::keyPressEvent
+
+	/*
+	  Todo!!! We can have a function in qcol_x11, qt_xcolortable,
+	  which returns carr and does not delete it in the same events
+	  batch.
+	 */
+
+
+	// THIS IS NOT SUFFICIENT. SCAN FOR START AND
+	// STOP VALUES !!!
+
+QImage::systemByteOrder ska'n vekk, elle?
+
+Klin inn kule sider mellom tutorial og doc i ps. (signal/slot, debugging, etc.)
