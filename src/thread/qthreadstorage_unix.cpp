@@ -77,14 +77,12 @@ QThreadStorageData::~QThreadStorageData()
 void **QThreadStorageData::get() const
 {
     QThreadInstance *d = QThreadInstance::current();
-    QMutexLocker locker( d->mutex() );
     return d->thread_storage && d->thread_storage[id] ? &d->thread_storage[id] : 0;
 }
 
 void **QThreadStorageData::set( void *p )
 {
     QThreadInstance *d = QThreadInstance::current();
-    QMutexLocker locker( d->mutex() );
     if ( !d->thread_storage ) {
 	DEBUG( "QThreadStorageData: allocating storage %d for thread %lx",
 		id, (unsigned long) pthread_self() );
@@ -97,7 +95,10 @@ void **QThreadStorageData::set( void *p )
     if ( d->thread_storage[id] ) {
 	DEBUG("QThreadStorageData: deleting previous storage %d for thread %lx",
 	      id, (unsigned long) pthread_self());
-	thread_storage_usage[id].func( d->thread_storage[id] );
+
+	void *q = d->thread_storage[id];
+	d->thread_storage[id] = 0;
+	thread_storage_usage[id].func(q);
     }
 
     // store new data
@@ -122,7 +123,9 @@ void QThreadStorageData::finish( void **thread_storage )
 	    continue;
 	}
 
-	thread_storage_usage[i].func( thread_storage[i] );
+	void *q = thread_storage[i];
+	thread_storage[i] = 0;
+	thread_storage_usage[i].func(q);
     }
 
     delete [] thread_storage;
