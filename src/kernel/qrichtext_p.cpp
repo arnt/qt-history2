@@ -103,6 +103,10 @@ int QTextCursor::x() const
 {
     QTextStringChar *c = string->at( idx );
     int curx = c->x;
+    if ( !c->rightToLeft &&
+	 c->c.isSpace() &&
+	 idx > 0 &&
+	 ( string->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
     if ( c->rightToLeft )
 	curx += string->string()->width( idx );
     return curx;
