@@ -384,7 +384,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     pixmap.data->ref();				// avoid 'x = x'
     deref();
     if ( pixmap.paintingActive() ) {		// make a deep copy
-#if defined(Q_WS_X11)
+#if !defined(Q_WS_X11)
 	init( pixmap.width(), pixmap.height(), pixmap.depth(),
 	      pixmap.data->bitmap, pixmap.data->optim );
 #else	
@@ -648,7 +648,9 @@ void QPixmap::setMask( const QBitmap &newmask )
 	newmaskcopy = (QBitmap*)new QPixmap( tmp->copy( TRUE ) );
     else
 	newmaskcopy = new QBitmap( newmask );
+#ifdef Q_WS_X11
     newmaskcopy->x11SetScreen( x11Screen() );
+#endif
     data->mask = newmaskcopy;
 }
 
