@@ -93,6 +93,7 @@ QFontStruct::QFontStruct( const QString &key )
     : k(key), hdc(0), hfont(0)
 {
     s.dirty = TRUE;
+	cache_cost = 1;
 }
 
 inline bool QFontStruct::dirty() const
@@ -165,78 +166,27 @@ void QFontStruct::reset()
 }
 
 
-// #### FIX the font cache
-
-static const int fontCacheSize = 120;		// max number of loaded fonts
-
-typedef QCacheIterator<QFontStruct> QFontCacheIt;
-typedef QDict<QFontStruct>	      QFontDict;
-
-
-class QFontCache : public QCache<QFontStruct>
-{
-public:
-    QFontCache( int maxCost, int size=17, bool cs=TRUE )
-	: QCache<QFontStruct>(maxCost,size,cs) {}
-
-    // This pass-through function is needed to avoid MSVC++ 5.0 internal
-    // compiler error. (occurs in QFont::load()).
-    QFontStruct *find(const QString& k)
-	{ return QCache<QFontStruct>::find(k,TRUE); }
-
-    void deleteItem( Item );
-};
-
-void QFontCache::deleteItem( Item d )
-{
-    QFontStruct *fin = (QFontStruct *)d;
-    fin->reset();
-}
-
-
-static QFontCache    *fontCache	     = 0;	// cache of loaded fonts
-static QFontDict     *fontDict	     = 0;	// dict of all loaded fonts
-
 /*****************************************************************************
   QFont member functions
  *****************************************************************************/
 
 void QFont::initialize()
 {
-    if ( fontCache )
+    if ( QFontPrivate::fontCache )
 	return;
     shared_dc = CreateCompatibleDC( qt_display_dc() );
     shared_dc_font = 0;
-    fontCache = new QFontCache( fontCacheSize, 29 );
-    Q_CHECK_PTR( fontCache );
-    fontDict = new QFontDict( 29 );
-    Q_CHECK_PTR( fontDict );
+	QFontPrivate::fontCache = new QFontCache();
+    Q_CHECK_PTR( QFontPrivate::fontCache );
 }
 
 void QFont::cleanup()
 {
-    delete fontCache;
-    fontCache = 0;
-    fontDict->setAutoDelete( TRUE );
-    delete fontDict;
+    delete QFontPrivate::fontCache;
+	QFontPrivate::fontCache = 0;
     Q_ASSERT( shared_dc_font == 0 );
     DeleteDC( shared_dc );
     shared_dc = 0;
-}
-
-void QFont::cacheStatistics()
-{
-#if defined(QT_DEBUG)
-    fontCache->statistics();
-    QFontCacheIt it(*fontCache);
-    QFontStruct *fin;
-    qDebug( "{" );
-    while ( (fin = it.current()) ) {
-	++it;
-	qDebug( "   [%s]", fin->key().data() );
-    }
-    qDebug( "}" );
-#endif
 }
 
 // If d->req.dirty is not TRUE the font must have been loaded
@@ -252,7 +202,7 @@ HFONT QFont::handle() const
 	d->load();
     } else {
 	if ( d->fin->font() != last )
-	    fontCache->find( d->fin->key() );
+		QFontPrivate::fontCache->find( d->fin->key() );
     }
     last = d->fin->font();
     return last;
@@ -330,14 +280,11 @@ void QFontPrivate::load()
     QString k = key();
     fin = fontCache->find( k );
 
-    if ( !fin ) {				// font not loaded
-	fin = fontDict->find(k);
 	if ( !fin ) {			// font was never loaded
 	    fin = new QFontStruct( k );
 	    Q_CHECK_PTR( fin );
-	    fontDict->insert( fin->key(), fin );
+	    fontCache->insert( fin->key(), fin, 1 );
 	}
-    }
 
     if ( !fin->font() ) {			// font not loaded
 	if ( qt_winver & Qt::WV_NT_based )
@@ -364,6 +311,10 @@ void QFontPrivate::load()
 #define DEFAULT_GUI_FONT 17
 #endif
 
+HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF )
+{
+	return d->create(stockFont, hdc, VxF);
+}
 
 HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool VxF )
 {
@@ -839,6 +790,11 @@ int QFontMetrics::width( const QString &str, int len ) const
     if ( (qt_winver & Qt::WV_NT_based) == 0 )
 	s.cx -= TMX->tmOverhang;
     return s.cx;
+}
+
+int QFontMetrics::charWidth( const QString &str, int pos ) const
+{
+	return width( str.at(pos) );
 }
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const

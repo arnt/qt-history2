@@ -1357,7 +1357,11 @@ void QFont::cacheStatistics()
     qDebug( "{" );
     while ( (qfs = it.current()) ) {
 	++it;
+#ifdef Q_WS_X11
 	qDebug( "   [%s]", (const char *) qfs->name );
+#else
+	qDebug( "   [%s]", (const char *) qfs->key() );
+#endif
     }
     qDebug( "}" );
 
@@ -2349,8 +2353,47 @@ void QFontCache::timerEvent(QTimerEvent *)
 
 
 
+// QFontPrivate member methods
+// **********************************************************************
 
+// ********// Converts a weight string to a value************************
+int QFontPrivate::getFontWeight(const QCString &weightString, bool adjustScore)
+{
+    // Test in decreasing order of commonness
+    if ( weightString == "medium" )       return QFont::Normal;
+    else if ( weightString == "bold" )    return QFont::Bold;
+    else if ( weightString == "demibold") return QFont::DemiBold;
+    else if ( weightString == "black" )   return QFont::Black;
+    else if ( weightString == "light" )   return QFont::Light;
 
+    QCString s(weightString.lower());
+
+    if ( s.contains("bold") ) {
+	if ( adjustScore )
+	    return (int) QFont::Bold - 1;  // - 1, not sure that this IS bold
+	else
+	    return (int) QFont::Bold;
+    }
+
+    if ( s.contains("light") ) {
+	if ( adjustScore )
+	    return (int) QFont::Light - 1; // - 1, not sure that this IS light
+	else
+	    return (int) QFont::Light;
+    }
+
+    if ( s.contains("black") ) {
+	if ( adjustScore )
+	    return (int) QFont::Black - 1; // - 1, not sure this IS black
+	else
+	    return (int) QFont::Black;
+    }
+
+    if ( adjustScore )
+	return (int) QFont::Normal - 2;	   // - 2, we hope it's close to normal
+
+    return (int) QFont::Normal;
+}
 
 
 QFontPrivate::Script QFontPrivate::scriptForChar( const QChar &c )
