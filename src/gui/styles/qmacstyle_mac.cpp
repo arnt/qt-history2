@@ -2762,6 +2762,24 @@ QRect QMacStylePrivate::HIThemeQuerySubControlMetrics(QStyle::ComplexControl cc,
             }
         }
         break;
+    case QStyle::CC_ComboBox:
+        if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            if (sc == QStyle::SC_ComboBoxEditField && !combo->editable) {
+                HIRect hirect, outrect;
+                HIThemeButtonDrawInfo bdi;
+                bdi.version = qt_mac_hitheme_version;
+                bdi.state = kThemeStateActive;
+                bdi.kind = kThemePopupButton;
+                bdi.value = kThemeButtonOff;
+                bdi.adornment = kThemeAdornmentArrowLeftArrow;
+                hirect = qt_hirectForQRect(combo->rect);
+                HIThemeGetButtonContentBounds(&hirect, &bdi, &outrect);
+                ret = qt_qrectForHIRect(outrect);
+            } else {
+                ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
+            }
+        }
+        break;
     default:
         ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
@@ -4249,6 +4267,21 @@ QRect QMacStylePrivate::AppManQuerySubControlMetrics(QStyle::ComplexControl cc,
             }
         }
         break;
+    case QStyle::CC_ComboBox:
+        if (const QStyleOptionComboBox *combo = qt_cast<const QStyleOptionComboBox *>(opt)) {
+            if (sc == QStyle::SC_ComboBoxEditField && !combo->editable) {
+                Rect macRect, outRect;
+                SetRect(&macRect, 0, 0, combo->rect.width(), combo->rect.height());
+                ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeButtonOff,
+                                            kThemeAdornmentNone };
+                GetThemeButtonContentBounds(&macRect, kThemePopupButton, &bdi, &outRect);
+                ret.setRect(outRect.left, outRect.top, outRect.right - outRect.left,
+                            outRect.bottom - outRect.top);
+            } else {
+                ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
+            }
+        }
+        break;
     default:
         ret = q->QWindowsStyle::querySubControlMetrics(cc, opt, sc, widget);
     }
@@ -4994,9 +5027,10 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl cc, const QStyleOptionCom
                 else if (sc == SC_ComboBoxArrow)
                     ret.setRect(cmb->rect.width() - 24, 0, 24, cmb->rect.height());
             } else {
-                ret = QWindowsStyle::querySubControlMetrics(cc, opt, sc, w);
-                if (sc == SC_ComboBoxEditField)
-                    ret.setWidth(ret.width() - 5);
+                if (d->useHITheme)
+                    ret = d->HIThemeQuerySubControlMetrics(cc, opt, sc, w);
+                else
+                    ret = d->AppManQuerySubControlMetrics(cc, opt, sc, w);
             }
         }
         break;
