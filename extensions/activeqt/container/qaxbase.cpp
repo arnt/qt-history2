@@ -980,6 +980,8 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 		str += "&";
 	    else if ( str == "QValueList<QVariant>" )
 		str += "&";
+	    else if ( enumlist[str] )
+		str += "&";
 	    else if ( !str.isEmpty() && str != "QFont" && str != "QPixmap" )
 		str += "*";
 	}
@@ -1034,40 +1036,46 @@ static inline QString constRefify( const QString& type )
     return crtype;
 }
 
-static inline void QStringToQUType( const QString& type, QUParameter *param, const QDict<QMetaEnum> &enumDict )
+static inline void QStringToQUType( const QString& fulltype, QUParameter *param, const QDict<QMetaEnum> &enumDict )
 {
+    QString type = fulltype;
+    if ( type.startsWith( "const " ) )
+	type = type.mid( 6 );
+    if ( type.right(1) == "&" )
+	type.truncate( type.length()-1 );
+
     param->typeExtra = 0;
-    QMetaEnum *enumData = 0;
-    if ( type == "int" || type == "int&" ) {
+    if ( type == "int" ) {
 	param->type = &static_QUType_int;
     } else if ( type == "short" || type == "long" ) {
 	param->type = &static_QUType_int;
-    } else if ( type == "uint" || type == "uint&" ) {
+    } else if ( type == "uint" ) {
 	param->type = &static_QUType_uint;
-    } else if ( type == "bool" || type == "bool&" ) {
+    } else if ( type == "bool" ) {
 	param->type = &static_QUType_bool;
-    } else if ( type == "QString" || type == "const QString&" || type == "QString&" ) {
+    } else if ( type == "QString" ) {
 	param->type = &static_QUType_QString;
-    } else if ( type == "double" || type == "double&" ) {
+    } else if ( type == "double" ) {
 	param->type = &static_QUType_double;
-    } else if ( type == "QVariant" || type == "const QVariant&" ) {
+    } else if ( type == "QVariant" ) {
 	param->type = &static_QUType_QVariant;
-    } else if ( type == "QColor" || type == "const QColor&" || type == "QColor&" ) {
+    } else if ( type == "QColor" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::Color);
-    } else if ( type == "QDateTime" || type == "const QDateTime&" || type == "QDateTime&" ) {
+    } else if ( type == "QDateTime" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::DateTime);
-    } else if ( type == "QFont" || type == "const QFont&" || type == "QFont&" ) {
+    } else if ( type == "QFont" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::Font);
-    } else if ( type == "QPimap" || type == "const QPixmap&" || type == "QPixmap&" ) {
+    } else if ( type == "QPixmap" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::Pixmap);
-    } else if ( type == "QValueList<QVariant>" || type == "const QValueList<QVariant>&" || type == "QValueList<QVariant>&" ) {
+    } else if ( type == "QValueList<QVariant>" ) {
 	param->type = &static_QUType_varptr;
 	param->typeExtra = new int(QVariant::List);
-    } else if ( (enumData = enumDict.find( type )) != 0 ) {
+    } else if ( enumDict[type] ) {
+	QMetaEnum *enumData = enumDict[type];
 	param->type = &static_QUType_enum;
 	QUEnum *uEnum = new QUEnum;
 	uEnum->count = enumData->count;
