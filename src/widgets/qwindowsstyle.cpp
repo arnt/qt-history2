@@ -254,7 +254,7 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
 	p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
     if ( enabled ) {
 	a.translate( x+w/2, y+h/2 );
-	p->setPen( g.foreground() );
+	p->setPen( g.buttonText() );
 	p->drawLineSegments( a, 0, 3 );		// draw arrow
 	p->drawPoint( a[6] );
     } else {
