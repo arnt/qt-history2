@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#321 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#322 $
 **
 ** Implementation of QListBox widget class
 **
@@ -793,7 +793,7 @@ QListBox::~QListBox()
   on a listbox.
   \a item is the pointer to the listbox item onto which the user pressed the
   mouse button or NULL, if the user didn't press the mouse on an item.
-  \a pnt is the position of the mouse cursor where the mouse cursor was 
+  \a pnt is the position of the mouse cursor where the mouse cursor was
   when the user pressed the mouse button.
 
   Note that you may not delete any QListBoxItem objects in slots
@@ -1242,7 +1242,6 @@ void QListBox::removeItem( int index )
 void QListBox::clear()
 {
     blockSignals( TRUE );
-    clearSelection();
     blockSignals( FALSE );
     d->current = 0;
     QListBoxItem * i = d->head;
@@ -1263,6 +1262,7 @@ void QListBox::clear()
     d->mousePressColumn = -1;
     d->mouseMoveRow = -1;
     d->mouseMoveColumn = -1;
+    clearSelection();
     triggerUpdate( TRUE );
 }
 

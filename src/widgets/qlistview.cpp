@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#356 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#357 $
 **
 ** Implementation of QListView widget class
 **
@@ -2092,7 +2092,6 @@ void QListView::clear()
 {
     blockSignals( TRUE );
     clearSelection();
-    blockSignals( FALSE );
     if ( d->iterators ) {
 	QListViewItemIterator *i = d->iterators->first();
 	while ( i ) {
@@ -2121,6 +2120,7 @@ void QListView::clear()
 	c = n;
     }
     resizeContents( d->h->sizeHint().width(), contentsHeight() );
+    blockSignals( FALSE );
     triggerUpdate();
 }
 
@@ -4714,7 +4714,7 @@ void QListView::configureEvent( QConfigureEvent* ev )
 		ev->ignore();
 		return;
 	    }
-	    
+	
 	    QListViewItem* lv = 0;
 	    QDomElement l = t.firstChild().toElement();
 	    for( ; !l.isNull(); l = l.nextSibling().toElement() )
