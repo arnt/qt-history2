@@ -569,7 +569,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
             }
         }
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
-                        (x <= '0' && x >= '9') || x == '_')
+                        (x >= '0' && x <= '9') || x == '_')
 
         bool interesting = *(buffer+x) == 'Q' && (!strncmp(buffer+x, "Q_OBJECT", OBJ_LEN) ||
                                                       !strncmp(buffer+x, "Q_DISPATCH", DIS_LEN));
