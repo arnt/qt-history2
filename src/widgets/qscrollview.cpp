@@ -895,6 +895,11 @@ void QScrollView::updateScrollBars()
 	d->hbar.show();
     if ( showv && d->vbar.isHidden() )
 	d->vbar.show();
+
+    d->signal_choke=TRUE;
+    d->vbar.setValue( contentsY() );
+    d->hbar.setValue( contentsX() );
+    d->signal_choke=FALSE;
 }
 
 
