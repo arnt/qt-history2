@@ -481,7 +481,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    break;
 	case Tok_RightBrace:
 	case Tok_Semicolon:
-	    if ( yyBraceDepth + 1 == (int) namespaces.count() )
+	    if ( yyBraceDepth >= 0 &&
+		 yyBraceDepth + 1 == (int) namespaces.count() )
 		namespaces.remove( namespaces.fromLast() );
 	    if ( yyBraceDepth == (int) namespaces.count() )
 		functionContext = defaultContext;
