@@ -339,13 +339,21 @@
   \endcode
 
   QInterfacePtr can also be used in calls to \link QUnknownInterface::queryInterface() queryInterface()
-  \endlink :
+  \endlink or \link QComponentFactory::createInstance() createInstance() \endlink, but must be reset 
+  explicitely before it can be reused:
 
   \code
   QInterfacePtr<SpecialInterface> special;
   component->queryInterface( IID_Special, &special );
   if ( special )
-     special->function();
+      special->function();
+
+  special = 0; // release the current interface
+
+  component->queryInterface( IID_Special, &special );
+  if ( special )
+      special->function();
+
   \endcode
 */
 
