@@ -25,13 +25,13 @@ public:
 	bold.setBold( TRUE );
 
 	if ( text[0] == '+' )
-	    setFormat( 0, text.length(), textEdit()->font(), blue );
+	    setFormat( 0, text.length(), blue );
 	else if ( text[0] == '-' )
-	    setFormat( 0, text.length(), textEdit()->font(), red );
+	    setFormat( 0, text.length(), red );
 	else if ( text.startsWith( "====" ) || text.startsWith( "@@" ) )
-	    setFormat( 0, text.length(), bold, textEdit()->colorGroup().text() );
+	    setFormat( 0, text.length(), bold );
 	else
-	    setFormat( 0, text.length(), textEdit()->font(), textEdit()->colorGroup().text() );
+	    setFormat( 0, text.length(), textEdit()->colorGroup().text() );
 	
 	return 0;
     }
