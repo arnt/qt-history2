@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/dirview/main.cpp#2 $
+** $Id: //depot/qt/main/examples/dirview/main.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -13,7 +13,7 @@
 #include <qdir.h>
 #include "dirview.h"
 
-int main( int argc, char ** argv ) 
+int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
 
@@ -22,7 +22,7 @@ int main( int argc, char ** argv )
     mw.addColumn( "Name" );
     mw.addColumn( "Type" );
     mw.setTreeStepSize( 20 );
-    
+
     const QFileInfoList* roots = QDir::drives();
     QListIterator<QFileInfo> i(*roots);
     QFileInfo* fi;
@@ -35,8 +35,9 @@ int main( int argc, char ** argv )
 
     mw.resize( 400, 400 );
     mw.setCaption( "Directory Browser" );
+    mw.setAllColumnsShowFocus( TRUE );
     a.setMainWidget( &mw );
     mw.show();
-    
+
     return a.exec();
 }
