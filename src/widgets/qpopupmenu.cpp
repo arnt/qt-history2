@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#358 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#359 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -439,7 +439,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	if ( x < sx )
 	    x = mouse.x();
 	if ( y < sy )
-	    y = sh - h;
+	    y = sy;
     }
 
     if ( x+w > sx+sw )				// the complete widget must
