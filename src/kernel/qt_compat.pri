@@ -32,5 +32,13 @@ macx {
      CONFIG -= nas mng jpeg x11 x11sm
      
      CONFIG += shared debug
+#     CONFIG += sqlcrap
+     sqlcrap {
+	sql-driver += postgres
+	INCLUDEPATH+=/Users/sam/postgresql-7.0.2/src/include \
+		    /Users/sam/postgresql-7.0.2/src/interfaces/libpq
+
+	LIBS += -L/Users/sam/postgresql-7.0.2/src/interfaces/libpq -lpq
+     }
 } 
 
