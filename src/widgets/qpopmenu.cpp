@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#122 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#123 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#122 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#123 $");
 
 
 // Motif style parameters
@@ -1063,16 +1063,19 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    QRect pmr( 0, 0, pixw, pixh );
 	    pmr.moveCenter( cr.center() );
 	    if ( style() == WindowsStyle && dis ) {
-		QString k;
-		k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
-		QPixmap * mask = QPixmapCache::find(k);
-		if ( !mask ) {
-		    if ( pixmap->mask() )
-			mask = new QPixmap( *pixmap->mask() );
-		    else
+		QPixmap * mask;
+		if ( pixmap->mask() ) {
+		    mask = (QPixmap *)pixmap->mask();
+		    mask->setMask( *pixmap->mask() );
+		} else {
+		    QString k;
+		    k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
+		    QPixmap * mask = QPixmapCache::find(k);
+		    if ( !mask ) {
 			mask = new QPixmap( pixmap->createHeuristicMask() );
-		    mask->setMask( *((QBitmap*)mask) );
-		    QPixmapCache::insert( k, mask );
+			mask->setMask( *((QBitmap*)mask) );
+			QPixmapCache::insert( k, mask );
+		    }
 		}
 		p->setPen( itemg.light() );
 		p->drawPixmap( pmr.left()+1, pmr.top()+1, *mask );
