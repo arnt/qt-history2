@@ -881,9 +881,10 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
                         if (arg.vt & VT_BYREF) {
                             qVariantSet(var, arg.ppdispVal, "IDispatch**");
                         } else {
-                            int metaType = QMetaType::type(typeName);
 #ifndef QAX_SERVER
-                            if (typeName != "IDispatch*" && metaType) {
+                            if (typeName != "IDispatch*" && QMetaType::type(typeName)) {
+                                int metaType = QMetaType::type(typeName.left(typeName.lastIndexOf('*')));
+                                Q_ASSERT(metaType != 0);
                                 qVariantSet(var, qax_createObjectWrapper(metaType, disp), typeName);
                             } else
 #endif
