@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#36 $
 **
 ** Localization database support.
 **
@@ -265,19 +265,19 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
   main( int argc, char** argv )
   {
     QApplication app( argc, argv );
- 
+
     QTranslator translator( 0 );
     translator.load( "trfile.qm", "." );
     app.installTranslator( &translator );
- 
+
     MyWidget m;
     app.setMainWidget( &m );
     m.show();
- 
+
     return app.exec();
-  }                
+  }
   \endcode
-  
+
 
   Slightly more advanced usage of QTranslator includes direct lookup
   using find(), adding new translations using insert() and removing
@@ -380,8 +380,8 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     delims = search_delimiters.isNull() ?
 	     QString::fromLatin1("_.") : search_delimiters;
 
-    bool done = FALSE;
-    while( !done ) {
+    while( 1 ) {
+	bool done = FALSE;
 	QFileInfo fi;
 
 	realname = prefix + fname;
