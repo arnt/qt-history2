@@ -259,7 +259,6 @@ void Win32MakefileGenerator::processVars()
     fixTargetExt();
     processRcFileVar();
     processFileTagsVar();
-    processQtConfig();
 
     QStringList &incDir = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incDir_it = incDir.begin(); incDir_it != incDir.end(); ++incDir_it) {
@@ -330,7 +329,7 @@ void Win32MakefileGenerator::processRcFileVar()
         ts << "#endif" << endl;
         ts << endl;
         ts << "VS_VERSION_INFO VERSIONINFO" << endl;
-	ts << "\tFILEVERSION " << QString(versionString).replace(".", ",") << endl;
+        ts << "\tFILEVERSION " << QString(versionString).replace(".", ",") << endl;
         ts << "\tPRODUCTVERSION " << QString(versionString).replace(".", ",") << endl;
         ts << "\tFILEFLAGSMASK 0x3fL" << endl;
         ts << "#ifdef _DEBUG" << endl;
@@ -390,27 +389,6 @@ void Win32MakefileGenerator::processRcFileVar()
         project->variables()["RES_FILE"].first() = Option::fixPathToTargetOS(project->variables()["RES_FILE"].first(), false, false);
 	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
         project->variables()["CLEAN_FILES"] += project->variables()["RES_FILE"];
-    }
-    //if(!project->variables()["RES_FILE"].isEmpty()) {
-    //    project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
-    //}
-}
-
-void Win32MakefileGenerator::processQtConfig()
-{
-    if (project->isActiveConfig("qt")) {
-        if (!project->isActiveConfig("target_qt") && !project->isEmpty("QMAKE_LIB_FLAG")) {
-            if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-                int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-                if(hver != -1) {
-                    QString ver;
-                    ver.sprintf("qt" QTDLL_POSTFIX "%d.lib", hver);
-                    QStringList &libs = project->variables()["QMAKE_LIBS"];
-                    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-                        (*libit).replace(QRegExp("qt\\.lib"), ver);
-                }
-            }
-        }
     }
 }
 

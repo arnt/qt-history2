@@ -100,6 +100,10 @@ void MingwMakefileGenerator::init()
 
     processVars();
 
+    if (!project->variables()["RES_FILE"].isEmpty()) {
+        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    }
+
     // LIBS defined in Profile comes first for gcc
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
@@ -149,24 +153,6 @@ void MingwMakefileGenerator::writeLibsPart(QTextStream &t)
         if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
             writeLibDirPart(t);
         t << var("QMAKE_LIBS").replace(QRegExp("(\\slib|^lib)")," -l") << endl;
-    }
-}
-
-void MingwMakefileGenerator::processQtConfig()
-{
-    if (project->isActiveConfig("qt")) {
-        if (!(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty())) {
-            if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
-                int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
-                if(hver != -1) {
-                    QString ver;
-                    ver.sprintf("libqt" QTDLL_POSTFIX "%d.a", hver);
-                    QStringList &libs = project->variables()["QMAKE_LIBS"];
-                    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
-                        (*libit).replace(QRegExp("qt\\.lib"), ver);
-                }
-            }
-        }
     }
 }
 

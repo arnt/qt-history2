@@ -82,6 +82,11 @@ BorlandMakefileGenerator::init()
     }
 
     processVars();
+
+    if (!project->variables()["RES_FILE"].isEmpty()) {
+        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    }
+
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
 
     MakefileGenerator::init();
@@ -116,15 +121,15 @@ void BorlandMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 void BorlandMakefileGenerator::writeCleanParts(QTextStream &t)
 {
     t << "clean: "
-        << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
-        << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
-        << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
+      << varGlue("OBJECTS","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","")
+      << varGlue("QMAKE_CLEAN","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n")
+      << varGlue("CLEAN_FILES","\n\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ","\n");
 
     if(!project->isEmpty("IMAGES"))
         t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-$(DEL_FILE) ", "\n\t-$(DEL_FILE) ", "");
     t << endl;
 
     t << "distclean: clean"
-        << "\n\t-$(DEL_FILE) $(TARGET)"
-        << endl << endl;
+      << "\n\t-$(DEL_FILE) $(TARGET)"
+      << endl << endl;
 }

@@ -130,6 +130,10 @@ void NmakeMakefileGenerator::init()
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processVars();
 
+    if (!project->variables()["RES_FILE"].isEmpty()) {
+        project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
+    }
+
     if(!project->variables()["DEF_FILE"].isEmpty())
         project->variables()["QMAKE_LFLAGS"].append(QString("/DEF:") + project->first("DEF_FILE"));
 

@@ -32,7 +32,6 @@ private:
 
     virtual bool findLibraries();
     void fixTargetExt();
-    void processQtConfig();
 
     bool init_flag;
     QString objectsLinkLine;
