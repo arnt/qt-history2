@@ -81,12 +81,35 @@ struct glibs_ref {
 static QDict<glibs_ref> *glibs_loaded = 0;
 #endif
 
+#ifdef DO_MAC_LIBRARY
+static NSModule qt_mac_library_multiple(NSSymbol, NSModule o, NSModule)
+{
+    return o;
+}
+
+static void qt_mac_library_error(NSLinkEditErrors err, int line, const char *fileName, 
+				 const char *error)
+{
+    qWarning("qlibrary_mac.cpp: %d: %d: %s (%s)", err, line, fileName, error);
+}
+#endif
+
 bool QLibraryPrivate::loadLibrary()
 {
     if ( pHnd )
 	return TRUE;
 
 #ifdef DO_MAC_LIBRARY
+    static bool first = TRUE;
+    if(first) { //deal with errors
+	first = FALSE;
+	NSLinkEditErrorHandlers hdl;
+	hdl.undefined = NULL;
+	hdl.multiple = qt_mac_library_multiple;
+	hdl.linkEdit = qt_mac_library_error;
+	NSInstallLinkEditErrorHandlers(&hdl);
+    }
+
     QString filename = library->library();
     if(!glibs_loaded) {
 	glibs_loaded = new QDict<glibs_ref>();
