@@ -611,6 +611,7 @@ int QMenuBar::calculateRects( int max_width )
     }
     QFontMetrics fm = fontMetrics();
     int max_height = 0;
+    int max_item_height = 0;
     int nlitems = 0;				// number on items on cur line
     int gs = style();
     int x = motifBarFrame + motifBarHMargin;
@@ -648,6 +649,8 @@ int QMenuBar::calculateRects( int max_width )
 	    }
 	    if ( y + h + 2*motifBarFrame > max_height )
 		max_height = y + h + 2*motifBarFrame;
+	    if ( h > max_item_height )
+		max_item_height = h;
 	}
 	if ( update )
 	    irects[i].setRect( x, y, w, h );
@@ -667,12 +670,8 @@ int QMenuBar::calculateRects( int max_width )
 	}
 	if ( max_height != height() )
 	    resize( max_width, max_height );
-	// #### Reggie: Why is this needed? It destroys the layout!
-	// Matthias: because it looks ugly if you insert a pixmap/item which
-	// is less high. Why does it destroy the layout? In a menubar, all 
-	// items should have the same height.
  	for ( i = 0; i < (int)mitems->count(); i++ )
- 	    irects[i].setHeight( max_height - 2*motifBarFrame );
+ 	    irects[i].setHeight( max_item_height  );
 	badSize = FALSE;
     }
 
