@@ -47,6 +47,7 @@ struct QMacDndExtra {
     bool acceptact;
     bool received;
     int ref;
+    QDropEvent::Action mode;
 };
 
 bool qt_mac_in_drag = FALSE;
@@ -247,7 +248,7 @@ void QDragManager::drop()
 {
 }
 
-bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
+bool QDragManager::drag( QDragObject *o, QDragObject::DragMode mode )
 {
     //just make sure..
     if(qt_mac_in_drag) {
@@ -359,6 +360,10 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     if(!widget->extraData()->macDndExtra) //never too late I suppose..
 	qt_macdnd_register( widget,  widget->extraData());
     widget->extraData()->macDndExtra->received = FALSE;
+    if (mode == QDragObject::DragCopy)
+	widget->extraData()->macDndExtra->mode = QDropEvent::Copy;
+    else
+	widget->extraData()->macDndExtra->mode = QDropEvent::Move;
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
     int tid = startTimer( 1 );
@@ -367,7 +372,9 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     killTimer( tid );
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
-    return result == noErr;
+    return ((result == noErr)  &&
+            (widget->extraData()->macDndExtra->mode == QDropEvent::Copy) &&
+	    widget->extraData()->macDndExtra->acceptact);
 }
 
 void QDragManager::updatePixmap()
@@ -387,6 +394,7 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     if(!widget)
 	return 1;
     QDropEvent de( widget->mapFromGlobal( QPoint( mouse.h, mouse.v )) );
+    de.setAction( macDndExtra->mode );
     QApplication::sendEvent( widget, &de );
     macDndExtra->acceptact = de.isActionAccepted();
     return (macDndExtra->acceptfmt = de.isAccepted()) ? noErr : dragNotAcceptedErr;
@@ -429,6 +437,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
+	de.setAction( macDndExtra->mode  );
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
 	macDndExtra->acceptact = de.isActionAccepted();
