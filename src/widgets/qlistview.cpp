@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#276 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#277 $
 **
 ** Implementation of QListView widget class
 **
@@ -1516,7 +1516,7 @@ void QListViewPrivate::Root::setup()
   name as object name. */
 
 QListView::QListView( QWidget * parent, const char *name )
-    : QScrollView( parent, name )
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     d = new QListViewPrivate;
     d->vci = 0;
@@ -2191,7 +2191,7 @@ void QListView::handleSizeChange( int section, int os, int ns )
     int left = d->h->cellPos( section ) - contentsX(); //d->h->cellPos( d->h->mapToActual( section ) - d->h->offset() );
     if ( columnAlignment( section ) == AlignLeft )
         left += QMIN( os, ns ) - 1;
-    
+
     viewport()->repaint( left, 0, visibleWidth() - left,
                          visibleHeight(), FALSE );
 }
