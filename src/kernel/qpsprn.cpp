@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#7 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -20,7 +20,7 @@
 #include "qbuffer.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpsprn.cpp#7 $";
 #endif
 
 
@@ -52,11 +52,11 @@ QPSPrinter::~QPSPrinter()
 // Sets a new font for PostScript
 //
 
-static void ps_setFont( QTextStream *s, const QFont *f )
+static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
 {
     if ( f->rawMode() ) {
 	QFont fnt( "Helvetica", 12 );
-	ps_setFont( s, &fnt );
+	ps_setFont( s, &fnt, fonts );
 	return;
     }
     if ( f->pointSize() == 0 ) {
@@ -105,6 +105,10 @@ static void ps_setFont( QTextStream *s, const QFont *f )
     QString fontMatrix;
     fontMatrix.sprintf( "[ %d 0 0 -%d 0 0 ]", f->pointSize(), f->pointSize() );
     *s << ps << " findfont " << fontMatrix << " makefont setfont\n";
+    ps.remove( 0, 1 );  // removes the '/'
+    ps += ' ';
+    if ( !fonts->contains(ps) )
+	*fonts += ps;
 }
 
 static void hexOut( QTextStream &stream, int i )
@@ -215,7 +219,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     if ( c == PDC_BEGIN ) {			// start painting
 	pageCount   = 1;			// initialize state
 	dirtyMatrix = TRUE;
-
+	fontsUsed   = "";
 	const char *title   = printer->docName();
 	const char *creator = printer->creator();
 	if ( !title )				// default document name
@@ -249,7 +253,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	stream << "QtFinish\n";
 	stream << "%%Trailer\n";
 	stream << "%%Pages: " << pageCount << '\n';
-	stream << "%%DocumentFonts: Courier\n";
+	stream << "%%DocumentFonts: " << fontsUsed << '\n';
 	device->close();
 	stream.unsetDevice();
     }
@@ -440,7 +444,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	case PDC_SETBRUSHORIGIN:
 	    break;
 	case PDC_SETFONT:
-	    ps_setFont( &stream, p[0].font );
+	    ps_setFont( &stream, p[0].font, &fontsUsed );
 	    break;	    
 	case PDC_SETPEN:
 	    if ( p[0].pen->width() == 0 )

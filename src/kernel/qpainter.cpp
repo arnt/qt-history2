@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#50 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#50 $";
 #endif
 
 
@@ -131,8 +131,7 @@ void QPainter::killPStack()
 void QPainter::save()				// save/push painter state
 {
     if ( testf(ExtDev) ) {
-	if ( !pdev->cmd(PDC_SAVE,this,0) || !handle() )
-	    return;
+	pdev->cmd( PDC_SAVE, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 ) {
@@ -171,8 +170,7 @@ void QPainter::save()				// save/push painter state
 void QPainter::restore()			// restore/pop painter state
 {
     if ( testf(ExtDev) ) {
-	if ( !pdev->cmd( PDC_RESTORE,this,0) || !handle() )
-	    return;
+	pdev->cmd( PDC_RESTORE, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
     if ( pss == 0 || pss->isEmpty() ) {
@@ -249,8 +247,7 @@ void QPainter::setTabStops( int ts )		// set tab stops
     if ( isActive() && testf(ExtDev) ) {	// tell extended device
 	QPDevCmdParam param[1];
 	param[0].ival = ts;
-	if ( !pdev->cmd(PDC_SETTABSTOPS,this,param) || !handle() )
-	    return;
+        pdev->cmd( PDC_SETTABSTOPS, this, param );
     }
 }
 
@@ -284,8 +281,7 @@ void QPainter::setTabArray( int *ta )
 	QPDevCmdParam param[2];
 	param[0].ival = tabarraylen;
 	param[1].ivec = tabarray;
-	if ( !pdev->cmd(PDC_SETTABARRAY,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETTABARRAY, this, param );
     }
 }
 
@@ -308,8 +304,7 @@ void QPainter::setViewXForm( bool enable )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	if ( !pdev->cmd(PDC_SETVXFORM,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETVXFORM, this, param );
     }
     updateXForm();
 }
@@ -366,8 +361,7 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	if ( !pdev->cmd(PDC_SETWINDOW,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETWINDOW, this, param );
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -425,8 +419,7 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
-	if ( !pdev->cmd(PDC_SETVIEWPORT,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETVIEWPORT, this, param );
     }
     if ( testf(VxF) )
 	updateXForm();
@@ -448,8 +441,7 @@ void QPainter::setWorldXForm( bool enable )	// set world transform
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	if ( !pdev->cmd(PDC_SETWXFORM,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETWXFORM, this, param );
     }
     updateXForm();
 }
@@ -484,8 +476,7 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 	QPDevCmdParam param[2];
 	param[0].matrix = &wxmat;
 	param[1].ival = combine;
-	if ( !pdev->cmd(PDC_SETWMATRIX,this,param) || !handle() )
-	    return;
+	pdev->cmd( PDC_SETWMATRIX, this, param );
     }
     if ( !testf(WxF) )
 	setWorldXForm( TRUE );
