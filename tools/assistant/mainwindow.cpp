@@ -259,6 +259,11 @@ void MainWindow::on_actionAboutApplication_triggered()
     box.exec();
 }
 
+void MainWindow::on_actionAboutAssistant_triggered()
+{
+    about();
+}
+
 void MainWindow::on_actionEditFind_triggered()
 {
     if (!findDialog)
@@ -655,7 +660,7 @@ void MainWindow::updateProfileSettings()
     ui.helpMenu->clear();
     ui.helpMenu->addAction(ui.actionHelpAssistant);
     ui.helpMenu->addSeparator();
-    ui.helpMenu->addAction(ui.helpAbout_Qt_AssistantAction);
+    ui.helpMenu->addAction(ui.actionAboutAssistant);
     if (!config->aboutApplicationMenuText().isEmpty())
         ui.helpMenu->addAction(ui.actionAboutApplication);
     ui.helpMenu->addSeparator();

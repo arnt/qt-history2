@@ -127,7 +127,7 @@
         </attribute>
         <addAction name="actionHelpAssistant" />
         <addAction name="separator" />
-        <addAction name="helpAbout_Qt_AssistantAction" />
+        <addAction name="actionAboutAssistant" />
         <addAction name="actionAboutApplication" />
         <addAction name="separator" />
         <addAction name="actionHelpWhatsThis" />
@@ -278,9 +278,9 @@
           <string>&amp;Next</string>
         </property>
       </action>
-      <action name="helpAbout_Qt_AssistantAction" >
+      <action name="actionAboutAssistant" >
         <property name="objectName" >
-          <cstring>helpAbout_Qt_AssistantAction</cstring>
+          <cstring>actionAboutAssistant</cstring>
         </property>
         <property name="whatsThis" >
           <string>Display further information about Qt Assistant.</string>
@@ -292,6 +292,9 @@
       <action name="actionAboutApplication" >
         <property name="objectName" >
           <cstring>actionAboutApplication</cstring>
+        </property>
+        <property name="text" >
+          <string>About Qt</string>
         </property>
       </action>
       <action name="actionZoomIn" >
