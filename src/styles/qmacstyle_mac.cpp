@@ -638,6 +638,11 @@ void QMacStyle::drawControl( ControlElement element,
 	DrawThemeTab(qt_glb_mac_rect(r, p->device(), FALSE), tts, ttd, NULL, 0);
 	break; }
     case CE_PushButton: {
+	if(!widget)
+	    break;
+	QPushButton *btn = (QPushButton *)widget;
+	if ( btn->isToggleButton() && btn->isOn() )
+	    tds = kThemeStatePressed;
 #ifndef QMAC_NO_MACSTYLE_ANIMATE
 	if(d->animatable(QAquaAnimate::AquaPushButton, (QWidget *)widget)) {
 	    ControlRef btn = d->control(QAquaAnimate::AquaPushButton);
@@ -648,6 +653,8 @@ void QMacStyle::drawControl( ControlElement element,
 #endif
 	{
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	    if(btn->isFlat()) 
+		info.adornment = kThemeAdornmentNoShadow;
 	    ((QMacPainter *)p)->noop();
 	    DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
 			    kThemePushButton, &info, NULL, NULL, NULL, 0);
