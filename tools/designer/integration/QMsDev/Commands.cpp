@@ -329,6 +329,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
     CString fileext;
     CString filename;
     CString filepath;
+    CString inputfile;
     CString mocfile;
     CString fileToMoc;
     const CString moccommand = "%qtdir%\\bin\\moc.exe ";
@@ -366,6 +367,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	fileToMoc = filepath + file;
 	mocfile = "$(InputDir)\\moc_$(InputName).cpp";
     }
+    inputfile = "$(InputDir)\\$(InputName)." + fileext;
 
     // Add the moc step to the file
     long cCount;
@@ -374,7 +376,7 @@ void CCommands::addMOC( CComQIPtr<IBuildProject, &IID_IBuildProject> pProject, C
 	CComVariant Varc = c+1;
 	CComPtr<IConfiguration> pConfig;
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
-	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(fileToMoc), CComBSTR(moccommand+"$(InputDir)\\$(InputName).h -o "+mocfile), 
+	VERIFY_OK(pConfig->AddCustomBuildStepToFile(CComBSTR(fileToMoc), CComBSTR(moccommand + inputfile + " -o " + mocfile), 
 					  CComBSTR(mocfile), CComBSTR("MOCing "+file+"..."), 
 					  CComVariant(VARIANT_FALSE)));
 	m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded MOC preprocessor") );
