@@ -79,14 +79,11 @@ class QTextEditPrivate
 {
 public:
     QTextEditPrivate()
-    {
-	preeditStart = -1;
-	preeditLength = -1;
-	allowTabs = TRUE;
-    }
+	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),allowTabs(TRUE) {}
     int id[ 7 ];
     int preeditStart;
     int preeditLength;
+    bool ensureCursorVisibleInShowEvent;
     bool allowTabs;
 };
 
@@ -802,6 +799,12 @@ bool QTextEdit::event( QEvent *e )
 	    }
 	}
     }
+
+    if ( e->type() == QEvent::Show && d->ensureCursorVisibleInShowEvent ) {
+	sync();
+	ensureCursorVisible();
+	d->ensureCursorVisibleInShowEvent = FALSE;
+    }
     return QWidget::event( e );
 }
 
@@ -1485,6 +1488,10 @@ void QTextEdit::ensureCursorVisible()
 {
     if ( blockEnsureCursorVisible )
 	return;
+    if ( !isVisible() ) {
+	d->ensureCursorVisibleInShowEvent = TRUE;
+	return;
+    }
     lastFormatted = cursor->parag();
     formatMore();
     QTextStringChar *chr = cursor->parag()->at( cursor->index() );
@@ -1587,7 +1594,7 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 
 	if ( isReadOnly() && linksEnabled() ) {
 	    QTextCursor c = *cursor;
-	    placeCursor( e->pos(), &c );
+	    placeCursor( e->pos(), &c, TRUE );
 	    if ( c.parag() && c.parag()->at( c.index() ) &&
 		 c.parag()->at( c.index() )->format()->isAnchor() ) {
 		pressedLink = c.parag()->at( c.index() )->format()->anchorHref();
