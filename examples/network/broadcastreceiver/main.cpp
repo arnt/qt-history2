@@ -1,12 +1,12 @@
 #include <QApplication>
 
-#include "client.h"
+#include "receiver.h"
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Client client;
-    app.setMainWidget(&client);
-    client.show();
+    Receiver receiver;
+    app.setMainWidget(&receiver);
+    receiver.show();
     return app.exec();
 }
