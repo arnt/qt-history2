@@ -154,8 +154,12 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     // if before the insertion the document was empty then we consider the
     // insertion as a replacement and must now also remove the initial block
     // that existed before, in case our fragment started with a block
-    if (documentWasEmpty && firstFragmentWasBlock)
-        destPieceTable->remove(0, 1);
+    if (documentWasEmpty && firstFragmentWasBlock) {
+        QTextCursor c = cursor;
+        c.clearSelection();
+        c.movePosition(QTextCursor::Start);
+        c.deleteChar();
+    }
 
     // ### UNDO
     if (hasTitle)
@@ -456,6 +460,8 @@ void QTextHTMLImporter::import()
             scanTable(i, &tables[tables.size() - 1]);
             hasBlock = false;
             continue;
+        } else if (node->id == Html_tr) {
+            continue;
         } else if (node->isTableCell) {
             Q_ASSERT(!tables.isEmpty());
 
@@ -504,11 +510,13 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 block.setBackgroundColor(node->bgColor);
 
+            QTextCharFormat charFmt = node->charFormat();
+
             if (hasBlock) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
-                d->fragments.last().charFormat = d->formatCollection.indexForFormat(node->charFormat());
+                d->fragments.last().charFormat = d->formatCollection.indexForFormat(charFmt);
             } else {
-                appendBlock(block, node->charFormat());
+                appendBlock(block, charFmt);
             }
             hasBlock = true;
         } else if (node->id == Html_img) {
