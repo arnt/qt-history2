@@ -90,12 +90,13 @@ void warning( int level, const Location& loc, const char *message, ... )
 	int i = 0;
 	int j;
 	do {
-	    j = currentDirectory.find( '/', i+1 );
+	    j = currentDirectory.find( '/', i + 1 );
 	    if ( j < 0 )
 		j = currentDirectory.length();
-	    if ( j > i && 
-		 ( filenameBase.length() == j || filenameBase[j] == '/' ) &&
-		 filenameBase.left( j ) == currentDirectory.left( j ) )
+	    if ( j > i &&
+		 (j == (int) filenameBase.length()
+		  || filenameBase[j] == QChar('/')) &&
+		 filenameBase.left(j) == currentDirectory.left(j) )
 		i = j;
 	    else
 		j = -1;
