@@ -1453,7 +1453,7 @@ enum_list:		  /* empty */
 			;
 
 enumerator:		  IDENTIFIER { if ( tmpAccess == Public) tmpEnum->append( $1 ); }
-			| IDENTIFIER '=' { expLevel=0; }
+			| IDENTIFIER '=' { enumLevel=0; }
 			  enumerator_expression {  if ( tmpAccess == Public) tmpEnum->append( $1 );  }
 			;
 

@@ -87,6 +87,7 @@ long buf_size_total = 0, buf_index = 0;
 int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS */
 int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE */
 int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
+int enumLevel         = 1;  /* Depth of nested parentheses in IN_ENUM */
 int fctLevel         = 1;  /* Depth of nested parentheses in IN_FCT */
 int templLevel       = 1;  /* Depth of levels in IN_TEMPL_ARGS */
 
@@ -197,17 +198,15 @@ STRING		{ALMOSTSTRING}\"
 					{ X; BEGIN QT_DEF; return ',' ;} }
 <IN_DEF_ARG>";"			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
-<IN_ENUM>"("			{ expLevel++;X; }
-<IN_ENUM>")"			{ expLevel--;X;if (expLevel == 0)
-					{ X; BEGIN QT_DEF; return ')';} }
-<IN_ENUM>"["			{ expLevel++;X; }
-<IN_ENUM>"]"			{ expLevel--;X;if (expLevel == 0)
-					{ X; BEGIN QT_DEF; return ']';} }
-<IN_ENUM>","			{ if (expLevel == 0)
+<IN_ENUM>"("			{ enumLevel++;X; }
+<IN_ENUM>")"			{ enumLevel--;X; }
+<IN_ENUM>"["			{ enumLevel++;X; }
+<IN_ENUM>"]"			{ enumLevel--;X }
+<IN_ENUM>","			{ if (enumLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
-<IN_ENUM>";"			{ if (expLevel == 0)
+<IN_ENUM>";"			{ if (enumLevel == 0)
 					{ X; BEGIN QT_DEF; return ';' ;} }
-<IN_ENUM>"}"			{ if (expLevel == 0)
+<IN_ENUM>"}"			{ if (enumLevel == 0)
 					{ X; BEGIN QT_DEF; return '}' ;} }
 <IN_TEMPL_ARGS>[[(<]		{ templLevel++;
 				  Y;
