@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#102 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#103 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#102 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#103 $";
 #endif
 
 
@@ -2825,13 +2825,12 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static QString gen_xbm_key(  const Q2DMatrix &m, const QFont &f,
-			     const char *str, int len )
+static QString gen_xbm_key( const Q2DMatrix &m, const QFontInfo &fi,
+			    const char *str, int len )
 {
     QString s = str;
     s.truncate( len );
     QString k;
-    QFontInfo fi( f );
     QString fd;
     if ( fi.rawMode() )
 	fd.sprintf( "&%s", fi.family() );
@@ -2847,18 +2846,18 @@ static QString gen_xbm_key(  const Q2DMatrix &m, const QFont &f,
 }
 
 
-static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFont &f,
+static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFontInfo &fi,
 				 const char *str, int len )
 {
-    QString k = gen_xbm_key( m, f, str, len );
+    QString k = gen_xbm_key( m, fi, str, len );
     return QPixmapCache::find( k );
 }
 
 
-static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
+static void ins_text_bitmap( const Q2DMatrix &m, const QFontInfo &fi,
 			     const char *str, int len, QPixmap *pm )
 {
-    QString k = gen_xbm_key( m, f, str, len );
+    QString k = gen_xbm_key( m, fi, str, len );
     if ( !QPixmapCache::insert(k,pm) )		// cannot insert pixmap
 	delete pm;
 }
@@ -2894,15 +2893,16 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    return;
 	}
 	if ( testf(WxF) ) {			// draw transformed text
-	    QFontMetrics fm(cfont);
+	    QFontMetrics fm = fontMetrics();
+	    QFontInfo	 fi = fontInfo();
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
 	    Q2DMatrix mat1( wm11/65536.0, wm12/65536.0,
-			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,	 wdy/65536.0 );
+			    wm21/65536.0, wm22/65536.0,
+			    wdx/65536.0,  wdy/65536.0 );
 	    Q2DMatrix mat = QPixmap::trueMatrix( mat1, w, h );
-	    QPixmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
+	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QPixmap bm( w, h, 1 );		// create bitmap
@@ -2970,7 +2970,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    else				// restore clip mask
 		XSetClipMask( dpy, gc, None );
 	    if ( create_new_bm )
-		ins_text_bitmap( mat, cfont, str, len, wx_bm );
+		ins_text_bitmap( mat, fi, str, len, wx_bm );
 	    return;
 	}
 	if ( testf(VxF) )
@@ -2978,7 +2978,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     }
 
     if ( cfont.underline() || cfont.strikeOut() ) {
-	QFontMetrics fm( cfont );
+	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
 	if ( cfont.underline() )		// draw underline effect
@@ -3074,7 +3074,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	fix_neg_rect( &x, &y, &w, &h );
     }
 
-    QFontMetrics fm( cfont );			// get font metrics
+    QFontMetrics fm = fontMetrics();		// get font metrics
 
     struct text_info {				// internal text info
 	char  tag[4];				// contains "qptr"
