@@ -805,8 +805,8 @@ const char *QFontEngineXLFD::name() const
 
 bool QFontEngineXLFD::canRender( const QChar *string, int len )
 {
-    QStackArray<QGlyphLayout, 256> glyphs;
-    int nglyphs = 255;
+    QStackArray<QGlyphLayout, 256> glyphs(len);
+    int nglyphs = len;
     if ( stringToCMap( string, len, glyphs, &nglyphs, FALSE ) == OutOfMemory ) {
 	glyphs.resize(nglyphs);
 	stringToCMap( string, len, glyphs, &nglyphs, FALSE );
@@ -1735,18 +1735,15 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QGlyphFragment &si, 
     } else {
 	// Xft has real trouble drawing the glyphs on their own.
 	// Drawing them as one string increases performance significantly.
-	XftChar16 g[128];
-	XftChar16 *gl = (XftChar16 *)glyphs;
+	QStackArray<XftChar16> gl(si.num_glyphs);
 	if ( si.analysis.bidiLevel % 2 ) {
-	    gl = g;
-	    if ( si.num_glyphs > 128 )
-		gl = new XftChar16[si.num_glyphs];
-	    for ( int i = 0; i < si.num_glyphs; i++ )
-		gl[i] = glyphs[si.num_glyphs-1-i];
+ 	    for ( int i = 0; i < si.num_glyphs; i++ )
+ 		gl[i] = glyphs[si.num_glyphs-1-i].glyph;
+	} else {
+ 	    for ( int i = 0; i < si.num_glyphs; i++ )
+ 		gl[i] = glyphs[i].glyph;
 	}
 	XftDrawString16( draw, &col, fnt, x, y, gl, si.num_glyphs );
-	if ( gl != (XftChar16 *)glyphs && gl != g )
-	    delete [] gl;
     }
 #endif
 
@@ -1945,8 +1942,8 @@ bool QFontEngineXft::canRender( const QChar *string, int len )
 	}
     }
 #else
-    QStackArray<QGlyphLayout> glyphs;
-    int nglyphs = 255;
+    QStackArray<QGlyphLayout> glyphs(len);
+    int nglyphs = len;
     if ( stringToCMap( string, len, glyphs, &nglyphs, false ) == OutOfMemory ) {
 	glyphs.resize(nglyphs);
 	stringToCMap( string, len, glyphs, &nglyphs, false );
