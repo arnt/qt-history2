@@ -11,10 +11,10 @@
 **
 ****************************************************************************/
 #include "qplatformdefs.h"
-#include "qguieventloop.h"
+#include <private/qt_mac_p.h>
+#include "qeventdispatcher_mac.h"
 #include "qapplication.h"
 #include "qevent.h"
-#include <private/qt_mac_p.h>
 #include <qhash.h>
 #include "qsocketnotifier.h"
 #include "private/qwidget_p.h"
@@ -26,7 +26,7 @@
 
 #define QMAC_EVENT_NOWAIT kEventDurationNoWait
 
-#include "qguieventloop_p.h"
+#include "qeventdispatcher_mac_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -35,8 +35,8 @@
  *****************************************************************************/
 extern void qt_event_request_timer(MacTimerInfo *); //qapplication_mac.cpp
 extern MacTimerInfo *qt_event_get_timer(EventRef); //qapplication_mac.cpp
-extern void qt_event_request_select(QGuiEventLoop *); //qapplication_mac.cpp
-extern void qt_event_request_sockact(QGuiEventLoop *); //qapplication_mac.cpp
+extern void qt_event_request_select(QEventDispatcherMac *); //qapplication_mac.cpp
+extern void qt_event_request_sockact(QEventDispatcherMac *); //qapplication_mac.cpp
 extern void qt_event_request_updates(); //qapplication_mac.cpp
 extern void qt_event_request_wakeup(); //qapplication_mac.cpp
 extern bool qt_mac_send_event(QEventLoop::ProcessEventsFlags, EventRef, WindowPtr =0); //qapplication_mac.cpp
@@ -69,7 +69,7 @@ static void qt_activate_mac_timer(EventLoopTimerRef, void *data)
     qt_event_request_timer(tmr);
 }
 
-int QGuiEventLoop::registerTimer(int interval, QObject *obj)
+int QEventDispatcherMac::registerTimer(int interval, QObject *obj)
 {
     if (!d->macTimerList)
         d->macTimerList = new MacTimerList;
@@ -107,7 +107,7 @@ static Boolean find_timer_event(EventRef event, void *data)
     return (qt_event_get_timer(event) == ((MacTimerInfo *)data));
 }
 
-bool QGuiEventLoop::unregisterTimer(int id)
+bool QEventDispatcherMac::unregisterTimer(int id)
 {
     if(!d->macTimerList || id <= 0)
         return false;                                // not init'd or invalid timer
@@ -131,7 +131,7 @@ bool QGuiEventLoop::unregisterTimer(int id)
     return false;
 }
 
-bool QGuiEventLoop::unregisterTimers(QObject *obj)
+bool QEventDispatcherMac::unregisterTimers(QObject *obj)
 {
     if(!d->macTimerList)                                // not initialized
         return false;
@@ -164,18 +164,25 @@ bool QGuiEventLoop::unregisterTimers(QObject *obj)
 
 
 /*****************************************************************************
-  QGuiEventLoop Implementation
+  QEventDispatcherMac Implementation
  *****************************************************************************/
 
-void QGuiEventLoop::init()
+QEventDispatcherMacPrivate::QEventDispatcherMacPrivate()
 {
-    d->macSockets = 0;
-    d->macTimerList = 0;
-    d->select_timer = 0;
-    d->zero_timer_count = 0;
+    macSockets = 0;
+    macTimerList = 0;
+    // ###
+#if 0
+    select_timer = 0;
+#endif
+    zero_timer_count = 0;
 }
 
-void QGuiEventLoop::cleanup()
+QEventDispatcherMac::QEventDispatcherMac(QObject *parent)
+    : QAbstractEventDispatcher(*new QEventDispatcherMacPrivate, parent)
+{ }
+
+QEventDispatcherMac::~QEventDispatcherMac()
 {
     //timer cleanup
     d->zero_timer_count = 0;
@@ -198,11 +205,14 @@ void QGuiEventLoop::cleanup()
         DisposeEventLoopTimerUPP(timerUPP);
         timerUPP = 0;
     }
+    // ###
+#if 0
     //select cleanup
     if(d->select_timer) {
         RemoveEventLoopTimer(d->select_timer);
         d->select_timer = 0;
     }
+#endif
     DisposeEventLoopTimerUPP(mac_select_timerUPP);
     mac_select_timerUPP = 0;
     if(d->macSockets) {
@@ -229,16 +239,19 @@ void QGuiEventLoop::cleanup()
  *************************************************************************/
 void qt_mac_select_timer_callbk(EventLoopTimerRef, void *me)
 {
-    QGuiEventLoop *eloop = (QGuiEventLoop*)me;
+    // ### 
+#if 0
     if(QMacBlockingFunction::blocking()) { //just send it immediately
+        QGuiEventLoop *eloop = (QGuiEventLoop*)me;
         timeval tm;
         memset(&tm, '\0', sizeof(tm));
         eloop->d->eventloopSelect(QEventLoop::AllEvents, &tm);
     } else {
         qt_event_request_select(eloop);
     }
+#endif
 }
-void qt_mac_internal_select_callbk(int, int, QGuiEventLoop *eloop)
+void qt_mac_internal_select_callbk(int, int, QEventDispatcherMac *eloop)
 {
      qt_mac_select_timer_callbk(0, eloop);
 }
@@ -254,7 +267,7 @@ static void qt_mac_select_read_callbk(CFReadStreamRef stream, CFStreamEventType 
     QCFType<CFDataRef> data = static_cast<CFDataRef>(CFReadStreamCopyProperty(stream,
                                                             kCFStreamPropertySocketNativeHandle));
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
-    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QGuiEventLoop*)me);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Read, (QEventDispatcherMac*)me);
 }
 static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventType type, void *me)
 {
@@ -268,13 +281,11 @@ static void qt_mac_select_write_callbk(CFWriteStreamRef stream, CFStreamEventTyp
     QCFType<CFDataRef> data = static_cast<CFDataRef>(CFWriteStreamCopyProperty(stream,
                                                             kCFStreamPropertySocketNativeHandle));
     CFDataGetBytes(data, CFRangeMake(0, sizeof(in_sock)), (UInt8 *)&in_sock);
-    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QGuiEventLoop*)me);
+    qt_mac_internal_select_callbk(in_sock, QSocketNotifier::Write, (QEventDispatcherMac*)me);
 }
 
-void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
+void QEventDispatcherMac::registerSocketNotifier(QSocketNotifier *notifier)
 {
-    QEventLoop::registerSocketNotifier(notifier);
-
     MacSocketInfo *mac_notifier = 0;
     if(notifier->type() == QSocketNotifier::Read) {
         mac_notifier = new MacSocketInfo;
@@ -300,17 +311,19 @@ void QGuiEventLoop::registerSocketNotifier(QSocketNotifier *notifier)
             d->macSockets = new QHash<QSocketNotifier *, MacSocketInfo *>;
         d->macSockets->insert(notifier, mac_notifier);
     }
+    // ###
+#if 0
     if(!d->select_timer) {
         if(!mac_select_timerUPP)
             mac_select_timerUPP = NewEventLoopTimerUPP(qt_mac_select_timer_callbk);
         InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
                               mac_select_timerUPP, (void *)this, &d->select_timer);
     }
+#endif
 }
 
-void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
+void QEventDispatcherMac::unregisterSocketNotifier(QSocketNotifier *notifier)
 {
-    QEventLoop::unregisterSocketNotifier(notifier);
     if(d->macSockets) {
         if(MacSocketInfo *mac_notifier = d->macSockets->value(notifier)) {
             d->macSockets->remove(notifier);
@@ -326,19 +339,22 @@ void QGuiEventLoop::unregisterSocketNotifier(QSocketNotifier *notifier)
             delete mac_notifier;
         }
     }
+    // ###
+#if 0
     if(d->sn_highest == -1 && d->select_timer) {
         RemoveEventLoopTimer(d->select_timer);
         d->select_timer = 0;
     }
+#endif
 }
 
-bool QGuiEventLoop::hasPendingEvents() const
+bool QEventDispatcherMac::hasPendingEvents()
 {
     extern uint qGlobalPostedEventsCount();
     return qGlobalPostedEventsCount() || (qt_is_gui_used && GetNumEventsInQueue(GetMainEventQueue()));
 }
 
-bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
+bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 {
 #if 0
     //TrackDrag says you may not use the EventManager things..
@@ -358,7 +374,7 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     }
 
     QApplication::sendPostedEvents();
-    activateTimers(); //send null timersn
+    d->activateTimers(); //send null timers
 
     EventRef event;
     do {
@@ -371,16 +387,21 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
         } while(GetNumEventsInQueue(GetMainEventQueue()));
         QApplication::sendPostedEvents();
     } while(GetNumEventsInQueue(GetMainEventQueue()));
+
+#if 0
     if(d->quitnow || d->exitloop)
         return false;
+#endif
 
     QApplication::sendPostedEvents();
 
     QThreadData *data = QThreadData::current();
     const bool canWait = (data->postEventList.size() == 0
+#if 0
                           && !d->exitloop
                           && !d->quitnow
-                          && (flags & WaitForMore));
+#endif
+                          && (flags & QEventLoop::WaitForMoreEvents));
 
     if(canWait && !d->zero_timer_count) {
         emit aboutToBlock();
@@ -392,10 +413,10 @@ bool QGuiEventLoop::processEvents(ProcessEventsFlags flags)
     return nevents > 0;
 }
 
-int QGuiEventLoop::activateTimers()
+void QEventDispatcherMacPrivate::activateTimers()
 {
     if(!d->zero_timer_count)
-        return 0;
+        return;
     int ret = 0;
     for (int i = 0; i < d->macTimerList->size(); ++i) {
         const MacTimerInfo &t = d->macTimerList->at(i);
@@ -405,15 +426,14 @@ int QGuiEventLoop::activateTimers()
             QApplication::sendEvent(t.obj, &e);
         }
     }
-    return ret;
 }
 
-void QGuiEventLoop::wakeUp()
+void QEventDispatcherMac::wakeUp()
 {
     qt_event_request_wakeup();
 }
 
-void QGuiEventLoop::flush()
+void QEventDispatcherMac::flush()
 {
 //    sendPostedEvents();
     if(qApp) {
@@ -445,7 +465,7 @@ public:
 protected:
     void timerEvent(QTimerEvent *)
     {
-        if(QApplication::eventLoop()->activateTimers())
+        // if(QApplication::eventLoop()->activateTimers())
             QApplication::flush();
     }
 };

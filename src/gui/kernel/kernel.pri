@@ -125,12 +125,14 @@ embedded {
 		kernel/qapplication_mac.cpp \
 		kernel/qclipboard_mac.cpp \
 		kernel/qcursor_mac.cpp \
+                kernel/qeventdispatcher_mac.cpp \
 		kernel/qmime_mac.cpp \
 		kernel/qdnd_mac.cpp \
 		kernel/qdesktopwidget_mac.cpp \
 		kernel/qwidget_mac.cpp
+        HEADERS += \
+                kernel/qeventdispatcher_mac.h
 }
-
 
 wince-* {
 	HEADERS += kernel/qfunctions_wce.h

@@ -21,6 +21,7 @@
 #include "qdockwindow.h"
 #include "qevent.h"
 #include "qeventdispatcher_mac.h"
+#include "qeventdispatcher_unix.h"
 #include "qhash.h"
 #include "qmenubar.h"
 #include "qmessagebox.h"
@@ -43,6 +44,7 @@
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
 #include "private/qwidget_p.h"
+#include "qeventdispatcher_mac_p.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #  include "qaccessible.h"
@@ -735,9 +737,10 @@ static EventRef request_context_hold_pending = 0;
 
 void QApplicationPrivate::createEventDispatcher()
 {
-    eventDispatcher = (q->type() != QApplication::Tty
-                       ? new QEventDispatcherMac(q)
-                       : new QEventDispatcherUNIX(q));
+    if (q->type() != QApplication::Tty)
+        eventDispatcher = new QEventDispatcherMac(q);
+    else
+        eventDispatcher = new QEventDispatcherUNIX(q);
 }
 
 void
@@ -1651,6 +1654,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         } else if(ekind == kEventQtRequestMenubarUpdate) {
             qt_mac_event_release(request_menubarupdate_pending);
             QMenuBar::macUpdateMenuBar();
+#if 0
         } else if(ekind == kEventQtRequestSelect) {
             qt_mac_event_release(request_select_pending);
             QGuiEventLoop *l = 0;
@@ -1663,6 +1667,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             QGuiEventLoop *l = 0;
             GetEventParameter(event, kEventParamQGuiEventLoop, typeQGuiEventLoop, 0, sizeof(l), 0, &l);
             l->activateSocketNotifiers();
+#endif
         } else if(ekind == kEventQtRequestActivate) {
             qt_mac_event_release(request_activate_pending.event);
             if(request_activate_pending.widget) {
