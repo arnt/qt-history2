@@ -938,6 +938,8 @@ void QSlider::drawTicks( QPainter *p, const QColorGroup& g, int dist, int w,
     p->setPen( g.foreground() );
     int v = minValue();
     int fudge = slideLength() / 2 + 1;
+    if(!i) 
+	i = 1;
     while ( v <= maxValue() + 1 ) {
 	int pos = positionFromValue( v ) + fudge;
 	if ( orient == Horizontal )
