@@ -3420,7 +3420,7 @@ void QListBox::resizeEvent( QResizeEvent *e )
 	 columnMode() == FixedNumber) {
 	d->layoutDirty = TRUE;
     }
-    d->updateTimer->stop();
+    d->resizeTimer->stop();
     if ( d->rowMode == FixedNumber && d->columnMode == FixedNumber ) {
 	doLayout();
 	QScrollView::resizeEvent( e );
