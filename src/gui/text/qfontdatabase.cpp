@@ -788,7 +788,16 @@ unsigned int bestFoundry(QFont::Script script, unsigned int score, int styleStra
                 }
 #endif
 
-                unsigned int d = QABS(style->pixelSizes[x].pixelSize - pixelSize);
+                unsigned int d;
+                if (style->pixelSizes[x].pixelSize < pixelSize) {
+                    // penalize sizes that are smaller than the
+                    // requested size, due to truncation from floating
+                    // point to integer conversions
+                    d = pixelSize - style->pixelSizes[x].pixelSize + 1;
+                } else {
+                    d = style->pixelSizes[x].pixelSize - pixelSize;
+                }
+
                 if (d < distance) {
                     distance = d;
                     size = style->pixelSizes + x;
@@ -1141,7 +1150,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
             if (fp) {
 #if defined(Q_WS_X11)
                 fe->fontDef.pointSize =
-                    qRound(10. * qt_pointSize(fe->fontDef.pixelSize, fp->paintdevice, fp->screen));
+                    int(qt_pointSize(fe->fontDef.pixelSize, fp->paintdevice, fp->screen) * 10.);
 #elif defined(Q_WS_WIN)
                 fe->fontDef.pointSize     = int(double(fe->fontDef.pixelSize) * 720.0 /
                                                 GetDeviceCaps(shared_dc,LOGPIXELSY));
