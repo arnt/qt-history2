@@ -101,9 +101,11 @@ extern Atom qt_wm_take_focus;
 extern Atom qt_wm_client_leader;
 extern Atom qt_window_role;
 extern Atom qt_sm_client_id;
+extern Atom qt_utf8_string;
 extern Atom qt_net_wm_context_help;
 extern Atom qt_net_wm_ping;
 extern Atom qt_xa_motif_wm_hints;
+extern Atom qt_net_wm_name;
 extern Atom qt_net_wm_state;
 extern Atom qt_net_wm_state_modal;
 extern Atom qt_net_wm_state_max_v;
@@ -1014,6 +1016,12 @@ void QWidget::setCaption( const QString &caption )
 
     topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
+
+    QCString net_wm_name = caption.utf8();
+    XChangeProperty(x11Display(), winId(), qt_net_wm_name, qt_utf8_string, 8,
+		    PropModeReplace, (unsigned char *)net_wm_name.data(),
+		    net_wm_name.length());
+
     QEvent e( QEvent::CaptionChange );
     QApplication::sendEvent( this, &e );
 }

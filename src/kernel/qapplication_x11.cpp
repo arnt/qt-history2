@@ -243,10 +243,12 @@ Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
 Atom		qt_x_incr		= 0;
+Atom		qt_utf8_string = 0;
 bool		qt_broken_wm		= FALSE;
 
 // NET WM support
 Atom		qt_net_supported	= 0;
+Atom		qt_net_wm_name = 0;
 Atom		qt_net_virtual_roots	= 0;
 Atom		qt_net_workarea		= 0;
 Atom		qt_net_wm_state		= 0;
@@ -268,6 +270,8 @@ Atom		qt_enlightenment_desktop	= 0;
 Atom		*qt_net_supported_list	= 0;
 // list of virtual root windows
 Window		*qt_net_virtual_root_list	= 0;
+
+
 
 // client leader window
 Window qt_x11_wm_client_leader = 0;
@@ -1917,6 +1921,8 @@ void qt_init_internal( int *argcptr, char **argv,
 			    &qt_net_wm_state_stays_on_top );
 	qt_x11_intern_atom( "_NET_WM_PID", &qt_net_wm_pid );
 	qt_x11_intern_atom( "ENLIGHTENMENT_DESKTOP", &qt_enlightenment_desktop );
+	qt_x11_intern_atom( "_NET_WM_NAME", &qt_net_wm_name );
+	qt_x11_intern_atom( "UTF8_STRING", &qt_utf8_string );
 
 	qt_xdnd_setup();
 	qt_x11_motifdnd_init();
