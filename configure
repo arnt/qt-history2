@@ -1770,9 +1770,6 @@ fi
 
 #mac
 if [ "$PLATFORM_MAC" = "yes" ]; then
-    if [ "$CFG_TABLET" = "auto" ]; then
-	CFG_TABLET=yes
-    fi
     if [ "$CFG_OPENGL" = "auto" ]; then
 	CFG_OPENGL=yes
     fi
@@ -1919,28 +1916,22 @@ if [ "$PLATFORM_X11" = "yes" ]; then
 	fi
     fi
     # auto-detect tablet support (currenlty only in IRIX)
-    if [ "$CFG_TABLET" = "auto" ]; then
-	case $PLATFORM in
-	irix-*)
-	    if $x11tests/xinput.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
-		if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
-		    echo "Tablet support cannot be enabled due to functionality tests!"
-		    echo " Turn on verbose messaging (-v) to $0 to see the final report."
-		    echo " If you believe this message is in error you may use the continue"
-		    echo " switch (-continue) to $0 to continue."
-		    exit 101
-		else
-		    CFG_TABLET=no
-		fi
-	    else
-		CFG_TABLET=yes
-	    fi
-	    ;;
-	*)
-	    CFG_TABLET=no
-	    ### add error message for the "yes" case on non-IRIX systems
-	    ;;
-	esac
+    if [ "$CFG_TABLET" != "no" ]; then
+        if $x11tests/xinput.test $XQMAKESPEC $OPT_VERBOSE $L_FLAGS $I_FLAGS; then
+            if [ "$CFG_TABLET" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
+                echo "Tablet support cannot be enabled due to functionality tests!"
+                echo " Turn on verbose messaging (-v) to $0 to see the final report."
+                echo " If you believe this message is in error you may use the continue"
+                echo " switch (-continue) to $0 to continue."
+                exit 101
+            else
+                CFG_TABLET=no
+            fi
+        else
+            CFG_TABLET=yes
+        fi
+    else
+        CFG_TABLET=yes
     fi
     # auto-detect XKB support
     if [ "$CFG_XKB" != "no" ]; then
@@ -2193,17 +2184,6 @@ Third Party Image Loading Libraries:
 			 See http://www.ijg.org
 
 EOF
-
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    cat << EOF
-
-Qt/Mac only:
-
-    -no-tablet ......... Do not compile Tablet support.
- *  -tablet ............ Compile Tablet support.
-
-EOF
-fi
 
 if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_SM" = "no" ]; then
@@ -3457,7 +3437,7 @@ done
 [ "$CFG_ZLIB" != "yes" ]     && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ZLIB"
 
 [ "$CFG_EXCEPTION_SUPPORT" = "no" ] && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_EXCEPTIONS"
-[ "$CFG_TABLET" = "yes" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_TABLET_SUPPORT"
+[ "$CFG_TABLET" = "no" ]    && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_TABLET_SUPPORT"
 [ "$CFG_IPV6" = "no" ]       && QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_IPV6"
 
 # X11/Unix/Mac only configs

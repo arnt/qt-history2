@@ -309,7 +309,7 @@ bool qt_has_accelerated_xrender = false;
 
 Q_GUI_EXPORT int qt_xfocusout_grab_counter = 0;
 
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
 Q_GLOBAL_STATIC(TabletDeviceDataList, tablet_devices)
 TabletDeviceDataList *qt_tablet_devices()
 {
@@ -391,7 +391,7 @@ public:
     bool translateCloseEvent(const XEvent *);
     bool translateScrollDoneEvent(const XEvent *);
     bool translateWheelEvent(int global_x, int global_y, int delta, int state, Qt::Orientation orient);
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
     bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
@@ -1187,7 +1187,7 @@ static void qt_check_focus_model()
         X11->focus_model = QX11Data::FM_Other;
 }
 
-#ifdef QT_TABLET_SUPPORT
+#ifndef QT_NO_TABLET_SUPPORT
 static bool isXInputSupported(Display *dpy, int *event_base)
 {
     Bool exists;
@@ -1614,7 +1614,7 @@ void qt_init(QApplicationPrivate *priv, int,
             QApplication::setFont(f);
         }
 
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
         int event_base;
         if (isXInputSupported(X11->display, &event_base)) {
             int ndev,
@@ -1750,7 +1750,7 @@ void qt_init(QApplicationPrivate *priv, int,
             }
             XFreeDeviceList(devices);
         }
-#endif // QT_TABLET_SUPPORT
+#endif // QT_NO_TABLET_SUPPORT
     } else {
         // read some non-GUI settings when not using the X server...
 
@@ -1876,7 +1876,7 @@ void qt_cleanup()
         QColormap::cleanup();
     }
 
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
     TabletDeviceDataList *devices = qt_tablet_devices();
     for (int i = 0; i < devices->size(); ++i)
         XCloseDevice(X11->display, (XDevice*)devices->at(i).device);
@@ -2693,7 +2693,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
 
     if (widget->x11Event(event))                // send through widget filter
         return 1;
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
     TabletDeviceDataList *tablets = qt_tablet_devices();
     for (int i = 0; i < tablets->size(); ++i) {
         const TabletDeviceData &tab = tablets->at(i);
@@ -2742,11 +2742,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
             qt_net_update_user_time(widget->topLevelWidget());
         // fall through intended
     case MotionNotify:
-#if defined(QT_TABLET_SUPPORT)
+#if !defined(QT_NO_TABLET_SUPPORT)
         if (!tabletChokeMouse) {
 #endif
             widget->translateMouseEvent(event);
-#if defined(QT_TABLET_SUPPORT)
+#if !defined(QT_NO_TABLET_SUPPORT)
         } else {
             tabletChokeMouse = false;
         }
@@ -3383,8 +3383,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             return true;
         }
         if (event->type == ButtonPress) {        // mouse button pressed
-#if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
-#warning "Trenton has to come back and fix this"
+#if defined(Q_OS_IRIX) && !defined(QT_NO_TABLET_SUPPORT)
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_press, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
@@ -3417,8 +3416,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             mouseGlobalXPos = globalPos.x();
             mouseGlobalYPos = globalPos.y();
         } else {                                // mouse button released
-#if defined(Q_OS_IRIX) && defined(QT_TABLET_SUPPORT)
-#warning "Trenton has to come back and fix this"
+#if defined(Q_OS_IRIX) && !defined(QT_TABLET_SUPPORT)
             XEvent myEv;
             if (XCheckTypedEvent(X11->display, xinput_button_release, &myEv)) {
                 if (translateXinputEvent(&myEv)) {
@@ -3598,7 +3596,7 @@ bool QETWidget::translateWheelEvent(int global_x, int global_y, int delta, int s
 //
 // XInput Translation Event
 //
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
 bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *tablet)
 {
 #if defined (Q_OS_IRIX)
@@ -3620,7 +3618,6 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     static int xTilt = 0,
                yTilt = 0;
     int deviceType = QTabletEvent::NoDevice;
-    QPair<int, int> tId;
     XEvent xinputMotionEvent;
     XEvent mouseMotionEvent;
     const XDeviceMotionEvent *motion = 0;
@@ -3659,12 +3656,12 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         curr = QPoint(button->x, button->y);
     }
 
+    Q_LONGLONG uid;
 #if defined (Q_OS_IRIX)
     s = XQueryDeviceState(X11->display, dev);
     if (s == NULL)
         return false;
     iClass = s->data;
-    Q_LONGLONG uid;
     for (j = 0; j < s->num_classes; j++) {
         if (iClass->c_class == ValuatorClass) {
             vs = (XValuatorState *)iClass;
@@ -3702,7 +3699,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     XFreeDeviceState(s);
 #else
     TabletDeviceDataList *tablet_list = qt_tablet_devices();
-    int device_id = ev->type == tablet->xinput_motion ? motion->deviceid : button->deviceid;
+    XID device_id = ev->type == tablet->xinput_motion ? motion->deviceid : button->deviceid;
     for (int i = 0; i < tablet_list->size(); ++i) {
         const TabletDeviceData &t = tablet_list->at(i);
         if (device_id == static_cast<XDevice *>(t.device)->device_id) {

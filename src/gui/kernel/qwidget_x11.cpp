@@ -657,7 +657,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
             XSelectInput(dpy, id, stdDesktopEventMask);
     } else {
         XSelectInput(dpy, id, stdWidgetEventMask);
-#if defined (QT_TABLET_SUPPORT)
+#if !defined (QT_NO_TABLET_SUPPORT)
         TabletDeviceDataList *tablet_list = qt_tablet_devices();
         for (int i = 0; i < tablet_list->size(); ++i) {
             TabletDeviceData tablet = tablet_list->at(i);

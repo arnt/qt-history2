@@ -70,7 +70,6 @@ extern IAccessible *qt_createWindowsAccessible(QAccessibleInterface *object);
 #include <sipapi.h>
 #endif
 
-#if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
                       PK_ORIENTATION | PK_CURSOR)
 #define PACKETMODE  0
@@ -107,7 +106,6 @@ HCTX qt_tablet_context;  // the hardware context for the tablet (like a window h
 bool qt_tablet_tilt_support;
 static void tabletInit(HCTX hTab);
 static void initWinTabFunctions();        // resolve the WINTAB api functions
-#endif
 
 Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
                             UINT wMsgFilterMax, UINT wRemoveMsg);
@@ -320,10 +318,7 @@ public:
     bool        translatePaintEvent(const MSG &msg);
     bool        translateConfigEvent(const MSG &msg);
     bool        translateCloseEvent(const MSG &msg);
-#if defined(QT_TABLET_SUPPORT)
-        bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
-                                          int numPackets);
-#endif
+    bool        translateTabletEvent(const MSG &msg, PACKET *localPacketBuf, int numPackets);
     void        repolishStyle(QStyle &style) { setStyle(&style); }
     void eraseWindowBackground(HDC);
     inline void showChildren(bool spontaneous) { QWidget::showChildren(spontaneous); }
@@ -645,9 +640,7 @@ void qt_init(QApplicationPrivate *priv, int)
     } , {
         WM95_MOUSEWHEEL = RegisterWindowMessageA("MSWHEEL_ROLLMSG");
     });
-#if defined(QT_TABLET_SUPPORT)
     initWinTabFunctions();
-#endif
     QInputContext::init();
 }
 
@@ -1214,11 +1207,9 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
     QEvent::Type evt_type = QEvent::None;
     QETWidget *widget = 0;
 
-#if defined(QT_TABLET_SUPPORT)
         // there is no need to process pakcets from tablet unless
         // it is actually on the tablet, a flag to let us know...
         int nPackets;        // the number of packets we get from the queue
-#endif
 
     long res = 0;
     if (!qApp)                                // unstable app state
@@ -1394,11 +1385,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 widget = (QETWidget*)w;
         }
 
-#if defined(QT_TABLET_SUPPORT)
         if (!tabletChokeMouse) {
-#endif
             widget->translateMouseEvent(msg);        // mouse event
-#if defined(QT_TABLET_SUPPORT)
         } else {
             // Sometimes we only get a WM_MOUSEMOVE message
             // and sometimes we get both a WM_MOUSEMOVE and
@@ -1421,7 +1409,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             if (!is_mouse_move || (is_mouse_move && !next_is_button))
                 tabletChokeMouse = false;
         }
-#endif
     } else if (message == WM95_MOUSEWHEEL) {
         result = widget->translateWheelEvent(msg);
     } else {
@@ -1700,7 +1687,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
 	    if ( qApp->type() == QApplication::Tty )
 	        break;
 
-#if defined(QT_TABLET_SUPPORT)
             if (ptrWTOverlap && ptrWTEnable) {
                 // cooperate with other tablet applications, but when
                 // we get focus, I want to use the tablet...
@@ -1709,7 +1695,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                         ptrWTOverlap(qt_tablet_context, true);
                 }
             }
-#endif
             if (QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
                 QWidget::find((HWND)lParam) == 0) {
                 // Another application was activated while our popups are open,
@@ -1883,7 +1868,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             result = false;
             break;
 #endif
-#if defined(QT_TABLET_SUPPORT)
         case WT_PACKET:
             // Get the packets and also don't link against the actual library...
             if (ptrWTPacketsGet) {
@@ -1899,7 +1883,6 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
             if (tabletChokeMouse)
                 tabletChokeMouse = false;
             break;
-#endif
         case WM_KILLFOCUS:
             if (!QWidget::find((HWND)wParam)) { // we don't get focus, so unset it now
                 if (!widget->hasFocus()) // work around Windows bug after minimizing/restoring
@@ -3092,20 +3075,11 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
     return false;
 }
 
-#if defined(QT_TABLET_SUPPORT)
 
 //
 // Windows Wintab to QTabletEvent translation
 //
-struct Qt_TabletInfo {
-    UINT prsMin;
-    UINT prsMax;
-    UINT xMin;
-    UINT xMax;
-    UINT yMin;
-    UINT yMax;
-};
-typedef QHash<UINT, Qt_TabletInfo> TabletCursorInfo;
+typedef QHash<UINT, TabletDeviceData> TabletCursorInfo;
 Q_GLOBAL_STATIC(TabletCursorInfo, tCursorInfo)
 
 // the following is adapted from the wintab syspress example (public domain)
@@ -3133,19 +3107,19 @@ static void tabletInit(UINT wActiveCsr, HCTX hTab)
         ptrWTGet(hTab, &lc);
 
         /* get the size of the pressure axis. */
-        Qt_TabletInfo ti;
+        TabletDeviceData tdd;
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_NPRESSURE, &np);
-        ti.prsMin = np.axMin;
-        ti.prsMax = np.axMax;
+        tdd.minPressure = int(np.axMin);
+        tdd.maxPressure = int(np.axMax);
 
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_X, &np);
-        ti.xMin = np.axMin;
-        ti.xMax = np.axMax;
+        tdd.minX = int(np.axMin);
+        tdd.maxX = int(np.axMax);
 
         ptrWTInfo(WTI_DEVICES + lc.lcDevice, DVC_Y, &np);
-        ti.yMin = np.axMin;
-        ti.yMax = np.axMax;
-        tCursorInfo()->insert(wActiveCsr, ti);
+        tdd.minY = int(np.axMin);
+        tdd.maxY = int(np.axMax);
+        tCursorInfo()->insert(wActiveCsr, tdd);
     }
 }
 
@@ -3188,7 +3162,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         prsNew = 0;
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
-        Qt_TabletInfo ti = tCursorInfo()->value(localPacketBuf[i].pkCursor);
+        TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
         if (btnNew) {
             prsNew = localPacketBuf[i].pkNormalPressure;
         } else if (button_pressed) {
@@ -3231,8 +3205,8 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         ptrWTInfo(WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid);
         Q_LONGLONG llId = csr_type;
         llId = (llId << 24) | csr_physid;
-        QTabletEvent e(t, localPos, globalPos, globalPos, ti.xMin, ti.xMax, ti.yMin, ti.yMax, dev,
-                       prsNew, ti.prsMin, ti.prsMax, tiltX, tiltY, 0, llId);
+        QTabletEvent e(t, localPos, globalPos, globalPos, tdd.minX, tdd.maxX, tdd.minY, tdd.maxY, dev,
+                       prsNew, tdd.minPressure, tdd.maxPressure, tiltX, tiltY, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }
     return sendEvent;
@@ -3257,7 +3231,6 @@ static void initWinTabFunctions()
     ptrWTOverlap = (PtrWTEnable)library.resolve("WTOverlap");
     ptrWTPacketsGet = (PtrWTPacketsGet)library.resolve("WTPacketsGet");
 }
-#endif
 
 static bool isModifierKey(int code)
 {

@@ -67,17 +67,17 @@ extern QSysInfo::MacVersion qt_macver;
 extern void qt_dispatchEnterLeave(QWidget*, QWidget*);
 extern bool qt_tryModalHelper(QWidget *, QWidget ** = 0);
 
-#ifdef QT_TABLET_SUPPORT
-enum {
-    TOTAL_XINPUT_EVENTS = 64
-};
+#ifndef QT_NO_TABLET_SUPPORT
 struct TabletDeviceData
 {
-    int deviceType;
     int minPressure;
     int maxPressure;
     int minX, maxX, minY, maxY;
 #ifdef Q_WS_X11
+    int deviceType;
+    enum {
+        TOTAL_XINPUT_EVENTS = 64
+    };
     void *device;
     int eventCount;
     long unsigned int eventList[TOTAL_XINPUT_EVENTS]; // XEventClass is in fact a long unsigned int

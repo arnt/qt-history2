@@ -31,7 +31,6 @@
 #include <private/qpaintengine_win_p.h>
 #include "qcleanuphandler.h"
 
-#if defined(QT_TABLET_SUPPORT)
 #define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | \
                       PK_ORIENTATION | PK_CURSOR)
 #define PACKETMODE  0
@@ -60,7 +59,6 @@ extern HCTX qt_tablet_context;
 extern bool qt_tablet_tilt_support;
 
 static QWidget *qt_tablet_widget = 0;
-#endif
 
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
@@ -1827,7 +1825,6 @@ void QWidget::updateFrameStrut() const
     that->data->fstrut_dirty = false;
 }
 
-#if defined(QT_TABLET_SUPPORT)
 extern bool qt_is_gui_used;
 static void init_wintab_functions()
 {
@@ -1908,7 +1905,6 @@ static void qt_tablet_cleanup()
     delete qt_tablet_widget;
     qt_tablet_widget = 0;
 }
-#endif
 
 void QWidget::setWindowOpacity(double level)
 {
