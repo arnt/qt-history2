@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#38 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,20 +18,19 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#37 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#38 $";
 #endif
 
 
-/*!
-\class QPushButton qpushbt.h
+/*----------------------------------------------------------------------------
+  \class QPushButton qpushbt.h
+  \brief The QPushButton widget provides a push button with a text label.
 
-\brief The QPushButton widget provides a push button with a text label.
+  \ingroup realwidgets
 
-\ingroup realwidgets
-
-A default push button in a dialog emits the clicked signal if the user
-presses the Enter key.
-*/
+  A default push button in a dialog emits the clicked signal if the user
+  presses the Enter key.
+ ----------------------------------------------------------------------------*/
 
 
 const int extraMacWidth = 6;			// extra size for def button
@@ -80,11 +79,11 @@ static void resizeDefButton( QPushButton *b )
 }
 
 
-/*!
-Constructs a push button with no text.
+/*----------------------------------------------------------------------------
+  Constructs a push button with no text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -92,11 +91,11 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
     init();
 }
 
-/*!
-Constructs a push button with a text.
+/*----------------------------------------------------------------------------
+  Constructs a push button with a text.
 
-The \e parent and \e name arguments are sent to the QWidget constructor.
-*/
+  The \e parent and \e name arguments are sent to the QWidget constructor.
+ ----------------------------------------------------------------------------*/
 
 QPushButton::QPushButton( const char *text, QWidget *parent,
 			  const char *name )
@@ -113,22 +112,22 @@ void QPushButton::init()
 }
 
 
-/*!
-\fn bool QPushButton::autoDefault() const
-Returns TRUE if the button is an auto-default button.
+/*----------------------------------------------------------------------------
+  \fn bool QPushButton::autoDefault() const
+  Returns TRUE if the button is an auto-default button.
 
-\sa setAutoDefault().
-*/
+  \sa setAutoDefault()
+ ----------------------------------------------------------------------------*/
 
-/*!
-Sets the push buttons to an auto-default button if \e enable is TRUE,
-or to a normal button if \e enable is FALSE.
+/*----------------------------------------------------------------------------
+  Sets the push buttons to an auto-default button if \e enable is TRUE,
+  or to a normal button if \e enable is FALSE.
 
-An auto-default button becomes the default push button automatically
-when it receives the keyboard input focus.
+  An auto-default button becomes the default push button automatically
+  when it receives the keyboard input focus.
 
-\sa autoDefault() and setDefault().
-*/
+  \sa autoDefault(), setDefault()
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::setAutoDefault( bool enable )
 {
@@ -136,25 +135,25 @@ void QPushButton::setAutoDefault( bool enable )
 }
 
 
-/*!
-\fn bool QPushButton::isDefault() const
-Returns TRUE if the button is default.
+/*----------------------------------------------------------------------------
+  \fn bool QPushButton::isDefault() const
+  Returns TRUE if the button is default.
 
-\sa setDefault().
-*/
+  \sa setDefault()
+ ----------------------------------------------------------------------------*/
 
-/*!
-Sets the button to be the default button if \e enable is TRUE, or
-to be a normal button if \e enable is FALSE.
+/*----------------------------------------------------------------------------
+  Sets the button to be the default button if \e enable is TRUE, or
+  to be a normal button if \e enable is FALSE.
 
-A default push button in a dialog (QDialog) emits the QButton::clicked()
-signal if the user presses the Enter key.  Only one push button in the
-dialog can be default.
+  A default push button in a dialog (QDialog) emits the QButton::clicked()
+  signal if the user presses the Enter key.  Only one push button in the
+  dialog can be default.
 
-Default push buttons are only allowed in dialogs.
+  Default push buttons are only allowed in dialogs.
 
-\sa default() and setAutoDefault().
-*/
+  \sa default(), setAutoDefault()
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::setDefault( bool enable )
 {
@@ -178,14 +177,14 @@ void QPushButton::setDefault( bool enable )
 }
 
 
-/*!
-Adjusts the size of the push button to fit the contents.
+/*----------------------------------------------------------------------------
+  Adjusts the size of the push button to fit the contents.
 
-This function is called automatically whenever the contents change and
-auto-resizing is enabled.
+  This function is called automatically whenever the contents change and
+  auto-resizing is enabled.
 
-\sa setAutoResizing()
-*/
+  \sa setAutoResizing()
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::adjustSize()
 {
@@ -197,6 +196,10 @@ void QPushButton::adjustSize()
 }
 
 
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::move().
+ ----------------------------------------------------------------------------*/
+
 void QPushButton::move( int x, int y )
 {
     int wx, hx;
@@ -204,10 +207,18 @@ void QPushButton::move( int x, int y )
     QWidget::move( x-wx/2, y-hx/2 );
 }
 
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::move().
+ ----------------------------------------------------------------------------*/
+
 void QPushButton::move( const QPoint &p )
 {
     move( p.x(), p.y() );
 }
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::resize().
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::resize( int w, int h )
 {
@@ -216,10 +227,18 @@ void QPushButton::resize( int w, int h )
     QWidget::resize( w+wx, h+hx );
 }
 
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::resize().
+ ----------------------------------------------------------------------------*/
+
 void QPushButton::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::setGeometry().
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::setGeometry( int x, int y, int w, int h )
 {
@@ -228,17 +247,20 @@ void QPushButton::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry( x-wx/2, y-hx/2, w+wx, h+hx );
 }
 
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::setGeometry().
+ ----------------------------------------------------------------------------*/
+
 void QPushButton::setGeometry( const QRect &r )
 {
     setGeometry( r.x(), r.y(), r.width(), r.height() );
 }
 
 
-/*!
-Draws the button, but not the button face.
-
-\sa drawButtonFace().
-*/
+/*----------------------------------------------------------------------------
+  Draws the button, but not the button face.
+  \sa drawButtonFace()
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::drawButton( QPainter *paint )
 {
@@ -433,15 +455,16 @@ void QPushButton::drawButton( QPainter *paint )
 }
 
 
-/*!
-Draws the button face.	The default implementation draws the button text.
+/*----------------------------------------------------------------------------
+  Draws the button face. The default implementation draws the button pixmap
+  or the button text.
 
-This virtual function can be reimplemented by subclasses.
-*/
+  This virtual function can be reimplemented by subclasses.
+ ----------------------------------------------------------------------------*/
 
 void QPushButton::drawButtonFace( QPainter *paint )
 {
-    if ( !text() )
+    if ( !text() && !pixmap() )
 	return;
     register QPainter *p = paint;
     GUIStyle	gs = style();
@@ -463,10 +486,22 @@ void QPushButton::drawButtonFace( QPainter *paint )
     QRect r = rect();
     int x, y, w, h;
     r.rect( &x, &y, &w, &h );
-    if ( isDown() || isOn() ) {			// shift text
+    if ( isDown() || isOn() ) {			// shift pixmap/text
 	x += dt;
 	y += dt;
     }
-    p->drawText( x+2, y+2, w-4, h-4,
-		 AlignCenter|SingleLine|ShowPrefix, text() );
+    x += 2;  y += 2;  w -= 4;  h -= 4;
+    if ( pixmap() ) {
+	QPixmap *pm = pixmap();	
+	if ( pm->width() > w || pm->height() > h )
+	    p->setClipRect( x, y, w, h );
+	if ( pm->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
+	x += w/2 - pm->width()/2;		// center
+	y += h/2 - pm->height()/2;
+	p->drawPixmap( x, y, *pm );
+	p->setClipping( FALSE );
+    }
+    else
+	p->drawText( x, y, w, h, AlignCenter|SingleLine|ShowPrefix, text() );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#28 $
 **
 ** Implementation of QButton widget class
 **
@@ -16,7 +16,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qbutton.cpp#28 $";
 #endif
 
 
@@ -133,10 +133,14 @@ QButton::~QButton()
  ----------------------------------------------------------------------------*/
 
 void QButton::setText( const char *text )
-{						// set button label
+{
     if ( btext == text )
 	return;
     btext = text;
+    if ( bpixmap ) {
+	delete bpixmap;
+	bpixmap = 0;
+    }
     if ( autoResize )
 	adjustSize();
     else
@@ -151,17 +155,19 @@ void QButton::setText( const char *text )
 
 /*----------------------------------------------------------------------------
   Sets the button pixmap to \e pixmap and redraws the contents.
-  Setting a pixmap will override the button text.
 
   The button resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setText(), setAutoResize().
+  \sa pixmap(), setText(), setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QButton::setPixmap( const QPixmap &pixmap )
-{						// set button label
-    delete bpixmap;
-    bpixmap = new QPixmap( pixmap );
+{
+    if ( !bpixmap )
+	bpixmap = new QPixmap;
+    *bpixmap = pixmap;
+    if ( !btext.isNull() )
+	btext.resize( 0 );
     if ( autoResize )
 	adjustSize();
     else
