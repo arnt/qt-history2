@@ -167,7 +167,7 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QByteArray QDropData::data(const QString &mime) const
+QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
 {
     Size flavorsize=0;
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
