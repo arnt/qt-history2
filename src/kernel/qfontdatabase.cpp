@@ -822,7 +822,7 @@ char ** readFontDump( const char *fileName, int *xFontCount )
 {
     QFile f( fileName );
     if ( f.open( IO_ReadOnly ) ) {
-	char ** result = new (char*)[32768];
+	char ** result = new char* [32768];
 	QTextStream is( &f );
 	is.setEncoding( QTextStream::Latin1 );
 	int i = 0;
