@@ -19,7 +19,7 @@
 #include "qaccessibleobject.h"
 #endif // QT_H
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 
 class QAccessibleWidgetPrivate;
 
@@ -58,6 +58,6 @@ private:
     QAccessibleWidgetPrivate *d;
 };
 
-#endif //QT_ACCESSIBILITY_SUPPORT
+#endif //QT_NO_ACCESSIBILITY
 
 #endif //QACCESSIBLEWIDGET_H

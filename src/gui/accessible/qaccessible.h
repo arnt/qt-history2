@@ -22,7 +22,7 @@
 #include "qvariant.h"
 #endif // QT_H
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY
 
 struct QAccessibleInterface;
 
@@ -293,6 +293,6 @@ struct Q_GUI_EXPORT QAccessibleFactoryInterface : public QAccessible, public QFe
     virtual QRESULT createAccessibleInterface(const QString &, QObject *, QAccessibleInterface**) = 0;
 };
 
-#endif //QT_ACCESSIBILITY_SUPPORT
+#endif //QT_NO_ACCESSIBILITY
 
 #endif //QACCESSIBLE_H

@@ -2059,6 +2059,9 @@ fi
  $I6N  -no-ipv6 .............. Do not compile IPv6 support.
  $I6Y  -ipv6 ................. Compile IPv6 support.
 
+    -no-accessibility ..... Do not compile Accessibility support.
+ *  -accessibility ........ Compile Accessibility support.
+
     -verbose .............. Print verbose information about each step of the
     -v .................... configure process.
 
@@ -2101,8 +2104,6 @@ Qt/Mac only:
     -no-tablet ......... Do not compile Tablet support.
  *  -tablet ............ Compile Tablet support.
 
-    -no-accessibility .. Do not compile Accessibility support.
- *  -accessibility ..... Compile Accessibility support.
 EOF
 fi
 
@@ -2707,9 +2708,11 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 
-# enable accessibility
-if [ "$CFG_ACCESSIBILITY" = "yes" ]; then
-   QMAKE_CONFIG="$QMAKE_CONFIG accessibility"
+# disable accessibility
+if [ "$CFG_ACCESSIBILITY" = "no" ]; then
+    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_ACCESSIBILITY"
+else
+    QMAKE_CONFIG="$QMAKE_CONFIG accessibility"
 fi
 
 # update QMAKE_CONFIG to show our current predefined configuration
@@ -3349,6 +3352,7 @@ echo "Configuration ....... $QMAKE_CONFIG"
 [ "$CFG_SINGLEQTLIB" = "yes" ] && echo "Single-Lib support... $CFG_SINGLEQTLIB"
 echo "STL support ......... $CFG_STL"
 echo "IPv6 support ........ $CFG_IPV6"
+echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
 echo "CUPS support ........ $CFG_CUPS"
 echo "Large File support .. $CFG_LARGEFILE"
@@ -3391,7 +3395,6 @@ if [ "$PLATFORM_X11" = "yes" ]; then
     echo "Xft support ......... $CFG_FREETYPE"
     echo "XKB Support ......... $CFG_XKB"
 elif [ "$PLATFORM_MAC" = "yes" ]; then
-    echo "Accessibility ....... $CFG_ACCESSIBILITY"
     echo "Tablet support ...... $CFG_TABLET"
 fi
 

@@ -19,7 +19,7 @@
 #include "qaccessible.h"
 #endif // QT_H
 
-#if defined(QT_ACCESSIBILITY_SUPPORT)
+#ifndef QT_NO_ACCESSIBILITY_SUPPORT
 
 class QAccessibleObjectPrivate;
 class QObject;
@@ -76,6 +76,6 @@ public:
     QString actionText(int action, Text t, int child) const;
 };
 
-#endif //QT_ACCESSIBILITY_SUPPORT
+#endif //QT_NO_ACCESSIBILITY
 
 #endif //QACCESSIBLEOBJECT_H
