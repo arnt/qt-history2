@@ -43,9 +43,13 @@ public:
     ~QTableWidget();
 
     void setRowCount(int rows);
+    int rowCount() const;
     void setColumnCount(int columns);
+    int columnCount() const;
 
     QTableWidgetItem *item(int row, int column) const;
+    int row(const QTableWidgetItem *item) const;
+    int column(const QTableWidgetItem *item) const;
     void setItem(int row, int column, QTableWidgetItem *item);
     QTableWidgetItem *takeItem(int row, int column);
 
@@ -54,6 +58,9 @@ public:
 
     QTableWidgetItem *horizontalHeaderItem(int column) const;
     void setHorizontalHeaderItem(int column, QTableWidgetItem *item);
+
+    void setVerticalHeaderLabels(const QStringList &labels);
+    void setHorizontalHeaderLabels(const QStringList &labels);
 
 protected:
     void removeItem(QTableWidgetItem *item);

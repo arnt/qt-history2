@@ -28,7 +28,7 @@ public:
     int rowCount() const;
 
     QModelIndex index(QListWidgetItem *item) const;
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null,
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
 
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
@@ -179,6 +179,8 @@ bool QListModel::isEditable(const QModelIndex &index) const
 QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view)
 {
+    if (view)
+        view->appendItem(this);
 }
 
 /*!
@@ -337,13 +339,25 @@ QListWidget::~QListWidget()
 /*!
     Returns the \a{row}-th item.
 
-    \sa text() icon() setItem()
+    \sa setItem() row()
 */
 
 QListWidgetItem *QListWidget::item(int row) const
 {
     return d->model()->at(row);
 }
+
+/*!
+    Returns the row for the \a item.
+
+    \sa item()
+*/
+
+int QListWidget::row(const QListWidgetItem *item) const
+{
+    return d->model()->index(const_cast<QListWidgetItem*>(item)).row();
+}
+
 
 /*!
     Inserts \a item in position \a row in the list.
@@ -353,7 +367,25 @@ QListWidgetItem *QListWidget::item(int row) const
 
 void QListWidget::insertItem(int row, QListWidgetItem *item)
 {
+    if (item->view == 0)
+        item->view = this;
     d->model()->insert(row, item);
+}
+
+/*!
+    Inserts items with the text set to \a labels starting at \a row.
+
+    \sa insertItem(), appendItem()
+*/
+
+void QListWidget::insertItems(const QStringList &labels, int row)
+{
+    int insertRow = (row > -1 && row <= count()) ? row : count();
+    for (int i=0; i<labels.count(); ++i) {
+        QListWidgetItem *item = new QListWidgetItem(this);
+        item->setText(labels.at(i));
+        d->model()->insert(insertRow + i, item);
+    }
 }
 
 /*!
@@ -364,6 +396,8 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
 
 void QListWidget::appendItem(QListWidgetItem *item)
 {
+    if (item->view == 0)
+        item->view = this;
     d->model()->append(item);
 }
 
@@ -375,8 +409,16 @@ void QListWidget::appendItem(QListWidgetItem *item)
 
 QListWidgetItem *QListWidget::takeItem(int row)
 {
-    return d->model()->take(row);
+    QListWidgetItem *item =  d->model()->take(row);
+    item->view = 0;
+    return item;
 }
+
+int QListWidget::count() const
+{
+    return d->model()->rowCount();
+}
+
 
 /*!
   Removes the \a item from the list.

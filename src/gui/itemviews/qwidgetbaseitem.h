@@ -37,10 +37,10 @@ public:
 
     // additional roles used in these items
     enum Role {
-        FontRole = 33,
-        BackgroundColorRole = 34,
-        TextColorRole = 35,
-        CheckRole = 36
+        FontRole = QAbstractItemModel::UserRole + 1,
+        BackgroundColorRole = QAbstractItemModel::UserRole + 2,
+        TextColorRole = QAbstractItemModel::UserRole + 3,
+        CheckRole = QAbstractItemModel::UserRole +  4
     };
 
     enum CheckedState {
@@ -48,11 +48,11 @@ public:
         PartiallyChecked = 1,
         Checked = 2
     };
-    
+
 protected:
-    QWidgetBaseItem() : editable(true), selectable(true), enabled(true) {}
+    QWidgetBaseItem() : editable(true), selectable(true), checkable(false), enabled(true) {}
     virtual ~QWidgetBaseItem() {}
-    
+
     struct Data {
         Data() : role(-1) {}
         Data(int r, QVariant v) : role(r), value(v) {}
@@ -67,8 +67,8 @@ protected:
 };
 
 class Q_GUI_EXPORT QWidgetCellItem : public QWidgetBaseItem
-{    
-public:    
+{
+public:
     virtual QString text() const;
     virtual void setText(const QString &text);
 

@@ -21,10 +21,11 @@
 
 class QListWidget;
 
-class QListWidgetItem : public QWidgetCellItem
+class Q_GUI_EXPORT QListWidgetItem : public QWidgetCellItem
 {
+    friend class QListWidget;
 public:
-    QListWidgetItem(QListWidget *view);
+    QListWidgetItem(QListWidget *view = 0);
     ~QListWidgetItem();
     void openPersistentEditor();
     void closePersistentEditor();
@@ -48,9 +49,13 @@ public:
     ~QListWidget();
 
     QListWidgetItem *item(int row) const;
+    int row(const QListWidgetItem *item) const;
     void insertItem(int row, QListWidgetItem *item);
+    void insertItems(const QStringList &labels, int row = -1);
     void appendItem(QListWidgetItem *item);
     QListWidgetItem *takeItem(int row);
+
+    int count() const;
 
 protected:
     void removeItem(QListWidgetItem *item);

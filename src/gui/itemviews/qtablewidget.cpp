@@ -36,10 +36,11 @@ public:
     QTableWidgetItem *item(int row, int column) const;
     QTableWidgetItem *item(const QModelIndex &index) const;
     void removeItem(QTableWidgetItem *item);
-    
+
+    QModelIndex index(const QTableWidgetItem *item) const;
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
-    
+
     void setRowCount(int rows);
     void setColumnCount(int columns);
 
@@ -158,7 +159,7 @@ void QTableModel::removeItem(QTableWidgetItem *item)
         table[i] = 0;
         return;
     }
-    
+
     i = verticalHeader.indexOf(item);
     if (i != -1) {
         verticalHeader[i] = 0;
@@ -171,6 +172,16 @@ void QTableModel::removeItem(QTableWidgetItem *item)
         return;
     }
 }
+
+QModelIndex QTableModel::index(const QTableWidgetItem *item) const
+{
+    // ### slow but will be fixed when table is not a vector anymore
+    int i = table.indexOf(const_cast<QTableWidgetItem*>(item));
+    int row = i / columnCount();
+    int col = i % columnCount();
+    return index(row, col);
+}
+
 
 QModelIndex QTableModel::index(int row, int column, const QModelIndex &,
                                QModelIndex::Type type) const
@@ -353,6 +364,15 @@ void QTableWidget::setRowCount(int rows)
 }
 
 /*!
+  Returns the number of rows.
+*/
+
+int QTableWidget::rowCount() const
+{
+    return d->model()->rowCount();
+}
+
+/*!
     Sets the number of columns in this table's model to \a columns. If
     this is less than columnCount(), the data in the unwanted columns
     is discarded.
@@ -365,6 +385,16 @@ void QTableWidget::setColumnCount(int columns)
 }
 
 /*!
+  Returns the number of columns.
+*/
+
+int QTableWidget::columnCount() const
+{
+    return d->model()->columnCount();
+}
+
+
+/*!
     Returns the item for the given \a row and \a column.
 
     \sa setItem()
@@ -372,6 +402,16 @@ void QTableWidget::setColumnCount(int columns)
 QTableWidgetItem *QTableWidget::item(int row, int column) const
 {
     return d->model()->item(row, column);
+}
+
+int QTableWidget::row(const QTableWidgetItem *item) const
+{
+    return d->model()->index(item).row();
+}
+
+int QTableWidget::column(const QTableWidgetItem *item) const
+{
+    return d->model()->index(item).column();
 }
 
 /*!
@@ -407,6 +447,27 @@ QTableWidgetItem *QTableWidget::horizontalHeaderItem(int column) const
 void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
     d->model()->horizontalHeader[column] = item;
+}
+
+
+void QTableWidget::setVerticalHeaderLabels(const QStringList &labels)
+{
+    QVector<QTableWidgetItem*> &header = d->model()->verticalHeader;
+    for (int i=0; i<header.count() && i<labels.count(); ++i) {
+        if (!header.at(i))
+            header[i] = new QTableWidgetItem(this);
+        header.at(i)->setText(labels.at(i));
+    }
+}
+
+void QTableWidget::setHorizontalHeaderLabels(const QStringList &labels)
+{
+    QVector<QTableWidgetItem*> &header = d->model()->horizontalHeader;
+    for (int i=0; i<header.count() && i<labels.count(); ++i) {
+        if (!header.at(i))
+            header[i] = new QTableWidgetItem(this);
+        header.at(i)->setText(labels.at(i));
+    }
 }
 
 void QTableWidget::removeItem(QTableWidgetItem *item)
