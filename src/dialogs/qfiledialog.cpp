@@ -1597,6 +1597,26 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
+  \enum QFileDialog::ViewMode
+  
+  This enum type describes the view mode of the filedialog.
+  
+  <ul>
+  <li> \c DetailView - View which shows except the filename also 
+  size, date, etc. of a file in columns
+  <li> \c ListView - Simple view which shows only all filenames plus icons
+  <li> \c PreviewContents - Besides the view with the files a preview 
+  widget is shown shich shows the contents of the currently selected file
+  <li> \c PreviewInfo - Besides the view with the files a preview 
+  widget is shown shich shows infos of the currently selected file
+  </ul>
+  
+  Using setViewMode() you can set the view mode of the filedialog, and
+  with viewMode() you can get the current view mode. The value which is
+  set or returned here can also be or'd together combination of these values
+*/
+  
+/*!
   \fn void QFileDialog::showPreview( const QUrl &u )
 
   This signal is emitted when a preview of the URL \a u
@@ -2078,7 +2098,10 @@ void QFileDialog::setSelection( const QString & filename )
 {
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
-    d->url = QUrlOperator( filename );
+    if ( QUrl::isRelativeUrl( filename ) )
+	d->url = QUrlOperator( d->url, filename );
+    else
+	d->url = QUrlOperator( filename );
     d->url.setNameFilter( nf );
     d->checkForFilter = TRUE;
     if ( !d->url.isDir() ) {
@@ -2351,12 +2374,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     // with that name exists in D->URL, the box will be opened at D->URL instead of
     // the last directory used ('workingDirectory').
     if ( !startWith.isEmpty() ) {
-	// #### works only correct for local files
 	QUrlOperator u( startWith );
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = u.dirPath();
+	    *workingDirectory = u.toString();
 	    initialSelection = u.fileName();
 	}
     }
@@ -2444,7 +2466,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 	if ( u.isLocalFile() && QFileInfo( u.path() ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
-	    *workingDirectory = u.dirPath();
+	    *workingDirectory = u.toString();
 	    initialSelection = u.fileName();
 	}
     }
@@ -2490,7 +2512,7 @@ void QFileDialog::okClicked()
 	return;
     }
 
-    *workingDirectory = d->url.dirPath();
+    *workingDirectory = url();
     detailViewMode = files->isVisible();
 
     if ( d->mode == Directory ) {
@@ -3165,7 +3187,10 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
 					   const char* name )
 {
     makeVariables();
-    QFileDialog *dialog	= new QFileDialog( parent, name, TRUE );
+    QString wd;
+    if ( workingDirectory )
+	wd = *workingDirectory;
+    QFileDialog *dialog = new QFileDialog( parent, name, TRUE );
     dialog->setCaption( QFileDialog::tr("Find Directory") );
 
     dialog->setMode( Directory );
@@ -3175,45 +3200,44 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->setEnabled( FALSE );
 
     QString dir_( dir );
+    dir_ = dir_.simplifyWhiteSpace();
+    if ( dir_.isEmpty() && !wd.isEmpty() )
+	dir_ = wd;
     QUrlOperator u( dir_ );
-    if ( dir_.isEmpty() && !workingDirectory->isEmpty() )
-	dir_ = *workingDirectory;
     if ( u.isLocalFile() ) {
 	if ( !dir_.isEmpty() ) {
-	    QFileInfo f( dir_ );	
+	    QFileInfo f( u.path() );	
 	    if ( f.isDir() ) {
 		dialog->setDir( dir_ );
-		*workingDirectory = dir_;
+		wd = dir_;
 	    }
-	} else if ( !workingDirectory->isEmpty() ) {
-	    QFileInfo f( *workingDirectory );
-	    if ( f.isDir() )
-		dialog->setDir( *workingDirectory );
+	} else if ( !wd.isEmpty() ) {
+	    QFileInfo f( QUrl( wd ).path() );
+	    if ( f.isDir() ) {
+		dialog->setDir( wd );
+	    }
 	} else {	
 	    QString theDir = dir_;
-	    if ( theDir.isEmpty() )
+	    if ( theDir.isEmpty() ) {
 		theDir = QDir::currentDirPath();
-	    if ( !theDir.isEmpty() ) {
-		QFileInfo f( dir_ );
+	    } if ( !theDir.isEmpty() ) {
+		QFileInfo f( QUrl( theDir ).path() );
 		if ( f.isDir() ) {
-		    *workingDirectory = theDir;
+		    wd = theDir;
 		    dialog->setDir( theDir );
 		}
 	    }
 	}
     } else {
-	if ( !dir_.isEmpty() )
-	    *workingDirectory = u.dirPath();
-	dialog->setDir( *workingDirectory );
+	dialog->setUrl( dir_ );
     }
 
     QString result;
-    if ( dir.isEmpty() )
-	dialog->setSelection( "." );
+    dialog->setSelection( dialog->url().toString() );
 
     if ( dialog->exec() == QDialog::Accepted ) {
 	result = dialog->selectedFile();
-	*workingDirectory = result;
+	wd = result;
     }
     delete dialog;
 
@@ -3770,7 +3794,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = dir;
 	} else {
-	    *workingDirectory = u.dirPath();
+	    *workingDirectory = u.toString();
 	}
     }
 
