@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#1 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#2 $
 **
-** Definition of QListView widget class
+** Definition of QIconView widget class
 **
 ** Created : 990707
 **

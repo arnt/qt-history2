@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#2 $
 **
-** Definition of QListView widget class
+** Definition of QIconView widget class
 **
 ** Created : 990707
 **
@@ -747,7 +747,7 @@ QIconView::QIconView( QWidget *parent, const char *name )
     setFocusPolicy( QWidget::StrongFocus );
     viewport()->setFocusPolicy( QWidget::StrongFocus );
 
-    setBackgroundMode( NoBackground );
+    setBackgroundMode( PaletteBackground );
     viewport()->setFocusProxy( this );
 }
 
@@ -763,8 +763,8 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 
     if ( !d->firstItem ) {
         d->firstItem = d->lastItem = item;
-        item->prev = 0L;
-        item->next = 0L;
+        item->prev = 0;
+        item->next = 0;
     } else {
         if ( !after || after == d->lastItem ) {
             d->lastItem->next = item;
@@ -937,7 +937,7 @@ void QIconView::doAutoScroll()
                     this, SLOT( doAutoScroll() ) );
         d->scrollTimer->stop();
         delete d->scrollTimer;
-        d->scrollTimer = 0L;
+        d->scrollTimer = 0;
     }
 
 }
@@ -992,14 +992,14 @@ QIconView::SelectionMode QIconView::selectionMode()
 QIconViewItem *QIconView::findItem( const QPoint &pos )
 {
     if ( !d->firstItem )
-        return 0L;
+        return 0;
 
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
         if ( item->contains( pos ) )
             return item;
 
-    return 0L;
+    return 0;
 }
 
 void QIconView::selectAll( bool select )
@@ -1041,10 +1041,10 @@ void QIconView::clear()
     }
 
     d->count = 0;
-    d->firstItem = 0L;
-    d->lastItem = 0L;
-    setCurrentItem( 0L );
-    d->tmpCurrentItem = 0L;
+    d->firstItem = 0;
+    d->lastItem = 0;
+    setCurrentItem( 0 );
+    d->tmpCurrentItem = 0;
 
     setContentsPos( 0, 0 );
     resizeContents( viewport()->width(), viewport()->height() );
@@ -1123,7 +1123,7 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
         if ( !d->currentItem && d->selectionMode != Single ) {
             if ( d->rubber )
                 delete d->rubber;
-            d->rubber = 0L;
+            d->rubber = 0;
             d->rubber = new QRect( e->x(), e->y(), 0, 0 );
 
             if ( d->selectionMode == StrictMulti && !( e->state() & ControlButton ) )
@@ -1157,14 +1157,14 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent * )
         p.end();
 
         delete d->rubber;
-        d->rubber = 0L;
+        d->rubber = 0;
     }
 
     if ( d->scrollTimer ) {
         disconnect( d->scrollTimer, SIGNAL( timeout() ), this, SLOT( doAutoScroll() ) );
         d->scrollTimer->stop();
         delete d->scrollTimer;
-        d->scrollTimer = 0L;
+        d->scrollTimer = 0;
     }
 }
 
@@ -1198,7 +1198,7 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void QIconView::contentsDragEnterEvent( QDragEnterEvent * )
 {
-    d->tmpCurrentItem = 0L;
+    d->tmpCurrentItem = 0;
 }
 
 void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
@@ -1207,7 +1207,7 @@ void QIconView::contentsDragMoveEvent( QDragMoveEvent *e )
         repaintItem( d->tmpCurrentItem );
 
     QIconViewItem *old = d->tmpCurrentItem;
-    d->tmpCurrentItem = 0L;
+    d->tmpCurrentItem = 0;
 
     QIconViewItem *item = findItem( e->pos() );
 
@@ -1243,7 +1243,7 @@ void QIconView::contentsDragLeaveEvent( QDragLeaveEvent * )
         d->tmpCurrentItem->dragLeft();
     }
 
-    d->tmpCurrentItem = 0L;
+    d->tmpCurrentItem = 0;
 }
 
 void QIconView::contentsDropEvent( QDropEvent *e )
@@ -1407,6 +1407,60 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Enter: case Key_Return:
         emit doubleClicked( d->currentItem );
         break;
+    case Key_Down:
+    {
+        QIconViewItem *item = d->firstItem;
+        QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+        for ( ; item; item = item->next ) {
+            if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
+                QRect ir = r.intersect( item->rect() );
+                if ( item->next && r.intersects( item->next->rect() ) ) {
+                    QRect irn = r.intersect( item->next->rect() );
+                    if ( irn.width() > ir.width() )
+                        item = item->next;
+                }
+                QIconViewItem *i = d->currentItem;
+                d->currentItem = item;
+                if ( d->selectionMode == Single ) {
+                    i->setSelected( FALSE );
+                    d->currentItem->setSelected( TRUE, TRUE );
+                } else {
+                    if ( e->state() & ShiftButton )
+                        d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+                }
+                repaintItem( i );
+                repaintItem( d->currentItem );
+                break;
+            }
+        }
+    } break;
+    case Key_Up:
+    {
+        QIconViewItem *item = d->lastItem;
+        QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
+        for ( ; item; item = item->prev ) {
+            if ( item->y() < d->currentItem->y() && r.intersects( item->rect() ) ) {
+                QRect ir = r.intersect( item->rect() );
+                if ( item->prev && r.intersects( item->prev->rect() ) ) {
+                    QRect irn = r.intersect( item->prev->rect() );
+                    if ( irn.width() > ir.width() )
+                        item = item->prev;
+                }
+                QIconViewItem *i = d->currentItem;
+                d->currentItem = item;
+                if ( d->selectionMode == Single ) {
+                    i->setSelected( FALSE );
+                    d->currentItem->setSelected( TRUE, TRUE );
+                } else {
+                    if ( e->state() & ShiftButton )
+                        d->currentItem->setSelected( !d->currentItem->isSelected(), TRUE );
+                }
+                repaintItem( i );
+                repaintItem( d->currentItem );
+                break;
+            }
+        }
+    } break;
     }
 
     ensureItemVisible( d->currentItem );
@@ -1453,7 +1507,7 @@ void QIconView::drawRubber( QPainter *p )
 QDragObject *QIconView::dragObject()
 {
     if ( !d->currentItem )
-        return 0L;
+        return 0;
 
     QIconViewItemDrag *drag = new QIconViewItemDrag( viewport() );
     drag->setPixmap( QPixmap( d->currentItem->icon().pixmap( d->mode, QIconSet::Normal ) ),
