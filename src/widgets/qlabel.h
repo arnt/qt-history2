@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#28 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#29 $
 **
 ** Definition of QLabel widget class
 **
@@ -28,6 +28,7 @@ public:
 
     const char *text()		const	{ return ltext; }
     QPixmap    *pixmap()	const	{ return lpixmap; }
+    QMovie     *movie()		const;
 
     int		alignment()	const	{ return align; }
     void	setAlignment( int );
@@ -44,6 +45,7 @@ public:
 public slots:
     void	setText( const char * );
     void	setPixmap( const QPixmap & );
+    void	setMovie( const QMovie & );
     void	setNum( int );
     void	setNum( double );
 
@@ -53,6 +55,8 @@ protected:
 private slots:
     void	acceleratorSlot();
     void	buddyDied();
+    void	movieUpdated(const QRect&);
+    void	movieResized(const QSize&);
 
 private:
     void	updateLabel();
@@ -61,6 +65,7 @@ private:
     int		extraMargin;
     int		align;
     bool	autoresize;
+    void	unsetMovie();
 
 private:	// Disabled copy constructor and operator=
     QLabel( const QLabel & ) {}

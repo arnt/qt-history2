@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#55 $
 **
 ** Implementation of QLabel widget class
 **
@@ -15,9 +15,10 @@
 #include "qdrawutl.h"
 #include "qaccel.h"
 #include "qkeycode.h"
+#include "qmovie.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#55 $");
 
 
 #if QT_VERSION == 200
@@ -30,6 +31,7 @@ struct QLabel_Private
 {
     QWidget * buddy;
     QAccel * accel;
+    QMovie * movie;
 };
 
 static QIntDict<QLabel_Private> *qlabel_extraStuff = 0;
@@ -178,6 +180,7 @@ QLabel::QLabel( QWidget *buddy,  const char *text,
 
 QLabel::~QLabel()
 {
+    unsetMovie();
     delete lpixmap;
     QLabel_Private * d = 0;
     if ( qlabel_extraStuff && (d=qlabel_extraStuff->find( (long)this )) ) {
@@ -205,6 +208,7 @@ QLabel::~QLabel()
 
 void QLabel::setText( const char *text )
 {
+    unsetMovie();
     if ( ltext == text )
 	return;
     ltext = text;
@@ -254,6 +258,7 @@ void QLabel::setText( const char *text )
 
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
+    unsetMovie();
     int w, h;
     if ( lpixmap ) {
 	w = lpixmap->width();
@@ -451,8 +456,12 @@ QSize QLabel::sizeHint() const
     p.begin( this );
     QRect br;
     QPixmap *pix = pixmap();
+    QMovie *mov = movie();
     if ( pix )
 	br = QRect( 0, 0, pix->width(), pix->height() );
+    else if ( mov )
+	br = QRect( 0, 0, mov->currentFrame().width(),
+		mov->currentFrame().height() );
     else
 	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
     int m  = 2*margin();
@@ -495,6 +504,19 @@ void QLabel::drawContents( QPainter *p )
 	if ( align & AlignBottom )
 	    cr.setBottom( cr.bottom() - m );
     }
+
+    QMovie *mov = movie();
+    if ( mov ) {
+	// ### should add movie to qDrawItem when this Dict hack is gone
+	QRect r = qItemRect( p, style(),
+			cr.x(), cr.y(), cr.width(), cr.height(),
+			align, isEnabled(), &(mov->currentFrame()), ltext );
+	// ### could resize movie frame at this point
+	p->drawPixmap(r.x(), r.y(), mov->currentFrame());
+	return;
+    }
+
+    // Not a movie
     qDrawItem( p, style(), cr.x(), cr.y(), cr.width(), cr.height(),
 	       align, colorGroup(), isEnabled(),
 	       lpixmap, ltext );
@@ -541,7 +563,7 @@ void QLabel::acceleratorSlot()
   Internal slot, used to clean up if the buddy widget dies.
 */
 
-void QLabel::buddyDied()
+void QLabel::buddyDied() // I can't remember if I cried.
 {
     if ( !qlabel_extraStuff )
 	return;
@@ -605,4 +627,108 @@ QWidget * QLabel::buddy() const
 
     QLabel_Private * that = qlabel_extraStuff->find( (long)this );
     return that && that->buddy ? that->buddy : 0;
+}
+
+
+void QLabel::movieUpdated(const QRect& rect)
+{
+    QMovie *mov = movie();
+    if ( mov && !mov->isNull() ) {
+	QRect r = contentsRect();
+	r = qItemRect( 0, style(), r.x(), r.y(), r.width(), r.height(),
+		   align, isEnabled(), &(mov->currentFrame()), ltext );
+	r.moveBy(rect.x(), rect.y());
+	r.setWidth(QMIN(r.width(), rect.width()));
+	r.setHeight(QMIN(r.height(), rect.height()));
+	repaint( r );
+    }
+}
+
+void QLabel::movieResized(const QSize& size)
+{
+    if (autoresize) adjustSize();
+    movieUpdated(QRect(QPoint(0,0),size));
+}
+
+/*!
+  Sets a QMovie to display in the label, or removes any existing movie
+  if the given movie QMovie::isNull().
+
+  Any current pixmap or text label is cleared.
+
+  If the label has a buddy, the accelerator is disabled since the
+  movie doesn't contain any suitable character.
+*/
+void QLabel::setMovie( const QMovie& movie )
+{
+    // Foul and ugly private data hack.
+    if ( !qlabel_extraStuff ) {
+	qlabel_extraStuff = new QIntDict<QLabel_Private>;
+	CHECK_PTR( qlabel_extraStuff );
+	qAddPostRoutine( cleanupLabel );
+    }
+    QLabel_Private * d = qlabel_extraStuff->find( (long)this );
+    if ( !d ) {
+	d = new QLabel_Private;
+	d->buddy = 0;
+	d->movie = 0;
+	d->accel = new QAccel( this, "accel label accel" );
+	qlabel_extraStuff->insert( (long)this, d );
+    }
+
+    if ( d->movie ) {
+	d->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
+	d->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+    }
+
+    if ( movie.isNull() ) {
+	delete d->movie;
+	d->movie = 0;
+    } else {
+	if ( !d->movie ) d->movie = new QMovie;
+	*d->movie = movie;
+	ltext = "MOVIE";
+    }
+    d->accel->clear();
+
+    if ( lpixmap ) {
+	delete lpixmap;
+	lpixmap = 0;
+    }
+
+    if ( d->movie ) {
+	d->movie->connectResize(this, SLOT(movieResized(const QSize&)));
+	d->movie->connectUpdate(this, SLOT(movieUpdated(const QRect&)));
+    }
+}
+
+/*
+  Efficiently unset the movie.
+*/
+void QLabel::unsetMovie()
+{
+    if (!lpixmap && ltext=="MOVIE" && qlabel_extraStuff) {
+	// You think you are a movie...
+	QLabel_Private * d = qlabel_extraStuff->find( (long)this );
+	if (d && d->movie) {
+	    d->movie->disconnectResize(this, SLOT(movieResized(const QSize&)));
+	    d->movie->disconnectUpdate(this, SLOT(movieUpdated(const QRect&)));
+	    delete d->movie;
+	    d->movie = 0;
+	}
+    }
+}
+
+/*!
+  Returns the QMovie currently displaying in the label, or 0
+  if none has been set.
+*/
+QMovie* QLabel::movie() const
+{
+    if (!lpixmap && ltext=="MOVIE" && qlabel_extraStuff) {
+	// You think you are a movie...
+	QLabel_Private * d = qlabel_extraStuff->find( (long)this );
+	return d ? d->movie : 0;
+    }
+    return 0;
 }
