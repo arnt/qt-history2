@@ -1,0 +1,53 @@
+// $Id: unicode.doc,v 1.1 1999/10/25 14:50:44 arnt Exp $
+
+/*! \page unicode.html
+  
+<title>About Unicode</title>
+</head><body bgcolor="#ffffff">
+\postheader
+
+<h1 align="center">About Unicode</h1>
+
+Unicode is a 16-bit character set, portable across all major computing
+platforms and with decent coverage of almost all of the world.  It is
+also single-locale; it includes no code pages or other complexities
+that make software harder to write and test.  Finally, there is
+nothing else that's reasonably cross-platform.  For these reasons,
+Troll Tech has chosen to make Unicode the native character set of Qt
+starting with version 2.0.
+
+<p>
+
+<b>Information about Unicode on the web.</b>  The
+<a href="http://www.unicode.org">Unicode Consortium</a> has a number
+of documents available, including<ul>
+
+<li><a href="http://www.unicode.org/unicode/standard/principles.html">
+A technical introduction to Unicode</a>
+
+<li><a href="http://www.unicode.org/unicode/standard/standard.html">
+The home page for the standard</a>nn
+
+<li><a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
+The home page of the upcoming version 3.0</a>
+
+</ul>
+
+<p>
+
+<b>The Standard.</b> The current version of the standard is 2.1.9, 3.0
+is coming soon. <ul>
+
+<li> <a href="http://www.amazon.com/exec/obidos/ASIN/0201473459/trolltech/t">
+The Unicode Standard, version 2.0.</a>  See also the
+<a href="http://www.unicode.org/unicode/reports/tr8.html">2.1 update</a> and
+<a href="http://www.unicode.org/unicode/standard/versions/enumeratedversions.html#Unicode 2.1.9">the 2.1.9 data files</a> at www.unicode.org.
+
+<li><a href="http://www.amazon.com/exec/obidos/ASIN/0201616335/trolltech/t">
+The Unicode Standard, version 3.0.</a> (Finalized, but not yet published
+ath the time of writing.)  See also
+<a href="http://www.unicode.org/unicode/standard/versions/Unicode3.0.html">
+its home page.</a>
+
+*/
+
