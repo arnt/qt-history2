@@ -19,13 +19,6 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<includes>
-    <include location="local" impldecl="in declaration">newform.ui.h</include>
-</includes>
-<slots>
-    <slot access="protected" specifier="virtual" language="C++" returnType="void">projectChanged( const QString &amp;project )</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>NewFormBase</cstring>
@@ -34,8 +27,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>433</width>
-            <height>299</height>
+            <width>557</width>
+            <height>436</height>
         </rect>
     </property>
     <property name="caption">
@@ -188,31 +181,31 @@
     </grid>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>buttonOk</sender>
         <signal>clicked()</signal>
         <receiver>NewFormBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>buttonCancel</sender>
         <signal>clicked()</signal>
         <receiver>NewFormBase</receiver>
         <slot>reject()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>templateView</sender>
         <signal>doubleClicked(QIconViewItem*)</signal>
         <receiver>NewFormBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>templateView</sender>
         <signal>returnPressed(QIconViewItem*)</signal>
         <receiver>NewFormBase</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>projectCombo</sender>
         <signal>activated(const QString&amp;)</signal>
         <receiver>NewFormBase</receiver>
@@ -225,4 +218,11 @@
     <tabstop>buttonOk</tabstop>
     <tabstop>buttonCancel</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in declaration">newform.ui.h</include>
+</includes>
+<slots>
+    <slot access="protected">projectChanged( const QString &amp;project )</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

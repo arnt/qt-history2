@@ -33,7 +33,8 @@ public:
 	ProjectType,
 	Form,
 	CustomForm,
-	SourceFileType
+	SourceFileType,
+	SourceTemplateType
     };
 
     NewItem( QIconView *view, const QString &text )
@@ -109,6 +110,25 @@ public:
 
 private:
     QString ext;
+    QString lang;
+    bool visible;
+
+};
+
+class SourceTemplateItem : public NewItem
+{
+public:
+    SourceTemplateItem( QIconView *view, const QString &text );
+    void insert( Project *pro );
+    int rtti() const { return (int)SourceTemplateType; }
+
+    void setTemplate( const QString &t ) { templ = t; }
+    QString tenplate() const { return templ; }
+    void setLanguage( const QString &l ) { lang = l; }
+    void setProject( Project *pro );
+
+private:
+    QString templ;
     QString lang;
     bool visible;
 

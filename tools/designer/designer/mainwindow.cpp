@@ -261,6 +261,7 @@ MainWindow::~MainWindow()
     delete programPluginManager;
     delete templateWizardPluginManager;
     delete editorPluginManager;
+    delete sourceTemplatePluginManager;
 
     MetaDataBase::clearDataBase();
 }
@@ -2856,6 +2857,13 @@ void MainWindow::setupPluginManagers()
 	it++;
     }
 
+    sourceTemplatePluginManager = new QPluginManager<SourceTemplateInterface>( IID_SourceTemplate );
+    it = paths.begin();
+    while (it != paths.end()) {
+	sourceTemplatePluginManager->addLibraryPath(*it + "/designer");
+	it++;
+    }
+
     if ( preferencePluginManager ) {
 	QStringList lst = preferencePluginManager->featureList();
 	for ( it = lst.begin(); it != lst.end(); ++it ) {
@@ -3271,3 +3279,16 @@ void MainWindow::popupProjectMenu( const QPoint &pos )
 
     projectMenu->exec( pos );
 }
+
+QStringList MainWindow::sourceTemplates() const
+{
+    return sourceTemplatePluginManager->featureList();
+}
+
+SourceTemplateInterface* MainWindow::sourceTemplateInterface( const QString& templ )
+{
+    SourceTemplateInterface *iface = 0;
+    sourceTemplatePluginManager->queryInterface( templ, &iface);
+    return iface;
+}
+

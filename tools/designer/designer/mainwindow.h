@@ -32,6 +32,7 @@
 #include "../interfaces/interpreterinterface.h"
 #include "../interfaces/preferenceinterface.h"
 #include "../interfaces/projectsettingsiface.h"
+#include "../interfaces/sourcetemplateiface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -137,6 +138,8 @@ public:
     FormWindow *activeForm() const { return lastActiveFormWindow; }
 
     TemplateWizardInterface* templateWizardInterface( const QString& className );
+    QStringList sourceTemplates() const;
+    SourceTemplateInterface* sourceTemplateInterface( const QString& templ );
     QUnknownInterface* designerInterface() const { return desInterface; }
     QPtrList<DesignerProject> projectList() const;
     QStringList projectNames() const;
@@ -402,6 +405,7 @@ private:
     QPluginManager<InterpreterInterface> *interpreterPluginManager;
     QPluginManager<PreferenceInterface> *preferencePluginManager;
     QPluginManager<ProjectSettingsInterface> *projectSettingsPluginManager;
+    QPluginManager<SourceTemplateInterface> *sourceTemplatePluginManager;
     QPtrList<SourceEditor> sourceEditors;
     bool previewing;
     QUnknownInterface *desInterface;

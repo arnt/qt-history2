@@ -192,6 +192,43 @@ void SourceFileItem::setProject( Project *pro )
 
 
 
+SourceTemplateItem::SourceTemplateItem( QIconView *view, const QString &text )
+    : NewItem( view, text ), visible( TRUE )
+{
+}
+
+void SourceTemplateItem::insert( Project *pro )
+{
+    SourceTemplateInterface *siface = MainWindow::self->sourceTemplateInterface( text() );
+    if ( !siface )
+	return;
+    SourceTemplateInterface::Source src = siface->create( text(), MainWindow::self->designerInterface() );
+    SourceFile *f = 0;
+    if ( src.type == SourceTemplateInterface::Source::Invalid )
+	return;
+    if ( src.type == SourceTemplateInterface::Source::FileName )
+	f = new SourceFile( src.filename, FALSE, pro );
+    else
+	f = new SourceFile( SourceFile::createUnnamedFileName( src.extension ), TRUE, pro );
+    f->setText( src.code );
+    MainWindow::self->editSource( f );
+    f->setModified( TRUE );
+}
+
+void SourceTemplateItem::setProject( Project *pro )
+{
+    bool v = lang == pro->language();
+    if ( v == visible )
+	return;
+    visible = v;
+    if ( !visible )
+	iconView()->takeItem( this );
+    else
+	iconView()->insertItem( this );
+}
+
+
+
 NewForm::NewForm( QWidget *parent, const QStringList& projects,
 		  const QString& currentProject, const QString &templatePath )
     : NewFormBase( parent, 0, TRUE )
@@ -279,6 +316,19 @@ NewForm::NewForm( QWidget *parent, const QStringList& projects,
 		si->setDragEnabled( FALSE );
 	    }
 	}
+    }
+
+    QStringList sourceTemplates = MainWindow::self->sourceTemplates();
+    for ( QStringList::Iterator sit = sourceTemplates.begin(); sit != sourceTemplates.end(); ++sit ) {
+	SourceTemplateInterface *siface = MainWindow::self->sourceTemplateInterface( *sit );
+	if ( !siface )
+	    continue;
+	SourceTemplateItem * si = new SourceTemplateItem( templateView, *sit );
+	allItems.append( si );
+	si->setTemplate( *sit );
+	si->setLanguage( siface->language( *sit ) );
+	si->setPixmap( PixmapChooser::loadPixmap( "filenew.xpm" ) );
+	si->setDragEnabled( FALSE );
     }
 
     templateView->viewport()->setFocus();
