@@ -128,6 +128,39 @@ static const char *ps_header[] = {
 "    0.06 0.12 0.37 0.50 0.63 0.88 0.94",
 "] d",
 "",
+"/sl D0", // slow implementation, but strippable by stripHeader
+"/QCIF D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex D0",
+"/QCI {", // as colorimage but without the last two arguments
+"  /colorimage where {",
+"    pop",
+"    false 3 colorimage",
+"  }{", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
+"    /QCIF ED",
+"    /mat ED",
+"    /Bcomp ED",
+"    /h ED",
+"    /w ED",
+"    /Bycomp Bcomp 7 add 8 idiv d",
+"    w h Bcomp mat",
+"    /QCIstr2 sl length 3 idiv string d",
+"    { Function exec",
+"      /QCIstr1 ED",
+"      0 1 QCIstr1 length 3 idiv 1 sub {",
+"        /QCIindex ED",
+"        /x QCIindex 3 mul d",
+"        QCIstr2 QCIindex",
+"        QCIstr1 x       get 0.30 mul",
+"        QCIstr1 x 1 add get 0.59 mul",
+"        QCIstr1 x 2 add get 0.11 mul",
+"        add add cvi",
+"        put",
+"      } for",
+"      QCIstr2",
+"    }",
+"    image",
+"  } ifelse",
+"} D",
+"",
 "/BF {",				// brush fill
 "   GS",
 "   BSt 1 eq",				// solid brush?
@@ -188,6 +221,10 @@ static const char *ps_header[] = {
 "       } ifelse",
 "     } if",
 "     S",
+"   } if",
+"   Bsd 24 eq",				// CustomPattern
+"     ",
+"   {",
 "   } if",
 "   GR",
 "} D",
@@ -449,41 +486,6 @@ static const char *ps_header[] = {
 "    MT",				// ### Uff
 "    PCol SC",				// set pen/text color
 "    show",
-"} D",
-"",
-"",
-"", // slower implementation than the old one, but strippable by stripHeader
-"/sl D0",
-"/QCIFunction D0 /Bcomp D0 /Bycomp D0 /QCIstr1 D0 /QCIstr1 D0 /QCIindex D0",
-"/QCI {", // as colorimage but without the last two arguments
-"  /colorimage where {",
-"    pop",
-"    false 3 colorimage",
-"  }{", // the hard way, based on PD code by John Walker <kelvin@autodesk.com>
-"    /QCIFunction ED",
-"    /mat ED",
-"    /Bcomp ED",
-"    /h ED",
-"    /w ED",
-"    /Bycomp Bcomp 7 add 8 idiv d",
-"    w h Bcomp mat",
-"    /QCIstr2 sl length 3 idiv string d",
-"    { Function exec",
-"      /QCIstr1 ED",
-"      0 1 QCIstr1 length 3 idiv 1 sub {",
-"        /QCIindex ED",
-"        /x QCIindex 3 mul d",
-"        QCIstr2 QCIindex",
-"        QCIstr1 x       get 0.30 mul",
-"        QCIstr1 x 1 add get 0.59 mul",
-"        QCIstr1 x 2 add get 0.11 mul",
-"        add add cvi",
-"        put",
-"      } for",
-"      QCIstr2",
-"    }",
-"    image",
-"  } ifelse",
 "} D",
 0 };
 
@@ -1937,7 +1939,7 @@ QPSPrinter::~QPSPrinter()
 }
 
 
-static struct {
+const static struct {
     const char * input;
     const char * roman;
     const char * italic;
@@ -2149,34 +2151,6 @@ static void hexOut( QTextStream &stream, int i )
 }
 
 
-#if 0
-static void ps_dumpTransparentBitmapData( QTextStream &stream,
-					  const QImage &img )
-{
-    stream.setf( QTextStream::hex, QTextStream::basefield );
-
-    int width  = img.width();
-    int height = img.height();
-    int numBytes = (width + 7)/8;
-    uchar *scanLine;
-    int x,y;
-    int count = -1;
-    for( y = 0 ; y < height ; y++ ) {
-	scanLine = img.scanLine(y);
-	for( x = 0 ; x < numBytes ; x++ ) {
-	    hexOut( stream, scanLine[x] );
-	    if ( !(count++ % 66) )
-		stream << '\n';
-	}
-    }
-    if ( --count % 66 )
-	stream << '\n';
-
-    stream.setf( QTextStream::dec, QTextStream::basefield );
-}
-#endif
-
-
 static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 			       const QColor fgCol, const QColor bgCol )
 {
@@ -2220,6 +2194,7 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 
     stream.setf( QTextStream::dec, QTextStream::basefield );
 }
+
 
 #undef XCOORD
 #undef YCOORD
@@ -2516,7 +2491,6 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     if ( pnt.x() || pnt.y() )
 	stream << pnt.x() << " " << pnt.y() << " TR\n";
 
-    //bool mask  = FALSE;
     int width  = img.width();
     int height = img.height();
 
@@ -2547,6 +2521,7 @@ void QPSPrinter::drawImage( QPainter *paint, const QPoint &pnt,
     if ( pnt.x() || pnt.y() )
 	stream << -pnt.x() << " " << -pnt.y() << " TR\n";
 }
+
 
 void QPSPrinter::matrixSetup( QPainter *paint )
 {
