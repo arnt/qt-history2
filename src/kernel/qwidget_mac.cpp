@@ -205,7 +205,11 @@ void qt_paint_children(QWidget * p,QRegion &r, uchar ops = PC_ForceErase)
 		if(!painted) {
 		    QRegion pa(r);
 		    pa.translate(point.x(), point.y());
+#if 0
 		    qt_dirty_wndw_rgn("paint_children",p, pa);
+#else
+		    p->update(pa.boundingRect()); //last try
+#endif
 		}
 	    }
 	}
