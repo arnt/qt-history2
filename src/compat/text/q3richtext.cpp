@@ -303,7 +303,7 @@ Q3TextCursor *Q3TextFormatCommand::unexecute(Q3TextCursor *c)
 
     int idx = startIndex;
     int fIndex = 0;
-    for (;;) {
+    while ( fIndex < int(oldFormats.size()) ) {
         if (oldFormats.at(fIndex).c == '\n') {
             if (idx > 0) {
                 if (idx < sp->length() && fIndex > 0)
