@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#39 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#39 $";
 #endif
 
 
@@ -774,7 +774,7 @@ QString QString::leftJustify( uint width, char fill ) const
 	tmp[len+padlen] = '\0';
     }
     else
-	tmp = copy();
+	tmp = this->left( width );
     return tmp;
 }
 
@@ -805,7 +805,7 @@ QString QString::rightJustify( uint width, char fill ) const
 	tmp[len+padlen] = '\0';
     }
     else
-	tmp = copy();
+	tmp = this->right( width );
     return tmp;
 }
 
