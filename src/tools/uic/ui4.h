@@ -3349,8 +3349,6 @@ inline QDomElement DomLayoutFunction::write(QDomDocument &doc, const QString &ta
 
 inline void DomTabStops::clear(bool clear_all)
 {
-    for (int i = 0; i < m_tabStop.size(); ++i)
-        delete m_tabStop[i];
     m_tabStop.clear();
 
     if (clear_all) {
@@ -3365,8 +3363,6 @@ inline DomTabStops::DomTabStops()
 
 inline DomTabStops::~DomTabStops()
 {
-    for (int i = 0; i < m_tabStop.size(); ++i)
-        delete m_tabStop[i];
     m_tabStop.clear();
 }
 
@@ -3901,8 +3897,6 @@ inline void DomItem::setElementItem(const QList<DomItem*>& a)
 
 inline void DomWidget::clear(bool clear_all)
 {
-    for (int i = 0; i < m_class.size(); ++i)
-        delete m_class[i];
     m_class.clear();
     for (int i = 0; i < m_property.size(); ++i)
         delete m_property[i];
@@ -3951,8 +3945,6 @@ inline DomWidget::DomWidget()
 
 inline DomWidget::~DomWidget()
 {
-    for (int i = 0; i < m_class.size(); ++i)
-        delete m_class[i];
     m_class.clear();
     for (int i = 0; i < m_property.size(); ++i)
         delete m_property[i];
@@ -5317,8 +5309,6 @@ inline void DomDateTime::setElementDay(int a)
 
 inline void DomStringList::clear(bool clear_all)
 {
-    for (int i = 0; i < m_string.size(); ++i)
-        delete m_string[i];
     m_string.clear();
 
     if (clear_all) {
@@ -5333,8 +5323,6 @@ inline DomStringList::DomStringList()
 
 inline DomStringList::~DomStringList()
 {
-    for (int i = 0; i < m_string.size(); ++i)
-        delete m_string[i];
     m_string.clear();
 }
 
