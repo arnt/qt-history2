@@ -921,9 +921,9 @@ void QWidgetPrivate::updateSystemBackground()
     QBrush brush = q->palette().brush(q->backgroundRole());
     if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground)) {
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
-    } else if (brush.pixmap()) {
-        QPixmap pix = *brush.pixmap();
-        if (data.wrect.isValid() && !pix.isNull() && !isBackgroundInherited()) {
+    } else if (!brush.texture().isNull()) {
+        QPixmap pix = brush.texture();
+        if (data.wrect.isValid() && !isBackgroundInherited()) {
             int xoff = data.wrect.x() % pix.width();
             int yoff = data.wrect.y() % pix.height();
             if (xoff || yoff) {
