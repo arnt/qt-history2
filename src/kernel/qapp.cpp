@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#53 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#52 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#53 $";
 #endif
 
 
@@ -368,8 +368,14 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   loop an returns from the call to exec(). The exec() function
   returns \e retcode.
 
-  \sa exec().
-*/
+  This may be used as a slot one can connect e.g. a QPushButton \c
+  pressed() signal to, or called directly:
+
+  \code
+    qApp->quit();		// if qApp is zero, you're SOL anyway
+  \endcode  
+
+  \sa exec(). */
 
 void QApplication::quit( int retcode )		// quit application
 {
