@@ -214,7 +214,7 @@ else
 fi
 
 QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus platinum pocketpc sgi windows windowsxp\""
-QMAKE_VARS="$QMAKE_VARS \"decorations += default windows kde kde2 beos hydro\""
+QMAKE_VARS="$QMAKE_VARS \"decorations += default windows kde2 beos hydro\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
 QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental
 QMAKE_VARS="$QMAKE_VARS \"styles -= windowsxp\"" # only on Windows
@@ -1641,7 +1641,7 @@ AIX:*:00????????00)
     ARCH="$UNAME_MACHINE"
     ;;
 esac
- 
+
 if [ -d "$relpath/src/core/arch/$ARCH" ]; then
     if [ "$OPT_VERBOSE" = "yes" ]; then
 	echo "    '$ARCH' is supported"
@@ -3417,27 +3417,27 @@ if [ "$PLATFORM_QWS" = "yes" ]; then
     for ADRIVER in $CFG_GFX_ON; do
         CFG_GFX_OFF=`echo "${CFG_GFX_OFF} " | sed "s,${ADRIVER} ,,g"`
     done
-    
+
     CFG_KBD_OFF="$CFG_KBD_AVAILABLE"
     for ADRIVER in $CFG_KBD_ON; do
         CFG_KBD_OFF=`echo "${CFG_KBD_OFF} " | sed "s,${ADRIVER} ,,g"`
     done
-    
+
     CFG_MOUSE_OFF="$CFG_MOUSE_AVAILABLE"
     for ADRIVER in $CFG_MOUSE_ON; do
         CFG_MOUSE_OFF=`echo "${CFG_MOUSE_OFF} " | sed "s,${ADRIVER} ,,g"`
     done
-    
+
     for DRIVER in $CFG_GFX_OFF; do
         NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_$NODRIVER"
     done
-    
+
     for DRIVER in $CFG_KBD_OFF; do
         NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_KBD_$NODRIVER"
     done
-    
+
     for DRIVER in $CFG_MOUSE_OFF; do
         NODRIVER=`echo $DRIVER | tr '[:lower:]' '[:upper:]'`
         QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_QWS_MOUSE_$NODRIVER"
@@ -3492,7 +3492,7 @@ if [ -n "$QCONFIG_FLAGS" ]; then
             # QT_option can be forcefully turned off by QT_NO_option
             cfgdNeg=`echo $cfgd | sed "s,QT_,QT_NO_,"`
         fi
-        
+
         if [ -z $cfgdNeg ]; then
 cat >>$outpath/src/core/global/qconfig.h.new << EOF
 #ifndef $cfgd
@@ -3544,7 +3544,7 @@ if [ "$CFG_STL" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
 fi
 cat >>$QTCONFIG.tmp <<EOF
-CONFIG += $QTCONFIG_CONFIG qt_no_framework 
+CONFIG += $QTCONFIG_CONFIG qt_no_framework
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
@@ -3985,17 +3985,17 @@ fi
 #-------------------------------------------------------------------------------
 # finally save the executed command to another script
 #-------------------------------------------------------------------------------
-if [ `basename $0` != "config.status" ]; then  
+if [ `basename $0` != "config.status" ]; then
     CONFIG_STATUS="$relpath/$relconf $OPT_CMDLINE"
     echo "$CONFIG_STATUS" | grep '\-confirm\-license' >/dev/null 2>&1 || CONFIG_STATUS="$CONFIG_STATUS -confirm-license"
-    
+
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
     echo "#!/bin/sh" >$outpath/config.status
     echo "if [ \"\$#\" -gt 0 ]; then" >>$outpath/config.status
-    echo "  $CONFIG_STATUS \"\$@\"" >>$outpath/config.status 
+    echo "  $CONFIG_STATUS \"\$@\"" >>$outpath/config.status
     echo "else" >>$outpath/config.status
-    echo "  $CONFIG_STATUS" >>$outpath/config.status 
-    echo "fi" >>$outpath/config.status 
+    echo "  $CONFIG_STATUS" >>$outpath/config.status
+    echo "fi" >>$outpath/config.status
     chmod +x $outpath/config.status
 fi
 
