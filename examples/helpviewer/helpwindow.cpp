@@ -33,7 +33,6 @@
 #include <qsimplerichtext.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
-#include "../../src/kernel/qrichtext_p.h"
 
 #include <ctype.h>
 

@@ -16,6 +16,27 @@ static void readtest()
 	printf("read empty value\n");
     else
 	printf("read: --%s--\n", val.latin1());
+
+    printf("Entry list.\n");
+    QSettings settings2;
+    QDir dir;
+    dir.mkdir("one");
+    dir.mkdir("two");
+    dir.mkdir("three");
+    settings2.insertSearchPath(QSettings::Unix, "one");
+    settings2.insertSearchPath(QSettings::Unix, "two");
+    settings2.insertSearchPath(QSettings::Unix, "three");
+    QStringList entries = settings2.entryList("/settings_test");
+    QStringList::Iterator it = entries.begin();
+    while (it != entries.end())
+	printf("entry: %s\n", (*it++).latin1());
+
+    printf("Win filename.\n");
+    val = settings.readEntry("/settings test/winfilename");
+    if (val.isNull() || val.isEmpty())
+	printf("read empty winfilename\n");
+    else
+	printf("read: --%s--\n", val.latin1());
 }
 
 static void writetest()
@@ -28,7 +49,9 @@ static void writetest()
     settings.insertSearchPath(QSettings::Unix, QDir::current().absPath());
 
     val = "this is multiline\ntext for testing the\nescaping.";
-    settings.writeEntry("/settings_test/multiline", val);
+    settings.writeEntry("/settings test/multiline", val);
+
+    settings.writeEntry("/settings test/winfilename", "c:\\depot\\mq3");
 }
 
 int main(int argc, char **argv)

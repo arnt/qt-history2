@@ -6,6 +6,8 @@ DEFINES += QT_INTERNAL_NETWORK
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
+win32:RC_FILE = assistant.rc
+
 target.path=$$QT_INSTALL_BINPATH
 isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
