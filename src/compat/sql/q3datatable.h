@@ -15,7 +15,7 @@
 #define Q3DATATABLE_H
 
 #include "QtCore/qstring.h"
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 #include "Qt3Support/q3table.h"
 #include "QtSql/qsql.h"
 #include "Qt3Support/q3sqlcursor.h"

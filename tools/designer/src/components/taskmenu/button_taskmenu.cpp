@@ -20,11 +20,11 @@
 
 #include <QtGui/QAction>
 #include <QtGui/QLineEdit>
-#include <QtGui/QVariant>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 
 #include <QtCore/QEvent>
+#include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
 ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)

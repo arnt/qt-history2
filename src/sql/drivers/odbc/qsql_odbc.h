@@ -75,7 +75,7 @@ protected:
     bool fetchPrior();
     bool fetch(int i);
     bool reset (const QString& query);
-    QCoreVariant data(int field);
+    QVariant data(int field);
     bool isNull(int field);
     int size();
     int numRowsAffected();

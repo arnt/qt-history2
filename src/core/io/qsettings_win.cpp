@@ -46,15 +46,15 @@ public:
     ~QWinSettingsPrivate();
 
     void remove(const QString &uKey);
-    void set(const QString &uKey, const QCoreVariant &value);
-    bool get(const QString &uKey, QCoreVariant *value) const;
+    void set(const QString &uKey, const QVariant &value);
+    bool get(const QString &uKey, QVariant *value) const;
     QStringList children(const QString &uKey, ChildSpec spec) const;
     void clear();
     void sync();
     void flush();
     bool isWritable() const;
     HKEY writeHandle() const;
-    bool readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const;
+    bool readKey(HKEY parentHandle, const QString &rSubKey, QVariant *value) const;
     QString fileName() const;
 
 private:
@@ -429,7 +429,7 @@ QWinSettingsPrivate::QWinSettingsPrivate(QString rPath)
         setStatus(QSettings::AccessError);
 }
 
-bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCoreVariant *value) const
+bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QVariant *value) const
 {
     QString rSubkeyName = keyName(rSubKey);
     QString rSubkeyPath = keyPath(rSubKey);
@@ -529,7 +529,7 @@ bool QWinSettingsPrivate::readKey(HKEY parentHandle, const QString &rSubKey, QCo
         default:
             qWarning("QSettings: unknown data %d type in windows registry", static_cast<int>(dataType));
             if (value != 0)
-                *value = QCoreVariant();
+                *value = QVariant();
             break;
     }
 
@@ -633,7 +633,7 @@ static bool stringContainsNullChar(const QString &s)
     return false;
 }
 
-void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
+void QWinSettingsPrivate::set(const QString &uKey, const QVariant &value)
 {
     QString rKey = escapedKey(uKey);
 
@@ -646,8 +646,8 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
 
     // Determine the type
     switch (value.type()) {
-        case QCoreVariant::List:
-        case QCoreVariant::StringList: {
+        case QVariant::List:
+        case QVariant::StringList: {
             // If none of the elements contains '\0', we can use REG_MULTI_SZ, the
             // native registry string list type. Otherwise we use REG_BINARY.
             type = REG_MULTI_SZ;
@@ -687,7 +687,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
             break;
         }
 
-        case QCoreVariant::Int: {
+        case QVariant::Int: {
             type = REG_DWORD;
             int i = value.toInt();
             regValueBuff = QByteArray((const char*)&i, sizeof(int));
@@ -738,7 +738,7 @@ void QWinSettingsPrivate::set(const QString &uKey, const QCoreVariant &value)
     RegCloseKey(handle);
 }
 
-bool QWinSettingsPrivate::get(const QString &uKey, QCoreVariant *value) const
+bool QWinSettingsPrivate::get(const QString &uKey, QVariant *value) const
 {
     QString rKey = escapedKey(uKey);
 

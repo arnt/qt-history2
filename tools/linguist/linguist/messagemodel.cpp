@@ -97,7 +97,7 @@ int MessageModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QCoreVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant MessageModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)
@@ -113,27 +113,27 @@ QCoreVariant MessageModel::headerData(int section, Qt::Orientation orientation, 
         return "Error";
     }
     else {
-        return QCoreVariant();
+        return QVariant();
     }
 }
 
-QCoreVariant MessageModel::data(const QModelIndex &index, int role) const
+QVariant MessageModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int column = index.column();
 
     if (cntxtItem == 0)
-        return QCoreVariant();
+        return QVariant();
 
     if (row >= cntxtItem->messageItemsInList() || !index.isValid())
-        return QCoreVariant();
+        return QVariant();
 
     MessageItem *msgItem = cntxtItem->messageItem(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QCoreVariant();
+            return QVariant();
         case 1: // source text
 			return msgItem->sourceText().simplified();
         case 2: // translation
@@ -155,7 +155,7 @@ QCoreVariant MessageModel::data(const QModelIndex &index, int role) const
             return qVariant(*TrWindow::pxObsolete);
     }
 
-    return QCoreVariant();
+    return QVariant();
 }
 
 void MessageModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

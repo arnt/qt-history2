@@ -1567,7 +1567,7 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
                 cursor->setIndex(cursor->index() + a.start);
             else if (a.type != QInputMethodEvent::TextFormat)
                 continue;
-            QTextCharFormat f = a.value.toTextFormat().toCharFormat();
+            QTextCharFormat f = qVariant_to<QTextFormat>(a.value).toCharFormat();
             if (f.isValid()) {
                 Q3TextCursor c2 = c;
                 c2.setIndex(c.index() + a.start);
@@ -2725,7 +2725,7 @@ QVariant Q3TextEdit::inputMethodQuery(Qt::InputMethodQuery query) const
                      c.y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 1, h);
     }
     case Qt::ImFont:
-            return c.paragraph()->at(c.index())->format()->font();
+            return qVariant(c.paragraph()->at(c.index())->format()->font());
     default:
     // ##### fix the others!
         return QWidget::inputMethodQuery(query);

@@ -109,9 +109,9 @@ int qvariant_nameToType(const char* name)
             name = "quint64";
         else if (strcmp(name, "QIconSet") == 0)
             name = "QIcon";
-        else if (strcmp(name, "QCoreVariantMap") == 0)
+        else if (strcmp(name, "QVariantMap") == 0)
             name = "QVariantMap";
-        else if (strcmp(name, "QCoreVariantList") == 0)
+        else if (strcmp(name, "QVariantList") == 0)
             name = "QVariantList";
 
         for (int i = 1; i < ntypes; i++) {

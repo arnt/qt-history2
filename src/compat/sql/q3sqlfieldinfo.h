@@ -32,16 +32,16 @@ class Q_COMPAT_EXPORT Q3SqlFieldInfo
     uint trim: 1;
     uint calc: 1;
     QString nm;
-    QCoreVariant::Type typ;
-    QCoreVariant defValue;
+    QVariant::Type typ;
+    QVariant defValue;
 
 public:
     Q3SqlFieldInfo(const QString& name = QString(),
-                   QCoreVariant::Type typ = QCoreVariant::Invalid,
+                   QVariant::Type typ = QVariant::Invalid,
                    int required = -1,
                    int len = -1,
                    int prec = -1,
-                   const QCoreVariant& defValue = QCoreVariant(),
+                   const QVariant& defValue = QVariant(),
                    int sqlType = 0,
                    bool generated = true,
                    bool trim = false,
@@ -95,13 +95,13 @@ public:
     }
     int isRequired() const
     { return req; }
-    QCoreVariant::Type type() const
+    QVariant::Type type() const
     { return typ; }
     int        length() const
     { return len; }
     int        precision() const
     { return prec; }
-    QCoreVariant defaultValue() const
+    QVariant defaultValue() const
     { return defValue; }
     QString name() const
     { return nm; }

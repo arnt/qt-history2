@@ -53,7 +53,7 @@ public:
     QStringList formats() const;
 
 protected:
-    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type) const;
+    QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
 private:
     QClipboardPrivate *d;
     QClipboard::Mode mode;

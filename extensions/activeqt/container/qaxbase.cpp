@@ -3251,7 +3251,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 //                    qVariantSet(qvar, *(void**)v[0], prop.typeName());
                 } else {
                     proptype = 0;
-                    qvar = QCoreVariant(t, v[0]);
+                    qvar = QVariant(t, v[0]);
                 }
             }
 

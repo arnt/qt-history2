@@ -14,7 +14,7 @@
 #ifndef DOMTOOL_H
 #define DOMTOOL_H
 
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qnamespace.h>
 
 class QDomElement;
@@ -209,14 +209,14 @@ Q_DECLARE_METATYPE(Variant)
 class DomTool
 {
 public:
-    static QCoreVariant readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue);
-    static QCoreVariant readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue, QString& comment);
+    static QVariant readProperty(const QDomElement& e, const QString& name, const QVariant& defValue);
+    static QVariant readProperty(const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment);
     static bool hasProperty(const QDomElement& e, const QString& name);
     static QStringList propertiesOfType(const QDomElement& e, const QString& type);
-    static QCoreVariant elementToVariant(const QDomElement& e, const QCoreVariant& defValue);
-    static QCoreVariant elementToVariant(const QDomElement& e, const QCoreVariant& defValue, QString &comment);
-    static QCoreVariant readAttribute(const QDomElement& e, const QString& name, const QCoreVariant& defValue);
-    static QCoreVariant readAttribute(const QDomElement& e, const QString& name, const QCoreVariant& defValue, QString& comment);
+    static QVariant elementToVariant(const QDomElement& e, const QVariant& defValue);
+    static QVariant elementToVariant(const QDomElement& e, const QVariant& defValue, QString &comment);
+    static QVariant readAttribute(const QDomElement& e, const QString& name, const QVariant& defValue);
+    static QVariant readAttribute(const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment);
     static bool hasAttribute(const QDomElement& e, const QString& name);
     static Color readColor(const QDomElement &e);
     static void fixDocument(QDomDocument&);
@@ -224,7 +224,7 @@ public:
     static void fixAttribute(QDomNode&, double);
 };
 
-inline Variant asVariant(const QCoreVariant &v)
+inline Variant asVariant(const QVariant &v)
 {
     Variant var;
     qVariantGet(v, var);

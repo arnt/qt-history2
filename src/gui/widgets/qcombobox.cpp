@@ -1063,7 +1063,7 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     QModelIndex item;
     if (model()->insertRows(index, 1, rootModelIndex())) {
         item = model()->index(index, 0, rootModelIndex());
-        QMap<int, QCoreVariant> values;
+        QMap<int, QVariant> values;
         values.insert(QAbstractItemModel::EditRole, text);
         values.insert(QAbstractItemModel::DecorationRole, qVariant(icon));
         values.insert(QAbstractItemModel::UserRole, userData);

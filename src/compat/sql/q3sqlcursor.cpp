@@ -245,7 +245,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 */
 
 /*!
-    \fn QCoreVariant Q3SqlCursor::value(const QString &name) const
+    \fn QVariant Q3SqlCursor::value(const QString &name) const
 
     \overload
 
@@ -253,7 +253,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 */
 
 /*!
-    \fn void Q3SqlCursor::setValue(const QString &name, const QCoreVariant &val)
+    \fn void Q3SqlCursor::setValue(const QString &name, const QVariant &val)
 
     \overload
 
@@ -768,7 +768,7 @@ int Q3SqlCursor::mode() const
     Sets field \a name to \a calculated. If the field \a name does not
     exist, nothing happens. The value of a calculated field is set by
     the calculateField() virtual function which you must reimplement
-    (or the field value will be an invalid QCoreVariant). Calculated
+    (or the field value will be an invalid QVariant). Calculated
     fields do not appear in generated SQL statements sent to the
     database.
 
@@ -807,7 +807,7 @@ bool Q3SqlCursor::isCalculated(const QString& name) const
     When a trimmed field of type string is read from the
     database any trailing (right-most) spaces are removed.
 
-    \sa isTrimmed() QCoreVariant
+    \sa isTrimmed() QVariant
 */
 
 void Q3SqlCursor::setTrimmed(const QString& name, bool trim)
@@ -1369,7 +1369,7 @@ int Q3SqlCursor::applyPrepared(const QString& q, bool invalidate)
     for (int j = 0; j < fieldCount; ++j) {
         const QSqlField f = d->editBuffer.field(j);
         if (d->editBuffer.isGenerated(j)) {
-            if (f.type() == QCoreVariant::ByteArray)
+            if (f.type() == QVariant::ByteArray)
                 sql->bindValue(cnt, f.value(), QSql::In | QSql::Binary);
             else
                 sql->bindValue(cnt, f.value());
@@ -1398,14 +1398,14 @@ bool Q3SqlCursor::exec(const QString & sql)
     to be calculated. If calculated fields are being used, derived
     classes must reimplement this function and return the appropriate
     value for field \a name. The default implementation returns an
-    invalid QCoreVariant.
+    invalid QVariant.
 
     \sa setCalculated()
 */
 
-QCoreVariant Q3SqlCursor::calculateField(const QString&)
+QVariant Q3SqlCursor::calculateField(const QString&)
 {
-    return QCoreVariant();
+    return QVariant();
 }
 
 /*! \internal
@@ -1438,8 +1438,8 @@ void Q3SqlCursor::sync()
                 haveCalculatedFields = true;
             }
             if (QSqlRecord::isGenerated(i)) {
-                QCoreVariant v = QSqlQuery::value(j);
-                if ((v.type() == QCoreVariant::String) &&
+                QVariant v = QSqlQuery::value(j);
+                if ((v.type() == QVariant::String) &&
                         d->infoBuffer[i].isTrim()) {
                     v = qTrim(v.toString());
                 }
@@ -1462,7 +1462,7 @@ void Q3SqlCursor::sync()
     Returns the value of field number \a i.
 */
 
-QCoreVariant Q3SqlCursor::value(int i) const
+QVariant Q3SqlCursor::value(int i) const
 {
     const_cast<Q3SqlCursor *>(this)->sync();
     return QSqlRecord::value(i);
@@ -1502,7 +1502,7 @@ bool Q3SqlCursor::isNull(const QString& name) const
 }
 
 /*! \internal */
-void Q3SqlCursor::setValue(int i, const QCoreVariant& val)
+void Q3SqlCursor::setValue(int i, const QVariant& val)
 {
     sync();
 #ifdef QT_DEBUG

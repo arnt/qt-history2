@@ -153,16 +153,16 @@ int QSqlQueryModel::columnCount(const QModelIndex &) const
     Returns the value for the specified \a item and \a role.
 
     If \a item is out of bounds or if an error occurred, an invalid
-    QCoreVariant is returned.
+    QVariant is returned.
 
     \sa lastError()
 */
-QCoreVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
+QVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
 {
     if (!item.isValid())
-        return QCoreVariant();
+        return QVariant();
 
-    QCoreVariant v;
+    QVariant v;
     if (role & ~(DisplayRole | EditRole))
         return v;
 
@@ -184,10 +184,10 @@ QCoreVariant QSqlQueryModel::data(const QModelIndex &item, int role) const
     Returns the header data for the given \a role in the \a section
     of the header with the specified \a orientation.
 */
-QCoreVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == DisplayRole) {
-        QCoreVariant val = d->headers.value(section);
+        QVariant val = d->headers.value(section);
         if (val.isValid())
             return val;
         if (d->rec.count() > section)
@@ -307,7 +307,7 @@ void QSqlQueryModel::clear()
     \sa data()
  */
 bool QSqlQueryModel::setHeaderData(int section, Qt::Orientation orientation,
-                                   const QCoreVariant &value, int role)
+                                   const QVariant &value, int role)
 {
     if ((role != EditRole && role != DisplayRole) || orientation != Qt::Horizontal || section < 0)
         return false;

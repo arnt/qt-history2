@@ -16,7 +16,7 @@
 
 #include <QtGui/qtableview.h>
 #include <QtCore/qlist.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 class Q_GUI_EXPORT QTableWidgetSelectionRange
 {
@@ -56,9 +56,9 @@ public:
         { setData(QAbstractItemModel::DisplayRole, text); }
 
     inline QIcon icon() const
-        { return data(QAbstractItemModel::DecorationRole).toIcon(); }
+        { return qVariant_to<QIcon>(data(QAbstractItemModel::DecorationRole)); }
     inline void setIcon(const QIcon &icon)
-        { setData(QAbstractItemModel::DecorationRole, icon); }
+        { setData(QAbstractItemModel::DecorationRole, qVariant(icon)); }
 
     inline QString statusTip() const
         { return data(QAbstractItemModel::StatusTipRole).toString(); }
@@ -76,9 +76,9 @@ public:
         { setData(QAbstractItemModel::WhatsThisRole, whatsThis); }
 
     inline QFont font() const
-        { return data(QAbstractItemModel::FontRole).toFont(); }
+        { return qVariant_to<QFont>(data(QAbstractItemModel::FontRole)); }
     inline void setFont(const QFont &font)
-        { setData(QAbstractItemModel::FontRole, font); }
+        { setData(QAbstractItemModel::FontRole, qVariant(font)); }
 
     inline int textAlignment() const
         { return data(QAbstractItemModel::TextAlignmentRole).toInt(); }
@@ -86,14 +86,14 @@ public:
         { setData(QAbstractItemModel::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor() const
-        { return data(QAbstractItemModel::BackgroundColorRole).toColor(); }
+        { return qVariant_to<QColor>(data(QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(const QColor &color)
-        { setData(QAbstractItemModel::BackgroundColorRole, color); }
+        { setData(QAbstractItemModel::BackgroundColorRole, qVariant(color)); }
 
     inline QColor textColor() const
-        { return data(QAbstractItemModel::TextColorRole).toColor(); }
+        { return qVariant_to<QColor>(data(QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(const QColor &color)
-        { setData(QAbstractItemModel::TextColorRole, color); }
+        { setData(QAbstractItemModel::TextColorRole, qVariant(color)); }
 
     inline Qt::CheckState checkState() const
         { return static_cast<Qt::CheckState>(data(QAbstractItemModel::CheckStateRole).toInt()); }

@@ -48,12 +48,12 @@ protected:
     bool fetchNext();
     bool fetchLast();
     bool fetchFirst();
-    QCoreVariant data(int field);
+    QVariant data(int field);
     bool isNull(int field);
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
-    QCoreVariant lastInsertId();
+    QVariant lastInsertId();
     QSqlRecord record() const;
 
 #if MYSQL_VERSION_ID >= 40108

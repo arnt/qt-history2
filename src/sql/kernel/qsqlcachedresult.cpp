@@ -13,7 +13,7 @@
 
 #include "private/qsqlcachedresult_p.h"
 
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qdatetime.h>
 #include <qvector.h>
 
@@ -192,11 +192,11 @@ bool QSqlCachedResult::fetchLast()
     }
 }
 
-QCoreVariant QSqlCachedResult::data(int i)
+QVariant QSqlCachedResult::data(int i)
 {
     int idx = d->forwardOnly ? i : at() * d->colCount + i;
     if (i >= d->colCount || i < 0 || at() < 0 || idx >= d->rowCacheEnd)
-        return QCoreVariant();
+        return QVariant();
 
     return d->cache.at(idx);
 }

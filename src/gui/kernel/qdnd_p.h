@@ -58,7 +58,7 @@ public:
     bool hasFormat(const QString &mimetype) const;
     QStringList formats() const;
 protected:
-    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type) const;
+    QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
 
 #if defined(Q_WS_WIN)
 public:

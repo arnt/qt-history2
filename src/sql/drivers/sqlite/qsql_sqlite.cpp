@@ -14,7 +14,7 @@
 #include "qsql_sqlite.h"
 
 #include <qcoreapplication.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
@@ -28,18 +28,18 @@
 
 #include <sqlite3.h>
 
-static QCoreVariant::Type qSqliteType(int tp)
+static QVariant::Type qSqliteType(int tp)
 {
     switch (tp) {
     case SQLITE_INTEGER:
-        return QCoreVariant::Int;
+        return QVariant::Int;
     case SQLITE_FLOAT:
-        return QCoreVariant::Double;
+        return QVariant::Double;
     case SQLITE_BLOB:
-        return QCoreVariant::ByteArray;
+        return QVariant::ByteArray;
     case SQLITE_TEXT:
     default:
-        return QCoreVariant::String;
+        return QVariant::String;
     }
 }
 
@@ -244,14 +244,14 @@ int QSQLiteResult::numRowsAffected()
     return sqlite3_changes(d->access);
 }
 
-QCoreVariant QSQLiteResult::lastInsertId() const
+QVariant QSQLiteResult::lastInsertId() const
 {
     if (isActive()) {
         qint64 id = sqlite3_last_insert_rowid(d->access);
         if (id)
             return id;
     }
-    return QCoreVariant();
+    return QVariant();
 }
 
 QSqlRecord QSQLiteResult::record() const

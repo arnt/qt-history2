@@ -47,9 +47,9 @@ static QString qtKey(CFStringRef cfkey)
     return swapSlashesAndDots(QCFString::toQString(cfkey));
 }
 
-static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value);
+static QCFType<CFPropertyListRef> macValue(const QVariant &value);
 
-static CFArrayRef macList(const QList<QCoreVariant> &list)
+static CFArrayRef macList(const QList<QVariant> &list)
 {
     int n = list.size();
     QVarLengthArray<QCFType<CFPropertyListRef> > cfvalues(n);
@@ -59,33 +59,33 @@ static CFArrayRef macList(const QList<QCoreVariant> &list)
                          CFIndex(n), &kCFTypeArrayCallBacks);
 }
 
-static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
+static QCFType<CFPropertyListRef> macValue(const QVariant &value)
 {
     CFPropertyListRef result;
 
     switch (value.type()) {
-    case QCoreVariant::ByteArray:
+    case QVariant::ByteArray:
         {
             QByteArray ba = value.toByteArray();
             result = CFDataCreate(kCFAllocatorDefault, reinterpret_cast<const UInt8 *>(ba.data()),
                                   CFIndex(ba.size()));
         }
         break;
-    case QCoreVariant::List:
-    case QCoreVariant::StringList:
-    case QCoreVariant::Polygon:
+    case QVariant::List:
+    case QVariant::StringList:
+    case QVariant::Polygon:
         result = macList(value.toList());
         break;
-    case QCoreVariant::Map:
+    case QVariant::Map:
         {
             /*
-                QMap<QString, QCoreVariant> is potentially a multimap,
+                QMap<QString, QVariant> is potentially a multimap,
                 whereas CFDictionary is a single-valued map. To allow
                 for multiple values with the same key, we store
                 each CFDictonary value as a CFArray.
             */
-            QMap<QString, QCoreVariant> map = value.toMap();
-            QMap<QString, QCoreVariant>::const_iterator i = map.constBegin();
+            QMap<QString, QVariant> map = value.toMap();
+            QMap<QString, QVariant>::const_iterator i = map.constBegin();
 
             int maxUniqueKeys = map.size();
             int numUniqueKeys = 0;
@@ -94,7 +94,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
 
             while (i != map.constEnd()) {
                 const QString &key = i.key();
-                QList<QCoreVariant> values;
+                QList<QVariant> values;
 
                 do {
                     values << i.value();
@@ -114,7 +114,7 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
                                         &kCFTypeDictionaryValueCallBacks);
         }
         break;
-    case QCoreVariant::DateTime:
+    case QVariant::DateTime:
         {
             /*
                 CFDate, unlike QDateTime, doesn't store timezone information.
@@ -129,30 +129,30 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
             }
         }
         break;
-    case QCoreVariant::Bool:
+    case QVariant::Bool:
         result = value.toBool() ? kCFBooleanTrue : kCFBooleanFalse;
         break;
-    case QCoreVariant::Int:
-    case QCoreVariant::UInt:
+    case QVariant::Int:
+    case QVariant::UInt:
         {
             int n = value.toInt();
             result = CFNumberCreate(kCFAllocatorDefault, kCFNumberIntType, &n);
         }
         break;
-    case QCoreVariant::Double:
+    case QVariant::Double:
         {
             double n = value.toDouble();
             result = CFNumberCreate(kCFAllocatorDefault, kCFNumberDoubleType, &n);
         }
         break;
-    case QCoreVariant::LongLong:
-    case QCoreVariant::ULongLong:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
         {
             qint64 n = value.toLongLong();
             result = CFNumberCreate(0, kCFNumberLongLongType, &n);
         }
         break;
-    case QCoreVariant::String:
+    case QVariant::String:
     string_case:
     default:
         result = QCFString::toCFStringRef(QSettingsPrivate::variantToString(value));
@@ -160,10 +160,10 @@ static QCFType<CFPropertyListRef> macValue(const QCoreVariant &value)
     return result;
 }
 
-static QCoreVariant qtValue(CFPropertyListRef cfvalue)
+static QVariant qtValue(CFPropertyListRef cfvalue)
 {
     if (!cfvalue)
-        return QCoreVariant();
+        return QVariant();
 
     CFTypeID typeId = CFGetTypeID(cfvalue);
 
@@ -189,7 +189,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
         }
     } else if (typeId == CFArrayGetTypeID()) {
         CFArrayRef cfarray = static_cast<CFArrayRef>(cfvalue);
-        QList<QCoreVariant> list;
+        QList<QVariant> list;
         CFIndex size = CFArrayGetCount(cfarray);
         for (CFIndex i = 0; i < size; ++i)
             list << qtValue(CFArrayGetValueAtIndex(cfarray, i));
@@ -208,7 +208,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
         QVarLengthArray<CFPropertyListRef> values(size);
         CFDictionaryGetKeysAndValues(cfdict, keys.data(), values.data());
 
-        QMultiMap<QString, QCoreVariant> map;
+        QMultiMap<QString, QVariant> map;
         for (int i = 0; i < size; ++i) {
             QString key = QCFString::toQString(static_cast<CFStringRef>(keys[i]));
 
@@ -227,7 +227,7 @@ static QCoreVariant qtValue(CFPropertyListRef cfvalue)
         dt.setTime_t((uint)kCFAbsoluteTimeIntervalSince1970);
         return dt.addSecs((int)CFDateGetAbsoluteTime(static_cast<CFDateRef>(cfvalue)));
     }
-    return QCoreVariant();
+    return QVariant();
 }
 
 class QMacSettingsPrivate : public QSettingsPrivate
@@ -238,8 +238,8 @@ public:
     ~QMacSettingsPrivate();
 
     void remove(const QString &key);
-    void set(const QString &key, const QCoreVariant &value);
-    bool get(const QString &key, QCoreVariant *value) const;
+    void set(const QString &key, const QVariant &value);
+    bool get(const QString &key, QVariant *value) const;
     QStringList children(const QString &prefix, ChildSpec spec) const;
     void clear();
     void sync();
@@ -332,13 +332,13 @@ void QMacSettingsPrivate::remove(const QString &key)
     }
 }
 
-void QMacSettingsPrivate::set(const QString &key, const QCoreVariant &value)
+void QMacSettingsPrivate::set(const QString &key, const QVariant &value)
 {
     CFPreferencesSetValue(macKey(key), macValue(value), domains[0].applicationOrSuiteId,
                           domains[0].userName, hostName);
 }
 
-bool QMacSettingsPrivate::get(const QString &key, QCoreVariant *value) const
+bool QMacSettingsPrivate::get(const QString &key, QVariant *value) const
 {
     QCFString k = macKey(key);
     for (int i = 0; i < numDomains; ++i) {

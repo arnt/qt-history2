@@ -121,7 +121,7 @@ void QItemDelegate::paint(QPainter *painter,
     // set font
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
     if (value.isValid())
-        opt.font = value.toFont();
+        opt.font = qVariant_to<QFont>(value);
 
     // set text alignment
     value = model->data(index, QAbstractItemModel::TextAlignmentRole);
@@ -130,8 +130,8 @@ void QItemDelegate::paint(QPainter *painter,
 
     // set text color
     value = model->data(index, QAbstractItemModel::TextColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        opt.palette.setColor(QPalette::Text, value.toColor());
+    if (value.isValid() && qVariant_to<QColor>(value).isValid())
+        opt.palette.setColor(QPalette::Text, qVariant_to<QColor>(value));
 
     // do layout
     value = model->data(index, QAbstractItemModel::DecorationRole);
@@ -150,8 +150,8 @@ void QItemDelegate::paint(QPainter *painter,
 
     // draw the background color
     value = model->data(index, QAbstractItemModel::BackgroundColorRole);
-    if (value.isValid() && value.toColor().isValid())
-        painter->fillRect(option.rect, value.toColor());
+    if (value.isValid() && qVariant_to<QColor>(value).isValid())
+        painter->fillRect(option.rect, qVariant_to<QColor>(value));
 
     // draw the item
     drawCheck(painter, opt, checkRect, checkState);
@@ -174,7 +174,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     Q_ASSERT(model);
 
     QVariant value = model->data(index, QAbstractItemModel::FontRole);
-    QFont fnt = value.isValid() ? value.toFont() : option.font;
+    QFont fnt = value.isValid() ? qVariant_to<QFont>(value) : option.font;
 
     value = model->data(index, QAbstractItemModel::DecorationRole);
     QPixmap pixmap = decoration(option, value);
@@ -497,7 +497,7 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
 {
     switch (variant.type()) {
     case QVariant::Icon:
-        return variant.toIcon().pixmap(option.decorationSize,
+        return qVariant_to<QIcon>(variant).pixmap(option.decorationSize,
                                        option.state & QStyle::State_Enabled
                                        ? QIcon::Normal : QIcon::Disabled,
                                        option.state & QStyle::State_Open
@@ -510,12 +510,12 @@ QPixmap QItemDelegate::decoration(const QStyleOptionViewItem &option, const QVar
         return variant.toBool() ? checked : unchecked; }
     case QVariant::Color: {
         static QPixmap pixmap(20, 20);
-        pixmap.fill(variant.toColor());
+        pixmap.fill(qVariant_to<QColor>(variant));
         return pixmap; }
     default:
         break;
     }
-    return variant.toPixmap();
+    return qVariant_to<QPixmap>(variant);
 }
 
 /*!

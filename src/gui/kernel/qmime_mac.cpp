@@ -786,7 +786,7 @@ QByteArray QMacMimeHFSUri::convertToMime(QList<QByteArray> data, const QString &
         FSpMakeFSRef(&hfs->fileSpec, &fsref);
         FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
 
-        QByteArray s = QCoreVariant(QUrl(QString::fromUtf8((const char *)buffer))).toByteArray();
+        QByteArray s = QVariant(QUrl(QString::fromUtf8((const char *)buffer))).toByteArray();
         const int l = s.size();
         //now encode them to be handled by quridrag
         ret.resize(ret.size()+(l+2));

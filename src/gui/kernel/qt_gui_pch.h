@@ -22,7 +22,6 @@
 #if defined __cplusplus
 #include <qapplication.h>
 #include <qbitmap.h>
-#include <qcorevariant.h>
 #include <qcursor.h>
 #include <qdesktopwidget.h>
 #include <qevent.h>

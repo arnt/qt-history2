@@ -305,7 +305,7 @@ QImage QClipboard::image(Mode mode) const
 void QClipboard::setImage(const QImage &image, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    data->setImageData(QVariant(image));
+    data->setImageData(qVariant(image));
     setMimeData(data, mode);
 }
 
@@ -346,7 +346,7 @@ QPixmap QClipboard::pixmap(Mode mode) const
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    data->setImageData(QVariant(pixmap));
+    data->setImageData(qVariant(pixmap));
     setMimeData(data, mode);
 }
 
@@ -457,7 +457,7 @@ QByteArray QMimeDataWrapper::encodedData(const char *format) const
     return data->data(QLatin1String(format));
 }
 
-QCoreVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QCoreVariant::Type) const
+QVariant QMimeSourceWrapper::retrieveData(const QString &mimetype, QVariant::Type) const
 {
     return source->encodedData(mimetype.toLatin1());
 }

@@ -461,14 +461,14 @@ ColorProperty::ColorProperty(const QColor &value, const QString &name)
 
 QVariant ColorProperty::value() const
 {
-    return QColor(propertyAt(0)->value().toInt(),
+    return qVariant(QColor(propertyAt(0)->value().toInt(),
                   propertyAt(1)->value().toInt(),
-                  propertyAt(2)->value().toInt());
+                  propertyAt(2)->value().toInt()));
 }
 
 void ColorProperty::setValue(const QVariant &value)
 {
-    QColor c = value.toColor();
+    QColor c = qVariant_to<QColor>(value);
     propertyAt(0)->setValue(c.red());
     propertyAt(1)->setValue(c.green());
     propertyAt(2)->setValue(c.blue());
@@ -478,8 +478,8 @@ QVariant ColorProperty::decoration() const
 {
     QPixmap pix;
     pix.resize(16, 16);
-    pix.fill(value().toColor());
-    return pix;
+    pix.fill(qVariant_to<QColor>(value()));
+    return qVariant(pix);
 }
 
 // -------------------------------------------------------------------------
@@ -534,12 +534,12 @@ QVariant FontProperty::value() const
     fnt.setUnderline(propertyAt(4)->value().toBool());
     fnt.setStrikeOut(propertyAt(5)->value().toBool());
 
-    return fnt;
+    return qVariant(fnt);
 }
 
 void FontProperty::setValue(const QVariant &value)
 {
-    QFont fnt = value.toFont();
+    QFont fnt = qVariant_to<QFont>(value);
 
     int family = fontDatabase()->families().indexOf(fnt.family());
 
@@ -557,12 +557,12 @@ QVariant FontProperty::decoration() const
     pix.resize(16, 16);
     pix.fill(Qt::white);
     QPainter p(&pix);
-    QFont fnt = value().toFont();
+    QFont fnt = qVariant_to<QFont>(value());
     fnt.setPointSize(10); // ### always 10pt!!
     p.drawRect(0, 0, 16, 16);
     p.setFont(fnt);
     p.drawText(0, 16 - 2, QLatin1String("Aa")); // ### 2px for the border!!
-    return pix;
+    return qVariant(pix);
 }
 
 QString FontProperty::toString() const
@@ -731,12 +731,12 @@ QVariant SizePolicyProperty::value() const
     sizePolicy.setVerticalData(int_to_size_type(propertyAt(1)->value().toInt()));
     sizePolicy.setHorizontalStretch(propertyAt(2)->value().toInt());
     sizePolicy.setVerticalStretch(propertyAt(3)->value().toInt());
-    return sizePolicy;
+    return qVariant(sizePolicy);
 }
 
 void SizePolicyProperty::setValue(const QVariant &value)
 {
-    QSizePolicy sizePolicy = value.toSizePolicy();
+    QSizePolicy sizePolicy = qVariant_to<QSizePolicy>(value);
 
     propertyAt(0)->setValue(size_type_to_int(sizePolicy.horizontalData()));
     propertyAt(1)->setValue(size_type_to_int(sizePolicy.verticalData()));
@@ -891,7 +891,7 @@ CursorProperty::CursorProperty(const QCursor &value, const QString &name)
 
 void CursorProperty::setValue(const QVariant &value)
 {
-    m_value = value.toCursor();
+    m_value = qVariant_to<QCursor>(value);
 }
 
 QString CursorProperty::toString() const
@@ -901,7 +901,7 @@ QString CursorProperty::toString() const
 
 QVariant CursorProperty::decoration() const
 {
-    return cursorPixmap(m_value.shape());
+    return qVariant(cursorPixmap(m_value.shape()));
 }
 
 QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
@@ -1015,7 +1015,7 @@ KeySequenceProperty::KeySequenceProperty(const QKeySequence &value, const QStrin
 
 void KeySequenceProperty::setValue(const QVariant &value)
 {
-    m_value = value.toKeySequence();
+    m_value = qVariant_to<QKeySequence>(value);
 }
 
 QString KeySequenceProperty::toString() const

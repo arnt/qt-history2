@@ -93,7 +93,7 @@ QTOBJS= \
 	quuid.obj \
 	qvector.obj \
 	qsettings.obj \
-	qcorevariant.obj \
+	qvariant.obj \
         qurl.obj \
 	qsettings_win.obj \
 	qrect.obj \
@@ -140,7 +140,7 @@ clean::
 	-del quuid.obj
 	-del qvector.obj
 	-del qsettings.obj
-	-del qcorevariant.obj
+	-del qvariant.obj
         -del qurl.obj
 	-del qsettings_win.obj
 	-del qrect.obj
@@ -196,8 +196,8 @@ qsettings_win.obj: ..\src\core\io\qsettings_win.cpp
 qsettings.obj: ..\src\core\io\qsettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
 
-qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+qvariant.obj: ..\src\core\kernel\qvariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qvariant.cpp
 
 qurl.obj: ..\src\core\io\qurl.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp

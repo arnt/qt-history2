@@ -147,7 +147,7 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 /*!
     Returns the data for the given \a index and \a role.
 */
-QCoreVariant QStandardItemModel::data(const QModelIndex &index, int role) const
+QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
@@ -158,13 +158,13 @@ QCoreVariant QStandardItemModel::data(const QModelIndex &index, int role) const
                 return item->value(role);
         }
     }
-    return QCoreVariant::Invalid;
+    return QVariant::Invalid;
 }
 
 /*!
     Sets the data for the given \a index and \a role to the \a value specified.
 */
-bool QStandardItemModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {

@@ -1716,7 +1716,7 @@ QModelIndex QtUndoListModel::index(int row, int column, const QModelIndex &paren
     return createIndex(row, column, 0);
 }
 
-QCoreVariant QtUndoListModel::data(const QModelIndex &index, int role) const
+QVariant QtUndoListModel::data(const QModelIndex &index, int role) const
 {
     switch (role) {
     case DisplayRole:
@@ -1725,9 +1725,9 @@ QCoreVariant QtUndoListModel::data(const QModelIndex &index, int role) const
         else if (index.row() == m_items.size())
             return QString();
         else
-            return QCoreVariant();
+            return QVariant();
     default:
-        return QCoreVariant();
+        return QVariant();
     }
 }
 

@@ -395,7 +395,7 @@ QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 
 void QAbstractSpinBox::stepBy(int steps)
 {
-    QCoreVariant v = d->value;
+    QVariant v = d->value;
     // to make sure it behaves reasonably when typing something and then stepping in non-tracking mode
     QString tmp = d->edit->displayText();
     if (d->pendingemit) {
@@ -452,7 +452,7 @@ void QAbstractSpinBox::setLineEdit(QLineEdit *e)
     d->edit->setAttribute(Qt::WA_InputMethodEnabled, false);
     d->edit->setFocusProxy(this);
 
-    if (d->type != QCoreVariant::Invalid) {
+    if (d->type != QVariant::Invalid) {
         connect(d->edit, SIGNAL(textChanged(QString)), this, SLOT(editorTextChanged(QString)));
         connect(d->edit, SIGNAL(cursorPositionChanged(int,int)), this, SLOT(editorCursorPositionChanged(int,int)));
     }
@@ -857,7 +857,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         }
         e->accept();
     }
-    if (d->sliderpressed && d->type != QCoreVariant::Invalid) {
+    if (d->sliderpressed && d->type != QVariant::Invalid) {
         d->setValue(d->valueForPosition(e->pos().x()), EmitIfChanged);
         e->accept();
     }
@@ -914,7 +914,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 */
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
-    : edit(0), type(QCoreVariant::Invalid), spinclicktimerid(-1), spinclicktimerinterval(100),
+    : edit(0), type(QVariant::Invalid), spinclicktimerid(-1), spinclicktimerinterval(100),
       buttonstate(None), sizehintdirty(true), dirty(true), pendingemit(false),
       tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
       sliderpressed(false), frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
@@ -977,7 +977,7 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
     if (tracking) {
         QString tmp = t;
         QValidator::State state;
-        const QCoreVariant v = d->mapTextToValue(&tmp, &state); // Already validated
+        const QVariant v = d->mapTextToValue(&tmp, &state); // Already validated
         if (v != value && state == QValidator::Acceptable) {
             if (tmp != t) {
                 const bool wasBlocked = edit->blockSignals(true);
@@ -1059,7 +1059,7 @@ void QAbstractSpinBoxPrivate::init()
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
     q->setLineEdit(new QLineEdit(q));
-    if (d->type != QCoreVariant::Invalid)
+    if (d->type != QVariant::Invalid)
         edit->setValidator(new QSpinBoxValidator(this, q));
 
     edit->setObjectName("qt_spinbox_lineedit");
@@ -1206,7 +1206,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     else if (buttonstate & Down)
         opt.activeSubControls = QStyle::SC_SpinBoxDown;
 
-    if (type != QCoreVariant::Invalid) {
+    if (type != QVariant::Invalid) {
         opt.percentage = (value - minimum) / (maximum - minimum);
         opt.stepEnabled = q->stepEnabled();
     } else {
@@ -1218,14 +1218,14 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     return opt;
 }
 
-QCoreVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
+QVariant QAbstractSpinBoxPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox opt = styleOption();
     QRect r = QStyle::visualRect(opt.direction, opt.rect, q->style()->subControlRect(QStyle::CC_SpinBox, &opt, QStyle::SC_SpinBoxSlider, q));
 
     double percentage = (double)pos / r.width();
 
-    QCoreVariant ret = minimum + (maximum - minimum) * percentage;
+    QVariant ret = minimum + (maximum - minimum) * percentage;
     return ret;
 }
 
@@ -1265,9 +1265,9 @@ QSize QAbstractSpinBoxPrivate::minimumSizeHint() const
     and what direction it was changed etc.
 */
 
-QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCoreVariant &old, int steps) const
+QVariant QAbstractSpinBoxPrivate::bound(const QVariant &val, const QVariant &old, int steps) const
 {
-    QCoreVariant v = val;
+    QVariant v = val;
     if (!wrapping || steps == 0 || old.isNull()) {
         if (v < minimum) {
             v = wrapping ? maximum : minimum;
@@ -1299,9 +1299,9 @@ QCoreVariant QAbstractSpinBoxPrivate::bound(const QCoreVariant &val, const QCore
     of \a ep it will also emit signals.
 */
 
-void QAbstractSpinBoxPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
+void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep)
 {
-    const QCoreVariant old = value;
+    const QVariant old = value;
     value = bound(val);
     pendingemit = false;
     update();
@@ -1347,7 +1347,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
 
 void QAbstractSpinBoxPrivate::update()
 {
-    if (d->type != QCoreVariant::Invalid) {
+    if (d->type != QVariant::Invalid) {
         if (!q->isVisible()) {
             dirty = true;
         } else {
@@ -1365,9 +1365,9 @@ void QAbstractSpinBoxPrivate::update()
     of the lineedit to a value of the right type.
 */
 
-QCoreVariant QAbstractSpinBoxPrivate::mapTextToValue(QString *, QValidator::State *) const
+QVariant QAbstractSpinBoxPrivate::mapTextToValue(QString *, QValidator::State *) const
 {
-    return QCoreVariant();
+    return QVariant();
 }
 
 /*!
@@ -1378,7 +1378,7 @@ QCoreVariant QAbstractSpinBoxPrivate::mapTextToValue(QString *, QValidator::Stat
     string it should be displayed as.
 */
 
-QString QAbstractSpinBoxPrivate::mapValueToText(const QCoreVariant &) const
+QString QAbstractSpinBoxPrivate::mapValueToText(const QVariant &) const
 {
     return QString();
 }
@@ -1389,7 +1389,7 @@ QString QAbstractSpinBoxPrivate::mapValueToText(const QCoreVariant &) const
     Convenience function to set min/max values.
 */
 
-void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QCoreVariant &val)
+void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QVariant &val)
 {
     if (b == Minimum) {
         minimum = val;
@@ -1411,15 +1411,15 @@ void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QCoreVariant &val)
     Convenience function to get a variant of the right type.
 */
 
-QCoreVariant QAbstractSpinBoxPrivate::getZeroVariant() const
+QVariant QAbstractSpinBoxPrivate::getZeroVariant() const
 {
-    QCoreVariant ret;
+    QVariant ret;
     switch (type) {
-    case QCoreVariant::Int: ret = QCoreVariant((int)0); break;
-    case QCoreVariant::Double: ret = QCoreVariant((double)0); break;
-    case QCoreVariant::Time: ret = QCoreVariant(QTime()); break;
-    case QCoreVariant::Date: ret = QCoreVariant(DATE_INITIAL); break;
-    case QCoreVariant::DateTime: ret = QCoreVariant(QDateTime(DATE_INITIAL, QTime())); break;
+    case QVariant::Int: ret = QVariant((int)0); break;
+    case QVariant::Double: ret = QVariant((double)0); break;
+    case QVariant::Time: ret = QVariant(QTime()); break;
+    case QVariant::Date: ret = QVariant(DATE_INITIAL); break;
+    case QVariant::DateTime: ret = QVariant(QDateTime(DATE_INITIAL, QTime())); break;
     default: break;
     }
     return ret;
@@ -1443,9 +1443,9 @@ void QAbstractSpinBoxPrivate::fixup(QString &) const
     method is reimeplemented in the various subclasses.
 */
 
-QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCoreVariant *val) const
+QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QVariant *val) const
 {
-    if (d->type == QCoreVariant::Invalid)
+    if (d->type == QVariant::Invalid)
         return QValidator::Acceptable;
 
     Q_ASSERT(input);
@@ -1476,10 +1476,10 @@ QValidator::State QAbstractSpinBoxPrivate::validate(QString *input, int *, QCore
 
 void QAbstractSpinBoxPrivate::refresh(EmitPolicy ep)
 {
-    if (d->type == QCoreVariant::Invalid)
+    if (d->type == QVariant::Invalid)
         return;
 
-    QCoreVariant v = getZeroVariant();
+    QVariant v = getZeroVariant();
     QString tmp = d->edit->displayText();
     int pos = d->edit->cursorPosition();
     if (validate(&tmp, &pos, &v) != QValidator::Acceptable) {
@@ -1532,17 +1532,17 @@ void QSpinBoxValidator::fixup(QString &input) const
     Compares two variants and returns true if \a arg1 < \a arg2
 */
 
-bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2)
+bool operator<(const QVariant &arg1, const QVariant &arg2)
 {
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int: return arg1.toInt() < arg2.toInt();
-    case QCoreVariant::Double: return arg1.toDouble() < arg2.toDouble();
-    case QCoreVariant::Date: return arg1.toDate() < arg2.toDate();
-    case QCoreVariant::Time: return arg1.toTime() < arg2.toTime();
-    case QCoreVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
+    case QVariant::Int: return arg1.toInt() < arg2.toInt();
+    case QVariant::Double: return arg1.toDouble() < arg2.toDouble();
+    case QVariant::Date: return arg1.toDate() < arg2.toDate();
+    case QVariant::Time: return arg1.toTime() < arg2.toTime();
+    case QVariant::DateTime: return arg1.toDateTime() < arg2.toDateTime();
     default: break;
     }
     return false;
@@ -1553,17 +1553,17 @@ bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Compares two variants and returns true if \a arg1 > \a arg2
 */
 
-bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2)
+bool operator>(const QVariant &arg1, const QVariant &arg2)
 {
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int: return arg1.toInt() > arg2.toInt();
-    case QCoreVariant::Double: return arg1.toDouble() > arg2.toDouble();
-    case QCoreVariant::Time: return arg1.toTime() > arg2.toTime();
-    case QCoreVariant::Date: return arg1.toDate() > arg2.toDate();
-    case QCoreVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
+    case QVariant::Int: return arg1.toInt() > arg2.toInt();
+    case QVariant::Double: return arg1.toDouble() > arg2.toDouble();
+    case QVariant::Time: return arg1.toTime() > arg2.toTime();
+    case QVariant::Date: return arg1.toDate() > arg2.toDate();
+    case QVariant::DateTime: return arg1.toDateTime() > arg2.toDateTime();
     default: break;
     }
     return false;
@@ -1574,17 +1574,17 @@ bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Compares two variants and returns true if \a arg1 >= \a arg2
 */
 
-bool operator<=(const QCoreVariant &arg1, const QCoreVariant &arg2)
+bool operator<=(const QVariant &arg1, const QVariant &arg2)
 {
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int:
-    case QCoreVariant::Double:
-    case QCoreVariant::Date:
-    case QCoreVariant::Time:
-    case QCoreVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
+    case QVariant::Int:
+    case QVariant::Double:
+    case QVariant::Date:
+    case QVariant::Time:
+    case QVariant::DateTime: return (arg1 < arg2 || arg1 == arg2);
     default: break;
     }
     return false;
@@ -1595,17 +1595,17 @@ bool operator<=(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Compares two variants and returns true if \a arg1 >= \a arg2
 */
 
-bool operator>=(const QCoreVariant &arg1, const QCoreVariant &arg2)
+bool operator>=(const QVariant &arg1, const QVariant &arg2)
 {
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int:
-    case QCoreVariant::Double:
-    case QCoreVariant::Time:
-    case QCoreVariant::Date:
-    case QCoreVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);
+    case QVariant::Int:
+    case QVariant::Double:
+    case QVariant::Time:
+    case QVariant::Date:
+    case QVariant::DateTime: return (arg1 > arg2 || arg1 == arg2);
     default: break;
     }
     return false;
@@ -1616,20 +1616,20 @@ bool operator>=(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Adds two variants together and returns the result.
 */
 
-QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
+QVariant operator+(const QVariant &arg1, const QVariant &arg2)
 {
-    QCoreVariant ret;
+    QVariant ret;
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() + arg2.toInt()); break;
-    case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() + arg2.toDouble()); break;
-    case QCoreVariant::DateTime: {
+    case QVariant::Int: ret = QVariant(arg1.toInt() + arg2.toInt()); break;
+    case QVariant::Double: ret = QVariant(arg1.toDouble() + arg2.toDouble()); break;
+    case QVariant::DateTime: {
         QDateTime a2 = arg2.toDateTime();
         QDateTime a1 = arg1.toDateTime().addDays(DATETIME_MIN.daysTo(a2));
         a1.setTime(a1.time().addMSecs(QTime().msecsTo(a2.time())));
-        ret = QCoreVariant(a1);
+        ret = QVariant(a1);
     }
     default: break;
     }
@@ -1642,16 +1642,16 @@ QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Subtracts two variants and returns the result.
 */
 
-QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
+QVariant operator-(const QVariant &arg1, const QVariant &arg2)
 {
-    QCoreVariant ret;
+    QVariant ret;
     if (arg1.type() != arg2.type())
         qWarning("%s %d: Different types. This should never happen (%s vs %s)", __FILE__, __LINE__,
                  arg1.typeName(), arg2.typeName());
     switch (arg1.type()) {
-    case QCoreVariant::Int: ret = QCoreVariant(arg1.toInt() - arg2.toInt()); break;
-    case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() - arg2.toDouble()); break;
-    case QCoreVariant::DateTime: {
+    case QVariant::Int: ret = QVariant(arg1.toInt() - arg2.toInt()); break;
+    case QVariant::Double: ret = QVariant(arg1.toDouble() - arg2.toDouble()); break;
+    case QVariant::DateTime: {
         QDateTime a1 = arg1.toDateTime();
         QDateTime a2 = arg2.toDateTime();
         int days = a2.daysTo(a1);
@@ -1663,7 +1663,7 @@ QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
             QDateTime dt = a2.addDays(days).addSecs(secs);
             if (msecs > 0)
                 dt.setTime(dt.time().addMSecs(msecs));
-            ret = QCoreVariant(dt);
+            ret = QVariant(dt);
         }
     }
     default: break;
@@ -1676,14 +1676,14 @@ QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2)
     Multiplies \a arg1 by \a multiplier and returns the result.
 */
 
-QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should probably do each field more separately
+QVariant operator*(const QVariant &arg1, double multiplier) // should probably do each field more separately
 {
-    QCoreVariant ret;
+    QVariant ret;
 
     switch (arg1.type()) {
-    case QCoreVariant::Int: ret = QCoreVariant((int)(arg1.toInt() * multiplier)); break;
-    case QCoreVariant::Double: ret = QCoreVariant(arg1.toDouble() * multiplier); break;
-    case QCoreVariant::DateTime: {
+    case QVariant::Int: ret = QVariant((int)(arg1.toInt() * multiplier)); break;
+    case QVariant::Double: ret = QVariant(arg1.toDouble() * multiplier); break;
+    case QVariant::DateTime: {
         double days = DATE_MIN.daysTo(arg1.toDateTime().date()) * multiplier;
         int daysInt = (int)days;
         days -= daysInt;
@@ -1699,7 +1699,7 @@ QCoreVariant operator*(const QCoreVariant &arg1, double multiplier) // should pr
 
 
 
-double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2)
+double operator/(const QVariant &arg1, const QVariant &arg2)
 {
     double a1 = 0;
     double a2 = 0;

@@ -2867,7 +2867,7 @@ HRESULT WINAPI QAxServerBase::Save(IPropertyBag *bag, BOOL clearDirty, BOOL /*sa
             continue;
 
 	BSTR bstr = QStringToBSTR(property.name());
-	QCoreVariant qvar = qt.object->property(property.name());
+	QVariant qvar = qt.object->property(property.name());
 	if (!qvar.isValid())
 	    error = true;
 	VARIANT var;

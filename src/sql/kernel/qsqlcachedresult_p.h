@@ -27,7 +27,7 @@
 
 #include <qsqlresult.h>
 
-class QCoreVariant;
+class QVariant;
 template <typename T> class QVector;
 
 class QSqlCachedResultPrivate;
@@ -37,7 +37,7 @@ class Q_SQL_EXPORT QSqlCachedResult: public QSqlResult
 public:
     virtual ~QSqlCachedResult();
 
-    typedef QVector<QCoreVariant> ValueCache;
+    typedef QVector<QVariant> ValueCache;
 
 protected:
     QSqlCachedResult(const QSqlDriver * db);
@@ -47,7 +47,7 @@ protected:
 
     virtual bool gotoNext(ValueCache &values, int index) = 0;
 
-    QCoreVariant data(int i);
+    QVariant data(int i);
     bool isNull(int i);
     bool fetch(int i);
     bool fetchNext();

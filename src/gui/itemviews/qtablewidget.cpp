@@ -56,11 +56,11 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
 
-    QCoreVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-    QCoreVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QCoreVariant &value, int role);
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role);
 
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
@@ -329,15 +329,15 @@ int QTableModel::columnCount(const QModelIndex &) const
     return horizontal.count();
 }
 
-QCoreVariant QTableModel::data(const QModelIndex &index, int role) const
+QVariant QTableModel::data(const QModelIndex &index, int role) const
 {
     QTableWidgetItem *itm = item(index);
     if (itm)
         return itm->data(role);
-    return QCoreVariant();
+    return QVariant();
 }
 
-bool QTableModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool QTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     QTableWidgetItem *itm = item(index);
 
@@ -399,11 +399,11 @@ QList<QTableWidgetItem*> QTableModel::find(const QRegExp &rx) const
     return result;
 }
 
-QCoreVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     QTableWidgetItem *itm = 0;
     if (section < 0)
-        return QCoreVariant();
+        return QVariant();
     if (orientation == Qt::Horizontal && section < horizontal.count())
         itm = horizontal.at(section);
     else if (section < vertical.count())
@@ -411,14 +411,14 @@ QCoreVariant QTableModel::headerData(int section, Qt::Orientation orientation, i
     if (itm)
         return itm->data(role);
     if (role == DisplayRole)
-        return QCoreVariant(section);
+        return QVariant(section);
     if (role == TextAlignmentRole)
         return Qt::AlignVCenter;
-    return QCoreVariant();
+    return QVariant();
 }
 
 bool QTableModel::setHeaderData(int section, Qt::Orientation orientation,
-                                const QCoreVariant &value, int role)
+                                const QVariant &value, int role)
 {
     QTableWidgetItem *itm = 0;
     if (orientation == Qt::Horizontal)

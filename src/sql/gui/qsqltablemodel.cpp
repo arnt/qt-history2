@@ -29,7 +29,7 @@
 /*! \internal
     Populates our record with values.
 */
-QSqlRecord QSqlTableModelPrivate::record(const QVector<QCoreVariant> &values) const
+QSqlRecord QSqlTableModelPrivate::record(const QVector<QVariant> &values) const
 {
     QSqlRecord r = rec;
     for (int i = 0; i < r.count() && i < values.count(); ++i)
@@ -115,7 +115,7 @@ bool QSqlTableModelPrivate::exec(const QString &stmt, bool prepStatement,
         }
         int i;
         for (i = 0; i < rec.count(); ++i) {
-            if (rec.isGenerated(i) && rec.value(i).type() != QCoreVariant::Invalid)
+            if (rec.isGenerated(i) && rec.value(i).type() != QVariant::Invalid)
                 editQuery.addBindValue(rec.value(i));
         }
         for (i = 0; i < whereValues.count(); ++i) {
@@ -315,10 +315,10 @@ bool QSqlTableModel::select()
 /*!
     \reimp
 */
-QCoreVariant QSqlTableModel::data(const QModelIndex &index, int role) const
+QVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || role & ~(DisplayRole | EditRole))
-        return QCoreVariant();
+        return QVariant();
 
     QModelIndex item = indexInQuery(index);
 
@@ -326,23 +326,23 @@ QCoreVariant QSqlTableModel::data(const QModelIndex &index, int role) const
     case OnFieldChange:
     case OnRowChange:
         if (index.row() == d->insertIndex) {
-            QCoreVariant val;
+            QVariant val;
             if (item.column() < 0 || item.column() >= d->rec.count())
                 return val;
             val = d->editBuffer.value(index.column());
-            if (val.type() == QCoreVariant::Invalid)
-                val = QCoreVariant(d->rec.field(item.column()).type());
+            if (val.type() == QVariant::Invalid)
+                val = QVariant(d->rec.field(item.column()).type());
             return val;
         }
         if (d->editIndex == item.row()) {
-            QCoreVariant var = d->editBuffer.value(item.column());
+            QVariant var = d->editBuffer.value(item.column());
             if (var.isValid())
                 return var;
         }
         break;
     case OnManualSubmit: {
         const QSqlTableModelPrivate::ModifiedRow row = d->cache.value(index.row());
-        const QCoreVariant var = row.rec.value(item.column());
+        const QVariant var = row.rec.value(item.column());
         if (var.isValid() || row.op == QSqlTableModelPrivate::Insert)
             return var;
         break; }
@@ -353,7 +353,7 @@ QCoreVariant QSqlTableModel::data(const QModelIndex &index, int role) const
 /*!
     \reimp
 */
-QCoreVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Vertical) {
         switch (d->strategy) {
@@ -412,7 +412,7 @@ bool QSqlTableModel::isDirty(const QModelIndex &index) const
 
     \sa editStrategy(), data(), submit(), submitAll(), revertRow()
 */
-bool QSqlTableModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (role & ~EditRole)
         return QSqlQueryModel::setData(index, value, role);

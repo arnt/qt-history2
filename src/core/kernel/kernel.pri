@@ -9,7 +9,6 @@ HEADERS += \
 	kernel/qpointer.h \
 	kernel/qcoreapplication.h \
 	kernel/qcoreevent.h \
-	kernel/qcorevariant.h \
 	kernel/qmetaobject.h \
 	kernel/qmetatype.h \
         kernel/qmimedata.h \
@@ -20,11 +19,12 @@ HEADERS += \
 	kernel/qsocketnotifier.h \
 	kernel/qtimer.h \
 	kernel/qtranslator.h \
+        kernel/qvariant.h \
 	kernel/qinternal_p.h \
 	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \
-        kernel/qcorevariant_p.h \
-	kernel/qobjectcleanuphandler.h
+	kernel/qobjectcleanuphandler.h \
+        kernel/qvariant_p.h
 
 SOURCES += \
 	kernel/qabstracteventdispatcher.cpp \
@@ -34,7 +34,6 @@ SOURCES += \
 	kernel/qinternal.cpp \
 	kernel/qcoreapplication.cpp \
 	kernel/qcoreevent.cpp \
-	kernel/qcorevariant.cpp \
 	kernel/qmetaobject.cpp \
 	kernel/qmetatype.cpp \
         kernel/qmimedata.cpp \
@@ -44,7 +43,8 @@ SOURCES += \
 	kernel/qsignalmapper.cpp \
 	kernel/qsocketnotifier.cpp \
 	kernel/qtimer.cpp \
-	kernel/qtranslator.cpp
+	kernel/qtranslator.cpp \
+	kernel/qvariant.cpp
 
 win32 {
 	SOURCES += \

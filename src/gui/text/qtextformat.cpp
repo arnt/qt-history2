@@ -173,7 +173,7 @@ static uint variantHash(const QVariant &variant)
     case QVariant::Int: return variant.toInt();
     case QVariant::Double: return static_cast<int>(variant.toDouble());
     case QVariant::String: return qHash(variant.toString());
-    case QVariant::Color: return qHash(variant.toColor().rgb());
+    case QVariant::Color: return qHash(qVariant_to<QColor>(variant).rgb());
     default: break;
     }
     return qHash(variant.typeName());
@@ -605,7 +605,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Color)
         return QColor();
-    return prop.toColor();
+    return qVariant_to<QColor>(prop);
 }
 
 /*!
@@ -615,7 +615,7 @@ QColor QTextFormat::colorProperty(int propertyId) const
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
-    return d->properties().value(propertyId).toTextLength();
+    return qVariant_to<QTextLength>(d->properties().value(propertyId));
 }
 
 /*!
@@ -633,11 +633,11 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
     if (prop.type() != QVariant::List)
         return vector;
 
-    QList<QCoreVariant> propertyList = prop.toList();
+    QList<QVariant> propertyList = prop.toList();
     for (int i=0; i<propertyList.size(); ++i) {
         QVariant var = propertyList.at(i);
         if (var.type() == QVariant::TextLength)
-            vector.append(var.toTextLength());
+            vector.append(qVariant_to<QTextLength>(var));
     }
 
     return vector;
@@ -714,7 +714,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 */
 void QTextFormat::setProperty(int propertyId, const QColor &value)
 {
-    d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, qVariant(value));
 }
 
 
@@ -725,7 +725,7 @@ void QTextFormat::setProperty(int propertyId, const QColor &value)
 */
 void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 {
-    d->insertProperty(propertyId, value);
+    d->insertProperty(propertyId, qVariant(value));
 }
 
 /*!
@@ -737,7 +737,7 @@ void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
     QVariantList list;
     for (int i=0; i<value.size(); ++i)
-        list << QVariant(value.at(i));
+        list << qVariant(value.at(i));
     d->insertProperty(propertyId, list);
 }
 

@@ -217,7 +217,7 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QCoreVariant QDropData::retrieveData(const QString &mime, QCoreVariant::Type type) const
+QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
 {
     Size flavorsize=0;
     QVariant ret;

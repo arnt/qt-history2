@@ -14,7 +14,7 @@
 #include "qsql_oci.h"
 
 #include <qcoreapplication.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qdatetime.h>
 #include <qmetatype.h>
 #include <qregexp.h>
@@ -87,9 +87,9 @@ public:
 
     void setCharset(OCIBind* hbnd);
     void setStatementAttributes();
-    int bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+    int bindValues(QVector<QVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
-    void outValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+    void outValues(QVector<QVariant> &values, IndicatorArray &indicators,
                    QList<QByteArray> &tmpStorage);
     bool isOutValue(int i) const;
 };
@@ -181,14 +181,14 @@ bool QOCIPrivate::isOutValue(int i) const
     return false;
 }
 
-int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicators,
                             QList<QByteArray> &tmpStorage)
 {
     int r = OCI_SUCCESS;
     for (int i = 0; i < values.count(); ++i) {
         if (isOutValue(i))
             values[i].detach();
-        const QCoreVariant &val = values.at(i);
+        const QVariant &val = values.at(i);
         void *data = const_cast<void *>(val.constData());
 
         //qDebug("binding values: %d, %s", i, values.at(i).toString().ascii());
@@ -196,9 +196,9 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
         sb2 *indPtr = &indicators[i];
         *indPtr = val.isNull() ? -1 : 0;
         //            qDebug("Binding: type: %s utf16: %d holder: %i value: %s",
-        // QCoreVariant::typeToName(val.type()), utf16bind, i, val.toString().ascii());
+        // QVariant::typeToName(val.type()), utf16bind, i, val.toString().ascii());
         switch (val.type()) {
-            case QCoreVariant::ByteArray:
+            case QVariant::ByteArray:
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
                                   (dvoid *) ((QByteArray*)data)->constData(),
@@ -206,9 +206,9 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                                   SQLT_BIN, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
             break;
-            case QCoreVariant::Time:
-            case QCoreVariant::Date:
-            case QCoreVariant::DateTime: {
+            case QVariant::Time:
+            case QVariant::Date:
+            case QVariant::DateTime: {
                 QByteArray ba = qMakeOraDate(values.at(i).toDateTime());
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
@@ -218,7 +218,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
                 tmpStorage.append(ba);
                 break; }
-            case QCoreVariant::Int:
+            case QVariant::Int:
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
                                   (dvoid *) data,
@@ -226,7 +226,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                                   SQLT_INT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
             break;
-            case QCoreVariant::Double:
+            case QVariant::Double:
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
                                   (dvoid *) data,
@@ -234,7 +234,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
                                   SQLT_FLT, (dvoid *) indPtr, (ub2 *) 0, (ub2*) 0,
                                   (ub4) 0, (ub4 *) 0, OCI_DEFAULT);
             break;
-            case QCoreVariant::String:
+            case QVariant::String:
             default: {
                 QString s = values.at(i).toString();
                 if (isOutValue(i)) {
@@ -266,7 +266,7 @@ int QOCIPrivate::bindValues(QVector<QCoreVariant> &values, IndicatorArray &indic
     return r;
 }
 
-void QOCIPrivate::outValues(QVector<QCoreVariant> &values, IndicatorArray &indicators,
+void QOCIPrivate::outValues(QVector<QVariant> &values, IndicatorArray &indicators,
                             QList<QByteArray> &tmpStorage)
 {
     for (int i = 0; i < values.count(); ++i) {
@@ -274,33 +274,33 @@ void QOCIPrivate::outValues(QVector<QCoreVariant> &values, IndicatorArray &indic
         if (!isOutValue(i))
             continue;
 
-        QCoreVariant::Type typ = values.at(i).type();
+        QVariant::Type typ = values.at(i).type();
 
         switch(typ) {
-            case QCoreVariant::Time:
+            case QVariant::Time:
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
-            case QCoreVariant::Date:
+            case QVariant::Date:
                 values[i] = qMakeDate(tmpStorage.takeFirst()).date();
                 break;
-            case QCoreVariant::DateTime:
+            case QVariant::DateTime:
                 values[i] = qMakeDate(tmpStorage.takeFirst()).time();
                 break;
-            case QCoreVariant::String:
+            case QVariant::String:
                 values[i] = QString::fromUtf16((ushort*)tmpStorage.takeFirst().constData());
                 break;
             default:
                 break; //nothing
         }
         if (indicators[i] == -1) // NULL
-            values[i] = QCoreVariant(typ);
+            values[i] = QVariant(typ);
     }
 }
 
 struct OraFieldInfo
 {
     QString           name;
-    QCoreVariant::Type type;
+    QVariant::Type type;
     ub1                   oraIsNull;
     ub4                   oraType;
     sb1                   oraScale;
@@ -353,42 +353,42 @@ QSqlError qMakeError(const QString& err, QSqlError::ErrorType type, const QOCIPr
     return QSqlError(QLatin1String("QOCI: ") + err, qOraWarn(p), type);
 }
 
-QCoreVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, int ociscale)
+QVariant::Type qDecodeOCIType(const QString& ocitype, int ocilen, int ociprec, int ociscale)
 {
-    QCoreVariant::Type type = QCoreVariant::Invalid;
+    QVariant::Type type = QVariant::Invalid;
     if (ocitype == QLatin1String("VARCHAR2") || ocitype == QLatin1String("VARCHAR")
          || ocitype.startsWith(QLatin1String("INTERVAL"))
          || ocitype == QLatin1String("CHAR") || ocitype == QLatin1String("NVARCHAR2")
          || ocitype == QLatin1String("NCHAR"))
-        type = QCoreVariant::String;
+        type = QVariant::String;
     else if (ocitype == QLatin1String("NUMBER"))
-        type = QCoreVariant::Int;
+        type = QVariant::Int;
     else if (ocitype == QLatin1String("FLOAT"))
-        type = QCoreVariant::Double;
+        type = QVariant::Double;
 //    else if (ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB")
-//        type = QCoreVariant::CString;
+//        type = QVariant::CString;
     else if (ocitype == QLatin1String("RAW") || ocitype == QLatin1String("LONG RAW")
              || ocitype == QLatin1String("ROWID") || ocitype == QLatin1String("BLOB")
              || ocitype == QLatin1String("CFILE") || ocitype == QLatin1String("BFILE"))
-        type = QCoreVariant::ByteArray;
+        type = QVariant::ByteArray;
     else if (ocitype == QLatin1String("DATE") ||  ocitype.startsWith(QLatin1String("TIME")))
-        type = QCoreVariant::DateTime;
+        type = QVariant::DateTime;
     else if (ocitype == QLatin1String("UNDEFINED"))
-        type = QCoreVariant::Invalid;
-    if (type == QCoreVariant::Int) {
+        type = QVariant::Invalid;
+    if (type == QVariant::Int) {
         if (ocilen == 22 && ociprec == 0 && ociscale == 0)
-            type = QCoreVariant::Double;
+            type = QVariant::Double;
         if (ociscale > 0)
-            type = QCoreVariant::Double;
+            type = QVariant::Double;
     }
-    if (type == QCoreVariant::Invalid)
+    if (type == QVariant::Invalid)
         qWarning("qDecodeOCIType: unknown type: %s", ocitype.toLocal8Bit().constData());
     return type;
 }
 
-QCoreVariant::Type qDecodeOCIType(int ocitype)
+QVariant::Type qDecodeOCIType(int ocitype)
 {
-    QCoreVariant::Type type = QCoreVariant::Invalid;
+    QVariant::Type type = QVariant::Invalid;
     switch (ocitype) {
     case SQLT_STR:
     case SQLT_VST:
@@ -404,20 +404,20 @@ QCoreVariant::Type qDecodeOCIType(int ocitype)
 #ifdef SQLT_INTERVAL_DS
     case SQLT_INTERVAL_DS:
 #endif
-        type = QCoreVariant::String;
+        type = QVariant::String;
         break;
     case SQLT_INT:
-        type = QCoreVariant::Int;
+        type = QVariant::Int;
         break;
     case SQLT_FLT:
     case SQLT_NUM:
     case SQLT_VNU:
     case SQLT_UIN:
-        type = QCoreVariant::Double;
+        type = QVariant::Double;
         break;
     case SQLT_CLOB:
 //    case SQLT_LNG:
-//        type = QCoreVariant::CString;
+//        type = QVariant::CString;
 //        break;
     case SQLT_VBI:
     case SQLT_BIN:
@@ -429,7 +429,7 @@ QCoreVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_NTY:
     case SQLT_REF:
     case SQLT_RID:
-        type = QCoreVariant::ByteArray;
+        type = QVariant::ByteArray;
         break;
     case SQLT_DAT:
     case SQLT_ODT:
@@ -438,10 +438,10 @@ QCoreVariant::Type qDecodeOCIType(int ocitype)
     case SQLT_TIMESTAMP_TZ:
     case SQLT_TIMESTAMP_LTZ:
 #endif
-        type = QCoreVariant::DateTime;
+        type = QVariant::DateTime;
         break;
     default:
-        type = QCoreVariant::Invalid;
+        type = QVariant::Invalid;
         qWarning("qDecodeOCIType: unknown OCI datatype: %d", ocitype);
         break;
     }
@@ -460,7 +460,7 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
     sb2                colPrecision(0);
     ub1                colIsNull(0);
     int                r(0);
-    QCoreVariant::Type type(QCoreVariant::Invalid);
+    QVariant::Type type(QVariant::Invalid);
 
     r = OCIAttrGet((dvoid*)param,
                     OCI_DTYPE_PARAM,
@@ -538,13 +538,13 @@ OraFieldInfo qMakeOraField(const QOCIPrivate* p, OCIParam* param)
         qOraWarning("qMakeOraField:", p);
 
     type = qDecodeOCIType(colType);
-    if (type == QCoreVariant::Double && colPrecision > 22) {
-        type = QCoreVariant::String;
-    } else if (type == QCoreVariant::Int) {
+    if (type == QVariant::Double && colPrecision > 22) {
+        type = QVariant::String;
+    } else if (type == QVariant::Int) {
         if (colLength == 22 && colPrecision == 0 && colScale == 0)
-            type = QCoreVariant::Double;
+            type = QVariant::Double;
         if (colScale > 0)
-            type = QCoreVariant::Double;
+            type = QVariant::Double;
     }
     if (colType == SQLT_BLOB)
         colLength = 0;
@@ -610,19 +610,19 @@ public:
     QOCIResultPrivate(int size, QOCIPrivate* dp);
     ~QOCIResultPrivate();
     void setCharset(OCIDefine* dfn);
-    int readPiecewise(QVector<QCoreVariant> &values, int index = 0);
-    int readLOBs(QVector<QCoreVariant> &values, int index = 0);
+    int readPiecewise(QVector<QVariant> &values, int index = 0);
+    int readLOBs(QVector<QVariant> &values, int index = 0);
     void getOraFields(QSqlRecord &rinf);
     char* at(int i);
     int size();
     bool isNull(int i);
-    QCoreVariant::Type type(int i);
+    QVariant::Type type(int i);
     int fieldFromDefine(OCIDefine* d);
     OCILobLocator* lobLocator(int i);
     int length(int i);
-    QCoreVariant value(int i);
+    QVariant value(int i);
 
-    QVector<QCoreVariant> fs;
+    QVector<QVariant> fs;
 
 private:
     char* create(int position, int size);
@@ -631,12 +631,12 @@ private:
     class OraFieldInf
     {
     public:
-        OraFieldInf(): data(0), len(0), ind(0), typ(QCoreVariant::Invalid), def(0), lob(0) {}
+        OraFieldInf(): data(0), len(0), ind(0), typ(QVariant::Invalid), def(0), lob(0) {}
         ~OraFieldInf();
         char *data;
         int len;
         sb2 ind;
-        QCoreVariant::Type typ;
+        QVariant::Type typ;
         OCIDefine *def;
         OCILobLocator **lob;
     };
@@ -686,10 +686,10 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
 #endif //SQLT_INTERVAL_YM
         else
             dataSize = ofi.oraLength;
-        QCoreVariant::Type type = ofi.type;
+        QVariant::Type type = ofi.type;
         fieldInf[count-1].typ = type;
         switch (type) {
-            case QCoreVariant::DateTime:
+            case QVariant::DateTime:
                 r = OCIDefineByPos(d->sql,
                                     &dfn,
                                     d->err,
@@ -700,7 +700,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     (dvoid *) &(fieldInf[idx].ind),
                                     0, 0, OCI_DEFAULT);
             break;
-            case QCoreVariant::ByteArray:
+            case QVariant::ByteArray:
                 // RAW and LONG RAW fields can't be bound to LOB locators
                 if (ofi.oraType == SQLT_BIN) {
                 //                    qDebug("binding SQLT_BIN");
@@ -737,7 +737,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     0, 0, OCI_DEFAULT);
             }
             break;
-            case QCoreVariant::String:
+            case QVariant::String:
                 dataSize += dataSize + sizeof(QChar);
             //qDebug("OCIDefineByPosStr: %d", dataSize);
             r = OCIDefineByPos(d->sql,
@@ -839,7 +839,7 @@ void QOCIResultPrivate::setCharset(OCIDefine* dfn)
     }
 }
 
-int QOCIResultPrivate::readPiecewise(QVector<QCoreVariant> &values, int index)
+int QOCIResultPrivate::readPiecewise(QVector<QVariant> &values, int index)
 {
     OCIDefine*     dfn;
     ub4            typep;
@@ -883,7 +883,7 @@ int QOCIResultPrivate::readPiecewise(QVector<QCoreVariant> &values, int index)
             break;
         }
         if (nullField || !chunkSize) {
-            values[fieldNum + index] = QCoreVariant(QCoreVariant::ByteArray);
+            values[fieldNum + index] = QVariant(QVariant::ByteArray);
             fieldInf[fieldNum].ind = -1;
         } else {
             QByteArray ba = values.at(fieldNum + index).toByteArray();
@@ -901,7 +901,7 @@ int QOCIResultPrivate::readPiecewise(QVector<QCoreVariant> &values, int index)
     return r;
 }
 
-int QOCIResultPrivate::readLOBs(QVector<QCoreVariant> &values, int index)
+int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
 {
     int r = 0;
     OCILobLocator* lob;
@@ -989,7 +989,7 @@ inline bool QOCIResultPrivate::isNull(int i)
 //    qDebug("ISNULL %d %d", i, fieldInf.at(i).ind);
     return (fieldInf.at(i).ind == -1);
 }
-inline QCoreVariant::Type QOCIResultPrivate::type(int i)
+inline QVariant::Type QOCIResultPrivate::type(int i)
 {
     return fieldInf.at(i).typ;
 }
@@ -1012,23 +1012,23 @@ inline int QOCIResultPrivate::length(int i)
 {
     return fieldInf.at(i).len;
 }
-QCoreVariant QOCIResultPrivate::value(int i)
+QVariant QOCIResultPrivate::value(int i)
 {
-    QCoreVariant v;
+    QVariant v;
     switch (type(i)) {
-        case QCoreVariant::DateTime:
-            v = QCoreVariant(qMakeDate(at(i)));
+        case QVariant::DateTime:
+            v = QVariant(qMakeDate(at(i)));
             break;
-        case QCoreVariant::String:
-        case QCoreVariant::Double: // when converted to strings
-        case QCoreVariant::Int:    // keep these as strings so that we do not lose precision
-            v = QCoreVariant(QString::fromUtf16((const short unsigned int*)at(i)));
+        case QVariant::String:
+        case QVariant::Double: // when converted to strings
+        case QVariant::Int:    // keep these as strings so that we do not lose precision
+            v = QVariant(QString::fromUtf16((const short unsigned int*)at(i)));
             break;
-        case QCoreVariant::ByteArray: {
+        case QVariant::ByteArray: {
             int len = length(i);
             if (len > 0)
                 return QByteArray(at(i), len);
-            return QCoreVariant(QByteArray());
+            return QVariant(QByteArray());
         }
         default:
             qWarning("QOCIResultPrivate::value: unknown data type");
@@ -1105,7 +1105,7 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
     if (r == 0) {
         for (int i = 0; i < cols->size(); ++i) {
             if (cols->isNull(i))
-                values[i + index] = QCoreVariant(cols->type(i));
+                values[i + index] = QVariant(cols->type(i));
             else
                 values[i + index] = cols->value(i);
         }
@@ -1261,7 +1261,7 @@ QSqlRecord QOCIResult::record() const
     return inf;
 }
 
-QCoreVariant QOCIResult::lastInsertId() const
+QVariant QOCIResult::lastInsertId() const
 {
     if (isActive()) {
         QOCIRowIdPointer ptr(new QOCIRowId(d->env));
@@ -1271,7 +1271,7 @@ QCoreVariant QOCIResult::lastInsertId() const
         if (r == OCI_SUCCESS)
             return qVariant(ptr);
     }
-    return QCoreVariant();
+    return QVariant();
 }
 
 
@@ -1312,7 +1312,7 @@ bool QOCI9Result::reset (const QString& query)
 
 bool QOCI9Result::cacheNext(int r)
 {
-    cols->fs.fill(QCoreVariant());
+    cols->fs.fill(QVariant());
     if (r == OCI_SUCCESS_WITH_INFO) {
         qOraWarning("QOCI9Result::cacheNext:", d);
         r = 0; //ignore it
@@ -1334,7 +1334,7 @@ bool QOCI9Result::cacheNext(int r)
         r = cols->readLOBs(cols->fs);
     if (r == 0) {
         for (int i = 0; i < cols->size(); ++i) {
-            if (cols->fs.at(i).type() == QCoreVariant::Invalid && !cols->isNull(i))
+            if (cols->fs.at(i).type() == QVariant::Invalid && !cols->isNull(i))
                 cols->fs[i] = cols->value(i);
         }
     } else {
@@ -1439,12 +1439,12 @@ bool QOCI9Result::fetchPrevious()
     return false;
 }
 
-QCoreVariant QOCI9Result::data(int field)
+QVariant QOCI9Result::data(int field)
 {
     if (field < cols->fs.count())
         return cols->fs.at(field);
     qWarning("QOCI9Result::data: column %d out of range", field);
-    return QCoreVariant();
+    return QVariant();
 }
 
 bool QOCI9Result::isNull(int field)
@@ -1963,14 +1963,14 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
     }
     if (buildRecordInfo) {
         do {
-            QCoreVariant::Type ty = qDecodeOCIType(t.value(1).toString(), t.value(2).toInt(),
+            QVariant::Type ty = qDecodeOCIType(t.value(1).toString(), t.value(2).toInt(),
                             t.value(3).toInt(), t.value(4).toInt());
             QSqlField f(t.value(0).toString(), ty);
             f.setRequired(t.value(5).toString() == QLatin1String("N"));
             if (!t.isNull(3))
                 f.setPrecision(t.value(3).toInt());
             f.setLength(t.value(2).toInt());
-            if (d->serverVersion >= 9 && (ty == QCoreVariant::String)) {
+            if (d->serverVersion >= 9 && (ty == QVariant::String)) {
                 // Oracle9: data_length == size in bytes, char_length == amount of characters
                 f.setLength(t.value(7).toInt());
             }
@@ -2039,7 +2039,7 @@ QSqlIndex QOCIDriver::primaryIndex(const QString& tablename) const
 QString QOCIDriver::formatValue(const QSqlField &field, bool) const
 {
     switch (field.type()) {
-    case QCoreVariant::String: {
+    case QVariant::String: {
         if (d->serverVersion >= 9) {
             QString encStr = QLatin1String("UNISTR('");
             const QString srcStr = field.value().toString();
@@ -2055,7 +2055,7 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
         }
         break;
     }
-    case QCoreVariant::DateTime: {
+    case QVariant::DateTime: {
         QDateTime datetime = field.value().toDateTime();
         QString datestring;
         if (datetime.isValid()) {
@@ -2073,7 +2073,7 @@ QString QOCIDriver::formatValue(const QSqlField &field, bool) const
         return datestring;
         break;
     }
-    case QCoreVariant::Date: {
+    case QVariant::Date: {
         QDate date = field.value().toDate();
         QString datestring;
         if (date.isValid()) {

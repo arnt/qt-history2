@@ -214,7 +214,7 @@ public:
 
     virtual QModelIndex parent(const QModelIndex &index) const;
     virtual QModelIndex index(int row, int column, const QModelIndex &parent) const;
-    virtual QCoreVariant data(const QModelIndex &index, int role) const;
+    virtual QVariant data(const QModelIndex &index, int role) const;
 
 private slots:
     void updateItems();

@@ -14,7 +14,7 @@
 #ifndef Q3SQLCURSOR_H
 #define Q3SQLCURSOR_H
 
-#include "QtCore/qcorevariant.h"
+#include "QtCore/qvariant.h"
 #include "QtSql/qsqldatabase.h"
 #include "QtSql/qsqlrecord.h"
 #include "QtCore/qstringlist.h"
@@ -43,10 +43,10 @@ public:
         Writable = 7
     };
 
-    QCoreVariant value(int i) const;
-    inline QCoreVariant value(const QString &name) const { return value(indexOf(name)); }
-    virtual void setValue(int i, const QCoreVariant &val);
-    inline void setValue(const QString &name, const QCoreVariant &val) { setValue(indexOf(name), val); }
+    QVariant value(int i) const;
+    inline QVariant value(const QString &name) const { return value(indexOf(name)); }
+    virtual void setValue(int i, const QVariant &val);
+    inline void setValue(const QString &name, const QVariant &val) { setValue(indexOf(name), val); }
     virtual QSqlIndex primaryIndex(bool prime = true) const;
     virtual QSqlIndex index(const QStringList& fieldNames) const;
     QSqlIndex index(const QString& fieldName) const;
@@ -98,7 +98,7 @@ public:
 protected:
     virtual bool        exec(const QString & sql);
 
-    virtual QCoreVariant calculateField(const QString& name);
+    virtual QVariant calculateField(const QString& name);
     virtual int                update(const QString & filter, bool invalidate = true);
     virtual int                del(const QString & filter, bool invalidate = true);
 

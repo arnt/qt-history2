@@ -23,7 +23,7 @@
 #include "QtCore/qcoreevent.h"
 #include "QtGui/qmime.h"
 #include "QtGui/qdrag.h"
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 
 class QAction;
 

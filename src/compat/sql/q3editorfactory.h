@@ -15,7 +15,7 @@
 #define Q3EDITORFACTORY_H
 
 #include "QtCore/qobject.h"
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 

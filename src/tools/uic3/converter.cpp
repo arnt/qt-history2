@@ -475,7 +475,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
 
             QString name = e.attribute(QLatin1String("name"));  // change the varname this widget
             if (name == QLatin1String("name"))
-                ui_widget->setAttributeName(DomTool::readProperty(w, QLatin1String("name"), QCoreVariant()).toString());
+                ui_widget->setAttributeName(DomTool::readProperty(w, QLatin1String("name"), QVariant()).toString());
         } else if (t == QLatin1String("row")) {
             DomRow *row = new DomRow();
             row->read(e);
@@ -630,7 +630,7 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
         defaultSize.init(0, 0);
 
         QByteArray name = DomTool::readProperty(e, QLatin1String("name"), "spacer").toByteArray();
-        QCoreVariant def;
+        QVariant def;
         qVariantSet(def, defaultSize);
         Size size = asVariant(DomTool::readProperty(e, QLatin1String("sizeHint"), def)).size;
         QString sizeType = DomTool::readProperty(e, QLatin1String("sizeType"), "Expanding").toString();

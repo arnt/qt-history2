@@ -223,7 +223,7 @@ void ChangeProperties::updateProperties()
 		break;
 	    case QVariant::List:
 		{
-		    QList<QCoreVariant> varList = var.toList();
+		    QList<QVariant> varList = var.toList();
 		    QStringList strList;
 		    for (int i = 0; i < varList.count(); ++i) {
 			QVariant var = varList.at(i);

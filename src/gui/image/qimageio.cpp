@@ -337,7 +337,7 @@ bool QImageIO::load()
     handler->setProperty(QImageIOHandler::Gamma, d->gamma);
     handler->setProperty(QImageIOHandler::Quality, d->quality);
     handler->setProperty(QImageIOHandler::Resolution, d->resolution);
-    handler->setProperty(QImageIOHandler::Region, d->region);
+    handler->setProperty(QImageIOHandler::Region, qVariant(d->region));
     handler->setProperty(QImageIOHandler::Size, d->size);
 
     if (!handler->load(&d->image)) {
@@ -370,7 +370,7 @@ bool QImageIO::save()
     handler->setProperty(QImageIOHandler::Gamma, d->gamma);
     handler->setProperty(QImageIOHandler::Quality, d->quality);
     handler->setProperty(QImageIOHandler::Resolution, d->resolution);
-    handler->setProperty(QImageIOHandler::Region, d->region);
+    handler->setProperty(QImageIOHandler::Region, qVariant(d->region));
     handler->setProperty(QImageIOHandler::Parameters, d->parameters);
     handler->setProperty(QImageIOHandler::Size, d->size);
     if (handler->supportsProperty(QImageIOHandler::Name)) {

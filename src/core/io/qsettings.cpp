@@ -264,18 +264,18 @@ void QSettingsPrivate::requestUpdate()
     }
 }
 
-QStringList QSettingsPrivate::variantListToStringList(const QCoreVariantList &l) const
+QStringList QSettingsPrivate::variantListToStringList(const QVariantList &l) const
 {
     QStringList result;
-    QCoreVariantList::const_iterator it = l.constBegin();
+    QVariantList::const_iterator it = l.constBegin();
     for (; it != l.constEnd(); ++it)
         result.append(variantToString(*it));
     return result;
 }
 
-QCoreVariantList QSettingsPrivate::stringListToVariantList(const QStringList &l) const
+QVariantList QSettingsPrivate::stringListToVariantList(const QStringList &l) const
 {
-    QCoreVariantList result;
+    QVariantList result;
     QStringList::const_iterator it = l.constBegin();
     for (; it != l.constEnd(); ++it)
         result.append(stringToVariant(*it));
@@ -298,16 +298,16 @@ QString &QSettingsPrivate::unescapedLeadingAt(QString &s)
     return s;
 }
 
-QString QSettingsPrivate::variantToString(const QCoreVariant &v)
+QString QSettingsPrivate::variantToString(const QVariant &v)
 {
     QString result;
 
     switch (v.type()) {
-        case QCoreVariant::Invalid:
+        case QVariant::Invalid:
             result = QLatin1String("@Invalid()");
             break;
 
-        case QCoreVariant::ByteArray: {
+        case QVariant::ByteArray: {
             QByteArray a = v.toByteArray();
             result = QLatin1String("@ByteArray(");
             result += QString::fromLatin1(a.constData(), a.size());
@@ -315,18 +315,18 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
             break;
         }
 
-        case QCoreVariant::String:
-        case QCoreVariant::LongLong:
-        case QCoreVariant::ULongLong:
-        case QCoreVariant::Int:
-        case QCoreVariant::UInt:
-        case QCoreVariant::Bool:
-        case QCoreVariant::Double: {
+        case QVariant::String:
+        case QVariant::LongLong:
+        case QVariant::ULongLong:
+        case QVariant::Int:
+        case QVariant::UInt:
+        case QVariant::Bool:
+        case QVariant::Double: {
             result = v.toString();
             result = escapedLeadingAt(result);
             break;
         }
-        case QCoreVariant::Rect: {
+        case QVariant::Rect: {
             QRect r = v.toRect();
             result += "@Rect("
                         + QString::number(r.x()) + ", "
@@ -335,7 +335,7 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
                         + QString::number(r.height()) + ")";
             break;
         }
-        case QCoreVariant::Size: {
+        case QVariant::Size: {
             QSize s = v.toSize();
             result += "@Size("
                         + QString::number(s.width()) + ", "
@@ -343,7 +343,7 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
             break;
         }
             // #### wrong anyways. It ignores alpha and other than rgb color models
-//         case QCoreVariant::Color: {
+//         case QVariant::Color: {
 //             QColor c = v2.toColor();
 //             result += "@Color("
 //                         + QByteArray::number(c.red()) + ", "
@@ -351,7 +351,7 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
 //                         + QByteArray::number(c.blue()) + ")";
 //             break;
 //         }
-        case QCoreVariant::Point: {
+        case QVariant::Point: {
             QPoint p = v.toPoint();
             result += "@Point("
                         + QString::number(p.x()) + ", "
@@ -376,29 +376,29 @@ QString QSettingsPrivate::variantToString(const QCoreVariant &v)
     return result;
 }
 
-QCoreVariant QSettingsPrivate::stringToVariant(const QString &s)
+QVariant QSettingsPrivate::stringToVariant(const QString &s)
 {
     if (s.length() > 3
             && s.at(0) == QLatin1Char('@')
             && s.at(s.length() - 1) == QLatin1Char(')')) {
 
         if (s.startsWith(QLatin1String("@ByteArray("))) {
-            return QCoreVariant(s.toLatin1().mid(11, s.size() - 12));
+            return QVariant(s.toLatin1().mid(11, s.size() - 12));
         } else if (s.startsWith(QLatin1String("@Variant("))) {
             QByteArray a(s.toLatin1().mid(9));
             QDataStream stream(&a, QIODevice::ReadOnly);
-            QCoreVariant result;
+            QVariant result;
             stream >> result;
             return result;
         } else if (s.startsWith(QLatin1String("@Rect("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 4) {
-                return QCoreVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
+                return QVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
             }
         } else if (s.startsWith(QLatin1String("@Size("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 2) {
-                return QCoreVariant(QSize(args[0].toInt(), args[1].toInt()));
+                return QVariant(QSize(args[0].toInt(), args[1].toInt()));
             }
             // ### see above
 //         } else if (s.startsWith(QLatin1String("@Color("))) {
@@ -409,15 +409,15 @@ QCoreVariant QSettingsPrivate::stringToVariant(const QString &s)
         } else if (s.startsWith(QLatin1String("@Point("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 6);
             if (args.size() == 2) {
-                return QCoreVariant(QPoint(args[0].toInt(), args[1].toInt()));
+                return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
             }
         } else if (s == QLatin1String("@Invalid()")) {
-            return QCoreVariant();
+            return QVariant();
         }
     }
 
     QString tmp = s;
-    return QCoreVariant(unescapedLeadingAt(tmp));
+    return QVariant(unescapedLeadingAt(tmp));
 }
 
 static const char hexDigits[] = "0123456789ABCDEF";
@@ -972,14 +972,14 @@ void QConfFileSettingsPrivate::remove(const QString &key)
 
     SettingsKeyMap::const_iterator j = confFile->originalKeys.lowerBound(prefix);
     while (j != confFile->originalKeys.constEnd() && j.key().startsWith(prefix)) {
-        confFile->removedKeys.insert(j.key(), QCoreVariant());
+        confFile->removedKeys.insert(j.key(), QVariant());
         ++j;
     }
     if (confFile->originalKeys.contains(theKey))
-        confFile->removedKeys.insert(theKey, QCoreVariant());
+        confFile->removedKeys.insert(theKey, QVariant());
 }
 
-void QConfFileSettingsPrivate::set(const QString &key, const QCoreVariant &value)
+void QConfFileSettingsPrivate::set(const QString &key, const QVariant &value)
 {
     if (!writeAccess) {
         setStatus(QSettings::AccessError);
@@ -994,7 +994,7 @@ void QConfFileSettingsPrivate::set(const QString &key, const QCoreVariant &value
     confFile->addedKeys.insert(theKey, value);
 }
 
-bool QConfFileSettingsPrivate::get(const QString &key, QCoreVariant *value) const
+bool QConfFileSettingsPrivate::get(const QString &key, QVariant *value) const
 {
     QSettingsKey theKey(key, cs);
     SettingsKeyMap::const_iterator j;
@@ -1428,7 +1428,7 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
             QStringList *strListValue
                     = iniUnescapedStringList(line, equalsCharPos + 1, len,
                                                                strValue);
-            QCoreVariant variant;
+            QVariant variant;
             if (strListValue) {
                 variant = stringListToVariantList(*strListValue);
                 delete strListValue;
@@ -1451,7 +1451,7 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
 
 bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKeyMap &map)
 {
-    typedef QMap<QString, QCoreVariantMap> IniMap;
+    typedef QMap<QString, QVariantMap> IniMap;
     IniMap iniMap;
     IniMap::const_iterator i;
 
@@ -1488,14 +1488,14 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
         device.write(realSection);
 
-        const QCoreVariantMap &ents = i.value();
-        for (QCoreVariantMap::const_iterator j = ents.constBegin(); j != ents.constEnd(); ++j) {
+        const QVariantMap &ents = i.value();
+        for (QVariantMap::const_iterator j = ents.constBegin(); j != ents.constEnd(); ++j) {
             QByteArray block;
             iniEscapedKey(j.key(), block);
             block += '=';
 
-            const QCoreVariant &value = j.value();
-            if (value.type() == QCoreVariant::StringList || value.type() == QCoreVariant::List) {
+            const QVariant &value = j.value();
+            if (value.type() == QVariant::StringList || value.type() == QVariant::List) {
                 iniEscapedStringList(variantListToStringList(value.toList()), block);
             } else {
                 iniEscapedString(variantToString(value), block);
@@ -2429,7 +2429,7 @@ bool QSettings::isWritable() const
 
     \sa value(), remove(), contains()
 */
-void QSettings::setValue(const QString &key, const QCoreVariant &value)
+void QSettings::setValue(const QString &key, const QVariant &value)
 {
     Q_D(QSettings);
     QString k = d->actualKey(key);
@@ -2542,7 +2542,7 @@ bool QSettings::event(QEvent *event)
     Returns the value for setting \a key. If the setting doesn't
     exist, returns \a defaultValue.
 
-    If no default value is specified, a default QCoreVariant is
+    If no default value is specified, a default QVariant is
     returned.
 
     Example:
@@ -2557,10 +2557,10 @@ bool QSettings::event(QEvent *event)
 
     \sa setValue(), contains(), remove()
 */
-QCoreVariant QSettings::value(const QString &key, const QCoreVariant &defaultValue) const
+QVariant QSettings::value(const QString &key, const QVariant &defaultValue) const
 {
     Q_D(const QSettings);
-    QCoreVariant result = defaultValue;
+    QVariant result = defaultValue;
     QString k = d->actualKey(key);
     d->get(k, &result);
     return result;

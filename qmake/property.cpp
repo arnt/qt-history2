@@ -80,7 +80,7 @@ QMakeProperty::value(QString v, bool just_check)
 
     initSettings();
     int slash = v.lastIndexOf('/');
-    QCoreVariant var = settings->value(keyBase(slash == -1) + v);
+    QVariant var = settings->value(keyBase(slash == -1) + v);
     bool ok = var.isValid();
     QString ret = var.toString();
     if(!ok) {

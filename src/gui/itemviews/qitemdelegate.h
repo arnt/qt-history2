@@ -17,7 +17,7 @@
 #include <QtGui/qabstractitemdelegate.h>
 #include <QtCore/qstring.h>
 #include <QtGui/qpixmap.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 class QItemDelegatePrivate;
 class QItemEditorFactory;

@@ -79,10 +79,10 @@ PreferenceDialog::PreferenceDialog(AbstractFormEditor *core, QWidget *parent)
     // ...
 
     QSettings settings;
-    QList<QCoreVariant> openItemList;
-    openItemList.append(QCoreVariant(0));
+    QList<QVariant> openItemList;
+    openItemList.append(QVariant(0));
     openItemList = settings.value("preferenceDialog/openItems", openItemList).toList();
-    foreach (QCoreVariant v, openItemList) {
+    foreach (QVariant v, openItemList) {
         item = m_treeWidget->topLevelItem(v.toInt());
         if (item)
             m_treeWidget->openItem(item);
@@ -132,7 +132,7 @@ PreferenceDialog::~PreferenceDialog()
     if (item && parentItem)
         settings.setValue("preferenceDialog/childIndex", parentItem->indexOfChild(item));
     // now go through the top level items and make sure we remember which ones were opened
-    QList<QCoreVariant> list;
+    QList<QVariant> list;
     for (int i = 0; i < m_treeWidget->topLevelItemCount(); ++i) {
         item = m_treeWidget->topLevelItem(i);
         if (item == parentItem)

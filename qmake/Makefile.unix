@@ -9,7 +9,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qbufferedfsfileengine.o qtemporaryfile.o \
-      qmap.o qunicodetables.o qmetatype.o qsettings.o qcorevariant.o qvsnprintf.o \
+      qmap.o qunicodetables.o qmetatype.o qsettings.o qvariant.o qvsnprintf.o \
       qlocale.o qlinkedlist.o qpoint.o qrect.o qsize.o qurl.o qlibraryinfo.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
@@ -63,8 +63,8 @@ depend:
 qtextstream.o: @SOURCE_PATH@/src/core/io/qtextstream.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qtextstream.cpp
 
-qcorevariant.o: @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp
+qvariant.o: @SOURCE_PATH@/src/core/kernel/qvariant.cpp
+	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/kernel/qvariant.cpp
 
 qpoint.o: @SOURCE_PATH@/src/core/tools/qpoint.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qpoint.cpp

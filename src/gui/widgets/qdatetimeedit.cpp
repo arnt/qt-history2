@@ -66,14 +66,14 @@ public:
     void readLocaleSettings();
 
     void emitSignals();
-    void setValue(const QCoreVariant &val, EmitPolicy ep);
-    QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
-    QString mapValueToText(const QCoreVariant &n) const;
+    void setValue(const QVariant &val, EmitPolicy ep);
+    QVariant mapTextToValue(QString *str, QValidator::State *state) const;
+    QString mapValueToText(const QVariant &n) const;
     void editorCursorPositionChanged(int lastpos, int newpos);
-    QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
+    QValidator::State validate(QString *input, int *pos, QVariant *val) const;
 
     QStyleOptionSpinBox styleOption() const;
-    QCoreVariant valueForPosition(int pos) const;
+    QVariant valueForPosition(int pos) const;
 
     void clearSection(Section s);
 
@@ -81,12 +81,12 @@ public:
     int sectionPos(Section s) const;
 
     SectionNode sectionNode(Section t) const;
-    QCoreVariant stepBy(Section s, int steps, bool test = false) const;
+    QVariant stepBy(Section s, int steps, bool test = false) const;
     QString sectionText(const QString &text, Section s) const;
-    int getDigit(const QCoreVariant &dt, Section s) const;
-    void setDigit(QCoreVariant *t, Section s, int newval) const;
-    QString toString(const QCoreVariant &var) const;
-    QCoreVariant fromString(QString *var, QValidator::State *state) const;
+    int getDigit(const QVariant &dt, Section s) const;
+    void setDigit(QVariant *t, Section s, int newval) const;
+    QString toString(const QVariant &var) const;
+    QVariant fromString(QString *var, QValidator::State *state) const;
     int sectionValue(Section s, QString *txt, QValidator::State *state) const;
     int absoluteMax(Section s) const;
     int absoluteMin(Section s) const;
@@ -115,7 +115,7 @@ public:
     mutable int cachedday;
     mutable Section currentsection;
     Section oldcurrentsection;
-    mutable QCoreVariant cached;
+    mutable QVariant cached;
     mutable QString cachedText;
 };
 
@@ -200,9 +200,9 @@ public:
 QDateTimeEdit::QDateTimeEdit(QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
-    d->minimum = QCoreVariant(DATETIME_MIN);
-    d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = QCoreVariant(QDateTime(DATE_INITIAL, TIME_MIN));
+    d->minimum = QVariant(DATETIME_MIN);
+    d->maximum = QVariant(DATETIME_MAX);
+    d->value = QVariant(QDateTime(DATE_INITIAL, TIME_MIN));
     setDisplayFormat(d->defaultDateTimeFormat);
     if (d->format.isEmpty()) {
         d->defaultDateTimeFormat = QLatin1String("MM/dd/yy hh:mm:ss");
@@ -218,9 +218,9 @@ QDateTimeEdit::QDateTimeEdit(QWidget *parent)
 QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
-    d->minimum = QCoreVariant(DATETIME_MIN);
-    d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = datetime.isValid() ? QCoreVariant(datetime) : QCoreVariant(QDateTime(DATE_INITIAL, TIME_MIN));
+    d->minimum = QVariant(DATETIME_MIN);
+    d->maximum = QVariant(DATETIME_MAX);
+    d->value = datetime.isValid() ? QVariant(datetime) : QVariant(QDateTime(DATE_INITIAL, TIME_MIN));
     setDisplayFormat(d->defaultDateTimeFormat);
     if (d->format.isEmpty()) {
         d->defaultDateTimeFormat = QLatin1String("MM/dd/yy hh:mm:ss");
@@ -238,9 +238,9 @@ QDateTimeEdit::QDateTimeEdit(const QDateTime &datetime, QWidget *parent)
 QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
-    d->minimum = QCoreVariant(DATETIME_MIN);
-    d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = QCoreVariant(QDateTime(date.isValid() ? date : DATE_INITIAL, TIME_MIN));
+    d->minimum = QVariant(DATETIME_MIN);
+    d->maximum = QVariant(DATETIME_MAX);
+    d->value = QVariant(QDateTime(date.isValid() ? date : DATE_INITIAL, TIME_MIN));
     setDisplayFormat(d->defaultDateFormat);
     if (d->format.isEmpty()) {
         d->defaultDateFormat = QLatin1String("MM/dd/yy");
@@ -258,9 +258,9 @@ QDateTimeEdit::QDateTimeEdit(const QDate &date, QWidget *parent)
 QDateTimeEdit::QDateTimeEdit(const QTime &time, QWidget *parent)
     : QAbstractSpinBox(*new QDateTimeEditPrivate, parent)
 {
-    d->minimum = QCoreVariant(DATETIME_MIN);
-    d->maximum = QCoreVariant(DATETIME_MAX);
-    d->value = QCoreVariant(QDateTime(DATE_INITIAL, time.isValid() ? time : TIME_MIN));
+    d->minimum = QVariant(DATETIME_MIN);
+    d->maximum = QVariant(DATETIME_MAX);
+    d->value = QVariant(QDateTime(DATE_INITIAL, time.isValid() ? time : TIME_MIN));
     setDisplayFormat(d->defaultTimeFormat);
     if (d->format.isEmpty()) {
         d->defaultDateFormat = QLatin1String("hh:mm:ss");
@@ -277,7 +277,7 @@ void QDateTimeEdit::setDateTime(const QDateTime &datetime)
 {
     if (datetime.isValid()) {
         d->cachedday = -1;
-        d->setValue(QCoreVariant(datetime), EmitIfChanged);
+        d->setValue(QVariant(datetime), EmitIfChanged);
     }
 }
 
@@ -297,7 +297,7 @@ void QDateTimeEdit::setDate(const QDate &date)
 {
     if (date.isValid()) {
         d->cachedday = -1;
-        d->setValue(QCoreVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
+        d->setValue(QVariant(QDateTime(date, d->value.toTime())), EmitIfChanged);
     }
 }
 
@@ -317,7 +317,7 @@ void QDateTimeEdit::setTime(const QTime &time)
 {
     if (time.isValid()) {
         d->cachedday = -1;
-        d->setValue(QCoreVariant(QDateTime(d->value.toDate(), time)), EmitIfChanged);
+        d->setValue(QVariant(QDateTime(d->value.toDate(), time)), EmitIfChanged);
     }
 }
 
@@ -353,13 +353,13 @@ QDate QDateTimeEdit::minimumDate() const
 void QDateTimeEdit::setMinimumDate(const QDate &min)
 {
     if (min.isValid()) {
-        d->setBoundary(Minimum, QCoreVariant(QDateTime(min, d->minimum.toTime())));
+        d->setBoundary(Minimum, QVariant(QDateTime(min, d->minimum.toTime())));
     }
 }
 
 void QDateTimeEdit::clearMinimumDate()
 {
-    d->setBoundary(Minimum, QCoreVariant(QDateTime(DATE_MIN, d->minimum.toTime())));
+    d->setBoundary(Minimum, QVariant(QDateTime(DATE_MIN, d->minimum.toTime())));
 }
 
 /*!
@@ -387,12 +387,12 @@ QDate QDateTimeEdit::maximumDate() const
 void QDateTimeEdit::setMaximumDate(const QDate &max)
 {
     if (max.isValid())
-        d->setBoundary(Maximum, QCoreVariant(QDateTime(max, d->maximum.toTime())));
+        d->setBoundary(Maximum, QVariant(QDateTime(max, d->maximum.toTime())));
 }
 
 void QDateTimeEdit::clearMaximumDate()
 {
-    d->setBoundary(Maximum, QCoreVariant(QDateTime(DATE_MAX, d->maximum.toTime())));
+    d->setBoundary(Maximum, QVariant(QDateTime(DATE_MAX, d->maximum.toTime())));
 }
 
 /*!
@@ -420,12 +420,12 @@ QTime QDateTimeEdit::minimumTime() const
 void QDateTimeEdit::setMinimumTime(const QTime &min)
 {
     if (min.isValid())
-        d->setBoundary(Minimum, QCoreVariant(QDateTime(d->minimum.toDate(), min)));
+        d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), min)));
 }
 
 void QDateTimeEdit::clearMinimumTime()
 {
-    d->setBoundary(Minimum, QCoreVariant(QDateTime(d->minimum.toDate(), TIME_MIN)));
+    d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), TIME_MIN)));
 }
 
 /*!
@@ -454,12 +454,12 @@ QTime QDateTimeEdit::maximumTime() const
 void QDateTimeEdit::setMaximumTime(const QTime &max)
 {
     if (max.isValid())
-        d->setBoundary(Maximum, QCoreVariant(QDateTime(d->maximum.toDate(), max)));
+        d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), max)));
 }
 
 void QDateTimeEdit::clearMaximumTime()
 {
-    d->setBoundary(Maximum, QCoreVariant(QDateTime(d->maximum.toDate(), TIME_MAX)));
+    d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), TIME_MAX)));
 }
 
 /*!
@@ -488,8 +488,8 @@ void QDateTimeEdit::clearMaximumTime()
 void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 {
     if (min.isValid() && max.isValid()) {
-        d->setBoundary(Minimum, QCoreVariant(QDateTime(min, d->minimum.toTime())));
-        d->setBoundary(Maximum, QCoreVariant(QDateTime(max, d->maximum.toTime())));
+        d->setBoundary(Minimum, QVariant(QDateTime(min, d->minimum.toTime())));
+        d->setBoundary(Maximum, QVariant(QDateTime(max, d->maximum.toTime())));
     }
 }
 
@@ -519,8 +519,8 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 {
     if (min.isValid() && max.isValid()) {
-        d->setBoundary(Minimum, QCoreVariant(QDateTime(d->minimum.toDate(), min)));
-        d->setBoundary(Maximum, QCoreVariant(QDateTime(d->maximum.toDate(), max)));
+        d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), min)));
+        d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), max)));
     }
 }
 
@@ -655,7 +655,7 @@ QString QDateTimeEdit::displayFormat() const
 void QDateTimeEdit::setDisplayFormat(const QString &format)
 {
     if (d->parseFormat(format)) {
-        d->cached = QCoreVariant();
+        d->cached = QVariant();
         if ((d->display & QDateTimeEditPrivate::TimeSectionMask) == 0
             || (d->display & QDateTimeEditPrivate::DateSectionMask) == 0) {
             if ((d->display & QDateTimeEditPrivate::TimeSectionMask) != 0) {
@@ -693,7 +693,7 @@ void QDateTimeEdit::clear()
 
 QString QDateTimeEdit::mapDateTimeToText(const QDateTime &date) const
 {
-    return date.isValid() ? d->toString(QCoreVariant(date)) : QString();
+    return date.isValid() ? d->toString(QVariant(date)) : QString();
 }
 
 /*!
@@ -886,7 +886,7 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 
     QAbstractSpinBox::StepEnabled ret = 0;
 
-    QCoreVariant v = d->stepBy(d->currentsection, 1, true);
+    QVariant v = d->stepBy(d->currentsection, 1, true);
     if (v != d->value) {
 	ret |= QAbstractSpinBox::StepUpEnabled;
     }
@@ -948,7 +948,7 @@ QDateEdit::QDateEdit(const QDate &dt, QWidget *parent)
 
 QDateTimeEditPrivate::QDateTimeEditPrivate()
 {
-    type = QCoreVariant::DateTime;
+    type = QVariant::DateTime;
     display = (QDateTimeEdit::Sections)0;
     cachedday = -1;
     currentsection = oldcurrentsection = NoSection;
@@ -985,7 +985,7 @@ void QDateTimeEditPrivate::emitSignals()
     \reimp
 */
 
-QString QDateTimeEditPrivate::mapValueToText(const QCoreVariant &f) const
+QString QDateTimeEditPrivate::mapValueToText(const QVariant &f) const
 {
     return q->mapDateTimeToText(f.toDateTime());
 }
@@ -995,9 +995,9 @@ QString QDateTimeEditPrivate::mapValueToText(const QCoreVariant &f) const
     \reimp
 */
 
-QCoreVariant QDateTimeEditPrivate::mapTextToValue(QString *text, QValidator::State *state) const
+QVariant QDateTimeEditPrivate::mapTextToValue(QString *text, QValidator::State *state) const
 {
-    return QCoreVariant(q->mapTextToDateTime(text, state));
+    return QVariant(q->mapTextToDateTime(text, state));
 }
 
 /*!
@@ -1041,7 +1041,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
           sectionName(oldcurrentsection).toLatin1().constData());
     if (currentsection != s) {
         QString tmp = edit->displayText();
-        QCoreVariant v = getZeroVariant();
+        QVariant v = getZeroVariant();
         int pos = d->edit->cursorPosition();
         if (validate(&tmp, &pos, &v) != QValidator::Acceptable) {
             refresh(EmitIfChanged);
@@ -1059,7 +1059,7 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 }
 
 #ifdef Q_WS_MAC
-static QString macParseDateLocale(QCoreVariant::Type type)
+static QString macParseDateLocale(QVariant::Type type)
 {
     CFGregorianDate macGDate;
     macGDate.year = 99;
@@ -1071,7 +1071,7 @@ static QString macParseDateLocale(QCoreVariant::Type type)
     QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, QCFType<CFTimeZoneRef>
                                                                                (CFTimeZoneCopySystem())));
     switch (type) {
-    case QCoreVariant::Date: {
+    case QVariant::Date: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
             QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
@@ -1092,7 +1092,7 @@ static QString macParseDateLocale(QCoreVariant::Type type)
             return qt_mac_from_pascal_string(pString);
         }
     }
-    case QCoreVariant::DateTime: {
+    case QVariant::DateTime: {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
             QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
@@ -1156,7 +1156,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
     const QString longDayName = QDate::longDayName(date.dayOfWeek());
 
 #ifdef Q_WS_MAC
-    str = macParseDateLocale(QCoreVariant::Date);
+    str = macParseDateLocale(QVariant::Date);
 #else
     str = date.toString(Qt::LocalDate);
 #endif
@@ -1195,7 +1195,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
 
     // DateTime
 #ifdef Q_WS_MAC
-    str = macParseDateLocale(QCoreVariant::DateTime);
+    str = macParseDateLocale(QVariant::DateTime);
 #else
     str = QDateTime(QDate(1999, 11, 22), QTime(10, 34, 56)).toString(Qt::LocalDate);
 #endif
@@ -1253,12 +1253,12 @@ void QDateTimeEditPrivate::readLocaleSettings()
     \internal
     Gets the digit from a corevariant. E.g.
 
-    QCoreVariant var(QDate(2004, 02, 02));
+    QVariant var(QDate(2004, 02, 02));
     int digit = getDigit(var, Year);
     // digit = 2004
 */
 
-int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
+int QDateTimeEditPrivate::getDigit(const QVariant &t, Section s) const
 {
     switch(s) {
     case HourSection: {
@@ -1292,7 +1292,7 @@ int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
     \internal
     Sets a digit in a variant. E.g.
 
-    QCoreVariant var(QDate(2004, 02, 02));
+    QVariant var(QDate(2004, 02, 02));
     int digit = getDigit(var, Year);
     // digit = 2004
     setDigit(&var, Year, 2005);
@@ -1302,7 +1302,7 @@ int QDateTimeEditPrivate::getDigit(const QCoreVariant &t, Section s) const
     returns true if the newVal was changed to make it work. E.g. If you set 31st when you're in february
 */
 
-void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal) const
+void QDateTimeEditPrivate::setDigit(QVariant *v, Section section, int newVal) const
 {
     int year, month, day, hour, minute, second, msec;
     const QDateTime &dt = v->toDateTime();
@@ -1343,7 +1343,7 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal
 	    day = qMin(day, QDate(year, month, 1).daysInMonth());
         }
     }
-    *v = QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
+    *v = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 }
 
 
@@ -1357,9 +1357,9 @@ void QDateTimeEditPrivate::setDigit(QCoreVariant *v, Section section, int newVal
     QDateTimeEdit::stepEnabled() as well as QDateTimeEdit::stepBy().
 */
 
-QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
+QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 {
-    QCoreVariant v = value;
+    QVariant v = value;
     QString str = edit->displayText();
 
     int val;
@@ -1407,7 +1407,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 
         if (wrapping) {
             //just because we hit the roof in one direction, it doesn't mean that we hit the floor in the other
-            QCoreVariant oldv = v;
+            QVariant oldv = v;
             if (steps > 0) {
                 setDigit(&v, s, min);
                 if (v < minimum) {
@@ -1430,7 +1430,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     }
 
     if (v < minimum) {
-        QCoreVariant t = v;
+        QVariant t = v;
         setDigit(&t, s, steps < 0 ? max : min);
         if (!(t < minimum || t > maximum)) {
             v = t;
@@ -1441,7 +1441,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
             }
         }
     } else if (v > maximum) {
-        QCoreVariant t = v;
+        QVariant t = v;
         setDigit(&t, s, steps > 0 ? min : max);
         if (!(t < minimum || t > maximum)) {
             v = t;
@@ -1456,7 +1456,7 @@ QCoreVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     return bound(v);
 }
 
-QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
+QVariant QDateTimeEditPrivate::valueForPosition(int pos) const
 {
     QStyleOptionSpinBox sb = styleOption();
     QRect r = q->style()->subControlRect(QStyle::CC_SpinBox, &sb, QStyle::SC_SpinBoxSlider, q);
@@ -1476,7 +1476,7 @@ QCoreVariant QDateTimeEditPrivate::valueForPosition(int pos) const
     double diff = (totalDays * percentage);
     QDate date = minimum.toDate().addDays((qint64)diff); // ### hack. There must be a nicer way
     QTime time = QTime().addMSecs((int)(24 * 3600 * 1000 * (diff - ((double)(qint64)diff))));
-    return QCoreVariant(QDateTime(date, time));
+    return QVariant(QDateTime(date, time));
 }
 
 
@@ -1978,7 +1978,7 @@ QString QDateTimeEditPrivate::sectionText(const QString &text, Section s) const
     Returns the string representation of \a var according to the current format.
 */
 
-QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
+QString QDateTimeEditPrivate::toString(const QVariant &var) const
 {
     if (var == cached)
         return cachedText;
@@ -2008,7 +2008,7 @@ QString QDateTimeEditPrivate::toString(const QCoreVariant &var) const
     format. If stateptr is not 0 also sets it to the correct state.
 */
 
-QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stateptr) const
+QVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *stateptr) const
 {
     Q_ASSERT(text);
     int year, month, day, hour, minute, second, msec;
@@ -2077,9 +2077,9 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
 
 //     QDTEDEBUG("fromString: '%s' => '%s' (%s)",
 //           text->toLatin1().constData(),
-//           QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
+//           QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
 //           toString().toLatin1().constData(), stateName(state).toLatin1().constData());
-    return QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
+    return QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 }
 
 /*!
@@ -2188,9 +2188,9 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidator::Sta
     \reimp
 */
 
-void QDateTimeEditPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
+void QDateTimeEditPrivate::setValue(const QVariant &val, EmitPolicy ep)
 {
-    const QCoreVariant old = value;
+    const QVariant old = value;
     value = bound(val);
     pendingemit = false;
     if (slider)
@@ -2223,7 +2223,7 @@ void QDateTimeEditPrivate::setValue(const QCoreVariant &val, EmitPolicy ep)
     \reimp
 */
 
-QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCoreVariant *val) const
+QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QVariant *val) const
 {
     Q_ASSERT(input);
     SectionNode sn;
@@ -2283,7 +2283,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     }
 
     QValidator::State state;
-    QCoreVariant tmp = mapTextToValue(input, &state);
+    QVariant tmp = mapTextToValue(input, &state);
     if (val)
         *val = tmp;
     QDTEDEBUG("'%s' => '%s' (%s)", input->toLatin1().constData(), tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
@@ -2420,7 +2420,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
                     return QValidator::Invalid;
                 int tmp = dt.date().month(); // I know the first possible month makes the date too small
                 while ((tmp = findMonth(t, tmp + 1)) != -1) {
-                    const QCoreVariant copy(dt.addMonths(tmp - dt.date().month()));
+                    const QVariant copy(dt.addMonths(tmp - dt.date().month()));
                     if (copy >= minimum && copy <= maximum)
                         break;
                 }
@@ -2430,7 +2430,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
             case AmPmSection:
             case AmPmLowerCaseSection:
                 if (tooSmall && (t.count(space) == 2 || t.contains('m'))) {
-                    const QCoreVariant copy(dt.addSecs(12 * 60 * 60));
+                    const QVariant copy(dt.addSecs(12 * 60 * 60));
                     if (copy >= minimum && copy <= maximum)
                         break;
                 }
@@ -2467,7 +2467,7 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt, c
                         return QValidator::Invalid;
                     }
 
-                    QCoreVariant var(dt);
+                    QVariant var(dt);
                     setDigit(&var, sn.section, tmp);
                     Q_ASSERT(var >= minimum);
                     if (var > maximum) {

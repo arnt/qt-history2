@@ -423,7 +423,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::String: {
         int index = meta->indexOfProperty(p->attributeName().toLatin1());
         if (index != -1 && meta->property(index).type() == QVariant::KeySequence)
-            v = QKeySequence(p->elementString()->text());
+            v = qVariant(QKeySequence(p->elementString()->text()));
         else
             v = p->elementString()->text();
     } break;
@@ -435,7 +435,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::Color: {
         DomColor *color = p->elementColor();
         QColor c(color->elementRed(), color->elementGreen(), color->elementBlue());
-        v = QVariant(c);
+        v = qVariant(c);
     } break;
 
     case DomProperty::Font: {
@@ -445,7 +445,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         f.setBold(font->elementBold());
         f.setUnderline(font->elementUnderline());
         f.setStrikeOut(font->elementStrikeOut());
-        v = QVariant(f);
+        v = qVariant(f);
     } break;
 
     case DomProperty::Date: {
@@ -474,7 +474,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
     case DomProperty::IconSet: {
         DomResourcePixmap *iconset = p->elementIconSet();
         QIcon icon(QPixmap(iconset->text()));
-        v = QVariant(icon);
+        v = qVariant(icon);
     } break;
 
     case DomProperty::Palette: {
@@ -497,11 +497,11 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
         }
 
         palette.setCurrentColorGroup(QPalette::Active);
-        v = QVariant(palette);
+        v = qVariant(palette);
     } break;
 
     case DomProperty::Cursor: {
-        v = QCursor(static_cast<Qt::CursorShape>(p->elementCursor()));
+        v = qVariant(QCursor(static_cast<Qt::CursorShape>(p->elementCursor())));
     } break;
 
     case DomProperty::Set: {
@@ -530,7 +530,7 @@ QVariant Resource::toVariant(const QMetaObject *meta, DomProperty *p)
 
         sizePolicy.setHorizontalData((QSizePolicy::SizeType) sizep->elementHSizeType());
         sizePolicy.setVerticalData((QSizePolicy::SizeType) sizep->elementVSizeType());
-        v = sizePolicy;
+        v = qVariant(sizePolicy);
     } break;
 
     default:
@@ -848,7 +848,7 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         case QVariant::Font: {
             DomFont *fnt = new DomFont();
-            QFont font = v.toFont();
+            QFont font = qVariant_to<QFont>(v);
             fnt->setElementBold(font.bold());
             fnt->setElementFamily(font.family());
             fnt->setElementItalic(font.italic());
@@ -860,18 +860,18 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
         } break;
 
         case QVariant::Cursor: {
-            dom_prop->setElementCursor(v.toCursor().shape());
+            dom_prop->setElementCursor(qVariant_to<QCursor>(v).shape());
         } break;
 
         case QVariant::KeySequence: {
             DomString *s = new DomString();
-            s->setText(v.toKeySequence());
+            s->setText(qVariant_to<QKeySequence>(v));
             dom_prop->setElementString(s);
         } break;
 
         case QVariant::Palette: {
             DomPalette *dom = new DomPalette();
-            QPalette palette = v.toPalette();
+            QPalette palette = qVariant_to<QPalette>(v);
 
             palette.setCurrentColorGroup(QPalette::Active);
             dom->setElementActive(saveColorGroup(palette));
@@ -887,7 +887,7 @@ DomProperty *Resource::createProperty(QObject *obj, const QString &pname, const 
 
         case QVariant::SizePolicy: {
             DomSizePolicy *dom = new DomSizePolicy();
-            QSizePolicy sizePolicy = v.toSizePolicy();
+            QSizePolicy sizePolicy = qVariant_to<QSizePolicy>(v);
 
             dom->setElementHorStretch(sizePolicy.horizontalStretch());
             dom->setElementVerStretch(sizePolicy.verticalStretch());

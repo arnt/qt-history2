@@ -157,13 +157,13 @@ bool QSqlRecord::operator==(const QSqlRecord &other) const
 
 /*!
     Returns the value of the field located at position \a index in
-    the record. If \a index is out of bounds, an invalid QCoreVariant
+    the record. If \a index is out of bounds, an invalid QVariant
     is returned.
 
     \sa fieldName() isNull()
 */
 
-QCoreVariant QSqlRecord::value(int index) const
+QVariant QSqlRecord::value(int index) const
 {
     return d->fields.value(index).value();
 }
@@ -177,7 +177,7 @@ QCoreVariant QSqlRecord::value(int index) const
     \sa indexOf()
 */
 
-QCoreVariant QSqlRecord::value(const QString& name) const
+QVariant QSqlRecord::value(const QString& name) const
 {
     return value(indexOf(name));
 }
@@ -526,7 +526,7 @@ int QSqlRecord::count() const
     \sa setNull()
 */
 
-void QSqlRecord::setValue(int index, const QCoreVariant& val)
+void QSqlRecord::setValue(int index, const QVariant& val)
 {
     if (!d->contains(index))
         return;
@@ -542,7 +542,7 @@ void QSqlRecord::setValue(int index, const QCoreVariant& val)
     does not exist, nothing happens.
 */
 
-void QSqlRecord::setValue(const QString& name, const QCoreVariant& val)
+void QSqlRecord::setValue(const QString& name, const QVariant& val)
 {
     setValue(indexOf(name), val);
 }

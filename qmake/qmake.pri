@@ -61,7 +61,7 @@ bootstrap { #Qt code
         qunicodetables.cpp \
         quuid.cpp \
 	qsettings.cpp \
-	qcorevariant.cpp \
+	qvariant.cpp \
 	qrect.cpp \
 	qpoint.cpp \
 	qsize.cpp \

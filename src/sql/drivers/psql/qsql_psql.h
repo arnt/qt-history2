@@ -43,13 +43,13 @@ protected:
     bool fetch(int i);
     bool fetchFirst();
     bool fetchLast();
-    QCoreVariant data(int i);
+    QVariant data(int i);
     bool isNull(int field);
     bool reset (const QString& query);
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
-    QCoreVariant lastInsertId() const;
+    QVariant lastInsertId() const;
 
 private:
     QPSQLResultPrivate *d;

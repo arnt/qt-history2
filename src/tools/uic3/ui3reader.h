@@ -20,7 +20,7 @@
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qtextstream.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qbytearray.h>
 #include <qpair.h>
 
@@ -164,7 +164,7 @@ private:
     static bool onlyAscii;
     static QString mkStdSet(const QString& prop);
     static QString getComment(const QDomNode& n);
-    QCoreVariant defSpacing, defMargin;
+    QVariant defSpacing, defMargin;
     QString fileName;
     QString uiHeaderFile;
     bool writeFunctImpl;

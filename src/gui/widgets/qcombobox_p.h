@@ -142,7 +142,7 @@ protected:
                    const QModelIndex &index) const {
         QStyleOptionMenuItem opt = getStyleOption(option, index);
         QVariant value = index.model()->data(index, QAbstractItemModel::FontRole);
-        QFont fnt = value.isValid() ? value.toFont() : option.font;
+        QFont fnt = value.isValid() ? qVariant_to<QFont>(value) : option.font;
         return mCombo->style()->sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), 0);
     }

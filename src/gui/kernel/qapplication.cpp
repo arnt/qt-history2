@@ -816,10 +816,10 @@ void QApplication::initialize()
 #endif
 #ifndef QT_NO_VARIANT
     // trigger registering of QVariant's GUI types
-    const QVariant v = QVariant(int(QMetaType::Int), (void *)0);
-    Q_UNUSED(v)
+    extern bool qRegisterGuiVariant();
+    qRegisterGuiVariant();
 #endif
-        QApplicationPrivate::is_app_running = true; // no longer starting up
+    QApplicationPrivate::is_app_running = true; // no longer starting up
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager

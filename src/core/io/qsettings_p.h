@@ -55,7 +55,7 @@ private:
     QString theRealKey;
 };
 
-typedef QMap<QSettingsKey, QCoreVariant> SettingsKeyMap;
+typedef QMap<QSettingsKey, QVariant> SettingsKeyMap;
 
 class QSettingsGroup
 {
@@ -134,8 +134,8 @@ public:
     virtual ~QSettingsPrivate();
 
     virtual void remove(const QString &key) = 0;
-    virtual void set(const QString &key, const QCoreVariant &value) = 0;
-    virtual bool get(const QString &key, QCoreVariant *value) const = 0;
+    virtual void set(const QString &key, const QVariant &value) = 0;
+    virtual bool get(const QString &key, QVariant *value) const = 0;
 
     enum ChildSpec { AllKeys, ChildKeys, ChildGroups };
     virtual QStringList children(const QString &prefix, ChildSpec spec) const = 0;
@@ -160,14 +160,14 @@ public:
     static void processChild(QString key, ChildSpec spec, QMap<QString, QString> &result);
 
     // Variant streaming functions
-    QStringList variantListToStringList(const QCoreVariantList &l) const;
-    QCoreVariantList stringListToVariantList(const QStringList &l) const;
+    QStringList variantListToStringList(const QVariantList &l) const;
+    QVariantList stringListToVariantList(const QStringList &l) const;
 
     // parser functions
     static QString &escapedLeadingAt(QString &s);
     static QString &unescapedLeadingAt(QString &s);
-    static QString variantToString(const QCoreVariant &v);
-    static QCoreVariant stringToVariant(const QString &s);
+    static QString variantToString(const QVariant &v);
+    static QVariant stringToVariant(const QString &s);
     static void iniEscapedKey(const QString &key, QByteArray &result);
     static bool iniUnescapedKey(const QByteArray &key, int from, int to, QString &result);
     static void iniEscapedString(const QString &str, QByteArray &result);
@@ -207,8 +207,8 @@ public:
     ~QConfFileSettingsPrivate();
 
     void remove(const QString &key);
-    void set(const QString &key, const QCoreVariant &value);
-    bool get(const QString &key, QCoreVariant *value) const;
+    void set(const QString &key, const QVariant &value);
+    bool get(const QString &key, QVariant *value) const;
 
     QStringList children(const QString &prefix, ChildSpec spec) const;
 

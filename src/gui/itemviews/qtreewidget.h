@@ -16,7 +16,7 @@
 
 #include <QtGui/qtreeview.h>
 #include <QtCore/qlist.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 class QTreeWidget;
 class QTreeModel;
@@ -42,9 +42,9 @@ public:
         { setData(column, QAbstractItemModel::DisplayRole, text); }
 
     inline QIcon icon(int column) const
-        { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
+        { return qVariant_to<QIcon>(data(column, QAbstractItemModel::DecorationRole)); }
     inline void setIcon(int column, const QIcon &icon)
-        { setData(column, QAbstractItemModel::DecorationRole, icon); }
+        { setData(column, QAbstractItemModel::DecorationRole, qVariant(icon)); }
 
     inline QString statusTip(int column) const
         { return data(column, QAbstractItemModel::StatusTipRole).toString(); }
@@ -62,9 +62,9 @@ public:
         { setData(column, QAbstractItemModel::WhatsThisRole, whatsThis); }
 
     inline QFont font(int column) const
-        { return data(column, QAbstractItemModel::FontRole).toFont(); }
+        { return qVariant_to<QFont>(data(column, QAbstractItemModel::FontRole)); }
     inline void setFont(int column, const QFont &font)
-        { setData(column, QAbstractItemModel::FontRole, font); }
+        { setData(column, QAbstractItemModel::FontRole, qVariant(font)); }
 
     inline int textAlignment(int column) const
         { return data(column, QAbstractItemModel::TextAlignmentRole).toInt(); }
@@ -72,14 +72,14 @@ public:
         { setData(column, QAbstractItemModel::TextAlignmentRole, alignment); }
 
     inline QColor backgroundColor(int column) const
-        { return data(column, QAbstractItemModel::BackgroundColorRole).toColor(); }
+        { return qVariant_to<QColor>(data(column, QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::BackgroundColorRole, color); }
+        { setData(column, QAbstractItemModel::BackgroundColorRole, qVariant(color)); }
 
     inline QColor textColor(int column) const
-        { return data(column, QAbstractItemModel::TextColorRole).toColor(); }
+        { return qVariant_to<QColor>(data(column, QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::TextColorRole, color); }
+        { setData(column, QAbstractItemModel::TextColorRole, qVariant(color)); }
 
     inline Qt::CheckState checkState(int column) const
         { return static_cast<Qt::CheckState>(data(column, QAbstractItemModel::CheckStateRole).toInt()); }

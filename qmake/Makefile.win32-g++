@@ -64,7 +64,7 @@ QTOBJS= \
 	qsize.o \
 	qsettings.o \
 	qsettings_win.o \
-	qcorevariant.o \
+	qvariant.o \
 	qmetatype.o
 
 qmake.exe: $(OBJS) $(QTOBJS)
@@ -92,8 +92,8 @@ qsettings_win.o: ..\src\core\io\qsettings_win.cpp
 qsettings.o: ..\src\core\io\qsettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qsettings.cpp
 
-qcorevariant.o: ..\src\core\kernel\qcorevariant.cpp
-	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
+qvariant.o: ..\src\core\kernel\qvariant.cpp
+	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qvariant.cpp
 
 qurl.o: ..\src\core\io\qurl.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qurl.cpp

@@ -14,7 +14,7 @@
 #ifndef QMIMEDATA_H
 #define QMIMEDATA_H
 
-#include <QtCore/qcorevariant.h>
+#include <QtCore/qvariant.h>
 #include <QtCore/qobject.h>
 
 class QUrl;
@@ -39,12 +39,12 @@ public:
     void setHtml(const QString &html);
     bool hasHtml() const;
 
-    QCoreVariant imageData() const;
-    void setImageData(const QCoreVariant &image);
+    QVariant imageData() const;
+    void setImageData(const QVariant &image);
     bool hasImage() const;
 
-    QCoreVariant colorData() const;
-    void setColorData(const QCoreVariant &color);
+    QVariant colorData() const;
+    void setColorData(const QVariant &color);
     bool hasColor() const;
 
     QByteArray data(const QString &mimetype) const;
@@ -55,8 +55,8 @@ public:
 
     void clear();
 protected:
-    virtual QCoreVariant retrieveData(const QString &mimetype,
-                                      QCoreVariant::Type preferredType) const;
+    virtual QVariant retrieveData(const QString &mimetype,
+                                      QVariant::Type preferredType) const;
 private:
     Q_DISABLE_COPY(QMimeData)
     Q_DECLARE_PRIVATE(QMimeData)

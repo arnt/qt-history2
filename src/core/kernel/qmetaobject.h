@@ -15,7 +15,7 @@
 #define QMETAOBJECT_H
 
 #include "QtCore/qobjectdefs.h"
-#include "QtCore/qcorevariant.h"
+#include "QtCore/qvariant.h"
 
 template <typename T> class QList;
 
@@ -78,7 +78,7 @@ public:
 
     const char *name() const;
     const char *typeName() const;
-    QCoreVariant::Type type() const;
+    QVariant::Type type() const;
 
     bool isReadable() const;
     bool isWritable() const;
@@ -91,8 +91,8 @@ public:
     bool isEnumType() const;
     QMetaEnum enumerator() const;
 
-    QCoreVariant read(const QObject *obj) const;
-    bool write(QObject *obj, const QCoreVariant &value) const;
+    QVariant read(const QObject *obj) const;
+    bool write(QObject *obj, const QVariant &value) const;
     bool reset(QObject *obj) const;
 
     bool hasStdCppSet() const;

@@ -308,7 +308,7 @@ bool Ui3Reader::isFrameworkCodeGenerated(const QDomElement& e)
 {
     QDomElement n = getObjectProperty(e, QLatin1String("frameworkCode"));
     if (n.attribute(QLatin1String("name")) == QLatin1String("frameworkCode") &&
-         !DomTool::elementToVariant(n.firstChild().toElement(), QCoreVariant(true)).toBool())
+         !DomTool::elementToVariant(n.firstChild().toElement(), QVariant(true)).toBool())
         return false;
     return true;
 }

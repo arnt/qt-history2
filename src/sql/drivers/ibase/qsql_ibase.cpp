@@ -15,7 +15,7 @@
 
 #include <qcoreapplication.h>
 #include <qdatetime.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qsqlerror.h>
 #include <qsqlfield.h>
 #include <qsqlindex.h>
@@ -111,7 +111,7 @@ static void delDA(XSQLDA *&sqlda)
     sqlda = 0;
 }
 
-static QCoreVariant::Type qIBaseTypeName(int iType)
+static QVariant::Type qIBaseTypeName(int iType)
 {
     switch (iType) {
     case blr_varying:
@@ -119,56 +119,56 @@ static QCoreVariant::Type qIBaseTypeName(int iType)
     case blr_text:
     case blr_cstring:
     case blr_cstring2:
-        return QCoreVariant::String;
+        return QVariant::String;
     case blr_sql_time:
-        return QCoreVariant::Time;
+        return QVariant::Time;
     case blr_sql_date:
-        return QCoreVariant::Date;
+        return QVariant::Date;
     case blr_timestamp:
-        return QCoreVariant::DateTime;
+        return QVariant::DateTime;
     case blr_blob:
-        return QCoreVariant::ByteArray;
+        return QVariant::ByteArray;
     case blr_quad:
     case blr_short:
     case blr_long:
-        return QCoreVariant::Int;
+        return QVariant::Int;
     case blr_int64:
-        return QCoreVariant::LongLong;
+        return QVariant::LongLong;
     case blr_float:
     case blr_d_float:
     case blr_double:
-        return QCoreVariant::Double;
+        return QVariant::Double;
     }
     qWarning("qIBaseTypeName: unknown datatype: %d", iType);
-    return QCoreVariant::Invalid;
+    return QVariant::Invalid;
 }
 
-static QCoreVariant::Type qIBaseTypeName2(int iType)
+static QVariant::Type qIBaseTypeName2(int iType)
 {
     switch(iType & ~1) {
     case SQL_VARYING:
     case SQL_TEXT:
-        return QCoreVariant::String;
+        return QVariant::String;
     case SQL_LONG:
     case SQL_SHORT:
-        return QCoreVariant::Int;
+        return QVariant::Int;
     case SQL_INT64:
-        return QCoreVariant::LongLong;
+        return QVariant::LongLong;
     case SQL_FLOAT:
     case SQL_DOUBLE:
-        return QCoreVariant::Double;
+        return QVariant::Double;
     case SQL_TIMESTAMP:
-        return QCoreVariant::DateTime;
+        return QVariant::DateTime;
     case SQL_TYPE_TIME:
-        return QCoreVariant::Time;
+        return QVariant::Time;
     case SQL_TYPE_DATE:
-        return QCoreVariant::Date;
+        return QVariant::Date;
     case SQL_ARRAY:
-        return QCoreVariant::List;
+        return QVariant::List;
     case SQL_BLOB:
-        return QCoreVariant::ByteArray;
+        return QVariant::ByteArray;
     default:
-        return QCoreVariant::Invalid;
+        return QVariant::Invalid;
     }
 }
 
@@ -284,10 +284,10 @@ public:
     bool commit();
 
     bool isSelect();
-    QCoreVariant fetchBlob(ISC_QUAD *bId);
+    QVariant fetchBlob(ISC_QUAD *bId);
     bool writeBlob(int i, const QByteArray &ba);
-    QCoreVariant fetchArray(int pos, ISC_QUAD *arr);
-    bool writeArray(int i, const QList<QCoreVariant> &list);
+    QVariant fetchArray(int pos, ISC_QUAD *arr);
+    bool writeArray(int i, const QList<QVariant> &list);
 
 public:
     QIBaseResult *q;
@@ -347,14 +347,14 @@ bool QIBaseResultPrivate::writeBlob(int i, const QByteArray &ba)
     return true;
 }
 
-QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
+QVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
 {
     isc_blob_handle handle = 0;
 
     isc_open_blob2(status, &ibase, &trans, &handle, bId, 0, 0);
     if (isError(QT_TRANSLATE_NOOP("QIBaseResult", "Unable to open BLOB"),
                 QSqlError::StatementError))
-        return QCoreVariant();
+        return QVariant();
 
     unsigned short len = 0;
     QByteArray ba;
@@ -370,7 +370,7 @@ QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
                          QSqlError::StatementError);
     isc_close_blob(status, &handle);
     if (isErr)
-        return QCoreVariant();
+        return QVariant();
 
     if (ba.size() > 255)
         ba.resize(ba.size() / 2 + len);
@@ -381,9 +381,9 @@ QCoreVariant QIBaseResultPrivate::fetchBlob(ISC_QUAD *bId)
 }
 
 template<typename T>
-static QList<QCoreVariant> toList(char** buf, int count, T* = 0)
+static QList<QVariant> toList(char** buf, int count, T* = 0)
 {
-    QList<QCoreVariant> res;
+    QList<QVariant> res;
     for (int i = 0; i < count; ++i) {
         res.append(*(T*)(*buf));
         *buf += sizeof(T);
@@ -392,9 +392,9 @@ static QList<QCoreVariant> toList(char** buf, int count, T* = 0)
 }
 /* char** ? seems like bad influence from oracle ... */
 template<>
-static QList<QCoreVariant> toList<long>(char** buf, int count, long*)
+static QList<QVariant> toList<long>(char** buf, int count, long*)
 {
-    QList<QCoreVariant> res;
+    QList<QVariant> res;
     for (int i = 0; i < count; ++i) {
         if (sizeof(int) == sizeof(long))
             res.append(int((*(long*)(*buf))));
@@ -405,12 +405,12 @@ static QList<QCoreVariant> toList<long>(char** buf, int count, long*)
     return res;
 }
 
-static char* readArrayBuffer(QList<QCoreVariant>& list, char *buffer, short curDim,
+static char* readArrayBuffer(QList<QVariant>& list, char *buffer, short curDim,
                              short* numElements, ISC_ARRAY_DESC *arrayDesc)
 {
     const short dim = arrayDesc->array_desc_dimensions - 1;
     const unsigned char dataType = arrayDesc->array_desc_dtype;
-    QList<QCoreVariant> valList;
+    QList<QVariant> valList;
     unsigned short strLen = arrayDesc->array_desc_length;
 
     if (curDim != dim) {
@@ -472,9 +472,9 @@ static char* readArrayBuffer(QList<QCoreVariant>& list, char *buffer, short curD
     return buffer;
 }
 
-QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
+QVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 {
-    QList<QCoreVariant> list;
+    QList<QVariant> list;
     ISC_ARRAY_DESC desc;
 
     if (!arr)
@@ -524,11 +524,11 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 
     delete[] numElements;
 
-    return QCoreVariant(list);
+    return QVariant(list);
 }
 
 template<typename T>
-static char* fillList(char *buffer, const QList<QCoreVariant> &list, T* = 0)
+static char* fillList(char *buffer, const QList<QVariant> &list, T* = 0)
 {
     for (int i = 0; i < list.size(); ++i) {
         T val;
@@ -540,7 +540,7 @@ static char* fillList(char *buffer, const QList<QCoreVariant> &list, T* = 0)
 }
 
 template<>
-static char* fillList<float>(char *buffer, const QList<QCoreVariant> &list, float*)
+static char* fillList<float>(char *buffer, const QList<QVariant> &list, float*)
 {
     for (int i = 0; i < list.size(); ++i) {
         double val;
@@ -576,8 +576,8 @@ static char* qFillBufferWithString(char *buffer, const QString& string, short bu
     return buffer;
 }
 
-static char* createArrayBuffer(char *buffer, const QList<QCoreVariant> &list,
-                               QCoreVariant::Type type, short curDim, ISC_ARRAY_DESC *arrayDesc,
+static char* createArrayBuffer(char *buffer, const QList<QVariant> &list,
+                               QVariant::Type type, short curDim, ISC_ARRAY_DESC *arrayDesc,
                                QString& error)
 {
     int i;
@@ -597,7 +597,7 @@ static char* createArrayBuffer(char *buffer, const QList<QCoreVariant> &list,
     if (curDim != dim) {
         for(i = 0; i < list.size(); ++i) {
 
-          if (list.at(i).type() != QCoreVariant::List) { // dimensions mismatch
+          if (list.at(i).type() != QVariant::List) { // dimensions mismatch
               error = QLatin1String("Array dimensons mismatch. Fieldname: %1");
               return 0;
           }
@@ -609,45 +609,45 @@ static char* createArrayBuffer(char *buffer, const QList<QCoreVariant> &list,
         }
     } else {
         switch(type) {
-        case QCoreVariant::Int:
-        case QCoreVariant::UInt:
+        case QVariant::Int:
+        case QVariant::UInt:
             if (arrayDesc->array_desc_dtype == blr_short)
                 buffer = fillList<short>(buffer, list);
             else
                 buffer = fillList<int>(buffer, list);
             break;
-        case QCoreVariant::Double:
+        case QVariant::Double:
             if (arrayDesc->array_desc_dtype == blr_float)
                 buffer = fillList<float>(buffer, list, static_cast<float *>(0));
             else
                 buffer = fillList<double>(buffer, list);
             break;
-        case QCoreVariant::LongLong:
+        case QVariant::LongLong:
             buffer = fillList<qint64>(buffer, list);
             break;
-        case QCoreVariant::ULongLong:
+        case QVariant::ULongLong:
             buffer = fillList<quint64>(buffer, list);
             break;
-        case QCoreVariant::String:
+        case QVariant::String:
             for (i = 0; i < list.size(); ++i)
                 buffer = qFillBufferWithString(buffer, list.at(i).toString(),
                                                arrayDesc->array_desc_length,
                                                arrayDesc->array_desc_dtype == blr_varying, true);
             break;
-        case QCoreVariant::Date:
+        case QVariant::Date:
             for (i = 0; i < list.size(); ++i) {
                 *((ISC_DATE*)buffer) = toDate(list.at(i).toDate());
                 buffer += sizeof(ISC_DATE);
             }
             break;
-        case QCoreVariant::Time:
+        case QVariant::Time:
             for (i = 0; i < list.size(); ++i) {
                 *((ISC_TIME*)buffer) = toTime(list.at(i).toTime());
                 buffer += sizeof(ISC_TIME);
             }
             break;
 
-        case QCoreVariant::DateTime:
+        case QVariant::DateTime:
             for (i = 0; i < list.size(); ++i) {
                 *((ISC_TIMESTAMP*)buffer) = toTimeStamp(list.at(i).toDateTime());
                 buffer += sizeof(ISC_TIMESTAMP);
@@ -658,7 +658,7 @@ static char* createArrayBuffer(char *buffer, const QList<QCoreVariant> &list,
     return buffer;
 }
 
-bool QIBaseResultPrivate::writeArray(int column, const QList<QCoreVariant> &list)
+bool QIBaseResultPrivate::writeArray(int column, const QList<QVariant> &list)
 {
     QString error;
     ISC_QUAD *arrayId = (ISC_QUAD*) inda->sqlvar[column].sqldata;
@@ -675,7 +675,7 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QCoreVariant> &list
 
     short arraySize = 1;
     long bufLen;
-    QList<QCoreVariant> subList = list;
+    QList<QVariant> subList = list;
 
     short dimensions = desc.array_desc_dimensions;
     for(int i = 0; i < dimensions; ++i) {
@@ -848,7 +848,7 @@ bool QIBaseResult::exec()
     setAt(QSql::BeforeFirstRow);
 
     if (d->inda) {
-        QVector<QCoreVariant>& values = boundValues();
+        QVector<QVariant>& values = boundValues();
         int i;
         if (values.count() > d->inda->sqld) {
             qWarning("QIBaseResult::exec: Parameter mismatch, expected %d, got %d parameters",
@@ -861,7 +861,7 @@ bool QIBaseResult::exec()
             if (!d->inda->sqlvar[para].sqldata)
                 // skip unknown datatypes
                 continue;
-            const QCoreVariant val(values[i]);
+            const QVariant val(values[i]);
             if (d->inda->sqlvar[para].sqltype & 1) {
                 if (val.isNull()) {
                     // set null indicator
@@ -972,7 +972,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
 
         if ((d->sqlda->sqlvar[i].sqltype & 1) && *d->sqlda->sqlvar[i].sqlind) {
             // null value
-            QCoreVariant v;
+            QVariant v;
             v.cast(qIBaseTypeName2(d->sqlda->sqlvar[i].sqltype));
             row[idx] = v;
             continue;
@@ -987,22 +987,22 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             if (d->sqlda->sqlvar[i].sqlscale < 0)
                 row[idx] = *(qint64*)buf * pow(10, d->sqlda->sqlvar[i].sqlscale);
             else
-                row[idx] = QCoreVariant(*(qint64*)buf);
+                row[idx] = QVariant(*(qint64*)buf);
             break;
         case SQL_LONG:
             if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
-                row[idx] = QCoreVariant(int((*(long*)buf)));
+                row[idx] = QVariant(int((*(long*)buf)));
             else
-                row[idx] = QCoreVariant(qint64((*(long*)buf)));
+                row[idx] = QVariant(qint64((*(long*)buf)));
             break;
         case SQL_SHORT:
-            row[idx] = QCoreVariant(int((*(short*)buf)));
+            row[idx] = QVariant(int((*(short*)buf)));
             break;
         case SQL_FLOAT:
-            row[idx] = QCoreVariant(double((*(float*)buf)));
+            row[idx] = QVariant(double((*(float*)buf)));
             break;
         case SQL_DOUBLE:
-            row[idx] = QCoreVariant(*(double*)buf);
+            row[idx] = QVariant(*(double*)buf);
             break;
         case SQL_TIMESTAMP:
             row[idx] = fromTimeStamp(buf);
@@ -1024,7 +1024,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             break;
         default:
             // unknown type - don't even try to fetch
-            row[idx] = QCoreVariant();
+            row[idx] = QVariant();
             break;
         }
     }
@@ -1376,7 +1376,7 @@ QSqlIndex QIBaseDriver::primaryIndex(const QString &table) const
 QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) const
 {
     switch (field.type()) {
-    case QCoreVariant::DateTime: {
+    case QVariant::DateTime: {
         QDateTime datetime = field.value().toDateTime();
         if (datetime.isValid())
             return QLatin1Char('\'') + QString::number(datetime.date().year()) + QLatin1Char('-') +
@@ -1390,7 +1390,7 @@ QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) cons
         else
             return QLatin1String("NULL");
     }
-    case QCoreVariant::Time: {
+    case QVariant::Time: {
         QTime time = field.value().toTime();
         if (time.isValid())
             return QLatin1Char('\'') + QString::number(time.hour()) + QLatin1Char(':') +
@@ -1401,7 +1401,7 @@ QString QIBaseDriver::formatValue(const QSqlField &field, bool trimStrings) cons
         else
             return QLatin1String("NULL");
     }
-    case QCoreVariant::Date: {
+    case QVariant::Date: {
         QDate date = field.value().toDate();
         if (date.isValid())
             return QLatin1Char('\'') + QString::number(date.year()) + QLatin1Char('-') +

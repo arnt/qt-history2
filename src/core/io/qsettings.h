@@ -15,7 +15,7 @@
 #define QSETTINGS_H
 
 #include "QtCore/qobject.h"
-#include "QtCore/qcorevariant.h"
+#include "QtCore/qvariant.h"
 #include "QtCore/qstring.h"
 #ifdef QT3_SUPPORT
 #include "QtCore/qstringlist.h"
@@ -103,8 +103,8 @@ public:
     QStringList childGroups() const;
     bool isWritable() const;
 
-    void setValue(const QString &key, const QCoreVariant &value);
-    QCoreVariant value(const QString &key, const QCoreVariant &defaultValue = QCoreVariant()) const;
+    void setValue(const QString &key, const QVariant &value);
+    QVariant value(const QString &key, const QVariant &defaultValue = QVariant()) const;
 
     void remove(const QString &key);
     bool contains(const QString &key) const;

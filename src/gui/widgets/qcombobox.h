@@ -17,7 +17,7 @@
 #include <QtGui/qwidget.h>
 #include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 class QAbstractItemView;
 class QLineEdit;

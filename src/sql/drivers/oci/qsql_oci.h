@@ -53,7 +53,7 @@ protected:
     int size();
     int numRowsAffected();
     QSqlRecord record() const;
-    QCoreVariant lastInsertId() const;
+    QVariant lastInsertId() const;
 
 private:
     QOCIPrivate*        d;
@@ -79,7 +79,7 @@ protected:
     bool        fetchLast();
     bool        fetch(int i);
     bool        reset (const QString& query);
-    QCoreVariant        data(int field);
+    QVariant        data(int field);
     bool        isNull(int field);
     int         size();
     int         numRowsAffected();

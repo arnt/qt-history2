@@ -18,7 +18,7 @@
 #include "QtSql/qsqldatabase.h"
 #include "QtCore/qstring.h"
 
-class QCoreVariant;
+class QVariant;
 class QSqlDriver;
 class QSqlError;
 class QSqlResult;
@@ -53,7 +53,7 @@ public:
 
     void setForwardOnly(bool forward);
     bool exec(const QString& query);
-    QCoreVariant value(int i) const;
+    QVariant value(int i) const;
 
     bool seek(int i, bool relative = false);
     bool next();
@@ -69,13 +69,13 @@ public:
     // prepared query support
     bool exec();
     bool prepare(const QString& query);
-    void bindValue(const QString& placeholder, const QCoreVariant& val,
+    void bindValue(const QString& placeholder, const QVariant& val,
                    QSql::ParamType type = QSql::In);
-    void bindValue(int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In);
-    void addBindValue(const QCoreVariant& val, QSql::ParamType type = QSql::In);
-    QCoreVariant boundValue(const QString& placeholder) const;
-    QCoreVariant boundValue(int pos) const;
-    QMap<QString, QCoreVariant> boundValues() const;
+    void bindValue(int pos, const QVariant& val, QSql::ParamType type = QSql::In);
+    void addBindValue(const QVariant& val, QSql::ParamType type = QSql::In);
+    QVariant boundValue(const QString& placeholder) const;
+    QVariant boundValue(int pos) const;
+    QMap<QString, QVariant> boundValues() const;
     QString executedQuery() const;
 
 private:

@@ -37,7 +37,7 @@ public:
     bool exec();
 
 protected:
-    QCoreVariant data(int field);
+    QVariant data(int field);
     bool reset (const QString& query);
     bool fetch(int i);
     bool fetchNext();

@@ -604,7 +604,7 @@ QVariant QWindowsMimeURI::convertToMime(const QString &mimeType, LPDATAOBJECT pD
     if (mimeType == "text/uri-list") {
         if (canGetData(CF_HDROP, pDataObj)) {
             QByteArray texturi;
-            QList<QCoreVariant> urls;
+            QList<QVariant> urls;
 
             QByteArray data = getData(CF_HDROP, pDataObj);
             if (data.isEmpty())

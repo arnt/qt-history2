@@ -1681,7 +1681,7 @@ void QLineEdit::inputMethodEvent(QInputMethodEvent *e)
         const QInputMethodEvent::Attribute &a = e->attributes().at(i);
         if (a.type != QInputMethodEvent::TextFormat)
             continue;
-        QTextCharFormat f = a.value.toTextFormat().toCharFormat();
+        QTextCharFormat f = qVariant_to<QTextFormat>(a.value).toCharFormat();
         if (f.isValid()) {
             QTextLayout::FormatOverride o;
             o.from = a.start + d->cursor;
@@ -1704,7 +1704,7 @@ QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
     case Qt::ImMicroFocus:
         return d->cursorRect();
     case Qt::ImFont:
-        return font();
+        return qVariant(font());
     case Qt::ImCursorPosition:
         return QVariant(d->cursor);
     case Qt::ImSurroundingText:

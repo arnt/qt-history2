@@ -117,7 +117,7 @@ public:
     virtual bool hasFormat(const QString &mimetype) const;
     virtual QStringList formats() const;
 
-    QCoreVariant retrieveData(const QString &mimetype, QCoreVariant::Type type) const;
+    QVariant retrieveData(const QString &mimetype, QVariant::Type type) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
 
     Atom atom;
@@ -1177,7 +1177,7 @@ bool QClipboardWatcher::hasFormat(const QString &format) const
     return list.contains(format);
 }
 
-QCoreVariant QClipboardWatcher::retrieveData(const QString &fmt, QCoreVariant::Type type) const
+QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type) const
 {
     if (fmt.isEmpty() || empty())
         return QByteArray();
@@ -1243,16 +1243,16 @@ QCoreVariant QClipboardWatcher::retrieveData(const QString &fmt, QCoreVariant::T
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Bitmap)
-                    return QVariant(qbm);
+                    return qVariant(qbm);
                 if (type == QVariant::Pixmap)
-                    return QVariant(QPixmap(qbm));
+                    return qVariant(QPixmap(qbm));
                 iio.setFormat("PBMRAW");
                 iio.setImage(qbm.toImage());
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Pixmap)
-                    return QVariant(qpm);
+                    return qVariant(qpm);
                 iio.setFormat("PPMRAW");
                 iio.setImage(qpm.toImage());
             }

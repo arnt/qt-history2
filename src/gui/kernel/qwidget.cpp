@@ -5383,7 +5383,7 @@ QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
     case Qt::ImMicroFocus:
         return QRect(width()/2, 0, 1, height());
     case Qt::ImFont:
-        return font();
+        return qVariant(font());
     default:
         return QVariant();
     }

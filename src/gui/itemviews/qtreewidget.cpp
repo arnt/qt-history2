@@ -43,11 +43,11 @@ public:
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     bool hasChildren(const QModelIndex &parent) const;
 
-    QCoreVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
 
-    QCoreVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setHeaderData(int section, Qt::Orientation orientation, const QCoreVariant &value,
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    bool setHeaderData(int section, Qt::Orientation orientation, const QVariant &value,
                        int role);
 
     bool insertRows(int row, int count, const QModelIndex &parent);
@@ -296,14 +296,14 @@ bool QTreeModel::hasChildren(const QModelIndex &parent) const
   and \a role.
 */
 
-QCoreVariant QTreeModel::data(const QModelIndex &index, int role) const
+QVariant QTreeModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QCoreVariant();
+        return QVariant();
     QTreeWidgetItem *itm = item(index);
     if (itm)
         return itm->data(index.column(), role);
-    return QCoreVariant();
+    return QVariant();
 }
 
 /*!
@@ -316,7 +316,7 @@ QCoreVariant QTreeModel::data(const QModelIndex &index, int role) const
   Returns true if successful; otherwise returns false.
 */
 
-bool QTreeModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool QTreeModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid())
         return false;
@@ -337,11 +337,11 @@ bool QTreeModel::setData(const QModelIndex &index, const QCoreVariant &value, in
   \a orientation and data \a role.
 */
 
-QCoreVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal)
         return header->data(section, role);
-    return QCoreVariant();
+    return QVariant();
 }
 
 /*!
@@ -355,7 +355,7 @@ QCoreVariant QTreeModel::headerData(int section, Qt::Orientation orientation, in
 */
 
 bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
-                               const QCoreVariant &value, int role)
+                               const QVariant &value, int role)
 {
     if (orientation == Qt::Horizontal && header) {
         header->setData(section, role, value);

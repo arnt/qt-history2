@@ -30,7 +30,7 @@ class QEvent;
 class QTimerEvent;
 class QChildEvent;
 struct QMetaObject;
-class QCoreVariant;
+class QVariant;
 class QObjectPrivate;
 class QObject;
 class QThread;
@@ -148,8 +148,8 @@ public:
     void dumpObjectInfo();
 
 #ifndef QT_NO_PROPERTIES
-    bool setProperty(const char *name, const QCoreVariant &value);
-    QCoreVariant property(const char *name) const;
+    bool setProperty(const char *name, const QVariant &value);
+    QVariant property(const char *name) const;
 #endif // QT_NO_PROPERTIES
 
 #ifndef QT_NO_USERDATA

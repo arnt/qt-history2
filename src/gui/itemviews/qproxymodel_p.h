@@ -38,7 +38,7 @@ public:
     int rowCount(const QModelIndex &) const { return 0; }
     int columnCount(const QModelIndex &) const { return 0; }
     bool hasChildren(const QModelIndex &) const { return false; }
-    QCoreVariant data(const QModelIndex &, int) const { return QCoreVariant(); }
+    QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
 class QProxyModelPrivate : private QAbstractItemModelPrivate

@@ -525,7 +525,7 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
         int i = rowAt(pressPos.y()) + columnAt(pressPos.x()) * numRows();
         QColor col(values[i]);
         QMimeData *mime = new QMimeData;
-        mime->setColorData(QVariant(col));
+        mime->setColorData(qVariant(col));
         QPixmap pix(cellWidth(), cellHeight());
         pix.fill(col);
         QPainter p(&pix);
@@ -952,7 +952,7 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
         return;
     if ((pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {
         QMimeData *mime = new QMimeData;
-        mime->setColorData(QVariant(col));
+        mime->setColorData(qVariant(col));
         QPixmap pix(30, 20);
         pix.fill(col);
         QPainter p(&pix);

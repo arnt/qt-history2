@@ -162,7 +162,7 @@ bool QProxyModel::hasChildren(const QModelIndex &parent) const
     Returns the data stored in the item with the given \a index under the
     specified \a role.
 */
-QCoreVariant QProxyModel::data(const QModelIndex &index, int role) const
+QVariant QProxyModel::data(const QModelIndex &index, int role) const
 {
     return d->model->data(index, role);
 }
@@ -176,7 +176,7 @@ QCoreVariant QProxyModel::data(const QModelIndex &index, int role) const
 
     \sa data() itemData() QAbstractItemModel::setData()
 */
-bool QProxyModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool QProxyModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     return d->model->setData(index, value, role);
 }
@@ -185,7 +185,7 @@ bool QProxyModel::setData(const QModelIndex &index, const QCoreVariant &value, i
     Returns the data stored in the \a section of the header with specified
     \a orientation under the given \a role.
 */
-QCoreVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant QProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     return d->model->headerData(section, orientation, role);
 }
@@ -197,7 +197,7 @@ QCoreVariant QProxyModel::headerData(int section, Qt::Orientation orientation, i
     \sa QAbstractItemModel::setHeaderData()
 */
 bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
-                                const QCoreVariant &value, int role)
+                                const QVariant &value, int role)
 {
     return d->model->setHeaderData(section, orientation, value, role);
 }
@@ -297,7 +297,7 @@ void QProxyModel::sort(int column, Qt::SortOrder order)
     \sa QAbstractItemModel::match()
 */
 QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
-                                   const QCoreVariant &value,
+                                   const QVariant &value,
                                    int hits, QAbstractItemModel::MatchFlags flags) const
 {
     return d->model->match(start, role, value, hits, flags);

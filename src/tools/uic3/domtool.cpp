@@ -42,7 +42,7 @@
 
   \sa hasProperty()
 */
-QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue, QString& comment)
+QVariant DomTool::readProperty(const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment)
 {
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
@@ -59,7 +59,7 @@ QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, co
 /*
   \overload
  */
-QCoreVariant DomTool::readProperty(const QDomElement& e, const QString& name, const QCoreVariant& defValue)
+QVariant DomTool::readProperty(const QDomElement& e, const QString& name, const QVariant& defValue)
 {
     QString comment;
     return readProperty(e, name, defValue, comment);
@@ -105,7 +105,7 @@ QStringList DomTool::propertiesOfType(const QDomElement& e, const QString& type)
 /*
     \overload
 */
-QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant& defValue)
+QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValue)
 {
     QString dummy;
     return elementToVariant(e, defValue, dummy);
@@ -117,11 +117,11 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
   comment matches the tag name. If the interpretation fails the \a
   defValue is returned instead.
  */
-QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant& defValue, QString &comment)
+QVariant DomTool::elementToVariant(const QDomElement& e, const QVariant& defValue, QString &comment)
 {
     Q_UNUSED(defValue);
 
-    QCoreVariant v;
+    QVariant v;
     Variant var;
 
     if (e.tagName() == QLatin1String("rect")) {
@@ -189,31 +189,31 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
         var.font = f;
         qVariantSet(v, var);
     } else if (e.tagName() == QLatin1String("string")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
         QDomElement n = e;
         n = n.nextSibling().toElement();
         if (n.tagName() == QLatin1String("comment"))
             comment = n.firstChild().toText().data();
     } else if (e.tagName() == QLatin1String("cstring")) {
-        v = QCoreVariant(e.firstChild().toText().data().toAscii());
+        v = QVariant(e.firstChild().toText().data().toAscii());
     } else if (e.tagName() == QLatin1String("number")) {
         bool ok = true;
-        v = QCoreVariant(e.firstChild().toText().data().toInt(&ok));
+        v = QVariant(e.firstChild().toText().data().toInt(&ok));
         if (!ok)
-            v = QCoreVariant(e.firstChild().toText().data().toDouble());
+            v = QVariant(e.firstChild().toText().data().toDouble());
     } else if (e.tagName() == QLatin1String("bool")) {
         QString t = e.firstChild().toText().data();
-        v = QCoreVariant(t == QLatin1String("true") || t == QLatin1String("1"));
+        v = QVariant(t == QLatin1String("true") || t == QLatin1String("1"));
     } else if (e.tagName() == QLatin1String("pixmap")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
     } else if (e.tagName() == QLatin1String("iconset")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
     } else if (e.tagName() == QLatin1String("image")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
     } else if (e.tagName() == QLatin1String("enum")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
     } else if (e.tagName() == QLatin1String("set")) {
-        v = QCoreVariant(e.firstChild().toText().data());
+        v = QVariant(e.firstChild().toText().data());
     } else if (e.tagName() == QLatin1String("sizepolicy")) {
         QDomElement n3 = e.firstChild().toElement();
         var.createSizePolicy();
@@ -237,7 +237,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
         QDomElement n;
         for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement())
             lst << n.firstChild().toText().data();
-        v = QCoreVariant(lst);
+        v = QVariant(lst);
     } else if (e.tagName() == QLatin1String("date")) {
         QDomElement n3 = e.firstChild().toElement();
         int y, m, d;
@@ -251,7 +251,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
                 d = n3.firstChild().toText().data().toInt();
             n3 = n3.nextSibling().toElement();
         }
-        v = QCoreVariant(QDate(y, m, d));
+        v = QVariant(QDate(y, m, d));
     } else if (e.tagName() == QLatin1String("time")) {
         QDomElement n3 = e.firstChild().toElement();
         int h, m, s;
@@ -265,7 +265,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
                 s = n3.firstChild().toText().data().toInt();
             n3 = n3.nextSibling().toElement();
         }
-        v = QCoreVariant(QTime(h, m, s));
+        v = QVariant(QTime(h, m, s));
     } else if (e.tagName() == QLatin1String("datetime")) {
         QDomElement n3 = e.firstChild().toElement();
         int h, mi, s, y, mo, d ;
@@ -285,7 +285,7 @@ QCoreVariant DomTool::elementToVariant(const QDomElement& e, const QCoreVariant&
                 d = n3.firstChild().toText().data().toInt();
             n3 = n3.nextSibling().toElement();
         }
-        v = QCoreVariant(QDateTime(QDate(y, mo, d), QTime(h, mi, s)));
+        v = QVariant(QDateTime(QDate(y, mo, d), QTime(h, mi, s)));
     }
 
     return v;
@@ -322,7 +322,7 @@ Color DomTool::readColor(const QDomElement &e)
 
   \sa hasAttribute()
  */
-QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, const QCoreVariant& defValue, QString& comment)
+QVariant DomTool::readAttribute(const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment)
 {
     QDomElement n;
     for (n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
@@ -338,7 +338,7 @@ QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, c
 /*
   \overload
 */
-QCoreVariant DomTool::readAttribute(const QDomElement& e, const QString& name, const QCoreVariant& defValue)
+QVariant DomTool::readAttribute(const QDomElement& e, const QString& name, const QVariant& defValue)
 {
     QString comment;
     return readAttribute(e, name, defValue, comment);

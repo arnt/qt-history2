@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qcorevariant.h"
+#include "qvariant.h"
 #include "qmap.h"
 #include "qregexp.h"
 #include "qsqlerror.h"
@@ -80,7 +80,7 @@ public:
 
     QString executedQuery;
     QMap<int, QSql::ParamType> types;
-    QVector<QCoreVariant> values;
+    QVector<QVariant> values;
     typedef QMap<QString, int> IndexMap;
     IndexMap indexes;
 
@@ -352,13 +352,13 @@ QSqlError QSqlResult::lastError() const
 */
 
 /*!
-    \fn QCoreVariant QSqlResult::data(int index)
+    \fn QVariant QSqlResult::data(int index)
 
     Returns the data for field \a index in the current row as
-    a QCoreVariant. This function is only called if the result is in
+    a QVariant. This function is only called if the result is in
     an active state and is positioned on a valid record and \a index is
     non-negative. Derived classes must reimplement this function and
-    return the value of field \a index, or QCoreVariant() if it cannot be
+    return the value of field \a index, or QVariant() if it cannot be
     determined.
 */
 
@@ -532,7 +532,7 @@ bool QSqlResult::exec()
     QString query = lastQuery();
     if (d->binds == NamedBinding) {
         int i;
-        QCoreVariant val;
+        QVariant val;
         QString holder;
         for (i = d->holders.count() - 1; i >= 0; --i) {
             holder = d->holders[i].holderName;
@@ -550,7 +550,7 @@ bool QSqlResult::exec()
             i = query.indexOf(QLatin1Char('?'), i);
             if (i == -1)
                 continue;
-            QCoreVariant var = d->values[idx];
+            QVariant var = d->values[idx];
             QSqlField f(QLatin1String(""), var.type());
             if (var.isNull())
                 f.clear();
@@ -577,7 +577,7 @@ bool QSqlResult::exec()
 
     \sa addBindValue()
 */
-void QSqlResult::bindValue(int index, const QCoreVariant& val, QSql::ParamType paramType)
+void QSqlResult::bindValue(int index, const QVariant& val, QSql::ParamType paramType)
 {
     d->binds = PositionalBinding;
     QString nm(QLatin1String(":f") + QString::number(index));
@@ -595,7 +595,7 @@ void QSqlResult::bindValue(int index, const QCoreVariant& val, QSql::ParamType p
     Binds the value \a val of parameter type \a paramType to the \a
     placeholder name in the current record (row).
 */
-void QSqlResult::bindValue(const QString& placeholder, const QCoreVariant& val,
+void QSqlResult::bindValue(const QString& placeholder, const QVariant& val,
                            QSql::ParamType paramType)
 {
     d->binds = NamedBinding;
@@ -622,7 +622,7 @@ void QSqlResult::bindValue(const QString& placeholder, const QCoreVariant& val,
 
     \sa bindValue()
 */
-void QSqlResult::addBindValue(const QCoreVariant& val, QSql::ParamType paramType)
+void QSqlResult::addBindValue(const QVariant& val, QSql::ParamType paramType)
 {
     d->binds = PositionalBinding;
     bindValue(d->bindCount, val, paramType);
@@ -635,7 +635,7 @@ void QSqlResult::addBindValue(const QCoreVariant& val, QSql::ParamType paramType
 
     \sa bindValue(), boundValues()
 */
-QCoreVariant QSqlResult::boundValue(int index) const
+QVariant QSqlResult::boundValue(int index) const
 {
     return d->values.value(index);
 }
@@ -648,7 +648,7 @@ QCoreVariant QSqlResult::boundValue(int index) const
 
     \sa bindValueType()
 */
-QCoreVariant QSqlResult::boundValue(const QString& placeholder) const
+QVariant QSqlResult::boundValue(const QString& placeholder) const
 {
     int idx = d->indexes.value(placeholder, -1);
     return d->values.value(idx);
@@ -691,7 +691,7 @@ int QSqlResult::boundValueCount() const
 
     \sa boundValueCount()
 */
-QVector<QCoreVariant>& QSqlResult::boundValues() const
+QVector<QVariant>& QSqlResult::boundValues() const
 {
     return d->values;
 }
@@ -776,16 +776,16 @@ QSqlRecord QSqlResult::record() const
 /*!
     Returns the object ID of the most recent inserted row if the
     database supports it.
-    An invalid QCoreVariant will be returned if the query did not
+    An invalid QVariant will be returned if the query did not
     insert any value or if the database does not report the id back.
     If more than one row was touched by the insert, the behavior is
     undefined.
 
     \sa QSqlDriver::hasFeature()
 */
-QCoreVariant QSqlResult::lastInsertId() const
+QVariant QSqlResult::lastInsertId() const
 {
-    return QCoreVariant();
+    return QVariant();
 }
 
 /*! \internal

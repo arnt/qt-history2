@@ -20,7 +20,7 @@
 #include "QtGui/qfont.h"
 #include "QtCore/qdatastream.h"
 
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 
 #define QTE_PIPE "QtEmbedded-%1"
 

@@ -149,7 +149,7 @@ IconProperty::IconProperty(AbstractFormEditor *core, const QIcon &value, const Q
 
 void IconProperty::setValue(const QVariant &value)
 {
-    m_value = value.toIcon();
+    m_value = qVariant_to<QIcon>(value);
 }
 
 QString IconProperty::toString() const
@@ -236,16 +236,16 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new RectProperty(value.toRect(), pname);
                 break;
             case QVariant::Icon:
-                p = new IconProperty(m_core, value.toIcon(), pname);
+                p = new IconProperty(m_core, qVariant_to<QIcon>(value), pname);
                 break;
             case QVariant::Font:
-                p = new FontProperty(value.toFont(), pname);
+                p = new FontProperty(qVariant_to<QFont>(value), pname);
                 break;
             case QVariant::Color:
-                p = new ColorProperty(value.toColor(), pname);
+                p = new ColorProperty(qVariant_to<QColor>(value), pname);
                 break;
             case QVariant::SizePolicy:
-                p = new SizePolicyProperty(value.toSizePolicy(), pname);
+                p = new SizePolicyProperty(qVariant_to<QSizePolicy>(value), pname);
                 break;
             case QVariant::DateTime:
                 p = new DateTimeProperty(value.toDateTime(), pname);
@@ -257,7 +257,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 p = new TimeProperty(value.toTime(), pname);
                 break;
             case QVariant::Cursor:
-                p = new CursorProperty(value.toCursor(), pname);
+                p = new CursorProperty(qVariant_to<QCursor>(value), pname);
                 break;
 #if 0 // ### disabled for now
             case QVariant::KeySequence:

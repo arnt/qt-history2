@@ -23,7 +23,7 @@
 class Q_CORE_EXPORT QMetaType {
 public:
     enum {
-        // these are merged with QCoreVariant
+        // these are merged with QVariant
         Void = 0, QString = 3, Int = 16, UInt = 17,
         Bool = 18, Double = 19, QByteArray = 29, QChar = 35,
 

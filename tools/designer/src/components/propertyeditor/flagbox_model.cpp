@@ -51,7 +51,7 @@ QModelIndex FlagBoxModel::index(int row, int column, const QModelIndex &parent) 
     return createIndex(row, column, 0);
 }
 
-QCoreVariant FlagBoxModel::data(const QModelIndex &index, int role) const
+QVariant FlagBoxModel::data(const QModelIndex &index, int role) const
 {
     const FlagBoxModelItem &item = m_items.at(index.row());
 
@@ -64,11 +64,11 @@ QCoreVariant FlagBoxModel::data(const QModelIndex &index, int role) const
         return item.isChecked();
 
     default:
-        return QCoreVariant();
+        return QVariant();
     } // end switch
 }
 
-bool FlagBoxModel::setData(const QModelIndex &index, const QCoreVariant &value, int role)
+bool FlagBoxModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     FlagBoxModelItem &item = m_items[index.row()];
 

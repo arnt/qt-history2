@@ -153,7 +153,7 @@ int ContextModel::columnCount(const QModelIndex &) const
     return 3;
 }
 
-QCoreVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ContextModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if ((role == QAbstractItemModel::DisplayRole) && (orientation == Qt::Horizontal)) {
         switch(section)    {
@@ -168,23 +168,23 @@ QCoreVariant ContextModel::headerData(int section, Qt::Orientation orientation, 
         return "Error";
     }
 
-    return QCoreVariant();
+    return QVariant();
 }
 
-QCoreVariant ContextModel::data(const QModelIndex &index, int role) const
+QVariant ContextModel::data(const QModelIndex &index, int role) const
 {
     int row = index.row();
     int column = index.column();
 
     if (row >= cntxtList.count() || !index.isValid())
-        return QCoreVariant();
+        return QVariant();
 
     ContextItem *cntxtItem = cntxtList.at(row);
 
     if (role == QAbstractItemModel::DisplayRole) {
         switch(column) {
         case 0: // done
-            return QCoreVariant();
+            return QVariant();
         case 1: // context
             return cntxtItem->context().simplified();
         case 2: // items
@@ -206,7 +206,7 @@ QCoreVariant ContextModel::data(const QModelIndex &index, int role) const
             return qVariant(*TrWindow::pxOff);
     }
 
-    return QCoreVariant();
+    return QVariant();
 }
 
 void ContextModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)

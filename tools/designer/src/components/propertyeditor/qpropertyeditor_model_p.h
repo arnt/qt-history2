@@ -71,13 +71,13 @@ public:
     virtual bool hasChildren(const QModelIndex &parent) const
     { return rowCount(parent) > 0; }
 
-    virtual QCoreVariant data(const QModelIndex &index, int role) const;
-    virtual bool setData(const QModelIndex &index, const QCoreVariant &value, int role);
+    virtual QVariant data(const QModelIndex &index, int role) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 
     virtual bool isEditable(const QModelIndex &index) const;
     virtual QModelIndex buddy(const QModelIndex &index) const;
 
-    virtual QCoreVariant headerData(int section, Qt::Orientation orientation, int role) const;
+    virtual QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
 protected:
     QString columnText(int column) const;

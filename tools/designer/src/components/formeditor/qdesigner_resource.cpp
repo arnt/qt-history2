@@ -258,7 +258,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                         name = p->elementIconSet()->text();
                     else if (p->elementPixmap() != 0)
                         name = p->elementPixmap()->text();
-                    v = m_core->iconCache()->nameToIcon(name);
+                    v = qVariant(m_core->iconCache()->nameToIcon(name));
                 } else {
                     v = toVariant(o->metaObject(), p);
                 }
@@ -958,7 +958,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
         return 0;
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
-        QString name = m_core->iconCache()->iconToName(value.toIcon());
+        QString name = m_core->iconCache()->iconToName(qVariant_to<QIcon>(value));
         r->setText(name);
         DomProperty *p = new DomProperty;
         p->setElementIconSet(r);

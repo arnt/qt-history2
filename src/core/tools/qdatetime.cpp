@@ -1120,7 +1120,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 
 QDate QDate::fromString(const QString &string, const QString &format)
 {
-    QDateTimeParser dt(format, QCoreVariant::Date);
+    QDateTimeParser dt(format, QVariant::Date);
     QDate date;
     return dt.fromString(string, &date, 0) ? date : QDate();
 }
@@ -1788,7 +1788,7 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 
 QTime QTime::fromString(const QString &string, const QString &format)
 {
-    QDateTimeParser dt(format, QCoreVariant::Time);
+    QDateTimeParser dt(format, QVariant::Time);
     QTime time;
     return dt.fromString(string, 0, &time) ? time : QTime(-1, -1, -1);
 }
@@ -2709,7 +2709,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 
 QDateTime QDateTime::fromString(const QString &string, const QString &format)
 {
-    QDateTimeParser dt(format, QCoreVariant::DateTime);
+    QDateTimeParser dt(format, QVariant::DateTime);
     QTime time;
     QDate date;
     return dt.fromString(string, &date, &time) ? QDateTime(date, time) : QDateTime(QDate(), QTime(-1, -1, -1));
@@ -3247,7 +3247,7 @@ int QFormatSection::length(QDateTimeParser::Section t)
     }
 }
 
-QDateTimeParser::QDateTimeParser(const QString &f, QCoreVariant::Type t)
+QDateTimeParser::QDateTimeParser(const QString &f, QVariant::Type t)
     : display(0)
 {
     parseFormat(f, t);
@@ -3308,9 +3308,9 @@ bool QDateTimeParser::isSpecial(const QChar &c) const
 {
     switch (c.cell()) {
     case 'd': case 'M': case 'y':
-        return (formatType == QCoreVariant::Date || formatType == QCoreVariant::DateTime);
+        return (formatType == QVariant::Date || formatType == QVariant::DateTime);
     case 'h': case 'm': case 's': case 'z': case 'a': case 'p':
-        return (formatType == QCoreVariant::Time || formatType == QCoreVariant::DateTime);
+        return (formatType == QVariant::Time || formatType == QVariant::DateTime);
     case '\'': return true;
     default: return false;
     }
@@ -3417,7 +3417,7 @@ QFormatSection QDateTimeParser::findNextFormat(const QString &str, const int sta
     return QFormatSection(start, str.mid(start, i - start));
 }
 
-void QDateTimeParser::parseFormat(const QString &f, QCoreVariant::Type t)
+void QDateTimeParser::parseFormat(const QString &f, QVariant::Type t)
 {
     display = 0;
     formatType = t;

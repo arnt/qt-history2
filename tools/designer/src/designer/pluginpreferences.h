@@ -14,7 +14,7 @@
 #ifndef PLUGINPREFERENCES_H
 #define PLUGINPREFERENCES_H
 
-#include <QtCore/QCoreVariant>
+#include <QtCore/QVariant>
 #include <QtCore/QMap>
 #include <QtCore/QString>
 

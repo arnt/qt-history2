@@ -217,7 +217,7 @@ public:
     bool hasChildren(const QModelIndex &parent) const
     { return rowCount(parent) > 0; }
 
-    QCoreVariant data(const QModelIndex &index, int role = DisplayRole) const;
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     ItemFlags flags(const QModelIndex &index) const;
 
     int categoryCount() const;
@@ -557,14 +557,14 @@ int WidgetCollectionModel::columnCount(const QModelIndex &parent) const
     return 0;
 }
 
-QCoreVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
+QVariant WidgetCollectionModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
-        return QCoreVariant();
+        return QVariant();
 
     int d = reinterpret_cast<long>(index.data());
 
-    QCoreVariant result;
+    QVariant result;
 
     switch (role) {
         case DisplayRole:

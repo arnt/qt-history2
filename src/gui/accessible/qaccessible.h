@@ -22,7 +22,7 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qrect.h"
 #include "QtCore/qvector.h"
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 
 class QAccessibleInterface;
 

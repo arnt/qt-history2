@@ -33,14 +33,14 @@
 #include <qvalidator.h>
 #include <private/qwidget_p.h>
 
-bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
-bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
-bool operator<=(const QCoreVariant &arg1, const QCoreVariant &arg2);
-bool operator>=(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
-QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
-double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
+bool operator<(const QVariant &arg1, const QVariant &arg2);
+bool operator>(const QVariant &arg1, const QVariant &arg2);
+bool operator<=(const QVariant &arg1, const QVariant &arg2);
+bool operator>=(const QVariant &arg1, const QVariant &arg2);
+QVariant operator+(const QVariant &arg1, const QVariant &arg2);
+QVariant operator-(const QVariant &arg1, const QVariant &arg2);
+QVariant operator*(const QVariant &arg1, double multiplier);
+double operator/(const QVariant &arg1, const QVariant &arg2);
 
 #define TIME_MIN QTime(0, 0, 0, 0)
 #define TIME_MAX QTime(23, 59, 59, 999)
@@ -82,10 +82,10 @@ public:
     void updateState(bool up);
     void strip(QString *text) const;
     bool specialValue() const;
-    QCoreVariant getZeroVariant() const;
-    void setBoundary(Boundary b, const QCoreVariant &val);
-    virtual void setValue(const QCoreVariant &val, EmitPolicy ep);
-    virtual QCoreVariant bound(const QCoreVariant &val, const QCoreVariant &old = QCoreVariant(), int steps = 0) const;
+    QVariant getZeroVariant() const;
+    void setBoundary(Boundary b, const QVariant &val);
+    virtual void setValue(const QVariant &val, EmitPolicy ep);
+    virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
     void updateSlider();
@@ -94,26 +94,26 @@ public:
     void calculateSizeHints() const;
 
     virtual QStyleOptionSpinBox styleOption() const;
-    virtual QCoreVariant valueForPosition(int pos) const;
+    virtual QVariant valueForPosition(int pos) const;
 
     virtual void emitSignals();
     virtual void refresh(EmitPolicy ep);
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-    virtual QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
+    virtual QValidator::State validate(QString *input, int *pos, QVariant *val) const;
     virtual void fixup(QString &input) const;
-    virtual QCoreVariant mapTextToValue(QString *text, QValidator::State *state) const;
-    virtual QString mapValueToText(const QCoreVariant &n) const;
+    virtual QVariant mapTextToValue(QString *text, QValidator::State *state) const;
+    virtual QString mapValueToText(const QVariant &n) const;
 
     void editorTextChanged(const QString &);
     virtual void editorCursorPositionChanged(int oldpos, int newpos);
 
-    bool eq(const QCoreVariant &arg1, const QCoreVariant &arg2) const;
+    bool eq(const QVariant &arg1, const QVariant &arg2) const;
 
     QLineEdit *edit;
     QString prefix, suffix, specialvaluetext;
-    QCoreVariant value, minimum, maximum, singlestep;
-    QCoreVariant::Type type;
+    QVariant value, minimum, maximum, singlestep;
+    QVariant::Type type;
     int spinclicktimerid, spinclicktimerinterval;
     uint buttonstate;
     mutable QSize cachedsizehint, cachedminimumsizehint;

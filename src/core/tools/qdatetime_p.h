@@ -18,7 +18,7 @@
 
 #include "qdatetime.h"
 #include "qlist.h"
-#include <qcorevariant.h>
+#include <qvariant.h>
 
 class QDateTimePrivate
 {
@@ -93,10 +93,10 @@ public:
         LastSection = 0x0800000
     };
 
-    QDateTimeParser(const QString &f = QString(), QCoreVariant::Type t = QCoreVariant::DateTime);
+    QDateTimeParser(const QString &f = QString(), QVariant::Type t = QVariant::DateTime);
     bool isSpecial(const QChar &c) const;
     QFormatSection findNextFormat(const QString &str, const int start);
-    void parseFormat(const QString &format, QCoreVariant::Type t);
+    void parseFormat(const QString &format, QVariant::Type t);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
     QFormatSection sectionAt(const QString &string, int pos, QDateTimeParserSkipMode skip = SkipNone) const;
 
@@ -106,7 +106,7 @@ public:
     static QFormatSection firstSection;
     static QFormatSection lastSection;
 
-    QCoreVariant::Type formatType;
+    QVariant::Type formatType;
     QList<QFormatSection> sect;
     QString format;
     uint display;

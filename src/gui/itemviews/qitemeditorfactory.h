@@ -16,7 +16,7 @@
 
 #include <QtCore/qbytearray.h>
 #include <QtCore/qhash.h>
-#include <QtGui/qvariant.h>
+#include <QtCore/qvariant.h>
 
 class QWidget;
 

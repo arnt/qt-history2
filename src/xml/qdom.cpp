@@ -25,7 +25,7 @@
 #include <qtextcodec.h>
 #include <qtextstream.h>
 #include <qxml.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qmap.h>
 
 /*

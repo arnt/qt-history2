@@ -33,7 +33,7 @@ public:
 
 #if defined(Q_WS_WIN)
 
-#include "QtGui/qvariant.h"
+#include "QtCore/qvariant.h"
 
 /*
   Encapsulation of conversion between MIME and Windows CLIPFORMAT.

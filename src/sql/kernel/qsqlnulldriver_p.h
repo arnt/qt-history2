@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qcorevariant.h"
+#include "qvariant.h"
 #include "qsqldriver.h"
 #include "qsqlerror.h"
 #include "qsqlresult.h"
@@ -37,7 +37,7 @@ public:
     { QSqlResult::setLastError(
             QSqlError(QLatin1String("Driver not loaded"), QLatin1String("Driver not loaded"))); }
 protected:
-    inline QCoreVariant data(int) { return QCoreVariant(); }
+    inline QVariant data(int) { return QVariant(); }
     inline bool reset (const QString&) { return false; }
     inline bool fetch(int) { return false; }
     inline bool fetchFirst() { return false; }
@@ -56,8 +56,8 @@ protected:
     inline bool exec() { return false; }
     inline bool prepare(const QString&) { return false; }
     inline bool savePrepare(const QString&) { return false; }
-    inline void bindValue(int, const QCoreVariant&, QSql::ParamType) {}
-    inline void bindValue(const QString&, const QCoreVariant&, QSql::ParamType) {}
+    inline void bindValue(int, const QVariant&, QSql::ParamType) {}
+    inline void bindValue(const QString&, const QVariant&, QSql::ParamType) {}
 };
 
 class QSqlNullDriver : public QSqlDriver

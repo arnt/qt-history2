@@ -24,8 +24,8 @@ class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
 public:
     QSpinBoxPrivate();
     void emitSignals();
-    QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
-    QString mapValueToText(const QCoreVariant &n) const;
+    QVariant mapTextToValue(QString *str, QValidator::State *state) const;
+    QString mapValueToText(const QVariant &n) const;
 };
 
 static const QLatin1Char dot('.');
@@ -36,10 +36,10 @@ public:
     QDoubleSpinBoxPrivate();
     void emitSignals();
     bool checkIntermediate(const QString &str) const;
-    QCoreVariant mapTextToValue(QString *str, QValidator::State *state) const;
-    QString mapValueToText(const QCoreVariant &n) const;
+    QVariant mapTextToValue(QString *str, QValidator::State *state) const;
+    QString mapValueToText(const QVariant &n) const;
 
-    QValidator::State validate(QString *input, int *pos, QCoreVariant *val) const;
+    QValidator::State validate(QString *input, int *pos, QVariant *val) const;
     void fixup(QString &input) const;
 
     int findDelimiter(const QString &str, int index = 0) const;
@@ -213,9 +213,9 @@ QSpinBox::QSpinBox(QWidget *parent, const char *name)
 QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
-    d->minimum = QCoreVariant(qMin(min, max));
-    d->maximum = QCoreVariant(qMax(min, max));
-    d->singlestep = QCoreVariant(step);
+    d->minimum = QVariant(qMin(min, max));
+    d->maximum = QVariant(qMax(min, max));
+    d->singlestep = QVariant(step);
     setObjectName(name);
 }
 
@@ -238,7 +238,7 @@ int QSpinBox::value() const
 
 void QSpinBox::setValue(int val)
 {
-    d->setValue(QCoreVariant(val), EmitIfChanged);
+    d->setValue(QVariant(val), EmitIfChanged);
 }
 
 /*!
@@ -373,7 +373,7 @@ int QSpinBox::singleStep() const
 void QSpinBox::setSingleStep(int val)
 {
     if (val >= 0) {
-        d->singlestep = QCoreVariant(val);
+        d->singlestep = QVariant(val);
         d->update();
     }
 }
@@ -398,7 +398,7 @@ int QSpinBox::minimum() const
 
 void QSpinBox::setMinimum(int min)
 {
-    d->setBoundary(Minimum, QCoreVariant(min));
+    d->setBoundary(Minimum, QVariant(min));
 }
 
 /*!
@@ -422,7 +422,7 @@ int QSpinBox::maximum() const
 
 void QSpinBox::setMaximum(int max)
 {
-    d->setBoundary(Maximum, QCoreVariant(max));
+    d->setBoundary(Maximum, QVariant(max));
 }
 
 /*!
@@ -443,8 +443,8 @@ void QSpinBox::setMaximum(int max)
 
 void QSpinBox::setRange(int min, int max)
 {
-    d->setBoundary(Minimum, QCoreVariant(min));
-    d->setBoundary(Maximum, QCoreVariant(max));
+    d->setBoundary(Minimum, QVariant(min));
+    d->setBoundary(Maximum, QVariant(max));
 }
 
 /*!
@@ -642,7 +642,7 @@ double QDoubleSpinBox::value() const
 
 void QDoubleSpinBox::setValue(double val)
 {
-    QCoreVariant v(val);
+    QVariant v(val);
     d->setValue(v, EmitIfChanged);
 }
 /*!
@@ -802,7 +802,7 @@ double QDoubleSpinBox::minimum() const
 
 void QDoubleSpinBox::setMinimum(double min)
 {
-    d->setBoundary(Minimum, QCoreVariant(min));
+    d->setBoundary(Minimum, QVariant(min));
 }
 
 /*!
@@ -825,7 +825,7 @@ double QDoubleSpinBox::maximum() const
 
 void QDoubleSpinBox::setMaximum(double max)
 {
-    d->setBoundary(Maximum, QCoreVariant(max));
+    d->setBoundary(Maximum, QVariant(max));
     d->update();
 }
 
@@ -847,8 +847,8 @@ void QDoubleSpinBox::setMaximum(double max)
 
 void QDoubleSpinBox::setRange(double min, double max)
 {
-    d->setBoundary(Minimum, QCoreVariant(min));
-    d->setBoundary(Maximum, QCoreVariant(max));
+    d->setBoundary(Minimum, QVariant(min));
+    d->setBoundary(Maximum, QVariant(max));
 }
 
 /*!
@@ -1036,11 +1036,11 @@ double QDoubleSpinBox::mapTextToValue(QString *txt, QValidator::State *state) co
 
 QSpinBoxPrivate::QSpinBoxPrivate()
 {
-    minimum = QCoreVariant((int)0);
-    maximum = QCoreVariant((int)100);
+    minimum = QVariant((int)0);
+    maximum = QVariant((int)100);
     value = minimum;
-    singlestep = QCoreVariant((int)1);
-    type = QCoreVariant::Int;
+    singlestep = QVariant((int)1);
+    type = QVariant::Int;
 }
 
 /*!
@@ -1062,7 +1062,7 @@ void QSpinBoxPrivate::emitSignals()
     \reimp
 */
 
-QCoreVariant QSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
+QVariant QSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
 {
     return q->mapTextToValue(text, state);
 }
@@ -1072,7 +1072,7 @@ QCoreVariant QSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *s
     \reimp
 */
 
-QString QSpinBoxPrivate::mapValueToText(const QCoreVariant &f) const
+QString QSpinBoxPrivate::mapValueToText(const QVariant &f) const
 {
     return q->mapValueToText(f.toInt());
 }
@@ -1086,12 +1086,12 @@ QString QSpinBoxPrivate::mapValueToText(const QCoreVariant &f) const
 
 QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
 {
-    minimum = QCoreVariant(0.0);
-    maximum = QCoreVariant(99.99);
+    minimum = QVariant(0.0);
+    maximum = QVariant(99.99);
     value = minimum;
-    singlestep = QCoreVariant(1.0);
+    singlestep = QVariant(1.0);
     precision = 2;
-    type = QCoreVariant::Double;
+    type = QVariant::Double;
     const QString str = QLocale().toString(4567.1);
     if (str.size() == 6) {
         delimiter = str.at(4);
@@ -1169,7 +1169,7 @@ int QDoubleSpinBoxPrivate::findDelimiter(const QString &str, int index) const
     \reimp
 */
 
-QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QCoreVariant *val) const
+QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QVariant *val) const
 {
     const QValidator::State ret = QAbstractSpinBoxPrivate::validate(input, pos, val);
     QString copy = *input;
@@ -1200,7 +1200,7 @@ QValidator::State QDoubleSpinBoxPrivate::validate(QString *input, int *pos, QCor
     \reimp
 */
 
-QCoreVariant QDoubleSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
+QVariant QDoubleSpinBoxPrivate::mapTextToValue(QString *text, QValidator::State *state) const
 {
     return q->mapTextToValue(text, state);
 }
@@ -1210,7 +1210,7 @@ QCoreVariant QDoubleSpinBoxPrivate::mapTextToValue(QString *text, QValidator::St
     \reimp
 */
 
-QString QDoubleSpinBoxPrivate::mapValueToText(const QCoreVariant &f) const
+QString QDoubleSpinBoxPrivate::mapValueToText(const QVariant &f) const
 {
     return q->mapValueToText(f.toDouble());
 }

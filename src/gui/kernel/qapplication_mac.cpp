@@ -359,7 +359,7 @@ void qt_mac_update_os_settings()
     //focus mode
     /* First worked as of 10.2.3 */
     QSettings appleSettings(QLatin1String("apple.com"));
-    QCoreVariant appleValue = appleSettings.value(QLatin1String("AppleKeyboardUIMode"), 0);
+    QVariant appleValue = appleSettings.value(QLatin1String("AppleKeyboardUIMode"), 0);
     qt_tab_all_widgets = (appleValue.toInt() & 0x2);
     //paging mode
     /* First worked as of 10.2.3 */

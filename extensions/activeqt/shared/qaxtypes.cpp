@@ -424,7 +424,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QByteArray &type
         
     case QVariant::List:
         {
-            const QList<QCoreVariant> list = qvar.toList();
+            const QList<QVariant> list = qvar.toList();
             const int count = list.count();
             SAFEARRAY *array = SafeArrayCreateVector(VT_VARIANT, 0, count);
             for (LONG index = 0; index < count; ++index) {
@@ -665,7 +665,7 @@ bool QVariantToVoidStar(const QVariant &var, void *data, const QByteArray &typeN
         *(QCursor*)data = var.toCursor();
         break;
     case QVariant::List:
-        *(QList<QCoreVariant>*)data = var.toList();
+        *(QList<QVariant>*)data = var.toList();
         break;
     case QVariant::StringList:
         *(QStringList*)data = var.toStringList();
@@ -823,17 +823,17 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     case VT_DATE:
         var = DATEToQDateTime(arg.date);
         if (type == QVariant::Date || (!type && typeName == "QDate*")) {
-            var.cast(QCoreVariant::Date);
+            var.cast(QVariant::Date);
         } else if (type == QVariant::Time || (!type && typeName == "QTime*")) {
-            var.cast(QCoreVariant::Time);
+            var.cast(QVariant::Time);
         }
         break;
     case VT_DATE|VT_BYREF:
         var = DATEToQDateTime(*arg.pdate);
         if (type == QVariant::Date || (!type && typeName == "QDate*")) {
-            var.cast(QCoreVariant::Date);
+            var.cast(QVariant::Date);
         } else if (type == QVariant::Time || (!type && typeName == "QTime*")) {
-            var.cast(QCoreVariant::Time);
+            var.cast(QVariant::Time);
         }
         break;
     case VT_VARIANT:
@@ -1088,8 +1088,8 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
         } else if (proptype == QVariant::StringList && var.type() == QVariant::List) {
             bool allStrings = true;
             QStringList strings;
-            const QList<QCoreVariant> list(var.toList());
-            for (QList<QCoreVariant>::ConstIterator it(list.begin()); it != list.end(); ++it) {
+            const QList<QVariant> list(var.toList());
+            for (QList<QVariant>::ConstIterator it(list.begin()); it != list.end(); ++it) {
                 QVariant variant = *it;
                 if (variant.canCast(QVariant::String))
                     strings << variant.toString();

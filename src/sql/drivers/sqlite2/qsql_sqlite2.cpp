@@ -14,7 +14,7 @@
 #include "qsql_sqlite2.h"
 
 #include <qcoreapplication.h>
-#include <qcorevariant.h>
+#include <qvariant.h>
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qregexp.h>
@@ -30,17 +30,17 @@
 
 typedef struct sqlite_vm sqlite_vm;
 
-static QCoreVariant::Type nameToType(const QString& typeName)
+static QVariant::Type nameToType(const QString& typeName)
 {
     QString tName = typeName.toUpper();
     if (tName.startsWith(QLatin1String("INT")))
-        return QCoreVariant::Int;
+        return QVariant::Int;
     if (tName.startsWith(QLatin1String("FLOAT")) || tName.startsWith(QLatin1String("NUMERIC")))
-        return QCoreVariant::Double;
+        return QVariant::Double;
     if (tName.startsWith(QLatin1String("BOOL")))
-        return QCoreVariant::Bool;
+        return QVariant::Bool;
     // SQLite is typeless - consider everything else as string
-    return QCoreVariant::String;
+    return QVariant::String;
 }
 
 class QSQLite2DriverPrivate
@@ -459,7 +459,7 @@ QSqlIndex QSQLite2Driver::primaryIndex(const QString &tblname) const
     QSqlIndex index(indexname);
     while(q.next()) {
         QString name = q.value(2).toString();
-        QCoreVariant::Type type = QCoreVariant::Invalid;
+        QVariant::Type type = QVariant::Invalid;
         if (rec.contains(name))
             type = rec.field(name).type();
         index.append(QSqlField(name, type));

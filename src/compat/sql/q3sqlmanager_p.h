@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include "qcorevariant.h"
+#include "qvariant.h"
 #include "qglobal.h"
 #include "qstring.h"
 #include "qstringlist.h"

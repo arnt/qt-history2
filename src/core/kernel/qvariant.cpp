@@ -27,7 +27,7 @@
 #include "qsize.h"
 #include "qurl.h"
 #include "qlocale.h"
-#include "private/qcorevariant_p.h"
+#include "private/qvariant_p.h"
 
 #include <float.h>
 

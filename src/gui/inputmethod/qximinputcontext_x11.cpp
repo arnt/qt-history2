@@ -225,14 +225,14 @@ extern "C" {
         QList<QInputMethodEvent::Attribute> attrs;
         if (cursor > 0)
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, cursor,
-                                                  qic->standardFormat(QInputContext::PreeditFormat));
+                               qVariant(qic->standardFormat(QInputContext::PreeditFormat)));
         if (sellen)
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, cursor, sellen,
-                                                  qic->standardFormat(QInputContext::SelectionFormat));
+                               qVariant(qic->standardFormat(QInputContext::SelectionFormat)));
         if (cursor + sellen < data->text.length())
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                                  cursor + sellen, data->text.length() - cursor - sellen,
-                                                  qic->standardFormat(QInputContext::PreeditFormat));
+                                     cursor + sellen, data->text.length() - cursor - sellen,
+                                     qVariant(qic->standardFormat(QInputContext::PreeditFormat)));
         QInputMethodEvent e(data->text, attrs);
 	qic->sendEvent(e);
 
@@ -709,7 +709,7 @@ void QXIMInputContext::update()
     area.width = r.width();
     area.height = r.height();
 
-    XFontSet fontset = getFontSet(w->inputMethodQuery(Qt::ImFont).toFont());
+    XFontSet fontset = getFontSet(qVariant_to<QFont>(w->inputMethodQuery(Qt::ImFont)));
     if (data->fontset == fontset)
         fontset = 0;
     else

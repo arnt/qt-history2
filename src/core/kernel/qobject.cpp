@@ -16,7 +16,7 @@
 
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
-#include "qcorevariant.h"
+#include "qvariant.h"
 #include "qmetaobject.h"
 #include <qregexp.h>
 #include <qthread.h>
@@ -2287,7 +2287,7 @@ void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_
 
   \sa property(), metaObject()
 */
-bool QObject::setProperty(const char *name, const QCoreVariant &value)
+bool QObject::setProperty(const char *name, const QVariant &value)
 {
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
@@ -2311,13 +2311,13 @@ bool QObject::setProperty(const char *name, const QCoreVariant &value)
   Information about all available properties is provided through the
   metaObject().
 
-  \sa setProperty(), QCoreVariant::isValid(), metaObject()
+  \sa setProperty(), QVariant::isValid(), metaObject()
 */
-QCoreVariant QObject::property(const char *name) const
+QVariant QObject::property(const char *name) const
 {
     const QMetaObject* meta = metaObject();
     if (!name || !meta)
-        return QCoreVariant();
+        return QVariant();
 
     int id = meta->indexOfProperty(name);
     QMetaProperty p = meta->property(id);

@@ -203,7 +203,7 @@ class Q_CORE_EXPORT QVariant
     static Type nameToType(const char *name);
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QVariant(bool, int);
+    inline QT3_SUPPORT_CONSTRUCTOR QVariant(bool val, int) { create(Bool, &val); }
     inline QT3_SUPPORT const QByteArray toCString() const { return toByteArray(); }
     inline QT3_SUPPORT QByteArray &asCString() { return *reinterpret_cast<QByteArray *>(castOrDetach(ByteArray)); }
 #endif
@@ -266,6 +266,7 @@ class Q_CORE_EXPORT QVariant
 
 protected:
     friend inline bool QVariant_to_helper(const QVariant &, QVariant::Type, void *);
+    friend bool qRegisterGuiVariant();
 
     Private d;
 
@@ -365,8 +366,11 @@ template<>
 inline int qt_variant_metatype_id(QTextFormat *) { return QVariant::TextFormat; }
 template<>
 inline int qt_variant_metatype_id(QLocale *) { return QVariant::Locale; }
+#ifdef QT3_SUPPORT
+class QColorGroup;
 template<>
-inline int qt_variant_metatype_id(QVariant *v) { return v->userType(); }
+inline int qt_variant_metatype_id(QColorGroup *) { return QVariant::ColorGroup; }
+#endif
 
 template <typename T>
 QVariant qVariant(const T &t)

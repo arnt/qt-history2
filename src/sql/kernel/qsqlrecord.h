@@ -18,7 +18,7 @@
 
 class QSqlField;
 class QStringList;
-class QCoreVariant;
+class QVariant;
 class QSqlRecordPrivate;
 
 class Q_SQL_EXPORT QSqlRecord
@@ -32,10 +32,10 @@ public:
     bool operator==(const QSqlRecord &other) const;
     inline bool operator!=(const QSqlRecord &other) const { return !operator==(other); }
 
-    QCoreVariant value(int i) const;
-    QCoreVariant value(const QString& name) const;
-    void setValue(int i, const QCoreVariant& val);
-    void setValue(const QString& name, const QCoreVariant& val);
+    QVariant value(int i) const;
+    QVariant value(const QString& name) const;
+    void setValue(int i, const QVariant& val);
+    void setValue(const QString& name, const QVariant& val);
 
     void setNull(int i);
     void setNull(const QString& name);
