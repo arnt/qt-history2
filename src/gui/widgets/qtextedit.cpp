@@ -358,10 +358,12 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
         QObject::connect(doc, SIGNAL(cursorPositionChanged(const QTextCursor &)), q, SLOT(emitCursorPosChanged(const QTextCursor &)));
 
+#if defined(QT3_SUPPORT)
         // compat signals
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
         QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
         QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
+#endif
 
         viewport->setBackgroundRole(QPalette::Base);
         viewport->setAcceptDrops(true);
