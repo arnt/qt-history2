@@ -969,21 +969,21 @@ void QWorkspace::maximizeWindow( QWidget* w)
 {
     QWorkspaceChild* c = findChild( w );
 
-    if ( w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
+    if ( !w || w && (!w->testWFlags( WStyle_MinMax ) || w->testWFlags( WStyle_Tool) ) )
 	return;
 
     if ( c ) {
 	setUpdatesEnabled( FALSE );
+	c->setUpdatesEnabled( FALSE );
 	if (d->icons.contains(c->iconWidget()) )
 	    normalizeWindow( w );
 	QRect r( c->geometry() );
 	c->adjustToFullscreen();
 	c->show();
 	c->internalRaise();
-	if ( d->maxWindow && d->maxWindow != c ) {
-	    d->maxWindow->setGeometry( d->maxRestore );
-	}
 	if ( d->maxWindow != c ) {
+	    if ( d->maxWindow )
+		d->maxWindow->setGeometry( d->maxRestore );
 	    d->maxWindow = c;
 	    d->maxRestore = r;
 	}
@@ -995,6 +995,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    topLevelWidget()->setCaption( QString("%1 - [%2]")
 		.arg(d->topCaption).arg(c->caption()) );
 	inCaptionChange = FALSE;
+	c->setUpdatesEnabled( TRUE );
 	setUpdatesEnabled( TRUE );
     }
 }
@@ -1773,7 +1774,6 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
     shadeB->move( closeB->x() - shadeB->width(), closeB->y() );
 
     iconL->setGeometry( 2, 0, BUTTON_WIDTH, height()-1 );
-//  int left = iconL->isVisibleTo( this ) ? iconL->width() : 0; // ### not used! remove?
     int right = closeB->isVisibleTo( this ) ? closeB->x() : width();
     if ( iconB->isVisibleTo( this ) )
 	right = iconB->x();
@@ -1926,8 +1926,8 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
     if ( titlebar ) {
 	int th = titlebar->sizeHint().height();
 	titlebar->setGeometry( r.x() , r.y(), r.width(), th );
-	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + ( shademode ? 2 : 0 ),
-	      r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION - ( shademode ? 2 : 0 ));
+	cr = QRect( r.x(), r.y() + titlebar->height() + TITLEBAR_SEPARATION + (shademode ? 5 : 0 ),
+	    r.width() , r.height() - titlebar->height() - TITLEBAR_SEPARATION );
     } else {
 	cr = r;
     }
@@ -2358,8 +2358,8 @@ void QWorkspaceChild::showShaded()
 	shadeRestore = size();
 	shadeRestoreMin = minimumSize();
 	setMinimumHeight(0);
-	resize( width(), titlebar->height() );
 	shademode = TRUE;
+	resize( width(), titlebar->height() + TITLEBAR_SEPARATION + 2*lineWidth() );
     }
 }
 
