@@ -332,6 +332,7 @@
 //   USLC	- SCO UnixWare C++
 //   CDS	- Reliant C++
 //   KAI	- KAI C++
+//   HIGHC	- MetaWare High C/C++
 //
 
 // Should be sorted most-authoritative to least-authoritative
@@ -353,6 +354,8 @@
 #  endif
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
+#elif defined(__HIGHC__)
+#  define Q_CC_HIGHC
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
