@@ -3024,19 +3024,32 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
 
     // If we have CopyPixmap we copy the mask from the source to the target device if it
     // is a pixmap also...
-    if (mode == Qt::CopyPixmap
-        && d->device->devType() == QInternal::Pixmap
-        && pm.mask()) {
-        QPixmap *p = static_cast<QPixmap *>(d->device);
-        QBitmap bitmap(p->width(), p->height());
-        bitmap.fill(Qt::color0);
-        QPainter pt(&bitmap);
-	pt.setPen(Qt::color1);
-        const QBitmap *mask = pm.mask();
-	Q_ASSERT(!mask->mask());
-  	pt.drawPixmap(r, *mask, sr);
-        pt.end();
-        p->setMask(bitmap);
+    if (d->device->devType() == QInternal::Pixmap && pm.mask()) {
+        if (mode == Qt::CopyPixmap) {
+            QPixmap *p = static_cast<QPixmap *>(d->device);
+            QBitmap bitmap(p->width(), p->height());
+            bitmap.fill(Qt::color0);
+            QPainter pt(&bitmap);
+            pt.setPen(Qt::color1);
+            const QBitmap *mask = pm.mask();
+            Q_ASSERT(!mask->mask());
+            pt.drawPixmap(r, *mask, sr);
+            pt.end();
+            p->setMask(bitmap);
+        } else if (mode == Qt::ComposePixmap) {
+            QPixmap *p = static_cast<QPixmap *>(d->device);
+            QBitmap bitmap;
+            if (p->mask()) {
+                bitmap = *p->mask();
+            } else {
+                bitmap = QBitmap(p->width(), p->height());
+            }
+            QPainter pt(&bitmap);
+            Q_ASSERT(!pm.mask()->mask());
+            pt.drawPixmap(x, y, w, h, *pm.mask(), sx, sy, sw, sh);
+            pt.end();
+            p->setMask(bitmap);
+        }
     }
 }
 
