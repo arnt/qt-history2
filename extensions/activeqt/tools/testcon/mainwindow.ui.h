@@ -389,6 +389,6 @@ void MainWindow::logMacro( int code, const QString &description, int sourcePosit
     if (sourcePosition)
 	message += " at position " + QString::number(sourcePosition);
     if (!sourceText.isEmpty())
-	message += "'" + sourceText + "'";
+	message += " '" + sourceText + "'";
     logMacros->append(message);
 }
