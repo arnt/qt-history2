@@ -3,7 +3,6 @@ CONFIG		= qt staticlib release
 HEADERS		= qdns.h \
 		  qftp.h \
 		  qhostaddress.h \
-		  qhttp.h \
 		  qnetwork.h \
 		  qserversocket.h \
 		  qsocket.h \
@@ -11,7 +10,6 @@ HEADERS		= qdns.h \
 SOURCES		= qdns.cpp \
 		  qftp.cpp \
 		  qhostaddress.cpp \
-		  qhttp.cpp \
 		  qnetwork.cpp \
 		  qserversocket.cpp \
 		  qsocket.cpp \

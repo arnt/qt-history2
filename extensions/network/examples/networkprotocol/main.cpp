@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include <qnetwork.h>
 
+#include "http.h"
 #include "nntp.h"
 #include "view.h"
 
@@ -19,6 +20,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     qInitNetworkProtocols();
+    QNetworkProtocol::registerNetworkProtocol( "http", new QNetworkProtocolFactory<Http> );
     QNetworkProtocol::registerNetworkProtocol( "nntp", new QNetworkProtocolFactory<Nntp> );
     
     View v;

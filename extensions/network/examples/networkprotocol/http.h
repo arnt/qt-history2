@@ -37,13 +37,13 @@
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
-class QHttp : public QNetworkProtocol
+class Http : public QNetworkProtocol
 {
     Q_OBJECT
 
 public:
-    QHttp();
-    virtual ~QHttp();
+    Http();
+    virtual ~Http();
     virtual int supportedOperations() const;
 
 protected:

@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 
-#include "qhttp.h"
+#include "http.h"
 
 #ifndef QT_NO_NETWORKPROTOCOL_HTTP
 
@@ -33,7 +33,7 @@
 #include <qstringlist.h>
 #include <qregexp.h>
 
-QHttp::QHttp()
+Http::Http()
     : QNetworkProtocol(), connectionReady( FALSE )
 {
     commandSocket = new QSocket( this );
@@ -48,13 +48,13 @@ QHttp::QHttp()
 	     this, SLOT( readyRead() ) );
 }
 
-QHttp::~QHttp()
+Http::~Http()
 {
     close();
     delete commandSocket;
 }
 
-void QHttp::operationPut( QNetworkOperation *op )
+void Http::operationPut( QNetworkOperation * )
 {
     QString cmd = "POST ";
     cmd += url()->encodedPathAndQuery();
@@ -62,7 +62,7 @@ void QHttp::operationPut( QNetworkOperation *op )
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
-void QHttp::operationGet( QNetworkOperation *op )
+void Http::operationGet( QNetworkOperation * )
 {
     QString cmd = "GET ";
     cmd += url()->encodedPathAndQuery();
@@ -70,7 +70,7 @@ void QHttp::operationGet( QNetworkOperation *op )
     commandSocket->writeBlock( cmd.latin1(), cmd.length() );
 }
 
-bool QHttp::checkConnection( QNetworkOperation *op )
+bool Http::checkConnection( QNetworkOperation * )
 {
     if ( !commandSocket->peerName().isEmpty() && connectionReady )
 	return TRUE;
@@ -95,7 +95,7 @@ bool QHttp::checkConnection( QNetworkOperation *op )
     return FALSE;
 }
 
-void QHttp::close()
+void Http::close()
 {
     if ( !commandSocket->peerName().isEmpty() ) {
  	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
@@ -103,12 +103,12 @@ void QHttp::close()
     }
 }
 
-int QHttp::supportedOperations() const
+int Http::supportedOperations() const
 {
     return OpGet | OpPut;
 }
 
-void QHttp::hostFound()
+void Http::hostFound()
 {
     if ( url() )
 	emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
@@ -116,7 +116,7 @@ void QHttp::hostFound()
 	emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
 }
 
-void QHttp::connected()
+void Http::connected()
 {
     if ( url() )
 	emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
@@ -125,7 +125,7 @@ void QHttp::connected()
     connectionReady = TRUE;
 }
 
-void QHttp::closed()
+void Http::closed()
 {
     if ( url() )
 	emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
@@ -137,7 +137,7 @@ void QHttp::closed()
 
 }
 
-void QHttp::readyRead()
+void Http::readyRead()
 {
     QByteArray s;
     s.resize( commandSocket->bytesAvailable() );
