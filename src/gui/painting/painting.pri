@@ -45,8 +45,7 @@ SOURCES += \
 	painting/qrect.cpp \
 	painting/qregion.cpp \
 	painting/qsize.cpp \
-	painting/qmatrix.cpp \
-	painting/qwmatrix.cpp
+	painting/qmatrix.cpp
 
 win32 {
 	HEADERS += \
