@@ -1170,52 +1170,53 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
 /*!
     \class QLocale
-    \reentrant
-    \ingroup text
-
     \brief The QLocale class converts between numbers and their
     string representations in various languages.
+
+    \reentrant
+    \ingroup text
 
     It is initialized with a country/language pair in its constructor
     and offers number-to-string and string-to-number conversion
     functions simmilar to those in QString.
 
     \code
-    QLocale l(QLocale::Arabic, QLocale::Egypt);
-    QString s1 = l.toString(1.571429E+07, 'e');
-    QString s2 = l.toString(10);
+    QLocale egyptian(QLocale::Arabic, QLocale::Egypt);
+    QString s1 = egyptian.toString(1.571429E+07, 'e');
+    QString s2 = egyptian.toString(10);
 
-    double d = l.toDouble(s1);
-    int s2 = l.toInt(s2);
+    double d = egyptian.toDouble(s1);
+    int s2 = egyptian.toInt(s2);
     \endcode
 
-    Additionally, QLocale supports
-    the concept of a default locale, which can be set with
-    the static member setDefaultLocale(). This allows a locale to
-    be set globally for the entire application.
+    Additionally, QLocale supports the concept of a default locale,
+    which can be set with the static member setDefaultLocale(). This
+    allows a locale to be set globally for the entire application.
 
     \code
     QLocale::setDefaultLocale(QLocale::German, QLocale::Switzerland);
 
-    QLocale l; // Ctor parms default to DefaultLanguage/DefaultCountry
-    QString s1 = l.toString(15714.3, 'e');
+    QLocale swiss; // Constructor parameters default to DefaultLanguage/DefaultCountry
+    QString s1 = swiss.toString(15714.3, 'e');
     \endcode
 
-    QLocale uses a database which currently contains 125 language/country
-    pairs. When a langauge/country pair is specified in the constructor,
-    one of three things may happen:
+    When a langauge/country pair is specified in the constructor, one
+    of four things can happen:
 
     \list
-    \i if DefaultLanguage/DefaultCountry are specified, QLocale uses values
-    	set using setDefaultLocale(). If no default values are set, QLocale defaults
-	to "C",
-    \i if the language/country pair is found in the database, it is used,
-    \i if the language is found but the country is not, or if the country
-    	is DefaultCountry, the language is used with the most appropriate
-	available country,
-    \i if neither the language nor the country are found, QLocale
-    	defaults to "C".
+    \i If the language/country pair is found in the database, it is used.
+    \i If \c{DefaultLanguage}/\c{DefaultCountry} are specified, QLocale uses
+       the values set using setDefaultLocale(). If no default values
+       have been set, QLocale defaults to "C".
+    \i If the language is found but the country is not, or if the country
+       is \c DefaultCountry, the language is used with the most
+       appropriate available country,
+    \i If neither the language nor the country are found, QLocale
+       defaults to "C".
     \endlist
+
+    Use language() and country() to determine the actual language and
+    country values used.
 
     All the methods in QLocale, with the exception of setDefaultLocale(),
     are reentrant.
@@ -1226,7 +1227,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This enumerated type is used to specify a language.
 
-    \value DefaultLanguage
+    \value DefaultLanguage The language set by setDefaultLocale()
     \value C
     \value Abkhazian
     \value Afan
@@ -1374,7 +1375,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This enumerated type is used to specify a country.
 
-    \value DefaultCountry
+    \value DefaultCountry The country set by setDefaultLocale()
     \value Afghanistan
     \value Albania
     \value Algeria
@@ -1618,16 +1619,16 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 */
 
 /*!
-    Constructs a QLocale object with specified \a language and \a country.
-    If \a language is DefaultLanguage and \a country is
-    DefaultCountry, the values set with setDefaultLocale() are
-    used. If setDefaultLocale() was not previously called, the "C" locale
-    is used.
+    Constructs a QLocale object with the specified \a language and \a
+    country. If \a language is \c DefaultLanguage and \a country is \c
+    DefaultCountry, the values set with setDefaultLocale() are used,
+    or if setDefaultLocale() has not been called the "C" locale is
+    used.
 
-    QLocale might use different language/country values than specified in
-    the constructor, depending on
-    what's available in the database. The language and country actually
-    used may be queried with language() and country().
+    QLocale might use different language/country values than specified
+    in the constructor, depending on what's available in the database.
+    The language and country that are actually used can be queried
+    using language() and country().
 
     \sa setDefaultLocale() language() country()
 */
@@ -1646,15 +1647,16 @@ QLocale::QLocale(Language language, Country country)
 }
 
 /*!
-  \nonreentrant
+    \nonreentrant
 
-    Sets the global default locale to \a language / \a country. These values
-    are used when a QLocale object is constructed with DefaultLanguage/DefaultCountry.
+    Sets the global default locale to \a language and \a country. These
+    values are used when a QLocale object is constructed with
+    \c{DefaultLanguage} and \c{DefaultCountry}.
 
     \warning This method is not reentrant. The default locale should be
     set at application startup, before any new threads are created.
 
-    \sa QLocale()
+    \sa QLocale() language() country()
 */
 
 void QLocale::setDefaultLocale(Language language, Country country)
@@ -1708,8 +1710,8 @@ QString QLocale::countryToString(Country country)
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to a short int. If \a ok is not 0, reports failure by setting
+    Returns the short int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1727,8 +1729,8 @@ short QLocale::toShort(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to an unsigned short int. If \a ok is not 0, reports failure by setting
+    Returns the unsigned short int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1746,8 +1748,8 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to an int. If \a ok is not 0, reports failure by setting
+    Returns the int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1765,8 +1767,8 @@ int QLocale::toInt(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to an unsigned int. If \a ok is not 0, reports failure by setting
+    Returns the unsigned int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1784,8 +1786,8 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to a long int. If \a ok is not 0, reports failure by setting
+    Returns the long int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1803,8 +1805,8 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to an unsigned long int. If \a ok is not 0, reports failure by setting
+    Returns the unsigned long int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1822,8 +1824,8 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to a Q_LLONG int. If \a ok is not 0, reports failure by setting
+    Returns the long long int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1836,8 +1838,8 @@ Q_LLONG QLocale::toLongLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a number
-    to an Q_ULLONG int. If \a ok is not 0, reports failure by setting
+    Returns the unsigned long long int represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1850,9 +1852,8 @@ Q_ULLONG QLocale::toULongLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a
-    floating point number
-    to a float. If \a ok is not 0, reports failure by setting
+    Returns the float represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1864,9 +1865,8 @@ float QLocale::toFloat(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts a localized string representation \a s of a
-    floating point number
-    to a double. If \a ok is not 0, reports failure by setting
+    Returns the double represented by the localized string \a s.
+    If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
     \sa toString()
@@ -1878,7 +1878,7 @@ double QLocale::toDouble(const QString &s, bool *ok) const
 }
 
 /*!
-    Converts \a i to a string containing its localized representation.
+    Returns a localized string representation of \a i.
 
     \sa toLongLong()
 */
