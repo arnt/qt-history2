@@ -19,7 +19,7 @@ QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
     setAutoRaise(true);
-    setPopupMode(QToolButton::InstantPopupMode);
+    setPopupMode(QToolButton::InstantPopup);
     setOrientation(Qt::Horizontal);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }

@@ -26,7 +26,7 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
     Q_OBJECT
     Q_ENUMS(Qt::ToolButtonStyle Qt::IconSize)
 
-    Q_PROPERTY(QToolButton::ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
+    Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
     Q_PROPERTY(Qt::IconSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
@@ -34,9 +34,9 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 
 public:
     enum ToolButtonPopupMode {
-        DelayedPopupMode,
-        MenuButtonPopupMode,
-        InstantPopupMode
+        DelayedPopup,
+        MenuButtonPopup,
+        InstantPopup
     };
 
     QToolButton(QWidget * parent=0);
@@ -54,8 +54,8 @@ public:
     QMenu* menu() const;
     void showMenu();
 
-    void setPopupMode(QToolButton::ToolButtonPopupMode mode);
-    QToolButton::ToolButtonPopupMode popupMode() const;
+    void setPopupMode(ToolButtonPopupMode mode);
+    ToolButtonPopupMode popupMode() const;
 
     QAction *defaultAction() const;
 

@@ -99,7 +99,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         QToolButton *tb = qt_cast<QToolButton*>(widget);
         if (!tb->menu())
             role = tb->isCheckable() ? CheckBox : PushButton;
-        else if (!tb->popupMode() != QToolButton::DelayedPopupMode)
+        else if (!tb->popupMode() != QToolButton::DelayedPopup)
             role = ButtonDropDown;
         else
             role = ButtonMenu;

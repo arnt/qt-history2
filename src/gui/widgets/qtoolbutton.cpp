@@ -215,7 +215,7 @@ void QToolButtonPrivate::init()
     autoRaise = (qt_cast<QToolBar*>(q->parentWidget()) != 0);
     arrow = Qt::LeftArrow;
     menuButtonDown = false;
-    popupMode = QToolButton::DelayedPopupMode;
+    popupMode = QToolButton::DelayedPopup;
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
     iconSize = Qt::AutomaticIconSize;
@@ -255,7 +255,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 //         opt.activeSubControls |= QStyle::SC_ToolButton;
 
     opt.features = QStyleOptionToolButton::None;
-    if (popupMode == QToolButton::MenuButtonPopupMode) {
+    if (popupMode == QToolButton::MenuButtonPopup) {
         opt.subControls |= QStyle::SC_ToolButtonMenu;
         opt.features |= QStyleOptionToolButton::Menu;
         if (menuButtonDown || down)
@@ -266,7 +266,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     }
     if (hasArrow)
         opt.features |= QStyleOptionToolButton::Arrow;
-    if (popupMode == QToolButton::DelayedPopupMode)
+    if (popupMode == QToolButton::DelayedPopup)
         opt.features |= QStyleOptionToolButton::PopupDelay;
     opt.toolButtonStyle = q->toolButtonStyle();
     opt.pos = q->pos();
@@ -333,7 +333,7 @@ QSize QToolButton::sizeHint() const
 
     QStyleOptionToolButton opt = d->getStyleOption();
     opt.rect.setHeight(h); // PM_MenuButtonIndicator depends on the height
-    if (d->popupMode == MenuButtonPopupMode)
+    if (d->popupMode == MenuButtonPopup)
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
 
     return style()->sizeFromContents(QStyle::CT_ToolButton, &opt, QSize(w, h), this).
@@ -548,7 +548,7 @@ void QToolButton::changeEvent(QEvent *e)
 void QToolButton::mousePressEvent(QMouseEvent *e)
 {
     QStyleOptionToolButton opt = d->getStyleOption();
-    if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopupMode) {
+    if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopup) {
         QRect popupr = QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_ToolButton, &opt,
                                                                                                    QStyle::SC_ToolButtonMenu, this));
         if (popupr.isValid() && popupr.contains(e->pos())) {
@@ -695,9 +695,9 @@ void QToolButtonPrivate::buttonPressed()
     if (!d->hasMenu())
         return; // no menu to show
 
-    if (delay > 0 && popupMode == QToolButton::DelayedPopupMode)
+    if (delay > 0 && popupMode == QToolButton::DelayedPopup)
         popupTimer.start(delay, q);
-    else if  (d->popupMode == QToolButton::InstantPopupMode)
+    else if  (d->popupMode == QToolButton::InstantPopup)
         q->showMenu();
 }
 
@@ -809,7 +809,7 @@ int QToolButton::popupDelay() const
     Describes how a menu should be popped up for tool buttons that has
     a menu set or contains a list of actions.
 
-    \value DelayedPopupMode After pressing and holding the tool button
+    \value DelayedPopup After pressing and holding the tool button
     down for a certain amount of time (the timeout is style dependant,
     see QStyle::SH_ToolButton_PopupDelay), the menu is displayed.  A
     typical application example is the "back" button in some web
@@ -818,16 +818,16 @@ int QToolButton::popupDelay() const
     the button down for a while, the tool button shows a menu
     containing the current history list
 
-    \value MenuButtonPopupMode In this mode the tool button displays a
+    \value MenuButtonPopup In this mode the tool button displays a
     special arrow to indicate that a menu is present. The menu is
     displayed when the arrow part of the button is pressed.
 
-    \value InstantPopupMode The menu is displayed, without delay, when
+    \value InstantPopup The menu is displayed, without delay, when
     the tool button is pressed. In this mode, the button's own action
 
 */
 
-void QToolButton::setPopupMode(QToolButton::ToolButtonPopupMode mode)
+void QToolButton::setPopupMode(ToolButtonPopupMode mode)
 {
     d->popupMode = mode;
 }
