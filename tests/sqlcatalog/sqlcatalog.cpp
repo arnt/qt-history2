@@ -5,6 +5,7 @@
 #include <qsqlfield.h>
 #include <qsqlcursor.h>
 #include <qvariant.h>
+#include <iostream.h>
 #include <qapplication.h>
 
 int main( int argc, char** argv )
@@ -19,6 +20,7 @@ int main( int argc, char** argv )
     database->setHostName( qApp->argv()[5] );
     database->open();
 
+    
     uint i;
     qDebug("Getting list of tables and fields...");
     QStringList tables = database->tables();
@@ -35,5 +37,40 @@ int main( int argc, char** argv )
 
     qDebug("Done.");
     return 0;
+       
+    
+    
+    /* db test code    
+       
+        //    QSqlQuery q( "select * from cdef$;" ); // works
+    
+    //    QSqlQuery q( "select CON#, CONDITION, OBJ#, CONDITION from CDEF$;" ); works
+    
+    //    QSqlQuery q( "select COLUMNS, D_OBJ#, ORDER#, TYPES from ACCESS$;" ); dies
+    
+    QSqlQuery q( "select TOID  from ATTRIBUTE$;" );
+    
+    uint count = database->record( q ).count();
+    while( q.next() ) {
+	for ( uint i = 0; i < count; ++i )
+	    std::cout << " " << q.value(i).toString();
+	std::cout << std::endl;
+    }
+    
+    return 0;
+    
+    QSqlCursor c ( "CDEF$" );
+    c.select();
+    while( c.next() ) {
+	for ( uint i = 0; i < c.count(); ++i )
+	    std::cout << c.value(i).toString();
+	std::cout << std::endl;
+    }
+    return 0; 
+
+    */
+    
+    
+    
 };
 
