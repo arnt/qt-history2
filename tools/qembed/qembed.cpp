@@ -189,6 +189,7 @@ int main( int argc, char **argv )
 	    "	    ba = new QByteArray;\n"
 	    "	    ba->setRawData( (char*)embed_vec[i].data,\n"
 	    "			    embed_vec[i].size );\n"
+	    "	    dict.insert(name, ba);\n"
 	    "	    break;\n"
 	    "	}\n"
 	    "        }\n"
