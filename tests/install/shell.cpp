@@ -126,7 +126,7 @@ static QPixmap* infoImage = NULL;
 
 WinShell::WinShell()
 {
-    QByteArray buffer( MAX_PATH );
+    QByteArray buffer( MAX_PATH * 2 );
     HRESULT hr;
     IEnumIDList* enumerator = NULL;
     LPITEMIDLIST item;
@@ -137,7 +137,7 @@ WinShell::WinShell()
 
     if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
-	    if( SHGetPathFromIDList( item, (LPTSTR)buffer.data() ) ) {
+	    if( SHGetPathFromIDListW( item, (LPOLESTR)buffer.data() ) ) {
 		localProgramsFolderName = OLESTR2QString( (LPOLESTR)buffer.data() );
 		if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_COMMON_PROGRAMS, &item ) ) ) {
 		    if( SHGetPathFromIDListW( item, (LPOLESTR)buffer.data() ) )
@@ -327,18 +327,19 @@ QString WinShell::OLESTR2QString( LPOLESTR str )
 */
 ULARGE_INTEGER WinShell::dirFreeSpace( QString dirPath )
 {
+    QString drive = dirPath.left( dirPath.find( '\\' ) );
     ULARGE_INTEGER freeSpace;
 
     freeSpace.QuadPart = 0;
 
     if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceExA" ) ) {
 	ULARGE_INTEGER ulBytesAvailable, ulBytesTotal;
-	if( GetDiskFreeSpaceExA( dirPath.latin1(), &ulBytesAvailable, &ulBytesTotal, NULL ) )
+	if( GetDiskFreeSpaceExA( drive.latin1(), &ulBytesAvailable, &ulBytesTotal, NULL ) )
 	    freeSpace = ulBytesAvailable;
     }
     else if( GetProcAddress( GetModuleHandleA( "kernel32.dll" ), "GetDiskFreeSpaceA" ) ) {
 	DWORD dwSPC, dwBPS, dwClusters, dwTotalClusters;
-	if( GetDiskFreeSpaceA( dirPath.latin1(), &dwSPC, &dwBPS, &dwClusters, &dwTotalClusters ) )
+	if( GetDiskFreeSpaceA( drive.latin1(), &dwSPC, &dwBPS, &dwClusters, &dwTotalClusters ) )
 	    freeSpace.QuadPart = dwSPC * dwBPS * dwClusters;
     }
     return freeSpace;
