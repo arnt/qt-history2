@@ -59,7 +59,7 @@ public:
 class QDB2PreparedExtension : public QSqlExtension
 {
 public:
-    QDB2PreparedExtension( QODBCResult * r )
+    QDB2PreparedExtension( QDB2Result * r )
 	: result( r ) {}
 
     bool prepare( const QString& query )
@@ -105,11 +105,7 @@ QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
 		       SQL_MAX_MESSAGE_LENGTH - 1, /* in bytes, not in characters */
 		       &msgLen );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
-#ifdef UNICODE
-	return QString( (const QChar*)description, (uint)msgLen );
-#else
 	return QString( (const char*)description );
-#endif
     return QString::null;
 }
 
@@ -117,7 +113,6 @@ QString qDB2Warn( const QDB2DriverPrivate* d )
 {
     return ( qWarnDB2Handle( SQL_HANDLE_ENV, d->hEnv ) + " "
 	     + qWarnDB2Handle( SQL_HANDLE_DBC, d->hDbc ) );
-//	     + qWarnDB2Handle( SQL_HANDLE_STMT, odbc->hStmt ) );
 }
 
 QString qDB2Warn( const QDB2ResultPrivate* d )
@@ -539,9 +534,16 @@ bool QDB2Result::fetch( int i )
 	return FALSE;
     }
     SQLRETURN r;
-    r = SQLFetchScroll( d->hStmt,
-			SQL_FETCH_ABSOLUTE,
-			actualIdx );
+    if ( isForwardOnly() ) {
+	bool ok = TRUE;
+	while ( ok && i > at() )
+	    ok = fetchNext();
+	return ok;
+    } else {
+	r = SQLFetchScroll( d->hStmt,
+			    SQL_FETCH_ABSOLUTE,
+			    actualIdx );
+    }
     if ( r != SQL_SUCCESS )
 	return FALSE;
     setAt( i );
@@ -580,23 +582,31 @@ bool QDB2Result::fetchFirst()
 
 bool QDB2Result::fetchLast()
 { 
-    SQLRETURN r;
-
     d->valueCache.fill( 0 );
-    r = SQLFetchScroll( d->hStmt,
-			SQL_FETCH_LAST,
-			0 );
-    if ( r != SQL_SUCCESS )
+    
+    int i = at();
+    if ( i == QSql::AfterLast ) {
+	if ( isForwardOnly() ) {
+	    return FALSE;
+	} else {
+	    if ( !fetch( 0 ) )
+		return FALSE;
+	    i = at();
+	}
+    }
+
+    while ( fetchNext() )
+	++i;
+    
+    if ( i == QSql::BeforeFirst ) {
+	setAt( QSql::AfterLast );
 	return FALSE;
-    SQLINTEGER currRow;
-    r = SQLGetStmtAttr( d->hStmt,
-			SQL_ROW_NUMBER,
-			&currRow,
-			SQL_IS_INTEGER,
-			0 );
-    if ( r != SQL_SUCCESS )
-	return FALSE;
-    setAt( currRow - 1 );
+    }
+
+    if ( !isForwardOnly() )
+	return fetch( i );
+
+    setAt( i );
     return TRUE;
 }
 
@@ -700,6 +710,11 @@ int QDB2Result::numRowsAffected()
 	return affectedRowCount;
     else
 	qSqlWarning( "QDB2Result::numRowsAffected: Unable to count affected rows", d );
+    return -1;
+}
+
+int QDB2Result::size()
+{ 
     return -1;
 }
 
@@ -814,7 +829,7 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
 
     SQLHANDLE hStmt;
     QString catalog, schema, table;
-    qSplitTableQualifier( tableName, &catalog, &schema, &table );
+    qSplitTableQualifier( tableName.upper(), &catalog, &schema, &table );
 
     SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
 				  d->hDbc,
@@ -823,25 +838,27 @@ QSqlRecordInfo QDB2Driver::recordInfo( const QString& tableName ) const
 	qSqlWarning( "QDB2Driver::record: Unable to allocate handle", d );
 	return fil;
     }
+    
     r = SQLSetStmtAttr( hStmt,
 			SQL_ATTR_CURSOR_TYPE,
 			(SQLPOINTER) SQL_CURSOR_FORWARD_ONLY,
 			SQL_IS_UINTEGER );
+
     r =  SQLColumns( hStmt,
-		     (SQLCHAR*) catalog.latin1(),
-		     catalog.length(),
+		     NULL,
+		     0,
 		     (SQLCHAR*) schema.latin1(),
 		     schema.length(),
 		     (SQLCHAR*) table.latin1(),
 		     table.length(),
 		     NULL,
 		     0 );
+
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QDB2Driver::record: Unable to execute column list", d );
     r = SQLFetchScroll( hStmt,
 			SQL_FETCH_NEXT,
 			0 );
-    // Store all fields in a StringList because some drivers can't detail fields in this FETCH loop
     while ( r == SQL_SUCCESS ) {
 	fil.append( qMakeFieldInfo( hStmt ) );
 	r = SQLFetchScroll( hStmt,
@@ -920,4 +937,55 @@ QStringList QDB2Driver::tables( const QString& /* user */ ) const
     if ( r != SQL_SUCCESS )
 	qSqlWarning( "QDB2Driver::tables: Unable to free statement handle " + QString::number(r), d );
     return tl;
+}
+
+QSqlIndex QDB2Driver::primaryIndex( const QString& tablename ) const
+{
+    QSqlIndex index( tablename );
+    if ( !isOpen() )
+	return index;
+    QSqlRecord rec = record( tablename );
+
+    SQLHANDLE hStmt;
+    SQLRETURN r = SQLAllocHandle( SQL_HANDLE_STMT,
+				  d->hDbc,
+				  &hStmt );
+    if ( r != SQL_SUCCESS ) {
+	qSqlWarning( "QDB2Driver::primaryIndex: Unable to list primary key", d );
+	return index;
+    }
+    QString catalog, schema, table;
+    qSplitTableQualifier( tablename.upper(), &catalog, &schema, &table );
+    r = SQLSetStmtAttr( hStmt,
+			SQL_ATTR_CURSOR_TYPE,
+			(SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
+			SQL_IS_UINTEGER );
+
+    r = SQLPrimaryKeys( hStmt,
+			NULL,
+			0,
+			(SQLCHAR*) schema.latin1(),
+			schema.length(),
+			(SQLCHAR*) table.latin1(),
+			table.length() );
+    r = SQLFetchScroll( hStmt,
+			SQL_FETCH_NEXT,
+			0 );
+
+    bool isNull;
+    QString cName, idxName;
+    // Store all fields in a StringList because the driver can't detail fields in this FETCH loop
+    while ( r == SQL_SUCCESS ) {
+	cName = qGetStringData( hStmt, 3, -1, isNull ); // column name
+	idxName = qGetStringData( hStmt, 5, -1, isNull ); // pk index name
+	index.append( *(rec.field( cName )) );
+	index.setName( idxName );
+	r = SQLFetchScroll( hStmt,
+			    SQL_FETCH_NEXT,
+			    0 );
+    }
+    r = SQLFreeHandle( SQL_HANDLE_STMT, hStmt );
+    if ( r!= SQL_SUCCESS )
+	qSqlWarning( "QDB2Driver: Unable to free statement handle " + QString::number(r), d );
+    return index;
 }

@@ -70,7 +70,7 @@ protected:
     bool fetchFirst();
     bool fetchLast();
     bool isNull( int i );
-    int size()  { return 0; }
+    int size();
     int numRowsAffected();
 private:
     QDB2ResultPrivate* d;
@@ -90,6 +90,7 @@ public:
     QSqlRecordInfo recordInfo( const QSqlQuery& query ) const;
     QStringList tables( const QString& /* user */ ) const;
     QSqlQuery createQuery() const;
+    QSqlIndex primaryIndex( const QString& tablename ) const;
 private:
     QDB2DriverPrivate* d;
 };
