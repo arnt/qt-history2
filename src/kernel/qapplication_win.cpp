@@ -864,9 +864,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
-#if defined(USE_HEARTBEAT)
-    KillTimer( 0, heartBeat );
-#endif
     unregWinClasses();
     QPixmapCache::clear();
     QPainter::cleanup();
