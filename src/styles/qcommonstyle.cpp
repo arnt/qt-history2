@@ -819,8 +819,8 @@ void QCommonStyle::drawControl( ControlElement element,
 
 			QRect pr = rect, tr = rect;
 			int fh = p->fontMetrics().height();
-			pr.addCoords(0, 0, 0, -fh);
-			tr.addCoords(0, tr.height() - fh, 0, 0);
+			pr.addCoords( 0, 1, 0, -fh-3 );
+			tr.addCoords( 0, pr.bottom(), 0, -3 );
 			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
 			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
 				  flags & Style_Enabled, 0, toolbutton->textLabel(),
