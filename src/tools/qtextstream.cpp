@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#108 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#109 $
 **
 ** Implementation of QTextStream class
 **
@@ -614,24 +614,12 @@ void QTextStream::ts_putc(int ch)
 
 bool QTextStream::ts_isdigit(QChar c)
 {
-#if 0
-    if ( cmode == Ascii )
-	return isdigit(ch);
-    else // ######## see QString ucdigit()
-	return isdigit(ch&0xff);
-#endif
-    return !c.row() && isdigit(c.cell()); //###
+    return c.isDigit(); 
 }
 
 bool QTextStream::ts_isspace( QChar c )
 {
-#if 0
-    if ( cmode == Ascii )
-	return isspace(ch);
-    else // ######## see QString ucspace()
-	return isspace(ch&0xff);
-#endif
-    return !c.row() && isspace(c.cell()); //#############################3
+    return c.isSpace();
 }
 
 void QTextStream::ts_ungetc( QChar c )
@@ -838,11 +826,12 @@ ulong QTextStream::input_bin()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    char c = ch;
-    while ( c == '0' || c == '1' ) {
+    int d = ch.digitValue();
+    while (  d == 0 || d == 1 ) {
 	val <<= 1;
-	val += c - '0';
-	c = ch = ts_getc();
+	val += d;
+	ch = ts_getc();
+	d = ch.digitValue();
     }
     if ( ch != QEOF )
 	ts_ungetc( ch );
@@ -853,15 +842,16 @@ ulong QTextStream::input_oct()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    char c = ch;
-    while ( c >= '0' && c <= '7' ) {
+    int d = ch.digitValue();
+    while ( d >= 0 && d <= 7 ) {
 	val <<= 3;
-	val += c - '0';
-	c = ts_getc();
+	val += d;
+	ch = ts_getc();
+	d = ch.digitValue();
     }
-    if ( c == '8' || c == '9' ) {
-	while ( ts_isdigit(c) )
-	    c = ch = ts_getc();
+    if ( d == 8 || d == 9 ) {
+	while ( ts_isdigit(ch) ) 
+	    ch = ts_getc();
     }
     if ( ch != QEOF )
 	ts_ungetc( ch );
@@ -872,11 +862,12 @@ ulong QTextStream::input_dec()
 {
     ulong val = 0;
     QChar ch = eat_ws();
-    char c = ch;
-    while ( ts_isdigit(c) ) {
+    int d = ch.digitValue();
+    while ( ts_isdigit(ch) ) {
 	val *= 10;
-	val += c - '0';
-	c = ch = ts_getc();
+	val += d;
+	ch = ts_getc();
+	d = ch.digitValue();
     }
     if ( ch != QEOF )
 	ts_ungetc( ch );
@@ -953,12 +944,10 @@ long QTextStream::input_int()
 			val = 0;
 		    }
 		}
-	    }
-	    else if ( c >= '1' && c <= '9' ) {
+	    } else if ( ts_isdigit(ch) ) {
 		ts_ungetc( ch );
 		val = (long)input_dec();
-	    }
-	    else if ( c == '-' || c == '+' ) {
+	    } else if ( c == '-' || c == '+' ) {
 		val = (long)input_dec();
 		if ( c == '-' )
 		    val = -val;
