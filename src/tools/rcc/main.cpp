@@ -65,7 +65,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                     QFileInfo file(res.firstChild().toText().data());
                     QString name;
                     if(res.toElement().hasAttribute("name")) 
-                        name = res.toElement().attribute("name").section('/', -1);
+                        name = res.toElement().attribute("name");
                     if(!file.exists() || file.isDir()) {
                         QDir dir;
                         if(!file.exists())
@@ -77,14 +77,14 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                             if(subFiles[subFile].fileName() == "." || subFiles[subFile].fileName() == "..")
                                 continue;
                             RCCFileInfo res;
-                            res.name += (name.isNull() ? dir.dirName() : name) 
+                            res.name += (name.isNull() ? dir.path() : name) 
                                         + "/" + subFiles[subFile].fileName();
                             res.fileinfo = subFiles[subFile];
                             files.append(res);
                         }
                     } else {
                         RCCFileInfo res;
-                        res.name = name.isNull() ? file.fileName() : name;
+                        res.name = name.isNull() ? file.fileName() : name.section('/', -1);
                         res.fileinfo = QFileInfo(file);
                         files.append(res);
                     }
@@ -111,14 +111,14 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                     else
                         compressRatio = 0;
                 }
-                if(verbose)
-                    qDebug("Read file %s [Compressed %d%%]", inputQFile.fileName().latin1(),
-                           compressRatio);
 
                 //header
                 const QString location = QDir::cleanPath(resource_root + "/" +
-                                                         prefix + "/" +
-                                                         files[file].name);
+                                                         prefix + "/" + files[file].name);
+                if(verbose)
+                    qDebug("Read file %s(@%s) [Compressed %d%%]", inputQFile.fileName().latin1(),
+                           location.latin1(), compressRatio);
+
                 QByteArray resource_name;
                 {
                     const QChar *data = location.unicode();
