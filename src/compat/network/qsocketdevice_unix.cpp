@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-#include <netinet/in.h>
 
 // Almost always the same. If not, specify in qplatformdefs.h.
 #if !defined(QT_SOCKOPTLEN_T)

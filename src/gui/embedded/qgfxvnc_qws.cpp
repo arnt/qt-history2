@@ -11,19 +11,16 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "qgfxraster_qws.h"
 
 #if !defined(QT_NO_QWS_VNC)
 
-#include <stdlib.h>
-#include <sys/ipc.h>
-#include <sys/types.h>
-#include <netinet/in.h>
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
 #include "qgfxvnc_qws.h"
-#include <qglobal.h>
 #include <private/qsharedmemory_p.h>
+#include <stdlib.h>
 
 extern QString qws_qtePipeFilename();
 

@@ -46,13 +46,8 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 // also this lacks Large File support but that's probably irrelevant
 #if defined(QT_USE_MMAP)
 // for mmap
-#include <sys/types.h>
-#include <sys/stat.h>
 #include <sys/mman.h>
-#include <fcntl.h>
 #include <errno.h>
-// for htonl
-#include <netinet/in.h>
 #endif
 
 #include <stdlib.h>

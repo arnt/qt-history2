@@ -11,22 +11,17 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "qwssocket_qws.h"
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-#include <sys/file.h>
-#include <sys/time.h>
-#include <sys/stat.h>
 #include <fcntl.h>
-#include <netinet/in.h>
-#include <sys/un.h>
 #include <netdb.h>
 #include <errno.h>
+#include <sys/file.h>
+#include <sys/time.h>
+#include <sys/un.h>
 
 #ifdef __MIPSEL__
 # ifndef SOCK_DGRAM

@@ -11,12 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
 #include "qdns_p.h"
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netdb.h>
-#include <netinet/in.h>
 #include <qbytearray.h>
+#include <netdb.h>
 
 //#define QDNS_DEBUG
 

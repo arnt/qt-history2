@@ -12,16 +12,11 @@
 **
 ****************************************************************************/
 
-#include <sys/types.h>
+#include "qplatformdefs.h"
+#include "qsocketlayer_p.h"
+#include "qhostaddress.h"
 #include <time.h>
 #include <errno.h>
-#include <netinet/in.h>
-
-#include "qglobal.h"
-#include "qhostaddress.h"
-#include "qplatformdefs.h"
-#include "qsocketlayer.h"
-#include "qsocketlayer_p.h"
 
 //#define QSOCKETLAYER_DEBUG
 

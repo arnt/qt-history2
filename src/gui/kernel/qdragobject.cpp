@@ -32,11 +32,8 @@
 #include "qimage.h"
 #include "qregexp.h"
 #include "qdir.h"
-#include <ctype.h>
-#ifndef Q_WS_WIN
-#include <netinet/in.h>
-#endif
 #include <private/qdragobject_p.h>
+#include <ctype.h>
 
 static QWidget* last_target;
 
