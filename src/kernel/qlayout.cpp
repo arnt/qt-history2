@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#121 $
 **
 ** Implementation of layout classes
 **
@@ -1270,8 +1270,8 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
     {
 	if ( row.tagName() == "Row" )
         {
-	    if ( row.hasAttribute( "size" ) )
-		addRowSpacing( r, row.attribute( "size" ).toInt() );
+	    if ( row.hasAttribute( "spacing" ) )
+		addRowSpacing( r, row.attribute( "spacing" ).toInt() );
 	    if ( row.hasAttribute( "stretch" ) )
 		setRowStretch( r, row.attribute( "stretch" ).toInt() );
 
@@ -1282,8 +1282,6 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 	    {
 		if ( cell.tagName() == "Cell" )
 	        {
-		    qDebug("QGridLayout child at %i %i", r, c );
-
 		    int multicol = 1;
 		    int multirow = 1;
 		    if ( cell.hasAttribute( "multicol" ) )
@@ -1344,8 +1342,8 @@ bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 			    addLayout( l, r, c );
 		    }
 
-		    if ( cell.hasAttribute( "size" ) )
-			addColSpacing( c, cell.attribute( "size" ).toInt() );
+		    if ( cell.hasAttribute( "spacing" ) )
+			addColSpacing( c, cell.attribute( "spacing" ).toInt() );
 		    if ( cell.hasAttribute( "stretch" ) )
 			setColStretch( c, cell.attribute( "stretch" ).toInt() );
 	
@@ -1923,10 +1921,10 @@ bool QHBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 	addLayout( l, stretch );
       }
     }
-    else if ( cell.tagName() == "Space" && cell.hasAttribute( "size" ) )
-      addSpacing( cell.attribute( "size" ).toInt() );
-    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "factor" ) )
-      addStretch( cell.attribute( "factor" ).toInt() );
+    else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
+      addSpacing( cell.attribute( "spacing" ).toInt() );
+    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
+      addStretch( cell.attribute( "stretch" ).toInt() );
     else
       return FALSE;
   }
@@ -2040,10 +2038,10 @@ bool QVBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwid
 	addLayout( l, stretch );
       }
     }
-    else if ( cell.tagName() == "Space" && cell.hasAttribute( "size" ) )
-      addSpacing( cell.attribute( "size" ).toInt() );
-    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "factor" ) )
-      addStretch( cell.attribute( "factor" ).toInt() );
+    else if ( cell.tagName() == "Space" && cell.hasAttribute( "spacing" ) )
+      addSpacing( cell.attribute( "spacing" ).toInt() );
+    else if ( cell.tagName() == "Stretch" && cell.hasAttribute( "stretch" ) )
+      addStretch( cell.attribute( "stretch" ).toInt() );
     else
       return FALSE;
   }

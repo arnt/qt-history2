@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#72 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -1608,8 +1608,8 @@ bool QLayout::stringToAlign( const QString& tmp, int* _align )
     else if ( tmp == "right" )
       *_align = Qt::AlignRight;
     else
-      return false;
-    return true;
+      return FALSE;
+    return TRUE;
 }
 
 bool QLayout::setConfiguration( const QDomElement& element, QWidget* )
@@ -1618,7 +1618,7 @@ bool QLayout::setConfiguration( const QDomElement& element, QWidget* )
 	setMargin( element.attribute( "margin" ).toInt() );
     if ( element.hasAttribute( "spacing" ) )
 	setSpacing( element.attribute( "spacing" ).toInt() );
-    
+
     return QObject::setConfiguration( element );
 }
 
