@@ -62,9 +62,7 @@ int PlasmaModel::columnCount() const
 
 QVariant PlasmaModel::data(const QModelIndex &index, int role) const
 {
-    if (index.row() >= 0 && index.row() < rows
-        && index.column() >= 0 && index.column() < cols
-        && role == QAbstractItemModel::DisplayRole)
+    if (index.isValid() && role == QAbstractItemModel::DisplayRole)
         return value(index.row(), index.column());
     return QVariant();
 }
@@ -93,5 +91,8 @@ void PlasmaModel::timerEvent(QTimerEvent *e)
     waves[2] -= 1;
     waves[3] += 3;
 
-    emit dataChanged(createIndex(0, 0), createIndex(rows - 1, cols - 1));
+    QModelIndex topLeft = index(0, 0);
+    QModelIndex bottomRight = index(rows - 1, cols - 1);
+
+    emit dataChanged(topLeft, bottomRight);
 }
