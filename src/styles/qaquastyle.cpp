@@ -1230,6 +1230,13 @@ void QAquaStyle::drawControl( ControlElement element,
 	if(!widget)
 	    break;
 	QPushButton *btn = (QPushButton *)widget;
+        if( btn->isDefault() || (btn->autoDefault() && btn->hasFocus()) ){
+	    d->defaultButton = btn;
+            btn->installEventFilter( this );
+            if( btn->isVisible() && d->buttonTimerId == -1 )
+                d->buttonTimerId = ((QAquaStyle*)this)->startTimer( 50 );
+        }
+
 	QPixmap left, mid, right;
 	QColorGroup g = btn->colorGroup();
 	int x=r.x(), y=r.y(), w=r.width(), h=r.height();
