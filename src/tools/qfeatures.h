@@ -337,7 +337,12 @@
 */
 //#define QT_NO_STYLE
 
-#if defined(QT_NO_PALETTE) || defined (QT_NO_STYLE) || defined(QT_NO_IMAGE_SMOOTHSCALE)
+/*!
+    QIconSet
+*/
+//#define QT_NO_ICONSET
+
+#if defined(QT_NO_PALETTE) || defined(QT_NO_STYLE) || defined(QT_NO_ICONSET) || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
 	Pre-defined widgets
     */
@@ -379,10 +384,6 @@
 	QAccel
     */
     #define QT_NO_ACCEL
-    /*!
-	QIconSet
-    */
-    #define QT_NO_ICONSET
 
     /*!
 	QSizeGrip
