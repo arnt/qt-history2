@@ -11,19 +11,25 @@
 **
 ****************************************************************************/
 
-//#define QDATETIMEEDIT_DEBUG
-#ifdef QDATETIMEEDIT_DEBUG
-#  define DEBUG qDebug
-#else
-#  define DEBUG if (false) qDebug
-#endif
-
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
 #include <qdatetimeedit.h>
 #include <qlineedit.h>
 #include <qevent.h>
 #include <math.h>
+
+#ifdef Q_WS_MAC
+#include <private/qt_mac_p.h>
+extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
+#endif
+
+//#define QDATETIMEEDIT_QDTDEBUG
+#ifdef QDATETIMEEDIT_QDTDEBUG
+#  define QDTDEBUG qDebug
+#else
+#  define QDTDEBUG if (false) qDebug
+#endif
+#include <qdebug.h>
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
@@ -994,8 +1000,8 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
             }
         }
     }
-    DEBUG("oldpos %d newpos %d", oldpos, newpos);
-    DEBUG("(%s)currentsection = %s (%s)oldsection = %s",
+    QDTDEBUG("oldpos %d newpos %d", oldpos, newpos);
+    QDTDEBUG("(%s)currentsection = %s (%s)oldsection = %s",
           sectionName(currentsection).toLatin1().constData(),
           sectionName(s).toLatin1().constData(),
           sectionName(old).toLatin1().constData(),
@@ -1019,13 +1025,74 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 
 }
 
+#ifdef Q_WS_MAC
+static QString macParseDateLocale(QCoreVariant::Type type)
+{
+    CFGregorianDate macGDate;
+    macGDate.year = 99;
+    macGDate.month = 11;
+    macGDate.day = 20; // <---- Should be 22, but seems something is wrong.
+    macGDate.hour = 10;
+    macGDate.minute = 34;
+    macGDate.second = 56.0;
+    QCFType<CFDateRef> myDate = CFDateCreate(0, CFGregorianDateGetAbsoluteTime(macGDate, QCFType<CFTimeZoneRef>(CFTimeZoneCopySystem())));
+    switch (type) {
+    case QCoreVariant::Date:
+	{
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                                mylocale, kCFDateFormatterShortStyle,
+                                                                                kCFDateFormatterNoStyle);
+                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+
+            } else
+#endif
+            {
+                Handle intlHandle = GetIntlResource(0);
+                LongDateTime oldDate;
+                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
+                                                      &oldDate);
+                Str255 pString;
+                LongDateString(&oldDate, shortDate, pString, intlHandle);
+                return qt_mac_from_pascal_string(pString);
+            }
+	}
+    case QCoreVariant::DateTime:
+	{
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                QCFType<CFLocaleRef> mylocale = CFLocaleCopyCurrent();
+                QCFType<CFDateFormatterRef> myFormatter = CFDateFormatterCreate(kCFAllocatorDefault,
+                                                                                mylocale, kCFDateFormatterShortStyle,
+                                                                                kCFDateFormatterMediumStyle);
+                return QCFString(CFDateFormatterCreateStringWithDate(0, myFormatter, myDate));
+
+            } else
+#endif
+            {
+                Handle intlHandle = GetIntlResource(0);
+                LongDateTime oldDate;
+                UCConvertCFAbsoluteTimeToLongDateTime(CFGregorianDateGetAbsoluteTime(macGDate, 0),
+                                                      &oldDate);
+                Str255 pString;
+                LongDateString(&oldDate, shortDate, pString, intlHandle);
+		QString final = qt_mac_from_pascal_string(pString);
+		LongTimeString(&oldDate, true, pString, intlHandle);
+                return final + QLatin1Char(' ') + qt_mac_from_pascal_string(pString);
+            }
+	}
+    }
+    return QString();
+}
+#endif
 
 /*!
   \internal
 
    Try to get the format from the local settings
 */
-
 void QDateTimeEditPrivate::readLocaleSettings()
 {
     static bool done = false;
@@ -1035,8 +1102,8 @@ void QDateTimeEditPrivate::readLocaleSettings()
     done = true;
 
     // Time
-    QString str = QTime(12, 34, 56, 789).toString(Qt::LocalDate);
-    int index = str.indexOf(QLatin1String("12"));
+    QString str = QTime(10, 34, 56).toString(Qt::LocalDate);
+    int index = str.indexOf(QLatin1String("10"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("hh"));
 
@@ -1048,10 +1115,6 @@ void QDateTimeEditPrivate::readLocaleSettings()
     if (index != -1)
         str.replace(index, 2, QLatin1String("ss"));
 
-    index = str.indexOf(QLatin1String("789"));
-    if (index != -1)
-        str.replace(index, 3, QLatin1String("zzz"));
-
     index = str.indexOf(QLatin1String("pm"), 0, Qt::CaseInsensitive);
     if (index != -1)
         str.replace(index, 2, str.at(index) == QLatin1Char('p') ? QLatin1String("ap") : QLatin1String("AP"));
@@ -1062,7 +1125,12 @@ void QDateTimeEditPrivate::readLocaleSettings()
     const QString shortMonthName = QDate::shortMonthName(11);
     const QString longMonthName = QDate::longMonthName(11);
 
+#ifdef Q_WS_MAC
+    str = macParseDateLocale(QCoreVariant::Date);
+#else
     str = QDate(1999, 11, 22).toString(Qt::LocalDate);
+#endif
+
     index = str.indexOf(QLatin1String("22"));
     if (index != -1) {
         str.replace(index, 2, QLatin1String("dd"));
@@ -1087,8 +1155,12 @@ void QDateTimeEditPrivate::readLocaleSettings()
     defaultDateFormat = str;
 
     // DateTime
-    str = QDateTime(QDate(1999, 11, 22), QTime(12, 34, 56, 789)).toString(Qt::LocalDate);
-    index = str.indexOf(QLatin1String("12"));
+#ifdef Q_WS_MAC
+    str = macParseDateLocale(QCoreVariant::DateTime);
+#else
+    str = QDateTime(QDate(1999, 11, 22), QTime(10, 34, 56)).toString(Qt::LocalDate);
+#endif
+    index = str.indexOf(QLatin1String("10"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("hh"));
 
@@ -1099,10 +1171,6 @@ void QDateTimeEditPrivate::readLocaleSettings()
     index = str.indexOf(QLatin1String("56"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("ss"));
-
-    index = str.indexOf(QLatin1String("789"));
-    if (index != -1)
-        str.replace(index, 3, QLatin1String("zzz"));
 
     index = str.indexOf(QLatin1String("pm"), 0, Qt::CaseInsensitive);
     if (index != -1)
@@ -1129,6 +1197,8 @@ void QDateTimeEditPrivate::readLocaleSettings()
     }
 
     defaultDateTimeFormat = str;
+
+//    qDebug() << "default Time:" << defaultTimeFormat << "default date:" << defaultDateFormat << "default date/time" << defaultDateTimeFormat;
 }
 
 
@@ -1482,7 +1552,7 @@ bool QDateTimeEditPrivate::addSection(QList<SectionNode> *list, Section ds, int 
     Q_ASSERT(list);
     for (int i=0; i<list->size(); ++i) {
 	if ((list->at(i).section & ~Internal) == (ds & ~Internal)) {
-            DEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).toLatin1().constData(), pos);
+            QDTDEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).toLatin1().constData(), pos);
 	    return false;
         }
     }
@@ -1655,7 +1725,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	}
     }
     if (list.isEmpty()) {
- 	DEBUG("Could not parse format. No sections in format '%s'.", newFormat.toLatin1().constData());
+ 	QDTDEBUG("Could not parse format. No sections in format '%s'.", newFormat.toLatin1().constData());
 	return false;
     }
 
@@ -1680,9 +1750,9 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         }
     }
     separators = newSeparators;
-    DEBUG("format is [%s]", format.toLatin1().constData());
-    DEBUG("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
-    DEBUG("separators:\n%s", separators.join("\n").toLatin1().constData());
+    QDTDEBUG("format is [%s]", format.toLatin1().constData());
+    QDTDEBUG("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
+    QDTDEBUG("separators:\n%s", separators.join("\n").toLatin1().constData());
 
     display = newDisplay;
     last.pos = newFormat.size();
@@ -1969,7 +2039,7 @@ QCoreVariant QDateTimeEditPrivate::fromString(QString *text, QValidator::State *
         text->replace(sn.pos, sectionSize(DaysSection), QString::number(day));
     }
 
-//     DEBUG("fromString: '%s' => '%s' (%s)",
+//     QDTDEBUG("fromString: '%s' => '%s' (%s)",
 //           text->toLatin1().constData(),
 //           QCoreVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec))).
 //           toString().toLatin1().constData(), stateName(state).toLatin1().constData());
@@ -2122,7 +2192,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     if (diff > 0) {
         const Section s = (pos ? closestSection(*pos - 1, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-//            DEBUG("invalid because s == %s", sectionName(s).toLatin1().constData());
+//            QDTDEBUG("invalid because s == %s", sectionName(s).toLatin1().constData());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
@@ -2131,7 +2201,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 
         QString sub = input->mid(sectionstart, sectionsize + diff);
         if (sub.count(QLatin1Char(' ')) < diff) {
-//            DEBUG("sub is '%s' diff is %d sub.count is %d", sub.toLatin1().constData(), diff, sub.count(QLatin1Char(' ')));
+//            QDTDEBUG("sub is '%s' diff is %d sub.count is %d", sub.toLatin1().constData(), diff, sub.count(QLatin1Char(' ')));
             return QValidator::Invalid;
         }
 
@@ -2140,7 +2210,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     } else if (diff < 0) {
         const Section s = (pos ? closestSection(*pos, false) : currentsection);
         if (s == FirstSection && s == LastSection) {
-//            DEBUG(".invalid because s == %s", sectionName(s).toLatin1().constData());
+//            QDTDEBUG(".invalid because s == %s", sectionName(s).toLatin1().constData());
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
@@ -2158,7 +2228,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     for (int i=0; i<sections.size(); ++i) {
         sn = sections.at(i);
         if (input->mid(index, sn.pos - index) != separators.at(i)) {
-//            DEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).toLatin1().constData(), separators.at(i).toLatin1().constData());
+//            QDTDEBUG("invalid because '%s' != '%s'", input->mid(index, sn.pos - index).toLatin1().constData(), separators.at(i).toLatin1().constData());
             return QValidator::Invalid;
         }
         index = sn.pos + sectionSize(sn.section);
@@ -2166,7 +2236,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
 
     if (sn.pos + sectionSize(sn.section) < input->size()
         && input->mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
-        DEBUG("invalid because '%s' != '%s'",
+        QDTDEBUG("invalid because '%s' != '%s'",
               input->mid(sn.pos + sectionSize(sn.section)).toLatin1().constData(),
               separators.last().toLatin1().constData());
         return QValidator::Invalid;
@@ -2178,7 +2248,7 @@ QValidator::State QDateTimeEditPrivate::validate(QString *input, int *pos, QCore
     } else {
         mapTextToValue(input, &state);
     }
-    DEBUG("'%s' => '%s' (%s)", input->toLatin1().constData(), (!val ? "foo" : val->toString().toLatin1().constData()), stateName(state).toLatin1().constData());
+    QDTDEBUG("'%s' => '%s' (%s)", input->toLatin1().constData(), (!val ? "foo" : val->toString().toLatin1().constData()), stateName(state).toLatin1().constData());
     return state;
 }
 
