@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#47 $
 **
 ** Implementation of QStyle class
 **
@@ -56,6 +56,30 @@
   to modify the look of all widgets which utilize those functions.
 */
 
+#if defined(_CC_GNU_)
+#warning "Mathias, I'm dead tired of writing these.  Please fill this one in."
+#endif
+/*! \enum QStyle::ScrollControl
+  This enum type defines :<ul>
+
+  <li> \c AddLine -
+
+  <li> \c SubLine -
+
+  <li> \c AddPage -
+
+  <li> \c SubPage -
+
+  <li> \c First -
+
+  <li> \c Last -
+
+  <li> \c Slider -
+
+  <li> \c NoScroll -
+
+  </ul>
+*/
 /*!
   Constructs a QStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
@@ -502,7 +526,7 @@ TODO
   \fn  void QStyle::drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls,
   uint activeControl )
 
-  Draws the given scrollbar. Used internally by QScrollbar.
+  Draws the given scrollbar.  Used internally by QScrollbar.
 
   The controls are either ADD_LINE, SUB_LINE, ADD_PAGE, SUB_PAGE,
   FIRST, LAST, SLIDER or NONE
