@@ -64,7 +64,8 @@ enum { Tok_Boi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
 static QString yyIn; // the input stream
 static int yyPos; // the position of the current token in yyIn
 static int yyCurPos; // the position of the next lookahead character
-static char yyLexBuf[65536]; // the lexeme buffer (big enough for long comments)
+static char *yyLexBuf; // the lexeme buffer
+static const int YYLexBufSize = 65536; // big enough for long comments
 static char *yyLex; // the lexeme itself (a pointer into yyLexBuf)
 static int yyCh; // the lookbehind character
 
@@ -96,10 +97,20 @@ static void startTokenizer( const QString& in )
     yyIn = in;
     yyPos = yyIn.length() - 1;
     yyCurPos = yyPos;
-    yyLex = yyLexBuf + sizeof(yyLexBuf) - 1;
+    yyLexBuf = new char[YYLexBufSize];
+    yyLex = yyLexBuf + YYLexBufSize - 1;
     *yyLex = '\0';
     yyCh = '\0';
     readChar();
+}
+
+/*
+  Frees resources allocated by the tokenizer.
+*/
+static void stopTokenizer()
+{
+    delete[] yyLexBuf;
+    yyLexBuf = 0;
 }
 
 /*
@@ -127,7 +138,7 @@ static int getToken()
 	  token, and so on.
 	*/
 
-	yyLex = yyLexBuf + sizeof(yyLexBuf) - 1;
+	yyLex = yyLexBuf + YYLexBufSize - 1;
 	*yyLex = '\0';
 
 	if ( yyCh == EOF ) {
@@ -153,13 +164,16 @@ static int getToken()
 		  off-by-two bugs when you modify this code by adding
 		  qDebug()'s here and there.
 		*/
-		int lineStart = yyIn.findRev( QChar('\n'), yyCurPos ) + 1;
-		QString line = yyIn.mid( lineStart, yyCurPos - lineStart + 2 );
-		int commentStart = line.find( QString("//") );
-		if ( commentStart != -1 ) {
-		    yyCurPos = lineStart + commentStart - 1;
-		    yyPos = yyCurPos + 2;
-		    readChar();
+		if ( yyCurPos >= 0 ) {
+		    int lineStart = yyIn.findRev( QChar('\n'), yyCurPos ) + 1;
+		    QString line = yyIn.mid( lineStart,
+					     yyCurPos - lineStart + 2 );
+		    int commentStart = line.find( QString("//") );
+		    if ( commentStart != -1 ) {
+			yyCurPos = lineStart + commentStart - 1;
+			yyPos = yyCurPos + 2;
+			readChar();
+		    }
 		}
 	    }
 	} else if ( isalnum(yyCh) || yyCh == '_' ) {
@@ -737,6 +751,7 @@ void extractCppFunctions( const QString& code, QValueList<CppFunction> *flist )
     startTokenizer( code );
     yyTok = getToken();
     matchTranslationUnit( flist );
+    stopTokenizer();
 }
 
 /*
@@ -747,5 +762,6 @@ QString canonicalCppProto( const QString& proto )
     startTokenizer( proto );
     yyTok = getToken();
     CppFunction func = matchFunctionPrototype( TRUE );
+    stopTokenizer();
     return func.prototype();
 }
