@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#170 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#169 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#170 $");
 
 
 /*!
@@ -1499,7 +1499,8 @@ void QWidget::setFocus()
 	ow->focusChild = 0;
 	ow = fc;
     }
-    ow->clearWFlags( WFocusSet );
+    if ( ow != this )				//### Should always be true
+	ow->clearWFlags( WFocusSet );
     
     if ( sameTLW ) {				// goodbye to old focus widget
 	qApp->focus_widget = 0;
