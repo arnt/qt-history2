@@ -2,11 +2,13 @@ Array
 Boolean
 ByteArray
 Color
+ColorButton
 Date
 Font
 Math
 Number
 Object
+PaintWidget
 Pixmap
 Point
 Qt
@@ -110,7 +112,6 @@ QListViewItem
 QLocalFs
 QMacStyle
 QMainWindow
-QMap
 QMenuBar
 QMessageBox
 QMotifPlusStyle
