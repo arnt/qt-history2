@@ -1086,9 +1086,9 @@ QString Uic::createObjectInstance( const QString& objClass, const QString& paren
 {
 
     if ( objClass.mid( 1 ) == "ComboBox" ) {
-	return objClass + "( FALSE, " + parent + ", \"" + objName + "\" )";
+	return objClass + "( FALSE, " + parent + ")";
     }
-    return objClass + "( " + parent + ", \"" + objName + "\" )";
+    return objClass + "(" + parent + ")";
 }
 
 bool Uic::isLayout( const QString& name ) const
