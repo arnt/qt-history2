@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#5 $
 **
 ** Implementation of QMenuBar class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#5 $";
 #endif
 
 
@@ -111,7 +111,6 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
     if ( object == parent() && event->type() == Event_Resize ) {
 	QResizeEvent *e = (QResizeEvent *)event;
 	resize( e->size().width(), clientSize().height() );
-	repaint( TRUE );
     }
     return FALSE;				// don't stop event
 }
@@ -152,6 +151,17 @@ void QMenuBar::goodbye()			// set to idle state
 }
 
 
+void QMenuBar::openActPopup()			// open active popup menu
+{
+    if ( actItem < 0 )
+	return;
+    QPopupMenu *popup = mitems->at(actItem)->popup();
+    if ( popup ) {
+	QPoint pos = itemRect(actItem).bottomLeft() + QPoint(0,1);
+	popup->popup( mapToGlobal(pos) );
+    }
+}
+
 void QMenuBar::hidePopups()			// hide popup items
 {
     QMenuItemListIt it(*mitems);
@@ -183,7 +193,6 @@ void QMenuBar::hide()
 {
     actItem = -1;
     hidePopups();
-    killTimers();
     QWidget::hide();
 }
 
@@ -332,8 +341,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	}
 	else {					// open sub menu
 	    hidePopups();
-	    killTimers();
-	    startTimer( 20 );
+	    openActPopup();
 	}
     }
     else
@@ -379,10 +387,8 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 	hidePopups();
 	if ( mi->id() != -1 )
 	    emit activated( mi->id() );
-	if ( mi->popup() ) {
-	    killTimers();
-	    startTimer( 20 );
-	}	    
+	if ( mi->popup() )
+	    openActPopup();
     }
 }
 
@@ -390,17 +396,4 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 void QMenuBar::resizeEvent( QResizeEvent * )
 {
     badSize = TRUE;
-}
-
-
-void QMenuBar::timerEvent( QTimerEvent *e )
-{
-    killTimer( e->timerId() );			// single-shot timer
-    if ( actItem < 0 )
-	return;
-    QPopupMenu *popup = mitems->at(actItem)->popup();
-    if ( popup ) {
-	QPoint pos = itemRect(actItem).bottomLeft() + QPoint(0,1);
-	popup->popup( mapToGlobal(pos) );
-    }
 }

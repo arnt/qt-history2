@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#4 $
 **
 ** Definition of QMenuBar class
 **
@@ -38,7 +38,6 @@ protected:
     void	mousePressEvent( QMouseEvent * );
     void	mouseReleaseEvent( QMouseEvent * );
     void	mouseMoveEvent( QMouseEvent * );
-    void	timerEvent( QTimerEvent * );
 
 slots:
     void	subActivated( int itemId );
@@ -54,6 +53,7 @@ private:
 
     bool	tryMouseEvent( QPopupMenu *, QMouseEvent * );
     void	goodbye();
+    void	openActPopup();
     void	hidePopups();
 
     void	updateRects();
