@@ -190,7 +190,7 @@ void MainWindow::enableFormActions(bool enable)
 void MainWindow::windowChanged()
 {
     if (AbstractFormWindow *fw = m_formWindowManager->activeFormWindow()) {
-        fw->setActiveWindow();
+        fw->activateWindow();
         enableFormActions(true);
         m_showGrid->setChecked(fw->hasFeature(AbstractFormWindow::GridFeature));
         m_readOnly->setChecked(!fw->hasFeature(AbstractFormWindow::EditFeature));
