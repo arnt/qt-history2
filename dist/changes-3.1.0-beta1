@@ -372,6 +372,12 @@ New enum values:
 
 QWidget
 ------------------
+All top-level widgets will now try to find an appropriate application
+icon when they're not given one, trying in this order
+ 1. Parent widget's icon
+ 2. Top-level widget's icon
+ 3. Application main widget's icon
+
 New functions:
 	bool isFullScreen() const
 	void setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::SizeType ver, bool hfw = FALSE )
