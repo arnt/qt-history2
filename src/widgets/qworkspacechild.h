@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#3 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#4 $
 **
 ** Definition of the QChildWindow class
 **
@@ -53,7 +53,7 @@ public:
     ~QWorkspaceChildTitelBar();
 
     bool isActive() const;
-    
+
  public slots:
     void setActive( bool );
 
@@ -113,6 +113,9 @@ protected:
 
     void resizeEvent( QResizeEvent * );
     bool eventFilter( QObject *, QEvent * );
+    
+ private slots:
+    void clientDestroyed();
 
 private:
     QWidget* clientw;
@@ -123,7 +126,6 @@ private:
     QWorkspaceChildTitelBar* titlebar;
     QWorkspaceChildTitelBar* iconw;
     QSize clientSize;
-    bool inCloseHandler;
 
 };
 #endif

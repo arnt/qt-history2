@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#4 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -246,8 +246,8 @@ void QWorkspaceChildTitelBar::resizeEvent( QResizeEvent * )
     iconB->move( maxB->x() - BUTTON_SIZE, maxB->y() );
 
     int to = ( height()- TITLE_HEIGHT) / 2;
-    
-    if (imode && !isActive() ) 
+
+    if (imode && !isActive() )
 	titleL->setGeometry( QRect( QPoint( BUTTON_SIZE + bo, 0 ),
 				    rect().bottomRight() ) );
     else
@@ -317,12 +317,13 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const c
 	return;
 
 
+    connect( clientw, SIGNAL( destroyed() ), this, SLOT( clientDestroyed() ) );
+    
     clientw->reparent( this, 0, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
 
     resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
 
-    inCloseHandler = FALSE;
     clientw->installEventFilter( this );
 
     setActive( TRUE );
@@ -343,7 +344,7 @@ void QWorkspaceChild::resizeEvent( QResizeEvent * )
 	return;
 
     QRect cr( r.x() + BORDER, r.y() + BORDER + TITLEBAR_SEPARATION + TITLEBAR_HEIGHT,
-			r.width() - 2*BORDER, 
+			r.width() - 2*BORDER,
 			  r.height() - 2*BORDER - TITLEBAR_SEPARATION - TITLEBAR_HEIGHT);
     clientSize = cr.size();
     clientw->setGeometry( cr );
@@ -375,25 +376,22 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	show();
 	break;
     case QEvent::Hide:
+	if (iconw) {
+	    delete iconw->parentWidget();
+	    iconw = 0;
+	}
 	hide();
 	break;
     case QEvent::Resize:
 	{
 	    QResizeEvent* re = (QResizeEvent*)e;
 	    if ( re->size() != clientSize ){
-		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER, 
+		QSize s( re->size().width() + 2*frameWidth() + 2*BORDER,
 			 re->size().height() + 3*frameWidth() + TITLEBAR_HEIGHT +TITLEBAR_SEPARATION+2*BORDER );
 		resize( s );
 	    }
 	}
 	break;
-    case QEvent::Close:
-	if ( !inCloseHandler && clientw->close( FALSE  ) ) {
-	    clientw = 0;
-	    close( TRUE );
-	    return TRUE;
-	}
-	return FALSE;
     default:
 	break;
     }
@@ -590,15 +588,14 @@ void QWorkspaceChild::showNormal()
 
 bool QWorkspaceChild::close( bool forceKill )
 {
-    if (clientw) {
-	inCloseHandler = TRUE;
-	if (!clientw->close( forceKill ) )
-	    return FALSE;
-	inCloseHandler = FALSE;
-    }
     if (iconw) {
 	delete iconw->parentWidget();
 	iconw = 0;
     }
     return QWidget::close( forceKill );
+}
+
+void QWorkspaceChild::clientDestroyed()
+{
+    close( TRUE );
 }
