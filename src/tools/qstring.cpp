@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#49 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#48 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#49 $";
 #endif
 
 
@@ -530,7 +530,11 @@ QString &QString::sprintf( const char *format, ... )
     va_start( ap, format );
     if ( size() < 256 )
 	QByteArray::resize( 256 );		// make string big enough
+#if defined(HAS_VSNPRINTF)
+    vsnprintf( data(), size()-1, format, ap );
+#else
     vsprintf( data(), format, ap );
+#endif
     resize( strlen(data()) + 1 );		// truncate
     va_end( ap );
     return *this;
