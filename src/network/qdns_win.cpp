@@ -70,29 +70,29 @@ void QDnsAgent::run()
                     switch (p->ai_family) {
                     case AF_INET: {
                         QHostAddress addr(ntohl(((sockaddr_in *) p->ai_addr)->sin_addr.s_addr));
-                        if (!results.addresses.contains(addr))
-                            results.addresses.prepend(addr);
+                        if (!results.addrs.contains(addr))
+                            results.addrs.prepend(addr);
                     }
                         break;
                     case AF_INET6: {
                         QHostAddress addr(((sockaddr_in6 *) p->ai_addr)->sin6_addr.s6_addr);
-                        if (!results.addresses.contains(addr))
-                            results.addresses.append(addr);
+                        if (!results.addrs.contains(addr))
+                            results.addrs.append(addr);
                     }
                         break;
                     default:
-                        results.error = QDns::UnknownError;
-                        results.errorString = "Unknown address type";
+                        results.err = QDnsHostInfo::UnknownError;
+                        results.errorStr = "Unknown address type";
                         break;
                     }
                 }
                 local_freeaddrinfo(res);
             } else if (err == WSAHOST_NOT_FOUND) {
-                results.error = QDns::HostNotFound;
-                results.errorString = tr("Host not found");
+                results.err = QDnsHostInfo::HostNotFound;
+                results.errorStr = tr("Host not found");
             } else {
-                results.error = QDns::UnknownError;
-                results.errorString = tr("Unknown error");
+                results.err = QDnsHostInfo::UnknownError;
+                results.errorStr = tr("Unknown error");
                 // Get the error messages returned by getaddrinfo's gai_strerror
                 QT_WA( {
                     typedef char *(*gai_strerrorWProto)(int);
@@ -117,35 +117,35 @@ void QDnsAgent::run()
                 case AF_INET:
                     for (p = ent->h_addr_list; *p != 0; p++) {
                         long *ip4Addr = (long *) *p;
-                        results.addresses << QHostAddress(ntohl(*ip4Addr));
+                        results.addrs << QHostAddress(ntohl(*ip4Addr));
                     }
                     break;
                 default:
-                    results.error = QDns::UnknownError;
-                    results.errorString = tr("Unknown address type");
+                    results.err = QDnsHostInfo::UnknownError;
+                    results.errorStr = tr("Unknown address type");
                     break;
                 }
             } else if (WSAGetLastError() == 11001) {
-                results.errorString = tr("Host not found");
-                results.error = QDns::HostNotFound;
+                results.errorStr = tr("Host not found");
+                results.err = QDnsHostInfo::HostNotFound;
             } else {
-                results.errorString = tr("Unknown error");
-                results.error = QDns::UnknownError;
+                results.errorStr = tr("Unknown error");
+                results.err = QDnsHostInfo::UnknownError;
             }
         }
 
 #if defined(QDNS_DEBUG)
-        if (results.error != QDns::NoError) {
+        if (results.err != QDnsHostInfo::NoError) {
             qDebug("QDnsAgent::run(%p): error (%s)",
-                   this, results.errorString.latin1());
+                   this, results.errorStr.latin1());
         } else {
             QString tmp;
-            for (int i = 0; i < results.addresses.count(); ++i) {
+            for (int i = 0; i < results.addrs.count(); ++i) {
                 if (i != 0) tmp += ", ";
-                tmp += results.addresses.at(i).toString();
+                tmp += results.addrs.at(i).toString();
             }
             qDebug("QDnsAgent::run(%p): found %i entries: {%s}",
-                   this, results.addresses.count(), tmp.latin1());
+                   this, results.addrs.count(), tmp.latin1());
         }
 #endif
 

@@ -5,22 +5,43 @@
 #include <qsignal.h>
 #include <qsocketdevice.h>
 #include <qsignal.h>
+#include <qregexp.h>
 #include <private/qspinlock_p.h>
+#include <qtextcodec.h>
+#include <private/qunicodetables_p.h>
 
 static QDnsAgent *agent = 0;
 
 /*! \class QDns
     \brief The QDns class provides a static function for hostname lookups.
+    \reentrant
+
+\if defined(commercial)
+    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
+\endif
+
+    \module network
+    \ingroup io
 
     To look up a host's IP address, call getHostByName(), which takes
     the host name and a signal/slot signature as arguments. The lookup
     is asynchronous by default. If Qt is built without thread support,
     this function blocks until the lookup has finished.
+
+    \code
+        QDns::getHostByName("", this, SLOT(printResults(const QDnsHostInfo &)));
+    \endcode
+
+    The signal/slot is invoked once the results are ready.
+
+    QDns supports Internationalized Domain Names (IDNs) through the
+    IDNA and Punycode standards.
+
+    \sa QDnsHostInfo
 */
 
 /*!
     \enum QDns::Error
-
     \value NoError
     \value HostNotFound
     \value UnknownError
@@ -33,11 +54,13 @@ static QDnsAgent *agent = 0;
     then be inspected to get the results of the lookup.
 
     Example:
+
     \code
         QDns::getHostByName("www.trolltech.com", this, SLOT(lookedUp(const QDnsHostInfo&)));
     \endcode
 
-    Here is the implementation of the slot:
+    And here is the implementation of the slot:
+
     \code
         void MyWidget::lookedUp(const QDnsHostInfo &hosts)
         {
@@ -50,7 +73,6 @@ static QDnsAgent *agent = 0;
                 qDebug("Got address: %s", hosts.addresses.at(i).toString().latin1());
         }
     \endcode
-
 */
 void QDns::getHostByName(const QString &name, QObject *receiver,
                               const char *member)
@@ -74,7 +96,7 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         }
 
         QDnsHostInfo info;
-        info.addresses << addr;
+        info.addrs << addr;
         arr.resize(arr.indexOf('('));
 
         // To mimic the same behavior that the lookup would have if it was not
@@ -101,8 +123,25 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
         if (!agent)
             agent = new QDnsAgent();
     }
-    
-    agent->addHostName(name, receiver, member);
+
+    // Support for IDNA by first splitting the name into labels, then
+    // running the punycode decoder on each part, then merging
+    // together before passing the name to the lookup agent.
+    QString lookup;
+    QTextCodec *codec = QTextCodec::codecForName("Punycode");
+    if (!codec) {
+        lookup = name;
+    } else {
+        const unsigned short delimiters[] = {0x2e, 0x3002, 0xff0e, 0xff61, 0};
+        QStringList labels = name.split(QRegExp("[" + QString::fromUtf16(delimiters) + "]"));
+        for (int i = 0; i < labels.count(); ++i) {
+            if (i != 0) lookup += '.';
+            QString label = QUnicodeTables::normalize(labels.at(i), QUnicodeTables::NormalizationMode_KC, QChar::Unicode_3_1);
+            lookup += QString::fromAscii(codec->fromUnicode(label));
+        }
+    }
+
+    agent->addHostName(lookup, receiver, member);
 
 #if !defined QT_NO_THREAD
     if (!agent->isRunning())
@@ -113,11 +152,12 @@ void QDns::getHostByName(const QString &name, QObject *receiver,
 }
 
 QDnsHostInfo::QDnsHostInfo()
-    : error( QDns::NoError ), errorString( "Unknown error" )
+    : err(NoError), errorStr(QT_TRANSLATE_NOOP("QDnsHostInfo", "Unknown error"))
 {
 }
 
 QDnsHostInfo::QDnsHostInfo(const QDnsHostInfo &d)
-    : error( d.error ), errorString( d.errorString ), addresses( d.addresses )
+    : err(d.err), errorStr(d.errorStr), addrs(d.addrs)
 {
 }
+
