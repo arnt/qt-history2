@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#34 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#33 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#34 $")
 
 
 /*****************************************************************************
@@ -1770,7 +1770,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     else {
 	if ( txop == TxScale ) {
 	    int w, h;
-	    map( x, y, w, h, &x, &y, &w, &h );
+	    map( x, y, sw, sh, &x, &y, &w, &h );
 	    StretchBlt( hdc, x, y, w, h, pm->handle(), sx,sy, sw,sh, SRCCOPY );
 	}
 	else
