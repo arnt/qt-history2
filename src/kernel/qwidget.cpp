@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#277 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#278 $
 **
 ** Implementation of QWidget class
 **
@@ -677,6 +677,8 @@ QWidget::~QWidget()
     }
     if ( focusWidget() == this )
 	clearFocus();
+    if ( QApplication::focus_widget == this )
+	QApplication::focus_widget = 0;
     if ( testWFlags(WExportFontMetrics) )	// remove references to this
 	QFontMetrics::reset( this );
     if ( testWFlags(WExportFontInfo) )		// remove references to this
@@ -2878,7 +2880,7 @@ bool QWidget::event( QEvent *e )
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
 	    if ( k->key() == Key_Backtab ||
-		 (k->key() == Key_Tab && 
+		 (k->key() == Key_Tab &&
 		  (k->state() & QMouseEvent::ShiftButton)) )
 		res = focusNextPrevChild( FALSE );
 	    else if ( k->key() == Key_Tab )
