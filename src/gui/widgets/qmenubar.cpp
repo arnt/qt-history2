@@ -83,9 +83,8 @@ void QMenuBarPrivate::updateActions()
         for(int j = 0; j < shortcutIndexMap.size(); ++j)
             q->releaseShortcut(shortcutIndexMap.value(j));
         shortcutIndexMap.resize(0); // faster than clear
-        QList<QAction*> items = q->actions();
-        for(int i = 0; i < items.count(); i++)
-            shortcutIndexMap.append(q->grabShortcut(QKeySequence::mnemonic(items.at(i)->text())));
+        for(int i = 0; i < actionList.count(); i++)
+            shortcutIndexMap.append(q->grabShortcut(QKeySequence::mnemonic(actionList.at(i)->text())));
     }
     itemsDirty = 0;
 
