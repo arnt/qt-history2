@@ -230,7 +230,7 @@ const char* QKoi8Codec::name() const
 
 int QKoi8Codec::heuristicNameMatch(const char* hint) const
 {
-    if ( strnicmp(hint,"koi8",4)==0 )
+    if ( qstrnicmp(hint,"koi8",4)==0 )
 	return 2;
     return QTextCodec::heuristicNameMatch(hint);
 }

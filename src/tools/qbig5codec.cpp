@@ -111,8 +111,8 @@ const char* QBig5Codec::name() const
 
 int QBig5Codec::heuristicNameMatch(const char* hint) const
 {
-  if (strnicmp(hint, "Big5", 4) == 0 ) return 4;
-  else if (strnicmp(hint, "zh_TW.Big5", 10) == 0) return 10;
+  if (qstrnicmp(hint, "Big5", 4) == 0 ) return 4;
+  else if (qstrnicmp(hint, "zh_TW.Big5", 10) == 0) return 10;
   else  return QTextCodec::heuristicNameMatch(hint);
 }
 

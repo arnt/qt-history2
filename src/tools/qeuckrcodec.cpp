@@ -187,11 +187,11 @@ int QEucKrCodec::heuristicNameMatch(const char* hint) const
 {
   int score = 0;
   bool ko = FALSE;
-  if (strnicmp(hint, "ko_KR", 5) == 0 ||
-      strnicmp(hint, "korean", 5) == 0) {
+  if (qstrnicmp(hint, "ko_KR", 5) == 0 ||
+      qstrnicmp(hint, "korean", 5) == 0) {
     score += 3;
     ko = TRUE;
-  } else if (strnicmp(hint, "ko", 2) == 0) {
+  } else if (qstrnicmp(hint, "ko", 2) == 0) {
     score += 2;
     ko = TRUE;
   }

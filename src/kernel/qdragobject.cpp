@@ -646,7 +646,7 @@ QTextCodec* findcodec(const QMimeSource* e)
 QByteArray QTextDrag::encodedData(const char* mime) const
 {
     QCString r;
-    if ( 0==strnicmp(mime,"text/",5) ) {
+    if ( 0==qstrnicmp(mime,"text/",5) ) {
 	QCString m(mime);
 	m = m.lower();
 	QTextCodec *codec = findcharset(m);
@@ -669,7 +669,7 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 {
     const char* f;
     for (int i=0; (f=e->format(i)); i++) {
-	if ( 0==strnicmp(f,"text/",5) ) {
+	if ( 0==qstrnicmp(f,"text/",5) ) {
 	    return findcodec(e) != 0;
 	}
     }
@@ -688,7 +688,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 {
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
-	if ( 0==strnicmp(mime,"text/",5) ) {
+	if ( 0==qstrnicmp(mime,"text/",5) ) {
 	    QCString m(mime);
 	    m = m.lower();
 	    int semi = m.find(';');

@@ -155,7 +155,7 @@ int QGbkCodec::heuristicNameMatch(const char* hint) const
 {
     int score = 0;
     bool zh = FALSE;
-    if (strnicmp(hint, "zh_CN", 5) == 0){
+    if (qstrnicmp(hint, "zh_CN", 5) == 0){
 	score += 10;
 	zh = TRUE;
     }
