@@ -78,7 +78,7 @@ class Q_EXPORT QTextStringChar
 
 public:
     // this is never called, initialize variables in QTextString::insert()!!!
-    QTextStringChar() : nobreak(FALSE), lineStart( 0 ), type( Regular ) {d.format=0;}
+    QTextStringChar() : nobreak(FALSE), lineStart( 0 ), type( Regular ) {p.format=0;}
     ~QTextStringChar();
 
     struct CustomData
@@ -109,7 +109,7 @@ public:
     union {
 	QTextFormat* format;
 	CustomData* custom;
-    } d;
+    } p;
 
 
     int height() const;
@@ -131,7 +131,7 @@ public:
 
 
     bool isAnchor() const { return ( type & Anchor) != 0; }
-    bool isLink() const { return isAnchor() && !!d.custom->anchorHref; }
+    bool isLink() const { return isAnchor() && !!p.custom->anchorHref; }
     QString anchorName() const;
     QString anchorHref() const;
     void setAnchor( const QString& name, const QString& href );
@@ -189,7 +189,7 @@ public:
     bool isBidi() const;
     bool isRightToLeft() const;
     QChar::Direction direction() const;
-    void setDirection( QChar::Direction d ) { dir = d; bidiDirty = TRUE; }
+    void setDirection( QChar::Direction dr ) { dir = dr; bidiDirty = TRUE; }
 
     QMemArray<QTextStringChar> rawData() const { return data.copy(); }
 
@@ -288,7 +288,7 @@ Q_TEMPLATE_EXTERN template class Q_EXPORT QValueStack<bool>;
 class Q_EXPORT QTextCursor
 {
 public:
-    QTextCursor( QTextDocument *d = 0 );
+    QTextCursor( QTextDocument * = 0 );
     QTextCursor( const QTextCursor &c );
     QTextCursor &operator=( const QTextCursor &c );
     virtual ~QTextCursor();
@@ -387,7 +387,7 @@ class Q_EXPORT QTextCommand
 public:
     enum Commands { Invalid, Insert, Delete, Format, Style };
 
-    QTextCommand( QTextDocument *d ) : doc( d ), cursor( d ) {}
+    QTextCommand( QTextDocument *dc ) : doc( dc ), cursor( dc ) {}
     virtual ~QTextCommand();
 
     virtual Commands type() const;
@@ -422,7 +422,7 @@ public:
     bool isUndoAvailable();
     bool isRedoAvailable();
 
-    void setUndoDepth( int d ) { steps = d; }
+    void setUndoDepth( int depth ) { steps = depth; }
     int undoDepth() const { return steps; }
 
     int historySize() const { return history.count(); }
@@ -775,7 +775,7 @@ public:
     };
 
     QTextDocument( QTextDocument *p );
-    QTextDocument( QTextDocument *d, QTextFormatCollection *f );
+    QTextDocument( QTextDocument *, QTextFormatCollection *f );
     virtual ~QTextDocument();
 
     QTextDocument *parent() const { return par; }
@@ -922,15 +922,15 @@ public:
     void setTabArray( int *a );
     void setTabStops( int tw );
 
-    void setUndoDepth( int d ) { commandHistory->setUndoDepth( d ); }
+    void setUndoDepth( int depth ) { commandHistory->setUndoDepth( depth ); }
     int undoDepth() const { return commandHistory->undoDepth(); }
 
     int length() const;
     void clear( bool createEmptyParag = FALSE );
 
-    virtual QTextParagraph *createParagraph( QTextDocument *d, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
-    void insertChild( QTextDocument *d ) { childList.append( d ); }
-    void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
+    virtual QTextParagraph *createParagraph( QTextDocument *, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
+    void insertChild( QTextDocument *dc ) { childList.append( dc ); }
+    void removeChild( QTextDocument *dc ) { childList.removeRef( dc ); }
     QPtrList<QTextDocument> children() const { return childList; }
 
     bool hasFocusParagraph() const;
@@ -1032,7 +1032,7 @@ private:
 class Q_EXPORT QTextDeleteCommand : public QTextCommand
 {
 public:
-    QTextDeleteCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
+    QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
 			const QByteArray& oldStyle );
     QTextDeleteCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str );
     virtual ~QTextDeleteCommand();
@@ -1052,9 +1052,9 @@ protected:
 class Q_EXPORT QTextInsertCommand : public QTextDeleteCommand
 {
 public:
-    QTextInsertCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
+    QTextInsertCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
 			const QByteArray& oldStyleInfo )
-	: QTextDeleteCommand( d, i, idx, str, oldStyleInfo ) {}
+	: QTextDeleteCommand( dc, i, idx, str, oldStyleInfo ) {}
     QTextInsertCommand( QTextParagraph *p, int idx, const QMemArray<QTextStringChar> &str )
 	: QTextDeleteCommand( p, idx, str ) {}
     virtual ~QTextInsertCommand() {}
@@ -1068,7 +1068,7 @@ public:
 class Q_EXPORT QTextFormatCommand : public QTextCommand
 {
 public:
-    QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx, const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl );
+    QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx, const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl );
     virtual ~QTextFormatCommand();
 
     Commands type() const { return Format; }
@@ -1086,15 +1086,15 @@ protected:
 class Q_EXPORT QTextStyleCommand : public QTextCommand
 {
 public:
-    QTextStyleCommand( QTextDocument *d, int fParag, int lParag, const QByteArray& beforeChange  );
+    QTextStyleCommand( QTextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange  );
     virtual ~QTextStyleCommand() {}
 
     Commands type() const { return Style; }
     QTextCursor *execute( QTextCursor *c );
     QTextCursor *unexecute( QTextCursor *c );
 
-    static QByteArray readStyleInformation(  QTextDocument* d, int fParag, int lParag );
-    static void writeStyleInformation(  QTextDocument* d, int fParag, const QByteArray& style );
+    static QByteArray readStyleInformation(  QTextDocument* dc, int fParag, int lParag );
+    static void writeStyleInformation(  QTextDocument* dc, int fParag, const QByteArray& style );
 
 private:
     int firstParag, lastParag;
@@ -1188,7 +1188,7 @@ class Q_EXPORT QTextParagraph
     friend class QSyntaxHighlighter;
 
 public:
-    QTextParagraph( QTextDocument *d, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
+    QTextParagraph( QTextDocument *dc, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
     ~QTextParagraph();
 
     QTextString *string() const;
@@ -1342,7 +1342,7 @@ public:
     void setMovedDown( bool b ) { movedDown = b; }
     bool wasMovedDown() const { return movedDown; }
 
-    void setDirection( QChar::Direction d );
+    void setDirection( QChar::Direction );
     QChar::Direction direction() const;
     void setPaintDevice( QPaintDevice *pd ) { paintdevice = pd; }
 
@@ -2138,14 +2138,14 @@ inline QTextFormat *QTextFormatCollection::defaultFormat() const
 
 inline QTextFormat *QTextStringChar::format() const
 {
-    return (type == Regular) ? d.format : d.custom->format;
+    return (type == Regular) ? p.format : p.custom->format;
 }
 
 
 #ifndef QT_NO_TEXTCUSTOMITEM
 inline QTextCustomItem *QTextStringChar::customItem() const
 {
-    return isCustom() ? d.custom->custom : 0;
+    return isCustom() ? p.custom->custom : 0;
 }
 #endif
 

@@ -598,7 +598,7 @@ QTextStringChar::~QTextStringChar()
     if ( format() )
 	format()->removeRef();
     if ( type ) // not Regular
-	delete d.custom;
+	delete p.custom;
 }
 
 QTextParagraphPseudoDocument::QTextParagraphPseudoDocument():pFormatter(0),commandHistory(0), minw(0),wused(0),collection(){}

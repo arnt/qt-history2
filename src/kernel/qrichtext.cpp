@@ -157,9 +157,9 @@ bool QTextCommandHistory::isRedoAvailable()
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextDeleteCommand::QTextDeleteCommand( QTextDocument *d, int i, int idx, const QMemArray<QTextStringChar> &str,
+QTextDeleteCommand::QTextDeleteCommand( QTextDocument *dc, int i, int idx, const QMemArray<QTextStringChar> &str,
 					const QByteArray& oldStyleInfo )
-    : QTextCommand( d ), id( i ), index( idx ), parag( 0 ), text( str ), styleInformation( oldStyleInfo )
+    : QTextCommand( dc ), id( i ), index( idx ), parag( 0 ), text( str ), styleInformation( oldStyleInfo )
 {
     for ( int j = 0; j < (int)text.size(); ++j ) {
 	if ( text[ j ].format() )
@@ -254,11 +254,11 @@ QTextCursor *QTextDeleteCommand::unexecute( QTextCursor *c )
     return &cursor;
 }
 
-QTextFormatCommand::QTextFormatCommand( QTextDocument *d, int sid, int sidx, int eid, int eidx,
+QTextFormatCommand::QTextFormatCommand( QTextDocument *dc, int sid, int sidx, int eid, int eidx,
 					const QMemArray<QTextStringChar> &old, QTextFormat *f, int fl )
-    : QTextCommand( d ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
+    : QTextCommand( dc ), startId( sid ), startIndex( sidx ), endId( eid ), endIndex( eidx ), format( f ), oldFormats( old ), flags( fl )
 {
-    format = d->formatCollection()->format( f );
+    format = dc->formatCollection()->format( f );
     for ( int j = 0; j < (int)oldFormats.size(); ++j ) {
 	if ( oldFormats[ j ].format() )
 	    oldFormats[ j ].format()->addRef();
@@ -342,10 +342,10 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
     return c;
 }
 
-QTextStyleCommand::QTextStyleCommand( QTextDocument *d, int fParag, int lParag, const QByteArray& beforeChange )
-    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), before( beforeChange )
+QTextStyleCommand::QTextStyleCommand( QTextDocument *dc, int fParag, int lParag, const QByteArray& beforeChange )
+    : QTextCommand( dc ), firstParag( fParag ), lastParag( lParag ), before( beforeChange )
 {
-    after = readStyleInformation(  d, fParag, lParag );
+    after = readStyleInformation(  dc, fParag, lParag );
 }
 
 
@@ -397,11 +397,11 @@ QTextCursor *QTextStyleCommand::unexecute( QTextCursor *c )
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextCursor::QTextCursor( QTextDocument *d )
+QTextCursor::QTextCursor( QTextDocument *dc )
     : idx( 0 ), tmpIndex( -1 ), ox( 0 ), oy( 0 ),
       valid( TRUE )
 {
-    para = d ? d->firstParagraph() : 0;
+    para = dc ? dc->firstParagraph() : 0;
 }
 
 QTextCursor::QTextCursor( const QTextCursor &c )
@@ -718,10 +718,10 @@ bool QTextCursor::place( const QPoint &p, QTextParagraph *s, bool link )
 	{
 	    if( chr->rightToLeft )
 		cpos += cw;
-	    int d = cpos - pos.x();
-	    bool dm = d < 0 ? !chr->rightToLeft : chr->rightToLeft;
-	    if ( (QABS( d ) < dist || (dist == d && dm == TRUE )) && para->string()->validCursorPosition( i ) ) {
-		dist = QABS( d );
+	    int diff = cpos - pos.x();
+	    bool dm = diff < 0 ? !chr->rightToLeft : chr->rightToLeft;
+	    if ( (QABS( diff ) < dist || (dist == diff && dm == TRUE )) && para->string()->validCursorPosition( i ) ) {
+		dist = QABS( diff );
 		if ( !link || pos.x() >= x + chr->x )
 		    curpos = i;
 	    }
@@ -1403,9 +1403,9 @@ int QTextDocument::height() const
 
 
 
-QTextParagraph *QTextDocument::createParagraph( QTextDocument *d, QTextParagraph *pr, QTextParagraph *nx, bool updateIds )
+QTextParagraph *QTextDocument::createParagraph( QTextDocument *dc, QTextParagraph *pr, QTextParagraph *nx, bool updateIds )
 {
-    return new QTextParagraph( d, pr, nx, updateIds );
+    return new QTextParagraph( dc, pr, nx, updateIds );
 }
 
 bool QTextDocument::setMinimumWidth( int needed, int used, QTextParagraph *p )
@@ -2261,10 +2261,10 @@ static QString align_to_string( int a )
     return QString::null;
 }
 
-static QString direction_to_string( int d )
+static QString direction_to_string( int dir )
 {
-    if ( d != QChar::DirON )
-	return ( d == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
+    if ( dir != QChar::DirON )
+	return ( dir == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"" );
     return QString::null;
 }
 
@@ -2669,8 +2669,8 @@ void QTextDocument::selectAll( int id )
 	p = p->next();
     }
 
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->selectAll( id );
+    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+	dc->selectAll( id );
 }
 
 bool QTextDocument::removeSelection( int id )
@@ -3291,8 +3291,8 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 void QTextDocument::setDefaultFormat( const QFont &font, const QColor &color )
 {
     bool reformat = font != fCollection->defaultFormat()->font();
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->setDefaultFormat( font, color );
+    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+	dc->setDefaultFormat( font, color );
     fCollection->updateDefaultFormat( font, color, sheet_ );
 
     if ( !reformat )
@@ -3638,7 +3638,7 @@ void QTextString::insert( int index, const QChar *unicode, int len, QTextFormat 
 	QTextStringChar &ch = data[ (int)index + i ];
 	ch.x = 0;
 	ch.lineStart = 0;
-	ch.d.format = 0;
+	ch.p.format = 0;
 	ch.nobreak = FALSE;
 	ch.type = QTextStringChar::Regular;
 	ch.rightToLeft = 0;
@@ -3666,7 +3666,7 @@ void QTextString::insert( int index, QTextStringChar *c, bool doAddRefFormat  )
     ch.x = 0;
     ch.lineStart = 0;
     ch.rightToLeft = 0;
-    ch.d.format = 0;
+    ch.p.format = 0;
     ch.type = QTextStringChar::Regular;
     ch.nobreak = FALSE;
     if ( doAddRefFormat && c->format() )
@@ -3685,10 +3685,10 @@ void QTextString::truncate( int index )
 #ifndef QT_NO_TEXTCUSTOMITEM
 	    if ( !(ch.type == QTextStringChar::Regular) ) {
 		delete ch.customItem();
-		if ( ch.d.custom->format )
-		    ch.d.custom->format->removeRef();
-		delete ch.d.custom;
-		ch.d.custom = 0;
+		if ( ch.p.custom->format )
+		    ch.p.custom->format->removeRef();
+		delete ch.p.custom;
+		ch.p.custom = 0;
 	    } else
 #endif
 		if ( ch.format() ) {
@@ -3707,10 +3707,10 @@ void QTextString::remove( int index, int len )
 #ifndef QT_NO_TEXTCUSTOMITEM
 	if ( !(ch.type == QTextStringChar::Regular) ) {
 	    delete ch.customItem();
-	    if ( ch.d.custom->format )
-		ch.d.custom->format->removeRef();
-	    delete ch.d.custom;
-	    ch.d.custom = 0;
+	    if ( ch.p.custom->format )
+		ch.p.custom->format->removeRef();
+	    delete ch.p.custom;
+	    ch.p.custom = 0;
 	} else
 #endif
 	    if ( ch.format() ) {
@@ -3731,10 +3731,10 @@ void QTextString::clear()
 	if ( !(ch.type == QTextStringChar::Regular) ) {
 	    if ( ch.customItem() && ch.customItem()->placement() == QTextCustomItem::PlaceInline )
 		delete ch.customItem();
-	    if ( ch.d.custom->format )
-		ch.d.custom->format->removeRef();
-	    delete ch.d.custom;
-	    ch.d.custom = 0;
+	    if ( ch.p.custom->format )
+		ch.p.custom->format->removeRef();
+	    delete ch.p.custom;
+	    ch.p.custom = 0;
 	} else
 #endif
 	    if ( ch.format() ) {
@@ -3832,21 +3832,21 @@ void QTextDocument::setStyleSheet( QStyleSheet *s )
 
 void QTextDocument::setUnderlineLinks( bool b ) {
     underlLinks = b;
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->setUnderlineLinks( b );
+    for ( QTextDocument *dc = childList.first(); dc; dc = childList.next() )
+	dc->setUnderlineLinks( b );
 }
 
 void QTextStringChar::setFormat( QTextFormat *f )
 {
     if ( type == Regular ) {
- 	d.format = f;
+ 	p.format = f;
     } else {
 #ifndef QT_NO_TEXTCUSTOMITEM
- 	if ( !d.custom ) {
- 	    d.custom = new CustomData;
- 	    d.custom->custom = 0;
+ 	if ( !p.custom ) {
+ 	    p.custom = new CustomData;
+ 	    p.custom->custom = 0;
  	}
- 	d.custom->format = f;
+ 	p.custom->format = f;
 #endif
     }
 }
@@ -3856,25 +3856,25 @@ void QTextStringChar::setCustomItem( QTextCustomItem *i )
 {
     if ( type == Regular ) {
 	QTextFormat *f = format();
-	d.custom = new CustomData;
-	d.custom->format = f;
+	p.custom = new CustomData;
+	p.custom->format = f;
     } else {
-	delete d.custom->custom;
+	delete p.custom->custom;
     }
-    d.custom->custom = i;
+    p.custom->custom = i;
     type = (type == Anchor ? CustomAnchor : Custom);
 }
 
 void QTextStringChar::loseCustomItem()
 {
     if ( type == Custom ) {
-	QTextFormat *f = d.custom->format;
-	d.custom->custom = 0;
-	delete d.custom;
+	QTextFormat *f = p.custom->format;
+	p.custom->custom = 0;
+	delete p.custom;
 	type = Regular;
-	d.format = f;
+	p.format = f;
     } else if ( type == CustomAnchor ) {
-	d.custom->custom = 0;
+	p.custom->custom = 0;
 	type = Anchor;
     }
 }
@@ -3886,7 +3886,7 @@ QString QTextStringChar::anchorName() const
     if ( type == Regular )
 	return QString::null;
     else
-	return d.custom->anchorName;
+	return p.custom->anchorName;
 }
 
 QString QTextStringChar::anchorHref() const
@@ -3894,24 +3894,24 @@ QString QTextStringChar::anchorHref() const
     if ( type == Regular )
 	return QString::null;
     else
-	return d.custom->anchorHref;
+	return p.custom->anchorHref;
 }
 
 void QTextStringChar::setAnchor( const QString& name, const QString& href )
 {
     if ( type == Regular ) {
 	QTextFormat *f = format();
-	d.custom = new CustomData;
+	p.custom = new CustomData;
 #ifndef QT_NO_TEXTCUSTOMITEM
-	d.custom->custom = 0;
+	p.custom->custom = 0;
 #endif
-	d.custom->format = f;
+	p.custom->format = f;
 	type = Anchor;
     } else if ( type == Custom ) {
 	type = CustomAnchor;
     }
-    d.custom->anchorName = name;
-    d.custom->anchorHref = href;
+    p.custom->anchorName = name;
+    p.custom->anchorHref = href;
 }
 
 
@@ -3953,11 +3953,11 @@ int QTextString::width( int idx ) const
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParagraph *nx, bool updateIds )
-    : p( pr ), n( nx ), docOrPseudo( d ),
+QTextParagraph::QTextParagraph( QTextDocument *dc, QTextParagraph *pr, QTextParagraph *nx, bool updateIds )
+    : p( pr ), n( nx ), docOrPseudo( dc ),
       changed(FALSE), firstFormat(TRUE), firstPProcess(TRUE), needPreProcess(FALSE), fullWidth(TRUE),
       lastInFrame(FALSE), visible(TRUE), breakable(TRUE), movedDown(FALSE),
-      mightHaveCustomItems(FALSE), hasdoc( d != 0 ), litem(FALSE), rtext(FALSE),
+      mightHaveCustomItems(FALSE), hasdoc( dc != 0 ), litem(FALSE), rtext(FALSE),
       align( 0 ), lstyle( QStyleSheetItem::ListDisc ), invalid( 0 ), mSelections( 0 ),
 #ifndef QT_NO_TEXTCUSTOMITEM
       mFloatingItems( 0 ),
@@ -4983,12 +4983,12 @@ int QTextParagraph::nextTab( int, int x )
 	}
 	return tArray[ 0 ];
     } else {
-	int d;
+	int n;
 	if ( tabStopWidth != 0 )
-	    d = x / tabStopWidth;
+	    n = x / tabStopWidth;
 	else
 	    return x;
-	return tabStopWidth * ( d + 1 );
+	return tabStopWidth * ( n + 1 );
     }
 }
 
@@ -5179,10 +5179,10 @@ void QTextParagraph::hide()
     visible = FALSE;
 }
 
-void QTextParagraph::setDirection( QChar::Direction d )
+void QTextParagraph::setDirection( QChar::Direction dir )
 {
-    if ( str && str->direction() != d ) {
-	str->setDirection( d );
+    if ( str && str->direction() != dir ) {
+	str->setDirection( dir );
 	invalidate( 0 );
     }
 }
