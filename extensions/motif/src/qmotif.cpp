@@ -174,16 +174,14 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 
     /*
       If the mouse has been grabbed for a window that we don't know
-      about, we shouldn't deliver any user input events, since this
-      will intercept the event that ends the mouse grab that Xt/Motif
+      about, we shouldn't deliver any pointer events, since this will
+      intercept the event that ends the mouse grab that Xt/Motif
       started.
     */
     bool do_deliver = TRUE;
     if ( grabbed && ( event->type == ButtonPress   ||
 		      event->type == ButtonRelease ||
 		      event->type == MotionNotify  ||
-		      event->type == XKeyPress     ||
-		      event->type == XKeyRelease   ||
 		      event->type == EnterNotify   ||
 		      event->type == LeaveNotify ) )
 	do_deliver = FALSE;
