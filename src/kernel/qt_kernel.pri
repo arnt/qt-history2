@@ -131,7 +131,7 @@ kernel {
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
 	}
 
-        macx {
+        macx-g++ {
 	      SOURCES += $$KERNEL_CPP/qapplication_mac.cpp \
 		          $$KERNEL_CPP/qclipboard_mac.cpp \
 			  $$KERNEL_CPP/qcolor_mac.cpp \
@@ -151,7 +151,8 @@ kernel {
              DEFINES += ALLOW_OLD_BLOCKING_APIS=0 ALLOW_OLD_EVENT_LOOP_APIS=0
 	     INCLUDEPATH += /System/Library/Frameworks/QuickTime.framework/Headers/ \
 	                    /System/Library/Frameworks/Carbon.framework/Headers/ \
-			    /System/Library/Frameworks/HIToolbox.framework/Versions/A/Headers
+			    /System/Library/Frameworks/HIToolbox.framework/Headers \
+			    /System/Library/Frameworks/PrintCore.framework/Headers
              LIBS += -framework Carbon -framework QuickTime
         }
 
