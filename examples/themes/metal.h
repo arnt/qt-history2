@@ -49,7 +49,11 @@ public:
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
-
+    QRect querySubControlMetrics( ComplexControl cc,
+				  const QWidget *widget,
+				  SubControl sc,
+				  void **data = 0 ) const;
+    
 private:
     void drawMetalButton( QPainter *p, int x, int y, int w, int h,
 			  bool sunken, bool horz ) const;

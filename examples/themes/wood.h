@@ -47,7 +47,7 @@ public:
 			  const QRect &r,
 			  void **data = 0 ) const;
 
-    void drawComplexControl( ComplexControl control,
+    void drawComplexControl( ComplexControl cc,
 			     QPainter *p,
 			     const QWidget *widget,
 			     const QRect &r,
@@ -56,7 +56,7 @@ public:
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
-    
+
     void drawComplexControlMask( ComplexControl control,
 				 QPainter *p,
 				 const QWidget *widget,
@@ -68,8 +68,6 @@ public:
 				  SubControl sc,
 				  void **data = 0 ) const;
 
-    int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
-
     QRect subRect( SubRect r, const QWidget *widget ) const;
 
 
@@ -77,7 +75,7 @@ public:
 
 private:
     void drawSemicircleButton(QPainter *p, const QRect &r, int dir,
-			      bool sunken, const QColorGroup &g );
+			      bool sunken, const QColorGroup &g ) const;
     QPalette oldPalette;
     QPixmap *sunkenDark;
     QPixmap *sunkenLight;

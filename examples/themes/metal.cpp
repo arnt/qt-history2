@@ -181,6 +181,7 @@ void MetalStyle::drawPrimitive( PrimitiveElement pe,
     switch( pe ) {
     case PE_ButtonBevel:
     case PE_ButtonCommand:
+    case PE_HeaderSection:
 	{
 	    drawMetalButton( p, r.x(), r.y(), r.width(), r.height(),
 			     bool(flags & (Style_Sunken|Style_On|Style_Down)), TRUE );
@@ -435,9 +436,51 @@ void MetalStyle::drawComplexControl( ComplexControl cc,
     }
 }
 		
-		
-
-
+QRect MetalStyle::querySubControlMetrics( ComplexControl cc,
+					  const QWidget *widget,
+					  SubControl sc,
+					  void **data ) const
+{
+    QRect rect;
+    switch( cc ) {
+    case CC_ScrollBar:
+	{
+	    const QScrollBar *sb;
+	    sb = (const QScrollBar*)widget;
+	    bool horz = sb->orientation() == QScrollBar::Horizontal;
+	    int b = 2;
+	    int w = horz ? sb->height() : sb->width();
+	    switch ( sc ) {
+	    case SC_ScrollBarAddLine:
+		rect.setRect( b, b, w - 2 * b, w - 2 * b );
+		if ( horz )
+		    rect.moveBy( sb->width() - w, 0 );
+		else
+		    rect.moveBy( 0, sb->height() - w );
+		break;
+	    case SC_ScrollBarSubLine:
+		rect.setRect( b, b, w - 2 * b, w - 2 * b );
+		break;
+	    case SC_ScrollBarSlider:
+		// CHEAT
+		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+		if ( horz )
+		    rect.setRect( rect.x(), b, rect.width(), w - 2 * b );
+		else
+		    rect.setRect( b, rect.y(), w - 2 * b, rect.height() );
+		break;
+	    default:
+		rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+		break;
+	    }
+	    break;
+	}
+    default:
+	rect = QWindowsStyle::querySubControlMetrics( cc, widget, sc, data );
+	break;
+    }
+    return rect;
+}
 
 /*!
   Draw a metallic button, sunken if \a sunken is TRUE, horizontal if
