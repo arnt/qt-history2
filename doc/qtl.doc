@@ -1,0 +1,241 @@
+/****************************************************************************
+** $Id: qtl.doc,v 1.1 1999/06/08 17:22:49 weis Exp $
+**
+** Qt template library classes documentation
+**
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
+
+/*!
+\page qtl.html
+
+<title>Qt Template library</title>
+</head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Qt Template Library</h1><br clear="all">
+
+The QTL contains the following classes currently:
+
+<ul>
+<li> \link QMap QMap\endlink; a dictionary
+<li> \link QMapIterator QMapIterator\endlink and \link QMapConstIterator QMapConstIterator\endlink; iterators for QMap.
+<li> \link QValueList QValueList\endlink; a linked list
+<li> \link QValueListIterator QValueListIterator\endlink and \link QValueListConstIterator QValueListConstIterator\endlink; iterators for QValueList.
+<li> \link QStringList QStringList\endlink; a list of strings
+<li> \link QArray QArray\endlink; a dynamic array
+</ul>
+
+In contrast to the containers based on the class QCollection, the
+QTL has a more value based approach that can be compared to the STL.
+QCollection and friends store pointers to objects while the QTL stores
+the objects themselves. It is not possible to say which one is really better
+since it depends on the kind of data you want to store.
+
+If you can not make copies of the objects you want to store then
+you are better off with QCollection and friends because they are
+designed to handle such pointer semantics. This applies if you deal
+with all classes derived from QObject. These classes dont have
+a copy constructor, so you can not use them in the STL as storage type.
+Of course you could store pointers to a QObject in a QValueList, but using
+QList directly seems to be the better choice usually.
+
+If you have objects which have a value semantics, the you should use the QTL.
+An object with value semantics usually has a copy constructor and an
+assignment operator and a constructor that does not take an argument. These
+three points are requirements for using the object with the QTL. You should
+especially look at the performance of the copy constructor since value
+based objects are often copied. Example for value based classes are QRect,
+QPoint, QSize and of call all trivial C++ types like int, bool, double and so on.
+
+The QTL classes are designed for speed. That means that not all of
+the error checking can be done that you are used to from the QList class
+for example. Especially the iterators of the QTL are fast, but since the
+QTL containers dont know about their iterators, certain checks cant be
+made automatically.
+
+<h2> Iterators </h2>
+
+Since QTL containers dont deal with pointers, there is no way of not using
+iterators. QTL iterators how ever are very fast and slim. Their size matches
+the size of a normal pointer, that means 32 or 64 bits depending on your
+CPU architecture.
+
+If you want to iterate over some container, you can do it like this:
+
+\code
+	typedef QValueList<int> List;
+	List l;
+	for( List::Iterator it = l.begin(); it != l.end(); ++it )
+		printf("Number is %i\n",*it);
+\endcode
+
+The most important facts here are, that begin() delivers the iterator pointing
+at the first element while end() returns an iterator pointing behin the last
+element. It follows from that, that you may not use the item referenced by end()
+iterator, since the end() iterator points behind the last item in the list.
+
+In the above example you should especially notice that the prefix increment
+operator is used for the iterator instead of the posix one. The reason is
+that the prefix one is faster. In addition you should notice the term
+List::Iterator. You could have used QValueListIterator<int> instead but is not
+as convenient to use with typedefs. To sum it up: The official Qt style of
+coding is the one using the scoping operator.
+
+All QTL classes can be iterator with the same synatx. The following example
+demonstrates that:
+
+\code
+	typedef QMap<QString,QString> Map;
+	Map map;
+	for( Map::Iterator it = map.begin(); it != map.end(); ++it )
+		printf("Key=%s Data=%s\n", it.key().ascii(), it.data().ascii() );
+
+	typedef QArray<int> Array;
+	Array array;
+	for( Array::Iterator it = array.begin(); it != array.end(); ++it )
+		printf("Data=%i\n", *it );
+\endcode
+
+You should notice, that the QTL features two kinds of iterators. The ones
+you already know and the ConstIterator. They have almost the same semantics,
+but they only return const references. So when to use which. If the container
+is const or if you are in a const function, then you have to use the ConstIterator.
+Otherwise you can use the normal Iterator. However, assigning a ConstIterator to
+an Interator is not allowed since that would break the const semantics.
+
+<h2> Template functions </h2>
+
+There is more to the QTL then container classes. Since the QTL containers
+are templates this means that the code is instantied for every kind of
+incarnation. For example QValueList<int> and QValueList<double> course the
+QValueList code to appear twice in your applications code. To avoid bloating
+the template classes are as slim as possible. More advanced or complex
+functionality is implemented in template functions. There is another advantage.
+Instead of implementing for example sorting in every single container one
+implements a sorting template function that can be used with all containers
+which are typically sorted.
+
+Currently the QTL contains only few template functions. qHeapSort() and
+qBubbleSort() implement well known sorting algorithms. You can use them
+like this;
+
+\code
+	typedef QValueList<int> List;
+	List l;
+	l << 42 << 100 << 1234 << 12 << 8;
+	qHeapSort( l );
+	
+	List l2;
+	l2 << 42 << 100 << 1234 << 12 << 8;
+	List::Iterator b = l2.find( 100 );
+	List::Iterator e = l2.find( 8 );
+	qHeapSort( b, e );
+
+	double arr[] = { 3.2, 5.6, 8.9 };
+	qHeapSort( arr, arr + 3 );
+\endcode
+
+The first example sorts the complete list. The second one
+sorts the elements 100, 1234 and 12. That means all elements
+enclosed in the two iterators. In fact the first useage of qHeapSort
+is just a convenience function. The third example shows that
+iterators are just pointers. So you can just use them like iterators.
+Mention, that the sorting templates wont work with ConstIterators.
+
+A second utility is qSwap. It exchanges the values of two variables:
+
+\code
+	QString second( "Einstein" );
+	QString name( "Albert" );
+	qSwap( second, name );
+\endcode
+
+Another template function is qCopy. It copies a container or
+a slice of it to an OutputIterator. Currently there is only
+the QTextOStream Iterator which can be used with a QTextOStream.
+Using this class you can easily print out a list.
+
+\code
+	typedef QValueList<int> List;
+	List l;
+	l << 100 << 200 << 300;
+	QTextOStream str( stdout );
+	qCopy( l, QTextOStreamIterator( str ) );
+\endcode
+
+In addition you can use ususal iterators as OutputIterator. But you
+have to make shure that right hand of the iterator there are as many
+elements present as you want to insert. The follwing example illustrates
+that:
+
+\code
+	QStringList l1, l2;
+	l1 << "Weis" << "Ettrich" << "Arnt" << "Sue";
+	l2 << "Torben" << "Matthias";
+	qCopy( l2, l1.begin();
+\endcode
+
+At the end of this code fragment the List l1 contains "Torben", "Matthias", "Arnt" and "Sue".
+You should notice that the elements are overwritten. Another flavour of qCopy() takes
+three arguments and allows you to copy only a slice of a container:
+
+\code
+	typedef QValueList<int> List;
+	List l;
+	l << 42 << 100 << 1234 << 12 << 8;
+	List::Iterator b = l.find( 100 );
+	List::Iterator e = l.find( 8 );
+	QTextOStream str( stdout );
+	qCopy( b, e, QTextOStreamIterator( str ) );
+\endcode
+
+If you write new algorithms you should consider to write them as
+template functions, too, since you can use it with different containers.
+In the above example you could esaily print out a usual array like this:
+
+\code
+	int arr[] = { 100, 200, 300 };
+	QTextOStream str( stdout );
+	qCopy( arr, arr + 3, QTextOStreamIterator( str ) );	
+\endcode
+
+<h2> Streaming </h2>
+
+Another feature of the QTL is that the containers can be serialized
+with the streaming operators. To get this to work, your classes have
+to support the streaming operators. All value based Qt classes do that
+already. Here is an example. It assumes that str is some QDataStream:
+
+\code
+	QValueList<QRect> l;
+	// ... fill the list here
+	str << l;
+\endcode
+
+The container can be read in again like this;
+
+\code
+	QValueList<QRect> l;
+	str >> l;
+\endcode
+
+The same works for QStringList and QMap.
+
+*/

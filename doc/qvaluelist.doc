@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qvaluelist.doc,v 1.1 1999/06/08 13:19:28 weis Exp $
+** $Id: qvaluelist.doc,v 1.2 1999/06/08 17:22:48 weis Exp $
 **
 ** QValueList and QValueListIterator class documentation
 **
@@ -78,7 +78,7 @@
 	
 	EmployeeList::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", it->name(), it->salary() );
+	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
     }
   \endcode
 
@@ -179,8 +179,8 @@
   \fn QValueList::~QValueList()
   Destroys the list. References to the values in the list and all iterators
   of this list become invalidated. Since QValueList is highly tuned for performance
-  you wont see warnings if you use invalid iterators.
-  Removes all items from the list and destroys the list because it is impossible for
+  you wont see warnings if you use invalid iterators,
+  because it is impossible for
   an iterator to check wether it is valid or not.
 */
 
@@ -270,7 +270,7 @@
   \fn Iterator QValueList::insert( Iterator pos, const type& item )
   Inserts the \e item in front of the iterator \e pos.
 
-  Returns an iterator pointing at the inserted element.
+  Returns an iterator pointing at the inserted item.
 
   \sa append(), prepend()
 */
@@ -279,7 +279,7 @@
   \fn Iterator QValueList::append( const type& item )
   Inserts the \e item at the end of the list.
 
-  Returns an iterator pointing at the inserted element.
+  Returns an iterator pointing at the inserted item.
 
   \sa insert(), prepend()
 */
@@ -288,7 +288,7 @@
   \fn Iterator QValueList::prepend( const type& item )
   Inserts the \e item at the end of the list.
 
-  Returns an iterator pointing at the inserted element.
+  Returns an iterator pointing at the inserted item.
 
   \sa insert(), append()
 */
@@ -350,6 +350,12 @@
 /*!
   \fn uint QValueList::contains( const type& item ) const
   Counts and returns the number of occurrences of \e item in the list.
+*/
+
+/*!
+  \fn uint QValueList::findIndex( const type& item ) const
+  Returns the first index of \item in the list or -1 if no such item
+  can be found in the list.
 */
 
 /*!
@@ -499,7 +505,7 @@
 	
 	EmployeeList::Iterator it;
 	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", it->name(), it->salary() );
+	    printf( "%s earns %d\n", (*it).name(), (*it).salary() );
     }
   \endcode
 
@@ -539,7 +545,7 @@
   Destroys the iterator.
 */
 
-/*!
+/* Unfortunately not with MSVC
   \fn type *QValueListIterator::operator->()
   Pointer operator. Returns a pointer to the current iterator item.
   The great advantage of this operator is that you can treat the
@@ -554,7 +560,7 @@
 */
 
 /*!
-  \fn type *QValueListIterator::operator*()
+  \fn type &QValueListIterator::operator*()
   Asterix operator. Returns a reference to the current iterator item.
 */
 
@@ -591,13 +597,11 @@
 */
 
 /*!
-  \fn bool QValueIterator::operator==( QValueListIterator<type> it )
+  \fn bool QValueListIterator::operator==( const QValueListIterator<type>& it )
   Compares both iterators and returns TRUE if they point to the same item.
 */
 
 /*!
-  \fn bool QValueIterator::operator!=( QValueListIterator<type> it )
+  \fn bool QValueListIterator::operator!=( const QValueListIterator<type>& it )
   Compares both iterators and returns TRUE if they point to different items.
 */
-
-
