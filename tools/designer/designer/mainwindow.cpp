@@ -121,9 +121,9 @@ static QString textNoAccel( const QString& text)
 
 MainWindow::MainWindow( bool asClient, bool single )
 #if defined(HAVE_KDE)
-    : KMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose | WGroupLeader ),
+    : KMainWindow( 0, "mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #else
-    : QMainWindow( 0, "mainwindow", WType_TopLevel | WDestructiveClose | WGroupLeader ),
+    : QMainWindow( 0, "mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
 #endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( "$QTDIR/doc/html" ), fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
@@ -142,7 +142,8 @@ MainWindow::MainWindow( bool asClient, bool single )
     set_splash_status( "Loading Plugins..." );
     setupPluginManagers();
 
-    qApp->setMainWidget( this );
+    if ( !single )
+	qApp->setMainWidget( this );
     QWidgetFactory::addWidgetFactory( new CustomWidgetFactory );
     self = this;
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
@@ -3375,10 +3376,6 @@ QString MainWindow::whatsThisFrom( const QString &key )
 
 Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
 {
-    static QString lastProjectName;
-    if ( projectName == lastProjectName )
-	return eProject;
-    lastProjectName = projectName;
     singleProject = TRUE;
     projects.clear();
     QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
