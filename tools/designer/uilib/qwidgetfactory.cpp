@@ -285,10 +285,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
 	    if ( widgetFactory->noDatabaseWidgets.find( cit.key()->name() ) != widgetFactory->noDatabaseWidgets.end() )
 		continue;
-	    if ( cit.key()->inherits( "QDesignerDataBrowser" ) )
-		( (QDesignerDataBrowser*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
-	    else if ( cit.key()->inherits( "QDesignerDataView" ) )
-		( (QDesignerDataView*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    if ( cit.key()->inherits( "QDesignerDataBrowser2" ) )
+		( (QDesignerDataBrowser2*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    else if ( cit.key()->inherits( "QDesignerDataView2" ) )
+		( (QDesignerDataView2*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
 	}
 
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
@@ -521,9 +521,9 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     } else if ( className == "QDateTimeEdit" ) {
 	return new QDateTimeEdit( parent, name );
     } else if ( className == "QDataBrowser" ) {
-	return new QDesignerDataBrowser( parent, name );
+	return new QDesignerDataBrowser2( parent, name );
     } else if ( className == "QDataView" ) {
-	return new QDesignerDataView( parent, name );
+	return new QDesignerDataView2( parent, name );
     }
 #endif
 
