@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#40 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1218,6 +1218,7 @@ void QMultiLineEdit::insertAt( const QString &txt, int line, int col, bool mark 
     }
     textDirty = TRUE;
     mlData->edited = TRUE;
+    makeVisible();
 }
 
 
@@ -2825,14 +2826,14 @@ void QMultiLineEdit::setSelection( int row_from, int col_from, int row_to, int c
 
 /*!
   Moves the cursor one word to the right.  If \a mark is TRUE, the text
-  is marked. 
+  is marked.
   \sa cursorWordBackward()
 */
 void QMultiLineEdit::cursorWordForward( bool mark )
 {
     int x = cursorX;
     int y = cursorY;
-    
+
     if ( x == lineLength( y ) || textLine(y).at(x).isSpace() ) {
 	while ( x < lineLength( y ) && textLine(y).at(x).isSpace() )
 	    ++x;
@@ -2854,6 +2855,7 @@ void QMultiLineEdit::cursorWordForward( bool mark )
 	if ( xspace <  lineLength( y ) )
 	    x = xspace;
     }
+    cursorOn = TRUE;
     int oldY = cursorY;
     setCursorPosition( y, x, mark );
     if ( oldY != cursorY )
@@ -2864,7 +2866,7 @@ void QMultiLineEdit::cursorWordForward( bool mark )
 
 /*!
   Moves the cursor one word to the left.  If \a mark is TRUE, the text
-  is marked. 
+  is marked.
   \sa cursorWordForward()
 */
 void QMultiLineEdit::cursorWordBackward( bool mark )
@@ -2887,6 +2889,7 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
 	while ( x > 0  && !textLine(y).at(x-1).isSpace() )
 	    --x;
     }
+    cursorOn = TRUE;
     int oldY = cursorY;
     setCursorPosition( y, x, mark );
     if ( oldY != cursorY )
