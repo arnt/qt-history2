@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#326 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#327 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2861,22 +2861,8 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 		    QWheelEvent e( Event_Wheel, pos, delta, state );
 		    e.ignore();	
 		
-		    QWidget* w = QApplication::widgetAt(globalPos, TRUE);
-		    if (popupWidgets)
-			w = popupWidgets->last();
-		    if (!w)
-			w = topLevelWidget();
-		    if (w->isActiveWindow()){
-			do {
-			    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
-			    QApplication::sendEvent( w, &e );
-			    if ( e.isAccepted() )
-				return TRUE;
-			    w = w->parentWidget();
-			} while (w);
-		    }
-		    // last try: send the event to the widget that has the focus or its ancestors
-		    w = qApp->focus_widget;
+		    // send the event to the widget that has the focus or its ancestors
+		    QWidget* w = qApp->focus_widget;
 		    if (w){
 			do {
 			    ((QPoint)e.pos()) = w->mapFromGlobal(globalPos); // local coordinates
