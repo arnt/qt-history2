@@ -79,9 +79,9 @@ Some::Some( QObject *p, bool start, bool cStdout, bool cStderr, bool cExit, int 
 	    this, SLOT(connectExit(bool)) );
     cb3->setChecked( cExit );
     connectExit( cExit );
-    // signal wroteStdin()
-    QObject::connect( proc, SIGNAL(wroteStdin()),
-		this, SLOT(wroteStdin()) );
+    // signal writeToStdin()
+    QObject::connect( proc, SIGNAL(writeToStdin()),
+		this, SLOT(writeToStdin()) );
 
     // start cat in the same QProcess class
     QPushButton *startButton = new QPushButton( "Start cat", &main );
@@ -198,9 +198,9 @@ void Some::startCat()
     procInit( TRUE, 0 );
 }
 
-void Some::wroteStdin()
+void Some::writeToStdin()
 {
-    qDebug( "wroteStdin()" );
+    qDebug( "writeToStdin()" );
 }
 
 void Some::connectStdout( bool enable )

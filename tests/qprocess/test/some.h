@@ -27,7 +27,7 @@ public slots:
     void connectStderr( bool enable );
     void connectExit( bool enable );
     void writeMuch();
-    void wroteStdin();
+    void writeToStdin();
 
     void readyReadStdout();
     void readyReadStderr();

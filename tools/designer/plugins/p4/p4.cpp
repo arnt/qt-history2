@@ -40,7 +40,7 @@ bool P4Action::run( const QString &command )
 bool P4Action::run( const QString &command, const QString &in )
 {
     if ( run( command ) ) {
-	connect( process, SIGNAL(wroteStdin()), this, SLOT(cmdProcessed()) );
+	connect( process, SIGNAL(wroteToStdin()), this, SLOT(cmdProcessed()) );
 	process->writeToStdin( in );
 	return TRUE;
     }
