@@ -862,6 +862,10 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 /*!  Constructs an empty main window. The \a parent, \a name and
     widget flags \a f, are passed to the QWidget constructor.
+
+    By default, the widget flags are set to WType_TopLevel rather than 0 as it is
+    with QWidget.  If you don't want your QMainWindow to be a top level
+    widget then you will need to set \a f to 0.
 */
 
 QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
