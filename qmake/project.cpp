@@ -197,8 +197,10 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	    vallist.append("\"" + rp.cap(1) + "\"");
 	    vals.remove(x, rp.matchedLength());
 	}
-	vallist.append("\"" + vals + "\"");
-	vals = "";
+	if(!vals.isEmpty()) {
+	    vallist.append("\"" + vals + "\"");
+	    vals = "";
+	}
     }
     //strip out quoted entities
     QRegExp quoted("\"([^\"]*)\"");
