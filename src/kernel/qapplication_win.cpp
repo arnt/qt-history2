@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#475 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#476 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1477,6 +1477,10 @@ static bool inLoop = FALSE;
 
 #define RETURN(x) { inLoop=FALSE;return x; }
 
+bool qt_sendSpontaneousEvent( QObject *receiver, QEvent *event )
+{
+    return QApplication::sendSpontaneousEvent( receiver, event );
+}
 
 extern "C"
 LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
@@ -1791,7 +1795,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QContextMenuEvent e( QContextMenuEvent::Keyboard, QPoint( 5, 5 ), fw->mapToGlobal( QPoint( 5, 5 ) ), 0 );
-			result = QApplication::sendSpontaneousEvent( fw, &e );
+			result = qt_sendSpontaneousEvent( fw, &e );
 		    }
 		}
 		break;
@@ -1801,7 +1805,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    QWidget *fw = qApp->focusWidget();
 		    if ( fw ) {
 			QIMEvent e( QEvent::IMStart, QString::null, -1 );
-			result = QApplication::sendSpontaneousEvent( fw, &e );
+			result = qt_sendSpontaneousEvent( fw, &e );
 			imePosition = 0;
 		    }
 		}
@@ -1812,7 +1816,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    qDebug("EndComposition: lparam=%x", lParam);
 		    if ( fw && imePosition != -1 ) {
 			QIMEvent e( QEvent::IMEnd, *imeComposition, -1 );
-			result = QApplication::sendSpontaneousEvent( fw, &e );
+			result = qt_sendSpontaneousEvent( fw, &e );
 			*imeComposition = QString::null;
 			imePosition = -1;
 		    }
@@ -1841,7 +1845,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			}
 			ImmReleaseContext( fw->winId(), imc );
 			QIMEvent e( QEvent::IMCompose, *imeComposition, imePosition );
-			result = QApplication::sendSpontaneousEvent( fw, &e );
+			result = qt_sendSpontaneousEvent( fw, &e );
 		    }
 		}
 		break;
@@ -1851,7 +1855,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_RENDERALLFORMATS:
 		if ( qt_clipboard ) {
 		    QCustomEvent e( QEvent::Clipboard, &msg );
-		    QApplication::sendSpontaneousEvent( qt_clipboard, &e );
+		    qt_sendSpontaneousEvent( qt_clipboard, &e );
 		    RETURN(0);
 		}
 		// NOTE: fall-through!
@@ -1863,7 +1867,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
     if ( evt_type != QEvent::None ) {		// simple event
 	QEvent e( evt_type );
-	result = QApplication::sendSpontaneousEvent(widget, &e);
+	result = qt_sendSpontaneousEvent(widget, &e);
     }
     if ( result )
 	RETURN(FALSE);
