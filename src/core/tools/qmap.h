@@ -70,6 +70,7 @@ template <class Key> inline bool qMapLessThanKey(const Key &key1, const Key &key
     return key1 < key2;
 }
 
+#ifndef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 template <class Ptr> inline bool qMapLessThanKey(Ptr *key1, Ptr *key2)
 {
     return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
@@ -79,6 +80,7 @@ template <class Ptr> inline bool qMapLessThanKey(const Ptr *key1, const Ptr *key
 {
     return reinterpret_cast<Q_ULONGLONG>(key1) < reinterpret_cast<Q_ULONGLONG>(key2);
 }
+#endif // QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
 
 #if !defined(QT_NO_DATASTREAM)
 class QDataStream;
