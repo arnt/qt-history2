@@ -71,8 +71,7 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 		if ( !(*p).name().isEmpty() )
 		    synopsis += " <@param>" + protect( (*p).name() ) +
 				"</@param>";
-		if ( style == Detailed )
-		    synopsis += " : " + protect( (*p).leftType() );
+		synopsis += " : " + protect( (*p).leftType() );
                 ++p;
             }
             synopsis += " ";
