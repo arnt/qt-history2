@@ -87,7 +87,7 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ), button( 0 ) {
+    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ) {
 	extensionSubMenues.setAutoDelete(TRUE);
     }
 
@@ -96,7 +96,6 @@ public:
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
     QObjectList extensionSubMenues;
-    QButton *button;
 
 };
 
@@ -588,12 +587,14 @@ void QToolBar::createPopup()
 {
     d->extensionPopup->clear();
     d->extensionSubMenues.clear();
-    QObjectListIt it( *children() );
+
+    QObjectList *childlist = queryList( "QWidget", 0, FALSE, TRUE );
+    QObjectListIt it( *childlist );
     bool hide = FALSE;
     int id;
     while ( it.current() ) {
         int j = 2;
-        if ( !it.current()->isWidgetType() ||
+        if ( !it.current()->isWidgetType() || it.current() == d->extension->button() ||
 	    qstrcmp( "qt_dockwidget_internal", it.current()->name() ) == 0 ) {
 	    ++it;
 	    continue;
@@ -673,6 +674,7 @@ void QToolBar::createPopup()
 	}
         ++it;
     }
+    delete childlist;
 }
 
 /*!
