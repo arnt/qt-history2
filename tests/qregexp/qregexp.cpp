@@ -26,6 +26,7 @@
 
   \ingroup tools
   \ingroup misc
+  \ingroup shared
 
   In normal mode, you can use one of these atoms to match a single character:
 
@@ -151,6 +152,9 @@ static int engCount = 0;
 static QArray<int> *noOccurrences = 0;
 static QArray<int> *firstOccurrenceAtZero = 0;
 
+/*
+  Merges two QArrays of ints and puts the result into the first one.
+*/
 static void mergeInto( QArray<int> *a, const QArray<int>& b )
 {
     int asize = a->size();
@@ -183,6 +187,10 @@ static void mergeInto( QArray<int> *a, const QArray<int>& b )
     }
 }
 
+/*
+  Merges two disjoint QMaps of (int, int) pairs and puts the result into the
+  first one.
+*/
 static void reunionInto( QMap<int, int> *a, const QMap<int, int>& b )
 {
     QMap<int, int>::ConstIterator it;
@@ -190,20 +198,23 @@ static void reunionInto( QMap<int, int> *a, const QMap<int, int>& b )
 	a->insert( it.key(), *it );
 }
 
-static int at( const QMap<int, int>& a, int k )
+/*
+  Returns the value associated to key k in QMap m of (int, int) pairs, or 0 if
+  no such value is explicitly present.
+*/
+static int at( const QMap<int, int>& m, int k )
 {
-    return a.contains( k ) ? a[k] : 0;
+    return a.contains( k ) ? m[k] : 0;
 }
 
 /*
-  Translates wildcard pattern to regular expression pattern (e.g., *.cpp to
-  ^.*\.cpp$).
+  Translates a wildcard pattern to an equivalent regular expression pattern
+  (e.g., *.cpp to ^.*\.cpp$).
 */
-
 static QString wc2rx( const QString& wc )
 {
     int wclen = wc.length();
-    QString rx = QString::fromLatin1( "^" );
+    QString rx = QChar( '^' );
     int i = 0;
     while ( i < wclen ) {
 	QChar c = wc[i++];
@@ -249,9 +260,16 @@ static QString wc2rx( const QString& wc )
     return rx;
 }
 
+/*
+  The class QRegExpEngine encapsulates a modified NFA.
+*/
 class QRegExpEngine : public QShared
 {
 public:
+    /*
+      The class CharClass represents a set of characters, such as can be found
+      in regular expressions (e.g., [a-z] denotes the set {a, b, ..., z}).
+    */
     class CharClass
     {
     public:
@@ -273,6 +291,10 @@ public:
 #endif
 
     private:
+	/*
+	  The struct Range represents a range of characters (e.g., [0-9] denotes
+	  range 48 to 57.
+	*/
 	struct Range {
 	    ushort from;
 	    ushort to;
@@ -312,6 +334,11 @@ public:
 
 private:
     enum { CharClassBit = 0x10000, BackRefBit = 0x20000 };
+
+    /*
+      The struct State represents one state in a modified NFA.  The input
+      characters matched are stored in the state instead of on the transitions.
+    */
     struct State {
 	int atom;
 	int match;
@@ -324,6 +351,11 @@ private:
 	~State() { delete reenter; delete anchors; }
     };
 
+    /*
+      The struct Lookahead represents a lookahead a la Perl (e.g., (?=foo) and
+      (?!bar)).  The embedded regular expression is represented by an NFA that
+      matches it.
+    */
     struct Lookahead {
 	QRegExpEngine *eng;
 	bool neg;
@@ -333,11 +365,19 @@ private:
 	~Lookahead() { delete eng; }
     };
 
+    /*
+      The struct Atom represent one node in the hierarchy of regular expression
+      atoms.
+    */
     struct Atom {
 	int parent;
 	int capture;
     };
 
+    /*
+      The struct AnchorAlternation represent a pair of anchors with OR
+      semantics.
+    */
     struct AnchorAlternation {
 	int a;
 	int b;
@@ -380,6 +420,9 @@ private:
     int minl;
     QArray<int> occ1;
 
+    /*
+      The class Box is an abstraction for a regular expression fragment.
+    */
     class Box
     {
     public:
@@ -611,9 +654,13 @@ int QRegExpEngine::createState( const CharClass& cc )
 
 int QRegExpEngine::createState( int bref )
 {
-    // ### checking
-    if ( bref > nbrefs )
+    if ( bref > nbrefs ) {
 	nbrefs = bref;
+	if ( nbref > MaxBackRefs ) {
+	    yyError = TRUE;
+	    return 0;
+	}
+    }
     return setupState( BackRefBit | bref );
 }
 
@@ -1121,7 +1168,6 @@ bool QRegExpEngine::testMatch( bool minimal )
 	}
 	/*
 	  If we reached the final state, hurray!  Copy the captured zone.
-	  ### might do more stuff here?
 	*/
 	if ( ncap > 0 && (m = mmInNextStack[FinalState]) != -1 ) {
 	    memcpy( mmCapBegin, mmNextCapBegin + m * ncap, ncap * sizeof(int) );
@@ -1318,7 +1364,6 @@ QRegExpEngine::Box::Box( QRegExpEngine *engine, const CharClass& cc )
     rs = ls;
 }
 
-// ### check if bref >= MaxBackRefs
 QRegExpEngine::Box::Box( QRegExpEngine *engine, int bref )
     : eng( engine ), ls( 1 ), skipanchors( Anchor_BackRef0Empty << bref ),
       minl( 0 ), occ1( *noOccurrences )
@@ -1901,15 +1946,20 @@ QRegExpEngine::Box QRegExpEngine::parseExpression()
     return box;
 }
 
+/*
+  The class QRegExpPrivate contains the private data of a regular expression
+  other than the automaton.  It makes it possible for many QRegExp objects to
+  use the same QRegExpEngine object with different QRegExpPrivate objects.
+*/
 struct QRegExpPrivate {
     QString pattern;
     bool wc;
     bool min;
     QString t;
-    QArray<int> captured;
     QStringList capturedCache;
+    QArray<int> captured;
 
-    QRegExpPrivate() : captured( 2 ) { captured.fill( -1 ); }
+    QRegExpPrivate() { captured.fill( -1, 2 ); }
 };
 
 /*!  Constructs an invalid regular expression (which never matches).
@@ -1978,12 +2028,12 @@ QRegExp& QRegExp::operator=( const QRegExp& rx )
     priv->wc = rx.priv->wc;
     priv->min = rx.priv->min;
     priv->t = rx.priv->t;
-    priv->captured = rx.priv->captured;
     priv->capturedCache = rx.priv->capturedCache;
+    priv->captured = rx.priv->captured;
     return *this;
 }
 
-/*!  Returns TRUE if this regexp is equal to \a rx.
+/*!  Returns TRUE if this regexp is equal to \a rx, otherwise FALSE.
 
   Two regexp objects are equal if they have equal pattern strings, and if
   case sensitivity, wildcard and minimal matching options are identical.
@@ -1999,7 +2049,7 @@ bool QRegExp::operator==( const QRegExp& rx ) const
 
 /*!  \fn bool QRegExp::operator!=( const QRegExp& rx ) const
 
-  Returns TRUE if this regexp is not equal to \a rx.
+  Returns TRUE if this regexp is not equal to \a rx, otherwise FALSE.
 
   \sa operator==()
 */
@@ -2131,7 +2181,7 @@ void QRegExp::setMinimal( bool minimal )
     int len = r.matchedLength();        // len = 4
   \endcode
 
-  You might prefer to use QString::find() or QString::contains(), or even
+  You might prefer to use QString::find(), QString::contains(), or even
   QStringList::grep().
 
   \sa matchRev() partialMatch() matchedLength() capturedText()
@@ -2145,9 +2195,10 @@ int QRegExp::match( const QString& str, int start )
     return priv->captured[0];
 }
 
-/*! Attempts to match backwards in \a str, starting at position \a start. ###
+/*!  Attempts to match backwards in \a str, starting at position \a start.
 
   Returns the position of the first match, or -1 if there was no match.
+
   \sa match() partialMatch() matchedLength() capturedText()
 */
 
@@ -2170,13 +2221,16 @@ int QRegExp::matchRev( const QString& str, int start )
   For example, if the regular expression is <b>abc</b>, then this function
   returns TRUE for <b>abc</b> or <b>ab</b>, but FALSE for <b>hab</b>.
 
-  ### matchedLength() & co. are not set
-
   \sa match() matchRev()
 */
 
 bool QRegExp::partialMatch( const QString& str ) const
 {
+    priv->t = QString::null;
+    priv->capturedCache.clear();
+    priv->captured.detach();
+    priv->captured.fill( -1 );
+
     eng->match( str, 0, priv->min, TRUE );
     return eng->matchedLength() == (int) str.length();
 }
@@ -2261,9 +2315,8 @@ void QRegExp::compile( bool caseSensitive )
     else
 	eng = new QRegExpEngine( priv->wc ? wc2rx(priv->pattern)
 				 : priv->pattern, caseSensitive );
-    priv->captured.fill( -1, eng->numCaptures() );
+    priv->t = QString::null;
     priv->capturedCache.clear();
-#if 0
-    eng->dump(); // ###
-#endif
+    priv->detach();
+    priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
 }
