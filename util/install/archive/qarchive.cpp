@@ -25,7 +25,6 @@ static bool createDir( const QString& fullPath )
     QStringList hierarchy = QStringList::split( QDir::separator(), fullPath );
     QString pathComponent, tmpPath;
     QDir dirTmp;
-    bool success;
 #ifdef Q_OS_UNIX
     dirTmp = "/";
 #endif
@@ -33,10 +32,8 @@ static bool createDir( const QString& fullPath )
     for( QStringList::Iterator it = hierarchy.begin(); it != hierarchy.end(); ++it ) {
 	pathComponent = *it + QDir::separator();
 	tmpPath += pathComponent;
-	if (!dirTmp.exists(tmpPath))
-	    success = dirTmp.mkdir( tmpPath );
-	if (!success)
-	    return false;
+	if (!dirTmp.exists(tmpPath) && !dirTmp.mkdir(tmpPath))
+            return false;
     }
     return true;
 }
@@ -66,7 +63,7 @@ bool QArchive::open( int mode )
     case IO_ReadOnly:
 	// Fallthrough intentional
     case IO_WriteOnly:
-	if( arcFile.open( mode ) ) 
+	if( arcFile.open( mode ) )
 	    return true;
 	break;
     }
@@ -75,7 +72,7 @@ bool QArchive::open( int mode )
 
 void QArchive::close()
 {
-    if( arcFile.isOpen() ) 
+    if( arcFile.isOpen() )
 	arcFile.close();
 }
 
@@ -144,7 +141,7 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 		emit operationFeedback( QString( "done. %1 => %2 (%3%)\n" )
 					.arg( ztream.total_in )
 					.arg( ztream.total_out )
-					.arg( int( 
+					.arg( int(
 					    double( ztream.total_out ) / double( ztream.total_in ) * 100 ) ) );
 		deflateEnd( &ztream );
 		// Now write the compressed data to the output
@@ -201,7 +198,7 @@ bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, con
 
 	QFileInfo fi( dirName );
 
-	if( includeLastComponent ) 
+	if( includeLastComponent )
 	    setDirectory( fi.fileName() );
 	QDir dir( dirName );
 	const QFileInfoList* dirEntries = dir.entryInfoList();
@@ -213,7 +210,7 @@ bool QArchive::writeDir( const QString &dirName1, bool includeLastComponent, con
 	while( ( pFi = dirIter.current() ) ) {
 	    if( pFi->fileName() != "." && pFi->fileName() != ".." ) {
 		if( pFi->isDir() )
-		    writeDir( pFi->absFilePath(), TRUE, localPath + "/" + 
+		    writeDir( pFi->absFilePath(), TRUE, localPath + "/" +
 			      pFi->fileName() ); // Subdirs should always get its name in the archive.
 		else
 		    writeFile( pFi->absFilePath(), localPath );
@@ -291,7 +288,7 @@ QArchiveHeader* QArchive::readArchiveHeader( QDataStream *inStream )
     return header;
 }
 
-bool QArchive::readArchive( const QString &outpath, const QString &key ) 
+bool QArchive::readArchive( const QString &outpath, const QString &key )
 {
     QDataStream inStream( &arcFile );
     return readArchive( &inStream, outpath, key );
@@ -341,7 +338,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    if( entryName == "../" ) {
 		outDir.cdUp();
 	    } else {
-		dirName = QDir::convertSeparators( outDir.absPath() + 
+		dirName = QDir::convertSeparators( outDir.absPath() +
 						   QString( "/" ) + entryName.left( entryName.length() - 1 ) );
 		if( verbosityMode & Destination )
 		    emit operationFeedback( "Directory " + dirName + "... " );
@@ -357,7 +354,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    inBuffer.resize( entryLength );
 	    inStream->readRawBytes( inBuffer.data(), entryLength );
 	    entryName = inBuffer.data();
-	    
+
 	    int filePerm;
 	    QDateTime timeStamp;
 	    QString fileName = QDir::convertSeparators( outDir.absPath() + QString( "/" ) + entryName );
@@ -397,7 +394,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 		struct utimbuf tb;
 		tb.actime = tb.modtime = t.secsTo(timeStamp);
 		utime(fileName.local8Bit(), &tb);
-		if(filePerm != -1) 
+		if(filePerm != -1)
 		    chmod(fileName.local8Bit(), (mode_t)filePerm);
 #endif
 	    } else {
@@ -426,7 +423,7 @@ bool QArchive::readArchive( QDataStream *inStream, const QString &outpath, const
 	    if( verbosityMode & Source )
 		emit operationFeedback( QString("Unknown chunk: %d") .arg(chunktype) );
 	}
-	if( verbosityMode & Progress ) 
+	if( verbosityMode & Progress )
 	    emit operationFeedback( inStream->device()->at() );
     }
     return TRUE;
