@@ -40,6 +40,8 @@ Distribute to all customers.
 Upload free version to ftp.troll.no
 Upload README and INSTALL files to ftp.troll.no in /qt/source
 
+Update the platform pages: www/platforms/*
+
 Update the qt documentation pages from the distribution (www/qt/*,
 www/opengl/*, www/imageio/*, www/nsplugin/*) and add the 'can be
 downloaded' text:
@@ -49,8 +51,6 @@ downloaded' text:
 	+' < $a > a && mv a $a ; done
 
 Update the web server with pages from the cvs archive.
-
-Send mail to qt-interest.
 
 Make rpms and upload them to ftp.troll.no
 
