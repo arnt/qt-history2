@@ -7,4 +7,4 @@ SOURCES		= centralwidget.cpp \
 		  mainwindow.cpp
 TARGET		= qutlook
 
-LIBS        += $$QT_BUILD_TREE/lib/qaxcontainer.lib
+LIBS        += qaxcontainer.lib
