@@ -1469,8 +1469,12 @@ bool QWidget::isMinimized() const
 */
 void QWidget::showMinimized()
 {
+    if (isMinimized()) return;
+
     setWindowState((windowState() & ~WindowActive) | WindowMinimized);
     show();
+    if (!isTopLevel())
+	QApplication::sendPostedEvents(this, QEvent::ShowMinimized);
 }
 
 /*!
@@ -1581,8 +1585,12 @@ bool QWidget::isFullScreen() const
 */
 void QWidget::showFullScreen()
 {
+    if (isFullScreen()) return;
+
     setWindowState(windowState() | WindowFullScreen);
     show();
+    if (!isTopLevel())
+	QApplication::sendPostedEvents(this, QEvent::ShowFullScreen);
     setActiveWindow();
 }
 
@@ -1600,8 +1608,12 @@ void QWidget::showFullScreen()
 */
 void QWidget::showMaximized()
 {
+    if (isMaximized()) return;
+
     setWindowState((windowState() & ~WindowMinimized) | WindowMaximized);
     show();
+    if (!isTopLevel())
+	QApplication::sendPostedEvents(this, QEvent::ShowMaximized);
 }
 
 /*!
@@ -1616,6 +1628,8 @@ void QWidget::showNormal()
 {
     setWindowState(WindowNoState);
     show();
+    if (!isTopLevel())
+	QApplication::sendPostedEvents(this, QEvent::ShowNormal);
 }
 
 /*!
@@ -4512,8 +4526,13 @@ bool QWidget::event( QEvent *e )
 		type = QEvent::ShowMaximized;
 	    else
 		type = QEvent::ShowNormal;
-	    QEvent e(type);
-	    QApplication::sendEvent(this, &e);
+
+	    if (e->spontaneous()) {
+		QEvent e2(type);
+		QApplication::sendSpontaneousEvent(this, &e2);
+	    } else {
+		QApplication::postEvent(this, new QEvent(type));
+	    }
 	    break;
 	}
 
