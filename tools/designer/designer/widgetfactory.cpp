@@ -1035,7 +1035,7 @@ const char* WidgetFactory::classNameOf( QObject* o )
 void WidgetFactory::initChangedProperties( QObject *o )
 {
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
-    if ( !o->inherits( "QDesignerToolBar" ) )
+    if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )
 	MetaDataBase::setPropertyChanged( o, "geometry", TRUE );
 
     if ( o->inherits( "QPushButton" ) || o->inherits("QRadioButton") || o->inherits( "QCheckBox" ) || o->inherits( "QToolButton" ) )
@@ -1062,6 +1062,10 @@ void WidgetFactory::initChangedProperties( QObject *o )
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
     } else if ( o->inherits( "QDesignerToolBar" )  ) {
 	MetaDataBase::setPropertyChanged( o, "label", TRUE );
+    } else if ( o->inherits( "QDesignerMenuBar" )  ) {
+	MetaDataBase::setPropertyChanged( o, "itemName", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemNumber", TRUE );
+	MetaDataBase::setPropertyChanged( o, "itemText", TRUE );
     }
 }
 

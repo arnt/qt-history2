@@ -170,6 +170,8 @@ QString Uic::getClassName( const QDomElement& e )
     QString s = e.attribute( "class" );
     if ( s.isEmpty() && e.tagName() == "toolbar" )
 	s = "QToolBar";
+    else if ( s.isEmpty() && e.tagName() == "menubar" )
+	s = "QMenuBar";
     return s;
 }
 
@@ -365,8 +367,12 @@ void Uic::createToolbarImpl( const QDomElement &n, const QString &parentClass, c
     }
 }
 
-void Uic::createMenuBarImpl( const QDomElement &n )
+void Uic::createMenuBarImpl( const QDomElement &n, const QString &parentClass, const QString &parent )
 {
+    QString objName = getObjectName( n );
+    out << indent << objName << " = new QMenuBar( this, \"" << objName << "\" );" << endl;
+    createObjectImpl( n, parentClass, parent );
+
     QDomNodeList nl = n.elementsByTagName( "item" );
     for ( int i = 0; i < (int) nl.length(); i++ ) {
 	QDomElement ae = nl.item( i ).toElement();

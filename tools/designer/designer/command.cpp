@@ -1623,10 +1623,12 @@ void AddMenuCommand::execute()
 	formWindow()->unify( popup, n, TRUE );
 	popup->setName( n );
     }
-    if ( !mainWindow->child( 0, "QMenuBar" ) )
+    if ( !mainWindow->child( 0, "QMenuBar" ) ) {
 	menuBar = new QDesignerMenuBar( (QWidget*)mainWindow );
-    else
+	menuBar->setName( "menubar" );
+    } else {
 	menuBar = (QDesignerMenuBar*)mainWindow->menuBar();
+    }
     if ( id == -1 )
 	id = mainWindow->menuBar()->insertItem( name, popup );
     else

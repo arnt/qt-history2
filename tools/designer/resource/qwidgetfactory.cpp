@@ -1494,6 +1494,8 @@ void QWidgetFactory::loadMenuBar( const QDomElement &e )
 		n2 = n2.nextSibling().toElement();
 	    }
 	    mb->insertItem( n.attribute( "text" ), popup );
+	} else if ( n.tagName() == "property" ) {
+	    setProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	}
 	n = n.nextSibling().toElement();
     }

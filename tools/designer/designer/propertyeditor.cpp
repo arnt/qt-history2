@@ -2367,7 +2367,7 @@ void PropertyList::setupProperties()
 	    continue;
 	if ( unique.contains( QString::fromLatin1( it.current() ) ) )
 	    continue;
-	if ( editor->widget()->inherits( "QDesignerToolBar" ) ) {
+	if ( editor->widget()->inherits( "QDesignerToolBar" ) || editor->widget()->inherits( "QDesignerMenuBar" ) ) {
 	    if ( qstrcmp( p->name(), "minimumHeight" ) == 0 )
 		continue;
 	    if ( qstrcmp( p->name(), "minimumWidth" ) == 0 )
@@ -2383,12 +2383,6 @@ void PropertyList::setupProperties()
 	    if ( qstrcmp( p->name(), "minimumSize" ) == 0 )
 		continue;
 	    if ( qstrcmp( p->name(), "maximumSize" ) == 0 )
-		continue;
-	}
-	if ( editor->widget()->inherits( "QDesignerMenuBar" ) ) {
-	    if ( qstrcmp( p->name(), "itemNumber" ) != 0 &&
-		 qstrcmp( p->name(), "itemText" ) != 0 &&
-		 qstrcmp( p->name(), "itemName" ) != 0 )
 		continue;
 	}
 	unique.insert( QString::fromLatin1( it.current() ), TRUE );

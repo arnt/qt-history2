@@ -16,8 +16,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>702</width>
-            <height>464</height>
+            <width>678</width>
+            <height>452</height>
         </rect>
     </property>
     <property name="caption">
@@ -50,6 +50,9 @@
     </hbox>
 </widget>
 <menubar>
+    <property name="name">
+        <cstring>menubar</cstring>
+    </property>
     <item text="&amp;File" name="fileMenu">
         <action name="fileNewAction"/>
         <action name="fileOpenAction"/>

@@ -311,6 +311,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
 		createToolbarDecl( a );
 	} else if ( n.tagName() == "menubar" ) {
+	    out << "    " << "QMenuBar *" << getObjectName( n ) << ";" << endl;
+
 	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
 		createMenuBarDecl( a );
 	}
@@ -817,7 +819,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << endl;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "menubar" )
-	    createMenuBarImpl( n );
+	    createMenuBarImpl( n, objClass, objName );
     }
     out << endl;
 

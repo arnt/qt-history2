@@ -792,8 +792,10 @@ void DesignerFormWindowImpl::addMenu( const QString &text, const QString &name )
     QString n = name;
     formWindow->unify( popup, n, TRUE );
     popup->setName( n );
-    if ( !mw->child( 0, "QMenuBar" ) )
-	(void)new QDesignerMenuBar( (QWidget*)mw );
+    if ( !mw->child( 0, "QMenuBar" ) ) {
+	QMenuBar *mb = new QDesignerMenuBar( (QWidget*)mw );
+	mb->setName( "menubar" );
+    }
     mw->menuBar()->insertItem( text, popup );
 }
 

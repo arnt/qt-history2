@@ -833,6 +833,10 @@ void Resource::saveObjectProperties( QObject *w, QTextStream &ts, int indent )
 	if ( w->inherits( "QLabel" ) && qstrcmp( p->name(), "pixmap" ) == 0 &&
 	     ( !( (QLabel*)w )->pixmap() || ( (QLabel*)w )->pixmap()->isNull() ) )
 	    continue;
+	if ( w->inherits( "QDesignerMenuBar" ) &&
+	     ( qstrcmp( p->name(), "itemName" ) == 0 || qstrcmp( p->name(), "itemNumber" ) == 0 ||
+	       qstrcmp( p->name(), "itemText" ) == 0 ) )
+	    continue;
 	if ( qstrcmp( p->name(), "name" ) == 0 )
 	    knownNames << w->property( "name" ).toString();
 	ts << makeIndent( indent ) << "<property";
@@ -2223,6 +2227,7 @@ void Resource::saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent )
 	return;
     ts << makeIndent( indent ) << "<menubar>" << endl;
     indent++;
+    saveObjectProperties( mw->menuBar(), ts, indent );
 
     for ( int i = 0; i < (int)mw->menuBar()->count(); ++i ) {
 	ts << makeIndent( indent ) << "<item text=\"" << entitize( mw->menuBar()->text( mw->menuBar()->idAt( i ) ) )
@@ -2307,6 +2312,8 @@ void Resource::loadMenuBar( const QDomElement &e )
 		n2 = n2.nextSibling().toElement();
 	    }
 	    mb->insertItem( n.attribute( "text" ), popup );
+	} else if ( n.tagName() == "property" ) {
+	    setObjectProperty( mb, n.attribute( "name" ), n.firstChild().toElement() );
 	}
 	n = n.nextSibling().toElement();
     }
