@@ -78,12 +78,12 @@ void ItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &options,
     painter->drawText(textRect, Qt::AlignCenter, model->data(index).toString());
 
     painter->setPen(selected ? Qt::white : Qt::black);
-    painter->drawLine(r.left(), r.bottom()-1, r.right()-1, r.bottom()-1);
-    painter->drawLine(r.right()-1, r.top()+1, r.right()-1, r.bottom()-2);
+    painter->drawLine(r.left(), r.bottom(), r.right(), r.bottom());
+    painter->drawLine(r.right(), r.top()+1, r.right(), r.bottom()-1);
 
     painter->setPen(selected ? Qt::black : Qt::white);
-    painter->drawLine(r.left(), r.top(), r.right()-1, r.top());
-    painter->drawLine(r.left(), r.top()+1, r.left(), r.bottom()-2);
+    painter->drawLine(r.left(), r.top(), r.right(), r.top());
+    painter->drawLine(r.left(), r.top()+1, r.left(), r.bottom()-1);
 }
 
 
