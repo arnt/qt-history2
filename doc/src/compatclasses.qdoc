@@ -14,8 +14,9 @@
 
 /*!
     \page compatclasses.html
-
     \title The Qt 3 Support Classes
+
+    \keyword Qt3Compat
 
     These classes are part of the Qt 3 support library. To use
     any of these, you must add the line \c{QT += qt3support} to your

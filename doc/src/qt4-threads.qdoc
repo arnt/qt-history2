@@ -37,7 +37,7 @@
     instead of QMutex when it is possible can make multithreaded
     programs more concurrent.
 
-    Since Qt 4, \l{implicit shared} classes can safely be copied
+    Since Qt 4, \l{implicitly shared} classes can safely be copied
     across threads, like any other value classes. They are fully
     reentrant. This is implemented using atomic reference counting
     operations, which are implemented in assembly language for the

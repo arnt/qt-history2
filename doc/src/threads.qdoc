@@ -327,13 +327,13 @@
     Qt supports two types of signal-slot connections:
 
     \list
-    \o With \l{QObject::DirectConnection}{direct connections}, the
+    \o With \l{Qt::DirectConnection}{direct connections}, the
        slot gets called immediately when the signal is emitted. The
        slot is executed in the thread that emitted the signal (which
        is not necessarliy the thread where the receiver object
        lives).
 
-    \o With \l{QObject::QueuedConnection}{queued connections}, the
+    \o With \l{Qt::QueuedConnection}{queued connections}, the
        slot is invoked when control returns to the event loop of the
        thread to which the object belongs. The slot is executed in
        the thread where the receiver object lives.
