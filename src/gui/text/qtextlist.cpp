@@ -136,7 +136,7 @@ QString QTextList::itemText(const QTextBlock &blockIt) const
 }
 
 /*!
-    Deletes the item at item position \a i.
+    Removes the item at item position \a i from the list.
 */
 void QTextList::removeItem(int i)
 {
@@ -144,6 +144,15 @@ void QTextList::removeItem(int i)
         return;
 
     QTextBlock block = d->blocks.at(i);
+    remove(block);
+}
+
+
+/*!
+    Removes the block \a block from the list.
+*/
+void QTextList::remove(const QTextBlock &block)
+{
     QTextBlockFormat fmt = block.blockFormat();
     fmt.setIndent(fmt.indent() + format().indent());
     fmt.setObjectIndex(-1);

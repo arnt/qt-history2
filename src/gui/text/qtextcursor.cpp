@@ -1147,37 +1147,6 @@ QTextList *QTextCursor::currentList() const
 }
 
 /*!
-    Returns the index of the list item containing the cursor
-    position(), or -1 if there is no list item.
-*/
-int QTextCursor::listItemNumber() const
-{
-    if (!d || !d->pieceTable)
-        return -1;
-    QTextList *l = currentList();
-    if (!l)
-        return -1;
-
-    return l->itemNumber(d->block());
-}
-
-/*!
-    Returns the text in the list item containing the cursor
-    position(), or an empty string if there is no list item.
-*/
-QString QTextCursor::listItemText() const
-{
-    if (!d || !d->pieceTable)
-        return QString();
-
-    QTextList *l = currentList();
-    if (!l)
-        return QString();
-
-    return l->itemText(d->block());
-}
-
-/*!
     \overload
 
     Creates a new table with \a rows rows and \a cols columns, inserts

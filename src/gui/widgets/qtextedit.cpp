@@ -246,7 +246,7 @@ void QTextEditPrivate::indent()
 	QTextListFormat format = list->format();
 	format.setIndent(format.indent() + 1);
 
-	if (cursor.listItemNumber() == 1)
+	if (list->itemNumber(cursor.block()) == 1)
 	    list->setFormat(format);
 	else
 	    cursor.createList(format);
@@ -699,12 +699,14 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 
 process:
     switch( e->key() ) {
-    case Key_Backspace:
-        if (d->cursor.currentList() && d->cursor.atBlockStart())
-            d->cursor.currentList()->removeItem(d->cursor.listItemNumber());
+    case Key_Backspace: {
+        QTextList *list = d->cursor.currentList();
+        if (list && d->cursor.atBlockStart())
+            list->remove(d->cursor.block());
         else
             d->cursor.deletePreviousChar();
         break;
+    }
     case Key_Delete:
         d->cursor.deleteChar();
         d->selectionChanged();

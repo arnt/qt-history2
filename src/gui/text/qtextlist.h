@@ -28,6 +28,7 @@ public:
     QString itemText(const QTextBlock &) const;
 
     void removeItem(int i);
+    void remove(const QTextBlock &);
 
     void setFormat(const QTextListFormat &format) { QTextObject::setFormat(format); }
     QTextListFormat format() const { return QTextObject::format().toListFormat(); }
