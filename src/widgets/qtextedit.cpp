@@ -1051,7 +1051,7 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 void QTextEdit::drawContents( QPainter *p )
 {
-    if ( horizontalScrollBar()->isVisible() && 
+    if ( horizontalScrollBar()->isVisible() &&
 	 verticalScrollBar()->isVisible() ) {
 	const QRect verticalRect = verticalScrollBar()->geometry();
 	const QRect horizontalRect = horizontalScrollBar()->geometry();
@@ -1780,7 +1780,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	ensureCursorVisible();
 	lastFormatted = cursor->paragraph();
 	formatMore();
-	repaintChanged();
+	repaintContents( FALSE );
 	ensureCursorVisible();
 	drawCursor( TRUE );
 	clearUndoRedo();
@@ -1798,7 +1798,7 @@ void QTextEdit::removeSelectedText( int selNum )
 	delete cursor;
 	cursor = new QTextCursor( doc );
 	drawCursor( TRUE );
-	viewport()->repaint( TRUE );
+	repaintContents( TRUE );
     }
     setModified();
     emit textChanged();
