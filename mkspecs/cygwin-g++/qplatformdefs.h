@@ -50,11 +50,10 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 
-// DNS header files are not fully covered by X/Open specifications.
-// In particular nothing is said about res_* :/
-// Header files <netinet/in.h> and <arpa/nameser.h> are not included
-// by <resolv.h> on older versions of the GNU C library. Note that
-// <arpa/nameser.h> must be included before <resolv.h>.
+// Resolver functions are not yet implemented in Cygwin:
+// 	http://cygwin.com//cgi-bin/cygwin-todo.cgi?20000426.105252
+// Maybe Don Berstein's djbdns can help here:
+// 	http://cr.yp.to/djbdns.html
 #include <netinet/in.h>
 
 
