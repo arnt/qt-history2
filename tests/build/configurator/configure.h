@@ -4,6 +4,7 @@
 #include "configuredialog.h"
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qprocess.h>
 
 class QCheckListItem;
 
@@ -18,6 +19,9 @@ protected slots:
     void accept();
     void saveSettings();
     void execute();
+
+    void qmakeDone();
+    void readQmakeOutput();
 private:
     QCheckListItem* debugMode;
     QCheckListItem* buildType;
@@ -25,6 +29,8 @@ private:
     QCheckListItem* modules;
     QCheckListItem* mkspec;
     QCheckListItem* sqldrivers;
+
+    QProcess qmake;
 
     void loadSettings();
     void set( QCheckListItem* parent, const QString& setting );

@@ -6,6 +6,8 @@
 #include <qsettings.h>
 #include <qprocess.h>
 #include <qapplication.h>
+#include <qmultilineedit.h>
+#include <qtabwidget.h>
 
 ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name, WFlags fl )
     : ConfigureQtDialog(parent,name,fl)
@@ -14,6 +16,13 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
     listViewOptions->setSorting( -1 );
     listViewAdvanced->setSorting( -1 );
     QCheckListItem* item;
+
+    connect( &qmake, SIGNAL( processExited() ),
+	     this, SLOT( qmakeDone() ) );
+    connect( &qmake, SIGNAL( readyReadStdout() ),
+	     this, SLOT( readQmakeOutput() ) );
+    connect( &qmake, SIGNAL( readyReadStderr() ),
+	     this, SLOT( readQmakeOutput() ) );
 
     QString qtdir = getenv( "QTDIR" );
 
@@ -36,6 +45,7 @@ ConfigureQtDialogImpl::ConfigureQtDialogImpl( QWidget* parent, const char* name,
 	    if ( fi->fileName() != "." && fi->fileName() != ".." &&
 		 fi->fileName() != "tmp" &&
 		 fi->fileName() != "compat" &&
+		 fi->fileName() != "3rdparty" &&
 		 fi->fileName() != "moc" ) {
 		item = new QCheckListItem( modules, fi->fileName(), QCheckListItem::CheckBox );
 		item->setOn( TRUE );
@@ -166,12 +176,68 @@ void ConfigureQtDialogImpl::accept()
 
 void ConfigureQtDialogImpl::execute()
 {
+    // ## add embedded?
+
+    editOutput->setText( "Execute qmake...\n" );
+    tabs->setCurrentPage( 2 );
+
     QStringList args;
-    args +=  QString( getenv( "QTDIR" ) ) + "/bin/qmake";
+    QStringList entries;
+    QString entry;
+    QSettings settings;
+
+    QString qmakeConfig;
+    QString qmakeVars;
+    QString qmakeOutDir;
+
+    args += QString( getenv( "QTDIR" ) ) + "/bin/qmake";
+
+    entry = settings.readEntry( "/.configure_qt_build/Mode" );
+    if ( entry == "Debug" ) {
+	qmakeConfig += " debug";
+	qmakeOutDir += "debug";
+    } else {
+	qmakeConfig += " release";
+	qmakeOutDir += "release";
+    }
+
+    entry = settings.readEntry( "/.configure_qt_build/Build" );
+    if ( entry == "Static" )
+	qmakeConfig += " staticlib";
+    else
+	qmakeConfig += " dll";
+
+    entry = settings.readEntry( "/.configure_qt_build/Threading" );
+    if ( entry == "Threaded" ) {
+	qmakeConfig += " thread";
+	qmakeOutDir += "-mt";
+    }
+
+    entries = settings.readListEntry( "/.configure_qt_build/Modules", ',' );
+    qmakeConfig += " " + entries.join( " " );
+
+    entries = settings.readListEntry( "/.configure_qt_build/SQL Drivers", ',' );
+    qmakeVars += "\"sql-drivers += " + entries.join( " " ) + "\"";
+
+//     entry = settings.readEntry( "/.configure_qt_build/Platform-Compiler" );
+//     args += "-platform " + entry;
 
 
-    QProcess qmake( args );
-    qmake.start(); //## working?
+    args += "CONFIG += " + qmakeConfig;
+    args += "OBJECTS_DIR=.obj/" + qmakeOutDir;
+    args += "MOC_DIR=.moc/" + qmakeOutDir;
+    args += qmakeVars;
+
+    args += QString( "-o" );
+    args += QString( getenv( "QTDIR" ) ) + QString( "/src/Makefile" );
+    args += QString( getenv( "QTDIR" ) ) + "/src/qt.pro";
+
+    qmake.setWorkingDirectory( QString( getenv( "QTDIR" ) ) + "/src" );
+    qmake.setArguments( args );
+    editOutput->setText( editOutput->text() + args.join( " " ) + "\n" );
+
+    //## write .qmake.cache here
+    qmake.start();
 }
 
 void ConfigureQtDialogImpl::saveSettings()
@@ -220,5 +286,20 @@ void ConfigureQtDialogImpl::saveSet( QListView* list )
 	    settings.writeEntry( "/.configure_qt_build/" + config->text(0), lst, ',' );
 	config = config->nextSibling();
 	lst.clear();
+    }
+}
+
+void ConfigureQtDialogImpl::readQmakeOutput()
+{
+    editOutput->setText( editOutput->text() + QString(qmake.readStdout() ) );
+    editOutput->setText( editOutput->text() + QString(qmake.readStderr() ) );
+}
+
+void ConfigureQtDialogImpl::qmakeDone()
+{
+    if ( !qmake.normalExit() )
+	editOutput->setText( editOutput->text() + "qmake exited abnormally." );
+    else {
+	editOutput->setText( editOutput->text() + "qmake finished." );
     }
 }
