@@ -727,7 +727,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 		    if ( !p->on_largeDisabled.pm->mask() ) {
 			if ( !tmp.mask() )
 			    tmp.setMask( tmp );
-			QBitmap mask( d->largeDisabled.pm->size() );
+			QBitmap mask( d->on_largeDisabled.pm->size() );
 			mask.fill( Qt::color0 );
 			QPainter painter( &mask );
 			painter.drawPixmap( 0, 0, tmp );
@@ -812,7 +812,7 @@ QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 		    if ( !p->on_smallDisabled.pm->mask() ) {
  			if ( !tmp.mask() )
  			    tmp.setMask( tmp );
-			QBitmap mask( d->smallDisabled.pm->size() );
+			QBitmap mask( d->on_smallDisabled.pm->size() );
 			mask.fill( Qt::color0 );
 			QPainter painter( &mask );
 			painter.drawPixmap( 0, 0, tmp );
