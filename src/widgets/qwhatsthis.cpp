@@ -318,6 +318,7 @@ QWhatsThisPrivate::~QWhatsThisPrivate()
 #ifndef QT_NO_CURSOR
     if ( state == Waiting && qApp )
 	QApplication::restoreOverrideCursor();
+    delete cursor;
 #endif
 
     // the two straight-and-simple dicts

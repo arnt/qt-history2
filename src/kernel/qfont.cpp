@@ -1129,6 +1129,7 @@ static void initFontSubst()
 
     fontSubst = new QFontSubst();
     Q_CHECK_PTR( fontSubst );
+    fontSubst->setAutoDelete( TRUE );
     qfont_cleanup_fontsubst.add(fontSubst);
 
     for ( int i=0; initTbl[i] != 0; i += 2 )
