@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#6 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#7 $
 
 #$quiet=1;
 
@@ -83,7 +83,6 @@ open( SH, "| sh" );
 find( \&copy, "/local/lib/cvs/qt" );
 
 print SH "cd $base/cvs/qt
-PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH
 mv dist/free/LICENSE,v .
 co -u LICENSE
 rm -f LICENSE,v
@@ -95,7 +94,11 @@ mkdir qt/doc/html
 cd qt
 cp gif/*.gif doc/html
 export QTDIR=$base/head/qt
+
+# WHY?
 make -C src include
+
+export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 
 # Generate and check-in documentation
 perl util/qdoc/qdoc
@@ -104,15 +107,14 @@ mkdir $base/cvs/qt/html
 cp /local/lib/cvs/qtpub/html/* $base/cvs/qt/html
 for B in *.html
 do
-  ci -mnone -t-'' -u \$B ../../../../cvs/qt/html/\${B},v
+  ci -mnone -t-'' -u \$B $base/cvs/qt/html/\${B},v
 done
-cd ../..
 
 # Generate and check-in X11 Makefiles
-export QTDIR=$base/head/qt
+cd $base/head/qt
 for B in `util/scripts/makeunixmake -p`
 do
-  ci -mnone -t-'' -u \$B ../../cvs/qt/\$B
+  ci -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
 done
 
 cd $base/cvs/qt
