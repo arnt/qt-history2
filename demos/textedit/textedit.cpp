@@ -154,7 +154,8 @@ void TextEdit::setupTextActions()
 {
     QToolBar *tb = new QToolBar(this);
     tb->setWindowTitle(tr("Format Actions"));
-    addToolBarBlock(tb);
+    addToolBarBreak(Qt::ToolBarAreaTop);
+    addToolBar(tb);
 
     QMenu *menu = new QMenu(tr("F&ormat"), this);
     menuBar()->addMenu(menu);
