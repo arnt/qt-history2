@@ -1704,7 +1704,7 @@ bool QApplication::hasPendingEvents()
 
 void QApplication::wakeUpGuiThread()
 {
-    PostThreadMessage( qt_gui_thread, WM_NULL, 0, 0 );
+    PostThreadMessageA( qt_gui_thread, WM_NULL, 0, 0 );
 }
 
 /*!
