@@ -485,6 +485,8 @@ void QTipManager::showTip()
     if ( t->group && !t->group->ena )
 	return;
 
+    int scr = QApplication::desktop()->screenNumber( widget->mapToGlobal( pos ) );
+
     if ( label
 #if defined(Q_WS_X11)
 	 && label->x11Screen() == widget->x11Screen()
@@ -501,7 +503,6 @@ void QTipManager::showTip()
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
 	    label->resize( t->geometry.size() );
     } else {
-	int scr = QApplication::desktop()->screenNumber( widget );
 	delete label;
 	label = new QTipLabel( QApplication::desktop()->screen( scr ), t->text);
 	if ( t->geometry != QRect( -1, -1, -1, -1 ) )
@@ -509,7 +510,7 @@ void QTipManager::showTip()
 	Q_CHECK_PTR( label );
 	connect( label, SIGNAL(destroyed()), SLOT(labelDestroyed()) );
     }
-    QRect screen = QApplication::desktop()->availableGeometry( widget );
+    QRect screen = QApplication::desktop()->availableGeometry( scr );
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
 	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
