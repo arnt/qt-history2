@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #include "qcomponentinterface.h"
 #ifndef QT_NO_PLUGIN
 #include "qlibrary.h"
@@ -135,24 +136,34 @@ QComponentInterface* QLibrary::load()
     if ( libfile.isEmpty() )
 	return 0;
 
-    if ( !pHnd ) {
+    if ( !pHnd )
 	pHnd = qt_load_library( libfile );
 
-	if ( !pHnd )
-	    return 0;
+    if ( pHnd && !info ) {
+	typedef QComponentInterface* (*QtLoadInfoProc)();
+	QtLoadInfoProc infoProc;
+	infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
+
+	info = infoProc ? infoProc() : 0;
+
+	if ( info ) {
+	    info->appInterface = appInterface;
+	    if ( !info->addRef() ) {
+		delete info;
+		info = 0;
+	    }
+	}
     }
 
-    if ( pHnd )
-	return info ? info : loadInterface();
-    return 0;
+    return info;
 }
 
 /*!
   Returns TRUE if the library is loaded.
 */
-bool QLibrary::loaded() const
+bool QLibrary::isLoaded() const
 {
-    return pHnd != 0;
+    return info != 0;
 }
 
 /*!
@@ -181,50 +192,6 @@ bool QLibrary::unload( bool force )
     }
     pHnd = 0;
     return TRUE;
-}
-
-
-bool QLibrary::use()
-{
-    if ( !pHnd || !info ) {
-	if ( libPol != Manual )
-	    return load();
-#ifdef QT_CHECK_RANGE
-	else
-	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
-#endif
-	return FALSE;
-    }
-    return TRUE;
-}
-
-QComponentInterface* QLibrary::loadInterface()
-{
-    if ( !pHnd ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning("QLibrary::loadInterface(): Failed to load library - no handle!");
-#endif
-	return 0;
-    }
-
-    typedef QComponentInterface* (*QtLoadInfoProc)();
-    QtLoadInfoProc infoProc;
-    infoProc = (QtLoadInfoProc) qt_resolve_symbol( pHnd, "qt_load_interface" );
-
-    if ( !infoProc )
-	return 0;
-    info = infoProc();
-
-    if ( info ) {
-	info->appInterface = appInterface;
-	if ( !info->addRef() ) {
-	    delete info;
-	    info = 0;
-	}
-	return info;
-    }
-
-    return 0;
 }
 
 /*!
@@ -259,14 +226,23 @@ QString QLibrary::library() const
 
 /*!
   Forwards the query to the QComponentInterface and returns the result.
+  If the current policy is not Manual, load() gets called if necessary.
 
   \sa QUnknownInterface::queryInterface
 */
 QUnknownInterface* QLibrary::queryInterface( const QString &request, bool recusive, bool regexp )
 {
-    if ( !use() )
-	return 0;
-
+    if ( !info ) {
+	if ( libPol != Manual )
+	    load();
+	else {
+#if defined(DEBUG)
+	    qWarning( "Tried to use library %s without loading!", libfile.latin1() );
+#endif
+	    return 0;
+	}
+    }
+    
     QUnknownInterface *iface = info->queryInterface( request, recusive, regexp );
 
     return iface;

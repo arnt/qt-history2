@@ -64,7 +64,7 @@ public:
 
     QComponentInterface* load();
     bool unload( bool force = FALSE );
-    bool loaded() const;
+    bool isLoaded() const;
 
     void setPolicy( Policy pol );
     Policy policy() const;
@@ -74,10 +74,6 @@ public:
     QUnknownInterface *queryInterface( const QString&, bool recursive = TRUE, bool regexp = TRUE );
 
 private:
-    bool use();
-    QComponentInterface* loadInterface();
-    QComponentInterface* info;
-
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
 #else
@@ -86,6 +82,7 @@ private:
     QString libfile;
     Policy libPol;
     QApplicationInterface* appInterface;
+    QComponentInterface* info;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
