@@ -1388,14 +1388,14 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->rectPainter->setPen( QPen( color0, 2 ) );
 	d->rectPainter->setRasterOp( NotROP );
 
-	QPoint pos = mapFromGlobal( QCursor::pos() );
+	QPoint pos = mapFromGlobal( e->globalPos() );
 	QRect r;
 	(void)findDockArea( pos, r, t );
 	d->rectPainter->drawRect( r );
 	d->oldPosRect = r;
 	d->origPosRect = r;
 	d->oldPosRectValid = FALSE;
-	d->pos = mapFromGlobal( QCursor::pos() );
+	d->pos = mapFromGlobal( e->globalPos() );
 	d->movedEnough = FALSE;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
@@ -1407,20 +1407,16 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->invisibleDrawArea = 0;
 	d->rectPainter = 0;
 	
-	if ( !d->movedEnough ) {
-	    //qDebug( "hide toolbar" );
-	} else {
-	    QPoint pos = mapFromGlobal( QCursor::pos() );
-	    QRect r;
-	    ToolBarDock dock = findDockArea( pos, r, t );
-	    if ( dock != Unmanaged && isDockEnabled( dock ) &&
-		 isDockEnabled( t, dock ) )
-		moveToolBar( t, dock );
-	}
+	QPoint pos = mapFromGlobal( e->globalPos() );
+	QRect r;
+	ToolBarDock dock = findDockArea( pos, r, t );
+	if ( dock != Unmanaged && isDockEnabled( dock ) &&
+	     isDockEnabled( t, dock ) )
+	    moveToolBar( t, dock );
 	return;
     }
 
-    QPoint p( QCursor::pos() );
+    QPoint p( e->globalPos() );
     QPoint pos = mapFromGlobal( p );
     if ( !d->movedEnough &&
 	 ( pos - d->pos ).manhattanLength() > 8 )
@@ -1449,7 +1445,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	//debug( "saw press" );
 	d->moving = 0;
 	d->offset = e->pos();
-	d->pos = QCursor::pos();
+	d->pos = e->globalPos();
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	//debug( "saw release" );
@@ -1466,7 +1462,7 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 
     // first, the threshold
 
-    QPoint p( QCursor::pos() );
+    QPoint p( e->globalPos() );
     if ( !d->moving &&
 	 QABS( p.x() - d->pos.x() ) < 3 &&
 	 QABS( p.y() - d->pos.y() ) < 3 )
