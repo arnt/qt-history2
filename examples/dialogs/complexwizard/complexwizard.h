@@ -16,7 +16,7 @@ class ComplexWizard : public QDialog
 public:
     ComplexWizard(QWidget *parent = 0);
 
-    const QList<WizardPage *> &historyPages() const { return history; }
+    QList<WizardPage *> historyPages() const { return history; }
 
 protected:
     void setFirstPage(WizardPage *page);
