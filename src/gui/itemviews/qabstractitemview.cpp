@@ -252,17 +252,19 @@ void QAbstractItemView::contentsMousePressEvent(QMouseEvent *e)
     if (item.isValid()) {
 	d->pressedItem = item;
 	d->pressedState = e->state();
-	if (e->state() & ShiftButton) {
-	    d->dragRect.setBottomRight(pos); // do not normalize
-	    selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
-	    setSelection(d->dragRect.normalize(), selectionUpdateMode(e->state(), item, e->type()));
-	} else {
-	    d->dragRect = QRect(pos, pos);
-	    selectionModel()->setCurrentItem(item, selectionUpdateMode(e->state(), item, e->type()), selectionBehavior());
-	}
-    } else {
- 	clearSelections();
+	selectionModel()->setCurrentItem(item, QItemSelectionModel::NoUpdate, selectionBehavior());
     }
+
+    if (e->state() & ShiftButton)
+	d->dragRect.setBottomRight(pos); // do not normalize
+    else
+	d->dragRect = QRect(pos, pos);
+
+    if (item.isValid())
+	setSelection(d->dragRect.normalize(),
+		     selectionUpdateMode(e->state(), item, e->type()));
+    else
+	clearSelections();
 }
 
 void QAbstractItemView::contentsMouseMoveEvent(QMouseEvent *e)
