@@ -189,14 +189,15 @@ static int      activateNullTimers();
 // internal Qt types
 const UInt32 kEventClassQt = 'cute';
 enum {
-    kEventQtRequestPropagate = 1
+    kEventQtRequestPropagate = 1,
+    kEventQtRequestSelect = 2
 };
-static bool request_pending = FALSE;
+static bool request_updates_pending = FALSE;
 void qt_event_request_updates() 
 {
-    if(request_pending)
+    if(request_updates_pending)
 	return;
-    request_pending = TRUE;
+    request_updates_pending = TRUE;
 
     EventRef upd = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestPropagate, GetCurrentEventTime(), 
@@ -213,6 +214,7 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowContextualMenuSelect },
 
     { kEventClassQt, kEventQtRequestPropagate },
+    { kEventClassQt, kEventQtRequestSelect },
 
     { kEventClassMouse, kEventMouseWheelMoved },
     { kEventClassMouse, kEventMouseDown },
@@ -267,7 +269,7 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 #ifdef QMAC_CAN_WAIT_FOREVER
 	if(!mac_select_timer) {
 	    mac_select_timerUPP = NewEventLoopTimerUPP(QApplication::qt_select_timer_callbk);
-	    InstallEventLoopTimer(GetMainEventLoop(), 0.005, 0.005, 
+	    InstallEventLoopTimer(GetMainEventLoop(), 0.1, 0.1,
 				  mac_select_timerUPP, (void *)qApp, &mac_select_timer);
 	}
 #endif
@@ -829,58 +831,18 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 //#warning "need to implement sockets on mac9"
 #endif
 
+static bool request_select_pending = FALSE;
 QMAC_PASCAL void 
 QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 {
-    if ( qt_preselect_handler ) {
-	QVFuncList::Iterator end = qt_preselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_preselect_handler->begin();
-	      it != end; ++it )
-	    (**it)();
-    }
+    if(request_select_pending)
+	return;
+    request_select_pending = TRUE;
 
-#ifdef Q_OS_MACX
-    timeval tm;
-    tm.tv_sec  = 0;			// no time to wait
-    tm.tv_usec = 0;
-    if ( sn_highest >= 0 ) {			// has socket notifier(s)
-	if ( sn_read )
-	    app_readfds = sn_readfds;
-	else
-	    FD_ZERO( &app_readfds );
-	if ( sn_write )
-	    app_writefds = sn_writefds;
-	if ( sn_except )
-	    app_exceptfds = sn_exceptfds;
-    } else {
-	FD_ZERO( &app_readfds );
-    }
-    int nsel = select( sn_highest + 1, (&app_readfds),
-		       (sn_write  ? &app_writefds  : 0),
-		       (sn_except ? &app_exceptfds : 0), &tm );
-#else
-//#warning "need to implement sockets on mac9"
-#endif
-
-    if ( qt_postselect_handler ) {
-	QVFuncList::Iterator end = qt_postselect_handler->end();
-	for ( QVFuncList::Iterator it = qt_postselect_handler->begin();
-	      it != end; ++it )
-	    (**it)();
-    }
-
-#ifdef Q_OS_MACX
-    if ( nsel == -1 ) {
-	if ( errno == EINTR || errno == EAGAIN ) {
-	    errno = 0;
-	} 
-    } else if ( nsel > 0 && sn_highest >= 0 ) {
-	qt_event_request_updates();
-	sn_activate();
-    }
-#else
-//#warning "need to implement sockets on mac9"
-#endif
+    EventRef sel = NULL;
+    CreateEvent(NULL, kEventClassQt, kEventQtRequestSelect, GetCurrentEventTime(), 
+		kEventAttributeUserEvent, &sel);
+    PostEventToQueue( GetCurrentEventQueue(), sel, kEventPriorityStandard );
 }
 
 bool QApplication::processNextEvent( bool canWait )
@@ -1342,7 +1304,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
     {
     case kEventClassQt:
 	if(ekind == kEventQtRequestPropagate) {
-	    request_pending = FALSE;
+	    request_updates_pending = FALSE;
 	    QApplication::sendPostedEvents();
 	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
 		for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
@@ -1351,6 +1313,55 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 		delete list;
 	    }
+	} else if(ekind == kEventQtRequestSelect) {
+	    request_select_pending = FALSE;
+	    if ( qt_preselect_handler ) {
+		QVFuncList::Iterator end = qt_preselect_handler->end();
+		for ( QVFuncList::Iterator it = qt_preselect_handler->begin();
+		      it != end; ++it )
+		    (**it)();
+	    }
+#ifdef Q_OS_MACX
+	    timeval tm;
+	    tm.tv_sec  = 0;			// no time to wait
+	    tm.tv_usec = 0;
+	    if ( sn_highest >= 0 ) {			// has socket notifier(s)
+		if ( sn_read )
+		    app_readfds = sn_readfds;
+		else
+		    FD_ZERO( &app_readfds );
+		if ( sn_write )
+		    app_writefds = sn_writefds;
+		if ( sn_except )
+		    app_exceptfds = sn_exceptfds;
+	    } else {
+		FD_ZERO( &app_readfds );
+	    }
+	    int nsel = select( sn_highest + 1, (&app_readfds), (sn_write  ? &app_writefds  : 0),
+			       (sn_except ? &app_exceptfds : 0), &tm );
+#else
+//#warning "need to implement sockets on mac9"
+#endif
+
+	    if ( qt_postselect_handler ) {
+		QVFuncList::Iterator end = qt_postselect_handler->end();
+		for ( QVFuncList::Iterator it = qt_postselect_handler->begin();
+		      it != end; ++it )
+		    (**it)();
+	    }
+
+#ifdef Q_OS_MACX
+	    if ( nsel == -1 ) {
+		if ( errno == EINTR || errno == EAGAIN ) {
+		    errno = 0;
+		} 
+	    } else if ( nsel > 0 && sn_highest >= 0 ) {
+		qt_event_request_updates();
+		sn_activate();
+	    }
+#else
+//#warning "need to implement sockets on mac9"
+#endif
 	}
 	break;
     case kEventClassMouse:
