@@ -284,16 +284,21 @@ void QShadowFbScreen::setDirty( const QRect& r )
 void QShadowFbScreen::checkUpdate()
 {
     QArray<QRect> rectlist=to_update.rects();
+    QRect screen(0,0,w,h);
     for(unsigned int loopc=0;loopc<rectlist.size();loopc++) {
-	QRect& r=rectlist[loopc];
+	QRect r=rectlist[loopc];
+	r=r.intersect(screen);
 	for(int loopc2=r.top();loopc2<=r.bottom();loopc2++) {
 	    int offset=( ( r.left() * d )/8 );
 	    int width=( ( ( r.right()-r.left() ) +1 ) * d )/8;
-	    offset/=8;
-	    width=(width/8)+1;
-	    double * dest=( (double *) (real_screen + ( lstep*loopc2 ) ) ) 
-			  +offset;
-	    double * src=( (double *) ( data+  ( lstep*loopc2 ) ) ) + offset;
+	    offset/=sizeof(PackType);
+	    width=( width + ( sizeof(PackType) ) ) / sizeof(PackType);
+	    PackType * dest=( ( PackType * ) (real_screen + 
+			    ( lstep*loopc2 ) ) ) + offset;
+	    PackType * src=( ( PackType * ) ( data+  ( lstep*loopc2 ) ) )
+			   + offset;
+	    unsigned int destcheck=(unsigned int)dest;
+	    unsigned int srccheck=(unsigned int)src;
 	    for(int loopc3=0;loopc3<width;loopc3++) {
 		*dest=*src;
 		dest++;
