@@ -1016,6 +1016,9 @@ MakefileGenerator::init()
 	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
     }
 
+    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH"))
+	project->variables()["INCLUDEPATH"].append(project->first("QMAKE_ABSOLUTE_SOURCE_PATH"));
+
     //moc files
     if ( mocAware() ) {
 	if(!project->isEmpty("MOC_DIR"))
