@@ -94,6 +94,7 @@ else
   echo "Generating documentation" >&2
   make -s -C ${QTDIR}/src include
   mkdir -p ${DISTDIR}/qt/doc/html
+  make -s -C ${QTDIR}/extensions/imageio/src include
   make -s -C ${QTDIR}/extensions/opengl/src include
   make -s -C ${QTDIR}/extensions/nsplugin/src include
   mkdir -p ${DISTDIR}/qt/extensions/opengl/html
