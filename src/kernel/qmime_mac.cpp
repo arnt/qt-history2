@@ -23,6 +23,9 @@
 # include "qfileinfo.h"
 # include "qtextstream.h"
 # include "qdir.h"
+# include <sys/types.h>
+# include <sys/stat.h>
+# include <fcntl.h>
 #endif
 
 #include "qstrlist.h"
