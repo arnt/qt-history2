@@ -1,4 +1,4 @@
-<!DOCTYPE TS><TS>
+﻿<!DOCTYPE TS><TS>
 <context>
     <name>Assistant</name>
     <message>
@@ -213,7 +213,7 @@ Skipping file.</source>
     </message>
     <message>
         <source>&amp;Look For:</source>
-        <translation>&amp;Suchen nach:</translation>
+        <translation>Suchen &amp;nach:</translation>
     </message>
     <message>
         <source>Enter keyword</source>
