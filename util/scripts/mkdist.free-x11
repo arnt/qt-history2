@@ -4,5 +4,4 @@
 #
 
 cd ${QTDIR}/util/scripts
-
 ./mkdist.generic free x11 /tmp/qtdist
