@@ -34,6 +34,10 @@ public:
     int contentsWidth() const;
     int contentsHeight() const;
 
+    void open(const QModelIndex &item);
+    void close(const QModelIndex &item);
+    bool isOpen(const QModelIndex &item) const;
+    
 public slots:
     void hideColumn(int column);
 

@@ -2,6 +2,7 @@
 #define QABSTRACTITEMDELEGATE_H
 
 #ifndef QT_H
+#include <qobject.h>
 #include <qpalette.h>
 #include <qgenericitemmodel.h>
 #endif
@@ -45,7 +46,7 @@ public:
 //     Position textPosition;
 };
 
-class Q_GUI_EXPORT QAbstractItemDelegate
+class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
 public:
     QAbstractItemDelegate(QGenericItemModel *model) : m(model) {}

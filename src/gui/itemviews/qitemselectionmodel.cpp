@@ -61,16 +61,6 @@ QModelIndexList QItemSelection::items(QGenericItemModel *model) const
     return items;
 }
 
-bool QItemSelection::operator==(const QItemSelection &other) const
-{
-    if (count() != other.count())
- 	return false;
-    QList<QItemSelectionRange>::const_iterator it = begin();
-    QList<QItemSelectionRange>::const_iterator it2 = other.begin();
-    for (; it != end() && (*it) == (*it2); ++it, ++it2);
-    return (it == end() && it2 == other.end());
-}
-
 static void split(QItemSelectionRange &range, const QItemSelectionRange &other, QItemSelection *result)
 {
     QModelIndex parent = other.parent();

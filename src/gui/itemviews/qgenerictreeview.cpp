@@ -217,9 +217,34 @@ int QGenericTreeView::contentsHeight() const
     return -1; // FIXME: invalid
 }
 
+void QGenericTreeView::open(const QModelIndex &item)
+{
+    int v = verticalScrollBar()->value();
+    int idx = d->viewIndex(item, v);
+    if (idx > -1)
+	d->open(idx);
+}
+
+void QGenericTreeView::close(const QModelIndex &item)
+{
+    int v = verticalScrollBar()->value();
+    int idx = d->viewIndex(item, v);
+    if (idx > -1)
+	d->close(idx);
+}
+
+bool QGenericTreeView::isOpen(const QModelIndex &item) const
+{
+    int v = verticalScrollBar()->value();
+    int idx = d->viewIndex(item, v);
+    if (idx > -1)
+	return d->isOpen(idx);
+    return false;
+}
+
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
-    QRect area = e->rect();
+//    QRect area = e->rect();
     QPainter painter(viewport());
 
     d->left = 0;//qMax(d->header->sectionAt(contentsX()), 0);
@@ -376,7 +401,9 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
 	w -= i;
     }
     int y = d->coordinate(vi, v);
-    int h = d->coordinate(vi + 1, v) - y;
+    QItemOptions options;
+    getViewOptions(&options);
+    int h = itemDelegate()->sizeHint(fontMetrics(), options, d->modelIndex(vi)).height();
     return QRect(x, y, w, h);
 }
 
@@ -753,7 +780,6 @@ int QGenericTreeViewPrivate::coordinate(int item, int value) const
     q->getViewOptions(&options);
     QFontMetrics fontMetrics(q->fontMetrics());
     QAbstractItemDelegate *delegate = q->itemDelegate();
-
     int i = itemAt(value); // first item (may start above the page)
     int ih = delegate->sizeHint(fontMetrics, options, items.at(i).index).height();
     int y = coordinateAt(value, ih); // the part of the item above the page

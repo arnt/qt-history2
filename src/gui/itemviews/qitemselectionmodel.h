@@ -68,10 +68,6 @@ public:
     QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
     void select(const QModelIndex &topLeft, const QModelIndex &bottomRight, const QGenericItemModel *model);
     bool contains(const QModelIndex &item, const QGenericItemModel *model) const;
-
-    bool operator==(const QItemSelection &other) const;
-    inline bool operator!=(const QItemSelection &other) const { return !operator==(other); }
-
     QModelIndexList items(QGenericItemModel *model) const;
 };
 
