@@ -109,6 +109,10 @@ Ferdigstilling:
 
     Tilgang paa scrollbarene i QTableView
 
+    QWidget::raise() og QWidget::lower maa stokke om i lista
+
+    Tabbing bug
+
 
 Gjort:
 ------
@@ -116,3 +120,4 @@ Gjort:
     Moc
 	-p "/usr/include"	path prefix for #include 
 	-i "hurra.h"		#include "hurra.h"
+
