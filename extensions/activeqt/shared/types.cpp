@@ -793,7 +793,10 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const char *type)
                 if (iface) {
                     QObject *qObj = iface->qObject();
                     iface->Release();
-                    qVariantSet(var, qObj, qObj->className());
+                    if (qObj)
+                        qVariantSet(var, qObj, qObj->className());
+                    else
+                        qVariantSet(var, 0, type);
                 } else
 #endif
                 {
