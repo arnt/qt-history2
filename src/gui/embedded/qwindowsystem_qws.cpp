@@ -347,7 +347,7 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
 
 QWSWindow::QWSWindow(int i, QWSClient* client)
         : id(i), modified(false),
-          onTop(false), c(client), last_focus_time(0), d(0)
+          onTop(false), c(client), last_focus_time(0), opacity(255), d(0)
 {
     backingStore = new QWSBackingStore;
 }
