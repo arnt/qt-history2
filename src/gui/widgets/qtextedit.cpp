@@ -377,7 +377,7 @@ void QTextEditPrivate::update(const QRect &contentsRect)
     const QRect visibleRect(xOffset, yOffset, viewport->width(), viewport->height());
 
     QRect r = contentsRect.intersect(visibleRect);
-    if (!r.isValid())
+    if (r.isEmpty())
         return;
 
     r.moveBy(-xOffset, -yOffset);
