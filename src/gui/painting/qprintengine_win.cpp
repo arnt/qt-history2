@@ -14,7 +14,7 @@
 
 #ifndef QT_NO_PRINTER
 
-#include "q4printer_p.h"
+#include "qprinter_p.h"
 #include "qprintengine_win.h"
 #include "qprintengine_win_p.h"
 

@@ -29,7 +29,7 @@
 class QPrinterPrivate;
 class QPaintEngine;
 
-class QPrinter : public QPaintDevice
+class Q_GUI_EXPORT QPrinter : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QPrinter)
 public:

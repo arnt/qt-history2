@@ -18,7 +18,7 @@
 #define QPRINTENGINE_WIN_H
 
 #include "qpaintengine_win.h"
-#include "q4printer.h"
+#include "qprinter.h"
 #include "qprintengine.h"
 
 class QWin32PrintEnginePrivate;

@@ -20,7 +20,7 @@
 class QAbstractPrintDialogPrivate;
 class QPrinter;
 
-class QAbstractPrintDialog : public QDialog
+class Q_GUI_EXPORT QAbstractPrintDialog : public QDialog
 {
     Q_DECLARE_PRIVATE(QAbstractPrintDialog)
 public:

@@ -1037,4 +1037,10 @@ void QPrinter::setMinMax(int minPage, int maxPage)
   \sa collateCopiesEnabled() setCollateCopies() collateCopies()
 */
 
+
 #endif
+
+QPrinter::PrinterState QPrinter::printerState() const
+{
+    return d->printEngine->printerState();
+}

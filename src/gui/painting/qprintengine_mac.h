@@ -15,7 +15,7 @@
 #ifndef QPRINTENGINE_MAC_H
 #define QPRINTENGINE_MAC_H
 
-#include "q4printer.h"
+#include "qprinter.h"
 #include "qprintengine.h"
 
 #include <qpaintengine_mac.h>
