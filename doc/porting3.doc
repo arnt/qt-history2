@@ -168,6 +168,10 @@ All these functions have been removed in Qt 3.x:
 \i QMenuBar::setActItem, QMenuBar::setWindowsAltMode
 \i QCheckListItem::paintBranches
 \i QString::visual, QString::basicDirection
+\i QRegExp::find - has been renamed QRegExp::search
+\i QFont::charSet, QFont::setCharSet
+\i QPushButton::upButton, QPushButton::downButton
+\i QSpinBox::upButton, QPushButton::downButton
 \i QStyle::set...
     ### keep in sync with dist/changes-3.0
 \endlist

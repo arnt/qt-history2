@@ -5,6 +5,7 @@ Below you'll find a description of general changes in the Qt Library
 and Qt Designer followed by a detailed list of changes in the
 programming API.
 
+
 The Qt Library
 ========================================
 
@@ -69,12 +70,14 @@ void QMyStyle::drawPrimitive( PrimitiveElement pe, ... )
 For more information about the new style API, please read the QStyle
 documentation.
 
+
 Qt Designer
 ========================================
 
  - Improved indentation algorithm for the code editor.
  - Allow multiple code editors to be open. This makes copy and paste
    much easier.
+
 
 Qt Functions
 ========================================

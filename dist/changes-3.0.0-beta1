@@ -553,8 +553,6 @@ the tab-focus chain the widget was entered.
 New events: QContextMenuEvent, QIMEvent
 
 
-
-
 QFile
 -----
 
@@ -578,6 +576,7 @@ If you try to specify an invalid file when using getOpenFileName(s), an error me
 will appear and the file will not be accepted.  In 2.x, this function behaved differently
 because users were using getOpenFileName(s) as a Save File Dialog; you should use
 getSaveFileName() when you require a Save File Dialog.	
+
 
 QCanvas Module
 --------------
@@ -1174,11 +1173,20 @@ Obsolete functions
 	QXmlInputSource::QXmlInputSource( QTextStream& stream ), use QXmlInputSource( QIODevice *dev ) instead.
 
 Removed functions:
+	QWidget::setFontPropagation
+	QWidget::setPalettePropagation
+	QMenuBar::setActItem
+	QMenuBar::setWindowsAltMode
+	QCheckListItem::paintBranches
+	QString::visual
+	QString::basicDirection
 	QRegExp::find( const QString& str, int index ) const; - has been renamed QRegExp::search()
 	QFont::charSet() const, not needed anymore
 	QFont::setCharSet( QFont::CharSet ), not needed anymore
-	QPushButton::upButton(), not needed anymore
-	QPushButton::downButton(), not needed anymore
+	QPushButton::upButton(), not relevant anymore
+	QPushButton::downButton(), not relevant anymore
+	QSpinBox::upButton(), not relevant anymore
+	QSpinBox::downButton(), not relevant anymore
 
 
 Removed preprocessor directives

@@ -5,6 +5,7 @@ Below you'll find a description of general changes in the Qt Library
 and Qt Designer followed by a detailed list of changes in the
 programming API.
 
+
 The Qt Library
 ========================================
 
@@ -34,6 +35,7 @@ Wacom Tablet Support
 Fixes for Windows to solve the problem of creating a context for every
 widget and the problem of opening the dialog and losing the ability to use
 the tablet afterwards.
+
 
 Qt Designer
 ========================================
@@ -79,6 +81,7 @@ Qt Designer
    <filename>.ui.h) and related information about project management
    can be found in the chapter about new features in Qt Designer 3.0
    in the Qt Designer manual.
+
 
 Qt Functions
 ========================================
