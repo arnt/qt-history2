@@ -2242,6 +2242,7 @@ PropertyList::PropertyList( PropertyEditor *e )
 {
     init_colors();
 
+    showSorted = FALSE;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     setResizePolicy( QScrollView::Manual );
@@ -2253,6 +2254,8 @@ PropertyList::PropertyList( PropertyEditor *e )
 	     this, SLOT( updateEditorSize() ) );
     disconnect( header(), SIGNAL( sectionClicked( int ) ),
 		this, SLOT( changeSortColumn( int ) ) );
+    connect( header(), SIGNAL( sectionClicked( int ) ),
+	     this, SLOT( toggleSort() ) );
     connect( this, SIGNAL( pressed( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( itemPressed( QListViewItem *, const QPoint &, int ) ) );
     connect( this, SIGNAL( doubleClicked( QListViewItem * ) ),
@@ -2263,6 +2266,14 @@ PropertyList::PropertyList( PropertyEditor *e )
     setColumnWidthMode( 1, Manual );
     mousePressed = FALSE;
     pressItem = 0;
+    header()->installEventFilter( this );
+}
+
+void PropertyList::toggleSort()
+{
+    showSorted = !showSorted;
+    editor->clear();
+    editor->setup();
 }
 
 void PropertyList::resizeEvent( QResizeEvent *e )
@@ -2361,6 +2372,8 @@ void PropertyList::setupProperties()
 	return;
     bool allProperties = !editor->widget()->inherits( "Spacer" );
     QStrList lst = editor->widget()->metaObject()->propertyNames( allProperties );
+    if ( showSorted )
+	lst.sort();
     PropertyItem *item = 0;
     QMap<QString, bool> unique;
     QObject *w = editor->widget();
@@ -2730,11 +2743,9 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    QApplication::sendEvent( o, &ke2 );
 	    return TRUE;
 	}
-    }
-    else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
+    } else if ( e->type() == QEvent::FocusOut && o->inherits( "QLineEdit" ) ) {
 	QTimer::singleShot( 100, editor->formWindow()->commandHistory(), SLOT( checkCompressedCommand() ) );
-    }
-    else if ( o == viewport() ) {
+    } else if ( o == viewport() ) {
 	QMouseEvent *me;
 	PropertyListItem* i;
 	switch ( e->type() ) {
@@ -2783,6 +2794,33 @@ bool PropertyList::eventFilter( QObject *o, QEvent *e )
 	    break;
 	default:
 	    break;
+	}
+    } else if ( o == header() ) {
+	if ( e->type() == QEvent::ContextMenu ) {
+	    QPopupMenu menu( 0 );
+	    menu.setCheckable( TRUE );
+	    const int cat_id = 1;
+	    const int alpha_id = 2;
+	    int cat = menu.insertItem( tr( "Sort &Categorized" ), cat_id );
+	    int alpha = menu.insertItem( tr( "Sort &Alphabetically" ), alpha_id );
+	    if ( showSorted )
+		menu.setItemChecked( alpha_id, TRUE );
+	    else
+		menu.setItemChecked( cat_id, TRUE );
+	    int res = menu.exec( ( (QContextMenuEvent*)e )->globalPos() );
+	    if ( res != -1 ) {
+		bool newShowSorted;
+		if ( res == cat )
+		    newShowSorted = FALSE;
+		else if ( res == alpha )
+		    newShowSorted = TRUE;
+		if ( showSorted != newShowSorted ) {
+		    showSorted = newShowSorted;
+		    editor->clear();
+		    editor->setup();
+		}
+	    }
+	    return TRUE;
 	}
     }
 

@@ -488,6 +488,7 @@ public:
 public slots:
     void updateEditorSize();
     void resetProperty();
+    void toggleSort();
 
 private slots:
     void itemPressed( QListViewItem *i, const QPoint &p, int c );
@@ -510,6 +511,7 @@ private:
     PropertyListItem* pressItem;
     QPoint pressPos;
     bool mousePressed;
+    bool showSorted;
 
 };
 
