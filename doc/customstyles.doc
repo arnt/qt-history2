@@ -312,10 +312,10 @@ the following argument:
 \endcode
 
 The application should appear with the look & feel from the custom
-style you implemented. If not, please flame mark@trolltech.com (this
-is a test to check if you actually read the crap I write :).
+style you implemented. 
 
-You can use a similar .pro file to compile your style as a plug-in:
+You can use a .pro file similar to the one below to compile your style
+as a plug-in:
 
 \code
 TEMPLATE	= lib
