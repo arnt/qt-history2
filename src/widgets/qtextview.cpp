@@ -698,6 +698,7 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 
     lastFormatted = cursor->parag();
     drawCursor( FALSE );
+    bool doUpdateCurrentFormat = TRUE;
 
     switch ( action ) {
     case ActionDelete:
@@ -745,7 +746,7 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	}
 	lastFormatted = cursor->parag();
 	break;
-    case ActionReturn:
+    case ActionReturn: {
 	checkUndoRedoInfo( UndoRedoInfo::Return );
 	if ( !undoRedoInfo.valid() ) {
 	    undoRedoInfo.id = cursor->parag()->paragId();
@@ -756,7 +757,8 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	cursor->splitAndInsertEmptyParag();
 	if ( cursor->parag()->prev() )
 	    lastFormatted = cursor->parag()->prev();
-	break;
+	doUpdateCurrentFormat = FALSE;
+    } break;
     case ActionKill:
 	checkUndoRedoInfo( UndoRedoInfo::Delete );
 	if ( !undoRedoInfo.valid() ) {
@@ -799,7 +801,8 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 			   cursor->y() + cursor->parag()->rect().y() - contentsY() + frameWidth(), 0, h, TRUE, &f );
     }
 
-    updateCurrentFormat();
+    if ( doUpdateCurrentFormat )
+	updateCurrentFormat();
     emit textChanged();
 }
 
