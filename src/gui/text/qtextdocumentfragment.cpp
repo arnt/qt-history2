@@ -425,6 +425,7 @@ void QTextHTMLImporter::import()
             Table t;
             t.tableIndex = d->formatCollection.createObjectIndex(fmt);
             tables.append(t);
+            scanTable(i, &tables[tables.size() - 1]);
             hasBlock = false;
         } else if (node->isTableCell) {
             Q_ASSERT(!tables.isEmpty());
@@ -531,20 +532,16 @@ void QTextHTMLImporter::closeTag(int i)
             Q_ASSERT(!tables.isEmpty());
 
             Table &t = tables[tables.size() -1];
-            QTextTableFormat fmt = d->formatCollection.objectFormat(t.tableIndex).toTableFormat();
-            fmt.setColumns(qMax(fmt.columns(), t.currentColumnCount));
-            d->formatCollection.setObjectFormat(t.tableIndex, fmt);
-            t.currentColumnCount = 0;
 
-            // ################### Fix table columns!
-#if 0
-            Q_ASSERT(!tableIndices.isEmpty());
             QTextCharFormat charFmt;
-            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
-            QTextBlockFormat fmt;
-            appendBlock(fmt, charFmt);
-#endif
-            ;
+            charFmt.setObjectIndex(t.tableIndex);
+
+            while (t.currentColumnCount < t.columns) {
+                appendBlock(QTextBlockFormat(), charFmt, QTextBeginningOfFrame);
+                ++t.currentColumnCount;
+            }
+
+            t.currentColumnCount = 0;
         } else if (closedNode->tag == QLatin1String("table")) {
             Q_ASSERT(!tables.isEmpty());
             QTextCharFormat charFmt;
@@ -563,6 +560,26 @@ void QTextHTMLImporter::closeTag(int i)
         closedNode = &at(closedNode->parent);
         --depth;
     }
+}
+
+void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
+{
+    table->columns = 0;
+    foreach (int row, at(tableNodeIdx).children) {
+        if (at(row).tag == QLatin1String("tr")) {
+
+            int colsInRow = 0;
+            foreach (int cell, at(row).children)
+                if (at(cell).isTableCell)
+                    ++colsInRow;
+
+            table->columns = qMax(table->columns, colsInRow);
+        }
+    }
+
+    QTextTableFormat fmt = d->formatCollection.objectFormat(table->tableIndex).toTableFormat();
+    fmt.setColumns(table->columns);
+    d->formatCollection.setObjectFormat(table->tableIndex, fmt);
 }
 
 void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt, const QChar &separator)

@@ -104,6 +104,7 @@ inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate
 
 class QTextHTMLImporter : public QTextHtmlParser
 {
+    struct Table;
 public:
     QTextHTMLImporter(QTextDocumentFragmentPrivate *d, const QString &html);
 
@@ -111,6 +112,8 @@ public:
 
 private:
     void closeTag(int i);
+
+    void scanTable(int tableNodeIdx, Table *table);
 
     void appendBlock(const QTextBlockFormat &format, const QTextCharFormat &charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
     void appendText(const QString &text, const QTextFormat &format);
@@ -126,6 +129,7 @@ private:
         Table() : tableIndex(-1), currentColumnCount(0) {}
         int tableIndex; // objectIndex
         int currentColumnCount;
+        int columns;
     };
     QVarLengthArray<Table> tables;
 };
