@@ -27,11 +27,11 @@
     \section1 Porting Rules
 
     The Qt porting tool loads its porting rules from an XML file
-    called \c rules.xml located in Qt's \c tools/qt3to4 directory. By
-    editing this file, you can add your own rules or remove some
+    called \c q3porting.xml located in Qt's \c tools/porting/src directory. 
+    By editing this file, you can add your own rules or remove some
     rules.
 
-    The standard \c rules.xml file specifies the following
+    The standard \c q3porting.xml file specifies the following
     conversions:
 
     \list
@@ -79,6 +79,6 @@
     \o  \e{Porting of designer \c .ui files is incomplete and might require
 	some manual work.}
 
-    \o  \e{The \c rules.xml file isn't complete.}
+    \o  \e{The \c q3porting.xml file isn't complete.}
     \endlist
 */
