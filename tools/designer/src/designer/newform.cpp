@@ -107,7 +107,6 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
         f.close();
 
         widget->ensurePolished();
-        qApp->processEvents();
 
         QPixmap pix = QPixmap::grabWidget(widget);
         QImage image = pix.toImage();
@@ -123,19 +122,25 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
 
 void NewForm::loadFrom(const QString &path)
 {
-    if (!QFile::exists(path))
-        return;
-    // Iterate through the directory and add the templates
     QDir dir(path);
+
+    if (!dir.exists())
+        return;
+
+    // Iterate through the directory and add the templates
     QFileInfoList list = dir.entryInfoList(QDir::Files);
+
     if (list.isEmpty())
         return;
 
     QTreeWidgetItem *root = new QTreeWidgetItem(ui.treeWidget);
     root->setText(0, path);
-    QTreeWidgetItem *item;
+
     foreach(QFileInfo fi, list) {
-        item = new QTreeWidgetItem(root);
+        if (!fi.isFile())
+            continue;
+
+        QTreeWidgetItem *item = new QTreeWidgetItem(root);
         item->setText(0, fi.baseName());
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());
         item->setIcon(0, formPreviewIcon(fi.absoluteFilePath()));
