@@ -335,20 +335,29 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
             for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it)
                 t << "\n\t-$(DEL_FILE) " << (*it);
         } else {
-            int statements = 0;
+            QStringList cleans;
             QString del_statement;
+            int del_size = 0;
             for(QStringList::ConstIterator it = list.begin(); it != list.end(); ++it) {
-                if(del_statement.isNull())
+                if(del_statement.isEmpty()) {
                     del_statement = "\n\t-$(DEL_FILE)";
-                del_statement += " " + (*it);
-                ++statements;
-                if(!(statements % 40)) {
-                    t << del_statement;
-                    statements = 0;
+                    del_size = del_statement.size();
+                }
+                QString next_statement = " " + (*it);
+
+                int next_size = next_statement.size();
+                if(del_size+next_size > 2047) { // NT limit
+                    cleans.append(del_statement);
+                    del_statement = "\n\t-$(DEL_FILE)" + next_statement;
+                    del_size = del_statement.size();
+                } else {
+                    del_statement += next_statement;
+                    del_size += next_size;
                 }
             }
-            if(statements)
-                t << del_statement;
+            if(!del_statement.isEmpty())
+                cleans.append(del_statement);
+            t << cleans.join("");
         }
     }
     t << endl << endl;
