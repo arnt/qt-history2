@@ -82,6 +82,7 @@ void I18nDemo::initMenuBar()
     newMenu->insertItem("&English", 0);
     newMenu->insertItem("&Japanese", 1);
     newMenu->insertItem("&Korean", 2);
+    newMenu->insertItem("&Norwegian", 3);
 
     windowMenu = new QPopupMenu(this);
     connect(windowMenu, SIGNAL(activated(int)), SLOT(windowSlot(int)));
@@ -108,6 +109,7 @@ void I18nDemo::newSlot(int id)
     case 0: qmfile = "i18n/en.qm"; break;
     case 1: qmfile = "i18n/ja.qm"; break;
     case 2: qmfile = "i18n/ko.qm"; break;
+    case 3: qmfile = "i18n/no.qm"; break;
     }
 
     if (lastwrapper) {
