@@ -793,6 +793,9 @@
         will be modal with respect to the other windows in the group,
         but modeless with respect to windows in other groups.
 
+    \value WA_KeyboardFocusChange Set on a toplevel window when 
+        the users changes focus with the keyboard (tab, backtab, or shortcut).
+
     \value WA_InputMethodEnabled
     \value WA_MacNoClickThrough
     \value WA_MouseNoMask
