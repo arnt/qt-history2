@@ -33,6 +33,9 @@ public:
     void saveAs();
     void print( QPrinter* );
 
+protected:
+    void closeEvent( QCloseEvent * );
+
 signals:
     void message(const QString&, int );
 
@@ -49,6 +52,9 @@ class ApplicationWindow: public QMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
+
+protected:
+    void closeEvent( QCloseEvent * );
 
 private slots:
     MDIWindow* newDoc();

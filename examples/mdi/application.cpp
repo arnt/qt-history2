@@ -268,6 +268,21 @@ void ApplicationWindow::tileHorizontal()
     }
 }
 
+void ApplicationWindow::closeEvent( QCloseEvent *e )
+{
+    QWidgetList windows = ws->windowList();
+    if ( windows.count() ) {
+	for ( int i = 0; i < int(windows.count()); ++i ) {
+	    QWidget *window = windows.at( i );
+	    if ( !window->close() ) {
+		e->ignore();
+		return;
+	    }
+	}
+    }
+
+    QMainWindow::closeEvent( e );
+}
 
 MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
     : QMainWindow( parent, name, wflags )
@@ -283,6 +298,32 @@ MDIWindow::~MDIWindow()
     delete mmovie;
 }
 
+void MDIWindow::closeEvent( QCloseEvent *e )
+{
+    if ( medit->isModified() ) {
+	switch( QMessageBox::warning( this, "Save Changes", 
+	    tr("Save changes to %1?").arg( caption() ),
+	    tr("Yes"), tr("No"), tr("Cancel") ) ) {
+	case 0:
+	    {
+		save();
+		if ( !filename.isEmpty() )
+		    e->accept();
+		else
+		    e->ignore();
+	    }
+	    break;
+	case 1:
+	    e->accept();
+	    break;
+	default:
+	    e->ignore();
+	    break;
+	}
+    } else {
+	e->accept();
+    }
+}
 
 void MDIWindow::load( const QString& fn )
 {
