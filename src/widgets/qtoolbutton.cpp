@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#52 $
 **
 ** Implementation of QToolButton class
 **
@@ -83,6 +83,7 @@ void QToolButton::init()
     ubp = TRUE;
 
     s = 0;
+    son = 0;
 
     setBackgroundMode( PaletteButton);
 }
@@ -339,7 +340,7 @@ void QToolButton::toggle()
 
 void QToolButton::drawButton( QPainter * p )
 {
-    if ( uses3D() || isOn() ) {
+    if ( uses3D() || (isOn()&&!son) ) {
 #if 0	
 	QPointArray a;
 	a.setPoints( 3, 0, height()-1, 0, 0, width()-1, 0 );
@@ -366,7 +367,7 @@ void QToolButton::drawButton( QPainter * p )
 		   : colorGroup().dark() );
 	p->drawPolyline( a );
 #else
-	style().drawBevelButton( p, 0, 0, width(), height(), colorGroup(), isOn()||isDown(),
+	style().drawBevelButton( p, 0, 0, width(), height(), colorGroup(), (isOn()&&!son)||isDown(),
 				&colorGroup().brush( QColorGroup::Button ) );
 #endif	
     }
@@ -392,7 +393,7 @@ void QToolButton::drawButtonLabel( QPainter * p )
 {
     int sx = 0;
     int sy = 0;
-    if (isDown() || isOn() )
+    if (isDown() || (isOn()&&!son) )
 	style().getButtonShift(sx, sy);
     if ( !text().isNull() ) {
 	
@@ -405,18 +406,18 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	QPixmap pm;
 	if ( usesBigPixmap() ) {
 	    if ( !isEnabled() )
-		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Disabled );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Disabled );
 	    else if ( uses3D() )
-		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Active );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Active );
 	    else
-		pm = iconSet().pixmap( QIconSet::Large, QIconSet::Normal );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Large, QIconSet::Normal );
 	} else {
 	    if ( !isEnabled() )
-		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Disabled );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Disabled );
 	    else if ( uses3D() )
-		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Active );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Active );
 	    else
-		pm = iconSet().pixmap( QIconSet::Small, QIconSet::Normal );
+		pm = iconSet( isOn() ).pixmap( QIconSet::Small, QIconSet::Normal );
 	}
 
 	if ( usesTextLabel() ) {
@@ -492,33 +493,48 @@ void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 
 /*!  Sets this tool button to display the icons in \a set.
   (setPixmap() is effectively a wrapper for this function.)
-
+  
+  For toggle buttons it is possible to set an extra icon set with \a
+  on equals TRUE, which will be used exclusively for the on-state.
+  
   QToolButton makes a copy of \a set, so you must delete \a set
   yourself.
 
-  \sa iconSet() QIconSet
+  \sa iconSet() QIconSet, setToggleButton(), isOn()
 */
 
-void QToolButton::setIconSet( const QIconSet & set )
+void QToolButton::setIconSet( const QIconSet & set, bool on )
 {
-    if ( s )
-	delete s;
-    s = new QIconSet( set );
+    if ( !on ) {
+	if ( s )
+	    delete s;
+	s = new QIconSet( set );
+    } else {
+	if ( son )
+	    delete son;
+	son = new QIconSet( set );
+    }
 }
 
 
 /*!  Returns a copy of the icon set in use.  If no icon set has been
-  set, iconSeT() creates one from the pixmap().
+  set, iconSet() creates one from the pixmap().
 
   If the button doesn't have a pixmap either, iconSet()'s return value
   is meaningless.
+  
+  If \a on equals TRUE, the special icon set for the on-state of the
+  button is returned.
 
   \sa setIconSet() QIconSet
 */
 
-QIconSet QToolButton::iconSet() const
+QIconSet QToolButton::iconSet( bool on ) const
 {
     QToolButton * that = (QToolButton *)this;
+    
+    if ( on && that->son )
+	return *that->son;
 
     if ( pixmap() && (!that->s || (that->s->pixmap().serialNumber() !=
 				   pixmap()->serialNumber())) )
