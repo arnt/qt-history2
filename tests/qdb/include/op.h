@@ -824,8 +824,8 @@ class CreateIndex : public Op
 {
 public:
     CreateIndex( const QVariant& id,
-		 const QVariant& unique )
-	: Op( id, unique ) {}
+		 bool unique )
+	: Op( id, QVariant( unique, 1 ) ) {}
     QString name() const { return "createindex"; }
     int exec( localsql::Environment* env )
     {

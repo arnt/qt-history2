@@ -1365,7 +1365,7 @@ void Parser::matchCreateStatement()
 	    ++col;
 	}
 	yyProg->append( new MakeList(columns.count()) );
-	yyProg->append( new CreateIndex(tableId, (int) unique) );
+	yyProg->append( new CreateIndex(tableId, unique) );
 	break;
     case Tok_table:
 	yyTok = getToken();
