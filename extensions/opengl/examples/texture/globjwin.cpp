@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/texture/globjwin.cpp#1 $
+** $Id: //depot/qt/main/extensions/opengl/examples/texture/globjwin.cpp#2 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -31,7 +31,7 @@ GLObjectWindow::GLObjectWindow( QWidget* parent, const char* name )
     GLTexobj* c = new GLTexobj( f1, "glbox1");
 
     // Create a menu
-    QPopupMenu *file = new QPopupMenu();
+    QPopupMenu *file = new QPopupMenu( this );
     file->insertItem( "Toggle Animation", c, SLOT(toggleAnimation()),
 		      CTRL+Key_A );
     file->insertSeparator();

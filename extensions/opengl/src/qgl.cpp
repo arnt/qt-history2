@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#38 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#39 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1021,7 +1021,7 @@ int QGLContext::choosePixelFormat( void *pfd, HDC pdc )
 	p->dwFlags |= PFD_DRAW_TO_BITMAP;
     else
 	p->dwFlags |= PFD_DRAW_TO_WINDOW;
-    if ( glFormat.doubleBuffer() )
+    if ( glFormat.doubleBuffer() && !deviceIsPixmap() )
 	p->dwFlags |= PFD_DOUBLEBUFFER;
     if ( glFormat.stereo() )
 	p->dwFlags |= PFD_STEREO;

@@ -24,9 +24,11 @@ int main( int argc, char **argv )
 	return -1;
     }
     
-    GLObjectWindow w;
-    w.resize( 400, 350 );
-    a.setMainWidget( &w );
-    w.show();
-    return a.exec();
+    GLObjectWindow* w = new GLObjectWindow;
+    w->resize( 400, 350 );
+    a.setMainWidget( w );
+    w->show();
+    int result = a.exec();
+    delete w;
+    return result;
 }

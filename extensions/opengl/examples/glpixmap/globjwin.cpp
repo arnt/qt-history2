@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#3 $
+** $Id: //depot/qt/main/extensions/opengl/examples/glpixmap/globjwin.cpp#4 $
 **
 ** Implementation of GLObjectWindow widget class
 **
@@ -162,11 +162,8 @@ void GLObjectWindow::makePixmapManually()
 
 void GLObjectWindow::makePixmapHidden()
 {
-    // Make a gl format suitable for pixmap rendering 
-    QGLFormat fmt( QGL::SingleBuffer | QGL::IndirectRendering );
-
     // Make a QGLWidget to draw the pixmap. This widget will not be shown.
-    GLBox* w = new GLBox( fmt, this, "temporary glwidget", c1 );
+    GLBox* w = new GLBox( this, "temporary glwidget", c1 );
 
     bool success = FALSE;
     QPixmap pm;
