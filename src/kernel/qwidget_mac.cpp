@@ -186,8 +186,8 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
     setMouseTracking( FALSE );                  // also sets event mask
     clearWState(WState_Visible);
     dirtyClippedRegion(TRUE);
+    macDropEnabled = false;
 }
-
 
 void qt_mac_destroy_widget(QWidget *w);
 
@@ -932,6 +932,7 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     font().handle(); // force QFont::load call
+    extra->macDndExtra = 0;
 }
 
 void QWidget::deleteSysExtra()
@@ -946,14 +947,33 @@ void QWidget::deleteTLSysExtra()
 {
 }
 
-
 bool QWidget::acceptDrops() const
 {
-    return false;
+    return macDropEnabled;
 }
 
-void QWidget::setAcceptDrops( bool )
+void qt_macdnd_unregister( QWidget *widget, QWExtra *extra ); //dnd_mac
+void qt_macdnd_register( QWidget *widget, QWExtra *extra ); //dnd_mac
+
+void QWidget::setAcceptDrops( bool on )
 {
+    // Enablement is defined by extra->dropTarget != 0.
+
+    if ( (on && macDropEnabled) || (!on && !macDropEnabled) )
+	return;
+
+    if ( on ) {
+	// Turn on.
+	topLevelWidget()->createExtra();
+	QWExtra *extra = topLevelWidget()->extraData();
+	qt_macdnd_register( this, extra );
+	macDropEnabled = true;
+    } else {
+	// Turn off.
+	macDropEnabled = false;
+	QWExtra *extra = topLevelWidget()->extraData();
+	qt_macdnd_unregister( this, extra );
+    }
 }
 
 void QWidget::setMask( const QRegion &region )

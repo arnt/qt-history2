@@ -416,6 +416,7 @@ public:
 #endif
 #if defined(Q_WS_MAC)
     QRegion clippedRegion();
+    bool macDropEnabled;
 #endif
 
 protected:
@@ -817,6 +818,9 @@ class QWSManager;
 #if defined(Q_WS_WIN)
 class QOleDropTarget;
 #endif
+#if defined(Q_WS_MAC)
+class QMacDndExtra;
+#endif
 
 struct QTLWExtra {
     QString  caption;				// widget caption
@@ -867,6 +871,9 @@ struct QWExtra {
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy;			// XDND forwarding to embedded windows
+#endif
+#if defined(Q_WS_MAC)
+    QMacDndExtra *macDndExtra;
 #endif
 #if defined(Q_WS_QWS) || defined(Q_WS_MAC)
     QRegion mask;				// widget mask
