@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #include "private/qppmhandler_p.h"
-
 #include <qimage.h>
 #include <qvariant.h>
+#include <ctype.h>
 
 /*****************************************************************************
   PBM/PGM/PPM (ASCII and RAW) image read/write functions
