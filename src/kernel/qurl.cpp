@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#28 $
 **
 ** Implementation of QFileDialog class
 **
@@ -600,12 +600,12 @@ void QUrl::parse( const QString& url )
     d->isValid = TRUE;
     QString oldProtocol = d->protocol;
     d->protocol = QString::null;
-    
+
     const int Init 	= 0;
     const int Protocol 	= 1;
     const int Separator1= 2; // :
     const int Separator2= 3; // :/
-    const int Separator3= 4; // ://
+    const int Separator3= 4; // :// or more slashes
     const int User 	= 5;
     const int Pass 	= 6;
     const int Host 	= 7;
@@ -614,7 +614,7 @@ void QUrl::parse( const QString& url )
     const int Query 	= 10;
     const int Port 	= 11;
     const int Done 	= 12;
-    
+
     const int InputAlpha= 1;
     const int InputDigit= 2;
     const int InputSlash= 3;
@@ -622,7 +622,7 @@ void QUrl::parse( const QString& url )
     const int InputAt 	= 5;
     const int InputHash = 6;
     const int InputQuery= 7;
-    
+
     static uchar table[ 12 ][ 8 ] = {
      /* None       InputAlpha  InputDigit  InputSlash  InputColon  InputAt     InputHash   InputQuery */ 	
 	{ 0,       Protocol,   0,          Path,       0,          0,          0,          0,         }, // Init
@@ -639,15 +639,15 @@ void QUrl::parse( const QString& url )
 	{ 0,       0,          Port,       Path,       0,          0,          0,          0,         }  // Port
 	
     };
-    
+
     int state = Init; // parse state
     int input; // input token
     bool hasAt = url.find( "@" ) != -1;
-    
+
     QString buffer;
     QChar c = url[ 0 ];
     int i = 0;
-    
+
     while ( TRUE ) {
 	
 	switch ( c ) {
@@ -673,7 +673,7 @@ void QUrl::parse( const QString& url )
 	default:
 	    input = InputAlpha;
 	}
-    
+
     	state = table[ state ][ input ];
 
 	// #### hack: don't know how to make this better...
@@ -718,9 +718,9 @@ void QUrl::parse( const QString& url )
 	default:
 	    break;
 	}
-    
+
 	++i;
-	if ( i > (int)url.length() - 1 || state == Done )
+	if ( i > (int)url.length() - 1 || state == Done || state == 0 )
 	    break;
 	c = url[ i ];
 	
@@ -736,7 +736,7 @@ void QUrl::parse( const QString& url )
 	
     if ( d->protocol.isEmpty() )
 	d->protocol = oldProtocol;
-    
+
     if ( d->path.isEmpty() )
 	d->path = "/";
 
@@ -757,7 +757,7 @@ void QUrl::parse( const QString& url )
 	d->host.remove( 0, 1 );
 
     decode( d->path );
-    
+
     if ( d->networkProtocol )
  	delete d->networkProtocol;
     if ( d->port == -1 ) {
@@ -779,10 +779,10 @@ void QUrl::parse( const QString& url )
     qDebug( "query: %s", d->queryEncoded.latin1() );
     qDebug( "port: %d\n", d->port );
 #endif
-    
+
 
 // ------------------------- OLD STUFF ---------
-#if 0    
+#if 0
     QString port;
     int start = 0;
     uint len = url.length();
