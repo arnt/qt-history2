@@ -390,25 +390,14 @@ QString QTextDocumentFragment::toPlainText() const
 }
 
 /*!
-  Converts the fragment to an binary format.
-
-  \sa fromBinary
-*/
-QByteArray QTextDocumentFragment::toBinary() const
-{
-    QByteArray result;
-    QDataStream stream(&result, IO_WriteOnly);
-    save(stream);
-    return result;
-}
-
-/*!
   Saves the fragment to a QDataStream.
 */
-void QTextDocumentFragment::save(QDataStream &stream) const
+QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragment &fragment)
 {
-    if (!d)
-        return;
+    if (!fragment.d)
+        return stream;
+
+    const QTextDocumentFragmentPrivate *d = fragment.d;
 
     stream << d->formatCollectionState();
 
@@ -424,17 +413,15 @@ void QTextDocumentFragment::save(QDataStream &stream) const
             stream << QString::fromRawData(d->localBuffer.constData() + fragment.position, fragment.size);
         }
     }
+
+    return stream;
 }
 
 /*!
   Converts a fragment in XML format back to a QTextDocumentFragment.
 */
-QTextDocumentFragment QTextDocumentFragment::fromBinary(const QByteArray &data)
+QDataStream &operator>>(QDataStream &stream, QTextDocumentFragment &fragment)
 {
-    QTextDocumentFragment res;
-
-    QDataStream stream(data, IO_ReadOnly);
-
     QTextDocumentFragmentPrivate *d = new QTextDocumentFragmentPrivate;
 
     QTextFormatCollectionState collState;
@@ -464,8 +451,9 @@ QTextDocumentFragment QTextDocumentFragment::fromBinary(const QByteArray &data)
         }
     }
 
-    res.d = d;
-    return res;
+    delete fragment.d;
+    fragment.d = d;
+    return stream;
 }
 
 /*!

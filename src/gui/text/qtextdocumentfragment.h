@@ -7,11 +7,13 @@ class QTextStream;
 class QTextDocument;
 class QTextDocumentFragmentPrivate;
 class QTextCursor;
-class QByteArray;
+class QDataStream;
 
 class Q_GUI_EXPORT QTextDocumentFragment
 {
     friend class QTextCursor;
+    friend QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
+    friend QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
 public:
     QTextDocumentFragment();
     QTextDocumentFragment(QTextDocument *document);
@@ -24,10 +26,6 @@ public:
 
     QString toPlainText() const;
 
-    QByteArray toBinary() const;
-
-    void save(QDataStream &stream) const;
-    static QTextDocumentFragment fromBinary(const QByteArray &data);
     static QTextDocumentFragment fromPlainText(const QString &plainText);
     static QTextDocumentFragment fromHTML(const QString &html);
     static QTextDocumentFragment fromHTML(const QByteArray &html);
@@ -35,5 +33,8 @@ public:
 private:
     QTextDocumentFragmentPrivate *d;
 };
+
+QDataStream &operator<<(QDataStream &, const QTextDocumentFragment &fragment);
+QDataStream &operator>>(QDataStream &, QTextDocumentFragment &fragment);
 
 #endif // QTEXTDOCUMENTFRAGMENT_H
