@@ -62,23 +62,22 @@ public:
     static QString scriptName(QFont::Script);
     static QString scriptSample(QFont::Script);
 
-    // For source compatibility with < 3.0
 #ifdef QT_COMPAT
-    QT_COMPAT QStringList families(bool) const;
-    QT_COMPAT QStringList styles(const QString &, const QString &) const;
-    QT_COMPAT QList<int> pointSizes(const QString &, const QString &, const QString &);
-    QT_COMPAT QList<int> smoothSizes(const QString &, const QString &, const QString &);
+    inline QT_COMPAT QStringList families(bool) const;
+    inline QT_COMPAT QStringList styles(const QString &, const QString &) const;
+    inline QT_COMPAT QList<int> pointSizes(const QString &, const QString &, const QString &);
+    inline QT_COMPAT QList<int> smoothSizes(const QString &, const QString &, const QString &);
 
-    QT_COMPAT QFont font(const QString &, const QString &, int, const QString &);
+    inline QT_COMPAT QFont font(const QString &, const QString &, int, const QString &);
 
-    QT_COMPAT bool isBitmapScalable(const QString &, const QString &, const QString &) const;
-    QT_COMPAT bool isSmoothlyScalable(const QString &, const QString &, const QString &) const;
-    QT_COMPAT bool isScalable(const QString &, const QString &, const QString &) const;
-    QT_COMPAT bool isFixedPitch(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool isBitmapScalable(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool isSmoothlyScalable(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool isScalable(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool isFixedPitch(const QString &, const QString &, const QString &) const;
 
-    QT_COMPAT bool italic(const QString &, const QString &, const QString &) const;
-    QT_COMPAT bool bold(const QString &, const QString &, const QString &) const;
-    QT_COMPAT int weight(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool italic(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT bool bold(const QString &, const QString &, const QString &) const;
+    inline QT_COMPAT int weight(const QString &, const QString &, const QString &) const;
 #endif // QT_COMPAT
 
 private:

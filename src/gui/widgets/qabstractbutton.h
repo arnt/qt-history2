@@ -104,7 +104,7 @@ public:
     inline QT_COMPAT QPixmap *pixmap() const { return 0; } // help styles compile
     inline QT_COMPAT void setPixmap( const QPixmap &p ) { setIcon(QIconSet(p)); }
     QT_COMPAT QIconSet *iconSet() const;
-    inline QT_COMPAT void setIconSet(const QIconSet &icon){ setIcon(icon); }
+    inline QT_COMPAT void setIconSet(const QIconSet &icon) { setIcon(icon); }
 public slots:
     inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 public:

@@ -48,8 +48,7 @@
   used. The big difference is that you must keep track of the pages.
 
   QPrinter supports a number of settable parameters, most of which
-  can be changed by the end user when the application calls
-  QPrinter::setup().
+  can be changed by the end user through a QPrintDialog.
 
   The most important parameters are:
   \list
@@ -100,7 +99,7 @@
   \endlist
 
   You can of course call these functions to establish defaults
-  before you ask the user through QPrinter::setup().
+  before you ask the user through QPrintDialog.
 
   Once you start printing, calling newPage() is essential. You will
   probably also need to look at the QPaintDeviceMetrics for the
@@ -553,7 +552,7 @@ QPrinter::Orientation QPrinter::orientation() const
 
   The printer driver reads this setting and prints using the
   specified orientation. On Windows this setting won't take effect
-  until the printer dialog is shown (using QPrinter::setup()).
+  until the printer dialog is shown (using QPrintDialog).
 
   Windows only: This option can be changed while printing and will
   take effect from the next call to newPage().
@@ -1158,9 +1157,70 @@ QPrinter::PrinterState QPrinter::printerState() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    \compat
+
+    Use QPrintDialog instead.
+
+    \oldcode
+        if (printer->setup(parent))
+            ...
+    \newcode
+        QPrintDialog dialog(printer, parent);
+        if (dialog.exec())
+            ...
+    \endcode
+*/
 bool QPrinter::setup(QWidget *parent)
 {
     QPrintDialog dlg(this, parent);
     return dlg.exec();
 }
 #endif
+
+/*! \fn void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
+
+    Sets *\a top, *\a left, *\a bottom, *\a right to be the top,
+    left, bottom, and right margins.
+
+    This function has been superceded by paperRect() and pageRect().
+    Use pageRect().top() - paperRect().top() for the top margin,
+    pageRect().left() - paperRect().left() for the left margin,
+    pageRect().bottom() - paperRect().bottom() for the bottom margin,
+    and pageRect().right() - paperRect().right() for the right
+    margin.
+
+    \oldcode
+        uint rightMargin;
+        uint bottomMargin;
+        printer->margins(0, 0, &bottomMargin, &rightMargin);
+    \newcode
+        int rightMargin = printer->pageRect().right() - printer->paperRect().right();
+        int bottomMargin = printer->pageRect().bottom() - printer->paperRect().bottom();
+    \endcode
+*/
+
+/*! \fn QSize QPrinter::margins() const
+
+    \overload
+
+    Returns a QSize containing the left margin and the top margin.
+
+    This function has been superceded by paperRect() and pageRect().
+    Use pageRect().left() - paperRect().left() for the left margin,
+    and pageRect().top() - paperRect().top() for the top margin.
+
+    \oldcode
+        QSize margins = printer->margins();
+        int leftMargin = margins.width();
+        int topMargin = margins.height();
+    \newcode
+        int leftMargin = printer->pageRect().left() - printer->paperRect().left();
+        int topMargin = printer->pageRect().top() - printer->paperRect().top();
+    \endcode
+*/
+
+/*! \fn bool QPrinter::aborted()
+
+    Use printerState() == QPrinter::Aborted instead.
+*/

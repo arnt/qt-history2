@@ -2414,4 +2414,99 @@ void QFontDatabase::createDatabase()
     initializeDb();
 }
 
+/*! \fn QStringList QFontDatabase::families(bool onlyForLocale) const
+
+    The \a onlyForLocale parameter is deprecated since Qt 3.0.
+
+    Use the other families() function instead.
+*/
+
+/*! \fn QStringList QFontDatabase::styles(const QString &family, const QString &charSet) const
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other styles() function instead.
+*/
+
+/*! \fn QList<int> QFontDatabase::pointSizes(const QString &family, const QString &style, const QString &charSet)
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other pointSizes() function instead.
+*/
+
+/*! \fn QList<int> QFontDatabase::smoothSizes(const QString &family, const QString &style, const QString &charSet)
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other smoothSizes() function instead.
+*/
+
+/*! \fn QFont QFontDatabase::font(const QString &familyName, const QString &style, int pointSize, const QString &charSet)
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other font() function instead.
+*/
+
+/*! \fn bool QFontDatabase::isBitmapScalable(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other isBitmapScalable() function instead.
+*/
+
+/*! \fn bool QFontDatabase::isSmoothlyScalable(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other isSmoothlyScalable() function instead.
+*/
+
+/*! \fn bool QFontDatabase::isScalable(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other isScalable() function instead.
+*/
+
+/*! \fn bool QFontDatabase::isFixedPitch(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other isFixedPitch() function instead.
+*/
+
+/*! \fn bool QFontDatabase::italic(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other italic() function instead.
+*/
+
+/*! \fn bool QFontDatabase::bold(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other bold() function instead.
+*/
+
+/*! \fn int QFontDatabase::weight(const QString &family, const QString &style, const QString &) conscharSett
+
+    The \a charSet parameter is deprecated since Qt 3.0. The
+    character set can be queried using QFont::charSet().
+
+    Use the other weight() function instead.
+*/
+
 #endif // QT_NO_FONTDATABASE

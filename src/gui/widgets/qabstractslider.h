@@ -120,7 +120,6 @@ protected:
 protected:
     QAbstractSlider(QAbstractSliderPrivate &dd, QWidget *parent);
 
-
 #ifdef QT_COMPAT
 public:
     inline QT_COMPAT int minValue() const { return minimum(); }
@@ -135,13 +134,12 @@ public:
     inline QT_COMPAT void addLine() { triggerAction(SliderSingleStepAdd); }
     inline QT_COMPAT void subtractLine() { triggerAction(SliderSingleStepSub); }
 #endif
-private:        // Disabled copy constructor and operator=
+
+private:
 #if defined(Q_DISABLE_COPY)
     QAbstractSlider(const QAbstractSlider &);
     QAbstractSlider &operator=(const QAbstractSlider &);
 #endif
-
-
 };
 
 #endif // QABSTRACTSLIDER_H

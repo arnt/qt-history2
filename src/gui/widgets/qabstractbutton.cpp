@@ -52,7 +52,7 @@ is changed to give the button a "disabled" appearance.
 If the button is a text button with a string containing an ampersand (\&),
 QButton creates an automatic shortcut key, called a mnemonic, that may
 change based on the button translation. The following code creates
-a push button labelled "Ro<u>c</u>k \& Roll" (where the c is underlined):
+a push button labelled "Ro\underline{c}k & Roll" (where the c is underlined):
 
 \code
       QPushButton *p = new QPushButton("Ro&ck && Roll", this);
@@ -939,6 +939,9 @@ or because setChecked() was called.
 
 
 #ifdef QT_COMPAT
+/*!
+    Use icon() instead.
+*/
 QIconSet *QAbstractButton::iconSet() const
 {
     if (!d->icon.isNull())
@@ -946,10 +949,64 @@ QIconSet *QAbstractButton::iconSet() const
     return 0;
 }
 
+/*!
+    Use QAbstractButton(QWidget *) instead.
+
+    Call setObjectName() if you want to specify an object name, and
+    setParent() if you want to set the window flags.
+*/
 QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f)
-    :QWidget(*new QAbstractButtonPrivate, parent, f)
+    : QWidget(*new QAbstractButtonPrivate, parent, f)
 {
     setObjectName(name);
     d->init();
 }
+
+/*! \fn bool QAbstractButton::isOn() const
+
+    Use isChecked() instead.
+*/
+
+/*! \fn QPixmap *QAbstractButton::pixmap() const
+
+    This compatibility function always returns 0.
+
+    Use icon() instead.
+*/
+
+/*! \fn void QAbstractButton::setPixmap(const QPixmap &p)
+
+    Use setIcon() instead.
+*/
+
+/*! \fn void QAbstractButton::setIconSet(const QIconSet &icon)
+
+    Use setIcon() instead.
+*/
+
+/*! \fn void QAbstractButton::setOn(bool b)
+
+    Use setChecked() instead.
+*/
+
+/*! \fn bool QAbstractButton::isToggleButton() const
+
+    Use isCheckable() instead.
+*/
+
+/*! \fn void QAbstractButton::setToggleButton(bool b)
+
+    Use setCheckable() instead.
+*/
+
+/*! \fn void QAbstractButton::setAccel(const QKeySequence &key)
+
+    Use setShortcut() instead.
+*/
+
+/*! \fn QKeySequence QAbstractButton::accel() const
+
+    Use shortcut() instead.
+*/
+
 #endif

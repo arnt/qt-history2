@@ -131,7 +131,7 @@ public:
     void setPrinterSelectionOption(const QString &);
 
 #ifdef QT_COMPAT
-    bool setup(QWidget *parent = 0);
+    QT_COMPAT bool setup(QWidget *parent = 0);
 #endif
 
     bool newPage();
@@ -154,7 +154,7 @@ protected:
 private:
     QPrinterPrivate *d_ptr;
 
-private:        // Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QPrinter(const QPrinter &);
     QPrinter &operator=(const QPrinter &);
