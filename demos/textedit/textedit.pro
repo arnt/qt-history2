@@ -9,5 +9,4 @@ HEADERS         = textedit.h
 SOURCES         = textedit.cpp \
                   main.cpp
 
-QMAKE_RESOURCE_PREFIX = /images
-RESOURCES          = editcopy.png editcut.png editpaste.png editredo.png editundo.png filenew.png fileopen.png fileprint.png filesave.png textbold.png textcenter.png textitalic.png textjustify.png textleft.png textright.png textunder.png logo32.png
+RESOURCES += textedit.qrc
