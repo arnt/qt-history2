@@ -148,7 +148,7 @@
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
     \list 1
-    \i $QT_INSTALL_PREFIX/etc/settings
+    \i INSTALL/etc/settings
     \i /opt/MyCompany/share/etc
     \i /opt/MyCompany/share/MyApplication/etc
     \i $HOME/.qt
@@ -158,8 +158,8 @@
     which the user doesn't have read permission are ignored. When saving
     settings QSettings works forwards in the order shown above writing
     to the first settings file for which the user has write permission.
-    ($QT_INSTALL_PREFIX is the directory where Qt was installed.  This can be
-    modified by using the configure script's -prefix argument)
+    (\c INSTALL is the directory where Qt was installed.  This can be
+    modified by using the configure script's -prefix argument )
 
     If you want to put the settings in a particular place in the
     filesystem you could do this:
@@ -343,9 +343,6 @@ QSettingsPrivate::QSettingsPrivate()
 	}
     }
 #else
-#ifndef QT_INSTALL_PREFIX
-#  define QT_INSTALL_PREFIX "/usr/local/qt"
-#endif // QT_INSTALL_PREFIX
 // for now
 #define QSETTINGS_DEFAULT_PATH_SUFFIX "/etc/settings"
 
@@ -552,8 +549,8 @@ QDateTime QSettingsPrivate::modificationTime()
   two entries in the search path:
 
   \list 1
-  \i $QTDIR/etc - where $QTDIR is the directory where Qt was installed.
-  \i $HOME/.qt/ - where $HOME is the user's home directory.
+  \i INSTALL/etc - where \c INSTALL is the directory where Qt was installed.
+  \i $HOME/.qt/ - where \c $HOME is the user's home directory.
   \endlist
 
   All insertions into the search path will go before $HOME/.qt/.
@@ -566,7 +563,7 @@ QDateTime QSettingsPrivate::modificationTime()
   \endcode
   Will result in a search path of:
   \list 1
-  \i $QTDIR/etc
+  \i INSTALL/etc
   \i /opt/MyCompany/share/etc
   \i /opt/MyCompany/share/MyApplication/etc
   \i $HOME/.qt
@@ -576,7 +573,6 @@ QDateTime QSettingsPrivate::modificationTime()
     which the user doesn't have read permission are ignored. When saving
     settings QSettings works forwards in the order shown above writing
     to the first settings file for which the user has write permission.
-    ($QTDIR is the directory where Qt was installed.)
 
   Settings under Unix are stored in files whose names are based on the
   first subkey of the key (not including the search path). The algorithm
