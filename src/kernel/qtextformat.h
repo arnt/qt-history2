@@ -3,7 +3,6 @@
 
 #ifndef QT_H
 #include <qcolor.h>
-#include <qstylesheet.h>
 #include <qsharedpointer.h>
 #endif // QT_H
 
@@ -317,10 +316,22 @@ class QTextListFormat : public QTextFormat
 public:
     QTextListFormat() : QTextFormat(ListFormat) {}
 
-    void setStyle(QStyleSheetItem::ListStyle style)
+    enum Style {
+	ListDisc,
+	ListCircle,
+	ListSquare,
+	ListDecimal,
+	ListLowerAlpha,
+	ListUpperAlpha
+#ifndef Q_QDOC
+	, ListStyleUndefined = -1
+#endif
+    };
+ 
+    void setStyle(Style style)
     { setProperty(ListStyle, int(style)); }
-    QStyleSheetItem::ListStyle style() const
-    { return static_cast<QStyleSheetItem::ListStyle>(intProperty(ListStyle, QStyleSheetItem::ListStyleUndefined)); }
+    Style style() const
+    { return static_cast<Style>(intProperty(ListStyle, ListStyleUndefined)); }
 
     void setIndent(int indent)
     { setProperty(ListIndent, indent); }
