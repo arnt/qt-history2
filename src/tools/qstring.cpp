@@ -233,9 +233,8 @@ const QString::Null QString::null=QString::Null();
     flags.
 
 */
-static unsigned short null_char = 0;
-QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, &null_char, 0, 0, 0, 0, 0, 0, {0} };
-QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, 0, &null_char, 0, 0, 0, 0, 0, 0, {0} };
+QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
+QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
 
 inline int QString::grow (int size)
 {
