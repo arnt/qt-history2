@@ -119,6 +119,9 @@ Funksjonalitet:
     Smelt sammen itemsystemet i menu og list box, legg inn et item som tar
     både pixmap og text, folk skriker etter det. Multiseleksjon i listbox.
 
+    Gjør QApplication::quit() virtual
+
+    Drag and drop før 1.3 (Patrice TROGNON venter)
 
 
 Fra Andrew Pavlomanolakos <app@novanet.net.au>:
