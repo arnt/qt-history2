@@ -103,8 +103,7 @@ UnixMakefileGenerator::init()
     bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
 		       (!project->isEmpty("QMAKE_LIB_FLAG") &&
 			project->isActiveConfig("dll")) || is_qt;
-    if(!project->isActiveConfig("global_init_link_order"))
-	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
 	if(configs.findIndex("dll") == -1) configs.append("dll");
@@ -154,18 +153,6 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_QTOPIA", "-L", " -L", "");
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QTOPIA"];
     }
-    if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
-	if(configs.findIndex("x11lib") == -1)
-	    configs.append("x11lib");
-	if ( project->isActiveConfig("opengl") && configs.findIndex("x11inc") == -1 )
-	    configs.append("x11inc");
-    }
-    if ( project->isActiveConfig("x11") ) {
-	if(configs.findIndex("x11lib") == -1)
-	    configs.append("x11lib");
-	if(configs.findIndex("x11inc") == -1)
-	    configs.append("x11inc");
-    }
     if ( project->isActiveConfig("qt") ) {
 	if ( project->isActiveConfig("accessibility" ) )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
@@ -197,8 +184,18 @@ UnixMakefileGenerator::init()
 	else
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
-    if(project->isActiveConfig("global_init_link_order"))
-	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
+    if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
+	if(configs.findIndex("x11lib") == -1)
+	    configs.append("x11lib");
+	if ( project->isActiveConfig("opengl") && configs.findIndex("x11inc") == -1 )
+	    configs.append("x11inc");
+    }
+    if ( project->isActiveConfig("x11") ) {
+	if(configs.findIndex("x11lib") == -1)
+	    configs.append("x11lib");
+	if(configs.findIndex("x11inc") == -1)
+	    configs.append("x11inc");
+    }
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
