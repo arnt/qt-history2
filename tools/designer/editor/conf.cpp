@@ -54,9 +54,9 @@ QMap<QString, ConfigStyle> Config::readStyles( const QString &path )
     styles = defaultStyles();
 
     QString family;
-    int size;
-    bool bold, italic, underline;
-    int red, green, blue;
+    int size = 10;
+    bool bold = FALSE, italic = FALSE, underline = FALSE;
+    int red = 0, green = 0, blue = 0;
 
     QString elements[] = {
 	"Comment",
