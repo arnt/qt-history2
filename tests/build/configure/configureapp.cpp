@@ -306,7 +306,10 @@ void ConfigureApp::buildQmake()
 	cout << "Creating qmake..." << endl;
 	qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );
 	qmakeBuilder.setArguments( dictionary[ "MAKE" ] );
-	qmakeBuilder.start();
+	if( !qmakeBuilder.start() ) {
+	    cout << "Could not start qmake build process" << endl << endl;
+	    quit();
+	}
     }
     else
 	qmakeBuilt();
@@ -482,7 +485,10 @@ void ConfigureApp::qmakeDone()
 
 	qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
 	qmake.setArguments( args );
-	qmake.start();	// This will start the qmake, pick up control again in qmakeDone()
+	if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
+	    cout << "Could not start qmake..." << endl << endl;
+	    quit();
+	}
     }
 }
 

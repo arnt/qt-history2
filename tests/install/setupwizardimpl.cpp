@@ -293,7 +293,8 @@ void SetupWizardImpl::makeDone()
 
 	integrator.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) + "\\Tools\\Designer\\Integration\\QMsDev" );
 	integrator.setArguments( args );
-	integrator.start();
+	if( !integrator.start() )
+	    logOutput( "Could not start integrator process" );
     }
 }
 
@@ -311,7 +312,8 @@ void SetupWizardImpl::configDone()
     make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
     make.setArguments( args );
 
-    make.start();
+    if( !make.start() )
+	logOutput( "Could not start make process" );
 }
 
 void SetupWizardImpl::saveSettings()
@@ -666,8 +668,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    configure.setArguments( args );
 
 	    // Start the configure process
-	    configure.start();
 	    compileProgress->setTotalSteps( filesToCompile );
+	    if( !configure.start() )
+		logOutput( "Could not start configure process" );
 	}
 	else {
 	    QFile outFile( installPath->text() + "\\build.bat" );
