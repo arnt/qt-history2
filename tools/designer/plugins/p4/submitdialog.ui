@@ -72,6 +72,13 @@
                 <cstring>TextLabel2</cstring>
             </property>
             <property stdset="1">
+                <name>sizePolicy</name>
+                <sizepolicy>
+                    <hsizetype>1</hsizetype>
+                    <vsizetype>1</vsizetype>
+                </sizepolicy>
+            </property>
+            <property stdset="1">
                 <name>text</name>
                 <string>&amp;Description:</string>
             </property>
@@ -101,6 +108,10 @@
             <property stdset="1">
                 <name>default</name>
                 <bool>true</bool>
+            </property>
+            <property stdset="1">
+                <name>enabled</name>
+                <bool>false</bool>
             </property>
         </widget>
         <widget row="1"  column="0"  rowspan="4"  colspan="1" >
@@ -237,6 +248,12 @@
         <signal>clicked()</signal>
         <receiver>SubmitDialog</receiver>
         <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>description</sender>
+        <signal>undoAvailable(bool)</signal>
+        <receiver>buttonOk</receiver>
+        <slot>setEnabled(bool)</slot>
     </connection>
 </connections>
 </UI>
