@@ -43,15 +43,15 @@ static const char MagicComment[] = "TRANSLATOR ";
       Ident Ident LeftParen RightParen
       LeftBrace
 	  Ident LeftParen String RightParen Semicolon
-	  Ident Semicolon
+	  return Semicolon
       RightBrace.
 
   Notice that the 0 doesn't produce any token.
 */
 
-enum { Tok_Eof, Tok_class, Tok_false, Tok_namespace, Tok_tr, Tok_trUtf8,
-       Tok_translate, Tok_true, Tok_Ident, Tok_Comment, Tok_String, Tok_Colon,
-       Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
+enum { Tok_Eof, Tok_class, Tok_false, Tok_namespace, Tok_return, Tok_tr,
+       Tok_trUtf8, Tok_translate, Tok_true, Tok_Ident, Tok_Comment, Tok_String,
+       Tok_Colon, Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
        Tok_RightParen, Tok_Comma, Tok_Semicolon };
 
 /*
@@ -136,9 +136,9 @@ static int getToken()
 		    return Tok_false;
 		break;
 	    case 'Q':
-		if ( qstrcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
+		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
 		    return Tok_tr;
-		else if ( qstrcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
+		else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
 		    return Tok_translate;
 		break;
 	    case 'T':
@@ -150,23 +150,27 @@ static int getToken()
 		}
 		break;
 	    case 'c':
-		if ( qstrcmp(yyIdent + 1, "lass") == 0 )
+		if ( strcmp(yyIdent + 1, "lass") == 0 )
 		    return Tok_class;
 		break;
 	    case 'f':
-		if ( qstrcmp(yyIdent + 1, "alse") == 0 )
+		if ( strcmp(yyIdent + 1, "alse") == 0 )
 		    return Tok_false;
 		break;
 	    case 'n':
-		if ( qstrcmp(yyIdent + 1, "amespace") == 0 )
+		if ( strcmp(yyIdent + 1, "amespace") == 0 )
 		    return Tok_namespace;
 		break;
+	    case 'r':
+		if ( strcmp(yyIdent + 1, "eturn") == 0 )
+		    return Tok_return;
+		break;
 	    case 's':
-		if ( qstrcmp(yyIdent + 1, "truct") == 0 )
+		if ( strcmp(yyIdent + 1, "truct") == 0 )
 		    return Tok_class;
 		break;
 	    case 't':
-		if ( qstrcmp(yyIdent + 1, "r") == 0 )
+		if ( strcmp(yyIdent + 1, "r") == 0 )
 		    return Tok_tr;
 		else if ( qstrcmp(yyIdent + 1, "rUtf8") == 0 )
 		    return Tok_trUtf8;
@@ -491,6 +495,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    yyTok = getToken();
 	    break;
 	case Tok_Gulbrandsen:
+	    // at top level?
 	    if ( yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 )
 		functionContext = prefix;
 	    yyTok = getToken();
