@@ -14,19 +14,155 @@ Documentation
 Overall enhancements including fixed typos and the addition of several
 images and code examples.
 
+Styles
+------
+
+In Qt 3.0.0 Beta2, only the Windows and Motif styles were implemented with
+the new style API. Now the missing styles (MotifPlus, Platinum, SGI and
+CDE) are ported, too.
+
+MNG
+---
+
+Update the libmng that is shipped with Qt to version 1.0.2.
+
+Wacom Tablet Support
+--------------------
+
+Fixes for Windows to solve the problem of creating a context for every
+widget and the problem of opening the dialog and losing the ability to use
+the tablet afterwards.
+
 
 Qt Designer
 ========================================
 
+ - Add option "-nofwd" to uic which supresses the generation of forward
+   declarations for custom classes in the generated output.
 
 Qt Functions
 ========================================
 
+QDataTable
+----------
+
+ - Uses the new row selection mode of QTable now.
+
+QDomDocument
+------------
+
+ - Fix the toString() function to work properly with namespaces.
+ - In Qt 3.0.0 Beta2, there was a workaround for Microsoft's XML parser,
+   that the toString() function does not output a doctype that consists
+   only of the name. This workaround is semantically wrong; it was
+   reverted.
+
+QDateEdit
+---------
+
+ - Fix wrong resp. missing default size policy and size hint.
+ - Improved focus and tab handling.
+
+QTable
+------
+
+ - Fixed right mouse button handling.
+ - Implemented row selection modes. This implied adding the new enum values
+   SingleRow and MultiRow to the enum SelectionMode.
+ - Doubleckick clears selections completely now.
+ - Allow different focus styles, namely FollowStyle (draw it as the style
+   tell you) and SpreadSheet (draw it as it is done in common spreadsheet
+   programs).
+
+New functions:
+	virtual void setFocusStyle( FocusStyle fs );
+	FocusStyle focusStyle() const;
+	virtual QRect cellRect( int row, int col ) const;
+
+QTimeEdit
+---------
+
+ - Fix wrong resp. missing default size policy and size hint.
+ - Improved focus and tab handling.
+
+QTextEdit
+---------
+
+ - QTextCursor is an internal class, so the signal
+   cursorPositionChanged(QTextCursor*) is only of limited. Add a more
+   useful signal in addition.
+
+New signal:
+	void cursorPositionChanged( int para, int pos );
+
+QLibrary
+--------
+
+ - Static overload for resolve as a convenient function.
+
+New function:
+	static void *resolve( const QString &filename, const char * );
+
+QListView
+---------
+
+ - A bug that was introduced in Qt 3.0.0 beta 2 made listviews with many
+   items very slow. This problem is fixed now.
+
+QProcess
+--------
+
+ - exitStatus() did not work for negative values on Unix. This is fixed
+   now.
+ - Fix problems on Unixware.
+
+QRichtext
+---------
+
+ - Fixed searching backwards.
+
+QSound
+------
+
+ - Simplify the API to allow easier extension.
+
+New functions:
+	bool isAvailable();
+	int loops() const;
+	int loopsRemaining() const;
+	void setLoops(int);
+	QString fileName() const;
+	bool isFinished() const;
+
+New slot:
+	void stop();
+
+Removed function:
+	bool available();
+
+QSpinBox
+--------
+
+ - Spin box arrows were not updated correctly when the widget was
+   disabled/enabled. This problem is fixed now.
+ - Improved handling of the case when a spinbox accepts a value: now it
+   also accepts it if the spinbox looses focus or is hidden.
+
+QSqlCursor
+----------
+
+ - Add functions to set the generated flag. This is used to avoid the
+   generation of malformed SQL statements.
+
+New functions:
+	void setGenerated( const QString& name, bool generated );
+	void setGenerated( int i, bool generated );
+
 QSqlDriver
 ----------
 
- - Add new function QSqlDriver::hasFeature( QSqlDriver::DriverFeature ) const
-   which allows you to query whether the driver supports features like SQL
+ - Add new function hasFeature( QSqlDriver::DriverFeature ) const which
+   allows you to query whether the driver supports features like SQL
    transactions or Binary Large Object fields. The functions
    hasQuerySizeSupport(), canEditBinaryFields() and hasTransactionSupport()
    are therefore obsolete and have been removed.
@@ -38,6 +174,12 @@ Removed functions:
 	bool hasQuerySizeSupport() const;
 	bool canEditBinaryFields() const;
 	bool hasTransactionSupport() const;
+
+QSqlField
+---------
+
+ - The bool argument of setNull() was removed since it does not make sense
+   to set a field to non null.
 
 QTabWidget
 ----------
@@ -60,3 +202,15 @@ New functions:
 	void removeToolTip( int id );
 	void setToolTip( int id, const QString & tip );
 	QString toolTip( int id ) const;
+
+QTextStream
+-----------
+
+ - The global functions setw(), setfill() and setprecison() were deleted
+   since they conflict with the std classes. If you need the functionality,
+   use qSetW(), qSetFill() and qSetPrecision() instead.
+
+Removed functions:
+	QTSManip setw( int w )
+	QTSManip setfill( int f )
+	QTSManip setprecision( int p )
