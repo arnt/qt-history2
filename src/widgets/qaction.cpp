@@ -104,8 +104,8 @@
   \skipto fileOpenAction
   \printline fileOpenAction
 
-  (Refer to the <A HREF="simple-application-action.html">Simple Application Walkthrough
-  featuring QAction</A> for a detailed explanation of the above code.)
+  (Refer to the \link simple-application-action.html Simple Application Walkthrough
+  featuring QAction \endlink for a detailed explanation of the above code.)
 
   You can add an action to an arbitrary number of menus and toolbars
   and remove it again with removeFrom().
@@ -378,7 +378,7 @@ QAction::~QAction()
   \skipto setIconSet
   \printline setIconSet
 
-  (c.f. the action/toggleaction example)
+  (c.f. the action/toggleaction/toggleaction.cpp example)
 
   \a icon is used as tool button icon and in the menu entry.
 
@@ -529,8 +529,8 @@ QString QAction::statusTip() const
   \printuntil setWhatsThis
 
   (For a detailed explanation of the above code refer to the
-  <A HREF="simple-application-action.html">Simple Application Walkthrough
-  featuring QAction</A>.)
+  \link simple-application-action.html Simple Application Walkthrough
+  featuring QAction \endlink.)
 
   \sa whatsThis(), QStyleSheet, QWhatsThis
 */
@@ -565,7 +565,7 @@ QString QAction::whatsThis() const
   \skipto setAccel
   \printline setAccel
 
-  (c.f. the action/toggleaction example)
+  (c.f. the action/toggleaction/toggleaction.cpp example)
 
   For accelerators to work, the action's parent or one of its ancestors
   has to be the application window.
@@ -750,8 +750,8 @@ void QAction::toolButtonToggled( bool on )
   \skipto fileOpenAction->addTo
   \printline fileOpenAction->addTo
 
-  (cf. the <A HREF="simple-application-action.html">Simple Application Walkthrough
-  featuring QAction</A>)
+  (cf. the \link simple-application-action.html Simple Application Walkthrough
+  featuring QAction \endlink)
 
   addTo() returns TRUE if the action was added successfully and FALSE
   if \a w is of an unsupported class.
@@ -970,7 +970,7 @@ void QAction::objectDestroyed()
 
   \printuntil setUsesTextLabel
 
-  (c.f. the action/toggleaction example)
+  (c.f. the action/toggleaction/toggleaction.cpp example)
 
   \sa activated(), setToggleAction(), setOn()
 */
@@ -1052,7 +1052,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   \skipto colors->addTo
   \printline colors->addTo
 
-  (Please refer to the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>
+  (Please refer to the \link actiongroup.html QActionGroup Walkthrough \endlink
   for a detailed explanation.)
 
   The order in which member actions appear in a widget follows the
@@ -1229,7 +1229,7 @@ bool QActionGroup::isExclusive() const
   \printline colors->addTo
 
   (For a detailed explanation of the above code please refer to the
-  <A HREF="actiongroup.html">QActionGroup Walkthrough</A>.
+  \link actiongroup.html QActionGroup Walkthrough. \endlink
 
   Changing setUsesDropDown() effects subsequent calls to addTo() only.
 
@@ -1612,8 +1612,8 @@ void QActionGroup::childEvent( QChildEvent *e )
   \printuntil SLOT
 
   (This code including the implementation of the
-  <A HREF="actiongroup.html#setFontColor()">setFontColor()</A>
-  slot can be found in the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>.)
+  \link actiongroup.html#setFontColor() setFontColor() \endlink 
+  slot can be found in the \link actiongroup.html QActionGroup Walkthrough. \endlink)
 
   \sa setExclusive(), isOn()
 */
