@@ -650,14 +650,14 @@ void QTextView::keyPressEvent( QKeyEvent *e )
     changeIntervalTimer->start( 100, TRUE );
 }
 
-/*! \internal */
+/*! \reimp */
 void QTextView::imStartEvent( QIMEvent *e )
 {
     d->preeditStart = cursor->index();
     e->accept();
 }
 
-/*! \internal */
+/*! \reimp */
 void QTextView::imComposeEvent( QIMEvent *e )
 {
     if ( d->preeditLength > 0 && cursor->parag() )
@@ -670,7 +670,7 @@ void QTextView::imComposeEvent( QIMEvent *e )
     e->accept();
 }
 
-/*! \internal */
+/*! \reimp */
 void QTextView::imEndEvent( QIMEvent *e )
 {
     if ( d->preeditLength > 0 && cursor->parag() )
@@ -2067,9 +2067,9 @@ void QTextView::setText( const QString &text, const QString &context )
   Changes the text of the view to the string \a txt.
   Any previous text is deleted.
 
-  \a text may be interpreted either as plain text or as rich text,
+  The \a txt may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format from \a text.
+  i.e. the text view autodetects the format from \a txt.
 
   \sa text(), setTextFormat()
 */
@@ -2960,9 +2960,9 @@ int QTextView::wrapColumnOrWidth() const
    \sa setWrapPolicy()
 */
 
-/*!  Defines where text can be wrapped when word wrap mode is not \a
-    NoWrap. The choices are \c AtWhiteSpace (the default) and \c
-    Anywhere.
+/*!  Defines where text can be wrapped when word wrap mode is not \c
+    NoWrap. The choices for \a policy are \c AtWhiteSpace (the default)
+    and \c Anywhere.
 
   \sa setWordWrap(), wrapPolicy()
  */
@@ -3184,15 +3184,15 @@ void QTextView::zoomOut( int range )
 /*!
     \internal
 
-    As the engine of QTextView is optimized for large amounts text, it
-   is not sure that after e.g. calling setText() the whole document is
-   formatted, as only the visible part is formatted immediately, and
-   the rest delayed or on demand if needed.
+   QTextView is optimized for large amounts text. One of its
+   optimizations is to format only the visible text, formatting the rest
+   on demand, e.g. as the user scrolls, so you don't usually need to
+   call this function.
 
-   If you need some information (like contentsHeight() to get the
-   height of the document) to be correct after e.g. calling setText(),
-   call this function to ensure that the whole document has been
-   formatted properly.
+    In some situations you may want to force the whole text
+    to be formatted. For example, if after calling setText(), you wanted
+    to know the height of the document (using contentsHeight()), you
+    would call this function first.
 */
 
 void QTextView::sync()

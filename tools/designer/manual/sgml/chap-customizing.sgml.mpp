@@ -264,18 +264,18 @@ single main window.)
 <para>
 Start up Visual Studio and click <guimenuitem>File|Open
 Workspace</guimenuitem>. Open
-<filename>%QTDIR%\tools\designer\integration\qmsdev\qmsdev.dsp</filename>.
+<filename>%QTDIR%\\tools\\designer\\integration\\qmsdev\\qmsdev.dsp</filename>.
 Click <guimenuitem>Build|Set Active Configuration</guimenuitem> and in
 the list click 'QMsDev - Win32 Release', then click \ok. Now click
 <guimenuitem>Build|Build qmsdev.dll</guimenuitem>. You should now copy
 the file
-<filename>%QTDIR%\tools\designer\integration\qmsdev\Release\qmsdev.dll</filename>
-into <filename>\Program Files\Microsoft Visual
-Studio\Common\MSDev98\AddIns</filename>. Now click
+<filename>%QTDIR%\\tools\\designer\\integration\\qmsdev\\Release\\qmsdev.dll</filename>
+into <filename>\\Program Files\\Microsoft Visual
+Studio\\Common\\MSDev98\\AddIns</filename>. Now click
 <guimenuitem>Tools|Customize</guimenuitem>. Click the Add-in Macro Files
 tab, then click the <guibutton>Browse</guibutton> button. Change the
-file type to 'Add-ins (.dll)' and navigate to <filename>\Program
-Files\Microsoft Visual Studio\Common\MSDev98\AddIns</filename>. Click
+file type to 'Add-ins (.dll)' and navigate to <filename>\\Program
+Files\\Microsoft Visual Studio\\Common\\MSDev98\\AddIns</filename>. Click
 the <filename>qmsdev.dll</filename> file, click
 <guibutton>Open</guibutton>, then click <guibutton>Close</guibutton>.
 </para>

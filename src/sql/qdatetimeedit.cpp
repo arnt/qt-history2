@@ -914,6 +914,9 @@ int QDateEdit::sectionOffsetEnd( int sec )
 /*! Sets the display order of the numbered section of the date editor
     to \a order.
 
+    \fn  void QDateEdit::setOrder( Order order )
+
+
   \sa Order
 */
 
@@ -1851,6 +1854,8 @@ QString QTimeEdit::sectionText( int sec )
 /*! \internal
  Returns TRUE if \a h, \a m, \a s is out of range.
  */
+
+/*! \internal */
 bool QTimeEdit::outOfRange( int h, int m, int s ) const
 {
      if ( QTime::isValid( h, m, s ) ) {
