@@ -210,14 +210,14 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 {
     OSStatus ret;
 
-    if (wclass != kModalWindowClass) {
-	ret = CreateNewWindow(wclass, wattr, geo, w);
-    } else {
+    if (qMacVersion() >= Qt::MV_PANTHER && wclass != kOverlayWindowClass) {
 	Rect null_rect;
 	SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
 	if (ret == noErr)
 	    SetWindowBounds(*w, kWindowContentRgn, geo);
+    } else {
+	ret = CreateNewWindow(wclass, wattr, geo, w);
     }
     return ret;
 }
