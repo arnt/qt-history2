@@ -341,6 +341,7 @@ public:
 
     static int getFontWeight(const QCString &, bool = FALSE);
     QRect boundingRect( const QChar &ch );
+    int textWidth( const QString &str, int pos, int len );
 
 #ifdef Q_WS_X11
     Script scriptForChar(const QChar &c);
@@ -421,7 +422,6 @@ public:
 	TextRun *next;
     };
 
-    int textWidth( const QString &str, int pos, int len );
     int textWidth( const QString &str, int pos, int len, TextRun *cache );
     void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
     void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
@@ -481,7 +481,6 @@ public:
 		int length;
 		TextRun *next;
 	};
-	int textWidth( const QString &str, int pos, int len );
 	int textWidth( HDC hdc, const QString &str, int pos, int len, TextRun *cache );
 	void drawText( HDC hdc, int x, int y, TextRun *cache );
 #endif // Q_WS_WIN

@@ -265,3 +265,8 @@ QRect QFontPrivate::boundingRect( const QChar &ch )
 {
     return QRect(0, 0, 1204, 768); //take that
 }
+
+int QFontPrivate::textWidth( const QString &str, int pos, int len )
+{
+    return 1000;
+}
