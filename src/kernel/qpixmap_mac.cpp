@@ -257,14 +257,14 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 	    unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap((GWorldPtr)hd));
 	    unsigned short sbpr = image.bytesPerLine();
 	    long *sptr = (long*)image.bits(), *srow;
-	    char mode = true32b, clr;
+	    uchar mode = true32b, clr;
 	    SwapMMUMode(&mode);
 	    for(int yy=0;yy<h;yy++) {
 		drow = (long *)((char *)dptr + (yy * dbpr));
 		srow = (long *)((char *)sptr + (yy * sbpr));
 		for(int xx=0;xx<w;xx++) {
-		    clr = 255 - (*(srow + xx) >> 24);
-		    *(drow + xx) = qRgba(clr, clr, clr, clr);
+		    clr = ~(((*(srow + xx)) >> 24) & 0xFF);
+		    *(drow + xx) = qRgba(clr, clr, clr, 0);
 		}
 	    }
 	    SwapMMUMode(&mode);
@@ -291,7 +291,7 @@ int get_index(QImage * qi,QRgb mycol)
 
 QImage QPixmap::convertToImage() const
 {
-    if(data->w == 0 || hd==0)
+    if(!data->w || !data->h || !hd)
 	return QImage(); // null image
 
     int w = data->w;
@@ -350,16 +350,13 @@ QImage QPixmap::convertToImage() const
 	    arow = (long *)((char *)aptr + (yy * abpr));
 	for(int xx=0;xx<w;xx++) {
 	    r = *(srow + xx);
-	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ((*arow + xx) & 0xFF) : 0));
-	    if(d == 1) {
+	    q=qRgba((r >> 16) & 0xFF, (r >> 8) & 0xFF, r & 0xFF, (arow ? ~(*(arow + xx) & 0xFF): 0));
+	    if(d == 1) 
 		image.setPixel(xx, yy, q ? 0 : 1);
-	    } else {
-		if(ncols) {
-		    image.setPixel(xx, yy, get_index(&image,q));
-		} else {
-		    image.setPixel(xx,yy,q);
-		}
-	    }
+	    else if(ncols)
+		image.setPixel(xx, yy, get_index(&image,q));
+	    else 
+		image.setPixel(xx,yy,q);
 	}
     }
     SwapMMUMode(&mode);
