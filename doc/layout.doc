@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: layout.doc,v 2.4 1999/04/28 09:53:57 aavit Exp $
+** $Id: layout.doc,v 2.5 1999/05/19 19:21:29 paul Exp $
 **
 ** Explanation of the layout subsystem
 **
@@ -147,6 +147,9 @@ that handles resizing and size calculations, as well as a subclass of
 \link QGLayoutIterator QGLayoutIterator\endlink to iterate over your
 layout class.
 
+See the <a href="customlayout.html">Custom Layout</a> page for an
+in-depth description.
+
 <h2>Custom Widgets In Layouts</h2>
 
 When you make your own widget class, you should also communicate its
@@ -177,9 +180,8 @@ heightForWidth()\endlink.
 
 Even if you implement heightForWidth(), it is still necessary to
 provide a good sizeHint(). The sizeHint() provides the preferred width
-of the widget. In addition, QLayout subclasses do not need to
-implement support for heightForWidth() (is is supported by both
-QGridLayout and QBoxLayout).
+of the widget, and it is used by QLayout subclasses that do not
+support heightForWidth() (both QGridLayout and QBoxLayout support it).
 
 <h2>Manual Layout</h2>
 
@@ -191,7 +193,237 @@ setGeometry()\endlink on each child.
 
 The widget will get a \c LayoutHint event when the layout needs to be
 recalculated. Reimplement \link QWidget::event() event()\endlink
-to be notified.
+to be notified of \c LayoutHint events.
 
 */
 
+
+/*!  \page customlayout.html
+
+<title>
+Qt toolkit - Custom Layouts
+</title></head><body bgcolor="#ffffff">
+
+\postheader
+
+<h1 align=center>Writing your own layout manager</h1><br clear="all">
+
+We will now go through a simple example in detail. The class \c
+CardLayout is inspired by the Java layout manager of the same name. It
+lays out the widgets on top of each other, each widget is offset by
+\link QLayout::spacing() spacing()\endlink.
+
+
+To write your own layout class, you must define the following:
+  <ul>
+  <li>A data structure. We will simply use a QList in this example.
+  <li>\link QLayout::addItem() addItem() \endlink, how to add items 
+	to the layout.
+  <li>\link QLayout::setGeometry() setGeometry() \endlink, how to do the 
+	layout.
+  <li>\link QLayout::sizeHint() sizeHint() \endlink, the preferred size of the
+	layout.
+  <li>\link QLayout::iterator() iterator() \endlink, how to iterate over the
+	layout.
+  </ul>
+
+In most cases, you will also implement link QLayout::minimumSize() 
+minimumSize() \endlink.
+
+<h3> card.h </h3>
+
+
+\code
+#ifndef CARD_H
+#define CARD_H
+
+#include <qlayout.h>
+#include <qlist.h>
+
+class CardLayout : public QLayout
+{
+public:
+    CardLayout( QWidget *parent, int dist )
+	: QLayout( parent, 0, dist ) {}
+    CardLayout( QLayout* parent, int dist)
+	: QLayout( parent, dist ) {}
+    CardLayout( int dist )
+	: QLayout( dist ) {}
+    
+    void addItem(QLayoutItem *item);
+    QSize sizeHint() const;
+    QSize minimumSize() const;
+    QLayoutIterator iterator();
+    void setGeometry(const QRect &rect);
+
+private:
+    QList<QLayoutItem> list;
+};
+
+#endif
+\endcode
+
+
+<h3> card.cpp </h3>
+\code
+#include "card.h"
+\endcode
+
+We first define an iterator over the layout. Layout iterators are
+used internally by the layout system to handle deletion of
+widgets. They are also available for application programmers. 
+
+There are two different classes involved: QLayoutIterator is the class
+that is visible to application programmers, it is explicitly
+shared. The QLayoutIterator contains a QGLayoutIterator that does all
+the work. We must create a subclass of QGLayoutIterator that knows how
+to iterate over our layout class.
+
+In this case, we choose a simple implementation: we store an integer
+index into the list and a pointer to the list. Every QGLayoutIterator
+subclass must implement \link QGLayoutIterator::current() current()\endlink,
+\link QGLayoutIterator::next() next()\endlink and
+\link QGLayoutIterator::removeCurrent() removeCurrent()\endlink, as well as
+a constructor. In our example we do not need a destructor.
+
+\code
+class CardLayoutIterator :public QGLayoutIterator
+{
+public:
+  CardLayoutIterator(QList<QLayoutItem> *l)
+    : idx(0), list(l)  {}
+
+  QLayoutItem *current()
+  { return idx < int(list->count()) ? list->at(idx) : 0;  }
+
+  QLayoutItem *next()
+  { idx++; return current(); }
+
+  void removeCurrent()
+  { list->remove( idx ); }
+
+private:
+  int idx;
+  QList<QLayoutItem> *list;
+};
+\endcode
+
+
+We must implement QLayout:iterator() to return a QLayoutIterator over 
+this layout. 
+
+\code
+QLayoutIterator CardLayout::iterator()
+{	
+    return QLayoutIterator( new CardLayoutIterator(&list) );
+}
+\endcode
+
+
+addItem() implements the default placement strategy for layout items. It
+must be implemented. It is used by QLayout::add(), by the QLayout
+constructor that takes a layout as parent, and it is used to implement
+the \link QLayout::autoAdd() auto-add\endlink feature. If your layout
+has advanced placement options that require parameters, you will have to
+provide extra access functions eg. QGridLayout::addMultiCell().
+
+\code
+void CardLayout::addItem( QLayoutItem *item )
+{
+    list.append(item);
+}
+\endcode
+
+
+The setGeometry() function actually performs the layout. The rectangle
+supplied as an argument does not include margin(). If relevant, use
+spacing() as the distance between items.
+
+\code
+void CardLayout::setGeometry(const QRect &rect)
+{
+    QLayout::setGeometry(rect);
+
+    QListIterator<QLayoutItem> it(list);
+    if (it.count() == 0)
+	return;
+
+    QLayoutItem *o;
+
+    int i = 0;
+
+    int w = rect.width() - (list.count() - 1) * spacing();
+    int h = rect.height() - (list.count() - 1) * spacing();
+
+    while ((o=it.current()) != 0)
+	{
+	    ++it;
+	    QRect geom(rect.x() + i * spacing(), rect.y() + i * spacing(),
+		       w, h );
+	    o->setGeometry( geom );
+	    ++i;
+	}	
+}
+\endcode
+
+
+
+sizeHint() and minimumSize() are normally very similar in
+implementation.  The sizes returned by both functions should include
+spacing(), but not margin().
+
+\code
+QSize CardLayout::sizeHint() const
+{
+    QSize s(0,0);
+    int n = list.count();
+    if ( n > 0 )
+	s = QSize(100,70); //start with a nice default size 
+    QListIterator<QLayoutItem> it(list);
+    QLayoutItem *o;
+    while ( (o=it.current()) != 0 ) {
+	++it;
+	s = s.expandedTo( o->minimumSize() );
+    }
+    return s + n*QSize(spacing(),spacing());
+}
+
+QSize CardLayout::minimumSize() const
+{
+    QSize s(0,0);
+    int n = list.count();
+    QListIterator<QLayoutItem> it(list);
+    QLayoutItem *o;
+    while ( (o=it.current()) != 0 ) {
+	++it;
+	s = s.expandedTo( o->minimumSize() );
+    }
+    return s + n*QSize(spacing(),spacing());
+}
+\endcode
+
+
+<h2>Further comments</h2>
+
+This layout does not implement heightForWidth().
+
+We ignore QLayoutItem::isEmpty(), this means that the layout will treat
+hidden widgets as visible.
+
+For complex layouts, speed can be greatly increased by caching calculated
+values and/or data structures. In that case, implement \link 
+QLayoutItem::invalidate() invalidate()\endlink to mark the cached
+data as dirty.
+
+Calling QLayoutItem::sizeHint(), etc. may be expensive, so you should
+store the value in a local variable if you need it again later in the
+same function.
+
+You should not call QLayoutItem::setGeometry() twice on the same item
+in the same function. That can be very expensive if the item has
+several child widgets, because it will have to do a complete layout
+every time. Instead, calculate the geometry and then set it. (This
+does not only apply to layouts, you should do the same if you
+implement your own resizeEvent()).
+
+*/
