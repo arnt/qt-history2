@@ -11,7 +11,7 @@
 #include "editwidget.h"
 
 // const char *family = "Arial Unicode Ms"; // generic
-const char *family = "Diwani Letter,Arial,Latha,Akaash,Serto Jerusalem,Mangal"; // Devanagari
+const char *family = "Diwani Letter,Tahoma,Latha,Akaash,Serto Jerusalem,Mangal"; // Devanagari
 // const char *family = ""; // arabic
 // const char *family = ""; // syriac
 // const char *family = ""; // Bengali
@@ -47,7 +47,7 @@ const char *family = "Diwani Letter,Arial,Latha,Akaash,Serto Jerusalem,Mangal"; 
 
 // mixed
 const char *s =
-"Thai: ทำไมเขาถึงไม่พูด �าษาไทย "
+"Thai: ทำไมเขาถึงไม่พูด "
 "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
 "Arabic: أوروبا, برمجيات الحاسوب "
 "Hebrew: תוכנה והאינטרנט "
@@ -120,7 +120,7 @@ int main( int argc, char **argv )
 #endif
 
     QFont f( family );
-    f.setPointSize( 18 );
+    f.setPointSize( 24 );
     a.setFont( f );
 
 #if 1

@@ -42,6 +42,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
+
 // #define QFONTDATABASE_DEBUG
 #ifdef QFONTDATABASE_DEBUG
 #  include <qdatetime.h>
@@ -687,7 +688,15 @@ bool QFontDatabase::findFont( int script, int styleStrategy,
 	pixelSize = size->pixelSize;
     fixed = fam->fixedPitch;
     xlfd_uses_regular = sty->xlfd_uses_regular;
-    encoding = xlfd_for_id( size->encodings[0] );
+    int encoding_id = size->encodings[0];
+    for ( int i = 1; i < size->count; i++ ) {
+	// Xft is preferred
+	if ( size->encodings[i] == -1 ) {
+	    encoding_id = -1;
+	    break;
+	}
+    }
+    encoding = xlfd_for_id( encoding_id );
 
     return TRUE;
 }
