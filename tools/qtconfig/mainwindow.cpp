@@ -634,7 +634,9 @@ void MainWindow::fileSave()
 	settings.writeEntry("/qt/Palette/disabled", discg);
 
 	QStringList libpath = QApplication::libraryPaths();
-	settings.writeEntry("/qt/libraryPath", libpath, ':');
+	QString libpathkey =
+	    QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
+	settings.writeEntry(libpathkey, libpath, ':');
 	settings.writeEntry("/qt/fontPath", fontpaths, ':');
 	settings.writeEntry("/qt/embedFonts", fontembeddingcheckbox->isChecked() );
 	settings.writeEntry("/qt/style", gstylecombo->currentText());

@@ -906,8 +906,9 @@ bool QApplication::x11_apply_settings()
     }
 
     // read library (ie. plugin) path list
-    QStringList pathlist =
-	settings.readListEntry("/qt/libraryPath", ':');
+    QString libpathkey =
+	QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
+    QStringList pathlist = settings.readListEntry(libpathkey, ':');
     if (! pathlist.isEmpty()) {
 	QStringList::ConstIterator it = pathlist.begin();
 	while (it != pathlist.end())
