@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#4 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#5 $
 **
 ** Definition of QTableView class
 **
@@ -220,10 +220,10 @@ inline bool QTableView::autoUpdate() const
 { return doUpdate; }
 
 inline void QTableView::repaint( bool erase )
-{ repaint( rect(), erase ); }
+{ repaint( 0, 0, width(), height(), erase ); }
 
-inline void QTableView::repaint( int x, int y, int w, int h, bool erase )
-{ repaint( QRect(x,y,w,h), erase ); }
+inline void QTableView::repaint( const QRect &r, bool erase )
+{ repaint( r.x(), r.y(), r.width(), r.height(), erase ); }
 
 inline void QTableView::updateScrollBars()
 { updateScrollBars( 0 ); }

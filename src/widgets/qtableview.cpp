@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#20 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#20 $")
 
 
 const int sbDim = 16;
@@ -207,29 +207,42 @@ void QTableView::show()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \overload void QTableView::repaint( int x, int y, int w, int h, bool erase )
- ----------------------------------------------------------------------------*/
+  Repaints the table view directly by calling paintEvent() directly,
+  unless updates are disabled.
 
-/*----------------------------------------------------------------------------
-  Repaints the table view.  If \e erase is TRUE, the view is cleared to
-  the background color/pixmap first.
+  Erases the view area \e (x,y,w,h) if \e erase is TRUE.
+
+  If \e w is negative, it is replaced with <code>width() - x</code>.
+  If \e h is negative, it is replaced width <code>height() - y</code>.
+
+  Doing a repaint() usually is faster than doing an update(), but
+  calling update() many times in a row will generate a single paint
+  event.
 
   At present, QTableView is the only widget that reimplements \link
-  QWidget::repaint() repaint() \endlink.  It does this because by
+  QWidget::repaint() repaint()\endlink.  It does this because by
   clearing and then repainting one cell at at time, it can make the
   screen flicker less than it would otherwise.
  ----------------------------------------------------------------------------*/
 
-void QTableView::repaint( const QRect &r, bool erase )
+void QTableView::repaint( int x, int y, int w, int h, bool erase )
 {
     if ( !isVisible() )				// ignore if not visible
 	return;
-    QPaintEvent e( r );
+    if ( w < 0 )
+	w = width()  - x;
+    if ( h < 0 )
+	h = height() - y;
+    QPaintEvent e( QRect(x,y,w,h) );
     if ( erase )
 	eraseInPaint = TRUE;			// erase when painting
     paintEvent( &e );
     eraseInPaint = FALSE;
 }
+
+/*----------------------------------------------------------------------------
+  \overload void QTableView::repaint( const QRect &r, bool erase )
+ ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
