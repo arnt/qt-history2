@@ -580,6 +580,18 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
 */
 
 /*!
+    \enum QDockWindow::DockWindowFeature
+
+    \value DockWindowClosable
+    \value DockWindowMovable
+    \value DockWindowFloatable
+
+    \value AllDockWindowFeatures
+    \value NoDockWindowFeatures
+    \omitvalue DockWindowFeatureMask
+*/
+
+/*!
     Constructs a QDockWindow with parent \a parent and widget flags \a
     flags.  The dock window will be placed in the left dock window
     area.
@@ -652,6 +664,12 @@ void QDockWindow::setWidget(QWidget *widget)
     d->box->insertWidget(1, widget);
 }
 
+/*!
+    \property QDockWindow::features
+    \brief whether the dock window is movable, closable, and floatable
+
+    \sa DockWindowFeature setFeature() hasFeature()
+*/
 void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
 {
     features &= DockWindowFeatureMask;
@@ -662,15 +680,35 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
     d->title->update();
 }
 
+/*!
+    Switches on the given \a feature if \a on is true; otherwise
+    switches it off.
+
+    \sa hasFeature() features
+*/
 void QDockWindow::setFeature(QDockWindow::DockWindowFeature feature, bool on)
 { setFeatures(on ? d->features | feature : d->features & ~feature); }
+
 
 QDockWindow::DockWindowFeatures QDockWindow::features() const
 { return d->features; }
 
+/*!
+    Returns true if the dock window has the given \a feature;
+    otherwise returns false.
+
+    \sa setFeature() features
+*/
 bool QDockWindow::hasFeature(QDockWindow::DockWindowFeature feature) const
 { return d->features & feature; }
 
+/*!
+    \internal
+
+    Sets the doc window to be top level. If \a floated is true it has
+    no parent and floats free at position \a pos; if \a floated is
+    false it is reparented to the main window.
+*/
 void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
 {
     bool visible = isVisible();

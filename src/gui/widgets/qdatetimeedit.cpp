@@ -135,6 +135,42 @@ public:
 */
 
 /*!
+    \enum QDateTimeEdit::Section
+
+    \value NoSection
+    \value AMPMSection
+    \value MSecsSection
+    \value SecondsSection
+    \value MinutesSection
+    \value HoursSection
+    \value DaysSection
+    \value MonthsSection
+    \value YearsSection
+*/
+
+/*!
+    \fn void QDateTimeEdit::dateTimeChanged(const QDateTime &datetime)
+
+    This signal is emitted whenever the date or time is changed. The
+    new date and time is passed in \a datetime.
+*/
+
+/*!
+    \fn void QDateTimeEdit::timeChanged(const QTime &time)
+
+    This signal is emitted whenever the time is changed. The
+    new time is passed in \a time.
+*/
+
+/*!
+    \fn void QDateTimeEdit::dateChanged(const QDate &date)
+
+    This signal is emitted whenever the date is changed. The
+    new date is passed in \a date.
+*/
+
+
+/*!
     Constructs an empty date time editor with a \a parent. The format
     is set to "yyyy.MM.dd hh:mm:ss" by default.
 */
@@ -498,7 +534,7 @@ void QDateTimeEdit::setCurrentSection(Section section)
 
     Returns the text from the given \a section.
 
-    \a text(), cleanText(), currentSection()
+    \sa cleanText(), currentSection()
 */
 
 QString QDateTimeEdit::sectionText(Section s) const
@@ -569,8 +605,9 @@ QString QDateTimeEdit::sectionText(Section s) const
         edit.setFormat("hh:mm:ss");
 
         // edit can no longer display dates. This means that the
-        // minimum and maximum date will be set to the current date.
-        // E.g. 2002, 5, 5.
+        // minimum and maximum date will be set to the current date,
+        // e.g. 2002, 5, 5.
+    \endcode
 */
 
 QString QDateTimeEdit::format() const
@@ -616,7 +653,8 @@ QString QDateTimeEdit::mapDateTimeToText(const QDateTime &date) const
 
 /*!
     This virtual function is used by the date time edit whenever it
-    needs to interpret text entered by the user as a value.
+    needs to interpret text entered by the user as a value. The user's
+    text is passed in \a txt and the validator's state in \a state.
 
     \sa mapDateTimeToText()
 */
@@ -630,8 +668,8 @@ QDateTime QDateTimeEdit::mapTextToDateTime(QString *txt, QValidator::State *stat
     return dt;
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
@@ -689,8 +727,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     QAbstractSpinBox::keyPressEvent(e);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
@@ -710,8 +748,8 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
     }
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QDateTimeEdit::focusInEvent(QFocusEvent *e)
@@ -728,8 +766,8 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     d->setSelected(s);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 bool QDateTimeEdit::focusNextPrevChild(bool next)
@@ -752,8 +790,8 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
     return QAbstractSpinBox::focusNextPrevChild(next);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 void QDateTimeEdit::stepBy(int steps)
@@ -763,8 +801,8 @@ void QDateTimeEdit::stepBy(int steps)
     d->setSelected(s);
 }
 
-/*
-    !\reimp
+/*!
+    \reimp
 */
 
 QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const

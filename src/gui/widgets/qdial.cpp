@@ -530,9 +530,12 @@ void QDial::focusOutEvent(QFocusEvent *)
 }
 
 /*!
+    \reimp
+
     Reimplemented to ensure the display is correct and to emit the
     valueChanged(int) signal when appropriate and to ensure
-    tickmarks are consistent with the new range.
+    tickmarks are consistent with the new range. The \a change
+    parameter indicates what type of change that has taken place.
 */
 
 void QDial::sliderChange(SliderChange change)
