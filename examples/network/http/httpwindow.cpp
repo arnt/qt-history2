@@ -84,6 +84,7 @@ void HttpWindow::downloadFile()
     httpRequestAborted = false;
     httpGetId = http->get(url.path(), file);
 
+    progressDialog->setWindowTitle(tr("HTTP"));
     progressDialog->setLabelText(tr("Downloading %1.").arg(fileName));
     downloadButton->setEnabled(false);
 }
