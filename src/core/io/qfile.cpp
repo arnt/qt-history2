@@ -591,7 +591,7 @@ QFile::rename(const QString &newName)
                 if(out.open(QIODevice::WriteOnly | QIODevice::Truncate)) {
                     bool error = false;
                     char block[1024];
-                    while(!atEnd()) {
+                    while(!in.atEnd()) {
                         long read = in.read(block, 1024);
                         if(read == -1)
                             break;
