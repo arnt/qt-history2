@@ -27,7 +27,7 @@ internal {
 macx {
      #we always use these
      CONFIG += tools kernel widgets dialogs iconview workspace \
-               network canvas table xml zlib png styles
+               network canvas table xml zlib png styles sql
      #never
      CONFIG -= nas mng jpeg x11 x11sm
      
