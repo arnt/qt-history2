@@ -463,6 +463,11 @@ png_push_read_chunk(png_structp png_ptr, png_infop info_ptr)
 #endif
    else
    {
+      if (png_ptr->push_length + 4 > png_ptr->buffer_size)
+      {
+         png_push_save_buffer(png_ptr);
+         return;
+      }
       png_push_handle_unknown(png_ptr, info_ptr, png_ptr->push_length);
    }
 
