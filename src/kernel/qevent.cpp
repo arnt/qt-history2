@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#68 $
 **
 ** Implementation of event classes
 **
@@ -837,7 +837,7 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, int type )
+  \fn QDragMoveEvent::QDragMoveEvent( const QPoint& pos, Type type )
 
   Creates a QDragMoveEvent for which the mouse is at point \a pos,
   and the given event \a type.
@@ -907,7 +907,19 @@ QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
 */
 
 /*!
-  \fn void   QDropEvent::accept()
+  \fn const QPoint& QDropEvent::pos() const
+
+  Returns the position where the drop was made.
+*/
+
+/*!
+  \fn bool QDropEvent::isAccepted () const
+
+  Returns TRUE if the drop target accepts the event.
+*/
+
+/*!
+  \fn void QDropEvent::accept()
 
   Call this to indicate that the event provided data which your widget
   processed.  Use data(), or preferrably, the decode() methods

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#130 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#131 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -2303,8 +2303,12 @@ bool operator>=( const char *s1, const QString &s2 )
 
   Q1String inherits QByteArray, which is defined as QArray\<char\>.
 
-  Since Q1String is a QArray, it uses explicit
+  Since Q1String is a QArray, it uses \e explicit
   \link shclass.html sharing\endlink with a reference count.
+
+  You might use Q1String for text that is never exposed to the user,
+  but for text the user sees, you should use QString (which provides
+  implicit sharing, Unicode and other internationalization support).
 
   Note that for the Q1String methods that take a <var>const char *</var>
   parameter the results are undefined if the Q1String is not
