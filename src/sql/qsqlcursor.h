@@ -79,8 +79,8 @@ public:
     QSqlIndex		index( const char* fieldName ) const;
     virtual void	setPrimaryIndex( const QSqlIndex& idx );
 
-    void		append( const QSqlField& field );
-    void		insert( int pos, const QSqlField& field );
+    void		append( const QSqlFieldInfo& fieldInfo );
+    void		insert( int pos, const QSqlFieldInfo& fieldInfo );
     void		remove( int pos );
     void		setGenerated( const QString& name, bool generated );
     void		setGenerated( int i, bool generated );

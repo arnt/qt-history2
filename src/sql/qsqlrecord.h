@@ -120,6 +120,7 @@ public:
 
     size_type contains( const QString& fieldName ) const;
     QSqlFieldInfo find( const QString& fieldName ) const;
+    QSqlRecord toRecord() const;
 
 };
 

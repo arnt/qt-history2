@@ -112,13 +112,16 @@ public:
 		   int prec = -1,
 		   const QVariant& defValue = QVariant(),
 		   int sqlType = 0,
-		   bool generated = TRUE );
+		   bool generated = TRUE,
+		   bool trim = FALSE,
+		   bool calculated = FALSE );
     QSqlFieldInfo( const QSqlFieldInfo & other );
     QSqlFieldInfo( const QSqlField & other, bool generated = TRUE );
-    ~QSqlFieldInfo();
+    virtual ~QSqlFieldInfo();
     QSqlFieldInfo& operator=( const QSqlFieldInfo& other );
     bool operator==( const QSqlFieldInfo& f ) const;
 
+    QSqlField		toField() const;
     int			isRequired() const;
     QVariant::Type	type() const;
     int			length() const;
@@ -127,6 +130,12 @@ public:
     QString		name() const;
     int			typeID() const;
     bool		isGenerated() const;
+    bool		isTrim() const;
+    bool		isCalculated() const;
+
+    virtual void	setTrim( bool trim );
+    virtual void	setGenerated( bool gen );
+    virtual void	setCalculated( bool calc );
 
 private:
     QSqlFieldInfoPrivate* d;

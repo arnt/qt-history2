@@ -275,7 +275,9 @@ void QSqlField::setReadOnly( bool readOnly )
 struct QSqlFieldInfoPrivate
 {
     int required, len, prec, typeID;
-    bool generated;
+    uint generated: 1;
+    uint trim: 1;
+    uint calculated: 1;
     QString name;
     QString typeName;
     QVariant::Type typ;
@@ -317,6 +319,12 @@ struct QSqlFieldInfoPrivate
   useful for low-level programming). 0 if unknown.
   \i \a generated  TRUE indicates that this field should be included
   in auto-generated SQL statments, e.g. in QSqlCursor.
+  \i \a trim  TRUE indicates that widgets should remove trailing
+  whitespace from character fields. This does not affect the field
+  value but only its representation inside widgets.
+  \i \a calculated  TRUE indicates that the value of this field is
+  calculated. The value of calculated fields can by modified by 
+  subclassing QSqlCursor and overriding QSqlCursor::calculateField().
   \endlist
 */
 QSqlFieldInfo::QSqlFieldInfo( const QString& name,
@@ -326,7 +334,9 @@ QSqlFieldInfo::QSqlFieldInfo( const QString& name,
 		   int prec,
 		   const QVariant& defValue,
 		   int typeID,
-		   bool generated )
+		   bool generated,
+		   bool trim,
+		   bool calculated )
 {
     d = new QSqlFieldInfoPrivate();
     d->name = name;
@@ -337,6 +347,8 @@ QSqlFieldInfo::QSqlFieldInfo( const QString& name,
     d->defValue = defValue;
     d->typeID = typeID;
     d->generated = generated;
+    d->trim = trim;
+    d->calculated = calculated;
 }
 
 /*! Constructs a copy of \a other.
@@ -348,7 +360,8 @@ QSqlFieldInfo::QSqlFieldInfo( const QSqlFieldInfo & other )
 
 /*!
     Creates a QSqlFieldInfo object with the type and the name of the
-    QSqlField \a other.
+    QSqlField \a other. If \a generated is TRUE this field will be included
+    in auto-generated SQL statments, e.g. in QSqlCursor.
 */
 QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated )
 {
@@ -360,6 +373,8 @@ QSqlFieldInfo::QSqlFieldInfo( const QSqlField & other, bool generated )
     d->prec = -1;
     d->typeID = 0;
     d->generated = generated;
+    d->trim = FALSE;
+    d->calculated = FALSE;
 }
 
 /*!
@@ -392,8 +407,17 @@ bool QSqlFieldInfo::operator==( const QSqlFieldInfo& f ) const
 		d->prec == f.d->prec &&
 		d->defValue == f.d->defValue &&
 		d->typeID == f.d->typeID &&
-		d->generated == f.d->generated );
+		d->generated == f.d->generated &&
+		d->trim == f.d->trim &&
+		d->calculated == f.d->calculated );
 }
+
+/*!
+    Returns an empty QSqlField based on the information
+    in this QSqlFieldInfo.
+*/
+QSqlField QSqlFieldInfo::toField() const
+{ return QSqlField( d->name, d->typ ); }
 
 /*!
     Returns a value greater than 0 if the field is required (NULL
@@ -452,8 +476,56 @@ int QSqlFieldInfo::typeID() const
 /*!
     Returns TRUE if this field should be included in auto-generated
     SQL statments, e.g. in QSqlCursor; otherwise returns FALSE.
+
+    \sa setGenerated()
 */
 bool QSqlFieldInfo::isGenerated() const
 { return d->generated; }
+
+/*!
+    Returns TRUE if trailing whitespace should be removed from character
+    fields.
+
+    \sa setTrim()
+*/
+bool QSqlFieldInfo::isTrim() const
+{ return d->trim; }
+
+/*!
+    Returns TRUE if the field is calculated.
+    
+    \sa setCalculated()
+*/
+bool QSqlFieldInfo::isCalculated() const
+{ return d->calculated; }
+
+/*!
+    If \a trim is TRUE widgets should remove trailing
+    whitespace from character fields. This does not affect the field
+    value but only its representation inside widgets.    
+
+    \sa isTrim()
+*/
+void QSqlFieldInfo::setTrim( bool trim )
+{ d->trim = trim; }
+
+/*!
+    \a gen set to FALSE indicates that this field should not appear 
+    in auto-generated SQL statements (for example in QSqlCursor).
+
+    \sa isGenerated()
+*/
+void QSqlFieldInfo::setGenerated( bool gen )
+{ d->generated = gen; }
+
+/*!
+    \a calc set to TRUE indicates that this field is a calculated
+    field. The value of calculated fields can by modified by subclassing
+    QSqlCursor and overriding QSqlCursor::calculateField().
+    
+    \sa isCalculated()
+*/
+void QSqlFieldInfo::setCalculated( bool calc )
+{ d->calculated = calc; }
 
 #endif

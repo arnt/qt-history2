@@ -683,6 +683,19 @@ QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
     return QSqlFieldInfo();
 }
 
+/*!
+    Returns an empty QSqlRecord based on the field information
+    in this QSqlRecordInfo.
+*/
+QSqlRecord QSqlRecordInfo::toRecord() const
+{
+   QSqlRecord buf;
+   for( const_iterator it = begin(); it != end(); ++it ) {
+	buf.append( (*it).toField() );
+   }
+   return buf;
+}
+
 /*! \fn QSqlRecordInfo::QSqlRecordInfo()
 
   Constructs an empty recordinfo object
