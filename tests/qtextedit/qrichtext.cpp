@@ -314,7 +314,8 @@ void QTextCursor::pop()
     string = parags.pop();
     ox = xOffsets.pop();
     oy = yOffsets.pop();
-    doc = doc->parent();
+    if ( doc->parent() )
+	doc = doc->parent();
     nested = nestedStack.pop();
 }
 
