@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodev.h#15 $
+** $Id: //depot/qt/main/src/tools/qiodev.h#16 $
 **
 ** Definition of QIODevice class
 **
@@ -56,7 +56,7 @@
 #define IO_TimeOutError		7		// time out
 
 #undef	TB
-#define TB(x) ((ioMode & (x)) == x)
+#define TB(x) ((ioMode & (x)) == (x))
 
 
 class QIODevice					// IO device class
