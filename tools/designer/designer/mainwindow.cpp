@@ -1120,33 +1120,49 @@ void MainWindow::fileOpen()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
     FilterPlugInManager manager( dir );
-
-    QString filename;
     {
+	QString filename;
+	QStringList filterlist;
+	filterlist << tr( "Qt User-Interface Files (*.ui)" );
+	filterlist << tr( "TMAKE Projectfile (*.pro)" );
 	QStringList list = manager.featureList();
-	QString filters = list.join( ";;" );
+	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+	    filterlist << *it;
+	filterlist << tr( "All Files (*.*)" );
 
-	filename = QFileDialog::getOpenFileName( QString::null, tr( "Qt User-Interface Files (*.ui)" ) + ";;" + 
-								tr( "TMAKE Projectfile (*.pro)" ) + ";;" + 
-								filters + ";;" +
-								tr( "All Files (*.*)" ), this );
-    }
-    if ( !filename.isEmpty() ) {
-	QFileInfo fi( filename );
+	QString filters = filterlist.join( ";;" );
 
-	if ( fi.extension() == "pro" ) {
-	    QStringList lst = getUiFiles( filename );
-	    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-		QString fn = QUrl( QFileInfo( filename ).dirPath(), *it ).path();
-		openFile( fn );
+	filename = QFileDialog::getOpenFileName( QString::null, filters, this );
+	if ( !filename.isEmpty() ) {
+	    QFileInfo fi( filename );
+
+	    if ( fi.extension() == "pro" ) {
+		QStringList lst = getUiFiles( filename );
+		for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+		    QString fn = QUrl( QFileInfo( filename ).dirPath(), *it ).path();
+		    openFile( fn );
+		}
+	    } else if ( fi.extension() == "ui" ) {
+		openFile( filename );
+	    } else {
+		QString filter;
+		for ( QStringList::Iterator it2 = filterlist.begin(); it2 != filterlist.end(); ++it2 ) {
+		    if ( (*it2).contains( fi.extension(), FALSE ) ) {
+			filter = *it2;
+			break;
+		    }
+		}
+		QPlugIn* plugin = manager.plugIn(filter);
+		if ( !plugin ) {
+		    statusBar()->message( tr( "No import filter available for %1").arg( filename ), 3000 );
+		    return;
+		}
+		statusBar()->message( tr( "Importing %1 using import filter %2...").arg( filename ).arg(plugin->name()) );
+		QStringList list = manager.import( filter, filename );
+		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
+		    openFile( *it, FALSE );
+		statusBar()->clear();
 	    }
-	} else if ( fi.extension() == "ui" ) {
-	    openFile( filename );
-	} else {
-	    statusBar()->message( tr( "Importing %1 using a 3rd party converter, this might take some time...").arg( filename ) );
-	    QStringList list = manager.import( fi.extension(), filename );
-	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
-		openFile( *it, FALSE );
 	}
     }
 }
@@ -2704,13 +2720,6 @@ void MainWindow::writeConfig()
 	w->pixmap->save( QDir::home().absPath() + "/.designer/" + w->className, "XPM" );
     }
 
-/*    config.setGroup( "Import" );
-    config.writeEntry( "numFilters", Import::numFilters() );
-    for ( i = 0; i < Import::numFilters(); i++ ) {
-	config.writeEntry( "wildcard[" + QString::number( i ) + "]", Import::wildcard( i ) );
-	config.writeEntry( "command[" + QString::number( i ) + "]", Import::command( i ) );
-    }
-*/
     config.write();
 }
 
@@ -2731,14 +2740,7 @@ void MainWindow::readConfig()
     docPath = config.readEntry( "DocPath", docPath );
     int num;
     int i;
-/*    config.setGroup( "Import" );
-    num = config.readNumEntry( "numFilters" );
-    i;
-    for ( i = 0; i < num; ++i ) {
-	QString wildcard = config.readEntry( "wildcard[" + QString::number( i ) + "]" );
-	QString command = config.readEntry( "command[" + QString::number( i ) + "]" );
-	Import::addImportEntry( wildcard, command );
-    }*/
+
     config.setGroup( "General" );
     if ( restoreConfig ) {
 	splashScreen = config.readBoolEntry( "SplashScreen", TRUE );
