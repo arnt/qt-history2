@@ -555,7 +555,7 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     hasSelection(), clearSelection(), and removeSelectedText().
 
     If the position() is at the start of a block atBlockStart()
-    returns true; and if it is at the end of a block atEnd() returns
+    returns true; and if it is at the end of a block atBlockEnd() returns
     true. The format of the current character is returned by
     charFormat(), and the format of the current block is returned by
     blockFormat().
@@ -647,6 +647,7 @@ QTextCursor::QTextCursor(QTextDocument *document)
 QTextCursor::QTextCursor(QTextFrame *frame)
     : d(new QTextCursorPrivate(frame->document()->docHandle()))
 {
+    d->adjusted_anchor = d->anchor = d->position = frame->firstPosition();
 }
 
 
@@ -656,7 +657,7 @@ QTextCursor::QTextCursor(QTextFrame *frame)
 QTextCursor::QTextCursor(const QTextBlock &block)
     : d(new QTextCursorPrivate(block.docHandle()))
 {
-    d->position = block.position();
+    d->adjusted_anchor = d->anchor = d->position = block.position();
 }
 
 
