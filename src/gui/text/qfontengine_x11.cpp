@@ -35,6 +35,7 @@
 
 #include <private/qunicodetables_p.h>
 
+#include <math.h>
 #include <limits.h>
 #define d d_func()
 #define q q_func()
@@ -1153,6 +1154,13 @@ bool QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyp
     return true;
 }
 
+static Q26Dot6Offset map(const QWMatrix &m, Q26Dot6Offset &pos)
+{
+    Q26Dot6Offset ret;
+    ret.x = m.m11()*pos.x + m.m21()*pos.y;
+    ret.y = m.m12()*pos.x + m.m22()*pos.y;
+    return ret;
+}
 
 void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::ShaperFlags flags) const
 {
@@ -1160,7 +1168,7 @@ void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::
 	FT_Face face = XftLockFace(_font);
 	for ( int i = 0; i < len; i++ ) {
 	    FT_UInt glyph = glyphs[i].glyph;
-	    FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
+	    FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING);
 	    glyphs[i].advance.x.setValue(face->glyph->metrics.horiAdvance);
 	    glyphs[i].advance.y.setValue(0);
 	}
@@ -1215,6 +1223,8 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	XftMatrix *mat = 0;
 	XftPatternGetMatrix( pattern, XFT_MATRIX, 0, &mat );
 	XftMatrix m2;
+	double scale = p->painterState()->worldMatrix.det();
+	scale = sqrt(QABS(scale));
 	m2.xx = p->painterState()->worldMatrix.m11()*_scale.toDouble();
 	m2.xy = -p->painterState()->worldMatrix.m21()*_scale.toDouble();
 	m2.yx = -p->painterState()->worldMatrix.m12()*_scale.toDouble();
@@ -1252,9 +1262,17 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	} else {
 	    if ( mat )
 		XftMatrixMultiply( &m2, &m2, mat );
+	    if (scale > 0)
+		XftMatrixScale(&m2, 1/scale, 1/scale);
 
 	    XftPatternDel( pattern, XFT_MATRIX );
 	    XftPatternAddMatrix( pattern, XFT_MATRIX, &m2 );
+	    double size;
+	    XftPatternGetDouble(_pattern, XFT_PIXEL_SIZE, 0, &size);
+	    XftPatternDel(pattern, XFT_SIZE);
+	    XftPatternDel(pattern, XFT_PIXEL_SIZE);
+// 	    qDebug("setting new size: orig=%f, scale=%f, new=%f", size, scale, size*scale);
+	    XftPatternAddDouble(pattern, XFT_PIXEL_SIZE, size*scale);
 
 	    fnt = XftFontOpenPattern( dpy, pattern );
 	    TransformedFont *trf = new TransformedFont;
@@ -1267,12 +1285,14 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 	    transformed_fonts = trf;
 	}
 	transform = TRUE;
-    } else if ( p->painterState()->txop == QPainter::TxTranslate ) {
-	p->painterState()->painter->map( xpos, ypos, &xpos, &ypos );
     }
 
-    Q26Dot6 x(xpos);
-    Q26Dot6 y(ypos);
+    if ( p->painterState()->txop == QPainter::TxTranslate )
+	p->painterState()->painter->map( xpos, ypos, &xpos, &ypos );
+
+    Q26Dot6Offset pos;
+    pos.x = xpos;
+    pos.y = ypos;
 
     QGlyphLayout *glyphs = si.glyphs;
 
@@ -1311,20 +1331,21 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
-	    x += glyphs[i].advance.x;
-	    y += glyphs[i].advance.y;
+	    pos.x += glyphs[i].advance.x;
+	    pos.y += glyphs[i].advance.y;
 	}
 	i = 0;
 	while( i < si.num_glyphs ) {
-	    x -= glyphs[i].advance.x;
-	    y -= glyphs[i].advance.y;
+	    pos.x -= glyphs[i].advance.x;
+	    pos.y -= glyphs[i].advance.y;
 
-	    int xp = (x + glyphs[i].offset.x).toInt();
-	    int yp = (y + glyphs[i].offset.y).toInt();
+	    Q26Dot6Offset gpos = pos;
+	    gpos.x += glyphs[i].offset.x;
+	    gpos.y += glyphs[i].offset.y;
 	    if ( transform )
-		p->painterState()->painter->map( xp, yp, &xp, &yp );
-	    glyphSpec[i].x = xp;
-	    glyphSpec[i].y = yp;
+		gpos = map(p->painterState()->worldMatrix, gpos);
+	    glyphSpec[i].x = gpos.x.toInt();
+	    glyphSpec[i].y = gpos.y.toInt();
 	    glyphSpec[i].glyph = glyphs[i].glyph;
 #ifdef FONTENGINE_DEBUG
 	    glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
@@ -1337,12 +1358,13 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
     } else {
 	int i = 0;
 	while ( i < si.num_glyphs ) {
-	    int xp = (x + glyphs[i].offset.x).toInt();
-	    int yp = (y + glyphs[i].offset.y).toInt();
+	    Q26Dot6Offset gpos = pos;
+	    gpos.x += glyphs[i].offset.x;
+	    gpos.y += glyphs[i].offset.y;
 	    if ( transform )
-		p->painterState()->painter->map( xp, yp, &xp, &yp );
-	    glyphSpec[i].x = xp;
-	    glyphSpec[i].y = yp;
+		gpos = map(p->painterState()->worldMatrix, gpos);
+	    glyphSpec[i].x = gpos.x.toInt();
+	    glyphSpec[i].y = gpos.y.toInt();
 	    glyphSpec[i].glyph = glyphs[i].glyph;
 
 #ifdef FONTENGINE_DEBUG
@@ -1352,8 +1374,8 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 		   glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt(), glyphs[i].advance.x.toInt(), glyphs[i].advance.y.toInt());
 #endif
 
-	    x += glyphs[i].advance.x;
-	    y += glyphs[i].advance.y;
+	    pos.x += glyphs[i].advance.x;
+	    pos.y += glyphs[i].advance.y;
 	    ++i;
 	}
     }

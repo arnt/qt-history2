@@ -309,14 +309,8 @@ class QPalette;
 
 class QTextEngine {
 public:
-    QTextEngine()
-	: fnt(0), formats(0), inlineObjectIface(0), allocated(0), memory(0), num_glyphs(0),
-	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
-	{}
-    QTextEngine(const QString &str, QFontPrivate *f )
-	: fnt(f), formats(0), inlineObjectIface(0), allocated(0), memory(0), num_glyphs(0),
-    	  cursorPos(-1), selections(0), nSelections(0), underlinePositions(0)
-	{ setText(str); if (fnt) fnt->ref(); }
+    QTextEngine();
+    QTextEngine(const QString &str, QFontPrivate *f );
     ~QTextEngine();
 
     void setText(const QString &str);
@@ -398,6 +392,7 @@ public:
     QChar::Direction direction : 5;
     unsigned int haveCharAttributes : 1;
     unsigned int widthOnly : 1;
+    unsigned int designMetrics : 1;
     unsigned int reserved : 24;
     unsigned int textFlags;
     QPalette *pal;

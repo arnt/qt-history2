@@ -334,6 +334,8 @@ void QOpenType::init(QShaperItem *item)
 
     tmpLogClusters = (unsigned short *) realloc( tmpLogClusters, length*sizeof(unsigned short) );
     memcpy( tmpLogClusters, item->log_clusters, length*sizeof(unsigned short) );
+
+    loadFlags = item->flags & QTextEngine::DesignMetrics ? FT_LOAD_NO_HINTING : FT_LOAD_DEFAULT;
 }
 
 void QOpenType::applyGSUBFeature(unsigned int featureTag, bool *where)
@@ -411,8 +413,8 @@ void QOpenType::applyGPOSFeatures()
 #endif
 
 	    str->pos = 0;
-	    // ### is FT_LOAD_DEFAULT the right thing to do?
-	    TT_GPOS_Apply_Feature( face, gpos, feature_index, FT_LOAD_DEFAULT, str, &positions, FALSE, false );
+	    TT_GPOS_Apply_Feature( face, gpos, feature_index, loadFlags,
+				   str, &positions, FALSE, false );
 	}
     }
     positioned = TRUE;
@@ -464,7 +466,7 @@ bool QOpenType::appendTo(QShaperItem *item, bool doLogClusters)
 
     // calulate the advances for the shaped glyphs
 //     qDebug("unpositioned: ");
-    item->font->recalcAdvances( str->length, glyphs, 0 ); // WYSIWYG: Fixme
+    item->font->recalcAdvances( str->length, glyphs, QFlag(item->flags));
     item->num_glyphs = str->length;
 
     // positioning code:

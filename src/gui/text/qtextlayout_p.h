@@ -92,6 +92,9 @@ public:
     void setTextFlags(int textFlags);
     void setPalette(const QPalette &);
 
+    void useDesignMetrics(bool);
+    bool usesDesignMetrics() const;
+
     enum LayoutMode {
 	NoBidi,
 	SingleLine,

@@ -817,6 +817,32 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 # include "qtextengine_mac.cpp"
 #endif
 
+static void init(QTextEngine *e)
+{
+    e->formats = 0;
+    e->inlineObjectIface = 0;
+    e->allocated = 0;
+    e->memory = 0;
+    e->num_glyphs = 0;
+    e->cursorPos = -1;
+    e->selections = 0;
+    e->nSelections = 0;
+    e->underlinePositions = 0;
+    e->designMetrics = false;
+}
+
+QTextEngine::QTextEngine()
+    : fnt(0)
+{
+    init(this);
+}
+
+QTextEngine::QTextEngine(const QString &str, QFontPrivate *f )
+    : fnt(f)
+{
+    init(this);
+    setText(str); if (fnt) fnt->ref();
+}
 
 
 void QTextEngine::setText(const QString &str)

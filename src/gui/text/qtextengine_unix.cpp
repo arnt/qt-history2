@@ -40,8 +40,9 @@ void QTextEngine::shapeText( int item ) const
     shaper_item.length = length(item);
     shaper_item.font = font;
     shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
-    // ### DesignMetrics
     shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
+//     if (designMetrics)
+	shaper_item.flags |= DesignMetrics;
 
 //     qDebug("shaping");
     while (1) {
@@ -70,7 +71,7 @@ void QTextEngine::shapeText( int item ) const
 	    FT_Vector kerning;
 	    bool kern = false;
 	    for (int i = 0; i < si.num_glyphs-1; ++i) {
-		FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, FT_KERNING_DEFAULT, &kerning);
+		FT_Get_Kerning(face, g[i].glyph, g[i+1].glyph, designMetrics ? FT_KERNING_UNFITTED : FT_KERNING_DEFAULT, &kerning);
 		g[i].advance.x += Q26Dot6(kerning.x, F26Dot6);
 		g[i].advance.y += Q26Dot6(kerning.y, F26Dot6);
 		kern |= (kerning.x != 0);

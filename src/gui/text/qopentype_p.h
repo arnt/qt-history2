@@ -65,6 +65,7 @@ private:
     unsigned short *tmpLogClusters;
     int length;
     int orig_nglyphs;
+    int loadFlags;
 };
 #endif // QT_OPENTYPE
 

@@ -298,6 +298,7 @@ void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const Q
     QTextLayout *tl = bl.layout();
 
     tl->setTextFlags(blockFormat.alignment()|Qt::IncludeTrailingSpaces|Qt::WordBreak);
+    tl->useDesignMetrics(true);
 //     tl.enableKerning(true);
 
     int x = blockFormat.leftMargin() + indent(bl);

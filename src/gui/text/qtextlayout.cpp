@@ -140,6 +140,16 @@ void QTextLayout::setTextFlags(int textFlags)
 }
 
 
+void QTextLayout::useDesignMetrics(bool b)
+{
+    d->designMetrics = b;
+}
+
+bool QTextLayout::usesDesignMetrics() const
+{
+    return d->designMetrics;
+}
+
 void QTextLayout::setPalette(const QPalette &p)
 {
     d->pal = new QPalette(p);
