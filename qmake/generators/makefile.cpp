@@ -231,7 +231,7 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    depends[impl].append(decl);
 
-	    QString mocable = (v["MOC_DIR"].isEmpty() ? fi.dirPath() : v["MOC_DIR"].first()) +
+	    QString mocable = (v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep): v["MOC_DIR"].first()) +
 			      Option::moc_mod + fi.baseName() + Option::cpp_ext;
 	    mocablesToMOC[decl] = mocable;
 	    mocablesFromMOC[mocable] = decl;
