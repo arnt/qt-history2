@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#27 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#26 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#27 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -266,7 +266,7 @@ QLCDNumber::~QLCDNumber()
 }
 
 
-/*! \fn int QLCDNumber::numDigits()
+/*! \fn int QLCDNumber::numDigits() const
 
   Returns the current number of digits.  If smallDecimalPoint() is
   FALSE, the decimal point occupies one digit position.
