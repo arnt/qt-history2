@@ -2649,7 +2649,7 @@ static inline unsigned char latin15CharFromUnicode( unsigned short uc )
     } else {
 	if ( uc == 0x20ac )
 	    c = 0xa4;
-	else if ( uc & 0xff00 == 0x0100 ) {
+	else if ( (uc & 0xff00) == 0x0100 ) {
 	    switch( uc ) {
 		case 0x0160:
 		    c = 0xa6;
