@@ -1910,9 +1910,6 @@ void QPainter::drawEllipse(const QRect &r)
         return;
     }
 
-    if ((d->state->txop == TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
-
     if (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)
         && ((d->state->brush.style() == Qt::SolidPattern
              && d->state->brush.color().alpha() != 255)
@@ -1930,6 +1927,9 @@ void QPainter::drawEllipse(const QRect &r)
                          drawEllipse(rect));
 
     }
+
+    if ((d->state->txop == TxTranslate) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
+        rect.moveBy(int(d->state->matrix.dx()), int(d->state->matrix.dy()));
 
     d->engine->drawEllipse(rect);
 }
