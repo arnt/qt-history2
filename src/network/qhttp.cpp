@@ -55,39 +55,40 @@ class QHttpPrivate
 {
 public:
     QHttpPrivate() :
-	bytesDone( 0 ),
 	state( QHttp::Unconnected ),
 	error( QHttp::NoError ),
 	hostname( QString::null ),
 	port( 0 ),
-	idleTimer( 0 ),
 	toDevice( 0 ),
-	postDevice( 0 )
+	postDevice( 0 ),
+	bytesDone( 0 ),
+	idleTimer( 0 )
     { pending.setAutoDelete( TRUE ); }
 
-    QPtrList<QHttpRequest> pending;
-
     QSocket* socket;
-    QByteArray buffer;
-    uint bytesDone;
-    QHttpRequestHeader header;
+    QPtrList<QHttpRequest> pending;
 
     QHttp::State state;
     QHttp::Error error;
     QString errorString;
 
-    bool readHeader;
-    QHttpResponseHeader response;
-
-    QString headerStr;
-
     QString hostname;
     Q_UINT16 port;
 
-    int idleTimer;
-
+    QByteArray buffer;
     QIODevice* toDevice;
     QIODevice* postDevice;
+
+    uint bytesDone;
+    uint bytesTotal;
+
+    QHttpRequestHeader header;
+
+    bool readHeader;
+    QString headerStr;
+    QHttpResponseHeader response;
+
+    int idleTimer;
 };
 
 class QHttpRequest
@@ -1235,6 +1236,10 @@ void QHttp::clientStateChanged( int state )
 
   \sa bytesAvailable() readAll() readBlock() requestFinished()
 */
+/*!  \fn void QHttp::dataSendProgress( int bytesDone, int bytesTotal )
+
+  This signal is emitted ###
+*/
 /*!  \fn void QHttp::dataReadProgress( int bytesDone, int bytesTotal )
 
   This signal is emitted ###
@@ -1684,16 +1689,22 @@ void QHttp::slotClosed()
 
 void QHttp::slotConnected()
 {
-    setState( Sending );
+    if ( d->state != Sending ) {
+	d->bytesDone = 0;
+	setState( Sending );
+    }
 
     QString str = d->header.toString();
+    d->bytesTotal = str.length();
+    d->socket->writeBlock( str.latin1(), d->bytesTotal );
 
-    d->socket->writeBlock( str.latin1(), str.length() );
-    d->socket->writeBlock( d->buffer.data(), d->buffer.size() );
-    d->socket->flush();
-
-    // Save memory
-    d->buffer = QByteArray();
+    if ( d->postDevice ) {
+	d->bytesTotal += d->postDevice->size();
+    } else {
+	d->bytesTotal += d->buffer.size();
+	d->socket->writeBlock( d->buffer.data(), d->buffer.size() );
+	d->buffer = QByteArray(); // save memory
+    }
 }
 
 void QHttp::slotError( int err )
@@ -1717,8 +1728,11 @@ void QHttp::slotError( int err )
     close();
 }
 
-void QHttp::slotBytesWritten( int )
+void QHttp::slotBytesWritten( int written )
 {
+    d->bytesDone += written;
+    emit dataSendProgress( d->bytesDone, d->bytesTotal );
+
     if ( !d->postDevice )
 	return;
 

@@ -236,9 +236,7 @@ signals:
     void stateChanged( int );
     void responseHeaderReceived( const QHttpResponseHeader& resp );
     void readyRead( const QHttpResponseHeader& resp );
-#if 0
-//    void dataSendProgress( int, int );
-#endif
+    void dataSendProgress( int, int );
     void dataReadProgress( int, int );
 
     void requestStarted( int );
