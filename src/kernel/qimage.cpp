@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#22 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#22 $";
 #endif
 
 /*!
@@ -619,7 +619,8 @@ void QImage::freeBits()
 }
 
 
-/*!
+/*! \fn bool QImage::contiguousBits() const
+
 Returns TRUE if the image data bits are encoded as a contiguous array of
 bytes, or FALSE if the data is segmented into separate buffers for each
 scanline.
@@ -628,14 +629,6 @@ Segmented data can only occur on 16-bits systems, like Windows 3.x, when
 the total image data takes more than 64 kbytes of memory.  All 32-bit
 operating systems (UNIX/X, Win32, OS/2 etc.) use contiguous image data.
 */
-
-#if defined(_WS_WIN16_)
-bool QImage::contiguousBits() const
-{
-    int *p = (int*)bits;
-    return p && (*(p-1) & 0x8000) == 0;
-}
-#endif
 
 
 // ---------------------------------------------------------------------------
