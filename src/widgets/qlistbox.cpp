@@ -45,6 +45,7 @@
 #include "qapplication.h"
 #include "qptrdict.h"
 #include "qtimer.h"
+#include "qstringlist.h"
 
 #include <stdlib.h>
 

@@ -42,6 +42,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qintdict.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 #ifndef QT_NO_TRANSLATION
@@ -136,9 +137,7 @@ public:
 // ### contains removed in Qt 3.0
     bool contains( const char *, const char * ) const;
 
-// ### squeeze() obsolete in Qt 3.0
-// ### replaced by squeeze( SaveMode mode = Everything )
-    void squeeze( SaveMode );
+    void squeeze( SaveMode = Everything );
     void squeeze();
     void unsqueeze();
 

@@ -42,6 +42,7 @@
 #include "qobject.h"
 #include "qhostaddress.h"
 #include "qsocketnotifier.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_DNS

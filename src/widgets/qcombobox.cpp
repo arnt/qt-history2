@@ -48,6 +48,7 @@
 #include "qlineedit.h"
 #include "qbitmap.h"
 #include "qeffects_p.h"
+#include "qstringlist.h"
 #include <limits.h>
 
 // NOT REVISED

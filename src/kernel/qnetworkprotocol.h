@@ -52,6 +52,7 @@ class QNetworkOperation;
 class QTimer;
 struct QNetworkProtocolPrivate;
 class QUrlOperator;
+template <class T> class QValueList;
 
 class Q_EXPORT QNetworkProtocolFactoryBase
 {

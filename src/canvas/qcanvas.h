@@ -45,6 +45,7 @@
 #include "qptrdict.h"
 #include "qbrush.h"
 #include "qpen.h"
+#include "qvaluelist.h"
 #include "qpointarray.h"
 #endif // QT_H
 

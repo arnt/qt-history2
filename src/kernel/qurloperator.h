@@ -43,6 +43,7 @@
 #include "qurl.h"
 #include "qlist.h"
 #include "qnetworkprotocol.h"
+#include "qstringlist.h" // QString->QStringList conversion
 #endif // QT_H
 
 #ifndef QT_NO_NETWORKPROTOCOL

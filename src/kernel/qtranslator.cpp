@@ -727,18 +727,6 @@ void QTranslator::squeeze( SaveMode mode )
 }
 
 
-/*! \overload
-
-  This function calls squeeze( Everything ).  It is provided for compatibility;
-  in Qt 3.0 it will be replaced by a default argument.
-*/
-
-void QTranslator::squeeze()
-{
-    squeeze( Everything );
-}
-
-
 /*!  Converts this message file into an easily modifiable data structure, less
   compact than the format used in the files.
 

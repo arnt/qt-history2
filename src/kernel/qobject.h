@@ -44,7 +44,6 @@
 #include "qstring.h"
 #include "qevent.h"
 #include "qnamespace.h"
-#include "qstringlist.h" // obsolete
 #endif // QT_H
 
 #define QT_TR_NOOP(x) (x)
