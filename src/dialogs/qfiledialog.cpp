@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#107 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#108 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1707,6 +1707,11 @@ QString QFileDialog::getExistingDirectory( const char *dir,
     dialog->d->types->insertItem( dialog->tr("Directories") );
     dialog->d->types->setEnabled( FALSE );
 
+    if ( !workingDirectory->isEmpty() ) {
+	QFileInfo f( *workingDirectory );
+	if ( f.isDir() )
+	    dialog->setDir( *workingDirectory );
+    }	
     if ( dir && *dir ) {
 	QFileInfo f( dir );
 	if ( f.isDir() ) {
@@ -1714,11 +1719,7 @@ QString QFileDialog::getExistingDirectory( const char *dir,
 	    workingDirectory->detach();
 	    dialog->setDir( dir );
 	}
-    } else if ( !workingDirectory->isEmpty() ) {
-	QFileInfo f( dir );
-	if ( f.isDir() )
-	    dialog->setDir( *workingDirectory );
-    }	
+    }
 
     QString result;
     if ( dialog->exec() == QDialog::Accepted ) {
