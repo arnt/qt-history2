@@ -4309,7 +4309,7 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
     int c = i ? d->h->mapToLogical( d->h->cellAt( vp.x() ) ) : -1;
     if ( !i || ( i && i->isEnabled() ) ) {
 	emit pressed( i );
-	emit pressed( i, viewport()->mapToGlobal( vp ), d->h->mapToLogical( c ) );
+	emit pressed( i, viewport()->mapToGlobal( vp ), c );
     }
     emit mouseButtonPressed( e->button(), i, viewport()->mapToGlobal( vp ), c );
 
