@@ -64,6 +64,7 @@ public:
 
 public slots:
     void dataReceived();
+    void soundDestroyed(QObject *o);
 
 private:
     QAuBucketNAS* bucket(QSound* s)
@@ -95,6 +96,15 @@ QAuServerNAS::~QAuServerNAS()
     nas = 0;
 }
 
+typedef QHash<void*,QAuServerNAS*> AuServerHash;
+static AuServerHash *inprogress=0;
+
+void QAuServerNAS::soundDestroyed(QObject *o)
+{
+    if (inprogress)
+	inprogress->remove(static_cast<QSound *>(o));
+}
+
 void QAuServerNAS::play(const QString& filename)
 {
     if (nas) {
@@ -107,9 +117,6 @@ void QAuServerNAS::play(const QString& filename)
 	qApp->flushX();
     }
 }
-
-typedef QHash<void*,QAuServerNAS*> AuServerHash;
-static AuServerHash *inprogress=0;
 
 static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
@@ -168,6 +175,9 @@ void QAuServerNAS::stop(QSound* s)
 
 void QAuServerNAS::init(QSound* s)
 {
+    connect(s, SIGNAL(destroyed(QObject *)),
+	    this, SLOT(soundDestroyed(QObject *)));
+
     if ( nas ) {
         AuBucketID b_id =
             AuSoundCreateBucketFromFile(nas, s->fileName(),
