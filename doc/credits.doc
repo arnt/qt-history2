@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: credits.doc,v 2.15 1999/05/15 17:19:09 ettrich Exp $
+** $Id: credits.doc,v 2.16 1999/05/18 12:57:44 ettrich Exp $
 **
 ** Credits file - all the qt-bugs stuff
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: credits.doc,v 2.15 1999/05/15 17:19:09 ettrich Exp $";
+static char ident[] = "$Id: credits.doc,v 2.16 1999/05/18 12:57:44 ettrich Exp $";
 #endif
 
 // the list is up to an including /local/qt/mail/qt-bugs/1715
@@ -285,7 +285,8 @@ Y. N. Lo &lt;ynlo@netcom.ca&gt;<br>
 Zyklon &lt;zyk@dds.nl&gt;<br>
 NGOk YUK YAU &lt;zzy@compuserve.com&gt;.
 Lars Knoll &lt;knoll@mpi-hd.mpg.de&gt;<br>
-Oliver Eiden <o.eiden@pop.ruhr.de>
+Oliver Eiden &lt;o.eiden@pop.ruhr.de&gt;<br>
+Thomas Rath &lt;rath@mac-info-link.de&gt;<br>
 
 </blockquote>
 
