@@ -233,10 +233,9 @@ bool QFontEngineMulti::stringToCMap(const QChar *str, int len,
                     continue;
                 glyphs[i].advance = glyphs[i].offset = QPointF();
                 int num = 2;
-                engine->stringToCMap(str + i, surrogate ? 2 : 1, g, &num, flags);
+                engine->stringToCMap(str + i, surrogate ? 2 : 1, glyphs + glyph_pos, &num, flags);
                 Q_ASSERT(num == 1); // surrogates only give 1 glyph
-                if (g[0].glyph) {
-                    glyphs[glyph_pos] = g[0];
+                if (glyphs[glyph_pos].glyph) {
                     // set the high byte to indicate which engine the glyph came from
                     glyphs[glyph_pos].glyph |= (x << 24);
                     break;
