@@ -49,6 +49,8 @@ protected:
     void wheelEvent(QWheelEvent *);
     void keyReleaseEvent(QKeyEvent *);
 
+    void contextMenuEvent(QContextMenuEvent *);
+    
 private:
     QWidget *m_form;
     QPoint m_old_pos;
@@ -306,6 +308,11 @@ void View3DWidget::wheelEvent(QWheelEvent *e)
     else
         glScalef(1.1, 1.1, 1.1);
     updateGL();
+}
+
+void View3DWidget::contextMenuEvent(QContextMenuEvent *e)
+{
+    e->accept();
 }
 
 /*******************************************************************************

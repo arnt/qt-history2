@@ -1759,10 +1759,10 @@ void ConnectionEdit::setSelected(CEItem *item, bool selected)
     ItemList item_list;
     item_list.append(item);
 
-    if (CEEdgeItem *edge = qt_cast<CEEdgeItem*>(item)) {
-        Connection *con = m_connection_map.value(edge, 0);
+    if (item->type() == CEItem::EdgeItem || item->type() == CEItem::LabelItem) {
+        Connection *con = m_connection_map.value(item, 0);
         if (con != 0) {
-            Q_ASSERT(m_connection_map.values(edge).count() == 1);
+            Q_ASSERT(m_connection_map.values(item).count() == 1);
             ItemList connection_item_list = m_connection_map.keys(con);
             foreach (CEItem *item, connection_item_list)
                 item_list.append(item);

@@ -140,6 +140,12 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
     if (!w)
         return false;
 
+    bool view_handles_events = fw->editMode() == AbstractFormWindow::ConnectionEditMode
+#ifdef DESIGNER_VIEW3D
+                                 || fw->editMode() == AbstractFormWindow::View3DEditMode
+#endif
+    ;
+                                             
     switch (e->type()) {
         case QEvent::Close: {
             if (o != fw)
@@ -188,7 +194,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             return true;
 
         case QEvent::KeyPress:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (view_handles_events)
                 break;
             fw->handleKeyPressEvent(w, static_cast<QKeyEvent*>(e));
             if (static_cast<QKeyEvent*>(e)->isAccepted())
@@ -196,7 +202,7 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::KeyRelease:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
+            if (view_handles_events)
                 break;
             fw->handleKeyReleaseEvent(w, static_cast<QKeyEvent*>(e));
             if (static_cast<QKeyEvent*>(e)->isAccepted())
@@ -204,32 +210,32 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
             break;
 
         case QEvent::MouseMove:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return false;
+            if (view_handles_events)
+                break;
             fw->handleMouseMoveEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonPress:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return false;
+            if (view_handles_events)
+                break;
             fw->handleMousePressEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonRelease:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return false;
+            if (view_handles_events)
+                break;
             fw->handleMouseReleaseEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::MouseButtonDblClick:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return false;
+            if (view_handles_events)
+                break;
             fw->handleMouseButtonDblClickEvent(w, static_cast<QMouseEvent*>(e));
             return true;
 
         case QEvent::ContextMenu:
-            if (fw->editMode() == AbstractFormWindow::ConnectionEditMode)
-                return true;
+            if (view_handles_events)
+                break;
             fw->handleContextMenu(w, static_cast<QContextMenuEvent*>(e));
             return true;
 
