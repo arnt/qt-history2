@@ -290,21 +290,10 @@ void setupPainter()
 }
 
 
-int main( int argc, char **argv )
+bool pause = FALSE;
+
+void run_main( int argc, char **argv )
 {
-    if ( argc < 2 )
-	usage();
-
-    QApplication app(argc,argv);
-    widget = new QWidget;
-    app.setMainWidget( widget );
-    widget->setBackgroundColor( Qt::white );
-    widget->setGeometry( 0, 0, 640, 480 );
-    pixmap = new QPixmap( 640, 480 );
-    pixmap->fill( Qt::white );
-    widget->show();
-
-    bool pause = FALSE;
     bool dirtyPainter = TRUE;
 
     int i = 1;
@@ -378,6 +367,40 @@ int main( int argc, char **argv )
     delete pixmap;
     delete perf_dict;
     delete perf_list;
+}
+
+class Runner : public QObject
+{
+public:
+    Runner()
+    {
+	startTimer(10);
+    }
+protected:
+    void timerEvent( QTimerEvent * )
+    {
+	killTimers();
+	run_main(qApp->argc(),qApp->argv());
+    }
+};
+
+
+int main( int argc, char **argv )
+{
+    if ( argc < 2 )
+	usage();
+    QApplication a(argc,argv);
+    widget = new QWidget;
+    qApp->setMainWidget( widget );
+    widget->setBackgroundColor( Qt::white );
+    widget->setGeometry( 20, 20, 640, 480 );
+    pixmap = new QPixmap( 640, 480 );
+    pixmap->fill( Qt::white );
+    widget->show();
+
+    Runner r;
+    a.exec();
+
     if ( pause ) {
 	output("Press a key to continue...");
 #if defined(_OS_WIN32_)
