@@ -133,7 +133,6 @@ static void callback( AuServer*, AuEventHandlerRec*, AuEvent* e, AuPointer p)
 {
 qDebug("Event %d",e->type);
     if ( inprogress->find(p) && e ) {
-	QSound* s = (QSound*)p;
 	if (e->type==AuEventTypeElementNotify &&
 		    e->auelementnotify.kind==AuElementNotifyKindState) {
 	    if ( e->auelementnotify.cur_state == AuStateStop )
