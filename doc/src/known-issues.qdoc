@@ -25,7 +25,7 @@
     \i Fix scheduled for beta 2.
     \row \i All tools are compiled in debug mode with no optimizations.
     \i Fix scheduled for beta 2.
-    \row \i \c{make install} don't work with \c{configure -fast}.
+    \row \i \c{make install} doesn't work with \c{configure -fast}.
     \i Fix scheduled for beta 2.
     \endtable
 
@@ -106,8 +106,10 @@
     \i Fix scheduled for beta 2.
     \row \i \bold{Solaris, AIX}: Shortcuts don't work.
     \i Fix scheduled for beta 2.
-    \row \bold{AIX xlC}: \c foreach is broken in release mode.
+    \row \i \bold{AIX xlC}: \c foreach is broken in release mode.
     \i Fix scheduled for beta 2.
+    \row \i The Motif extension is not available in beta 1.
+    \i Scheduled for beta 2.
     \endtable
 
     \section2 Embedded
