@@ -79,10 +79,6 @@
 
     The QTextEdit class provides a widget that is used to edit and
      display both plain and rich text.
-    \row \i \inlineimage motif-verticalscrollbar.png
-    \i QScrollBar
-
-    \l{QScrollBar}s can also be given a vertical orientation.
     \row \i \inlineimage motif-horizontalscrollbar.png
     \i QScrollBar
 
@@ -96,11 +92,6 @@
     \i QToolBox
 
     The QToolBox class provides a column of tabbed widget items.
-    \row \i \inlineimage motif-stackedwidget.png
-    \i QStackedWidget
-
-    The QStackedWidget class provides a stack of widgets where only
-       the top widget is visible.
     \row \i \inlineimage motif-groupbox.png
     \i QGroupBox
 

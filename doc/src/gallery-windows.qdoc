@@ -92,11 +92,6 @@
     \i QToolBox
 
     The QToolBox class provides a column of tabbed widget items.
-    \row \i \inlineimage windows-stackedwidget.png
-    \i QStackedWidget
-
-    The QStackedWidget class provides a stack of widgets where only
-       the top widget is visible.
     \row \i \inlineimage windows-groupbox.png
     \i QGroupBox
 
