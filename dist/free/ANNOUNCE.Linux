@@ -18,7 +18,7 @@ Qt is easy to learn, with consistent naming across all the classes and a
 14-chapter on-line tutorial with links into the rest of the documentation.
 
 Qt dramatically cuts down on development time and complexity in writing
-user interface software for X-Windows.  It allows the programmer to focus
+user interface software for X-Windows.	It allows the programmer to focus
 directly on the programming task, and not mess around with low-level X11
 code.
 
@@ -36,7 +36,7 @@ on the screen can generate printer output.  You can also do arbitrary
 clipping, rotation, and scaling - simply and fast.
 
 Qt is very fast and compact because it is based directly on Xlib and uses
-neither Motif nor X Intrinsics.  Qt's widgets (user interface objects)
+neither Motif nor X Intrinsics.	 Qt's widgets (user interface objects)
 emulate the Motif look and feel, with slight improvements.
 
 Qt is available under several licenses:
@@ -47,7 +47,7 @@ Qt is available under several licenses:
 
 Note that the toolkit is the same, only the licenses differ.
 
-The Qt GUI toolkit is copyright Troll Tech AS.  It is available (at the
+The Qt GUI toolkit is copyright Troll Tech AS.	It is available (at the
 time of writing) for Windows 95/NT and several variations of Unix (X11
 release 5 or later).  See http://www.troll.no/ for more availability
 information, or fax Troll Tech at +47 22646949.
@@ -71,17 +71,18 @@ You can contact Troll Tech at
 And here is the LSM entry:
 
 Begin3
-Title:          Qt toolkit
-Version:        1.0
-Entered-date:   06sep96
-Description:    C++ GUI class library with Motif look and feel
-Keywords:       gui library motif c++
-Author:         qt-bugs@troll.no
-Maintained-by:  qt-bugs@troll.no
-Primary-site:   sunsite.unc.edu /pub/Linux/X11/devel
-                1240kB qt-1.0.tar.gz
+Title:		Qt toolkit
+Version:	1.0
+Entered-date:	06sep96
+Description:	C++ GUI class library with Motif look and feel
+Keywords:	gui library motif c++
+Author:		qt-bugs@troll.no
+Maintained-by:	qt-bugs@troll.no
+Primary-site:	sunsite.unc.edu /pub/Linux/X11/devel
+		1240kB qt-1.0.tar.gz
 Alternate-site: ftp.troll.no /qt/linux
-                1240kB qt-1.0.tar.gz
-Platform:       linux/X11R6
+		1240kB qt-1.0.tar.gz
+Platform:	linux/X11R6
 Copying-policy: freely distributable with certain restrictions
 End
+

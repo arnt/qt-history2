@@ -1,21 +1,21 @@
-                       Frequently Asked Questions
+		       Frequently Asked Questions
 
 
-1:  Will Qt continue to be free? 
+1:  Will Qt continue to be free?
 
     A: We will continue to release free versions for the X Window System,
        and they will be free for non-commercial purposes.
 
        Send a mail to sales@troll.no for more information.
 
-2:  What kind of licenses exist for Qt? 
+2:  What kind of licenses exist for Qt?
 
     A: The Qt toolkit is available under several licenses; the free license
        for X, a license for shareware developers for X and a fully-fledged
        commercial license.
 
 3:  What are the differences between the free and commercial versions of Qt?
- 
+
     A: You can write commercial software using the commercial license.
        The library itself is the same. You also get 1 year of free support
        when you buy a commercial license.
@@ -30,29 +30,29 @@
        distribution and you have to make your source code available.
 
 5:  Can I write software under the GNU General Public License, GNU
-    General Library Public License or BSD licenses using the Qt free license? 
+    General Library Public License or BSD licenses using the Qt free license?
 
-    A: Yes. 
+    A: Yes.
 
 6:  Really? Your additional requirements seem to conflict with the GPL.
 
-    A: Really yes. We require cooperation from you, in return you can use 
+    A: Really yes. We require cooperation from you, in return you can use
        Qt. We could have demanded money (actually, we do for the commercial
        license) and still not have been in conflict with the GPL.
 
-7:  I want to use Qt to develop free software on Windows. 
+7:  I want to use Qt to develop free software on Windows.
 
-    A: Qt is not free for Windows.  We do however sell commercial licenses. 
+    A: Qt is not free for Windows.  We do however sell commercial licenses.
 
-8:  When will 1.0 be released? 
+8:  When will 1.0 be released?
 
     A: Now!
 
-9:  I don't want to give away my source. What do I do? 
+9:  I don't want to give away my source. What do I do?
 
-    A: Then you need a shareware or commercial license. 
+    A: Then you need a shareware or commercial license.
 
-10: Can I charge for my application? 
+10: Can I charge for my application?
 
     A: If you have a commercial license; of course. If you have a free
        license your software must be freely distributable and you must
@@ -62,7 +62,7 @@
        CD-ROMs cost money to produce, for example, so you can charge a
        copying fee.
 
-11: Where can I find Qt?  
+11: Where can I find Qt?
 
     A: The latest version of Qt can be downloaded from http://www.troll.no/
        or from ftp.troll.no, or (less often updated) from sunsite.unc.edu
@@ -71,7 +71,7 @@
        We encourage all developers of software that use Qt to upload
        their work to ftp.troll.no.
 
-12: Who is Troll Tech and what are your future plans?  
+12: Who is Troll Tech and what are your future plans?
 
     A: Troll Tech consists of four talented, hard-working programmers who
        work day and night to improve Qt, and enjoy it. We started the
@@ -82,20 +82,20 @@
        develop code based on Qt for the Norwegian division of NCR
        (previously AT&T).
 
-13: Can I use Qt's classes without writing a graphical user interface?  
+13: Can I use Qt's classes without writing a graphical user interface?
 
     A: Quite a few of the classes can be used independently of the user
        interface. See utility classes, There are also a few classes that
        will work without the GUI only by chance.
 
-14: I want to port Qt to a new platform.  What do I do? 
+14: I want to port Qt to a new platform.  What do I do?
 
     A: If the new platform is POSIX-like and runs the X Window System, it's
-       simple.  Read the file PORTING for details. If you succeed you can
+       simple.	Read the file PORTING for details. If you succeed you can
        send us the patches.  When we've added your patches to our source
        tree, Qt will officially support the new platform.
 
-15: Will Qt be available for [OS/2, Mac, Amiga]? 
+15: Will Qt be available for [OS/2, Mac, Amiga]?
 
     A: At present, Qt only works well on X11 and Win32 (Windows 95 and
        Windows NT).  Porting to other platforms is a lower priority.
@@ -109,13 +109,13 @@
        source code.)
 
 17: Can I distribute dynamically linked applications that use Qt?
-    Can I distribute statically linked applications that use Qt? 
+    Can I distribute statically linked applications that use Qt?
 
-    A: Yes and yes, as long as you do not modify Qt. 
+    A: Yes and yes, as long as you do not modify Qt.
 
-18: I need to modify Qt 
+18: I need to modify Qt
 
-    A: Are you sure?  Inheritance is very often a  better alternative.  If
+    A: Are you sure?  Inheritance is very often a  better alternative.	If
        you do change Qt, you may not distribute the modified toolkit or
        programs using it.
 
@@ -123,15 +123,15 @@
        to evaluate the patches and reply as soon as they come in.  If we
        like what we see, we'll incorporate it in the next Qt release.
 
-19: How can I distribute my cool widget library? 
+19: How can I distribute my cool widget library?
 
-    A: In several ways.  Pick and choose. 
+    A: In several ways.	 Pick and choose.
 
        If the library is small, a widget or two, perhaps the best way is
        to submit it as a contribution to Qt.
 
        If it's larger, you can distribute it, and you can include Qt along
-       with it.  But you _cannot_ include Qt _as_part_of_ your library
+       with it.	 But you _cannot_ include Qt _as_part_of_ your library
        (e.g. by making a shared library which includes Qt and your
        library).
 
@@ -142,7 +142,7 @@
        Ada or Perl bindings, fine.  But anyone who uses your bindings must
        also have a license for Qt.
 
-20: I found this obscure bug and I need it fixed, fast! 
+20: I found this obscure bug and I need it fixed, fast!
 
     A: We sell support and maintenance contracts.  We try to support the
        free users, and we take all bug reports seriously, no matter who
@@ -154,10 +154,11 @@
 21: Is there a mailing list or something for Qt?
 
     A: Yes, qt-interest@nvg.unit.no.  To join, send mail containing the
-       single word "subscribe" to qt-interest-request@nvg.unit.no. 
+       single word "subscribe" to qt-interest-request@nvg.unit.no.
 
 22: Do you have any plans for a graphical designer/dialog builder?
 
-    A: We are working on it now. There will be further announcements on 
+    A: We are working on it now. There will be further announcements on
        qt-interest.
+
 

@@ -12,7 +12,7 @@ Directories:
 ------------
 arch		Where you build Qt
 bin		Place for Qt executables (moc)
-examples	Qt examples 
+examples	Qt examples
 html		Qt documentation in HTML format
 include		Qt include files
 lib		Place for the Qt library
@@ -20,3 +20,4 @@ makefiles	Qt makefile templates
 man		Qt documentation in manpage format
 src		Qt source code
 tutorial	Source code for the Qt tutorial
+
