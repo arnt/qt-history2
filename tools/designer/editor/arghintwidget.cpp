@@ -150,6 +150,10 @@ ArgHintWidget::ArgHintWidget( QWidget *parent )
     connect( prev, SIGNAL( clicked() ), this, SLOT( gotoPrev() ) );
     connect( next, SIGNAL( clicked() ), this, SLOT( gotoNext() ) );
     updateState();
+    setFocusPolicy( NoFocus );
+    prev->setFocusPolicy( NoFocus );
+    next->setFocusPolicy( NoFocus );
+    funcLabel->setFocusPolicy( NoFocus );
 }
 
 void ArgHintWidget::setFunctionText( int func, const QString &text )
