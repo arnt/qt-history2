@@ -1695,7 +1695,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << "MKDIR         = " << var("QMAKE_MKDIR") << endl;
     writeExtraVariables(t);
     t << "SUBTARGETS    = ";     // subtargets are sub-directory
-    for(int target = 0; target < targets.size(); ++target) 
+    for(int target = 0; target < targets.size(); ++target)
         t << " \\\n\t\t" << targets.at(target)->target;
     t << endl << endl;
 
@@ -1795,7 +1795,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
 
         if(flags & SubTargetOrdered) {
             for(int target = 0; target < targets.size()-1; ++target) {
-                t << targets.at(target+1)->target << "-" << suffix << "-ordered: "
+                t << targets.at(target+1)->target << "-" << suffix << ": "
                   << targets.at(target  )->target << "-" << suffix
                   << "\n";
             }
@@ -1804,8 +1804,6 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         t << suffix << ":";
         for(int target = 0; target < targets.size(); ++target) {
             QString targetRule = targets.at(target)->target + "-" + suffix;
-//            if(flags & SubTargetOrdered)
-//                targetRule += "-ordered";
             t << " " << targetRule;
         }
         t << endl;
