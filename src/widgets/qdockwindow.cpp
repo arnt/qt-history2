@@ -50,6 +50,7 @@
 #include "qtimer.h"
 #include "qtooltip.h"
 #include "qguardedptr.h"
+#include "qcursor.h"
 
 #if defined( Q_WS_MAC9 )
 #define MAC_DRAG_HACK
@@ -327,6 +328,8 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void keyReleaseEvent( QKeyEvent *e );
 
 private slots:
     void minimize();
@@ -339,6 +342,7 @@ private:
     uint opaque		: 1;
     uint mousePressed	: 1;
     uint hadDblClick	: 1;
+    uint ctrlDown : 1;
     QGuardedPtr<QWidget> oldFocus;
 };
 
@@ -346,6 +350,7 @@ QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
     : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ),
       closeButton( 0 ), opaque( FALSE ), mousePressed( FALSE )
 {
+    ctrlDown = FALSE;
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
 }
@@ -390,8 +395,29 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
     QWidget::paintEvent( e );
 }
 
+void QDockWindowHandle::keyPressEvent( QKeyEvent *e )
+{
+    if ( !mousePressed )
+	return;
+    if ( e->key() == Key_Control ) {
+	ctrlDown = TRUE;
+	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+    }
+}
+
+void QDockWindowHandle::keyReleaseEvent( QKeyEvent *e )
+{
+    if ( !mousePressed )
+	return;
+    if ( e->key() == Key_Control ) {
+	ctrlDown = FALSE;
+	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+    }
+}
+
 void QDockWindowHandle::mousePressEvent( QMouseEvent *e )
 {
+    ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     oldFocus = qApp->focusWidget();
     setFocus();
     e->ignore();
@@ -410,6 +436,7 @@ void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed || e->pos() == offset )
 	return;
+    ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
     if ( opaque )
 	dockWindow->updatePosition( e->globalPos() );
@@ -417,6 +444,7 @@ void QDockWindowHandle::mouseMoveEvent( QMouseEvent *e )
 
 void QDockWindowHandle::mouseReleaseEvent( QMouseEvent *e )
 {
+    ctrlDown = FALSE;
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
 	oldFocus->setFocus();
@@ -512,6 +540,8 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
     void mouseDoubleClickEvent( QMouseEvent *e );
+    void keyPressEvent( QKeyEvent *e );
+    void keyReleaseEvent( QKeyEvent *e );
 
 signals:
     void doubleClicked();
@@ -533,8 +563,29 @@ QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
       closeButton( 0 ), mousePressed( FALSE ), hadDblClick( FALSE ),
       opaque( FALSE )
 {
+    ctrlDown = FALSE;
     setMouseTracking( TRUE );
     setFixedHeight( 13 );
+}
+
+void QDockWindowTitleBar::keyPressEvent( QKeyEvent *e )
+{
+    if ( !mousePressed )
+	return;
+    if ( e->key() == Key_Control ) {
+	ctrlDown = TRUE;
+	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+    }
+}
+
+void QDockWindowTitleBar::keyReleaseEvent( QKeyEvent *e )
+{
+    if ( !mousePressed )
+	return;
+    if ( e->key() == Key_Control ) {
+	ctrlDown = FALSE;
+	dockWindow->handleMove( QCursor::pos() - offset, QCursor::pos(), !opaque );
+    }
 }
 
 void QDockWindowTitleBar::mousePressEvent( QMouseEvent *e )
@@ -560,14 +611,16 @@ void QDockWindowTitleBar::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !mousePressed )
 	return;
+    ctrlDown = ( e->state() & ControlButton ) == ControlButton;
     e->accept();
     dockWindow->handleMove( e->globalPos() - offset, e->globalPos(), !opaque );
-    if ( opaque && !ctrlDown )
+    if ( opaque )
 	dockWindow->updatePosition( e->globalPos() );
 }
 
 void QDockWindowTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
+    ctrlDown = FALSE;
     qApp->removeEventFilter( dockWindow );
     if ( oldFocus )
 	oldFocus->setFocus();
@@ -936,7 +989,7 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     }
     currRect = QRect( realWidgetPos( this ), size() );
     QWidget *w = areaAt( gp );
-    if ( titleBar->ctrlDown )
+    if ( titleBar->ctrlDown || horHandle->ctrlDown || verHandle->ctrlDown )
 	w = 0;
     QPoint offset( mapFromGlobal( pos ) );
     currRect.moveBy( offset.x(), offset.y() );
