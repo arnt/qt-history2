@@ -255,6 +255,11 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	if(!ret || !dstbitmap)
 	    return;
     }
+    //if we are not scaling and we've fixed number we should fix the source
+    if(!scalew && sw != dw)
+	sw = dw;
+    if(!scaleh && sh != dh)
+	sh = dh;
 
     if(!dstbitmap || !srcbitmap) {
 	qDebug("bitBlt: Something is very wrong! %d", __LINE__);
