@@ -225,8 +225,8 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
     View v;
     a.setMainWidget( &v );
-    v.show();
     v.resize( 900, 480 );
+    v.show();
 
     return a.exec();
 }
