@@ -434,7 +434,7 @@ QRect QRegion::boundingRect() const
 {
     Rect r;
     GetRegionBounds(data->rgn, &r);
-    return QRect(r.left, r.top, r.right - r.left, r.bottom - r.top); 
+    return QRect(r.left, r.top, (r.right - r.left), (r.bottom - r.top)); 
 }
 
 

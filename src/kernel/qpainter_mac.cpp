@@ -79,7 +79,7 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 	paintEventClipRegion->translate(mp.x(), mp.y());
 
 	QRegion wclip = w->clippedRegion();
-	if(!wclip.isEmpty())
+	if(!wclip.isNull())
 	    *paintEventClipRegion &= wclip;
     }
     paintEventDevice = dev;
@@ -315,10 +315,12 @@ bool QPainter::begin( const QPaintDevice *pd )
             updatePen();
             updateBrush();
         }  else {
-	    if(paintEventDevice == pdev)
+	    if(paintEventDevice == pdev) {
 		clippedreg = *paintEventClipRegion;
-	    else
+	    }
+	    else {
 		clippedreg = w->clippedRegion();
+	    }
 	}
     } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
@@ -356,7 +358,7 @@ bool QPainter::begin( const QPaintDevice *pd )
         setRasterOp( CopyROP );                 // default raster operation
     }
 
-    if(!clippedreg.isEmpty())
+    if(!clippedreg.isNull())
 	SetClip((RgnHandle)clippedreg.handle());
     updateBrush();
     updatePen();
@@ -426,14 +428,14 @@ void QPainter::setClipping( bool b )
     QRegion reg;
     if(b) {
 	setf(ClipOn);
-	if(!crgn.isEmpty())
+	if(!crgn.isNull())
 	    reg = crgn;
     } else {
 	clearf(ClipOn);
     }
 
-    if(!clippedreg.isEmpty()) {
-	if(reg.isEmpty())
+    if(!clippedreg.isNull()) {
+	if(reg.isNull())
 	    reg = clippedreg;
 	else 
 	    reg &= clippedreg;
@@ -453,8 +455,8 @@ void QPainter::setClipRegion( const QRegion &r )
     rset.translate(offx, offy);
     crgn = rset;
 
-    if(!clippedreg.isEmpty()) {
-	if(r.isEmpty())
+    if(!clippedreg.isNull()) {
+	if(r.isNull())
 	    rset = clippedreg;
 	else 
 	    rset &= clippedreg;
@@ -606,13 +608,16 @@ void QPainter::drawRect( int x, int y, int w, int h )
             return;
         fix_neg_rect( &x, &y, &w, &h );
     }
+#if 0 //FIXME, this was causing an off by one, I'm not sure if every paint is going to have this
+    //problem or if this calculation is unnecesary, I need to revisit (canonball on t14 exhibited a problem)
     if ( cpen.style() == NoPen ) {
 	w++;
         h++;
     }
+#endif
 
     Rect rect;
-    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
+    SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
     if( this->brush().style() == SolidPattern ) {
 	updateBrush();
 	PaintRect( &rect );

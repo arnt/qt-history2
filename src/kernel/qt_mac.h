@@ -1,7 +1,11 @@
 #ifndef QT_MACH_H
 
+#ifdef QTDEBUG
+#warning "Guess I didn't realize this would ever happen.."
+#endif
+
 #if defined(DEBUG)
-#    define QTDEBUG
+#    define QTDEBUG DEBUG
 #    undef DEBUG
 #    define DEBUG 0
 #endif
@@ -11,7 +15,8 @@
 
 #if defined (QTDEBUG)
 #    undef DEBUG
-#    define DEBUG
+#    define DEBUG QTDEBUG
+#    undef QTDEBUG
 #endif
 
 class QMacSavedPortInfo

@@ -827,8 +827,8 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	if ( erase )
 	    this->erase(reg);
 
-	QPaintEvent e( reg );
 	qt_set_paintevent_clipping( this, reg );
+	QPaintEvent e( reg );
 	QApplication::sendEvent( this, &e );
 	qt_clear_paintevent_clipping();
     }
@@ -1252,6 +1252,8 @@ void QWidget::erase( int x, int y, int w, int h )
   Child widgets are not affected.
 */
 
+bool shit = FALSE;
+
 void QWidget::erase( const QRegion& reg )
 {
     if ( backgroundMode() == NoBackground )
@@ -1267,18 +1269,16 @@ void QWidget::erase( const QRegion& reg )
 	yoff = mp.y();
     }
 
-    //OPTIMIZATION fixme, I think macwindows is capable of doing this for us, look at PixBack fu
     QPainter p;
     p.begin(this);
     p.setClipRegion(reg);
-
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point((rr.x()+xoff)%extra->bg_pix->width(), (rr.y()+yoff)%extra->bg_pix->height());
 	    p.drawTiledPixmap(rr,*extra->bg_pix, point);
 	} 
     } else {
-	p.fillRect(rr,bg_col);
+	p.fillRect(rr, bg_col);
     }
     p.end();
 }
@@ -1569,20 +1569,8 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 
 QRegion QWidget::clippedRegion()
 {
-    bool do_debug = FALSE;
-#if 0
-    static QString foo;
-    if(foo != name()) {
-	do_debug = TRUE;
-	foo = name();
-    }
-#endif
-
-    if(do_debug) qDebug("ClippedRegion()..%s %s", name(), className());
-
     QPoint mp = posInWindow(this);
     QRegion mr(mp.x(), mp.y(), width(), height());
-
     QRegion clippedRgn;
 
     QPoint tmp;
@@ -1592,7 +1580,7 @@ QRegion QWidget::clippedRegion()
 	    if((*it)->isWidgetType()) {
 		QWidget *cw = (QWidget *)(*it);
 		if( cw->isVisible() ) {
-		    QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());;
+		    QRegion childrgn(mp.x()+cw->x(), mp.y()+cw->y(), cw->width(), cw->height());
 		    if(cw->extra && !cw->extra->mask.isNull()) {
 			QRegion mask = cw->extra->mask;
 			mask.translate(mp.x()+cw->x(), mp.y()+cw->y());
@@ -1605,7 +1593,6 @@ QRegion QWidget::clippedRegion()
     }
 
     //clip away my siblings
-
     if(!isTopLevel() && parentWidget()) {
 	if(const QObjectList *siblst = parentWidget()->children()) {
 	    //loop to this because its in zorder, and i don't care about people behind me
@@ -1630,6 +1617,7 @@ QRegion QWidget::clippedRegion()
     }
 
     clippedRgn = (mr & clippedRgn) ^ mr;
+    //clip my rect with my mask
     if(extra && !extra->mask.isNull()) {
 	QRegion mask = extra->mask;
 	mask.translate(mp.x(), mp.y());
