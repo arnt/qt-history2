@@ -46,6 +46,7 @@ private:
     void add(const QString &className);
 
 private:
+    Uic *uic;
     Driver *driver;
     QTextStream &output;
     const Option &option;

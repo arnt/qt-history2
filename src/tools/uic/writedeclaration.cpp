@@ -15,6 +15,7 @@
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
+#include "databaseinfo.h"
 
 #include <qtextstream.h>
 
@@ -33,6 +34,14 @@ void WriteDeclaration::accept(DomUI *node)
 
     output << "struct " << className << "\n"
            << "{\n";
+
+    foreach (QString connection, uic->databaseInfo()->connections()) {
+        if (connection == QLatin1String("(default)"))
+            continue;
+
+        // ### the var `<connection>Connection' can be already used!!!
+        output << option.indent << "QSqlDatabase *" << connection << "Connection;\n";
+    }
 
     TreeWalker::accept(node->elementWidget());
 

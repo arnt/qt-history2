@@ -15,6 +15,7 @@
 #include "ui4.h"
 #include "utils.h"
 #include "uic.h"
+#include "databaseinfo.h"
 
 #include <qtextstream.h>
 #include <qdebug.h>
@@ -23,6 +24,7 @@ WriteInitialization::WriteInitialization(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option()),
       m_defaultMargin(0), m_defaultSpacing(0), m_externPixmap(true)
 {
+    this->uic = uic;
 }
 
 void WriteInitialization::accept(DomUI *node)
@@ -58,6 +60,14 @@ void WriteInitialization::accept(DomUI *node)
 
     output << "inline void " << className << "::setupUi(" << widgetClassName << " *" << varName << ")\n"
            << "{\n";
+
+    foreach (QString connection, uic->databaseInfo()->connections()) {
+        if (connection == QLatin1String("(default)"))
+            continue;
+
+        QString varConn = connection + QLatin1String("Connection");
+        output << option.indent << varConn << " = QSqlDatabase::database(" << fixString(connection) << ");\n";
+    }
 
     accept(node->elementWidget());
 

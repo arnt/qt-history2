@@ -14,12 +14,14 @@
 #include "driver.h"
 #include "ui4.h"
 #include "uic.h"
+#include "databaseinfo.h"
 
 #include <qtextstream.h>
 
 WriteIncludes::WriteIncludes(Uic *uic)
     : driver(uic->driver()), output(uic->output()), option(uic->option())
 {
+    this->uic = uic;
 }
 
 void WriteIncludes::accept(DomUI *node)
@@ -35,6 +37,13 @@ void WriteIncludes::accept(DomUI *node)
 
     m_includes.insert("qapplication.h", true);
     m_includes.insert("qvariant.h", true);
+
+    if (uic->databaseInfo()->connections().size()) {
+        m_includes.insert("qsqldatabase.h", true);
+        m_includes.insert("qsqlcursor.h", true);
+        m_includes.insert("qsqlrecord.h", true);
+        m_includes.insert("qsqlform.h", true);
+    }
 
     TreeWalker::accept(node);
 
@@ -81,7 +90,6 @@ void WriteIncludes::add(const QString &className)
         return;
 
     QString header = className.toLower() + ".h";
-    // ### move in a simplified MetaDataBase
 
     if (className == QLatin1String("QVBoxLayout")  // special case for layouts
             || className == QLatin1String("QHBoxLayout")
@@ -95,7 +103,8 @@ void WriteIncludes::add(const QString &className)
     } else if (className == QLatin1String("QDateEdit") // special case for datetime
             || className == QLatin1String("QTimeEdit")) {
         m_includes.insert("qdatetimeedit.h", true);
-    } else if (!m_includes.contains(header) && !m_customWidgets.contains(className)) {
+    } else if (!m_includes.contains(header)
+            && !m_customWidgets.contains(className)) {
         m_includes.insert(header, true);
     }
 

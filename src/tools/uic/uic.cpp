@@ -106,6 +106,7 @@ bool Uic::write(DomUI *ui)
     if (opt.headerProtection)
         writeHeaderProtectionStart();
 
+    info.accept(ui);
     WriteIncludes(this).accept(ui);
 
     if (opt.generateNamespace)
@@ -129,7 +130,7 @@ void Uic::writeHeaderProtectionStart()
 {
     QString h = drv->headerFileName();
     out << "#ifndef " << h << "\n"
-           << "#define " << h << "\n\n";
+        << "#define " << h << "\n\n";
 }
 
 void Uic::writeHeaderProtectionEnd()
