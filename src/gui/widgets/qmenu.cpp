@@ -405,12 +405,12 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
             break;
         }
     }
-    if(location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp) 
+    if(location == QMenuScroller::ScrollTop && (newScrollFlags & QMenuScroller::ScrollUp)
        && !(scroll->scrollFlags & QMenuScroller::ScrollUp))
-        newOffset += scrollHeight; 
-    else if(location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown) 
+        newOffset += scrollHeight;
+    else if(location == QMenuScroller::ScrollBottom && (newScrollFlags & QMenuScroller::ScrollDown)
             && !(scroll->scrollFlags & QMenuScroller::ScrollDown))
-        newOffset -= scrollHeight; 
+        newOffset -= scrollHeight;
 
     int dh = QApplication::desktop()->height();
     const int desktopFrame = q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
@@ -418,7 +418,7 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
         QRect geom = q->geometry();
         if(newOffset > d->scroll->scrollOffset) { //scroll down
             geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
-        } else { 
+        } else {
             geom.setTop(geom.top() + (scroll->scrollOffset-newOffset));
             if(geom != q->geometry())
                 newOffset = 0;
@@ -449,7 +449,7 @@ void QMenuPrivate::scrollMenu(QMenuScroller::ScrollDirection direction, bool pag
     const int scrollHeight = q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q);
     const int topScroll = (scroll->scrollFlags & QMenuScroller::ScrollUp)   ? scrollHeight : 0;
     const int botScroll = (scroll->scrollFlags & QMenuScroller::ScrollDown) ? scrollHeight : 0;
-    if(direction == QMenuScroller::ScrollUp) { 
+    if(direction == QMenuScroller::ScrollUp) {
         for(int i = 0, saccum = 0; i < actionList.count(); i++) {
             QAction *act = actionList.at(i);
             const int iHeight = actionRects.value(act).height();
@@ -1035,7 +1035,7 @@ bool QMenu::isCheckable() const
 void QMenu::setActiveAction(QAction *act)
 {
     d->setCurrentAction(act);
-    if(d->scroll) 
+    if(d->scroll)
         d->scrollMenu(act, QMenuPrivate::QMenuScroller::ScrollCenter);
 }
 
@@ -1082,7 +1082,7 @@ int QMenu::columnCount() const
 */
 QAction *QMenu::actionAtPos(const QPoint &pt) const
 {
-    if(QAction *ret = d->actionAt(pt)) 
+    if(QAction *ret = d->actionAt(pt))
         return ret;
     return 0;
 }
@@ -1473,8 +1473,8 @@ void QMenu::paintEvent(QPaintEvent *e)
 */
 void QMenu::wheelEvent(QWheelEvent *e)
 {
-    if(d->scroll && rect().contains(e->pos())) 
-        d->scrollMenu(e->delta() > 0 ? 
+    if(d->scroll && rect().contains(e->pos()))
+        d->scrollMenu(e->delta() > 0 ?
                       QMenuPrivate::QMenuScroller::ScrollUp : QMenuPrivate::QMenuScroller::ScrollDown);
 }
 #endif
@@ -1599,19 +1599,19 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     bool key_consumed = false;
     switch(key) {
     case Qt::Key_Home:
-        if(d->currentAction && d->scroll) 
+        if(d->currentAction && d->scroll)
             d->scrollMenu(d->actionList.first(), QMenuPrivate::QMenuScroller::ScrollTop, true);
         break;
     case Qt::Key_End:
-        if(d->currentAction && d->scroll) 
+        if(d->currentAction && d->scroll)
             d->scrollMenu(d->actionList.last(), QMenuPrivate::QMenuScroller::ScrollBottom, true);
         break;
     case Qt::Key_PageUp:
-        if(d->currentAction && d->scroll) 
+        if(d->currentAction && d->scroll)
             d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollUp, true, true);
         break;
     case Qt::Key_PageDown:
-        if(d->currentAction && d->scroll) 
+        if(d->currentAction && d->scroll)
             d->scrollMenu(QMenuPrivate::QMenuScroller::ScrollDown, true, true);
         break;
     case Qt::Key_Up:
@@ -1855,10 +1855,8 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
 
     QAction *action = d->actionAt(e->pos());
     if(!action) {
-        const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, this);
-        if(e->pos().x() <= fw || e->pos().x() >= width()-fw ||
-           e->pos().y() <= fw || e->pos().y() >= height()-fw)
-            return; //mouse over frame
+        d->setCurrentAction(0);
+        return;
     } else {
         d->mouseDown = e->state() & Qt::LeftButton;
     }
@@ -1884,10 +1882,6 @@ void QMenu::leaveEvent(QEvent *)
     d->sloppyAction = 0;
     if(!d->sloppyRegion.isEmpty())
         d->sloppyRegion = QRegion();
-#if 0
-    if(!d->tornoff)
-        d->setCurrentAction(0);
-#endif
 }
 
 /*!
