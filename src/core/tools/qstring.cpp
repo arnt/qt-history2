@@ -5873,7 +5873,7 @@ QConstString::QConstString(const QChar *unicode, int length)
 }
 
 /*! \class QLatin1String
-    \brief The QLatin1String provides a thin wrapper around an ASCII/Latin-1 encoded string literal.
+    \brief The QLatin1String class provides a thin wrapper around an ASCII/Latin-1 encoded string literal.
 
     \ingroup text
     \reentrant
