@@ -237,12 +237,12 @@ def canonicalise(s):
 def normalise(s, lookup=0):
     result = canonicalise(s)
     if not lookup:
-	key = s.strip()
-	if ' ' in key and key[0] in string.uppercase:
-	    TARGETS[key] = result
 	while LINKS.has_key(result):
 	    result += 'x'
 	LINKS[result] = 1
+	key = s.strip()
+	if ' ' in key and key[0] in string.uppercase:
+	    TARGETS[key] = result
 	return result
     else:
 	if LINKS.has_key(result):
