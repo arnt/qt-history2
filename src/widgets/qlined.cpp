@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#114 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#115 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#115 $");
 
 
 struct QLineEditPrivate {
@@ -1407,4 +1407,14 @@ void QLineEdit::setFont( const QFont & f )
 {
     d->pmDirty = TRUE;
     QWidget::setFont( f );
+}
+
+
+/*!  Syntax sugar for setText( "" ), provided to match no-argument
+  signals.
+*/
+
+void QLineEdit::clear()
+{
+    setText( "" );
 }
