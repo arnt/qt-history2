@@ -225,9 +225,8 @@ struct QScriptLine
     short width;
     short x;
     int y;
-    int position;
-    int nGlyphs;
-    int glyphData;
+    int from;
+    int length;
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 

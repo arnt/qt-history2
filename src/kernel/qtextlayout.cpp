@@ -636,3 +636,117 @@ bool QTextLayout::validCursorPosition( int pos ) const
     return attributes[pos].charStop;
 }
 
+QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
+{
+    QScriptLine line;
+    line.x = x1;
+    line.width = x2-x1;
+    line.y = y;
+    line.from = from;
+
+    // ######
+    // Readd breakany, tab and whitespace at end of line support.
+    bool breakany = false;
+
+    // add to the line until it's filled up.
+    if (from < 0 || from > d->string.length())
+	return QTextLine();
+
+    int item;
+    for ( item = d->items.size()-1; item > 0; --item ) {
+	if ( d->items[item].position <= from )
+	    break;
+    }
+
+    const QCharAttributes *attributes = d->attributes();
+
+    int w = 0;
+
+    while (item < d->items.size()) {
+	const QScriptItem &current = d->items[item];
+	d->shape(item);
+
+	int length = current.position;
+
+	const QCharAttributes *itemAttrs = attributes + current.position;
+	QGlyphLayout *glyphs = d->glyphs(&current);
+	unsigned short *logClusters = d->logClusters(&current);
+
+	int pos = 0;
+
+	do {
+	    int next = pos;
+	    while (next < length && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop))
+		next++;
+	    if (itemAttrs[next].softBreak)
+		breakany = false;
+
+	    int gs = logClusters[pos];
+	    int ge = logClusters[next];
+
+	    int tmpw = 0;
+	    while (gs < ge) {
+		tmpw += glyphs[gs].advance;
+		++gs;
+	    }
+
+	    if (w + tmpw > line.width) {
+		line.width = w;
+		line.length = current.position + pos - from;
+		break;
+	    }
+	    pos = next;
+	} while (pos < length);
+	++item;
+    }
+
+    int l = d->lines.size();
+    d->lines.append(line);
+    return QTextLine(l, d);
+}
+
+QRect QTextLine::rect() const
+{
+    const QScriptLine& si = eng->lines[i];
+    return QRect( si.x, si.y - si.ascent, si.width, si.ascent+si.descent );
+}
+
+int QTextLine::x() const
+{
+    return eng->lines[i].x;
+}
+
+int QTextLine::y() const
+{
+    return eng->lines[i].y;
+}
+
+int QTextLine::width() const
+{
+    return eng->lines[i].width;
+}
+
+int QTextLine::ascent() const
+{
+    return eng->lines[i].ascent;
+}
+
+int QTextLine::descent() const
+{
+    return eng->lines[i].descent;
+}
+
+
+void QTextLine::adjust(int y, int x1, int x2)
+{
+}
+
+int QTextLine::from() const
+{
+    return eng->lines[i].from;
+}
+
+int QTextLine::length() const
+{
+    return eng->lines[i].length;
+}

@@ -75,7 +75,6 @@ private:
     QTextEngine *eng;
 };
 
-#if 0
 class QTextLine
 {
 public:
@@ -84,12 +83,11 @@ public:
     inline bool isValid() const { return (bool)eng; }
 
     QRect rect() const;
-    int x1() const;
-    int x2() const;
+    int x() const;
     int y() const;
+    int width() const;
     int ascent() const;
     int descent() const;
-    int height() const;
 
 #if 0
     enum Edge {
@@ -108,11 +106,6 @@ public:
 #endif
 
     void adjust(int y, int x1, int x2);
-
-    void setWidth( int w );
-    void setAscent( int a );
-    void setDescent( int d );
-
     int from() const;
     int length() const;
 
@@ -124,7 +117,6 @@ private:
     int i;
     QTextEngine *eng;
 };
-#endif
 
 class QPainter;
 
@@ -164,9 +156,9 @@ public:
 	SingleLine,
 	MultiLine
     };
-#if 0
+
     QTextLine createLine(int from, int y, int x1, int x2);
-#else
+#if 1
     void beginLayout( LayoutMode m = MultiLine );
     void beginLine( int width );
 
