@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#47 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -293,22 +293,29 @@ int QPrinter::metric( int m ) const
 #if defined(CHECK_RANGE)
     ASSERT( (uint)s <= (uint)Executive );
 #endif
-    static int widths[]	 = { 595, 516, 612, 612, 541 };
-    static int heights[] = { 842, 729, 791, 1009, 720 };
-    static int widthsMM[]  = { 210, 182, 216, 216, 191 };
-    static int heightsMM[] = { 297, 257, 279, 356, 254 };
+    static int widths[]	 = { 595, 516, 612, 612, 541,
+			     2384, 1684, 1191, 842, 420, 297, 210, 148, 105,
+			     2920, 2064, 91, 1460, 1032, 729, 516, 363, 258,
+			     181, 127, 461, 297, 312, 595, 1224, 792 }; 
+    
+    static int heights[] = { 842, 729, 791, 1009, 720,
+			     3370, 2384, 1684, 1191, 595, 420, 297, 210, 148,
+			     4127, 2920, 127, 2064, 1460, 1032, 729, 516, 363,
+			     258, 181, 648, 684, 624, 935, 792, 1224 };
     switch ( m ) {
 	case PDM_WIDTH:
-	    val = orient == Portrait ? widths[ s ] :  heights[ s ];
+	    val = orient == Portrait ? widths[ s ] : heights[ s ];
 	    break;
 	case PDM_HEIGHT:
-	    val = orient == Portrait ? heights[ s ] :  widths[ s ];
+	    val = orient == Portrait ? heights[ s ] : widths[ s ];
 	    break;
 	case PDM_WIDTHMM:
-	    val = orient == Portrait ? widthsMM[ s ] :	heightsMM[ s ];
+	    val = orient == Portrait ? widths[ s ] : heights[ s ];
+	    val = (val * 254 + 360) / 720; // +360 to get the right rounding
 	    break;
 	case PDM_HEIGHTMM:
-	    val = orient == Portrait ? heightsMM[ s ] :	 widthsMM[ s ];
+	    val = orient == Portrait ? heights[ s ] : widths[ s ];
+	    val = (val * 254 + 360) / 720;
 	    break;
 	case PDM_NUMCOLORS:
 	    val = 16777216;

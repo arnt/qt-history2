@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#23 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#24 $
 **
 ** Definition of QPrinter class
 **
@@ -37,7 +37,10 @@ public:
    ~QPrinter();
 
     enum Orientation { Portrait, Landscape };
-    enum PageSize    { A4, B5, Letter, Legal, Executive };
+    enum PageSize    { A4, B5, Letter, Legal, Executive,
+		       A0, A1, A2, A3, A5, A6, A7, A8, A9, B0, B1,
+		       B10, B2, B3, B4, B6, B7, B8, B9, C5E, Comm10E,
+		       DLE, Folio, Ledger, Tabloid };
     enum PageOrder   { FirstPageFirst, LastPageFirst };
     enum ColorMode   { GrayScale, Color };
 
@@ -62,7 +65,7 @@ public:
 
     void	setPageOrder( PageOrder );
     PageOrder	pageOrder() const;
-    
+
     void	setColorMode( ColorMode );
     ColorMode	colorMode() const;
 
