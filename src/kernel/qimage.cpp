@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#27 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#27 $";
 #endif
 
 /*!
@@ -271,7 +271,7 @@ Returns the width of the image
 */
 
 /*!
-\fn int QImage::heigh() const
+\fn int QImage::height() const
 Returns the height of the image.*/
 
 /*!
