@@ -22,7 +22,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     QMacSavedPortInfo saveportstate; 
 
     SetGWorld((GWorldPtr)hd,0);
-#if 0
+#ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 
@@ -46,7 +46,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	    SetCPixel(x,y,&r);
 	}
     }
-#if 0
+#ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 }
@@ -130,7 +130,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     QMacSavedPortInfo saveportstate; 
 
     SetGWorld((GWorldPtr)hd,0);
-#if 0
+#ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 
@@ -161,7 +161,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	setMask( m );
     }
 
-#if 0
+#ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
     return TRUE;
@@ -232,7 +232,7 @@ QImage QPixmap::convertToImage() const
     QMacSavedPortInfo saveportstate; 
 
     SetGWorld((GWorldPtr)hd,0);
-#if 0
+#ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 
@@ -316,7 +316,7 @@ QImage QPixmap::convertToImage() const
 	}
     }
 
-#if 0
+#ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
     return *image;
@@ -334,7 +334,7 @@ void QPixmap::fill( const QColor &fillColor )
     QMacSavedPortInfo saveportstate; 
 
     SetGWorld((GWorldPtr)hd,0);
-#if 0
+#ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
 
@@ -345,7 +345,7 @@ void QPixmap::fill( const QColor &fillColor )
     SetRect(&r,0,0,width(),height());
     PaintRect(&r);
 
-#if 0
+#ifndef ONE_PIXEL_LOCK
     UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
 #endif
 }
@@ -397,7 +397,9 @@ void QPixmap::deref()
             data->mask = 0;
         }
         if ( hd && qApp ) {
+#ifdef ONE_PIXEL_LOCK
 	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+#endif
             DisposeGWorld((GWorldPtr)hd);
             hd = 0;
         }
@@ -678,7 +680,9 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     /* actually create world */
     QDErr e=NewGWorld( (GWorldPtr *)&hd, 0, &rect, data->clut ? &data->clut : NULL, 
 		       0, alignPix | stretchPix | newDepth );
+#ifdef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+#endif
 
     /* error? */
     if((e & gwFlagErr)!=0) {

@@ -482,7 +482,7 @@ bool QPainter::end()				// end painting
     if ( testf( FontInf ) )                       // remove references to this
         QFontInfo::reset( this );
 
-#if 0
+#ifndef ONE_PIXEL_LOCK
     if ( pdev->devType() == QInternal::Pixmap )
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)pdev->handle()));
 #endif
@@ -1647,7 +1647,7 @@ void QPainter::initPaintDevice(bool force) {
 
 	//setup the gworld
 	SetGWorld((GWorldPtr)pm->handle(),0);
-#if 0
+#ifndef ONE_PIXEL_LOCK
 	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
 #endif
 
