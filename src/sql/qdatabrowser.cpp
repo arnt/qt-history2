@@ -1097,7 +1097,6 @@ bool QDataBrowser::preNav()
 		break;
 	    case QSql::Cancel:
 		return FALSE;
-		break;
 	    }
 	    break;
 	default:
@@ -1111,7 +1110,6 @@ bool QDataBrowser::preNav()
 		break;
 	    case QSql::Cancel:
 		return FALSE;
-		break;
 	    }
 	}
 	return ok;

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#206 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -4194,10 +4194,12 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
   USHORT glyphIndex;
   int arg1;
   int arg2;
+#ifdef DEBUG_TRUETYPE
   USHORT xscale;
   USHORT yscale;
   USHORT scale01;
   USHORT scale10;
+#endif
 
   /* Once around this loop for each component. */
   do {
@@ -4220,27 +4222,44 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
     }
 
     if(flags & WE_HAVE_A_SCALE) {
+#ifdef DEBUG_TRUETYPE
       xscale = yscale = getUSHORT(glyph);
-      glyph += 2;
       scale01 = scale10 = 0;
+#endif
+      glyph += 2;
     } else if(flags & WE_HAVE_AN_X_AND_Y_SCALE) {
+#ifdef DEBUG_TRUETYPE
       xscale = getUSHORT(glyph);
+#endif
       glyph += 2;
+#ifdef DEBUG_TRUETYPE
       yscale = getUSHORT(glyph);
-      glyph += 2;
       scale01 = scale10 = 0;
+#endif
+      glyph += 2;
     } else if(flags & WE_HAVE_A_TWO_BY_TWO) {
+#ifdef DEBUG_TRUETYPE
       xscale = getUSHORT(glyph);
+#endif
       glyph += 2;
+#ifdef DEBUG_TRUETYPE
       scale01 = getUSHORT(glyph);
+#endif
       glyph += 2;
+#ifdef DEBUG_TRUETYPE
       scale10 = getUSHORT(glyph);
+#endif
       glyph += 2;
+#ifdef DEBUG_TRUETYPE
       yscale = getUSHORT(glyph);
+#endif
       glyph += 2;
-    } else {
+    }
+#ifdef DEBUG_TRUETYPE
+    else {
       xscale = yscale = scale01 = scale10 = 0;
     }
+#endif
 
     /* Debugging */
 #ifdef DEBUG_TRUETYPE

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#354 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#355 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2676,7 +2676,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 
     int bpp = depth();
     bool depth1 = (bpp == 1);
-    bool alpha = data->alpha;
     int y;
 
     // compute size of target image
@@ -2695,7 +2694,6 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
 	QRect r = a.boundingRect().normalize();
 	wd = r.width();
 	hd = r.height();
-	alpha = TRUE;
     }
 
     bool invertible;

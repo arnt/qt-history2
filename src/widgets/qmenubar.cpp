@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#283 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#284 $
 **
 ** Implementation of QMenuBar class
 **
@@ -611,13 +611,17 @@ void QMenuBar::openActPopup()
 
 void QMenuBar::hidePopups()
 {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
     bool anyVisible = FALSE;
+#endif
     QMenuItemListIt it(*mitems);
     register QMenuItem *mi;
     while ( (mi=it.current()) ) {
 	++it;
 	if ( mi->popup() && mi->popup()->isVisible() ) {
+#if defined(QT_ACCESSIBILITY_SUPPORT)
 	    anyVisible = TRUE;
+#endif
 	    mi->popup()->hide();
 	}
     }
