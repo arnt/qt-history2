@@ -62,7 +62,7 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
 { return _InterlockedCompareExchange(reinterpret_cast<volatile long *>(ptr), newval, expected) == expected; }
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
-{ return _InterlockedCompareExchangePointer(ptr, newval, expected) == expected; }
+{ return _InterlockedCompareExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval, expected) == expected; }
 
 inline int q_atomic_increment(volatile int *ptr)
 { return _InterlockedIncrement(reinterpret_cast<volatile long *>(ptr)); }
@@ -74,7 +74,7 @@ inline int q_atomic_set_int(volatile int *ptr, int newval)
 { return _InterlockedExchange(reinterpret_cast<volatile long *>(ptr), newval); }
 
 inline void *q_atomic_set_ptr(volatile void *ptr, void *newval)
-{ return _InterlockedExchangePointer(ptr, newval); }
+{ return _InterlockedExchangePointer(reinterpret_cast<void * volatile *>(ptr), newval); }
 
 #define Q_HAVE_ATOMIC_INCDEC
 #define Q_HAVE_ATOMIC_SET
