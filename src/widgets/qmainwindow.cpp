@@ -221,7 +221,7 @@ public:
 class QHideDock : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     QHideDock( QMainWindow *parent ) : QWidget( parent, "qt_hide_dock" ) {
 	hide();
@@ -735,6 +735,7 @@ QStatusBar * QMainWindow::statusBar() const
     }
     delete l;
     ((QMainWindow *)this)->setStatusBar( s );
+    triggerLayout( TRUE );
     return s;
 }
 
