@@ -22,7 +22,6 @@
 #include "qwidget.h"
 #include "private/qwidget_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -1218,7 +1217,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 		    nh = 0;
 		if(oh != nh)
 		    h += (oh - nh);
-	    }	
+	    }
 	}
 	if(h)
 	    widget->resize(widget->width(), widget->height() - h);

@@ -25,7 +25,6 @@
 class QPaintDevice;
 class QPaintDeviceMetrics;
 class QWidget;
-class QWidgetMapper;
 class QDialog;
 class QColor;
 class QColorGroup;
@@ -63,6 +62,8 @@ class QByteArray;
 class QWidgetList;
 class QWidgetListIt;
 
+template<class K, class V> class QHash;
+typedef QHash<int, QWidget *> QWidgetMapper;
 
 // Window system dependent definitions
 

@@ -16,7 +16,7 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
+#include "qhash.h"
 #include "qptrdict.h"
 #include "qfocusdata.h"
 #include "qcursor.h"
@@ -413,77 +413,7 @@
 */
 
 
-/*****************************************************************************
-  Internal QWidgetMapper class
-
-  The purpose of this class is to map widget identifiers to QWidget objects.
-  All QWidget objects register themselves in the QWidgetMapper when they
-  get an identifier. Widgets unregister themselves when they change ident-
-  ifier or when they are destroyed. A widget identifier is really a window
-  handle.
-
-  The widget mapper is created and destroyed by the main application routines
-  in the file qapp_xxx.cpp.
- *****************************************************************************/
-
-#ifdef Q_WS_QWS
-static const int WDictSize = 163; // plenty for small devices
-#else
-static const int WDictSize = 1123; // plenty for 5 big complex windows
-#endif
-
-class QWidgetMapper : public QWidgetIntDict
-{						// maps ids -> widgets
-public:
-    QWidgetMapper();
-   ~QWidgetMapper();
-    QWidget *find( WId id );		// find widget
-    void     insert( const QWidget * );		// insert widget
-    bool     remove( WId id );		// remove widget
-private:
-    WId	     cur_id;
-    QWidget *cur_widget;
-};
-
 QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
-
-
-QWidgetMapper::QWidgetMapper() : QWidgetIntDict(WDictSize)
-{
-    cur_id = 0;
-    cur_widget = 0;
-}
-
-QWidgetMapper::~QWidgetMapper()
-{
-    clear();
-}
-
-inline QWidget *QWidgetMapper::find( WId id )
-{
-    if ( id != cur_id ) {			// need to lookup
-	cur_widget = QWidgetIntDict::find((long)id);
-	if ( cur_widget )
-	    cur_id = id;
-	else
-	    cur_id = 0;
-    }
-    return cur_widget;
-}
-
-inline void QWidgetMapper::insert( const QWidget *widget )
-{
-    QWidgetIntDict::insert((long)widget->winId(),widget);
-}
-
-inline bool QWidgetMapper::remove( WId id )
-{
-    if ( cur_id == id ) {			// reset current widget
-	cur_id = 0;
-	cur_widget = 0;
-    }
-    return QWidgetIntDict::remove((long)id);
-}
 
 
 /*****************************************************************************
@@ -977,7 +907,6 @@ int QWidget::maxInstances = 0;     // Maximum number of widget instances
 void QWidget::createMapper()
 {
     mapper = new QWidgetMapper;
-    Q_CHECK_PTR( mapper );
 }
 
 /*!
@@ -990,12 +919,10 @@ void QWidget::destroyMapper()
 {
     if ( !mapper )				// already gone
 	return;
-    QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
     QWidgetMapper * myMapper = mapper;
     mapper = 0;
-    register QWidget *w;
-    while ( (w=it.current()) ) {		// remove parents widgets
-	++it;
+    for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
+	register QWidget *w = *it;
 	if ( !w->parentObj )			// widget is a parent
 	    w->destroy( TRUE, TRUE );
     }
@@ -1008,10 +935,8 @@ static QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
     QWidgetList *list = new QWidgetList;
     Q_CHECK_PTR( list );
     if ( mapper ) {
-	QWidget *w;
-	QWidgetIntDictIt it( *((QWidgetIntDict*)mapper) );
-	while ( (w=it.current()) ) {
-	    ++it;
+	for (QWidgetMapper::ConstIterator it = mapper->constBegin(); it != mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
 	    if ( !onlyTopLevel || w->isTopLevel() )
 		list->append( w );
 	}
@@ -1048,12 +973,13 @@ void QWidget::setWinId( WId id )		// set widget identifier
 	return;
     if ( winid )
 	mapper->remove( winid );
+
     winid = id;
 #if defined(Q_WS_X11)
     hd = id;					// X11: hd == ident
 #endif
     if ( id )
-	mapper->insert( this );
+	mapper->insert(winid, this);
 }
 
 
@@ -1212,7 +1138,7 @@ void QWidget::deactivateWidgetCleanup()
 
 QWidget *QWidget::find( WId id )
 {
-    return mapper ? mapper->find( id ) : 0;
+    return mapper ? mapper->value(id, 0) : 0;
 }
 
 /*!
@@ -3761,8 +3687,7 @@ void QWidget::internalShow(bool informParent)
 #endif // Q_OS_TEMP
     } else if (informParent) {
 	// allow our parent to monitor show events
-	QApplication::sendPostedEvents( parentWidget(),
-					QEvent::ChildInserted );
+	QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
 	// relayout before we receive our move and resize events.
 	if (parentWidget()->layout())
 	    parentWidget()->layout()->activate();

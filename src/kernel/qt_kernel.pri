@@ -82,7 +82,6 @@ kernel {
 		  $$KERNEL_H/qurloperator.h \
 		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qwidget.h \
-		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \

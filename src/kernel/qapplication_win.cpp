@@ -20,7 +20,6 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
@@ -1157,9 +1156,8 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	tellAllWidgets = (--app_tracking == 0);
     }
     if ( tellAllWidgets ) {
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->begin(); it != QWidget::mapper->end(); ++it) {
+	    register QWidget *w = *it;
 	    if ( app_tracking > 0 ) {		// switch on
 		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
@@ -1169,7 +1167,6 @@ void QApplication::setGlobalMouseTracking( bool enable )
 		    w->setMouseTracking( FALSE );
 		}
 	    }
-	    ++it;
 	}
     }
 }
@@ -2057,7 +2054,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    break;
 
 	case WM_THEMECHANGED:
-	    if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown() 
+	    if ( widget->testWFlags( Qt::WType_Desktop ) || !qApp || qApp->closingDown()
 							 || qApp->type() == QApplication::Tty )
 		break;
 
@@ -2459,7 +2456,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 
     if ( sm_blockUserInput ) //block user interaction during session management
 	return TRUE;
-    
+
     // Compress mouse move events
     if ( msg.message == WM_MOUSEMOVE ) {
 	MSG mouseMsg;

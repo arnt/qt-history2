@@ -74,4 +74,10 @@ QPointArray is now implicitly shared and based on QVector.
 The return type for the setPoints() and putPoints() functions is now void instead of bool.
 isNull() is obsolete, use isEmpty() instead.
 copy() is obsolete, use standard assignment instead.
+
+\section1 QWidgetIntDict
+
+Has been removed.
+
+<<<<
 */

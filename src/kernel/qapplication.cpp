@@ -19,7 +19,6 @@
 #include "qwidget.h"
 #include "qobject_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
 
@@ -35,6 +34,7 @@
 #include "qmessagebox.h"
 #include "qdir.h"
 #include "qfileinfo.h"
+#include "qhash.h"
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
@@ -1199,10 +1199,8 @@ QStyle& QApplication::style()
 
     if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
 	QEvent e( QEvent::ApplicationPaletteChange );
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// for all widgets...
-	    ++it;
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
 	    sendEvent( w, &e );
 	}
     }
@@ -1245,10 +1243,8 @@ void QApplication::setStyle( QStyle *style )
     // clean up the old style
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
-	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	    register QWidget *w;
-	    while ( (w=it.current()) ) {		// for all widgets...
-		++it;
+	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+		register QWidget *w = *it;
 		if ( !w->testWFlags(WType_Desktop) &&	// except desktop
 		     w->testWState(WState_Polished) ) { // has been polished
 		    old->unPolish(w);
@@ -1272,10 +1268,8 @@ void QApplication::setStyle( QStyle *style )
     // re-polish existing widgets if necessary
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
-	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	    register QWidget *w;
-	    while ( (w=it.current()) ) {		// for all widgets...
-		++it;
+	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+		register QWidget *w = *it;
 		if ( !w->testWFlags(WType_Desktop) ) {	// except desktop
 		    if ( w->testWState(WState_Polished) )
 			app_style->polish(w);		// repolish
@@ -1795,10 +1789,8 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
     if ( informWidgets && is_app_running && !is_app_closing ) {
 	if ( !oldpal || ( *oldpal != pal ) ) {
 	    QEvent e( QEvent::ApplicationPaletteChange );
-	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	    register QWidget *w;
-	    while ( (w=it.current()) ) {		// for all widgets...
-		++it;
+	    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+		register QWidget *w = *it;
 		if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
 		    sendEvent( w, &e );
 	    }
@@ -1885,10 +1877,8 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
     }
     if ( informWidgets && is_app_running && !is_app_closing ) {
 	QEvent e( QEvent::ApplicationFontChange );
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// for all widgets...
-	    ++it;
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
 	    if ( all || (!className && w->isTopLevel() ) || w->inherits(className) ) // matching class
 		sendEvent( w, &e );
 	}
@@ -2962,10 +2952,10 @@ QString QApplication::translate( const char * context, const char * sourceText,
 	return QString::null;
 
     if ( translators ) {
-	QList<QTranslator*>::iterator it;
+	QList<QTranslator*>::ConstIterator it;
 	QTranslator * mf;
 	QString result;
-	for ( it = translators->begin(); it != translators->end(); ++it ) {
+	for ( it = translators->constBegin(); it != translators->constEnd(); ++it ) {
 	    mf = *it;
 	    result = mf->findMessage( context, sourceText, comment ).translation();
 	    if ( !result.isNull() )

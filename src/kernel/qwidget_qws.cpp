@@ -20,7 +20,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
+#include "qhash.h"
 #include "qaccel.h"
 #include "qdragobject.h"
 #include "qfocusdata.h"
@@ -73,7 +73,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool post)
     if(!p)
 	return;
     QObjectList childObjects=p->children();
-    for (int i = 0; i < childObjects.size(); ++i) { 
+    for (int i = 0; i < childObjects.size(); ++i) {
         QObject * o;
 
 	if(o->isWidgetType()) {
@@ -1390,7 +1390,7 @@ void QWidget::updateOverlappingChildren() const
 		}
 	    }
     }
-    
+
     overlapping_children = 0;
 }
 
@@ -1481,7 +1481,7 @@ QRegion QWidget::allocatedRegion() const
 		r &= parentWidget()->allocatedRegion();
 		parentWidget()->updateOverlappingChildren();
 		if ( parentWidget()->overlapping_children ) {
-		    QObjectList siblings = parentWidget()->children(); 
+		    QObjectList siblings = parentWidget()->children();
 		    bool clip=FALSE;
 		    for (int i = 0; i < siblings.size(); ++i) {
 		        QObject *ch = siblings.at(i);
@@ -1495,7 +1495,7 @@ QRegion QWidget::allocatedRegion() const
 			    }
 			}
 		    }
-		    
+
 		}
 
 		// if I'm dirty, so are my chlidren.
@@ -1530,11 +1530,11 @@ QRegion QWidget::paintableRegion() const
 	        QObject *ch = childObjects.at(i);
 		if ( ch->isWidgetType() ) {
 		    QWidget *w = static_cast<QWidget *>(ch);
-		    if ( !w->isTopLevel() && w->isVisible() ) 
+		    if ( !w->isTopLevel() && w->isVisible() )
 		        paintable_region -= w->req_region;
 		}
 	    }
-	    
+
 	    paintable_region_dirty = FALSE;
 #ifndef QT_NO_CURSOR
 	    // The change in paintable region may have result in the
@@ -1591,7 +1591,7 @@ void QWidget::updateActivePainter() const
 		w->updateActivePainter();
 	    }
 	}
-	
+
 	QPainter *painter = painterDict->find( (void *)this );
 	if ( painter ) {
 	    painter->save();

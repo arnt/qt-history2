@@ -45,12 +45,12 @@
 #include "qwidget.h"
 #include "qwidget_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
 #include "qdatetime.h"
 #include "qtextcodec.h"
+#include "qintdict.h"
 #include "qdatastream.h"
 #include "qbuffer.h"
 #include "qsocketnotifier.h"
@@ -62,6 +62,7 @@
 #include "qsettings.h"
 #include "qstylefactory.h"
 #include "qfileinfo.h"
+#include "qhash.h"
 #include <private/qunicodetables_p.h>
 
 // Input method stuff - UNFINISHED
@@ -2704,12 +2705,10 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 	cursorStack->removeLast();
     cursorStack->append( app_cursor );
 
-    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-    register QWidget *w;
-    while ( (w=it.current()) ) {		// for all widgets that have
+    for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	register QWidget *w = *it;
 	if ( w->testWState( WState_OwnCursor ) )
 	    qt_x11_enforce_cursor( w );
-	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
 }
@@ -2732,12 +2731,10 @@ void QApplication::restoreOverrideCursor()
     cursorStack->removeLast();
     app_cursor = cursorStack->last();
     if ( QWidget::mapper != 0 && !closingDown() ) {
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {		// set back to original cursors
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
 	    if ( w->testWState( WState_OwnCursor ) )
 		qt_x11_enforce_cursor( w );
-	    ++it;
 	}
 	XFlush( appDpy );
     }
@@ -2796,9 +2793,8 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	tellAllWidgets = (--app_tracking == 0);
     }
     if ( tellAllWidgets ) {
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin(); it != QWidget::mapper->constEnd(); ++it) {
+	    register QWidget *w = *it;
 	    if ( app_tracking > 0 ) {		// switch on
 		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
@@ -2810,7 +2806,6 @@ void QApplication::setGlobalMouseTracking( bool enable )
 		    w->setMouseTracking( FALSE );
 		}
 	    }
-	    ++it;
 	}
     }
 }
@@ -2992,44 +2987,41 @@ void QApplication::beep()
   Special lookup functions for windows that have been reparented recently
  *****************************************************************************/
 
-static QWidgetIntDict *wPRmapper = 0;		// alternative widget mapper
+static QWidgetMapper *wPRmapper = 0;		// alternative widget mapper
 
 void qPRCreate( const QWidget *widget, Window oldwin )
 {						// QWidget::reparent mechanism
-    if ( !wPRmapper ) {
-	wPRmapper = new QWidgetIntDict;
-	Q_CHECK_PTR( wPRmapper );
-    }
-    wPRmapper->insert( (long)oldwin, widget );	// add old window to mapper
-    QETWidget *w = (QETWidget *)widget;
-    w->setWState( Qt::WState_Reparented );	// set reparented flag
+    if ( !wPRmapper )
+	wPRmapper = new QWidgetMapper;
+
+    QETWidget *w = static_cast<QETWidget *>(const_cast<QWidget *>(widget));
+    wPRmapper->insert((int)oldwin, w);	// add old window to mapper
+    w->setWState(Qt::WState_Reparented);	// set reparented flag
 }
 
 void qPRCleanup( QWidget *widget )
 {
-    QETWidget *etw = (QETWidget *)widget;
-    if ( !(wPRmapper && etw->testWState(Qt::WState_Reparented)) )
+    QETWidget *etw = static_cast<QETWidget *>(const_cast<QWidget *>(widget));
+    if ( !(wPRmapper && widget->testWState(Qt::WState_Reparented)) )
 	return;					// not a reparented widget
-    QWidgetIntDictIt it(*wPRmapper);
-    QWidget *w;
-    while ( (w=it.current()) ) {
-	int key = it.currentKey();
-	++it;
+    for (QWidgetMapper::ConstIterator it = wPRmapper->constBegin(); it != wPRmapper->constEnd(); ++it) {
+	QWidget *w = *it;
+	int key = it.key();
 	if ( w == etw ) {                       // found widget
 	    etw->clearWState( Qt::WState_Reparented ); // clear flag
 	    wPRmapper->remove( key );// old window no longer needed
 	    if ( wPRmapper->count() == 0 ) {	// became empty
 		delete wPRmapper;		// then reset alt mapper
 		wPRmapper = 0;
-		return;
 	    }
+	    return;
 	}
     }
 }
 
 static QETWidget *qPRFindWidget( Window oldwin )
 {
-    return wPRmapper ? (QETWidget*)wPRmapper->find((long)oldwin) : 0;
+    return wPRmapper ? (QETWidget*)wPRmapper->value((int)oldwin, 0) : 0;
 }
 
 /*!

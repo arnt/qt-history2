@@ -24,7 +24,6 @@
 #include "qwidget.h"
 #include "private/qwidget_p.h"
 #include "qwidgetlist.h"
-#include "qwidgetintdict.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -1830,9 +1829,8 @@ void QApplication::setGlobalMouseTracking( bool enable )
 	tellAllWidgets = (--app_tracking == 0);
     }
     if ( tellAllWidgets ) {
-	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-	register QWidget *w;
-	while ( (w=it.current()) ) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->begin(); it != QWidget::mapper->end(); ++it) {
+	    register QWidget *w = *it;
 	    if ( app_tracking > 0 ) {		// switch on
 		if ( !w->testWState(WState_MouseTracking) ) {
 		    w->setMouseTracking( TRUE );
@@ -1844,7 +1842,6 @@ void QApplication::setGlobalMouseTracking( bool enable )
 		    w->setMouseTracking( FALSE );
 		}
 	    }
-	    ++it;
 	}
     }
 }
