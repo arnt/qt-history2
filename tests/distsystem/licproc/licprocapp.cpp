@@ -7,14 +7,18 @@
 #include <qsocketdevice.h>
 
 #include <time.h>
+#include <errno.h>
 #include <stdlib.h>
+#include <iostream.h>
 
 LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
 {
-    company = "ts3";
+    company = "nor";
     interval = 300;
     port = 801;
 
+    cout << "LicProc initializing" << endl; cout.flush();
+    cout << "Timer interval is: " << interval << " seconds." << endl; cout.flush();
     syncTimer.start( interval * 1000, false );
     connect( &syncTimer, SIGNAL( timeout() ), this, SLOT( syncLicenses() ) );
 
@@ -36,6 +40,7 @@ void LicProcApp::syncLicenses()
     QFileInfoListIterator it( *list );
     QFileInfo* fi;
 
+    cout << "Syncing licenses for \"" << company.latin1() << "\"" << endl; cout.flush();
     licenseList.clear();
     while( ( fi = it.current() ) ) {
 	ProcessFile( fi->fileName() );
@@ -44,6 +49,7 @@ void LicProcApp::syncLicenses()
     }
     if( !licenseList.isEmpty() )
 	dnsReady();
+    cout << "Waiting" << endl; cout.flush();
 }
 
 void LicProcApp::dnsReady()
@@ -51,9 +57,11 @@ void LicProcApp::dnsReady()
     QSocketDevice sock;
     QHostAddress addr;
 
-    bool b = addr.setAddress( "213.203.59.39" );
+    bool b = addr.setAddress( "213.203.58.43" );
 
+    cout << "Triggering update by connecting to 213.203.58.43:801" << endl; cout.flush();
     if( sock.connect( addr, port ) ) {
+	cout << "connected" << endl; cout.flush();
 	QTextStream sockStream( &sock );
 	sockStream << licenseList.join( "," ) << endl;
     }
@@ -63,13 +71,18 @@ void LicProcApp::ProcessFile( QString fileName )
 {
     QString licenseShare( "\\\\soma\\licensefiles" );
 
+    cout << "Processing " << fileName.latin1() << endl; cout.flush();
+    cout << "Opening database connection to \"dist.troll.no\""; cout.flush();
     if( distDB->open() ) {
+	cout << " ... done" << endl; cout.flush();
 	QDir licDir( licenseShare );
 	if( licDir.exists( fileName ) ) {
 	    QString tmpName( fileName + ".tmp" );
 	    if( licDir.rename( fileName, tmpName ) ) {
+		cout << "Renamed " << fileName.latin1() << " to " << tmpName.latin1() << endl; cout.flush();
 		QFile inFile( licenseShare + "\\" + tmpName );
 		if( inFile.open( IO_ReadOnly ) ) {
+		    cout << "Opened " << tmpName.latin1() << endl; cout.flush();
 		    QString currentLine;
 		    while( inFile.readLine( currentLine, 1024 ) != -1 ) {
 			QStringList itemComponents = QStringList::split( ";", currentLine, true );
@@ -194,22 +207,16 @@ void LicProcApp::ProcessFile( QString fileName )
 		    }
 		    inFile.close();
 		    QFile::remove( licenseShare + "/" + tmpName );
+		    cout << "Marked " << tmpName << " for delete." << endl; cout.flush();
+		}
+		else {
+		    int err = errno;
+
+		    cout << "Could not rename the file, error code " << err << strerror( err ) << endl; cout.flush();
 		}
 	    }
 	}
     }
-}
-
-QString LicProcApp::CreatePassword()
-{
-    QString passwd;
-    QString pwChars( "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_+()=*!#%&/" );
-
-    srand( time( NULL ) );
-
-    for( int i = 0; i < 8; i++ ) {
-	int tmp = rand();
-	passwd += pwChars[ tmp % 73 ];
-    }
-    return passwd;
+    else
+	cout << " ... failed" << endl; cout.flush();
 }

@@ -14,7 +14,6 @@ private:
     QTimer syncTimer;
 
     void ProcessFile( QString fileName );
-    QString CreatePassword();
     QSqlDatabase* distDB;
     
     QString company;
