@@ -1591,17 +1591,11 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
 #endif
 
     dndCancelled = FALSE;
-    qDebug("DND: entering loop");
     qApp->enter_loop(); // Do the DND.
 
 #ifndef QT_NO_CURSOR
     qApp->restoreOverrideCursor();
 #endif
-
-    if (dndCancelled)
-	qDebug("DND: cancelled");
-    else
-	qDebug("DND: success");
 
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
