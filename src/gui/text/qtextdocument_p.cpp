@@ -802,12 +802,10 @@ void QTextDocumentPrivate::enableUndoRedo(bool enable)
     if (!enable) {
         undoPosition = 0;
         truncateUndoStack();
-
-        lastUnmodifiedUndoStackPos = -1;
         emit q->undoAvailable(false);
         emit q->redoAvailable(false);
-        setModified(false);
     }
+    lastUnmodifiedUndoStackPos = modified ? -1 : undoPosition;
     undoEnabled = enable;
 }
 
@@ -1202,6 +1200,8 @@ void QTextDocumentPrivate::setModified(bool m)
         return;
 
     modified = m;
+    if (!modified)
+        lastUnmodifiedUndoStackPos = undoPosition;
 
     emit q->modificationChanged(modified);
 }
