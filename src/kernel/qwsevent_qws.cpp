@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qwsevent_qws.cpp#9 $
 **
 ** Implementation of Qt/Embedded events
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id: //depot/qt/main/src/codecs/qgbkcodec.cpp#7 $
 **
 ** Implementation of QGbkCodec template/macro class
 **

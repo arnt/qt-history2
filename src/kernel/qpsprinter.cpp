@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: qpsprinter.cpp,v 1.28 2001/01/20 11:31:45 knoll Exp $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#205 $
 **
 ** Implementation of QPSPrinter class
 **

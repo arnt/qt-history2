@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl_win.cpp#4 $
+** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#23 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -54,7 +54,7 @@ public:
  *****************************************************************************/
 
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolormap.h#0 $
+** $Id: //depot/qt/main/src/opengl/qgl_win.cpp#23 $
 **
 ** Definition of QColorMap class
 **

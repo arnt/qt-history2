@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsoundqss_qws.cpp#5 $
 **
 ** Implementation of Qt Sound System
 **

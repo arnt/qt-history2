@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
+** $Id: //depot/qt/main/src/kernel/qdirectpainter_qws.cpp#5 $
 **
 ** Implementation of QDirectPainter class
 **

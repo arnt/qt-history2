@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#10 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **

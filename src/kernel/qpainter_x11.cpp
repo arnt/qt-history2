@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qpainter_x11.cpp,v 1.24 2001/01/19 12:57:47 mueller Exp $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#384 $
 **
 ** Implementation of QPainter class for X11
 **

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qwidget_x11.cpp,v 1.24 2000/12/17 02:58:06 mueller Exp $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#530 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **

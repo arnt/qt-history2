@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qmemorymanager_qws.cpp#28 $
 **
 ** Implementation of Qt/Embedded memory management routines
 **
