@@ -168,7 +168,7 @@ int main( int argc, char ** argv )
 	    } else if ( QString( argv[i] ).lower() == "-profile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		profileName = argv[++i];
-	    } else if ( QString( argv[i] ).lower() == "-hideSidebar" ) {
+	    } else if ( QString( argv[i] ).lower() == "-hidesidebar" ) {
 		hideSidebar = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-help" ) {
 		printf( "Usage: assistant [option]\n" );
