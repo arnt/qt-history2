@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#41 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#42 $
 **
 ** Definition of QWidget class
 **
@@ -178,9 +178,9 @@ public:
     static QWidgetMapper *wmapper()	{ return mapper; }
 
 protected:
-    WFlags	getFlags() const	{ return flags; }
-    void	setFlag( WFlags n )	{ flags |= n; }
-    void	clearFlag( WFlags n )	{ flags &= ~n; }
+    WFlags	getWFlags() const	{ return flags; }
+    void	setWFlags( WFlags n )	{ flags |= n; }
+    void	clearWFlags( WFlags n )	{ flags &= ~n; }
     void	setFRect( const QRect & );
     void	setCRect( const QRect & );
     bool	acceptFocus() const	{ return testFlag(WState_AcceptFocus);}
