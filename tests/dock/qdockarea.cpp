@@ -192,6 +192,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, b
 	if ( swap )
 	    dockData->dockWidget->resize( dockData->dockWidget->height(), dockData->dockWidget->width() );
 	dockWidgets.append( dockData );
+	w->installEventFilter( this );
     }
     sections = 1;
     setupLayout();
@@ -201,6 +202,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, b
 
 void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
 {
+    w->removeEventFilter( this );
     QDockWidgetData *dockData = 0;
     int i = findDockWidget( w );
     if ( i == -1 )
@@ -298,4 +300,18 @@ void QDockArea::setupLayout()
     }
 
     layout->activate();
+}
+
+bool QDockArea::eventFilter( QObject *o, QEvent *e )
+{
+    if ( o->inherits( "QDockWidget" ) ) {
+	if ( e->type() == QEvent::Close ) {
+	    o->removeEventFilter( this );
+	    QApplication::sendEvent( o, e );
+	    if ( ( (QCloseEvent*)e )->isAccepted() )
+		removeDockWidget( (QDockWidget*)o, FALSE, FALSE );
+	    return TRUE;
+	}
+    }
+    return FALSE;
 }

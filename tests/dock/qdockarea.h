@@ -27,6 +27,8 @@ public:
 
     Orientation orientation() const { return orient; }
 
+    bool eventFilter( QObject *, QEvent * );
+
 private:
     int findDockWidget( QDockWidget *w );
     void setupLayout();
