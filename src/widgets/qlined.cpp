@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#117 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#117 $");
 
 
 struct QLineEditPrivate {
@@ -472,8 +472,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
     if ( !d->pm || d->pmDirty ) {
 	if ( !d->pm )
 	    d->pm = new QPixmap( size() );
-	QPainter p;
-	p.begin( d->pm, this );
+	QPainter p( d->pm, this );
 
 	QColorGroup g = colorGroup();
 	QColor bg = isEnabled() ? g.base() : g.background();
@@ -562,7 +561,6 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int curYPos   = ypos - fm.ascent();
 	d->cursorRepaintRect.setRect( curXPos-2, curYPos, 5, fm.height() );
 	d->pmDirty = FALSE;
-	p.end();
     }
 	
     bitBlt( this, e->rect().topLeft(), d->pm, e->rect() );
