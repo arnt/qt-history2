@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>551</width>
-            <height>244</height>
+            <width>679</width>
+            <height>250</height>
         </rect>
     </property>
     <property name="caption">
@@ -18,7 +18,7 @@
     <property name="sizeGripEnabled">
         <bool>true</bool>
     </property>
-    <hbox>
+    <grid>
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
@@ -28,43 +28,143 @@
         <property name="spacing">
             <number>6</number>
         </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>Layout3</cstring>
+        <spacer row="1" column="0">
+            <property name="name" stdset="0">
+                <cstring>Spacer1_2</cstring>
             </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLabel" row="0" column="0">
+            <property name="name">
+                <cstring>TextLabel1</cstring>
+            </property>
+            <property name="text">
+                <string>Choose the desired format below, then select "Copy" to copy the results to the clipboard (the results can then be pasted into your source code). Choose "Exit" when done.</string>
+            </property>
+            <property name="alignment">
+                <set>WordBreak|AlignAuto|AlignVCenter</set>
+            </property>
+            <property name="wordwrap" stdset="0">
+            </property>
+        </widget>
+        <widget class="QButtonGroup" row="0" column="1" rowspan="2" colspan="1">
+            <property name="name">
+                <cstring>formats</cstring>
+            </property>
+            <property name="title">
+                <string>UUID Format</string>
+            </property>
+            <vbox>
                 <property name="margin">
-                    <number>0</number>
+                    <number>11</number>
                 </property>
                 <property name="spacing">
                     <number>6</number>
                 </property>
-                <spacer row="1" column="0">
-                    <property name="name" stdset="0">
-                        <cstring>Spacer1_2</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Vertical</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QLabel" row="0" column="0">
+                <widget class="QRadioButton">
                     <property name="name">
-                        <cstring>TextLabel1</cstring>
+                        <cstring>formatMacro</cstring>
                     </property>
                     <property name="text">
-                        <string>Choose the desired format below, then select "Copy" to copy the results to the clipboard (the results can then be pasted into your source code). Choose "Exit" when done.</string>
+                        <string>&amp;1. #define &lt;&lt;name&gt;&gt;( ... )</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>formatStatic</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;2. static const struct QUuid &lt;&lt;name&gt;&gt; = { ... }</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton">
+                    <property name="name">
+                        <cstring>formatRegistry</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;3. Registry Format, ie. {xxxxxxxx-xxxx ... xxxx }</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="2">
+            <property name="name">
+                <cstring>GroupBox1</cstring>
+            </property>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>7</hsizetype>
+                    <vsizetype>3</vsizetype>
+                </sizepolicy>
+            </property>
+            <property name="title">
+                <string>Result</string>
+            </property>
+            <vbox>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout3</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>TextLabel1_2</cstring>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>5</hsizetype>
+                                    <vsizetype>1</vsizetype>
+                                </sizepolicy>
+                            </property>
+                            <property name="text">
+                                <string>N&amp;ame:</string>
+                            </property>
+                            <property name="buddy" stdset="0">
+                                <cstring>nameEdit</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>nameEdit</cstring>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLabel">
+                    <property name="name">
+                        <cstring>resultLabel</cstring>
+                    </property>
+                    <property name="text">
+                        <string>RESULT
+A
+B
+C</string>
                     </property>
                     <property name="alignment">
                         <set>WordBreak|AlignAuto|AlignVCenter</set>
@@ -72,87 +172,9 @@
                     <property name="wordwrap" stdset="0">
                     </property>
                 </widget>
-                <widget class="QButtonGroup" row="0" column="1" rowspan="2" colspan="1">
-                    <property name="name">
-                        <cstring>formats</cstring>
-                    </property>
-                    <property name="title">
-                        <string>UUID Format</string>
-                    </property>
-                    <vbox>
-                        <property name="margin">
-                            <number>11</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>formatMacro</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;1. Q_UUID( ... )</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>formatStatic</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;2. static const struct QUuid = { ... }</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton">
-                            <property name="name">
-                                <cstring>formatRegistry</cstring>
-                            </property>
-                            <property name="text">
-                                <string>&amp;3. Registry Format, ie. {xxxxxxxx-xxxx ... xxxx }</string>
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-                <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="2">
-                    <property name="name">
-                        <cstring>GroupBox1</cstring>
-                    </property>
-                    <property name="title">
-                        <string>Result</string>
-                    </property>
-                    <property name="sizePolicy">
-                        <sizepolicy>
-                            <hsizetype>7</hsizetype>
-                            <vsizetype>3</vsizetype>
-                        </sizepolicy>
-                    </property>
-                    <vbox>
-                        <property name="margin">
-                            <number>11</number>
-                        </property>
-                        <property name="spacing">
-                            <number>6</number>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>resultLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>RESULT
-A
-B
-C</string>
-                            </property>
-                            <property name="alignment">
-                                <set>WordBreak|AlignAuto|AlignVCenter</set>
-                            </property>
-                            <property name="wordwrap" stdset="0">
-                            </property>
-                        </widget>
-                    </vbox>
-                </widget>
-            </grid>
+            </vbox>
         </widget>
-        <widget class="QLayoutWidget">
+        <widget class="QLayoutWidget" row="0" column="2" rowspan="3" colspan="1">
             <property name="name">
                 <cstring>Layout2</cstring>
             </property>
@@ -170,42 +192,42 @@ C</string>
                     <property name="name">
                         <cstring>PushButton5</cstring>
                     </property>
-                    <property name="text">
-                        <string>&amp;Copy</string>
-                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>0</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Copy</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>newButton</cstring>
                     </property>
-                    <property name="text">
-                        <string>&amp;New UUID</string>
-                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>0</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>&amp;New UUID</string>
                     </property>
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>PushButton7</cstring>
                     </property>
-                    <property name="text">
-                        <string>E&amp;xit</string>
-                    </property>
                     <property name="sizePolicy">
                         <sizepolicy>
                             <hsizetype>0</hsizetype>
                             <vsizetype>0</vsizetype>
                         </sizepolicy>
+                    </property>
+                    <property name="text">
+                        <string>E&amp;xit</string>
                     </property>
                 </widget>
                 <spacer>
@@ -227,7 +249,7 @@ C</string>
                 </spacer>
             </vbox>
         </widget>
-    </hbox>
+    </grid>
 </widget>
 <connections>
     <connection>
@@ -254,8 +276,8 @@ C</string>
         <receiver>QUuidBase</receiver>
         <slot>formatChanged(int)</slot>
     </connection>
-    <slot access="protected">copyUuid()</slot>
-    <slot access="protected">formatChanged(int)</slot>
-    <slot access="protected">newUuid()</slot>
+    <slot access="protected" language="C++">copyUuid()</slot>
+    <slot access="protected" language="C++">formatChanged(int)</slot>
+    <slot access="protected" language="C++">newUuid()</slot>
 </connections>
 </UI>
