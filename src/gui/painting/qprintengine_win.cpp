@@ -221,6 +221,10 @@ void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEna
 bool QWin32PrintEngine::begin(QPaintDevice *dev)
 {
     d->forceGdi = true;
+
+    if (d->reinit)
+        d->hdc = ResetDC(d->hdc, d->devMode);
+
     if (!QWin32PaintEngine::begin(dev)) {
 	qWarning("QWin32PaintEngine::begin() failed...");
 	return false;
@@ -375,6 +379,7 @@ int QWin32PrintEngine::metric(int m) const
     Q_ASSERT(d->hdc);
     int val;
     int res = d->resolution;
+
     switch (m) {
     case QPaintDeviceMetrics::PdmWidth:
         val = res
@@ -781,6 +786,14 @@ QList<int> QWin32PrintEnginePrivate::queryResolutions() const
     return list;
 }
 
+void QWin32PrintEnginePrivate::doReinit()
+{
+    if (state == QPrinter::Active)
+        reinit = true;
+    else
+        hdc = ResetDC(hdc, devMode);
+}
+
 void QWin32PrintEngine::setPrinterName(const QString &name)
 {
     d->name = name;
@@ -857,7 +870,7 @@ void QWin32PrintEngine::setOrientation(QPrinter::Orientation orient)
     d->devMode->dmOrientation = orient == QPrinter::Landscape
         ? DMORIENT_LANDSCAPE
         : DMORIENT_PORTRAIT;
-    d->reinit = true;
+    d->doReinit();
 }
 
 QPrinter::Orientation QWin32PrintEngine::orientation() const
@@ -871,7 +884,7 @@ void QWin32PrintEngine::setPageSize(QPrinter::PageSize size)
 {
     Q_ASSERT(d->devMode);
     d->devMode->dmPaperSize = mapPageSizeDevmode(size);
-    d->reinit = true;
+    d->doReinit();
 }
 
 QPrinter::PageSize QWin32PrintEngine::pageSize() const
@@ -907,7 +920,7 @@ void QWin32PrintEngine::setColorMode(QPrinter::ColorMode mode)
     d->devMode->dmColor = mode == QPrinter::Color
         ? DMCOLOR_COLOR
         : DMCOLOR_MONOCHROME;
-    d->reinit = true;
+    d->doReinit();
 }
 
 QPrinter::ColorMode QWin32PrintEngine::colorMode() const
@@ -931,7 +944,7 @@ bool QWin32PrintEngine::fullPage() const
 
 void QWin32PrintEngine::setCollateCopies(bool)
 {
-    d->reinit = true;
+    d->doReinit();
 }
 
 bool QWin32PrintEngine::collateCopies() const
@@ -959,7 +972,7 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
         delete [] bins;
     }
     d->devMode->dmDefaultSource = dmMapped;
-    d->reinit = true;
+    d->doReinit();
 }
 
 QPrinter::PaperSource QWin32PrintEngine::paperSource() const
@@ -977,7 +990,7 @@ void QWin32PrintEngine::setWinPageSize(short winPageSize)
 {
     Q_ASSERT(d->devMode);
     d->devMode->dmPaperSize = winPageSize;
-    d->reinit = true;
+    d->doReinit();
 }
 
 short QWin32PrintEngine::winPageSize() const

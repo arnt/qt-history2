@@ -64,6 +64,11 @@ public:
        in a list. */
     QList<int> queryResolutions() const;
 
+    /* Resets the DC with changes in devmode. If the printer is active
+       this funciton only sets the reinit variable to true so it
+       is handled in the next begin or newpage. */
+    void doReinit();
+
     // Windows GDI printer references.
     HANDLE hPrinter;
 

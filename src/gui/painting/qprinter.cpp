@@ -929,17 +929,18 @@ QPaintEngine *QPrinter::paintEngine() const
 #endif
 }
 
-//#ifdef Q_WS_WIN
-//void QPrinter::setWinPageSize(short /*pageSize*/)
-//{
-//    Q_ASSERT(!"setWinPageSize() not implemented");
-//}
-//
-//short QPrinter::winPageSize() const
-//{
-//    return d->winPageSize;
-//}
-//#endif
+
+#if defined (Q_WS_WIN)
+void QPrinter::setWinPageSize(short pageSize)
+{
+    static_cast<QWin32PrintEngine *>(d->printEngine)->setWinPageSize(pageSize);
+}
+
+short QPrinter::winPageSize() const
+{
+   return static_cast<QWin32PrintEngine *>(d->printEngine)->winPageSize();
+}
+#endif // Q_WS_WIN
 
 /*!
   Returns a list of the resolution that the printer reports that

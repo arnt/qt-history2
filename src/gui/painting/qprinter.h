@@ -117,10 +117,10 @@ public:
 
     QList<int> supportedResolutions() const;
 
-//#ifdef Q_WS_WIN
-//    void setWinPageSize(short winPageSize);
-//    short winPageSize() const;
-//#endif
+#ifdef Q_WS_WIN
+    void setWinPageSize(short winPageSize);
+    short winPageSize() const;
+#endif
 
     void setPaperRect(const QRect &paperRect);
     QRect paperRect() const;

@@ -27,7 +27,7 @@ public:
     QAbstractPrintDialogPrivate()
         :
         printer(0),
-        options(QAbstractPrintDialog::PrintToFile),
+        options(QAbstractPrintDialog::PrintToFile | QAbstractPrintDialog::PrintPageRange),
         minPage(1),
         maxPage(1),
         fromPage(0),
