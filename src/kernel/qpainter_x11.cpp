@@ -3095,22 +3095,37 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
             map( x, y, &x, &y );
     }
 
+    bool simple = str.simpleText();
     // we can't take the complete string here as we would otherwise
     // get quadratic behaviour when drawing long strings in parts.
     // we do however need some chars around the part we paint to get arabic shaping correct.
     // ### maybe possible to remove after cursor restrictions work in QRT
-    int start = QMAX( 0,  pos - 8 );
-    int end = QMIN( (int)str.length(), pos + len + 8 );
+    int start;
+    int end;
+    if ( simple ) {
+	start = pos;
+	end = pos+len;
+    } else {
+	start = QMAX( 0,  pos - 8 );
+	end = QMIN( (int)str.length(), pos + len + 8 );
+    }
     QConstString cstr( str.unicode() + start, end - start );
     pos -= start;
 
     QTextLayout layout( cstr.string(), this );
-    layout.beginLayout();
-
-    layout.setBoundary( pos );
-    layout.setBoundary( pos + len );
-
     QTextEngine *engine = layout.d;
+
+    // this is actually what beginLayout does. Inlined here, so we can
+    // avoid the bidi algorithm if we don't need it.
+    engine->itemize( !simple );
+    engine->currentItem = 0;
+    engine->firstItemInLine = -1;
+
+    if ( !simple ) {
+	layout.setBoundary( pos );
+	layout.setBoundary( pos + len );
+    }
+
     if ( dir != Auto ) {
 	int level = dir == RTL ? 1 : 0;
 	for ( int i = engine->items.size(); i >= 0; i-- )
@@ -3159,10 +3174,100 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, int nUlChars )
 {
     if ( testf(ExtDev) || txop >= TxScale ) {
-	// ##### doesn't use correct font!
-	// #### do it natively here so underlining works!
-	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
-		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
+        if ( txop >= TxScale ) {
+            QRect bbox( 0, 0, ti.width(), ti.ascent() + ti.descent() );
+            int w=bbox.width(), h=bbox.height();
+            int aw = w, ah = h;
+            int tx=-bbox.x(),  ty=-bbox.y();    // text position
+            QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
+#if 0
+	    float det = QABS(m11()*m22() - m12()*m21());
+	    if ( QABS( det -1. ) > 0.01 ) {
+		// det == 1. means we have only a rotation, so no need to change font size.
+		float pixSize = cfont.pixelSize();
+		if ( pixSize == -1 ) {
+		    pixSize = cfont.deciPointSize();
+		    int dpi = QPaintDeviceMetrics( pdev ).logicalDpiY();
+		    if ( dpi < 72 || dpi > 75 )
+			pixSize *= dpi / 72;
+		    pixSize /= 10;
+		}
+		int newSize = (int) (sqrt( det ) * pixSize) - 1;
+		newSize = QMAX( 6, QMIN( newSize, 72 )); // empirical values
+		dfont.setPixelSize( newSize );
+	    }
+	    QFontMetrics fm2( dfont );
+	    QRect abbox = fm2.boundingRect( substr, len );
+	    aw = abbox.width();
+	    ah = abbox.height();
+	    tx = -abbox.x();
+	    ty = -abbox.y();        // text position - off-by-one?
+#endif
+	    if ( aw == 0 || ah == 0 )
+		return;
+	    double rx = (double)w / (double)aw;
+	    double ry = (double)h / (double)ah;
+            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
+	    QBitmap *wx_bm;
+#if 0
+            QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
+            wx_bm = get_text_bitmap( bm_key );
+            bool create_new_bm = wx_bm == 0;
+            if ( create_new_bm )
+#endif
+	    { 	        // no such cached bitmap
+                QBitmap bm( aw, ah, TRUE );     // create bitmap
+                QPainter paint;
+                paint.begin( &bm );             // draw text in bitmap
+                paint.drawTextItem( -ti.x(), -ti.y()+ti.ascent(), ti );
+                paint.end();
+                wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
+                if ( wx_bm->isNull() ) {
+                    delete wx_bm;               // nothing to draw
+                    return;
+                }
+            }
+            if ( bg_mode == OpaqueMode ) {      // opaque fill
+                int fx = ti.x();
+                int fy = ti.y();
+                int fw = ti.width();
+                int fh = ti.ascent() + ti.descent();
+                int m, n;
+                QPointArray a(5);
+                mat1.map( fx,    fy,    &m, &n );  a.setPoint( 0, m, n );
+                a.setPoint( 4, m, n );
+                mat1.map( fx+fw, fy,    &m, &n );  a.setPoint( 1, m, n );
+                mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
+                mat1.map( fx,    fy+fh, &m, &n );  a.setPoint( 3, m, n );
+                QBrush oldBrush = cbrush;
+                setBrush( backgroundColor() );
+                updateBrush();
+                XFillPolygon( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 4,
+                              Nonconvex, CoordModeOrigin );
+                XDrawLines( dpy, hd, gc_brush, (XPoint*)a.shortPoints(), 5,
+                            CoordModeOrigin );
+                setBrush( oldBrush );
+            }
+            double fx=x, fy=y, nfx, nfy;
+            mat1.map( fx,fy, &nfx,&nfy );
+            double tfx=tx, tfy=ty, dx, dy;
+            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
+            x = qRound(nfx-dx);
+            y = qRound(nfy-dy);
+            XSetFillStyle( dpy, gc, FillStippled );
+            XSetStipple( dpy, gc, wx_bm->handle() );
+            XSetTSOrigin( dpy, gc, x, y );
+            XFillRectangle( dpy, hd, gc, x, y,wx_bm->width(),wx_bm->height() );
+            XSetTSOrigin( dpy, gc, 0, 0 );
+            XSetFillStyle( dpy, gc, FillSolid );
+#if 0
+	    if ( create_new_bm )
+                ins_text_bitmap( bm_key, wx_bm );
+#else
+	    delete wx_bm;
+#endif
+            return;
+        }
 	return;
     }
     if ( txop == TxTranslate )
