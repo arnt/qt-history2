@@ -1,7 +1,7 @@
 #include <qmap.h>
 #include <qstring.h>
 #include <qstringlist.h>
-#include <qptrlist.h>
+#include <qlist.h>
 
 class MakeItem;
 
@@ -67,7 +67,7 @@ private:
     //  makeList[0] for qt and qtmain
     //  makeList[1] for subdirs and libs
     //  makeList[2] for the rest
-    QPtrList<MakeItem> makeList[3];
+    QList<MakeItem*> makeList[3];
     QStringList qmakeIncludes;
     QStringList qmakeLibs;
 
@@ -80,3 +80,20 @@ private:
 #endif
 
 };
+
+class MakeItem
+{
+public:
+    MakeItem( const QString &d, const QString &p, const QString &t, Configure::ProjectType qt )
+	: directory( d ),
+	  proFile( p ),
+	  target( t ),
+	  qmakeTemplate( qt )
+    { }
+
+    QString directory;
+    QString proFile;
+    QString target;
+    Configure::ProjectType qmakeTemplate;
+};
+

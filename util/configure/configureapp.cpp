@@ -5,7 +5,15 @@
 #include <qglobal.h>
 #include "configureapp.h"
 
-#include <iostream>
+#if defined ( Q_CC_MSVC_NET ) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
+#  pragma warning ( push )
+#  pragma warning ( disable : 4189 )
+#  include <iostream>
+#  pragma warning ( pop )
+#else
+#  include <iostream>
+#endif // avoid warning in xlocale on windows .net 1310
+
 #include <windows.h>
 
 using namespace std;
@@ -18,22 +26,6 @@ std::ostream &operator<<( std::ostream &s, const QString &val ) {
 // Macros to simplify options marking, and WinCE only code
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
 #define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
-
-class MakeItem
-{
-public:
-    MakeItem( const QString &d, const QString &p, const QString &t, Configure::ProjectType qt )
-	: directory( d ),
-	  proFile( p ),
-	  target( t ),
-	  qmakeTemplate( qt )
-    { }
-
-    QString directory;
-    QString proFile;
-    QString target;
-    Configure::ProjectType qmakeTemplate;
-};
 
 Configure::Configure( int& argc, char** argv )
 {
@@ -1202,12 +1194,12 @@ void Configure::generateConfigfiles()
 
 	QString internalName = licenseInfo["PRODUCTS"];
 
-	outStream << "#ifndef Q_CC_BOR" << endl; 
-	outStream << "# if defined(UNDER_CE) && UNDER_CE >= 400" << endl; 
-	outStream << "#  include <winbase.h>" << endl; 
-	outStream << "# else" << endl; 
-	outStream << "#  include <winver.h>" << endl; 
-	outStream << "# endif" << endl; 
+	outStream << "#ifndef Q_CC_BOR" << endl;
+	outStream << "# if defined(UNDER_CE) && UNDER_CE >= 400" << endl;
+	outStream << "#  include <winbase.h>" << endl;
+	outStream << "# else" << endl;
+	outStream << "#  include <winver.h>" << endl;
+	outStream << "# endif" << endl;
 	outStream << "#endif" << endl << endl;
 	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
 	outStream << "\tFILEVERSION 1,0,0,1" << endl;
@@ -1506,7 +1498,8 @@ void Configure::generateMakefiles()
 
 	QString pwd = QDir::currentDirPath();
 	for ( int i=0; i<3; i++ ) {
-	    for ( MakeItem *it=makeList[i].first(); it; it=makeList[i].next() ) {
+	    for ( int j=0; j<makeList[i].size(); ++j) {
+		MakeItem *it=makeList[i][j];
 		QString dirPath = QDir::convertSeparators( it->directory + "/" );
 		QString projectName = dirPath + it->proFile;
 		QString makefileName = dirPath + it->target;
