@@ -19,6 +19,7 @@
 #include <qfile.h>
 #include <qstringlist.h>
 #include <qdatetime.h>
+#include <qsettings.h>
 #define NO_STATIC_COLORS
 #include <globaldefs.h>
 #include <stdio.h>
@@ -49,6 +50,15 @@ int main( int argc, char * argv[] )
     bool nofwd = FALSE;
     bool fix = FALSE;
     QApplication app(argc, argv, FALSE);
+
+    QString keybase( "/Qt Designer/" + 
+	QString::number( (QT_VERSION >> 16) & 0xff ) +"." + QString::number( (QT_VERSION >> 8) & 0xff ) + "/" );
+    QSettings config;
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QStringList pluginPaths = config.readListEntry( keybase + "PluginPaths" );
+    if (pluginPaths.count())
+	QApplication::setLibraryPaths(pluginPaths);
+
     for ( int n = 1; n < argc && error == 0; n++ ) {
 	QCString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
