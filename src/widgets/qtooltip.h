@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#11 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#12 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -84,7 +84,7 @@ public:
 	QString groupText;
 	QToolTipGroup * group;
 	bool autoDelete;
-	QTipManager::Tip * next;
+	Tip * next;
     };
 
     bool eventFilter( QObject * o, QEvent * e );
@@ -109,7 +109,7 @@ private:
     QTimer wakeUp;
     QTimer fallAsleep;
 
-    QIntDict<QTipManager::Tip> * tips;
+    QIntDict<Tip> * tips;
     QLabel * label;
     QPoint pos;
     QWidget * widget;
