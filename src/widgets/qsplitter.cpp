@@ -37,6 +37,8 @@
 #include "qsplitter.h"
 #ifndef QT_NO_SPLITTER
 
+#include <limits.h> // ### remove in 3.1
+
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qbitmap.h"
