@@ -92,7 +92,7 @@ other=/dev/hda1
   and 
 \code
   label = Linux-vesafb
-endcode
+\endcode
   Place it just above the first image section.
 
   Add a line before the image section saying \c{vga = 791}. (Meaning
