@@ -98,7 +98,7 @@ void *QThreadInstance::start(void *_arg)
     pthread_testcancel();
 
     QPointer<QThread> thr = reinterpret_cast<QThread *>(arg[0]);
-    arg[2] = reinterpret_cast<Qt::HANDLE>(thr->thread());
+    arg[2] = reinterpret_cast<void *>(thr->thread());
     thr->QObject::setThread(QThread::currentThread());
     emit thr->started();
     thr->run();
