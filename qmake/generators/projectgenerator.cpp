@@ -196,7 +196,7 @@ ProjectGenerator::init()
 	QStringList &l = v[srcs[i]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 	    if(generateDependencies(deplist, (*val_it), TRUE)) {
-		QStringList &tmp = depends[(*val_it)];
+		QStringList &tmp = findDependencies((*val_it));
 		if(!tmp.isEmpty()) {
 		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
 			QString file_no_path = (*dep_it).right(

@@ -343,7 +343,7 @@ MetrowerksMakefileGenerator::init()
 	    //establish file types
 	    seen.insert((*val_it), (void *)1);
 	    createFork((*val_it)); //the file itself
-	    QStringList &d = depends[(*val_it)]; //depends
+	    QStringList &d = findDependencies((*val_it)); //depends
 	    for(QStringList::Iterator dep_it = d.begin(); dep_it != d.end(); ++dep_it) {
 		if(!seen.find((*dep_it))) {
 		    seen.insert((*dep_it), (void *)1);

@@ -47,8 +47,9 @@ class MakefileGenerator
     bool init_already, moc_aware;
     QStringList createObjectList(const QString &var);
     QString build_args();
-    QMap<QString, QString> depHeuristics;
+    QMap<QString, QString> depHeuristics, depKeyMap;
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
+    QMap<QString, QStringList> depends;
 
 protected:
     void writeObj(QTextStream &, const QString &obj, const QString &src);
@@ -64,7 +65,6 @@ protected:
 protected:
 
     QMakeProject *project;
-    QMap<QString, QStringList> depends;
 
     class MakefileDependDir {
     public:

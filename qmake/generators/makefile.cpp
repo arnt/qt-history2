@@ -44,6 +44,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <qdict.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
@@ -477,6 +478,8 @@ MakefileGenerator::init()
     }
 
     /* get deps and mocables */
+    QDict<void> cache_found_files;
+    QString cache_file(Option::output_dir + QDir::separator() + ".qmake.internal.cache");
     if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
        Option::mkfile::do_deps || Option::mkfile::do_mocs) {
 	QPtrList<MakefileDependDir> deplist;
@@ -492,12 +495,109 @@ MakefileGenerator::init()
 						     l.replace(QRegExp("\""),"")));
 	    }
 	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
+	    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {
+		QFile cachef(cache_file);
+		if(cachef.open(IO_ReadOnly | IO_Translate)) {
+		    QFileInfo cachefi(cache_file);
+		    debug_msg(2, "Trying internal cache information: %s", cache_file.latin1());
+		    QTextStream cachet(&cachef);
+		    QString line, file;
+		    enum { CacheInfo, CacheDepend, CacheMoc } state = CacheInfo;
+		    while (!cachet.eof()) {
+			line = cachet.readLine().stripWhiteSpace();
+			int sep = line.find('=');
+			if(line == "[depend]") {
+			    state = CacheDepend;
+			} else if(line == "[mocable]") {
+			    state = CacheMoc;
+			} else if(line == "[check]") {
+			    state = CacheInfo;
+			} else if(!line.isEmpty() && sep != -1) {
+			    file = line.left(sep).stripWhiteSpace();
+			    line = line.right(line.length() - sep - 1).stripWhiteSpace();
+			    fileFixify(file);
+			    if(state == CacheInfo) {
+				if(project->variables()[file].join(" ") != line) 
+				    break;
+			    } else if(state == CacheDepend) {
+				bool found = (bool)cache_found_files[file];
+				QStringList files = QStringList::split(" ", line);
+				if(!found) {
+				    QFileInfo fi(file);
+				    if(fi.exists() && fi.lastModified() < cachefi.lastModified()) {
+					cache_found_files.insert(file, (void *)1);
+					found = TRUE;
+				    } 
+				}
+				if(found) {
+				    for(QStringList::Iterator dep_it = files.begin(); 
+					dep_it != files.end(); ++dep_it) {
+					if(!cache_found_files[(*dep_it)]) {
+					    QFileInfo fi((*dep_it));
+					    if(fi.exists() && 
+					       fi.lastModified() < cachefi.lastModified()) {
+						cache_found_files.insert((*dep_it), (void *)1);
+					    } else {
+						found = FALSE;
+						break;
+					    }
+					}
+				    }
+				    if(found) {
+					debug_msg(2, "Dependancies (cached): %s -> %s", file.latin1(), 
+						  files.join(" :: ").latin1());				
+					findDependencies(file) = files;
+				    }
+				}
+			    } else {
+				void *found = cache_found_files[file];
+				if(found != (void *)2) {
+				    if(found) {
+					cache_found_files.replace(file, (void *)2);
+				    } else {
+					QFileInfo fi(file);
+					if(fi.exists() && fi.lastModified() < cachefi.lastModified()) {
+					    cache_found_files.insert(file, (void *)2);
+					    found = (void*)1;
+					} 
+				    }
+				}
+				if(found && line != "*qmake_ignore*") {
+				    int ext_len = file.length() - file.findRev('.');
+				    bool cpp_ext = FALSE;
+				    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); 
+					cppit != Option::cpp_ext.end(); ++cppit) {
+					if((cpp_ext = (file.right(ext_len) == (*cppit))))
+					    break;
+				    }
+				    if(cpp_ext) {
+					project->variables()["_SRCMOC"].append(line);
+				    } else if(project->variables()["HEADERS"].findIndex(file) != -1) {
+					for(QStringList::Iterator hit = Option::h_ext.begin(); 
+					    hit != Option::h_ext.end(); ++hit) {
+					    if((file.right(ext_len) == (*hit))) {
+						project->variables()["_HDRMOC"].append(line);
+						break;
+					    }
+					}
+				    }
+				    debug_msg(2, "Mocgen (cached): %s -> %s", file.latin1(), 
+					      line.latin1());
+				    mocablesToMOC[file] = line;
+				    mocablesFromMOC[line] = file;
+				}
+			    }
+			}
+		    }
+		    cachef.close();
+		}
+	    }
 	}
-
 	QString sources[] = { QString("OBJECTS"), QString("LEXSOURCES"), QString("YACCSOURCES"),
 				  QString("HEADERS"), QString("SOURCES"), QString("FORMS"),
 			      QString::null };
 	depHeuristics.clear();
+	bool write_cache = !QFile::exists(cache_file);
 	for(int x = 0; sources[x] != QString::null; x++) {
 	    QStringList vpath, &l = v[sources[x]];
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -553,13 +653,53 @@ MakefileGenerator::init()
 			    }
 			}
 		    }
-		    if(sources[x] != "OBJECTS") {
+
+		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
+		    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {
+			QString fn = (*val_it);
+			fileFixify(fn);
+			if(!findDependencies(fn).isEmpty()) 
+			    found_cache_dep = TRUE;
+			if(cache_found_files[(*val_it)] == (void *)2)
+			    found_cache_moc = TRUE;
+			if(!found_cache_moc || !found_cache_dep) 
+			    write_cache = TRUE;
+		    }
+		    if(!found_cache_moc && mocAware() && 
+		       (sources[x] == "SOURCES" || sources[x] == "HEADERS") && 
+		       (Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
+			Option::mkfile::do_mocs)) 
+			generateMocList((*val_it));
+		    if(!found_cache_dep && sources[x] != "OBJECTS") 
 			generateDependencies(deplist, (*val_it), doDepends());
-			if((Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT ||
-			    Option::mkfile::do_mocs) && mocAware())
-			    generateMocList((*val_it));
+		}
+	    }
+	}
+	if(write_cache) {
+	    QFile cachef(cache_file);
+	    if(cachef.open(IO_WriteOnly | IO_Translate)) {
+		debug_msg(2, "Writing internal cache information: %s", cache_file.latin1());
+		QTextStream cachet(&cachef);
+		cachet << "[check]" << "\n"
+		       << "MOC_DIR = " << var("MOC_DIR") << "\n";
+		cachet << "[depend]" << endl;
+		for(QMap<QString, QStringList>::Iterator it = depends.begin(); 
+		    it != depends.end(); ++it) 
+		    cachet << depKeyMap[it.key()] << " = " << it.data().join(" ") << endl;
+		cachet << "[mocable]" << endl;
+		QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
+		for(int x = 0; moc_sources[x] != QString::null; x++) {
+		    QStringList &l = v[moc_sources[x]];
+		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+			if(!(*val_it).isEmpty()) {
+			    mc = mocablesToMOC[(*val_it)];
+			    if(mc.isEmpty())
+				mc = "*qmake_ignore*";
+			    cachet << (*val_it) << " = " << mc << endl;
+			}
 		    }
 		}
+		cachef.close();
 	    }
 	}
     }
@@ -595,9 +735,11 @@ MakefileGenerator::init()
 	QStringList &l = v["YACCSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + 
+			   Option::yacc_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
-	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + 
+			   Option::yacc_mod + Option::h_ext.first();
 	    logicWarn(decl, "HEADERS");
 
 	    decls.append(decl);
@@ -617,7 +759,8 @@ MakefileGenerator::init()
 		if(fi.dirPath() != ".")
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + 
+				  Option::lex_mod + Option::cpp_ext.first();
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
 		    depends[lexsrc].clear();
@@ -1527,6 +1670,8 @@ QStringList
     Option::fixPathToTargetOS(key);
     if(key.find(Option::dir_sep))
 	key = key.right(key.length() - key.findRev(Option::dir_sep) - 1);
+    if(!depKeyMap.contains(key))
+	depKeyMap.insert(key, file);
     return depends[key];
 }
 
