@@ -307,9 +307,9 @@ int QAccessibleSpinWidget::navigate(Relation rel, int entry, QAccessibleInterfac
 {
     *target = 0;
     if (entry) switch (rel) {
-    case QAccessible::Below:
+    case QAccessible::Up:
 	return entry < childCount() ? entry + 1 : -1;
-    case QAccessible::Above:
+    case QAccessible::Down:
 	return entry > 1 ? entry - 1 : -1;
     case QAccessible::Left:
 	return -1;
@@ -1095,9 +1095,9 @@ int QAccessibleComboBox::navigate(Relation rel, int entry, QAccessibleInterface 
 	return entry > 1 ? entry - 1 : -1;
     case QAccessible::Right:
 	return entry < childCount() ? entry + 1 : -1;
-    case QAccessible::Above:
+    case QAccessible::Up:
 	return -1;
-    case QAccessible::Below:
+    case QAccessible::Down:
 	return -1;
     default:
 	break;
