@@ -17,6 +17,7 @@
 #include <qfileengine.h>
 #include <private/qfile_p.h>
 #include <private/qfileengine_p.h>
+#include <private/qbufferedfsfileengine_p.h>
 
 #include <stdlib.h>
 #include <errno.h>

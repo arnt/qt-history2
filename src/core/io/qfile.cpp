@@ -1216,7 +1216,7 @@ qint64 QFile::readData(char *data, qint64 len)
 {
     unsetError();
 
-    qint64 ret = 0;
+   qint64 ret = 0;
 #ifndef QT_NO_FILE_BUFFER
     if ((openMode() & Unbuffered) == 0) {
         //from buffer

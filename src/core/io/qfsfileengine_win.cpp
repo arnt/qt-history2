@@ -14,7 +14,8 @@
 #define _POSIX_
 #include <qplatformdefs.h>
 #include <qfileengine.h>
-#include "qfileengine_p.h"
+#include <private/qfsfileengine_p.h>
+
 #include <qfile.h>
 #include <qdir.h>
 #include <qtemporaryfile.h>

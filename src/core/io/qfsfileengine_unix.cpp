@@ -17,7 +17,7 @@
 #endif
 
 #include <qfileengine.h>
-#include "qfileengine_p.h"
+#include <private/qfsfileengine_p.h>
 #include <qfile.h>
 #include <qdir.h>
 
@@ -281,7 +281,7 @@ QFSFileEnginePrivate::doStat() const
             that->could_stat = !QT_FSTAT(d->fd, &st);
         } else {
             const QByteArray file = QFile::encodeName(d->file);
-            if(QT_LSTAT(file, &st) == 0) 
+            if(QT_LSTAT(file, &st) == 0)
                 that->isSymLink = S_ISLNK(st.st_mode);
             that->could_stat = !QT_STAT(file, &st);
         }

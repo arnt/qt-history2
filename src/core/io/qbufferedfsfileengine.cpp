@@ -9,6 +9,11 @@ QBufferedFSFileEngine::QBufferedFSFileEngine()
 {
 }
 
+QFileEngine::Type QBufferedFSFileEngine::type() const
+{
+    return Type(BufferedFSFileEngine);
+}
+
 bool QBufferedFSFileEngine::open(int /* flags */)
 {
     return false;

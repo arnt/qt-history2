@@ -15,6 +15,7 @@
 
 #include "qdir.h"
 #include <qfileengine.h>
+#include <private/qfsfileengine_p.h>
 #include <qdatetime.h>
 #include <qstring.h>
 #include <qregexp.h>

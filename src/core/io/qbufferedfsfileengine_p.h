@@ -29,7 +29,7 @@
 #include <qiodevice.h>
 
 #include "qfileengine.h"
-#include "qfileengine_p.h"
+#include <private/qfsfileengine_p.h>
 
 class QBufferedFSFileEnginePrivate;
 class QBufferedFSFileEngine : public QFSFileEngine
@@ -38,6 +38,11 @@ class QBufferedFSFileEngine : public QFSFileEngine
 public:
     QBufferedFSFileEngine();
 
+    enum BufferedFSFileEngineType {
+        BufferedFSFileEngine = MaxUser + 1
+    };
+
+    Type type() const;
     bool open(int flags);
     bool open(int flags, FILE *fh);
     bool close();

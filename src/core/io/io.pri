@@ -9,6 +9,7 @@ HEADERS +=  \
 	io/qfileinfo.h \
         io/qfileengine.h \
         io/qfileengine_p.h \
+	io/qfsfileengine_p.h \
         io/qbufferedfsfileengine_p.h \
 	io/qiodevice.h \
 	io/qiodevice_p.h \
@@ -31,6 +32,7 @@ SOURCES += \
 	io/qfile.cpp \
 	io/qfileinfo.cpp \
         io/qfileengine.cpp \
+	io/qfsfileengine.cpp \
         io/qbufferedfsfileengine.cpp \
 	io/qiodevice.cpp \
         io/qprocess.cpp \
@@ -44,10 +46,10 @@ SOURCES += \
 win32 {
 	SOURCES += io/qsettings_win.cpp
         SOURCES += io/qprocess_win.cpp
-	wince-*:SOURCES += io/qfileengine_wce.cpp
-	else:SOURCES += io/qfileengine_win.cpp
+	wince-*:SOURCES += io/qfsfileengine_wce.cpp
+	else:SOURCES += io/qfsfileengine_win.cpp
 } else:unix {
-	SOURCES += io/qfileengine_unix.cpp
+	SOURCES += io/qfsfileengine_unix.cpp
         SOURCES += io/qprocess_unix.cpp
 	mac:SOURCES += io/qsettings_mac.cpp
 }
