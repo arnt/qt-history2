@@ -245,11 +245,13 @@ private:
     QCheckBox *loopcheckbox;
     QProgressBar *prodbar, *consbar;
     bool stopped;
+    bool redraw;
 };
 
 
 ProdCons::ProdCons()
-    : QWidget(0, "producer consumer widget"), prod(0), cons(0), stopped(FALSE)
+    : QWidget(0, "producer consumer widget"),
+      prod(0), cons(0), stopped(FALSE), redraw(TRUE)
 {
     startbutton = new QPushButton("&Start", this);
     connect(startbutton, SIGNAL(clicked()), SLOT(go()));
@@ -298,8 +300,11 @@ void ProdCons::go()
     stopped = FALSE;
 
     mutex.lock();
-    startbutton->setEnabled(FALSE);
-    stopbutton->setEnabled(TRUE);
+
+    if ( redraw ) {
+	startbutton->setEnabled(FALSE);
+	stopbutton->setEnabled(TRUE);
+    }
 
     // start the consumer first
     if (! cons)
@@ -330,7 +335,7 @@ void ProdCons::stop()
 	cons->wait();
     }
 
-    if ( ! loopcheckbox->isChecked() ) {
+    if ( redraw ) {
 	// no point in repainting these buttons so many times is we are looping...
 	startbutton->setEnabled(TRUE);
 	stopbutton->setEnabled(FALSE);
@@ -356,11 +361,15 @@ void ProdCons::customEvent(QCustomEvent *e)
 	    // reap the threads
 	    if (pe->done()) {
 		bool loop = (loopcheckbox->isChecked() && ! stopped);
+		bool save_redraw = redraw;
+		redraw = loop;
 
 		stop();
 
 		if (loop)
 		    go();
+
+		redraw = save_redraw;
 	    }
 
 	    break;
