@@ -23,14 +23,7 @@
    obsoleted, use QSqlField instead
 */
 
-#if !defined(QT_MODULE_SQL) || defined(QT_LICENSE_PROFESSIONAL)
-#define QM_COMPAT_EXPORT_SQL
-#else
-#define QM_COMPAT_EXPORT_SQL Q_COMPAT_EXPORT
-#endif
-
-
-class QM_COMPAT_EXPORT_SQL Q3SqlFieldInfo
+class Q_COMPAT_EXPORT Q3SqlFieldInfo
 {
     // class is obsoleted, won't change anyways,
     // so no d pointer
