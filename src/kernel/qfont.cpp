@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#124 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#125 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -774,9 +774,9 @@ bool QFont::exactMatch() const
   Returns TRUE if the this font is equal to \e f, or FALSE if they are
   different.
 
-  Two QFonts are equal if their font attributes are equal.
-  If \link setRawMode() raw mode\endlink is enabled for both fonts,
-  then only the family fields are compared.
+  Two QFonts are equal if their font attributes are equal.  If
+  rawMode() is enabled for both fonts, then only the family fields are
+  compared.
 
   \sa operator!=()
 */
@@ -790,9 +790,9 @@ bool QFont::operator==( const QFont &f ) const
   Returns TRUE if the this font is different from \e f, or FALSE if they are
   equal.
 
-  Two QFonts are different if their font attributes are different.
-  If \link setRawMode() raw mode\endlink is enabled for both fonts,
-  then only the family fields are compared.
+  Two QFonts are different if their font attributes are different.  If
+  rawMode() is enabled for both fonts, then only the family fields are
+  compared.
 
   \sa operator==()
 */

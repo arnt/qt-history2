@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qmime_win.cpp#3 $
 **
 ** Implementation of Win32 MIME <-> clipboard converters
 **
@@ -33,7 +33,7 @@ extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 static QList<QWindowsMime> mimes;
 
 /*!
-  \class QWindowsMime mime.h
+  \class QWindowsMime qmime.h
   \brief Maps open-standard MIME types with Window Clipboard formats.
 
   The drag-and-drop and clipboard facilities of Qt use the MIME standard.
@@ -48,14 +48,14 @@ static QList<QWindowsMime> mimes;
 
   Qt has predefined support for the following Windows Clipboard formats:
   <ul>
-    <li> CF_UNICODETEXT - converted to "text/plain" or "text/utf16",
+    <li> \c CF_UNICODETEXT - converted to "text/plain" or "text/utf16",
 	    and thus supported by QTextDrag.
-    <li> CF_TEXT - converted to "text/plain" or "text/utf16",
+    <li> \c CF_TEXT - converted to "text/plain" or "text/utf16",
 	    and thus supported by QTextDrag.
-    <li> CF_DIB - converted to "image/*", where * is
+    <li> \c CF_DIB - converted to "image/*", where * is
 		a \link QImage::outputFormats() Qt image format\endlink,
 	    and thus supported by QImageDrag.
-    <li> CF_HDROP - converted to "text/uri-list",
+    <li> \c CF_HDROP - converted to "text/uri-list",
 	    and thus supported by QUrlDrag.
   </ul>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#69 $
 **
 ** Implementation of QAccel class
 **
@@ -498,7 +498,7 @@ bool QAccel::ignoreWhatsThis() const
 
 
 
-/* \page accelerators.html
+/*! \page accelerators.html
 
 <title>Standard Accelerators</title>
 \postheader
@@ -583,7 +583,6 @@ Microsoft book</a> has ISBN 1556156790.  The corresponding
 <a href="http://www.amazon.com/exec/obidos/ASIN/1859121047/trolltech/t">
 Open Group book</a> has ISBN 1859121047.  (The link does not work at
 the time of writing, but is correct: The books is simply hard to get
-hold of.  OGPubs@opengroup.org may be able to help, if you have too much
-money.)
+hold of.  OGPubs@opengroup.org may be able to help, at a price.)
 
 */
