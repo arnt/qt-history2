@@ -54,17 +54,20 @@ public:
 class Q_EXPORT QTabBar: public QWidget
 {
     Q_OBJECT
-
+    Q_PROPERTY( Shape, "shape", shape, setShape )
+    Q_PROPERTY( int, "currentTab", currentTab, 0 )
+    Q_PROPERTY( int, "keyboardFocusTab", keyboardFocusTab, 0 )
+	
 public:
     QTabBar( QWidget * parent = 0, const char *name = 0 );
    ~QTabBar();
-    
+
     enum Shape { RoundedAbove, RoundedBelow,
 		 TriangularAbove, TriangularBelow };
 
     Shape shape() const;
     virtual void setShape( Shape );
-    
+
     void show();
 
     virtual int addTab( QTab * );

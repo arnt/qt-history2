@@ -42,6 +42,14 @@ class QMimeSourceFactory;
 class Q_EXPORT QTextView : public QScrollView
 {
     Q_OBJECT
+    // ######### Should support property textFormat
+    // ######### setText should not have the default parameter
+    Q_PROPERTY( QBrush, "paper", paper, setPaper )
+    Q_PROPERTY( QColorGroup, "paperColorGroup", paperColorGroup, setPaperColorGroup )
+    Q_PROPERTY( QColor, "linkColor", linkColor, setLinkColor )
+    Q_PROPERTY( bool, "linkUnderline", linkUnderline, setLinkUnderline )
+    Q_PROPERTY( QString, "documentTitle", documentTitle, 0 )
+	
 public:
     QTextView(QWidget *parent=0, const char *name=0);
     QTextView( const QString& text, const QString& context = QString::null,
@@ -108,7 +116,7 @@ protected:
 
 private slots:
     void doResize();
-    void clipboardChanged(); 
+    void clipboardChanged();
     void doStartDrag();
     void doAutoScroll();
 

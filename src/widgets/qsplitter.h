@@ -37,6 +37,8 @@ class QSplitterLayoutStruct;
 class Q_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
+    // ###### Orientation should be supported as property
+    
 public:
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint };
 

@@ -40,6 +40,9 @@ class QWidgetStack;
 class Q_EXPORT QTabWidget : public QWidget
 {
     Q_OBJECT
+    Q_PROPERTY( TabPosition, "tabPosition", tabPosition, setTabPosition )
+    Q_PROPERTY( int, "margin", margin, setMargin )
+	
 public:
     QTabWidget( QWidget *parent, const char *name, WFlags f);
     QTabWidget( QWidget *parent=0, const char *name=0);

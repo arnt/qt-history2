@@ -1068,7 +1068,7 @@ void QSlider::styleChange( QStyle& old )
 */
 int QSlider::minValue() const
 {
-    return minValue();
+    return QRangeControl::minValue();
 }
 
 /*!
@@ -1076,7 +1076,7 @@ int QSlider::minValue() const
 */
 int QSlider::maxValue() const
 {
-    return maxValue();
+    return QRangeControl::maxValue();
 }
 
 /*!
@@ -1106,7 +1106,7 @@ void QSlider::setMaxValue( int i )
 */
 int QSlider::lineStep() const
 {
-    return lineStep();
+    return QRangeControl::lineStep();
 }
 
 /*!
@@ -1114,7 +1114,7 @@ int QSlider::lineStep() const
 */
 int QSlider::pageStep() const
 {
-    return pageStep();
+    return QRangeControl::pageStep();
 }
 
 void QSlider::setLineStep( int i )
@@ -1132,5 +1132,5 @@ void QSlider::setPageStep( int i )
 */
 int QSlider::value() const
 {
-    return value();
+    return QRangeControl::value();
 }

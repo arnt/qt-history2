@@ -813,7 +813,7 @@ void QScrollBar::styleChange( QStyle& old )
 */
 int QScrollBar::minValue() const
 {
-    return minValue();
+    return QRangeControl::minValue();
 }
 
 /*!
@@ -821,7 +821,7 @@ int QScrollBar::minValue() const
 */
 int QScrollBar::maxValue() const
 {
-    return maxValue();
+    return QRangeControl::maxValue();
 }
 
 /*!
@@ -851,7 +851,7 @@ void QScrollBar::setMaxValue( int i )
 */
 int QScrollBar::lineStep() const
 {
-    return lineStep();
+    return QRangeControl::lineStep();
 }
 
 /*!
@@ -859,7 +859,7 @@ int QScrollBar::lineStep() const
 */
 int QScrollBar::pageStep() const
 {
-    return pageStep();
+    return QRangeControl::pageStep();
 }
 
 void QScrollBar::setLineStep( int i )
@@ -877,7 +877,7 @@ void QScrollBar::setPageStep( int i )
 */
 int QScrollBar::value() const
 {
-    return value();
+    return QRangeControl::value();
 }
 
 /*!
@@ -885,7 +885,7 @@ int QScrollBar::value() const
 */
 void QScrollBar::setValue( int i )
 {
-    setValue( i );
+    QRangeControl::setValue( i );
 }
 
 #undef ADD_LINE_ACTIVE
