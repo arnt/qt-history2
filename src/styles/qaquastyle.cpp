@@ -11084,11 +11084,11 @@ void QAquaStyle::polish( QPalette & pal )
                   QColor( 148,148,148 ));
 
     pal.setColor( QPalette::Active, QColorGroup::Highlight,
-                  QColor( 49,255,255 ) );
+                  QColor( 0xC2, 0xC2, 0xC2 ) );
     pal.setColor( QPalette::Inactive, QColorGroup::Highlight,
-                  QColor( 148,148,148 ));
+                  QColor( 0xC2, 0xC2, 0xC2 ));
     pal.setColor( QPalette::Disabled, QColorGroup::Highlight,
-                  QColor( 148,148,148 ));
+                  QColor( 0xC2, 0xC2, 0xC2 ));
 
     pal.setColor( QPalette::Active, QColorGroup::HighlightedText, Qt::black);
     pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, Qt::black);
@@ -11146,7 +11146,8 @@ void QAquaStyle::polish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WindowOrigin );
     }
 
-    if( w->inherits("QFrame") && w->parentWidget() && !w->topLevelWidget()->inherits("QPopupMenu") )
+    if( w->inherits("QFrame") && w->parentWidget() && 
+	!w->inherits("QSpinBox") && !w->topLevelWidget()->inherits("QPopupMenu") ) 
 	w->installEventFilter( this );
 }
 
@@ -12723,8 +12724,8 @@ int QAquaStyle::spinboxFrameWidth() const
 }
 
 void QAquaStyle::drawRangeControlWidgetButton( QPainter * p, int x, int y,
-	  int w, int h, const QColorGroup & g, QRangeControlWidget * rc, 
-	  bool downbtn, bool enabled, bool down )
+	  int w, int h, const QColorGroup &, QRangeControlWidget *, 
+	  bool downbtn, bool, bool down )
 {
     QString wstr = QString::number( w );
     QString hstr = QString::number( h );
