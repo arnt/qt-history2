@@ -23,7 +23,7 @@ unix:WIDGETS_H	= widgets
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
-HEADERS		= $$DIALOGS_H/qdeveloper.h \
+HEADERS		= $$DIALOGS_H/qdeveloper.h  \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
