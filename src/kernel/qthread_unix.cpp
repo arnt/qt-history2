@@ -35,10 +35,12 @@
 **
 **********************************************************************/
 
-#include "qthread.h"
 
 #if defined(QT_THREAD_SUPPORT)
 
+#include <qplatformdefs.h>
+
+#include "qthread.h"
 #include "qapplication.h"
 #include "qptrlist.h"
 #include "qintdict.h"

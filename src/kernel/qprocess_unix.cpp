@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#72 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -35,12 +35,14 @@
 **
 **********************************************************************/
 
-#include "qprocess.h"
+#ifndef QT_H
+#  include <qfeatures.h>
+#endif // QT_H
 
 #ifndef QT_NO_PROCESS
 
 #include "qplatformdefs.h"
-
+#include "qprocess.h"
 #include "qapplication.h"
 #include "qptrqueue.h"
 #include "qptrlist.h"

@@ -35,12 +35,14 @@
 **
 **********************************************************************/
 
-#include "qprinter.h"
+#ifndef QT_H
+#  include <qfeatures.h>
+#endif // QT_H
 
 #ifndef QT_NO_PRINTER
 
 #include "qplatformdefs.h"
-
+#include "qprinter.h"
 #include "qpaintdevicemetrics.h"
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"

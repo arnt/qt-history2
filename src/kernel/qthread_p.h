@@ -53,7 +53,6 @@
 
 
 #ifndef QT_H
-#include "qplatformdefs.h"
 #ifdef QWS
 #include "qptrdict.h"
 #else
