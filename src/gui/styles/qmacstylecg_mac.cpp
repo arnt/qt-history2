@@ -1015,8 +1015,8 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                                  kHIThemeOrientationNormal, &textRect);
             //text
             QPixmap pix = mi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
-            drawItem(p, qrectForHIRect(textRect), 
-                     Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine, 
+            drawItem(p, qrectForHIRect(textRect),
+                     Qt::AlignCenter | Qt::TextHideMnemonic | Qt::TextDontClip | Qt::TextSingleLine,
                      mi->palette, mi->state & Style_Enabled,
                      pix, mi->text, -1, &mi->palette.buttonText().color());
         }
@@ -1180,8 +1180,11 @@ void QMacStyleCG::drawControl(ControlElement ce, const QStyleOption *opt, QPaint
                             Qt::AlignCenter, btn->text);
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
-                const QRect mr = subRect(SR_ToolBarButtonMenu, btn, w);
-                p->fillRect(mr, Qt::green);
+                QStyleOption arrowOpt(0);
+                arrowOpt.rect = subRect(SR_ToolBarButtonMenu, btn, w);
+                arrowOpt.state = btn->state;
+                arrowOpt.palette = btn->palette;
+                drawPrimitive(PE_ArrowDown, &arrowOpt, p, w);
             }
         }
         break;
