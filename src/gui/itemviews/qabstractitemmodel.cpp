@@ -145,8 +145,9 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
-    if (data != &QPersistentModelIndexData::shared_null) {
-        data->model->d_func()->persistentIndexes.removeAll(data);
+    if (data && data != &QPersistentModelIndexData::shared_null) {
+        if (data->model)
+            data->model->d_func()->persistentIndexes.removeAll(data);
         delete data;
     }
 }
@@ -905,9 +906,12 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
     bool all = !parent.isValid();
-    for (int i = 0; i < d->persistentIndexes.count(); ++i)
-        if (all || this->parent(d->persistentIndexes.at(i)->index) == parent)
+    for (int i = 0; i < d->persistentIndexes.count(); ++i) {
+        if (all || this->parent(d->persistentIndexes.at(i)->index) == parent) {
             d->persistentIndexes[i]->index = QModelIndex();
+            d->persistentIndexes[i]->model = 0;
+        }
+    }
 }
 
 int QAbstractItemModel::persistentIndexesCount() const
