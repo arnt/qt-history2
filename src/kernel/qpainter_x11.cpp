@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#154 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#153 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#154 $")
 
 
 /*****************************************************************************
@@ -1367,6 +1367,9 @@ void QPainter::setClipping( bool enable )
 
 /*----------------------------------------------------------------------------
   Overloaded setClipRect; takes a QRect instead of \e (x,y,w,h).
+
+  Note that the clip region is \e not subject to \link setWorldMatrix
+  coordinate transformation. \endlink
  ----------------------------------------------------------------------------*/
 
 void QPainter::setClipRect( const QRect &r )
@@ -1377,6 +1380,10 @@ void QPainter::setClipRect( const QRect &r )
 
 /*----------------------------------------------------------------------------
   Sets the clip region to \e rgn and enables clipping.
+
+  Note that the clip region is \e not subject to \link setWorldMatrix
+  coordinate transformation. \endlink
+
   \sa setClipRect(), setClipping()
  ----------------------------------------------------------------------------*/
 
