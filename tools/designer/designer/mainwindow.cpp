@@ -106,6 +106,8 @@
 #include "../resource/qwidgetfactory.h"
 #include <qvbox.h>
 #include <qtimer.h>
+#include <qtooltip.h>
+#include "finddialog.h"
 
 static int forms = 0;
 
@@ -196,6 +198,7 @@ MainWindow::MainWindow( bool asClient )
 
     setupFileActions();
     setupEditActions();
+    setupSerachActions();
 #if defined(HAVE_KDE)
     layoutToolBar = new KToolBar( this, "Layout" );
     ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
@@ -392,7 +395,7 @@ void MainWindow::setupEditActions()
     connect( this, SIGNAL( hasActiveForm(bool) ), actionEditConnections, SLOT( setEnabled(bool) ) );
 
     actionEditSource = new QAction( tr( "Source" ), QIconSet(),
-					 tr( "&Source..." ), 0, this, 0 );
+					 tr( "&Source..." ), CTRL + Key_E, this, 0 );
     actionEditConnections->setStatusTip( tr("Opens an editor to edit the source of the form") );
     actionEditConnections->setWhatsThis( tr("<b>Edit source</b>"
 					    "<p>Opens an editor where the source of the current form can be "
@@ -481,6 +484,54 @@ void MainWindow::setupEditActions()
 #endif
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
+}
+
+void MainWindow::setupSerachActions()
+{
+    actionSearchFind = new QAction( tr( "Find" ), createIconSet( "searchfind.xpm" ),
+				    tr( "&Find..." ), CTRL + Key_F, this, 0 );
+    connect( actionSearchFind, SIGNAL( activated() ), this, SLOT( searchFind() ) );
+    actionSearchFind->setEnabled( FALSE );
+
+    actionSearchIncremetal = new QAction( tr( "Find Incremental" ), QIconSet(),
+					  tr( "Find &Incremetal" ), ALT + Key_I, this, 0 );
+    connect( actionSearchIncremetal, SIGNAL( activated() ), this, SLOT( searchIncremetalFindMenu() ) );
+    actionSearchIncremetal->setEnabled( FALSE );
+
+    actionSearchReplace = new QAction( tr( "Replace" ), QIconSet(),
+				    tr( "&Replace..." ), CTRL + Key_R, this, 0 );
+    connect( actionSearchReplace, SIGNAL( activated() ), this, SLOT( searchReplace() ) );
+    actionSearchReplace->setEnabled( FALSE );
+
+    actionSearchGotoLine = new QAction( tr( "Goto Line" ), QIconSet(),
+				    tr( "&Goto Line..." ), CTRL + Key_G, this, 0 );
+    connect( actionSearchGotoLine, SIGNAL( activated() ), this, SLOT( searchGotoLine() ) );
+    actionSearchGotoLine->setEnabled( FALSE );
+
+#if defined(HAVE_KDE)
+    KToolBar *tb = new KToolBar( this, "Edit" );
+    tb->setFullSize( FALSE );
+#else
+    QToolBar *tb = new QToolBar( this, "Edit" );
+    tb->setCloseMode( QDockWindow::Undocked );
+#endif
+
+    actionSearchFind->addTo( tb );
+    incrementalSearch = new QLineEdit( tb );
+    QToolTip::add( incrementalSearch, tr( "Incremetal Search (ALT+I)" ) );
+    connect( incrementalSearch, SIGNAL( textChanged( const QString & ) ),
+	     this, SLOT( searchIncremetalFind() ) );
+    connect( incrementalSearch, SIGNAL( returnPressed() ),
+	     this, SLOT( searchIncremetalFindNext() ) );
+    incrementalSearch->setEnabled( FALSE );
+
+    QPopupMenu *menu = new QPopupMenu( this, "Search" );
+    menubar->insertItem( tr( "&Search" ), menu );
+    actionSearchFind->addTo( menu );
+    actionSearchIncremetal->addTo( menu );
+    actionSearchReplace->addTo( menu );
+    menu->insertSeparator();
+    actionSearchGotoLine->addTo( menu );
 }
 
 void MainWindow::setupLayoutActions()
@@ -2039,6 +2090,50 @@ void MainWindow::editPreferences()
     statusBar()->clear();
 }
 
+void MainWindow::searchFind()
+{
+    if ( !workSpace()->activeWindow() ||
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+    if ( !findDialog )
+	findDialog = new FindDialog( this, 0, FALSE );
+    findDialog->show();
+    findDialog->raise();
+    findDialog->setEditor( ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface(),
+			   ( (SourceEditor*)workSpace()->activeWindow() )->form() );
+    findDialog->comboFind->setFocus();
+    findDialog->comboFind->lineEdit()->selectAll();
+}
+
+void MainWindow::searchIncremetalFindMenu()
+{
+    incrementalSearch->selectAll();
+    incrementalSearch->setFocus();
+}
+
+void MainWindow::searchIncremetalFind()
+{
+    if ( !workSpace()->activeWindow() ||
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+    ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
+									     FALSE, FALSE, TRUE, FALSE );
+}
+
+void MainWindow::searchIncremetalFindNext()
+{
+    if ( !workSpace()->activeWindow() ||
+	 !workSpace()->activeWindow()->inherits( "SourceEditor" ) );
+    ( (SourceEditor*)workSpace()->activeWindow() )->editorInterface()->find( incrementalSearch->text(),
+									     FALSE, FALSE, TRUE, TRUE );
+}
+
+void MainWindow::searchReplace()
+{
+}
+
+void MainWindow::searchGotoLine()
+{
+}
+
 QObjectList *MainWindow::previewProject()
 {
     for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
@@ -2552,6 +2647,12 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    resetTool();
 	    return FALSE;
 	}
+	if ( ( (QKeyEvent*)e )->key() == Key_Escape && incrementalSearch->hasFocus() ) {
+	    if ( workSpace()->activeWindow() && workSpace()->activeWindow()->inherits( "SourceEditor" ) ) {
+		workSpace()->activeWindow()->setFocus();
+		return TRUE;
+	    }
+	}
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
 	( (FormWindow*)w )->handleKeyPress( (QKeyEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
@@ -2569,7 +2670,7 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    ( (FormWindow*)w )->handleMouseDblClick( (QMouseEvent*)e, ( (FormWindow*)w )->designerWidget( o ) );
 	    return TRUE;
 	}
-	return openEditor( ( (FormWindow*)w )->designerWidget( o ) );
+	return openEditor( ( (FormWindow*)w )->designerWidget( o ), (FormWindow*)w );
     case QEvent::KeyRelease:
 	if ( !( w = isAFormWindowChild( o ) ) || o->inherits( "SizeHandle" ) || o->inherits( "OrderIndicator" ) )
 	    break;
@@ -2831,6 +2932,12 @@ void MainWindow::activeWindowChanged( QWidget *w )
     selectionChanged();
 
     if ( w && w->inherits( "SourceEditor" ) ) {
+	actionSearchFind->setEnabled( TRUE );
+	actionSearchIncremetal->setEnabled( TRUE );
+	actionSearchReplace->setEnabled( TRUE );
+	actionSearchGotoLine->setEnabled( TRUE );
+	incrementalSearch->setEnabled( TRUE );
+	
 	actionEditUndo->setEnabled( TRUE );
 	actionEditRedo->setEnabled( TRUE );
 	actionEditCut->setEnabled( TRUE );
@@ -2841,6 +2948,12 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditUndo->setToolTip( textNoAccel( actionEditUndo->menuText()) );
 	actionEditRedo->setMenuText( tr( "&Redo" ) );
 	actionEditRedo->setToolTip( textNoAccel( actionEditRedo->menuText()) );
+    } else {
+	actionSearchFind->setEnabled( FALSE );
+	actionSearchIncremetal->setEnabled( FALSE );
+	actionSearchReplace->setEnabled( FALSE );
+	actionSearchGotoLine->setEnabled( FALSE );
+	incrementalSearch->setEnabled( FALSE );
     }
 }
 
@@ -3665,7 +3778,7 @@ ActionEditor *MainWindow::actioneditor() const
     return actionEditor;
 }
 
-bool MainWindow::openEditor( QWidget *w )
+bool MainWindow::openEditor( QWidget *w, FormWindow * )
 {
     if ( WidgetFactory::hasSpecialEditor( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) ) ) {
 	statusBar()->message( tr( "Edit %1..." ).arg( w->className() ) );
@@ -3711,6 +3824,8 @@ bool MainWindow::openEditor( QWidget *w )
 	}
 	return TRUE;
     }
+
+    editSource();
 
     return TRUE;
 }

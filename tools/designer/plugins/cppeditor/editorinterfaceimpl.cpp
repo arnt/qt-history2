@@ -77,6 +77,7 @@ QWidget *EditorInterfaceImpl::editor( QWidget *parent, QUnknownInterface *iface 
 	CppEditor *e = new CppEditor( QString::null, viewManager, "editor" );
 	e->installEventFilter( this );
 	dIface = (DesignerInterface*)iface->queryInterface( IID_DesignerInterface );
+	QApplication::sendPostedEvents( viewManager, QEvent::ChildInserted );
     }
     return viewManager->currentView();
 }
@@ -141,11 +142,23 @@ void EditorInterfaceImpl::selectAll()
     ( (CppEditor*)viewManager->currentView() )->selectAll();
 }
 
-bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forward )
+bool EditorInterfaceImpl::find( const QString &expr, bool cs, bool wo, bool forward, bool startAtCursor )
 {
     if ( !viewManager || !viewManager->currentView() )
 	return FALSE;
-    return ( (CppEditor*)viewManager->currentView() )->find( expr, cs, wo, forward );
+    CppEditor *e = (CppEditor*)viewManager->currentView();
+    if ( startAtCursor )
+	return e->find( expr, cs, wo, forward );
+    int dummy = 0;
+    return e->find( expr, cs, wo, forward, &dummy, &dummy );
+}
+
+bool EditorInterfaceImpl::replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor )
+{
+}
+
+void EditorInterfaceImpl::gotoLine( int line )
+{
 }
 
 void EditorInterfaceImpl::indent()

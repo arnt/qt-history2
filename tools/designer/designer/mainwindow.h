@@ -58,6 +58,7 @@ class ActionEditor;
 class Project;
 class OutputWindow;
 class QTimer;
+class FindDialog;
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
 #include <qtoolbar.h>
@@ -193,6 +194,13 @@ public slots:
     void editDatabaseConnections();
     void editPreferences();
 
+    void searchFind();
+    void searchIncremetalFindMenu();
+    void searchIncremetalFind();
+    void searchIncremetalFindNext();
+    void searchReplace();
+    void searchGotoLine();
+
     void previewForm();
     void previewForm( const QString& );
     void windowPropertyEditor( bool );
@@ -233,6 +241,7 @@ private:
     void setupMDI();
     void setupMenuBar();
     void setupEditActions();
+    void setupSerachActions();
     void setupToolActions();
     void setupLayoutActions();
     void setupFileActions();
@@ -264,7 +273,7 @@ private:
     void handleRMBSpecialCommands( int id, QMap<QString, int> &commands, FormWindow *w );
     bool closeForm( FormWindow *fw );
 
-    bool openEditor( QWidget *w );
+    bool openEditor( QWidget *w, FormWindow *fw );
     void rebuildCustomWidgetGUI();
     void checkTempFiles();
     void openHelpForDialog( const QString &dia );
@@ -326,6 +335,7 @@ private:
     QAction *actionEditFormSettings, *actionEditAccels;
     QAction *actionEditDatabaseConnections;
     QAction *actionEditSource;
+    QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
@@ -355,6 +365,8 @@ private:
     QValueList<Tab> projectTabs;
     bool databaseAutoEdit;
     QTimer *updateSlotsTimer;
+    QLineEdit *incrementalSearch;
+    QGuardedPtr<FindDialog> findDialog;
 
 };
 

@@ -1,0 +1,256 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>ReplaceDialog</class>
+<include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
+<forward>struct EditorInterface;</forward>
+<variable>EditorInterface *editor;</variable>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ReplaceDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>314</width>
+            <height>188</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Replace Text</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>6</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout3</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QLabel" row="1" column="0">
+                    <property name="name">
+                        <cstring>TextLabel2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Replace</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>comboReplace</cstring>
+                    </property>
+                </widget>
+                <widget class="QLabel" row="0" column="0">
+                    <property name="name">
+                        <cstring>TextLabel1</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Find</string>
+                    </property>
+                    <property name="buddy" stdset="0">
+                        <cstring>comboFind</cstring>
+                    </property>
+                </widget>
+                <widget class="QComboBox" row="0" column="1">
+                    <property name="name">
+                        <cstring>comboFind</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="editable">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QComboBox" row="1" column="1">
+                    <property name="name">
+                        <cstring>comboReplace</cstring>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>7</hsizetype>
+                            <vsizetype>0</vsizetype>
+                        </sizepolicy>
+                    </property>
+                    <property name="editable">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QButtonGroup">
+            <property name="name">
+                <cstring>ButtonGroup1</cstring>
+            </property>
+            <property name="title">
+                <string>&amp;Options</string>
+            </property>
+            <grid>
+                <property name="margin">
+                    <number>11</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <widget class="QCheckBox" row="0" column="0">
+                    <property name="name">
+                        <cstring>checkWords</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Whole words only</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>checkCase</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Case sensitive</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton" row="1" column="1">
+                    <property name="name">
+                        <cstring>radioBackward</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Backward</string>
+                    </property>
+                </widget>
+                <widget class="QRadioButton" row="0" column="1">
+                    <property name="name">
+                        <cstring>radioForward</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Forwar&amp;d</string>
+                    </property>
+                    <property name="checked">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout5</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <spacer>
+                    <property name="name" stdset="0">
+                        <cstring>Spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonReplace</cstring>
+                    </property>
+                    <property name="text">
+                        <string>&amp;Replace</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>buttonReplaceAll</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Replace &amp;All</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>PushButton2</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>buttonReplace</sender>
+        <signal>clicked()</signal>
+        <receiver>ReplaceDialog</receiver>
+        <slot>doReplace()</slot>
+    </connection>
+    <connection>
+        <sender>buttonReplaceAll</sender>
+        <signal>clicked()</signal>
+        <receiver>ReplaceDialog</receiver>
+        <slot>doReplaceAll()</slot>
+    </connection>
+    <connection>
+        <sender>PushButton2</sender>
+        <signal>clicked()</signal>
+        <receiver>ReplaceDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <slot access="protected" language="C++">init()</slot>
+    <slot access="protected" language="C++">destroy()</slot>
+    <slot access="public" language="C++">doReplace()</slot>
+    <slot access="public" language="C++">doReplaceAll()</slot>
+    <slot access="public" language="C++">setEditor( EditorInterface *e )</slot>
+</connections>
+<functions>
+    <function name="destroy()" >{
+    if ( editor )
+	editor-&gt;release();
+}</function>
+    <function name="doReplace()" >{
+    
+}</function>
+    <function name="doReplaceAll()" >{
+    
+}</function>
+    <function name="init()" >{
+    editor = 0;
+}</function>
+    <function name="setEditor(EditorInterface*)" >{
+    if ( editor )
+	editor-&gt;release();
+    editor = e;
+    editor-&gt;addRef();
+}</function>
+</functions>
+</UI>

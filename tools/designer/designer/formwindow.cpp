@@ -607,6 +607,8 @@ void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 	    updateOrderIndicators();
 	}
     default:
+	if ( isMainContainer( w ) || w == this )
+	    mainWindow()->editSource();
 	break;
     }
 }

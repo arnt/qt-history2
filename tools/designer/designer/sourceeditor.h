@@ -23,6 +23,7 @@
 
 #include "../interfaces/editorinterface.h"
 #include <qvbox.h>
+#include <qguardedptr.h>
 
 class FormWindow;
 class QCloseEvent;
@@ -57,6 +58,10 @@ public:
     void configChanged();
     void refresh();
 
+    EditorInterface *editorInterface() const { return iFace; }
+
+    void setFocus();
+
 protected:
     void closeEvent( QCloseEvent *e );
 
@@ -68,6 +73,7 @@ private:
     LanguageInterface *lIface;
     FormWindow *formWindow;
     QString lang;
+    QGuardedPtr<QWidget> editor;
 
 };
 

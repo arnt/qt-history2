@@ -45,7 +45,7 @@ SourceEditor::SourceEditor( QWidget *parent, EditorInterface *iface, LanguageInt
 {
     iFace->addRef();
     lIface->addRef();
-    iFace->editor( this, MainWindow::self->designerInterface() );
+    editor = iFace->editor( this, MainWindow::self->designerInterface() );
     resize( 600, 400 );
 }
 
@@ -54,6 +54,7 @@ SourceEditor::~SourceEditor()
     iFace->release();
     lIface->release();
     MainWindow::self->editorClosed( this );
+    editor = 0;
 }
 
 void SourceEditor::setForm( FormWindow *fw )
@@ -188,4 +189,10 @@ void SourceEditor::setModified( bool b )
 void SourceEditor::refresh()
 {
     iFace->setText( sourceOfForm( formWindow, lang, iFace, lIface ) );
+}
+
+void SourceEditor::setFocus()
+{
+    if ( editor )
+	editor->setFocus();
 }

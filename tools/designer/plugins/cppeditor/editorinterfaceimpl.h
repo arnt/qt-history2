@@ -51,7 +51,9 @@ public:
     void copy();
     void paste();
     void selectAll();
-    bool find( const QString &expr, bool cs, bool wo, bool forward );
+    bool find( const QString &expr, bool cs, bool wo, bool forward, bool startAtCursor );
+    bool replace( const QString &find, const QString &replace, bool cs, bool wo, bool forward, bool startAtCursor );
+    void gotoLine( int line );
     void indent();
     void scrollTo( const QString &txt );
     void splitView();

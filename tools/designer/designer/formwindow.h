@@ -201,6 +201,7 @@ protected:
     virtual void focusInEvent( QFocusEvent *e );
     virtual void focusOutEvent( QFocusEvent *e );
     virtual void resizeEvent( QResizeEvent *e );
+    void mouseDoubleClickEvent( QMouseEvent *e ) { handleMouseDblClick( e, mainContainer() ); }
 
 private:
     enum RectType { Insert, Rubber };
