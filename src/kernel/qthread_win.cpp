@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qthread_win.cpp#54 $
 **
 ** QThread class for windows
 **
@@ -36,6 +36,9 @@
 #include "qobject.h"
 #include "qapplication.h"
 #include "qintdict.h"
+#ifndef _MT
+#define _MT
+#endif
 #include <process.h>
 
 #ifdef QT_CHECK_RANGE
