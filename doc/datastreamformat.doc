@@ -147,7 +147,11 @@ and how they are represented.
 	\endlist
 \row \i QImage
      \i \list
-	\i Save it as a PNG image.
+	\i If the image is null a "null image" marker is saved;
+	otherwise the image is saved in PNG or BMP format (depending
+	on the stream version). If you want control of the format,
+	stream the image into a QBuffer (using QImageIO) and stream
+	that.
 	\endlist
 \row \i QMap
      \i \list

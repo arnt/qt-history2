@@ -275,10 +275,12 @@ QTranslator::save(). This way the translations can come from any
 source you choose.
 
 \target qt-itself
-Qt itself contains about 400 strings that will also need to be
+Qt itself contains over 400 strings that will also need to be
 translated into the languages that you are targeting. You will find
 translation files for French and German in \c $QTDIR/translations as
-well as a template for translating to other languages.
+well as a template for translating to other languages. (This directory
+also contains some additional unsupported translations which may be
+useful.)
 
 Typically, your application's main() function will look like this:
 \code
