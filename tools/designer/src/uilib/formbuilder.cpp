@@ -124,3 +124,22 @@ bool FormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parent
 {
     return Resource::addItem(ui_widget, widget, parentWidget);
 }
+
+void FormBuilder::createConnections(DomConnections *ui_connections, QWidget *widget)
+{
+    QList<DomConnection*> connections = ui_connections->elementConnection();
+    foreach (DomConnection *c, connections) {
+        QWidget *sender = qFindChild<QWidget*>(widget, c->elementSender());
+        QWidget *receiver = qFindChild<QWidget*>(widget, c->elementReceiver());
+        if (!sender || !receiver)
+            continue;
+
+        QByteArray sig = c->elementSignal().toLatin1();
+        sig.prepend("2");
+        QByteArray sl = c->elementSlot().toLatin1();
+        sl.prepend("1");
+
+        QObject::connect(sender, sig, receiver, sl);
+    }
+}
+
