@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#121 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#122 $
 **
 ** Implementation of QTextStream class
 **
@@ -732,7 +732,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	delete [] u;
     } else {
 	for (uint i=0; i<len; i++)
-	    ts_putc( p[i] );
+	    ts_putc( (uchar)p[i] );
     }
     return *this;
 }
