@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#11 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlineedit.cpp#11 $";
 #endif
 
 
@@ -195,8 +195,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
+    if ( inTextFocus )
+        return;
     inTextFocus = TRUE;
-    debug( "IN focus" );
+//    debug( "IN focus" );
     pm = new QPixMap( clientSize().width(), clientSize().height());
     CHECK_PTR( pm );
     startTimer( blinkTime );
@@ -206,8 +208,10 @@ void QLineEdit::focusInEvent( QFocusEvent * )
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
+    if ( !inTextFocus )
+        return;
     inTextFocus = FALSE;
-    debug( "OUT focus" );
+//    debug( "OUT focus" );
     killTimers();
     delete pm;
     pm = 0;
@@ -247,8 +251,10 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 	xPosToCursorPos( &t[ offset ], fontMetrics(),
 			 e->pos().x() - LEFT_MARGIN,
 			 clientSize().width() - LEFT_MARGIN - RIGHT_MARGIN );
-    if ( inTextFocus )
-	paint();
+    if ( !inTextFocus )
+        focusInEvent( 0 );   // will call paint()
+    else
+        paint();
 }
 
 
@@ -279,9 +285,10 @@ void QLineEdit::pixmapPaint()
     p.fillRect( clientRect(), backgroundColor() );
     paintText( &p, pm->size() , TRUE );
     p.end();
-    p.begin( this );
-    p.drawPixMap( 0, 0 , *pm );
-    p.end();
+//    p.begin( this );
+//    p.drawPixMap( 0, 0 , *pm );
+    pm->bitBlt( pm->rect(), this, QPoint( 0, 0 ) );
+//    p.end();
 }
 
 
