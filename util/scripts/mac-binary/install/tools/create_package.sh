@@ -37,7 +37,7 @@ for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2
 	ln -s "$a-${VERSION_MAJOR}.${VERSION_MINOR}" "$OUTDIR/usr/bin/$a"
 	#place it into the tools dir
 	mkdir -p "$OUTDIR/Developer/Tools/Qt/"
-	ln -s "/bin/$a-${VERSION_MAJOR}.${VERSION_MINOR}" "$OUTDIR/Developer/Tools/Qt/$a"
+	ln -s "/usr/bin/$a-${VERSION_MAJOR}.${VERSION_MINOR}" "$OUTDIR/Developer/Tools/Qt/$a"
     fi
     [ -z "$EXE" ] && continue
 
