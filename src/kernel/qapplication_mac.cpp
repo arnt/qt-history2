@@ -1713,11 +1713,6 @@ void QApplication::closePopup( QWidget *popup )
     }
 }
 
-/*****************************************************************************
-  Event translation; translates X11 events to Qt events
- *****************************************************************************/
-
-
 void  QApplication::setCursorFlashTime( int msecs )
 {
     cursor_flash_time = msecs;
