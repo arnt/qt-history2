@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#45 $
 **
 ** Implementation of QML classes
 **
@@ -1561,7 +1561,13 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 	    }
 	
 	    if (t->isSimpleNode) {
-		p->drawText(tx+obx-ox, y+oby-oy+base, s);
+		// Get rid of garbage at end of line (\n etc. at visible
+		// on Windows. ### Matthias: Fix in parser?
+		int len = s.length();
+		if ( len > 0 && s[len-1] < (char)32 ) {
+		    len--;
+		}
+		p->drawText(tx+obx-ox, y+oby-oy+base, s, len);
 	    }
 	    else {
 		if ( reducedFlickerMode ) {
