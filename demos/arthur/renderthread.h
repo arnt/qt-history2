@@ -16,7 +16,7 @@ public:
     void startRendering(QObject *receiver, double cx, double cy, double scale, int width, int height);
 
 signals:
-    void renderingDone(const QImage *img);
+    void renderingDone(const QImage &img);
 
 private:
     QMutex mutex;

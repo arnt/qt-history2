@@ -21,7 +21,7 @@ public:
     void stopAnimation() {}
 
 public slots:
-    void drawRenderedImage(const QImage *image);
+    void drawRenderedImage(const QImage &image);
 
 protected:
     void paintEvent(QPaintEvent *);

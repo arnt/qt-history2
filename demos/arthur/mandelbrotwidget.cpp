@@ -19,8 +19,10 @@ MandelbrotWidget::MandelbrotWidget(QWidget *parent)
     cx = defaultCX;
     cy = defaultCY;
     lastScale = scale = defaultScale;
-    connect(&renderThread, SIGNAL(renderingDone(const QImage *)),
-            this, SLOT(drawRenderedImage(const QImage *)));
+
+    qRegisterMetaType<QImage>("QImage");
+    connect(&renderThread, SIGNAL(renderingDone(const QImage &)),
+            this, SLOT(drawRenderedImage(const QImage &)));
 
 }
 
@@ -151,12 +153,12 @@ void MandelbrotWidget::keyPressEvent(QKeyEvent *event)
     }
 }
 
-void MandelbrotWidget::drawRenderedImage(const QImage *image)
+void MandelbrotWidget::drawRenderedImage(const QImage &image)
 {
     if (!moveAnchor.isNull())
         return;
 
-    pixmap = *image;
+    pixmap = image;
     moveAnchor = QPoint();
     pixmapDrawPoint = QPoint();
     lastScale = scale;

@@ -47,8 +47,7 @@ void RenderThread::run()
 
         int passCount = 8;
         for (int pass = 0; pass < passCount; ++pass) {
-            const int precision = pass + 3;
-            const int maxPrecision = (1 << (precision * 3)) - 1;
+            const int maxPrecision = (pass + 3) * 100;
 
             for (y = -halfHeight; y < halfHeight; ++y) {
                 if (parameters)
@@ -73,21 +72,22 @@ void RenderThread::run()
                         b1 = b2;
                     } while (!(lp > maxPrecision || ((a1*a1) + (b1*b1) > limit)));
 
-                    if (lp > maxPrecision)
-                        lp = maxPrecision;
-
-                    int h = (lp / 360) & 1 ? 359 - (lp % 360) : lp % 360;
-                    int v = ((lp / 256) & 1) ? 255 - (lp & 255) : (lp & 255);
-                    int s = 255 - v;
-
                     QColor c;
-                    c.setHsv(h, s, v);
+                    if (lp > maxPrecision) {
+                        c = Qt::black;
+                    } else {
+                        int h = (lp / 360) & 1 ? 359 - (lp % 360) : lp % 360;
+                        int v = ((lp / 256) & 1) ? 255 - (lp & 255) : (lp & 255);
+                        int s = 255 - v;
+                        c.setHsv(h, s, v);
+                    }
+
                     *scanLine++ = c.rgb();
                 }
             }
 
             if (!parameters) {
-                emit renderingDone(&image);
+                emit renderingDone(image);
             } else {
                 break;
             }
