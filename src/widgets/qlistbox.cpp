@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#79 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#79 $");
 
 
 declare(QListM, QListBoxItem);
@@ -667,7 +667,7 @@ void QListBox::clear()
 
 const char *QListBox::text( int index ) const
 {
-    if ( index >= count() )
+    if ( index >= (int)count() )
 	return 0;
     QListBoxItem *lbi = itemList->at( index );
     return lbi->text();
@@ -681,7 +681,7 @@ const char *QListBox::text( int index ) const
 
 const QPixmap *QListBox::pixmap( int index ) const
 {
-    if ( index >= count() )
+    if ( index >= (int)count() )
 	return 0;
     QListBoxItem *lbi = itemList->at( index );
     return lbi->pixmap();
