@@ -232,3 +232,4 @@ void HelpWindow::updateBackward(bool back)
 {
     backAvail = back;
 }
+
