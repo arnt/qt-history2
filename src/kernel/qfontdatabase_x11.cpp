@@ -704,7 +704,9 @@ static void loadXlfds( const char *reqFamily, int encoding_id )
 	QtFontFoundry *foundry = family->foundry( foundryName, TRUE );
 	QtFontStyle *style = foundry->style( styleKey, TRUE );
 
+	delete [] style->weightName;
 	style->weightName = qstrdup( tokens[Weight] );
+	delete [] style->setwidthName;
 	style->setwidthName = qstrdup( tokens[Width] );
 
 	if ( smooth_scalable ) {
