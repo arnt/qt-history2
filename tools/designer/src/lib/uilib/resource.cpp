@@ -632,14 +632,9 @@ void Resource::save(QIODevice *dev, QWidget *widget)
 
     DomUI *ui = new DomUI();
     ui->setAttributeVersion(QLatin1String("4.0"));
-    ui->setElementClass(widget->objectName());
     ui->setElementWidget(ui_widget);
-    ui->setElementConnections(saveConnections());
-    ui->setElementCustomWidgets(saveCustomWidgets());
-    ui->setElementTabStops(saveTabStops());
-    ui->setElementAuthor(saveAuthor());
-    ui->setElementComment(saveComment());
-    ui->setElementResources(saveResources());
+
+    saveDom(ui, widget);
 
     QDomDocument doc;
     doc.appendChild(ui->write(doc));
@@ -649,6 +644,17 @@ void Resource::save(QIODevice *dev, QWidget *widget)
     m_laidout.clear();
 
     delete ui;
+}
+
+void Resource::saveDom(DomUI *ui, QWidget *widget)
+{
+    ui->setElementClass(widget->objectName());
+    ui->setElementConnections(saveConnections());
+    ui->setElementCustomWidgets(saveCustomWidgets());
+    ui->setElementTabStops(saveTabStops());
+    ui->setElementAuthor(saveAuthor());
+    ui->setElementComment(saveComment());
+    ui->setElementResources(saveResources());
 }
 
 DomConnections *Resource::saveConnections()

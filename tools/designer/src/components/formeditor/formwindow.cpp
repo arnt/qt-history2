@@ -1756,16 +1756,6 @@ void FormWindow::highlightWidget(QWidget *widget, const QPoint &pos, HighlightMo
     }
 }
 
-DomConnections *FormWindow::saveConnections()
-{
-#if 0 // ### port me
-    if (m_signalSlotEditor)
-        return m_signalSlotEditor->toUi();
-#endif
-
-    return 0;
-}
-
 QList<QWidget *> FormWindow::widgets(QWidget *widget) const
 {
     QList<QWidget *> l;
@@ -1777,14 +1767,6 @@ QList<QWidget *> FormWindow::widgets(QWidget *widget) const
     }
 
     return l;
-}
-
-
-void FormWindow::createConnections(DomConnections *connections, QWidget *parent)
-{
-#if 0 // ### port me
-    m_signalSlotEditor->fromUi(connections, parent);
-#endif
 }
 
 int FormWindow::toolCount() const

@@ -181,10 +181,6 @@ public:
     virtual void highlightWidget(QWidget *w, const QPoint &pos,
                                     HighlightMode mode = Highlight);
 
-    DomConnections *saveConnections();
-
-    void createConnections(DomConnections *connections, QWidget *parent);
-
     void updateOrderIndicators();
 
     WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }

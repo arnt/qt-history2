@@ -21,11 +21,11 @@
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_customwidget.h"
-#include <qdesigner_promotedwidget.h>
 
 // shared
 #include <layoutinfo.h>
 #include <spacer_widget.h>
+#include <qdesigner_promotedwidget.h>
 
 // sdk
 #include <container.h>
@@ -36,6 +36,7 @@
 #include <abstractmetadatabase.h>
 #include <abstractformeditor.h>
 #include <abstracticoncache.h>
+#include <abstractformwindowtool.h>
 #include <ui4.h>
 
 #include <QtGui/QMainWindow>
@@ -93,6 +94,18 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
     }
 }
 
+void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
+{
+    Resource::saveDom(ui, widget);
+
+    if (m_formWindow) {
+        for (int index = 0; index < m_formWindow->toolCount(); ++index) {
+            AbstractFormWindowTool *tool = m_formWindow->tool(index);
+            Q_ASSERT(tool != 0);
+            tool->saveToDom(ui);
+        }
+    }
+}
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
@@ -111,6 +124,14 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         extra->saveExtraInfo(ui, m_formWindow);
     }
 
+    if (m_formWindow) {
+        for (int index = 0; index < m_formWindow->toolCount(); ++index) {
+            AbstractFormWindowTool *tool = m_formWindow->tool(index);
+            Q_ASSERT(tool != 0);
+            tool->loadFromDom(ui);
+        }
+    }
+
     m_isMainWidget = true;
     return Resource::create(ui, parentWidget);
 }
@@ -123,16 +144,16 @@ static ActionListElt createActionListElt(DomAction *action)
     result.menu = action->attributeMenu();
     QList<DomProperty*> prop_list = action->elementProperty();
     foreach (DomProperty *prop, prop_list) {
-        if (prop->attributeName() == "objectName") {
+        if (prop->attributeName() == QLatin1String("objectName")) {
             result.objectName
                 = prop->elementString() == 0 ? QString() : prop->elementString()->text();
-        } else if (prop->attributeName() == "icon") {
+        } else if (prop->attributeName() == QLatin1String("icon")) {
             result.icon
                 = prop->elementIconSet() == 0 ? QString() : prop->elementIconSet()->text();
-        } else if (prop->attributeName() == "iconText") {
+        } else if (prop->attributeName() == QLatin1String("iconText")) {
             result.iconText
                 = prop->elementString() == 0 ? QString() : prop->elementString()->text();
-        } else if (prop->attributeName() == "shortcut") {
+        } else if (prop->attributeName() == QLatin1String("shortcut")) {
             result.shortcut
                 = prop->elementString() == 0 ? QString() : prop->elementString()->text();
         }
@@ -561,11 +582,6 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
 }
 
 
-DomConnections *QDesignerResource::saveConnections()
-{
-    return m_formWindow->saveConnections();
-}
-
 QString QDesignerResource::saveAuthor()
 {
     return m_formWindow->author();
@@ -596,13 +612,6 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
         item->setCustom(true);
         db->append(item);
     }
-}
-
-void QDesignerResource::createConnections(DomConnections *connections, QWidget *w)
-{
-    if (connections == 0 || w == 0)
-        return;
-    m_formWindow->createConnections(connections, w);
 }
 
 void QDesignerResource::createAuthor(const QString &author)

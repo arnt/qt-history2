@@ -55,6 +55,7 @@ protected:
     using Resource::createDom;
     using Resource::layoutInfo;
 
+    virtual void saveDom(DomUI *ui, QWidget *widget);
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
     virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
     virtual QLayout *create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget);
@@ -66,7 +67,6 @@ protected:
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
     virtual void createCustomWidgets(DomCustomWidgets *);
-    virtual void createConnections(DomConnections *connections, QWidget *w);
     virtual void createAuthor(const QString&);
     virtual void createComment(const QString&);
     virtual void createResources(DomResources*);
@@ -91,7 +91,6 @@ protected:
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, IContainer *container, DomWidget *ui_parentWidget);
 
-    DomConnections *saveConnections();
     DomCustomWidgets *saveCustomWidgets();
     DomTabStops *saveTabStops();
     virtual QString saveAuthor();
