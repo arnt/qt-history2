@@ -845,8 +845,10 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
     }
 #endif
 
-    if ( QRect( x, y, width, height ) != microFocusHint() )
+    if ( QRect( x, y, width, height ) != microFocusHint() ) {
+	d->createExtra();
 	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
+    }
 }
 
 
