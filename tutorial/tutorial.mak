@@ -1,6 +1,10 @@
 # $Source: /tmp/cvs/qt/tutorial/Attic/tutorial.mak,v $
 #
 
+####### Tools
+
+TMAKE	=	tmake
+
 ####### Directories
 
 SUBDIRS =	t1 \
@@ -115,46 +119,46 @@ galore:
 
 tmake:
 	cd t1
-	tmake t1.pro -o t1.mak
+	$(TMAKE) t1.pro -o t1.mak
 	cd ..
 	cd t2
-	tmake t2.pro -o t2.mak
+	$(TMAKE) t2.pro -o t2.mak
 	cd ..
 	cd t3
-	tmake t3.pro -o t3.mak
+	$(TMAKE) t3.pro -o t3.mak
 	cd ..
 	cd t4
-	tmake t4.pro -o t4.mak
+	$(TMAKE) t4.pro -o t4.mak
 	cd ..
 	cd t5
-	tmake t5.pro -o t5.mak
+	$(TMAKE) t5.pro -o t5.mak
 	cd ..
 	cd t6
-	tmake t6.pro -o t6.mak
+	$(TMAKE) t6.pro -o t6.mak
 	cd ..
 	cd t7
-	tmake t7.pro -o t7.mak
+	$(TMAKE) t7.pro -o t7.mak
 	cd ..
 	cd t8
-	tmake t8.pro -o t8.mak
+	$(TMAKE) t8.pro -o t8.mak
 	cd ..
 	cd t9
-	tmake t9.pro -o t9.mak
+	$(TMAKE) t9.pro -o t9.mak
 	cd ..
 	cd t10
-	tmake t10.pro -o t10.mak
+	$(TMAKE) t10.pro -o t10.mak
 	cd ..
 	cd t11
-	tmake t11.pro -o t11.mak
+	$(TMAKE) t11.pro -o t11.mak
 	cd ..
 	cd t12
-	tmake t12.pro -o t12.mak
+	$(TMAKE) t12.pro -o t12.mak
 	cd ..
 	cd t13
-	tmake t13.pro -o t13.mak
+	$(TMAKE) t13.pro -o t13.mak
 	cd ..
 	cd t14
-	tmake t14.pro -o t14.mak
+	$(TMAKE) t14.pro -o t14.mak
 	cd ..
 
 clean:
@@ -200,3 +204,5 @@ clean:
 	cd t14
 	$(MAKE) -f t14.mak clean
 	cd ..
+
+

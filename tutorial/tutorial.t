@@ -5,6 +5,10 @@
 #!
 #$ StdInit();
 
+####### Tools
+
+TMAKE	=	tmake
+
 ####### Directories
 
 SUBDIRS =	#$ ExpandList("SUBDIRS");
@@ -45,11 +49,11 @@ galore:
 tmake:
 #${
     if ( $is_unix ) {
-	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; tmake $$i.pro -o $$i.mak ) ; done';
+	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; \$(TMAKE) $$i.pro -o Makefile ) ; done';
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
-	    $text = $text . "\tcd $d\n\ttmake $d.pro -o $d.mak\n\tcd ..\n";
+	    $text = $text . "\tcd $d\n\t\$(TMAKE) $d.pro -o $d.mak\n\tcd ..\n";
 	}
 	chop $text;
     }
