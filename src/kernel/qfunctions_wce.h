@@ -129,46 +129,46 @@ HWND SetClipboardViewer(
 #define EACCES          13
 
 typedef int mode_t; // Used for file security modes
-char *_getcwd( char *buffer, int maxlen );
-//char *_tgetcwd( TCHAR *buffer, int maxlen );
-wchar_t *_wgetcwd( WCHAR *buffer, int maxlen );
+//char *_getcwd( char *buffer, int maxlen );
+//TCHAR *_tgetcwd( TCHAR *buffer, int maxlen );
+WCHAR *_wgetcwd( WCHAR *buffer, int maxlen );
 
-char *_getdcwd( int drive, char *buffer, int maxlen );
-char *_tgetdcwd( int drive, TCHAR *buffer, int maxlen );
-wchar_t  *_wgetdcwd( int drive, WCHAR *buffer, int maxlen );
+//char *_getdcwd( int drive, char *buffer, int maxlen );
+//TCHAR *_tgetdcwd( int drive, TCHAR *buffer, int maxlen );
+WCHAR  *_wgetdcwd( int drive, WCHAR *buffer, int maxlen );
 
-int _chdir( const char *dirname );
+//int _chdir( const char *dirname );
 //int _tchdir( const TCHAR *dirname );
 int _wchdir( const WCHAR *dirname );
 
-int _mkdir( const char *dirname );
+//int _mkdir( const char *dirname );
 //int _tmkdir( const TCHAR *dirname );
 int _wmkdir( const WCHAR *dirname );
 
-int _rmdir( const char *dirname );
+//int _rmdir( const char *dirname );
 //int _trmdir( const TCHAR *dirname );
 int _wrmdir( const WCHAR *dirname );
 
-int _access( const char *path, int mode );
+//int _access( const char *path, int mode );
 //int _taccess( const TCHAR *path, int mode );
 int _waccess( const WCHAR *path, int mode );
 
-int rename( const char *oldname, const char *newname );
+//int rename( const char *oldname, const char *newname );
 //int _trename( const TCHAR *oldname, const TCHAR *newname );
 int _wrename( const WCHAR *oldname, const WCHAR *newname );
 
-int remove( const char *name );
+//int remove( const char *name );
 //int _tremove( const TCHAR *name );
 int _wremove( const WCHAR *name );
 
-int _open( const char *filename, int oflag, int pmode );
+int open( const char *filename, int oflag, int pmode );
 //int _topen( const TCHAR *filename, int oflag, int pmode );
 int _wopen( const WCHAR *filename, int oflag, int pmode );
 
 int _fstat( int handle, struct _stat *buffer );
-int _stat( const char *path, struct _stat *buffer );
-int _tstat( const TCHAR *path, struct _stat *buffer );
-//int _wstat( const WCHAR *path, struct _stat *buffer );
+//int _stat( const char *path, struct _stat *buffer );
+//int _tstat( const TCHAR *path, struct _stat *buffer );
+int _wstat( const WCHAR *path, struct _stat *buffer );
 
 long _lseek( int handle, long offset, int origin );
 int _read( int handle, void *buffer, unsigned int count );

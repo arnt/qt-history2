@@ -33,6 +33,7 @@
 #include <stdio.h>
 
 #include "qfunctions_wce.h"
+#include "qstring.h"
 
 #include <windows.h>
 #include <winbase.h>
@@ -47,88 +48,144 @@ extern "C" {
 #endif
 
 char *getenv(char const *) { return "\\"; }
-char *_getcwd( char *buffer, int maxlen ) { return "\\"; }
-//char *_tgetcwd( TCHAR *buffer, int maxlen ) { return "\\"; }
-wchar_t *_wgetcwd( WCHAR *buffer, int maxlen ) { return L"\\"; }
-char *_getdcwd( int drive, char *buffer, int maxlen ) { return "\\"; }
-char *_tgetdcwd( int drive, TCHAR *buffer, int maxlen ) { return "\\"; }
-wchar_t *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) { return L"\\"; }
-int _chdir( const char *dirname ) { return -1; }
-//int _tchdir( const TCHAR *dirname ) { return -1; }
-int _wchdir( const WCHAR *dirname ) { return -1; }
-int _mkdir( const char *dirname ) { return -1; }
-//int _tmkdir( const TCHAR *dirname ) { return -1; }
-int _wmkdir( const WCHAR *dirname ) { return -1; }
-int _rmdir( const char *dirname ) { return -1; }
-//int _trmdir( const TCHAR *dirname ) { return -1; }
-int _wrmdir( const WCHAR *dirname ) { return -1; }
-int _access( const char *path, int mode ) { return -1; }
-//int _taccess( const TCHAR *path, int mode ) { return -1; }
-int _waccess( const WCHAR *path, int mode ) { return -1; }
-int rename( const char *oldname, const char *newname ) { return -1; }
-//int _trename( const TCHAR *oldname, const TCHAR *newname ) { return -1; }
-int _wrename( const WCHAR *oldname, const WCHAR *newname ) { return -1; }
-int remove( const char *name ) { return -1; }
-//int _tremove( const TCHAR *name ) { return -1; }
-int _wremove( const WCHAR *name ) { return -1; }
 
-//int _open( filename, oflag, pmode ); }
-//int _topen( const TCHAR *filename, int oflag, int pmode ) { return -1; } 
-int _wopen( const WCHAR *filename, int oflag, int pmode ) { return -1; } 
-
-int _fstat( int handle, struct _stat *buffer ) { return -1; }
-int _stat( const char *path, struct _stat *buffer ) { return -1; }
-int _tstat( const TCHAR *path, struct _stat *buffer ) { return -1; }
-//int _wstat( const WCHAR *path, struct _stat *buffer ) { return -1; }
-
-int _open( const char *filename, int oflag, int ) {
-	char *flag;
-
-	if (oflag & _O_APPEND) {
-		if (oflag & _O_WRONLY) {
-			flag = "a";
-		} else if (oflag & _O_RDWR) {
-			flag = "a+";
-		}
-	} else if (oflag & _O_WRONLY) {
-		flag = "w";
-	} else if (oflag & _O_RDWR) {
-		flag = "w+"; // slightly different from "r+" where the file must exist
-	} else if (oflag & _O_RDONLY) {
-		flag = "r";
-	} else {
-		flag = "";
-	}
-
-	int retval = (int)fopen(filename, flag);
-
-	// Return code for error should be -1 instead of NULL
-	if (retval == NULL)
-		return -1;
-	else
-		return retval;
+// File function wrappers -------------------------------------------
+WCHAR *_wgetcwd( WCHAR *buffer, int maxlen )
+{ 
+    return L"\\"; 
 }
 
-long _lseek( int handle, long offset, int origin ) { return fseek((FILE*)handle, offset, origin); }
-int _read( int handle, void *buffer, unsigned int count ) { return fread(buffer, 1, count, (FILE*)handle); }
-int _write( int handle, const void *buffer, unsigned int count ) { return fwrite(buffer, 1, count, (FILE*)handle);; }
-int _close( int handle ) { return fclose((FILE*)handle); }
-int _qt_fileno( FILE *filehandle ) { return (int)filehandle; }
-FILE *fdopen(int handle, const char *mode) { return (FILE*)handle; }
+WCHAR *_wgetdcwd( int drive, WCHAR *buffer, int maxlen ) 
+{ 
+    return L"\\"; 
+}
 
-DWORD GetLogicalDrives(VOID) { return 1; }
-int _getdrive( void ) { return 1; }
+int _wchdir( const WCHAR *dirname ) 
+{ 
+    return -1;
+}
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+int _wmkdir( const WCHAR *dirname ) 
+{ 
+    return -1; 
+}
+
+int _wrmdir( const WCHAR *dirname ) 
+{ 
+    return -1; 
+}
+
+int _waccess( const WCHAR *path, int mode )
+{ 
+    return -1; 
+}
+
+int _wrename( const WCHAR *oldname, const WCHAR *newname )
+{ 
+    return -1; 
+}
+
+int _wremove( const WCHAR *name )
+{ 
+    return -1; 
+}
+
+int open( const char *filename, int oflag, int pmode ) 
+{ 
+    QString fn( filename );
+    return _wopen( (WCHAR*)fn.ucs2(), oflag, pmode );
+}
+
+int _wopen( const WCHAR *filename, int oflag, int pmode ) 
+{
+    WCHAR *flag;
+
+    if (oflag & _O_APPEND) {
+	if (oflag & _O_WRONLY) {
+	    flag = L"a";
+	} else if (oflag & _O_RDWR) {
+	    flag = L"a+";
+	}
+    } else if (oflag & _O_WRONLY) {
+	flag = L"w";
+    } else if (oflag & _O_RDWR) {
+	flag = L"w+"; // slightly different from "r+" where the file must exist
+    } else if (oflag & _O_RDONLY) {
+	flag = L"r";
+    } else {
+	flag = L"";
+    }
+
+    int retval = (int)_wfopen(filename, flag);
+
+    // Return code for error should be -1 instead of NULL
+    if (retval == NULL)
+	return -1;
+    else
+	return retval;
+} 
+
+int _fstat( int handle, struct _stat *buffer ) 
+{ 
+    return -1; 
+}
+
+int _wstat( const WCHAR *path, struct _stat *buffer ) 
+{ 
+    return -1; 
+}
+
+long _lseek( int handle, long offset, int origin )
+{
+    return fseek( (FILE*)handle, offset, origin );
+}
+
+int _read( int handle, void *buffer, unsigned int count ) 
+{ 
+    return fread( buffer, 1, count, (FILE*)handle );
+}
+
+int _write( int handle, const void *buffer, unsigned int count )
+{ 
+    return fwrite( buffer, 1, count, (FILE*)handle );
+}
+
+int _close( int handle ) 
+{ 
+    return fclose( (FILE*)handle );
+}
+
+int _qt_fileno( FILE *filehandle ) 
+{ 
+    return (int)filehandle;
+}
+
+FILE *fdopen( int handle, const char *mode ) 
+{ 
+    return (FILE*)handle;
+}
+
+
+DWORD GetLogicalDrives(VOID)
+{ 
+    return 1; 
+}
+
+int _getdrive( void ) 
+{ 
+    return 1; 
+}
+
+//#ifdef __cplusplus
+//extern "C" {
+//#endif
 int errno = 0;
 void rewind( FILE *stream ) { fseek( stream, 0L, SEEK_SET ); }
 FILE *tmpfile(void) { static int i = 0; char name[16]; sprintf(name, "tmp%i", i); i++; return fopen(name, "r+"); }
 FILE *_fdopen(int handle, const char *mode) { return (FILE*)handle; }
-#ifdef __cplusplus
-}
-#endif
+//#ifdef __cplusplus
+//}
+//#endif
 
 
 BOOL ChangeClipboardChain( HWND hWndRemove, HWND hWndNewNext ) { return FALSE; }
