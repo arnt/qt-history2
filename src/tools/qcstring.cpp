@@ -390,6 +390,8 @@ QByteArray qCompress( const uchar* data, int nbytes )
   Uncompresses the array \a data which is \a nbytes long and returns
   the uncompressed byte array.
 
+  Returns an empty QByteArray if the input data was corrupt.
+
   \sa qCompress()
 */
 
@@ -438,6 +440,9 @@ QByteArray qUncompress( const uchar* data, int nbytes )
 	    break;
 	}
     } while ( res == Z_BUF_ERROR );
+
+    if ( res != Z_OK )
+	baunzip = QByteArray();
 
     return baunzip;
 }
