@@ -184,17 +184,17 @@
     const char* PM_str_header1b= "                                  -> %11" PM_LLI "u, using ";
     const char* PM_str_header2 = "  1 ms           : %7" PM_LLI "u cycles";
     const char* PM_str_header3 = "  Delta overhead : %7" PM_LLI "u cycles";
-    const char* PM_str_header4 = "  [From]-> [ To] : (Totaltime)  Separatetime  (CPU clockcycle)   To's textlabel";
+    const char* PM_str_header4 = "  [From]-> [ To] : (Totaltime)  Separatetime  ( CPU clockcycle)   To's textlabel";
     const char* PM_str_sep     = "  -----------------------------------------------------------------------------";
     const char* PM_str_main1   = "  [%03d] -> [%03d] : (%5.1lf %3s)  %9.3lf ms  (%11" PM_LLI "u cyc)  ";
     const char* PM_str_footer1 = "< Total execution: (%5.1lf %3s)  %9.3lf ms  (%11" PM_LLI "u cycles)";
 
-    const char* PM_str_nocount = "<>Performance measurements ---- (no measurements done since initPref()) ------";
-    const char* PM_str_crt1    = "*** CRITICAL: Reached maximium number of performance measurements (>MAX_PERF)!";
-    const char* PM_str_crt2    = "              Measurement aborted...";
-    const char* PM_str_wrn1    = "*** Warning: Performance measurement calls closing in on MAX_PERF!";
+    const char* PM_str_nocount = "<>Performance measurements ---- (no measurements done since init()) ------";
+    const char* PM_str_crt1    = "*** CRITICAL: Reached maximium number of performance measurements (%u)!";
+    const char* PM_str_crt2    = "              Measurement aborted... (Increase ";
+    const char* PM_str_wrn1    = "*** Warning: Performance measurement calls closing in on PM_MAX_DATA!";
     const char* PM_str_wrn2    = "***          Currently %u  (Max is %u)";
-    const char* PM_str_wrn3    = "***          You may increase buffer by adding '#define MAX_PERF <value>',";
+    const char* PM_str_wrn3    = "***          You may increase buffer by adding '#define PM_MAX_DATA <value>',";
     const char* PM_str_wrn4    = "             before your '#include \"%s\"'";
     I64 perf_ms    = PM_MSEC;
     I64 perf_delta = PM_DELTA;
@@ -251,11 +251,11 @@
 #if defined(USE_WINDOWS_CODE)
     inline bool PM_GetFreq( I64 *value )
     {
-        return QueryPerformanceFrequency( (LARGE_INTEGER*)value );
+        return !!QueryPerformanceFrequency( (LARGE_INTEGER*)value );
     }
     inline bool PM_GetCounter( I64 *value )
     {
-        return QueryPerformanceCounter( (LARGE_INTEGER*)value );
+        return !!QueryPerformanceCounter( (LARGE_INTEGER*)value );
     }
 
 #else // USE_WINDOWS_CODE - Other platforms using assembly now
@@ -373,13 +373,15 @@ PM::~PM()
 inline
 void PM::init()
 {
-    if (perf_ms || perf_delta)
+    if (perf_ms || perf_delta) {
+	perf_count = 0;
+	measure( "init()" );
         return;
+    }
 
     // Get number of cycles per millisecond
     PM_GetFreq( &(perf_meas[0].perf_value) );
     perf_ms = perf_meas[0].perf_value / 1000;
-    perf_count = 0;
 
     // Get average overhead for measurements
     measure( "0" );  measure( "1" );
@@ -394,13 +396,13 @@ void PM::init()
     measure( "18" ); measure( "19" );
     perf_delta = (perf_meas[19].perf_value
                 - perf_meas[0].perf_value) / 20;
-    perf_count = 0;
 
     // Erase all tracks
     memset( perf_meas, 0, PM_MAX_DATA * sizeof(PDS) );
 
     // Do initial performance measurement
-    measure( "initPerf" );
+    perf_count = 0;
+    measure( "init()" );
 }
 
 inline
@@ -408,7 +410,7 @@ void PM::measure( const char* label )
 {
     if ( perf_count > PM_MAX_DATA - 6 ) {
         if ( perf_count > PM_MAX_DATA - 1 ) {
-            PM_Debug( PM_str_crt1 );
+            PM_Debug( PM_str_crt1, PM_MAX_DATA );
             PM_Debug( PM_str_crt2 );
             return;
         } else {
