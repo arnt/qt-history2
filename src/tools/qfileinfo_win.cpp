@@ -49,11 +49,11 @@
 #include <initguid.h>
 #include <ctype.h>
 
-
 #ifndef Q_OS_TEMP
 
 #include <accctrl.h>
-
+#define SECURITY_WIN32
+#include <security.h>
 
 
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
@@ -108,14 +108,14 @@ static void resolveLibs()
 	    ptrBuildTrusteeWithNameW = (PtrBuildTrusteeWithNameW) lib.resolve( "BuildTrusteeWithNameW" );
 	    ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve( "GetEffectiveRightsFromAclW" );
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
-
 	    if ( ptrBuildTrusteeWithNameW ) {
-		typedef BOOL (WINAPI *PtrGetUserNameW)(ushort* lpBuffer,LPDWORD nSize);
-		PtrGetUserNameW ptrGetUserNameW = (PtrGetUserNameW)lib.resolve( "GetUserNameW" );
-		if ( ptrGetUserNameW ) {
+		QLibrary userLib("secur32");
+		typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
+		PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve( "GetUserNameExW" );
+		if ( ptrGetUserNameExW ) {
 		    static TCHAR buffer[258];
 		    DWORD bufferSize = 257;
-		    ptrGetUserNameW( (ushort*)buffer, &bufferSize );
+		    ptrGetUserNameExW( NameSamCompatible, (ushort*)buffer, &bufferSize );
 		    ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
 		}
 	    }
