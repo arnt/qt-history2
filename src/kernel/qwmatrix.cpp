@@ -360,10 +360,14 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 /*!
   \fn QPoint QWMatrix::map( const QPoint &p ) const
+\overload
 
-  \obsolete
+    Transforms \a p to using the formulae:
 
-  Does the same as operator *( const QPoint &)
+    \code
+	retx = m11*px + m21*py + dx  (rounded to the nearest integer)
+	rety = m22*py + m12*px + dy  (rounded to the nearest integer)
+    \endcode
 */
 
 /*!
@@ -379,10 +383,37 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 
 /*!
   \fn QPointArray QWMatrix::map( const QPointArray &a ) const
+  \overload
 
-  \obsolete
+    Returns the point array \a a transformed by calling map for each point.
+*/
 
-  Does the same as operator *( const QPointArray &)
+
+/*!
+  \fn QRegion QWMatrix::map( const QRegion &r ) const
+    \overload
+
+    Transforms the region \a r.
+
+    Calling this method can be rather expensive, if rotations or
+    shearing are used.
+*/
+
+/*!
+  \fn QRegion QWMatrix::mapToRegion( const QRect &rect ) const
+    \overload
+
+    Transforms the rectangle \a rect.
+
+    Rotation and shearing a rectangle results in a more general
+    region, which is returned here.
+
+    Calling this method can be rather expensive, if rotations or
+    shearing are used. If you just need to know the bounding rectangle
+    of the returned region, use mapRect() which is a lot faster than
+    this function.
+
+    \sa QWMatrix::mapRect()
 */
 
 
@@ -463,12 +494,7 @@ QRect QWMatrix::mapRect( const QRect &rect ) const
 
 
 /*!
-    Transforms \a p to using the formulae:
-
-    \code
-	retx = m11*px + m21*py + dx  (rounded to the nearest integer)
-	rety = m22*py + m12*px + dy  (rounded to the nearest integer)
-    \endcode
+  \internal
 */
 QPoint QWMatrix::operator *( const QPoint &p ) const
 {
@@ -485,9 +511,7 @@ struct QWMDoublePoint {
 };
 
 /*!
-    \overload
-
-    Returns the point array \a a transformed by calling map for each point.
+  \internal
 */
 QPointArray QWMatrix::operator *( const QPointArray &a ) const
 {
@@ -559,19 +583,7 @@ QPointArray QWMatrix::operator *( const QPointArray &a ) const
 }
 
 /*!
-    \overload
-
-    Transforms the rectangle \a rect.
-
-    Rotation and shearing a rectangle results in a more general
-    region, which is returned here.
-
-    Calling this method can be rather expensive, if rotations or
-    shearing are used. If you just need to know the bounding rectangle
-    of the returned region, use mapRect() which is a lot faster than
-    this function.
-
-    \sa QWMatrix::mapRect()
+\internal
 */
 QRegion QWMatrix::operator * (const QRect &rect ) const
 {
@@ -699,12 +711,7 @@ QPointArray QWMatrix::mapToPolygon( const QRect &rect ) const
 }
 
 /*!
-    \overload
-
-    Transforms the region \a r.
-
-    Calling this method can be rather expensive, if rotations or
-    shearing are used.
+\internal
 */
 QRegion QWMatrix::operator * (const QRegion &r ) const
 {
@@ -964,18 +971,8 @@ QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
     double tm21 = _m21*m._m11 + _m22*m._m21;
     double tm22 = _m21*m._m12 + _m22*m._m22;
 
-#if 0
-    /* This version is actually right, but we left it out for
-     * now to check for compability... */
-    double tdx  = _m11*m._dx + _m12*m._dy + _dx;
-    double tdy  = _m21*m._dx + _m22*m._dy + _dy;
-#else
-    /* This matrix multiply is wrong. The matrices are switched for
-     * the computation of dx and dy!!!! */
     double tdx  = _dx*m._m11  + _dy*m._m21 + m._dx;
     double tdy =  _dx*m._m12  + _dy*m._m22 + m._dy;
-#endif
-  /*  */
 
     _m11 = tm11; _m12 = tm12;
     _m21 = tm21; _m22 = tm22;

@@ -42,6 +42,7 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
+#include "qregion.h"
 #endif // QT_H
 
 #ifndef QT_NO_WMATRIX
@@ -71,11 +72,13 @@ public:
     QPoint	map( const QPoint &p )	const { return operator *( p ); }
     QRect	map( const QRect &r )	const { return mapRect ( r ); }
     QPointArray map( const QPointArray &a ) const { return operator * ( a ); }
+    QRegion     map( const QRegion &r ) const { return operator *( r ); }
+    QRegion     mapToRegion( const QRect &r ) const { return operator *( r ); }
     QPointArray	mapToPolygon( const QRect &r )	const;
 
     void	reset();
     bool	isIdentity() const;
-    
+
     QWMatrix   &translate( double dx, double dy );
     QWMatrix   &scale( double sx, double sy );
     QWMatrix   &shear( double sh, double sv );
@@ -97,7 +100,7 @@ public:
     QPointArray operator *  ( const QPointArray &a ) const;
 
     enum TransformationMode {
-	Points, Areas 
+	Points, Areas
     };
     static void setTransformationMode( QWMatrix::TransformationMode m );
     static TransformationMode transformationMode();
