@@ -59,12 +59,18 @@ bool QPaintDevice::cmd( int c, QPainter *p, QPDevCmdParam *pa )
     return FALSE;
 }
 
-int QPaintDevice::metric( int ) const
+int QPaintDevice::metric( int m ) const
 {
 #if defined(CHECK_STATE)
     qWarning( "QPaintDevice::metrics: Device has no metric information" );
 #endif
-    return 0;
+    if ( m == QPaintDeviceMetrics::PdmDpiX ) {
+	return 72;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
+	return 72;
+    } else {
+	return 0;
+    }
 }
 
 int QPaintDevice::fontMet( QFont *, int, const char *, int ) const

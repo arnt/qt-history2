@@ -283,6 +283,10 @@ int QPixmap::metric( int m ) const
 	val = height();
     } else if( m ==  QPaintDeviceMetrics::PdmDepth ) {
 	val=depth();
+    } else if ( m == QPaintDeviceMetrics::PdmDpiX ) {
+	return 72;
+    } else if ( m == QPaintDeviceMetrics::PdmDpiY ) {
+	return 72;
     } else {
 	// XXX
 	val = 0;
