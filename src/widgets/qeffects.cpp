@@ -154,16 +154,12 @@ void QAlphaWidget::run( int time )
 
     if ( !back.isNull() && checkTime.elapsed() < duration / 2 ) {
         mixed = back.copy();
-	widget->setWState( WState_Visible );
-	widget->clearWState( WState_ForceHide );
 	pm = mixed;
 	show();
 
 	connect( &anim, SIGNAL(timeout()), this, SLOT(render()));
 	anim.start( 1 );
     } else {
-        widget->clearWState( WState_Visible );
-	widget->setWState( WState_ForceHide );
 	widget->show();
     }
 }
@@ -227,9 +223,6 @@ void QAlphaWidget::render()
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
 	widget->removeEventFilter( this );
-	widget->clearWState( WState_Visible );
-	widget->setWState( WState_ForceHide );
-
 	if ( showWidget ) {
 	    BackgroundMode bgm = widget->backgroundMode();
 	    widget->setBackgroundMode( NoBackground );
@@ -506,9 +499,9 @@ void QRollEffect::scroll()
 	anim.stop();
 	widget->removeEventFilter( this );
 	BackgroundMode bgm = widget->backgroundMode();
+	widget->clearWState( WState_Visible );
+	widget->setWState( WState_ForceHide );
 	if ( showWidget ) {
-	    widget->clearWState( WState_Visible );
-	    widget->setWState( WState_ForceHide );
 	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
 	}
