@@ -44,7 +44,7 @@ if [ "$relpath" != `pwd` ]; then
        if [ -d $a ]; then
 	    mkdir -p $my_a
        else
-           a_dir=`dirname $my_a`
+	   a_dir=`dirname $my_a`
 	   [ -d $a_dir ] || mkdir -p $a_dir
 	   case `basename $a` in
 	   *.o|*.d|GNUmakefile*|qmake) ;;
@@ -292,7 +292,7 @@ QT_INSTALL_BINS=
 while [ -n "$1" ]; do
    case $1 in
    -prefix)
-        shift
+	shift
 	QT_INSTALL_PREFIX=$1
 	;;
    -docdir)
@@ -849,39 +849,39 @@ if [ "$HELP" = "yes" ]; then
     . $HOME/.qt-license
 	    if echo $Products | grep >/dev/null 'qt-enterprise'
 	    then
-		MODULES_HELP="opengl table network canvas"
+		MODULES_HELP="opengl table network canvas sql"
 	    else
 		MODULES_HELP=""
 	    fi
     else
-	MODULES_HELP="opengl table network canvas"
+	MODULES_HELP="opengl table network canvas sql"
     fi
 
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-docdir dir] [-headerdir dir] [-libdir dir] [-bindir dir] \\
-        [-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
+	[-debug] [-release] [-qt-gif] [-no-gif] [-sm] [-no-sm] \\
 	[-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
 	[-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-enable-kde2] \\
 	[-Istring] [-lstring] [-Lstring] [-Rstring] [-enable-<module>] \\
-	[-disable-<module>] \\
+	[-disable-<module>] [-with-<module setting>] [-without-<module setting>]
 
 Installation options:
- 
- These are optional, but you may specify install directories. 
 
-    -prefix dir ........ This will install everything relative dir 
-                          (default $QT_PREFIX_DIR) 
-    
+ These are optional, but you may specify install directories.
+
+    -prefix dir ........ This will install everything relative dir
+			  (default $QT_PREFIX_DIR)
+
  You may use these to separate different parts of the install:
-   
+
     -bindir dir ........ Executables will be installed to dir
-                          (default PREFIX/bin)
+			  (default PREFIX/bin)
     -libdir dir ........ Libraries will be installed to dir
-                          (default PREFIX/lib)
+			  (default PREFIX/lib)
     -docdir dir ........ Documentation will be installed to dir
-                          (default PREFIX/doc)
+			  (default PREFIX/doc)
     -headerdir dir ..... Headers will be installed to dir
-                          (default PREFIX/headers)
+			  (default PREFIX/headers)
 
  The defaults (*) are usually acceptable.  Here is a short explanation of
  each option:
@@ -903,7 +903,7 @@ Installation options:
 
  $XRN  -no-xinerama ....... Do not compile Xinerama (multihead) support.
  $XRY  -xinerama .......... Compile Xinerama support.  Requires
-                         X11/extensions/Xinerama.h
+			 X11/extensions/Xinerama.h
 
  *  -qt-zlib ........... Use the zlib bundled with Qt.
     -system-zlib ....... Use a zlib from the operating system
@@ -955,7 +955,8 @@ Installation options:
     -lstring ........... Add an explicit library.
 
 
-    -enable-<module> .......... Enables a module where module is one of the below.
+    -enable-<module> .......... Enables a module where module is one of:
+				$MODULES_HELP
     -disable-<module> ......... Disables a module, where module can can be one of:
 				$MODULES_HELP
 
