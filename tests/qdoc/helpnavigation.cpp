@@ -119,15 +119,15 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
     QVBoxLayout *bookmarkLayout = new QVBoxLayout( bookmarkTab );
     bookmarkLayout->setMargin( 5 );
     bookmarkLayout->setSpacing( 5 );
-    
+
     l = new QLabel( tr( "Topics:" ), bookmarkTab );
     bookmarkLayout->addWidget( l );
-    
+
     bookmarkList = new QListBox( bookmarkTab );
     bookmarkLayout->addWidget( bookmarkList );
-    
-    
-    
+
+
+
     loadIndexFile( indexFile, titleFile );
     setupContentsView( titleFile );
 }
@@ -172,7 +172,11 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
 	if ( s.find( "::" ) != -1 )
 	    continue;
 	if ( s[1] == '~' )
-	    continue;	
+	    continue;
+	if ( s.find( "http://" ) != -1 ||
+	     s.find( "ftp://" ) != -1 ||
+	     s.find( "mailto:" ) != -1 )
+	    continue;
 	int from = s.find( "\"" );
 	if ( from == -1 )
 	    continue;
