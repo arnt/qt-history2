@@ -83,26 +83,26 @@ QFilePrivate::openExternalFile(int flags, int fd)
     \mainclass
 
     QFile is an I/O device for reading and writing binary and text
-    files. A QFile may be used by itself or more conveniently with a
+    files. A QFile may be used by itself or, more conveniently, with a
     QDataStream or QTextStream.
 
-    The file name is usually passed in the constructor but can be
+    The file name is usually passed in the constructor, but it can be
     changed with setFileName(). You can check for a file's existence with
-    exists() and remove a file with remove().
+    exists(), and remove a file with remove().
 
-    The file is opened with open(), closed with close() and flushed
+    The file is opened with open(), closed with close(), and flushed
     with flush(). Data is usually read and written using QDataStream
-    or QTextStream, but you can read with readBlock() and readLine()
-    and write with writeBlock(). QFile also supports getch(),
-    ungetch(), and putch().
+    or QTextStream, but you can read with readBlock() and readLine(),
+    and write with writeBlock(). QFile also supports getch(), ungetch(),
+    and putch().
 
     The size of the file is returned by size(). You can get the
     current file position or move to a new file position using the
     at() functions. If you've reached the end of the file, atEnd()
     returns true. The file handle is returned by handle().
 
-    Here is a code fragment that uses QTextStream to read a text file
-    line by line. It prints each line with a line number.
+    The following example uses QTextStream to read a text file
+    line by line, printing each line with a line number:
     \code
     QStringList lines;
     QFile file("file.txt");
@@ -120,8 +120,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
     \endcode
 
     Writing text is just as easy. The following example shows how to
-    write the data we read into the string list from the previous
-    example:
+    write the data we read in the previous example to a file:
     \code
     QFile file("file.txt");
     if (file.open(QIODevice::WriteOnly)) {
@@ -138,9 +137,22 @@ QFilePrivate::openExternalFile(int flags, int fd)
 
     The QDir class manages directories and lists of file names.
 
-    Qt uses Unicode file names. If you want to do your own I/O on Unix
-    systems you may want to use encodeName() (and decodeName()) to
-    convert the file name into the local encoding.
+    When you use QFile, QFileInfo, and QDir to access the file system
+    with Qt, you can use Unicode file names. On Unix, these file names
+    are converted to an 8-bit encoding. If you want to do your own
+    file I/O on Unix, you should convert file names using the
+    encodeName() and decodeName() functions to convert the file name
+    into the local encoding.
+
+    The conversion scheme can be changed using setEncodingFunction().
+    This might be useful if you wish to give the user an option to
+    store file names in UTF-8, for example, but be aware that such file
+    names would probably then be unrecognizable when seen by other
+    programs.
+
+    On Windows NT/2000, Unicode file names are supported
+    directly in the file system and this function should be avoided.
+    On Windows 95, non-Latin1 locales are not supported.
 
     \sa QDataStream, QTextStream
 */
@@ -167,7 +179,7 @@ QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 }
 
 /*!
-    Destroys a QFile. Calls close().
+    Destroys the file object, closing it if necessary.
 */
 QFile::~QFile()
 {
@@ -186,13 +198,13 @@ QFile::fileName() const
 }
 
 /*!
-    Sets the name of the file to \a name. The name can have no path, a
-    relative path or an absolute absolute path.
+    Sets the \a name of the file. The name can have no path, a
+    relative path, or an absolute absolute path.
 
     Do not call this function if the file has already been opened.
 
     If the file name has no path or a relative path, the path used
-    will be whatever the application's current directory path is
+    will be the application's current directory path
     \e{at the time of the open()} call.
 
     Example:
@@ -227,25 +239,12 @@ QFile::setFileName(const QString &name)
 */
 
 /*!
-    When you use QFile, QFileInfo, and QDir to access the file system
-    with Qt, you can use Unicode file names. On Unix, these file names
-    are converted to an 8-bit encoding. If you want to do your own
-    file I/O on Unix, you should convert the file name using this
-    function. On Windows NT/2000, Unicode file names are supported
-    directly in the file system and this function should be avoided.
-    On Windows 95, non-Latin1 locales are not supported.
-
     By default, this function converts \a fileName to the local 8-bit
     encoding determined by the user's locale. This is sufficient for
     file names that the user chooses. File names hard-coded into the
     application should only use 7-bit ASCII filename characters.
 
-    The conversion scheme can be changed using setEncodingFunction().
-    This might be useful if you wish to give the user an option to
-    store file names in UTF-8, etc., but be aware that such file names
-    would probably then be unrecognizable when seen by other programs.
-
-    \sa decodeName()
+    \sa decodeName() setEncodingFunction()
 */
 
 QByteArray
@@ -257,7 +256,8 @@ QFile::encodeName(const QString &fileName)
 /*!
     \enum QFile::EncoderFn
 
-    This is used by QFile::setEncodingFunction().
+    This is used by QFile::setEncodingFunction() to specify how Unicode
+    file names are converted to the appropriate local encoding.
 */
 
 
@@ -274,9 +274,11 @@ QFile::decodeName(const QByteArray &localFileName)
 }
 
 /*!
+    \fn void QFile::setEncodingFunction(EncoderFn function)
+
     \nonreentrant
 
-    Sets the function for encoding Unicode file names to \a f. The
+    Sets the \a function for encoding Unicode file names. The
     default encodes in the locale-specific 8-bit encoding.
 
     \sa encodeName()
@@ -291,13 +293,16 @@ QFile::setEncodingFunction(EncoderFn f)
 /*!
     \enum QFile::DecoderFn
 
-    This is used by QFile::setDecodingFunction().
+    This is used by QFile::setDecodingFunction() to specify how file names
+    are converted from the local encoding to Unicode.
 */
 
 /*!
+    \fn void QFile::setDecodingFunction(DecoderFn function)
+
     \nonreentrant
 
-    Sets the function for decoding 8-bit file names to \a f. The
+    Sets the \a function for decoding 8-bit file names. The
     default uses the locale-specific 8-bit encoding.
 
     \sa encodeName(), decodeName()
@@ -312,9 +317,10 @@ QFile::setDecodingFunction(DecoderFn f)
 /*!
     \overload
 
-    Returns true if this file exists; otherwise returns false.
+    Returns true if the file specified by fileName() exists; otherwise
+    returns false.
 
-    \sa fileName()
+    \sa fileName() setFileName()
 */
 
 bool
@@ -335,8 +341,8 @@ QFile::exists(const QString &fileName)
 }
 
 /*!
-    Removes the file specified by the file name currently set. Returns
-    true if successful; otherwise returns false.
+    Removes the file specified by fileName(). Returns true if successful;
+    otherwise returns false.
 
     The file is closed before it is removed.
 
@@ -364,9 +370,9 @@ QFile::remove()
 /*!
     \overload
 
-    Removes the file \a fileName.
- 
-    Returns true if successful, otherwise false.
+    Removes the file specified by the \a fileName given.
+
+    Returns true if successful; otherwise returns false.
 
     \sa remove()
 */
@@ -378,8 +384,8 @@ QFile::remove(const QString &fileName)
 }
 
 /*!
-    Renames the file specified the file name currently set to \a
-    newName. Returns true if successful; otherwise returns false.
+    Renames the file currently specified by fileName() to \a newName.
+    Returns true if successful; otherwise returns false.
 
     The file is closed before it is renamed.
 
@@ -422,7 +428,7 @@ QFile::rename(const QString &oldName, const QString &newName)
 /*!
     \overload
 
-    Opens the existing file handle \a fh with the given \a mode.
+    Opens the existing file handle \a fh in the given \a mode.
     Returns true if successful; otherwise returns false.
 
     Example:
@@ -439,9 +445,9 @@ QFile::rename(const QString &oldName, const QString &newName)
     \endcode
 
     When a QFile is opened using this function, close() does not actually
-    close the file, only flushes it.
+    close the file, but only flushes it.
 
-    \warning If \a fh is \c stdin, \c stdout, \c stderr, you may not be
+    \warning If \a fh is \c stdin, \c stdout, or \c stderr, you may not be
     able to seek(). See QIODevice::isSequentialAccess() for more
     information.
 
@@ -457,7 +463,7 @@ QFile::open(int mode, FILE *fh)
 /*!
     \overload
 
-    Opens the existing file descripter \a fd with the given \a mode.
+    Opens the existing file descripter \a fd in the given \a mode.
     Returns true if successful; otherwise returns false.
 
     When a QFile is opened using this function, close() does not
@@ -468,7 +474,7 @@ QFile::open(int mode, FILE *fh)
     are slow. If you run into performance issues, you should try to
     use one of the other open functions.
 
-    \warning If \a fd is one of 0 (stdin), 1 (stdout) or 2 (stderr),
+    \warning If \a fd is 0 (stdin), 1 (stdout), or 2 (stderr),
     you may not be able to seek(). size() is set to \c LLONG_MAX (in
     \c limits.h).
 
@@ -503,12 +509,14 @@ QFile::open(int mode, int fd)
 
 
 /*!
+    \fn Q_LONG QFile::readLine(QString &string, Q_LONG maximum)
+
     Reads a line of text.
 
-    Reads bytes from the file into string \a s, until end-of-line or
-    \a maxlen bytes have been read, whichever occurs first. Returns
-    the number of bytes read, or -1 if there was an error, e.g. end of
-    file. Any terminating newline is not stripped.
+    Reads bytes from the file into the \a string until end-of-line or
+    the \a maximum number bytes have been read, whichever occurs first.
+    Returns the number of bytes read, or -1 if there was an error
+    (e.g. end of file). Any terminating newline is not stripped.
 
     This function is only efficient for buffered files. Avoid using
     readLine() for files that have been opened with the \c QIODevice::Raw
@@ -535,10 +543,10 @@ QFile::readLine(QString &s, Q_LONG maxlen)
 
   This is a small positive integer, suitable for use with C library
   functions such as fdopen() and fcntl(). On systems that use file
-  descriptors for sockets (ie. Unix systems, but not Windows) the handle
+  descriptors for sockets (i.e. Unix systems, but not Windows) the handle
   can be used with QSocketNotifier as well.
 
-  If the file is not open or there is an error, handle() returns -1.
+  If the file is not open, or there is an error, handle() returns -1.
 
   \sa QSocketNotifier
 */
