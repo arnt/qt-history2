@@ -113,6 +113,11 @@ static void blend_transformed_bilinear_tiled(ARGB *target,
         y1 %= image_height;
         y2 %= image_height;
 
+        if (x1 < 0) x1 = image_width + x1;
+        if (x2 < 0) x2 = image_width + x2;
+        if (y1 < 0) y1 = image_height + y1;
+        if (y2 < 0) y2 = image_height + y2;
+
         Q_ASSERT(x1 >= 0 && x1 < image_width);
         Q_ASSERT(x2 >= 0 && x2 < image_width);
         Q_ASSERT(y1 >= 0 && y1 < image_height);
