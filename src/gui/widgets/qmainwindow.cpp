@@ -430,10 +430,8 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     int marker, v;
     stream >> marker;
     stream >> v;
-    if (marker != QMainWindowLayout::VersionMarker || v != version) {
-        qDebug("version mismatch");
+    if (marker != QMainWindowLayout::VersionMarker || v != version)
         return false;
-    }
     bool restored = d->layout->restoreState(stream);
     if (isVisible())
         d->layout->relayout();
