@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#11 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#12 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -54,7 +54,7 @@ private:
     uint    	numItems;
     uint    	cases	: 1;
     uint    	copyk	: 1;
-    uint    	trivial	: 1;
+    uint    	triv	: 1;
     Qditlst    *iterators;
     QBucket    *unlink( const char * );
     virtual int hashKey( const char * );	// hash function

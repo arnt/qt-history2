@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#18 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#19 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#18 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#19 $")
 
 
 declare(QListM,QGDictIterator);			// list of iterators (Qditlst)
@@ -104,8 +104,8 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
     numItems = 0;
     cases = cs;
     copyk = ck;
-    trivial = th;
-    if ( trivial )				// copyk must be FALSE for
+    triv = th;
+    if ( triv )					// copyk must be FALSE for
 	copyk = FALSE;				//   int-hashed dicts
     iterators = 0;
 }
@@ -118,7 +118,7 @@ QGDict::QGDict( const QGDict & dict )		// make copy of other dict
     numItems = 0;
     cases = dict.cases;
     copyk = dict.copyk;
-    trivial = dict.trivial;
+    triv  = dict.triv;
     iterators = 0;
     QGDictIterator it( dict );
     while ( it.get() ) {			// copy from other dict
@@ -162,7 +162,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
 {
     register QBucket *n;
     int	 index;
-    if ( trivial ) {				// key is a long/ptr
+    if ( triv ) {				// key is a long/ptr
 	index = (int)(long(key) % vlen);	// simple hash
 	if ( op == 0 ) {			// find
 	    for ( n=vec[index]; n; n=n->getNext() ) {
@@ -211,13 +211,13 @@ QBucket *QGDict::unlink( const char *key )
     register QBucket *n;
     QBucket *prev = 0;
     int index;
-    if ( trivial )
+    if ( triv )
 	index = (int)(long(key) % vlen);
     else
 	index = hashKey( key ) % vlen;
     for ( n=vec[index]; n; n=n->getNext() ) {	// find item in list
 	bool equal;
-	if ( trivial )
+	if ( triv )
 	    equal = n->getKey() == key;
 	else
 	    equal = (cases ? strcmp(n->getKey(),key)
@@ -363,7 +363,7 @@ QDataStream &QGDict::read( QDataStream &s )	// read dict from stream
     while ( num-- ) {				// read all items
 	GCI d;
 	char *k;
-	if ( trivial ) {
+	if ( triv ) {
 	    long k_triv;
 	    s >> k_triv;			// key is long int
 	    k = (char *)k_triv;
@@ -383,7 +383,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
     while ( i<size() ) {
 	QBucket *n = vec[i];
 	while ( n ) {				// write all buckets
-	    if ( trivial )
+	    if ( triv )
 		s << (long)n->getKey();		// write key as long int
 	    else
 		s << n->getKey();		// write key as string
