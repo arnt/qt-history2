@@ -637,10 +637,10 @@ bool QClipboard::event( QEvent *e )
 
 	  Just skip the event to prevent Bad Things (tm) from
 	  happening later on...
+
+	  Note: *emacs seems to like to send 2 SelectionNotify events
+	  for every ConvertSelection request.  fun fun...
 	*/
-#ifdef QT_CHECK_STATE
-	qWarning( "QClipboard: Unknown SelectionNotify event received" );
-#endif // QT_CHECK_STATE
 	break;
 
     case SelectionRequest:
@@ -1079,7 +1079,7 @@ QByteArray QClipboardWatcher::getDataInFormat(Atom fmtatom) const
 #endif // QCLIPBOARD_DEBUG
 
     XConvertSelection( dpy, atom,
-		       fmtatom, qt_selection_property, win, CurrentTime );
+		       fmtatom, qt_selection_property, win, qt_x_time );
     XFlush( dpy );
 
     XEvent xevent;
