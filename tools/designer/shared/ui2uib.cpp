@@ -48,7 +48,7 @@
 
     A .uib file starts with a 32-bit magic number that allows
     QWidgetFactory to determine the file type. The magic number is
-    followed by '\n' (0x0d) and '\r' (0x0a), which ensure that the
+    followed by '\n' (0x0a) and '\r' (0x0d), which ensure that the
     file wasn't corrupted during transfer between different
     platforms. For example, transferring a .ui file from Windows to
     Unix using FTP with type ASCII will produce a file with '\r\n\r'
@@ -119,7 +119,7 @@
 
     The arbitrary constants related to the .uib file formats are
     defined in uib.h. Constants such as Block_Actions and
-    Object_SubWidget were given values such as 'A' and 'W' to make
+    Object_SubWidget are given values such as 'A' and 'W' to make
     .uib files easier to read in a hexadecimal editor.
 
     The file format isn't designed to be extensible. Any extension
