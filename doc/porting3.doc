@@ -73,7 +73,7 @@ Table of contents:
 \tableofcontents
 
 \target Linkerrors
-\section1 Link errors on Windows
+\section1 Link Errors on Windows
 
 On Windows, originally in Qt 2.x, the default configuration of the Qt
 library is static. If you just use the default configuration you

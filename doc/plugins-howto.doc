@@ -47,7 +47,7 @@ to make available as a plugin. The required code is straightforward:
 	}
 
 	QStyle* create( const QString& key ) { 
-	    if ( key == "MyStyle" ) 
+	    if ( key == "mystyle" ) 
 		return new MyStyle;
 	    return 0;
 	}
