@@ -399,7 +399,7 @@
     \o QMovie
     \o QBitArray
     \o QByteArray
-    \o QPointArray
+    \o Q3PointArray
     \endlist
 
     This means that if you took a copy of an instance of the class
@@ -2104,20 +2104,34 @@
     Q3Painter documentation for details and for the reasons why we
     had to do this change.
 
+\omit
     \section1 QPixmap
 
     QPixmap::fromMimeSource(const QString &) -> qPixmapFromMimeSource(const QString &)
+\endomit
 
     \section1 QPointArray
 
-    In Qt 3, QPointArray inherited from QMemArray<QPoint>. In Qt 4,
-    it inherits from QVector<QPoint>. Everything mentioned in the
+    The \c QPointArray class has been renamed QPolygon in Qt 4 and
+    has undergone significant changes. In Qt 3, \c QPointArray
+    inherited from QMemArray<QPoint>. In Qt 4, QPolygon inherits from
+    QVector<QPoint>. Everything mentioned in the
     \l{#qmemarray.section}{section on QMemArray<T>} apply for
     QPointArray as well.
 
-    The QPointArray::setPoints() and QPointArray::putPoints()
-    functions returned a bool in Qt 3, indicating whether the array
-    was successfully resized or not. In Qt 4, they return void.
+    The \l{Qt 3 compatibility library} contains a Q3PointArray class
+    that inherits from QPolygon and provides a few functions that
+    existed in \c QPointArray but no longer exist in QPolygon. These
+    functions include Q3PointArray::makeArc(),
+    Q3PointArray::makeEllipse(), and Q3PointArray::cubicBezier().
+    In Qt 4, we recommend that you use QPainterPath for representing
+    arcs, ellipses, and Bezier curves, rather than QPolygon.
+
+    The QPolygon::setPoints() and QPolygon::putPoints() functions
+    return \c void in Qt 4. The corresponding Qt 3 functions returned
+    a \c bool indicating whether the array was successfully resized
+    or not. This can now be checked by comparing checking
+    QPolygon::size() after the call.
 
 \omit
     X11 Specific:
