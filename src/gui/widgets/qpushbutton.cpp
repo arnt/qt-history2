@@ -470,8 +470,8 @@ void QPushButton::focusOutEvent(QFocusEvent *e)
 
 
 /*!
-    Associates the popup menu \a menu with this push button and thus
-    turns it into a menu button.
+    Associates the popup menu \a popup with this push button. This
+    turns the button into a menu button.
 
     Ownership of the menu is \e not transferred to the push button.
 
