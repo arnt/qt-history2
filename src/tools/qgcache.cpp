@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#49 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -478,6 +478,8 @@ void QGCache::clear()
 	    case IntKey:
 		dict->remove_int( ci );
 		break;
+	case PtrKey: //unused
+	    break;
 	}
 	deleteItem( ci->data );			// delete data
 	lruList->removeFirst();			// remove from list
@@ -571,6 +573,8 @@ bool QGCache::makeRoomFor( int cost, int priority )
 	    case IntKey:
 		dict->remove_int( ci );
 		break;
+	case PtrKey: //unused
+	    break;
 	}
 	deleteItem( ci->data );			// delete data
 	lruList->removeLast();			// remove from list

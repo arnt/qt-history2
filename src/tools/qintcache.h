@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qintcache.h#21 $
+** $Id: //depot/qt/main/src/tools/qintcache.h#22 $
 **
 ** Definition of QIntCache template class
 **
@@ -36,7 +36,7 @@ template<class type> class Q_EXPORT QIntCache : public QGCache
 public:
     QIntCache( const QIntCache<type> &c ) : QGCache(c) {}
     QIntCache( int maxCost=100, int size=17 )
-	: QGCache( maxCost, size, PtrKey, FALSE, FALSE ) {}
+	: QGCache( maxCost, size, IntKey, FALSE, FALSE ) {}
    ~QIntCache()		{ clear(); }
     QIntCache<type> &operator=( const QIntCache<type> &c )
 			{ return (QIntCache<type>&)QGCache::operator=(c); }

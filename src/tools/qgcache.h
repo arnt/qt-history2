@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#26 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#27 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -42,7 +42,8 @@ class Q_EXPORT QGCache : public QCollection	// generic LRU cache
 {
 friend class QGCacheIterator;
 protected:
-    enum KeyType { StringKey, AsciiKey, IntKey }; // identical to QGDict's
+    enum KeyType { StringKey, AsciiKey, IntKey, PtrKey }; 
+      // identical to QGDict's, but PtrKey is not used at the moment
 
     QGCache( int maxCost, uint size, KeyType kt, bool caseSensitive,
 	     bool copyKeys );
