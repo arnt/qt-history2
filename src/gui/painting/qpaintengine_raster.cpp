@@ -865,6 +865,8 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
     qDebug() << " - QRasterPaintEngine::drawImage(), r=" << r << " sr=" << sr << " image=" << image.size() << "depth=" << image.depth();
 #endif
 
+    const QImage image = img.depth() == 32 ? img : img.convertDepth(32);
+
     Q_D(QRasterPaintEngine);
     TextureFillData textureData = {
         d->rasterBuffer,
