@@ -61,8 +61,7 @@
 \row
 \i
     \list
-    \i \link porting.html Porting to Qt 3.x \endlink
-    \i \link commonproblems.html FAQs \endlink
+    \i \link installation.html Installation \endlink
     \i \link plugins-howto.html Qt Plugins\endlink
     \omit
     \i \link component.html The Qt Component Model \endlink
@@ -70,16 +69,12 @@
     \i \link datastreamformat.html Format of the QDataStream Operators \endlink
     \i \link debug.html Debugging Techniques \endlink
     \i \link dnd.html Drag and Drop \endlink
-    \i \link editions.html Qt Editions \endlink
     \i \link eventsandfilters.html Events and Event Filters \endlink
-    \i \link buyhowto.html How to Buy Qt \endlink
-    \i \link bughowto.html How to Report A Bug \endlink
     \i \link focus.html Keyboard Focus Overview \endlink
     \i \link accelerators.html   Standard Accelerators \endlink
     \i \link netscape-plugin.html Qt-based LiveConnect Plugins \endlink
     \i \link activeqt.html ActiveX support \endlink
     \i \link motif-extension.html Motif Support Extension \endlink
-    \i \link mailinglists.html Mailing Lists \endlink
     \i \link opengl-x11-overlays.html OpenGL Overlays (X11)\endlink
     \i \link appicon.html Setting the Application Icon \endlink
     \i \link session.html Session Management \endlink

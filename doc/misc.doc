@@ -12,65 +12,11 @@
 **
 ****************************************************************************/
 
-/*!
-\page aboutqt.html
-
-\title About Qt
-
-Qt is a multiplatform C++ GUI application framework. It provides
-application developers with all the functionality needed to build
-applications with state-of-the-art graphical user interfaces. Qt is
-fully object-oriented, easily extensible, and allows true component
-programming.
-
-Since its commercial introduction in early 1996, Qt has formed the
-basis of many thousands of successful applications worldwide. Qt is
-also the basis of the popular \link http://www.kde.org/ KDE \endlink
-Linux desktop environment, a standard component of all major Linux
-distributions.
-
-Qt is supported on the following platforms:
-
-\list
- \i <b>MS/Windows</b> -- 95, 98, NT 4.0, ME, 2000, and XP
- \i <b>Unix/X11</b> -- Linux, Sun Solaris, HP-UX, Compaq Tru64 UNIX,
-	    IBM AIX, SGI IRIX and a wide range of others
- \i <b>Macintosh</b> -- Mac OS X
- \i <b>Embedded</b> -- Linux platforms with framebuffer support.
-\endlist
-
-Qt is a product of \link troll.html Trolltech\endlink.
-
-Qt is released in different \link editions.html editions\endlink:
-
-<dl>
-<dd><b>Qt Enterprise \link editions.html Edition\endlink</b> and <b>Qt
-Professional \link editions.html Edition\endlink</b> provide for
-commercial software development. They permit traditional commercial
-software distribution and include free upgrades and Technical Support.
-For the latest prices, please see the Trolltech web site,
-\link http://www.trolltech.com/pricing.html Pricing and
-Availability\endlink page, or contact \link mailto:sales@trolltech.com
-sales@trolltech.com\endlink. The Enterprise Edition offers additional \link
-modules.html modules \endlink compared to the Professional Edition.
-
-<dd><b>Qt Free \link editions.html Edition\endlink</b> is the Unix/X11
-version of Qt available for development of \e {Free and Open Source
-software} only. It is provided free of charge under the terms of both
-the \link license.html Q Public License\endlink and the \link gpl.html
-GNU General Public License\endlink. The latest version is available
-for \link http://www.trolltech.com/dl/qtfree-dl.html download\endlink.
-
-<dd><b>Qt/Embedded Free \link editions.html Edition\endlink</b> is the
-Embedded version of Qt available for development of \e {Free software}
-only. It is provided free of charge under the terms of the \link
-gpl.html GNU General Public License\endlink.
-
-</dl>
-*/
 
 /*! \page commonproblems.html
-\title FAQs
+\title Old FAQs
+
+<b>See \link faq.html FAQs\endlink instead</b>.
 
 This document describes how to use more than one Qt version on one
 machine and how to use Qt on X11 without a window manager. In addition
@@ -317,29 +263,6 @@ Please send the bug report to
 \link mailto:qt-bugs@trolltech.com qt-bugs@trolltech.com\endlink.
 */
 
-/*! \page buyhowto.html
-\title How to Purchase Qt
-
-On Trolltech's web site, you can find \link
-http://www.trolltech.com/products/qt/licensing.html licensing
-information\endlink and \link
-http://www.trolltech.com/products/qt/pricing.html price lists\endlink for
-Qt Professional Edition, Qt Enterprise Edition, and other Trolltech
-products.
-
-To purchase, please visit the
-<a href="https://webshop.trolltech.com/cgi-bin/index.cgi">Trolltech
-webshop</a>. In the webshop, you can generate a Purchase Order, order
-a Quote, or purchase directly using credit card.
-
-For further information and assistance, please contact Trolltech sales:
-
-Email: \link mailto:sales@trolltech.com sales@trolltech.com\endlink
-
-Phone, US office (for North America): <strong>(+1) 650-813-1676</strong>
-
-Phone, Norway office (for others): <strong>+47 2160 4800</strong>
-*/
 
 
 
