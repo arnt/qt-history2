@@ -271,7 +271,7 @@ Q_INLINE_TEMPLATES QValueListPrivate<T>::~QValueListPrivate() {
 }
 
 template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( QValueListPrivate<T>::Iterator it, const T& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::insert( Q_TYPENAME QValueListPrivate<T>::Iterator it, const T& x )
 {
     NodePtr p = new Node( x );
     p->next = it.node;
@@ -283,7 +283,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T
 }
 
 template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( QValueListPrivate<T>::Iterator it )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T>::remove( Q_TYPENAME QValueListPrivate<T>::Iterator it )
 {
     Q_ASSERT ( it.node != node );
     NodePtr next = it.node->next;
@@ -296,7 +296,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::Iterator QValueListPrivate<T
 }
 
 template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( QValueListPrivate<T>::NodePtr start, const T& x ) const
+Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>::find( Q_TYPENAME QValueListPrivate<T>::NodePtr start, const T& x ) const
 {
     ConstIterator first( start );
     ConstIterator last( node );
@@ -309,7 +309,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QValueListPrivate<T>::NodePtr QValueListPrivate<T>
 }
 
 template <class T>
-Q_INLINE_TEMPLATES int QValueListPrivate<T>::findIndex( QValueListPrivate<T>::NodePtr start, const T& x ) const
+Q_INLINE_TEMPLATES int QValueListPrivate<T>::findIndex( Q_TYPENAME QValueListPrivate<T>::NodePtr start, const T& x ) const
 {
     ConstIterator first( start );
     ConstIterator last( node );
@@ -571,7 +571,7 @@ Q_INLINE_TEMPLATES void QValueList<T>::clear()
 }
 
 template <class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QValueList<T>::iterator QValueList<T>::erase( QValueList<T>::iterator first, QValueList<T>::iterator last )
+Q_INLINE_TEMPLATES Q_TYPENAME QValueList<T>::iterator QValueList<T>::erase( Q_TYPENAME QValueList<T>::iterator first, Q_TYPENAME QValueList<T>::iterator last )
 {
     while ( first != last )
 	erase( first++ );
@@ -580,7 +580,7 @@ Q_INLINE_TEMPLATES Q_TYPENAME QValueList<T>::iterator QValueList<T>::erase( QVal
 
 
 template <class T>
-Q_INLINE_TEMPLATES void QValueList<T>::insert( QValueList<T>::iterator pos, size_type n, const T& x )
+Q_INLINE_TEMPLATES void QValueList<T>::insert( Q_TYPENAME QValueList<T>::iterator pos, size_type n, const T& x )
 {
     for ( ; n > 0; --n )
 	insert( pos, x );

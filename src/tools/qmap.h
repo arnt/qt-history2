@@ -449,7 +449,7 @@ Q_INLINE_TEMPLATES QMapPrivate<Key,T>::QMapPrivate( const QMapPrivate< Key, T >*
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::NodePtr QMapPrivate<Key,T>::copy( QMapPrivate<Key,T>::NodePtr p )
+Q_INLINE_TEMPLATES Q_TYPENAME QMapPrivate<Key,T>::NodePtr QMapPrivate<Key,T>::copy( Q_TYPENAME QMapPrivate<Key,T>::NodePtr p )
 {
     if ( !p )
 	return 0;
@@ -481,7 +481,7 @@ Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear()
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear( QMapPrivate<Key,T>::NodePtr p )
+Q_INLINE_TEMPLATES void QMapPrivate<Key,T>::clear( Q_TYPENAME QMapPrivate<Key,T>::NodePtr p )
 {
     while ( p != 0 ) {
 	clear( (NodePtr)p->right );
@@ -756,7 +756,7 @@ Q_INLINE_TEMPLATES QMap<Key,T>& QMap<Key,T>::operator= ( const QMap<Key,T>& m )
 }
 
 template<class Key, class T>
-Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert( const QMap<Key,T>::value_type& x )
+Q_INLINE_TEMPLATES Q_TYPENAME QMap<Key,T>::insert_pair QMap<Key,T>::insert( const Q_TYPENAME QMap<Key,T>::value_type& x )
 {
     detach();
     size_type n = size();
