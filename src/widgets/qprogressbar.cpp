@@ -409,14 +409,17 @@ void QProgressBar::drawContents( QPainter *p )
 		x += unit_width;
 	    }
 	} else {
+	    bool right = TRUE;
 	    int bw = u*unit_width + 2;
 	    int x = progress_val % ( (bw-ox) * 2 );
-	    if ( x > bw-ox )
+	    if ( x > bw-ox ) {
 		x = 2 * (bw-ox) - x;
+		right = FALSE;
+	    }
 	    x += ox + bar.x();
 	    
 	    QRect all( ox + bar.x(), bar.y(), bw-1, bar.height() );
-	    QRect ind( x-9, bar.y(), 18, bar.height() );
+	    QRect ind( x, bar.y(), 18, bar.height() );
 
 	    p->setClipRegion( QRegion( all ) - QRegion( ind ) );
 	    p->eraseRect( all );
@@ -425,16 +428,17 @@ void QProgressBar::drawContents( QPainter *p )
 		p->setClipRegion( QRegion( all ) );
 		QColor base = colorGroup().background();
 		QColor high = palette().active().highlight();
-		int dr = ( base.red() - high.red() ) / 10;
-		int dg = ( base.green() - high.green() ) / 10;
-		int db = ( base.blue() - high.blue() ) / 10;
-		for ( int i = 0; i < 10; i++ ) {
+		int dr = ( base.red() - high.red() ) / 20;
+		int dg = ( base.green() - high.green() ) / 20;
+		int db = ( base.blue() - high.blue() ) / 20;
+		for ( int i = 0; i < 20; i++ ) {
 		    QColor d;
-		    d.setRgb( high.red() + dr*i, high.green() + dg*i, high.blue() + db * i );
+		    if ( right )
+			d.setRgb( base.red() - dr*i, base.green() - dg*i, base.blue() - db * i );
+		    else 
+			d.setRgb( high.red() + dr*i, high.green() + dg*i, high.blue() + db * i );
 		    p->setPen( d );
 		    p->drawLine( x+i, bar.y(), x+i, bar.height() );
-		    if ( i )
-			p->drawLine( x-i, bar.y(), x-i, bar.height() );
 		}
 	    }
 
@@ -508,8 +512,11 @@ void QProgressBar::drawContentsMask( QPainter *p )
 
     if ( style() != MotifStyle ) {
 	// ### This part doesn't actually change.
-	QFontMetrics fm = p->fontMetrics();
-	int textw = fm.width(QString::fromLatin1("100%"));
+	int textw = 0;
+	if ( percentage_visible && total_steps ) {
+	    QFontMetrics fm = p->fontMetrics();
+	    textw = fm.width(QString::fromLatin1("100%"));
+	}
 	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
 	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
 
@@ -517,8 +524,9 @@ void QProgressBar::drawContentsMask( QPainter *p )
 	p->drawRect( r );
 
 	// ### This part changes every percentage change.
-	p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
-	    AlignRight | AlignVCenter, progress_str );
+	if ( percentage_visible )
+	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+		AlignRight | AlignVCenter, progress_str );
     } else {
 	p->drawRect( bar );
     }
