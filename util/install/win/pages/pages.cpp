@@ -102,7 +102,7 @@ LicensePageImpl::LicensePageImpl( QWidget* parent, const char* name, WFlags fl )
 #elif defined(EDU)
     licenseInfoHeader->setText( tr("Please enter the license information for the educational edition of Qt.") );
 
-    customerIDLabel->setText( tr("University") );
+    customerIDLabel->setText( tr("Educational institution") );
     licenseeLabel->setText( tr("Serial number") );
     university = customerID;
     serialNumber = licenseeName;
