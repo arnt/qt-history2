@@ -67,10 +67,10 @@
   included for compatibility reasons. It is now a subclass of
   QTextEdit which wrappes the old QMultiLineEdit so that it is mostly
   source compatible to keep old applications working.
-  
+
   If you implement something new with QMultiLineEdit, rather use
   QTextEdit instead.
-  
+
   Although most of the old QMultiLineEdit API is still available,
   there is one important difference. Because of a design flaw of the
   old QMultiLineEdit it operated on lines and not on paragraphs. As
@@ -78,10 +78,10 @@
   engine only knows paragraphs as elements in the data structure. So
   all functions (like numLines(), textLine()), which worked on lines,
   now work on paragraphs.
-  
+
   Also the function getString() has been removed as this one published
   the internal data structure.
-  
+
   So, applications which made normal usage of the QMultiLineEdit,
   should keep working without problems. Programs which did some
   special stuff with it might require some porting.
@@ -394,7 +394,7 @@ void QMultiLineEdit::getCursorPosition( int *line, int *col ) const
 
 QPoint QMultiLineEdit::cursorPoint() const
 {
-    return QPoint( textCursor()->totalOffsetX(), textCursor()->totalOffsetY() );
+    return QPoint( textCursor()->x(), textCursor()->y() );
 }
 
 /*!  Sets the alignment. Possible values are \c AlignLeft, \c
@@ -454,8 +454,8 @@ bool QMultiLineEdit::edited() const
 }
 
 /*!  Moves the cursor one word to the right.  If \a mark is TRUE, the
-  text is marked.  
-  
+  text is marked.
+
   \sa cursorWordBackward()
 */
 void QMultiLineEdit::cursorWordForward( bool mark )
@@ -464,8 +464,8 @@ void QMultiLineEdit::cursorWordForward( bool mark )
 }
 
 /*!  Moves the cursor one word to the left.  If \a mark is TRUE, the
-  text is marked.  
-  
+  text is marked.
+
   \sa cursorWordForward()
 */
 void QMultiLineEdit::cursorWordBackward( bool mark )
@@ -506,8 +506,8 @@ void QMultiLineEdit::killLine()
 /*!  Deletes the character on the right side of the text cursor. If a
   text has been marked by the user (e.g. by clicking and dragging) the
   cursor is put at the beginning of the marked text and the marked
-  text is removed.  
-  
+  text is removed.
+
   \sa backspace()
 */
 
@@ -544,8 +544,8 @@ void QMultiLineEdit::cursorRight( bool mark, bool )
 }
 
 /*!  Moves the cursor up one line.  If \a mark is TRUE, the text is
-  marked.  
-  
+  marked.
+
   \sa cursorDown() cursorLeft() cursorRight()
 */
 

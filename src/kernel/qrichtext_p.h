@@ -163,6 +163,9 @@ public:
     void place( const QPoint &pos, QTextParag *s );
     void restoreState();
 
+    int x() const;
+    int y() const;
+    
 private:
     enum Operation { EnterBegin, EnterEnd, Next, Prev, Up, Down };
 
@@ -315,7 +318,7 @@ public:
     QString text() const;
     QString text( int parag, bool formatted ) const;
     QString originalText() const;
-    
+
     int x() const;
     int y() const;
     int width() const;
@@ -505,7 +508,7 @@ private:
     int tStopWidth;
     int uDepth;
     QString oText;
-    
+
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1267,6 +1270,22 @@ inline void QTextCursor::checkIndex()
 {
     if ( idx >= string->length() )
 	idx = string->length() - 1;
+}
+
+inline int QTextCursor::x() const
+{
+    QTextString::Char *c = string->at( idx );
+    int curx = c->x;
+    if ( c->rightToLeft )
+	curx += c->format()->width( c->c );
+    return curx;
+}
+
+inline int QTextCursor::y() const
+{
+    int dummy, line;
+    string->lineStartOfChar( idx, &dummy, &line );
+    return string->lineY( line );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
