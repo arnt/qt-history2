@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#10 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#11 $
 **
 ** Definition of QFontMetrics class
 **
@@ -23,7 +23,7 @@ public:
 
     int			ascent()	const;
     int			descent()	const;
-    int			height()	const; // ascent() + descent() + 1
+    int			height()	const; // ascent() + descent()
     int                 leading()       const;
     int                 lineSpacing()   const; // height() + leading()
 
