@@ -683,9 +683,8 @@ MakefileGenerator::init()
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    if ((*it).isEmpty()) 
 		continue;
-	    QString fixed = fileFixify((*it));
-	    if (QFile::exists(fixed))
-		(*it) = fixed;
+	    if(QFile::exists((*it)))
+		(*it) = fileFixify((*it));
 	}
     }
 
