@@ -793,21 +793,24 @@ void MainWindow::readSettings()
     QString settingsString = QString::fromUtf8("widgetbox");
     QWidget *w = core->widgetBox()->topLevelWidget();
     QSize sz = w->sizeHint();
-    sz.setHeight(qMin(sz.height() + 300, availG.height()));
-    sz.setWidth(qMin(sz.width() + 50, availG.width()));
+    QFontMetrics fm = w->fontMetrics();
+    sz.setHeight(qMin(sz.height() + fm.height() * 20, availG.height()));
+    sz.setWidth(qMin(sz.width() + 20, availG.width()));
     QRect defaultRect(availG.topLeft(), sz);
     readSizeSettings(settings, settingsString, w, defaultRect);
 
     settingsString = QString::fromUtf8("objectinspector");
     w = core->objectInspector()->topLevelWidget();
-    defaultRect.translate(availG.topRight().x() - (w->sizeHint().width() + 20), 0);
+    defaultRect.translate(availG.topRight().x() - (w->sizeHint().width() + 75), 0);
     defaultRect.setSize(w->sizeHint());
     readSizeSettings(settings, settingsString, w, defaultRect);
 
     settingsString = QString::fromUtf8("propertyeditor");
     defaultRect.translate(0,  w->sizeHint().height() + 20);
     w = core->propertyEditor()->topLevelWidget();
-    defaultRect.setSize(w->sizeHint());
+    fm = w->fontMetrics();
+    defaultRect.setWidth(w->sizeHint().width());
+    defaultRect.setHeight(w->sizeHint().height() + fm.height() * 16);
     readSizeSettings(settings, settingsString, w, defaultRect);
 }
 
