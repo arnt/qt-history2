@@ -1760,8 +1760,9 @@ void QLineEdit::setValidator( const QValidator * v )
 	disconnect( (QObject*)d->validator, SIGNAL( destroyed() ),
 		    this, SLOT( clearValidator() ) );
     d->validator = v;
-    connect( (QObject*)d->validator, SIGNAL( destroyed() ),
-	     this, SLOT( clearValidator() ) );
+    if ( d->validator )
+	connect( (QObject*)d->validator, SIGNAL( destroyed() ),
+	         this, SLOT( clearValidator() ) );
 }
 
 /*!
