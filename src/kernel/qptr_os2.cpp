@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#4 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#4 $";
 #endif
 
 
@@ -490,8 +490,9 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
     static long ropCodes[] =
 	{ FM_OVERPAINT, FM_OR, FM_XOR, FM_SUBTRACT,
-	  FM_NOTCOPYSRC, FM_MERGENOTSRC, FM_NOTXORSRC, FM_AND };
-    if ( r < CopyROP || r > NotEraseROP ) {
+	  FM_NOTCOPYSRC, FM_MERGENOTSRC, FM_NOTXORSRC,
+	  FM_AND, FM_INVERT };
+    if ( r < CopyROP || r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
@@ -998,7 +999,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding )
 }
 
 
-void QPainter::drawPixmap( int x, int y, const QPixMap &pm )
+void QPainter::drawPixMap( int x, int y, const QPixMap &pm )
 {						// draw pixmap
     if ( !isActive )
 	return;

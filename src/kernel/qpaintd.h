@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#5 $
 **
 ** Definition of QPaintDevice class
 **
 ** Author  : Haavard Nord
 ** Created : 940721
 **
-** Copyright (C) 1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,6 +14,7 @@
 #define QPAINTD_H
 
 #include "qwindefs.h"
+#include "qrect.h"
 
 
 // Painter device types (is-A)
@@ -82,10 +83,17 @@ public:
     QPaintDevice();
     virtual ~QPaintDevice();
 
-    bool     paintingActive() const { return devFlags & PDF_PAINTACTIVE; }
+    int	     devType()	      const { return devFlags & PDT_MASK; }
+
+    bool     paintingActive() const { return (devFlags & PDF_PAINTACTIVE) ==
+					     PDF_PAINTACTIVE; }
+
+    void     bitBlt( int sx, int sy, int sw, int sh, QPaintDevice *dest,
+		     int dx, int dy, RasterOp =CopyROP );
+    void     bitBlt( const QRect &srcrect, QPaintDevice *dest,
+		     const QPoint &dpos, RasterOp =CopyROP );
 
 protected:
-    int	     devType()	      const { return devFlags & PDT_MASK; }
     void     setDevType( uint t )   { devFlags = t; }
 				
 #if defined(_WS_WIN_)
@@ -103,6 +111,13 @@ private:
     virtual bool cmd( int, QPDevCmdParam * );
 #endif
 };
+
+
+inline void QPaintDevice::bitBlt( const QRect &r, QPaintDevice *pd,
+				  const QPoint &p, RasterOp rop )
+{
+    bitBlt( r.x(), r.y(), r.width(), r.height(), pd, p.x(), p.y(), rop );
+}
 
 
 #endif // QPAINTD_H

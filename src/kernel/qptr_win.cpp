@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#4 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#4 $";
 #endif
 
 
@@ -564,8 +564,9 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
     static short ropCodes[] =
 	{ R2_COPYPEN, R2_MERGEPEN, R2_XORPEN, R2_MASKNOTPEN,
-	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN };
-    if ( r < CopyROP || r > NotEraseROP ) {
+	  R2_NOTCOPYPEN, R2_MERGENOTPEN, R2_NOTXORPEN, R2_MASKPEN,
+      	  R2_NOT };
+    if ( r < CopyROP || r > NotROP ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
@@ -999,7 +1000,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding )
 }
 
 
-void QPainter::drawPixmap( int x, int y, const QPixMap &pm )
+void QPainter::drawPixMap( int x, int y, const QPixMap &pm )
 {						// draw pixmap
     if ( !isActive )
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#6 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#6 $";
 #endif
 
 
@@ -562,10 +562,10 @@ void QPainter::setRasterOp( RasterOp r )	// set raster operation
 {
     static short ropCodes[] =
 	{ GXcopy, GXor, GXxor, GXandInverted,
-	  GXcopyInverted, GXorInverted, GXequiv, GXand };
+	  GXcopyInverted, GXorInverted, GXequiv, GXand, GXinvert };
     if ( !isActive )
 	return;
-    if ( !(r >= CopyROP && r <= NotEraseROP) ) {
+    if ( !(r >= CopyROP && r <= NotROP) ) {
 #if defined(CHECK_RANGE)
 	warning( "QPainter::setRasterOp: Invalid ROP code" );
 #endif
@@ -1166,7 +1166,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding )
 }
 
 
-void QPainter::drawPixmap( int x, int y, const QPixMap &pixmap )
+void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 {						// draw pixmap
     if ( !isActive )
 	return;
@@ -1176,7 +1176,7 @@ void QPainter::drawPixmap( int x, int y, const QPixMap &pixmap )
 	XFORM_P( x, y );
     if ( pixmap.bitPlanes == 1 )		// bitmap
 	XCopyPlane( dpy, pixmap.hd, hd, gc, 0, 0,
-		   pixmap.sz.width(), pixmap.sz.height(), x, y, 1 );
+		    pixmap.sz.width(), pixmap.sz.height(), x, y, 1 );
     else
 	XCopyArea( dpy, pixmap.hd, hd, gc, 0, 0,
 		   pixmap.sz.width(), pixmap.sz.height(), x, y );
