@@ -1812,8 +1812,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
  \fn QPair<int, int> QTabletEvent::uniqueId()
- Returns a unique id for the current device.  With Wacom devices, it is possible to generate
- a unique id for any device.  This is helpful to differentiate multiple devices being
+ Returns a unique id for the current device.  It is possible to generate
+ a unique id for any Wacom device.  This is helpful to differentiate multiple devices being
  used at the same time on the tablet.  The \c first member contains a value for the type,
  the \c second member contains a physical id obtained from the device. 
  Together these values are unique.  Note: for different platforms, the \c first value
