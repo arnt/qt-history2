@@ -300,7 +300,7 @@ QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &
 */
 QAction::~QAction()
 {
-    for (int i = 0; i < d->widgets.size(); ++i) {
+    for (int i = d->widgets.size()-1; i >= 0; --i) {
         QWidget *w = d->widgets.at(i);
         w->removeAction(this);
     }
