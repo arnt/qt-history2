@@ -56,7 +56,17 @@
 #  include <qmenubar.h>
 #endif
 
+/*****************************************************************************
+  QWidget debug facilities
+ *****************************************************************************/
 //#define DEBUG_WINDOW_RGNS
+
+
+/*****************************************************************************
+  QWidget globals
+ *****************************************************************************/
+static bool no_move_blt = FALSE;
+
 
 /*****************************************************************************
   QWidget utility functions
@@ -76,29 +86,33 @@ QPoint posInWindow(QWidget *w)
 }
 
 #ifdef DEBUG_WINDOW_RGNS
-static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &r, bool paint) {
-    qDebug("%s %s %s (%s)", where, paint ? "paint" : "invalid", w->className(), w->name());
+static inline void debug_wndw_rgn(const char *where, QWidget *w, const QRegion &r, bool paint=FALSE) {
+    QPoint mp(posInWindow(w));
+    qDebug("%s %s %s (%s) [ %d %d %d %d ]", where, paint ? "paint" : "invalid", 
+	   w->className(), w->name(), mp.x(), mp.y(), w->width(), w->height());
     QArray<QRect> rs = r.rects();
-    for(int i = 0; i < (int)rs.size(); i++)
-	qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+    int offx = 0, offy = 0;
+    if(paint) {
+	offx = mp.x();
+	offy = mp.y();
+    }
+    for(int i = 0; i < (int)rs.size(); i++) 
+	qDebug("%d %d %d %d", rs[i].x()+offx, rs[i].y()+offy, rs[i].width(), rs[i].height());
 }
-static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint) {
-    debug_wndw_rgn(where, w, QRegion(r->top, r->left, r->bottom - r->top, r->right - r->left), paint);
+static inline void debug_wndw_rgn(const char *where, QWidget *w, const Rect *r, bool paint=FALSE) {
+    debug_wndw_rgn(where, w, QRegion(r->left, r->top, r->right - r->left, r->bottom - r->top), paint);
 }
 static inline void dirty_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
 {
     debug_wndw_rgn(where, w, r, FALSE);
     InvalWindowRgn((WindowPtr)w->handle(), (RgnHandle)r.handle());
 }
-static inline void clean_wndw_rgn(const char *where, QWidget *w, const QRegion &r)
-{
-    debug_wndw_rgn(where, w, r, TRUE);
-}
 static inline void dirty_wndw_rgn(const char *where, QWidget *w, const Rect *r)
 {
     debug_wndw_rgn(where, w, r, FALSE);
     InvalWindowRect((WindowPtr)w->handle(), r);
 }
+#define clean_wndw_rgn(x, y, z) debug_wndw_rgn(x, y, z, TRUE);
 #else
 static inline void dirty_wndw_rgn_internal(const WindowPtr p, const QRegion &r) 
 { 
@@ -110,6 +124,7 @@ static inline void dirty_wndw_rgn_internal(const WindowPtr p, const Rect *r)
 }
 #define dirty_wndw_rgn(x, who, where) dirty_wndw_rgn_internal((WindowPtr)who->handle(), where)
 #define clean_wndw_rgn(x, y, z)
+#define debug_wndw_rgn(w, x, y)
 #endif
 
 static inline const Rect *mac_rect(const QRect &qr) 
@@ -423,24 +438,19 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	unsetCursor();
     }
 
-    WId old_winid = (WId)hd;
-    if ( testWFlags(WType_Desktop) )
-	old_winid = 0;
-
+    WindowPtr old_hd = testWFlags(WType_Desktop) ? NULL : (WindowPtr)hd;
     reparentFocusWidgets( parent );		// fix focus chains
+    if ( old_hd && own_id && isTopLevel() ) { //don't need old window anymore
+	mac_window_count--;
+	DisposeWindow( old_hd );
+    }
 
     setWinId( 0 );
     if ( parentObj ) {				// remove from parent
 	QObject *oldp = parentObj;
 	parentObj->removeChild( this );
-	if(!isTopLevel() && oldp->isWidgetType()) {
+	if(isVisible() && !isTopLevel() && oldp->isWidgetType()) 
 	    dirty_wndw_rgn("reparent1",this, mac_rect(oldposinwindow, geometry().size()));
-	}
-    }
-
-    if ( old_winid && own_id && isTopLevel() ) {
-	mac_window_count--;
-	DisposeWindow( (WindowPtr)old_winid );
     }
 
     if ( parent ) {				// insert into new parent
@@ -458,11 +468,17 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	setWState( WState_ForceHide );	// new widgets do not show up in already visible parents
     if(dropable)
 	setAcceptDrops(FALSE);
+
+    //get new hd, now move
     create();
+    no_move_blt = TRUE;
     if ( p.isNull() )
 	resize( s );
     else
 	setGeometry( p.x(), p.y(), s.width(), s.height() );
+    no_move_blt = FALSE;
+
+    //reset flags and show (if neccesary)
     setEnabled( enable );
     setFocusPolicy( fp );
     setAcceptDrops(dropable);
@@ -475,6 +491,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     if ( setcurs )
 	setCursor(oldcurs);
 
+    //reparent children
     QObjectList	*chldn = queryList();
     QObjectListIt it( *chldn );
     for ( QObject *obj; (obj=it.current()); ++it ) {
@@ -482,7 +499,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
-	    if(((WId)w->hd) == old_winid)
+	    if(((WindowPtr)w->hd) == old_hd)
 		w->hd = hd; //all my children hd's are now mine!
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)  //make sure menubars are fixed
 	    if(w->inherits("QMenuBar") ) {
@@ -504,9 +521,11 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
  	    fd->focusWidgets.append( this );
     }
 
+    //repaint the new area, on the window parent
     if(isVisible()) //finally paint my new area 
 	dirty_wndw_rgn("reparent2",this, mac_rect(posInWindow(this), geometry().size()));
 
+    //send the reparent event
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
 }
@@ -786,8 +805,8 @@ void QWidget::showWindow()
 	//now actually show it
 	ShowHide((WindowPtr)hd, 1);
 	setActiveWindow();
-    } else {
-	update();
+    } else { 
+	dirty_wndw_rgn("showwindow",this, mac_rect(posInWindow(this), geometry().size()));
     }
 }
 
@@ -799,12 +818,8 @@ void QWidget::hideWindow()
 	ShowHide((WindowPtr)hd, 0);
 	if(QWidget *widget = parentWidget() ? parentWidget() : QWidget::find((WId)FrontWindow()))
 	    widget->setActiveWindow();
-    } else {
-	bool v = testWState(WState_Visible);
-	clearWState(WState_Visible);
+    } else if(isVisible()) {
 	dirty_wndw_rgn("hidewindow",this, mac_rect(posInWindow(this), geometry().size()));
-	if ( v )
-	    setWState(WState_Visible);
     }
 }
 
@@ -823,6 +838,8 @@ bool QWidget::isMaximized() const
 
 void QWidget::showMinimized()
 {
+    if(isMinimized())
+	return;
     if ( isTopLevel() ) {
 	if ( isVisible() ) {
 	    CollapseWindow((WindowPtr)hd, TRUE);
@@ -839,6 +856,8 @@ void QWidget::showMinimized()
 
 void QWidget::showMaximized()
 {
+    if(isMaximized())
+	return;
     if ( testWFlags(WType_TopLevel) ) {
 	Rect bounds;
 	GetPortBounds( GetWindowPort( (WindowPtr)hd ), &bounds );
@@ -1019,12 +1038,18 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	return;
     dirtyClippedRegion(TRUE);
 
-    if ( isTopLevel() && isMove && own_id ) 
-	MoveWindow( (WindowPtr)hd, x, y, 1);
-
     bool isResize = (olds != size());
-    if ( isTopLevel() && winid && own_id )
-	SizeWindow( (WindowPtr)hd, w, h, 1);
+    if(isTopLevel() && winid && own_id) {
+	if(isResize && isMove) {
+	    Rect r;
+	    SetRect(&r, x, y, x + w, y + h);
+	    SetWindowBounds((WindowPtr)hd, kWindowStructureRgn, &r);
+	} else if( isMove ) {
+	    MoveWindow( (WindowPtr)hd, x, y, 1);
+	} else if( isResize ) {
+	    SizeWindow( (WindowPtr)hd, w, h, 1);
+	}
+    }
 
     if(isMove || isResize) {
 	if(!isVisible()) {
@@ -1033,65 +1058,64 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if ( isResize )
 		QApplication::postEvent( this, new QResizeEvent( size(), olds ) );
 	} else {
-	    if ( isMove ) {
-		QMoveEvent e( pos(), oldp );
-		QApplication::sendEvent( this, &e );
-	    }
-	    //send the resize event..
-	    if ( isResize ) {
-		QResizeEvent e( size(), olds );
-		QApplication::sendEvent( this, &e );
-	    }
 	    if(!isTopLevel()) {//make sure everything is painted right..
-		QRegion bltregion;
-		QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
-		QPoint tp(posInWindow(parent));
-		int px = tp.x(), py = tp.y();
-
-		if( !oldregion.isEmpty() ) 
-		{
-		    //save the window state, and do the grunt work
-		    int ow = olds.width(), oh = olds.height();
-		    QMacSavedPortInfo saveportstate(this);
-		    ::RGBColor f;
-		    f.red = f.green = f.blue = 0;
-		    RGBForeColor( &f );
-		    f.red = f.green = f.blue = ~0;
-		    RGBBackColor( &f );
-
-		    //calculate new and old rectangles
-		    int nx = px + pos().x(), ny = py + pos().y();
-		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
-		    int ox = px + oldp.x(), oy = py + oldp.y();
-		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-
+		QRegion bltregion, clpreg = clippedRegion(FALSE);
+		if( !oldregion.isNull() ) {
 		    //setup the old clipped region..
 		    bltregion = oldregion;
-		    bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		    bltregion &= clippedRegion(FALSE);
+		    if(isMove) 
+			bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		    bltregion &= clpreg;
 		    {   //can't blt that which is dirty
 			RgnHandle r = NewRgn();
 			GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 			if(!EmptyRgn(r)) {
-			    QRegion dirty(r);
-			    dirty.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
-			    bltregion -= dirty;
+			    QRegion jamie(r); //the cleaned region
+			    jamie.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+			    bltregion -= jamie;
 			}
 		    }
-		    SetClip((RgnHandle)bltregion.handle());
 
-		    //now do the blt
-		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+		    if(isMove && !no_move_blt) {
+			QWidget *parent = parentWidget() && !isTopLevel() ? parentWidget() : this;
+			QPoint tp(posInWindow(parent));
+			int px = tp.x(), py = tp.y();
+
+			//save the window state, and do the grunt work
+			int ow = olds.width()+1, oh = olds.height()+1;
+			QMacSavedPortInfo saveportstate(this);
+			::RGBColor f;
+			f.red = f.green = f.blue = 0;
+			RGBForeColor( &f );
+			f.red = f.green = f.blue = ~0;
+			RGBBackColor( &f );
+			SetClip((RgnHandle)bltregion.handle());
+
+			//calculate new and old rectangles
+			int nx = px + pos().x(), ny = py + pos().y();  //new
+			Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
+			int ox = px + oldp.x(), oy = py + oldp.y(); //old
+			Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
+			BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
+			CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
+		    }
 		}
 		//finally issue "expose" events if necesary
-		QRegion upd = (oldregion + clippedRegion(FALSE));
-		if(!isResize || testWFlags(WNorthWestGravity))
-		    upd -=  bltregion;
+		QRegion upd = ((oldregion - clpreg) + //just the old area
+			       clippedRegion()); //my area (no children)
+		if(!isResize || testWFlags(WNorthWestGravity)) {
+		    upd += clpreg - bltregion;  //just new my area (with children)
+		    upd -= bltregion; //the "copied" area
+		}
 		dirty_wndw_rgn("internalSetGeometry",this, upd);
-#if 0
-		paint_children(topLevelWidget(), upd, PC_Now | PC_NoPaint);
-#endif
+	    }
+	    if ( isMove ) { //send the move event..
+		QMoveEvent e( pos(), oldp );
+		QApplication::sendEvent( this, &e );
+	    }
+	    if ( isResize ) { //send the resize event..
+		QResizeEvent e( size(), olds );
+		QApplication::sendEvent( this, &e );
 	    }
 	}
     }
@@ -1417,7 +1441,8 @@ void QWidget::propagateUpdates()
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
     if(!EmptyRgn(r)) {
 	QRegion rgn(r);
-	rgn.translate(-x(), -y());
+	rgn.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
+	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn);
 	BeginUpdate((WindowPtr)hd);
 	paint_children( this, rgn );
 	EndUpdate((WindowPtr)hd);

@@ -70,6 +70,9 @@
 #include "qmenubar.h"
 #endif
 
+/*****************************************************************************
+  QApplication debug facilities
+ *****************************************************************************/
 //#define DEBUG_KEY_MAPS
 //#define DEBUG_MOUSE_MAPS
 
