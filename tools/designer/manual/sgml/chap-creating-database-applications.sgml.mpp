@@ -145,10 +145,10 @@ bool createConnections()
     defaultDB-&gt;setPassword( &quot;bookpw&quot; );
     defaultDB-&gt;setHostName( &quot;bookhost&quot; );
     if ( ! defaultDB-&gt;open() ) { 
-	qWarning( &quot;Failed to open books database: &quot; + 
-		  defaultDB-&gt;lastError().driverText() );
-	qWarning( defaultDB-&gt;lastError().databaseText() );
-	return FALSE;
+        qWarning( &quot;Failed to open books database: &quot; + 
+                  defaultDB-&gt;lastError().driverText() );
+        qWarning( defaultDB-&gt;lastError().databaseText() );
+        return FALSE;
     }
 
     return TRUE;
@@ -320,10 +320,11 @@ bool createConnections()
 
 		<listitem>
 		    <para>
-		    The <emphasis>Finish</> wizard page is gives us the
-		    opportunity to go back and change any of our settings.
-		    We will be able to change them later through the \class[QDataTable]'s
-		    properties so we can finish with the wizard.
+		    The <emphasis>Finish</> wizard page gives us the
+		    opportunity to go back and change any of our
+		    settings. We will be able to change them later
+		    through the \class[QDataTable]'s properties so we
+		    can finish with the wizard.
 		    </para>
 
 		    <para>
@@ -600,16 +601,16 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		Drag the bottom of the \class[QDataTable] up so that it only occupies
-		the top half of the form.
+		Resize the \class[QDataTable] up so that it only
+		occupies the top half of the form.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		Now click on the \class[QDataTable] toolbutton and click on the bottom
-		half of the form. The SQL Table Wizard will appear.
-		(This Wizard is explained in <xref
+		Now click on the \class[QDataTable] toolbutton and click
+		on the bottom half of the form. The SQL Table Wizard
+		will appear. (This Wizard is explained in <xref
 		linkend="quickly-viewing-a-database-table"> "Quickly
 		Viewing a Database Table".) 
 		<orderedlist numeration="arabic" inheritnum="inherit">
@@ -704,28 +705,28 @@ bool createConnections()
 	<orderedlist numeration="arabic">
 	    <listitem>
 		<para>
-		Click the <guibutton>New Column</> button
+		Click the <guibutton>New Column</> button.
 		</para>
 	    </listitem> 
 
 	    <listitem>
 		<para>
-		Click the triangle at the right hand side of the
-		Field combobox to drop down the list of available
-		fields
+		Click the down-pointing arrow at the right hand side of
+		the Field combobox to drop down the list of available
+		fields.
 		</para>
 	    </listitem>
 
 	    <listitem>
 		<para>
-		Click the field you wish to include at this point
+		Click the field you wish to include at this point.
 		</para>
 	    </listitem>
 
 	    <listitem>
 	    <para>
 		<emphasis>Optionally</> edit the Label if the default
-		isn't appropriate 
+		isn't appropriate.
 	    </para>
 	    </listitem>
 
@@ -733,7 +734,7 @@ bool createConnections()
 	    <para>
 	    <emphasis>Optionally</> click the Pixmap <guibutton>...</>
 	    button to choose a pixmap to be displayed to the left of the
-	    column's label
+	    column's label.
 	    </para>
 	    </listitem>
 	</orderedlist>
@@ -821,8 +822,8 @@ bool createConnections()
 		<listitem>
 		    <para>
 		    Click the form, then click the <guibutton>Break
-		    Layout</> toolbar button. Drag the bottom of the form
-		    down to make room for some buttons.
+		    Layout</> toolbar button. Resize the form
+		    to make room for some buttons at the bottom.
 		    </para>
 		</listitem> 
 
@@ -988,7 +989,7 @@ bool createConnections()
 	    <listitem>
 		<para>
 		The \class[QDataBrowser] will now appear on the form.
-		Drag the bottom of the form up to make it shorter. Click
+		Resize the form up to make it shorter. Click
 		the \class[QDataBrowser] then click the <guibutton>Break
 		Layout</> toolbar button. Click the buttons then click
 		the <guibutton>Break Layout</> toolbar button. Add
@@ -1265,8 +1266,8 @@ bool createConnections()
 	\list[1]
 	\item\p
 	First we'll add the new widgets. Click the BookDataBrowser and
-	click the \button[Break Layout] toolbar button. Drag the bottom
-	of the form down and drag each set of buttons down to make some
+	click the \button[Break Layout] toolbar button. Resize the form
+	to make it larger and drag each set of buttons down to make some
 	room below the title and price QLineEdits. Click the
 	\button[Text Label] toolbar button and click on the form beneath
 	the Price label. Click the Text Label and change its text to

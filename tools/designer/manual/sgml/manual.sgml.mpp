@@ -1,7 +1,6 @@
 \set filter
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook V3.1//EN"[
 <!ENTITY chap00 SYSTEM "chap-preface.sgml">
-<!ENTITY chap01 SYSTEM "chap-01.sgml">
 <!ENTITY chap02 SYSTEM "chap-02.sgml">
 <!ENTITY chap03 SYSTEM "chap-03.sgml">
 <!ENTITY chap04 SYSTEM "chap-04.sgml">
@@ -17,7 +16,6 @@
 ]>
 <book>
 &chap00;
-&chap01;
 &chap02;
 &chap03;
 &chap04;
