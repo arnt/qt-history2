@@ -159,7 +159,7 @@ inline void gettimeofday( struct timeval *t, struct timezone * )
 #else
 #undef gettimeofday
 extern "C" int gettimeofday( struct timeval *, struct timezone * );
-#endif // _OS_WIN32 etc.
+#endif // Q_OS_WIN32 etc.
 #if !defined(Q_OS_WIN32)
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
