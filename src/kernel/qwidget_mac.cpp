@@ -822,6 +822,8 @@ void QWidget::showNormal()
 
 void QWidget::raise()
 {
+    if(isTopLevel())
+	SelectWindow((WindowPtr)hd);
 }
 
 /*!
