@@ -62,8 +62,6 @@ QReadWriteLock::QReadWriteLock(const int maxReaders)
 :d(new QReadWriteLockPrivate())
 {
     d->maxReaders=maxReaders;
-    d->accessCount=0;
-    d->waitingWriters=0;
     d->waitingReaders=0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QReadWriteLock", "mutex init");
     report_error(pthread_cond_init(&d->readerWait, NULL), "QReadWriteLock", "cv init");

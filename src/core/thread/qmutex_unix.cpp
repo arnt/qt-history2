@@ -139,9 +139,7 @@ QMutex::QMutex(bool recursive)
     : d(new QMutexPrivate)
 {
     d->recursive = recursive;
-    d->owner = 0;
     d->count = 0;
-    d->waiters = 0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QMutex", "mutex init");
     report_error(pthread_cond_init(&d->cond, NULL), "QMutex", "cv init");
 }
@@ -175,7 +173,7 @@ void QMutex::lock()
         if (!d->recursive || d->owner != self) {
             if (d->owner == self) {
                 qWarning("QMutex::lock(): Deadlock detected in thread %p",
-                         static_cast<void *>(d->owner.atomic));
+                         static_cast<void *>(d->owner));
             }
 
             report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
