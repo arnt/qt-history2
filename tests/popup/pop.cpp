@@ -114,10 +114,19 @@ protected:
     void paintEvent( QPaintEvent * );
     void mousePressEvent( QMouseEvent *e )
     {
-	pop->popup(mapToGlobal(e->pos()));
+	//pop->popup(mapToGlobal(e->pos()));
+	popup();
+    }
+
+    void keyPressEvent( QKeyEvent *)
+    {
+	delete pop;
+	pop = 0;
+	makeMenu();
     }
     //    void timerEvent( QTimerEvent * );
 private:
+    void makeMenu();
     QPushButton *pbutn;
     QPopupMenu *pop;
     QPixmap *pix;
@@ -163,21 +172,12 @@ Urk::Urk()  : QWidget(0,0)
 
     gm->activate();
 
-    pop = new QPopupMenu;
-    CHECK_PTR( pop );
-
-    menuId = pop->insertItem( "&New" );
-    pop->insertItem( "&Open" );
-    pop->insertItem( "&Clear" );
-    pop->insertSeparator();
-    pop->insertItem( "&Save" );
-    pop->insertItem( "Save &As" );
-    pop->insertSeparator();
-    pop->insertItem( *pix );
-
+    pop = 0;
+    makeMenu();
 }
 
 void Urk::setMenu( int id ) {
+    makeMenu();
     switch ( id ) {
     case textId:
 	pop->changeItem( "one", menuId );
@@ -191,13 +191,34 @@ void Urk::setMenu( int id ) {
     }
 }
 
+
+void Urk::makeMenu()
+{
+    if ( pop )
+	return;
+    debug( "make menu" );
+    pop = new QPopupMenu;
+    CHECK_PTR( pop );
+
+    menuId = pop->insertItem( "&New" );
+    pop->insertItem( "&Open" );
+    pop->insertItem( "&Clear" );
+    pop->insertSeparator();
+    pop->insertItem( "&Save" );
+    pop->insertItem( "Save &As" );
+    pop->insertSeparator();
+    pop->insertItem( *pix );
+}
+
 void Urk::popup()
 {
-    debug( "Urk::popup()");
+    makeMenu();
+    static int lvl = 0;
+    debug( "%d Urk::popup()", lvl++);
     int i = pop->exec(pbutn->mapToGlobal(QPoint(0,0)));
     //int i = pop->exec(QCursor::pos());
     //pop->move(200,200); int i = pop->exec();
-    debug( "Menu returned %d", i );
+    debug( "%d Menu returned %d", --lvl, i );
     //pop->show();
 }
 
