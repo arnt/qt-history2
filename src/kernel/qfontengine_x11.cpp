@@ -902,9 +902,6 @@ QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, glyph_t *glyphs,
 	    QFontEngineLatinXLFD *that = (QFontEngineLatinXLFD *) this;
 	    that->findEngine( str[i] );
 	    glyphs[i] = that->glyphIndices[str[i].unicode()];
-
-	    const int e = glyphs[i] >> 8;
-	    const int g = glyphs[i] & 0xff;
 	}
     }
 
