@@ -125,39 +125,6 @@ void QDockAreaLayout::init()
     cached_wfh = -1;
 }
 
-QSize QDockAreaLayout::minimumSize() const
-{
-    if ( !dockWindows || !dockWindows->first() )
-	return QSize( 0, 0 );
-    QSize s;
-
-    QPtrListIterator<QDockWindow> it( *dockWindows );
-    QDockWindow *dw = 0;
-    while ( ( dw = it.current() ) != 0 ) {
-	++it;
-	if ( dw->isHidden() )
-	    continue;
-	QSize msh( dw->minimumSizeHint() );
-	if ( dw->orientation() == Horizontal )
-	    msh.setWidth( 0 );
-	else
-	    msh.setHeight( 0 );
-	QSize ms( dw->minimumSize() );
-	if ( dw->orientation() == Horizontal )
-	    ms.setWidth( 0 );
-	else
-	    ms.setHeight( 0 );
-	s = s.expandedTo( ms ).expandedTo( msh );
-    }
-
-    if ( s.width() < 0 )
-	s.setWidth( 0 );
-    if ( s.height() < 0 )
-	s.setHeight( 0 );
-
-    return s;
-}
-
 void QDockAreaLayout::invalidate()
 {
     cached_width = 0;
@@ -292,6 +259,27 @@ static void place_line( QValueList<DockData> &lastLine, Qt::Orientation o, int l
 		      last->isResizeEnabled() ? linestrut : lastRect.height(), o );
     }
 }
+
+
+QSize QDockAreaLayout::minimumSize() const
+{
+    if ( !dockWindows || !dockWindows->first() )
+	return QSize( 0, 0 );
+    int s = 0;
+
+    QPtrListIterator<QDockWindow> it( *dockWindows );
+    QDockWindow *dw = 0;
+    while ( ( dw = it.current() ) != 0 ) {
+	++it;
+	if ( dw->isHidden() )
+	    continue;
+	s = QMAX( s, dock_strut( dw, orientation() ) );
+    }
+
+    return orientation() == Horizontal ? QSize( 0, s+2 ) :  QSize( s, 0 );
+}
+
+
 
 int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 {
@@ -527,7 +515,7 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
     : QWidget( parent, name ), orient( o ), layout( 0 ), hPos( h )
 {
     dockWindows = new QPtrList<QDockWindow>;
-    layout = new QDockAreaLayout( this, o, dockWindows, -1, -1, "toollayout" );
+    layout = new QDockAreaLayout( this, o, dockWindows, 0, 0, "toollayout" );
     installEventFilter( this );
 }
 
