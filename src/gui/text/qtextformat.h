@@ -21,7 +21,7 @@ class QTextFrameFormat;
 class QTextImageFormat;
 class QTextFormat;
 class QTextBlockIterator;
-class QTextGroup;
+class QTextFormatObject;
 class QTextCursor;
 
 class Q_GUI_EXPORT QTextFormat
@@ -42,7 +42,7 @@ public:
     };
 
     enum Property {
-        GroupIndex = 0x0,
+        ObjectIndex = 0x0,
 
         // paragrpah and char
         CssFloat = 0x0800,
@@ -109,7 +109,7 @@ public:
         Integer,
         Float,
         String,
-        FormatGroup
+        FormatObject
     };
 
     enum ObjectTypes {
@@ -131,11 +131,11 @@ public:
 
     int type() const;
 
-    QTextGroup *group() const;
-    void setGroup(QTextGroup *group);
+    QTextFormatObject *object() const;
+    void setObject(QTextFormatObject *object);
 
-    int groupIndex() const;
-    void setGroupIndex(int group);
+    int objectIndex() const;
+    void setObjectIndex(int object);
 
     bool boolProperty(int propertyId, bool defaultValue = false) const;
     int intProperty(int propertyId, int defaultValue = 0) const;
@@ -440,38 +440,49 @@ public:
 
 };
 
+class QTextFormatObjectPrivate;
 
-class QTextGroupPrivate;
-
-class Q_GUI_EXPORT QTextGroup : public QObject
+class Q_GUI_EXPORT QTextFormatObject : public QObject
 {
-    Q_DECLARE_PRIVATE(QTextGroup)
+    Q_DECLARE_PRIVATE(QTextFormatObject)
     Q_OBJECT
 protected:
-    QTextGroup(QObject *parent);
-    ~QTextGroup();
-    QTextGroup(QTextGroupPrivate &p, QObject *parent);
+    QTextFormatObject(QObject *parent);
+    ~QTextFormatObject();
+    QTextFormatObject(QTextFormatObjectPrivate &p, QObject *parent);
 public:
-    int commonFormatType() const;
-    QTextFormat commonFormat() const;
-    void setCommonFormat(const QTextFormat &format);
+    int formatType() const;
+    QTextFormat format() const;
+    void setFormat(const QTextFormat &format);
 
-    QList<QTextBlockIterator> blockList() const;
+private:
+    friend class QTextPieceTable;
+    friend class QTextFormatCollection;
+    friend class QTextFormat;
+};
 
+class QTextBlockGroupPrivate;
+
+class QTextBlockGroup : public QTextFormatObject
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QTextBlockGroup)
+    friend class QTextPieceTable;
 protected:
+    QTextBlockGroup(QObject *parent);
+    QTextBlockGroup(QTextBlockGroupPrivate &p, QObject *parent);
+    ~QTextBlockGroup();
+
     virtual void insertBlock(const QTextBlockIterator &block);
     virtual void removeBlock(const QTextBlockIterator &block);
     virtual void blockFormatChanged(const QTextBlockIterator &block);
 
-private:
-    friend class QTextFormatCollection;
-    friend class QTextFormat;
-    friend class QTextPieceTable;
+    QList<QTextBlockIterator> blockList() const;
 };
 
 class QTextFramePrivate;
 
-class QTextFrame : public QTextGroup
+class QTextFrame : public QTextFormatObject
 {
     Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
@@ -485,8 +496,8 @@ protected:
     QTextFrame(QTextFramePrivate &p, QObject *parent);
 public:
 
-    void setFormat(const QTextFrameFormat &format) { setCommonFormat(format); }
-    QTextFrameFormat format() const { return commonFormat().toFrameFormat(); }
+    void setFormat(const QTextFrameFormat &format) { QTextFormatObject::setFormat(format); }
+    QTextFrameFormat format() const { return QTextFormatObject::format().toFrameFormat(); }
 
     QTextCursor start();
     QTextCursor end();

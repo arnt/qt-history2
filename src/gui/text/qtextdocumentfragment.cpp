@@ -154,14 +154,14 @@ void QTextDocumentFragmentPrivate::readFormatCollection(const QTextFormatCollect
 
         QTextFormat format = collection->format(formatIdx);
 
-        QTextGroup *group = format.group();
-        if (group) {
-            QTextFormat groupFormat = group->commonFormat();
-            Q_ASSERT(collection->hasFormatCached(groupFormat));
-            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(groupFormat);
+        QTextFormatObject *obj = format.object();
+        if (obj) {
+            QTextFormat objFormat = obj->format();
+            Q_ASSERT(collection->hasFormatCached(objFormat));
+            const int idx = const_cast<QTextFormatCollection *>(collection)->indexForFormat(objFormat);
 
-            formats[idx] = cloneFormat(groupFormat);
-            formatGroups[format.groupIndex()] = idx;
+            formats[idx] = cloneFormat(objFormat);
+            formatGroups[format.objectIndex()] = idx;
         }
 
         formats[formatIdx] = cloneFormat(format);
@@ -172,22 +172,22 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
 {
     QMap<int, int> formatIndexMap;
 
-    // maps from group index used in formats to real group index
+    // maps from object index used in formats to real object index
     GroupMap insertedGroups;
 
     for (GroupMap::ConstIterator it = formatGroups.begin(); it != formatGroups.end(); ++it) {
         QTextFormat format = formats[it.value()];
 
-        insertedGroups[it.key()] = collection->indexForGroup(collection->createGroup(format));
+        insertedGroups[it.key()] = collection->indexForObject(collection->createObject(format));
     }
 
     for (FormatMap::ConstIterator it = formats.begin(); it != formats.end(); ++it) {
         QTextFormat format = it.value();
 
-        int groupIndex = format.groupIndex();
-        if (groupIndex != -1) {
-            groupIndex = insertedGroups.value(groupIndex, -1);
-            format.setGroupIndex(groupIndex);
+        int objectIndex = format.objectIndex();
+        if (objectIndex != -1) {
+            objectIndex = insertedGroups.value(objectIndex, -1);
+            format.setObjectIndex(objectIndex);
         }
 
         formatIndexMap[it.key()] = collection->indexForFormat(format);
@@ -387,16 +387,16 @@ void QTextHTMLImporter::import()
             ++indent;
             listFmt.setIndent(indent);
 
-            listReferences.append(formats.indexForGroup(formats.createGroup(listFmt)));
+            listReferences.append(formats.indexForObject(formats.createObject(listFmt)));
         } else if (node->tag == QLatin1String("table")) {
-            tableIndices.append(formats.indexForGroup(formats.createGroup(QTextTableFormat())));
+            tableIndices.append(formats.indexForObject(formats.createObject(QTextTableFormat())));
         } else if (node->isTableCell) {
             Q_ASSERT(!tableIndices.isEmpty());
 
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
+            fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
             if (node->bgColor.isValid())
                 fmt.setBackgroundColor(node->bgColor);
             appendBlock(fmt, charFmt);
@@ -416,7 +416,7 @@ void QTextHTMLImporter::import()
 
                 if (node->isListItem) {
                     Q_ASSERT(!listReferences.isEmpty());
-                    block.setGroupIndex(listReferences[listReferences.size() - 1]);
+                    block.setObjectIndex(listReferences[listReferences.size() - 1]);
                 } else if (indent)
                     block.setIndent(indent);
 
@@ -451,8 +451,8 @@ void QTextHTMLImporter::import()
             }
             QTextFrameFormat ffmt;
             ffmt.setPosition(f);
-            QTextGroup *group = formats.createGroup(ffmt);
-            fmt.setGroup(group);
+            QTextFormatObject *obj = formats.createObject(ffmt);
+            fmt.setObject(obj);
 
             appendImage(fmt);
             continue;
@@ -521,7 +521,7 @@ void QTextHTMLImporter::closeTag(int i)
             QTextCharFormat charFmt;
             charFmt.setNonDeletable(true);
             QTextBlockFormat fmt;
-            fmt.setGroupIndex(tableIndices[tableIndices.size() - 1]);
+            fmt.setObjectIndex(tableIndices[tableIndices.size() - 1]);
 //             fmt.setTableCellEndOfRow(true);
             appendBlock(fmt, charFmt);
         } else if (closedNode->tag == QLatin1String("table")) {

@@ -782,7 +782,7 @@ QTextCharFormat QTextCursor::charFormat() const
     int idx = it.value()->format;
 
     QTextCharFormat cfmt = d->pieceTable->formatCollection()->charFormat(idx);
-    cfmt.setGroup(0);
+    cfmt.setObject(0);
     Q_ASSERT(cfmt.isValid());
     return cfmt;
 }
@@ -877,9 +877,9 @@ QTextList *QTextCursor::createList(const QTextListFormat &format)
         return 0;
 
     QTextFormatCollection *c = d->pieceTable->formatCollection();
-    QTextList *list = static_cast<QTextList *>(c->createGroup(format));
+    QTextList *list = static_cast<QTextList *>(c->createObject(format));
     QTextBlockFormat modifier;
-    modifier.setGroup(list);
+    modifier.setObject(list);
     applyBlockFormatModifier(modifier);
     return list;
 }
@@ -911,8 +911,8 @@ QTextList *QTextCursor::currentList() const
         return 0;
 
     QTextBlockFormat b = blockFormat();
-    QTextGroup *g = b.group();
-    return qt_cast<QTextList *>(g);
+    QTextFormatObject *o = b.object();
+    return qt_cast<QTextList *>(o);
 }
 
 int QTextCursor::listItemNumber() const

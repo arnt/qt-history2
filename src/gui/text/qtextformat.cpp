@@ -67,7 +67,7 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
     switch (type) {
         case QTextFormat::Undefined: return true;
         case QTextFormat::Bool: return data.boolValue == rhs.data.boolValue;
-        case QTextFormat::FormatGroup:
+        case QTextFormat::FormatObject:
         case QTextFormat::Integer: return data.intValue == rhs.data.intValue;
         case QTextFormat::Float: return data.floatValue == rhs.data.floatValue;
         case QTextFormat::String: return stringValue() == rhs.stringValue();
@@ -83,7 +83,7 @@ QDataStream &operator<<(QDataStream &stream, const QTextFormatProperty &prop)
     switch (prop.type) {
         case QTextFormat::Undefined: break;
         case QTextFormat::Bool: stream << Q_INT8(prop.data.boolValue); break;
-        case QTextFormat::FormatGroup:
+        case QTextFormat::FormatObject:
         case QTextFormat::Integer: stream << Q_INT32(prop.data.intValue); break;
         case QTextFormat::Float: stream << prop.data.floatValue; break;
         case QTextFormat::String: stream << prop.stringValue(); break;
@@ -107,7 +107,7 @@ QDataStream &operator>>(QDataStream &stream, QTextFormatProperty &prop)
             prop.data.boolValue = b;
             break;
         }
-        case QTextFormat::FormatGroup:
+        case QTextFormat::FormatObject:
         case QTextFormat::Integer: {
             Q_INT32 i;
             stream >> i;
@@ -299,22 +299,22 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
     d->properties.insert(propertyId, value);
 }
 
-QTextGroup *QTextFormat::group() const
+QTextFormatObject *QTextFormat::object() const
 {
-    const QTextFormatProperty prop = d->properties.value(GroupIndex);
-    if (!collection || prop.type != QTextFormat::FormatGroup)
+    const QTextFormatProperty prop = d->properties.value(ObjectIndex);
+    if (!collection || prop.type != QTextFormat::FormatObject)
         return 0;
-    return collection->group(prop.data.intValue);
+    return collection->object(prop.data.intValue);
 }
 
-void QTextFormat::setGroup(QTextGroup *group)
+void QTextFormat::setObject(QTextFormatObject *object)
 {
-    if (!group) {
-        setGroupIndex(-1);
+    if (!object) {
+        setObjectIndex(-1);
         return;
     }
 
-    QTextFormatCollection *c = group->d_func()->collection;
+    QTextFormatCollection *c = object->d_func()->collection;
     Q_ASSERT(c);
     ++c->ref;
     c = qAtomicSetPtr(&collection, c);
@@ -322,25 +322,25 @@ void QTextFormat::setGroup(QTextGroup *group)
         delete c;
 
     QTextFormatProperty prop;
-    prop.type = FormatGroup;
-    prop.data.intValue = collection->indexForGroup(group);
-    d->properties.insert(GroupIndex, prop);
+    prop.type = FormatObject;
+    prop.data.intValue = collection->indexForObject(object);
+    d->properties.insert(ObjectIndex, prop);
 }
 
-int QTextFormat::groupIndex() const
+int QTextFormat::objectIndex() const
 {
-    const QTextFormatProperty prop = d->properties.value(GroupIndex);
-    if (prop.type != QTextFormat::FormatGroup)
+    const QTextFormatProperty prop = d->properties.value(ObjectIndex);
+    if (prop.type != QTextFormat::FormatObject)
         return -1;
     return prop.data.intValue;
 }
 
-void QTextFormat::setGroupIndex(int group)
+void QTextFormat::setObjectIndex(int o)
 {
     QTextFormatProperty prop;
-    prop.type = FormatGroup;
-    prop.data.intValue = group;
-    d->properties.insert(GroupIndex, prop);
+    prop.type = FormatObject;
+    prop.data.intValue = o;
+    d->properties.insert(ObjectIndex, prop);
 }
 
 bool QTextFormat::hasProperty(int propertyId) const
@@ -452,14 +452,14 @@ QFont QTextCharFormat::font() const
 
 QTextListFormat QTextBlockFormat::listFormat() const
 {
-    QTextGroup *g = group();
-    return (g ? g->commonFormat() : QTextFormat()).toListFormat();
+    QTextFormatObject *obj = object();
+    return (obj ? obj->format() : QTextFormat()).toListFormat();
 }
 
 QTextTableFormat QTextCharFormat::tableFormat() const
 {
-    QTextGroup *g = group();
-    return (g ? g->commonFormat() : QTextFormat()).toTableFormat();
+    QTextFormatObject *obj = object();
+    return (obj ? obj->format() : QTextFormat()).toTableFormat();
 }
 
 
@@ -500,23 +500,23 @@ QTextTableFormat QTextCharFormat::tableFormat() const
 
 // ------------------------------------------------------
 
-QTextGroup *QTextFormatCollection::createGroup(int index)
+QTextFormatObject *QTextFormatCollection::createObject(int index)
 {
     QTextFormat f = format(index);
 
-    QTextGroup *group;
+    QTextFormatObject *obj;
     if (f.isListFormat())
-        group = new QTextList(pieceTable);
+        obj = new QTextList(pieceTable);
     else if (f.isTableFormat())
-        group = new QTextTable(pieceTable);
+        obj = new QTextTable(pieceTable);
     else if (f.isFrameFormat())
-        group = new QTextFrame(pieceTable);
+        obj = new QTextFrame(pieceTable);
     else
-        group = new QTextGroup(pieceTable);
-    group->d_func()->collection = this;
-    group->d_func()->index = index;
+        obj = new QTextFormatObject(pieceTable);
+    obj->d_func()->collection = this;
+    obj->d_func()->index = index;
 
-    return group;
+    return obj;
 }
 
 
@@ -528,9 +528,9 @@ QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
     ref = 1;
     pieceTable = 0;
     formats = rhs.formats;
-    for (int i = 0; i < rhs.groups.size(); ++i) {
-        QTextGroup *g = rhs.groups.at(i);
-        groups.append(createGroup(g->d_func()->index));
+    for (int i = 0; i < rhs.objs.size(); ++i) {
+        QTextFormatObject *o = rhs.objs.at(i);
+        objs.append(createObject(o->d_func()->index));
     }
     ref = 0;
 }
@@ -539,22 +539,22 @@ QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollect
     if (this == &rhs)
         return *this;
 
-    for (int i = 0; i < groups.size(); ++i)
-        delete groups[i];
-    groups.clear();
+    for (int i = 0; i < objs.size(); ++i)
+        delete objs[i];
+    objs.clear();
 
     formats = rhs.formats;
-    for (int i = 0; i < rhs.groups.size(); ++i) {
-        QTextGroup *g = rhs.groups.at(i);
-        groups.append(createGroup(g->d_func()->index));
+    for (int i = 0; i < rhs.objs.size(); ++i) {
+        QTextFormatObject *o = rhs.objs.at(i);
+        objs.append(createObject(o->d_func()->index));
     }
     return *this;
 }
 
 QTextFormatCollection::~QTextFormatCollection()
 {
-    for (int i = 0; i < groups.size(); ++i)
-        delete groups[i];
+    for (int i = 0; i < objs.size(); ++i)
+        delete objs[i];
 }
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
@@ -580,27 +580,27 @@ bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
     return false;
 }
 
-QTextGroup *QTextFormatCollection::createGroup(const QTextFormat &format)
+QTextFormatObject *QTextFormatCollection::createObject(const QTextFormat &format)
 {
     int formatIdx = indexForFormat(format);
 
-    QTextGroup *g = createGroup(formatIdx);
-    groups.append(g);
-    return g;
+    QTextFormatObject *o = createObject(formatIdx);
+    objs.append(o);
+    return o;
 }
 
-QTextGroup *QTextFormatCollection::group(int groupIndex) const
+QTextFormatObject *QTextFormatCollection::object(int objectIndex) const
 {
-    if (groupIndex == -1)
+    if (objectIndex == -1)
         return 0;
-    return groups.at(groupIndex);
+    return objs.at(objectIndex);
 }
 
-int QTextFormatCollection::indexForGroup(QTextGroup *group)
+int QTextFormatCollection::indexForObject(QTextFormatObject *o)
 {
-    Q_ASSERT(group->d_func()->collection == this);
-    for (int i = 0; i < groups.size(); ++i)
-        if (groups.at(i) == group)
+    Q_ASSERT(o->d_func()->collection == this);
+    for (int i = 0; i < objs.size(); ++i)
+        if (objs.at(i) == o)
             return i;
     Q_ASSERT(false);
     return -1;
@@ -621,52 +621,67 @@ QTextFormat QTextFormatCollection::format(int idx) const
 #define q q_func()
 
 
-QTextGroup::QTextGroup(QObject *parent)
-    : QObject(*new QTextGroupPrivate, parent)
+QTextFormatObject::QTextFormatObject(QObject *parent)
+    : QObject(*new QTextFormatObjectPrivate, parent)
 {
 }
 
-QTextGroup::QTextGroup(QTextGroupPrivate &p, QObject *parent)
+QTextFormatObject::QTextFormatObject(QTextFormatObjectPrivate &p, QObject *parent)
     :QObject(p, parent)
 {
 }
 
-QTextGroup::~QTextGroup()
+QTextFormatObject::~QTextFormatObject()
 {
 }
 
 
-QTextFormat QTextGroup::commonFormat() const
+QTextFormat QTextFormatObject::format() const
 {
     return d->collection->format(d->index);
 }
 
-void QTextGroup::setCommonFormat(const QTextFormat &format)
+void QTextFormatObject::setFormat(const QTextFormat &format)
 {
     int idx = d->collection->indexForFormat(format);
     QTextPieceTable *pt = d->collection->pieceTable;
     if (pt)
-        pt->changeGroupFormat(this, idx);
+        pt->changeObjectFormat(this, idx);
     else
         d->index = idx;
 }
 
-void QTextGroup::insertBlock(const QTextBlockIterator &block)
+
+QTextBlockGroup::QTextBlockGroup(QObject *parent)
+    : QTextFormatObject(*new QTextBlockGroupPrivate, parent)
 {
-    QTextGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
+}
+
+QTextBlockGroup::QTextBlockGroup(QTextBlockGroupPrivate &p, QObject *parent)
+    : QTextFormatObject(p, parent)
+{
+}
+
+QTextBlockGroup::~QTextBlockGroup()
+{
+}
+
+void QTextBlockGroup::insertBlock(const QTextBlockIterator &block)
+{
+    QTextBlockGroupPrivate::BlockList::Iterator it = qLowerBound(d->blocks.begin(), d->blocks.end(), block);
     d->blocks.insert(it, block);
 }
 
-void QTextGroup::removeBlock(const QTextBlockIterator &block)
+void QTextBlockGroup::removeBlock(const QTextBlockIterator &block)
 {
     d->blocks.removeAll(block);
 }
 
-void QTextGroup::blockFormatChanged(const QTextBlockIterator &)
+void QTextBlockGroup::blockFormatChanged(const QTextBlockIterator &)
 {
 }
 
-QList<QTextBlockIterator> QTextGroup::blockList() const
+QList<QTextBlockIterator> QTextBlockGroup::blockList() const
 {
     return d->blocks;
 }
@@ -674,7 +689,7 @@ QList<QTextBlockIterator> QTextGroup::blockList() const
 
 
 QTextFrame::QTextFrame(QObject *parent)
-    : QTextGroup(*new QTextFramePrivate, parent)
+    : QTextFormatObject(*new QTextFramePrivate, parent)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;
@@ -686,7 +701,7 @@ QTextFrame::~QTextFrame()
 }
 
 QTextFrame::QTextFrame(QTextFramePrivate &p, QObject *parent)
-    : QTextGroup(p, parent)
+    : QTextFormatObject(p, parent)
 {
     d->fragment_start = 0;
     d->fragment_end = 0;

@@ -7,7 +7,7 @@
 #include <qdebug.h>
 
 
-class QTextListPrivate : public QTextGroupPrivate
+class QTextListPrivate : public QTextBlockGroupPrivate
 {
 };
 
@@ -28,7 +28,7 @@ class QTextListPrivate : public QTextGroupPrivate
 /*! \internal
  */
 QTextList::QTextList(QObject *parent)
-    : QTextGroup(*new QTextListPrivate, parent)
+    : QTextBlockGroup(*new QTextListPrivate, parent)
 {
 }
 
@@ -121,6 +121,6 @@ void QTextList::removeItem(int i)
     QTextBlockIterator block = d->blocks.at(i);
     QTextBlockFormat fmt = block.blockFormat();
     fmt.setIndent(fmt.indent() + format().indent());
-    fmt.setGroup(0);
+    fmt.setObject(0);
     const_cast<QTextPieceTable *>(block.pieceTable())->setBlockFormat(block, block, fmt, QTextPieceTable::SetFormat);
 }

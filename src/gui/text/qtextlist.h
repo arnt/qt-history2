@@ -11,7 +11,7 @@ class QTextListPrivate;
 class QTextPieceTable;
 class QTextCursor;
 
-class Q_GUI_EXPORT QTextList : public QTextGroup
+class Q_GUI_EXPORT QTextList : public QTextBlockGroup
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextList)
@@ -28,8 +28,8 @@ public:
 
     void removeItem(int i);
 
-    void setFormat(const QTextListFormat &format) { setCommonFormat(format); }
-    QTextListFormat format() const { return commonFormat().toListFormat(); }
+    void setFormat(const QTextListFormat &format) { QTextFormatObject::setFormat(format); }
+    QTextListFormat format() const { return QTextFormatObject::format().toListFormat(); }
 
 private:
     QTextList(QObject *parent);

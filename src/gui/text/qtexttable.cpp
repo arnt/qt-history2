@@ -160,7 +160,7 @@ QTextTable *QTextTablePrivate::createTable(QTextPieceTable *pieceTable, int pos,
     QTextTableFormat fmt = tableFormat;
     fmt.setColumns(cols);
     QTextFormatCollection *collection = pieceTable->formatCollection();
-    QTextTable *table = qt_cast<QTextTable *>(collection->createGroup(fmt));
+    QTextTable *table = qt_cast<QTextTable *>(collection->createObject(fmt));
     Q_ASSERT(table);
 
     pieceTable->beginEditBlock();
@@ -169,7 +169,7 @@ QTextTable *QTextTablePrivate::createTable(QTextPieceTable *pieceTable, int pos,
     // add block after table
     QTextCharFormat charFmt;
     charFmt.setNonDeletable(true);
-    charFmt.setGroup(table);
+    charFmt.setObject(table);
     int charIdx = pieceTable->formatCollection()->indexForFormat(charFmt);
     int cellIdx = pieceTable->blockMap().find(pos)->format;
 
@@ -364,9 +364,9 @@ void QTextTable::resize(int rows, int cols)
 	return;
 
     if (nCols < cols)
-        insertCols(nCols, cols - nCols);
+        insertColumns(nCols, cols - nCols);
     else if (nCols > cols)
-        removeCols(cols, nCols - cols);
+        removeColumns(cols, nCols - cols);
 
     if (nRows < rows)
         insertRows(nRows, rows-nRows);
@@ -420,7 +420,7 @@ void QTextTable::insertRows(int pos, int num)
         QTextCharFormat fmt = c->charFormat(it->format);
         fmt.setTableCellRowSpan(1);
         fmt.setTableCellColumnSpan(1);
-        Q_ASSERT(fmt.group() == this);
+        Q_ASSERT(fmt.object() == this);
         int pos = it.position();
         int cfmt = p->formatCollection()->indexForFormat(fmt);
         int bfmt = p->formatCollection()->indexForFormat(QTextBlockFormat());
@@ -436,7 +436,7 @@ void QTextTable::insertRows(int pos, int num)
 /*!
   inserts \a num colums before colum \a pos.
 */
-void QTextTable::insertCols(int pos, int num)
+void QTextTable::insertColumns(int pos, int num)
 {
     if (num <= 0)
 	return;
@@ -467,7 +467,7 @@ void QTextTable::insertCols(int pos, int num)
         } else {
             fmt.setTableCellRowSpan(1);
             fmt.setTableCellColumnSpan(1);
-            Q_ASSERT(fmt.group() == this);
+            Q_ASSERT(fmt.object() == this);
             int position = it.position();
             int cfmt = p->formatCollection()->indexForFormat(fmt);
             int bfmt = p->formatCollection()->indexForFormat(QTextBlockFormat());
@@ -529,7 +529,7 @@ void QTextTable::removeRows(int pos, int num)
 /*!
   removes \a num columns starting at column \a pos.
 */
-void QTextTable::removeCols(int pos, int num)
+void QTextTable::removeColumns(int pos, int num)
 {
 //     qDebug() << "-------- removeCols" << pos << num;
 

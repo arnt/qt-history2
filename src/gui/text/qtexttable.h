@@ -57,9 +57,9 @@ class Q_GUI_EXPORT QTextTable : public QTextFrame
 public:
     void resize(int rows, int cols);
     void insertRows(int pos, int num);
-    void insertCols(int pos, int num);
+    void insertColumns(int pos, int num);
     void removeRows(int pos, int num);
-    void removeCols(int pos, int num);
+    void removeColumns(int pos, int num);
 
     int rows() const;
     int columns() const;
@@ -75,8 +75,8 @@ public:
     QTextCursor rowStart(const QTextCursor &c) const;
     QTextCursor rowEnd(const QTextCursor &c) const;
 
-    void setFormat(const QTextTableFormat &format) { setCommonFormat(format); }
-    QTextTableFormat format() const { return commonFormat().toTableFormat(); }
+    void setFormat(const QTextTableFormat &format) { QTextFormatObject::setFormat(format); }
+    QTextTableFormat format() const { return QTextFormatObject::format().toTableFormat(); }
 
 private:
     QTextTable(QObject *parent);

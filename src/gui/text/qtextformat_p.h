@@ -81,9 +81,9 @@ public:
     QTextFormatCollection &operator=(const QTextFormatCollection &rhs);
 
 
-    QTextGroup *createGroup(const QTextFormat &newFormat);
-    QTextGroup *group(int groupIndex) const;
-    int indexForGroup(QTextGroup *group);
+    QTextFormatObject *createObject(const QTextFormat &newFormat);
+    QTextFormatObject *object(int objectIndex) const;
+    int indexForObject(QTextFormatObject *object);
 
     int indexForFormat(const QTextFormat &f);
     bool hasFormatCached(const QTextFormat &format) const;
@@ -103,31 +103,37 @@ public:
 
     inline int numFormats() const { return formats.count(); }
 
-    QTextGroup *createGroup(int index);
+    QTextFormatObject *createObject(int index);
 
     mutable QAtomic ref;
 
     QTextPieceTable *pieceTable;
-    const QVector<QTextGroup *> &formatGroups() const { return groups; }
+    const QVector<QTextFormatObject *> &objects() const { return objs; }
 private:
 
     mutable QVector<QSharedDataPointer<QTextFormatPrivate> > formats;
-    QVector<QTextGroup *> groups;
+    QVector<QTextFormatObject *> objs;
 };
 
-class QTextGroupPrivate : public QObjectPrivate
+class QTextFormatObjectPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTextGroup)
+    Q_DECLARE_PUBLIC(QTextFormatObject)
 public:
     QTextPieceTable *pieceTable() const { return collection->pieceTable; }
     QTextFormatCollection *collection;
     int index;
+};
+
+class QTextBlockGroupPrivate : public QTextFormatObjectPrivate
+{
+    Q_DECLARE_PUBLIC(QTextBlockGroup)
+public:
 
     typedef QList<QTextBlockIterator> BlockList;
     BlockList blocks;
 };
 
-class QTextFramePrivate : public QTextGroupPrivate
+class QTextFramePrivate : public QTextFormatObjectPrivate
 {
     friend class QTextPieceTable;
     Q_DECLARE_PUBLIC(QTextFrame)
