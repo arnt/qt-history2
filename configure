@@ -803,10 +803,7 @@ then
      NetBSD:*)
 	PLATFORM=netbsd-g++
 	;;
-     IRIX64:*)
-	PLATFORM=irix-64
-	;;
-     IRIX:*)
+     IRIX*)
 	#PLATFORM=irix-g++
 	PLATFORM=irix-n32
 	#PLATFORM=irix-64
