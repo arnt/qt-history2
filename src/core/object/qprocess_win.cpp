@@ -294,7 +294,7 @@ bool QProcess::start( QStringList *env )
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
 	    char *path = getenv( "PATH" );
-	    if ( env->find(QRegExp("^PATH=",FALSE)).isEmpty() && path ) {
+	    if ( env->find(QRegExp("^PATH=",QString::CaseInsensitive)).isEmpty() && path ) {
 		QString tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) );
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
@@ -342,7 +342,7 @@ bool QProcess::start( QStringList *env )
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
 	    char *path = getenv( "PATH" );
-	    if ( env->find(QRegExp("^PATH=",FALSE)).isEmpty() && path ) {
+	    if ( env->find(QRegExp("^PATH=",QString::CaseInsensitive)).isEmpty() && path ) {
 		QByteArray tmp = QString( "PATH=%1" ).arg( getenv( "PATH" ) ).toLocal8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
@@ -507,7 +507,8 @@ void QProcess::socketRead( int fd )
 	else
 	    buffer = &d->bufStderr;
 
-	QByteArray *ba = new QByteArray( i );
+	QByteArray *ba = new QByteArray();
+	ba->resize(i);
 	uint sz = readStddev( dev, ba->data(), i );
 	if ( sz != i )
 	    ba->resize( i );

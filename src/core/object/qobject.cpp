@@ -576,6 +576,7 @@ const char * QObject::objectName( const char * defaultName ) const
 }
 
 
+#ifdef QT_COMPAT
 /*!
     Searches the children and optionally grandchildren of this object,
     and returns a child that is called \a objName that inherits \a
@@ -608,6 +609,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
     }
     return 0;
 }
+#endif
 
 /*!
     \fn bool QObject::isWidgetType() const
@@ -1050,7 +1052,7 @@ static void objSearch( QObjectList &result,
 */
 
 
-
+#ifdef QT_COMPAT
 /*!
     Searches the children and optionally grandchildren of this object,
     and returns a list of those objects that are named or that match
@@ -1119,6 +1121,7 @@ QObjectList QObject::queryList( const char *inheritsClass,
     }
     return list;
 }
+#endif
 
 QObject *QObject::findChild(const char *name) const
 {

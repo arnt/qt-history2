@@ -151,13 +151,13 @@ void QSignalEmitter::activate(void *_t1)
 bool QSignalEmitter::connect(const QObject *receiver, const char *member, ConnectionType type)
 {
     QByteArray signal = stringdata.data() + 16;
-    signal.prepend('0' + SIGNAL_CODE);
+    signal.prepend('0' + QSIGNAL_CODE);
     return QObject::connect(this, signal, receiver, member, type);
 }
 
 bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
 {
     QByteArray signal = stringdata.data() + 16;
-    signal.prepend('0' + SIGNAL_CODE);
+    signal.prepend('0' + QSIGNAL_CODE);
     return QObject::disconnect(this, signal, receiver, member);
 }
