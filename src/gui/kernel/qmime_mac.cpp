@@ -212,7 +212,8 @@ int QMacMimeAnyMime::registerMimeType(const QString &mime)
         if(!mime_registry.contains(mime)) {
             for(int ret = 'QT00';  true; ret++) {
                 bool found = false;
-                for(QMapIterator<QString, int> it = mime_registry.begin(); it != mime_registry.end(); ++it) {
+                for(QMap::const_iterator<QString, int> it = mime_registry.constBegin();
+                    it != mime_registry.constEnd(); ++it) {
                     if(it.data() == ret) {
                         found = true;
                         break;
@@ -370,7 +371,8 @@ int QMacMimeAnyMime::flavor(int index)
 {
     loadMimeRegistry();
     int i = 0;
-    for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it, ++i) {
+    for(QMap<QString, int>::const_iterator it = mime_registry.constBegin();
+         it != mime_registry.constEnd(); ++it, ++i) {
         if(i == index)
             return it.value();
     }
@@ -385,7 +387,8 @@ int QMacMimeAnyMime::flavorFor(const QString &mime)
 QString QMacMimeAnyMime::mimeFor(int flav)
 {
     loadMimeRegistry();
-    for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it) {
+    for(QMap<QString, int>::const_iterator it = mime_registry.constBegin();
+        it != mime_registry.constEnd(); ++it) {
         if(it.value() == flav)
             return it.key().toLatin1();
     }
@@ -685,7 +688,7 @@ QByteArray QMacMimeFileUri::convertToMime(QList<QByteArray> data, const QString 
         return QByteArray();
     int done = 0;
     QByteArray ret;
-    for(QList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
+    for(QList<QByteArray>::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
         QByteArray tmp_str(*it);
         if(tmp_str.left(17) == QLatin1String("file://localhost/")) //mac encodes a differently
             tmp_str = "file:///" + tmp_str.mid(17);
@@ -777,12 +780,12 @@ QByteArray QMacMimeHFSUri::convertToMime(QList<QByteArray> data, const QString &
     int done = 0;
     QByteArray ret;
     char *buffer = (char *)malloc(1024);
-    for(QList<QByteArray>::Iterator it = data.begin(); it != data.end(); ++it) {
+    for(QList<QByteArray>::const_iterator it = data.constBegin(); it != data.constEnd(); ++it) {
         FSRef fsref;
         HFSFlavor *hfs = (HFSFlavor *)(*it).data();
         FSpMakeFSRef(&hfs->fileSpec, &fsref);
         FSRefMakePath(&fsref, (UInt8 *)buffer, 1024);
-        
+
         QByteArray s = QCoreVariant(QUrl(QString::fromUtf8((const char *)buffer))).toByteArray();
         const int l = s.size();
         //now encode them to be handled by quridrag
@@ -839,7 +842,7 @@ QMacMime::convertor(QMacMimeType t, const QString &mime, int flav)
         return 0;
 
     MimeList *mimes = globalMimeList();
-    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
+    for(MimeList::const_iterator it = mimes->constBegin(); it != mimes->constEnd(); ++it) {
         if(((*it)->type & t) && (*it)->canConvert(mime,flav))
             return (*it);
     }
@@ -852,7 +855,7 @@ QMacMime::convertor(QMacMimeType t, const QString &mime, int flav)
 QString QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
     MimeList *mimes = globalMimeList();
-    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
+    for(MimeList::const_iterator it = mimes->constBegin(); it != mimes->constEnd(); ++it) {
         if((*it)->type & t) {
             QString mimeType = (*it)->mimeFor(flav);
             if(!mimeType.isNull())
@@ -869,7 +872,7 @@ QList<QMacMime*> QMacMime::all(QMacMimeType t)
 {
     MimeList ret;
     MimeList *mimes = globalMimeList();
-    for(MimeList::Iterator it = mimes->begin(); it != mimes->end(); ++it) {
+    for(MimeList::const_iterator it = mimes->constBegin(); it != mimes->constEnd(); ++it) {
         if((*it)->type & t)
             ret.append((*it));
     }
