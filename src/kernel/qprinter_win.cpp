@@ -109,6 +109,17 @@ static PaperSize paperSizes[QPrinter::NPageSize] =
     {  MM(279), MM(432) },      // Tabloid
 };
 
+static void setPrinterMapping( HDC hdc, int res )
+{
+    SetMapMode(hdc, MM_ANISOTROPIC);
+    // The following two lines are the cause of problems on Windows 9x,
+    // for some reason, either one of these functions or both don't
+    // have an effect.  This appears to be a bug with the Windows API
+    // and as of yet I can't find a workaround.
+    SetWindowExtEx(hdc, res, res, NULL);
+    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+}
+
 // ### deal with ColorMode GrayScale in qprinter_win.cpp.
 
 QPrinter::QPrinter( PrinterMode m )
@@ -172,6 +183,7 @@ QPrinter::QPrinter( PrinterMode m )
     case HighResolution:
 	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     }
+    setPrinterMapping( hdc, res );    
 }
 
 QPrinter::~QPrinter()
@@ -208,9 +220,7 @@ bool QPrinter::newPage()
         else
             state = PST_ABORTED;
         if ( restorePainter ) {
-	    SetMapMode(hdc, MM_ANISOTROPIC);
-	    SetWindowExtEx(hdc, res, res, NULL);
-	    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+	    setPrinterMapping( hdc, res );
             painter->restore();
 	}
         if ( (qWinVersion()& Qt::WV_DOS_based) ) {
@@ -399,6 +409,7 @@ short QPrinter::winPageSize() const
 {
     return hdevmode ? ((DEVMODE *)hdevmode)->dmPaperSize : 0;
 }
+
 
 /*
 Copy the settings from the Windows structures into QPrinter
@@ -870,14 +881,7 @@ bool QPrinter::setup( QWidget *parent )
         }
     }
 #endif // Q_OS_TEMP
-
-    SetMapMode(hdc, MM_ANISOTROPIC);
-    // The following two lines are the cause of problems on Windows 9x,
-    // for some reason, either one of these functions or both don't
-    // have an effect.  This appears to be a bug with the Windows API
-    // and as of yet I can't find a workaround.
-    SetWindowExtEx(hdc, res, res, NULL);
-    SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+    setPrinterMapping( hdc, res );
 
     return result;
 }
@@ -987,10 +991,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             ok = FALSE;
         if ( ok && fullPage() && !viewOffsetDone ) {
 	    if ( qWinVersion() & Qt::WV_DOS_based ) {
-		// StartPage destroys DC on Win95/98
-		SetMapMode(hdc, MM_ANISOTROPIC);
-		SetWindowExtEx(hdc, res, res, NULL);
-		SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+		// StartPage resets DC on Win95/98
+		setPrinterMapping( hdc, res );
             }
 	    QSize margs = margins();
 
