@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#202 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#203 $
 **
 ** Implementation of QFileDialog class
 **
@@ -468,7 +468,7 @@ void QFileListBox::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( newfile, dir, file, lined->text() ) )
+	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
 		return;
 
             filedialog->rereadDir();
@@ -604,7 +604,7 @@ void QFileListView::rename()
 
         if ( newfile != file ) {
             QDir dir( filedialog->dirPath() );
-	    if ( !tryRename( newfile, dir, file, lined->text() ) )
+	    if ( !tryRename( this, newfile, dir, file, lined->text() ) )
 		return;
 
             filedialog->rereadDir();
