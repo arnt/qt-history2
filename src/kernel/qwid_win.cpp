@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#10 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_win.cpp#10 $";
 #endif
 
 
@@ -448,7 +448,7 @@ long QWidget::metric( int m ) const		// return widget metrics
 		else
 		    val = GetDeviceCaps( gdc, NUMCOLORS );
 		break;
-	    case PDM_NUMPLANES:
+	    case PDM_DEPTH:
 		val = GetDeviceCaps( gdc, PLANES );
 		break;
 	    default:

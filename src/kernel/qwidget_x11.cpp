@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#83 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#82 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#83 $";
 #endif
 
 
@@ -1128,7 +1128,7 @@ long QWidget::metric( int m ) const		// return widget metrics
 	    case PDM_NUMCOLORS:
 		val = DisplayCells(dpy,scr);
 		break;
-	    case PDM_NUMPLANES:
+	    case PDM_DEPTH:
 		val = DisplayPlanes(dpy,scr);
 		break;
 	    default:

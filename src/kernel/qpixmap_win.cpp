@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#7 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#7 $";
 #endif
 
 
@@ -217,12 +217,12 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 }
 
 
-bool QPixmap::optimized() const
+bool QPixmap::isOptimized() const
 {
     return data->optim;
 }
 
-void QPixmap::setOptimization( bool enable )
+void QPixmap::optimize( bool enable )
 {
     if ( enable == (bool)data->optim )
 	return;
@@ -236,12 +236,12 @@ void QPixmap::setOptimization( bool enable )
 	freeMemDC();
 }
 
-bool QPixmap::optimizedAll()
+bool QPixmap::isGloballyOptimized()
 {
     return optimAll;
 }
 
-void QPixmap::setOptimizationAll( bool enable )
+void QPixmap::optimizeGlobally( bool enable )
 {
     optimAll = enable;
 }
@@ -302,7 +302,7 @@ long QPixmap::metric( int m ) const		// get metric information
 		else
 		    val = GetDeviceCaps( gdc, NUMCOLORS );
 		break;
-	    case PDM_NUMPLANES:
+	    case PDM_DEPTH:
 		val = GetDeviceCaps( gdc, PLANES );
 		break;
 	    default:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#39 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#39 $";
 #endif
 
 
@@ -381,7 +381,7 @@ long QPixmap::metric( int m ) const		// get metric information
 	    case PDM_NUMCOLORS:
 		val = 1 << depth();
 		break;
-	    case PDM_NUMPLANES:
+	    case PDM_DEPTH:
 		val = depth();
 		break;
 	    default:
