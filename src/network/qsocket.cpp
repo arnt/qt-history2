@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#26 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#27 $
 **
 ** Implementation of QSocket class.
 **
@@ -1106,7 +1106,7 @@ void QSocket::sn_read()
 	    return;
 	}
 	if ( nread != (int)a->size() ) {		// unexpected
-#if defined(QT_CHECK_RANGE)
+#if defined(CHECK_RANGE) && !defined(Q_OS_WIN32)
 	    qWarning( "QSocket::sn_read: Unexpected short read" );
 #endif
 	    a->resize( nread );
