@@ -510,7 +510,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPoint &offset, QPainter *pa
     QRect r(pos, size);
 
     r.moveBy(blockFormat.leftMargin() + indent(bl) - size.width(),
-             blockFormat.topMargin() + (fontMetrics.height() / 2 - size.height() / 2));
+             (fontMetrics.height() / 2 - size.height() / 2));
 
     r.moveBy(-fontMetrics.width(" "), 0);
 
