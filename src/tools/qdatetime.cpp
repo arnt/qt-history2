@@ -35,23 +35,22 @@
 **
 **********************************************************************/
 
-#define gettimeofday	__hide_gettimeofday
+// Get the system specific includes and defines
+#include "qplatformdefs.h"
+
 #include "qdatetime.h"
 #include "qdatastream.h"
+#include "qregexp.h"
+
 #include <stdio.h>
 #include <time.h>
-#include <qregexp.h>
+
 #if defined(Q_OS_WIN32)
 #include <windows.h>
 #elif defined(Q_OS_MSDOS)
 #include <dos.h>
 #elif defined(Q_OS_OS2)
 #include <os2.h>
-#elif defined(Q_OS_UNIX)
-#include <sys/time.h>
-#include <unistd.h>
-#undef	gettimeofday
-extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 static const uint FIRST_DAY	= 2361222;	// Julian day for 1752/09/14
