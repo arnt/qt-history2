@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.h#6 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.h#7 $
 **
 ** Definition of QFileInfo class
 **
@@ -79,7 +79,6 @@ public:
     QDateTime lastRead()     const;
 
 private:
-    void init();
     void doStat() const;
     QString fn;
     QFileInfoCache *fic;
