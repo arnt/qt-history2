@@ -3781,6 +3781,14 @@ void QTextString::checkBidi() const
 	that->bidi = TRUE;
     int pos = length-1;
     while ( ch >= start ) {
+	if ( item->position > pos ) {
+	    --item;
+	    Q_ASSERT( item >= &textEngine.items[0] );
+	    Q_ASSERT( item < &textEngine.items[textEngine.items.size()] );
+	    bidiLevel = item->analysis.bidiLevel;
+	    if ( bidiLevel )
+		that->bidi = TRUE;
+	}
 	ch->softBreak = ca->softBreak;
 	ch->whiteSpace = ca->whiteSpace;
 	ch->charStop = ca->charStop;
@@ -3788,12 +3796,6 @@ void QTextString::checkBidi() const
 	ch->invalid = ca->invalid;
 	ch->bidiLevel = bidiLevel;
 	ch->rightToLeft = (bidiLevel%2);
-	if ( item->position >= pos ) {
-	    --item;
-	    bidiLevel = item->analysis.bidiLevel;
-	    if ( bidiLevel )
-		that->bidi = TRUE;
-	}
 	--ch;
 	--ca;
 	--pos;
@@ -5314,6 +5316,7 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
     }
 
     int toAdd = 0;
+    int xorig = x;
     for ( int i = 0; i < length; i++ ) {
 	QTextStringChar *ch = startChar + visual[i];
 	if( numSpaces && (ch->whiteSpace || ch->wordStop) ) {
@@ -5334,7 +5337,8 @@ QTextLineStart *QTextFormatter::bidiReorderLine( QTextParagraph * /*parag*/, QTe
     }
     if ( endsWithSpace ) {
 	int sw = ch->format()->width( ' ' );
-	(lastChar+1)->x = lastChar->x + (lastChar->rightToLeft ? -sw : sw );
+	(lastChar+1)->x = lastChar->rightToLeft ? xorig - ch->format()->width( ' ' ) : x;
+	x += sw; // this ensures our cursor doesn't get clipped away
     }
 
     line->w = x + toAdd;
