@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#37 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#37 $";
 #endif
 
 
@@ -277,7 +277,6 @@ QFont &QWidget::font()
 
 void QWidget::setFont( const QFont &font )	// set font
 {
-
     Font fid = font.handle();
     gc = qXChangeGC( gc, fid, bg_col.pixel(), fg_col.pixel(),
 		     !testFlag(WPaintUnclipped) );
@@ -654,8 +653,13 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
 
 void QWidget::drawText( int x, int y, const char *str )
 {						// draw text in widget
-    if ( testFlag( WState_Visible ) )
+    if ( testFlag( WState_Visible ) ) {
+/* TODO!!!
+	if ( fnt.dirty() )
+	    setFont( fnt );
+*/
 	XDrawString( dpy, ident, gc, x, y, str, strlen(str));
+    }
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#33 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#32 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#33 $";
 #endif
 
 
@@ -626,7 +626,7 @@ bool QPainter::begin( const QPaintDevice *pd )	// begin painting in device
 	QPixMap *pm = (QPixMap*)pdev;
 	sw = tw = pm->size().width();		// default view size
 	sh = th = pm->size().height();
-	if ( pm->planes() == 1 ) {		// monochrome bitmap
+	if ( pm->depth() == 1 ) {		// monochrome bitmap
 	    bg_col = falseColor;
 	    cpen.setColor( trueColor );
 	}

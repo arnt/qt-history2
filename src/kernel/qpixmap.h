@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#7 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#8 $
 **
 ** Definition of QPixMap class
 **
 ** Author  : Haavard Nord
 ** Created : 940501
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,6 +14,10 @@
 #define QPIXMAP_H
 
 #include "qpaintd.h"
+#include "qcolor.h"
+
+
+class QImageInfo;
 
 
 class QPixMap : public QPaintDevice		// pixmap class
@@ -21,21 +25,26 @@ class QPixMap : public QPaintDevice		// pixmap class
 friend class QPaintDevice;
 friend class QPainter;
 public:
-    QPixMap( int w, int h, int nPlanes=-1 );
+    QPixMap( int w, int h, int depth=-1 );
+    QPixMap( const QImageInfo * );
    ~QPixMap();
 
+    int	   width()  const { return sz.width(); }
+    int	   height() const { return sz.height(); }
     QSize  size()   const { return sz; }
     QRect  rect()   const { return QRect(0,0,sz.width(),sz.height()); }
-    int	   planes() const { return bitPlanes; }
+    int	   depth()  const { return bitPlanes; }
 
 #if defined(_WS_X11_)
-    bool   isValid() const { return hd != 0; }
+    bool   isNull() const { return hd == 0; }
 #else
-    bool   isValid() const { return hbm != 0; }
+    bool   isNull() const { return hbm == 0; }
 #endif
 
-    void   erase();
+    void   fill( const QColor &fillColor=white );
 
+    void   createPixMap( const QImageInfo * );
+    void   getPixMap( QImageInfo * );
     static QPixMap *grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
 protected:
