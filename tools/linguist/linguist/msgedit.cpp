@@ -664,7 +664,7 @@ void MessageEditor::showMessage( const QString& text,
     for ( p = phrases.begin(); p != phrases.end(); ++p )
  	(void) new PhraseLVI( phraseLv, *p );
 
-    if ( doGuesses ) {
+    if ( doGuesses && !sourceText.isEmpty() ) {
 	CandidateList cl = similarTextHeuristicCandidates( tor,
 							   sourceText.latin1(),
 							   MaxCandidates );
