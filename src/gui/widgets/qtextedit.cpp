@@ -1680,10 +1680,13 @@ bool QTextEdit::focusNextPrevChild(bool next)
 void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu *popup = createPopupMenu(ev->pos());
-    if (!popup)
-	return;
+    if (!popup) {
+        ev->ignore();
+        return;
+    }
     popup->exec(ev->globalPos());
     delete popup;
+    ev->accept();
 }
 
 /*! \reimp
