@@ -556,7 +556,7 @@ void QPushButton::focusInEvent( QFocusEvent *e )
 {
     if ( autoDefButton )
 	setDefault( TRUE );
-#ifndef QT_NO_DIALOG
+#if 0
     else {
 	if ( topLevelWidget()->inherits("QDialog") )
 	    ((QDialog*)topLevelWidget())->hideDefault();

@@ -660,10 +660,13 @@ void QButton::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Enter:
     case Key_Return:
-	if ( inherits("QPushButton") )
-	    emit clicked();
-	else
-	    e->ignore();
+	{
+	    QPushButton *pb = (QPushButton*)qt_cast( "QPushButton" );
+	    if ( pb && ( pb->autoDefault() || pb->isDefault() ) )
+		emit clicked();
+	    else
+		e->ignore();
+	}
 	break;
     case Key_Space:
 	if ( !e->isAutoRepeat() ) {
