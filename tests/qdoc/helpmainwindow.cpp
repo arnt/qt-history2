@@ -116,7 +116,7 @@ static const char * pix_print[] = {
 HelpMainWindow::HelpMainWindow()
     : QMainWindow()
 {
-    setCaption( tr( "Qt Documentation" ) );
+    setCaption( tr( "Qt Online Documentation" ) );
     QSplitter *splitter = new QSplitter( this );
 
     QString docDir = QString( getenv( "QTDIR" ) ) + "/html";
@@ -302,6 +302,10 @@ void HelpMainWindow::slotGoHome()
 
 void HelpMainWindow::slotHelpAbout()
 {
+    QMessageBox::about( this, "Qt Online Documentation",
+                        "<p>Interactive documentation browser for the Qt Toolkit. </p>"
+                        "<p>Copyright (C) 2000 Troll Tech AS</p>"
+        );
 }
 
 void HelpMainWindow::slotHelpAboutQt()
