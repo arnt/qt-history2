@@ -1936,7 +1936,9 @@ void QComboBox::returnPressed()
 
 	switch ( insertionPolicy() ) {
 	case AtCurrent:
-	    if ( s != text( currentItem() ) )
+	    if (count() == 0)
+		insertItem(s);
+	    else if ( s != text( currentItem() ) )
 		changeItem( s, currentItem() );
 	    emit activated( currentItem() );
 	    emit activated( s );
@@ -1954,7 +1956,7 @@ void QComboBox::returnPressed()
 	    c = currentItem();
 	    break;
 	case AfterCurrent:
-	    c = currentItem() + 1;
+	    c = count() == 0 ? 0 : currentItem() + 1;
 	    break;
 	}
 	insertItem( s, c );
