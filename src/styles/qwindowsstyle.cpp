@@ -1109,6 +1109,18 @@ static const char * const qt_unshade_xpm[] = {
 "............",
 "............"};
 
+static const char * dock_window_close_xpm[] = {
+"8 8 2 1",
+"# c #000000",
+". c None",
+"##....##",
+".##..##.",
+"..####..",
+"...##...",
+"..####..",
+".##..##.",
+"##....##",
+"........"};
 
 /*!
  \reimp
@@ -1130,6 +1142,8 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 	return QPixmap((const char **)qt_maximize_xpm);
     case SP_TitleBarCloseButton:
 	return QPixmap((const char **)qt_close_xpm);
+    case SP_DockWindowCloseButton:
+	return QPixmap((const char **)dock_window_close_xpm );
     default:
 	break;
     }

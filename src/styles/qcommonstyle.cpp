@@ -277,8 +277,9 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    }
 	}
 	p->restore();
-	break; }
-
+	break; 
+    }
+    
     case PO_DockWindowSeparator: {
 	QPoint p1, p2;
 	if ( flags & PStyle_Vertical ) {
@@ -903,8 +904,9 @@ QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
 	    else
 		rect.setRect(0, 1, widget->width() - 15, widget->height() - 1);
 	}
-	break; }
-
+	break; 
+    }
+    
     case SR_ProgressBarGroove: 
     case SR_ProgressBarContents:
 	{

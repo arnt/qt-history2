@@ -56,19 +56,6 @@
 #define MAC_DRAG_HACK
 #endif
 
-static const char * close_xpm[] = {
-"8 8 2 1",
-"# c #000000",
-". c None",
-"##....##",
-".##..##.",
-"..####..",
-"...##...",
-"..####..",
-".##..##.",
-"##....##",
-"........"};
-
 class QDockWindowResizeHandle : public QWidget
 {
     Q_OBJECT
@@ -478,7 +465,7 @@ void QDockWindowHandle::updateGui()
 {
     if ( !closeButton ) {
 	closeButton = new QToolButton( this );
-	closeButton->setPixmap( close_xpm );
+	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0 ) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWindow, SLOT( hide() ) );
@@ -645,7 +632,7 @@ void QDockWindowTitleBar::updateGui()
 {
     if ( !closeButton ) {
 	closeButton = new QToolButton( this );
-	closeButton->setPixmap( close_xpm );
+	closeButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton, closeButton, 0) );
 	closeButton->setFixedSize( 12, 12 );
 	connect( closeButton, SIGNAL( clicked() ),
 		 dockWindow, SLOT( hide() ) );

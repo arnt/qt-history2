@@ -419,12 +419,13 @@ public:
 
 
     enum StylePixmap {
-	SP_TitleBarMinButton =		0x00000001,
-	SP_TitleBarMaxButton =		0x00000002,
-	SP_TitleBarCloseButton =       	0x00000004,
-	SP_TitleBarNormalButton =	0x00000008,
-	SP_TitleBarShadeButton =       	0x00000010,
-	SP_TitleBarUnshadeButton =	0x00000020
+	SP_TitleBarMinButton,
+	SP_TitleBarMaxButton,
+	SP_TitleBarCloseButton,
+	SP_TitleBarNormalButton,
+	SP_TitleBarShadeButton,
+	SP_TitleBarUnshadeButton,
+	SP_DockWindowCloseButton
     };
 
     virtual QPixmap stylePixmap( StylePixmap stylepixmap,
