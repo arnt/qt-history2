@@ -216,6 +216,9 @@ void QSocketPrivate::connectionClosed()
     getch(), putch(), ungetch() and readLine() describes the
     differences in detail.
 
+    \warning QSocket is not suitable for use in threads. If you need
+    to uses sockets in threads use the lower-level QSocketDevice class.
+
     \sa QSocketDevice, QHostAddress, QSocketNotifier
 */
 
