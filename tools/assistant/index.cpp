@@ -144,6 +144,9 @@ void Index::parseDocument( const QString &filename, int docNum )
 
     QTextStream s( &file );
     QString text = s.read();
+    if (text.isNull())
+        return;
+
     bool valid = TRUE;
     const QChar *buf = text.unicode();
     QChar str[64];
