@@ -226,9 +226,9 @@ typedef QPtrStack<QWMatrix> QWMatrixStack;
   \link coordsys.html Coordinate System Overview \endlink
 */
 
-/*! \enum QPainter::ClipMode
-    \value ClipDevice
-    \value ClipPainter
+/*! \enum QPainter::CoordinateMode
+    \value CoordDevice
+    \value CoordPainter
 
     \sa clipRegion()
 */
@@ -1953,16 +1953,16 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
   Returns the currently set clip region.  Note that the clip region
   is given in physical device coordinates and \e not subject to any
   \link coordsys.html coordinate transformation \endlink if \a m is
-  equal to ClipDevice (the default). If \a m equals ClipPainter
+  equal to CoordDevice (the default). If \a m equals CoordPainter
   the returned region is in model coordinates.
 
-  \sa setClipRegion(), setClipRect(), setClipping() QPainter::ClipMode
+  \sa setClipRegion(), setClipRect(), setClipping() QPainter::CoordinateMode
 */
-QRegion QPainter::clipRegion( ClipMode m ) const
+QRegion QPainter::clipRegion( CoordinateMode m ) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
     QRegion r;
-    if ( m == ClipDevice )
+    if ( m == CoordDevice )
 	r = crgn;
     else
 	r = ixmat * crgn;
@@ -1973,18 +1973,18 @@ QRegion QPainter::clipRegion( ClipMode m ) const
 }
 
 /*!
-  \fn void QPainter::setClipRect( int x, int y, int w, int h, ClipMode m)
+  \fn void QPainter::setClipRect( int x, int y, int w, int h, CoordinateMode m)
 
   Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
   enables clipping. The clip mode is set to \a m.
 
   Note that the clip region is given in physical device coordinates
   and \e not subject to any \link coordsys.html coordinate
-  transformation \endlink if \a m is equal to ClipDevice (the
-  default). If \a m equals ClipPainter the returned region is in
+  transformation \endlink if \a m is equal to CoordDevice (the
+  default). If \a m equals CoordPainter the returned region is in
   model coordinates.
 
-  \sa setClipRegion(), clipRegion(), setClipping() QPainter::ClipMode
+  \sa setClipRegion(), clipRegion(), setClipping() QPainter::CoordinateMode
 */
 
 /*!

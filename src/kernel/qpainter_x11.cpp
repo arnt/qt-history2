@@ -1236,6 +1236,21 @@ bool QPainter::end()                            // end painting
     return TRUE;
 }
 
+/*!
+  Flushes any buffered drawing operations inside the region \a region 
+  using clipping mode \a cm. 
+
+  The flush may update the whole device if the platform does not support
+  flushing to a specified region.
+
+  \sa flush() CoordinateMode
+*/
+
+void QPainter::flush(const QRegion &, CoordinateMode)
+{
+    flush();
+}
+
 
 /*!
   Flushes any buffered drawing operations.
@@ -1481,7 +1496,7 @@ void QPainter::setClipping( bool enable )
   enables clipping. The clip mode is set to \a m.
 */
 
-void QPainter::setClipRect( const QRect &r, ClipMode m )
+void QPainter::setClipRect( const QRect &r, CoordinateMode m )
 {
     QRegion rgn( r );
     setClipRegion( rgn, m );
@@ -1498,13 +1513,13 @@ void QPainter::setClipRect( const QRect &r, ClipMode m )
   \sa setClipRect(), clipRegion(), setClipping()
 */
 
-void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
+void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isActive() )
         qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
-    if ( m == ClipDevice )
+    if ( m == CoordDevice )
 	crgn = rgn;
     else
 	crgn = xmat * rgn;

@@ -572,11 +572,28 @@ bool QPainter::end()				// end painting
     return TRUE;
 }
 
+void QPainter::flush(const QRegion &rgn, CoordinateMode m)
+{
+    if (!isActive()) 
+	return;
+    initPaintDevice();
+
+    QRegion b;
+    if(m == CoordDevice) {
+	b = rgn;
+	b.translate(offx, offy);
+    } else {
+	b = xmat * rgn;
+    }
+    QMacSavedPortInfo::flush(pdev, b & clippedreg, TRUE);
+}
+
 void QPainter::flush()
 {
     if(!isActive())
 	return;
-    QMacSavedPortInfo::flush(pdev, paintreg);
+    initPaintDevice();
+    QMacSavedPortInfo::flush(pdev, clippedreg, TRUE);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -698,12 +715,12 @@ void QPainter::setClipping( bool b )
 }
 
 
-void QPainter::setClipRect( const QRect &r, ClipMode m )
+void QPainter::setClipRect( const QRect &r, CoordinateMode m )
 {
     setClipRegion(QRegion(r), m);
 }
 
-void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
+void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
     if ( !isActive() ) {
 #if defined(CHECK_STATE)
@@ -712,7 +729,7 @@ void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
 	return;
     }
 
-    if ( m == ClipDevice )
+    if ( m == CoordDevice )
 	crgn = rgn;
     else
 	crgn = xmat * rgn;

@@ -62,6 +62,8 @@ class QMacSavedPortInfo;
 class Q_EXPORT QPainter : public Qt
 {
 public:
+    enum CoordinateMode { CoordDevice, CoordPainter };
+
     QPainter();
     QPainter( const QPaintDevice *, bool unclipped = FALSE );
     QPainter( const QPaintDevice *, const QWidget *, bool unclipped = FALSE );
@@ -80,6 +82,7 @@ public:
 
     bool	isActive() const;
 
+    void	flush( const QRegion &region, CoordinateMode cm = CoordDevice );
     void	flush();
     void	save();
     void	restore();
@@ -157,13 +160,12 @@ public:
 
   // Clipping
 
-    enum ClipMode { ClipDevice, ClipPainter };
     void	setClipping( bool );		// set clipping on/off
     bool	hasClipping() const;
-    QRegion clipRegion( ClipMode = ClipDevice ) const;
-    void	setClipRect( const QRect &, ClipMode = ClipDevice );	// set clip rectangle
-    void	setClipRect( int x, int y, int w, int h, ClipMode = ClipDevice );
-    void	setClipRegion( const QRegion &, ClipMode = ClipDevice );// set clip region
+    QRegion clipRegion( CoordinateMode = CoordDevice ) const;
+    void	setClipRect( const QRect &, CoordinateMode = CoordDevice );	// set clip rectangle
+    void	setClipRect( int x, int y, int w, int h, CoordinateMode = CoordDevice );
+    void	setClipRegion( const QRegion &, CoordinateMode = CoordDevice );// set clip region
 
   // Graphics drawing functions
 
@@ -545,7 +547,7 @@ inline void QPainter::setViewport( const QRect &r )
 }
 #endif
 
-inline void QPainter::setClipRect( int x, int y, int w, int h, ClipMode m )
+inline void QPainter::setClipRect( int x, int y, int w, int h, CoordinateMode m )
 {
     setClipRect( QRect(x,y,w,h), m );
 }

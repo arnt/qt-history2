@@ -565,7 +565,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PdcSetClipRegion:
 		s >> rgn >> i_8;
-		painter->setClipRegion( rgn, (QPainter::ClipMode)i_8 );
+		painter->setClipRegion( rgn, (QPainter::CoordinateMode)i_8 );
 		break;
 	    default:
 #if defined(QT_CHECK_RANGE)

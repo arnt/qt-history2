@@ -552,6 +552,10 @@ bool QPainter::end()				// end painting
     return TRUE;
 }
 
+void QPainter::flush(const QRegion &, CoordinateMode)
+{
+    flush();
+}
 
 void QPainter::flush()
 {
@@ -701,26 +705,26 @@ void QPainter::setClipping( bool enable )
 }
 
 
-void QPainter::setClipRect( const QRect &r, ClipMode m )
+void QPainter::setClipRect( const QRect &r, CoordinateMode m )
 {
     QRegion rgn( r );
     setClipRegion( rgn, m );
 }
 
-void QPainter::setClipRegion( const QRegion &rgn, ClipMode m )
+void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 {
 #if defined(QT_CHECK_STATE)
     if ( !isActive() )
 	qWarning( "QPainter::setClipRegion: Will be reset by begin()" );
 #endif
 #ifndef QT_NO_TRANSFORMATIONS
-    if ( m == ClipDevice )
+    if ( m == CoordDevice )
 	crgn = rgn;
     else
 	crgn = xmat * rgn;
 #else
     crgn = rgn;
-    if ( m == ClipPainter )
+    if ( m == CoordPainter )
 	crgn.translate( xlatex, xlatey );
 #endif
 
