@@ -1397,8 +1397,10 @@ void qt_init( QApplicationPrivate *priv, int,
     X11->display = display;
     X11->displayName = 0;
     X11->foreignDisplay = (display != 0);
+#ifndef QT_NO_XIM
     X11->xim = 0;
     X11->xim_style = 0;
+#endif
     X11->focus_model = -1;
     X11->use_xrandr = FALSE;
     X11->use_xrender = FALSE;
