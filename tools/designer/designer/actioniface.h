@@ -14,7 +14,7 @@ public:
     virtual QAction* create( const QString&, QObject* parent = 0 ) = 0;
     virtual QString group( const QString & ) = 0;
 
-    static QString interfaceID() { return "ActionInterface_QtDesigner_Trolltech_05102000_0515"; }
+    QString interfaceID() { return "ActionInterface_QtDesigner_Trolltech_05102000_0515"; }
 };
 
 #endif

@@ -10,7 +10,7 @@ public:
 
     virtual QStringList import( const QString& filter, const QString& filename ) = 0;
 
-    static QString interfaceID() { return "FilterInterface_QtDesigner_Trolltech_05102000_0516"; }
+    QString interfaceID() { return "FilterInterface_QtDesigner_Trolltech_05102000_0516"; }
 };
 
 #endif
