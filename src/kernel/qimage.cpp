@@ -5,7 +5,7 @@
 **
 ** Created : 950207
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -514,7 +514,7 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     If \a colortable is 0, a color table sufficient for \a numColors
     will be allocated (and destructed later).
 
-    The endian-ness is specified by \a bitOrder.
+    The endianness is specified by \a bitOrder.
 */
 QImage::QImage( uchar* yourdata, int w, int h, int depth,
 		int bpl, QRgb* colortable, int numColors,
