@@ -51,13 +51,15 @@ class QOCIResult : public QSqlResult
 public:
     QOCIResult( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCIResult();
+    bool        isForwardOnly() const {return forwardOnly;}
+    void        setForwardOnly( bool forward ) { forwardOnly = forward; }
 protected:
     bool	fetchNext();
-    bool 	fetchFirst();
-    bool 	fetchLast();
-    bool 	fetch(int i);
-    bool 	reset ( const QString& query );
-    QVariant 	data( int field );
+    bool	fetchFirst();
+    bool	fetchLast();
+    bool	fetch(int i);
+    bool	reset ( const QString& query );
+    QVariant	data( int field );
     bool	isNull( int field );
     int         size();
     int         numRowsAffected();
@@ -65,12 +67,13 @@ private:
     typedef QMap< uint, QSqlField > RowCache;
     typedef QMap< uint, RowCache > RowsetCache;
 
-    QOCIPrivate* 	d;
+    QOCIPrivate*	d;
     QOCIResultPrivate*  cols;
-    RowsetCache     	rowCache;
+    RowsetCache	        rowCache;
     QSqlRecord          fs;
     bool                cached;
     bool                cacheNext();
+    bool                forwardOnly;
 };
 
 class QOCIDriver : public QSqlDriver
@@ -78,27 +81,27 @@ class QOCIDriver : public QSqlDriver
 public:
     QOCIDriver( QObject * parent=0, const char * name=0 );
     ~QOCIDriver();
-    bool    	        hasTransactionSupport() const;
+    bool	        hasTransactionSupport() const;
     bool                hasQuerySizeSupport() const;
     bool                canEditBinaryFields() const;
     bool                open( const QString & db,
 			      const QString & user = QString::null,
 			      const QString & password = QString::null,
 			      const QString & host = QString::null );
-    void 	        close();
-    QSqlQuery 	        createQuery() const;
+    void	        close();
+    QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlRecord          record( const QString& tablename ) const;
     QSqlRecord          record( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QString             formatValue( const QSqlField* field ) const;
 protected:
-    bool    	        beginTransaction();
-    bool    	        commitTransaction();
-    bool    	        rollbackTransaction();
+    bool	        beginTransaction();
+    bool	        commitTransaction();
+    bool	        rollbackTransaction();
 private:
-    void 	        init();
-    void 	        cleanup();
+    void	        init();
+    void	        cleanup();
     QOCIPrivate*        d;
 };
 

@@ -67,9 +67,9 @@ struct OraFieldInfo
     QString        name;
     QVariant::Type type;
     ub4            oraType;
-    sb1 	   oraScale;
+    sb1	   oraScale;
     ub4            oraLength;
-    sb2 	   oraPrecision;
+    sb2	   oraPrecision;
 };
 
 QString qOraWarn( const QOCIPrivate* d)
@@ -176,9 +176,9 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     ub4		colType(0);
     text        *colName(0);
     ub4         colNameLen(0);
-    sb1 	colScale(0);
+    sb1	colScale(0);
     ub4         colLength(0);
-    sb2 	colPrecision(0);
+    sb2	colPrecision(0);
     int		r(0);
     QVariant::Type type( QVariant::Invalid );
 
@@ -287,7 +287,7 @@ public:
 	typ.setAutoDelete( TRUE );
 
 	ub4 dataSize(0);
- 	OCIDefine* dfn = 0;
+	OCIDefine* dfn = 0;
 	int r;
 
 	OCIParam* param = 0;
@@ -306,18 +306,18 @@ public:
 	    createType( count-1, type );
 	    switch ( type ) {
 	    case QVariant::DateTime:
-	    	r = OCIDefineByPos( d->sql,
-	 			&dfn,
-	 			d->err,
-         			count,
-	 			create(count-1, dataSize) ,
-	 			dataSize,
-         			SQLT_DAT,
-	 			(dvoid *) createInd( count-1 ),
-         			0, 0, OCI_DEFAULT);
+		r = OCIDefineByPos( d->sql,
+				&dfn,
+				d->err,
+				count,
+				create(count-1, dataSize) ,
+				dataSize,
+				SQLT_DAT,
+				(dvoid *) createInd( count-1 ),
+				0, 0, OCI_DEFAULT);
 		break;
 	    case QVariant::CString:
-	    	r = OCIDefineByPos( d->sql,
+		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
 				    count,
@@ -330,8 +330,8 @@ public:
 				    OCI_DYNAMIC_FETCH ); /* piecewise */
 		break;
 	    default:
-	    case QVariant::ByteArray:				
-	    	r = OCIDefineByPos( d->sql,
+	    case QVariant::ByteArray:
+		r = OCIDefineByPos( d->sql,
 				    &dfn,
 				    d->err,
 				    count,
@@ -353,12 +353,12 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	    if ( r != 0 )
-	    	qWarning( "QOCIResultPrivate::bind field: " + QString::number(r) + " " + qOraWarn( d ) );
+		qWarning( "QOCIResultPrivate::bind field: " + QString::number(r) + " " + qOraWarn( d ) );
 #endif
     }
     ~QOCIResultPrivate()
     {
-    	for ( uint i=0; i < data.size(); ++i ) {
+	for ( uint i=0; i < data.size(); ++i ) {
 	    char* c = data.at( i );
 	    delete [] c;
 	}
@@ -467,7 +467,8 @@ private:
 QOCIResult::QOCIResult( const QOCIDriver * db, QOCIPrivate* p )
 : QSqlResult(db),
   cols(0),
-  cached(FALSE)
+  cached(FALSE),
+  forwardOnly(FALSE)
 {
     d = new QOCIPrivate();
     (*d) = (*p);
@@ -536,14 +537,14 @@ bool QOCIResult::reset ( const QString& query )
     }
     ub2 stmtType;
     r = OCIAttrGet( d->sql,
-    			OCI_HTYPE_STMT,
+			OCI_HTYPE_STMT,
 			(dvoid*)&stmtType,
 			NULL,
 			OCI_ATTR_STMT_TYPE,
 			d->err );
     if ( stmtType == OCI_STMT_SELECT )
     {
-    	r = OCIStmtExecute( d->svc,
+	r = OCIStmtExecute( d->svc,
 				d->sql,
 				d->err,
 				0,
@@ -583,7 +584,7 @@ bool QOCIResult::reset ( const QString& query )
 	}
 	setSelect( TRUE );
     } else { /* non-SELECT */
-    	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
+	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
 				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
@@ -618,7 +619,7 @@ bool QOCIResult::cacheNext()
 	ub4            idxp;
 	ub1            piecep;
 	sword          status;
-	text           col [QOCI_DYNAMIC_CHUNK_SIZE+1]; 
+	text           col [QOCI_DYNAMIC_CHUNK_SIZE+1];
 	int            fieldNum = -1;
 	bool           nullField;
 	for ( ; ; ) {
@@ -626,16 +627,16 @@ bool QOCIResult::cacheNext()
 				     &in_outp, &iterp, &idxp, &piecep );
 	    if ( r != OCI_SUCCESS )
 		qWarning( "QOCIResult::cacheNext: unable to get piece info: " + qOraWarn(d) );
- 	    fieldNum = cols->fieldFromDefine( dfn );
-	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;	
+	    fieldNum = cols->fieldFromDefine( dfn );
+	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;
 	    nullField = FALSE;
-	    r  = OCIStmtSetPieceInfo( dfn, OCI_HTYPE_DEFINE,   
-				      d->err, (void *)col, 
-				      (ub4 *)&chunkSize, piecep, NULL, NULL);   
+	    r  = OCIStmtSetPieceInfo( dfn, OCI_HTYPE_DEFINE,
+				      d->err, (void *)col,
+				      (ub4 *)&chunkSize, piecep, NULL, NULL);
 	    if ( r != OCI_SUCCESS )
 		qWarning( "QOCIResult::cacheNext: unable to set piece info: " + qOraWarn(d) );
-	    
-	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );	
+
+	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
 	    if ( status == -1 ) {
 		int errcode;
 		OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL, &errcode, NULL, 0, OCI_HTYPE_ERROR);
@@ -649,7 +650,7 @@ bool QOCIResult::cacheNext()
 		}
 	    }
 	    if ( status == OCI_NO_DATA ) {
-		break;    
+		break;
 	    }
 	    if ( nullField ) {
 		binMap[ fieldNum ] = QCString();
@@ -659,12 +660,12 @@ bool QOCIResult::cacheNext()
 		    QCString tmp( (char*)col, chunkSize+1 );
 		    binMap[ fieldNum ] += tmp;
 		} else {
-		    binMap[ fieldNum ] = QCString();		    
+		    binMap[ fieldNum ] = QCString();
 		}
 	    }
-	    if ( status == OCI_SUCCESS_WITH_INFO ||    
+	    if ( status == OCI_SUCCESS_WITH_INFO ||
 		 status == OCI_NEED_DATA ) {
-	    } else 
+	    } else
 		break;
 	}
     }
@@ -694,10 +695,15 @@ bool QOCIResult::cacheNext()
 	    } else {
 		v = QVariant( cols->value( i ) );
 	    }
-	    QSqlField f( QString::null, v.type() );
-	    f.setValue( v );
-	    f.setNull( cols->isNull(i) );
-	    rowCache[currentRecord][i] = f;
+	    if ( forwardOnly ) {
+		fs.setValue( i, v );
+		fs.field( i )->setNull( cols->isNull(i) );
+	    } else {
+		QSqlField f( QString::null, v.type() );
+		f.setValue( v );
+		f.setNull( cols->isNull(i) );
+		rowCache[currentRecord][i] = f;
+	    }
 	}
     } else {
 	cached = TRUE;
@@ -708,23 +714,25 @@ bool QOCIResult::cacheNext()
 
 bool QOCIResult::fetchNext()
 {
-    if ( rowCache.contains( at() + 1 ) ) {
-    	setAt( at() + 1 );
-    	return TRUE;
+    if ( !forwardOnly && rowCache.contains( at() + 1 ) ) {
+	setAt( at() + 1 );
+	return TRUE;
     }
     if ( cacheNext() ) {
-    	setAt( at() + 1 );
-    	return TRUE;
+	setAt( at() + 1 );
+	return TRUE;
     }
     return FALSE;
 }
 
 bool QOCIResult::fetch( int i )
 {
-    if ( rowCache.contains( i ) ) {
-    	setAt( i );
-    	return TRUE;
+    if ( !forwardOnly && rowCache.contains( i ) ) {
+	setAt( i );
+	return TRUE;
     }
+    if ( forwardOnly && at() > i )
+	return FALSE;
     while ( at() < i ) {
 	if ( !cacheNext() )
 	    return FALSE;
@@ -738,8 +746,10 @@ bool QOCIResult::fetch( int i )
 
 bool QOCIResult::fetchFirst()
 {
-    if ( rowCache.contains( 0 ) ) {
-    	setAt( 0 );
+    if ( forwardOnly && at() != BeforeFirst )
+	return FALSE;
+    if ( !forwardOnly && rowCache.contains( 0 ) ) {
+	setAt( 0 );
 	return TRUE;
     }
     if ( cacheNext() ) {
@@ -751,26 +761,36 @@ bool QOCIResult::fetchFirst()
 
 bool QOCIResult::fetchLast()
 {
-    if ( at() == AfterLast && rowCache.count() > 0 ) {
+    if ( !forwardOnly && at() == AfterLast && rowCache.count() > 0 ) {
 	setAt( rowCache.count() - 1 );
 	return TRUE;
     }
     if ( at() >= BeforeFirst ) {
 	while ( fetchNext() )
 	    ; /* brute force */
-	return fetch( rowCache.count() - 1 );
+	if ( forwardOnly && at() == AfterLast ) {
+	    setAt( at() - 1 );
+	    return TRUE;
+	} else
+	    return fetch( rowCache.count() - 1 );
     }
     return FALSE;
 }
 
 QVariant QOCIResult::data( int field )
 {
-    return rowCache[at()][field].value();
+    if ( forwardOnly )
+	return fs.value( field );
+    else
+	return rowCache[at()][field].value();
 }
 
 bool QOCIResult::isNull( int field )
 {
-    return rowCache[at()][field].isNull();
+    if ( forwardOnly )
+	return fs.field( field )->isNull();
+    else
+	return rowCache[at()][field].isNull();
 }
 
 int QOCIResult::size()
@@ -782,7 +802,7 @@ int QOCIResult::numRowsAffected()
 {
     int rowCount;
     OCIAttrGet( d->sql,
-    		OCI_HTYPE_STMT,
+		OCI_HTYPE_STMT,
 		&rowCount,
 		NULL,
 		OCI_ATTR_ROW_COUNT,
@@ -832,7 +852,7 @@ void QOCIDriver::init()
 	qWarning( "QOCIDriver: unable to alloc service context: " + qOraWarn( d ) );
 #endif
     if ( r != 0 )
-    	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
+	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
 }
 
 QOCIDriver::~QOCIDriver()
@@ -857,7 +877,7 @@ bool QOCIDriver::canEditBinaryFields() const
 }
 
 bool QOCIDriver::open( const QString & db,
-    			const QString & user,
+			const QString & user,
 			const QString & password,
 			const QString & )
 {
@@ -890,10 +910,10 @@ void QOCIDriver::close()
 void QOCIDriver::cleanup()
 {
     if ( isOpen() ) {
-    	int r(0);
-    	r = OCILogoff( d->svc, d->err );
-    	r = OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
-    	r = OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
+	int r(0);
+	r = OCILogoff( d->svc, d->err );
+	r = OCIHandleFree( (dvoid *) d->svc, OCI_HTYPE_SVCCTX );
+	r = OCIHandleFree( (dvoid *) d->err, OCI_HTYPE_ERROR );
     }
 }
 
@@ -1053,4 +1073,3 @@ QString QOCIDriver::formatValue( const QSqlField* field ) const
     }
     return QSqlDriver::formatValue( field );
 }
-
