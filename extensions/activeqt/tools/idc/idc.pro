@@ -13,31 +13,31 @@ DEPENDPATH      = ../../../../include .
 
 SOURCES         = main.cpp
 
-SOURCES		+= ../../../../src/core/global/qglobal.cpp \
-               ../../../../src/core/tools/qbytearray.cpp \
-               ../../../../src/core/tools/qbytearraymatcher.cpp \
-               ../../../../src/core/tools/qchar.cpp \
-               ../../../../src/core/tools/qdatetime.cpp \
-               ../../../../src/core/tools/qhash.cpp \
-               ../../../../src/core/tools/qlist.cpp \
-               ../../../../src/core/tools/qlocale.cpp \
-               ../../../../src/core/tools/qstring.cpp \
-               ../../../../src/core/tools/qstringlist.cpp \
-               ../../../../src/core/tools/qstringmatcher.cpp \
-               ../../../../src/core/tools/qunicodetables.cpp \
-               ../../../../src/core/tools/qvector.cpp \
-               ../../../../src/core/tools/qvsnprintf.cpp \
-               ../../../../src/core/kernel/qinternal.cpp
+SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
+               ../../../../src/corelib/tools/qbytearray.cpp \
+               ../../../../src/corelib/tools/qbytearraymatcher.cpp \
+               ../../../../src/corelib/tools/qchar.cpp \
+               ../../../../src/corelib/tools/qdatetime.cpp \
+               ../../../../src/corelib/tools/qhash.cpp \
+               ../../../../src/corelib/tools/qlist.cpp \
+               ../../../../src/corelib/tools/qlocale.cpp \
+               ../../../../src/corelib/tools/qstring.cpp \
+               ../../../../src/corelib/tools/qstringlist.cpp \
+               ../../../../src/corelib/tools/qstringmatcher.cpp \
+               ../../../../src/corelib/tools/qunicodetables.cpp \
+               ../../../../src/corelib/tools/qvector.cpp \
+               ../../../../src/corelib/tools/qvsnprintf.cpp \
+               ../../../../src/corelib/kernel/qinternal.cpp
 
-SOURCES		+= ../../../../src/core/io/qbufferedfsfileengine.cpp \
-               ../../../../src/core/io/qdir.cpp \
-               ../../../../src/core/io/qfile.cpp \
-               ../../../../src/core/io/qfileinfo.cpp \
-               ../../../../src/core/io/qfileengine.cpp \
-               ../../../../src/core/io/qfsfileengine.cpp \
-               ../../../../src/core/io/qiodevice.cpp \
-               ../../../../src/core/io/qtemporaryfile.cpp
+SOURCES		+= ../../../../src/corelib/io/qbufferedfsfileengine.cpp \
+               ../../../../src/corelib/io/qdir.cpp \
+               ../../../../src/corelib/io/qfile.cpp \
+               ../../../../src/corelib/io/qfileinfo.cpp \
+               ../../../../src/corelib/io/qfileengine.cpp \
+               ../../../../src/corelib/io/qfsfileengine.cpp \
+               ../../../../src/corelib/io/qiodevice.cpp \
+               ../../../../src/corelib/io/qtemporaryfile.cpp
 
-win32:SOURCES   += ../../../../src/core/io/qfsfileengine_win.cpp
+win32:SOURCES   += ../../../../src/corelib/io/qfsfileengine_win.cpp
 
-unix:SOURCES    += ../../../../src/core/io/qfsfileengine_unix.cpp
+unix:SOURCES    += ../../../../src/corelib/io/qfsfileengine_unix.cpp
