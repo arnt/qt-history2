@@ -1086,7 +1086,7 @@ bool QActionGroup::addTo( QWidget* w )
 	    connect( popup, SIGNAL(destroyed()), SLOT(objectDestroyed()) );
 
 	    int id;
-	    if ( !iconSet().isNull() ) {
+	    if ( !iconSet().pixmap().isNull() ) {
 		if ( menuText().isEmpty() )
 		    id = menu->insertItem( iconSet(), text(), popup );
 		else
@@ -1112,8 +1112,7 @@ bool QActionGroup::addTo( QWidget* w )
     }
 
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
-	if ( !it.current()->addTo( w ) )
-	    return FALSE;
+	it.current()->addTo( w );
     }
 
     return TRUE;
