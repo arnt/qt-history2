@@ -33,6 +33,8 @@
 #include <private/qpainter_p.h>
 #include <private/qpolygonclipper_p.h>
 
+class QX11PaintEnginePrivate;
+
 typedef struct _XftDraw XftDraw;
 #include "qx11info_x11.h"
 
