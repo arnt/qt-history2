@@ -1485,7 +1485,8 @@ int QAbstractItemView::verticalFactor() const
 */
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
-    QModelIndex start = currentIndex().isValid() ? currentIndex() : model()->index(0, 0);
+    QModelIndex start = currentIndex().isValid() ? currentIndex()
+                        : model()->index(0, 0, root());
     QTime now(QTime::currentTime());
     bool skipRow = false;
     if (d->keyboardInputTime.msecsTo(now) > keyboardInputInterval()) {

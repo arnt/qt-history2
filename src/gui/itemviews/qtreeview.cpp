@@ -771,7 +771,7 @@ int QTreeView::verticalOffset() const
 {
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
-    QModelIndex index = model()->index(0, 0);
+    QModelIndex index = model()->index(0, 0, root());
     int iheight = itemDelegate()->sizeHint(option, model(), index).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
@@ -816,7 +816,7 @@ QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction,
     case MovePageDown:
         return d->modelIndex(d->pageDown(vi));
     case MoveHome:
-        return model()->index(0, 0);
+        return model()->index(0, 0, root());
     case MoveEnd:
         return d->modelIndex(d->viewItems.count() - 1);
     }
@@ -1058,7 +1058,7 @@ void QTreeView::updateGeometries()
 
     // update scrollbars
     if (model() && model()->rowCount(root()) > 0 && model()->columnCount(root()) > 0) {
-        QModelIndex topLeft = model()->index(0, 0);
+        QModelIndex topLeft = model()->index(0, 0, root());
         d->updateVerticalScrollbar();
         d->updateHorizontalScrollbar();
     }

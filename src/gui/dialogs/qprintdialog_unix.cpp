@@ -176,7 +176,7 @@ QVariant QPrinterModel::headerData(int section, Qt::Orientation orientation, int
         }
         return qApp->translate("QPrintDialog", name);
     }
-    return QAbstractItemModel::headerData(section, orientation, role);
+    return QAbstractTableModel::headerData(section, orientation, role);
 }
 
 
@@ -1081,7 +1081,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
             quality = 1;
         }
     }
-    view->setCurrentIndex(static_cast<QAbstractItemModel*>(model)->index(best, 0));
+    view->setCurrentIndex(static_cast<QAbstractTableModel*>(model)->index(best, 0));
 
     if (etcLpDefault)                 // Avoid purify complaint
         delete[] etcLpDefault;

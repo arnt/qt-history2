@@ -71,7 +71,9 @@ public:
     bool isValid() const;
 private:
     QPersistentModelIndexData *d;
+#ifndef QT_NO_DEBUG
     friend Q_GUI_EXPORT QDebug operator<<(QDebug, const QPersistentModelIndex &);
+#endif
 };
 
 #ifndef QT_NO_DEBUG
@@ -145,8 +147,7 @@ public:
     virtual ~QAbstractItemModel();
 
     bool hasIndex(int row, int column, const QModelIndex &parent) const;
-    virtual QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex::Null) const = 0;
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent) const = 0;
     virtual QModelIndex parent(const QModelIndex &child) const = 0;
 
     inline QModelIndex sibling(int row, int column, const QModelIndex &idx) const
@@ -157,7 +158,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex::Null);
+    virtual bool decode(QDropEvent *e, const QModelIndex &parent);
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
@@ -181,21 +182,21 @@ public:
     virtual bool removeRows(int row, const QModelIndex &parent, int count);
     virtual bool removeColumns(int column, const QModelIndex &parent, int count);
 
-    inline bool insertRow(int row, const QModelIndex &parent = QModelIndex::Null)
-    { return insertRows(row, parent, 1); }
-    inline bool insertColumn(int column, const QModelIndex &parent = QModelIndex::Null)
-    { return insertColumns(column, parent, 1); }
-    inline bool removeRow(int row, const QModelIndex &parent = QModelIndex::Null)
-    { return removeRows(row, parent, 1); }
-    inline bool removeColumn(int column, const QModelIndex &parent = QModelIndex::Null)
-    { return removeColumns(column, parent, 1); }
+    inline bool insertRow(int row, const QModelIndex &parent)
+        { return insertRows(row, parent, 1); }
+    inline bool insertColumn(int column, const QModelIndex &parent)
+        { return insertColumns(column, parent, 1); }
+    inline bool removeRow(int row, const QModelIndex &parent)
+        { return removeRows(row, parent, 1); }
+    inline bool removeColumn(int column, const QModelIndex &parent)
+        { return removeColumns(column, parent, 1); }
 
     virtual void fetchMore(const QModelIndex &parent);
 
     virtual ItemFlags flags(const QModelIndex &index) const;
 
     virtual bool isSortable() const;
-    virtual void sort(int column, const QModelIndex &parent = QModelIndex::Null,
+    virtual void sort(int column, const QModelIndex &parent,
                       Qt::SortOrder order = Qt::AscendingOrder);
 
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
@@ -229,7 +230,7 @@ protected slots:
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
-    inline QModelIndex createIndex(int row = -1, int column = -1, void *data = 0) const
+    inline QModelIndex createIndex(int row, int column, void *data) const
         { return QModelIndex(row, column, data, this); }
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);

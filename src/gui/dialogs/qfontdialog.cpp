@@ -78,7 +78,7 @@ public:
         return static_cast<QFontListModel *>(QListView::model());
     }
     inline void setCurrentItem(int item) {
-        QListView::setCurrentIndex(static_cast<QAbstractItemModel*>(model())->index(item, 0));
+        QListView::setCurrentIndex(static_cast<QAbstractListModel*>(model())->index(item));
     }
     inline int currentItem() const {
         return QListView::currentIndex().row();
