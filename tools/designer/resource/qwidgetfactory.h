@@ -50,7 +50,8 @@ private:
     };
 
     QValueList<Image> images;
-
+    QWidget *toplevel;
+    
 };
 
 #endif

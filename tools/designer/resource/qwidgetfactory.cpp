@@ -12,6 +12,7 @@
 #include <qtooltip.h>
 #include <qwhatsthis.h>
 #include <zlib.h>
+#include <qobjectlist.h>
 
 // include all Qt widgets
 #include <qpushbutton.h>
@@ -94,7 +95,8 @@ QWidget *QWidgetFactory::create( const QString &uiFile, QWidget *parent, const c
 	return 0;
 
     QWidgetFactory *widgetFactory = new QWidgetFactory;
-
+    widgetFactory->toplevel = 0;
+    
     QDomElement firstWidget = doc.firstChild().toElement().firstChild().toElement();
 
     while ( firstWidget.tagName() != "widget" )
@@ -257,10 +259,6 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     return 0;
 }
 
-void QWidgetFactory::loadConnections( const QDomElement &e )
-{
-}
-
 void QWidgetFactory::loadTabOrder( const QDomElement &e )
 {
 }
@@ -292,6 +290,8 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 		if ( !obj )
 		    return 0;
 		w = (QWidget*)obj;
+		if ( !toplevel )
+		    toplevel = w;
 		if ( layout ) {
 		    switch( layoutType( layout ) ) {
 		    case HBox:
@@ -564,9 +564,10 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
     }	
 
     if ( prop == "geometry" ) {
-	if ( obj->isWidgetType() )
-	    ( (QWidget*)obj )->resize( v.toRect().size() );
+	if ( obj == toplevel ) {
+	    toplevel->resize( v.toRect().size() );
 	    return;
+	}
     }
 
     obj->setProperty( prop, v );
@@ -722,4 +723,105 @@ QColorGroup QWidgetFactory::loadColorGroup( const QDomElement &e )
 	n = n.nextSibling().toElement();
     }
     return cg;
+}
+
+struct Connection
+{
+    QObject *sender, *receiver;
+    QCString signal, slot;
+    bool operator==( const Connection &c ) const {
+	return sender == c.sender && receiver == c.receiver &&
+	       signal == c.signal && slot == c.slot ;
+    }	
+};
+
+void QWidgetFactory::loadConnections( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "connection" ) {
+	    QDomElement n2 = n.firstChild().toElement();
+	    Connection conn;
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "sender" ) {
+		    QString name = n2.firstChild().toText().data();
+		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
+			conn.sender = toplevel;
+		    } else {
+			if ( name == "this" )
+			    name = toplevel->name();
+			QObjectList *l = toplevel->queryList( 0, name, FALSE );
+			if ( l ) {
+			    if ( l->first() )
+				conn.sender = l->first();
+			    delete l;
+			}
+		    }
+		} else if ( n2.tagName() == "signal" ) {
+		    conn.signal = n2.firstChild().toText().data();
+		} else if ( n2.tagName() == "receiver" ) {
+		    QString name = n2.firstChild().toText().data();
+		    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
+			conn.receiver = toplevel;
+		    } else {
+			QObjectList *l = toplevel->queryList( 0, name, FALSE );
+			if ( l ) {
+			    if ( l->first() )
+				conn.receiver = l->first();
+			    delete l;
+			}
+		    }
+		} else if ( n2.tagName() == "slot" ) {
+		    conn.slot = n2.firstChild().toText().data();
+		}
+		n2 = n2.nextSibling().toElement();
+	    }
+	    
+	    QObject *sender = 0, *receiver = 0;
+	    QObjectList *l = toplevel->queryList( 0, conn.sender->name(), FALSE );
+	    if ( qstrcmp( conn.sender->name(), toplevel->name() ) == 0 ) {
+		sender = toplevel;
+	    } else {
+		if ( !l || !l->first() ) {
+		    delete l;
+		    n = n.nextSibling().toElement();
+		    continue;
+		}
+		sender = l->first();
+		delete l;
+	    }
+	    
+	    if ( qstrcmp( conn.receiver->name(), toplevel->name() ) == 0 ) {
+		receiver = toplevel;
+	    } else {
+		l = toplevel->queryList( 0, conn.receiver->name(), FALSE );
+		if ( !l || !l->first() ) {
+		    delete l;
+		    n = n.nextSibling().toElement();
+		    continue;
+		}
+		receiver = l->first();
+		delete l;
+	    }
+	    QString s = "2""%1";
+	    s = s.arg( conn.signal );
+	    QString s2 = "1""%1";
+	    s2 = s2.arg( conn.slot );
+
+	    QStrList signalList = sender->metaObject()->signalNames( TRUE );
+	    QStrList slotList = receiver->metaObject()->slotNames( TRUE );
+	
+	    // avoid warnings
+	    if ( signalList.find( conn.signal ) == -1 ||
+		 slotList.find( conn.slot ) == -1 ) {
+		n = n.nextSibling().toElement();
+		continue;
+	    }
+	
+	    QObject::connect( sender, s, receiver, s2 );
+	} else if ( n.tagName() == "slot" ) {
+	    qWarning( "custom slots are not supported by QWidgetFactory" );
+	}
+	n = n.nextSibling().toElement();
+    }
 }
