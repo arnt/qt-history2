@@ -15,11 +15,11 @@ CC	=	gcc
 
 #######	Files
 
-HEADERS =	qmsgbox.h	qfilesel.h
-SOURCES =	qmsgbox.cpp	qfilesel.cpp
-OBJECTS =	qmsgbox.o	qfilesel.o
-SRCMETA =	mmsgbox.cpp	mfilesel.cpp
-OBJMETA =	mmsgbox.o	mfilesel.o
+HEADERS =	qfilesel.h	qmsgbox.h	qprndlg.h
+SOURCES =	qfilesel.cpp	qmsgbox.cpp	qprndlg.cpp
+OBJECTS =	qfilesel.o	qmsgbox.o	qprndlg.o
+SRCMETA =	mfilesel.cpp	mmsgbox.cpp	mprndlg.cpp
+OBJMETA =	mfilesel.o	mmsgbox.o	mprndlg.o
 TARGET = $(LIBDIR)/libqdialogs.a
 
 #######	Implicit rules
@@ -77,11 +77,15 @@ checkout:
 
 #######	Meta classes
 
+mfilesel.cpp: qfilesel.h
+	$(QTDIR)/bin/moc qfilesel.h -o mfilesel.cpp
+
 mmsgbox.cpp: qmsgbox.h
 	$(QTDIR)/bin/moc qmsgbox.h -o mmsgbox.cpp
 
-mfilesel.cpp: qfilesel.h
-	$(QTDIR)/bin/moc qfilesel.h -o mfilesel.cpp
+mprndlg.cpp: qprndlg.h
+	$(QTDIR)/bin/moc qprndlg.h -o mprndlg.cpp
+
 
 # DO NOT DELETE THIS LINE -- make depend depends on it.
 
