@@ -232,7 +232,7 @@ QStringList QDataBrowser::sort() const
   apply the new filter, use refresh(). A filter string is an SQL WHERE
   clause without the WHERE keyword.
 
-  \sa sort
+  \sa sort()
 
 */
 
@@ -470,7 +470,7 @@ bool QDataBrowser::confirmCancels() const
     return d->dat.confirmCancels();
 }
 
-/*! \property QDataTable::autoEdit
+/*! \property QDataBrowser::autoEdit
 
   \brief whether the browser automatically applies edits
 

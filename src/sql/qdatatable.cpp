@@ -302,12 +302,7 @@ void QDataTable::setColumnWidth( int col, int w )
     }
 }
 
-/*! Returns the current filter used on the displayed data.  If there
-  is no current cursor, QString::null is returned. The text of the
-  filter corresponds to the SQL WHERE clause.
-
-  \sa setFilter() setCursor()
-
+/*!
  */
 
 QString QDataTable::filter() const
@@ -315,11 +310,16 @@ QString QDataTable::filter() const
     return d->cur.filter();
 }
 
-/*! Sets the filter to be used on the displayed data to \a filter.  To
-  display the filtered data, call refresh(). The text of the \a filter
-  corresponds to the SQL WHERE clause, e.g. "surname LIKE 'A%'".
+/*! \property QDataTable::filter
 
-  \sa refresh() filter()
+  \brief the data filter for the table
+
+  The filter applies to the data shown in the table. To actually
+  apply the new filter, use refresh(). A filter string is an SQL WHERE
+  clause without the WHERE keyword.
+
+  \sa sort()
+
 */
 
 void QDataTable::setFilter( const QString& filter )
@@ -327,25 +327,19 @@ void QDataTable::setFilter( const QString& filter )
     d->cur.setFilter( filter );
 }
 
-/*! Sets the sort to be used on the displayed data to \a sort.  If
-  there is no current cursor, nothing happens. To display the
-  sorted data, use refresh(). The strings in the sort string list are
-  the names of the fields to be sorted; these names are used in the
-  ORDER BY clause, e.g.
 
-  \code
-    QStringList fields = QStringList() << "duedate" << "amountdue";
-    thisTable->setSort( fields );
-  \endcode
+/*! \property QDataTable::sort
 
-  will produce an ORDER BY clause like this:
+  \brief the table sort
 
-  <tt>ORDER BY cursorname.duedate ASC, cursorname.amountdue ASC</tt>
+  The table sort affects the order in which data records are viewed
+  in the table.  To actually apply a sort, use refresh().
 
-  If you require DESCending order use the overloaded setSort() that
-  takes a QSqlIndex parameter.
+  When examining the sort property, a stringlist is returned in the
+  form 'fieldname order', e.g.  'id ASC', 'surname DESC'.
 
-  \sa sort()
+  \sa filter() refresh()
+
 */
 
 void QDataTable::setSort( const QStringList& sort )
@@ -437,8 +431,15 @@ void QDataTable::setConfirmDelete( bool confirm )
     d->dat.setConfirmDelete( confirm );
 }
 
-/*! Returns TRUE if the table confirms all edit operations (inserts,
-  updates and deletes), otherwise returns FALSE.
+/*! \property QDataTable::confirmEdits
+
+  \brief whether the table confirms edit operations
+
+  If the confirmEdits property is active, the table confirms all
+  edit operations (inserts, updates and deletes), otherwise all edit
+  operations happen immediately.
+
+  \sa confirmCancels() confirmInsert() confirmUpdate() confirmDelete()
 */
 
 bool QDataTable::confirmEdits() const
@@ -446,8 +447,14 @@ bool QDataTable::confirmEdits() const
     return ( d->dat.confirmEdits() );
 }
 
-/*! Returns TRUE if the table confirms inserts, otherwise returns
-  FALSE.
+/*! \property QDataTable::confirmInsert
+
+  \brief whether the table confirms insert operations
+
+  If the confirmInsert property is active, the table confirms all
+  insert operations, otherwise all insert operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmDelete()
 */
 
 bool QDataTable::confirmInsert() const
@@ -455,8 +462,14 @@ bool QDataTable::confirmInsert() const
     return ( d->dat.confirmInsert() );
 }
 
-/*! Returns TRUE if the table confirms updates, otherwise returns
-  FALSE.
+/*! \property QDataTable::confirmUpdate
+
+  \brief whether the table confirms update operations
+
+  If the confirmUpdate property is active, the table confirms all
+  update operations, otherwise all update operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmInsert() confirmDelete()
 */
 
 bool QDataTable::confirmUpdate() const
@@ -464,8 +477,14 @@ bool QDataTable::confirmUpdate() const
     return ( d->dat.confirmUpdate() );
 }
 
-/*! Returns TRUE if the table confirms deletes, otherwise returns
-  FALSE.
+/*! \property QDataTable::confirmDelete
+
+  \brief whether the table confirms delete operations
+
+  If the confirmDelete property is active, the table confirms all
+  delete operations, otherwise all delete operations happen immediately.
+
+  \sa confirmCancels() confirmEdits() confirmUpdate() confirmInsert()
 */
 
 bool QDataTable::confirmDelete() const
@@ -473,8 +492,16 @@ bool QDataTable::confirmDelete() const
     return ( d->dat.confirmDelete() );
 }
 
-/*! If \a confirm is TRUE, all cancels will be confirmed by the user.
-  If \a confirm is FALSE (the default), all cancels occur immediately.
+/*! \property QDataTable::confirmCancels
+
+  \brief whether the table confirms cancel operations
+
+  If the confirmCancel property is active, all cancels must be
+  confirmed by the user through a message box (this behavior can be
+  changed by overriding the confirmCancel() function), otherwise all
+  cancels occur immediately.
+
+  \sa confirmEdits() confirmCancel()
 */
 
 void QDataTable::setConfirmCancels( bool confirm )
@@ -482,7 +509,7 @@ void QDataTable::setConfirmCancels( bool confirm )
     d->dat.setConfirmCancels( confirm );
 }
 
-/*! Returns TRUE if the table confirms cancels, otherwise returns FALSE.
+/*!
 */
 
 bool QDataTable::confirmCancels() const
@@ -1241,13 +1268,18 @@ void QDataTable::setAutoDelete( bool enable )
     d->cur.setAutoDelete( enable );
 }
 
-/*!  Sets the auto-edit property of the table to \a autoEdit. The
-  default is FALSE.
+/*! \property QDataTable::autoEdit
 
-  If the user begins an insert (or update) and then navigates to another
-  record the insert (or update) will be performed if autoEdit is TRUE,
-  otherwise the insert (or update) will be cancelled. In either case the
-  navigation will take place.
+  \brief whether the table automatically applies edits
+
+  The default value for this property is TRUE. When the user begins an
+  insert or update in the table there are two possible outcomes when they
+  navigate to another record:
+
+  <ol>
+  <li> the insert or update is is performed -- this occurs if autoEdit is TRUE
+  <li> the insert or update is abandoned -- this occurs if autoEdit is FALSE
+  </ol>
 
 */
 
@@ -1257,9 +1289,7 @@ void QDataTable::setAutoEdit( bool autoEdit )
 }
 
 
-/*! Returns TRUE if the auto-edit property is on, otherwise FALSE is
-  returned.
-
+/*!
 */
 
 bool QDataTable::autoEdit() const
@@ -1267,9 +1297,12 @@ bool QDataTable::autoEdit() const
     return d->dat.autoEdit();
 }
 
-/*!  Sets the text to be displayed when a NULL value is encountered in
-  the data to \a nullText.  The default value is specified by the
-  cursor's driver.
+/*!  \property QDataTable::nullText
+
+  \brief the text used to represent NULL values
+
+  The nullText property will be used to represent NULL values in the
+  table. The default value is specified by the cursor's driver.
 
 */
 
@@ -1278,9 +1311,7 @@ void QDataTable::setNullText( const QString& nullText )
     d->nullTxt = nullText;
 }
 
-/*!  Returns the text to be displayed when a NULL value is encountered
-  in the data.
-
+/*!
 */
 
 QString QDataTable::nullText() const
@@ -1288,8 +1319,12 @@ QString QDataTable::nullText() const
     return d->nullTxt;
 }
 
-/*!  Sets the text to be displayed when a bool field's value is TRUE
-  to \a trueText.  The default is 'True'.
+/*!  \property QDataTable::trueText
+
+  \brief the text used to represent true values
+
+  The trueText property will be used to represent NULL values in the
+  table. The default value is 'True'.
 
 */
 
@@ -1298,8 +1333,7 @@ void QDataTable::setTrueText( const QString& trueText )
     d->trueTxt = trueText;
 }
 
-/*!  Returns the text to be displayed when a bool field's value is TRUE.
-
+/*!
 */
 
 QString QDataTable::trueText() const
@@ -1307,8 +1341,12 @@ QString QDataTable::trueText() const
     return d->trueTxt;
 }
 
-/*!  Sets the text to be displayed when a bool field's value is FALSE
-  to \a falseText.  The default is 'False'.
+/*!  \property QDataTable::falseText
+
+  \brief the text used to represent false values
+
+  The falseText property will be used to represent NULL values in the
+  table. The default value is 'False'.
 
 */
 
@@ -1318,9 +1356,7 @@ void QDataTable::setFalseText( const QString& falseText )
 }
 
 
-/*!  Returns the text to be displayed when a bool field's value is
-   FALSE.
-
+/*!
 */
 
 QString QDataTable::falseText() const
