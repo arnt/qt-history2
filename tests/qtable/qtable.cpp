@@ -621,11 +621,12 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 		    continue;
 		rowp = rowPos( item->row );
 		rowh = 0;
-		for ( int i = 0; i < item->rowSpan(); ++i )
+		int i;
+		for ( i = 0; i < item->rowSpan(); ++i )
 		    rowh += rowHeight( i + item->row );
 		colp = columnPos( item->col );
 		colw = 0;
-		for ( int i = 0; i < item->colSpan(); ++i )
+		for ( i = 0; i < item->colSpan(); ++i )
 		    colw += columnWidth( i + item->col );
 	    }
 	
