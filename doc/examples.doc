@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $
+** $Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $";
+static char ident[] = "$Id: examples.doc,v 2.4 1997/05/20 15:01:30 hanord Exp $";
 #endif
 
 
@@ -32,7 +32,7 @@ static char ident[] = "$Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $";
 
 /*! \example connect/connect.cpp
 
-  <h1 align=center>A Graphical Hello World</h1>
+  <h1 align=center>Connect the Points</h1>
 
   This example shows very simple mouse-based user interaction and
   painting without any world transform matrix or other advanced
@@ -87,7 +87,16 @@ static char ident[] = "$Id: examples.doc,v 2.3 1997/03/24 17:22:47 aavit Exp $";
   <h1 align=center>Hello, World</h1>
 
   This example brings up the words "Hello, World" moving up and down,
-  and in different colours.
+  and in different colors.
+
+  Here is the definition:
+  <hr>
+
+  \include hello/hello.h
+
+  <hr>
+
+  Here is the implementation:
 */
 
 
