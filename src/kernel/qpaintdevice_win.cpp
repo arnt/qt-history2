@@ -104,19 +104,24 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     HBITMAP  hbm_buf, hbm_buf_old;
     int	     nx, ny;
 
+#if 0
+    //### background colors get modified
     if ( destIsPixmap ) {			// blt directly into pixmap
 	hdc = hdc_dest;
 	hdc_buf = 0;
 	nx = dx;
 	ny = dy;
-    } else {					// use off-screen buffer
+    } else {
+#endif					// use off-screen buffer
 	hdc_buf = CreateCompatibleDC( hdc_dest );
 	hbm_buf = CreateCompatibleBitmap( hdc_dest, sw, sh );
 	hbm_buf_old = (HBITMAP)SelectObject( hdc_buf, hbm_buf );
 	BitBlt( hdc_buf, 0, 0, sw, sh, hdc_dest, dx, dy, SRCCOPY );
 	hdc = hdc_buf;
 	nx = ny = 0;
+#if 0
     }
+#endif
 
     QPixmap *bs = *blackSourcePixmap;
     bool newPixmap = bs == 0;
