@@ -32,6 +32,7 @@
 #include "qstringlist.h"
 #include "qshared.h"
 #include "qdatastream.h"
+#include "qmap.h"
 #endif // QT_H
 
 class QString;
@@ -58,11 +59,10 @@ class Q_EXPORT QVariant : public QShared
 public:
     enum Type {
 	Invalid,
+	Map,
 	List,
 	String,
 	StringList,
-	IntList,
-	DoubleList,
 	Font,
 	Pixmap,
 	Brush,
@@ -91,8 +91,6 @@ public:
     QVariant( const QCString& );
     QVariant( const char* );
     QVariant( const QStringList& );
-    QVariant( const QValueList<int>& );
-    QVariant( const QValueList<double>& );
     QVariant( const QFont& );
     QVariant( const QPixmap& );
     QVariant( const QImage& );
@@ -105,6 +103,7 @@ public:
     QVariant( const QColorGroup& );
     QVariant( const QIconSet& );
     QVariant( const QValueList<QVariant>& );
+    QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
     QVariant( bool );
     QVariant( double );
@@ -115,8 +114,6 @@ public:
     void setValue( const QCString& );
     void setValue( const char* );
     void setValue( const QStringList& );
-    void setValue( const QValueList<int>& );
-    void setValue( const QValueList<double>& );
     void setValue( const QFont& );
     void setValue( const QPixmap& );
     void setValue( const QImage& );
@@ -129,6 +126,7 @@ public:
     void setValue( const QColorGroup& );
     void setValue( const QIconSet& );
     void setValue( const QValueList<QVariant>& );
+    void setValue( const QMap<QString,QVariant>& );
     void setValue( int );
     void setBoolValue( bool );
     void setValue( double );
@@ -136,13 +134,13 @@ public:
     Type type() const;
     virtual const char* typeName() const;
 
+    bool canCast( Type ) const;
+    
     bool isValid() const;
 
     QString toString() const;
     QCString toCString() const;
     QStringList toStringList() const;
-    QValueList<int> toIntList() const;
-    QValueList<double> toDoubleList() const;
     QFont toFont() const;
     QPixmap toPixmap() const;
     QImage toImage() const;
@@ -158,7 +156,8 @@ public:
     bool toBool() const;
     double toDouble() const;
     QValueList<QVariant> toList() const;
-
+    QMap<QString,QVariant> toMap() const;
+    
     virtual void load( QDataStream& );
     virtual void save( QDataStream& ) const;
 

@@ -97,10 +97,9 @@
 
   <li> \c Invalid - no type
   <li> \c List - a QValueList<QVariant>
+  <li> \c Map - a QMap<QString,QVariant>
   <li> \c String - a QString
   <li> \c StringList - a QStringList
-  <li> \c IntList - a QValueList<int>
-  <li> \c DoubleList - a QValueList<double>
   <li> \c Font - a QFont
   <li> \c Pixmap - a QPixmap
   <li> \c Brush - a QBrush
@@ -196,18 +195,9 @@ QVariant::QVariant( const QStringList& val )
 }
 
 /*!
-  Constructs a new variant with a integer list value.
+  Constructs a new variant with a map of QVariants.
 */
-QVariant::QVariant( const QValueList<int>& val )
-{
-    typ = Invalid;
-    setValue( val );
-}
-
-/*!
-  Constructs a new variant with a floating point list value.
-*/
-QVariant::QVariant( const QValueList<double>& val )
+QVariant::QVariant( const QMap<QString,QVariant>& val )
 {
     typ = Invalid;
     setValue( val );
@@ -371,11 +361,8 @@ QVariant& QVariant::operator= ( const QVariant& other )
 	case StringList:
 	    value.ptr = new QStringList( other.toStringList() );
 	    break;
-	case IntList:
-	    value.ptr = new QValueList<int>( other.toIntList() );
-	    break;
-	case DoubleList:
-	    value.ptr = new QValueList<double>( other.toDoubleList() );
+	case Map:
+	    value.ptr = new QMap<QString,QVariant>( other.toMap() );
 	    break;
 	case Font:
 	    value.ptr = new QFont( other.toFont() );
@@ -487,26 +474,14 @@ void QVariant::setValue( const QStringList& val )
 
 /*!
   Changes the value of this variant to \a val.
-  This function creates a copy of the list. This is very fast since
-  QStringList is implicit shared.
+  This function creates a copy of the map. This is very fast since
+  QMap is implicit shared.
 */
-void QVariant::setValue( const QValueList<int>& val )
+void QVariant::setValue( const QMap<QString,QVariant>& val )
 {
     clear();
-    typ = IntList;
-    value.ptr = new QValueList<int>( val );
-}
-
-/*!
-  Changes the value of this variant to \a val.
-  This function creates a copy of the list. This is very fast since
-  QValueList is implicit shared.
-*/
-void QVariant::setValue( const QValueList<double>& val )
-{
-    clear();
-    typ = DoubleList;
-    value.ptr = new QValueList<double>( val );
+    typ = Map;
+    value.ptr = new QMap<QString,QVariant>( val );
 }
 
 /*!
@@ -676,11 +651,8 @@ void QVariant::clear()
 	case CString:
 	    delete (QCString*)value.ptr;
 	    break;
-	case IntList:
-	    delete (QValueList<int>*)value.ptr;
-	    break;
-	case DoubleList:
-	    delete (QValueList<double>*)value.ptr;
+	case Map:
+	    delete (QMap<QString,QVariant>*)value.ptr;
 	    break;
 	case StringList:
 	    delete (QStringList*)value.ptr;
@@ -734,19 +706,18 @@ void QVariant::clear()
 }
 
 /*
-  Attention! 
+  Attention!
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 21;
+static const int ntypes = 20;
 static const char* type_map[ntypes] =
 {
     0,
+    "QMap<QString,QVariant>",
     "QValueList<QVariant>",
     "QString",
     "QStringList",
-    "QValueList<int>",
-    "QValueList<double>",
     "QFont",
     "QPixmap",
     "QBrush",
@@ -803,6 +774,9 @@ void QVariant::load( QDataStream& s )
 	case Invalid:
 	    typ = t;
 	    break;
+	case Map:
+	    { QMap<QString,QVariant> x; s >> x; setValue( x ); }
+	    break;
 	case List:
 	    { QValueList<QVariant> x; s >> x; setValue( x ); }
 	    break;
@@ -814,12 +788,6 @@ void QVariant::load( QDataStream& s )
 	    break;
 	case StringList:
 	    { QStringList x; s >> x; setValue( x ); }
-	    break;
-	case IntList:
-	    { QValueList<int> x; s >> x; setValue( x ); }
-	    break;
-	case DoubleList:
-	    { QValueList<double> x; s >> x; setValue( x ); }
 	    break;
 	case Font:
 	    { QFont x; s >> x; setValue( x ); }
@@ -878,6 +846,12 @@ void QVariant::save( QDataStream& s ) const
 
     switch( typ )
 	{
+	case List:
+	    s << toList();
+	    break;
+	case Map:
+	    s << toMap();
+	    break;
 	case String:
 	    s << toString();
 	    break;
@@ -886,12 +860,6 @@ void QVariant::save( QDataStream& s ) const
 	    break;
 	case StringList:
 	    s << toStringList();
-	    break;
-	case IntList:
-	    s << toIntList();
-	    break;
-	case DoubleList:
-	    s << toDoubleList();
 	    break;
 	case Font:
 	    s << toFont();
@@ -1011,42 +979,42 @@ QString QVariant::toString() const
 */
 QCString QVariant::toCString() const
 {
-    if ( typ != CString )
-	return 0;
-    return *((QCString*)value.ptr);
+    if ( typ == CString )
+	return *((QCString*)value.ptr);
+    if ( typ == String )
+	return ((QString*)value.ptr)->latin1();
+    return 0;
 }
 
 /*!
   Returns the variant as a QStringList if the variant has type()
-  StringList, or an empty list otherwise.
+  StringList or List, or an empty list otherwise.
 */
 QStringList QVariant::toStringList() const
 {
-    if ( typ != StringList )
-	return QStringList();
-    return *((QStringList*)value.ptr);
+    if ( typ == StringList )
+	return *((QStringList*)value.ptr);
+    if ( typ == List )
+    {
+	QStringList lst;
+	QValueList<QVariant>::ConstIterator it = toList().begin();
+	QValueList<QVariant>::ConstIterator end = toList().end();
+	for( ; it != end; ++it )
+	    lst.append( (*it).toString() );
+	return lst;
+    }
+    return QStringList();
 }
 
 /*!
-  Returns the variant as a QValueList<int> if the variant has type()
-  IntList, or an empty list otherwise.
+  Returns the variant as a QMap<QString,QVariant> if the variant has type()
+  Map, or an empty map otherwise.
 */
-QValueList<int> QVariant::toIntList() const
+QMap<QString,QVariant> QVariant::toMap() const
 {
-    if ( typ != IntList )
-	return QValueList<int>();
-    return *((QValueList<int>*)value.ptr);
-}
-
-/*!
-  Returns the variant as a QValueList<double> if the variant has type()
-  DoubleList, or an empty list otherwise.
-*/
-QValueList<double> QVariant::toDoubleList() const
-{
-    if ( typ != DoubleList )
-	return QValueList<double>();
-    return *((QValueList<double>*)value.ptr);
+    if ( typ != Map )
+	return QMap<QString,QVariant>();
+    return *((QMap<QString,QVariant>*)value.ptr);
 }
 
 /*!
@@ -1172,45 +1140,112 @@ QIconSet QVariant::toIconSet() const
 
 /*!
   Returns the variant as an int if the variant has type()
-  Int, or 0 otherwise.
+  Int, Double or Bool, or 0 otherwise.
 */
 int QVariant::toInt() const
 {
-    if( typ != Int )
-	return 0;
-    return value.i;
+    if( typ == Int )
+	return value.i;
+    if ( typ == Double )
+	return (int)value.d;
+    if ( typ == Bool )
+	return (int)value.b;
+    /* if ( typ == String )
+	return ((QString*)value.ptr)->toInt();
+    if ( typ == CString )
+    return ((QCString*)value.ptr)->toInt(); */
+    return 0;
 }
 
 /*!
   Returns the variant as a bool if the variant has type()
-  Bool, or FALSE otherwise.
+  Bool, or FALSE otherwise. The only exceptions to this rule are
+  the types Int, Double. In this case TRUE is returned if the numerical
+  value is not zero or FALSE otherwise.
 */
 bool QVariant::toBool() const
 {
-    if ( typ != Bool )
-	return FALSE;
-    return value.b;
+    if ( typ == Bool )
+	return value.b;
+    if ( typ == Double )
+	return value.d != 0.0;
+    if ( typ == Int )
+	return value.i != 0;
+    /* if ( typ == String )
+	return *((QString*)value.ptr) == "true";
+    if ( typ == CString )
+    return *((QCString*)value.ptr) == "true"; */
+    return FALSE;
 }
 
 /*!
   Returns the variant as a double if the variant has type()
-  Double, or 0.0 otherwise.
+  Double, Int or Bool, or 0.0 otherwise.
 */
 double QVariant::toDouble() const
 {
-    if ( typ != Double )
-	return 0.0;
-    return value.d;
+    if ( typ == Double )
+	return value.d;
+    if ( typ == Int )
+	return (double)value.i;
+    if ( typ == Bool )
+	return (double)value.b;
+    /* if ( typ == String )
+	return ((QString*)value.ptr)->toDouble();
+    if ( typ == CString )
+    return ((QCString*)value.ptr)->toDouble(); */
+    return 0.0;
 }
 
 /*!
   Returns the variant as a QValueList<QVariant> if the variant has type()
-  List, or an empty list otherwise.
+  List or StringList, or an empty list otherwise.
 */
 QValueList<QVariant> QVariant::toList() const
 {
-    if ( typ != List )
-	return QValueList<QVariant>();
-    return *((QValueList<QVariant>*)value.ptr);
+    if ( typ == List )
+	return *((QValueList<QVariant>*)value.ptr);
+    if ( typ == StringList )
+    {
+	QValueList<QVariant> lst;
+	QStringList::ConstIterator it = toStringList().begin();
+	QStringList::ConstIterator end = toStringList().end();
+	for( ; it != end; ++it )
+	    lst.append( QVariant( *it ) );
+	return lst;
+    }
+    return QValueList<QVariant>();
 }
 
+/*!
+  Returns TRUE if the current type of the variant can be casted to
+  the requested type. The casting is done automatically when calling
+  the toInt(), toBool(), ... methods.
+  
+  The following casts are done automatically:
+  <ul>
+  <li> Bool -> Double, Int
+  <li> Double -> Int, Bool
+  <li> Int -> Double, Bool
+  <li> String -> CString
+  <li> CString -> String
+  <li> List -> StringList
+  <li> StringList -> List
+  </ul>
+*/
+bool QVariant::canCast( Type t ) const
+{
+    if ( typ == t )
+	return TRUE;
+    if ( t == Bool && ( typ == Double || typ == Int ) )
+	 return TRUE;
+    if ( t == Int && ( typ == Double || typ == Bool ) )
+	return TRUE;
+    if ( t == Double && ( typ == Int || typ == Bool ) )
+	return TRUE;
+    if ( t == CString && typ == String )
+	return TRUE;
+    if ( t == String && typ == CString )
+	return TRUE;
+    return FALSE;
+}
