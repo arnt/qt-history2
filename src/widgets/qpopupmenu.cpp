@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#116 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#116 $");
 
 
 // Motif style parameters
@@ -1065,7 +1065,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    p->drawPixmap( pmr.topLeft(), *pixmap );
 	    if ( gs == WindowsStyle ) {
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
-			     (act && !dis) ? darkBlue : g.background());
+			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background());
 	    }
 	    return;
 	}
@@ -1076,10 +1076,10 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle ) {
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
-			     (act && !dis) ? darkBlue : g.background() );
+			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background() );
 	    else
 		p->fillRect( 0, 0, rw, cellh, 
-			     (act && !dis) ? darkBlue : g.background() );
+			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background() );
 	} else if ( gs == MotifStyle ) {
 	    if ( act && !dis )			// active item frame
 		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
@@ -1146,7 +1146,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle && row == actItem ) {
 	    if ( !dis )
 		discol = white;
-	    g = QColorGroup( discol, darkBlue, white, white,
+	    g = QColorGroup( discol, QApplication::winStyleHighlightColor(),
+			     white, white,
 			     dis ? discol : white,
 			     discol, white );
 	}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#69 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#70 $
 **
 ** Definition of QApplication class
 **
@@ -99,6 +99,11 @@ public:
     static void	     syncX();
 
     static void	     beep();
+
+    static void      setWinStyleHighlightColor( const QColor & );
+    static const QColor&   winStyleHighlightColor();
+ 
+
 
 #if defined(_WS_MAC_)
     virtual bool     macEventFilter( MSG * );

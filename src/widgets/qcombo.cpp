@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#105 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#105 $");
 
 
 /*!
@@ -995,7 +995,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
 		     height() - 4 - 4 );
 
 	if ( has_focus ) {
-	    QBrush fill( darkBlue );
+	    QBrush fill( QApplication::winStyleHighlightColor() );
 	    p.fillRect( textR.x()-1, textR.y(),
 		textR.width(), textR.height(), fill );
 	    p.drawWinFocusRect( textR.x()-2, textR.y()-1,

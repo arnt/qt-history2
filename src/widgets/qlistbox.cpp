@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#121 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#121 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1233,7 +1233,7 @@ void QListBox::paintCell( QPainter *p, int row, int col )
     if ( isSelected( row ) ) {
 	QColor	 fc;				// fill color
 	if ( style() == WindowsStyle )
-	    fc = darkBlue;			// !!!hardcoded
+	    fc = QApplication::winStyleHighlightColor();
 	else
 	    fc = g.text();
 	//	if ( hasFocus() )
