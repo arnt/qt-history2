@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#72 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#72 $");
 
 
 declare(QListM, QListBoxItem);
@@ -111,7 +111,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
 }
   \endcode
   \sa QListBox
-  */
+*/
 
 /*!
   \fn QListBoxItem::QListBoxItem()
@@ -127,12 +127,12 @@ int MyListBoxItem::width(const QListBox *lb ) const
 
 
 /*!
-   \fn void QListBoxItem::paint( QPainter *p )
+  \fn void QListBoxItem::paint( QPainter *p )
 
    Implement this function to draw your item.
 
    \sa height(), width()
-   */
+*/
 
 /*!
   \fn int QListBoxItem::height( const QListBox * ) const
@@ -140,7 +140,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
    Implement this function to return the height of your item
 
    \sa paint(), width()
-   */
+*/
 
 /*!
   \fn int QListBoxItem::width(	const QListBox* ) const
@@ -190,7 +190,7 @@ int MyListBoxItem::width(const QListBox *lb ) const
 
 /*!
   Constructs a list box item showing the text \e text.
- */
+*/
 QListBoxText::QListBoxText( const char *text )
     :QListBoxItem()
 {
@@ -199,16 +199,14 @@ QListBoxText::QListBoxText( const char *text )
 
 /*!
   Destroys the item.
- */
+*/
 QListBoxText::~QListBoxText()
 {
 }
 
 /*!
-
   Draws the text using painter \e p.
-
-  */
+*/
 
 void QListBoxText::paint( QPainter *p )
 {
@@ -275,7 +273,7 @@ QListBoxPixmap::~QListBoxPixmap()
 
 /*!
   Draws the pixmap using painter \e p.
-  */
+*/
 
 void QListBoxPixmap::paint( QPainter *p )
 {

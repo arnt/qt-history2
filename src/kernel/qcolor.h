@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#29 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#30 $
 **
 ** Definition of QColor class
 **
@@ -150,9 +150,9 @@ inline bool QColor::lazyAlloc()
 { return lalloc; }
 
 
-// --------------------------------------------------------------------------
-// Global colors
-//
+/*****************************************************************************
+  Global colors
+ *****************************************************************************/
 
 extern const QColor color0;
 extern const QColor color1;
@@ -175,9 +175,9 @@ extern const QColor darkMagenta;
 extern const QColor darkYellow;
 
 
-// --------------------------------------------------------------------------
-// QColor stream functions
-//
+/*****************************************************************************
+  QColor stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QColor & );
 QDataStream &operator>>( QDataStream &, QColor & );

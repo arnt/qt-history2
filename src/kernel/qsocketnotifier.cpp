@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.cpp#8 $
 **
 ** Implementation of QSocketNotifier class
 **
@@ -17,7 +17,7 @@
 extern bool qt_set_socket_handler( int, int, QObject *, bool );
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QSocketNotifier qsocknot.h
   \brief The QSocketNotifer class provides support for socket callbacks.
 
@@ -80,10 +80,10 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   Socket action is detected in the \link QApplication::exec() main event
   loop\endlink of Qt.  Under X-Windows, Qt has has a single UNIX select()
   call which incorporates all socket notifiers and the X socket.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a socket notifier with a \e parent and a \e name.
 
   \arg \e socket is the socket to be monitored.
@@ -97,7 +97,7 @@ extern bool qt_set_socket_handler( int, int, QObject *, bool );
   explicitly enable or disable it, especially for write notifiers.
 
   \sa setEnabled(), isEnabled()
- ----------------------------------------------------------------------------*/
+*/
 
 QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
 				  const char *name )
@@ -113,9 +113,9 @@ QSocketNotifier::QSocketNotifier( int socket, Type type, QObject *parent,
     qt_set_socket_handler( sockfd, sntype, this, TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the socket notifier.
- ----------------------------------------------------------------------------*/
+*/
 
 QSocketNotifier::~QSocketNotifier()
 {
@@ -123,7 +123,7 @@ QSocketNotifier::~QSocketNotifier()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QSocketNotifier::activated( int socket )
 
   This signal is emitted under certain conditions, specified by the
@@ -138,31 +138,31 @@ QSocketNotifier::~QSocketNotifier()
   The \e socket argument is the \link socket() socket\endlink identifier.
 
   \sa type(), socket()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QSocketNotifier::socket() const
   Returns the socket identifier specified to the constructor.
   \sa type()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn Type QSocketNotifier::type() const
   Returns the socket event type specified to the constructor;
   \c QSocketNotifier::Read, \c QSocketNotifier::Write or
   \c QSocketNotifier::Exception.
   \sa socket()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QSocketNotifier::isEnabled() const
   Returns TRUE if the notifier is enabled, or FALSE if it is disabled.
   \sa setEnabled()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables the notifier if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
@@ -177,7 +177,7 @@ QSocketNotifier::~QSocketNotifier()
   written, otherwise your program hogs the CPU.
 
   \sa isEnabled(), activated()
- ----------------------------------------------------------------------------*/
+*/
 
 void QSocketNotifier::setEnabled( bool enable )
 {
@@ -190,11 +190,11 @@ void QSocketNotifier::setEnabled( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles events for the socket notifier object.
 
   Emits the activated() signal when a \c Event_SockAct is received.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QSocketNotifier::event( QEvent *e )
 {

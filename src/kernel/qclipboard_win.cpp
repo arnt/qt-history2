@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#4 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#4 $");
 
 
 /*****************************************************************************
@@ -138,12 +138,12 @@ void *QClipboard::data( const char *format ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Copies text into the clipboard, where \e format is the clipboard format
   string and \e data is the data to be copied.
 
   It is generally recommended to use setText() or setPixmap() instead.
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::setData( const char *format, void *data )
 {

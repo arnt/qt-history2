@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#38 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#39 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -16,10 +16,10 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#38 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#39 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGDict qgdict.h
   \brief The QGDict class is an internal class for implementing QDict and QIntDict.
 
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#38 $");
   <li> write() writes a collection/dictionary item to a QDataStream.
   </ul>
   Normally, you do not have to reimplement any of these functions.
- ----------------------------------------------------------------------------*/
+*/
 
 
 declare(QListM,QGDictIterator);			// list of iterators: QGDItList
@@ -43,9 +43,9 @@ declare(QListM,QGDictIterator);			// list of iterators: QGDItList
   Default implementation of virtual functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the hash key for \e key, when key is a string.
- ----------------------------------------------------------------------------*/
+*/
 
 int QGDict::hashKey( const char *key )
 {
@@ -79,14 +79,14 @@ int QGDict::hashKey( const char *key )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a collection/dictionary item from the stream \e s and returns a
   reference to the stream.
 
   The default implementation sets \e item to 0.
 
   \sa write()
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream& QGDict::read( QDataStream &s, GCI &item )
 {
@@ -94,14 +94,14 @@ QDataStream& QGDict::read( QDataStream &s, GCI &item )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a collection/dictionary item to the stream \e s and returns a
   reference to the stream.
 
   The default implementation does nothing.
 
   \sa read()
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream& QGDict::write( QDataStream &s, GCI ) const
 {
@@ -133,10 +133,10 @@ private:
   QGDict member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a dictionary.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDict::QGDict( uint len, bool cs, bool ck, bool th )
 {
@@ -152,10 +152,10 @@ QGDict::QGDict( uint len, bool cs, bool ck, bool th )
     iterators = 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a copy of \e dict.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDict::QGDict( const QGDict & dict )
 {
@@ -174,10 +174,10 @@ QGDict::QGDict( const QGDict & dict )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes all items from the dictionary and destroys it.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDict::~QGDict()
 {
@@ -194,10 +194,10 @@ QGDict::~QGDict()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Assigns \e dict to this dictionary.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDict &QGDict::operator=( const QGDict &dict )
 {
@@ -211,23 +211,23 @@ QGDict &QGDict::operator=( const QGDict &dict )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QGDict::count() const
   \internal
   Returns the number of items in the dictionary.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QGDict::size() const
   \internal
   Returns the size of the hash array.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   The do-it-all function; find (op==0), insert (op==1), replace (op==2)
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDict::look( const char *key, GCI d, int op )
 {
@@ -274,10 +274,10 @@ GCI QGDict::look( const char *key, GCI d, int op )
     return node->getData();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Unlinks the bucket with the specified key.
- ----------------------------------------------------------------------------*/
+*/
 
 QBucket *QGDict::unlink( const char *key )
 {
@@ -318,10 +318,10 @@ QBucket *QGDict::unlink( const char *key )
     return 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes the item with the specified key.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGDict::remove( const char *key )
 {
@@ -335,10 +335,10 @@ bool QGDict::remove( const char *key )
     return n != 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes out the item with the specified key.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDict::take( const char *key )
 {
@@ -354,10 +354,10 @@ GCI QGDict::take( const char *key )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes all items from the dictionary.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGDict::clear()
 {
@@ -387,10 +387,10 @@ void QGDict::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Outputs debug statistics.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGDict::statistics() const
 {
@@ -454,10 +454,10 @@ QDataStream &operator<<( QDataStream &s, const QGDict &dict )
 #pragma message disable narrowptr
 #endif
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Reads a dictionary from the stream \e s.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &QGDict::read( QDataStream &s )
 {
@@ -480,10 +480,10 @@ QDataStream &QGDict::read( QDataStream &s )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Writes the dictionary to the stream \e s.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream& QGDict::write( QDataStream &s ) const
 {
@@ -509,18 +509,18 @@ QDataStream& QGDict::write( QDataStream &s ) const
   QGDictIterator member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGDictIterator qgdict.h
   \brief The QGDictIterator is an internal class for implementing QDictIterator and QIntDictIterator.
 
   QGDictIterator is a strictly internal class that does the heavy work for
   QDictIterator and QIntDictIterator.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs an iterator that operates on the dictionary \e d.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDictIterator::QGDictIterator( const QGDict &d )
 {
@@ -533,10 +533,10 @@ QGDictIterator::QGDictIterator( const QGDict &d )
     dict->iterators->append( this );		// attach iterator to dict
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a copy of the iterator \e it.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDictIterator::QGDictIterator( const QGDictIterator &it )
 {
@@ -547,11 +547,11 @@ QGDictIterator::QGDictIterator( const QGDictIterator &it )
 	dict->iterators->append( this );	// attach iterator to dict
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Assigns a copy of the iterator \e it and returns a reference to this 
   iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
 {
@@ -571,10 +571,10 @@ QGDictIterator &QGDictIterator::operator=( const QGDictIterator &it )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Destroys the iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGDictIterator::~QGDictIterator()
 {
@@ -592,10 +592,10 @@ QGDictIterator::~QGDictIterator()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the iterator to point to the first item in the dictionary.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDictIterator::toFirst()
 {
@@ -619,20 +619,20 @@ GCI QGDictIterator::toFirst()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the current item.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDictIterator::get() const
 {
     return curNode ? curNode->getData() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the key of the current item.
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QGDictIterator::getKey() const
 {
@@ -640,10 +640,10 @@ const char *QGDictIterator::getKey() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (postfix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDictIterator::operator()()
 {
@@ -660,10 +660,10 @@ GCI QGDictIterator::operator()()
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (prefix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDictIterator::operator++()
 {
@@ -691,10 +691,10 @@ GCI QGDictIterator::operator++()
     return curNode->getData();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves \e jumps positions forward.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGDictIterator::operator+=( uint jumps )
 {

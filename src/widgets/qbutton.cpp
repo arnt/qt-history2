@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#48 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#49 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,10 +15,10 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#49 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QButton qbutton.h
 
   \brief The QButton class is the abstract base class of button
@@ -52,12 +52,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#48 $");
   resize itself whenever the contents change.
 
   \sa QButtonGroup
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a standard button with a parent widget and a name.
- ----------------------------------------------------------------------------*/
+*/
 
 QButton::QButton( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -77,9 +77,9 @@ QButton::QButton( QWidget *parent, const char *name )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the button and all its child widgets.
- ----------------------------------------------------------------------------*/
+*/
 
 QButton::~QButton()
 {
@@ -89,30 +89,30 @@ QButton::~QButton()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButton::pressed()
   This signal is emitted when the button is pressed down.
 
   \sa released(), clicked()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButton::released()
   This signal is emitted when the button is released.
 
   \sa pressed(), clicked(), toggled()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButton::clicked()
   This signal is emitted when the button is activated (i.e. first
   pressed down and then released when the mouse cursor is inside the
   button).
 
   \sa pressed(), released(), toggled()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButton::toggled( bool on )
   This signal is emitted whenever a toggle button changes status.
   \e on is TRUE if the button is on, or FALSE if the button is off.
@@ -121,22 +121,22 @@ QButton::~QButton()
   or because setOn() was called.
 
   \sa clicked()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QButton::text() const
   Returns the button text, or 0 if the button has no text.
   \sa setText()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the button contents to \e text and redraws the contents.
 
   The button resizes itself if auto-resizing is enabled.
 
   \sa text(), setPixmap(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setText( const char *text )
 {
@@ -154,18 +154,18 @@ void QButton::setText( const char *text )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPixmap *QButton::pixmap() const
   Returns the button pixmap, or 0 if the button has no pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the button pixmap to \e pixmap and redraws the contents.
 
   The button resizes itself if auto-resizing is enabled.
 
   \sa pixmap(), setText(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setPixmap( const QPixmap &pixmap )
 {
@@ -195,7 +195,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QButton::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
@@ -203,10 +203,10 @@ void QButton::setPixmap( const QPixmap &pixmap )
   Auto-resizing is disabled by default.
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
@@ -214,7 +214,7 @@ void QButton::setPixmap( const QPixmap &pixmap )
   the contents change.
 
   \sa autoResize(), adjustSize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setAutoResize( bool enable )
 {
@@ -225,13 +225,13 @@ void QButton::setAutoResize( bool enable )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QButton::isDown() const
   Returns TRUE if the button pressed down, or FALSE if it is standing up.
   \sa setDown()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the state of the button to pressed down if \e enable is TRUE
   or to standing up if \e enable is FALSE.
 
@@ -243,7 +243,7 @@ void QButton::setAutoResize( bool enable )
   handlers.
 
   \sa isDown(), setOn(), toggle(), toggled()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setDown( bool enable )
 {
@@ -254,18 +254,18 @@ void QButton::setDown( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QButton::isOn() const
   Returns TRUE if this toggle button is switched on, or FALSE if it is
   switched off.
   \sa setOn(), toggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Switches a toggle button on if \e enable is TRUE or off if \e enable is
   FALSE.  This function should be called only for toggle buttons.
   \sa isOn(), toggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setOn( bool enable )
 {
@@ -281,13 +281,13 @@ void QButton::setOn( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QButton::isToggleButton() const
   Returns TRUE if the button is a toggle button.
   \sa setToggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Makes the button a toggle button if \e enable is TRUE, or a normal button
   if \e enable is FALSE.
 
@@ -297,7 +297,7 @@ void QButton::setOn( bool enable )
   QPushButton::setToggleButton() can be called to create toggle buttons.
 
   \sa isToggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::setToggleButton( bool enable )
 {
@@ -305,34 +305,34 @@ void QButton::setToggleButton( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if \e pos is inside the widget rectangle, or FALSE if it
   is outside.
 
   This virtual function is reimplemented by subclasses.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QButton::hitButton( const QPoint &pos ) const
 {
     return rect().contains( pos );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the button.  The default implementation does nothing.
 
   This virtual function is reimplemented by subclasses to draw real buttons.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::drawButton( QPainter * )
 {
     return;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the button text or pixmap.  The default implementation does nothing.
 
   This virtual function is reimplemented by subclasses to draw real buttons.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::drawButtonLabel( QPainter * )
 {
@@ -340,10 +340,10 @@ void QButton::drawButtonLabel( QPainter * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for the button.
   \sa mouseReleaseEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::mousePressEvent( QMouseEvent *e )
 {
@@ -358,10 +358,10 @@ void QButton::mousePressEvent( QMouseEvent *e )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the button.
   \sa mousePressEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::mouseReleaseEvent( QMouseEvent *e)
 {
@@ -385,10 +385,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse move events for the button.
   \sa mousePressEvent(), mouseReleaseEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::mouseMoveEvent( QMouseEvent *e )
 {
@@ -410,11 +410,11 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the button.
 
   Opens the painter on the button and calls drawButton().
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::paintEvent( QPaintEvent * )
 {
@@ -425,21 +425,21 @@ void QButton::paintEvent( QPaintEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles focus in events for the button.
 
   \sa focusOutEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::focusInEvent( QFocusEvent * )
 {
     repaint( FALSE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles focus out events for the button.
   \sa focusInEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButton::focusOutEvent( QFocusEvent * )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#17 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#18 $
 **
 ** Definition of QDataStream class
 **
@@ -77,9 +77,9 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-// --------------------------------------------------------------------------
-// QDataStream inline functions
-//
+/*****************************************************************************
+  QDataStream inline functions
+ *****************************************************************************/
 
 inline QIODevice *QDataStream::device() const
 { return dev; }

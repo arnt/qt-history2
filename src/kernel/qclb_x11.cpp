@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qclb_x11.cpp#10 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclb_x11.cpp#10 $");
 
 
 /*****************************************************************************
@@ -174,9 +174,9 @@ static QClipboardData *clipboardData()
   QClipboard member functions for X11.
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Clears the clipboard contents.
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::clear()
 {
@@ -184,12 +184,12 @@ void QClipboard::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the clipboard data, where \e format is the clipboard
   format.
 
   We recommend that you use text() or pixmap() instead.
- ----------------------------------------------------------------------------*/
+*/
 
 void *QClipboard::data( const char *format ) const
 {
@@ -276,12 +276,12 @@ void *QClipboard::data( const char *format ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Copies text into the clipboard, where \e format is the clipboard format
   string and \e data is the data to be copied.
 
   We recommend that you use setText() or setPixmap() instead.
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::setData( const char *format, void *data )
 {
@@ -327,29 +327,29 @@ void QClipboard::setData( const char *format, void *data )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Internal cleanup for Windows.
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::ownerDestroyed()
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Internal optimization for Windows.
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::connectNotify( const char * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles clipboard events (very platform-specific).
- ----------------------------------------------------------------------------*/
+*/
 
 bool QClipboard::event( QEvent *e )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#21 $
 **
 ** Implementation of QPrinter class for X-Windows
 **
@@ -21,7 +21,7 @@
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#21 $");
 
 
 /*****************************************************************************
@@ -36,9 +36,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#20 $");
 #define PST_ABORTED	3
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a printer paint device.
- ----------------------------------------------------------------------------*/
+*/
 
 QPrinter::QPrinter()
     : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )
@@ -54,9 +54,9 @@ QPrinter::QPrinter()
     print_prog = "lpr";
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the printer paint device and cleans up.
- ----------------------------------------------------------------------------*/
+*/
 
 QPrinter::~QPrinter()
 {
@@ -64,10 +64,10 @@ QPrinter::~QPrinter()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Advances to a new page on the printer.
   Returns TRUE if successful, otherwise FALSE.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPrinter::newPage()
 {
@@ -77,11 +77,11 @@ bool QPrinter::newPage()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Aborts the print job.
   Returns TRUE if successful, otherwise FALSE.
   \sa aborted()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPrinter::abort()
 {
@@ -92,10 +92,10 @@ bool QPrinter::abort()
     return state == PST_ABORTED;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE is the printer job was aborted, otherwise FALSE.
   \sa abort()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPrinter::aborted() const
 {
@@ -103,13 +103,13 @@ bool QPrinter::aborted() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Opens a printer setup dialog and asks the user to specify what printer
   to use and miscellaneous printer settings.
 
   Returns TRUE if the user pressed "Ok" to print, or FALSE if the
   user cancelled the operation.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPrinter::setup( QWidget *parent )
 {
@@ -118,10 +118,10 @@ bool QPrinter::setup( QWidget *parent )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Handles painter commands to the printer.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 {
@@ -199,14 +199,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
 
   \internal
   Hard coded return values for PostScript under X.
- ----------------------------------------------------------------------------*/
+*/
 
 int QPrinter::metric( int m ) const
 {

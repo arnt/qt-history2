@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.h#3 $
 **
 ** Definition of QWMatrix class
 **
@@ -65,9 +65,9 @@ private:
 QWMatrix operator*( const QWMatrix &, const QWMatrix & );
 
 
-// --------------------------------------------------------------------------
-// QWMatrix stream functions
-//
+/*****************************************************************************
+  QWMatrix stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QWMatrix & );
 QDataStream &operator>>( QDataStream &, QWMatrix & );

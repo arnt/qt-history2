@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qcur_os2.cpp#7 $
 **
 ** Implementation of QCursor class for OS/2 PM
 **
@@ -15,12 +15,12 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcur_os2.cpp#7 $");
 
 
-// --------------------------------------------------------------------------
-// Global cursors
-//
+/*****************************************************************************
+  Global cursors
+ *****************************************************************************/
 
 const QCursor arrowCursor;
 const QCursor upArrowCursor;
@@ -34,9 +34,9 @@ const QCursor sizeFDiagCursor;
 const QCursor sizeAllCursor;
 
 
-// --------------------------------------------------------------------------
-// QCursor member functions
-//
+/*****************************************************************************
+  QCursor member functions
+ *****************************************************************************/
 
 static QCursor *cursorTable[] = {		// order is important!!
     (QCursor*)&arrowCursor,

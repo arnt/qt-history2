@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#16 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#17 $
 **
 ** Definition of QBitArray class
 **
@@ -16,9 +16,9 @@
 #include "qstring.h"
 
 
-// --------------------------------------------------------------------------
-// QBitVal class; a context class for QBitArray::operator[]
-//
+/*****************************************************************************
+  QBitVal class; a context class for QBitArray::operator[]
+ *****************************************************************************/
 
 class QBitArray;
 
@@ -35,9 +35,9 @@ public:
 };
 
 
-// --------------------------------------------------------------------------
-// QBitArray class
-//
+/*****************************************************************************
+  QBitArray class
+ *****************************************************************************/
 
 class QBitArray : public QByteArray
 {
@@ -97,9 +97,9 @@ inline QBitVal QBitArray::operator[]( int index )
 { return QBitVal( (QBitArray*)this, index ); }
 
 
-// --------------------------------------------------------------------------
-// Misc. QBitArray operator functions
-//
+/*****************************************************************************
+  Misc. QBitArray operator functions
+ *****************************************************************************/
 
 QBitArray operator&( const QBitArray &, const QBitArray & );
 QBitArray operator|( const QBitArray &, const QBitArray & );
@@ -124,9 +124,9 @@ inline QBitVal &QBitVal::operator=( int v )
 }
 
 
-// --------------------------------------------------------------------------
-// QBitArray stream functions
-//
+/*****************************************************************************
+  QBitArray stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QBitArray & );
 QDataStream &operator>>( QDataStream &, QBitArray & );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#14 $
 **
 ** Implementation of QWMatrix class
 **
@@ -18,10 +18,10 @@ double qsincos( double, bool calcCos );		// defined in qptr_x11.cpp
 #include <math.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#14 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QWMatrix qwmatrix.h
   \brief The QWMatrix class specifies 2D transformations of a
   coordinate system.
@@ -123,17 +123,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwmatrix.cpp#13 $");
   build a QWMatrix and call QPainter::setWorldMatrix().
 
   \sa QPainter::setWorldMatrix(), QPixmap::xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QWMatrix member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an identity matrix.  All elements are set to zero,
   except \e m11 and \e m22 (scaling) which are set to 1.
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix::QWMatrix()
 {
@@ -141,9 +141,9 @@ QWMatrix::QWMatrix()
     _m12 = _m21 = _dx = _dy = (float)0.0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a matrix with the specified elements.
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
 		    float dx, float dy )
@@ -154,9 +154,9 @@ QWMatrix::QWMatrix( float m11, float m12, float m21, float m22,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the matrix elements to the specified values.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
 			  float dx, float dy )
@@ -167,45 +167,45 @@ void QWMatrix::setMatrix( float m11, float m12, float m21, float m22,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::m11() const
   Returns the X scaling factor.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::m12() const
   Returns the vertical shearing factor.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::m21() const
   Returns the horizontal shearing factor.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::m22() const
   Returns the Y scaling factor.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::dx() const
   Returns the horizontal translation.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn float QWMatrix::dy() const
   Returns the vertical translation.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
 
   \code
     *tx = m11*x + m21*y + dx
     *ty = m22*y + m12*x + dy
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void QWMatrix::map( float x, float y, float *tx, float *ty ) const
 {
@@ -213,14 +213,14 @@ void QWMatrix::map( float x, float y, float *tx, float *ty ) const
     *ty = _m12*x + _m22*y + _dy;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
 
   \code
     *tx = m11*x + m21*y + dx  --  (rounded to the nearest integer)
     *ty = m22*y + m12*x + dy  --  (rounded to the nearest integer)
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 {
@@ -228,9 +228,9 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
     *ty = qRound(_m12*x + _m22*y + _dy);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the transformed \e p.
- ----------------------------------------------------------------------------*/
+*/
 
 QPoint QWMatrix::map( const QPoint &p ) const
 {
@@ -238,12 +238,12 @@ QPoint QWMatrix::map( const QPoint &p ) const
 		   qRound(_m12*p.x() + _m22*p.y() + _dy) );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the tranformed rectangle \e r.
 
   If rotation or shearing has been specified, then the bounding rectangle
   will be returned.
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QWMatrix::map( const QRect &r ) const
 {
@@ -256,9 +256,9 @@ QRect QWMatrix::map( const QRect &r ) const
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point array \e a transformed by calling map for each point.
- ----------------------------------------------------------------------------*/
+*/
 
 QPointArray QWMatrix::map( const QPointArray &a ) const
 {
@@ -273,12 +273,12 @@ QPointArray QWMatrix::map( const QPointArray &a ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resets the matrix to an identity matrix.
 
   All elements are set to zero, except \e m11 and \e m22 (scaling)
   that are set to 1.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWMatrix::reset()
 {
@@ -287,14 +287,14 @@ void QWMatrix::reset()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Moves the coordinate system \e dx along the X-axis and \e dy
   along the Y-axis.
 
   Returns a reference to the matrix.
 
   \sa scale(), shear(), rotate()
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix &QWMatrix::translate( float dx, float dy )
 {
@@ -302,14 +302,14 @@ QWMatrix &QWMatrix::translate( float dx, float dy )
     return bmul( result );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Scales the coordinate system unit by \e sx horizontally and \e sy
   vertically.
 
   Returns a reference to the matrix.
 
   \sa translate(), shear(), rotate()
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix &QWMatrix::scale( float sx, float sy )
 {
@@ -317,13 +317,13 @@ QWMatrix &QWMatrix::scale( float sx, float sy )
     return bmul( result );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Shears the coordinate system	by \e sh horizontally and \e sv vertically.
 
   Returns a reference to the matrix.
 
   \sa translate(), scale(), rotate()
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix &QWMatrix::shear( float sh, float sv )
 {
@@ -333,13 +333,13 @@ QWMatrix &QWMatrix::shear( float sh, float sv )
 
 const float deg2rad = .017453292519943295769F;	// pi/180
 
-/*----------------------------------------------------------------------------
+/*!
   Rotates the coordinate system \e a degrees counterclockwise.
 
   Returns a reference to the matrix.
 
   \sa translate(), scale(), shear()
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix &QWMatrix::rotate( float a )
 {
@@ -356,7 +356,7 @@ QWMatrix &QWMatrix::rotate( float a )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the inverted matrix.
 
   If the matrix is singular (not invertible), then the identity matrix is
@@ -364,7 +364,7 @@ QWMatrix &QWMatrix::rotate( float a )
 
   If \e *invertible is not null, then the value of \e *invertible will
   be set to TRUE or FALSE to tell if the matrix is invertible or not.
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix QWMatrix::invert( bool *invertible ) const
 {
@@ -388,9 +388,9 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if this matrix is equal to \e m.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWMatrix::operator==( const QWMatrix &m ) const
 {
@@ -402,9 +402,9 @@ bool QWMatrix::operator==( const QWMatrix &m ) const
 	   _dy == m._dy;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if this matrix is not equal to \e m.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWMatrix::operator!=( const QWMatrix &m ) const
 {
@@ -416,9 +416,9 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 	   _dy != m._dy;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the result of multiplying this matrix with \e m.
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
 {
@@ -438,13 +438,13 @@ QWMatrix &QWMatrix::bmul( const QWMatrix &m )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QWMatrix
   Returns the product \e m1 * \e m2.
 
   Remember that matrix multiplication is not commutative, thus
   a*b != b*a.
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 {
@@ -458,13 +458,13 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
   QWMatrix stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QWMatrix
   Writes a matrix to the stream and returns a reference to the stream.
 
   Serialization format: m11, m12, m21, m22, dx and dy are serialized as
   \c float in the listed order.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 {
@@ -472,10 +472,10 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 	     << m.dx()	<< m.dy();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QWMatrix
   Reads a matrix from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QWMatrix &m )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#38 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,10 +15,10 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#38 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QLCDNumber qlcdnum.h
 
   \brief The QLCDNumber widget displays a number with LCD-like digits.
@@ -53,17 +53,17 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#37 $");
   href=http://www.nvg.unit.no/spectrum/>Sinclair Spectrum</a>.
 
   \sa QLabel, QFrame
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QLCDNumber::overflow()
 
   This signal is emitted whenever the QLCDNumber is asked to display a
   too large number or a too long string.
 
   It is never emitted by setNumDigits().
- ----------------------------------------------------------------------------*/
+*/
 
 
 static QString int2string( int num, int base, int ndigits, bool *oflow )
@@ -234,7 +234,7 @@ static char *getSegments( char ch )		// gets list of segments for ch
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an LCD number, sets the number of digits to 5, the base
   to decimal, the decimal point mode to 'small' and the frame style to
   a raised box.
@@ -242,7 +242,7 @@ static char *getSegments( char ch )		// gets list of segments for ch
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
   \sa setNumDigits(), setSmallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 	: QFrame( parent, name )
@@ -252,7 +252,7 @@ QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an LCD number, sets the number of digits to \e numDigits, the
   base to decimal, the decimal point mode to 'small' and the frame style
   to a raised box.
@@ -260,7 +260,7 @@ QLCDNumber::QLCDNumber( QWidget *parent, const char *name )
   The \e parent and \e name arguments are passed to the QFrame constructor.
 
   \sa setNumDigits(), setSmallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
 	: QFrame( parent, name )
@@ -269,9 +269,9 @@ QLCDNumber::QLCDNumber( uint numDigits, QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::init()
 {
@@ -283,25 +283,25 @@ void QLCDNumber::init()
     setNumDigits( ndigits );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the LCD number.
- ----------------------------------------------------------------------------*/
+*/
 
 QLCDNumber::~QLCDNumber()
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QLCDNumber::numDigits() const
 
   Returns the current number of digits.	 If smallDecimalPoint() is
   FALSE, the decimal point occupies one digit position.
 
   \sa setNumDigits(), smallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the number of digits shown to \e numDigits, which is forced
   into the [0-99] range.
 
@@ -309,7 +309,7 @@ QLCDNumber::~QLCDNumber()
   FALSE, only \e numDigits-1 digits can be shown.
 
   \sa numDigits(), setMode(), setSmallDecimalPoint(), overflow()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setNumDigits( int numDigits )
 {
@@ -355,11 +355,11 @@ void QLCDNumber::setNumDigits( int numDigits )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if \e num is too big to be displayed in its entirety,
   FALSE otherwise.
   \sa display(), numDigits(), smallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QLCDNumber::checkOverflow( int num ) const
 {
@@ -369,11 +369,11 @@ bool QLCDNumber::checkOverflow( int num ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if \e num is too big to be displayed in its entirety,
   FALSE otherwise.
   \sa display(), numDigits(), smallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QLCDNumber::checkOverflow( double num ) const
 {
@@ -383,11 +383,11 @@ bool QLCDNumber::checkOverflow( double num ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the current display mode, which is one of \c BIN, \c OCT, \c DEC
   and \c HEX.
   \sa setMode(), smallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 QLCDNumber::Mode QLCDNumber::mode() const
 {
@@ -395,27 +395,27 @@ QLCDNumber::Mode QLCDNumber::mode() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the last value set by one of the display() slots.
 
   If display(const char *) was the last called, 0 is returned.
 
   \sa intValue(), display()
- ----------------------------------------------------------------------------*/
+*/
 
 double QLCDNumber::value() const
 {
     return val;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the last value set by one of the display() slots rounded to the
   nearest integer.
 
   If display(const char *) was the last called, 0 is returned.
 
   \sa value(), display()
- ----------------------------------------------------------------------------*/
+*/
 
 int QLCDNumber::intValue() const
 {
@@ -423,10 +423,10 @@ int QLCDNumber::intValue() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the contents of the display to \e num.
   \sa setMode(), smallDecimalPoint()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::display( int num )
 {
@@ -440,9 +440,9 @@ void QLCDNumber::display( int num )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QLCDNumber::display( double num )
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::display( double num )
 {
@@ -456,7 +456,7 @@ void QLCDNumber::display( double num )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QLCDNumber::display( const char *s )
 
   This version of the function disregards mode() and smallDecimalPoint().
@@ -466,7 +466,7 @@ void QLCDNumber::display( double num )
   r, u, U, Y, colon, degree sign (which is specified as single quote
   in the string) and space.  QLCDNumber substitutes spaces for illegal
   characters.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::display( const char *s )
 {
@@ -474,12 +474,12 @@ void QLCDNumber::display( const char *s )
     internalDisplay( s );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Calls setMode( HEX ). Provided for convenience (e.g. for connecting
   buttons to this).
 
   \sa setMode(), setDecMode(), setOctMode(), setBinMode(), mode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setHexMode()
 {
@@ -487,12 +487,12 @@ void QLCDNumber::setHexMode()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Calls setMode( DEC ). Provided for convenience (e.g. for connecting
   buttons to this).
 
   \sa setMode(), setHexMode(), setOctMode(), setBinMode(), mode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setDecMode()
 {
@@ -500,12 +500,12 @@ void QLCDNumber::setDecMode()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Calls setMode( OCT ). Provided for convenience (e.g. for connecting
   buttons to this).
 
   \sa setMode(), setHexMode(), setDecMode(), setBinMode(), mode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setOctMode()
 {
@@ -513,12 +513,12 @@ void QLCDNumber::setOctMode()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Calls setMode( BIN ). Provided for convenience (e.g. for connecting
   buttons to this).
 
   \sa setMode(), setHexMode(), setDecMode(), setOctMode(), mode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setBinMode()
 {
@@ -526,7 +526,7 @@ void QLCDNumber::setBinMode()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the display mode to \e m, which must be one of \c BIN, \c OCT, \c DEC
   and \c HEX.  All four modes can display both integers, floating-point
   numbers and strings (subject to character set limitations).
@@ -540,7 +540,7 @@ void QLCDNumber::setBinMode()
 
   \sa mode(), setHexMode(), setDecMode(), setOctMode(), setBinMode(),
   setSmallDecimalPoint(), display()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setMode( Mode m )
 {
@@ -549,17 +549,17 @@ void QLCDNumber::setMode( Mode m )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QLCDNumber::smallDecimalPoint() const
 
   Returns TRUE if the decimal point is currently drawn between two
   digit positions, and FALSE if it is drawn in a digit position.
 
   \sa setSmallDecimalPoint(), mode()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   If \e b is TRUE, the decimal point is drawn between two digits.
   If \e b is FALSE, the decimal point is drawn in a digit position.
 
@@ -569,7 +569,7 @@ void QLCDNumber::setMode( Mode m )
   The display is set to "0.0".
 
   \sa smallDecimalPoint(), setMode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::setSmallDecimalPoint( bool b )
 {
@@ -578,23 +578,23 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize Events for the QLCDNumber.
 
   \internal
 
   FIXME: Why is this implemented and empty?
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::resizeEvent( QResizeEvent * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the LCD number using painter \e p.  This function is called from
   QFrame::paintEvent().
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::drawContents( QPainter *p )
 {
@@ -604,9 +604,9 @@ void QLCDNumber::drawContents( QPainter *p )
 	drawString( digitStr, *p, 0, FALSE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::internalDisplay( const char *s )
 {
@@ -667,9 +667,9 @@ void QLCDNumber::internalDisplay( const char *s )
     p.end();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::drawString( const char *s, QPainter &p,
 			     QBitArray *newPoints, bool newString )
@@ -710,9 +710,9 @@ void QLCDNumber::drawString( const char *s, QPainter &p,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
 			    char newCh, char oldCh )
@@ -759,9 +759,9 @@ void QLCDNumber::drawDigit( const QPoint &pos, QPainter &p, int segLen,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
- ----------------------------------------------------------------------------*/
+*/
 
 void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 			      int segLen, bool erase )

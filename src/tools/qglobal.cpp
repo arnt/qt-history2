@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#36 $
 **
 ** Global functions
 **
@@ -17,16 +17,16 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglobal.cpp#36 $");
 
 
 #define QT_VERSION "0.99"
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Returns the Qt version number for the library, typically "1.1".
- ----------------------------------------------------------------------------*/
+*/
 
 const char *qVersion()
 {
@@ -42,7 +42,7 @@ static bool si_alreadyDone = FALSE;
 static int  si_wordSize;
 static bool si_bigEndian;
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Obtains information about the system.
 
@@ -52,7 +52,7 @@ static bool si_bigEndian;
 
   This function calls fatal() with a message if the computer is truely weird
   (i.e. different endianness for 16 bit and 32 bit integers).
- ----------------------------------------------------------------------------*/
+*/
 
 bool qSysInfo( int *wordSize, bool *bigEndian )
 {
@@ -126,7 +126,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian )
 
 static msg_handler handler = 0;			// pointer to debug handler
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Prints a debug message, or calls the message handler (if it has been
   installed).
@@ -147,7 +147,7 @@ static msg_handler handler = 0;			// pointer to debug handler
 
   \sa warning(), fatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void debug( const char *msg, ... )
 {
@@ -166,7 +166,7 @@ void debug( const char *msg, ... )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Prints a warning message, or calls the message handler (if it has been
   installed).
@@ -191,7 +191,7 @@ void debug( const char *msg, ... )
 
   \sa debug(), fatal(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void warning( const char *msg, ... )
 {
@@ -210,7 +210,7 @@ void warning( const char *msg, ... )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Prints a fatal error message and exits, or calls the message handler (if it
   has been installed).
@@ -236,7 +236,7 @@ void warning( const char *msg, ... )
 
   \sa debug(), warning(), qInstallMsgHandler(),
   \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void fatal( const char *msg, ... )
 {
@@ -261,7 +261,7 @@ void fatal( const char *msg, ... )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void ASSERT( bool test )
   \relates QApplication
   Prints a warning message containing the source code file name and line number
@@ -293,10 +293,10 @@ void fatal( const char *msg, ... )
   \endcode
 
   \sa warning(), \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void CHECK_PTR( void *p )
   \relates QApplication
   If \e p is null, a fatal messages says that the program ran out of memory
@@ -318,7 +318,7 @@ void fatal( const char *msg, ... )
   \endcode
 
   \sa fatal(), \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
 //
@@ -393,7 +393,7 @@ void qObsolete(  const char *message )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Installs a Qt message handler.  Returns a pointer to the message handler
   previously defined.
@@ -444,7 +444,7 @@ void qObsolete(  const char *message )
   \endcode
 
   \sa debug(), warning(), fatal(), \link debug.html Debugging\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 msg_handler qInstallMsgHandler( msg_handler h )
 {

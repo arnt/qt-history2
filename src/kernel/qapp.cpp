@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#77 $
 **
 ** Implementation of QApplication class
 **
@@ -16,10 +16,10 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#77 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QApplication qapp.h
   \brief The QApplication class manages the application event queue.
 
@@ -62,7 +62,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#76 $");
   \header qkeycode.h
   \header qwindefs.h
   \header qglobal.h
- ----------------------------------------------------------------------------*/
+*/
 
 
 void qt_init( int *, char ** );			// defined in qapp_xyz.cpp
@@ -112,7 +112,7 @@ static void destroy_palettes()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an application object with the command line arguments \e argc
   and \e argv.
 
@@ -152,7 +152,7 @@ static void destroy_palettes()
   </ul>
 
   \sa argc(), argv()
- ----------------------------------------------------------------------------*/
+*/
 
 QApplication::QApplication( int &argc, char **argv )
 {
@@ -180,10 +180,10 @@ QApplication::QApplication( int &argc, char **argv )
     starting_up = FALSE;			// no longer starting up
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Closes all widgets and cleans up all window system resources.
   Sets \c qApp to 0.
- ----------------------------------------------------------------------------*/
+*/
 
 QApplication::~QApplication()
 {
@@ -202,7 +202,7 @@ QApplication::~QApplication()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QApplication::argc() const
   Returns the number of command line arguments.
 
@@ -210,9 +210,9 @@ QApplication::~QApplication()
   process command line arguments.
 
   \sa argv(), QApplication::QApplication()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn char **QApplication::argv() const
   Returns the command line argument vector.
 
@@ -248,16 +248,16 @@ QApplication::~QApplication()
   "showargs", "hello" and "world".
 
   \sa argc(), QApplication::QApplication()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GUIStyle QApplication::style()
   Returns the GUI style of the application.
   \sa setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the application GUI style to \e style.
 
   The style parameter can be \c MacStyle, \c WindowsStyle, \c PMStyle
@@ -265,7 +265,7 @@ QApplication::~QApplication()
   supported in the current version of Qt.
 
   \sa style(), QWidget::setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::setStyle( GUIStyle style )
 {
@@ -273,19 +273,19 @@ void QApplication::setStyle( GUIStyle style )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the default application palette.  There is
   always an application palette, i.e. the returned pointer is
   guaranteed to be non-null.
   \sa setPalette(), QWidget::palette()
- ----------------------------------------------------------------------------*/
+*/
 
 QPalette *QApplication::palette()
 {
     return app_pal;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Changes the default application palette to \e palette.
 
   If \e updateAllWidgets is TRUE, then the palette of all existing
@@ -295,7 +295,7 @@ QPalette *QApplication::palette()
   QWidget::palette() palette\endlink.
 
   \sa QWidget::setPalette(), palette()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 {
@@ -314,14 +314,14 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFont *QApplication::font()
   Returns the default application font.	 There is always an application
   font, i.e. the returned pointer is guaranteed to be non-null.
   \sa setFont(), fontMetrics(), QWidget::font()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Changes the default application font to \e font.
 
   If \e updateAllWidgets is TRUE, then the font of all existing
@@ -331,7 +331,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets )
   QWidget::font() font\endlink.
 
   \sa font(), fontMetrics(), QWidget::setFont()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 {
@@ -352,18 +352,18 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidget *QApplication::focusWidget() const
   Returns the application widget that has the keyboard input focus, or null
   if no application widget has the focus.
   \sa QWidget::setFocus(), QWidget::hasFocus()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns display (screen) font metrics for the application font.
   \sa font(), setFont(), QWidget::fontMetrics(), QPainter::fontMetrics()
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics QApplication::fontMetrics()
 {
@@ -371,7 +371,7 @@ QFontMetrics QApplication::fontMetrics()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Tells the application to exit with a return code.
 
   After this function has been called, the application leaves the main
@@ -382,7 +382,7 @@ QFontMetrics QApplication::fontMetrics()
   an error.
 
   \sa quit(), exec()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::exit( int retcode )
 {
@@ -395,7 +395,7 @@ void QApplication::exit( int retcode )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Tells the application to exit with return code 0 (success).
   Equivalent to calling QApplication::exit( 0 ).
 
@@ -409,7 +409,7 @@ void QApplication::exit( int retcode )
   \endcode
 
   \sa exit()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::quit()
 {
@@ -417,16 +417,16 @@ void QApplication::quit()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
   Sends an event directly to a receiver, using the notify() function.
   Returns the value that was returned from the event handler.
 
   \sa postEvent(), notify()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sends \e event to \e receiver: <code>receiver->event( event )</code>
   Returns the value that is returned from the receiver's event handler.
 
@@ -438,7 +438,7 @@ void QApplication::quit()
   application-global event hook.
 
   \sa QObject::event(), installEventFilter()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QApplication::notify( QObject *receiver, QEvent *event )
 {
@@ -462,20 +462,20 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if an application object has not been created yet.
   \sa closingDown()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QApplication::startingUp()
 {
     return starting_up;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the application objects are being destroyed.
   \sa startingUp()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QApplication::closingDown()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#36 $
 **
 ** Implementation of event classes
 **
@@ -12,7 +12,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#36 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -89,7 +89,7 @@ void QEvent::peErrMsg()				// posted event error message
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QEvent qevent.h
   \brief The QEvent class is base class of all
   event classes. Event objects contain event parameters.
@@ -117,27 +117,27 @@ void QEvent::peErrMsg()				// posted event error message
   The basic QEvent only contains an event type parameter.  Subclasses
   of QEvent contain additional parameters that descripe the particular
   event.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QEvent::QEvent( int type )
   Contructs an event object with a \e type. The file qevent.h lists
   all event types.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QEvent::~QEvent()
   Destroys the event.  Reports an error if the event has been
   \link QApplication::postEvent() posted. \endlink
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QEvent::type() const
   Returns the event type.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QTimerEvent qevent.h
   \brief The QTimerEvent class contains parameters that describe a
   timer event.
@@ -157,21 +157,21 @@ void QEvent::peErrMsg()				// posted event error message
 
   \sa QTimer, QObject::timerEvent(), QObject::startTimer(),
   QObject::killTimer(), QObject::killTimers()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QTimerEvent::QTimerEvent( int timerId )
   Constructs a timer event object with the timer identifier set to \e timerId.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTimerEvent::timerId() const
   Returns the unique timer identifier, which is the same identifier as
   returned from QObject::startTimer().
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QMouseEvent qevent.h
 
   \brief The QMouseEvent class contains parameters that describe a mouse event.
@@ -200,9 +200,9 @@ void QEvent::peErrMsg()				// posted event error message
   mouse events.
 
   \sa QWidget::setMouseTracking(), QWidget::grabMouse()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 
   Constructs a mouse event object.
@@ -210,15 +210,15 @@ void QEvent::peErrMsg()				// posted event error message
   The type parameter must be \c Event_MouseButtonPress,
   \c Event_MouseButtonRelease,
   \c Event_MouseButtonDblClick or \c Event_MouseMove.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPoint &QMouseEvent::pos() const
   Returns the position of the mouse relative to the widget that received the
   event.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QMouseEvent::button() const
   Returns the button that caused the event.
 
@@ -229,10 +229,10 @@ void QEvent::peErrMsg()				// posted event error message
   event is received.
 
   \sa state()
- ----------------------------------------------------------------------------*/
+*/
   
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QMouseEvent::state() const
   Returns the current button state (a combination of mouse buttons and keyboard
   modifiers).
@@ -241,10 +241,10 @@ void QEvent::peErrMsg()				// posted event error message
   \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
 
   \sa button()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QKeyEvent qevent.h
   \brief The QKeyEvent class contains parameters that describe a key event.
 
@@ -264,9 +264,9 @@ void QEvent::peErrMsg()				// posted event error message
   receive key events.
 
   \sa QFocusEvent, QWidget::grabKeyboard()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QKeyEvent::QKeyEvent( int type, int key, int ascii, int state )
   Constructs a key event object.
 
@@ -276,9 +276,9 @@ void QEvent::peErrMsg()				// posted event error message
   may be the result of a compose sequence or keyboard macro).
 
   The accept flag is set to TRUE.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QKeyEvent::key() const
   Returns the code if the key that was pressed or released.
 
@@ -287,27 +287,27 @@ void QEvent::peErrMsg()				// posted event error message
 
   Key code 0 means that the event is not a result of a known key (e.g. it
   may be the result of a compose sequence or keyboard macro).
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QKeyEvent::ascii() const
   Returns the ASCII code of the key that was pressed or released.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QKeyEvent::state() const
   Returns the keyboard modifier flags.
 
   The returned value is \c ShiftButton, \c ControlButton and \c AltButton
   OR'ed together.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QKeyEvent::isAccepted() const
   Returns TRUE if the receiver of the event wants to keep the key.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QKeyEvent::accept()
   Sets the accept flag of the key event object.
 
@@ -317,9 +317,9 @@ void QEvent::peErrMsg()				// posted event error message
   The accept flag is set by default.
 
   \sa ignore()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QKeyEvent::ignore()
   Clears the accept flag parameter of the key event object.
 
@@ -329,10 +329,10 @@ void QEvent::peErrMsg()				// posted event error message
   The accept flag is set by default.
 
   \sa accept()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFocusEvent qevent.h
   \brief The QFocusEvent class contains event parameters for widget focus
   events.
@@ -345,27 +345,27 @@ void QEvent::peErrMsg()				// posted event error message
   receive focus events.
 
   \sa QWidget::setFocus(), QWidget::setAcceptFocus()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFocusEvent::QFocusEvent( int type )
   Constructs a focus event object.
 
   The \e type parameter must be either \e Event_FocusIn or \e Event_FocusOut.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QFocusEvent::gotFocus() const
   Returns TRUE if the widget received the text input focus.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QFocusEvent::lostFocus() const
   Returns TRUE if the widget lost the text input focus.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPaintEvent qevent.h
   \brief The QPaintEvent class contains event parameters for paint events.
 
@@ -377,20 +377,20 @@ void QEvent::peErrMsg()				// posted event error message
   The event handler QWidget::paintEvent() receives paint events.
 
   \sa QWidget::update(), QWidget::repaint()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPaintEvent::QPaintEvent( const QRect &paintRect )
   Constructs a paint event object with the rectangle that should be updated.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QRect &QPaintEvent::rect() const
   Returns the rectangle that should be updated.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QMoveEvent qevent.h
   \brief The QMoveEvent class contains event parameters for move events.
 
@@ -402,26 +402,26 @@ void QEvent::peErrMsg()				// posted event error message
   The event handler QWidget::moveEvent() receives move events.
 
   \sa QWidget::move(), QWidget::setGeometry()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QMoveEvent::QMoveEvent( const QPoint &pos, const QPoint &oldPos )
   Constructs a move event with the new and old widget positions.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPoint &QMoveEvent::pos() const
   Returns the new position of the widget, which is the same as
   QWidget::pos().
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPoint &QMoveEvent::oldPos() const
   Returns the old position of the widget.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QResizeEvent qevent.h
   \brief The QResizeEvent class contains event parameters for resize events.
 
@@ -432,26 +432,26 @@ void QEvent::peErrMsg()				// posted event error message
   The event handler QWidget::resizeEvent() receives resize events.
 
   \sa QWidget::resize(), QWidget::setGeometry()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QResizeEvent::QResizeEvent( const QSize &size, const QSize &oldSize )
   Constructs a resize event with the new and old widget sizes.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QSize &QResizeEvent::size() const
   Returns the new size of the widget, which is the same as
   QWidget::size().
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QSize &QResizeEvent::oldSize() const
   Returns the old size of the widget.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QCloseEvent qevent.h
   \brief The QCloseEvent class contains parameters that describe a close event.
 
@@ -509,20 +509,20 @@ void QEvent::peErrMsg()				// posted event error message
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
   QApplication::setMainWidget(), QApplication::quit()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QCloseEvent::QCloseEvent()
   Constructs a close event object with the accept parameter flag set to FALSE.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QCloseEvent::isAccepted() const
   Returns TRUE if the receiver of the event has agreed to close the widget.
   \sa accept(), ignore()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QCloseEvent::accept()
   Sets the accep flag of the close event object.
 
@@ -535,9 +535,9 @@ void QEvent::peErrMsg()				// posted event error message
   hidden.
 
   \sa ignore(), QWidget::hide()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QCloseEvent::ignore()
   Clears the accept flag of the close event object.
 
@@ -547,10 +547,10 @@ void QEvent::peErrMsg()				// posted event error message
   The accept flag is not set by default.
 
   \sa accept()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QCustomEvent qevent.h
   \brief The QCustomEvent class provides support for custom events.
 
@@ -562,15 +562,15 @@ void QEvent::peErrMsg()				// posted event error message
   This event class is internally used to implement Qt enhancements.  It is
   not advisable to use QCustomEvent in normal applications, where other
   event types and the signal/slot mechanism can do the job.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QCustomEvent::QCustomEvent( int type, void *data )
   Constructs a custom event object with the event type \e type and a
   pointer to \e data.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void *QCustomEvent::data() const
   Returns a pointer to the event data (specified in the constructor).
 
@@ -578,5 +578,5 @@ void QEvent::peErrMsg()				// posted event error message
   based on the \link type() event type\endlink. Again, it is not
   recommended to use custom events unless you are implementing Qt kernel
   enhancements.
- ----------------------------------------------------------------------------*/
+*/
 

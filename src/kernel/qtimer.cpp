@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#16 $
 **
 ** Implementation of QTimer class
 **
@@ -12,10 +12,10 @@
 
 #include "qtimer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#16 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QTimer qtimer.h
   \brief The QTimer class provides timer signals and single-shot timers.
 
@@ -44,18 +44,18 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#15 $");
   running timers, each having a unique identifier.  The disadvantage is
   that it does not support such high-level features as single-shot timers
   or signals.
- ----------------------------------------------------------------------------*/
+*/
 
 
 const int INV_TIMER = -1;			// invalid timer id
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a timer with a \e parent and a \e name.
 
   Notice that the destructor of the parent object will destroy this timer
   object.
- ----------------------------------------------------------------------------*/
+*/
 
 QTimer::QTimer( QObject *parent, const char *name )
     : QObject( parent, name )
@@ -64,9 +64,9 @@ QTimer::QTimer( QObject *parent, const char *name )
     id = INV_TIMER;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the timer.
- ----------------------------------------------------------------------------*/
+*/
 
 QTimer::~QTimer()
 {
@@ -75,19 +75,19 @@ QTimer::~QTimer()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QTimer::timeout()
   This signal is emitted when the timer is activated.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QTimer::isActive() const
   Returns TRUE if the timer is running (pending), or FALSE is the timer is
   idle.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Starts the timer with a \e msecs milliseconds timeout.
 
   If \e sshot is TRUE, the timer will be activated only once,
@@ -96,7 +96,7 @@ QTimer::~QTimer()
   Any pending timer will be stopped.
 
   \sa stop(), changeInterval(), isActive()
- ----------------------------------------------------------------------------*/
+*/
 
 int QTimer::start( int msec, bool sshot )
 {
@@ -107,14 +107,14 @@ int QTimer::start( int msec, bool sshot )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Changes the timeout interval to \e msec milliseconds.
 
   If the timer signal is pending, it will be stopped and restarted,
   otherwise it will be started.
 
   \sa start(), isActive()
- ----------------------------------------------------------------------------*/
+*/
 
 void QTimer::changeInterval( int msec )
 {
@@ -126,10 +126,10 @@ void QTimer::changeInterval( int msec )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Stops the timer.
   \sa start()
- ----------------------------------------------------------------------------*/
+*/
 
 void QTimer::stop()
 {
@@ -140,9 +140,9 @@ void QTimer::stop()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles timer events.  Emits timeout() when a timer event is received.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QTimer::event( QEvent *e )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.h#15 $
+** $Id: //depot/qt/main/src/tools/qtstream.h#16 $
 **
 ** Definition of QTextStream class
 **
@@ -115,9 +115,9 @@ private:	// Disabled copy constructor and operator=
 typedef QTextStream QTS;
 
 
-// --------------------------------------------------------------------------
-// QTextStream inline functions
-//
+/*****************************************************************************
+  QTextStream inline functions
+ *****************************************************************************/
 
 inline QIODevice *QTextStream::device() const
 { return dev; }
@@ -159,9 +159,9 @@ inline int QTextStream::precision( int p )
 { int oldp = fprec;  fprec = p;	 return oldp;  }
 
 
-// --------------------------------------------------------------------------
-// QTextStream manipulators
-//
+/*****************************************************************************
+  QTextStream manipulators
+ *****************************************************************************/
 
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
 typedef int (QTextStream::*QTSMFI)(int);	// manipulator w/int argument

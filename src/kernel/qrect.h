@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#23 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#24 $
 **
 ** Definition of QRect class
 **
@@ -103,17 +103,17 @@ public:
 };
 
 
-// --------------------------------------------------------------------------
-// QRect stream functions
-//
+/*****************************************************************************
+  QRect stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QRect & );
 QDataStream &operator>>( QDataStream &, QRect & );
 
 
-// --------------------------------------------------------------------------
-// QRect inline member functions
-//
+/*****************************************************************************
+  QRect inline member functions
+ *****************************************************************************/
 
 inline QRect::QRect( int left, int top, int width, int height )
 {

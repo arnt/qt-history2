@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#63 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #define QXFontStruct XFontStruct
 #include "qfontdta.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#63 $");
 
 
 static const int fontFields = 14;
@@ -178,9 +178,9 @@ XFontStruct *qt_get_xfontstruct( QFontData *d )
   QFont member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Internal function that initializes the font system.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::initialize()			// called when starting up
 {
@@ -195,9 +195,9 @@ void QFont::initialize()			// called when starting up
 	defFont = new QFont( TRUE );		// create the default font
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Internal function that cleans up the font system.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::cleanup()				// called when terminating app
 {
@@ -208,9 +208,9 @@ void QFont::cleanup()				// called when terminating app
     delete fontNameDict;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Internal function that dumps font cache statistics.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::cacheStatistics()
 {
@@ -228,10 +228,10 @@ void QFont::cacheStatistics()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font object that refers to the default font.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::QFont( bool )				// create default font
 {
@@ -254,7 +254,6 @@ QFont::QFont( bool )				// create default font
   Returns a window system handle to the font.
 
   Use of this function is discouraged at present.
-
 */
 
 HANDLE QFont::handle( HANDLE ) const
@@ -271,10 +270,10 @@ HANDLE QFont::handle( HANDLE ) const
     return last;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the font attributes have been changed and the font has to
   be (re)loaded, or FALSE if no changes have been made.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::dirty() const
 {
@@ -282,9 +281,9 @@ bool QFont::dirty() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the family name that corresponds to the current style hint.
- ----------------------------------------------------------------------------*/
+*/
 
 QString QFont::defaultFamily() const
 {
@@ -305,12 +304,12 @@ QString QFont::defaultFamily() const
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a last resort family name for the \link fontmatch.html font
   matching algorithm. \endlink
 
   \sa lastResortFont()
- ----------------------------------------------------------------------------*/
+*/
 
 QString QFont::lastResortFamily() const
 {
@@ -335,14 +334,14 @@ static const char *tryFonts[] = {
     "-*-lucida-*-*-*-*-*-*-*-*-*-*-*-*",
     0 };
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a last resort raw font name for the \link fontmatch.html font
   matching algorithm. \endlink
 
   This is used if not even the last resort family is available.
 
   \sa lastResortFamily()
- ----------------------------------------------------------------------------*/
+*/
 
 QString QFont::lastResortFont() const
 {
@@ -377,9 +376,9 @@ static void resetFontDef( QFontDef *def )	// used by updateFontInfo()
     def->hintSetByUser = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Updates the font information.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::updateFontInfo() const
 {
@@ -433,9 +432,9 @@ void QFont::updateFontInfo() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Loads the requested font.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::loadFont( HANDLE ) const
 {
@@ -757,14 +756,14 @@ QString QFont_Private::findFont( bool *exact )
   QFontMetrics member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the maximum ascent of the font.
 
   The ascent is the distance from the base line to the uppermost line
   where pixels may be drawn.
 
   \sa descent()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::ascent() const
 {
@@ -780,7 +779,7 @@ int QFontMetrics::ascent() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the maximum descent of the font.
 
   The descent is the distance from the base line to the lowermost line
@@ -788,7 +787,7 @@ int QFontMetrics::ascent() const
   adds 1 pixel.)
 
   \sa ascent()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::descent() const
 {
@@ -804,13 +803,13 @@ int QFontMetrics::descent() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the height of the font.
 
   This is always equal to ascent()+descent()+1 (the 1 is for the base line).
 
   \sa leading(), lineSpacing()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::height() const
 {
@@ -826,13 +825,13 @@ int QFontMetrics::height() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the leading of the font.
 
   This is the natural inter-line spacing.
 
   \sa height(), lineSpacing()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::leading() const
 {
@@ -850,13 +849,13 @@ int QFontMetrics::leading() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the distance from one base line to the next.
 
   This value is always equal to leading()+height().
 
   \sa height(), leading()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::lineSpacing() const
 {
@@ -864,7 +863,7 @@ int QFontMetrics::lineSpacing() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the width in pixels of the first \e len characters of \e str.
 
   If \e len is negative (default value), the whole string is used.
@@ -877,7 +876,7 @@ int QFontMetrics::lineSpacing() const
   boundingRect().
 
   \sa boundingRect()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::width( const char *str, int len ) const
 {
@@ -895,7 +894,7 @@ int QFontMetrics::width( const char *str, int len ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the bounding rectangle of the first \e len characters of \e str.
 
   If \e len is negative (default value), the whole string is used.
@@ -904,7 +903,7 @@ int QFontMetrics::width( const char *str, int len ) const
   that the text output may cover \e all pixels in the bounding rectangle.
 
   \sa width()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
@@ -959,9 +958,9 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the width of the widest character in the font.
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::maxWidth() const
 {
@@ -977,11 +976,11 @@ int QFontMetrics::maxWidth() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the distance from the base line to where an underscore should be
   drawn.
   \sa strikeOutPos(), lineWidth()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::underlinePos() const
 {
@@ -990,11 +989,11 @@ int QFontMetrics::underlinePos() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the distance from the base line to where the strike-out line
   should be drawn.
   \sa underlinePos(), lineWidth()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::strikeOutPos() const
 {
@@ -1011,11 +1010,11 @@ int QFontMetrics::strikeOutPos() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the width of the underline and strike-out lines, adjusted for
   the point size of the font.
   \sa underlinePos(), strikeOutPos()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::lineWidth() const
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#39 $
+** $Id: //depot/qt/main/src/tools/qstring.h#40 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,9 +18,9 @@
 #include <string.h>
 
 
-// --------------------------------------------------------------------------
-// Fixes and workarounds for some platforms
-//
+/*****************************************************************************
+  Fixes and workarounds for some platforms
+ *****************************************************************************/
 
 #if defined(_OS_HPUX_)
 // HP-UX has badly defined strstr() etc.
@@ -36,9 +36,9 @@ inline char *hack_strrchr( const char *s, int c )
 #endif
 
 
-// --------------------------------------------------------------------------
-// Safe and portable C string functions; extensions to standard string.h
-//
+/*****************************************************************************
+  Safe and portable C string functions; extensions to standard string.h
+ *****************************************************************************/
 
 void *qmemmove( void *dst, const void *src, uint len );
 
@@ -101,9 +101,9 @@ int qstrnicmp( const char *, const char *, uint len );
 UINT16 qchecksum( const char *s, uint len );
 
 
-// --------------------------------------------------------------------------
-// QByteArray class
-//
+/*****************************************************************************
+  QByteArray class
+ *****************************************************************************/
 
 #if defined(USE_TEMPLATECLASS)
 #define QByteArray QArrayT<char>
@@ -113,17 +113,17 @@ declare(QArrayM,char);
 #endif
 
 
-// --------------------------------------------------------------------------
-// QByteArray stream functions
-//
+/*****************************************************************************
+  QByteArray stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QByteArray & );
 QDataStream &operator>>( QDataStream &, QByteArray & );
 
 
-// --------------------------------------------------------------------------
-// QString class
-//
+/*****************************************************************************
+  QString class
+ *****************************************************************************/
 
 class QRegExp;
 
@@ -206,17 +206,17 @@ public:
 };
 
 
-// --------------------------------------------------------------------------
-// QString stream functions
-//
+/*****************************************************************************
+  QString stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QString & );
 QDataStream &operator>>( QDataStream &, QString & );
 
 
-// --------------------------------------------------------------------------
-// QString inline functions
-//
+/*****************************************************************************
+  QString inline functions
+ *****************************************************************************/
 
 inline QString &QString::operator=( const QString &s )
 { return (QString&)assign( s ); }
@@ -261,9 +261,9 @@ inline QString::operator const char *() const
 { return (const char *)data(); }
 
 
-// --------------------------------------------------------------------------
-// QString non-member operators
-//
+/*****************************************************************************
+  QString non-member operators
+ *****************************************************************************/
 
 inline bool operator==( const QString &s1, const QString &s2 )
 { return strcmp(s1.data(),s2.data()) == 0; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#69 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -20,10 +20,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#69 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QImage qimage.h
   \brief The QImage class provides a hardware-independent pixmap representation
   with direct access to the pixel data.
@@ -91,7 +91,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#68 $");
   similar to that of QArray and QString.
 
   \sa QImageIO, QPixmap, \link shclass.html Shared Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
 extern bool qt_image_native_bmp();
@@ -127,10 +127,10 @@ uchar *qt_get_bitflip_array()			// called from QPixmap code
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a null image.
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::QImage()
 {
@@ -139,7 +139,7 @@ QImage::QImage()
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an image with \e w width, \e h height, \e depth bits per
   pixel, \e numColors colors and bit order \e bitOrder.
 
@@ -147,7 +147,7 @@ QImage::QImage()
   then calling the create() function.
 
   \sa create()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::QImage( int w, int h, int depth, int numColors,	Endian bitOrder )
 {
@@ -157,9 +157,9 @@ QImage::QImage( int w, int h, int depth, int numColors,	Endian bitOrder )
     create( w, h, depth, numColors, bitOrder );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a shallow copy of \e image.
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::QImage( const QImage &image )
 {
@@ -167,9 +167,9 @@ QImage::QImage( const QImage &image )
     data->ref();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the image and cleans up.
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::~QImage()
 {
@@ -180,12 +180,12 @@ QImage::~QImage()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns a shallow copy of \e image to this image and returns a reference
   to this image.
 
   \sa copy()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage &QImage::operator=( const QImage &image )
 {
@@ -198,7 +198,7 @@ QImage &QImage::operator=( const QImage &image )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image bits to the \e pixmap contents and returns a reference to
   the image.
 
@@ -206,7 +206,7 @@ QImage &QImage::operator=( const QImage &image )
   the shared data.
 
   Makes a call to QPixmap::convertToImage().
- ----------------------------------------------------------------------------*/
+*/
 
 QImage &QImage::operator=( const QPixmap &pixmap )
 {
@@ -214,14 +214,14 @@ QImage &QImage::operator=( const QPixmap &pixmap )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Detaches from shared image data and makes sure that this image is the
   only one referring the data.
 
   If multiple images share common data, this image makes a copy of the
   data and detaches itself from the sharing mechanism.	Nothing is
   done if there is just a single reference.
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::detach()
 {
@@ -229,9 +229,9 @@ void QImage::detach()
 	*this = copy();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a deep copy of the image.
- ----------------------------------------------------------------------------*/
+*/
 
 QImage QImage::copy() const
 {
@@ -245,39 +245,39 @@ QImage QImage::copy() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QImage::isNull() const
   Returns TRUE if it is a null image.
 
   A null image has all parameters set to zero and no allocated data.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::width() const
   Returns the width of the image.
   \sa heigth(), size(), rect()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::height() const
   Returns the height of the image.
   \sa width(), size(), rect()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QSize QImage::size() const
   Returns the size of the image.
   \sa width(), height(), rect()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QRect QImage::rect() const
   Returns the enclosing rectangle (0,0,width(),height()) of the image.
   \sa width(), height(), size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::depth() const
   Returns the depth of the image.
 
@@ -285,17 +285,17 @@ QImage QImage::copy() const
   called bits per pixel (bpp) or bit planes of an image.
 
   The supported depths are 1, 8 and 32.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::numColors() const
   Returns the size of the color table for the image.
 
   Notice that numColors() returns 0 for 32-bpp images, since these images
   do not use color tables, but instead encode pixel values as RGB triplets.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QImage::Endian QImage::bitOrder() const
   Returns the bit order for the image.
 
@@ -305,41 +305,41 @@ QImage QImage::copy() const
   If it is not a 1-bit image, this function returns QImage::IgnoreEndian.
 
   \sa depth()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uchar **QImage::jumpTable() const
   Returns a pointer to the scanline pointer table.
 
   This is the beginning of the data block for the image.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QRgb *QImage::colorTable() const
   Returns a pointer to the color table.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::numBytes() const
   Returns the number of bytes occupied by the image data.
   \sa bytesPerLine()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImage::bytesPerLine() const
   Returns the number of bytes per image scanline.
   This is equivalent to numBytes()/height().
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the color in the color table at index \e i.
 
   A color value is an RGB triplet. Use the QRED, QGREEN and QBLUE functions
   (defined in qcolor.h) to get the color value components.
 
   \sa setColor(), QColor
- ----------------------------------------------------------------------------*/
+*/
 
 QRgb QImage::color( int i ) const
 {
@@ -350,14 +350,14 @@ QRgb QImage::color( int i ) const
     return data->ctbl ? data->ctbl[i] : (QRgb)-1;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a color in the color table at index \e i to \e c.
 
   A color value is an RGB triplet.  Use the qRgb function (defined in qcolor.h)
   to make RGB triplets.
 
   \sa color()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::setColor( int i, QRgb c )
 {
@@ -369,7 +369,7 @@ void QImage::setColor( int i, QRgb c )
 	data->ctbl[i] = c;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the pixel data at the \e i'th scanline.
 
   The scanline data is aligned on a 32-bit boundary.
@@ -381,7 +381,7 @@ void QImage::setColor( int i, QRgb c )
   qRgb()\endlink and friends (qcolor.h) to access the pixels.
 
   \sa bits()
- ----------------------------------------------------------------------------*/
+*/
 
 uchar *QImage::scanLine( int i ) const
 {
@@ -392,16 +392,16 @@ uchar *QImage::scanLine( int i ) const
     return data->bits ? data->bits[i] : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uchar *QImage::bits() const
   Returns a pointer to the first pixel data. Equivalent to scanLine(0).
   \sa scanLine()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resets all image parameters and deallocates the image data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::reset()
 {
@@ -413,10 +413,10 @@ void QImage::reset()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Determines the host computer byte order.
   Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::Endian QImage::systemByteOrder()
 {
@@ -444,10 +444,10 @@ QImage::Endian QImage::systemByteOrder()
 #endif
 #endif
 
-/*----------------------------------------------------------------------------
+/*!
   Determines the bit order of the display hardware.
   Returns QImage::LittleEndian (LSB first) or QImage::BigEndian (MSB first).
- ----------------------------------------------------------------------------*/
+*/
 
 QImage::Endian QImage::systemBitOrder()
 {
@@ -459,14 +459,14 @@ QImage::Endian QImage::systemBitOrder()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resizes the color table to \e numColors colors.
 
   If the color table is expanded, then all new colors will be set to black
   (RGB 0,0,0).
 
   \sa color(), setColor()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::setNumColors( int numColors )
 {
@@ -492,7 +492,7 @@ void QImage::setNumColors( int numColors )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image width, height, depth, number of colors and bit order.
   Returns TRUE if successful, or FALSE if the parameters are incorrect or
   if memory cannot be allocated.
@@ -511,7 +511,7 @@ void QImage::setNumColors( int numColors )
 
   \sa width(), height(), depth(), numColors(), bitOrder(), jumpTable(),
   scanLine(), bits(), bytesPerLine(), numBytes()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QImage::create( int width, int height, int depth, int numColors,
 		     QImage::Endian bitOrder )
@@ -573,10 +573,10 @@ bool QImage::create( int width, int height, int depth, int numColors,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the image data structure.
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::init()
 {
@@ -587,10 +587,10 @@ void QImage::init()
     data->bitordr = QImage::IgnoreEndian;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Deallocates the image data and sets the bits pointer to 0.
- ----------------------------------------------------------------------------*/
+*/
 
 void QImage::freeBits()
 {
@@ -842,7 +842,7 @@ static bool dither_image( const QImage *src, QImage *dst )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Converts the depth (bpp) of the image to \e depth and returns the
   converted image.
 
@@ -852,7 +852,7 @@ static bool dither_image( const QImage *src, QImage *dst )
   image if this image cannot be converted.
 
   \sa depth(), isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage QImage::convertDepth( int depth ) const
 {
@@ -881,7 +881,7 @@ QImage QImage::convertDepth( int depth ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Converts the bit order of the image to \e bitOrder and returns the converted
   image.
 
@@ -889,7 +889,7 @@ QImage QImage::convertDepth( int depth ) const
   null image if this image cannot be converted.
 
   \sa bitOrder(), setBitOrder()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage QImage::convertBitOrder( QImage::Endian bitOrder ) const
 {
@@ -985,7 +985,7 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   QImageIO member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QImageIO qimage.h
 
   \brief The QImageIO class contains parameters for loading
@@ -1009,11 +1009,11 @@ static void swapPixel01( QImage *image )	// 1-bit: swap 0 and 1 pixels
   PNM files can only be read, not written.
 
   \sa QImage, QPixmap, QFile
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a QImageIO object with all parameters set to zero.
- ----------------------------------------------------------------------------*/
+*/
 
 QImageIO::QImageIO()
 {
@@ -1022,9 +1022,9 @@ QImageIO::QImageIO()
     params = descr = 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a QImageIO object with an I/O device and a format tag.
- ----------------------------------------------------------------------------*/
+*/
 
 QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
     : frmt(format)
@@ -1034,9 +1034,9 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
     params = descr = 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a QImageIO object with a file name and a format tag.
- ----------------------------------------------------------------------------*/
+*/
 
 QImageIO::QImageIO( const char *fileName, const char *format )
     : frmt(format), fname(fileName)
@@ -1046,9 +1046,9 @@ QImageIO::QImageIO( const char *fileName, const char *format )
     params = descr = 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the object an all related data.
- ----------------------------------------------------------------------------*/
+*/
 
 QImageIO::~QImageIO()
 {
@@ -1138,7 +1138,7 @@ static QImageHandler *get_image_handler( const char *format )
     return 0;					// no such handler
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Defines a image IO handler for a specified image format.
   An image IO handler is responsible for reading and writing images.
 
@@ -1172,7 +1172,7 @@ static QImageHandler *get_image_handler( const char *format )
 			       read_gif_image,
 			       write_gif_image );
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::defineIOHandler( const char *format,
 				const char *header,
@@ -1194,71 +1194,71 @@ void QImageIO::defineIOHandler( const char *format,
   QImageIO normal member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QImage &QImageIO::image() const
   Returns the image currently set.
   \sa setImage()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QImageIO::status() const
   Returns the image IO status.	A non-zero value indicates an error, while 0
   means that the IO operation was successful.
   \sa setStatus()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QImageIO::format() const
   Returns the image format string, or 0 if no format has been set.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QIODevice *QImageIO::ioDevice() const
   Returns the IO device currently set.
   \sa setIODevice()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QImageIO::fileName() const
   Returns the file name currently set.
   \sa setFileName()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QImageIO::parameters() const
   Returns image parameters string.
   \sa setParameters()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QImageIO::description() const
   Returns the image description string.
   \sa setDescription()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image.
   \sa image()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setImage( const QImage &image )
 {
     im = image;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image IO status.  A non-zero value indicates an error, while 0 means
   that the IO operation was successful.
   \sa status()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setStatus( int status )
 {
     iostat = status;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image format name of the image about to be read or written.
 
   It is necessary to specify a format before writing an image.
@@ -1269,14 +1269,14 @@ void QImageIO::setStatus( int status )
   the image will not be read.
 
   \sa read(), write(), format()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setFormat( const char *format )
 {
     frmt = format;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the IO device to be used for reading or writing an image.
 
   Setting the IO device allows images to be read/written to any
@@ -1286,30 +1286,30 @@ void QImageIO::setFormat( const char *format )
   settings.
 
   \sa setFileName()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setIODevice( QIODevice *ioDevice )
 {
     iodev = ioDevice;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the name of the file to read or write an image.
   \sa setIODevice()
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setFileName( const char *fileName )
 {
     fname = fileName;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image parameters string for image handlers that require
   special parameters.
 
   Although all image formats supported by Qt ignore the parameters string,
   it will be useful for future extentions or contributions (like JPEG).
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setParameters( const char *parameters )
 {
@@ -1318,12 +1318,12 @@ void QImageIO::setParameters( const char *parameters )
     params = qstrdup( parameters );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the image description string for image handlers that support image
   descriptions.
 
   Currently, no image format supported by Qt use the description string.
- ----------------------------------------------------------------------------*/
+*/
 
 void QImageIO::setDescription( const char *description )
 {
@@ -1333,10 +1333,10 @@ void QImageIO::setDescription( const char *description )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot not be read or if the format is not recognized.
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QImageIO::imageFormat( const char *fileName )
 {
@@ -1348,10 +1348,10 @@ const char *QImageIO::imageFormat( const char *fileName )
     return format;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a string that specifies the image format of the image read from
   \e d, or null if the file cannot be read or if the format is not recognized.
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QImageIO::imageFormat( QIODevice *d )
 {
@@ -1377,7 +1377,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads an image into memory and returns TRUE if the image was successfully
   read.
 
@@ -1398,7 +1398,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
   \endcode
 
   \sa setIODevice(), setFileName(), setFormat(), write(), QPixmap::load()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QImageIO::read()
 {
@@ -1448,7 +1448,7 @@ bool QImageIO::read()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes an image to an IO device and returns TRUE if the image was
   successfully written.
 
@@ -1470,7 +1470,7 @@ bool QImageIO::read()
   \endcode
 
   \sa setIODevice(), setFileName(), setFormat(), read(), QPixmap::save()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QImageIO::write()
 {

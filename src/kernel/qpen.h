@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpen.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpen.h#20 $
 **
 ** Definition of QPen class
 **
@@ -55,9 +55,9 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QPen stream functions
-//
+/*****************************************************************************
+  QPen stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QPen & );
 QDataStream &operator>>( QDataStream &, QPen & );

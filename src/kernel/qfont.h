@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#33 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#34 $
 **
 ** Definition of QFont class
 **
@@ -117,9 +117,9 @@ inline void QFont::setBold( bool enable )
 { setWeight( enable ? Bold : Normal ); }
 
 
-// --------------------------------------------------------------------------
-// QFont stream functions
-//
+/*****************************************************************************
+  QFont stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QFont & );
 QDataStream &operator>>( QDataStream &, QFont & );

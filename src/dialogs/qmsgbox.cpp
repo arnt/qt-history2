@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#16 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#17 $
 **
 ** Implementation of QMessageBox class
 **
@@ -14,7 +14,7 @@
 #include "qlabel.h"
 #include "qpushbt.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#17 $");
 
 
 /*!
@@ -150,9 +150,9 @@ void QMessageBox::resizeEvent( QResizeEvent * )
 }
 
 
-// --------------------------------------------------------------------------
-// Static QMessageBox functions
-//
+/*****************************************************************************
+  Static QMessageBox functions
+ *****************************************************************************/
 
 /*!
   Opens a modal message box directly using the specified parameters.

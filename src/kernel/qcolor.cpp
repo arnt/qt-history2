@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#51 $
 **
 ** Implementation of QColor class
 **
@@ -13,10 +13,10 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#51 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QColor qcolor.h
   \brief The QColor class provides colors based on RGB.
   \ingroup color
@@ -56,7 +56,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#50 $");
   </ol>
 
   \sa QPalette, QColorGroup
- ----------------------------------------------------------------------------*/
+*/
 
 /*****************************************************************************
   Global colors
@@ -98,7 +98,7 @@ const QColor darkYellow ( 128, 128,   0 );
 bool QColor::ginit  = FALSE;			// global color not init'ed
 bool QColor::lalloc = TRUE;			// lazy color allocation
 
-/*----------------------------------------------------------------------------
+/*!
   Initializes the global colors.  This function is called if a global
   color variable is initialized before the constructors for our global
   color objects are executed.  Without this mechanism, assigning a
@@ -112,7 +112,7 @@ bool QColor::lalloc = TRUE;			// lazy color allocation
      {
      }
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::initglobals()
 {
@@ -141,16 +141,16 @@ void QColor::initglobals()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QColor::QColor()
 
   Constructs an invalid color with the RGB value (0,0,0). An invalid color
   is a color that is not properly set up for the underlying window system.
 
   \sa isValid()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QColor::QColor( int r, int g, int b )
 
   Constructs a color with the RGB value (r,g,b).
@@ -158,9 +158,9 @@ void QColor::initglobals()
   \e r, \e g and \e b must be in the rangle 0..255.
 
   \sa setRgb()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a color with the RGB \e or HSV value \e (x,y,z).
 
   The \e (x,y,z) triplet defines an RGB value if \e colorSpec == \c
@@ -173,7 +173,7 @@ void QColor::initglobals()
   0..255.
 
   \sa setRgb(), setHsv()
- ----------------------------------------------------------------------------*/
+*/
 
 QColor::QColor( int x, int y, int z, Spec colorSpec )
 {
@@ -183,19 +183,19 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 	setRgb( x, y, z );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a named color, i.e. loads the color from the color database.
   \sa setNamedColor()
- ----------------------------------------------------------------------------*/
+*/
 
 QColor::QColor( const char *name )
 {
     setNamedColor( name );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a color that is a copy of \e c.
- ----------------------------------------------------------------------------*/
+*/
 
 QColor::QColor( const QColor &c )
 {
@@ -205,9 +205,9 @@ QColor::QColor( const QColor &c )
     pix	   = c.pix;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns a copy of the color \c and returns a reference to this color.
- ----------------------------------------------------------------------------*/
+*/
 
 QColor &QColor::operator=( const QColor &c )
 {
@@ -219,24 +219,24 @@ QColor &QColor::operator=( const QColor &c )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QColor::isValid() const
   Returns TRUE if the color is invalid, i.e. it was constructed using the
   default constructor.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QColor::isDirty() const
   Returns TRUE if the color is dirty, i.e. lazy allocation is enabled and
   an RGB/HSV value has been set but not allocated.
   \sa setLazyAlloc(), alloc(), pixel()
- ----------------------------------------------------------------------------*/
+*/
 
 
 #undef max
 #undef min
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the current RGB value as HSV.
 
   \arg \e *h, hue.
@@ -248,7 +248,7 @@ QColor &QColor::operator=( const QColor &c )
   between 0 and 255 inclusive.
 
   \sa setHsv(), rgb()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::hsv( int *h, int *s, int *v ) const
 {
@@ -297,7 +297,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a HSV color value.
 
   \arg \e h, hue (-1,0..360).  -1 means achromatic.
@@ -305,7 +305,7 @@ void QColor::hsv( int *h, int *s, int *v ) const
   \arg \e v, value (0..255).
 
   \sa hsv(), setRgb()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::setHsv( int h, int s, int v )
 {
@@ -345,7 +345,7 @@ void QColor::setHsv( int h, int s, int v )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QRgb QColor::rgb() const
   Returns the RGB value.
 
@@ -354,13 +354,13 @@ void QColor::setHsv( int h, int s, int v )
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
   \sa setRgb(), hsv()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the red, green and blue components of the RGB value in
   \e *r, \e *g and \e *b.
   \sa setRgb(), hsv()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::rgb( int *r, int *g, int *b ) const
 {
@@ -369,7 +369,7 @@ void QColor::rgb( int *r, int *g, int *b ) const
     *b = (int)((rgbVal >> 16) & 0xff);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the RGB value to \e rgb.
 
   Bits 0-7 = red, bits 8-15 = green, bits 16-23 = blue.
@@ -377,7 +377,7 @@ void QColor::rgb( int *r, int *g, int *b ) const
   The type \e QRgb is equivalent to \c unsigned \c int.
 
   \sa rgb(), setHsv()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::setRgb( QRgb rgb )
 {
@@ -388,23 +388,23 @@ void QColor::setRgb( QRgb rgb )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QColor::red() const
   Returns the red component of the RGB value.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QColor::green() const
   Returns the green component of the RGB value.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QColor::blue() const
   Returns the blue component of the RGB value.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a lighter (or darker) color.
 
   Returns a lighter color if \e factor is greater than 100.
@@ -417,7 +417,7 @@ void QColor::setRgb( QRgb rgb )
   \e factor and converts back to RGB.
 
   \sa dark()
- ----------------------------------------------------------------------------*/
+*/
 
 QColor QColor::light( int factor ) const
 {
@@ -439,7 +439,7 @@ QColor QColor::light( int factor ) const
     return c;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a darker (or lighter) color.
 
   Returns a darker color if \e factor is greater than 100.
@@ -453,7 +453,7 @@ QColor QColor::light( int factor ) const
   \e factor and converts back to RGB.
 
   \sa light()
- ----------------------------------------------------------------------------*/
+*/
 
 QColor QColor::dark( int factor ) const
 {
@@ -470,27 +470,27 @@ QColor QColor::dark( int factor ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QColor::operator==( const QColor &c ) const
   Returns TRUE if this color has the same RGB value as \e c,
   or FALSE if they have different RGB values.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QColor::operator!=( const QColor &c ) const
   Returns TRUE if this color has different RGB value from \e c,
   or FALSE if they have equal RGB values.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QColor::lazyAlloc()
   Returns TRUE if lazy color allocation is enabled (on-demand allocation),
   or FALSE if it is disabled (immediate allocation).
   \sa setLazyAlloc()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables or disables lazy color allocation.
 
   If lazy allocation is enabled, colors are allocated the first time they
@@ -501,7 +501,7 @@ QColor QColor::dark( int factor ) const
   Lazy color allocation is enabled by default.
 
   \sa lazyAlloc()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::setLazyAlloc( bool enable )
 {
@@ -509,35 +509,35 @@ void QColor::setLazyAlloc( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QColor::pixel() const
   Returns the pixel value.
 
   This value is used by the underlying window system to refer to a color.
   It can be thought of as an index into the display hardware's color table.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QColor stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QColor
   Writes a color object to the stream.
 
   Serialization format: RGB value serialized as an UINT32.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QColor &c )
 {
     return s << (UINT32)c.rgb();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QColor
   Reads a color object from the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QColor &c )
 {
@@ -552,28 +552,28 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   QColor global functions (documentation only)
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int qRed( QRgb rgb )
   \relates QColor
   Returns the red component of the RGB triplet \e rgb.
   \sa qRgb(), QColor::red()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int qGreen( QRgb rgb )
   \relates QColor
   Returns the green component of the RGB triplet \e rgb.
   \sa qRgb(), QColor::green()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int qBlue( QRgb rgb )
   \relates QColor
   Returns the blue component of the RGB triplet \e rgb.
   \sa qRgb(), QColor::blue()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
   Returns the RGB triplet \e (r,g,b).
@@ -583,18 +583,18 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
   The return type \e QRgb is equivalent to \c unsigned \c int.
 
   \sa qRed(), qGreen(), qBlue()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int qGray( int r, int g, int b )
   \relates QColor
   Returns a gray value 0..255 from the \e (r,g,b) triplet.
 
   The gray value is calculated using the formula:
   <code>(r*11 + g*16 + b*5)/32</code>.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload int qGray( qRgb rgb )
   \relates QColor
- ----------------------------------------------------------------------------*/
+*/

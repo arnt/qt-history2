@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#40 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#41 $
 **
 ** Definition of QPaintDevice class
 **
@@ -90,9 +90,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     RasterOp = CopyROP, bool ignoreMask=FALSE );
 
 
-// ----------------------------------------------------------------------------
-// Inline functions
-//
+/*****************************************************************************
+  Inline functions
+ *****************************************************************************/
 
 inline int QPaintDevice::devType() const
 { return devFlags & PDT_MASK; }

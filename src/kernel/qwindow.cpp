@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindow.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qwindow.cpp#7 $
 **
 ** Implementation of QWindow class
 **
@@ -13,19 +13,19 @@
 #include "qwindow.h"
 #include "qpixmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#7 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QWindow qwindow.h
   \brief The QWindow class is reserved for future extensions.
 
   This class is not yet finished.  It will contain intelligent handling of
   menus etc. in a future Qt release.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a window named \e name, which will be a child widget of
   \e parent.
 
@@ -33,7 +33,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwindow.cpp#6 $");
   are doing.
 
   These arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QWindow::QWindow( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
@@ -41,9 +41,9 @@ QWindow::QWindow( QWidget *parent, const char *name, WFlags f )
     initMetaObject();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the window.
- ----------------------------------------------------------------------------*/
+*/
 
 QWindow::~QWindow()
 {

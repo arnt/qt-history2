@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#63 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,10 +20,10 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#63 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPaintDevice qpaintd.h
   \brief The QPaintDevice is the base class of objects that can be painted.
 
@@ -63,16 +63,16 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#62 $");
   \warning Qt requires that a QApplication object must exist before any paint
   devices can be created.  Paint devices access window system resources, and
   these resources are not initialized before an application object is created.
- ----------------------------------------------------------------------------*/
+*/
 
 
 Display *QPaintDevice::dpy = 0;
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a paint device with internal flags \e devflags.
   This constructor can only be invoked from subclasses of QPaintDevice.
- ----------------------------------------------------------------------------*/
+*/
 
 QPaintDevice::QPaintDevice( uint devflags )
 {
@@ -89,9 +89,9 @@ QPaintDevice::QPaintDevice( uint devflags )
     hd	= 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the paint device and frees window system resources.
- ----------------------------------------------------------------------------*/
+*/
 
 QPaintDevice::~QPaintDevice()
 {
@@ -103,21 +103,21 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPaintDevice::devType() const
   Returns the device type identifier: \c PDT_WIDGET, \c PDT_PIXMAP,
   \c PDT_PRINTER, \c PDT_PICTURE or \c PDT_UNKNOWN.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPaintDevice::isExtDev() const
   Returns TRUE if the device is a so-called external paint device.
 
   External paint devices cannot be bitBlt()'ed from.
   QPicture and QPrinter are external paint devices.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn HANDLE QPaintDevice::handle() const
 
   Returns the window system handle of the paint device, for low-level
@@ -127,31 +127,31 @@ QPaintDevice::~QPaintDevice()
   for details.
 
   \sa x11Display()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn Display *QPaintDevice::x11Display() const
 
   Returns a pointer to the X display (X-Windows only).
   <em>Using this function is not portable.</em>
 
   \sa handle()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPaintDevice::paintingActive() const
   Returns TRUE if the device is being painted, i.e. someone has called
   QPainter::begin() and not yet QPainter::end() for this device.
   \sa QPainter::isActive()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Internal virtual function that interprets drawing commands from
   the painter.
 
   Implemented by subclasses that have no direct support for drawing
   graphics (external paint devices, for example QPicture).
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
 {
@@ -161,11 +161,11 @@ bool QPaintDevice::cmd( int, QPainter *, QPDevCmdParam * )
     return FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Internal virtual function that returns paint device metrics.
 
   Please use the QPaintDeviceMetrics class instead.
- ----------------------------------------------------------------------------*/
+*/
 
 int QPaintDevice::metric( int ) const
 {
@@ -222,7 +222,7 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
 
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPaintDevice
   This function copies a block of pixels from one paint device to another
   (bitBlt means bit block transfer).
@@ -264,7 +264,7 @@ static GC get_mask_gc( Display *dpy, Drawable hd, int mask_no, Pixmap mask )
   <li> The \e src device may not have pixel depth greater than \e dst.
   You cannot copy from an 8 bit pixmap to a 1 bit pixmap.
   </ol>
- ----------------------------------------------------------------------------*/
+*/
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -487,11 +487,11 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void bitBlt( QPaintDevice *dst, const QPoint &dp, const QPaintDevice *src, const QRect &sr, RasterOp rop )
 
   Overloaded bitBlt() with the destination point \e dp and source rectangle
   \e sr.
 
   \relates QPaintDevice
- ----------------------------------------------------------------------------*/
+*/

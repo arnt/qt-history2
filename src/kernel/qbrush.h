@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#25 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#26 $
 **
 ** Definition of QBrush class
 **
@@ -60,9 +60,9 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QBrush stream functions
-//
+/*****************************************************************************
+  QBrush stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QBrush & );
 QDataStream &operator>>( QDataStream &, QBrush & );

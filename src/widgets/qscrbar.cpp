@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#54 $
 **
 ** Implementation of QScrollBar class
 **
@@ -15,10 +15,10 @@
 #include "qdrawutl.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#54 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QScrollBar qscrbar.h
 
   \brief The QScrollBar widget class provides a vertical or horizontal scroll
@@ -32,50 +32,50 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#53 $");
   look and feel is implemented.
 
   \ingroup realwidgets
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::valueChanged( int value )
   This signal is emitted when the scroll bar value is changed, with the
   new scroll bar value as an argument.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::sliderPressed()
   This signal is emitted when the user presses the slider with the mouse.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::sliderMoved( int value )
   This signal is emitted when the slider is dragged, with the
   new scroll bar value as an argument.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::sliderReleased()
   This signal is emitted when the user releases the slider with the mouse.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::nextLine()
   This signal is emitted when the scroll bar scrolls one line down/right.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::prevLine()
   This signal is emitted when the scroll bar scrolls one line up/left.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::nextPage()
   This signal is emitted when the scroll bar scrolls one page down/right.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::prevPage()
   This signal is emitted when the scroll bar scrolls one page up/left.
- ----------------------------------------------------------------------------*/
+*/
 
 
 enum ScrollControl { ADD_LINE = 0x1 , SUB_LINE = 0x2 , ADD_PAGE = 0x4,
@@ -114,11 +114,11 @@ const int repeatTime	= 100;
 #define SLIDER_MIN	6
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a vertical scroll bar.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QScrollBar::QScrollBar( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -127,13 +127,13 @@ QScrollBar::QScrollBar( QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a scroll bar.
 
   The \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
 			const char *name )
@@ -143,7 +143,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a scroll bar.
 
   \arg \e minValue is the minimum scroll bar value.
@@ -154,7 +154,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
   \arg \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QScrollBar::QScrollBar( int minValue, int maxValue, int lineStep, int pageStep,
 			int value,  Orientation orientation,
@@ -177,11 +177,11 @@ void QScrollBar::init()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the scroll bar orientation.  The \e orientation must be
   QScrollBar::Vertical or QScrollBar::Horizontal.
   \sa orientation()
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::setOrientation( Orientation orientation )
 {
@@ -190,14 +190,14 @@ void QScrollBar::setOrientation( Orientation orientation )
     update();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn Orientation QScrollBar::orientation() const
   Returns the scroll bar orientation; QScrollBar::Vertical or
   QScrollBar::Horizontal.
   \sa setOrientation()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QScrollBar::setTracking( bool enable )
   Enables scroll bar tracking if \e enable is TRUE, or disables tracking
   if \e enable is FALSE.
@@ -209,23 +209,23 @@ void QScrollBar::setOrientation( Orientation orientation )
   be the same sa before).
 
   \sa tracking()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QScrollBar::tracking() const
   Returns TRUE if tracking is enabled, or FALSE if tracking is disabled.
 
   Tracking is initially enabled.
 
   \sa setTracking()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements the virtual function QWidget::setPalette().
 
   Sets the background color to the mid color for Motif style scroll bars.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::setPalette( const QPalette &p )
 {
@@ -235,10 +235,10 @@ void QScrollBar::setPalette( const QPalette &p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Implements the virtual QRangeControl function.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::valueChange()
 {
@@ -249,20 +249,20 @@ void QScrollBar::valueChange()
     emit valueChanged(value());
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Implements the virtual QRangeControl function.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::stepChange()
 {
     rangeChange();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Implements the virtual QRangeControl function.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::rangeChange()
 {
@@ -271,9 +271,9 @@ void QScrollBar::rangeChange()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles timer events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::timerEvent( QTimerEvent * )
 {
@@ -289,18 +289,18 @@ void QScrollBar::timerEvent( QTimerEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles key press events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::keyPressEvent( QKeyEvent * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::resizeEvent( QResizeEvent * )
 {
@@ -308,9 +308,9 @@ void QScrollBar::resizeEvent( QResizeEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::paintEvent( QPaintEvent * )
 {
@@ -323,9 +323,9 @@ void QScrollBar::paintEvent( QPaintEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::mousePressEvent( QMouseEvent *e )
 {
@@ -353,9 +353,9 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -385,9 +385,9 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse move events for the scroll bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 {
@@ -419,18 +419,18 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QScrollBar::sliderStart() const
   Returns the pixel position where the scroll bar slider starts.
 
   It is equivalent to sliderRect().y() for vertical
   scroll bars or sliderRect().x() for horizontal scroll bars.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the scroll bar slider rectangle.
   \sa sliderStart()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QScrollBar::sliderRect() const
 {
@@ -457,9 +457,9 @@ int QScrollBar::calculateValueFromSlider() const
 }
 
 
-// --------------------------------------------------------------------------
-// QScrollBar_Private member functions
-//
+/*****************************************************************************
+  QScrollBar_Private member functions
+ *****************************************************************************/
 
 void QScrollBar_Private::sliderMinMax( int *sliderMin, int *sliderMax) const
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#21 $
 **
 ** Implementation of QFileDialog class
 **
@@ -28,10 +28,10 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#21 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFileDialog qfiledlg.h
   \brief The QFileDialog provides a dialog widget for inputting file names.
 
@@ -55,14 +55,14 @@ RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledlg.cpp#20 $");
   \endcode
 
   \sa QPrintDialog
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a file dialog with a \e parent, \e name and \e modal flag.
 
   The dialog becomes modal if \e modal is TRUE, otherwise modeless.
- ----------------------------------------------------------------------------*/
+*/
 
 QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
@@ -74,11 +74,11 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
     resize( 300, 300 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a file dialog with a \e parent, \e name and \e modal flag.
 
   The dialog becomes modal if \e modal is TRUE, otherwise modeless.
- ----------------------------------------------------------------------------*/
+*/
 
 QFileDialog::QFileDialog( const char *dirName, const char *filter,
 			  QWidget *parent, const char *name, bool modal )
@@ -95,10 +95,10 @@ QFileDialog::QFileDialog( const char *dirName, const char *filter,
     resize( 300, 300 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the file dialog.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::init()
 {
@@ -138,9 +138,9 @@ void QFileDialog::init()
     d.setSorting( d.sorting() | QDir::DirsFirst );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the file dialog.
- ----------------------------------------------------------------------------*/
+*/
 
 QFileDialog::~QFileDialog()
 {
@@ -159,7 +159,7 @@ QFileDialog::~QFileDialog()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the selected file name.
 
   If a file name was selected, the returned string will contain the absolute
@@ -167,7 +167,7 @@ QFileDialog::~QFileDialog()
   The returned string will be a null string if no file name was selected.
 
   \sa QString::isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QString QFileDialog::selectedFile() const
 {
@@ -178,20 +178,20 @@ QString QFileDialog::selectedFile() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the active directory path string in the file dialog.
   \sa dir(), setDir()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QFileDialog::dirPath() const
 {
     return d.path();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a directory path string for the file dialog.
   \sa dir()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::setDir( const char *pathstr )
 {
@@ -202,20 +202,20 @@ void QFileDialog::setDir( const char *pathstr )
     rereadDir();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the active directory in the file dialog.
   \sa setDir()
- ----------------------------------------------------------------------------*/
+*/
 
 const QDir *QFileDialog::dir() const
 {
     return &d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a directory path for the file dialog.
   \sa dir()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::setDir( const QDir &dir )
 {
@@ -227,13 +227,13 @@ void QFileDialog::setDir( const QDir &dir )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Re-reads the active directory in the file dialog.
 
   It is seldom necessary to call this function.	 It is provided in
   case the directory contents change and you want to refresh the
   directory list box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::rereadDir()
 {
@@ -264,13 +264,13 @@ void QFileDialog::rereadDir()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Opens a modal file dialog and returns the name of the file to be opened.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
 
   \sa getSaveFileName()
- ----------------------------------------------------------------------------*/
+*/
 
 #if defined(_WS_WIN_)
 static char *win_filter[] = {
@@ -325,13 +325,13 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Opens a modal file dialog and returns the name of the file to be saved.
   Returns a \link QString::isNull() null string\endlink if the user cancelled
   the dialog.
 
   \sa getOpenFileName()
- ----------------------------------------------------------------------------*/
+*/
 
 QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 				      QWidget *parent, const char *name )
@@ -381,10 +381,10 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when a file name in the file list has been selected.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::fileSelected( int index )
 {
@@ -393,10 +393,10 @@ void QFileDialog::fileSelected( int index )
     accept();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when a file name in the file list has been highlighted.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::fileHighlighted( int index )
 {
@@ -404,10 +404,10 @@ void QFileDialog::fileHighlighted( int index )
     emit fileHighlighted( d.filePath( files->text(index) ) );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when a directory name in the directory list has been selected.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::dirSelected( int index )
 {
@@ -439,10 +439,10 @@ void QFileDialog::pathSelected( int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when the "Ok" button is clicked.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::okClicked()
 {
@@ -452,10 +452,10 @@ void QFileDialog::okClicked()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when the "Filter" button is clicked.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::filterClicked()
 {
@@ -465,10 +465,10 @@ void QFileDialog::filterClicked()
     rereadDir();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Activated when the "Cancel" button is clicked.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::cancelClicked()
 {
@@ -476,9 +476,9 @@ void QFileDialog::cancelClicked()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize events for the file dialog.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::resizeEvent( QResizeEvent * )
 {
@@ -530,10 +530,10 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Updates the path box.	 Called from rereadDir().
- ----------------------------------------------------------------------------*/
+*/
 
 void QFileDialog::updatePathBox( const char *s )
 {

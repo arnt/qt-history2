@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#16 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -22,7 +22,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#16 $");
 
 
 static QRegion *empty_region = 0;
@@ -174,10 +174,10 @@ void QRegion::translate( int dx, int dy )
 
 #define RGN_NOP -1
 
-/*----------------------------------------------------------------------------
+/*!
   Performs the actual OR, AND, SUB and XOR operation between regions.
   Sets the resulting region handle to 0 to indicate an empty region.
- ----------------------------------------------------------------------------*/
+*/
 
 QRegion QRegion::winCombine( const QRegion &r, int op ) const
 {

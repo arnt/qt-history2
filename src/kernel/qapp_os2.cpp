@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qapp_os2.cpp#13 $
 **
 ** Implementation of OS/2 PM startup routines and event handling
 **
@@ -20,12 +20,12 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_os2.cpp#13 $");
 
 
-// --------------------------------------------------------------------------
-// Internal variables and functions
-//
+/*****************************************************************************
+  Internal variables and functions
+ *****************************************************************************/
 
 static char    *appName;			// application name
 static HAB	appInst;			// handle to app instance
@@ -64,9 +64,9 @@ public:
 };
 
 
-// --------------------------------------------------------------------------
-// main() - initializes OS/2 PM and calls user's startup function qMain()
-//
+/*****************************************************************************
+  main() - initializes OS/2 PM and calls user's startup function qMain()
+ *****************************************************************************/
 
 int main( int argc, char **argv )
 {
@@ -138,10 +138,10 @@ int main( int argc, char **argv )
 }
 
 
-// --------------------------------------------------------------------------
-// The default debug handler in Qt writes output to a named pipe.
-// Run the qdbgos2.exe program to see the debug output!
-//
+/*****************************************************************************
+  The default debug handler in Qt writes output to a named pipe.
+  Run the qdbgos2.exe program to see the debug output!
+ *****************************************************************************/
 
 static HFILE debugChannel;
 static char debugChannelName[] = "\\PIPE\\QTDEBUGT";
@@ -191,9 +191,9 @@ void qAddCleanupRoutine( void (*p)() )		// add cleanup routine
 }
 
 
-// --------------------------------------------------------------------------
-// Global functions that export important data
-//
+/*****************************************************************************
+  Global functions that export important data
+ *****************************************************************************/
 
 char *qAppName()				// get application name
 {
@@ -206,10 +206,10 @@ HAB qPMAppInst()				// get PM app handle
 }
 
 
-// --------------------------------------------------------------------------
-// Safe configuration (move,resize,changeGeometry) mechanism to avoids
-// recursion in processing messages.
-//
+/*****************************************************************************
+  Safe configuration (move,resize,changeGeometry) mechanism to avoids
+  recursion in processing messages.
+ *****************************************************************************/
 
 #include "qqueue.h"
 
@@ -264,9 +264,9 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 }
 
 
-// --------------------------------------------------------------------------
-// Main event loop
-//
+/*****************************************************************************
+  Main event loop
+ *****************************************************************************/
 
 int QApplication::exec( QWidget *mainWidget )	// main event loop
 {
@@ -308,9 +308,9 @@ NOTE!!! Check if WinWindowFromPoint is ok
 }
 
 
-// --------------------------------------------------------------------------
-// WndProc receives all messages from the main event loop
-//
+/*****************************************************************************
+  WndProc receives all messages from the main event loop
+ *****************************************************************************/
 
 extern "C" MRESULT EXPENTRY
 WndProc( HWND hwnd, ULONG message, MPARAM mp1, MPARAM mp2 )
@@ -392,47 +392,47 @@ bool QApplication::pmEventFilter( QMSG * )	// OS/2 PM event filter
 }
 
 
-// --------------------------------------------------------------------------
-// Timer handling; Our routines depend on OS/2 PM timer functions, but we
-// need some extra handling to activate objects at timeout.
-// We also keep an internal countdown variable to have longer timeouts.
-// Max timeout is around 25 days.  PM is limited to max 65 seconds.
-//
-// Implementation note: There are two types of timer identifiers.  PM
-// timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
-// indexes (+1) into the timerVec vector.
-//
-// NOTE: These functions are for internal use. QObject::startTimer() and
-//	 QObject::killTimer() are for public use.
-//	 The QTimer class provides a high-level interface which translates
-//	 timer events into signals.
-//
-// qStartTimer( interval, obj )
-//	Starts a timer which will run until it is killed with qKillTimer()
-//	Arguments:
-//	    long interval	timer interval in milliseconds
-//	    QObject *obj	where to send the timer event
-//	Returns:
-//	    int			timer identifier, or zero if not successful
-//
-// qKillTimer( timerId )
-//	Stops a timer specified by a timer identifier.
-//	Arguments:
-//	    int timerId		timer identifier
-//	Returns:
-//	    bool		TRUE if successful
-//
-// qKillTimer( obj )
-//	Stops all timers that are sent to the specified object.
-//	Arguments:
-//	    QObject *obj	object receiving timer events
-//	Returns:
-//	    bool		TRUE if successful
-//
+/*****************************************************************************
+  Timer handling; Our routines depend on OS/2 PM timer functions, but we
+  need some extra handling to activate objects at timeout.
+  We also keep an internal countdown variable to have longer timeouts.
+  Max timeout is around 25 days.  PM is limited to max 65 seconds.
+  
+  Implementation note: There are two types of timer identifiers.  PM
+  timer ids (internal use) are stored in TimerInfo.  Qt timer ids are
+  indexes (+1) into the timerVec vector.
+  
+  NOTE: These functions are for internal use. QObject::startTimer() and
+  	 QObject::killTimer() are for public use.
+  	 The QTimer class provides a high-level interface which translates
+  	 timer events into signals.
+  
+  qStartTimer( interval, obj )
+  	Starts a timer which will run until it is killed with qKillTimer()
+  	Arguments:
+  	    long interval	timer interval in milliseconds
+  	    QObject *obj	where to send the timer event
+  	Returns:
+  	    int			timer identifier, or zero if not successful
+  
+  qKillTimer( timerId )
+  	Stops a timer specified by a timer identifier.
+  	Arguments:
+  	    int timerId		timer identifier
+  	Returns:
+  	    bool		TRUE if successful
+  
+  qKillTimer( obj )
+  	Stops all timers that are sent to the specified object.
+  	Arguments:
+  	    QObject *obj	object receiving timer events
+  	Returns:
+  	    bool		TRUE if successful
+ *****************************************************************************/
 
-// --------------------------------------------------------------------------
-// Internal data structure for timers
-//
+/*****************************************************************************
+  Internal data structure for timers
+ *****************************************************************************/
 
 #include "qvector.h"
 #include "qintdict.h"
@@ -452,9 +452,9 @@ static TimerVec  *timerVec  = 0;		// timer vector
 static TimerDict *timerDict = 0;		// timer dict
 
 
-// --------------------------------------------------------------------------
-// Timer activation (called from the event loop)
-//
+/*****************************************************************************
+  Timer activation (called from the event loop)
+ *****************************************************************************/
 
 static bool activateTimer( uint id )		// activate timer
 {
@@ -474,9 +474,9 @@ static bool activateTimer( uint id )		// activate timer
 }
 
 
-// --------------------------------------------------------------------------
-// Timer initialization and cleanup routines
-//
+/*****************************************************************************
+  Timer initialization and cleanup routines
+ *****************************************************************************/
 
 static void initTimers()			// initialize timers
 {
@@ -502,9 +502,9 @@ static void cleanupTimers()			// remove pending timers
 }
 
 
-// --------------------------------------------------------------------------
-// Main timer functions for starting and killing timers
-//
+/*****************************************************************************
+  Main timer functions for starting and killing timers
+ *****************************************************************************/
 
 int qStartTimer( long interval, QObject *obj )	// start timer
 {
@@ -562,9 +562,9 @@ bool qKillTimer( QObject *obj )			// kill timer for obj
 }
 
 
-// --------------------------------------------------------------------------
-// Mouse event translation
-//
+/*****************************************************************************
+  Mouse event translation
+ *****************************************************************************/
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	Event_MouseMove,		0,
@@ -662,9 +662,9 @@ bool QETWidget::translateMouseEvent( const QMSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
-// Keyboard event translation
-//
+/*****************************************************************************
+  Keyboard event translation
+ *****************************************************************************/
 
 #include "qkeycode.h"
 
@@ -744,9 +744,9 @@ bool QETWidget::translateKeyEvent( const QMSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
-// Paint event translation
-//
+/*****************************************************************************
+  Paint event translation
+ *****************************************************************************/
 
 bool QETWidget::translatePaintEvent( const QMSG & )
 {
@@ -765,9 +765,9 @@ bool QETWidget::translatePaintEvent( const QMSG & )
 }
 
 
-// --------------------------------------------------------------------------
-// Window move and resize (configure) events
-//
+/*****************************************************************************
+  Window move and resize (configure) events
+ *****************************************************************************/
 
 bool QETWidget::translateConfigEvent( const QMSG &msg )
 {
@@ -807,9 +807,9 @@ bool QETWidget::translateConfigEvent( const QMSG &msg )
 }
 
 
-// --------------------------------------------------------------------------
-// Close window event translation
-//
+/*****************************************************************************
+  Close window event translation
+ *****************************************************************************/
 
 bool QETWidget::translateCloseEvent( const QMSG & )
 {
@@ -825,9 +825,9 @@ bool QETWidget::translateCloseEvent( const QMSG & )
 }
 
 
-// --------------------------------------------------------------------------
-// QWinInfo::initialize() - Gets window system specific attributes
-//
+/*****************************************************************************
+  QWinInfo::initialize() - Gets window system specific attributes
+ *****************************************************************************/
 
 bool QWinInfo::initialize()
 {

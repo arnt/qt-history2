@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#48 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,10 +16,10 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#48 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QCheckBox qchkbox.h
   \brief The QCheckBox widget provides a check box with a text label.
 
@@ -28,7 +28,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#47 $");
   QCheckBox and QRadioButton are both toggle buttons, but a check box
   represents an independent switch that can be on (checked) or off
   (unchecked).
- ----------------------------------------------------------------------------*/
+*/
 
 
 static void getSizeOfBitmap( int gs, int *w, int *h )
@@ -46,11 +46,11 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a check box with no text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QCheckBox::QCheckBox( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -59,11 +59,11 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
     setToggleButton( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a check box with a text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -74,18 +74,18 @@ QCheckBox::QCheckBox( const char *text, QWidget *parent, const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QCheckBox::isChecked() const
   Returns TRUE if the check box is checked, or FALSE if it is not checked.
   \sa setChecked()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QCheckBox::setChecked( bool check )
   Checks the check box if \e check is TRUE, or unchecks it if \e check
   is FALSE.
   \sa isChecked()
- ----------------------------------------------------------------------------*/
+*/
 
 
 static int extraWidth( int gs )
@@ -97,9 +97,9 @@ static int extraWidth( int gs )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a size which fits the contents of the check box.
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QCheckBox::sizeHint() const
 {
@@ -117,10 +117,10 @@ QSize QCheckBox::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the check box, but not the button label.
   \sa drawButtonLabel()
- ----------------------------------------------------------------------------*/
+*/
 
 void QCheckBox::drawButton( QPainter *paint )
 {
@@ -200,10 +200,10 @@ void QCheckBox::drawButton( QPainter *paint )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the check box label.
   \sa drawButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QCheckBox::drawButtonLabel( QPainter *p )
 {

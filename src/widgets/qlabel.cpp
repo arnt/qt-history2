@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#41 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,10 +14,10 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#41 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QLabel qlabel.h
   \brief The QLabel widget displays a static text or pixmap.
 
@@ -44,9 +44,9 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#40 $");
     label->setText( "first line\nsecond line" );
     label->setAlignment( AlignBottom | AlignRight );
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an empty label which is left-aligned, vertically centered,
   has an automatic margin and with manual resizing.
 
@@ -54,7 +54,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#40 $");
   constructor.
 
   \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f )
@@ -66,7 +66,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
     autoresize = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a label with a text. The label is left-aligned, vertically
   centered, has an automatic margin and with manual resizing.
 
@@ -74,7 +74,7 @@ QLabel::QLabel( QWidget *parent, const char *name, WFlags f )
   constructor.
 
   \sa setAlignment(), setFrameStyle(), setMargin(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
 	: QFrame( parent, name, f ), ltext(text)
@@ -86,9 +86,9 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name, WFlags f )
     autoresize = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the label.
- ----------------------------------------------------------------------------*/
+*/
 
 QLabel::~QLabel()
 {
@@ -97,20 +97,20 @@ QLabel::~QLabel()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QLabel::text() const
   Returns the label text.
   \sa setText()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the label contents to \e text and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.  Nothing
   happens if \e text is the same as the current label.
 
   \sa text(), setPixmap(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setText( const char *text )
 {
@@ -127,20 +127,20 @@ void QLabel::setText( const char *text )
 	updateLabel();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPixmap *QLabel::pixmap() const
   Returns the label pixmap.
   \sa setPixmap()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the label contents to \e pixmap and redraws the contents.
 
   The label resizes itself if auto-resizing is enabled.  Nothing
   happens if \e pixmap is the same as the current label.
 
   \sa pixmap(), setText(), setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
@@ -170,7 +170,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the label contents to \e num (converts it to text) and redraws the
   contents.
 
@@ -178,7 +178,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
   happens if \e num reads the same as the current label.
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setNum( int num )
 {
@@ -193,14 +193,14 @@ void QLabel::setNum( int num )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the label contents to \e num (converts it to text) and redraws the
   contents.
 
   The label resizes itself if auto-resizing is enabled.
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setNum( double num )
 {
@@ -216,16 +216,16 @@ void QLabel::setNum( double num )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QLabel::alignment() const
   Returns the alignment setting.
 
   The default alignment is <code>AlignLeft | AlignVCenter | ExpandTabs</code>.
 
   \sa setAlignment()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the alignment of the label contents and redraws itself.
 
   The \e alignment is the bitwise OR of the following flags:
@@ -242,7 +242,7 @@ void QLabel::setNum( double num )
   </ul>
 
   \sa alignment()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setAlignment( int alignment )
 {
@@ -251,15 +251,15 @@ void QLabel::setAlignment( int alignment )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QLabel::margin() const
 
   Returns the margin of the label.
 
   \sa setMargin()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the margin of the label to \e margin pixels.
 
   The margin applies to the left edge if alignment() is \c AlignLeft,
@@ -276,7 +276,7 @@ void QLabel::setAlignment( int alignment )
   Setting a non-negative margin gives the specified margin in pixels.
   
   \sa margin(), frameWidth(), font()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setMargin( int margin )
 {
@@ -284,7 +284,7 @@ void QLabel::setMargin( int margin )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QLabel::autoResize() const
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
@@ -292,9 +292,9 @@ void QLabel::setMargin( int margin )
   Auto-resizing is disabled by default.
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables auto-resizing if \e enable is TRUE, or disables it if \e
   enable is FALSE.
 
@@ -302,7 +302,7 @@ void QLabel::setMargin( int margin )
   contents change.  The top left corner is not moved.
 
   \sa autoResize(), adjustSize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::setAutoResize( bool enable )
 {
@@ -313,11 +313,11 @@ void QLabel::setAutoResize( bool enable )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a size which fits the contents of the label.
 
   \bug Does not work well with the WordBreak flag
- ----------------------------------------------------------------------------*/
+*/
 QSize QLabel::sizeHint() const
 {
     QPainter p;
@@ -339,9 +339,9 @@ QSize QLabel::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the label contents using the painter \e p.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::drawContents( QPainter *p )
 {
@@ -386,9 +386,9 @@ void QLabel::drawContents( QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Updates the label, not the frame.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLabel::updateLabel()
 {

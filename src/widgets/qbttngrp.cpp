@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#26 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,10 +15,10 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#26 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QButtonGroup qbttngrp.h
   \brief The QButtonGroup widget organizes QButton widgets in a group.
 
@@ -47,7 +47,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#25 $");
   </ol>
 
   \sa QButton QPushButton QCheckBox QRadioButton
- ----------------------------------------------------------------------------*/
+*/
 
 
 struct QButtonItem
@@ -59,11 +59,11 @@ struct QButtonItem
 declare(QListM,QButtonItem);
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a button group with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
     : QGroupBox( parent, name )
@@ -71,11 +71,11 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a button group with a title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QButtonGroup::QButtonGroup( const char *title, QWidget *parent,
 			    const char *name )
@@ -84,9 +84,9 @@ QButtonGroup::QButtonGroup( const char *title, QWidget *parent,
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Initializes the button group.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::init()
 {
@@ -97,9 +97,9 @@ void QButtonGroup::init()
     excl_grp = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the button group and its child widgets.
- ----------------------------------------------------------------------------*/
+*/
 
 QButtonGroup::~QButtonGroup()
 {
@@ -109,17 +109,17 @@ QButtonGroup::~QButtonGroup()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the button group is exclusive, otherwise FALSE.
   \sa setExclusive()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QButtonGroup::isExclusive() const
 {
     return excl_grp;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the button group to be exclusive if \e enable is TRUE,
   or to be non-exclusive if \e enable is FALSE.
 
@@ -132,7 +132,7 @@ bool QButtonGroup::isExclusive() const
   exclusive group when a QRadioButton is \link insert() inserted\endlink.
 
   \sa isExclusive()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::setExclusive( bool enable )
 {
@@ -140,7 +140,7 @@ void QButtonGroup::setExclusive( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts a button with the identifier \e id into the button group.
   Returns the button identifier.
 
@@ -158,7 +158,7 @@ void QButtonGroup::setExclusive( bool enable )
   QRadioButton.
 
   \sa find(), remove(), setExclusive()
- ----------------------------------------------------------------------------*/
+*/
 
 int QButtonGroup::insert( QButton *button, int id )
 {
@@ -183,10 +183,10 @@ int QButtonGroup::insert( QButton *button, int id )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Removes a button from the button group.
   \sa insert()
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::remove( QButton *button )
 {
@@ -201,12 +201,12 @@ void QButtonGroup::remove( QButton *button )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Finds and returns a pointer to the button with the specified identifier
   \e id.
 
   Returns null if the button was not found.
- ----------------------------------------------------------------------------*/
+*/
 
 QButton *QButtonGroup::find( int id ) const
 {
@@ -218,33 +218,33 @@ QButton *QButtonGroup::find( int id ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButtonGroup::pressed( int id )
   This signal is emitted when a button in the group is
   \link QButton::pressed() pressed\endlink.
   The \e id argument is the button's identifier.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButtonGroup::released( int id )
   This signal is emitted when a button in the group is
   \link QButton::released() released\endlink.
   The \e id argument is the button's identifier.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QButtonGroup::clicked( int id )
   This signal is emitted when a button in the group is
   \link QButton::clicked() clicked\endlink.
   The \e id argument is the button's identifier.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This slot is activated when one of the buttons in the group emits the
   QButton::pressed() signal.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::buttonPressed()
 {
@@ -259,11 +259,11 @@ void QButtonGroup::buttonPressed()
 	emit pressed( id );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This slot is activated when one of the buttons in the group emits the
   QButton::released() signal.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::buttonReleased()
 {
@@ -278,11 +278,11 @@ void QButtonGroup::buttonReleased()
 	emit released( id );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This slot is activated when one of the buttons in the group emits the
   QButton::clicked() signal.
- ----------------------------------------------------------------------------*/
+*/
 
 void QButtonGroup::buttonClicked()
 {

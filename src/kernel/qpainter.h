@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#78 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#79 $
 **
 ** Definition of QPainter class
 **
@@ -271,9 +271,9 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-// --------------------------------------------------------------------------
-// QPainter member functions
-//
+/*****************************************************************************
+  QPainter member functions
+ *****************************************************************************/
 
 inline QPaintDevice *QPainter::device() const
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#75 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#74 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#75 $");
 
 
 // Motif style parameters
@@ -50,7 +50,7 @@ static const int motifTabSpacing	= 12;	// space between text and tab
 */
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPopupMenu qpopmenu.h
   \brief The QPopupMenu class provides a popup menu widget.
 
@@ -63,19 +63,19 @@ static const int motifTabSpacing	= 12;	// space between text and tab
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
   \sa QMenuBar
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QPopupMenu member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a popup menu with a null parent and a widget name.
 
   A popup menu must be a top level widget, i.e. parent must be 0.
   This argument is present merely for API uniformity.
- ----------------------------------------------------------------------------*/
+*/
 
 QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     : QTableView( 0, name, WType_Popup )
@@ -107,9 +107,9 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 QPopupMenu::~QPopupMenu()
 {
@@ -164,10 +164,10 @@ void QPopupMenu::frameChanged()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Opens the popup menu so that the item number \e indexAtPoint
   will be at the specified global position \e pos.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 {
@@ -253,10 +253,10 @@ void QPopupMenu::setFirstItemActive()
     actItem = -1;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Hides all popup menus (in this menu tree) that are currently open.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::hideAllPopups()
 {
@@ -266,10 +266,10 @@ void QPopupMenu::hideAllPopups()
     ((QPopupMenu*)top)->hide();			// cascade from top level
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Hides all popup sub-menus.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::hidePopups()
 {
@@ -284,10 +284,10 @@ void QPopupMenu::hidePopups()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sends the event to the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPopupMenu::tryMenuBar( QMouseEvent *e )
 {
@@ -298,10 +298,10 @@ bool QPopupMenu::tryMenuBar( QMouseEvent *e )
 	((QMenuBar *)top)->tryMouseEvent( this, e ) : FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Tells the menu bar to go back to idle state.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::byeMenuBar()
 {
@@ -313,11 +313,11 @@ void QPopupMenu::byeMenuBar()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Return the item at \e pos, or -1 if there is no item there, or if
   it is a separator item.
- ----------------------------------------------------------------------------*/
+*/
 
 int QPopupMenu::itemAtPos( const QPoint &pos )
 {
@@ -332,10 +332,10 @@ int QPopupMenu::itemAtPos( const QPoint &pos )
     return r;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the y (top) position of item number \e index.
- ----------------------------------------------------------------------------*/
+*/
 
 int QPopupMenu::itemPos( int index )		// get y coord for item
 {
@@ -347,11 +347,11 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Calculates and sets the size of the popup menu, based on the size
   of the items.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::updateSize()
 {
@@ -523,11 +523,11 @@ static QString accel_str( int k )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   The \e parent is 0 when it is updated when a menu item has
   changed a state, or it is something else if called from the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::updateAccel( QWidget *parent )
 {
@@ -573,10 +573,10 @@ void QPopupMenu::updateAccel( QWidget *parent )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   It would be better to check in the slot.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::enableAccel( bool enable )
 {
@@ -594,10 +594,10 @@ void QPopupMenu::enableAccel( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setFont() to be able to refresh the popup menu
   when its font changes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::setFont( const QFont &font )
 {
@@ -606,9 +606,9 @@ void QPopupMenu::setFont( const QFont &font )
     update();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::show() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::show()
 {
@@ -619,9 +619,9 @@ void QPopupMenu::show()
     popupActive = -1;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::hide() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::hide()
 {
@@ -756,9 +756,9 @@ void QPopupMenu::paintAll()
   Event handlers
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::paintEvent( QPaintEvent *e )
 {
@@ -768,9 +768,9 @@ void QPopupMenu::paintEvent( QPaintEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
@@ -807,9 +807,9 @@ void QPopupMenu::mousePressEvent( QMouseEvent *e )
 	hidePopups();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -843,9 +843,9 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse move events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 {
@@ -887,9 +887,9 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles key press events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::keyPressEvent( QKeyEvent *e )
 {
@@ -978,9 +978,9 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles timer events for the popup menu.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPopupMenu::timerEvent( QTimerEvent *e )
 {

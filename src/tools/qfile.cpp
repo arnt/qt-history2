@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#35 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#36 $
 **
 ** Implementation of QFile class
 **
@@ -13,10 +13,10 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#36 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFile qfile.h
   \brief The QFile class is an I/O device that operates on files.
 
@@ -35,22 +35,22 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#35 $");
   The QDir class manages directories and lists of file names.
 
   \sa QDataStream, QTextStream
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a QFile with no name.
- ----------------------------------------------------------------------------*/
+*/
 
 QFile::QFile()
 {
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a QFile with a file name \e name.
   \sa setName()
- ----------------------------------------------------------------------------*/
+*/
 
 QFile::QFile( const char *name )
 {
@@ -58,19 +58,19 @@ QFile::QFile( const char *name )
     fn = name;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys a QFile.  Calls close().
- ----------------------------------------------------------------------------*/
+*/
 
 QFile::~QFile()
 {
     close();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initialize internal data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFile::init()
 {
@@ -84,13 +84,13 @@ void QFile::init()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QFile::name() const
   Returns the name set by setName().
   \sa setName(), QFileInfo::fileName()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the name of the file. The name can include an absolute directory
   path or it can be a name or a path relative to the current directory.
 
@@ -113,7 +113,7 @@ void QFile::init()
   systems supported by Qt.
 
   \sa name(), QFileInfo, QDir
- ----------------------------------------------------------------------------*/
+*/
 
 void QFile::setName( const char *name )
 {
@@ -127,10 +127,10 @@ void QFile::setName( const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the file exists, otherwise FALSE.
   \sa name()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::exists() const
 {
@@ -139,9 +139,9 @@ bool QFile::exists() const
     return ACCESS( fn.data(), F_OK ) == 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the file given by \e fileName exists, otherwise FALSE.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::exists( const char *fileName )
 {
@@ -163,7 +163,7 @@ bool QFile::exists( const char *fileName )
 # define OPEN_ASYNC O_NDELAY
 #endif
 
-/*----------------------------------------------------------------------------
+/*!
   Opens the file specified by the file name currently set, using the mode \e m.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -196,7 +196,7 @@ bool QFile::exists( const char *fileName )
   \endcode
 
   \sa name(), close(), isOpen()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::open( int m )
 {
@@ -314,7 +314,7 @@ bool QFile::open( int m )
     return ok;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Opens a file in the mode \e m using an existing file handle \e f.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -338,7 +338,7 @@ bool QFile::open( int m )
   be able to seek. size() is set to \c INT_MAX (in limits.h).
 
   \sa close()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::open( int m, FILE *f )
 {
@@ -364,7 +364,7 @@ bool QFile::open( int m, FILE *f )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Opens a file in the mode \e m using an existing file descriptor \e f.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -375,7 +375,7 @@ bool QFile::open( int m, FILE *f )
   be able to seek. size() is set to \c INT_MAX (in limits.h).
 
   \sa close()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::open( int m, int f )
 {
@@ -401,7 +401,7 @@ bool QFile::open( int m, int f )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Closes an open file.
 
   The file is closed even if it was opened with an existing file
@@ -409,7 +409,7 @@ bool QFile::open( int m, int f )
   are never closed.
 
   \sa open(), flush()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFile::close()
 {
@@ -430,11 +430,11 @@ void QFile::close()
     init();					// restore internal state
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Flushes the file buffer to the disk.
 
   close() also flushes the file buffer.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFile::flush()
 {
@@ -443,10 +443,10 @@ void QFile::flush()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the file size.
   \sa at()
- ----------------------------------------------------------------------------*/
+*/
 
 uint QFile::size() const
 {
@@ -465,13 +465,13 @@ uint QFile::size() const
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFile::at() const
   Returns the file index.
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the file index to \e pos. Returns TRUE if successful, otherwise FALSE.
 
   Example:
@@ -485,7 +485,7 @@ uint QFile::size() const
   \endcode
 
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::at( int pos )
 {
@@ -512,10 +512,10 @@ bool QFile::at( int pos )
     return ok;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the end of file has been reached, otherwise FALSE.
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFile::atEnd() const
 {
@@ -535,14 +535,14 @@ bool QFile::atEnd() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads at most \e len bytes from the file into \e p and returns the
   number of bytes actually read.
 
   Returns -1 if a serious error occurred.
 
   \sa writeBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::readBlock( char *p, uint len )
 {
@@ -566,14 +566,14 @@ int QFile::readBlock( char *p, uint len )
     return nread;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes \e len bytes from \e p to the file and returns the number of
   bytes actually written.
 
   Returns -1 if a serious error occurred.
 
   \sa readBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::writeBlock( const char *p, uint len )
 {
@@ -614,7 +614,7 @@ int QFile::writeBlock( const char *p, uint len )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a line of text.
 
   Reads bytes from the file until end-of-line is reached, or up to
@@ -625,7 +625,7 @@ int QFile::writeBlock( const char *p, uint len )
   flag.
 
   \sa readBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::readLine( char *p, uint maxlen )
 {
@@ -652,14 +652,14 @@ int QFile::readLine( char *p, uint maxlen )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a single byte/character from the file.
 
   Returns the byte/character read, or -1 if the end of the file has been
   reached.
 
   \sa putch(), ungetch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::getch()
 {
@@ -685,13 +685,13 @@ int QFile::getch()
     return ch;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes the character \e ch to the file.
 
   Returns \e ch, or -1 if some error occurred.
 
   \sa getch(), ungetch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::putch( int ch )
 {
@@ -720,7 +720,7 @@ int QFile::putch( int ch )
     return ch;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Puts the character \e ch back into the file and decrements the index if it
   is not zero.
 
@@ -729,7 +729,7 @@ int QFile::putch( int ch )
   Returns \e ch, or -1 if some error occurred.
 
   \sa getch(), putch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFile::ungetch( int ch )
 {

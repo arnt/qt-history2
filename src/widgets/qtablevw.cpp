@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#29 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#29 $");
 
 
 const int sbDim = 16;
@@ -102,7 +102,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
   It is rather unfortunate that we have to use four different
   coordinate systems, but if we were to provide a flexible and
   powerful base class, there wasn't any way around it.
- */
+*/
 
 
 /*!
@@ -118,7 +118,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
 
   Frame line shapes (QFrame::HLink and QFrame::VLine) are disallowed,
   see QFrame::setStyle().
- */
+*/
 
 QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     : QFrame( parent, name, f, FALSE )
@@ -146,7 +146,7 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
 
 /*!
   Destroys the table view.
- */
+*/
 
 QTableView::~QTableView()
 {
@@ -160,7 +160,7 @@ QTableView::~QTableView()
   Reimplements QWidget::setBackgroundColor().
   Sets the background color for the scroll bars, too.
   \sa setPalette()
- */
+*/
 
 void QTableView::setBackgroundColor( const QColor &c )
 {
@@ -177,7 +177,7 @@ void QTableView::setBackgroundColor( const QColor &c )
   Reimplements QWidget::setPalette().
   Sets the palette for the scroll bars, too.
   \sa setBackgroundColor()
- */
+*/
 
 void QTableView::setPalette( const QPalette &p )
 {
@@ -192,7 +192,7 @@ void QTableView::setPalette( const QPalette &p )
 
 /*!
   Reimplements QWidget::show() in order to do scroll bar tricks.
- */
+*/
 
 void QTableView::show()
 {
@@ -204,7 +204,7 @@ void QTableView::show()
 /*!
   \overload void QTableView::repaint( bool erase )
   Repaints the entire view.
- */
+*/
 
 /*!
   Repaints the table view directly by calling paintEvent() directly,
@@ -223,7 +223,7 @@ void QTableView::show()
   QWidget::repaint() repaint()\endlink.	 It does this because by
   clearing and then repainting one cell at at time, it can make the
   screen flicker less than it would otherwise.
- */
+*/
 
 void QTableView::repaint( int x, int y, int w, int h, bool erase )
 {
@@ -242,14 +242,14 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
 
 /*!
   \overload void QTableView::repaint( const QRect &r, bool erase )
- */
+*/
 
 
 /*!
   \fn int QTableView::numRows() const
   Returns the number of rows in the table.
   \sa numCols(), setNumRows()
- */
+*/
 
 /*!
   Sets the number of rows of the table to \e rows (must be non-negative).
@@ -257,7 +257,7 @@ void QTableView::repaint( int x, int y, int w, int h, bool erase )
   The table repaints itself automatically if autoUpdate() is set.
 
   \sa numCols(), setNumCols(), numRows()
- */
+*/
 
 void QTableView::setNumRows( int rows )
 {
@@ -283,7 +283,7 @@ void QTableView::setNumRows( int rows )
   \fn int QTableView::numCols() const
   Returns the number of columns in the table
   \sa numRows(), setNumCols()
- */
+*/
 
 /*!
   Sets the number of columns of the table to \e cols (must be non-negative).
@@ -291,7 +291,7 @@ void QTableView::setNumRows( int rows )
   The table repaints itself automatically if autoUpdate() is set.
 
   \sa numCols(), numRows(), setNumRows()
- */
+*/
 
 void QTableView::setNumCols( int cols )
 {
@@ -319,13 +319,13 @@ void QTableView::setNumCols( int cols )
   Returns the index of the first line in the table that is visible in
   the view.  The index of the very first line is 0.
   \sa leftCell(), setTopCell()
- */
+*/
 
 /*!
   Scrolls the table such that \e row becomes the top row.
   The index of the very first line is 0.
   \sa setYOffset(), setTopLeftCell(), setLeftCell()
- */
+*/
 
 void QTableView::setTopCell( int row )
 {
@@ -338,13 +338,13 @@ void QTableView::setTopCell( int row )
   Returns the index of the first column in the table that is visible in
   the view.  The index of the very leftmost column is 0.
   \sa topCell(), setLeftCell()
- */
+*/
 
 /*!
   Scrolls the table such that \e col becomes the leftmost
   column.  The index of the very leftmost column is 0.
   \sa setXOffset(), setTopLeftCell(), setTopCell()
- */
+*/
 
 void QTableView::setLeftCell( int col )
 {
@@ -357,7 +357,7 @@ void QTableView::setLeftCell( int col )
   col becomes the top left cell in the view.  The cell at the extreme
   top left of the table is at position (0,0).
   \sa setLeftCell(), setTopCell(), setOffset()
- */
+*/
 
 void QTableView::setTopLeftCell( int row, int col )
 {
@@ -397,7 +397,7 @@ void QTableView::setTopLeftCell( int row, int col )
   currently on the left edge of the view.
 
   \sa setXOffset(), yOffset(), leftCell()
- */
+*/
 
 /*!
   Scrolls the table such that \e x becomes the leftmost pixel in the view.
@@ -407,7 +407,7 @@ void QTableView::setTopLeftCell( int row, int col )
   updated.
 
   \sa xOffset(), setYOffset(), setOffset(), setLeftCell()
- */
+*/
 
 void QTableView::setXOffset( int x )
 {
@@ -420,7 +420,7 @@ void QTableView::setXOffset( int x )
   Returns the coordinate in pixels of the table point which is currently on
   the top edge of the view.
   \sa setYOffset(), xOffset(), topCell()
- */
+*/
 
 
 /*!
@@ -431,7 +431,7 @@ void QTableView::setXOffset( int x )
   updated.
 
   \sa yOffset(), setXOffset(), setOffset(), setTopCell()
- */
+*/
 
 void QTableView::setYOffset( int y )
 {
@@ -447,7 +447,7 @@ void QTableView::setYOffset( int y )
   updated.
 
   \sa xOffset(), yOffset(), setXOffset(), setYOffset(), setTopLeftCell()
- */
+*/
 
 void QTableView::setOffset( int x, int y, bool updateScrBars )
 {
@@ -528,7 +528,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
   variable widths.
 
   \sa setCellWidth(), cellHeight()
- */
+*/
 
 /*!
   Returns the width of column \e col, in pixels.
@@ -537,7 +537,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
   have variable cell widths.
 
   \sa setCellWidth(), cellHeight(), totalWidth()
- */
+*/
 
 int QTableView::cellWidth( int )
 {
@@ -553,7 +553,7 @@ int QTableView::cellWidth( int )
   cellWidth() to get the width.
 
   \sa cellWidth(), setCellHeight(), totalWidth(), numCols()
- */
+*/
 
 void QTableView::setCellWidth( int cellWidth )
 {
@@ -578,7 +578,7 @@ void QTableView::setCellWidth( int cellWidth )
   variable heights.
 
   \sa setCellHeight(), cellWidth()
- */
+*/
 
 
 /*!
@@ -588,7 +588,7 @@ void QTableView::setCellWidth( int cellWidth )
   have variable cell heights.
 
   \sa setCellHeight(), cellWidth(), totalHeight()
- */
+*/
 
 int QTableView::cellHeight( int )
 {
@@ -603,7 +603,7 @@ int QTableView::cellHeight( int )
   cellHeight() to get the height.
 
   \sa cellHeight(), setCellWidth(), totalHeight(), numRows()
- */
+*/
 
 void QTableView::setCellHeight( int cellHeight )
 {
@@ -633,7 +633,7 @@ void QTableView::setCellHeight( int cellHeight )
   for very wide tables.
 
   \sa cellWidth(), totalHeight()
- */
+*/
 
 int QTableView::totalWidth()
 {
@@ -658,7 +658,7 @@ int QTableView::totalWidth()
   for very tall tables.
 
   \sa cellHeight(), totalWidth()
- */
+*/
 
 int QTableView::totalHeight()
 {
@@ -679,7 +679,7 @@ int QTableView::totalHeight()
   Returns the union of the table flags that are currently set.
 
   \sa setTableFlags(), clearTableFlags(), testTableFlags()
- */
+*/
 
 /*!
   \fn bool QTableView::testTableFlags( uint f ) const
@@ -688,7 +688,7 @@ int QTableView::totalHeight()
   otherwise FALSE.
 
   \sa setTableFlags(), clearTableFlags(), tableFlags()
- */
+*/
 
 /*!
   Sets the table flags to \e f.
@@ -748,7 +748,7 @@ int QTableView::totalHeight()
   \endcode
 
   \sa clearTableFlags(), testTableFlags(), tableFlags()
- */
+*/
 
 void QTableView::setTableFlags( uint f )
 {
@@ -814,7 +814,7 @@ void QTableView::setTableFlags( uint f )
   The default argument clears all flags.
 
   \sa setTableFlags(), testTableFlags(), tableFlags()
- */
+*/
 
 void QTableView::clearTableFlags( uint f )
 {
@@ -879,7 +879,7 @@ void QTableView::clearTableFlags( uint f )
   is changed in some way.
 
   \sa setAutoUpdate()
- */
+*/
 
 /*!
   Sets the auto-update option of the table view to \e enable.
@@ -902,7 +902,7 @@ void QTableView::clearTableFlags( uint f )
   repaint() to do this.
 
   \sa autoUpdate(), repaint()
- */
+*/
 
 void QTableView::setAutoUpdate( bool enable )
 {
@@ -921,7 +921,7 @@ void QTableView::setAutoUpdate( bool enable )
   background color/pixmap before the contents are repainted.
 
   \sa isVisible()
- */
+*/
 
 void QTableView::updateCell( int row, int col, bool erase )
 {
@@ -943,14 +943,14 @@ void QTableView::updateCell( int row, int col, bool erase )
   This function should only be called from the updateCell() function
   in subclasses. It returns the portion of a cell that actually needs
   to be updated. This is only useful for non-trivial updateCell().
- */
+*/
 
 /*!
   Returns the rectangle which is the actual table, excluding any
   frame, in the widget coordinate system.
 
   Somewhat similar to clientRect(), but does not include any frames.
- */
+*/
 
 QRect QTableView::viewRect() const
 {
@@ -966,7 +966,7 @@ QRect QTableView::viewRect() const
   view is too small for the first row and Tbl_cutCellsV is set.
 
   \sa lastColVisible()
- */
+*/
 
 int QTableView::lastRowVisible() const
 {
@@ -993,7 +993,7 @@ int QTableView::lastRowVisible() const
   view is too narrow for the first column and Tbl_cutCellsH is set.
 
   \sa lastRowVisible()
- */
+*/
 
 int QTableView::lastColVisible() const
 {
@@ -1015,7 +1015,7 @@ int QTableView::lastColVisible() const
 /*!
   Returns TRUE if \e row is at least partially visible.
   \sa colIsVisible()
- */
+*/
 
 bool QTableView::rowIsVisible( int row ) const
 {
@@ -1025,7 +1025,7 @@ bool QTableView::rowIsVisible( int row ) const
 /*!
   Returns TRUE if \e col is at least partially visible.
   \sa rowIsVisible()
- */
+*/
 
 bool QTableView::colIsVisible( int col ) const
 {
@@ -1037,7 +1037,7 @@ bool QTableView::colIsVisible( int col ) const
   \internal
   Called when both scroll bars are active at the same time. Covers the
   bottom left corner between the two scroll bars with an empty widget.
- */
+*/
 
 void QTableView::coverCornerSquare( bool enable )
 {
@@ -1070,7 +1070,7 @@ void QTableView::coverCornerSquare( bool enable )
 
   You can achieve the same effect automatically by setting any of the
   \link setTableFlags() Tbl_snapTo*Grid \endlink table flags.
- */
+*/
 
 void QTableView::snapToGrid( bool horizontal, bool vertical )
 {
@@ -1100,7 +1100,7 @@ void QTableView::snapToGrid( bool horizontal, bool vertical )
 
   Moves the table horizontally to offset \e val without updating the
   scroll bar.
- */
+*/
 
 void QTableView::horSbValue( int val )
 {
@@ -1120,7 +1120,7 @@ void QTableView::horSbValue( int val )
   QScrollBar::sliderMoved() signal.
 
   Scrolls the table smoothly horizontally even if \c Tbl_snapToHGrid is set.
- */
+*/
 
 void QTableView::horSbSliding( int val )
 {
@@ -1138,7 +1138,7 @@ void QTableView::horSbSliding( int val )
   \internal
   This internal slot is connected to the horizontal scroll bar's
   QScrollBar::sliderReleased() signal.
- */
+*/
 
 void QTableView::horSbSlidingDone( )
 {
@@ -1154,7 +1154,7 @@ void QTableView::horSbSlidingDone( )
 
   Moves the table vertically to offset \e val without updating the
   scroll bar.
- */
+*/
 
 void QTableView::verSbValue( int val )
 {
@@ -1174,7 +1174,7 @@ void QTableView::verSbValue( int val )
   QScrollBar::sliderMoved() signal.
 
   Scrolls the table smoothly vertically even if \c Tbl_snapToVGrid is set.
- */
+*/
 
 void QTableView::verSbSliding( int val )
 {
@@ -1192,7 +1192,7 @@ void QTableView::verSbSliding( int val )
   \internal
   This internal slot is connected to the vertical scroll bar's
   QScrollBar::sliderReleased() signal.
- */
+*/
 
 void QTableView::verSbSlidingDone( )
 {
@@ -1209,7 +1209,7 @@ void QTableView::verSbSlidingDone( )
   do so for each cell.
 
   The default implementation does nothing.
- */
+*/
 
 void QTableView::setupPainter( QPainter * )
 {
@@ -1231,7 +1231,7 @@ void QTableView::setupPainter( QPainter * )
   you want.  Call setTableFlags(Tbl_clipCellPainting) to enable clipping.
 
   \sa paintEvent(), QPainter(), setTableFlags()
- */
+*/
 
 
 /*!
@@ -1239,7 +1239,7 @@ void QTableView::setupPainter( QPainter * )
   and drawFrame().
 
   It is optimized to repaint only the cells that need to be repainted.
- */
+*/
 
 void QTableView::paintEvent( QPaintEvent *e )
 {
@@ -1356,7 +1356,7 @@ void QTableView::paintEvent( QPaintEvent *e )
   Handles resize events for the table view.
 
   The scroll bars are moved and cells repainted as necessary.
- */
+*/
 
 void QTableView::resizeEvent( QResizeEvent * )
 {
@@ -1377,7 +1377,7 @@ void QTableView::resizeEvent( QResizeEvent * )
 
 /*!
   Redraws all visible cells in the table view.
- */
+*/
 
 void QTableView::updateView()
 {
@@ -1387,8 +1387,8 @@ void QTableView::updateView()
 /*!
   Returns a pointer to the vertical scroll bar, mainly so you can
   connect() to its signals.  Note that the scroll bar works in pixel
-  values, use findRow() to translate to cell numbers.  
- */
+  values, use findRow() to translate to cell numbers.
+*/
 
 const QScrollBar *QTableView::verticalScrollBar() const
 {
@@ -1410,8 +1410,8 @@ const QScrollBar *QTableView::verticalScrollBar() const
 /*!
   Returns a pointer to the horizontal scroll bar, mainly so you can
   connect() to its signals. Note that the scroll bar works in pixel
-  values, use findCol() to translate to cell numbers.  
- */
+  values, use findCol() to translate to cell numbers.
+*/
 
 const QScrollBar *QTableView::horizontalScrollBar() const
 {
@@ -1433,7 +1433,7 @@ const QScrollBar *QTableView::horizontalScrollBar() const
 /*!
   Enables or disables the horizontal scroll bar, as required by
   setAutoUpdate() and the \link setTableFlags() table flags\endlink.
- */
+*/
 
 void QTableView::setHorScrollBar( bool on, bool update )
 {
@@ -1484,7 +1484,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 /*!
   Enables or disables the vertical scroll bar, as required by
   setAutoUpdate() and the \link setTableFlags() table flags\endlink.
- */
+*/
 
 void QTableView::setVerScrollBar( bool on, bool update )
 {
@@ -1630,7 +1630,7 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
   Returns -1 if \e yPos is outside the valid range.
 
   \sa findCol(), rowYPos()
- */
+*/
 
 int QTableView::findRow( int yPos ) const
 {
@@ -1649,7 +1649,7 @@ int QTableView::findRow( int yPos ) const
   Returns -1 if \e xPos is outside the valid range.
 
   \sa findRow(), colXPos()
- */
+*/
 
 int QTableView::findCol( int xPos ) const
 {
@@ -1671,7 +1671,7 @@ int QTableView::findCol( int xPos ) const
   invisible or invalid.
 
   \sa colXPos(), findRow()
- */
+*/
 
 bool QTableView::rowYPos( int row, int *yPos ) const
 {
@@ -1710,7 +1710,7 @@ bool QTableView::rowYPos( int row, int *yPos ) const
   invisible or invalid.
 
   \sa rowYPos(), findCol()
- */
+*/
 
 bool QTableView::colXPos( int col, int *xPos ) const
 {
@@ -1748,7 +1748,7 @@ bool QTableView::colXPos( int col, int *xPos ) const
 
   \sa setXOffset(), setYOffset(), setOffset(), setTopCell(),
   setLeftCell(), setTopLeftOffset()
- */
+*/
 
 void QTableView::scroll( int xPixels, int yPixels )
 {
@@ -1863,7 +1863,7 @@ void QTableView::scroll( int xPixels, int yPixels )
   includes blank pixels to the right of the visible table data.
 
   \sa maxViewY(), viewWidth(), contentsRect()
- */
+*/
 
 int QTableView::maxViewX() const
 {
@@ -1878,7 +1878,7 @@ int QTableView::maxViewX() const
   includes blank pixels below the visible table data.
 
   \sa maxViewX(), viewHeight(), contentsRect()
- */
+*/
 
 int QTableView::maxViewY() const
 {
@@ -1893,7 +1893,7 @@ int QTableView::maxViewY() const
   to the right of the table data.
 
   \sa maxViewX(), viewHeight(), contentsRect()
- */
+*/
 
 int QTableView::viewWidth() const
 {
@@ -1906,7 +1906,7 @@ int QTableView::viewWidth() const
   include any scroll bar or frame, but does include background pixels
   below the table data.
   \sa maxViewY() viewWidth() contentsRect()
- */
+*/
 
 int QTableView::viewHeight() const
 {
@@ -1973,14 +1973,14 @@ void QTableView::doAutoScrollBars()
   state.  Generally you should not need to call this.
 
   \sa setTableFlags()
- */
+*/
 
 /*!
   Updates the scroll bars' contents and presence to match the table's
   state \c or \e f.
 
   \sa setTableFlags()
- */
+*/
 
 void QTableView::updateScrollBars( uint f )
 {
@@ -2077,7 +2077,7 @@ void QTableView::updateFrameSize()
   This is used mainly to set the horizontal scroll bar's range.
 
   \sa maxColOffset(), maxYOffset(), totalWidth()
- */
+*/
 
 int QTableView::maxXOffset()
 {
@@ -2120,7 +2120,7 @@ int QTableView::maxXOffset()
   This is used mainly to set the vertical scroll bar's range.
 
   \sa maxRowOffset(), maxXOffset(), totalHeight()
- */
+*/
 
 int QTableView::maxYOffset()
 {
@@ -2164,7 +2164,7 @@ int QTableView::maxYOffset()
   this may or may not be the last column.
 
   \sa maxXOffset(), maxRowOffset()
- */
+*/
 
 int QTableView::maxColOffset()
 {
@@ -2190,7 +2190,7 @@ int QTableView::maxColOffset()
   this may or may not be the last row.
 
   \sa maxYOffset(), maxColOffset()
- */
+*/
 
 int QTableView::maxRowOffset()
 {

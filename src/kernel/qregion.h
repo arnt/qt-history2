@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#21 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#22 $
 **
 ** Definition of QRegion class
 **
@@ -99,9 +99,9 @@ public:
 #define QRGN_XOR		9
 
 
-// --------------------------------------------------------------------------
-// QRegion stream functions
-//
+/*****************************************************************************
+  QRegion stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QRegion & );
 QDataStream &operator>>( QDataStream &, QRegion & );

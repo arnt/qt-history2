@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#19 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -13,10 +13,10 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#19 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGroupBox qgrpbox.h
   \brief The QGroupBox widget provides a group box frame with a title.
 
@@ -25,14 +25,14 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#18 $");
 
   The button group widget, QButtonGroup, is an "intelligent" group box that is
   very useful for organizing button widgets in a group.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a group box widget with no title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
     : QFrame( parent, name )
@@ -40,11 +40,11 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a group box with a title.
 
   The \e parent and \e name arguments are passed to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QGroupBox::QGroupBox( const char *title, QWidget *parent, const char *name )
     : QFrame( parent, name )
@@ -71,9 +71,9 @@ void QGroupBox::init()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the group box title text to \e title.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGroupBox::setTitle( const char *title )
 {
@@ -84,16 +84,16 @@ void QGroupBox::setTitle( const char *title )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QGroupBox::alignment() const
   Returns the alignment of the group box title.
 
   The default alignment is \c AlignHCenter.
 
   \sa setAlignment()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the alignment of the group box title.
 
   The title is always placed on the upper frame line, however,
@@ -107,7 +107,7 @@ void QGroupBox::setTitle( const char *title )
   </ul>
 
   \sa alignment()
- ----------------------------------------------------------------------------*/
+*/
 
 void QGroupBox::setAlignment( int alignment )
 {
@@ -116,11 +116,11 @@ void QGroupBox::setAlignment( int alignment )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the group box.
   \internal
   overrides QFrame::paintEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QGroupBox::paintEvent( QPaintEvent * )
 {

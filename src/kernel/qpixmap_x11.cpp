@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#85 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#84 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#85 $");
 
 
 /*****************************************************************************
@@ -152,10 +152,10 @@ static int highest_bit( uint v )
 
 bool QPixmap::optimAll = TRUE;
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the pixmap data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmap::init( int w, int h, int d )
 {
@@ -195,10 +195,10 @@ void QPixmap::init( int w, int h, int d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a null pixmap.
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
@@ -206,7 +206,7 @@ QPixmap::QPixmap()
     init( 0, 0, 0 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a pixmap with \e w width, \e h height and of \e depth bits per
   pixels.
 
@@ -219,7 +219,7 @@ QPixmap::QPixmap()
   If either \e width or \e height is zero, a null pixmap is constructed.
 
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -227,9 +227,9 @@ QPixmap::QPixmap( int w, int h, int depth )
     init( w, h, depth );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload QPixmap::QPixmap( const QSize &size, int depth )
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
@@ -237,10 +237,10 @@ QPixmap::QPixmap( const QSize &size, int depth )
     init( size.width(), size.height(), depth );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a monochrome pixmap which is initialized with the data in \e bits.
   This constructor is protected and used by the QBitmap class.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
@@ -263,9 +263,9 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     delete [] flipped_bits;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a pixmap which is a copy of \e pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::QPixmap( const QPixmap &pixmap )
     : QPaintDevice( PDT_PIXMAP )
@@ -281,9 +281,9 @@ QPixmap::QPixmap( const QPixmap &pixmap )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap::~QPixmap()
 {
@@ -299,10 +299,10 @@ QPixmap::~QPixmap()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns the pixmap \e pixmap to this pixmap and returns a reference to
   this pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
@@ -344,11 +344,11 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the default pixmap depth, i.e. the depth a pixmap gets
   if -1 is specified.
   \sa depth()
- ----------------------------------------------------------------------------*/
+*/
 
 int QPixmap::defaultDepth()
 {
@@ -359,7 +359,7 @@ int QPixmap::defaultDepth()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPixmap::isOptimized() const
 
   Returns the optimization flag for the pixmap.
@@ -368,9 +368,9 @@ int QPixmap::defaultDepth()
   flag allAreOptimized(), which is TRUE by default.
 
   \sa optimize(), optimizeGlobally(), isGloballyOptimized()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables pixmap optimization if \e enable is TRUE, or disables
   optimization if \e enable is FALSE.
 
@@ -379,7 +379,7 @@ int QPixmap::defaultDepth()
   rougly width()*depth()*height()/8 bytes.
 
   \sa isOptimized(), optimizeGlobally(), isGloballyOptimized()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmap::optimize( bool enable )
 {
@@ -393,17 +393,17 @@ void QPixmap::optimize( bool enable )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the global pixmap optimization flag.	The default value is TRUE.
   \sa optimizeGlobally(), optimize(), isOptimized()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPixmap::isGloballyOptimized()
 {
     return optimAll;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the global pixmap optimization flag.
 
   All new pixmaps that are created will be optimized if \e enable is
@@ -414,7 +414,7 @@ bool QPixmap::isGloballyOptimized()
   The default value is TRUE.
 
   \sa isGloballyOptimized(), optimize(), isOptimized()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmap::optimizeGlobally( bool enable )
 {
@@ -422,9 +422,9 @@ void QPixmap::optimizeGlobally( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Fills the pixmap with the color \e fillColor.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 {
@@ -437,11 +437,11 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Internal implementation of the virtual QPaintDevice::metric() function.
 
   Use the QPaintDeviceMetrics class instead.
- ----------------------------------------------------------------------------*/
+*/
 
 int QPixmap::metric( int m ) const
 {
@@ -479,7 +479,7 @@ int QPixmap::metric( int m ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Converts the pixmap to an image. Returns a null image if the operation
   failed.
 
@@ -492,7 +492,7 @@ int QPixmap::metric( int m ) const
   needs to be tested on different types of X servers.
 
   \sa convertFromImage()
- ----------------------------------------------------------------------------*/
+*/
 
 QImage QPixmap::convertToImage() const
 {
@@ -700,7 +700,7 @@ QImage QPixmap::convertToImage() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
   Converts an image and sets this pixmap. Returns TRUE if successful.
 
@@ -730,7 +730,7 @@ QImage QPixmap::convertToImage() const
   needs to be tested on different types of X servers.
 
   \sa convertToImage(), isQBitmap(), QImage::convertDepth(), defaultDepth()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 {
@@ -1091,7 +1091,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Grabs the contents of a window and makes a pixmap out of it.
   Returns the pixmap.
 
@@ -1112,7 +1112,7 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 
   \warning Grabbing an area outside the window, or screen, is not safe
   in general.  This depends on the underlying window system.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
@@ -1139,7 +1139,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Transforms the pixmap using \e matrix, and returns the transformed
   pixmap.
 
@@ -1205,7 +1205,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
   \bug 2 and 4 bits pixmaps are not supported.
 
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
@@ -1521,7 +1521,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the actual matrix used for transforming a pixmap with \e w
   width and \e h height.
 
@@ -1534,7 +1534,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
   correctly from the original pixmap into the new pixmap.
 
   \sa xForm(), QWMatrix
- ----------------------------------------------------------------------------*/
+*/
 
 QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 {

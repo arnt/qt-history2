@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#32 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#33 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,22 +13,22 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#33 $");
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QBitVal qbitarry.h
   \brief The QBitVal class is an internal class, used with QBitArray.
 
   The QBitVal is required by the indexing [] operator on bit arrays.
   It is probably a bad idea to use it in any other context.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QBitArray qbitarry.h
   \brief The QBitArray class provides an array of bits.
 
@@ -63,12 +63,12 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbitarry.cpp#32 $");
     QBitArray c;
     c = ~a & b;				// c = [0 1 0]
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an empty bit array.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray::QBitArray() : QByteArray( 0, 0 )
 {
@@ -78,9 +78,9 @@ QBitArray::QBitArray() : QByteArray( 0, 0 )
     setSharedBlock( x );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a bit array of \e size bits. The bits are uninitialized.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
 {
@@ -91,16 +91,16 @@ QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
     resize( size );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QBitArray::QBitArray( const QBitArray &a )
   Constructs a shallow copy of \e a.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QBitArray &QBitArray::operator=( const QBitArray &a )
   Assigns a shallow copy of \e a to this bit array and returns a reference
   to this array.
- ----------------------------------------------------------------------------*/
+*/
 
 
 void QBitArray::pad0()				// pad last byte with 0-bits
@@ -115,20 +115,20 @@ void QBitArray::pad0()				// pad last byte with 0-bits
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QBitArray::size() const
   Returns the size (number of bits) of the bit array.
   \sa resize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Resizes the bit array to \e size bits.
   Returns TRUE if the bit array could be resized.
 
   When expanding the bit array, the new bits will be uninitialized.
 
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBitArray::resize( uint size )
 {
@@ -145,7 +145,7 @@ bool QBitArray::resize( uint size )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Fills the bit array with \e v (1's if \e v is TRUE, or 0's if \e v is FALSE).
 
   Will resize the bit array to \e size bits if \e size is nonnegative.
@@ -154,7 +154,7 @@ bool QBitArray::resize( uint size )
   could not be resized, otherwise returns TRUE.
 
   \sa resize()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBitArray::fill( bool v, int size )
 {
@@ -171,7 +171,7 @@ bool QBitArray::fill( bool v, int size )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Detaches from shared bit array data and makes sure that this bit array
   is the only one referring the data.
 
@@ -180,7 +180,7 @@ bool QBitArray::fill( bool v, int size )
   a single reference.
 
   \sa copy()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBitArray::detach()
 {
@@ -189,10 +189,10 @@ void QBitArray::detach()
     SHBLOCK->nbits = nbits;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a deep copy of the bit array.
   \sa detach()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray QBitArray::copy() const
 {
@@ -203,10 +203,10 @@ QBitArray QBitArray::copy() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the bit at position \e index is set.
   \sa setBit(), clearBit()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBitArray::testBit( uint index ) const
 {
@@ -219,10 +219,10 @@ bool QBitArray::testBit( uint index ) const
     return *(data()+(index>>3)) & (1 << (index & 7));
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the bit at position \e index (sets it to 1).
   \sa clearBit(), toggleBit()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBitArray::setBit( uint index )
 {
@@ -235,7 +235,7 @@ void QBitArray::setBit( uint index )
     *(data()+(index>>3)) |= (1 << (index & 7));
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QBitArray::setBit( uint index, bool value )
   Sets the bit at position \e index to \e value.
 
@@ -248,12 +248,12 @@ void QBitArray::setBit( uint index )
   \endcode
 
   \sa clearBit(), toggleBit()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Clears the bit at position \e index (sets it to 0).
   \sa setBit(), toggleBit()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBitArray::clearBit( uint index )
 {
@@ -266,14 +266,14 @@ void QBitArray::clearBit( uint index )
     *(data()+(index>>3)) &= ~(1 << (index & 7));
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Toggles the bit at position \e index.
 
   If the previous value was 0, the new value will be 1.  If the previous
   value was 1, the new value will be 0.
 
   \sa setBit(), clearBit()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBitArray::toggleBit( uint index )
 {
@@ -291,13 +291,13 @@ bool QBitArray::toggleBit( uint index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QBitArray::at( uint index ) const
   Returns the value (0 or 1) of the bit at position \e index.
   \sa operator[]
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QBitVal QBitArray::operator[]( int index )
   Implements the [] operator for bit arrays.
 
@@ -315,10 +315,10 @@ bool QBitArray::toggleBit( uint index )
   The functions testBit(), setBit() and clearBit() are faster.
 
   \sa at()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Performs the AND operation between all bits in this bit array and \e a.
   Returns a reference to this bit array.
 
@@ -335,7 +335,7 @@ bool QBitArray::toggleBit( uint index )
   \endcode
 
   \sa operator|=(), operator^=(), operator~()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray &QBitArray::operator&=( const QBitArray &a )
 {
@@ -353,7 +353,7 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Performs the OR operation between all bits in this bit array and \e a.
   Returns a reference to this bit array.
 
@@ -370,7 +370,7 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
   \endcode
 
   \sa operator&=(), operator^=(), operator~()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray &QBitArray::operator|=( const QBitArray &a )
 {
@@ -388,7 +388,7 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Performs the XOR operation between all bits in this bit array and \e a.
   Returns a reference to this bit array.
 
@@ -405,7 +405,7 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
   \endcode
 
   \sa operator&=(), operator|=(), operator~()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray &QBitArray::operator^=( const QBitArray &a )
 {
@@ -423,7 +423,7 @@ QBitArray &QBitArray::operator^=( const QBitArray &a )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a bit array which contains the inverted bits of this bit array.
 
   Example:
@@ -432,7 +432,7 @@ QBitArray &QBitArray::operator^=( const QBitArray &a )
     a[0] = 1;  a[1] = 0; a[2] = 1;	// a = [1 0 1]
     QBitArray b = ~a;			// b = [0 1 0]
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray QBitArray::operator~() const
 {
@@ -447,11 +447,11 @@ QBitArray QBitArray::operator~() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBitArray
   Returns the AND result between the bit arrays \e a1 and \e a2.
   \sa QBitArray::operator&=()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray operator&( const QBitArray &a1, const QBitArray &a2 )
 {
@@ -460,11 +460,11 @@ QBitArray operator&( const QBitArray &a1, const QBitArray &a2 )
     return tmp;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBitArray
   Returns the OR result between the bit arrays \e a1 and \e a2.
   \sa QBitArray::operator|=()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray operator|( const QBitArray &a1, const QBitArray &a2 )
 {
@@ -473,11 +473,11 @@ QBitArray operator|( const QBitArray &a1, const QBitArray &a2 )
     return tmp;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBitArray
   Returns the XOR result between the bit arrays \e a1 and \e a2.
   \sa QBitArray::operator^()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 {
@@ -491,7 +491,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
   QBitArray stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBitArray
   Writes a bit array to a stream.
 
@@ -500,7 +500,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
   <li> The array size (UINT32)
   <li> The array bits, (size+7)/8 bytes
   </ol>
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {
@@ -511,10 +511,10 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBitArray
   Reads a bit array from a stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QBitArray &a )
 {

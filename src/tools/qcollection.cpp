@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcollection.cpp#12 $
+** $Id: //depot/qt/main/src/tools/qcollection.cpp#13 $
 **
 ** Implementation of base class for all collection classes
 **
@@ -12,10 +12,10 @@
 
 #include "qcollect.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#13 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QCollection qcollect.h
   \brief This is the base class of all Qt collections.
 
@@ -33,29 +33,29 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#12 $");
   create the real collections cast the \c GCI to the required type.
 
   \sa \link collection.html Collection Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QCollection::QCollection()
   Constructs a collection. The constructor is protected because QCollection
   is an abstract class.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QCollection::~QCollection()
   Destroys the collection. The destructor is protected because QCollection
   is an abstract class.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QCollection::autoDelete() const
   Returns the setting of the auto-delete option (default is FALSE).
   \sa setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QCollection::setAutoDelete( bool enable )
   Sets the auto-delete option of the collection.
 
@@ -70,23 +70,23 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#12 $");
   The default setting is FALSE.
 
   \sa autoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn virtual uint QCollection::count() const
   Returns the number of objects in the collection.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn virtual void QCollection::clear()
   Removes all objects from the collection.  The objects will be deleted
   if auto-delete has been enabled.
   \sa setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Virtual function that creates a copy of an object that is about to
   be inserted into the collection.
 
@@ -98,14 +98,14 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qcollection.cpp#12 $");
   that is being inserted.
 
   \sa deleteItem()
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QCollection::newItem( GCI d )
 {
     return d;					// just return reference
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Virtual function that deletes an item that is about to be removed from
   the collection.
 
@@ -116,7 +116,7 @@ GCI QCollection::newItem( GCI d )
   classes.
 
   \sa newItem(), setAutoDelete()
- ----------------------------------------------------------------------------*/
+*/
 
 void QCollection::deleteItem( GCI d )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#9 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#10 $
 **
 ** Definition of QGVector class
 **
@@ -74,9 +74,9 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QGVector stream functions
-//
+/*****************************************************************************
+  QGVector stream functions
+ *****************************************************************************/
 
 QDataStream &operator>>( QDataStream &, QGVector & );
 QDataStream &operator<<( QDataStream &, const QGVector & );

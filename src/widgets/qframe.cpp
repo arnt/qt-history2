@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#38 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,10 +15,10 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#38 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFrame qframe.h
   \brief The QFrame class is the base class of widgets that have an (optional)
   frame.
@@ -81,10 +81,10 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#37 $");
 
   The labels on the top and right are QLabel objects with frameStyle()
   \c Raised|Panel and lineWidth() 1.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a frame widget with frame style \c NoFrame and a 1 pixel frame
   width.
 
@@ -93,7 +93,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#37 $");
 
   The \e parent, \e name and \e f arguments are passed to the QWidget
   constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 		bool allowLines )
@@ -109,28 +109,28 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::frameStyle() const
   Returns the frame style.
 
   The default value is QFrame::NoFrame.
 
   \sa setFrameStyle(), frameShape(), frameShadow()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::frameShape() const
   Returns the frame shape value from the frame style.
   \sa frameStyle(), frameShadow()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::frameShadow() const
   Returns the frame shadow value from the frame style.
   \sa frameStyle(), frameShape()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the frame style to \e style.
 
   The \e style is the bitwise OR between a frame shape and a frame
@@ -172,7 +172,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 
   \sa <a href=#picture>Illustration</a>, frameStyle(), lineShapesOk(),
   colorGroup(), QColorGroup
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::setFrameStyle( int style )
 {
@@ -191,16 +191,16 @@ void QFrame::setFrameStyle( int style )
     updateFrameWidth();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QFrame::lineShapesOk() const
   Returns TRUE if line shapes (\c HLine or \c VLine) are allowed, or FALSE if
   they are not allowed.
 
   It is only possible to disallow line shapes in the constructor.
   The default value is TRUE.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::lineWidth() const
   Returns the line width.  (Note that the \e total line width
   for \c HLine and \c VLine is given by frameWidth(), not
@@ -209,12 +209,12 @@ void QFrame::setFrameStyle( int style )
   The default value is 1.
 
   \sa setLineWidth(), midLineWidth(), frameWidth()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the line width to \e w.
   \sa frameWidth(), lineWidth(), setMidLineWidth()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::setLineWidth( int w )
 {
@@ -222,19 +222,19 @@ void QFrame::setLineWidth( int w )
     updateFrameWidth();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::midLineWidth() const
   Returns the width of the mid-line.
 
   The default value is 0.
 
   \sa setMidLineWidth(), lineWidth(), frameWidth()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the width of the mid-line to \e w.
   \sa midLineWidth(), setLineWidth()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::setMidLineWidth( int w )
 {
@@ -243,10 +243,10 @@ void QFrame::setMidLineWidth( int w )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Updated the fwidth parameter.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::updateFrameWidth()
 {
@@ -314,7 +314,7 @@ void QFrame::updateFrameWidth()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QFrame::frameWidth() const
   Returns the width of the frame that is drawn.
 
@@ -324,17 +324,17 @@ void QFrame::updateFrameWidth()
   style \c Panel has a frame width equivalent to the line width.
 
   \sa lineWidth(), midLineWidth(), frameStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the frame rectangle.
 
   The default frame rectangle is equivalent to the \link
   QWidget::rect() widget rectangle\endlink.
 
   \sa setFrameRect()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QFrame::frameRect() const
 {
@@ -342,7 +342,7 @@ QRect QFrame::frameRect() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the frame rectangle to \e r.
 
   The frame rectangle is the rectangle the frame is drawn in.  By
@@ -354,7 +354,7 @@ QRect QFrame::frameRect() const
   to the \link QWidget::rect() widget rectangle\endlink.
 
   \sa frameRect(), contentsRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::setFrameRect( const QRect &r )
 {
@@ -362,10 +362,10 @@ void QFrame::setFrameRect( const QRect &r )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the rectangle inside the frame.
   \sa frameRect(), drawContents()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QFrame::contentsRect() const
 {
@@ -376,14 +376,14 @@ QRect QFrame::contentsRect() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the frame.
 
   Paints the frame and the contents.
 
   Opens the painter on the frame and calls first drawFrame(), then
   drawContents().
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::paintEvent( QPaintEvent * )
 {
@@ -395,7 +395,7 @@ void QFrame::paintEvent( QPaintEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize events for the frame.
 
   Adjusts the frame rectangle for the resized widget.  The frame
@@ -406,7 +406,7 @@ void QFrame::paintEvent( QPaintEvent * )
 
   Nothing is done if the frame rectangle is a \link QRect::isNull()
   null rectangle\endlink already.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::resizeEvent( QResizeEvent *e )
 {
@@ -419,7 +419,7 @@ void QFrame::resizeEvent( QResizeEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the frame using the current frame attributes and color
   group.  The rectangle inside the frame is not affected.
 
@@ -428,7 +428,7 @@ void QFrame::resizeEvent( QResizeEvent *e )
   and must remain open.
 
   \sa frameRect(), contentsRect(), drawContents(), frameStyle(), setPalette()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::drawFrame( QPainter *p )
 {
@@ -486,7 +486,7 @@ void QFrame::drawFrame( QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Virtual function that draws the contents of the frame.
 
   The QPainter is already open when you get it, and you must leave it
@@ -501,20 +501,20 @@ void QFrame::drawFrame( QPainter *p )
   to. The default function does nothing.
 
   \sa contentsRect(), QPainter::setClipRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::drawContents( QPainter * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Virtual function that is called when the frame style, line width or
   mid-line width changes.
 
   This function can be reimplemented by subclasses that need to know
   when the frame attributes change.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFrame::frameChanged()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#11 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -18,12 +18,12 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#11 $");
 
 
-// --------------------------------------------------------------------------
-// QPen member functions
-//
+/*****************************************************************************
+  QPen member functions
+ *****************************************************************************/
 
 #define INVPEN_STYLE 0x01
 #define INVPEN_WIDTH 0x02
@@ -147,9 +147,9 @@ bool QPen::update( HPS hps )			// update pen params
 }
 
 
-// --------------------------------------------------------------------------
-// QBrush member functions
-//
+/*****************************************************************************
+  QBrush member functions
+ *****************************************************************************/
 
 #define INVBRUSH_STYLE 0x01
 #define INVBRUSH_COLOR 0x02
@@ -278,9 +278,9 @@ bool QBrush::update( HPS hps )			// update brush params
 }
 
 
-// --------------------------------------------------------------------------
-// QPainter member functions
-//
+/*****************************************************************************
+  QPainter member functions
+ *****************************************************************************/
 
 #include "qlist.h"
 

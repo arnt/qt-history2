@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#19 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#20 $
 **
 ** Definition of QCursor class
 **
@@ -59,9 +59,9 @@ inline void QCursor::setPos( const QPoint &p )
 }
 
 
-// --------------------------------------------------------------------------
-// Cursor shape identifiers (correspond to global cursor objects)
-//
+/*****************************************************************************
+  Cursor shape identifiers (correspond to global cursor objects)
+ *****************************************************************************/
 
 enum QCursorShape {
     ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
@@ -69,9 +69,9 @@ enum QCursorShape {
     SizeAllCursor, BitmapCursor=24 };
 
 
-// --------------------------------------------------------------------------
-// Global cursors
-//
+/*****************************************************************************
+  Global cursors
+ *****************************************************************************/
 
 extern const QCursor arrowCursor;		// standard arrow cursor
 extern const QCursor upArrowCursor;		// upwards arrow
@@ -85,9 +85,9 @@ extern const QCursor sizeFDiagCursor;		// diagonal resize (\)
 extern const QCursor sizeAllCursor;		// all directions resize
 
 
-// --------------------------------------------------------------------------
-// QCursor stream functions
-//
+/*****************************************************************************
+  QCursor stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QCursor & );
 QDataStream &operator>>( QDataStream &, QCursor & );

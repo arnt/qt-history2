@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#134 $
 **
 ** Implementation of QWidget class
 **
@@ -20,10 +20,10 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#133 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#134 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QWidget qwidget.h
   \brief The QWidget class is the base class of all user interface objects.
 
@@ -44,7 +44,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#133 $");
   its parent.
 
   \sa QEvent, QPainter
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
@@ -120,7 +120,7 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a widget which is a child of \e parent, with the name \e name and
   widget flags set to \e f.
 
@@ -168,7 +168,7 @@ inline bool QWidgetMapper::remove( WId id )
 
   The widget flags are defined in qwindefs.h (which is included by
   qwidget.h).
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( PDT_WIDGET ),
@@ -190,12 +190,12 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the widget.
 
   All children of this widget are deleted first.
   The application exits if this widget is (was) the main widget.
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget::~QWidget()
 {
@@ -230,12 +230,12 @@ QWidget::~QWidget()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Creates the global widget mapper.
   The widget mapper converts window handles to widget pointers.
   \sa destroyMapper()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::createMapper()
 {
@@ -243,11 +243,11 @@ void QWidget::createMapper()
     CHECK_PTR( mapper );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Destroys the global widget mapper.
   \sa createMapper()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::destroyMapper()
 {
@@ -289,20 +289,20 @@ void QWidget::setWinId( WId id )		// set widget identifier
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns a pointer to the block of extra widget data.
- ----------------------------------------------------------------------------*/
+*/
 
 QWExtra *QWidget::extraData()
 {
     return extra;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Creates the widget extra data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::createExtra()
 {
@@ -318,10 +318,10 @@ void QWidget::createExtra()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Deletes the widget extra data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::deleteExtra()
 {
@@ -336,7 +336,7 @@ void QWidget::deleteExtra()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the widget with window identifer/handle \e id.
 
   The window identifier type depends by the underlying window system,
@@ -344,14 +344,14 @@ void QWidget::deleteExtra()
   If there is no widget with this identifier, a null pointer is returned.
 
   \sa wmapper(), id()
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget *QWidget::find( WId id )
 {
     return mapper ? mapper->find( id ) : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidgetMapper *QWidget::wmapper()
   \internal
   Returns a pointer to the widget mapper.
@@ -359,38 +359,38 @@ QWidget *QWidget::find( WId id )
   The widget mapper is an internal dictionary that is used to map from
   window identifiers/handles to widget pointers.
   \sa find(), id()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn WFlags QWidget::getWFlags() const
   \internal
   Returns the widget flags for this this widget.
 
   Widget flags are internal, not meant for public use.
   \sa testWFlags(), setWFlags(), clearWFlags()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::setWFlags( WFlags f )
   \internal
   Sets the widget flags \e f.
 
   Widget flags are internal, not meant for public use.
   \sa testWFlags(), getWFlags(), clearWFlags()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::clearWFlags( WFlags f )
   \internal
   Clears the widget flags \e f.
 
   Widget flags are internal, not meant for public use.
   \sa testWFlags(), getWFlags(), setWFlags()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn WId QWidget::winId() const
   Returns the window system identifier of the widget.
 
@@ -398,26 +398,26 @@ QWidget *QWidget::find( WId id )
   something non-portable. Be careful.
 
   \sa find()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the GUI style for this widget.
 
   \sa setStyle(), QApplication::style()
- ----------------------------------------------------------------------------*/
+*/
 
 GUIStyle QWidget::style() const
 {
     return extra ? extra->guistyle : QApplication::style();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the GUI style for this widget.  The valid values are listed
   in qwindefs.h.
 
   \sa style(), styleChange(), QApplication::setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setStyle( GUIStyle style )
 {
@@ -427,7 +427,7 @@ void QWidget::setStyle( GUIStyle style )
     styleChange( old );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::styleChange( GUIStyle oldStyle )
 
   This virtual function is called from setStyle().  \e oldStyle is the
@@ -440,7 +440,7 @@ void QWidget::setStyle( GUIStyle style )
   The default implementation calls update().
 
   \sa setStyle(), style(), repaint(), update()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::styleChange( GUIStyle )
 {
@@ -448,7 +448,7 @@ void QWidget::styleChange( GUIStyle )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isTopLevel() const
   Returns TRUE if the widget is a top-level widget, otherwise FALSE.
 
@@ -461,18 +461,18 @@ void QWidget::styleChange( GUIStyle )
   widgets are the opposite of top-level widgets.
 
   \sa topLevelWidget(), isModal(), isPopup(), isDesktop(), parentWidget()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isModal() const
   Returns TRUE if the widget is a modal widget, otherwise FALSE.
 
   A modal widget is also a top-level widget.
 
   \sa isTopLevel(), QDialog
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isPopup() const
   Returns TRUE if the widget is a popup widget, otherwise FALSE.
 
@@ -482,26 +482,26 @@ void QWidget::styleChange( GUIStyle )
   A popup widget is also a top-level widget.
 
   \sa isTopLevel()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isDesktop() const
   Returns TRUE if the widget is a desktop widget, otherwise FALSE.
 
   A desktop widget is also a top-level widget.
 
   \sa isTopLevel(), QApplication::desktop()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isEnabled() const
   Returns TRUE if the widget is enabled, or FALSE if it is disabled.
   \sa setEnabled()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables widget input events if \e enable is TRUE, otherwise disables
   input events.
 
@@ -510,7 +510,7 @@ void QWidget::styleChange( GUIStyle )
   events only when it is in focus.
 
   \sa isEnabled(), QKeyEvent, QMouseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setEnabled( bool enable )
 {
@@ -530,70 +530,70 @@ void QWidget::setEnabled( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QRect &QWidget::frameGeometry() const
   Returns the geometry of the widget, relative to its parent and
   including the window frame.
   \sa geometry(), x(), y(), pos()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QRect &QWidget::geometry() const
   Returns the geometry of the widget, relative to its parent widget
   and excluding the window frame.
   \sa frameGeometry(), size(), rect()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QWidget::x() const
   Returns the x coordinate of the widget, relative to its parent
   widget and including the window frame.
   \sa frameGeometry(), y(), pos()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QWidget::y() const
   Returns the y coordinate of the widget, relative to its parent
   widget and including the window frame.
   \sa frameGeometry(), x(), pos()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPoint QWidget::pos() const
   Returns the postion of the widget in its parent widget, including
   the window frame.
   \sa frameGeometry(), x(), y()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QSize QWidget::size() const
   Returns the size of the widget, excluding the window frame.
   \sa geometry(), width(), height()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QWidget::width() const
   Returns the width of the widget, excluding the window frame.
   \sa geometry(), height(), size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QWidget::height() const
   Returns the height of the widget, excluding the window frame.
   \sa geometry(), width(), size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QRect QWidget::rect() const
   Returns the the internal geometry of the widget, excluding the window frame.
   rect() equals QRect(0,0,width(),height()).
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the bounding rectangle of the widget's children.
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QWidget::childrenRect() const
 {
@@ -615,28 +615,28 @@ QRect QWidget::childrenRect() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the minimum widget size.
 
   The widget cannot be resized to a smaller size than the minimum widget
   size.
 
   \sa setMinimumSize(), maximumSize(), sizeIncrement()
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QWidget::minimumSize() const
 {
     return extra ? QSize(extra->minw,extra->minh) : QSize(0,0);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the maximum widget size.
 
   The widget cannot be resized to a larger size than the maximum widget
   size.
 
   \sa setMaximumSize(), minimumSize(), sizeIncrement()
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QWidget::maximumSize() const
 {
@@ -644,11 +644,11 @@ QSize QWidget::maximumSize() const
 		 : QSize(QCOORD_MAX,QCOORD_MAX);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the widget size increment.
 
   \sa setSizeIncrement(), minimumSize(), maximumSize()
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QWidget::sizeIncrement() const
 {
@@ -656,10 +656,12 @@ QSize QWidget::sizeIncrement() const
 }
 
 
-/*! Sets both the minimum and maximum sizes of the widget to \e s,
+/*!
+  Sets both the minimum and maximum sizes of the widget to \e s,
   thereby preventing it from ever growing or shrinking.
 
-  \sa setMaximumSize() setMinimumSize() */
+  \sa setMaximumSize() setMinimumSize()
+*/
 
 void QWidget::setFixedSize( const QSize & s)
 {
@@ -668,7 +670,9 @@ void QWidget::setFixedSize( const QSize & s)
 }
 
 
-/*! \overload void QWidget::setFixedSize( int w, int h ) */
+/*!
+  \overload void QWidget::setFixedSize( int w, int h )
+*/
 
 void QWidget::setFixedSize( int w, int h )
 {
@@ -677,25 +681,25 @@ void QWidget::setFixedSize( int w, int h )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Translates the widget coordinate \e pos to a coordinate in the parent widget.
 
   Same as mapToGlobal() if the widget has no parent.
   \sa mapFromParent()
- ----------------------------------------------------------------------------*/
+*/
 
 QPoint QWidget::mapToParent( const QPoint &p ) const
 {
     return p + crect.topLeft();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Translates the parent widget coordinate \e pos to widget coordinates.
 
   Same as mapFromGlobal() if the widget has no parent.
 
   \sa mapToParent()
- ----------------------------------------------------------------------------*/
+*/
 
 QPoint QWidget::mapFromParent( const QPoint &p ) const
 {
@@ -703,7 +707,7 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the top-level widget for this widget.
 
   A top-level widget is an overlapping widget. It usually has no parent.
@@ -711,7 +715,7 @@ QPoint QWidget::mapFromParent( const QPoint &p ) const
   widgets that can have parent widgets.
 
   \sa isTopLevel()
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget *QWidget::topLevelWidget() const
 {
@@ -725,7 +729,7 @@ QWidget *QWidget::topLevelWidget() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QColor &QWidget::backgroundColor() const
 
   Returns the background color of this widget.
@@ -735,15 +739,15 @@ QWidget *QWidget::topLevelWidget() const
   Setting a new palette overwrites the background color.
 
   \sa setBackgroundColor(), foregroundColor(), colorGroup(), palette()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the foreground color of this widget.
 
   The foreground color equals <code>colorGroup().foreground()</code>.
 
   \sa backgroundColor(), colorGroup()
- ----------------------------------------------------------------------------*/
+*/
 
 const QColor &QWidget::foregroundColor() const
 {
@@ -751,7 +755,7 @@ const QColor &QWidget::foregroundColor() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::backgroundColorChange( const QColor &oldBackgroundColor )
 
   This virtual function is called from setBackgroundColor().
@@ -766,7 +770,7 @@ const QColor &QWidget::foregroundColor() const
 
   \sa setBackgroundColor(), backgroundColor(), setPalette(), repaint(),
   update()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::backgroundColorChange( const QColor & )
 {
@@ -774,12 +778,12 @@ void QWidget::backgroundColorChange( const QColor & )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the background pixmap, or null if no background pixmap has not
   been set.
 
   \sa setBackgroundPixmap()
- ----------------------------------------------------------------------------*/
+*/
 
 const QPixmap *QWidget::backgroundPixmap() const
 {
@@ -787,7 +791,7 @@ const QPixmap *QWidget::backgroundPixmap() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::backgroundPixmapChange( const QPixmap & oldBackgroundPixmap )
 
   This virtual function is called from setBackgroundPixmap().
@@ -801,7 +805,7 @@ const QPixmap *QWidget::backgroundPixmap() const
   The default implementation calls update().
 
   \sa setBackgroundPixmap(), backgroundPixmap(), repaint(), update()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::backgroundPixmapChange( const QPixmap & )
 {
@@ -809,7 +813,7 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the current color group of the widget palette.
 
   The color group is determined by the state of the widget.
@@ -819,7 +823,7 @@ void QWidget::backgroundPixmapChange( const QPixmap & )
   normal widget returns the QPalette::normal() color group.
 
   \sa palette(), setPalette()
- ----------------------------------------------------------------------------*/
+*/
 
 const QColorGroup &QWidget::colorGroup() const
 {
@@ -831,18 +835,18 @@ const QColorGroup &QWidget::colorGroup() const
 	return pal.normal();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
   \sa setPalette(), colorGroup()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
 
   \sa palette(), paletteChange(), colorGroup(), setBackgroundColor()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setPalette( const QPalette &p )
 {
@@ -852,7 +856,7 @@ void QWidget::setPalette( const QPalette &p )
     paletteChange( old );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::paletteChange( const QPalette &oldPalette )
 
   This virtual function is called from setPalette().  \e oldPalette is the
@@ -865,7 +869,7 @@ void QWidget::setPalette( const QPalette &p )
   The default implementation calls update().
 
   \sa setPalette(), palette(), repaint(), update()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::paletteChange( const QPalette & )
 {
@@ -873,7 +877,7 @@ void QWidget::paletteChange( const QPalette & )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QFont &QWidget::font() const
 
   Returns the font currently set for the widget.
@@ -881,9 +885,9 @@ void QWidget::paletteChange( const QPalette & )
   fontInfo() tells you what font is actually being used.
 
   \sa setFont(), fontInfo(), fontMetrics()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the font for the widget.
 
   The fontInfo() function reports the actual font that is being used by the
@@ -896,7 +900,7 @@ void QWidget::paletteChange( const QPalette & )
   \endcode
 
   \sa font(), fontChange(), fontInfo(), fontMetrics()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setFont( const QFont &font )
 {
@@ -907,7 +911,7 @@ void QWidget::setFont( const QFont &font )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::fontChange( const QFont &oldFont )
 
   This virtual function is called from setFont().  \e oldFont is the
@@ -920,7 +924,7 @@ void QWidget::setFont( const QFont &font )
   The default implementation calls update().
 
   \sa setFont(), font(), repaint(), update()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::fontChange( const QFont & )
 {
@@ -928,23 +932,23 @@ void QWidget::fontChange( const QFont & )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFontMetrics QWidget::fontMetrics() const
   Returns the font metrics for the widget.
   \sa font(), fontInfo(), setFont()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFontInfo QWidget::fontInfo() const
   Returns the font info for the widget.
   \sa font(), fontMetrics(), setFont()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the widget cursor.
   \sa setCursor()
- ----------------------------------------------------------------------------*/
+*/
 
 const QCursor &QWidget::cursor() const
 {
@@ -952,30 +956,30 @@ const QCursor &QWidget::cursor() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the widget caption, or null if no caption has been set.
   \sa setCaption(), icon(), iconText()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QWidget::caption() const
 {
     return extra ? extra->caption : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the widget icon pixmap, or null if no icon has been set.
   \sa setIcon(), iconText(), caption()
- ----------------------------------------------------------------------------*/
+*/
 
 const QPixmap *QWidget::icon() const
 {
     return extra ? extra->icon : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the widget icon text, or null if no icon text has been set.
   \sa setIconText(), icon(), caption()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QWidget::iconText() const
 {
@@ -983,14 +987,14 @@ const char *QWidget::iconText() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::hasMouseTracking() const
   Returns TRUE if mouse tracking is enabled for this widget, or FALSE
   if mouse tracking is disabled.
   \sa setMouseTracking()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QWidget::setMouseTracking( bool enable )
   Enables mouse tracking if \e enable is TRUE, or disables it if \e enable
   is FALSE.
@@ -1003,7 +1007,7 @@ const char *QWidget::iconText() const
   even if no buttons are pressed down.
 
   \sa hasMouseTracking(), mouseMoveEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 #if !defined(_WS_X11_)
 void QWidget::setMouseTracking( bool enable )
@@ -1017,21 +1021,21 @@ void QWidget::setMouseTracking( bool enable )
 #endif // _WS_X11_
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if this widget (not one of its children) has the
   keyboard input focus, otherwise FALSE.
 
   Equivalent with <code>qApp->focusWidget() == this</code>.
 
   \sa setFocus(), clearFocus(), setAcceptFocus(), QApplication::focusWidget()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::hasFocus() const
 {
     return qApp->focusWidget() == this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Gives the keyboard input focus to the widget.
 
   First, a \link focusOutEvent() focus out event\endlink is sent to the
@@ -1048,7 +1052,7 @@ bool QWidget::hasFocus() const
 
   \sa hasFocus(), clearFocus(), focusInEvent(), focusOutEvent(),
   setAcceptFocus(), QApplication::focusWidget()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setFocus()
 {
@@ -1088,7 +1092,7 @@ void QWidget::setFocus()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Takes keyboard input focus from the widget.
 
   A \link focusOutEvent() focus out event\endlink is sent to this
@@ -1102,7 +1106,7 @@ void QWidget::setFocus()
 
   \sa hasFocus(), setFocus(), focusInEvent(), focusOutEvent(),
   setAcceptFocus(), QApplication::focusWidget()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::clearFocus()
 {
@@ -1132,9 +1136,9 @@ void QWidget::clearFocus()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal Gives the keyboard focus to the next or previous child.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::focusNextPrevChild( bool next )
 {
@@ -1176,7 +1180,7 @@ bool QWidget::focusNextPrevChild( bool next )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the frame rectangle and recomputes the client rectangle.
 
@@ -1185,7 +1189,7 @@ bool QWidget::focusNextPrevChild( bool next )
 
   The client rectangle is the geometry of just this widget in its
   parent's coordinate system.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setFRect( const QRect &r )
 {
@@ -1196,7 +1200,7 @@ void QWidget::setFRect( const QRect &r )
     frect = r;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the client rectangle and recomputes the frame rectangle.
 
@@ -1205,7 +1209,7 @@ void QWidget::setFRect( const QRect &r )
 
   The frame rectangle is the geometry of this widget including any
   decorative borders, in its parent's coordinate system.
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setCRect( const QRect &r )
 {
@@ -1216,7 +1220,7 @@ void QWidget::setCRect( const QRect &r )
     crect = r;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::acceptFocus() const
   Returns TRUE if the widget accepts keyboard focus events, or FALSE if
   it does not.
@@ -1227,9 +1231,9 @@ void QWidget::setCRect( const QRect &r )
 
   \sa setAcceptFocus(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), enable(), disable()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables or disables the keyboard input focus events for the widget.
 
   Focus events are initially disabled. Enabling focus is normally done
@@ -1238,7 +1242,7 @@ void QWidget::setCRect( const QRect &r )
 
   \sa setAcceptFocus(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), enable(), disable()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setAcceptFocus( bool enable )
 {
@@ -1249,13 +1253,13 @@ void QWidget::setAcceptFocus( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isUpdatesEnabled() const
   Returns TRUE if updates are enabled, otherwise FALSE.
   \sa setUpdatesEnabled()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables widget updates if \e enable is TRUE, or disables widget updates
   if \e enable is FALSE.
 
@@ -1275,7 +1279,7 @@ void QWidget::setAcceptFocus( bool enable )
   \endcode
 
   \sa isUpdatesEnabled(), update(), repaint(), paintEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::setUpdatesEnabled( bool enable )
 {
@@ -1286,7 +1290,7 @@ void QWidget::setUpdatesEnabled( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Closes this widget. Returns TRUE if the widget was closed, otherwise
   FALSE.
 
@@ -1303,7 +1307,7 @@ void QWidget::setUpdatesEnabled( bool enable )
 
   \sa closeEvent(), QCloseEvent, hide(), QApplication::quit(),
   QApplication::setMainWidget()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::close( bool forceKill )
 {
@@ -1327,7 +1331,7 @@ bool QWidget::close( bool forceKill )
     return accept;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::isVisible() const
   Returns TRUE if the widget is visible, or FALSE if the widget is invisible.
 
@@ -1336,15 +1340,15 @@ bool QWidget::close( bool forceKill )
 
   A widget is considered visible even if it is obscured by other windows on the
   screen.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Adjusts the size of the widget to fit the contents. Uses sizeHint() if
   valid, otherwise sets the size to the children rectangle.
 
   \sa sizeHint(), childrenRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::adjustSize()
 {
@@ -1360,14 +1364,14 @@ void QWidget::adjustSize()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a recommended size for the widget, or an invalid size if
   no size is recommended. 
 
   The default implementation returns an invalid size.
 
   \sa QSize:isValid(), resize(), setMinimumSize()
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QWidget::sizeHint() const
 {
@@ -1375,13 +1379,13 @@ QSize QWidget::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidget *QWidget::parentWidget() const
   Returns a pointer to the parent of this widget, or a null pointer if
   it does not have any parent widget.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QWidget::testWFlags( WFlags n ) const
 
   Returns non-zero if any of the widget flags in \e n are set. The
@@ -1438,7 +1442,7 @@ QSize QWidget::sizeHint() const
   <dt>WExportFontMetrics<dd> Somebody refers the font's metrics.
   <dt>WExportFontInfo<dd> Somebody refers the font's info.
   </dl>
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
@@ -1446,7 +1450,7 @@ QSize QWidget::sizeHint() const
  *****************************************************************************/
 
 
-/*----------------------------------------------------------------------------
+/*!
   This is the main event handler. You may reimplement this function
   in a subclass, but we recommend using one of the specialized event
   handlers instead.
@@ -1469,7 +1473,7 @@ QSize QWidget::sizeHint() const
   mouseDoubleClickEvent(), mouseMoveEvent(), mousePressEvent(),
   mouseReleaseEvent(), moveEvent(), paintEvent(),
   resizeEvent(), QObject::event(), QObject::timerEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::event( QEvent *e )
 {
@@ -1559,7 +1563,7 @@ bool QWidget::event( QEvent *e )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   mouse move events for the widget.
 
@@ -1572,13 +1576,13 @@ bool QWidget::event( QEvent *e )
 
   \sa setMouseTracking(), mousePressEvent(), mouseReleaseEvent(),
   mouseDoubleClickEvent(), event(),  QMouseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::mouseMoveEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   mouse press events for the widget.
 
@@ -1591,13 +1595,13 @@ void QWidget::mouseMoveEvent( QMouseEvent * )
 
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), event(),  QMouseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::mousePressEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   mouse release events for the widget.
 
@@ -1605,13 +1609,13 @@ void QWidget::mousePressEvent( QMouseEvent * )
 
   \sa mouseReleaseEvent(), mouseDoubleClickEvent(),
   mouseMoveEvent(), event(),  QMouseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   mouse double click events for the widget.
 
@@ -1622,7 +1626,7 @@ void QWidget::mouseReleaseEvent( QMouseEvent * )
 
   \sa mousePressEvent(), mouseReleaseEvent()
   mouseMoveEvent(), event(),  QMouseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1630,7 +1634,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   key press events for the widget.
 
@@ -1646,14 +1650,14 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
 
   \sa keyReleaseEvent(), QKeyEvent::ignore(), setAcceptFocus(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::keyPressEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   key release events for the widget.
 
@@ -1669,14 +1673,14 @@ void QWidget::keyPressEvent( QKeyEvent *e )
 
   \sa keyPressEvent(), QKeyEvent::ignore(), setAcceptFocus(),
   focusInEvent(), focusOutEvent(), event(), QKeyEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::keyReleaseEvent( QKeyEvent *e )
 {
     e->ignore();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus received) for the widget.
 
@@ -1689,14 +1693,14 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
 
   \sa focusOutEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::focusInEvent( QFocusEvent * )
 {
     repaint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   keyboard focus events (focus lost) for the widget.
 
@@ -1709,14 +1713,14 @@ void QWidget::focusInEvent( QFocusEvent * )
 
   \sa focusInEvent(), setAcceptFocus(),
   keyPressEvent(), keyReleaseEvent(), event(), QFocusEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::focusOutEvent( QFocusEvent * )
 {
     repaint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget enter events.
 
@@ -1725,13 +1729,13 @@ void QWidget::focusOutEvent( QFocusEvent * )
   The default implementation does nothing.
 
   \sa leaveEvent(), mouseMoveEvent(), event()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::enterEvent( QEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget leave events.
 
@@ -1741,13 +1745,13 @@ void QWidget::enterEvent( QEvent * )
   The default implementation does nothing.
 
   \sa enterEvent(), mouseMoveEvent(), event()
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::leaveEvent( QEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget paint events.	Actually, it more or less \e must be
   reimplemented.
@@ -1767,14 +1771,14 @@ void QWidget::leaveEvent( QEvent * )
   update() and repaint() can be used to force a paint event.
 
   \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::paintEvent( QPaintEvent * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget move events.  When the widget receives this event, it is
   already at the new position.
@@ -1784,14 +1788,14 @@ void QWidget::paintEvent( QPaintEvent * )
   The default implementation does nothing.
 
   \sa resizeEvent(), event(), move(), QMoveEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::moveEvent( QMoveEvent * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget resize events.	 When resizeEvent() is called, the widget
   already has its new geometry.
@@ -1801,13 +1805,13 @@ void QWidget::moveEvent( QMoveEvent * )
   The default implementation does nothing.
 
   \sa moveEvent(), event(), resize(), QResizeEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::resizeEvent( QResizeEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   This event handler can be reimplemented in a subclass to receive
   widget close events.
 
@@ -1815,7 +1819,7 @@ void QWidget::resizeEvent( QResizeEvent * )
   See the QCloseEvent documentation for more details.
 
   \sa event(), hide(), close(), QCloseEvent
- ----------------------------------------------------------------------------*/
+*/
 
 void QWidget::closeEvent( QCloseEvent *e )
 {
@@ -1825,7 +1829,7 @@ void QWidget::closeEvent( QCloseEvent *e )
 
 #if defined(_WS_MAC_)
 
-/*----------------------------------------------------------------------------
+/*!
   This special event handler can be reimplemented in a subclass to receive
   raw Macintosh events.
 
@@ -1834,7 +1838,7 @@ void QWidget::closeEvent( QCloseEvent *e )
   \warning This function is not portable.
 
   QApplication::macEventFilter()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::macEvent( MSG * )
 {
@@ -1843,7 +1847,7 @@ bool QWidget::macEvent( MSG * )
 
 #elif defined(_WS_WIN_)
 
-/*----------------------------------------------------------------------------
+/*!
   This special event handler can be reimplemented in a subclass to receive
   raw Windows events.
 
@@ -1852,7 +1856,7 @@ bool QWidget::macEvent( MSG * )
   \warning This function is not portable.
 
   QApplication::winEventFilter()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::winEvent( MSG * )
 {
@@ -1861,7 +1865,7 @@ bool QWidget::winEvent( MSG * )
 
 #elif defined(_WS_PM_)
 
-/*----------------------------------------------------------------------------
+/*!
   This special event handler can be reimplemented in a subclass to receive
   raw OS/2 Presentation Manager events.
 
@@ -1870,7 +1874,7 @@ bool QWidget::winEvent( MSG * )
   \warning This function is not portable.
 
   QApplication::pmEventFilter()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::pmEvent( QMSG * )
 {
@@ -1879,7 +1883,7 @@ bool QWidget::pmEvent( QMSG * )
 
 #elif defined(_WS_X11_)
 
-/*----------------------------------------------------------------------------
+/*!
   This special event handler can be reimplemented in a subclass to receive
   raw X-Windows events.
 
@@ -1888,7 +1892,7 @@ bool QWidget::pmEvent( QMSG * )
   \warning This function is not portable.
 
   QApplication::x11EventFilter()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QWidget::x11Event( XEvent * )
 {

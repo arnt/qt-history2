@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#37 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#38 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,10 +14,10 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#38 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QLNode qglist.h
   \brief The QLNode class is an internal class for the QList template collection.
 
@@ -35,15 +35,15 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#37 $");
   can easily get corrupted if you make a mistake.
 
   \sa QList::currentNode(), QList::removeNode(), QList::takeNode()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QLNode::getData()
   Returns a pointer (\c void*) to the actual data in the list node.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGList qglist.h
   \brief The QGList class is an internal class for implementing Qt collection classes.
 
@@ -61,14 +61,14 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#37 $");
   Normally, you do not have to reimplement any of these functions.
   If you still want to reimplement them, see the QStrList class (qstrlist.h),
   which is a good example.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   Default implementation of virtual functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   This virtual function compares two list items.
 
   Returns:
@@ -96,21 +96,21 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#37 $");
   \code
 
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 int QGList::compareItems( GCI item1, GCI item2 )
 {
     return item1 != item2;			// compare pointers
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a collection/list item from the stream \e s and returns a reference
   to the stream.
 
   The default implementation sets \e item to 0.
 
   \sa write()
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &QGList::read( QDataStream &s, GCI &item )
 {
@@ -118,14 +118,14 @@ QDataStream &QGList::read( QDataStream &s, GCI &item )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a collection/list item to the stream \e s and returns a reference
   to the stream.
 
   The default implementation does nothing.
 
   \sa read()
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &QGList::write( QDataStream &s, GCI ) const
 {
@@ -137,10 +137,10 @@ QDataStream &QGList::write( QDataStream &s, GCI ) const
   QGList member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs an empty list.
- ----------------------------------------------------------------------------*/
+*/
 
 QGList::QGList()
 {
@@ -150,10 +150,10 @@ QGList::QGList()
     iterators = 0;				// initialize iterator list
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a copy of \e list.
- ----------------------------------------------------------------------------*/
+*/
 
 QGList::QGList( const QGList & list )
 {
@@ -168,10 +168,10 @@ QGList::QGList( const QGList & list )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes all items from the list and destroys the list.
- ----------------------------------------------------------------------------*/
+*/
 
 QGList::~QGList()
 {
@@ -187,10 +187,10 @@ QGList::~QGList()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Assigns \e list to this list.
- ----------------------------------------------------------------------------*/
+*/
 
 QGList& QGList::operator=( const QGList &list )
 {
@@ -208,17 +208,17 @@ QGList& QGList::operator=( const QGList &list )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QGList::count() const
   \internal
   Returns the number of items in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the node at position \e index.  Sets this node to current.
- ----------------------------------------------------------------------------*/
+*/
 
 QLNode *QGList::locate( uint index )
 {
@@ -270,10 +270,10 @@ QLNode *QGList::locate( uint index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Inserts an item at its sorted position in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::inSort( GCI d )
 {
@@ -287,10 +287,10 @@ void QGList::inSort( GCI d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Inserts an item at the start of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::prepend( GCI d )
 {
@@ -307,10 +307,10 @@ void QGList::prepend( GCI d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Inserts an item at the end of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::append( GCI d )
 {
@@ -327,10 +327,10 @@ void QGList::append( GCI d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Inserts an item at position \e index in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGList::insertAt( uint index, GCI d )
 {
@@ -358,10 +358,10 @@ bool QGList::insertAt( uint index, GCI d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Relinks node \e n and makes it the first node in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::relinkNode( QLNode *n )
 {
@@ -380,10 +380,10 @@ void QGList::relinkNode( QLNode *n )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Unlinks the current list node and returns a pointer to this node.
- ----------------------------------------------------------------------------*/
+*/
 
 QLNode *QGList::unlink()
 {
@@ -427,10 +427,10 @@ QLNode *QGList::unlink()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes the node \e n from the list.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGList::removeNode( QLNode *n )
 {
@@ -450,10 +450,10 @@ bool QGList::removeNode( QLNode *n )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes the item \e d from the list.	Uses compareItems() to find the item.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGList::remove( GCI d )
 {
@@ -469,10 +469,10 @@ bool QGList::remove( GCI d )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes the item \e d from the list.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGList::removeRef( GCI d )
 {
@@ -488,22 +488,22 @@ bool QGList::removeRef( GCI d )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QGList::removeFirst()
   \internal
   Removes the first item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QGList::removeLast()
   \internal
   Removes the last item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes the item at position \e index from the list.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGList::removeAt( uint index )
 {
@@ -518,10 +518,10 @@ bool QGList::removeAt( uint index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes the node \e n out of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::takeNode( QLNode *n )
 {
@@ -541,10 +541,10 @@ GCI QGList::takeNode( QLNode *n )
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes the current item out of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::take()
 {
@@ -554,10 +554,10 @@ GCI QGList::take()
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes the item at position \e index out of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::takeAt( uint index )
 {
@@ -569,10 +569,10 @@ GCI QGList::takeAt( uint index )
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes the first item out of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::takeFirst()
 {
@@ -583,10 +583,10 @@ GCI QGList::takeFirst()
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes the last item out of the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::takeLast()
 {
@@ -598,10 +598,10 @@ GCI QGList::takeLast()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes all items from the list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::clear()
 {
@@ -626,10 +626,10 @@ void QGList::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Finds an item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 int QGList::findRef( GCI d, bool fromStart )
 {
@@ -652,10 +652,10 @@ int QGList::findRef( GCI d, bool fromStart )
     return curIndex;				// return position of item
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Finds an item in the list.  Uses compareItems().
- ----------------------------------------------------------------------------*/
+*/
 
 int QGList::find( GCI d, bool fromStart )
 {
@@ -679,10 +679,10 @@ int QGList::find( GCI d, bool fromStart )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Counts the number an item occurs in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 uint QGList::containsRef( GCI d ) const
 {
@@ -696,10 +696,10 @@ uint QGList::containsRef( GCI d ) const
     return count;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Counts the number an item occurs in the list.	 Uses compareItems().
- ----------------------------------------------------------------------------*/
+*/
 
 uint QGList::contains( GCI d ) const
 {
@@ -715,47 +715,47 @@ uint QGList::contains( GCI d ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QGList::at( uint index )
   \internal
   Sets the item at position \e index to the current item.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QGList::at() const
   \internal
   Returns the current index.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QLNode *QGList::currentNode() const
   \internal
   Returns the current node.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QGList::get() const
   \internal
   Returns the current item.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QGList::cfirst() const
   \internal
   Returns the first item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QGList::clast() const
   \internal
   Returns the last item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the first list item.	Sets this to current.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::first()
 {
@@ -766,10 +766,10 @@ GCI QGList::first()
     return 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the last list item.  Sets this to current.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::last()
 {
@@ -780,10 +780,10 @@ GCI QGList::last()
     return 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the next list item (after current).  Sets this to current.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::next()
 {
@@ -799,10 +799,10 @@ GCI QGList::next()
     return 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the previous list item (before current).  Sets this to current.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGList::prev()
 {
@@ -819,10 +819,10 @@ GCI QGList::prev()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Converts the list to a vector.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGList::toVector( QGVector *vector ) const
 {
@@ -853,10 +853,10 @@ QDataStream &operator<<( QDataStream &s, const QGList &list )
     return list.write( s );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Reads a list from the stream \e s.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &QGList::read( QDataStream &s )
 {
@@ -886,10 +886,10 @@ QDataStream &QGList::read( QDataStream &s )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Writes the list to the stream \e s.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &QGList::write( QDataStream &s ) const
 {
@@ -908,18 +908,18 @@ QDataStream &QGList::write( QDataStream &s ) const
   QGListIterator member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGListIterator qglist.h
   \brief The QGListIterator is an internal class for implementing QListIterator.
 
   QGListIterator is a strictly internal class that does the heavy work for
   QListIterator.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs an iterator that operates on the list \e l.
- ----------------------------------------------------------------------------*/
+*/
 
 QGListIterator::QGListIterator( const QGList &l )
 {
@@ -932,10 +932,10 @@ QGListIterator::QGListIterator( const QGList &l )
     list->iterators->append( this );		// attach iterator to list
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a copy of the iterator \e it.
- ----------------------------------------------------------------------------*/
+*/
 
 QGListIterator::QGListIterator( const QGListIterator &it )
 {
@@ -945,11 +945,11 @@ QGListIterator::QGListIterator( const QGListIterator &it )
 	list->iterators->append( this );	// attach iterator to list
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Assigns a copy of the iterator \e it and returns a reference to this 
   iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGListIterator &QGListIterator::operator=( const QGListIterator &it )
 {
@@ -968,10 +968,10 @@ QGListIterator &QGListIterator::operator=( const QGListIterator &it )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Destroys the iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGListIterator::~QGListIterator()
 {
@@ -989,23 +989,23 @@ QGListIterator::~QGListIterator()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QGListIterator::atFirst() const
   \internal
   Returns TRUE if the iterator points to the first item, otherwise FALSE.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QGListIterator::atLast() const
   \internal
   Returns TRUE if the iterator points to the last item, otherwise FALSE.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the list iterator to point to the first item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::toFirst()
 {
@@ -1018,10 +1018,10 @@ GCI QGListIterator::toFirst()
     return list->firstNode ? (curNode = list->firstNode)->getData() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the list iterator to point to the last item in the list.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::toLast()
 {
@@ -1035,17 +1035,17 @@ GCI QGListIterator::toLast()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn GCI QGListIterator::get() const
   \internal
   Returns the iterator item.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (postfix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::operator()()
 {
@@ -1056,10 +1056,10 @@ GCI QGListIterator::operator()()
     return  d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (prefix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::operator++()
 {
@@ -1069,10 +1069,10 @@ GCI QGListIterator::operator++()
     return curNode ? curNode->getData() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves \e jumps positions forward.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::operator+=( uint jumps )
 {
@@ -1081,10 +1081,10 @@ GCI QGListIterator::operator+=( uint jumps )
     return curNode ? curNode->getData() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the previous item (prefix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::operator--()
 {
@@ -1094,10 +1094,10 @@ GCI QGListIterator::operator--()
     return curNode ? curNode->getData() : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves \e jumps positions backward.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGListIterator::operator-=( uint jumps )
 {

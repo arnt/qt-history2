@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#25 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,10 +13,10 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#25 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QBitmap qbitmap.h
   \brief The QBitmap class provides monochrome (1 bit depth) pixmaps.
 
@@ -47,24 +47,24 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#24 $");
 
   \sa QPixmap, QPainter::drawPixmap(), bitBlt(), \link shclass.html Shared
   Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a null bitmap.
   \sa QPixmap::isNull()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap()
 {
     data->bitmap = TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a bitmap with \e w width and \e h height.
 
   The contents of the bitmap is uninitialized if \e clear is FALSE, otherwise
   it is filled with pixel value 0 (the QColor \c color0).
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap( int w, int h, bool clear )
     : QPixmap( w, h, 1 )
@@ -74,9 +74,9 @@ QBitmap::QBitmap( int w, int h, bool clear )
 	fill( color0 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Overloaded constructor; takes a QSize parameter instead of \e (w,h).
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap( const QSize &size, bool clear )
     : QPixmap( size, 1 )
@@ -86,7 +86,7 @@ QBitmap::QBitmap( const QSize &size, bool clear )
 	fill( color0 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a bitmap with \e w width and \e h height and sets the contents
   to \e bits.
 
@@ -99,7 +99,7 @@ QBitmap::QBitmap( const QSize &size, bool clear )
     uchar arrow_bits[] = { 0x3f, 0x1f, 0x0f, 0x1f, 0x3b, 0x71, 0xe0, 0xc0 };
     QBitmap bm( 8, 8, arrow_bits, TRUE );
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
     : QPixmap( w, h, bits, isXbitmap )
@@ -107,9 +107,9 @@ QBitmap::QBitmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->bitmap = TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Overloaded constructor; takes a QSize parameter instead of \e (w,h).
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
     : QPixmap( size.width(), size.height(), bits, isXbitmap )
@@ -117,9 +117,9 @@ QBitmap::QBitmap( const QSize &size, const uchar *bits, bool isXbitmap )
     data->bitmap = TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a bitmap which is a copy of \e bitmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap::QBitmap( const QBitmap &bitmap )
     : QPixmap( bitmap )
@@ -127,10 +127,10 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns the bitmap \e bitmap to this bitmap and returns a reference to this
   bitmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 {
@@ -142,13 +142,13 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns the pixmap \e pixmap to this bitmap and returns a reference to this
   bitmap.
 
   Dithering will be performed if the pixmap has a
   \link QPixmap::depth() depth\endlink greater than 1.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 {
@@ -173,13 +173,13 @@ QBitmap &QBitmap::operator=( const QPixmap &pixmap )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Converts the image \e image to a bitmap that is assigned to this bitmap.
   Returns a reference to the bitmap.
 
   Dithering will be performed if the image has a
   \link QImage::depth() depth\endlink greater than 1.
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap &QBitmap::operator=( const QImage &image )
 {
@@ -188,7 +188,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Transforms the bitmap using \e matrix, and returns the transformed
   bitmap.
 
@@ -196,7 +196,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
   it returns a QBitmap instead of a QPixmap.
 
   \sa QPixmap::xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#14 $
 **
 ** Implementation of QCursor class
 **
@@ -14,10 +14,10 @@
 #include "qbitmap.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#14 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QCursor qcursor.h
 
   \brief The QCursor class provides a mouse cursor with an arbitrary shape.
@@ -50,17 +50,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor.cpp#13 $");
   <dt> sizeFDiagCursor <dd> diagonal resize (\)
   <dt> sizeAllCursor <dd> all directions resize
   </dl>
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QCursor stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QCursor
   Writes a cursor to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QCursor &c )
 {
@@ -72,10 +72,10 @@ QDataStream &operator<<( QDataStream &s, const QCursor &c )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QCursor
   Reads a cursor from the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QCursor &c )
 {

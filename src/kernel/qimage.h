@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#28 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#29 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -137,9 +137,9 @@ private:	// Disabled copy constructor and operator=
 };
 
 
-// --------------------------------------------------------------------------
-// QImage member functions
-//
+/*****************************************************************************
+  QImage member functions
+ *****************************************************************************/
 
 inline uchar **QImage::jumpTable() const
 {

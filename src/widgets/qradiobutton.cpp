@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#46 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,10 +16,10 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#46 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QRadioButton qradiobt.h
   \brief The QRadioButton widget provides a radio button with a text label.
 
@@ -31,7 +31,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#45 $");
   switched on at a time.
 
   The QButtonGroup widget is very useful for defining groups of radio buttons.
- ----------------------------------------------------------------------------*/
+*/
 
 
 static void getSizeOfBitmap( int gs, int *w, int *h )
@@ -49,11 +49,11 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a radio button with no text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -61,11 +61,11 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a radio button with a text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QRadioButton::QRadioButton( const char *text, QWidget *parent,
 			    const char *name )
@@ -75,9 +75,9 @@ QRadioButton::QRadioButton( const char *text, QWidget *parent,
     setText( text );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Initializes the radio button.
- ----------------------------------------------------------------------------*/
+*/
 
 void QRadioButton::init()
 {
@@ -91,13 +91,13 @@ void QRadioButton::init()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QRadioButton::isChecked() const
   Returns TRUE if the radio button is checked, or FALSE if it is not checked.
   \sa setChecked()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QRadioButton::setChecked( bool check )
   Checks the radio button if \e check is TRUE, or unchecks it if \e check
   is FALSE.
@@ -106,12 +106,12 @@ void QRadioButton::init()
   button group has been defined using the QButtonGroup widget.
 
   \sa isChecked()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a size which fits the contents of the radio button.
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QRadioButton::sizeHint() const
 {
@@ -128,11 +128,11 @@ QSize QRadioButton::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QButton::hitButton().  This function is implemented to
   prevent a radio button that is \link isOn() on \endlink from being
   switched off.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QRadioButton::hitButton( const QPoint &pos ) const
 {
@@ -140,10 +140,10 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the radio button, but not the button label.
   \sa drawButtonLabel()
- ----------------------------------------------------------------------------*/
+*/
 
 void QRadioButton::drawButton( QPainter *paint )
 {
@@ -261,10 +261,10 @@ void QRadioButton::drawButton( QPainter *paint )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the radio button label.
   \sa drawButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QRadioButton::drawButtonLabel( QPainter *p )
 {
@@ -292,9 +292,9 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the radio button.
- ----------------------------------------------------------------------------*/
+*/
 
 void QRadioButton::mouseReleaseEvent( QMouseEvent *e )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qmetaobj.cpp#19 $
 **
 ** Implementation of QMetaObject class
 **
@@ -14,7 +14,7 @@
 #include "qobjcoll.h"
 #include "qstrlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#19 $");
 
 /* not documented
   \class QMetaObject qmetaobj.h
@@ -35,17 +35,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qmetaobj.cpp#18 $");
 QObjectDictionary *objectDict = 0;		// global object dictionary
 
 
-// --------------------------------------------------------------------------
-// Internal dictionary for fast access to class members
-//
+/*****************************************************************************
+  Internal dictionary for fast access to class members
+ *****************************************************************************/
 
 declare(QDictM,QMetaData);
 
 
-// --------------------------------------------------------------------------
-// Calculate optimal dictionary size for n entries using prime numbers,
-// and assuming there are no more than 40 entries.
-//
+/*****************************************************************************
+  Calculate optimal dictionary size for n entries using prime numbers,
+  and assuming there are no more than 40 entries.
+ *****************************************************************************/
 
 static int optDictSize( int n )
 {
@@ -63,9 +63,9 @@ static int optDictSize( int n )
 }
 
 
-// --------------------------------------------------------------------------
-// QMetaObject member functions
-//
+/*****************************************************************************
+  QMetaObject member functions
+ *****************************************************************************/
 
 QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 			  QMetaData *slot_data,	  int n_slots,

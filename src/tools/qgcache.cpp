@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#25 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#26 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -15,17 +15,17 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#25 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#26 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGCache qgcache.h
 
   \brief The QGCache class is an internal class for implementing QCache and QIntCache.
 
   QGCache is a strictly internal class that acts as a base class for the
   \link collection.html collection classes\endlink QCache and QIntCache.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
@@ -174,10 +174,10 @@ public:
   QGDict member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a cache.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCache::QGCache( int maxCost, uint size,
 		  bool caseS, bool copyKeys, bool trivial )
@@ -202,10 +202,10 @@ QGCache::QGCache( int maxCost, uint size,
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Cannot copy a cache.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCache::QGCache( const QGCache & )
 {
@@ -214,10 +214,10 @@ QGCache::QGCache( const QGCache & )
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes all items from the cache and destroys it.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCache::~QGCache()
 {
@@ -226,10 +226,10 @@ QGCache::~QGCache()
     delete lruList;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Cannot assign a cache.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCache &QGCache::operator=( const QGCache & )
 {
@@ -240,34 +240,34 @@ QGCache &QGCache::operator=( const QGCache & )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QGCache::count() const
   \internal
   Returns the number of items in the cache.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QGCache::size() const
   \internal
   Returns the size of the hash array.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QGCache::maxCost() const
   \internal
   Returns the maximum cache cost.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QGCache::totalCost() const
   \internal
   Returns the total cache cost.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the maximum cache cost.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGCache::setMaxCost( int maxCost )
 {
@@ -279,10 +279,10 @@ void QGCache::setMaxCost( int maxCost )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Inserts an item into the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGCache::insert( const char *key, GCI data, int cost, int priority )
 {
@@ -312,10 +312,10 @@ bool QGCache::insert( const char *key, GCI data, int cost, int priority )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Removes an item from the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGCache::remove( const char *key )
 {
@@ -328,10 +328,10 @@ bool QGCache::remove( const char *key )
     return d != 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Takes an item out of the cache (no delete).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCache::take( const char *key )
 {
@@ -353,10 +353,10 @@ GCI QGCache::take( const char *key )
     return d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Clears the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGCache::clear()
 {
@@ -372,10 +372,10 @@ void QGCache::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Finds an item in the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCache::find( const char *key, bool ref ) const
 {
@@ -399,10 +399,10 @@ GCI QGCache::find( const char *key, bool ref ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Allocates cache space for one or more items.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGCache::makeRoomFor( int cost, int priority )
 {
@@ -440,10 +440,10 @@ bool QGCache::makeRoomFor( int cost, int priority )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Outputs debug statistics.
- ----------------------------------------------------------------------------*/
+*/
 
 void QGCache::statistics() const
 {
@@ -480,21 +480,21 @@ void QGCache::statistics() const
   QGCacheIterator member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QGCacheIterator qgcache.h
 
   \brief The QGCacheIterator is an internal class for implementing QCacheIterator and QIntCacheIterator.
 
   QGCacheIterator is a strictly internal class that does the heavy work for
   QCacheIterator and QIntCacheIterator.
- ----------------------------------------------------------------------------*/
+*/
 
 declare(QListIteratorM,QCacheItem);
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs an iterator that operates on the cache \e c.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCacheIterator::QGCacheIterator( const QGCache &c )
 {
@@ -504,10 +504,10 @@ QGCacheIterator::QGCacheIterator( const QGCache &c )
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs an iterator that operates on the same cache as \e ci.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
 {
@@ -517,20 +517,20 @@ QGCacheIterator::QGCacheIterator( const QGCacheIterator &ci )
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Destroys the iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCacheIterator::~QGCacheIterator()
 {
     delete it;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Assigns the iterator \e ci to this cache iterator.
- ----------------------------------------------------------------------------*/
+*/
 
 QGCacheIterator &QGCacheIterator::operator=( const QGCacheIterator &ci )
 {
@@ -538,40 +538,40 @@ QGCacheIterator &QGCacheIterator::operator=( const QGCacheIterator &ci )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the number of items in the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 uint QGCacheIterator::count() const
 {
     return it->count();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns TRUE if the iterator points to the first item.
- ----------------------------------------------------------------------------*/
+*/
 
 bool  QGCacheIterator::atFirst() const
 {
     return it->atFirst();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns TRUE if the iterator points to the last item.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QGCacheIterator::atLast() const
 {
     return it->atLast();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the list iterator to point to the first item in the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::toFirst()
 {
@@ -579,10 +579,10 @@ GCI QGCacheIterator::toFirst()
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets the list iterator to point to the last item in the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::toLast()
 {
@@ -590,10 +590,10 @@ GCI QGCacheIterator::toLast()
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the current item.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::get() const
 {
@@ -601,10 +601,10 @@ GCI QGCacheIterator::get() const
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Returns the key of the current item.
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QGCacheIterator::getKey() const
 {
@@ -613,10 +613,10 @@ const char *QGCacheIterator::getKey() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (postfix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::operator()()
 {
@@ -624,10 +624,10 @@ GCI QGCacheIterator::operator()()
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the next item (prefix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::operator++()
 {
@@ -635,10 +635,10 @@ GCI QGCacheIterator::operator++()
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves \e jumps positions forward.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::operator+=( uint jump )
 {
@@ -646,10 +646,10 @@ GCI QGCacheIterator::operator+=( uint jump )
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves to the previous item (prefix).
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::operator--()
 {
@@ -657,10 +657,10 @@ GCI QGCacheIterator::operator--()
     return item ? item->data : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Moves \e jumps positions backward.
- ----------------------------------------------------------------------------*/
+*/
 
 GCI QGCacheIterator::operator-=( uint jump )
 {

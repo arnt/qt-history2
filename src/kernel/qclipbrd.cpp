@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qclipbrd.cpp#4 $
 **
 ** Implementation of QClipboard class
 **
@@ -13,10 +13,10 @@
 #include "qclipbrd.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#4 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QClipboard qclipbrd.h
   \brief The QClipboard class provides access to the window system clipboard.
 
@@ -55,16 +55,16 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qclipbrd.cpp#3 $");
   \warning
   It is an important GUI principle that all clipboard operations should be
   initiated by the user.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a clipboard object.
 
   Note that only QApplication is allowed to do this. Call
   QApplication::clipboard() to get a pointer to the application global
   clipboard object.
- ----------------------------------------------------------------------------*/
+*/
 
 QClipboard::QClipboard( QObject *parent, const char *name )
     : QObject( parent, name )
@@ -72,33 +72,33 @@ QClipboard::QClipboard( QObject *parent, const char *name )
     initMetaObject();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the clipboard.
 
   You should never delete the clipboard. QApplication will do this when
   the application terminates.
- ----------------------------------------------------------------------------*/
+*/
 
 QClipboard::~QClipboard()
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the clipboard text, or null if the clipboard does not contains
   any text.
   \sa setText()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QClipboard::text() const
 {
     return (const char *)data("TEXT");
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Copies \e text into the clipboard.
   \sa text()
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::setText( const char *text )
 {
@@ -106,21 +106,21 @@ void QClipboard::setText( const char *text )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the clipboard pixmap, or null if the clipboard does not contains
   any pixmap.
   \sa setText()
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap *QClipboard::pixmap() const
 {
     return (QPixmap *)data("PIXMAP");
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Copies \e pixmap into the clipboard.
   \sa pixmap()
- ----------------------------------------------------------------------------*/
+*/
 
 void QClipboard::setPixmap( const QPixmap &pixmap )
 {
@@ -134,9 +134,9 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
 extern QObject *qt_clipboard;			// defined in qapp_xyz.cpp
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the application global clipboard.
- ----------------------------------------------------------------------------*/
+*/
 
 QClipboard *QApplication::clipboard()
 {

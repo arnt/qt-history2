@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#69 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,10 +18,10 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#69 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPushButton qpushbt.h
   \brief The QPushButton widget provides a push button with a text label.
 
@@ -29,7 +29,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#68 $");
 
   A default push button in a dialog emits the clicked signal if the user
   presses the Enter key.
- ----------------------------------------------------------------------------*/
+*/
 
 const int extraMotifWidth = 10;
 const int extraMotifHeight = 10;
@@ -69,11 +69,11 @@ static void resizeDefButton( QPushButton *b )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a push button with no text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QPushButton::QPushButton( QWidget *parent, const char *name )
 	: QButton( parent, name )
@@ -81,11 +81,11 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
     init();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a push button with a text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QPushButton::QPushButton( const char *text, QWidget *parent,
 			  const char *name )
@@ -102,7 +102,7 @@ void QPushButton::init()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Makes the push button a toggle button if \e enable is TRUE, or a normal
   push button if \e enable is FALSE.
 
@@ -110,7 +110,7 @@ void QPushButton::init()
   boxes. \endlink A push button is initially not a toggle button.
 
   \sa setOn(), toggle(), toggleButton() toggled()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setToggleButton( bool enable )
 {
@@ -118,11 +118,11 @@ void QPushButton::setToggleButton( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Switches a toggle button on if \e enable is TRUE or off if \e enable is
   FALSE.
   \sa isOn(), toggle(), toggled(), toggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setOn( bool enable )
 {
@@ -132,10 +132,10 @@ void QPushButton::setOn( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Toggles the state of a toggle button.
   \sa isOn(), setOn(), toggled(), toggleButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::toggle()
 {
@@ -145,14 +145,14 @@ void QPushButton::toggle()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPushButton::autoDefault() const
   Returns TRUE if the button is an auto-default button.
 
   \sa setAutoDefault()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the push buttons to an auto-default button if \e enable is TRUE,
   or to a normal button if \e enable is FALSE.
 
@@ -160,7 +160,7 @@ void QPushButton::toggle()
   when it receives the keyboard input focus.
 
   \sa autoDefault(), setDefault()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setAutoDefault( bool enable )
 {
@@ -168,14 +168,14 @@ void QPushButton::setAutoDefault( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPushButton::isDefault() const
   Returns TRUE if the button is default.
 
   \sa setDefault()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the button to be the default button if \e enable is TRUE, or
   to be a normal button if \e enable is FALSE.
 
@@ -186,7 +186,7 @@ void QPushButton::setAutoDefault( bool enable )
   Default push buttons are only allowed in dialogs.
 
   \sa isDefault(), setAutoDefault(), QDialog
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setDefault( bool enable )
 {
@@ -210,9 +210,9 @@ void QPushButton::setDefault( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a size which fits the contents of the push button.
- ----------------------------------------------------------------------------*/
+*/
 
 QSize QPushButton::sizeHint() const
 {
@@ -233,9 +233,9 @@ QSize QPushButton::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::move( int x, int y )
 {
@@ -244,18 +244,18 @@ void QPushButton::move( int x, int y )
     QWidget::move( x-wx/2, y-hx/2 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::move( const QPoint &p )
 {
     move( p.x(), p.y() );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::resize( int w, int h )
 {
@@ -264,18 +264,18 @@ void QPushButton::resize( int w, int h )
     QWidget::resize( w+wx, h+hx );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::resize( const QSize &s )
 {
     resize( s.width(), s.height() );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setGeometry( int x, int y, int w, int h )
 {
@@ -284,9 +284,9 @@ void QPushButton::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry( x-wx/2, y-hx/2, w+wx, h+hx );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::setGeometry( const QRect &r )
 {
@@ -294,10 +294,10 @@ void QPushButton::setGeometry( const QRect &r )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the push button, except its label.
   \sa drawButtonLabel()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::drawButton( QPainter *paint )
 {
@@ -421,10 +421,10 @@ void QPushButton::drawButton( QPainter *paint )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Draws the push button label.
   \sa drawButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPushButton::drawButtonLabel( QPainter *paint )
 {

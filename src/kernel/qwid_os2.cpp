@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qwid_os2.cpp#10 $
 **
 ** Implementation of QWidget and QView classes for OS/2 PM
 **
@@ -16,12 +16,12 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_os2.cpp#10 $");
 
 
-// --------------------------------------------------------------------------
-// QWidget member functions
-//
+/*****************************************************************************
+  QWidget member functions
+ *****************************************************************************/
 
 const char *qWidgetClassName = "QWidget";
 
@@ -367,9 +367,9 @@ bool QWidget::drawText( int x, int y, const char *str )
 }
 
 
-// --------------------------------------------------------------------------
-// QView member functions
-//
+/*****************************************************************************
+  QView member functions
+ *****************************************************************************/
 
 void QView::setCaption( const char *s )			// set caption text
 {

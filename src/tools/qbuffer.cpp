@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbuffer.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qbuffer.cpp#21 $
 **
 ** Implementation of QBuffer class
 **
@@ -13,10 +13,10 @@
 #include "qbuffer.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#21 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QBuffer qbuffer.h
   \brief The QBuffer class is an I/O device that operates on a QByteArray
 
@@ -43,12 +43,12 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qbuffer.cpp#20 $");
   \endcode
 
   \sa QFile, QDataStream, QTextStream
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs an empty buffer.
- ----------------------------------------------------------------------------*/
+*/
 
 QBuffer::QBuffer()
 {
@@ -58,10 +58,10 @@ QBuffer::QBuffer()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a buffer and sets the buffer contents to \e buf.
   \sa setBuffer()
- ----------------------------------------------------------------------------*/
+*/
 
 QBuffer::QBuffer( QByteArray buf ) : a(buf)
 {
@@ -70,16 +70,16 @@ QBuffer::QBuffer( QByteArray buf ) : a(buf)
     a_len = a.size();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the buffer.
- ----------------------------------------------------------------------------*/
+*/
 
 QBuffer::~QBuffer()
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Replaces the buffer's contents with \e buf.
 
   This may not be done while the buffer is \link open() open\endlink.
@@ -100,7 +100,7 @@ QBuffer::~QBuffer()
   \endcode
 
   \sa open, \link shclass.html Shared Classes\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBuffer::setBuffer( QByteArray buf )
 {
@@ -116,7 +116,7 @@ bool QBuffer::setBuffer( QByteArray buf )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Opens the file specified by the file name currently set, using the mode \e m.
   Returns TRUE if successful, otherwise FALSE.
 
@@ -130,7 +130,7 @@ bool QBuffer::setBuffer( QByteArray buf )
   </ul>
 
   \sa close(), isOpen()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBuffer::open( int m  )
 {
@@ -152,10 +152,10 @@ bool QBuffer::open( int m  )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Closes an open buffer.
   \sa open()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBuffer::close()
 {
@@ -165,9 +165,9 @@ void QBuffer::close()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   The flush function does nothing.
- ----------------------------------------------------------------------------*/
+*/
 
 void QBuffer::flush()
 {
@@ -175,16 +175,16 @@ void QBuffer::flush()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QBuffer::at() const
   Returns the buffer index.
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the buffer index to \e pos. Returns TRUE if successful, otherwise FALSE.
   \sa size()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBuffer::at( int pos )
 {
@@ -205,14 +205,14 @@ bool QBuffer::at( int pos )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads at most \e len bytes from the buffer into \e p and returns the
   number of bytes actually read.
 
   Returns -1 if a serious error occurred.
 
   \sa writeBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::readBlock( char *p, uint len )
 {
@@ -243,14 +243,14 @@ int QBuffer::readBlock( char *p, uint len )
     return len;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes \e len bytes from \e p to the buffer and returns the number of
   bytes actually written.
 
   Returns -1 if a serious error occurred.
 
   \sa readBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::writeBlock( const char *p, uint len )
 {
@@ -289,14 +289,14 @@ int QBuffer::writeBlock( const char *p, uint len )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a line of text.
 
   Reads bytes from the buffer until end-of-line is reached, or up to
   \e maxlen bytes.
 
   \sa readBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::readLine( char *p, uint maxlen )
 {
@@ -328,14 +328,14 @@ int QBuffer::readLine( char *p, uint maxlen )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a single byte/character from the buffer.
 
   Returns the byte/character read, or -1 if the end of the buffer has been
   reached.
 
   \sa putch(), ungetch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::getch()
 {
@@ -359,13 +359,13 @@ int QBuffer::getch()
     return *(a.data()+index++);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes the character \e ch to the buffer.
 
   Returns \e ch, or -1 if some error occurred.
 
   \sa getch(), ungetch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::putch( int ch )
 {
@@ -392,7 +392,7 @@ int QBuffer::putch( int ch )
     return ch;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Puts the character \e ch back into the buffer and decrements the index if
   it is not zero.
 
@@ -401,7 +401,7 @@ int QBuffer::putch( int ch )
   Returns \e ch, or -1 if some error occurred.
 
   \sa getch(), putch()
- ----------------------------------------------------------------------------*/
+*/
 
 int QBuffer::ungetch( int ch )
 {

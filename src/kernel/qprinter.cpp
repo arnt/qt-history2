@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#22 $
 **
 ** Implementation of QPrinter class
 **
@@ -12,10 +12,10 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#22 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPrinter qprinter.h
   \brief The QPrinter class is a paint device that prints graphics on a
   printer.
@@ -79,17 +79,17 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#21 $");
         return 0;
     }
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QPrinter::printerName() const
   Returns the printer name.  This value is initially set to the name of the
   default printer.
   \sa setPrinterName()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the printer name.
 
   The default printer will be used if no printer name is set.
@@ -99,7 +99,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#21 $");
   system defines the default printer.
 
   \sa printerName()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setPrinterName( const char *name )
 {
@@ -113,7 +113,7 @@ void QPrinter::setPrinterName( const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPrinter::outputToFile() const
   Returns TRUE if the output should be written to a file, or FALSE if the
   output should be sent directly to the printer.
@@ -122,9 +122,9 @@ void QPrinter::setPrinterName( const char *name )
   This function is currently only supported under X-Windows.
 
   \sa setOutputToFile(), setOutputFileName()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Specifies whether the output should be written to a file or sent
   directly to the printer.
 
@@ -134,7 +134,7 @@ void QPrinter::setPrinterName( const char *name )
   This function is currently only supported under X-Windows.
 
   \sa outputToFile(), setOutputFileName()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setOutputToFile( bool enable )
 {
@@ -148,13 +148,13 @@ void QPrinter::setOutputToFile( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QPrinter::outputFileName() const
   Returns the name of the output file.	There is no default file name.
   \sa setOutputFileName(), setOutputToFile()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the name of the output file.
 
   Setting a null name (0 or "") disables output to a file, i.e.
@@ -165,7 +165,7 @@ void QPrinter::setOutputToFile( bool enable )
   This function is currently only supported under X-Windows.
 
   \sa outputFileName(), setOutputToFile()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setOutputFileName( const char *fileName )
 {
@@ -180,7 +180,7 @@ void QPrinter::setOutputFileName( const char *fileName )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QPrinter::printProgram() const
   Returns the name of the program that sends the print output to the printer.
 
@@ -188,9 +188,9 @@ void QPrinter::setOutputFileName( const char *fileName )
   returns 0 for all other window systems.
 
   \sa setPrintProgram()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the name of the program that should do the print job.
 
   If an output file has been defined, the printer driver will print to
@@ -200,7 +200,7 @@ void QPrinter::setOutputFileName( const char *fileName )
   output.  On other platforms, it has no effect.
 
   \sa printProgram()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setPrintProgram( const char *printProg )
 {
@@ -214,15 +214,15 @@ void QPrinter::setPrintProgram( const char *printProg )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QPrinter::docName() const
   Returns the document name.
   \sa setDocName()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the document name.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setDocName( const char *name )
 {
@@ -236,13 +236,13 @@ void QPrinter::setDocName( const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const char *QPrinter::creator() const
   Returns the creator name.
   \sa setCreator()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the creator name.
 
   Calling this function only has effect for the X-Windows version of Qt.
@@ -250,7 +250,7 @@ void QPrinter::setDocName( const char *name )
   If no creator name is specified, then the creator will be set to "Qt".
 
   \sa creator()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setCreator( const char *creator )
 {
@@ -258,13 +258,13 @@ void QPrinter::setCreator( const char *creator )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn Orientation QPrinter::orientation() const
   Returns the orientation setting. The default value is \c QPrinter::Portrait.
   \sa setOrientation()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the print orientation.
 
   The orientation can be either \c QPrinter::Portrait or
@@ -276,7 +276,7 @@ void QPrinter::setCreator( const char *creator )
   \warning Not yet implemented for X-Windows.
 
   \sa orientation()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setOrientation( Orientation orientation )
 {
@@ -284,13 +284,13 @@ void QPrinter::setOrientation( Orientation orientation )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn PageSize QPrinter::pageSize() const
   Returns the printer page size. The default value is \c QPrinter::A4.
   \sa setPageSize()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the printer page size.
 
   The page size can be one of:
@@ -305,7 +305,7 @@ void QPrinter::setOrientation( Orientation orientation )
   \warning Not yet implemented for X-Windows.
 
   \sa pageSize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setPageSize( PageSize pageSize )
 {
@@ -313,7 +313,7 @@ void QPrinter::setPageSize( PageSize pageSize )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPrinter::fromPage() const
   Returns the from-page setting. The default value is 0.
 
@@ -321,9 +321,9 @@ void QPrinter::setPageSize( PageSize pageSize )
   accordingly.
 
   \sa setFromTo(), toPage()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPrinter::toPage() const
   Returns the to-page setting. The default value is 0.
 
@@ -331,15 +331,15 @@ void QPrinter::setPageSize( PageSize pageSize )
   accordingly.
 
   \sa setFromTo(), fromPage()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the from page and to page.
 
   The from-page and to-page settings specify what pages to print.
 
   \sa fromPage(), toPage(), setMinMax(), setup()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setFromTo( int fromPage, int toPage )
 {
@@ -354,19 +354,19 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPrinter::minPage() const
   Returns the min-page setting.	 The default value is 0.
   \sa maxPage(), setMinMax()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPrinter::maxPage() const
   Returns the max-page setting.	 The default value is 0.
   \sa minPage(), setMinMax()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the min page and max page.
 
   The min-page and max-page restrict the from-page and to-page settings.
@@ -374,7 +374,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
   from and to that are outsize the range specified by min and max pages.
 
   \sa minPage(), maxPage(), setFromTo(), setup()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setMinMax( int minPage, int maxPage )
 {
@@ -383,20 +383,20 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPrinter::numCopies() const
   Returns the number of copies to be printed.  The default value is 1.
   \sa setNumCopies()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the number of pages to be printed.
 
   The printer driver reads this setting and prints the specified number of
   copies.
 
   \sa numCopies(), setup()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPrinter::setNumCopies( int numCopies )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qcol_os2.cpp#8 $
 **
 ** Implementation of QColor class for OS/2 PM
 **
@@ -15,12 +15,12 @@
 #define	 INCL_PM
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_os2.cpp#8 $");
 
 
-// --------------------------------------------------------------------------
-// QColor special member functions
-//
+/*****************************************************************************
+  QColor special member functions
+ *****************************************************************************/
 
 inline ulong _RGB( uint r, uint g, uint b )
 {
@@ -28,9 +28,9 @@ inline ulong _RGB( uint r, uint g, uint b )
 }
 
 
-// --------------------------------------------------------------------------
-// QColor static member functions
-//
+/*****************************************************************************
+  QColor static member functions
+ *****************************************************************************/
 
 void QColor::initialize()			// called from startup routines
 {
@@ -60,9 +60,9 @@ void QColor::cleanup()
 }
 
 
-// --------------------------------------------------------------------------
-// QColor member functions
-//
+/*****************************************************************************
+  QColor member functions
+ *****************************************************************************/
 
 QColor::QColor()				// default RGB=0,0,0
 {

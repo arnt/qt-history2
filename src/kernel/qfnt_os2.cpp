@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#6 $
 **
 ** Implementation of QFont and QFontMetrics classes for OS/2 PM
 **
@@ -14,7 +14,7 @@
 #define	 INCL_WIN
 #include <os2.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_os2.cpp#6 $");
 
 
 void QFont::initialize()			// called from startup routines
@@ -69,9 +69,9 @@ bool QFont::changeFont( const char *name )
 }
 
 
-// --------------------------------------------------------------------------
-// QFontMetrics member functions
-//
+/*****************************************************************************
+  QFontMetrics member functions
+ *****************************************************************************/
 
 QFontMetrics::QFontMetrics( const QFont &font )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#7 $
 **
 ** Implementation of draw utilities
 **
@@ -12,10 +12,10 @@
 
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#7 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a horizontal (\e y1 == \e y2) or vertical (\e x1 == \e x2) shaded
@@ -43,7 +43,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdrawutil.cpp#6 $");
   <code>QFrame::setFrameStyle( QFrame::HLine | QFrame::Sunken )</code>.
 
   \sa qDrawShadeRect(), qDrawShadePanel()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 		     const QColorGroup &g, bool sunken,
@@ -125,7 +125,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a shaded rectangle/box given by \e (x,y,w,h) using the painter \e p.
@@ -152,7 +152,7 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
   <code>QFrame::setFrameStyle( QFrame::Box | QFrame::Raised )</code>.
 
   \sa qDrawShadeLine(), qDrawShadePanel(), qDrawPlainRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken,
@@ -228,7 +228,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a shaded panel given by \e (x,y,w,h) using the painter \e p.
@@ -251,7 +251,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
   <code>QFrame::setFrameStyle( QFrame::Panel | QFrame::Sunken )</code>.
 
   \sa qDrawWinPanel(), qDrawShadeLine(), qDrawShadeRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
 		      const QColorGroup &g, bool sunken,
@@ -316,11 +316,11 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This function draws a rectangle with two pixel line width.
   It is called from qDrawWinButton() and qDrawWinPanel().
- ----------------------------------------------------------------------------*/
+*/
 
 static void qDrawWinShades( QPainter *p,
 			   int x, int y, int w, int h,
@@ -365,7 +365,7 @@ static void qDrawWinShades( QPainter *p,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a Windows-style button given by \e (x,y,w,h) using the painter \e p.
@@ -384,7 +384,7 @@ static void qDrawWinShades( QPainter *p,
   null.
 
   \sa qDrawWinPanel()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool	sunken,
@@ -398,7 +398,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
 		       g.light(), black, g.background(), g.dark(), fill );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a Windows-style panel given by \e (x,y,w,h) using the painter \e p.
@@ -421,7 +421,7 @@ void qDrawWinButton( QPainter *p, int x, int y, int w, int h,
   <code>QFrame::setFrameStyle( QFrame::WinPanel | QFrame::Raised )</code>.
 
   \sa qDrawShadePanel(), qDrawWinButton()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &g, bool  sunken,
@@ -436,7 +436,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPainter
 
   Draws a plain rectangle given by \e (x,y,w,h) using the painter \e p.
@@ -453,7 +453,7 @@ void qDrawWinPanel( QPainter *p, int x, int y, int w, int h,
   <code>QFrame::setFrameStyle( QFrame::Box | QFrame::Plain )</code>.
 
   \sa qDrawShadeRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
 		     int lineWidth, const QBrush *fill )
@@ -483,9 +483,9 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
   Overloaded functions.
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2, const QColorGroup &g, bool sunken, int lineWidth, int midLineWidth )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
 		     const QColorGroup &g, bool sunken,
@@ -495,9 +495,9 @@ void qDrawShadeLine( QPainter *p, const QPoint &p1, const QPoint &p2,
 		    lineWidth, midLineWidth );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawShadeRect( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, int lineWidth, int midLineWidth, const QBrush *fill )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadeRect( QPainter *p, const QRect &r,
 		     const QColorGroup &g, bool sunken,
@@ -508,9 +508,9 @@ void qDrawShadeRect( QPainter *p, const QRect &r,
 		    lineWidth, midLineWidth, fill );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawShadePanel( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, int lineWidth, const QBrush *fill )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawShadePanel( QPainter *p, const QRect &r,
 		      const QColorGroup &g, bool sunken,
@@ -520,9 +520,9 @@ void qDrawShadePanel( QPainter *p, const QRect &r,
 		     lineWidth, fill );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawWinButton( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, const QBrush *fill )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawWinButton( QPainter *p, const QRect &r,
 		     const QColorGroup &g, bool sunken,
@@ -531,9 +531,9 @@ void qDrawWinButton( QPainter *p, const QRect &r,
     qDrawWinButton( p, r.x(), r.y(), r.width(), r.height(), g, sunken, fill );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawWinPanel( QPainter *p, const QRect &r, const QColorGroup &g, bool sunken, const QBrush *fill )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawWinPanel( QPainter *p, const QRect &r,
 		    const QColorGroup &g, bool sunken,
@@ -542,9 +542,9 @@ void qDrawWinPanel( QPainter *p, const QRect &r,
     qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), g, sunken, fill );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c, int lineWidth, const QBrush *fill )
- ----------------------------------------------------------------------------*/
+*/
 
 void qDrawPlainRect( QPainter *p, const QRect &r, const QColor &c,
 		     int lineWidth, const QBrush *fill )

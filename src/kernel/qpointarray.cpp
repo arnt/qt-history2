@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#37 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,10 +16,10 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#37 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPointArray qpntarry.h
   \brief The QPointArray class provides an array of points.
 
@@ -39,33 +39,33 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $");
 
   Note that since this class is a QArray, it is explicitly shared
   and works with shallow copies by default.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QPointArray member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPointArray::QPointArray()
   Constructs a null point array.
   \sa isNull()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPointArray::QPointArray( int size )
   Constructs a point array with room for \e size points.
   Makes a null array if \e size == 0.
 
   \sa resize(), isNull()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPointArray::QPointArray( const QPointArray &a )
   Constructs a shallow copy of the point array \e a.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a point array from the rectangle \e r.
 
   If \e closed is FALSE, then the point array will contain the
@@ -79,7 +79,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#36 $");
 
   If \e closed is TRUE, then a fifth point is set to r.topLeft() to
   close the point array.
- ----------------------------------------------------------------------------*/
+*/
 
 QPointArray::QPointArray( const QRect &r, bool closed )
 {
@@ -93,12 +93,12 @@ QPointArray::QPointArray( const QRect &r, bool closed )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a point array with \e nPoints points, taken from the
   \e points array.
 
   Equivalent to setPoints(nPoints,points).
- ----------------------------------------------------------------------------*/
+*/
 
 QPointArray::QPointArray( int nPoints, const QCOORD *points )
 {
@@ -106,16 +106,16 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPointArray &QPointArray::operator=( const QPointArray &a )
   Assigns a shallow copy of \e a to this point array and returns a reference
   to this point array.
 
   Equivalent to assign( a ).
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Fills the point array with the point \e p.
   If \e size is specified as different from -1, then the array will be
   resized before filled.
@@ -124,7 +124,7 @@ QPointArray::QPointArray( int nPoints, const QCOORD *points )
   (only when \e size != -1).
 
   \sa resize()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPointArray::fill( const QPoint &p, int size )
 {
@@ -133,9 +133,9 @@ bool QPointArray::fill( const QPoint &p, int size )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Translates all points in the array \e (dx,dy).
- ----------------------------------------------------------------------------*/
+*/
 
 void QPointArray::translate( int dx, int dy )
 {
@@ -149,9 +149,9 @@ void QPointArray::translate( int dx, int dy )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point at position \e index in the array in \e *x and \e *y.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPointArray::point( uint index, int *x, int *y ) const
 {
@@ -160,9 +160,9 @@ void QPointArray::point( uint index, int *x, int *y ) const
     *y = (int)p.y;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point at position \e index in the array.
- ----------------------------------------------------------------------------*/
+*/
 
 QPoint QPointArray::point( uint index ) const
 {
@@ -170,9 +170,9 @@ QPoint QPointArray::point( uint index ) const
     return QPoint( (QCOORD)p.x, (QCOORD)p.y );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the point at position \e index in the array to \e (x,y).
- ----------------------------------------------------------------------------*/
+*/
 
 void QPointArray::setPoint( uint index, int x, int y )
 {
@@ -182,7 +182,7 @@ void QPointArray::setPoint( uint index, int x, int y )
     QArrayM(QPointData)::at( index ) = p;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Resizes the array to \e nPoints and sets the points in the array to
   the values taken from \e points.
 
@@ -198,7 +198,7 @@ void QPointArray::setPoint( uint index, int x, int y )
   The example code creates an array with two points (1,2) and (3,4).
 
   \sa resize(), putPoints()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPointArray::setPoints( int nPoints, const QCOORD *points )
 {
@@ -213,7 +213,7 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Resizes the array to \e nPoints and sets the points in the array to
   the values taken from the variable argument list.
 
@@ -228,7 +228,7 @@ bool QPointArray::setPoints( int nPoints, const QCOORD *points )
   The example code creates an array with two points (1,2) and (3,4).
 
   \sa resize(), putPoints()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
 			     ... )
@@ -249,7 +249,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Copies \e nPoints points from the \e points array into this point array.
   Will resize this point array if <code>index+nPoints</code> exceeds
   the size of the array.
@@ -270,7 +270,7 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
   array unless the array size is exceeded.
 
   \sa resize(), setPoints()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
 {
@@ -287,7 +287,7 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
     return TRUE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Copies \e nPoints points from the variable argument list into this point
   array. Will resize this point array if <code>index+nPoints</code> exceeds
   the size of the array.
@@ -307,7 +307,7 @@ bool QPointArray::putPoints( int index, int nPoints, const QCOORD *points )
   array unless the array size is exceeded.
 
   \sa resize(), setPoints()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 			     ... )
@@ -333,10 +333,10 @@ bool QPointArray::putPoints( int index, int nPoints, int firstx, int firsty,
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point at position \e index in the array.
   \sa operator[]
- ----------------------------------------------------------------------------*/
+*/
 
 QPoint QPointArray::at( uint index ) const
 {
@@ -345,10 +345,10 @@ QPoint QPointArray::at( uint index ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the bounding rectangle of the points in the array, or
   QRect(0,0,0,0) if the array is empty.
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QPointArray::boundingRect() const
 {
@@ -501,9 +501,9 @@ void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the Bezier points for the four control points in this array.
- ----------------------------------------------------------------------------*/
+*/
 
 QPointArray QPointArray::quadBezier() const
 {
@@ -707,7 +707,7 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
   QPointArray stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPointArray
   Writes a point array to the stream and returns a reference to the stream.
 
@@ -716,7 +716,7 @@ QPointArray QPointArray::bezier() const		// calculate Bezier curve
   <li> The array size (UINT32)
   <li> The array points (QPoint)
   </ol>
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QPointArray &a )
 {
@@ -728,10 +728,10 @@ QDataStream &operator<<( QDataStream &s, const QPointArray &a )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPointArray
   Reads a point array from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QPointArray &a )
 {

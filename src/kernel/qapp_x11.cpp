@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#172 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -44,7 +44,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#171 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#172 $");
 
 
 #if !defined(XlibSpecificationRelease)
@@ -378,7 +378,7 @@ static int qt_xio_errhandler( Display * )	// default X11 IO error handler
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QApplication
   Adds a global routine that will be called from the QApplication destructor.
   This function is normally used to add cleanup routines.
@@ -402,7 +402,7 @@ static int qt_xio_errhandler( Display * )	// default X11 IO error handler
 	qAddPostRoutine( cleanup_ptr );		// delete later
     }
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void qAddPostRoutine( CleanUpFunction p )
 {
@@ -484,14 +484,14 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
   Platform specific QApplication members
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidget *QApplication::mainWidget() const
   Returns the main application widget, or 0 if there is not a defined
   main widget.
   \sa setMainWidget()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the main widget of the application.
 
   The special thing about the main widget is that destroying the main
@@ -505,7 +505,7 @@ GC qt_xget_temp_gc( bool monochrome )		// get use'n throw GC
   calling setMainWidget().
 
   \sa mainWidget(), exec(), quit()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
@@ -535,7 +535,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QWidget *QApplication::desktop()
   Returns the desktop widget (also called the root window).
 
@@ -548,7 +548,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
     int h=d->height();			// returns screen height
     d->setBackgroundColor( red );	// makes desktop red
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget *QApplication::desktop()
 {
@@ -568,7 +568,7 @@ typedef declare(QListM,QCursor) QCursorList;
 
 static QCursorList *cursorStack = 0;
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QCursor *QApplication::overrideCursor()
   Returns the active application override cursor.
 
@@ -576,9 +576,9 @@ static QCursorList *cursorStack = 0;
   internal cursor stack is empty).
 
   \sa setOverrideCursor(), restoreOverrideCursor()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the application override cursor to \e cursor.
 
   Application override cursor are intended for showing the user that the
@@ -605,7 +605,7 @@ static QCursorList *cursorStack = 0;
   \endcode
 
   \sa overrideCursor(), restoreOverrideCursor(), QWidget::setCursor()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
 {
@@ -629,7 +629,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     XFlush( appDpy );				// make X execute it NOW
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Restores the effect of setOverrideCursor().
 
   If setOverrideCursor() has been called twice, calling
@@ -643,7 +643,7 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
   of sync. overrideCursor() returns 0 if the cursor stack is empty.
 
   \sa setOverrideCursor(), overrideCursor().
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::restoreOverrideCursor()
 {
@@ -719,7 +719,7 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the widget at global screen position \e (x,y), or a
   null pointer if there is no Qt widget there.
 
@@ -727,7 +727,7 @@ static Window findClientWindow( Window win, Atom WM_STATE, bool leaf )
   \e child is FALSE.
 
   \sa QCursor::pos(), QWidget::grabMouse(), QWidget::grabKeyboard()
- ----------------------------------------------------------------------------*/
+*/
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
@@ -753,16 +753,16 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     return w;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload QWidget *QApplication::widgetAt( const QPoint &pos, bool child )
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Flushes the X event queue in the X-Windows implementation.
   Does nothing on other platforms.
   \sa syncX()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::flushX()
 {
@@ -770,11 +770,11 @@ void QApplication::flushX()
 	XFlush( appDpy );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Synchronizes with the X server in the X-Windows implementation.
   Does nothing on other platforms.
   \sa flushX()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::syncX()
 {
@@ -824,14 +824,14 @@ struct QPostEvent {
 declare(QListM,QPostEvent);
 static QListM(QPostEvent) *postedEvents = 0;	// list of posted events
 
-/*----------------------------------------------------------------------------
+/*!
   Stores the event in a queue and returns immediatly.
 
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
 
   \sa sendEvent()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::postEvent( QObject *receiver, QEvent *event )
 {
@@ -1102,7 +1102,7 @@ static void sn_activate()
   Main event loop
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Enters the main event loop and waits until quit() is called or
   the \link setMainWidget() main widget\endlink is destroyed.
   Returns the value that was specified to quit().
@@ -1116,7 +1116,7 @@ static void sn_activate()
   calling exec(), because modal widget have a local event loop.
 
   \sa quit(), setMainWidget()
- ----------------------------------------------------------------------------*/
+*/
 
 int QApplication::exec()
 {
@@ -1125,11 +1125,11 @@ int QApplication::exec()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This function enters the main event loop (recursively).
   Do not call it unless you are an expert.
   \sa exit_loop()
- ----------------------------------------------------------------------------*/
+*/
 
 int QApplication::enter_loop()
 {
@@ -1371,11 +1371,11 @@ int QApplication::enter_loop()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This function leaves from a recursive call to the main event loop.
   Do not call it unless you are an expert.
   \sa enter_loop()
- ----------------------------------------------------------------------------*/
+*/
 
 void QApplication::exit_loop()
 {
@@ -1383,7 +1383,7 @@ void QApplication::exit_loop()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This virtual function is only implemented under X-Windows.
 
   If you create an application that inherits QApplication and reimplement this
@@ -1392,7 +1392,7 @@ void QApplication::exit_loop()
 
   Return TRUE if you want to stop the event from being dispatched, or return
   FALSE for normal event dispatching.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QApplication::x11EventFilter( XEvent * )
 {

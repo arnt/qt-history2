@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#43 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,10 +19,10 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#43 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QComboBox qcombo.h
   \brief The QComboBox widget is a combined button and popup list.
 
@@ -34,20 +34,20 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#42 $");
 
   A combo box emits two signals, activated() and highlighted(), when
   a new item has been activated (selected) or highlighted (set to current).
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QComboBox::activated( int index )
   This signal is emitted when a new item has been activated (selected).
   The \e index is the position of the item in the popup list.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QComboBox::highlighted( int index )
   This signal is emitted when a new item has been set to current.
   The \e index is the position of the item in the popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 
 struct QComboData
@@ -95,9 +95,9 @@ static inline bool checkIndex( const char *method, int count, int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a combo box widget with a parent and a name.
- ----------------------------------------------------------------------------*/
+*/
 
 QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -112,9 +112,9 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     //setAcceptFocus( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 QComboBox::~QComboBox()
 {
@@ -126,9 +126,9 @@ QComboBox::~QComboBox()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the number of items in the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 int QComboBox::count() const
 {
@@ -136,9 +136,9 @@ int QComboBox::count() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts the list of strings at the index \e index in the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::insertStrList( const QStrList *list, int index )
 {
@@ -161,7 +161,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 	currentChanged();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts the array of strings at the index \e index in the combo box.
 
   The \e numStrings argument is the number of strings.
@@ -173,7 +173,7 @@ void QComboBox::insertStrList( const QStrList *list, int index )
     static const char *items[] = { "red", "green", "blue", 0 };
     combo->insertStrList( items );
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 {
@@ -196,10 +196,10 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts a text item at position \e index. The item will be appended if
   \e index is negative.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::insertItem( const char *text, int index )
 {
@@ -213,10 +213,10 @@ void QComboBox::insertItem( const char *text, int index )
 	currentChanged();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts a pixmap item at position \e index. The item will be appended if
   \e index is negative.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::insertItem( const QPixmap &pixmap, int index )
 {
@@ -232,9 +232,9 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Removes the item at position \e index.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::removeItem( int index )
 {
@@ -249,9 +249,9 @@ void QComboBox::removeItem( int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Removes all combo box items.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::clear()
 {
@@ -261,9 +261,9 @@ void QComboBox::clear()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the text item at a given index, or 0 if the item is not a string.
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QComboBox::text( int index ) const
 {
@@ -272,9 +272,9 @@ const char *QComboBox::text( int index ) const
     return d->popup->text( index );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the pixmap item at a given index, or 0 if the item is not a pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap *QComboBox::pixmap( int index ) const
 {
@@ -283,9 +283,9 @@ QPixmap *QComboBox::pixmap( int index ) const
     return d->popup->pixmap( index );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Replaces the item at position \e index with a text.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::changeItem( const char *text, int index )
 {
@@ -294,9 +294,9 @@ void QComboBox::changeItem( const char *text, int index )
     d->popup->changeItem( text, index );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Replaces the item at position \e index with a pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
@@ -306,21 +306,21 @@ void QComboBox::changeItem( const QPixmap &im, int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the current combo box item.
   \sa setCurrentItem()
- ----------------------------------------------------------------------------*/
+*/
 
 int QComboBox::currentItem() const
 {
     return d->current;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the current combo box item.
   This is the item to be displayed on the combo box button.
   \sa currentItem()
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::setCurrentItem( int index )
 {
@@ -334,21 +334,21 @@ void QComboBox::setCurrentItem( int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if auto-resizing is enabled, or FALSE if auto-resizing is
   disabled.
 
   Auto-resizing is disabled by default.
 
   \sa setAutoResize()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QComboBox::autoResize() const
 {
     return d->autoresize;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
@@ -356,7 +356,7 @@ bool QComboBox::autoResize() const
   whenever the current combo box item change.
 
   \sa autoResize(), adjustSize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::setAutoResize( bool enable )
 {
@@ -367,9 +367,9 @@ void QComboBox::setAutoResize( bool enable )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a size which fits the contents of the combo box button.
- ----------------------------------------------------------------------------*/
+*/
 QSize QComboBox::sizeHint() const
 {
     int dist, buttonH, buttonW;
@@ -398,11 +398,11 @@ QSize QComboBox::sizeHint() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Receives activated signals from an internal popup list and emits
   the activated() signal.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::internalActivate( int index )
 {
@@ -413,11 +413,11 @@ void QComboBox::internalActivate( int index )
     emit activated( index );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Receives highlighted signals from an internal popup list and emits
   the highlighted() signal.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::internalHighlight( int index )
 {
@@ -425,12 +425,12 @@ void QComboBox::internalHighlight( int index )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setBackgroundColor().
 
   Sets the background color for both the combo box button and the
   combo box popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::setBackgroundColor( const QColor &color )
 {
@@ -438,12 +438,12 @@ void QComboBox::setBackgroundColor( const QColor &color )
     d->popup->setBackgroundColor( color );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setPalette().
 
   Sets the palette for both the combo box button and the
   combo box popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::setPalette( const QPalette &palette )
 {
@@ -451,12 +451,12 @@ void QComboBox::setPalette( const QPalette &palette )
     d->popup->setPalette( palette );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setFont().
 
   Sets the font for both the combo box button and the
   combo box popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::setFont( const QFont &font )
 {
@@ -467,9 +467,9 @@ void QComboBox::setFont( const QFont &font )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles paint events for the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::paintEvent( QPaintEvent * )
 {
@@ -502,9 +502,9 @@ void QComboBox::paintEvent( QPaintEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::mousePressEvent( QMouseEvent *e )
 {
@@ -519,35 +519,35 @@ void QComboBox::mousePressEvent( QMouseEvent *e )
     QApplication::sendEvent( d->popup, &me2 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse move events for the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::mouseMoveEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::mouseReleaseEvent( QMouseEvent * )
 {
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse double click events for the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::mouseDoubleClickEvent( QMouseEvent * )
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles key press events for the combo box.  Only Enter and Return
   are accepted.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::keyPressEvent( QKeyEvent *e )
 {
@@ -564,9 +564,9 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Popups the combo box popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::popup()
 {
@@ -574,10 +574,10 @@ void QComboBox::popup()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Re-indexes the identifiers in the popup list.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::reIndex()
 {
@@ -586,10 +586,10 @@ void QComboBox::reIndex()
 	d->popup->setId( cnt, cnt );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Repaints the combo box.
- ----------------------------------------------------------------------------*/
+*/
 
 void QComboBox::currentChanged()
 {

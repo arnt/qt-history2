@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#42 $
 **
 ** Implementation of QColor class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#42 $");
 
 
 /*****************************************************************************
@@ -75,22 +75,22 @@ static int highest_bit( uint v )
   QColor static member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the maximum number of colors supported by the underlying window
   system.
- ----------------------------------------------------------------------------*/
+*/
 
 int QColor::maxColors()
 {
     return g_ncols;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the number of color bit planes for the underlying window system.
 
   The returned values is equal to the default pixmap depth;
   QPixmap::depth().
- ----------------------------------------------------------------------------*/
+*/
 
 int QColor::numBitPlanes()
 {
@@ -98,11 +98,11 @@ int QColor::numBitPlanes()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Internal initialization required for QColor.
   This function is called from the QApplication constructor.
   \sa cleanup()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::initialize()
 {
@@ -162,11 +162,11 @@ void QColor::initialize()
 #endif
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Internal clean up required for QColor.
   This function is called from the QApplication destructor.
   \sa initialize()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::cleanup()
 {
@@ -182,13 +182,13 @@ void QColor::cleanup()
   QColor member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a color with a RGB value and a custom pixel value.
 
   If the \e pix = 0xffffffff, then the color uses the RGB value in a
   standard way.	 If \e pix is something else, then the pixel value will
   be set directly to \e pix (skips the standard allocation procedure).
- ----------------------------------------------------------------------------*/
+*/
 
 QColor::QColor( QRgb rgb, uint pixel )
 {
@@ -202,7 +202,7 @@ QColor::QColor( QRgb rgb, uint pixel )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Allocates the RGB color and returns the pixel value.
 
   Allocating a color means to obtain a pixel value from the RGB specification.
@@ -210,7 +210,7 @@ QColor::QColor( QRgb rgb, uint pixel )
 
   Calling the pixel() function will allocate automatically if
   the color was not already allocated.
- ----------------------------------------------------------------------------*/
+*/
 
 uint QColor::alloc()
 {
@@ -297,13 +297,13 @@ uint QColor::alloc()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the RGB value to that of the named color.
 
   This function searches the X color database for the color and sets the
   RGB value.  The color will be set to invalid if such a color does not
   exist.
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::setNamedColor( const char *name )
 {
@@ -322,10 +322,10 @@ void QColor::setNamedColor( const char *name )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the RGB value to (\e r, \e g, \e b).
   \sa rgb(), setHsv()
- ----------------------------------------------------------------------------*/
+*/
 
 void QColor::setRgb( int r, int g, int b )
 {

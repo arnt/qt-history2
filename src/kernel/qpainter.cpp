@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#83 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -20,10 +20,10 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#83 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPainter qpainter.h
   \brief The QPainter class paints on paint devices.
 
@@ -82,13 +82,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#82 $");
   \header qdrawutl.h
 
   \sa QPaintDevice, QWidget, QPixmap
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Sets or clears a pointer flag.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setf( ushort b, bool v )
 {
@@ -99,19 +99,19 @@ void QPainter::setf( ushort b, bool v )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPainter::isActive() const
   Returns the TRUE if the painter is active painting, i.e. begin() has
   been called and end() has not yet been called.
   \sa QPaintDevice::paintingActive()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPaintDevice *QPainter::device() const
   Returns the paint device currently active for this painter, or null if
   begin() has not been called.
   \sa QPaintDevice::paintingActive()
- ----------------------------------------------------------------------------*/
+*/
 
 
 struct QPState {				// painter state
@@ -142,13 +142,13 @@ void QPainter::killPStack()
     delete (QPStateStack *)ps_stack;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Saves the current painter state (pushes the state onto a stack).
 
   A save() must have a corresponding restore().
 
   \sa restore()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::save()
 {
@@ -186,10 +186,10 @@ void QPainter::save()
     pss->push( ps );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Restores the current painter state (pops a saved state off the stack).
   \sa save()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::restore()
 {
@@ -246,35 +246,35 @@ void QPainter::restore()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFontMetrics QPainter::fontMetrics() const
   Returns the font metrics for the painter.
   Font metrics can only be obtained when the painter is active.
   \sa fontInfo(), isActive()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QFontInfo QPainter::fontInfo() const
   Returns the font info for the painter.
   Font info can only be obtained when the painter is active.
   \sa fontMetrics(), isActive()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPen &QPainter::pen() const
   Returns the current pen for the painter.
   \sa setPen()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter pen.
 
   The pen defines how to draw lines and outlines, and it also defines
   the text color.
 
   \sa pen()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setPen( const QPen &pen )
 {
@@ -286,10 +286,10 @@ void QPainter::setPen( const QPen &pen )
     updatePen();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter pen with style \c style, width 0 and black color.
   \sa pen(), QPen
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setPen( PenStyle style )
 {
@@ -308,11 +308,11 @@ void QPainter::setPen( PenStyle style )
     updatePen();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter pen with style \c SolidLine, width 0 and the specified
   \e color.
   \sa pen(), QPen
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setPen( const QColor &color )
 {
@@ -331,19 +331,19 @@ void QPainter::setPen( const QColor &color )
     updatePen();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QBrush &QPainter::brush() const
   Returns the current painter brush.
   \sa QPainter::setBrush()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter brush.
 
   The brush defines how to fill shapes.
 
   \sa brush()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setBrush( const QBrush &brush )
 {
@@ -355,10 +355,10 @@ void QPainter::setBrush( const QBrush &brush )
     updateBrush();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter brush with black color and the specified \e style.
   \sa brush(), QBrush
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setBrush( BrushStyle style )
 {
@@ -380,11 +380,11 @@ void QPainter::setBrush( BrushStyle style )
     updateBrush();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new painter brush with the style \c SolidPattern and the specified
   \e color.
   \sa brush(), QBrush
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setBrush( const QColor &color )
 {
@@ -407,38 +407,38 @@ void QPainter::setBrush( const QColor &color )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QColor &QPainter::backgroundColor() const
   Returns the background color currently set.
   \sa setBackgroundColor()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn BGMode QPainter::backgroundMode() const
   Returns the background mode currently set.
   \sa setBackgroundMode()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn RasterOp QPainter::rasterOp() const
   Returns the raster operation currently set.
   \sa setRasterOp()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QPoint &QPainter::brushOrigin() const
   Returns the brush origin currently set.
   \sa setBrushOrigin()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QPainter::tabStops() const
   Returns the tab stop setting.
   \sa setTabStops()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Set the number of pixels per tab stop to a fixed number.
 
   Tab stops are used when drawing formatted text with \c ExpandTabs set.
@@ -446,7 +446,7 @@ void QPainter::setBrush( const QColor &color )
   settings.
 
   \sa tabStops(), setTabArray(), drawText(), fontMetrics()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setTabStops( int ts )
 {
@@ -462,13 +462,13 @@ void QPainter::setTabStops( int ts )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int *QPainter::tabArray() const
   Returns the tab stop array currently set.
   \sa setTabArray()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Set an array containing the tab stops.
 
   Tab stops are used when drawing formatted text with \c ExpandTabs set.
@@ -479,7 +479,7 @@ void QPainter::setTabStops( int ts )
   that is set using setTabStops().
 
   \sa tabArray(), setTabStops(), drawText(), fontMetrics()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setTabArray( int *ta )
 {
@@ -508,22 +508,22 @@ void QPainter::setTabArray( int *ta )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn HANDLE QPainter::handle() const
   Returns the platform-dependent handle used for drawing.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QPainter xform settings
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Enables view transformations if \e enable is TRUE, or disables view
   transformations if \e enable is FALSE.
   \sa hasViewXForm(), setWindow(), setViewport(), setWorldMatrix(),
   setWorldXForm(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setViewXForm( bool enable )
 {
@@ -542,23 +542,23 @@ void QPainter::setViewXForm( bool enable )
     updateXForm();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPainter::hasViewXForm() const
   Returns TRUE if view transformation is enabled, otherwise FALSE.
   \sa setViewXForm(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the window rectangle.
   \sa setWindow(), setViewXForm()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QPainter::window() const
 {
     return QRect( wx, wy, ww, wh );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the window rectangle view transformation for the painter and
   enables view transformation.
 
@@ -586,7 +586,7 @@ QRect QPainter::window() const
 
   \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
   setWorldXForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setWindow( int x, int y, int w, int h )
 {
@@ -610,17 +610,17 @@ void QPainter::setWindow( int x, int y, int w, int h )
 	setViewXForm( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the viewport rectangle.
   \sa setViewport(), setViewXForm()
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QPainter::viewport() const		// get viewport
 {
     return QRect( vx, vy, vw, vh );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the viewport rectangle view transformation for the painter and
   enables view transformation.
 
@@ -648,7 +648,7 @@ QRect QPainter::viewport() const		// get viewport
 
   \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
   setWorldXForm(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setViewport( int x, int y, int w, int h )
 {
@@ -672,12 +672,12 @@ void QPainter::setViewport( int x, int y, int w, int h )
 	setViewXForm( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Enables world transformations if \e enable is TRUE, or disables
   world transformations if \e enable is FALSE.
 
   \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setWorldXForm( bool enable )
 {
@@ -696,23 +696,23 @@ void QPainter::setWorldXForm( bool enable )
     updateXForm();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPainter::hasWorldXForm() const
   Returns TRUE if world transformation is enabled, otherwise FALSE.
   \sa setWorldXForm()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the world transformation matrix.
   \sa setWorldMatrix()
- ----------------------------------------------------------------------------*/
+*/
 
 const QWMatrix &QPainter::worldMatrix() const
 {
     return wxmat;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the world transformation matrix to \e m and enables world
   transformation.
 
@@ -752,7 +752,7 @@ const QWMatrix &QPainter::worldMatrix() const
 
   \sa worldMatrix(), setWorldXForm(), setWindow(), setViewport(),
   setViewXForm(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {
@@ -782,10 +782,10 @@ void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Translates the coordinate system by \e (dx,dy).
   \sa scale(), shear(), rotate(), resetXForm(), setWorldMatrix(), xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::translate( float dx, float dy )
 {
@@ -793,11 +793,11 @@ void QPainter::translate( float dx, float dy )
     setWorldMatrix( wxmat );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Scales the coordinate system by \e (sx,sy).
   \sa translate(), shear(), rotate(), resetXForm(), setWorldMatrix(),
   xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::scale( float sx, float sy )
 {
@@ -805,11 +805,11 @@ void QPainter::scale( float sx, float sy )
     setWorldMatrix( wxmat );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Shears the coordinate system \e (sh,sv).
   \sa translate(), scale(), rotate(), resetXForm(), setWorldMatrix(),
   xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::shear( float sh, float sv )
 {
@@ -817,11 +817,11 @@ void QPainter::shear( float sh, float sv )
     setWorldMatrix( wxmat );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Rotates the coordinate system \e a degrees.
   \sa translate(), scale(), shear(), resetXForm(), setWorldMatrix(),
   xForm()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::rotate( float a )
 {
@@ -829,11 +829,11 @@ void QPainter::rotate( float a )
     setWorldMatrix( wxmat );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Resets any transformations that were made using translate(), scale(),
   shear(), rotate(), setWorldMatrix(), setViewport() and setWindow()
   \sa worldMatrix(), viewPort(), window()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::resetXForm()
 {
@@ -847,14 +847,14 @@ void QPainter::resetXForm()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Fills the rectangle \e (x,y,w,h) with the \e brush.
 
   You can specify a QColor as \e brush, since there is a QBrush constructor
   that takes a QColor argument and creates a solid pattern brush.
 
   \sa drawRect()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 {
@@ -868,27 +868,27 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::setBrushOrigin( const QPoint &p )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::setWindow( const QRect &r )
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::setViewport( const QRect &r )
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPainter::hasClipping() const
   Returns TRUE if clipping has been set, otherwise FALSE.
   \sa setClipping()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QRegion &QPainter::clipRegion() const
 
   Returns the clip region currently set.  Note that the clip region is
@@ -896,9 +896,9 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
   \link setWorldMatrix() coordinate transformation\endlink.
 
   \sa setClipRegion(), setClipRect(), setClipping()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QPainter::setClipRect( int x, int y, int w, int h )
 
   Sets the clip region to \e (x,y,w,h) and enables clipping.
@@ -908,95 +908,95 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
   transformation\endlink.
 
   \sa setClipRegion(), clipRegion(), setClipping()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawPoint( const QPoint &p )
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::moveTo( const QPoint &p )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::lineTo( const QPoint &p )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawRect( const QRect &r )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawEllipse( const QRect &r )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawArc( const QRect &r, int a, int alen )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawPie( const QRect &r, int a, int alen )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawChord( const QRect &r, int a, int alen )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
   This version of the call draws the entire pixmap.
- ----------------------------------------------------------------------------*/
+*/
 void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::fillRect( const QRect &r, const QBrush &brush )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QPainter::eraseRect( int x, int y, int w, int h )
   Erases the area inside \e (x,y,w,h).
   Equivalent to <code>fillRect( x, y, w, h, backgroundColor() )</code>.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::eraseRect( const QRect &r )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawText( const QPoint &p, const char *s, int len )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload void QPainter::drawText( const QRect &r, int tf, const char *str, int len, QRect *br, char **i )
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \overload QRect QPainter::boundingRect( const QRect &r, int tf,const char *str, int len, char **i )
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
   QPen member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPen qpen.h
   \brief The QPen class defines how the QPainter should draw lines and outlines
   of shapes.
@@ -1031,13 +1031,13 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   \endcode
 
   The setStyle() function lists the pen styles.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the pen.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPen::init( const QColor &color, uint width, PenStyle style )
 {
@@ -1048,38 +1048,38 @@ void QPen::init( const QColor &color, uint width, PenStyle style )
     data->color = color;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a default black solid line pen with 0 width.
- ----------------------------------------------------------------------------*/
+*/
 
 QPen::QPen()
 {
     init( black, 0, SolidLine );		// default pen
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a	pen black with 0 width and a specified style.
   \sa setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 QPen::QPen( PenStyle style )
 {
     init( black, 0, style );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a pen with a specified color, width and style.
   \sa setWidth(), setStyle(), setColor()
- ----------------------------------------------------------------------------*/
+*/
 
 QPen::QPen( const QColor &color, uint width, PenStyle style )
 {
     init( color, width, style );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a pen which is a copy of \e p.
- ----------------------------------------------------------------------------*/
+*/
 
 QPen::QPen( const QPen &p )
 {
@@ -1087,9 +1087,9 @@ QPen::QPen( const QPen &p )
     data->ref();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the pen.
- ----------------------------------------------------------------------------*/
+*/
 
 QPen::~QPen()
 {
@@ -1098,14 +1098,14 @@ QPen::~QPen()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Detaches from shared pen data to makes sure that this pen is the only
   one referring the data.
 
   If multiple pens share common data, this pen dereferences the data
   and gets a copy of the data. Nothing is done if there is just a
   single reference.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPen::detach()
 {
@@ -1114,9 +1114,9 @@ void QPen::detach()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns \e c to this pen and returns a reference to this pen.
- ----------------------------------------------------------------------------*/
+*/
 
 QPen &QPen::operator=( const QPen &p )
 {
@@ -1128,9 +1128,9 @@ QPen &QPen::operator=( const QPen &p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a deep copy of the pen.
- ----------------------------------------------------------------------------*/
+*/
 
 QPen QPen::copy() const
 {
@@ -1139,13 +1139,13 @@ QPen QPen::copy() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn PenStyle QPen::style() const
   Returns the pen style.
   \sa setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the pen style to \e s.
 
   The pen styles are:
@@ -1159,7 +1159,7 @@ QPen QPen::copy() const
   </dl>
 
   \sa style()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPen::setStyle( PenStyle s )
 {
@@ -1170,16 +1170,16 @@ void QPen::setStyle( PenStyle s )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn uint QPen::width() const
   Returns the pen width.
   \sa setWidth()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the pen width to \e w.
   \sa width()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPen::setWidth( uint w )
 {
@@ -1190,16 +1190,16 @@ void QPen::setWidth( uint w )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QColor &QPen::color() const
   Returns the pen color.
   \sa setColor()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the pen color to \e c.
   \sa color()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPen::setColor( const QColor &c )
 {
@@ -1208,7 +1208,7 @@ void QPen::setColor( const QColor &c )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QPen::operator!=( const QPen &p ) const
   Returns TRUE if the pen is different from \e p, or FALSE if the pens are
   equal.
@@ -1216,16 +1216,16 @@ void QPen::setColor( const QColor &c )
   Two pens are different if they have different styles, widths or colors.
 
   \sa operator==()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the pen is equal to \e p, or FALSE if the pens are
   different.
 
   Two pens are equal if they have equal styles, widths and colors.
 
   \sa operator!=()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPen::operator==( const QPen &p ) const
 {
@@ -1238,7 +1238,7 @@ bool QPen::operator==( const QPen &p ) const
   QPen stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPen
   Writes a pen to the stream and returns a reference to the stream.
 
@@ -1248,17 +1248,17 @@ bool QPen::operator==( const QPen &p ) const
   <li> The pen width (UINT8)
   <li> The pen color (QColor)
   </ol>
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QPen &p )
 {
     return s << (UINT8)p.style() << (UINT8)p.width() << p.color();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QPen
   Reads a pen from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QPen &p )
 {
@@ -1276,7 +1276,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   QBrush member functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QBrush qbrush.h
 
   \brief The QBrush class defines the fill pattern of shapes drawn using the
@@ -1313,13 +1313,13 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
   \endcode
 
   The setStyle() function lists the brush styles.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the brush.
- ----------------------------------------------------------------------------*/
+*/
 
 void QBrush::init( const QColor &color, BrushStyle style )
 {
@@ -1330,44 +1330,44 @@ void QBrush::init( const QColor &color, BrushStyle style )
     data->pixmap = 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a default black brush with the style \c NoBrush (will not fill
   shapes).
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::QBrush()
 {
     init( black, NoBrush );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a black brush with the specified style.
   \sa setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::QBrush( BrushStyle style )
 {
     init( black, style );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a brush with a specified color and style.
   \sa setColor(), setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::QBrush( const QColor &color, BrushStyle style )
 {
     init( color, style );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a brush with a specified color and a custom pattern.
 
   The color will only have an effect for monochrome pixmaps, i.e.
   QPixmap::depth() == 1.
 
   \sa setColor(), setPixmap()
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
 {
@@ -1375,9 +1375,9 @@ QBrush::QBrush( const QColor &color, const QPixmap &pixmap )
     data->pixmap = new QPixmap( pixmap );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a brush which is a shallow copy of \e b.
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::QBrush( const QBrush &b )
 {
@@ -1385,9 +1385,9 @@ QBrush::QBrush( const QBrush &b )
     data->ref();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the brush.
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush::~QBrush()
 {
@@ -1398,14 +1398,14 @@ QBrush::~QBrush()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Detaches from shared brush data to makes sure that this brush is the only
   one referring the data.
 
   If multiple brushes share common data, this pen dereferences the data
   and gets a copy of the data. Nothing is done if there is just a single
   reference.
- ----------------------------------------------------------------------------*/
+*/
 
 void QBrush::detach()
 {
@@ -1414,9 +1414,9 @@ void QBrush::detach()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns \e b to this brush and returns a reference to this brush.
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush &QBrush::operator=( const QBrush &b )
 {
@@ -1430,9 +1430,9 @@ QBrush &QBrush::operator=( const QBrush &b )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a deep copy of the brush.
- ----------------------------------------------------------------------------*/
+*/
 
 QBrush QBrush::copy() const
 {
@@ -1447,13 +1447,13 @@ QBrush QBrush::copy() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn BrushStyle QBrush::style() const
   Returns the brush style.
   \sa setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the brush style to \e s.
 
   The brush styles are:
@@ -1477,7 +1477,7 @@ QBrush QBrush::copy() const
   </dl>
 
   \sa style()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBrush::setStyle( BrushStyle s )		// set brush style
 {
@@ -1492,16 +1492,16 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn const QColor &QBrush::color() const
   Returns the brush color.
   \sa setColor()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the brush color to \e c.
   \sa color(), setStyle()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBrush::setColor( const QColor &c )
 {
@@ -1510,23 +1510,23 @@ void QBrush::setColor( const QColor &c )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QPixmap *QBrush::pixmap() const
   Returns a pointer to the custom brush pattern.
 
   A null pointer is returned if no custom brush pattern has been set.
 
   \sa setPixmap()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the brush pixmap.  The style is set to \c CustomPattern.
 
   The curren brush color will only have an effect for monochrome pixmaps,
   i.e.	QPixmap::depth() == 1.
 
   \sa pixmap(), color()
- ----------------------------------------------------------------------------*/
+*/
 
 void QBrush::setPixmap( const QPixmap &pixmap )
 {
@@ -1538,7 +1538,7 @@ void QBrush::setPixmap( const QPixmap &pixmap )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QBrush::operator!=( const QBrush &b ) const
   Returns TRUE if the brush is different from \e b, or FALSE if the brushes are
   equal.
@@ -1546,16 +1546,16 @@ void QBrush::setPixmap( const QPixmap &pixmap )
   Two brushes are different if they have different styles, colors or pixmaps.
 
   \sa operator==()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the brush is equal to \e b, or FALSE if the brushes are
   different.
 
   Two brushes are equal if they have equal styles, colors and pixmaps.
 
   \sa operator!=()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QBrush::operator==( const QBrush &b ) const
 {
@@ -1569,7 +1569,7 @@ bool QBrush::operator==( const QBrush &b ) const
   QBrush stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBrush
   Writes a brush to the stream and returns a reference to the stream.
 
@@ -1579,7 +1579,7 @@ bool QBrush::operator==( const QBrush &b ) const
   <li> The brush color (QColor)
   <li> If style == \c CustomPattern: the brush pixmap (QPixmap)
   </ol>
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
@@ -1589,10 +1589,10 @@ QDataStream &operator<<( QDataStream &s, const QBrush &b )
     return s;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QBrush
   Reads a brush from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QBrush &b )
 {

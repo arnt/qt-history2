@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#12 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#13 $
 **
 ** Definition of QPoint class
 **
@@ -71,17 +71,17 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QPoint stream functions
-//
+/*****************************************************************************
+  QPoint stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QPoint & );
 QDataStream &operator>>( QDataStream &, QPoint & );
 
 
-// --------------------------------------------------------------------------
-// QPoint inline functions
-//
+/*****************************************************************************
+  QPoint inline functions
+ *****************************************************************************/
 
 inline QPoint::QPoint( int xpos, int ypos )
 { xp=(QCOORD)xpos; yp=(QCOORD)ypos; }

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#50 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,10 +21,10 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#50 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QLineEdit qlined.h
 
   \brief The QLineEdit widget is a simple line editor for inputting text.
@@ -33,14 +33,14 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#49 $");
 
   The default key bindings are described in keyPressEvent(); they cannot
   be customized except by inheriting the class.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QLineEdit::textChanged( const char * )
   This signal is emitted every time the text has changed.
   The argument is the new text.
- ----------------------------------------------------------------------------*/
+*/
 
 
 static const int blinkTime  = 500;		// text cursor blink time
@@ -83,14 +83,14 @@ static int showLastPartOffset( char *s, const QFontMetrics &fm, int width )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a line editor with an empty edit buffer.
 
   The cursor position is set to the start of the line, the maximum buffer
   size to 32767 characters, and the buffer contents to "".
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
- ----------------------------------------------------------------------------*/
+*/
 
 QLineEdit::QLineEdit( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -109,22 +109,22 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setAcceptFocus( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the line editor.
- ----------------------------------------------------------------------------*/
+*/
 
 QLineEdit::~QLineEdit()
 {
     delete pm;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the line editor text to \e text.
 
   If necessary the text is truncated to fit maxLength().
 
   \sa text()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::setText( const char *text )
 {
@@ -140,11 +140,11 @@ void QLineEdit::setText( const char *text )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Selects all text (i.e. marks it) and does an "end" operation. Useful
   when a default value has been inserted. If the user types before
   clicking on the widget the selected text will be erased.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::selectAll()
 {
@@ -154,7 +154,7 @@ void QLineEdit::selectAll()
     end( TRUE );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a pointer to the text currently in the line.
 
   If you need to store the text, you should make a copy of it. This can
@@ -164,28 +164,28 @@ void QLineEdit::selectAll()
   \endcode
 
   \sa setText()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QLineEdit::text() const
 {
     return tbuf.data();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if part of the text has been marked by the user (e.g. by
   clicking and dragging).
- ----------------------------------------------------------------------------*/
+*/
 
 bool QLineEdit::hasMarkedText() const
 {
     return markAnchor != markDrag;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the text marked by the user (e.g. by clicking and
   dragging), or 0 if no text is marked.  
   \sa hasMarkedText()
- ----------------------------------------------------------------------------*/
+*/
 
 QString QLineEdit::markedText() const
 {
@@ -196,12 +196,12 @@ QString QLineEdit::markedText() const
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Set the maximum length of the text in the editor.  If the text is
   currently too long, it is chopped off at the limit. Any marked text will
   be unmarked.  The cursor position is set to 0 and the first part of the
   string is shown. \sa maxLength().
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::setMaxLength( int m )
 {
@@ -215,17 +215,17 @@ void QLineEdit::setMaxLength( int m )
     paint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the current maximum length of the text in the editor.
   \sa setMaxLength()
- ----------------------------------------------------------------------------*/
+*/
 
 int QLineEdit::maxLength() const
 {
     return maxLen;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   The key press event handler converts a key press to some line editor
   action.
 
@@ -255,8 +255,7 @@ int QLineEdit::maxLength() const
   <strong><a href=mailto:qt-bugs@troll.no>Comments solicited</a></strong>
 
   All other keys with valid ASCII codes insert themselves into the line.
-
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::keyPressEvent( QKeyEvent *e )
 {
@@ -377,10 +376,10 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Starts cursor blinking.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::focusInEvent( QFocusEvent * )
 {
@@ -391,10 +390,10 @@ void QLineEdit::focusInEvent( QFocusEvent * )
     paint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Stops text cursor blinking.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::focusOutEvent( QFocusEvent * )
 {
@@ -413,11 +412,11 @@ void QLineEdit::paintEvent( QPaintEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal 
   This event is used to implement the blinking text cursor
-  and scrolling when marking text.  
- ----------------------------------------------------------------------------*/
+  and scrolling when marking text.
+*/
 
 void QLineEdit::timerEvent( QTimerEvent * )
 {
@@ -435,9 +434,9 @@ void QLineEdit::timerEvent( QTimerEvent * )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize events for this widget.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
@@ -461,9 +460,9 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
     paint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for this widget.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
@@ -521,9 +520,9 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for this widget.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
@@ -535,9 +534,9 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse double click events for this widget.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
 {
@@ -550,12 +549,12 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     paint();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Repaints the line editor as needed. If the line editor is in
   focus, the line is painted using a pixmap buffer. If not, a faster
   but flickering drawing method is used.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::paint( bool frame )
 {
@@ -574,10 +573,10 @@ void QLineEdit::paint( bool frame )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Paints the line editor in a pixmap and then blts the pixmap onto the screen.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::pixmapPaint()
 {
@@ -591,10 +590,10 @@ void QLineEdit::pixmapPaint()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Paints the line editor.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 {
@@ -671,10 +670,10 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Moves the cursor leftwards one or more characters.
   \sa cursorRight()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::cursorLeft( bool mark, int steps )
 {
@@ -701,10 +700,10 @@ void QLineEdit::cursorLeft( bool mark, int steps )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Moves the cursor rightwards one or more characters.
   \sa cursorLeft()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::cursorRight( bool mark, int steps )
 {
@@ -739,12 +738,12 @@ void QLineEdit::cursorRight( bool mark, int steps )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Deletes the character on the left side of the text cursor and moves the
   cursor one position to the left. If a text has been marked by the user
   (e.g. by clicking and dragging) the cursor will be put at the beginning
   of the marked text and the marked text will be removed.  \sa del()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::backspace()
 {
@@ -758,12 +757,12 @@ void QLineEdit::backspace()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Deletes the character on the right side of the text cursor. If a text
   has been marked by the user (e.g. by clicking and dragging) the cursor
   will be put at the beginning of the marked text and the marked text will
   be removed.  \sa backspace()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::del()
 {
@@ -785,11 +784,11 @@ void QLineEdit::del()
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Moves the text cursor to the left end of the line. If mark is TRUE text
   will be marked towards the first position, if not any marked text will
   be unmarked if the cursor is moved.  \sa end()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::home( bool mark )
 {
@@ -809,12 +808,12 @@ void QLineEdit::home( bool mark )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Moves the text cursor to the right end of the line. If mark is TRUE text
   will be marked towards the last position, if not any marked text will
   be unmarked if the cursor is moved.
   \sa home()
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::end( bool mark )
 {
@@ -837,9 +836,9 @@ void QLineEdit::end( bool mark )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets a new marked text limit, does not repaint the widget.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::newMark( int pos, bool copy )
 {
@@ -882,9 +881,9 @@ void QLineEdit::markWord( int pos )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Copies the marked text to the clipboard.
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::copyText()
 {
@@ -902,10 +901,10 @@ void QLineEdit::copyText()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This private slot is activated when this line edit owns the clipboard and
   some other widget/application takes over the clipboard. (X11 only)
- ----------------------------------------------------------------------------*/
+*/
 
 void QLineEdit::clipboardChanged()
 {

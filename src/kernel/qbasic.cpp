@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#15 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#15 $");
 
 
 
@@ -33,7 +33,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#14 $");
   Each dimension (horizontal and vertical) is handled independently. Widgets
   are organized in chains, which can be parallel or serial.
 
-  \sa QBoxLayout */
+  \sa QBoxLayout
+*/
 
 
 static inline bool horz( QBasicManager::Direction dir )
@@ -84,8 +85,7 @@ static void setWinfo( QWidget * w, wDict &dict, QBasicManager::Direction d, int 
   or QBasicManager::newSerChain() to make chains.
 
   \sa QBasicManager.
-
- */
+*/
 class QChain
 {
 public:
@@ -404,7 +404,7 @@ bool QParChain::addC( QChain *s )
 
 /*!
   Creates a new QBasicManager which manages \e parent's children.
-  */
+*/
 QBasicManager::QBasicManager( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
@@ -421,7 +421,7 @@ QBasicManager::QBasicManager( QWidget *parent, const char *name )
 
 /*!
   Destroys the QBasicManager, deleting all add()ed chains.
-  */
+*/
 QBasicManager::~QBasicManager()
 {
     delete xC;
@@ -435,7 +435,7 @@ QBasicManager::~QBasicManager()
   Returns the main horizontal chain of the manager. All horizontal chains
   should be inserted into this chain or one of its descendants, otherwise
   they will be ignored.
-  */
+*/
 
 /*!
   \fn QChain *QBasicManager::yChain()
@@ -443,7 +443,7 @@ QBasicManager::~QBasicManager()
   Returns the main vertical chain of the manager. All vertical chains
   should be inserted into this chain or one of its descendants, otherwise
   they will be ignored.
-  */
+*/
 
 
 /*!
@@ -452,13 +452,12 @@ QBasicManager::~QBasicManager()
   Sets the border around the edge of the widget. \e b is the number of
   pixels between the edge of the widget and the area controlled by the
   manager.
-
-  */
+*/
 
 
 /*!
   Creates a new QChain which is \e parallel.
-  */
+*/
 
 QChain * QBasicManager::newParChain( Direction d )
 {
@@ -470,7 +469,7 @@ QChain * QBasicManager::newParChain( Direction d )
 
 /*!
   Creates a new QChain which is \e serial.
-  */
+*/
 
 QChain * QBasicManager::newSerChain( Direction d )
 {
@@ -481,7 +480,7 @@ QChain * QBasicManager::newSerChain( Direction d )
 
 /*!
   Adds the chain \e source to the chain \e destination.
-  */
+*/
 
 bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
 {
@@ -491,7 +490,7 @@ bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
 
 /*!
   Adds the widget  \e w to the chain \e d.
-  */
+*/
 
 bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
 {
@@ -506,7 +505,7 @@ bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
   Adds the spacing  \e w to the chain \e d. If \e d is a serial chain, this
   means screen space between widgets. If \e d is parallel, this influences
   the maximum and minimum size.
-  */
+*/
 
 bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
 {
@@ -515,7 +514,7 @@ bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize
 
 /*!
   Grabs all resize events for my parent, and does child widget resizing.
- */
+*/
 
 bool QBasicManager::eventFilter( QObject *o, QEvent *e )
 {
@@ -540,7 +539,7 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
 
 /*!
   Starts geometry management.
-  */
+*/
 
 bool QBasicManager::doIt()
 {
@@ -573,7 +572,7 @@ bool QBasicManager::doIt()
   space to the child widgets. The size is adjusted to a valid
   value. Thus freeze(0,0) (the default) will fix the widget to its
   minimum size.
-  */
+*/
 void QBasicManager::freeze( int w, int h )
 {
     frozen = FALSE; // so doIt can do it.

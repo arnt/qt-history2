@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#27 $
 **
 ** Implementation of QDialog class
 **
@@ -16,10 +16,10 @@
 #include "qkeycode.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#27 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QDialog qdialog.h
   \brief The QDialog class is the base class of dialog windows.
 
@@ -72,10 +72,10 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#26 $");
 
   Modeless dialogs behave just like ordinary widgets. The only difference
   is that they have the default button mechanism.
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a dialog named \e name, which has a parent widget \e parent.
 
   The dialog will by default be modeless, unless you set \e modal to
@@ -84,7 +84,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qdialog.cpp#26 $");
   \warning Creating a modeless dialog with a parent makes it an ordinary
   child widget, which is probably not what you want. Expect strange
   behavior (QDialog has a default button mechanism).
- ----------------------------------------------------------------------------*/
+*/
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWindow( parent, name, modal ? (f | WType_Modal) : f )
@@ -93,20 +93,20 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     did_move = did_resize = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the QDialog and all its children.
- ----------------------------------------------------------------------------*/
+*/
 
 QDialog::~QDialog()
 {
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This function is called by the push button \e pushButton when it becomes
   the default button.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::setDefault( QPushButton *pushButton )
 {
@@ -122,7 +122,7 @@ void QDialog::setDefault( QPushButton *pushButton )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Starts the dialog and returns the result code.
 
   Equivalent to calling show(), then result().
@@ -130,7 +130,7 @@ void QDialog::setDefault( QPushButton *pushButton )
   This function is very useful for modal dialogs. It enters a new local
   event loop. The event loop is terminated when the dialog is hidden,
   usually by calling done().
- ----------------------------------------------------------------------------*/
+*/
 
 int QDialog::exec()
 {
@@ -140,7 +140,7 @@ int QDialog::exec()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Closes the dialog and sets the result code to \e r.
 
   Equivalent to calling hide(), then setResult(\e r ).
@@ -149,7 +149,7 @@ int QDialog::exec()
   event loop and returns from the exec() or show() function.
 
   \sa accept(), reject()
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::done( int r )
 {
@@ -157,22 +157,22 @@ void QDialog::done( int r )
     setResult( r );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Closes the dialog and sets the result code to \c Accepted.
 
   Equivalent to done(Accepted);
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::accept()
 {
     done( Accepted );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Closes the dialog and sets the result code to \c Rejected.
 
   Equivalent to done(Rejected);
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::reject()
 {
@@ -184,13 +184,13 @@ void QDialog::reject()
   Event handlers
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Handles key press events for the dialog.
 
   Calls reject() if Escape is pressed.
   Simulates a button click for the default button if Enter is pressed.
   All other keys are ignored.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::keyPressEvent( QKeyEvent *e )
 {
@@ -226,10 +226,10 @@ void QDialog::keyPressEvent( QKeyEvent *e )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Calls reject() if it is a modal dialog, or accepts the close event
   if it is a modeless dialog.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::closeEvent( QCloseEvent *e )
 {
@@ -242,7 +242,7 @@ void QDialog::closeEvent( QCloseEvent *e )
   Geometry management.
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Shows the dialog box on the screen, as QWidget::show() and enters a
   local event loop if this dialog is modal (see constructor).
 
@@ -256,7 +256,7 @@ void QDialog::closeEvent( QCloseEvent *e )
   calling done().
 
   \sa exec()
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::show()
 {
@@ -280,9 +280,9 @@ void QDialog::show()
   Detects any widget geometry changes done by the user.
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::move( int x, int y )
 {
@@ -290,9 +290,9 @@ void QDialog::move( int x, int y )
     QWidget::move( x, y );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::move() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::move( const QPoint &p )
 {
@@ -300,9 +300,9 @@ void QDialog::move( const QPoint &p )
     QWidget::move( p );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::resize( int w, int h )
 {
@@ -310,9 +310,9 @@ void QDialog::resize( int w, int h )
     QWidget::resize( w, h );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::resize() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::resize( const QSize &s )
 {
@@ -320,9 +320,9 @@ void QDialog::resize( const QSize &s )
     QWidget::resize( s );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::setGeometry( int x, int y, int w, int h )
 {
@@ -331,9 +331,9 @@ void QDialog::setGeometry( int x, int y, int w, int h )
     QWidget::setGeometry( x, y, w, h );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::setGeometry() for internal purposes.
- ----------------------------------------------------------------------------*/
+*/
 
 void QDialog::setGeometry( const QRect &r )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpmcache.cpp#9 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -13,10 +13,10 @@
 #include "qpmcache.h"
 #include "qcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#9 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QPixmapCache qpmcache.h
 
   \brief The QPixmapCache class provides an application-global cache for
@@ -50,7 +50,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qpmcache.cpp#8 $");
   MByte).  A pixmap takes roughly width*height*depth/8 bytes of memory.
 
   See the QCache documentation for a more details about the cache mechanism.
- ----------------------------------------------------------------------------*/
+*/
 
 typedef declare(QCacheM,QPixmap) QPMCache;
 static QPMCache *pm_cache = 0;			// global pixmap cache
@@ -58,17 +58,17 @@ const  int cache_size	  = 61;			// size of internal hash array
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the pixmap associated with \e key in the cache, or null if there
   is no such pixmap.
- ----------------------------------------------------------------------------*/
+*/
 
 QPixmap *QPixmapCache::find( const char *key )
 {
     return pm_cache ? pm_cache->find(key) : 0;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts the pixmap \e pm associated with \e key into the cache.
   Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
 
@@ -82,7 +82,7 @@ QPixmap *QPixmapCache::find( const char *key )
   when more space is needed.
 
   \sa setCacheLimit().
- ----------------------------------------------------------------------------*/
+*/
 
 bool QPixmapCache::insert( const char *key, QPixmap *pm )
 {
@@ -94,26 +94,26 @@ bool QPixmapCache::insert( const char *key, QPixmap *pm )
     return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the cache limit (in kilobytes).
 
   The default setting is 1024 kilobytes.
 
   \sa setCacheLimit().
- ----------------------------------------------------------------------------*/
+*/
 
 int QPixmapCache::cacheLimit()
 {
     return cache_limit;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the cache limit to \e n kilobytes.
 
   The default setting is 1024 kilobytes.
 
   \sa cacheLimit()
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmapCache::setCacheLimit( int n )
 {
@@ -123,9 +123,9 @@ void QPixmapCache::setCacheLimit( int n )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Removes all pixmaps from the cache.
- ----------------------------------------------------------------------------*/
+*/
 
 void QPixmapCache::clear()
 {

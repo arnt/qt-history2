@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#17 $
 **
 ** Implementation of QGVector class
 **
@@ -29,7 +29,7 @@
 #include "qdstream.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#17 $");
 
 
 #define USE_MALLOC				// comment to use new/delete
@@ -47,9 +47,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgvector.cpp#16 $");
 #endif
 
 
-// --------------------------------------------------------------------------
-// Default implementation of virtual functions
-//
+/*****************************************************************************
+  Default implementation of virtual functions
+ *****************************************************************************/
 
 int QGVector::compareItems( GCI d1, GCI d2 )
 {
@@ -68,9 +68,9 @@ QDataStream &QGVector::write( QDataStream &s, GCI ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QGVector member functions
-//
+/*****************************************************************************
+  QGVector member functions
+ *****************************************************************************/
 
 QGVector::QGVector()				// create empty vector
 {
@@ -401,9 +401,9 @@ void QGVector::toList( QGList *list ) const	// store items in list
     }
 }
 
-// --------------------------------------------------------------------------
-// QGVector stream functions
-//
+/*****************************************************************************
+  QGVector stream functions
+ *****************************************************************************/
 
 QDataStream &operator>>( QDataStream &s, QGVector &vec )
 {						// read vector

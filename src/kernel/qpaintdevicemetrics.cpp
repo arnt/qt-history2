@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#10 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -12,7 +12,7 @@
 
 #include "qpdevmet.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#10 $");
 
 
 /*!
@@ -38,15 +38,19 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 }
 
 
-/*! \fn int QPaintDeviceMetrics::width() const
+/*!
+  \fn int QPaintDeviceMetrics::width() const
 
   Returns the width of the paint device, in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget). */
+  units (e.g. pixels for QPixmap and QWidget).
+*/
 
-/*! \fn int QPaintDeviceMetrics::height() const
+/*!
+  \fn int QPaintDeviceMetrics::height() const
 
   Returns the height of the paint device, in default coordinate system
-  units (e.g. pixels for QPixmap and QWidget). */
+  units (e.g. pixels for QPixmap and QWidget).
+*/
 
 /*!
   \fn int QPaintDeviceMetrics::widthMM() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#19 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#20 $
 **
 ** Definition of QPointArray class
 **
@@ -17,9 +17,9 @@
 #include "qpoint.h"
 
 
-// --------------------------------------------------------------------------
-// QPointData struct; platform dependent element i QPointArray
-//
+/*****************************************************************************
+  QPointData struct; platform dependent element i QPointArray
+ *****************************************************************************/
 
 #if defined(_WS_WIN32_) || defined(_WS_PM_)
 typedef long Qpnta_t;
@@ -41,9 +41,9 @@ struct QPointData {				// platform dependent point
 };
 
 
-// --------------------------------------------------------------------------
-// QPointVal class; a context class for QPointArray::operator[]
-//
+/*****************************************************************************
+  QPointVal class; a context class for QPointArray::operator[]
+ *****************************************************************************/
 
 class QPointArray;
 
@@ -60,9 +60,9 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QPointArray class
-//
+/*****************************************************************************
+  QPointArray class
+ *****************************************************************************/
 
 declare(QArrayM,QPointData);
 
@@ -113,17 +113,17 @@ public:
 };
 
 
-// --------------------------------------------------------------------------
-// QPointArray stream functions
-//
+/*****************************************************************************
+  QPointArray stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QPointArray & );
 QDataStream &operator>>( QDataStream &, QPointArray & );
 
 
-// --------------------------------------------------------------------------
-// Misc. QPointArray functions
-//
+/*****************************************************************************
+  Misc. QPointArray functions
+ *****************************************************************************/
 
 inline void QPointArray::setPoint( uint i, const QPoint &p )
 {

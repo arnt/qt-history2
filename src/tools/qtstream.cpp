@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtstream.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qtstream.cpp#31 $
 **
 ** Implementation of QTextStream class
 **
@@ -17,10 +17,10 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#31 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QTextStream qtstream.h
   \ingroup tools
   \ingroup files
@@ -37,9 +37,9 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#30 $");
   This class is not fully documented yet.
 
   \sa QDataStream
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \class QTSManip qtstream.h
 
   \brief The QTSManip class is an internal helper class for the
@@ -65,7 +65,7 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qtstream.cpp#30 $");
   QTextStream and an integer argument.
   When serializing a QTSManip into a QTextStream, the function
   is executed with the argument.
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
@@ -110,9 +110,9 @@ int eat_ws( QIODevice *d )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a data stream that has no IO device.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream::QTextStream()
 {
@@ -121,9 +121,9 @@ QTextStream::QTextStream()
     reset();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a text stream that uses the IO device \e d.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream::QTextStream( QIODevice *d )
 {
@@ -132,7 +132,7 @@ QTextStream::QTextStream( QIODevice *d )
     reset();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a text stream that operates on a byte array throught an
   internal QBuffer device.
 
@@ -156,7 +156,7 @@ QTextStream::QTextStream( QIODevice *d )
     ts << "pi = " << 3.14;			// str == "pi = 3.14"
     buf.close();
   \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream::QTextStream( QByteArray a, int mode )
 {
@@ -167,7 +167,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
     reset();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a text stream that operates on an existing file handle \e fh
   throught an internal QFile device.
 
@@ -177,7 +177,7 @@ QTextStream::QTextStream( QByteArray a, int mode )
     QTextStream cin ( stdin,  IO_ReadOnly );
     QTextStream cerr( stderr, IO_WriteOnly );
  \endcode
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream::QTextStream( FILE *fh, int mode )
 {
@@ -187,11 +187,11 @@ QTextStream::QTextStream( FILE *fh, int mode )
     reset();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the text stream.
 
   The destructor will not affect the current IO device.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream::~QTextStream()
 {
@@ -200,7 +200,7 @@ QTextStream::~QTextStream()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resets the text stream.
 
   <ul>
@@ -211,7 +211,7 @@ QTextStream::~QTextStream()
   </ul>
 
   \sa setf(), width(), fill(), precision()
- ----------------------------------------------------------------------------*/
+*/
 
 void QTextStream::reset()
 {
@@ -222,16 +222,16 @@ void QTextStream::reset()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn QIODevice *QTextStream::device() const
   Returns the IO device currently set.
   \sa setDevice(), unsetDevice()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the IO device to \e d.
   \sa device(), unsetDevice()
- ----------------------------------------------------------------------------*/
+*/
 
 void QTextStream::setDevice( QIODevice *d )
 {
@@ -242,17 +242,17 @@ void QTextStream::setDevice( QIODevice *d )
     dev = d;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Unsets the IO device.	 Equivalent to setDevice( 0 ).
   \sa device(), setDevice()
- ----------------------------------------------------------------------------*/
+*/
 
 void QTextStream::unsetDevice()
 {
     setDevice( 0 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QTextStream::eof() const
   Returns TRUE if the IO device has reached the end position (end of
   stream or file) or if there is no IO device set.
@@ -261,7 +261,7 @@ void QTextStream::unsetDevice()
   device is somewhere before the end position.
 
   \sa QIODevice::atEnd()
- ----------------------------------------------------------------------------*/
+*/
 
 
 /*****************************************************************************
@@ -269,9 +269,9 @@ void QTextStream::unsetDevice()
  *****************************************************************************/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a \c char from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( char &c )
 {
@@ -493,10 +493,10 @@ static double input_double( QTextStream *s )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a signed \c short integer from the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( signed short &i )
 {
@@ -506,10 +506,10 @@ QTextStream &QTextStream::operator>>( signed short &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads an unsigned \c short integer from the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( unsigned short &i )
 {
@@ -519,10 +519,10 @@ QTextStream &QTextStream::operator>>( unsigned short &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a signed \c int from the stream and returns a reference to the
   stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( signed int &i )
 {
@@ -532,10 +532,10 @@ QTextStream &QTextStream::operator>>( signed int &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads an unsigned \c int from the stream and returns a reference to the
   stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( unsigned int &i )
 {
@@ -545,10 +545,10 @@ QTextStream &QTextStream::operator>>( unsigned int &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a signed \c long int from the stream and returns a reference to the
   stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( signed long &i )
 {
@@ -558,10 +558,10 @@ QTextStream &QTextStream::operator>>( signed long &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads an unsigned \c long int from the stream and returns a reference to the
   stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( unsigned long &i )
 {
@@ -571,9 +571,9 @@ QTextStream &QTextStream::operator>>( unsigned long &i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a \c float from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( float &f )
 {
@@ -583,9 +583,9 @@ QTextStream &QTextStream::operator>>( float &f )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a \c double from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( double &f )
 {
@@ -595,9 +595,9 @@ QTextStream &QTextStream::operator>>( double &f )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a string from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( char *s )
 {
@@ -619,9 +619,9 @@ QTextStream &QTextStream::operator>>( char *s )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reads a string from the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator>>( QString &s )
 {
@@ -649,9 +649,9 @@ QTextStream &QTextStream::operator>>( QString &s )
   QTextStream write functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a \c char to the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( char c )
 {
@@ -763,10 +763,10 @@ QTextStream &QTextStream::output_int( int format, ulong n, bool neg )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a \c short integer to the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( signed short i )
 {
@@ -774,10 +774,10 @@ QTextStream &QTextStream::operator<<( signed short i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes an \c unsigned \c short integer to the stream and returns a reference
   to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( unsigned short i )
 {
@@ -785,10 +785,10 @@ QTextStream &QTextStream::operator<<( unsigned short i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes an \c int to the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( signed int i )
 {
@@ -796,10 +796,10 @@ QTextStream &QTextStream::operator<<( signed int i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes an \c unsigned \c int to the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( unsigned int i )
 {
@@ -807,10 +807,10 @@ QTextStream &QTextStream::operator<<( unsigned int i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a \c long \c int to the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( signed long i )
 {
@@ -818,10 +818,10 @@ QTextStream &QTextStream::operator<<( signed long i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes an \c unsigned \c long \c int to the stream and returns a reference to
   the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( unsigned long i )
 {
@@ -829,9 +829,9 @@ QTextStream &QTextStream::operator<<( unsigned long i )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a \c float to the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( float f )
 {
@@ -839,9 +839,9 @@ QTextStream &QTextStream::operator<<( float f )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a \c double to the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( double f )
 {
@@ -880,9 +880,9 @@ QTextStream &QTextStream::operator<<( double f )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a string to the stream and returns a reference to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( const char *s )
 {						// write 0-term char array
@@ -918,11 +918,11 @@ QTextStream &QTextStream::operator<<( const char *s )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Writes a pointer to the stream and returns a reference to the stream.
 
   The \e ptr is output as an unsigned long hexadecimal integer.
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::operator<<( void *ptr )
 {
@@ -936,14 +936,14 @@ QTextStream &QTextStream::operator<<( void *ptr )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reads \e len bytes from the stream into \e e s and returns a reference to
   the stream.
 
   The buffer \e s must be preallocated.
 
   \sa QIODevice::readBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::readRawBytes( char *s, uint len )
 {
@@ -951,12 +951,12 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
     return *this;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Writes the \e len bytes from \e s to the stream and returns a reference to
   the stream.
 
   \sa QIODevice::writeBlock()
- ----------------------------------------------------------------------------*/
+*/
 
 QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
 {
@@ -965,21 +965,21 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::flags() const
   Returns the current stream flags. The default value is 0.
   \sa setf(), unsetf()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::flags( int f )
   Sets the stream flags to \e f.
   Returns the previous stream flags.
 
   \sa setf(), unsetf()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::setf( int bits )
   Sets the stream flag bits \e bits.
   Returns the previous stream flags.
@@ -987,9 +987,9 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
   Equivalent to <code>flags( flags() | bits )</code>.
 
   \sa setf(), unsetf()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::setf( int bits, int mask )
   Sets the stream flag bits \e bits with a bit mask \e mask.
   Returns the previous stream flags.
@@ -997,9 +997,9 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
   Equivalent to <code>flags( (flags() & ~mask) | (bits & mask) )</code>.
 
   \sa setf(), unsetf()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::unsetf( int bits )
   Clears the stream flag bits \e bits.
   Returns the previous stream flags.
@@ -1007,37 +1007,37 @@ QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
   Equivalent to <code>flags( flags() & ~mask )</code>.
 
   \sa setf()
- ----------------------------------------------------------------------------*/
+*/
 
- /*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::width() const
   Returns the field width. The default value is 0.
- ----------------------------------------------------------------------------*/
+*/
 
- /*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::width( int w )
   Sets the field width to \e w. Returns the previous field width.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::fill() const
   Returns the fill character. The default value is ' ' (space).
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::fill( int f )
   Sets the fill character to \e f. Returns the previous fill character.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::precision() const
   Returns the precision. The default value is 6.
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn int QTextStream::precision( int p )
   Sets the precision to \e p. Returns the previous precision setting.
- ----------------------------------------------------------------------------*/
+*/
 
 
  /*****************************************************************************

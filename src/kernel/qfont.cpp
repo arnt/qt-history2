@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#50 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,10 +20,10 @@
 #include "qstrlist.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#50 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFont qfont.h
 
   \brief The QFont class specifies a font used for drawing text.
@@ -85,13 +85,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#49 $");
   QFont objects make use of implicit sharing.
 
   \sa QApplication::setFont(), QWidget::setFont(), QPainter::setFont()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Initializes the internal QFontData structure.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::init()
 {
@@ -112,10 +112,10 @@ void QFont::init()
     d->exactMatch	 = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font that gets a deep copy of \e data.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::QFont( QFontData *data )			// copies a font
 {
@@ -125,10 +125,10 @@ QFont::QFont( QFontData *data )			// copies a font
     d->count = 1;				// now a single reference
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Detaches the font object from common font data.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::detach()
 {
@@ -136,9 +136,9 @@ void QFont::detach()
 	*this = QFont( d );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a font object that refers to the default font.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::QFont()
 {
@@ -148,11 +148,11 @@ QFont::QFont()
     d->ref();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a font object with the specified \e family, \e pointSize,
   \e weight and \e italic settings.
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::QFont( const char *family, int pointSize, int weight, bool italic )
 {
@@ -163,9 +163,9 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.italic    = italic;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a font that is a copy of \e font.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::QFont( const QFont &font )
 {
@@ -173,9 +173,9 @@ QFont::QFont( const QFont &font )
     d->ref();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the font object.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::~QFont()
 {
@@ -184,9 +184,9 @@ QFont::~QFont()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Assigns \e font to this font and returns a reference to this font.
- ----------------------------------------------------------------------------*/
+*/
 
 QFont &QFont::operator=( const QFont &font )
 {
@@ -198,7 +198,7 @@ QFont &QFont::operator=( const QFont &font )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the family name set by setFamily().
 
   Use QFontInfo to find the family name of the window system font actually
@@ -212,14 +212,14 @@ QFont &QFont::operator=( const QFont &font )
     debug( "Font family actually used is: \"%s\"", info.family() );
   \endcode
   \sa setFamily(), substitute()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QFont::family() const
 {
     return d->req.family;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the family name of the font (e.g. "Helvetica" or "times").
 
   The family name is case insensitive.
@@ -228,7 +228,7 @@ const char *QFont::family() const
 
   \sa family(), setStyleHint(), QFontInfo,
   \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setFamily( const char *family )
 {
@@ -240,10 +240,10 @@ void QFont::setFamily( const char *family )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point size in 1/10ths of a point.
   \sa pointSize()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFont::deciPointSize() const
 {
@@ -251,7 +251,7 @@ int QFont::deciPointSize() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point size set by setPointSize().
 
   Use QFontInfo to find the point size of the window system font actually used.
@@ -266,21 +266,21 @@ int QFont::deciPointSize() const
   \endcode
 
   \sa setPointSize()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFont::pointSize() const
 {
     return d->req.pointSize / 10;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the point size (e.g. 12 or 18). If the point size is not available
   the closest available will be used.
 
   Setting of point sizes less than or equal to 0 will be ignored.
 
   \sa pointSize(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setPointSize( int pointSize )
 {
@@ -300,26 +300,26 @@ void QFont::setPointSize( int pointSize )
 
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the value set by setItalic().
 
   Use QFontInfo to find the italic value of the window system font actually
   used.
   \sa setItalic()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::italic() const
 {
     return d->req.italic;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets italic on or off.
 
   If the mode selected is not available the other will be used.
 
   \sa italic(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setItalic( bool enable )
 {
@@ -331,19 +331,19 @@ void QFont::setItalic( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the weight set by setWeight().
 
   Use QFontInfo to find the weight of the window system font actually used.
   \sa setWeight(), QFontInfo
- ----------------------------------------------------------------------------*/
+*/
 
 int QFont::weight() const
 {
     return d->req.weight;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the weight (or boldness).
 
   The enum \c Weight contains the predefined font weights.
@@ -365,7 +365,7 @@ int QFont::weight() const
   setWeight() ignores you.
 
   \sa weight(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setWeight( int weight )
 {
@@ -382,16 +382,16 @@ void QFont::setWeight( int weight )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QFont::bold() const
 
   Returns TRUE if weight() is a value greater than \c QFont::Normal,
   otherwise FALSE.
 
   \sa weight(), setBold(), QFontInfo::bold()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \fn void QFont::setBold( bool enable )
 
   Sets the weight to \c QFont::Bold if \e enable is TRUE, or to
@@ -400,30 +400,30 @@ void QFont::setWeight( int weight )
   Use setWeight() to set the weight to other values.
 
   \sa bold(), setWeight()
- ----------------------------------------------------------------------------*/
+*/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the value set by setUnderline().
 
   Use QFontInfo to find the underline value of the window system font
   actually used.
 
   \sa setUnderline(), QFontInfo::underline()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::underline() const
 {
     return d->req.underline;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets underline on or off.
 
   If the mode selected is not available the other will be used.
 
   \sa underline(), QFontInfo, \link fontmatch.html font matching.\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setUnderline( bool enable )
 {
@@ -435,27 +435,27 @@ void QFont::setUnderline( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the value set by setStrikeOut().
 
   Use QFontInfo to find the strike out value of the window system font
   actually used.
 
   \sa setStrikeOut(), QFontInfo::strikeOut().
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::strikeOut() const
 {
     return d->req.strikeOut;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets strike out on or off.
 
   If the mode selected is not available the other will be used.
 
   \sa strikeOut(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setStrikeOut( bool enable )
 {
@@ -467,13 +467,13 @@ void QFont::setStrikeOut( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the value set by setFixedPitch().
 
   Use QFontInfo to find the fixed pitch value of the window system font
   actually used.
   \sa setFixedPitch(), QFontInfo::fixedPitch()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::fixedPitch() const
 {
@@ -481,12 +481,12 @@ bool QFont::fixedPitch() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Sets fixed pitch on or off. If the mode selected is not available
   the other will be used. A fixed pitch font is a font that has constant
   character pixel width.
   \sa fixedPitch(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setFixedPitch( bool enable )
 {
@@ -498,18 +498,18 @@ void QFont::setFixedPitch( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the StyleHint set by setStyleHint().
 
   \sa setStyleHint() QFontInfo::styleHint()
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::StyleHint QFont::styleHint() const
 {
     return (StyleHint)d->req.styleHint;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the style hint.
 
   The style hint is used by the \link fontmatch.html font matching\endlink
@@ -542,7 +542,7 @@ QFont::StyleHint QFont::styleHint() const
   \endcode
 
   \sa styleHint(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setStyleHint( StyleHint hint )
 {
@@ -555,19 +555,19 @@ void QFont::setStyleHint( StyleHint hint )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the character set by setCharSet().
 
   Use QFontInfo to find the CharSet of the window system font actually used.
   \sa setCharSet()
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::CharSet QFont::charSet() const
 {
     return (CharSet) d->req.charSet;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the character set (e.g. \c Latin1).
 
   If the character set is not available another will be used, for most
@@ -593,7 +593,7 @@ QFont::CharSet QFont::charSet() const
   \endcode
 
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setCharSet( CharSet charset )
 {
@@ -605,17 +605,17 @@ void QFont::setCharSet( CharSet charset )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the value set by setRawMode.
   \sa setRawMode()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::rawMode() const
 {
     return d->req.rawMode;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Turns raw mode on if \e enable is TRUE, or turns it off if \e enable is
   FALSE.
 
@@ -639,7 +639,7 @@ bool QFont::rawMode() const
 
   \warning Do not use raw mode unless you really need it!
   \sa rawMode()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::setRawMode( bool enable )
 {
@@ -651,11 +651,11 @@ void QFont::setRawMode( bool enable )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if a window system font exactly matching the settings
   of this font is available.
   \sa QFontInfo, \link fontmatch.html font matching\endlink
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::exactMatch() const
 {
@@ -665,7 +665,7 @@ bool QFont::exactMatch() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the this font is equal to \e f, or FALSE if they are
   different.
 
@@ -674,7 +674,7 @@ bool QFont::exactMatch() const
   then only the family fields are compared.
 
   \sa operator!=()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::operator==( const QFont &f ) const
 {
@@ -693,7 +693,7 @@ bool QFont::operator==( const QFont &f ) const
 	     f.d->req.family	    == d->req.family	     );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the this font is different from \e f, or FALSE if they are
   equal.
 
@@ -702,7 +702,7 @@ bool QFont::operator==( const QFont &f ) const
   then only the family fields are compared.
 
   \sa operator==()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFont::operator!=( const QFont &f ) const
 {
@@ -710,9 +710,9 @@ bool QFont::operator!=( const QFont &f ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the system default font.
- ----------------------------------------------------------------------------*/
+*/
 
 const QFont &QFont::defaultFont()
 {
@@ -721,9 +721,9 @@ const QFont &QFont::defaultFont()
     return *defFont;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Sets the system default font.
- ----------------------------------------------------------------------------*/
+*/
 
 void  QFont::setDefaultFont( const QFont &f )
 {
@@ -770,7 +770,7 @@ static void initFontSubst()			// create substitution dict
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the font family name to be used whenever \e familyName is
   specified, and not found by the \link fontmatch.html font matching
   algorithm \endlink.  The lookup is case insensitive.
@@ -792,7 +792,7 @@ static void initFontSubst()			// create substitution dict
   \endcode
 
   \sa setFamily(), insertSubstitution(), removeSubstitution()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QFont::substitute( const char *familyName )
 {
@@ -802,7 +802,7 @@ const char *QFont::substitute( const char *familyName )
     return f ? f : familyName;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Inserts a new font family name substitution in the family substitution
   table.
 
@@ -810,7 +810,7 @@ const char *QFont::substitute( const char *familyName )
   be replaced with this new substitution.
 
   \sa removeSubstitution(), listSubstitutions(), substitute()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::insertSubstitution( const char *familyName,
 				const char *replacementName )
@@ -820,12 +820,12 @@ void QFont::insertSubstitution( const char *familyName,
     fontSubst->replace( familyName, replacementName );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Removes a font family name substitution from the family substitution
   table.
 
   \sa insertSubstitution(), listSubstitutions(), substitute()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::removeSubstitution( const char *familyName )
 {
@@ -836,11 +836,11 @@ void QFont::removeSubstitution( const char *familyName )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns a sorted list of substituted family names in \e list.
 
   \sa insertSubstitution(), removeSubstitution(), substitute()
- ----------------------------------------------------------------------------*/
+*/
 
 void QFont::listSubstitutions( QStrList *list )
 {
@@ -861,10 +861,10 @@ void QFont::listSubstitutions( QStrList *list )
   QFont stream functions
  *****************************************************************************/
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QFont
   Writes a font to the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator<<( QDataStream &s, const QFont &f )
 {
@@ -889,10 +889,10 @@ QDataStream &operator<<( QDataStream &s, const QFont &f )
 	     << bits;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \relates QFont
   Reads a font from the stream.
- ----------------------------------------------------------------------------*/
+*/
 
 QDataStream &operator>>( QDataStream &s, QFont &f )
 {
@@ -954,10 +954,10 @@ static void removeFontMetrics( QFontMetrics *fm )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resets all pointers to \e w in all font metrics objects in the
   application.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFontMetrics::reset( const QWidget *w )
 {
@@ -971,10 +971,10 @@ void QFontMetrics::reset( const QWidget *w )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Resets all pointers to \e p in all font metrics objects in the
   application.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFontMetrics::reset( const QPainter *p )
 {
@@ -989,7 +989,7 @@ void QFontMetrics::reset( const QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFontMetrics qfontmet.h
   \brief The QFontMetrics class provides font metrics information about
   the current font for a widget or a painter.
@@ -1009,12 +1009,12 @@ void QFontMetrics::reset( const QPainter *p )
   refer to this widget.
 
   \sa QFont, QFontInfo
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font metrics object for a widget.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics::QFontMetrics( const QWidget *widget )
 {
@@ -1027,10 +1027,10 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
     insertFontMetrics( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font metrics object for a painter.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics::QFontMetrics( const QPainter *painter )
 {
@@ -1048,9 +1048,9 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
     insertFontMetrics( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a copy of \e fm.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
     : w(fm.w), p(fm.p)
@@ -1058,9 +1058,9 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
     insertFontMetrics( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the font metrics object.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics::~QFontMetrics()
 {
@@ -1068,9 +1068,9 @@ QFontMetrics::~QFontMetrics()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Font metrics assignment.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
@@ -1080,10 +1080,10 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the pixel width of a \e ch.
   \sa boundingRect()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontMetrics::width( char ch ) const
 {
@@ -1093,7 +1093,7 @@ int QFontMetrics::width( char ch ) const
     return width( tmp, 1 );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the bounding rectangle of \e ch relative to the leftmost
   point on the base line.
 
@@ -1105,7 +1105,7 @@ int QFontMetrics::width( char ch ) const
   base line.
 
   \sa width()
-  ---------------------------------------------------------------------------*/
+*/
 
 QRect QFontMetrics::boundingRect( char ch ) const
 {
@@ -1116,9 +1116,9 @@ QRect QFontMetrics::boundingRect( char ch ) const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the font currently set for the widget or painter.
- ----------------------------------------------------------------------------*/
+*/
 
 const QFont &QFontMetrics::font() const
 {
@@ -1162,10 +1162,10 @@ static void removeFontInfo( QFontInfo *fi )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Resets all pointers to \e w in all font info objects in the
   application.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFontInfo::reset( const QWidget *w )
 {
@@ -1179,10 +1179,10 @@ void QFontInfo::reset( const QWidget *w )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Resets all pointers to \e p in all font metrics objects in the
   application.
- ----------------------------------------------------------------------------*/
+*/
 
 void QFontInfo::reset( const QPainter *p )
 {
@@ -1197,7 +1197,7 @@ void QFontInfo::reset( const QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QFontInfo qfontinf.h
 
   \brief The QFontInfo class provides information about the current
@@ -1218,12 +1218,12 @@ void QFontInfo::reset( const QPainter *p )
   refer to this widget.
 
   \sa QFont, QFontMetrics
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font info object for a widget.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontInfo::QFontInfo( const QWidget *widget )
 {
@@ -1236,10 +1236,10 @@ QFontInfo::QFontInfo( const QWidget *widget )
     insertFontInfo( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Constructs a font info object for a painter.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontInfo::QFontInfo( const QPainter *painter )
 {
@@ -1257,9 +1257,9 @@ QFontInfo::QFontInfo( const QPainter *painter )
     insertFontInfo( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Constructs a copy of \e fi.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontInfo::QFontInfo( const QFontInfo &fi )
     : w(fi.w), p(fi.p)
@@ -1267,9 +1267,9 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
     insertFontInfo( this );			// register this object
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the font info object.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontInfo::~QFontInfo()
 {
@@ -1277,9 +1277,9 @@ QFontInfo::~QFontInfo()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Font info assignment.
- ----------------------------------------------------------------------------*/
+*/
 
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
@@ -1305,10 +1305,10 @@ static inline QFont *get_font( QWidget *w, QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the family name of the matched window system font.
   \sa QFont::family()
- ----------------------------------------------------------------------------*/
+*/
 
 const char *QFontInfo::family() const
 {
@@ -1317,10 +1317,10 @@ const char *QFontInfo::family() const
     return f->d->act.family;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the point size of the matched window system font.
   \sa QFont::pointSize()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontInfo::pointSize() const
 {
@@ -1329,10 +1329,10 @@ int QFontInfo::pointSize() const
     return f->d->act.pointSize / 10;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the italic value of the matched window system font.
   \sa QFont::italic()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::italic() const
 {
@@ -1341,11 +1341,11 @@ bool QFontInfo::italic() const
     return f->d->act.italic;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the weight of the matched window system font.
 
   \sa QFont::weight(), bold()
- ----------------------------------------------------------------------------*/
+*/
 
 int QFontInfo::weight() const
 {
@@ -1354,22 +1354,22 @@ int QFontInfo::weight() const
     return (int)f->d->act.weight;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \fn bool QFontInfo::bold() const
 
   Returns TRUE if weight() would return a greater than
   \c QFont::Normal, and FALSE otherwise.
 
   \sa weight(), QFont::bold()
- ----------------------------------------------------------------------------*/
+*/
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the underline value of the matched window system font.
 
   <strong>Implementation note:</strong> This is always TRUE for X Windows.
 
   \sa QFont::underline()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::underline() const
 {
@@ -1378,13 +1378,13 @@ bool QFontInfo::underline() const
     return f->d->act.underline;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the strike out value of the matched window system font.
 
   <strong>Implementation note:</strong> This is always TRUE for X Windows.
 
   \sa QFont::strikeOut()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::strikeOut() const
 {
@@ -1393,10 +1393,10 @@ bool QFontInfo::strikeOut() const
     return f->d->act.strikeOut;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the fixed pitch value of the matched window system font.
   \sa QFont::fixedPitch()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::fixedPitch() const
 {
@@ -1405,12 +1405,12 @@ bool QFontInfo::fixedPitch() const
     return f->d->act.fixedPitch;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the style of the matched window system font.
 
   Currently only returns the hint set in QFont.
   \sa QFont::styleHint()
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::StyleHint QFontInfo::styleHint() const
 {
@@ -1419,10 +1419,10 @@ QFont::StyleHint QFontInfo::styleHint() const
     return (QFont::StyleHint)f->d->act.styleHint;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the character set of the matched window system font.
   \sa QFont::charSet()
- ----------------------------------------------------------------------------*/
+*/
 
 QFont::CharSet QFontInfo::charSet() const
 {
@@ -1431,7 +1431,7 @@ QFont::CharSet QFontInfo::charSet() const
     return (QFont::CharSet)f->d->act.charSet;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the font is a raw mode font.
 
   If it is a raw mode font, all other functions in QFontInfo will return the
@@ -1440,7 +1440,7 @@ QFont::CharSet QFontInfo::charSet() const
   \warning The default font is a raw-mode font.
 
   \sa QFont::rawMode()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::rawMode() const
 {
@@ -1449,11 +1449,11 @@ bool QFontInfo::rawMode() const
     return f->d->act.rawMode;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Returns TRUE if the matched window system font is exactly the one specified
   by the font.
   \sa QFont::exactMatch()
- ----------------------------------------------------------------------------*/
+*/
 
 bool QFontInfo::exactMatch() const
 {
@@ -1463,9 +1463,9 @@ bool QFontInfo::exactMatch() const
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Returns the font currently set for the widget or painter.
- ----------------------------------------------------------------------------*/
+*/
 
 const QFont &QFontInfo::font() const
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.h#10 $
+** $Id: //depot/qt/main/src/tools/qgcache.h#11 $
 **
 ** Definition of QGCache and QGCacheIterator classes
 **
@@ -22,9 +22,9 @@ class QCList;					// internal classes
 class QCDict;
 
 
-// --------------------------------------------------------------------------
-// QGCache class
-//
+/*****************************************************************************
+  QGCache class
+ *****************************************************************************/
 
 class QGCache : public QCollection		// LRU cache class
 {
@@ -60,9 +60,9 @@ private:
 };
 
 
-// --------------------------------------------------------------------------
-// QGCacheIterator class
-//
+/*****************************************************************************
+  QGCacheIterator class
+ *****************************************************************************/
 
 class QListIteratorM_QCacheItem;
 

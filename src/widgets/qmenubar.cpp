@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#58 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,10 +18,10 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#58 $");
 
 
-/*----------------------------------------------------------------------------
+/*!
   \class QMenuBar qmenubar.h
   \brief The QMenuBar class provides a horizontal menu bar.
 
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#57 $");
   menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
 
   \sa QPopupMenu
- ----------------------------------------------------------------------------*/
+*/
 
 
 // Motif style parameters
@@ -70,9 +70,9 @@ static const int motifItemVMargin	= 8;	// menu item ver text margin
  *****************************************************************************/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Creates a menu bar with a \e parent and a \e name.
- ----------------------------------------------------------------------------*/
+*/
 
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, 0, FALSE )
@@ -93,9 +93,9 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
     }
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Destroys the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 QMenuBar::~QMenuBar()
 {
@@ -108,18 +108,20 @@ QMenuBar::~QMenuBar()
 /*!
   \internal
   Needs documentation.
- */
+*/
 void QMenuBar::updateItem( int )
 {
  //   repaint( FALSE ); !!!hanord: avoid this until we get a better solution
 }
 
 
-/*!  Recomputes the menu bar's display data according to the new
+/*!
+  Recomputes the menu bar's display data according to the new
   contents.
 
   You should never need to call this, it is called automatically by
-  QMenuData whenever it needs to be called.  */
+  QMenuData whenever it needs to be called.
+*/
 
 void QMenuBar::menuContentsChanged()
 {
@@ -130,11 +132,13 @@ void QMenuBar::menuContentsChanged()
     }
 }
 
-/*!  Recomputes the menu bar's display data according to the new
+/*!
+  Recomputes the menu bar's display data according to the new
   state.
 
   You should never need to call this, it is called automatically by
-  QMenuData whenever it needs to be called.  */
+  QMenuData whenever it needs to be called.
+*/
 
 void QMenuBar::menuStateChanged()
 {
@@ -165,7 +169,7 @@ void QMenuBar::frameChanged()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   This function is used to adjust the menu bar's geometry to the
   parent widget's.  Note that this is \e not part of the public
   interface - the function is \c public only because
@@ -174,7 +178,7 @@ void QMenuBar::frameChanged()
   \internal
   Resizes the menu bar to fit in the parent widget when the parent receives
   a resize event.
- ----------------------------------------------------------------------------*/
+*/
 
 bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 {
@@ -188,30 +192,30 @@ bool QMenuBar::eventFilter( QObject *object, QEvent *event )
 
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Receives signals from menu items.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::subActivated( int id )
 {
     emit activated( id );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Receives signals from menu items.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::subHighlighted( int id )
 {
     emit highlighted( id );
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Receives signals from menu accelerator.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::accelActivated( int id )
 {
@@ -244,11 +248,11 @@ void QMenuBar::accelActivated( int id )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   This slot receives signals from menu accelerator when it is about to be
   destroyed.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::accelDestroyed()
 {
@@ -310,7 +314,7 @@ void QMenuBar::openActPopup()
 /*!
   \internal
   Hides all popup menu items.
-  */
+*/
 
 void QMenuBar::hidePopups()
 {
@@ -324,10 +328,10 @@ void QMenuBar::hidePopups()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::show() in order to set up the correct keyboard
   accelerators and raise itself to the top of the widget stack.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::show()
 {
@@ -367,9 +371,9 @@ void QMenuBar::show()
     raise();
 }
 
-/*----------------------------------------------------------------------------
+/*!
   Reimplements QWidget::hide() in order to deselect any selected item.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::hide()
 {
@@ -379,10 +383,10 @@ void QMenuBar::hide()
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Needs to change the size of the menu bar when a new font is set.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::fontChange( const QFont & )
 {
@@ -448,10 +452,10 @@ void QMenuBar::updateRects()
     badSize = FALSE;
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Return the bounding rectangle for the menu item at position \e index.
- ----------------------------------------------------------------------------*/
+*/
 
 QRect QMenuBar::itemRect( int index )
 {
@@ -459,11 +463,11 @@ QRect QMenuBar::itemRect( int index )
     return irects ? irects[index] : QRect(0,0,0,0);
 }
 
-/*----------------------------------------------------------------------------
+/*!
   \internal
   Return the item at \e pos, or -1 if there is no item there, or if
   it is a separator item.
- ----------------------------------------------------------------------------*/
+*/
 
 int QMenuBar::itemAtPos( const QPoint &pos )
 {
@@ -487,9 +491,9 @@ int QMenuBar::itemAtPos( const QPoint &pos )
  *****************************************************************************/
 
 
-/*----------------------------------------------------------------------------
+/*!
   Called from QFrame::paintEvent().
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::drawContents( QPainter *p )
 {
@@ -531,9 +535,9 @@ void QMenuBar::drawContents( QPainter *p )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse press events for the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::mousePressEvent( QMouseEvent *e )
 {
@@ -568,9 +572,9 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse release events for the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 {
@@ -601,9 +605,9 @@ void QMenuBar::mouseReleaseEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles mouse move events for the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 {
@@ -623,9 +627,9 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles key press events for the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::keyPressEvent( QKeyEvent *e )
 {
@@ -691,9 +695,9 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*----------------------------------------------------------------------------
+/*!
   Handles resize events for the menu bar.
- ----------------------------------------------------------------------------*/
+*/
 
 void QMenuBar::resizeEvent( QResizeEvent * )
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#58 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#59 $
 **
 ** Definition of QPixmap class
 **
@@ -161,9 +161,9 @@ inline bool QPixmap::isQBitmap() const
 }
 
 
-// --------------------------------------------------------------------------
-// QPixmap stream functions
-//
+/*****************************************************************************
+  QPixmap stream functions
+ *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QPixmap & );
 QDataStream &operator>>( QDataStream &, QPixmap & );
