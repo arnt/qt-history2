@@ -30,6 +30,7 @@
 #include <qfont.h>
 #include <qwidget.h>
 #include <qapplication.h>
+#include <qlibrary.h>
 
 //#define Q_IME_DEBUG
 
@@ -152,6 +153,32 @@ static IActiveIMMApp *aimm = 0;
 static IActiveIMMMessagePumpOwner *aimmpump = 0;
 static QString *imeComposition = 0;
 static int	imePosition    = -1;
+bool qt_use_rtl_extensions = FALSE;
+
+#ifndef LGRPID_INSTALLED
+#define LGRPID_INSTALLED          0x00000001  // installed language group ids
+#define LGRPID_SUPPORTED          0x00000002  // supported language group ids
+#endif
+
+#ifndef LGRPID_ARABIC
+#define LGRPID_WESTERN_EUROPE        0x0001   // Western Europe & U.S.
+#define LGRPID_CENTRAL_EUROPE        0x0002   // Central Europe
+#define LGRPID_BALTIC                0x0003   // Baltic
+#define LGRPID_GREEK                 0x0004   // Greek
+#define LGRPID_CYRILLIC              0x0005   // Cyrillic
+#define LGRPID_TURKISH               0x0006   // Turkish
+#define LGRPID_JAPANESE              0x0007   // Japanese
+#define LGRPID_KOREAN                0x0008   // Korean
+#define LGRPID_TRADITIONAL_CHINESE   0x0009   // Traditional Chinese
+#define LGRPID_SIMPLIFIED_CHINESE    0x000a   // Simplified Chinese
+#define LGRPID_THAI                  0x000b   // Thai
+#define LGRPID_HEBREW                0x000c   // Hebrew
+#define LGRPID_ARABIC                0x000d   // Arabic
+#define LGRPID_VIETNAMESE            0x000e   // Vietnamese
+#define LGRPID_INDIC                 0x000f   // Indic
+#define LGRPID_GEORGIAN              0x0010   // Georgian
+#define LGRPID_ARMENIAN              0x0011   // Armenian
+#endif
 
 void QInputContext::init()
 {
@@ -172,6 +199,14 @@ void QInputContext::init()
 	}
 	if ( aimmpump )
 	    aimmpump->Start();
+    }
+
+    // figure out whether a RTL language is installed
+    typedef BOOL(WINAPI *PtrIsValidLanguageGroup)(DWORD,DWORD);
+    PtrIsValidLanguageGroup isValidLanguageGroup = (PtrIsValidLanguageGroup)QLibrary::resolve( "kernel32", "IsValidLanguageGroup" );
+    if ( isValidLanguageGroup ) {
+	qt_use_rtl_extensions = isValidLanguageGroup( LGRPID_ARABIC, LGRPID_INSTALLED )
+			     || isValidLanguageGroup( LGRPID_HEBREW, LGRPID_INSTALLED );
     }
 }
 
