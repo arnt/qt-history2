@@ -3125,6 +3125,9 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	qt_x_time = event->xcrossing.time;
 	qt_x_time = event->xcrossing.time;
 	break;
+    case SelectionClear:
+	qt_x_time = event->xselectionclear.time;
+	break;
     default:
 	break;
     }
