@@ -129,6 +129,7 @@ QTreeView::~QTreeView()
 */
 void QTreeView::setModel(QAbstractItemModel *model)
 {
+    Q_ASSERT(model);
     if (d->selectionModel) // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex, QModelIndex)),
                    d->model, SLOT(submit()));
@@ -145,7 +146,8 @@ void QTreeView::setModel(QAbstractItemModel *model)
 */
 void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
-    if (d->model) // support row editing
+    Q_ASSERT(selectionModel);
+    if (d->model && d->selectionModel) // support row editing
         disconnect(d->selectionModel, SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),
                    d->model, SLOT(submit()));
     
