@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#83 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#83 $");
 
 
 // Motif style parameters
@@ -949,13 +949,14 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	register QMenuItem *m;
 	while ( (m=it.current()) ) {
 	    ++it;
-	    if ( m->text() ) {
-		QString s = m->text();
+	    QString s = m->text();
+	    if ( !s.isEmpty() ) {
 		int i = s.find( '&' );
 		if ( i >= 0 && isalnum(s[i+1]) ) {
 		    int k = s[i+1];
 		    if ( toupper(k) == c ) {
 			mi = m;
+			ok_key = TRUE;
 			break;
 		    }
 		}
