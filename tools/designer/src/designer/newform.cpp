@@ -67,6 +67,19 @@ void NewForm::on_createButton_clicked()
     if (QTreeWidgetItem *item = ui.treeWidget->currentItem()) {
         close();
 
+        int maxUntitled = 0;
+        int totalWindows = m_workbench->formWindowCount();
+        // This will cause some problems with i18n, but for now I need the string to be "static"
+        QRegExp rx("Untitled( (\\d+))*");
+        for (int i = 0; i < totalWindows; ++i) {
+            if (rx.exactMatch(m_workbench->formWindow(i)->windowTitle())) {
+                if (maxUntitled == 0)
+                    ++maxUntitled;
+                if (rx.numCaptures() > 1)
+                    maxUntitled = qMax(rx.cap(2).toInt(), maxUntitled);
+            }
+        }
+
         QDesignerFormWindow *formWindow = workbench()->createFormWindow();
         if (AbstractFormWindow *editor = formWindow->editor()) {
             QString formTemplateName = item->data(0, TemplateNameRole).toString();
@@ -79,6 +92,10 @@ void NewForm::on_createButton_clicked()
                 editor->setContents(QString());
             }
         }
+        QString newTitle = QString::fromLatin1("Untitled");
+        if (maxUntitled)
+            newTitle += QString::fromLatin1(" ") + QString::number(maxUntitled + 1);
+        formWindow->setWindowTitle(newTitle);
     }
 }
 
