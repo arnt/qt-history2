@@ -33,8 +33,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>946</width>
-            <height>780</height>
+            <width>938</width>
+            <height>776</height>
         </rect>
     </property>
     <property name="caption">
@@ -57,6 +57,9 @@
         <separator/>
         <action name="actionGoPrev"/>
         <action name="actionGoNext"/>
+        <separator/>
+        <action name="actionGoQt"/>
+        <action name="actionGoDesigner"/>
     </item>
     <item text="&amp;Bookmarks" name="bookmarkMenu">
     </item>
@@ -75,6 +78,9 @@
         <action name="actionGoHome"/>
         <action name="actionGoPrev"/>
         <action name="actionGoNext"/>
+        <separator/>
+        <action name="actionGoQt"/>
+        <action name="actionGoDesigner"/>
     </toolbar>
 </toolbars>
 <actions>
@@ -213,6 +219,28 @@
             <string>About Qt...</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoQt</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image6</iconset>
+        </property>
+        <property name="text">
+            <string>Qt Class Reference</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>actionGoDesigner</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image7</iconset>
+        </property>
+        <property name="text">
+            <string>Qt Designer Manual</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -232,6 +260,12 @@
     </image>
     <image name="image5">
         <data format="XPM.GZ" length="2894">789cad955b4fe35610c7dff91411f386aa593bb11d5b551f08102e214020bb0b547db07d12724f20ce8d55bf7bc767660eaa5ab1a9549d38d64ff39fffccb9d8fe725479bc6b578ebe1c2c8bb418e6957c90be558ecc6a3addfdfec76f3f0e0eabd50afd7c9f6e87bf1c1c768a4a5eb999cf7a25c03d01789e1ff723cb2dc77dcbb7cc554fe273c71cef08ab7e5db2efd5bc1efbaf94257e21acfa2be640e31bcb31e573bd17e158b86076fa6dc9d5a4169bd0f28c39d4785f38113e2fb9e6d7e2dc5836cca1f67b23acfa2573e40bef2c27419c73bd3173a4faf79203dfc5df98eb9a7f69390d3d892f8493ccf6832d65e96fc05cf779fef8e2d8f68bafc25affbae4b04af9ec0fcc91cf8cbeb0fa4f99351f27cc71c8fb8d9e63f6b7f5c234127fcc98e350faab3ae6fe56c246fcaf9813f56b941c513f32ff29735dfb5d3be67e9bcc5a0f526123fb97333bff07cbb45e5960f94e58fb3f668e433e3ff8ae2cf3690b1b395f3d66e73f12d6f9d9fdaed7ea3a9f06731c4abd0be6c448ff1365f1cb9853f5ef5acee250fa6f0b1b5e0f7c624e7ba23f29991e17d1e340d8483f124fb49f9d635e5f64563f7c66ce22f13fb39c25eadf654e251f97c23d59cf0765390ff7cce4c7ebfbe898eb5d0aeb7c86ccb9c6edfe2681ab7f2e6c84bf32bbfa09b3fa61c1ecfcc6c25aefd472eefc3e98e79732a7ba7edf84b5de8c39539e333b7f7bde527ac0c57fc8ecf40b66a3fdd9f75b4afea2bf76ccfd7c67ce747d2366a3f30d997bea67dfaf599045927fa62cf331c2eadf6176fd04cccecfbe5f32e3f44d65f1ab333bfd4858fbb3cf531ee63d393f7d6617af31f735df3ebff9477eccece2f6fd6d3ef4f6fb555667ee14fb8fff4f8f8029669823eca937d8c33ebee0606fff218e708c139c7ed4f8d47f86735cd0f58a6f9af1a9ff120b1a63ca58e11a37aac72deef01d8fb18127788a67a46cd2758e177869479975852dbc167d1b6ff016efb0434ef7f8805dfc8adff03b3ee2133ed3e02c0f7ddcf2f7046b18608811fd0758a75589c9a18f89e89f016dd62b007f0f483ba728fb3cbbfb13e9ec45ff198d1c8cf8cfa9c3d2e9e96fc331697be8411f5ef87b0c43aa99c108725a8915d51dc398eeaa9e50640a3398c382bf97f0064be20256b0860d6c6147638d2b40dbc7881c0a52bfe386df0fd822cd1616d0801338c50dad26c01934493bb19d94ea7338d6fda2bddca2f9c77e75698639d5be20f5256e7f769e691f3c525f410baed5ed333db4e186bc6fa1c1de3fd5df4107eee1019bfb9c67ea67406bd0ddf779f9f7f19ff57ffe7af017ed7bda5f</data>
+    </image>
+    <image name="image6">
+        <data format="XPM.GZ" length="646">789c6dd2c10ac2300c00d07bbf2234b7229d1be245fc04c5a3201e4615f430059d0711ff5ddb2e6bb236ec90eed134cb5a19d8ef36602af5ecdbfeeac05dda0798d3abebde87e3faa374d3807fa0d633a52d38d8de6f679fe33fc776e196f53cd010188256a3600a292882096246517815ca99884606e18044a3a40d91824820924265a7923a2e8bcd05f33db1173e002913175f2a6be6d3294871a2d95fa00e8a94ee017b69d339d90df1e77c57ea072ede6758</data>
+    </image>
+    <image name="image7">
+        <data format="XPM.GZ" length="1127">789c7dd2496f824014c0f1bb9f62c2dc4c83ac0a697a70bdb5e9b149d3c33080a22c0ab8b5e9772f33ef61656989077efce7cd40e26848de5e9fc97034284a56469cf00dcbc9d03f26c9f5fde3e96ba01806a97ea64574e561a0a88493972c0dc43dadeea9262fc14fa405dc221d602ee9d4e4480ebc0275dcea24a86b3a6e95493a0672266868262e5e49ba357d241ec4044dd7c2d93d12eb1489afe1095aba8d5b45481b789464b60f2c046d364626c0890e5c2071b6141c1b135f73042f92acfa60c9a5e0c474b0ee243dd70506828ee9629d03990d4c25bd9a1b24039e9101f020e85a1ed650927b58d7406e00634166f13150858baa8debaeb452a3d0bf8afa4fa177738d523da77d33b47992fc93d6eb69bbe052da380677938be548f71c8a133def561f724bbf33b73d99c7e97da907fd205c6fa26dfb4babb48be33049b34e51f7617cf0f2a2a49d725c871e3d9d2fdd724d8bfcf4399d750b8de6c5792f5eb25dd46db658ae7acbedb37a0a66e5fb71f003a667dc72</data>
     </image>
 </images>
 <connections>
@@ -265,6 +299,18 @@
         <receiver>MainWindow</receiver>
         <slot>print()</slot>
     </connection>
+    <connection>
+        <sender>actionGoDesigner</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showDesignerHelp()</slot>
+    </connection>
+    <connection>
+        <sender>actionGoQt</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>showQtHelp()</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="public" language="C++">goHome()</slot>
@@ -273,6 +319,8 @@
     <slot access="public" language="C++">find()</slot>
     <slot access="public" language="C++">print()</slot>
     <slot access="public" language="C++">setupBookmarkMenu()</slot>
+    <slot access="public" language="C++">showDesignerHelp()</slot>
+    <slot access="public" language="C++">showQtHelp()</slot>
     <slot access="public" language="C++">showBookmark( int id )</slot>
     <slot access="public" language="C++">showLink( const QString &amp;link,const QString &amp;title )</slot>
 </connections>
@@ -394,6 +442,12 @@
 	QString link = ts.readLine();
 	bookmarks.insert( bookmarkMenu-&gt;insertItem( title ), link );
     }
+}</function>
+    <function name="showDesignerHelp()" >{
+    showLink( "book1.html", tr( "Qt Designer Manual" ) );
+}</function>
+    <function name="showQtHelp()" >{
+    showLink( "index.html", tr( "Qt Reference Documentationl" ) ); 
 }</function>
     <function name="showBookmark(int)" >{
     if ( bookmarks.find( id ) != bookmarks.end() )
