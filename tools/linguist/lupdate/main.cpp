@@ -191,7 +191,6 @@ int main( int argc, char **argv )
 		}
 	    }
 	    if ( QString(argv[i]).right(4).lower() == ".pro" ) {
-		fprintf( stderr, "%s", argv[i] );
 		QMap<QString, QString> tagMap = proFileTagMap( fullText );
 		QMap<QString, QString>::Iterator it;
 
