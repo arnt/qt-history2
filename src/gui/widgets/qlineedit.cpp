@@ -1619,8 +1619,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
 bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 {
     // ##### currently X11 only
-#ifdef Q_WS_X11
-#ifndef QT_NO_IM
+#if defined Q_WS_X11 && !defined QT_NO_IM
     if ( composeMode() ) {
 	int cursor = xToPosInternal( e->pos().x(), QTextLine::CursorOnCharacter );
 	int mousePos = cursor - d->imstart;
@@ -1637,8 +1636,10 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
             qic->mouseHandler(mousePos, e);
 	return TRUE;
     }
+#else
+    Q_UNUSED(e);
 #endif
-#endif
+
     return FALSE;
 }
 

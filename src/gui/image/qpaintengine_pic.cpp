@@ -64,7 +64,7 @@ bool QPicturePaintEngine::begin(QPaintDevice *pd)
     d->s.setVersion(pic_d->formatMajor);
 
     pic_d->pictb.open(IO_WriteOnly | IO_Truncate);
-    d->s.writeRawBytes(qt_mfhdr_tag, 4);
+    d->s.writeRawData(qt_mfhdr_tag, 4);
     d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
     d->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);
     pic_d->brect = QRect();

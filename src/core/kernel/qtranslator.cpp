@@ -548,26 +548,26 @@ bool QTranslator::save(const QString & filename, SaveMode mode)
         squeeze(mode);
 
         QDataStream s(&f);
-        s.writeRawBytes((const char *)magic, MagicLength);
+        s.writeRawData((const char *)magic, MagicLength);
         Q_UINT8 tag;
 
         if (!d->offsetArray.isEmpty()) {
             tag = (Q_UINT8)QTranslatorPrivate::Hashes;
             Q_UINT32 oas = (Q_UINT32)d->offsetArray.size();
             s << tag << oas;
-            s.writeRawBytes(d->offsetArray, oas);
+            s.writeRawData(d->offsetArray, oas);
         }
         if (!d->messageArray.isEmpty()) {
             tag = (Q_UINT8)QTranslatorPrivate::Messages;
             Q_UINT32 mas = (Q_UINT32)d->messageArray.size();
             s << tag << mas;
-            s.writeRawBytes(d->messageArray, mas);
+            s.writeRawData(d->messageArray, mas);
         }
         if (!d->contextArray.isEmpty()) {
             tag = (Q_UINT8)QTranslatorPrivate::Contexts;
             Q_UINT32 cas = (Q_UINT32)d->contextArray.size();
             s << tag << cas;
-            s.writeRawBytes(d->contextArray, cas);
+            s.writeRawData(d->contextArray, cas);
         }
         return true;
     }
@@ -716,7 +716,7 @@ void QTranslator::squeeze(SaveMode mode)
             uint len = (uint)qstrlen(con);
             len = qMin(len, 255u);
             t << (Q_UINT8)len;
-            t.writeRawBytes(con, len);
+            t.writeRawData(con, len);
             upto += 1 + len;
 
             ++entry;
@@ -893,7 +893,7 @@ QTranslatorMessage QTranslator::findMessage(const char *context, const char *sou
             t >> len;
             if (len == 0)
                 return QTranslatorMessage();
-            t.readRawBytes(con, len);
+            t.readRawData(con, len);
             con[len] = '\0';
             if (qstrcmp(con, context) == 0)
                 break;
@@ -1060,7 +1060,7 @@ QTranslatorMessage::QTranslatorMessage(QDataStream & stream)
     for (;;) {
         tag = 0;
         if (!stream.atEnd())
-            stream.readRawBytes(&tag, 1);
+            stream.readRawData(&tag, 1);
         switch((Tag)tag) {
         case Tag_End:
             if (h == 0)
@@ -1211,7 +1211,7 @@ void QTranslatorMessage::write(QDataStream & stream, bool strip,
     char tag;
 
     tag = (char)Tag_Translation;
-    stream.writeRawBytes(&tag, 1);
+    stream.writeRawData(&tag, 1);
     stream << tn;
 
     if (!strip)
@@ -1220,27 +1220,27 @@ void QTranslatorMessage::write(QDataStream & stream, bool strip,
     switch (prefix) {
     case HashContextSourceTextComment:
         tag = (char)Tag_Comment;
-        stream.writeRawBytes(&tag, 1);
+        stream.writeRawData(&tag, 1);
         stream << cm;
         // fall through
     case HashContextSourceText:
         tag = (char)Tag_SourceText;
-        stream.writeRawBytes(&tag, 1);
+        stream.writeRawData(&tag, 1);
         stream << st;
         // fall through
     case HashContext:
         tag = (char)Tag_Context;
-        stream.writeRawBytes(&tag, 1);
+        stream.writeRawData(&tag, 1);
         stream << cx;
         // fall through
     default:
         tag = (char)Tag_Hash;
-        stream.writeRawBytes(&tag, 1);
+        stream.writeRawData(&tag, 1);
         stream << h;
     }
 
     tag = (char)Tag_End;
-    stream.writeRawBytes(&tag, 1);
+    stream.writeRawData(&tag, 1);
 }
 
 

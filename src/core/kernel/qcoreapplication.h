@@ -103,7 +103,7 @@ public:
 
 #if defined(QT_COMPAT)
     inline QT_COMPAT void lock() {}
-    inline QT_COMPAT void unlock(bool wakeUpGui = true) {}
+    inline QT_COMPAT void unlock(bool = true) {}
     inline QT_COMPAT bool locked() { return false; }
     inline QT_COMPAT bool tryLock() { return false; }
 #endif

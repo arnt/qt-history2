@@ -4072,7 +4072,8 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
     case QEvent::Wheel:
     {
         QWheelEvent *c = (QWheelEvent*)e;
-        QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->modifiers(), c->orientation());
+        QWheelEvent s(c->pos() - w->pos(), c->globalPos(), c->delta(), c->buttons(), c->modifiers(),
+                      c->orientation());
         return QApplication::sendEvent(w, &s);
     }
 #endif

@@ -1693,7 +1693,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam,
                 QWidget *fw = qApp->focusWidget();
                 if (fw) {
                     QPoint pos = fw->microFocusHint().center();
-                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos), 0);
+                    QContextMenuEvent e(QContextMenuEvent::Keyboard, pos, fw->mapToGlobal(pos));
                     result = qt_sendSpontaneousEvent(fw, &e);
                 }
             }
@@ -2407,7 +2407,10 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
         QPoint globalPos(gpos.x, gpos.y);
         pos = popup->mapFromGlobal(globalPos);
-	QMouseEvent e(type, pos, globalPos, button, state);
+	QMouseEvent e(type, pos, globalPos,
+                      Qt::MouseButton(button),
+                      Qt::MouseButtons(state & Qt::MouseButtonMask),
+                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
 	QApplication::sendSpontaneousEvent(popup, &e);
 
         if (releaseAfter) {
@@ -2431,7 +2434,7 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
          } else if (type == QEvent::MouseButtonRelease && button == Qt::RightButton
                    && qApp->activePopupWidget() == activePopupWidget) {
             // popup still alive and received right-button-release
-	    QContextMenuEvent e2( QContextMenuEvent::Mouse, pos, globalPos, state );
+	    QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, globalPos);
 	    QApplication::sendSpontaneousEvent( popup, &e2 );
         }
     } else {                                        // not popup mode
@@ -2459,10 +2462,13 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
             qt_button_down = 0;
         }
 
-        QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y), button, state);
+        QMouseEvent e(type, pos, QPoint(gpos.x,gpos.y),
+                      Qt::MouseButton(button),
+                      Qt::MouseButtons(state & Qt::MouseButtonMask),
+                      Qt::KeyboardModifiers(state & Qt::KeyboardModifierMask));
         QApplication::sendSpontaneousEvent(widget, &e);
         if (type == QEvent::MouseButtonRelease && button == Qt::RightButton) {
-            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y), state);
+            QContextMenuEvent e2(QContextMenuEvent::Mouse, pos, QPoint(gpos.x,gpos.y));
             QApplication::sendSpontaneousEvent(widget, &e2);
         }
 
@@ -2939,7 +2945,9 @@ bool QETWidget::translateWheelEvent(const MSG &msg)
         QWidget* popup = qApp->activePopupWidget();
         if (popup && w->topLevelWidget() != popup)
             popup->close();
-        QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta, state, orient);
+        QWheelEvent e(w->mapFromGlobal(globalPos), globalPos, delta,
+                      Qt::MouseButtons(state & Qt::MouseButtonMask),
+                      Qt::KeyboardModifier(state & Qt::KeyboardModifierMask), orient);
         if (QApplication::sendSpontaneousEvent(w, &e))
             return true;
     }
@@ -3158,14 +3166,16 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed
-        QKeyEvent a(type, code, 0, state, text, autor, qMax(1, int(text.length())));
+        QKeyEvent a(type, code, 0, Qt::KeyboardModifierMask & state, text, autor,
+                    qMax(1, int(text.length())));
         if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
 #endif
     if (!isEnabled())
         return false;
-    QKeyEvent e(type, code, 0, state, text, autor, qMax(1, int(text.length())));
+    QKeyEvent e(type, code, 0, state & Qt::KeyboardModifierMask, text, autor,
+                qMax(1, int(text.length())));
     QApplication::sendSpontaneousEvent(this, &e);
     if (!isModifierKey(code) && state == Qt::AltButton
          && ((code>=Qt::Key_A && code<=Qt::Key_Z) || (code>=Qt::Key_0 && code<=Qt::Key_9))

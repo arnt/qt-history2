@@ -1038,7 +1038,6 @@ QRect QMenuBar::actionGeometry(QAction *act) const
 */
 QSize QMenuBar::minimumSizeHint() const
 {
-    Q_D(const QMenuBar);
     return sizeHint();
 }
 

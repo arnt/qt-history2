@@ -845,6 +845,7 @@ bool qt_CF_HDROP_valid(const QString &mime, int cf, QMimeData *src)
 {
     if (cf != CF_HDROP || mime != QLatin1String("text/uri-list"))
         return true; // retrun true if this check is not for CF_HDROP and text/uri-list
+    Q_UNUSED(mime);
 
 #if 0 // #######
     // we should only provide CF_HDROP if the uri list contains local files

@@ -444,7 +444,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
     QMatrix worldMatrix = painter->matrix();
 
-    while (nrecords-- && !s.eof()) {
+    while (nrecords-- && !s.atEnd()) {
         s >> c;                                        // read cmd
         s >> tiny_len;                                // read param length
         if (tiny_len == 255)                        // longer than 254 bytes
@@ -806,7 +806,7 @@ bool QPicturePrivate::checkFormat()
     s.setDevice(&pictb);                        // attach data stream to buffer
 
     char mf_id[4];                                // picture header tag
-    s.readRawBytes(mf_id, 4);                        // read actual tag
+    s.readRawData(mf_id, 4);                        // read actual tag
     if (memcmp(mf_id, qt_mfhdr_tag, 4) != 0) {         // wrong header id
         qWarning("QPicturePaintEngine::checkFormat: Incorrect header");
         pictb.close();
@@ -885,7 +885,8 @@ QDataStream &operator<<(QDataStream &s, const QPicture &r)
     if (size == 0)
         return s;
     // just write the whole buffer to the stream
-    return s.writeRawBytes (r.d->pictb.buffer(), r.d->pictb.buffer().size());
+    s.writeRawData (r.d->pictb.buffer(), r.d->pictb.buffer().size());
+    return s;
 }
 
 /*!
@@ -907,7 +908,7 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
     QByteArray data;
     if (len > 0) {
         data.resize(len);
-        s.readRawBytes(data.data(), len);
+        s.readRawData(data.data(), len);
     }
 
     r.d->pictb.setData(data);

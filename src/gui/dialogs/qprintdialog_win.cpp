@@ -45,8 +45,8 @@ public:
     inline void printRangeSelected(int) {}
     inline void setFirstPage(int) {}
     inline void setLastPage(int) {}
-    inline void fileNameEditChanged(const QString &text) {}
-    
+    inline void fileNameEditChanged(const QString &) {}
+
     QWin32PrintEnginePrivate *ep;
 };
 

@@ -946,14 +946,14 @@ struct BMP_FILEHDR {                                // BMP file header
 
 QDataStream &operator>>(QDataStream &s, BMP_FILEHDR &bf)
 {                                                // read file header
-    s.readRawBytes(bf.bfType, 2);
+    s.readRawData(bf.bfType, 2);
     s >> bf.bfSize >> bf.bfReserved1 >> bf.bfReserved2 >> bf.bfOffBits;
     return s;
 }
 
 QDataStream &operator<<(QDataStream &s, const BMP_FILEHDR &bf)
 {                                                // write file header
-    s.writeRawBytes(bf.bfType, 2);
+    s.writeRawData(bf.bfType, 2);
     s << bf.bfSize << bf.bfReserved1 << bf.bfReserved2 << bf.bfOffBits;
     return s;
 }

@@ -788,7 +788,7 @@ bool QFSFileEngine::link(const QString &newName)
 {
 #if !defined(QT_NO_COMPONENT)
     bool ret = false;
-    
+
     QString linkName = newName;
     //### assume that they add .lnk
 
@@ -805,7 +805,7 @@ bool QFSFileEngine::link(const QString &newName)
         }
         if (SUCCEEDED(hres)) {
             hres = psl->SetPath((TCHAR*)fileName(AbsoluteName).utf16());
-            if (SUCCEEDED(hres)) { 
+            if (SUCCEEDED(hres)) {
                 IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
                 if (SUCCEEDED(hres)) {
@@ -832,7 +832,7 @@ bool QFSFileEngine::link(const QString &newName)
         }
         if (SUCCEEDED(hres)) {
             hres = psl->SetPath(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName)).data());
-            if (SUCCEEDED(hres)) { 
+            if (SUCCEEDED(hres)) {
                 IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
                 if (SUCCEEDED(hres)) {
@@ -849,6 +849,7 @@ bool QFSFileEngine::link(const QString &newName)
     });
     return ret;
 #else
+    Q_UNUSED(newName);
     return false;
 #endif // QT_NO_COMPONENT
 }

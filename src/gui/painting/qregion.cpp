@@ -148,7 +148,7 @@ void QRegion::exec(const QByteArray &buffer, int ver)
 #ifndef QT_NO_DEBUG
     int test_cnt = 0;
 #endif
-    while (!s.eof()) {
+    while (!s.atEnd()) {
         Q_INT32 id;
         if (s.version() == 1) {
             int id_int;
