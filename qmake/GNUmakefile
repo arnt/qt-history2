@@ -6,7 +6,7 @@ vpath %.cpp generators/:generators/win32:generators/unix
 QTOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o qdatastream.o qgarray.o qbuffer.o qglist.o \
 	qcollection.o qfile.o qfile_unix.o qtextcodec.o qregexp.o qgvector.o qgcache.o qbitarray.o qdir.o \
 	qfileinfo_unix.o qdir_unix.o qfileinfo.o qdatetime.o qstringlist.o qmap.o
-vpath %.cpp $(QTDIR)/src/tools
+vpath %.cpp $(QTDIR)/src/tools $(QTDIR)/src/codecs
 
 CFLAGS=-I. -Igenerators -Igenerators/unix -Igenerators/win32  -I$(QTDIR)/include \
 	-I$(QTDIR)/src/tools -DQT_NO_CODECS -DUSE_GROSS_BIG_BUFFER_THING
