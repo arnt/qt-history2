@@ -1976,29 +1976,34 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
         s.y = widget->y();
         s.width = widget->width();
         s.height = widget->height();
-        if (x->minw > 0 || x->minh > 0) {        // add minimum size hints
+        if (x->minw > 0 || x->minh > 0) {
+            // add minimum size hints
             s.flags |= PMinSize;
             s.min_width  = qMin(XCOORD_MAX, x->minw);
             s.min_height = qMin(XCOORD_MAX, x->minh);
         }
-        s.flags |= PMaxSize;                // add maximum size hints
-        s.max_width  = qMin(XCOORD_MAX, x->maxw);
-        s.max_height = qMin(XCOORD_MAX, x->maxh);
+        if (x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX) {
+            // add maximum size hints
+            s.flags |= PMaxSize;
+            s.max_width  = qMin(XCOORD_MAX, x->maxw);
+            s.max_height = qMin(XCOORD_MAX, x->maxh);
+        }
         if (x->topextra &&
-           (x->topextra->incw > 0 || x->topextra->inch > 0))
-        {                                        // add resize increment hints
+            (x->topextra->incw > 0 || x->topextra->inch > 0)) {
+            // add resize increment hints
             s.flags |= PResizeInc | PBaseSize;
             s.width_inc = x->topextra->incw;
             s.height_inc = x->topextra->inch;
             s.base_width = x->topextra->basew;
             s.base_height = x->topextra->baseh;
         }
-
         if (x->topextra && x->topextra->uspos) {
+            // user (i.e. command-line) specified position
             s.flags |= USPosition;
             s.flags |= PPosition;
         }
         if (x->topextra && x->topextra->ussize) {
+            // user (i.e. command-line) specified size
             s.flags |= USSize;
             s.flags |= PSize;
         }
