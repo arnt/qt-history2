@@ -104,6 +104,7 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
 int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMarker *marker)
 {
     int skipAhead = 0;
+    static bool in_para = false;
 
     switch (atom->type()) {
     case Atom::AbstractLeft:
@@ -180,6 +181,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
         break;
     case Atom::FootnoteLeft:
         // ### For now
+        if (in_para) {
+            out() << "</p>\n";
+            in_para = false;
+        }
 	out() << "<!-- ";
 	break;
     case Atom::FootnoteRight:
@@ -293,6 +298,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	skipAhead = 1;
 	break;
     case Atom::ListLeft:
+        if (in_para) {
+            out() << "</p>\n";
+            in_para = false;
+        }
 	if ( atom->string() == ATOM_LIST_BULLET ) {
 	    out() << "<ul>\n";
 	} else if ( atom->string() == ATOM_LIST_TAG ) {
@@ -314,7 +323,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 		out() << "\"1\"";
             }
             if ( atom->next() != 0 && atom->next()->string().toInt() != 1 )
-		out() << " start=" << atom->next()->string();
+		out() << " start=\"" << atom->next()->string() << "\"";
             out() << ">\n";
 	}
 	break;
@@ -370,10 +379,15 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::ParaLeft:
 	out() << "<p>";
+        in_para = true;
 	break;
     case Atom::ParaRight:
-	if (!matchAhead(atom, Atom::ListItemRight) && !matchAhead(atom, Atom::TableItemRight))
-	    out() << "</p>\n";
+        if (in_para) {
+            out() << "</p>\n";
+            in_para = false;
+        }
+	//if (!matchAhead(atom, Atom::ListItemRight) && !matchAhead(atom, Atom::TableItemRight))
+	//    out() << "</p>\n";
 	break;
     case Atom::QuotationLeft:
 	out() << "<blockquote>";
@@ -420,6 +434,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	}
 	break;
     case Atom::TableLeft:
+        if (in_para) {
+            out() << "</p>\n";
+            in_para = false;
+        }
         out() << "<table align=\"center\" cellpadding=\"2\" cellspacing=\"1\" border=\"0\">\n";
         numTableRows = 0;
 	break;
@@ -981,7 +999,7 @@ void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *mar
 	    const ClassNode *child = static_cast<const ClassNode *>(*stack.top().begin());
 	    out() << "<li>";
             generateFullName(child, relative, marker);
-            out() << "\n";
+            out() << "</li>\n";
 	    stack.top().erase(stack.top().begin());
 
 	    QMap<QString, const Node *> newTop;
@@ -995,7 +1013,6 @@ void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *mar
 	    }
 	}
     }
-    out() << "</ul>\n";
 }
 
 void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *marker,
@@ -1007,16 +1024,17 @@ void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *mark
 	out() << "<tr valign=\"top\" bgcolor=\"#f0f0f0\">";
 	out() << "<td><b>";
         generateFullName(*n, relative, marker);
-	out() << "</b>";
+	out() << "</b></td>";
         Text brief = (*n)->doc().trimmedBriefText((*n)->name());
         if (!brief.isEmpty()) {
 	    out() << "<td>";
             generateText(brief, *n, marker);
+	    out() << "</td>";
 	}
-	out() << '\n';
+	out() << "</tr>\n";
 	++n;
     }
-    out() << "</table>\n";
+    out() << "</table></p>\n";
 }
 
 void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker,
@@ -1115,7 +1133,7 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 	for ( i = 0; i < NumColumns; i++ ) {
 	    if ( currentOffset[i] >= firstOffset[i + 1] ) {
 		// this column is finished
-		out() << "<td>\n<td>\n";
+		out() << "<td>\n</td>\n";
 	    } else {
 		while (currentOffsetInParagraph[i] == paragraph[currentParagraphNo[i]].count()) {
 		    ++currentParagraphNo[i];
@@ -1127,7 +1145,7 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 		    // start a new paragraph
 		    out() << "<b>" << paragraphName[currentParagraphNo[i]] << "&nbsp;</b>";
 		}
-		out() << "\n";
+		out() << "</td>\n";
 
 		// bad loop
 		QMap<QString, const Node *>::Iterator it;
@@ -1137,24 +1155,25 @@ void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker
 
 		out() << "<td>";
                 generateFullName(it.value(), relative, marker);
-		out() << "\n";
+		out() << "</td>\n";
 
 		currentOffset[i]++;
 		currentOffsetInParagraph[i]++;
 	    }
 	}
+        out() << "</tr>\n";
     }
-    out() << "</table>\n";
+    out() << "</table></p>\n";
 }
 
 void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *marker)
 {
-    out() << "<p><center><font size=+1><b>";
+    out() << "<p><center><font size=\"+1\"><b>";
     for ( int i = 0; i < 26; i++ ) {
 	QChar ch( 'a' + i );
 	out() << QString("<a href=\"#%1\">%2</a>&nbsp;").arg(ch).arg(ch.toUpper());
     }
-    out() << "</b></font></center>\n";
+    out() << "</b></font></center></p>\n";
 
     char nextLetter = 'a';
     char currentLetter;
@@ -1183,6 +1202,11 @@ void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *mark
 	    generateFullName((*s)->parent(), relative, marker, *s);
 	    ++s;
 	}
+#if 0
+	out() << "</li>";
+#else
+        out() << "</p>";
+#endif
         out() << "\n";
 	++f;
     }
@@ -1213,6 +1237,13 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
 				     CodeMarker *marker, CodeMarker::SynopsisStyle style)
 {
     QString marked = marker->markedUpSynopsis( node, relative, style );
+    QRegExp templateTag("(<[^@>]*>)");
+    if (marked.indexOf(templateTag) != -1) {
+        QString contents = protect(marked.mid(templateTag.pos(1),
+                                              templateTag.cap(1).length()));
+        marked.replace( templateTag.pos(1), templateTag.cap(1).length(),
+                        contents );
+    }
     marked.replace(QRegExp("<@param>([a-z]+)_([1-9n])</@param>"), "<i>\\1<sub>\\2</sub></i>");
     marked.replace("<@param>", "<i>");
     marked.replace("</@param>", "</i>");
