@@ -197,7 +197,7 @@ int main( int argc, char * argv[] )
 	out << "**      by:  The User Interface Compiler (uic)" << endl;
 	out << "**" << endl;
 	out << "** WARNING! All changes made in this file will be lost!" << endl;
-	out << "****************************************************************************/" << endl;
+	out << "****************************************************************************/" << endl << endl;
     }
 
     QString protector;
@@ -213,7 +213,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( fileName, out, doc, !impl, subcl, trmacro ? trmacro : "trUtf8", className, nofwd );
+    Uic( fileName, out, doc, !impl, subcl, trmacro, className, nofwd );
 
     if ( !protector.isEmpty() ) {
 	out << endl;

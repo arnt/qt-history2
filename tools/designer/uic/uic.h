@@ -51,10 +51,10 @@ public:
     QString createObjectInstance( const QString& objClass, const QString& parent, const QString& objName );
     QString createSpacerImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
     void createExclusiveProperty( const QDomElement & e, const QString& exclusiveProp );
-    QString createListBoxItemImpl( const QDomElement &e, const QString &parent );
+    QString createListBoxItemImpl( const QDomElement &e, const QString &parent, QString *value = 0 );
     QString createIconViewItemImpl( const QDomElement &e, const QString &parent );
-    QString createListViewColumnImpl( const QDomElement &e, const QString &parent );
-    QString createTableRowColumnImpl( const QDomElement &e, const QString &parent );
+    QString createListViewColumnImpl( const QDomElement &e, const QString &parent, QString *value = 0 );
+    QString createTableRowColumnImpl( const QDomElement &e, const QString &parent, QString *value = 0 );
     QString createListViewItemImpl( const QDomElement &e, const QString &parent,
 				    const QString &parentItem );
     void createColorGroupImpl( const QString& cg, const QDomElement& e );
@@ -83,6 +83,8 @@ private:
     void registerLayouts ( const QDomElement& e );
 
     QTextStream& out;
+    QTextOStream trout;
+    QString retranslateStringsBody;
     QStringList objectNames;
     QMap<QString,QString> objectMapper;
     QString indent;

@@ -410,34 +410,33 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     // create public additional slots
-    if ( !publicSlots.isEmpty() || needPolish ) {
-	out << "public slots:" << endl;
-	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
-	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	    bool createDecl = TRUE;
-	    QString specifier;
-	    QString pure;
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 != "nonVirtual" )
-		specifier = "virtual ";
-	    if ( *it3 == "pureVirtual" )
-		pure = " = 0";
-	    QString fname = Parser::cleanArgs( *it );
-	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
-	    if ( fit != functionImpls.end() ) {
-		int begin = (*fit).find( "{" );
-		QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
-		createDecl = body.simplifyWhiteSpace().isEmpty();
-	    }
-	    if ( createDecl )
-		out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
+    out << "public slots:" << endl;
+    for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
+	  it != publicSlots.end(); ++it, ++it2, ++it3 ) {
+	bool createDecl = TRUE;
+	QString specifier;
+	QString pure;
+	QString type = *it2;
+	if ( type.isEmpty() )
+	    type = "void";
+	if ( *it3 != "nonVirtual" )
+	    specifier = "virtual ";
+	if ( *it3 == "pureVirtual" )
+	    pure = " = 0";
+	QString fname = Parser::cleanArgs( *it );
+	QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
+	if ( fit != functionImpls.end() ) {
+	    int begin = (*fit).find( "{" );
+	    QString body = (*fit).mid( begin + 1, (*fit).find( "}" ) - begin - 1 );
+	    createDecl = body.simplifyWhiteSpace().isEmpty();
 	}
-	if ( needPolish )
-	    out << indent << "void polish();" << endl;
-	out << endl;
+	if ( createDecl )
+	    out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
     }
+    if ( needPolish )
+	out << indent << "void polish();" << endl;
+    out << indent << "virtual void retranslateStrings();" << endl;
+    out << endl;
 
     // create protected additional slots
     if ( !protectedSlots.isEmpty() ) {
@@ -685,7 +684,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-    out << "#include <qvariant.h>   // first for gcc 2.7.2" << endl;
+    out << "#include <qvariant.h>" << endl; // first for gcc 2.7.2
 
     globalIncludes = unique( globalIncludes );
     for ( it = globalIncludes.begin(); it != globalIncludes.end(); ++it ) {
@@ -860,7 +859,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-
     // set the properties
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
@@ -872,14 +870,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	    QString value = setObjectProperty( objClass, QString::null, prop, n2, stdset );
 	    if ( value.isEmpty() )
 		continue;
-	    if ( prop == "name" ) {
-		out << "    if ( !name )" << endl;
-		out << "\t";
-	    } else {
-		out << indent;
-	    }
 
-	    if ( prop == "geometry" && n2.tagName() == "rect") {
+	    if ( prop == "geometry" && n2.tagName() == "rect" ) {
 		QDomElement n3 = n2.firstChild().toElement();
 		int w = 0, h = 0;
 		while ( !n3.isNull() ) {
@@ -889,12 +881,24 @@ void Uic::createFormImpl( const QDomElement &e )
 			h = n3.firstChild().toText().data().toInt();
 		    n3 = n3.nextSibling().toElement();
 		}
-		out << "resize( " << w << ", " << h << " ); " << endl;
+		out << indent << "resize( " << w << ", " << h << " ); " << endl;
 	    } else {
-		if ( stdset )
-		    out << mkStdSet( prop ) << "( " << value << " );" << endl;
-		else
-		    out << "setProperty( \"" << prop << "\", " << value << " );" << endl;
+		QString call;
+		if ( stdset ) {
+		    call = mkStdSet( prop ) + "( ";
+		} else {
+		    call = "setProperty( \"" + prop + "\", ";
+		}
+		call += value + " );";
+
+		if ( n2.tagName() == "string" ) {
+		    trout << indent << call << endl;
+		} else if ( prop == "name" ) {
+		    out << indent << "if ( !name )" << endl;
+		    out << "\t" << call << endl;
+		} else {
+		    out << indent << call << endl;
+		}
 	    }
 	}
     }
@@ -906,7 +910,8 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, "this" );
 		QString label = DomTool::readAttribute( n, "title", "" ).toString();
-		out << indent << "addPage( " << page << ", "<< trcall( label ) << " );" << endl;
+		out << indent << "addPage( " << page << ", \"\" );" << endl;
+		trout << indent << "setTitle( " << page << ", " << trcall( label ) << " );" << endl;
 		QVariant def( FALSE, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled( " << page << ", " << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << endl;
@@ -1038,7 +1043,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	}
     }
 
-
     // buddies
     bool firstBuddy = TRUE;
     for ( QValueList<Buddy>::Iterator buddy = buddies.begin(); buddy != buddies.end(); ++buddy ) {
@@ -1052,6 +1056,8 @@ void Uic::createFormImpl( const QDomElement &e )
 
     }
 
+    out << indent << "retranslateStrings();" << endl;
+
     if ( extraSlots.find( "init()" ) != extraSlots.end() )
 	out << indent << "init();" << endl;
 
@@ -1060,7 +1066,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << endl;
 
     // destructor
-    out << "/*  " << endl;
+    out << "/*" << endl;
     out << " *  Destroys the object and frees any allocated resources" << endl;
     out << " */" << endl;
     out << nameOfClass << "::~" << nameOfClass << "()" << endl;
@@ -1093,7 +1099,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
     if ( needFontEventHandler && FALSE ) {
 	//	indent = "\t"; // increase indentation for if-clause below
-	out << "/*  " << endl;
+	out << "/*" << endl;
 	out << " *  Main event handler. Reimplemented to handle" << endl;
 	out << " *  application font changes";
 	out << " */" << endl;
@@ -1117,7 +1123,7 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     if ( needSqlTableEventHandler || needSqlDataBrowserEventHandler ) {
-	out << "/*  " << endl;
+	out << "/*" << endl;
 	out << " *  Widget polish.  Reimplemented to handle" << endl;
 	if ( needSqlTableEventHandler )
 	    out << " *  default data table initialization" << endl;
@@ -1182,8 +1188,17 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << endl;
     }
 
+    out << "/*" << endl;
+    out << " *  Sets the strings of the subwidgets using the current" << endl;
+    out << " *  language." << endl;
+    out << " */" << endl;
+    out << "void " << nameOfClass << "::retranslateStrings()" << endl;
+    out << "{" << endl;
+    out << retranslateStringsBody;
+    out << "}" << endl;
+    out << endl;
 
-    // create  stubs for additional slots if necessary
+    // create stubs for additional slots if necessary
     if ( !extraSlots.isEmpty() && writeSlotImpl ) {
 	QStringList::Iterator it2;
 	for ( it = extraSlots.begin(), it2 = extraSlotTypes.begin(); it != extraSlots.end(); ++it, ++it2 ) {

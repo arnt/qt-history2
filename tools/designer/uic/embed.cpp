@@ -112,7 +112,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "**      by:  The User Interface Compiler (uic)" << endl;
     out << "**" << endl;
     out << "** WARNING! All changes made in this file will be lost!" << endl;
-    out << "****************************************************************************/" << endl;
+    out << "****************************************************************************/" << endl << endl;
 
     out << "#include <qimage.h>" << endl;
     out << "#include <qdict.h>" << endl;

@@ -86,6 +86,8 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     }
     QDomElement n;
     QString objClass, objName;
+    int numItems = 0;
+    int numColumns = 0;
 
     if ( layouts.contains( e.tagName() ) )
 	return createLayoutImpl( e, parentClass, parent, layout );
@@ -140,13 +142,13 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    bool stdset = stdsetdef;
 	    if ( n.hasAttribute( "stdset" ) )
 		stdset = toBool( n.attribute( "stdset" ) );
-	    QString prop = n.attribute("name");
+	    QString prop = n.attribute( "name" );
 	    QString value = setObjectProperty( objClass, objName, prop, n.firstChild().toElement(), stdset );
 	    if ( value.isEmpty() )
 		continue;
 	    if ( prop == "name" )
 		continue;
-	    if ( prop == "buddy" && value[0] == '\"' && value[(int)value.length()-1] == '\"' ) {
+	    if ( prop == "buddy" && value.startsWith("\"") && value.endsWith("\"") ) {
 		buddies << Buddy( objName, value.mid(1, value.length() - 2 ) );
 		continue;
 	    }
@@ -167,42 +169,78 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( objClass == "QMultiLineEdit" &&
 		 QRegExp("echoMode|hMargin|maxLength|maxLines|undoEnabled").exactMatch(prop) )
 		continue;
-	    if ( prop == "geometry" ) {
-		out << indent << objName << "->setGeometry( " << value << " ); " << endl;
+
+	    QString call = objName + "->";
+	    if ( stdset ) {
+		call += mkStdSet( prop ) + "( ";
 	    } else {
-		if ( stdset )
-		    out << indent << objName << "->" << mkStdSet( prop ) << "( " << value << " );" << endl;
-		else
-		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+		call += "setProperty( \"" + prop + "\", ";
+	    }
+	    call += value + " );";
+
+	    if ( n.firstChild().toElement().tagName() == "string" ) {
+		trout << indent << call << endl;
+	    } else {
+		out << indent << call << endl;
 	    }
 	} else if ( n.tagName() == "item" ) {
+	    QString call;
+	    QString value;
+
 	    if ( objClass.mid( 1 ) == "ListBox" ) {
-		QString s = createListBoxItemImpl( n, objName );
-		if ( !s.isEmpty() )
-		    out << indent << s << endl;
+		call = createListBoxItemImpl( n, objName );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << objName << "->clear();" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 1 ) == "ComboBox" ) {
-		QString s = createListBoxItemImpl( n, objName );
-		if ( !s.isEmpty() )
-		    out << indent << s << endl;
+		call = createListBoxItemImpl( n, objName, &value );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << objName << "->clear();" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 1 ) == "IconView" ) {
-		QString s = createIconViewItemImpl( n, objName );
-		if ( !s.isEmpty() )
-		    out << indent << s << endl;
+		call = createIconViewItemImpl( n, objName );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << objName << "->clear();" << endl;
+		    trout << indent << call << endl;
+		}
 	    } else if ( objClass.mid( 1 ) == "ListView" ) {
-		QString s = createListViewItemImpl( n, objName, QString::null );
-		if ( !s.isEmpty() )
-		    out << s << endl;
+		call = createListViewItemImpl( n, objName, QString::null );
+		if ( !call.isEmpty() ) {
+		    if ( numItems == 0 )
+			trout << indent << objName << "->clear();" << endl;
+		    trout << indent << call << endl;
+		}
 	    }
+	    if ( !call.isEmpty() )
+		numItems++;
 	} else if ( n.tagName() == "column" || n.tagName() == "row" ) {
+	    QString call;
+	    QString value;
+
 	    if ( objClass.mid( 1 ) == "ListView" ) {
-		QString s = createListViewColumnImpl( n, objName );
-		if ( !s.isEmpty() )
-		    out << s;
+		call = createListViewColumnImpl( n, objName, &value );
+		if ( !call.isEmpty() ) {
+		    out << call;
+		    trout << indent << objName << "->header()->setLabel( "
+			  << numColumns << ", " << value << " );\n";
+		}
 	    } else if ( objClass ==  "QTable" || objClass == "QDataTable" ) {
-		QString s = createTableRowColumnImpl( n, objName );
-		if ( !s.isEmpty() )
-		    out << s;
+		QString header = ( n.tagName() == "column" ) ?
+				 "horizontalHeader" : "verticalHeader";
+		QString call = createTableRowColumnImpl( n, objName, &value );
+		if ( !call.isEmpty() ) {
+		    out << call;
+		    trout << indent << objName << "->" << header << "()->setLabel( "
+			  << numColumns << ", " << value << " );\n";
+		}
 	    }
+	    if ( !call.isEmpty() )
+		numColumns++;
 	}
     }
 
@@ -213,7 +251,9 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, objName );
 		QString label = DomTool::readAttribute( n, "title", "" ).toString();
-		out << indent << objName << "->insertTab( " << page << ", " << trcall( label ) << " );" << endl;
+		out << indent << objName << "->insertTab( " << page << ", \"\" );" << endl;
+		trout << indent << objName << "->changeTab( " << page << ", "
+		      << trcall( label ) << " );" << endl;
 	    }
 	}
      } else if ( objClass != "QToolBar" && objClass != "QMenuBar" ) { // standard widgets
@@ -252,13 +292,14 @@ void Uic::createExclusiveProperty( const QDomElement & e, const QString& exclusi
 	    bool stdset = stdsetdef;
 	    if ( n.hasAttribute( "stdset" ) )
 		stdset = toBool( n.attribute( "stdset" ) );
-	    QString prop = n.attribute("name");
+	    QString prop = n.attribute( "name" );
 	    if ( prop != exclusiveProp )
 		continue;
 	    QString value = setObjectProperty( objClass, objName, prop, n.firstChild().toElement(), stdset );
 	    if ( value.isEmpty() )
 		continue;
-	    out << indent << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+	    // we assume the property isn't of type 'string'
+	    out << '\t' << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 	}
     }
 }
@@ -365,14 +406,18 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
 
 	if ( prop == "toolTip" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "QToolTip::add( " << obj << ", " + trcall( txt, com ) << " );" << endl;
+		trout << indent << "QToolTip::add( " << obj << ", "
+		      << trcall( txt, com ) << " );" << endl;
 	    else
-		out << indent << "QToolTip::add( this, " << trcall( txt, com ) << " );" << endl;
+		trout << indent << "QToolTip::add( this, "
+		      << trcall( txt, com ) << " );" << endl;
 	} else if ( prop == "whatsThis" && objClass != "QAction" && objClass != "QActionGroup" ) {
 	    if ( !obj.isEmpty() )
-		out << indent << "QWhatsThis::add( " << obj << ", " << trcall( txt, com ) << " );" << endl;
+		trout << indent << "QWhatsThis::add( " << obj << ", "
+		      << trcall( txt, com ) << " );" << endl;
 	    else
-		out << indent << "QWhatsThis::add( this, " << trcall( txt, com ) << " );" << endl;
+		trout << indent << "QWhatsThis::add( this, "
+		      << trcall( txt, com ) << " );" << endl;
 	} else {
 	    v = trcall( txt, com );
 	}
