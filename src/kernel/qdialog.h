@@ -30,6 +30,9 @@
 #include "qwidget.h"
 #endif // QT_H
 
+#if 0
+Q_OBJECT
+#endif
 
 class QPushButton;
 class QConfigureEvent;
@@ -37,7 +40,7 @@ class QConfigureEvent;
 class Q_EXPORT QDialog : public QWidget			// dialog widget
 {
 friend class QPushButton;
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
@@ -55,8 +58,11 @@ public:
     void	resize( int w, int h );
     void	resize( const QSize & );
     void	setGeometry( int x, int y, int w, int h );
+    
+qproperties:
     void	setGeometry( const QRect & );
 
+public:
 #ifdef QT_BUILDER
     bool event( QEvent* event );
 #endif

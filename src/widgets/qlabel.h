@@ -33,9 +33,13 @@
 class QSimpleRichText;
 class QLabelPrivate;
 
+#if 0
+Q_OBJECT
+#endif
+
 class Q_EXPORT QLabel : public QFrame
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,
@@ -44,13 +48,17 @@ public:
 	    QWidget * parent, const char * name=0, WFlags f=0 );
    ~QLabel();
 
+qproperties:
     QString	text()		const	{ return ltext; }
     QPixmap    *pixmap()	const	{ return lpixmap; }
+    
+public:
     QMovie     *movie()		const;
 
     Qt::TextFormat textFormat() const;
     void setTextFormat( Qt::TextFormat );
 
+qproperties:
     int		alignment()	const	{ return align; }
     virtual void setAlignment( int );
     int		indent()	const	{ return extraMargin; }
@@ -58,6 +66,8 @@ public:
 
     bool	autoResize()	const	{ return autoresize; }
     virtual void setAutoResize( bool );
+    
+public:
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -69,9 +79,11 @@ public:
 
     int heightForWidth(int) const;
 
-public slots:
+qproperties:
     virtual void	setText( const QString &);
     virtual void	setPixmap( const QPixmap & );
+    
+public slots:
     virtual void	setMovie( const QMovie & );
     virtual void	setNum( int );
     virtual void	setNum( double );

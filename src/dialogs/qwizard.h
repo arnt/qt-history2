@@ -38,18 +38,24 @@ class QWizard;
 class QDomElement;
 class QHBoxLayout;
 
+#if 0
+Q_OBJECT
+#endif
 
 class Q_EXPORT QWizard : public QDialog
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QWizard( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 	     WFlags f=0 );
     ~QWizard();
 
     void show();
+    
+qproperties:
     void setFont( const QFont & font );
 
+public:
     virtual void addPage( QWidget *, const QString & );
     virtual void removePage( QWidget * );
 
@@ -100,7 +106,7 @@ protected:
     virtual void layOutTitleRow( QHBoxLayout *, const QString & );
 
     void configureEvent( QConfigureEvent* );
-    
+
 private:
     void setBackEnabled( bool );
     void setNextEnabled( bool );

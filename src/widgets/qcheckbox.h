@@ -30,16 +30,22 @@
 #include "qbutton.h"
 #endif // QT_H
 
+#if 0
+Q_OBJECT
+#endif
 
 class Q_EXPORT QCheckBox : public QButton
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QCheckBox( QWidget *parent, const char *name=0 );
     QCheckBox( const QString &text, QWidget *parent, const char* name=0 );
 
+qproperties:
     bool    isChecked() const;
     void    setChecked( bool check );
+    
+public:
     void    setNoChange();
 
     void    setTristate(bool y=TRUE);

@@ -30,17 +30,22 @@
 #include "qbutton.h"
 #endif // QT_H
 
+#if 0
+Q_OBJECT
+#endif
 
 class Q_EXPORT QRadioButton : public QButton
 {
-    Q_OBJECT
+    Q_COMPONENT
 public:
     QRadioButton( QWidget *parent, const char *name=0 );
     QRadioButton( const QString &text, QWidget *parent, const char* name=0 );
 
+qproperties:
     bool    isChecked() const;
     virtual void    setChecked( bool check );
 
+public:
     QSize    sizeHint() const;
     QSizePolicy sizePolicy() const;
 
@@ -51,7 +56,7 @@ protected:
 
     void    resizeEvent( QResizeEvent* );
     void    focusInEvent( QFocusEvent * );
-    
+
     void    updateMask();
 
 private:

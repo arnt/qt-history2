@@ -42,6 +42,7 @@ public:
     QButton( QWidget *parent=0, const char *name=0, WFlags f=0 );
    ~QButton();
 
+qproperties:
     QString text() const;
     virtual void setText( const QString &);
     const QPixmap *pixmap() const;
@@ -51,23 +52,29 @@ public:
     virtual void	setAccel( int );
 
     bool	isToggleButton() const;
+    
+public:
     enum ToggleType { SingleShot, Toggle, Tristate };
     ToggleType	toggleType() const;
 
+qproperties:
     virtual void setDown( bool );
     bool	isDown() const;
 
     bool	isOn() const;
 
+public:
     enum ToggleState { Off, NoChange, On };
     ToggleState	state() const;
 
+qproperties:
     bool	autoResize() const;
     virtual void setAutoResize( bool );
 
     bool	autoRepeat() const;
     virtual void setAutoRepeat( bool );
 
+public:
     bool	isExclusiveToggle() const;
 
     bool	focusNextPrevChild( bool next );
