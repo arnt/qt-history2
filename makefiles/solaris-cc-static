@@ -1,6 +1,6 @@
 diff -ubr template/Makefile solaris-cc-static/Makefile
---- template/Makefile	Sat Oct  5 23:42:52 1996
-+++ solaris-cc-static/Makefile	Sat Oct  5 23:42:51 1996
+--- template/Makefile	Wed Oct 16 17:06:11 1996
++++ solaris-cc-static/Makefile	Wed Oct 16 17:25:41 1996
 @@ -4,9 +4,9 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -9,14 +9,14 @@ diff -ubr template/Makefile solaris-cc-static/Makefile
 -CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
 +CC	= CC
-+CFLAGS	= -O2 -pto
-+LFLAGS	= -lqt -lX11 -lsocket
++CFLAGS	= -O2 -pto -I/usr/openwin/include
++LFLAGS	= -lqt -L/usr/openwin/lib -lX11
  SHELL	= /bin/sh
  
  all: library tutorial examples
 diff -ubr template/library/Makefile solaris-cc-static/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ solaris-cc-static/library/Makefile	Sat Oct  5 23:40:36 1996
+--- template/library/Makefile	Wed Oct 16 17:06:37 1996
++++ solaris-cc-static/library/Makefile	Wed Oct 16 17:07:06 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

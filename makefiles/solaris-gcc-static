@@ -1,18 +1,20 @@
 diff -ubr template/Makefile solaris-gcc-static/Makefile
---- template/Makefile	Sat Oct  5 23:42:52 1996
-+++ solaris-gcc-static/Makefile	Sat Oct  5 23:42:51 1996
-@@ -6,7 +6,7 @@
+--- template/Makefile	Wed Oct 16 17:06:11 1996
++++ solaris-gcc-static/Makefile	Wed Oct 16 17:17:20 1996
+@@ -5,8 +5,8 @@
+ #
  
  CC	= gcc
- CFLAGS	= -O2 -fno-strength-reduce -Wall -W
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 -LFLAGS	= -lqt
-+LFLAGS	= -lqt -lX11 -lsocket
++CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/openwin/include
++LFLAGS	= -lqt -L/usr/openwin/lib -lX11
  SHELL	= /bin/sh
  
  all: library tutorial examples
 diff -ubr template/library/Makefile solaris-gcc-static/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ solaris-gcc-static/library/Makefile	Sat Oct  5 23:40:37 1996
+--- template/library/Makefile	Wed Oct 16 17:06:37 1996
++++ solaris-gcc-static/library/Makefile	Wed Oct 16 17:07:07 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  

@@ -1,12 +1,24 @@
+diff -ubr template/Makefile solaris-gcc-shared/Makefile
+--- template/Makefile	Wed Oct 16 17:06:11 1996
++++ solaris-gcc-shared/Makefile	Wed Oct 16 17:26:26 1996
+@@ -5,7 +5,7 @@
+ #
+ 
+ CC	= gcc
+-CFLAGS	= -O2 -fno-strength-reduce -Wall -W
++CFLAGS	= -O2 -fno-strength-reduce -Wall -W -I/usr/openwin/include
+ LFLAGS	= -lqt
+ SHELL	= /bin/sh
+ 
 diff -ubr template/library/Makefile solaris-gcc-shared/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ solaris-gcc-shared/library/Makefile	Sat Oct  5 23:40:36 1996
+--- template/library/Makefile	Wed Oct 16 17:06:37 1996
++++ solaris-gcc-shared/library/Makefile	Wed Oct 16 17:32:36 1996
 @@ -88,7 +88,7 @@
  	-rm -f ../lib/libqt.so.$(VERSION)
  	$(CC) -shared -Wl,-soname,libqt.so.1 \
  		-o ../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
-+		$(OBJECTS) $(METAOBJ) -lX11 -lsocket
++		$(OBJECTS) $(METAOBJ) -L/usr/openwin/lib -lX11
  	-rm -f ../lib/libqt.so
  	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
  	-rm -f ../lib/libqt.so.1

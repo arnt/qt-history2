@@ -1,6 +1,6 @@
 diff -ubr template/Makefile solaris-cc-shared/Makefile
---- template/Makefile	Sat Oct  5 23:42:52 1996
-+++ solaris-cc-shared/Makefile	Sat Oct  5 23:42:51 1996
+--- template/Makefile	Wed Oct 16 17:06:11 1996
++++ solaris-cc-shared/Makefile	Wed Oct 16 17:26:10 1996
 @@ -4,8 +4,8 @@
  # Read PORTING for instructions how to port Qt to a new platform.
  #
@@ -8,13 +8,13 @@ diff -ubr template/Makefile solaris-cc-shared/Makefile
 -CC	= gcc
 -CFLAGS	= -O2 -fno-strength-reduce -Wall -W
 +CC	= CC
-+CFLAGS	= -O2 -pto
++CFLAGS	= -O2 -pto -I/usr/openwin/include
  LFLAGS	= -lqt
  SHELL	= /bin/sh
  
 diff -ubr template/library/Makefile solaris-cc-shared/library/Makefile
---- template/library/Makefile	Sat Oct  5 23:40:17 1996
-+++ solaris-cc-shared/library/Makefile	Sat Oct  5 23:40:35 1996
+--- template/library/Makefile	Wed Oct 16 17:06:37 1996
++++ solaris-cc-shared/library/Makefile	Wed Oct 16 17:32:50 1996
 @@ -76,7 +76,7 @@
  .SUFFIXES: .cpp
  
@@ -32,7 +32,7 @@ diff -ubr template/library/Makefile solaris-cc-shared/library/Makefile
 -		-o ../lib/libqt.so.$(VERSION) \
 -		$(OBJECTS) $(METAOBJ) -lX11
 +	$(CC) -G -o ../lib/libqt.so.$(VERSION) \
-+		$(OBJECTS) $(METAOBJ) -lX11 -lsocket
++		$(OBJECTS) $(METAOBJ) -L/usr/openwin/lib -lX11
  	-rm -f ../lib/libqt.so
  	-ln -sf libqt.so.$(VERSION) ../lib/libqt.so
  	-rm -f ../lib/libqt.so.1
