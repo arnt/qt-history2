@@ -452,6 +452,21 @@ void QTextHTMLImporter::import()
             const bool blockTagClosed = closeTag(i);
             if (hasBlock && blockTagClosed)
                 hasBlock = false;
+
+            // make sure there's a block for 'Blah' after <ul><li>foo</ul>Blah
+            if (blockTagClosed
+                && !hasBlock
+                && !node->isBlock
+                && !node->text.isEmpty()) {
+                QTextBlockFormat block;
+
+                block.setAlignment(node->alignment);
+                block.setIndent(indent);
+
+                appendBlock(block, node->charFormat());
+
+                hasBlock = true;
+            }
         }
 
         if (node->id == Html_style) {
