@@ -167,7 +167,7 @@
  *****************************************************************************/
 
 #ifndef QT_NO_DEBUG
-#undef  CHECK_STREAM_PRECOND(x)
+#undef  CHECK_STREAM_PRECOND
 #define CHECK_STREAM_PRECOND(x)  if (!x->d->dev) {                                \
                                 qWarning("QTextStream: No device");        \
                                 return *x; }
