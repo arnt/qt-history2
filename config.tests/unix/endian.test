@@ -21,7 +21,7 @@ fi
 ENDIAN=$?
 
 # done
-if [ "$ENDIAN" -ne 0 ]; then
+if [ "$ENDIAN" -eq 0 ]; then
     [ "$VERBOSE" = "yes" ] && echo "Using big endian."
     exit 1
 else
