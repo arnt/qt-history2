@@ -319,8 +319,6 @@ QToolBar::QToolBar( const QString &label,
 
 
 /*!
-    \overload
-
     Constructs an empty horizontal toolbar.
 
     The toolbar is a child of \a parent and is managed by \a mainWindow.
@@ -645,13 +643,13 @@ void QToolBar::createPopup()
 		    QString s = c->caption();
 		    if ( s.isEmpty() )
 		        s = c->currentText();
-		    uint maxItems = 0;		    
+		    uint maxItems = 0;
 		    QPopupMenu *cp = new QPopupMenu;
 		    d->extensionSubMenues.append( cp );
 		    d->extensionPopup->insertItem( s, cp );
-		    connect( cp, SIGNAL( activated( int ) ), 
+		    connect( cp, SIGNAL( activated( int ) ),
 		        c, SLOT( internalActivate( int ) ) );
-		    for ( int i = 0; i < c->count(); ++i ) {			    
+		    for ( int i = 0; i < c->count(); ++i ) {
 		        QString tmp = c->text( i );
 			cp->insertItem( tmp, i );
 		        if ( c->currentText() == tmp )
@@ -666,11 +664,11 @@ void QToolBar::createPopup()
 			    d->extensionSubMenues.append( sp );
 			    cp->insertItem( tr( "More..." ), sp );
 			    cp = sp;
-			    connect( cp, SIGNAL( activated( int ) ), 
-			        c, SLOT( internalActivate( int ) ) );		    
+			    connect( cp, SIGNAL( activated( int ) ),
+			        c, SLOT( internalActivate( int ) ) );
 			}
 		    }
-		}		
+		}
 	    }
 	}
         ++it;
@@ -688,7 +686,7 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	tooSmall = e->size().width() < sizeHint().width();
     else
 	tooSmall = e->size().height() < sizeHint().height();
-    
+
     if ( tooSmall ) {
 	createPopup();
 	if ( d->extensionPopup->count() ) {
@@ -697,7 +695,7 @@ void QToolBar::resizeEvent( QResizeEvent *e )
 	    else
 	        d->extension->setGeometry( 1, height() - 20, width() - 2, 20 );
 	    d->extension->show();
-	    d->extension->raise();	    	    
+	    d->extension->raise();
 	} else {
 	    d->extension->hide();
 	}

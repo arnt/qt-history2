@@ -2420,10 +2420,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   Draws the given text within the rectangle starting at \a x, \a y,
   with width \a w and height \a h. If \a len is -1 (the default) all
   the text is drawn, otherwise the first \a len characters are drawn.
-  The text's alignment is given in the \a flags parameter (see
-  \l{Qt::AlignmentFlags} and \l{Qt::TextFlags}). \a br (if not null)
-  is set to the actual bounding rectangle of the output. The \a
-  internal parameter is for internal use only.
+  The text's flags that are given in the \a flags parameter are
+  \l{Qt::AlignmentFlags} and \l{Qt::TextFlags} OR'd together. \a br
+  (if not null) is set to the actual bounding rectangle of the output.
+  The \a internal parameter is for internal use only.
 */
 
 /*!
@@ -3558,6 +3558,9 @@ QBrush QBrush::copy() const
   \i DiagCrossPattern  diagonal crossing lines pattern.
   \i CustomPattern  set when a pixmap pattern is being used.
   \endlist
+
+On Windows, only the dense patterns are transparent.
+
 
   \sa style()
 */

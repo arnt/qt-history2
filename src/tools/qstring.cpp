@@ -12489,7 +12489,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
     QString b( a.unicode(), b.length() );
   \endcode
 
-  Otherwise, using the QString constructor that takes a const char* 
+  Otherwise, using the QString constructor that takes a const char*
   will be sufficent.  For example:
 
   \code
@@ -13298,7 +13298,7 @@ QString &QString::sprintf( const char* cformat, ... )
 
   \code
     QString str;
-    str.fill( 'g', 5 );      // string == "gggggg"
+    str.fill( 'g', 5 );      // string == "ggggg"
   \endcode
 */
 
@@ -15875,10 +15875,10 @@ bool operator>=( const QString &s1, const QString &s2 )
 
 
 bool operator==( const QString &s1, const char *s2 )
-{ 
+{
     if ( !s2 )
 	return s1.isNull();
-    
+
     int len = s1.length();
     const QChar *uc = s1.unicode();
     while ( len ) {

@@ -571,11 +571,6 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
   This signal is emitted when a menu item is highlighted; \a id is the
   id of the highlighted item.
 
-  Normally, you connect each menu item to a single slot using
-  QMenuData::insertItem(), but sometimes you will want to connect
-  several items to a single slot (most often if the user selects from
-  an array).  This signal is useful in such cases.
-
   \sa activated(), QMenuData::insertItem()
 */
 
