@@ -147,7 +147,7 @@ contains(sql-drivers, sqlite) {
                                 ../3rdparty/sqlite/where.c
                 unix:SOURCES += ../3rdparty/sqlite/os_unix.c
                 mac:SOURCES +=  ../3rdparty/sqlite/os_mac.c
-                win:SOURCES +=  ../3rdparty/sqlite/os_unix.c
+                win32:SOURCES +=  ../3rdparty/sqlite/os_win.c
         }
 
         HEADERS +=      drivers/sqlite/qsql_sqlite.h
