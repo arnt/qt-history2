@@ -1063,6 +1063,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
             break;
         if (d->active == o) {
             int a = d->focus.indexOf(d->active);
+            bool requireShown = true;
             for (;;) {
                 if (--a < 0)
                     a = d->focus.count()-1;
@@ -1070,14 +1071,20 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
                 if (!c || c == o) {
                     if (c && c->iconw && d->icons.contains(c->iconw->parentWidget()))
                         break;
+                    if (requireShown) {
+                        requireShown = false;
+                        continue;
+                    }
                     d->activateWindow(0);
                     break;
                 }
-                if (c->isShown()) {
+                if (!requireShown || c->isShown()) {
                     d->activateWindow(c->windowWidget(), false);
                     break;
                 }
             }
+
+
         }
         d->focus.removeAll(static_cast<QWorkspaceChild*>(o));
         if (d->maxWindow == o && d->maxWindow->isHidden()) {
