@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#64 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#65 $
 **
 ** Implementation of QTextCodec class
 **
@@ -212,9 +212,18 @@ static QString lettersAndNumbers( const char * input )
     while( input && *input ) {
 	c = *input;
 	if ( c.isLetter() || c.isNumber() )
-	    result += c;
-	if ( input[1] && c.category() != QChar( input[1] ).category() )
-	    result += ' ';
+	    result += c.lower();
+	if ( input[1] ) {
+	    // add space at character class transition, except
+	    // transition from upper-case to lower-case letter
+	    QChar n( input[1] );
+	    if ( c.isLetter() && n.isLetter() ) {
+		if ( c == c.lower() && n == n.upper() )
+		    result += ' ';
+	    } else if ( c.category() != n.category() ) {
+		result += ' ';
+	    }
+	}
 	input++;
     }
     return result.simplifyWhiteSpace();
@@ -233,8 +242,13 @@ int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 
     // if the letters and numbers are the same, we have an "almost"
     // perfect match.
-    if ( lettersAndNumbers( name ) == lettersAndNumbers( hint ) )
+    QString h( lettersAndNumbers( hint ) );
+    QString n( lettersAndNumbers( name ) );
+    if ( h == n )
 	return strlen( hint )-1;
+
+    if ( h.stripWhiteSpace() == n.stripWhiteSpace() )
+	return strlen( hint )-2;
 
     // could do some more here, but I don't think it's worth it
 
