@@ -2,6 +2,7 @@
 #define THREAD_H
 
 #include <QThread>
+#include <QMutex>
 
 class Thread : public QThread
 {
@@ -18,6 +19,7 @@ signals:
 private:
     QString hostName;
     Q_UINT16 port;
+    QMutex mutex;
 };
 
 #endif

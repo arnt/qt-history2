@@ -4,6 +4,7 @@
 
 void Thread::requestNewFortune(const QString &hostName, Q_UINT16 port)
 {
+    QMutexLocker lock(&mutex);
     this->hostName = hostName;
     this->port = port;
     start();
@@ -14,7 +15,11 @@ void Thread::run()
     const int Timeout = 5 * 1000;
 
     QTcpSocket socket;
+
+    mutex.lock();
     socket.connectToHost(hostName, port);
+    mutex.unlock();
+
     if (!socket.waitForConnected(Timeout)) {
         emit error(socket.socketError(), socket.errorString());
         return;
