@@ -838,7 +838,7 @@ bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeD
         return false;
 #ifndef QT_NO_IMAGEIO_BMP
     QVariant v = mimeData->imageData();
-    QImage img = v.toImage();
+    QImage img = qVariant_to<QImage>(v);
     if (img.isNull())
         return false;
     QByteArray ba;
@@ -865,7 +865,7 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, struct IDataO
         QDataStream s(&iod);
         s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
         if (qt_read_dib(s, img)) { // ##### encaps "-14"
-            result = img;
+            result = qVariant(img);
         }
     }
 #endif

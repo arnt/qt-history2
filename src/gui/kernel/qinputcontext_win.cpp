@@ -594,14 +594,14 @@ bool QInputContext::composition(LPARAM lParam)
            QList<QInputMethodEvent::Attribute> attrs;
            if (imePosition > 0)
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, imePosition,
-                                                     standardFormat(PreeditFormat, fw));
+                                            qVariant(standardFormat(PreeditFormat, fw)));
            if (selLength)
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition, selLength,
-                                                     standardFormat(SelectionFormat, fw));
+                                            qVariant(standardFormat(SelectionFormat, fw)));
            if (imePosition + selLength < imeComposition->length())
                attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, imePosition + selLength,
-                                                     imeComposition->length() - imePosition - selLength,
-                                                     standardFormat(PreeditFormat, fw));
+                                            imeComposition->length() - imePosition - selLength,
+                                            qVariant(standardFormat(PreeditFormat, fw)));
            QInputMethodEvent e(*imeComposition, attrs);
            result = qt_sendSpontaneousEvent(fw, &e);
         }

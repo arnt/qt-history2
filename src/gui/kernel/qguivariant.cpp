@@ -37,7 +37,6 @@ extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup 
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
-Q_GUI_EXPORT bool qRegisterGuiVariant();
 
 static void construct(QVariant::Private *x, const void *copy)
 {
