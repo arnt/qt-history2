@@ -32,7 +32,7 @@ This should be available at the same place as the qt-embedded archive.
 	TMAKEPATH
 
 
-export QTDIR=$HOME/qws
+export QTDIR=$HOME/qt-embedded
 export TMAKEDIR=$HOME/tmake
 
 export PATH=$QTDIR/bin:$PATH:$TMAKEDIR/bin
@@ -58,8 +58,8 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
 5. Enable framebuffer support
 
    You may need to recompile your kernel to enable the framebuffer.
-   This document does not describe how to do thiss, the file
-   README-Framebuffer.embedded contains a short description. . (You
+   This document does not describe how to do this; the file
+   README-Framebuffer.embedded contains a short description. (You
    should see a penguin logo at boot time when the frame buffer is
    enabled.)
 
@@ -70,7 +70,7 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
 
    Note that some cards are only supported in VGA16 mode, this will
    not work with the current version of Qt/Embedded, since VGA/16 is
-   not yet supportedsupported. You may need to upgrade your kernel, or even
+   not yet supported. You may need to upgrade your kernel, or even
    switch to an experimental kernel.
 
    The frame buffer must also be enabled with a boot parameter. See
@@ -88,7 +88,7 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
 
    Log into a virtual console and do:
 
-	cd ~/qt-embedded/example/launcher
+	cd ~/qt-embedded/
    	./start-demo
   
 
@@ -116,7 +116,10 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
   named pipe /tmp/.QtEmbedded; sometimes it may need to be deleted.
 
 
-  
+8. Customization  
 
-
+   The Qt/Embedded library can be further reduced in size by removing
+   unneeded features. The file qt-embedded/src/tools/qfeatures.h
+   defines macros of the form QT_FEATURE_XXXX. To remove a feature
+   from Qt/Embedded, set the macro to 0.
 

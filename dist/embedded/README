@@ -1,7 +1,7 @@
-This is the Qt/Embedded alpha distribution.
+This is the Qt/Embedded alpha source distribution.
 
-Run "make" in this directory. Then run the "start_demo" script.  Try
-the "large" example first.
+Make sure that a new version of tmake is installed. Then run the
+"start_demo" script.  Try the "large" example first.
 
 If this fails, see INSTALL for details of how to configure your system.
 
