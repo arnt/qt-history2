@@ -668,16 +668,14 @@ typedef unsigned int		Q_UINT32;	// 32 bit unsigned
 // LLP64 64-bit model on Windows
 typedef __int64			Q_LONG;		// word up to 64 bit signed
 typedef unsigned __int64	Q_ULONG;	// word up to 64 bit unsigned
+typedef Q_LONG			Q_INT64;	// 64 bit signed
+typedef Q_ULONG			Q_UINT64;	// 64 bit unsigned
 #else
 // LP64 64-bit model on Linux
 typedef long			Q_LONG;
 typedef unsigned long		Q_ULONG;
-#endif
-
-#if !defined(QT_CLEAN_NAMESPACE)
-// mininum size of 64 bits is not guaranteed
-#define Q_INT64			Q_LONG
-#define Q_UINT64		Q_ULONG
+typedef long long		Q_INT64;	// 64 bit signed
+typedef unsigned long long 	Q_UINT64;	// 64 bit unsigned
 #endif
 
 #if defined(Q_OS_MACX) && !defined(QT_LARGEFILE_SUPPORT)
