@@ -18,7 +18,7 @@ class LifeWidget : public QFrame
 {
     Q_OBJECT
 public:
-    LifeWidget( QWidget *parent = 0, const char *name = 0 );
+    LifeWidget( int s = 10, QWidget *parent = 0, const char *name = 0 );
 
     void	setPoint( int i, int j );
 
@@ -37,21 +37,22 @@ protected:
     void	 mouseHandle( const QPoint &pos );
 
 private:
-    enum { SCALE = 10, MAXSIZE = 50, MINSIZE = 10, BORDER = 5 };
+    enum { MAXSIZE = 50, MINSIZE = 10, BORDER = 5 };
 
     bool	cells[2][MAXSIZE + 2][MAXSIZE + 2];
     int		current;
     int		maxi, maxj;
 
-    static int pos2index( int x )
+    int pos2index( int x )
     {
 	return ( x - BORDER ) / SCALE + 1;
     }
-    static int index2pos( int i )
+    int index2pos( int i )
     {
 	return	( i - 1 ) * SCALE + BORDER;
     }
 
+    int SCALE;
 };
 
 

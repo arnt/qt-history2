@@ -42,7 +42,7 @@ class LifeDialog : public QWidget
 {
     Q_OBJECT
 public:
-    LifeDialog( QWidget *parent = 0, const char *name = 0 );
+    LifeDialog( int scale = 10, QWidget *parent = 0, const char *name = 0 );
 public slots:
     void	getPattern( int );
 

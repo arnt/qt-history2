@@ -18,9 +18,11 @@
 
 // The main game of life widget
 
-LifeWidget::LifeWidget( QWidget *parent, const char *name )
+LifeWidget::LifeWidget( int s, QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
+    SCALE = s;
+
     maxi = maxj = 50;
     setMinimumSize( MINSIZE * SCALE + 2 * BORDER,
 		   MINSIZE * SCALE + 2 * BORDER );
