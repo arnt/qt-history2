@@ -448,21 +448,18 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool 
     if(d->clip.paintable.isEmpty())
 	return;
 
-    RgnHandle polyRegion = qt_mac_get_rgn();
-    OpenRgn();
+    PolyHandle polyHandle = OpenPoly();
     MoveTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
     for(int x = 1; x < pa.size(); x++)
 	LineTo(pa[x].x()+d->offx, pa[x].y()+d->offy);
     if(close)
 	LineTo(pa[0].x()+d->offx, pa[0].y()+d->offy);
-    CloseRgn(polyRegion);
+    ClosePoly();
 
     if(close && d->current.brush.style() != NoBrush) {
 	setupQDBrush();
-	if(inset && d->current.pen.style() == NoPen)  // Inset all points, no frame will be painted.
-	    InsetRgn(polyRegion, 1, 1);
 	if(d->current.brush.style() == SolidPattern) {
-	    PaintRgn(polyRegion);
+	    PaintPoly(polyHandle);
 	} else {
 	    QPixmap *pm = 0;
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
@@ -475,7 +472,7 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool 
 		    f.green = d->current.bg.brush.color().green()*256;
 		    f.blue = d->current.bg.brush.color().blue()*256;
 		    RGBForeColor(&f);
-		    PaintRgn(polyRegion);
+		    PaintPoly(polyHandle);
 		}
 	    }
 
@@ -501,9 +498,9 @@ QQuickDrawPaintEngine::drawPolyInternal(const QPointArray &pa, bool close, bool 
     }
     if(d->current.pen.style() != NoPen) {
 	setupQDPen();
-	FrameRgn(polyRegion);
+	FramePoly(polyHandle);
     }
-    qt_mac_dispose_rgn(polyRegion);
+    KillPoly(polyHandle);
 }
 
 void
