@@ -1,0 +1,97 @@
+Qt 3.0 Beta6 is not binary compatible with Beta3; any programs linked
+against Beta5 must be recompiled.
+
+Below you will find a description of general changes in the Qt
+Library and Qt Designer followed by a detailed list of changes in the
+API.
+
+
+The Qt Library
+========================================
+
+ - ### Component stuff
+
+
+Qt Designer
+========================================
+
+ - 
+
+
+Qt Assistant
+========================================
+
+ - 
+
+
+Qt Linguist
+========================================
+
+ - 
+
+
+Qt Functions
+========================================
+
+QComboBox
+---------
+
+ - Add a new function to be able to set a custom line edit.
+
+New function:
+	virtual void setLineEdit( QLineEdit *edit );
+
+QDom
+----
+
+ - Fix an infinite loop in QDomDocument::toString().
+
+QIconView
+---------
+
+ - Add a function to find out whether an item in a view is currently being
+   renamed.
+
+New function:
+	bool isRenaming() const;
+
+QListView
+---------
+
+ - Add a function to find out whether an item in a view is currently being
+   renamed.
+
+New function:
+	bool isRenaming() const;
+
+QPixmap
+-------
+
+ - X11 with render extension only: QPixmap::xForm() keeps now the alpha
+   channel information.
+
+QPrinter
+--------
+
+ - Some minor printing improvements under Unix.
+
+QStyle
+------
+
+ - Added a base value (CC_CustomBase) for custom defined primitives,
+   controls, etc. this allows custom widgets to use the new style engine.
+
+QTextEdit
+---------
+
+ - New function to pass the position to the createPopupMenu() function for
+   improved flexibility
+
+New function:
+	virtual QPopupMenu *createPopupMenu( const QPoint& pos );
+
+QWMatrix
+--------
+
+ - mapRect() returns always a valid QRect now.
+
