@@ -38,12 +38,12 @@
 
   \sa createSubImpl()
  */
-void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
+void Uic::createSubDecl( const QDomElement& widget, const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
     QStringList::Iterator it, it2, it3;
 
-    QString objClass = getClassName( e );
+    QString objClass = getClassName( widget );
     if ( objClass.isEmpty() )
 	return;
 
@@ -165,12 +165,12 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 
   \sa createSubDecl()
  */
-void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
+void Uic::createSubImpl( const QDomElement& widget, const QDomElement &e, const QString& subClass )
 {
     QDomElement n;
     QStringList::Iterator it, it2, it3;
 
-    QString objClass = getClassName( e );
+    QString objClass = getClassName( widget );
     if ( objClass.isEmpty() )
 	return;
 

@@ -33,11 +33,11 @@ public:
     Uic( const QString &fn, QTextStream& out, QDomDocument doc, bool decl, bool subcl,
 	 const QString &trm, const QString& subclname, bool omitForwardDecls );
 
-    void createFormDecl( const QDomElement &e );
-    void createFormImpl( const QDomElement &e );
+    void createFormDecl( const QDomElement& widget, const QDomElement &e );
+    void createFormImpl( const QDomElement& widget, const QDomElement &e );
 
-    void createSubDecl( const QDomElement &e, const QString& subclname );
-    void createSubImpl( const QDomElement &e, const QString& subclname );
+    void createSubDecl( const QDomElement& widget, const QDomElement &e, const QString& subclname );
+    void createSubImpl( const QDomElement& widget, const QDomElement &e, const QString& subclname );
 
     void createObjectDecl( const QDomElement& e );
     void createActionDecl( const QDomElement& e );
@@ -76,9 +76,9 @@ public:
     QStringList unique( const QStringList& );
 
     QString trcall( const QString& sourceText, const QString& comment = "" );
-    
+
     static void embed( QTextStream& out, const char* project, const QStringList& images );
-    
+
 private:
     void registerLayouts ( const QDomElement& e );
 
