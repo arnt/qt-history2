@@ -1819,6 +1819,19 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     }
 #endif
                 }
+            } else if(val.toLower() == "unique") {
+                if(arg_list.count() != 1) {
+                    fprintf(stderr, "%s:%d unique(var) requires one argument\n",
+                            parser.file.latin1(), parser.line_no);
+                } else {
+                    QStringList uniq;
+                    const QStringList &var = place[varMap(arg_list.first())];
+                    for(int i = 0; i < var.count(); i++) {
+                        if(!uniq.contains(var[i])) 
+                            uniq.append(var[i]);
+                    }
+                    replacement = uniq.join(" ");
+                }
             } else if(val.toLower() == "quote") {
                 replacement = arg_list.join(" ");
                 replacement = replacement.replace("\\n", "\n");
