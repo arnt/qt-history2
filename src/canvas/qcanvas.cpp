@@ -2175,7 +2175,7 @@ QCanvasPixmap::QCanvasPixmap(const QImage& image)
 /*!
   Constructs a QCanvasPixmap from a pixmap and an offset.
 */
-QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, QPoint offset)
+QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, const QPoint& offset)
 {
     init(pm,offset.x(),offset.y());
 }

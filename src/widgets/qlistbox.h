@@ -194,7 +194,7 @@ public:
 #endif
 
     int itemHeight( int index = 0 ) const;
-    QListBoxItem * itemAt( QPoint ) const;
+    QListBoxItem * itemAt( const QPoint & ) const;
 
     QRect itemRect( QListBoxItem *item ) const;
 

@@ -318,7 +318,7 @@ QDragObject::~QDragObject()
   The \a hotspot is the point on (or off) the pixmap that should be under the
   cursor as it is dragged. It is relative to the top-left pixel of the pixmap.
 */
-void QDragObject::setPixmap(QPixmap pm, QPoint hotspot)
+void QDragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 {
     d->pixmap = pm;
     d->hot = hotspot;

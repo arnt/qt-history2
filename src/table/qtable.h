@@ -391,7 +391,7 @@ signals:
 
 protected:
     void paintEvent( QPaintEvent *e );
-    void paintSection( QPainter *p, int index, QRect fr );
+    void paintSection( QPainter *p, int index, const QRect& fr );
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );

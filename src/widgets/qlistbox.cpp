@@ -2993,7 +2993,7 @@ void QListBox::setBottomItem( int index )
   coordinates, or a null pointer if there is no item at \a p.
 */
 
-QListBoxItem * QListBox::itemAt( QPoint p ) const
+QListBoxItem * QListBox::itemAt( const QPoint& p ) const
 {
     if ( d->layoutDirty )
 	doLayout();

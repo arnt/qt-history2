@@ -96,7 +96,6 @@ protected:
 private:
     void init();
     void recalc( bool update = FALSE );
-    int hit( QPoint p );
     void doResize();
     void storeSizes();
     void processChildEvents();

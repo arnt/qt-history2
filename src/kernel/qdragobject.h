@@ -61,7 +61,7 @@ public:
     void dragCopy();
 
     virtual void setPixmap(QPixmap);
-    virtual void setPixmap(QPixmap, QPoint hotspot);
+    virtual void setPixmap(QPixmap, const QPoint& hotspot);
     QPixmap pixmap() const;
     QPoint pixmapHotSpot() const;
 #endif

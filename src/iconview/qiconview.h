@@ -195,8 +195,8 @@ public:
     QPoint pos() const;
     QRect textRect( bool relative = TRUE ) const;
     QRect pixmapRect( bool relative = TRUE ) const;
-    bool contains( QPoint pnt ) const;
-    bool intersects( QRect r ) const;
+    bool contains( const QPoint& pnt ) const;
+    bool intersects( const QRect& r ) const;
 
     virtual bool acceptDrop( const QMimeSource *mime ) const;
 

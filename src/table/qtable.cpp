@@ -3335,7 +3335,7 @@ void QTableHeader::paintEvent( QPaintEvent *e )
     }
 }
 
-void QTableHeader::paintSection( QPainter *p, int index, QRect fr )
+void QTableHeader::paintSection( QPainter *p, int index, const QRect& fr )
 {
     int section = mapToSection( index );
     if ( section < 0 )

@@ -1409,7 +1409,7 @@ QRect QIconViewItem::pixmapRect( bool relative ) const
   coordinates), and FALSE if it does not.
 */
 
-bool QIconViewItem::contains( QPoint pnt ) const
+bool QIconViewItem::contains( const QPoint& pnt ) const
 {
     return ( textRect( FALSE ).contains( pnt ) ||
 	     pixmapRect( FALSE ).contains( pnt ) );
@@ -1420,7 +1420,7 @@ bool QIconViewItem::contains( QPoint pnt ) const
   coordinates), and FALSE if it does not.
 */
 
-bool QIconViewItem::intersects( QRect r ) const
+bool QIconViewItem::intersects( const QRect& r ) const
 {
     return ( textRect( FALSE ).intersects( r ) ||
 	     pixmapRect( FALSE ).intersects( r ) );

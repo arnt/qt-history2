@@ -342,7 +342,7 @@ class Q_EXPORT QCanvasPixmap : public QPixmap
 public:
     QCanvasPixmap(const QString& datafilename);
     QCanvasPixmap(const QImage& image);
-    QCanvasPixmap(const QPixmap&, QPoint hotspot);
+    QCanvasPixmap(const QPixmap&, const QPoint& hotspot);
     ~QCanvasPixmap();
 
     int offsetX() const
