@@ -1,18 +1,9 @@
 # Qt sql module
-# Recognized CONFIG switches for adding sql support:
-#
-#	sql		- enable sql module
-#	sql_postgres	- link with postgres
-#	sql_mysql	- link with mysql
-#	sql_odbc	- link with odbc
-#
-
-!sql:DEFINES    += QT_NO_SQL
 
 sql {
 
 	!table {
-		message(table must be enabled for sql support):
+		message(table must be enabled for sql support)
 		REQUIRES += table
 	}
 
@@ -75,4 +66,4 @@ sql {
 		}
 	}
 }
-
+!sql:DEFINES    += QT_NO_SQL
