@@ -456,7 +456,7 @@ QDir QFileInfo::dir( bool absPath ) const
 
 
 /*!
-    Returns TRUE if the file is readable; otherwise returns FALSE.
+    Returns TRUE if the user can write to the file; otherwise returns FALSE.
 
     \sa isWritable(), isExecutable(), permission()
 */
