@@ -70,7 +70,6 @@ QDataStream & operator>> ( QDataStream & stream, QListViewItem & item )
     QPixmap pixmap;
     for ( int i = 0; i < columns; i++ ) {
 	stream >> b; // column i has pixmap ?
-	qDebug( "found pixmap col %d %d", i, b );
 	if ( b ) {
 	    stream >> pixmap;
 	    item.setPixmap( i, pixmap );

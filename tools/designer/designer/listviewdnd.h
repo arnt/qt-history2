@@ -21,6 +21,11 @@ public:
 signals:
     void dragged( QListViewItem * );
     void dropped( QListViewItem * );
+    void added( QListViewItem * );
+    void deleting( QListViewItem * );
+public slots:
+    void confirm( QListViewItem * );
+
 protected:
     bool dragEnterEvent( QDragEnterEvent * event );
     bool dragLeaveEvent( QDragLeaveEvent * );
@@ -36,6 +41,7 @@ private:
     QPoint dragPos;
     bool dragInside;
     bool dragDelete;
+    bool dropConfirmed;
     int dMode;
 };
 

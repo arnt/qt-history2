@@ -11,9 +11,10 @@ ListViewDnd::ListViewDnd( QListView * eventSource, const char *name )
     src = eventSource;
     src->setAcceptDrops( true );
     src->installEventFilter( this );
-    
+
     dragInside = FALSE;
     dragDelete = TRUE;
+    dropConfirmed = FALSE;
     dMode = Both;
 
     line = new QWidget( src->viewport(), 0, Qt::WStyle_NoBorder | WStyle_StaysOnTop );
@@ -50,6 +51,11 @@ bool ListViewDnd::eventFilter( QObject *, QEvent * event )
 	break;
     }
     return FALSE;
+}
+
+void ListViewDnd::confirm( QListViewItem * )
+{
+    dropConfirmed = TRUE;
 }
 
 bool ListViewDnd::dragEnterEvent( QDragEnterEvent * event )
@@ -96,9 +102,10 @@ bool ListViewDnd::dropEvent( QDropEvent * event )
 {
     dragInside = FALSE;
     line->hide();
-
+    
     if ( dMode & NullDrop ) { // combined with Move, a NullDrop will delete an item
 	event->accept();
+	emit dropped( 0 ); // a NullDrop
 	return TRUE;
     }
     
@@ -106,12 +113,13 @@ bool ListViewDnd::dropEvent( QDropEvent * event )
 
     if ( ListViewItemDrag::decode( event, item ) ) {
 	event->accept();
+	emit dropped( item );
 	src->insertItem( item );
 	QPoint pos = event->pos();
 	moveItemTo( item, pos );
 	src->setCurrentItem( item );
 	src->ensureItemVisible( item );
-	emit dropped( item ); //  NOTE: signal is emitted _after_ item has been inserted and moved
+	emit added( item ); // NOTE: signal is emitted _after_ item has been added
     }
     return TRUE;
 }
@@ -130,10 +138,13 @@ bool ListViewDnd::mouseMoveEvent( QMouseEvent * event )
 	    QListViewItem * item = src->selectedItem();
 	    ListViewItemDrag * dragobject = new ListViewItemDrag( item, src );
 	    dragobject->dragCopy();
-	    emit dragged( item ); // NOTE: signal is emitted _before_ item is removed
-	    if ( dMode & Move )
+	    emit dragged( item );
+	    if ( ( dMode & Move ) && dropConfirmed ) {
+		emit deleting( item ); // NOTE: signal is emitted _before_ item is deleted
 		//delete item;
 		src->takeItem( item ); //FIXME: memleak
+		dropConfirmed = FALSE;
+	    }
 	}
     }
     return FALSE;

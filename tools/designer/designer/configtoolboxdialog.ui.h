@@ -34,10 +34,14 @@ void ConfigToolboxDialog::init()
 	ListViewDnd *commonDnd = new ListViewDnd( listViewCommon );
 	commonDnd->setDragMode( ListViewDnd::Both | ListViewDnd::Move );
 	
-	QObject::connect( commonDnd, SIGNAL( dragged( QListViewItem * ) ),
-					  this, SLOT( removeDraggedTool( QListViewItem * ) ) );
+	QObject::connect( commonDnd, SIGNAL( deleting( QListViewItem * ) ),
+			  this, SLOT( removeDraggedTool( QListViewItem * ) ) );
+	QObject::connect( commonDnd, SIGNAL( added( QListViewItem * ) ),
+			  this, SLOT( addDroppedTool( QListViewItem * ) ) );
+	QObject::connect( toolsDnd, SIGNAL( dropped( QListViewItem * ) ),
+			  commonDnd, SLOT( confirm( QListViewItem * ) ) );
 	QObject::connect( commonDnd, SIGNAL( dropped( QListViewItem * ) ),
-					  this, SLOT( addDroppedTool( QListViewItem * ) ) );
+			  commonDnd, SLOT( confirm( QListViewItem * ) ) );
 	
 	QDict<QListViewItem> groups;
 	QAction *a;
