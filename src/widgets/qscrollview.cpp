@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#38 $
 **
 ** Implementation of QScrollView class
 **
@@ -633,7 +633,7 @@ void QScrollView::showChild(QWidget* child, bool y)
 
 bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 {
-    if (!d) return; // we are destructing
+    if (!d) return FALSE; // we are destructing
     if ( obj == &d->viewport ) {
 	switch ( e->type() ) {
 	  case Event_Paint:
