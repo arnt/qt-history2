@@ -4858,7 +4858,7 @@ QWidget *QTable::cellWidget( int row, int col ) const
     see the \l {notes on large tables}.
 
     This function deletes the widget at \a row, \a col. Note that the
-    widget is not deleted immediately but QObject::deferredDelete() is
+    widget is not deleted immediately but QObject::deleteLater() is
     called on the widget to avoid problems with timing issues.
 
   \sa cellWidget() setCellWidget()
@@ -4875,7 +4875,7 @@ void QTable::clearCellWidget( int row, int col )
     QWidget *w = cellWidget( row, col );
     if ( w ) {
 	w->removeEventFilter( this );
-	w->deferredDelete();
+	w->deleteLater();
     }
     widgets.setAutoDelete( FALSE );
     widgets.remove( indexOf( row, col ) );

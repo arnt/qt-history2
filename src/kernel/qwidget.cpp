@@ -3785,7 +3785,7 @@ bool QWidget::close( bool alsoDelete )
     if ( alsoDelete )
 	delete this;
     else if ( testWFlags(WDestructiveClose) )
-	deferredDelete();
+	deleteLater();
     return TRUE;
 }
 

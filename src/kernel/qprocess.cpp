@@ -513,7 +513,7 @@ bool QProcess::scanNewline( bool stdOut, QByteArray *store )
   data has been written to standard input. If the start failed, then
   this signal is emitted immediately.
 
-  \sa launch() QObject::deferredDelete()
+  \sa launch() QObject::deleteLater()
 */
 
 /*!

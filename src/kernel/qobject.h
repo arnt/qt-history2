@@ -142,8 +142,8 @@ public:
     QObject	*parent() const { return parentObj; }
 
 public slots:
-    void	deferredDelete();
-    
+    void	deleteLater();
+
 private slots:
     void	 cleanupEventFilter( QObject* );
 

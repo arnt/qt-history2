@@ -1851,7 +1851,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
   Instead of an immediate deletion this function schedules a deferred
   delete event for processing when Qt returns to the main event loop.
  */
-void QObject::deferredDelete()
+void QObject::deleteLater()
 {
     QApplication::postEvent( this, new QEvent( QEvent::DeferredDelete) );
 }
