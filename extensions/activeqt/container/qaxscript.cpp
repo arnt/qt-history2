@@ -28,6 +28,8 @@ public:
     void addItem(const QString &name);
     bool load(const QString &code, const QString &language);
 
+    QString scriptName() const;
+
 private:
     QAxScript *script_manager;
     IActiveScript *script;
@@ -251,7 +253,7 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     if (hres == S_OK)
 	lineText = BSTRToQString(bstrLineText);
     else if (context)
-	lineText = ((QAxScriptEngine*)context)->name();
+	lineText = ((QAxScriptEngine*)context)->scriptName();
 
     emit scriptManager->error(exception.wCode, BSTRToQString(exception.bstrDescription),
 				    lineNumber, lineText);
@@ -356,6 +358,14 @@ QAxScriptEngine::~QAxScriptEngine()
 	script->Close();
 	script->Release();
     }
+}
+
+/*
+    Returns the name of the script engine.
+*/
+inline QString QAxScriptEngine::scriptName() const
+{
+    return script_name;
 }
 
 /*
@@ -611,7 +621,7 @@ QStringList QAxScript::scripts() const
 	QAxScriptEngine *script = scriptIt.current();
 	++scriptIt;
 
-	scripts << QString::fromLatin1(script->name());
+	scripts << script->scriptName();
     }
 
     return scripts;
@@ -634,7 +644,7 @@ QAxObject *QAxScript::scriptEngine(const QString &name) const
 	QAxScriptEngine *script = scriptIt.current();
 	++scriptIt;
 
-	if (script->name() == name)
+	if (script->scriptName() == name)
 	    return script;
     }
 
@@ -772,7 +782,7 @@ void QAxScript::unload(const QString &name)
 	QAxScriptEngine *script = scriptIt.current();
 	++scriptIt;
 
-	if (script->name() == name)
+	if (script->scriptName() == name)
 	    script->deleteLater();
     }
 }
