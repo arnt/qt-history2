@@ -2,18 +2,23 @@
 
 $P4 = "/local/bin/p4";
 
-if ( ( ! -f $P4 ) || ( ! -x $P4 ) ) {
-    die "$P4 is either not a file or not executable\n";
+# Simplify program name, if it is a path.
+$0 =~ s#.*/##;
+
+if ( ! -f $P4 ) {
+    die "$0: $P4 is not a file\n";
+} elsif ( ! -x $P4 ) {
+    die "$0: $P4 is not executable\n";
 }
 
 if ( $#ARGV != 0 ) {
-    die "p4i takes a single change number as argument\n";
+    die "$0: takes a single change number as argument\n";
 } else {
     $change = $ARGV[0];
 }
 
 @branchFiles=();
-open( P4, "$P4 describe -s $change |") || die "Couldn't exec $P4: $!\n";
+open( P4, "$P4 describe -s $change |") || die "$0: Couldn't exec $P4: $!\n";
 @changeDescription = <P4>;
 close( P4 );
 
@@ -42,7 +47,7 @@ foreach $file ( @branchFiles ) {
 }
 
 if ( $abort ) {
-    die "Exiting; not all files on the same branch";
+    die "$0: Exiting; not all files on the same branch";
 }
 
 @mainFiles=();
@@ -57,7 +62,7 @@ foreach $file ( @branchFiles ) {
 $files=join( " ", @mainFiles );
 print "Checking files are closed: $files\n";
 # Unbelievable... p4 writes this file list to stderr!?
-open( P4, "$P4 opened $files 2>&1 |") || die "Couldn't exec $P4: $!\n";
+open( P4, "$P4 opened $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
     chomp( $line );
     ($file, $message) = split( / - /, $line );
@@ -69,13 +74,13 @@ while ( $line = <P4> ) {
 close( P4 );
 
 if ( $abort ) {
-    die "Exiting; not all files were closed.\n";
+    die "$0: Exiting; not all files were closed.\n";
 }
 
 # Check all files are up-to-date
 
 print "Checking files are up-to-date: $files\n";
-open( P4, "$P4 sync -n $files 2>&1 |") || die "Couldn't exec $P4: $!\n";
+open( P4, "$P4 sync -n $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
     chomp( $line );
     ($file, $message) = split( / - /, $line );
@@ -87,14 +92,14 @@ while ( $line = <P4> ) {
 close( P4 );
 
 if ( $abort ) {
-    die "Exiting; not all files up-to-date.\n";
+    die "$0: Exiting; not all files up-to-date.\n";
 }
 
 # Now do the integrate
 
 print "Integrating: $files\n";
 for ( $count=0; $count < @branchFiles; $count++ ) {
-    open( P4, "$P4 integrate $branchFiles[$count] $mainFiles[$count] |") || die "Couldn't exec $P4: $!\n";
+    open( P4, "$P4 integrate $branchFiles[$count] $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
 	# Discard revisions here.
@@ -108,7 +113,7 @@ for ( $count=0; $count < @branchFiles; $count++ ) {
 }
 
 if ( $abort ) {
-    die "p4 integrate failed on some file(s)";
+    die "$0: p4 integrate failed on some file(s)";
 }
 
 # Now the complicated bit. Doing the resolution.
@@ -126,7 +131,7 @@ foreach $file (@mainFiles) {
 @filesToResolve = @mainFiles;
 while ( @filesToResolve ) {
     $files = join( " ", @filesToResolve );
-    open( P4, "$P4 resolve -am $files |") || die "Couldn't exec $P4: $!\n";
+    open( P4, "$P4 resolve -am $files |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
 	if ( $line =~ /^\/\// ) {
@@ -152,7 +157,7 @@ while ( @filesToResolve ) {
 
 # Ok. Now, we can submit.
 
-open( P4, "| $P4 submit -i" ) || die "Couldn't exec $P4: $!\n";
+open( P4, "| $P4 submit -i" ) || die "$0: Couldn't exec $P4: $!\n";
 
 print P4 "Change: new\n";
 print P4 "Description:\n";
