@@ -1390,7 +1390,6 @@ QFileDialog::QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
     connect( lined, SIGNAL( escapePressed() ),
 	     this, SLOT( cancelRename() ) );
     header()->setMovingEnabled( FALSE );
-    header()->setFullSize( TRUE );
     connect( renameTimer, SIGNAL( timeout() ),
 	     this, SLOT( doubleClickTimeout() ) );
     connect( changeDirTimer, SIGNAL( timeout() ),
@@ -2164,6 +2163,7 @@ void QFileDialog::init()
     files->addColumn( tr("Type") );
     files->addColumn( tr("Date") );
     files->addColumn( tr("Attributes") );
+    files->header()->setFullSize( TRUE, 0 );
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 

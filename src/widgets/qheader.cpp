@@ -526,7 +526,7 @@ void QHeader::mousePressEvent( QMouseEvent *e )
 	    handleIdx = index-1;
 	else
 	    handleIdx = index;
-	if ( d->fullSize == -1 || d->fullSize == handleIdx ) {
+	if ( d->fullSize != -2 && handleIdx == count() - 1 ) {
 	    handleIdx = -1;
 	    return;
 	}
@@ -701,12 +701,29 @@ void QHeader::handleColumnResize( int index, int c, bool final )
     else
 	repaint( 0, pos, width(), height() - pos );
 
-    if ( tracking() && oldSize != newSize )
+    int os = 0, ns = 0;
+    if ( tracking() && oldSize != newSize ) {
+	os = oldSize;
+	ns = newSize;
 	emit sizeChange( section, oldSize, newSize );
-    else if ( !tracking() && final && oldHIdxSize != newSize )
+    } else if ( !tracking() && final && oldHIdxSize != newSize ) {
+	os = oldHIdxSize;
+	ns = newSize;
 	emit sizeChange( section, oldHIdxSize, newSize );
-    if ( d->fullSize != -2 )
-	resizeEvent( 0 );
+    }
+
+    if ( os != ns ) {
+	if ( d->fullSize == -1 ) {
+	    d->fullSize = count() - 1;
+	    adjustHeaderSize();
+	    d->fullSize = -1;
+	} else if ( d->fullSize >= 0 ) {
+	    int old = d->fullSize;
+	    d->fullSize = count() - 1;
+	    adjustHeaderSize();
+	    d->fullSize = old;
+	}
+    }
 }
 
 /*!
@@ -1517,7 +1534,10 @@ void QHeader::resizeEvent( QResizeEvent *e )
 	    offs = 0;
     }
 
-    adjustHeaderSize( orientation() == Horizontal ? width() - e->oldSize().width() : height() - e->oldSize().height() );
+    if ( e )
+	adjustHeaderSize( orientation() == Horizontal ? width() - e->oldSize().width() : height() - e->oldSize().height() );
+    else
+	adjustHeaderSize();
 }
 
 /*!
@@ -1533,7 +1553,7 @@ void QHeader::adjustHeaderSize( int diff )
 
     if ( d->fullSize >= 0 ) {
 	int sec = mapToIndex( d->fullSize );
-	int ns = ( orientation() == Horizontal ? width() : height() ) - sectionPos( sec );
+	int ns = sectionSize( sec ) + ( orientation() == Horizontal ? width() : height() ) - ( sectionPos( count() - 1 ) + sectionSize( count() - 1 ) );
 	int os = sectionSize( sec );
 	if ( ns > 20 ) {
 	    setCellSize( sec, ns );
