@@ -1,15 +1,15 @@
 #define NO_CHECK
 #ifndef QT_H
-#endif // QT_H
+#endif /* QT_H */
 
-#if !defined(QT_NO_QWS_DEPTH_16) ||  !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
-//We only need 1-bit support if we have a 1-bit screen
+#if !defined(QT_NO_QWS_DEPTH_16) || !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
+/* We only need 1-bit support if we have a 1-bit screen */
 #define QT_NO_QWS_DEPTH_1
 #endif
 
 
 #define QT_NO_ACTION
-#ifndef QT_NO_TEXTCODEC // moc?
+#ifndef QT_NO_TEXTCODEC /* moc? */
 #define QT_NO_TEXTCODEC
 #endif
 #define QT_NO_UNICODETABLES
@@ -17,10 +17,10 @@
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_XBM
 #define QT_NO_IMAGEIO_XPM
-//#define QT_NO_IMAGEIO_PNG //done by configure -no-png
+/* #define QT_NO_IMAGEIO_PNG //done by configure -no-png */
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
-//#define QT_NO_FREETYPE //done by configure -no-freetype
+/* #define QT_NO_FREETYPE //done by configure -no-freetype */
 #define QT_NO_BDF
 #define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION
@@ -29,14 +29,14 @@
 #define QT_NO_PROPERTIES
 
 #define QT_NO_QWS_GFX_SPEED
-#define QT_NO_NETWORK //??????????????
+#define QT_NO_NETWORK /* ?????????????? */
 #define QT_NO_COLORNAMES
 #define QT_NO_TRANSFORMATIONS
 #define QT_NO_PRINTER
 #define QT_NO_PICTURE
 
 #define QT_NO_IMAGE_TRUECOLOR
-//#define QT_NO_IMAGE_SMOOTHSCALE  //needed for iconset --> pushbutton
+/* #define QT_NO_IMAGE_SMOOTHSCALE  //needed for iconset --> pushbutton */
 #define QT_NO_IMAGE_TEXT
 #define QT_NO_DIR
 
@@ -51,7 +51,7 @@
 
 #define QT_NO_SEMIMODAL
 
-//#define QT_NO_STYLE //will require substantial work...
+/* #define QT_NO_STYLE //will require substantial work... */
 
 #define QT_NO_EFFECTS
 #define QT_NO_COP
@@ -84,13 +84,16 @@
 #define QT_NO_QWS_WINDOWS_WM_STYLE
 
 
-//other widgets that could be removed:
-//#define QT_NO_MENUDATA
+/* other widgets that could be removed: */
+/*
+#define QT_NO_MENUDATA
+*/
 
 
-//possible options:
-
-//#define QT_NO_CURSOR
-//#define QT_NO_LAYOUT
-//#define QT_NO_QWS_MANAGER
-//#define QT_NO_QWS_KEYBOARD
+/* possible options: */
+/*
+#define QT_NO_CURSOR
+#define QT_NO_LAYOUT
+#define QT_NO_QWS_MANAGER
+#define QT_NO_QWS_KEYBOARD
+*/

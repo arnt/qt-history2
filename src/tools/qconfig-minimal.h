@@ -1,7 +1,7 @@
 #ifndef QT_H
-#endif // QT_H
-#if !defined(QT_NO_QWS_DEPTH_16) ||  !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
-//We only need 1-bit support if we have a 1-bit screen
+#endif /* QT_H */
+#if !defined(QT_NO_QWS_DEPTH_16) || !defined(QT_NO_QWS_DEPTH_8) || !defined(QT_NO_QWS_DEPTH_32) || !defined(QT_NO_QWS_VGA_16)  
+/* We only need 1-bit support if we have a 1-bit screen */
 #define QT_NO_QWS_DEPTH_1
 #endif
 
@@ -11,7 +11,7 @@
 #define QT_NO_PROCESS
 #define QT_NO_PALETTE
 #define QT_NO_ACTION
-#ifndef QT_NO_TEXTCODEC // moc?
+#ifndef QT_NO_TEXTCODEC /* moc? */
 #define QT_NO_TEXTCODEC
 #endif
 #define QT_NO_UNICODETABLES
@@ -19,16 +19,16 @@
 #define QT_NO_IMAGEIO_PPM
 #define QT_NO_IMAGEIO_XBM
 #define QT_NO_IMAGEIO_XPM
-//#define QT_NO_IMAGEIO_PNG //done by configure -no-png
+/* #define QT_NO_IMAGEIO_PNG //done by configure -no-png */
 #define QT_NO_ASYNC_IO
 #define QT_NO_ASYNC_IMAGE_IO
-//#define QT_NO_FREETYPE //done by configure -no-freetype
+/* //#define QT_NO_FREETYPE //done by configure -no-freetype */
 #define QT_NO_BDF
 #define QT_NO_FONTDATABASE
 #define QT_NO_TRANSLATION
 #define QT_NO_MIME
 #define QT_NO_SOUND
-//#define QT_NO_PROPERTIES
+/* #define QT_NO_PROPERTIES */
 #define QT_NO_QWS_CURSOR
 #define QT_NO_CURSOR
 #define QT_NO_QWS_GFX_SPEED
@@ -74,7 +74,7 @@
 
 #define QT_NO_IMAGEIO
 
-//#define QT_NO_VARIANT //needed for signals/slots
+/* #define QT_NO_VARIANT //needed for signals/slots */
 
 #define QT_NO_RANGECONTROL
 #define QT_NO_QUUID_STRING
@@ -84,7 +84,7 @@
 #define QT_NO_BEZIER
 
 #define QT_NO_QWS_MOUSE_AUTO
-//#define QT_NO_QWS_MOUSE_MANUAL
+/* #define QT_NO_QWS_MOUSE_MANUAL */
 
 #define QT_NO_IMAGE_DITHER_TO_1
 #define QT_NO_IMAGE_HEURISTIC_MASK
