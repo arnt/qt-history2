@@ -128,7 +128,7 @@ QString QFileInfo::readLink() const
 static const uint nobodyID = (uint) -2;
 
 /*!
-    Returns the owner of the file. On Windows, on systems where files
+    Returns the owner of the file. On systems where files
     do not have owners, or if an error occurs, QString::null is
     returned.
 
