@@ -6,9 +6,9 @@ win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
 
 win32:INCLUDEPATH	= tmp
-win32:MOC_DIR		= tmp
-
 win32-borland:INCLUDEPATH += kernel
+
+win32:MOC_DIR	= tmp
 
 win32:DIALOGS_H	= ../include
 win32:KERNEL_H	= ../include
