@@ -85,8 +85,9 @@ public:
     };
 
     // documented in qobject.cpp
+    // starts at 1, as in QSizePolicy
     enum Orientation {
-        Horizontal,
+        Horizontal = 1,
 	Vertical
     };
 
