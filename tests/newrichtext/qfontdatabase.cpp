@@ -50,12 +50,15 @@ struct QtFontStyle
     struct Key {
 	Key( const QString &styleString );
 	Key() : italic( FALSE ), oblique( FALSE ), weight( QFont::Normal ) {}
-	Key( const Key &o ) : italic( o.italic ), oblique( o.oblique ), weight( o.weight ) {}
+	Key( const Key &o ) : italic( o.italic ), oblique( o.oblique ),
+			      weight( o.weight ) {}
 	bool italic : 1;
 	bool oblique : 1;
 	int  weight : 30;
 	bool operator == ( const Key & other ) {
-	    return ( italic == other.italic && oblique == other.oblique && weight == other.weight );
+	    return ( italic == other.italic &&
+		     oblique == other.oblique &&
+		     weight == other.weight );
 	}
     };
 
@@ -98,7 +101,9 @@ unsigned short QtFontStyle::pixelSize( unsigned short size, bool add )
 	return 0;
 
     if ( !(count % 8) )
-	pixelSizes = (unsigned short *) realloc( pixelSizes, (((count+8) >> 3 ) << 3)*sizeof( unsigned short ) );
+	pixelSizes = (unsigned short *)
+		     realloc( pixelSizes,
+			      (((count+8) >> 3 ) << 3) * sizeof( unsigned short ) );
     pixelSizes[count] = size;
     count++;
     return size;
@@ -130,7 +135,8 @@ QtFontStyle *QtFontFoundry::style( const QtFontStyle::Key &key, bool create )
 	return 0;
 
     if ( !(count % 8) )
-	styles = (QtFontStyle **) realloc( styles, (((count+8) >> 3 ) << 3)*sizeof( QtFontStyle * ) );
+	styles = (QtFontStyle **)
+		 realloc( styles, (((count+8) >> 3 ) << 3) * sizeof( QtFontStyle * ) );
 
     styles[count] = new QtFontStyle( key );
     return styles[count++];
@@ -166,7 +172,9 @@ QtFontFoundry *QtFontFamily::foundry( const QString &f, bool create )
 	return 0;
 
     if ( !(count % 8) )
-	foundries = (QtFontFoundry **) realloc( foundries, (((count+8) >> 3 ) << 3)*sizeof( QtFontFoundry * ) );
+	foundries = (QtFontFoundry **)
+		    realloc( foundries,
+			     (((count+8) >> 3 ) << 3) * sizeof( QtFontFoundry * ) );
 
     foundries[count] = new QtFontFoundry( f );
     return foundries[count++];
@@ -199,7 +207,9 @@ QtFontFamily *QtFontScript::family( const QString &f, bool create )
 	return 0;
 
     if ( !(count % 8) )
-	families = (QtFontFamily **) realloc( families, (((count+8) >> 3 ) << 3)*sizeof( QtFontFamily * ) );
+	families = (QtFontFamily **)
+		   realloc( families,
+			    (((count+8) >> 3 ) << 3) * sizeof( QtFontFamily * ) );
 
     families[count] = new QtFontFamily( f );
     return families[count++];
@@ -755,7 +765,7 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 /*!
     Returns the point sizes of a font that has family \a family and
     style \a style that will look attractive. The list may be empty.
-    For non-scalable fonts and smoothly scalable fonts, this function
+    For non-scalable fonts and bitmap scalable fonts, this function
     is equivalent to pointSizes().
 
   \sa pointSizes(), standardSizes()
@@ -763,10 +773,14 @@ QFont QFontDatabase::font( const QString &family, const QString &style,
 QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 					    const QString &style)
 {
+    bool smoothScalable = FALSE;
     QString familyName,  foundryName;
     parseFontName( family, foundryName, familyName );
 
-    QtFontFoundry allStyles( foundryName );
+    QtFontStyle::Key styleKey( style );
+
+    QValueList<int> sizes;
+
     for ( int s = 0; s < QFont::NScripts + 1; s++ ) {
 	QtFontScript &script = d->scripts[s];
 	for ( int i = 0; i < script.count; i++ ) {
@@ -776,11 +790,16 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 		    QtFontFoundry *foundry = f->foundries[j];
 		    if ( foundryName.isEmpty() || foundry->name == foundryName ) {
 			for ( int k = 0; k < foundry->count; k++ ) {
-			    QtFontStyle *sty =
-				allStyles.style( foundry->styles[k]->key,  TRUE );
-			    for ( int x = 0; x < foundry->styles[k]->count; ++x ) {
-				sty->pixelSize( foundry->styles[k]->pixelSizes[x],
-						TRUE );
+			    QtFontStyle *style = foundry->styles[k];
+			    if ( style->key == styleKey ) {
+				if ( style->smoothScalable ) {
+				    smoothScalable = TRUE;
+				    goto end;
+				}
+				for ( int l = 0; l < style->count; l++ ) {
+				    if ( !sizes.contains( style->pixelSizes[l] ) )
+					sizes.append( style->pixelSizes[l] );
+				}
 			    }
 			}
 		    }
@@ -788,21 +807,15 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 	    }
 	}
     }
+ end:
+    if ( smoothScalable )
+	return QFontDatabase::standardSizes();
 
-    QtFontStyle::Key styleKey( style );
-    QtFontStyle *s = allStyles.style( styleKey );
+    qHeapSort( sizes );
 
-    // ### perhaps do a bit of matching to find the most compatible font?
-    if ( !s ) s = allStyles.styles[0];
+    // ### convert to point sizes
 
-    if ( s && s->pixelSizes ) {
-	// ### convert to point sizes
-	QValueList<int> ret;
-	for ( int x = 0; x < s->count; ++x )
-	    ret << s->pixelSizes[x];
-	return ret;
-    }
-    return QFontDatabase::standardSizes();
+    return sizes;
 }
 
 
