@@ -2458,6 +2458,8 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
     }
     if ( winding )                              // set to winding fill rule
         XSetFillRule( dpy, gc_brush, WindingRule );
+    else
+        XSetFillRule( dpy, gc_brush, EvenOddRule );
 
     if ( pa[index] != pa[index+npoints-1] ){   // close open pointarray
         pa.detach();
