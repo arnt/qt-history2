@@ -123,7 +123,8 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent,
     d->spinBox = new QSpinBox(d->stack, "qt_inputdlg_sb");
     d->comboBox = new QComboBox(d->stack);
     d->comboBox->setObjectName("qt_inputdlg_cb");
-    d->editComboBox = new QComboBox(QComboBox::Editable, d->stack);
+    d->editComboBox = new QComboBox(d->stack);
+    d->editComboBox->setEditable(true);
     d->editComboBox->setObjectName("qt_inputdlg_editcb");
 
     QHBoxLayout *hbox = new QHBoxLayout;

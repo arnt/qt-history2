@@ -194,18 +194,6 @@ QComboBox::QComboBox(QWidget *parent) :
     d->init();
 }
 
-/*!
-  Constructs a combobox widget with parent \a parent using a
-  default model. The combobox is editable if the \a m is Editable.
-*/
-QComboBox::QComboBox(Mode m, QWidget *parent) :
-    QWidget(*new QComboBoxPrivate(), parent, 0)
-{
-    d->model = new ComboModel();
-    d->init();
-    setEditable(m == Editable);
-}
-
 #ifdef QT_COMPAT
 QComboBox::QComboBox(QWidget *parent, const char *name) :
     QWidget(*new QComboBoxPrivate(), parent, 0)

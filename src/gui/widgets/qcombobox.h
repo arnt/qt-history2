@@ -37,13 +37,8 @@ public:
         BeforeCurrent
     };
 
-    enum Mode {
-        NonEditable,
-        Editable
-    };
 
     QComboBox(QWidget *parent = 0);
-    QComboBox(Mode m, QWidget *parent=0);
     QComboBox(QAbstractItemModel *model, QWidget *parent = 0);
     ~QComboBox();
 
