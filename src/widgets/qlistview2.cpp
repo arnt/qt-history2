@@ -866,7 +866,7 @@ void QListViewItem::okRename( int col )
     removeRenameBox();
 
     // we set the parent lsc to Unsorted if that column is the sorted one
-    if ( parent() && parent()->lsc == col )
+    if ( parent() && (int)parent()->lsc == col )
 	parent()->lsc = Unsorted;
 
     emit lv->itemRenamed( this, col );
@@ -5658,7 +5658,7 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
     if ( myType == RadioButton ) {
 	if ( parent->type() != RadioButtonController )
 	    qWarning( "QCheckListItem::QCheckListItem(), radio button must be "
-		     "child of a controller" );
+		      "child of a controller" );
 	else
 	    d->exclusive = parent;
     }
@@ -5795,6 +5795,7 @@ void QCheckListItem::init()
 	d->statesDict = new QPtrDict<ToggleState>(101);
 	d->statesDict->setAutoDelete( TRUE );
     }
+    // CheckBoxControllers by default have tristate set to TRUE
     if ( myType == CheckBoxController )
 	setTristate( TRUE );
 }
@@ -5827,17 +5828,24 @@ QCheckListItem::~QCheckListItem()
 /* IGNORE!
    Sets tristate to \a if the Type is either a CheckBoxController or CheckBox.
 
-   \sa state()
+   Note that CheckBoxControllers by default have tristate enabled.
+
+   \sa state() isTristate()
 */
 void QCheckListItem::setTristate( bool b)
 {
-    if ( ( myType != CheckBoxController ) && ( myType != CheckBox ) )
-	return;
+    if ( ( myType != CheckBoxController ) && ( myType != CheckBox ) ) {
+	qWarning( "QCheckListItem::setTristate(), has no effect on RadioButton "
+		  "or RadioButtonController." );
+    	return;
+    }
     d->tristate = b;
 }
 
 /* IGNORE!
    Returns TRUE if the item is set to tristate.
+
+   \sa setTristate()
 */
 bool QCheckListItem::isTristate() const
 {
@@ -5875,12 +5883,23 @@ QCheckListItem::ToggleState QCheckListItem::internalState() const
 
   Tristate can only be enabled for CheckBox or CheckBoxController, therefore
   the NoChange only applies to them.
+
+  Setting the state to On or Off on a CheckBoxController will recursivly set the
+  states of its children to the same state.
+
+  Setting the state to NoChange on a CheckBoxController will make it recursivly
+  recall the previous stored state of its children. If there was no previous stored state
+  the children are all set to On.
 */
 void QCheckListItem::setState( ToggleState s )
 {
     setState( s, TRUE, FALSE );
 }
 
+/*
+  Sets the toggle state of the checklistitems. \a update tells if the
+  controller / parent controller should be
+*/
 void QCheckListItem::setState( ToggleState s, bool update, bool store)
 {
 
@@ -5897,7 +5916,7 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 	if ( s == NoChange) {
 	    restoreState( (void*) this );
  	    if ( internalState() != NoChange )
- 		setState( On );
+ 		setState( On , TRUE, TRUE );
 	} else {
 	    QListViewItem *item = firstChild();
 	    int childCount = 0;
@@ -5913,14 +5932,21 @@ void QCheckListItem::setState( ToggleState s, bool update, bool store)
 	    }
 	    if ( update ) {
 		if ( childCount > 0 ) {
-		    updateController();
+		    ToggleState oldState = internalState();
+		    updateController( FALSE, FALSE );
+		    if ( oldState != internalState() &&
+			 parent() && parent()->rtti() == 1 &&
+			 ((QCheckListItem*)parent())->type() == CheckBoxController )
+			((QCheckListItem*)parent())->updateController( update, store );
+
+			updateController( update, store );
 		} else {
 		    // if there are no children we simply set the CheckBoxController and update its parent
 		    setCurrentState( s );
 		    stateChange( state() );
 		    if ( parent() && parent()->rtti() == 1
 			 && ((QCheckListItem*)parent())->type() == CheckBoxController )
-			((QCheckListItem*)parent())->updateController( TRUE, TRUE );
+			((QCheckListItem*)parent())->updateController( update, store );
 		}
 	    } else {
 		setCurrentState( s );
@@ -5962,7 +5988,7 @@ void QCheckListItem::setCurrentState( ToggleState s )
 
 
 
-/* IGNORE!
+/*
   updates the internally stored state of this item for the parent (key)
 */
 void QCheckListItem::setStoredState( ToggleState newState, void *key )
@@ -6035,26 +6061,21 @@ void QCheckListItem::activate()
 	    return;
     }
     if ( ( myType == CheckBox ) || ( myType == CheckBoxController) )  {
-	if ( isTristate() ) {
-	    switch ( internalState() ) {
-	    case On:
-		setState( Off );
-		break;
-	    case Off:
-		setState( NoChange );
-		break;
-	    case NoChange:
-		updateStoredState( (void*) this );
-		setState( On );
-		break;
-	    }
-	} else {
-	    if ( myType == CheckBox && internalState() != On )
+	switch ( internalState() ) {
+	case On:
+	    setState( Off , TRUE, TRUE );
+	    break;
+	case Off:
+	    if ( !isTristate() && myType == CheckBox )
 		setState( On, TRUE, TRUE );
 	    else
-		setOn( internalState() != On );
+		setState( NoChange );
+	    break;
+	case NoChange:
+	    updateStoredState( (void*) this );
+	    setState( On , TRUE, TRUE );
+	    break;
 	}
-// 	setStoredState( internalState() );
 	ignoreDoubleClick();
     } else if ( myType == RadioButton ) {
 	setOn( TRUE );
@@ -6094,6 +6115,10 @@ void QCheckListItem::stateChange( ToggleState s )
     stateChange( s == On );
 }
 
+/*
+  sets the state of the CheckBox and CheckBoxController back to
+  previous stored state
+*/
 void QCheckListItem::restoreState( void *key, int depth )
 {
     switch ( type() ) {
@@ -6171,7 +6196,7 @@ void QCheckListItem::updateController( bool update , bool store )
     }
     if ( internalState() != theState ) {
 	setCurrentState( theState );
-	if ( store && internalState() == On )
+	if ( store && ( internalState() == On || internalState() == Off ) )
 	    updateStoredState( (void*) this );
 	stateChange( state() );
 	if ( update && controller ) {
