@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#92 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -1043,12 +1043,12 @@ Window findRealWindow( const QPoint & pos, Window w, int md )
 
 void QDragManager::move( const QPoint & globalPos )
 {
+    updatePixmap();
+
     if ( qt_xdnd_source_sameanswer.contains( globalPos ) &&
 	 qt_xdnd_source_sameanswer.isValid() ) {
 	return;
     }
-
-    updatePixmap();
 
     Window target = 0;
     int lx = 0, ly = 0;
