@@ -1,5 +1,5 @@
 TEMPLATE	= app
-CONFIG		= qt opengl warn_on debug
+CONFIG		= qt opengl warn_on release
 HEADERS		= glbox.h \
 		  globjwin.h
 SOURCES		= glbox.cpp \
