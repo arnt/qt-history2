@@ -33,7 +33,7 @@ namespace QMsNet
 	    if ( ( ext_ConnectMode.ext_cm_AfterStartup == connectMode ) ||
 		( ext_ConnectMode.ext_cm_Startup      == connectMode ) ) {
 		ExtLoader.startUp();
-	    }
+	    } 
 	    // ######################################################
 	    // # The following UISetup signal is only sent once, 
 	    // # the first time the AddIn is executed. To trigger
@@ -99,18 +99,34 @@ namespace QMsNet
 			  ref object varOut, 
 			  ref bool handled )
 	{
-
 	    try {
 		handled = false;
 		if( executeOption == EnvDTE.vsCommandExecOption.vsCommandExecOptionDoDefault ) {
-		    if( commandName == Resource.LoadQtProjectFullCommand ) {
+		    if ( commandName == Resource.NewQtProjectFullCommand ) {
 			handled = true;
+			MessageBox.Show( "New Qt Project", "Command" );
+		    } else if ( commandName == Resource.MakeQtProjectFullCommand ) {
+			handled = true;
+			MessageBox.Show( "Make Qt Project", "Command" );
+		    } else if ( commandName == Resource.LoadDesignerFullCommand ) {
+			handled = true;
+			ExtLoader.loadDesigner();
+		    } else if ( commandName == Resource.LoadQtProjectFullCommand ) {
+			handled = true;
+			MessageBox.Show( "Load Qt Project", "Command" );
 			ExtLoader.loadProject();
 		    } else if ( commandName == Resource.SaveQtProjectFullCommand ) {
 			handled = true;
+			MessageBox.Show( "Save Qt Project", "Command" );
 			ExtLoader.saveProject();
+		    } else if ( commandName == Resource.DLLQtProjectFullCommand ) {
+			handled = true;
+			MessageBox.Show( "DLL Project", "Command" );
+		    } else if ( commandName == Resource.AddMocStepFullCommand ) {
+			handled = true;
+			MessageBox.Show( "Add Moc step", "Command" );
 		    }
-		}
+	    }
 	    }
 	    catch( System.Exception e ) {
 		Debug.Write( e.Message + "\r\n" + e.StackTrace.ToString(),
