@@ -29,7 +29,7 @@ OBJECTS =	qbttngrp.o	qbutton.o	qchkbox.o	qcombo.o      \
 		qframe.o	qgrpbox.o	qlabel.o	qlcdnum.o     \
 		qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
-		qscrbar.o	qtablevw.o	qgeom.o		qbasic.o
+		qscrbar.o	qtablevw.o
 SRCMETA =	mbttngrp.cpp	mbutton.cpp	mchkbox.cpp	mcombo.cpp    \
 		mframe.cpp	mgrpbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
