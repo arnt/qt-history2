@@ -250,7 +250,8 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 }
 
 
-/*\reimp
+/*!
+  \reimp
  */
 void QGroupBox::updateMask(){
     int		tw  = 0;

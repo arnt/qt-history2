@@ -1050,7 +1050,8 @@ void QSlider::setTickInterval( int i )
 */
 
 
-/*\reimp
+/*!
+  \reimp
  */
 void QSlider::styleChange( QStyle& old )
 {

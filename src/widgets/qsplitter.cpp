@@ -297,6 +297,9 @@ void QSplitter::setOrientation( Orientation o )
    \sa setOrientation()
 */
 
+/*!
+  \reimp
+*/
 void QSplitter::resizeEvent( QResizeEvent * )
 {
     doResize();

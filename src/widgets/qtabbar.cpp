@@ -767,6 +767,9 @@ void QTabBar::layoutTabs()
     }
 }
 
+/*!
+  \reimp
+*/
 void QTabBar::focusInEvent( QFocusEvent * )
 {
     QTab *t = l->first();
@@ -793,6 +796,9 @@ void QTabBar::focusInEvent( QFocusEvent * )
     }
 }
 
+/*!
+  \reimp
+*/
 void QTabBar::focusOutEvent( QFocusEvent * )
 {
     QTab *t = l->first();
@@ -823,6 +829,9 @@ void QTabBar::focusOutEvent( QFocusEvent * )
     }
 }
 
+/*!
+  \reimp
+*/
 void QTabBar::resizeEvent( QResizeEvent * )
 {
     const int arrowWidth = 16;

@@ -114,7 +114,7 @@
   is executed with the argument.
 */
 
-/* \fn QTSManip::QTSManip (QTSMFI m, int a)
+/*! \fn QTSManip::QTSManip (QTSMFI m, int a)
 
   Constructs a QTSManip object which will call \m (a member function
   in QTextStream which accepts a single int) with argument \a a when
@@ -125,7 +125,7 @@
   \endcode
 */
 
-/* \fn void QTSManip::exec (QTextStream& s)
+/*! \fn void QTSManip::exec (QTextStream& s)
 
   Calls the member function specified in the constructor, for object
   \a s.  Used internally in e.g. endl:

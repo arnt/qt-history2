@@ -688,7 +688,7 @@ TODO
 Draws a checkmark suitable for checkboxes and checkable menu items.
 
 */
-/*  \fn void polishPopupMenu( QPopupMenu* p)
+/*!  \fn void polishPopupMenu( QPopupMenu* p)
 
     Polishes the popup menu \a p according to the GUI style. This is usually means
     setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
@@ -708,14 +708,14 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
   indicate item accelerators.
  */
 
-/* \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
+/*! \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
 
    Returns the height of the menu item \a mi. \a checkable
   defines, whether the menu has a check column, \a fm defines the font
   metrics used to draw the label.
  */
 
-/* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+/*! \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h);
 

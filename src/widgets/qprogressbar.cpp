@@ -266,6 +266,9 @@ void QProgressBar::setIndicatorFollowsStyle( bool on )
 	updateMask();
 }
 
+/*!
+  \reimp
+*/
 void QProgressBar::show()
 {
     setIndicator( progress_str, progress_val, total_steps );

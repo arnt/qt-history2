@@ -273,6 +273,9 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 }
 
 
+/*!
+  \reimp
+*/
 void QRadioButton::resizeEvent( QResizeEvent* e )
 {
     QButton::resizeEvent(e);

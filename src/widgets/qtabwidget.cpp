@@ -423,7 +423,8 @@ QWidget * QTabWidget::currentPage() const
     return d->stack->visibleWidget();
 }
 
-/*\reimp
+/*!
+  \reimp
  */
 void QTabWidget::resizeEvent( QResizeEvent * )
 {

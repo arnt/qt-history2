@@ -87,6 +87,19 @@
   Returns TRUE if there was an item to remove.
 */
 
+/*! \fn void QQueue::clear()
+  Removes all items from the queue, deleting them if
+  if autoDelete() is TRUE.
+
+  \sa remove()
+*/
+
+/*! \fn int QQueue::count()
+  Returns the number of items in the queue.
+
+  \sa isEmpty()
+*/
+
 /*! \fn type* QQueue::head () const 
   Returns a reference to the front item in the queue.  The queue is
   not changed.
@@ -103,3 +116,19 @@
   Returns a reference to the front item in the queue.  The queue is
   not changed.
 */
+
+/*! \fn bool QQueue::autoDelete() const
+
+  The same as QCollection::autoDelete().
+
+  \sa setAutoDelete()
+*/
+
+/*! \fn void QQueue::setAutoDelete( bool enable ) 
+
+  The same as QCollection::setAutoDelete().
+ 
+  \sa autoDelete()
+*/
+
+
