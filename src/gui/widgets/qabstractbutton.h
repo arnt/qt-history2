@@ -28,7 +28,7 @@ class QAbstractButtonPrivate;
 class Q_GUI_EXPORT QAbstractButton : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractButton);
+    Q_DECLARE_PRIVATE(QAbstractButton)
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)

@@ -28,7 +28,7 @@
 
 class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QWin32PaintEngine);
+    Q_DECLARE_PUBLIC(QWin32PaintEngine)
 public:
     QWin32PaintEnginePrivate() :
         hwnd(0),
@@ -79,7 +79,7 @@ public:
 #if defined QT_GDIPLUS_SUPPORT
 class QGdiplusPaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QGdiplusPaintEngine);
+    Q_DECLARE_PUBLIC(QGdiplusPaintEngine)
 public:
     QGdiplusPaintEnginePrivate() :
         hwnd(0),

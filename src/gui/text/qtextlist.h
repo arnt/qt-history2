@@ -14,7 +14,7 @@ class QTextCursor;
 class Q_GUI_EXPORT QTextList : public QTextGroup
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextList);
+    Q_DECLARE_PRIVATE(QTextList)
 public:
     int count() const;
 

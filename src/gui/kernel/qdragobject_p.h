@@ -7,7 +7,7 @@
 
 class QDragObjectPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QDragObject);
+    Q_DECLARE_PUBLIC(QDragObject)
 public:
     QDragObjectPrivate(): hot(0,0) {}
     QPixmap pixmap;
@@ -18,7 +18,7 @@ public:
 
 class QTextDragPrivate : public QDragObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTextDrag);
+    Q_DECLARE_PUBLIC(QTextDrag)
 public:
     QTextDragPrivate() { setSubType("plain"); }
     void setSubType(const QString & st);
@@ -32,7 +32,7 @@ public:
 
 class QStoredDragPrivate : public QDragObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QStoredDrag);
+    Q_DECLARE_PUBLIC(QStoredDrag)
 public:
     QStoredDragPrivate() {}
     const char* fmt;
@@ -41,7 +41,7 @@ public:
 
 class QImageDragPrivate : public QDragObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QImageDrag);
+    Q_DECLARE_PUBLIC(QImageDrag)
 public:
     QImage img;
     QList<QByteArray> ofmts;

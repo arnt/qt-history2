@@ -28,7 +28,7 @@ class QSVGPaintEnginePrivate;
 
 class QM_EXPORT_SVG QSVGPaintEngine : public QPaintEngine, public QPaintCommands
 {
-    Q_DECLARE_PRIVATE(QSVGPaintEngine);
+    Q_DECLARE_PRIVATE(QSVGPaintEngine)
 
 public:
     QSVGPaintEngine();

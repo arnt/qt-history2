@@ -25,7 +25,7 @@ class QMenuItem;
 class Q_GUI_EXPORT QMenuBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMenuBar);
+    Q_DECLARE_PRIVATE(QMenuBar)
     Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
 
 public:

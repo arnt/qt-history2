@@ -25,7 +25,7 @@
 
 class Q_GUI_EXPORT QPicture : public QPaintDevice, public QPaintCommands // picture class
 {
-    Q_DECLARE_PRIVATE(QPicture);
+    Q_DECLARE_PRIVATE(QPicture)
 public:
     QPicture(int formatVersion = -1);
     QPicture(const QPicture &);

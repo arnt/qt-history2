@@ -11,7 +11,7 @@ class QTextDocumentLayoutPrivate;
 
 class QTextDocumentLayout : public QAbstractTextDocumentLayout
 {
-    Q_DECLARE_PRIVATE(QTextDocumentLayout);
+    Q_DECLARE_PRIVATE(QTextDocumentLayout)
 public:
     QTextDocumentLayout();
 

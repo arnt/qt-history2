@@ -5,7 +5,7 @@
 
 class QSplitterPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QSplitter);
+    Q_DECLARE_PUBLIC(QSplitter)
 public:
     QSplitterPrivate() : rubber(0), opaque(false), firstShow(true),
                          childrenCollapsible(true), handleWidth(0) { }

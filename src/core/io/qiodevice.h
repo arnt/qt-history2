@@ -26,7 +26,7 @@ class QIODevicePrivate;
 
 class Q_CORE_EXPORT QIODevice
 {
-    Q_DECLARE_PRIVATE(QIODevice);
+    Q_DECLARE_PRIVATE(QIODevice)
 
 public:
     typedef Q_LLONG Offset;

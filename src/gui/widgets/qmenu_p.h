@@ -24,7 +24,7 @@ struct QMacMenuAction {
 
 class QMenuPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QMenu);
+    Q_DECLARE_PUBLIC(QMenu)
 public:
     QMenuPrivate() : itemsDirty(0), maxIconWidth(0), tabWidth(0), ncols(0), mouseDown(0),
                       currentAction(0), scroll(0), sync(0), tearoff(0), tornoff(0), tearoffHighlighted(0),

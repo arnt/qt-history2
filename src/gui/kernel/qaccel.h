@@ -32,7 +32,7 @@ class QWidget;
 class Q_GUI_EXPORT QAccel : public QObject                        // accelerator class
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAccel);
+    Q_DECLARE_PRIVATE(QAccel)
 public:
     QAccel(QWidget *parent, const char *name=0);
     QAccel(QWidget* watch, QObject *parent, const char *name=0);

@@ -19,7 +19,7 @@ class QStackedBoxPrivate;
 class QStackedBox : public QFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QStackedBox);
+    Q_DECLARE_PRIVATE(QStackedBox)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
     QDOC_PROPERTY(int count READ count)
 public:

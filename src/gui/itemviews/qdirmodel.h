@@ -24,12 +24,12 @@ protected:
 class QDirModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDirModel);
+    Q_DECLARE_PRIVATE(QDirModel)
 
 public:
     QDirModel(const QDir &directory, QObject *parent = 0);
     ~QDirModel();
-    
+
     QModelIndex index(int row, int column, const QModelIndex &parent = 0,
                       QModelIndex::Type type = QModelIndex::View) const;
     QModelIndex parent(const QModelIndex &child) const;

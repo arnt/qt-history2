@@ -46,7 +46,7 @@ Q_DECLARE_TYPEINFO(QTextItem, Q_PRIMITIVE_TYPE);
 
 class Q_GUI_EXPORT QPaintEngine : public Qt
 {
-    Q_DECLARE_PRIVATE(QPaintEngine);
+    Q_DECLARE_PRIVATE(QPaintEngine)
 public:
     enum Capability {
         CoordTransform          = 0x0001,               // Points are transformed

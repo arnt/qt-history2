@@ -12,7 +12,7 @@ class QClipperWidget;
 
 class QScrollViewPrivate: public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QScrollView);
+    Q_DECLARE_PUBLIC(QScrollView)
 
 public:
     QScrollViewPrivate();

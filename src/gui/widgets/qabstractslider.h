@@ -24,7 +24,7 @@ class QAbstractSliderPrivate;
 class Q_GUI_EXPORT QAbstractSlider : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractSlider);
+    Q_DECLARE_PRIVATE(QAbstractSlider)
 
     Q_PROPERTY(int minimum READ minimum WRITE setMinimum)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)

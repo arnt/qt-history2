@@ -15,7 +15,7 @@ class QAbstractItemViewPrivate;
 class Q_GUI_EXPORT QAbstractItemView : public QViewport
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractItemView);
+    Q_DECLARE_PRIVATE(QAbstractItemView)
 
 public:
 
@@ -149,7 +149,7 @@ class QItemViewDragObjectPrivate;
 
 class QItemViewDragObject : public QDragObject
 {
-    Q_DECLARE_PRIVATE(QItemViewDragObject);
+    Q_DECLARE_PRIVATE(QItemViewDragObject)
 public:
     QItemViewDragObject(QAbstractItemView *dragSource);
     ~QItemViewDragObject();

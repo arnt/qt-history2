@@ -116,7 +116,7 @@ private:
 
 class QTextGroupPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QTextGroup);
+    Q_DECLARE_PUBLIC(QTextGroup)
 public:
     QTextPieceTable *pieceTable() const { return collection->pieceTable; }
     QTextFormatCollection *collection;
@@ -128,7 +128,7 @@ public:
 
 class QTextFramePrivate : public QTextGroupPrivate
 {
-    Q_DECLARE_PUBLIC(QTextFrame);
+    Q_DECLARE_PUBLIC(QTextFrame)
 public:
     int fragment_start;
     int fragment_end;

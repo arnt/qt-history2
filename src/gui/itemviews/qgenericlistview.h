@@ -11,7 +11,7 @@ class QGenericListViewPrivate;
 class Q_GUI_EXPORT QGenericListView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericListView);
+    Q_DECLARE_PRIVATE(QGenericListView)
 
 public:
     enum Flow { LeftToRight, TopToBottom };
@@ -25,13 +25,13 @@ public:
 
     void setMovement(Movement movement);
     Movement movement() const;
-    
+
     void setFlow(Flow flow);
     QGenericListView::Flow flow() const;
-    
+
     void setWrapping(bool enable);
     bool isWrapping() const;
-    
+
     void setIconSize(Size size);
     QGenericListView::Size iconSize() const;
 
@@ -40,13 +40,13 @@ public:
 
     void setLayoutMode(LayoutMode mode);
     QGenericListView::LayoutMode layoutMode() const;
-    
+
     void setSpacing(int space);
     int spacing() const;
-    
+
     void setGridSize(const QSize &size);
     QSize gridSize() const;
-    
+
     void setSelection(const QRect &rect, int selectionCommand);
 
 protected:

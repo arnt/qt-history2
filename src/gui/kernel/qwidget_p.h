@@ -125,7 +125,7 @@ struct QWExtra {
 
 class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QWidget);
+    Q_DECLARE_PUBLIC(QWidget)
 
 public:
     QWidgetPrivate();

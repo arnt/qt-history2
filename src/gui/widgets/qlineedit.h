@@ -30,7 +30,7 @@ class QLineEditPrivate;
 class Q_GUI_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QLineEdit);
+    Q_DECLARE_PRIVATE(QLineEdit)
 
     Q_ENUMS(EchoMode)
     Q_PROPERTY(QString text READ text WRITE setText)

@@ -14,7 +14,7 @@ typedef QHash<int, QTextObjectHandler> HandlerHash;
 class QAbstractTextDocumentLayoutPrivate : public QObjectPrivate
 {
 public:
-    Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout);
+    Q_DECLARE_PUBLIC(QAbstractTextDocumentLayout)
 
     HandlerHash handlers;
 };

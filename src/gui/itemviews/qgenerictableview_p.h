@@ -5,7 +5,7 @@
 
 class QGenericTableViewPrivate : public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericTableView);
+    Q_DECLARE_PUBLIC(QGenericTableView)
 public:
     QGenericTableViewPrivate()
         : showGrid(true), topHeader(0), leftHeader(0) {}

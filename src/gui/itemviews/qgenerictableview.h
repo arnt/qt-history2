@@ -11,7 +11,7 @@ class QGenericTableViewPrivate;
 class Q_GUI_EXPORT QGenericTableView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericTableView);
+    Q_DECLARE_PRIVATE(QGenericTableView)
 
 public:
     QGenericTableView(QAbstractItemModel *model, QWidget *parent = 0);

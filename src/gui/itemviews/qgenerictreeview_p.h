@@ -15,7 +15,7 @@ struct QGenericTreeViewItem
 
 class QGenericTreeViewPrivate: public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericTreeView);
+    Q_DECLARE_PUBLIC(QGenericTreeView)
 public:
 
     QGenericTreeViewPrivate()

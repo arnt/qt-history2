@@ -11,10 +11,10 @@ class QMenuItemEmitter;
 
 class QActionPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QAction);
+    Q_DECLARE_PUBLIC(QAction)
 public:
     QActionPrivate() : group(0), icons(0), shortcutId(-1), enabled(1), forceDisabled(0),
-                       visible(1), forceInvisible(0), checkable(0), checked(0), separator(0) 
+                       visible(1), forceInvisible(0), checkable(0), checked(0), separator(0)
     {
 #ifdef QT_COMPAT
         static int qt_static_action_id = -1;
@@ -49,14 +49,14 @@ public:
 
 #ifdef QT_COMPAT //for menubar/menu compat
     QMenuItemEmitter *act_signal;
-    int id, param; 
+    int id, param;
 #endif
     void sendDataChanged();
 };
 
 class QActionGroupPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QActionGroup);
+    Q_DECLARE_PUBLIC(QActionGroup)
 public:
     QActionGroupPrivate() : exclusive(1), enabled(1), visible(1)  { }
     QList<QAction *> actions;

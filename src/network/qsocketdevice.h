@@ -31,7 +31,7 @@ class QSocketDevicePrivate;
 
 class QM_EXPORT_NETWORK QSocketDevice : public QIODevice
 {
-    Q_DECLARE_PRIVATE(QSocketDevice);
+    Q_DECLARE_PRIVATE(QSocketDevice)
 public:
     enum Type { Stream, Datagram };
     enum Protocol { IPv4, IPv6, Unknown };

@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QMenu : public QWidget
 {
 private:
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMenu);
+    Q_DECLARE_PRIVATE(QMenu)
 
     Q_PROPERTY(bool tearOffEnabled READ isTearOffEnabled WRITE setTearOffEnabled)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
@@ -141,45 +141,45 @@ public:
     }
     QT_COMPAT int insertSeparator(int index=-1);
     inline QT_COMPAT void removeItem(int id) {
-        if(QAction *act = findActionForId(id)) 
+        if(QAction *act = findActionForId(id))
             removeAction(act); }
-    inline QT_COMPAT void removeItemAt(int index) { 
+    inline QT_COMPAT void removeItemAt(int index) {
         if(QAction *act = actions().value(index))
             removeAction(act); }
 #ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence accel(int id) const { 
+    inline QT_COMPAT QKeySequence accel(int id) const {
         if(QAction *act = findActionForId(id))
             return act->shortcut();
         return QKeySequence(); }
-    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { 
+    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) {
         if(QAction *act = findActionForId(id))
             act->setShortcut(key);
     }
 #endif
-    inline QT_COMPAT QIconSet iconSet(int id) const { 
+    inline QT_COMPAT QIconSet iconSet(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon();
         return QIconSet(); }
-    inline QT_COMPAT QString text(int id) const { 
+    inline QT_COMPAT QString text(int id) const {
         if(QAction *act = findActionForId(id))
             return act->text();
         return QString(); }
-    inline QT_COMPAT QPixmap pixmap(int id) const { 
+    inline QT_COMPAT QPixmap pixmap(int id) const {
         if(QAction *act = findActionForId(id))
             return act->icon().pixmap();
         return QString(); }
-    inline QT_COMPAT void setWhatsThis(int id, const QString &w) { 
+    inline QT_COMPAT void setWhatsThis(int id, const QString &w) {
         if(QAction *act = findActionForId(id))
             act->setWhatsThis(w); }
-    inline QT_COMPAT QString whatsThis(int id) const { 
+    inline QT_COMPAT QString whatsThis(int id) const {
         if(QAction *act = findActionForId(id))
-            return act->whatsThis(); 
+            return act->whatsThis();
         return QString(); }
 
-    inline QT_COMPAT void changeItem(int id, const QString &text) { 
+    inline QT_COMPAT void changeItem(int id, const QString &text) {
         if(QAction *act = findActionForId(id))
             act->setText(text); }
-    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { 
+    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) {
         if(QAction *act = findActionForId(id))
             act->setIcon(QIconSet(pixmap)); }
     inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) {
@@ -189,29 +189,29 @@ public:
         }
     }
     inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
-    inline QT_COMPAT bool isItemEnabled(int id) const { 
-        if(QAction *act = findActionForId(id)) 
-            return act->isEnabled(); 
+    inline QT_COMPAT bool isItemEnabled(int id) const {
+        if(QAction *act = findActionForId(id))
+            return act->isEnabled();
         return false; }
-    inline QT_COMPAT void setItemEnabled(int id, bool enable) { 
-        if(QAction *act = findActionForId(id)) 
+    inline QT_COMPAT void setItemEnabled(int id, bool enable) {
+        if(QAction *act = findActionForId(id))
             act->setEnabled(enable); }
-    inline QT_COMPAT bool isItemChecked(int id) const { 
-        if(QAction *act = findActionForId(id)) 
-            return act->isChecked(); 
+    inline QT_COMPAT bool isItemChecked(int id) const {
+        if(QAction *act = findActionForId(id))
+            return act->isChecked();
         return false; }
-    inline QT_COMPAT void setItemChecked(int id, bool check) { 
-        if(QAction *act = findActionForId(id)) 
+    inline QT_COMPAT void setItemChecked(int id, bool check) {
+        if(QAction *act = findActionForId(id))
             act->setChecked(check); }
-    inline QT_COMPAT bool isItemVisible(int id) const { 
-        if(QAction *act = findActionForId(id)) 
+    inline QT_COMPAT bool isItemVisible(int id) const {
+        if(QAction *act = findActionForId(id))
             return act->isVisible();
         return false; }
-    inline QT_COMPAT void setItemVisible(int id, bool visible) { 
-        if(QAction *act = findActionForId(id)) 
+    inline QT_COMPAT void setItemVisible(int id, bool visible) {
+        if(QAction *act = findActionForId(id))
             act->setVisible(visible); }
     inline QT_COMPAT QRect itemGeometry(int index) {
-        if(QAction *act = actions().value(index)) 
+        if(QAction *act = actions().value(index))
             return actionGeometry(act);
         return QRect();
     }
@@ -234,7 +234,7 @@ public:
         if(QAction *act = findActionForId(id)) {
             QObject::disconnect(act, SIGNAL(triggered()), receiver, member);
             return true;
-        } 
+        }
         return false;
     }
     inline QT_COMPAT QMenuItem *findItem(int id) const {

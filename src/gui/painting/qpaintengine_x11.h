@@ -21,7 +21,7 @@ class QPainterState;
 
 class QX11PaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QX11PaintEngine);
+    Q_DECLARE_PRIVATE(QX11PaintEngine)
 
 public:
     QX11PaintEngine(QPaintDevice *);

@@ -9,7 +9,7 @@ class QGuiEventLoopPrivate;
 class QGuiEventLoop : public QEventLoop
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGuiEventLoop);
+    Q_DECLARE_PRIVATE(QGuiEventLoop)
 public:
     QGuiEventLoop(QObject *parent = 0);
     ~QGuiEventLoop();

@@ -32,7 +32,7 @@ class QWheelEvent;
 class Q_GUI_EXPORT QComboBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QComboBox);
+    Q_DECLARE_PRIVATE(QComboBox)
 
     Q_ENUMS(Policy)
     Q_PROPERTY(bool editable READ editable WRITE setEditable)

@@ -25,7 +25,7 @@ class QMenu;
 class Q_GUI_EXPORT QPushButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QPushButton);
+    Q_DECLARE_PRIVATE(QPushButton)
     Q_PROPERTY(bool autoDefault READ autoDefault WRITE setAutoDefault)
     Q_PROPERTY(bool default READ isDefault WRITE setDefault)
     Q_PROPERTY(bool flat READ isFlat WRITE setFlat)

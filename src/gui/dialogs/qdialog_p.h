@@ -8,7 +8,7 @@ class QSizeGrip;
 
 class QDialogPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QWidget);
+    Q_DECLARE_PUBLIC(QWidget)
 public:
 
     QDialogPrivate()

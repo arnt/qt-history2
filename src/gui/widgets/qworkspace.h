@@ -29,7 +29,7 @@ class QWorkspacePrivate;
 class Q_GUI_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWorkspace);
+    Q_DECLARE_PRIVATE(QWorkspace)
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:

@@ -11,7 +11,7 @@ class QTextFloatPrivate;
 class Q_GUI_EXPORT QTextFloat : public QTextFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextFloat);
+    Q_DECLARE_PRIVATE(QTextFloat)
 public:
 
 private:

@@ -37,20 +37,13 @@
 #include <qlist.h>
 #include <private/qspinlock_p.h>
 
-#define Q_DECLARE_PUBLIC(Class) \
-    inline Class##Private* d_func() { return this; } \
-    inline const Class##Private* d_func() const { return this; } \
-    inline Class* q_func() { return static_cast<Class *>(q_ptr); } \
-    inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
-    friend class Class
-
 
 inline QObjectData::~QObjectData() {}
 
 
 class Q_CORE_EXPORT QObjectPrivate : public QObjectData, public Qt
 {
-    Q_DECLARE_PUBLIC(QObject);
+    Q_DECLARE_PUBLIC(QObject)
 
 public:
     QObjectPrivate();

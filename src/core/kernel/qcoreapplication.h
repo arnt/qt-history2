@@ -38,7 +38,7 @@ class QStringList;
 class Q_CORE_EXPORT QCoreApplication : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QCoreApplication);
+    Q_DECLARE_PRIVATE(QCoreApplication)
 public:
     QCoreApplication(int &argc, char **argv);
     QCoreApplication(QCoreApplicationPrivate &, QEventLoop *);

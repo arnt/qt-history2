@@ -20,7 +20,7 @@ class QMainWindowLayout;
 
 class QMainWindowPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QMainWindow);
+    Q_DECLARE_PUBLIC(QMainWindow)
 public:
     QMainWindowPrivate()
         :  mb(0), sb(0), ttg(0), mc(0), tll(0), mwl(0), ubp(false), utl(false),

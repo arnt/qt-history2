@@ -5,7 +5,7 @@
 
 class QFramePrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QFrame);
+    Q_DECLARE_PUBLIC(QFrame)
 public:
     QFramePrivate();
 

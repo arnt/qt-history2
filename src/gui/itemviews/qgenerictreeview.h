@@ -11,7 +11,7 @@ class QGenericHeader;
 class Q_GUI_EXPORT QGenericTreeView : public QAbstractItemView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QGenericTreeView);
+    Q_DECLARE_PRIVATE(QGenericTreeView)
 
 public:
     QGenericTreeView(QAbstractItemModel *model, QWidget *parent = 0);

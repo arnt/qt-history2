@@ -45,7 +45,7 @@ protected:
     void scrollContentsBy(int dx, int dy);
 
 private:
-    Q_DECLARE_PRIVATE(QWidgetView);
+    Q_DECLARE_PRIVATE(QWidgetView)
 
 };
 

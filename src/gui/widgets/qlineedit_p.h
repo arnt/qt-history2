@@ -8,7 +8,7 @@
 
 class QLineEditPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QLineEdit);
+    Q_DECLARE_PUBLIC(QLineEdit)
 public:
 
     QLineEditPrivate()

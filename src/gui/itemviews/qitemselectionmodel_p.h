@@ -5,7 +5,7 @@
 
 class QItemSelectionModelPrivate: public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QItemSelectionModel);
+    Q_DECLARE_PUBLIC(QItemSelectionModel)
 public:
     QItemSelectionModelPrivate()
         : model(0), currentCommand(QItemSelectionModel::NoUpdate) {}

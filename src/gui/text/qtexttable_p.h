@@ -9,7 +9,7 @@
 
 class QTextTablePrivate : public QTextGroupPrivate
 {
-    Q_DECLARE_PUBLIC(QTextTable);
+    Q_DECLARE_PUBLIC(QTextTable)
 public:
     QTextTablePrivate()
         : cell_idx(-1), eor_idx(-1),grid(0), nCols(0), nRows(0), dirty(true) {}

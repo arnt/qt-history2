@@ -75,7 +75,7 @@ protected:
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
-    Q_DECLARE_PRIVATE(QViewport);
+    Q_DECLARE_PRIVATE(QViewport)
     Q_PRIVATE_SLOT(void hslide(int))
     Q_PRIVATE_SLOT(void vslide(int))
     Q_PRIVATE_SLOT(void showOrHideScrollBars())

@@ -25,7 +25,7 @@ class QPainterState;
 
 class QQuickDrawPaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QQuickDrawPaintEngine);
+    Q_DECLARE_PRIVATE(QQuickDrawPaintEngine)
 
 public:
     QQuickDrawPaintEngine(QPaintDevice *);
@@ -93,7 +93,7 @@ private:
 class QCoreGraphicsPaintEnginePrivate;
 class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we include QuickDraw to get things working, we *must* remove it later ### --Sam
 {
-    Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine);
+    Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine)
 
 public:
     QCoreGraphicsPaintEngine(QPaintDevice *);

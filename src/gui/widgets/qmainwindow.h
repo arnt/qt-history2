@@ -34,7 +34,7 @@ template<class T> class QList;
 class Q_GUI_EXPORT QMainWindow: public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QMainWindow);
+    Q_DECLARE_PRIVATE(QMainWindow)
 
     Q_PROPERTY(bool rightJustification READ rightJustification WRITE setRightJustification DESIGNABLE false)
     Q_PROPERTY(bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps)

@@ -23,7 +23,7 @@ class QPaintDevice;
 
 class QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QPaintEngine);
+    Q_DECLARE_PUBLIC(QPaintEngine)
 public:
     QPaintEnginePrivate() : pdev(0), q_ptr(0) { }
     QPaintDevice *pdev;

@@ -29,7 +29,7 @@ class QDialogPrivate;
 class Q_GUI_EXPORT QDialog : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDialog);
+    Q_DECLARE_PRIVATE(QDialog)
     friend class QPushButton;
 
     Q_PROPERTY(bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled)
@@ -77,7 +77,7 @@ protected slots:
 
 protected:
     QDialog(QDialogPrivate &, QWidget *parent, WFlags f = 0);
-    
+
     void        setResult(int r)        { rescode = r; }
     void        keyPressEvent(QKeyEvent *);
     void        closeEvent(QCloseEvent *);

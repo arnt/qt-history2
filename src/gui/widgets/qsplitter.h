@@ -30,7 +30,7 @@ template <typename T> class QList;
 class Q_GUI_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSplitter);
+    Q_DECLARE_PRIVATE(QSplitter)
     Q_PROPERTY(Orientation orientation READ orientation WRITE setOrientation)
     Q_PROPERTY(bool opaqueResize READ opaqueResize WRITE setOpaqueResize)
     Q_PROPERTY(int handleWidth READ handleWidth WRITE setHandleWidth)

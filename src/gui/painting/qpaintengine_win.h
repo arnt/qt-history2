@@ -27,7 +27,7 @@ class QTextEngine;
 // ### Remove EXPORT once Q4Printer is integrated into main
 class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QWin32PaintEngine);
+    Q_DECLARE_PRIVATE(QWin32PaintEngine)
 public:
     QWin32PaintEngine(QPaintDevice *target);
     ~QWin32PaintEngine();
@@ -91,7 +91,7 @@ protected:
 class QGdiplusPaintEnginePrivate;
 class QGdiplusPaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QGdiplusPaintEngine);
+    Q_DECLARE_PRIVATE(QGdiplusPaintEngine)
 public:
     QGdiplusPaintEngine(QPaintDevice *pdev);
     ~QGdiplusPaintEngine();

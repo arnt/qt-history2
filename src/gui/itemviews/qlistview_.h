@@ -55,7 +55,7 @@ class QListView_Private;
 class Q_GUI_EXPORT QListView_ : public QGenericListView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QListView_);
+    Q_DECLARE_PRIVATE(QListView_)
 
 public:
     QListView_(QWidget *parent = 0);

@@ -24,7 +24,7 @@ class QBufferPrivate;
 
 class Q_CORE_EXPORT QBuffer : public QIODevice
 {
-    Q_DECLARE_PRIVATE(QBuffer);
+    Q_DECLARE_PRIVATE(QBuffer)
 public:
     QBuffer();
     QBuffer(QByteArray *buf);

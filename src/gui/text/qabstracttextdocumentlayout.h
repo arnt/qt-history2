@@ -18,7 +18,7 @@ class QTextObjectInterface;
 class Q_GUI_EXPORT QAbstractTextDocumentLayout : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractTextDocumentLayout);
+    Q_DECLARE_PRIVATE(QAbstractTextDocumentLayout)
     friend class QTextDocument;
 
 public:

@@ -77,7 +77,7 @@ public:
 
 class QFilePrivate : public QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QFile);
+    Q_DECLARE_PUBLIC(QFile)
 
 protected:
     ~QFilePrivate();

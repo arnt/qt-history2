@@ -37,7 +37,7 @@ class QAbstractItemDelegatePrivate;
 
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
-    Q_DECLARE_PRIVATE(QAbstractItemDelegate);
+    Q_DECLARE_PRIVATE(QAbstractItemDelegate)
 
 public:
     QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent = 0);

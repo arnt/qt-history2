@@ -9,7 +9,7 @@ typedef QExplicitlySharedDataPointer<QTextPieceTable> QTextPieceTablePointer;
 class QTextDocumentPrivate : public QObjectPrivate
 {
 public:
-    Q_DECLARE_PUBLIC(QTextDocument);
+    Q_DECLARE_PUBLIC(QTextDocument)
     QTextPieceTablePointer pieceTable;
 };
 

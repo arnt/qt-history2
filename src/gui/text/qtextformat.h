@@ -423,7 +423,7 @@ class QTextGroupPrivate;
 
 class QTextGroup : public QObject
 {
-    Q_DECLARE_PRIVATE(QTextGroup);
+    Q_DECLARE_PRIVATE(QTextGroup)
     Q_OBJECT
 protected:
     QTextGroup(QObject *parent);
@@ -451,7 +451,7 @@ class QTextFramePrivate;
 
 class QTextFrame : public QTextGroup
 {
-    Q_DECLARE_PRIVATE(QTextFrame);
+    Q_DECLARE_PRIVATE(QTextFrame)
     Q_OBJECT
     friend class QTextCursor;
     friend class QTextPieceTable;

@@ -48,7 +48,7 @@ private:
 class Q_GUI_EXPORT QTextTable : public QTextGroup
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextTable);
+    Q_DECLARE_PRIVATE(QTextTable)
 public:
     void resize(int rows, int cols);
     void insertRows(int pos, int num);

@@ -102,7 +102,7 @@ typedef QHash<int,TimerInfo*> TimerDict;                // fast dict of timers
 
 class Q_CORE_EXPORT QEventLoopPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QEventLoop);
+    Q_DECLARE_PUBLIC(QEventLoop)
 public:
     QEventLoopPrivate();
 

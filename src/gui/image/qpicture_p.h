@@ -93,7 +93,7 @@ public:
 
 class QPicturePrivate : public QPaintCommands
 {
-    Q_DECLARE_PUBLIC(QPicture);
+    Q_DECLARE_PUBLIC(QPicture)
     friend class QPicturePaintEngine;
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &s, const QPicture &r);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &s, QPicture &r);

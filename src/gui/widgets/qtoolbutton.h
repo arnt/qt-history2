@@ -28,7 +28,7 @@ class QMenu;
 class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QToolButton);
+    Q_DECLARE_PRIVATE(QToolButton)
     Q_ENUMS(TextPosition)
 
     Q_PROPERTY(bool usesBigPixmap READ usesBigPixmap WRITE setUsesBigPixmap)

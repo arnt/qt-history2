@@ -8,7 +8,7 @@
 
 class QAbstractButtonPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QAbstractButton);
+    Q_DECLARE_PUBLIC(QAbstractButton)
 public:
     QAbstractButtonPrivate()
         :shortcutId(0), checkable(false), checked(false), autoRepeat(false), autoExclusive(false),

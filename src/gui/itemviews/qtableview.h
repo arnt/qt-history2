@@ -53,7 +53,7 @@ class QTableViewPrivate;
 class Q_GUI_EXPORT QTableView : public QGenericTableView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTableView);
+    Q_DECLARE_PRIVATE(QTableView)
 
 public:
     QTableView(QWidget *parent = 0);

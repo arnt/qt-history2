@@ -14,7 +14,7 @@ class QWidget;
 
 class QShortcutMap
 {
-    Q_DECLARE_PRIVATE(QShortcutMap);
+    Q_DECLARE_PRIVATE(QShortcutMap)
 public:
     QShortcutMap();
     ~QShortcutMap();

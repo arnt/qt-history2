@@ -74,7 +74,7 @@ class QTreeViewPrivate;
 class Q_GUI_EXPORT QTreeView : public QGenericTreeView
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTreeView);
+    Q_DECLARE_PRIVATE(QTreeView)
 
     friend class QTreeViewItem;
 public:

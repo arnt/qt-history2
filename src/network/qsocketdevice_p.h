@@ -36,7 +36,7 @@
 
 class QSocketDevicePrivate : public QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QSocketDevice);
+    Q_DECLARE_PUBLIC(QSocketDevice)
 
 protected:
     QSocketDevicePrivate()

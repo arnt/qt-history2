@@ -28,7 +28,7 @@ class Q4ButtonGroupPrivate;
 class Q_GUI_EXPORT Q4ButtonGroup : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4ButtonGroup);
+    Q_DECLARE_PRIVATE(Q4ButtonGroup)
     Q_PROPERTY(bool exlusive READ exclusive WRITE setExclusive)
 public:
     Q4ButtonGroup(QObject *parent = 0);

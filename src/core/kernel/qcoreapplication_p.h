@@ -45,7 +45,7 @@ public:
 
 class Q_CORE_EXPORT QCoreApplicationPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QCoreApplication);
+    Q_DECLARE_PUBLIC(QCoreApplication)
 public:
     QCoreApplicationPrivate(int &aargc,  char **aargv);
     ~QCoreApplicationPrivate() {}

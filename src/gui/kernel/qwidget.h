@@ -97,7 +97,7 @@ class QWidgetPrivate;
 class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QWidget);
+    Q_DECLARE_PRIVATE(QWidget)
 
     Q_PROPERTY(bool isTopLevel READ isTopLevel)
     Q_PROPERTY(bool isDialog READ isDialog)
@@ -449,7 +449,7 @@ public:
     static QWidgetMapper *wmapper();
 
     QWidget *childAt(int x, int y) const;
-    inline QWidget *childAt(const QPoint &p) const 
+    inline QWidget *childAt(const QPoint &p) const
     { return childAt(p.x(), p.y()); }
 
 #if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)

@@ -38,7 +38,7 @@ template <class T> class QList;
 
 class Q_GUI_EXPORT QDragObject: public QObject, public QMimeSource {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDragObject);
+    Q_DECLARE_PRIVATE(QDragObject)
 public:
     QDragObject(QWidget * dragSource = 0, const char * name = 0);
     virtual ~QDragObject();
@@ -77,7 +77,7 @@ private:
 
 class Q_GUI_EXPORT QStoredDrag: public QDragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QStoredDrag);
+    Q_DECLARE_PRIVATE(QStoredDrag)
 public:
     QStoredDrag(const char * mimeType,
                  QWidget * dragSource = 0, const char * name = 0);
@@ -100,7 +100,7 @@ private:
 
 class Q_GUI_EXPORT QTextDrag: public QDragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QTextDrag);
+    Q_DECLARE_PRIVATE(QTextDrag)
 public:
     QTextDrag(const QString &,
                QWidget * dragSource = 0, const char * name = 0);
@@ -129,7 +129,7 @@ private:
 
 class Q_GUI_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QImageDrag);
+    Q_DECLARE_PRIVATE(QImageDrag)
 public:
     QImageDrag(QImage image, QWidget * dragSource = 0, const char * name = 0);
     QImageDrag(QWidget * dragSource = 0, const char * name = 0);

@@ -48,7 +48,7 @@ class QApplicationPrivate;
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QApplication);
+    Q_DECLARE_PRIVATE(QApplication)
 public:
     QApplication(int &argc, char **argv);
     QApplication(int &argc, char **argv, bool GUIenabled);

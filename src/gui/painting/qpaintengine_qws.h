@@ -26,7 +26,7 @@ class QApplicationPrivate;
 
 class QWSPaintEngine : public QPaintEngine
 {
-    Q_DECLARE_PRIVATE(QWSPaintEngine);
+    Q_DECLARE_PRIVATE(QWSPaintEngine)
 
 public:
     QWSPaintEngine(QPaintDevice *);

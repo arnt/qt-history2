@@ -4,7 +4,7 @@
 class QScrollBar;
 class QViewportPrivate: public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QViewport);
+    Q_DECLARE_PUBLIC(QViewport)
 
 public:
     QViewportPrivate();

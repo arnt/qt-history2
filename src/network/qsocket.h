@@ -120,7 +120,7 @@ private:
     QSocket &operator=(const QSocket &);
 #endif
 
-    Q_DECLARE_PRIVATE(QSocket);
+    Q_DECLARE_PRIVATE(QSocket)
     Q_PRIVATE_SLOT(void tryConnecting(const QDnsHostInfo &))
     Q_PRIVATE_SLOT(void emitErrorConnectionRefused())
 

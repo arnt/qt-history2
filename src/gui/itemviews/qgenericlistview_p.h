@@ -93,7 +93,7 @@ public:
 
 class QGenericListViewPrivate: public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericListView);
+    Q_DECLARE_PUBLIC(QGenericListView)
 public:
     QGenericListViewPrivate()
         : QAbstractItemViewPrivate(),

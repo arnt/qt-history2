@@ -32,7 +32,7 @@ class QActionGroupPrivate;
 class Q_GUI_EXPORT QAction : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAction);
+    Q_DECLARE_PRIVATE(QAction)
 
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
@@ -160,7 +160,7 @@ private:
 class Q_GUI_EXPORT QActionGroup : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QActionGroup);
+    Q_DECLARE_PRIVATE(QActionGroup)
 
     Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
@@ -183,7 +183,7 @@ public:
 
 #ifdef QT_COMPAT
     inline QT_COMPAT void add(QAction* a) { addAction(a); }
-    inline QT_COMPAT void addSeparator() 
+    inline QT_COMPAT void addSeparator()
     { QAction *act = new QAction(this); act->setSeparator(true); addAction(act); }
     inline QT_COMPAT bool addTo(QWidget *w) { w->addActions(actions()); return true; }
 #endif

@@ -55,7 +55,7 @@ public:
 class QM_EXPORT_SQL QSqlDatabase : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSqlDatabase);
+    Q_DECLARE_PRIVATE(QSqlDatabase)
 
     Q_PROPERTY(QString databaseName  READ databaseName WRITE setDatabaseName)
     Q_PROPERTY(QString userName  READ userName WRITE setUserName)

@@ -80,7 +80,7 @@ class QItemSelectionModelPrivate;
 class Q_GUI_EXPORT QItemSelectionModel : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QItemSelectionModel);
+    Q_DECLARE_PRIVATE(QItemSelectionModel)
 
     Q_FLAGS(SelectionCommand);
 

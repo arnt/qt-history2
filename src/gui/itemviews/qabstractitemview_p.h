@@ -6,7 +6,7 @@
 
 class QAbstractItemViewPrivate : public QViewportPrivate
 {
-    Q_DECLARE_PUBLIC(QAbstractItemView);
+    Q_DECLARE_PUBLIC(QAbstractItemView)
 
 public:
     QAbstractItemViewPrivate();
@@ -55,7 +55,7 @@ public:
 
 class QItemViewDragObjectPrivate : public QDragObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QItemViewDragObject);
+    Q_DECLARE_PUBLIC(QItemViewDragObject)
 public:
 //    static bool decode(QMimeSource *src, QModelIndexList &items);
     QModelIndexList items;

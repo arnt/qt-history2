@@ -35,7 +35,7 @@
 
 class Q_CORE_EXPORT QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QIODevice);
+    Q_DECLARE_PUBLIC(QIODevice)
 
 protected:
     QIODevicePrivate()

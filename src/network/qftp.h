@@ -34,7 +34,7 @@ class QFtpPrivate;
 class QM_EXPORT_FTP QFtp : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QFtp);
+    Q_DECLARE_PRIVATE(QFtp)
 
 public:
     QFtp(QObject *parent = 0, const char *name = 0);
