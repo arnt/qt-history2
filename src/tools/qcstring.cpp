@@ -1783,7 +1783,7 @@ QCString &QCString::replace( char c1, char c2 )
 
 int QCString::find( const QRegExp& rx, int index ) const
 {
-    QString d = QString::fromLatin1( data() );
+    QString d = QString::fromAscii( data() );
     return d.find( rx, index );
 }
 
@@ -1803,7 +1803,7 @@ int QCString::find( const QRegExp& rx, int index ) const
 
 int QCString::findRev( const QRegExp& rx, int index ) const
 {
-    QString d = QString::fromLatin1( data() );
+    QString d = QString::fromAscii( data() );
     return d.findRev( rx, index );
 }
 
@@ -1828,7 +1828,7 @@ int QCString::findRev( const QRegExp& rx, int index ) const
 
 int QCString::contains( const QRegExp &rx ) const
 {
-    QString d = QString::fromLatin1( data() );
+    QString d = QString::fromAscii( data() );
     return d.contains( rx );
 }
 
@@ -1858,8 +1858,8 @@ int QCString::contains( const QRegExp &rx ) const
 
 QCString &QCString::replace( const QRegExp &rx, const char *str )
 {
-    QString d = QString::fromLatin1( data() );
-    QString r = QString::fromLatin1( str );
+    QString d = QString::fromAscii( data() );
+    QString r = QString::fromAscii( str );
     d.replace( rx, r );
     setStr( d.ascii() );
     return *this;
