@@ -1825,7 +1825,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
     // if the mouse is in a rect which belongs to two docking areas (intersection),
     // find the one with higher priority (that's depending on the original position)
     if ( leftTop.contains( pos ) ) {
-	if ( tb->orientation() == Vertical ) {
+	if ( tb->orientation() == Vertical && !hasTop ) {
 	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
@@ -1833,7 +1833,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	return Top;
     }
     if ( leftBottom.contains( pos ) ) {
-	if ( tb->orientation() == Vertical ) {
+	if ( tb->orientation() == Vertical && !hasBottom ) {
 	    rect = findRectInDockingArea( d, Left, pos, leftArea, tb, ipos, covering );
 	    return Left;
 	}
@@ -1841,7 +1841,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	return Bottom;
     }
     if ( rightTop.contains( pos ) ) {
-	if ( tb->orientation() == Vertical ) {
+	if ( tb->orientation() == Vertical && !hasTop ) {
 	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
@@ -1849,7 +1849,7 @@ QMainWindow::ToolBarDock QMainWindow::findDockArea( const QPoint &pos, QRect &re
 	return Top;
     }
     if ( rightBottom.contains( pos ) ) {
-	if ( tb->orientation() == Vertical ) {
+	if ( tb->orientation() == Vertical && !hasBottom ) {
 	    rect = findRectInDockingArea( d, Right, pos, rightArea, tb, ipos, covering );
 	    return Right;
 	}
