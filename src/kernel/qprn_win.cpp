@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#12 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -17,14 +17,14 @@
 #include "qwidget.h"
 
 #if defined(_CC_BOOL_DEF_)
-#undef  bool
+#undef	bool
 #include <windows.h>
 #define bool int
 #else
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#12 $")
 
 
 // QPrinter states
@@ -178,7 +178,7 @@ int QPrinter::metric( int m ) const
 {
     if ( handle() == 0 )			// not ready
 	return 0;
-    int query = 0;
+    int query;
     switch ( m ) {
 	case PDM_WIDTH:
 	    query = HORZRES;
