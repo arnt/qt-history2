@@ -24,6 +24,8 @@
 
 
 #if defined(Q_WS_MACX)
+#include <qimage.h>
+
 //icon is 40x40 on the mac, if it changes - please notify the Qt/Mac team
 static const char * const icon_xpm[] = {
 "40 40 543 2",
@@ -634,10 +636,14 @@ const QPixmap createPixmap( PixmapType type )
 {
     QPixmap pix;
     EmbImage *em = 0;
+
+#if defined(Q_WS_MACX)
+	QImage image(icon_xpm);
+#endif
+
     switch ( type ) {
     case IconPixmap:
 #if defined(Q_WS_MACX)
-	QImage image( icon_xpm );
 	if ( !image.isNull() )
 	    pix.convertFromImage( image );
 #else
