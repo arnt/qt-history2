@@ -121,8 +121,8 @@ public:
     bool isQBitmap() const;
 
 #if defined(Q_WS_QWS)
-    virtual unsigned char * scanLine(int) const;
-    virtual int bytesPerLine() const;
+    virtual const uchar * qwsScanLine(int) const;
+    virtual int qwsBytesPerLine() const;
     QRgb *clut() const;
     int numCols() const;
 #endif

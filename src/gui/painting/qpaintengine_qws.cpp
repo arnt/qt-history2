@@ -470,16 +470,16 @@ void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QR
 
     if(mode == Qt::ComposePixmap && hasMask) {
         QBitmap * mymask=((QBitmap *)pixmap.mask());
-        unsigned char * thebits=mymask->scanLine(0);
-        int ls=mymask->bytesPerLine();
+        const unsigned char * thebits=mymask->qwsScanLine(0);
+        int ls=mymask->qwsBytesPerLine();
         d->gfx->setAlphaType(QGfx::LittleEndianMask);
-        d->gfx->setAlphaSource(thebits,ls);
+        d->gfx->setAlphaSource(const_cast<uchar*>(thebits),ls);
     } else {
         QGfx::AlphaType alphaType = QGfx::IgnoreAlpha;
         if (mode != Qt::CopyPixmapNoMask && mode != Qt::CopyPixmap) {
             if (hasAlpha)
                 alphaType = QGfx::InlineAlpha;
-#if 0 //source-over-destination blending not supported for beta1
+#if 0 //source-over-destination blending not supported for 4.0
             if (d->pdev->devType() == QInternal::Pixmap) {
                 QPixmap *p = static_cast<QPixmap*>(d->pdev);
                 if (p->data->hasAlpha)

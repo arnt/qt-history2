@@ -1128,11 +1128,11 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QPaintDevice *p)
 {
     // if the source is 1bpp, the pen and brush currently active will be used
-    srclinestep=((QPaintDevice *)p)->bytesPerLine();
+    srclinestep=((QPaintDevice *)p)->qwsBytesPerLine();
     srcdepth=p->depth();
     if(srcdepth==0)
         abort();
-    srcbits=((QPaintDevice *)p)->scanLine(0);
+    srcbits=((QPaintDevice *)p)->qwsScanLine(0);
     srctype=SourceImage;
     srcpixeltype=QScreen::NormalPixel;
     setAlphaType(IgnoreAlpha);
@@ -1293,7 +1293,7 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
     without taking any notice of clipping. It's an internal method called
     by drawPoint(), and vLine().
 */
-template <const int depth, const int type> 
+template <const int depth, const int type>
 Q_GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
 {
     //screen coordinates
@@ -3141,8 +3141,8 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
                 srccol=pixel;
                 srctype=SourcePen;
                 setAlphaType(LittleEndianMask);
-                setAlphaSource(cbrushpixmap.scanLine(0),
-                               cbrushpixmap.bytesPerLine());
+                setAlphaSource(const_cast<uchar*>(cbrushpixmap.qwsScanLine(0)),
+                               cbrushpixmap.qwsBytesPerLine());
             }
         } else {
             setSource(&cbrushpixmap);
@@ -3326,8 +3326,8 @@ void QGfxRaster<depth,type>::drawPolygon(const QPolygon &pa, bool winding, int i
                     srccol=pixel;
                     srctype=SourcePen;
                     setAlphaType(LittleEndianMask);
-                    setAlphaSource(cbrushpixmap.scanLine(0),
-                                   cbrushpixmap.bytesPerLine());
+                    setAlphaSource(const_cast<uchar*>(cbrushpixmap.qwsScanLine(0)),
+                                   cbrushpixmap.qwsBytesPerLine());
                 }
             } else {
                 setSource(&cbrushpixmap);

@@ -421,10 +421,10 @@ QImage QPixmap::toImage() const
         image.create(w,h,d,0, QImage::IgnoreEndian);
         for (int y=0; y < h; y++) {     // for each scan line...
             register uint *p = (uint *)image.scanLine(y);
-            ushort  *s = (ushort*)scanLine(y);
+            ushort  *s = (ushort*)qwsScanLine(y);
             uint *end = p + w;
             if (msk) {
-                uchar* a = msk->scanLine(y);
+                const uchar* a = msk->qwsScanLine(y);
                 uchar bit = 1; // mask is LittleEndian
                 while (p < end) {
                     uint rgb = qt_conv16ToRgb(*s++);
@@ -708,7 +708,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     int           ws, hs;                                // size of source pixmap
     uchar *dptr;                                // data in target pixmap
     int           dbpl, dbytes;                        // bytes per line/bytes total
-    uchar *sptr;                                // data in original pixmap
+    const uchar *sptr;                                // data in original pixmap
     int           sbpl;                                // bytes per line in original
     int           bpp;                                        // bits per pixel
     bool   depth1 = depth() == 1;
@@ -776,8 +776,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         sptr=srcImg.scanLine(0);
         sbpl=srcImg.bytesPerLine();
     } else {
-        sptr=scanLine(0);
-        sbpl=bytesPerLine();
+        sptr=qwsScanLine(0);
+        sbpl=qwsBytesPerLine();
     }
     ws=width();
     hs=height();
@@ -792,8 +792,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
         bpp=destImg.depth();
     } else {
         pm.resize(w, h);
-        dptr=pm.scanLine(0);
-        dbpl=pm.bytesPerLine();
+        dptr=const_cast<uchar*>(pm.qwsScanLine(0));
+        dbpl=pm.qwsBytesPerLine();
         bpp=pm.depth();
     }
 
@@ -842,7 +842,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
 /*!
     \internal
 */
-unsigned char * QPixmap::scanLine(int i) const
+const unsigned char * QPixmap::qwsScanLine(int i) const
 {
     uchar * p;
     int xoffset,linestep;
@@ -854,7 +854,7 @@ unsigned char * QPixmap::scanLine(int i) const
 /*!
     \internal
 */
-int QPixmap::bytesPerLine() const
+int QPixmap::qwsBytesPerLine() const
 {
     uchar * p;
     int xoffset,linestep;

@@ -69,7 +69,7 @@ QWSDisplay *QPaintDevice::qwsDisplay()
 /*!
     \internal
 */
-const uchar *QPaintDevice::scanLine(int) const
+const uchar *QPaintDevice::qwsScanLine(int) const
 {
     return 0;
 }
@@ -77,7 +77,7 @@ const uchar *QPaintDevice::scanLine(int) const
 /*!
     \internal
 */
-int QPaintDevice::bytesPerLine() const
+int QPaintDevice::qwsBytesPerLine() const
 {
     return 0;
 }

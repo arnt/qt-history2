@@ -111,6 +111,10 @@ public:
     int numBytes() const;
     int bytesPerLine() const;
 
+#ifdef Q_WS_QWS
+    virtual const uchar * qwsScanLine(int) const;
+    virtual int qwsBytesPerLine() const;
+#endif
     QPaintEngine *paintEngine() const;
 
     bool create(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);

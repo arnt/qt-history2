@@ -533,7 +533,7 @@ protected:
 #endif
 #if defined(Q_WS_QWS)
     virtual bool qwsEvent(QWSEvent *);
-    virtual unsigned char *qwsScanLine(int) const;
+    virtual const uchar *qwsScanLine(int) const;
     virtual int qwsBytesPerLine() const;
 #endif
 

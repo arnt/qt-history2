@@ -1628,12 +1628,12 @@ void QWidget::clearMask()
 /*!
     \internal
 */
-unsigned char * QWidget::qwsScanLine(int i) const
+const unsigned char * QWidget::qwsScanLine(int i) const
 {
     // Should add widget x() here, maybe
     unsigned char * base=qwsDisplay()->frameBuffer();
     if(base)
-        base+=i*bytesPerLine();
+        base+=i*qwsBytesPerLine();
     return base;
 }
 
