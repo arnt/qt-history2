@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#37 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#38 $
 **
 ** Implementation of QFileDialog class
 **
@@ -17,6 +17,7 @@
 #include "qpushbt.h"
 #include "qmsgbox.h"
 #include "qapp.h"
+#include "qregexp.h"
 #if defined(_WS_WIN_)
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
@@ -27,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#38 $");
 
 
 /*!
@@ -336,6 +337,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     } else if ( filedlg_dir.isNull() ) {
 	filedlg_dir = QDir::currentDirPath();
     }
+    filedlg_dir.replace(QRegExp("/"),"\\");
 
 #if defined(_WS_WIN_)
 
@@ -357,7 +359,7 @@ QString QFileDialog::getOpenFileName( const char *dirName, const char *filter,
     QString result;
     if ( GetOpenFileName(&ofn) ) {
 	result = file;
-	filedlg_dir = ofn.lpstrInitialDir;
+	filedlg_dir = QFileInfo(file).dirPath();
     }
 
     delete [] file;
@@ -413,6 +415,7 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     } else if ( filedlg_dir.isNull() ) {
 	filedlg_dir = QDir::currentDirPath();
     }
+    filedlg_dir.replace(QRegExp("/"),"\\");
 
 #if defined(_WS_WIN_)
 
@@ -434,11 +437,10 @@ QString QFileDialog::getSaveFileName( const char *dirName, const char *filter,
     QString result;
     if ( GetSaveFileName(&ofn) ) {
 	result = file;
-	filedlg_dir = ofn.lpstrInitialDir;
+	filedlg_dir = QFileInfo(file).dirPath();
     }
 
     delete [] file;
-    delete [] dir;
     return result;
 
 #else
