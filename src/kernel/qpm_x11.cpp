@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#115 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -27,7 +27,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#115 $");
 
 
 /*****************************************************************************
@@ -789,7 +789,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     int	 w   = image.width();
     int	 h   = image.height();
     int	 d   = image.depth();
-    int	 dd  = x11Depth();
+    int	 dd  = defaultDepth();
     bool force_mono = (dd == 1 || isQBitmap() || (conversion_flags & ColorMode_Mask)==MonoOnly );
 
     if ( data->mask ) {				// get rid of the mask
@@ -808,9 +808,13 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( (conversion_flags & ColorMode_Mask) == ColorOnly )
-	{					// native depth wanted
-	    conv8 = d == 1;
+	if ( d > 8 && dd <= 8 ) {		// convert to 8 bit
+	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
+		conversion_flags = (conversion_flags & ~DitherMode_Mask)
+					| AlwaysDither;
+	    conv8 = TRUE;
+	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
+	    conv8 = d == 1;			// native depth wanted
 	} else if ( d == 1 ) {
 	    if ( image.numColors() == 2 ) {
 		QRgb c0 = image.color(0);	// Auto: convert to best
@@ -972,16 +976,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    }
 	}
 	xi->data = (char *)newbits;
-    }
-
-    if ( d == 32 && !trucol ) {			// convert to 8 bit
-	if ( (conversion_flags & DitherMode_Mask) == AutoDither )
-	    image = image.convertDepth( 8,
-		      conversion_flags & ~DitherMode_Mask | AlwaysDither );
-	else
-	    image = image.convertDepth( 8, conversion_flags );
-	d = 8;
-	nbytes = image.numBytes();		// recalc image size
     }
 
     if ( d == 8 && !trucol ) {			// 8 bit pixmap

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#59 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#59 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -413,10 +413,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	return FALSE;
     }
     QImage image = img;
-    int	   d = image.depth();
+    int	   d     = image.depth();
+    int    dd    = defaultDepth();
     bool   force_mono = (isQBitmap()
 		         || (conversion_flags & ColorMode_Mask) == MonoOnly);
-
     if ( force_mono ) {				// must be monochrome
 	if ( d != 1 ) {
 	    image = image.convertDepth( 1, conversion_flags );	// dither
@@ -424,7 +424,12 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	}
     } else {					// can be both
 	bool conv8 = FALSE;
-	if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
+	if ( d > 8 && dd <= 8 ) {		// convert to 8 bit
+	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
+		conversion_flags = (conversion_flags & ~DitherMode_Mask)
+					| AlwaysDither;
+	    conv8 = TRUE;
+	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {			// native depth wanted
 	    conv8 = d == 1;
 	} else if ( d == 1 ) {
 	    if ( image.numColors() == 2 ) {
