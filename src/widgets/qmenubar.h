@@ -152,11 +152,11 @@ private:
     friend class QWidget;
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();
+    void macDirtyNativeMenubar();
 
     friend MenuRef createMacPopup(QPopupMenu *d, bool);
     friend bool updateMenuBar(QMenuBar *mbar);
     friend class QApplication;
-    uint mac_dirty_menubar : 1;
     uint mac_eaten_menubar : 1;
     class MacPrivate;
     MacPrivate *mac_d;

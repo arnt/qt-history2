@@ -12,12 +12,13 @@
 #include <qapplication.h>
 #include <qaccel.h>
 
+void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 MenuRef createMacPopup(QPopupMenu *d, bool);
 static bool syncPopups(MenuRef ret, QPopupMenu *d);
 
 class QMenuBar::MacPrivate {
 public:
-    MacPrivate() : popups(NULL), mac_menubar(NULL) { }
+    MacPrivate() : popups(NULL), mac_menubar(NULL), dirty(1) { }
     ~MacPrivate() { clear(); delete popups; }
 
     class PopupBinding {
@@ -29,12 +30,15 @@ public:
     };
     QIntDict<PopupBinding> *popups;
     MenuBarHandle mac_menubar;
+    uint dirty;
 
     void clear() {
 	if(popups)
 	    popups->clear();
-	if(mac_menubar)
+	if(mac_menubar) {
 	    DisposeMenuBar(mac_menubar);
+	    mac_menubar = NULL;
+	}
     }
 };
 static QMenuBar* activeMenuBar = NULL; //The current global menubar
@@ -269,7 +273,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 static QIntDict<QMenuBar> *menubars = NULL;
 void QMenuBar::macCreateNativeMenubar() 
 {
-    mac_dirty_menubar = 1;
+    macDirtyNativeMenubar();
     QWidget *p = parentWidget();
     if(p && (!menubars || !menubars->find((int)topLevelWidget())) && 
        ((p->inherits("QMainWindow") && !p->parentWidget()) || p->inherits("QToolBar") ||
@@ -291,13 +295,23 @@ void QMenuBar::macRemoveNativeMenubar()
 	if(mb == this) 
 	    menubars->remove((int)topLevelWidget());
     }
+    mac_eaten_menubar = FALSE;
     if(activeMenuBar == this) {
 	activeMenuBar = NULL;
 	ClearMenuBar();
 	InvalMenuBar();
     }
-    if(mac_d)
+    if(mac_d) {
 	delete mac_d;
+	mac_d = NULL;
+    }
+}
+void QMenuBar::macDirtyNativeMenubar()
+{
+    if(mac_eaten_menubar) {
+	mac_d->dirty = 1;
+	qt_event_request_menubarupdate();
+    }
 }
 
 void QMenuBar::cleanup()
@@ -314,12 +328,12 @@ void QMenuBar::macUpdateMenuBar()
     static bool first = TRUE;
     if(QWidget *w = qApp->activeWindow()) {
   	if(QMenuBar *mb = menubars->find((int)w)) {
-	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_dirty_menubar && (mb == activeMenuBar)))
+	    if(!mb->mac_eaten_menubar || (!first && !mb->mac_d->dirty && (mb == activeMenuBar)))
 		return;
 	    activeMenuBar = mb;
 	    first = FALSE;
-	    if(mb->mac_dirty_menubar || !mb->mac_d->mac_menubar) {
-		mb->mac_dirty_menubar = 0;
+	    if(mb->mac_d->dirty || !mb->mac_d->mac_menubar) {
+		mb->mac_d->dirty = 0;
 		updateMenuBar(mb);
 		mb->mac_d->mac_menubar = GetMenuBar();
 	    } else {

@@ -309,7 +309,8 @@ void QMenuBar::menuContentsChanged()
 #endif
     }
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    mac_dirty_menubar = 1;
+    if(mac_eaten_menubar)
+	macDirtyNativeMenubar();
 #endif
 
     bool all_hidden = TRUE;
