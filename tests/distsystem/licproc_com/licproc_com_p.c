@@ -2,7 +2,7 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Wed Aug 01 11:46:28 2001
+/* at Fri Aug 03 17:12:38 2001
  */
 /* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
@@ -28,7 +28,7 @@
 #include "licproc_com.h"
 
 #define TYPE_FORMAT_STRING_SIZE   37                                
-#define PROC_FORMAT_STRING_SIZE   465                               
+#define PROC_FORMAT_STRING_SIZE   499                               
 
 typedef struct _MIDL_TYPE_FORMAT_STRING
     {
@@ -107,7 +107,8 @@ static const unsigned short ILicProc_FormatStringOffsetTable[] =
     328,
     356,
     384,
-    418
+    418,
+    464
     };
 
 static const MIDL_SERVER_INFO ILicProc_ServerInfo = 
@@ -132,7 +133,7 @@ static const MIDL_STUBLESS_PROXY_INFO ILicProc_ProxyInfo =
     0
     };
 
-CINTERFACE_PROXY_VTABLE(18) _ILicProcProxyVtbl = 
+CINTERFACE_PROXY_VTABLE(19) _ILicProcProxyVtbl = 
 {
     &ILicProc_ProxyInfo,
     &IID_ILicProc,
@@ -153,7 +154,8 @@ CINTERFACE_PROXY_VTABLE(18) _ILicProcProxyVtbl =
     (void *)-1 /* ILicProc::clearVersionTags */ ,
     (void *)-1 /* ILicProc::clearFilemap */ ,
     (void *)-1 /* ILicProc::deleteVersionTag */ ,
-    (void *)-1 /* ILicProc::deleteFilemap */
+    (void *)-1 /* ILicProc::deleteFilemap */ ,
+    (void *)-1 /* ILicProc::deleteLicense */
 };
 
 
@@ -173,6 +175,7 @@ static const PRPC_STUB_FUNCTION ILicProc_table[] =
     NdrStubCall2,
     NdrStubCall2,
     NdrStubCall2,
+    NdrStubCall2,
     NdrStubCall2
 };
 
@@ -180,7 +183,7 @@ CInterfaceStubVtbl _ILicProcStubVtbl =
 {
     &IID_ILicProc,
     &ILicProc_ServerInfo,
-    18,
+    19,
     &ILicProc_table[-3],
     CStdStubBuffer_DELEGATING_METHODS
 };
@@ -887,6 +890,53 @@ static const MIDL_PROC_FORMAT_STRING __MIDL_ProcFormatString =
 			NdrFcShort( 0x28 ),	/* Alpha Stack size/offset = 40 */
 #endif
 /* 462 */	0x8,		/* FC_LONG */
+			0x0,		/* 0 */
+
+	/* Procedure deleteLicense */
+
+/* 464 */	0x33,		/* FC_AUTO_HANDLE */
+			0x6c,		/* Old Flags:  object, Oi2 */
+/* 466 */	NdrFcLong( 0x0 ),	/* 0 */
+/* 470 */	NdrFcShort( 0x12 ),	/* 18 */
+#ifndef _ALPHA_
+/* 472 */	NdrFcShort( 0x10 ),	/* x86, MIPS, PPC Stack size/offset = 16 */
+#else
+			NdrFcShort( 0x20 ),	/* Alpha Stack size/offset = 32 */
+#endif
+/* 474 */	NdrFcShort( 0x0 ),	/* 0 */
+/* 476 */	NdrFcShort( 0x8 ),	/* 8 */
+/* 478 */	0x6,		/* Oi2 Flags:  clt must size, has return, */
+			0x3,		/* 3 */
+
+	/* Parameter licenseId */
+
+/* 480 */	NdrFcShort( 0x8b ),	/* Flags:  must size, must free, in, by val, */
+#ifndef _ALPHA_
+/* 482 */	NdrFcShort( 0x4 ),	/* x86, MIPS, PPC Stack size/offset = 4 */
+#else
+			NdrFcShort( 0x8 ),	/* Alpha Stack size/offset = 8 */
+#endif
+/* 484 */	NdrFcShort( 0x1a ),	/* Type Offset=26 */
+
+	/* Parameter companyId */
+
+/* 486 */	NdrFcShort( 0x8b ),	/* Flags:  must size, must free, in, by val, */
+#ifndef _ALPHA_
+/* 488 */	NdrFcShort( 0x8 ),	/* x86, MIPS, PPC Stack size/offset = 8 */
+#else
+			NdrFcShort( 0x10 ),	/* Alpha Stack size/offset = 16 */
+#endif
+/* 490 */	NdrFcShort( 0x1a ),	/* Type Offset=26 */
+
+	/* Return value */
+
+/* 492 */	NdrFcShort( 0x70 ),	/* Flags:  out, return, base type, */
+#ifndef _ALPHA_
+/* 494 */	NdrFcShort( 0xc ),	/* x86, MIPS, PPC Stack size/offset = 12 */
+#else
+			NdrFcShort( 0x18 ),	/* Alpha Stack size/offset = 24 */
+#endif
+/* 496 */	0x8,		/* FC_LONG */
 			0x0,		/* 0 */
 
 			0x0

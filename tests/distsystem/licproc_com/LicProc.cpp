@@ -315,3 +315,17 @@ STDMETHODIMP LicProc::deleteFilemap(BSTR tag, BSTR itemId, BSTR fileName, BSTR c
 
     return S_OK;
 }
+
+STDMETHODIMP LicProc::deleteLicense(BSTR licenseId, BSTR companyId)
+{
+    if( !distDb->isOpen() )
+	return E_FAIL;
+    if( !checkCompanyId( BSTR2QString( companyId ) ) )
+	return S_OK;
+
+    QSqlQuery q;
+    q.exec( QString( "DELETE from items where LicenseID = %1" ).arg( BSTR2QString( licenseId ) ) );
+    q.exec( QString( "DELETE from licenses where ID = %1" ).arg( BSTR2QString( licenseId ) ) );
+
+    return S_OK;
+}

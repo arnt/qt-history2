@@ -2,7 +2,7 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Wed Aug 01 11:46:28 2001
+/* at Fri Aug 03 17:12:38 2001
  */
 /* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
@@ -136,6 +136,10 @@ EXTERN_C const IID IID_ILicProc;
             BSTR fileName,
             BSTR companyId) = 0;
         
+        virtual /* [helpstring][id] */ HRESULT STDMETHODCALLTYPE deleteLicense( 
+            BSTR licenseId,
+            BSTR companyId) = 0;
+        
     };
     
 #else 	/* C style interface */
@@ -254,6 +258,11 @@ EXTERN_C const IID IID_ILicProc;
             BSTR fileName,
             BSTR companyId);
         
+        /* [helpstring][id] */ HRESULT ( STDMETHODCALLTYPE __RPC_FAR *deleteLicense )( 
+            ILicProc __RPC_FAR * This,
+            BSTR licenseId,
+            BSTR companyId);
+        
         END_INTERFACE
     } ILicProcVtbl;
 
@@ -322,6 +331,9 @@ EXTERN_C const IID IID_ILicProc;
 
 #define ILicProc_deleteFilemap(This,tag,itemId,fileName,companyId)	\
     (This)->lpVtbl -> deleteFilemap(This,tag,itemId,fileName,companyId)
+
+#define ILicProc_deleteLicense(This,licenseId,companyId)	\
+    (This)->lpVtbl -> deleteLicense(This,licenseId,companyId)
 
 #endif /* COBJMACROS */
 
@@ -482,6 +494,19 @@ void __RPC_STUB ILicProc_deleteVersionTag_Stub(
 
 
 void __RPC_STUB ILicProc_deleteFilemap_Stub(
+    IRpcStubBuffer *This,
+    IRpcChannelBuffer *_pRpcChannelBuffer,
+    PRPC_MESSAGE _pRpcMessage,
+    DWORD *_pdwStubPhase);
+
+
+/* [helpstring][id] */ HRESULT STDMETHODCALLTYPE ILicProc_deleteLicense_Proxy( 
+    ILicProc __RPC_FAR * This,
+    BSTR licenseId,
+    BSTR companyId);
+
+
+void __RPC_STUB ILicProc_deleteLicense_Stub(
     IRpcStubBuffer *This,
     IRpcChannelBuffer *_pRpcChannelBuffer,
     PRPC_MESSAGE _pRpcMessage,

@@ -5,9 +5,9 @@
 
 
 /* File created by MIDL compiler version 5.01.0164 */
-/* at Mon Jul 16 13:00:42 2001
+/* at Fri Aug 03 17:12:38 2001
  */
-/* Compiler settings for C:\DEPOT\QT\MAIN\TESTS\DISTSYSTEM\licproc_com\licproc_com.idl:
+/* Compiler settings for C:\depot\qt\main\tests\distsystem\licproc_com\licproc_com.idl:
     Oicf (OptLev=i2), W1, Zp8, env=Win32, ms_ext, c_ext
     error checks: allocation ref bounds_check enum stub_data 
 */
