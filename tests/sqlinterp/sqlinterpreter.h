@@ -882,8 +882,8 @@ public:
 
 
 /* Push field description information of the field identified by
-'name' in the file identified by 'id onto the top of the stack.  If
-the field does not exist, jump to P3.
+'name' in the file identified by 'id onto the top of the stack.  The
+field must exist in the file.
 */
 
 class PushFieldDesc : public Label
@@ -891,9 +891,8 @@ class PushFieldDesc : public Label
 public:
     PushFieldDesc( const QVariant& id,
 		   const QVariant& name,
-		   const QVariant& P3,
 		   const QString& label = QString::null )
-	: Label( id, name, P3, label ) {}
+	: Label( id, name, label ) {}
     QString name() const { return "PushFieldDesc"; }
     int exec( Interpreter::Environment* env )
     {
