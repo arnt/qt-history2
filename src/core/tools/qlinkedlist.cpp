@@ -237,7 +237,7 @@ QLinkedListData QLinkedListData::shared_null = {
     This function requires the value type to have an implementation of
     \c operator==().
 
-    \sa QListIterator::findNext(), QListIterator::findPrev()
+    \sa QListIterator::findNext(), QListIterator::findPrevious()
 */
 
 /*! \fn int QLinkedList::count(const T &value) const
@@ -565,10 +565,10 @@ QLinkedListData QLinkedListData::shared_null = {
     \code
         QLinkedList<QString>::iterator i = list.begin();
         while (i != list.end()) {
-            QLinkedList<QString>::iterator prev = i;
+            QLinkedList<QString>::iterator previous = i;
             ++i;
-            if ((*prev).startsWith("_"))
-                list.erase(prev);
+            if ((*previous).startsWith("_"))
+                list.erase(previous);
         }
     \endcode
 
