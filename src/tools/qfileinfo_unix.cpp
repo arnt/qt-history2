@@ -93,7 +93,8 @@ bool QFileInfo::isDir() const
 }
 
 /*!
-  Returns TRUE if we are pointing to a symbolic link.
+  Returns TRUE if we are pointing to a symbolic link (on Windows, this
+  is the same as a shortcut).
   \sa isFile(), isDir(), readLink()
 */
 
@@ -105,8 +106,9 @@ bool QFileInfo::isSymLink() const
 }
 
 /*!
-  Returns the name a symlink points to, or a null QString if the
-  object does not refer to a symbolic link.
+  Returns the name a symlink (on Windows, this is the same as a shortcut)
+  points to, or a null QString if the object does not refer to a symbolic 
+  link.
 
   This name may not represent an existing file; it is only a string.
   QFileInfo::exists() returns TRUE if the symlink points to an
