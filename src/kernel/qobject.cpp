@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#203 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#204 $
 **
 ** Implementation of QObject class
 **
@@ -366,7 +366,7 @@ QObject::~QObject()
     wasDeleted = 1;
     emit destroyed();
     if ( objname )
-	delete [] objname;
+	delete [] (char*)objname;
     objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
@@ -584,7 +584,7 @@ const char * QObject::name( const char * defaultName ) const
 void QObject::setName( const char *name )
 {
     if ( objname )
-	delete objname;
+	delete [] (char*) objname;
     objname = name ? qstrdup(name) : 0;
 }
 
