@@ -1652,12 +1652,12 @@ QWidget::insertAction(QAction *before, QAction *action)
     if(!d->actions) {
 	d->actions = new QList<QAction*>();
 	d->actions->append(action);
-	QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     } else {
 	int before_int = d->actions->indexOf(before);
 	d->actions->remove(action);
 	d->actions->insert(before_int, action);
     }
+    QObject::connect(action, SIGNAL(dataChanged()), this, SLOT(actionChanged()));
     QActionEvent e(QEvent::ActionAdded, action, before);
     QApplication::sendEvent(this, &e);
     action->addedTo(this);
