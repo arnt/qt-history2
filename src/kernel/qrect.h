@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.h#36 $
+** $Id: //depot/qt/main/src/kernel/qrect.h#37 $
 **
 ** Definition of QRect class
 **
@@ -46,6 +46,12 @@ public:
     int	   top()	const;
     int	   right()	const;
     int	   bottom()	const;
+    
+    QCOORD &QRect::rLeft();
+    QCOORD &QRect::rTop();
+    QCOORD &QRect::rRight();
+    QCOORD &QRect::rBottom();
+	
     int	   x()		const;
     int	   y()		const;
     void   setLeft( int pos );
@@ -147,6 +153,18 @@ inline int QRect::right() const
 { return x2; }
 
 inline int QRect::bottom() const
+{ return y2; }
+
+inline QCOORD &QRect::rLeft()
+{ return x1; }
+
+inline QCOORD & QRect::rTop()
+{ return y1; }
+
+inline QCOORD & QRect::rRight()
+{ return x2; }
+
+inline QCOORD & QRect::rBottom()
 { return y2; }
 
 inline int QRect::x() const
