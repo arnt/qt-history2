@@ -1853,10 +1853,11 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     QObject *s = (QObject *)sender;
     QObject *r = (QObject *)receiver;
     int member_index = -1;
+    int membcode = -1;
     if ( member ) {
 	member_name = qt_rmWS( member );
 	member = member_name.data();
-	int membcode = member[0] - '0';
+	membcode = member[0] - '0';
 #if defined(QT_CHECK_RANGE)
 	if ( !check_member_code( membcode, r, member, "disconnect" ) )
 	    return FALSE;
@@ -1883,7 +1884,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
     }
 
     if ( signal == 0 ) {			// any/all signals
-	if ( disconnectInternal( s, -1, r, member_index ) )
+	if ( disconnectInternal( s, -1, r, membcode, member_index ) )
 	    s->disconnectNotify( 0 );
 	else
 	    return FALSE;
@@ -1908,10 +1909,22 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 		return FALSE;
 	}
 
-	if ( disconnectInternal( s, signal_index, r, member_index ) )
+	/* compatibility and safety: If a receiver has several slots
+	 * with the same name, disconnect them all*/
+	bool res = FALSE;
+	if ( membcode == QSLOT_CODE && r ) {
+	    QMetaObject * rmeta = r->metaObject();
+	    do {
+		int mi = rmeta->findSlot( member );
+		if ( mi != -1 )
+		    res |= disconnectInternal( s, signal_index, r, membcode,  mi );
+	    } while ( (rmeta = rmeta->superClass()) );
+	} else {
+	    res = disconnectInternal( s, signal_index, r, membcode,  member_index );
+	}
+	if ( res )
 	    s->disconnectNotify( signal_name );
-	else
-	    return FALSE;
+	return res;
     }
     return TRUE;
 }
@@ -1919,7 +1932,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 /*! \internal */
 
 bool QObject::disconnectInternal( const QObject *sender, int signal_index,
-				  const QObject *receiver, int member_index )
+		  const QObject *receiver, int membcode, int member_index )
 {
     QObject *s = (QObject*)sender;
     QObject *r = (QObject*)receiver;
@@ -1941,7 +1954,9 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
 		    removeObjFromList( c->object()->senderObjects, s );
 		    success = TRUE;
 		    c = clist->next();
-		} else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
+		} else if ( r == c->object() &&
+			    ( member_index == -1 ||
+			      member_index == c->member() && c->memberType() == membcode ) ) {
 		    removeObjFromList( c->object()->senderObjects, s );
 		    success = TRUE;
 		    clist->remove();
@@ -1964,7 +1979,9 @@ bool QObject::disconnectInternal( const QObject *sender, int signal_index,
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		success = TRUE;
 		c = clist->next();
-	    } else if ( r == c->object() && ( member_index == -1 || member_index == c->member() ) ) {
+	    } else if ( r == c->object() &&
+			( member_index == -1 ||
+			  member_index == c->member() && c->memberType() == membcode ) ) {
 		removeObjFromList( c->object()->senderObjects, s, TRUE );
 		success = TRUE;
 		clist->remove();
