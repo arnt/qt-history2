@@ -28,10 +28,26 @@
 #define IID_ImportFilterInterface QUuid( 0xea8cb381, 0x59b5, 0x44a8, 0xba, 0xe5, 0x9b, 0xea, 0x82, 0x95, 0x76, 0x2a )
 #endif
 
+/*! If you write a filter plugin to import dialogs or other user
+  interfaces from a different format that .ui into the Qt Designer,
+  implement this interface in that plugin.
+
+  You also have to implement the function featureList() (\sa
+  QFeatureListInterface) and return there all filters (names of it)
+  which this interface provides.
+*/
+
 struct ImportFilterInterface : public QFeatureListInterface
 {
-    virtual QStringList import( const QString& filter, const QString& filename ) = 0;
+    /*! This function is called by Qt Designer to open the file \a
+      filename using the filter \a filter. Qt Designer expects to get
+      back one or more .ui files, which it can open then. In the
+      implementation of the interface you have to return these
+      filenames, which the filter created, in this function.*/
+    virtual QStringList import( const QString &filter, const QString &filename ) = 0;
 };
+
+// *************** INTERNAL *************************
 
 // {C32A07E0-B006-471e-AFCA-D227457A1280}
 #ifndef IID_ExportFilterInterface
