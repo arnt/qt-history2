@@ -50,6 +50,14 @@ bool
 BorlandMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
+    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+	t << "all clean:" << "\n\t"
+	  << "@echo \"Some of the required modules (" 
+	  << var("TMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
+	  << "@echo \"Skipped.\"" << endl << endl;
+	return TRUE;
+    }
+
     if(project->variables()["TEMPLATE"].first() == "app" || 
        project->variables()["TEMPLATE"].first() == "lib") {
 	writeBorlandParts(t);

@@ -49,11 +49,19 @@ DspMakefileGenerator::DspMakefileGenerator(QMakeProject *p) : Win32MakefileGener
 bool
 DspMakefileGenerator::writeMakefile(QTextStream &t)
 {
+    if(!project->variables()["TMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+	/* for now just dump, I need to generated an empty dsp or something.. */
+	fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
+		var("TMAKE_FAILED_REQUIREMENTS").latin1());
+	return TRUE;
+    }
+
     if(project->variables()["TEMPLATE"].first() == "vcapp" || 
        project->variables()["TEMPLATE"].first() == "vclib") {
 	return writeDspParts(t);
     }	
     else if(project->variables()["TEMPLATE"].first() == "subdirs") {
+	writeHeader(t);
 	writeSubDirs(t);
 	return TRUE; 
     }
