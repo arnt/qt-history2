@@ -1117,10 +1117,10 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 }
 
 /*!
-    If \a accept is true the edit of the item at \a index is accepted
-    and the model is updated with the editor's value. If \a accept is
-    false, the edited value is ignored. In both cases, if there was an
-    editor widget it is released.
+    Ends the editing operation on the item represented by the given \a index.
+    If \a commit is true, the model item is updated with the value held by
+    the editor; otherwise the editor's value is ignored. In both cases, if
+    there was an editor widget it is released.
 
     \sa edit() QAbstractItemDelegate::releaseEditor()
 */
