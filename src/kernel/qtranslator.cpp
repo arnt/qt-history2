@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#20 $
 **
 ** Localization database support.
 **
@@ -201,15 +201,6 @@ static inline uint readhash( const char * c, int o, uint base ) {
   modified to work well with Unicode strings in UCS-2 format.  Its
   algorithm is not specified beyond the fact that it will remain
   unchanged in future versions of Qt.
-
-  Internally, QTranslator uses compressed and uncompressed formats,
-  but as it converts its contents transparently between the two as
-  required, using two functions squeeze() and unsqueeze().
-  squeeze() converts to a format that is well suited to on-disk
-  storage and read-only operations, unsqueeze() to one that takes more
-  space but can be changed easily.  You should never need to call these
-  two functions; they are present in the API mostly because our
-  regression testing needs them.
 
   To examine the contents of a QTranslator, use QTranslatorIterator.
 

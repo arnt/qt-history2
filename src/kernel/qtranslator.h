@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#5 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#6 $
 **
 ** Definition of something or other
 **
@@ -35,9 +35,6 @@ public:
     bool save( const QString & filename );
     void clear();
 
-    void squeeze();
-    void unsqueeze();
-
     void insert( const char *, const char *, const QString & );
     void remove( const char *, const char * );
     bool contains( const char *, const char * ) const;
@@ -46,6 +43,8 @@ public:
 
 private:
     QTranslatorPrivate * d;
+    void squeeze();
+    void unsqueeze();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
