@@ -60,13 +60,6 @@
 */
 
 
-/*! \fn  QScreen* QMouseDriverPlugin::create( const QString &driver )
-
-  Creates a driver matching the type specified by \a driver.
-
-  \sa keys()
-*/
-
 class QMouseDriverPluginPrivate : public QMouseDriverInterface
 {
 public:
@@ -145,8 +138,15 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
 }
 
 
-/*!\internal
- */
+/*!
+    \fn QScreen* QMouseDriverPlugin::create( const QString &driver, const QString& device )
+
+    Creates a driver matching the type specified by \a driver and
+    which uses device \a device.
+
+    \sa keys()
+*/
+
 QWSMouseHandler* QMouseDriverPlugin::create( const QString& driver, const QString &device )
 {
     Q_UNUSED( driver )

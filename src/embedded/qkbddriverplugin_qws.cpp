@@ -60,13 +60,6 @@
 */
 
 
-/*! \fn  QScreen* QKbdDriverPlugin::create( const QString &driver )
-
-  Creates a driver matching the type specified by \a driver.
-
-  \sa keys()
-*/
-
 class QKbdDriverPluginPrivate : public QKbdDriverInterface
 {
 public:
@@ -145,8 +138,14 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 }
 
 
-/*!\internal
- */
+/*!
+    \fn QScreen* QKbdDriverPlugin::create( const QString &driver )
+
+    Creates a driver matching the type specified by \a driver.
+
+    \sa keys()
+*/
+
 QWSKeyboardHandler* QKbdDriverPlugin::create( const QString& driver )
 {
     Q_UNUSED( driver )

@@ -60,13 +60,6 @@
 */
 
 
-/*! \fn  QScreen* QGfxDriverPlugin::create( const QString &driver )
-
-  Creates a driver matching the type specified by \a driver.
-
-  \sa keys()
-*/
-
 class QGfxDriverPluginPrivate : public QGfxDriverInterface
 {
 public:
@@ -145,8 +138,15 @@ QGfxDriverPlugin::~QGfxDriverPlugin()
 }
 
 
-/*!\internal
- */
+/*!
+    \fn QScreen* QGfxDriverPlugin::create( const QString &driver, int displayId )
+
+    Creates a driver matching the type specified by \a driver, that
+    will use display \a displayId.
+
+    \sa keys()
+*/
+
 QScreen* QGfxDriverPlugin::create( const QString& driver, int displayId )
 {
     Q_UNUSED( driver )

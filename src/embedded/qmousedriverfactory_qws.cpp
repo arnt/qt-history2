@@ -91,10 +91,12 @@ QMouseDriverFactoryPrivate::~QMouseDriverFactoryPrivate()
 
 */
 
-/*!  Creates a QWSMouseHandler object that matches \a key. This is either a
-  built-in driver, or a driver from a driver plugin.
+/*!
+    Creates a QWSMouseHandler object that matches \a key and uses
+    device \a device. This is either a built-in driver, or a driver
+    from a driver plugin.
 
-  \sa keys()
+    \sa keys()
 */
 QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString &device )
 {

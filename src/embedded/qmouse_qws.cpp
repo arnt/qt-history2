@@ -52,10 +52,14 @@
 */
 
 /*!
-  Constructs a mouse handler. This becomes the primary mouse handler.
+    Constructs a mouse handler. This becomes the primary mouse
+    handler.
 
-  Note that once created, mouse handlers are controlled by the system
-  and should not be deleted.
+    Note that once created, mouse handlers are controlled by the
+    system and should not be deleted.
+
+    The \a driver and \a device arguments are not used by this base
+    class.
 */
 QWSMouseHandler::QWSMouseHandler( const QString &, const QString & )
     : mousePos(QWSServer::mousePosition)
@@ -71,9 +75,8 @@ QWSMouseHandler::~QWSMouseHandler()
 }
 
 /*!
-  To be called by the mouse handler to signal that the
-  mouse is at position \a pos and the mouse buttons are
-  in state \a bstate.
+    Ensures that the given point, \a pt is within the screen's
+    boundaries, changing \a pt if necessary.
 */
 
 void QWSMouseHandler::limitToScreen( QPoint &pt )
