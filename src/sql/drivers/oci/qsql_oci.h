@@ -100,6 +100,8 @@ public:
     QOCI9Result( const QOCIDriver * db, QOCIPrivate* p );
     ~QOCI9Result();
     OCIStmt*    statement();
+    bool 	prepare( const QString& query );
+    bool 	exec();
 
 protected:
     bool	fetchNext();

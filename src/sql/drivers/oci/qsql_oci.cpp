@@ -133,9 +133,9 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	type = QVariant::Int;
     else if ( ocitype == "FLOAT" )
 	type = QVariant::Double;
-    else if ( ocitype == "LONG" )
+    else if ( ocitype == "LONG" || ocitype == "NCLOB" || ocitype == "CLOB" )
 	type = QVariant::CString;
-    else if ( ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "NCLOB" || ocitype == "CLOB" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
+    else if ( ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
 	type = QVariant::ByteArray;
     else if ( ocitype == "DATE" )
 	type = QVariant::DateTime;
@@ -175,6 +175,7 @@ QVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_UIN:
 	type = QVariant::Double;
 	break;
+    case SQLT_CLOB:
     case SQLT_LNG:
 	type = QVariant::CString;
 	break;
@@ -184,7 +185,6 @@ QVariant::Type qDecodeOCIType( int ocitype )
     case SQLT_LVC:
     case SQLT_LVB:
     case SQLT_BLOB:
-    case SQLT_CLOB:
     case SQLT_FILE:
     case SQLT_RDD:
     case SQLT_NTY:
@@ -405,17 +405,32 @@ public:
 				    0, 0, OCI_DEFAULT );
 		break;
 	    case QVariant::CString:
-		r = OCIDefineByPos( d->sql,
-				    &dfn,
-				    d->err,
-				    count,
-				    0,
-				    SB4MAXVAL,/* really big */
-				    SQLT_STR,
-				    (dvoid *) createInd( count-1 ),
-				    (ub2 *) 0,
-				    (ub2 *) 0,
-				    OCI_DYNAMIC_FETCH ); /* piecewise */
+		// LONG fields can't be bound to LOB locators
+		if ( ofi.oraType == SQLT_LNG ) {
+		    r = OCIDefineByPos( d->sql,
+					&dfn,
+					d->err,
+					count,
+					0,
+					SB4MAXVAL,/* really big */
+					SQLT_LNG,
+					(dvoid *) createInd( count-1 ),
+					(ub2 *) 0,
+					(ub2 *) 0,
+					OCI_DYNAMIC_FETCH ); /* piecewise */
+		} else {
+		    r = OCIDefineByPos( d->sql,
+					&dfn,
+					d->err,
+					count,
+					createLobLocator( count-1, d->env ),
+					(sb4) -1,
+					ofi.oraType,
+					(dvoid *) createInd( count-1 ),
+					(ub2 *) 0,
+					(ub2 *) 0,
+					OCI_DEFAULT ); /* piecewise */
+		}
 		break;
 	    case QVariant::ByteArray:
 		// RAW and LONG RAW fields can't be bound to LOB locators
@@ -560,22 +575,26 @@ public:
 		    res.setValue( fieldNum, QByteArray() );
 		}
 	    } else {
+		QByteArray * ba;
 		if ( res.value( fieldNum ).type() == QVariant::CString ) {
-		    QCString str = res.value( fieldNum ).toCString();
-		    char * tmp = (char *)malloc( chunkSize + str.size() );
-		    memcpy( tmp, str.data(), str.size() );
-		    memcpy( tmp + str.size(), col, chunkSize );
-		    str = str.assign( tmp, str.size() + chunkSize );
-		    res.setValue( fieldNum, str );		    
+		    ba = new QCString();
+		    *ba = res.value( fieldNum ).toCString();
 		} else {
-		    QByteArray ba = res.value( fieldNum ).toByteArray();
-		    // NB! not a leak - tmp is deleted by QByteArray later on
-		    char * tmp = (char *)malloc( chunkSize + ba.size() );
-		    memcpy( tmp, ba.data(), ba.size() );
-		    memcpy( tmp + ba.size(), col, chunkSize );
-		    ba = ba.assign( tmp, ba.size() + chunkSize );
-		    res.setValue( fieldNum, ba );
+		    ba = new QByteArray();
+		    *ba = res.value( fieldNum ).toByteArray();
 		}
+		// NB! not a leak - tmp is deleted by QByteArray/QCString later on
+		char * tmp = (char *)malloc( chunkSize + ba->size() );
+		memcpy( tmp, ba->data(), ba->size() );
+		memcpy( tmp + ba->size(), col, chunkSize );
+		*ba = ba->assign( tmp, chunkSize + ba->size() );
+		
+		if ( res.value( fieldNum ).type() == QVariant::CString ) {
+		    res.setValue( fieldNum, *((QCString *) ba) );
+		} else {
+		    res.setValue( fieldNum, *ba );
+		}
+		delete ba;		
 	    }
 	    if ( status == OCI_SUCCESS_WITH_INFO ||
 		 status == OCI_NEED_DATA ) {
@@ -599,23 +618,38 @@ public:
 		amount = 0;
 	    }
 	    if ( amount > 0 ) {
-		QByteArray buf( amount );
+		QByteArray * buf;
+		if ( res.value( i ).type() == QVariant::CString ) {
+		    buf = new QCString( amount );
+		} else {
+		    buf = new QByteArray( amount  );
+		}
+		
 		r = OCILobRead( d->svc,
 				d->err,
 				lob,
 				&amount,
 				1,
-				(void*)buf.data(),
-				(ub4)buf.size(),
+				(void*) buf->data(),
+				(ub4) buf->size(),
 				0, 0, 0, 0 );
 		if ( r != 0 ) {
 		    qWarning( "OCIResultPrivate::readLOBs: Cannot read LOB: " + qOraWarn(d) );
 		} else {
-		    res.setValue( i, buf );
+		    if ( res.value( i ).type() == QVariant::CString ) {
+			res.setValue( i, *((QCString *) buf) );
+		    } else {
+			res.setValue( i, *buf );
+		    }
 		}
+		delete buf;
 	    }
 	    if ( r != 0 || !amount ) {
-		res.setValue( i, QByteArray() );
+		if ( res.value( i ).type() == QVariant::CString ) {
+		    res.setValue( i, QCString() );
+		} else {
+		    res.setValue( i, QByteArray() );
+		}
 		r = 0; // non-fatal error
 	    }
 	}
@@ -1168,6 +1202,7 @@ QOCI9Result::QOCI9Result( const QOCIDriver * db, QOCIPrivate* p )
 {
     d = new QOCIPrivate();
     (*d) = (*p);
+    setExtension( new QOCIPreparedExtension( this ) );
 }
 
 QOCI9Result::~QOCI9Result()
@@ -1465,6 +1500,17 @@ int QOCI9Result::numRowsAffected()
 		d->err);
     return rowCount;
 }
+
+bool QOCI9Result::prepare( const QString& query )
+{
+    return FALSE;
+}
+
+bool QOCI9Result::exec()
+{
+    return FALSE;
+}
+
 #endif //QOCI_USES_VERSION_9
 ////////////////////////////////////////////////////////////////////////////
 
