@@ -1006,7 +1006,7 @@ for plat in mac win x11 qnx6 embedded; do
 	       mkdir -p "$create_dir"
 
 	       pack_cmd="gnutar xfv"
-	       pack_name="$OUT_TREE/${PLATNAME}.tar
+	       pack_name="$OUT_TREE/${PLATNAME}.tar"
 	       if [ "$DO_GZIP" = "yes" ]; then
 		   pack_name="${pack_name}.gz"
 		   pack_cmd="${pack_cmd}z"
@@ -1022,6 +1022,7 @@ for plat in mac win x11 qnx6 embedded; do
 	       else
 		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
 		      ${TMP_FILE} >${create_dir}/README
+	       fi
 	       cp "$pack_name" "$create_dir"
                stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
 	       rm -rf "$create_dir"
