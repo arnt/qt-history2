@@ -218,7 +218,7 @@ QQuickDrawGC::updatePen(QPainterState *ps)
 void
 QQuickDrawGC::updateBrush(QPainterState *ps)
 {
-    d->current.pen = ps->pen;
+    d->current.brush = ps->brush;
 }
 
 void
