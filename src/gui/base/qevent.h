@@ -24,7 +24,6 @@
 #include "qpair.h"
 #include "qstring.h"
 #include "qcoreevent.h"
-#include "qaction.h"
 #endif // QT_H
 
 
@@ -455,6 +454,8 @@ public:
 private:
     QString s;
 };
+
+class QAction;
 
 class Q_GUI_EXPORT QActionEvent : public QEvent
 {
