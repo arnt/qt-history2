@@ -777,17 +777,25 @@ void QPlatinumStyle::drawControl( ControlElement element,
 		x2 -= 1;
 		y2 -= 1;
 		QColorGroup cg2( myCg );
+		SFlags myFlags = flags;
+		// don't draw the default button sunken, unless it's necessary.
+		if ( myFlags & Style_Down )
+		    myFlags ^= Style_Down;
+		if ( myFlags & Style_Sunken )
+		    myFlags ^= Style_Sunken;
+		     
 		cg2.setColor( QColorGroup::Button, cg.mid() );
-		if ( useBevelButton )
+		if ( useBevelButton ) {
 		    drawPrimitive( PE_ButtonBevel, p, QRect( x1, y1,
 							     x2 - x1 + 1,
 							     y2 - y1 + 1 ),
-				   myCg, flags, data );
-		else
+				   myCg, myFlags, data );
+		} else {
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
-				   cg2, flags, data );	
+				   cg2, myFlags, data );	
+		}
 	    }
 
 	    if ( btn->isDefault() || btn->autoDefault() ) {
@@ -807,6 +815,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 							     y2 - y1 + 1 ),
 				   myCg, flags, data );
 		} else {
+		    
 		    drawPrimitive( PE_ButtonCommand, p, QRect( x1, y1,
 							       x2 - x1 + 1,
 							       y2 - y1 + 1 ),
