@@ -17,7 +17,6 @@
 #include <qtextformat.h>
 #include <qpainter.h>
 #include <qpixmapcache.h>
-#include <qdragobject.h>
 #include <qdebug.h>
 #include <private/qtextengine_p.h>
 #include <qpalette.h>

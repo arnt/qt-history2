@@ -14,7 +14,6 @@
 #include "qlistview.h"
 #include <qabstractitemdelegate.h>
 #include <qapplication.h>
-#include <qdragobject.h>
 #include <qpainter.h>
 #include <qbitmap.h>
 #include <qvector.h>

@@ -17,7 +17,6 @@
 
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qdragobject.h"
 #include "qpixmap.h"
 #include "qclipboard_p.h"
 

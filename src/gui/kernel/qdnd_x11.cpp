@@ -24,7 +24,6 @@
 #include "qdatetime.h"
 #include "qiodevice.h"
 #include "qpointer.h"
-#include "qdragobject.h"
 #include "qcursor.h"
 #include "qvector.h"
 

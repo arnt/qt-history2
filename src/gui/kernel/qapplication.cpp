@@ -19,7 +19,6 @@
 #include "qcursor.h"
 #include "qdesktopwidget.h"
 #include "qdir.h"
-#include "qdragobject.h"
 #include "qevent.h"
 #include "qfile.h"
 #include "qfileinfo.h"

@@ -22,7 +22,6 @@
 #include "qbuffer.h"
 #include "qapplication.h"
 #include <private/qinternal_p.h>
-#include "qdragobject.h"
 #include "qevent.h"
 #include "qfile.h"
 #include "qimageio.h"

@@ -1,6 +1,8 @@
 # Qt compat module
 
 HEADERS +=      other/qdropsite.h \
+		other/q3dragobject.h \
+		other/qdragobject.h \
                 other/q3guardedptr.h \
                 other/qguardedptr.h \
                 other/qlocalfs.h \
@@ -12,6 +14,7 @@ HEADERS +=      other/qdropsite.h \
 		other/q3url.h
 
 SOURCES +=      other/qdropsite.cpp \
+		other/q3dragobject.cpp \
                 other/qlocalfs.cpp \
                 other/qnetworkprotocol.cpp \
                 other/qurloperator.cpp \

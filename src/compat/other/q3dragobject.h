@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDRAGOBJECT_H
-#define QDRAGOBJECT_H
+#ifndef Q3DRAGOBJECT_H
+#define Q3DRAGOBJECT_H
 
 #include "qobject.h"
 #include "qcolor.h"

@@ -60,7 +60,7 @@ QMimeData::~QMimeData()
 
 QList<QUrl> QMimeData::urls() const
 {
-    QVariant data = retrieveData("text/uri-list", QVariant::Invalid);
+    QVariant data = retrieveData("text/uri-list", QVariant::Url);
     QList<QUrl> urls;
     if (data.type() == QVariant::Url)
         urls.append(data.toUrl());
@@ -130,6 +130,21 @@ void QMimeData::setPixmap(const QPixmap &pixmap)
     d->data["image/ppm"] = pixmap;
 }
 
+QColor QMimeData::color() const
+{
+    QVariant data = retrieveData("application/x-color", QVariant::Color);
+    if (data.type() == QVariant::Color)
+        return data.toColor();
+    // ### try to decode
+    return QColor();
+}
+
+void QMimeData::setColor(const QColor &color)
+{
+    Q_D(QMimeData);
+    d->data["application/x-color"] = color;
+}
+
 QByteArray QMimeData::data(const QString &mimetype) const
 {
     QVariant data = retrieveData(mimetype, QVariant::ByteArray);
@@ -161,7 +176,36 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
     if (data.type() == type || type == QVariant::Invalid)
         return data;
 
-    // types don't match, convert to bytearray
+    // URLs can be lists as well...
+    if (type == QVariant::Url && data.type() == QVariant::List)
+        return data;
+
+    if (data.type() == QVariant::ByteArray) {
+        QByteArray ba = data.toByteArray();
+        // see if we can convert to the requested type
+        switch(type) {
+        case QVariant::String:
+            return QString::fromUtf8(ba);
+        case QVariant::Pixmap:
+            // #######
+            break;
+        case QVariant::Color:
+            return QColor(ba.data());
+        case QVariant::Url: {
+            QList<QCoreVariant> list;
+            QList<QByteArray> urls = data.toByteArray().split('\n');
+            for (int i = 0; i < urls.size(); ++i) {
+                QByteArray ba = urls.at(i).trimmed();
+                list.append(QUrl::fromEncoded(ba));
+            }
+            return list;
+        }
+        default:
+            break;
+        }
+    }
+
+    // try to convert to bytearray
     QByteArray result;
     switch(data.type()) {
     case QVariant::ByteArray:
@@ -174,9 +218,20 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
         // ######
         break;
     case QVariant::Color:
-        // ######
+        result = data.toColor().name().toLatin1();
+        break;
     case QVariant::Url:
-        // ######
+        result = data.toUrl().toEncoded();
+    case QVariant::List: {
+        // has to be list of URLs
+        QList<QCoreVariant> list = data.toList();
+        for (int i = 0; i < list.size(); ++i) {
+            if (list.at(i).type() == QVariant::Url) {
+                result += list.at(i).toUrl().toEncoded();
+                result += "\r\n";
+            }
+        }
+    }
     default:
         break;
     }

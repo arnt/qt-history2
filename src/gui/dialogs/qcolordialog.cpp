@@ -17,7 +17,6 @@
 
 #include "qapplication.h"
 #include "qdesktopwidget.h"
-#include "qdragobject.h"
 #include "qdrawutil.h"
 #include "qevent.h"
 #include "qimage.h"
@@ -32,6 +31,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qvalidator.h"
+#include "qmime.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba(QRgb initial, bool *ok, QWidget *parent, const char* name);
@@ -526,15 +526,18 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
         setCurrent(oldCurrent.x(), oldCurrent.y());
         int i = rowAt(pressPos.y()) + columnAt(pressPos.x()) * numRows();
         QColor col(values[i]);
-        QColorDrag *drg = new QColorDrag(col, this);
+        QMimeData *mime = new QMimeData;
+        mime->setColor(col);
         QPixmap pix(cellWidth(), cellHeight());
         pix.fill(col);
         QPainter p(&pix);
         p.drawRect(0, 0, pix.width(), pix.height());
         p.end();
+        QDrag *drg = new QDrag(this);
+        drg->setMimeData(mime);
         drg->setPixmap(pix);
         mousePressed = false;
-        drg->dragCopy();
+        drg->start();
     }
 #endif
 }
@@ -542,8 +545,7 @@ void QColorWell::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
 void QColorWell::dragEnterEvent(QDragEnterEvent *e)
 {
-    setFocus();
-    if (QColorDrag::canDecode(e))
+    if (e->mimeData()->color().isValid())
         e->accept();
     else
         e->ignore();
@@ -557,19 +559,19 @@ void QColorWell::dragLeaveEvent(QDragLeaveEvent *)
 
 void QColorWell::dragMoveEvent(QDragMoveEvent *e)
 {
-    if (QColorDrag::canDecode(e)) {
+    if (e->mimeData()->color().isValid()) {
         setCurrent(rowAt(e->pos().y()), columnAt(e->pos().x()));
         e->accept();
-    } else
+    } else {
         e->ignore();
+    }
 }
 
 void QColorWell::dropEvent(QDropEvent *e)
 {
-    if (QColorDrag::canDecode(e)) {
+    QColor col = e->mimeData()->color();
+    if (col.isValid()) {
         int i = rowAt(e->pos().y()) + columnAt(e->pos().x()) * numRows();
-        QColor col;
-        QColorDrag::decode(e, col);
         values[i] = col.rgb();
         update();
         e->accept();
@@ -988,15 +990,18 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
     if (!mousePressed)
         return;
     if ((pressPos - e->pos()).manhattanLength() > QApplication::startDragDistance()) {
-        QColorDrag *drg = new QColorDrag(col, this);
+        QMimeData *mime = new QMimeData;
+        mime->setColor(col);
         QPixmap pix(30, 20);
         pix.fill(col);
         QPainter p(&pix);
         p.drawRect(0, 0, pix.width(), pix.height());
         p.end();
+        QDrag *drg = new QDrag(this);
+        drg->setMimeData(mime);
         drg->setPixmap(pix);
         mousePressed = false;
-        drg->dragCopy();
+        drg->start();
     }
 #endif
 }
@@ -1004,7 +1009,7 @@ void QColorShowLabel::mouseMoveEvent(QMouseEvent *e)
 #ifndef QT_NO_DRAGANDDROP
 void QColorShowLabel::dragEnterEvent(QDragEnterEvent *e)
 {
-    if (QColorDrag::canDecode(e))
+    if (e->mimeData()->color().isValid())
         e->accept();
     else
         e->ignore();
@@ -1016,8 +1021,9 @@ void QColorShowLabel::dragLeaveEvent(QDragLeaveEvent *)
 
 void QColorShowLabel::dropEvent(QDropEvent *e)
 {
-    if (QColorDrag::canDecode(e)) {
-        QColorDrag::decode(e, col);
+    QColor color = e->mimeData()->color();
+    if (color.isValid()) {
+        col = color;
         repaint();
         emit colorDropped(col.rgb());
         e->accept();

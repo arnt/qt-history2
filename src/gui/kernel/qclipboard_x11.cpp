@@ -37,7 +37,6 @@
 #include "qdesktopwidget.h"
 #include "qbitmap.h"
 #include "qdatetime.h"
-#include "qdragobject.h"
 #include "qiodevice.h"
 #include "qbuffer.h"
 #include "qtextcodec.h"

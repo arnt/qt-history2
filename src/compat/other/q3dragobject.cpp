@@ -30,7 +30,6 @@
 #include "qdir.h"
 #include "qdrag.h"
 #include <ctype.h>
-#include "qdnd_p.h"
 #include "qdrag.h"
 
 #include <private/qobject_p.h>
