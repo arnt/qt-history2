@@ -175,6 +175,8 @@ public:
 
     void adjustScrollbars();
 
+    void setClipboardSelection();
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
@@ -602,6 +604,14 @@ void QTextEditPrivate::adjustScrollbars()
 
     vbar->setRange(0, docSize.height() - viewportSize.height());
     vbar->setPageStep(viewportSize.height());
+}
+
+void QTextEditPrivate::setClipboardSelection()
+{
+    if (!d->cursor.hasSelection())
+        return;
+    QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
+    QApplication::clipboard()->setData(drag, QClipboard::Selection);
 }
 
 /*!
@@ -1200,6 +1210,7 @@ void QTextEdit::selectAll()
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d->selectionChanged();
     d->viewport->update();
+    d->setClipboardSelection();
 }
 
 /*! \internal
@@ -1604,10 +1615,7 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 
     if (d->mousePressed) {
         d->mousePressed = false;
-        if (d->cursor.hasSelection()) {
-            QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
-            QApplication::clipboard()->setData(drag, QClipboard::Selection);
-        }
+        d->setClipboardSelection();
     } else if (ev->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
