@@ -243,6 +243,11 @@ QDataStream::QDataStream()
 /*!
   Constructs a data stream that uses the IO device \a d.
 
+  \warning If you use QSocket or QSocketDevice as the IO device \a d for
+  reading data, you must make sure that enough data is available on the socket
+  for the operation to successfully proceed; QDataStream does not have any
+  means to handle and recover from short-reads.
+
   \sa setDevice(), device()
 */
 
