@@ -72,6 +72,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 {
     if(!findMocDestination(fn_target).isEmpty())
 	return TRUE;
+
     QString fn_local = Option::fixPathToLocalOS(fn_target);
 
     int file = open(fn_local.latin1(), O_RDONLY);
@@ -96,7 +97,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 #define COMP_LEN 8 //strlen("Q_OBJECT")
 #define OBJ_LEN 8 //strlen("Q_OBJECT")
 #define DIS_LEN 10 //strlen("Q_DISPATCH")
-    for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
+    int x;
+    for(x = 0; x < (total_size_read-COMP_LEN); x++) {
 	if(*(big_buffer + x) == '/') {
 	    x++;
 	    if(total_size_read >= x) {
@@ -128,6 +130,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	}
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
 			(x <= '0' && x >= '9') || x == '_')
+
 	bool interesting = *(big_buffer+x) == 'Q' && (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) ||
 						      !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN));
 	if(interesting) {
@@ -184,15 +187,20 @@ MakefileGenerator::generateMocList(QString fn_target)
 		}
 		break;
 	    }
-#define AQT_LEN 16 //strlen("public QActiveQt")
-	} else if ( *(big_buffer+x) == 'p' && !strncmp(big_buffer+x, "public QActiveQt", AQT_LEN)) {
-	    project->variables()["_ACTIVEQT"].append(fn_target);
-	}
+	} 
 
 	while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
 	    x++;
 	if(*(big_buffer+x) == '\n')
 	    line_count++;
+    }
+    if ( project->isActiveConfig( "activeqt" ) ) {
+	for(x = 0; x < (total_size_read-COMP_LEN); x++) {
+#define AQT_LEN 16 //strlen("public QActiveQt")
+	    if ( *(big_buffer+x) == 'p' && !strncmp(big_buffer+x, "public QActiveQt", AQT_LEN)) {
+		project->variables()["_ACTIVEQT"].append(fn_target);
+	    }
+	}
     }
 #undef OBJ_LEN
 #undef DIS_LEN
@@ -1279,6 +1287,26 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
 }
 
 void
+MakefileGenerator::writeIdlSrc(QTextStream &t, const QString &src)
+{
+    QStringList &l = project->variables()[src];
+    QString input = project->variables()["_ACTIVEQT"].first();
+    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	QString file = *it;
+	if ( file.right( 4 ) != ".res" )
+	    continue;
+	QString idlfile = file.left( file.length()-3) += "idl";
+	QString rcfile = file.left( file.length()-3) += "rc";
+	t << file << ": " << findDependencies(file).join(" \\\n\t\t") << "\n\t"
+	    << "$(IDC) " << input << " -o " << idlfile << " -rc " << rcfile << "\n\t"
+	    << "midl " << idlfile << " /tlb " << file.left( file.length()-3) << "tlb"
+	    << " /iid tmp\\iid_i.c /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\t"
+	    << var("QMAKE_RC") << " " << rcfile << endl << endl;
+	break;
+    }
+}
+
+void
 MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 {
     QString all_installs, all_uninstalls;
@@ -1445,6 +1473,7 @@ MakefileGenerator::writeMakefile(QTextStream &t)
     writeLexSrc(t, "LEXSOURCES");
     writeImageObj(t, "IMAGEOBJECTS");
     writeImageSrc(t, "QMAKE_IMAGE_COLLECTION");
+    writeIdlSrc(t, "SRCIDC" );
 
     t << "####### Install" << endl << endl;
     writeInstalls(t, "INSTALLS");

@@ -61,6 +61,7 @@ protected:
     void writeInstalls(QTextStream &t, const QString &installs);
     void writeImageObj(QTextStream &t, const QString &obj);
     void writeImageSrc(QTextStream &t, const QString &images);
+    void writeIdlSrc(QTextStream &t, const QString &images);
 
 protected:
 

@@ -113,6 +113,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 			      Option::fixPathToTargetOS(var("QMAKE_UIC"), FALSE)) << endl;
     t << "QMAKE =       " << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : 
 			      Option::fixPathToTargetOS(var("QMAKE_QMAKE"), FALSE)) << endl;
+    t << "IDC	=	" << (project->isEmpty("QMAKE_IDC") ? QString("idc") :
+			      Option::fixPathToTargetOS(var("QMAKE_IDC"), FALSE)) << endl;
     t << "ZIP	=	" << var("QMAKE_ZIP") << endl;
     t << "COPY  =       " << var("QMAKE_COPY") << endl;
     t << "DEL_FILE   =       " << var("QMAKE_DEL_FILE") << endl;
@@ -129,6 +131,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     t << "UICIMPLS =	" << varList("UICIMPLS") << endl;
     t << "SRCMOC	=	" << varList("SRCMOC") << endl;
     t << "OBJMOC	=	" << varList("OBJMOC") << endl;
+    t << "SRCIDC	=	" << varList("SRCIDC") << endl;
     t << "DIST	=	" << varList("DISTFILES") << endl;
     t << "TARGET	=	";
     if( !project->variables()[ "DESTDIR" ].isEmpty() )
@@ -147,17 +150,21 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
+    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SRCIDC)" << var("TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
-	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
+	  << "$(OBJECTS) $(OBJMOC) $(LIBS) $(SRCIDC)";
     } else {
 	t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC)";
     }
     t << endl << "<<" << endl;
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) 
-	t << "\n\t" << "-copy $(TARGET) " << var("DLLDESTDIR");
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+	QStringList dlldirs = project->variables()["DLLDESTDIR"];
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
+	}
+    }
     t << endl << endl;
 
     if(!project->variables()["RC_FILE"].isEmpty()) {
@@ -180,7 +187,10 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
       << varGlue("UICDECLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("UICIMPLS" ,"\n\t-del ","\n\t-del ","")
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
-      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
+      << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","")
+      << varGlue("SRCIDC","\n\t-del ","\n\t-del ","")
+      << varGlue("IDCOUT","\n\t-del ","\n\t-del ","")
+      << varGlue("IDCTMP","\n\t-del ","\n\t-del ","");
     if(!project->isEmpty("IMAGES"))
 	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
     t << endl << endl;
@@ -203,6 +213,7 @@ NmakeMakefileGenerator::init()
     bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     
+    QString targetfilename = project->variables()["TARGET"].first();
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("qt") && project->isActiveConfig("shared"))
 	project->variables()["DEFINES"].append("QT_DLL");
@@ -310,7 +321,7 @@ NmakeMakefileGenerator::init()
 			(*libit).replace(QRegExp("qt(-mt)?\\.lib"), ver);
 		}
 	    }
-	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") ) {
+	    if ( !project->isActiveConfig("dll") && !project->isActiveConfig("plugin") && !project->isActiveConfig("activeqt")) {
 		project->variables()["QMAKE_LIBS"] +=project->variables()["QMAKE_LIBS_QT_DLL"];
 	    }
 	}
@@ -360,6 +371,17 @@ NmakeMakefileGenerator::init()
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
+    }
+    if ( project->isActiveConfig( "activeqt" ) ) {
+	project->variables()["QMAKE_LIBS"].append( "$(QTDIR)\\lib\\activeqt.lib" );
+	project->variables()["IDCOUT"].append( "tmp\\" + targetfilename + ".tlb" );
+	project->variables()["SRCIDC"].append( "tmp\\" + targetfilename + ".res" );
+	project->variables()["IDCTMP"].append( "tmp\\" + targetfilename + ".idl" );
+	project->variables()["IDCTMP"].append( "tmp\\" + targetfilename + ".rc" );
+	project->variables()["IDCTMP"].append( "tmp\\iid_i.c" );
+	project->variables()["IDCTMP"].append( "tmp\\dlldata.c" );
+	project->variables()["IDCTMP"].append( "tmp\\cstub.h" );
+	project->variables()["IDCTMP"].append( "tmp\\proxy.c" );
     }
 
     if ( !project->variables()["DEF_FILE"].isEmpty() ) 

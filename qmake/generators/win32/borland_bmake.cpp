@@ -160,7 +160,10 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     }
     t << endl << "|" << endl;
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
-	t << "\n\t" << "-copy $(TARGET) " << var("DLLDESTDIR");
+	QStringList dlldirs = project->variables()["DLLDESTDIR"];
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	    t << "\n\t" << "-copy $(TARGET) " << *dlldir;
+	}
     }
     t << endl << endl;
 

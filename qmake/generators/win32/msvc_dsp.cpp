@@ -751,13 +751,19 @@ DspMakefileGenerator::init()
 	}
     }
     if ( project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty() ) {
-	project->variables()["MSVCDSP_COPY_DLL"].append(
-	    "# Begin Special Build Tool\n"
-	    "TargetPath=" + dest + "\n"
-	    "SOURCE=$(InputPath)\n"
-	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
-	    "PostBuild_Cmds=copy \"" + dest + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
-	    "# End Special Build Tool");
+	QStringList dlldirs = project->variables()["DLLDESTDIR"];
+	QString copydll = "# Begin Special Build Tool\n"
+			"TargetPath=" + dest + "\n"
+			"SOURCE=$(InputPath)\n"
+			"PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
+			"PostBuild_Cmds=";
+
+	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
+	    copydll += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
+	}
+
+	copydll += "\n# End Special Build Tool";
+	project->variables()["MSVCDSP_COPY_DLL"].append( copydll );
     }
     if ( project->isActiveConfig("activeqt") ) {
 	QString regcmd = "# Begin Special Build Tool\n"
