@@ -33,9 +33,11 @@ bool EditableSqlModel::setData(const QModelIndex &index, int /* role */,
     } else {
         ok = setLastName(id, value.toString());
     }
-    setQuery("select * from person"); // TODO: Use refresh() when it's available
+    setQuery("select * from person");
     return ok;
 }
+
+// TODO: Use refresh() instead of setQuery() when it's available
 
 bool EditableSqlModel::setFirstName(int personId, const QString &firstName)
 {

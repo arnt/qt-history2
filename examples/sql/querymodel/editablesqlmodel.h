@@ -3,7 +3,7 @@
 
 #include <QSqlQueryModel>
 
-class EditableSqlModel: public QSqlQueryModel
+class EditableSqlModel : public QSqlQueryModel
 {
     Q_OBJECT
 
