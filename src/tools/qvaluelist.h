@@ -404,7 +404,10 @@ public:
 	if ( size() != l.size() )
 	    return FALSE;
 	const_iterator it2 = begin();
-	Q_TYPENAME std::list<T>::const_iterator it = l.begin();
+#if !defined(Q_CC_MIPS)
+	typename
+#endif
+	std::list<T>::const_iterator it = l.begin();
 	for ( ; it2 != end(); ++it2, ++it )
 	if ( !((*it2) == (*it)) )
 	    return FALSE;
