@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#15 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#15 $";
 #endif
 
 
@@ -742,15 +742,16 @@ QRect QPainter::sourceView() const		// get source view
     return QRect( sx, sy, sw, sh );
 }
 
-void QPainter::setSourceView( const QRect &r )	// set source view
-{
+void QPainter::setSourceView( int x, int y, int w, int h )
+{						// set source view
     if ( !isActive() )
 	return;
-    sx = r.x();
-    sy = r.y();
-    sw = r.width();
-    sh = r.height();
+    sx = x;
+    sy = y;
+    sw = w;
+    sh = h;
     if ( testf(ExtDev) ) {
+	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
 	pdev->cmd( PDC_SETSOURCEVIEW, param );
@@ -765,13 +766,14 @@ QRect QPainter::targetView() const		// get target view
     return QRect( tx, ty, tw, th );
 }
 
-void QPainter::setTargetView( const QRect &r )	// set target view
-{
-    tx = r.x();
-    ty = r.y();
-    tw = r.width();
-    th = r.height();
+void QPainter::setTargetView( int x, int y, int w, int h )
+{						// set target view
+    tx = x;
+    ty = y;
+    tw = w;
+    th = h;
     if ( testf(ExtDev) ) {
+	QRect r( x, y, w, h );
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
 	pdev->cmd( PDC_SETTARGETVIEW, param );
