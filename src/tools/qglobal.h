@@ -224,11 +224,16 @@
 #  define Q_CC_OC
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
-#  if __SUNPRO_CC < 0x500
-#    define Q_NO_BOOL_TYPE
-#  endif
 #  if __SUNPRO_CC >= 0x500
-#    define Q_C_CALLBACKS
+#    if defined(__SUNPRO_CC_COMPAT) && __SUNPRO_CC_COMPAT < 5
+       // 4.2 compatibility mode triggered by -compat=4
+#      define Q_NO_BOOL_TYPE
+#    else
+#      define Q_C_CALLBACKS
+#    endif
+#  else
+     // 4.2 compiler or older
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(__DECCXX)
 // defines __EDG__?
@@ -620,3 +625,4 @@ Q_EXPORT void qObsolete( const char *obj, const char *oldfunc );
 Q_EXPORT void qObsolete( const char *message );
 
 #endif // QGLOBAL_H
+
