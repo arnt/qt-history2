@@ -2086,7 +2086,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11
 	   is this a bug on X11? --Sam ### */
-	if(ekind == kEventRawKeyDown) {
+	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
+	if(etype == QEvent::KeyPress) {
 	    UInt32 unilen;
 	    if(GetEventParameter(event, kEventParamKeyUnicodes, typeUnicodeText, NULL, 0, &unilen, NULL) == noErr && unilen == 2) {
 		UniChar *unicode = (UniChar*)NewPtr(unilen);
@@ -2101,7 +2102,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	}
 
-	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 	if(mac_keyboard_grabber)
 	    widget = mac_keyboard_grabber;
 	else if(focus_widget)
