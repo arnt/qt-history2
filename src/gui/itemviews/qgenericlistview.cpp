@@ -948,8 +948,6 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	    rect |= item->rect();
 	}
 	d->translate = dy;
-	if (first == 0)
-	    rect.setHeight(rect.height() * ((bottomRight.row() + 1) / 100)); // set estimated height
     } else { // TopToBottom
 	int h = bounds.height();
 	int dx = (d->gridSize.width() > 0 ? d->gridSize.width() : d->translate);
@@ -967,8 +965,6 @@ void QGenericListView::doDynamicLayout(const QRect &bounds, int first, int last)
 	    rect |= item->rect();
 	}
 	d->translate = dx;
-	if (first == 0)
-	    rect.setWidth(rect.width() * ((bottomRight.column() + 1) / (1 + last))); // estimated width
     }
 
     int insertFrom = first;
@@ -1038,12 +1034,14 @@ void QGenericListView::moveItem(int index, const QPoint &dest)
 
 void QGenericListView::updateGeometries()
 {
+#if 1
     if (d->movement == QGenericListView::Static && d->wrap == QGenericListView::Off)
 	if (d->flow == QGenericListView::TopToBottom)
 	    resizeContents(qMax(visibleWidth(), d->contentsSize.width()), contentsHeight());
 	else
 	    resizeContents(contentsWidth(), qMax(visibleHeight(), d->contentsSize.height()));
 //    qDebug("contentsSize %d", d->contentsSize.width());
+#endif
 }
 
 void QGenericListViewPrivate::prepareItemsLayout()
