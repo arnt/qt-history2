@@ -277,15 +277,16 @@ void QThread::start(Priority priority)
 
 bool QThread::wait( unsigned long time )
 {
-    d->mutex()->lock();
+    {
+	QMutexLocker locker(d->mutex());
 
-    if ( d->id == GetCurrentThreadId() ) {
-	qWarning( "Thread tried to wait on itself" );
-	return FALSE;
+	if ( d->id == GetCurrentThreadId() ) {
+	    qWarning( "Thread tried to wait on itself" );
+	    return FALSE;
+	}
+	if ( d->finished || !d->running )
+	    return TRUE;
     }
-    if ( d->finished || !d->running )
-	return TRUE;
-    d->mutex()->unlock();
     switch ( WaitForSingleObject( d->handle, time ) ) {
     case WAIT_TIMEOUT:
 	return FALSE;
