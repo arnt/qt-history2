@@ -1096,7 +1096,7 @@ void QWSDisplay::sendIMUpdate(int type, int winId, int widgetid)
     cmd.simpleData.windowid = winId;
     cmd.simpleData.windowid = widgetid;
 
-    cmd.type = type;
+    cmd.simpleData.type = type;
 
       if (d->directServerConnection()) {
         qwsServer->im_update(&cmd);
