@@ -52,7 +52,8 @@ void setupOwner()
 {
     if(owner)
         return;
-    owner = new QWidget(0, "internal clipboard owner");
+    owner = new QWidget(0);
+    owner->setObjectName("internal clipboard owner");
     qAddPostRoutine(cleanup);
 }
 
