@@ -1549,6 +1549,20 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 QString QOCIDriver::formatValue( const QSqlField* field, bool ) const
 {
     switch ( field->type() ) {
+    case QVariant::String: {
+	if ( d->serverVersion >= 9 ) {
+	    QString encStr = "UNISTR('";
+	    const QString srcStr = field->value().toString();
+	    for ( uint i = 0; i < srcStr.length(); ++i ) {
+		encStr += '\\' + QString::number( srcStr[i], 16 ).rightJustify( 4, '0' );
+	    }
+	    encStr += "')";
+	    return encStr;
+	} else {
+	    return QSqlDriver::formatValue( field );
+	}
+	break;
+    }
     case QVariant::DateTime: {
 	QDateTime datetime = field->value().toDateTime();
 	QString datestring;
