@@ -561,7 +561,7 @@ void qt_event_request_showsheet(QWidget *w)
     ReleaseEvent(ctx);
 }
 
-static QValueList<WId> request_updates_pending_list;
+static QList<WId> request_updates_pending_list;
 void qt_event_request_updates(QWidget *w, const QRegion &r, bool subtract)
 {
     QWExtra *extra = ((QExtraWidget*)w)->extraData();
@@ -1520,7 +1520,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
     case kEventClassQt:
 	remove_context_timer = FALSE;
 	if(ekind == kEventQtRequestPropagateWidgetUpdates) {
-	    for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
+	    for(QList<WId>::Iterator it = request_updates_pending_list.begin();
 		it != request_updates_pending_list.end(); ++it) {
 		QWidget *widget = QWidget::find((*it));
 		if(!widget)
@@ -2727,7 +2727,7 @@ void QApplication::flush()
 	for(int i = 0; i < tlws.size(); i++) {
 	    QWidget *tlw = tlws.at(i);
 	    if(tlw->isVisible()) {
-		for(QValueList<WId>::Iterator it = request_updates_pending_list.begin();
+		for(QList<WId>::Iterator it = request_updates_pending_list.begin();
 		    it != request_updates_pending_list.end(); ++it) {
 		    QWidget *widget = QWidget::find((*it));
 		    if(!widget)

@@ -169,8 +169,9 @@ QByteArray QClipboardWatcher::encodedData(const char* mime) const
     extern ScrapFlavorType qt_mac_mime_type; //qmime_mac.cpp
     if(GetScrapFlavorSize(scrap, qt_mac_mime_type, &flavorsize) == noErr)
 	qmt = QMacMime::MIME_QT_CONVERTOR;
-    QPtrList<QMacMime> all = QMacMime::all(qmt);
-    for (QMacMime* c = all.first(); c; c = all.next()) {
+    QList<QMacMime *> all = QMacMime::all(qmt);
+    for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+	QMacMime *c = (*it);
 	int flav = c->flavorFor(mime);
 	if(flav) {
 	    if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
@@ -267,10 +268,11 @@ void QClipboard::setData(QMimeSource *src, Mode mode)
     ClearCurrentScrap();
     hasScrapChanged();
 
-    QPtrList<QMacMime> all = QMacMime::all(QMacMime::MIME_CLIP);
+    QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_CLIP);
     const char* mime;
     for (int i = 0; (mime = src->format(i)); i++) {
-	for (QMacMime* c = all.first(); c; c = all.next()) {
+	for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+	    QMacMime *c = (*it);
 	    if(c->flavorFor(mime)) {
 		for (int j = 0; j < c->countFlavors(); j++) {
 		    uint flav = c->flavor(j);

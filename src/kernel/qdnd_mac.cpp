@@ -167,8 +167,9 @@ QByteArray QDropEvent::encodedData(const char *mime) const
 		qmt = QMacMime::MIME_QT_CONVERTOR;
 	}
     }
-    QPtrList<QMacMime> all = QMacMime::all(qmt);
-    for (QMacMime* c = all.first(); c; c = all.next()) {
+    QList<QMacMime*> all = QMacMime::all(qmt);
+    for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+	QMacMime *c = (*it);
 	int flav = c->flavorFor(mime);
 	if(flav) {
 	    UInt16 cnt_items;
@@ -284,8 +285,9 @@ static QMAC_PASCAL OSErr qt_mac_send_handler(FlavorType flav, void *handlerRefCo
 	}
     }
     while(1) {
-	QPtrList<QMacMime> all = QMacMime::all(qmt);
-	for (QMacMime* c = all.first(); c; c = all.next()) {
+	QList<QMacMime*> all = QMacMime::all(qmt);
+	for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+	    QMacMime *c = (*it);
 	    if(const char *mime = c->mimeFor(flav)) {
 		QList<QByteArray> md = c->convertFromMime(o->encodedData(mime), mime, flav);
 		int item_ref = 1;
@@ -371,9 +373,10 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     }
 
     const char* mime;
-    QPtrList<QMacMime> all = QMacMime::all(QMacMime::MIME_DND);
+    QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_DND);
     for (int i = 0; (mime = o->format(i)); i++) {
-	for (QMacMime* c = all.first(); c; c = all.next()) {
+	for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
+	    QMacMime *c = (*it);
 	    if(c->flavorFor(mime)) {
 		for (int j = 0; j < c->countFlavors(); j++) {
 		    uint flav = c->flavor(j);

@@ -25,9 +25,9 @@ public:
     int appScreen;
     int screenCount;
 
-    QMemArray<GDHandle> devs;
-    QMemArray<QRect> avail_rects;
-    QMemArray<QRect> rects;
+    QVector<GDHandle> devs;
+    QVector<QRect> avail_rects;
+    QVector<QRect> rects;
 };
 
 QDesktopWidgetPrivate::QDesktopWidgetPrivate()

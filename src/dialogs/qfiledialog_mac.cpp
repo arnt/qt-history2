@@ -64,7 +64,7 @@ static qt_mac_filter_name *extractFilter( const QString& rawFilter)
 }
 
 // Makes a list of filters from ;;-separated text.
-static QPtrList<qt_mac_filter_name> makeFiltersList(const QString &filter)
+static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
 {
 #ifdef DEBUG_FILEDIALOG_FILTERS
     qDebug("QFileDialog:%d - Got filter (%s)", __LINE__, filter.latin1());
@@ -73,7 +73,7 @@ static QPtrList<qt_mac_filter_name> makeFiltersList(const QString &filter)
     if(f.isEmpty())
 	f = QFileDialog::tr("All Files (*)");
     if(f.isEmpty())
-	return QPtrList<qt_mac_filter_name>();
+	return QList<qt_mac_filter_name*>();
     QString sep(";;");
     int i = f.find(sep, 0);
     if(i == -1) {
@@ -82,7 +82,7 @@ static QPtrList<qt_mac_filter_name> makeFiltersList(const QString &filter)
 	    i = f.find(sep, 0);
     }
 
-    QPtrList<qt_mac_filter_name> ret;
+    QList<qt_mac_filter_name*> ret;
     QStringList filts = QStringList::split(sep, f);
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it) {
 	qt_mac_filter_name *filter = extractFilter((*it));
@@ -96,8 +96,8 @@ static QPtrList<qt_mac_filter_name> makeFiltersList(const QString &filter)
 }
 
 struct qt_mac_nav_filter_type {
-    unsigned int index;
-    QPtrList<qt_mac_filter_name> *filts;
+    int index;
+    QList<qt_mac_filter_name*> *filts;
 };
 
 static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
@@ -260,7 +260,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
 	}
     }
 
-    QPtrList<qt_mac_filter_name> filts = makeFiltersList(filter);
+    QList<qt_mac_filter_name*> filts = makeFiltersList(filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
@@ -268,7 +268,7 @@ QStringList QFileDialog::macGetOpenFileNames(const QString &filter, QString *,
     if(filts.count() > 1) {
 	int i = 0;
 	CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
-	for (QPtrListIterator<qt_mac_filter_name> it(filts); it.current(); ++it) {
+	for (QList<qt_mac_filter_name*>::Iterator it = filts.begin(); it != filts.end(); ++it) {
 	    QString rg = (*it)->description;
 	    arr[i++] = CFStringCreateWithCharacters(NULL, (UniChar *)rg.unicode(), rg.length());
 	}
@@ -406,7 +406,7 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
 	}
     }
 
-    QPtrList<qt_mac_filter_name> filts = makeFiltersList(filter);
+    QList<qt_mac_filter_name*> filts = makeFiltersList(filter);
     qt_mac_nav_filter_type t;
     t.index = 0;
     t.filts = &filts;
@@ -414,7 +414,7 @@ QString QFileDialog::macGetSaveFileName(const QString &start, const QString &fil
     if(filts.count() > 1) {
 	int i = 0;
 	CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
-	for (QPtrListIterator<qt_mac_filter_name> it(filts); it.current(); ++it) {
+	for (QList<qt_mac_filter_name*>::Iterator it = filts.begin(); it != filts.end(); ++it) {
 	    QString rg = (*it)->description;
 	    arr[i++] = CFStringCreateWithCharacters(NULL, (UniChar *)rg.unicode(), rg.length());
 	}

@@ -154,7 +154,7 @@ public:
 
     static void initialize();
 
-    static QPtrList<QMacMime> all(QMacMimeType);
+    static QList<QMacMime*> all(QMacMimeType);
     static QMacMime* convertor(QMacMimeType, const char* mime, int flav);
     static const char* flavorToMime(QMacMimeType, int flav);
 

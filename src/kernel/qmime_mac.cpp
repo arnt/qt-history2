@@ -28,7 +28,7 @@
 #include "qmap.h"
 #include "qt_mac.h"
 
-static QPtrList<QMacMime> mimes;
+static QList<QMacMime*> mimes;
 
 //functions
 OSErr FSpLocationFromFullPath(short, const void *, FSSpec *); //qsound_mac.cpp
@@ -630,11 +630,9 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
     if(!flav)
 	return 0;
 
-    QMacMime* wm;
-    for(wm = mimes.first(); wm; wm = mimes.next()) {
-	if((wm->type & t) && wm->canConvert(mime,flav)) {
-	    return wm;
-	}
+    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+	if(((*it)->type & t) && (*it)->canConvert(mime,flav)) 
+	    return (*it);
     }
     return 0;
 }
@@ -644,23 +642,22 @@ QMacMime::convertor(QMacMimeType t, const char *mime, int flav)
 */
 const char* QMacMime::flavorToMime(QMacMimeType t, int flav)
 {
-    const char* m=0;
-    for(QMacMime *wm = mimes.first(); wm && !m; wm = mimes.next()) {
-	if(wm->type & t)
-	    m = wm->mimeFor(flav);
+    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+	if((*it)->type & t)
+	    return (*it)->mimeFor(flav);
     }
-    return m;
+    return NULL;
 }
 
 /*!
   Returns a list of all currently defined QMacMime objects of type \a t.
 */
-QPtrList<QMacMime> QMacMime::all(QMacMimeType t)
+QList<QMacMime*> QMacMime::all(QMacMimeType t)
 {
-    QPtrList<QMacMime> ret;
-    for(QMacMime *wm = mimes.first(); wm; wm = mimes.next()) {
-	if(wm->type & t)
-	    ret.append(wm);
+    QList<QMacMime*> ret;
+    for(QList<QMacMime *>::Iterator it = mimes.begin(); it != mimes.end(); ++it) {
+	if((*it)->type & t)
+	    ret.append((*it));
     }
     return ret;
 }
