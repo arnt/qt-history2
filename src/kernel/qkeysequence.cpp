@@ -420,12 +420,9 @@ int QKeySequence::decodeString( const QString& str )
 	}
     }
 
-
     int p = accel.findRev( '+', str.length() - 2 ); // -2 so that Ctrl++ works
-    if(p != -1) {
-	qWarning( "QKeySequence::decodeString: %s cannot be processed", accel.left(p).latin1() );
-	accel = accel.mid(p+1);
-    }
+    if( p > 0 )
+	accel = accel.mid( p + 1 );
 
     int fnum = 0;
     if ( accel.length() == 1 ) {
