@@ -401,7 +401,7 @@ QLineEdit::QLineEdit( const QString & contents,
     setText( contents );
 }
 
-/*!
+/* IGNORE!
   Constructs a  line edit with an input \a mask and the text \a contents.
 
   The cursor position is set to the end of the line and the maximum
@@ -2442,7 +2442,7 @@ bool QLineEdit::isRedoAvailable() const
 	return d->parag->commands()->isRedoAvailable();
 }
 
-/*!
+/* IGNORE!
   Sets the mask for this QLineEdit.
 
   Unset the mask and return to normal QLineEdit operation by
@@ -2488,7 +2488,7 @@ void QLineEdit::setMask( const QString &mask )
     parseMaskFields( mask );
 }
 
-/*!
+/* IGNORE!
   Returns TRUE if a mask has been set, FALSE otherwise.
 */
 bool QLineEdit::hasMask() const
@@ -2496,7 +2496,7 @@ bool QLineEdit::hasMask() const
     return !d->mask.isEmpty();
 }
 
-/*!
+/* IGNORE!
   Clears the set mask.
   Convenience function, same as calling setMask() with an empty string.
 
@@ -2508,7 +2508,7 @@ void QLineEdit::clearMask()
 }
 
 
-/*!
+/* IGNORE!
   Returns the set mask. Return a nullstring if there is no mask set.
 
   \sa setMask() hasMask()
@@ -2522,7 +2522,7 @@ QString QLineEdit::mask() const
 }
 
 
-/*!
+/* IGNORE!
   Checks the content of the QLineEdit compared to the set mask
   and returns TRUE if the input fits with the mask. The validator (if set)
   is also checked and needs to be Acceptable for this function to return TRUE.
