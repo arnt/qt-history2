@@ -2073,9 +2073,9 @@ static void dumpRecursive( int level, QObject *object )
 	    buf += "    ";
 	const char *name = object->objectName();
 	QString flags="";
+#if 0
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';
-#if 0
 	if ( object->isWidgetType() ) {
 	    QWidget * w = (QWidget *)object;
 	    if ( w->isVisible() ) {
