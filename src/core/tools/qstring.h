@@ -278,6 +278,19 @@ public:
     inline QString &operator=(const QByteArray &a)
     { return (*this = fromAscii(a, a.size())); }
 
+    inline QString &prepend(const char *s)
+    { return prepend(QString(s)); }
+    inline QString &prepend(const QByteArray &s)
+    { return prepend(QString(s)); }
+    inline QString &append(const char *s)
+    { return append(QString(s)); }
+    inline QString &append(const QByteArray &s)
+    { return append(QString(s)); }
+    inline QString &operator+=(const char *s)
+    { return append(QString(s)); }
+    inline QString &operator+=(const QByteArray &s)
+    { return append(QString(s)); }
+
     inline bool operator==(const char *s) const;
     inline bool operator!=(const char *s) const;
     inline bool operator<(const char *s) const;
@@ -313,6 +326,8 @@ public:
     { return operator=(s.c_str()); }
     inline void push_back(const std::string &s)
     { append(QString(s.c_str())); }
+    inline QString &prepend(const std::string &s)
+    { return prepend(QString(s.c_str())); }
     inline QString &append(const std::string &s)
     { return append(QString(s.c_str())); }
     inline QString &operator+=(const std::string &s)
