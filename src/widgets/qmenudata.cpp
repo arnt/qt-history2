@@ -58,7 +58,6 @@ QMenuDataData::QMenuDataData()
     : aInt(-1)
 {}
 
-// NOT REVISED
 /*!
   \class QMenuData qmenudata.h
   \brief The QMenuData class is a base class for QMenuBar and QPopupMenu.
@@ -69,12 +68,29 @@ QMenuDataData::QMenuDataData()
   pixmap or separator, and may also have a popup menu (separators
   have no popup menus).
 
-  The menu item sends out an activated() signal when it is selected and
-  a highlighted() signal when it receives the user input focus.
+  The menu item sends out an \link QMenuBar::activated()
+  activated()\endlink signal when it is selected and a \link
+  QMenuBar::highlighted() highlighted()\endlink signal when it
+  receives the user input focus.
 
-  Menu items can be accessed through identifiers.
+    \target menuid
+  Menu items are assigned the menu identifier \e id that is passed in
+  insertItem() or an automatically generated identifier if \e id is <
+  0 (the default). The generated identifiers (negative integers) are
+  guaranteed to be unique within the entire application. The
+  identifier is used to access the menu item in other functions.
 
-  \sa QAccel
+  Menu items can be removed with removeItem() or changed with
+  changeItem(). Accelerators can be changed or set with setAccel().
+  Checkable items can be checked or unchecked with setItemChecked().
+  Items can be enabled or disabled using setItemEnabled() and
+  connected and disconnected with connectItem() and disconnectItem()
+  respectively.
+
+  Menu items are stored in a list. Use findItem() to find an item by
+  its list position or by its menu identifier.
+
+  \sa QAccel QPopupMenu QAction
 */
 
 
@@ -135,7 +151,7 @@ static int get_seq_id()
 
 
 /*!
-  Constructs an empty list.
+  Constructs an empty menu data list.
 */
 
 QMenuData::QMenuData()
@@ -172,7 +188,8 @@ QMenuData::~QMenuData()
 
 
 /*!
-  Virtual function; notifies subclasses about an item \a id that has been changed.
+  Virtual function; notifies subclasses about an item with \a id that has
+  been changed.
 */
 
 void QMenuData::updateItem( int /* id */ )	// reimplemented in subclass
@@ -230,6 +247,7 @@ uint QMenuData::count() const
 /*!
   Internal function that insert a menu item.  Called by all insert()
   functions.
+  \internal
 */
 
 int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
@@ -257,7 +275,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 	mi->accel_key = Qt::Key_unknown;
 	if ( pixmap )
 	    mi->pixmap_data = new QPixmap( *pixmap );
-	if ( (mi->popup_menu = popup) ) 
+	if ( (mi->popup_menu = popup) )
 	    menuInsPopup( popup );
 	if ( iconset )
 	    mi->iconset_data = new QIconSet( *iconset );
@@ -269,6 +287,7 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 }
 
 /*!
+    \internal
   Internal function that finds the menu item where \a popup is located,
   storing its index at \a index if \a index is not NULL.
 */
@@ -302,7 +321,7 @@ void QMenuData::removePopup( QPopupMenu *popup )
 
   A menu item is usually either a text string or a pixmap, both with
   an optional icon or keyboard accelerator. For special cases it is
-  also possible to insert custom items (see QCustomMenuItem) or even
+  also possible to insert custom items (see \l{QCustomMenuItem}) or even
   widgets into popup menus.
 
   Some insertItem() members take a popup menu as an additional
@@ -312,9 +331,9 @@ void QMenuData::removePopup( QPopupMenu *popup )
   The number of insert functions may look confusing, but they are actually
   quite simple to use.
 
-  This default version inserts a menu item with the text \a text, the accelerator
-  key \a accel, an id and an optional index and connects it to the slot \a member in
-  the object \a receiver.
+  This default version inserts a menu item with the text \a text, the
+  accelerator key \a accel, an id and an optional index and connects
+  it to the slot \a member in the object \a receiver.
 
   Example:
   \code
@@ -328,41 +347,38 @@ void QMenuData::removePopup( QPopupMenu *popup )
   Not all insert functions take an object/slot parameter or an
   accelerator key. Use connectItem() and setAccel() on these items.
 
-  If you will need to translate accelerators, use QAccel::stringToKey()
-  to calculate the accelerator key:
+  If you need to translate accelerators, use QAccel::stringToKey()
+  to obtain the accelerator key:
   \code
     fileMenu->insertItem( tr("Open"), myView, SLOT(open()),
 			  QAccel::stringToKey( tr("Ctrl+O") ) );
   \endcode
 
-  In the example above, pressing CTRL+N or selecting "open" from the
+  In the example above, pressing Ctrl+N or selecting "Open" from the
   menu activates the myView->open() function.
 
   Some insert functions take a QIconSet parameter to specify the
   little menu item icon. Note that you can always pass a QPixmap
   object instead.
 
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
   The \a index specifies the position in the menu.  The menu item is
   appended at the end of the list if \a index is negative.
 
-  Note that keyboard accelerators in Qt are not application-global but
-  are bound to a certain top-level window. Accelerators in QPopupMenu items
-  therefore only work for menus that are associated with a certain
-  window. This is true for popup menus that live in a menu bar, for
-  instance; the accelerator will then be installed on the
-  menu bar itself. It also works for stand-alone popup menus that have
-  a top-level widget in their parentWidget() chain. The menu will then
-  install its accelerator object on that top-level widget. For all
-  other cases use an independent QAccel object.
+  Note that keyboard accelerators in Qt are not application-global,
+  instead they are bound to a certain top-level window. For example,
+  accelerators in QPopupMenu items only work for menus that are
+  associated with a certain window. This is true for popup menus that
+  live in a menu bar since their accelerators will then be installed
+  in the menu bar itself. This also applies to stand-alone popup menus
+  that have a top-level widget in their parentWidget() chain. The menu
+  will then install its accelerator object on that top-level widget.
+  For all other cases use an independent QAccel object.
 
   \warning Be careful when passing a literal 0 to insertItem() because
 	some C++ compilers choose the wrong overloaded function.
-	Cast the 0 to what you mean, e.g., <tt>(QObject*)0</tt>.
+	Cast the 0 to what you mean, e.g. \c{(QObject*)0}.
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
@@ -380,10 +396,12 @@ int QMenuData::insertItem( const QString &text,
 }
 
 /*!\overload
-  Inserts a menu item with the given \a icon and \a text, and with
-  accelerator key, \a accel, id \a id, and an optional \a index. The
+  Inserts a menu item with icon \a icon, text \a text,
+  accelerator \a accel, optional id \a id, and optional \a index. The
   menu item is connected it to the \a receiver's \a member slot. The
   icon will be displayed to the left of the text in the item.
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
@@ -402,15 +420,15 @@ int QMenuData::insertItem( const QIconSet& icon,
 }
 
 /*!\overload
-  Inserts a menu item with the given \a pixmap, accelerator key, \a
-  accel, id \a id, and an optional \a index. The menu item is
+  Inserts a menu item with pixmap \a pixmap, accelerator \a
+  accel, optional id \a id, and optional \a index. The menu item is
   connected it to the \a receiver's \a member slot. The icon will be
   displayed to the left of the text in the item.
 
-  To look best when being highlighted as menu item, the pixmap should
+  To look best when being highlighted as a menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -428,24 +446,15 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 
 
 /*!\overload
-  Inserts a menu item with the icon \a icon, and the pixmap \a pixmap
+  Inserts a menu item with icon \a icon, pixmap \a pixmap,
+    accelerator \a accel, optional id \a id, and optional \a index.
   The icon will be displayed to the left of the pixmap in the item.
+  The item is connected to the \a member slot in the \a receiver object.
 
-  The accelerator key is set to \a accel and the item is connected it
-  to the \a member slot in the \a receiver object.
-
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
-
-  To look best when being highlighted as menu item, the pixmap should
+  To look best when being highlighted as a menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
@@ -465,7 +474,10 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!\overload
-  Inserts a menu item with a text.  Returns the menu item identifier.
+  Inserts a menu item with text \a text, optional id \a id, and
+  optional \a index.
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -477,16 +489,11 @@ int QMenuData::insertItem( const QString &text, int id, int index )
 
 /*!\overload
 
-  Inserts a menu item with the icon \a icon, and the text \a text
+  Inserts a menu item with icon \a icon, text \a text,
+    optional id \a id, and optional \a index.
   The icon will be displayed to the left of the text in the item.
 
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -498,13 +505,14 @@ int QMenuData::insertItem( const QIconSet& icon,
 }
 
 /*!\overload
-  Inserts a menu item with a text and a submenu.
+  Inserts a menu item with text \a text, submenu \a popup,
+    optional id \a id, and optional \a index.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -517,23 +525,15 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 
 /*!\overload
 
-  Inserts a menu item with the icon \a icon, the text \a text
-  and the submenu \a popup. The icon will be displayed to the
-  left of the text in the item.
-
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
+  Inserts a menu item with icon \a icon, text \a text,
+  submenu \a popup, optional id \a id, and optional \a index.
+  The icon will be displayed to the left of the text in the item.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -547,20 +547,13 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 /*!\overload
 
-  Inserts a menu item with the the pixmap \a pixmap.
+  Inserts a menu item with pixmap \a pixmap, optional id \a
+  id, and optional \a index.
 
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
-
-  Returns the menu item identifier.
-
-  To look best when being highlighted as menu item, the pixmap should
+  To look best when being highlighted as a menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -571,18 +564,11 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 }
 
 /*!\overload
-  Inserts a menu item with the icon \a icon, the pixmap \a pixmap
+  Inserts a menu item with icon \a icon, pixmap \a pixmap,
+  optional id \a id, and optional \a index.
   The icon will be displayed to the left of the pixmap in the item.
 
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
-
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -595,21 +581,14 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!\overload
-  Inserts a menu item with the pixmap \a pixmap and the submenu \a popup.
-
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
+  Inserts a menu item with pixmap \a pixmap, submenu \a popup,
+  optional id \a id, and optional \a index.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -622,23 +601,15 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
 
 /*!\overload
-  Inserts a menu item with the icon \a icon, the pixmap \a pixmap
-  and the submenu \a popup. The icon will be displayed to the left
-  of the pixmap in the item.
-
-  The menu item is assigned the identifier \a id or an automatically
-  generated identifier if \a id is < 0. The generated identifiers
-  (negative integers) are guaranteed to be unique within the entire
-  application.
-
-  The \a index specifies the position in the menu.  The menu item is
-  appended at the end of the list if \a index is negative.
+  Inserts a menu item with icon \a icon, pixmap \a pixmap
+  submenu \a popup, optional id \a id, and optional \a index.
+  The icon will be displayed to the left of the pixmap in the item.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
   the menu is deleted.
 
-  Returns the menu item identifier.
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -653,7 +624,8 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!\overload
-  Inserts a menu item that consists of the widget \a widget.
+  Inserts a menu item that consists of the widget \a widget with
+  optional id \a id, and optional \a index.
 
   Ownership of \a widget is transferred to the popup menu or to the
   menu bar.
@@ -661,7 +633,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   Theoretically, any widget can be inserted into a popup menu. In
   practice, this only makes sense with certain widgets.
 
-  If a widget is not focus-enabled (see QWidget::isFocusEnabled() ),
+  If a widget is not focus-enabled (see \l{QWidget::isFocusEnabled()}),
   the menu treats it as a separator; this means that the item is not
   selectable and will never get focus. In this way you can, for example,
   simply insert a QLabel if you need a popup menu with a title.
@@ -675,11 +647,15 @@ int QMenuData::insertItem( const QIconSet& icon,
   possibility to put the focus back on the menu again by calling
   QWidget::focusNextPrevChild(). Futhermore, if the
   embedded widget closes the menu when the user made a selection, this
-  can be done safely by calling \code if ( isVisible() &&
-  parentWidget() &&
-  parentWidget()->inherits("QPopupMenu") )
-	parentWidget()->close();
-  \endcode
+  can be done safely by calling
+\code
+if ( isVisible() &&
+     parentWidget() &&
+     parentWidget()->inherits("QPopupMenu") )
+    parentWidget()->close();
+\endcode
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa removeItem()
 */
@@ -690,12 +666,15 @@ int QMenuData::insertItem( QWidget* widget, int id, int index )
 
 
 /*!\overload
-  Inserts a custom menu item \a custom.
+  Inserts a custom menu item \a custom with
+  optional id \a id, and optional \a index.
 
   This only works with popup menus. It is not supported for menu bars.
   Ownership of \a custom is transferred to the popup menu.
 
   If you want to connect a custom item to a certain slot, use connectItem().
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa connectItem(), removeItem(), QCustomMenuItem
 */
@@ -705,12 +684,15 @@ int QMenuData::insertItem( QCustomMenuItem* custom, int id, int index )
 }
 
 /*!\overload
-  Inserts a custom menu item \a custom with an \a icon.
+  Inserts a custom menu item \a custom with an \a icon and with
+  optional id \a id, and optional \a index.
 
   This only works with popup menus. It is not supported for menu bars.
   Ownership of \a custom is transferred to the popup menu.
 
   If you want to connect a custom item to a certain slot, use connectItem().
+
+    Returns the allocated \link #menuid identifier number\endlink (\a id if \a id >= 0).
 
   \sa connectItem(), removeItem(), QCustomMenuItem
 */
@@ -728,7 +710,7 @@ int QMenuData::insertItem( const QIconSet& icon, QCustomMenuItem* custom, int id
   Motif menu bar a separator is spacing, so the rest of the items
   (normally just "Help") are drawn right-justified.  In a Windows
   menu bar separators are ignored (to comply with the Windows style
-  guide).
+  guidelines).
 */
 int QMenuData::insertSeparator( int index )
 {
@@ -801,40 +783,42 @@ int QMenuData::accel( int id ) const
   \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL (OR'ed or added).
   The header file qnamespace.h contains a list of key codes.
 
-  Defining an accelerator key generates a text that is added to the
-  menu item; for instance, \c CTRL + \c Key_O generates "Ctrl+O".  The
+  Defining an accelerator key produces a text that is added to the
+  menu item; for instance, \c CTRL + \c Key_O produces "Ctrl+O".  The
   text is formatted differently for different platforms.
 
-  Note that keyboard accelerators in Qt are not application-global, but
-  are bound to a certain top-level window. Accelerators in QPopupMenu items
-  therefore work only for menus that are associated with a certain
-  window. This is true for popup menus that live in a menu bar, for
-  instance; the accelerator will then be installed on the
-  menu bar itself. It also works for stand-alone popup menus that have
-  a top-level widget in their parentWidget() chain. The menu will then
-  install its accelerator object on that top-level widget. For all
-  other cases use an independent QAccel object.
+  Note that keyboard accelerators in Qt are not application-global,
+  instead they are bound to a certain top-level window. For example,
+  accelerators in QPopupMenu items only work for menus that are
+  associated with a certain window. This is true for popup menus that
+  live in a menu bar since their accelerators will then be installed
+  in the menu bar itself. This also applies to stand-alone popup menus
+  that have a top-level widget in their parentWidget() chain. The menu
+  will then install its accelerator object on that top-level widget.
+  For all other cases use an independent QAccel object.
 
   Example:
-  \code
-    QMenuBar   *mainMenu = new QMenuBar;
-    QPopupMenu *fileMenu = new QPopupMenu;	// file sub menu
-    fileMenu->insertItem( "Open Document", 67 );// add "Open" item
-    fileMenu->setAccel( CTRL + Key_O, 67 );     // Control and O to open
-    fileMenu->insertItem( "Quit", 69 );		// add "Quit" item
-    fileMenu->setAccel( CTRL + ALT + Key_Delete, 69 );
-    mainMenu->insertItem( "File", fileMenu );	// add the file menu
-  \endcode
+\code
+QMenuBar   *mainMenu = new QMenuBar;
+QPopupMenu *fileMenu = new QPopupMenu;       // file sub menu
+fileMenu->insertItem( "Open Document", 67 ); // add "Open" item
+fileMenu->setAccel( CTRL + Key_O, 67 );      // Control and O to open
+fileMenu->insertItem( "Quit", 69 );          // add "Quit" item
+fileMenu->setAccel( CTRL + ALT + Key_Delete, 69 );
+mainMenu->insertItem( "File", fileMenu );    // add the file menu
+\endcode
 
-  If you will need to translate accelerators, use QAccel::stringToKey():
+  If you need to translate accelerators, use QAccel::stringToKey():
 
   \code
     fileMenu->setAccel( QAccel::stringToKey(tr("Ctrl+O")), 67 );
   \endcode
 
   You can also specify the accelerator in the insertItem() function.
+  You may prefer to use QAction to associate accelerators with menu
+  items.
 
-  \sa accel(), insertItem(), QAccel, qnamespace.h
+  \sa accel(), insertItem(), QAccel, qnamespace.h QAction
 */
 
 void QMenuData::setAccel( int key, int id )
@@ -967,7 +951,7 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 /*!
     \overload
   Changes the iconset and text of the menu item \a id
-  to the iconset \a icon and to the text \a text.
+  to the \a icon and \a text respectively.
   \sa pixmap()
 */
 
@@ -981,7 +965,7 @@ void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
   \overload
 
   Changes the iconset and pixmap of the menu item \a id
-  to the iconset \a icon and to the pixmap \a pixmap.
+  to \a icon and \a pixmap respectively.
   \sa pixmap()
 */
 
@@ -994,7 +978,7 @@ void QMenuData::changeItem( int id, const QIconSet &icon, const QPixmap &pixmap 
 
 
 /*!
-  Changes the icon of the menu item \a id.
+  Changes the icon of the menu item \a id to \a icon.
   \sa pixmap()
 */
 
@@ -1016,8 +1000,8 @@ void QMenuData::changeItemIconSet( int id, const QIconSet &icon )
 
 
 /*!
-  Returns TRUE if the item with identifier \a id is enabled or FALSE if
-  it is disabled.
+  Returns TRUE if the item with identifier \a id is enabled; otherwise
+  returns FALSE
   \sa setItemEnabled()
 */
 
@@ -1028,8 +1012,8 @@ bool QMenuData::isItemEnabled( int id ) const
 }
 
 /*!
-  Enables the menu item with identifier \a id if \a enable is TRUE, or
-  disables the item if \a enable is FALSE.
+    If \a enable is TRUE, enables the menu item with identifier \a id;
+    otherwise disables the menu item with identifier \a id.
   \sa isItemEnabled()
 */
 
@@ -1049,19 +1033,19 @@ void QMenuData::setItemEnabled( int id, bool enable )
 
 
 /*!
-  Returns TRUE if the menu item with the id \a id is currently active,
-  otherwise FALSE.
+  Returns TRUE if the menu item with the id \a id is currently active;
+  otherwise returns FALSE.
 */
 bool QMenuData::isItemActive( int id ) const
-{ 
+{
     if ( actItem == -1 )
 	return FALSE;
     return indexOf( id ) == actItem;
 }
 
 /*!
-  Returns TRUE if the menu item with the id \a id has been checked,
-  otherwise FALSE.
+  Returns TRUE if the menu item with the id \a id has been checked;
+  otherwise returns FALSE.
 
   \sa setItemChecked()
 */
@@ -1073,9 +1057,9 @@ bool QMenuData::isItemChecked( int id ) const
 }
 
 /*!
-  Checks the menu item with id \a id if \a check is TRUE or unchecks
-  it if \a check is FALSE, and calls QPopupMenu::setCheckable( TRUE ) if
-  necessary.
+  If \a check is TRUE, checks the menu item with id \a id; otherwise
+  unchecks the menu item with id \a id.
+  Calls QPopupMenu::setCheckable( TRUE ) if necessary.
 
   \sa isItemChecked()
 */
@@ -1095,7 +1079,7 @@ void QMenuData::setItemChecked( int id, bool check )
 
 /*!
   Returns a pointer to the menu item with identifier \a id, or 0 if
-  there is no item with such an identifier.
+  there is no item with this identifier.
   \sa indexOf()
 */
 
@@ -1109,7 +1093,7 @@ QMenuItem *QMenuData::findItem( int id ) const
   \overload
 
   Returns a pointer to the menu item with identifier \a id, or 0 if
-  there is no item with such an identifier, and changes \a parent to
+  there is no item with this identifier. Changes \e *\a parent to
   point to the parent of the return value.
 
   \sa indexOf()
@@ -1143,7 +1127,7 @@ QMenuItem * QMenuData::findItem( int id, QMenuData ** parent ) const
 
 /*!
   Returns the index of the menu item with identifier \a id, or -1 if
-  there is no item with such an identifier.
+  there is no item with this identifier.
   \sa idAt(), findItem()
 */
 
@@ -1229,8 +1213,8 @@ int QMenuData::itemParameter( int id ) const
 
 
 /*!
-  Connects the menu item with id \a id to a \a receiver and the slot
-  or signal in \a member.
+  Connects the menu item with identifier \a id to \a{receiver}'s
+  \a member slot or signal.
 
   The receiver's slot/signal is activated when the menu item is activated.
 
@@ -1253,8 +1237,8 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
 
 
 /*!
-  Disconnects the \a{receiver}'s \a member from the menu item with id
-  \a id.
+  Disconnects the \a{receiver}'s \a member from the menu item with
+  identifier \a id.
 
   All connections are removed when the menu data object is destroyed.
 
@@ -1271,7 +1255,7 @@ bool QMenuData::disconnectItem( int id, const QObject *receiver,
 }
 
 /*!
-  Sets \a text as What's This help for the menu item with id \a id.
+  Sets \a text as What's This help for the menu item with identifier \a id.
 
   \sa whatsThis()
  */
@@ -1287,7 +1271,7 @@ void QMenuData::setWhatsThis( int id, const QString& text )
 }
 
 /*!
-  Returns the What's This help text for the specified item \a id or
+  Returns the What's This help text for the item with identifier \a id or
   QString::null if no text has yet been defined.
 
   \sa setWhatsThis()
@@ -1301,12 +1285,10 @@ QString QMenuData::whatsThis( int id ) const
 
 
 
-// NOT REVISED
 /*!
   \class QCustomMenuItem qmenudata.h
   \ingroup misc
-  \brief The QCustomMenuItem class is an abstract base class for custom menu items in
-  popup menus.
+  \brief The QCustomMenuItem class is an abstract base class for custom menu items in popup menus.
 
   A custom menu item is a menu item that is defined by two purely virtual
   functions, paint() and sizeHint(). The size hint tells the menu how much

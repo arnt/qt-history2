@@ -73,30 +73,63 @@ static bool inMenu = FALSE;
 
   \ingroup application
 
-  A menu bar consists of a list of submenu items - so-called pull-down
-  menus.  You add submenu items with insertItem(). Assuming that \c
-  menubar is a pointer to a QMenuBar and \c filemenu is a pointer to a
-  QPopupMenu, \code
+  A menu bar consists of a list of pull-down menu items.
+  You add menu items with \link QMenuData::insertItem()
+  insertItem()\endlink. For example, ssuming that \c menubar is a
+  pointer to a QMenuBar and \c filemenu is a pointer to a
+  QPopupMenu:
+  \code
   menubar->insertItem( "&File", filemenu );
   \endcode
-  inserts the menu into the menu bar.  The ampersand in the item text
-  declares Alt-F as a shortcut for this menu. Use "&&" to get a real
-  ampersand in the menu bar.
+  inserts the menu into the menu bar.  The ampersand in the menu
+  item's text sets Alt+F as a shortcut for this menu. (You can use
+  "&&" to get a real ampersand in the menu bar, although this isn't
+  recommended.)
 
   Items are either enabled or disabled. You toggle their state with
   setItemEnabled().
 
-  Note that there is no need to lay out a menu bar. It automatically
-  sets its own geometry to the top of the parent widget and changes it
+  There is no need to lay out a menu bar. It automatically sets its
+  own geometry to the top of the parent widget and changes it
   appropriately whenever the parent is resized.
 
   \important insertItem removeItem clear insertSeparator setItemEnabled isItemEnabled
 
-  menu/menu.cpp is a typical example of QMenuBar and QPopupMenu use.
+    Example of creating a menu bar with menu items (from examples/menu/menu.cpp):
+    \quotefile menu/menu.cpp
+    \skipto file = new QPopupMenu
+    \printline
+    \skipto Key_O
+    \printline
+    \printline
+    \skipto new QMenuBar
+    \printline
+    \skipto insertItem
+    \printline
+
+    In most main window style applications you would use the menuBar()
+    provided in QMainWindow, adding \l{QPopupMenu}s to the menu bar
+    and adding \l{QAction}s to the popup menus.
+
+    Example (from examples/action/application.cpp):
+    \quotefile action/application.cpp
+    \skipto file = new QPopupMenu
+    \printuntil fileNewAction
+
+    Menu items can have text and pixmaps (or iconsets), see the
+    various \link QMenuData::insertItem() insertItem()\endlink
+    overloads, as well as separators, see \link
+    QMenuData::insertSeparator() insertSeparator()\endlink. You can
+    also add custom menu items that are derived from
+    \l{QCustomMenuItem}.
+
+    Menu items may be removed with removeItem() and enabled or disabled
+    with \link QMenuData::setItemEnabled() setItemEnabled()\endlink.
 
   <img src=qmenubar-m.png> <img src=qmenubar-w.png>
 
-  \sa QPopupMenu
+  \sa QPopupMenu QAccel QAction
+
   <a href="guibooks.html#fowler">GUI Design Handbook: Menu Bar</a>
 */
 
@@ -107,7 +140,7 @@ static bool inMenu = FALSE;
   separator line at its bottom.	 The possible values are:
 
   \value Never	In many applications there is already a separator,
-  and having two looks stupid.
+  and having two looks wrong.
 
   \value InWindowsStyle	 In some other applications a separator
   looks good in Windows style, but nowhere else.
@@ -123,7 +156,7 @@ static bool inMenu = FALSE;
   Normally you will connect each menu item to a single slot using
   QMenuData::insertItem(), but sometimes you will want to connect
   several items to a single slot (most often if the user selects from
-  an array).  This signal is handy in such cases.
+  an array).  This signal is useful in such cases.
 
   \sa highlighted(), QMenuData::insertItem()
 */
@@ -137,7 +170,7 @@ static bool inMenu = FALSE;
   Normally, you will connect each menu item to a single slot using
   QMenuData::insertItem(), but sometimes you will want to connect
   several items to a single slot (most often if the user selects from
-  an array).  This signal is handy in such cases.
+  an array).  This signal is useful in such cases.
 
   \sa activated(), QMenuData::insertItem()
 */
@@ -378,7 +411,7 @@ void QMenuBar::frameChanged()
 
 /*!
   This function is used to adjust the menu bar's geometry to the
-  parent widget's.  Note that this is \e not part of the public
+  parent widget's geometry.  Note that this is \e not part of the public
   interface - the function is \c public only because
   QObject::eventFilter() is.
 

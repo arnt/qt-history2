@@ -176,7 +176,7 @@ Click \menu[File|New] to invoke the \dlg[New Form]
 dialog. The default form is Dialog which is what we want; click \ok.
 Resize the form to make it smaller; it should be about 2 inches (5 cm)
 square. Change the form's name to 'CreditFormBase' and the caption to
-'Credit Rating'. Save the form as 'creditformbase.ui'.
+'Credit Rating'. Save the form as \fe[creditformbase.ui].
 </para>
 <para id="anbb">
 We'll now add the widgets we need.

@@ -48,7 +48,7 @@
   instance QMemArray\<X\> to create an array that contains X items.
 
   QMemArray stores the array elements directly in the array. It can
-  deal only with simple types (i.e., C++ types, structs, and classes that have
+  deal only with simple types (i.e. C++ types, structs, and classes that have
   no constructors, destructors, or virtual functions).  QMemArray uses
   bitwise operations to copy and compare array elements.
 
@@ -65,36 +65,34 @@
   less copying of data.
 
   Example:
-  \code
-    #include <qmemarray.h>
-    #include <stdio.h>
+\code
+#include <qmemarray.h>
+#include <stdio.h>
 
-    QMemArray<int> fib( int num )			// returns fibonacci array
-    {
-	Q_ASSERT( num > 2 );
-	QMemArray<int> f( num );			// array of ints
+QMemArray<int> fib( int num ) // returns fibonacci array
+{
+    Q_ASSERT( num > 2 );
+    QMemArray<int> f( num ); // array of ints
 
-        f[0] = f[1] = 1;			// initialize first two numbers
-	for ( int i=2; i<num; i++ )
-	    f[i] = f[i-1] + f[i-2];
+    f[0] = f[1] = 1; 
+    for ( int i = 2; i < num; i++ )
+	f[i] = f[i-1] + f[i-2];
 
-	return f;
-    }
+    return f;
+}
 
-    int main()
-    {
-	QMemArray<int> a = fib( 6 );		// get 6 first fibonaccis
-	int i;
+int main()
+{
+    QMemArray<int> a = fib( 6 ); // get 6 first fibonaccis
+    for ( int i = 0; i < a.size(); i++ ) 
+	prinf( "%d: %d\n", i, a[i] );
 
-	for ( i=0; i<a.size(); i++ )		// print them
-	    prinf( "%d: %d\n", i, a[i] );
+    printf( "1 is found %d time(s)\n", a.contains(1) );
+    printf( "5 is found at index %d\n", a.find(5) );
 
-	printf( "1 is found %d time(s)\n", a.contains(1) );
-	printf( "5 is found at index %d\n", a.find(5) );
-
-	return 0;
-    }
-  \endcode
+    return 0;
+}
+\endcode
 
   Program output:
   \code
@@ -116,25 +114,38 @@
   find the element. Example:
 
   \code
-    struct MyStruct
-    {
-      short i;                    // 2 bytes
-      char c;                     // 1 byte
-    };                            // sizeof(MyStruct) may be padded to 4 bytes
+struct MyStruct
+{
+    short i; // 2 bytes
+    char c;  // 1 byte
+};           // sizeof(MyStruct) may be padded to 4 bytes
 
-    QMemArray<MyStruct> a(1);
-    a[0].i = 5;
-    a[0].c = 't';
+QMemArray<MyStruct> a(1);
+a[0].i = 5;
+a[0].c = 't';
 
-    MyStruct x;
-    x.i = '5';
-    x.c = 't';
-    int i = a.find( x );          // May return -1 if the pad bytes differ
+MyStruct x;
+x.i = '5';
+x.c = 't';
+int i = a.find( x ); // May return -1 if the pad bytes differ
   \endcode
 
   To work around this, make sure that you use a struct where sizeof()
   returns the same as the sum of the sizes of the members either by
   changing the types of the struct members or by adding dummy members.
+
+  QMemArray data can be traversed by iterators (see begin() and
+  end()). The number of items is returned by count(). The array can be
+  resized with resize() and filled using fill().
+
+  You can make a shallow copy of the array with assign() (or
+  operator=()) and a deep copy with duplicate(). 
+
+  Search for values in the array with find() and contains(). For
+  sorted arrays (see sort()) you can search using bsearch().
+
+  You can set the data directly using setRawData() and resetRawData(),
+  although this requires care.
 
   \sa \link shclass.html Shared Classes\endlink
 */
@@ -226,15 +237,15 @@
 
 /*!
   \fn bool QMemArray::isEmpty() const
-  Returns TRUE if the array is empty, i.e., size() == 0; otherwise it returns FALSE.
+  Returns TRUE if the array is empty; otherwise returns FALSE.
 
-  isEmpty() is equivalent with isNull() for QMemArray (unlike QString).
+  isEmpty() is equivalent to isNull() for QMemArray (unlike QString).
 */
 
 /*!
   \fn bool QMemArray::isNull() const
 
-  Returns TRUE if the array is null; otherwise it returns FALSE.
+  Returns TRUE if the array is null; otherwise returns FALSE.
 
   A null array has size() == 0 and data() == 0.
 */
@@ -267,7 +278,7 @@
 /*!
   \fn bool QMemArray::fill( const type &v, int size )
   Fills the array with the value \a v. If \a size is specified as different
-  from -1, then the array will be resized before filled.
+  from -1, then the array will be resized before being filled.
 
   Returns TRUE if successful, or FALSE if the memory cannot be allocated
   (only when \a size != -1).
@@ -277,7 +288,7 @@
 
 /*!
   \fn void QMemArray::detach()
-  Detaches this array from shared array data; i.e., it makes a private, deep
+  Detaches this array from shared array data; i.e. it makes a private, deep
   copy of the data.
 
   Copying will be performed only if the
@@ -306,7 +317,7 @@
   array data \a data, which contains \a size elements.
   Returns a reference to this array.
 
-  Do not delete \a data later; QMemArray takes care of that.
+  Do not delete \a data later; QMemArray will take care of it.
 */
 
 /*!
@@ -436,7 +447,7 @@
 
 /*!
   \fn bool QMemArray::operator==( const QMemArray<type> &a ) const
-  Returns TRUE if this array is equal to \a a; otherwise it returns FALSE.
+  Returns TRUE if this array is equal to \a a; otherwise returns FALSE.
 
   The two arrays are compared bitwise.
 
@@ -445,7 +456,7 @@
 
 /*!
   \fn bool QMemArray::operator!=( const QMemArray<type> &a ) const
-  Returns TRUE if this array is different from \a a; otherwise it returns FALSE.
+  Returns TRUE if this array is different from \a a; otherwise returns FALSE.
 
   The two arrays are compared bitwise.
 
@@ -455,33 +466,33 @@
 /*!
   \fn Iterator QMemArray::begin()
   Returns an iterator pointing at the beginning of this array.
-  This iterator can be used as the iterators of QValueList and QMap,
-  for example. In fact, not only does it behave like a usual pointer,
-  it is a pointer.
+  This iterator can be used in the same way as the iterators of
+  QValueList and QMap, for example. In fact, not only does it behave
+  like a usual pointer, it is a pointer.
 */
 
 /*!
   \fn Iterator QMemArray::end()
   Returns an iterator pointing behind the last element of this array.
-  This iterator can be used as the iterators of QValueList and QMap,
-  for example. In fact, not only does it behave like a usual pointer,
-  it is a pointer.
+  This iterator can be used in the same way as the iterators of
+  QValueList and QMap, for example. In fact, not only does it behave
+  like a usual pointer, it is a pointer.
 */
 
 /*!
   \fn ConstIterator QMemArray::begin() const
   \overload
   Returns a const iterator pointing at the beginning of this array.
-  This iterator can be used as the iterators of QValueList and QMap,
-  for example. In fact, not only does it behave like a usual pointer,
-  it is a pointer.
+  This iterator can be used in the same way as the iterators of
+  QValueList and QMap, for example. In fact, not only does it behave
+  like a usual pointer, it is a pointer.
 */
 
 /*!
   \fn ConstIterator QMemArray::end() const
   \overload
   Returns a const iterator pointing behind the last element of this array.
-  This iterator can be used as the iterators of QValueList and QMap,
-  for example. In fact, not only does it behave like a usual pointer,
-  it is a pointer.
+  This iterator can be used in the same way as the iterators of
+  QValueList and QMap, for example. In fact, not only does it behave
+  like a usual pointer, it is a pointer.
 */
