@@ -1,17 +1,12 @@
-High priority:
--------------
-- Implement selection with nested custom items
-- Cleanup formatcollection to make the memory handling of the formats (ownership, etc.) cleaner
-- Fix textflow/dpi stuff for printing (esp. on windows)
-- popup detail stuff in QTextBrowser/html parser
+high priority:
+-----------------
+- Implement selection in nested custom items (tables)
+- Cleanup formatcollection to make the memory handling of the formats (ownership, etc.) cleaner and fix mem leaks
 - Links in floating tables/items
+- Minimumwidth in BreakWords has to be one word, not one letter
 
-Not so high:
----------
-- Draw Big custom widgets without double buffering
-  (current implementation only caches double buffer pixmaps which are small,
-   and allocates for one drawing maxim. an image of the size of the window,
-   so it is not too bad)
-- Implement HTML export
+Low priority:
+----------------
 - Undo/Redo has to support formats (does only plain text at the moment)
 - Copy/Paste/DnD in richtext (HTML subset? - what does mozilla?) too
+- Editing in tables must not change the width of a cell
