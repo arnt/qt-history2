@@ -558,8 +558,6 @@ QKeySequence QAccel::shortcutKey( const QString &str )
 
    The function is superfluous.  Cast the QKeySequence \a k to a
    QString for the same effect.
-
-   \sa stringToKey()
 */
 QString QAccel::keyToString( QKeySequence k )
 {

@@ -1,4 +1,4 @@
-/****************************************************************************
+****************************************************************************
 ** $Id: $
 **
 ** Implementation of QMenuData class
@@ -820,7 +820,7 @@ QKeySequence QMenuData::accel( int id ) const
 
   Example:
   \code
-    QMenuBar   *mainMenu = new QMenuBar;
+    QMenuBar *mainMenu = new QMenuBar;
     QPopupMenu *fileMenu = new QPopupMenu;       // file sub menu
     fileMenu->insertItem( "Open Document", 67 ); // add "Open" item
     fileMenu->setAccel( CTRL + Key_O, 67 );      // Control and O to open
@@ -829,17 +829,16 @@ QKeySequence QMenuData::accel( int id ) const
     mainMenu->insertItem( "File", fileMenu );    // add the file menu
   \endcode
 
-  If you need to translate accelerators, use QAccel::stringToKey():
-
+  If you need to translate accelerators, use tr() with a string:
   \code
-    fileMenu->setAccel( QAccel::stringToKey(tr("Ctrl+O")), 67 );
+    fileMenu->setAccel( tr("Ctrl+O"), 67 );
   \endcode
 
   You can also specify the accelerator in the insertItem() function.
   You may prefer to use QAction to associate accelerators with menu
   items.
 
-  \sa accel() insertItem() QAccel qnamespace.h QAction
+  \sa accel() insertItem() QAccel QAction
 */
 
 void QMenuData::setAccel( const QKeySequence& key, int id )
