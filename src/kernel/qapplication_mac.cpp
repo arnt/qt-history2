@@ -1152,11 +1152,15 @@ static int get_key(int modif, int key, int scan)
 bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 {
     QWidget *widget;
+    int popup_close_count = 0;
     short windowPart = qt_mac_find_window(pt->h, pt->v, &widget);
-    if(windowPart != inContent) {
-	if(inPopupMode() && widget != activePopupWidget()) {
-	    while(inPopupMode())
-		activePopupWidget()->close();
+    if(inPopupMode() && widget != activePopupWidget()) {
+	while(inPopupMode()) {
+	    QWidget *act_pop = activePopupWidget();
+	    if(widget == act_pop)
+		break;
+	    act_pop->close();
+	    popup_close_count++;
 	}
     }
 
@@ -1174,7 +1178,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    (*mouse_down_unhandled) = TRUE;
 	return FALSE;
     } else if(windowPart == inContent) {
-	return TRUE; //just return and let the event loop process
+	return !popup_close_count; //just return and let the event loop process
     } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
 	bool set_active = TRUE;
 	if(windowPart == inZoomIn || windowPart == inZoomOut || windowPart == inDrag || windowPart == inGrow)
