@@ -64,4 +64,7 @@ QStyle* CompactStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(CompactStyle)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( CompactStyle )
+}

@@ -54,5 +54,7 @@ unsigned long CommonInterface::release()
     return ref;
 }
 
-Q_EXPORT_INTERFACE( CommonInterface )
-
+Q_EXPORT_INTERFACE()
+{
+     Q_CREATE_INSTANCE( CommonInterface )
+}

@@ -64,4 +64,7 @@ QStyle* CDEStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(CDEStyle)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( CDEStyle )
+}

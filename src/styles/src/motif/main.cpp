@@ -64,4 +64,7 @@ QStyle* MotifStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(MotifStyle)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( MotifStyle )
+}

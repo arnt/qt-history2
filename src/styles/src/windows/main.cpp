@@ -1,7 +1,7 @@
 #include <qstyleinterface.h>
 #include <qwindowsstyle.h>
 
-class WindowsStyle : public QStyleInterface
+class WindowsStyle : public QStyleInterface, public QLibraryInterface
 {
 public:
     WindowsStyle();
@@ -12,6 +12,8 @@ public:
 
     QStringList featureList() const;
     QStyle *create( const QString& );
+
+    bool canUnload() const;
 
 private:
     unsigned long ref;
@@ -26,9 +28,11 @@ QUnknownInterface *WindowsStyle::queryInterface( const QUuid &uuid )
 {
     QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)this;
+	iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QStyleInterface )
 	iface = (QStyleInterface*)this;
+    else if ( uuid == IID_QLibraryInterface )
+	iface = (QLibraryInterface*)this;
 
     if ( iface )
 	iface->addRef();
@@ -64,4 +68,14 @@ QStyle* WindowsStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(WindowsStyle)
+bool WindowsStyle::canUnload() const
+{
+    return TRUE;
+}
+
+Q_EXPORT_INTERFACE()
+{
+    QUnknownInterface *iface = (QUnknownInterface*)(QStyleInterface*)new WindowsStyle();
+    iface->addRef();
+    return iface;
+}

@@ -64,4 +64,7 @@ QStyle* AquaStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(AquaStyle)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( AquaStyle );
+}

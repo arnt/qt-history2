@@ -86,4 +86,7 @@ unsigned long StandardTemplateWizardInterface::release()
     return ref;
 }
 
-Q_EXPORT_INTERFACE( StandardTemplateWizardInterface )
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( StandardTemplateWizardInterface )
+}

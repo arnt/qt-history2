@@ -129,4 +129,7 @@ unsigned long OpenGLWidgetInterface::release()
     return ref;
 }
 
-Q_EXPORT_INTERFACE( OpenGLWidgetInterface )
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( OpenGLWidgetInterface );
+}

@@ -144,4 +144,7 @@ QString TestComponent::group( const QString & ) const
 
 #include "main.moc"
 
-Q_EXPORT_INTERFACE(TestComponent)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( TestComponent )
+}

@@ -76,4 +76,7 @@ QStringList RCFilter::import( const QString &, const QString& filename )
     return c.targetFiles;
 }
 
-Q_EXPORT_INTERFACE( RCFilter )
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( RCFilter );
+}

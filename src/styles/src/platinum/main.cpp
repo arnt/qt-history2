@@ -64,4 +64,7 @@ QStyle* PlatinumStyle::create( const QString& style )
     return 0;
 }
 
-Q_EXPORT_INTERFACE(PlatinumStyle)
+Q_EXPORT_INTERFACE()
+{
+    Q_CREATE_INSTANCE( PlatinumStyle )
+}
