@@ -883,6 +883,11 @@ void Moc::parseSlotInPrivate(ClassDef *def, FunctionDef::Access access)
     FunctionDef funcDef;
     next(IDENTIFIER);
     funcDef.inPrivateClass = lexem();
+    // also allow void functions
+    if (test(LPAREN)) {
+        next(RPAREN);
+        funcDef.inPrivateClass += "()";
+    }
     next(COMMA);
     funcDef.access = access;
     parseFunction(&funcDef, true);
