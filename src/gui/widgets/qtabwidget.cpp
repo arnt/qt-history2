@@ -21,7 +21,6 @@
 #include "qapplication.h"
 #include "qstackedbox.h"
 #include "qbitmap.h"
-#include "qaccel.h"
 #include "qstyle.h"
 #include "qpainter.h"
 #include "qtoolbutton.h"
