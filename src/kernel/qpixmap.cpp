@@ -1056,13 +1056,14 @@ static QPixmap grabChildWidgets( QWidget * w )
     if ( res.isNull() && w->width() )
 	return res;
     res.fill( w, QPoint( 0, 0 ) );
-    QPainter::redirect( w, &res ); // ### overwrites earlier redirect
+    QPaintDevice *oldRedirect = QPainter::redirect( w );
+    QPainter::redirect( w, &res );
     bool dblbfr = QSharedDoubleBuffer::isDisabled();
     QSharedDoubleBuffer::setDisabled( TRUE );
     QPaintEvent e( w->rect(), FALSE );
     QApplication::sendEvent( w, &e );
     QSharedDoubleBuffer::setDisabled( dblbfr );
-    QPainter::redirect( w, 0 );
+    QPainter::redirect( w, oldRedirect );
     if ( w->testWFlags( Qt::WRepaintNoErase ) )
 	w->repaint( FALSE );
 
