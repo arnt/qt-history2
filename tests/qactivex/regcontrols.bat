@@ -1,5 +1,7 @@
 @echo off
 examples\simple\simpleax -regserver
-examples\multiple\multipleax -regserver
 examples\tetrix\tetrixax -regserver
-examples\wrapper\wrapperax -regserver
+examples\opengl\openglax -regserver
+
+regsvr32 /s examples\multiple\multipleax.dll
+regsvr32 /s examples\wrapper\wrapperax.dll

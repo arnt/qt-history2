@@ -390,9 +390,6 @@ static QString renameOverloads( const QString &name )
     return newName;
 }
 
-// Generate IDL for superclass meta objects.
-#define SUPERCLASS TRUE
-
 // filter out some properties
 static const char* const ignore_props[] =
 {
@@ -568,8 +565,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 
 	out << "\tproperties:" << endl;
 	out << "\tmethods:" << endl;
-	for ( i = slotoff; i < mo->numSlots( SUPERCLASS ); ++i ) {
-	    const QMetaData *slotdata = mo->slot( i, SUPERCLASS );
+	for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
+	    const QMetaData *slotdata = mo->slot( i, TRUE );
 	    if ( !slotdata || slotdata->access != QMetaData::Public )
 		continue;
 
@@ -600,8 +597,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    if ( !ok )
 		out << "\t******/" << endl;
 	    ++id;
-	} for ( i = propoff; i < mo->numProperties( SUPERCLASS ); ++i ) {
-	    const QMetaProperty *property = mo->property( i, SUPERCLASS );
+	} for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
+	    const QMetaProperty *property = mo->property( i, TRUE );
 	    if ( !property || property->testFlags( QMetaProperty::Override ) )
 		continue;
 	    if ( ignore( property->name(), ignore_props ) )
@@ -670,8 +667,8 @@ HRESULT DumpIDL( const QString &outfile, const QString &ver )
 	    out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
 	}
 
-	for ( i = signaloff; i < mo->numSignals( SUPERCLASS ); ++i ) {
-	    const QMetaData *signaldata = mo->signal( i, SUPERCLASS );
+	for ( i = signaloff; i < mo->numSignals( TRUE ); ++i ) {
+	    const QMetaData *signaldata = mo->signal( i, TRUE );
 	    if ( !signaldata )
 		continue;
 

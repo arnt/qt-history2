@@ -272,6 +272,8 @@ private:
 
 /*!
     \class QAxServerBase qaxserverbase.h
+    \brief The QAxServerBase class is a ActiveX control hosting a QWidget.
+
     \internal
 */
 
@@ -1144,6 +1146,7 @@ HRESULT QAxServerBase::GetPages( CAUUID *pPages )
 */
 class QAxPropertyPage : public QWidget
 {
+    Q_OBJECT
 public:
     QAxPropertyPage( HWND parent, QAxServerBase *base )
 	: QWidget( 0, "prop page" ), hWndParent( parent ), that( base )
@@ -1158,6 +1161,7 @@ public:
 	QHBoxLayout *hbox = new QHBoxLayout( 0 );
     
 	listProperties = new QListView( this );
+	listProperties->setAllColumnsShowFocus( TRUE );
 	listProperties->addColumn( tr("Property") );
 	listProperties->addColumn( tr("Value") );
 	listProperties->header()->setClickEnabled( FALSE );
@@ -1165,7 +1169,7 @@ public:
 	QLabel *valueLabel = new QLabel( "Property &Value: ", this );
 	editValue = new QLineEdit( this );
 	QPushButton *setButton = new QPushButton( "&Set Value", this );
-    
+
 	valueLabel->setBuddy( editValue );
     
 	hbox->addWidget( valueLabel );
@@ -1174,6 +1178,9 @@ public:
     
 	vbox->addWidget( listProperties );
 	vbox->addLayout( hbox );
+
+	connect( setButton, SIGNAL(clicked()), this, SLOT(setValue()) );
+	connect( listProperties, SIGNAL(currentChanged(QListViewItem*)), this, SLOT(currentChanged(QListViewItem*)) );
     }
 
     void updateProperties()
@@ -1186,20 +1193,29 @@ public:
 	    ++it;
 
 	    QWidget *activex = ibase->widget();
-	    // ### support exposeToSuperClass?
-	    // QString lastSuper = _Module.factory()->exposeToSuperClass( activex->className() );
-	    
-	    const QMetaObject *mo = activex->metaObject();
+	    QMetaObject *mo = activex->metaObject();
+
+	    QString topclass = _Module.factory()->exposeToSuperClass( activex->className() );
+	    QMetaObject *pmo = mo;
+	    do {
+		pmo = pmo->superClass();
+	    } while ( pmo && topclass != pmo->className() );
+	    int propoff = pmo ? pmo->propertyOffset() : mo->propertyOffset();
+
 	    const int numprops = mo->numProperties( TRUE );
-	    for ( int i = mo->propertyOffset(); i < numprops; ++i ) {
+	    for ( int i = propoff; i < numprops; ++i ) {
 		const QMetaProperty *property = mo->property( i, TRUE );
+		Q_ASSERT( property );
+		if ( !property || !property->writable() || !property->designable( activex ) || 
+		      property->testFlags( QMetaProperty::Override ) )
+		    continue;
 		QListViewItem *item = listProperties->findItem( property->name(), 0 );
 		if ( !item ) {
 		    item = new QListViewItem( listProperties, property->name(), "qax_unset" );
 		}
 		QVariant var = activex->property( property->name() );
 		QString valueText;
-
+		
 		switch ( var.type() ) {
 		case QVariant::Color:
 		    {
@@ -1213,7 +1229,7 @@ public:
 			valueText = fnt.toString();
 		    }
 		    break;
-
+		    
 		default:
 		    valueText = var.toString();
 		    break;
@@ -1228,7 +1244,93 @@ public:
 	listProperties->setCurrentItem( listProperties->firstChild() );
     }
     
+    void applyChanged()
+    {
+	QListViewItemIterator itemit( listProperties );
+	while ( itemit.current() ) {
+	    QListViewItem *item = itemit.current();
+	    ++itemit;
+
+	    QPtrListIterator<IAxServerBase> it( that->propObjects );
+	    IAxServerBase *ibase = it.current();
+	    QWidget *activex = ibase->widget();
+    
+	    QVariant var = activex->property( item->text( 0 ) );
+	    switch ( var.type() ) {
+	    case QVariant::Color:
+		{
+		    QColor col;
+		    col.setNamedColor( item->text(1) );
+		    if ( !col.isValid() )
+			continue;
+		    var = col;
+		}
+		break;
+	    case QVariant::Font:
+		{
+		    QFont fnt;
+		    if ( !fnt.fromString( item->text(1) ) )
+			continue;
+		    
+		    var = fnt;
+		}
+		break;
+		
+	    default:
+		var = item->text(1);
+		break;
+	    }
+
+	    while ( it.current() ) {
+		ibase = it.current();
+		++it;
+
+		activex = ibase->widget();
+		activex->setProperty( item->text(0), var );
+	    }
+	}
+    }
+
     HWND hWndParent;
+
+protected slots:
+    void setValue()
+    {
+	QListViewItem *current = listProperties->currentItem();
+	if ( !current )
+	    return;
+	
+	QVariant var = that->widget()->property( current->text( 0 ) );
+	switch( var.type() ) {
+	case QVariant::Color:
+	    {
+		QColor col;
+		col.setNamedColor( editValue->text() );
+		if ( !col.isValid() )
+		    return;
+	    }
+	    break;
+	case QVariant::Font:
+	    {
+		QFont fnt;
+		if ( !fnt.fromString( editValue->text() ) )
+		    return;
+	    }
+	    break;
+	}
+	if ( editValue->text() != var.toString() ) {
+	    current->setText( 1, editValue->text() );
+	    that->propPageSite->OnStatusChange( PROPPAGESTATUS_DIRTY );
+	}
+    }
+
+    void currentChanged( QListViewItem *current )
+    {
+	if ( !current )
+	    return;
+	
+	editValue->setText( current->text( 1 ) );
+    }
 
 protected:
     void showEvent( QShowEvent *e )
@@ -1244,6 +1346,8 @@ private:
     QLineEdit *editValue;
 
 };
+
+#include "qaxserverbase.moc"
 
 /*!
     Sets the property page site.
@@ -1277,7 +1381,7 @@ HRESULT QAxServerBase::Activate( HWND hWndParent, LPCRECT pRect, BOOL bModal )
     propPage->setGeometry( pRect->left, pRect->top, pRect->right-pRect->left, pRect->bottom-pRect->top );
 
     QAxBindable *qaxbind = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-    QWidget *page = qaxbind ? qaxbind->propertyPage() : 0;
+    QWidget *page = /*qaxbind ? qaxbind->propertyPage() :*/ 0;
     if ( page )
 	page->reparent( propPage, QPoint(0,0) );
 
@@ -1393,6 +1497,7 @@ HRESULT QAxServerBase::Apply()
     if ( !propPage )
 	return E_UNEXPECTED;
 
+    propPage->applyChanged();
     return S_OK; //S_FALSE(?)
 }
 

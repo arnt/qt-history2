@@ -1,6 +1,7 @@
 @echo off
 examples\simple\simpleax -unregserver
-examples\multiple\multipleax -unregserver
 examples\tetrix\tetrixax -unregserver
-examples\wrapper\wrapperax -unregserver
 examples\opengl\openglax -unregserver
+
+regsvr32 /u /s examples\multiple\multipleax.dll
+regsvr32 /u /s examples\wrapper\wrapperax.dll
