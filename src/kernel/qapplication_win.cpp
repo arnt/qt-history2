@@ -2480,7 +2480,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		trackMouseEventLookup = TRUE;
 		ptrTrackMouseEvent = (PtrTrackMouseEvent)QLibrary::resolve( "comctl32", "_TrackMouseEvent" );
 	    }
-	    if ( ptrTrackMouseEvent ) {
+	    if ( ptrTrackMouseEvent && !qApp->inPopupMode() ) {
 		// We always have to set the tracking, since
 		// Windows detects more leaves than we do..
 		TRACKMOUSEEVENT tme;
