@@ -321,6 +321,8 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
     readSocketNotifier = 0;
     writeSocketNotifier = 0;
     readSocketNotifierCalled = false;
+    readSocketNotifierState = false;
+    readSocketNotifierStateSet = false;
     isBuffered = false;
     blockingTimeout = 30000;
     state = QAbstractSocket::UnconnectedState;
@@ -442,6 +444,13 @@ bool QAbstractSocketPrivate::canReadNotification(int)
 
     // Prevent recursive calls
     if (readSocketNotifierCalled) {
+        if (!readSocketNotifierStateSet) {
+            readSocketNotifierStateSet = true;
+            if (readSocketNotifier) {
+                readSocketNotifierState = readSocketNotifier->isEnabled();
+                readSocketNotifier->setEnabled(false);
+            }
+        }
 #if defined (QABSTRACTSOCKET_DEBUG)
         qDebug("QAbstractSocketPrivate::canReadNotification() recursive call detected.");
 #endif
@@ -488,8 +497,17 @@ bool QAbstractSocketPrivate::canReadNotification(int)
         return true;
     }
 
-    readSocketNotifierCalled = false;
     emit q->readyRead();
+
+    // reset the read socket notifier state if we reentered inside the
+    // readyRead() connected slot.
+    if (readSocketNotifier && readSocketNotifierStateSet
+        && readSocketNotifierState != readSocketNotifier->isEnabled()) {
+        readSocketNotifier->setEnabled(readSocketNotifierState);
+        readSocketNotifierStateSet = false;
+    }
+
+    readSocketNotifierCalled = false;
     return true;
 }
 

@@ -40,6 +40,9 @@ public:
     void abortConnectionAttempt();
 
     bool readSocketNotifierCalled;
+    bool readSocketNotifierState;
+    bool readSocketNotifierStateSet;
+
     bool closeCalled;
 
     QString hostName;
