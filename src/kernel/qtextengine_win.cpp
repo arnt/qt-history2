@@ -496,7 +496,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 	    item.position = usp_items[i].iCharPos+start;
 	    item.analysis.bidiLevel = level;
 	    item.analysis.override = control.override();
-	    item.analysis.reserved = 0;
 
 	    int rstart = usp_items[i].iCharPos;
 	    int rstop = usp_items[i+1].iCharPos-1;
@@ -528,7 +527,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 		item.analysis = usp_items[i].a;
 		item.analysis.bidiLevel = level;
 		item.analysis.override = control.override();
-		item.analysis.reserved = 0;
 		item.isSpace = item.isTab = item.isObject = FALSE;
 	    }
 	}
@@ -543,7 +541,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 	if (isAsian(text[from].unicode()))
 	    scriptEngines[QFont::Han].charAttributes(QFont::Han, engine->string, from + start, len, charAttributes);
 	else
-	    ScriptBreak( (const WCHAR *)text + from + start, len, &(usp_items[i].a), charAttributes+from);
+	    ScriptBreak( (const WCHAR *)text + from + start, len, &(usp_items[i].a), charAttributes + from + start);
 
     }
 
