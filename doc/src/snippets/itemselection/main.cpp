@@ -40,14 +40,14 @@ int main(int argc, char *argv[])
     topLeft = model->index(0, 0, QModelIndex::Null);
     bottomRight = model->index(5, 2, QModelIndex::Null);
 
-    QItemSelection selection(topLeft, bottomRight, model);
+    QItemSelection selection(topLeft, bottomRight);
     selectionModel->select(selection, QItemSelectionModel::Select);
 
     QItemSelection toggleSelection;
 
     topLeft = model->index(2, 1, QModelIndex::Null);
     bottomRight = model->index(7, 3, QModelIndex::Null);
-    toggleSelection.select(topLeft, bottomRight, model);
+    toggleSelection.select(topLeft, bottomRight);
 
     selectionModel->select(toggleSelection, QItemSelectionModel::Toggle);
 
@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     topLeft = model->index(0, 1, QModelIndex::Null);
     bottomRight = model->index(0, 2, QModelIndex::Null);
 
-    columnSelection.select(topLeft, bottomRight, model);
+    columnSelection.select(topLeft, bottomRight);
 
     selectionModel->select(columnSelection,
         QItemSelectionModel::Select | QItemSelectionModel::Columns);
@@ -66,7 +66,7 @@ int main(int argc, char *argv[])
     topLeft = model->index(0, 0, QModelIndex::Null);
     bottomRight = model->index(1, 0, QModelIndex::Null);
 
-    rowSelection.select(topLeft, bottomRight, model);
+    rowSelection.select(topLeft, bottomRight);
 
     selectionModel->select(rowSelection,
         QItemSelectionModel::Select | QItemSelectionModel::Rows);

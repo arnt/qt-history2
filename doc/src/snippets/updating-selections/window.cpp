@@ -51,14 +51,14 @@ void MainWindow::updateSelection(const QItemSelection &selected,
     const QItemSelection &deselected)
 {
     QModelIndex index;
-    QModelIndexList items = selected.items(model);
+    QModelIndexList items = selected.indexes();
 
     foreach (index, items) {
         QString text = QString("(%1,%2)").arg(index.row()).arg(index.column());
         model->setData(index, QAbstractItemModel::EditRole, text);
     }
 
-    items = deselected.items(model);
+    items = deselected.indexes();
 
     foreach (index, items)
         model->setData(index, QAbstractItemModel::EditRole, "");

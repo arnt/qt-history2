@@ -80,6 +80,6 @@ void MainWindow::selectAll()
     QModelIndex bottomRight = model->index(model->rowCount(parent)-1,
         model->columnCount(parent)-1, parent);
 
-    QItemSelection selection(topLeft, bottomRight, model);
+    QItemSelection selection(topLeft, bottomRight);
     selectionModel->select(selection, QItemSelectionModel::Select);
 }
