@@ -237,7 +237,7 @@ int QListBoxItem::height(const QListBox*)  const
 
 
 /*!
-  Returns the text of the item, which is used for sorting.
+  Returns the text of the item, which is used for sorting too.
 
   \sa setText()
 */
@@ -291,7 +291,7 @@ bool QListBoxItem::isSelectable() const
 /*!
   \fn void QListBoxItem::setText( const QString &text )
 
-  Sets the text of the widget, which is used for sorting.
+  Sets the text of the widget, which is used for sorting too.
   The text is not shown unless explicitly drawn in paint().
 
   \sa text()
@@ -610,7 +610,9 @@ int QListBoxPixmap::width( const QListBox* lb ) const
   get keyboard focus both by tabbing, clicking and the mouse wheel.
 
   New items may be inserted using either insertItem(), insertStrList()
-  and inSort().
+  or insertStringList(). inSort() is obsolete, as this method is quite inefficient.
+  It's preferable to insert the items normally and call sort() afterwards,
+  or insert a sorted QStringList().
 
   By default, vertical and horizontal scroll bars are added and
   removed as necessary.	 setAutoScrollBar() can be used to force a
@@ -977,7 +979,7 @@ uint QListBox::count() const
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort()
+  \sa insertItem(), inSort(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList *list, int index )
@@ -1002,7 +1004,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort()
+  \sa insertItem(), inSort(), insertStrList()
 */
 
 void QListBox::insertStringList( const QStringList & list, int index )
@@ -1030,7 +1032,7 @@ void QListBox::insertStringList( const QStringList & list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort()
+  \sa insertItem(), inSort(), insertStringList()
 */
 
 void QListBox::insertStrList( const QStrList & list, int index )
@@ -1065,7 +1067,7 @@ void QListBox::insertStrList( const QStrList & list, int index )
   \warning This function is never significantly faster than a loop
   around insertItem().
 
-  \sa insertItem(), inSort()
+  \sa insertItem(), inSort(), insertStringList()
 */
 
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
@@ -3379,13 +3381,17 @@ QRect QListBox::itemRect( QListBoxItem *item ) const
 #error "Return c so the user knows where it goes"
 #endif
 /*!
+  \obsolete
+  Using this method is quite inefficient. We suggest to use insertItem()
+  for inserting and sort() afterwards.
+  
   Inserts \a lbi at its sorted position in the list box.
 
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
 
-  \sa insertItem()
+  \sa insertItem(), sort()
 */
 void QListBox::inSort( const QListBoxItem * lbi )
 {
@@ -3407,13 +3413,17 @@ void QListBox::inSort( const QListBoxItem * lbi )
 #error "Return result so the user knows where it goes"
 #endif
 /*!
+  \obsolete
+  Using this method is quite inefficient. We suggest to use insertItem()
+  for inserting and sort() afterwards.
+
   Inserts a new item of \a text at its sorted position in the list box.
 
   All items must be inserted with inSort() to maintain the sorting
   order.  inSort() treats any pixmap (or user-defined type) as
   lexicographically less than any string.
 
-  \sa insertItem()
+  \sa insertItem(), sort()
 */
 void QListBox::inSort( const QString& text )
 {
@@ -3758,6 +3768,14 @@ static int cmpListBoxItems( const void *n1, const void *n2 )
 	return 0;
     return 1;
 }
+
+/*!
+  Sorts the item in ascending order, if \a ascending  is TRUE, or
+  descending otherwise.
+  
+  To compare the items, the text (QListBoxItem::text()) of the items
+  is used. The sorting is done using the Quick-Sort Alogorithm.
+*/
 
 void QListBox::sort( bool ascending )
 {
