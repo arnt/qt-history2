@@ -1810,21 +1810,13 @@ VCFilter::VCFilter()
 void VCFilter::addMOCstage(QTextStream &, QString filename)
 {
     QString mocOutput = Project->mocFile(filename);
-    QString mocApp = Project->var("QMAKE_MOC");
-
-    if(mocOutput.isEmpty() && filename.endsWith(Option::cpp_moc_ext)) {
-        // In specialcases we DO moc .cpp files when the result is an .moc file
-	QString old_filename = filename;
-	filename = mocOutput;
-	mocOutput = old_filename;
-    }
-
     if(mocOutput.isEmpty())
 	return;
 
     CustomBuildTool = VCCustomBuildTool();
     useCustomBuildTool = TRUE;
     CustomBuildTool.Description = "Moc&apos;ing " + filename + "...";
+    QString mocApp = Project->var("QMAKE_MOC");
     CustomBuildTool.CommandLine += (mocApp + " " 
 				+ filename + " -o " + mocOutput);
     CustomBuildTool.AdditionalDependencies = mocApp;
@@ -1925,7 +1917,7 @@ QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
 
     int currentLevels = 0;
     QStringList currentDirs;
-    for(QStringList::ConstIterator it = tool.Files.begin(); it != tool.Files.end(); ++it) {
+    for(QStringList::Iterator it = tool.Files.begin(); it != tool.Files.end(); ++it) {
 	if(!tool.flat_files) {
 	    QStringList newDirs = (*it).split('\\');
 	    newDirs.pop_back(); // Skip the filename
@@ -1957,10 +1949,16 @@ QTextStream &operator<<(QTextStream &strm, VCFilter &tool)
 	tool.useCustomBuildTool = FALSE;
 	tool.useCompilerTool = FALSE;
 	// Add UIC, MOC and PCH stages to file
-	if(tool.CustomBuild == moc)
+	if(tool.CustomBuild == mocSrc) {
+	    QString srcName = (*it);
+	    (*it) = tool.Project->mocFile(srcName);
+	    if ((*it).endsWith(Option::cpp_moc_ext))
+		tool.addMOCstage(strm, srcName);
+	} else if(tool.CustomBuild == mocHdr) {
 	    tool.addMOCstage(strm, *it);
-	else if(tool.CustomBuild == uic)
+	} else if(tool.CustomBuild == uic) {
 	    tool.addUICstage(strm, *it);
+	}
 	if(tool.Project->usePCH)
 	    tool.modifyPCHstage(strm, *it);
 

@@ -843,20 +843,30 @@ void VcprojGenerator::initHeaderFiles()
 			   vcProject.HeaderFiles.flat_files );
     vcProject.HeaderFiles.Project = this;
     vcProject.HeaderFiles.Config = &(vcProject.Configuration);
-    vcProject.HeaderFiles.CustomBuild = moc;
+    vcProject.HeaderFiles.CustomBuild = mocHdr;
 }
 
 void VcprojGenerator::initMOCFiles()
 {
+    QStringList doMoc;
+    // Create a list of the files being moc'ed
+    QString srcs[] = { QString("SOURCES"), QString("HEADERS"), QString("UICIMPLS"), QString("SRCMOC"), QString::null };
+    for(int x = 0; !srcs[x].isNull(); ++x) {
+	const QStringList &l = project->variables().value(srcs[x]);
+	for(QStringList::ConstIterator sit = l.begin(); sit != l.end(); ++sit) {
+	    if (mocable(*sit))
+		doMoc += (*sit);
+	}
+    }
     vcProject.MOCFiles.flat_files = project->isActiveConfig("flat");
     vcProject.MOCFiles.Name = "Generated MOC Files";
     vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
-    vcProject.MOCFiles.Files += project->variables()["SRCMOC"];
+    vcProject.MOCFiles.Files += doMoc;
     nonflatDir_BubbleSort( vcProject.MOCFiles.Files,
 			   vcProject.MOCFiles.flat_files );
     vcProject.MOCFiles.Project = this;
     vcProject.MOCFiles.Config = &(vcProject.Configuration);
-    vcProject.MOCFiles.CustomBuild = moc;
+    vcProject.MOCFiles.CustomBuild = mocSrc;
 }
 
 void VcprojGenerator::initUICFiles()

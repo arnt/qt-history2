@@ -36,7 +36,8 @@
 */
 enum customBuildCheck {
     none,
-    moc,
+    mocSrc,
+    mocHdr,
     uic,
     lexyacc
 };

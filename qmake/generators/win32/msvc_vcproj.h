@@ -45,6 +45,7 @@ public:
     QString precompH, precompHFilename,
 	    precompObj, precompPch;
     bool usePCH;
+    QString mocFile(const QString &file) { return Win32MakefileGenerator::mocFile(file); }
 
 protected:
     virtual bool openOutput(QFile &file) const;
