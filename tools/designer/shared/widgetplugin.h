@@ -9,7 +9,7 @@
 class WidgetPlugIn : public WidgetInterface, public QPlugIn
 {
 public:
-    WidgetPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
+    WidgetPlugIn( const QString& filename, QApplicationInterface* = 0, LibraryPolicy = Default );
 
     QString queryInterface() const { return "WidgetInterface"; }
 
@@ -27,7 +27,7 @@ class WidgetPlugInManager : public QPlugInManager<WidgetPlugIn>
 {
 public:
     WidgetPlugInManager( const QString& path = QString::null, const QString& filter = "*.dll; *.so", 
-	QPlugIn::LibraryPolicy = QPlugIn::Default, const char* fn = 0 );
+	QApplicationInterface* = 0, QPlugIn::LibraryPolicy = QPlugIn::Default );
 
     QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& );
