@@ -170,7 +170,7 @@ public:
 
     void loadPlainText( const QString &fn, bool tabify = FALSE );
     void loadRichText( const QString &fn );
-    
+
     int x() const;
     int y() const;
     int width() const;
@@ -528,7 +528,7 @@ public:
     QString key() const;
 
     static QString getKey( const QFont &f, const QColor &c );
-    
+
     void addRef();
     void removeRef();
 
@@ -566,7 +566,7 @@ public:
     void remove( QTextEditFormat *f );
 
     void debug();
-    
+
 private:
     QTextEditFormat *defFormat, *lastFormat, *cachedFormat;
     QDict<QTextEditFormat> cKey;
@@ -1106,6 +1106,14 @@ inline void QTextEditParag::setLastLengthFotCompletion( int l )
 
 inline int QTextEditParag::lineY( int l ) const
 {
+    if ( l > (int)lineStarts.count() - 1 ) {
+	qWarning( "QTextEditParag::lineY: line %d out of range!", l );
+	return 0;
+    }
+    
+    if ( !isValid() )
+	( (QTextEditParag*)this )->format();
+
     QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
@@ -1114,6 +1122,14 @@ inline int QTextEditParag::lineY( int l ) const
 
 inline int QTextEditParag::lineBaseLine( int l ) const
 {
+    if ( l > (int)lineStarts.count() - 1 ) {
+	qWarning( "QTextEditParag::lineBaseLine: line %d out of range!", l );
+	return 10;
+    }
+
+    if ( !isValid() )
+	( (QTextEditParag*)this )->format();
+
     QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
@@ -1122,6 +1138,14 @@ inline int QTextEditParag::lineBaseLine( int l ) const
 
 inline int QTextEditParag::lineHeight( int l ) const
 {
+    if ( l > (int)lineStarts.count() - 1 ) {
+	qWarning( "QTextEditParag::lineHeight: line %d out of range!", l );
+	return 15;
+    }
+
+    if ( !isValid() )
+	( (QTextEditParag*)this )->format();
+
     QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;
@@ -1130,6 +1154,18 @@ inline int QTextEditParag::lineHeight( int l ) const
 
 inline void QTextEditParag::lineInfo( int l, int &y, int &h, int &bl ) const
 {
+    if ( l > (int)lineStarts.count() - 1 ) {
+	qWarning( "QTextEditParag::lineInfo: line %d out of range!", l );
+	qDebug( "%d %d", lineStarts.count() - 1, l );
+	y = 0;
+	h = 15;
+	bl = 10;
+	return;
+    }
+
+    if ( !isValid() )
+	( (QTextEditParag*)this )->format();
+    
     QMap<int, LineStart*>::ConstIterator it = lineStarts.begin();
     while ( l-- > 0 )
 	++it;

@@ -1212,7 +1212,15 @@ void QTextEditString::insert( int index, const QString &s, QTextEditFormat *f )
     for ( int i = 0; i < (int)s.length(); ++i ) {
 	data[ (int)index + i ].x = 0;
 	data[ (int)index + i ].lineStart = 0;
+#ifdef _WS_X11_
+	//### workaround for broken courier fonts on X11
+	if ( s[ i ] == QChar( 0x00a0U ) )
+	    data[ (int)index + i ].c = ' ';
+	else
+	    data[ (int)index + i ].c = s[ i ];
+#else
 	data[ (int)index + i ].c = s[ i ];
+#endif
 	data[ (int)index + i ].format = f;
     }
     cache.insert( index, s );
