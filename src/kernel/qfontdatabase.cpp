@@ -1023,7 +1023,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	fe->fontDef.styleStrategy = request.styleStrategy;
 
 	fe->fontDef.weight        = best_style->key.weight;
-	fe->fontDef.italic        = best_style->key.italic;
+	fe->fontDef.italic        = best_style->key.italic || best_style->key.oblique;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
 	fe->fontDef.ignorePitch   = FALSE;
@@ -1310,9 +1310,7 @@ QStringList QFontDatabase::families( QFont::Script script ) const
 	QtFontFamily *f = d->families[i];
 	if ( f->count == 0 )
 	    continue;
-	if (!(f->scripts[script] & QtFontFamily::Supported) &&
-	    !(f->scripts[QFont::Unicode] & QtFontFamily::Supported) &&
-	    !(f->scripts[QFont::UnknownScript] & QtFontFamily::Supported))
+	if (!(f->scripts[script] & QtFontFamily::Supported))
 	    continue;
 	if ( f->count == 1 ) {
 	    flist.append( f->name );
@@ -1628,10 +1626,15 @@ QList<int> QFontDatabase::smoothSizes( const QString &family,
 	    for ( int l = 0; l < style->count; l++ ) {
 		const QtFontSize *size = style->pixelSizes + l;
 
-		if ( size->pixelSize != 0 &&
-		     size->pixelSize != USHRT_MAX &&
-		     !sizes.contains( size->pixelSize ) )
-		    sizes.append( size->pixelSize );
+		if ( size->pixelSize != 0 && size->pixelSize != USHRT_MAX ) {
+#ifdef Q_WS_X11
+		    const uint pointSize = qRound(qt_pointSize(size->pixelSize, 0, -1));
+#else
+		    const uint pointSize = size->pixelSize; // embedded uses 72dpi
+#endif
+		    if (! sizes.contains(pointSize))
+			sizes.append( pointSize );
+		}
 	    }
 	}
     }
@@ -1653,9 +1656,9 @@ QList<int> QFontDatabase::smoothSizes( const QString &family,
 QList<int> QFontDatabase::standardSizes()
 {
     QList<int> ret;
-    static unsigned short standard[] =
+    static const unsigned short standard[] =
 	{ 6, 7, 8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72, 0 };
-    unsigned short *sizes = standard;
+    const unsigned short *sizes = standard;
     while ( *sizes ) ret << *sizes++;
     return ret;
 }
