@@ -4573,7 +4573,7 @@ QDataStream &operator<<( QDataStream &s, const QString &str )
     else {
 	int byteOrder = s.byteOrder();
 	const QChar* ub = str.unicode();
-	if ( ub || s.version() < 3 ) {
+	if ( !str.isNull() || s.version() < 3 ) {
 	    static const uint auto_size = 1024;
 	    char t[auto_size];
 	    char *b;
