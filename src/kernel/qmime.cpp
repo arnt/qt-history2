@@ -278,7 +278,7 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 	    mimetype = QCString("image/")+QCString(imgfmt).lower();
 
 	QFile f(abs_name);
-	if ( f.open(IO_ReadOnly) ) {
+	if ( f.open(IO_ReadOnly) && f.size() ) {
 	    QByteArray ba(f.size());
 	    f.readBlock(ba.data(), ba.size());
 	    QStoredDrag* sr = new QStoredDrag( mimetype );
