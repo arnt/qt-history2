@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#29 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#29 $";
 #endif
 
 
@@ -198,7 +198,7 @@ There are some restrictions:
 <ol>
 <li> The \e src device must be QWidget or QPixmap.  You cannot copy pixels
 from a picture or a printer (external device).
-<li> The \e src device may not have pixel depth greater than \e src.
+<li> The \e src device may not have pixel depth greater than \e dst.
 You cannot copy from an 8 bit pixmap to a 1 bit pixmap.
 </ol>
 */
