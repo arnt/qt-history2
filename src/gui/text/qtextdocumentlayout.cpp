@@ -1132,7 +1132,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         QTextCharFormat format = q->format(startPos - 1);
         QTextObjectInterface *iface = q->handlerForObject(format.objectType());
         if (iface)
-            fd->boundingRect = QRect(QPoint(0, 0), iface->intrinsicSize(q->document(), format));
+            fd->boundingRect = QRect(QPoint(0, 0), iface->intrinsicSize(q->document(), format).toSize());
         fd->dirty = false;
         return;
     }
@@ -1474,7 +1474,7 @@ void QTextDocumentLayout::setSize(QTextInlineObject item, const QTextFormat &for
         pos = frame->format().position();
 
     item.setDescent(0);
-    QSize inlineSize = (pos == QTextFrameFormat::InFlow ? handler.iface->intrinsicSize(document(), format) : QSize(0, 0));
+    QSizeF inlineSize = (pos == QTextFrameFormat::InFlow ? handler.iface->intrinsicSize(document(), format) : QSizeF(0, 0));
     item.setWidth(inlineSize.width());
     item.setAscent(inlineSize.height());
 }
@@ -1498,13 +1498,13 @@ void QTextDocumentLayout::layoutObject(QTextInlineObject item, const QTextFormat
     d->positionFloat(frame);
 }
 
-void QTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInlineObject item,
+void QTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                      const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrame *frame = qt_cast<QTextFrame *>(document()->objectForFormat(f));
-    QRect r = rect;
+    QRect r = rect.toRect();
     if (frame) {
         QTextFrameData *fd = data(frame);
         if (fd->position != QTextFrameFormat::InFlow) {

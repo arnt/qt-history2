@@ -743,45 +743,6 @@ void QTextLayout::setDirection(QChar::Direction dir)
     d->direction = dir;
 }
 
-
-static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type,
-                          const QRectF &rect, const QTextLine &line, const QPointF &pos, int selectionIdx)
-{
-    p->save();
-    p->setClipRect(rect.toRect());
-    QColor bg;
-    QColor text;
-    switch(type) {
-    case QTextLayout::Highlight:
-        bg = pal->highlight().color();
-        text = pal->highlightedText().color();
-        break;
-    case QTextLayout::ImText: {
-        int h1, s1, v1, h2, s2, v2;
-        pal->color(QPalette::Base).getHsv(&h1, &s1, &v1);
-        pal->color(QPalette::Background).getHsv(&h2, &s2, &v2);
-        bg.setHsv(h1, s1, (v1 + v2) / 2);
-        break;
-    }
-    case QTextLayout::ImSelection:
-        bg = pal->text().color();
-        text = pal->background().color();
-        break;
-    case QTextLayout::NoSelection:
-        Q_ASSERT(false); // should never happen.
-        return;
-    }
-    p->fillRect(rect.toRect(), bg);
-    if (type == QTextLayout::ImText)
-        p->drawLine(QPointF(rect.x(), rect.y() + rect.height()),
-                    QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
-    if (text.isValid())
-        p->setPen(text);
-    line.draw(p, pos, selectionIdx);
-    p->restore();
-    return;
-}
-
 /*!
     \fn void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const QVector<Selection> &selections) const
 
@@ -803,8 +764,6 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
     Q_ASSERT(numLines() != 0);
 
     d->cursorPos = cursorPos;
-    d->selections = selections;
-    d->nSelections = nSelections;
 
     QPointF position = pos + d->position;
 
@@ -822,28 +781,7 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
         if (sl.y > clipe || (sl.y + sl.height()) < clipy)
             continue;
 
-        int from = sl.from;
-        int length = sl.length;
-
-        l.draw(p, position);
-        if (selections) {
-            for (int j = 0; j < nSelections; ++j) {
-                const Selection &s = selections[j];
-                if (s.type() == NoSelection)
-                    continue;
-                if (!d->pal)
-                    continue;
-
-                if (s.from() + s.length() > from && s.from() < from+length) {
-                    QPointF tl(position.x() + l.cursorToX(qMax(s.from(), from)), position.y() + sl.y);
-                    QPointF br(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)),
-                               position.y() + (sl.y + sl.height()));
-                    QRectF highlight =
-                        QRectF(tl.x(), tl.y(), br.x()-tl.x(), br.y() - tl.y()).normalize();
-                    drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
-                }
-            }
-        }
+        l.draw(p, position, selections, nSelections);
         if ((sl.from <= cursorPos && sl.from + (int)sl.length > cursorPos)
             || (sl.from + (int)sl.length == cursorPos && cursorPos == d->string.length())) {
 
@@ -867,8 +805,6 @@ void QTextLayout::draw(QPainter *p, const QPointF &pos, int cursorPos,
     }
 
     d->cursorPos = -1;
-    d->selections = 0;
-    d->nSelections = 0;
 }
 
 /*!
@@ -1231,16 +1167,109 @@ int QTextLine::length() const
     return eng->lines[i].length;
 }
 
-// ### DOC: You can't draw a line with only one point, so how does this work?
-// You don't draw the line _with_ one point, but _at_ one point. It's
-// similar to drawText(int x, int y, const QString &str).
+
+static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType type, const QRectF &rect)
+{
+    QColor bg;
+    QColor text;
+    switch(type) {
+    case QTextLayout::Highlight:
+        bg = pal->highlight().color();
+        text = pal->highlightedText().color();
+        break;
+    case QTextLayout::ImText: {
+        int h1, s1, v1, h2, s2, v2;
+        pal->color(QPalette::Base).getHsv(&h1, &s1, &v1);
+        pal->color(QPalette::Background).getHsv(&h2, &s2, &v2);
+        bg.setHsv(h1, s1, (v1 + v2) / 2);
+        break;
+    }
+    case QTextLayout::ImSelection:
+        bg = pal->text().color();
+        text = pal->background().color();
+        break;
+    case QTextLayout::NoSelection:
+        Q_ASSERT(false); // should never happen.
+        return;
+    }
+    p->fillRect(rect, bg);
+    if (type == QTextLayout::ImText)
+        p->drawLine(QPointF(rect.x(), rect.y() + rect.height()),
+                    QPointF(rect.x() + rect.width(), rect.y() + rect.height()));
+    if (text.isValid())
+        p->setPen(text);
+}
+
+static void drawMenuText(QPainter *p, float x, float y, const QScriptItem &si, QTextItem &gf, QTextEngine *eng,
+                         int start, int glyph_start)
+{
+    int ge = glyph_start + gf.num_glyphs;
+    int gs = glyph_start;
+    int end = start + gf.num_chars;
+    unsigned short *logClusters = eng->logClusters(&si);
+    QGlyphLayout *glyphs = eng->glyphs(&si);
+    double w = gf.width;
+
+    int *ul = eng->underlinePositions;
+    if (ul)
+        while (*ul != -1 && *ul < start)
+            ++ul;
+    do {
+        int gtmp = ge;
+        int stmp = end;
+        if (ul && *ul != -1 && *ul < end) {
+            stmp = *ul;
+            gtmp = logClusters[*ul-si.position];
+        }
+
+        gf.num_glyphs = gtmp - gs;
+        gf.glyphs = glyphs + gs;
+        gf.num_chars = stmp - start;
+        gf.chars = eng->string.unicode() + start;
+        float w = 0;
+        while (gs < gtmp) {
+            w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+            ++gs;
+        }
+        start = stmp;
+        gf.width = w;
+        if (gf.num_chars)
+            p->drawTextItem(QPointF(x, y), gf);
+        x += w;
+        if (ul && *ul != -1 && *ul < end) {
+            // draw underline
+            gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
+            ++stmp;
+            gf.num_glyphs = gtmp - gs;
+            gf.glyphs = glyphs + gs;
+            gf.num_chars = stmp - start;
+            gf.chars = eng->string.unicode() + start;
+            w = 0;
+            while (gs < gtmp) {
+                w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+                ++gs;
+            }
+            ++start;
+            gf.width = w;
+            gf.flags |= QTextItem::Underline;
+            p->drawTextItem(QPointF(x, y), gf);
+            gf.flags &= ~QTextItem::Underline;
+            ++gf.chars;
+            x += w;
+            ++ul;
+        }
+    } while (gs < ge);
+
+    gf.width = w;
+}
 /*!
     \internal
 
     Draws a line on painter \a p at position \a xpos, \a ypos. \a
     selection is reserved for internal use.
 */
-void QTextLine::draw(QPainter *p, const QPointF &pos, int selection) const
+void QTextLine::draw(QPainter *p, const QPointF &pos,
+                     const QTextLayout::Selection *selections, int nSelections) const
 {
     const QScriptLine &line = eng->lines[i];
 
@@ -1279,24 +1308,35 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, int selection) const
         int item = visualOrder[i]+firstItem;
         QScriptItem &si = eng->items[item];
 
-        if (si.isObject && eng->docLayout && eng->formats) {
-            QTextFormat format = eng->formats->format(si.format);
-
+        if (si.isObject || si.isTab) {
             QTextLayout::SelectionType selType = QTextLayout::NoSelection;
-            if (selection >= 0 && eng->selections && eng->nSelections > 0)
-                // ###
-                selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
+            int s;
+            if (nSelections) {
+                for (int i = 0; i < nSelections; ++i) {
+                    if (selections[i].from() <= si.position
+                        && selections[i].from() + selections[i].length() > si.position) {
+                        selType = selections[nSelections-1].type();
+                        s = i;
+                    }
+                }
+            }
+            p->save();
+            if (selType != QTextLayout::NoSelection) {
+                QRectF rect(x, y - line.ascent, si.width, line.height());
+                p->setClipRect(rect);
+                drawSelection(p, eng->pal, selections[s].type(), rect);
+            }
+            if (eng->docLayout && eng->formats) {
+                QTextFormat format = eng->formats->format(si.format);
+                eng->docLayout->drawObject(p, QRectF(x, y-si.ascent, si.width, si.height()),
+                                           QTextInlineObject(item, eng), format, selType);
+            }
+            p->restore();
 
-            eng->docLayout->drawObject(p,
-                                       QRect(qRound(x), qRound(y-si.ascent),
-                                             qRound(si.width), qRound(si.height())),
-                                       QTextInlineObject(item, eng), format, selType);
-        }
-
-        if (si.isTab || si.isObject) {
             x += si.width;
             continue;
         }
+
         unsigned short *logClusters = eng->logClusters(&si);
         QGlyphLayout *glyphs = eng->glyphs(&si);
 
@@ -1316,13 +1356,11 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, int selection) const
             QTextFormat fmt = eng->formats->format(si.format);
             Q_ASSERT(fmt.isCharFormat());
             QTextCharFormat chf = fmt.toCharFormat();
-            if (selection == -1) {
-                QColor c = chf.textColor();
-                if (!c.isValid() && eng->textColorFromPalette) {
-                    c = eng->pal->color(QPalette::Text);
-                }
-                p->setPen(c);
+            QColor c = chf.textColor();
+            if (!c.isValid() && eng->textColorFromPalette) {
+                c = eng->pal->color(QPalette::Text);
             }
+            p->setPen(c);
             f = chf.font();
             if (eng->docLayout)
                 f = f.resolve(eng->docLayout->defaultFont());
@@ -1341,81 +1379,73 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, int selection) const
             gf.flags |= QTextItem::StrikeOut;
         gf.ascent = si.ascent;
         gf.descent = si.descent;
-        gf.num_glyphs = ge - gs + 1;
+        gf.num_glyphs = ge - gs;
         gf.glyphs = glyphs + gs;
         gf.fontEngine = fe;
         gf.chars = eng->string.unicode() + start;
         gf.num_chars = end - start;
+        gf.width = 0;
+        int g = gs;
+        while (g < ge) {
+            gf.width += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
+            ++g;
+        }
 
-        int *ul = eng->underlinePositions;
-        if (ul)
-            while (*ul != -1 && *ul < start)
-                ++ul;
-        do {
-            int gtmp = ge;
-            int stmp = end;
-            if (ul && *ul != -1 && *ul < end) {
-                stmp = *ul;
-                gtmp = logClusters[*ul-si.position];
-            }
+        if (eng->underlinePositions) {
+            // can't have selections in this case
+            drawMenuText(p, x, y, si, gf, eng, start, gs);
+        } else {
+            p->drawTextItem(QPointF(x, y), gf);
 
-            gf.num_glyphs = gtmp - gs;
-            gf.glyphs = glyphs + gs;
-            gf.num_chars = stmp - start;
-            gf.chars = eng->string.unicode() + start;
-            float w = 0;
-            while (gs < gtmp) {
-                w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
-                ++gs;
-            }
-            start = stmp;
-            gf.width = w;
-            if (gf.num_chars)
-                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf);
-            x += w;
-            if (ul && *ul != -1 && *ul < end) {
-                // draw underline
-                gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
-                ++stmp;
-                gf.num_glyphs = gtmp - gs;
-                gf.glyphs = glyphs + gs;
-                gf.num_chars = stmp - start;
-                gf.chars = eng->string.unicode() + start;
-                w = 0;
-                while (gs < gtmp) {
-                    w += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
-                    ++gs;
+            for (int s = 0; s < nSelections; ++s) {
+                int from = qMax(0, selections[s].from()- si.position);
+                int to = qMin(eng->length(item), selections[s].from() + selections[s].length() - si.position);
+                if (from >= to)
+                    continue;
+                int start_glyph = logClusters[from];
+                int end_glyph = (to == eng->length(item)) ? si.num_glyphs : logClusters[to];
+                float soff = 0;
+                float swidth = 0;
+                if (si.analysis.bidiLevel %2) {
+                    for (int g = si.num_glyphs - 1; g >= end_glyph; --g)
+                        soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
+                    for (int g = end_glyph - 1; g >= start_glyph; --g)
+                        swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
+                } else {
+                    for (int g = 0; g < start_glyph; ++g)
+                        soff += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
+                    for (int g = start_glyph; g < end_glyph; ++g)
+                        swidth += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
                 }
-                ++start;
-                gf.width = w;
-                gf.flags |= QTextItem::Underline;
-                p->drawTextItem(QPoint(qRound(x), qRound(y)), gf);
-                gf.flags &= ~QTextItem::Underline;
-                ++gf.chars;
-                x += w;
-                ++ul;
+                p->save();
+                QRectF rect(x + soff, y - line.ascent, swidth, line.height());
+                p->setClipRect(rect);
+                drawSelection(p, eng->pal, selections[s].type(), rect);
+                p->drawTextItem(QPointF(x, y), gf);
+                p->restore();
             }
-        } while (gs < ge);
 
+        }
+        x += gf.width;
     }
 }
 
 /*!
-    \fn int QTextLine::cursorToX(int cursorPos, Edge edge) const
+  \fn int QTextLine::cursorToX(int cursorPos, Edge edge) const
 
-    \overload
+  \overload
 */
 
 
 /*!
-    Converts the cursor position \a cursorPos to the corresponding x position
-    inside the line, taking account of the \a edge.
+  Converts the cursor position \a cursorPos to the corresponding x position
+  inside the line, taking account of the \a edge.
 
-    If \a cursorPos is not a valid cursor position, the nearest valid
-    cursor position will be used instead, and cpos will be modified to
-    point to this valid cursor position.
+  If \a cursorPos is not a valid cursor position, the nearest valid
+  cursor position will be used instead, and cpos will be modified to
+  point to this valid cursor position.
 
-    \sa xToCursor()
+  \sa xToCursor()
 */
 float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
@@ -1522,10 +1552,10 @@ float QTextLine::cursorToX(int *cursorPos, Edge edge) const
 }
 
 /*!
-    Converts the x-coordinate \a xpos, to the nearest matching cursor
-    position, depending on the cursor position type, \a cpos.
+  Converts the x-coordinate \a xpos, to the nearest matching cursor
+  position, depending on the cursor position type, \a cpos.
 
-    \sa cursorToX()
+  \sa cursorToX()
 */
 int QTextLine::xToCursor(float x, CursorPosition cpos) const
 {
@@ -1551,6 +1581,7 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
         x -= line.width - line.textWidth;
     else if (eng->textFlags & Qt::AlignHCenter)
         x -= (line.width - line.textWidth)/2;
+//     qDebug("xToCursor: x=%f, cpos=%d", x, cpos);
 
     QVarLengthArray<int> visualOrder(nItems);
     QVarLengthArray<unsigned char> levels(nItems);
@@ -1558,110 +1589,129 @@ int QTextLine::xToCursor(float x, CursorPosition cpos) const
         levels[i] = eng->items[i+firstItem].analysis.bidiLevel;
     QTextEngine::bidiReorder(nItems, levels.data(), visualOrder.data());
 
-    int gl_before = 0;
-    int gl_after = 0;
-    int it_before = firstItem;
-    int it_after = firstItem;
-    float x_before = 0xffffff;
-    float x_after = 0xffffff;
-
-
-    for (int i = 0; i < nItems; ++i) {
-        int item = visualOrder[i]+firstItem;
+    if (x <= 0) {
+        // left of first item
+        int item = visualOrder[0]+firstItem;
         QScriptItem &si = eng->items[item];
-        int item_length = eng->length(item);
+        int pos = si.position;
+        if (si.analysis.bidiLevel % 2)
+            pos += eng->length(item);
+        pos = qMax(line.from, pos);
+        pos = qMin(line.from + line_length, pos);
+        return pos;
+    } else if (x < line.textWidth) {
+        // has to be in one of the runs
+        float pos = 0;
 
-        if (si.isTab || si.isObject) {
-            x -= si.width;
-            continue;
-        }
-        int start = qMax(line.from - si.position, 0);
-        int end = qMin(line.from + line_length - si.position, item_length);
+        for (int i = 0; i < nItems; ++i) {
+            int item = visualOrder[i]+firstItem;
+            QScriptItem &si = eng->items[item];
+            int item_length = eng->length(item);
+//             qDebug("    item %d, visual %d x_remain=%f", i, item, x);
 
-        unsigned short *logClusters = eng->logClusters(&si);
+            int start = qMax(line.from - si.position, 0);
+            int end = qMin(line.from + line_length - si.position, item_length);
 
-        int gs = logClusters[start];
-        int ge = (end == item_length ? si.num_glyphs : logClusters[end]) - 1;
-        QGlyphLayout *glyphs = eng->glyphs(&si);
+            unsigned short *logClusters = eng->logClusters(&si);
 
-        if (si.analysis.bidiLevel %2) {
+            int gs = logClusters[start];
+            int ge = (end == item_length ? si.num_glyphs : logClusters[end]) - 1;
+            QGlyphLayout *glyphs = eng->glyphs(&si);
+
             float item_width = 0;
-            int g = gs;
-            while (g <= ge) {
-                item_width += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
-                ++g;
+            if (si.isTab || si.isObject) {
+                item_width = si.width;
+            } else {
+                int g = gs;
+                while (g <= ge) {
+                    item_width += glyphs[g].advance.x() + ((float)glyphs[g].space_18d6)/64.;
+                    ++g;
+                }
             }
+//             qDebug("      start=%d, end=%d, gs=%d, ge=%d item_width=%f", start, end, gs, ge, item_width);
 
-            x -= item_width;
-            if (x > 0) {
-                gl_before = gs;
-                it_before = item;
-                x_before = x;
+            if (pos + item_width < x) {
+                pos += item_width;
                 continue;
             }
+//             qDebug("      inside run");
+            if (si.isTab || si.isObject) {
+                if (cpos == QTextLine::CursorOnCharacter)
+                    return si.position;
+                bool left_half = (x - pos) < item_width/2.;
 
-            while (1) {
-                if (glyphs[gs].attributes.clusterStart) {
-                    if (x < 0) {
-                        gl_after = gs;
-                        it_after = item;
-                        x_after = -x;
-                    } else {
-                        gl_before = gs;
-                        it_before = item;
-                        x_before = x;
-                        goto end;
-                    }
-                }
-                if (gs > ge)
-                    Q_ASSERT(false);
-                x += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
-                ++gs;
+                if ((si.analysis.bidiLevel % 2) ^ left_half)
+                    return si.position;
+                return si.position + 1;
             }
-        } else {
-            while (1) {
-                if (glyphs[gs].attributes.clusterStart) {
-                    if (x > 0) {
-                        gl_before = gs;
-                        it_before = item;
-                        x_before = x;
-                    } else {
-                        gl_after = gs;
-                        it_after = item;
-                        x_after = -x;
-                        goto end;
+
+            int glyph_pos = -1;
+            // has to be inside run
+            if (cpos == QTextLine::CursorOnCharacter) {
+                if (si.analysis.bidiLevel % 2) {
+                    pos += item_width;
+                    int last_glyph = gs;
+                    while (gs <= ge) {
+                        if (glyphs[gs].attributes.clusterStart && pos < x) {
+                            glyph_pos = last_glyph;
+                            break;
+                        }
+                        pos -= glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+                        ++gs;
+                    }
+                } else {
+                    glyph_pos = gs;
+                    while (gs <= ge) {
+                        if (glyphs[gs].attributes.clusterStart) {
+                            if (pos > x)
+                                break;
+                            glyph_pos = gs;
+                        }
+                        pos += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+                        ++gs;
                     }
                 }
-                if (gs > ge) {
-                    gl_before = gs;
-                    it_before = item;
-                    x_before = x;
+            } else {
+                float dist = 1.e30;
+                if (si.analysis.bidiLevel % 2) {
+                    pos += item_width;
+                    while (gs <= ge) {
+                        if (glyphs[gs].attributes.clusterStart && qAbs(x-pos) < dist) {
+                            glyph_pos = gs;
+                            dist = qAbs(x-pos);
+                        }
+                        pos -= glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+                        ++gs;
+                    }
+                } else {
+                    while (gs <= ge) {
+                        if (glyphs[gs].attributes.clusterStart && qAbs(x-pos) < dist) {
+                            glyph_pos = gs;
+                            dist = qAbs(x-pos);
+                        }
+                        pos += glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
+                        ++gs;
+                    }
+                }
+                if (qAbs(x-pos) < dist)
+                    return si.position + end;
+            }
+            Q_ASSERT(glyph_pos != -1);
+            int j;
+            for (j = 0; j < eng->length(item); ++j)
+                if (logClusters[j] == glyph_pos)
                     break;
-                }
-                x -= glyphs[gs].advance.x() + ((float)glyphs[gs].space_18d6)/64.;
-                ++gs;
-            }
+//             qDebug("at pos %d (in run: %d)", si.position + j, j);
+            return si.position + j;
         }
     }
-
- end:
-
-    int item;
-    int glyph;
-    if (cpos == CursorOnCharacter || x_before < x_after) {
-        item = it_before;
-        glyph = gl_before;
-    } else {
-        item = it_after;
-        glyph = gl_after;
-    }
-
-    // find the corresponding cursor position
-    const QScriptItem &si = eng->items[item];
-    unsigned short *logClusters = eng->logClusters(&si);
-    int j;
-    for (j = 0; j < eng->length(item); ++j)
-        if (logClusters[j] == glyph)
-            break;
-    return si.position + j;
+    // right of last item
+    int item = visualOrder[nItems-1]+firstItem;
+    QScriptItem &si = eng->items[item];
+    int pos = si.position;
+    if (!(si.analysis.bidiLevel % 2))
+        pos += eng->length(item);
+    pos = qMax(line.from, pos);
+    pos = qMin(line.from + line_length, pos);
+    return pos;
 }

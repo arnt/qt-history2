@@ -80,18 +80,18 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 {
 }
 
-QSize QTextImageHandler::intrinsicSize(const QTextDocument *doc, const QTextFormat &format)
+QSizeF QTextImageHandler::intrinsicSize(const QTextDocument *doc, const QTextFormat &format)
 {
     const QTextImageFormat imageFormat = format.toImageFormat();
 
     return getPixmap(doc, imageFormat).size();
 }
 
-void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, const QTextDocument *doc, const QTextFormat &format)
+void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, const QTextDocument *doc, const QTextFormat &format)
 {
     const QTextImageFormat imageFormat = format.toImageFormat();
     const QPixmap pixmap = getPixmap(doc, imageFormat);
 
-    p->drawPixmap(rect, pixmap);
+    p->drawPixmap(rect, pixmap, pixmap.rect());
 }
 

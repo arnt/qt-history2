@@ -62,7 +62,7 @@ public:
 
     virtual void setSize(QTextInlineObject item, const QTextFormat &format);
     virtual void layoutObject(QTextInlineObject item, const QTextFormat &format);
-    virtual void drawObject(QPainter *painter, const QRect &rect, QTextInlineObject object, const QTextFormat &format,
+    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format,
                             QTextLayout::SelectionType selection);
 
     virtual void setPageSize(const QSize &size) = 0;
@@ -94,8 +94,8 @@ private:
 class QTextObjectInterface
 {
 public:
-    virtual QSize intrinsicSize(const QTextDocument *doc, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QRect &rect, const QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual QSizeF intrinsicSize(const QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRectF &rect, const QTextDocument *doc, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "http://trolltech.com/Qt/QTextObjectInterface")
 

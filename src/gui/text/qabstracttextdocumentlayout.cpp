@@ -189,7 +189,7 @@ void QAbstractTextDocumentLayout::setSize(QTextInlineObject item, const QTextFor
     if (!handler.component)
         return;
 
-    QSize s = handler.iface->intrinsicSize(document(), format);
+    QSizeF s = handler.iface->intrinsicSize(document(), format);
     item.setWidth(s.width());
     item.setAscent(s.height());
     item.setDescent(0);
@@ -216,7 +216,7 @@ void QAbstractTextDocumentLayout::layoutObject(QTextInlineObject item, const QTe
 
     \sa layoutObject()
 */
-void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTextInlineObject item,
+void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                              const QTextFormat &format, QTextLayout::SelectionType selType)
 {
     QTextCharFormat f = format.toCharFormat();

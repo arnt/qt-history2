@@ -336,8 +336,6 @@ public:
     QPointF position;
 
     int cursorPos;
-    const QTextLayout::Selection *selections;
-    int nSelections;
     int *underlinePositions;
 private:
     void shapeText(int item) const;

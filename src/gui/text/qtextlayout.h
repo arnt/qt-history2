@@ -141,7 +141,7 @@ public:
         Selection(int from, int length, SelectionType type) : f(from), l(length), t(type) {}
         inline int from() const { return f; }
         inline int length() const { return l; }
-        inline int type() const { return t; }
+        inline SelectionType type() const { return static_cast<SelectionType>(t); }
         inline void setRange(int from, int length) { f = from; l = length; }
         inline void setType(SelectionType type) { t = type; }
     };
@@ -216,7 +216,8 @@ public:
     QTextEngine *engine() const { return eng; }
     int line() const { return i; }
 
-    void draw(QPainter *p, const QPointF &point, int selection = -1) const;
+    void draw(QPainter *p, const QPointF &point,
+              const QTextLayout::Selection *selections = 0, int nSelections = 0) const;
 
 private:
     QTextLine(int line, QTextEngine *e) : i(line), eng(e) {}

@@ -834,8 +834,6 @@ static void init(QTextEngine *e)
     e->memory = 0;
     e->num_glyphs = 0;
     e->cursorPos = -1;
-    e->selections = 0;
-    e->nSelections = 0;
     e->underlinePositions = 0;
     e->designMetrics = false;
     e->textColorFromPalette = false;
