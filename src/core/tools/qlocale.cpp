@@ -42,6 +42,9 @@
 
 #include "qlocale.h"
 #include "qlocale_p.h"
+#if defined(Q_WS_WIN)
+#   include "qt_windows.h"
+#endif
 
 #if defined (Q_WS_WIN) && !defined(Q_CC_GNU)
 #   define isnan(d) _isnan(d)
