@@ -126,6 +126,14 @@ static inline bool qAquaActive( const QColorGroup & g )
 }
 
 /* 
+   Detects sizes to comply with QAquaStyle
+*/
+enum AquaSize { AquaSizeLarge, AquaSizeSmall, AquaSizeUnknown };
+AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix);
+static inline AquaSize qt_aqua_size_constrain(const QWidget *w) 
+{ return qt_aqua_size_constrain((QWidget*)w, FALSE); }
+
+/* 
   Setup the font appropriatly on the Mac
 */
 static inline bool qt_mac_update_palette(QPalette &pal, bool do_init) 
@@ -180,12 +188,14 @@ static inline bool qt_mac_update_palette(QPalette &pal, bool do_init)
 /* 
   Setup the font appropriatly on the Mac
 */
-static inline void qt_mac_polish_font( QWidget *w )
+static inline void qt_mac_polish_font( QWidget *w, AquaSize size=AquaSizeLarge )
 {
 #ifdef Q_WS_MAC
     if( !w->ownFont() && w->font() == qApp->font() ) {
 	bool set_font = TRUE;
-	short key = kThemeApplicationFont;
+	short key = kThemeSystemFont;
+	if(size == AquaSizeSmall)
+	    key = kThemeSmallSystemFont;
 	if(w->inherits("QPushButton"))
 	    key = kThemePushButtonFont;
 	else if(w->inherits("QListView") || w->inherits("QListBox"))
@@ -200,8 +210,10 @@ static inline void qt_mac_polish_font( QWidget *w )
 	    key = kThemeMenuItemFont;
 	else if(w->inherits("QLabel"))
 	    key = kThemeLabelFont;
+#if 0
 	else
 	    set_font = FALSE;
+#endif
 	if(set_font) {
 	    Str255 f_name;
 	    SInt16 f_size;
@@ -260,12 +272,6 @@ static inline void qt_mac_polish_font( QWidget *w )
     Q_UNUSED(w);
 #endif
 }    
-
-// Detects sizes to comply with QAquaStyle
-enum AquaSize { AquaSizeLarge, AquaSizeSmall, AquaSizeUnknown };
-AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix);
-static inline AquaSize qt_aqua_size_constrain(const QWidget *w) 
-{ return qt_aqua_size_constrain((QWidget*)w, FALSE); }
 
 #ifdef QT_AQUA_XPM
 #include <qpixmapcache.h>

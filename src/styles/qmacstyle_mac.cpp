@@ -123,7 +123,7 @@ AquaSize qt_mac_get_size_for_painter(QPainter *p)
 {
     if(p && p->device()->devType() == QInternal::Widget) 
 	return qt_aqua_size_constrain((QWidget*)p->device());
-    return AquaSizeUnknown;
+    return qt_aqua_size_constrain(NULL);
 }
 
 //private
@@ -289,8 +289,7 @@ void QMacStyle::polish( QApplication* app )
 /*! \reimp */
 void QMacStyle::polish( QWidget* w )
 {
-    qt_mac_polish_font(w);
-    qt_aqua_size_constrain(w, TRUE);
+    qt_mac_polish_font(w, qt_aqua_size_constrain(w, TRUE));
     d->addWidget(w);
 
     if(w->inherits("QLineEdit")) {
@@ -512,7 +511,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	if(flags & Style_Sunken)
 	    info.value = kThemeButtonOn;
 	if(pe == PE_HeaderArrow && (flags & Style_Up))
-	    info.adornment |= kThemeAdornmentArrowUpArrow;
+	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(r, p), kThemeListHeaderButton, 
 			&info, NULL, NULL, NULL, 0);
@@ -550,7 +549,6 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	ThemeButtonKind bkind = kThemeCheckBox;
 	if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
-
 	if(pe == PE_Indicator) {
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
@@ -817,6 +815,8 @@ void QMacStyle::drawControl( ControlElement element,
 	    ThemeTrackDrawInfo ttdi;
 	    memset(&ttdi, '\0', sizeof(ttdi));
 	    ttdi.kind = kThemeLargeProgressBar;
+	    if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+		ttdi.kind = kThemeMediumProgressBar;
 	    ttdi.bounds = *qt_glb_mac_rect(r, p);
 	    ttdi.max = pbar->totalSteps();
 	    ttdi.value = pbar->progress();
@@ -856,8 +856,10 @@ void QMacStyle::drawControl( ControlElement element,
 	((QMacPainter *)p)->setport();
 	DrawThemeTab(qt_glb_mac_rect(r, p, FALSE), tts, ttd, NULL, 0);
 	if(!(how & Style_Selected)) {
-	    QRect pr = QRect(r.x() - 20, r.y() + kThemeLargeTabHeight,
-			     r.width() + 20, 8);
+	    int height = kThemeLargeTabHeight;
+	    if(qt_mac_get_size_for_painter(p) == AquaSizeSmall)
+		height = kThemeSmallTabHeight;
+	    QRect pr = QRect(r.x() - 20, r.y() + height, r.width() + 20, 8);
 	    DrawThemeTabPane(qt_glb_mac_rect(pr, p), tds);	    
 	}
 	break; }
@@ -1009,7 +1011,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
 		    if ( child->isExpandable() || child->childCount() ) {
-			ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentNone };
+			ThemeButtonDrawInfo info = { tds, kThemeDisclosureRight, kThemeAdornmentDrawIndicatorOnly };
 			if(child->isOpen())
 			    info.value = kThemeDisclosureDown;
 			DrawThemeButton(qt_glb_mac_rect(
@@ -1101,6 +1103,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	ThemeTrackDrawInfo ttdi;
 	memset(&ttdi, '\0', sizeof(ttdi));
 	ttdi.kind = kThemeMediumScrollBar;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    ttdi.kind = kThemeSmallScrollBar;
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
 	ttdi.min = scrollbar->minValue();
 	ttdi.max = scrollbar->maxValue();
@@ -1246,9 +1250,12 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_TabBarTabOverlap:
 	GetThemeMetric(kThemeMetricTabOverlap, &ret);
 	break;
-    case PM_ScrollBarExtent:
-	GetThemeMetric(kThemeMetricScrollBarWidth, &ret);
-	break;
+    case PM_ScrollBarExtent: {
+	ThemeMetric tm = kThemeMetricScrollBarWidth;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    tm = kThemeMetricSmallScrollBarWidth;
+	GetThemeMetric(tm, &ret);
+	break; }
     case PM_TabBarBaseOverlap:
 	ret = kThemeTabPaneOverlap;
 	break;
@@ -1555,6 +1562,8 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
     switch(contents) {
     case CT_TabBarTab: {
 	SInt32 lth = kThemeLargeTabHeight;
+	if(qt_aqua_size_constrain(widget) == AquaSizeSmall)
+	    lth = kThemeSmallTabHeight;
 	if(sz.height() > lth) 
 	    sz.setHeight(lth);
 	break; }

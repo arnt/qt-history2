@@ -453,9 +453,10 @@ void QAquaStylePrivate::doFocus(QWidget *w)
 static AquaSize qt_aqua_size(QWidget *widg, QSize large, QSize small)
 {
     if(widg->topLevelWidget()->inherits("QDockWindow") || getenv("QWIDGET_ALL_SMALL")) {
-	if(small.width() != -1 || small.height() != -1)
+	//if(small.width() != -1 || small.height() != -1)
 	    return AquaSizeSmall;
     }
+
     int large_delta=0;
     if(large.width() != -1) {
 	int delta = large.width() - widg->width();
@@ -477,6 +478,8 @@ static AquaSize qt_aqua_size(QWidget *widg, QSize large, QSize small)
     }
     if(small_delta < large_delta) 
 	return AquaSizeSmall;
+#else
+    Q_UNUSED(small);
 #endif
     return AquaSizeLarge;
 }
@@ -492,9 +495,9 @@ static AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix, QSize large, QSi
 		     (sz->height() != -1 && sz->height() != widg->height()))) {
 #ifdef DEBUG_SIZE_CONSTRAINT
 	const char *size_desc = "Unknown";
-	if(ret == AquaSizeSmall)
+	if(sz == &small)
 	    size_desc = "Small";
-	else if(ret == AquaSizeLarge)
+	else if(sz == &large)
 	    size_desc = "Large";
 	qDebug("%s - %s: %s %staken (%d, %d) [ %d, %d ]", widg->name(), widg->className(), 
 	       size_desc, fix ? "" : "not ", widg->width(), widg->height(), 
@@ -660,8 +663,11 @@ static QSize qt_aqua_size_constraints(QWidget *widg, AquaSize sz)
 AquaSize qt_aqua_size_constrain(QWidget *widg, bool fix)
 {
 #if defined( QMAC_QAQUASTYLE_SIZE_CONSTRAIN ) || defined(DEBUG_SIZE_CONSTRAINT)
-    if(!widg)
+    if(!widg) {
+	if(getenv("QWIDGET_ALL_SMALL")) 
+	    return AquaSizeSmall;
 	return AquaSizeUnknown;
+    }
     return qt_aqua_size_constrain(widg, fix,
 				  qt_aqua_size_constraints(widg, AquaSizeLarge),
 				  qt_aqua_size_constraints(widg, AquaSizeSmall));
@@ -759,8 +765,7 @@ void QAquaStyle::polish( QApplication* app )
 /*! \reimp */
 void QAquaStyle::polish( QWidget * w )
 {
-    qt_mac_polish_font(w);
-    qt_aqua_size_constrain(w, TRUE);
+    qt_mac_polish_font(w, qt_aqua_size_constrain(w, TRUE));
     d->addWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
