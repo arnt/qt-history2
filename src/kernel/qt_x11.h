@@ -185,7 +185,8 @@ typedef char *XPointer;
 #elif defined(Q_OS_AIX)
 // broken in Xlib up to what version of AIX?
 #define QT_NO_XIM
-#elif defined(QT_NO_DEBUG) && defined(Q_OS_IRIX) && defined(Q_CC_EDG)
+#elif defined(QT_NO_DEBUG) && defined(Q_OS_IRIX)
+// XmbLookupString broken on IRIX
 // XCreateIC broken when compiling -64 on IRIX 6.5.2
 #define QT_NO_XIM
 #elif defined(Q_OS_HPUX) && defined(__LP64__)
