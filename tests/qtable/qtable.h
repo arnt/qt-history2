@@ -41,7 +41,7 @@ class QPaintEvent;
 class QTimer;
 class QResizeEvent;
 
-class QTableItem : public Qt, public QShared
+class QTableItem : public Qt
 {
     friend class QTable;
 
@@ -66,15 +66,15 @@ public:
     EditType editType() const;
     virtual QWidget *editor() const;
     virtual void setContentFromEditor( QWidget *w );
-    virtual void setTypeChangeAllowed( bool );
-    bool isTypeChangeAllowed() const;
+    virtual void setReplacable( bool );
+    bool isReplacable() const;
 
     virtual QString key() const;
     virtual QSize sizeHint() const;
 
     virtual void setSpan( int rs, int cs );
     int rowSpan() const;
-    int columnSpan() const;
+    int colSpan() const;
 
 protected:
     virtual void paint( QPainter *p, const QColorGroup &cg, const QRect &cr, bool selected );
@@ -108,12 +108,12 @@ public:
     QHeader *horizontalHeader() const;
     QHeader *verticalHeader() const;
 
-    virtual void setCellContent( int row, int col, QTableItem *item );
-    virtual void setCellText( int row, int col, const QString &text );
-    virtual void setCellPixmap( int row, int col, const QPixmap &pix );
-    QTableItem *cellContent( int row, int col ) const;
-    QString cellText( int row, int col ) const;
-    QPixmap cellPixmap( int row, int col ) const;
+    virtual void setItem( int row, int col, QTableItem *item );
+    virtual void setText( int row, int col, const QString &text );
+    virtual void setPixmap( int row, int col, const QPixmap &pix );
+    QTableItem *item( int row, int col ) const;
+    QString text( int row, int col ) const;
+    QPixmap pixmap( int row, int col ) const;
     virtual void clearCell( int row, int col );
 
     virtual QRect cellGeometry( int row, int col ) const;
@@ -123,22 +123,19 @@ public:
     virtual int rowPos( int row ) const;
     virtual int columnAt( int pos ) const;
     virtual int rowAt( int pos ) const;
-    QSize tableSize() const;
 
-    virtual void setRows( int r );
-    virtual void setColumns( int r );
-    int rows() const;
-    int columns() const;
+    virtual void setNumRows( int r );
+    virtual void setNumCols( int r );
+    int numRows() const;
+    int numCols() const;
 
     void updateCell( int row, int col );
 
     virtual void setDefaultValidator( QValidator *validator );
     virtual QValidator *defaultValidator() const;
     virtual QWidget *defaultEditor() const;
-    QWidget *editor( int row, int col, bool initFromCell ) const;
     virtual void beginEdit( int row, int col, bool replace );
     virtual void endEdit( int row, int col, bool accept, QWidget *editor, EditMode mode );
-    virtual void setCellContentFromEditor( int row, int col, QWidget *editor );
     bool isEditing() const;
     EditMode editMode() const;
 
@@ -184,6 +181,8 @@ public:
     bool isColumnStretchable( int col ) const;
     bool isRowStretchable( int row ) const;
 
+    virtual void takeItem( QTableItem *i );
+    
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
@@ -200,6 +199,8 @@ protected:
     virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void activateNextCell();
     bool focusNextPrevChild( bool next );
+    virtual QWidget *editor( int row, int col, bool initFromCell ) const;
+    virtual void setCellContentFromEditor( int row, int col, QWidget *editor );
 
 protected slots:
     virtual void columnWidthChanged( int col );
@@ -239,6 +240,7 @@ private:
     void editTypeChanged( QTableItem *i, QTableItem::EditType old );
 
     void init( int numRows, int numCols );
+    QSize tableSize() const;
 
 private:
     QVector<QTableItem> contents;

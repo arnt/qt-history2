@@ -21,7 +21,7 @@ class ReadOnlyNumber : public QTableItem
 {
 public:
     ReadOnlyNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ) ) { setTypeChangeAllowed( FALSE ); }
+	QTableItem( t, QString::number( num ) ) { setReplacable( FALSE ); }
     QWidget *editor() const { return 0; }
 };
 
@@ -29,7 +29,7 @@ class ReadWriteNumber : public QTableItem
 {
 public:
     ReadWriteNumber( QTable *t, int num ) :
-	QTableItem( t, QString::number( num ) ) { setTypeChangeAllowed( FALSE ); }
+	QTableItem( t, QString::number( num ) ) { setReplacable( FALSE ); }
     QWidget *editor() const {
 	QLineEdit *le = (QLineEdit*)QTableItem::editor();
 	le->setValidator( new QIntValidator( le ) );
@@ -42,7 +42,7 @@ class SexChooser : public QTableItem
 {
 public:
     SexChooser( QTable *t )
-	: QTableItem( t, "female" ), cb( 0 ) { setTypeChangeAllowed( FALSE ); setEditType( Always ); }
+	: QTableItem( t, "female" ), cb( 0 ) { setReplacable( FALSE ); setEditType( Always ); }
     QWidget *editor() const {
 	( (SexChooser*)this )->cb = new QComboBox( table()->viewport() );
 	cb->insertItem( "female" );
@@ -73,7 +73,7 @@ private:
 class CheckItem : public QTableItem
 {
 public:
-    CheckItem( QTable *t ) : QTableItem( t, "No" ) { setTypeChangeAllowed( FALSE ); setEditType( OnCurrent ); }
+    CheckItem( QTable *t ) : QTableItem( t, "No" ) { setReplacable( FALSE ); setEditType( OnCurrent ); }
     QWidget *editor() const {
 	QCheckBox *cb = new QCheckBox( "Yes", table()->viewport() );
 	cb->setChecked( text() == "Yes" );
@@ -96,12 +96,12 @@ public:
 
 public slots:
     void addRecord() {
-    	table->setRows( table->rows() + 1 );
-	int row = table->rows() - 1;
-	table->setCellContent( row, 0, new ReadOnlyNumber( table, row + 1 ) );
- 	table->setCellContent( row, 3, new SexChooser( table ) );
-	table->setCellContent( row, 4, new ReadWriteNumber( table, row + 500 ) );
- 	table->setCellContent( row, 5, new CheckItem( table ) );
+    	table->setNumRows( table->numRows() + 1 );
+	int row = table->numRows() - 1;
+	table->setItem( row, 0, new ReadOnlyNumber( table, row + 1 ) );
+ 	table->setItem( row, 3, new SexChooser( table ) );
+	table->setItem( row, 4, new ReadWriteNumber( table, row + 500 ) );
+ 	table->setItem( row, 5, new CheckItem( table ) );
     }
 
 private:
@@ -121,9 +121,9 @@ int main( int argc, char **argv )
     QObject::connect( b, SIGNAL( clicked() ),
 		      r, SLOT( addRecord() ) );
     r->addRecord();
-    t->setCellText( 0, 1, "Mustermann" );
-    t->setCellText( 0, 2, "Max" );
-    ( (SexChooser*)t->cellContent( 0, 3 ) )->setText( "male" );
+    t->setText( 0, 1, "Mustermann" );
+    t->setText( 0, 2, "Max" );
+    ( (SexChooser*)t->item( 0, 3 ) )->setText( "male" );
 
     t->horizontalHeader()->setLabel( 0, "Number" );
     t->horizontalHeader()->setLabel( 1, "Last Name" );
