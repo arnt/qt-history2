@@ -21,6 +21,9 @@
 #include "private/qobject_p.h"
 
 
+/*!
+    Destroys the MIME source.
+*/
 QMimeSource::~QMimeSource()
 {
 }
@@ -49,15 +52,30 @@ public:
     QMap<QString, QVariant> data;
 };
 
+/*!
+    \class QMimeData
+    \brief The QMimeData class provides a container that organizes data by
+    MIME type.
+*/
+
+/*!
+    Constructs a new MIME data object.
+*/
 QMimeData::QMimeData()
     : QObject(*new QMimeDataPrivate, 0)
 {
 }
 
+/*!
+    Destroys the MIME data object.
+*/
 QMimeData::~QMimeData()
 {
 }
 
+/*!
+    Returns a list of URLs contained within the MIME data object.
+*/
 QList<QUrl> QMimeData::urls() const
 {
     QVariant data = retrieveData("text/uri-list", QVariant::Url);
@@ -74,6 +92,9 @@ QList<QUrl> QMimeData::urls() const
     return urls;
 }
 
+/*!
+    Sets the URLs stored in the MIME data object to those specified by \a urls.
+*/
 void QMimeData::setUrls(const QList<QUrl> &urls)
 {
     Q_D(QMimeData);
@@ -83,6 +104,9 @@ void QMimeData::setUrls(const QList<QUrl> &urls)
     d->data["text/uri-list"] = list;
 }
 
+/*!
+    Returns a plain text representation of the data.
+*/
 QString QMimeData::text() const
 {
     QVariant data = retrieveData("text/plain", QVariant::String);
@@ -93,12 +117,19 @@ QString QMimeData::text() const
     return QString();
 }
 
+/*!
+    Sets \a text as the plain text used to represent the data.
+*/
 void QMimeData::setText(const QString &text)
 {
     Q_D(QMimeData);
     d->data["text/plain"] = text;
 }
 
+/*!
+    Returns a string if the data stored in the object is HTML;
+    otherwise returns a null string.
+*/
 QString QMimeData::html() const
 {
     QVariant data = retrieveData("text/html", QVariant::String);
@@ -109,12 +140,19 @@ QString QMimeData::html() const
     return QString();
 }
 
+/*!
+    Sets the data in the object to the HTML in the \a html string.
+*/
 void QMimeData::setHtml(const QString &html)
 {
     Q_D(QMimeData);
     d->data["text/html"] = html;
 }
 
+/*!
+    Returns a pixmap if the data stored in the object is in the correct
+    form; otherwise returns a null pixmap.
+*/
 QPixmap QMimeData::pixmap() const
 {
     QVariant data = retrieveData("image/ppm", QVariant::Pixmap);
@@ -124,12 +162,19 @@ QPixmap QMimeData::pixmap() const
     return QPixmap();
 }
 
+/*!
+    Sets the data in the object to the given \a pixmap.
+*/
 void QMimeData::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QMimeData);
     d->data["image/ppm"] = pixmap;
 }
 
+/*!
+    Returns a color if the data stored in the object represents a color;
+    otherwise returns a null color.
+*/
 QColor QMimeData::color() const
 {
     QVariant data = retrieveData("application/x-color", QVariant::Color);
@@ -139,36 +184,60 @@ QColor QMimeData::color() const
     return QColor();
 }
 
+/*!
+    Sets the data in the object to the given \a color.
+*/
 void QMimeData::setColor(const QColor &color)
 {
     Q_D(QMimeData);
     d->data["application/x-color"] = color;
 }
 
+/*!
+    Returns the data stored in the object in the format described by the
+    MIME type specified by \a mimetype.
+*/
 QByteArray QMimeData::data(const QString &mimetype) const
 {
     QVariant data = retrieveData(mimetype, QVariant::ByteArray);
     return data.toByteArray();
 }
 
+/*!
+    Sets the data associated with the MIME type given by \a mimetype to the
+    specified \a data.
+*/
 void QMimeData::setData(const QString &mimetype, const QByteArray &data)
 {
     Q_D(QMimeData);
     d->data[mimetype] = QVariant(data);
 }
 
+/*!
+    Returns true if the object can return data for the MIME type specified by
+    \a mimetype; otherwise returns false.
+*/
 bool QMimeData::hasFormat(const QString &mimetype) const
 {
     Q_D(const QMimeData);
     return d->data.contains(mimetype);
 }
 
+/*!
+    Returns a list of formats supported by the object. This is a list of
+    MIME types for which the object can return suitable data.
+*/
 QStringList QMimeData::formats() const
 {
     Q_D(const QMimeData);
     return d->data.keys();
 }
 
+/*!
+    Returns a variant with the given \a type containing data for the MIME
+    type specified by \a mimetype. If the object does not support the
+    MIME type or variant type given, a null variant is returned instead. ###
+*/
 QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {
     Q_D(const QMimeData);
@@ -238,6 +307,9 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
     return result;
 }
 
+/*!
+    Removes all the MIME type and data entries in the object.
+*/
 void QMimeData::clear()
 {
     Q_D(QMimeData);
