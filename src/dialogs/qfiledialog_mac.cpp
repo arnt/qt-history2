@@ -80,7 +80,7 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 		
 		qDebug("%s", tmp);
 		for (QListIterator<QRegExp> it(*filt); it.current(); ++it ) {
-		    if(it.current()->match( tmp ))
+		    if(it.current()->exactMatch( tmp ))
 			return true;
 		}
 	    }

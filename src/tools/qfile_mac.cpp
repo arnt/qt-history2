@@ -62,7 +62,6 @@ bool QFile::remove( const QString &fileName )
 	return FALSE;
     }
     return unlink( QFile::encodeName(fileName) ) == 0;	
-    // unlink more common in UNIX
 }
 
 #if defined(O_NONBLOCK)

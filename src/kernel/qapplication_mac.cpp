@@ -719,7 +719,7 @@ bool QApplication::processNextEvent( bool canWait )
 	EventRef event;
 	OSStatus ret;
 	do {
-	    ret = ReceiveNextEvent( 0, 0, kEventDurationNoWait, TRUE, &event );
+	    ret = ReceiveNextEvent( 0, 0, 0.01, TRUE, &event );
 	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr) 
 		break;
 	    ret = SendEventToApplication(event);

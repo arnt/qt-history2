@@ -48,7 +48,7 @@
 #include <qmainwindow.h>
 #include <qtimer.h>
 
-#ifdef Q_WS_MACX
+#if defined( Q_WS_MACX ) || defined( Q_WS_MAC9 )
 #define MAC_DRAG_HACK
 #endif
 
