@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#97 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#98 $
 #
 # this is a massive hack, written very quickly
 #
@@ -949,6 +949,9 @@ sub readc {
 	} elsif ($doc =~ m@^\\example\s+([\w\./]+)\s+(.*?)\s*$@s) {
 	    # it's an example file
 	    $examples{$1} = $2;
+	} elsif ($doc =~ m@^\\tutorial\s+([\w\./]+)\s+(.*?)\s*$@s) {
+	    # it's a tutorial file
+	    $tutorials{$1} = $2;
 	} else {
 	    # it's a function, \fn or real?
 	    print "";
@@ -1557,7 +1560,7 @@ sub classindex {
 <html>
 <head><title>Qt Toolkit - Class List</title></head>
 <body>
-<h1>Semi-Complete Qt Class List</h1>
+<h1>Qt Class Index</h1>
 <ul compact>
 ";
     open(P, "> $outputdir/classes69.html")
@@ -1567,7 +1570,7 @@ sub classindex {
 <head><title>Qt Toolkit - Class List</title></head>
 <body>
 <h1>Annotated Qt Class Index</h1>
-<p>Here are the classes that make up Qt, with brief descriptions:
+<p>Here are the classes in Qt, with brief descriptions:
 <ul compact>
 ";
     foreach $url ( sort keys %type ) {
@@ -1623,9 +1626,10 @@ sub exampleindex {
     print O $doctype, "<html><head><title>Qt toolkit - Example Index</title></head><body>\n<h1>Qt Example Index</h1>\n<p>Here are some of the examples that are included with Qt:\n<ul compact>";
     foreach $filename ( sort keys %examples ) {
 	$_ = $filename;
-	s@.*/@@;
-	s/\.cpp$/-cpp.html/;
-	print O "<li><a href=", $_, ">", $filename, "</a>\n";
+	$htmlfilename = $filename;
+	$htmlfilename =~ s@/@-@;
+	$htmlfilename =~ s/\.cpp/-cpp.html/;
+	print O "<li><a href=", $htmlfilename, ">", $filename, "</a>\n";
     }
     print O 
 "</ul>
@@ -1729,10 +1733,6 @@ Qt toolkit - ", $_, " member list
 <a href=", $anchor{$_}, ">", $_, "</a>, including all inherited members.
 
 <p>
-
-The document generator doesn't understand all the C++ inheritance and
-scope rules, so this list may not be completely accurate.  It's a
-problem, and we'll fix it before 1.0.
 
 <ul>
 ";
