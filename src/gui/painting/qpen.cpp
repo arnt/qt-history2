@@ -105,7 +105,7 @@ void QPen::init(const QColor &color, float width, uint linestyle)
 
 QPen::QPen()
 {
-    init(Qt::black, 0, Qt::SolidLine);
+    init(Qt::black, 0, Qt::SolidLine | Qt::SquareCap);
 }
 
 /*!
@@ -117,7 +117,7 @@ QPen::QPen()
 
 QPen::QPen(Qt::PenStyle style)
 {
-    init(Qt::black, 0, style);
+    init(Qt::black, 0, style | Qt::SquareCap);
 }
 
 /*!
@@ -129,7 +129,7 @@ QPen::QPen(Qt::PenStyle style)
 
 QPen::QPen(const QColor &color, float width, Qt::PenStyle style)
 {
-    init(color, width, style);
+    init(color, width, style | Qt::SquareCap);
 }
 
 /*!
