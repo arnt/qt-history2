@@ -93,7 +93,7 @@
 */
 
 /*!
-    enum QSql::TableType
+    \enum QSql::TableType
 
     This enum type describes types of tables
 
