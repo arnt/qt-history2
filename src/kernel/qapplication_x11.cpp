@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#576 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#577 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -743,7 +743,7 @@ extern "C" {
 #endif
 
 #ifdef USE_X11R6_XIM
-static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)    
+static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
 {
     QApplication::create_xim();
 }
@@ -751,7 +751,7 @@ static void xim_create_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*c
 static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*call_data*/)
 {
     QApplication::close_xim();
-    
+
     XRegisterIMInstantiateCallback(appDpy,0,0,0,(XIMProc)xim_create_callback,0);
 
 }
@@ -760,8 +760,8 @@ static void xim_destroy_callback(XIM /*im*/,XPointer /*client_data*/,XPointer /*
 #if defined(Q_C_CALLBACKS)
 }
 #endif
-    
-    
+
+
     /*!
   \internal
 */
@@ -2763,9 +2763,8 @@ void QApplication::openPopup( QWidget *popup )
     if ( popupWidgets->count() == 1 && !qt_nograb() ){ // grab mouse/keyboard
 	int r;
 	r = XGrabKeyboard( popup->x11Display(), popup->winId(), TRUE,
-			   GrabModeSync, GrabModeSync, CurrentTime );
+			   GrabModeSync, GrabModeAsync, CurrentTime );
 	if ( (popupGrabOk = (r == GrabSuccess)) ) {
-	    XAllowEvents( popup->x11Display(), SyncKeyboard, CurrentTime );
 	    r = XGrabPointer( popup->x11Display(), popup->winId(), TRUE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 				     ButtonMotionMask | EnterWindowMask |
@@ -3749,10 +3748,6 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 #endif
 #endif
 
-    if ( qApp->inPopupMode() ) {			// in popup mode
-	if ( popupGrabOk )
-	    XAllowEvents( x11Display(), SyncKeyboard, CurrentTime );
-    }
 
     // convert chars (8bit) to text (unicode).
     if ( input_mapper )
