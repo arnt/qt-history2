@@ -16113,6 +16113,9 @@ QCString QString::utf8() const
 */
 QString QString::fromUtf8( const char* utf8, int len )
 {
+    if ( !utf8 )
+	return QString::null;
+    
     if ( len < 0 ) len = qstrlen( utf8 );
     QString result;
     result.setLength( len ); // worst case
