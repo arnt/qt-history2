@@ -28,8 +28,8 @@ public:
     QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
-    bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
-    bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
+    bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
+    bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
     bool isSelectable(const QModelIndex &index) const;
     bool isEditable(const QModelIndex &index) const;
@@ -115,7 +115,7 @@ void QListModel::append(const QListWidgetItem &item)
 {
     lst.append(item);
     int row = lst.count() - 1;
-    emit rowsInserted(QModelIndex(), row, row);
+    emit rowsInserted(QModelIndex::Null, row, row);
 }
 
 /*!

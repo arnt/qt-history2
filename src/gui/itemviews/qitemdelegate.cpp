@@ -128,7 +128,7 @@ QItemDelegate::~QItemDelegate()
 
 void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QAbstractItemModel *model, const QModelIndex &index) const
-{
+{    
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
     QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
@@ -319,14 +319,10 @@ void QItemDelegate::drawDecoration(QPainter *painter, const QStyleOptionViewItem
         if (option.state & QStyle::Style_Selected) {
             QColor col = option.palette.highlight();
             col.setRgba(col.red(), col.green(), col.blue(), 127);
-#if 1
             QPen pen = painter->pen();
             painter->setPen(col);
             painter->drawPixmap(rect.topLeft(), *pixmap.mask());
             painter->setPen(pen);
-#else
-            painter->fillRect(rect, col);
-#endif
         }
     }
 }

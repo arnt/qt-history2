@@ -968,10 +968,10 @@ QModelIndex QListView::itemAt(int x, int y) const
     else
         d->intersectingDynamicSet(rect);
     QModelIndex index = d->intersectVector.count() > 0
-                        ? d->intersectVector.first() : QModelIndex::invalid;
+                        ? d->intersectVector.first() : QModelIndex::Null;
     if (index.isValid() && itemViewportRect(index).contains(QPoint(x, y)))
         return index;
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!

@@ -24,11 +24,15 @@ public:
     virtual void setRowCount(int rows);
     virtual void setColumnCount(int columns);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null,
+                            int count = 1);
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null,
+                               int count = 1);
 
-    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex(), int count = 1);
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null,
+                            int count = 1);
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
+                               int count = 1);
 
     virtual void setText(int row, int column, const QString &text);
     virtual void setIconSet(int row, int column, const QIconSet &iconSet);
@@ -49,7 +53,7 @@ public:
     QTableWidgetItem item(int row, int column) const;
     QTableWidgetItem item(const QModelIndex &index) const;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
 
     int rowCount() const;
@@ -91,7 +95,7 @@ void QTableModel::setRowCount(int rows)
     int bottom = qMax(r - 1, 0);
 
     if (r < _r)
-        emit rowsRemoved(QModelIndex(), top, bottom);
+        emit rowsRemoved(QModelIndex::Null, top, bottom);
 
     table.resize(s); // FIXME: this will destroy the layout
     leftHeader.resize(r);
@@ -99,7 +103,7 @@ void QTableModel::setRowCount(int rows)
         leftHeader[j].setText(QString::number(j));
 
     if (r >= _r)
-        emit rowsInserted(QModelIndex(), top, bottom);
+        emit rowsInserted(QModelIndex::Null, top, bottom);
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -114,7 +118,7 @@ void QTableModel::setColumnCount(int columns)
     int right = qMax(c - 1, 0);
 
     if (c < _c)
-        emit columnsRemoved(QModelIndex(), left, right);
+        emit columnsRemoved(QModelIndex::Null, left, right);
 
     table.resize(s); // FIXME: this will destroy the layout
     topHeader.resize(c);
@@ -122,7 +126,7 @@ void QTableModel::setColumnCount(int columns)
         topHeader[j].setText(QString::number(j));
 
     if (c >= _c)
-        emit columnsInserted(QModelIndex(), left, right);
+        emit columnsInserted(QModelIndex::Null, left, right);
 }
 
 bool QTableModel::insertRows(int, const QModelIndex &, int)
@@ -252,7 +256,7 @@ QModelIndex QTableModel::index(int row, int column, const QModelIndex &, QModelI
 {
     if (row >= 0 && row < r && column >= 0 && column < c)
         return createIndex(row, column, 0, type);
-    return QModelIndex();
+    return QModelIndex::Null;
 }
 
 int QTableModel::rowCount() const

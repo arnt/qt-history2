@@ -25,8 +25,8 @@ class Q_GUI_EXPORT QModelIndex
 {
     friend class QAbstractItemModel;
 public:
-    enum Type { View, HorizontalHeader, VerticalHeader };
-    inline QModelIndex() : r(-1), c(-1), d(0), t(View) {}
+    enum Type { Null, View, HorizontalHeader, VerticalHeader };
+    inline QModelIndex(Type type = Null) : r(-1), c(-1), d(0), t(type) {}
     inline QModelIndex(const QModelIndex &other)
         : r(other.row()), c(other.column()), d(other.data()), t(other.t) {}
     inline ~QModelIndex() { d = 0; }
@@ -34,11 +34,10 @@ public:
     inline int column() const { return c; }
     inline void *data() const { return d; }
     inline Type type() const { return t; }
-    inline bool isValid() const { return (r >= 0) && (c >= 0); }
+    inline bool isValid() const { return (t != Null) && (r >= 0) && (c >= 0); }
     inline bool operator==(const QModelIndex &other) const
     { return (other.r == r && other.c == c && other.d == d && other.t == t); }
     inline bool operator!=(const QModelIndex &other) const { return !(*this == other); }
-    static const QModelIndex invalid;
 private:
     inline QModelIndex(int row, int column, void *data, Type type)
         : r(row), c(column), d(data), t(type) {}
@@ -119,7 +118,7 @@ public:
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::invalid,
+    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                               QModelIndex::Type type = QModelIndex::View) const = 0;
     virtual QModelIndex parent(const QModelIndex &child) const = 0;
 
@@ -131,7 +130,7 @@ public:
     virtual bool hasChildren(const QModelIndex &parent) const;
 
     virtual bool canDecode(QMimeSource *src) const;
-    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex::invalid);
+    virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex::Null);
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
     virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
@@ -142,13 +141,13 @@ public:
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
 
-    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::invalid,
+    virtual bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null,
                             int count = 1);
-    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::invalid,
+    virtual bool insertColumns(int column, const QModelIndex &parent = QModelIndex::Null,
                                int count = 1);
-    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::invalid,
+    virtual bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null,
                             int count = 1);
-    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::invalid,
+    virtual bool removeColumns(int column, const QModelIndex &parent = QModelIndex::Null,
                                int count = 1);
 
     virtual bool isSelectable(const QModelIndex &index) const;
@@ -185,7 +184,7 @@ protected:
 
     bool isValid(int row, int column, const QModelIndex &parent) const;
 
-    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::invalid);
+    void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);
     int persistentIndexesCount() const;
     QModelIndex persistentIndexAt(int position) const;
     void setPersistentIndex(int position, const QModelIndex &index);
@@ -206,7 +205,7 @@ public:
     virtual int rowCount() const = 0;
     virtual int columnCount() const = 0;
 
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::invalid,
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
 
 protected:
@@ -230,7 +229,7 @@ public:
     virtual int rowCount() const = 0;
     int columnCount() const { return 1; }
     
-    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::invalid,
+    QModelIndex index(int row, int column = 0, const QModelIndex &parent = QModelIndex::Null,
                       QModelIndex::Type type = QModelIndex::View) const;
     
 protected:

@@ -21,8 +21,6 @@
 #include <qdebug.h>
 #include <private/qabstractitemmodel_p.h>
 
-const QModelIndex QModelIndex::invalid;
-
 class QAbstractItemModelDrag : public QDragObject
 {
 public:
@@ -944,7 +942,7 @@ bool QAbstractItemModel::lessThan(const QModelIndex &left, const QModelIndex &ri
 */
 QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 {
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!
@@ -1066,7 +1064,7 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
     bool all = !parent.isValid();
     for (int i = 0; i < d->persistentIndexes.count(); ++i) {
         if (all || this->parent(d->persistentIndexes.at(i)->index) == parent) {
-            d->persistentIndexes[i]->index = QModelIndex::invalid;
+            d->persistentIndexes[i]->index = QModelIndex::Null;
             d->persistentIndexes[i]->model = 0;
         }
     }
@@ -1202,7 +1200,7 @@ QAbstractTableModel::~QAbstractTableModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex::invalid, QModelIndex::Type type = QModelIndex::View) const
+    \fn QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null, QModelIndex::Type type = QModelIndex::View) const
 
     Returns the index of the data in \a row and \a column with \a
     parent, of the given \a type.
@@ -1213,7 +1211,7 @@ QAbstractTableModel::~QAbstractTableModel()
 QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::invalid;
+    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::Null;
 }
 
 /*!
@@ -1226,7 +1224,7 @@ QModelIndex QAbstractTableModel::index(int row, int column, const QModelIndex &p
 
 QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
 {
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!
@@ -1343,7 +1341,7 @@ QAbstractListModel::~QAbstractListModel()
 }
 
 /*!
-    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex::invalid, QModelIndex::Type type = QModelIndex::View) const
+    \fn QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent = QModelIndex::Null, QModelIndex::Type type = QModelIndex::View) const
 
     Returns the index of the data in \a row and \a column with \a
     parent, of the given \a type.
@@ -1354,7 +1352,7 @@ QAbstractListModel::~QAbstractListModel()
 QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &parent,
                                      QModelIndex::Type type) const
 {
-    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::invalid;
+    return isValid(row, column, parent) ? createIndex(row, column, 0, type) : QModelIndex::Null;
 }
 
 /*!
@@ -1367,7 +1365,7 @@ QModelIndex QAbstractListModel::index(int row, int column, const QModelIndex &pa
 
 QModelIndex QAbstractListModel::parent(const QModelIndex &) const
 {
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!

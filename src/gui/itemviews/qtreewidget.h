@@ -38,7 +38,7 @@ public:
     inline QTreeWidgetItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
 
-    inline int columnCount() const { return c; }
+    inline int columnCount() const { return columns; }
     inline QString text(int column) const
         { return data(column, QAbstractItemModel::DisplayRole).toString(); }
     inline QIconSet iconSet(int column) const
@@ -47,7 +47,7 @@ public:
     inline bool isEditable() const { return edit; }
     inline bool isSelectable() const { return select; }
 
-    void setColumnCount(int columns);
+    void setColumnCount(int count);
     inline void setText(int column, const QString &text)
         { setData(column, QAbstractItemModel::DisplayRole, text); }
     inline void setIconSet(int column, const QIconSet &iconSet)
@@ -81,7 +81,7 @@ private:
 
     QVector< QVector<Data> > values;
     QTreeWidget *view;
-    int c;
+    int columns;
     uint edit : 1;
     uint select : 1;
 };

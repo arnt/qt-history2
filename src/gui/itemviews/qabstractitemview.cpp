@@ -388,7 +388,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
 //        QObject::connect(d->model, SIGNAL(reset()), this, SLOT(reset()));
     }
 
-    setRoot(QModelIndex::invalid);
+    setRoot(QModelIndex::Null);
 
     d->selectionModel = 0;
     setSelectionModel(new QItemSelectionModel(d->model, this));
@@ -924,7 +924,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     QModelIndex current = currentItem();
     if (!current.isValid()) {
         hadCurrent = false;
-        setCurrentItem(model()->index(0, 0, QModelIndex::invalid));
+        setCurrentItem(model()->index(0, 0, QModelIndex::Null));
     }
     QModelIndex newCurrent = current;
     if (hadCurrent) {

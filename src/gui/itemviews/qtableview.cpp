@@ -380,7 +380,7 @@ QModelIndex QTableView::itemAt(int x, int y) const
     int c = columnAt(x);
     if (r >= 0 && c >= 0)
         return model()->index(r, c, root());
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!
@@ -446,7 +446,7 @@ QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         int newRow = rowAt(itemViewportRect(current).bottom() + d->viewport->height());
         return model()->index(newRow >= 0 ? newRow : bottom, current.column(), root());
     }}
-    return QModelIndex::invalid;
+    return QModelIndex::Null;
 }
 
 /*!
