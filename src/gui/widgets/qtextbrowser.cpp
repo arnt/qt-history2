@@ -702,12 +702,6 @@ void QTextBrowser::paintEvent(QPaintEvent *e)
     Q_D(QTextBrowser);
     QPainter p(d->viewport);
     d->paint(&p, e);
-
-    if (!d->focusIndicator.hasSelection())
-        return;
-
-    // draw focus rect in addition
-    // ###########
 }
 
 /*!
