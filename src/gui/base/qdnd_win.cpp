@@ -1067,7 +1067,7 @@ void QDragManager::updatePixmap()
 		int h = y2-y1+1;
 
 #ifndef Q_OS_TEMP
-		if ( qWinVersion() & WV_DOS_based ) {
+		if ( QSysInfo::WindowsVersion & WV_DOS_based ) {
 		    // Limited cursor size
 		    int reqw = GetSystemMetrics(SM_CXCURSOR);
 		    int reqh = GetSystemMetrics(SM_CYCURSOR);

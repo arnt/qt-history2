@@ -150,7 +150,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     }
     data->w = w;
     data->h = h;
-    if ( data->optim == MemoryOptim && ( qWinVersion() & WV_DOS_based ) ) {
+    if ( data->optim == MemoryOptim && ( QSysInfo::WindowsVersion & WV_DOS_based ) ) {
 	hdc = 0;
 	if ( allocCell() >= 0 )			// successful
 	    return;
@@ -382,7 +382,7 @@ void QPixmap::setOptimization( Optimization optimization )
 	    delete data->maskpm;
 	    data->maskpm = 0;
 	}
-	if ( qWinVersion() & WV_DOS_based )
+	if ( QSysInfo::WindowsVersion & WV_DOS_based )
 	    allocCell();
     } else {
 	if ( data->mcp )
@@ -1331,7 +1331,7 @@ static int index_of_mcp_list( int width, bool mono, int *size=0 )
 */
 int QPixmap::allocCell()
 {
-    if ( qWinVersion() & WV_NT_based )		// only for NT based systems
+    if ( QSysInfo::WindowsVersion & WV_NT_based )		// only for NT based systems
 	return -1;
     if ( !mcp_lists_init )
 	init_mcp();

@@ -499,7 +499,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
     HDC hdc;
     if ( paintdevice ) {
 	hdc = paintdevice->handle();
-    } else if ( qWinVersion() & Qt::WV_NT_based ) {
+    } else if ( QSysInfo::WindowsVersion & Qt::WV_NT_based ) {
 	hdc = GetDC( 0 );
     } else {
 	hdc = shared_dc;
@@ -512,7 +512,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
     if ( fp->rawMode ) {			// will choose a stock font
 	int f, deffnt;
 	// ### why different?
-	if ( (qWinVersion() & Qt::WV_NT_based) || qWinVersion() == Qt::WV_32s )
+	if ( (QSysInfo::WindowsVersion & Qt::WV_NT_based) || QSysInfo::WindowsVersion == Qt::WV_32s )
 	    deffnt = SYSTEM_FONT;
 	else
 	    deffnt = DEFAULT_GUI_FONT;
@@ -611,7 +611,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 #endif
 
 	if ( request.styleStrategy & QFont::PreferAntialias ) {
-	    if ( qWinVersion() >= Qt::WV_XP )
+	    if ( QSysInfo::WindowsVersion >= Qt::WV_XP )
 		qual = 5; // == CLEARTYPE_QUALITY;
 	    else
 		qual = ANTIALIASED_QUALITY;
@@ -686,7 +686,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
 #endif
 
     }
-    if( !paintdevice && (qWinVersion() & Qt::WV_DOS_based) )
+    if( !paintdevice && (QSysInfo::WindowsVersion & Qt::WV_DOS_based) )
 	hdc = 0;
     QFontEngine *fe = new QFontEngineWin( family->name, hdc, hfont, stockFont, lf );
     if ( paintdevice )

@@ -462,7 +462,7 @@ static void qt_set_windows_resources()
     pal.setColor( QPalette::Link, Qt::blue );
     pal.setColor( QPalette::LinkVisited, Qt::magenta );
 
-    if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 ) {
+    if ( QSysInfo::WindowsVersion != Qt::WV_NT && QSysInfo::WindowsVersion != Qt::WV_95 ) {
 	if ( pal.midlight() == pal.button() )
 	    pal.setColor( QPalette::Midlight, pal.button().color().light(110) );
 	if ( pal.background() != pal.base() ) {
@@ -498,7 +498,7 @@ static void qt_set_windows_resources()
 	menu.setColor( QPalette::Disabled, QPalette::Foreground, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Text, disabled );
 	menu.setColor( QPalette::Disabled, QPalette::Highlight,
-		       QColor(qt_colorref2qrgb(GetSysColor(qWinVersion() == Qt::WV_XP
+		       QColor(qt_colorref2qrgb(GetSysColor(QSysInfo::WindowsVersion == Qt::WV_XP
 							   ? COLOR_MENUHILIGHT
 							   : COLOR_HIGHLIGHT))));
 	menu.setColor( QPalette::Disabled, QPalette::HighlightedText, disabled);
@@ -511,12 +511,12 @@ static void qt_set_windows_resources()
 		      menu.color(QPalette::Active, QPalette::Foreground));
 	menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 		      menu.color(QPalette::Active, QPalette::ButtonText));
-	if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 )
+	if ( QSysInfo::WindowsVersion != Qt::WV_NT && QSysInfo::WindowsVersion != Qt::WV_95 )
 	    menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
 	QApplication::setPalette( menu, "QPopupMenu");
 
-	if ( qWinVersion() == Qt::WV_XP ) {
+	if ( QSysInfo::WindowsVersion == Qt::WV_XP ) {
 	    BOOL isFlat;
 	    SystemParametersInfo( 0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0 );
 	    if ( isFlat ) {
@@ -739,7 +739,7 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 #else
 	style = CS_DBLCLKS;
 #endif
-	if ( qWinVersion() == Qt::WV_XP )
+	if ( QSysInfo::WindowsVersion == Qt::WV_XP )
 	    style |= 0x00020000;		// CS_DROPSHADOW
 	icon  = FALSE;
     }
@@ -3366,7 +3366,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	animate_ui = enable;
 	break;
     }
-    if ( desktopSettingsAware() && !( qWinVersion() == WV_95 || qWinVersion() == WV_NT ) ) {
+    if ( desktopSettingsAware() && !( QSysInfo::WindowsVersion == WV_95 || QSysInfo::WindowsVersion == WV_NT ) ) {
 	// we know that they can be used when we are here
 	UINT api;
 	switch (effect) {
@@ -3374,7 +3374,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qWinVersion() & WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & WV_DOS_based )
 		return;
 	    api = SPI_SETMENUFADE;
 	    break;
@@ -3385,7 +3385,7 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
 	    api = SPI_SETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qWinVersion() & WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & WV_DOS_based )
 		return;
 	    api = SPI_SETTOOLTIPFADE;
 	    break;
@@ -3407,7 +3407,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     if ( QColor::numBitPlanes() < 16 )
 	return FALSE;
 
-    if ( !effect_override && desktopSettingsAware() && !( qWinVersion() == WV_95 || qWinVersion() == WV_NT ) ) {
+    if ( !effect_override && desktopSettingsAware() && !( QSysInfo::WindowsVersion == WV_95 || QSysInfo::WindowsVersion == WV_NT ) ) {
 	// we know that they can be used when we are here
 	BOOL enabled = FALSE;
 	UINT api;
@@ -3416,7 +3416,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETMENUANIMATION;
 	    break;
 	case UI_FadeMenu:
-	    if ( qWinVersion() & WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & WV_DOS_based )
 		return FALSE;
 	    api = SPI_GETMENUFADE;
 	    break;
@@ -3424,13 +3424,13 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 	    api = SPI_GETCOMBOBOXANIMATION;
 	    break;
 	case UI_AnimateTooltip:
-	    if ( qWinVersion() & WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & WV_DOS_based )
 		api = SPI_GETMENUANIMATION;
 	    else
 		api = SPI_GETTOOLTIPANIMATION;
 	    break;
 	case UI_FadeTooltip:
-	    if ( qWinVersion() & WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & WV_DOS_based )
 		return FALSE;
 	    api = SPI_GETTOOLTIPFADE;
 	    break;

@@ -172,7 +172,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent)
 					text );
     }
 #if defined(Q_WS_WIN)
-    if ( (qWinVersion()&WV_NT_based) > WV_2000 ) {
+    if ( (QSysInfo::WindowsVersion&WV_NT_based) > WV_2000 ) {
 	BOOL shadow;
 	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
 	shadowWidth = shadow ? 0 : 6;
@@ -250,7 +250,7 @@ void QWhatsThat::paintEvent( QPaintEvent* )
 {
     bool drawShadow = TRUE;
 #if defined(Q_WS_WIN)
-    if ( (qWinVersion()&WV_NT_based) > WV_2000 ) {
+    if ( (QSysInfo::WindowsVersion&WV_NT_based) > WV_2000 ) {
 	BOOL shadow;
 	SystemParametersInfo( SPI_GETDROPSHADOW, 0, &shadow, 0 );
 	drawShadow = !shadow;

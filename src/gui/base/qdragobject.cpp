@@ -833,7 +833,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 	    // Don't include NUL in size (QByteArray::resize() adds NUL)
 #if defined(Q_WS_WIN)
 	    // This is needed to ensure the \0 isn't lost on Windows 95
-	    if ( qWinVersion() & Qt::WV_DOS_based )
+	    if ( QSysInfo::WindowsVersion & Qt::WV_DOS_based )
 		((QByteArray&)r).resize(r.length()+1);
 	    else
 #endif

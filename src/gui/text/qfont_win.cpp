@@ -177,7 +177,7 @@ void QFontPrivate::load( QFont::Script script )
 	    subs_list += QFont::substitutes( *it );
 	family_list += subs_list;
 
-	if(qWinVersion() & Qt::WV_DOS_based && req.family.toLower() == "ms sans serif") {
+	if(QSysInfo::WindowsVersion & Qt::WV_DOS_based && req.family.toLower() == "ms sans serif") {
 	    // small hack for Dos based machines to get the right font for non
 	    // latin text when using the default font.
 	    family_list << "Arial" << "Tahoma" << "Verdana";
@@ -392,7 +392,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     layout.itemize( QTextEngine::WidthOnly );
     int w = layout.width( pos, 1 ).toInt();
 
-    if ( (qWinVersion() & Qt::WV_NT_based) == 0 ) {
+    if ( (QSysInfo::WindowsVersion & Qt::WV_NT_based) == 0 ) {
 	QFontEngine *engine = d->engineForScript( (QFont::Script) fscript );
 	Q_ASSERT( engine != 0 );
 	w -= TMX.tmOverhang;

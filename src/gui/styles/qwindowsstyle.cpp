@@ -190,7 +190,7 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 QWindowsStyle::QWindowsStyle() : QCommonStyle(), d(0)
 {
 #if defined(Q_OS_WIN32)
-    use2000style = qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95;
+    use2000style = QSysInfo::WindowsVersion != Qt::WV_NT && QSysInfo::WindowsVersion != Qt::WV_95;
 #endif
 }
 
@@ -2057,7 +2057,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
-	if ( qWinVersion() != WV_95 && qWinVersion() != WV_NT )
+	if ( QSysInfo::WindowsVersion != WV_95 && QSysInfo::WindowsVersion != WV_NT )
 	    ret = 1;
 	else
 #endif
@@ -2071,7 +2071,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 #if defined(Q_WS_WIN)
     case SH_UnderlineAccelerator:
 	ret = 1;
-	if ( qWinVersion() != WV_95 && qWinVersion() != WV_NT ) {
+	if ( QSysInfo::WindowsVersion != WV_95 && QSysInfo::WindowsVersion != WV_NT ) {
 	    BOOL cues;
 	    SystemParametersInfo(SPI_GETKEYBOARDCUES, 0, &cues, 0);
 	    ret = cues ? 1 : 0;

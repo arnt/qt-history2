@@ -1046,7 +1046,7 @@ QStyle& QApplication::style()
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
 	    style = "PocketPC";
 #elif defined(Q_WS_WIN)
-	    if ( qWinVersion() == WV_XP )
+	    if ( QSysInfo::WindowsVersion == WV_XP )
 		style = "WindowsXP";
 	    else
 		style = "Windows";		// default styles for Windows
