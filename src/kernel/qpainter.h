@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#66 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#67 $
 **
 ** Definition of QPainter class
 **
@@ -193,10 +193,10 @@ private:
     void	updateBrush();
     void	updateXForm();
 
-    enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04,
+    enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
 	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   FontSet=0x1000, FontMet=0x2000, FontInf=0x4000 };
+	   FontMet=0x1000, FontInf=0x2000 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
