@@ -75,6 +75,11 @@ static QHash<Qt::HANDLE, QPostEventList *> postEventListHash;
 
 Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
 {
+    if (QCoreApplication::closingDown()) { 
+        //closing down (postEventListHash could already be destructed)
+        return 0;
+    }
+
     const Qt::HANDLE current = QThread::currentThread();
     if (thread == 0) thread = current;
 
@@ -85,11 +90,6 @@ Q_CORE_EXPORT QPostEventList *qt_postEventList(Qt::HANDLE thread)
     postEventListHash.ensure_constructed();
     QPostEventList *plist = postEventListHash.value(thread);
     if (!plist) {
-        if (QCoreApplication::closingDown()) {
-            // closing down, cannot create new post event list
-            return 0;
-        }
-
         if (thread == current) {
             // creating post event list for current thread
             plist = new QPostEventList;
