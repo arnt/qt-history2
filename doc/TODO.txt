@@ -248,6 +248,9 @@ XML Query mechanism (rms?)
 Multi-head display support?
     ... was asked by a lot of people on qt-interest.
 
+Syntax coloring
+    ... a version of QMultiLineEdit that allows syntax coloring 
+
 
 Extending existing functionality
 --------------------------------
