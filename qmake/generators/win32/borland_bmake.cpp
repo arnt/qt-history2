@@ -366,6 +366,13 @@ BorlandMakefileGenerator::init()
 	project->variables()["VER_MAJ"].append(l[0]);
 	project->variables()["VER_MIN"].append(l[1]);
     }
-    project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + ".tds");
+
+    QString tdsPostfix;
+    if ( !project->variables()["VERSION"].isEmpty()) {
+	tdsPostfix = QStringList::split('.',project->first("VERSION")).join("") + ".tds";
+    } else {
+	tdsPostfix = ".tds";
+    }
+    project->variables()["QMAKE_CLEAN"].append(project->first("DESTDIR") + project->first("TARGET") + tdsPostfix );
 }
 
