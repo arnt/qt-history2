@@ -97,7 +97,9 @@ bool QDateTimeEditBase::eventFilter( QObject *, QEvent * ev )
 	    } else if( focus == e[2] ){
 		i = 2;
 	    }
-	    if( e[i]->validator()->validate( e[i]->text(), 0 ) !=
+	    QString s = e[i]->text();
+	    int pos = 0;
+	    if( e[i]->validator()->validate( s, pos ) !=
 		QValidator::Acceptable )
 	    {
 		e[i]->setSelection( 0, e[i]->text().length() );
@@ -139,7 +141,6 @@ void QDateEdit::resizeEvent( QResizeEvent * )
 {
     int msize = 6;
     int h = height();
-    int w;
     int numSize  = fontMetrics().width( "xxxx" );
     int yearSize = fontMetrics().width( "xxxxxx" );
         
@@ -195,7 +196,7 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     int msize = 6;
     int h = height();
     int w;
-    int numSize  = fontMetrics().width( "xxxx" );
+//    int numSize  = fontMetrics().width( "xxxx" );
         
     w = (width() - up->width()) / 3;
     e[0]->resize( w - msize, h );
