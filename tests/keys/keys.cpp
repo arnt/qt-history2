@@ -15,22 +15,33 @@ public:
     {
 	log.setReadOnly(TRUE);
 	log.setFont(QFont("courier",10));
-	dump(0,0);
+	dump(0,(QKeyEvent*)0);
     }
 
     void resizeEvent(QResizeEvent*)
     {
+	debug("Main got resized");
 	log.setGeometry(0,0,width()/2,height());
     }
 
     void keyPressEvent(QKeyEvent* e)
     {
-	dump("Pr", e);
+	dump("Kv", e);
     }
 
     void keyReleaseEvent(QKeyEvent* e)
     {
-	dump("Re", e);
+	dump("K^", e);
+    }
+
+    void mousePressEvent(QMouseEvent* e)
+    {
+	dump("Mv", e);
+    }
+
+    void mouseReleaseEvent(QMouseEvent* e)
+    {
+	dump("M^", e);
     }
 
     void dump(const char* type, QKeyEvent* e)
@@ -41,6 +52,15 @@ public:
 	else
 	    line.sprintf("%2s %6x %3x(%c) %3x", type, e->key(), e->ascii(),
 		e->ascii() ? e->ascii() : ' ', e->state());
+	log.insertLine( line );
+	log.setCursorPosition(999999,0);
+    }
+
+    void dump(const char* type, QMouseEvent* e)
+    {
+	QString line;
+	line.sprintf("%2s %6s %3s %c  %3x", type, "", "",
+		' ', e->state());
 	log.insertLine( line );
 	log.setCursorPosition(999999,0);
     }

@@ -191,7 +191,8 @@ void Urk::popup()
 {
     debug( "Urk::popup()");
     //int i = pop->exec(pbutn->mapToGlobal(QPoint(0,0)));
-    int i = pop->exec(QCursor::pos());
+    //int i = pop->exec(QCursor::pos());
+    pop->move(200,200); int i = pop->exec();
 
     debug( "Menu returned %d", i );
 }
