@@ -22,10 +22,7 @@ inline uint qHash(unsigned long key) { return (uint) key; }
 uint qHash(const QByteArray &key);
 uint qHash(const QString &key);
 
-template <class T>
-inline uint qHash(T *key) { return (uint) key; }
-template <class T>
-inline uint qHash(const T *key) { return (uint) key; }
+template <class T> inline uint qHash(const T *key) { return (uint) key; }
 
 struct Q_EXPORT QHashData
 {
@@ -371,7 +368,7 @@ inline void QHash<Key, T>::insert(const Key &key, const T &value)
     if (node == e) {
 	node_create(h, key, value);
     } else {
-	if (d->autoDelete==this && node->value != value) 
+	if (d->autoDelete==this && node->value != value)
 	    qDelete(node->value);
 	node->value = value;
     }
@@ -385,7 +382,7 @@ bool QHash<Key, T>::remove(const Key &key)
     Node * &node = node_find(key);
     bool found = (node != e);
     if (found) {
-	if (d->autoDelete==this) 
+	if (d->autoDelete==this)
 	    qDelete(node->value);
 	Node *next = node->next;
 	delete node;
