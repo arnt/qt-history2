@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobjdefs.h#17 $
+** $Id: //depot/qt/main/src/kernel/qobjdefs.h#18 $
 **
 ** Macros and definitions related to QObject
 **
@@ -35,6 +35,7 @@ protected:								      \
 private:								      \
     static QMetaObject *metaObj;
 
+#define Q_OBJECT_FAKE Q_OBJECT
 						// macro for naming members
 #if defined(_OLD_CPP_)
 #define METHOD(a)	"0""a"

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.h#5 $
+** $Id: //depot/qt/main/src/kernel/qsignal.h#6 $
 **
 ** Definition of QSignal class
 **
@@ -18,7 +18,6 @@
 
 class QSignal : private QObject			// signal class
 {
-    Q_OBJECT
 public:
     QSignal( QObject *parent=0, const char *name=0 );
 
@@ -35,6 +34,7 @@ public:
 
 private:
     void    dummy();
+    Q_OBJECT_FAKE
 };
 
 
