@@ -12,7 +12,6 @@ public:
 
 private:
     bool createDir( QString fullPath );
-    QByteArray QString2OLESTR( QString );
 public:
     QString localProgramsFolderName;
     QString commonProgramsFolderName;
