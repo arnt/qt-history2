@@ -287,8 +287,6 @@ private:
 #endif
 
     static QSize     app_strut;
-    static QAsciiDict<QPalette> *app_palettes;
-    static QAsciiDict<QFont>    *app_fonts;
 
     static QWidgetList *popupWidgets;
     bool	     inPopupMode() const;

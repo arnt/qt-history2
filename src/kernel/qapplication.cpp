@@ -437,8 +437,8 @@ void qt_setMaxWindowRect(const QRect& r)
 */
 
 // Default application palettes and fonts (per widget type)
-QAsciiDict<QPalette> *QApplication::app_palettes = 0;
-QAsciiDict<QFont>    *QApplication::app_fonts = 0;
+static QAsciiDict<QPalette> *app_palettes = 0;
+static QAsciiDict<QFont> *app_fonts = 0;
 
 QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
 
@@ -456,11 +456,11 @@ void qt_create_std_palette()
     if ( qt_std_pal )
 	delete qt_std_pal;
 
-    QColor standardLightGray( 192, 192, 192 );
-    QColor light( 255, 255, 255 );
-    QColor dark( standardLightGray.dark( 150 ) );
-    qt_std_pal = new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray,
-			      Qt::black, Qt::white);
+    QColor standardLightGray(192, 192, 192);
+    QColor light(standardLightGray.light());
+    QColor dark(standardLightGray.dark());
+    qt_std_pal =
+	new QPalette(Qt::black, standardLightGray, light, dark, Qt::gray, Qt::black, Qt::white);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Foreground, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Text, Qt::darkGray);
     qt_std_pal->setBrush(QPalette::Disabled, QPalette::Base, qt_std_pal->background());
