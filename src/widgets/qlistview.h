@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#11 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#12 $
 **
 ** Definition of 
 **
@@ -33,8 +33,6 @@ public:
     virtual void insertItem( QListViewItem * );
     virtual void removeItem( QListViewItem * );
 
-    virtual int compare( int column, const QListViewItem * with ) const;
-
     int height() const { return ownHeight; }
     virtual void styleChange();
     virtual void invalidateHeight();
@@ -42,10 +40,14 @@ public:
 
     virtual const char * text( int ) const;
 
-    int children() const { return childCount; }
+    virtual const char * key( int ) const;
+    virtual void sortChildItems( int, bool );
+
+    int children() const;
 
     bool isOpen() const { return open && childCount>0; } // ###
     virtual void setOpen( bool );
+    virtual void createChildren();
 
     virtual void setSelected( bool );
     bool isSelected() const { return selected; }
@@ -60,17 +62,23 @@ public:
 
     virtual QListView *listView() const;
 
-protected:
     void setHeight( int );
+
+protected:
+    void enforceSortOrder();
 
 private:
     void init();
+    int realChildCount() const;
     int ownHeight;
     int maybeTotalHeight;
     int childCount;
 
     uint open : 1;
     uint selected : 1;
+    uint lsc: 15;
+    uint lso: 1;
+    uint createChildrenCalled: 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
@@ -80,6 +88,17 @@ private:
 
     friend QListView;
 };
+
+
+inline int QListViewItem::children() const
+{
+    if ( childCount )
+	return childCount;
+    else if ( createChildrenCalled )
+	return 0;
+    else
+	return realChildCount();
+}
 
 
 class QListView: public QScrollView
@@ -111,6 +130,8 @@ public:
     virtual void setCurrentItem( QListViewItem * );
     QListViewItem * currentItem() const;
 
+    virtual void setSorting( int column, bool increasing = TRUE );
+
 public slots:
     void triggerUpdate();
 
@@ -123,6 +144,7 @@ signals:
 
     void doubleClicked( QListViewItem * );
     void returnPressed( QListViewItem * );
+    void rightButtonClicked( QListViewItem *, const QPoint&, int );
 
 protected:
     bool eventFilter( QObject * o, QEvent * );
@@ -142,6 +164,9 @@ protected:
     
 protected slots:
     void updateContents();
+
+private slots:
+    void changeSortColumn( int );
 
 private:
     void doStyleChange( QListViewItem * );

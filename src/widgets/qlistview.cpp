@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#27 $
 **
 ** Implementation of something useful
 **
@@ -20,9 +20,13 @@
 #include "qpixmap.h"
 #include "qkeycode.h"
 
-#include <stdarg.h>
+#include <stdarg.h> // va_list
+#include <stdlib.h> // qsort
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#27 $");
+
+
+const int Unsorted = 32767;
 
 
 struct QListViewPrivate
@@ -58,6 +62,12 @@ struct QListViewPrivate
 	QListViewItem * i;
     };
 
+    // for sorting
+    struct SortableItem {
+	QString key;
+	QListViewItem * i;
+    };
+
     // private variables used in QListView
     QHeader * h;
     Root * r;
@@ -77,6 +87,10 @@ struct QListViewPrivate
 
     // TRUE if the widget should take notice of mouseReleaseEvent
     bool buttonDown;
+
+    // sort column and order
+    int column;
+    bool ascending;
 };
 
 
@@ -128,8 +142,6 @@ QListViewItem::QListViewItem( QListView * parent,
     while ( (nextLabel = va_arg(ap, const char *)) != 0 )
 	columnTexts->append( nextLabel );
     va_end( ap );
-
-    styleChange(); //####### ugle hack hack and away
 }
 
 
@@ -152,8 +164,6 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     while ( (nextLabel = va_arg(ap, const char *)) != 0 )
 	columnTexts->append( nextLabel );
     va_end( ap );
-
-    styleChange(); //####### ugle hack hack and away
 }
 
 /*!  Perform the initializations that's common to the constructors. */
@@ -171,6 +181,10 @@ void QListViewItem::init()
     columnTexts = 0;
 
     selected = 0;
+
+    lsc = Unsorted;
+    lso = TRUE; // unsorted in ascending order :)
+    createChildrenCalled = FALSE;
 }
 
 
@@ -199,11 +213,12 @@ QListViewItem::~QListViewItem()
 void QListViewItem::insertItem( QListViewItem * newChild )
 {
     invalidateHeight();
-    // sorting?
     newChild->siblingItem = childItem;
     childItem = newChild;
     childCount++;
     newChild->parentItem = this;
+    lsc = Unsorted;
+    newChild->ownHeight = ownHeight;
 }
 
 
@@ -226,75 +241,87 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 }
 
 
-/* !
+/*!  Returns a key that can be used for sorting by column \a column.
+  The default implementation returns text().
 
+  The return value is immediately copied.
+
+  \sa sortChildItems()
 */
 
-int QListViewItem::compare( int , const QListViewItem *  ) const
+const char * QListViewItem::key( int column ) const
 {
-    return 0;
+    return text( column );
 }
 
-
-#if 0
-static int col; // ### not thread safe, see below
 
 static int cmp( const void *n1, const void *n2 )
 {
-    if ( n1 && n2 )
-	return ((QListViewItem *)n1)->compare( 1, 0 );
-    else
+    if ( !n1 || !n2 )
 	return 0;
+
+    return qstrcmp( ((QListViewPrivate::SortableItem *)n1)->key,
+		    ((QListViewPrivate::SortableItem *)n2)->key );
 }
-#endif
 
 
-/*     Sort this function and its younger siblingItems according to what
-  key( \a column ) returns.
-
-  This function is \e not \e reentrant.
-
-  If you reimplement it, you do \e not need to ask your children to
-  sort themselves.
+/*!  Undocumented for the time being.  I'll redoc when its semantics
+  have settled down.
 
   \sa key()
 */
 
-#if 0
-QListViewItem * QListViewItem::sortSiblingItems( int column )
+void QListViewItem::sortChildItems( int column, bool ascending )
 {
-    if ( nextSiblingItem == 0 )
-	return this;
+    // we try HARD not to sort.  if we're already sorted, don't.
+    if ( column == (int)lsc && ascending == (bool)lso )
+	return;
 
-    int count = 0;
+    // more dubiously - only sort if the child items "exist"
+    if ( !isOpen() )
+	return;
 
-    QListViewItem * siblingItem = this;
-    while( siblingItem ) {
-	count++;
-	siblingItem = siblingItem->nextSiblingItem;
+    lsc = column;
+    lso = ascending;
+
+    // and don't sort if we already have the right sorting order
+    if ( childItem == 0 || childItem->siblingItem == 0 )
+	return;
+
+    // make an array we can sort in a thread-safe way using qsort() 
+    QListViewPrivate::SortableItem * siblings
+	= new QListViewPrivate::SortableItem[childCount];
+    QListViewItem * s = childItem;
+    int i = 0;
+    while ( s && i<childCount ) {
+	siblings[i].key = s->key( column );
+	siblings[i].i = s;
+	s = s->siblingItem;
+	i++;
     }
-    QListViewItem * siblingItems = new (*QListViewItem)[count];
 
-    siblingItem = this;
-    int i;
-    for( i=0; i<count; i++ ) {
-	siblingItems[i] = siblingItem;
-	siblingItem = siblingItem->nextSiblingItem;
+    // and do it.
+    qsort( siblings, childCount,
+	   sizeof( QListViewPrivate::SortableItem ), cmp );
+
+    // build the linked list of siblings, in the appropriate
+    // direction, and finally set this->childItem to the new top
+    // child.
+    if ( ascending ) {
+	for( i=0; i < childCount-1; i++ )
+	    siblings[i].i->siblingItem = siblings[i+1].i;
+	siblings[childCount-1].i->siblingItem = 0;
+	childItem = siblings[0].i;
+    } else {
+	for( i=childCount-1; i >0; i-- )
+	    siblings[i].i->siblingItem = siblings[i-1].i;
+	siblings[0].i->siblingItem = 0;
+	childItem = siblings[childCount-1].i;
     }
 
-    col = column;
-    qsort( siblingItems, count, sizeof( QListViewItem * ), cmp );
-
-    for( i=0; i < count-1; i++ )
-	siblingItems[i]->nextSiblingItem = siblingItems[i+1];
-    siblingItems[count-1]->nextSiblingItem = 0;
-
-    siblingItem = siblingItems[0];
-    delete[] siblingItems;
-
-    return siblingItem;
+    // we don't want no steenking memory leaks.
+    delete[] siblings;
 }
-#endif
 
 
 /*!  Sets this item's own height to \a height pixels.  This implictly
@@ -338,10 +365,43 @@ void QListViewItem::invalidateHeight()
 void QListViewItem::setOpen( bool o )
 {
     if ( o != open ) {
-	open = o && children();
-	if ( children() )
+	open = o;
+	if ( childCount ) {
 	    invalidateHeight();
+	    if ( open ) {
+		enforceSortOrder();
+	    }
+	}
     }
+}
+
+
+/*!  This virtual function is called the first time QListView needs to
+  know whether this class has any children, and if so, how many.
+
+  If you need to create children on demand, this function is where you
+  do it.
+*/
+
+void QListViewItem::createChildren()
+{
+    // nothing
+}
+
+
+/*!  Enforce that this object's children are sorted appropriately.
+
+  This only works if every item in the chain from the root item to
+  this item is sorted appropriately.
+
+  \sa sortChildItems()
+*/
+
+
+void QListViewItem::enforceSortOrder()
+{
+    if( parentItem && (parentItem->lsc != lsc || parentItem->lso != lso) )
+	sortChildItems( (int)parentItem->lsc, (bool)parentItem->lso );
 }
 
 
@@ -377,12 +437,12 @@ int QListViewItem::totalHeight() const
 {
     if ( maybeTotalHeight >= 0 )
 	return maybeTotalHeight;
-    else if ( !isOpen() || !children() )
+    QListViewItem * that = (QListViewItem *)this;
+    that->maybeTotalHeight = ownHeight;
+
+    if ( !isOpen() || !children() )
 	return ownHeight;
 
-    QListViewItem * that = (QListViewItem *)this;
-
-    that->maybeTotalHeight = ownHeight;
     QListViewItem * child = childItem;
     while ( child != 0 ) {
 	that->maybeTotalHeight += child->totalHeight();
@@ -392,7 +452,14 @@ int QListViewItem::totalHeight() const
 }
 
 
-/*!  Returns the text in column \a column, or else 0. */
+/*!  Returns the text in column \a column, or else 0.
+
+  The returned string must be copied or used at once;
+  reimplementations of this function are at liberty to e.g. return a
+  pointer into a static buffer.
+
+  \sa key() paintCell()
+*/
 
 const char * QListViewItem::text( int column ) const
 {
@@ -505,14 +572,22 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
     while ( child && y < h ) {
 	linebot = y + child->height()/2;
 	if ( child->children() ) {
-	    // needs a box
-	    p->setPen( cg.dark() );
-	    p->drawRect( bx-4, linebot-4, 9, 9 );
-	    // plus or minus
-	    p->setPen( cg.foreground() ); // ### windows uses black
-	    p->drawLine( bx - 2, linebot, bx + 2, linebot );
-	    if ( !child->isOpen() )
-		p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+	    if ( s == WindowsStyle ) {
+		// needs a box
+		p->setPen( cg.dark() );
+		p->drawRect( bx-4, linebot-4, 9, 9 );
+		// plus or minus
+		p->setPen( cg.foreground() ); // ### windows uses black
+		p->drawLine( bx - 2, linebot, bx + 2, linebot );
+		if ( !child->isOpen() )
+		    p->drawLine( bx, linebot - 2, bx, linebot + 2 );
+
+	    } else {
+		// down or right arrow.  fucking ugly, but hey.
+		::qDrawArrow( p, child->isOpen() ? DownArrow : RightArrow,
+			      s, FALSE, bx - 5, linebot - 5, 11, 11,
+			      cg, TRUE );
+	    }
 	    // dotlinery
 	    dotlines[c++] = QPoint( bx, linetop );
 	    dotlines[c++] = QPoint( bx, linebot - 5 );
@@ -637,9 +712,12 @@ QListView::QListView( QWidget * parent, const char * name )
     d->levelWidth = 0;
     d->r = 0;
     d->h = new QHeader( this, "list view header" );
+    d->h->installEventFilter( this );
     d->currentSelected = 0;
     d->drawables = 0;
     d->multi = 0;
+    d->column = 0;
+    d->ascending = TRUE;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -649,6 +727,8 @@ QListView::QListView( QWidget * parent, const char * name )
 	     this, SIGNAL(sizeChanged()) );
     connect( d->h, SIGNAL(moved( int, int )),
 	     this, SLOT(triggerUpdate()) );
+    connect( d->h, SIGNAL(sectionClicked( int )),
+	     this, SLOT(changeSortColumn( int )) );
     connect( horizontalScrollBar(), SIGNAL(sliderMoved(int)),
 	     d->h, SLOT(setOffset(int)) );
     connect( horizontalScrollBar(), SIGNAL(valueChanged(int)),
@@ -657,6 +737,7 @@ QListView::QListView( QWidget * parent, const char * name )
     // will access d->r
     QListViewPrivate::Root * r = new QListViewPrivate::Root( this );
     d->r = r;
+    d->r->ownHeight = fontMetrics().height();
 
     setFocusProxy( viewport() );
 }
@@ -683,7 +764,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     if ( !d->drawables ||
 	 d->drawables->isEmpty() ||
 	 d->topPixel > ch || 
-	 d->bottomPixel < cy + ch - 1 )
+	 d->bottomPixel < cy + ch - 1 ||
+	 d->r->maybeTotalHeight < 0 )
 	buildDrawableList();
 
     QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
@@ -703,8 +785,6 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	int ith = current->i->totalHeight();
 	int fc, lc, c;
 	int cs;
-
-	//	debug( "i %p y %d", current->i, current->y );
 
 	// need to paint current?
 	if ( ih > 0 && current->y < cy+ch && current->y+ih >= cy ) {
@@ -746,7 +826,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                     r.setRight( cx + cw + ox - 1 );
 		if ( i==0 && current->l > 0 )
 		    r.setLeft( r.left() + (current->l-1) * treeStepSize() );
-		
+
 		p->save();
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
@@ -811,6 +891,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 void QListView::buildDrawableList() const
 {
+    if ( (int)d->r->lsc != d->column || d->r->lso != d->ascending )
+	d->r->sortChildItems( d->column, d->ascending );
+
     QStack<QListViewPrivate::Pending> stack;
     stack.push( new QListViewPrivate::Pending( 0, 0, d->r ) );
 
@@ -862,6 +945,7 @@ void QListView::buildDrawableList() const
 	if ( cur->i->isOpen() &&
 	     cur->y + ith > cy &&
 	     cur->y + ih < cy + ch ) {
+	    cur->i->enforceSortOrder();
 
 	    QListViewItem * c = cur->i->childItem;
 	    int y = cur->y + ih;
@@ -878,7 +962,7 @@ void QListView::buildDrawableList() const
 	    // needing to be painted
 	    if ( c && y < cy+ch )
 		stack.push( new QListViewPrivate::Pending( cur->l + 1,
-							       y, c ) );
+							   y, c ) );
 	}
 
 	delete cur;
@@ -1014,34 +1098,60 @@ void QListView::triggerUpdate()
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
 {
-    if ( o != viewport() || !e )
-	return QScrollView::eventFilter( o, e );
+    if ( !o || !e )
+	return FALSE;
 
-    QMouseEvent * me = (QMouseEvent *)e;
-    QFocusEvent * fe = (QFocusEvent *)e;
+    if ( o == d->h &&
+	 e->type() >= Event_MouseButtonPress &&
+	 e->type() <= Event_MouseMove ) {
+	QMouseEvent * me = (QMouseEvent *)e;
+	QMouseEvent me2( me->type(),
+			 QPoint( me->pos().x(),
+				 me->pos().y() - d->h->height() ),
+			 me->button(), me->state() );
+	switch( me2.type() ) {
+	case Event_MouseButtonPress:
+	    mousePressEvent( &me2 );
+	    break;
+	case Event_MouseButtonDblClick:
+	    mouseDoubleClickEvent( &me2 );
+	    break;
+	case Event_MouseMove:
+	    mouseMoveEvent( &me2 );
+	    break;
+	case Event_MouseButtonRelease:
+	    mouseReleaseEvent( &me2 );
+	    break;
+	default:
+	    break;
+	}
+    } else if ( o == viewport() ) {
+	QMouseEvent * me = (QMouseEvent *)e;
+	QFocusEvent * fe = (QFocusEvent *)e;
 
-    switch( e->type() ) {
-    case Event_MouseButtonPress:
-	mousePressEvent( me );
-	break;
-    case Event_MouseButtonDblClick:
-	mouseDoubleClickEvent( me );
-	break;
-    case Event_MouseMove:
-	mouseMoveEvent( me );
-	break;
-    case Event_MouseButtonRelease:
-	mouseReleaseEvent( me );
-	break;
-    case Event_FocusIn:
-	focusInEvent( fe );
-	break;
-    case Event_FocusOut:
-	focusOutEvent( fe );
-	break;
-    default:
-	// nothing
-	break;
+	switch( e->type() ) {
+	case Event_MouseButtonPress:
+	    mousePressEvent( me );
+	    break;
+	case Event_MouseButtonDblClick:
+	    mouseDoubleClickEvent( me );
+	    break;
+	case Event_MouseMove:
+	    mouseMoveEvent( me );
+	    break;
+	case Event_MouseButtonRelease:
+	    mouseReleaseEvent( me );
+	    break;
+	case Event_FocusIn:
+	    focusInEvent( fe );
+	    break;
+	case Event_FocusOut:
+	    focusOutEvent( fe );
+	    break;
+	default:
+	    // nothing
+	    break;
+	}
     }
     return QScrollView::eventFilter( o, e );
 }
@@ -1070,20 +1180,44 @@ QListView * QListViewItem::listView() const
 
 /*! \fn const QListViewItem* QListViewItem::firstChild () const
 
-  Returns a pointer to the first (top) child of this item. \sa
-  nextSibling()
+  Returns a pointer to the first (top) child of this item.
+
+  NOTE that the children are not guaranteed to be sorted properly.
+  QListView and QListViewItem try to postpone or avoid sorting to the
+  greatest degree possible, in order to keep the user interface
+  snappy.
+
+  \sa nextSibling()
 */
 
 /*! \fn const QListViewItem* QListViewItem::nextSibling () const
 
   Returns a pointer to the next sibling (below this one) of this
-  item. \sa nextSibling()
+  item.
+
+  NOTE that the siblings are not guaranteed to be sorted properly.
+  QListView and QListViewItem try to postpone or avoid sorting to the
+  greatest degree possible, in order to keep the user interface
+  snappy.
+
+  \sa fistChild()
 */
 
 /*! \fn int QListViewItem::children () const
 
-  Returns the number of children of this item.
+  Returns the number of children of this item.  Calls createChildren()
+  if it hasn't been called yet.
 */
+
+
+int QListViewItem::realChildCount() const
+{
+    QListViewItem * that = (QListViewItem *)this;
+    that->createChildren();
+    that->createChildrenCalled = TRUE;
+    return that->childCount;
+}
+
 
 /*! \fn int QListViewItem::height () const
 
@@ -1149,9 +1283,12 @@ QListView * QListViewItem::listView() const
 //#### should test for columnTexts
 void QListViewItem::styleChange()
 {
+    debug( "1" );
     QListView *lv = listView();
     if ( lv )
 	 setHeight( QFontMetrics( lv->font() ).lineSpacing() );
+    else
+	debug( "uh?" );
 }
 
 
@@ -1192,11 +1329,28 @@ void QListView::mousePressEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
+    if ( e->button() != LeftButton )
+	return;
+
     d->buttonDown = TRUE;
 
     QListViewItem * i = itemAt( e->pos() );
     if ( !i )
 	return;
+
+    if ( i->children() &&
+	 d->h->mapToLogical( d->h->cellAt( e->pos().x() ) == 0 ) ) {
+	int x1 = e->pos().x() - d->h->cellPos( d->h->mapToActual( 0 ) );
+	QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
+	while( it.current() && it.current()->i != i )
+	    ++it;
+
+	if ( it.current() ) {
+	     x1 -= treeStepSize() * (it.current()->l - 2);
+	     if ( x1 >= 0 && x1 < treeStepSize() )
+		 i->setOpen( !i->isOpen() );
+	}
+    }
 
     if ( isMultiSelection() ) {
 	i->setSelected( !i->isSelected() );
@@ -1221,7 +1375,22 @@ void QListView::mouseReleaseEvent( QMouseEvent * e )
     if ( !e )
 	return;
 
-    if ( !d->buttonDown )
+    if ( e->button() == RightButton ) {
+	QListViewItem * i;
+	if ( viewport()->rect().contains( e->pos() ) )
+	    i = itemAt( e->pos() );
+	else
+	    i = d->currentSelected;
+
+	if ( i ) {
+	    int c = d->h->mapToLogical( d->h->cellAt( e->pos().x() ) );
+	    emit rightButtonClicked( i, viewport()->mapToGlobal( e->pos() ),
+				     c );
+	}
+	return;
+    }
+
+    if ( e->button() != LeftButton || !d->buttonDown )
 	return;
 
     QListViewItem * i = itemAt( e->pos() );
@@ -1568,3 +1737,28 @@ QRect QListView::itemRect( QListViewItem * i ) const
   This signal is emitted when enter or return is pressed.  The
   argument is currentItem().
 */
+
+
+/*!  Set the list view to be sorted by \a column and to be sorted
+  in ascending order if \a ascending is TRUE or descending order if it
+  is FALSE.
+*/
+
+void QListView::setSorting( int column, bool ascending = TRUE )
+{
+    if ( d->column == column && d->ascending == ascending )
+	return;
+
+    d->ascending = ascending;
+    d->column = column;
+    buildDrawableList();
+    triggerUpdate();
+}
+
+
+/*!  Changes the column the list view is sorted by. */
+
+void QListView::changeSortColumn( int column )
+{
+    setSorting( column, d->ascending );
+}
