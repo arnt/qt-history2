@@ -83,7 +83,14 @@ is stored in the the output file, so that this file could be the subject of
 another ld run. This is done by setting the -r flag in the .pro file, and the
 LFLAGS settings.
 
+\section2 Initialization Order
 
+dyld(1) will call global static initializers in the order in which
+they are linked into your application. If a library links against Qt
+and references globals in Qt (from global initializers in your own
+library) you should be sure to link against Qt before your library,
+otherwise the result will be undefined (as Qt's global initializers
+have not been called yet).
 
 \section1 Compiler Settings
 
