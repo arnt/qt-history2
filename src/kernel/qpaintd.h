@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#1 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#2 $
 **
 ** Definition of QPaintDevice class
 **
@@ -25,6 +25,9 @@
 #define PDT_METAFILE	4
 
 // Painter device commands (for unsupported devices)
+
+#define PDC_RESERVED_START      0		// codes 0-999 are reserved
+#define PDC_RESERVED_STOP	999		//   for internal use
 
 #define PDC_DRAWPOINT		1		// p
 #define PDC_MOVETO		2		// p
