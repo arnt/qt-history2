@@ -103,7 +103,7 @@ UnixMakefileGenerator::init()
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
-    QString compile_flag = project->first("QMAKE_COMPILE_FLAG");
+    QString compile_flag = var("QMAKE_COMPILE_FLAG");
     if(compile_flag.isEmpty())
 	compile_flag = "-c";
     if ( project->isEmpty("QMAKE_RUN_CC") )
