@@ -771,7 +771,7 @@ int QMenuData::accel( int id ) const
 
   You can also specify the accelerator in the insertItem() function.
 
-  \sa setAccel(), accel(), insertItem(), QAccel, qnamespace.h
+  \sa accel(), insertItem(), QAccel, qnamespace.h
 */
 
 void QMenuData::setAccel( int key, int id )
