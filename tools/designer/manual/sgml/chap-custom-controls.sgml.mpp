@@ -17,7 +17,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 
     <sect1>\title[Creating a Custom Widget]
     \p
-    A custom widget is often a specialisation (subclass) of another
+    A custom widget is often a specialization (subclass) of another
     widget or a combination of widgets working together or a blend of
     both these approaches. If you simply want a collection of widgets
     in a particular configuration it is easiest to create them, select
@@ -318,7 +318,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     Note that if two different interface implementations, e.g. from two
     different suppliers, use the same class name there will be no
     conflict. This is because every interface (i.e. abstract base
-    class) has a unique uuid (\i[univeral unique identifier]). When the
+    class) has a unique uuid (\i[universal unique identifier]). When the
     application wants the functionality of a particular interface it
     calls \fn[queryInterface()] passing the uuid of the interface it is
     interested in, for example, \c[IID_WidgetInterface]. If the
@@ -410,8 +410,8 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    load a plugin so that they can determine whether the plugin
 	    provides an implementation for a particular interface. Every
 	    interface has a unique uuid 
-	    (\i[univeral unique identifier], also known as 
-	    \i[global unique identifier]), which is passed to the
+	    (\i[universal unique identifier], also known as a
+	    \i[globally unique identifier]), which is passed to the
 	    function as \c[uuid]. The function creates a pointer to a
 	    \class[QUnknownInterface] object, \c[iface], and then tries
 	    to assign a matching interface to it. If the interface
@@ -455,7 +455,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    no further use for the reference \i[you] must call
 	    \fn[release()]. The reference counting prevents the
 	    unloading of a library (plugin) that is still in use. If all
-	    a plugin's reference counts are zero the library can be
+	    of a plugin's reference counts are zero the library can be
 	    automatically unloaded.
 	    \P
 

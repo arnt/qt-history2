@@ -188,13 +188,19 @@ buttons.
 	    \item\p
 	    The iconSet property is used to set an icon which will
 	    appear to the left of the action's name in any menu you
-	    associate the action with. The iconSet is also used for
-	    the toolbar button if you associate the action with a
-	    toolbar. The icons we require are in the Qt examples
-	    directory, \f[qt/examples/textedit/]. Click the ellipsis
-	    button (<keycap>...</>) and a file dialog will appear;
-	    navigate to the textedit directory and select the
-	    \f[textbold.xpm] file.
+	    associate the action with. The iconSet is also used for the
+	    toolbar button if you associate the action with a toolbar.
+	    Click the ellipsis button (<keycap>...</>) to invoke the
+	    Choose a Pixmap dialog. The pixmap we require is not in the
+	    default collection. Click the \button[Add] button and a file
+	    dialog will appear. The icons we require are in the Qt
+	    examples directory, \f[qt/examples/textedit/]. Navigate to
+	    the textedit directory and select the \f[textbold.xpm] file.
+	    Click the new textbold icon in the pixmap collection then
+	    click \ok. (See <xref linkend="choose-a-pixmap-dialog">
+	    "Choose a Pixmap Dialog" and <xref
+	    linkend="the-pixmap-collection-dialog"> "Pixmap
+	    Collection Dialog".)
 	    \P\Item
 	    
 	    \item\p
@@ -227,18 +233,24 @@ buttons.
 	    properties: 
 	    \list[*]
 	    \item\p
-	    For the italic action change its name to
-	    'italicAction' and ensure its toggleAction property is True. The
-	    iconSet is in the textedit directory and is called
-	    \f[textitalic.xpm]. Change its text to 'italic', its menuText to
-	    '&amp;Italic' and its accel to 'CTRL+I'.
+	    For the italic action change its name to 'italicAction' and
+	    ensure its toggleAction property is True. The iconSet is in
+	    the textedit directory and is called \f[textitalic.xpm]; add
+	    its pixmap in the same way that we added the bold pixmap.
+	    (For example, click the ellipsis \button[...], click
+	    \button[Add], navigate to the textedit directory and click
+	    the \f[textitalic.xpm] pixmap. Then click the textitalic
+	    pixmap in the pixmap collection and click \ok). Change the
+	    action's text to 'italic', its menuText to '&amp;Italic' and
+	    its accel to 'CTRL+I'.
 	    \P\Item
 
 	    \item\p
 	    For the underline action change its name to 'underlineAction'
-	    and set its toggleAction property to True. The iconSet is in the
-	    same directory and is called \f[textunder.xpm]. Change its text
-	    to 'underline', its menuText to '&amp;Underline' and its accel
+	    and set its toggleAction property to True. The iconSet is in
+	    the same directory and is called \f[textunder.xpm]; add it
+	    in the same way as the previous pixmaps. Change its text to
+	    'underline', its menuText to '&amp;Underline' and its accel
 	    to 'CTRL+U'.
 	    \P\Item
 	    \List
@@ -279,17 +291,20 @@ buttons.
 	    Create a new action within the alignActionGroup action
 	    group. Change the name of this action to 'leftAlignAction'
 	    and ensure its toggleAction property is True. Use the
-	    iconSet in the textedit directory called \f[textleft.xpm].
-	    Change its text to 'left', its menuText to '&amp;Left' and
-	    its accel to 'CTRL+L'.
+	    iconSet in the textedit directory called \f[textleft.xpm],
+	    adding the pixmap to the pixmap collection in the same way
+	    as we added the textbold pixmap earlier. Change its text to
+	    'left', its menuText to '&amp;Left' and its accel to
+	    'CTRL+L'.
 	    \P\Item
 
 	    \item\p
 	    Create another new action within alignActionGroup. Change
 	    this action's name to 'rightAlignAction' and set its
 	    toggleAction property to True. Set its iconSet to
-	    \f[textright.xpm]. Change its text to 'right', its menuText
-	    to '&amp;Right' and its accel to 'CTRL+R'.
+	    \f[textright.xpm] using the pixmap collection as before.
+	    Change its text to 'right', its menuText to '&amp;Right' and
+	    its accel to 'CTRL+R'.
 	    \P\Item
 
 	    \item\p

@@ -49,9 +49,10 @@
     The manual assumes that you have some basic knowledge of C++ and the Qt
     toolkit. If you need to learn more about C++ or Qt there are a vast number
     of C++ books on the market, and a small but increasing number of Qt books.
-    Qt comes with extensive online documentation and many example applications
-    that you can try. For the <xref endlink=""> "Creating Database
-    Applications" chapter some knowledge of SQL and relational databases is
+    Qt comes with extensive online documentation and many example
+    applications that you can try. For <xref
+    linkend="creating-database-applications"> "Creating Database
+    Applications" some knowledge of SQL and relational databases is
     required as specified at the beginning of that chapter.
     \P
 
