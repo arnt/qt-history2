@@ -431,3 +431,16 @@ void QMetaType::destroy(int type, void *data)
     \sa QVariant::setValue(), QVariant::value(), QVariant::fromValue()
 */
 
+/*! \typedef QMetaType::Destructor
+    \internal
+*/
+/*! \typedef QMetaType::Constructor
+    \internal
+*/
+/*! \typedef QMetaType::SaveOperator
+    \internal
+*/
+/*! \typedef QMetaType::LoadOperator
+    \internal
+*/
+
