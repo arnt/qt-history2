@@ -497,10 +497,6 @@ void QPixmap::deref()
     }
 }
 
-void scaledBitBlt(QPaintDevice *dst, int dx, int dy, int dw, int dh,
-		   const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		   Qt::RasterOp rop, bool imask);
-
 QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 {
     int	   w, h;				// size of target pixmap
@@ -535,7 +531,10 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	QPixmap* save_alpha = data->alphapm;
 	data->alphapm = 0;
 	QPixmap pm(w, h, depth(), NormalOptim);
-	scaledBitBlt(&pm, 0, 0, w, h, this, 0, 0, width(), height(), Qt::CopyROP, TRUE);
+	{
+	    QPainter p(&pm);
+	    p.drawPixmap(QRect(0, 0, w, h), *this, QRect(0, 0, width(), height()), true);
+	}
 	if(data->mask) {
 	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask(bm);
@@ -543,8 +542,10 @@ QPixmap QPixmap::xForm(const QWMatrix &matrix) const
 	if(save_alpha) {
 	    data->alphapm = save_alpha;
 	    pm.data->alphapm = new QPixmap(w, h, save_alpha->depth(), NormalOptim);
-	    scaledBitBlt(pm.data->alphapm, 0, 0, w, h, save_alpha, 0, 0, width(), height(),
-			 Qt::CopyROP, TRUE);
+	    {
+		QPainter p(pm.data->alphapm);
+		p.drawPixmap(QRect(0, 0, w, h), *save_alpha, QRect(0, 0, width(), height()), true);
+	    }
 	}
 	return pm;
     } else {					// rotation or shearing

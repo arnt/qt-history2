@@ -1318,7 +1318,7 @@ void QX11PaintEngine::drawCubicBezier(const QPointArray &a, int index)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
 {
     int x = r.x();
     int y = r.y();
@@ -1336,7 +1336,9 @@ void QX11PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QR
 
     QPixmap::x11SetDefaultScreen( pixmap.x11Info()->screen() );
 
-    QBitmap *mask = (QBitmap *)pixmap.mask();
+    QBitmap *mask = 0;
+    if(!imask)
+	mask = (QBitmap *)pixmap.mask();
     bool mono = pixmap.depth() == 1;
 
     if ( mask && !hasClipping() && d->pdev != paintEventDevice && mono ) {

@@ -342,7 +342,7 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int index)
 #endif
 }
 
-void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);

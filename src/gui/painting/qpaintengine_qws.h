@@ -64,7 +64,7 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 

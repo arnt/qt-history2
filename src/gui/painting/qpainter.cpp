@@ -1979,16 +1979,17 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
 
 /*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-				  int sx, int sy, int sw, int sh)
+				  int sx, int sy, int sw, int sh, bool imask)
 
     \overload
 
-    Draws the rectangular portion with the origin \a(sx, sy), width \a
-    sw and height \a sh, of the pixmap \a pm, at the point \a(x, y),
-    with a width of \a w and a height of \a h.
+    Draws the rectangular portion with the origin \a(sx, sy), width \a sw
+    and height \a sh, of the pixmap \a pm, at the point \a(x, y), with a
+    width of \a w and a height of \a h. If \a imask is true \a pm will not
+    be masked to QPixmap::mask()
 */
 
-/*! \fn void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh )
+/*! \fn void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh, bool imask )
 
     \overload
 
@@ -2003,30 +2004,33 @@ void QPainter::drawCubicBezier(const QPointArray &a, int index )
     The default, (-1, -1), means all the way to the bottom right of
     the pixmap.
 
-    Currently the mask of the pixmap or it's alpha channel are ignored
-    when painting on a QPrinter.
+    If \a imask is true \a pm will not be masked to
+    QPixmap::mask(). Currently when painting on a QPrinter \a imask is
+    always true.
 
     \sa QPixmap::setMask()
 */
 
 /*!
-    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr )
+    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask )
 
-    Draws the rectangle \a sr of pixmap \a pm with its origin at point
-    \a p.
+    Draws the rectangle \a sr of pixmap \a pm with its origin at point \a
+    p. If \a imask is true \a pm will not be masked to QPixmap::mask().
 */
 
 /*!
-    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
+    \overload void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm, bool imask )
 
-    Draws the pixmap \a pm with its origin at point \a p.
+    Draws the pixmap \a pm with its origin at point \a p. If \a imask is
+    true \a pm will not be masked to QPixmap::mask().
 */
 
 /*!
-    Draws the rectanglular portion \a sr, of pixmap \a pm, into
-    rectangle \a r in the paint device.
+    Draws the rectanglular portion \a sr, of pixmap \a pm, into rectangle
+    \a r in the paint device. If \a imask is true \a pm will not be masked
+    to QPixmap::mask().
 */
-void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     if (!isActive() || pm.isNull())
 	return;
@@ -2072,13 +2076,12 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     if (sw <= 0 || sh <= 0)
 	return;
 
-    if ((d->state->VxF || d->state->WxF ||
-	 (r.width() != sr.width() && r.height() != sr.height()))
-	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+    if (((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::PixmapTransform)) ||
+	((r.width() != sr.width() | r.height() != sr.height()) && !d->engine->hasCapability(QPaintEngine::PixmapScale))) {
 	QPixmap source(sw, sh);
 	{
 	    QPainter p(&source);
-	    p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh));
+	    p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), imask);
 	}
 
 	QWMatrix mat(d->state->matrix);
@@ -2094,12 +2097,12 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 	    QPainter p;
 	    pmx = QPixmap(sw, sh);		// xform subpixmap
 	    p.begin(&pmx);
-	    p.drawPixmap(QRect(0, 0, sw, sh), pm, sr);
+	    p.drawPixmap(QRect(0, 0, sw, sh), pm, QRect(sx, sy, sw, sh), imask);
 	    p.end();
-	    if (pm.mask()) {
+	    if (!imask && pm.mask()) {
 		QBitmap mask(sw, sh);
 		p.begin(&mask);
-		p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), sr);
+		p.drawPixmap(QRect(0, 0, sw, sh), *pm.mask(), QRect(sx, sy, sw, sh), true);
 		p.end();
 		pmx.setMask(mask);
 	    }
@@ -2116,11 +2119,11 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
 	int dx, dy;
 	mat.map( 0, 0, &dx, &dy );
 	d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-			QRect(0, 0, pmx.width(), pmx.height()));
+			QRect(0, 0, pmx.width(), pmx.height()), imask);
 	return;
     }
 
-    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
+    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), imask);
     return;
 }
 
@@ -2442,7 +2445,7 @@ void qt_draw_tile(QPaintEngine *gc, int x, int y, int w, int h,
 	    drawW = pixmap.width() - xOff; // Cropping first column
 	    if ( xPos + drawW > x + w )	   // Cropping last column
 		drawW = x + w - xPos;
-	    gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH));
+	    gc->drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), true);
 	    xPos += drawW;
 	    xOff = 0;
 	}

@@ -30,9 +30,6 @@ QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 void qstring2pstring(QString s, Str255 str, TextEncoding encoding=0, int len=-1); //qglobal.cpp
 QByteArray pstring2qstring(const unsigned char *c); //qglobal.cpp
 unsigned char * p_str(const QString &); //qglobal.cpp
-void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
-		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
-		     Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
 
 //Generic engine
 QFontEngine::~QFontEngine()
@@ -110,41 +107,26 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 	    int aw = si.width, ah = si.ascent + si.descent + 1;
 	    if(aw == 0 || ah == 0)
 		return;
-	    QWMatrix mat1 = xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
-	    QBitmap *wx_bm = 0;
+	    QBitmap bm(aw, ah, TRUE);	// create bitmap
 	    {
-		QBitmap bm(aw, ah, TRUE);	// create bitmap
-		QPainter paint;
-		paint.begin(&bm);		// draw text in bitmap
+		QPainter paint(&bm);  // draw text in bitmap
 		paint.setPen(Qt::color1);
 		draw(paint.d->engine, 0, si.ascent, si, textFlags);
 		paint.end();
-		wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
-		if(wx_bm->isNull()) {
-		    delete wx_bm;		// nothing to draw
-		    return;
-		}
 	    }
 
-	    QPixmap pm(wx_bm->width(), wx_bm->height());
-	    if(pState->painter->backgroundMode() != QPainter::OpaqueMode) {
+	    QPixmap pm(bm.width(), bm.height());
+	    if(pState->painter->backgroundMode() == QPainter::OpaqueMode) {
+		pm = bm;
+		bm.fill(Qt::color1);
+		pm.setMask(bm);
+	    } else { 
 		QPainter paint(&pm);
 		paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
-		pm.setMask(*wx_bm);
-	    } else { //This is untested code, I need to find a test case, FIXME --Sam
-		pm = *wx_bm;
-		QBitmap bm(pm.width(), pm.height(), TRUE);
-		bm.fill(Qt::color1);
-		bm = bm.xForm(mat2);
+		paint.end();
 		pm.setMask(bm);
 	    }
-	    double nfx, nfy;
-	    mat1.map(x, y - si.ascent, &nfx, &nfy);
-	    double dx, dy;
-	    mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
-	    unclippedBitBlt(pState->painter->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1,
-			    -1, Qt::CopyROP, FALSE, FALSE);
-	    delete wx_bm;
+	    p->drawPixmap(QRect(x, y, -1, -1), pm, QRect(0, 0, -1, -1), false);
 	    return;
 	} else if(txop == QPainter::TxTranslate) {
 	    pState->painter->map(x, y, &x, &y);
@@ -489,7 +471,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	return 0;
     }
 
-    RgnHandle rgnh = NULL;
     if(p && p->type() == QPaintEngine::QuickDraw) {
 	if(widget && !widget->isTopLevel()) { //offset correctly..
 	    QPoint pos = posInWindow(widget);
@@ -500,18 +481,18 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 	QRegion rgn;
 	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
 	mgc->setupQDPort(false, 0, &rgn);
-	{
-	    ATSUFontID fond;
-	    ATSUFONDtoFontID(fontref, NULL, &fond);
-	    TextFont(fond);
+	if(task & DRAW) { //we need to flip the translation here because we flip it internally
+	    QVector<QRect> rs = rgn.rects();
+	    qDebug("draw (%s)", QString(s, use_len).latin1());
+	    for(int i = 0; i < rs.count(); i++)
+		qDebug("%d %d %d %d", rs[i].x(), rs[i].y(), rs[i].width(), rs[i].height());
+	    extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
+	    qt_mac_clip_cg(ctx, rgn, 0);
 	}
-	if(!rgn.isEmpty())
-	    rgnh = rgn.handle(true);
-    }
-    if(rgnh) {
-	Rect clipr;
-	GetPortBounds(port, &clipr);
-	ClipCGContextToRegion(ctx, &clipr, rgnh);
+
+	ATSUFontID fond;
+	ATSUFONDtoFontID(fontref, NULL, &fond);
+	TextFont(fond);
     }
 #endif
     valueSizes[arr] = sizeof(ctx);

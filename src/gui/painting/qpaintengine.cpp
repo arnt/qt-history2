@@ -160,8 +160,8 @@ void QWrapperPaintEngine::drawCubicBezier(const QPointArray &a, int index)
 { wrap->drawCubicBezier(a, index); }
 #endif
 
-void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
-{ wrap->drawPixmap(r, pm, sr); }
+void QWrapperPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
+{ wrap->drawPixmap(r, pm, sr, imask); }
 void QWrapperPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textflags)
 { wrap->drawTextItem(p, ti, textflags); }
 void QWrapperPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim)

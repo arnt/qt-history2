@@ -164,13 +164,12 @@ public:
 #endif
 
     void drawPixmap(const QRect &targetRect, const QPixmap &pixmap,
-		    const QRect &sourceRect = QRect());
+		    const QRect &sourceRect = QRect(), bool imask=false);
     void drawPixmap(int x, int y, int w, int h, const QPixmap &,
-		    int sx=0, int sy=0, int sw=-1, int sh=-1);
-    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1);
-    void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr);
-    void drawPixmap(const QPoint &p, const QPixmap &pm);
-
+		    int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
+    void drawPixmap(int x, int y, const QPixmap &pm, int sx=0, int sy=0, int sw=-1, int sh=-1, bool imask=false);
+    void drawPixmap(const QPoint &, const QPixmap &, const QRect &sr, bool imask=false);
+    void drawPixmap(const QPoint &p, const QPixmap &pm, bool imask=false);
 
     void drawImage(int x, int y, const QImage &,
 		   int sx = 0, int sy = 0, int sw = -1, int sh = -1,
@@ -365,26 +364,26 @@ inline void QPainter::setViewport(const QRect &r)
 }
 
 inline void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
-				 int sx, int sy, int sw, int sh)
+				 int sx, int sy, int sw, int sh, bool imask)
 {
-    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
+    drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), imask);
 }
 
-inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh)
+inline void QPainter::drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh, bool imask)
 {
-    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh));
+    drawPixmap(QRect(x, y, -1, -1), pm, QRect(sx, sy, sw, sh), imask);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect &sr, bool imask)
 {
-    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr);
+    drawPixmap(QRect(p.x(), p.y(), -1, -1), pm, sr, imask);
 }
 
-inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm)
+inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, bool imask)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
 	       pm,
-	       QRect(0, 0, pm.width(), pm.height()));
+	       QRect(0, 0, pm.width(), pm.height())), imask;
 }
 
 inline void QPainter::eraseRect(const QRect &r)

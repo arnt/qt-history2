@@ -47,8 +47,6 @@ extern QRegion make_region(RgnHandle handle);
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern void qt_mac_clip_cg(CGContextRef, const QRegion &, const QPoint *); //qpaintdevice_mac.cpp
 extern void qt_mac_clip_cg_reset(CGContextRef); //qpaintdevice_mac.cpp
-extern void unclippedBitBlt(QPaintDevice *dst, int dx, int dy, const QPaintDevice *src, int sx, int sy, int sw, int sh,
-			    Qt::RasterOp rop, bool imask, bool set_fore_colour); //qpaintdevice_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 CGImageRef qt_mac_create_cgimage(const QPixmap &, bool); //qpixmap_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -96,7 +94,7 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
-    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), GCCaps(UsesFontEngine))
+    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), GCCaps(UsesFontEngine|PixmapScale))
 {
     d->pdev = pdev;
 }
@@ -662,7 +660,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, co
 	    drawW = pixmap.width() - xOff; // Cropping first column
 	    if(xPos + drawW > r.right())    // Cropping last column
 		drawW = r.right() - xPos;
-	    drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH));
+	    drawPixmap(QRect(xPos, yPos, drawW, drawH), pixmap, QRect(xOff, yOff, drawW, drawH), true);
 	    xPos += drawW;
 	    xOff = 0;
 	}
@@ -696,7 +694,7 @@ QQuickDrawPaintEngine::drawArc(const QRect &r, int a, int alen)
 }
 
 void
-QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
 {
     Q_ASSERT(isActive());
     if(pixmap.isNull())
@@ -757,7 +755,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const Q
     SetRect(&srcr, sr.x(), sr.y(), sr.x()+sr.width()+1, sr.y()+sr.height()+1);
     Rect dstr;
     SetRect(&dstr, d->offx+r.x(), d->offy+r.y(), d->offx+r.x()+r.width()+1, d->offy+r.y()+r.height()+1);
-    if(srcmask) {
+    if(!imask && srcmask) {
 	const BitMap *maskbits = GetPortBitMapForCopyBits((GWorldPtr)srcmask->handle());
 	if(copymode == srcCopy && srcmask->depth() > 1)
 	    copymode = ditherCopy;
@@ -1084,13 +1082,13 @@ static void qt_mac_dispose_pattern(void *info)
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev, 
-			    GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine))
+			    GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine))
+    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine|PixmapScale))
 {
     d->pdev = pdev;
 }
@@ -1643,16 +1641,16 @@ QCoreGraphicsPaintEngine::drawCubicBezier(const QPointArray &pa, int index)
 #endif
 
 void
-QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+QCoreGraphicsPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     Q_ASSERT(isActive());
     if(pm.isNull())
 	return;
     
-    CGImageRef image = qt_mac_create_cgimage(pm, false);
+    CGImageRef image = qt_mac_create_cgimage(pm, imask);
     CGContextSaveGState((CGContextRef)d->hd);
     QRegion rgn(r); qt_mac_clip_cg((CGContextRef)d->hd, rgn, 0);
-    CGRect rect = CGRectMake(r.x()-sr.x(), r.y()-sr.y(), pm.width(), pm.height());
+    CGRect rect = CGRectMake(r.x()-sr.x(), r.y()-sr.y(), r.width(), r.height());
     HIViewDrawCGImage((CGContextRef)d->hd, &rect, image); //HIViews render the way we want anyway, so just use the convenience..
     CGContextRestoreGState((CGContextRef)d->hd);
     CGImageRelease(image);

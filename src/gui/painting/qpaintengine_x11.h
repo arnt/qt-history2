@@ -58,7 +58,7 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index = 0);
 #endif
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;

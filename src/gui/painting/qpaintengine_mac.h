@@ -63,7 +63,7 @@ public:
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;
@@ -131,7 +131,7 @@ public:
 #ifndef QT_NO_BEZIER
     void drawCubicBezier(const QPointArray &pa, int index = 0);
 #endif
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 
     virtual Qt::HANDLE handle() const;

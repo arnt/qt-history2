@@ -101,13 +101,10 @@ protected:
     friend class QFontEngineMac;
     friend class QQuickDrawPaintEngine;
 #endif
-#if defined(Q_WS_MAC)
-    friend Q_GUI_EXPORT void unclippedScaledBitBlt( QPaintDevice *, int, int, int, int,
-						const QPaintDevice *, int, int, int, int, Qt::RasterOp, bool, bool );
-#else
+#if !defined(Q_WS_MAC)
     friend Q_GUI_EXPORT void bitBlt( QPaintDevice *, int, int,
-				 const QPaintDevice *,
-				 int, int, int, int, Qt::RasterOp, bool );
+				     const QPaintDevice *,
+				     int, int, int, int, Qt::RasterOp, bool );
 #endif
 #if defined(Q_WS_X11)
     friend void qt_init( QApplicationPrivate *, int, Display *, Qt::HANDLE, Qt::HANDLE );

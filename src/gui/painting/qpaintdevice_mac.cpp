@@ -85,15 +85,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     } else if(src->devType() == QInternal::Pixmap) {
 	QPainter p(dst);
 	p.setRasterOp(rop);
-	QPixmap *px = (QPixmap*)src;
-	if(0 && imask && px->mask()) {
-	    QPixmap px2 = *px;
-	    px2.detach();
-	    px2.setMask(QBitmap());
-	    p.drawPixmap(dx, dy, sw, sh, px2);
-	} else {
-	    p.drawPixmap(QRect(dx, dy, sw, sh), *px, QRect(sx, sy, sw, sh));
-	}
+	p.drawPixmap(QRect(dx, dy, sw, sh), *((QPixmap*)src), QRect(sx, sy, sw, sh), imask);
     } else {
 	qWarning("bitBlt: Cannot bitBlt from/to device!");
     }

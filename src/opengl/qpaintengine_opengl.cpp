@@ -760,7 +760,7 @@ static void bind_texture_from_cache(const QPixmap &pm)
     }
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &)
+void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &, bool imask)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);

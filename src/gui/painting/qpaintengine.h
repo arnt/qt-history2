@@ -55,6 +55,7 @@ public:
 	PixmapTransform         = 0x0008,               // Pixmap transforms
 	CanRenderText           = 0x0010,		// Calls drawTextItem directly
 	LinearGradientSupport   = 0x0020,               // Can fill gradient areas.
+	PixmapScale             = 0x0040,               // Can scale pixmaps (without XForm) in drawPixmap
 	UsesFontEngine          = 0x10000000           // Internal use, QWidget and QPixmap
     };
     Q_DECLARE_FLAGS(GCCaps, Capability);
@@ -104,7 +105,7 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index = 0) = 0;
 #endif
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr) = 0;
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask) = 0;
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim) = 0;
 
@@ -231,7 +232,7 @@ public:
     virtual void drawCubicBezier(const QPointArray &, int index);
 #endif
 
-    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    virtual void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask);
     virtual void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
     virtual void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
 

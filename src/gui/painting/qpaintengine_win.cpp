@@ -890,7 +890,7 @@ void QWin32PaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 	SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr)
+void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr, bool imask)
 {
     if (!isActive())
 	return;
@@ -910,7 +910,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 
     bool stretch = r.width() != sr.width() || r.height() != sr.height();
 
-    if (mask) {
+    if (!imask && mask) {
 	if (stretch) {
 	    QImage imageData(pixmap);
 	    QImage imask = imageData.createAlphaMask();
@@ -918,7 +918,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
 	    QBitmap bm(sr.width(), sr.height());
 	    {
 		QPainter p(&bm);
-		p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr);
+		p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr, imask);
 	    }
 	    QWMatrix xform = QWMatrix(r.width()/(double)sr.width(), 0,
 				      0, r.height()/(double)sr.height(),
@@ -1765,7 +1765,7 @@ void QGdiplusPaintEngine::drawConvexPolygon(const QPointArray &pa, int index, in
 
 
 
-void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
+void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool imask)
 {
     if (!pm.hasAlpha()) {
 	Bitmap bitmap(pm.hbm(), HPALETTE(0));
