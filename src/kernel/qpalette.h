@@ -37,18 +37,18 @@
 class QColorGroupPrivate;
 
 
-class Q_EXPORT QColorGroup				// color group class
+class Q_EXPORT QColorGroup
 {
 public:
-    QColorGroup();				// all colors black
+    QColorGroup();
     QColorGroup( const QColor &foreground, const QColor &button,
 		 const QColor &light, const QColor &dark, const QColor &mid,
 		 const QColor &text, const QColor &base );
     QColorGroup( const QBrush &foreground, const QBrush &button,
 		 const QBrush &light, const QBrush &dark, const QBrush &mid,
-		 const QBrush &text,  const QBrush &bright_text, const QBrush &base,
-		 const QBrush &background);
-    QColorGroup(const QColorGroup&);
+		 const QBrush &text, const QBrush &bright_text,
+		 const QBrush &base, const QBrush &background);
+    QColorGroup( const QColorGroup & );
 
    ~QColorGroup();
 
@@ -93,7 +93,7 @@ private:
 };
 
 
-class Q_EXPORT QPalette					// palette class
+class Q_EXPORT QPalette
 {
 public:
     QPalette();
