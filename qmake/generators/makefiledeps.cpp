@@ -322,7 +322,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 x++;
                 if(buffer_len >= x + 12 && !strncmp(buffer + x, "includehint", 11) &&
                    (*(buffer + x + 11) == ' ' || *(buffer + x + 11) == '>')) {
-                    for(x += 12; *(buffer + x) != '>'; x++);
+                    for(x += 11; *(buffer + x) != '>'; x++);
                     int inc_len = 0;
                     for(x += 1 ; *(buffer + x + inc_len) != '<'; inc_len++);
                     *(buffer + x + inc_len) = '\0';
