@@ -116,5 +116,7 @@ void Hello::paintEvent( QPaintEvent * )
     p.end();
 
     // 4: Copy the pixmap to the Hello widget
-    bitBlt( this, pmx, pmy, &pm );
+//    bitBlt( this, pmx, pmy, &pm );
+    p.begin(this);
+    p.drawPixmap(pmx,pmy, pm);
 }
