@@ -587,6 +587,8 @@ void QTextLayout::clearLines()
     d->lines.clear();
     // invalidate bounding rect
     d->boundingRect = QRect();
+    if(!d->items.size())
+      beginLayout();
 }
 
 // ### DOC: Don't know what this really does.
