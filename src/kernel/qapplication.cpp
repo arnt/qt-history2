@@ -52,7 +52,7 @@
 #include <stdlib.h>
 #include "qcomponentfactory.h"
 
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
 #include <private/qremotecontrol_p.h>
 #endif
 
@@ -318,7 +318,8 @@ bool	  QApplication::fade_tooltip	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
+QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
 static QRemoteControlInterface *remoteControl = 0;
 #endif
 
@@ -809,54 +810,98 @@ void QApplication::initialize( int argc, char **argv )
 	qApp->lock();
 #endif
 
-#if defined(QT_REMOTE_SUPPORT)
+}
 
-    remoteControl = 0;
-    QString S;
-    const QString TestStr = "QREMOTE_CONTROL:";
-    for (int i=0; i<argc; i++) {
 
-	S = argv[i];
-	int pos = S.find(TestStr);
-	if (pos >= 0) {
+#if defined (QT_REMOTE_CONTROL)
+/*!
+    Enables remote access to the application if \a enable is set to TRUE.
+    You can use the \a appId to give your application a unique identification that can be used
+    by the remote control.
+    If \a enable is set to FALSE an existing remote access is terminated.
+    Remote control access is disabled by default.
+    You can call this function any time after having created the app.
+*/
+void QApplication::setEnableRemoteControl(bool enable, const QUuid *appId)
+{
+    if (appId)
+	application_id = *appId;
+    else
+	application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
 
-	    QString hostIp, hostPort;
-	    S = S.mid(pos + TestStr.length());
-	    int pos = S.find(":");
-	    if (pos > 0) {
+    if (!enable) {
 
-		hostIp = S.left(pos);
-		hostPort = S.mid(pos+1);
-		int port = hostPort.toInt();
-		if (port > 0) {
+	if (remoteControl != 0) {
+	    remoteControl->release();
+	    remoteControl = 0;
+	}
+    } else {
 
-		    // This is a hack, but since this number will never change...
-		    // {C71CE12C-AB3C-459B-87D6-C539FF45975D}
-		    QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
-		    if (QComponentFactory::createInstance(cid,IID_QRemoteControl,(QUnknownInterface**)&remoteControl) == QS_OK) {
+	if (remoteControl != 0) {
+	    return; // it's enabled already so there's nothing more to do.
+	}
 
-			remoteControl->open(hostIp,port);
-			qDebug("Remote Control is enabled.");
+	QString S;
+	const QString TestStr = "QREMOTE_CONTROL:";
+	for (int i=0; i<argc(); i++) {
+
+	    S = argv()[i];
+	    int pos = S.find(TestStr);
+	    if (pos >= 0) {
+
+		QString hostIp, hostPort;
+		S = S.mid(pos + TestStr.length());
+		int pos = S.find(":");
+		if (pos > 0) {
+
+		    hostIp = S.left(pos);
+		    hostPort = S.mid(pos+1);
+		    int port = hostPort.toInt();
+		    if (port > 0) {
+
+			// This is a hack, but since this number will never change...
+			// {C71CE12C-AB3C-459B-87D6-C539FF45975D}
+			QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
+			if (QComponentFactory::createInstance(cid,IID_QRemoteControl,(QUnknownInterface**)&remoteControl) == QS_OK) {
+
+			    remoteControl->open(hostIp,port);
+			    qDebug("Remote Control is enabled.");
+			} else {
+
+    			    qDebug("Remote Control component NOT found");
+			}
 		    } else {
 
-    		        qDebug("Remote Control component NOT found");
+			qDebug("Host port seems invalid, remote control is NOT enabled!");
+			qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
 		    }
 		} else {
 
-		    qDebug("Host port seems invalid, remote control is NOT enabled!");
+		    qDebug("Ip address and port are not specified, remote control is NOT enabled!");
 		    qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
 		}
-	    } else {
-
-		qDebug("Ip address and port are not specified, remote control is NOT enabled!");
-		qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
+		break;
 	    }
-	    break;
 	}
     }
-#endif //QT_REMOTE_SUPPORT
-
 }
+
+/*! 
+    Returns TRUE if remote control access is enabled for the application.
+*/
+bool QApplication::remoteControlEnabled() const
+{
+    return remoteControl != 0;
+}
+
+/*!
+    Returns the application id that was set by using setEnableRemoteControl.
+*/
+QUuid QApplication::applicationId() const
+{
+    return application_id;
+}
+#endif
 
 
 
@@ -912,11 +957,11 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
     if (remoteControl != 0)
     	remoteControl->release();
     remoteControl = 0;
-#endif // QT_REMOTE_SUPPORT
+#endif // QT_REMOTE_CONTROL
 
     delete desktopWidget;
     desktopWidget = 0;
@@ -1844,7 +1889,7 @@ void QApplication::closeAllWindows()
 
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
     if (remoteControl != 0) {
 	if (remoteControl->handleNotification(receiver, e))
 	    return TRUE;

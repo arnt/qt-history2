@@ -54,7 +54,7 @@
 #include "qpixmap.h"
 #endif // QT_H
 
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
 
 class QString;
 class QSocket;
@@ -62,8 +62,6 @@ class QSocket;
 class Q_EXPORT QRemoteMessage
 {
 public:
-    enum RetValue {Accepted, Rejected};
-
     QRemoteMessage();
     QRemoteMessage(const QString &eventName, const QString &eventInfo);
     QRemoteMessage(const QString &eventName, const QString &eventInfo, const QPixmap *pixmap);
@@ -71,7 +69,7 @@ public:
     virtual ~QRemoteMessage();
 	
     virtual void send(QSocket *socket);
-    virtual void reply(QSocket *socket, int retVal);
+    virtual void reply(QSocket *socket, const QString &result);
     virtual bool receive(QSocket *socket);
 
     bool hasPixmap() const;
@@ -82,7 +80,7 @@ public:
 
     uint messageId() const;
     bool isReply() const;
-    int retValue() const;
+    QString result() const;
     QString msgType() const;
     QString message() const;
 
@@ -100,13 +98,13 @@ protected:
     Q_UINT32	size;
     uint	msg_id;
     short	is_reply;
-    int		retvalue;
-    QCString	msg_type;
-    QCString	msg;
+    QString	retvalue;
+    QString	msg_type;
+    QString	msg;
     QPixmap	internal_pixmap;
     QByteArray	internal_bytearray;
 };
 
-#endif //QT_REMOTE_SUPPORT
+#endif //QT_REMOTE_CONTROL
 
 #endif

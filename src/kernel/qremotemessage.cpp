@@ -37,7 +37,7 @@
 
 #include "qremotemessage_p.h"
 
-#if defined(QT_REMOTE_SUPPORT)
+#if defined(QT_REMOTE_CONTROL)
 
 #include <qsocket.h>
 #include <qsocketdevice.h>
@@ -138,7 +138,7 @@ void QRemoteMessage::reset()
     size = 0;
     msg_id = 0;
     is_reply = FALSE;
-    retvalue = 0;
+    retvalue = "";
     msg_type = "";
     msg = "";
     internal_pixmap.resize(0,0);
@@ -226,16 +226,16 @@ void QRemoteMessage::send(QSocket *socket)
 
 /*!
     Sends a reply message over the \a socket connection using the current message id
-    and the given \a retVal.
+    and the given \a result.
 */
 
-void QRemoteMessage::reply(QSocket *socket, int retVal)
+void QRemoteMessage::reply(QSocket *socket, const QString &result)
 {
     internal_pixmap.resize(0,0);
     msg_type = "Reply";
     msg = "";
 
-    retvalue = retVal;
+    retvalue = result;
     is_reply = TRUE;
     send(socket);
 }
@@ -383,7 +383,7 @@ bool QRemoteMessage::isReply() const
     If the message is not a reply the return value is undefined.
 */
 
-int QRemoteMessage::retValue() const
+QString QRemoteMessage::result() const
 {
     return retvalue;
 }
@@ -397,4 +397,4 @@ QString QRemoteMessage::msgType() const
     return msg_type;
 }
 
-#endif //QT_REMOTE_SUPPORT
+#endif //QT_REMOTE_CONTROL

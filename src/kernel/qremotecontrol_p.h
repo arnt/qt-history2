@@ -123,12 +123,13 @@ public:
 
 /*!
     Sends (e.g. blocking) an \a msgType, \a message and \a pixmap to the remote controller
-    (host) and waits for a \a retValue. You can use \a timeout to specify the max wait time
+    (host) and waits for a \a result. You can use \a timeout to specify the max wait time
     for the reply. If \a timeout == -1 the function waits forever.
+    The \a result parameter returns the answer from the receiver of this message.
     QRemoteControlInterface only defines the interface. The actual sendObject functionality must be
     implemented in a derived class.
 */
-    virtual bool sendObject(const QString &msgType, const QString &message, const QPixmap *pixmap, int &retValue, int timeout = -1) = 0;
+    virtual bool sendObject(const QString &msgType, const QString &message, const QPixmap *pixmap, QString &result, int timeout = -1) = 0;
 };
 
 class QRemoteClient : public QObject
