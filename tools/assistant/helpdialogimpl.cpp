@@ -28,17 +28,12 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qapplication.h>
-#include <qstringlist.h>
-#include <qtl.h>
 #include <qprogressbar.h>
 #include <qlabel.h>
 #include <qframe.h>
-#include <qobjectlist.h>
 #include <qtabwidget.h>
-#include <qpushbutton.h>
 #include <qurl.h>
 #include <qheader.h>
-#include <qtextbrowser.h>
 #include <qtimer.h>
 #include <qlineedit.h>
 #include <qfileinfo.h>
@@ -200,7 +195,7 @@ void HelpDialog::loadIndexFile()
 	    if ( bar )
 		bar->setProgress( bar->progress() + l.length() );
 	}
-	
+
 	// Read the Linguist index as well
 	// ### This is a temp hack and should be removed when the
 	// ### Assistant becomes more generalised.
@@ -225,7 +220,7 @@ void HelpDialog::loadIndexFile()
 	    qHeapSort( *lst );
 
 	    QFile indexout( QDir::homeDirPath() + "/.indexdb" );
-	    if ( indexout.open( IO_WriteOnly ) ) {	
+	    if ( indexout.open( IO_WriteOnly ) ) {
 		QDataStream s( &indexout );
 		s << QFileInfo( f ).lastModified();
 		s << (f.size() + f2.size());
@@ -315,7 +310,7 @@ void HelpDialog::setupTitleMap()
 	}
 
 	QFile titleout( QDir::homeDirPath() + "/.titlemapdb" );
-	if ( titleout.open( IO_WriteOnly ) ) {	
+	if ( titleout.open( IO_WriteOnly ) ) {
 	    QDataStream s( &titleout );
 	    s << QFileInfo( f2 ).lastModified();
 	    s << f2.size();
@@ -326,7 +321,7 @@ void HelpDialog::setupTitleMap()
 }
 
 void HelpDialog::currentTabChanged( const QString &s )
-{	
+{
     if ( s.contains( tr( "Index" ) ) ) {
 	if ( !indexDone )
 	    QTimer::singleShot( 100, this, SLOT( loadIndexFile() ) );
@@ -690,16 +685,16 @@ void HelpDialog::insertContents()
     // Qt reference docs. This will be removed when the Assistant becomes
     // more generalised.
     lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, "Chapter 3: Programmers" );
+    lastItem->setText( 0, tr( "Chapter 3: Programmers" ) );
     lastItem->setLink( "linguist-programmer.html" );
     lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, "Chapter 2: Translators" );
+    lastItem->setText( 0, tr( "Chapter 2: Translators" ) );
     lastItem->setLink( "linguist-translator.html" );
     lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, "Chapter 1: Release Manager" );
+    lastItem->setText( 0, tr( "Chapter 1: Release Manager" ) );
     lastItem->setLink( "linguist-manager.html" );
     lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, "Guide to the Qt Translation tools" );
+    lastItem->setText( 0, tr( "Guide to the Qt Translation tools" ) );
     lastItem->setLink( "qt-translation-tools.html" );
 }
 
