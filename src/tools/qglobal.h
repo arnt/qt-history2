@@ -590,6 +590,13 @@ const bool true = TRUE;
 #  endif
 #endif
 
+//
+// Proper for-scoping
+// ### turn on in 4.0
+
+#if 0 && defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+#  define for if(0){}else for
+#endif
 
 //
 // Use the "explicit" keyword on platforms that support it.
