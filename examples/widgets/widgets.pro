@@ -6,8 +6,3 @@ SOURCES		= main.cpp widgets.cpp ../aclock/aclock.cpp ../dclock/dclock.cpp
 TARGET		= widgets
 DEPENDPATH=../../include
 REQUIRES=full-config
-
-off:macx-g++ {
-	target.path=$${TARGET}.app/Contents/MacOS
-	INSTALLS += target
-}
