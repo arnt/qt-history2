@@ -1294,6 +1294,8 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 /*! \property QWidget::underMouse
     \brief whether the widget is under the mouse cursor
 
+  This value is not updated properly during drag'n'drop operations.
+
   \sa QEvent::Enter, QEvent::Leave
 */
 

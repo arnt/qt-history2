@@ -2115,8 +2115,15 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
     }
 
     if ( receiver->isWidgetType() ) {
-	// throw away mouse events to disabled widgets
 	QWidget *widget = (QWidget*)receiver;
+
+	// toggle HasMouse widget state on enter and leave
+	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
+	    widget->setWState( WState_HasMouse );
+	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
+	    widget->clearWState( WState_HasMouse );
+
+	// throw away mouse events to disabled widgets
 	if ( ( e->type() <= QEvent::MouseMove &&
 	       e->type() >= QEvent::MouseButtonPress ||
 	       e->type() == QEvent::Wheel ||
@@ -2133,12 +2140,6 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	     (((QMouseEvent*)e)->state()&QMouseEvent::MouseButtonMask) == 0 &&
 	     !widget->hasMouseTracking() )
 	    return TRUE;
-
-	// toggle HasMouse widget state on enter and leave
-	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
-	    widget->setWState( WState_HasMouse );
-	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
-	    widget->clearWState( WState_HasMouse );
     }
 
     return receiver->event( e );
