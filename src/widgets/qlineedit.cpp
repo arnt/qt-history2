@@ -666,6 +666,12 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	updateOffset();
     if ( !d->pm || d->pmDirty ) {
 	makePixmap();
+	if ( d->pm->isNull() ) {
+	    delete d->pm;
+	    d->pm = 0;
+	    return;
+	}
+
 	QPainter p( d->pm, this );
 
 	const QColorGroup & g = colorGroup();
