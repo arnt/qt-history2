@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#81 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -35,15 +35,15 @@
 
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
 
-static HANDLE shared_dc	     = 0;		// common dc for all fonts
-static HANDLE shared_dc_font = 0;		// used by Windows 95/98
+static HDC   shared_dc	    = 0;		// common dc for all fonts
+static HFONT shared_dc_font = 0;		// used by Windows 95/98
 
-static HANDLE stock_sysfont  = 0;
+static HFONT stock_sysfont  = 0;
 
-static inline HANDLE systemFont()
+static inline HFONT systemFont()
 {
     if ( stock_sysfont == 0 )
-	stock_sysfont = GetStockObject(SYSTEM_FONT);
+	stock_sysfont = (HFONT)GetStockObject(SYSTEM_FONT);
     return stock_sysfont;
 }
 
@@ -58,8 +58,8 @@ public:
    ~QFontInternal();
     bool	    dirty()      const;
     const char	   *key()	 const;
-    HANDLE	    dc()	 const;
-    HANDLE	    font()	 const;
+    HDC		    dc()	 const;
+    HFONT	    font()	 const;
     TEXTMETRICA	   *textMetricA() const;
     TEXTMETRICW	   *textMetricW() const;
     const QFontDef *spec()	 const;
@@ -68,8 +68,8 @@ public:
 private:
     QFontInternal( const QString & );
     QString	k;
-    HANDLE	hdc;
-    HANDLE	hfont;
+    HDC		hdc;
+    HFONT	hfont;
     bool	stockFont;
     union {
 	TEXTMETRICW	w;
@@ -77,7 +77,7 @@ private:
     } tm;
     QFontDef	s;
     int		lw;
-    friend void QFont::load(HANDLE) const;
+    friend void QFont::load(HDC) const;
     friend void QFont::initFontInfo() const;
 };
 
@@ -97,7 +97,7 @@ inline const char* QFontInternal::key() const
     return k;
 }
 
-inline HANDLE QFontInternal::dc() const
+inline HDC QFontInternal::dc() const
 {
     if ( qt_winver == WV_NT )
 	return hdc;
@@ -109,7 +109,7 @@ inline HANDLE QFontInternal::dc() const
     return shared_dc;
 }
 
-inline HANDLE QFontInternal::font() const
+inline HFONT QFontInternal::font() const
 {
     return hfont;
 }
@@ -144,7 +144,8 @@ void QFontInternal::reset()
 	    if ( !stockFont )
 		DeleteObject( hfont );
 	    DeleteDC( hdc );
-	    hdc = hfont = 0;
+	    hdc = 0;
+	    hfont = 0;
 	}
     } else {
 	if ( hfont ) {				// shared DC (Windows 95/98)
@@ -256,9 +257,9 @@ QFont::QFont( Internal )
 #define DIRTY_FONT (d->req.dirty || d->fin->dirty())
 
 
-HANDLE QFont::handle( HANDLE output_hdc ) const
+HFONT QFont::handle( HDC output_hdc ) const
 {
-    static HANDLE last = 0;
+    static HFONT last = 0;
     if ( DIRTY_FONT ) {
 	load( output_hdc );
     } else {
@@ -323,7 +324,7 @@ void QFont::initFontInfo() const
 }
 
 
-void QFont::load( HANDLE ) const
+void QFont::load( HDC ) const
 {
     if ( !fontCache )				// not initialized
 	return;
@@ -361,7 +362,7 @@ void QFont::load( HANDLE ) const
 #endif
 
 
-HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
+HFONT QFont::create( bool *stockFont, HDC hdc ) const
 {
     QString fam = QFont::substitute( d->req.family );
     if ( d->req.rawMode ) {			// will choose a stock font
@@ -391,7 +392,7 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
 	    f = deffnt;
 	if ( stockFont )
 	    *stockFont = TRUE;
-	HANDLE hfont = GetStockObject( f );
+	HFONT hfont = (HFONT)GetStockObject( f );
 	if ( !hfont )
 	    hfont = systemFont();
 	return hfont;
@@ -465,11 +466,11 @@ HANDLE QFont::create( bool *stockFont, HANDLE hdc ) const
     memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
 	sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 
-    HANDLE hfont = CreateFontIndirect( &lf );
+    HFONT hfont = CreateFontIndirect( &lf );
     if ( stockFont )
 	*stockFont = hfont == 0;
     if ( hfont == 0 )
-	hfont = GetStockObject( ANSI_VAR_FONT );
+	hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
     return hfont;
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#21 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -81,10 +81,10 @@ void QClipboard::clear()
 void *QClipboard::data( const char *format ) const
 {
 #if defined(CHECK_RANGE)
-	    warning( "QClipboard::data: Unknown format: %s", format );
+    warning( "QClipboard::data: Unknown format: %s", format );
 #endif
-	    return 0;
-    }
+    return 0;
+}
 
 
 void QClipboard::ownerDestroyed()
@@ -151,21 +151,14 @@ QString QClipboard::text() const
     }
 
     QString text;
-
-#if 1
-	HANDLE htext = GlobalAlloc(GMEM_MOVEABLE, GlobalSize(h));
-	char *src = (char *)GlobalLock(h);
-	char *dst = (char *)GlobalLock(htext);
-	strcpy( dst, src );
+    HANDLE htext = GlobalAlloc(GMEM_MOVEABLE, GlobalSize(h));
+    char *src = (char *)GlobalLock(h);
+    char *dst = (char *)GlobalLock(htext);
+    strcpy( dst, src );
     text = dst;
-	GlobalUnlock(h);
-	GlobalUnlock(htext);
-	GlobalFree(htext);
-#else
-	char *d = (char *)GlobalLock( h );
-    text = d;
-	GlobalUnlock( h );
-#endif
+    GlobalUnlock(h);
+    GlobalUnlock(htext);
+    GlobalFree(htext);
 
     CloseClipboard();
 
@@ -184,13 +177,13 @@ void QClipboard::setText( const QString &text )
     EmptyClipboard();
 
     int len = text.length();
-	if ( len > 0 ) {
-	    HANDLE h = GlobalAlloc( GHND, len+1 );
-	    char *d = (char *)GlobalLock( h );
+    if ( len > 0 ) {
+	HANDLE h = GlobalAlloc( GHND, len+1 );
+	char *d = (char *)GlobalLock( h );
 	memcpy( d, text.ascii(), len+1 );
-	    GlobalUnlock( h );
-	    SetClipboardData( f, h );
-	}
+	GlobalUnlock( h );
+	SetClipboardData( f, h );
+    }
 
     CloseClipboard();
 }
@@ -207,8 +200,7 @@ QPixmap QClipboard::pixmap() const
     if ( h == 0 ) {				// no clipboard data
 	CloseClipboard();
 	return 0;
-}
-
+    }
 
     BITMAP bm;
     HDC    hdc = GetDC( 0 );
@@ -235,14 +227,12 @@ void QClipboard::setPixmap( const QPixmap &pixmap )
 
     EmptyClipboard();
 
-    //QPixmap *pixmap = (QPixmap *)data; //what is that???
-    // if ( pixmap && !pixmap->isNull() ) {
     if ( !pixmap.isNull() ){
 	BITMAP bm;
 	GetObject( pixmap.hbm(), sizeof(BITMAP), &bm );
-	HANDLE hbm = CreateBitmapIndirect( &bm );
-	HDC	   hdc = GetDC( 0 );
-	HDC	   hdcMemDst = CreateCompatibleDC( hdc );
+	HBITMAP hbm = CreateBitmapIndirect( &bm );
+	HDC hdc = GetDC( 0 );
+	HDC hdcMemDst = CreateCompatibleDC( hdc );
 	SelectObject( hdcMemDst, hbm );
 	BitBlt( hdcMemDst, 0,0, bm.bmWidth, bm.bmHeight,
 		pixmap.handle(), 0, 0, SRCCOPY );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#36 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -67,12 +67,12 @@ bool QPrinter::newPage()
 
 void QPrinter::setActive()
 {
-    state == PST_ACTIVE;
+    state = PST_ACTIVE;
 }
 
 void QPrinter::setIdle()
 {
-    state == PST_IDLE;
+    state = PST_IDLE;
 }
 
 
@@ -237,10 +237,10 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    else
 		bits = image.bits();
 
-	    HANDLE hdcPrn = CreateCompatibleDC( hdc );
-	    HANDLE hbm = CreateDIBitmap( hdc, bmh, CBM_INIT,
-					 bits, bmi, DIB_RGB_COLORS );
-	    HANDLE oldHbm = SelectObject( hdcPrn, hbm );
+	    HDC     hdcPrn = CreateCompatibleDC( hdc );
+	    HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
+					     bits, bmi, DIB_RGB_COLORS );
+	    HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
 	    StretchBlt( hdc, pos.x(), pos.y(), dw, dh,
 			hdcPrn, 0, 0, w, h, SRCCOPY );
 	    SelectObject( hdcPrn, oldHbm );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtinit_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qtinit_win.cpp#3 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -35,11 +35,11 @@
 */
 
 Q_EXPORT
-void qt_draw_tiled_pixmap( HANDLE, int, int, int, int,
+void qt_draw_tiled_pixmap( HDC, int, int, int, int,
 			   const QPixmap *, int, int );
 
 static
-void qt_erase_background( HANDLE hdc, int x, int y, int w, int h,
+void qt_erase_background( HDC hdc, int x, int y, int w, int h,
 			  const QColor &bg_color,
 			  const QPixmap *bg_pixmap, int off_x, int off_y )
 {
@@ -54,7 +54,7 @@ void qt_erase_background( HANDLE hdc, int x, int y, int w, int h,
 	qt_draw_tiled_pixmap( hdc, x, y, w, h, bg_pixmap, off_x, off_y );
     } else {
 	HBRUSH brush = CreateSolidBrush( bg_color.pixel() );
-	HBRUSH oldBrush = SelectObject( hdc, brush );
+	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	PatBlt( hdc, x, y, w, h, PATCOPY );
 	SelectObject( hdc, oldBrush );
 	DeleteObject( brush );

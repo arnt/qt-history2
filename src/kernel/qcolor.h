@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#51 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#52 $
 **
 ** Definition of QColor class
 **
@@ -105,8 +105,8 @@ public:
     static void destroyAllocContext( int );
 
 #if defined(_WS_WIN_)
-    static HANDLE hPal()  { return hpal; }
-    static uint	  realizePal( QWidget * );
+    static HPALETTE hPal()  { return hpal; }
+    static uint	realizePal( QWidget * );
 #endif
 
     static void initialize();
@@ -119,7 +119,7 @@ private:
     static bool globals_init;
     static bool lazy_alloc;
 #if defined(_WS_WIN_)
-    static HANDLE hpal;
+    static HPALETTE hpal;
 #endif
     uint   pix;
     QRgb   rgbVal;

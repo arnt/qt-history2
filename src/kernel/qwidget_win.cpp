@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#158 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -53,7 +53,7 @@ extern bool qt_nograb();
 static QWidget *mouseGrb    = 0;
 static QCursor *mouseGrbCur = 0;
 static QWidget *keyboardGrb = 0;
-static HANDLE	journalRec  = 0;
+static HHOOK	journalRec  = 0;
 
 extern "C" LRESULT CALLBACK QtWndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -79,8 +79,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     bool   tool	    = testWFlags(WType_Popup|WStyle_Tool);
     bool   modal    = testWFlags(WType_Modal);
     bool   desktop  = testWFlags(WType_Desktop);
-    HANDLE appinst  = qWinAppInst();
-    HANDLE parentw, destroyw = 0;
+    HINSTANCE appinst  = qWinAppInst();
+    HWND   parentw, destroyw = 0;
     WId	   id;
 
     const char *windowClassName = qt_reg_winclass( getWFlags() );
@@ -466,7 +466,7 @@ void QWidget::setCaption( const QString &caption )
   Create an icon mask the way Windows wants it using CreateBitmap.
 */
 
-static HANDLE createIconMask( const QBitmap &bitmap )
+static HBITMAP createIconMask( const QBitmap &bitmap )
 {
     QImage bm = bitmap.convertToImage();
     int w = bm.width();
@@ -475,7 +475,7 @@ static HANDLE createIconMask( const QBitmap &bitmap )
     uchar *bits = new uchar[bpl*h];
     for ( int y=0; y<h; y++ )
 	memcpy( bits+y*bpl, bm.scanLine(y), bpl );
-    HANDLE hbm = CreateBitmap( w, h, 1, 1, bits );
+    HBITMAP hbm = CreateBitmap( w, h, 1, 1, bits );
     delete [] bits;
     return hbm;
 }
@@ -506,7 +506,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	    mask.resize( pixmap.size() );
 	    mask.fill( color1 );
 	}
-	HANDLE im = createIconMask(mask);
+	HBITMAP im = createIconMask(mask);
 	ICONINFO ii;
 	ii.fIcon    = TRUE;
 	ii.hbmMask  = im;
@@ -943,7 +943,7 @@ void QWidget::setSizeIncrement( int w, int h )
 }
 
 
-extern void qt_erase_bg( HANDLE, int, int, int, int,
+extern void qt_erase_bg( HDC, int, int, int, int,
 			 const QColor &, const QPixmap *, int, int );
 
 void QWidget::erase( int x, int y, int w, int h )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#121 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -78,13 +78,13 @@ static QHDCObj *brush_cache_buf;
 static QHDCObj *brush_cache[4*cache_size];
 static bool	cache_init = FALSE;
 
-static HANDLE stock_nullPen;
-static HANDLE stock_blackPen;
-static HANDLE stock_whitePen;
-static HANDLE stock_nullBrush;
-static HANDLE stock_blackBrush;
-static HANDLE stock_whiteBrush;
-static HANDLE stock_sysfont;
+static HPEN   stock_nullPen;
+static HPEN   stock_blackPen;
+static HPEN   stock_whitePen;
+static HBRUSH stock_nullBrush;
+static HBRUSH stock_blackBrush;
+static HBRUSH stock_whiteBrush;
+static HFONT  stock_sysfont;
 
 static QHDCObj stock_dummy;
 static void  *stock_ptr = (void *)&stock_dummy;
@@ -253,11 +253,11 @@ static inline void release_obj( void *ref )
     ((QHDCObj*)ref)->count--;
 }
 
-static inline bool obtain_pen( void **ref, HANDLE *pen, uint pix )
-{ return obtain_obj( ref, pen, pix, pen_cache, TRUE ); }
+static inline bool obtain_pen( void **ref, HPEN *pen, uint pix )
+{ return obtain_obj( ref, (HANDLE*)pen, pix, pen_cache, TRUE ); }
 
-static inline bool obtain_brush( void **ref, HANDLE *brush, uint pix )
-{ return obtain_obj( ref, brush, pix, brush_cache, FALSE ); }
+static inline bool obtain_brush( void **ref, HBRUSH *brush, uint pix )
+{ return obtain_obj( ref, (HANDLE*)brush, pix, brush_cache, FALSE ); }
 
 #define release_pen	release_obj
 #define release_brush	release_obj
@@ -275,13 +275,13 @@ const int TxRotShear  = 3;
 
 void QPainter::initialize()
 {
-    stock_nullPen    = GetStockObject( NULL_PEN );
-    stock_blackPen   = GetStockObject( BLACK_PEN );
-    stock_whitePen   = GetStockObject( WHITE_PEN );
-    stock_nullBrush  = GetStockObject( NULL_BRUSH );
-    stock_blackBrush = GetStockObject( BLACK_BRUSH );
-    stock_whiteBrush = GetStockObject( WHITE_BRUSH );
-    stock_sysfont    = GetStockObject( SYSTEM_FONT );
+    stock_nullPen    = (HPEN)GetStockObject( NULL_PEN );
+    stock_blackPen   = (HPEN)GetStockObject( BLACK_PEN );
+    stock_whitePen   = (HPEN)GetStockObject( WHITE_PEN );
+    stock_nullBrush  = (HBRUSH)GetStockObject( NULL_BRUSH );
+    stock_blackBrush = (HBRUSH)GetStockObject( BLACK_BRUSH );
+    stock_whiteBrush = (HBRUSH)GetStockObject( WHITE_BRUSH );
+    stock_sysfont    = (HFONT)GetStockObject( SYSTEM_FONT );
     init_cache();
 }
 
@@ -331,7 +331,10 @@ void QPainter::init()
     ps_stack = 0;
     wm_stack = 0;
     pdev = 0;
-    hdc = hpen = hbrush = hbrushbm = 0;
+    hdc = 0;
+    hpen = 0;
+    hbrush = 0;
+    hbrushbm = 0;
     txop = txinv = 0;
     pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
@@ -504,7 +507,7 @@ void QPainter::updateBrush()
     int	   bs	   = cbrush.style();
     uint   pix	   = COLOR_VALUE(cbrush.data->color);
     bool   cacheIt = bs == NoBrush || bs == SolidPattern;
-    HANDLE hbrush_old;
+    HBRUSH hbrush_old;
 
     if ( brushRef ) {
 	release_brush( brushRef );
@@ -540,8 +543,8 @@ void QPainter::updateBrush()
 	}
     }
 
-    HANDLE hbrushbm_old	   = hbrushbm;
-    bool   pixmapBrush_old = pixmapBrush;
+    HBITMAP hbrushbm_old    = hbrushbm;
+    bool    pixmapBrush_old = pixmapBrush;
 
     pixmapBrush = nocolBrush = FALSE;
     hbrushbm = 0;
@@ -796,7 +799,8 @@ bool QPainter::end()
 	    if ( hbrushbm && !pixmapBrush )
 		DeleteObject( hbrushbm );
 	}
-	hbrush = hbrushbm = 0;
+	hbrush = 0;
+	hbrushbm = 0;
 	pixmapBrush = nocolBrush = FALSE;
     }
     if ( winFont ) {
@@ -1783,7 +1787,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		pm->allocMemDC();
 	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 	    COLORREF tc, bc;
-	    b = SelectObject( hdc, b );
+	    b = (HBRUSH)SelectObject( hdc, b );
 	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
 	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
 	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern
@@ -2048,7 +2052,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    y = qRound(nfy-dy);
 	    HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
 	    COLORREF tc, bc;
-	    b = SelectObject( hdc, b );
+	    b = (HBRUSH)SelectObject( hdc, b );
 	    tc = SetTextColor( hdc, COLOR_VALUE(black) );
 	    bc = SetBkColor( hdc, COLOR_VALUE(white) );
 	    // PSDPxax    ((Pattern XOR Dest) AND Src) XOR Pattern

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#95 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#96 $
 **
 ** Definition of QPixmap class
 **
@@ -97,7 +97,7 @@ public:
     bool	save( const QString& fileName, const char* format ) const;
 
 #if defined(_WS_WIN_)
-    HANDLE	hbm()		const;
+    HBITMAP	hbm()		const;
 #endif
 
     int		serialNumber()	const;
@@ -121,7 +121,7 @@ public:
     bool	isQBitmap() const;
 
 #if defined(_WS_WIN_)
-    HANDLE	allocMemDC();
+    HDC		allocMemDC();
     void	freeMemDC();
 #endif
 
@@ -140,7 +140,7 @@ protected:
 	int	ser_no;
 	QBitmap *mask;
 #if defined(_WS_WIN_)
-	HANDLE	hbm;
+	HBITMAP	hbm;
 	void   *bits;
 	QPixmap *maskpm;
 #elif defined(_WS_X11_)
@@ -195,7 +195,7 @@ inline bool QPixmap::selfMask() const
 }
 
 #if defined(_WS_WIN_)
-inline HANDLE QPixmap::hbm() const
+inline HBITMAP QPixmap::hbm() const
 {
     return data->hbm;
 }

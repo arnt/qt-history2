@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.h#9 $
+** $Id: //depot/qt/main/src/kernel/qthread.h#10 $
 **
 ** Definition of QThread class
 **
@@ -84,7 +84,7 @@ public:
     static void	resume( QThreadID );
     static void	terminate( QThreadID );
 
-    static bool available() const;
+    static bool available();
 
 private:
     QThreadID	tid;

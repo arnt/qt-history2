@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#41 $
 **
 ** Implementation of QMainWindow class
 **
@@ -512,8 +512,9 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     do {
 	bool nl = t->nl;
 	if (t->t->isVisible() && !t->t->testWFlags(WState_ForceHide))
-	    cw += t->t->sizeHint().width(); 
-	nl |= cw > tl->mainWidget()->width();
+	    cw += t->t->sizeHint().width();
+	if ( cw > tl->mainWidget()->width() )
+	    nl = TRUE;
 	if (nl)
 	    cw = t->t->sizeHint().width();
 	if ( !toolBarRowLayout || nl ) {

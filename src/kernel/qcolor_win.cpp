@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#51 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -31,7 +31,7 @@
  *****************************************************************************/
 
 
-HANDLE QColor::hpal = 0;			// application global palette
+HPALETTE QColor::hpal = 0;			// application global palette
 
 static int  current_alloc_context = 0;
 
@@ -40,12 +40,11 @@ int QColor::maxColors()
 {
     static int maxcols = 0;
     if ( maxcols == 0 ) {
-	HANDLE hdc = GetDC( 0 );
+	HDC hdc = qt_display_dc();
 	if ( GetDeviceCaps(hdc, RASTERCAPS) & RC_PALETTE )
 	    maxcols = GetDeviceCaps( hdc, SIZEPALETTE );
 	else
 	    maxcols = GetDeviceCaps( hdc, NUMCOLORS );
-	ReleaseDC( 0, hdc );
     }
     return maxcols;
 }
@@ -53,11 +52,8 @@ int QColor::maxColors()
 int QColor::numBitPlanes()
 {
     static int planes = 0;
-    if ( planes == 0 ) {
-	HANDLE hdc = GetDC( 0 );
-	planes = GetDeviceCaps( hdc, BITSPIXEL );
-	ReleaseDC( 0, hdc );
-    }
+    if ( planes == 0 )
+	planes = GetDeviceCaps( qt_display_dc(), BITSPIXEL );
     return planes;
 }
 

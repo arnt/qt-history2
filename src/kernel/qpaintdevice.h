@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#59 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#60 $
 **
 ** Definition of QPaintDevice class
 **
@@ -46,7 +46,11 @@ public:
 
     // Windows:	  get device context
     // X-Windows: get drawable
-    HANDLE   handle()  const;
+#if defined(_WS_WIN_)
+    HDC	     handle() const;
+#elif defined(_WS_X11_)
+    HANDLE   handle() const;
+#endif
 
 #if !defined(_WS_X11_)
 #define Display void
@@ -133,9 +137,9 @@ inline bool QPaintDevice::paintingActive() const
 { return (devFlags & QInternal::PaintingActive) != 0; }
 
 #if defined(_WS_WIN_)
-inline HANDLE	QPaintDevice::handle()	const { return hdc; }
+inline HDC QPaintDevice::handle() const { return hdc; }
 #elif defined(_WS_X11_)
-inline HANDLE	QPaintDevice::handle()	const { return hd; }
+inline HANDLE QPaintDevice::handle() const { return hd; }
 #endif
 
 #if defined(_WS_X11_)

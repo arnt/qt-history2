@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#67 $
 **
 ** Implementation of QDialog class
 **
@@ -142,7 +142,8 @@ void QDialog::setDefault( QPushButton *pushButton )
     QPushButton *pb;
     bool hasMain = FALSE;
     while ( (pb = (QPushButton*)it.current()) ) {
-	hasMain |= pb == mainDef;
+	if ( pb == mainDef )
+	    hasMain = TRUE;
 	if ( pb != pushButton )
 	    pb->setDefault( FALSE );
 	++it;

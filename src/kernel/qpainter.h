@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#124 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#125 $
 **
 ** Definition of QPainter class
 **
@@ -226,7 +226,7 @@ public:
     int	       *tabArray() const;
     void	setTabArray( int * );
 
-    HANDLE	handle() const;
+    HDC		handle() const;
 
     static void initialize();
     static void cleanup();
@@ -306,10 +306,10 @@ private:
 protected:
 #if defined(_WS_WIN_)
     HDC		hdc;				// device context
-    HANDLE	hpen;				// current pen
-    HANDLE	hbrush;				// current brush
-    HANDLE	hbrushbm;			// current brush bitmap
-    HANDLE	holdpal;
+    HPEN	hpen;				// current pen
+    HBRUSH	hbrush;				// current brush
+    HBITMAP	hbrushbm;			// current brush bitmap
+    HPALETTE	holdpal;
     uint	pixmapBrush	: 1;
     uint	nocolBrush	: 1;
     QWinFont   *winFont;
@@ -433,7 +433,7 @@ inline int *QPainter::tabArray() const
     return tabarray;
 }
 
-inline HANDLE QPainter::handle() const
+inline HDC QPainter::handle() const
 {
 #if defined(_WS_WIN_)
     return hdc;

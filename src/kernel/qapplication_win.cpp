@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#224 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#225 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -54,17 +54,17 @@
   Internal variables and functions
  *****************************************************************************/
 
-static char	appName[120];			// application name
-static HANDLE	appInst		= 0;		// handle to app instance
-static HANDLE	appPrevInst	= 0;		// handle to prev app instance
-static int	appCmdShow	= 0;		// main window show command
-static int	numZeroTimers	= 0;		// number of full-speed timers
-static HWND	curWin		= 0;		// current window
-static HANDLE	displayDC	= 0;		// display device context
-static QWidget *desktopWidget	= 0;		// desktop window widget
+static char	 appName[120];			// application name
+static HINSTANCE appInst	= 0;		// handle to app instance
+static HINSTANCE appPrevInst	= 0;		// handle to prev app instance
+static int	 appCmdShow	= 0;		// main window show command
+static int	 numZeroTimers	= 0;		// number of full-speed timers
+static HWND	 curWin		= 0;		// current window
+static HDC	 displayDC	= 0;		// display device context
+static QWidget	*desktopWidget	= 0;		// desktop window widget
 #define USE_HEARTBEAT
 #if defined(USE_HEARTBEAT)
-static int	heartBeat	= 0;		// heatbeat timer
+static int	 heartBeat	= 0;		// heatbeat timer
 #endif
 
 #if defined(DEBUG)
@@ -78,8 +78,8 @@ static QWidgetList *modal_stack = 0;		// stack of modal widgets
 static QWidget	   *popupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 
-static HANDLE	autoCaptureWnd = 0;
-static void	setAutoCapture( HANDLE );	// automatic capturing
+static HWND	autoCaptureWnd = 0;
+static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
 
 typedef void  (*VFPTR)();
@@ -156,7 +156,7 @@ static void set_winapp_name()
  *****************************************************************************/
 
 Q_EXPORT
-void qWinMain( HANDLE instance, HANDLE prevInstance, LPSTR cmdParam,
+void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 	       int cmdShow, int &argc, QArray<pchar> &argv )
 {
     static bool already_called = FALSE;
@@ -242,7 +242,6 @@ static void outColor(const char* s, const QColor& col) {
 }
 static void qt_set_windows_resources()
 {
-
     // windows supports special fonts for the menus
     NONCLIENTMETRICS ncm;
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
@@ -408,10 +407,11 @@ void qt_init( int *argcptr, char **argv )
 	    qt_winver = WV_NT;
     }
 
-  // Initialize OLE
+  // Initialize OLE/COM
   //   S_OK means success and S_FALSE means that it has already
   //   been initialized
-    HRESULT r = OleInitialize(0);
+    HRESULT r;
+    r = OleInitialize(0);
     if ( r != S_OK && r != S_FALSE ) {
 #if defined(CHECK_STATE)
 	warning( "Qt: Could not initialize OLE (error %x)", r );
@@ -473,7 +473,7 @@ void qt_cleanup()
     if ( displayDC )
 	ReleaseDC( 0, displayDC );
 
-  // Deinitialize OLE
+  // Deinitialize OLE/COM
     OleUninitialize();
 }
 
@@ -511,12 +511,12 @@ Q_EXPORT char *qAppName()			// get application name
     return appName;
 }
 
-Q_EXPORT HANDLE qWinAppInst()			// get Windows app handle
+Q_EXPORT HINSTANCE qWinAppInst()			// get Windows app handle
 {
     return appInst;
 }
 
-Q_EXPORT HANDLE qWinAppPrevInst()		// get Windows prev app handle
+Q_EXPORT HINSTANCE qWinAppPrevInst()		// get Windows prev app handle
 {
     return appPrevInst;
 }
@@ -527,7 +527,7 @@ Q_EXPORT int qWinAppCmdShow()			// get main window show command
 }
 
 
-Q_EXPORT HANDLE qt_display_dc()			// get display DC
+Q_EXPORT HDC qt_display_dc()			// get display DC
 {
     if ( !displayDC )
 	displayDC = GetDC( 0 );
@@ -569,7 +569,7 @@ const char* qt_reg_winclass( int flags )	// register window class
     wc.lpfnWndProc	= (WNDPROC)QtWndProc;
     wc.cbClsExtra	= 0;
     wc.cbWndExtra	= 0;
-    wc.hInstance	= qWinAppInst();
+    wc.hInstance	= (HINSTANCE)qWinAppInst();
     wc.hIcon		= icon ? LoadIcon(0,IDI_APPLICATION) : 0;
     wc.hCursor		= 0;
     wc.hbrBackground	= 0;
@@ -587,7 +587,8 @@ static void unregWinClasses()
 	return;
     QDictIterator<int> it(*winclassNames);
     while ( it.currentKey() ) {
-	UnregisterClass( (TCHAR*)qt_winTchar(it.currentKey(),TRUE), qWinAppInst() );
+	UnregisterClass( (TCHAR*)qt_winTchar(it.currentKey(),TRUE),
+			 (HINSTANCE)qWinAppInst() );
 	++it;
     }
     delete winclassNames;
@@ -709,8 +710,8 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
-    POINT    p;
-    HANDLE   win;
+    POINT p;
+    HWND  win;
     QWidget *w;
     p.x = x;
     p.y = y;
@@ -721,7 +722,7 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
     if ( !w )
 	return 0;
     if ( child ) {
-	HANDLE cwin = ChildWindowFromPoint( win, p );
+	HWND cwin = ChildWindowFromPoint( win, p );
 	if ( cwin && cwin != win )
 	    return QWidget::find( cwin );
     }
@@ -904,7 +905,7 @@ static void sn_activate_fd( int sockfd, int type )
   Windows-specific drawing used here
  *****************************************************************************/
 
-static void drawTile( HANDLE hdc, int x, int y, int w, int h,
+static void drawTile( HDC hdc, int x, int y, int w, int h,
 		      const QPixmap &pixmap, int xOffset, int yOffset )
 {
     int yPos, xPos, drawH, drawW, yOff, xOff;
@@ -947,13 +948,13 @@ void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap )
 }
 
 Q_EXPORT
-void qt_draw_tiled_pixmap( HANDLE hdc, int x, int y, int w, int h,
+void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 			   const QPixmap *bg_pixmap,
 			   int off_x, int off_y )
 {
     if ( qt_winver == WV_NT ) {			// no brush size limitation
 	HBRUSH brush = CreatePatternBrush( bg_pixmap->hbm() );
-	HBRUSH oldBrush = SelectObject( hdc, brush );
+	HBRUSH oldBrush = (HBRUSH)SelectObject( hdc, brush );
 	if ( off_x || off_y ) {
 	    POINT p;
 	    SetBrushOrgEx( hdc, -off_x, -off_y, &p );
@@ -988,7 +989,7 @@ void qt_draw_tiled_pixmap( HANDLE hdc, int x, int y, int w, int h,
 
 
 #if defined(QT_BASEAPP)
-typedef (*qt_ebg_fn)( HANDLE, int, int, int, int, const QColor &,
+typedef (*qt_ebg_fn)( HDC, int, int, int, int, const QColor &,
 		      const QPixmap *, int, int );
 
 static qt_ebg_fn qt_ebg_inst = 0;
@@ -998,7 +999,7 @@ Q_EXPORT void qt_ebg( void *p )
     qt_ebg_inst = (qt_ebg_fn)p;
 }
 
-void qt_erase_bg( HANDLE hdc, int x, int y, int w, int h,
+void qt_erase_bg( HDC hdc, int x, int y, int w, int h,
 		  const QColor &bg_color,
 		  const QPixmap *bg_pixmap, int off_x, int off_y )
 {
@@ -1010,7 +1011,7 @@ void qt_erase_bg( HANDLE hdc, int x, int y, int w, int h,
 
 #define QT_ERASE_BACKGROUND
 
-void qt_erase_bg( HANDLE hdc, int x, int y, int w, int h,
+void qt_erase_bg( HDC hdc, int x, int y, int w, int h,
 		  const QColor &bg_color,
 		  const QPixmap *bg_pixmap, int off_x, int off_y )
 {
@@ -1192,7 +1193,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	}
 	if ( type >= 0 )
 	    sn_activate_fd( wParam, type );
-    } else if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
+    } else
+    if ( message >= WM_MOUSEFIRST && message <= WM_MOUSELAST ) {
 	if ( qApp->activePopupWidget() != 0) { // in popup mode
 	    POINT curPos;
 	    GetCursorPos( &curPos );
@@ -1248,7 +1250,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #else
 	   qt_erase_bg
 #endif
-		    ( (HANDLE)wParam, r.left, r.top,
+		    ( (HDC)wParam, r.left, r.top,
 		      r.right-r.left, r.bottom-r.top,
 		      widget->backgroundColor(),
 		      widget->backgroundPixmap(), 0, 0 );
@@ -1262,7 +1264,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 
 	case WM_ACTIVATE:
 	    if ( QApplication::activePopupWidget() && LOWORD(wParam) == WA_INACTIVE &&
-		 QWidget::find((HANDLE)lParam) == 0 ) {
+		 QWidget::find((HWND)lParam) == 0 ) {
 		// Another application was activated while our popups are open,
 		// then close all popups.  In case some popup refuses to close,
 		// we give up after 1024 attempts (to avoid an infinite loop).
@@ -1325,6 +1327,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		return 0;
 	    }
 	    break;
+#endif
 
 	case WM_CHANGECBCHAIN:
 	case WM_DRAWCLIPBOARD:
@@ -1609,7 +1612,7 @@ static void dispatchTimer( uint timerId, MSG *msg )
     } else if ( curWin && qApp ) {		// process heartbeat
 	POINT p;
 	GetCursorPos( &p );
-	HANDLE newWin = WindowFromPoint(p);
+	HWND newWin = WindowFromPoint(p);
 	if ( newWin != curWin && QWidget::find(newWin) == 0 ) {
 	    QWidget *curWidget = QWidget::find(curWin);
 	    QEvent leave( QEvent::Leave );
@@ -1693,7 +1696,7 @@ static void cleanupTimers()			// remove pending timers
 	// Dangerous to leave WM_TIMER events in the queue if they have our
 	// timerproc (eg. Qt-based DLL plugins may be unloaded)
 	MSG msg;
-	while (PeekMessage( &msg, (void*)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
+	while (PeekMessage( &msg, (HWND)-1, WM_TIMER, WM_TIMER, PM_REMOVE ))
 	    continue;
     }
 }
@@ -1788,7 +1791,7 @@ bool qKillTimer( QObject *obj )
 // Auto-capturing for mouse press and mouse release
 //
 
-static void setAutoCapture( HANDLE h )
+static void setAutoCapture( HWND h )
 {
     if ( autoCaptureWnd )
 	releaseAutoCapture();
@@ -2153,7 +2156,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, text );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, text );
     } else if ( msg.message == WM_IME_CHAR ) {
-debug("IME");
+	debug("IME");
 	// input method characters not found by our look-ahead
 	QString text;
 	ushort uc = (ushort)msg.wParam;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#132 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#133 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -85,20 +85,45 @@ class QWidgetListIt;
 #define NEEDS_QMAIN
 #endif
 
-#define NO_STRICT
+#if !defined(Q_NOWINSTRICT)
+#define Q_WINSTRICT
+#endif
 
 typedef void *HANDLE;
-typedef void *HDC;
-typedef void *HWND;
-typedef HWND  WId;
+
+#if defined(Q_WINSTRICT)
+
+#define STRICT
+#define Q_DECLARE_HANDLE(name) struct name##__; typedef struct name##__ *name
+
+#else
+
+#undef  STRICT
+#define NO_STRICT
+#define Q_DECLARE_HANDLE(name) typedef HANDLE name
+
+#endif
+
+Q_DECLARE_HANDLE(HINSTANCE);
+Q_DECLARE_HANDLE(HDC);
+Q_DECLARE_HANDLE(HWND);
+Q_DECLARE_HANDLE(HFONT);
+Q_DECLARE_HANDLE(HPEN);
+Q_DECLARE_HANDLE(HBRUSH);
+Q_DECLARE_HANDLE(HBITMAP);
+Q_DECLARE_HANDLE(HICON);
+typedef HICON HCURSOR;
+Q_DECLARE_HANDLE(HPALETTE);
+Q_DECLARE_HANDLE(HRGN);
 
 typedef struct tagMSG MSG;
+typedef HWND  WId;
 
 
-Q_EXPORT HANDLE qWinAppInst();
-Q_EXPORT HANDLE qWinAppPrevInst();
-Q_EXPORT int    qWinAppCmdShow();
-Q_EXPORT HANDLE qt_display_dc();
+Q_EXPORT HINSTANCE qWinAppInst();
+Q_EXPORT HINSTANCE qWinAppPrevInst();
+Q_EXPORT int	   qWinAppCmdShow();
+Q_EXPORT HDC	   qt_display_dc();
 
 enum WindowsVersion { WV_NT, WV_95, WV_98, WV_32s };
 
@@ -154,6 +179,9 @@ Q_EXPORT void qAddPostRoutine( CleanUpFunction );
 
 
 Q_EXPORT void *qt_find_obj_child( QObject *, const char *, const char * );
+#define Q_CHILD(parent,type,name) \
+	((type*)qt_find_obj_child(parent,#type,name))
+
 
 // Widget flags
 

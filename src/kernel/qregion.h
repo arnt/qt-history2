@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#44 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#45 $
 **
 ** Definition of QRegion class
 **
@@ -69,8 +69,10 @@ public:
 // case someone is using #define xor ^ to work around deficiencies in
 // their compiler that cause problems with some other header files.
 //
+#ifndef QT_NO_COMPAT
 #if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(_CC_HP_) && !defined(_CC_HP_ACC_) && !defined(_CC_USLC_) && !defined(_CC_MWERKS_) && !defined(xor)
     QRegion xor( const QRegion & )	const;
+#endif
 #endif
     QRegion eor( const QRegion & )	const;
 
@@ -82,8 +84,8 @@ public:
 			{ return !(operator==(r)); }
 
 #if defined(_WS_WIN_)
-    QRegion winRegion( HANDLE );
-    HANDLE  handle() const { return data->rgn; }
+    QRegion winRegion( HRGN ) const;
+    HRGN    handle() const { return data->rgn; }
 #elif defined(_WS_X11_)
     Region  handle() const { return data->rgn; }
 #endif
@@ -102,7 +104,7 @@ private:
     void    exec( const QByteArray & );
     struct QRegionData : public QShared {
 #if defined(_WS_WIN_)
-	HANDLE rgn;
+	HRGN   rgn;
 #elif defined(_WS_X11_)
 	Region rgn;
 #endif

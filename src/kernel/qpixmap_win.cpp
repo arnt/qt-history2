@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#76 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -74,9 +74,7 @@ void QPixmap::init( int w, int h, int d )
     data->h = h;
 
     if ( data->d == dd ) {			// compatible bitmap
-	HANDLE hdc = GetDC( 0 );
-	data->hbm  = CreateCompatibleBitmap( hdc, w, h );
-	ReleaseDC( 0, hdc );
+	data->hbm  = CreateCompatibleBitmap( qt_display_dc(), w, h );
     } else {					// monocrome bitmap
 	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
     }
@@ -191,10 +189,10 @@ void QPixmap::detach()
 }
 
 
-HANDLE QPixmap::allocMemDC()
+HDC QPixmap::allocMemDC()
 {
     if ( !hdc && !isNull() ) {
-	HANDLE hdcScreen = GetDC( 0 );
+	HDC hdcScreen = GetDC( 0 );
 	hdc = CreateCompatibleDC( hdcScreen );
 	if ( QColor::hPal() ) {
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
@@ -251,11 +249,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 int QPixmap::defaultDepth()
 {
     static int dd = 0;
-    if ( dd == 0 ) {
-	HANDLE hdc = GetDC( 0 );
-	dd = GetDeviceCaps( hdc, BITSPIXEL );
-	ReleaseDC( 0, hdc );
-    }
+    if ( dd == 0 )
+	dd = GetDeviceCaps( qt_display_dc(), BITSPIXEL );
     return dd;
 }
 
@@ -617,7 +612,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     bool tmp_hdc = pm.hdc == 0;
     if ( tmp_hdc )
 	pm.allocMemDC();
-    HANDLE src_dc = GetDC( window );
+    HDC src_dc = GetDC( window );
     BitBlt( pm.hdc, 0, 0, w, h, src_dc, x, y, SRCCOPY );
     ReleaseDC( window, src_dc );
     if ( tmp_hdc )

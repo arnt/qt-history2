@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qtmain_win.cpp#5 $
 **
 ** Implementation of Win32 startup routines.
 **
@@ -51,7 +51,7 @@ extern "C" int main( int, char ** );
 */
 
 extern "C"
-int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
+int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 		      LPSTR  cmdParam, int cmdShow )
 {
     int argc = 0;

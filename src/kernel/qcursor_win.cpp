@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#33 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -27,36 +27,6 @@
 #include "qimage.h"
 #include "qdatastream.h"
 #include "qt_windows.h"
-
-
-/*****************************************************************************
-  Internal QCursorData class
- *****************************************************************************/
-
-struct QCursorData : public QShared {
-    QCursorData();
-   ~QCursorData();
-    int	      cshape;
-    QBitmap  *bm, *bmm;
-    short     hx, hy;
-    HCURSOR   hcurs;
-};
-
-QCursorData::QCursorData()
-{
-    bm = bmm = 0;
-    hx = hy  = 0;
-}
-
-QCursorData::~QCursorData()
-{
-    if ( bm || bmm ) {
-	delete bm;
-	delete bmm;
-	if ( hcurs )
-	    DestroyCursor( hcurs );
-    }
-}
 
 
 /*****************************************************************************
@@ -97,6 +67,41 @@ static QCursor *cursorTable[] = {		// the order is important!!
     (QCursor*)&blankCursor,
     0
 };
+
+
+/*****************************************************************************
+  Internal QCursorData class
+ *****************************************************************************/
+
+struct QCursorData : public QShared {
+    QCursorData();
+   ~QCursorData();
+    int	      cshape;
+    QBitmap  *bm, *bmm;
+    short     hx, hy;
+    HCURSOR   hcurs;
+};
+
+QCursorData::QCursorData()
+{
+    bm = bmm = 0;
+    hx = hy  = 0;
+}
+
+QCursorData::~QCursorData()
+{
+    if ( bm || bmm ) {
+	delete bm;
+	delete bmm;
+	if ( hcurs )
+	    DestroyCursor( hcurs );
+    }
+}
+
+
+/*****************************************************************************
+  QCursor member functions
+ *****************************************************************************/
 
 QCursor *QCursor::find_cur( int shape )	// find predefined cursor
 {
@@ -147,7 +152,7 @@ QCursor::QCursor( int shape )			// cursor with shape
 }
 
 void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
-		  int hotX, int hotY )
+			 int hotX, int hotY )
 {
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
 	 bitmap.size() != mask.size() ) {
@@ -225,7 +230,7 @@ QPoint QCursor::hotSpot() const
 }
 
 
-HANDLE QCursor::handle() const
+HCURSOR QCursor::handle() const
 {
     if ( !data->hcurs )
 	update();
@@ -233,20 +238,20 @@ HANDLE QCursor::handle() const
 }
 
 
-QPoint QCursor::pos()				// get cursor position
+QPoint QCursor::pos()
 {
     POINT p;
     GetCursorPos( &p );
     return QPoint( p.x, p.y );
 }
 
-void QCursor::setPos( int x, int y )		// set cursor position
+void QCursor::setPos( int x, int y )
 {
     SetCursorPos( x, y );
 }
 
 
-void QCursor::update() const			// update/load cursor
+void QCursor::update() const
 {
     if ( data->hcurs )				// already loaded
 	return;

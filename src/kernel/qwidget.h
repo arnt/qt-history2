@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#195 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#196 $
 **
 ** Definition of QWidget class
 **
@@ -606,7 +606,7 @@ struct QWExtra {
     QCursor *curs;
     QTLWExtra *topextra;			// only useful for TLWs
 #if defined(_WS_WIN_)
-    HANDLE   winIcon;				// internal Windows icon
+    HICON   winIcon;				// internal Windows icon
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(_WS_X11_)

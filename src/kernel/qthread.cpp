@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qthread.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qthread.cpp#9 $
 **
 ** Implementation of QThread class
 **
@@ -252,7 +252,7 @@ void QThread::terminate( QThreadID id )
   combination of operating and window system, and FALSE if not.
 */
 
-static bool QThread::available() const
+bool QThread::available()
 {
-    
+    return TRUE;    
 }

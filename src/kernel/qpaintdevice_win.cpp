@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#49 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -109,7 +109,7 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
     } else {					// use off-screen buffer
 	hdc_buf = CreateCompatibleDC( hdc_dest );
 	hbm_buf = CreateCompatibleBitmap( hdc_dest, sw, sh );
-	hbm_buf_old = SelectObject( hdc_buf, hbm_buf );
+	hbm_buf_old = (HBITMAP)SelectObject( hdc_buf, hbm_buf );
 	BitBlt( hdc_buf, 0, 0, sw, sh, hdc_dest, dx, dy, SRCCOPY );
 	hdc = hdc_buf;
 	nx = ny = 0;
@@ -279,7 +279,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	if ( src_pm->data->selfmask ) {
 	    HBRUSH b = CreateSolidBrush( Qt::black.pixel() );
 	    COLORREF tc, bc;
-	    b = SelectObject( dst_dc, b );
+	    b = (HBRUSH)SelectObject( dst_dc, b );
 	    tc = SetTextColor( dst_dc, Qt::black.pixel() );
 	    bc = SetBkColor( dst_dc, Qt::white.pixel() );
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, 0x00b8074a );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#27 $
 **
 ** Implementation of QCursor class
 **
@@ -25,6 +25,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qdatastream.h"
+
 
 /*!
   \class QCursor qcursor.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#39 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -94,10 +94,10 @@ QRegion::~QRegion()
     }
 }
 
-QRegion QRegion::winRegion( HANDLE h )
+QRegion QRegion::winRegion( HRGN h ) const
 {
     QRegion r(FALSE);
-    data->rgn = h;
+    r.data->rgn = h;
     return r;
 }
 
