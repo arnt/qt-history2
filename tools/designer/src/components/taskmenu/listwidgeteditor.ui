@@ -11,8 +11,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>413</width>
-    <height>305</height>
+    <width>400</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -57,14 +57,17 @@
          </property>
          <property name="geometry" >
           <rect>
-           <x>164</x>
+           <x>151</x>
            <y>1</y>
            <width>75</width>
-           <height>27</height>
+           <height>26</height>
           </rect>
          </property>
          <property name="text" >
           <string>&amp;New Item</string>
+         </property>
+         <property name="default" >
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -75,10 +78,10 @@
          </property>
          <property name="geometry" >
           <rect>
-           <x>164</x>
-           <y>134</y>
+           <x>151</x>
+           <y>130</y>
            <width>75</width>
-           <height>27</height>
+           <height>26</height>
           </rect>
          </property>
          <property name="text" >
@@ -93,10 +96,10 @@
          </property>
          <property name="geometry" >
           <rect>
-           <x>191</x>
-           <y>67</y>
-           <width>20</width>
-           <height>61</height>
+           <x>151</x>
+           <y>65</y>
+           <width>75</width>
+           <height>59</height>
           </rect>
          </property>
          <property name="orientation" >
@@ -117,10 +120,10 @@
          </property>
          <property name="geometry" >
           <rect>
-           <x>164</x>
-           <y>167</y>
+           <x>151</x>
+           <y>162</y>
            <width>75</width>
-           <height>27</height>
+           <height>26</height>
           </rect>
          </property>
          <property name="text" >
@@ -135,10 +138,10 @@
          </property>
          <property name="geometry" >
           <rect>
-           <x>164</x>
-           <y>34</y>
+           <x>151</x>
+           <y>33</y>
            <width>75</width>
-           <height>27</height>
+           <height>26</height>
           </rect>
          </property>
          <property name="text" >
@@ -155,8 +158,8 @@
           <rect>
            <x>1</x>
            <y>1</y>
-           <width>157</width>
-           <height>193</height>
+           <width>144</width>
+           <height>187</height>
           </rect>
          </property>
         </widget>
@@ -170,10 +173,10 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>247</x>
+         <x>234</x>
          <y>1</y>
          <width>147</width>
-         <height>195</height>
+         <height>189</height>
         </rect>
        </property>
        <property name="title" >
@@ -197,9 +200,9 @@
           <property name="geometry" >
            <rect>
             <x>61</x>
-            <y>79</y>
+            <y>77</y>
             <width>20</width>
-            <height>105</height>
+            <height>101</height>
            </rect>
           </property>
           <property name="orientation" >
@@ -221,9 +224,9 @@
           <property name="geometry" >
            <rect>
             <x>61</x>
-            <y>51</y>
+            <y>50</y>
             <width>20</width>
-            <height>22</height>
+            <height>21</height>
            </rect>
           </property>
           <property name="text" >
@@ -239,9 +242,9 @@
           <property name="geometry" >
            <rect>
             <x>11</x>
-            <y>51</y>
+            <y>50</y>
             <width>44</width>
-            <height>22</height>
+            <height>21</height>
            </rect>
           </property>
           <property name="text" >
@@ -260,7 +263,7 @@
           <property name="geometry" >
            <rect>
             <x>87</x>
-            <y>51</y>
+            <y>50</y>
             <width>22</width>
             <height>21</height>
            </rect>
@@ -278,9 +281,9 @@
           <property name="geometry" >
            <rect>
             <x>115</x>
-            <y>51</y>
+            <y>50</y>
             <width>21</width>
-            <height>22</height>
+            <height>21</height>
            </rect>
           </property>
           <property name="text" >
@@ -296,7 +299,7 @@
           <property name="geometry" >
            <rect>
             <x>11</x>
-            <y>22</y>
+            <y>21</y>
             <width>44</width>
             <height>23</height>
            </rect>
@@ -317,7 +320,7 @@
           <property name="geometry" >
            <rect>
             <x>61</x>
-            <y>22</y>
+            <y>21</y>
             <width>75</width>
             <height>23</height>
            </rect>
@@ -336,9 +339,9 @@
      </property>
      <property name="geometry" >
       <rect>
-       <x>196</x>
-       <y>212</y>
-       <width>20</width>
+       <x>9</x>
+       <y>206</y>
+       <width>382</width>
        <height>40</height>
       </rect>
      </property>
@@ -364,8 +367,8 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>258</y>
-       <width>395</width>
+       <y>252</y>
+       <width>382</width>
        <height>3</height>
       </rect>
      </property>
@@ -396,9 +399,9 @@
        <property name="geometry" >
         <rect>
          <x>1</x>
-         <y>1</y>
+         <y>2</y>
          <width>75</width>
-         <height>27</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text" >
@@ -414,9 +417,9 @@
        <property name="geometry" >
         <rect>
          <x>82</x>
-         <y>4</y>
-         <width>69</width>
-         <height>20</height>
+         <y>1</y>
+         <width>54</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="orientation" >
@@ -437,10 +440,10 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>157</x>
-         <y>1</y>
+         <x>142</x>
+         <y>2</y>
          <width>75</width>
-         <height>27</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text" >
@@ -455,17 +458,14 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>238</x>
+         <x>223</x>
          <y>1</y>
-         <width>75</width>
-         <height>27</height>
+         <width>77</width>
+         <height>28</height>
         </rect>
        </property>
        <property name="text" >
         <string>&amp;OK</string>
-       </property>
-       <property name="default" >
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -476,10 +476,10 @@
        </property>
        <property name="geometry" >
         <rect>
-         <x>319</x>
-         <y>1</y>
+         <x>306</x>
+         <y>2</y>
          <width>75</width>
-         <height>27</height>
+         <height>26</height>
         </rect>
        </property>
        <property name="text" >
@@ -493,5 +493,38 @@
  </widget>
  <pixmapfunction></pixmapfunction>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ListWidgetEditor</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>269</x>
+     <y>275</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>274</x>
+     <y>322</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>ListWidgetEditor</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>351</x>
+     <y>273</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>352</x>
+     <y>312</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

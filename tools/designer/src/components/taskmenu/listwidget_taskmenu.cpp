@@ -13,7 +13,7 @@
 
 #include "listwidget_taskmenu.h"
 #include "inplace_editor.h"
-#include "ui_listwidgeteditor.h"
+#include "listwidgeteditor.h"
 
 #include <abstractformeditor.h>
 #include <abstractformwindow.h>
@@ -57,10 +57,16 @@ void ListWidgetTaskMenu::editItems()
 
     Q_ASSERT(m_listWidget != 0);
 
-    QDialog dlg(m_listWidget->window());
-    Ui::ListWidgetEditor ui;
-    ui.setupUi(&dlg);
-    dlg.exec();
+    ListWidgetEditor dlg(m_listWidget->window());
+    dlg.fillContentsFromListWidget(m_listWidget);
+    if (dlg.exec() == QDialog::Accepted) {
+        m_listWidget->clear();
+        for (int i=0; i<dlg.count(); ++i) {
+            QListWidgetItem *item = new QListWidgetItem(dlg.text(i));
+            item->setIcon(dlg.icon(i));
+            m_listWidget->addItem(item);
+        }
+    }
 }
 
 ListWidgetTaskMenuFactory::ListWidgetTaskMenuFactory(QExtensionManager *extensionManager)
