@@ -545,7 +545,20 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
+    // This is a bug-workaround for the Utah-GLX driver (v0.10, November 2000)
+    // Calling glXMakeCurrent() without any drawable or context crashes
+    // the X server (tested with a Matrox G400 XFree86 v3.3.6, might work 
+    // with other cards). This does not happen with Accelerated X v2.0 Alpha.
+    
+#if defined(Q_OS_LINUX) || defined(Q_OS_FreeBSD)
+    static bool utahGLX = 
+	QString( glXGetClientString( d->paintDevice->x11Display(), 
+				     GLX_EXTENSIONS ) ).contains( "GLX_utah" );
+    if ( !utahGLX )
+	glXMakeCurrent( d->paintDevice->x11Display(), 0, 0 );
+#else
     glXMakeCurrent( d->paintDevice->x11Display(), 0, 0 );
+#endif
     currentCtx = 0;
 }
 
@@ -742,14 +755,21 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 /*! \reimp */
 void QGLWidget::reparent( QWidget* parent, WFlags f, const QPoint& p,
 			  bool showIt )
-{
-    // ### This have to be investigated further - trying to set
-    // ### a new GL context in an existing window seems to have
-    // ### severe effects on some platforms (ie. SGI, Linux).
-    QWidget::reparent( parent, f, p, showIt);
-    //     setContext( new QGLContext( glcx->requestedFormat(), this ) );
-    //     if ( showIt )
-    //         show();
+{    
+    // ### Another work-around for the Utah-GLX driver -
+    // ### if the old context is not destroyed before the window is
+    // ### reparented, it crashes badly (driver v0.10 November 2000)
+    // ### Also tested with Accelerated X v2.0 Alpha - no problems
+    QGLFormat reqf = QGLFormat::defaultFormat();
+    if ( glcx ) {
+	reqf = glcx->requestedFormat();
+	delete glcx;
+	glcx = 0;
+    }
+    QWidget::reparent( parent, f, p, showIt );  
+    setContext( new QGLContext( reqf, this ) );
+    if ( showIt )
+	show();
 }
 
 
