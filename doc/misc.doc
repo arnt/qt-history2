@@ -68,8 +68,8 @@ href="http://www.troll.no/dl/qtfree-dl.html">download</a>.
 
 <h1 align=center>Common Problems</h1>
 
-<h2>Link error, complaining about a lack of \code vtbl \endcode,
-\code _vtbl \endcode, \code __vtbl \endcode or similar </h2>
+<h2>Link error, complaining about a lack of \c vtbl, \c _vtbl, \c
+__vtbl or similar </h2>
 
 This indicates that you include the Q_OBJECT macro in a class declaration
 and probably also run the moc, but forget to link the moc-generated object
@@ -78,123 +78,147 @@ Compiler</a> for details on how to use moc.
 
 <h2>Using different versions of Qt on the same machine</h2>
 
-Qt programs need the following components of the Qt distribution:
-<dl>
-<p>
-<dt><strong>Header files - Compile time</strong>
-<dd>Programmers need to include the Qt header files. Those with a command-line
-compiler will typically use options such as \code /I%QTDIR%\include \endcode
-or \code -I${QTDIR}/include \endcode. They will need the header files of the
-version of Qt they wish to build programs with. The header files are in the
-\code include \endcode subdirectory of Qt distributions.
-<p>
-<dt><strong>Meta Object Compiler - Compile time</strong>
-<dd>Programmers need to run the Meta Object Compiler (<em>moc</em>). The moc
-is found in the \code bin \endcode subdirectory of Qt distributions.
-<p>
-<dt><strong>Static or shared libraries - Link time</strong>
-<dd>Programmers need to link with static or shared libraries. Those with a
-command-line compiler will typically use options such as
-\code /L%QTDIR%\lib\qt.lib \endcode or \code -L${QTDIR}/lib -lqt \endcode. They
-will need the libraries of the version of Qt they wish to build programs
-with. The libraries are in the \code lib \endcode subdirectory of Qt
-distributions.
-<p>
-<dt><strong>Shared libraries - Run time</strong>
-<dd>Users of programs built with the shared Qt libraries need these same shared
-libraries to run the programs<a href="#version">*</a>. The libraries are in
-the \code lib \endcode subdirectory of Qt distributions. Shared libraries are
-made available to programs in places such as \code C:\windows\system \endcode
-on Windows platforms, directories listed in file  \code /etc/ld.so.conf \endcode
-on Linux, standard \code lib \endcode directories on Unix, or the directories
-listed in the environment variable \code ${LD_LIBRARY_PATH} \endcode on
-Unix/Linux.
-</dl>
+Qt programs need the following components of the Qt distribution: <ul>
+
+<li><b>Header files - Compile time</b>
+
+Programmers need to include the Qt header files. Those with a
+command-line compiler will typically use options such as \c
+/I%QTDIR%\include or \c -I${QTDIR}/include.  They will need the header
+files of the version of Qt they wish to build programs with.  The
+header files are in the \c include subdirectory of Qt distributions.
+
+<li><b>Meta Object Compiler - Compile time</b>
+
+Programmers need to run the Meta Object Compiler - \e moc.  The moc is
+found in the \c bin subdirectory of Qt distributions.
+
+<li><b>Static or shared libraries - Link time</b>
+
+Programmers need to link with static or shared libraries. Those with a
+command-line compiler will typically use options such as \c
+/L%QTDIR%\lib\qt.lib or \c -L${QTDIR}/lib \c -lqt.  They will need the
+libraries of the version of Qt they wish to build programs with.  The
+libraries are in the \c lib subdirectory of Qt distributions.
+
+<li><b>Shared libraries - Run time</b>
+
+Users of programs built with the shared Qt libraries need these same
+shared libraries to run the programs.  The libraries are in the \c lib
+subdirectory of Qt distributions.  Shared libraries are made available
+to programs in places such as \c C:\windows\system on Windows
+platforms, directories listed in file \c /etc/ld.so.conf on Linux,
+standard \c lib directories on Unix, or the directories listed in the
+environment variable \c ${LD_LIBRARY_PATH} on Unix/Linux.
+
+</ul>
+
 Binary packages usually consist of two parts:
+
 <ul>
 <li>run time libraries in the run time package, usually called
-\code qt2 \endcode,
-<li>header files, the moc and static libraries in the developpers' kit,
-usually called \code qt2-dev \endcode.
+\c qt2.
+
+<li>header files, the moc and static libraries in the developers' kit,
+usually called \c qt2-dev.
+
 </ul>
-Depending on how you are using Qt, you need to make specific parts of the Qt
-distribution available to your programs. Typical situations are described below.
-<dl>
-<p>
-<dt><strong>Developpers building for a single version of Qt on Unix
-- Qt packages</strong>
-<dd>
-You build programs with a single version of Qt, but you still need to run
-programs linked with another version of Qt. You are typically a GNU/Linux
-developper who builds programs for Qt&nbsp;2 on a KDE desktop based on
-Qt&nbsp;1. Qt packages are usually split into a shared library package with
-a name like \code qt \endcode and a developper package with a name like
-\code qt-dev \endcode. You will need the appropriate packages:
+
+Depending on how you are using Qt, you need to make specific parts of
+the Qt distribution available to your programs.  Typical situations are
+described below.<ul>
+
+<li><b>Developers building for a single version of Qt on Unix
+- Qt packages</b>
+
+You build programs with a single version of Qt, but you still need to
+run programs linked with another version of Qt.  You are typically a
+Linux developer who builds programs for Qt 2.x on a KDE desktop based
+on Qt 1.4x.  Qt packages are usually split into a shared library
+package with a name like \c qt and a developer package with a name
+like \c qt-dev.  You will need the appropriate packages:
+
 <ul>
+
 <li>To build programs you will need the header files, the moc and the
-libraries of Qt&nbsp;2. They are included in the developper package of
-Qt&nbsp;2 (\code qt2-dev \endcode or the like).
-<li>To run programs you will need the shared libraries of Qt&nbsp;2
-and Qt&nbsp;1. They are included in the regular packages
-of Qt&nbsp;2 (\code qt2 \endcode or the like) and Qt&nbsp;1 (\code qt1 \endcode
+libraries of Qt 2.x. They are included in the developer package of
+Qt 2.x (\c qt2-dev or the like).
+
+<li>To run programs you will need the shared libraries of Qt 2.x
+and Qt 1.4x. They are included in the regular packages
+of Qt 2.x (\c qt2 or the like) and Qt 1.4x (\c qt1
 or the like).
+
+</ul>Just install those 3 packages. You may need to set the
+environment variable \c QTDIR.
+
+<li><b>Developers building for two versions of Qt on Unix
+- Qt sources</b>
+
+You build and run programs for Qt v1.4x and Qt 2.x. You will need:<ul>
+
+<li>the \e header \e files, the \e moc> and the \e libraries of Qt 2.x
+and Qt 1.4x to build programs,
+
+<li>the shared libraries of Qt 2.x and Qt 1.4x to run programs (if you
+use shared linking).
+
 </ul>
-Just install those 3 packages. You may need to set the environment variable
-\code QTDIR \endcode.
-<p>
-<dt><strong>Developpers building for two versions of Qt on Unix
-- Qt sources</strong>
-<dd>
-You build and run programs for Qt&nbsp;1 and Qt&nbsp;2. You will need:
-<ul>
-<li>the <em>header files</em>, the <em>moc</em> and the <em>libraries</em>
-of Qt&nbsp;2 and Qt&nbsp;1 to build programs,
-<li>the <em>shared</em> libraries of Qt&nbsp;2 and Qt&nbsp;1 to run programs.
-</ul>
-Get source distributions of both Qt&nbsp;1 and Qt&nbsp;2.
-<ol>
-<li>Install and build Qt&nbsp;1 and Qt&nbsp;2, usually in \code /opt \endcode or
-\code /usr/local \endcode. In the case of \code /opt \endcode:
+
+Get source distributions of both Qt 1.4x and Qt 2.x. <ol>
+
+<li>Install and build Qt 1.4x and Qt 2.x, usually in \c /opt or
+\c /usr/local. In the case of \c /opt:
+
 \code
 $ cd /opt
 $ gunzip -c qt-1.44.tar.gz | tar xf -
 $ cd qt-1.44
 $ setenv QTDIR /opt/qt-1.44
-$ configure &lt;...&gt;
+$ configure \<...\>
 $ make
 
 $ cd /opt
 $ gunzip -c qt-2.1.0.tar.gz | tar xf -
 $ cd qt-2.1.0
 $ setenv QTDIR /opt/qt-2.1.0
-$ configure &lt;...&gt;
+$ configure \<...\>
 $ make
 \endcode
-<li>Make shared libraries available to programs at run time. Either add both
-\code /opt/qt-1.44 \endcode and \code /opt/qt-2.0.1 \endcode to your environment
-variable \code LD_LIBRARY_PATH \endcode or make links to the libraries in a
-standard directory like \code /usr/local/lib \endcode:
+
+<li>Make shared libraries available to programs at run time. Either
+add both \c /opt/qt-1.44 and \c /opt/qt-2.0.1 to your environment
+variable \c LD_LIBRARY_PATH or make links to the libraries in a
+standard directory like \c /usr/local/lib:
+
 \code
 cd /usr/local/lib
 ln -s /opt/qt-1.44/lib/libqt.so.1 .
 ln -s /opt/qt-2.1.0/lib/libqt.so.2 .
 \endcode
-<li>To develop with Qt&nbsp;1 use:
+
+</ul>
+
+To develop with Qt 1.4x use:
+
 \code
 setenv QTDIR /opt/qt-1.44
 setenv PATH ${QTDIR}/bin:${PATH}
 \endcode
-To develop with Qt&nbsp;2 use:
+
+To develop with Qt 2.x use:
+
 \code
 setenv QTDIR /opt/qt-2.1.0
 setenv PATH ${QTDIR}/bin:${PATH}
 \endcode
-Setting the \code PATH \endcode ensures that the proper version of moc is
-being used. Your \code Makefile \endcode should refer to
-\code ${QTDIR}/include \endcode and \code ${QTDIR}/lib \endcode to include the
-proper header files and link with the proper libraries.
-</ol>
-</dl>
+
+Setting the \c PATH ensures that the proper version of moc is being
+used.  Your \c Makefile should refer to \c ${QTDIR}/include and \c
+${QTDIR}/lib to include the proper header files and link with the
+proper libraries.
+
+</ul>
 */
 
 /*! \page keyfeatures21.html
@@ -437,56 +461,52 @@ by Oslo City Court.
 
 <h1 align=center>Contact Information</h1><br clear="all">
 
-<center>
-<img width="168" height="98" src="ttlogo-small.png" alt="Troll Tech Logo">
-</center>
+<table cellpadding=3 cellspacing=0 border="0" width=100% bgcolor=#EEEEFF>
+<tr><th colspan=6 valign=top bgcolor=#D0D0FF>Email</th></tr>
+<tr>
+<td width=3% rowspan=4><br></td>
+<td colspan=2><a href="mailto:info@troll.no"><strong>info@troll.no</strong></a>
 
-
-<h2>World Wide Web</h2>
-
-The Troll Tech web server is located at:<br>
-<center>
-<b><tt>
-<a href=http://www.troll.no/>http://www.troll.no/</a>
-</tt>
-</b>
-</center>
-
-<h2>Email</h2>
-
-Troll Tech can be reached via the following e-mail addresses:
-<dl>
- <dt><a href="mailto:info@troll.no"><b>info@troll.no</b></a>
-  <dd>General inquiries and questions.
- <br> 
- <dt><a href="mailto:sales@troll.no"><b>sales@troll.no</b></a>
-  <dd>Inquires related to purchasing, pricing and availability of
-  Troll Tech products.
- <br> 
- <dt><a href="mailto:www@troll.no"><b>www@troll.no</b></a>
-  <dd>Comments about our web pages.
- <br> 
- <dt><a href="mailto:qt-bugs@troll.no"><b>qt-bugs@troll.no</b></a>
-  <dd>Use this if you think you have found a bug in Qt. Please provide
-  as much information as possible, including Qt version and your
-  operating system and compiler.
-</dl>
-
-
-<h2>Other</h2>
-
-Telephone, general inquiries: <strong>+47 22 80 63 90</strong>
-
-<p>
-
-Telefax, general inquiries: <strong>+47 22 80 63 80</strong>
-
-<p>Street Address:<br>
-
-<p>Troll Tech AS<br>
-Waldemar Thranes gt. 98b<br>
-N-0175 Oslo<br>
-NORWAY
+<td colspan=2><a href="mailto:sales@troll.no"><strong>sales@troll.no</strong></a>
+<td width=3% rowspan=4><br></td>
+<tr>
+<td width=3%><br></td>
+<td width="44%" valign="top"> General inquiries and questions. Please check the
+<a href="/faq/">FAQ</a> to see if your question is already answered there!</td>
+<td width=3%><br></td>
+<td width="44%" valign="top"> Inquires related to purchasing, pricing and availability of Troll
+Tech products</td></tr>
+<tr>
+<td colspan=2><a href="mailto:www@troll.no"><strong>www@troll.no</strong></a>
+<td colspan=2><a href="mailto:qt-bugs@troll.no"><strong>qt-bugs@troll.no</strong></a>
+<tr>
+<td width=3%><br></td>
+<td valign="top"> Comments about our web pages</td>
+<td width=3%><br></td>
+<td valign="top"> For bug reports. Please check the <a
+href="/platforms/">Platform Notes</a> and <a href="/faq/">FAQ</a> to
+see if the issue is already solved!
+</td></tr>
+<tr bgcolor="#ffffff"><td bgcolor="#ffffff" cellspan="6"> <br> </td></tr>
+<tr><th colspan=6 valign=top bgcolor=#D0D0FF>Other</th></tr>
+</tr>
+<tr>
+<td width=3% rowspan=4><br></td>
+<td colspan=2><strong>Telephone</strong>
+<td colspan=2><strong>Street/Mail Address</strong>
+<td width=3% rowspan=4><br></td>
+<tr>
+<td width=3%><br></td>
+<td width="44%" valign="top"> General inquiries: +47 22 80 63 90<br>
+Sales department: +47 22 80 63 91</td>
+<td width=3% rowspan=3><br></td>
+<td width="44%" valign="top" rowspan=3> Waldemar Thranes gate 98B<br> N-0175 Oslo<br> Norway</td></tr>
+<tr>
+<td colspan=2><strong>Telefax</strong></td>
+<tr>
+<td width=3%><br></td>
+<td width="44%" valign="top"> All inquiries: +47 22 80 63 80</td>
+</table>
 
 */
 
