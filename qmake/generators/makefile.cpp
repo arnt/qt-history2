@@ -459,17 +459,20 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 			QStringList uil = project->variables()["FORMS"];
 			for(QStringList::Iterator it = uil.begin(); it != uil.end(); ++it) {
 			    if((*it).section(Option::dir_sep, -1) == uip) {
-				if(!project->isEmpty("UI_DIR"))
+				from_source_dir = FALSE; //uics go in the output_dir (so don't fix them)
+				if(!project->isEmpty("UI_DIR")) {
 				    fqn = project->first("UI_DIR");
-				else if(!project->isEmpty("UI_HEADERS_DIR"))
+				} else if(!project->isEmpty("UI_HEADERS_DIR")) {
 				    fqn = project->first("UI_HEADERS_DIR");
-				else
+				} else {
+				    from_source_dir = TRUE;
 				    fqn = (*it).section(Option::dir_sep, 0, -2);
+				}
 				if(!fqn.isEmpty() && !fqn.endsWith(Option::dir_sep))
 				    fqn += Option::dir_sep;
 				fqn += inc_file;
-				from_source_dir = FALSE;  //uics go in the output_dir (so don't fix them)
-				fqn = fileFixify(fqn, QDir::currentDirPath(), Option::output_dir);
+				if(!from_source_dir)
+				    fqn = fileFixify(fqn, QDir::currentDirPath(), Option::output_dir);
 				goto handle_fqn;
 			    }
 			}
