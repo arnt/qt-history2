@@ -195,7 +195,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::insert( pointer pos, size_t n, c
 }
 
 template <class T>
-Q_INLINE_TEMPLATES void QValueVectorPrivate::reserve( size_t n )
+Q_INLINE_TEMPLATES void QValueVectorPrivate<T>::reserve( size_t n )
 {
     const size_t lastSize = size();
     pointer tmp = growAndCopy( n, start, finish );
@@ -205,7 +205,7 @@ Q_INLINE_TEMPLATES void QValueVectorPrivate::reserve( size_t n )
 }
 
 template <class T>
-Q_INLINE_TEMPLATES pointer QValueVectorPrivate::growAndCopy( size_t n, pointer s, pointer f )
+Q_INLINE_TEMPLATES QValueVectorPrivate<T>::pointer QValueVectorPrivate<T>::growAndCopy( size_t n, pointer s, pointer f )
 {
     pointer newStart = new T[n];
     qCopy( s, f, newStart );
@@ -453,18 +453,19 @@ protected:
     {
 	if ( sh->count > 1 ) { detachInternal(); }
     }
+    void detachInternal();
     QValueVectorPrivate<T>* sh;
 };
 
 template <class T>
-Q_INLINE_TEMPLATES QValueVector<T>::QValueVector( size_type n, const T& val = T() )
+Q_INLINE_TEMPLATES QValueVector<T>::QValueVector( size_type n, const T& val )
 {
     sh = new QValueVectorPrivate<T>( n );
     qFill( begin(), end(), val );
 }
 
 template <class T>
-Q_INLINE_TEMPLATES QValueVector<T>::detachInternal()
+Q_INLINE_TEMPLATES void QValueVector<T>::detachInternal()
 {
     sh->deref();
     sh = new QValueVectorPrivate<T>( *sh );
