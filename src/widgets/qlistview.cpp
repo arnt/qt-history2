@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#154 $
 **
 ** Implementation of QListView widget class
 **
@@ -1467,7 +1467,7 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	QListViewItem * i;
 	while( (i=(QListViewItem *)(it.currentKey())) != 0 ) {
 	    ++it;
-	    QRect ir( itemRect( i ) );
+	    QRect ir = itemRect( i ).intersect(viewport()->rect());
 	    if ( ir.isEmpty() || br.contains( ir ) )
 		// we're painting this one, or it needs no painting: forget it
 		d->dirtyItems->remove( (void *)i );
@@ -3119,8 +3119,7 @@ void QListView::repaintItem( const QListViewItem * item ) const
     d->dirtyItemTimer->start( 0, TRUE );
     if ( !d->dirtyItems )
 	d->dirtyItems = new QPtrDict<void>();
-    d->dirtyItems->remove( (void *)item );
-    d->dirtyItems->insert( (void *)item, (void *)item );
+    d->dirtyItems->replace( (void *)item, (void *)item );
 }
 
 
