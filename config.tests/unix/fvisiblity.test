@@ -1,0 +1,20 @@
+#!/bin/sh
+
+FVISIBILITY_SUPPORT=no
+XPLATFORM=`basename $1`
+XCONFIG=$1/qmake.conf
+VERBOSE=$2
+
+>fvisibility.c
+COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
+$COMPILER -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && PRECOMP_SUPPORT=yes
+rm -f fvisibility.c fvisibility.o
+
+# done
+if [ "$FVISIBILITY_SUPPORT" != "yes" ]; then
+    [ "$VERBOSE" = "yes" ] && echo "-fvisibility support disabled."
+    exit 0
+else
+    [ "$VERBOSE" = "yes" ] && echo "-fvisibility support  enabled."
+    exit 1
+fi
