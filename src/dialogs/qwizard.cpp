@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#3 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#4 $
 **
 ** Implementation of something useful.
 **
@@ -422,4 +422,15 @@ void QWizard::updateButtons() const
     d->backButton->setEnabled( p->backEnabled );
     d->nextButton->setEnabled( p->nextEnabled );
     d->helpButton->setEnabled( p->helpEnabled );
+}
+
+
+/*!  Returns a pointer to the page currently being displayed by the
+wizard.  The wizard does its best to make sure that this value is
+never 0, but if you try hard enough it can be.
+*/
+
+QWidget * QWizard::currentPage() const
+{
+    return d->ws->visibleWidget();
 }

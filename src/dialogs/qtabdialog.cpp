@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#69 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#70 $
 **
 ** Implementation of QTabDialog class
 **
@@ -903,4 +903,15 @@ void QTabDialog::styleChange( GUIStyle s )
 {
     QDialog::styleChange( s );
     setSizes();
+}
+
+
+/*!  Returns a pointer to the page currently being displayed by the
+tab dialog.  The tab dialog does its best to make sure that this value
+is never 0, but if you try hard enough it can be.
+*/
+
+QWidget * QTabDialog::currentPage() const
+{
+    return d->stack->visibleWidget();
 }
