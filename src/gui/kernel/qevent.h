@@ -394,7 +394,7 @@ public:
     inline void ignore() { QDropEvent::ignore(); }
 
     inline void accept(const QRect & r) { accept(); rect = r; }
-    inline void ignore(const QRect & r) { accept(); rect = r; }
+    inline void ignore(const QRect & r) { ignore(); rect = r; }
 
 #ifdef QT_COMPAT
     inline QT_COMPAT void accept(bool y) { setAccepted(y); }
