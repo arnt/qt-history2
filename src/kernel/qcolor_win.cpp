@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#31 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -20,7 +20,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor_win.cpp#31 $");
 
 
 /*****************************************************************************
@@ -220,7 +220,7 @@ void QColor::leaveAllocContext()
 #if defined(CHECK_STATE)
 	warning( "QColor::leaveAllocContext: Context stack underflow" );
 #endif
-	return 0;
+	return;
     }
     current_alloc_context = context_stack[--context_ptr];
 }
@@ -235,5 +235,4 @@ int QColor::currentAllocContext()
 void QColor::destroyAllocContext( int )
 {
     init_context_stack();
-    return; 
 }
