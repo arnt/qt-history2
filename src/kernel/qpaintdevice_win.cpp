@@ -179,6 +179,41 @@ static void cleanup_msimg32Lib()
     }
 }
 
+/*
+   Try to do an AlphaBlend(). If it fails for some reasons, use BitBlt()
+   instead. The arguments are like in the BitBlt() call.
+*/
+void qt_AlphaBlend( HDC dst_dc, int dx, int dy, int sw, int sh, HDC src_dc, int sx, int sy, DWORD rop )
+{
+    BLENDFUNCTION blend = {
+	AC_SRC_OVER,
+	0,
+	255,
+	AC_SRC_ALPHA
+    };
+    if ( alphaBlend != 0 ) {
+	alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+    } else {
+	if ( !loadAlphaBlendFailed ) {
+	    // try to load msimg32.dll and get the function
+	    // AlphaBlend()
+	    loadAlphaBlendFailed = TRUE;
+	    msimg32Lib = LoadLibraryA( "msimg32" );
+	    if ( msimg32Lib != 0 ) {
+		qAddPostRoutine( cleanup_msimg32Lib );
+		alphaBlend = (ALPHABLEND) GetProcAddress( msimg32Lib, "AlphaBlend" );
+		if ( alphaBlend != 0 ) {
+		    loadAlphaBlendFailed = FALSE;
+		}
+	    }
+	}
+	if ( loadAlphaBlendFailed )
+	    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
+	else
+	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, rop );
+    }
+}
+
 void bitBlt( QPaintDevice *dst, int dx, int dy,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh,
 	     Qt::RasterOp rop, bool ignoreMask  )
@@ -374,34 +409,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 		( qt_winver == Qt::WV_98 ||
 		  qt_winver == Qt::WV_2000  || 
 		  qt_winver == Qt::WV_XP ) ) {
-	    // try alpha blending
-	    BLENDFUNCTION blend = {
-		AC_SRC_OVER,
-		0,
-		255,
-		AC_SRC_ALPHA
-	    };
-	    if ( alphaBlend != 0 ) {
-		alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
-	    } else {
-		if ( !loadAlphaBlendFailed ) {
-		    // try to load msimg32.dll and get the function
-		    // AlphaBlend()
-		    loadAlphaBlendFailed = TRUE;
-		    msimg32Lib = LoadLibraryA( "msimg32" );
-		    if ( msimg32Lib != 0 ) {
-			qAddPostRoutine( cleanup_msimg32Lib );
-			alphaBlend = (ALPHABLEND) GetProcAddress( msimg32Lib, "AlphaBlend" );
-			if ( alphaBlend != 0 ) {
-			    loadAlphaBlendFailed = FALSE;
-			}
-		    }
-		}
-		if ( loadAlphaBlendFailed )
-		    alphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, sw, sh, blend );
-		else
-		    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
-	    }
+	    qt_AlphaBlend( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	} else {
 	    BitBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, ropCodes[rop] );
 	}
