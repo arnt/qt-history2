@@ -51,6 +51,7 @@ public:
     void setObsolete( bool obsolete ) { obs = obsolete; }
     void setSeeAlso( const QStringList& seeAlso ) { sa = seeAlso; }
     void setKeywords( const StringSet& keywords ) { kwords = keywords; }
+    void setGroups( const StringSet& groups ) { gr = groups; }
     void setHtmlMustQuote( const QString& quote ) { q = quote; }
     void setLink( const QString& link, const QString& title );
 
@@ -60,6 +61,7 @@ public:
     bool obsolete() const { return obs; }
     bool changedSinceLastRun() const;
     QString htmlSeeAlso() const;
+    const StringSet& groups() const { return gr; }
 
     void printHtml( HtmlWriter& out ) const;
 
@@ -82,6 +84,7 @@ private:
     bool obs;
     QString q;
     StringSet kwords;
+    StringSet gr;
     QString lnk;
 
     static const Resolver *res;
@@ -124,15 +127,13 @@ public:
     ClassDoc( const Location& loc, const QString& html,
 	      const QString& className, const QString& brief,
 	      const QString& module, const QString& extension,
-	      const StringSet& groups, const StringSet& headers,
-	      const QStringList& important );
+	      const StringSet& headers, const QStringList& important );
 
     const QString& className() const { return cname; }
     const QString& brief() const { return bf; }
     const QString& whatsThis() const { return whats; }
     const QString& module() const { return mod; }
     const QString& extension() const { return ext; }
-    const StringSet& groups() const { return ingroups; }
     const StringSet& headers() const { return h; }
     const QStringList& important() const { return imp; }
 
@@ -142,7 +143,6 @@ private:
     QString whats;
     QString mod;
     QString ext;
-    StringSet ingroups;
     StringSet h;
     QStringList imp;
 };

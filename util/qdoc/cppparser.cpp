@@ -756,12 +756,6 @@ static void matchDocsAndStuff( Steering *steering )
 		    setLink( steering, cl, config->classRefHref(decl->name()),
 			     decl->name() );
 		    deleteDoc = FALSE;
-
-		    StringSet::ConstIterator g = cl->groups().begin();
-		    while ( g != cl->groups().end() ) {
-			steering->addClassToGroup( (ClassDecl *) decl, *g );
-			++g;
-		    }
 		} else {
 		    warning( 1, doc->location(),
 			     "Class '%s' specified with '\\class' not found",
@@ -807,8 +801,16 @@ static void matchDocsAndStuff( Steering *steering )
 		steering->addExample( (ExampleDoc *) doc );
 		deleteDoc = FALSE;
 	    }
-	    if ( deleteDoc )
+
+	    if ( deleteDoc ) {
 		delete doc;
+	    } else {
+		StringSet::ConstIterator g = cl->groups().begin();
+		while ( g != cl->groups().end() ) {
+		    steering->addGroupie( (ClassDecl *) decl, *g );
+		    ++g;
+		}
+	    }
 	} else {
 	    if ( matchFunctionDecl(0) ) {
 		Decl *decl;

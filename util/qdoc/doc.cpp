@@ -561,10 +561,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    warning( 2, location(), "Unexpected '\\endcode'" );
 		} else if ( command[3] == QChar('l') ) {
 		    consume( "endlink" );
-		    // we've found the missing link: Eirik Aavitsland
+		    // we have found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
 		} else {
 		    consume( "example" );
+		    warning( 2, location(),
+			     "Command '\\example' is obsolete, use '\\page' and"
+			     " '\\include' instead" );
 		    fileName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 		    setKind( Doc::Example, command );
@@ -622,13 +625,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     " '.html'" );
 		    groupName.truncate( groupName.length() - 5 );
 		}
-		if ( groupName.isEmpty() ) {
+
+		if ( groupName.isEmpty() )
 		    warning( 2, location(),
 			     "Expected group name after '\\ingroup'" );
-		} else {
+		else
 		    groups.insert( groupName );
-		    setKindHasToBe( Doc::Class, command );
-		}
 		break;
 	    case hash( 'i', 8 ):
 		consume( "internal" );
@@ -889,7 +891,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    " the main Qt API.\n<p>").arg(extName) );
 
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
-			    groups, headers, important );
+			    headers, important );
 	break;
     case Doc::Enum:
 	sanitize( enumName );
@@ -923,6 +925,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     doc->setObsolete( obsolete );
     doc->setSeeAlso( seeAlso );
     doc->setKeywords( keywords );
+    doc->setGroups( groups );
     if ( mustquoteBegin >= 0 )
 	doc->setHtmlMustQuote( yyOut.mid(mustquoteBegin,
 					 mustquoteEnd - mustquoteBegin)
@@ -1880,10 +1883,9 @@ FnDoc::FnDoc( const Location& loc, const QString& html,
 ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
 		    const QString& module, const QString& extension,
-		    const StringSet& groups, const StringSet& headers,
-		    const QStringList& important )
+		    const StringSet& headers, const QStringList& important )
     : Doc( Class, loc, html ), cname( className ), bf( brief ), mod( module ),
-      ext( extension ), ingroups( groups ), h( headers ), imp( important )
+      ext( extension ), h( headers ), imp( important )
 {
     if ( !ext.isEmpty() ) {
 	extlist.insert( ext );

@@ -13,6 +13,7 @@ HEADERS		= binarywriter.h \
 		  decl.h \
 		  declresolver.h \
 		  doc.h \
+		  emitter.h \
 		  english.h \
 		  htmlchunk.h \
 		  htmlwriter.h \
@@ -21,7 +22,6 @@ HEADERS		= binarywriter.h \
 		  metaresolver.h \
 		  property.h \
 		  resolver.h \
-		  steering.h \
 		  stringset.h \
 		  tokenizer.h \
 		  walkthrough.h
@@ -33,6 +33,7 @@ SOURCES		= binarywriter.cpp \
 		  decl.cpp \
 		  declresolver.cpp \
 		  doc.cpp \
+		  emitter.cpp \
 		  english.cpp \
 		  htmlchunk.cpp \
 		  htmlparser.cpp \
@@ -43,12 +44,12 @@ SOURCES		= binarywriter.cpp \
 		  metaresolver.cpp \
 		  property.cpp \
 		  resolver.cpp \
-		  steering.cpp \
 		  stringset.cpp \
 		  tokenizer.cpp \
 		  walkthrough.cpp 
 
-unix:SOURCES	+= ../../src/tools/qbitarray.cpp \
+unix:SOURCES	+= ../../src/codecs/qtextcodec.cpp \
+		  ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qbuffer.cpp \
 		  ../../src/tools/qcollection.cpp \
 		  ../../src/tools/qcstring.cpp \
@@ -68,7 +69,6 @@ unix:SOURCES	+= ../../src/tools/qbitarray.cpp \
 		  ../../src/tools/qregexp.cpp \
 		  ../../src/tools/qstring.cpp \
 		  ../../src/tools/qstringlist.cpp \
-		  ../../src/codecs/qtextcodec.cpp \
 		  ../../src/tools/qtextstream.cpp \
 		  ../../src/tools/qdir_unix.cpp \
 		  ../../src/tools/qfile_unix.cpp \
