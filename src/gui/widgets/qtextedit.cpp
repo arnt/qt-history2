@@ -169,6 +169,7 @@ public:
     int wrapColumnOrWidth;
 
     // Qt3 COMPAT only
+    // ### non-compat'ed append needs it, too
     Qt::TextFormat textFormat;
 };
 
@@ -1223,6 +1224,7 @@ Qt::TextFormat QTextEdit::textFormat() const
 {
     return d->textFormat;
 }
+#endif
 
 /*!
     Appends a new paragraph with \a text to the end of the text edit.
@@ -1252,7 +1254,5 @@ void QTextEdit::append(const QString &text)
     if (atBottom)
         setContentsPos(contentsX(), contentsHeight() - visibleHeight());
 }
-
-#endif
 
 #include "moc_qtextedit.cpp"

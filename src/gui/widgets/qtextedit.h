@@ -93,6 +93,8 @@ public:
 
     QString plainText() const;
 
+    void append(const QString &text);
+
 public slots:
     void setFontPointSize(float size);
     void setFontFamily(const QString &family);
@@ -245,8 +247,6 @@ public:
     inline QT_COMPAT bool underline() const { return fontUnderline(); }
     inline QT_COMPAT QString family() const { return fontFamily(); }
     inline QT_COMPAT int pointSize() const { return (int)(fontPointSize()+0.5); }
-
-    QT_COMPAT void append(const QString &text);
 #endif
 };
 
