@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#17 $
 **
 ** Implementation of QStyle class
 **
@@ -28,8 +28,6 @@
 /*!
   \class QStyle qstyle.h
   \brief Encapsulates common Look and Feel of a GUI.
-
-  THIS CLASS IS NOT YET IN USE.
 
   While it is not possible to fully enumerate the look of graphic elements
   and the feel of widgets in a GUI, a large number of elements are common
@@ -75,7 +73,8 @@ QStyle::~QStyle()
 }
 
 /*!
-  \fn GUIStyle guiStyle() const
+  \fn GUIStyle QStyle::guiStyle() const
+
   
   Returns an indicator to the additional "feel" component of a
   style. Current supported values are Windows and Motif.
@@ -401,7 +400,7 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn void scrollbarMetrics( const QScrollBar*, int *, int *, int * );
+  \fn void QStyle::scrollbarMetrics( const QScrollBar*, int *, int *, int * )
 
   Returns the metrics of the passed scrollbar: sliderMin, sliderMax
   and sliderLength
@@ -410,8 +409,8 @@ QStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h, bool /* on *
 
 /*!
 
-  \fn  void drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, 
-  uint activeControl ) = 0;
+  \fn  void QStyle::drawScrollbarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, 
+  uint activeControl )
   
   Draws the given scrollbar. Used internally by QScrollbar.
   
@@ -451,7 +450,7 @@ QStyle::drawSliderMask( QPainter *p,
 }
 
 /*!
-  \fn  void drawSliderGroove( QPainter *p,
+  \fn  void QStyle::drawSliderGroove( QPainter *p,
                     int x, int y, int w, int h,
                     const QColorGroup& g, QCOORD c,
                     bool horizontal )
