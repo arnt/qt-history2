@@ -1944,7 +1944,7 @@ static QRect fixRect( const QRect &r )
 }
 
 /*!
-  Handles mouse event \e e on behalf of tool bar \a t and does all
+  Handles mouse event \a e on behalf of tool bar \a t and does all
   the funky docking.
 */
 
