@@ -282,6 +282,25 @@ struct QWSIMEvent : QWSEvent {
     QByteArray streamingData;
 };
 
+
+struct QWSIMInitEvent : QWSEvent {
+    QWSIMInitEvent()
+        : QWSEvent(IMInit, sizeof(simpleData), reinterpret_cast<char*>(&simpleData))
+   { memset(reinterpret_cast<char*>(&simpleData),0,sizeof(simpleData)); }
+
+    struct SimpleData {
+        int window;
+        int existence;
+    } simpleData;
+
+    void setData(const char *d, int len, bool allocateMem = true) {
+        QWSEvent::setData(d, len, allocateMem);
+        streamingData = QByteArray::fromRawData(rawDataPtr, len);
+    }
+    QByteArray streamingData;
+};
+
+
 struct QWSIMQueryEvent : QWSEvent {
     QWSIMQueryEvent()
         : QWSEvent(QWSEvent::IMQuery, sizeof(simpleData),

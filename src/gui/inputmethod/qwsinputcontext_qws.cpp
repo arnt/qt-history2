@@ -1,6 +1,7 @@
 #include "qwsinputcontext_p.h"
 #include "qwsdisplay_qws.h"
 #include "qwsevent_qws.h"
+#include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
 #include "qevent.h"
 #include "qtextformat.h"
@@ -60,21 +61,11 @@ void QWSInputContext::update()
     if (!w)
         return;
 
-    QPoint p = w->inputMethodQuery(Qt::ImMicroFocus).toRect().bottomLeft();
-
     QWidget *tlw = w->window();
     int winid = tlw->winId();
-    QPoint gp = w->mapToGlobal( p );
 
-    QRect r = QRect( w->mapToGlobal( QPoint(0,0) ),
-                     w->size() );
-
-    r.setBottom( tlw->geometry().bottom() );
-
-    //qDebug( "QWidget::setMicroFocusHint %d %d %d %d", r.x(),
-    //	r.y(),  r.width(), r.height() );
-
-    QPaintDevice::qwsDisplay()->setIMInfo( winid, gp.x(), gp.y(), r);
+    int widgetid = w->winId();
+    QPaintDevice::qwsDisplay()->sendIMUpdate(QWSIMUpdateCommand::Update, winid, widgetid);
 
 }
 
@@ -95,6 +86,23 @@ bool QWSInputContext::isComposing() const
     return activeWidget != 0;
 }
 
+bool QWSInputContext::translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e)
+{
+    QVariant result = w->inputMethodQuery(static_cast<Qt::InputMethodQuery>(e->simpleData.property));
+    QWidget *tlw = w->window();
+    int winId = tlw->winId();
+
+    QPaintDevice::qwsDisplay()->sendIMResponse(winId, e->simpleData.property, result);
+
+
+    return false;
+}
+
+bool QWSInputContext::translateIMInitEvent(const QWSIMInitEvent *e)
+{
+    qDebug("### QWSInputContext::translateIMInitEvent not implemented ###");
+    return false;
+}
 
 bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
 {

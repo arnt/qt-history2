@@ -1089,20 +1089,32 @@ void QWSDisplay::destroyRegion(int winId)
 }
 
 #ifndef QT_NO_QWS_IM
-void QWSDisplay::setIMInfo(int winId, int x, int y, const QRect &r, bool reset)
+
+void QWSDisplay::sendIMUpdate(int type, int winId, int widgetid)
 {
-    QWSSetIMInfoCommand cmd;
+    QWSIMUpdateCommand cmd;
     cmd.simpleData.windowid = winId;
-    cmd.simpleData.x = x;
-    cmd.simpleData.y = y;
-    cmd.simpleData.x1 = r.x();
-    cmd.simpleData.y1 = r.y();
-    cmd.simpleData.w = r.width();
-    cmd.simpleData.h = r.height();
-    cmd.simpleData.reset = reset;
+    cmd.simpleData.windowid = widgetid;
+
+    cmd.type = type;
+
+      if (d->directServerConnection()) {
+        qwsServer->im_update(&cmd);
+    } else {
+        d->sendCommand(cmd);
+    }
+}
+
+void QWSDisplay::sendIMResponse(int winId, int property, const QVariant &result)
+{
+    QWSIMResponseCommand cmd;
+    cmd.simpleData.windowid = winId;
+    cmd.simpleData.property = property;
+
+    cmd.setResult(result);
 
     if (d->directServerConnection()) {
-        qwsServer->set_im_info(&cmd);
+        qwsServer->im_response(&cmd);
     } else {
         d->sendCommand(cmd);
     }
@@ -1110,12 +1122,7 @@ void QWSDisplay::setIMInfo(int winId, int x, int y, const QRect &r, bool reset)
 
 void QWSDisplay::resetIM()
 {
-    QWSResetIMCommand cmd;
-    if (d->directServerConnection()) {
-        qwsServer->reset_im(&cmd);
-    } else {
-        d->sendCommand(cmd);
-    }
+    sendIMUpdate(QWSIMUpdateCommand::Reset, -1, -1);
 }
 
 void QWSDisplay::sendIMMouseEvent(int index, bool isPress)
@@ -1130,23 +1137,6 @@ void QWSDisplay::sendIMMouseEvent(int index, bool isPress)
     }
 }
 
-void QWSDisplay::setInputFont(int winId, const QFont &f)
-{
-    static QFont prevFont;
-    if (prevFont != f) {
-        prevFont = f;
-        QWSSetIMFontCommand cmd;
-        cmd.simpleData.windowid = winId;
-        cmd.setFont(f);
-        if (d->directServerConnection()) {
-            qwsServer->set_im_font(&cmd);
-        } else {
-            d->sendCommand(cmd);
-        }
-    }
-
-
-}
 #endif
 
 int QWSDisplay::takeId()
@@ -2262,6 +2252,15 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
     case QWSEvent::IMEvent:
         if (keywidget) // should always exist
             QWSInputContext::translateIMEvent(keywidget, static_cast<QWSIMEvent*>(event));
+        break;
+
+    case QWSEvent::IMQuery:
+        if (keywidget) // should always exist
+            QWSInputContext::translateIMQueryEvent(keywidget, static_cast<QWSIMQueryEvent*>(event));
+        break;
+
+    case QWSEvent::IMInit:
+        QWSInputContext::translateIMInitEvent(static_cast<QWSIMInitEvent*>(event));
         break;
 #endif
 

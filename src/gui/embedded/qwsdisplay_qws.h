@@ -28,6 +28,8 @@ class QWSEvent;
 class QWSMouseEvent;
 class QWSQCopMessageEvent;
 
+class QVariant;
+
 class QWSWindowInfo
 {
 
@@ -95,9 +97,9 @@ public:
     void repaintRegion(QRegion &);
 #endif
 #ifndef QT_NO_QWS_IM
-    void setIMInfo(int winId, int x, int y, const QRect &, bool = false);
+    void sendIMUpdate(int type, int winId, int widgetid);
     void resetIM();
-    void setInputFont(int winId, const QFont &);
+    void sendIMResponse(int winId, int property, const QVariant &result);
     void sendIMMouseEvent(int index, bool isPress);
 #endif
     QWSQCopMessageEvent* waitForQCopResponse();

@@ -222,6 +222,9 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
         case QWSCommand::SelectCursor:
             typeStr = "SelectCursor";
             break;
+        case QWSCommand::PositionCursor:
+            typeStr = "PositionCursor";
+            break;
         case QWSCommand::GrabMouse:
             typeStr = "GrabMouse";
             break;
@@ -246,20 +249,14 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
         case QWSCommand::RepaintRegion:
             typeStr = "RepaintRegion";
             break;
-        case QWSCommand::SetIMFont:
-            typeStr = "SetIMFont";
-            break;
-        case QWSCommand::ResetIM:
-            typeStr = "ResetIM";
-            break;
-        case QWSCommand::SetIMInfo:
-            typeStr = "SetIMInfo";
-            break;
         case QWSCommand::IMMouse:
             typeStr = "IMMouse";
             break;
-        case QWSCommand::PositionCursor:
-            typeStr = "PositionCursor";
+        case QWSCommand::IMUpdate:
+            typeStr = "IMUpdate";
+            break;
+        case QWSCommand::IMResponse:
+            typeStr = "IMResponse";
             break;
         case QWSCommand::Unknown:
         default:
@@ -270,7 +267,7 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
     return dbg.space();
 };
 
-#define N_EVENTS 16
+#define N_EVENTS 18
 const char * eventNames[N_EVENTS] =  {
         "NoEvent",
         "Connected",
@@ -286,6 +283,8 @@ const char * eventNames[N_EVENTS] =  {
         "QCopMessage",
         "WindowOperation",
         "IMEvent",
+        "IMQuery",
+        "IMInit"
     };
 
 class QWSServer;
@@ -506,22 +505,17 @@ QWSCommand *QWSCommand::factory(int type)
         command = new QWSRepaintRegionCommand;
         break;
 #ifndef QT_NO_QWS_IM
-    case QWSCommand::SetIMInfo:
-        command = new QWSSetIMInfoCommand;
+    case QWSCommand::IMUpdate:
+        command = new QWSIMUpdateCommand;
         break;
-    case QWSCommand::ResetIM:
-        command = new QWSResetIMCommand;
-        break;
-    case QWSCommand::SetIMFont:
-        command = new QWSSetIMFontCommand;
-        break;
+
     case QWSCommand::IMMouse:
         command = new QWSIMMouseCommand;
         break;
+#endif
     case QWSCommand::PositionCursor:
         command = new QWSPositionCursorCommand;
         break;
-#endif
     default:
         qWarning("QWSCommand::factory : Type error - got %08x!", type);
     }

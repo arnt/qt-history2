@@ -142,10 +142,7 @@ static int get_object_id()
 #ifndef QT_NO_QWS_IM
 static QWSInputMethod *current_IM = 0;
 
-static QFont *current_IM_Font = 0;
-static QRect current_IM_Rect;
 static QWSServer::IMState current_IM_State = QWSServer::InputMethodEnd;
-static int current_IM_y=0;
 static QWSWindow* current_IM_win=0;
 static int current_IM_winId=-1;
 
@@ -747,9 +744,6 @@ void QWSServer::initServer(int flags)
 #if !defined(QT_NO_SOUND) && !defined(Q_OS_DARWIN)
     soundserver = new QWSSoundServer(this);
 #endif
-#ifndef QT_NO_QWS_IM
-    microF = false;
-#endif
 }
 
 /*!
@@ -966,18 +960,6 @@ void QWSServer::doClient()
     QWSClient* client = (QWSClient*)sender();
     doClient(client);
     active = false;
-
-#ifndef QT_NO_QWS_IM
-    //### Avoid reentrancy problems when the IM tries to
-    //do top-level widget operations (eg. move()) as a response to
-    // setMicroFocus()
-    //### I hope we can find a cleaner way to do this.
-    if (microF && current_IM) {
-      current_IM->setMicroFocus(microX, microY);
-      current_IM_y = microY;
-      microF = false;
-    }
-#endif
 }
 #endif
 
@@ -1070,26 +1052,11 @@ void QWSServer::doClient(QWSClient *client)
             break;
 #endif
 #ifndef QT_NO_QWS_IM
-        case QWSCommand::ResetIM:
-            resetInputMethod();
+        case QWSCommand::IMUpdate:
+            invokeIMUpdate((QWSIMUpdateCommand*)cs->command, cs->client);
             break;
-        case QWSCommand::SetIMFont:
-            invokeSetIMFont((QWSSetIMFontCommand*)cs->command, cs->client);
-            break;
-        case QWSCommand::SetIMInfo:
-            //invokeSetMicroFocus((QWSSetMicroFocusCommand*)cs->command, cs->client);
-            {
-                QWSSetIMInfoCommand *cmd = (QWSSetIMInfoCommand*)cs->command;
-                microF = true;
-                microX = cmd->simpleData.x;
-                microY = cmd->simpleData.y;
-                current_IM_Rect = QRect(cmd->simpleData.x1,
-                                         cmd->simpleData.y1,
-                                         cmd->simpleData.w,
-                                         cmd->simpleData.h);
-                //###reset ????
-                current_IM_winId = cmd->simpleData.windowid;
-            }
+        case QWSCommand::IMResponse:
+            invokeIMResponse((QWSIMResponseCommand*)cs->command, cs->client);
             break;
         case QWSCommand::IMMouse:
             {
@@ -1271,6 +1238,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
 
 #ifndef QT_NO_QWS_IM
     //reset input method if we click outside
+    //####### we can't do this; IM may want to do something different
 
     static int oldstate = 0;
     bool isPress = state > oldstate;
@@ -1549,7 +1517,7 @@ bool QWSServer::isCursorVisible()
 #ifndef QT_NO_QWS_IM
 
 
-//### qt 3 support:
+//### qt 3 support: ???
 
 
 /*!
@@ -1605,37 +1573,6 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 
     current_IM_State = state;
     current_IM_win = win;
-}
-
-//### qt 3 support:
-
-/*!  Asks for the marked text of the current input widget. If there is
-  a current input widget, and it has marked text, and it supports the
-  request, the server will emit the markedText() signal at a later time
-  (ie. asynchronously).
-*/
-void QWSServer::requestMarkedText()
-{
-#if 0
-
-//###implement IM Query
-
-    if (!qwsServer)
-        return;
-
-    QWSIMQueryEvent event;
-    QWSWindow *win = keyboardGrabber ? keyboardGrabber :
-        qwsServer->focusw;
-
-    event.simpleData.window = win ? win->winId() : 0;
-    event.simpleData.property = Qt::ImCurrentSelection;
-
-    QWSClient *serverClient = qwsServer->clientMap[-1];
-    if (serverClient)
-       serverClient->sendEvent(&event);
-    if (win && win->client() && win->client() != serverClient)
-       win->client()->sendEvent(&event);
-#endif
 }
 
 /*!
@@ -2095,24 +2032,6 @@ void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
 #endif
 
 #ifndef QT_NO_QWS_IM
-void QWSServer::invokeSetIMInfo(const QWSSetIMInfoCommand *cmd,
-                                  QWSClient *)
-{
-    current_IM_y = cmd->simpleData.y;
-
-    current_IM_Rect = QRect(cmd->simpleData.x1,
-                             cmd->simpleData.y1,
-                             cmd->simpleData.w,
-                             cmd->simpleData.h);
-
-    //??? reset if  windowid != current_IM_winId  ???
-
-    current_IM_winId = cmd->simpleData.windowid;
-
-    if (current_IM)
-      current_IM->setMicroFocus(cmd->simpleData.x, cmd->simpleData.y);
-}
-
 void QWSServer::resetInputMethod()
 {
     if (current_IM && current_IM_State == InputMethodEnd)
@@ -2126,32 +2045,29 @@ void QWSServer::resetInputMethod()
     current_IM_winId = -1;
 }
 
-void QWSServer::invokeSetIMFont(const QWSSetIMFontCommand *cmd,
+void QWSServer::invokeIMResponse(const QWSIMResponseCommand *cmd,
                                  QWSClient *)
 {
-    if (!current_IM_Font)
-        current_IM_Font = new QFont(cmd->font);
-    else
-        *current_IM_Font = cmd->font;
-
+    //#### notify IM
+    qWarning("QWSServer::invokeIMResponse is not implemented");
 }
 
-/*
-  void QWSServer::invokeSetMicroFocus(const QWSSetMicroFocusCommand *cmd,
-                                  QWSClient *)
+void QWSServer::invokeIMUpdate(const QWSIMUpdateCommand *cmd,
+                                 QWSClient *)
 {
-    if (current_IM)
-      current_IM->setMicroFocus(cmd->simpleData.x, cmd->simpleData.y);
+    switch (cmd->simpleData.type)
+    {
+    case QWSIMUpdateCommand::Reset:
+        resetInputMethod();
+        //should really send event to IM and let it reset itself...
+        break;
 
+    default:
+        //### notify IM
+        break;
+    }
 }
 
-void QWSServer::invokeResetIM(const QWSResetIMCommand *cmd,
-                             QWSClient *)
-{
-    if (current_IM)
-      current_IM->reset();
-}
-*/
 #endif
 
 void QWSServer::invokeRepaintRegion(QWSRepaintRegionCommand * cmd,
@@ -2656,19 +2572,14 @@ void QWSServer::name_region(const QWSRegionNameCommand *cmd)
 }
 
 #ifndef QT_NO_QWS_IM
-void QWSServer::set_im_info(const QWSSetIMInfoCommand *cmd)
-{
-    invokeSetIMInfo(cmd, clientMap[-1]);
+void QWSServer::im_response(const QWSIMResponseCommand *cmd)
+ {
+     invokeIMResponse(cmd, clientMap[-1]);
 }
 
-void QWSServer::reset_im(const QWSResetIMCommand *)
+void QWSServer::im_update(const QWSIMUpdateCommand *cmd)
 {
-    resetInputMethod();
-}
-
-void QWSServer::set_im_font(const QWSSetIMFontCommand *cmd)
-{
-    invokeSetIMFont(cmd, clientMap[-1]);
+    invokeIMUpdate(cmd, clientMap[-1]);
 }
 
 void QWSServer::send_im_mouse(const QWSIMMouseCommand *cmd)
@@ -3140,10 +3051,10 @@ void QWSInputMethod::mouseHandler(int, int)
  */
 QFont QWSInputMethod::font() const
 {
-    if (!current_IM_Font)
+//    if (!current_IM_Font)
         return QApplication::font(); //### absolutely last resort
-
-    return *current_IM_Font;
+//############
+        //  return *current_IM_Font;
 }
 
 /*!
@@ -3154,7 +3065,7 @@ QFont QWSInputMethod::font() const
  */
 QRect QWSInputMethod::inputRect() const
 {
-    QRect r = current_IM_Rect;
+    QRect r; //############# = current_IM_Rect;
     //QFontMetrics fm(font());
     //r.setTop(current_IM_y - fm.height());
     return r;

@@ -94,6 +94,7 @@ struct QWSCommand : QWSProtocolItem
         ChangeAltitude,
         DefineCursor,
         SelectCursor,
+        PositionCursor,
         GrabMouse,
         PlaySound,
         QCopRegisterChannel,
@@ -102,13 +103,7 @@ struct QWSCommand : QWSProtocolItem
         Identify,
         GrabKeyboard,
         RepaintRegion,
-        SetIMFont,
-        ResetIM,
-        SetIMInfo,
         IMMouse,
-        PositionCursor,
-
-
         IMUpdate,
         IMResponse
     };
@@ -528,25 +523,6 @@ struct QWSQCopSendCommand : public QWSCommand
 
 #ifndef QT_NO_QWS_IM
 
-//goes away
-struct QWSSetIMInfoCommand : public QWSCommand
-{
-    QWSSetIMInfoCommand() :
-        QWSCommand(QWSCommand::SetIMInfo,
-                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
-
-    struct SimpleData {
-        int windowid;
-        int x;
-        int y;
-        int x1;
-        int y1;
-        int w;
-        int h;
-        bool reset;
-    } simpleData;
-};
-
 struct QWSIMMouseCommand : public QWSCommand
 {
     QWSIMMouseCommand() :
@@ -575,6 +551,14 @@ struct QWSIMResponseCommand : public QWSCommand
         s >> result;
     }
 
+    void setResult(const QVariant & v)
+    {
+        QByteArray tmp;
+        QDataStream s(&tmp, QIODevice::WriteOnly);
+        s << v;
+        setData(tmp.data(), tmp.size(), true);
+    }
+
     struct SimpleData {
         int windowid;
         int property;
@@ -583,47 +567,20 @@ struct QWSIMResponseCommand : public QWSCommand
     QVariant result;
 };
 
-
-//turns into QWSUpdateIMCommand: update/focus/reset/...
-struct QWSResetIMCommand : public QWSCommand
+struct QWSIMUpdateCommand: public QWSCommand
 {
-    QWSResetIMCommand() :
-        QWSCommand(QWSCommand::ResetIM,
+    QWSIMUpdateCommand() :
+        QWSCommand(QWSCommand::IMUpdate,
                     sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
 
+    enum UpdateType {Update, FocusIn, FocusOut, Reset, Destroyed};
     struct SimpleData {
         int windowid;
+        int type;
+        int widgetid;
     } simpleData;
 };
 
-
-//goes away
-struct QWSSetIMFontCommand : public QWSCommand
-{
-    QWSSetIMFontCommand() :
-        QWSCommand(QWSCommand::SetIMFont,
-                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
-
-    void setData(const char *d, int len, bool allocateMem) {
-        QWSCommand::setData(d, len, allocateMem);
-
-        QByteArray tmp = QByteArray::fromRawData(d, len);
-        QDataStream s(tmp);
-        s >> font;
-    }
-    void setFont(const QFont & f)
-    {
-        QByteArray tmp;
-        QDataStream s(&tmp, QIODevice::WriteOnly);
-        s << f;
-        setData(tmp.data(), tmp.size(), true);
-    }
-
-    struct SimpleData {
-        int windowid;
-    } simpleData;
-    QFont font;
-};
 #endif
 
 #endif // QWSCOMMAND_QWS_H

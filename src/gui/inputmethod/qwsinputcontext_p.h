@@ -17,6 +17,8 @@
 #ifndef QT_NO_QWS_IM
 
 class QWSIMEvent;
+class QWSIMQueryEvent;
+class QWSIMInitEvent;
 
 class QWSInputContext : public QInputContext
 {
@@ -40,6 +42,8 @@ public:
 
     static QWidget *activeWidget();
     static bool translateIMEvent(QWidget *w, const QWSIMEvent *e);
+    static bool translateIMQueryEvent(QWidget *w, const QWSIMQueryEvent *e);
+    static bool translateIMInitEvent(const QWSIMInitEvent *e);
 };
 #endif // QT_NO_QWS_IM
 #endif

@@ -213,9 +213,7 @@ public:
 
 #ifndef QT_NO_QWS_IM
     static void setCurrentInputMethod(QWSInputMethod *im);
-    static void resetInputMethod();
-    static void setMicroFocus(int x, int y);
-    static void requestMarkedText();
+    static void resetInputMethod();//remove ???
 #endif
 
     static void setDefaultMouse(const char *);
@@ -309,11 +307,10 @@ private:
     void name_region(const QWSRegionNameCommand *);
     void set_identity(const QWSIdentifyCommand *);
 #ifndef QT_NO_QWS_IM
-    // void set_micro_focus(const QWSSetMicroFocusCommand *);
+    void im_response(const QWSIMResponseCommand *);
 
-    void set_im_info(const QWSSetIMInfoCommand *);
-    void reset_im(const QWSResetIMCommand *);
-    void set_im_font(const QWSSetIMFontCommand *);
+    void im_update(const QWSIMUpdateCommand *);
+
     void send_im_mouse(const QWSIMMouseCommand *);
     static void sendKeyEventUnfiltered(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                                        bool isPress, bool autoRepeat);
@@ -361,15 +358,10 @@ private:
     void invokeRepaintRegion(QWSRepaintRegionCommand *cmd,
                               QWSClient *client);
 #ifndef QT_NO_QWS_IM
-    void invokeSetIMInfo(const QWSSetIMInfoCommand *cmd,
+    void invokeIMResponse(const QWSIMResponseCommand *cmd,
+                         QWSClient *client);
+     void invokeIMUpdate(const QWSIMUpdateCommand *cmd,
                           QWSClient *client);
-    void invokeSetIMFont(const QWSSetIMFontCommand *cmd,
-                          QWSClient *client);
-
-    // void invokeSetMicroFocus(const QWSSetMicroFocusCommand *cmd,
-    //                          QWSClient *client);
-    // void invokeResetIM(const QWSResetIMCommand *cmd,
-    //                          QWSClient *client);
 #endif
 
     QWSMouseHandler* newMouseHandler(const QString& spec);
@@ -472,11 +464,6 @@ private:
 #endif
 #ifndef QT_NO_COP
     QMap<QString, QList<QWSClient*> > channels;
-#endif
-#ifndef QT_NO_QWS_IM
-    bool microF;
-    int microX;
-    int microY;
 #endif
 #ifdef QT3_SUPPORT
 #ifndef QT_NO_QWS_KEYBOARD

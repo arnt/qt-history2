@@ -68,6 +68,12 @@ QWSEvent *QWSEvent::factory(int type)
     case QWSEvent::IMEvent:
         event = new QWSIMEvent;
         break;
+    case QWSEvent::IMQuery:
+        event = new QWSIMQueryEvent;
+        break;
+    case QWSEvent::IMInit:
+        event = new QWSIMInitEvent;
+        break;
 #endif
     default:
         qDebug("QWSDisplayData::readMore() : Protocol error - got %08x!", type);
