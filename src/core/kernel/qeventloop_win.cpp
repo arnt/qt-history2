@@ -616,19 +616,19 @@ static HWND qt_create_sn_window()
     wc.hInstance = hi;
     wc.hIcon = 0;
     wc.hCursor = 0;
-    wc.hbrBackground = (HBRUSH)GetStockObject(WHITE_BRUSH);
+    wc.hbrBackground = (HBRUSH) COLOR_BACKGROUND;
     wc.lpszMenuName = NULL;
     wc.lpszClassName = "QtSocketNotifier_Internal_Widget";
     if (!RegisterClassA(&wc)) {
         qWarning("Failed to register class: %d\n", GetLastError());
         return 0;
     }
-    HWND wnd = CreateWindowA(wc.lpszClassName,         // classname
-                             wc.lpszClassName,        // window name
-                             0,                        // style
-                             0, 0, 0, 0,         // geometry
-                             0,                        // parent
-                             0,                       // menu handle
+    HWND wnd = CreateWindowA(wc.lpszClassName,  // classname
+                             wc.lpszClassName,  // window name
+                             0,                 // style
+                             0, 0, 0, 0,        // geometry
+                             0,                 // parent
+                             0,                 // menu handle
                              hi,                // application
                              0);                // windows creation data.
     if (!wnd) {
