@@ -514,7 +514,7 @@ bool QTable::isRowSelected( int row, bool full )
 	    if ( s->active &&
 		 row >= s->topRow &&
 		 row <= s->bottomRow &&
-		 s->leftCol == 0 && 
+		 s->leftCol == 0 &&
 		 s->rightCol == cols() - 1 )
 		return TRUE;
 	}
@@ -1128,7 +1128,7 @@ int QTable::indexOf( int row, int col ) const
     return ( row * cols() ) + col; // mapping from 2D table to 1D array
 }
 
-void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection, 
+void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 				bool updateVertical, bool updateHorizontal )
 {
     QRect old = rangeGeometry( oldSelection->topRow,
@@ -1156,7 +1156,7 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 		topHeader->setSectionState( i, QTableHeader::Bold );
 	}
     }
-    
+
     if ( updateVertical ) {
 	for ( i = 0; i <= rows(); ++i ) {
 	    if ( !isRowSelected( i ) )
@@ -1172,7 +1172,7 @@ void QTable::repaintSelections( SelectionRange *oldSelection, SelectionRange *ne
 void QTable::clearSelection()
 {
     bool needRepaint = !selections.isEmpty();
-    
+
     QRect r;
     for ( SelectionRange *s = selections.first(); s; s = selections.next() ) {
 	r = r.unite( rangeGeometry( s->topRow,
@@ -1185,7 +1185,7 @@ void QTable::clearSelection()
     selections.clear();
     if ( needRepaint )
 	repaintContents( r, FALSE );
-    
+
     int i;
     for ( i = 0; i <= cols(); ++i ) {
 	if ( !isColSelected( i ) )
@@ -1316,6 +1316,9 @@ QTableHeader::QTableHeader( int i, QTable *t, QWidget *parent, const char *name 
     states.resize( i );
     states.fill( Normal, -1 );
     mousePressed = FALSE;
+    autoScrollTimer = new QTimer( this );
+    connect( autoScrollTimer, SIGNAL( timeout() ),
+	     this, SLOT( doAutoScroll() ) );
 }
 
 void QTableHeader::setSectionState( int s, SectionState state )
@@ -1402,8 +1405,8 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 	QHeader::mouseMoveEvent( e );
 	return;
     }
-    
-    int p = real_pos( e->pos(), orientation() );
+
+    int p = real_pos( e->pos(), orientation() ) + offset();
     if ( startPos == -1 ) {
 	startPos = p;
 	if ( ( e->state() & ControlButton ) != ControlButton )
@@ -1419,15 +1422,26 @@ void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 	    table->currentSelection->init( 0, sectionAt( p ) );
 	}
     }
-    endPos = p;
-    if ( startPos != -1 )
+    if ( sectionAt( p ) != -1 )
+	endPos = p;
+    if ( startPos != -1 ) {
 	updateSelections();
-    else
+	p -= offset();
+	if ( orientation() == Horizontal && ( p < 0 || p > width() ) ) {
+	    doAutoScroll();
+	    autoScrollTimer->start( 100, TRUE );
+	} else if ( orientation() == Vertical && ( p < 0 || p > height() ) ) {
+	    doAutoScroll();
+	    autoScrollTimer->start( 100, TRUE );
+	}
+    } else {
 	QHeader::mouseMoveEvent( e );
+    }
 }
 
 void QTableHeader::mouseReleaseEvent( QMouseEvent *e )
 {
+    autoScrollTimer->stop();
     mousePressed = FALSE;
     QHeader::mouseReleaseEvent( e );
 }
@@ -1444,13 +1458,13 @@ void QTableHeader::updateSelections()
 	else
 	    setSectionState( i, Selected );
     }
-    
+
     QTable::SelectionRange oldSelection = *table->currentSelection;
     if ( orientation() == Vertical )
 	table->currentSelection->expandTo( b, count() - 1 );
     else
 	table->currentSelection->expandTo( count() - 1, b );
-    table->repaintSelections( &oldSelection, table->currentSelection, 
+    table->repaintSelections( &oldSelection, table->currentSelection,
 			      orientation() == Horizontal, orientation() == Vertical );
 }
 
@@ -1459,4 +1473,18 @@ void QTableHeader::saveStates()
     oldStates.resize( count() );
     for ( int i = 0; i < count(); ++i )
 	oldStates[ i ] = sectionState( i );
+}
+
+void QTableHeader::doAutoScroll()
+{
+    QPoint pos = mapFromGlobal( QCursor::pos() );
+    int p = real_pos( pos, orientation() ) + offset();
+    if ( sectionAt( p ) != -1 )
+	endPos = p;
+    if ( orientation() == Horizontal )
+	table->ensureVisible( endPos, table->contentsY() );
+    else
+	table->ensureVisible( table->contentsX(), endPos );
+    updateSelections();
+    autoScrollTimer->start( 100, TRUE );
 }

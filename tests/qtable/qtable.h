@@ -58,7 +58,7 @@ class QTable : public QScrollView
     Q_OBJECT
     friend class QTableItem;
     friend class QTableHeader;
-    
+
 public:
     enum EditMode { NotEditing, Editing, Replacing };
 
@@ -151,7 +151,7 @@ private:
     void paintCell( QPainter *p, int row, int col, const QRect &cr, bool selected );
     int indexOf( int row, int col ) const;
     void updateGeometries();
-    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection, 
+    void repaintSelections( SelectionRange *oldSelection, SelectionRange *newSelection,
 			    bool updateVertical = TRUE, bool updateHorizontal = TRUE );
     QRect rangeGeometry( int topRow, int leftCol, int bottomRow, int rightCol );
     void activateNextCell();
@@ -176,7 +176,7 @@ private:
 class QTableHeader : public QHeader
 {
     Q_OBJECT
-    
+
 public:
     enum SectionState {
 	Normal,
@@ -196,6 +196,9 @@ protected:
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
 
+private slots:
+    void doAutoScroll();
+    
 private:
     void updateSelections();
     void saveStates();
@@ -205,6 +208,7 @@ private:
     bool mousePressed;
     int pressPos, startPos, endPos;
     QTable *table;
+    QTimer *autoScrollTimer;
     
 };
 
