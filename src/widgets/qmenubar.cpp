@@ -1177,6 +1177,10 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	setMicroFocusHint( mfrect.x(), mfrect.y(), mfrect.width(), mfrect.height(), FALSE );
     }
 
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
+
     if ( actItem < 0 || !popupvisible || !mi  )
         return;
 
@@ -1192,6 +1196,7 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
             mi->signal()->activate();
         emit activated( mi->id() );
     }
+
 }
 
 
@@ -1361,5 +1366,28 @@ void QMenuBar::activateItemAt( int index )
     else
         goodbye( FALSE );
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QMenuBar::stateDescription() const
+{
+    QMenuItem *mi = mitems->at( actItem );
+    return mi ? tr( "selected menu item: %1" ).arg( mi->text() ) : QString::null;
+}
+
+/*! \reimp */
+QString	QMenuBar::useDescription() const
+{
+    return tr( "To change item, use cursor keys." );
+}
+
+/*! \reimp */
+QString	QMenuBar::typeDescription() const
+{
+    return tr( "Menu bar" );
+}
+
+#endif
 
 #endif // QT_NO_MENUBAR

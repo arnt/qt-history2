@@ -378,6 +378,12 @@ protected:
     virtual void insertWidget( int row, int col, QWidget *w );
     int indexOf( int row, int col ) const;
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString stateDescription() const;
+    QString typeDescription() const;
+    QString useDescription() const;
+#endif
+
 protected slots:
     virtual void columnWidthChanged( int col );
     virtual void rowHeightChanged( int row );

@@ -4780,6 +4780,10 @@ void QListView::setCurrentItem( QListViewItem * i )
 	    repaintItem( prev );
 	emit currentChanged( i );
     }
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -6422,5 +6426,38 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 	emit selectionChanged();
     }
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QListView::stateDescription() const
+{
+    if ( !currentItem() )
+	return QString::null;
+
+    QString t = currentItem()->text( 0 );
+    if ( currentItem()->childCount() ) {
+	t += tr( ", item has sub items" );
+	if ( !currentItem()->isOpen() )
+	    t += tr( ". To open sub items, press +" );
+    }
+
+    return tr( "selected item: %1" ).arg( t );
+}
+
+/*! \reimp */
+QString	QListView::useDescription() const
+{
+    return tr( "To change item, use cursor keys." );
+}
+
+/*! \reimp */
+QString	QListView::typeDescription() const
+{
+    return tr( "listview" );
+}
+
+#endif
+
 #endif // QT_NO_LISTVIEW
 

@@ -399,6 +399,12 @@ protected:
     void enabledChange( bool );
     void styleChange( QStyle& );
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString stateDescription() const;
+    QString typeDescription() const;
+    QString useDescription() const;
+#endif
+
 protected slots:
     void updateContents();
     void doAutoScroll();

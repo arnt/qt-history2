@@ -102,6 +102,13 @@ public:
 
     QButtonGroup *group() const;
 
+#ifndef QT_NO_ACCESSIBILTY
+    QString	contentsDescription() const;
+    QString	stateDescription() const;
+    QString	useDescription() const;
+    QString	typeDescription() const;
+#endif
+
 public slots:
     void	animateClick();
     void	toggle();

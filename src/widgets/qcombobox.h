@@ -146,6 +146,13 @@ class Q_EXPORT QComboBox : public QWidget
     virtual const QPixmap *	backgroundPixmap() const;
     virtual void		setBackgroundPixmap( const QPixmap & );
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString stateDescription() const;
+    QString contentsDescription() const;
+    QString typeDescription() const;
+    QString useDescription() const;
+#endif
+
 public slots:
     void	clearValidator();
     void	clearEdit();

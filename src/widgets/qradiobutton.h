@@ -58,6 +58,12 @@ public:
 
     QSize    sizeHint() const;
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString	stateDescription() const;
+    QString	useDescription() const;
+    QString	typeDescription() const;
+#endif
+
 protected:
     bool    hitButton( const QPoint & ) const;
     void    drawButton( QPainter * );

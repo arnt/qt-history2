@@ -499,6 +499,10 @@ void QDial::valueChange()
     repaintScreen();
     if ( d->tracking || !d->doNotEmit )
 	emit valueChanged( value() );
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -954,6 +958,28 @@ int QDial::value() const
 {
     return QRangeControl::value();
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QDial::stateDescription() const
+{
+    return QString::number( value() );
+}
+
+/*! \reimp */
+QString	QDial::useDescription() const
+{
+    return tr( "To change value, use cursor keys." );
+}
+
+/*! \reimp */
+QString	QDial::typeDescription() const
+{
+    return tr( "Dial" );
+}
+
+#endif
 
 #endif // QT_FEATURE_DIAL
 

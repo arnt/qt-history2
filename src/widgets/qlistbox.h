@@ -270,6 +270,12 @@ protected:
     int findItem( int yPos ) const { return index(itemAt(QPoint(0,yPos)) ); }
 #endif
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString stateDescription() const;
+    QString typeDescription() const;
+    QString useDescription() const;
+#endif
+
 protected slots:
     void clearInputString();
 

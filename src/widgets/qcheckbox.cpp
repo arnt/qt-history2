@@ -389,4 +389,26 @@ void QCheckBox::updateMask()
     setMask(bm);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString QCheckBox::stateDescription() const
+{ 
+    return isChecked() ? tr("checked") : tr("unchecked"); 
+}
+
+/*! \reimp */
+QString QCheckBox::useDescription() const
+{ 
+    return isChecked() ? tr("To uncheck, use space bar") : tr("To check, use space bar"); 
+}
+
+/*! \reimp */
+QString QCheckBox::typeDescription() const
+{ 
+    return tr("check box"); 
+}
+
+#endif
+
 #endif

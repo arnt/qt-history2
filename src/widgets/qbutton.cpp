@@ -383,6 +383,9 @@ void QButton::setText( const QString &text )
     if ( btext == text )
 	return;
     btext = text;
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( contentsDescription() );
+#endif
 
     if ( bpixmap ) {
 	delete bpixmap;
@@ -687,6 +690,9 @@ void QButton::setState( ToggleState s )
 	    emit toggled( stat != Off );
 	emit stateChanged( s );
     }
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -1010,6 +1016,9 @@ void QButton::nextState()
 	    emit toggled( stat != Off );
 	emit stateChanged( stat );
     }
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -1063,4 +1072,33 @@ bool QButton::isExclusiveToggle() const
     return FALSE;
 #endif
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QButton::contentsDescription() const 
+{ 
+    return text(); 
+}
+
+/*! \reimp */
+QString	QButton::stateDescription() const
+{ 
+    return isToggleButton() ? ( isOn() ? tr("On") : tr("Off") ) : QString::null; 
+}
+
+/*! \reimp */
+QString	QButton::useDescription() const
+{ 
+    return tr("To press, use space bar"); 
+}
+
+/*! \reimp */
+QString	QButton::typeDescription() const
+{ 
+    return tr("button"); 
+}
+
+#endif
+
 #endif

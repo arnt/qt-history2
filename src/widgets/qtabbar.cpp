@@ -666,6 +666,10 @@ void QTabBar::setCurrentTab( QTab * tab )
 	makeVisible( tab );
 	emit selected( tab->id );
     }
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 /*!  If this tab control has keyboard focus, returns the id of the
@@ -1006,4 +1010,33 @@ void QTabBar::updateArrowButtons()
 	d->rightB->hide();
     }
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString QTabBar::stateDescription() const 
+{ 
+    return tab(currentTab()) ? tr("current page: %1").arg( tab(currentTab())->text() ) : QString::null; 
+}
+
+/*! \reimp */
+QString QTabBar::contentsDescription() const 
+{ 
+    return QString::null; 
+}
+
+/*! \reimp */
+QString QTabBar::typeDescription() const 
+{ 
+    return tr("tab bar"); 
+}
+
+/*! \reimp */
+QString QTabBar::useDescription() const 
+{ 
+    return tr("To switch page, use cursor keys."); 
+}
+
+#endif
+
 #endif

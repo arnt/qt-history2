@@ -736,4 +736,14 @@ bool QPushButton::isFlat() const
     return flt;
 }
 
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QPushButton::typeDescription() const
+{ 
+    return tr("push button"); 
+}
+
+#endif
+
 #endif

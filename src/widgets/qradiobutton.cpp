@@ -384,4 +384,26 @@ void QRadioButton::updateMask()
     setMask(bm);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QRadioButton::stateDescription() const
+{ 
+    return isChecked() ? tr("checked") : tr("unchecked"); 
+}
+
+/*! \reimp */
+QString	QRadioButton::useDescription() const
+{ 
+    return ""; 
+}
+
+/*! \reimp */
+QString	QRadioButton::typeDescription() const
+{ 
+    return tr("radio button"); 
+}
+
+#endif
+
 #endif

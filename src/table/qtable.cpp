@@ -2482,6 +2482,10 @@ void QTable::setCurrentCell( int row, int col )
 		cellWidget( itm->row(), itm->col() )->setFocus();
 	}
     }
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 /*! Scrolls the table until the cell \a row, \a col becomes
@@ -4720,9 +4724,32 @@ void QTable::startDrag()
 
     drag->drag();
 }
+
 #endif
 
+#ifndef QT_NO_ACCESSIBILITY
 
+/*! \reimp */
+QString	QTable::stateDescription() const
+{
+    int r = currentRow();
+    int c = currentColumn();
+    return tr( "current cell: %1, %2" ).arg( r+1 ).arg( c+1 );
+}
+
+/*! \reimp */
+QString	QTable::useDescription() const
+{
+    return tr( "To change cell, use cursor keys." );
+}
+
+/*! \reimp */
+QString	QTable::typeDescription() const
+{
+    return tr( "Table" );
+}
+
+#endif
 
 
 /* \class QTableHeader qtable.h

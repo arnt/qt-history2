@@ -305,6 +305,9 @@ void QSlider::valueChange()
 	reallyMoveSlider( newPos );
     }
     emit valueChanged(value());
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -1126,4 +1129,27 @@ int QSlider::value() const
 {
     return QRangeControl::value();
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QSlider::stateDescription() const
+{
+    return QString::number( value() );
+}
+
+/*! \reimp */
+QString	QSlider::useDescription() const
+{
+    return tr( "To change value, use cursor keys." );
+}
+
+/*! \reimp */
+QString	QSlider::typeDescription() const
+{
+    return tr( "Slider" );
+}
+
+#endif
+
 #endif

@@ -340,8 +340,12 @@ void QLineEdit::setText( const QString &text )
 	setMicroFocusHint( d->cursor->x() - d->offset, d->cursor->y(), 0, d->cursor->parag()->rect().height(), TRUE );
     deselect();
     update();
-    if ( oldText != text )
+    if ( oldText != text ) {
+#ifndef QT_NO_ACCESSIBILITY
+	setAccessibilityHint( text );
+#endif
 	emit textChanged( text );
+    }
 }
 
 
@@ -1954,5 +1958,42 @@ bool QLineEdit::getSelection( int &start, int &end )
     end = d->parag->selectionEnd( QTextDocument::Standard );
     return TRUE;
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString QLineEdit::stateDescription() const
+{
+    return text();
+}
+
+/*! \reimp */
+QString QLineEdit::contentsDescription() const
+{
+    return QString::null;
+}
+
+/*! \reimp */
+QString QLineEdit::typeDescription() const
+{
+    if ( parentWidget() && parentWidget()->isA( "QSpinBox" ) )
+	return tr( "spin box" );
+    if ( parentWidget() && parentWidget()->isA( "QComboBox" ) )
+	return tr( "editable combo box" );
+
+    return tr("editable text");
+}
+
+/*! \reimp */
+QString QLineEdit::useDescription() const
+{
+    if ( parentWidget() && parentWidget()->isA( "QSpinBox" ) )
+	return tr( "To change value, use up and down keys" );
+    if ( parentWidget() && parentWidget()->isA( "QComboBox" ) )
+	return tr( "To change value, use up and down keys" );
+    return QString::null;
+}
+
+#endif
 
 #endif

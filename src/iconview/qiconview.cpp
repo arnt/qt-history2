@@ -2948,6 +2948,10 @@ void QIconView::setCurrentItem( QIconViewItem *item )
     if ( old )
 	repaintItem( old );
     repaintItem( d->currentItem );
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 /*!
@@ -5813,6 +5817,26 @@ QBitmap QIconView::mask( QPixmap *pix ) const
 void QIconView::drawContents( QPainter * )
 {
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+/*! \reimp */
+QString QIconView::stateDescription() const 
+{ 
+    return currentItem() ? tr("selected item: %1").arg( currentItem()->text() ) : QString::null; 
+}
+
+/*! \reimp */
+QString QIconView::typeDescription() const 
+{ 
+    return tr("icon view"); 
+}
+
+/*! \reimp */
+QString QIconView::useDescription() const 
+{ 
+    return tr("To select item, use cursor keys."); 
+}
+#endif
 
 #include "qiconview.moc"
 

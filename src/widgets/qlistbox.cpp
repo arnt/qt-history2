@@ -1563,6 +1563,10 @@ void QListBox::setCurrentItem( QListBoxItem * i )
 	emit highlighted( tmp );
     emit highlighted( tmp2 );
     emit currentChanged( i );
+
+#ifndef QT_NO_ACCESSIBILITY
+    setAccessibilityHint( stateDescription() );
+#endif
 }
 
 
@@ -4050,6 +4054,31 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
     if ( changed )
 	emit selectionChanged();
 }
+
+#ifndef QT_NO_ACCESSIBILITY
+
+/*! \reimp */
+QString	QListBox::stateDescription() const
+{
+    QString t = text( currentItem() );
+    if ( !!t )
+	return tr( "selected item: %1" ).arg( t );
+    return QString::null;
+}
+
+/*! \reimp */
+QString	QListBox::useDescription() const
+{
+    return tr( "To change item, use up and down keys." );
+}
+
+/*! \reimp */
+QString	QListBox::typeDescription() const
+{
+    return tr( "listbox" );
+}
+
+#endif
 
 
 /*! Returns 0.

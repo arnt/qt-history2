@@ -62,7 +62,13 @@ public:
     void    setTristate(bool y=TRUE);
     bool    isTristate() const;
 
-    QSize sizeHint() const;
+    QSize   sizeHint() const;
+
+#ifndef QT_NO_ACCESSIBILITY
+    QString	stateDescription() const;
+    QString	useDescription() const;
+    QString	typeDescription() const;
+#endif
 
 protected:
     void    resizeEvent( QResizeEvent* );

@@ -146,6 +146,13 @@ protected:
 
     QList<QTab> * tabList();
 
+#ifndef QT_NO_ACCESSIBILITY
+    QString stateDescription() const;
+    QString contentsDescription() const;
+    QString typeDescription() const;
+    QString useDescription() const;
+#endif
+
 private slots:
     void scrollTabs();
 

@@ -2111,4 +2111,33 @@ void QComboBox::setBackgroundPixmap( const QPixmap & pixmap )
     setBackgroundPixmapForMode(PaletteBase, pixmap);
 }
 
+#ifndef QT_NO_ACCESSIBILITY
+/*! \reimp */
+QString QComboBox::stateDescription() const 
+{ 
+    return tr("selected item: %1").arg( currentText() ); 
+}
+
+/*! \reimp */
+QString QComboBox::contentsDescription() const 
+{ 
+    return QString::null; 
+}
+
+/*! \reimp */
+QString QComboBox::typeDescription() const 
+{ 
+    return tr("combo box"); 
+}
+
+/*! \reimp */
+QString QComboBox::useDescription() const 
+{ 
+    if ( editable() )
+	return tr( "To select item, use up and down keys." ); 
+    else 
+	return tr( "To open list, press space bar." );
+}
+#endif
+
 #endif // QT_NO_COMBOBOX
