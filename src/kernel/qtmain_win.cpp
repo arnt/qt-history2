@@ -52,10 +52,14 @@ int APIENTRY WinMain( HINSTANCE instance, HINSTANCE prevInstance,
 		      LPSTR  cmdParam, int cmdShow )
 {
     int argc = 0;
-    char* cmdp = qstrdup( cmdParam );
+    char* cmdp = 0;
+    if ( cmdParam ) {
+	cmdp = new char[ qstrlen( cmdParam ) + 1 ];
+	qstrcpy( cmdp, cmdParam );
+    }
     QArray<pchar> argv( 8 );
     qWinMain( instance, prevInstance, cmdp, cmdShow, argc, argv );
     int result = main( argc, argv.data() );
-    delete cmdp;
+    delete[] cmdp;
     return result;
 }
