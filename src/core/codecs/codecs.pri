@@ -1,38 +1,34 @@
-# Qt codecs module
+# Qt core library codecs module
 
 !bigcodecs:DEFINES += QT_NO_BIG_CODECS
-tools {
-	CODECS_P		= codecs
-	HEADERS += \
-# 		$$CODECS_H/qasmocodec.h \
-		  $$CODECS_H/qbig5codec.h \
-		  $$CODECS_H/qeucjpcodec.h \
-		  $$CODECS_H/qeuckrcodec.h \
-		  $$CODECS_P/qisciicodec_p.h \
-		  $$CODECS_H/qgb18030codec.h \
-		  $$CODECS_H/qjiscodec.h \
-		  $$CODECS_H/qjpunicode.h \
-		  $$CODECS_H/qsjiscodec.h \
-		  $$CODECS_H/qtextcodec.h \
-		  $$CODECS_H/qtsciicodec.h \
-		  $$CODECS_H/qutfcodec.h \
-		  $$CODECS_P/qtextcodecinterface_p.h \
-		  $$CODECS_H/qtextcodecfactory.h \
-		  $$CODECS_H/qtextcodecplugin.h
 
-	SOURCES += \
-#		  $$CODECS_CPP/qasmocodec.cpp \
-		  $$CODECS_CPP/qbig5codec.cpp \
-		  $$CODECS_CPP/qeucjpcodec.cpp \
-		  $$CODECS_CPP/qeuckrcodec.cpp \
-		  $$CODECS_CPP/qisciicodec.cpp \
-		  $$CODECS_CPP/qgb18030codec.cpp \
-		  $$CODECS_CPP/qjiscodec.cpp \
-		  $$CODECS_CPP/qjpunicode.cpp \
-		  $$CODECS_CPP/qsjiscodec.cpp \
-		  $$CODECS_CPP/qtextcodec.cpp \
-		  $$CODECS_CPP/qtsciicodec.cpp \
-		  $$CODECS_CPP/qutfcodec.cpp \
-		  $$CODECS_CPP/qtextcodecfactory.cpp \
-		  $$CODECS_CPP/qtextcodecplugin.cpp
-}
+HEADERS += \
+	codecs/qbig5codec.h \
+	codecs/qeucjpcodec.h \
+	codecs/qeuckrcodec.h \
+	codecs/qisciicodec_p.h \
+	codecs/qgb18030codec.h \
+	codecs/qjiscodec.h \
+	codecs/qjpunicode.h \
+	codecs/qsjiscodec.h \
+	codecs/qtextcodec.h \
+	codecs/qtsciicodec.h \
+	codecs/qutfcodec.h \
+	codecs/qtextcodecinterface_p.h \
+	codecs/qtextcodecfactory.h \
+	codecs/qtextcodecplugin.h
+
+SOURCES += \
+	codecs/qbig5codec.cpp \
+	codecs/qeucjpcodec.cpp \
+	codecs/qeuckrcodec.cpp \
+	codecs/qisciicodec.cpp \
+	codecs/qgb18030codec.cpp \
+	codecs/qjiscodec.cpp \
+	codecs/qjpunicode.cpp \
+	codecs/qsjiscodec.cpp \
+	codecs/qtextcodec.cpp \
+	codecs/qtsciicodec.cpp \
+	codecs/qutfcodec.cpp \
+	codecs/qtextcodecfactory.cpp \
+	codecs/qtextcodecplugin.cpp

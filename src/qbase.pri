@@ -35,6 +35,8 @@ linux-*:version_script {
    TARGETDEPS += libqt.map
 }
 
+CORE_CPP	= core
+
 KERNEL_CPP	= kernel
 CANVAS_CPP      = canvas
 WIDGETS_CPP	= widgets
@@ -56,6 +58,8 @@ ACCESSIBLE_CPP  = accessible
 
 win32 {
 	contains(QT_PRODUCT,qt-internal) {
+		CORE_H 		= $$CORE_CPP
+
 		SQL_H		= $$SQL_CPP
 		KERNEL_H	= $$KERNEL_CPP
 		WIDGETS_H	= $$WIDGETS_CPP
@@ -75,6 +79,8 @@ win32 {
 		COMPAT_H	= $$COMPAT_CPP
 	} else {
 		WIN_ALL_H = ../include
+		CORE_H 		= $$WIN_ALL_H
+
 		SQL_H		= $$WIN_ALL_H
 		KERNEL_H	= $$WIN_ALL_H
 		WIDGETS_H	= $$WIN_ALL_H
@@ -102,6 +108,8 @@ win32 {
 	    exists(qt.rc):RC_FILE = qt.rc
 	}
 } else {
+	CORE_H = $$CORE_CPP
+
     CANVAS_H	= $$CANVAS_CPP
     KERNEL_H	= $$KERNEL_CPP
     WIDGETS_H	= $$WIDGETS_CPP

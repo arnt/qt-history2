@@ -1,30 +1,29 @@
-# Qt thread module
+# Qt core thread module
 
 thread {
 	# public headers
- 	HEADERS += $$THREAD_H/qmutex.h \
- 		   $$THREAD_H/qsemaphore.h \
- 		   $$THREAD_H/qthread.h \
- 		   $$THREAD_H/qthreadstorage.h \
- 		   $$THREAD_H/qwaitcondition.h
+ 	HEADERS += thread/qmutex.h \
+ 		   thread/qsemaphore.h \
+ 		   thread/qthread.h \
+ 		   thread/qthreadstorage.h \
+ 		   thread/qwaitcondition.h
 	
         # private headers
-	THREAD_P = thread
-	HEADERS += $$THREAD_P/qmutex_p.h \
- 		   $$THREAD_P/qmutexpool_p.h \
-		   $$THREAD_P/qthreadinstance_p.h
+	HEADERS += thread/qmutex_p.h \
+ 		   thread/qmutexpool_p.h \
+		   thread/qthreadinstance_p.h
 
- 	SOURCES += $$THREAD_CPP/qmutexpool.cpp \
-		   $$THREAD_CPP/qsemaphore.cpp \
- 		   $$THREAD_CPP/qthread.cpp
+ 	SOURCES += thread/qmutexpool.cpp \
+		   thread/qsemaphore.cpp \
+ 		   thread/qthread.cpp
 
-	unix:SOURCES += $$THREAD_CPP/qmutex_unix.cpp \
-			$$THREAD_CPP/qthread_unix.cpp \
-			$$THREAD_CPP/qthreadstorage_unix.cpp \
-			$$THREAD_CPP/qwaitcondition_unix.cpp
+	unix:SOURCES += thread/qmutex_unix.cpp \
+			thread/qthread_unix.cpp \
+			thread/qthreadstorage_unix.cpp \
+			thread/qwaitcondition_unix.cpp
 
-	win32:SOURCES += $$THREAD_CPP/qmutex_win.cpp \
-			 $$THREAD_CPP/qthread_win.cpp \
-			 $$THREAD_CPP/qthreadstorage_win.cpp \
-			 $$THREAD_CPP/qwaitcondition_win.cpp
+	win32:SOURCES += thread/qmutex_win.cpp \
+			 thread/qthread_win.cpp \
+			 thread/qthreadstorage_win.cpp \
+			 thread/qwaitcondition_win.cpp
 }

@@ -4,15 +4,16 @@ QCONFIG         =
 
 DEFINES += QT_BUILD_CORE_LIB 
 
-# Only used on platforms with CONFIG += precompile_header
-PRECOMPILED_HEADER = kernel/qt_pch.h
-
-include(qbase.pri)
+include(../qbase.pri)
 include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
-include($$KERNEL_CPP/qt_core.pri)
-include($$THREAD_CPP/qt_thread.pri)
-include($$TOOLS_CPP/qt_tools.pri)
-include($$CODECS_CPP/qt_codecs.pri)
+include(base/base.pri)
+include(thread/thread.pri)
+include(tools/tools.pri)
+include(io/io.pri)
+include(library/library.pri)
+include(codecs/codecs.pri)
+include(object/object.pri)
+include(other/other.pri)
 
 mac:LIBS += -framework CoreServices -framework CoreFoundation
 
