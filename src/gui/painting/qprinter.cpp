@@ -22,11 +22,11 @@
 #include <qpagesetupdialog.h>
 
 #if defined (Q_WS_WIN)
-#include "qprintengine_win.h"
+#include <private/qprintengine_win_p.h>
 #elif defined (Q_WS_MAC)
-#include "qprintengine_mac.h"
+#include <private/qprintengine_mac_p.h>
 #elif defined (Q_OS_UNIX)
-#include "qprintengine_ps.h"
+#include <private/qprintengine_ps_p.h>
 #endif
 
 #ifdef QT_COMPAT

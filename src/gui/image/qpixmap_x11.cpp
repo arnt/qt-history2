@@ -36,8 +36,7 @@
 #include "qmatrix.h"
 #include "qapplication.h"
 #include "qcolormap.h"
-#include "private/qpaintengine_x11_p.h"
-#include "qpaintengine_x11.h"
+#include <private/qpaintengine_x11_p.h>
 #include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 

@@ -44,7 +44,7 @@
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #if defined(Q_WS_X11)
-#include "qpaintengine_x11.h"
+#include <private/qpaintengine_x11_p.h>
 #include "qx11info_x11.h"
 #endif
 

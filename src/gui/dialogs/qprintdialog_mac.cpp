@@ -14,7 +14,6 @@
 #include <private/qt_mac_p.h>
 
 #include <qprintdialog.h>
-#include <qprintengine_mac.h>
 #include <private/qabstractprintdialog_p.h>
 #include <private/qprintengine_mac_p.h>
 

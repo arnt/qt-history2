@@ -14,8 +14,13 @@
 #ifndef QPAINTENGINE_QWS_P_H
 #define QPAINTENGINE_QWS_P_H
 
+#include "qatomic.h"
+#include "qpaintengine.h"
 #include <private/qpaintengine_p.h>
 
+class QPainterState;
+class QApplicationPrivate;
+class QScreen;
 class QGfx;
 
 class QWSPaintEnginePrivate : public QPaintEnginePrivate
@@ -25,6 +30,88 @@ public:
     QWSPaintEnginePrivate() :gfx(0), clipChildren(true) {}
     QGfx *gfx;
     bool clipChildren;
+};
+
+class QWSPaintEngine : public QPaintEngine
+{
+    Q_DECLARE_PRIVATE(QWSPaintEngine)
+
+public:
+    QWSPaintEngine();
+    ~QWSPaintEngine();
+
+    bool begin(QPaintDevice *pdev);
+    bool begin(QImage *img);
+    bool begin(QScreen *screen);
+    bool end();
+
+    void updatePen(const QPen &pen);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
+    void updateFont(const QFont &font);
+    void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
+    void updateMatrix(const QMatrix &matrix);
+    void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
+
+    void drawLine(const QLineF &line);
+    void drawRect(const QRectF &r);
+    void drawPoint(const QPointF &p);
+    void drawPoints(const QPolygon &pa);
+    void drawEllipse(const QRectF &r);
+    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+
+    virtual Qt::HANDLE handle() const;
+    inline Type type() const { return QPaintEngine::QWindowSystem; }
+
+    static void initialize();
+    static void cleanup();
+
+
+    //#### QGfx/QGfxRaster methods moved directly. Should clean up API.
+#if 1
+    void setGlobalRegionIndex(int idx);
+    void setWidgetDeviceRegion(const QRegion &);
+    void setClipDeviceRegion(const QRegion &);
+
+
+    void scroll(int rx,int ry,int w,int h,int sx, int sy);
+
+    void fillRect(int rx,int ry,int w,int h);
+
+    void blt(const QPaintDevice &src, int rx,int ry,int w,int h, int sx, int sy);
+    void blt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
+    void stretchBlt(const QPaintDevice &src, int rx,int ry,int w,int h, int sw,int sh);
+    void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h, int sx, int sy);
+    void tiledBlt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
+
+#endif
+
+protected:
+    QWSPaintEngine(QPaintEnginePrivate &dptr);
+
+    void drawPolyInternal(const QPointArray &a, bool close=true);
+
+    void copyQWSData(const QWSPaintEngine *);
+    void cloneQWSData(const QWSPaintEngine *);
+
+    friend void qt_init(QApplicationPrivate *, int);
+    friend void qt_cleanup();
+    friend void qt_draw_transformed_rect(QPainter *pp,  int x, int y, int w,  int h, bool fill);
+    friend void qt_draw_background(QPainter *pp, int x, int y, int w,  int h);
+    friend class QWidget;
+    friend class QPixmap;
+    friend class QFontEngineBox;
+    friend class QFontEngineXft;
+    friend class QFontEngineXLFD;
+
+private:
+    friend class QWSServer;
+    friend class QFontEngine;
+    friend class QDirectPainter;
+
+private:
+    Q_DISABLE_COPY(QWSPaintEngine)
 };
 
 #endif

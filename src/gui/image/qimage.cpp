@@ -24,7 +24,7 @@
 #include <math.h>
 
 #ifdef Q_WS_QWS
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qscreen_qws.h"
 #endif
 

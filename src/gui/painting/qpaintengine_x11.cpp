@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-#include "qpaintengine_x11.h"
 
 #include "private/qpixmap_p.h"
 
@@ -30,8 +29,9 @@
 #include <qtextlayout.h>
 #include <qvarlengtharray.h>
 #include <private/qfontdata_p.h>
-#include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
+#include <private/qpaintengine_x11_p.h>
+#include <private/qfontengine_p.h>
 
 #include "qpen.h"
 #include "qcolor.h"

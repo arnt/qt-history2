@@ -25,7 +25,7 @@
 #include "qpointarray.h" //cursor test code
 #include "qimage.h"
 #include "qcursor.h"
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"

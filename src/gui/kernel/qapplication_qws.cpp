@@ -76,7 +76,7 @@
 #endif
 #endif
 
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qeventdispatcher_qws.h"
 
 #include <stdlib.h>

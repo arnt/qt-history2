@@ -17,8 +17,7 @@
 #include "qlibrary.h"
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
-#include "qpaintengine_win.h"
-#include "qpaintengine_win_p.h"
+#include <private/qpaintengine_win_p.h>
 #include "qpainter.h"
 #include "qpainter_p.h"
 #include "qpainterpath.h"

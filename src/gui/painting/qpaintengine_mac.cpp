@@ -14,10 +14,10 @@
 #include <qbitmap.h>
 #include <qpaintdevice.h>
 #include <qpaintdevicemetrics.h>
-#include <qpaintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
 #include <qpainterpath.h>
 #include <qpixmapcache.h>
-#include <qprintengine_mac.h>
+#include <private/qprintengine_mac_p.h>
 #include <qprinter.h>
 #include <qstack.h>
 #include <qtextcodec.h>
@@ -1291,7 +1291,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
         d->current.clip = QRegion();
         d->setClip(0);
     } else {
-        if(testf(ClipOn)) 
+        if(testf(ClipOn))
             op = Qt::ReplaceClip;
         setf(ClipOn);
         QRegion clipRegion(p.toFillPolygon().toPointArray(),
@@ -1559,7 +1559,7 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
 
-CGRect 
+CGRect
 QCoreGraphicsPaintEnginePrivate::adjustedRect(const QRectF &r)
 {
     float adjusted = 0;

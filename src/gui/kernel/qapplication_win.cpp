@@ -36,7 +36,7 @@
 #include "qnc_win.h"
 #endif
 
-#include "qpaintengine_win.h"
+#include <private/qpaintengine_win_p.h>
 
 #ifdef QT_THREAD_SUPPORT
 #include "qmutex.h"

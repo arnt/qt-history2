@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qpagesetupdialog.h"
-#include "qprintengine_win.h"
 
 #include <private/qprintengine_win_p.h>
 #include <private/qabstractpagesetupdialog_p.h>

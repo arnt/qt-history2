@@ -52,11 +52,9 @@ SOURCES += \
 
 win32 {
 	HEADERS += \
-		painting/qpaintengine_win.h \
 		painting/qpaintengine_win_p.h \
-		painting/qprintengine_win.h \
 		painting/qprintengine_win_p.h
-		
+
 
  	SOURCES += \
 		painting/qcolor_win.cpp \
@@ -76,7 +74,6 @@ wince-* {
 
 unix:x11 {
 	HEADERS += \
-		painting/qpaintengine_x11.h \
 		painting/qpaintengine_x11_p.h
 
 	SOURCES += \
@@ -87,9 +84,7 @@ unix:x11 {
 
 !embedded:!x11:mac {
 	HEADERS += \
-		painting/qpaintengine_mac.h \
 		painting/qpaintengine_mac_p.h \
-		painting/qprintengine_mac.h \
 		painting/qprintengine_mac_p.h
 
 	SOURCES += \
@@ -99,7 +94,7 @@ unix:x11 {
 		painting/qprintengine_mac.cpp
 } else:unix {
 	HEADERS	+= \
-		painting/qprintengine_ps.h
+		painting/qprintengine_ps_p.h
 
 	SOURCES += \
 		painting/qprintengine_ps.cpp
@@ -110,7 +105,6 @@ unix:SOURCES += painting/qregion_unix.cpp
 
 embedded {
 	HEADERS += \
-		painting/qpaintengine_qws.h \
 		painting/qpaintengine_qws_p.h
 
 	SOURCES += \

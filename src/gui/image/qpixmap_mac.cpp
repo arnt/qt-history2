@@ -18,7 +18,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qmatrix.h"
-#include <qpaintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
 #include <private/qt_mac_p.h>
 
 #include <limits.h>
@@ -463,12 +463,12 @@ int QPixmap::metric(int m) const
 
 QPixmapData::~QPixmapData()
 {
-    if(mask) 
+    if(mask)
         delete mask;
-    if(alphapm) 
+    if(alphapm)
         delete alphapm;
 
-    if(cgimage) 
+    if(cgimage)
         CGImageRelease(cgimage);
 
     if(hd && qApp) {
@@ -842,7 +842,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode, 
                 for(int yy=0; yy<h; yy++) {
                     ulong *mrow = reinterpret_cast<ulong*>(mptr + (yy * mbpr));
                     char *drow = out_addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++) 
+                    for(int xx=0;xx<w;xx++)
                         *(drow + (xx*4)) = ((*(mrow + xx) & c0) == c0) ? 0 : 255;
                 }
             } else {

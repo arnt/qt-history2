@@ -11,8 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qprintengine_mac.h"
-#include "qprintengine_mac_p.h"
+#include <private/qprintengine_mac_p.h>
 #include "qpaintdevicemetrics.h"
 
 
@@ -652,7 +651,7 @@ void QMacPrintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
     d->paintEngine->drawPolygon(p, mode);
 }
 
-void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, 
+void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm,
                                  const QRectF &sr, Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);
@@ -665,7 +664,7 @@ void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int te
     d->paintEngine->drawTextItem(p, ti, textflags);
 }
 
-void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap, 
+void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap,
                                       const QPointF &sr, Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(d->state == QPrinter::Active);

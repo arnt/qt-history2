@@ -47,7 +47,7 @@
 #include <private/qcrashhandler_p.h>
 
 #include "qeventdispatcher_x11.h"
-#include "qpaintengine_x11.h"
+#include <private/qpaintengine_x11_p.h>
 
 // Input method stuff - UNFINISHED
 #ifndef QT_NO_IM

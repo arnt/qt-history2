@@ -13,7 +13,7 @@
 
 #include "qplatformdefs.h"
 
-#include "qprintengine_ps.h"
+#include <private/qprintengine_ps_p.h>
 #include <private/qpainter_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpaintengine_p.h>

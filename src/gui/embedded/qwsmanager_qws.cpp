@@ -32,7 +32,7 @@
 
 #include <private/qwidget_p.h>
 
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qdecorationfactory_qws.h"
 
 #include "qlayout.h"

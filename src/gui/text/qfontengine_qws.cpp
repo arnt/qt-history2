@@ -16,7 +16,7 @@
 #include <qwsdisplay_qws.h>
 #include <qvarlengtharray.h>
 #include <private/qpainter_p.h>
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qtextengine_p.h"
 #include "qopentype_p.h"
 

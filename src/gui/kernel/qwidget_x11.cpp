@@ -34,7 +34,7 @@ extern void qt_clear_paintevent_clipping();
 
 extern bool qt_has_accelerated_xrender; // declared in qapplication_x11.cpp
 
-#include "qpaintengine_x11.h"
+#include <private/qpaintengine_x11_p.h>
 #include "qt_x11_p.h"
 #include "qx11info_x11.h"
 

@@ -33,7 +33,7 @@
 #include "qwsregionmanager_qws.h"
 #include "qinputcontext_p.h"
 
-#include "qpaintengine_qws.h"
+#include <private/qpaintengine_qws_p.h>
 
 #include "qwidget_p.h"
 #define d d_func()

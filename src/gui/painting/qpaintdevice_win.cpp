@@ -20,8 +20,6 @@
 #include <private/qapplication_p.h>
 #include "qt_windows.h"
 #include "qprinter.h"
-#include "qpaintengine_win.h"
-
 
 QPaintDevice::QPaintDevice(uint devflags)
 {

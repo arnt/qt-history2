@@ -31,11 +31,11 @@
 #include <qmap.h>
 #include <qmenubar.h>
 #include <qpaintdevice.h>
-#include <qpaintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
 #include <qpainter.h>
 #include <qpixmapcache.h>
 #include <qpointer.h>
-#include <qprintengine_mac.h>
+#include <private/qprintengine_mac_p.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>

@@ -20,8 +20,8 @@
 #include "qwsdisplay_qws.h"
 
 //#### HACK:
-#include "private/qpainter_p.h"
-#include "qpaintengine_qws.h"
+#include <private/qpainter_p.h>
+#include <private/qpaintengine_qws_p.h>
 
 QPaintDevice::QPaintDevice(uint devflags)
 {

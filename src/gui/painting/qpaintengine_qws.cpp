@@ -11,8 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qpaintengine_qws.h"
-#include "qpaintengine_qws_p.h"
+#include <private/qpaintengine_qws_p.h>
 #include "qpainter_p.h"
 #include <private/qfontengine_p.h>
 #include "qwsdisplay_qws.h"

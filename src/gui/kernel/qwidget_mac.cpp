@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include "qlayout.h"
 #include "qpaintdevicemetrics.h"
-#include <qpaintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
 #include "qpainter.h"
 #include "qstack.h"
 #include "qstyle.h"
@@ -389,18 +389,18 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     widget->d->hd = old_qdref;
 
 #ifdef DEBUG_WIDGET_PAINT
-                qDebug("asked to draw %p [%s::%s] %p", hiview, widget->metaObject()->className(), 
+                qDebug("asked to draw %p [%s::%s] %p", hiview, widget->metaObject()->className(),
                        widget->objectName().local8Bit(),
                        (HIViewRef)(widget->parentWidget() ? widget->parentWidget()->winId() : (WId)-1));
                 QVector<QRect> region_rects = qrgn.rects();
                 qDebug("Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), 
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
                            region_rects[i].width(), region_rects[i].height());
                 region_rects = widget->d->clp.rects();
                 qDebug("Widget Region! %d", region_rects.count());
                 for(int i = 0; i < region_rects.count(); i++)
-                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(), 
+                    qDebug("%d %d %d %d", region_rects[i].x(), region_rects[i].y(),
                            region_rects[i].width(), region_rects[i].height());
 #endif
                 if((widget->data->widget_state & (Qt::WState_Visible|Qt::WState_BlockUpdates)) == Qt::WState_Visible) {  //process the actual paint event.
@@ -1993,12 +1993,12 @@ int QWidget::metric(int m) const
         return (int)rect.size.height; }
     case QPaintDeviceMetrics::PdmDepth:
         return 32;
-    case QPaintDeviceMetrics::PdmDpiX: 
+    case QPaintDeviceMetrics::PdmDpiX:
     case QPaintDeviceMetrics::PdmPhysicalDpiX: {
         short dpix, dpiy;
         ScreenRes(&dpix, &dpiy);
         return dpix; }
-    case QPaintDeviceMetrics::PdmDpiY: 
+    case QPaintDeviceMetrics::PdmDpiY:
     case QPaintDeviceMetrics::PdmPhysicalDpiY: {
         short dpix, dpiy;
         ScreenRes(&dpix, &dpiy);

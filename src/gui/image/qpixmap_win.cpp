@@ -22,7 +22,7 @@
 #include "qt_windows.h"
 #include <limits.h>
 
-#include "qpaintengine_win.h"
+#include <private/qpaintengine_win_p.h>
 
 extern const uchar *qt_get_bitflip_array();                // defined in qimage.cpp
 
@@ -205,7 +205,7 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
         qErrnoWarning("QPixmap::init(): Pixmap allocation of size %d, %d failed", data->w, data->h);
         data->w = 0;
         data->h = 0;
-        
+
         return;
     }
 }

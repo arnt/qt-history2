@@ -14,11 +14,10 @@
 #include <private/qapplication_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qpainter_p.h>
-#include <private/qpainter_p.h>
 #include <private/qtextengine_p.h>
 #include <qbitmap.h>
-#include <qpaintengine_mac.h>
-#include <qprintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
+#include <private/qprintengine_mac_p.h>
 #include <qglobal.h>
 #include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
@@ -493,7 +492,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
                 const int count = rects.size();
                 for(int i = 0; i < count; i++) {
                     const QRect &r = rects[i];
-                    CGContextAddRect(ctx, CGRectMake(r.x(), (clipr.bottom - clipr.top) - r.y() - r.height(), 
+                    CGContextAddRect(ctx, CGRectMake(r.x(), (clipr.bottom - clipr.top) - r.y() - r.height(),
                                                      r.width(), r.height()));
                 }
             }
@@ -538,7 +537,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
         ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
         ret = FixRound(right-left);
-        if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100) 
+        if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
     }
     if(task & DRAW) {
@@ -643,7 +642,7 @@ void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
                             reinterpret_cast<void **>(&layoutRecords),
                             &numRecords);
     if (e != noErr) {
-        qWarning("Qt: internal: %ld: Error ATSUDirectGetLayoutDataArrayPtrFromTextLayout %s: %d", e, 
+        qWarning("Qt: internal: %ld: Error ATSUDirectGetLayoutDataArrayPtrFromTextLayout %s: %d", e,
                  __FILE__, __LINE__);
         return;
     }

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qprintdialog.h"
-#include "qprintengine_win.h"
 
 #include <qwidget.h>
 #include <qapplication.h>

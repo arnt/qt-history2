@@ -28,7 +28,7 @@
 #include "qwidget_p.h"
 #include "qlibrary.h"
 #include "qdesktopwidget.h"
-#include "qpaintengine_win.h"
+#include <private/qpaintengine_win_p.h>
 #include "qcleanuphandler.h"
 
 #if defined(QT_TABLET_SUPPORT)

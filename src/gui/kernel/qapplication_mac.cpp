@@ -39,7 +39,7 @@
 #include "qvariant.h"
 #include "qwidget.h"
 #include "qcolormap.h"
-#include <qpaintengine_mac.h>
+#include <private/qpaintengine_mac_p.h>
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -386,7 +386,7 @@ void qt_mac_update_os_settings()
                   (f_style & ::bold) ? QFont::Bold : QFont::Normal,
                   (bool)(f_style & ::italic));
 #ifdef DEBUG_PLATFORM_SETTINGS
-        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]", 
+        qDebug("qt-internal: Font for Application [%s::%d::%d::%d]",
                fnt.family().latin1(), fnt.pointSize(), fnt.bold(), fnt.italic());
 #endif
         QApplication::setFont(fnt);

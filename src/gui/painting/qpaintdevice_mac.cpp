@@ -19,7 +19,7 @@
 #include "qapplication.h"
 #include "qprinter.h"
 #include <private/qt_mac_p.h>
-#include <qprintengine_mac.h>
+#include <private/qprintengine_mac_p.h>
 
 /*****************************************************************************
   Internal variables and functions
@@ -89,7 +89,7 @@ CGContextRef qt_macCreateCGHandle(const QPaintDevice *pdev)
     if(pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Widget) {
         CGContextRef ret = 0;
         GrafPtr port = qt_macQDHandle(pdev);
-        if(!port) 
+        if(!port)
             return 0;
 
         if(OSStatus err = CreateCGContextForPort(port, &ret)) {
@@ -99,7 +99,7 @@ CGContextRef qt_macCreateCGHandle(const QPaintDevice *pdev)
         SyncCGContextOriginWithPort(ret, port);
         Rect port_rect;
         GetPortBounds(port, &port_rect);
-        CGContextTranslateCTM(ret, 0, (port_rect.bottom - port_rect.top));        
+        CGContextTranslateCTM(ret, 0, (port_rect.bottom - port_rect.top));
         CGContextScaleCTM(ret, 1, -1);
         return ret;
     }
