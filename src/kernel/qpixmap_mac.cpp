@@ -442,10 +442,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
 	QPixmap pm( w, h, depth(), NormalOptim );
 	scaledBitBlt(&pm, 0, 0, w, h, this, ws, hs, width(), height(), Qt::CopyROP, TRUE);
-
 	if ( 0 && data->mask ) {
-	    QBitmap bm =
-		data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
+	    QBitmap bm = data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask( bm );
 	}
 	return pm;
