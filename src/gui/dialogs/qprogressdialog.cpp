@@ -77,7 +77,7 @@ public:
 void QProgressDialogPrivate::init(const QString &labelText, const QString &cancelText,
                                int min, int max)
 {
-    label = new QLabel(labelText);
+    label = new QLabel(labelText, q);
     int align = q->style()->styleHint(QStyle::SH_ProgressDialog_TextLabelAlignment, 0, q);
     label->setAlignment(Qt::Alignment(align));
     bar = new QProgressBar(q);
@@ -158,8 +158,8 @@ void QProgressDialogPrivate::layout()
   progresses. The number of steps can be chosen arbitrarily. It can be the
   number of files copied, the number of bytes received, the number of
   iterations through the main loop of your algorithm, or some other
-  suitable unit. Progress starts at the value set by setMinimum(), 
-  and the progress dialog shows that the operation has finished when 
+  suitable unit. Progress starts at the value set by setMinimum(),
+  and the progress dialog shows that the operation has finished when
   you call setValue() with the value set by setMaximum() as its argument.
 
   The dialog automatically resets and hides itself at the end of the
@@ -277,12 +277,12 @@ QProgressDialog::QProgressDialog(QWidget *parent, Qt::WFlags f)
    The \a minimum and \a maximum is the number of steps in the operation for
    which this progress dialog shows progress.  For example, if the
    operation is to examine 50 files, this value minimum value would be 0,
-   and the maximum would be 50. Before examining the first file, call 
-   setValue(0). As each file is processed call setValue(1), setValue(2), 
+   and the maximum would be 50. Before examining the first file, call
+   setValue(0). As each file is processed call setValue(1), setValue(2),
    etc., finally calling setValue(50) after examining the last file.
 
    The \a parent argument is the dialog's parent widget. The  and widget flags,
-   \a f, are passed to the QDialog::QDialog() constructor. 
+   \a f, are passed to the QDialog::QDialog() constructor.
 
   \sa setLabelText(), setLabel(), setCancelButtonText(), setCancelButton(),
   setMinimum(), setMaximum()
