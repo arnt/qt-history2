@@ -141,7 +141,7 @@ QModelIndex QTreeModel::parent(const QModelIndex &child) const
 {
     if (!child.isValid())
         return QModelIndex();
-    const QTreeViewItem *itm = static_cast<const QTreeViewItem *>(child.data());
+    const QTreeViewItem *itm = reinterpret_cast<const QTreeViewItem *>(child.data());
     if (!itm)
         return QModelIndex();
     QTreeViewItem *parent = const_cast<QTreeViewItem *>(itm->parent()); // FIXME
