@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#12 $
 **
 ** Implementation of QIconSet class
 **
@@ -77,7 +77,7 @@ struct QIconSetPrivate: public QShared
   </ul>
 
   You can set any of the icons using setPixmap() and when you retrieve
-  aone using pixmap(), QIconSet will compute and cache that from the
+  one using pixmap(), QIconSet will compute and cache that from the
   closest other icon.
 
   The \c Disabled appearance is computed using a "shadow" algorithm
@@ -91,11 +91,13 @@ struct QIconSetPrivate: public QShared
   an icon was set by the application programmer or computed by
   QIconSet itself.
 
-  In Qt 1.40 only QToolButton uses QIconSet.  In Qt 2.0 we will use it
+  In Qt 1.41 only QToolButton uses QIconSet.  In Qt 2.0 we will use it
   in more classes, including the menu system.
 
   \sa QPixmap QLabel QToolButton
-  <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label.</a>
+  <a href="guibooks.html#fowler">GUI Design Handbook: Iconic Label,</a>
+  <q href="http://www.microsoft.com/clipgallerylive/icons.asp">Microsoft
+  Icon Gallery.</a>
 */
 
 
@@ -161,8 +163,9 @@ QIconSet &QIconSet::operator=( const QIconSet &p )
 
 
 
-/*!
-
+/*!  Set this icon set to display \a pm, which is assumed to be in
+  size \a s.  If \a s is \c Automatic, QIconSet guesses the size from
+  the size of \a pm using and unspecified algorithm.
 */
 
 void QIconSet::reset( const QPixmap & pm, Size s )
@@ -178,6 +181,8 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 
 /*!  Sets this icon set to display \a pn in size \a s/mode \a m, and
   perhaps to use \a pm for deriving some other varieties.
+  
+  \a s must be Large or Small; it cannot be Automatic.
 */
 
 void QIconSet::setPixmap( const QPixmap & pm, Size s, Mode m )
@@ -236,12 +241,17 @@ void QIconSet::setPixmap( const char * fileName, Size s, Mode m )
 }
 
 
-/*!
-
+/*!  Returns a pixmap with size \a s and mode \a m, generating one if
+  needed.
 */
 
 QPixmap QIconSet::pixmap( Size s, Mode m ) const
 {
+    if ( !d ) {
+	QPixmap r;
+	return r;
+    }
+	
     QImage i;
     QIconSetPrivate * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;
@@ -255,6 +265,12 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		p->large.pm = new QPixmap;
 		p->large.generated = TRUE;
 		p->large.pm->convertFromImage( i );
+		if ( !p->large.pm->mask() ) {
+		    i = i.createHeuristicMask();
+		    QBitmap tmp;
+		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    p->large.pm->setMask( tmp );
+		}
 	    }
 	    pm = p->large.pm;
 	    break;
@@ -283,7 +299,6 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		} else {
 		    i = pixmap( Large, Normal ).convertToImage();
 		    i = i.createHeuristicMask();
-		    QBitmap tmp;
 		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    p->largeDisabled.pm
 			= new QPixmap( p->large.pm->width()+1,
@@ -297,6 +312,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		    painter.drawPixmap( 0, 0, tmp );
 		}
 		if ( !p->largeDisabled.pm->mask() ) {
+		    if ( !tmp.mask() )
+			tmp.setMask( tmp );
 		    QBitmap mask( d->largeDisabled.pm->size() );
 		    mask.fill( color0 );
 		    QPainter painter( &mask );
@@ -320,6 +337,12 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 		p->small.pm = new QPixmap;
 		p->small.generated = TRUE;
 		p->small.pm->convertFromImage( i );
+		if ( !p->small.pm->mask() ) {
+		    i = i.createHeuristicMask();
+		    QBitmap tmp;
+		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
+		    p->small.pm->setMask( tmp );
+		}
 	    }
 	    pm = p->small.pm;
 	    break;
@@ -346,14 +369,9 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    }
 		} else {
-		    const QBitmap *origMask = pixmap( Small, Normal ).mask();
-		    if ( origMask ) {
-			tmp = *origMask;
-		    } else {
-			i = pixmap( Small, Normal ).convertToImage();
-			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, MonoOnly + ThresholdDither );
-		    }
+		    i = pixmap( Small, Normal ).convertToImage();
+		    i = i.createHeuristicMask();
+		    tmp.convertFromImage( i, MonoOnly + ThresholdDither );
 		    p->smallDisabled.pm
 			= new QPixmap( p->small.pm->width()+1,
 				       p->small.pm->height()+1);
@@ -388,8 +406,8 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
 }
 
 
-/*!
-
+/*! Returns TRUE if the variant with size \a s and mode \a m was
+  automatically generated, and FALSE if it was not.
 */
 
 bool QIconSet::isGenerated( Size s, Mode m ) const
