@@ -3,25 +3,26 @@
 # specific stuff for NMake and ICC
 #
 !if "$(QMAKESPEC)" == "win32-icc"
-CXX	    =   icl
-LINK	    =   xilink
+CXX	    = icl
+LINK	    = xilink
 !else
-CXX         =   cl
-LINK	    =   link
+CXX         = cl
+LINK	    = link
 !endif
 
-CFLAGS	    =	/c /Fo$@ \
-		/W3 /nologo /O1 \
-		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I..\src\core\arch\generic \
-		/I..\include /I..\src\tools /I..\include\QtCore \
-		/I..\mkspecs\win32-msvc \
-		/DQT_NO_TEXTCODEC /DQT_NO_UNICODETABLES /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL \
-		/DQT_NO_COMPRESS /DUNICODE /DHAVE_QCONFIG_CPP /DQT_BUILD_QMAKE /DQT_NO_THREAD /DQT_NO_QOBJECT
-CXXFLAGS    =   $(CFLAGS)
-LFLAGS	    =
-LIBS	    =	ole32.lib advapi32.lib
-LINKQMAKE   =	$(LINK) $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
-ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
+CFLAGS	    = -c -Fo$@ \
+              -W3 -nologo -Og -Zi \
+              -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
+              -I..\src\core\arch\generic -I..\include -I..\src\tools -I..\include\QtCore \
+              -I..\mkspecs\win32-msvc \
+              -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
+              -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
+              -DQT_NO_QOBJECT
+CXXFLAGS    = $(CFLAGS)
+LFLAGS	    = 
+LIBS	    = ole32.lib advapi32.lib
+LINKQMAKE   = $(LINK) $(LFLAGS) -DEBUG -OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
+ADDCLEAN    = vc60.pdb vc70.pdb qmake.pdb qmake.ilk
 !ELSE
 
 #
@@ -30,25 +31,32 @@ ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !if !$d(BCB)
 BCB = $(MAKEDIR)\..
 !endif
-CXX	    =	bcc32
-CFLAGS	    =	-c -o$@ \
-		-tWR -w -w-hid -w-use -O1 \
-		-I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac -I..\src\core\arch\generic -I..\include -I..\src\tools \
-		-I..\mkspecs\win32-borland \
-		-DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
-		-DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD -D-DQT_NO_QOBJECT
-CXXFLAGS    =   $(CFLAGS)
-LFLAGS	    =	-L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
-LIBS	    =	import32.lib cw32i.lib
-LINKQMAKE   =	ilink32 $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
-ADDCLEAN    =	qmake.tds
+CXX	    = bcc32
+CFLAGS	    = -c -o$@ \
+              -tWR -w -w-hid -w-use -O1 \
+              -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac
+              -I..\src\core\arch\generic -I..\include -I..\src\tools -I..\mkspecs\win32-borland \
+              -DQT_NO_TEXTCODEC -DQT_NO_UNICODETABLES -DQT_LITE_COMPONENT -DQT_NODLL -DQT_NO_STL \
+              -DQT_NO_COMPRESS -DUNICODE -DHAVE_QCONFIG_CPP -DQT_BUILD_QMAKE -DQT_NO_THREAD \
+              -D-DQT_NO_QOBJECT
+CXXFLAGS    = $(CFLAGS)
+LFLAGS	    = -L$(BCB)\lib -c -x -Gn -ap -Tpe c0x32.obj
+LIBS	    = import32.lib cw32i.lib
+LINKQMAKE   = ilink32 $(LFLAGS) $(OBJS) $(QTOBJS), qmake.exe,,$(LIBS)
+ADDCLEAN    = qmake.tds
 !ENDIF
 
 #qmake code
-OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.obj mingw_make.obj \
-	msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj option.obj winmakefile.obj projectgenerator.obj \
-	metrowerks_xml.obj pbuilder_pbx.obj msvc_objectmodel.obj property.obj meta.obj qtmd5.obj \
-	makefiledeps.obj metamakefile.obj xmloutput.obj 
+OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
+              option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj qtmd5.obj \
+              makefiledeps.obj metamakefile.obj xmloutput.obj 
+
+!IFNDEF QMAKE_OPENSOURCE_EDITION
+OBJS        = $(OBJS) borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj \
+              msvc_objectmodel.obj metrowerks_xml.obj pbuilder_pbx.obj
+!ELSE
+CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
+!ENDIF
 
 #qt code
 QTOBJS= \
