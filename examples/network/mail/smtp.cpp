@@ -37,9 +37,9 @@ Smtp::Smtp( const QString &from, const QString &to,
 	      QString::fromLatin1( "\nTo: " ) + to +
 	      QString::fromLatin1( "\nSubject: " ) + subject +
 	      QString::fromLatin1( "\n\n" ) + body + "\n";
-    message.replace( QString::fromLatin1( "\n" ),
+    message.replace( QRegExp( QString::fromLatin1( "\n" ) ),
 		     QString::fromLatin1( "\r\n" ) );
-    message.replace( QString::fromLatin1( "\r\n.\r\n" ),
+    message.replace( QRegExp( QString::fromLatin1( "\r\n.\r\n" ) ),
 		     QString::fromLatin1( "\r\n..\r\n" ) );
 
     this->from = from;
