@@ -324,6 +324,7 @@ void QDockWidget::updateGui()
 
 void QDockWidget::updatePosition( const QPoint &globalPos )
 {
+    sizeHintSet = FALSE;
     if ( state == InDock ) {
 	if ( dockArea && dockArea != tmpDockArea )
 	    dockArea->removeDockWidget( this, FALSE, FALSE );
@@ -449,7 +450,7 @@ QSize QDockWidget::minimumSizeHint() const
 	s.setWidth( sh.width() );
     if ( s.height() > sh.height() )
 	s.setHeight( sh.height() );
-    
+
     return s;
 }
 
@@ -467,11 +468,11 @@ void QDockWidget::unsetSizeHint()
 void QDockWidget::updateSizePolicy()
 {
     if ( !dockArea || dockArea->orientation() == Horizontal )
- 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-				    isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
+ 	setSizePolicy( QSizePolicy( isHorizontalStretchable() || isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed,
+				    isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed ) );
     else
- 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed,
-				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
+ 	setSizePolicy( QSizePolicy( isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed,
+				    isVerticalStretchable() || isResizeEnabled() ? QSizePolicy::Preferred : QSizePolicy::Fixed ) );
 }
 
 void QDockWidget::setHorizontalStretchable( bool b )
