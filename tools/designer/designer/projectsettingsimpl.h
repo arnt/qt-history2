@@ -22,7 +22,11 @@
 #define PROJECTSETTINGS_H
 #include "projectsettings.h"
 
+#include <qmap.h>
+
 class Project;
+class QListViewItem;
+class FormWindow;
 
 class ProjectSettings : public ProjectSettingsBase
 {
@@ -37,12 +41,12 @@ protected slots:
     void chooseProjectFile();
     void helpClicked();
     void okClicked();
-    void removeUiFile();
-    void addUiFile();
+    void removeProject();
 
 private:
     Project *project;
-    
+    QMap<QListViewItem*, FormWindow*> formMap;
+
 };
 
 #endif // PROJECTSETTINGS_H

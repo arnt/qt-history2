@@ -904,7 +904,8 @@ void MainWindow::setupFileActions()
     connect( ag, SIGNAL( selected( QAction * ) ), this, SLOT( projectSelected( QAction * ) ) );
     connect( ag, SIGNAL( selected( QAction * ) ), this, SIGNAL( projectChanged() ) );
     a = new QAction( tr( "<No Project>" ), tr( "<No Project>" ), 0, ag, 0, TRUE );
-    projects.insert( a, new Project( "", tr( "<No Project>" ), preferencePluginManager ) );
+    eProject = new Project( "", tr( "<No Project>" ), preferencePluginManager );
+    projects.insert( a, eProject );
     a->setOn( TRUE );
     ag->addTo( fileMenu );
     ag->addTo( tb );
@@ -1991,6 +1992,8 @@ void MainWindow::editProjectSettings()
 	dia.tabWidget->removePage( t.w );
 	t.w->reparent( 0, QPoint(0,0), FALSE );
     }
+
+    formList->setProject( currentProject );
 }
 
 void MainWindow::editDatabaseConnections()
@@ -4460,4 +4463,10 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
     eiface->release();
 }
 
+Project *MainWindow::emptyProject()
+{
+    return eProject;
+}
+
 #include "mainwindow.moc"
+

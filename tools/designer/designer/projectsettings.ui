@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>418</width>
-            <height>373</height>
+            <width>406</width>
+            <height>367</height>
         </rect>
     </property>
     <property name="caption">
@@ -184,32 +184,7 @@
                             <cstring>listInterfaces</cstring>
                         </property>
                     </widget>
-                    <widget class="QListBox" row="0" column="1" rowspan="2" colspan="1">
-                        <property name="name">
-                            <cstring>listInterfaces</cstring>
-                        </property>
-                        <property name="selectionMode">
-                            <enum>Extended</enum>
-                        </property>
-                    </widget>
-                    <spacer row="1" column="0">
-                        <property name="name" stdset="0">
-                            <cstring>Spacer2</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="3" column="1">
+                    <widget class="QLayoutWidget" row="4" column="1">
                         <property name="name">
                             <cstring>Layout1_2</cstring>
                         </property>
@@ -238,7 +213,7 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <widget class="QLabel" row="3" column="0">
+                    <widget class="QLabel" row="4" column="0">
                         <property name="name">
                             <cstring>TextLabel1_2_2</cstring>
                         </property>
@@ -249,12 +224,70 @@
                             <cstring>editDatabaseFile</cstring>
                         </property>
                     </widget>
-                    <widget class="Line" row="2" column="0" rowspan="1" colspan="2">
+                    <widget class="Line" row="3" column="0" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>Line1</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Horizontal</enum>
+                        </property>
+                    </widget>
+                    <spacer row="1" column="0">
+                        <property name="name" stdset="0">
+                            <cstring>Spacer2</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QPushButton" row="2" column="0">
+                        <property name="name">
+                            <cstring>PushButton4</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Remove</string>
+                        </property>
+                    </widget>
+                    <widget class="QListView" row="0" column="1" rowspan="3" colspan="1">
+                        <column>
+                            <property name="text">
+                                <string>Form</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Filename</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <property name="name">
+                            <cstring>listInterfaces</cstring>
+                        </property>
+                        <property name="selectionMode">
+                            <enum>Extended</enum>
+                        </property>
+                        <property name="allColumnsShowFocus">
+                            <bool>true</bool>
                         </property>
                     </widget>
                 </grid>
@@ -368,14 +401,19 @@
         <receiver>ProjectSettingsBase</receiver>
         <slot>chooseDatabaseFile()</slot>
     </connection>
+    <connection>
+        <sender>PushButton4</sender>
+        <signal>clicked()</signal>
+        <receiver>ProjectSettingsBase</receiver>
+        <slot>removeProject()</slot>
+    </connection>
     <slot access="protected" language="C++">init()</slot>
     <slot access="protected" language="C++">destroy()</slot>
     <slot access="protected" language="C++">chooseDatabaseFile()</slot>
     <slot access="protected" language="C++">chooseProjectFile()</slot>
     <slot access="protected" language="C++">helpClicked()</slot>
     <slot access="protected" language="C++">okClicked()</slot>
-    <slot access="protected" language="C++">removeUiFile()</slot>
-    <slot access="protected" language="C++">addUiFile()</slot>
+    <slot access="protected" language="C++">removeProject()</slot>
 </connections>
 <tabstops>
     <tabstop>tabWidget</tabstop>
@@ -383,7 +421,6 @@
     <tabstop>editProjectFile</tabstop>
     <tabstop>comboLanguage</tabstop>
     <tabstop>editProjectDescription</tabstop>
-    <tabstop>listInterfaces</tabstop>
     <tabstop>editDatabaseFile</tabstop>
     <tabstop>buttonHelp</tabstop>
     <tabstop>buttonOk</tabstop>

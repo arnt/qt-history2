@@ -20,13 +20,18 @@
 
 #include "projectsettingsimpl.h"
 #include "project.h"
+#include "formwindow.h"
 #include "metadatabase.h"
+#include "mainwindow.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
 #include <qlistbox.h>
 #include <qfiledialog.h>
 #include <qcombobox.h>
+#include <qlistview.h>
+#include <qobjectlist.h>
+#include <qheader.h>
 
 /*
  *  Constructs a ProjectSettings which is a child of 'parent', with the
@@ -42,8 +47,32 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     editProjectFile->setText( pro->fileName() );
     editProjectDescription->setText( pro->description() );
 
-    listInterfaces->clear();
-    listInterfaces->insertStringList( pro->uiFiles() );
+    QStringList lst = project->uiFiles();
+    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
+	QListViewItem *item = new QListViewItem( listInterfaces, tr( "<unknown>" ), *it, 0 );
+	QString className = project->formName( item->text( 1 ) );
+	if ( !className.isEmpty() )
+	    item->setText( 0, className );
+    }
+
+    QObjectList *l = parent->queryList( "FormWindow", 0, FALSE, TRUE );
+    for ( QObject *o = l->first(); o; o = l->next() ) {
+	if ( ( (FormWindow*)o )->project() != project )
+	    continue;
+	QListViewItemIterator it( listInterfaces );
+	while ( it.current() ) {
+	    if ( project->makeAbsolute( ( it.current() )->text( 1 ) ) ==
+		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
+		it.current()->setText( 0, o->name() );
+		formMap.insert( it.current(), (FormWindow*)o );
+	    }
+	    ++it;
+	}
+    }
+
+
+    listInterfaces->header()->setFullSize( TRUE );
+
     editDatabaseFile->setText( pro->databaseDescription() );
 
     comboLanguage->insertStringList( MetaDataBase::languages() );
@@ -89,33 +118,33 @@ void ProjectSettings::okClicked()
     project->setProjectName( editProjectName->text() );
     project->setFileName( editProjectFile->text(), FALSE );
     project->setDescription( editProjectDescription->text() );
-
-    QStringList lst;
-    for ( int i = 0; i < (int)listInterfaces->count(); ++i )
-	lst << listInterfaces->text( i );
-    project->setUiFiles( lst );
     project->setDatabaseDescription( editDatabaseFile->text() );
     project->setLanguage( comboLanguage->text( comboLanguage->currentItem() ) );
     project->save();
     accept();
 }
 
-void ProjectSettings::removeUiFile()
+void ProjectSettings::removeProject()
 {
-    QStringList lst;
-    for ( int i = 0; i < (int)listInterfaces->count(); ++i ) {
-	if ( listInterfaces->item( i )->selected() )
-	    continue;
-	lst << listInterfaces->text( i );
+    QList<QListViewItem> lst;
+    QListViewItemIterator it( listInterfaces );
+    while ( it.current() ) {
+	if ( it.current()->isSelected() )
+	    lst.append( it.current() );
+	++it;
     }
-    listInterfaces->clear();
-    listInterfaces->insertStringList( lst );
-}
+	
+    for ( QListViewItem *i = lst.first(); i; i = lst.next() ) {
+	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
+	FormWindow *fw = 0;
+	if ( fit != formMap.end() )
+	    fw = *fit;
+	project->removeUiFile( i->text( 1 ), fw );
+	if ( fw ) {
+	    fw->commandHistory()->setModified( FALSE );
+	    fw->close();
+	}
+    }
 
-void ProjectSettings::addUiFile()
-{
-    QStringList lst = QFileDialog::getOpenFileNames( tr( "Project Files (*.ui);;All Files (*)" ), QString::null, this );
-    if ( lst.isEmpty() )
-	return;
-    listInterfaces->insertStringList( lst );
+    lst.setAutoDelete( TRUE );
 }

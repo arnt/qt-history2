@@ -144,6 +144,8 @@ public:
     void updateFunctionList();
     QObjectList *previewProject();
 
+    Project *emptyProject();
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );
@@ -377,6 +379,7 @@ private:
     QGuardedPtr<FindDialog> findDialog;
     QGuardedPtr<ReplaceDialog> replaceDialog;
     QGuardedPtr<GotoLineDialog> gotoLineDialog;
+    Project *eProject;
 
 };
 
