@@ -22,7 +22,8 @@ SOURCES		+= $$QT_SOURCE_TREE/src/core/global/qglobal.cpp \
                    $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
 		   $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
 		   $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
-		   $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp
+		   $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp \
+                   $$QT_SOURCE_TREE/src/core/tools/qvector.cpp
 
 SOURCES		+= $$QT_SOURCE_TREE/src/core/io/qdir.cpp \
                    $$QT_SOURCE_TREE/src/core/io/qfsdirengine.cpp \
