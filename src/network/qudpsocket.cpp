@@ -163,6 +163,7 @@ bool QUdpSocket::bind(const QHostAddress &address, Q_UINT16 port)
     }
 
     d->state = BoundState;
+    emit stateChanged(d->state);
     d->readSocketNotifier->setEnabled(true);
     return true;
 }
