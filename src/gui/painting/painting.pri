@@ -24,6 +24,7 @@ HEADERS += \
 	painting/qrect.h \
 	painting/qregion.h \
 	painting/qsize.h \
+	painting/qsizefloat.h \
 	painting/qmatrix.h \
 	painting/qwmatrix.h
 
@@ -47,6 +48,7 @@ SOURCES += \
 	painting/qrect.cpp \
 	painting/qregion.cpp \
 	painting/qsize.cpp \
+	painting/qsizefloat.cpp \
 	painting/qmatrix.cpp \
 	painting/qwmatrix.cpp
 

@@ -11,21 +11,19 @@
 **
 ****************************************************************************/
 
-#include "qsize.h"
+#include "qsizefloat.h"
 #include "qdatastream.h"
 #include "qdebug.h"
 
 /*!
-    \class QSize
-    \brief The QSize class defines the size of a two-dimensional object.
+    \class QSizeFloat
+    \brief The QSizeFloat class defines the size of a two-dimensional object.
 
     \ingroup multimedia
 
     A size is specified by a width and a height.
 
-    The coordinate type is QCOORD (defined in \c <qwindowdefs.h> as \c
-    int). The minimum value of QCOORD is QCOORD_MIN (-2147483648) and
-    the maximum value is QCOORD_MAX (2147483647).
+    The coordinate type is float.
 
     The size can be set in the constructor and changed with
     setWidth(), setHeight(), or scale(), or using operator+=(),
@@ -40,11 +38,11 @@
 
 
 /*****************************************************************************
-  QSize member functions
+  QSizeFloat member functions
  *****************************************************************************/
 
 /*!
-    \fn QSize::QSize()
+    \fn QSizeFloat::QSizeFloat()
 
     Constructs a size with invalid width and height.
 
@@ -52,13 +50,13 @@
 */
 
 /*!
-    \fn QSize::QSize(int w, int h)
+    \fn QSizeFloat::QSizeFloat(int w, int h)
 
     Constructs a size with width \a w and height \a h.
 */
 
 /*!
-    \fn bool QSize::isNull() const
+    \fn bool QSizeFloat::isNull() const
 
     Returns true if the width is 0 and the height is 0; otherwise
     returns false.
@@ -67,7 +65,7 @@
 */
 
 /*!
-    \fn bool QSize::isEmpty() const
+    \fn bool QSizeFloat::isEmpty() const
 
     Returns true if the width is less than or equal to 0, or the height is
     less than or equal to 0; otherwise returns false.
@@ -76,7 +74,7 @@
 */
 
 /*!
-    \fn bool QSize::isValid() const
+    \fn bool QSizeFloat::isValid() const
 
     Returns true if the width is equal to or greater than 0 and the height is
     equal to or greater than 0; otherwise returns false.
@@ -85,7 +83,7 @@
 */
 
 /*!
-    \fn int QSize::width() const
+    \fn int QSizeFloat::width() const
 
     Returns the width.
 
@@ -93,7 +91,7 @@
 */
 
 /*!
-    \fn int QSize::height() const
+    \fn int QSizeFloat::height() const
 
     Returns the height.
 
@@ -101,7 +99,7 @@
 */
 
 /*!
-    \fn void QSize::setWidth(int w)
+    \fn void QSizeFloat::setWidth(int w)
 
     Sets the width to \a w.
 
@@ -109,7 +107,7 @@
 */
 
 /*!
-    \fn void QSize::setHeight(int h)
+    \fn void QSizeFloat::setHeight(int h)
 
     Sets the height to \a h.
 
@@ -122,15 +120,15 @@
     \sa expandedTo() boundedTo() setWidth() setHeight()
 */
 
-void QSize::transpose()
+void QSizeFloat::transpose()
 {
-    QCOORD tmp = wd;
+    float tmp = wd;
     wd = ht;
     ht = tmp;
 }
 
 /*!
-  \fn void QSize::scale(int w, int h, Qt::ScaleMode mode)
+  \fn void QSizeFloat::scale(float w, float h, Qt::ScaleMode mode)
 
     Scales the size to a rectangle of width \a w and height \a h according
     to the Qt::ScaleMode \a mode.
@@ -145,16 +143,16 @@ void QSize::transpose()
 
     Example:
     \code
-        QSize t1(10, 12);
-        t1.scale(60, 60, QSize::ScaleFree);
+        QSizeFloat t1(10, 12);
+        t1.scale(60, 60, QSizeFloat::ScaleFree);
         // t1 is (60, 60)
 
-        QSize t2(10, 12);
-        t2.scale(60, 60, QSize::ScaleMin);
+        QSizeFloat t2(10, 12);
+        t2.scale(60, 60, QSizeFloat::ScaleMin);
         // t2 is (50, 60)
 
-        QSize t3(10, 12);
-        t3.scale(60, 60, QSize::ScaleMax);
+        QSizeFloat t3(10, 12);
+        t3.scale(60, 60, QSizeFloat::ScaleMax);
         // t3 is (60, 72)
     \endcode
 
@@ -166,14 +164,14 @@ void QSize::transpose()
 
     Equivalent to scale(\a{s}.width(), \a{s}.height(), \a mode).
 */
-void QSize::scale(const QSize &s, Qt::ScaleMode mode)
+void QSizeFloat::scale(const QSizeFloat &s, Qt::ScaleMode mode)
 {
     if (mode == Qt::ScaleFree) {
         wd = s.wd;
         ht = s.ht;
     } else {
         bool useHeight;
-        QCOORD rw = s.ht * wd / ht;
+        float rw = s.ht * wd / ht;
 
         if (mode == Qt::ScaleMin) {
             useHeight = (rw <= s.wd);
@@ -192,7 +190,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 }
 
 /*!
-    \fn QCOORD &QSize::rwidth()
+    \fn QCOORD &QSizeFloat::rwidth()
 
     Returns a reference to the width.
 
@@ -200,7 +198,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 
     Example:
     \code
-        QSize s(100, 10);
+        QSizeFloat s(100, 10);
         s.rwidth() += 20;                // s becomes (120,10)
     \endcode
 
@@ -208,7 +206,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QCOORD &QSize::rheight()
+    \fn QCOORD &QSizeFloat::rheight()
 
     Returns a reference to the height.
 
@@ -216,7 +214,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 
     Example:
     \code
-        QSize s(100, 10);
+        QSizeFloat s(100, 10);
         s.rheight() += 5;                // s becomes (100,15)
     \endcode
 
@@ -224,33 +222,33 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize &QSize::operator+=(const QSize &s)
+    \fn QSizeFloat &QSizeFloat::operator+=(const QSizeFloat &s)
 
     Adds \a s to the size and returns a reference to this size.
 
     Example:
     \code
-        QSize s( 3, 7);
-        QSize r(-1, 4);
+        QSizeFloat s( 3, 7);
+        QSizeFloat r(-1, 4);
         s += r;                        // s becomes (2,11)
     \endcode
 */
 
 /*!
-    \fn QSize &QSize::operator-=(const QSize &s)
+    \fn QSizeFloat &QSizeFloat::operator-=(const QSizeFloat &s)
 
     Subtracts \a s from the size and returns a reference to this size.
 
     Example:
     \code
-        QSize s( 3, 7);
-        QSize r(-1, 4);
+        QSizeFloat s( 3, 7);
+        QSizeFloat r(-1, 4);
         s -= r;                        // s becomes (4,3)
     \endcode
 */
 
 /*!
-    \fn QSize &QSize::operator*=(int c)
+    \fn QSizeFloat &QSizeFloat::operator*=(int c)
 
     Multiplies both the width and height by \a c and returns a
     reference to the size.
@@ -259,7 +257,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize &QSize::operator*=(double c)
+    \fn QSizeFloat &QSizeFloat::operator*=(double c)
 
     \overload
 
@@ -270,25 +268,25 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn bool operator==(const QSize &s1, const QSize &s2)
+    \fn bool operator==(const QSizeFloat &s1, const QSizeFloat &s2)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Returns true if \a s1 and \a s2 are equal; otherwise returns false.
 */
 
 /*!
-    \fn bool operator!=(const QSize &s1, const QSize &s2)
+    \fn bool operator!=(const QSizeFloat &s1, const QSizeFloat &s2)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Returns true if \a s1 and \a s2 are different; otherwise returns false.
 */
 
 /*!
-    \fn const QSize operator+(const QSize &s1, const QSize &s2)
+    \fn const QSizeFloat operator+(const QSizeFloat &s1, const QSizeFloat &s2)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
 
@@ -296,9 +294,9 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator-(const QSize &s1, const QSize &s2)
+    \fn const QSizeFloat operator-(const QSizeFloat &s1, const QSizeFloat &s2)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Returns \a s2 subtracted from \a s1; each component is subtracted
     separately.
@@ -307,9 +305,9 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator*(const QSize &s, int c)
+    \fn const QSizeFloat operator*(const QSizeFloat &s, int c)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Multiplies \a s by \a c and returns the result.
 
@@ -317,10 +315,10 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator*(int c, const QSize &s)
+    \fn const QSizeFloat operator*(int c, const QSizeFloat &s)
 
     \overload
-    \relates QSize
+    \relates QSizeFloat
 
     Multiplies \a s by \a c and returns the result.
 
@@ -328,10 +326,10 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator*(const QSize &s, double c)
+    \fn const QSizeFloat operator*(const QSizeFloat &s, double c)
 
     \overload
-    \relates QSize
+    \relates QSizeFloat
 
     Multiplies \a s by \a c and returns the result.
 
@@ -339,10 +337,10 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator*(double c, const QSize &s)
+    \fn const QSizeFloat operator*(double c, const QSizeFloat &s)
 
     \overload
-    \relates QSize
+    \relates QSizeFloat
 
     Multiplies \a s by \a c and returns the result.
 
@@ -350,7 +348,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize &QSize::operator/=(int c)
+    \fn QSizeFloat &QSizeFloat::operator/=(int c)
 
     Divides both the width and height by \a c and returns a reference
     to the size.
@@ -359,7 +357,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize &QSize::operator/=(double c)
+    \fn QSizeFloat &QSizeFloat::operator/=(double c)
 
     \overload
 
@@ -372,9 +370,9 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator/(const QSize &s, int c)
+    \fn const QSizeFloat operator/(const QSizeFloat &s, int c)
 
-    \relates QSize
+    \relates QSizeFloat
 
     Divides \a s by \a c and returns the result.
 
@@ -382,9 +380,9 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn const QSize operator/(const QSize &s, double c)
+    \fn const QSizeFloat operator/(const QSizeFloat &s, double c)
 
-    \relates QSize
+    \relates QSizeFloat
     \overload
 
     Divides \a s by \a c and returns the result.
@@ -395,7 +393,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize QSize::expandedTo(const QSize & otherSize) const
+    \fn QSizeFloat QSizeFloat::expandedTo(const QSizeFloat & otherSize) const
 
     Returns a size with the maximum width and height of this size and
     \a otherSize.
@@ -404,7 +402,7 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 */
 
 /*!
-    \fn QSize QSize::boundedTo(const QSize & otherSize) const
+    \fn QSizeFloat QSizeFloat::boundedTo(const QSizeFloat & otherSize) const
 
     Returns a size with the minimum width and height of this size and
     \a otherSize.
@@ -415,11 +413,11 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
 
 
 /*****************************************************************************
-  QSize stream functions
+  QSizeFloat stream functions
  *****************************************************************************/
 #ifndef QT_NO_DATASTREAM
 /*!
-    \relates QSize
+    \relates QSizeFloat
 
     Writes the size \a sz to the stream \a s and returns a reference
     to the stream.
@@ -428,17 +426,14 @@ void QSize::scale(const QSize &s, Qt::ScaleMode mode)
     operators \endlink
 */
 
-QDataStream &operator<<(QDataStream &s, const QSize &sz)
+QDataStream &operator<<(QDataStream &s, const QSizeFloat &sz)
 {
-    if (s.version() == 1)
-        s << (Q_INT16)sz.width() << (Q_INT16)sz.height();
-    else
-        s << (Q_INT32)sz.width() << (Q_INT32)sz.height();
+    s << sz.width() << sz.height();
     return s;
 }
 
 /*!
-    \relates QSize
+    \relates QSizeFloat
 
     Reads the size from the stream \a s into size \a sz and returns a
     reference to the stream.
@@ -447,25 +442,18 @@ QDataStream &operator<<(QDataStream &s, const QSize &sz)
     operators \endlink
 */
 
-QDataStream &operator>>(QDataStream &s, QSize &sz)
+QDataStream &operator>>(QDataStream &s, QSizeFloat &sz)
 {
-    if (s.version() == 1) {
-        Q_INT16 w, h;
-        s >> w;  sz.rwidth() = w;
-        s >> h;  sz.rheight() = h;
-    }
-    else {
-        Q_INT32 w, h;
-        s >> w;  sz.rwidth() = w;
-        s >> h;  sz.rheight() = h;
-    }
+    float w, h;
+    s >> w;  sz.rwidth() = w;
+    s >> h;  sz.rheight() = h;
     return s;
 }
 #endif // QT_NO_DATASTREAM
 
 #ifndef QT_NO_DEBUG
-QDebug operator<<(QDebug dbg, const QSize &s) {
-    dbg.nospace() << "QSize(" << s.width() << ',' << s.height() << ')';
+QDebug operator<<(QDebug dbg, const QSizeFloat &s) {
+    dbg.nospace() << "QSizeFloat(" << s.width() << ',' << s.height() << ')';
     return dbg.space();
 }
 #endif

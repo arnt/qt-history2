@@ -106,6 +106,9 @@ inline void QSize::setWidth(int w)
 inline void QSize::setHeight(int h)
 { ht=(QCOORD)h; }
 
+inline void QSize::scale(int w, int h, Qt::ScaleMode mode)
+{ scale(QSize(w, h), mode); }
+
 inline QCOORD &QSize::rwidth()
 { return wd; }
 
