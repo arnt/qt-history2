@@ -66,7 +66,7 @@ class Q_EXPORT QAction : public QObject
     Q_PROPERTY( int accel READ accel WRITE setAccel )
 
 public:
-    QAction( QObject* parent = 0, const char* name = 0, bool toggle = FALSE  );
+    QAction( QObject* parent, const char* name = 0, bool toggle = FALSE  );
     QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
 	     QObject* parent, const char* name = 0, bool toggle = FALSE );
     QAction( const QString& text, const QString& menuText, int accel, QObject* parent,

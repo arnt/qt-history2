@@ -59,7 +59,7 @@ ApplicationWindow::ApplicationWindow()
                      "You can also select the <b>Open</b> command "
                      "from the <b>File</b> menu.</p>"; 
     QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", 
-                                        fileOpenAction->iconSet().pixmap() );
+                          fileOpenAction->iconSet().pixmap() );
     fileOpenAction->setWhatsThis( fileOpenText );
     
     fileSaveAction = new QAction( "Save File", QPixmap( filesave ), 
