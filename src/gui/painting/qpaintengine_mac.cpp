@@ -115,7 +115,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipp
     if(isActive()) {                         // already active painting
         qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
-        return false;
+//        return false;
     }
 
     //save the gworld now, we'll reset it in end()
@@ -1123,7 +1123,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
     if(isActive()) {                         // already active painting
         qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
-        return false;
+//        return false;
     }
 
     d->pdev = pdev;
@@ -1133,6 +1133,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
         d->shading = 0;
     }
     d->antiAliasingEnabled = 1;
+    d->offx = d->offy = 0; // (quickdraw compat!!)
 
     setupCGClip(0); //get handle to drawable
     setActive(true);
@@ -1143,6 +1144,11 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool u
 
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
+        { //offset painting in widget relative the tld (quickdraw compat!!!)
+            QPoint wp(posInWindow(w));
+            d->offx = wp.x();
+            d->offy = wp.y();
+        }
         if(!unclipped)
             unclipped = (bool)w->testWFlags(WPaintUnclipped);
 
@@ -1260,15 +1266,18 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
     if(bs != CustomPattern && bs != NoBrush) {
         const QColor &col = ps->brush.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                                 qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
+                                 qt_mac_convert_color_to_cg(col.green()), 
+                                 qt_mac_convert_color_to_cg(col.blue()), 1.0);
     }
 
     if(bs == LinearGradientPattern) {
         CGFunctionCallbacks callbacks = { 0, qt_mac_color_gradient_function, 0 };
         CGFunctionRef fill_func = CGFunctionCreate(&ps->brush, 1, 0, 4, 0, &callbacks);
         CGColorSpaceRef grad_colorspace = CGColorSpaceCreateDeviceRGB();
-        d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(ps->brush.gradientStart().x(), ps->brush.gradientStart().y()),
-                                          CGPointMake(ps->brush.gradientStop().x(), ps->brush.gradientStop().y()), fill_func, true, true);
+        const QPoint start = ps->painter->xForm(ps->brush.gradientStart()),
+                      stop =  ps->painter->xForm(ps->brush.gradientStop());
+        d->shading = CGShadingCreateAxial(grad_colorspace, CGPointMake(start.x(), start.y()),
+                                          CGPointMake(stop.x(), stop.y()), fill_func, true, true);
         CGFunctionRelease(fill_func);
         CGColorSpaceRelease(grad_colorspace);
     } else if(bs != SolidPattern && bs != NoBrush) {
