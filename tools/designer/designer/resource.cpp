@@ -78,16 +78,16 @@ static QString makeIndent( int indent )
     return s;
 }
 
-static QString entitize( const QString &s )
+static QString entitize( const QString &s, bool attribute = FALSE )
 {
     QString s2 = s;
-#if 0 // don't need that (RS)
-    s2 = s2.replace( QRegExp( "\"" ), "&quot;" );
-    s2 = s2.replace( QRegExp( "'" ), "&apos;" );
-#endif
     s2 = s2.replace( QRegExp( "&" ), "&amp;" );
     s2 = s2.replace( QRegExp( ">" ), "&gt;" );
     s2 = s2.replace( QRegExp( "<" ), "&lt;" );
+    if ( attribute ) {
+	s2 = s2.replace( QRegExp( "\"" ), "&quot;" );
+	s2 = s2.replace( QRegExp( "'" ), "&apos;" );
+    }
     return s2;
 }
 
@@ -2186,8 +2186,8 @@ void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
 	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
 	    if ( tb->isHidden() )
 		continue;
-	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label() )
-	       << "\" name=\"" << entitize( tb->name() ) << "\">" << endl;
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\" label=\"" << entitize( tb->label(), TRUE )
+	       << "\" name=\"" << entitize( tb->name(), TRUE ) << "\">" << endl;
 	    indent++;
 	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
 	    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
