@@ -685,6 +685,7 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
     ArabicGroup group = arabicGroup(chars[0]);
     Joining j = joining_for_group[group];
     Shape shape = joining_table[XIsolated][j].form2;
+    properties[0].justification = QGlyphLayout::NoJustification;
 
     for (int i = 1; i < len; ++i) {
 	// #### fix handling for spaces and punktuation
@@ -780,6 +781,10 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 	lastPos = i;
     }
     properties[lastPos].shape = joining_table[shape][JNone].form1;
+
+
+//     for (int i = 0; i < len; ++i)
+// 	qDebug("arabic properties(%d): uc=%x shape=%d, justification=%d", i, chars[i], properties[i].shape, properties[i].justification);
 }
 
 

@@ -1242,6 +1242,7 @@ void QTextEngine::justify(const QScriptLine &line)
 		// fall through
 	    case QGlyphLayout::Arabic_Space   :
 		if (kashida_pos >= 0) {
+		    qDebug("kashida position at %d in word", kashida_pos);
 		    set(&justificationPoints[nPoints], kashida_type, g+kashida_pos, fontEngine(si));
 		    minKashida = qMin(minKashida, Q26Dot6(justificationPoints[nPoints].kashidaWidth, F26Dot6));
 		    maxJustify = qMax(maxJustify, justificationPoints[nPoints].type);
