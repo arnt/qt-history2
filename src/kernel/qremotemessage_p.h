@@ -62,7 +62,7 @@ class QSocket;
 class Q_EXPORT QRemoteMessage
 {
 public:
-    enum retValue {Accepted, Rejected};
+    enum RetValue {Accepted, Rejected};
 
     QRemoteMessage();
     QRemoteMessage(const QString &eventName, const QString &eventInfo);
@@ -71,7 +71,7 @@ public:
     virtual ~QRemoteMessage();
 	
     virtual void send(QSocket *socket);
-    virtual void reply(QSocket *socket, int retValue);
+    virtual void reply(QSocket *socket, int retVal);
     virtual bool receive(QSocket *socket);
 
     bool hasPixmap() const;

@@ -226,16 +226,16 @@ void QRemoteMessage::send(QSocket *socket)
 
 /*!
     Sends a reply message over the \a socket connection using the current message id
-    and the given \a retValue.
+    and the given \a retVal.
 */
 
-void QRemoteMessage::reply(QSocket *socket, int retValue)
+void QRemoteMessage::reply(QSocket *socket, int retVal)
 {
     internal_pixmap.resize(0,0);
     msg_type = "Reply";
     msg = "";
 
-    retvalue = retValue;
+    retvalue = retVal;
     is_reply = TRUE;
     send(socket);
 }
