@@ -2269,9 +2269,9 @@ void QMetaObject::connectSlotsByName(QObject *o)
     Q_ASSERT(mo);
     const QObjectList list(o->findChildren(QString()));
     for (int i = 0; i < mo->memberCount(); ++i) {
-        const char *sig = mo->member(i).signature();
-        Q_ASSERT(sig);
-        if (sig[0] != 'o' || sig[1] != 'n' || sig[2] != '_')
+        const char *slot = mo->member(i).signature();
+        Q_ASSERT(slot);
+        if (slot[0] != 'o' || slot[1] != 'n' || slot[2] != '_')
             continue;
         bool foundIt = false;
         for(int j = 0; j < list.count(); ++j) {
@@ -2279,10 +2279,23 @@ void QMetaObject::connectSlotsByName(QObject *o)
             const char *objName = co->objectName().ascii();
             int len = qstrlen(objName);
             if (!len
-                || qstrncmp(sig + 3, objName, len)
-                || sig[len+3] != '_')
+                || qstrncmp(slot + 3, objName, len)
+                || slot[len+3] != '_')
                 continue;
-            int sigIndex = co->metaObject()->indexOfMember(sig + len + 4);
+            const QMetaObject *smo = co->metaObject();
+            int sigIndex = smo->indexOfMember(slot + len + 4);
+            if (sigIndex < 0) { // search for compatible signals
+                int slotlen = qstrlen(slot + len + 4) - 1;
+                for (int k = 0; k < co->metaObject()->memberCount(); ++k) {
+                    if (smo->member(k).memberType() != QMetaMember::Signal)
+                        continue;
+
+                    if (!qstrncmp(smo->member(k).signature(), slot + len + 4, slotlen)) {
+                        sigIndex = k;
+                        break;
+                    }
+                }
+            }
             if (sigIndex < 0)
                 continue;
             if (QMetaObject::connect(co, sigIndex, o, i)) {
@@ -2291,7 +2304,7 @@ void QMetaObject::connectSlotsByName(QObject *o)
             }
         }
         if (!foundIt)
-            qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", sig);
+            qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", slot);
     }
 }
 
