@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qcache.doc,v 2.6 1998/06/25 09:07:56 hanord Exp $
+** $Id: qcache.doc,v 2.7 1998/06/26 20:00:13 agulbra Exp $
 **
 ** QCache and QCacheIterator class documentation
 **
@@ -65,7 +65,7 @@
 
 
 /*!  \fn QCache::QCache( const QCache<type> &c )
-  
+
   The copy constructor must never be used.  It leads to a fatal
   error.
 */
@@ -83,7 +83,7 @@
 
 
 /*! \fn QCache::~QCache()
-  
+
   Destroys the object and all objects in it.
 */
 
@@ -97,21 +97,21 @@
 
 
 /*! \fn int QCache::totalCost() const
-  
+
   Returns the total cost of the items in the cache.  This is an
   integer in the range 0 to maxCost().
-  
+
   \sa setMaxCost()
 */
 
 
 
 /*! \fn void QCache::setMaxCost( int m )
-  
+
   Sets the maximum allowed total cost of the cache to \a m.  If the
   current total cost is above \a m, some items are deleted
   immediately.
-  
+
   \sa maxCost() totalCost()
 */
 
@@ -120,7 +120,7 @@
 /*! \fn uint QCache::count() const
 
   Returns the number of items in the cache.
-  
+
   \sa totalCost()
 */
 
@@ -165,7 +165,7 @@
 
   Deletes the item associated with \e k, and returns TRUE if the item
   was present in the cache or FALSE if it was not.
-  
+
   If there are two or more items with equal keys, then the one that
   was inserted last is is deleted.
 
@@ -225,7 +225,7 @@
   was inserted last is returned.
 
   This is the same as find( k, TRUE ).
-  
+
   \sa find()
 */
 
@@ -261,7 +261,7 @@
 
   Note that atFirst() and atLast() refer to the iterator's arbitrary
   ordering, not to the cache's internal LRU list.
-  
+
   \sa QCache
 */
 
@@ -307,9 +307,9 @@
 
   Sets the iterator to point to the first item in the cache and
   returns a pointer to the item.
-  
+
   Sets the iterator to null and returns null if if the cache is empty.
-  
+
   \sa toLast() isEmpty()
 */
 
@@ -318,9 +318,9 @@
 
   Sets the iterator to point to the last item in the cache and
   returns a pointer to the item.
-  
+
   Sets the iterator to null and returns null if if the cache is empty.
-  
+
   \sa toLast() isEmpty()
 */
 
@@ -436,13 +436,13 @@
 
 
 /*!  \fn QIntCache::QIntCache( const QIntCache<type> &c )
-  
+
   The copy constructor must never be used.  It leads to a fatal
   error.
 */
 
 
-/*!  \fn QIntCache::QIntCache( long maxCost, int size  )
+/*!  \fn QIntCache::QIntCache( int maxCost, int size  )
 
   Constructs an empty cache with maximum allowed total cost \a maxCost
   and optimized to contain a bit less than \a size items.
@@ -450,7 +450,7 @@
 
 
 /*! \fn QIntCache::~QIntCache()
-  
+
   Destroys the object and all objects in it.
 */
 
@@ -464,21 +464,21 @@
 
 
 /*! \fn int QIntCache::totalCost() const
-  
+
   Returns the total cost of the items in the cache.  This is an
   integer in the range 0 to maxCost().
-  
+
   \sa setMaxCost()
 */
 
 
 
 /*! \fn void QIntCache::setMaxCost( int m )
-  
+
   Sets the maximum allowed total cost of the cache to \a m.  If the
   current total cost is above \a m, some items are deleted
   immediately.
-  
+
   \sa maxCost() totalCost()
 */
 
@@ -487,7 +487,7 @@
 /*! \fn uint QIntCache::count() const
 
   Returns the number of items in the cache.
-  
+
   \sa totalCost()
 */
 
@@ -532,7 +532,7 @@
 
   Deletes the item associated with \e k, and returns TRUE if the item
   was present in the cache or FALSE if it was not.
-  
+
   If there are two or more items with equal keys, then the one that
   was inserted last is is deleted.
 
@@ -592,7 +592,7 @@
   was inserted last is returned.
 
   This is the same as find( k, TRUE ).
-  
+
   \sa find()
 */
 
@@ -628,7 +628,7 @@
 
   Note that atFirst() and atLast() refer to the iterator's arbitrary
   ordering, not to the cache's internal LRU list.
-  
+
   \sa QIntCache
 */
 
@@ -676,9 +676,9 @@
 
   Sets the iterator to point to the first item in the cache and
   returns a pointer to the item.
-  
+
   Sets the iterator to null and returns null if if the cache is empty.
-  
+
   \sa toLast() isEmpty()
 */
 
@@ -687,9 +687,9 @@
 
   Sets the iterator to point to the last item in the cache and
   returns a pointer to the item.
-  
+
   Sets the iterator to null and returns null if if the cache is empty.
-  
+
   \sa toLast() isEmpty()
 */
 
