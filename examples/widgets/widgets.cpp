@@ -536,6 +536,9 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     lvi=  new QListViewItem( lvi, "SubText", "Side Text" );
     lvi=  new QListViewItem( lvi, "SubSubText", "Complimentary Text" );
 
+    QToolTip::add( lv, "list view" );
+    QWhatsThis::add( lv, "This is a <b>QListView</b>, you can display hierarchical structures of multiple-column data in it." );
+
     lv = new QListView( split );
     lv->addColumn( "Choices" );
     (void) new QCheckListItem( lv, "Onion", QCheckListItem::CheckBox );
@@ -554,6 +557,8 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lit, "Mozarella", QCheckListItem::RadioButton );
     (void) new QCheckListItem( lit, "Jarlsberg", QCheckListItem::RadioButton );
 
+    QToolTip::add( lv, "list view" );
+    QWhatsThis::add( lv, "This is also a <b>QListView</b>, with interactive items." );
 
      QTextView *qmlv =  new QTextView( "<hr><h1>QTextView</h1>"
 		      "<p>Qt supports formatted rich text, such "
