@@ -582,6 +582,9 @@ public:
 	AutoText
     };
 
+    enum ToolBarDock {
+	Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized
+    };
 };
 
 

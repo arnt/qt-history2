@@ -28,12 +28,12 @@
 
 #ifndef QT_H
 #include "qwidget.h"
+#include "qtoolbar.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
 
 class QMenuBar;
-class QToolBar;
 class QStatusBar;
 class QToolTipGroup;
 template <class type> class QList;
@@ -61,8 +61,6 @@ public:
 
     virtual void setCentralWidget( QWidget * );
     QWidget * centralWidget() const;
-
-    enum ToolBarDock { Unmanaged, TornOff, Top, Bottom, Right, Left, Minimized };
 
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;

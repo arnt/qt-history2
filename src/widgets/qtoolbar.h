@@ -28,11 +28,11 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qmainwindow.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXWIDGETS
 
+class QMainWindow;
 class QButton;
 class QBoxLayout;
 class QToolBarPrivate;
@@ -47,7 +47,7 @@ class Q_EXPORT QToolBar: public QWidget
 
 public:
     QToolBar( const QString &label,
-	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
+	      QMainWindow *, ToolBarDock = Top,
 	      bool newLine = FALSE, const char * name = 0 );
     QToolBar( const QString &label, QMainWindow *, QWidget *,
 	      bool newLine = FALSE, const char * name = 0, WFlags f = 0 );
@@ -116,6 +116,11 @@ private:	// Disabled copy constructor and operator=
     QToolBar& operator=( const QToolBar & );
 #endif
 };
+
+// Remove in 3.0
+#ifndef QT_H
+#include "qmainwindow.h"
+#endif // QT_H
 
 #endif // QT_NO_COMPLEXWIDGETS
 
