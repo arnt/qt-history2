@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.h#5 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.h#6 $
 **
 ** Definition of QComboBox class
 **
@@ -35,16 +35,16 @@ public:
     void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char**, int numStrings=-1, int index=-1);
 
-    void	insertItem( const char *text, int index=-1 );
+    void	insertItem( const char *string, int index=-1 );
     void	insertItem( const QPixmap &pixmap, int index=-1 );
 
     void	removeItem( int index );
     void	clear();
 
-    const char *text( int index )	const;
+    const char *string( int index )	const;
     QPixmap    *pixmap( int index )	const;
 
-    void	changeItem( const char *text, int index );
+    void	changeItem( const char *string, int index );
     void	changeItem( const QPixmap &pixmap, int index );
 
     void	setCurrentItem( int index );
