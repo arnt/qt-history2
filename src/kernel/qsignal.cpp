@@ -268,8 +268,16 @@ void QSignal::initMetaObject()			// initialize meta object
 {
     if ( metaObj )
 	return;
-    if ( !QObject::metaObject() )
-	QObject::initMetaObject();
+    if ( strcmp(QObject::className(), "QObject") != 0 )
+	badSuperclassWarning("QWidget","QObject");
+    (void)staticMetaObject();
+}
+
+QMetaObject* QSignal::staticMetaObject()
+{
+    if ( metaObj )
+	return metaObj;
+    (void)QObject::staticMetaObject();
 
     typedef void(QSignal::*m2_t0)(int);
     m2_t0 v2_0 =  &QSignal::dummy;
@@ -280,4 +288,5 @@ void QSignal::initMetaObject()			// initialize meta object
 	"QSignal", "QObject",
 	0, 0,
 	signal_tbl, 1 );
+    return metaObj;
 }
