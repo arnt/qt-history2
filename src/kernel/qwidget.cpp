@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#187 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#186 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#187 $");
 
 
 /*!
@@ -1627,8 +1627,11 @@ bool QWidget::hasFocus() const
   focus. Then a \link focusInEvent() focus in event\endlink is sent to
   this widget to tell it that it just received the focus.
 
-  This widget must enable focus setting in order to get the keyboard input
-  focus, i.e. it must call setFocusPolicy().
+  setFocus() gives focus to a widget regardless of its focus policy.
+  However, QWidget::focusWidget() (which determines where
+  Tab/Shift-Tab) moves from) is changed only if the widget accepts
+  focus.  This can be used to implement "hidden focus"; see
+  focusNextPrevChild() for details.
 
   \warning If you call setFocus() in a function which may itself be
   called from focusOutEvent() or focusInEvent(), you may see infinite
@@ -1640,24 +1643,30 @@ bool QWidget::hasFocus() const
 
 void QWidget::setFocus()
 {
-    if ( testWFlags(WFocusSet) || !(isFocusEnabled() && isEnabled()) )
+    if ( testWFlags(WFocusSet) || !isEnabled() )
 	return;
 
     QFocusData * f = focusData(TRUE);
-    if ( f->it.current() )
+    if ( f->it.current() && f->it.current()->testWFlags(WFocusSet) )
 	f->it.current()->clearFocus();
-    if ( testWFlags(WState_TabToFocus) ) {
-	// move the tab focus pointer only if this widget can be
-	// tabbed to or from.
-	f->it.toFirst();
-	while ( f->it.current() != this && !f->it.atLast() )
-	    ++f->it;
-	// at this point, the iterator should point to 'this'.  if it
-	// does not, 'this' must not be in the list - an error, but
-	// perhaps possible.  fix it.
-	if ( f->it.current() != this ) {
-	    f->focusWidgets.append( this );
-	    f->it.toLast();
+    else if ( qApp->focusWidget() &&
+	      topLevelWidget() == qApp->focusWidget()->topLevelWidget() )
+	qApp->focusWidget()->clearFocus();
+	
+    if ( isFocusEnabled() ) {
+	if ( testWFlags(WState_TabToFocus) ) {
+	    // move the tab focus pointer only if this widget can be
+	    // tabbed to or from.
+	    f->it.toFirst();
+	    while ( f->it.current() != this && !f->it.atLast() )
+		++f->it;
+	    // at this point, the iterator should point to 'this'.  if it
+	    // does not, 'this' must not be in the list - an error, but
+	    // perhaps possible.  fix it.
+	    if ( f->it.current() != this ) {
+		f->focusWidgets.append( this );
+		f->it.toLast();
+	    }
 	}
     }
     setWFlags( WFocusSet );
@@ -1705,8 +1714,10 @@ void QWidget::clearFocus()
   If \a next is true, this function searches "forwards", if \a next is
   FALSE, "backwards".
 
-  Reimplementing this function makes sense only to top-level widgets,
-  not for any other widgets.
+  Sometimes, you will want to reimplement this function.  For example,
+  a web browser might reimplement it to move its "current active link"
+  forwards or backwards, and call QWidget::focusNextPrevChild() only
+  when it reaches the last/first.
 */
 
 bool QWidget::focusNextPrevChild( bool next )
