@@ -3525,11 +3525,7 @@ void qt_format_text(const QFont& font, const QRect &_r,
 // #define QT_GRAD_NO_POLY
 // #define QT_GRAD_NO_LINE
 
-#if defined Q_WS_WIN
-#define qt_gradient_fill_color(c) c
-#else
 #define qt_gradient_fill_color(c)  QColor(c.red(), c.green(), c.blue())
-#endif
 
 void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush)
 {
