@@ -462,84 +462,84 @@ Q_VARIANT_TO(KeySequence);
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 
-template<> inline QFont qt_cast_helper<QFont>(const QCoreVariant &v, const QFont*)
+template<> inline QFont QVariant_to_helper<QFont>(const QCoreVariant &v, const QFont*)
 { return static_cast<const QVariant &>(v).toFont(); }
-template<> inline QPixmap qt_cast_helper<QPixmap>(const QCoreVariant &v, const QPixmap*)
+template<> inline QPixmap QVariant_to_helper<QPixmap>(const QCoreVariant &v, const QPixmap*)
 { return static_cast<const QVariant &>(v).toPixmap(); }
-template<> inline QImage qt_cast_helper<QImage>(const QCoreVariant &v, const QImage*)
+template<> inline QImage QVariant_to_helper<QImage>(const QCoreVariant &v, const QImage*)
 { return static_cast<const QVariant &>(v).toImage(); }
-template<> inline QBrush qt_cast_helper<QBrush>(const QCoreVariant &v, const QBrush*)
+template<> inline QBrush QVariant_to_helper<QBrush>(const QCoreVariant &v, const QBrush*)
 { return static_cast<const QVariant &>(v).toBrush(); }
-template<> inline QColor qt_cast_helper<QColor>(const QCoreVariant &v, const QColor*)
+template<> inline QColor QVariant_to_helper<QColor>(const QCoreVariant &v, const QColor*)
 { return static_cast<const QVariant &>(v).toColor(); }
-template<> inline QPalette qt_cast_helper<QPalette>(const QCoreVariant &v, const QPalette*)
+template<> inline QPalette QVariant_to_helper<QPalette>(const QCoreVariant &v, const QPalette*)
 { return static_cast<const QVariant &>(v).toPalette(); }
-template<> inline QIconSet qt_cast_helper<QIconSet>(const QCoreVariant &v, const QIconSet*)
+template<> inline QIconSet QVariant_to_helper<QIconSet>(const QCoreVariant &v, const QIconSet*)
 { return static_cast<const QVariant &>(v).toIconSet(); }
-template<> inline QPointArray qt_cast_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
+template<> inline QPointArray QVariant_to_helper<QPointArray>(const QCoreVariant &v, const QPointArray*)
 { return static_cast<const QVariant &>(v).toPointArray(); }
-template<> inline QBitmap qt_cast_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
+template<> inline QBitmap QVariant_to_helper<QBitmap>(const QCoreVariant &v, const QBitmap*)
 { return static_cast<const QVariant &>(v).toBitmap(); }
-template<> inline QRegion qt_cast_helper<QRegion>(const QCoreVariant &v, const QRegion*)
+template<> inline QRegion QVariant_to_helper<QRegion>(const QCoreVariant &v, const QRegion*)
 { return static_cast<const QVariant &>(v).toRegion(); }
 #ifndef QT_NO_CURSOR
-template<> inline QCursor qt_cast_helper<QCursor>(const QCoreVariant &v, const QCursor*)
+template<> inline QCursor QVariant_to_helper<QCursor>(const QCoreVariant &v, const QCursor*)
 { return static_cast<const QVariant &>(v).toCursor(); }
 #endif
 #ifndef QT_NO_ACCEL
-template<> inline QKeySequence qt_cast_helper<QKeySequence>(const QCoreVariant &v, const QKeySequence*)
+template<> inline QKeySequence QVariant_to_helper<QKeySequence>(const QCoreVariant &v, const QKeySequence*)
 { return static_cast<const QVariant &>(v).toKeySequence(); }
 #endif
-template<> inline QPen qt_cast_helper<QPen>(const QCoreVariant &v, const QPen*)
+template<> inline QPen QVariant_to_helper<QPen>(const QCoreVariant &v, const QPen*)
 { return static_cast<const QVariant &>(v).toPen(); }
-template<> inline QSizePolicy qt_cast_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*)
+template<> inline QSizePolicy QVariant_to_helper<QSizePolicy>(const QCoreVariant &v, const QSizePolicy*)
 { return static_cast<const QVariant &>(v).toSizePolicy(); }
-template<> inline QPoint qt_cast_helper<QPoint>(const QCoreVariant &v, const QPoint*)
+template<> inline QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*)
 { return static_cast<const QVariant &>(v).toPoint(); }
-template<> inline QRect qt_cast_helper<QRect>(const QCoreVariant &v, const QRect*)
+template<> inline QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
 { return static_cast<const QVariant &>(v).toRect(); }
-template<> inline QSize qt_cast_helper<QSize>(const QCoreVariant &v, const QSize*)
+template<> inline QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
 { return static_cast<const QVariant &>(v).toSize(); }
 
 #else
 
-template<> inline QFont qt_cast<QFont>(const QCoreVariant &v)
+template<> inline QFont QVariant_to<QFont>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toFont(); }
-template<> inline QPixmap qt_cast<QPixmap>(const QCoreVariant &v)
+template<> inline QPixmap QVariant_to<QPixmap>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPixmap(); }
-template<> inline QImage qt_cast<QImage>(const QCoreVariant &v)
+template<> inline QImage QVariant_to<QImage>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toImage(); }
-template<> inline QBrush qt_cast<QBrush>(const QCoreVariant &v)
+template<> inline QBrush QVariant_to<QBrush>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toBrush(); }
-template<> inline QColor qt_cast<QColor>(const QCoreVariant &v)
+template<> inline QColor QVariant_to<QColor>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toColor(); }
-template<> inline QPalette qt_cast<QPalette>(const QCoreVariant &v)
+template<> inline QPalette QVariant_to<QPalette>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPalette(); }
-template<> inline QIconSet qt_cast<QIconSet>(const QCoreVariant &v)
+template<> inline QIconSet QVariant_to<QIconSet>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toIconSet(); }
-template<> inline QPointArray qt_cast<QPointArray>(const QCoreVariant &v)
+template<> inline QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPointArray(); }
-template<> inline QBitmap qt_cast<QBitmap>(const QCoreVariant &v)
+template<> inline QBitmap QVariant_to<QBitmap>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toBitmap(); }
-template<> inline QRegion qt_cast<QRegion>(const QCoreVariant &v)
+template<> inline QRegion QVariant_to<QRegion>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toRegion(); }
 #ifndef QT_NO_CURSOR
-template<> inline QCursor qt_cast<QCursor>(const QCoreVariant &v)
+template<> inline QCursor QVariant_to<QCursor>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toCursor(); }
 #endif
 #ifndef QT_NO_ACCEL
-template<> inline QKeySequence qt_cast<QKeySequence>(const QCoreVariant &v)
+template<> inline QKeySequence QVariant_to<QKeySequence>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toKeySequence(); }
 #endif
-template<> inline QPen qt_cast<QPen>(const QCoreVariant &v)
+template<> inline QPen QVariant_to<QPen>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPen(); }
-template<> inline QSizePolicy qt_cast<QSizePolicy>(const QCoreVariant &v)
+template<> inline QSizePolicy QVariant_to<QSizePolicy>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toSizePolicy(); }
-template<> inline QPoint qt_cast<QPoint>(const QCoreVariant &v)
+template<> inline QPoint QVariant_to<QPoint>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPoint(); }
-template<> inline QRect qt_cast<QRect>(const QCoreVariant &v)
+template<> inline QRect QVariant_to<QRect>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toRect(); }
-template<> inline QSize qt_cast<QSize>(const QCoreVariant &v)
+template<> inline QSize QVariant_to<QSize>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toSize(); }
 
 #endif
