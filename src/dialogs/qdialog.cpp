@@ -435,12 +435,17 @@ void QDialog::contextMenuEvent( QContextMenuEvent *e )
     QWidget* w = childAt( e->pos(), TRUE );
     if ( !w )
 	return;
-    QString s = QWhatsThis::textFor( w, e->pos(), TRUE );
+    QString s;
+    while ( s.isEmpty() && w ) {
+	s = QWhatsThis::textFor( w, e->pos(), FALSE );
+	if ( s.isEmpty() )
+	    w = w->parentWidget(TRUE);
+    }
     if ( !s.isEmpty() ) {
 	QPopupMenu p(0,"qt_whats_this_menu");
 	p.insertItem( tr("What's This?"), 42 );
 	if ( p.exec( e->globalPos() ) >= 42 )
-	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ) );
+	    QWhatsThis::display( s, w->mapToGlobal( w->rect().center() ), w );
     }
 #endif
 }
