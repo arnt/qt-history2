@@ -17,7 +17,7 @@ int main( int argc, char **argv )
     translator.load( "tt1_la", "." );
     app.installTranslator( &translator );
 
-    QPushButton hello( QPushButton::tr( "Hello world!" ), 0 );
+    QPushButton hello( QPushButton::tr("Hello world!"), 0 );
 
     app.setMainWidget( &hello );
     hello.show();

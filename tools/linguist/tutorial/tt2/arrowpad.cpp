@@ -15,13 +15,13 @@ ArrowPad::ArrowPad( QWidget *parent, const char *name )
     setSpacing( 10 );
 
     skip();
-    (void) new QPushButton( tr( "&Up" ), this );
+    (void) new QPushButton( tr("&Up"), this );
     skip();
-    (void) new QPushButton( tr( "&Left" ), this );
+    (void) new QPushButton( tr("&Left"), this );
     skip();
-    (void) new QPushButton( tr( "&Right" ), this );
+    (void) new QPushButton( tr("&Right"), this );
     skip();
-    (void) new QPushButton( tr( "&Down" ), this );
+    (void) new QPushButton( tr("&Down"), this );
     skip();
 }
 
