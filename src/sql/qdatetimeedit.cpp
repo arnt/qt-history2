@@ -473,7 +473,7 @@ QDate QDateEdit::date() const
 }
 
 /*! \fn void valueChanged( const QDate& )
-  
+
   This signal is emitted every time the date changes.  The argument is
   the new date.
 */
@@ -565,11 +565,14 @@ bool QDateEdit::event( QEvent* e )
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	QKeyEvent *ke = (QKeyEvent*)e;
+	QDate newDate = date();
 	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-	    QDate newDate = date();
 	    if ( newDate != oldDate ) {
 		emit valueChanged( newDate );
 	    }
+	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    if ( newDate != oldDate )
+		emit valueChanged( newDate );
 	}
     }
     break;
@@ -696,11 +699,13 @@ bool QTimeEdit::event( QEvent* e )
     switch ( e->type() ) {
     case QEvent::KeyPress: {
 	QKeyEvent *ke = (QKeyEvent*)e;
+	QTime newTime = time();
 	if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
-	    QTime newTime = time();
-	    if ( newTime != oldTime ) {
+	    if ( newTime != oldTime )
 		emit valueChanged( newTime );
-	    }
+	} else if ( ke->key() == Key_Return || ke->key() == Key_Enter ) {
+	    if ( newTime != oldTime )
+		emit valueChanged( newTime );
 	}
     }
     break;
@@ -709,8 +714,8 @@ bool QTimeEdit::event( QEvent* e )
     }
     return QDateTimeEditBase::event( e );
 }
-  
-  
+
+
 /*! \reimp
  */
 void QTimeEdit::resizeEvent( QResizeEvent * )
