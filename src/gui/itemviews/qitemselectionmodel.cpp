@@ -504,7 +504,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 */
 
 /*!
-    \fn void QItemSelectionModel::selectionChanged(const QItemSelection &deselected, const QItemSelection &selected)
+    \fn void QItemSelectionModel::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
 
     This signal is emitted whenever the selection changes. The change in the
     selection is represented as an item selection of \a deselected items and
@@ -576,7 +576,7 @@ void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags
     // generate new selection, compare with old and emit selectionChanged()
     QItemSelection newSelection = d->ranges;
     newSelection.merge(d->currentSelection, d->currentCommand);
-    emitSelectionChanged(old, newSelection);
+    emitSelectionChanged(newSelection, old);
     return;
 }
 
@@ -591,7 +591,7 @@ void QItemSelectionModel::clear()
     selection.merge(d->currentSelection, d->currentCommand);
     d->ranges.clear();
     d->currentSelection.clear();
-    emit selectionChanged(selection, QItemSelection());
+    emit selectionChanged(QItemSelection(), selection);
     QModelIndex old = d->currentIndex;
     d->currentIndex = QPersistentModelIndex();
     emit currentChanged(old, d->currentIndex);
@@ -786,11 +786,11 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 }
 
 /*!
-  Compares the two selections \a oldSelection and \a newSelection
+  Compares the two selections \a newSelection and \a oldSelection
   and emits selectionChanged() with the deselected and selected items.
 */
-void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelection,
-                                               const QItemSelection &newSelection )
+void QItemSelectionModel::emitSelectionChanged(const QItemSelection &newSelection,
+                                               const QItemSelection &oldSelection)
 {
     // if both selections are empty or equal we return
     if ((oldSelection.isEmpty() && newSelection.isEmpty()) ||
@@ -799,7 +799,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
 
     // if either selection is empty we do not need to compare
     if (oldSelection.isEmpty() || newSelection.isEmpty()) {
-        emit selectionChanged(oldSelection, newSelection);
+        emit selectionChanged(newSelection, oldSelection);
         return;
     }
 
@@ -854,7 +854,7 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
         }
     }
 
-    emit selectionChanged(deselected, selected);
+    emit selectionChanged(selected, deselected);
 }
 
 void QItemSelectionModelPrivate::init()

@@ -120,13 +120,13 @@ public slots:
     virtual void reset();
 
 signals:
-    void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
-    void currentChanged(const QModelIndex &oldItem, const QModelIndex &newItem);
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void currentChanged(const QModelIndex &newItem, const QModelIndex &oldItem);
 
 protected:
     QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model,
                         QObject *parent = 0);
-    void emitSelectionChanged(const QItemSelection &oldSelection, const QItemSelection &newSelection);
+    void emitSelectionChanged(const QItemSelection &newSelection, const QItemSelection &oldSelection);
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);

@@ -1485,8 +1485,8 @@ void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
     selection (which may be empty), is specified by \a deselected, and the
     new selection by \a selected.
 */
-void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
-                                         const QItemSelection &selected)
+void QAbstractItemView::selectionChanged(const QItemSelection &selected,
+                                         const QItemSelection &deselected)
 {
     QRect deselectedRect = selectionViewportRect(deselected);
     QRect selectedRect = selectionViewportRect(selected);

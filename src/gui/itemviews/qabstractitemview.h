@@ -46,7 +46,7 @@ public:
         SelectRows,
         SelectColumns
     };
-    
+
     enum BeginEditAction {
         NeverEdit = 0,
         CurrentChanged = 1,
@@ -115,7 +115,7 @@ protected slots:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void rowsInserted(const QModelIndex &parent, int start, int end);
     virtual void rowsRemoved(const QModelIndex &parent, int start, int end);
-    virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
+    virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
     virtual void updateEditorData();
     virtual void updateEditorGeometries();
