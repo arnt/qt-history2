@@ -78,7 +78,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 				    QPainter *p,
 				    const QRect &r,
 				    const QColorGroup &cg,
-				    PFlags flags,
+				    SFlags flags,
 				    void **data ) const
 {
     switch (pe) {
@@ -87,7 +87,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	if ( r.width() * r.height() < 1600 ||
 	     QABS(r.width() - r.height()) > 10 ) {
 	    // small buttons
-	
+
 	    if ( !(flags & PStyle_Sunken) ) {
 		p->fillRect( r.x() + 2, r.y() + 2, r.width() - 4,
 			     r.height() - 4, cg.brush( QColorGroup::Button ) );
@@ -104,26 +104,26 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		p->drawLine( r.x() + 1, r.y() + 1,
 			     r.x() + 1, r.y() + r.height() - 2 );
 
-		
-		
+
+
 // 		p->drawLine( r.x(), r.y(),
 // 			     r.x() + r.width() - 1, r.y() );
 // 		p->drawLine( r.x() + 1, r.y(),
 // 			     r.x(), r.y() + r.height() - 1 );
-		
+
 // 		p->setPen( cg.light() );
 // 		p->drawLine( r.x() + 1, r.y() + 1,
 // 			     r.x() + r.width() - 2, r.y() + 1 );
 // 		p->drawLine( r.x() + 1, r.y() + 1,
 // 			     r.x() + 1, r.y() + r.height() - 2 );
-		
+
 		// the dark side
 		p->setPen( cg.mid() );
 		p->drawLine( r.x() + 2, r.y() + r.height() - 2,
 			     r.x() + r.width() - 2, r.y() + r.height() - 2 );
 		p->drawLine( r.x() + r.width() - 2, r.y() + 2,
 			     r.x() + r.width() - 2, r.y() + r.height() - 3 );
-		
+
 		p->setPen( cg.dark().dark() );
 		p->drawLine( r.x() + 1, r.y() + r.height() - 1,
 			     r.x() + r.width() - 1, r.y() + r.height() - 1 );
@@ -164,12 +164,12 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    if ( !(flags & PStyle_Sunken) ) {
 		p->fillRect( r.x() + 3, r.y() + 3, r.width() - 6,
 			     r.height() - 6, cg.brush(QColorGroup::Button) );
-		
+
 		// the bright side
 		p->setPen( cg.button().dark() );
 		p->drawLine( r.x(), r.y(), r.x() + r.width() - 1, r.y() );
 		p->drawLine( r.x(), r.y(), r.x(), r.y() + r.height() - 1 );
-		
+
 		p->setPen( cg.button() );
 		p->drawLine( r.x() + 1, r.y() + 1,
 			     r.x() + r.width() - 2, r.y() + 1 );
@@ -246,11 +246,11 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen( mixedColor(cg.dark().dark().dark(), cg.dark()) );
 		p->drawPoint( r.x(), r.y() + r.height() - 1 );
 		p->drawPoint( r.x() + r.width() - 1, r.y() );
-		
+
 		p->setPen( mixedColor(cg.dark().dark(), cg.midlight()) );
 		p->drawPoint( r.x() + 1, r.y() + r.height() - 2 );
 		p->drawPoint( r.x() + r.width() - 2, r.y() + 1 );
-		
+
 		p->setPen( mixedColor(cg.mid().dark(), cg.button() ) );
 		p->drawPoint( r.x() + 2, r.y() + r.height() - 3 );
 		p->drawPoint( r.x() + r.width() - 3, r.y() + 2 );
@@ -350,18 +350,18 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		    p->setPen(cg.shadow());
 		    p->drawLine(x, y, x+w-1, y);
 		    p->drawLine(x, y, x, y+h-1);
-		
+
 		    p->setPen(cg.dark().dark());
 		    p->drawLine(x+1, y+1, x+w-2, y+1);
 		    p->drawLine(x+1, y+1, x+1, y+h-2);
-		
-		
+
+
 		    // the bright side!
 
 		    p->setPen(cg.button());
 		    p->drawLine(x+1, y+h-2 ,x+w-2, y+h-2);
 		    p->drawLine(x+w-2, y+1, x+w-2, y+h-2);
-		
+
 		    p->setPen(cg.dark());
 		    p->drawLine(x, y+h-1,x+w-1, y+h-1);
 		    p->drawLine(x+w-1, y, x+w-1, y+h-1);
@@ -400,8 +400,8 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 		    p->drawPoint(x+w-3, y+h-3);
 		    p->setPen(cg.mid());
 		    p->drawPoint(x+w-4, y+h-4);
-		
-		
+
+
 		}
 
 
@@ -417,7 +417,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	QWindowsStyle::drawPrimitive( pe, p, r, cg, flags, data );
 	break;
     }
-	
+
 }
 
 void QPlatinumStyle::drawControl( ControlElement element,
@@ -425,7 +425,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 				  const QWidget *widget,
 				  const QRect &r,
 				  const QColorGroup &cg,
-				  CFlags how,
+				  SFlags how,
 				  void **data ) const
 {
     switch( element ) {
@@ -444,14 +444,14 @@ void QPlatinumStyle::drawControl( ControlElement element,
 // 	    flags |= PStyle_On;
 // 	if ( ! btn->isFlat() && ! (flags & PStyle_Down) )
 // 	    flags |= PStyle_Raised;
-	
-	
+
+
 	btn = (const QPushButton*)widget;
 	r.coords( &x1, &y1, &x2, &y2 );
-	
+
 	p->setPen( cg.foreground() );
 	p->setBrush( QBrush(cg.button(), NoBrush) );
-	
+
 	QBrush fill;
 	if ( btn->isDown() ) {
 	    fill = cg.brush( QColorGroup::Dark );
@@ -476,7 +476,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    useBevelButton = TRUE;
 	else
 	    useBevelButton = FALSE;
-	
+
 	int diw = pixelMetric( PM_ButtonDefaultIndicator, widget );
 	if ( btn->isDefault() ) {
 	    qDebug( "default" );
@@ -496,14 +496,14 @@ void QPlatinumStyle::drawControl( ControlElement element,
 							   y2 - y1 + 1 ),
 			       cg2, flags, data );
 	}
-	
+
 	if ( btn->isDefault() || btn->autoDefault() ) {
 	    x1 += diw;
 	    y1 += diw;
 	    x2 -= diw;
 	    y2 -= diw;
 	}
-	
+
 	if ( !btn->isFlat() || btn->isOn() || btn->isDown() ) {
 	    if ( useBevelButton ) {
 		if ( btn->isOn() || btn->isDown() )
@@ -519,8 +519,8 @@ void QPlatinumStyle::drawControl( ControlElement element,
 			       myCg, flags, data );
 	    }
 	}
-	
-	
+
+
 	if ( p->brush().style() != NoBrush )
 	    p->setBrush( NoBrush );
 	break; }
@@ -535,12 +535,12 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	r.rect( &x, &y, &w, &h );
 	if ( btn->isMenuButton() ) {
 	    int dx = pixelMetric( PM_MenuButtonIndicator, widget );
-	
+
 	    QColorGroup g = cg;
 	    int xx = x + w - dx - 4;
 	    int yy = y - 3;
 	    int hh = h + 6;
-	
+
 	    if ( !on ) {
 		p->setPen( g.mid() );
 		p->drawLine( xx, yy + 2, xx, yy + hh - 3 );
@@ -556,7 +556,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 			   g, flags, data );
 	    w -= dx;
 	}
-	
+
 	if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
 	    QIconSet::Mode mode = btn->isEnabled()
 				  ? QIconSet::Normal : QIconSet::Disabled;
@@ -573,7 +573,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    x += pixw + 4;
 	    w -= pixw + 4;
 	}
-	
+
 	drawItem( p, QRect( x, y, w, h ),
 		  AlignCenter | ShowPrefix,
 		  btn->colorGroup(), btn->isEnabled(),
@@ -584,7 +584,7 @@ void QPlatinumStyle::drawControl( ControlElement element,
 	    drawPrimitive( PE_FocusRect, p,
 			   subRect(SR_PushButtonFocusRect, widget),
 			   cg, flags );
-	break; }	
+	break; }
     default:
 	QWindowsStyle::drawControl( element, p, widget, r, cg, how, data );
 	break;
@@ -596,7 +596,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
 					 const QWidget *widget,
 					 const QRect &r,
 					 const QColorGroup &cg,
-					 CFlags flags,
+					 SFlags how,
 					 SCFlags sub,
 					 SCFlags subActive,
 					 void **data ) const
@@ -604,7 +604,7 @@ void QPlatinumStyle::drawComplexControl( ComplexControl control,
     switch ( control ) {
     default:
 	QWindowsStyle::drawComplexControl( control, p, widget, r, cg,
-					   flags, sub, subActive, data );
+					   how, sub, subActive, data );
 	break;
     }
 }
