@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.21 1997/10/08 15:53:00 agulbra Exp $
+** $Id: misc.doc,v 2.22 1997/11/24 07:49:12 aavit Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.21 1997/10/08 15:53:00 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.22 1997/11/24 07:49:12 aavit Exp $";
 #endif
 
 
@@ -17,7 +17,7 @@ static char ident[] = "$Id: misc.doc,v 2.21 1997/10/08 15:53:00 agulbra Exp $";
 <title>Qt License Statement</title>
 </head><body bgcolor="#ffffff">
 <p>
-This is the free software license for Qt version 1.30; it mainly
+This is the free software license for Qt version 1.31; it mainly
 covers development of free software for the free software community.
 We believe that it does not constrain development of free software
 noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
