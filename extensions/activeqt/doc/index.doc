@@ -320,10 +320,10 @@
     \i QPixmap&
     \i [in, out] IPictureDisp**
     \row
-    \i QValueList<QVariant>, const QValueList<QVariant>&
+    \i QValueList\<QVariant\>, const QValueList\<QVariant\>&
     \i [in] SAFEARRAY(VARIANT)
     \row
-    \i QValueList<QVariant>&
+    \i QValueList\<QVariant\>&
     \i [in, out] SAFEARRAY(VARIANT)*
     \endtable
 
