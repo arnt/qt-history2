@@ -42,6 +42,13 @@ public:
     int rowCount() const;
     QVariant data(const QModelIndex &index, int role) const;
 
+    inline QStringList list()  const { return lst; }
+    inline void setList(const QStringList &l) {
+        lst = l;
+        emit reset();
+    }
+
+private:
     QStringList lst;
 };
 
@@ -67,7 +74,9 @@ class QFontListView : public QListView
     Q_OBJECT
 public:
     QFontListView(QWidget *parent);
-    inline QFontListModel *model() const { return static_cast<QFontListModel *>(QListView::model()); }
+    inline QFontListModel *model() const {
+        return static_cast<QFontListModel *>(QListView::model());
+    }
     inline void setCurrentItem(int item) {
         QListView::setCurrentIndex(static_cast<QAbstractItemModel*>(model())->index(item, 0));
     }
@@ -79,13 +88,13 @@ public:
     }
     inline QString currentText() const {
         int row = QListView::currentIndex().row();
-        return row < 0 ? QString() : model()->lst.at(row);
+        return row < 0 ? QString() : model()->list().at(row);
     }
     void currentChanged(const QModelIndex &current, const QModelIndex &) {
         emit highlighted(current.row());
     }
     QString text(int i) const {
-        return model()->lst.at(i);
+        return model()->list().at(i);
     }
 signals:
     void highlighted(int);
@@ -524,7 +533,7 @@ void QFontDialog::updateFamilies()
 
     familyNames.sort();
 
-    d->familyList->model()->lst = familyNames;
+    d->familyList->model()->setList(familyNames);
 
     QString foundryName1, familyName1, foundryName2, familyName2;
     int bestFamilyMatch = -1;
@@ -590,7 +599,7 @@ void QFontDialog::updateStyles()
 
 
     QStringList styles = d->fdb.styles(d->familyList->currentText());
-    d->styleList->model()->lst = styles;
+    d->styleList->model()->setList(styles);
 
     if (styles.isEmpty()) {
         d->styleEdit->clear();
@@ -658,7 +667,7 @@ void QFontDialog::updateSizes()
                 current = i;
             ++i;
         }
-        d->sizeList->model()->lst = str_sizes;
+        d->sizeList->model()->setList(str_sizes);
         if (current == -1)
             // we request a size bigger than the ones in the list, select the biggest one
             current = d->sizeList->count() - 1;

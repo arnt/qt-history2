@@ -1559,6 +1559,9 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
             return QListViewItem();
 
     // movement == Static
+    if (xposVector.count() == 0 || yposVector.count() == 0)
+        return QListViewItem();
+
     if ((flow == QListView::LeftToRight && index.row() >= xposVector.count())
         ||(flow == QListView::TopToBottom && index.row() >= yposVector.count()))
         return QListViewItem();
