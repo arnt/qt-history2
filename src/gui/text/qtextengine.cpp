@@ -1174,7 +1174,7 @@ void set(JustificationPoint *point, int type, QGlyphLayout *glyph, QFontEngine *
 	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
 	fe->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
-	if (glyphs[0].glyph) {
+	if (glyphs[0].glyph && glyphs[0].advance.x.value()) {
 	    point->kashidaWidth = glyphs[0].advance.x.value();
 	} else {
 	    point->type = QGlyphLayout::NoJustification;
@@ -1208,6 +1208,8 @@ void QTextEngine::justify(const QScriptLine &line)
     const QCharAttributes *a = attributes()+line.from;
     while (line_length && a[line_length-1].whiteSpace)
 	--line_length;
+    // subtract one char more, as we can't justfy after the last character
+    --line_length;
 
     if (!line_length) {
 	line.justified = true;
@@ -1219,7 +1221,7 @@ void QTextEngine::justify(const QScriptLine &line)
 
     QVarLengthArray<JustificationPoint> justificationPoints;
     int nPoints = 0;
-//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, length, firstItem, nItems);
+//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line_length, firstItem, nItems);
     Q26Dot6 minKashida = 0x100000;
 
     for (int i = 0; i < nItems; ++i) {
@@ -1253,7 +1255,7 @@ void QTextEngine::justify(const QScriptLine &line)
 		// fall through
 	    case QGlyphLayout::Arabic_Space   :
 		if (kashida_pos >= 0) {
-		    qDebug("kashida position at %d in word", kashida_pos);
+// 		    qDebug("kashida position at %d in word", kashida_pos);
 		    set(&justificationPoints[nPoints], kashida_type, g+kashida_pos, fontEngine(si));
 		    minKashida = qMin(minKashida, Q26Dot6(justificationPoints[nPoints].kashidaWidth, F26Dot6));
 		    maxJustify = qMax(maxJustify, justificationPoints[nPoints].type);
@@ -1330,7 +1332,7 @@ void QTextEngine::justify(const QScriptLine &line)
 	    if (justificationPoints[i].type == type)
 		++n;
 	}
-// 	qDebug("number of points for justification type %d: %d", type, n);
+//  	qDebug("number of points for justification type %d: %d", type, n);
 
 	if (!n)
 	    continue;
@@ -1338,7 +1340,7 @@ void QTextEngine::justify(const QScriptLine &line)
 	for (int i = 0; i < nPoints; ++i) {
 	    if (justificationPoints[i].type == type) {
 		Q26Dot6 add = need/n;
-// 		qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
+ 		qDebug("adding %x to glyph %x", add.value(), justificationPoints[i].glyph->glyph);
 		justificationPoints[i].glyph->space_18d6 = add.value();
 		need -= add;
 		--n;

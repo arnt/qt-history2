@@ -114,7 +114,7 @@ bool QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs,
 	return false;
     }
 
-    memset(glyphs, 0, len * sizeof(glyph_t));
+    memset(glyphs, 0, len * sizeof(QGlyphLayout));
 
     for ( int i = 0; i < len; i++ ) {
 	(glyphs++)->advance.x = _size;
@@ -400,12 +400,35 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
     if ( si.right_to_left ) {
 	int i = si.num_glyphs;
 	while( i-- ) {
-	    // 	    qDebug("advance = %d/%d", adv.x, adv.y );
-	    x += glyphs[i].advance.x;
-	    glyph_metrics_t gi = boundingBox( glyphs[i].glyph );
-	    int xp = (x-glyphs[i].offset.x-gi.xoff).toInt();
-	    int yp = (y+glyphs[i].offset.y-gi.yoff).toInt();
+	    x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
+	    y += glyphs[i].advance.y;
+	}
+	i = 0;
+	while( i < si.num_glyphs ) {
+	    x -= glyphs[i].advance.x;
+	    y -= glyphs[i].advance.y;
+
+	    int xp = (x+glyphs[i].offset.x).toInt();
+	    int yp = (y+glyphs[i].offset.y).toInt();
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+
+	    if (glyphs[i].nKashidas) {
+		QChar ch(0x640); // Kashida character
+		QGlyphLayout g[8];
+		int nglyphs = 7;
+		stringToCMap( &ch, 1, g, &nglyphs, 0 );
+		for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
+		    x -= g[0].advance.x;
+		    y -= g[0].advance.y;
+
+		    int xp = (x+g[0].offset.x).toInt();
+		    int yp = (y+g[0].offset.y).toInt();
+		    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
+		}
+	    } else {
+		x -= Q26Dot6(glyphs[i].space_18d6, F26Dot6);
+	    }
+	    ++i;
 	}
     } else {
 	int i = 0;
@@ -413,7 +436,8 @@ void QFontEngineXLFD::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem
 	    int xp = (x+glyphs[i].offset.x).toInt();
 	    int yp = (y+glyphs[i].offset.y).toInt();
 	    XDrawString16(dpy, hd, gc, xp, yp, chars+i, 1 );
-	    x += glyphs[i].advance.x;
+	    x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
+	    y += glyphs[i].advance.y;
 	    i++;
 	}
     }
@@ -1363,6 +1387,8 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 		    glyphSpec[nGlyphs].glyph = g[0].glyph;
 		    ++nGlyphs;
 		}
+	    } else {
+		pos.x -= Q26Dot6(glyphs[i].space_18d6, F26Dot6);
 	    }
 #ifdef FONTENGINE_DEBUG
 	    glyph_metrics_t ci = boundingBox( glyphs[i].glyph );
@@ -1391,7 +1417,7 @@ void QFontEngineXft::draw( QPaintEngine *p, int xpos, int ypos, const QTextItem 
 		   glyphs[i].offset.x.toInt(), glyphs[i].offset.y.toInt(), glyphs[i].advance.x.toInt(), glyphs[i].advance.y.toInt());
 #endif
 
-	    pos.x += glyphs[i].advance.x;
+	    pos.x += glyphs[i].advance.x + Q26Dot6(glyphs[i].space_18d6, F26Dot6);
 	    pos.y += glyphs[i].advance.y;
 	    ++i;
 	}
