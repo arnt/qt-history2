@@ -836,7 +836,7 @@ static void checkParams( const FunctionDecl *funcDecl,
     if ( fn == 0 )
 	return;
 
-    if ( funcDecl->internal() )
+    if ( funcDecl->internal() || funcDecl->obsolete() )
 	return;
 
     StringSet diff;
