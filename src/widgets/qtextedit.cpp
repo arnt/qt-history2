@@ -5153,7 +5153,7 @@ void QTextEdit::optimSetText( const QString &str )
 	QStringList strl = QStringList::split( '\n', str, TRUE );
 	int lWidth = 0;
 	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
-	    optimParseTags( &*it );
+ 	    optimParseTags( &*it );
 	    d->od->lines[ d->od->numLines++ ] = *it;
 	    lWidth = fm.width( *it );
 	    if ( lWidth > d->od->maxLineWidth )
@@ -5325,9 +5325,9 @@ void QTextEdit::optimParseTags( QString * line )
 		    tag->italic = italic > 0;
 		    tag->underline = underline > 0;
 		    tmp = tag->prev;
-		    while ( tmp && tmp->leftTag ) {
-			tmp = tmp->leftTag->prev;
-		    }
+ 		    while ( tmp && tmp->leftTag ) {
+ 			tmp = tmp->leftTag->parent;
+ 		    }
 		    if ( tmp ) {
 			tag->bold |= tmp->bold;
 			tag->italic |= tmp->italic;
@@ -5369,7 +5369,7 @@ void QTextEdit::optimAppend( const QString &str )
     QFontMetrics fm( QScrollView::font() );
     int lWidth = 0;
     for ( ; it != strl.end(); ++it ) {
-	optimParseTags( &*it );
+ 	optimParseTags( &*it );
 	d->od->lines[ d->od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
 	if ( lWidth > d->od->maxLineWidth )
@@ -5511,8 +5511,7 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 		    tmp = tag->prev->parent;
 		}
 		if ( (tag->index - lastIndex) > 0 && tmp ) {
-		    optimSetTextFormat( td, &cur, &f, lastIndex, tag->index,
-					tmp );
+		    optimSetTextFormat( td, &cur, &f, lastIndex, tag->index, tmp );
 		}
 		lastIndex = tag->index;
 		tmp = tag;
