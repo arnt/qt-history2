@@ -385,7 +385,6 @@ FROMMAKE=
 QMAKE_PROJECTS=""
 QMAKE_IGNORE_PROJECTS=""
 CONCURRENT=0
-LIBDL=auto
 
 #qt installs
 QT_INSTALL_PREFIX=/usr/local/qt
@@ -1222,15 +1221,6 @@ fi
 
 if true #[ '!' -f "$outpath/bin/qmake" ]
 then
-    # look for platforms without libdl
-    case "$PLATFORM" in
-    macx-*|*bsd-*|tru64-*)
-	LIBDL=no
-	;;
-    *)
-	;;
-    esac
-
     echo "Creating qmake. Please wait..."
     #fix makefiles
     for mkfile in GNUmakefile Makefile
@@ -1248,8 +1238,6 @@ then
 	echo "########################################################################" >>$mkfile
 	grep "QMAKE_CC[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CC,CC," >>$mkfile
 	grep "QMAKE_CXX[^_A-Z0-9]" $QMAKESPEC/qmake.conf | sed "s,QMAKE_CXX,CXX," >>$mkfile
-	grep "QMAKE_LIBS_DYNLOAD" $QMAKESPEC/qmake.conf | sed "s,QMAKE_LIBS_,," >>$mkfile
-	EXTRA_LFLAGS="$EXTRA_LFLAGS \$(DYNLOAD)"
 	if [ "$DEBUG" = "yes" ]; then
           grep "QMAKE_CFLAGS_DEBUG[^_A-Z0-9]" $QMAKESPEC/qmake.conf >> $mkfile
 	  EXTRA_CFLAGS="$EXTRA_CFLAGS \$(QMAKE_CFLAGS_DEBUG)"
@@ -1263,7 +1251,7 @@ then
        echo >>$mkfile
 	sed -e "s,@REL_QTDIR@,$relpath,g" -e "s,@OUT_QTDIR@,$outpath,g" \
 	    -e "s,@QMAKE_CFLAGS@,$EXTRA_CFLAGS," -e "s,@QMAKE_LFLAGS@,$EXTRA_LFLAGS," \
-	    -e "s,@QMAKE_LIBRARIES@,$DYLIB_LINK,g" -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
+	    -e "s,@QMAKESPEC@,$QMAKESPEC,g" $in_mkfile >>$mkfile
     done
 
     (cd $outpath/qmake; /bin/sh -c "$MAKE" || (echo "QMake failed to build. Aborting." && exit 2)) || exit 2

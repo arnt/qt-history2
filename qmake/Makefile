@@ -37,7 +37,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qlibrary.obj qtextcodec.obj
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qtextcodec.obj
 
 
 
@@ -125,9 +125,6 @@ qfileinfo.obj: $(QTDIR)\src\tools\qfileinfo.cpp
 
 qdatetime.obj: $(QTDIR)\src\tools\qdatetime.cpp
 	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qdatetime.cpp
-
-qlibrary.obj: $(QTDIR)\src\tools\qlibrary.cpp
-	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qlibrary.cpp
 
 qstringlist.obj: $(QTDIR)\src\tools\qstringlist.cpp
 	$(CXX) $(CFLAGS) $(QTDIR)\src\tools\qstringlist.cpp
