@@ -2166,7 +2166,10 @@ QByteArray QString::toAscii() const
 		new (&d->c) QByteArray;
 	    d->cache = true;
 	    d->encoding = Data::Ascii;
-	    *ba = QTextCodec::codecForCStrings()->fromUnicode( *this );
+	    if (d == &shared_null)
+		ba->clear();
+	    else
+		*ba = QTextCodec::codecForCStrings()->fromUnicode( *this );
 	}
 	return *ba;
     }
@@ -2184,7 +2187,10 @@ QByteArray QString::toLocal8Bit() const
 		new (&d->c) QByteArray;
 	    d->cache = true;
 	    d->encoding = Data::Local8Bit;
-	    *ba = QTextCodec::codecForLocale()->fromUnicode( *this );
+	    if (d == &shared_null)
+		ba->clear();
+	    else
+		*ba = QTextCodec::codecForLocale()->fromUnicode( *this );
 	}
 	return *ba;
     }
