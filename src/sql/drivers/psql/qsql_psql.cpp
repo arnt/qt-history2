@@ -292,7 +292,7 @@ QVariant QPSQLResult::data( int i )
 	}
     case QVariant::Int:
 	if ( ptype == INT8OID )
-	    // keep these as strings so we don't loose precision
+	    // keep these as strings so we don't lose precision
 	    return QVariant( val );
 	return QVariant( val.toInt() );
     case QVariant::Double:
@@ -322,9 +322,8 @@ QVariant QPSQLResult::data( int i )
 	if ( val.find( "+", val.length() - 3 ) >= 0 )
 	    val = val.left( val.length() - 3 );
 	// for some reasons the milliseconds are sometimes only 2 digits
-	// (12 instead of 120)
 	if ( val.find( ".", val.length() - 3 ) >= 0 )
-	    val += "0";
+	    val = "0" + val;
 	if ( val.isEmpty() ) {
 	    return QVariant( QDateTime() );
 	} else {
