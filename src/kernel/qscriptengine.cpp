@@ -854,7 +854,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
-#if defined( QT_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
 static void openTypeShape( int script, const QOpenType *openType, const QString &string, int from,
 			   int len, QScriptItem *item )
 {
@@ -901,7 +901,7 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 
 static void arabic_shape( int /*script*/, const QString &string, int from, int len, QScriptItem *si )
 {
-#if defined( QT_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
     QOpenType *openType = si->fontEngine->openType();
 
     if ( openType && openType->supportsScript( QFont::Arabic ) ) {
