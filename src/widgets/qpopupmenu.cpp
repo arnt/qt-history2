@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#233 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#234 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -809,6 +809,12 @@ void QPopupMenu::closeEvent( QCloseEvent * e) {
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
+    QWidget* w;
+    while ( (w = qApp->activePopupWidget() ) && w != this ){
+	    w->close();
+	    if (qApp->activePopupWidget() == w) // widget does not want to dissappear
+		w->close(TRUE); // no chance
+    }
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
     if ( item == -1 ) {
@@ -1256,6 +1262,8 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
     if ( !qApp )
 	return -1;
 
+    QPopupMenu* priorSyncMenu = syncMenu;
+    
     syncMenu = this;
     syncMenuId = -1;
 
@@ -1264,7 +1272,7 @@ int QPopupMenu::exec( const QPoint & pos, int indexAtPoint )
     qApp->enter_loop();
     connectModal( this, FALSE );
 
-    syncMenu = 0;
+    syncMenu = priorSyncMenu;
     return syncMenuId;
 }
 
