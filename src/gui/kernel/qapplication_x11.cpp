@@ -4375,7 +4375,7 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     }
     if (count < (int)chars.size()-1)
         chars[count] = '\0';
-    tlw = 0;
+    // tlw = 0;
 #endif // !QT_NO_XIM
 
     // convert chars (8bit) to text (unicode).
