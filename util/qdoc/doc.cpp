@@ -162,6 +162,27 @@ static QString getRestOfLine( const QString& in, int& pos )
     return t;
 }
 
+static QString getPrototype( const QString& in, int& pos )
+{
+    skipSpaces( in, pos );
+    int begin = pos;
+    int level = 0;
+    int ch;
+    while ( pos < (int) in.length() &&
+	    ((ch = in[pos].unicode()) != '\n' || level > 0) )
+    {
+	if ( ch == '(' )
+	    level++;
+	else if ( ch == ')' )
+	    level--;
+	pos++;
+    }
+
+    QString t = in.mid( begin, pos - begin );
+    skipSpacesOrNL( in, pos );
+    return t;
+}
+
 static QString getArgument( const QString& in, int& pos )
 {
     int parenDepth = 0;
@@ -211,7 +232,7 @@ static QString getArgument( const QString& in, int& pos )
 
 /*
   The DocParser class is an internal class that implements the first pass of
-  doc comment parsing.  (See Doc::finalHtml() for the second pass.)
+  doc parsing.  (See Doc::finalHtml() for the second pass.)
 */
 class DocParser
 {
@@ -523,17 +544,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    case hash( 'f', 2 ):
 		consume( "fn" );
 		// see also \overload
-		begin = yyPos;
-		while ( yyPos < yyLen && yyIn[yyPos].unicode() != '\n' )
-		    yyPos++;
-		if ( yyPos > begin ) {
-		    prototype = yyIn.mid( begin, yyPos - begin );
-		    if ( prototype.isEmpty() )
-			warning( 2, location(),
-				 "Expected function prototype after '\\fn'" );
-		    else
-			setKind( Doc::Fn, command );
-		}
+		prototype = getPrototype( yyIn, yyPos );
+		if ( prototype.isEmpty() )
+		    warning( 2, location(),
+			     "Expected function prototype after '\\fn'" );
+		else
+		    setKind( Doc::Fn, command );
 		break;
 	    case hash( 'h', 6 ):
 		consume( "header" );
@@ -656,9 +672,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += QString( "<b>This %1 is obsolete.</b> It is"
 				      " provided to keep old source working,"
 				      " and will probably be removed in a"
-				      " future version of Qt.  We strongly"
+				      " future version of %2.  We strongly"
 				      " advise against using it in new"
-				      " code.\n" ).arg( what(kindIs) );
+				      " code.\n" ).arg( what(kindIs) )
+						  .arg( config->moduleShort() );
 		    metNL = TRUE;
 		} else {
 		    consume( "overload" );
@@ -670,11 +687,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    metNL = TRUE;
 
 		    // see also \fn
-		    begin = yyPos;
-		    while ( yyPos < yyLen && yyIn[yyPos].unicode() != '\n' )
-			yyPos++;
-		    if ( yyPos > begin )
-			prototype = yyIn.mid( begin, yyPos - begin );
+		    if ( prototype.isEmpty() )
+			prototype = getPrototype( yyIn, yyPos );
 		    if ( kindIs != Doc::Fn )
 			setKind( Doc::Fn, command );
 		}
@@ -784,8 +798,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     if ( kindIs == Doc::Null ) {
 	if ( kindHasToBe != Doc::Null && kindHasToBe != Doc::Fn )
-	    warning( 3, loc, "Unexpected '%s' in doc comment",
-		     clueCommand.latin1() );
+	    warning( 3, loc, "Unexpected '%s' in doc", clueCommand.latin1() );
 	kindIs = Doc::Fn;
     }
 
@@ -800,7 +813,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Class:
 	if ( briefBegin == -1 )
-	    warning( 2, loc, "No '\\brief' in '\\class' doc comment" );
+	    warning( 2, loc, "No '\\brief' in '\\class' doc" );
 	else
 	    brief = yyOut.mid( briefBegin, briefEnd - briefBegin )
 			 .stripWhiteSpace();
@@ -880,7 +893,7 @@ void DocParser::setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand )
 	clueCommand = thanksToCommand;
     } else if ( kindHasToBe != kind ) {
 	warning( 3, location(),
-		 "Cannot have both '\\%s' and '\\%s' in same doc comment",
+		 "Cannot have both '\\%s' and '\\%s' in same doc",
 		 clueCommand.latin1(), thanksToCommand.latin1() );
     }
 }
@@ -1265,11 +1278,9 @@ QString Doc::htmlClassList()
 		QMap<QString, QString>::Iterator first;
 		first = paragraph[currentParagraphNo[i]].begin();
 
-		QString text = *first;
-		if ( classext.contains(text) )
-		    text += QChar( '*' );
-
-		html += QString( "<td>%1\n" ).arg( href(*first, text) );
+		html += QString( "<td>%1\n" ).arg( href(*first) );
+		if ( classext.contains(*first) )
+		    html += QChar( '*' );
 
 		paragraph[currentParagraphNo[i]].remove( first );
 		currentOffset[i]++;
@@ -1284,7 +1295,7 @@ QString Doc::htmlAnnotatedClassList()
 {
     /*
       We fight hard just to go through the QMap in case-insensitive order.  In
-      Qt, this gets class Qt among the T's (and Quebec among the U's).
+      Qt, this gets class Qt among the t's and Quebec among the u's.
     */
     StringSet cset;
     QString html = QString( "<table>\n" );

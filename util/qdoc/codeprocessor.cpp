@@ -142,7 +142,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
     QMap<QString, StringSet>::Iterator c = cinherits.begin();
     while ( c != cinherits.end() ) {
 	/*
-	  A custom regular expression will find the right thing in a jiffy.
+	  A custom regular expression will find 'Class::memberX()' in a jiffy.
 	*/
 	QRegExp memberX( c.key() + QString(
 		"::([a-zA-Z_0-9]+)[ \n]*\\([^)]*(?:\\([^)]*\\)[^)]*)?\\)[ \n]*"

@@ -43,21 +43,19 @@ static void printHtmlShortMembers( HtmlWriter& out,
 {
     if ( !members.isEmpty() ) {
 	out.printfMeta( "<h2>%s</h2>\n", header.latin1() );
-	out.putsMeta( "<ul>" );
+	out.putsMeta( "<ul>\n" );
 
 	QValueList<Decl *>::ConstIterator m = members.begin();
 	while( m != members.end() ) {
-	    if( !config->isInternal() && (*m)->internal() ) {
-		++m;
-		continue;
+	    if ( config->isInternal() || !(*m)->internal() ) {
+		out.putsMeta( "<li><div class=fn>" );
+		(*m)->printHtmlShort( out );
+		if ( (*m)->internal() && (*m)->access() != Decl::Private )
+		    out.putsMeta( "&nbsp; <em>(internal)</em>" );
+		else if ( (*m)->obsolete() )
+		    out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
+		out.putsMeta( "</div></li>\n" );
 	    }
-	    out.putsMeta( "<li><div class=fn>" );
-	    (*m)->printHtmlShort( out );
-	    if ( (*m)->internal() )
-		out.putsMeta( "&nbsp; <em>(internal)</em>" );
-	    else if ( (*m)->obsolete() )
-		out.putsMeta( "&nbsp; <em>(obsolete)</em>" );
-	    out.putsMeta( "</div></li>\n" );
 	    ++m;
 	}
 	out.putsMeta( "</ul>\n" );
@@ -100,10 +98,11 @@ static void printHtmlLongMembers( HtmlWriter& out,
 
 	QMap<QString, Decl *>::ConstIterator m = members.begin();
 	while ( m != members.end() ) {
-	    if( !config->isInternal() && (*m)->internal() ) {
+	    if ( !config->isInternal() && (*m)->internal() ) {
 		++m;
 		continue;
 	    }
+
 	    out.putsMeta( "<h3 class=fn>" );
 	    (*m)->printHtmlLong( out );
 	    out.putsMeta( "</h3>" );
@@ -197,7 +196,7 @@ static void fillInImportantChildren( ClassDecl *classDecl,
     stack.push( classDecl );
     while ( !stack.isEmpty() ) {
 	QValueList<CodeChunk>::ConstIterator st;
-	const ClassDecl *c = stack.pop(); // ### rename top
+	const ClassDecl *c = stack.pop();
 
 	st = c->superTypes().begin();
 	while ( st != c->superTypes().end() ) {
@@ -258,8 +257,8 @@ QString Decl::anchor( const QString& name )
 void Decl::setDoc( Doc *doc )
 {
     if ( d != 0 ) {
-	warning( 3, doc->location(), "Overrides a previous doc comment" );
-	warning( 3, d->location(), "(the previous comment is here)" );
+	warning( 3, doc->location(), "Overrides a previous doc" );
+	warning( 3, d->location(), "(the previous doc is here)" );
 	delete d;
     }
     d = doc;
@@ -352,6 +351,11 @@ void Decl::fillInDocs()
 	(*child)->fillInDocs();
 	++child;
     }
+}
+
+bool Decl::internal() const
+{
+    return access() == Private || ( doc() != 0 && doc()->internal() );
 }
 
 void Decl::setImportantChildren( const QValueList<Decl *>& important )
@@ -531,7 +535,7 @@ void ClassDecl::buildPlainSymbolTables()
 
     stack.push( this );
     while ( !stack.isEmpty() ) {
-	const ClassDecl *c = stack.pop(); // ### rename top
+	const ClassDecl *c = stack.pop();
 
 	QValueList<CodeChunk>::ConstIterator st = c->superTypes().begin();
 	while ( st != c->superTypes().end() ) {
@@ -804,27 +808,32 @@ void ClassDecl::fillInDeclsThis()
 /*
   Reports undocumented parameters.
 */
-static void checkParams( const FnDoc *fn, const StringSet& declared )
+static void checkParams( const FunctionDecl *funcDecl,
+			 const StringSet& declared )
 {
+    FnDoc *fn = funcDecl->fnDoc();
     if ( fn == 0 )
+	return;
+
+    int level = 3;
+    if ( funcDecl->internal() )
+	level++;
+    if ( funcDecl->reimplements() != 0 )
+	level++;
+
+    if ( level > 4 ) // no warnings for '\reimp'
 	return;
 
     StringSet diff;
     StringSet::ConstIterator s;
 
-// ### this is at the wrong place... has to be done later, when all the
-// information is gathered
-
-//    setParanoiaEnabled( fn->changedSinceLastRun() );
-
     diff = difference( declared, fn->parameterNames() );
     s = diff.begin();
     while ( s != diff.end() ) {
-	warning( 4, fn->location(), "Undocumented parameter '%s'",
+	warning( level, fn->location(), "Undocumented parameter '%s'",
 		 (*s).latin1() );
 	++s;
     }
-//    setParanoiaEnabled( FALSE );
 }
 
 void ClassDecl::fillInDocsThis()
@@ -867,8 +876,8 @@ void ClassDecl::fillInDocsThis()
 		(*g)->fnDoc()->setOverloads( FALSE );
 	    }
 
-	    // a great place to do something wholy unrelated
-	    checkParams( (*g)->fnDoc(), (*g)->parameterNames() );
+	    // a great place to do something unrelated
+	    checkParams( *g, (*g)->parameterNames() );
 	    ++g;
 	}
 
@@ -1018,11 +1027,10 @@ void ClassDecl::fillInDocsThis()
 	      function need no documentation.
 	    */
 	    if ( canonical == 0 || (*g) == canonical )
-		checkParams( (*g)->fnDoc(), (*g)->parameterNames() );
+		checkParams( *g, (*g)->parameterNames() );
 	    else
-		checkParams( (*g)->fnDoc(),
-			     difference((*g)->parameterNames(),
-					canonical->parameterNames()) );
+		checkParams( *g, difference((*g)->parameterNames(),
+					    canonical->parameterNames()) );
 	    ++g;
 	}
 	++f;
@@ -1131,6 +1139,7 @@ QString FunctionDecl::mangledName() const
 
 QString FunctionDecl::uniqueName() const
 {
+    // the overload number is in base 36 to get decent alphabetical order
     return overloadNumber() == 1 ? name()
 	   : name() + QChar( '-' ) + QString::number( overloadNumber(), 36 );
 }
@@ -1173,6 +1182,7 @@ void FunctionDecl::borrowParameterNames( ParameterIterator p )
     while ( oldp != pl.end() ) {
 	if ( !(*p).name().isEmpty() && (*p).name() != (*oldp).name() )
 	    (*oldp).setName( (*p).name() );
+
 	if ( !(*oldp).name().isEmpty() )
 	    ps.insert( (*oldp).name() );
 	++oldp;

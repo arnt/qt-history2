@@ -275,8 +275,8 @@ void Steering::emitHtml() const
 		++classes;
 	    } else if ( classes.key() == def.key() ) {
 		/*
-		  Bingo!  At this point *def is the doc comment and *classes is
-		  a QMap with class name keys and ClassDecl * values.
+		  Bingo!  At this point *def is the doc and *classes is a QMap
+		  with class-name keys and ClassDecl * values.
 		*/
 		HtmlWriter out( config->defgroupHref((*def)->groupName()) );
 		out.setTitle( (*def)->title() );

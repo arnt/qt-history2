@@ -41,7 +41,7 @@ public:
     Kind kind() const { return k; }
     Access access() const { return a; }
     Doc *doc() const { return d; }
-    bool internal() const { return d != 0 && d->internal(); }
+    bool internal() const;
     bool obsolete() const { return d != 0 && d->obsolete(); }
     const QString& name() const { return n; }
     QString fullName() const;

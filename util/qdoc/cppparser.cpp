@@ -647,7 +647,7 @@ static void matchDocsAndStuff( Steering *steering )
 	      concrete subclasses of Tokenizer, namely FileTokenizer and
 	      StringTokenizer.  A FileTokenizer is obviously useful for parsing
 	      source files.  If you don't understand the need for a
-	      StringTokenizer yet, consider doc comments containing a function
+	      StringTokenizer yet, consider docs containing a function
 	      prototype, like
 
 		  \fn int QWidget::width() const
