@@ -1018,6 +1018,9 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
     // the ignore by default
     e->ignore();
 
+    if (!model())
+        return;
+
     QModelIndex index = indexAt(e->pos());
     index = model()->sibling(index.row(), 0, index);
 

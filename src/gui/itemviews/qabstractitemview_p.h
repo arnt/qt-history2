@@ -65,6 +65,8 @@ public:
     }
 
     inline bool canDecode(QDropEvent *e) const {
+        if (!model)
+            return false;
         QStringList modelTypes = model->mimeTypes();
         const QMimeData *mime = e->mimeData();
         for (int i = 0; i < modelTypes.count(); ++i)
