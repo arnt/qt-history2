@@ -314,7 +314,7 @@ public:
     QFont::Script hanHack( const QChar & c );
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
-    static bool parseXFontName(const QCString &, char **);
+    static bool parseXFontName(char *, char **);
     static QCString fixXLFD( const QCString & );
     static bool fillFontDef(XFontStruct *, QFontDef *, int);
     static bool fillFontDef(const QCString &, QFontDef *, int);

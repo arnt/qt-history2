@@ -37,8 +37,57 @@
 
 #include "qt_x11.h"
 
-static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic );
+// #define QFONTDATABASE_DEBUG
 
+static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
+{
+    char slant0 = tolower( (uchar) tokens[QFontPrivate::Slant][0] );
+    *italic      = FALSE;
+    *lesserItalic = FALSE;
+
+    QString nm;
+    if ( qstrcmp( tokens[QFontPrivate::Weight], "medium" ) != 0 )
+	nm = QString::fromLatin1(tokens[QFontPrivate::Weight]);
+
+    if ( nm.length() > 0 )
+        nm.replace( 0, 1, nm[0].upper() );
+
+    if ( slant0 == 'r' ) {
+        if ( tokens[QFontPrivate::Slant][1]) {
+            char slant1 = tolower( (uchar) tokens[QFontPrivate::Slant][1] );
+
+            if ( slant1 == 'o' ) {
+                nm += " Reverse Oblique";
+                *italic       = TRUE;
+                *lesserItalic = TRUE;
+            } else if ( slant0 == 'i' ) {
+                nm += " Reverse Italic";
+                *italic       = TRUE;
+                *lesserItalic = TRUE;
+            }
+        } else {
+            // Normal
+        }
+    } else if ( slant0 == 'o' ) {
+        if ( tokens[QFontPrivate::Slant][1] ) {
+            nm += " Other";
+        } else {
+            nm += " Oblique";
+            *italic = TRUE;
+        }
+    } else if ( slant0 == 'i' ) {
+        nm += " Italic";
+        *italic = TRUE;
+    }
+
+    if ( nm.isEmpty() ) {
+        nm = "Normal";
+    } else if ( nm[0] == ' ' ) {
+        nm = nm.remove( 0, 1 );
+    }
+
+    return nm;
+}
 
 
 #ifndef QT_NO_XFTFREETYPE
@@ -73,8 +122,112 @@ extern bool qt_has_xft; // defined in qfont_x11.cpp
 void QFontDatabase::createDatabase()
 {
     if ( db ) return;
-
     db = new QFontDatabasePrivate;
+
+    int fontCount;
+    // force the X server to give us XLFDs
+    char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
+				  "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
+				  32767, &fontCount );
+
+    if ( fontCount >= 32767 ) {
+	XFreeFontNames( fontList );
+	fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
+			       fontCount + 1, &fontCount );
+    }
+
+    char *tokens[QFontPrivate::NFontFields];
+
+    QtFontFoundry *current_foundry = 0;
+    QtFontFamily *current_family = 0;
+    QtFontStyle *current_style = 0;
+    char *current_foundryname = 0;
+    char *current_familyname = 0;
+    char *current_slantstr = 0, *current_weightstr = 0;
+
+    for( int i = 0 ; i < fontCount ; i++ ) {
+	if ( QFontPrivate::parseXFontName( fontList[i], tokens ) ) {
+	    if ( ! current_foundry || ! current_foundryname ||
+		 qstrcmp( current_foundryname,
+			  tokens[QFontPrivate::Foundry] ) != 0 ) {
+		// get foundry and insert it into the database if not present
+		QString foundryName = tokens[QFontPrivate::Foundry];
+		if ( foundryName.isEmpty() )
+		    foundryName = "x11";
+		current_foundry = db->foundryDict.find( foundryName );
+		if ( ! current_foundry ) {
+		    current_foundry = new QtFontFoundry( foundryName );
+		    db->addFoundry( current_foundry );
+		}
+
+		// since we changed foundry, we need to force a family change
+		current_family = 0;
+	    }
+	    current_foundryname = tokens[QFontPrivate::Foundry];
+
+	    if ( ! current_family || ! current_familyname ||
+		 qstrcmp( current_familyname,
+			  tokens[QFontPrivate::Family] ) != 0 ) {
+		// get family and insert it into the database if not present
+		QString familyName = tokens[QFontPrivate::Family];
+		current_family = current_foundry->familyDict.find( familyName );
+		if ( ! current_family ) {
+		    current_family = new QtFontFamily( current_foundry, familyName );
+		    current_foundry->addFamily( current_family );
+		}
+
+		// since we changed family, we need for force a style change
+		current_style = 0;
+	    }
+	    current_familyname = tokens[QFontPrivate::Family];
+
+	    if ( ! current_style || ! current_slantstr || ! current_weightstr ||
+		 qstrcmp( current_slantstr, tokens[QFontPrivate::Slant] ) != 0 ||
+		 qstrcmp( current_weightstr, tokens[QFontPrivate::Weight] ) != 0 ) {
+		// get style
+		bool italic;
+		bool lesserItalic;
+		QString styleName = getStyleName( tokens, &italic, &lesserItalic );
+		current_style = current_family->styleDict.find( styleName );
+		if ( ! current_style ) {
+		    current_style = new QtFontStyle( current_family, styleName );
+		    current_style->ital         = italic;
+		    current_style->lesserItal   = lesserItalic;
+		    current_style->weightString = tokens[QFontPrivate::Weight];
+
+		    current_family->addStyle( current_style );
+		}
+	    }
+	    current_slantstr = tokens[QFontPrivate::Slant];
+	    current_weightstr = tokens[QFontPrivate::Weight];
+
+	    if ( QFontPrivate::isScalable(tokens) ) {
+		if ( QFontPrivate::isSmoothlyScalable( tokens ) )
+		    current_style->setSmoothlyScalable();
+		else
+		    current_style->setBitmapScalable();
+	    } else {
+		QCString ps = tokens[QFontPrivate::PointSize];
+		int pSize = ps.toInt()/10;
+		int r = atoi(tokens[QFontPrivate::ResolutionY]);
+		if ( r && QPaintDevice::x11AppDpiY() &&
+		     r != QPaintDevice::x11AppDpiY() ) {
+		    // not "0" or "*", or required DPI
+		    // calculate actual pointsize for display DPI
+		    pSize = ( 2*pSize*r + QPaintDevice::x11AppDpiY() ) /
+			    (QPaintDevice::x11AppDpiY() * 2);
+		}
+
+		if ( pSize != 0 )
+		    current_style->addPointSize( pSize );
+	    }
+
+	    if (QFontPrivate::isFixedPitch(tokens))
+		current_style->setFixedPitch();
+	}
+    }
+
+    XFreeFontNames( fontList );
 
 #ifndef QT_NO_XFTFREETYPE
 
@@ -89,6 +242,8 @@ void QFontDatabase::createDatabase()
 	int weight_value;
 	int slant_value;
 	int spacing_value;
+	bool created_foundry = FALSE;
+	bool created_family = FALSE;
 
 	foundries = XftListFonts (QPaintDevice::x11AppDisplay(),
 				  QPaintDevice::x11AppScreen(),
@@ -97,6 +252,8 @@ void QFontDatabase::createDatabase()
 				  (const char *)0);
 
 	for (int d = 0; d < foundries->nfont; d++) {
+	    created_foundry = FALSE;
+
 	    if (XftPatternGetString(foundries->fonts[d],
 				    XFT_FOUNDRY, 0, &value) == XftResultMatch) {
 		foundryName = value;
@@ -106,9 +263,12 @@ void QFontDatabase::createDatabase()
 		foundryName = "xft";
 	    }
 
-	    QtFontFoundry *foundry = new QtFontFoundry(foundryName.lower());
-	    Q_CHECK_PTR(foundry);
-	    db->addFoundry(foundry);
+	    QtFontFoundry *foundry = db->foundryDict.find( foundryName.lower() );
+	    if ( ! foundry ) {
+		foundry = new QtFontFoundry(foundryName.lower());
+		Q_CHECK_PTR(foundry);
+		created_foundry = TRUE;
+	    }
 
 	    if (hasFoundries)
 		families =
@@ -124,13 +284,19 @@ void QFontDatabase::createDatabase()
 				 XFT_FAMILY, (const char *)0);
 
 	    for (int f = 0; f < families->nfont; f++) {
+		created_family = FALSE;
+
 		if (XftPatternGetString(families->fonts[f],
 					XFT_FAMILY, 0, &value) == XftResultMatch) {
 		    familyName = value;
+
 		    QtFontFamily *family =
-			new QtFontFamily ( foundry, familyName.lower() );
-		    Q_CHECK_PTR (family);
-		    foundry->addFamily (family);
+			foundry->familyDict.find( familyName.lower() );
+		    if ( ! family ) {
+			family = new QtFontFamily ( foundry, familyName.lower() );
+			Q_CHECK_PTR (family);
+			created_family = TRUE;
+		    }
 
 		    if (hasFoundries)
 			styles =
@@ -154,7 +320,7 @@ void QFontDatabase::createDatabase()
 			if (XftPatternGetString (styles->fonts[s],
 						 XFT_STYLE, 0, &value) ==
 			    XftResultMatch) {
-			    QString styleName(value);
+			    QString styleName = QString::fromLatin1( value );
 			    if (styleName.lower() == "regular")
 				styleName = "Normal";
 			    QtFontStyle *style = new QtFontStyle (family, styleName);
@@ -178,8 +344,28 @@ void QFontDatabase::createDatabase()
 			    family->addStyle (style);
 			}
 		    }
+
+		    if ( created_family ) {
+			if ( created_foundry ) {
+			    if ( ! db->family( familyName ) )
+				foundry->addFamily( family );
+			    else
+				delete family;
+			} else {
+			    foundry->addFamily( family );
+			}
+		    }
+
 		    XftFontSetDestroy (styles);
 		}
+	    }
+
+
+	    if ( created_foundry ) {
+		if ( foundry->familyDict.count() )
+		    db->addFoundry( foundry );
+		else
+		    delete foundry;
 	    }
 
 	    XftFontSetDestroy(families);
@@ -188,88 +374,6 @@ void QFontDatabase::createDatabase()
 	XftFontSetDestroy (foundries);
     }
 #endif
-	{
-	    int fontCount;
-	    // force the X server to give us XLFDs
-	    char **fontList = XListFonts( QPaintDevice::x11AppDisplay(),
-					  "-*-*-*-*-*-*-*-*-*-*-*-*-*-*",
-					  32767, &fontCount );
-
-	    if ( fontCount >= 32767 ) {
-		XFreeFontNames( fontList );
-		fontList = XListFonts( qt_xdisplay(), "-*-*-*-*-*-*-*-*-*-*-*-*-*-*", fontCount+1, &fontCount );
-	    }	
-
-	    char *tokens[QFontPrivate::NFontFields];
-
-	    for( int i = 0 ; i < fontCount ; i++ ) {
-
-		QCString fontName = fontList[i];
-
-		if ( QFontPrivate::parseXFontName( fontName, tokens ) ) {
-		    // get foundry and insert it into the database if not present
-		    QString foundryName = tokens[QFontPrivate::Foundry];
-		    if ( foundryName.isEmpty() )
-			foundryName = "x11";
-		    QtFontFoundry *foundry = db->foundryDict.find( foundryName );
-		    if ( !foundry ) {
-			foundry = new QtFontFoundry( foundryName );
-			Q_CHECK_PTR(foundry);
-			db->addFoundry( foundry );
-		    }
-
-		    // get family and insert it into the database if not present
-		    QString familyName = tokens[QFontPrivate::Family];
-		    QtFontFamily *family = foundry->familyDict.find( familyName );
-		    if ( !family ) {
-			family = new QtFontFamily( foundry, familyName );
-			Q_CHECK_PTR(family);
-			foundry->addFamily( family );
-		    }
-
-		    // get style
-		    bool italic;
-		    bool lesserItalic;
-		    QString styleName = getStyleName( tokens, &italic, &lesserItalic );
-		    QtFontStyle *style = family->styleDict.find( styleName );
-		    if ( !style ) {
-			style = new QtFontStyle( family, styleName );
-			Q_CHECK_PTR( style );
-			style->ital         = italic;
-			style->lesserItal   = lesserItalic;
-			style->weightString = tokens[QFontPrivate::Weight];
-
-			family->addStyle(style);
-		    }
-
-		    if ( QFontPrivate::isScalable(tokens) ) {
-			if ( QFontPrivate::isSmoothlyScalable( tokens ) )
-			    style->setSmoothlyScalable();
-			else
-			    style->setBitmapScalable();
-		    } else {
-			QCString ps = tokens[QFontPrivate::PointSize];
-			int pSize = ps.toInt()/10;
-			int r = atoi(tokens[QFontPrivate::ResolutionY]);
-			if ( r && QPaintDevice::x11AppDpiY() &&
-			     r != QPaintDevice::x11AppDpiY() ) {
-			    // not "0" or "*", or required DPI
-			    // calculate actual pointsize for display DPI
-			    pSize = ( 2*pSize*r + QPaintDevice::x11AppDpiY() ) /
-				    (QPaintDevice::x11AppDpiY() * 2);
-			}
-
-			if ( pSize != 0 )
-			    style->addPointSize( pSize );
-		    }
-
-		    if (QFontPrivate::isFixedPitch(tokens))
-			style->setFixedPitch();
-		}
-	    }
-
-	    XFreeFontNames( fontList );
-	}
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
@@ -298,62 +402,4 @@ void QFontDatabase::createDatabase()
     }
 #endif // QFONTDATABASE_DEBUG
 
-}
-
-
-
-static QString getStyleName( char ** tokens, bool *italic, bool *lesserItalic )
-{
-    char slant0 = tolower( (uchar) tokens[QFontPrivate::Slant][0] );
-    *italic      = FALSE;
-    *lesserItalic = FALSE;
-
-    QString nm = QString::fromLatin1(tokens[QFontPrivate::Weight]);
-
-    if ( nm == QString::fromLatin1("medium") )
-        nm = QString::fromLatin1("");
-
-    if ( nm.length() > 0 )
-        nm.replace( 0, 1, QString(nm[0]).upper());
-
-    if ( slant0 == 'r' ) {
-        if ( tokens[QFontPrivate::Slant][1]) {
-            char slant1 = tolower( (uchar) tokens[QFontPrivate::Slant][1] );
-
-            if ( slant1 == 'o' ) {
-                nm += ' ';
-                nm += "Reverse Oblique";
-                *italic       = TRUE;
-                *lesserItalic = TRUE;
-            } else if ( slant0 == 'i' ) {
-                nm += ' ';
-                nm += "Reverse Italic";
-                *italic       = TRUE;
-                *lesserItalic = TRUE;
-            }
-        } else {
-            // Normal
-        }
-    } else if ( slant0 == 'o' ) {
-        nm += ' ';
-
-        if ( tokens[QFontPrivate::Slant][1] ) {
-            nm += "Other";
-        } else {
-            nm += "Oblique";
-            *italic = TRUE;
-        }
-    } else if ( slant0 == 'i' ) {
-        nm += ' ';
-        nm += "Italic";
-        *italic = TRUE;
-    }
-
-    if ( nm.isEmpty() ) {
-        nm = "Normal";
-    } else if ( nm[0] == ' ' ) {
-        nm = nm.remove( 0, 1 );
-    }
-
-    return nm;
 }

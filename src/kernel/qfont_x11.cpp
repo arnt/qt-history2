@@ -498,26 +498,32 @@ bool QFontPrivate::fontExists( const QString &fontName )
 
 
 // Splits an X font name into fields separated by '-'
-bool QFontPrivate::parseXFontName(const QCString &fontName, char **tokens)
+bool QFontPrivate::parseXFontName(char *fontName, char **tokens)
 {
-    if (fontName.isEmpty() || fontName[0] != '-') {
+    if ( ! fontName || fontName[0] == '0' || fontName[0] != '-' ) {
 	tokens[0] = 0;
 	return FALSE;
     }
 
     int	  i;
-    char *f = fontName.data() + 1;
-    for (i = 0; i < NFontFields && f && f[0]; i++) {
-	tokens[i] = f;
-	f = strchr( f, '-' );
+    ++fontName;
+    for ( i = 0; i < NFontFields && fontName && fontName[0]; ++i ) {
+	tokens[i] = fontName;
+	for ( ;; ++fontName ) {
+	    if ( *fontName == '-' )
+		break;
+	    if ( ! *fontName ) {
+		fontName = 0;
+		break;
+	    }
+	}
 
-	if (f) *f++ = '\0';
+	if ( fontName ) *fontName++ = '\0';
     }
 
-    if (i < NFontFields) {
-	for(int j = i ; j < NFontFields; j++)
+    if ( i < NFontFields ) {
+	for ( int j = i ; j < NFontFields; ++j )
 	    tokens[j] = 0;
-
 	return FALSE;
     }
 
@@ -571,7 +577,7 @@ bool QFontPrivate::fillFontDef( const QCString &xlfd, QFontDef *fd, int screen )
 {
     char *tokens[QFontPrivate::NFontFields];
     QCString buffer = xlfd.copy();
-    if ( ! parseXFontName(buffer, tokens) )
+    if ( ! parseXFontName(buffer.data(), tokens) )
 	return FALSE;
 
     fd->family = QString::fromLatin1(tokens[Family]);
@@ -1913,7 +1919,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	 bestScalable.weightDiff < best.weightDiff ) {
 	qstrcpy( matchBuffer.data(), bestScalable.name );
 
-	if ( parseXFontName( matchBuffer, tokens ) ) {
+	if ( parseXFontName( matchBuffer.data(), tokens ) ) {
 	    int resx;
 	    int resy;
 	    int pSize;
@@ -1976,7 +1982,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     *pixelSizeDiff    = 0;
 
     qstrcpy( buffer.data(), fontName );	// NOTE: buffer must be large enough
-    if ( ! parseXFontName( buffer, tokens ) )
+    if ( ! parseXFontName( buffer.data(), tokens ) )
 	return 0;	// Name did not conform to X Logical Font Description
 
     if ( isScalable( tokens ) ) {
