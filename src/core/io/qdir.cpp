@@ -1055,7 +1055,7 @@ QList<QRegExp> qt_makeFilterList(const QString &filter)
 
     QChar sep(';');
     int i = filter.indexOf(sep, 0);
-    if (i != -1 && filter.indexOf(' ', 0) != -1)
+    if (i == -1 && filter.indexOf(' ', 0) != -1)
         sep = QChar(' ');
 
     QStringList list = filter.split(sep);
