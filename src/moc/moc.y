@@ -1100,6 +1100,13 @@ class_head:		  class_key
 						  if (g->className == "QObject")
 						     Q_OBJECTdetected = TRUE;
 						}
+			| class_key
+			  IDENTIFIER		/* possible DLL EXPORT macro with parameter */
+                          '(' IDENTIFIER ')'
+			  class_name		{ g->className = $6;
+						  if ( g->className == "QObject" )
+						     Q_OBJECTdetected = TRUE;
+						}
 			;
 
 full_class_head:	  class_head
