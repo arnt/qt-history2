@@ -259,7 +259,7 @@ void QPen::setStyle(Qt::PenStyle s)
     \sa width()
 */
 
-void QPen::setWidth(float width)
+void QPen::setWidthF(float width)
 {
     if (d->width == width)
         return;

@@ -30,8 +30,10 @@ public:
 
     inline Qt::PenStyle style() const { return d->style; }
     void setStyle(Qt::PenStyle);
-    inline float width() const { return d->width; }
-    void setWidth(float width);
+    inline float widthF() const { return d->width; }
+    void setWidthF(float width);
+    inline int width() const { return qRound(widthF()); }
+    inline void setWidth(int width) { setWidthF(width); }
     inline QColor color() const { return d->color; }
     void setColor(const QColor &color);
     Qt::PenCapStyle        capStyle() const;
