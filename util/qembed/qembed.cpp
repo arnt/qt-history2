@@ -104,9 +104,9 @@ int main( int argc, char **argv )
 		 << "\"" << e->name << "\" },\n";
 	    e = list.next();
 	}
-	cout << "    { 0, 0 }\n};\n";
+	cout << "    { 0, 0, 0 }\n};\n";
     }
-    
+
     cout << "#endif" << endl;
 
     return 0;
