@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#51 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#52 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#51 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#52 $");
 
 
 /*!
@@ -431,18 +431,18 @@ QSize QFrame::sizeHint() const
 void QFrame::paintEvent( QPaintEvent *event )
 {
     QPainter paint( this );
-    if ( event ) {
-	if ( !contentsRect().contains( event->rect() ) ) {
-	    paint.save();
-	    paint.setClipRect( event->rect() );
-	    drawFrame( &paint );
-	    if ( !event->rect().intersects( contentsRect() ) )
-		return;
-	    paint.restore();
-	}
-	paint.setClipRect( event->rect().intersect( contentsRect() ) );
+    if ( !contentsRect().contains( event->rect() ) ) {
+	paint.save();
+	QRegion r( event->rect() );
+	r = r.subtract( QRegion(contentsRect()) );
+	paint.setClipRegion( r );
+	drawFrame( &paint );
+	paint.restore();
     }
-    drawContents( &paint );
+    if ( event->rect().intersects( contentsRect() ) ) {
+	paint.setClipRect( event->rect().intersect( contentsRect() ) );
+	drawContents( &paint );
+    }
 }
 
 
@@ -546,10 +546,9 @@ void QFrame::drawFrame( QPainter *p )
   take the frame into account and \link QPainter::resetXForm() reset
   transformation\endlink before returning.
 
-  This function is reimplemented by subclasses that draw something inside
-  the frame.  It should draw only inside contentsRect().  QFrame does not
-  enable \link QPainter::setClipRect() clipping\endlink but you may want
-  to. The default function does nothing.
+  This function is reimplemented by subclasses that draw something
+  inside the frame.  It should draw only inside contentsRect(). The
+  default function does nothing.
 
   \sa contentsRect(), QPainter::setClipRect()
 */
