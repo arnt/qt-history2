@@ -1417,7 +1417,7 @@ void QWidget::hide_sys()
             if(!w || (!w->isVisible() && !w->isMinimized())) {
                 for(WindowPtr wp = GetFrontWindowOfClass(kDocumentWindowClass, true);
                     wp; wp = GetNextWindowOfClass(wp, kDocumentWindowClass, true)) {
-                    if((w = QWidget::find((WId)wp)))
+                    if((w = qt_mac_find_window(wp)))
                         break;
                 }
             }
