@@ -3448,11 +3448,10 @@ bool QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
 }
 
 /*!  Returns the context of the edit.
-
     The context is a path which the text edit's QMimeSourceFactory
     uses to resolve the locations of files and images.
 
-  \sa text(), setText()
+  \sa text
 */
 
 QString QTextEdit::context() const
