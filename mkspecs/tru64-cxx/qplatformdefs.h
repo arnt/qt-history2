@@ -10,7 +10,7 @@
 #include <unistd.h>
 
 
-// We are hot - unistd.h should have turned on the specific APIs we requested 
+// We are hot - unistd.h should have turned on the specific APIs we requested
 
 
 #ifdef QT_THREAD_SUPPORT
@@ -80,11 +80,6 @@ extern "C" int usleep(useconds_t);
 #define QT_SOCKLEN_T		size_t
 #else
 #define QT_SOCKLEN_T		int
-#endif
-
-#if defined(_OSF_SOURCE) || defined(_XOPEN_SOURCE) && (_XOPEN_SOURCE >= 500)
-#define QT_SNPRINTF		::snprintf
-#define QT_VSNPRINTF		::vsnprintf
 #endif
 
 
