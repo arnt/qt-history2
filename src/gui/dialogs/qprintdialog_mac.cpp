@@ -88,8 +88,7 @@ int QPrintDialog::exec()
         // Keep us in sync with file output
         PMDestinationType dest;
         PMSessionGetDestinationType(d->ep->session, d->ep->settings, &dest);
-        d->ep->outputToFile = dest == kPMDestinationFile;
-        if (d->ep->outputToFile) {
+        if (dest == kPMDestinationFile) {
             QCFType<CFURLRef> file;
             PMSessionCopyDestinationLocation(d->ep->session, d->ep->settings, &file);
             UInt8 localFile[255];  // Assuming there's a POSIX file system here.

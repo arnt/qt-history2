@@ -99,7 +99,6 @@ public:
     PMPrintSession session;
     PMResolution resolution;
     QString outputFilename;
-    bool outputToFile;
     bool fullPage;
     GWorldPtr qdHandle;
     QPaintEngine *paintEngine;

@@ -34,7 +34,7 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
         return false;
     }
 
-    if (d->outputToFile) {
+    if (!d->outputFilename.isEmpty()) {
         QCFType<CFURLRef> outFile = CFURLCreateWithFileSystemPath(kCFAllocatorSystemDefault,
                                                                   QCFString(d->outputFilename),
                                                                   kCFURLPOSIXPathStyle,
@@ -331,7 +331,6 @@ void QMacPrintEnginePrivate::initialize()
     q->gccaps = paintEngine->gccaps;
 
     fullPage = false;
-    outputToFile = false;
 
     if (PMCreateSession(&session) != noErr)
         session = 0;
