@@ -30,6 +30,11 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+// This value is used to determine the length of control point vectors
+// when approximating arc segments as curves. The factor is multiplied
+// with the radius of the circle.
+#define KAPPA 0.5522847498
+
 // #define QPP_DEBUG
 
 void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
@@ -79,24 +84,59 @@ void QPainterSubpath::curveTo(const QPointF &c1, const QPointF &c2, const QPoint
     currentPoint = end;
 }
 
-void QPainterSubpath::arcTo(const QRectF &rect, float angle, float alen)
+void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLength)
 {
-    QPointF startPoint;
-    QPointF endPoint;
-    qt_find_ellipse_coords(rect, angle, alen, &startPoint, &endPoint);
-
-    if (startPoint != currentPoint)
-        lineTo(startPoint);
-
-    elements.append(QPainterPathElement::arc(rect.x(), rect.y(),
-                                             rect.width(), rect.height(),
-                                             angle, alen));
-    currentPoint = endPoint;
-
 #ifdef QPP_DEBUG
     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
-           rect.x(), rect.y(), rect.width(), rect.height(), angle, alen);
+           rect.x(), rect.y(), rect.width(), rect.height(),
+           startAngle, sweepLength);
 #endif
+
+#define ANGLE(t) ((t) * 2 * M_PI / 360.0)
+    float a = rect.width() / 2.0;
+    float b = rect.height() / 2.0;
+
+    int iterations = int((sweepLength + 89) / 90);
+    float clength = sweepLength / iterations;
+    for (int i=0; i<iterations; ++i) {
+        float cangle = startAngle + i * sweepLength / iterations;
+
+//         printf(" -> segment: %f -> %f\n", cangle, clength);
+
+        QPointF startPoint = rect.center() + QPointF(a * cos(ANGLE(cangle)),
+                                                     -b * sin(ANGLE(cangle)));
+        QLineF vStart(rect.center(), startPoint);
+//         printf(" ---> vStart: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
+//                vStart.startX(), vStart.startY(), vStart.endX(), vStart.endY(),
+//                vStart.vx(), vStart.vy());
+        QLineF nStart = vStart.normalVector();
+        nStart.moveBy(vStart);
+//         printf(" ---> nStart: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
+//                nStart.startX(), nStart.startY(), nStart.endX(), nStart.endY(),
+//                nStart.vx(), nStart.vy());
+        nStart.setLength(nStart.length() * KAPPA);
+        QPointF controlPt1 = nStart.end();
+
+        QPointF endPoint = rect.center() + QPointF(a * cos(ANGLE(cangle + clength)),
+                                                   -b * sin(ANGLE(cangle + clength)));
+        QLineF vEnd(rect.center(), endPoint);
+        QLineF nEnd = vEnd.normalVector();
+//         printf(" ---> vEnd: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
+//                vEnd.startX(), vEnd.startY(), vEnd.endX(), vEnd.endY(),
+//                vEnd.vx(), vEnd.vy());
+        nEnd.moveBy(vEnd);
+        nEnd = QLineF(endPoint, endPoint + QPointF(-nEnd.vx(), -nEnd.vy()));
+//         printf(" ---> nEnd: (%.2f, %.2f), (%.2f, %.2f) - (%.2f, %.2f)\n",
+//                nEnd.startX(), nEnd.startY(), nEnd.endX(), nEnd.endY(),
+//                nEnd.vx(), nEnd.vy());
+
+        nEnd.setLength(nEnd.length() * KAPPA);
+        QPointF controlPt2 = nEnd.end();
+
+        if (startPoint != currentPoint)
+            lineTo(startPoint);
+        curveTo(controlPt1, controlPt2, endPoint);
+    }
 }
 
 
