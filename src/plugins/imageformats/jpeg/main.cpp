@@ -34,14 +34,22 @@ public:
 
 QStringList QJpegPlugin::keys() const
 {
-    return QStringList() << "jpeg";
+    return QStringList() << "jpeg" << "jpg";
 }
 
 QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const QByteArray &format) const
 {
-    if (format == "jpeg" || (device && QJpegHandler::canLoadImage(device)))
+    if (format == "jpeg" || format == "jpg")
         return Capabilities(CanLoad | CanSave);
-    return 0;
+    if (!device->isOpen())
+        return 0;
+
+    Capabilities cap;
+    if (device->isReadable() && QJpegHandler::canLoadImage(device))
+        cap |= CanLoad;
+    if (device->isWritable())
+        cap |= CanSave;
+    return cap;
 }
 
 QImageIOHandler *QJpegPlugin::create(QIODevice *device, const QByteArray &format) const

@@ -565,7 +565,7 @@ bool QJpegHandler::canLoadImage(QIODevice *device)
 
     qint64 oldPos = device->pos();
 
-    char head[3];
+    char head[2];
     qint64 readBytes = device->read(head, sizeof(head));
     if (readBytes != sizeof(head)) {
         if (device->isSequential()) {
@@ -584,7 +584,7 @@ bool QJpegHandler::canLoadImage(QIODevice *device)
         device->seek(oldPos);
     }
 
-    return qstrncmp(head, "\330\377", 2) == 0;
+    return qstrncmp(head, "\377\330", 2) == 0;
 }
 
 bool QJpegHandler::load(QImage *image)
