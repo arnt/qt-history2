@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#64 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#65 $
 **
 ** Definition of QPaintDevice class
 **
@@ -89,7 +89,8 @@ protected:
     virtual int	 fontMet( QFont *, int, const char * = 0, int = 0 ) const;
     virtual int	 fontInf( QFont *, int ) const;
 
-    uint	devFlags;			// device flags
+    ushort	devFlags;			// device flags
+    ushort	painters;			// refcount
 
     friend class QPainter;
     friend class QPaintDeviceMetrics;
@@ -152,7 +153,7 @@ inline bool QPaintDevice::isExtDev() const
 { return (devFlags & QInternal::ExternalDevice) != 0; }
 
 inline bool QPaintDevice::paintingActive() const
-{ return (devFlags & QInternal::PaintingActive) != 0; }
+{ return painters != 0; }
 
 #if defined(_WS_WIN_)
 inline HDC    QPaintDevice::handle() const { return hdc; }

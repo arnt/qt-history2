@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#283 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#284 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -807,11 +807,12 @@ bool QPainter::begin( const QPaintDevice *pd )
 	pdev = (QPaintDevice *)pd;
     }
 
-    if ( pdev->paintingActive() ) {		// somebody else is already painting
+    if ( pdev->isExtDev() && pdev->paintingActive() ) {
+		// somebody else is already painting
 #if defined(CHECK_STATE)
 	warning( "QPainter::begin: Another QPainter is already painting "
-		 "this device;\n\tA paint device can only be painted by "
-		 "one QPainter at a time" );
+		 "this device;\n\tAn extended paint device can only be painted "
+	         "by one QPainter at a time." );
 #endif
 	return FALSE;
     }
@@ -839,7 +840,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    setTabArray( tabarray );
     }
 
-    pdev->devFlags |= QInternal::PaintingActive;		// also tell paint device
+    pdev->painters++;				// also tell paint device
     bro = curPt = QPoint( 0, 0 );
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
@@ -965,7 +966,7 @@ bool QPainter::end()				// end painting
 	pdev->cmd( PDC_END, this, 0 );
 
     flags = 0;
-    pdev->devFlags &= ~QInternal::PaintingActive;
+    pdev->painters--;
     pdev = 0;
     dpy  = 0;
     return TRUE;

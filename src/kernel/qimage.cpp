@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#207 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -4197,9 +4197,9 @@ static void write_xpm_image( QImageIO * iio )
     }
 
     // write pixels
+    line.truncate( cpp*w );
     for( y=0; y<h; y++ ) {
 	QRgb * yp = (QRgb *) image.scanLine( y );
-	line.resize( cpp*w + 1 );
 	for( x=0; x<w; x++ ) {
 	    int color = (int)(*(yp + x));
 	    QString chars = xpm_color_name( cpp,

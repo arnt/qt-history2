@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#57 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -39,6 +39,7 @@ QPaintDevice::QPaintDevice( uint devflags )
     }
     devFlags = devflags;
     hdc = 0;
+    painters = 0;
 }
 
 QPaintDevice::~QPaintDevice()
@@ -46,7 +47,7 @@ QPaintDevice::~QPaintDevice()
 #if defined(CHECK_STATE)
     if ( paintingActive() )
 	warning( "QPaintDevice: Cannot destroy paint device that is being "
-		 "painted" );
+		 "painted.  Be sure to QPainter::end() painters!" );
 #endif
 }
 

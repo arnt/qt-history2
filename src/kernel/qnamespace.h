@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#17 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#18 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -452,8 +452,7 @@ public:
 	Picture = 0x04,
 	System = 0x05,
 	DeviceTypeMask = 0x0f,
-	ExternalDevice = 0x10,
-	PaintingActive = 0x20
+	ExternalDevice = 0x10
     };
 };
 
