@@ -797,7 +797,7 @@ QPixmap *QIconSet::createDisabled(Size size, State state) const
 					 Qt::MonoOnly | Qt::ThresholdDither );
 	}
 
-	QPixmap *pixmap = new QPixmap( normalPix.width() + 1,
+	pixmap = new QPixmap( normalPix.width() + 1,
 				   normalPix.height() + 1 );
 	const QColorGroup &dis = QApplication::palette().disabled();
 	pixmap->fill( dis.background() );
