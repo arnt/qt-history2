@@ -333,7 +333,8 @@
 /*!
     Virtual frame buffer
 */
-                                        
+#define QT_NO_QWS_PS2
+
 //#define QT_NO_QWS_VFB
 /*!
     Transformed frame buffer
