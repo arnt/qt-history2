@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of font rendering infrastructure for Embedded Qt
 **
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -147,7 +147,7 @@ public:
 	      const QString &fl, const QString& fi) :
 	factory(f), name(n), italic(i), weight(w), size(s), flags(fl), file(fi)
     {
-	loaded=false;
+	loaded=FALSE;
 	p=0;
     }
 

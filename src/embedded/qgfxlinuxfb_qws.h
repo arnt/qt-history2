@@ -1,11 +1,11 @@
 /*****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGfxRaster (unaccelerated graphics context) class for
 ** Embedded Qt
 ** Created : 940721
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -63,7 +63,7 @@ public:
     virtual bool initDevice();
     virtual bool connect( const QString &displaySpec );
 
-    virtual bool useOffscreen() { return false; }
+    virtual bool useOffscreen() { return FALSE; }
 
     virtual void disconnect();
     virtual void shutdownDevice();

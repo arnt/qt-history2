@@ -94,9 +94,9 @@ public:
     virtual void saveUnder() {}
     virtual void drawCursor() {}
     virtual void draw() {}
-    virtual bool supportsAlphaCursor() { return false; }
+    virtual bool supportsAlphaCursor() { return FALSE; }
 
-    static bool enabled() { return false; }
+    static bool enabled() { return FALSE; }
 
 private:
     int hotx;

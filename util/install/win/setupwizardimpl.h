@@ -107,8 +107,8 @@ private:
     void installIcons( const QString& iconFolder, const QString& dirName, bool common );
 #endif
     void doFinalIntegration();
-    void logFiles( const QString& entry, bool close = false );
-    void logOutput( const QString& entry, bool close = false );
+    void logFiles( const QString& entry, bool close = FALSE );
+    void logOutput( const QString& entry, bool close = FALSE );
 
     void setInstallStep( int step );
     void readLicense( QString filePath );

@@ -6,7 +6,7 @@ class FolderDlgImpl : public FolderDlg
 {
     Q_OBJECT
 public:
-    FolderDlgImpl( QWidget* parent = NULL, const char* name = NULL, bool modal = false, WFlags f = 0 );
+    FolderDlgImpl( QWidget* parent = NULL, const char* name = NULL, bool modal = FALSE, WFlags f = 0 );
 
     void setup( QString, QString );
 
