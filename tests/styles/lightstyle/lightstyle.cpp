@@ -398,6 +398,13 @@ void LightStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
 
+    case PE_Splitter:
+	if (flags & Style_Horizontal)
+	    flags &= ~Style_Horizontal;
+	else
+	    flags |= Style_Horizontal;
+	// fall through intended
+
     case PE_DockWindowResizeHandle:
 	{
 	    p->fillRect(r, cg.background());
