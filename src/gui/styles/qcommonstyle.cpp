@@ -1706,7 +1706,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 p->fillRect(opt->rect, fillBrush);
 
                 ir = visualRect(querySubControlMetrics(CC_TitleBar, tb, SC_TitleBarLabel,
-                                                       widget), widget);
+                                                       widget), opt->rect);
 
                 p->setPen(tb->palette.highlightedText().color());
                 p->drawText(ir.x() + 2, ir.y(), ir.width() - 2, ir.height(),
@@ -2163,7 +2163,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
 
             switch (sc) {
             case SC_TitleBarLabel:
-                ret.setRect(0, 0, tb->rect.width(), tb->rect.height());
+                ret = tb->rect;
                 if (tb->titleBarFlags & Qt::WStyle_Tool) {
                     if (tb->titleBarFlags & Qt::WStyle_SysMenu)
                         ret.addCoords(0, 0, -controlHeight - 3, 0);
