@@ -20,10 +20,10 @@
             <cstring>unnamed</cstring>
         </property>
         <property name="margin">
-            <number>8</number>
+            <number>6</number>
         </property>
         <property name="spacing">
-            <number>6</number>
+            <number>4</number>
         </property>
         <widget class="QFrame">
             <property name="name">
@@ -55,7 +55,7 @@
                     <widget class="QListView">
                         <column>
                             <property name="text">
-                                <string>Table</string>
+                                <string>Tables</string>
                             </property>
                             <property name="clickable">
                                 <bool>true</bool>
@@ -67,6 +67,50 @@
                         <column>
                             <property name="text">
                                 <string>Type</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Required</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Default</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Length</string>
+                            </property>
+                            <property name="clickable">
+                                <bool>true</bool>
+                            </property>
+                            <property name="resizeable">
+                                <bool>true</bool>
+                            </property>
+                        </column>
+                        <column>
+                            <property name="text">
+                                <string>Precision</string>
                             </property>
                             <property name="clickable">
                                 <bool>true</bool>

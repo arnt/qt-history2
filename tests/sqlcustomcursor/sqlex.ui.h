@@ -64,13 +64,22 @@ void SqlEx::dbConnect()
     QStringList tables = db->tables();
     for ( QStringList::Iterator it = tables.begin(); it != tables.end(); ++it ) {
 	QListViewItem* lvi = new QListViewItem( lv, *it );
-	lv->insertItem( lvi );
 	QSqlRecordInfo ri = db->recordInfo ( *it );
 	for ( QSqlRecordInfo::Iterator it = ri.begin(); it != ri.end(); ++it ) {
-	    QListViewItem* fi = new QListViewItem( lvi, (*it).name() );
+	    QString req = "?";
+	    QString defVal = (*it).defaultValue().toString();
+	    QString len = (*it).length() >= 0 ? QString::number( (*it).length() ) : "?";
+	    QString prec = (*it).precision() >= 0 ? QString::number( (*it).precision() ) : "?";
+	    if ( (*it).isRequired() > 0 ) {
+		req = "Yes";
+	    } else if ( (*it).isRequired() == 0 ) {
+		req = "No";
+	    }
+	    QListViewItem* fi = new QListViewItem( lvi, (*it).name(),  + QVariant::typeToName( (*it).type() ), req, defVal, len, prec );
 	    lvi->insertItem( fi );
 	}
-    }    
+	lv->insertItem( lvi );	
+    }
 }
 
 void SqlEx::execQuery()
@@ -111,6 +120,7 @@ void SqlEx::showTable( QListViewItem * item )
     // populate the data table
     QSqlCursor* cursor = new QSqlCursor( i->text( 0 ), TRUE );
     dt->setSqlCursor( cursor, TRUE, TRUE );
+    dt->setSort( cursor->primaryIndex() );
     dt->refresh( QDataTable::RefreshAll );
     lbl->setText( "Displaying table " + i->text( 0 ) );
 }
