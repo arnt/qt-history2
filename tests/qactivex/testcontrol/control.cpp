@@ -18,14 +18,15 @@
 #include <qdatetime.h>
 #include <qpixmap.h>
 #include <qvariant.h>
+#include <qpainter.h>
 
 #define PROP(prop) return m_##prop;
-#define SET_PROP(prop) m_##prop = prop;
+#define SET_PROP(prop) m_##prop = prop; repaint();
 #define GET_PROP_SLOT(prop) return m_##prop;
-#define SET_PROP_SLOT(prop) m_##prop = prop;
-#define GET_AND_SET(prop, type) type old = m_##prop; m_##prop = prop; prop = old; return m_##prop;
-#define EMIT_REF(prop, type) type old = m_##prop; emit prop##RefSignal( m_##prop ); return old;
-#define PROP_POINTER(prop) m_##prop = *prop;
+#define SET_PROP_SLOT(prop) m_##prop = prop; repaint();
+#define GET_AND_SET(prop, type) type old = m_##prop; m_##prop = prop; prop = old; repaint(); return m_##prop;
+#define EMIT_REF(prop, type) type old = m_##prop; emit prop##RefSignal( m_##prop ); repaint(); return old;
+#define PROP_POINTER(prop) m_##prop = *prop; repaint();
 
 struct IDispatch;
 
@@ -46,6 +47,13 @@ public:
 
     int number() const { PROP(number) }
     void setNumber( int number ) { SET_PROP(number) }
+
+public:
+    void repaint()
+    {
+	Q_ASSERT( parent() && parent()->isWidgetType() );
+	((QWidget*)parent())->repaint();
+    }
 
 private:
     QString m_unicode;
@@ -234,6 +242,8 @@ public slots:
     {
 	if ( !m_subType )
 	    m_subType = new QSubType( this, "subType" );
+
+	repaint();
 	return m_subType;
     }
 
@@ -296,6 +306,62 @@ signals:
 
     void currencyChanged( Q_LLONG );
     void currencyRefSignal( Q_LLONG& );
+
+protected:
+    void paintEvent( QPaintEvent *e )
+    {
+	QPainter painter( this );
+	QFontMetrics fm( font() );
+
+	QRect r( rect() );
+
+	if ( !m_pixmap.isNull() )
+	    painter.drawPixmap( r, m_pixmap );
+
+	painter.drawText( r, ExpandTabs, "Unicode\t:" + m_unicode );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "C-String\t\t:" + m_text );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "bool\t\t:" + QVariant(m_boolval,42).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "number\t\t:" + QVariant(m_number).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "posnumber\t:" + QVariant(m_posnumber).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "double\t\t:" + QVariant(m_real).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "color\t\t:" + QVariant(m_color).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "date\t\t:" + QVariant(m_date).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "time\t\t:" + QVariant(m_time).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "datetime\t:" + QVariant(m_datetime).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "font\t\t:" + QVariant(m_font).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+
+	QStringList list;
+	QValueList<QVariant>::Iterator it = m_list.begin();
+	while ( it != m_list.end() ) {
+	    QVariant var = *it;
+	    ++it;
+	    list << var.toString();
+	}
+	painter.drawText( r, ExpandTabs, "list\t\t:" + list.join(", ") );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "enum\t\t:" + QVariant(m_beta).toString() );
+	r.addCoords( 0, fm.height(), 0, 0 );
+	painter.drawText( r, ExpandTabs, "currency\t:" + QVariant(m_currency).toString() );
+	if ( m_subType ) {
+	    r.addCoords( 0, fm.height(), 0, 0 );
+	    painter.drawText( r, ExpandTabs, "SubType\t" );
+	    r.addCoords( 0, fm.height(), 0, 0 );
+	    painter.drawText( r, ExpandTabs, "\tunicode\t:" + m_subType->unicode() );
+	    r.addCoords( 0, fm.height(), 0, 0 );
+	    painter.drawText( r, ExpandTabs, "\tnumber\t\t:" + m_subType->number() );
+	}
+    }
 
 private:
     QString m_unicode;
