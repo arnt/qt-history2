@@ -26,6 +26,8 @@
 #include <qvarlengtharray.h>
 #include <qvector.h>
 
+#include <qdebug.h>
+
 #include <stdlib.h>
 
 #define QOCI_DYNAMIC_CHUNK_SIZE  255
@@ -188,6 +190,7 @@ int QOCIPrivate::bindValues(QVector<QVariant> &values, IndicatorArray &indicator
         // QVariant::typeToName(val.type()), utf16bind, i, val.toString().ascii());
         switch (val.type()) {
             case QVariant::ByteArray:
+                //qDebug("Binding a Byte Array: %s", ((QByteArray*)data)->constData());
                 r = OCIBindByPos(sql, &hbnd, err,
                                   i + 1,
                                   (dvoid *) ((QByteArray*)data)->constData(),
@@ -714,7 +717,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                                     (dvoid *) &(fieldInf[idx].ind),
                                     0, 0, OCI_DYNAMIC_FETCH);
             } else {
-                //                    qDebug("binding SQLT_BLOB");
+                // qDebug("binding SQLT_BLOB");
                 r = OCIDefineByPos(d->sql,
                                     &dfn,
                                     d->err,
@@ -900,6 +903,7 @@ int QOCIResultPrivate::readLOBs(QVector<QVariant> &values, int index)
         if (!lob || isNull(i))
             continue;
         r = OCILobGetLength(d->svc, d->err, lob, &amount);
+        //qDebug("At %d: got length %d", index, amount);
         if (r != 0) {
             qOraWarning("OCIResultPrivate::readLOBs: Can't get size of LOB:", d);
             amount = 0;
@@ -1089,8 +1093,6 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
     if (index < 0) //not interested in values
         return r == 0;
     // fetch LOBs
-    if (r == 0)
-        r = cols->readLOBs(values, index);
     if (r == 0) {
         for (int i = 0; i < cols->size(); ++i) {
             if (cols->isNull(i))
@@ -1098,9 +1100,11 @@ bool QOCIResult::gotoNext(QSqlCachedResult::ValueCache &values, int index)
             else
                 values[i + index] = cols->value(i);
         }
-    } else {
-        setAt(QSql::AfterLastRow);
     }
+    if (r == 0)
+        r = cols->readLOBs(values, index);
+    if (r != 0)
+        setAt(QSql::AfterLastRow);
     return r == 0;
 }
 
