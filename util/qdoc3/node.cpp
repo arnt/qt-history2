@@ -346,20 +346,20 @@ const QString Node::moduleName() const
 
     moduleDir = moduleDir.left(finish);
 
-    if (moduleDir == "core")
+    if (moduleDir == "corelib")
         return "QtCore";
     else if (moduleDir == "gui")
         return "QtGui";
-    else if (moduleDir == "opengl")
-        return "QtOpenGL";
     else if (moduleDir == "network")
         return "QtNetwork";
+    else if (moduleDir == "opengl")
+        return "QtOpenGL";
+    else if (moduleDir == "qt3support")
+        return "Qt3Support";
     else if (moduleDir == "sql")
         return "QtSql";
     else if (moduleDir == "xml")
         return "QtXml";
-    else if (moduleDir == "compat")
-        return "Qt3Compat";
     else
         return "";
 }
