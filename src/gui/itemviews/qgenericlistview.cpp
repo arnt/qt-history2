@@ -791,9 +791,9 @@ bool QGenericListView::doItemsLayout(int delta)
 {
     int max = model()->rowCount(root()) - 1;
     int first = d->layoutStart;
-    int last = first + qMin(delta - 1, max);// - 1;
+    int last = first + qMin(delta - 1, max);
 
-    if (max <= 0)
+    if (max < 0)
  	return true; // nothing to do
 
     if (d->movement == Static) {
