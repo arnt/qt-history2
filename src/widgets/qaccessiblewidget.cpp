@@ -21,8 +21,8 @@
 */
 
 /*!
-  Creates a QAccessibleWidget object for the widget \a w with \a role, \a name, \a description,
-  \a value, \a help, \a defAction and \a accelerator being optional parameters for static values
+  Creates a QAccessibleWidget object for the widget \a w. \a role, \a name, \a description,
+  \a value, \a help, \a defAction and \a accelerator are optional parameters for static values
   of the object's property.
 */
 QAccessibleWidget::QAccessibleWidget( QWidget *w, Role role, QString name, 
@@ -454,7 +454,7 @@ QString	QAccessibleButton::name( int who ) const
 /*!
   \reimp
 
-  Adds states "Checked" or "Pressed" to the widget's state.
+  Adds states "Checked", "Mixed" or "Pressed" to the widget's state.
 
   \sa QButton::isToggleButton, QButton::isOn
 */
@@ -478,11 +478,12 @@ QAccessible::State QAccessibleButton::state( int who ) const
 
 /*! 
   \class QAccessibleRangeControl qaccessiblewidget.h
-  \brief The QAccessibleRangeControl class implements the QAccessibleInterface for button type widgets.
+  \brief The QAccessibleRangeControl class implements the QAccessibleInterface for range controls.
 */
 
-/*!
-  Creates a QAccessibleRangeControl object.
+/*! 
+  Constructs a QAccessibleRangeControl object for the widget \a w. \a role, \a name, \a description,
+  \a help, \a defAction and \a accelerator are propagated to the QAccessibleWidget constructor.
 */
 QAccessibleRangeControl::QAccessibleRangeControl( QWidget *w, Role role, QString name, 
 						 QString description, QString help, QString defAction, QString accelerator )
@@ -490,6 +491,7 @@ QAccessibleRangeControl::QAccessibleRangeControl( QWidget *w, Role role, QString
 {
 }
 
+/*! \reimp */
 QString QAccessibleRangeControl::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
@@ -520,11 +522,16 @@ QString QAccessibleRangeControl::value( int who ) const
   \brief The QAccessibleText class implements the QAccessibleInterface for widgets with editable text.
 */
 
+/*! 
+  Constructs a QAccessibleText object for the widget \a w. \a role, \a name, \a description,
+  \a help, \a defAction and \a accelerator are propagated to the QAccessibleWidget constructor.
+*/
 QAccessibleText::QAccessibleText( QWidget *w, Role role, QString name, QString description, QString help, QString defAction, QString accelerator )
 : QAccessibleWidget( w, role, name, description, QString::null, help, defAction, accelerator )
 {
 }
 
+/*! \reimp */
 QString QAccessibleText::value( int who ) const
 {
     QString v = QAccessibleWidget::value( who );
@@ -538,6 +545,7 @@ QString QAccessibleText::value( int who ) const
     return v;
 }
 
+/*! \reimp */
 QAccessible::State QAccessibleText::state( int who ) const
 {
     int state = QAccessibleWidget::state( who );
@@ -561,11 +569,16 @@ QAccessible::State QAccessibleText::state( int who ) const
   \brief The QAccessibleDisplay class implements the QAccessibleInterface for widgets that display static information.
 */
 
+/*! 
+  Constructs a QAccessibleDisplay object for the widget \a w. \a role, \a description,
+  \a value, \a help, \a defAction and \a accelerator are propagated to the QAccessibleWidget constructor.
+*/
 QAccessibleDisplay::QAccessibleDisplay( QWidget *w, Role role, QString description, QString value, QString help, QString defAction, QString accelerator )
 : QAccessibleWidget( w, role, QString::null, description, value, help, defAction, accelerator )
 {
 }
 
+/*! \reimp */
 QAccessible::Role QAccessibleDisplay::role( int who ) const
 {
     if ( object()->inherits( "QLabel" ) ) {
@@ -584,6 +597,7 @@ QAccessible::Role QAccessibleDisplay::role( int who ) const
     return QAccessibleWidget::role( who );
 }
 
+/*! \reimp */
 QString QAccessibleDisplay::name( int who ) const
 {
     QString n = QAccessibleWidget::name( who );

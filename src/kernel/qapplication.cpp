@@ -929,11 +929,19 @@ QApplication::~QApplication()
 */
 
 
+
+#ifndef QT_NO_STYLE
+
 /*!
-  \fn QStyle& QApplication::style()
   Returns the style object of the application.
   \sa setStyle(), QStyle
 */
+QStyle& QApplication::style()
+{
+    extern const QWidget *qt_style_global_context;
+    qt_style_global_context = 0;
+    return *app_style;
+}
 
 /*!
   Sets the application GUI style to \a style. Ownership of the style
@@ -952,15 +960,6 @@ QApplication::~QApplication()
 
   \sa style(), QStyle, setPalette(), desktopSettingsAware()
 */
-#ifndef QT_NO_STYLE
-
-QStyle& QApplication::style()
-{
-    extern const QWidget *qt_style_global_context;
-    qt_style_global_context = 0;
-    return *app_style;
-}
-
 void QApplication::setStyle( QStyle *style )
 {
     QStyle* old = app_style;

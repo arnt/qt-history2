@@ -84,7 +84,7 @@
   lookup table; the pixel value is a color table index.
 
   32-bpp images encode an RGB value in 24 bits and ignore the color table.
-  The most significant byte is used for the \link setAlphaBuffer alpha
+  The most significant byte is used for the \link setAlphaBuffer() alpha
   buffer\endlink.
 
   An entry in the color table is an RGB triplet encoded as \c uint.  Use

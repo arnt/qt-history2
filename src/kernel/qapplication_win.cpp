@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#492 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#493 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1412,12 +1412,20 @@ void QApplication::wakeUpGuiThread()
     PostThreadMessage( qt_gui_thread, WM_NULL, 0, 0 );
 }
 
-bool QApplication::winEventFilter( MSG * )	// Windows event filter
+/*!
+  The message procedure calls this function for every message received. 
+  Reimplement this function if you want to process window messages \a msg that
+  are not processed by Qt.
+*/
+bool QApplication::winEventFilter( MSG * /*msg*/ )	// Windows event filter
 {
     return FALSE;
 }
 
-
+/*!
+  If \a gotFocus is TRUE, \a widget will become the active window. Otherwise,
+  the active window is reset to NULL.
+*/
 void QApplication::winFocus( QWidget *widget, bool gotFocus )
 {
     if ( inPopupMode() ) // some delayed focus event to ignore
@@ -2458,6 +2466,7 @@ static int translateButtonState( int s, int type, int button )
 
 // In DnD, the mouse release event never appears, so the
 // mouse button state machine must be manually reset
+/*! \internal */
 void QApplication::winMouseButtonUp()
 {
     qt_button_down = 0;

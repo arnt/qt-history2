@@ -148,7 +148,7 @@ QDesktopWidget::~QDesktopWidget()
   Returns TRUE if the system manages the available screens in a virtual desktop,
   otherwise returns FALSE.
 
-  For virtual desktops, \link screen screen \endlink will always return the same widget.
+  For virtual desktops, screen() will always return the same widget.
   The size of the virtual desktop is the size of this desktop widget.
 */
 bool QDesktopWidget::isVirtualDesktop() const

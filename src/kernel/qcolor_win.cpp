@@ -142,6 +142,7 @@ void QColor::initialize()
     RealizePalette( dc );
 }
 
+/*! \internal */
 const QRgb* QColor::palette( int* numEntries )
 {
     if ( numEntries )
@@ -151,7 +152,7 @@ const QRgb* QColor::palette( int* numEntries )
     return colArray;
 }
 
-
+/*! \internal */
 int QColor::setPaletteEntries( const QRgb* pal, int numEntries, int base )
 {
     if ( !hpal || !pal || numEntries < 1 )
@@ -210,6 +211,7 @@ void QColor::cleanup()
     color_init = FALSE;
 }
 
+/*! \internal */
 uint QColor::realizePal( QWidget *widget )
 {
     if ( !hpal )				// not using palette
@@ -223,6 +225,9 @@ uint QColor::realizePal( QWidget *widget )
     return i;
 }
 
+/*! \fn HPALETTE QColor::hPal()
+  \internal
+*/
 
 /*****************************************************************************
   QColor member functions

@@ -134,7 +134,7 @@ public:
   The \c Active appearance is identical to the \c Normal appearance
   unless you use setPixmap() to set it to something special.
 
-  When scaling icons, QIconSet uses \link QImage::smoothScale
+  When scaling icons, QIconSet uses \link QImage::smoothScale()
   smooth scaling\endlink, which can partially blend the color component
   of pixmaps.  If the results look poor, the best solution
   is to supply both large and small sizes of pixmaps.
