@@ -38,8 +38,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>894</width>
-            <height>754</height>
+            <width>768</width>
+            <height>635</height>
         </rect>
     </property>
     <property name="caption">
@@ -430,7 +430,7 @@
     // #### hardcoded paths - probably should read the settings from somewhere
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/designer/manual" );
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/designer" );
-    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html/" );
+    browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/tools/linguist/doc/html" );
     browser-&gt;mimeSourceFactory()-&gt;addFilePath( QString( getenv( "QTDIR" ) ) + "/doc/html/" );
     
     connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
@@ -499,8 +499,7 @@
     showLink( "index.html", "Qt Reference Documentation" );
 }</function>
     <function name="showLinguistHelp()" >{
-    // ## Hmm.. I guess we'll have to change that name..
-    showLink( "Guide_to_the_Qt_Translation_Tools.html", tr( "Qt Linguist Manual" ) );  
+    showLink( "qt-translation-tools.html", tr( "Qt Linguist Manual" ) );  
 }</function>
     <function name="print()" >{
     QPrinter printer;

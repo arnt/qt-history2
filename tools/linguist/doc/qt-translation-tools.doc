@@ -30,7 +30,7 @@
 /*! \file  tt3/mainwindow.cpp */
 /*! \file  tt3/main.cpp */
 
-/*! \page Guide_to_the_Qt_Translation_Tools.html
+/*! \page qt-translation-tools.html
 
 \title Guide to the Qt Translation Tools
 
@@ -40,73 +40,73 @@
     <li><a href="#Brief_Overview_of_the_Translation_Process">
     Brief Overview of the Translation Process</a>
     </ul>
-<li><a href="linguist_manager.html#Chapter_1_Release_Manager">Chapter 1: Release Manager</a>
+<li><a href="linguist-manager.html#Chapter_1_Release_Manager">Chapter 1: Release Manager</a>
     <ul>
-    <li><a href="linguist_manager.html#Qt_Project_Files">Qt Project Files</a>
-    <li><a href="linguist_manager.html#lupdate">lupdate</a>
-    <li><a href="linguist_manager.html#lrelease">lrelease</a>
-    <li><a href="linguist_manager.html#Incomplete_Translations">Incomplete Translations</a>
+    <li><a href="linguist-manager.html#Qt_Project_Files">Qt Project Files</a>
+    <li><a href="linguist-manager.html#lupdate">lupdate</a>
+    <li><a href="linguist-manager.html#lrelease">lrelease</a>
+    <li><a href="linguist-manager.html#Incomplete_Translations">Incomplete Translations</a>
     </ul>
-<li><a href="linguist_translator.html#Chapter_2_Translators">Chapter 2: Translators</a>
+<li><a href="linguist-translator.html#Chapter_2_Translators">Chapter 2: Translators</a>
     <ul>
-    <li><a href="linguist_translator.html#The_1_Minute_Guide_to_Using_Qt_Linguist">
+    <li><a href="linguist-translator.html#The_1_Minute_Guide_to_Using_Qt_Linguist">
     The One Minute Guide to Using Qt Linguist</a>
-    <li><a href="linguist_translator.html#Qt_Linguists_Main_Window">
+    <li><a href="linguist-translator.html#Qt_Linguists_Main_Window">
     <em>Qt Linguist</em>'s Main Window</a>
 	<ul>
-	<li><a href="linguist_translator.html#Context_List">Context List</a>
-	<li><a href="linguist_translator.html#Source_Text_Area">Source Text Area</a>
-	<li><a href="linguist_translator.html#Translation_Area">Translation Area</a>
-	<li><a href="linguist_translator.html#Phrases_and_Guesses_Area">Phrases and Guesses Area</a>
+	<li><a href="linguist-translator.html#Context_List">Context List</a>
+	<li><a href="linguist-translator.html#Source_Text_Area">Source Text Area</a>
+	<li><a href="linguist-translator.html#Translation_Area">Translation Area</a>
+	<li><a href="linguist-translator.html#Phrases_and_Guesses_Area">Phrases and Guesses Area</a>
 	</ul>
-    <li><a href="linguist_translator.html#Common_Tasks">Common Tasks</a>
+    <li><a href="linguist-translator.html#Common_Tasks">Common Tasks</a>
 	<ul>
-	<li><a href="linguist_translator.html#Leaving_a_Translation_for_Later">Leaving a Translation for Later</a>
-	<li><a href="linguist_translator.html#Phrases_That_Require_Multiple_Translations_Depending_on_Context">
+	<li><a href="linguist-translator.html#Leaving_a_Translation_for_Later">Leaving a Translation for Later</a>
+	<li><a href="linguist-translator.html#Phrases_That_Require_Multiple_Translations_Depending_on_Context">
 	Phrases That Require Multiple Translations Depending on Context</a>
-	<li><a href="linguist_translator.html#Changing_Keyboard_Accelerators">
+	<li><a href="linguist-translator.html#Changing_Keyboard_Accelerators">
 	Changing Keyboard Accelerators</a>
-	<li><a href="linguist_translator.html#Dealing_with_Phrases_That_Contain_Variables">
+	<li><a href="linguist-translator.html#Dealing_with_Phrases_That_Contain_Variables">
 	Dealing with Phrases That Contain Variables</a>
-	<li><a href="linguist_translator.html#Reusing_Translations">Reusing Translations</a>
+	<li><a href="linguist-translator.html#Reusing_Translations">Reusing Translations</a>
 	</ul>
-    <li><a href="linguist_translator.html#Creating_and_Using_Phrase_Books">
+    <li><a href="linguist-translator.html#Creating_and_Using_Phrase_Books">
     Creating and Using Phrase Books</a>
-    <li><a href="linguist_translator.html#Validation">Validation</a>
-    <li><a href="linguist_translator.html#Qt_Linguist_Reference">Qt Linguist Reference</a>
+    <li><a href="linguist-translator.html#Validation">Validation</a>
+    <li><a href="linguist-translator.html#Qt_Linguist_Reference">Qt Linguist Reference</a>
 	<ul>
-	<li><a href="linguist_translator.html#File_Types">File Types</a>
-	<li><a href="linguist_translator.html#The_Menu_Bar">The Menu Bar</a>
-	<li><a href="linguist_translator.html#The_Toolbar">The Toolbar</a>
-	<li><a href="linguist_translator.html#The_Find_Dialog">The Find Dialog</a>
-	<li><a href="linguist_translator.html#The_Phrase_Dialog">The Phrase Dialog</a>
+	<li><a href="linguist-translator.html#File_Types">File Types</a>
+	<li><a href="linguist-translator.html#The_Menu_Bar">The Menu Bar</a>
+	<li><a href="linguist-translator.html#The_Toolbar">The Toolbar</a>
+	<li><a href="linguist-translator.html#The_Find_Dialog">The Find Dialog</a>
+	<li><a href="linguist-translator.html#The_Phrase_Dialog">The Phrase Dialog</a>
 	</ul>
     </ul>
-<li><a href="linguist_programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>
+<li><a href="linguist-programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>
     <ul>
-    <li><a href="linguist_programmer.html#Making_The_Application_Translation_Aware">
+    <li><a href="linguist-programmer.html#Making_The_Application_Translation_Aware">
     Making The Application Translation Aware</a>
 	<ul>
-	<li><a href="linguist_programmer.html#Creating_Translation_Files">
+	<li><a href="linguist-programmer.html#Creating_Translation_Files">
 	Creating Translation Files</a>
-	<li><a href="linguist_programmer.html#Loading_Translations">Loading Translations</a>
-	<li><a href="linguist_programmer.html#Making_User-Visible_Strings_Translate">
+	<li><a href="linguist-programmer.html#Loading_Translations">Loading Translations</a>
+	<li><a href="linguist-programmer.html#Making_User-Visible_Strings_Translate">
 	Making the Application Translate User-Visible Strings</a>
-	<li><a href="linguist_programmer.html#Distinguishing_Identical_Strings_That_Require_Different_Translations">
+	<li><a href="linguist-programmer.html#Distinguishing_Identical_Strings_That_Require_Different_Translations">
 	Distinguishing Identical Strings That Require Different Translations</a>
-	<li><a href="linguist_programmer.html#Helping_The_Translator_With_Navigation_Information">
+	<li><a href="linguist-programmer.html#Helping_The_Translator_With_Navigation_Information">
 	Helping The Translator With Navigation Information</a>
 	</ul>
-    <li><a href="linguist_programmer.html#Tutorials">Tutorials</a>
+    <li><a href="linguist-programmer.html#Tutorials">Tutorials</a>
 	<ul>
-	<li><a href="linguist_programmer.html#Tutorial_1:_Loading_Translations">
+	<li><a href="linguist-programmer.html#Tutorial_1:_Loading_Translations">
 	Tutorial 1: Loading and Using Translations</a>
-	<li><a href="linguist_programmer.html#Tutorial_2:_Making_User-Visible_Strings_Translate">
+	<li><a href="linguist-programmer.html#Tutorial_2:_Making_User-Visible_Strings_Translate">
 	Tutorial 2: Using Two or More Languages</a>
-	<li><a href="linguist_programmer.html#Tutorial_3:_Distinguishing_Identical_Strings_That_Require_Different_Translations">
+	<li><a href="linguist-programmer.html#Tutorial_3:_Distinguishing_Identical_Strings_That_Require_Different_Translations">
 	Tutorial 3: Disambiguating Identical Strings</a>
 	</ul>
-    <li><a href="linguist_programmer.html#Conclusion">Summary</a>
+    <li><a href="linguist-programmer.html#Conclusion">Summary</a>
     </ul>
 </ul>
 
@@ -122,9 +122,9 @@ provided.
 <em>Chapter 1: Release Manager</em> is aimed at the person with overall
 responsibility for the release of the application. They will typically
 coordinate the work of the software engineers and the translator. The
-chapter describes the use of two tools. The <a href="linguist_programmer.html#lupdate">lupdate</a> 
+chapter describes the use of two tools. The <a href="linguist-programmer.html#lupdate">lupdate</a> 
 tool is used to synchronise source code and translations. The 
-<a href="linguist_programmer.html#lrelease">lrelease</a> tool is used to create runtime
+<a href="linguist-programmer.html#lrelease">lrelease</a> tool is used to create runtime
 translation files for use by the released application.
 
 <em>Chapter 2: Translators</em> is for translators. It describes the use

@@ -14,7 +14,7 @@
 **
 **********************************************************************/
 
-/*! \page linguist_manager.html
+/*! \page linguist-manager.html
 \title Chapter 1: Release Manager
 <a name="Chapter_1_Release_Manager">
 
@@ -35,7 +35,7 @@ project file. A typical entry looks like this:
 
 Using a locale within the filename is useful for determining which
 language to load at runtime -- this is explained in 
-<a href="linguist_programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>.
+<a href="linguist-programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>.
 
 <h2><a name="lupdate">lupdate</a></h2>
 

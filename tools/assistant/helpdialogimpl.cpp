@@ -690,8 +690,17 @@ void HelpDialog::insertContents()
     // Qt reference docs. This will be removed when the Assistant becomes
     // more generalised.
     lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, "A guide to the Qt Translation tools" );
-    lastItem->setLink( "Guide_to_the_Qt_Translation_Tools.html" );
+    lastItem->setText( 0, "Chapter 3: Programmers" );
+    lastItem->setLink( "linguist-programmer.html" );
+    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
+    lastItem->setText( 0, "Chapter 2: Translators" );
+    lastItem->setLink( "linguist-translator.html" );
+    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
+    lastItem->setText( 0, "Chapter 1: Release Manager" );
+    lastItem->setLink( "linguist-manager.html" );
+    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
+    lastItem->setText( 0, "Guide to the Qt Translation tools" );
+    lastItem->setLink( "qt-translation-tools.html" );
 }
 
 void HelpDialog::currentContentsChanged( QListViewItem * )
