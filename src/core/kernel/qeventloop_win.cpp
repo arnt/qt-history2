@@ -571,6 +571,9 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
         }
     }
 
+    // don't wait if there are pending socket notifiers
+    canWait = d->sn_pending_list.isEmpty() && canWait;
+
     shortcut = d->exitloop || d->quitnow;
 
     // wait for next message if allowed to block
