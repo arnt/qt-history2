@@ -50,7 +50,7 @@
      MSDOS		- MS-DOS and Windows
      OS2		- OS/2
      OS2EMX		- XFree86 on OS/2 (not PM)
-     WIN32		- Win32 (Windows 95/98/ME and Windows NT/2000)
+     WIN32		- Win32 (Windows 95/98/ME and Windows NT/2000/XP)
      WIN64		- ###
      SUN		- SunOS
      SOLARIS		- Sun Solaris
