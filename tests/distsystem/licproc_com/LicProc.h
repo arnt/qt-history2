@@ -5,6 +5,9 @@
 
 #include "resource.h"       // main symbols
 
+#include "qapplication.h"
+#include "qstring.h"
+
 class QSqlDatabase;
 /////////////////////////////////////////////////////////////////////////////
 // LicProc
@@ -16,6 +19,9 @@ class ATL_NO_VTABLE LicProc :
 public:
     LicProc()
     {
+	int i( 0 );
+
+	app = new QApplication( i, NULL );
     }
 
 DECLARE_REGISTRY_RESOURCEID(IDR_LICPROC)
@@ -29,6 +35,8 @@ END_COM_MAP()
 
 private:
     QSqlDatabase* distDb;
+    QApplication* app;
+    QString srvName;
 // ILicProc
 public:
     STDMETHOD(updateDb)(DWORD licenseId, BSTR versionTag, BSTR companyId);

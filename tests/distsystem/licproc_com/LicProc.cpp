@@ -8,6 +8,8 @@
 #include "qsqlcursor.h"
 #include "qregexp.h"
 
+#include <io.h>
+
 /////////////////////////////////////////////////////////////////////////////
 // LicProc
 
@@ -31,9 +33,9 @@ STDMETHODIMP LicProc::dummy(DWORD bar)
 
 STDMETHODIMP LicProc::publishLicense(DWORD licenseId, BSTR custId, BSTR licensee, BSTR licenseeEmail, BSTR login, BSTR password, BSTR expiryDate, BSTR companyId)
 {
-    if( !distDb->open() )
+    if( !distDb->isOpen() )
 	return E_FAIL;
-    if( ( BSTR2QString( companyId ) != 'ts3' ) )
+    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
 	return S_OK;
 
     QSqlRecord* buffer;
@@ -45,7 +47,7 @@ STDMETHODIMP LicProc::publishLicense(DWORD licenseId, BSTR custId, BSTR licensee
 	// If there are records that pass the filter above, the license already exists
 	// We will delete it, in that case.
 	QSqlQuery q;
-	q.exec( QString( "DELETE from licenses where LicenseId = %1" ).arg( licenseId ) );
+	q.exec( QString( "DELETE from licenses where Id = %1" ).arg( licenseId ) );
 	q.exec( QString( "DELETE from items where LicenseId = %1" ).arg( licenseId ) );
     }
     buffer = licenseCursor.primeInsert();
@@ -64,9 +66,9 @@ STDMETHODIMP LicProc::publishLicense(DWORD licenseId, BSTR custId, BSTR licensee
 
 STDMETHODIMP LicProc::publishLine(DWORD licenseId, BSTR itemId, DWORD usLicense, BSTR companyId)
 {
-    if( !distDb->open() )
+    if( !distDb->isOpen() )
 	return E_FAIL;
-    if( ( BSTR2QString( companyId ) != 'ts3' ) )
+    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
 	return S_OK;
 
     QSqlRecord* buffer;
@@ -86,10 +88,11 @@ STDMETHODIMP LicProc::publishLine(DWORD licenseId, BSTR itemId, DWORD usLicense,
 	if( usLicense )
 	    _itemId += "-us";
 
-	QSqlCursor itemsCursor( "items" );
-	buffer = itemsCursor.primeInsert();
 	QString itemString = _itemId;
 	itemString.replace( QRegExp( "\\d" ), QString::null );
+
+	QSqlCursor itemsCursor( "items" );
+	buffer = itemsCursor.primeInsert();
 	buffer->setValue( "LicenseID", QString( "%1" ).arg( licenseId ) );
 	buffer->setValue( "ItemID", itemString );
 	itemsCursor.insert();
@@ -131,20 +134,71 @@ STDMETHODIMP LicProc::publishLine(DWORD licenseId, BSTR itemId, DWORD usLicense,
 
 STDMETHODIMP LicProc::setServer(BSTR srv, BSTR user, BSTR password, BSTR db)
 {
-    Beep( 440, 200 );
+    srvName = BSTR2QString( srv );
+
     distDb = QSqlDatabase::addDatabase( "QMYSQL3" );
     distDb->setUserName( BSTR2QString( user ) );
     distDb->setDatabaseName( BSTR2QString( db ) );
     distDb->setPassword( BSTR2QString( password ) );
-    distDb->setHostName( BSTR2QString( srv ) );
+    distDb->setHostName( srvName );
+    if( !distDb->open() )
+	return E_FAIL;
 
     return S_OK;
 }
 
 STDMETHODIMP LicProc::updateDb(DWORD licenseId, BSTR versionTag, BSTR companyId)
 {
-    if( ( BSTR2QString( companyId ) != 'ts3' ) )
+    QString tag = BSTR2QString( versionTag ) + "\n";
+
+    if( ( BSTR2QString( companyId ) != "nor" ) && ( BSTR2QString( companyId ) != "usa" ) )
 	return S_OK;
 
-	return S_OK;
+    int sock = socket( AF_INET, SOCK_STREAM, 0 );
+    if( !sock )
+	return E_FAIL;
+
+    struct sockaddr_in srvAddr;
+
+    memset( &srvAddr, 0, sizeof( srvAddr ) );
+    struct hostent* he = gethostbyname( srvName.latin1() );
+
+    srvAddr.sin_family = AF_INET;
+    srvAddr.sin_addr = *(in_addr*)( he->h_addr_list[ 0 ] );
+    srvAddr.sin_port = htons( 801 );
+    if( !connect( sock, (struct sockaddr*)&srvAddr, sizeof( srvAddr ) ) ) {
+	char buffer( 0 );
+	QString str;
+	bool sawGreeting( false );
+
+	while( 1 ) {
+	    while( buffer != '\n' ) {
+		if( recv( sock, &buffer, sizeof( buffer ), 0 ) == 1) {
+		    str += buffer;
+		}
+		else {
+		    close( sock );
+		    return S_OK;
+		}
+	    }
+	    if( !sawGreeting ) {
+		sawGreeting = true;
+		send( sock, tag.latin1(), tag.length(), 0 );
+	    }
+	    buffer = 0;
+	    str = "";
+	}
+	close( sock );
+    }
+    
+    return S_OK;
+}
+
+/*
+** For some reason, this function is required for release builds,
+** but not debug...
+*/
+int main(int argc, char** argv )
+{
+    return 0;
 }
