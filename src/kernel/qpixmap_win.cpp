@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#14 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#13 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#14 $")
 
 
 // --------------------------------------------------------------------------
@@ -211,7 +211,7 @@ QPixmap::~QPixmap()
 HANDLE QPixmap::allocMemDC()
 {
     if ( !hdc && !isNull() ) {
-	HANDLE hcdScreen = GetDC( 0 );
+	HANDLE hdcScreen = GetDC( 0 );
 	hdc = CreateCompatibleDC( hdcScreen );
 	if ( QColor::hPal() ) {
 	    SelectPalette( hdc, QColor::hPal(), FALSE );
@@ -428,7 +428,7 @@ bool QPixmap::convertFromImage( const QImage &img )
 	return FALSE;
     }
     QImage image = img;
-    int d = image.depth() == 1 ? 1 : -1;
+    int d = image.depth();
 
     if ( isQBitmap() && d != 1 ) {		// force to bitmap
 	image = image.convertDepth( 1 );	// dither
@@ -441,17 +441,14 @@ bool QPixmap::convertFromImage( const QImage &img )
     int w = image.width();
     int h = image.height();
 
-#if 1
-    QPixmap pm( w, h, d );
+    QPixmap pm( w, h, d == 1 ? 1 : -1 );
     bool tmp_dc = pm.handle() == 0;
     if ( tmp_dc )
 	pm.allocMemDC();
     pm.data->optim  = data->optim;		// keep optimization flag
     pm.data->bitmap = data->bitmap;		// keep is-a flag
     if ( pm.data->optim )
-	tmp_dc = 0;
-#endif
-    d = pm.depth();
+	tmp_dc = FALSE;				// don't do pm.freeMemDC()
 
     uchar *bits;
     int	   bpl	= ((w*d+31)/32)*4;
@@ -499,25 +496,16 @@ bool QPixmap::convertFromImage( const QImage &img )
 	r->rgbReserved = 0;
     }
 
-#if 0
-    resize( 0, 0 );				// make null image
-    data->w = w;
-    data->h = h;
-    data->d = d;
-#endif
-
-#if 1
     SetDIBitsToDevice( pm.handle(), 0, 0, w, h, 0, 0, 0, h, bits,
 		       bmi, DIB_RGB_COLORS );
+    delete [] bmi_data;
+    if ( newBits )
+	delete [] bits;
+
     pm.data->uninit = FALSE;
     if ( tmp_dc )
 	pm.freeMemDC();
     *this = pm;
-#endif
-
-    delete [] bmi_data;
-    if ( newBits )
-	delete [] bits;
     return TRUE;
 }
 
@@ -526,12 +514,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
     QPixmap null;
     return null;
-}
-
-
-static inline int d2i_round( double d )		// double -> int, rounded
-{
-    return d > 0 ? int(d+0.5) : int(d-0.5);
 }
 
 
@@ -548,11 +530,11 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     ws = width();
     hs = height();
 
-    if ( matrix.m12() == 0.0F && matrix.m21() == 0.0F &&
+    if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
 	plg = FALSE;
-	w = d2i_round( matrix.m11()*ws );
-	h = d2i_round( matrix.m22()*hs );
+	w = qRound( matrix.m11()*ws );
+	h = qRound( matrix.m22()*hs );
     }
     else {					// rotation/shearing
 	plg = TRUE;
@@ -587,8 +569,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    w = r.width();
 	}
 	else {					// no rotation/shearing
-	    h = d2i_round( mat.m22()*hs );
-	    w = d2i_round( mat.m11()*ws );
+	    h = qRound( mat.m22()*hs );
+	    w = qRound( mat.m11()*ws );
 	    h = QABS( h );
 	    w = QABS( w );
 	}
@@ -599,12 +581,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	    w = 0;
 
 	else {
-	    p[0].x = d2i_round(x1 - xmin);
-	    p[0].y = d2i_round(y1 - ymin);
-	    p[1].x = d2i_round(x2 - xmin);
-	    p[1].y = d2i_round(y2 - ymin);
-	    p[2].x = d2i_round(x4 - xmin);
-	    p[2].y = d2i_round(y4 - ymin);
+	    p[0].x = qRound(x1 - xmin);
+	    p[0].y = qRound(y1 - ymin);
+	    p[1].x = qRound(x2 - xmin);
+	    p[1].y = qRound(y2 - ymin);
+	    p[2].x = qRound(x4 - xmin);
+	    p[2].y = qRound(y4 - ymin);
 	}
     }
 
