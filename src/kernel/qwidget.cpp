@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#96 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#95 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#96 $")
 
 
 /*----------------------------------------------------------------------------
@@ -558,6 +558,9 @@ QRect QWidget::childrenRect() const
 
   If a minimum size has been set, it is returned in \e *w and \e *h.
 
+  Note that while you can set the minimum size for all widgets, it has
+  no effect except for top-level widgets.
+
   \sa setMinimumSize()
  ----------------------------------------------------------------------------*/
 
@@ -576,6 +579,9 @@ bool QWidget::minimumSize( int *w, int *h ) const
   it has not been set.
 
   If a mazimum size has been set, it returned in \e *w and \e *h.
+
+  Note that while you can set the minimum size for all widgets, it has
+  no effect except for top-level widgets.
 
   \sa setMaximumSize()
  ----------------------------------------------------------------------------*/

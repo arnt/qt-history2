@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#22 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#22 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -578,29 +578,23 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 
 void QWidget::setMinimumSize( int w, int h )
 {
-    if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->minw = w;
-	extra->minh = h;
-    }
+    createExtra();
+    extra->minw = w;
+    extra->minh = h;
 }
 
 void QWidget::setMaximumSize( int w, int h )
 {
-    if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->maxw = w;
-	extra->maxh = h;
-    }
+    createExtra();
+    extra->maxw = w;
+    extra->maxh = h;
 }
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    if ( testWFlags(WType_Overlap) ) {
-	createExtra();
-	extra->incw = w;
-	extra->inch = h;
-    }
+    createExtra();
+    extra->incw = w;
+    extra->inch = h;
 }
 
 
