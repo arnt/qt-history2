@@ -963,7 +963,7 @@ const QFontDef *QFontInfo::spec() const
 	painter->cfont.handle();
 	return painter->cfont.d->fin->spec();
     } else {
-	return d->fin->spec();
+	return fin->spec();
     }
 }
 
