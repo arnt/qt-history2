@@ -1866,13 +1866,16 @@ QStringList FormWindow::resourceFiles() const
 
 void FormWindow::addResourceFile(const QString &path)
 {
-    if (!m_resourceFiles.contains(path))
+    if (!m_resourceFiles.contains(path)) {
         m_resourceFiles.append(path);
+        setDirty(true);
+    }
 }
 
 void FormWindow::removeResourceFile(const QString &path)
 {
-    m_resourceFiles.removeAll(path);
+    if (m_resourceFiles.removeAll(path) > 0)
+        setDirty(true);
 }
 
 static QString relativePath(const QString &_dir, const QString &_file)
