@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#338 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#339 $
 **
 ** Implementation of QListView widget class
 **
@@ -1585,10 +1585,10 @@ void QListViewPrivate::Root::setup()
   For compatibility with previous Qt versions there is still the
   setMultiSelection() methode. Calling setMultiSelection( TRUE )
   is equivalent to setSelectionMode( Multi ), and setMultiSelection( FALSE )
-  is equivalent to setSelectionMode( Single ). It's suggested not to 
+  is equivalent to setSelectionMode( Single ). It's suggested not to
   use setMultiSelection() anymore, but to use setSelectionMode()
   instead.
-    
+
   Since QListView offers multiple selection it has to display keyboard
   focus and selection state separately.  Therefore there are functions
   both to set the selection state of an item, setSelected(), and to
@@ -3018,10 +3018,10 @@ void QListView::contentsMouseDoubleClickEvent( QMouseEvent * e )
     if ( !i )
 	return;
 
-    if ( !i->isOpen() ) {
+    if ( !i->isOpen() ) { 
 	if ( i->isExpandable() || i->childCount() )
 	    setOpen( i, TRUE );
-    } else if (i->childItem ) {
+    } else {
 	setOpen( i, FALSE );
     }
 
