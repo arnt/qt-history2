@@ -67,7 +67,7 @@ private slots:
     void familyHighlighted(int);
     void scriptHighlighted(int);
     void styleHighlighted(int);
-    void sizeHighlighted(const QString &);
+    void sizeHighlighted(int);
     void updateSample();
 
 private:
