@@ -119,7 +119,9 @@ public:
     QUrl &operator =(const QUrl &copy);
 
     static QString fromPercentEncoding(const QByteArray &);
-    static QByteArray toPercentEncoding(const QString &, const char *alsoEncode = 0);
+    static QByteArray toPercentEncoding(const QString &,
+                                        const QByteArray &exclude = QByteArray(),
+                                        const QByteArray &include = QByteArray());
     static QString fromPunycode(const QByteArray &);
     static QByteArray toPunycode(const QString &);
 

@@ -1301,9 +1301,11 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
 
         if ((options & QUrl::RemoveUserInfo) != QUrl::RemoveUserInfo) {
             if (!userName.isEmpty()) {
-                url += QUrl::toPercentEncoding(userName, ":@#?/");
+                // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+                url += QUrl::toPercentEncoding(userName, "!$&'()*+,;=:");
                 if (!(options & QUrl::RemovePassword) && !password.isEmpty())
-                    url += ":" + QUrl::toPercentEncoding(password, ":@#?/");
+                    // userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
+                    url += ":" + QUrl::toPercentEncoding(password, "!$&'()*+,;=:");
                 url += "@";
             }
         }
@@ -1330,13 +1332,15 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
     // check if we need to insert a slash
         if (!path.isEmpty() && path.at(0) != QLatin1Char('/') && !auth.isEmpty())
             url += '/';
-        url += QUrl::toPercentEncoding(path, ":#? \t");
+        // pchar = unreserved / pct-encoded / sub-delims / ":" / "@" ... alos "/"
+        url += QUrl::toPercentEncoding(path, "!$&'()*+,;=:@/");
     }
 
     if (!(options & QUrl::RemoveQuery) && !query.isEmpty())
         url += "?" + query;
     if (!(options & QUrl::RemoveFragment) && !fragment.isEmpty())
-        url += "#" + QUrl::toPercentEncoding(fragment, " \t");
+        // fragment      = *( pchar / "/" / "?" )
+        url += "#" + QUrl::toPercentEncoding(fragment, "!$&'()*+,;=:@/?");
 
     return url;
 }
@@ -1469,7 +1473,8 @@ void QUrl::clear()
 */
 void QUrl::setUrl(const QString &url)
 {
-    setEncodedUrl(QUrl::toPercentEncoding(url, " \t"));
+    // reserved      = gen-delims / sub-delims
+    setEncodedUrl(QUrl::toPercentEncoding(url, ":/?#[]@!$&'()*+,;="));
 }
 
 /*!
@@ -1831,16 +1836,18 @@ void QUrl::setQueryItems(const QList<QPair<QString, QString> > &query)
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
 
-    QByteArray alsoEncode = " \t#";
+    QByteArray alsoEncode;
     alsoEncode += d->valueDelimiter;
     alsoEncode += d->pairDelimiter;
 
     QByteArray queryTmp;
     for (int i = 0; i < query.size(); i++) {
         if (i) queryTmp += d->pairDelimiter;
-        queryTmp += QUrl::toPercentEncoding(query.at(i).first, alsoEncode);
+        // query = *( pchar / "/" / "?" )
+        queryTmp += QUrl::toPercentEncoding(query.at(i).first, "!$&'()*+,;=:@/?", alsoEncode);
         queryTmp += d->valueDelimiter;
-        queryTmp += QUrl::toPercentEncoding(query.at(i).second, alsoEncode);
+        // query = *( pchar / "/" / "?" )
+        queryTmp += QUrl::toPercentEncoding(query.at(i).second, "!$&'()*+,;=:@/?", alsoEncode);
     }
 
     d->query = queryTmp;
@@ -1855,16 +1862,18 @@ void QUrl::addQueryItem(const QString &key, const QString &value)
     if (!QURL_HASFLAG(d->stateFlags, QUrlPrivate::Parsed)) d->parse();
     detach();
 
-    QByteArray alsoEncode = " \t#";
+    QByteArray alsoEncode;
     alsoEncode += d->valueDelimiter;
     alsoEncode += d->pairDelimiter;
 
     if (!d->query.isEmpty())
         d->query += d->pairDelimiter;
 
-    d->query += QUrl::toPercentEncoding(key, alsoEncode);
+    // query = *( pchar / "/" / "?" )
+    d->query += QUrl::toPercentEncoding(key, "!$&'()*+,;=:@/?", alsoEncode);
     d->query += d->valueDelimiter;
-    d->query += QUrl::toPercentEncoding(value, alsoEncode);
+    // query = *( pchar / "/" / "?" )
+    d->query += QUrl::toPercentEncoding(value, "!$&'()*+,;=:@/?", alsoEncode);
 }
 
 /*!
@@ -2236,6 +2245,8 @@ QString QUrl::fromPercentEncoding(const QByteArray &input)
 
 inline bool q_strchr(const char str[], char chr)
 {
+    if (!str) return false;
+
     const char *ptr = str;
     char c;
     while ((c = *ptr++))
@@ -2252,11 +2263,23 @@ inline char toHex(char c)
 
 /*!
     Returns an encoded copy of \a input. \a input is first converted
-    to UTF-8, and then all non-ASCII characters, including any
-    characters in \a alsoEncode, are percent encoded.
+    to UTF-8, and all ASCII-characters that are not in the unreserved group
+    are percent encoded. To prevent characters from being percent encoded
+    pass them to \a exclude. To force characters to be percent encoded pass
+    them to \a inlcude.
+
+    Unreserved is defined as:
+       ALPHA / DIGIT / "-" / "." / "_" / "~"
+
+    \code
+         QByteArray ba = QUrl::toPercentEncoding("{a fishy string?}", "{}", "s");
+         qDebug(ba.constData());
+         // prints "{a fi%73hy %73tring%3F}"
+    \endcode
 */
-QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
+QByteArray QUrl::toPercentEncoding(const QString &input, const QByteArray &exclude, const QByteArray &include)
 {
+    
     QByteArray tmp = input.toUtf8();
     QVarLengthArray<char> output(tmp.size() * 3);
 
@@ -2265,10 +2288,21 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
     const char *inputData = tmp.constData();
     int length = 0;
 
-    if (!alsoEncode || alsoEncode[0] == '\0') {
+    const char * dontEncode = 0;
+    if (!exclude.isEmpty()) dontEncode = exclude.constData();
+    
+
+    if (include.isEmpty()) {
         for (int i = 0; i < len; ++i) {
             unsigned char c = *inputData++;
-            if (c < 0x80 && c != '%') {
+            if (c >= 0x61 && c <= 0x7A // ALPHA
+                || c >= 0x41 && c <= 0x5A // ALPHA
+                || c >= 0x30 && c <= 0x39 // DIGIT
+                || c == 0x2D // -
+                || c == 0x2E // .
+                || c == 0x5F // _
+                || c == 0x7E // ~
+                || q_strchr(dontEncode, c)) { 
                 data[length++] = c;
             } else {
                 data[length++] = '%';
@@ -2277,9 +2311,18 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
             }
         }
     } else {
+        const char * alsoEncode = include.constData();
         for (int i = 0; i < len; ++i) {
             unsigned char c = *inputData++;
-            if (c < 0x80 && c != '%' && !q_strchr(alsoEncode, c)) {
+            if ((c >= 0x61 && c <= 0x7A // ALPHA
+                || c >= 0x41 && c <= 0x5A // ALPHA
+                || c >= 0x30 && c <= 0x39 // DIGIT
+                || c == 0x2D // -
+                || c == 0x2E // .
+                || c == 0x5F // _
+                || c == 0x7E // ~
+                || q_strchr(dontEncode, c))
+                && !q_strchr(alsoEncode, c)) {
                 data[length++] = c;
             } else {
                 data[length++] = '%';
@@ -2295,7 +2338,6 @@ QByteArray QUrl::toPercentEncoding(const QString &input, const char *alsoEncode)
 
     return QByteArray(output.data(), length);
 }
-
 
 inline uint adapt(uint delta, uint numpoints, bool firsttime)
 {
