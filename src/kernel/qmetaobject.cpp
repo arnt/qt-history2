@@ -521,7 +521,7 @@ int QMetaObject::findProperty( const char *name, bool super ) const
 }
 
 /*! \internal
-  
+
   Returns the index for the property \a prop
   or -1 if the property can not be found.
 
@@ -540,10 +540,10 @@ int QMetaObject::indexOfProperty( const QMetaProperty* prop, bool super ) const
 }
 
 /*!\internal
-  
+
   Returns the parent property of property \a p or 0, if the property
   cannot be resolved.
-  
+
   \a p has to be contained in this meta object
 */
 
@@ -555,13 +555,13 @@ const QMetaProperty* QMetaObject::resolveProperty( const QMetaProperty* p ) cons
 }
 
 /*!\internal
-  
+
   \overload
-  
+
   The veresion of resolveProperty that is used by moc generated code
 */
 
-int QMetaObject::resolveProperty( int index ) const 
+int QMetaObject::resolveProperty( int index ) const
 {
     if ( !superclass )
 	return -1;
@@ -774,10 +774,13 @@ int QMetaProperty::keysToValue( const QStrList& keys ) const
     for ( QStrListIterator it( keys ); it.current(); ++it ) {
 	
 	for( uint i = ed->count; i > 0; --i ) {
-	    if ( !qstrcmp( it.current(), ed->items[i-1].key) )
-		return value |= ed->items[i-1].value;
+	    if ( !qstrcmp( it.current(), ed->items[i-1].key) ) {
+		value |= ed->items[i-1].value;
+		break;
+	    }
 	}
-	value |= -1;
+	if ( i == 0 ) 
+	    value |= -1;
     }
     return value;
 }
@@ -798,7 +801,7 @@ QStrList QMetaProperty::valueToKeys( int value ) const
 
     for( uint i = ed->count; i > 0; --i ) {
 	int k = ed->items[i-1].value;
-	if ( (value & k) == k ) {
+	if ( k && (value & k) == k  ) {
 	    value = value & ~k;
 	    keys.append( ed->items[i-1].key );
 	}
@@ -807,9 +810,9 @@ QStrList QMetaProperty::valueToKeys( int value ) const
 }
 
 bool QMetaProperty::writable() const
-{ 
+{
     if ( !testFlags( Override ) || testFlags( Writable ) )
-	return testFlags( Writable ); 
+	return testFlags( Writable );
     const QMetaObject* mo = (*meta);
     const QMetaProperty* parent = mo->resolveProperty( this );
     return parent->writable();
@@ -817,10 +820,10 @@ bool QMetaProperty::writable() const
 
 /*!\internal
  */
-bool QMetaProperty::stdSet() const 
+bool QMetaProperty::stdSet() const
 {
     if ( !testFlags( Override ) || testFlags( Writable ) )
-	return testFlags( StdSet ); 
+	return testFlags( StdSet );
     const QMetaObject* mo = (*meta);
     const QMetaProperty* parent = mo->resolveProperty( this );
     return parent->stdSet();
@@ -843,7 +846,7 @@ void QMetaProperty::clear()
 }
 
 bool QMetaProperty::isValid() const
-{ 
+{
     if ( !testFlags( Override ) || testFlags( Readable ) )
 	return testFlags( Readable );
     const QMetaObject* mo = (*meta);
@@ -852,7 +855,7 @@ bool QMetaProperty::isValid() const
 }
 
 bool QMetaProperty::isSetType() const
-{ 
+{
     const QMetaEnum* ed = enumData;
      if ( !enumData && meta )
 	 ed = (*meta)->enumerator( t, TRUE );
@@ -860,7 +863,7 @@ bool QMetaProperty::isSetType() const
 }
 
 bool QMetaProperty::isEnumType() const
-{ 
+{
     return testFlags( EnumOrSet );
 }
 
