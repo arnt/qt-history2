@@ -24,18 +24,16 @@ struct Macro
 };
 
 enum {
-    CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C,
-    CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_ENDABSTRACT, CMD_ENDCHAPTER,
-    CMD_ENDCODE, CMD_ENDFOOTNOTE, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
-    CMD_ENDQUOTATION, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
-    CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE,
-    CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IMAGE, CMD_INCLUDE, CMD_INDEX,
-    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART,
-    CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE,
-    CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
-    CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE,
-    CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS,
-    CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
+    CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C, CMD_CAPTION,
+    CMD_CHAPTER, CMD_CODE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE, CMD_ENDFOOTNOTE,
+    CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART, CMD_ENDQUOTATION, CMD_ENDSECTION1, CMD_ENDSECTION2,
+    CMD_ENDSECTION3, CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE,
+    CMD_GENERATELIST, CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IMAGE, CMD_INCLUDE, CMD_INDEX,
+    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE,
+    CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE,
+    CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4,
+    CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE,
+    CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
@@ -69,6 +67,7 @@ static struct {
     { "endtable", CMD_ENDTABLE, 0 },
     { "expire", CMD_EXPIRE, 0 },
     { "footnote", CMD_FOOTNOTE, 0 },
+    { "generatelist", CMD_GENERATELIST, 0 },
     { "granularity", CMD_GRANULARITY, 0 },
     { "header", CMD_HEADER, 0 },
     { "i", CMD_I, 0 },
@@ -207,7 +206,7 @@ private:
     QString detailsUnknownCommand( const Set<QString>& metaCommandSet,
 				   const QString& str );
     void checkExpiry( const QString& date );
-    void insertBaseName( const QString& baseName );
+    void insertBaseName(const QString &baseName);
     void insertTarget( const QString& target );
     void include( const QString& fileName );
     void startFormat( const QString& format, int command );
@@ -360,7 +359,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    break;
 		case CMD_BASENAME:
 		    leavePara();
-		    insertBaseName( getArgument() );
+		    insertBaseName(getArgument());
 		    break;
 		case CMD_BOLD:
 		    startFormat( ATOM_FORMATTING_BOLD, command );
@@ -470,6 +469,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			append( Atom::FootnoteLeft );
 			paraState = OutsidePara; // ###
 		    }
+		    break;
+		case CMD_GENERATELIST:
+		    append(Atom::GeneratedList, getArgument());
 		    break;
 		case CMD_GRANULARITY:
 		    priv->constructExtra();
@@ -744,7 +746,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    }
 			}
 			if ( !macro->defaultDef.isEmpty() ) {
-			    // ###
+			    // ### VERY EVIL HACK
+			    parse(macro->defaultDef, docPrivate, metaCommandSet);
 			}
 			while ( numPendingFi-- > 0 )
 			    append( Atom::FormatEndif );
@@ -876,7 +879,7 @@ void DocParser::checkExpiry( const QString& date )
     }
 }
 
-void DocParser::insertBaseName( const QString& baseName )
+void DocParser::insertBaseName(const QString &baseName)
 {
     priv->constructExtra();
     if ( currentSectioningUnit == priv->extra->sectioningUnit ) {

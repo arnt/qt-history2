@@ -5,8 +5,9 @@ include( compat.qdoc )
 project			= Qt
 language		= C++
 headerdirs		= $QTDIR/include
-sourcedirs		= $QTDIR/src
-docdirs			= $QTDIR/doc
+sourcedirs		= $QTDIR/src \
+			  $QTDIR/doc
+sources.fileextensions	= "*.cpp *.doc"
 exampledirs		= $QTDIR/examples/advanced \
 			  $QTDIR/examples/simple \
 			  $QTDIR/examples \

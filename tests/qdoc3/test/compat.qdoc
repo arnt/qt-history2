@@ -1,16 +1,22 @@
 # compat.qdoc
 
-alias.also		= sa
-alias.group		= ingroup
-alias.i			= e
-alias.image		= img
-alias.include		= input
-alias.inheaderfile	= headerfile
-alias.o			= i
-alias.quotefile		= include
-alias.quotefromfile	= quotefile
-alias.private		= internal
-alias.related		= relates
+alias.also			= sa
+alias.group			= ingroup
+alias.i				= e
+alias.image			= img
+alias.include			= input
+alias.inheaderfile		= headerfile
+alias.o				= i
+alias.quotefile			= include
+alias.quotefromfile		= quotefile
+alias.private			= internal
+alias.related			= relates
 
-spurious		= "Missing comma in .*" \
-			  "Unknown command '\\\\(endlink|link|mainclass)'"
+macro.annotatedclasslist	= "\\generatelist annotatedclasses"
+macro.classlist			= "\\generatelist classes"
+macro.classhierarchy		= "\\generatelist classhierarchy"
+macro.mainclasslist		= "\\generatelist mainclasses"
+macro.functionindex		= "\\generatelist functionindex"
+
+spurious			= "Missing comma in .*" \
+				  "Unknown command '\\\\(endlink|link|mainclass)'"

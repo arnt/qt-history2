@@ -490,6 +490,7 @@ void Generator::generateStatus( const Node *node, CodeMarker *marker )
 
     switch ( node->status() ) {
     case Node::Commendable:
+    case Node::Main:
 	break;
     case Node::Preliminary:
 	text << Atom::ParaLeft << Atom( Atom::FormattingLeft, ATOM_FORMATTING_BOLD ) << "This "

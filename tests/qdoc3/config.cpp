@@ -253,15 +253,18 @@ Set<QString> Config::subVars( const QString& var ) const
     return result;
 }
 
-QStringList Config::getAllFiles( const QString& filesVar,
-				 const QString& dirsVar,
-				 const QString& nameFilter )
+QStringList Config::getAllFiles(const QString &filesVar, const QString &dirsVar,
+				const QString &defaultNameFilter)
 {
-    QStringList result = getStringList( filesVar );
-    QStringList dirs = getStringList( dirsVar );
+    QStringList result = getStringList(filesVar);
+    QStringList dirs = getStringList(dirsVar);
+    QString nameFilter = getString(filesVar + dot + CONFIG_FILEEXTENSIONS);
+    if (nameFilter.isEmpty())
+	nameFilter = defaultNameFilter;
+
     QStringList::ConstIterator d = dirs.begin();
-    while ( d != dirs.end() ) {
-	result += getFilesHere( *d, nameFilter );
+    while (d != dirs.end()) {
+	result += getFilesHere(*d, nameFilter);
 	++d;
     }
     return result;

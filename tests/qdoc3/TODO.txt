@@ -1,11 +1,12 @@
+  * implement \ingroup
+  * implement \inmodule
+
   * make types be links in Detailed synopses
   * make \sa and \link work
   * make automatic links to function in text work
   * make automatic links in code work
 
-  * implement \reentrant & stuff
-  * ignore "friends" (e.g. QChar operator==())
-  * implement \mainclass
+  * implement nice inheritance tree
   * implement \table
   * implement qbook
   * implement ASCII-art inheritance tree

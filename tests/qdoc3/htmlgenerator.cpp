@@ -11,7 +11,7 @@
 #define COMMAND_VERSION                 Doc::alias("version")
 
 HtmlGenerator::HtmlGenerator()
-    : inLink(false), funcLeftParen("\\S(\\()")
+    : inLink(false), funcLeftParen("\\S(\\()"), root(0)
 {
 }
 
@@ -65,6 +65,12 @@ QString HtmlGenerator::format()
 void HtmlGenerator::generateTree(const Tree *tree, CodeMarker *marker)
 {
     version = tree->version();
+    root = tree->root(); // ### necessary?
+    allClasses.clear();
+    mainClasses.clear();
+    funcIndex.clear();
+    findAllClasses(tree->root());
+    findAllFunctions(tree->root());
     PageGenerator::generateTree(tree, marker);
 }
 
@@ -74,12 +80,11 @@ void HtmlGenerator::startText(const Node * /* relative */, CodeMarker * /* marke
     link = "";
 }
 
-int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
-				 CodeMarker *marker )
+int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMarker *marker)
 {
     int skipAhead = 0;
 
-    switch ( atom->type() ) {
+    switch (atom->type()) {
     case Atom::AbstractLeft:
 	break;
     case Atom::AbstractRight:
@@ -152,17 +157,15 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
 	break;
     case Atom::GeneratedList:
 	if ( atom->string() == "annotatedclasses" ) {
-	
+	    generateAnnotatedList(relative, marker, allClasses);
 	} else if ( atom->string() == "classes" ) {
-	
+	    generateCompactList(relative, marker, allClasses);
 	} else if ( atom->string() == "classhierarchy" ) {
-
-	} else if ( atom->string() == "headerfiles" ) {
-	
-	} else if ( atom->string() == "index" ) {
-	
+	    generateClassHierarchy(relative, marker, allClasses);
+	} else if ( atom->string() == "functionindex" ) {
+	    generateFunctionIndex(relative, marker);
 	} else if ( atom->string() == "mainclasses" ) {
-	
+	    generateCompactList(relative, marker, mainClasses);
 	}
 	break;
     case Atom::Image:
@@ -301,10 +304,10 @@ int HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::SectionRight:
 	break;
     case Atom::SectionHeadingLeft:
-	out() << "<h" + QString::number( atom->string().toInt() ) + ">";
+	out() << "<h" + QString::number(atom->string().toInt() + hOffset(relative)) + ">";
 	break;
     case Atom::SectionHeadingRight:
-	out() << "</h" + QString::number( atom->string().toInt() ) + ">\n";
+	out() << "</h" + QString::number(atom->string().toInt() + hOffset(relative)) + ">\n";
 	break;
     case Atom::SidebarLeft:
 	break;
@@ -487,7 +490,7 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 */
 
     generateHeader( fake->name(), fake );
-    generateTitle( fake->name() );
+    generateTitle( fake->title() );
     generateBody( fake, marker );
     generateAlsoList( fake, marker );
     generateFooter( fake );
@@ -495,15 +498,24 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 
 QString HtmlGenerator::fileBase( const Node *node )
 {
-    if ( !node->isInnerNode() )
+    if (node->relates())
+	node = node->relates();
+    else if (!node->isInnerNode())
 	node = node->parent();
 
     QString base = node->doc().baseName();
-    if ( base.isEmpty() ) {
+    if (base.isEmpty()) {
 	base = node->name();
-	base.replace( QRegExp("[^A-Za-z0-9]+"), " " );
-	base = base.simplifyWhiteSpace();
-	base.replace( " ", "-" );
+        if (node->type() == Node::Fake) {
+#ifdef QDOC2_COMPAT
+            if (base.endsWith(".html"))
+	        base.truncate(base.length() - 5);
+#endif
+        }
+
+	base.replace(QRegExp("[^A-Za-z0-9]+"), " ");
+	base = base.simplified();
+	base.replace(" ", "-");
 	base = base.lower();
     }
     return base;
@@ -595,6 +607,221 @@ QString HtmlGenerator::generateListOfAllMemberFile(const ClassNode *classe, Code
     } else {
 	return "";
     }
+}
+
+void HtmlGenerator::generateClassHierarchy(const Node *relative, CodeMarker *marker,
+					   const QMap<QString, const Node *> &classMap)
+{
+    Set<QString> topLevel;
+#if 0
+    findAllClassesWithNoBaseClass(root, topLevel);
+
+    QStack<QStringList> stack;
+
+    stack.push(topLevel.asList());
+
+    out() << "<ul>\n";
+    while ( !stack.isEmpty() ) {
+	QStringList& top = stack.top();
+
+	if ( top.isEmpty() ) {
+	    stack.pop();
+	    out() << "</ul>\n";
+	} else {
+	    QString child = *top.begin();
+	    out() << "<li>";
+            generateFullName(child, relative, marker);
+            out() << "\n";
+	    top.remove(top.begin());
+
+	    Set<QString> newTop;
+	    StringSet newTop = chierarchy[child];
+	    if ( !newTop.isEmpty() ) {
+		stack.push( newTop.toIStringList() );
+		out() << "<ul>\n";
+	    }
+	}
+    }
+#endif
+    out() << "</ul>\n";
+}
+
+void HtmlGenerator::generateAnnotatedList(const Node *relative, CodeMarker *marker,
+				          const QMap<QString, const Node *> &classMap)
+{
+    out() << "<p><table width=\"100%\">\n";
+    QMap<QString, const Node *>::ConstIterator c = classMap.begin();
+    while (c != classMap.end()) {
+	out() << "<tr bgcolor=#f0f0f0>";
+	out() << "<td><b>";
+	generateFullName(*c, relative, marker);
+	out() << "</b>";
+        Text brief = (*c)->doc().briefText();
+        if (!brief.isEmpty()) {
+	    out() << "<td>";
+            generateText(brief, *c, marker);
+	}
+	out() << '\n';
+	++c;
+    }
+    out() << "</table>\n";
+}
+
+void HtmlGenerator::generateCompactList(const Node *relative, CodeMarker *marker,
+					const QMap<QString, const Node *> &classMap)
+{
+    const int NumParagraphs = 27; // 26 letters plus symbols
+    const int NumColumns = 5; // number of columns in the result
+
+    /*
+      First, find out the common prefix of all classes. For Qt, the
+      prefix is Q. It can easily be derived from the first and last
+      classes in alphabetical order (QAccel and QXtWidget in Qt 2.1).
+    */
+    int commonPrefixLen = 0;
+    QString first = classMap.begin().key();
+    QMap<QString, const Node *>::ConstIterator beforeEnd = classMap.end();
+    QString last = (--beforeEnd).key();
+
+    while (commonPrefixLen < first.length() + 1 && commonPrefixLen < last.length() + 1
+	   && first[commonPrefixLen] == last[commonPrefixLen])
+	commonPrefixLen++;
+
+    /*
+      Divide the data into 27 paragraphs: A, B, ..., Z, misc. QAccel
+      will fall in paragraph 0 (A) and QXtWidget in paragraph 23 (X).
+      This is the only place where we assume that NumParagraphs is
+      27. Each paragraph is a QMap<QString, const Node *>.
+    */
+    QMap<QString, const Node *> paragraph[NumParagraphs];
+    QString paragraphName[NumParagraphs];
+
+    QMap<QString, const Node *>::ConstIterator c = classMap.begin();
+    while (c != classMap.end()) {
+	QString key = c.key().mid( commonPrefixLen ).lower();
+	int paragraphNo = NumParagraphs - 1;
+
+	if ( key[0].unicode() >= 'a' && key[0].unicode() < 'z' ) {
+	    paragraphNo = key[0].unicode() - 'a';
+	    paragraphName[paragraphNo] = key[0].upper();
+	} else {
+	    paragraphNo = 26;
+	    paragraphName[paragraphNo] = QChar( '?' );
+	}
+	paragraph[paragraphNo].insert( key, c.value() );
+	++c;
+    }
+
+    /*
+      Each paragraph j has a size: paragraph[j].count(). In the
+      discussion, we will assume paragraphs 0 to 5 will have sizes
+      3, 1, 4, 1, 5, 9.
+
+      We now want to compute the paragraph offset. Paragraphs 0 to 6
+      start at offsets 0, 3, 4, 8, 9, 14, 23.
+    */
+    int paragraphOffset[NumParagraphs + 1];
+    int i, j, k;
+
+    paragraphOffset[0] = 0;
+    for ( j = 0; j < NumParagraphs; j++ )
+	paragraphOffset[j + 1] = paragraphOffset[j] + paragraph[j].count();
+
+    int firstOffset[NumColumns + 1];
+    int currentOffset[NumColumns];
+    int currentParagraphNo[NumColumns];
+    int currentOffsetInParagraph[NumColumns];
+
+    int numRows = ( classMap.count() + NumColumns - 1 ) / NumColumns;
+    int curParagNo = 0;
+
+    for ( i = 0; i < NumColumns; i++ ) {
+	firstOffset[i] = i * numRows;
+	currentOffset[i] = firstOffset[i];
+
+	for ( j = curParagNo; j < NumParagraphs; j++ ) {
+	    if ( paragraphOffset[j] > firstOffset[i] )
+		break;
+	    if ( paragraphOffset[j] <= firstOffset[i] )
+		curParagNo = j;
+	}
+	currentParagraphNo[i] = curParagNo;
+	currentOffsetInParagraph[i] = firstOffset[i] -
+				      paragraphOffset[curParagNo];
+    }
+    firstOffset[NumColumns] = classMap.count();
+
+    out() << "<p><table width=\"100%\">\n";
+    for ( k = 0; k < numRows; k++ ) {
+	out() << "<tr>\n";
+	for ( i = 0; i < NumColumns; i++ ) {
+	    if ( currentOffset[i] >= firstOffset[i + 1] ) {
+		// this column is finished
+		out() << "<td>\n<td>\n";
+	    } else {
+		while (currentOffsetInParagraph[i] == paragraph[currentParagraphNo[i]].count()) {
+		    currentParagraphNo[i]++;
+		    currentOffsetInParagraph[i] = 0;
+		}
+
+		out() << "<td align=\"right\">";
+		if ( currentOffsetInParagraph[i] == 0 ) {
+		    // start a new paragraph
+		    out() << "<b>" << paragraphName[currentParagraphNo[i]] << "&nbsp;</b>";
+		}
+		out() << "\n";
+
+		// bad loop
+		QMap<QString, const Node *>::Iterator it;
+		it = paragraph[currentParagraphNo[i]].begin();
+		for ( j = 0; j < currentOffsetInParagraph[i]; j++ )
+		    ++it;
+
+		out() << "<td>";
+                generateFullName(it.value(), relative, marker);
+		out() << "\n";
+
+		currentOffset[i]++;
+		currentOffsetInParagraph[i]++;
+	    }
+	}
+    }
+    out() << "</table>\n";
+}
+
+void HtmlGenerator::generateFunctionIndex(const Node *relative, CodeMarker *marker)
+{
+    out() << "<center><font size=+1><b>";
+    for ( int i = 0; i < 26; i++ ) {
+	QChar ch( 'a' + i );
+	out() << QString("<a href=\"#%1\">%2</a> ").arg(ch).arg(ch.upper());
+    }
+    out() << "</b></font></center>\n";
+
+    char nextLetter = 'a';
+    char currentLetter;
+
+    out() << "<ul>\n";
+    QMap<QString, QMap<QString, const Node *> >::ConstIterator f = funcIndex.begin();
+    while (f != funcIndex.end()) {
+	out() << "<li>";
+
+	currentLetter = f.key()[0].unicode();
+	while (islower(currentLetter) && currentLetter >= nextLetter) {
+	    out() << QString("<a name=\"%1\"></a>\n").arg(nextLetter);
+	    nextLetter++;
+	}
+
+	out() << protect(f.key()) << ":";
+	QMap<QString, const Node *>::ConstIterator s = (*f).begin();
+	while ( s != (*f).end() ) {
+	    out() << " ";
+	    generateFullName((*s)->parent(), relative, marker, *s);
+	    ++s;
+	}
+	++f;
+    }
+    out() << "</ul>\n";
 }
 
 void HtmlGenerator::generateSynopsis(const Node *node, const InnerNode *relative,
@@ -694,7 +921,7 @@ QString HtmlGenerator::cleanRef( const QString& ref )
 	    clean += "-gt";
 	} else {
 	    clean += "-";
-	    clean += QString::number( (int) ref[i].unicode(), 16 );
+	    clean += QString::number((int)ref[i].unicode(), 16);
 	}
     }
     return clean;
@@ -735,7 +962,7 @@ QString HtmlGenerator::highlightedCode(const QString& markedCode, const Node *re
     QString html = markedCode;
 
     int k = 0;
-    while ( (k = html.find(linkTag, k)) != -1 ) {
+    while ((k = html.find(linkTag, k)) != -1) {
 	QString begin;
 	QString end;
 	QString link = linkForNode(CodeMarker::nodeForString(linkTag.cap(2)), relative);
@@ -853,13 +1080,65 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
     return link;
 }
 
-void HtmlGenerator::generateFullName( const Node *apparentNode, const Node *relative,
-				      CodeMarker *marker, const Node *actualNode )
+void HtmlGenerator::generateFullName(const Node *apparentNode, const Node *relative,
+				     CodeMarker *marker, const Node *actualNode)
 {
     if ( actualNode == 0 )
 	actualNode = apparentNode;
-    out() << "<a href=\"" << linkForNode( actualNode, relative ) << "\">"
-	  << protect( plainCode(marker->markedUpFullName(apparentNode,
-							 relative)) )
+    out() << "<a href=\"" << linkForNode(actualNode, relative) << "\">"
+	  << protect(plainCode(marker->markedUpFullName(apparentNode, relative)))
 	  << "</a>";
+}
+
+void HtmlGenerator::findAllClasses(const InnerNode *node)
+{
+    NodeList::ConstIterator c = node->childNodes().begin();
+    while (c != node->childNodes().end()) {
+	if ((*c)->access() != Node::Private) {
+	    if ((*c)->type() == Node::Class && !(*c)->doc().isEmpty()) {
+	        allClasses.insert((*c)->name(), *c);
+                if ((*c)->status() == Node::Main)
+		    mainClasses.insert((*c)->name(), *c);
+	    }
+            if ((*c)->isInnerNode())
+	        findAllClasses(static_cast<InnerNode *>(*c));
+	}
+	++c;
+    }
+}
+
+void HtmlGenerator::findAllFunctions(const InnerNode *node)
+{
+    NodeList::ConstIterator c = node->childNodes().begin();
+    while (c != node->childNodes().end()) {
+	if ((*c)->access() != Node::Private) {
+	    if ((*c)->isInnerNode()) {
+		findAllFunctions(static_cast<const InnerNode *>(*c));
+            } else if ((*c)->type() == Node::Function) {
+		const FunctionNode *func = static_cast<const FunctionNode *>(*c);
+                if (func->status() != Node::Obsolete && func->metaness() != FunctionNode::Ctor
+			&& func->metaness() != FunctionNode::Dtor) {
+		    funcIndex[(*c)->name()].insert((*c)->parent()->name(), *c);
+		}
+            }
+        }
+	++c;
+    }
+}
+
+int HtmlGenerator::hOffset(const Node *node)
+{
+    switch (node->type()) {
+    case Node::Namespace:
+    case Node::Class:
+	return 2;
+    case Node::Fake:
+	return 1;
+    case Node::Enum:
+    case Node::Typedef:
+    case Node::Function:
+    case Node::Property:
+    default:
+	return 3;
+    }
 }

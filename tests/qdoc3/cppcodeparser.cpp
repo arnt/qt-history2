@@ -25,7 +25,7 @@
 #define COMMAND_PAGE                    Doc::alias("page")
 #define COMMAND_PROPERTY                Doc::alias("property")
 #define COMMAND_REIMP                   Doc::alias("reimp")
-#define COMMAND_RELATED                 Doc::alias("related")
+#define COMMAND_RELATES                 Doc::alias("relates")
 #define COMMAND_TYPEDEF                 Doc::alias("typedef")
 
 CppCodeParser::CppCodeParser()
@@ -137,13 +137,12 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 
 Set<QString> CppCodeParser::topicCommands()
 {
-    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE
-			  << COMMAND_FN << COMMAND_GROUP << COMMAND_MODULE
+    return Set<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_FILE << COMMAND_FN
+			  << COMMAND_GROUP << COMMAND_MODULE
 #ifdef QDOC2_COMPAT
 			  << COMMAND_OVERLOAD
 #endif
-			  << COMMAND_PAGE << COMMAND_PROPERTY
-			  << COMMAND_TYPEDEF;
+			  << COMMAND_PAGE << COMMAND_PROPERTY << COMMAND_TYPEDEF;
 }
 
 Node *CppCodeParser::processTopicCommand( const Doc& doc,
@@ -224,7 +223,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 Set<QString> CppCodeParser::otherMetaCommands()
 {
     return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD
-				<< COMMAND_REIMP << COMMAND_RELATED;
+				<< COMMAND_REIMP << COMMAND_RELATES;
 }
 
 void CppCodeParser::processOtherMetaCommand( const Doc& doc,
@@ -260,6 +259,14 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	} else {
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
+    } else if (command == COMMAND_RELATES) {
+	ClassNode *pseudoParent = (ClassNode *)tre->findNode(arg, Node::Class);
+	if (!pseudoParent) {
+	    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
+				   .arg(arg).arg(COMMAND_RELATES));
+	} else {
+	    node->setRelates(pseudoParent);
+        }
     } else {
 	processCommonMetaCommand( doc.location(), command, arg, node );
     }
@@ -492,15 +499,17 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
     return TRUE;
 }
 
-bool CppCodeParser::matchFunctionDecl( InnerNode *parent,
-				       QStringList *parentPathPtr,
-				       FunctionNode **funcPtr )
+bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPathPtr,
+				      FunctionNode **funcPtr)
 {
     CodeChunk returnType;
     QStringList parentPath;
     QString name;
 
-    bool sta = match( Tok_static );
+    if (match(Tok_friend))
+	return false;
+    match(Tok_inline);
+    bool sta = match(Tok_static);
     FunctionNode::Virtualness vir = FunctionNode::NonVirtual;
     if ( match(Tok_virtual) )
 	vir = FunctionNode::ImpureVirtual;
@@ -508,9 +517,8 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent,
     if ( !matchDataType(&returnType) )
 	return FALSE;
 
-    if ( tok == Tok_operator &&
-	 (returnType.toString().isEmpty() ||
-	  returnType.toString().endsWith("::")) ) {
+    if (tok == Tok_operator &&
+	 (returnType.toString().isEmpty() || returnType.toString().endsWith("::"))) {
 	// 'QString::operator const char *()'
 	parentPath = QStringList::split( sep, returnType.toString() );
 	returnType = CodeChunk();
@@ -555,22 +563,22 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent,
     }
     readToken();
 
-    FunctionNode *func = new FunctionNode( parent, name );
-    func->setAccess( access );
-    func->setLocation( location() );
-    func->setReturnType( returnType.toString() );
+    FunctionNode *func = new FunctionNode(parent, name);
+    func->setAccess(access);
+    func->setLocation(location());
+    func->setReturnType(returnType.toString());
 
-    func->setMetaness( metaness );
-    if ( parent != 0 ) {
-	if ( name == parent->name() ) {
-	    func->setMetaness( FunctionNode::Ctor );
-	} else if ( name.startsWith("~") )  {
-	    func->setMetaness( FunctionNode::Dtor );
+    func->setMetaness(metaness);
+    if (parent) {
+	if (name == parent->name()) {
+	    func->setMetaness(FunctionNode::Ctor);
+	} else if (name.startsWith("~"))  {
+	    func->setMetaness(FunctionNode::Dtor);
 	}
     }
-    func->setStatic( sta );
+    func->setStatic(sta);
 
-    if ( tok != Tok_RightParen ) {
+    if (tok != Tok_RightParen) {
 	do {
 	    if ( !matchParameter(func) )
 		return FALSE;
@@ -909,9 +917,7 @@ bool CppCodeParser::matchDocsAndStuff()
 		if ( matchFunctionDecl(0, &parentPath, &clone) ) {
 		    func = tre->findFunctionNode( parentPath, clone );
 		    if ( func == 0 ) {
-			doc.location().warning( tr("Cannot tie this"
-						    " documentation to"
-						    " anything") );
+			doc.location().warning(tr("Cannot tie this documentation to anything"));
 		    } else {
 			func->borrowParameterNames( clone );
 			nodes.append( func );

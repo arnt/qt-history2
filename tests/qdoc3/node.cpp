@@ -6,8 +6,10 @@
 
 Node::~Node()
 {
-    if ( par != 0 )
-	par->removeChild( this );
+    if (par)
+	par->removeChild(this);
+    if (rel)
+	rel->removeRelated(this);
 }
 
 void Node::setDoc( const Doc& doc, bool replace )
@@ -20,16 +22,25 @@ void Node::setDoc( const Doc& doc, bool replace )
 }
 
 Node::Node( Type type, InnerNode *parent, const QString& name )
-    : typ(type), acc(Public), sta(Commendable), saf(UnspecifiedSafeness), par(parent), nam(name)
+    : typ(type), acc(Public), sta(Commendable), saf(UnspecifiedSafeness), par(parent), rel(0),
+      nam(name)
 {
     if (par)
 	par->addChild(this);
 }
 
+void Node::setRelates(InnerNode *pseudoParent)
+{
+    if (rel)
+	rel->removeRelated(this);
+    rel = pseudoParent;
+    pseudoParent->related.append(this);
+}
+
 Node::Status Node::inheritedStatus() const
 {
     Status parentStatus = Commendable;
-    if ( par )
+    if (par)
 	parentStatus = inheritedStatus();
     return QMIN( sta, parentStatus );
 }
@@ -156,7 +167,7 @@ void InnerNode::normalizeOverloads()
 
 void InnerNode::deleteChildren()
 {
-    while ( !children.isEmpty() )
+    while (!children.isEmpty())
 	delete children.first();
 }
 
@@ -278,6 +289,11 @@ void InnerNode::removeChild( Node *child )
 	if ( *ent == child )
 	    childMap.remove( ent );
     }
+}
+
+void InnerNode::removeRelated(Node *pseudoChild)
+{
+    related.remove(pseudoChild);
 }
 
 bool LeafNode::isInnerNode() const

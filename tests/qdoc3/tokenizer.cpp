@@ -17,10 +17,10 @@
   Keep in sync with tokenizer.h.
 */
 static const char kwords[][16] = {
-    "char", "class", "const", "double", "enum", "int", "long", "operator",
-    "private", "protected", "public", "short", "signals", "signed", "slots",
-    "static", "struct", "template", "typedef", "union", "unsigned", "virtual",
-    "void", "volatile", "Q_ENUMS", "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY"
+    "char", "class", "const", "double", "enum", "friend", "inline", "int", "long", "operator",
+    "private", "protected", "public", "short", "signals", "signed", "slots", "static", "struct",
+    "template", "typedef", "union", "unsigned", "virtual", "void", "volatile", "Q_ENUMS",
+    "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY"
 };
 
 static const int KwordHashTableSize = 512;

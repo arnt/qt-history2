@@ -19,7 +19,7 @@ class Node
 public:
     enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property };
     enum Access { Public, Protected, Private };
-    enum Status { Obsolete, Deprecated, Preliminary, Commendable }; // don't reorder
+    enum Status { Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
 
     virtual ~Node();
@@ -29,10 +29,12 @@ public:
     void setDoc( const Doc& doc, bool replace = false );
     void setStatus( Status status ) { sta = status; }
     void setThreadSafeness(ThreadSafeness safeness) { saf = safeness; }
+    void setRelates(InnerNode *pseudoParent);
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
     InnerNode *parent() const { return par; }
+    InnerNode *relates() const { return rel; }
     const QString& name() const { return nam; }
 
     Access access() const { return acc; }
@@ -49,9 +51,10 @@ protected:
 private:
     Type typ : 3;
     Access acc : 2;
-    Status sta : 2;
+    Status sta : 3;
     ThreadSafeness saf : 2;
     InnerNode *par;
+    InnerNode *rel;
     QString nam;
     Location loc;
     Doc d;
@@ -70,7 +73,7 @@ public:
     Node *findNode( const QString& name, Type type );
     FunctionNode *findFunctionNode( const QString& name );
     FunctionNode *findFunctionNode( const FunctionNode *clone );
-    void addInclude( const QString& include );
+    void addInclude(const QString &include);
     void setOverload( const FunctionNode *func, bool overlode );
     void normalizeOverloads();
     void deleteChildren();
@@ -80,7 +83,8 @@ public:
     const Node *findNode( const QString& name, Type type ) const;
     const FunctionNode *findFunctionNode( const QString& name ) const;
     const FunctionNode *findFunctionNode( const FunctionNode *clone ) const;
-    const NodeList& childNodes() const { return children; }
+    const NodeList & childNodes() const { return children; }
+    const NodeList & relatedNodes() const { return related; }
     int overloadNumber( const FunctionNode *func ) const;
     int numOverloads( const QString& funcName ) const;
     const QStringList& includes() const { return inc; }
@@ -92,11 +96,13 @@ private:
     friend class Node;
 
     static bool isSameSignature( const FunctionNode *f1, const FunctionNode *f2 );
-    void addChild( Node *child );
-    void removeChild( Node *child );
+    void addChild(Node *child);
+    void removeChild(Node *child);
+    void removeRelated(Node *pseudoChild);
 
     QStringList inc;
     NodeList children;
+    NodeList related;
     QMap<QString, Node *> childMap;
     QMap<QString, Node *> primaryFunctionMap;
     QMap<QString, NodeList> secondaryFunctionMap;
@@ -155,10 +161,14 @@ public:
 
     FakeNode( InnerNode *parent, const QString& name, SubType subType );
 
+    void setTitle(const QString &title) { tle = title; }
+
     SubType subType() const { return sub; }
+    const QString &title() const { return tle; }
 
 private:
     SubType sub;
+    QString tle;
 };
 
 class EnumItem

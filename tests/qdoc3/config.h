@@ -31,15 +31,15 @@ public:
     QList<QRegExp> getRegExpList( const QString& var ) const;
     Set<QString> subVars( const QString& var ) const;
     QStringList getAllFiles( const QString& filesVar, const QString& dirsVar,
-			     const QString& nameFilter );
+			     const QString& defaultNameFilter );
 
-    static QString findFile( const Location& location, const QStringList& files,
+    static QString findFile( const Location& location, const QStringList &files,
 			     const QStringList& dirs, const QString& fileName,
 			     QString& userFriendlyFilePath );
-    static QString findFile( const Location& location, const QStringList& files,
-			     const QStringList& dirs, const QString& fileBase,
-			     const QStringList& fileExtensions,
-			     QString& userFriendlyFilePath );
+    static QString findFile( const Location &location, const QStringList &files,
+			     const QStringList &dirs, const QString &fileBase,
+			     const QStringList &fileExtensions,
+			     QString &userFriendlyFilePath );
     static QString copyFile( const Location& location,
 			     const QString& sourceFilePath,
 			     const QString& userFriendlySourceFilePath,

@@ -53,15 +53,19 @@ private:
 #endif
     QString generateListOfAllMemberFile( const ClassNode *classe,
 					 CodeMarker *marker );
-    void generateSynopsis( const Node *node, const InnerNode *relative,
-			   CodeMarker *marker,
-			   CodeMarker::SynopsisStyle style );
-    void generateClassSectionList( const ClassSection& section,
-				   const ClassNode *relative,
-				   CodeMarker *marker,
-				   CodeMarker::SynopsisStyle style );
-    void generateFullName( const Node *apparentNode, const Node *relative,
-			   CodeMarker *marker, const Node *actualNode = 0 );
+    void generateClassHierarchy(const Node *relative, CodeMarker *marker,
+				const QMap<QString, const Node *> &classMap);
+    void generateAnnotatedList(const Node *relative, CodeMarker *marker,
+			       const QMap<QString, const Node *> &classMap);
+    void generateCompactList(const Node *relative, CodeMarker *marker,
+			     const QMap<QString, const Node *> &classMap);
+    void generateFunctionIndex(const Node *relative, CodeMarker *marker);
+    void generateSynopsis(const Node *node, const InnerNode *relative, CodeMarker *marker,
+			  CodeMarker::SynopsisStyle style);
+    void generateClassSectionList(const ClassSection& section, const ClassNode *relative,
+				  CodeMarker *marker, CodeMarker::SynopsisStyle style);
+    void generateFullName(const Node *apparentNode, const Node *relative, CodeMarker *marker,
+			  const Node *actualNode = 0);
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );
@@ -72,6 +76,9 @@ private:
 #endif
     QString refForNode( const Node *node );
     QString linkForNode( const Node *node, const Node *relative );
+    void findAllClasses(const InnerNode *node);
+    void findAllFunctions(const InnerNode *node);
+    static int hOffset(const Node *node);
 
 #if 0
     NavigationBar currentNavigationBar;
@@ -85,6 +92,10 @@ private:
     QString footer;
     QString address;
     QString version;
+    const InnerNode *root;
+    QMap<QString, const Node *> allClasses;
+    QMap<QString, const Node *> mainClasses;
+    QMap<QString, QMap<QString, const Node *> > funcIndex;
 };
 
 #define HTMLGENERATOR_ADDRESS           "address"

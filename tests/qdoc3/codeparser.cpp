@@ -8,6 +8,7 @@
 #define COMMAND_DEPRECATED              Doc::alias("deprecated")
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
 #define COMMAND_INMODULE                Doc::alias("inmodule")
+#define COMMAND_MAINCLASS		Doc::alias("mainclass")
 #define COMMAND_NONREENTRANT            Doc::alias("nonreentrant")
 #define COMMAND_OBSOLETE                Doc::alias("obsolete")
 #define COMMAND_PRELIMINARY             Doc::alias("preliminary")
@@ -16,6 +17,7 @@
 #define COMMAND_PUBLIC                  Doc::alias("public")
 #define COMMAND_REENTRANT               Doc::alias("reentrant")
 #define COMMAND_THREADSAFE              Doc::alias("threadsafe")
+#define COMMAND_TITLE			Doc::alias("title")
 
 QList<CodeParser *> CodeParser::parsers;
 
@@ -85,15 +87,14 @@ CodeParser *CodeParser::parserForLanguage( const QString& language )
 Set<QString> CodeParser::commonMetaCommands()
 {
     return Set<QString>() << COMMAND_DEPRECATED << COMMAND_INGROUP << COMMAND_INMODULE
-			  << COMMAND_NONREENTRANT << COMMAND_OBSOLETE << COMMAND_PRELIMINARY
-                          << COMMAND_PRIVATE << COMMAND_PROTECTED << COMMAND_PUBLIC
-                          << COMMAND_REENTRANT << COMMAND_THREADSAFE;
+			  << COMMAND_MAINCLASS << COMMAND_NONREENTRANT << COMMAND_OBSOLETE
+                          << COMMAND_PRELIMINARY << COMMAND_PRIVATE << COMMAND_PROTECTED
+                          << COMMAND_PUBLIC << COMMAND_REENTRANT << COMMAND_THREADSAFE
+                          << COMMAND_TITLE;
 }
 
-void CodeParser::processCommonMetaCommand( const Location& /* location */,
-					   const QString& command,
-					   const QString& /* arg */,
-					   Node *node )
+void CodeParser::processCommonMetaCommand(const Location &location, const QString &command,
+					  const QString &arg, Node *node)
 {
     if ( command == COMMAND_DEPRECATED ) {
 	node->setStatus( Node::Deprecated );
@@ -101,6 +102,8 @@ void CodeParser::processCommonMetaCommand( const Location& /* location */,
 	/* ... */
     } else if ( command == COMMAND_INMODULE ) {
 	/* ... */
+    } else if (command == COMMAND_MAINCLASS) {
+	node->setStatus(Node::Main);
     } else if ( command == COMMAND_OBSOLETE ) {
 	node->setStatus( Node::Obsolete );
     } else if ( command == COMMAND_NONREENTRANT ) {
@@ -117,5 +120,12 @@ void CodeParser::processCommonMetaCommand( const Location& /* location */,
 	node->setThreadSafeness(Node::Reentrant);
     } else if (command == COMMAND_THREADSAFE) {
 	node->setThreadSafeness(Node::ThreadSafe);
+    } else if (command == COMMAND_TITLE) {
+	if (node->type() == Node::Fake) {
+	    FakeNode *fake = static_cast<FakeNode *>(node);
+            fake->setTitle(arg);
+        } else {
+	    location.warning(tr("Ignored '\\%1'").arg(COMMAND_TITLE));
+	}
     }
 }

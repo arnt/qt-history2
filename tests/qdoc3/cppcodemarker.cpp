@@ -154,15 +154,19 @@ QString CppCodeMarker::markedUpName( const Node *node )
 
 QString CppCodeMarker::markedUpFullName(const Node *node, const Node *relative)
 {
-    QString fullName;
-    for ( ;; ) {
-	fullName.prepend( markedUpName(node) );
-	if ( node->parent() == relative || node->parent()->name().isEmpty() )
-	    break;
-	node = node->parent();
-	fullName.prepend( "<@op>::</@op>" );
+    if (node->name().isEmpty()) {
+	return "global";
+    } else {
+	QString fullName;
+	for (;;) {
+	    fullName.prepend(markedUpName(node));
+	    if (node->parent() == relative || node->parent()->name().isEmpty())
+		break;
+	    fullName.prepend("<@op>::</@op>");
+	    node = node->parent();
+        }
+        return fullName;
     }
-    return fullName;
 }
 
 QString CppCodeMarker::markedUpIncludes( const QStringList& includes )
@@ -210,7 +214,7 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	FastClassSection publicTypes(classe, "Public Types", "public type", "public types");
 	FastClassSection readOnlyProperties(classe, "Read-Only Properties", "read-only property",
 					    "read-only properties");
-	FastClassSection relatedNonMemberFunctions(classe, "Related Non-member Functions",
+	FastClassSection relatedNonMemberFunctions(classe, "Related Non-Member Functions",
 						   "related non-member function",
                                                    "related non-member functions");
 	FastClassSection staticPrivateMembers(classe, "Static Private Members",
@@ -223,10 +227,17 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	FastClassSection writableProperties(classe, "Writable Properties", "writable property",
 					    "writable properties");
 
-	QStack<const ClassNode *> stack;
-	stack.push( classe );
+	NodeList::ConstIterator r = classe->relatedNodes().begin();
+        while (r != classe->relatedNodes().end()) {
+	    if ((*r)->type() == Node::Function)
+		insert(relatedNonMemberFunctions, *r, style);
+	    ++r;
+        }
 
-	while ( !stack.isEmpty() ) {
+	QStack<const ClassNode *> stack;
+	stack.push(classe);
+
+	while (!stack.isEmpty()) {
 	    const ClassNode *ancestorClass = stack.pop();
 
 	    NodeList::ConstIterator c = ancestorClass->childNodes().begin();
@@ -305,19 +316,24 @@ QList<ClassSection> CppCodeMarker::classSections(const ClassNode *classe, Synops
 	append( sections, protectedFunctions );
 	append( sections, protectedSlots );
 	append( sections, staticProtectedMembers );
-#if 0
 	append( sections, privateTypes );
 	append( sections, privateFunctions );
 	append( sections, privateSlots );
 	append( sections, staticPrivateMembers );
-#endif
 	append( sections, relatedNonMemberFunctions );
     } else if (style == Detailed) {
 	FastClassSection memberFunctions(classe, "Member Function Documentation");
 	FastClassSection memberTypes(classe, "Member Type Documentation");
 	FastClassSection properties(classe, "Property Documentation");
 	FastClassSection relatedNonMemberFunctions(classe,
-						   "Related Non-member Function Documentation");
+						   "Related Non-Member Function Documentation");
+
+	NodeList::ConstIterator r = classe->relatedNodes().begin();
+        while (r != classe->relatedNodes().end()) {
+	    if ((*r)->type() == Node::Function)
+		insert(relatedNonMemberFunctions, *r, style);
+	    ++r;
+        }
 
 	NodeList::ConstIterator c = classe->childNodes().begin();
 	while ( c != classe->childNodes().end() ) {

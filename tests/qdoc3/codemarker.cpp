@@ -171,19 +171,19 @@ QString CodeMarker::sortName( const Node *node )
     }
 }
 
-void CodeMarker::insert( FastClassSection& fastSection, Node *node,
-			 SynopsisStyle style )
+void CodeMarker::insert(FastClassSection &fastSection, Node *node, SynopsisStyle style)
 {
-    bool inheritedMember = (node->parent() != (const InnerNode *) fastSection.classe);
+    bool inheritedMember = (!node->relates() &&
+			    (node->parent() != (const InnerNode *)fastSection.classe));
     bool irrelevant = FALSE;
 
-    if ( node->type() == Node::Function ) {
+    if ( node->access() == Node::Private) {
+	irrelevant = true;
+    } else if ( node->type() == Node::Function ) {
 	FunctionNode *func = (FunctionNode *) node;
-	irrelevant = ( (inheritedMember &&
-			(func->metaness() == FunctionNode::Ctor ||
-			 func->metaness() == FunctionNode::Dtor)) ||
-			(func->overloadNumber() != 1 &&
-			 style == SeparateList) );
+	irrelevant = (inheritedMember
+		      && (func->metaness() == FunctionNode::Ctor ||
+			  func->metaness() == FunctionNode::Dtor));
     } else if ( node->type() == Node::Enum ) {
 	irrelevant = ( inheritedMember && style != SeparateList );
     }
@@ -193,11 +193,10 @@ void CodeMarker::insert( FastClassSection& fastSection, Node *node,
 	    fastSection.memberMap.insert( sortName(node), node );
 	} else {
 	    if ( node->parent()->type() == Node::Class ) {
-		if ( fastSection.inherited.isEmpty() ||
-		     fastSection.inherited.last().first != node->parent() ) {
-		    QPair<ClassNode *, int> p( (ClassNode *) node->parent(),
-					       0 );
-		    fastSection.inherited.append( p );
+		if (fastSection.inherited.isEmpty()
+			|| fastSection.inherited.last().first != node->parent()) {
+		    QPair<ClassNode *, int> p((ClassNode *)node->parent(), 0);
+		    fastSection.inherited.append(p);
 		}
 		fastSection.inherited.last().second++;
 	    }
