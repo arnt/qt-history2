@@ -16,12 +16,13 @@ QMakeMetaInfo::readLib(const QString &lib)
     QString meta_file = findLib(lib);
     if(!meta_file.isNull()) {
 	if(meta_file.endsWith(Option::pkgcfg_ext)) {
-	    return readLibtoolFile(meta_file);
-	} else if(meta_file.endsWith(Option::libtool_ext)) {
 	    return readPkgCfgFile(meta_file);
+	} else if(meta_file.endsWith(Option::libtool_ext)) {
+	    return readLibtoolFile(meta_file);
 	} else if(meta_file.endsWith(Option::prl_ext)) {
 	    QMakeProject proj;
-	    if(!proj.read(meta_file, QDir::currentDirPath(), QMakeProject::ReadProFile))
+	    if(!proj.read(Option::fixPathToLocalOS(meta_file), 
+			  QDir::currentDirPath(), QMakeProject::ReadProFile))
 		return FALSE;
 	    vars = proj.variables();
 	    return TRUE;
@@ -68,8 +69,48 @@ QMakeMetaInfo::findLib(const QString &lib)
 bool
 QMakeMetaInfo::readLibtoolFile(const QString &f)
 {
-    fprintf(stderr, "Must implement reading in libtool files (%s)!!!\n", f.latin1());
-    return FALSE;
+    /* I can just run the .la through the .pro parser since they are compatible.. */
+    QMakeProject proj;
+    if(!proj.read(Option::fixPathToLocalOS(f), QDir::currentDirPath(), QMakeProject::ReadProFile))
+	return FALSE;
+    QString dirf = Option::fixPathToTargetOS(f).section(Option::dir_sep, 0, -1);
+    if(dirf == f)
+	dirf = "";
+    else if(!dirf.isEmpty() && !dirf.endsWith(Option::output_dir))
+	dirf += Option::dir_sep;
+    QMap<QString, QStringList> &v = proj.variables();
+    for(QMap<QString, QStringList>::Iterator it = v.begin(); it != v.end(); ++it) {
+	QStringList lst = it.data();
+	if(lst.count() == 1 && (lst.first().startsWith("'") || lst.first().startsWith("\"")) &&
+	   lst.first().endsWith(QString(lst.first()[0])))
+	    lst = lst.first().mid(1, lst.first().length() - 2);
+	if(!vars.contains("QMAKE_PRL_TARGET") &&
+	   (it.key() == "dlname" || it.key() == "library_names" || it.key() == "old_library")) {
+	    QString dir = v["libdir"].first();
+	    if(dir.startsWith("'") || dir.startsWith("\"") && dir.endsWith(QString(dir[0])))
+		dir = dir.mid(1, dir.length() - 2);
+	    if(!dir.isEmpty() && !dir.endsWith(Option::dir_sep))
+		dir += Option::dir_sep;
+	    if(lst.count() == 1)
+		lst = QStringList::split(" ", lst.first());
+	    for(QStringList::Iterator lst_it = lst.begin(); lst_it != lst.end(); ++lst_it) {
+		if(QFile::exists(Option::fixPathToLocalOS(dir + (*lst_it)))) {
+		    vars["QMAKE_PRL_TARGET"] << dir + (*lst_it);
+		    break;
+		} else if(QFile::exists(Option::fixPathToLocalOS(dirf + (*lst_it)))) {
+		    vars["QMAKE_PRL_TARGET"] << dirf + (*lst_it);
+		    break;
+		} else if(QFile::exists(Option::fixPathToLocalOS(dirf + ".libs" + Option::dir_sep + 
+								 (*lst_it)))) {
+		    vars["QMAKE_PRL_TARGET"] << dirf + ".libs" + Option::dir_sep + (*lst_it);
+		    break;
+		}
+	    }
+	} else if(it.key() == "dependency_libs") {
+	    vars["QMAKE_PRL_LIBS"] += lst;
+	}
+    }
+    return TRUE;
 }
 
 bool
