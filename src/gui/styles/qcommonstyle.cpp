@@ -382,8 +382,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->setBrush(Qt::color0);
                 p->drawRect(opt->rect.x() + 4, opt->rect.y() + 4,
                             opt->rect.width() - 8, opt->rect.height() - 8);
-            } else {
-		p->setBrush(QBrush(Qt::color1));
             }
 	} else {
 	    QRect r = opt->rect;
@@ -391,7 +389,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 	    p->setBackground(QBrush(opt->palette.base()));
 	    p->setBackgroundMode(Qt::OpaqueMode);
             p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
-            QColor c = opt->palette.color(QPalette::Active, QPalette::Foreground);
 	    p->drawRect(r);
 	    if (opt->state & Style_Rectangle) {
 		r.addCoords(3,3, -3,-3);
