@@ -1843,7 +1843,9 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 {
     Q_ASSERT(d->type == Invalid);
     if (ptr) {
-	detach();
+        d = new Private;
+        d->ref = 1;
+        d->str_cache = 0;
 	d->type = typ;
 	d->value.ptr = ptr;
 	d->is_null = false;
@@ -1851,6 +1853,7 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 	    Private *x = new Private;
 	    x->ref = 1;
 	    x->type = d->type;
+            x->str_cache = 0;
 	    handler->construct(x, data());
 	    x->is_null = d->is_null;
 	    x = qAtomicSetPtr(&d, x);
