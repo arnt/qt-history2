@@ -1433,7 +1433,7 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
     opt.rect = fr;
 
     if (section < 0) {
-        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
+        style()->drawControl(QStyle::CE_Header, &opt, p, this);
         return;
     }
 
@@ -1458,12 +1458,12 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         opt.state |= QStyle::State_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
-        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
+        style()->drawControl(QStyle::CE_Header, &opt, p, this);
     } else {
         p->save();
         p->setClipRect(fr); // hack to keep styles working
         opt.rect.setRect(fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4);
-        style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
+        style()->drawControl(QStyle::CE_Header, &opt, p, this);
         if (orient == Qt::Horizontal) {
             p->setPen(palette().color(QPalette::Mid));
             p->drawLine(fr.x(), fr.y() + fr.height() - 1,

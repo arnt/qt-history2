@@ -6618,7 +6618,7 @@ void Q3TableHeader::paintSection(QPainter *p, int index, const QRect& fr)
        }
        if (!(opt.state & QStyle::State_Down))
            opt.state |= QStyle::State_Raised;
-       style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, p, this);
+       style()->drawControl(QStyle::CE_Header, &opt, p, this);
        paintSectionLabel(p, index, fr);
    }
 }
