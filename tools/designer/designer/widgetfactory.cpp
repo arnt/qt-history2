@@ -677,7 +677,14 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
     } else if ( className == "QToolButton" ) {
 	if ( init ) {
 	    QDesignerToolButton *tb = new QDesignerToolButton( parent, name );
-	    tb->setText( "..." );
+	    if (widgetOfContainer(parent)->inherits("QToolBox")) {
+		tb->setUsesTextLabel(TRUE);
+		tb->setTextLabel("...");
+		tb->setAutoRaise(TRUE);
+		tb->setTextPosition(QToolButton::BesideIcon);
+	    } else {
+		tb->setText( "..." );
+	    }
 	    return tb;
 	}
 	return new QDesignerToolButton( parent, name );
@@ -1134,7 +1141,9 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
 	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->inherits( "QSizeGrip" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->inherits( "QToolButton" ) && o->parent() && o->parent()->inherits( "QTabBar" ) )
+    else if ( o->inherits( "QButton" ) && o->parent()
+	      && (o->parent()->inherits( "QTabBar" )|| o->parent()->inherits("QToolBox"))
+	)
 	return ( lastWasAPassiveInteractor = TRUE );
     else if ( o->parent() && o->parent()->inherits( "QWizard" ) && o->inherits( "QPushButton" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
@@ -1145,8 +1154,6 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
     else if ( o->inherits( "QHideDock" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
     else if ( qstrcmp( o->name(), "designer_wizardstack_button" ) == 0 )
-	return ( lastWasAPassiveInteractor = TRUE );
-    else if ( o->inherits( "QToolBoxButton" ) )
 	return ( lastWasAPassiveInteractor = TRUE );
 
     if ( !o->isWidgetType() )
@@ -1271,8 +1278,16 @@ void WidgetFactory::initChangedProperties( QObject *o )
     if ( !o->inherits( "QDesignerToolBar" ) && !o->inherits( "QDesignerMenuBar" ) )
 	MetaDataBase::setPropertyChanged( o, "geometry", TRUE );
 
-    if ( o->inherits( "QPushButton" ) || o->inherits("QRadioButton") || o->inherits( "QCheckBox" ) || o->inherits( "QToolButton" ) )
-	MetaDataBase::setPropertyChanged( o, "text", TRUE );
+    if ( o->inherits( "QPushButton" ) || o->inherits("QRadioButton") || o->inherits( "QCheckBox" ) || o->inherits( "QToolButton" ) ) {
+	if (o->inherits("QToolButton") && widgetOfContainer((QWidget*)o->parent())->inherits("QToolBox")) {
+	    MetaDataBase::setPropertyChanged( o, "usesTextLabel", TRUE );
+	    MetaDataBase::setPropertyChanged( o, "textLabel", TRUE );
+	    MetaDataBase::setPropertyChanged( o, "autoRaise", TRUE );
+	    MetaDataBase::setPropertyChanged( o, "textPosition", TRUE );
+	} else {
+	    MetaDataBase::setPropertyChanged( o, "text", TRUE );
+	}
+    }
     else if ( o->inherits( "QGroupBox" ) )
 	MetaDataBase::setPropertyChanged( o, "title", TRUE );
     else if ( o->isA( "QFrame" ) ) {
