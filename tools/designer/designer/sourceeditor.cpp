@@ -141,7 +141,7 @@ void SourceEditor::save()
 	return;
     if ( formWindow() )
 	formWindow()->formFile()->syncCode();
-    else if ( sourceFile() )
+    else if ( sourceFile() && sourceFile()->editor() )
 	sourceFile()->setText( iFace->text() );
 }
 
