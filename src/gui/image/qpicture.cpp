@@ -79,6 +79,9 @@ static const char  *mfhdr_tag = "QPIC";		// header tag
 static const Q_UINT16 mfhdr_maj = 6;		// major version #
 static const Q_UINT16 mfhdr_min = 0;		// minor version #
 
+#define d d_func()
+#define q q_func()
+
 /*!
     Constructs an empty picture.
 
@@ -102,10 +105,10 @@ static const Q_UINT16 mfhdr_min = 0;		// minor version #
 */
 
 QPicture::QPicture( int formatVersion )
-    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
-    // set device type
+    : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice ),
+      d_ptr(new QPicturePrivate)
 {
-    d = new QPicturePrivate;
+    d_ptr->q_ptr = this;
     d->paintEngine = 0;
 
     if ( formatVersion == 0 )
@@ -129,8 +132,15 @@ QPicture::QPicture( int formatVersion )
 QPicture::QPicture( const QPicture &pic )
     : QPaintDevice( QInternal::Picture | QInternal::ExternalDevice )
 {
-    d = pic.d;
+    d_ptr = pic.d_ptr;
     d->ref();
+}
+
+QPicture::QPicture(QPicturePrivate &dptr)
+    : QPaintDevice(QInternal::Picture | QInternal::ExternalDevice),
+      d_ptr(&dptr)
+{
+    d_ptr->q_ptr = this;
 }
 
 /*!
@@ -357,7 +367,7 @@ bool QPicture::save( QIODevice *dev, const char *format )
 QRect QPicture::boundingRect() const
 {
     if ( !d->formatOk )
-        d->checkFormat();
+        d_ptr->checkFormat();
     return d->brect;
 }
 
@@ -1044,10 +1054,10 @@ QPicture QPicture::copy() const
 
 QPicture& QPicture::operator= (const QPicture& p)
 {
-    p.d->ref();				// avoid 'x = x'
-    if ( d->deref() )
-	delete d;
-    d = p.d;
+    p.d_ptr->ref(); // avoid 'x = x'
+    if (d_ptr->deref())
+	delete d_ptr;
+    d_ptr = p.d_ptr;
     return *this;
 }
 
@@ -1192,6 +1202,9 @@ QDataStream &operator>>( QDataStream &s, QPicture &r )
     r.d->resetFormat();
     return s;
 }
+
+#undef d
+#undef q
 
 #ifndef QT_NO_PICTUREIO
 #include "qregexp.h"

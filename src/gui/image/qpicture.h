@@ -25,6 +25,7 @@
 
 class Q_GUI_EXPORT QPicture : public QPaintDevice, public QPaintCommands // picture class
 {
+    Q_DECLARE_PRIVATE(QPicture);
 public:
     QPicture( int formatVersion = -1 );
     QPicture( const QPicture & );
@@ -62,6 +63,8 @@ public:
     QPaintEngine *engine() const;
 
 protected:
+    QPicture(QPicturePrivate &data);
+
     int		metric( int ) const;
     void	detach();
     QPicture	copy() const;
@@ -69,25 +72,24 @@ protected:
 private:
     bool	exec( QPainter *, QDataStream &, int );
 
-    QPicturePrivate *d;
-    friend struct QPicturePrivate;
+    QPicturePrivate *d_ptr;
     friend class QPicturePaintEngine;
 };
 
 
 inline bool QPicture::isNull() const
 {
-    return d->pictb.buffer().isNull();
+    return d_ptr->pictb.buffer().isNull();
 }
 
 inline uint QPicture::size() const
 {
-    return d->pictb.buffer().size();
+    return d_ptr->pictb.buffer().size();
 }
 
 inline const char* QPicture::data() const
 {
-    return d->pictb.buffer();
+    return d_ptr->pictb.buffer();
 }
 
 

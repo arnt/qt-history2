@@ -1,7 +1,9 @@
 #ifndef QPICTURE_P_H
 #define QPICTURE_P_H
 
+#include "private/qobject_p.h"
 #include "qbuffer.h"
+#include "qobjectdefs.h"
 #include "qrect.h"
 #include "qshared.h"
 
@@ -68,7 +70,17 @@ public:
     };
 };
 
-struct QPicturePrivate : public QShared, public QPaintCommands {
+class QPicturePrivate : public QShared, public QPaintCommands
+{
+    Q_DECLARE_PUBLIC(QPicture);
+    friend class QPicturePaintEngine;
+    friend QDataStream &operator<<(QDataStream &s, const QPicture &r);
+    friend QDataStream &operator>>(QDataStream &s, QPicture &r);
+
+public:
+    QPicturePrivate() : q_ptr(0) {}
+
+protected:
     bool checkFormat();
     void resetFormat();
 
@@ -79,6 +91,8 @@ struct QPicturePrivate : public QShared, public QPaintCommands {
     int	formatMinor;
     QRect brect;
     QPaintEngine *paintEngine;
+
+    QPicture *q_ptr;
 };
 
 #endif // QPICTURE_P_H

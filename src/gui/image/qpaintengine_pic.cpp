@@ -34,20 +34,20 @@ public:
     QPicturePrivate *pic_d;
 };
 
-#define dp d_func()
-#define qp q_func()
-#define pic_d dp->pic_d
+#define d d_func()
+#define q q_func()
+#define pic_d d->pic_d
 
 QPicturePaintEngine::QPicturePaintEngine()
     : QPaintEngine(*(new QPicturePaintEnginePrivate), CanRenderText)
 {
-    dp->pt = 0;
+    d->pt = 0;
 }
 
 QPicturePaintEngine::QPicturePaintEngine(QPaintEnginePrivate &dptr)
     : QPaintEngine(dptr, CanRenderText)
 {
-    dp->pt = 0;
+    d->pt = 0;
 }
 
 QPicturePaintEngine::~QPicturePaintEngine()
@@ -63,24 +63,24 @@ bool QPicturePaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, 
     pic_d = pic->d;
 
     Q_ASSERT(state->painter);
-    dp->pt = state->painter;
-    dp->s.setDevice(&pic_d->pictb);
-    dp->s.setVersion(pic_d->formatMajor);
+    d->pt = state->painter;
+    d->s.setDevice(&pic_d->pictb);
+    d->s.setVersion(pic_d->formatMajor);
 
     QByteArray empty;
     pic_d->pictb.setBuffer(empty); // reset byte array in buffer
     pic_d->pictb.open(IO_WriteOnly);
-    dp->s.writeRawBytes(mfhdr_tag, 4);
-    dp->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
-    dp->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);
+    d->s.writeRawBytes(mfhdr_tag, 4);
+    d->s << (Q_UINT16) 0 << (Q_UINT16) pic_d->formatMajor << (Q_UINT16) pic_d->formatMinor;
+    d->s << (Q_UINT8) PdcBegin << (Q_UINT8) sizeof(Q_INT32);
     pic_d->brect = QRect();
     if ( pic_d->formatMajor >= 4 ) {
 	QRect r = pic_d->brect;
-	dp->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-	      << (Q_INT32) r.height();
+	d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
+	     << (Q_INT32) r.height();
     }
     pic_d->trecs = 0;
-    dp->s << (Q_UINT32)pic_d->trecs; // total number of records
+    d->s << (Q_UINT32)pic_d->trecs; // total number of records
     pic_d->formatOk = false;
     setActive(true);
     return true;
@@ -89,7 +89,7 @@ bool QPicturePaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, 
 bool QPicturePaintEngine::end()
 {
     pic_d->trecs++;
-    dp->s << (Q_UINT8) PdcEnd << (Q_UINT8) 0;
+    d->s << (Q_UINT8) PdcEnd << (Q_UINT8) 0;
     int cs_start = sizeof(Q_UINT32);		// pos of checksum word
     int data_start = cs_start + sizeof(Q_UINT16);
     int brect_start = data_start + 2*sizeof(Q_INT16) + 2*sizeof(Q_UINT8);
@@ -97,14 +97,14 @@ bool QPicturePaintEngine::end()
     pic_d->pictb.at(brect_start);
     if (pic_d->formatMajor >= 4) { // bounding rectangle
 	QRect r = pic_d->brect;
-	dp->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
-	      << (Q_INT32) r.height();
+	d->s << (Q_INT32) r.left() << (Q_INT32) r.top() << (Q_INT32) r.width()
+	     << (Q_INT32) r.height();
     }
-    dp->s << (Q_UINT32) pic_d->trecs;			// write number of records
+    d->s << (Q_UINT32) pic_d->trecs;			// write number of records
     pic_d->pictb.at(cs_start);
     QByteArray buf = pic_d->pictb.buffer();
     Q_UINT16 cs = (Q_UINT16) qChecksum(buf.constData() + data_start, pos - data_start);
-    dp->s << cs;				// write checksum
+    d->s << cs;				// write checksum
     pic_d->pictb.close();
     setActive(false);
     return true;
@@ -112,15 +112,15 @@ bool QPicturePaintEngine::end()
 
 #define SERIALIZE_CMD(c) \
     pic_d->trecs++; \
-    dp->s << (Q_UINT8) c; \
-    dp->s << (Q_UINT8) 0; \
+    d->s << (Q_UINT8) c; \
+    d->s << (Q_UINT8) 0; \
     pos = pic_d->pictb.at()
 
 void QPicturePaintEngine::updatePen(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetPen);
-    dp->s << ps->pen;
+    d->s << ps->pen;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -128,7 +128,7 @@ void QPicturePaintEngine::updateBrush(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetBrush);
-    dp->s << ps->brush;
+    d->s << ps->brush;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -136,17 +136,17 @@ void QPicturePaintEngine::updateFont(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetFont);
-    dp->s << ps->font;
+    d->s << ps->font;
     writeCmdLength(pos, QRect(), false);
 }
 
 void QPicturePaintEngine::updateRasterOp(QPainterState *ps)
 {
     pic_d->trecs++;
-    dp->s << (Q_UINT8) PdcSetROP;
-    dp->s << (Q_UINT8) 0;
+    d->s << (Q_UINT8) PdcSetROP;
+    d->s << (Q_UINT8) 0;
     int pos = pic_d->pictb.at();
-    dp->s << (Q_INT8) ps->rasterOp;
+    d->s << (Q_INT8) ps->rasterOp;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -154,11 +154,11 @@ void QPicturePaintEngine::updateBackground(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetBkColor);
-    dp->s << ps->bgBrush.color();
+    d->s << ps->bgBrush.color();
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetBkMode);
-    dp->s << (Q_INT8) ps->bgMode;
+    d->s << (Q_INT8) ps->bgMode;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -166,15 +166,15 @@ void QPicturePaintEngine::updateXForm(QPainterState *ps)
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcSetWMatrix);
-//     dp->s << ps->matrix << (Q_INT8) true; // ### fix combine param
+//     d->s << ps->matrix << (Q_INT8) true; // ### fix combine param
 //     writeCmdLength(pos, QRect(), false);
 
 //     SERIALIZE_CMD(PdcSetWXform);
-//     dp->s << (Q_INT8) ps->WxF;
+//     d->s << (Q_INT8) ps->WxF;
 //     writeCmdLength(pos, QRect(), false);
 
 //     SERIALIZE_CMD(PdcSetVXform);
-//     dp->s << (Q_INT8) ps->VxF;
+//     d->s << (Q_INT8) ps->VxF;
 //     writeCmdLength(pos, QRect(), false);
 }
 
@@ -182,11 +182,11 @@ void QPicturePaintEngine::updateClipRegion(QPainterState *ps)
 {
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
-    dp->s << ps->clipRegion << (Q_INT8) QPainter::CoordPainter; // ### fix coord mode
+    d->s << ps->clipRegion << (Q_INT8) QPainter::CoordPainter; // ### fix coord mode
     writeCmdLength(pos, QRect(), false);
 
     SERIALIZE_CMD(PdcSetClip);
-    dp->s << (Q_INT8) ps->clipEnabled;
+    d->s << (Q_INT8) ps->clipEnabled;
     writeCmdLength(pos, QRect(), false);
 }
 
@@ -198,29 +198,29 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
 
     if ( length < 255 ) {			// write 8-bit length
 	pic_d->pictb.at(pos - 1);			// position to right index
-	dp->s << (Q_UINT8)length;
+	d->s << (Q_UINT8)length;
     } else {					// write 32-bit length
-	dp->s << (Q_UINT32)0;				// extend the buffer
+	d->s << (Q_UINT32)0;				// extend the buffer
 	pic_d->pictb.at(pos - 1);			// position to right index
-	dp->s << (Q_UINT8)255;			// indicate 32-bit length
+	d->s << (Q_UINT8)255;			// indicate 32-bit length
 	char *p = pic_d->pictb.buffer().data();
 	memmove( p+pos+4, p+pos, length );	// make room for 4 byte
-	dp->s << (Q_UINT32)length;
+	d->s << (Q_UINT32)length;
 	newpos += 4;
     }
     pic_d->pictb.at( newpos );				// set to new position
 
     if ( br.isValid() ) {
 	if ( corr ) {				// widen bounding rect
-	    int w2 = dp->pt->pen().width() / 2;
+	    int w2 = d->pt->pen().width() / 2;
 	    br.setCoords( br.left() - w2, br.top() - w2,
 			  br.right() + w2, br.bottom() + w2 );
 	}
 #ifndef QT_NO_TRANSFORMATIONS
-	br = dp->pt->worldMatrix().map( br );
+	br = d->pt->worldMatrix().map( br );
 #endif
-	if ( dp->pt->hasClipping() ) {
-	    QRect cr = dp->pt->clipRegion().boundingRect();
+	if ( d->pt->hasClipping() ) {
+	    QRect cr = d->pt->clipRegion().boundingRect();
 	    br &= cr;
 	}
 	if ( br.isValid() )
@@ -232,7 +232,7 @@ void QPicturePaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawLine);
-    dp->s << p1 << p2;
+    d->s << p1 << p2;
     writeCmdLength(pos, QRect(p1, p2).normalize(), true);
 }
 
@@ -240,7 +240,7 @@ void QPicturePaintEngine::drawRect(const QRect &r)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawRect);
-    dp->s << r;
+    d->s << r;
     writeCmdLength(pos, r, true);
 }
 
@@ -248,7 +248,7 @@ void QPicturePaintEngine::drawPoint(const QPoint &p)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPoint);
-    dp->s << p;
+    d->s << p;
     writeCmdLength(pos, QRect(p,p), true);
 }
 
@@ -264,7 +264,7 @@ void QPicturePaintEngine::drawRoundRect(const QRect &r, int xRnd, int yRnd)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawRoundRect);
-    dp->s << r << (Q_INT16)xRnd << (Q_INT16)yRnd;
+    d->s << r << (Q_INT16)xRnd << (Q_INT16)yRnd;
     writeCmdLength(pos, r, true);
 }
 
@@ -272,7 +272,7 @@ void QPicturePaintEngine::drawEllipse(const QRect &r)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawEllipse);
-    dp->s << r;
+    d->s << r;
     writeCmdLength(pos, r, true);
 }
 
@@ -280,7 +280,7 @@ void QPicturePaintEngine::drawArc(const QRect &r, int a, int alen)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawArc);
-    dp->s << r << (Q_INT16)a << (Q_INT16)alen;
+    d->s << r << (Q_INT16)a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
 
@@ -288,7 +288,7 @@ void QPicturePaintEngine::drawPie(const QRect &r, int _a, int alen)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPie);
-    dp->s << r << (Q_INT16)_a << (Q_INT16)alen;
+    d->s << r << (Q_INT16)_a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
 
@@ -296,7 +296,7 @@ void QPicturePaintEngine::drawChord(const QRect &r, int _a, int alen)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawChord);
-    dp->s << r << (Q_INT16)_a << (Q_INT16)alen;
+    d->s << r << (Q_INT16)_a << (Q_INT16)alen;
     writeCmdLength(pos, r, true);
 }
 
@@ -304,7 +304,7 @@ void QPicturePaintEngine::drawLineSegments(const QPointArray &a, int index, int 
 {
     int pos;
     SERIALIZE_CMD(PdcDrawLineSegments);
-    dp->s << a;
+    d->s << a;
     writeCmdLength(pos, a.boundingRect(), true);
 }
 
@@ -312,7 +312,7 @@ void QPicturePaintEngine::drawPolyline(const QPointArray &a, int index, int npoi
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPolyline);
-    dp->s << a;
+    d->s << a;
     writeCmdLength(pos, a.boundingRect(), true);
 }
 
@@ -320,7 +320,7 @@ void QPicturePaintEngine::drawPolygon(const QPointArray &a, bool winding, int, i
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPolygon);
-    dp->s << a << (Q_INT8) winding;
+    d->s << a << (Q_INT8) winding;
     writeCmdLength(pos, a.boundingRect(), true);
 }
 
@@ -334,7 +334,7 @@ void QPicturePaintEngine::drawCubicBezier(const QPointArray &a, int index)
 #ifndef QT_NO_BEZIER
     int pos;
     SERIALIZE_CMD(PdcDrawCubicBezier);
-    dp->s << a;
+    d->s << a;
     writeCmdLength(pos, a.cubicBezier().boundingRect(), true);
 #endif
 }
@@ -343,7 +343,7 @@ void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPixmap);
-    dp->s << r << pm;
+    d->s << r << pm;
     writeCmdLength(pos, r, false);
 }
 
@@ -355,6 +355,6 @@ void QPicturePaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcDrawText2);
-//     dp->s << p << QString(ti.chars, ti.num_chars);
+//     d->s << p << QString(ti.chars, ti.num_chars);
 //     writeCmdLength(pos, QRect(p, p), true);
 }

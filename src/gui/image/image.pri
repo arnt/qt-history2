@@ -13,6 +13,7 @@ HEADERS += \
 	image/qmovie.h \
 	image/qpaintengine_pic_p.h \
 	image/qpicture.h \
+	image/qpicture_p.h \
 	image/qpictureformatinterface_p.h \
 	image/qpictureformatplugin.h \
 	image/qpixmap.h \
