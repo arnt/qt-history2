@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.h#13 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.h#14 $
 **
 ** Definition of print dialog.
 **
@@ -30,6 +30,9 @@ public:
     ~QPrintDialog();
 
     static bool getPrinterSetup( QPrinter * );
+    
+    void setPrinter( QPrinter * );
+    QPrinter * printer() const;
 
 private slots:
     void browseClicked();
@@ -42,12 +45,16 @@ private slots:
     void orientSelected( int );
     void pageOrderSelected( int );
     void setNumCopies( int );
-    
+    void printRangeSelected( int );
+    void setFirstPage( int );
+    void setLastPage( int );
+
 private:
     QPrintDialogPrivate *d;
 
     QGroupBox * setupDestination();
     QGroupBox * setupOptions();
+    QGroupBox * setupPaper();
 
 private:	// Disabled copy constructor and operator=
     QPrintDialog( const QPrintDialog & );

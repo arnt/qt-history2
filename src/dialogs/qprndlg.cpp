@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#17 $
+** $Id: //depot/qt/main/src/dialogs/qprndlg.cpp#18 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -34,7 +34,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprndlg.cpp#18 $");
 
 
 struct QPrintDialogPrivate
@@ -47,6 +47,14 @@ struct QPrintDialogPrivate
     QListView * printers;
     QLineEdit * fileName;
     QPushButton * browse;
+
+    QButtonGroup * printRange;
+    QLabel * firstPageLabel;
+    QSpinBox * firstPage;
+    QLabel * lastPageLabel;
+    QSpinBox * lastPage;
+    QRadioButton * printAllButton;
+    QRadioButton * printRangeButton;
 
     QButtonGroup * paperSize;
     QComboBox * otherSizeCombo;
@@ -76,17 +84,15 @@ static void parsePrintcap( QListView * printers )
 
     while( !printcap.atEnd() &&
 	   (lineLength=printcap.readLine( line, 1024 )) > 0 ) {
+	if ( *line == '#' )
+	    *line = '\0';
 	if ( lineLength >= 2 && line[lineLength-2] == '\\' ) {
 	    line[lineLength-2] = '\0';
 	    printerDesc += line;
 	} else {
 	    printerDesc += line;
-	    // strip away the comment stuff
-	    int i = printerDesc.find( '#' );
-	    if ( i >= 0 )
-		printerDesc.truncate( i );
 	    printerDesc = printerDesc.simplifyWhiteSpace();
-	    i = printerDesc.find( ':' );
+	    int i = printerDesc.find( ':' );
 	    QString printerName, printerComment, printerHost;
 	    if ( i >= 0 ) {
 		// have : want |
@@ -111,10 +117,9 @@ static void parsePrintcap( QListView * printers )
 		    printerComment.simplifyWhiteSpace();
 		}
 		// look for signs of this being a remote printer
-		i = printerDesc.find( QRegExp( ": ?rm ?=", TRUE ) );
+		i = printerDesc.find( QRegExp( ": *rm *=" ) );
 		if ( i >= 0 ) {
 		    // point k at the end of remote host name
-		    j = 0;
 		    while( printerDesc[i] != '=' )
 			i++;
 		    while( printerDesc[i] == '=' || isspace( printerDesc[i] ) )
@@ -154,12 +159,28 @@ static void deleteGlobalPrinterDialog()
 }
 
 
+/*! \class QPrintDialog qprndlg.h
+  
+  \brief The QPrintDialog class provides a dialog for specifying
+  print-out details.
+  
+  It encompasses both the sort of details needed for doing a simple
+  print-out and some print configuration setup.
+  
+  At present, the only easy way to use the class is through the static
+  function getPrinterSetup().
+*/
+
+
+/*! Creates a new modal printer dialog that configures \a prn and is a
+  child of \a parent named \a name.
+*/
+
 QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     : QDialog( parent, name, TRUE )
 {
     d = new QPrintDialogPrivate;
     d->numCopies = 1;
-    d->printer = prn;
 
     QBoxLayout * tll = new QBoxLayout( this, QBoxLayout::Down, 12, 0 );
 
@@ -168,11 +189,19 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     tll->addWidget( g, 1 );
     tll->addSpacing( 12 );
 
+    QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
+    tll->addLayout( horiz, 0 );
+
     g = setupOptions();
-    tll->addWidget( g );
+    horiz->addWidget( g );
+    horiz->addSpacing( 12 );
+
+    g = setupPaper();
+    horiz->addWidget( g );
+
     tll->addSpacing( 12 );
 
-    QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
+    horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
 
     if ( style() != MotifStyle )
@@ -199,12 +228,12 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
 
     ok->setFixedSize( s1 );
     cancel->setFixedSize( s1 );
-    
+
     tll->activate();
 
     connect( ok, SIGNAL(clicked()), SLOT(okClicked()) );
     connect( cancel, SIGNAL(clicked()), SLOT(reject()) );
-    
+
     QSize ms( minimumSize() );
     QSize ss( QApplication::desktop()->size() );
     if ( ms.height() < 512 && ss.height() >= 600 )
@@ -212,10 +241,13 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     else if ( ms.height() < 460 && ss.height() >= 480 )
 	ms.setHeight( 460 );
     resize( ms );
+    
+    setPrinter( prn );
 }
 
 
-/*! Destroys the object and frees any allocated resources.
+/*! Destroys the object and frees any allocated resources.  Does not
+  delete the associated QPrinter object.
 */
 
 QPrintDialog::~QPrintDialog()
@@ -234,8 +266,8 @@ QGroupBox * QPrintDialog::setupDestination()
     QGroupBox * g = new QGroupBox( tr( "Print Destination"),
 				   this, "destination group box" );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 6 );
-    tll->addSpacing( 12 );
+    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
+    tll->addSpacing( 8 );
 
     d->printerOrFile = new QButtonGroup( (QWidget *)0 );
     connect( d->printerOrFile, SIGNAL(clicked(int)),
@@ -252,13 +284,14 @@ QGroupBox * QPrintDialog::setupDestination()
 
     QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz, 3 );
-    horiz->addSpacing( 20 );
+    horiz->addSpacing( 19 );
 
     d->printers = new QListView( g, "list of printers" );
     d->printers->setAllColumnsShowFocus( TRUE );
     d->printers->setColumn( "Printer", 150 );
     d->printers->setColumn( "Host", 150 );
     d->printers->setColumn( "Comment", 100 );
+    d->printers->setFrameStyle( QFrame::WinPanel + QFrame::Sunken );
 
 #if defined(UNIX)
     QFileInfo f;
@@ -301,8 +334,8 @@ QGroupBox * QPrintDialog::setupDestination()
     if ( d->printers->currentItem() )
 	d->printers->setSelected( d->printers->currentItem(), TRUE );
 #endif
-    
-    d->printers->setMinimumSize( 400, fontMetrics().height() * 5 );
+
+    d->printers->setMinimumSize( 404, fontMetrics().height() * 5 );
     horiz->addWidget( d->printers, 3 );
 
     tll->addSpacing( 6 );
@@ -311,11 +344,11 @@ QGroupBox * QPrintDialog::setupDestination()
     rb = new QRadioButton( tr( "Print to File:" ), g, "file" );
     rb->setMinimumSize( rb->sizeHint() );
     tll->addWidget( rb );
-    d->printerOrFile->insert( rb, 0 );
+    d->printerOrFile->insert( rb, 1 );
 
     horiz = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( horiz );
-    horiz->addSpacing( 20 );
+    horiz->addSpacing( 19 );
 
     d->fileName = new QLineEdit( g, "file name" );
     d->fileName->setMinimumSize( d->fileName->sizeHint() );
@@ -341,123 +374,175 @@ QGroupBox * QPrintDialog::setupOptions()
     QGroupBox * g = new QGroupBox( tr( "Options"),
 				   this, "options group box" );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 6 );
-    tll->addSpacing( 12 );
+    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
+    tll->addSpacing( 8 );
+
+    d->printRange = new QButtonGroup( (QWidget *)0 );
+    connect( d->printRange, SIGNAL(clicked(int)),
+	     this, SLOT(printRangeSelected(int)) );
 
     d->pageOrder = new QButtonGroup( (QWidget *)0 );
     connect( d->pageOrder, SIGNAL(clicked(int)),
 	     this, SLOT(pageOrderSelected(int)) );
-    d->paperSize = new QButtonGroup( (QWidget *)0 );
-    connect( d->paperSize, SIGNAL(clicked(int)),
-	     this, SLOT(paperSizeSelectedRadio(int)) );
-    d->orient = new QButtonGroup( (QWidget *)0 );
+
+    d->printAllButton = new QRadioButton( tr("Print all"), g, "print all" );
+    d->printAllButton->setMinimumSize( d->printAllButton->sizeHint() );
+    d->printRange->insert( d->printAllButton, 0 );
+    tll->addWidget( d->printAllButton );
+
+    d->printRangeButton = new QRadioButton( tr("Print Range:"),
+					    g, "print range" );
+    d->printRangeButton->setMinimumSize( d->printRangeButton->sizeHint() );
+    d->printRange->insert( d->printRangeButton, 0 );
+    tll->addWidget( d->printRangeButton );
+
+    QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
+    tll->addLayout( horiz );
+
+    d->firstPageLabel = new QLabel( tr("From page"), g, "first page" );
+    horiz->addSpacing( 19 );
+    horiz->addWidget( d->firstPageLabel );
+
+    d->firstPage = new QSpinBox( 1, 9999, 1, g, "first page" );
+    d->firstPage->setValue( 1 );
+    d->firstPage->setMinimumSize( d->firstPage->sizeHint() );
+    horiz->addWidget( d->firstPage, 1 );
+    connect( d->firstPage, SIGNAL(valueChanged(int)),
+	     this, SLOT(setFirstPage(int)) );
+
+    horiz = new QBoxLayout( QBoxLayout::LeftToRight );
+    tll->addLayout( horiz );
+
+    d->lastPageLabel = new QLabel( tr("To page"), g, "last page" );
+    horiz->addSpacing( 19 );
+    horiz->addWidget( d->lastPageLabel );
+
+    d->lastPage = new QSpinBox( 1, 9999, 1, g, "last page" );
+    d->lastPage->setValue( 9999 );
+    d->lastPage->setMinimumSize( d->lastPage->sizeHint() );
+    horiz->addWidget( d->lastPage, 1 );
+    connect( d->lastPage, SIGNAL(valueChanged(int)),
+	     this, SLOT(setLastPage(int)) );
+
+    QFrame * divider = new QFrame( g, "divider", 0, TRUE );
+    divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+    divider->setMinimumHeight( 6 );
+    tll->addWidget( divider, 1 );
+
+    // print order
+    QRadioButton * rb = new QRadioButton( tr("Print first page first"),
+					  g, "first page first" );
+    rb->setMinimumSize( rb->sizeHint() );
+    tll->addWidget( rb );
+    d->pageOrder->insert( rb, QPrinter::FirstPageFirst );
+    rb->setChecked( TRUE );
+
+    rb = new QRadioButton( tr("Print last page first"),
+			   g, "last page first" );
+    rb->setMinimumSize( rb->sizeHint() );
+    tll->addWidget( rb );
+    d->pageOrder->insert( rb, QPrinter::LastPageFirst );
+
+    divider = new QFrame( g, "divider", 0, TRUE );
+    divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+    divider->setMinimumHeight( 6 );
+    tll->addWidget( divider, 1 );
+
+    // copies
+    
+    horiz = new QBoxLayout( QBoxLayout::LeftToRight );
+    tll->addLayout( horiz );
+
+    QLabel * l = new QLabel( tr("Number of copies"), g, "Number of copies" );
+    horiz->addWidget( l );
+    
+    QSpinBox * spin = new QSpinBox( 1, 99, 1, g, "copies" );
+    spin->setValue( 1 );
+    spin->setMinimumSize( spin->sizeHint() );
+    horiz->addWidget( spin, 1 );
+    connect( spin, SIGNAL(valueChanged(int)),
+	     this, SLOT(setNumCopies(int)) );
+    
+    QSize s = d->firstPageLabel->sizeHint()
+	      .max( d->lastPageLabel->sizeHint() )
+	      .max( l->sizeHint() );
+    d->firstPageLabel->setMinimumSize( s );
+    d->lastPageLabel->setMinimumSize( s );
+    l->setMinimumSize( s.width() + 19, s.height() );
+
+    tll->activate();
+    
+    return g;
+}
+
+
+QGroupBox * QPrintDialog::setupPaper()
+{
+    QGroupBox * g = new QGroupBox( tr( "Paper format"),
+				   this, "Paper format" );
+
+    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
+    tll->addSpacing( 8 );
+
+    d->orient = new QButtonGroup( (QWidget*) 0 );
     connect( d->orient, SIGNAL(clicked(int)),
 	     this, SLOT(orientSelected(int)) );
 
-    // print preferences
-    QGridLayout * grid = new QGridLayout( 10, 4 );
-    tll->addLayout( grid );
-
-    grid->addColSpacing( 0, 20 );
-    grid->setColStretch( 1, 1 );
-    grid->addColSpacing( 2, 20 );
-    grid->setColStretch( 3, 1 );
-
-    int i;
-    for( i=0; i<10; i++ )
-	grid->setRowStretch( i, 0 );
-
-    grid->addRowSpacing( 3, 6 );
-    grid->addRowSpacing( 6, 6 );
-
-    // page sizes
-    QLabel * l = new QLabel( "Page Size", g, "page size" );
-    l->setFixedHeight( l->sizeHint().height() );
-    grid->addMultiCellWidget( l, 0, 0, 0, 3 );
-
-    QRadioButton * rb = new QRadioButton( "A4 (210 x 297 mm)", g, "A4" );
-    rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 1, 1 );
-    d->paperSize->insert( rb, 3 ); // 3
-    rb->setChecked( TRUE );
-    d->pageSize = QPrinter::A4;
-	      
-    rb = new QRadioButton( "Letter (8½ x 11in)", g, "Letter" );
-    rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 2, 1 );
-    d->paperSize->insert( rb, 4 ); // 4
-
-    rb = new QRadioButton( "Other size:", g, "other size" );
-    rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 1, 3 );
-    d->paperSize->insert( rb, 9999 ); // magic
-
-    QBoxLayout * horiz = new QBoxLayout( QBoxLayout::LeftToRight );
-    grid->addLayout( horiz, 2, 3 );
-    horiz->addSpacing( 20 );
-
-    d->otherSizeCombo = new QComboBox( FALSE, g, "other paper sizes" );
-    d->otherSizeCombo->insertItem( "B5" ); // 0
-    d->otherSizeCombo->insertItem( "Legal" ); // 1
-    d->otherSizeCombo->insertItem( "Executive" ); // 2
-    d->otherSizeCombo->insertItem( "A4" ); // 3
-    d->otherSizeCombo->insertItem( "Letter" ); // 4
-    d->otherSizeCombo->setMinimumSize( d->otherSizeCombo->sizeHint() );
-    horiz->addWidget( d->otherSizeCombo );
-    horiz->addStretch( 1 );
-    d->otherSizeCombo->setEnabled( FALSE );
-    connect( d->otherSizeCombo, SIGNAL(activated(int)),
-	     this, SLOT(paperSizeSelectedCombo(int)) );
+    d->paperSize = new QButtonGroup( (QWidget *)0 );
+    connect( d->paperSize, SIGNAL(clicked(int)),
+	     this, SLOT(paperSizeSelectedRadio(int)) );
 
     // page orientation
-    l = new QLabel( tr("Orientation"), g, "orientation" );
-    l->setFixedHeight( l->sizeHint().height() );
-    grid->addMultiCellWidget( l, 4, 4, 0, 1 );
-
-    rb = new QRadioButton( "Portrait", g, "portrait format" );
+    QRadioButton * rb = new QRadioButton( "Portrait", g, "portrait format" );
     rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 5, 1 );
     d->orient->insert( rb, (int)QPrinter::Portrait );
+    tll->addWidget( rb );
+
     rb->setChecked( TRUE );
     d->orientation = QPrinter::Portrait;
 
     rb = new QRadioButton( "Landscape", g, "landscape format" );
     rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 6, 1 );
     d->orient->insert( rb, (int)QPrinter::Landscape );
+    tll->addWidget( rb );
+    
+    QFrame * divider = new QFrame( g, "divider", 0, TRUE );
+    divider->setFrameStyle( QFrame::HLine + QFrame::Sunken );
+    divider->setMinimumHeight( 6 );
+    tll->addWidget( divider, 1 );
 
-    // print order
-    l = new QLabel( tr("Start with"), g, "what page first?" );
-    l->setFixedHeight( l->sizeHint().height() );
-    grid->addMultiCellWidget( l, 4, 4, 2, 3 );
-
-    rb = new QRadioButton( tr("First page"), g, "first page first" );
+    // paper size
+    rb = new QRadioButton( "A4 (210 x 297 mm)", g, "A4" );
     rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 5, 3 );
+    d->paperSize->insert( rb, 3 ); // 3
     rb->setChecked( TRUE );
-    d->pageOrder->insert( rb, QPrinter::FirstPageFirst );
+    d->pageSize = QPrinter::A4;
+    tll->addWidget( rb );
 
-    rb = new QRadioButton( tr("Last page"), g, "last page first" );
+    rb = new QRadioButton( "A3", g, "Letter" );
     rb->setMinimumSize( rb->sizeHint() );
-    grid->addWidget( rb, 6, 3 );
-    d->pageOrder->insert( rb, QPrinter::LastPageFirst );
+    d->paperSize->insert( rb, 4 ); // 4
+    tll->addWidget( rb );
 
-    // copies
-    l = new QLabel( tr("Number of copies"), g, "copies?" );
-    l->setFixedHeight( l->sizeHint().height() );
-    grid->addMultiCellWidget( l, 7, 7, 0, 3 );
+    rb = new QRadioButton( "B5", g, "Letter" );
+    rb->setMinimumSize( rb->sizeHint() );
+    d->paperSize->insert( rb, 4 ); // 4
+    tll->addWidget( rb );
 
-    horiz = new QBoxLayout( QBoxLayout::LeftToRight );
-    grid->addLayout( horiz, 8, 1 );
-    QSpinBox * spin = new QSpinBox( 1, 99, 1, g, "copies" );
-    spin->setValue( 1 );
-    spin->setMinimumSize( spin->sizeHint() );
-    horiz->addWidget( spin );
-    horiz->addStretch( 1 );
-    connect( spin, SIGNAL(valueChanged(int)),
-	     this, SLOT(setNumCopies(int)) );
+    rb = new QRadioButton( "Letter (8½ x 11in)", g, "Letter" );
+    rb->setMinimumSize( rb->sizeHint() );
+    d->paperSize->insert( rb, 4 ); // 4
+    tll->addWidget( rb );
 
-    // more
+    rb = new QRadioButton( "Legal", g, "Letter" );
+    rb->setMinimumSize( rb->sizeHint() );
+    d->paperSize->insert( rb, 4 ); // 4
+    tll->addWidget( rb );
+
+    rb = new QRadioButton( "Executive", g, "Letter" );
+    rb->setMinimumSize( rb->sizeHint() );
+    d->paperSize->insert( rb, 4 ); // 4
+    tll->addWidget( rb );
 
     tll->activate();
 
@@ -468,7 +553,7 @@ QGroupBox * QPrintDialog::setupOptions()
 /*!  Display a dialog and allow the user to configure the QPrinter \a
   p.  Returns TRUE if the user clicks OK or presses Enter, FALSE if
   the user clicks Cancel or presses Escape.
-  
+
   getPrinterSetup() remembers the settings and provides the same
   settings the next time the dialog is shown.
 */
@@ -480,9 +565,9 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
 	qAddPostRoutine( deleteGlobalPrinterDialog );
     }
 
-    globalPrintDialog->d->printer = p;
+    globalPrintDialog->setPrinter( p );
     bool r = globalPrintDialog->exec() == QDialog::Accepted;
-    globalPrintDialog->d->printer = 0;
+    globalPrintDialog->setPrinter( 0 );
     return r;
 }
 
@@ -581,5 +666,66 @@ void QPrintDialog::okClicked()
     d->printer->setOrientation( d->orientation );
     d->printer->setPageSize( d->pageSize );
     d->printer->setPageOrder( d->pageOrder2 );
+    
     accept();
+}
+
+
+void QPrintDialog::printRangeSelected( int id )
+{
+    bool enable = id ? TRUE : FALSE;
+    d->firstPage->setEnabled( enable );
+    d->lastPage->setEnabled( enable );
+}
+
+
+void QPrintDialog::setFirstPage( int fp )
+{
+    if ( d->printer )
+	d->lastPage->setRange( fp, d->printer->maxPage() );
+}
+
+
+void QPrintDialog::setLastPage( int lp )
+{
+    if ( d->printer )
+	d->firstPage->setRange( d->printer->minPage(), lp );
+}
+
+
+/*!  Sets this dialog to configure \a p, or no printer if \a p is FALSE. */
+
+void QPrintDialog::setPrinter( QPrinter * p )
+{
+    d->printer = p;
+
+    if ( p && p->maxPage() ) {
+	d->printRangeButton->setEnabled( TRUE );
+	d->firstPage->setEnabled( TRUE );
+	d->firstPage->setRange( p->minPage(), p->maxPage() );
+	d->firstPage->setValue( p->minPage() );
+	d->lastPage->setEnabled( TRUE );
+	d->lastPage->setRange( p->minPage(), p->maxPage() );
+	d->lastPage->setValue( p->maxPage() );
+	d->firstPageLabel->setEnabled( TRUE );
+	d->lastPageLabel->setEnabled( TRUE );
+    } else {
+	d->printRange->setButton( 0 );	
+	d->printRangeButton->setEnabled( FALSE );
+	d->firstPage->setValue( 1 );
+	d->lastPage->setValue( 1 );
+	d->firstPage->setEnabled( FALSE );
+	d->lastPage->setEnabled( FALSE );
+	d->firstPageLabel->setEnabled( FALSE );
+	d->lastPageLabel->setEnabled( FALSE );
+    }
+}
+
+
+/*!  Returns a pointer to the printer this dialog configures, or 0 if
+  this dialog does not operate on any printer. */
+
+QPrinter * QPrintDialog::printer() const
+{
+    return d->printer;
 }
