@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#35 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#35 $";
 #endif
 
 
@@ -1838,8 +1838,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
     if ( len == 0 )				// empty string
 	return;
 
-    int underline, strikeout;			// font properties
-    if ( cfont.update_props( &underline, &strikeout ) )
+    if ( cfont.dirty() || testf(DirtyFont))
 	updateFont();
 
     if ( testf(DirtyPen|ExtDev|VxF|WxF) ) {
@@ -1920,7 +1919,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		draw_bm = wx_bm;
 	    XSetClipMask( dpy, gc, draw_bm->handle() );
 	    XSetClipOrigin( dpy, gc, x, y );
-	    if ( underline || strikeout ) {	// underline or strikeout font
+	    if ( cfont.underline() || cfont.strikeOut() ) {
 		QFontMetrics fm( cfont );
 		int lw = fm.lineWidth();
 		int tw = fm.width( str, len );
@@ -1951,14 +1950,14 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    VXFORM_P( x, y );
     }
 
-    if ( underline || strikeout ) {
+    if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm( cfont );
 	int lw = fm.lineWidth();
 	int tw = fm.width( str, len );
-	if ( underline )			// draw underline effect
+	if ( cfont.underline() )	       	// draw underline effect
 	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(),
 			    tw, lw );
-	if ( strikeout )			// draw strikeout effect
+	if ( cfont.strikeOut() )       		// draw strikeout effect
 	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(),
 			    tw, lw );
     }
@@ -1982,11 +1981,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 #endif
     if ( len == 0 )				// empty string
 	return;
-    if ( testf(DirtyPen|DirtyFont|ExtDev) ) {
+    if ( cfont.dirty() || testf(DirtyFont))
+	updateFont();
+    if ( testf(DirtyPen|ExtDev) ) {
 	if ( testf(DirtyPen) )
 	    updatePen();
-	if ( testf(DirtyFont) )
-	    updateFont();
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[3];
 	    QRect r( x, y, w, h );
