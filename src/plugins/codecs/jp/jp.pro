@@ -17,7 +17,7 @@ SOURCES		= qeucjpcodec.cpp \
 		  qjpunicode.cpp \
 		  main.cpp
 
-unix:X11 {
+unix {
 	HEADERS += qfontjpcodec.h
 	SOURCES += qfontjpcodec.cpp
 }

@@ -14,8 +14,10 @@
 #define QFONTJPCODEC_H
 
 #include "qtextcodec.h"
+#include "qlist.h"
 class QJpUnicodeConv;
 
+#ifdef Q_WS_X11
 class QFontJis0201Codec : public QTextCodec
 {
 public:
@@ -52,4 +54,6 @@ public:
 private:
     QJpUnicodeConv *convJP;
 };
+#endif
+
 #endif

@@ -11,18 +11,18 @@
 **
 ****************************************************************************/
 
-#include "qfontjpcodecs.h"
+#include "qfontjpcodec.h"
 
 #include "qjpunicode.h"
 
-
+#ifdef Q_WS_X11
 // JIS X 0201
 
 QFontJis0201Codec::QFontJis0201Codec()
 {
 }
 
-const char *QFontJis0201Codec::_name()
+QByteArray QFontJis0201Codec::_name()
 {
     return "jisx0201*-0";
 }
@@ -37,7 +37,7 @@ QByteArray QFontJis0201Codec::convertFromUnicode(const QChar *uc, int len,  Conv
     QByteArray rstring;
     rstring.resize(len);
     uchar *rdata = (uchar *) rstring.data();
-    const QChar *sdata = uc.unicode();
+    const QChar *sdata = uc;
     int i = 0;
     for (; i < len; ++i, ++sdata, ++rdata) {
         if (sdata->unicode() < 0x80) {
@@ -51,9 +51,9 @@ QByteArray QFontJis0201Codec::convertFromUnicode(const QChar *uc, int len,  Conv
     return rstring;
 }
 
-QString QFontJis0201Codec::convertToUnicode(const const *, int,  ConverterState *) const
+QString QFontJis0201Codec::convertToUnicode(const char *, int,  ConverterState *) const
 {
-    return QString;
+    return QString();
 }
 
 // JIS X 0208
@@ -88,12 +88,12 @@ QString QFontJis0208Codec::convertToUnicode(const char* /*chars*/, int /*len*/, 
     return QString::null;
 }
 
-QByteArray QFontJis0208Codec::convertFromUnicode(const QChr *uc, int len, ConverterState *) const
+QByteArray QFontJis0208Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
 {
     QByteArray result;
     result.resize(len * 2);
     uchar *rdata = (uchar *) result.data();
-    const QChar *ucp = uc.unicode();
+    const QChar *ucp = uc;
 
     for (int i = 0; i < len; i++) {
         QChar ch(*ucp++);
