@@ -18,9 +18,9 @@ ViewManager::ViewManager( QWidget *parent, const char *name )
     dockArea->setMinimumWidth( 5 );
     layout->addWidget( markerWidget );
 
-    QObjectList *l = topLevelWidget()->queryList( "QDockWindow" );
+    QObjectList *l = topLevelWidget()->queryList( "QToolBar" );
     for ( QObject *o = l->first(); o; o = l->next() )
-	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), TRUE );
+	dockArea->setAcceptDockWindow( ( (QDockWindow*)o ), FALSE );
     delete l;
 }
 
