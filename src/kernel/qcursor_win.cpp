@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#47 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -434,7 +434,7 @@ void QCursor::update() const
 #endif
 	    return;
     }
-    if ( qt_winver == WV_NT )
+    if ( qt_winver == Qt::WV_NT )
 	data->hcurs = LoadCursor( 0, (TCHAR*)sh );
     else
 	data->hcurs = LoadCursorA( 0, sh );
