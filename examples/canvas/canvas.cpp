@@ -58,7 +58,7 @@ ImageItem::ImageItem( QImage img, QCanvas *canvas )
     setSize( image.width(), image.height() );
 
 #if !defined(Q_WS_QWS)
-    pixmap.convertFromImage(image, OrderedAlphaDither);
+    pixmap.convertFromImage(image, Qt::OrderedAlphaDither);
 #endif
 }
 
@@ -155,7 +155,7 @@ NodeItem::NodeItem( QCanvas *canvas )
 
 FigureEditor::FigureEditor(
 	QCanvas& c, QWidget* parent,
-	const char* name, WFlags f) :
+	const char* name, Qt::WFlags f) :
     QCanvasView(&c,parent,name,f), moving(0)
 {
 }
@@ -301,49 +301,49 @@ static uint mainCount = 0;
 static QImage *butterflyimg;
 static QImage *logoimg;
 
-Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
-    QMainWindow(parent,name,f),
+Main::Main(QCanvas& c, QWidget* parent, const char* name, Qt::WFlags f) :
+    QMainWindow(parent, f),
     canvas(c)
 {
     editor = new FigureEditor(canvas,this);
     QMenuBar* menu = menuBar();
 
     QPopupMenu* file = new QPopupMenu( menu );
-    file->insertItem("&Fill canvas", this, SLOT(init()), CTRL+Key_F);
-    file->insertItem("&Erase canvas", this, SLOT(clear()), CTRL+Key_E);
-    file->insertItem("&New view", this, SLOT(newView()), CTRL+Key_N);
+    file->insertItem("&Fill canvas", this, SLOT(init()), Qt::CTRL+Qt::Key_F);
+    file->insertItem("&Erase canvas", this, SLOT(clear()), Qt::CTRL+Qt::Key_E);
+    file->insertItem("&New view", this, SLOT(newView()), Qt::CTRL+Qt::Key_N);
     file->insertSeparator();
-    file->insertItem("&Print...", this, SLOT(print()), CTRL+Key_P);
+    file->insertItem("&Print...", this, SLOT(print()), Qt::CTRL+Qt::Key_P);
     file->insertSeparator();
-    file->insertItem("E&xit", qApp, SLOT(quit()), CTRL+Key_Q);
+    file->insertItem("E&xit", qApp, SLOT(quit()), Qt::CTRL+Qt::Key_Q);
     menu->insertItem("&File", file);
 
     QPopupMenu* edit = new QPopupMenu( menu );
-    edit->insertItem("Add &Circle", this, SLOT(addCircle()), ALT+Key_C);
-    edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), ALT+Key_H);
-    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), ALT+Key_P);
-    edit->insertItem("Add Spl&ine", this, SLOT(addSpline()), ALT+Key_I);
-    edit->insertItem("Add &Text", this, SLOT(addText()), ALT+Key_T);
-    edit->insertItem("Add &Line", this, SLOT(addLine()), ALT+Key_L);
-    edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), ALT+Key_R);
-    edit->insertItem("Add &Sprite", this, SLOT(addSprite()), ALT+Key_S);
-    edit->insertItem("Create &Mesh", this, SLOT(addMesh()), ALT+Key_M );
-    edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), ALT+Key_A);
+    edit->insertItem("Add &Circle", this, SLOT(addCircle()), Qt::ALT+Qt::Key_C);
+    edit->insertItem("Add &Hexagon", this, SLOT(addHexagon()), Qt::ALT+Qt::Key_H);
+    edit->insertItem("Add &Polygon", this, SLOT(addPolygon()), Qt::ALT+Qt::Key_P);
+    edit->insertItem("Add Spl&ine", this, SLOT(addSpline()), Qt::ALT+Qt::Key_I);
+    edit->insertItem("Add &Text", this, SLOT(addText()), Qt::ALT+Qt::Key_T);
+    edit->insertItem("Add &Line", this, SLOT(addLine()), Qt::ALT+Qt::Key_L);
+    edit->insertItem("Add &Rectangle", this, SLOT(addRectangle()), Qt::ALT+Qt::Key_R);
+    edit->insertItem("Add &Sprite", this, SLOT(addSprite()), Qt::ALT+Qt::Key_S);
+    edit->insertItem("Create &Mesh", this, SLOT(addMesh()), Qt::ALT+Qt::Key_M );
+    edit->insertItem("Add &Alpha-blended image", this, SLOT(addButterfly()), Qt::ALT+Qt::Key_A);
     menu->insertItem("&Edit", edit);
 
     QPopupMenu* view = new QPopupMenu( menu );
-    view->insertItem("&Enlarge", this, SLOT(enlarge()), SHIFT+CTRL+Key_Plus);
-    view->insertItem("Shr&ink", this, SLOT(shrink()), SHIFT+CTRL+Key_Minus);
+    view->insertItem("&Enlarge", this, SLOT(enlarge()), Qt::SHIFT+Qt::CTRL+Qt::Key_Plus);
+    view->insertItem("Shr&ink", this, SLOT(shrink()), Qt::SHIFT+Qt::CTRL+Qt::Key_Minus);
     view->insertSeparator();
-    view->insertItem("&Rotate clockwise", this, SLOT(rotateClockwise()), CTRL+Key_PageDown);
-    view->insertItem("Rotate &counterclockwise", this, SLOT(rotateCounterClockwise()), CTRL+Key_PageUp);
-    view->insertItem("&Zoom in", this, SLOT(zoomIn()), CTRL+Key_Plus);
-    view->insertItem("Zoom &out", this, SLOT(zoomOut()), CTRL+Key_Minus);
-    view->insertItem("Translate left", this, SLOT(moveL()), CTRL+Key_Left);
-    view->insertItem("Translate right", this, SLOT(moveR()), CTRL+Key_Right);
-    view->insertItem("Translate up", this, SLOT(moveU()), CTRL+Key_Up);
-    view->insertItem("Translate down", this, SLOT(moveD()), CTRL+Key_Down);
-    view->insertItem("&Mirror", this, SLOT(mirror()), CTRL+Key_Home);
+    view->insertItem("&Rotate clockwise", this, SLOT(rotateClockwise()), Qt::CTRL+Qt::Key_PageDown);
+    view->insertItem("Rotate &counterclockwise", this, SLOT(rotateCounterClockwise()), Qt::CTRL+Qt::Key_PageUp);
+    view->insertItem("&Zoom in", this, SLOT(zoomIn()), Qt::CTRL+Qt::Key_Plus);
+    view->insertItem("Zoom &out", this, SLOT(zoomOut()), Qt::CTRL+Qt::Key_Minus);
+    view->insertItem("Translate left", this, SLOT(moveL()), Qt::CTRL+Qt::Key_Left);
+    view->insertItem("Translate right", this, SLOT(moveR()), Qt::CTRL+Qt::Key_Right);
+    view->insertItem("Translate up", this, SLOT(moveU()), Qt::CTRL+Qt::Key_Up);
+    view->insertItem("Translate down", this, SLOT(moveD()), Qt::CTRL+Qt::Key_Down);
+    view->insertItem("&Mirror", this, SLOT(mirror()), Qt::CTRL+Qt::Key_Home);
     menu->insertItem("&View", view);
 
     options = new QPopupMenu( menu );
@@ -354,13 +354,13 @@ Main::Main(QCanvas& c, QWidget* parent, const char* name, WFlags f) :
     menu->insertSeparator();
 
     QPopupMenu* help = new QPopupMenu( menu );
-    help->insertItem("&About", this, SLOT(help()), Key_F1);
+    help->insertItem("&About", this, SLOT(help()), Qt::Key_F1);
     help->setItemChecked(dbf_id, TRUE);
     menu->insertItem("&Help",help);
 
     statusBar();
 
-    setCentralWidget(editor);
+    setCenterWidget(editor);
 
     printer = 0;
 
@@ -404,7 +404,7 @@ Main::~Main()
 void Main::newView()
 {
     // Open a new view... have it delete when closed.
-    Main *m = new Main(canvas, 0, 0, WDestructiveClose);
+    Main *m = new Main(canvas, 0, 0, Qt::WDestructiveClose);
     qApp->setMainWidget(m);
     m->show();
     qApp->setMainWidget(0);
@@ -517,11 +517,11 @@ void Main::moveD()
 
 void Main::print()
 {
-    if ( !printer ) printer = new QPrinter;
-    if ( printer->setup(this) ) {
-	QPainter pp(printer);
-	canvas.drawArea(QRect(0,0,canvas.width(),canvas.height()),&pp,FALSE);
-    }
+//     if ( !printer ) printer = new QPrinter;
+//     if ( printer->setup(this) ) {
+// 	QPainter pp(printer);
+// 	canvas.drawArea(QRect(0,0,canvas.width(),canvas.height()),&pp,FALSE);
+//     }
 }
 
 
@@ -721,7 +721,7 @@ void Main::addMesh()
 	lastRow[n-1]=prev;
 #ifndef QT_NO_PROGRESSDIALOG
 	progress.setProgress( j );
-	if ( progress.wasCancelled() )
+	if ( progress.wasCanceled() )
 	    break;
 #endif
     }

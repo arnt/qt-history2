@@ -20,7 +20,7 @@ class FigureEditor : public QCanvasView {
     Q_OBJECT
 
 public:
-    FigureEditor(QCanvas&, QWidget* parent=0, const char* name=0, WFlags f=0);
+    FigureEditor(QCanvas&, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
     void clear();
 
 protected:
@@ -39,7 +39,7 @@ class Main : public QMainWindow {
     Q_OBJECT
 
 public:
-    Main(QCanvas&, QWidget* parent=0, const char* name=0, WFlags f=0);
+    Main(QCanvas&, QWidget* parent=0, const char* name=0, Qt::WFlags f=0);
     ~Main();
 
 public slots:
