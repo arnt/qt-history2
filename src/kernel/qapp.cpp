@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#34 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#33 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#34 $";
 #endif
 
 
@@ -84,7 +84,6 @@ static QPalette *motifPalette = 0;
 
 static void create_palettes()			// creates default palettes
 {
-    QColor lightBlue = blue.light();
     QColorGroup motif_nor( black, lightGray,
 			   lightGray.light(), lightGray.dark(), gray, 
 			   black, white );
@@ -464,6 +463,18 @@ void QApplication::syncX()	{}		// do nothing
 
 <h1>Qt documentation home page</h1>
 
+<strong>
+
+This documentation is far from complete.  We're working on it, but Qt
+is still not at version 1.0.  There are known bugs, there is missing
+functionality, and there is missing documentation.  We chose to
+release this beta version mainly to get input so we can finish Qt
+faster and make it better for the application programmer.
+
+</strong>
+
+<p>
+
 The Qt toolkit documentation is organized as one HTML page per class,
 header file, example program, or topical documentation files.
 <p>
@@ -477,9 +488,276 @@ There are several different index pages: <ul>
 
 <p>There are also pages on these topics:<ul>
 <li><a href=fontmatch.html>Font matching</a>
-<li><a href=handleclass.html>Handle classes</a>
 <li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
-</ul> */
+<li><a href=qt.html>Qt overview</a>
+<li><a href=troll.html>Troll Tech contact information</a>
+<li><a href=licence.html>Licence statement for Qt 0.90</a>
+</ul>
+
+<p>
+
+There is a mailing list for Qt users.  Send a message containing the
+single word "subscribe" to <a
+href=mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
+to join the list.  You will receive a receipt from the list server
+within a few minutes. */
+
+/*! \page licence.html
+
+<title>Qt licence statement</title>
+
+<h1>All Rights Reserved</h1>
+
+Copyright 1992-1995 Troll Tech AS.  All rights reserved.
+
+<p>
+
+Qt is a product of Troll Tech AS and is provided for use on computers
+running the Linux operating system.
+
+<p>
+
+Users may copy this beta version of the Qt toolkit provided that the
+entire archive is distributed as a whole, including this notice.
+
+<p>
+
+Users may use the Qt toolkit to create programs provided that these
+programs are either for internal/own use or freely distributable.  THIS
+BETA VERSION OF QT MAY NOT BE USED IN COMMERCIAL PROGRAMS.
+
+<p>
+
+Troll Tech makes no obligation to support or upgrade Qt, or assist in
+use of Qt.
+
+<p>
+
+In no event shall Troll Tech be liable for any lost revenue or profits or
+other special, indirect or consequential damages, even if Troll Tech has
+been advised of the possibility of such damages.
+
+<p><strong>
+
+QT IS PROVIDED AS IS WITH NO WARRANTY OF ANY KIND, INCLUDING THE WARRANY
+OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+
+</strong>
+
+*/
+
+/*! \page troll.html
+
+<title>Troll Tech Contact Information</title>
+
+<h1>Contact Information for Troll Tech</h1>
+
+<h2>Snail mail</h2>
+
+Troll Tech<br>
+Postboks 6133 Etterstad<br>
+N-0602 Oslo<br>
+Norway<br>
+
+<h2>Electronically</h2>
+
+Fax: +47 22 66 69 49.
+
+<p>
+
+E-mail: <a href=mailto:info@troll.no>info@troll.no</a> for general
+enquiries, <a href=mailto:www@troll.no>www@troll.no</a> for comments
+about our WWW pages, or <a
+href=mailto:qt-bugs@troll.no>qt-bugs@troll.no</a> for Qt bug reports
+and other Qt-related mail. */
+
+/*! \page qt.html
+
+<title>Qt toolkit - overview</title>
+
+This is the announcement of Qt 0.9, the first public beta version.
+
+<h1>Qt announcement</h1>
+
+Troll Tech is proud to relase a free beta-version of Qt (pronounced:
+"cute") for X-Windows/Linux.
+
+<p>
+
+Qt is an object-oriented framework for developing graphical user interface
+applications.
+
+<p>
+
+It is ftp'able from sunsite.unc.edu in /pub/Linux/Incoming, hopefully
+soon /pub/Linux/devel/c++, and from ftp.nvg.unit.no in /pub/linux/qt.
+
+<p>
+
+The documentation can be browsed on the web at <a href=http://www.troll.no/>
+http://www.troll.no/</a> where you will also find other Qt-related links.
+
+<p>
+
+About Qt:
+
+<p>
+
+Qt consists of a rich C++ library (around 100 classes) and a meta-object
+system that extends C++ with new concepts called signals and slots.
+Signals and slots define clean and natural object interfaces for creating
+independent objects.
+This makes Qt very suitable for true component programming.
+
+<p>
+
+A "hello world" application under Qt is only 8 lines of C++ code:
+
+<pre>
+    #include <qmsgbox.h>
+    #include <qapp.h>
+
+    int main( int argc, char **argv )
+    {
+        QApplication a( argc, argv );
+        return QMessageBox::message( "Attention", "Hello, world!" );
+    }
+</pre>
+
+Qt dramatically cuts down on development time and complexity in
+writing user interface software for X-Windows/Linux.
+It allows the programmer to focus directly on the programming task,
+and not mess around with low-level X11 code.
+
+<p>
+
+Qt is very fast and compact because it is based direcly on Xlib and not
+Motif or X Intrinsics.
+Qt's widgets (user interface objects) emulate Motif look and feel.
+
+<p>
+
+Qt supports advanced features such as drawing transformed graphics,
+including drawing rotated text and pixmaps.
+Pixmaps can be loaded and saved using several image formats.
+An image class makes it easy to implement image processing algorithms.
+
+<p>
+
+Qt is definitely not a toy. It is a professional product that compares
+well to any commercial GUI class library.
+
+<p>
+
+If you find any bugs, send a report to qt-bugs@troll.no.
+
+<p>
+
+If you create a nice Qt program and want us to distribute it as a
+contribution to Qt, send us a line at info@troll.no.
+
+<p>
+
+
+Here are the main features of Qt:
+
+<ul>
+<li> Qt Widgets:
+<ul>
+<li>    Button
+<li>    Button group
+<li>    Check box
+<li>    Combo box
+<li>    Dialog
+<li>    Frame
+<li>    Group box
+<li>    Label
+<li>    LCD number
+<li>    Line editor
+<li>    List box
+<li>    Menu bar
+<li>    Message box
+<li>    Popup menu
+<li>    Push button
+<li>    Radio button
+<li>    Scroll bar
+<li>    Table
+<li>    View
+</ul>
+
+
+<li> User Interface Functionality:
+<ul>
+<li>   Accelerators
+<li>   Color support:
+<ul>
+<li>	RGB-based color
+<li>	HSV conversions
+<li>	Color group
+<li>	Palette
+</ul>
+<li>   Cursor
+<li>   Font
+<li>   Painter
+<li>   Paint devices:
+<ul>
+<li>	Widget
+<li>	Pixmap/Bitmap
+<li>	Picture (meta-file)
+</ul>
+<li>   Painter tools:
+<ul>
+<li>	Pen
+<li>	Brush
+<li>	Region
+<li>	Transform Matrix
+</ul>
+<li>   Image (abstract pixmap)
+<li>   Data types:
+<ul>
+<li>	Point
+<li>	Size
+<li>	Rect
+<li>	Point array
+</ul>
+<li>   Events:
+<ul>
+<li>	Mouse events
+<li>	Keyboard events
+<li>	Timer events
+<li>	and more...
+</ul>
+</ul>
+<li> General Toolkit:
+<ul>
+<li>   Array
+<li>   Bit array
+<li>   Byte array
+<li>   String
+<li>   Date and time classes
+<li>   Template/macro-based collections and iterators:
+<ul>
+<li>	List
+<li>	Dict
+<li>	Queue
+<li>	Stack
+<li>	Vector
+<li>	Cache
+<li>	List iterator
+<li>	Dict iterator
+<li>	Cache iterator
+</ul>
+<li>   IO devices:
+<ul>
+<li>	Buffer
+<li>	File
+</ul>
+<li>   Binary IO stream (for serialization)
+<li>   Text IO stream
+<li>   Regular expression parsing
+</ul>
+</ul>
+*/
 
 /*! \example wheel.cpp
 
@@ -487,4 +765,21 @@ There are several different index pages: <ul>
 
   This example draws a color wheel.  It shows how to use color, world
   transformation and QPainter. */
+
+/*! \example connect.cpp
+
+  <h1>Connections</h1>
+
+  This example shows how to use signals, slots and connect().  Run the
+  program, click the button, move the mouse, release the button, and
+  watch the lines get drawn.
+
+*/
+
+/*! \example cursor.cpp
+
+  <h1>Cursors</h1>
+
+  This example shows how to do tricks with the mouse cursor.
+*/
 
