@@ -1,19 +1,16 @@
-@rem = '--*-PERL-*--';
-@rem = '
+@rem = '--*-Perl-*--
 @echo off
-rem setlocal
-set ARGS=
-:loop
-if .%1==. goto endloop
-set ARGS=%ARGS% %1
-shift
-goto loop
-:endloop
-rem ***** This assumes PERL is in the PATH *****
-perl.exe -S syncqt.bat %ARGS%
+if "%OS%" == "Windows_NT" goto WinNT
+perl -x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9
+goto endofperl
+:WinNT
+perl -x -S "%0" %*
+if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto endofperl
+if %errorlevel% == 9009 echo You do not have Perl in your PATH.
 goto endofperl
 @rem ';
 #!/usr/bin/perl
+#line 14
 ############################################################################
 # $Id: $
 #
@@ -33,15 +30,25 @@ $basedir = $ENV{"QTDIR"};
 $includedir = $basedir . "/include";
 $privatedir = $basedir . "/include/private";
 
+$showonly = undef;
+$showonlypriv = undef;
+
 while ( $#ARGV >= 0 ) {
     if ( $ARGV[0] eq "-fast" ) {
 	$fast=1;
     } elsif ( $ARGV[0] eq "-inc" ) {
 	shift;
 	$includedir = $ARGV[0];
-	if ( $includedir =~ /^\// ) {
-	    $includedir = `pwd` ."/". $includedir;
+	if ( $includedir !~ /^\// ) {
+	    $includedir = `pwd`;
+	    chomp $includedir;
+	    $includedir .= "/". $includedir;
 	}
+	$privatedir = $includedir . "/private";
+    } elsif ( $ARGV[0] eq "-show" ) {
+	$showonly++;
+    } elsif ( $ARGV[0] eq "-showpriv" ) {
+	$showonlypriv++;
     } elsif ( $ARGV[0] eq "-windows" ) {
 	$force_win=1;
     }
@@ -49,6 +56,9 @@ while ( $#ARGV >= 0 ) {
 }
 
 undef $/;
+
+mkdir $includedir, 0777;
+mkdir $privatedir, 0777;
 
 opendir SRC, "$basedir/src";
 @dirs = map { -d "$basedir/src/$_" ? "src/$_" : () } readdir(SRC);
@@ -70,13 +80,29 @@ foreach $p ( @dirs ) {
     }
 }
 
+if ( $showonly ) {
+    foreach ( @files ) {
+	print "$_\n";
+    }
+    exit( 0 );
+}
+if ( $showonlypriv ) {
+    foreach ( @pfiles ) {
+	print "$_\n";
+    }
+    exit( 0 );
+}
+
 if ( check_unix() ) {
     chdir $includedir;
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
+	if ( -l $h && ! -f $h ) {
+	    unlink $h;
+	}
 	if ( ! -l $h ) {
-	    symlink("../" . $f, $h);
+	    symlink($basedir . "/" . $f, $h);
 	    print "symlink created for $f\n";
 	}
     }
@@ -93,8 +119,6 @@ if ( check_unix() ) {
 	}
     }
 } else {
-    mkdir $includedir, 0777;
-    mkdir $privatedir, 0777;
     foreach $f ( @files ) {
 	$h = $f;
 	$h =~ s-.*/--g;
@@ -106,7 +130,7 @@ if ( check_unix() ) {
 	sync_files("$basedir/$f", "$privatedir/$h", $fast);
     }
     sync_files("$basedir/dist/win/Makefile", "$basedir/Makefile", $fast);
-    sync_files("$basedir/dist/win/bin/moc.exe", "$basedir/bin/moc.exe", $fast);
+    sync_files("$basedir/dist/win/bin/moc.exe", "$basedir/bin/moc.exe", $fast);+
     sync_files("$basedir/dist/win/bin/configure.exe", "$basedir/bin/configure.exe", $fast);
 }
 
@@ -219,6 +243,9 @@ sub check_unix {
     if ( -f "/bin/uname" ) {
 	$r = 1;
 	(-f "\\bin\\uname") && ($r = 0);
+    } elsif ( -f "/usr/bin/uname" ) {
+        $r = 1;
+	(-f "\\usr\\bin\\uname") && ($r = 0);
     }
     return $r;
 }
