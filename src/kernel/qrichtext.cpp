@@ -3160,6 +3160,8 @@ void QTextDocument::drawParagraph( QPainter *p, QTextParagraph *parag, int cx, i
     if ( resetChanged )
 	parag->setChanged( FALSE );
     QRect ir( parag->rect() );
+    if (!parag->tableCell())
+	ir.setWidth(width());
 
     bool uDoubleBuffer = useDoubleBuffer( parag, p );
 
