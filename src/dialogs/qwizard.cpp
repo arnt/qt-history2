@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#11 $
 **
 ** Implementation of something useful.
 **
@@ -496,6 +496,7 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 	    hasEarlyFinish = TRUE;
 	i--;
     }
+    i = 0;
     while ( !hasHelp && i < (int)d->pages.count() ) {
 	if ( d->pages[i]->helpEnabled )
 	    hasHelp = TRUE;
