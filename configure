@@ -1125,10 +1125,18 @@ Installation options:
     -disable-<module> ......... Disables a module where module is one of:
 				$MODULES
 
-    -with-<module setting> .... This will activate a setting as described below.
-    -without-<module setting> . This will deactivate a setting for any enabled
-				module, consult each Qt module for their
-				specific settings.
+    -qt-sql-<driver> .......... Enable a SQL <driver> in the Qt Library, by
+                                default none are turned on.
+    -plugin-sql-<driver> ...... Enable SQL <driver> as a plugin to be linked
+                                to at run time.
+    -no-sql-<driver> .......... Disable SQL <driver> entirely.
+
+
+    -qt-style-<style> ......... Enable a GUI <style> in the Qt Library, by 
+                                default all available are on.
+    -plugin-style-<style> ..... Enable GUI <style> as a plugin to be linked
+                                to at run time.
+    -no-style-<style> ......... Disable GUI <style> entirely.
 
  $THN  -no-thread ......... Do not compile with threading support.
  $THY  -thread ............ Compile with threading support.
