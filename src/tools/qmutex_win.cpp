@@ -116,6 +116,7 @@ bool QRecursiveMutexPrivate::locked()
 #ifdef QT_CHECK_RANGE
 	qSystemWarning( "Mutex locktest failure" );
 #endif
+	ReleaseMutex( handle );
 	return FALSE;
     case WAIT_OBJECT_0:
 	ReleaseMutex( handle );
