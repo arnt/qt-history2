@@ -139,6 +139,11 @@ void QAccessible::initialize()
 }
 void QAccessible::setRootObject(QObject*)
 {
+    if (rootObjectHandler) {
+	rootObjectHandler(o);
+	return;
+    }
+
     qDebug("Not implemented yet!!!!!!");
 }
 void QAccessible::cleanup()
@@ -159,6 +164,11 @@ void QAccessible::cleanup()
 
 void QAccessible::updateAccessibility(QObject *object, int control, Event reason)
 {
+    if (updateHandler) {
+	updateHandle(o, who, reason);
+	return;
+    }
+
     if(!AXAPIEnabled()) //no point in any of this code..
 	return;
     if(control != 0) {

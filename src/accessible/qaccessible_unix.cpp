@@ -38,6 +38,12 @@ void QAccessible::cleanup()
 void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 {
     Q_ASSERT(o);
+
+    if (updateHandler) {
+	updateHandle(o, who, reason);
+	return;
+    }
+
     initialize();
     if (!qNotifyAccessibilityUpdate)
 	return;
@@ -50,6 +56,11 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 
 void QAccessible::setRootObject(QObject *o)
 {
+    if (rootObjectHandler) {
+	rootObjectHandler(o);
+	return;
+    }
+
     initialize();
     if (!qSetRootObject)
 	return;
