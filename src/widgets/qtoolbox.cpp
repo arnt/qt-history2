@@ -58,11 +58,8 @@
 static QWidget *real_page( QWidget *pg )
 {
     QScrollView *sv = (QScrollView*)pg;
-    if ( !sv )
-	return 0;
-    if ( !sv->viewport()->children() )
-	return 0;
-    return (QWidget*)sv->viewport()->children()->getFirst();
+    return (!sv || !sv->viewport()->children()) ? 0 :
+	    (QWidget*)sv->viewport()->children()->getFirst();
 }
 
 static QWidget *internal_page( QWidget *pg, const QWidget *tb )
