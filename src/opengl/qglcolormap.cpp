@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#3 $
+** $Id: //depot/qt/main/src/opengl/qglcolormap.cpp#4 $
 **
 ** Implementation of QGLColormap class
 **
@@ -38,7 +38,7 @@
 /*!
   \class QGLColormap qglcolormap.h
   \brief The QGLColormap class is used for installing custom colormaps into
-  widgets.
+  QGLWidgets.
   
   QGLColormap provides a platform independent way of specifying and
   installing indexed colormaps into QGLWidgets. QGLColormap is 
@@ -46,14 +46,13 @@
   color-index mode.
   
   Under X11 you will have to use an X server that supports either a
-  PseudoColor or DirectColor visual class.  If your X
-  server currently only provides a TrueColor, GrayScale, StaticColor or
-  StaticGray visual, you will not be able to allocate colorcells for
-  writing. If your X server does not provide one of the needed
-  visuals, try setting up your X server in 8 bit mode. It should then
-  provide a you with at least a PseudoColor visual. Note that you may
-  experience colormap flashing if your X server is running in 8 bit
-  mode.
+  PseudoColor or DirectColor visual class.  If your X server currently
+  only provides a GrayScale, TrueColor, StaticColor or StaticGray
+  visual, you will not be able to allocate colorcells for writing. If
+  this is the case, try setting your X server in 8 bit mode. It should
+  then provide you with at least a PseudoColor visual. Note that you
+  may experience colormap flashing if your X server is running in 8
+  bit mode.
     
   Under Windows the size of the colormap is always set to 256 colors.
   Note that under Windows you are allowed to install colormaps into
@@ -71,7 +70,7 @@
   {
       QApplication a( argc, argv );
       
-      MySuperGLWidget widget( 0 ); // Creates a QGLWidget in color-index mode
+      MySuperGLWidget widget( 0 ); // A QGLWidget in color-index mode
       QGLColormap colormap;
       
       // This will fill the colormap with colors ranging from
