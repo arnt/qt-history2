@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#17 $
 **
 ** Implementation of QScrollView class
 **
@@ -612,7 +612,12 @@ void QScrollView::moveContents(int x, int y)
 	d->vx = x;
 	d->vy = y;
 
-	d->viewport.scroll(dx,dy);
+	if ( dx && dy ||
+	     ( QABS(dy) * 5 > d->viewport.height() * 4 ) ||
+	     ( QABS(dx) * 5 > d->viewport.width() * 4 ) )
+	    d->viewport.update();
+	else
+	    d->viewport.scroll(dx,dy);
     }
 
     emit contentsMoved( x, y );
@@ -806,7 +811,7 @@ int QScrollView::topMargin() const
 */
 int QScrollView::rightMargin() const	
 {
-    return d->r_marg; 
+    return d->r_marg;
 }
 
 
@@ -816,5 +821,5 @@ int QScrollView::rightMargin() const
 */
 int QScrollView::bottomMargin() const	
 {
-    return d->b_marg; 
+    return d->b_marg;
 }
