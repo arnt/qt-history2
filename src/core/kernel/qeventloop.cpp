@@ -35,6 +35,9 @@ QEventLoopPrivate::QEventLoopPrivate()
 #if defined(Q_WS_X11)
     xfd = -1;
 #endif // Q_WS_X11
+
+    process_event_handler = 0;
+    event_filter = 0;
 }
 
 
@@ -475,4 +478,48 @@ void QEventLoop::flush()
 */
 void QEventLoop::appClosingDown()
 {
+}
+
+/*!
+    Sets the process event handler \a handler. Returns a pointer to 
+    the handler previously defined.
+
+    The process event handler is a function that receives all messages
+    taken from the system event loop before the event is dispatched to
+    the respective target. This includes messages that are not sent to
+    Qt objects.
+
+    The function can return true to prevent the message from being dispatched,
+    or false to pass the message back to the standard event processing.
+
+    Only one handler can be defined, but the handler can use the return value
+    to call the previously set event handler. By default, no handler is set (ie.
+    the function returns 0).
+*/
+QEventLoop::ProcessEventHandler QEventLoop::setProcessEventHandler(ProcessEventHandler handler)
+{
+    ProcessEventHandler oldHandler = d->process_event_handler;
+    d->process_event_handler = handler;
+    return oldHandler;
+}
+
+/*!
+    Sets the event filter \a filter. Returns a pointer to the filter function 
+    previously defined.
+
+    The event filter is a function that is called for every message received. This
+    does \e not include messages to objects that are not handled by Qt.
+
+    The function can return true to stop the event to be processed by Qt, or false
+    to continue with the standard event processing.
+
+    Only one filter can be defined, but the filter can use the return value
+    to call the previously set event filter. By default, no filter is set (ie.
+    the function returns 0).
+*/
+QEventLoop::EventFilter QEventLoop::setEventFilter(EventFilter filter)
+{
+    EventFilter oldFilter = d->event_filter;
+    d->event_filter = filter;
+    return oldFilter;
 }

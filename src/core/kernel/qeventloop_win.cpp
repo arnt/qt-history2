@@ -36,7 +36,6 @@ extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = true;
 extern Q_CORE_EXPORT bool        qt_win_use_simple_timers = false;
 #endif
 void CALLBACK   qt_simple_timer_func(HWND, UINT, UINT, DWORD);
-extern Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg, long &res);
 
 static TimerVec  *timerVec = 0;
 static TimerDict *timerDict = 0;
@@ -91,8 +90,8 @@ void CALLBACK qt_simple_timer_func(HWND, UINT, UINT idEvent, DWORD)
 
 bool qt_dispatch_timer(uint timerId, MSG *msg)
 {
-    long res;
-    if (!msg || !QCoreApplication::instance() || !qt_winEventFilter(msg, res))
+    long res = 0;
+    if (!msg || !QCoreApplication::instance() || !QEventLoop::instance()->winEventFilter(msg, &res))
         return activateTimer(timerId);
     return true;
 }
@@ -443,6 +442,9 @@ bool QEventLoop::hasPendingEvents() const
 
 void QEventLoop::winProcessEvent(void *message)
 {
+    if (d->process_event_handler && d->process_event_handler(message))
+        return;
+
     MSG *msg = (MSG*)message;
 
     if (msg->message == WM_TIMER) {
@@ -455,6 +457,19 @@ void QEventLoop::winProcessEvent(void *message)
     } , {
         DispatchMessageA(msg);
     });
+}
+
+bool QEventLoop::winEventFilter(void *message, long *result)
+{
+    if (d->event_filter && d->event_filter(message, result))
+        return true;
+
+#ifdef QT_COMPAT
+    if (QCoreApplication::instance()->winEventFilter((MSG*)message))
+        return true;
+#endif
+
+    return false;
 }
 
 bool QEventLoop::processEvents(ProcessEventsFlags flags)

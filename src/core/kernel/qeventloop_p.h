@@ -146,6 +146,9 @@ public:
     void timerRepair(const timeval &);
 #endif
 
+    QEventLoop::ProcessEventHandler process_event_handler;
+    QEventLoop::EventFilter event_filter;
+
     friend class QCoreApplication;
 };
 

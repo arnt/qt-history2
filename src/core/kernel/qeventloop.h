@@ -71,8 +71,14 @@ public:
     virtual void flush();
 
 #ifdef Q_WS_WIN
+    typedef bool(*ProcessEventHandler)(void *message);
+    typedef bool(*EventFilter)(void *message, long *result);
     virtual void winProcessEvent(void *message);
+    virtual bool winEventFilter(void *message, long *result);
 #endif
+    
+    ProcessEventHandler setProcessEventHandler(ProcessEventHandler handler);
+    EventFilter setEventFilter(EventFilter filter);
 
 signals:
     void awake();

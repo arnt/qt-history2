@@ -45,14 +45,6 @@ Q_CORE_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter)
     return old_filter;
 }
 
-Q_CORE_EXPORT bool qt_winEventFilter(MSG* msg, long &res)
-{
-    if (qt_win_event_filter && qt_win_event_filter(msg, res))
-        return true;
-
-    return QCoreApplication::instance()->winEventFilter(msg);
-}
-
 static void        msgHandler(QtMsgType, const char*);
 
 void set_winapp_name()
