@@ -77,7 +77,7 @@ void ColorButton::drawButton(QPainter *p)
     buttonOptions.rect = rect();
     buttonOptions.palette = palette();
     buttonOptions.state = (isDown() ? QStyle::Style_Down : QStyle::Style_Raised);
-    style()->drawPrimitive(QStyle::PE_ButtonBevel, &buttonOptions, p, this);
+    style()->drawPrimitive(QStyle::PE_PanelButtonBevel, &buttonOptions, p, this);
 
     drawButtonLabel(p);
 
@@ -85,7 +85,7 @@ void ColorButton::drawButton(QPainter *p)
     frectOptions.init(this);
     frectOptions.rect = style()->subRect(QStyle::SR_PushButtonFocusRect, &buttonOptions, this);
     if (hasFocus())
-        style()->drawPrimitive(QStyle::PE_FocusRect, &frectOptions, p, this);
+        style()->drawPrimitive(QStyle::PE_FrameFocusRect, &frectOptions, p, this);
 }
 
 
