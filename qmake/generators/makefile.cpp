@@ -1613,7 +1613,7 @@ MakefileGenerator::writeHeader(QTextStream &t)
     t << "# Template: " << var("TEMPLATE") << endl;
     if(!project->isActiveConfig("build_pass"))
         t << "# Command: " << build_args().replace("$(QMAKE)",
-                      project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
+                      (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE"))) << endl;
     t << "#############################################################################" << endl;
     t << endl;
 }
