@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qserversocket.cpp#5 $
+** $Id$
 **
 ** Implementation of Network Extension Library
 **

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/network/src/Makefile#1 $
+# $Id: //depot/qt/main/extensions/network/src/Makefile#2 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #

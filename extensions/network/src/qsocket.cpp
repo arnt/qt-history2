@@ -912,15 +912,21 @@ void QSocket::sn_read()
 	}
 	// if it doesn't work, we will retry later
 	return;
-    } else if ( state() != Connection ) {
-	// nothing to do, nothing to care about
-	return;
     }
 
     char buf[512];
     int  nbytes = d->socket->bytesAvailable();
     int  nread;
     QByteArray *a = 0;
+
+    if ( state() == Connecting ) {
+	if ( nbytes > 0 ) {
+	    tryConnection();
+	} else {
+	    // nothing to do, nothing to care about
+	    return;
+	}
+    }
 
     if ( nbytes <= 0 ) {			// connection closed?
 	// On Windows this may happen when the connection is still open.
@@ -991,21 +997,25 @@ void QSocket::sn_read()
 
 void QSocket::sn_write()
 {
-    if ( d->state == Connecting ) {		// connection established?
-	if ( d->socket->connect( d->addr, d->port ) ) {
-	    d->state = Connection;
-#if defined(QSOCKET_DEBUG)
-	    qDebug( "QSocket (%s): sn_write: Got connection to %s",
-		    name(), peerName().ascii() );
-#endif
-	    emit connected();
-	} else {
-	    d->state = Idle;
-	    emit error( ErrConnectionRefused );
-	    return;
-	}
-    }
+    if ( d->state == Connecting ) 		// connection established?
+	tryConnection();
     flush();
+}
+
+void QSocket::tryConnection()
+{
+    if ( d->socket->connect( d->addr, d->port ) ) {
+	d->state = Connection;
+#if defined(QSOCKET_DEBUG)
+	qDebug( "QSocket (%s): sn_write: Got connection to %s",
+		name(), peerName().ascii() );
+#endif
+	emit connected();
+    } else {
+	d->state = Idle;
+	emit error( ErrConnectionRefused );
+	return;
+    }
 }
 
 

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/network/src/GNUmakefile#1 $
+# $Id: //depot/qt/main/extensions/network/src/GNUmakefile#2 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

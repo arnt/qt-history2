@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#7 $
+** $Id$
 **
 ** Implementation of Network Extension Library
 **

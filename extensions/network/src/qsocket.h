@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocket.h#6 $
+** $Id$
 **
 ** Implementation of Network Extension Library
 **
@@ -116,6 +116,7 @@ private:
     bool	 consumeReadBuf( int nbytes, char * );
     bool	 consumeWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
+    void	 tryConnection();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

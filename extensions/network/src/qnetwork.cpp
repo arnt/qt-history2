@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qnetwork.cpp#6 $
+** $Id$
 **
 ** Implementation of Network Extension Library
 **
