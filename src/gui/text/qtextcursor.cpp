@@ -250,7 +250,25 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
         if (i == -1) {
             if (blockIt == pieceTable->blocksBegin())
                 return false;
-            --blockIt;
+            int blockPosition = blockIt.position();
+            QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
+            if (table) {
+                QTextTableCell cell = table->cellAt(blockPosition);
+                if (cell.startPosition() == blockPosition) {
+                    int row = cell.row() - 1;
+                    if (row >= 0) {
+                        blockPosition = table->cellAt(row, cell.column()).endPosition();
+                    } else {
+                        // move to line above the table
+                        blockPosition = table->startPosition() - 1;
+                    }
+                    blockIt = pieceTable->blocksFind(blockPosition);
+                } else {
+                    --blockIt;
+                }
+            } else {
+                --blockIt;
+            }
             layout = blockIt.layout();
             i = layout->numLines()-1;
         }
@@ -297,7 +315,26 @@ bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::Move
         int i = line.line() + 1;
 
         if (i >= layout->numLines()) {
-            ++blockIt;
+            int blockPosition = blockIt.position() + blockIt.length() - 1;
+            QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(blockPosition));
+            if (table) {
+                QTextTableCell cell = table->cellAt(blockPosition);
+                if (cell.endPosition() == blockPosition) {
+                    int row = cell.row() + cell.rowSpan();
+                    if (row < table->rows()) {
+                        blockPosition = table->cellAt(row, cell.column()).startPosition();
+                    } else {
+                        // move to line below the table
+                        blockPosition = table->endPosition() + 1;
+                    }
+                    blockIt = pieceTable->blocksFind(blockPosition);
+                } else {
+                    ++blockIt;
+                }
+            } else {
+                ++blockIt;
+            }
+
             if (blockIt == pieceTable->blocksEnd())
                 return false;
             layout = blockIt.layout();
