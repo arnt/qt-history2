@@ -294,8 +294,8 @@ QCoreVariant QPSQLResult::data(int i)
         char * buf = new char[size];
 
 #ifdef Q_OS_WIN32
-        // ### For some reason lo_read() fails if we try to read more than
-        // ### 32760 bytes
+        // For some reason lo_read() fails if we try to read more than
+        // 32760 bytes
         char * p = buf;
         int nread = 0;
 
