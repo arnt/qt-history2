@@ -62,16 +62,6 @@ MainWindow::MainWindow()
     setWindowTitle(tr("Simple Character Map"));
 }
 
-void MainWindow::updateClipboard()
-{
-    clipboard->setText(lineEdit->text());
-}
-
-void MainWindow::insertCharacter(const QString &character)
-{
-    lineEdit->insert(character);
-}
-
 void MainWindow::findFonts()
 {
     QFontDatabase fontDatabase;
@@ -94,4 +84,14 @@ void MainWindow::findStyles()
 
     if (!styleCombo->contains(currentItem))
         styleCombo->setCurrentItem(0);
+}
+
+void MainWindow::updateClipboard()
+{
+    clipboard->setText(lineEdit->text());
+}
+
+void MainWindow::insertCharacter(const QString &character)
+{
+    lineEdit->insert(character);
 }
