@@ -1128,6 +1128,13 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    QListViewItem *item = opt.listViewItem();
 	    int y=r.y(), h=r.height();
 	    ((QMacPainter *)p)->setport();
+	    {
+		::RGBColor f;
+		f.red = widget->paletteBackgroundColor().red()*256;
+		f.green = widget->paletteBackgroundColor().green()*256;
+		f.blue = widget->paletteBackgroundColor().blue()*256;
+		RGBBackColor(&f);
+	    }
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
