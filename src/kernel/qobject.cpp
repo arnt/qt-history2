@@ -1408,14 +1408,12 @@ void QObject::badSuperclassWarning( const char *className,
   \sa disconnect()
 */
 
-/*!
-  Connects \e signal from the \e sender object to \e member in object \e
-  receiver.
+/*!  Connects \e signal from the \e sender object to \e member in object
+  \e receiver, and returns TRUE if the connection succeeds, or FALSE if it
+  does not.
 
   You must use the SIGNAL() and SLOT() macros when specifying the \e signal
-  and the \e member.
-
-  Example:
+  and the \e member, like this:
   \code
     QLabel     *label  = new QLabel;
     QScrollBar *scroll = new QScrollBar;
@@ -1423,13 +1421,10 @@ void QObject::badSuperclassWarning( const char *className,
 		      label,  SLOT(setNum(int)) );
   \endcode
 
-  This example connects the scroll bar's \link QScrollBar::valueChanged()
-  valueChanged()\endlink signal to the label's \link QLabel::setNum()
-  setNum()\endlink slot. It makes the label always display the current
-  scroll bar value.
+  (This example makes the label always display the current scroll bar
+  value.)
 
-  A signal can even be connected to another signal, i.e. \e member is
-  a SIGNAL().
+  A signal can also be connected to another signal:
 
   \code
     class MyWidget : public QWidget
@@ -1438,7 +1433,7 @@ void QObject::badSuperclassWarning( const char *className,
 	MyWidget();
     ...
     signals:
-	void aSignal();
+	void myUsefulSignal();
     ...
     private:
     ...
@@ -1448,22 +1443,22 @@ void QObject::badSuperclassWarning( const char *className,
     MyWidget::MyWidget()
     {
 	aButton = new QPushButton( this );
-	connect( aButton, SIGNAL(clicked()), SIGNAL(aSignal()) );
+	connect( aButton, SIGNAL(clicked()), SIGNAL(myUsefulSignal()) );
     }
   \endcode
 
-  In its constructor, MyWidget creates a private button and connects the
-  \link QButton::clicked() clicked()\endlink signal to relay clicked() to
-  the outside world. You can achieve the same effect by connecting the
-  clicked() signal to a private slot and emitting aSignal() in this slot,
-  but that takes a few lines of extra code and is not quite as clear, of
-  course.
+  The MyWidget constructor thus relays a signal from a private member
+  variable, and makes it available under a name that relates to MyWidget.
 
   A signal can be connected to many slots/signals. Many signals can be
   connected to one slot.
 
   If a signal is connected to several slots, the slots are activated
   in arbitrary order when the signal is emitted.
+
+  This function can return FALSE if QObject is unable to verify the
+  existence of either \a signal or \a member, or if their signatures
+  aren't compatible.
 
   \sa disconnect()
 */
