@@ -2002,7 +2002,8 @@ void MainWindow::editSource( SourceFile *f )
     }
     editor->show();
     editor->setFocus();
-    editor->setObject( f, currentProject );
+    if ( editor->object() != f )
+	editor->setObject( f, currentProject );
 }
 
 void MainWindow::editFormSettings()
@@ -2336,14 +2337,20 @@ QObjectList *MainWindow::runProject()
 
     QObjectList *l = new QObjectList;
     if ( iiface ) {
-	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() ) {
-	    if ( e->project() == currentProject && e->object()->inherits( "SourceFile" ) ) {
-		QValueList<int> bps = MetaDataBase::breakPoints( e->object() );
-		if ( !bps.isEmpty() )
-		    iiface->setBreakPoints( e->object(), bps );
-	    }
+	QList<FormWindow> frms = currentProject->forms();
+	for ( FormWindow *fw = frms.first(); fw; fw = frms.next() ) {
+	    QValueList<int> bps = MetaDataBase::breakPoints( fw );
+	    if ( !bps.isEmpty() )
+		iiface->setBreakPoints( fw, bps );
 	}
 
+	QList<SourceFile> files = currentProject->sourceFiles();
+	for ( SourceFile *f = files.first(); f; f = files.next() ) {
+	    QValueList<int> bps = MetaDataBase::breakPoints( f );
+	    if ( !bps.isEmpty() )
+		iiface->setBreakPoints( f, bps );
+	}
+		
 	iiface->exec( 0, "main" );
 	
 	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {

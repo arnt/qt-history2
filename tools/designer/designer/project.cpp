@@ -983,3 +983,11 @@ QList<FormWindow> Project::unnamedForms() const
     }
     return fws;
 }
+
+QList<FormWindow> Project::forms() const
+{
+    QList<FormWindow> fws;
+    for ( QMap<FormWindow*, QString>::ConstIterator it = formWindows.begin(); it != formWindows.end(); ++it )
+	fws.append( it.key() );
+    return fws;
+}
