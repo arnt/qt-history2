@@ -1432,8 +1432,19 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
     if (d->currentEditor.second)
         endEdit(old, true);
 
-    if (old.isValid())
-        d->viewport->repaint(itemViewportRect(old));
+    if (old.isValid()) {
+        int behavior = selectionBehavior();
+        QRect rect = itemViewportRect(old);
+        if (behavior & SelectRows) {
+            rect.setLeft(0);
+            rect.setRight(d->viewport->width());
+        }
+        if (behavior & SelectColumns) {
+            rect.setTop(0);
+            rect.setBottom(d->viewport->height());
+        }
+        d->viewport->repaint(rect);
+    }
 
     if (current.isValid())
         ensureItemVisible(current);
