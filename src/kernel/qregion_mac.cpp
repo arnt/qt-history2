@@ -179,13 +179,21 @@ QRect QRegion::boundingRect() const
 QArray<QRect> QRegion::rects() const
 {
   printf("QRegion::rects: %s %d\n",__FILE__,__LINE__);
-  return QArray<QRect>();
+  // I'm not sure how we can break this down into more accurate rects
+  // so for now we just return the one
+  QArray<QRect> foo(1);
+  foo[0]=boundingRect();
+  return foo;
 }
 
 bool QRegion::operator==( const QRegion &r ) const
 {
   printf("QRegion::== %s %d\n",__FILE__,__LINE__);
-  return false;
+  if(EqualRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn)) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 
