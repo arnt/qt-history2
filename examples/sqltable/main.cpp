@@ -14,19 +14,19 @@
 
 /* This example program expects a table called 'simpletable' to exist
    in the database.  You can create this table by running the
-   following SQL script (modify to suit your backend):
-   
+   following SQL script (modify to suit your backend, if necessary):
+
    drop table simpletable;
-   create table simpletable 
+   create table simpletable
    (id number primary key,
     name varchar(20),
     address varchar(20) );
-    
+
    -- optional, some sample data
-   insert into simpletable (id, name, address) 
-          values (1, 'Trond', 'Oslo');
-   insert into simpletable (id, name, address) 
-          values (2, 'Dave', 'Oslo');
+   insert into simpletable (id, name, address)
+	  values (1, 'Trond', 'Oslo');
+   insert into simpletable (id, name, address)
+	  values (2, 'Dave', 'Oslo');
 */
 
 /* Modify the following to match your environment */
@@ -38,14 +38,16 @@
 
 class SimpleCursor : public QSqlCursor
 {
-public:    
+public:
     SimpleCursor () : QSqlCursor( "simpletable" ) {}
 protected:
-    void primeInsert( QSqlRecord* buf )
+    QSqlRecord* primeInsert()
     {
+	QSqlRecord* buf = QSqlCursor::primeInsert();
 	QSqlQuery q( "select max(id)+1 from simpletable;" );
 	if ( q.next() )
 	       buf->setValue( "id", q.value(0) );
+	return buf;
     }
 };
 
@@ -68,13 +70,14 @@ int main( int argc, char ** argv )
     cursor.setDisplayLabel( "name", "Name" );
     cursor.setDisplayLabel( "address", "Address" );
 
-    QSqlTable table( &cursor, FALSE );
+    QSqlTable table( &cursor );
     table.addColumn( cursor.field( "name" ) );
     table.addColumn( cursor.field( "address" ) );
     table.setSorting( TRUE );
 
     a.setMainWidget( &table );
-    table.show();
+    table.refresh(); /* load data */
+    table.show();    /* show widget */
 
     return a.exec();
 }
