@@ -288,7 +288,10 @@ QMNGFormat::QMNGFormat()
 */
 QMNGFormat::~QMNGFormat()
 {
-    mng_cleanup(&handle);
+    // We're setting the consumer to 0 since it may have been
+    // deleted by read_async_image in qimage.cpp
+    consumer = 0;
+    if (handle) mng_cleanup(&handle);
 }
 
 
