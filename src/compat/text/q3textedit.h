@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qscrollview.h"
 #include "qstylesheet.h"
+#include "qmimefactory.h"
 #include "qmap.h"
 #endif // QT_H
 
@@ -46,6 +47,7 @@ struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class Q3TextEditPrivate;
 class QSyntaxHighlighter;
+class QTextDrag;
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 class Q3TextEditOptimPrivate

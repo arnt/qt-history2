@@ -26,6 +26,8 @@
 #include "qstylesheet.h"
 #include "qtextedit.h"
 #include "qdialog_p.h"
+#include "qpixmap.h"
+#include <qmap.h>
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -39,7 +41,7 @@ public:
     QTextEdit * errors;
     QLabel * icon;
     QStringList pending;
-    QHash<QString, int> doNotShow;
+    QMap<QString, int> doNotShow;
 
     bool nextPending();
 };

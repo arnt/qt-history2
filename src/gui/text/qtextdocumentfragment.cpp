@@ -5,7 +5,6 @@
 #include "qtexttable.h"
 
 #include <qdebug.h>
-#include <qstylesheet.h>
 #include <qtextcodec.h>
 #include <qbytearray.h>
 #include <qdatastream.h>

@@ -5,7 +5,6 @@
 #include <qapplication.h>
 #include <qstack.h>
 #include <qdebug.h>
-#include <qstylesheet.h>
 
 #include "qtextdocument.h"
 #include "qtextformat_p.h"

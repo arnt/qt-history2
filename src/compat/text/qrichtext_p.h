@@ -46,6 +46,7 @@
 #include "qstring.h"
 #include "qstringlist.h"
 #include "qstylesheet.h"
+#include "qmimefactory.h"
 #include "qstack.h"
 #endif // QT_H
 
