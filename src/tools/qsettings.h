@@ -40,6 +40,12 @@ public:
     QSettings();
     ~QSettings();
 
+    enum System {
+	Unix = 0,
+	Windows,
+	Mac
+    };
+
     bool sync();
 
     bool	writeEntry( const QString &, bool );
@@ -59,9 +65,8 @@ public:
 
     QDateTime	lastModficationTime( const QString & );
 
-    static void insertSearchPath( const QString & );
-    static void removeSearchPath( const QString & );
-
+    void insertSearchPath( System, const QString & );
+    void removeSearchPath( System, const QString & );
 
 private:
     QSettingsPrivate *d;

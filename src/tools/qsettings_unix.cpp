@@ -327,10 +327,11 @@ QDateTime QSettingsPrivate::modificationTime()
 
 
 /*!
-  Inserts \a path into the settings search path.  The search path list will
-  be used when trying to determine a suitable filename for reading and
-  writing settings files.  By default, there are two entries in the search
-  path:
+  Inserts \a path into the settings search path.  
+      
+  Under \e Unix, the search path list will be used when trying to determine a 
+  suitable filename for reading and writing settings files. By default, there 
+  are two entries in the search path:
 
   <ul>
   <li> <i>\<prefix\></i>/lib/qt/settings/ - where <i>\<prefix\></i> is the
@@ -357,6 +358,8 @@ QDateTime QSettingsPrivate::modificationTime()
   <li>/opt/mysoft/share/myapp/cfg
   <li><i>\<home\></i>/.qt
   </ul>
+
+  Under \e Windows, 
 */
 void QSettings::insertSearchPath(const QString &path)
 {
