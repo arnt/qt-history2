@@ -1729,7 +1729,9 @@ short QLocale::toShort(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the unsigned short int represented by the localized string \a s.
+    Returns the unsigned short int represented by the localized string
+    \a s, or 0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1748,9 +1750,11 @@ ushort QLocale::toUShort(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the int represented by the localized string \a s.
-    If \a ok is not 0, reports failure by setting
-    *ok to false and success by setting *ok to true.
+    Returns the int represented by the localized string \a s, or 0 if
+    the conversion failed.
+
+    If \a ok is not 0, reports failure by setting *ok to false and
+    success by setting *ok to true.
 
     \sa toString()
 */
@@ -1767,7 +1771,9 @@ int QLocale::toInt(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the unsigned int represented by the localized string \a s.
+    Returns the unsigned int represented by the localized string \a s,
+    or 0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1786,7 +1792,9 @@ uint QLocale::toUInt(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the long int represented by the localized string \a s.
+    Returns the long int represented by the localized string \a s, or
+    0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1805,7 +1813,9 @@ Q_LONG QLocale::toLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the unsigned long int represented by the localized string \a s.
+    Returns the unsigned long int represented by the localized string
+    \a s, or 0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1824,7 +1834,9 @@ Q_ULONG QLocale::toULong(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the long long int represented by the localized string \a s.
+    Returns the long long int represented by the localized string \a
+    s, or 0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1838,7 +1850,9 @@ Q_LLONG QLocale::toLongLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the unsigned long long int represented by the localized string \a s.
+    Returns the unsigned long long int represented by the localized
+    string \a s, or 0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1852,7 +1866,9 @@ Q_ULLONG QLocale::toULongLong(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the float represented by the localized string \a s.
+    Returns the float represented by the localized string \a s, or 0.0
+    if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
@@ -1865,7 +1881,9 @@ float QLocale::toFloat(const QString &s, bool *ok) const
 }
 
 /*!
-    Returns the double represented by the localized string \a s.
+    Returns the double represented by the localized string \a s, or
+    0.0 if the conversion failed.
+
     If \a ok is not 0, reports failure by setting
     *ok to false and success by setting *ok to true.
 
