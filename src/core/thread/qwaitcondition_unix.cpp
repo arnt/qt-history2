@@ -185,8 +185,7 @@ void QWaitCondition::wakeAll()
 */
 bool QWaitCondition::wait(unsigned long time)
 {
-    pthread_mutex_t mutex;
-    pthread_mutex_init( &mutex, 0 );
+    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     pthread_mutex_lock( &mutex );
 
     int ret;
@@ -207,7 +206,6 @@ bool QWaitCondition::wait(unsigned long time)
 	qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
 
     pthread_mutex_unlock( &mutex );
-    pthread_mutex_destroy( &mutex );
 
     return (ret == 0);
 }
