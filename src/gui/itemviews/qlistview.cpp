@@ -945,8 +945,11 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
         if (rect.top() < spacing)
             rect.moveTop(contents.height() - rect.height());
     case MoveUp:
-        if (d->movement == Static && cursorAction != MovePageUp && current.row() > 0)
-            return model()->index(current.row() - 1, 0, root());
+        if (d->movement == Static && cursorAction != MovePageUp && current.row() > 0) {
+            int row = current.row();
+            while (d->hiddenRows.contains(--row));
+            return model()->index(row, 0, root());
+        }
         while (d->intersectVector.count() == 0) {
             if (rect.top() > spacing)
                 rect.moveTop(rect.top() - rect.height() - spacing);
@@ -967,8 +970,11 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
             rect.moveTop(0);
     case MoveDown:
         if (d->movement == Static && cursorAction != MovePageDown
-            && current.row() < model()->rowCount(root()) - 1)
-            return model()->index(current.row() + 1, 0, root());
+            && current.row() < model()->rowCount(root()) - 1) {
+            int row = current.row();
+            while (d->hiddenRows.contains(++row));
+            return model()->index(row, 0, root());
+        }
         while (d->intersectVector.count() == 0) {
             if (rect.bottom() < contents.height() - spacing)
                 rect.moveTop(rect.top() + rect.height() + spacing);
@@ -1183,17 +1189,19 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int w = bounds.width();
         int dx, dy = grid.isValid() ? grid.height() : d->translate;
         for (int i = first; i <= last ; ++i) {
-            if (hiddenRows.contains(i))
-                continue;
-            index = model->index(i, 0, root());
-            if (!grid.isValid())
-                hint = delegate->sizeHint(option, model, index);
-            dx = hint.width();
-            if (wrap && (x + spacing >= w))
-                d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
-            d->xposVector.push_back(x);
-            dy = (hint.height() > dy ? hint.height() : dy);
-            x += spacing + dx;
+            if (!hiddenRows.contains(i)) {
+                index = model->index(i, 0, root());
+                if (!grid.isValid())
+                    hint = delegate->sizeHint(option, model, index);
+                dx = hint.width();
+                if (wrap && (x + spacing >= w))
+                    d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
+                d->xposVector.push_back(x);
+                dy = (hint.height() > dy ? hint.height() : dy);
+                x += spacing + dx;
+            } else {
+                d->xposVector.push_back(x);
+            }
         }
         // used when laying out next batch
         d->xposVector.push_back(x);
@@ -1204,17 +1212,19 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         int h = bounds.height();
         int dy, dx = grid.isValid() ? grid.width() : d->translate;
         for (int i = first; i <= last ; ++i) {
-            if (hiddenRows.contains(i))
-                continue;
-            index = model->index(i, 0, root());
-            if (!grid.isValid())
-                hint = delegate->sizeHint(option, model, index);
-            dy = hint.height();
-            if (wrap && (y + spacing >= h))
-                d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
-            d->yposVector.push_back(y);
-            dx = (hint.width() > dx ? hint.width() : dx);
-            y += spacing + dy;
+            if (!hiddenRows.contains(i)) {
+                index = model->index(i, 0, root());
+                if (!grid.isValid())
+                    hint = delegate->sizeHint(option, model, index);
+                dy = hint.height();
+                if (wrap && (y + spacing >= h))
+                    d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
+                d->yposVector.push_back(y);
+                dx = (hint.width() > dx ? hint.width() : dx);
+                y += spacing + dy;
+            } else {
+                d->yposVector.push_back(y);
+            }
         }
         // used when laying out next batch
         d->yposVector.push_back(y);
@@ -1407,15 +1417,16 @@ void QListViewPrivate::init()
 void QListViewPrivate::prepareItemsLayout()
 {
     // initailization of data structs
-    int rowCount = model->columnCount(q->root()) > 0 // no columns means no contents
-                   ? qMax(model->rowCount(q->root()) - hiddenRows.count(), 0) : 0;
+    int rowCount = qMax(model->rowCount(q->root()), 0);
+    if (model->columnCount(q->root()) <= 0)
+        rowCount = 0; // no contents
     if (movement == QListView::Static) {
         tree.destroy();
         if (flow == QListView::LeftToRight) {
-            xposVector.resize(qMax(rowCount, 0));
+            xposVector.resize(rowCount);
             yposVector.clear();
         } else { // TopToBottom
-            yposVector.resize(qMax(rowCount, 0));
+            yposVector.resize(rowCount);
             xposVector.clear();
         }
         wrapVector.clear();
@@ -1423,7 +1434,7 @@ void QListViewPrivate::prepareItemsLayout()
         wrapVector.clear();
         xposVector.clear();
         yposVector.clear();
-        tree.create(rowCount);
+        tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
 }
 
@@ -1452,11 +1463,13 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
             last = first + count;
             i = qBinarySearch<int>(xposVector, area.left(), first, last);
             for (; i <= last && xposVector.at(i) < area.right(); ++i) {
-                index = model->index(i, 0, root);
-                if (index.isValid())
-                    intersectVector.push_back(index);
-                else
-                    qWarning("intersectingStaticSet: index was invalid");
+                if (!hiddenRows.contains(i)) {
+                    index = model->index(i, 0, root);
+                    if (index.isValid())
+                        intersectVector.push_back(index);
+                    else
+                        qWarning("intersectingStaticSet: index %d was invalid", i);
+                }
             }
         }
     } else { // flow == TopToBottom
@@ -1469,11 +1482,13 @@ void QListViewPrivate::intersectingStaticSet(const QRect &area) const
             last = first + count;
             i = qBinarySearch<int>(yposVector, area.top(), first, last);
             for (; i <= last && yposVector.at(i) < area.bottom(); ++i) {
-                index = model->index(i, 0, root);
-                if (index.isValid())
-                    intersectVector.push_back(index);
-                else
-                    qWarning("intersectingStaticSet: index was invalid");
+                if (!hiddenRows.contains(i)) {
+                    index = model->index(i, 0, root);
+                    if (index.isValid())
+                        intersectVector.push_back(index);
+                    else
+                        qWarning("intersectingStaticSet: index %d was invalid", i);
+                }
             }
         }
     }
@@ -1525,7 +1540,7 @@ QRect QListViewPrivate::itemsRect(const QVector<QModelIndex> &indexes) const
 
 QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) const
 {
-    if (!index.isValid())
+    if (!index.isValid() || hiddenRows.contains(index.row()))
         return QListViewItem();
 
     if (movement != QListView::Static)
@@ -1535,8 +1550,8 @@ QListViewItem QListViewPrivate::indexToListViewItem(const QModelIndex &index) co
             return QListViewItem();
 
     // movement == Static
-    if ((flow == QListView::LeftToRight && index.row() >= xposVector.count()) ||
-        (flow == QListView::TopToBottom && index.row() >= yposVector.count()))
+    if ((flow == QListView::LeftToRight && index.row() >= xposVector.count())
+        ||(flow == QListView::TopToBottom && index.row() >= yposVector.count()))
         return QListViewItem();
 
     int i = qBinarySearch<int>(wrapVector, index.row(), 0, layoutWraps);
