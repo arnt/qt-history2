@@ -73,9 +73,9 @@
   \code
     QFile f( "file.dta" );
     f.open( IO_WriteOnly );
-    QDataStream s( &f );    // we will serialize the data into file f
-    s << "the answer is";   // serialize a string
-    s << (Q_INT32)42;       // serialize an integer
+    QDataStream s( &f );                // serialize into file f
+    s << QString( "the answer is" );    // serialize a string
+    s << (Q_INT32)42;                   // serialize an integer
   \endcode
 
   Example (read binary data from a stream):
