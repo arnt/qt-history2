@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qiodevice.cpp#14 $
 **
 ** Implementation of QIODevice class
 **
@@ -13,7 +13,7 @@
 #include "qiodev.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#14 $";
 #endif
 
 
@@ -35,7 +35,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $";
   access </em> devices.
   Files can normally be accessed directly, except \c stdin etc., which must be
   processed sequentially.  Buffers are always direct access devices.
-  
+
   The access mode of an IO device can be either \e raw or \e buffered.
   QFile objects can be created using one of these.  Raw access mode is more
   low level, while buffered access use smart buffering techniques.
@@ -44,7 +44,7 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qiodevice.cpp#13 $";
   data at a time.
 
   An IO device operation can be executed in either \e synchronous or
-  \e asynchronous mode.  The IO devices currently supported by Qt only
+  \e asynchronous mode.	 The IO devices currently supported by Qt only
   execute synchronously.
 
   The QDataStream and QTextStream provide binary and text operations
@@ -307,7 +307,7 @@ void QIODevice::setStatus( int s )		// set status
   for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
   combined with \c IO_Raw.
   <\ul>
-  
+
   This virtual function must be reimplemented by subclasses.
 
   \sa close()
@@ -418,6 +418,8 @@ int QIODevice::readLine( char *data, uint maxlen )
     long pos = at();				// get current position
     long s  = size();				// size of IO device
     char *p = data;
+    if ( pos >= s )
+	return 0;
     while ( pos++ < s && --maxlen ) {		// read one byte at a time
 	readBlock( p, 1 );
 	if ( *p++ == '\n' )			// end of line
