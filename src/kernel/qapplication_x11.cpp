@@ -2745,9 +2745,13 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 		QWhatsThis::enterWhatsThisMode();
 #endif // QT_NO_WHATSTHIS
 	    } else if ( a == ATOM(Net_Wm_Ping) ) {
-		event->xclient.window = QPaintDevice::x11AppRootWindow( w->x11Screen() );
-		XSendEvent( event->xclient.display, event->xclient.window,
-			    False, SubstructureNotifyMask|SubstructureRedirectMask, event );
+		// avoid send/reply loops
+		Window root = QPaintDevice::x11AppRootWindow( w->x11Screen() );
+		if (event->xclient.window != root) {
+                    event->xclient.window = root;
+                    XSendEvent( event->xclient.display, event->xclient.window,
+			        False, SubstructureNotifyMask|SubstructureRedirectMask, event );
+                }
 	    }
 	} else if ( event->xclient.message_type == ATOM(Qt_Scroll_Done) ) {
 	    widget->translateScrollDoneEvent(event);
