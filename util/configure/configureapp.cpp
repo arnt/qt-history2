@@ -42,7 +42,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "LEAN" ] = "no";
     dictionary[ "NOPROCESS" ] = "no";
     dictionary[ "STL" ] = "no";
-    dictionary[ "ACCESSIBILITY" ] = "no";
+//    dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
     dictionary[ "REDO" ] = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
@@ -187,10 +187,10 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "STL" ] = "yes";
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
-	else if( (*args) == "-accessibility" )
-	    dictionary[ "ACCESSIBILITY" ] = "yes";
-	else if( (*args) == "-no-accessibility" )
-	    dictionary[ "ACCESSIBILITY" ] = "no";
+//	else if( (*args) == "-accessibility" )
+//	    dictionary[ "ACCESSIBILITY" ] = "yes";
+//	else if( (*args) == "-no-accessibility" )
+//	    dictionary[ "ACCESSIBILITY" ] = "no";
 	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
 	    ++args;
 	    dictionary[ "VERSION" ] = (*args);
@@ -294,8 +294,8 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-jpeg        Enable JPEG support." << endl << endl;
 	cout << "-stl                Enable STL support." << endl;
 	cout << "-no-stl           * Disable STL support." << endl;
-	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
-	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
+//	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
+//	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl << endl;
 	cout << "-no-dsp             Disable the generation of VC++ .DSP-files." << endl;
 	cout << "-dsp              * Enable the generation of VC++ .DSP-files." << endl;
 	cout << "-no-qmake           Do not build qmake." << endl;
@@ -331,10 +331,10 @@ void ConfigureApp::generateOutputVars()
 	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
 	qmakeDefines += "QT_THREAD_SUPPORT";
     }
-    if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
-	qmakeConfig += "accessibility";
-	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
-    }
+//    if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
+//	qmakeConfig += "accessibility";
+//	qmakeDefines += "QT_ACCESSIBILITY_SUPPORT";
+//    }
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
 	qmakeDefines += "QT_DLL";
