@@ -63,7 +63,7 @@
 #include <qmetaobject.h>
 #include <qbuffer.h>
 
-FormWindowDnDItem::FormWindowDnDItem(QWidget *widget)
+FormWindowDnDItem::FormWindowDnDItem(QWidget *widget, const QPoint &pos)
 {
     m_dom_ui = 0;
     m_widget = widget;
@@ -77,10 +77,10 @@ FormWindowDnDItem::FormWindowDnDItem(QWidget *widget)
 
     m_decoration = label;
 
-    m_hot_spot = QCursor::pos() - m_decoration->geometry().topLeft();
+    m_hot_spot = pos - m_decoration->geometry().topLeft();
 }
 
-FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget)
+FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos)
 {
     m_dom_ui = dom_ui;
     m_widget = 0;
@@ -94,7 +94,7 @@ FormWindowDnDItem::FormWindowDnDItem(DomUI *dom_ui, QWidget *widget)
 
     m_decoration = label;
 
-    m_hot_spot = QCursor::pos() - m_decoration->geometry().topLeft();
+    m_hot_spot = pos - m_decoration->geometry().topLeft();
 }
 
 DomUI *FormWindowDnDItem::domUi() const
@@ -513,6 +513,7 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             QDesignerResource res(this);
 
             QList<QWidget*> sel(selectedWidgets());
+            
             simplifySelection(&sel);
 
             sel = checkSelectionsForMove(w);
@@ -528,9 +529,9 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
                 if (e->modifiers() & Qt::ControlModifier) {
                     QDesignerResource builder(this);
                     DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
-                    item_list.append(new FormWindowDnDItem(dom_ui, widget));
+                    item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
                 } else {
-                    item_list.append(new FormWindowDnDItem(widget));
+                    item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
                     widget->hide();
                 }
             }
@@ -682,8 +683,8 @@ void FormWindow::endRectDraw()
 
 QPoint FormWindow::gridPoint(const QPoint &p) const
 {
-    return QPoint((p.x() / grid().x()) * grid().x(),
-                   (p.y() / grid().y()) * grid().y());
+    return QPoint(((p.x() + grid().x()/2) / grid().x()) * grid().x(),
+                   ((p.y() + grid().y()/2) / grid().y()) * grid().y());
 }
 
 QWidget *FormWindow::currentWidget() const
@@ -916,6 +917,9 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *target)
     Q_ASSERT(r.isValid());
     r.moveTopLeft(container->mapFromGlobal(r.topLeft()));
 
+    // normalize to grid
+    r = QRect(gridPoint(r.topLeft()), gridPoint(r.bottomRight()));
+    
     SetPropertyCommand *geom_cmd = new SetPropertyCommand(this);
     geom_cmd->init(w, "geometry", r); // ### use rc.size()
     m_commandHistory->push(geom_cmd);
@@ -961,8 +965,9 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
 {
     Q_ASSERT(isDescendant(this, widget));
 
+    QRect r(gridPoint(geometry.topLeft()), gridPoint(geometry.bottomRight()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
-    cmd->init(widget, "geometry", geometry);
+    cmd->init(widget, "geometry", r);
     cmd->setDescription(tr("Resize"));
     m_commandHistory->push(cmd);
 }

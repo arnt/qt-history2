@@ -50,9 +50,10 @@ class SignalSlotEditor;
 class FormWindowDnDItem : public AbstractDnDItem
 {
     Q_OBJECT
-public:
-    FormWindowDnDItem(QWidget *widget);
-    FormWindowDnDItem(DomUI *dom_ui, QWidget *widget);
+public:    
+    FormWindowDnDItem(QWidget *widget, const QPoint &pos);
+    FormWindowDnDItem(DomUI *dom_ui, QWidget *widget, const QPoint &pos);
+    
     virtual ~FormWindowDnDItem();
 
     virtual DomUI *domUi() const;

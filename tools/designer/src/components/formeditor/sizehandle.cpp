@@ -119,7 +119,7 @@ void SizeHandle::mousePressEvent(QMouseEvent *e)
 }
 
 int SizeHandle::adjustPoint(int x, int dx)
-{ return (x / dx) * dx; }
+{ return (x / dx) * dx + 1; }
 
 void SizeHandle::mouseMoveEvent(QMouseEvent *e)
 {
