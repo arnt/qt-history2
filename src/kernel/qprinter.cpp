@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#50 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#51 $
 **
 ** Implementation of QPrinter class
 **
@@ -47,7 +47,7 @@
   <li> setPageSize() tells QPrinter what page size to expect from the
   printer.
   <li> setFullPage() tells QPrinter whether you want to deal with the
-  full page (so you can have accurate margins etc.) or with jus with
+  full page (so you can have accurate margins etc.) or with just with
   the part the printer can draw on.  The default is FALSE: You can
   probably paint on (0,0) but the document's margins are unknown.
   <li> setNumCopies() tells QPrinter how many copies of the document
@@ -603,8 +603,23 @@ void QPrinter::setPrinterSelectionOption( const QString & option )
 }
 
 
-/*!
+/*!  Sets QPrinter to have the origin of the coordinate system at the
+top left corner of the paper if \a fp is TRUE, or where it thinks the
+top left corner of the printable area is if \a fp is FALSE.
 
+The default is FALSE: You can (probably) print on (0,0), and
+QPaintDeviceMetrics will report something smaller than the size
+indicated by PageSize.  (Note that QPrinter may be wrong - it does not
+have perfect knowledge of the physical printer.)
+
+If you set it to TRUE, QPaintDeviceMetrics will report the exact same
+size as indicated by PageSize, but you cannot print on all of that -
+you have to take care of the ourput margins yourself.
+
+If the page-size mode is changed while the printer is active, the
+current print job may or may not be affected.
+
+\sa PageSize setPageSize() QPaintDeviceMetrics fullPage()
 */
 
 void QPrinter::setFullPage( bool fp )
@@ -613,8 +628,13 @@ void QPrinter::setFullPage( bool fp )
 }
 
 
-/*!
+/*!  Returns TRUE if the origin of the printer's coordinate system is
+at the corner of the sheet, and FALSE if it is at the edge of the
+printable area.
 
+See setFullPage() for more detail and some warnings.
+
+\sa setFullPage() PageSize QPaintDeviceMetrics
 */
 
 bool QPrinter::fullPage() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#71 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -396,8 +396,18 @@ int QPrinter::metric( int m ) const
 }
 
 
-/*!
+/*!  Returns the width of the left/right and top/bottom margins of the
+printer.  This is a best-effort guess, not based on perfect knowledge.
 
+If you have called setFullPage( TRUE ) (this is recommended for
+high-quality printing), margins().width() may be treated as the
+smallest sane left/right margin you can use, and margins().height() as
+the smallest sane top/bottom margins you can use.
+
+If you have called setFullPage( FALSE ) (this is the default),
+margins() is automatically subtracted from the pageSize() by QPrinter.
+
+\sa setFullPage() QPaintDeviceMetrics PageSize
 */
 
 QSize QPrinter::margins() const
