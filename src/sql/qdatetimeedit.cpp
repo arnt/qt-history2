@@ -209,8 +209,8 @@ private:
   date/time editors.  For date/time editing widgets, see QDateEdit,
   QTimeEdit and QDateTimeEdit.
 
-  Terminology: A QDateEdit widget comprises three 'sections', one each
-  for the year, month and day. Similarly a QTimeWidget comprises three
+  Terminology: A QDateEdit widget consists of three 'sections', one each
+  for the year, month and day. Similarly a QTimeWidget consists of three
   sections, one each for the hour, minute and second.
 
 */
@@ -686,7 +686,7 @@ public:
     section of the date, e.g. enters two digits for the month, they are
     automatically taken to the next section. 
 
-  Terminology: A QDateEdit widget comprises three 'sections', one each
+  Terminology: A QDateEdit widget consists of three 'sections', one each
   for the year, month and day. 
 
   \sa QTimeEdit QDateTimeEdit
@@ -1424,7 +1424,7 @@ public:
     also set the minimum value to the current time and the maximum time
     to one hour from now.
 
-  Terminology: A QTimeWidget comprises three sections, one each for the
+  Terminology: A QTimeWidget consists of three sections, one each for the
   hour, minute and second.
 
   \sa QDateEdit QDateTimeEdit
@@ -1963,8 +1963,8 @@ public:
     Here we've created a new QDateTimeEdit object with a minimum
     date/time of now and a maximum date/time of a week from now.
 
-  Terminology: A QDateEdit widget comprises three 'sections', one each
-  for the year, month and day. Similarly a QTimeWidget comprises three
+  Terminology: A QDateEdit widget consists of three 'sections', one each
+  for the year, month and day. Similarly a QTimeWidget consists of three
   sections, one each for the hour, minute and second.
 
   \sa QDateEdit QTimeEdit
