@@ -63,6 +63,7 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
+void qgl_delete_d(const QGLWidget *); //qgl.cpp
 QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
@@ -104,6 +105,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     if(shareContext && ( format().rgba() != shareContext->format().rgba()))
 	shareContext = 0;
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
+    d->sharing = shareContext && shareContext->cx;
+
     if((cx = (void *)ctx)) {
 #ifdef QMAC_ONE_PIXEL_LOCK
 	if(deviceIsPixmap()) {
@@ -529,16 +532,18 @@ void QGLWidget::macInternalRecreateContext(const QGLFormat& format, const QGLCon
 		delete gl_pix;
 	    }
 	    gl_pix = new QPixmap(width(), height(), QPixmap::BestOptim);
+	    qgl_delete_d(this); 
 	    setContext(new QGLContext(format, gl_pix), NULL, FALSE);
 	}
     } else {
 	setEraseColor(black);
-	setContext(new QGLContext(format, this ), share_ctx, FALSE);
+	qgl_delete_d(this); 
+	setContext(new QGLContext(format, this), share_ctx, FALSE);
 	glcx->fixBufferRect();
     }
-    if(update)
+    if(update) 
 	repaint();
-    if(oldcx && oldcx != glcx)
+    if(oldcx && oldcx != glcx) 
 	delete oldcx;
 }
 
@@ -554,24 +559,21 @@ void QGLWidget::macInternalFixBufferRect()
     update();
 }
 
-void QGLWidget::generateFontDisplayLists( const QFont & fnt, int listBase )
+void QGLWidget::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
     Style fstyle = normal; //from MacTypes.h
-    if ( fnt.bold() ) {
+    if(fnt.bold())
 	fstyle |= bold;
-    }
-    if ( fnt.italic() ) {
+    if(fnt.italic())
 	fstyle |= italic;
-    }
-    if ( fnt.underline() ) {
+    if(fnt.underline())
 	fstyle |= underline;
-    }
+
     int fnum = 0;
-    if ( QFontPrivate *fp = (QFontPrivate*)fnt.handle() ) {
-	if ( fp->fin ) {
+    if(QFontPrivate *fp = (QFontPrivate*)fnt.handle()) {
+	if(fp->fin)
 	    fnum = fp->fin->fnum;
-	}
     }
-    aglUseFont( (AGLContext) glcx->cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase );
+    aglUseFont((AGLContext) glcx->cx, fnum, fstyle, fnt.pointSize(), 0, 256, listBase);
 }
 #endif

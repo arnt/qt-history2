@@ -1223,15 +1223,17 @@ static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
     return ret;
 }
 
-static void qgl_delete_d( const QGLWidget * w )
+void qgl_delete_d( const QGLWidget * w )
 {
     if ( qgl_d_ptr ) {
 	QGLWidgetPrivate * d = qgl_d_ptr->find( (void *) w );
 	if ( d ) {
+#ifndef Q_WS_MAC //We do not delete the displaylist because it is shared with something else
 	    QMapIterator<QString, int> it;
 	    for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
 		glDeleteLists( it.data(), 256 );
 	    }
+#endif
 	}
 	qgl_d_ptr->remove( (void *) w );
     }
