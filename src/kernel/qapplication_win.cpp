@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#17 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#17 $")
 
 
 // --------------------------------------------------------------------------
@@ -114,13 +114,16 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
     int	 argc = 1;
     ArgV argv( 8 );
     argv[0] = appName;
+
     while ( *p ) {				// parse cmd line arguments
-	while ( isspace(*p) )
+
+	while ( isspace(*p) )			// skip white space
 	    p++;
-	if ( *p ) {
+
+	if ( *p ) {				// arg starts
 	    int quote;
 	    char *start, *r;
-	    if ( *p == '\"' || *p == '\'' ) {
+	    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 		quote = *p;
 		start = ++p;
 	    }
@@ -142,7 +145,7 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 		    }
 		}
 		else {
-		    if ( *p == '\"' || *p == '\'' ) {
+		    if ( *p == '\"' || *p == '\'' ) {	// " or ' quote
 			quote = *p++;
 			continue;
 		    }
@@ -151,13 +154,13 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 		}
 		*r++ = *p++;
 	    }
+	    if ( *p )
+		p++;
 	    *r = '\0';
-	    p++;
 
 	    if ( argc >= (int)argv.size() )	// expand array
 		argv.resize( argv.size()*2 );
 	    argv[argc++] = start;
-
 	}
     }
     p = strrchr( argv[0], '\\' );
