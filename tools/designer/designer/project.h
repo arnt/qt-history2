@@ -123,6 +123,7 @@ public:
     QStringList uiFiles() const;
     void addUiFile( const QString &f, FormWindow *fw );
     void removeUiFile( const QString &f, FormWindow *fw );
+    void removeSourceFile( const QString &f, SourceFile *sf );
     void setUiFiles( const QStringList &lst );
     void formClosed( FormWindow *fw );
     FormWindow *formWindow( const QString &filename );

@@ -180,7 +180,7 @@ void ProjectSettings::removeProject()
 	} else {
 	    QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
 	    if ( sit != sourceMap.end() ) {
-	
+		MainWindow::self->formlist()->removeSourceFromProject( i->text( 0 ) );
 	    }
 	}
 	++it;

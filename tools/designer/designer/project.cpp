@@ -468,6 +468,12 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
     save();
 }
 
+void Project::removeSourceFile( const QString &, SourceFile *sf )
+{
+    sources.removeRef( sf );
+    save();
+}
+
 void Project::setDatabaseDescription( const QString &db )
 {
     dbFile = db;

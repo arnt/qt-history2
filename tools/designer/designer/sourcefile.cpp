@@ -25,7 +25,7 @@
 #include "sourceeditor.h"
 
 SourceFile::SourceFile( const QString &fn )
-    : filename( fn ), editor( 0 )
+    : filename( fn ), ed( 0 )
 {
     load();
     iface = 0;
@@ -75,12 +75,12 @@ DesignerSourceFile *SourceFile::iFace()
 
 void SourceFile::setEditor( SourceEditor *e )
 {
-    editor = e;
+    ed = e;
 }
 
 bool SourceFile::isModified() const
 {
-    if ( !editor )
+    if ( !ed )
 	return FALSE;
-    return editor->isModified();
+    return ed->isModified();
 }

@@ -372,7 +372,6 @@ void FormList::removeFormFromProject( QListViewItem *i )
 
 void FormList::removeFormFromProject( const QString &file )
 {
-    qDebug( file );
     QListViewItemIterator it( this );
     while ( it.current() ) {
 	if ( it.current()->rtti() == FormListItem::Form ) {
@@ -384,6 +383,32 @@ void FormList::removeFormFromProject( const QString &file )
 	}
 	++it;
     }
+}
+
+void FormList::removeSourceFromProject( const QString &file )
+{
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	if ( it.current()->rtti() == FormListItem::Source ) {
+	    qDebug( "   " + it.current()->text( 1 ) );
+	    if ( it.current()->text( 0 ) == file ) {
+		removeSourceFromProject( it.current() );
+		return;
+	    }
+	}
+	++it;
+    }
+}
+
+void FormList::removeSourceFromProject( QListViewItem *i )
+{
+    SourceFile *sf = ( (FormListItem*)i )->sourceFile();
+    project->removeSourceFile( ( (FormListItem*)i )->text( 0 ), sf );
+    if ( sf->editor() ) {
+	sf->editor()->setModified( FALSE );
+	sf->editor()->close();
+    }
+    delete i;
 }
 
 void FormList::removeForm( FormWindow *fw )
@@ -623,7 +648,7 @@ void FormList::rmbClicked( QListViewItem *i )
 	    return;
 
 	if ( id == REMOVE_SOURCE ) {
-	    // ####
+	    removeSourceFromProject( i );
 	} else if ( id == ADD_EXISTING_SOURCE ) {
 	    LanguageInterface *iface = MetaDataBase::languageInterface( mainWindow->currProject()->language() );
 	    QMap<QString, QString> extensionFilterMap;

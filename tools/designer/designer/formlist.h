@@ -91,6 +91,8 @@ public:
     void removeForm( FormWindow *fw );
     void removeFormFromProject( const QString &file );
     void removeFormFromProject( QListViewItem *i );
+    void removeSourceFromProject( const QString &file );
+    void removeSourceFromProject( QListViewItem *i );
     void formNameChanged( FormWindow *fw );
 
     void setBufferEdit( QCompletionEdit *edit );
