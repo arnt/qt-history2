@@ -40,10 +40,7 @@ past, those should be okay.  If you are using a compiler we don't
 detect it's probably a good idea to add a _CC_whatever_ too (even
 though you don't need it at once).  
 
-If your compiler doesn't support templates, make sure DEFAULT_MACROCLASS
-is defined in qglobal.h.
-
-There are also some size-dependent types (UINT32 and so on), make sure
+There are also some size-dependent types (Q_UINT32 and so on), make sure
 they're right for your system.
 
 Some compilers emit bad warnings when they compile Qt.  If yours does, and
