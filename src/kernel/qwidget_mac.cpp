@@ -981,7 +981,13 @@ void QWidget::hideWindow()
 	    if(parentWidget()) 
 		w = parentWidget()->topLevelWidget();
 	    if(!w || !w->isVisible()) {
-		w = QWidget::find( (WId)GetFrontWindowOfClass(kDocumentWindowClass, true) );
+		WindowPtr wp = FrontWindow();
+		w = QWidget::find( (WId)wp );
+		while(w && (w->isDesktop() || w->testWFlags( WStyle_Tool ))) {
+		    wp = GetNextWindow(wp);
+		    w = QWidget::find( (WId)wp );
+		} 
+	    }
 	    if(w && w->isVisible()) 
 		w->setActiveWindow();
 	}
