@@ -55,6 +55,7 @@ class QDockArea;
 class QWidgetResizeHandler;
 class QMainWindow;
 class QDockAreaLayout;
+class QDockWindowPrivate;
 
 class Q_EXPORT QDockWindow : public QFrame
 {
@@ -191,6 +192,7 @@ private:
     QPoint lastPos;
     QWidgetResizeHandler *widgetResizeHandler;
     bool opaque;
+    QDockWindowPrivate *d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

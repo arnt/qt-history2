@@ -56,6 +56,10 @@
 #define MAC_DRAG_HACK
 #endif
 
+class QDockWindowPrivate
+{
+};
+
 class QDockWindowResizeHandle : public QWidget
 {
     Q_OBJECT
