@@ -130,7 +130,9 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgroupbox.h \
+		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qheader.h \
+		  $$WIDGETS_H/qhbox.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
 		  $$WIDGETS_H/qlineedit.h \
@@ -157,6 +159,7 @@ HEADERS		= $$DIALOGS_H/qbuilder.h \
 		  $$WIDGETS_H/qtoolbutton.h \
 		  $$WIDGETS_H/qtooltip.h \
 		  $$WIDGETS_H/qvalidator.h \
+		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qwidgetstack.h
@@ -238,7 +241,9 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgroupbox.cpp \
+		  widgets/qgrid.cpp \
 		  widgets/qheader.cpp \
+		  widgets/qhbox.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnumber.cpp \
 		  widgets/qlineedit.cpp \
@@ -265,6 +270,7 @@ SOURCES		= dialogs/qbuilder.cpp \
 		  widgets/qtoolbutton.cpp \
 		  widgets/qtooltip.cpp \
 		  widgets/qvalidator.cpp \
+		  widgets/qvbox.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp
