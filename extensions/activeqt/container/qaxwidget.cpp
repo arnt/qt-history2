@@ -1481,7 +1481,9 @@ bool QAxHostWidget::event(QEvent *e)
 bool QAxHostWidget::eventFilter(QObject *o, QEvent *e)
 {
     // focus goes to Qt while ActiveX still has it - deactivate
-    if (e->type() == QEvent::FocusIn && hasFocus) {
+    QWidget *newFocus = qt_cast<QWidget*>(o);
+    if (e->type() == QEvent::FocusIn && hasFocus 
+        && newFocus && newFocus->topLevelWidget() == topLevelWidget()) {
         if (axhost && axhost->m_spInPlaceActiveObject && axhost->m_spInPlaceObject)
             axhost->m_spInPlaceObject->UIDeactivate();
         qApp->removeEventFilter(this);
