@@ -47,10 +47,10 @@ QRESULT DesignerInterfaceImpl::queryInterface( const QUuid &uuid, QUnknownInterf
 
     if ( uuid == IID_QUnknown )
 	*iface = (QUnknownInterface*)this;
-    else if ( uuid == IID_QComponent )
-	*iface = (QUnknownInterface*)this;
+    else if ( uuid == IID_QComponentInformation )
+	*iface = (QComponentInformationInterface*)this;
     else if ( uuid == IID_Designer )
-	*iface = (QUnknownInterface*)this;
+	*iface = (DesignerInterface*)this;
     else
 	return QE_NOINTERFACE;
 
