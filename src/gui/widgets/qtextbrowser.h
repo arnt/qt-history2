@@ -41,7 +41,7 @@ public:
         HtmlResource,
         ImageResource
     };
-    virtual QByteArray loadResource(ResourceType type, const QString &name);
+    virtual QVariant loadResource(ResourceType type, const QString &name);
 
 public slots:
     virtual void setSource(const QString& name);

@@ -41,8 +41,17 @@ static QPixmap getPixmap(const QTextDocument *doc, const QTextImageFormat &forma
 
         QString context;
         if (QTextBrowser *browser = qt_cast<QTextBrowser *>(doc->parent())) {
-                context = browser->source();
-                img.loadFromData(browser->loadResource(QTextBrowser::ImageResource, name));
+            QVariant data = browser->loadResource(QTextBrowser::ImageResource, name);
+            if (data.type() == QVariant::Pixmap) {
+                pm = data.toPixmap();
+                QPixmapCache::insert(key, pm);
+                return pm;
+            } else if (data.type() == QVariant::Image) {
+                img = data.toImage();
+            } else if (data.type() == QVariant::ByteArray) {
+                img.loadFromData(data.toByteArray());
+            }
+            context = browser->source();
         }
 
         if (img.isNull() && QTextImageHandler::externalLoader)

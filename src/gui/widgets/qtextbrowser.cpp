@@ -251,10 +251,14 @@ void QTextBrowser::setSource(const QString& name)
     bool doSetText = false;
 
     if (!source.isEmpty() && (source != d->currentURL || d->forceLoadOnSourceChange)) {
-        QByteArray data = loadResource(HtmlResource, source);
-        QTextCodec *codec = Qt::codecForHtml(data);
-        txt = codec->toUnicode(data);
-
+        QVariant data = loadResource(HtmlResource, source);
+        if (data.type() == QVariant::String) {
+            txt = data.toString();
+        } else if (data.type() == QVariant::ByteArray) {
+            QByteArray ba = data.toByteArray();
+            QTextCodec *codec = Qt::codecForHtml(ba);
+            txt = codec->toUnicode(ba);
+        }
         if (txt.isEmpty())
             qWarning("QTextBrowser: no document for %s", source.latin1());
 
@@ -496,8 +500,12 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *ev)
     The default implementation tries to locate the resources by interpreting \a name as
     a file name. If it is not an absolute path it tries to find the file in the paths
     of the searchPaths property and in the same directory as the current source.
+
+  //### write better doc's
+    For type = HtmlResource the returned variant can be of type ByteArray or String.
+    For type = ImageResource the returned variant can be of type ByteArray, Image or Pixmap
 */
-QByteArray QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
+QVariant QTextBrowser::loadResource(ResourceType /*type*/, const QString &name)
 {
     Q_D(QTextBrowser);
 
