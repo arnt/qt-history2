@@ -301,6 +301,8 @@ void MainWindow::setPage( int pageNumber )
 		QString::fromLocal8Bit( " - " ) +
 		QString::fromLocal8Bit( pages[pageNumber]->minorTab );
 	}
+
+	textlabel->setText( labeltext );
     } else {
 	textedit->clear();
 
