@@ -521,38 +521,40 @@ void QSGIStyle::drawExclusiveIndicator( QPainter* p,
 					int x, int y, int w, int h, const QColorGroup &g,
 					bool on, bool down, bool enabled )
 {
+    p->save();
     p->eraseRect( x, y, w, h );
+    p->translate( x, y );
 
     p->setPen( g.button() );
     p->setBrush( g.button() );
     QPointArray a;
-    a.setPoints( 4, 5,4, 11,10, 6,15, 0,9);
+    a.setPoints( 4, 5,0, 11,6, 6,11, 0,5);
     p->drawPolygon( a );
 
     p->setPen( g.dark() );
-    p->drawLine( 0,9, 5,4 );
-    p->drawLine( 6,4, 11,9 );
+    p->drawLine( 0,5, 5,0 );
+    p->drawLine( 6,0, 11,5 );
     p->setPen( down ? g.light() : g.dark().dark(200) );
-    p->drawLine( 11,10, 6,15 );
-    p->drawLine( 5,15, 0,10 );
-    p->drawLine( 2,11, 5,14 );
-    p->drawLine( 6,14, 9,11 );
+    p->drawLine( 11,6, 6,11 );
+    p->drawLine( 5,11, 0,6 );
+    p->drawLine( 2,7, 5,10 );
+    p->drawLine( 6,10, 9,7 );
     p->setPen( g.light() );
-    p->drawLine( 2,9, 5,6 );
+    p->drawLine( 2,5, 5,2 );
 
     if (on) {
 	p->setPen( enabled ? blue : darkGray );
 	p->setBrush( enabled ? blue : darkGray  );
 	a.setPoints(3, 6,2, 8,4, 6,6 );
-	a.translate(x,y);
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
 	
 	p->setPen( g.shadow() );
-	p->drawLine( 7,11, 9,9 );
+	p->drawLine( 7,7, 9,5 );
     } else {
-	p->drawLine( 6,6, 9,9 );
+	p->drawLine( 6,2, 9,5 );
     }
+    p->restore();
 }
 
 
@@ -563,6 +565,7 @@ void
 QSGIStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
                 int /* w*/, int /*h*/, bool /*on*/ )
 {
+    p->save();
     QPen oldPen = p->pen();
     QBrush oldBrush = p->brush();
 
@@ -575,6 +578,7 @@ QSGIStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
 
     p->setBrush( oldBrush );
     p->setPen( oldPen );
+    p->restore();
 }
 
 static int get_combo_extra_width( int h, int *return_awh=0 )
