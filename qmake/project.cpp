@@ -146,10 +146,12 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	vals.truncate(vals.length()-1);
     }
 
+#define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
     int rep, rep_len;
     QRegExp reg_var("\\$\\$[a-zA-Z0-9_-]*");
     while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
-	const QString &replacement = place[vals.mid(rep + 2, rep_len - 2)].join(" ");
+	QString rep_var = UN_TMAKEIFY(vals.mid(rep + 2, rep_len - 2));
+	const QString &replacement = place[rep_var].join(" ");
 	if(Option::debug_level >= 2)
 	    printf("Project parser: (%s) :: %s -> %s\n", vals.latin1(),
 		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
@@ -157,7 +159,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
     }
 #undef SKIP_WS
 
-    var = var.stripWhiteSpace().replace(QRegExp("^TMAKE"), "QMAKE"); //backwards compatability
+    var = UN_TMAKEIFY(var.stripWhiteSpace()); //backwards compatability
 
     QStringList &varlist = place[var]; /* varlist is the list in the symbol table */
     QStringList vallist = QStringList::split(' ', vals);  /* vallist is the broken up list of values */
