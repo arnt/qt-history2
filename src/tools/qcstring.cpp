@@ -53,7 +53,7 @@
   \relates QCString
 
   This function is normally part of the C library. Qt implements
-  memmove() for platforms that do not have it.
+  memmove() for platforms that do not provide it.
 
   memmove() copies \a len bytes from \a src into \a dst.  The data is
   copied correctly even if \a src and \a dst overlap.
@@ -102,16 +102,16 @@ char *qstrdup( const char *src )
 
   A safe strncpy() function.
 
-  Copies all characters up to \a len bytes from \a src into \a dst and returns
-  a pointer to \a dst.	Guarantees that \a dst is '\0'-terminated.
-  If \a src is null, it immediately returns 0.
+  Copies all characters up to \a len bytes from \a src into \a dst and
+  returns a pointer to \a dst.	Guarantees that \a dst is
+  '\0'-terminated. If \a src or \a dst is null, it immediately returns 0.
 
   \sa qstrcpy()
 */
 
 char *qstrncpy( char *dst, const char *src, uint len )
 {
-    if ( !src )
+    if ( !src || !dst )
 	return 0;
     strncpy( dst, src, len );
     if ( len > 0 )
@@ -128,6 +128,8 @@ char *qstrncpy( char *dst, const char *src, uint len )
   Compares \a str1 and \a str2.	 Returns a negative value if \a str1
   is less than \a str2, 0 if \a str1 is equal to \a str2 or a positive
   value if \a str1 is greater than \a str2.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
@@ -149,6 +151,8 @@ char *qstrncpy( char *dst, const char *src, uint len )
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
+  See the <a href="#asciinotion">Note on character comparisons</a>.
+
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
@@ -169,6 +173,8 @@ char *qstrncpy( char *dst, const char *src, uint len )
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
 
+  See the <a href="#asciinotion">Note on character comparisons</a>.
+
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
   Special case II: Returns a random nonzero value if \a str1 is null
@@ -184,7 +190,7 @@ int qstricmp( const char *str1, const char *str2 )
     int res;
     uchar c;
     if ( !s1 || !s2 )
-	return s1 == s2 ? 0 : (int)((long)s2 - (long)s1);
+	return (int)((long)s2 - (long)s1);
     for ( ; !(res = (c=tolower(*s1)) - tolower(*s2)); s1++, s2++ )
 	if ( !c )				// strings are equal
 	    break;
@@ -197,11 +203,13 @@ int qstricmp( const char *str1, const char *str2 )
 
   A safe strnicmp() function.
 
-  Compares \a str1 and \a str2 up to \a len bytes ignoring the case.
+  Compares \a str1 and \a str2 up to \a len bytes ignoring the case. 
 
   Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
   is equal to \a str2 or a positive value if \a str1 is greater than \a
   str2.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Special case I: Returns 0 if \a str1 and \a str2 are both null.
 
@@ -365,8 +373,8 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   Since QCString is a QMemArray, it uses 
   \link shclass.html explicit sharing\endlink with a reference count.
 
-  You might use QCString for text that is never exposed to the user,
-  but for text the user sees, you should use QString (which provides
+  You might use QCString for text that is never exposed to the user.
+  For text the user sees, you should use QString (which provides
   implicit sharing, Unicode and other internationalization support).
 
   Note that QCString is one of the weaker classes in Qt; its design is
@@ -374,7 +382,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   as a result, algorithms that use QCString heavily all too often
   perform badly.  For example, append() is O(length()) since it scans
   for a null terminator, which makes many algorithms that use QCString
-  scale even worse.
+  scale badly.
 
   Note that for the QCString methods that take a \c {const char *}
   parameter the results are undefined if the QCString is not
@@ -382,24 +390,61 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
   to be 0.
 
   A QCString that has not been assigned to anything is \e null, i.e. both
-  the length and data pointer is 0. A QCString that references the empty
-  string ("", a single '\0' char) is \e empty.	Both null and empty
-  QCStrings are legal parameters to the methods. Assigning \c {const char
-  *} 0 to QCString gives a null QCString.
+  the length and the data pointer is 0. A QCString that references the
+  empty string ("", a single '\0' char) is \e empty.	Both null and
+  empty QCStrings are legal parameters to the methods. Assigning
+  \c{const char *} 0 to QCString gives a null QCString.
+
+    The length() function returns the length of the string; resize()
+    resizes the string and truncate() truncates the string. A string can
+    be filled with a character using fill(). Strings can be left or
+    right padded with characters using leftJustify() and rightJustify().
+    Characters, strings and regular expressions can be searched for
+    using find() and findRev(), and counted using contains(). 
+    
+    Strings and characters can be inserted with insert() and appended
+    with append(). A string can be prepended with prepend(). Characters
+    can be removed from the string with remove() and replaced with
+    replace().
+
+    Portions of a string can be extracted using left(), right() and
+    mid(). Whitespace can be removed using stripWhiteSpace() and
+    simplifyWhiteSpace(). Strings can be converted to uppercase or
+    lowercase with upper() and lower() respectively.
+
+    Strings that contain numbers can be converted to numbers with
+    toShort(), toInt(), toLong(), toULong(), toFloat() and toDouble().
+    Numbers can be converted to strings with setNum().
+
+    Many operators are overloaded to work with QCStrings. QCString also
+    supports some more obscure functions, e.g. sprintf(), setStr() and
+    setExpand().
+
+    <table border="1">
+    <tr><th><a name="asciinotion">Note on character comparisons</th></tr>
+    <tr><td>
+  In QCString the notion of uppercase and lowercase and of which
+  character is greater than or less than another character is locale
+  dependent. This affects functions which support a case insensitive
+  option or which compare or lowercase or uppercase their arguments.
+  Case insensitive operations and comparisons will be accurate if both
+  strings contain only ASCII characters. (If $LC_CTYPE is set, most Unix
+  systems do 'the right thing'.) Functions that this affects include
+  contains(), find(), findRev(), operator\<(), operator\<=(),
+  operator>(), operator>=(), lower() and upper().
+  </td></tr></table>
+
+  Implementation note: the QCString methods for QRegExp searching are
+  implemented by converting the QCString to a QString and performing the
+  search on that. This implies a deep copy of the QCString data. If you
+  are going to perform many QRegExp searches on a large QCString, you
+  will get better performance by converting the QCString to a QString
+  yourself, and then performing the searches on the QString. The results
+  will be of course be identical.
 
   \sa \link shclass.html Shared classes\endlink
 */
 
-
-/*
-  Implementation note: The QCString methods for QRegExp searching are
-  implemented by converting the QCString to a QString and performing
-  the search on that. This implies a deep copy of the QCString
-  data. Therefore, if you are going to perform many QRegExp searches
-  on one and the same, large QCString, you will get better performance
-  by converting the QCString to a QString yourself, and do the
-  searches on that. The results will be of course be identical.
-*/
 
 /*!
   \fn QCString::QCString()
@@ -456,7 +501,7 @@ QCString::QCString( const char *str )
   \endcode
 
   If \a str contains a 0 byte within the first \a maxsize bytes, the
-  resulting QCString will be terminated by the 0.  If \a str is 0 a
+  resulting QCString will be terminated by this 0.  If \a str is 0 a
   null string is created.
 
   \sa isNull()
@@ -580,9 +625,9 @@ bool QCString::resize( uint len )
   Implemented as a call to the native vsprintf() (see your C-library
   manual).
 
-  If your string is shorter than 256 characters, this sprintf() calls
+  If the string is shorter than 256 characters, this sprintf() calls
   resize(256) to decrease the chance of memory corruption.  The string is
-  resized back to its natural length before sprintf() returns.
+  resized back to its actual length before sprintf() returns.
 
   Example:
   \code
@@ -599,7 +644,7 @@ bool QCString::resize( uint len )
   if the target string is longer than some arbitrary implementation
   limit.
 
-  Giving user-supplied arguments to sprintf() is begging for trouble.
+  Giving user-supplied arguments to sprintf() is asking for trouble.
   Sooner or later someone \c will paste a 3000-character line into
   your application.
 */
@@ -619,13 +664,13 @@ QCString &QCString::sprintf( const char *format, ... )
 
 
 /*!
-  Fills the string with \a len bytes of value \a c, followed by a
+  Fills the string with \a len bytes of character \a c, followed by a
   '\0'-terminator.
 
   If \a len is negative, then the current string length is used.
 
-  Returns FALSE is \a len is nonnegative and there is no memory to
-  resize the string, otherwise TRUE is returned.
+  Returns FALSE is \a len is nonnegative and there is not enough memory
+  to resize the string, otherwise TRUE is returned.
 */
 
 bool QCString::fill( char c, int len )
@@ -651,8 +696,10 @@ bool QCString::fill( char c, int len )
   Finds the first occurrence of the character \a c, starting at
   position \a index.
 
-  The search is case sensitive if \a cs is TRUE, or case insensitive if \a
-  cs is FALSE.
+  The search is case sensitive if \a cs is TRUE, or case insensitive if
+  \a cs is FALSE. 
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Returns the position of \a c, or -1 if \a c could not be found.
 */
@@ -681,6 +728,8 @@ int QCString::find( char c, int index, bool cs ) const
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Returns the position of \a str, or -1 if \a str could not be found.
 */
@@ -716,6 +765,8 @@ int QCString::find( const char *str, int index, bool cs ) const
 
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Returns the position of \a c, or -1 if \a c could not be found.
 */
@@ -754,6 +805,8 @@ int QCString::findRev( char c, int index, bool cs ) const
   The search is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs is FALSE.
 
+  See the <a href="#asciinotion">Note on character comparisons</a>.
+
   Returns the position of \a str, or -1 if \a str could not be found.
 */
 
@@ -788,6 +841,9 @@ int QCString::findRev( const char *str, int index, bool cs ) const
 
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a cs
   if FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
+
 */
 
 int QCString::contains( char c, bool cs ) const
@@ -816,6 +872,8 @@ int QCString::contains( char c, bool cs ) const
 
   The match is case sensitive if \a cs is TRUE, or case insensitive if \a
   cs if FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   This function counts overlapping substrings, for example, "banana"
   contains two occurrences of "ana".
@@ -904,17 +962,17 @@ QCString QCString::right( uint len ) const
 }
 
 /*!
-  Returns a substring that contains the \a len characters of this
+  Returns a substring that contains \a len characters of this
   string, starting at position \a index.
 
-  Returns a null string if the string is empty or \a index is out
+  Returns a null string if the string is empty or if \a index is out
   of range.  Returns the whole string from \a index if \a index+len exceeds
   the length of the string.
 
   Example:
   \code
     QCString s = "Two pineapples";
-    QCString t = s.mid( 4, 4 );			// t == "pine"
+    QCString t = s.mid( 4, 3 );			// t == "pin"
   \endcode
 
   \sa left(), right()
@@ -937,8 +995,8 @@ QCString QCString::mid( uint index, uint len ) const
 }
 
 /*!
-  Returns a string of length \a width (plus '\0') that contains this
-  string and padded by the \a fill character.
+  Returns a string of length \a width (plus one for the terminating
+  '\0') that contains this string and padded with the \a fill character.
 
   If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
@@ -974,8 +1032,8 @@ QCString QCString::leftJustify( uint width, char fill, bool truncate ) const
 }
 
 /*!
-  Returns a string of length \a width (plus '\0') that contains pad
-  characters followed by the string.
+  Returns a string of length \a width (plus one for the terminating
+  '\0') that contains the \a fill character followed by this string. 
 
   If the length of the string exceeds \a width and \a truncate is FALSE,
   then the returned string is a copy of the string.
@@ -1011,16 +1069,16 @@ QCString QCString::rightJustify( uint width, char fill, bool truncate ) const
 }
 
 /*!
-  Returns a new string that is the string converted to lower case.
-
-  Presently it only handles 7-bit ASCII, or whatever tolower()
-  handles (if $LC_CTYPE is set, most UNIX systems do the Right Thing).
+  Returns a new string that is a copy of this string converted to lower
+  case.
 
   Example:
   \code
-    QCString s("TeX");
-    QCString t = s.lower();			// t == "tex"
+    QCString s("Credit");
+    QCString t = s.lower();			// t == "credit"
   \endcode
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   \sa upper()
 */
@@ -1039,16 +1097,15 @@ QCString QCString::lower() const
 }
 
 /*!
-  Returns a new string that is the string converted to upper case.
-
-  Presently it only handles 7-bit ASCII, or whatever toupper()
-  handles (if $LC_CTYPE is set, most UNIX systems do the Right Thing).
+  Returns a new string that is a copy of this string converted to upper case.
 
   Example:
   \code
-    QCString s("TeX");
-    QCString t = s.upper();			// t == "TEX"
+    QCString s("Debit");
+    QCString t = s.upper();			// t == "DEBIT"
   \endcode
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   \sa lower()
 */
@@ -1068,9 +1125,10 @@ QCString QCString::upper() const
 
 
 /*!
-  Returns a new string that has white space removed from the start and the end.
+  Returns a new string that has white space removed from the start and
+  the end.
 
-  White space means any ASCII code 9, 10, 11, 12, 13 or 32.
+  White space means the decimal ASCII codes 9, 10, 11, 12, 13 and 32.
 
   Example:
   \code
@@ -1111,15 +1169,15 @@ QCString QCString::stripWhiteSpace() const
 
 
 /*!
-  Returns a new string that has white space removed from the start and the end,
-  plus any sequence of internal white space replaced with a single space
-  (ASCII 32).
+  Returns a new string that has white space removed from the start and
+  the end, plus any sequence of internal white space replaced with a
+  single space (ASCII 32).
 
-  White space means any ASCII code 9, 10, 11, 12, 13 or 32.
+  White space means the decimal ASCII codes 9, 10, 11, 12, 13 and 32.
 
   \code
     QCString s = "  lots\t of\nwhite    space ";
-    QCString t = s.simplifyWhiteSpace();		// t == "lots of white space"
+    QCString t = s.simplifyWhiteSpace(); // t == "lots of white space"
   \endcode
 
   \sa stripWhiteSpace()
@@ -1152,16 +1210,17 @@ QCString QCString::simplifyWhiteSpace() const
 
 
 /*!
-  Insert \a s into the string before position \a index.
+  Inserts string \a s into the string at position \a index.
 
   If \a index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \a index and \a s is then appended.
+  spaces (ASCII 32) to length \a index and then \a s is appended.
 
   \code
     QCString s = "I like fish";
-    s.insert( 2, "don't ");			// s == "I don't like fish"
-    s = "x";
-    s.insert( 3, "yz" );			// s == "x  yz"
+    s.insert( 2, "don't "); // s == "I don't like fish"
+
+    s = "x";                // index 01234
+    s.insert( 3, "yz" );    // s == "x  yz"
   \endcode
 */
 
@@ -1187,11 +1246,11 @@ QCString &QCString::insert( uint index, const char *s )
 }
 
 /*!
-  Insert \a c into the string at (before) position \a index and returns
-  a reference to the string.
+  Inserts character \a c into the string at position \a index
+  and returns a reference to the string.
 
   If \a index is beyond the end of the string, the string is extended with
-  spaces (ASCII 32) to length \a index and \a c is then appended.
+  spaces (ASCII 32) to length \a index and then \a c is appended.
 
   Example:
   \code
@@ -1222,8 +1281,9 @@ QCString &QCString::insert( uint index, char c )	// insert char
   Removes \a len characters starting at position \a index from the
   string and returns a reference to the string.
 
-  If \a index is too big, nothing happens.  If \a index is valid, but
-  \a len is too large, the rest of the string is removed.
+  If \a index is out of range, nothing happens.  If \a index is valid, but
+  \a index + \a len is larger than the length of the string, the string
+  is truncated at position \a index.
 
   \code
     QCString s = "Montreal";
@@ -1254,9 +1314,10 @@ QCString &QCString::remove( uint index, uint len )
   Replaces \a len characters starting at position \a index from the
   string with \a str, and returns a reference to the string.
 
-  If \a index is too big, nothing is deleted and \a str is inserted at the
-  end of the string.  If \a index is valid, but \a len is too large, \a
-  str replaces the rest of the string.
+  If \a index is out of range, nothing is removed and \a str is appended
+  at the end of the string.  If \a index is valid, but \a index + \a len
+  is larger than the length of the string, \a str replaces the rest of
+  the string from position \a index.
 
   \code
     QCString s = "Say yes!";
@@ -1279,6 +1340,7 @@ QCString &QCString::replace( uint index, uint len, const char *str )
   position \a index.
 
   Returns the position of the next match, or -1 if \a rx was not found.
+
 */
 
 int QCString::find( const QRegExp& rx, int index ) const
@@ -1291,10 +1353,9 @@ int QCString::find( const QRegExp& rx, int index ) const
   Finds the first occurrence of the regular expression \a rx, starting at
   position \a index and searching backwards.
 
-  The search will start from the end of the string if \a index is negative.
+  Returns the position of the next match (backwards), or -1 if \a rx was
+  not found.
 
-  Returns the position of the next match (backwards), or -1 if \a rx was not
-  found.
 */
 
 int QCString::findRev( const QRegExp& rx, int index ) const
@@ -1310,10 +1371,11 @@ int QCString::findRev( const QRegExp& rx, int index ) const
   \code
     QString s = "banana and panama";
     QRegExp r = QRegExp( "a[nm]a", TRUE, FALSE );
-    s.contains( r );				// 4 matches
+    s.contains( r ); // 4 matches
   \endcode
 
   \sa find(), findRev()
+
 */
 
 int QCString::contains( const QRegExp &rx ) const
@@ -1332,12 +1394,16 @@ int QCString::contains( const QRegExp &rx ) const
     QString s = "banana";
     s.replace( QRegExp("a.*a"), "" );		// becomes "b"
 
-    QString s = "banana";
+    s = "banana";
     s.replace( QRegExp("^[bn]a"), " " );	// becomes " nana"
 
-    QString s = "banana";
+    s = "banana";
     s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
+
+  The last example may be surprising. The semantics are that the regex
+  is applied to the string \e repeatedly, so first the leading "ba" is
+  removed, then the "na", then the final "na" leaving an empty string.
 
 */
 
@@ -1353,9 +1419,9 @@ QCString &QCString::replace( const QRegExp &rx, const char *str )
 /*!
   Returns the string converted to a <code>long</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all, or if
-  it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 long QCString::toLong( bool *ok ) const
@@ -1398,9 +1464,9 @@ bye:
   Returns the string converted to an <code>unsigned long</code>
   value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all,
-  or if it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 ulong QCString::toULong( bool *ok ) const
@@ -1435,9 +1501,9 @@ bye:
 /*!
   Returns the string converted to a <code>short</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all, or if
-  it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 short QCString::toShort( bool *ok ) const
@@ -1451,9 +1517,9 @@ short QCString::toShort( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned short</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all, or if
-  it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 ushort QCString::toUShort( bool *ok ) const
@@ -1468,9 +1534,9 @@ ushort QCString::toUShort( bool *ok ) const
 /*!
   Returns the string converted to a <code>int</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all,
-  or if it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 int QCString::toInt( bool *ok ) const
@@ -1481,9 +1547,9 @@ int QCString::toInt( bool *ok ) const
 /*!
   Returns the string converted to an <code>unsigned int</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all,
-  or if it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 uint QCString::toUInt( bool *ok ) const
@@ -1494,9 +1560,9 @@ uint QCString::toUInt( bool *ok ) const
 /*!
   Returns the string converted to a <code>double</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no conceivable
-  errors, and FALSE if the string is not a number at all, or if it has
-  trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 double QCString::toDouble( bool *ok ) const
@@ -1511,9 +1577,9 @@ double QCString::toDouble( bool *ok ) const
 /*!
   Returns the string converted to a <code>float</code> value.
 
-  If \a ok is non-null, \a *ok is set to TRUE if there are no
-  conceivable errors, and FALSE if the string is not a number at all,
-  or if it has trailing garbage.
+  If \a ok is non-null, \a *ok is set to FALSE if the string is not a
+  number, or if it has trailing garbage; otherwise \a *ok is set to
+  TRUE.
 */
 
 float QCString::toFloat( bool *ok ) const
@@ -1538,8 +1604,8 @@ QCString &QCString::setStr( const char *str )
 }
 
 /*!
-  Sets the string to the printed value of \a n and returns a
-  reference to the string.
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string.
 */
 
 QCString &QCString::setNum( long n )
@@ -1566,7 +1632,7 @@ QCString &QCString::setNum( long n )
 }
 
 /*!
-  Sets the string to the printed unsigned value of \a n and
+  Sets the string to the string representation of the number \a n and
   returns a reference to the string.
 */
 
@@ -1586,33 +1652,39 @@ QCString &QCString::setNum( ulong n )
 
 /*!
   \fn QCString &QCString::setNum( int n )
-  Sets the string to the printed value of \a n and returns a reference
-  to the string.
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( uint n )
-  Sets the string to the printed unsigned value of \a n and returns a
-  reference to the string.
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( short n )
-  Sets the string to the printed value of \a n and returns a reference
-  to the string.
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string.
 */
 
 /*!
   \fn QCString &QCString::setNum( ushort n )
-  Sets the string to the printed unsigned value of \a n and returns a
-  reference to the string.
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string.
 */
 
-/*!  Sets the string to the printed value of \a n in format \a f with
-  precision \a prec.  \a f must be one of 'f', 'F', 'e', 'E', 'g' and
-  'G'. The meaning for each character is the same as in sprintf().
+/*!  
+  Sets the string to the string representation of the number \a n and
+  returns a reference to the string. 
+  
+  The format of the string representation is specified by the format
+  character \a f, and the precision (number of digits after the decimal
+  point) is specified with \a prec.
 
-  Returns a reference to the string.
+    The valid formats for \a f are 'e', 'E', 'f', 'g' and 'G'. The
+    formats are the same as for sprintf(); they are explained in \l
+    QString::arg(). 
 */
 
 QCString &QCString::setNum( double n, char f, int prec )
@@ -1646,7 +1718,7 @@ QCString &QCString::setNum( double n, char f, int prec )
   Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
 
-  Returns FALSE if this \a index was out of range and the string could
+  Returns FALSE if \a index was out of range and the string could
   not be expanded, otherwise TRUE.
 */
 
@@ -1674,12 +1746,12 @@ bool QCString::setExpand( uint index, char c )
 
 /*!
   \fn QCString& QCString::append( const char *str )
-  Appends \a str to the string and returns a reference to the string.
-  Equivalent to operator+=().
+  Appends string \a str to the string and returns a reference to the
+  string. Equivalent to operator+=().
  */
 
 /*!
-  Appends \a str to the string and returns a reference to the string.
+  Appends string \a str to the string and returns a reference to the string.
 */
 
 QCString& QCString::operator+=( const char *str )
@@ -1696,7 +1768,7 @@ QCString& QCString::operator+=( const char *str )
 }
 
 /*!
-  Appends \a c to the string and returns a reference to the string.
+  Appends character \a c to the string and returns a reference to the string.
 */
 
 QCString &QCString::operator+=( char c )
@@ -1809,7 +1881,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
+  Returns TRUE if \a s1 is less than \a s2, otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
@@ -1817,7 +1891,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically less than \a s2, otherwise FALSE.
+  Returns TRUE if \a s1 is less than \a s2, otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \< 0</code>.
 */
@@ -1825,8 +1901,10 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
-  otherwise FALSE.
+  Returns TRUE if \a s1 is less than or equal to \a s2,
+  otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
@@ -1834,8 +1912,10 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator<=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically less than or equal to \a s2,
-  otherwise FALSE.
+  Returns TRUE if \a s1 is less than or equal to \a s2,
+  otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \<= 0</code>.
 */
@@ -1843,7 +1923,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
+  Returns TRUE if \a s1 is greater than \a s2, otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
@@ -1851,7 +1933,9 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically greater than \a s2, otherwise FALSE.
+  Returns TRUE if \a s1 is greater than \a s2, otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \> 0</code>.
 */
@@ -1859,8 +1943,10 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>=( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
-  otherwise FALSE.
+  Returns TRUE if \a s1 is greater than or equal to \a s2,
+  otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
@@ -1868,8 +1954,10 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn bool operator>=( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns TRUE if \a s1 is alphabetically greater than or equal to \a s2,
-  otherwise FALSE.
+  Returns TRUE if \a s1 is greater than or equal to \a s2,
+  otherwise returns FALSE.
+
+  See the <a href="#asciinotion">Note on character comparisons</a>.
 
   Equivalent to <code>qstrcmp(s1,s2) \>= 0</code>.
 */
@@ -1877,29 +1965,29 @@ QDataStream &operator>>( QDataStream &s, QCString &str )
 /*!
   \fn QCString operator+( const QCString &s1, const QCString &s2 )
   \relates QCString
-  Returns the concatenated string of s1 and s2.
+  Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
   \fn QCString operator+( const QCString &s1, const char *s2 )
   \relates QCString
-  Returns the concatenated string of s1 and s2.
+  Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
   \fn QCString operator+( const char *s1, const QCString &s2 )
   \relates QCString
-  Returns the concatenated string of s1 and s2.
+  Returns a string which consists of the concatenation of s1 and s2.
 */
 
 /*!
   \fn QCString operator+( const QCString &s, char c )
   \relates QCString
-  Returns the concatenated string of s and c.
+  Returns a string which consists of the concatenation of s and c.
 */
 
 /*!
   \fn QCString operator+( char c, const QCString &s )
   \relates QCString
-  Returns the concatenated string of c and s.
+  Returns a string which consists of the concatenation of c and s.
 */
