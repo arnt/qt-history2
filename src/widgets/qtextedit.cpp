@@ -2652,14 +2652,16 @@ void QTextEdit::formatMore()
 	return;
 
     int bottom = contentsHeight();
+    int lastTop = -1;
     int lastBottom = -1;
     int to = 20;
     bool firstVisible = FALSE;
     QRect cr( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
     for ( int i = 0; lastFormatted &&
-	  ( i < to || ( firstVisible && lastBottom < contentsY()+height() ) );
+	  ( i < to || ( firstVisible && lastTop < contentsY()+height() ) );
 	  i++ ) {
 	lastFormatted->format();
+	lastTop = lastFormatted->rect().top();
 	lastBottom = lastFormatted->rect().bottom();
 	if ( i == 0 )
 	    firstVisible = lastBottom < cr.bottom();
