@@ -74,9 +74,8 @@ struct IAxServerBase : public IUnknown
     call propertyChanged() to notify the ActiveX client application
     about the change.
 
-    To implement additional COM interfaces in your ActiveX control,
-    reimplement queryInterface(). To make your ActiveX control a top
-    level window, reimplement stayTopLevel() and return TRUE.
+    To implement additional COM interfaces in your ActiveX control, reimplement
+    createAggregate() to return a new object of a QAxAggregated subclass.
 */
 
 /*!
@@ -84,6 +83,13 @@ struct IAxServerBase : public IUnknown
 */
 QAxBindable::QAxBindable()
     :activex(0)
+{
+}
+
+/*!
+    Destroys the QAxBindable object.
+*/
+QAxBindable::~QAxBindable()
 {
 }
 
@@ -154,79 +160,105 @@ void QAxBindable::propertyChanged( const char *property )
 }
 
 /*!
-    Reimplement this function if you want to support additional
-    interfaces in your ActiveX control. Set \a iface to point to the
-    interface implementation for interfaces of type \a iid.
+    Reimplement this function when you want to implement additional 
+    COM interfaces in the ActiveX control, or when you want to provide 
+    alternative implementations of COM interfaces. Return a new object 
+    of a QAxAggregated subclass.
 
-    Make sure you add a reference to interfaces using addRef().
+    The default implementation returns 0.
+*/
+QAxAggregated *QAxBindable::createAggregate()
+{
+    return 0;
+}
+
+/*! \class QAxAggregated qaxbindable.h
+    \brief The QAxAggregated class is an abstract base class for implementations of
+    additional COM interfaces.
+    \module QAxServer
+    \extension ActiveQt
+
+    Create a subclass of QAxAggregated and reimplement queryInterface to support
+    additional COM interfaces. Use multiple inheritance from those COM interfaces.
+    Implement the IUnknown interface of those COM interfaces by delegating the
+    calls to QueryInterface, AddRef and Release to the interface provided by
+    controllingUnknown().
+    
+    Use the widget() method if you need to make calls to the QWidget implementing the 
+    ActiveX control. You must not store that pointer in your subclass (unless you use
+    QGuardedPtr), as the QWidget can be destroyed by the ActivX framework at any time.
+*/
+
+/*!
+    \internal
+    
+    The destructor is called by the QAxServerBase, which is a friend.
+*/
+QAxAggregated::~QAxAggregated()
+{
+}
+
+/*! \fn long QAxAggregated::queryInterface( const QUuid &iid, void **iface )
+
+    Reimplement this pure virtual function to support additional COM interfaces.
+    Set the value of \a iface to point to this object to support the interface \a iid.
+    Note that you have to cast the \c this pointer to the respective superclass.
 
     \code
-    QRESULT MyActiveX::queryInterface( const QUuid &iid, void **iface )
+    long AxImpl::queryInterface( const QUuid &iid, void **iface )
     {
         *iface = 0;
-	if ( iid == IID_IOleInPlaceObjectWindowless )
-	    *iface = (IOleInPlaceObjectWindowless*)this;
+	if ( iid == IID_ISomeCOMInterface )
+	    *iface = (ISomeCOMInterface*)this;
 	else
 	    return E_NOINTERFACE;
 
-        addRef();
+	AddRef();
 	return S_OK;
     }
     \endcode
-   
-    Even though the COM interface inherits IUnknown you must not support IUnknown 
-    in that implementation. When implementing additional interfaces in your ActiveX 
-    class, implement QueryInterface() to call this function. QUuid implements 
-    a constructor for the IID type:
 
-    HERSULT MyActiveX::QueryInterface( REFIID iid, void **iface )
-    {
-        return queryInterface( iid, iface );
-    }
+    Return the standard COM results S_OK (interface is supported) or E_NOINTERFACE
+    (requested interface is not supported).
 
-    Return the default COM results for QueryInterface (S_OK, E_NOINTERFACE).
+    \warning
+    Even though you have to implement the IUnknown interface if you implement any
+    COM interface you must not support the IUnknown interface in your queryInterface
+    implementation.
 */
-QRESULT QAxBindable::queryInterface( const QUuid &iid, void **iface )
-{
-    *iface = 0;
-    return E_NOINTERFACE;
-}
 
 /*!
-    Adds a reference to the ActiveX control. When implementing
-    additional interfaces in your ActiveX class, implement AddRef() to
-    call this function.
+    \fn IUnknown *QAxAggregated::controllingUnknown() const
+
+    Returns the IUnknown interface of the ActiveX control. Implement the IUnknown
+    interface in your QAxAggregated subclass to delegate calls to QueryInterface, 
+    AddRef and Release to the interface provided by this function.
 
     \code
-    unsigned long MyActiveX::AddRef()
+    HRESULT AxImpl::QueryInterface( REFIID iid, void **iface )
     {
-        return addRef();
+        return controllingUnknown()->QueryInterface( iid, iface );
+    }
+
+    unsigned long AxImpl::AddRef()
+    {
+        return controllingUnknown()->AddRef();
+    }
+
+    unsigned long AxImpl::Release()
+    {
+        return controllingUnknown()->Release();
     }
     \endcode
-
-    \sa release(), queryInterface()
 */
-unsigned long QAxBindable::addRef()
-{
-    return activex->AddRef();
-}
 
 /*!
-    Removes a reference from the ActiveX control. When implementing
-    additional interfaces in your ActiveX class, implement Release()
-    to call this function.
+    \fn QWidget *QAxAggregated::widget() const
 
-    \code
-    unsigned long MyActiveX::Release()
-    {
-        return release();
-    }
-    \endcode
+    Returns a pointer to the QWidget subclass implementing the ActiveX control.
+    This function might return zero.
 
-    \sa addRef(), queryInterface()
+    \warning
+    You must not store the returned pointer, as the QWidget can be destroyed by 
+    ActiveX at any time.
 */
-unsigned long QAxBindable::release()
-{
-    return activex->Release();
-}
-

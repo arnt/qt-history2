@@ -18,9 +18,10 @@
 #define GLBOX_H
 
 #include <qgl.h>
+#include <qaxbindable.h>
 
-
-class GLBox : public QGLWidget
+class GLBox : public QGLWidget,
+	      public QAxBindable
 {
     Q_OBJECT
 
@@ -28,6 +29,8 @@ public:
 
     GLBox( QWidget* parent, const char* name );
     ~GLBox();
+
+    QAxAggregated *createAggregate();
 
 public slots:
 

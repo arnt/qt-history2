@@ -50,11 +50,12 @@
     application see the \link qaxcontainer.html QAxContainer
     module\endlink.) 
 
-    The module consists of two classes
+    The module consists of three classes
     \list
     \i QAxBindable provides an interface between the Qt widget and the 
        ActiveX control.
     \i QAxFactory defines a factory for the creation of ActiveX components.
+    \i QAxAggregated can be subclassed to implement additional COM interfaces.
     \endlist
 
     Some \link activeqt-examples.html example implementations \endlink 
@@ -342,64 +343,95 @@
 
     \section2 More Interfaces
 
-    When the ActiveX class inherits from the QAxBindable class it can
-    also implement additional COM interfaces. Use multiple inheritance
-    to subclass additional interface classes, and reimplement the
-    queryInterface() function.
+    The ActiveX control provide by ActiveQt servers supports a minimal
+    set of COM interfaces to implement the OLE specifications. When the ActiveX 
+    class inherits from the QAxBindable class it can also implement additional 
+    COM interfaces.
 
+    Create a new subclass of QAxAggregated and use multiple inheritance
+    to subclass additional COM interface classes. 
+
+    \code
+    class AxImpl : public QAxAggregated, public ISomeCOMInterface
+    {
+    public:
+        AxImpl() {}
+
+        long queryInterface( const QUuid &iid, void **iface )
+        {
+	    *iface = 0;	    
+	    if ( iid == IID_ISomeCOMInterface )
+	        *iface = (ISomeCOMInterface*)this;
+	    else
+	        return E_NOINTERFACE;
+
+            AddRef();
+	    return S_OK;
+        }
+        
+        // IUnknown
+	QAXAGG_IUNKNOWN
+
+        // ISomeCOMInterface
+        ...
+    }
+    \endcode
+
+    Reimplement the \c queryInterface() function to support the additional 
+    COM interfaces.
+
+    \code
+    long AxImpl::queryInterface( const QUuid &iid, void **iface )
+    {
+        *iface = 0;
+	if ( iid == IID_ISomeCOMInterface )
+	    *iface = (ISomeCOMInterface*)this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+    \endcode
+
+    Since \c ISomeCOMInterface is a subclass of \c IUnknown you will have
+    to implement the \c QueryInterface, \c AddRef and \c Release functions. 
+    Use the \c QAXAGG_IUNKNOWN macro in your class definition to do that. If 
+    you implement the IUnknown functions manually, delegate the calls to the
+    interface pointer returned by the controllingUnknown() function, e.g.
+    \code
+    HRESULT AxImpl::QueryInterface( REFIID iid, void **iface )
+    {
+        return controllingUnknown()->QueryInterface( iid, iface );
+    }
+    \endcode
+    Do not support the \c IUnknown interface itself in your \c queryInterface() 
+    implementation.
+
+    Implement the methods of the COM interfaces. If you need to make
+    calls to the QWidget implementing the ActiveX control, use
+    QAxAggregated::widget().
+
+    In your QAxBindable subclass, implement \c createAggregate() to return
+    a new object of the QAxAggregated subclass.
+    
     \raw
     <pre>
     class MyActiveX : public QWidget,                       
-                      public QAxBindable<b>,
-                      public IComInterface</b>
+                      <b>public QAxBindable</b>
     {
     	Q_OBJECT
     public:
         MyActiveX( QWidget *parent, const char *name = 0 );
 
-        <b>QRESULT queryInterface( const QUuid &iid, void **iface )
+        <b>QAxAggregated *createAggregate()
         {
-            if ( iid == IID_IComInterface )
-                *iface = (IComInterface)this;
-            else
-                return E_NOINTERFACE;
-
-            AddRef();
-            return S_OK;
+            return new AxImpl();
         }
-
-        // IUnknown functions ...
-        HRESULT QueryInterface( REFIID iid, void **iface );
-        unsigned long AddRef();
-        unsigned long Release();
-
-        // IComInterface functions ...</b>
+        </b>
     };
     </pre>
     \endraw
-
-    Since \c IComInterface inherits from \c IUnknown the class must
-    also implement \c QueryInterface, \c AddRef() and \c Release(). 
-    Call the queryInterface(), addRef() and release() functions provided 
-    by QAxBindable in those implementations.
-
-    \code
-    HERSULT MyActiveX::QueryInterface( REFIID iid, void **iface )
-    {
-        return queryInterface( iid, iface );
-    }
-    
-    unsigned long MyActiveX::AddRef()
-    {
-        return addRef();
-    }
-
-    unsigned long MyActiveX::Release()
-    {
-        return release();
-    }
-    \endcode
-
 
     \section2 Fewer methods and properties
 

@@ -305,6 +305,7 @@ private:
     friend class QAxPropertyPage;
 
     QWidget* activeqt;
+    QAxAggregated *aggregatedObject;
     ConnectionPoints points;
 
     unsigned initNewCalled	:1;
@@ -354,9 +355,11 @@ public:
     QAxSignalVec( const QAxServerBase::ConnectionPoints &points )
 	: cpoints( points ), ref(0)
     {
+	InitializeCriticalSection( &refCountSection );
     }
     QAxSignalVec( const QAxSignalVec &old )
     {
+	InitializeCriticalSection( &refCountSection );
 	ref = 0;
 	cpoints = old.cpoints;
 	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
@@ -367,18 +370,28 @@ public:
     {
 	for ( QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i )
 	    (*i)->Release();
+
+	DeleteCriticalSection( &refCountSection );
     }
-    unsigned long __stdcall AddRef()
+
+    unsigned long __stdcall AddRef() 
     {
-	return ref++;
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = ++ref;
+	LeaveCriticalSection( &refCountSection );
+	return ++r;
     }
     unsigned long __stdcall Release()
     {
-	if ( !--ref ) {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = --ref;
+	LeaveCriticalSection( &refCountSection );
+
+	if ( !r ) {
 	    delete this;
 	    return 0;
 	}
-	return ref;
+	return r;
     }
     STDMETHOD(QueryInterface)(REFIID iid, void **iface)
     {
@@ -435,6 +448,8 @@ public:
     QAxServerBase::ConnectionPointsIterator it;
 
 private:
+    CRITICAL_SECTION refCountSection;
+
     unsigned long ref;
 };
 
@@ -451,9 +466,11 @@ public:
     QAxConnection( QAxServerBase *parent, const QUuid &uuid )
 	: that(parent), iid( uuid ), ref( 2 )
     {
+	InitializeCriticalSection( &refCountSection );
     }
     QAxConnection( const QAxConnection &old )
     {
+	InitializeCriticalSection( &refCountSection );
 	ref = 0;
 	connections = old.connections;
 	it = old.it;
@@ -466,18 +483,29 @@ public:
 	    connection.pUnk->AddRef();
 	}
     }
-
-    unsigned long __stdcall AddRef()
+    ~QAxConnection()
     {
-	return ref++;
+	DeleteCriticalSection( &refCountSection );
+    }
+
+    unsigned long __stdcall AddRef() 
+    {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = ++ref;
+	LeaveCriticalSection( &refCountSection );
+	return ++r;
     }
     unsigned long __stdcall Release()
     {
-	if ( !--ref ) {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = --ref;
+	LeaveCriticalSection( &refCountSection );
+
+	if ( !r ) {
 	    delete this;
 	    return 0;
 	}
-	return ref;
+	return r;
     }
     STDMETHOD(QueryInterface)(REFIID iid, void **iface)
     {
@@ -586,6 +614,7 @@ private:
     Connections connections;
     Iterator it;
 
+    CRITICAL_SECTION refCountSection;
     unsigned long ref;
 };
 
@@ -608,6 +637,8 @@ public:
     QClassFactory( CLSID clsid )
 	: ref( 0 )
     {
+	InitializeCriticalSection( &refCountSection );
+
 	// COM only knows the CLSID, but QAxFactory is class name based...
 	QStringList keys = qAxFactory()->featureList();
 	for ( QStringList::Iterator  key = keys.begin(); key != keys.end(); ++key ) {
@@ -617,19 +648,30 @@ public:
 	    }
 	}
     }
+    ~QClassFactory()
+    {
+	DeleteCriticalSection( &refCountSection );
+    }
 
     // IUnknown
     unsigned long WINAPI AddRef()
     {
-	return ++ref;
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = ++ref;
+	LeaveCriticalSection( &refCountSection );
+	return ++r;
     }
     unsigned long WINAPI Release()
     {
-	if ( !--ref ) {
+	EnterCriticalSection( &refCountSection );
+	unsigned long r = --ref;
+	LeaveCriticalSection( &refCountSection );
+
+	if ( !r ) {
 	    delete this;
 	    return 0;
 	}
-	return ref;
+	return r;
     }
     HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface )
     {
@@ -679,6 +721,7 @@ public:
     }
 
 protected:
+    CRITICAL_SECTION refCountSection;
     unsigned long ref;
     QString className;
 };
@@ -702,8 +745,9 @@ HRESULT WINAPI GetClassObject( void *pv, REFIID iid, void **ppUnk )
     the COM server for the respective CLSID.
 */
 QAxServerBase::QAxServerBase( const QString &classname )
-: activeqt( 0 ), ref( 0 ), class_name( classname ), slotlist(0), signallist(0),proplist(0),
-  proplist2(0), propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd )
+: activeqt( 0 ), aggregatedObject( 0 ), ref( 0 ), class_name( classname ),
+  slotlist(0), signallist(0),proplist(0), proplist2(0),
+  propPageSite( 0 ), propPage( 0 ), m_hWnd(0), m_hWndCD( m_hWnd )
 {
     initNewCalled	= FALSE;
     dirtyflag		= FALSE;
@@ -745,6 +789,8 @@ QAxServerBase::~QAxServerBase()
 {
     for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
 	(*it)->Release();
+    delete aggregatedObject;
+    aggregatedObject = 0;
     if ( activeqt ) {
 	axTakeServer( m_hWnd );
 	axTakeServer( activeqt->winId() );
@@ -779,68 +825,65 @@ QAxServerBase::~QAxServerBase()
 
 /*
     QueryInterface implementation.
-
-    Calls QAxBindable::queryInterface and returns the result if an interface
-    has been provided. Otherwise, calls the ATL implementation of QueryInterface
-    using the COM_MAP declared in the class declaration.
 */
 HRESULT WINAPI QAxServerBase::QueryInterface( REFIID iid, void **iface )
 {
     *iface = 0;
-    if ( activeqt ) {
-	QAxBindable *aqt = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-	if ( aqt ) {
-	    aqt->queryInterface( iid, iface );
-	}
+
+    if ( iid == IID_IUnknown) {
+	*iface = (IUnknown*)(IDispatch*)this;
+    } else {
+	HRESULT res = S_OK;
+	if ( aggregatedObject )
+	    res = aggregatedObject->queryInterface( iid, iface );
+	if ( *iface )
+	    return res;
     }
 
-    if ( *iface )
-	return S_OK;
-
-    if ( iid == IID_IUnknown)
-	*iface = (IUnknown*)(IDispatch*)this;
-    else if ( iid == IID_IDispatch)
-	*iface = (IDispatch*)this;
-    else if ( iid == IID_IAxServerBase)
-	*iface = (IAxServerBase*)this;
-    else if ( iid == IID_IOleObject)
-	*iface = (IOleObject*)this;
-    else if ( iid == IID_IViewObject)
-	*iface = (IViewObject*)this;
-    else if ( iid == IID_IViewObject2)
-	*iface = (IViewObject2*)this;
+    if ( !(*iface) ) {
+	if ( iid == IID_IDispatch)
+	    *iface = (IDispatch*)this;
+	else if ( iid == IID_IAxServerBase)
+	    *iface = (IAxServerBase*)this;
+	else if ( iid == IID_IOleObject)
+	    *iface = (IOleObject*)this;
+	else if ( iid == IID_IViewObject)
+	    *iface = (IViewObject*)this;
+	else if ( iid == IID_IViewObject2)
+	    *iface = (IViewObject2*)this;
 #ifdef QAX_VIEWOBJECTEX
-    else if ( iid == IID_IViewObjectEx)
-	*iface = (IViewObjectEx*)this;
+	else if ( iid == IID_IViewObjectEx)
+	    *iface = (IViewObjectEx*)this;
 #endif
-    else if ( iid == IID_IOleControl)
-	*iface = (IOleControl*)this;
-    else if ( iid == IID_IOleWindow) 
-	*iface = (IOleWindow*)(IOleInPlaceObject*)this;
-    else if ( iid == IID_IOleInPlaceObject) 
-	*iface = (IOleInPlaceObject*)this;
-    else if ( iid == IID_IOleInPlaceActiveObject) 
-	*iface = (IOleInPlaceActiveObject*)this;
-    else if ( iid == IID_IConnectionPointContainer) 
-	*iface = (IConnectionPointContainer*)this;
-    else if ( iid == IID_IProvideClassInfo)
-	*iface = (IProvideClassInfo*)this;
-    else if ( iid == IID_IProvideClassInfo2)
-	*iface = (IProvideClassInfo2*)this;
-    else if ( iid == IID_IPersistStorage )
-	*iface = (IPersistStorage*)this;
-    else if ( iid == IID_IPersistPropertyBag)
-	*iface = (IPersistPropertyBag*)this;
+	else if ( iid == IID_IOleControl)
+	    *iface = (IOleControl*)this;
+	else if ( iid == IID_IOleWindow)
+	    *iface = (IOleWindow*)(IOleInPlaceObject*)this;
+	else if ( iid == IID_IOleInPlaceObject)
+	    *iface = (IOleInPlaceObject*)this;
+	else if ( iid == IID_IOleInPlaceActiveObject)
+	    *iface = (IOleInPlaceActiveObject*)this;
+	else if ( iid == IID_IConnectionPointContainer)
+	    *iface = (IConnectionPointContainer*)this;
+	else if ( iid == IID_IProvideClassInfo)
+	    *iface = (IProvideClassInfo*)this;
+	else if ( iid == IID_IProvideClassInfo2)
+	    *iface = (IProvideClassInfo2*)this;
+	else if ( iid == IID_IPersistStorage )
+	    *iface = (IPersistStorage*)this;
+	else if ( iid == IID_IPersistPropertyBag)
+	    *iface = (IPersistPropertyBag*)this;
 #ifdef QAX_PROPERTYPAGES
-    else if ( iid == IID_ISpecifyPropertyPages)
-	*iface = (ISpecifyPropertyPages*)this;
-    else if ( iid == IID_IPropertyPage)
-	*iface = (IPropertyPage*)this;
-    else if ( iid == IID_IPropertyPage2)
-	*iface = (IPropertyPage2*)this;
+	else if ( iid == IID_ISpecifyPropertyPages)
+	    *iface = (ISpecifyPropertyPages*)this;
+	else if ( iid == IID_IPropertyPage)
+	    *iface = (IPropertyPage*)this;
+	else if ( iid == IID_IPropertyPage2)
+	    *iface = (IPropertyPage2*)this;
 #endif
-    else
-	return E_NOINTERFACE;
+	else
+	    return E_NOINTERFACE;
+    }
 
     AddRef();
     return S_OK;
@@ -876,9 +919,15 @@ bool QAxServerBase::internalCreate()
     if ( !activeqt )
 	return FALSE;
     QAxBindable *axb = (QAxBindable*)activeqt->qt_cast( "QAxBindable" );
-    if ( axb )
+    if ( axb ) {
 	// no addref; this is aggregated
 	axb->activex = this;
+	aggregatedObject = axb->createAggregate();
+	if ( aggregatedObject ) {
+	    aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
+	    aggregatedObject->the_widget = activeqt;
+	}
+    }
     if ( !stayTopLevel ) {
 	((HackWidget*)activeqt)->clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
 	((HackWidget*)activeqt)->topData()->ftop = 0;
@@ -965,6 +1014,8 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
 
     case WM_DESTROY:
 	if ( that->activeqt ) {
+	    if ( that->aggregatedObject )
+		that->aggregatedObject->the_widget = 0;
 	    delete that->activeqt;
 	    that->activeqt = 0;
 	}

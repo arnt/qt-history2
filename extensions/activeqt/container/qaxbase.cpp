@@ -2285,29 +2285,36 @@ static inline QCString qt_rmWS( const char *s )
 /*!
     \internal
 */
-bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant &var )
+bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[] )
 {
-    QVariant realVar = var;
+    IDispatch *disp = d->dispatch();
+    if ( !disp || !inout )
+	return FALSE;
+
+    int varc = 0;
+    while ( vars[varc].isValid() )
+	varc++;
+
     QCString function = name;
     int id = metaObject()->findSlot( qt_rmWS(function), TRUE );
-    if ( id >= 0 ) {
+    if ( id >= 0 ) {	
 	const QMetaData *slot = metaObject()->slot( id, TRUE );
 	function = slot->method->name;
-	if ( ( realVar.type() == QVariant::String || realVar.type() == QVariant::CString )
-	    && QUType::isEqual( slot->method->parameters[1].type, &static_QUType_enum ) ) {
-	    QUEnum *uEnum = (QUEnum *)slot->method->parameters[1].typeExtra;
-	    for ( uint eItem = 0; eItem < uEnum->count; eItem++ ) {
-		if ( uEnum->items[eItem].key == var.toString() ) {
-		    realVar = uEnum->items[eItem].value;
-		    break;
+	for ( int i = 0; i < varc; ++i ) {
+	    QVariant &var = vars[i];
+	    if ( ( var.type() == QVariant::String || var.type() == QVariant::CString )
+		&& QUType::isEqual( slot->method->parameters[1].type, &static_QUType_enum ) ) {
+		QUEnum *uEnum = (QUEnum *)slot->method->parameters[1].typeExtra;
+		QString varString = var.toString();
+		for ( uint eItem = 0; eItem < uEnum->count; eItem++ ) {
+		    if ( uEnum->items[eItem].key == varString ) {
+			var = uEnum->items[eItem].value;
+			break;
+		    }
 		}
 	    }
 	}
     }
-
-    IDispatch *disp = d->dispatch();
-    if ( !disp || !inout )
-	return FALSE;
 
     DISPID dispid;
     OLECHAR *names = (TCHAR*)qt_winTchar(function, TRUE );
@@ -2322,20 +2329,16 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, const QVariant 
     }
 
     VARIANTARG *res = (VARIANTARG*)inout;
-    VARIANT arg;
     DISPPARAMS params;
-    if ( !var.isValid() ) {
-	params.cArgs = 0;
-	params.cNamedArgs = 0;
-	params.rgdispidNamedArgs = 0;
-	params.rgvarg = 0;
-    } else {
-	arg = QVariantToVARIANT( realVar );
-	params.cArgs = 1;
-	params.cNamedArgs = 0;
-	params.rgdispidNamedArgs = 0;
-	params.rgvarg = &arg;
+    VARIANT *arg = varc ? new VARIANT[varc] : 0;
+    for ( int i = 0; i < varc; ++i ) {
+	arg[i] = QVariantToVARIANT( vars[i] );
     }
+
+    params.cArgs = varc;
+    params.cNamedArgs = 0;
+    params.rgdispidNamedArgs = 0;
+    params.rgvarg = arg;
 
     HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, 0, 0 );
 
@@ -2484,9 +2487,10 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
 
 /*!
     Returns a pointer to a QAxObject wrapping the COM object provided
-    by the method or property \a name, passing \a var as an optional
-    parameter. If \a name is provided by a method the string must
-    include the full function prototype.
+    by the method or property \a name, passing \a var1 ... \a var8 as
+    optional parameters. If \a name is provided by a method the string 
+    must include the full function prototype. If \a name is a property
+    \a var1 ... \a var8 are ignored.
 
     The returned object is a child of this object (which is either of
     type QAxObject or QAxWidget), and is deleted when this object is
@@ -2507,13 +2511,32 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     }
     \endcode
 */
-QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var )
+QAxObject *QAxBase::querySubObject( const QCString &name, const QVariant &var1,							 
+							  const QVariant &var2, 
+							  const QVariant &var3, 
+							  const QVariant &var4, 
+							  const QVariant &var5, 
+							  const QVariant &var6, 
+							  const QVariant &var7, 
+							  const QVariant &var8 )
 {
     QAxObject *object = 0;
 
     VARIANTARG res;
 
-    internalInvoke( name, &res, var );
+    int varc = 0;
+    QVariant vars[9];
+    vars[varc++] = var1;
+    vars[varc++] = var2;
+    vars[varc++] = var3;
+    vars[varc++] = var4;
+    vars[varc++] = var5;
+    vars[varc++] = var6;
+    vars[varc++] = var7;
+    vars[varc++] = var8;
+    vars[varc++] = QVariant();
+
+    internalInvoke( name, &res, vars );
     switch ( res.vt ) {
     case VT_DISPATCH:
 	if ( res.pdispVal )

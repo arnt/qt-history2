@@ -75,7 +75,14 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
-    QAxObject *querySubObject( const QCString &name, const QVariant &var = QVariant() );
+    QAxObject *querySubObject( const QCString &name, const QVariant &v1 = QVariant(),
+					    const QVariant &v2 = QVariant(),
+					    const QVariant &v3 = QVariant(),
+					    const QVariant &v4 = QVariant(),
+					    const QVariant &v5 = QVariant(),
+					    const QVariant &v6 = QVariant(),
+					    const QVariant &v7 = QVariant(),
+					    const QVariant &v8 = QVariant() );
 
     virtual QMetaObject *metaObject() const;
     virtual bool qt_invoke( int, QUObject* );
@@ -115,7 +122,7 @@ private:
 
     static QMetaObject *staticMetaObject() { return 0; }
     virtual QMetaObject *parentMetaObject() const = 0;
-    bool internalInvoke( const QCString &name, void *out, const QVariant &var );
+    bool internalInvoke( const QCString &name, void *out, QVariant var[] );
 
     QString ctrl;
 };

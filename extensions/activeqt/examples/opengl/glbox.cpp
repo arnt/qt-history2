@@ -20,14 +20,7 @@
 #include "glbox.h"
 
 #include <qaxfactory.h>
-
-QAXFACTORY_DEFAULT( GLBox, 
-		    "{5fd9c22e-ed45-43fa-ba13-1530bb6b03e0}",
-		    "{33b051af-bb25-47cf-a390-5cfd2987d26a}",
-		    "{8c996c29-eafa-46ac-a6f9-901951e765b5}",
-		    "{2c3c183a-eeda-41a4-896e-3d9c12c3577d}",
-		    "{83e16271-6480-45d5-aaf1-3f40b7661ae4}"
-		  )
+#include <objsafe.h>
 
 #if defined(Q_CC_MSVC)
 #pragma warning(disable:4305) // init: truncation from const double to float
@@ -179,3 +172,39 @@ void GLBox::setZRotation( int degrees )
     zRot = (GLfloat)(degrees % 360);
     updateGL();
 }
+
+class ObjectSafetyImpl : public QAxAggregated, 
+			 public IObjectSafety
+{
+public:
+    ObjectSafetyImpl() {}
+
+    long queryInterface( const QUuid &iid, void **iface )
+    {
+	*iface = 0;
+	if ( iid == IID_IObjectSafety )
+	    *iface = (IObjectSafety*)this;
+	else
+	    return E_NOINTERFACE;
+
+	AddRef();
+	return S_OK;
+    }
+
+    QAXAGG_IUNKNOWN;
+
+    HRESULT WINAPI GetInterfaceSafetyOptions( REFIID riid, DWORD *pdwSupportedOptions, DWORD *pdwEnabledOptions )
+    {
+	return S_OK;
+    }
+    HRESULT WINAPI SetInterfaceSafetyOptions( REFIID riid, DWORD pdwSupportedOptions, DWORD pdwEnabledOptions )
+    {
+	return S_OK;
+    }
+};
+
+QAxAggregated *GLBox::createAggregate()
+{
+    return new ObjectSafetyImpl();
+}
+

@@ -32,16 +32,42 @@
 #include <private/qcom_p.h>
 
 struct IAxServerBase;
+struct IUnknown;
+
+class QAxAggregated
+{
+    friend class QAxServerBase;
+public:
+    virtual long queryInterface( const QUuid &iid, void **iface ) = 0;
+
+protected:
+    IUnknown *controllingUnknown() const
+    { return controlling_unknown; }
+    QWidget *widget() const
+    { return the_widget; }
+
+private:
+    virtual ~QAxAggregated();
+
+    IUnknown *controlling_unknown;
+    QWidget *the_widget;
+};
+
+#define QAXAGG_IUNKNOWN \
+    HRESULT WINAPI QueryInterface( REFIID iid, LPVOID *iface ) { \
+    return controllingUnknown()->QueryInterface( iid, iface ); } \
+    ULONG WINAPI AddRef() {return controllingUnknown()->AddRef(); } \
+    ULONG WINAPI Release() {return controllingUnknown()->Release(); } \
+
 
 class QAxBindable
 {
     friend class QAxServerBase;
 public:
     QAxBindable();
-
-    virtual QRESULT queryInterface( const QUuid&, void** );
-    unsigned long addRef();
-    unsigned long release();
+    virtual ~QAxBindable();
+    
+    virtual QAxAggregated *createAggregate();
 
 protected:
     bool requestPropertyChange( const char *property );
