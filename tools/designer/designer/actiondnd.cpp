@@ -570,7 +570,8 @@ void QDesignerPopupMenu::mouseMoveEvent( QMouseEvent *e )
     a->removeFrom( this );
     actionList.remove( itm );
 
-    QStoredDrag *drag = new QStoredDrag( "application/x-designer-actions", this );
+    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) : QString( "application/x-designer-actions" );
+    QStoredDrag *drag = new QStoredDrag( type, this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
     drag->setPixmap( a->iconSet().pixmap() );
