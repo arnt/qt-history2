@@ -175,10 +175,14 @@ void QWSDecoration::maximize( QWidget *widget )
     {
         QRect dummy( 0, 0, 1, 1);
         QRegion r = region(widget, dummy);
-        QRect rect = r.boundingRect();
-        nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-	    desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
-	    desk.height() - (rect.height()==1 ? 0 : rect.height()));
+	if (r.isEmpty()) {
+	    nr = desk;
+	} else {
+	    QRect rect = r.boundingRect();
+	    nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
+		    desk.width() - (rect.width()==1 ? 0 : rect.width()), // ==1 -> dummy
+		    desk.height() - (rect.height()==1 ? 0 : rect.height()));
+	}
     }
     widget->setGeometry(nr);
 }
