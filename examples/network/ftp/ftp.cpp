@@ -76,17 +76,45 @@ Ftp::Ftp(QWidget *parent)
     setWindowTitle(tr("Ftp"));
 }
 
-void Ftp::enableConnectButton()
-{
-    connectButton->setEnabled(!ftpServerLineEdit->text().isEmpty());
-}
-
 void Ftp::connectToFtpServer()
 {
     ftp->connectToHost(ftpServerLineEdit->text());
     ftp->list();
     statusLabel->setText(tr("Connecting to FTP server %1.")
                          .arg(ftpServerLineEdit->text()));
+}
+
+void Ftp::downloadFile()
+{
+    QString fileName = fileList->currentItem()->text();
+
+    if (QFile::exists(fileName)) {
+        QMessageBox::information(this, tr("Ftp"),
+                                 tr("You already have a file called %1.")
+                                 .arg(fileName));
+        return;
+    }
+
+    file = new QFile(fileName);
+    if (!file->open(QIODevice::WriteOnly)) {
+        QMessageBox::information(this, tr("Ftp"),
+                                 tr("Unable to save the file %1: %2.")
+                                 .arg(fileName).arg(file->errorString()));
+        delete file;
+    }
+
+    ftp->get(fileList->currentItem()->text(), file);
+
+    progressDialog->setLabel(new QLabel(tr("Downloading %1").arg(fileName), this));
+    progressDialog->show();
+    downloadButton->setEnabled(false);
+}
+
+void Ftp::cancelDownload()
+{
+    file->remove();
+    delete file;
+    file = 0;
 }
 
 void Ftp::ftpCommandFinished(int, bool error)
@@ -151,45 +179,6 @@ void Ftp::processItem(QListWidgetItem *item)
     }
 }
 
-void Ftp::downloadFile()
-{
-    QString fileName = fileList->currentItem()->text();
-
-    if (QFile::exists(fileName)) {
-        QMessageBox::information(this, tr("Ftp"),
-                                 tr("You already have a file called %1.")
-                                 .arg(fileName));
-        return;
-    }
-
-    file = new QFile(fileName);
-    if (!file->open(QIODevice::WriteOnly)) {
-        QMessageBox::information(this, tr("Ftp"),
-                                 tr("Unable to save the file %1: %2.")
-                                 .arg(fileName).arg(file->errorString()));
-        delete file;
-    }
-
-    ftp->get(fileList->currentItem()->text(), file);
-
-    progressDialog->setLabel(new QLabel(tr("Downloading %1").arg(fileName), this));
-    progressDialog->show();
-    downloadButton->setEnabled(false);
-}
-
-void Ftp::cancelDownload()
-{
-    file->remove();
-    delete file;
-    file = 0;
-}
-
-void Ftp::updateDataTransferProgress(Q_LLONG readBytes, Q_LLONG totalBytes)
-{
-    progressDialog->setTotalSteps(totalBytes);
-    progressDialog->setProgress(readBytes);
-}
-
 void Ftp::cdToParent()
 {
     fileList->clear();
@@ -200,6 +189,17 @@ void Ftp::cdToParent()
 
     if (currentPath.isEmpty())
         cdToParentButton->setEnabled(false);
+}
+
+void Ftp::updateDataTransferProgress(Q_LLONG readBytes, Q_LLONG totalBytes)
+{
+    progressDialog->setTotalSteps(totalBytes);
+    progressDialog->setProgress(readBytes);
+}
+
+void Ftp::enableConnectButton()
+{
+    connectButton->setEnabled(!ftpServerLineEdit->text().isEmpty());
 }
 
 void Ftp::enableDownloadButton(QListWidgetItem *current)
