@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: session.doc,v 1.7 1999/06/24 12:36:12 ettrich Exp $
+** $Id: session.doc,v 1.8 1999/06/24 13:09:04 ettrich Exp $
 **
 ** Qt session management overview documentation
 **
@@ -73,7 +73,7 @@ is the functionality that that corresponds to the
 
 X11 on the other hand supports complete session management since
 X11R6. Within the life-time of Qt-2.0, virtually all popuplar Unix/X11
-desktops will very likely support the XConsortium standard. 
+desktops will very likely support the XConsortium standard.
 
 <h2> Getting session management to work with Qt </h2>
 
@@ -87,7 +87,7 @@ similar to the following one:
 shutdown"></center>
 
 Example code to this dialog can be found in the documentation of \l
-QApplication::commitData() and \l QSessionManager::allowsInteraction().
+QSessionManager::allowsInteraction().
 
 For complete session management yet only supported on X11R6, you also
 have to take care of saving the state of the application and
@@ -104,12 +104,12 @@ that's the case, use the session identifier \l
 QApplication::sessionId() again to access your state date and restore
 the state of the application.
 
-<strong>Important:</strong> To allow the window manager to restore
-window attributes such as stacking order or geometry information, you
-have to identify your toplevel widgets with an application-wide unique
-object name (see \l QObject::setName() ). When restoring the application,
-you'll have to ensure that all restored toplevel widgets end up with their
-prior object name again.
+<strong>Important:</strong> In order to allow the window manager to
+restore window attributes such as stacking order or geometry
+information, you have to identify your toplevel widgets with an
+application-wide unique object name (see \l QObject::setName() ). When
+restoring the application, you'll have to ensure that all restored
+toplevel widgets end up with their prior object name again.
 
 <h2> Testing and debugging session management </h2>
 
