@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.cpp#1 $
+** $Id: //depot/qt/main/examples/demo/display.cpp#2 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -146,7 +146,7 @@ void Curve::setFactor( int f )
 
 /***********************************************************************/
 
-DisplayWidget::DisplayWidget( QWidget *parent=0, const char *name=0 )
+DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
     timer = 0;
