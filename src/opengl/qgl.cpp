@@ -2167,7 +2167,7 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     makeCurrent();
 
     // save GL state
-    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT );
+    glPushAttrib( GL_TRANSFORM_BIT | GL_VIEWPORT_BIT | GL_LIST_BIT );
     glMatrixMode( GL_PROJECTION );
     glPushMatrix();
     glLoadIdentity();
@@ -2199,8 +2199,10 @@ void QGLWidget::renderText( double x, double y, double z, const QString & str, c
 {
     makeCurrent();
     glRasterPos3d( x, y, z );
+    glPushAttrib( GL_LIST_BIT );
     glListBase( displayListBase( fnt, listBase ) );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit() );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() );
+    glPopAttrib();
 }
 
 QGLFormat QGLWidget::format() const
