@@ -334,6 +334,16 @@
 #    elif defined(CENTERLINE_CLPP) || defined(OBJECTCENTER)
 #      define Q_CC_OC
 #      define Q_NO_USING_KEYWORD
+/* CDS++ is not documented to define __EDG__ or __EDG in the Reliant
+   documentation but we guess it does, in any case it does conventions
+   like _BOOL */
+#elif defined(sinix)
+#  define Q_CC_EDG
+#  define Q_CC_CDS
+#  if !defined(_BOOL)
+#    define Q_NO_BOOL_TYPE
+#  endif
+#  define Q_NO_USING_KEYWORD
 /* The MIPSpro compiler in o32 mode is based on EDG but disables features
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
@@ -371,16 +381,6 @@
 #    define Q_NO_EXPLICIT_KEYWORD
 #    define Q_NO_USING_KEYWORD
 #  endif
-
-/* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
-   documentation but nevertheless uses EDG conventions like _BOOL */
-#elif defined(sinix)
-#  define Q_CC_EDG
-#  define Q_CC_CDS
-#  if !defined(_BOOL)
-#    define Q_NO_BOOL_TYPE
-#  endif
-#  define Q_NO_USING_KEYWORD /* ### check "using" status */
 
 #elif defined(Q_OS_HPUX)
 /* __HP_aCC was not defined in first aCC releases */
