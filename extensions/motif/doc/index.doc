@@ -5,6 +5,11 @@
 \title Qt Motif Extension
 \keyword Motif
 
+\if defined(commercial_edition)
+This module is part of the \link commercialeditions.html Qt Enterprise Edition
+\endlink.
+\endif
+
 \section1 Introduction
 
 The Qt Motif Extension assists the migration of old Xt and Motif based

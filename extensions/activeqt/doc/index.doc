@@ -3,6 +3,11 @@
     \title The ActiveQt framework
     \keyword ActiveQt
 
+\if defined(commercial_edition)
+    These modules are part of the \link commercialeditions.html Qt
+    Enterprise Edition \endlink.
+\endif
+
     Qt's ActiveX support allows Qt/Windows developers to:
     \list 1
     \i Access and use ActiveX controls provided by any ActiveX server
@@ -47,6 +52,11 @@
 /*! \page qaxserver.html
 
     \title The QAxServer Module
+
+\if defined(commercial_edition)
+    This module is part of the \link commercialeditions.html Qt
+    Enterprise Edition \endlink.
+\endif
 
     \tableofcontents
 
@@ -624,6 +634,11 @@
 /*! \page qaxcontainer.html
 
     \title The QAxContainer Module
+
+\if defined(commercial_edition)
+    This module is part of the \link commercialeditions.html Qt
+    Enterprise Edition \endlink.
+\endif
 
     The ActiveQt framework provides a library implementing a QWidget
     subclass, QAxWidget, that acts as a container for ActiveX
