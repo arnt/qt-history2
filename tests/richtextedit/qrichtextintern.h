@@ -129,6 +129,7 @@ class QtTextRichString
     Item* items;
     int store;
     int len;
+    bool selection;
 public:
     QtTextRichString( QtTextFormatCollection* fmt );
     QtTextRichString( const QtTextRichString &other );
@@ -151,7 +152,9 @@ public:
     QtTextCustomItem* customItemAt( int index ) const;
 
     void setSelected( int index, bool selected );
-    bool selected( int index ) const;
+    bool isSelected( int index ) const;
+    void clearSelection();
+    bool isSelected() const;
 
     void setBold( int index, bool b );
     bool bold( int index ) const;
@@ -196,6 +199,7 @@ public:
     int y;
     int height;
     bool dirty;
+    bool selected;
 
     QtTextFlow* flow();
 
@@ -467,7 +471,7 @@ class QtTextCursor {
     int xline_current;
 
     void setSelected( bool selected );
-    bool selected() const;
+    bool isSelected() const;
 
 private:
     int y_;
@@ -538,9 +542,10 @@ public:
 
     void doLayout( QPainter* p, int nwidth );
     QString anchorAt( QPainter* p, int x, int y ) const;
+    bool clearSelection();
+    QString selectedText();
 
     void append( const QString& txt, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
-
 
 private:
     void init( const QString& doc, int& pos );

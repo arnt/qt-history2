@@ -40,7 +40,7 @@
 #include "qimage.h"
 #include "qsimplerichtext.h"
 #include "qdragobject.h"
-
+#include "qurl.h"
 
 /*!
   \class QtTextBrowser qtextbrowser.h
@@ -103,6 +103,7 @@ QtTextBrowser::QtTextBrowser(QWidget *parent, const char *name)
     d = new QtTextBrowserData;
 
     viewport()->setMouseTracking( TRUE );
+//     viewport()->setAcceptDrops( TRUE );
 }
 
 /*!
@@ -338,6 +339,7 @@ void QtTextBrowser::viewportMousePressEvent( QMouseEvent* e )
 	d->buttonDown = anchorAt( e->pos() );
 	d->lastClick = e->globalPos();
     }
+    QtTextView::viewportMousePressEvent( e );
 }
 
 /*!
@@ -351,6 +353,7 @@ void QtTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 	}
     }
     d->buttonDown = QString::null;
+    QtTextView::viewportMouseReleaseEvent( e );
 }
 
 /*!
@@ -358,18 +361,32 @@ void QtTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 */
 void QtTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
-    QString act = anchorAt( e->pos() );
-    if (d->highlight != act) {
-	if ( !act.isEmpty() ){
-	    emit highlighted( act );
-	    d->highlight = act;
+    if ( (e->state() & LeftButton) == LeftButton && !d->buttonDown.isEmpty()  ) {
+	if ( ( e->globalPos() - d->lastClick ).manhattanLength() > QApplication::startDragDistance() ) {
+	    QUrl url ( context(), d->buttonDown, TRUE );
+	    QUriDrag* drag = new QUriDrag( this );
+	    drag->setUnicodeUris( url.toString() );
+	    drag->drag();
 	}
-	else if ( !d->highlight.isEmpty() ) {
-	    emit highlighted( QString::null );
-	    d->highlight = QString::null;
-	}
-	viewport()->setCursor( d->highlight.isEmpty()?arrowCursor:pointingHandCursor );
+	return;
     }
+
+    if ( e->state() == 0 ) {
+	QString act = anchorAt( e->pos() );
+	if (d->highlight != act) {
+	    if ( !act.isEmpty() ){
+		emit highlighted( act );
+		d->highlight = act;
+	    }
+	    else if ( !d->highlight.isEmpty() ) {
+		emit highlighted( QString::null );
+		d->highlight = QString::null;
+	    }
+	    viewport()->setCursor( d->highlight.isEmpty()?arrowCursor:pointingHandCursor );
+	}
+    }
+
+    QtTextView::viewportMouseMoveEvent( e );
 }
 
 

@@ -45,28 +45,29 @@ int main( int argc, char* argv[]  )
     QVBox box;
 
     QPushButton* b = new QPushButton( "Push me", &box, 0 );
-    QtTextView*  v = new QtTextEdit( &box );
+    QtTextBrowser*  v = new QtTextBrowser( &box );
     v->setFocus();
     b->connect( b, SIGNAL( clicked() ), v, SLOT( temporary() ) );
     v->setTextFormat( QtTextEdit::RichText );
     //v->setFont( QFont("times", 12 ) );
-    QBrush paper;
-    paper.setPixmap( QPixmap( "marble.xpm" ) );
-    v->setPaper( paper );
+//     QBrush paper;
+//     paper.setPixmap( QPixmap( "marble.xpm" ) );
+//     v->setPaper( paper );
     a.setMainWidget( &box );
 
 
     if ( argc > 1 ) {
-	QFile f( argv[1] );
-	if ( f.open( IO_ReadOnly ) ) {
-	    QTextStream ts( &f );
-	    QString txt = ts.read();
-	    f.close();
-	    v->setText(txt, argv[1] );
-	}
-	else {
-	    v->setText("Could not open file");
-	}
+ 	v->setSource(argv[1] );
+//  	QFile f( argv[1] );
+//  	if ( f.open( IO_ReadOnly ) ) {
+//  	    QTextStream ts( &f );
+//  	    QString txt = ts.read();
+//  	    f.close();
+//  	    v->setText(txt, argv[1] );
+//  	}
+//  	else {
+//  	    v->setText("Could not open file");
+//  	}
     } else {
 	qDebug("set text ");
 	v->setText("No filename specified");

@@ -113,7 +113,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
     bool changed = FALSE;
     if ( style ) {
 	if ( style->name() == "font") {
-	
+
 	    if ( attr.contains("color") )
 		format.color_.setNamedColor( attr["color"] );
 	    if ( attr.contains("size") ) {
@@ -132,7 +132,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 		format.font_.setFamily( a );
 	    }
 	} else {
-	
+
 	    if ( style->isAnchor() ) {
 		format.anchor_href = attr["href"];
 		format.anchor_name = attr["name"];
@@ -233,6 +233,8 @@ void QtTextFormatCollection::unregisterFormat( const QtTextCharFormat &format )
 	f = (QtTextCharFormat*)&format;
 	int ref = f->removeRef();
 	if ( ref <= 0 ) {
+	    if ( f == lastRegisterFormat )
+		lastRegisterFormat = 0;
 	    --anchorcount;
 	    delete f;
 	}

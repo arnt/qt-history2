@@ -81,6 +81,11 @@ public:
 
     void append( const QString& text );
 
+public slots:
+   void copy();
+   void selectAll();
+
+
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
 			    int cx, int cy, int cw, int ch);
@@ -99,6 +104,7 @@ protected:
 
 private slots:
     void doResize();
+    void clipboardChanged(); 
 
 private:
     void init();
@@ -107,6 +113,7 @@ private:
     QtTextViewData* d;
 //     void paragraphChanged( QtTextParagraph* );
     void updateLayout( int ymax = -1 );
+    void clearSelection();
 };
 
 

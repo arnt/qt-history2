@@ -48,7 +48,7 @@ void QtTextOptions::erase( QPainter* p, const QRect& r ) const
     if ( !paper )
 	return;
     if ( paper->pixmap() )
-	p->drawTiledPixmap( r, *paper->pixmap(), 
+	p->drawTiledPixmap( r, *paper->pixmap(),
 			    QPoint(r.x()+offsetx, r.y()+offsety) );
     else
 	p->fillRect(r, *paper );
@@ -217,7 +217,7 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
 }
 
 
-// constructor for nested text in text (tables, etc. Not yet finished.
+// constructor for nested text in text (tables, etc.)
 QtRichText::QtRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos,
 			const QStyleSheetItem* style, const QtTextCharFormat& fmt,
 			const QString& context,
@@ -259,10 +259,19 @@ void QtRichText::init( const QString& doc, int& pos )
 	// missplaced close tags may kick us out of the parser (auto
 	// recover failure), simply jump over the tag and continue
 	// until the very end
-	if ( pos < (int) doc.length()-1 
-	     && (hasPrefix(doc, pos, QChar('<'))
-		 && hasPrefix(doc, pos+1, QChar('/')) ) )
-	    (void) parseCloseTag( doc, pos );
+	int oldpos = pos;
+	if ( pos < (int) doc.length()-1
+	     && (hasPrefix(doc, pos, QChar('<')) ) ) {
+	    if ( hasPrefix(doc, pos+1, QChar('/')) )
+		(void) parseCloseTag( doc, pos );
+	    else {
+		QMap<QString, QString> attr;
+		bool emptyTag = FALSE;
+		(void) parseOpenTag( doc, pos, attr, emptyTag );
+	    }
+	}
+	if ( pos == oldpos )
+	    pos++;
     } while ( pos < (int) doc.length()-1 );
     //qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
 }
@@ -299,7 +308,7 @@ QString QtRichText::context() const
 
 #define ENSURE_ENDTOKEN     if ( curstyle->displayMode() == QStyleSheetItem::DisplayBlock \
 		     || curstyle->displayMode() == QStyleSheetItem::DisplayListItem ){ \
-		    (dummy?dummy:current)->text.append( "*", fmt ); \
+		    (dummy?dummy:current)->text.append( "\n", fmt ); \
 		}
 
 #define CLOSE_TAG (void) eatSpace(doc, pos); \
@@ -348,14 +357,16 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
 		ENSURE_ENDTOKEN;
-		if ( curstyle->isAnchor() )
+		if ( curstyle->isAnchor() ) {
+		    PROVIDE_DUMMY
 		    (dummy?dummy:current)->text.append( '\0', fmt );
+		}
 		return TRUE;
 	    }
 	    QMap<QString, QString> attr;
 	    bool emptyTag = FALSE;
 	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
-	
+
 	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
  	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
  		pos = beforePos;
@@ -372,11 +383,11 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		ENSURE_ENDTOKEN;
 		return FALSE;
 	    }
-	
+
 	    // TODO was wenn wir keinen nstyle haben?
 	    if ( !nstyle )
 		nstyle = nullstyle;
-	
+
 	    QtTextCustomItem* custom = sheet_->tagEx( tagname, attr, contxt, *factory_ , emptyTag );
 	    if ( custom || tagname == "br") {
 		PROVIDE_DUMMY
@@ -403,18 +414,18 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
 		) {
 		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
-		
+
 		if ( current == this && !child && text.isEmpty() )
 		    attributes_ = attr; // propagate attributes
-		
+
 		if ( !current->text.isEmpty() ){
 		    dummy = new QtTextParagraph( current, formats, fmt, nullstyle );
 		    dummy->text = current->text;
-		    dummy->text.append( "*", fmt );
+		    dummy->text.append( "\n", fmt );
 		    current->text.clear();
 		    current->child = dummy;
 		}
-		
+
 		bool recover = FALSE;
 		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos) ) {
 		    (void) eatSpace(doc, pos);
@@ -445,14 +456,14 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		    }
 		    dummy = 0;
 		}
-		
+
 		if ( recover )
 		    return TRUE; // sloppy, we could return FALSE to abort
 		(void) eatSpace(doc, pos);
 	    }
 	    else { // containers and empty tags
 		// TODO: check empty tags and custom tags in stylesheet
-		
+
 		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos ) ) {
 		    CLOSE_TAG
 		}
@@ -496,6 +507,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
     int col = -1;
 
     QString rowbgcolor;
+    QString rowalign;
     QString tablebgcolor = attr["bgcolor"];
 
     QList<QtTextTableCell> multicells;
@@ -517,6 +529,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 		tagname = parseOpenTag( doc, pos, attr2, emptyTag );
 		if ( tagname == "tr" ) {
 		    rowbgcolor = attr2["bgcolor"];
+		    rowalign = attr2["align"];
 		    row++;
 		    col = -1;
 		}
@@ -525,7 +538,7 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 		    while ( qt_is_cell_in_use( multicells, row, col ) ) {
 			col++;
 		    }
-		
+
 		    if ( row >= 0 && col >= 0 ) {
 			const QStyleSheetItem* style = sheet_->item(tagname);
 			if ( !attr2.contains("bgcolor") ) {
@@ -533,6 +546,10 @@ QtTextCustomItem* QtRichText::parseTable( const QMap<QString, QString> &attr, co
 				attr2["bgcolor"] = rowbgcolor;
 			    else if (!tablebgcolor.isEmpty() )
 				attr2["bgcolor"] = tablebgcolor;
+			}
+			if ( !attr2.contains("align") ) {
+			    if (!rowalign.isEmpty() )
+				attr2["align"] = rowalign;
 			}
 			QtTextTableCell* cell  = new QtTextTableCell( table, row, col,
 			      attr2, style,
@@ -681,7 +698,7 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
     while( pos < int(doc.length()) &&
 	   (doc.unicode())[pos] != '<' ) {
 	if ((doc.unicode())[pos].isSpace() && (doc.unicode())[pos] != QChar(0x00a0U) ){
-	
+
 	    if ( pre ) {
 		if ( (doc.unicode())[pos] == ' ' )
 		    s += QChar(0x00a0U);
@@ -692,7 +709,7 @@ QString QtRichText::parsePlainText(const QString& doc, int& pos, bool pre, bool 
 		while ( pos+1 < int(doc.length() ) &&
 			(doc.unicode())[pos+1].isSpace()  && (doc.unicode())[pos+1] != QChar(0x00a0U) )
 		    pos++;
-		
+
 		s += ' ';
 	    }
 	    pos++;
@@ -732,11 +749,9 @@ QString QtRichText::parseOpenTag(const QString& doc, int& pos,
 {
     emptyTag = FALSE;
     pos++;
-    QString tag = parseWord(doc, pos, TRUE, TRUE);
-    eatSpace(doc, pos, TRUE);
-
-    if (tag[0] == '!') {
-	if (tag.left(3) == QString::fromLatin1("!--")) {
+    if ( hasPrefix(doc, pos, '!') ) {
+	if ( hasPrefix( doc, pos+1, "--")) {
+	    pos += 3;
 	    // eat comments
 	    QString pref = QString::fromLatin1("-->");
 	    while ( valid && !hasPrefix(doc, pos, pref )
@@ -748,6 +763,7 @@ QString QtRichText::parseOpenTag(const QString& doc, int& pos,
 	    }
 	    else
 		valid = FALSE;
+	    emptyTag = TRUE;
 	    return QString::null;
 	}
 	else {
@@ -764,6 +780,8 @@ QString QtRichText::parseOpenTag(const QString& doc, int& pos,
 	}
     }
 
+    QString tag = parseWord(doc, pos, TRUE, TRUE);
+    eatSpace(doc, pos, TRUE);
     static QString term = QString::fromLatin1("/>");
     static QString s_true = QString::fromLatin1("true");
 
@@ -836,21 +854,21 @@ void QtRichText::draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to )
 {
-   QtTextCursor tc( *this );
-   QtTextParagraph* b = this;
-   QFontMetrics fm( p->fontMetrics() );
-   while ( b ) {
-       tc.gotoParagraph( p, b );
-       do {
-	   tc.makeLineLayout( p, fm );
-	   QRect geom( tc.lineGeometry() );
-	   if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
- 	       tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
-       }
-       while ( tc.gotoNextLine( p, fm ) );
-       b = tc.paragraph->nextInDocument();
-   }
-   flow()->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+    QtTextCursor tc( *this );
+    QtTextParagraph* b = this;
+    QFontMetrics fm( p->fontMetrics() );
+    while ( b ) {
+	tc.gotoParagraph( p, b );
+	do {
+	    tc.makeLineLayout( p, fm );
+	    QRect geom( tc.lineGeometry() );
+	    if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
+		tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+	}
+	while ( tc.gotoNextLine( p, fm ) );
+	b = tc.paragraph->nextInDocument();
+    }
+    flow()->drawFloatingItems( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
 }
 
 
@@ -910,6 +928,51 @@ QString QtRichText::anchorAt( QPainter* p, int x, int y) const
     return QString::null;
 }
 
+bool QtRichText::clearSelection()
+{
+    bool result = FALSE;
+    QtTextParagraph* b = this;
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	if ( b->text.isSelected() ) {
+	    result = TRUE;
+	    b->text.clearSelection();
+	    flow()->invalidateRect( QRect( 0, b->y, flow()->width, b->height ) );
+	}
+	b = b->nextInDocument();
+    }
+    return result;
+}
+
+QString QtRichText::selectedText()
+{
+    QString result;
+    QtTextParagraph* b = this;
+    while ( b->child )
+	b = b->child;
+    while ( b ) {
+	int column = 0;
+	if ( b->text.isSelected() ) {
+	    for (int i = 0; i < b->text.length(); i++ ) {
+		if ( b->text.isSelected( i ) ) {
+		    QString& s = b->text.getCharAt( i );
+		    if ( column + s.length() > 79 ) {
+			result += '\n';
+			column = 0;
+		    }
+		    result += s;
+		    column += s.length();
+		}
+	    }
+	    result += '\n';
+	}
+	b = b->nextInDocument();
+    }
+    return result;
+}
+
+
 QtStyleSheet::QtStyleSheet( QObject *parent, const char *name )
     : QStyleSheet( parent, name )
 {
@@ -945,14 +1008,14 @@ QtTextCustomItem* QtStyleSheet::tagEx( const QString& name,
 
 void QtTextParagraph::invalidateLayout()
 {
-    dirty = TRUE;	
+    dirty = TRUE;
     QtTextParagraph* b = child;
     while ( b ) {
 	b->dirty = TRUE;
 	b->invalidateLayout();
 	b = b->next;
     }
-    if ( next ) {
+    if ( next && !next->dirty ) {
 	next->invalidateLayout();
     }
 
@@ -978,7 +1041,7 @@ QtTextParagraph* QtTextParagraph::realParagraph()
 QStyleSheetItem::ListStyle QtTextParagraph::listStyle()
 {
     QString s =  attributes()["type"];
-	
+
     if ( !s )
 	return style->listStyle();
     else {
@@ -1036,6 +1099,7 @@ void QtTextParagraph::init()
     child = next = prev = 0;
     height = y = 0;
     dirty = TRUE;
+    selected = FALSE;
     flow_ = 0;
     if ( parent )
 	flow_ = parent->flow();
@@ -1123,12 +1187,26 @@ QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
     items = 0;
     len = 0;
     store = 0;
+    selection = 0;
 }
 
 QtTextRichString::~QtTextRichString()
 {
     for (int i = 0; i < len; ++i )
 	formats->unregisterFormat( *items[i].format );
+}
+
+void QtTextRichString::clearSelection()
+{
+    for (int i = 0; i < len; ++i ) {
+	items[i].selected = 0;
+    }
+    selection = FALSE;
+}
+
+bool QtTextRichString::isSelected() const
+{
+    return selection;
 }
 
 
@@ -1194,17 +1272,13 @@ QString& QtTextRichString::getCharAt( int index )
 void QtTextRichString::setSelected( int index, bool selected )
 {
     items[index].selected = selected;
-//     if ( items[index].format->selected() == selected )
-// 	return ;
-//     QtTextCharFormat fmt = items[index].format->makeTextFormat( selected );
-//     formats->unregisterFormat( *items[index].format );
-//     items[index].format =formats->registerFormat( fmt );
+    if ( selected )
+	selection = TRUE;
 }
 
-bool QtTextRichString::selected( int index ) const
+bool QtTextRichString::isSelected( int index ) const
 {
     return items[index].selected;
-//     return items[index].format->selected();
 }
 
 
@@ -1332,7 +1406,7 @@ void QtTextCursor::gotoParagraph( QPainter* p, QtTextParagraph* b )
     flow = paragraph->flow();
     if ( paragraph->text.isEmpty() )
 	paragraph->text.append( " ", paragraph->format );
-	
+
     first = y_ = width = widthUsed = height = base = fill = 0;
     last = first - 1;
 
@@ -1460,13 +1534,13 @@ void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, i
     to.erase( p, r );
     backgroundRegion = backgroundRegion.subtract( r );
     QStyleSheetItem::ListStyle s = par->parent->listStyle();
-	
+
     QFont font = p->font();
     p->setFont( par->parent->format.font() );
     int size = p->fontMetrics().lineSpacing() / 3;
     if ( size > 12 )
 	size = 12;
-    
+
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
     case QStyleSheetItem::ListLowerAlpha:
@@ -1537,7 +1611,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 
     int gx = 0;
     int gy = y();
-	
+
     int realWidth = QMAX( width, widthUsed );
     QRect r(gx-ox+lmargin, gy-oy, realWidth-lmargin-rmargin, height);
 
@@ -1575,7 +1649,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 		p->setFont( f );
 	    }
 	}
-	bool selected = paragraph->text.selected(current);
+	bool selected = paragraph->text.isSelected(current);
 	if ( selected ) {
 	    int w = paragraph->text.items[current].width;
 	    p->fillRect( gx-ox+currentx, gy-oy, w, height, cg.highlight() );
@@ -1780,14 +1854,17 @@ void QtTextCursor::goTo( QPainter* p, int xpos, int ypos )
 
 void QtTextCursor::setSelected( bool selected )
 {
-    if ( current < paragraph->text.length() )
+    if ( current < paragraph->text.length() ) {
+	if ( selected )
+	    paragraph->selected = TRUE;
 	paragraph->text.setSelected( current, selected );
+    }
 }
 
-bool QtTextCursor::selected() const
+bool QtTextCursor::isSelected() const
 {
     if ( current < paragraph->text.length() )
-	return ( paragraph->text.selected( current ) );
+	return ( paragraph->text.isSelected( current ) );
     return FALSE;
 }
 
@@ -1825,7 +1902,7 @@ bool QtTextCursor::split()
     if ( currentoffset == 0 || currentoffset >= int(s.length()) ) {
 	return FALSE;
     }
-    bool sel = selected();
+    bool sel = isSelected();
     paragraph->text.insert( current+1, s.mid( currentoffset ),
 			    *currentFormat() );
     paragraph->text.getCharAt( current ).truncate( currentoffset );
@@ -1937,7 +2014,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     QList<QtTextCustomItem> floatingItems;
 
     while ( !pastEnd() ) {
-	
+
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
 	    fmt = currentFormat();
 	    fmt_current = current;
@@ -1955,13 +2032,13 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	if ( !custom && !item->c.isEmpty() ) {
 	    lastc = item->c[ item->c.length()-1];
 	}
-	
+
 	if ( custom && !custom->placeInline() ) {
 	    floatingItems.append( custom );
 	}
 
 	bool custombreak = custom && custom->ownLine();
-	
+
 	if ( custombreak && current > first ) {
 	    // break _before_ a custom expander
  	    noSpaceFound = TRUE;
@@ -1987,7 +2064,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	if ( currentx > width - rmargin - space_width
 	     && !noSpaceFound && lastc != '\n' )
 	    break;
-	
+
 	// word break is possible (a) after a space, (b) after a
 	// newline, (c) before expandable item  or (d) at the end of the paragraph.
 	if ( noSpaceFound || lastc == ' ' || lastc == '\n' || current == paragraph->text.length() ){
@@ -2066,7 +2143,7 @@ bool QtTextCursor::updateLayout( QPainter* p, int ymax )
     QtTextParagraph* b = paragraph;
     gotoParagraph( p, b );
     while ( b && ( ymax < 0 || y_ <= ymax ) ) {
-	
+
 	if ( !b->dirty )
 	    y_ = b->y + b->height;
 	else do {
@@ -2278,7 +2355,7 @@ void QtTextTable::draw(QPainter* p, int x, int y,
 //  		QRect r2(x+outerborder-ox+cell->geometry().x()-w, y+outerborder-oy+cell->geometry().y()-w,
 //  			cell->geometry().width()+2*w, cell->geometry().height()+2*w );
 //  		backgroundRegion = backgroundRegion.subtract( r2 );
-		
+
 	    }
 	}
     }
@@ -2303,7 +2380,7 @@ void QtTextTable::resize( QPainter* p, int nwidth )
 
     if ( stretch )
 	nwidth = nwidth * stretch / 100;
-    
+
     width = nwidth + 2*outerborder;
     layout->invalidate();
     int shw = layout->sizeHint().width() + 2*outerborder;
@@ -2315,7 +2392,7 @@ void QtTextTable::resize( QPainter* p, int nwidth )
 
     if ( fixwidth )
 	width = fixwidth;
-    
+
     // play it again, Sam, to fix the stretches
     layout->invalidate();
     mw = layout->minimumSize().width() + 2*outerborder;
@@ -2351,7 +2428,7 @@ void QtTextTable::addCell( QtTextTableCell* cell )
 }
 
 QtTextTableCell::QtTextTableCell(QtTextTable* table,
-       int row, int column, 		
+       int row, int column,
        const QMap<QString, QString> &attr,
        const QStyleSheetItem* style,
        const QtTextCharFormat& fmt, const QString& context,
@@ -2449,7 +2526,7 @@ bool QtTextTableCell::hasHeightForWidth() const
 int QtTextTableCell::heightForWidth( int w ) const
 {
     w = QMAX( minw, w ); //####PAUL SHOULD DO THAT
-    
+
     if ( richtext->flow()->width != w ) {
 	QtTextTableCell* that = (QtTextTableCell*) this;
 	that->richtext->doLayout(painter(), w );

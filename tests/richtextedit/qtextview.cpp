@@ -40,6 +40,7 @@
 #include "qimage.h"
 #include "qmime.h"
 #include "qdragobject.h"
+#include "qclipboard.h"
 
 
 
@@ -95,7 +96,10 @@ public:
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
     QtTextCursor* fcresize;
-    bool dirty;
+    QtTextCursor* cursor;
+    uint selection :1;
+    uint dirty :1;
+    uint dragSelection :1;
 };
 
 class QtTextEditData
@@ -125,7 +129,7 @@ QtTextView::QtTextView(QWidget *parent, const char *name)
 */
 QtTextView::QtTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name, WNorthWestGravity )
+    : QScrollView( parent, name, WNorthWestGravity | WRepaintNoErase )
 {
     init();
     setText( text, context );
@@ -141,6 +145,7 @@ void QtTextView::init()
     d->paplinkcol = d->mylinkcol;
     d->linkunderline = TRUE;
     d->fcresize = 0;
+    d->cursor = 0;
 
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
@@ -152,6 +157,8 @@ void QtTextView::init()
     d->txt = QString::fromLatin1("<p></p>");
     d->textformat = AutoText;
     d->dirty = TRUE;
+    d->selection = FALSE;
+    d->dragSelection = FALSE;
 
     viewport()->setBackgroundMode( PaletteBase );
     viewport()->setFocusProxy( this );
@@ -167,6 +174,7 @@ void QtTextView::init()
 QtTextView::~QtTextView()
 {
     delete d->doc_;
+    delete d->cursor;
     delete d;
 }
 
@@ -286,6 +294,8 @@ void QtTextView::createRichText()
 	if (!pm.isNull())
 	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
     }
+    delete d->cursor;
+    d->cursor = new QtTextCursor( richText() );
 }
 
 
@@ -494,12 +504,12 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
     while ( b && tc.y() <= cy + ch ) {
-	
+
 	if ( b && b->dirty ) //ensure the paragraph is layouted
 	    tc.updateLayout( p, cy + ch );
-	
+
 	tc.gotoParagraph( p, b );
-	
+
 	if ( tc.y() + tc.paragraph->height > cy ) {
 	    do {
 		tc.makeLineLayout( p, fm );
@@ -527,9 +537,9 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     const int pagesize = 100000;
 
      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
-	
+
 	 p->setPen( DotLine );
-	
+
 	 p->drawLine( cx-ox, page * pagesize - oy, cx-ox+cw, page*
 		      pagesize - oy );
      }
@@ -580,22 +590,117 @@ void QtTextView::resizeEvent( QResizeEvent* e )
 /*!
   \reimp
 */
-void QtTextView::viewportMousePressEvent( QMouseEvent* )
+void QtTextView::viewportMousePressEvent( QMouseEvent* e )
+{
+    if ( !d->cursor )
+	return;
+    if ( e->button() != LeftButton )
+	return;
+    QPainter p( viewport() );
+    d->cursor->goTo( &p, contentsX() + e->x(), contentsY() + e->y());
+    p.end();
+    if ( !d->cursor->isSelected() ) {
+	clearSelection();
+	d->dragSelection = TRUE;
+    } else {
+    }
+}
+
+/*!
+  \reimp
+*/
+void QtTextView::viewportMouseReleaseEvent( QMouseEvent* e )
+{
+    if ( d->dragSelection && e->button() == LeftButton ) {
+	//### TODO put selection into clipboard
+#if defined(_WS_X11_)
+	copy();
+#else
+	if ( style() == MotifStyle )
+	    copy();
+#endif
+	d->dragSelection = FALSE;
+    }
+}
+
+
+void QtTextView::copy()
+{
+#if defined(_WS_X11_)
+    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
+#endif
+#if defined(_OS_WIN32_)
+    // Need to convert NL to CRLF
+    QRegExp nl("\\n");
+    t.replace( nl, "\r\n" );
+#endif
+    QApplication::clipboard()->setText( richText().selectedText() );
+#if defined(_WS_X11_)
+    connect( QApplication::clipboard(), SIGNAL(dataChanged()),
+	     this, SLOT(clipboardChanged()) );
+#endif
+}
+
+void QtTextView::selectAll()
 {
 }
 
 /*!
   \reimp
 */
-void QtTextView::viewportMouseReleaseEvent( QMouseEvent* )
+void QtTextView::viewportMouseMoveEvent( QMouseEvent* e)
 {
-}
 
-/*!
-  \reimp
-*/
-void QtTextView::viewportMouseMoveEvent( QMouseEvent* )
-{
+     if (e->state() & LeftButton && d->dragSelection ) {
+	 if ( !d->cursor )
+	     return;
+	QPainter p(viewport());
+ 	d->cursor->split();
+	QtTextCursor oldc( *d->cursor );
+	d->cursor->goTo( &p, e->pos().x() + contentsX(),
+			 e->pos().y() + contentsY() );
+  	if ( d->cursor->split() ) {
+	    if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
+		oldc.current++;
+		oldc.update( &p );
+	    }
+ 	}
+	int oldy = oldc.y();
+	int oldx = oldc.x();
+	int oldh = oldc.height;
+	int newy = d->cursor->y();
+	int newx = d->cursor->x();
+	int newh = d->cursor->height;
+
+	QtTextCursor start( richText() ), end( richText() );
+
+	bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
+	if ( oldIsFirst ) {
+	    start = oldc;
+	    end = *d->cursor;
+	} else {
+	    start = *d->cursor;
+	    end = oldc;
+	}
+
+	while ( start.paragraph != end.paragraph ) {
+ 	    start.setSelected( !start.isSelected() );
+	    start.rightOneItem( &p );
+	    d->selection = TRUE;
+	}
+	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
+ 	    start.setSelected( !start.isSelected() );
+	    start.rightOneItem( &p );
+	    d->selection = TRUE;
+	}
+	p.end();
+	repaintContents( 0, QMIN(oldy, newy),
+			 contentsWidth(),
+			 QMAX(oldy+oldh, newy+newh)-QMIN(oldy,newy),
+			 FALSE);
+	QRect geom ( d->cursor->caretGeometry() );
+	ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
+     }
 }
 
 /*!
@@ -603,6 +708,7 @@ void QtTextView::viewportMouseMoveEvent( QMouseEvent* )
 */
 void QtTextView::keyPressEvent( QKeyEvent * e)
 {
+    int unknown = 0;
     switch (e->key()) {
     case Key_Right:
 	scrollBy( 10, 0 );
@@ -628,7 +734,20 @@ void QtTextView::keyPressEvent( QKeyEvent * e)
     case Key_PageDown:
 	scrollBy( 0, visibleHeight() );
 	break;
+    case Key_C:
+	if ( e->state() & ControlButton )
+	    copy();
+#if defined (_WS_WIN_)
+    case Key_Insert:
+	if ( e->state() & ControlButton )
+	    copy();
+#endif	
+	break;
+    default:
+	unknown++;
     }
+    if ( unknown )				// unknown key
+	e->ignore();
 }
 
 /*!
@@ -705,7 +824,7 @@ void QtTextView::updateLayout( int ymax )
 	d->fcresize->gotoParagraph( &p, &richText() );
 	d->fcresize->updateLayout( &p, ymax );
     }
-	
+
     resizeContents( QMAX( flow->widthUsed-1, vs.width() ), flow->height );
     d->resizeTimer->start( 0, TRUE );
     d->dirty = FALSE;
@@ -718,6 +837,26 @@ void QtTextView::showEvent( QShowEvent* )
 {
     if ( d->dirty )
 	updateLayout();
+}
+
+void QtTextView::clearSelection()
+{
+    if ( !d->selection ) 
+	return; // nothing to do
+    
+    richText().clearSelection();
+    d->selection = FALSE;
+    repaintContents( richText().flow()->updateRect(), FALSE );
+    richText().flow()->validateRect();
+}
+
+void QtTextView::clipboardChanged()
+{
+#if defined(_WS_X11_)
+    disconnect( QApplication::clipboard(), SIGNAL(dataChanged()),
+		this, SLOT(clipboardChanged()) );
+    clearSelection();
+#endif
 }
 
 //************************************************************************
@@ -787,7 +926,7 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
     case Key_Down:
 	d->cursor->down( &p );
 	break;
-    default:	
+    default:
 	if (!e->text().isEmpty() ) {
 	    d->cursor->insert( &p, e->text() );
 	    p.end();
@@ -836,9 +975,9 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
   	if ( d->cursor->split() ) {
 	    if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
 		oldc.current++;
-		oldc.update( &p );	
+		oldc.update( &p );
 	    }
-	
+
  	}
 	int oldy = oldc.y();
 	int oldx = oldc.x();
@@ -846,9 +985,9 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	int newy = d->cursor->y();
 	int newx = d->cursor->x();
 	int newh = d->cursor->height;
-	
+
 	QtTextCursor start( richText() ), end( richText() );
-	
+
 	bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
 	if ( oldIsFirst ) {
 	    start = oldc;
@@ -857,13 +996,13 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	    start = *d->cursor;
 	    end = oldc;
 	}
-	
+
 	while ( start.paragraph != end.paragraph ) {
- 	    start.setSelected( !start.selected() );
+ 	    start.setSelected( !start.isSelected() );
 	    start.rightOneItem( &p );
 	}
 	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
- 	    start.setSelected( !start.selected() );
+ 	    start.setSelected( !start.isSelected() );
 	    start.rightOneItem( &p );
 	}
 	p.end();
@@ -946,7 +1085,7 @@ void QtTextEdit::temporary()
 	start.gotoParagraph( &p, &richText() );
 	bool modified = FALSE;
 	do {
-	    if ( start.selected() ) {
+	    if ( start.isSelected() ) {
 		all_bold &= start.paragraph->text.bold( start.current );
 		start.paragraph->text.setBold( start.current, TRUE );
 		modified = TRUE;
@@ -963,7 +1102,7 @@ void QtTextEdit::temporary()
 	start.gotoParagraph( &p, &richText() );
 	bool modified = FALSE;
 	do {
-	    if ( start.selected() ) {
+	    if ( start.isSelected() ) {
 		start.paragraph->text.setBold( start.current, FALSE );
 		modified = TRUE;
 	    }
