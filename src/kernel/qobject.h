@@ -44,7 +44,7 @@ class QVariant;
 class Q_EXPORT QObject: public Qt
 {
     Q_PROPERTY( QCString name READ name WRITE setName )
-	
+
 public:
     QObject( QObject *parent=0, const char *name=0 );
     virtual ~QObject();
@@ -59,7 +59,6 @@ public:
 
     bool	 isA( const char * )	 const;
     bool	 inherits( const char * ) const;
-    QStringList  superClasses( bool includeThis = FALSE ) const;
 
     const char  *name() const;
     const char  *name( const char * defaultName ) const;
@@ -77,10 +76,13 @@ public:
 
     QObject           *child( const char *name, const char *type = 0 );
     const QObjectList *children() const { return childObjects; }
+
+    static const QObjectList *objectTrees();
+    
     QObjectList	      *queryList( const char *inheritsClass = 0,
 				  const char *objName = 0,
 				  bool regexpMatch = TRUE,
-				  bool recursiveSearch = TRUE );
+				  bool recursiveSearch = TRUE ); //### const in 3.0
 
     virtual void insertChild( QObject * );
     virtual void removeChild( QObject * );
@@ -171,6 +173,10 @@ private:	// Disabled copy constructor and operator=
     QObject( const QObject & );
     QObject &operator=( const QObject & );
 #endif
+    
+public: 
+    // obsolete
+    QStringList  superClasses( bool includeThis = FALSE ) const; // obsolete, remove 3.0
 };
 
 

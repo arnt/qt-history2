@@ -304,6 +304,34 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 }
 
 
+static QObjectList* object_trees = 0;
+static void cleanup_object_trees()
+{
+    delete object_trees;
+    object_trees = 0;
+}
+
+static void ensure_object_trees()
+{
+    if ( object_trees )
+	return;
+    object_trees = new QObjectList;
+    qAddPostRoutine( cleanup_object_trees );
+}
+
+static void insert_tree( QObject* obj )
+{
+    ensure_object_trees();
+    object_trees->insert(0, obj );
+}
+
+static void remove_tree( QObject* obj )
+{
+    ensure_object_trees();
+    object_trees->removeRef( obj );
+}
+
+
 /*****************************************************************************
   QObject member functions
  *****************************************************************************/
@@ -335,7 +363,6 @@ QObject::QObject( QObject *parent, const char *name )
     if ( !objectDict )				// will create object dict
 	initMetaObject();
     objname       = name ? qstrdup(name) : 0;   // set object name
-    parentObj     = 0;				// parent set by insertChild()
     childObjects  = 0;				// no children yet
     connections   = 0;				// no connections yet
     senderObjects = 0;				// no signals connected yet
@@ -347,8 +374,11 @@ QObject::QObject( QObject *parent, const char *name )
     pendEvent  = FALSE;				// no events yet
     blockSig   = FALSE;				// not blocking signals
     wasDeleted = FALSE;				// double-delete catcher
+    parentObj  = parent;				// to avoid root checking in insertChild()
     if ( parent )				// add object to parent
 	parent->insertChild( this );
+    else
+	insert_tree( this );
 }
 
 
@@ -384,6 +414,8 @@ QObject::~QObject()
 	QApplication::removePostedEvents( this );
     if ( parentObj )				// remove it from parent object
 	parentObj->removeChild( this );
+    else
+	remove_tree( this );		// remove from global root list
     register QObject *obj;
     if ( senderObjects ) {			// disconnect from senders
 	QObjectList *tmp = senderObjects;
@@ -517,7 +549,7 @@ bool QObject::inherits( const char *clname ) const
   This function is misleadingly named, and cannot be implemented in a
   way that fulfils its name.  someQWidget->superClasses() should have
   returned QPaintDevice and QObject, obviously.  And it never can, so
-  let us kill the function.
+  let us kill the function. <strong>It will be removed in Qt-3.0</strong>
 
   Oh, and the return type was wrong, too.  QStringList not QStrList.
 */
@@ -926,7 +958,7 @@ static void objSearch( QObjectList *result,
   The QObjectList class is defined in the qobjcoll.h header file.
 
   The latest child added is the \link QList::first() first\endlink object
-  in the list and the first child is added is the \link QList::last()
+  in the list and the first child added is the \link QList::last()
   last\endlink object in the list.
 
   Note that the list order might change when \link QWidget widget\endlink
@@ -939,17 +971,34 @@ static void objSearch( QObjectList *result,
 */
 
 
+/*!  
+  Returns a pointer to the list of all object trees (respectively
+  their root objects), or 0 if there are no objects.
+
+  The QObjectList class is defined in the qobjcoll.h header file.
+
+  The latest root object created is the \link QList::first()
+  first\endlink object in the list and the first root object added is
+  the \link QList::last() last\endlink object in the list.
+
+  \sa children(), parent(), insertChild(), removeChild()
+ */
+const QObjectList *QObject::objectTrees()
+{
+    return object_trees;
+}
+
 /*!
   Returns a list of child objects found by a query.
 
   The query is specified by:
-  \arg \e inheritsClass is the name of the base class that an object should
-  inherit. Any class will be matched if \e inheritsClass is 0.
-  \arg \e objName is the object name to search for. Any object name will be
-  matched if \e objName is 0.
-  \arg \e regexpMatch specifies whether \e objName is a regular expression
+  \arg \a inheritsClass is the name of the base class that an object should
+  inherit. Any class will be matched if \a inheritsClass is 0.
+  \arg \a objName is the object name to search for. Any object name will be
+  matched if \a objName is 0.
+  \arg \a regexpMatch specifies whether \a objName is a regular expression
   (default) or not.
-  \arg \e recursiveSearch must be \c TRUE (default) if you want to search
+  \arg \a recursiveSearch must be \c TRUE (default) if you want to search
   the entire object tree, or \c FALSE if you want the search to traverse
   just the 1st level child objects of this object.
 
@@ -998,7 +1047,6 @@ QObjectList *QObject::queryList( const char *inheritsClass,
     return list;
 }
 
-
 /*!
   Returns a list of objects/slot pairs that are connected to the
   signal, or 0 if nothing is connected to it.
@@ -1032,7 +1080,9 @@ QConnectionList *QObject::receivers( const char *signal ) const
 
 void QObject::insertChild( QObject *obj )
 {
-    if ( obj->parentObj ) {
+    if ( !obj->parentObj )
+	remove_tree( obj );
+    else if ( obj->parentObj && obj->parentObj != this ) {
 #if defined(CHECK_STATE)
 	if ( obj->parentObj != this && obj->isWidgetType() )
 	    qWarning( "QObject::insertChild: Cannot reparent a widget, "
@@ -1074,6 +1124,8 @@ void QObject::removeChild( QObject *obj )
 {
     if ( childObjects && childObjects->removeRef(obj) ) {
 	obj->parentObj = 0;
+	if ( !wasDeleted )
+	    insert_tree( obj );			// it's a root object now
 	if ( childObjects->isEmpty() ) {
 	    delete childObjects;		// last child removed
 	    childObjects = 0;			// reset children list
@@ -2080,7 +2132,11 @@ void QObject::dumpObjectInfo()
 
 
 /*!
-  Reserved for future development.
+  Sets the object's property \a name to \a value.
+  
+  Returne TRUE is the operation was successful, FALSE otherwise.
+  
+  \sa property()
 */
 bool QObject::setProperty( const char *name, const QVariant& value )
 {
@@ -2577,7 +2633,11 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 }
 
 /*!
-  Reserved for future development.
+  Returns the value of the object's \a name property.
+  
+  If no such property exists, the returned variant is invalid.
+  
+  \sa setProperty(), QVariant::isValid()
 */
 QVariant QObject::property( const char *name ) const
 {

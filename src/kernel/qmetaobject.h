@@ -57,26 +57,21 @@ struct QMetaEnum 				// enumerator meta data
 class QMetaProperty 				// property meta data
 {
 public:
-    QMetaProperty()
-	:t(0),n(0),
-	 get(0),set(0),store(0),enumData(0),
-	 gspec(Unspecified),sspec(Unspecified),
-	 flags(0)
-    {
-    }
+    QMetaProperty();
+    ~QMetaProperty();
 
     const char 	*type() const { return t; }		// type of the property
     const char*	name() const { return n; }		// name of the property
 
-    bool writeable() const { return set != 0; }
-    bool isValid() const { return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
+    bool writeable() const;
+    bool isValid() const;
 
-    bool isSetType() const { return ( enumData != 0 && enumData->set ); }
-    bool isEnumType() const { return ( enumData != 0 ); }
+    bool isSetType() const;
+    bool isEnumType() const;
     QStrList enumKeys() const;			// enumeration names
 
     bool stored( QObject* ) const;
-    bool isDesignable() const { return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
+    bool isDesignable() const;
 
     const char* t;
     const char* n;
@@ -99,12 +94,9 @@ public:
 	NotStored            = 0x00000040
     };
 
-    inline bool testFlags( uint f ) const
-	{ return (flags & (uint)f) != (uint)0; }
-    inline void setFlags( uint f )
-	{ flags |= (uint)f; }
-    inline void clearFlags( uint f )
-	{ flags &= ~(uint)f; }
+    bool testFlags( uint f ) const;
+    void setFlags( uint f );
+    void clearFlags( uint f );
 
 private:
     uint flags;
@@ -201,5 +193,22 @@ private:	// Disabled copy constructor and operator=
     QMetaObject &operator=( const QMetaObject & );
 #endif
 };
+
+inline bool QMetaProperty::writeable() const 
+{ return set != 0; }
+inline bool QMetaProperty::isValid() const 
+{ return get != 0 && !testFlags( UnresolvedEnum | UnresolvedDesignable | UnresolvedStored ) ; }
+inline bool QMetaProperty::isSetType() const 
+{ return ( enumData != 0 && enumData->set ); }
+inline bool QMetaProperty::isEnumType() const 
+{ return ( enumData != 0 ); }
+inline bool QMetaProperty::isDesignable() const 
+{ return ( isValid() && set != 0 && !testFlags( NotDesignable | UnresolvedDesignable ) ); }
+inline bool QMetaProperty::testFlags( uint f ) const
+{ return (flags & (uint)f) != (uint)0; }
+inline void QMetaProperty::setFlags( uint f )
+{ flags |= (uint)f; }
+inline void QMetaProperty::clearFlags( uint f )
+{ flags &= ~(uint)f; }
 
 #endif // QMETAOBJECT_H
