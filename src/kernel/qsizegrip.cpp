@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsizegrip.cpp#10 $
 **
 ** Implementation of QSizeGrip class
 **
@@ -34,6 +34,26 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #include "qobjectlist.h"
 #include "qt_windows.h"
 #endif
+
+
+static QWidget *qt_sizegrip_topLevelWidget( QWidget* w)
+{
+    QWidget *p = w->parentWidget();
+    while ( !w->testWFlags(Qt::WType_TopLevel) && p && !p->inherits("QWorkspace")) {
+	w = p;
+	p = p->parentWidget();
+    }
+    return w;
+}
+
+static QWidget* qt_sizegrip_workspace( QWidget* w )
+{
+    while ( w && !w->inherits("QWorkspace")) {
+	w = w->parentWidget();
+    }
+    return w;
+}
+
 
 // NOT REVISED
 /*! \class QSizeGrip qsizegrip.h
@@ -129,7 +149,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 void QSizeGrip::mousePressEvent( QMouseEvent * e )
 {
     p = e->globalPos();
-    s = topLevelWidget()->size();
+    s = qt_sizegrip_topLevelWidget(this)->size();
 }
 
 
@@ -141,10 +161,21 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
     if ( e->state() != LeftButton )
 	return;
 
-    if ( topLevelWidget()->testWState(WState_ConfigPending) )
+    QWidget* tlw = qt_sizegrip_topLevelWidget(this);
+    if ( tlw->testWState(WState_ConfigPending) )
 	return;
 
     QPoint np( e->globalPos() );
+    
+    QWidget* ws = qt_sizegrip_workspace( this );
+    if ( ws ) {
+	QPoint tmp( ws->mapFromGlobal( np ) );
+	if ( tmp.x() > ws->width() )
+	    tmp.setX( ws->width() );
+	if ( tmp.y() > ws->height() )
+	    tmp.setY( ws->height() );
+	np = ws->mapToGlobal( tmp );
+    }
 
     int w = np.x() - p.x() + s.width();
     int h = np.y() - p.y() + s.height();
@@ -152,7 +183,6 @@ void QSizeGrip::mouseMoveEvent( QMouseEvent * e )
 	w = 1;
     if ( h < 1 )
 	h = 1;
-    QWidget* tlw = topLevelWidget();
     tlw->resize( w, h );
 #ifdef _WS_WIN_
     MSG msg;
