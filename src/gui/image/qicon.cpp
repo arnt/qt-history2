@@ -124,10 +124,12 @@ static QPixmapIconEngineEntry bestSizeMatch( const QSize &size, const QPixmapIco
     return pb;
 }
 
+
 QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    bool hasCorrectMode = true;
     QPixmapIconEngineEntry pe;
+
+    // look for right mode and right state
     for (int i = 0; i < pixmaps.count(); ++i)
         if (pixmaps.at(i).mode == mode && pixmaps.at(i).state == state) {
             if (!pe.isNull())
@@ -136,8 +138,19 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
                 pe = pixmaps.at(i);
         }
     if (pe.isNull()) {
+        // look for right mode, ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == mode) {
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
+                else
+                    pe = pixmaps.at(i);
+                }
+    }
+    if (pe.isNull()) {
+        // merge active and normal mode, and look for right state
+        for (int i = 0; i < pixmaps.count(); ++i)
+            if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal) && pixmaps.at(i).state == state) {
                 if (!pe.isNull())
                     pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
@@ -145,15 +158,28 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
             }
     }
     if (pe.isNull()) {
-        hasCorrectMode = false;
+        // merge active and normal mode,  ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode != QIcon::Disabled) {
+            if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal)) {
                 if (!pe.isNull())
                     pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
                     pe = pixmaps.at(i);
             }
     }
+
+    if (pe.isNull()) {
+        // fallback: look for a normal one
+        for (int i = 0; i < pixmaps.count(); ++i)
+            if (pixmaps.at(i).mode == QIcon::Normal) {
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
+                else
+                    pe = pixmaps.at(i);
+            }
+    }
+
+    qDebug() << mode << state << pe.isNull();
 
     if (pe.isNull())
         return pe.pixmap;
@@ -171,27 +197,41 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     QSize actualSize = pm.size();
     actualSize.scale(size, Qt::KeepAspectRatio);
 
-    QString key = QLatin1String("qt_icon_")
+    QString key = QLatin1String("$qt_icon_")
                   + QString::number(pm.serialNumber())
-                  + QLatin1String(mode == QIcon::Disabled
-                                  ?"_disabled_"
-                                  :((hasCorrectMode && mode == QIcon::Active)?"_active_":"_normal_"))
                   + QString::number(actualSize.width())
                   + QLatin1Char('_')
-                  + QString::number(actualSize.height());
+                  + QString::number(actualSize.height())
+                  + QLatin1Char('_')
+                  + QString::number(pe.state)
+                  + QLatin1Char('_');
 
-    if (!QPixmapCache::find(key, pm)) {
-        if (!hasCorrectMode) {
+
+    if (mode == QIcon::Active) {
+        if (QPixmapCache::find(key + QString::number(mode), pm))
+            return pm; // horray
+        if (QPixmapCache::find(key + QString::number(QIcon::Normal), pm)) {
             QStyleOption opt(0);
             opt.palette = QApplication::palette();
-            pm = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
-            if (pm.isNull())
+            QPixmap active = QApplication::style()->generatedIconPixmap(QIcon::Active, pm, &opt);
+            if (pm.serialNumber() == active.serialNumber())
                 return pm;
+        }
+    }
+
+    if (!QPixmapCache::find(key + QString::number(mode), pm)) {
+        if (pe.mode == QIcon::Normal && pe.mode != mode) {
+            QStyleOption opt(0);
+            opt.palette = QApplication::palette();
+            QPixmap generated = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
+            if (generated.isNull())
+                return pm;
+            pm = generated;
         }
         if (pm.width() > size.width() || pm.height() > size.height())
             pm = pm.scale(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         if (pm.isDetached())
-            QPixmapCache::insert(key, pm);
+            QPixmapCache::insert(key + QString::number(mode), pm);
     }
     return pm;
 }
@@ -199,6 +239,8 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
 QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
     QPixmapIconEngineEntry pe;
+
+    // look for right mode and right state
     for (int i = 0; i < pixmaps.count(); ++i)
         if (pixmaps.at(i).mode == mode && pixmaps.at(i).state == state) {
             if (!pe.isNull())
@@ -207,8 +249,19 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
                 pe = pixmaps.at(i);
         }
     if (pe.isNull()) {
+        // look for right mode, ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
             if (pixmaps.at(i).mode == mode) {
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
+                else
+                    pe = pixmaps.at(i);
+                }
+    }
+    if (pe.isNull()) {
+        // merge active and normal mode, and look for right state
+        for (int i = 0; i < pixmaps.count(); ++i)
+            if ((pixmaps.at(i).mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal) == mode && pixmaps.at(i).state == state) {
                 if (!pe.isNull())
                     pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
@@ -216,8 +269,20 @@ QSize QPixmapIconEngine::actualSize(const QSize &size, QIcon::Mode mode, QIcon::
             }
     }
     if (pe.isNull()) {
+        // merge active and normal mode,  ignore state
         for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode != QIcon::Disabled) {
+            if ((pixmaps.at(i).mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal) == mode) {
+                if (!pe.isNull())
+                    pe = bestSizeMatch(size, pixmaps.at(i), pe);
+                else
+                    pe = pixmaps.at(i);
+            }
+    }
+
+    if (pe.isNull()) {
+        // fallback: look for a normal one
+        for (int i = 0; i < pixmaps.count(); ++i)
+            if (pixmaps.at(i).mode == QIcon::Normal) {
                 if (!pe.isNull())
                     pe = bestSizeMatch(size, pixmaps.at(i), pe);
                 else
