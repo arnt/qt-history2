@@ -335,7 +335,7 @@ class QFontEngineMac : public QFontEngine
     friend class QMacSetFontInfo;
 
 public:
-    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { cache_cost = 1; }
+    QFontEngineMac() : QFontEngine(), info(NULL), fnum(-1), internal_fi(NULL) { }
 
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
@@ -360,6 +360,8 @@ public:
     bool canRender( const QChar *string,  int len );
 
     Type type() const { return QFontEngine::Mac; }
+
+    void calculateCost();
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,

@@ -113,6 +113,14 @@ QFontEngineMac::canRender(const QChar *string,  int len)
     return doTextTask(string, 0, len, len, EXISTS);
 }
 
+void
+QFontEngineMac::calculateCost()
+{
+    // ### don't know how to get the number of glyphs from the font,
+    // ### so default to 1024
+    cache_cost = ( ascent() + descent() ) * maxCharWidth() * 1024;
+}
+
 int 
 QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int, int y,
 			   QPaintDevice *dev, const QRegion *rgn) const
