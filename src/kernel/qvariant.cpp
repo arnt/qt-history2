@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+#include <float.h>
+
 #include "qvariant.h"
 #ifndef QT_NO_VARIANT
 #include "qstring.h"
@@ -60,6 +62,10 @@
 #include "qbitarray.h"
 #include "qkeysequence.h"
 #include "qpen.h"
+
+#ifndef DBL_DIG
+#define DBL_DIG 10
+#endif //DBL_DIG
 
 // Uncomment to test for memory leaks or to run qt/test/qvariant/main.cpp
 // #define QVARIANT_DEBUG
@@ -1536,7 +1542,7 @@ const QString QVariant::toString() const
     case UInt:
 	return QString::number( toUInt() );
     case Double:
-	return QString::number( toDouble() );
+	return QString::number( toDouble(), 'g', DBL_DIG );
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
     case Date:
 	return toDate().toString( Qt::ISODate );
