@@ -426,6 +426,9 @@
                         <property name="name">
                             <cstring>licenseeName</cstring>
                         </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
                         <property name="sizePolicy">
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
@@ -439,6 +442,9 @@
                         <property name="name">
                             <cstring>customerID</cstring>
                         </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
                         <property name="sizePolicy">
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
@@ -451,6 +457,9 @@
                     <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>licenseID</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
                         <property name="sizePolicy">
                             <sizepolicy>
@@ -481,6 +490,9 @@
                     <widget class="QLineEdit" row="5" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>expiryDate</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
                         <property name="sizePolicy">
                             <sizepolicy>
@@ -617,6 +629,9 @@ Alternatively, the installation wizard may read them from a license file.</strin
                         </item>
                         <property name="name">
                             <cstring>productsString</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
                         </property>
                     </widget>
                 </grid>
