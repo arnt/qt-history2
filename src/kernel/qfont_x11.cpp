@@ -297,6 +297,7 @@ QFontX11Data::QFontX11Data()
     for ( int i = 0; i < QFont::LastPrivateScript; i++ ) {
 	fontstruct[i] = 0;
     }
+    memset( latinCache, 0,  256*sizeof( uchar ) );
 }
 
 QFontX11Data::~QFontX11Data()
@@ -834,7 +835,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 #endif // QT_NO_XFTFREETYPE
 
     for (i = 0; i < len; i++) {
-	if (chars->combiningClass() == 0 || pos + i == 0) {
+	// combiningClass is always 0 for unicode < 0x400
+	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
@@ -850,29 +852,39 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 		scale =  (qfs != (QFontStruct *)-1) ? qfs->scale : 1.;
 	    }
 
+	    int width = 0;
+	    if ( tmp == QFont::LatinBasic )
+		width = x11data.latinCache[chars->unicode()];
+
+	    if ( !width ) {
 #ifndef QT_NO_XFTFREETYPE
-	    if ((xgi = getGlyphInfo(qfs, *chars)) != (XGlyphInfo *) -2) {
-		if (xgi == (XGlyphInfo *) -1) {
-		    // character isn't in the font, set the script to UnknownScript
-		    tmp = current = QFont::UnknownScript;
-		    w += (int) (tmpw*scale);
-		    tmpw = actual.pixelSize * 3 / 4;
-		    scale = 1.;
-		} else if (xgi)
-		    tmpw += xgi->xOff;
-	    } else
+		if ((xgi = getGlyphInfo(qfs, *chars)) != (XGlyphInfo *) -2) {
+		    if (xgi == (XGlyphInfo *) -1) {
+			// character isn't in the font, set the script to UnknownScript
+			tmp = current = QFont::UnknownScript;
+			w += (int) (tmpw*scale);
+			tmpw = 0;
+			width = actual.pixelSize * 3 / 4;
+			scale = 1.;
+		    } else if (xgi)
+			width = xgi->xOff;
+		} else
 #endif // QT_NO_XFTFREETYPE
-	    {
-		xcs = getCharStruct(qfs, str, pos + i);
-		if (xcs == (XCharStruct *) -1) {
-		    // character isn't in the font, set the script to UnknownScript
-		    tmp = current = QFont::UnknownScript;
-		    w += (int) (tmpw*scale);
-		    tmpw = actual.pixelSize * 3 / 4;
-		    scale = 1.;
-		} else if (xcs)
-		    tmpw += xcs->width;
+		{
+		    xcs = getCharStruct(qfs, str, pos + i);
+		    if (xcs == (XCharStruct *) -1) {
+			// character isn't in the font, set the script to UnknownScript
+			tmp = current = QFont::UnknownScript;
+			w += (int) (tmpw*scale);
+			tmpw = actual.pixelSize * 3 / 4;
+			scale = 1.;
+		    } else if (xcs)
+			width = xcs->width;
+		}
+		if ( tmp == QFont::LatinBasic && width < 0x100 )
+		    x11data.latinCache[chars->unicode()] = (uchar)width;
 	    }
+	    tmpw += width;
 	}
 
 	chars++;
@@ -907,7 +919,8 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 #endif // QT_NO_XFTFREETYPE
 
     for (i = 0; i < len; i++) {
-	if (chars->combiningClass() == 0 || pos + i == 0) {
+	// combiningClass is always 0 for unicode < 0x400
+	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current ||
@@ -975,35 +988,35 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		    w += xgi->xOff;
 	    } else
 #endif // QT_NO_XFTFREETYPE
-		{
-		    xcs = getCharStruct(qfs, str, pos + i);
-		    if (xcs == (XCharStruct *) -1) {
-			if (qfs && qfs != (QFontStruct *) -1) {
-			    // character isn't in the font, so we insert a cache break
-			    // and set the script to UnknownScript
+	    {
+		xcs = getCharStruct(qfs, str, pos + i);
+		if (xcs == (XCharStruct *) -1) {
+		    if (qfs && qfs != (QFontStruct *) -1) {
+			// character isn't in the font, so we insert a cache break
+			// and set the script to UnknownScript
 
-			    if (last && lastlen) {
-				if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
-				    cache->mapped =
-					qfs->codec->fromUnicode(str, pos + i - lastlen,
-								lastlen);
-				cache->setParams(pw, 0, w, last, lastlen, current);
-			    }
-
-			    cache->next = new QFontPrivate::TextRun();
-			    cache = cache->next;
-			    pw = w;
-
-			    last = chars;
-			    lastlen = 0;
-
-			    tmp = current = QFont::UnknownScript;
+			if (last && lastlen) {
+			    if (qfs && qfs != (QFontStruct *) -1 && qfs->codec)
+				cache->mapped =
+				    qfs->codec->fromUnicode(str, pos + i - lastlen,
+							    lastlen);
+			    cache->setParams(pw, 0, w, last, lastlen, current);
 			}
 
-			w += actual.pixelSize * 3 / 4;
-		    } else if (xcs)
-			w += xcs->width;
-		}
+			cache->next = new QFontPrivate::TextRun();
+			cache = cache->next;
+			pw = w;
+
+			last = chars;
+			lastlen = 0;
+
+			tmp = current = QFont::UnknownScript;
+		    }
+
+		    w += actual.pixelSize * 3 / 4;
+		} else if (xcs)
+		    w += xcs->width;
+	    }
 
 	    chars++;
 	    lastlen++;
@@ -1120,7 +1133,8 @@ void QFontPrivate::textExtents( const QString &str, int pos, int len,
 
     float scale = 1;
     for (i = 0; i < len; i++) {
-	if (chars->combiningClass() == 0 || pos + i == 0) {
+	// combiningClass is always 0 for unicode < 0x400
+	if (chars->unicode() < 0x400 || chars->combiningClass() == 0 || pos + i == 0) {
 	    SCRIPT_FOR_CHAR( tmp, *chars, this );
 
 	    if (tmp != current) {
@@ -3385,9 +3399,7 @@ int QFontMetrics::lineSpacing() const
 */
 int QFontMetrics::width(QChar ch) const
 {
-    if ( ch.combiningClass() > 0 )
-	return 0;
-
+    int w = 0;
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, ch, d );
 
@@ -3396,19 +3408,25 @@ int QFontMetrics::width(QChar ch) const
 
     d->load(script);
 
-    int w = 0;
     QFontStruct *qfs = d->x11data.fontstruct[script];
 
+    if ( script == QFont::LatinBasic )
+	w = d->x11data.latinCache[ch.unicode()];
+
+    if ( !w ) {
+	if ( ch.combiningClass() > 0 )
+	    return 0;
+
 #ifndef QT_NO_XFTFREETYPE
-    XGlyphInfo *xgi = getGlyphInfo(qfs, ch);
-    if (xgi != (XGlyphInfo *) -2) {
-	if (xgi == (XGlyphInfo *) -1)
-	    w = d->actual.pixelSize * 3 / 4;
-	else if (! xgi)
-	    w = 0;
-	else
-	    w = (int) (xgi->xOff * qfs->scale);
-    } else
+	XGlyphInfo *xgi = getGlyphInfo(qfs, ch);
+	if (xgi != (XGlyphInfo *) -2) {
+	    if (xgi == (XGlyphInfo *) -1)
+		w = d->actual.pixelSize * 3 / 4;
+	    else if (! xgi)
+		w = 0;
+	    else
+		w = xgi->xOff;
+	} else
 #endif // QT_NO_XFTFREETYPE
 	{
 	    XCharStruct *xcs = getCharStruct(qfs, QString(ch), 0);
@@ -3417,8 +3435,14 @@ int QFontMetrics::width(QChar ch) const
 	    else if (! xcs)
 		w = 0;
 	    else
-		w = (int) (xcs->width * qfs->scale);
+		w = xcs->width;
 	}
+	if ( script == QFont::LatinBasic && w < 0x100 )
+	    d->x11data.latinCache[ch.unicode()] = (uchar)w;
+    }
+
+    if ( qfs && qfs != (QFontStruct *)-1 && w )
+	w = (int)( w * qfs->scale );
 
     return w;
 }
@@ -3437,10 +3461,9 @@ int QFontMetrics::width(QChar ch) const
 */
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
-    const QChar &ch = str.unicode()[pos];
-    if ( ch.combiningClass() > 0 )
-	return 0;
+    int w = 0;
 
+    const QChar &ch = str.unicode()[pos];
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, ch, d );
 
@@ -3449,19 +3472,25 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 
     d->load(script);
 
-    int w = 0;
     QFontStruct *qfs = d->x11data.fontstruct[script];
 
+    if ( script == QFont::LatinBasic )
+	w = d->x11data.latinCache[ch.unicode()];
+
+    if ( !w ) {
+	if ( ch.combiningClass() > 0 )
+	    return 0;
+
 #ifndef QT_NO_XFTFREETYPE
-    XGlyphInfo *xgi = getGlyphInfo(qfs, str, pos);
-    if (xgi != (XGlyphInfo *) -2) {
-	if (xgi == (XGlyphInfo *) -1)
-	    w = d->actual.pixelSize * 3 / 4;
-	else if (! xgi)
-	    w = 0;
-	else
-	    w = (int) (xgi->xOff * qfs->scale);
-    } else
+	XGlyphInfo *xgi = getGlyphInfo(qfs, str, pos);
+	if (xgi != (XGlyphInfo *) -2) {
+	    if (xgi == (XGlyphInfo *) -1)
+		w = d->actual.pixelSize * 3 / 4;
+	    else if (! xgi)
+		w = 0;
+	    else
+		w = xgi->xOff;
+	} else
 #endif // QT_NO_XFTFREETYPE
 	{
 	    XCharStruct *xcs = getCharStruct(qfs, str, pos);
@@ -3470,8 +3499,14 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 	    else if (! xcs)
 		w = 0;
 	    else
-		w = (int) (xcs->width * qfs->scale);
+		w = xcs->width;
 	}
+	if ( script == QFont::LatinBasic && w < 0x100 )
+	    d->x11data.latinCache[ch.unicode()] = (uchar)w;
+    }
+
+    if ( qfs && qfs != (QFontStruct *)-1 && w )
+	w = (int)( w * qfs->scale );
 
     return w;
 }

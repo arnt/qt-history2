@@ -131,6 +131,8 @@ public:
     // X fontstruct handles for each character set
     QFontStruct *fontstruct[QFont::LastPrivateScript];
 
+    uchar latinCache[256];
+
     QFontX11Data();
     ~QFontX11Data();
 };
