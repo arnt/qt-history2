@@ -48,7 +48,6 @@ FormDialog::FormDialog()
 FormDialog::~FormDialog()
 {
     delete staffCursor;
-    delete sqlForm;
 }
 
 
@@ -65,7 +64,7 @@ int main( int argc, char *argv[] )
 {
     QApplication app( argc, argv );
 
-    if ( ! create_connections() ) 
+    if ( ! create_connections() )
 	return 1;
 
     FormDialog *formDialog = new FormDialog();
@@ -84,8 +83,8 @@ bool create_connections()
     defaultDB->setUserName( "db" );
     defaultDB->setPassword( "db" );
     defaultDB->setHostName( "silverfish" );
-    if ( ! defaultDB->open() ) { 
-	qWarning( "Failed to open sales database: " + 
+    if ( ! defaultDB->open() ) {
+	qWarning( "Failed to open sales database: " +
 		  defaultDB->lastError().driverText());
 	qWarning( defaultDB->lastError().databaseText() );
 	return false;
@@ -97,7 +96,7 @@ bool create_connections()
     oracle->setPassword( "db" );
     oracle->setHostName( "silverfish" );
     if ( ! oracle->open() ) {
-	qWarning( "Failed to open orders database: " + 
+	qWarning( "Failed to open orders database: " +
 		  oracle->lastError().driverText() );
 	qWarning( oracle->lastError().databaseText() );
 	return false;
@@ -105,4 +104,3 @@ bool create_connections()
 
     return true;
 }
-
