@@ -60,15 +60,14 @@ public:
     QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 )
 	: QWidget( parent, name ) {}
     
-public slots:
-    virtual void stepUp() {};
-    virtual void stepDown() {};
+    virtual bool setFocusSection( int sec ) = 0;
+    virtual QString sectionFormattedText( int sec ) = 0;
+    virtual void addNumber( int sec, int num ) = 0;
+    virtual void removeLastNumber( int sec ) = 0;
 
-public: //protected:
-    virtual bool setFocusSection( int /*s*/ ){ return TRUE; };
-    virtual QString sectionFormattedText( int /*sec*/ ){ return QString(); };
-    virtual void addNumber( int /*sec*/, int /*num*/ ){};
-    virtual void removeLastNumber( int /*sec*/ ){};
+public slots:
+    virtual void stepUp() = 0;
+    virtual void stepDown() = 0;
 };
 
 class QDateEditPrivate;
@@ -109,9 +108,6 @@ public:
     QDate maxValue() const;
     virtual void setRange( const QDate& min, const QDate& max );
 
-    bool frame() const { return TRUE; }
-    void setFrame( const bool /*b*/ ) {}
-
 signals:
     void valueChanged( const QDate& date );
 
@@ -131,6 +127,9 @@ protected:
     virtual void setDay( int day );
     virtual void fix();
     virtual bool outOfRange( int y, int m, int d ) const;
+
+protected slots:
+    void updateButtons();    
 
 private:
     void init();
@@ -180,11 +179,14 @@ protected:
     void addNumber( int sec, int num );
     void removeLastNumber( int sec );
     bool setFocusSection( int s );
+    
     virtual bool outOfRange( int h, int m, int s ) const;
-
     virtual void setHour( int h );
     virtual void setMinute( int m );
     virtual void setSecond( int s );
+    
+protected slots:
+    void updateButtons();
 
 private:
     void init();
@@ -232,7 +234,6 @@ private:
     QTimeEdit* te;
     QDateTimeEditPrivate* d;
 };
-
 
 #endif
 #endif

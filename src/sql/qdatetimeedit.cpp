@@ -1,5 +1,5 @@
 /****************************************************************************
- ** $Id: $
+** $Id: $
 **
 ** Implementation of date and time edit classes
 **
@@ -43,10 +43,7 @@
 #include "../kernel/qrichtext_p.h"
 #include "qrangecontrol.h"
 #include "qapplication.h"
-#include "qpushbutton.h"
-#include "qbitmap.h"
 #include "qpixmap.h"
-#include "qpixmapcache.h"
 #include "qapplication.h"
 #include "qvaluelist.h"
 #include "qstring.h"
@@ -171,6 +168,8 @@ public:
 		continue;
 	    if ( txt.at(i) == QDATETIMEEDIT_HIDDEN_CHAR )
 		parag->setFormat( i, 1, fb );
+	    else
+		parag->setFormat( i, 1, nf );
 	}
 	fb->removeRef();
 	nf->removeRef();
@@ -220,7 +219,7 @@ private:
 class QDateTimeEditor : public QWidget
 {
 public:
-    QDateTimeEditor( QWidget * parent = 0,
+    QDateTimeEditor( QDateTimeEditBase * parent = 0,
 		       const char * name = 0 );
     ~QDateTimeEditor();
 
@@ -248,30 +247,17 @@ private:
     QDateTimeEditorPrivate* d;
 };
 
-/*!  Constructs an empty datetime base with parent \a parent and name \a
+/*!  Constructs an empty datetime editor with parent \a parent and name \a
    name.
 
 */
-QDateTimeEditor::QDateTimeEditor( QWidget * parent, const char * name )
+QDateTimeEditor::QDateTimeEditor( QDateTimeEditBase * parent, 
+				  const char * name )
     : QWidget( parent, name )
 {
     d = new QDateTimeEditorPrivate();
-    cw = 0;
+    cw = parent;
     init();
-}
-
-/*!
- */
-void QDateTimeEditor::setControlWidget( QDateTimeEditBase * widget )
-{
-    cw = widget;
-}
-
-/*!
- */
-QDateTimeEditBase * QDateTimeEditor::controlWidget() const
-{
-    return cw;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -336,12 +322,12 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 	if ( i < d->sectionCount()-1 )
 	    txt += d->separator();
     }
-    const QColorGroup & g = colorGroup();
+    const QColorGroup & cg = colorGroup();
     QPainter p( d->pixmap() );
     p.setPen( colorGroup().text() );
-    QBrush bg = g.brush( QColorGroup::Base );
+    QBrush bg = cg.brush( QColorGroup::Base );
     p.fillRect( 0, 0, width(), height(), bg );
-    d->paint( txt, hasFocus(), p, colorGroup(), rect(), style() );
+    d->paint( txt, hasFocus(), p, cg, rect(), style() );
     p.end();
     bitBlt( this, 0, 0, d->pixmap() );
 }
@@ -414,18 +400,6 @@ void QDateTimeEditor::appendSection( const QNumberSection& sec )
     d->appendSection( sec );
 }
 
-
-/*! Virtual function which returns the formatted text of section \a
-  sec.  The default implementation returns QString::null
-
-*/
-
-// QString QDateTimeEditor::sectionFormattedText( int )
-// {
-//     return QString::null;
-// }
-
-
 /*! Sets the selection of \a sec to start at \a selstart and end at \a
   selend.
 
@@ -476,48 +450,54 @@ bool QDateTimeEditor::setFocusSection( int sec )
     return d->setFocusSection( sec );
 }
 
-/*! Virtual function which is called whenever the user increases the
-    number in a section by pressing the widget's arrow buttons or the
-    keyboard's arrow keys.
+/*! \class QDateTimeEditBase
+    \internal
+  
+    Small abstract class that provides some functions that are common
+    for both QDateEdit and QTimeEdit. Its used internally by
+    QDateTimeEditor.
+*/
+
+/*! \fn QString QDateTimeEditBase::sectionFormattedText( int sec )
+    \internal
+    
+  Pure virtual function which returns the formatted text of section \a
+  sec.
 
 */
 
-// void QDateTimeEditor::stepUp()
-// {
-// }
+/*! \fn void QDateTimeEditBase::stepUp()
+    \internal
+  
+  Pure virtual slot which is called whenever the user increases the
+  number in a section by pressing the widget's arrow buttons or the
+  keyboard's arrow keys.
+*/
 
-/*! Virtual function which is called whenever the user decreases the
+/*! \fn void QDateTimeEditBase::stepDown()
+    \internal
+  
+  Pure virtual slot which is called whenever the user decreases the
   number in a section by pressing the widget's arrow buttons or the
   keyboard's arrow keys.
 
 */
 
-// void QDateTimeEditor::stepDown()
-// {
-
-// }
-
-/*! Virtual function which is called whenever the user types a number.
+/*! \fn void QDateTimeEditBase::addNumber( int sec, int num )
+    \internal
+  
+  Pure virtual function which is called whenever the user types a number.
   \a sec indicates the section where the number should be added.  \a
   num is the number that was pressed.
-
 */
 
-// void QDateTimeEditor::addNumber( int , int  )
-// {
-
-// }
-
-/*! Virtual function which is called whenever the user tries to remove
-   the last number from \a sec by pressing the backspace or delete
-   key.
-
+/*! \fn void QDateTimeEditBase::removeLastNumber( int sec )
+    \internal
+  
+  Pure virtual function which is called whenever the user tries to
+  remove the last number from \a sec by pressing the backspace or
+  delete key.
 */
-
-// void QDateTimeEditor::removeLastNumber( int  )
-// {
-
-// }
 
 ////////////////
 
@@ -545,7 +525,7 @@ public:
 
 /*!
   \class QDateEdit qdatetimeedit.h
-    \ingroup advanced time
+  \ingroup advanced time
   \brief The QDateEdit class provides a date editor.
 
   QDateEdit allows the user to edit dates by using the keyboard or the
@@ -591,17 +571,6 @@ public:
   \value YDM year-day-month
 */
 
-/*!
-    \fn bool QDateEdit::frame() const
-    \internal
-*/
-/*!
-    \fn void QDateEdit::setFrame( const bool )
-    \internal
-*/
-
-
-
 /*! Constructs an empty date editor which is a child of \a parent and the
   name \a name.
 
@@ -611,15 +580,16 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
     init();
+    updateButtons();
 }
 
-/*!
-    \overload
+/*! 
+  \overload
 
-Constructs a date editor with the initial value \a date, parent \a
-parent and name \a name.
+  Constructs a date editor with the initial value \a date, parent \a
+  parent and name \a name.
 
-   The date editor is initialized with \a date.
+  The date editor is initialized with \a date.
 */
 
 QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
@@ -636,11 +606,12 @@ void QDateEdit::init()
     d = new QDateEditPrivate();
     d->controls = new QSpinWidget( this, "date edit controls" );
     d->ed = new QDateTimeEditor( this, "date editor" );
-    d->ed->setControlWidget( this );
     d->controls->setEditWidget( d->ed );
 
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
+    connect( this, SIGNAL( valueChanged(const QDate&) ), 
+	     SLOT( updateButtons() ) );
     d->ed->appendSection( QNumberSection( 0,4 ) );
     d->ed->appendSection( QNumberSection( 5,7 ) );
     d->ed->appendSection( QNumberSection( 8,10 ) );
@@ -715,7 +686,21 @@ void QDateEdit::setRange( const QDate& min, const QDate& max )
 	d->max = max;
 }
 
-/*! \reimp
+/*! 
+  Enables/disables the push buttons according to the min/max date for
+  this widget.
+ */
+
+void QDateEdit::updateButtons()
+{
+    bool upEnabled = isEnabled() && date() < maxValue();
+    bool downEnabled = isEnabled() && date() > minValue();
+
+    d->controls->setUpEnabled( upEnabled );
+    d->controls->setDownEnabled( downEnabled );
+}
+
+/*! \reimp 
  */
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
@@ -1391,6 +1376,7 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
 {
     init();
+    updateButtons();
 }
 
 /*!
@@ -1415,11 +1401,12 @@ void QTimeEdit::init()
 {
     d = new QTimeEditPrivate();
     d->ed = new QDateTimeEditor( this, "time edit base" );
-    d->ed->setControlWidget( this );
     d->controls = new QSpinWidget( this, "time edit controls" );
     d->controls->setEditWidget( d->ed );
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
     connect( d->controls, SIGNAL( stepDownPressed() ), SLOT( stepDown() ) );
+    connect( this, SIGNAL( valueChanged(const QTime&) ),
+	     SLOT( updateButtons() ) );
 
     d->ed->appendSection( QNumberSection( 0,0 ) );
     d->ed->appendSection( QNumberSection( 0,0 ) );
@@ -1917,6 +1904,19 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
 
 */
 
+/*! 
+  Enables/disables the push buttons according to the min/max time for
+  this widget.
+ */
+void QTimeEdit::updateButtons()
+{
+    bool upEnabled = isEnabled() && time() < maxValue();
+    bool downEnabled = isEnabled() && time() > minValue();
+
+    d->controls->setUpEnabled( upEnabled );
+    d->controls->setDownEnabled( downEnabled );
+}
+
 QSize QTimeEdit::sizeHint() const
 {
     QFontMetrics fm( font() );
@@ -2161,7 +2161,5 @@ bool QDateTimeEdit::autoAdvance() const
 /*! \fn QTimeEdit* QDateTimeEdit::timeEdit()
   Returns the internal widget used for editing the time part of the datetime.
 */
-
-
 
 #endif
