@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.h#11 $
+** $Id: //depot/qt/main/src/network/qsocket.h#12 $
 **
 ** Definition of QSocket class.
 **
@@ -87,7 +87,7 @@ public:
     bool	 at( Q_ULONG );
     bool	 atEnd() const;
 
-    int		 bytesAvailable() const;
+    Q_ULONG	 bytesAvailable() const;
     int		 waitForMore( int msecs ) const;
     int		 bytesToWrite() const;
 

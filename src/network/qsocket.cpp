@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocket.cpp#37 $
+** $Id: //depot/qt/main/src/network/qsocket.cpp#38 $
 **
 ** Implementation of QSocket class.
 **
@@ -775,7 +775,7 @@ bool QSocket::atEnd() const
   \sa bytesToWrite()
 */
 
-int QSocket::bytesAvailable() const
+Q_ULONG QSocket::bytesAvailable() const
 {
     if ( d->socket == 0 )
 	return 0;
