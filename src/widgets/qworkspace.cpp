@@ -428,9 +428,9 @@ private:
     QPoint moveOffset;
     QWorkspace* workspace;
     QWidget* window;
-    bool imode;
-    bool act;
-    bool maybeDoubleClick;
+    bool imode		    :1;
+    bool act		    :1;
+    bool maybeDoubleClick   :1;
 
     QString text;
 
@@ -457,6 +457,8 @@ public:
     bool isActive() const;
 
     bool isShaded() const;
+    bool isSnappedDown() const { return snappedDown; }
+    bool isSnappedRight() const { return snappedRight; }
 
     void adjustToFullscreen();
 
@@ -497,7 +499,7 @@ protected:
 private:
     QWidget* childWidget;
     QWidget* lastfocusw;
-    bool buttonDown;
+    bool buttonDown	    :1;
     enum MousePosition {
 	Nowhere,
 	TopLeft, BottomRight, BottomLeft, TopRight,
@@ -505,7 +507,7 @@ private:
 	Center
     };
     MousePosition mode;
-    bool moveResizeMode;
+    bool moveResizeMode	    :1;
 #ifndef QT_NO_CURSOR
     void setMouseCursor( MousePosition m );
 #endif
@@ -517,13 +519,16 @@ private:
     }
     QPoint moveOffset;
     QPoint invertedMoveOffset;
-    bool act;
     QWorkspaceChildTitleBar* titlebar;
     QGuardedPtr<QWorkspaceChildTitleBar> iconw;
     QSize windowSize;
     QSize shadeRestore;
     QSize shadeRestoreMin;
-    bool shademode;
+    bool act		    :1;
+    bool shademode	    :1;
+    bool snappedRight	    :1;
+    bool snappedDown	    :1;
+
 };
 
 
@@ -634,7 +639,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 {
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
+	if ( !w || !w->testWFlags( WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) )
 	    return; 	    // nothing to do
 
@@ -652,7 +657,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	if ( hasBeenHidden )
 	    w->hide();
 	else if ( !isVisible() ) // that's a case were we don't receive a showEvent in time. Tricky.
-		child->show();
+	    child->show();
 	activateWindow( w );
     } else if (e->removed() ) {
 	if ( d->windows.contains( (QWorkspaceChild*)e->child() ) ) {
@@ -843,6 +848,21 @@ void QWorkspace::resizeEvent( QResizeEvent * )
     if ( d->maxWindow )
 	d->maxWindow->adjustToFullscreen();
     layoutIcons();
+
+    for ( QWorkspaceChild *c = d->windows.first(); c; c = d->windows.next() ) {
+	if ( c->windowWidget() && !c->windowWidget()->testWFlags( WStyle_Tool ) )
+	    continue;
+
+	int x = c->x();
+	int y = c->y();
+	if ( c->isSnappedDown() )
+	    y = height() - c->height();
+	if ( c->isSnappedRight() )
+	    x = width() - c->width();
+
+	if ( x != c->x() || y != c->y() )
+	    c->move( x, y );
+    }
 }
 
 /*! \reimp */
@@ -1662,22 +1682,20 @@ void QWorkspaceChildTitleBar::resizeEvent( QResizeEvent * )
 	right = shadeB->x();
 
     int bottom = rect().bottom();
-    if ( window && !window->testWFlags( WStyle_Tool ) ) {
-        left+=2;
+    if ( window && !window->testWFlags( WStyle_Tool ) )
 	bottom--;
-    }
 
     if ( right != width() )
 	right-=2;
 
     titleL->setRightMargin( win32 ? width() - right : 0 );
-    titleL->setLeftMargin( 2 + (win32 ? left : 0) );
+    titleL->setLeftMargin( 2 );
 
     if ( win32 || (imode && !isActive()) ) {
-	titleL->setGeometry( QRect( QPoint( win32 ? 0 : left, 0 ),
+	titleL->setGeometry( QRect( QPoint( left + (win32 ? 0 : 2), 0 ),
 				    QPoint( win32 ? rect().right() : right, bottom ) ) );
     } else {
-	titleL->setGeometry( QRect( QPoint( left, 0 ),
+	titleL->setGeometry( QRect( QPoint( left+2, 0 ),
 				    QPoint( right, bottom ) ) );
     }
 }
@@ -1692,7 +1710,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
     titleL->setActive( active );
     if ( active ) {
 	if ( win32 ) {
-	    iconL->setBackgroundColor( titleL->leftColor() );	    
+	    iconL->setBackgroundColor( titleL->leftColor() );
 	} else {
 	    if ( !window || !window->testWFlags( WStyle_Tool ) )
 		titleL->setFrameStyle( QFrame::Panel | QFrame::Sunken );
@@ -1745,6 +1763,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     lastfocusw = 0;
     shademode = FALSE;
     titlebar = 0;
+    snappedRight = FALSE;
+    snappedDown = FALSE;
 
     if ( window && window->testWFlags( WStyle_Title ) ) {
 	titlebar = new QWorkspaceChildTitleBar( parent, window, this );
@@ -1816,7 +1836,6 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 QWorkspaceChild::~QWorkspaceChild()
 {
 }
-
 
 void QWorkspaceChild::resizeEvent( QResizeEvent * )
 {
@@ -1934,7 +1953,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		int ts = titlebar ? TITLEBAR_SEPARATION : 0;
 		int tb = titlebar ? titlebar->border : 0;
 		QSize s( re->size().width() + 2*frameWidth() + 2*tb,
-			 re->size().height() + 2*frameWidth() + th + ts +2*tb );
+			 re->size().height() + 2*frameWidth() + th + ts +2*tb+1 );
 		resize( s );
 	    }
 	}
@@ -2033,8 +2052,8 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
     int mw = QMAX(childWidget->minimumSizeHint().width(),
 		  childWidget->minimumWidth()) + 2 * tb + 2 * frameWidth();
     int mh = QMAX(childWidget->minimumSizeHint().height(),
-		  childWidget->minimumHeight()) + 2 * tb +  2 * frameWidth() + ts + th;
-
+		  childWidget->minimumHeight()) + 2 * tb +  2 * frameWidth() + ts + th + 1;
+ 
     QSize mpsize( geometry().right() - pp.x() + 1,
 		  geometry().bottom() - pp.y() + 1 );
     mpsize = mpsize.expandedTo( minimumSize() ).expandedTo( QSize(mw, mh) );
@@ -2075,8 +2094,10 @@ void QWorkspaceChild::mouseMoveEvent( QMouseEvent * e)
 	break;
     }
 
-    geom = QRect( geom.topLeft(), geom.size().expandedTo( minimumSize() ).expandedTo( QSize(mw,mh) ) );
-    if ( parentWidget()->rect().intersects( geom ) )
+    geom = QRect( geom.topLeft(), geom.size().expandedTo( minimumSize() ).expandedTo( QSize(mw,mh) ).
+	boundedTo( childWidget->maximumSize() + QSize( 2*tb+2*frameWidth(), 2*tb+2*frameWidth()+ts+th+1 ) ) );
+
+    if ( geom.size() != size() && parentWidget()->rect().intersects( geom ) )
 	setGeometry( geom );
 
 #ifdef _WS_WIN_
@@ -2486,22 +2507,21 @@ void QWorkspaceChild::move( int x, int y )
 	int dx = 10;
 	int dy = 10;
 
-	if ( QABS( x ) < dx ) {
+	if ( QABS( x ) < dx )
 	    nx = 0;
-	    dx = QABS(x);
-	}
-	if ( QABS( y ) < dy ) {
+	if ( QABS( y ) < dy )
 	    ny = 0;
-	    dy = QABS(y);
-	}
 	if ( QABS( x + width() - parentWidget()->width() ) < dx ) {
 	    nx = parentWidget()->width() - width();
-	    dx = QABS( x + width() - parentWidget()->width() );
-	}
+	    snappedRight = TRUE;
+	} else
+	    snappedRight = FALSE;
+
 	if ( QABS( y + height() - parentWidget()->height() ) < dy ) {
 	    ny = parentWidget()->height() - height();
-	    dy = QABS( y + height() - parentWidget()->height() );
-	}
+	    snappedDown = TRUE;
+	} else
+	    snappedDown = FALSE;
     }
     QFrame::move( nx, ny );
 }
