@@ -21,7 +21,7 @@ paced to suit each individual project and the available resources. The
 user interface and related code can be migrated in steps while the
 rest of the project need not be changed at all.
 
-This document is intended for programmers who will be migrating an
+This walkthrough is intended for programmers who will be migrating an
 existing Motif based project to the Qt toolkit. We assume that they
 have experience with C/C++ and Xt/Motif. Some experience with the Qt
 toolkit is also necessary. For developers completely new to Qt we
@@ -30,9 +30,9 @@ how-to-learn-qt.html How to Learn Qt\endlink; or to go on a Qt
 training course. (See \link http://www.trolltech.com\endlink for
 details of training courses.)
 
-\section2 Goals for this Document
+\section2 Goals for this Walkthrough
 
-The goal of this document is to provide the reader with enough
+The goal of this walkthrough is to provide the reader with enough
 knowledge to migrate Motif applications to the Qt toolkit. We will do
 this by example: We will convert a real-world Motif based program
 step-by-step. This walkthrough will discuss both techniques and their
@@ -56,7 +56,7 @@ three requirements.
 {Qt Motif Extension}
 \endlist
 
-\section2 X11R6.x and Motif 2.x libraries
+\section2 X11R6.x and Motif 2.x Libraries
 
 The mechanisms used by the \e {Qt Motif Extension} require development
 headers and libraries from the X11R6 release and the Motif 2.0
@@ -91,7 +91,7 @@ install}
 
 The \e {Qt Motif Extension} is now installed and ready to use.
 
-\section2 Build and link your project with the Qt toolkit and the Qt
+\section2 Build and Link Your Project with the Qt Toolkit and the Qt
 Motif Extension
 
 For simplicity, we use \e qmake to create the \c Makefile. The \c
@@ -201,7 +201,7 @@ The other invalid cast is in the \c Open() function.
 After these changes, the project compiles and links, and the
 application runs and operates correctly.
 
-\section1 Migrating the User Interface
+\section1 Preparing to Migrate the User Interface
 
 We are ready to start migrating the user interface for our project.
 As mentioned in the introduction, we do this in steps, ensuring that
@@ -209,11 +209,11 @@ our application is still usable at every step of the migration process.
 
 The user interface can be viewed as a heirarchy; each top-level window
 and dialog depends upon a parent (which is another top-level window or
-dialog). When using the Motif \c XmMainWindow widgets, these should
-be viewed as two separate entities: the \e {Main Window} widget with
-the popup-menu heirarchy and the \e View widget contained in the \e
-{Main Window} widget. The \e View widget depends on the \e {Main
-Window} widget.
+dialog). When using Motif \c XmMainWindow widgets, these should be
+viewed as two separate entities: the \e {Main Window} widget with the
+popup-menu heirarchy and the \e View widget contained in the \e {Main
+Window} widget. The \e View widget depends on the \e {Main Window}
+widget.
 
 We begin migrating the pieces that have no dependencies, and work our
 way up the dependency tree until all pieces have been migrated.
@@ -226,31 +226,89 @@ We will begin by migrating and replacing all of the dialogs, then the
 \e {Main Window} widget with popup-menu heirarchy, and finally the \e
 View widget.
 
-However, we are not ready to begin just yet. The migration process
-can be long, but it does not have to be difficult. The \e Open, \e
-{Save As}, \e {Page Delete} and \e {IO Error} dialogs use a Motif
-predefined dialog type. Qt provides similar functionality with
-QFileDialog and QMessageBox, which we can begin using immediately.
+However, we are not ready to begin just yet. The migration process can
+be long, but it does not have to be difficult. The \e Open, \e {Save
+As}, \e {Page Delete} and \e {IO Error} dialogs use Motif \c
+XmFileSelectionBox and \c XmMessageBox dialogs. Qt provides similar
+functionality with QFileDialog and QMessageBox, which we can begin
+using immediately.
 
-The \e Print and \e Help dialogs are special, however. The \e Print
-dialog cannot be replaced until after we have replaced the \e View
-widget. Qt provides a complete printing mechanism with QPrinter, but
-we cannot start using it until we have replaced the \e View widget.
-Instead of replacing the \e Help dialog with a custom QDialog, we will
-use the \link helpsystem.html Qt Help System\endlink classes to
-provide a more advanced online help.  However, we cannot start using
-classes like QToolTip and QWhatsThis until we replace the \e {Main
-Window} and \e View widgets.
+The \e Print dialog is special, however. The \e Print dialog cannot be
+replaced until after we have replaced the \e View widget. Qt provides
+a complete printing mechanism with QPrinter, but we cannot start using
+it until we have replaced the \e View widget.
 
-NOTE: The help text included with the original project is very small
-and only contains information about the XmNoteBook widget.  The use of
+\section2 Removing the \e Help Dialog
+
+The \e Help dialog is also special.  Instead of replacing the \e Help
+dialog with a custom QDialog, we will use the \link helpsystem.html Qt
+Help System\endlink classes to provide a more advanced online help.
+However, we cannot start using classes like QToolTip and QWhatsThis
+until we replace the \e {Main Window} and \e View widgets.
+
+The help text included with the original project is very small and
+only contains information about the \c XmNoteBook widget.  The use of
 tooltips and whats-this text will suffice for this example.  If your
-migration project already has a large online help system, we recommend
-looking at the \link helpviewer-example.html Simple HTML Help
-Browser\endlink example for information on how to build an rich text
-help system with hypertext navigation and full printing capabilities.
+migration project has a large online help system, we recommend looking
+at the \link helpviewer-example.html Simple HTML Help Browser\endlink
+example for information on how to build an rich text help system with
+hypertext navigation and full printing capabilities.
 
-\section2 Using Qt Standard Dialogs
+Removing the existing \e Help dialog is relatively simple.  We remove
+the \c Xmd/Help.h, \c Xmd/HelpP.h and \c Xmd/Help.c files from our
+project file and regenerate our \c Makefile.
+
+The code to create the \e Help menu and \e Help dialog is in \c
+todo.cpp.  We comment the \c Xmd/Help.h include, the \c *help_manager
+resource string, the \c help_cb() function forward declaration and the
+\c help_widget global variable.
+
+\quotefile walkthrough/todo-dialogs.cpp
+
+\skipto Demo include files
+\printuntil Xmd/Help.h
+
+\code
+    ...
+\endcode
+
+\skipto void SetPage(int);
+\printuntil void help_cb(Widget, XtPointer, XmAnyCallbackStruct *);
+
+\code
+    ...
+\endcode
+
+\skipto Widget shell, notebook, textw, labelw;
+\printuntil  Widget help_widget;
+
+We also need to comment out the code that creates the \e Help dialog.
+We will also comment out the code to create the \e Help menu, since
+this menu is now empty.
+
+\skipto XmdCreateMenu(HELP_MENU, menubar, &help_menu, &size);
+\printuntil XtManageChild(help_menu[HELP_OVERVIEW]);
+
+\code
+    ...
+\endcode
+
+\skipto help_widget = XmdCreateHelpDialog(shell, "help_manager", NULL, 0);
+\printuntil (XtCallbackProc) help_cb, (XtPointer) 1);
+
+Next, we remove the \c help_cb() function implementation.
+
+\skipuntil Callback to show the Help widget
+\printuntil XmdGotoHelpItem(w, (int) item, help_widget);
+\printline
+
+The \e Help dialog is now removed from our project.  We cannot add
+QToolTip and QWhatsThis help at the moment, since we are still using
+\c XmMainWindow for the \e {Main Window} widget.  Once we have
+migrated the \e {Main Window} and the popup-menu heirarchy, we can
+begin using QToolTip and QWhatsThis for online help.
+
+\section1 Using Qt Standard Dialogs
 
 We start by using two of the \link dialogs.html Qt Standard
 Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
@@ -271,9 +329,9 @@ can then use this class as the parent for both Motif dialogs and Qt
 dialogs.
 
 We need to include the appropriate headers for QMotifWidget and
-QFileDialog.
+QFileDialog in \c todo.cpp.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-dialogs.cpp
 
 \skipto Qt includes
 \printuntil qmotifwidget.h
@@ -292,7 +350,7 @@ as the parent for the Qt Standard Dialogs.
 \skipto QMotif integrator
 \printuntil XtManageChild
 
-\section3 Replacing the \e {Open} and \e {Save As} dialogs
+\section2 Replacing the \e {Open} and \e {Save As} Dialogs
 
 First, we completely remove all use of the existing Motif file
 selection dialog. We remove the \c Xm/FileSB.h include, the global \c
@@ -300,13 +358,41 @@ file_dialog variable, and the code to create the dialog. We also
 remove the \c PresentFDialog() callback function. None of this code
 is needed to use QFileDialog.
 
+\quotefile walkthrough/todo-dialogs.cpp
+
+\skipto Motif include files
+\printuntil Xm/FileSB.h
+\printline
+
+\code
+    ...
+\endcode
+
+\skipto void manageCB(Widget, Widget, XtPointer);
+\printuntil void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
+
+\code
+    ...
+\endcode
+
+\skipto Widget shell, notebook, textw, labelw;
+\printuntil Widget file_dialog;
+
+\code
+    ...
+\endcode
+
+\skipuntil Callback to show the XmFileSelectionBox dialog
+\printuntil XtManageChild(file_dialog);
+\printline
+
 Since we removed the \c PresentFDialog() callback function, we need to
 make \e Open and \e {Save As} popup-menu callbacks call the \c Open()
 and \c Save() functions.
 
 First we must change the declaration of these two functions.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-dialogs.cpp
 
 \skipto Wrap extern/callback functions and global variables with extern "C"
 \skipto void Open
@@ -334,7 +420,7 @@ After we build the project, the application runs and operates as
 expected. The difference is that the \e Open and \e {Save As} dialogs
 now use QFileDialog.
 
-\section3 Replacing the \e {Page Delete} and \e {IO Error} dialogs
+\section2 Replacing the \e {Page Delete} and \e {IO Error} Dialogs
 
 The \e {Page Delete} dialog is created and used in \c {actions.c}. We
 need to migrate this file to C++. We rename it to \c {actions.cpp},
@@ -372,7 +458,7 @@ We can now change the \c DeletePage() function to use
 QMessageBox::information().
 
 First, we need to make sure we include the proper header for
-QMessageBox and QMotifWidget.
+QMessageBox.
 
 \quotefile walkthrough/actions.cpp
 
@@ -394,7 +480,7 @@ completely.
 Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
 \c client_data tot he \c DeletePage() function.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-dialogs.cpp
 
 \skipto XtManageChild(selected_menu[SELECTED_DELETE]);
 \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
@@ -454,7 +540,7 @@ After we build the project, the application runs and operates as
 expected. The difference is that the \e {Page Delete} and \e {IO
 Error} dialogs now use QMessageBox.
 
-\section2 Using Custom QDialogs
+\section1 Using Custom QDialogs
 
 After we have replaced the standard dialogs, we move onto the custom
 dialogs.  This project has a single custom dialog: the \e {Page Edit}
@@ -462,12 +548,12 @@ dialog.
 
 Instead of writing the code ourselves, we use the \link
 designer-manual.html Qt Designer\endlink to design our dialog.  The
-steps involved in designing our custom dialog is beyond the scope of
-this document and will not be discussed here.  The \link
+steps involved in designing our custom dialog are beyond the scope of
+this walkthrough and will not be discussed here.  The \link
 designer-manual.html Qt Designer Manual\endlink is a complete
 reference on the use of \e {Qt Designer}.
 
-\section3 Replacing the \e {Page Edit} Dialog
+\section2 Replacing the \e {Page Edit} Dialog
 
 The custom QDialog description for the \e {Page Edit} dialog is saved
 as \c pageeditdialog.ui.  We add this file to the project file and
@@ -478,9 +564,9 @@ application.
 We need to pass the top-level QMotifWidget as the \c client_data
 argument to the \c EditPage function, which we will use as the parent
 for our new \c PageEditDialog.  We do this the same way as we have
-done for the \e Open and \e {Save As} dialogs.
+done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-dialogs.cpp
 
 \skipto XtManageChild(selected_menu[SELECTED_PROPERTIES]);
 \printuntil (XtCallbackProc) EditPage, (XtPointer) &toplevel );
@@ -527,7 +613,7 @@ The same process must be done for the minorTab text:
 \skipto // temp = XmTextGetString(majorTabW);
 \printuntil temp = qstrdup( qstr.local8Bit().data() );
 
-\section2 Using Existing Dialogs with QMotifDialog
+\section1 Using Existing Dialogs with QMotifDialog
 
 As mentioned above, the \e Print dialog cannot be replaced until we
 have converted the \e View widget.  The \e Print dialog will be
@@ -537,7 +623,7 @@ replacing the \e Print dialog with a custom QDialog replacement.
 Instead, we will keep the Motif based dialog and use QMotifDialog to
 integrate the dialog with the application.
 
-\section3 Modality Requirements
+\section2 Modality Requirements
 
 Modality with QDialog is different from Motif.  The QDialog::exec()
 function does not return until the dialog is finished.  In Motif,
@@ -583,13 +669,13 @@ function:
 \printuntil XtUnmanageChild
 \printline
 
-\section3 Integrating the \e Print Dialog
+\section2 Integrating the \e Print Dialog
 
 Now that the \e Print dialog has the appropriate \e accept and \e
 reject callbacks, we can use QMotifDialog.  First we need to include
-the QMotifDialog header in \ctodo.cpp.
+the QMotifDialog header in \c todo.cpp.
 
-\quotefile walkthrough/todo.cpp
+\quotefile walkthrough/todo-dialogs.cpp
 
 \skipto qmotifdialog.h
 \printline
@@ -607,22 +693,178 @@ we will use as the parent for the dialog.
 \skipto XmdCreatePrintDialog(shell, "print_manager", NULL, 0);
 \printuntil (XtCallbackProc) ShowPrintDialog, (XtPointer) &toplevel);
 
-The dialog is created in the \c ShowPrintDialog() function, so we will
-have to add the help callback there instead.
-
-\skipto XtAddCallback(help_menu[HELP_OVERVIEW], XmNactivateCallback,
-\printuntil //               (XtCallbackProc) help_cb, (XtPointer) 1);
-
 The \c ShowPrintDialog() function creates the \e Print dialog and
 executes it.  We use the \c XmdNprintCallback callback to accept the
 dialog and the \c XmNcancelCallback callback to reject the dialog.  We
 can do this easily by using the QMotifDialog::acceptCallback() and
 QMotifDialog::rejectCallback() functions, respectively.  We also
-ensure that the \e print and \e help callbacks continue to call the \c
-Print() and \c help_cb() functions as they did before.
+ensure that the \e print callback continues to call the \c
+Print() function as before.
 
 \skipto ShowPrintDialog(Widget, XtPointer client_data,
 \printuntil dialog.exec();
+\printline
+
+\section1 Using Qt Main Window Classes
+
+After we have replaced all dialogs, we are ready to begin replacing
+the \e {Main Window}.  \link motif-walkthrough.html#4 As mentioned
+above\endlink, we will replace the existing \c XmMainWindow and
+popup-menu heirarchy with \link application.html Qt Main Window
+Classes\endlink.
+
+We will use \link designer-manual.html Qt Designer\endlink to design
+our new main window.  The steps involved in designing the main window are
+beyond the scope of this walkthrough and will not be discussed here.
+The \link designer-manual.html Qt Designer Manual\endlink is a
+complete reference on the use of \e {Qt Designer}.
+
+\section2 Implementing the \e {Main Window}
+
+The description for the \e {Main Window} is saved as \c mainwindow.ui.
+We add this file to the probject file and regenerate the \c Makefile.
+The \e uic utility generates the code for our \e {Main Window}, which
+is then compiled and link into our application.
+
+\e {Qt Designer} also created the \c mainwindow.ui.h file.  We need to
+add the implementation for our \e {Main Window} to this skeleton
+implementation.
+
+We begin by adding the necessary includes for QApplication,
+QMessageBox and QMotifWidget.
+
+\quotefile walkthrough/mainwindow.ui.h
+
+\skipto Qt includes
+\printuntil qmotifwidget.h
+
+We need includes for the Motif callback structs and the \c XmdPrint
+widget.
+
+\skipto Motif includes
+\printuntil Xmd/Print.h
+
+We are now ready to add implementations for the slots in our \e {Main
+Window}.  We have one slot per menu item.  Each slot will call the
+existing callback functions found in \c todo.cpp and \c actions.cpp.
+
+\list
+\i File menu
+    \list
+    \i New - \c MainWindow::fileNew() - calls the \c New() callback
+    \i Open - \c MainWindow::fileOpen() - calls the \c Open() callback
+    \i Save - \c MainWindow::fileSave() - calls the \c SaveIt() callback
+    \i Save As - \c MainWindow::fileSaveAs() - calls the \c Save() callback
+    \i Print - \c MainWindow::filePrint() - calls the \c ShowPrintDialog() callback
+    \i Exit - \c MainWindow::fileExit() - calls QApplication::quit()
+    \endlist
+\i Selected menu
+    \list
+    \i Properties - \c MainWindow::selProperties() - calls the \c EditPage() callback
+    \i New - \c MainWindow::selNewPage() - calls the \c NewPage() callback
+    \i Delete to Trash - \c MainWindow::selDeletePage() - calls the \c DeletePage() callback
+    \endlist
+\endlist
+
+We need to add forward declarations for these callbacks before we can
+use them.
+
+\skipuntil Existing functions/variables found in todo.cpp and action.cpp
+\printuntil // extern "C"
+
+Each of the existing callback functions takes 3 arguments.  We pass
+NULL to all of the arguments in this example (with a few exceptions,
+see below).  The existing code does not rely on any of the arguments.
+Each slot implementation is a single line calling the related callback
+function. The code is not very interesting and it not shown here due
+to space considerations.
+
+There are 4 exceptions to the above.  The \c Open(), \c Save(), \c
+EditPage() and \c DeletePage() callbacks accept a pointer to the
+toplevel QWidget as argument 2 (the \c client_data argument).  For
+these 4 functions, we pass \c this as argument 2, which is a toplevel
+\c MainWindow derived from QMainWindow.
+
+\section2 Replacing the \e {Main Window}
+
+The next step is to use the new \e {Main Window} in our application.
+The changes needed in \c todo.cpp are large due to the large amount of
+code being removed.
+
+First, we add the include for our new \e {Main Window}.
+
+\quotefile walkthrough/todo.cpp
+
+\skipto Qt based Main Window
+\printuntil mainwindow.h
+
+We can cleanup the Motif includes, since many of them are no longer
+needed.
+
+\skipto Motif include files
+\printuntil Xm/Text.h
+
+\skipto Demo include files
+\printuntil Xmd/Print.h
+
+The \c QuitAppl() and \c manageCB() callbacks are not needed anymore,
+so we remove them.
+
+\skipto static void QuitAppl(Widget, char *, XmPushButtonCallbackStruct *);
+\printline
+
+\code
+    ...
+\endcode
+
+\skipto void manageCB(Widget, Widget, XtPointer);
+\printline
+
+\code
+    ...
+\endcode
+
+\skipuntil Unneeded QuitAppl callback
+\printuntil // }
+
+\code
+    ...
+\endcode
+
+\skipuntil Unneeded manageCB callback
+\printuntil // }
+
+We do not need the toplevel shell either.
+
+\quotefile walkthrough/todo.cpp
+
+\skipto Widget shell;
+\printuntil Widget file_dialog;
+
+Next, we remove all references to the shell variable in the \c New(),
+\c Save() and \c Open() callbacks:
+
+\skipuntil New( Widget, char *, XmPushButtonCallbackStruct * )
+\skipto options.todoFile = str;
+\printuntil //               XA_STRING, NULL, NULL);
+
+In \c main(), we make the large changes.  First, we use our new \c
+MainWindow instead of QMotifWidget with \c XmMainWindow.
+
+\quotefile walkthrough/todo.cpp
+
+\skipto QMotif integrator
+\printuntil context	= integrator.applicationContext();
+
+We will now use QMotifWidget to create the \c XmNotebook widget.
+
+\skipto n = 0;
+\printuntil (XtCallbackProc) PageChange, NULL);
+
+We remove all of the code used to create the Motif menus.  The
+remaining code in \c main() is self-explanatory.
+
+\printuntil return app.exec();
 \printline
 
 
@@ -632,17 +874,9 @@ Print() and \c help_cb() functions as they did before.
 
 
 
+<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
 
-
-
-
-
-
-
-
-
-
-###<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
+\section1 Preparing to Replace the \e {View} widget
 
 \section1 Continuing Development
 

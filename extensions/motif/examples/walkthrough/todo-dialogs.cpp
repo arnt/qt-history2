@@ -90,7 +90,7 @@ char * fallback_resources[] = {
 "*text.rows: 24",
 "*text.columns: 80",
 "*print_manager.printerList: lp,./todo.txt",
-// "*help_manager.helpFie: todo",
+// "*help_manager.helpFile: todo",
 "*notebook.frameShadowThickness: 2",
 "*notebook.bindingType:	XmSPIRAL",
 NULL

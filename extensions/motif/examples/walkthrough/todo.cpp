@@ -43,7 +43,7 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 #endif
 #endif
 
-// Qt MainWindow
+// Qt based Main Window
 #include "mainwindow.h"
 
 // Qt includes
@@ -76,7 +76,7 @@ static char *rcsid = "$XConsortium: todo.c /main/6 1995/07/14 09:46:43 drk $";
 /* Demo include files */
 extern "C" {
 // #include <Xmd/Help.h>
-#include <Xmd/Menus.h>
+// #include <Xmd/Menus.h>
 #include <Xmd/Print.h>
 
 #include "page.h"
@@ -121,6 +121,7 @@ static void TextChanged(Widget, XtPointer, XtPointer);
 extern "C" {
 
     // void manageCB(Widget, Widget, XtPointer);
+    // void PresentFDialog(Widget, XtPointer, XmPushButtonCallbackStruct*);
     void New(Widget, char*, XmPushButtonCallbackStruct *);
     // void Open(Widget, char*, XmFileSelectionBoxCallbackStruct *);
     void Open(Widget, XtPointer, XmPushButtonCallbackStruct *);
@@ -141,8 +142,10 @@ extern "C" {
 
     extern Page pages[];
 
-    Widget /* shell, */ notebook, textw, labelw;
+    // Widget shell;
+    Widget notebook, textw, labelw;
     // Widget help_widget;
+    // Widget file_dialog;
     int currentPage = 1;
     int modified;
     extern int maxpages;
@@ -216,20 +219,10 @@ int main( int argc, char **argv )
   SetPage(0);
 
   mainwindow.show();
-
-  // Eventloop integration
-  /*
-    QMotif provides an completely integrated eventloop.  We can use
-    either XtAppMainLoop() or app.exec(), but we choose app.exec() for
-    demonstration purposes.
-  */
-
-  // XtAppMainLoop(context);
-
   return app.exec();
 }
 
-// Unneeded static QuitAppl function
+// Unneeded QuitAppl callback
 // static void
 // QuitAppl(Widget w, char *i, XmPushButtonCallbackStruct *e)
 // {
@@ -242,15 +235,20 @@ TextChanged(Widget, XtPointer, XtPointer)
   modified = 1;
 }
 
-// Use proper C++ function declarations
-// void manageCB( widget, w_to_manage, callback_data)
-//      Widget widget;
-//      Widget w_to_manage;
-//      XtPointer callback_data;
+// Unneeded manageCB callback
 // void manageCB( Widget widget, Widget w_to_manage, XtPointer callback_data)
 // {
 //   if (w_to_manage != (Widget) NULL)
 //     XtManageChild(w_to_manage);
+// }
+
+// Callback to show the XmFileSelectionBox dialog
+// void
+// PresentFDialog(Widget w, XtPointer cb, XmPushButtonCallbackStruct *cs)
+// {
+//   XtRemoveAllCallbacks(file_dialog, XmNokCallback);
+//   XtAddCallback(file_dialog, XmNokCallback, (XtCallbackProc) cb, NULL);
+//   XtManageChild(file_dialog);
 // }
 
 void
