@@ -204,6 +204,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	topLevel = TRUE;
 	setWFlags( WType_TopLevel );
     }
+    if ( popup ) {
+	setWFlags(WStyle_Tool); // a popup is a tool window
+	setWFlags(WStyle_StaysOnTop); // a popup stays on top
+    }
+    if ( topLevel && parentWidget() ) {
+	// if our parent has WStyle_StaysOnTop, so must we
+	QWidget *ptl = parentWidget()->topLevelWidget();
+	if ( ptl && ptl->testWFlags( WStyle_StaysOnTop ) )
+	    setWFlags(WStyle_StaysOnTop);
+    }
+    if ( !testWFlags(WStyle_Customize) && !(desktop || popup))
+	setWFlags( WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 
     Rect boundsRect;
 
@@ -222,8 +234,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
     SetRect( &boundsRect, crect.left(), crect.top(),
 	     crect.right(), crect.bottom());
 
-    if ( !testWFlags(WStyle_Customize) )
-	setWFlags( WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
@@ -426,7 +436,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
-	    if(w->topLevelWidget() == topLevelWidget()) {
+	    if(((WId)w->hd) == old_winid) {
 		w->hd = hd; //all my children hd's are now mine!
 		w->posInTLChanged = TRUE;
 	    }
