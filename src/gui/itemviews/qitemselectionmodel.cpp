@@ -33,6 +33,8 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
 
   \ingroup model-view
 
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bottomRight,
@@ -210,6 +212,8 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   be started and the previous one added to the commited selected
   items. All functions operate on both layers, so for instance
   selectedItems() will return items from both layers.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!

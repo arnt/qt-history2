@@ -40,6 +40,7 @@
     it is no longer needed. The second approach is to handle user
     events directly. To do this you could reimplement event().
 
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!

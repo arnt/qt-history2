@@ -119,12 +119,12 @@ Overviews
 \i \link overviews-list.html All Overviews and HOWTOs\endlink
 \i \link object.html Qt Object Model\endlink
 \i \link signalsandslots.html Signals and Slots\endlink
+\i \link model-view-programming.html Model/View Programming\endlink
 \i \link geometry.html Window Geometry\endlink
 \i \link eventsandfilters.html Events and Event Filters\endlink
 \i \link i18n.html Internationalization (i18n)\endlink
 \i \link debug.html Debugging Techniques\endlink
 \i \link threads.html Thread Support in Qt\endlink
-\i \link accelerators.html Standard Accelerators\endlink
 \endlist
 </tr>
 <tr>
@@ -272,8 +272,8 @@ including menus, toolbars, workspace, etc.
 \i Various other useful classes.
 
 \row
-\i \link model-view.html Model-View-Controller \endlink
-\i Classes that follow the Model-View-Controller design pattern.
+\i \link model-view.html Model/View Classes \endlink
+\i Classes that use the Model/View design pattern.
 
 \row
 \i \link multimedia.html Multimedia\endlink
@@ -796,11 +796,11 @@ These classes are relevant to text processing. See also the
 
 /*! \defgroup model-view
 
-\title Model-View-Controller Classes
+\title Model/View Classes
 
-These classes follow the Model-View-Controller design pattern
-in which the underlying data (in the Model) is kept separate
-from both the way it is presented to the user (in the View) and
-the way it is manipulated (by the Controller).
+These classes use the Model/View design pattern in which the
+underlying data (in the Model) is kept separate from the way the data
+is presented and manipulated by the user (in the View). See also,
+\link model-view-programming.html Model/View Programming\endlink.
 
 */

@@ -349,6 +349,8 @@ void QTableViewItem::setData(int role, const QVariant &value)
     setColumnText() and setColumnIconSet(). The number of rows is set
     with setRowCount(), and the number of columns with
     setColumnCount().
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 class QTableViewPrivate : public QGenericTableViewPrivate

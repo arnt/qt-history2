@@ -76,6 +76,8 @@ static const int default_height = 30;
 
   \ingroup model-view
 
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget *parent)

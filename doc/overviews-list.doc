@@ -63,6 +63,7 @@
     \i \link installation.html Installation \endlink
     \i \link containers.html Generic Containers \endlink
     \i \link datastreamformat.html Format of the QDataStream Operators \endlink
+    \i \link model-view-programming.html Model/View Programming\endlink
     \i \link debug.html Debugging Techniques \endlink
     \i \link plugins-howto.html Qt Plugins\endlink
     \omit

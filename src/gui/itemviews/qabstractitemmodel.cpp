@@ -243,6 +243,8 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     It can also provide a \c{void} \c{*} pointer to the data() located
     at the index position.
     \endomit
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!
@@ -375,6 +377,7 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
     The model emits signals to indicate changes, for example,
     contentsChanged(), contentsInserted(), and contentsRemoved().
 
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 #define d d_func()

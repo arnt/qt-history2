@@ -328,6 +328,8 @@ public:
 
   \ingroup model-view
 
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QTreeView::QTreeView(QWidget *parent)

@@ -32,6 +32,8 @@
 
   \ingroup model-view
 
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 /*!
@@ -48,6 +50,8 @@
 
   This class implements a tree representation of a QGenericItemView working
   on a QAbstractItemModel.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink.
 */
 
 QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
