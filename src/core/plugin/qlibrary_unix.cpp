@@ -16,6 +16,8 @@
 #include <qfile.h>
 #include "qlibrary_p.h"
 #include <qfileinfo.h>
+
+#define QT_DEBUG_COMPONENT
 #ifdef Q_OS_MAC
 #  include <private/qcore_mac_p.h>
 #endif
