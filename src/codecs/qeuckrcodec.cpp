@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qeuckrcodec.cpp#7 $
+** $Id: //depot/qt/main/src/codecs/qeuckrcodec.cpp#8 $
 **
 ** Implementation of QEucKrCodec class
 **
@@ -47,7 +47,7 @@
   (Trolltech's subsequent modifications are covered by the usual
   copyright for Qt.)
 
-  \mustquote
+  \legalese
 
   Copyright (c) 1999 Mizi Research Inc. All rights reserved.
 

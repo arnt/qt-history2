@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#95 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#96 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -153,7 +153,7 @@ extern void qt_init_image_handlers();
   all installed incremental image formats. QImageDecoder is
   useful only for creating new ways of feeding data to an QImageConsumer.
 
-  \mustquote
+  \legalese
 
   Qt supports GIF reading if it is configured that way during
   installation (see qgif.h). If it is, we are required to state that

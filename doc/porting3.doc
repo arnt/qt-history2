@@ -128,28 +128,28 @@ Header files that you might need to add #include directives for include:
 Qt 3.x is namespace-clean.  A few global identifiers that had been
 left in Qt 2.x have been discarded.
 
-Enumeration \c QCursorShape and it values are now part of the
+Enumeration \l Qt::CursorShape and it values are now part of the
 special \c Qt class defined in qnamespace.h. If you get compilation
 errors about these being missing (unlikely, since most of your code will
 be in classes that inherit from the Qt namespace class), then change:
 
 <ul>
-    <li>\c QCursorShape becomes \l Qt::CursorShape
-    <li>\c ArrowCursor becomes \l Qt::ArrowCursor
-    <li>\c UpArrowCursor becomes \l Qt::UpArrowCursor
-    <li>\c CrossCursor becomes \l Qt::CrossCursor
-    <li>\c WaitCursor becomes \l Qt::WaitCursor
-    <li>\c IbeamCursor becomes \l Qt::IbeamCursor
-    <li>\c SizeVerCursor becomes \l Qt::SizeVerCursor
-    <li>\c SizeHorCursor becomes \l Qt::SizeHorCursor
-    <li>\c SizeBDiagCursor becomes \l Qt::SizeBDiagCursor
-    <li>\c SizeFDiagCursor becomes \l Qt::SizeFDiagCursor
-    <li>\c SizeAllCursor becomes \l Qt::SizeAllCursor
-    <li>\c BlankCursor becomes \l Qt::BlankCursor
-    <li>\c SplitVCursor becomes \l Qt::SplitVCursor
-    <li>\c SplitHCursor becomes \l Qt::SplitHCursor
-    <li>\c PointingHandCursor becomes \l Qt::PointingHandCursor
-    <li>\c BitmapCursor becomes \l Qt::BitmapCursor
+    <li>\c QCursorShape becomes \c Qt::CursorShape
+    <li>\c ArrowCursor becomes \c Qt::ArrowCursor
+    <li>\c UpArrowCursor becomes \c Qt::UpArrowCursor
+    <li>\c CrossCursor becomes \c Qt::CrossCursor
+    <li>\c WaitCursor becomes \c Qt::WaitCursor
+    <li>\c IbeamCursor becomes \c Qt::IbeamCursor
+    <li>\c SizeVerCursor becomes \c Qt::SizeVerCursor
+    <li>\c SizeHorCursor becomes \c Qt::SizeHorCursor
+    <li>\c SizeBDiagCursor becomes \c Qt::SizeBDiagCursor
+    <li>\c SizeFDiagCursor becomes \c Qt::SizeFDiagCursor
+    <li>\c SizeAllCursor becomes \c Qt::SizeAllCursor
+    <li>\c BlankCursor becomes \c Qt::BlankCursor
+    <li>\c SplitVCursor becomes \c Qt::SplitVCursor
+    <li>\c SplitHCursor becomes \c Qt::SplitHCursor
+    <li>\c PointingHandCursor becomes \c Qt::PointingHandCursor
+    <li>\c BitmapCursor becomes \c Qt::BitmapCursor
 </ul>
 
 The name of some debugging macro variables has been changed.  We have

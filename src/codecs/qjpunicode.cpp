@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qjpunicode.cpp#8 $
+** $Id: //depot/qt/main/src/codecs/qjpunicode.cpp#9 $
 **
 ** Implementation of QJpUnicodeConv class
 **
@@ -91,7 +91,7 @@
   permission and the grateful thanks of the Trolltech team. Here is
   the copyright statement for that code:
 
-  \mustquote
+  \legalese
 
   Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
 

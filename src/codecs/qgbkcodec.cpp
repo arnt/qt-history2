@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qgbkcodec.cpp#7 $
+** $Id: //depot/qt/main/src/codecs/qgbkcodec.cpp#8 $
 **
 ** Implementation of QGbkCodec template/macro class
 **
@@ -47,7 +47,7 @@
   \<seanc@turbolinux.com.cn\>.  The copyright notice for their code
   follows:
 
-  \mustquote
+  \legalese
 
   Copyright 2000 TurboLinux, Inc.  Written by Justin Yu and Sean Chen.
 

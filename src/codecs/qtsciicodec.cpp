@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qtsciicodec.cpp#2 $
+** $Id: //depot/qt/main/src/codecs/qtsciicodec.cpp#3 $
 **
 ** Implementation of QTsciiCodec class
 **
@@ -25,7 +25,7 @@
   The TSCII codec was contributed to Qt by Hans Petter Bieker
   \<bieker@kde.org\>.  The copyright notice for his code follows:
 
-  \mustquote
+  \legalese
 
   Copyright 2000 Hans Petter Bieker <bieker@kde.org>. All rights reserved.
 

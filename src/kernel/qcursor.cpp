@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qcursor.cpp#53 $
 **
 ** Implementation of QCursor class
 **
@@ -65,25 +65,8 @@
   time), use QApplication::setOverrideCursor().
 
   To set a cursor shape use QCursor::setShape() or use the QCursor constructor
-  which takes the shape as argument, or use one of the \e predefined cursors:
-
-  <ul>
-  <li> \c arrowCursor - standard arrow cursor
-  <li> \c upArrowCursor - upwards arrow
-  <li> \c crossCursor - crosshair
-  <li> \c waitCursor - hourglass/watch
-  <li> \c ibeamCursor - ibeam/text entry
-  <li> \c sizeVerCursor - vertical resize
-  <li> \c sizeHorCursor - horizontal resize
-  <li> \c sizeBDiagCursor - diagonal resize (/)
-  <li> \c sizeFDiagCursor - diagonal resize (\)
-  <li> \c sizeAllCursor - all directions resize
-  <li> \c blankCursor - blank/invisible cursor
-  <li> \c splitVCursor - vertical splitting
-  <li> \c splitHCursor - horziontal splitting
-  <li> \c pointingHandCursor - a pointing hand
-  <li> \c forbiddenCursor - a slashed circle
-  </ul>
+  which takes the shape as argument, or you can use one of the \e predefined cursors
+  defined in the CursorShape enum.
 
   If you want to create a cursor with your own bitmap, either use the
   QCursor constructor which takes a bitmap and a mask or the
@@ -96,6 +79,29 @@
   <a href="guibooks.html#fowler">GUI Design Handbook: Cursors</a>
 */
 
+/*!
+  \enum	Qt::CursorShape
+
+  This enum type defines the various cursors that can be used.
+
+  \value ArrowCursor - standard arrow cursor
+  \value UpArrowCursor - upwards arrow
+  \value CrossCursor - crosshair
+  \value WaitCursor - hourglass/watch
+  \value IbeamCursor - ibeam/text entry
+  \value SizeVerCursor - vertical resize
+  \value SizeHorCursor - horizontal resize
+  \value SizeBDiagCursor - diagonal resize (/)
+  \value SizeFDiagCursor - diagonal resize (\)
+  \value SizeAllCursor - all directions resize
+  \value BlankCursor - blank/invisible cursor
+  \value SplitVCursor - vertical splitting
+  \value SplitHCursor - horziontal splitting
+  \value PointingHandCursor - a pointing hand
+  \value ForbiddenCursor - a slashed circle
+  
+  ArrowCursor is the default for widgets in a normal state.
+*/
 
 /*****************************************************************************
   QCursor stream functions

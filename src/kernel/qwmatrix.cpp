@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qwmatrix.cpp#49 $
 **
 ** Implementation of QWMatrix class
 **
@@ -224,7 +224,9 @@ void QWMatrix::setMatrix( double m11, double m12, double m21, double m22,
 
 
 /*!
-  Transforms \e (x,y) to \e (*tx,*ty) using the following formulae:
+  \overload
+
+  Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the following formulae:
 
   \code
     *tx = m11*x + m21*y + dx
@@ -239,7 +241,7 @@ void QWMatrix::map( double x, double y, double *tx, double *ty ) const
 }
 
 /*!
-  Transforms \e (x,y) to \e (*tx,*ty), using the formulae:
+  Transforms ( \a x, \a y ) to ( \a *tx, \a *ty ) using the formulae:
 
   \code
     *tx = m11*x + m21*y + dx  --  (rounded to the nearest integer)
@@ -256,7 +258,9 @@ void QWMatrix::map( int x, int y, int *tx, int *ty ) const
 }
 
 /*!
-  Returns the transformed \e p.
+  \overload
+
+  Returns the transformed \a p.
 */
 
 QPoint QWMatrix::map( const QPoint &p ) const
@@ -268,7 +272,9 @@ QPoint QWMatrix::map( const QPoint &p ) const
 }
 
 /*!
-  Returns the transformed rectangle \e r.
+  \overload
+  
+  Returns the transformed rectangle \a r.
 
   The bounding rectangle is returned if rotation or shearing has been specified.
 */
@@ -287,7 +293,9 @@ QRect QWMatrix::map( const QRect &r ) const
 }
 
 /*!
-  Returns the point array \e a transformed by calling map for each point.
+  \overload
+
+  Returns the point array \a a transformed by calling map for each point.
 */
 
 QPointArray QWMatrix::map( const QPointArray &a ) const
@@ -330,7 +338,7 @@ bool QWMatrix::isIdentity() const
 }
 
 /*!
-  Moves the coordinate system \e dx along the X-axis and \e dy
+  Moves the coordinate system \a dx along the X-axis and \a dy
   along the Y-axis.
 
   Returns a reference to the matrix.
@@ -345,7 +353,7 @@ QWMatrix &QWMatrix::translate( double dx, double dy )
 }
 
 /*!
-  Scales the coordinate system unit by \e sx horizontally and \e sy
+  Scales the coordinate system unit by \a sx horizontally and \a sy
   vertically.
 
   Returns a reference to the matrix.
@@ -360,7 +368,7 @@ QWMatrix &QWMatrix::scale( double sx, double sy )
 }
 
 /*!
-  Shears the coordinate system	by \e sh horizontally and \e sv vertically.
+  Shears the coordinate system	by \a sh horizontally and \a sv vertically.
 
   Returns a reference to the matrix.
 
@@ -376,7 +384,7 @@ QWMatrix &QWMatrix::shear( double sh, double sv )
 const double deg2rad = 0.017453292519943295769;	// pi/180
 
 /*!
-  Rotates the coordinate system \e a degrees counterclockwise.
+  Rotates the coordinate system \a a degrees counterclockwise.
 
   Returns a reference to the matrix.
 
@@ -410,7 +418,7 @@ QWMatrix &QWMatrix::rotate( double a )
   If the matrix is singular (not invertible), the identity matrix is
   returned.
 
-  If \e *invertible is not null, the value of \e *invertible is set
+  If \a *invertible is not null, the value of \a *invertible is set
   either to TRUE or FALSE to tell whether or not the matrix is
   invertible.
   
@@ -440,7 +448,7 @@ QWMatrix QWMatrix::invert( bool *invertible ) const
 
 
 /*!
-  Returns TRUE if this matrix is equal to \e m.
+  Returns TRUE if this matrix is equal to \a m.
 */
 
 bool QWMatrix::operator==( const QWMatrix &m ) const
@@ -454,7 +462,7 @@ bool QWMatrix::operator==( const QWMatrix &m ) const
 }
 
 /*!
-  Returns TRUE if this matrix is not equal to \e m.
+  Returns TRUE if this matrix is not equal to \a m.
 */
 
 bool QWMatrix::operator!=( const QWMatrix &m ) const
@@ -468,7 +476,7 @@ bool QWMatrix::operator!=( const QWMatrix &m ) const
 }
 
 /*!
-  Returns the result of multiplying this matrix with \e m.
+  Returns the result of multiplying this matrix with \a m.
 */
 
 QWMatrix &QWMatrix::operator*=( const QWMatrix &m )
@@ -491,7 +499,7 @@ QWMatrix &QWMatrix::bmul( const QWMatrix &m )
 
 /*!
   \relates QWMatrix
-  Returns the product \e m1 * \e m2.
+  Returns the product \a m1 * \a m2.
 
   Remember that matrix multiplication is not commutative, thus
   a*b != b*a.
@@ -511,7 +519,7 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 #ifndef QT_NO_DATASTREAM
 /*!
   \relates QWMatrix
-  Writes a matrix to the stream and returns a reference to the stream.
+  Writes the matrix \a m to the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -529,7 +537,7 @@ QDataStream &operator<<( QDataStream &s, const QWMatrix &m )
 
 /*!
   \relates QWMatrix
-  Reads a matrix from the stream and returns a reference to the stream.
+  Reads the matrix \a m from the stream \a s and returns a reference to the stream.
 
   \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */

@@ -624,6 +624,7 @@ public:
 	UI_FadeTooltip
     };
 
+    // documented in qcursor.cpp
     enum CursorShape {
 	ArrowCursor,
 	UpArrowCursor,

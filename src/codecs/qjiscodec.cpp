@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/codecs/qjiscodec.cpp#9 $
+** $Id: //depot/qt/main/src/codecs/qjiscodec.cpp#10 $
 **
 ** Implementation of QJisCodec class
 **
@@ -55,7 +55,7 @@
   thanks of the Trolltech team. Here is the copyright statement for
   that code:
 
-  \mustquote
+  \legalese
 
   Copyright (c) 1999 Serika Kurusugawa. All rights reserved.
 

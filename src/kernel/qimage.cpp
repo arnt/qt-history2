@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#356 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#357 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2447,7 +2447,7 @@ void pnmscale(const QImage& src, QImage& dst)
 
   pnmscale.c - read a portable anymap and scale it
 
-  \mustquote
+  \legalese
 
   Copyright (C) 1989, 1991 by Jef Poskanzer.
 
