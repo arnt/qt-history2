@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.3 1995/08/31 12:29:48 hanord Exp $
+** $Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.3 1995/08/31 12:29:48 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 1.4 1995/12/17 14:04:12 agulbra Exp $";
 #endif
 
 /*! \example drawdemo/drawdemo.cpp
@@ -18,6 +18,12 @@ static char ident[] = "$Id: examples.doc,v 1.3 1995/08/31 12:29:48 hanord Exp $"
   This example demontrates several drawing functions and printer output.
   You can easily add you own drawing functions.  See "ourDrawFunctions".
 */
+
+/*! \example menu/menu.cpp
+
+  <h1>Using menus</h1>
+
+  This example demontrates simple use of menus.*/
 
 /*! \example widgets/widgets.cpp
 
