@@ -196,8 +196,6 @@ else
     fi
 fi
 
-exit 0
-
 # Remove the build options file
 [ -f .qmake.cache ] && rm .qmake.cache
 
