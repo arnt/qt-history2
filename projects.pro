@@ -4,7 +4,7 @@
 
 CONFIG += ordered
 TEMPLATE = subdirs
-isEmpty(QT_PROJECTS):QT_PROJECTS = qmake src tools demos
+isEmpty(QT_PROJECTS):QT_PROJECTS = qmake src tools demos examples
 SUBDIRS += $$QT_PROJECTS
 
 unix {
