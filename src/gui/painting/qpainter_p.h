@@ -198,26 +198,15 @@ public:
                          StrokeAndFillDraw = 0x3
     };
 
-    enum ShapeType { LineShape,
-                     RectangleShape,
-                     EllipseShape,
-                     PolygonShape,
-                     PathShape
-    };
-
-    QPolygonF draw_helper_xpolygon(const void *data, ShapeType type);
-    void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
-                     DrawOperation operation, uint emulationSpecifier);
-    void draw_helper(const void *data, Qt::FillRule fillRule, ShapeType type,
-                     DrawOperation operation = StrokeAndFillDraw);
+    void draw_helper(const QPainterPath &path, DrawOperation operation, uint emulationSpecifier);
+    void draw_helper(const QPainterPath &path, DrawOperation operation = StrokeAndFillDraw);
 
     // Refactored draw_helper functionallity
-    QRect draw_helper_setclip(const void *data, Qt::FillRule fillRule, ShapeType type);
-    void draw_helper_fill_lineargradient(const void *data, Qt::FillRule fillRule, ShapeType type);
-    void draw_helper_fill_alpha(const void *data, Qt::FillRule fillRule, ShapeType type);
-    void draw_helper_fill_pattern(const void *data, Qt::FillRule fillRule, ShapeType type);
-    void draw_helper_stroke_normal(const void *data, ShapeType type, uint emulate);
-    void draw_helper_stroke_pathbased(const void *data, ShapeType type);
+    void draw_helper_fill_lineargradient(const QPainterPath &path);
+    void draw_helper_fill_alpha(const QPainterPath &path);
+    void draw_helper_fill_pattern(const QPainterPath &path);
+    void draw_helper_stroke_normal(const QPainterPath &path, uint emulate);
+    void draw_helper_stroke_pathbased(const QPainterPath &path);
 
     void updateMatrix();
     void updateInvMatrix();
