@@ -291,12 +291,13 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 const unsigned char * p_str(const char * c, int len=-1)
 {
     const int maxlen = 255;
-    unsigned char ret[maxlen+2];
-
+    static unsigned char ret[maxlen+2];
     if(len == -1)
 	len = qstrlen(c);
-    if(len > maxlen)
+    if(len > maxlen) {
 	qWarning( "p_str len must never exceed %d", maxlen );
+	len = maxlen;
+    }
     ret[0]=len;
     memcpy(((char *)ret)+1,c,len);
     ret[len+1] = '\0';
