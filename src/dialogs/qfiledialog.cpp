@@ -1261,8 +1261,8 @@ void QFileListBox::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( filedialog->mode() == QFileDialog::ExistingFiles )
 		files = filedialog->selectedFiles();
 	    else
-		filedialog->selectedFile();
-	    drag->setUnicodeUris( files );
+		files = filedialog->selectedFile();
+	    drag->setFileNames( files );
 
 	    if ( lined->parentWidget()->isVisible() )
 		cancelRename();
@@ -1678,8 +1678,8 @@ void QFileDialogQFileListView::viewportMouseMoveEvent( QMouseEvent *e )
 	    if ( filedialog->mode() == QFileDialog::ExistingFiles )
 		files = filedialog->selectedFiles();
 	    else
-		filedialog->selectedFile();
-	    drag->setUnicodeUris( files );
+		files = filedialog->selectedFile();
+	    drag->setFileNames( files );
 
 	    if ( lined->isVisible() )
 		cancelRename();
