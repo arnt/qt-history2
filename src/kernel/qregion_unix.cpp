@@ -2498,15 +2498,9 @@ QRect QRegion::boundingRect() const
 
     The union of all the rectangles is equal to the original region.
 */
-
 QVector<QRect> QRegion::rects() const
 {
-    // copy only the rects we need
-    int totalRects = isEmpty() ? 0 : d->region->numRects;
-    QVector<QRect> tmpRects(totalRects);
-    for (int i = 0; i < totalRects; ++i)
-	tmpRects[i] = d->region->rects.at(i);
-    return tmpRects;
+    return d->region->rects;
 }
 
 /*!
