@@ -826,9 +826,9 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	    break;
     }
 
-    if ( best_family == 0 || best_foundry == 0 || best_style == 0 ||
+    if ( best_family == 0 || best_foundry == 0 || best_style == 0 
 #ifdef Q_WS_X11
-	 best_size == 0 || best_encoding == 0
+	 || best_size == 0 || best_encoding == 0
 #endif
 	 ) {
 #ifdef FONT_MATCH_DEBUG
