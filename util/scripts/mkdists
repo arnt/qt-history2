@@ -820,7 +820,7 @@ sub copy_version {
 	$_ = <I>;
 	close I;
 	s/%YEAR%/$year/g;
-	s/%VERSION%/$version/g;
+	s/%VERSION%/$version$type/g;
 	s/%VERSIONWIN%/$version_digits/g;
 	if ( $type eq "-snapshot" ) {
 	    s/%SNAPSHOTONLY([^%]*)%/$1/g; 
