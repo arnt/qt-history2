@@ -4857,7 +4857,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case QStyle::SH_ComboBox_Popup:
         if (const QStyleOptionComboBox *cmb = qt_cast<const QStyleOptionComboBox *>(opt))
-            ret = cmb->editable;
+            ret = !cmb->editable;
         else
             ret = 0;
         break;
