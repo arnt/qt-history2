@@ -7,7 +7,7 @@
 #include <qstatusbar.h>
 
 DesignerApplicationInterface::DesignerApplicationInterface()
-    : QApplicationInterface( "Designer Application Interface" )
+    : QApplicationInterface( "DesignerApplicationInterface" )
 {
     MainWindow* mw = (MainWindow*)qApp->mainWidget();
     FormList* fl = mw ? mw->formlist() : 0;
@@ -18,21 +18,36 @@ DesignerApplicationInterface::DesignerApplicationInterface()
     new DesignerFormListInterfaceImpl( fl, this );
 }
 
+QString DesignerApplicationInterface::interfaceID() const
+{ 
+    return "DesignerApplicationInterface";
+}
+
 /*
  * DesignerMainWindowInterface
 */
 DesignerMainWindowInterfaceImpl::DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent )
-    : DesignerMainWindowInterface( mw, parent, "Designer MainWindow Interface" )
+    : DesignerMainWindowInterface( mw, parent, "DesignerMainWindowInterfaceImpl" )
 {
     new DesignerStatusBarInterfaceImpl( ((QMainWindow*)component())->statusBar(), this );
+}
+
+QString DesignerMainWindowInterfaceImpl::interfaceID() const
+{ 
+    return "DesignerMainWindowInterface";
 }
 
 /*
  * DesignerStatusBarInterface
 */
 DesignerStatusBarInterfaceImpl::DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent )
-    : DesignerStatusBarInterface( sb, parent, "Designer StatusBar Interface" )
+    : DesignerStatusBarInterface( sb, parent, "DesignerStatusBarInterfaceImpl" )
 {
+}
+
+QString DesignerStatusBarInterfaceImpl::interfaceID() const
+{ 
+    return "DesignerStatusBarInterface";
 }
 
 bool DesignerStatusBarInterfaceImpl::requestSetProperty( const QCString &p, const QVariant &v )
@@ -53,7 +68,7 @@ bool DesignerStatusBarInterfaceImpl::requestSetProperty( const QCString &p, cons
  * DesignerFormListInterface
 */
 DesignerFormListInterfaceImpl::DesignerFormListInterfaceImpl( FormList *fl, QUnknownInterface* parent )
-    : DesignerFormListInterface( fl, parent, "Designer FormList Interface" )
+    : DesignerFormListInterface( fl, parent, "DesignerFormListInterfaceImpl" )
 {
     new DesignerActiveFormWindowInterfaceImpl( fl, this );
 }
@@ -135,10 +150,15 @@ void DesignerFormListInterfaceImpl::setPixmap( DesignerFormWindowInterface *form
  * DesignerActiveFormWindowInterface
 */
 DesignerActiveFormWindowInterfaceImpl::DesignerActiveFormWindowInterfaceImpl ( FormList* fl, QUnknownInterface *parent )
-    : DesignerActiveFormWindowInterface( fl, parent, "Designer ActiveForm Interface" ), formWindow( 0 )
+    : DesignerActiveFormWindowInterface( fl, parent, "DesignerActiveFormWindowInterfaceImpl" ), formWindow( 0 )
 {
     connect( component(), SIGNAL( selectionChanged() ),
 	     this, SLOT( reconnect() ) );
+}
+
+QString DesignerActiveFormWindowInterfaceImpl::interfaceID() const
+{ 
+    return "DesignerActiveFormWindowInterface"; 
 }
 
 QVariant DesignerActiveFormWindowInterfaceImpl ::requestProperty( const QCString& p )

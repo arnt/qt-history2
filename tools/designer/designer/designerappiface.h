@@ -15,7 +15,7 @@ class DesignerStatusBarInterfaceImpl : public QApplicationComponentInterface
 public:
     DesignerStatusBarInterfaceImpl( QStatusBar *sb, QUnknownInterface* parent );
 
-    QString interfaceID() const { return "DesignerStatusBarInterface"; }
+    QString interfaceID() const;
 
     bool requestSetProperty( const QCString &p, const QVariant &v );
 };
@@ -25,7 +25,7 @@ class DesignerMainWindowInterfaceImpl : public QApplicationComponentInterface
 public:
     DesignerMainWindowInterfaceImpl( MainWindow *mw, QUnknownInterface* parent );
 
-    QString interfaceID() const { return "DesignerMainWindowInterface"; }
+    QString interfaceID() const;
 };
 
 class DesignerActiveFormWindowInterfaceImpl : public QObject, public QApplicationComponentInterface
@@ -35,7 +35,7 @@ class DesignerActiveFormWindowInterfaceImpl : public QObject, public QApplicatio
 public:
     DesignerActiveFormWindowInterfaceImpl ( FormList*, QUnknownInterface * );
 
-    QString interfaceID() const { return "DesignerActiveFormWindowInterface"; }
+    QString interfaceID() const;
 
     QVariant requestProperty( const QCString& p );
     bool requestSetProperty( const QCString& p, const QVariant& v );
@@ -93,7 +93,7 @@ class DesignerApplicationInterface : public QApplicationInterface
 public:
     DesignerApplicationInterface();
 
-    QString interfaceID() const { return "DesignerApplicationInterface"; }
+    QString interfaceID() const;
 
     QString name() const { return "Qt Designer"; }
     QString description() const { return "GUI Editor for the Qt Toolkit"; }
