@@ -131,9 +131,9 @@
   incompatible manner in the future.
 */
 
-/*!  \fn void QTextView::setDocument( QTextDocument *doc ) const
+/*!  \fn void QTextView::setDocument( QTextDocument *doc )
 
-  This function sets theQTextDocument which should be used by this
+  This function sets the QTextDocument which should be used by this
   view. This can be used if you e.g. want to display one document in
   multiple views. Just create a QTextDocument and set it to the views
   which should display it. But you need then connect to textChanged()
