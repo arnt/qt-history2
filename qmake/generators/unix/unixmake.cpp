@@ -345,6 +345,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     writeMakeQmake(t);
 
+    if(!project->first("QMAKE_PKGINFO").isEmpty()) {
+	QString pkginfo = project->first("QMAKE_PKGINFO");
+	t << pkginfo << ": " << "\n\t"
+	  << "rm -f " << pkginfo << "\n\t"
+	  << "echo \"APPL????\" >" << pkginfo << endl;
+    }
+
     t << "dist: " << "\n\t"
       << "cd ..\n\t"
       << "$(TAR) " << var("PROJECT") << ".tar " << " $(SOURCES) $(HEADERS) $(INTERFACES) $(DIST)" << "\n\t"
@@ -605,6 +612,9 @@ UnixMakefileGenerator::init()
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
 	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + ".app/Contents/MacOS/";
+
+	    project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
+	    project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
 	}
     }
     //version handling
