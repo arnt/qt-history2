@@ -226,7 +226,7 @@ QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\""
 
 
 #-------------------------------------------------------------------------------
-# parse command line arguments
+# initalize variables
 #-------------------------------------------------------------------------------
 
 # QTDIR may be set and point to an old or system-wide Qt installation
@@ -295,6 +295,22 @@ QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
 QT_INSTALL_PLUGINS=
 QT_INSTALL_DATA=
+
+
+#-------------------------------------------------------------------------------
+# check SQL drivers available in this package
+#-------------------------------------------------------------------------------
+
+if echo $MODULES | grep sql >/dev/null; then
+    CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
+    # normalize whitespace
+    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
+fi
+
+
+#-------------------------------------------------------------------------------
+# parse command line arguments
+#-------------------------------------------------------------------------------
 
 # parse the arguments, setting things to "yes" or "no"
 while [ "$#" -gt 0 ]; do
@@ -847,10 +863,13 @@ while [ "$#" -gt 0 ]; do
 		*) ERROR=yes ;;
 		esac
 	    elif [ "$VAR" = "sql" ]; then
-		case "$VAL" in
-		psql|mysql|odbc|oci|tds|db2) ;;
-		*) ERROR=yes ;;
-		esac
+		ERROR=yes
+		for d in $CFG_SQL_AVAILABLE; do
+		    if [ "$VAL" == "$d" ]; then
+			ERROR=no
+			break
+		    fi
+		done
 	    fi
 	    if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
 		if [ "$OPT" = "plugin" ]; then
@@ -1489,12 +1508,8 @@ fi
 # tests that don't need qmake (must be run before displaying help)
 #-------------------------------------------------------------------------------
 
-# unix
 # auto-detect SQL-modules support
 if echo $MODULES | grep sql >/dev/null; then
-    CFG_SQL_AVAILABLE=`find $relpath/plugins/src/sqldrivers/* -prune -type d -print | awk -F/ '{print $NF}'`
-    # normalize whitespace
-    CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`
     MYSQL_REQ="-lmysqlclient mysql.h"
     OCI_REQ="-lclntsh -lwtc8 oci.h"
     PSQL_REQ="-lpq postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
