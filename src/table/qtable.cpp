@@ -3284,8 +3284,8 @@ int QTable::numSelections() const
 }
 
 /*!
-    Returns selection number \a num, or an empty QTableSelection if \a
-    num is out of range (see QTableSelection::isNull()).
+    Returns selection number \a num, or an inactive QTableSelection if \a
+    num is out of range (see QTableSelection::isActive()).
 */
 
 QTableSelection QTable::selection( int num ) const
