@@ -160,7 +160,7 @@ public:
     virtual bool isComment() { return FALSE; }
     virtual QDomNode::NodeType nodeType() const { return QDomNode::BaseNode; }
 
-    virtual void save( QTextStream&, int ) const;
+    virtual void save( QTextStream&, int, int ) const;
 
     // Variables
     QDomNodePrivate* prev;
@@ -264,7 +264,7 @@ public:
     bool isDocumentType() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentTypeNode; }
 
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     // Variables
     QDomNamedNodeMapPrivate* entities;
@@ -324,7 +324,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isText() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::TextNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     static QString* textName;
 };
@@ -344,7 +344,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isAttr() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::AttributeNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     // Variables
     bool m_specified;
@@ -379,7 +379,7 @@ public:
     bool isElement() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::ElementNode; }
     QDomNodePrivate* cloneNode( bool deep = TRUE );
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     // Variables
     QDomNamedNodeMapPrivate* m_attr;
@@ -397,7 +397,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isComment() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::CommentNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     static QString* commentName;
 };
@@ -413,7 +413,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isCDATASection() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::CDATASectionNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     static QString* cdataName;
 };
@@ -430,7 +430,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isNotation() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::NotationNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     // Variables
     QString m_sys;
@@ -449,7 +449,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isEntity() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::EntityNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 
     // Variables
     QString m_sys;
@@ -468,7 +468,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isEntityReference() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::EntityReferenceNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 };
 
 class QDomProcessingInstructionPrivate : public QDomNodePrivate
@@ -483,7 +483,7 @@ public:
     QDomNodePrivate* cloneNode( bool deep = TRUE );
     bool isProcessingInstruction() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::ProcessingInstructionNode; }
-    void save( QTextStream& s, int ) const;
+    void save( QTextStream& s, int, int ) const;
 };
 
 class QDomDocumentPrivate : public QDomNodePrivate
@@ -521,7 +521,7 @@ public:
     bool isDocument() { return TRUE; }
     QDomNode::NodeType nodeType() const { return QDomNode::DocumentNode; }
     void clear();
-    void save( QTextStream&, int ) const;
+    void save( QTextStream&, int, int ) const;
 
     // Variables
     QDomImplementationPrivate* impl;
@@ -1487,11 +1487,11 @@ void QDomNodePrivate::normalize()
     qNormalizeNode( this );
 }
 
-void QDomNodePrivate::save( QTextStream& s, int indent ) const
+void QDomNodePrivate::save( QTextStream& s, int depth, int indent ) const
 {
     const QDomNodePrivate* n = first;
     while ( n ) {
-	n->save( s, indent );
+	n->save( s, depth, indent );
 	n = n->next;
     }
 }
@@ -2180,7 +2180,7 @@ QDomNode QDomNode::namedItem( const QString& name ) const
 void QDomNode::save( QTextStream& str, int indent ) const
 {
     if ( impl )
-	IMPL->save( str, indent );
+	IMPL->save( str, 1, indent );
 }
 
 /*! \relates QDomNode
@@ -2189,7 +2189,7 @@ void QDomNode::save( QTextStream& str, int indent ) const
 */
 QTextStream& operator<<( QTextStream& str, const QDomNode& node )
 {
-    node.save( str, 0 );
+    node.save( str, 1 );
 
     return str;
 }
@@ -2918,7 +2918,7 @@ QDomNodePrivate* QDomDocumentTypePrivate::appendChild( QDomNodePrivate* newChild
     return insertAfter( newChild, 0 );
 }
 
-void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
+void QDomDocumentTypePrivate::save( QTextStream& s, int, int indent ) const
 {
     if ( name.isEmpty() )
 	return;
@@ -2938,11 +2938,11 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 
 	QDictIterator<QDomNodePrivate> it2( notations->map );
 	for ( ; it2.current(); ++it2 )
-	    it2.current()->save( s, 0 );
+	    it2.current()->save( s, 0, indent );
 
 	QDictIterator<QDomNodePrivate> it( entities->map );
 	for ( ; it.current(); ++it )
-	    it.current()->save( s, 0 );
+	    it.current()->save( s, 0, indent );
 
 	s << " ]";
     }
@@ -3563,7 +3563,7 @@ static QString encodeAttr( const QString& str )
     return tmp;
 }
 
-void QDomAttrPrivate::save( QTextStream& s, int ) const
+void QDomAttrPrivate::save( QTextStream& s, int, int ) const
 {
     if ( namespaceURI.isNull() ) {
 	s << name << "=\"" << encodeAttr( value ) << "\"";
@@ -3919,10 +3919,10 @@ QString QDomElementPrivate::text()
     return t;
 }
 
-void QDomElementPrivate::save( QTextStream& s, int indent ) const
+void QDomElementPrivate::save( QTextStream& s, int depth, int indent ) const
 {
     if ( !( prev && prev->isText() ) )
-	for ( int i = 0; i < indent; ++i )
+	for ( int i = 0; i < depth*indent; ++i )
 	    s << " ";
 
     QString qName( name );
@@ -3947,7 +3947,7 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	s << " ";
 	QDictIterator<QDomNodePrivate> it( m_attr->map );
 	for ( ; it.current(); ++it ) {
-	    it.current()->save( s, 0 );
+	    it.current()->save( s, 0, indent );
 	    s << " ";
 	}
     }
@@ -3958,9 +3958,9 @@ void QDomElementPrivate::save( QTextStream& s, int indent ) const
 	    s << ">";
 	else
 	    s << ">" << endl;
-	QDomNodePrivate::save( s, indent + 1 );
+	QDomNodePrivate::save( s, depth + 1, indent);
 	if ( !last->isText() )
-	    for( int i = 0; i < indent; ++i )
+	    for( int i = 0; i < depth*indent; ++i )
 		s << " ";
 
 	s << "</" << qName << ">";
@@ -4469,7 +4469,7 @@ QDomTextPrivate* QDomTextPrivate::splitText( int offset )
     return t;
 }
 
-void QDomTextPrivate::save( QTextStream& s, int ) const
+void QDomTextPrivate::save( QTextStream& s, int, int ) const
 {
     s << encodeAttr( value );
 }
@@ -4609,7 +4609,7 @@ QDomNodePrivate* QDomCommentPrivate::cloneNode( bool deep)
     return p;
 }
 
-void QDomCommentPrivate::save( QTextStream& s, int ) const
+void QDomCommentPrivate::save( QTextStream& s, int, int ) const
 {
     s << "<!--" << value << "-->";
 }
@@ -4737,7 +4737,7 @@ QDomNodePrivate* QDomCDATASectionPrivate::cloneNode( bool deep)
     return p;
 }
 
-void QDomCDATASectionPrivate::save( QTextStream& s, int ) const
+void QDomCDATASectionPrivate::save( QTextStream& s, int, int ) const
 {
     // ### How do we escape "]]>" ?
     // "]]>" is not allowed; so there should be none in value anyway
@@ -4872,7 +4872,7 @@ QDomNodePrivate* QDomNotationPrivate::cloneNode( bool deep)
     return p;
 }
 
-void QDomNotationPrivate::save( QTextStream& s, int ) const
+void QDomNotationPrivate::save( QTextStream& s, int, int ) const
 {
     s << "<!NOTATION " << name << " ";
     if ( !m_pub.isNull() )  {
@@ -5072,7 +5072,7 @@ static QCString encodeEntity( const QCString& str )
     return tmp;
 }
 
-void QDomEntityPrivate::save( QTextStream& s, int ) const
+void QDomEntityPrivate::save( QTextStream& s, int, int ) const
 {
     if ( m_sys.isNull() && m_pub.isNull() ) {
 	s << "<!ENTITY " << name << " \"" << encodeEntity( value.utf8() ) << "\">" << endl;
@@ -5250,7 +5250,7 @@ QDomNodePrivate* QDomEntityReferencePrivate::cloneNode( bool deep)
     return p;
 }
 
-void QDomEntityReferencePrivate::save( QTextStream& s, int ) const
+void QDomEntityReferencePrivate::save( QTextStream& s, int, int ) const
 {
     s << "&" << name << ";";
 }
@@ -5388,7 +5388,7 @@ QDomNodePrivate* QDomProcessingInstructionPrivate::cloneNode( bool deep)
     return p;
 }
 
-void QDomProcessingInstructionPrivate::save( QTextStream& s, int ) const
+void QDomProcessingInstructionPrivate::save( QTextStream& s, int, int ) const
 {
     s << "<?" << name << " " << value << "?>" << endl;
 }
@@ -5756,7 +5756,7 @@ QDomNodePrivate* QDomDocumentPrivate::importNode( const QDomNodePrivate* importe
     }
 }
 
-void QDomDocumentPrivate::save( QTextStream& s, int ) const
+void QDomDocumentPrivate::save( QTextStream& s, int, int indent ) const
 {
     bool doc = FALSE;
 
@@ -5781,10 +5781,10 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
     while ( n ) {
 	if ( !doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml") ) {
 	    // save doctype after XML declaration
-	    type->save( s, 0 );
+	    type->save( s, 0, indent );
 	    doc = TRUE;
 	}
-	n->save( s, 0 );
+	n->save( s, 0, indent );
 	n = n->next;
     }
 }
