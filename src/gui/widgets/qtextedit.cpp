@@ -639,14 +639,14 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
     formatted string which is word-wrapped to fit into the width of
     the widget. By default when reading plain text, one newline
     signifies a paragraph. A document consists of zero or more
-    paragraphs. The words in the paragraph are aligned in accordance 
-    with the paragraph's alignment. Paragraphs are separated by hard 
-    line breaks. Each character within a paragraph has its own 
+    paragraphs. The words in the paragraph are aligned in accordance
+    with the paragraph's alignment. Paragraphs are separated by hard
+    line breaks. Each character within a paragraph has its own
     attributes, for example, font and color.
 
-    QTextEdit can display images, lists and tables. If the text is 
-    too large to view within the text edit's viewport, scrollbars will 
-    appear. The text edit can load both plain text and HTML files (a 
+    QTextEdit can display images, lists and tables. If the text is
+    too large to view within the text edit's viewport, scrollbars will
+    appear. The text edit can load both plain text and HTML files (a
     subset of HTML 3.2 and 4).
 
     If you just need to display a small piece of rich text use QLabel.
@@ -665,12 +665,12 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 
     The text is set or replaced using setHtml() which deletes any
     existing text and replaces it with the text passed in the
-    setHtml() call. If you call setHtml() with legacy HTML, and then 
-    call text(), the text that is returned may have different markup, 
+    setHtml() call. If you call setHtml() with legacy HTML, and then
+    call text(), the text that is returned may have different markup,
     but will render the same. The entire text can be deleted with clear().
 
     Text itself can be inserted using the QTextCursor class or using the
-    convenience functions insertHtml(), insertPlainText(), append() or 
+    convenience functions insertHtml(), insertPlainText(), append() or
     paste(). QTextCursor is also able to insert complex objects like tables
     or lists into the document, and it deals with creating selections
     and applying changes to selected text.
@@ -723,14 +723,14 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 
     Selection of text is handled by the QTextCursor class, which provides
     functionality for creating selections, retrieving the text contents or
-    deleting selections. You can retrieve the object that corresponds with 
-    the user-visible cursor using the textCursor() method. If you want to set 
-    a selection in QTextEdit just create one on a QTextCursor object and 
-    then make that cursor the visible cursor using setCursor(). The selection 
-    can be copied to the clipboard with copy(), or cut to the clipboard with 
+    deleting selections. You can retrieve the object that corresponds with
+    the user-visible cursor using the textCursor() method. If you want to set
+    a selection in QTextEdit just create one on a QTextCursor object and
+    then make that cursor the visible cursor using setCursor(). The selection
+    can be copied to the clipboard with copy(), or cut to the clipboard with
     cut(). The entire text can be selected using selectAll().
 
-    When the cursor is moved, the currentCharFormatChanged() signal is 
+    When the cursor is moved, the currentCharFormatChanged() signal is
     emitted to reflect the new formatting attributes at the new cursor
     position.
 
@@ -990,7 +990,7 @@ Qt::Alignment QTextEdit::alignment() const
 }
 
 /*!
-    Makes \a document the new document of the text editor. 
+    Makes \a document the new document of the text editor.
 
     The parent QObject of the provided document remains the owner
     of the object. If the current document is a child of the text
@@ -1273,9 +1273,6 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
 
 void QTextEdit::setPlainText(const QString &text)
 {
-    if (text.isEmpty())
-        return;
-
     QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
     d->init(fragment);
 }
@@ -1538,7 +1535,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     // scrollbars, the QViewport will find out about it and try to show/hide the scrollbars
     // again. That's why we try to detect this case here and break out.
     //
-    // (if you change this please also check the layoutingLoop() testcase in 
+    // (if you change this please also check the layoutingLoop() testcase in
     // QTextEdit's autotests)
     if (lastUsedSize.isValid()
         && d->vbar->isShown()
@@ -1751,7 +1748,7 @@ void QTextEdit::dropEvent(QDropEvent *ev)
 
     ev->acceptAction();
 
-    if (ev->action() == QDropEvent::Move 
+    if (ev->action() == QDropEvent::Move
         && (ev->source() == this || ev->source() == d->viewport))
         d->cursor.removeSelectedText();
 
