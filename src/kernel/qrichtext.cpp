@@ -1635,6 +1635,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
     NEWPAR;
 
+    // set rtext spacing to FALSE for the initial paragraph.
+    curpar->rtext = FALSE;
+
     QString wellKnownTags = "br hr wsp table qt body meta title";
 
     while ( pos < length ) {
