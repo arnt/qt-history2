@@ -347,7 +347,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	else
 	    wclass = kDocumentWindowClass;
 
-	WindowAttributes wattr = kWindowNoAttributes;
+	WindowAttributes wattr = kWindowNoAttributes | kWindowLiveResizeAttribute;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
@@ -374,22 +374,19 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	}
 	CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id);
 	InstallWindowContentPaintProc((WindowPtr)id, NewWindowPaintUPP(macSpecialErase), 0, this);
-//	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
-#if 0
-	{ //set transparency!
-	    CGContextRef ctx = NULL;
-	    qDebug("%d -- %d", CreateCGContextForPort(GetWindowPort((WindowPtr)id), &ctx), ctx);
-	    CGContextSetAlpha(ctx, .5);
-//	    CGContextRelease(ctx);
-	}
 	if(testWFlags( WType_Popup ))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
-#endif
-	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 
+//	ChangeWindowAttributes((WindowPtr)id, kWindowNoBufferingAttribute, 0);
+#if 0
+	CGContextRef ctx = NULL;
+	CreateCGContextForPort(GetWindowPort((WindowPtr)id), &ctx);
+	CGContextSetAlpha(ctx, 16556);
+#endif
+
+	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
-
 	hd = (void *)id;
 	setWinId(id);
 

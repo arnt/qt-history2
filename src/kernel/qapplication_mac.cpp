@@ -219,6 +219,7 @@ static EventTypeSpec events[] = {
     { kEventClassWindow, kEventWindowDeactivated },
     { kEventClassWindow, kEventWindowShown },
     { kEventClassWindow, kEventWindowHidden },
+    { kEventClassWindow, kEventWindowBoundsChanged },
 
     { kEventClassQt, kEventQtRequestPropagate },
     { kEventClassQt, kEventQtRequestSelect },
@@ -1087,7 +1088,6 @@ bool QApplication::do_mouse_down( Point *pt )
     short windowPart;
     windowPart = FindWindow( *pt, &wp );
     QWidget *widget = QWidget::find( (WId)wp );
-    int growWindowSize = 0;
     bool in_widget = FALSE;
 
     switch( windowPart ) {
@@ -1099,40 +1099,23 @@ bool QApplication::do_mouse_down( Point *pt )
 	}
 	break;
     case inDrag:
-    {
 	DragWindow( wp, *pt, 0 );
-
-	int ox = widget->crect.x(), oy = widget->crect.y();
-	QMacSavedPortInfo savedInfo(widget);
-	Point p = { 0, 0 };
-	LocalToGlobal(&p);
-	widget->crect.setRect( p.h, p.v, widget->width(), widget->height() );
-	QMoveEvent qme( QPoint( widget->crect.x(), widget->crect.y() ),
-			QPoint( ox, oy) );
-	QApplication::sendEvent( widget, &qme );
-    }
-    break;
+	break;
     case inContent:
 	in_widget = TRUE;
 	break;
     case inGrow:
+    {
 	Rect limits;
-
 	if( widget ) {
 	    if ( widget->extra ) {
 		SetRect( &limits, widget->extra->minw, widget->extra->minh,
 			 widget->extra->maxw, widget->extra->maxh);
 	    }
 	}
-	growWindowSize = GrowWindow( wp, *pt, &limits);
-	if( growWindowSize) {
-	    // nw/nh might not match the actual size if setSizeIncrement is used
-	    int nw = LoWord( growWindowSize );
-	    int nh = HiWord( growWindowSize );
-	    if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget) 
-		widget->resize(nw, nh);
-	}
+	GrowWindow( wp, *pt, &limits);
 	break;
+    }
     case inCollapseBox:
 	if( TrackBox( wp, *pt, windowPart ) == true ) {
 	    if(widget)
@@ -1711,6 +1694,23 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	if(ekind == kEventWindowUpdate) {
 	    remove_context_timer = FALSE;
 	    widget->propagateUpdates();
+	} else if(ekind == kEventWindowBoundsChanged) {
+	    UInt32 flags;
+	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, sizeof(flags), NULL, &flags);
+	    Rect nr;
+	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(nr), NULL, &nr);
+	    if((flags & kWindowBoundsChangeUserDrag)) {
+		int ox = widget->crect.x(), oy = widget->crect.y();
+		int nx = nr.left, ny = nr.top;
+		widget->crect.setRect( nx, ny, widget->width(), widget->height() );
+		QMoveEvent qme( widget->crect.topLeft(), QPoint( ox, oy) );
+		QApplication::sendEvent( widget, &qme );
+	    } else if((flags & kWindowBoundsChangeUserResize)) {
+		// nw/nh might not match the actual size if setSizeIncrement is used
+		int nw = nr.right - nr.left, nh = nr.bottom - nr.top;
+		widget->resize(nw, nh);
+		widget->propagateUpdates();
+	    }
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
 		widget->raise();
