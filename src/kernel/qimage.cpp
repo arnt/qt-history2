@@ -3481,7 +3481,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     if ( rdlen != buflen )
 	return 0;
 
-    const char* format;
+    const char* format = 0;
 #ifndef QT_NO_ASYNC_IMAGE_IO
     // Try asynchronous loaders first (before we 0->1 the header),
     // but overwrite if found in IOHandlers.
