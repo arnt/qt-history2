@@ -106,7 +106,7 @@
 
     Example:
     \code
- QAccel *a = new QAccel(myWindow);           // create accels for myWindow
+        QAccel *a = new QAccel(myWindow);           // create accels for myWindow
         a->connectItem(a->insertItem(Qt::Key_P+Qt::CTRL), // adds Ctrl+P accelerator
                         myWindow,                   // connected to myWindow's
                         SLOT(printDoc()));           // printDoc() slot
