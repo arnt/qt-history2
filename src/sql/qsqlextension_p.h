@@ -29,6 +29,7 @@
 
 #if defined(Q_TEMPLATEDLL)
 Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<QString,QVariant>;
+Q_TEMPLATE_EXTERN template class QM_EXPORT_SQL QMap<int,QString>;
 #endif
 
 class QM_EXPORT_SQL QSqlExtension {
