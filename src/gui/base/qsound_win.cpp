@@ -78,7 +78,7 @@ struct SoundInfo
 DWORD WINAPI SoundPlayProc(LPVOID param)
 {
     SoundInfo *info = (SoundInfo*)param;
-
+    
     // copy data before waking up GUI thread
     QAuServerWindows *server = info->server;
     QGuardedPtr<QSound> sound = info->sound;
@@ -87,29 +87,34 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
     HANDLE mutex = server->mutex;
     HANDLE event = server->event;
     info = 0;
-
+    
     // server must not be destroyed until thread finishes
     // and all other sounds have to wait
     WaitForSingleObject(mutex, INFINITE);
-
-    if (loops == -1) {
+    
+    if (loops <= 1) {
 	server->current = 0;
+	int flags = SND_FILENAME|SND_ASYNC;
+	if (loops == -1)
+	    flags |= SND_LOOP;
+	
 	QT_WA( {
-	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_ASYNC|SND_LOOP );
+	    PlaySoundW( (TCHAR*)filename.ucs2(), 0, flags);
 	} , {
-	    PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_ASYNC|SND_LOOP );
+	    PlaySoundA( QFile::encodeName(filename).data(), 0, flags );
 	} );
-    } 
+    }
     
     // signal GUI thread to continue - sound might be reset!
     SetEvent(event);
-
-    if (loops != -1) {
+    
+    if (loops > 1) {
 	for (int l = 0; l < loops && server->current; ++l) {
 	    QT_WA( {
 		PlaySoundW( (TCHAR*)filename.ucs2(), 0, SND_FILENAME|SND_SYNC );
 	    } , {
-		PlaySoundA( QFile::encodeName(filename).data(), 0, SND_FILENAME|SND_SYNC );
+		PlaySoundA( QFile::encodeName(filename).data(), 0,
+		    SND_FILENAME|SND_SYNC );
 	    } );
 	    
 	    if (sound)
@@ -118,7 +123,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
 	server->current = 0;
     }
     ReleaseMutex(mutex);
-
+    
     return 0;
 }
 
