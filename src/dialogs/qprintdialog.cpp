@@ -1476,10 +1476,16 @@ void QPrintDialog::okClicked()
     d->printer->setPageOrder( d->pageOrder2 );
     d->printer->setColorMode( d->colorMode2 );
     d->printer->setNumCopies( d->numCopies );
-    if ( d->printAllButton->isChecked() )
+    if ( d->printAllButton->isChecked() ) {
+	d->printer->setPrintRange(QPrinter::AllPages);
 	d->printer->setFromTo( d->printer->minPage(), d->printer->maxPage() );
-    else
+    } else {
+	if (d->printSelectionButton->isChecked())
+	    d->printer->setPrintRange(QPrinter::Selection);
+	else
+	    d->printer->setPrintRange(QPrinter::PageRange);
 	d->printer->setFromTo( d->firstPage->value(), d->lastPage->value() );
+    }
 
     accept();
 }
@@ -1582,12 +1588,15 @@ void QPrintDialog::setPrinter( QPrinter * p, bool pickUpSettings )
 	QPrinter::PrintRange range = p->printRange();
 	switch ( range ) {
 	case QPrinter::AllPages:
+	    d->printAllButton->setChecked(TRUE);
 	    printRangeSelected( d->printRange->id( d->printAllButton ) );
 	    break;
 	case QPrinter::Selection:
+	    d->printSelectionButton->setChecked(TRUE);
 	    printRangeSelected( d->printRange->id( d->printSelectionButton ) );
 	    break;
 	case QPrinter::PageRange:
+	    d->printRangeButton->setChecked(TRUE);
 	    printRangeSelected( d->printRange->id( d->printRangeButton ) );
 	    break;
 	}
