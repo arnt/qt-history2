@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#145 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#146 $
 **
 ** Global type declarations and definitions
 **
@@ -452,13 +452,6 @@ enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 typedef void (*msg_handler)(QtMsgType, const char *);
 Q_EXPORT msg_handler qInstallMsgHandler( msg_handler );
 
-
-//
-// Enable QT_ADD_GENERIC_MACROS unless QT_REJECT_OBSOLETE is defined
-//
-#if !defined(QT_REJECT_OBSOLETE)
-#define QT_ADD_GENERIC_MACROS
-#endif
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
