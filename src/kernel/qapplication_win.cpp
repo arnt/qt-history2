@@ -273,10 +273,8 @@ QWidget	       *qt_button_down = 0;		// widget got last button-down
 static HWND	autoCaptureWnd = 0;
 static void	setAutoCapture( HWND );		// automatic capture
 static void	releaseAutoCapture();
-typedef void (*VFPTR)();
-typedef QValueList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
 
+typedef void (*VFPTR)();
 // VFPTR qt_set_preselect_handler( VFPTR );
 static VFPTR qt_preselect_handler = 0;
 // VFPTR qt_set_postselect_handler( VFPTR );
@@ -875,16 +873,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type )
 
 void qt_cleanup()
 {
-    if ( postRList ) {
-	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
-	    (**it)();
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
-    }
 #if defined(USE_HEARTBEAT)
     KillTimer( 0, heartBeat );
 #endif
@@ -942,30 +930,6 @@ static void msgHandler( QtMsgType t, const char* str )
 #endif
 }
 
-
-Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList ) {
-	postRList = new QVFuncList;
-	Q_CHECK_PTR( postRList );
-    }
-    postRList->prepend( p );
-}
-
-Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList )
-	return;
-
-    QVFuncList::Iterator it = postRList->begin();
-
-    while ( it != postRList->end() ) {
-	if ( *it == p ) {
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-    }
-}
 
 Q_EXPORT const char *qAppName()			// get application name
 {

@@ -268,8 +268,6 @@ static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popup
 
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
-
 void qt_install_preselect_handler( VFPTR );
 void qt_remove_preselect_handler( VFPTR );
 static QVFuncList *qt_preselect_handler = 0;
@@ -1502,17 +1500,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 
 void qt_cleanup()
 {
-    if ( postRList ) {
-	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
-	    (**it)();
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
-    }
-
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
@@ -1545,16 +1532,6 @@ void qt_cleanup()
 /*****************************************************************************
   Platform specific global and internal functions
  *****************************************************************************/
-
-void qAddPostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList ) {
-	postRList = new QVFuncList;
-	Q_CHECK_PTR( postRList );
-    }
-    postRList->prepend( p );
-}
-
 
 const char *qAppName()				// get application name
 {

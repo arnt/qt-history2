@@ -203,7 +203,6 @@ bool qt_nograb()				// application no-grab option
 //pre/post select callbacks
 typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
 void qt_install_preselect_handler( VFPTR );
 void qt_remove_preselect_handler( VFPTR );
 static QVFuncList *qt_preselect_handler = 0;
@@ -475,16 +474,6 @@ void qt_cleanup()
 	app_proc_handlerUPP = NULL;
     }
 
-    if (postRList) {
-	QVFuncList::Iterator it = postRList->begin();
-	while (it != postRList->end()) {	// call post routines
-	    (**it)();
-	    postRList->remove(it);
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
-    }
     cleanupTimers();
     QPixmapCache::clear();
     QPainter::cleanup();
@@ -505,27 +494,14 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-void qAddPostRoutine(QtCleanUpFunction p)
+void qt_updated_rootinfo()
 {
-    if (!postRList) {
-	postRList = new QVFuncList;
-	Q_CHECK_PTR(postRList);
-    }
-    postRList->prepend(p);
+
 }
 
-void qRemovePostRoutine(QtCleanUpFunction p)
+bool qt_wstate_iconified( WId )
 {
-    if(!postRList) return;
-
-    QVFuncList::Iterator it = postRList->begin();
-
-    while(it != postRList->end()) {
-	if (*it == p) {
-	    postRList->remove(it);
-	    it = postRList->begin();
-	}
-    }
+    return FALSE;
 }
 
 

@@ -345,6 +345,92 @@ void qt_setMaxWindowRect(const QRect& r)
     }
 }
 
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
+static QVFuncList *postRList = 0;		// list of post routines
+
+/*!
+  \relates QApplication
+
+  Adds a global routine that will be called from the QApplication
+  destructor.  This function is normally used to add cleanup routines
+  for program-wide functionality.
+
+  The function given by \a p should take no arguments and return
+  nothing, like this:
+  \code
+    static int *global_ptr = 0;
+
+    static void cleanup_ptr()
+    {
+	delete [] global_ptr;
+	global_ptr = 0;
+    }
+
+    void init_ptr()
+    {
+	global_ptr = new int[100];	// allocate data
+	qAddPostRoutine( cleanup_ptr );	// delete later
+    }
+  \endcode
+
+  Note that for an application- or module-wide cleanup,
+  qAddPostRoutine() is often not suitable.  People have a tendency to
+  make such modules dynamically loaded, and then unload those modules
+  long before the QApplication destructor is called, for example.
+
+  For modules and libraries, using a reference-counted initialization
+  manager or Qt' parent-child delete mechanism may be better.  Here is
+  an example of a private class which uses the parent-child mechanism
+  to call a cleanup function at the right time:
+
+  \code
+    class MyPrivateInitStuff: public QObject {
+    private:
+	MyPrivateInitStuff( QObject * parent ): QObject( parent) {
+	    // initialization goes here
+	}
+	MyPrivateInitStuff * p;
+
+    public:
+	static MyPrivateInitStuff * initStuff( QObject * parent ) {
+	    if ( !p )
+		p = new MyPrivateInitStuff( parent );
+	    return p;
+	}
+
+	~MyPrivateInitStuff() {
+	    // cleanup (the "post routine") goes here
+	}
+    }
+  \endcode
+
+  By selecting the right parent widget/object, this can often be made
+  to clean up the module's data at the exact right moment.
+*/
+
+Q_EXPORT void qAddPostRoutine( QtCleanUpFunction p)
+{
+    if ( !postRList ) {
+	postRList = new QVFuncList;
+	Q_CHECK_PTR( postRList );
+    }
+    postRList->prepend( p );
+}
+
+
+Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
+{
+    if ( !postRList ) return;
+    QVFuncList::Iterator it = postRList->begin();
+    while ( it != postRList->end() ) {
+	if ( *it == p ) {
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+    }
+}
+
 #ifdef QT_THREAD_SUPPORT
 QMutex * QApplication::qt_mutex=0;
 #endif
@@ -974,6 +1060,16 @@ QWidget *QApplication::activeModalWidget()
 
 QApplication::~QApplication()
 {
+    if ( postRList ) {
+	QVFuncList::Iterator it = postRList->begin();
+	while ( it != postRList->end() ) {	// call post routines
+	    (**it)();
+	    postRList->remove( it );
+	    it = postRList->begin();
+	}
+	delete postRList;
+	postRList = 0;
+    }
 #ifndef QT_NO_REMOTE
     remoteControl = 0; // The actual instance is in a plugin and will be destroyed automatically
 #endif // QT_NO_REMOTE
@@ -1000,7 +1096,6 @@ QApplication::~QApplication()
     app_font = 0;
     delete app_fonts;
     app_fonts = 0;
-    qt_cleanup();
 #ifndef QT_NO_STYLE
     delete app_style;
     app_style = 0;
@@ -1009,12 +1104,14 @@ QApplication::~QApplication()
     delete app_cursor;
     app_cursor = 0;
 #endif
-
-    qApp = 0;
-    is_app_running = FALSE;
 #ifndef QT_NO_TRANSLATION
     delete translators;
 #endif
+
+    qt_cleanup();
+    if( qApp == this )
+	qApp = 0;
+    is_app_running = FALSE;
 
 #if defined(QT_THREAD_SUPPORT)
     delete qt_mutex;

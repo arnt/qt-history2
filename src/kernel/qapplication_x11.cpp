@@ -317,10 +317,6 @@ static int xinput_button_release = INVALID_EVENT;
 static int max_pressure;
 #endif
 
-typedef void (*VFPTR)();
-typedef QValueList<VFPTR> QVFuncList;
-static QVFuncList *postRList = 0;		// list of post routines
-
 typedef int (*QX11EventFilter) (XEvent*);
 QX11EventFilter qt_set_x11_event_filter (QX11EventFilter filter);
 
@@ -338,6 +334,8 @@ static bool qt_x11EventFilter( XEvent* ev )
     return qApp->x11EventFilter( ev );
 }
 
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
 void qt_install_preselect_handler( VFPTR );
 void qt_remove_preselect_handler( VFPTR );
 static QVFuncList *qt_preselect_handler = 0;
@@ -2311,17 +2309,6 @@ void qt_init( Display *display, Qt::HANDLE visual, Qt::HANDLE colormap )
 
 void qt_cleanup()
 {
-    if ( postRList ) {
-	QVFuncList::Iterator it = postRList->begin();
-	while ( it != postRList->end() ) {	// call post routines
-	    (**it)();
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-	delete postRList;
-	postRList = 0;
-    }
-
     if ( app_save_rootinfo )			// root window must keep state
 	qt_save_rootinfo();
     cleanupTimers();
@@ -2465,117 +2452,6 @@ bool qt_wstate_iconified( WId winid )
     }
     return iconic;
 }
-
-/*!
-  \relates QApplication
-
-  Adds a global routine that will be called from the QApplication
-  destructor.  This function is normally used to add cleanup routines
-  for program-wide functionality.
-
-  The function given by \a p should take no arguments and return
-  nothing, like this:
-  \code
-    static int *global_ptr = 0;
-
-    static void cleanup_ptr()
-    {
-	delete [] global_ptr;
-	global_ptr = 0;
-    }
-
-    void init_ptr()
-    {
-	global_ptr = new int[100];	// allocate data
-	qAddPostRoutine( cleanup_ptr );	// delete later
-    }
-  \endcode
-
-  Note that for an application- or module-wide cleanup,
-  qAddPostRoutine() is often not suitable.  People have a tendency to
-  make such modules dynamically loaded, and then unload those modules
-  long before the QApplication destructor is called, for example.
-
-  For modules and libraries, using a reference-counted initialization
-  manager or Qt' parent-child delete mechanism may be better.  Here is
-  an example of a private class which uses the parent-child mechanism
-  to call a cleanup function at the right time:
-
-  \code
-    class MyPrivateInitStuff: public QObject {
-    private:
-	MyPrivateInitStuff( QObject * parent ): QObject( parent) {
-	    // initialization goes here
-	}
-	MyPrivateInitStuff * p;
-
-    public:
-	static MyPrivateInitStuff * initStuff( QObject * parent ) {
-	    if ( !p )
-		p = new MyPrivateInitStuff( parent );
-	    return p;
-	}
-
-	~MyPrivateInitStuff() {
-	    // cleanup (the "post routine") goes here
-	}
-    }
-  \endcode
-
-  By selecting the right parent widget/object, this can often be made
-  to clean up the module's data at the exact right moment.
-*/
-
-void qAddPostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList ) {
-	postRList = new QVFuncList;
-	Q_CHECK_PTR( postRList );
-    }
-    postRList->prepend( p );
-}
-
-
-void qRemovePostRoutine( QtCleanUpFunction p )
-{
-    if ( !postRList ) return;
-
-    QVFuncList::Iterator it = postRList->begin();
-
-    while ( it != postRList->end() ) {
-	if ( *it == p ) {
-	    postRList->remove( it );
-	    it = postRList->begin();
-	}
-    }
-}
-
-
-// HACK HACK
-/*
-void clean_post_routines(void *obj, unsigned long len, const char *name) {
-    QPtrListIterator<void> post_it(*postRList);
-    void *post;
-
-    unsigned long objl = (unsigned long) obj, ptrl;
-
-    while ((post = post_it.current()) != 0) {
-	++post_it;
-
-	ptrl = (unsigned long) post;
-
-	if (ptrl >= objl && ptrl <= (objl + len)) {
-	    qDebug("clean_post_routines: cleaning post routine for '%s'", name);
-
-	    postRList->remove(post);
-
-	    //	    break;
-	}
-    }
-}
-*/
-// </HACK>
-
 
 const char *qAppName()				// get application name
 {
