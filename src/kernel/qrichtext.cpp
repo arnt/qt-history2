@@ -77,8 +77,6 @@ static QString debug_indent;
 #include "qt_windows.h"
 #endif
 
-#define REGGIE_CORRECTION_VALUE 0
-
 static inline bool is_printer( QPainter *p )
 {
     if ( !p || !p->device() )
@@ -1328,7 +1326,7 @@ void QTextDocument::init()
     flow_->setWidth( cw );
 
     leftmargin = 4;
-    rightmargin = 4 + REGGIE_CORRECTION_VALUE;
+    rightmargin = 4;
 
     selectionColors[ Standard ] = QApplication::palette().color( QPalette::Active, QColorGroup::Highlight );
     selectionText[ Standard ] = TRUE;
@@ -5127,14 +5125,12 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int h = y;
     int len = parag->length();
     if ( doc )
-	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, REGGIE_CORRECTION_VALUE );
-    // ##### Todo before final: This -4 should be 0, else we have some
-    // wordwrap bugs. But if I set it to 0 now, it doesn't work correctly either
-    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : -REGGIE_CORRECTION_VALUE );
+	x = doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), x, 0 );
+    int dw = parag->documentVisibleWidth() - ( doc ? ( left != x ? 0 : doc->rightMargin() ) : 0 );
 
     int curLeft = x;
     int rm = parag->rightMargin();
-    int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, REGGIE_CORRECTION_VALUE ) : 0;
+    int rdiff = doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 0 ) : 0;
     int w = dw - rdiff;
     bool fullWidth = TRUE;
     int marg = left + rdiff;
