@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#147 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#148 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -38,7 +38,9 @@
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	frame(TRUE), mode(QLineEdit::Normal), validator( 0 ),
-	pm(0), pmDirty( TRUE ), blinkTimer( l ), dragTimer( l ),
+	pm(0), pmDirty( TRUE ),
+	blinkTimer( l, "QLineEdit blink timer" ),
+	dragTimer( l, "QLineEdit drag timer" ),
 	inDoubleClick( FALSE ) {}
 
     bool frame;
