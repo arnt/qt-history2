@@ -59,9 +59,7 @@ the directories where you choose to install Qt.
 	setenv DYLD_LIBRARY_PATH $QTDIR/lib
 
     After you have done this, you will need to login again, or
-    re-source the profile before continuing, so that at least $QTDIR
-    is set. Without $QTDIR the installation will halt with an error
-    message.
+    re-source the profile before continuing.
 
 
 3.  Install your license file as $HOME/.qt-license.
