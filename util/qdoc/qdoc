@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#182 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#183 $
 #
 # this is a massive hack, written very quickly
 #
@@ -683,6 +683,7 @@ sub writepages {
 	    
 	    $doc =~ s!\\classhierarchy!&classhierarchy()!es;
 	    $doc =~ s!\\classlist!&classlist()!es;
+	    $doc =~ s!\\extensionlist!&extensionlist()!es;
 	    $doc =~ s!\\annotatedclasslist\(([^,)]*),([^,)]*),([^,)]*),([^,)]*),([^,)]*)\)!&annotatedclasslist($1,$2,$3,$4,$5)!es;
 	    $doc =~ s!\\annotatedclasslist!&annotatedclasslist("<ul>\n","<li>"," (", ")\n","</ul>")!es;
 	    $doc =~ s!\\headerfilelist!&headerfilelist()!es;
@@ -1953,19 +1954,47 @@ sub reimplementations {
 
 
 sub classlist {
-    my $result;
-    $result = "<ul>\n";
-    foreach $url ( sort keys %type ) {
-	if (($type{$url} eq "class") && defined($documented{$url})) {
-	    $ex = "";
-	    if ( defined( $extension{ $url } ) ) {
-		$ex = " <small><b>[$extension{$url}]</b></small>";
-	    }
-	    $result = join( "", $result, "<li><a href=\"", $url, "\">",
-			   $name{$url}, "</a>", $ex, "\n" );
-	}
+    my $result, @classurls;
+
+    @classurls = sort grep {
+	(($type{$_} eq "class") && defined($documented{$_})) } keys %type;
+
+    # Find longest common prefix (eg. "Q")
+    @n = map { $name{$_} } @classurls;
+    $prefix = "";
+    $prefix_length = 0;
+    $y = 1;
+    while ( $y ) {
+	$prefix=substr($n[0],0,$prefix_length+1);
+	map { $y=0 if $_ !~ /^$prefix/ } @n;
+	$prefix_length++ if $y;
     }
-    $result .= "</ul>";
+    $pl = "";
+
+    %exts=undef;
+    foreach $url ( @classurls ) {
+	$ex = defined( $extension{ $url } ) ? "*" : "";
+	$n = $name{$url};
+	$letter = uc(substr($n,$prefix_length,1));
+	if ( $pl ne $letter ) {
+	    # Start of block
+	    $result .= "<dt>       <b><big>$letter</big></b><dd>\n";
+	}
+	$result = join( "", $result, "<a href=\"", $url, "\">",
+		       $n, "</a>", $ex, "<br>\n" );
+	$pl = $letter;
+    }
+    "<dl compact>\n$result\n</dl>";
+}
+
+sub extensionlist {
+    my $resulto,%x;
+    %x = map { $_=>1 } values %extension;
+    foreach $ext ( sort keys %x ) {
+	$result .= ", " if $result;
+	$result = "* Extensions classes of " if !$result;
+	$result .= $ext;
+    }
     $result;
 }
 
