@@ -47,7 +47,7 @@ bool qt_show_painter_debug_output = true;
 extern QPixmap qt_pixmapForBrush(int style, bool invert);
 
 void qt_format_text(const QFont &font,
-                    const QRectF &_r, int tf, const QString& str, int len, QRectF *brect,
+                    const QRectF &_r, int tf, const QString& str, QRectF *brect,
                     int tabstops, int* tabarray, int tabarraylen,
                     QPainter *painter);
 
@@ -3696,7 +3696,7 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
     together. \a br (if not null) is set to the actual bounding
     rectangle of the output.
 */
-void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, QRect *br)
+void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3704,19 +3704,14 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
            r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
 #endif
 
-    if (!isActive())
-        return;
-
-    if (len < 0)
-        len = str.length();
-    if (len == 0)                                // empty string
+    if (!isActive() || str.length() == 0)
         return;
 
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
     QRectF bounds;
-    qt_format_text(font(), r, flags, str, len, &bounds, 0, 0, 0, this);
+    qt_format_text(font(), r, flags, str, &bounds, 0, 0, 0, this);
     if (br)
         *br = bounds.toRect();
 }
@@ -3737,7 +3732,7 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, int len, 
     together. \a br (if not null) is set to the actual bounding
     rectangle of the output.
 */
-void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len, QRectF *br)
+void QPainter::drawText(const QRectF &r, int flags, const QString &str, QRectF *br)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3745,18 +3740,13 @@ void QPainter::drawText(const QRectF &r, int flags, const QString &str, int len,
            r.x(), r.y(), r.width(), r.height(), flags, str.latin1());
 #endif
 
-    if (!isActive())
-        return;
-
-    if (len < 0)
-        len = str.length();
-    if (len == 0)                                // empty string
+    if (!isActive() || str.length() == 0)
         return;
 
     Q_D(QPainter);
     d->engine->updateState(d->state);
 
-    qt_format_text(font(), r, flags, str, len, br, 0, 0, 0, this);
+    qt_format_text(font(), r, flags, str, br, 0, 0, 0, this);
 }
 
 /*!
@@ -3805,17 +3795,18 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 
 /*!
     \fn QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
-                                     const QString &str, int len = -1);
+                                     const QString &str, int len);
 
     \overload
 
-    Returns the bounding rectangle constrained by the rectangle that
-    begins at point (\a{x}, \a{y}) with width \a w and height \a h.
+    Returns the bounding rectangle of the first \a len characters of
+    the string \a str constrained by the rectangle that begins at
+    point (\a{x}, \a{y}) with width \a w and height \a h.
 */
 
 /*!
     \fn QRect QPainter::boundingRect(const QRect &rect, int flags,
-                                     const QString &str, int len)
+                                     const QString &str)
 
     \overload
 
@@ -3823,23 +3814,21 @@ void QPainter::drawTextItem(const QPointF &p, const QTextItem &ti)
 */
 
 
-QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str, int len)
+QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str)
 {
-    QRect brect;
     if (str.isEmpty())
-        brect.setRect(rect.x(),rect.y(), 0,0);
-    else
-        drawText(rect, flags | Qt::TextDontPrint, str, len, &brect);
+        return QRect(rect.x(),rect.y(), 0,0);
+    QRect brect;
+    drawText(rect, flags | Qt::TextDontPrint, str, &brect);
     return brect;
 }
 
 /*!
     Returns the bounding rectangle of the aligned text that would be
-    printed with the corresponding drawText() function using the first
-    \a len characters of the string \a str, if \a len is > -1, or the
-    whole of the string if \a len is -1. The drawing, and hence the
-    bounding rectangle, is constrained to the rectangle \a rect, or to the
-    rectangle required to draw the text, whichever is the larger.
+    printed with the corresponding drawText() function of the string
+    \a str. The drawing, and hence the bounding rectangle, is constrained
+    to the rectangle \a rect, or to the rectangle required to draw the
+    text, whichever is the larger.
 
     The \a flags argument is
     the bitwise OR of the following flags:
@@ -3868,13 +3857,12 @@ QRect QPainter::boundingRect(const QRect &rect, int flags, const QString &str, i
     \sa Qt::TextFlags
 */
 
-QRectF QPainter::boundingRect(const QRectF &rect, int flags, const QString &str, int len)
+QRectF QPainter::boundingRect(const QRectF &rect, int flags, const QString &str)
 {
-    QRectF brect;
     if (str.isEmpty())
-        brect.setRect(rect.x(),rect.y(), 0,0);
-    else
-        drawText(rect, flags | Qt::TextDontPrint, str, len, &brect);
+        return QRectF(rect.x(),rect.y(), 0,0);
+    QRectF brect;
+    drawText(rect, flags | Qt::TextDontPrint, str, &brect);
     return brect;
 }
 
@@ -4766,7 +4754,7 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 
 
 void qt_format_text(const QFont &font, const QRectF &_r,
-                    int tf, const QString& str, int len, QRectF *brect,
+                    int tf, const QString& str, QRectF *brect,
                     int tabstops, int *, int tabarraylen,
                     QPainter *painter)
 {
@@ -4806,7 +4794,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     // compatible behaviour to the old implementation. Replace
     // tabs by spaces
     QChar *chr = text.data();
-    const QChar *end = chr + len;
+    const QChar *end = chr + str.length();
     while (chr != end) {
         if (*chr == QLatin1Char('\r') || (singleline && *chr == QLatin1Char('\n'))) {
             *chr = ' ';
@@ -4818,7 +4806,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         ++chr;
     }
     if (!expandtabs) {
-        chr = (QChar*)text.unicode();
+        chr = text.data();
         while (chr != end) {
             if (*chr == QLatin1Char('\t'))
                 *chr = QLatin1Char(' ');
@@ -4831,9 +4819,9 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     if (hidemnmemonic || showmnemonic) {
         if (maxUnderlines > 32)
             underlinePositions = new int[maxUnderlines];
-        QChar *cout = (QChar*)text.unicode();
+        QChar *cout = text.data();
         QChar *cin = cout;
-        int l = len;
+        int l = str.length();
         while (l) {
             if (*cin == QLatin1Char('&')) {
                 ++cin;

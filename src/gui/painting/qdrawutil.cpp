@@ -829,7 +829,7 @@ QRect qItemRect(QPainter *p, Qt::GUIStyle gs,
             x += w - pixmap->width();
         result = QRect(x, y, pixmap->width(), pixmap->height());
     } else if (!text.isNull() && p) {
-        result = p->boundingRect(x, y, w, h, flags, text, len);
+        result = p->boundingRect(QRect(x, y, w, h), flags, text.left(len));
         if (gs == Qt::WindowsStyle && !enabled) {
             result.setWidth(result.width()+1);
             result.setHeight(result.height()+1);
@@ -919,10 +919,10 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
     } else if (!text.isNull()) {
         if (gs == Qt::WindowsStyle && !enabled) {
             p->setPen(pal.light().color());
-            p->drawText(x+1, y+1, w, h, flags, text, len);
+            p->drawText(x+1, y+1, w, h, flags, text.left(len));
             p->setPen(pal.text().color());
         }
-        p->drawText(x, y, w, h, flags, text, len);
+        p->drawText(x, y, w, h, flags, text.left(len));
     }
 }
 #endif

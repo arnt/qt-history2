@@ -25,7 +25,7 @@ extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 #endif
 
 extern void qt_format_text(const QFont& font, const QRectF &_r,
-                           int tf, const QString& str, int len, QRectF *brect,
+                           int tf, const QString& str, QRectF *brect,
                            int tabstops, int* tabarray, int tabarraylen,
                            QPainter* painter);
 extern int qt_defaultDpi();
@@ -565,17 +565,15 @@ int QFontMetrics::width(QChar ch) const
 
     \sa width(), QPainter::boundingRect()
 */
-QRect QFontMetrics::boundingRect(const QString &str, int len) const
+QRect QFontMetrics::boundingRect(const QString &str) const
 {
-    if (len < 0)
-        len = str.length();
-    if (len == 0)
+    if (str.length() == 0)
         return QRect();
 
     QTextEngine layout(str, d);
     layout.setMode(QTextEngine::WidthOnly);
     layout.itemize();
-    glyph_metrics_t gm = layout.boundingBox(0, len);
+    glyph_metrics_t gm = layout.boundingBox(0, str.length());
     return QRect(qRound(gm.x), qRound(gm.y), qRound(gm.width), qRound(gm.height));
 }
 
@@ -613,7 +611,7 @@ QRect QFontMetrics::boundingRect(QChar ch) const
     Returns the bounding rectangle of the first \a len characters of
     \a str, which is the set of pixels the text would cover if drawn
     at (0, 0). The drawing, and hence the bounding rectangle, is
-    constrained to the rectangle (\a x, \a y, \a w, \a h).
+    constrained to the rectangle \a r.
 
     If \a len is negative (which is the default), the entire string is
     used.
@@ -668,30 +666,22 @@ QRect QFontMetrics::boundingRect(QChar ch) const
 
     \sa width(), QPainter::boundingRect(), Qt::Alignment
 */
-QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
-                                  const QString& str, int len, int tabstops,
-                                  int *tabarray) const
+QRect QFontMetrics::boundingRect(const QRect &r, int flgs, const QString& str, int tabstops, int *tabarray) const
 {
-    if (len < 0)
-        len = str.length();
-
     int tabarraylen=0;
     if (tabarray)
         while (tabarray[tabarraylen])
             tabarraylen++;
 
     QRectF rb;
-    QRectF r(x, y, w, h);
-    qt_format_text(QFont(d), r, flgs|Qt::TextDontPrint, str, len, &rb, tabstops, tabarray, tabarraylen, 0);
+    QRectF rr(r);
+    qt_format_text(QFont(d), rr, flgs|Qt::TextDontPrint, str, &rb, tabstops, tabarray, tabarraylen, 0);
 
     return rb.toRect();
 }
 
 /*!
-    Returns the size in pixels of the first \a len characters of \a
-    str.
-
-    If \a len is negative (the default), the entire string is used.
+    Returns the size in pixels of \a text.
 
     The \a flgs argument is the bitwise OR of the following flags:
     \list
@@ -715,10 +705,9 @@ QRect QFontMetrics::boundingRect(int x, int y, int w, int h, int flgs,
 
     \sa boundingRect()
 */
-QSize QFontMetrics::size(int flgs, const QString &str, int len, int tabstops,
-                          int *tabarray) const
+QSize QFontMetrics::size(int flgs, const QString &text, int tabstops, int *tabarray) const
 {
-    return boundingRect(0,0,0,0,flgs,str,len,tabstops,tabarray).size();
+    return boundingRect(QRect(0,0,0,0), flgs, text, tabstops, tabarray).size();
 }
 
 /*!
@@ -1410,8 +1399,7 @@ QRectF QFontMetricsF::boundingRect(const QRectF &r, int flgs, const QString& str
             tabarraylen++;
 
     QRectF rb;
-    qt_format_text(QFont(d), r, flgs|Qt::TextDontPrint, str, str.length(), &rb,
-                   tabstops, tabarray, tabarraylen, 0);
+    qt_format_text(QFont(d), r, flgs|Qt::TextDontPrint, str, &rb, tabstops, tabarray, tabarraylen, 0);
 
     return rb;
 }
@@ -1448,7 +1436,7 @@ QRectF QFontMetricsF::boundingRect(const QRectF &r, int flgs, const QString& str
 */
 QSizeF QFontMetricsF::size(int flgs, const QString &str, int tabstops, int *tabarray) const
 {
-    return boundingRect(QRectF(),flgs,str,tabstops,tabarray).size();
+    return boundingRect(QRectF(), flgs, str, tabstops, tabarray).size();
 }
 
 /*!

@@ -261,17 +261,17 @@ public:
     inline void drawImage(int x, int y, const QImage &image, int sx = 0, int sy = 0,
                           int sw = -1, int sh = -1, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
-    void drawText(const QRectF &, int flags, const QString&, int len = -1, QRectF *br=0);
-    void drawText(const QRect &, int flags, const QString&, int len = -1, QRect *br=0);
+    void drawText(const QRectF &r, int flags, const QString &text, QRectF *br=0);
+    void drawText(const QRect &r, int flags, const QString &text, QRect *br=0);
+    inline void drawText(int x, int y, int w, int h, int flags, const QString &text, QRect *br=0);
+
     void drawText(const QPointF &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
     inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);
-    inline void drawText(int x, int y, int w, int h, int flags, const QString&, int len = -1,
-                         QRect *br=0);
 
-    QRectF boundingRect(const QRectF &rect, int flags, const QString &text, int len = -1);
-    QRect boundingRect(const QRect &rect, int flags, const QString &text, int len = -1);
-    QRect boundingRect(int x, int y, int w, int h, int flags, const QString&, int len = -1);
+    QRectF boundingRect(const QRectF &rect, int flags, const QString &text);
+    QRect boundingRect(const QRect &rect, int flags, const QString &text);
+    inline QRect boundingRect(int x, int y, int w, int h, int flags, const QString &text);
 
     void drawTextItem(const QPointF &p, const QTextItem &ti);
     inline void drawTextItem(int x, int y, const QTextItem &ti);
@@ -300,6 +300,7 @@ public:
 
     inline QT_COMPAT void setBackgroundColor(const QColor &color) { setBackground(color); }
     inline QT_COMPAT const QColor &backgroundColor() const { return background().color(); }
+
     inline QT_COMPAT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
         { drawText(x, y, s.mid(pos, len), dir); }
     inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
@@ -308,6 +309,15 @@ public:
         { drawText(x, y, s.left(len), dir); }
     inline QT_COMPAT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
         { drawText(p, s.left(len), dir); }
+    inline QT_COMPAT void drawText(const QRect &r, int flags, const QString &str, int len, QRect *br=0)
+        { drawText(r, flags, str.left(len), br); }
+    inline QT_COMPAT void drawText(int x, int y, int w, int h, int flags, const QString &text, int len, QRect *br=0)
+        { drawText(QRect(x, y, w, h), flags, text.left(len), br); }
+    inline QT_COMPAT QRect boundingRect(const QRect &rect, int flags, const QString &text, int len)
+        { return boundingRect(rect, flags, text.left(len)); }
+    inline QT_COMPAT QRect boundingRect(int x, int y, int w, int h, int flags, const QString &text, int len)
+        { return boundingRect(QRect(x, y, w, h), flags, text.left(len)); }
+
     inline QT_COMPAT bool begin(QPaintDevice *pdev, const QWidget *init)
         { bool ret = begin(pdev); initFrom(init); return ret; }
     QT_COMPAT void drawPoints(const QPolygon &pa, int index, int npoints = -1)
@@ -363,9 +373,8 @@ public:
 
 private:
     friend class Q3Painter;
-    friend void qt_format_text(const QFont &font,
-                               const QRectF &_r, int tf, const QString& str, int len, QRectF *brect,
-                               int tabstops, int* tabarray, int tabarraylen,
+    friend void qt_format_text(const QFont &font, const QRectF &_r, int tf, const QString& str,
+                               QRectF *brect, int tabstops, int* tabarray, int tabarraylen,
                                QPainter *painter);
 
     QPainterPrivate *d_ptr;
@@ -642,12 +651,6 @@ inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, const QRect
     drawPixmap(QRectF(p.x(), p.y(), -1, -1), pm, sr, mode);
 }
 
-inline QRect QPainter::boundingRect(int x, int y, int w, int h, int flags,
-                                    const QString&s, int len)
-{
-    return boundingRect(QRect(x, y, w, h), flags, s, len);
-}
-
 inline void QPainter::drawTextItem(int x, int y, const QTextItem &ti)
 {
     drawTextItem(QPointF(x, y), ti);
@@ -708,15 +711,19 @@ inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection 
     drawText(QPointF(p), s, dir);
 }
 
-inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str,
-                               int len, QRect *br)
+inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str, QRect *br)
 {
-    drawText(QRect(x, y, w, h), flags, str, len, br);
+    drawText(QRect(x, y, w, h), flags, str, br);
 }
 
 inline void QPainter::drawText(int x, int y, const QString &s, TextDirection dir)
 {
     drawText(QPointF(x, y), s, dir);
+}
+
+inline QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &text)
+{
+    return boundingRect(QRect(x, y, w, h), flags, text);
 }
 
 inline void QPainter::translate(qReal dx, qReal dy)
