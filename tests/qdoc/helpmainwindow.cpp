@@ -206,7 +206,12 @@ HelpMainWindow::HelpMainWindow()
     setUsesTextLabel( TRUE );
 
     navigation->setViewMode( HelpNavigation::Index );
+    viewer->blockSignals( TRUE );
     viewer->setSource( docDir + "/index.html" );
+    viewer->blockSignals( FALSE );
+
+    connect( viewer, SIGNAL( newSource( const QString & ) ),
+	     this, SLOT( newSource( const QString & ) ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -313,4 +318,9 @@ void HelpMainWindow::slotHelpAbout()
 void HelpMainWindow::slotHelpAboutQt()
 {
     QMessageBox::aboutQt( this, "Qt Application Example" );
+}
+
+void HelpMainWindow::newSource( const QString &name )
+{
+    viewer->setCaption( navigation->titleOfLink( name ) );
 }

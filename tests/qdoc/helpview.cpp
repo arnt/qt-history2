@@ -7,7 +7,7 @@ HelpView::HelpView( QWidget *parent, const QString &dd )
 {
     docDir = dd;
 }
-    
+
 void HelpView::showLink( const QString &link , const QString& title )
 {
     QString file( docDir + "/" + link );
@@ -18,7 +18,15 @@ void HelpView::showLink( const QString &link , const QString& title )
     }
 
     setCaption( title );
+    blockSignals( TRUE );
     setSource( u.path() );
+    blockSignals( FALSE );
     if ( !u.ref().isEmpty() )
 	scrollToAnchor( u.ref() );
+}
+
+void HelpView::setSource( const QString &name )
+{
+    emit newSource( name );
+    QTextBrowser::setSource( name );
 }

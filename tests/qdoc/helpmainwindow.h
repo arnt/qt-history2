@@ -10,14 +10,14 @@ class QPopupMenu;
 class HelpMainWindow : public QMainWindow
 {
     Q_OBJECT
-    
+
 public:
     HelpMainWindow();
-    
+
 private:
     HelpView *viewer;
     HelpNavigation *navigation;
-    
+
 private slots:
     void slotFilePrint();
     void slotEditCopy();
@@ -32,10 +32,12 @@ private slots:
     void slotGoHome();
     void slotHelpAbout();
     void slotHelpAboutQt();
+
+    void newSource( const QString &name );
     
 private:
     QPopupMenu *history;
-    
+
 };
 
 #endif

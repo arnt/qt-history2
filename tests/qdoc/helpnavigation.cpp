@@ -112,6 +112,22 @@ HelpNavigation::HelpNavigation( QWidget *parent, const QString &indexFile,
 
     indexEdit->setFocus();
 
+    // -------------- bookmark tab -----------
+    bookmarkTab = new QWidget( tabWidget );
+    tabWidget->addTab( bookmarkTab, tr( "&Boorkmarks" ) );
+
+    QVBoxLayout *bookmarkLayout = new QVBoxLayout( bookmarkTab );
+    bookmarkLayout->setMargin( 5 );
+    bookmarkLayout->setSpacing( 5 );
+    
+    l = new QLabel( tr( "Topics:" ), bookmarkTab );
+    bookmarkLayout->addWidget( l );
+    
+    bookmarkList = new QListBox( bookmarkTab );
+    bookmarkLayout->addWidget( bookmarkList );
+    
+    
+    
     loadIndexFile( indexFile, titleFile );
     setupContentsView( titleFile );
 }
@@ -144,7 +160,7 @@ void HelpNavigation::loadIndexFile( const QString &indexFile, const QString &tit
     QTextStream ts( &f );
     HelpNavigationListItem *lastItem = 0;
 
-    
+
     //### if constructed on stack, it will crash on WindowsNT
     QValueList<MyString>* lst = new QValueList<MyString>;
     while ( !ts.atEnd() )
