@@ -94,6 +94,7 @@ public:
 
     // Clip functions
     QRegion clipRegion() const;
+    QPainterPath clipPath() const;
 
     void setClipRect(const QRectF &, Qt::ClipOperation op = Qt::ReplaceClip);
     inline void setClipRect(const QRect &, Qt::ClipOperation op = Qt::ReplaceClip);

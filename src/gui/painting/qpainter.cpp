@@ -1350,6 +1350,44 @@ QRegion QPainter::clipRegion() const
 }
 
 /*!
+    Returns the currently clip as a path. Note that the clip path is
+    given in logical coordinates and \e subject to \link coordsys.html
+    coordinate transformation \endlink
+*/
+QPainterPath QPainter::clipPath() const
+{
+    // ### Since we do not support path intersections and path unions yet,
+    // we just use clipRegion() here...
+    if (!isActive()) {
+        qWarning("QPainter::clipPath(), painter not active");
+        return QPainterPath();
+    }
+
+    // No clip, return empty
+    if (d->state->clipInfo.size() == 0) {
+        return QPainterPath();
+    } else {
+
+        // Update inverse matrix, used below.
+        if (!d->txinv)
+            const_cast<QPainter *>(this)->d->updateInvMatrix();
+
+        // For the simple case avoid conversion.
+        if (d->state->clipInfo.size() == 1
+            && d->state->clipInfo.at(0).clipType == QPainterClipInfo::PathClip) {
+            QMatrix matrix = (d->state->clipInfo.at(0).matrix * d->invMatrix);
+            return d->state->clipInfo.at(0).path * matrix;
+
+        // Fallback to clipRegion() for now, since we don't have isect/unite for paths
+        } else {
+            QPainterPath path;
+            path.addRegion(clipRegion());
+            return path;
+        }
+    }
+}
+
+/*!
     \fn void QPainter::setClipRect(int x, int y, int w, int h)
 
     Sets the clip region to the rectangle \a x, \a y, \a w, \a h and
