@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#31 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#31 $";
 #endif
 
 
@@ -469,3 +469,11 @@ There are several different index pages: <ul>
 <li><a href=handleclass.html>Handle classes</a>
 <li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
 </ul> */
+
+/*! \example wheel.cpp
+
+  <h1>Color Wheel</h1>
+
+  This example draws a color wheel.  It shows how to use color, world
+  transformation and QPainter. */
+
