@@ -1452,35 +1452,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
                 p->drawRect(opt->rect);
         }
         break; }
-#if defined(Q_WS_WIN)
-    case PE_IndicatorHeaderArrow:
-        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
-            QPen oldPen = p->pen();
-            if (header->state & Style_Up) { // invert logic to follow Windows style guide
-                QPointArray pa(3);
-                p->setPen(header->palette.light().color());
-                p->drawLine(header->rect.x() + header->rect.width(), header->rect.y(),
-                            header->rect.x() + header->rect.width() / 2, header->rect.height());
-                p->setPen(header->palette.dark().color());
-                pa.setPoint(0, header->rect.x() + header->rect.width() / 2, header->rect.height());
-                pa.setPoint(1, header->rect.x(), header->rect.y());
-                pa.setPoint(2, header->rect.x() + header->rect.width(), header->rect.y());
-                p->drawPolyline(pa);
-            } else {
-                QPointArray pa(3);
-                p->setPen(header->palette.light().color());
-                pa.setPoint(0, header->rect.x(), header->rect.height());
-                pa.setPoint(1, header->rect.x() + header->rect.width(), header->rect.height());
-                pa.setPoint(2, header->rect.x() + header->rect.width() / 2, header->rect.y());
-                p->drawPolyline(pa);
-                p->setPen(header->palette.dark().color());
-                p->drawLine(header->rect.x(), header->rect.height(),
-                            header->rect.x() + header->rect.width() / 2, header->rect.y());
-            }
-            p->setPen(oldPen);
-        }
-        break;
-#endif
     case PE_FrameWindow: {
          QPalette popupPal = opt->palette;
          popupPal.setColor(QPalette::Light, opt->palette.background().color());

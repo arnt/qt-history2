@@ -614,7 +614,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_IndicatorHeaderArrow: {
         QPen oldPen = p->pen();
-        if (opt->state & Style_Down) {
+        if (opt->state & Style_Up) {
             QPointArray pa(3);
             p->setPen(opt->palette.light().color());
             p->drawLine(opt->rect.x() + opt->rect.width(), opt->rect.y(),
