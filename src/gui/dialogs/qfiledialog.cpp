@@ -83,6 +83,9 @@ protected:
     {
         key = e->key();
         QLineEdit::keyPressEvent(e);
+        // FIXME: this is a hack to avoid propagating key press events
+        // to the dialog and from there to the "Ok" button
+        e->accept();
     }
 private:
     int key;
@@ -123,6 +126,9 @@ public:
 
     QDir::Filters filterForMode(QFileDialog::FileMode mode);
     QAbstractItemView::SelectionMode selectionMode(QFileDialog::FileMode mode);
+
+    QModelIndex matchDir(const QString &text, const QModelIndex &first) const;
+    QModelIndex matchName(const QString &name, const QModelIndex &first) const;
 
     inline QString tr(const char *text) const { return QObject::tr(text); }
 
@@ -945,41 +951,44 @@ void QFileDialog::currentChanged(const QModelIndex &current, const QModelIndex &
 
 void QFileDialog::fileNameChanged(const QString &text)
 {
-    if (d->fileName->hasFocus() && !text.isEmpty()) {
-
-        QModelIndex start;
-        QFileInfo info(d->toInternal(text));
-        if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
-            start = d->model->index(0, 0, d->model->index(info.path()));
-        else
-            start = d->selections->currentIndex();
-        if (!start.isValid())
-            start = d->model->index(0, 0, d->root());
-
-        QModelIndexList indexes = d->model->match(start, QAbstractItemModel::DisplayRole,
-                                                  info.fileName(), 1,
-                                                  QAbstractItemModel::MatchDefault
-                                                  |QAbstractItemModel::MatchCase);
-        int key = d->fileName->lastKeyPressed();
-        if (indexes.count() <= 0) { // no matches
-            d->selections->clear();
-        } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
-            d->selections->setCurrentIndex(indexes.first(), QItemSelectionModel::SelectCurrent);
-            QString completed = d->model->data(indexes.first(),
-                                               QAbstractItemModel::DisplayRole).toString();
-            if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
-                if (info.path() == "/")
-                    completed = "/" + completed;
-                else 
-                    completed = info.path() + "/" + completed;
-            }
-            int start = completed.length();
-            int length = text.length() - start; // negative length
-            bool block = d->fileName->blockSignals(true);
-            d->fileName->setText(d->toNative(completed));
-            d->fileName->setSelection(start, length);
-            d->fileName->blockSignals(block);
+    QFileInfo info(d->toInternal(text));
+    // the user is not typing  or the text is a valid file, there is no need for autocompletion
+    if (!d->fileName->hasFocus() || info.exists())
+        return;
+    // if we hanve no filename or the last character is '/', then don't autocomplete
+    if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
+        return;
+    // if the user is removing text, don't autocomplete
+    int key = d->fileName->lastKeyPressed();
+    if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
+        return;
+    // do autocompletion
+    QModelIndex first;
+    if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
+        first = d->model->index(0, 0, d->model->index(info.path()));
+    else // otherwise, do completion from the currently selected file
+        first = d->selections->currentIndex();
+    if (!first.isValid())
+        first = d->model->index(0, 0, d->root());
+    QModelIndex result = d->matchName(info.fileName(), first);
+    // did we find a valid autocompletion ?
+    if (result.isValid()) {
+        d->selections->setCurrentIndex(result, QItemSelectionModel::SelectCurrent);
+        QString completed = d->model->data(result, QAbstractItemModel::DisplayRole).toString();
+        if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
+            if (info.path() == "/")
+                completed = "/" + completed;
+            else 
+                completed = info.path() + "/" + completed;
         }
+        int start = completed.length();
+        int length = text.length() - start; // negative length
+        bool block = d->fileName->blockSignals(true);
+        d->fileName->setText(d->toNative(completed));
+        d->fileName->setSelection(start, length);
+        d->fileName->blockSignals(block);
+    } else { // no matches
+        d->selections->clear();
     }
 }
 
@@ -992,45 +1001,30 @@ void QFileDialog::fileNameChanged(const QString &text)
 
 void QFileDialog::lookInChanged(const QString &text)
 {
-    if (d->lookInEdit->hasFocus()) {
-
-        // if we hanve no path or the last character is '/', then don't autocomplete
-        if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
-            return;
-
-        int key = d->lookInEdit->lastKeyPressed();
-        if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
-            return;
-
-        // text is the local path format (on windows separator is '\\')
-        QModelIndex result;
-        int s = text.lastIndexOf(QDir::separator());
-        QString pth = d->toInternal(s == 0 ? QDir::rootPath() : text.left(s));
-        QModelIndex dirIndex = d->model->index(pth);
-        QString searchText = text.section(QDir::separator(), -1);
-        int rowCount = d->model->rowCount(dirIndex);
-        QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
-                                                  QAbstractItemModel::DisplayRole,
-                                                  searchText, rowCount,
-                                                  QAbstractItemModel::MatchDefault
-                                                  |QAbstractItemModel::MatchCase);
-        for (int i = 0; i < indices.count(); ++i) {
-            if (d->model->isDir(indices.at(i))) {
-                result = indices.at(i);
-                break;
-            }
-        }
-
-        // we found a valid autocompletion
-        if (result.isValid()) {
-            QString completed = d->toNative(d->model->path(result));
-            int start = completed.length();
-            int length = text.length() - start; // negative length
-            bool block = d->lookInEdit->blockSignals(true);
-            d->lookInEdit->setText(completed);
-            d->lookInEdit->setSelection(start, length);
-            d->lookInEdit->blockSignals(block);
-        }
+    // if the user is not typing or the text is a valid path, there is no need for autocompletion
+    if (!d->lookInEdit->hasFocus() || QFileInfo(d->toInternal(text)).exists())
+        return;
+    // if we hanve no path or the last character is '/', then don't autocomplete
+    if (text.isEmpty() || text[text.length() - 1] == QDir::separator())
+        return;
+    // if the user is removing text, don't autocomplete
+    int key = d->lookInEdit->lastKeyPressed();
+    if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
+        return;
+    // do autocompletion; text is the local path format (on windows separator is '\\')
+    QString path = text.left(text.lastIndexOf(QDir::separator()));
+    QString name = text.section(QDir::separator(), -1);
+    QModelIndex parent = d->model->index(d->toInternal(path));
+    QModelIndex result = d->matchDir(name, d->model->index(0, 0, parent));
+    // did we find a valid autocompletion ?
+    if (result.isValid()) {
+        QString completed = d->toNative(d->model->path(result));
+        int start = completed.length();
+        int length = text.length() - start; // negative length
+        bool block = d->lookInEdit->blockSignals(true);
+        d->lookInEdit->setText(completed);
+        d->lookInEdit->setSelection(start, length);
+        d->lookInEdit->blockSignals(block);
     }
 }
 
@@ -1523,6 +1517,7 @@ void QFileDialogPrivate::setupWidgets(QGridLayout *grid)
     fileName->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QObject::connect(fileName, SIGNAL(textChanged(QString)),
                      q, SLOT(fileNameChanged(QString)));
+    QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
     grid->addWidget(fileName, 2, 1, 1, 3);
 
     // filetype
@@ -1555,13 +1550,13 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
 
 void QFileDialogPrivate::setRoot(const QModelIndex &index)
 {
-    bool block = d->selections->blockSignals(true);
-    d->selections->clear();
-    d->fileName->clear();
+    bool block = selections->blockSignals(true);
+    selections->clear();
+    fileName->clear();
     listView->setRoot(index);
     treeView->setRoot(index);
-    d->selections->blockSignals(block);
-    d->selections->setCurrentIndex(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
+    selections->blockSignals(block);
+    selections->setCurrentIndex(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
 }
 
 QModelIndex QFileDialogPrivate::root() const
@@ -1598,6 +1593,31 @@ QAbstractItemView::SelectionMode QFileDialogPrivate::selectionMode(QFileDialog::
         return QAbstractItemView::ExtendedSelection;
     return QAbstractItemView::SingleSelection;
 }
+
+QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex &first) const
+{
+    QModelIndexList matches = model->match(first,
+                                           QAbstractItemModel::DisplayRole,
+                                           text, model->rowCount(first.parent()),
+                                           QAbstractItemModel::MatchDefault
+                                           |QAbstractItemModel::MatchCase);
+    for (int i = 0; i < matches.count(); ++i)
+        if (d->model->isDir(matches.at(i)))
+            return matches.at(i);
+    return QModelIndex();
+}
+
+QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex &first) const
+{
+    QModelIndexList matches = model->match(first,
+                                           QAbstractItemModel::DisplayRole,
+                                           name, 1,
+                                           QAbstractItemModel::MatchDefault
+                                           |QAbstractItemModel::MatchCase);
+    if (matches.count() <= 0)
+        return QModelIndex();
+    return matches.first();
+}   
 
 /******************************************************************
  *
