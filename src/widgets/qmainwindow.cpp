@@ -185,8 +185,10 @@ public:
     QRect oldPosRect;
     QRect origPosRect;
     bool oldPosRectValid, movedEnough;
-    QMainWindow::ToolBarDock origDock;
-
+    QMainWindow::ToolBarDock origDock, oldDock;
+    int oldiPos;
+    QToolBar *oldCovering;
+    
     QMap< int, bool > dockable;
 };
 
@@ -899,7 +901,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
     }
 }
 
-/*! 
+/*!
   Removes \a toolBar from this main window, if \a toolBar is
   non-null and known by this main window.
 */
@@ -1616,6 +1618,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	d->oldPosRectValid = TRUE;
 	d->pos = mapFromGlobal( e->globalPos() );
 	d->movedEnough = FALSE;
+	d->oldDock = d->origDock;
+	d->oldCovering = covering;
+	d->oldiPos = ipos;
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 
@@ -1638,11 +1643,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	}
 
 	// finally really move the toolbar
-	QPoint pos = mapFromGlobal( e->globalPos() );
-	QRect r;
-	int ipos;
-	QToolBar *covering;
-	ToolBarDock dock = findDockArea( pos, r, t, ipos, covering );
+	int ipos = d->oldiPos;
+	QToolBar *covering = d->oldCovering;
+	ToolBarDock dock = d->oldDock;
 	if ( dock != Unmanaged /*&& dock != d->origDock*/ && isDockEnabled( dock ) &&
 	     isDockEnabled( t, dock ) )
 	    moveToolBar( t, dock, covering, ipos != QMainWindowPrivate::Before );
@@ -1677,6 +1680,9 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
     }
     d->oldPosRect = r;
     d->oldPosRectValid = TRUE;
+    d->oldDock = dock;
+    d->oldCovering = covering;
+    d->oldiPos = ipos;
 }
 
 /*!
@@ -1776,13 +1782,13 @@ QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
 	tdock = d->tornOff;
 	break;
     }
-    
+
     if ( tdock ) {
 	QMainWindowPrivate::ToolBar *t = tdock->first();
 	for ( ; t; t = tdock->next() )
 	    lst.append( t->t );
     }
-    
+
     return lst;
 }
 
