@@ -31,7 +31,7 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		}
 		oldHighlightedParag = 0;
 		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
-		    QFont fn( qApp->font() );
+		    QFont fn( curEditor->font() );
 		    fn.setUnderline( TRUE );
 		    if ( !highlighteFormat )
 			highlighteFormat = curEditor->document()->formatCollection()->format( fn, blue );
