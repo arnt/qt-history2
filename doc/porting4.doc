@@ -254,6 +254,8 @@ lvalue use the [] operator instead
 \i copy() is obsolete, use regular assignment instead.
 \endlist
 
+* case sensitive find has been removed. Use QString instead.
+
 \section1 QCString
 
 QCString is deprecated. QByteArray should do everything you need from
@@ -384,6 +386,14 @@ COMPAT mode, but we recommend not using them in new code.
 \list
 \i QVariant::toColorGroup() - use QVariant::toPalette() instead.
 \endlist
+
+\section1 QDir
+
+QDir::encodedEntryList has been removed.
+
+fileInfoList() and drives() now return a QList<QFileInfo> and not a
+QPtrList<QFileInfo> *. Code using these methods will have to be
+adapted.  
 
 
 */
