@@ -1188,7 +1188,7 @@
     Its value is then accessible with the
     \link #version \\version \endlink command. Example:
     <pre>
-    VERSION = 2.04</pre>
+    VERSIONSTR = 2.04</pre>
 
     If the product source code contains the version number, it might
     be possible to use \link #VERSIONSYM VERSIONSYM \endlink instead
@@ -1198,7 +1198,7 @@
     <b>VERSIONSYM</b> specifies the C++ preprocessor symbol expanding
     to the version number of the product. If the source code of the
     product contains no such preprocessor symbol,
-    \link #VERSION VERSION \endlink can be used.
+    \link #VERSIONSTR VERSIONSTR \endlink can be used.
 
     If the directive
     <pre>
