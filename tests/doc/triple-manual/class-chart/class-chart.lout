@@ -1,7 +1,7 @@
 @SysInclude { tbl }
 @SysInclude { diag }
 @Include { doc.lout }
-# pspdf -W1134 -H666
+# pspdf -W1134 -H666 -E
 macro @QtColour		{ rgb 0.90 1.00 0.90 } 
 macro @ObjectColour	{ rgb 0.90 1.00 0.60 } 
 macro @EventColour	{ rgb 0.80 1.00 0.95 } 
@@ -157,8 +157,10 @@ Apple Roman
 } 
 }
 @Place x { 38.75c } y { 1c }
-{ 0.75 @Scale grey @Colour 90d @Rotate {
-CHA500606NO-04"/"04"    "Copyright @CopyRight 2002-2004 Trolltech AS. All Rights Reserved.}}
+{ 0.715 @Scale grey @Colour 90d @Rotate {
+CHA500606NO-04"/"04 @CDot |1s
+Qt and the Trolltech logo are registered trademarks of Trolltech AS. @CDot |1s
+Copyright @CopyRight 2002-2004 Trolltech AS. All Rights Reserved.}}
 @Place x { 29.6c } y { 4.85c }
 { 0.225 @Scale 
 @IncludeGraphic { "../../class-chart/square_trolltech.eps.gz" } }
@@ -204,7 +206,7 @@ CHA500606NO-04"/"04"    "Copyright @CopyRight 2002-2004 Trolltech AS. All Rights
 		  @Cell margin{0c} iv{ctr} U }
     {
 	@Rowc
-	    A { The Essential Qt 3.3 Class Hierarchy }
+	    A { The Essential Qt 3.3{@Sup @Register} Class Hierarchy }
 	@Rowd
 	    A { QT:: @QtNode Qt }
 	    D { L:: @XNode{} } 

@@ -160,9 +160,12 @@ ISO8859-1 @CDot Western
 Apple Roman
 } 
 }
-@Place x { 26.45c } y { 32.50c }
+@Place x { 26.25c } y { 30.25c }
 { 0.75 @Scale grey @Colour 90d @Rotate
-{ Copyright @CopyRight 2003 Trolltech AS. All Rights Reserved. @Sup{1.1}} }
+clines @Break{
+Qt and the Trolltech logo are registered trademarks of Trolltech AS.
+Copyright @CopyRight 2003-2004 Trolltech AS. All Rights Reserved. @Sup{2.0}}
+}
 @Place x { 26.25c } y { 1c }
 { 0.25 @Scale 90d @Rotate
 @IncludeGraphic { square_trolltech.eps.gz } }
@@ -206,7 +209,7 @@ Apple Roman
 		  @Cell U }
     {
 	@Rowc
-	    A { The Essential Qt 3.3 Class Hierarchy }
+	    A { The Essential Qt{@Sup @Register} 3.3 Class Hierarchy }
 	@Rowd
 	    A { QT:: @QtNode Qt }
 	    D { L:: @XNode{white @Colour{Q}} } 
