@@ -746,7 +746,7 @@ protected:
 private:
     void detachInternal();
 
-    friend class QDeepCopy<QMap>;
+    friend class QDeepCopy< QMap<Key,T> >;
 };
 
 template<class Key, class T>

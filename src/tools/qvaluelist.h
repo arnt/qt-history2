@@ -552,7 +552,7 @@ protected:
 private:
     void detachInternal();
 
-    friend class QDeepCopy<QValueList>;
+    friend class QDeepCopy< QValueList<T> >;
 };
 
 template <class T>
