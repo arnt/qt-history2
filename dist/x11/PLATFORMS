@@ -44,7 +44,7 @@ Customization:
 Note regarding accelerated XRender support:
 
 Users that have an accelerated XRender extension should add the
-following section to their ~/.settings/trolltech.com.conf file:
+following section to their ~/.config/trolltech.com.conf file:
 
 [Qt]
 hasAcceleratedXrender=true
