@@ -22,7 +22,7 @@
 
 #define QT_CLEAN_NAMESPACE
 #include <qfile.h>
-
+#include <qcstring.h>
 #include <png.h>
 #include <netinet/in.h> // for htonl
 
