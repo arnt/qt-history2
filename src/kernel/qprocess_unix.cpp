@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#52 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#53 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -802,7 +802,7 @@ void QProcess::socketRead( int fd )
     int n;
     if ( fd == d->socketStdout[0] ) {
 	buffer = &bufStdout;
-    } else {
+    } else if ( fd == d->socketStderr[0] ) {
 	buffer = &bufStderr;
     }
 
@@ -826,7 +826,7 @@ void QProcess::socketRead( int fd )
 	    ::close( d->socketStdout[0] );
 	    d->socketStdout[0] = 0;
 	    return;
-	} else {
+	} else if ( fd == d->socketStderr[0] ) {
 #if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::socketRead(): stderr (%d) closed", fd );
 #endif
@@ -853,7 +853,7 @@ void QProcess::socketRead( int fd )
 		buffer->size()-oldSize, fd );
 #endif
 	emit readyReadStdout();
-    } else {
+    } else if ( fd == d->socketStderr[0] ) {
 #if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::socketRead(): %d bytes read from stderr (%d)",
 		buffer->size()-oldSize, fd );
