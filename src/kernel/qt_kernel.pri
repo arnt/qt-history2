@@ -120,7 +120,6 @@ kernel {
 		  $$KERNEL_CPP/qthread_win.cpp \
 		  $$KERNEL_CPP/qwidget_win.cpp \
 		  $$KERNEL_CPP/qole_win.c \
-		  $$KERNEL_CPP/qtextengine_win.cpp \
 		  $$KERNEL_CPP/qfontengine_win.cpp
 
 	unix:x11 {
@@ -141,7 +140,6 @@ kernel {
 			  $$KERNEL_CPP/qsound_x11.cpp \
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp \
-		          $$KERNEL_CPP/qtextengine_x11.cpp \
 		          $$KERNEL_CPP/qfontengine_x11.cpp
 	}
 
@@ -244,7 +242,8 @@ kernel {
 		  $$KERNEL_CPP/qgplugin.cpp \
 		  $$KERNEL_CPP/qsimplerichtext.cpp \
 		  $$KERNEL_CPP/qscriptengine.cpp \
-		  $$KERNEL_CPP/qtextlayout.cpp
+		  $$KERNEL_CPP/qtextlayout.cpp \
+		  $$KERNEL_CPP/qtextengine.cpp
 
 	unix:HEADERS   += $$KERNEL_P/qpsprinter_p.h \
 			  $$KERNEL_H/qfontdatabase.h
