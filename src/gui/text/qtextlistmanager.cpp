@@ -24,9 +24,9 @@ QTextList *QTextListManager::list(QTextFormatGroup *group) const
     return lists.value(group);
 }
 
-QVector<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(QTextFormatGroup *group) const
+QVector<QTextBlockIterator> QTextListManager::blocksForObject(QTextFormatGroup *group) const
 {
-    QVector<QTextPieceTable::BlockIterator> blocks;
+    QVector<QTextBlockIterator> blocks;
     QTextList *l = list(group);
     if (l)
 	blocks = l->d_func()->blocks;
@@ -35,7 +35,7 @@ QVector<QTextPieceTable::BlockIterator> QTextListManager::blocksForObject(QTextF
 
 void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
-    QTextPieceTable::BlockIterator blockIt = table->blocksFind(blockPosition);
+    QTextBlockIterator blockIt = table->blocksFind(blockPosition);
     if (blockIt.atEnd())
 	return;
 
@@ -56,11 +56,11 @@ void QTextListManager::blockChanged(int blockPosition, QText::ChangeOperation op
 
 void QTextListManager::formatChanged(int position, int length)
 {
-    QTextPieceTable::BlockIterator blockIt = table->blocksFind(position);
+    QTextBlockIterator blockIt = table->blocksFind(position);
     if (blockIt.atEnd())
 	return;
 
-    QTextPieceTable::BlockIterator end = table->blocksFind(position + length - 1);
+    QTextBlockIterator end = table->blocksFind(position + length - 1);
     if (!end.atEnd())
 	++end;
 
@@ -92,7 +92,7 @@ void QTextListManager::listDestroyed(QObject *obj)
     }
 }
 
-void QTextListManager::removeListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt)
+void QTextListManager::removeListEntry(QTextFormatGroup *group, const QTextBlockIterator &blockIt)
 {
     if (!group) {
 	for (ListMap::ConstIterator it = lists.begin(); it != lists.end(); ++it)
@@ -122,7 +122,7 @@ void QTextListManager::removeListEntry(QTextFormatGroup *group, const QTextPiece
     }
 }
 
-void QTextListManager::addListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt)
+void QTextListManager::addListEntry(QTextFormatGroup *group, const QTextBlockIterator &blockIt)
 {
     QTextList *list = lists.value(group);
     if (!list) {

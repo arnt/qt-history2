@@ -42,7 +42,7 @@ QTextTable *QTextTableManager::tableAt(int docPos) const
 	int ts = rows[0][0].key();
 	if (ts < docPos && ts > pos) {
 	    QTextTablePrivate::Row r = rows.last();
-	    QTextPieceTable::BlockIterator tend = r.last();
+	    QTextBlockIterator tend = r.last();
 	    if (tend.key() >= docPos-1) {
 		pos = ts;
 		table = (*it);
@@ -90,16 +90,16 @@ QTextTable *QTextTableManager::createTable(const QTextCursor &cursor, int rows, 
     return tables.value(group);
 }
 
-QVector<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(QTextFormatGroup *group) const
+QVector<QTextBlockIterator> QTextTableManager::blocksForObject(QTextFormatGroup *group) const
 {
-    QVector<QTextPieceTable::BlockIterator> blocks;
+    QVector<QTextBlockIterator> blocks;
     QTextTable *tab = table(group);
     if (tab) {
 	QTextTablePrivate *tp = tab->d_func();
 	blocks.reserve(tp->rows() * tp->cols());
 
-	QTextPieceTable::BlockIterator it = tp->start();
-	QTextPieceTable::BlockIterator end = tp->end();
+	QTextBlockIterator it = tp->start();
+	QTextBlockIterator end = tp->end();
 	for (; !it.atEnd() && it != end; ++it)
 	    blocks.append(it);
     }
@@ -108,7 +108,7 @@ QVector<QTextPieceTable::BlockIterator> QTextTableManager::blocksForObject(QText
 
 void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation op)
 {
-    QTextPieceTable::BlockIterator blockIt = pt->blocksFind(blockPosition);
+    QTextBlockIterator blockIt = pt->blocksFind(blockPosition);
     if (blockIt.atEnd())
 	return;
 
@@ -140,11 +140,11 @@ void QTextTableManager::blockChanged(int blockPosition, QText::ChangeOperation o
 
 void QTextTableManager::formatChanged(int position, int length)
 {
-    QTextPieceTable::BlockIterator blockIt = pt->blocksFind(position);
+    QTextBlockIterator blockIt = pt->blocksFind(position);
     if (blockIt.atEnd())
 	return;
 
-    QTextPieceTable::BlockIterator end = pt->blocksFind(position + length);
+    QTextBlockIterator end = pt->blocksFind(position + length);
     if (!end.atEnd())
 	++end;
 
@@ -179,7 +179,7 @@ static bool operator<(const QTextTablePrivate::Row &row, int cursorPos)
     return row.last().key() < cursorPos;
 }
 
-static bool operator<(int cursorPos, const QTextPieceTable::BlockIterator &cell)
+static bool operator<(int cursorPos, const QTextBlockIterator &cell)
 {
     if (cell.atEnd())
 	return false;
@@ -187,7 +187,7 @@ static bool operator<(int cursorPos, const QTextPieceTable::BlockIterator &cell)
 }
 
 /* unused, currently
-static bool operator<(const QTextPieceTable::BlockIterator &cell, int cursorPos)
+static bool operator<(const QTextBlockIterator &cell, int cursorPos)
 {
     if (cell.atEnd())
 	return false;
@@ -208,10 +208,10 @@ int QTextTablePrivate::rowAt(int cursor) const
     qDebug() << "rowAt" <<cursor;
     for (int i = 0; i < rowList.count(); ++i) {
 	const Row &r = rowList.at(i);
-	QTextPieceTable::BlockIterator rowEnd = r.last();
+	QTextBlockIterator rowEnd = r.last();
 	qDebug() << "    " << i << ": " << r.first().key() << "-" << r.last().key();
 	if (rowEnd.key() >= cursor) {
-	    QTextPieceTable::BlockIterator rowStart = r.first();
+	    QTextBlockIterator rowStart = r.first();
 	    if (rowStart.key() <= cursor)
 		return i;
 	}
@@ -220,13 +220,13 @@ int QTextTablePrivate::rowAt(int cursor) const
     */
 }
 
-QTextPieceTable::BlockIterator QTextTablePrivate::cellStart(int cursor) const
+QTextBlockIterator QTextTablePrivate::cellStart(int cursor) const
 {
     int row = rowAt(cursor);
     if (row != -1) {
 	const Row &r = rowList.at(row);
 	for (int j = r.size()-1; j >= 0; --j) {
-	    QTextPieceTable::BlockIterator cell = r.at(j);
+	    QTextBlockIterator cell = r.at(j);
 	    if (cell.key() < cursor)
 		return cell;
 	}
@@ -235,13 +235,13 @@ QTextPieceTable::BlockIterator QTextTablePrivate::cellStart(int cursor) const
     return rowList[0][0].pieceTable()->blocksEnd();
 }
 
-QTextPieceTable::BlockIterator QTextTablePrivate::cellEnd(int cursor) const
+QTextBlockIterator QTextTablePrivate::cellEnd(int cursor) const
 {
     int row = rowAt(cursor);
     if (row != -1) {
 	const Row &r = rowList.at(row);
 	for (int j = 0; j < r.size(); ++j) {
-	    QTextPieceTable::BlockIterator cell = r.at(j);
+	    QTextBlockIterator cell = r.at(j);
 	    if (cell.key() >= cursor)
 		return cell;
 	}
@@ -251,7 +251,7 @@ QTextPieceTable::BlockIterator QTextTablePrivate::cellEnd(int cursor) const
 }
 
 
-QTextPieceTable::BlockIterator QTextTablePrivate::rowStart(int cursor) const
+QTextBlockIterator QTextTablePrivate::rowStart(int cursor) const
 {
     int row = rowAt(cursor);
     if (row != -1) {
@@ -261,7 +261,7 @@ QTextPieceTable::BlockIterator QTextTablePrivate::rowStart(int cursor) const
     return rowList[0][0].pieceTable()->blocksEnd();
 }
 
-QTextPieceTable::BlockIterator QTextTablePrivate::rowEnd(int cursor) const
+QTextBlockIterator QTextTablePrivate::rowEnd(int cursor) const
 {
     int row = rowAt(cursor);
     if (row != -1) {
@@ -271,16 +271,16 @@ QTextPieceTable::BlockIterator QTextTablePrivate::rowEnd(int cursor) const
     return rowList[0][0].pieceTable()->blocksEnd();
 }
 
-QTextPieceTable::BlockIterator QTextTablePrivate::start() const
+QTextBlockIterator QTextTablePrivate::start() const
 {
     const Row &r = rowList.at(0);
     return r.at(0);
 }
 
-QTextPieceTable::BlockIterator QTextTablePrivate::end() const
+QTextBlockIterator QTextTablePrivate::end() const
 {
     const Row &r = rowList.last();
-    QTextPieceTable::BlockIterator bit = r.last();
+    QTextBlockIterator bit = r.last();
     ++bit;
     return bit;
 }
@@ -291,9 +291,9 @@ void QTextTablePrivate::updateGrid() const
     nCols = qMax(nCols, rowList.first().size());
 
  redo:
-    grid = (QFragmentMap<QTextBlock>::ConstIterator *)
-	   realloc(grid, sizeof(QFragmentMap<QTextBlock>::ConstIterator)*nRows*nCols);
-    memset(grid, 0, sizeof(QFragmentMap<QTextBlock>::ConstIterator)*nRows*nCols);
+    grid = (int *)
+	   realloc(grid, sizeof(int)*nRows*nCols);
+    memset(grid, 0, sizeof(int)*nRows*nCols);
     int maxRow = 0;
     int maxCol = 0;
     int r = 0;
@@ -301,19 +301,17 @@ void QTextTablePrivate::updateGrid() const
 	int c = 0;
 	const Row &row = rowList.at(i);
 	for (int j = 0; j < row.size(); ++j) {
-	    QTextPieceTable::BlockIterator cell = row.at(j);
+	    QTextBlockIterator cell = row.at(j);
 	    QTextBlockFormat fmt = cell.blockFormat();
 	    int rowspan = fmt.tableCellRowSpan();
 	    int colspan = fmt.tableCellColSpan();
 	    if (r + rowspan > nRows) {
-		grid = (QFragmentMap<QTextBlock>::ConstIterator *)realloc(grid,
-			      sizeof(QFragmentMap<QTextBlock>::ConstIterator)*(r + rowspan)*nCols);
-		memset(grid + (nRows*nCols), 0,
-		       sizeof(QFragmentMap<QTextBlock>::ConstIterator)*(r+rowspan-nRows)*nCols);
+		grid = (int *)realloc(grid, sizeof(int)*(r + rowspan)*nCols);
+		memset(grid + (nRows*nCols), 0, sizeof(int)*(r+rowspan-nRows)*nCols);
 		nRows = r + rowspan;
 	    }
 	    // skip already taken cells
-	    while (c < nCols && grid[r*nCols + c].n)
+	    while (c < nCols && grid[r*nCols + c])
 		++c;
 
 	    if (c + colspan <= nCols) {
@@ -346,7 +344,7 @@ static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
     for (int i = 0; i < rowList.size(); ++i) {
 	const QTextTablePrivate::Row &r = rowList.at(i);
 	for (int j = 0; j < r.size(); ++j) {
-	    QTextPieceTable::BlockIterator bi = r.at(j);
+	    QTextBlockIterator bi = r.at(j);
 	    Q_ASSERT(bi.key() > pos);
 	    pos = bi.key();
 	    QTextBlockFormat fmt = bi.blockFormat();
@@ -360,7 +358,7 @@ static void checkRowList(const QList<QTextTablePrivate::Row> &rowList)
 }
 #endif
 
-void QTextTablePrivate::addCell(QTextPieceTable::BlockIterator it)
+void QTextTablePrivate::addCell(QTextBlockIterator it)
 {
 //     qDebug("addCell at %d", it.key());
     if (isEmpty()) {
@@ -369,9 +367,9 @@ void QTextTablePrivate::addCell(QTextPieceTable::BlockIterator it)
 	rowList.append(r);
 
 	if (cell_idx == -1)
-	    cell_idx = it.blockFormatIndex();
+	    cell_idx = QTextPieceTable::block(it)->format;
 
-	Q_ASSERT(cell_idx == it.blockFormatIndex());
+	Q_ASSERT(cell_idx == QTextPieceTable::block(it)->format);
     } else {
 	QTextBlockFormat fmt = it.blockFormat();
 
@@ -393,8 +391,8 @@ void QTextTablePrivate::addCell(QTextPieceTable::BlockIterator it)
 
 	if (eor) {
 	    if (eor_idx == -1)
-		eor_idx = it.blockFormatIndex();
-	    Q_ASSERT(eor_idx == it.blockFormatIndex());
+		eor_idx = QTextPieceTable::block(it)->format;
+	    Q_ASSERT(eor_idx == QTextPieceTable::block(it)->format);
 	}
 
 	int row = 0;
@@ -441,7 +439,7 @@ void QTextTablePrivate::addCell(QTextPieceTable::BlockIterator it)
     dirty = true;
 }
 
-void QTextTablePrivate::removeCell(QTextPieceTable::BlockIterator it)
+void QTextTablePrivate::removeCell(QTextBlockIterator it)
 {
 //     qDebug() << "removeCell" << it.key();
     QTextBlockFormat fmt = it.blockFormat();
@@ -460,7 +458,7 @@ void QTextTablePrivate::removeCell(QTextPieceTable::BlockIterator it)
     const Row &r = rowList.at(row);
     int cell = 0;
     for (; cell < r.size(); ++cell) {
-	QTextPieceTable::BlockIterator c = r.at(cell);
+	QTextBlockIterator c = r.at(cell);
 	if (c.key() == position)
 	    break;
     }

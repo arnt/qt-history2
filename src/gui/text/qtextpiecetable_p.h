@@ -14,6 +14,7 @@
 #include <qshareddatapointer.h>
 
 #include "qtextglobal_p.h"
+#include <qtextblockiterator.h>
 #endif // QT_H
 // #define QT_QMAP_DEBUG
 
@@ -101,33 +102,6 @@ public:
     typedef FragmentMap::ConstIterator FragmentIterator;
     typedef QFragmentMap<QTextBlock> BlockMap;
 
-    class BlockIterator : public QFragmentMap<QTextBlock>::ConstIterator
-    {
-	const QTextPieceTable *pt;
-    public:
-	inline BlockIterator() : pt(0) {}
-	inline BlockIterator(const QFragmentMap<QTextBlock>::ConstIterator i, const QTextPieceTable *p)
-	    : QFragmentMap<QTextBlock>::ConstIterator(i),  pt(p) {}
-
-	inline const QTextPieceTable *pieceTable() const { return pt; }
-	QTextLayout *layout() const;
-
-	QString blockText() const;
-	int start() const;
-	int end() const;
-
-	void setBlockFormat(const QTextBlockFormat &format);
-	QTextBlockFormat blockFormat() const;
-	int blockFormatIndex() const { return value()->format; }
-
-	QTextCharFormat charFormat() const;
-	int charFormatIndex() const;
-
-	inline bool contains(int position) const
-	    { return position >= start() && position <= end(); }
-    };
-
-
     QTextPieceTable(QAbstractTextDocumentLayout *layout);
     ~QTextPieceTable();
 
@@ -168,12 +142,16 @@ public:
     inline FragmentIterator begin() const { return fragments.begin(); }
     inline FragmentIterator end() const { return fragments.end(); }
 
-    inline BlockIterator blocksBegin() const { return BlockIterator(blocks.begin(), this); }
-    inline BlockIterator blocksEnd() const { return BlockIterator(blocks.end(), this); }
-    inline BlockIterator blocksFind(int pos) const { return BlockIterator(blocks.find(pos), this); }
+    inline QTextBlockIterator blocksBegin() const { return QTextBlockIterator(this, blocks.firstNode()); }
+    inline QTextBlockIterator blocksEnd() const { return QTextBlockIterator(this, 0); }
+    inline QTextBlockIterator blocksFind(int pos) const { return QTextBlockIterator(this, blocks.findNode(pos)); }
     inline int numBlocks() const { return blocks.numNodes(); }
 
     const BlockMap &blockMap() const { return blocks; }
+    const FragmentMap &fragmentMap() const { return fragments; }
+
+    static const QTextBlock *block(const QTextBlockIterator &it) { return it.pt->blocks.fragment(it.n); }
+    static void setBlockFormat(const QTextBlockIterator &it, const QTextBlockFormat &format);
 
     inline QTextDocumentConfig *config() { return &docConfig; }
     inline const QTextDocumentConfig *config() const { return &docConfig; }
@@ -232,7 +210,5 @@ private:
 
     QTextDocumentConfig docConfig;
 };
-
-Q_DECLARE_TYPEINFO(QTextPieceTable::BlockIterator, Q_PRIMITIVE_TYPE);
 
 #endif // QPIECEMAP_H

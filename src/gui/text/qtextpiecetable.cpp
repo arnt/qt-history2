@@ -378,12 +378,12 @@ void QTextPieceTable::setCharFormat(int pos, int length, const QTextCharFormat &
 
     endEditBlock();
 
-    BlockIterator blockIt = blocksFind(startPos);
-    BlockIterator endIt = blocksFind(endPos);
+    QTextBlockIterator blockIt = blocksFind(startPos);
+    QTextBlockIterator endIt = blocksFind(endPos);
     if (!endIt.atEnd())
 	++endIt;
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt)
-	blockIt.value()->invalidate();
+	QTextPieceTable::block(blockIt)->invalidate();
 
     emit formatChanged(startPos, length);
     emit contentsChanged();
@@ -410,8 +410,8 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     if (mode == SetFormat)
 	newFormatIdx = formats->indexForFormat(newFormat);
 
-    BlockIterator blockIt = blocksFind(pos);
-    BlockIterator endIt = blocksFind(pos + length);
+    QTextBlockIterator blockIt = blocksFind(pos);
+    QTextBlockIterator endIt = blocksFind(pos + length);
 
     /* subtract one as start() returns key() + 1 */
     const int startPos = blockIt.start() - 1;
@@ -420,18 +420,18 @@ void QTextPieceTable::setBlockFormat(int pos, int length, const QTextBlockFormat
     if (!endIt.atEnd())
 	++endIt;
     for (; !blockIt.atEnd() && blockIt != endIt; ++blockIt) {
-	int oldFormat = blockIt.blockFormatIndex();
+	int oldFormat = block(blockIt)->format;
 	if (mode == MergeFormat) {
 	    QTextBlockFormat format = formats->blockFormat(oldFormat);
 	    format += newFormat;
 	    newFormatIdx = formats->indexForFormat(format);
 	}
-	blockIt.value()->format = newFormatIdx;
+	block(blockIt)->format = newFormatIdx;
 
-	blockIt.value()->invalidate();
+	block(blockIt)->invalidate();
 	if (undoEnabled) {
 	    UndoCommand c = { UndoCommand::BlockFormatChanged, true, UndoCommand::MoveCursor, oldFormat,
-			      0, blockIt.key(), { 1 } };
+			      0, blockIt.position(), { 1 } };
 
 	    appendUndoItem(c);
 	    Q_ASSERT(undoPosition == undoStack.size());
@@ -516,11 +516,11 @@ void QTextPieceTable::undoRedo(bool undo)
 	    setCharFormat(c.pos, c.length, formats->charFormat(c.format));
 	    c.format = oldFormat;
 	} else if (c.command == UndoCommand::BlockFormatChanged) {
-	    BlockIterator it = blocksFind(c.pos);
+	    QTextBlockIterator it = blocksFind(c.pos);
 	    Q_ASSERT(!it.atEnd());
 
-	    int oldFormat = it.value()->format;
-	    it.value()->format = c.format;
+	    int oldFormat = block(it)->format;
+	    block(it)->format = c.format;
 	    c.format = oldFormat;
 	    // ########### emit doc changed signal
 	} else if (c.command == UndoCommand::Custom) {
@@ -671,7 +671,7 @@ int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mo
     if (position == length())
 	return position;
 
-    BlockIterator it = blocksFind(position-1);
+    QTextBlockIterator it = blocksFind(position-1);
     int start = it.start();
     int end = it.end();
     if (position == end)
@@ -685,7 +685,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
     if (position == 1)
 	return position;
 
-    BlockIterator it = blocksFind(position-1);
+    QTextBlockIterator it = blocksFind(position-1);
     int start = it.start();
     if (position == start)
 	return start - 1;
@@ -693,125 +693,11 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
     return it.layout()->previousCursorPosition(position-start, mode) + start;
 }
 
-QTextLayout *QTextPieceTable::BlockIterator::layout() const
+
+void QTextPieceTable::setBlockFormat(const QTextBlockIterator &it, const QTextBlockFormat &format)
 {
-    const QTextBlock *b = value();
-    if (!b->layout) {
-	b->layout = new QTextLayout();
-	b->layout->setFormatCollection(const_cast<QTextPieceTable *>(pt)->formatCollection());
-	b->layout->setDocumentLayout(pt->layout());
-    }
-    if (b->textDirty) {
-	QString text = blockText();
-	b->layout->setText(text);
-	b->textDirty = false;
-
-	if (!text.isEmpty()) {
-	    int lastTextPosition = 0;
-	    int textLength = 0;
-
-	    QTextPieceTable::FragmentIterator it = pt->find(start());
-	    QTextPieceTable::FragmentIterator e = pt->find(end());
-	    int lastFormatIdx = it.value()->format;
-	    for (; it != e; ++it) {
-		const QTextFragment *fragment = it.value();
-		int formatIndex = fragment->format;
-
-		if (formatIndex != lastFormatIdx) {
-		    Q_ASSERT(lastFormatIdx != -1);
-		    b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
-
-		    lastFormatIdx = formatIndex;
-		    lastTextPosition += textLength;
-		    textLength = 0;
-		}
-
-		textLength += fragment->size;
-	    }
-
-	    Q_ASSERT(lastFormatIdx != -1);
-	    b->layout->setFormat(lastTextPosition, textLength, lastFormatIdx);
-	}
-    }
-    return b->layout;
-}
-
-QString QTextPieceTable::BlockIterator::blockText() const
-{
-    if (atEnd())
-	return QString::null;
-
-    const QString buffer = pt->buffer();
-    QString text;
-
-    QTextPieceTable::FragmentIterator it = pt->find(start());
-    QTextPieceTable::FragmentIterator e = pt->find(end());
-
-    for (; it != e; ++it) {
-	const QTextFragment *fragment = it.value();
-
-	text += QConstString(buffer.unicode()+fragment->position, fragment->size);
-    }
-
-    return text;
-}
-
-
-int QTextPieceTable::BlockIterator::start() const
-{
-    if (atEnd())
-	return -1;
-    return key() + 1;
-}
-
-int QTextPieceTable::BlockIterator::end() const
-{
-    if (atEnd())
-	return -1;
-
-    QFragmentMap<QTextBlock>::ConstIterator it = *this;
-
-    ++it;
-
     if (it.atEnd())
-	return pt->length();
-
-    return it.key();
-}
-
-void QTextPieceTable::BlockIterator::setBlockFormat(const QTextBlockFormat &format)
-{
-    if (atEnd())
 	return;
-    const QTextBlock *b = value();
-    b->format = const_cast<QTextPieceTable *>(pt)->formatCollection()->indexForFormat(format);
-}
-
-QTextBlockFormat QTextPieceTable::BlockIterator::blockFormat() const
-{
-    const QTextBlock *b = value();
-    if (b->format == -1)
-	return QTextBlockFormat();
-
-    return pt->formatCollection()->blockFormat(b->format);
-}
-
-int QTextPieceTable::BlockIterator::charFormatIndex() const
-{
-    if (atEnd())
-	return -1;
-
-    QTextPieceTable::FragmentIterator it = pt->find(key());
-    Q_ASSERT(!it.atEnd());
-
-    return it.value()->format;
-}
-
-QTextCharFormat QTextPieceTable::BlockIterator::charFormat() const
-{
-    int idx = charFormatIndex();
-    if (idx == -1)
- 	return QTextCharFormat();
-
-    return pt->formatCollection()->charFormat(idx);
+    const QTextBlock *b = it.pt->blocks.fragment(it.n);
+    b->format = const_cast<QTextPieceTable *>(it.pt)->formatCollection()->indexForFormat(format);
 }

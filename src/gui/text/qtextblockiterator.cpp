@@ -43,13 +43,13 @@ QTextLayout *QTextBlockIterator::layout() const
 	b->layout->setText(text);
 	b->textDirty = false;
 
-	// ######### looks wrong is a fragment spans a block boundary!
+	// ######### looks wrong if a fragment spans a block boundary!
 	if (!text.isEmpty()) {
 	    int lastTextPosition = 0;
 	    int textLength = 0;
 
-	    QTextPieceTable::FragmentIterator it = pt->find(position());
-	    QTextPieceTable::FragmentIterator e = pt->find(position()+length());
+	    QTextPieceTable::FragmentIterator it = pt->find(start());
+	    QTextPieceTable::FragmentIterator e = pt->find(end());
 	    int lastFormatIdx = it.value()->format;
 	    for (; it != e; ++it) {
 		const QTextFragment *fragment = it.value();
@@ -99,20 +99,14 @@ QString QTextBlockIterator::blockText() const
     const QString buffer = pt->buffer();
     QString text;
 
-    int pos = pt->blockMap().key(n);
-    int len = pt->blockMap().size(n);
-    QTextPieceTable::FragmentIterator it = pt->find(pos);
-    QTextPieceTable::FragmentIterator e = pt->find(len);
+    // ######### looks wrong if a fragment spans a block boundary!
+    QTextPieceTable::FragmentIterator it = pt->find(start());
+    QTextPieceTable::FragmentIterator e = pt->find(end());
 
     for (; it != e; ++it) {
 	const QTextFragment *fragment = it.value();
-	int key = it.key();
-	int add = qMax(0, pos-key);
-	int l = qMin((int)fragment->size, len) - add;
-	Q_ASSERT(l > 0);
 
-	text += QConstString(buffer.unicode()+fragment->position + add, l);
-	len -= l;
+	text += QConstString(buffer.unicode()+fragment->position, fragment->size);
     }
 
     return text;

@@ -32,7 +32,7 @@ public:
 
     QTextPieceTable *pieceTable() { return pt; }
 
-    QVector<QTextPieceTable::BlockIterator> blocksForObject(QTextFormatGroup *group) const;
+    QVector<QTextBlockIterator> blocksForObject(QTextFormatGroup *group) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation op);
@@ -61,12 +61,12 @@ public:
 
     inline bool isEmpty() const { return rowList.isEmpty(); }
 
-    QTextPieceTable::BlockIterator cellStart(int cursor) const;
-    QTextPieceTable::BlockIterator cellEnd(int cursor) const;
-    QTextPieceTable::BlockIterator rowStart(int cursor) const;
-    QTextPieceTable::BlockIterator rowEnd(int cursor) const;
-    QTextPieceTable::BlockIterator start() const;
-    QTextPieceTable::BlockIterator end() const;
+    QTextBlockIterator cellStart(int cursor) const;
+    QTextBlockIterator cellEnd(int cursor) const;
+    QTextBlockIterator rowStart(int cursor) const;
+    QTextBlockIterator rowEnd(int cursor) const;
+    QTextBlockIterator start() const;
+    QTextBlockIterator end() const;
 
     int rowAt(int cursor) const;
 
@@ -81,17 +81,17 @@ public:
     }
 
     void updateGrid() const;
-    inline QFragmentMap<QTextBlock>::ConstIterator cellAt(int r, int c) const {
+    inline QTextBlockIterator cellAt(int r, int c) const {
 	if (dirty) updateGrid();
 	// nCols is without the 'eor column', however in the grid we store the
 	// eor cells, hence the +1
-	return grid[r*(nCols + 1) + c];
+	return QTextBlockIterator(pieceTable, grid[r*(nCols + 1) + c]);
     }
 
-    void addCell(QTextPieceTable::BlockIterator);
-    void removeCell(QTextPieceTable::BlockIterator);
+    void addCell(QTextBlockIterator);
+    void removeCell(QTextBlockIterator);
 
-    typedef QList<QTextPieceTable::BlockIterator> Row;
+    typedef QList<QTextBlockIterator> Row;
     typedef QList<Row> RowList;
     RowList rowList;
     int cell_idx;
@@ -103,9 +103,9 @@ public:
 
     QTextPieceTable *pieceTable;
 private:
-    inline void setCell(int r, int c, const QFragmentMap<QTextBlock>::ConstIterator block) const
-	{ grid[r*nCols + c] = block; }
-    mutable QFragmentMap<QTextBlock>::ConstIterator *grid;
+    inline void setCell(int r, int c, const QTextBlockIterator &block) const
+	{ grid[r*nCols + c] = block.n; }
+    mutable int *grid;
     mutable int nCols;
     mutable int nRows;
     mutable bool dirty;

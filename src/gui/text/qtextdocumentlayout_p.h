@@ -33,18 +33,18 @@ public:
 private:
     void recreateAllBlocks();
 
-    void drawBlock(QPainter *, const PaintContext &context, const QTextPieceTable::BlockIterator block);
+    void drawBlock(QPainter *, const PaintContext &context, const QTextBlockIterator block);
     void drawListItem(QPainter *, const PaintContext &context,
-		      const QTextPieceTable::BlockIterator block, const QTextLayout::Selection &selection);
+		      const QTextBlockIterator block, const QTextLayout::Selection &selection);
 
-    int indent(const QTextPieceTable::BlockIterator block) const;
-    QTextListFormat listFormat(const QTextPieceTable::BlockIterator block) const;
+    int indent(const QTextBlockIterator block) const;
+    QTextListFormat listFormat(const QTextBlockIterator block) const;
 
-    void layoutBlock(const QTextPieceTable::BlockIterator block, const QPoint &p, int width);
-    QTextPieceTable::BlockIterator layoutCell(QTextPieceTable::BlockIterator block, QPoint *pos, int width);
-    QTextPieceTable::BlockIterator layoutTable(QTextPieceTable::BlockIterator block, QPoint *pos, int width);
+    void layoutBlock(const QTextBlockIterator block, const QPoint &p, int width);
+    QTextBlockIterator layoutCell(QTextBlockIterator block, QPoint *pos, int width);
+    QTextBlockIterator layoutTable(QTextBlockIterator block, QPoint *pos, int width);
 
-    int hitTest(QTextPieceTable::BlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
+    int hitTest(QTextBlockIterator bl, const QPoint &point, QText::HitTestAccuracy accuracy) const;
     inline QTextPieceTable *pieceTable() const { return static_cast<QTextPieceTable *>(parent()); }
 };
 

@@ -29,7 +29,7 @@ public:
     void insertBlock(const QTextBlockFormat &format);
     bool moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
-    inline QTextPieceTable::BlockIterator block() const
+    inline QTextBlockIterator block() const
     { return pieceTable->blocksFind(position-1); }
     inline QTextBlockFormat blockFormat() const
     { return block().blockFormat(); }

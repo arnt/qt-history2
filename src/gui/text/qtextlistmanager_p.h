@@ -22,7 +22,7 @@ public:
 
     QTextPieceTable *pieceTable() { return table; }
 
-    QVector<QTextPieceTable::BlockIterator> blocksForObject(QTextFormatGroup *group) const;
+    QVector<QTextBlockIterator> blocksForObject(QTextFormatGroup *group) const;
 
 private slots:
     void blockChanged(int blockPosition, QText::ChangeOperation);
@@ -30,8 +30,8 @@ private slots:
     void listDestroyed(QObject *obj);
 
 private:
-    void removeListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt);
-    void addListEntry(QTextFormatGroup *group, const QTextPieceTable::BlockIterator &blockIt);
+    void removeListEntry(QTextFormatGroup *group, const QTextBlockIterator &blockIt);
+    void addListEntry(QTextFormatGroup *group, const QTextBlockIterator &blockIt);
 
     // map from list index to list of blocks
     typedef QMap<QTextFormatGroup *, QTextList *> ListMap;

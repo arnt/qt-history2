@@ -72,7 +72,7 @@ void QTextCursorPrivate::setPosition(int newPosition)
 
 void QTextCursorPrivate::setX()
 {
-    QTextPieceTable::BlockIterator block = pieceTable->blocksFind(position-1);
+    QTextBlockIterator block = pieceTable->blocksFind(position-1);
     const QTextLayout *layout = block.layout();
     int pos = position - block.start();
 
@@ -220,7 +220,7 @@ void QTextCursorPrivate::adjustCursor(int dir)
 bool QTextCursorPrivate::moveTo(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode)
 {
     bool adjustX = true;
-    QTextPieceTable::BlockIterator blockIt = block();
+    QTextBlockIterator blockIt = block();
 
     if (op >= QTextCursor::Left && op <= QTextCursor::WordRight
 	&& blockIt.blockFormat().direction() == QTextBlockFormat::RightToLeft) {
@@ -679,7 +679,7 @@ void QTextCursor::setBlockFormat(const QTextBlockFormat &format)
     if (!d)
 	return;
 
-    d->block().setBlockFormat(format);
+    QTextPieceTable::setBlockFormat(d->block(), format);
 }
 
 /*!

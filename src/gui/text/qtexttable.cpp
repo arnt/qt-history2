@@ -36,7 +36,7 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
     // + 1, see comment in QTextTable::start() why
     s = QTextCursor(p->pieceTable, p->cellAt(r, c).key() + 1);
 
-    QFragmentMap<QTextBlock>::ConstIterator b = p->cellAt(r, col++);
+    QTextBlockIterator b = p->cellAt(r, col++);
     while (b == p->cellAt(r, col))
 	++col;
     // should always work as we have the line end element
@@ -55,7 +55,7 @@ QTextTableCellProperties::QTextTableCellProperties(const QTextTablePrivate *p, i
     }
     e = QTextCursor(p->pieceTable, endPos);
 
-    QTextPieceTable::BlockIterator it(p->cellAt(r, c), p->pieceTable);
+    QTextBlockIterator it = p->cellAt(r, c);
     QTextBlockFormat fmt = it.blockFormat();
     rSpan = fmt.tableCellRowSpan();
     cSpan = fmt.tableCellRowSpan();
@@ -174,7 +174,7 @@ QTextTableCellProperties QTextTable::cellAt(const QTextCursor &c) const
     if (row != -1) {
 	const QTextTablePrivate::Row &r = d->rowList.at(row);
 	for (int j = r.size()-1; j >= 0; --j) {
-	    QTextPieceTable::BlockIterator cell = r.at(j);
+	    QTextBlockIterator cell = r.at(j);
 	    if (cell.key() < c.position())
 		return QTextTableCellProperties(d, row, j);
 	}
@@ -221,7 +221,7 @@ void QTextTable::insertRows(int pos, int num)
     int cursorPos;
     if (pos > 0) {
 	const QTextTablePrivate::Row &row = d->rowList[pos-1];
-	QTextPieceTable::BlockIterator eor = row.last();
+	QTextBlockIterator eor = row.last();
 	cursorPos = eor.key()+1;
     } else {
 	cursorPos = d->rowList.at(0).at(0).key();
@@ -255,7 +255,7 @@ void QTextTable::insertCols(int pos, int num)
 
     for (int i = 0; i < nRows; ++i) {
 	QTextTablePrivate::Row &row = d->rowList[i];
-	QTextPieceTable::BlockIterator cell = row[pos];
+	QTextBlockIterator cell = row[pos];
 	int cursorPos = cell.key();
 	for (int j = 0; j < num; ++j)
 	    d->pieceTable->insertBlock(cursorPos+j, d->cell_idx, d->pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
@@ -281,7 +281,7 @@ void QTextTable::removeRows(int pos, int num)
 	num = nRows-pos;
 
     QTextTablePrivate::Row &row = d->rowList[pos];
-    QTextPieceTable::BlockIterator bit = row[0];
+    QTextBlockIterator bit = row[0];
     int from = bit.key();
     row = d->rowList[pos+num-1];
     bit = row.last();
@@ -311,7 +311,7 @@ void QTextTable::removeCols(int pos, int num)
 
     for (int i = 0; i < nRows; ++i) {
 	QTextTablePrivate::Row &row = d->rowList[i];
-	QTextPieceTable::BlockIterator bit = row[pos];
+	QTextBlockIterator bit = row[pos];
 	int from = bit.key();
 	bit = row[pos+num-1];
 	++bit;

@@ -289,6 +289,8 @@ public:
       }
     }
 
+    inline int firstNode() const { return data.minimum(data.root()); }
+
 private:
     friend class Iterator;
     friend class ConstIterator;

@@ -14,15 +14,15 @@ class QTextList;
 class QTextListPrivate : public QObjectPrivate
 {
 public:
-    int itemNumber(const QTextPieceTable::BlockIterator &block) const;
+    int itemNumber(const QTextBlockIterator &block) const;
 
-    void appendBlock(const QTextPieceTable::BlockIterator &block);
+    void appendBlock(const QTextBlockIterator &block);
 
     QTextFormatGroup *group() const;
 
     void removeAllFormatIndicesFromBlocks();
 
-    typedef QVector<QTextPieceTable::BlockIterator> BlockList;
+    typedef QVector<QTextBlockIterator> BlockList;
     BlockList blocks;
 };
 
@@ -30,7 +30,7 @@ class QTextListItem
 {
 public:
     inline QTextListItem() : item(-1) {}
-    QTextListItem(const QTextPieceTable::BlockIterator &block);
+    QTextListItem(const QTextBlockIterator &block);
     QTextListItem(QTextList *_list, int _item);
 
     QString text() const;
@@ -63,9 +63,9 @@ public:
 
 	QAbstractTextDocumentLayout *layout = pt->layout();
 
-	QVector<QTextPieceTable::BlockIterator> affectedBlocks = manager->blocksForObject(group);
+	QVector<QTextBlockIterator> affectedBlocks = manager->blocksForObject(group);
 	for (int i = 0; i < affectedBlocks.size(); ++i) {
-	    const QTextPieceTable::BlockIterator &block = affectedBlocks.at(i);
+	    const QTextBlockIterator &block = affectedBlocks.at(i);
 	    int start = block.start();
 	    int len = block.end() - start;
 	    layout->documentChange(start, len, len);

@@ -8,13 +8,13 @@
 
 #define d d_func()
 
-void QTextListPrivate::appendBlock(const QTextPieceTable::BlockIterator &block)
+void QTextListPrivate::appendBlock(const QTextBlockIterator &block)
 {
     blocks.append(block);
     qBubbleSort(blocks);
 }
 
-int QTextListPrivate::itemNumber(const QTextPieceTable::BlockIterator &block) const
+int QTextListPrivate::itemNumber(const QTextBlockIterator &block) const
 {
     int res = blocks.indexOf(block);
     if (res == -1)
@@ -27,7 +27,7 @@ QTextFormatGroup *QTextListPrivate::group() const
     if (blocks.isEmpty())
 	return 0;
 
-    QTextPieceTable::BlockIterator block = blocks.first();
+    QTextBlockIterator block = blocks.first();
     Q_ASSERT(!block.atEnd());
     return block.blockFormat().group();
 }
@@ -45,12 +45,12 @@ void QTextListPrivate::removeAllFormatIndicesFromBlocks()
 
     table->beginEditBlock();
 
-    Q_FOREACH(QTextPieceTable::BlockIterator it, allBlocks) {
+    Q_FOREACH(QTextBlockIterator it, allBlocks) {
 	Q_ASSERT(!it.atEnd());
 
 	QTextBlockFormat fmt = it.blockFormat();
 	fmt.setGroup(0);
-	it.setBlockFormat(fmt);
+	QTextPieceTable::setBlockFormat(it, fmt);
     }
 
     table->endEditBlock();
@@ -129,7 +129,7 @@ QTextListItem::QTextListItem(QTextList *_list, int _item)
 {
 }
 
-QTextListItem::QTextListItem(const QTextPieceTable::BlockIterator &block)
+QTextListItem::QTextListItem(const QTextBlockIterator &block)
     : item(-1)
 {
     if (block.atEnd())
@@ -150,7 +150,7 @@ QString QTextListItem::text() const
     if (!list || item < 0)
 	return QString::null;
 
-    QTextPieceTable::BlockIterator block = list->d->blocks.at(item - 1);
+    QTextBlockIterator block = list->d->blocks.at(item - 1);
     if (block.atEnd())
 	return QString::null;
 
