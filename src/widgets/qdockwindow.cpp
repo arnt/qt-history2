@@ -1829,7 +1829,7 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 }
 
 /*! \reimp */
-bool QDockWindow::eventFilter( QObject *, QEvent *e )
+bool QDockWindow::eventFilter( QObject * o, QEvent *e )
 {
     if ( e->type() == QEvent::KeyPress &&
 	( horHandle->mousePressed ||
@@ -1844,7 +1844,7 @@ bool QDockWindow::eventFilter( QObject *, QEvent *e )
 	    qApp->removeEventFilter( this );
 	    return TRUE;
 	}
-    } else if ( place() == OutsideDock && isTopLevel() ) {
+    } else if ( o != this && place() == OutsideDock && isTopLevel() ) {
 	if ( (e->type() == QEvent::WindowDeactivate ||
 	    e->type() == QEvent::WindowActivate ) )
 	    event( e );
