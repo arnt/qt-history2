@@ -789,3 +789,14 @@ These classes are relevant to Qt/Embedded users.
 These classes are relevant to text processing. See also the
 \link xml.html XML classes \endlink.
 */
+
+/*! \defgroup model-view
+
+\title Model View Classes
+
+These classes follow the Model/View/Controller design pattern
+in which the underlying data (in the Model) is kept separate
+from both the way it is presented to the user (in the View) and
+the way it is manipulated (by the Controller).
+
+*/
