@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#107 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#107 $");
 
 
 /*!
@@ -631,7 +631,7 @@ void QObject::blockSignals( bool block )
 
   There is practically no upper limit for the interval value (more than
   one year).  The accuracy depends on the underlying operating system.
-  Windows 3.1 has 55 millisecond (18.2 times per second) accuracy; other
+  Windows 95 has 55 millisecond (18.2 times per second) accuracy; other
   systems that we have tested (UNIX X11, Windows NT and OS/2) can
   handle 1 millisecond intervals.
 
