@@ -799,20 +799,6 @@ Q_OUTOFLINE_TEMPLATE  std::map<Key, T> QMap<Key, T>::toStdMap() const
 
 #endif // QT_NO_STL
 
-#ifndef QT_NO_DEBUG_OUTPUT
-template <class aKey, class aT>
-Q_OUTOFLINE_TEMPLATE QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
-{
-    dbg.nospace() << "QMap(";
-    for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
-         it != map.constEnd(); ++it) {
-        dbg.nospace() << "(" << it.key() << "," << it.value() << ")";
-    }
-    dbg.nospace() << ")";
-    return dbg.space();
-}
-#endif
-
 template <class Key, class T>
 class QMultiMap : public QMap<Key, T>
 {
@@ -834,6 +820,21 @@ private:
     T &operator[](const Key &key);
     const T operator[](const Key &key) const;
 };
+
+#ifndef QT_NO_DEBUG_OUTPUT
+#include "qdebug.h"
+template <class aKey, class aT>
+Q_CORE_EXPORT Q_OUTOFLINE_TEMPLATE QDebug operator<<(QDebug dbg, const QMap<aKey, aT> &map)
+{
+    dbg.nospace() << "QMap(";
+    for (typename QMap<aKey, aT>::const_iterator it = map.constBegin();
+         it != map.constEnd(); ++it) {
+        dbg.nospace() << "(" << it.key() << "," << it.value() << ")";
+    }
+    dbg.nospace() << ")";
+    return dbg.space();
+}
+#endif
 
 Q_DECLARE_ASSOCIATIVE_ITERATOR(Map)
 Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR(Map)
