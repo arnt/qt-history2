@@ -115,10 +115,11 @@ MOC	=	$(SYSCONF_MOC)
 
 ####### Target
 
-TARGET	= #$ Expand("TARGET");
 DESTDIR = #$ Expand("DESTDIR");
 VER_MAJ = #$ Expand("VER_MAJ");
 VER_MIN = #$ Expand("VER_MIN");
+TARGET	= #$ Expand("TARGET");
+TARGET1 = lib$(TARGET).so.$(VER_MAJ)
 
 ####### Files
 
