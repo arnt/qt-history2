@@ -51,7 +51,6 @@
 #include "qimageformatinterface.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#include "qwinfunctions.h"
 #include <stdlib.h>
 #include <ctype.h>
 

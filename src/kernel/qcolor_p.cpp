@@ -41,7 +41,6 @@
 #ifndef QT_NO_COLORNAMES
 
 #include <stdlib.h>
-#include "qwinfunctions.h"
 
 #undef QRGB
 #define QRGB(r,g,b) (r*65536 + g*256 + b)

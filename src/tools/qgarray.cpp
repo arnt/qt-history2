@@ -40,10 +40,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#if defined( Q_OS_WIN32 )
-#include <qwinfunctions.h>
-#endif
-
 #define USE_MALLOC				// comment to use new/delete
 
 #undef NEW

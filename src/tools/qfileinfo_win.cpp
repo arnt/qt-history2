@@ -33,7 +33,6 @@
 #include "qfiledefs_p.h"
 #include "qdatetime.h"
 #include "qdir.h"
-#include "qwinfunctions.h"
 
 #include <windows.h>
 #ifndef Q_OS_TEMP

@@ -70,8 +70,6 @@
 #include <langinfo.h>
 #endif
 
-#include "qwinfunctions.h"
-
 static QPtrList<QTextCodec> * all = 0;
 static bool destroying_is_ok; // starts out as 0
 

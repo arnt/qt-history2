@@ -40,7 +40,6 @@
 #include <limits.h>
 #include "qt_windows.h"
 #include "qapplication_p.h"
-#include "qwinfunctions.h"
 #include "qpaintdevicemetrics.h"
 
 static HDC   shared_dc	    = 0;		// common dc for all fonts

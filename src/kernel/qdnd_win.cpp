@@ -44,8 +44,6 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include "qwinfunctions.h"
-
 
 static HCURSOR *cursor = 0;
 static QDragObject *global_src = 0;

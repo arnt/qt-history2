@@ -42,7 +42,6 @@
 #endif
 
 #include "qwindowdefs.h"
-#include "qwinfunctions.h"
 
 #include <windows.h>
 

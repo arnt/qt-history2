@@ -61,11 +61,6 @@
 #include "qmutex.h"
 #endif
 
-#if defined( Q_OS_WIN32 )
-#include "qwinfunctions.h"
-#endif
-
-
 /*!
   \class QApplication qapplication.h
   \brief The QApplication class manages the GUI application's control

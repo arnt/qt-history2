@@ -41,7 +41,6 @@
 #include "qdatetime.h"
 #include "qdatastream.h"
 #include "qregexp.h"
-#include "qwinfunctions.h"
 
 #include <stdio.h>
 #ifndef Q_OS_TEMP
