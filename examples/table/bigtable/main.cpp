@@ -22,7 +22,7 @@ public:
     MyTable( int r, int c ) : QTable( r, c ) {
 	items.setAutoDelete( TRUE );
 	widgets.setAutoDelete( TRUE );
-	setCaption( tr( "This is a big table with 1.000.000x1.000.000 cells..." ) );
+	setCaption( tr( "A 1,000,000x1,000,000 Cell Table" ) );
 	setLeftMargin( fontMetrics().width( "W999999W" ) );
     }
 
@@ -30,6 +30,12 @@ public:
     QTableItem *item( int r, int c ) const { return items.find( indexOf( r, c ) ); }
     void setItem( int r, int c, QTableItem *i ) { items.replace( indexOf( r, c ), i ); }
     void clearCell( int r, int c ) { items.remove( indexOf( r, c ) ); }
+    void takeItem( QTableItem *item )
+    {
+	items.setAutoDelete( FALSE );
+	items.remove( indexOf( item->row(), item->col() ) );
+	items.setAutoDelete( TRUE );
+    }
     void insertWidget( int r, int c, QWidget *w ) { widgets.replace( indexOf( r, c ), w );  }
     QWidget *cellWidget( int r, int c ) const { return widgets.find( indexOf( r, c ) ); }
     void clearCellWidget( int r, int c ) { widgets.remove( indexOf( r, c ) ); }
@@ -44,7 +50,7 @@ private:
 
 int main( int argc, char **argv )
 {
-    QApplication app( argc, argv );			
+    QApplication app( argc, argv );
 
     MyTable table( numRows, numCols );
     app.setMainWidget( &table );
