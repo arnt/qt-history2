@@ -1490,10 +1490,12 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
     opt.stepEnabled = q->stepEnabled();
     opt.activeParts = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::SC_SpinBoxFrame|QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
-    if (slider) {
+    opt.parts = QStyle::PE_SpinBoxUp|QStyle::PE_SpinBoxDown;
+    if (slider)
         opt.parts |= QStyle::PE_SpinBoxSlider;
-    }
+    if (frame)
+        opt.parts |= QStyle::SC_SpinBoxFrame;
+
     if (d->buttonstate & Up) {
         opt.activeParts = QStyle::PE_SpinBoxUp;
     } else if (buttonstate & Down) {
@@ -1507,6 +1509,7 @@ QStyleOptionSpinBox QDateTimeEditPrivate::styleOption() const
 
     opt.percentage = days / totalDays;
     opt.slider = slider;
+    opt.frame = frame;
     return opt;
 }
 

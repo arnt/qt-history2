@@ -1998,7 +1998,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinbox = qt_cast<const QStyleOptionSpinBox *>(opt)) {
 
-            int fw = pixelMetric(PM_SpinBoxFrameWidth, widget);
+            int fw = spinbox->frame ? pixelMetric(PM_SpinBoxFrameWidth, widget) : 0;
             int slider = spinbox->slider ? qMax((int)(spinbox->rect.height() / 20),
                                                 pixelMetric(PM_SpinBoxSliderHeight, widget)) : 0;
             QSize bs;
@@ -2023,7 +2023,7 @@ QRect QCommonStyle::querySubControlMetrics(ComplexControl cc, const QStyleOption
             case SC_SpinBoxSlider:
                 ret = (slider > 0 ? QRect(lx, spinbox->rect.height() - fw - slider, rx, slider) : QRect()); break;
             case SC_SpinBoxFrame:
-                ret = spinbox->rect;
+                ret = spinbox->frame ? spinbox->rect : QRect();
             default:
                 break;
             }

@@ -275,6 +275,25 @@ void QAbstractSpinBox::setSlider(bool s)
     update();
 }
 
+/*!
+    \property QAbstractSpinBox::frame
+    \brief whether the spin box draws itself with a frame
+
+    If enabled (the default) the spin box draws itself inside a
+    two-pixel frame, otherwise the line edit draws itself without any
+    frame.
+*/
+bool QAbstractSpinBox::hasFrame() const
+{
+    return d->frame;
+}
+
+void QAbstractSpinBox::setFrame(bool enable)
+{
+    d->frame = enable;
+    update();
+    updateGeometry();
+}
 
 /*!
     \property QAbstractSpinBox::alignment
@@ -740,7 +759,7 @@ QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), spinclicktimerid(-1), spinkeytimerid(-1), spinclicktimerinterval(100), spinkeytimerinterval(200),
       buttonstate(None), sizehintdirty(true), dirty(true), useprivate(false), pendingemit(false),
       tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
-      sliderpressed(false), buttonsymbols(QAbstractSpinBox::UpDownArrows)
+      sliderpressed(false), frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
 {
     resetState();
 }
@@ -1014,9 +1033,12 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
     opt.stepEnabled = q->stepEnabled();
     opt.activeParts = 0;
     opt.buttonSymbols = buttonsymbols;
-    opt.parts = QStyle::SC_SpinBoxFrame | QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
+    opt.parts = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown;
     if (slider)
         opt.parts |= QStyle::SC_SpinBoxSlider;
+
+    if (frame)
+        opt.parts |= QStyle::SC_SpinBoxFrame;
 
     if (buttonstate & Up)
         opt.activeParts = QStyle::SC_SpinBoxUp;
@@ -1025,6 +1047,7 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::styleOption() const
 
     opt.percentage = (value - minimum) / (maximum - minimum);
     opt.slider = slider;
+    opt.frame = frame;
     return opt;
 }
 

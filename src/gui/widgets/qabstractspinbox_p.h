@@ -107,6 +107,7 @@ public:
     uint ignorecursorpositionchanged : 1;
     uint slider : 1;
     uint sliderpressed : 1;
+    uint frame : 1;
     QAbstractSpinBox::ButtonSymbols buttonsymbols;
 };
 

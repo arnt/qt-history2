@@ -184,13 +184,15 @@ struct QStyleOptionSpinBox : public QStyleOptionComplex {
     QAbstractSpinBox::StepEnabled stepEnabled;
     double percentage;
     bool slider;
+    bool frame;
     QStyleOptionSpinBox(int version)
         : QStyleOptionComplex(version, SO_SpinBox), buttonSymbols(QAbstractSpinBox::UpDownArrows),
-          stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false) {}
+          stepEnabled(QAbstractSpinBox::StepNone), percentage(0.0), slider(false), frame(true) {}
     QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols);
     QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled);
     QDOC_PROPERTY(double percentage);
     QDOC_PROPERTY(bool slider);
+    QDOC_PROPERTY(bool frame);
 };
 
 struct QStyleOptionListViewItem : public QStyleOption
