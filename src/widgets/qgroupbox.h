@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.h#24 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.h#25 $
 **
 ** Definition of QGroupBox widget class
 **
@@ -65,9 +65,11 @@ private:
     void skip();
     void init();
     void setColumnLayout(int columns, Orientation o);
+    void calculateFrame();
 
     QString str;
     int align;
+    int lenvisible;
     QAccel * accel;
     QGroupBoxPrivate * d;
 

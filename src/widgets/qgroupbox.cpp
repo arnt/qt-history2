@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#53 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -119,6 +119,7 @@ void QGroupBox::init()
     accel = 0;
     vbox = 0;
     grid = 0;
+    lenvisible = 0;
 }
 
 
@@ -147,8 +148,9 @@ void QGroupBox::setTitle( const QString &title )
 	accel->connectItem( accel->insertItem( s, 0 ),
 			    this, SLOT(fixFocus()) );
     }
-    repaint();
-
+    calculateFrame();
+    if ( isVisible() )
+	repaint();
 }
 
 /*!
@@ -187,16 +189,12 @@ void QGroupBox::setAlignment( int alignment )
     repaint();
 }
 
-/*!
-  Override to only use QFrame's smart resize repaint if alignment()
-  is AlignLeft.
+/*! \reimp
 */
 void QGroupBox::resizeEvent( QResizeEvent *e )
 {
-    if ( align == AlignLeft )
-	QFrame::resizeEvent(e);
-    else
-	repaint( rect() );
+    QFrame::resizeEvent(e);
+    calculateFrame();
 }
 
 /*!
@@ -208,54 +206,35 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
 
 void QGroupBox::paintEvent( QPaintEvent *event )
 {
-    int		tw  = 0;
-    QRect	cr  = rect();
-    QRect	r   = cr;
-    int		len = str.length();
     QColorGroup g = colorGroup();
-    QPainter	paint( this );
+    QPainter paint( this );
 
-    if ( event )
-	paint.setClipRegion( event->region() );
-
-    if ( len == 0 )				// no title
-	setFrameRect( QRect(0,0,0,0) );		//  then use client rect
-    else {					// set up region for title
+    paint.setClipRegion( event->region() );
+    
+    if ( lenvisible ) {					// draw title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
-	while ( len ) {
-	    tw = fm.width( str, len ) + 2*fm.width(QChar(' '));
-	    if ( tw < cr.width() )
-		break;
-	    len--;
-	}
-	if ( len ) {
-	    r.setTop( h/2 );			// frame rect should be
-	    setFrameRect( r );			//   smaller than client rect
-	    int x;
-	    if ( align & AlignHCenter )		// center alignment
-		x = r.width()/2 - tw/2;
-	    else if ( align & AlignRight )	// right alignment
-		x = r.width() - tw - 8;
-	    else				// left alignment
-		x = 8;
-	    r.setRect( x, 0, tw, h );
-	    QRegion rgn_all( cr );
-	    QRegion rgn_title( r );
-	    rgn_all = rgn_all.subtract( rgn_title );
-	    paint.setClipRegion( rgn_all );	// clip everything but title
-	}
+	int tw = fm.width( str, lenvisible );
+		 
+	int x;
+	if ( align & AlignHCenter )		// center alignment
+	    x = frameRect().width()/2 - tw/2;
+	else if ( align & AlignRight )	// right alignment
+	    x = frameRect().width() - tw - 8;
+	else				// left alignment
+	    x = 8;
+	QRect r( x, 0, tw, h );
+	paint.setPen( g.text() );
+	paint.drawText( r, AlignCenter + ShowPrefix, str, lenvisible );
+	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
     }
     drawFrame( &paint );			// draw the frame
-    if ( tw ) {					// draw the title
-	paint.setClipping( FALSE );
-	paint.setPen( g.text() );
-	paint.drawText( r, AlignCenter + ShowPrefix, str, len );
-    }
-    drawContents( &paint );
+    drawContents( &paint );			// draw the contents
 }
 
 
+/*\reimp
+ */
 void QGroupBox::updateMask(){
     int		tw  = 0;
     QRect	cr  = rect();
@@ -296,6 +275,10 @@ void QGroupBox::updateMask(){
 
 }
 
+
+/*!
+  Ask warwick@troll.no
+ */
 void QGroupBox::setColumnLayout(int columns, Orientation direction)
 {
 #if defined(CHECK_RANGE)
@@ -400,4 +383,35 @@ void QGroupBox::fixFocus()
 	best->setFocus();
     else if ( candidate )
 	candidate->setFocus();
+}
+
+
+/*!
+  Sets the right framerect depending on the title. Also calculates the
+  visible part of the title.
+ */
+void QGroupBox::calculateFrame()
+{
+    lenvisible = str.length();
+    
+    if ( lenvisible ) { // do we have a label?
+	QFontMetrics fm = fontMetrics();
+	int h = fm.height();
+	int tw  = 0;
+	while ( lenvisible ) {
+	    tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	    if ( tw < width() )
+		break;
+	    lenvisible--;
+	}
+	if ( lenvisible ) { // but do we also have a visible label?
+	    QRect r = rect();
+	    r.setTop( h/2 );				// frame rect should be
+	    setFrameRect( r );			//   smaller than client rect
+	    return;
+	}
+    }
+    
+    // no visible label
+    setFrameRect( QRect(0,0,0,0) );		//  then use client rect
 }
