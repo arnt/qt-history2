@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#18 $
 **
 ** Implementation of QStatusBar class
 **
@@ -29,6 +29,8 @@
 #include "qtimer.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+
+#include <X11/Xlib.h>
 
 /*! \class QStatusBar qstatusbar.h
 
@@ -120,7 +122,7 @@ public:
 
 
 QStatusBarPrivate::ResizeLines::ResizeLines( QWidget * parent )
-    : QWidget( parent, 0 )
+    : QWidget( parent, 0, WStyle_Sizegrip )
 {
     setCursor( sizeFDiagCursor );
     setFixedSize( 13, 13 );
@@ -147,7 +149,7 @@ void QStatusBarPrivate::ResizeLines::paintEvent( QPaintEvent * )
 
 void QStatusBarPrivate::ResizeLines::mousePressEvent( QMouseEvent * e )
 {
-    p = mapToGlobal( e->pos() );
+    p = e->globalPos();
     s = topLevelWidget()->size();
 }
 
@@ -157,7 +159,7 @@ void QStatusBarPrivate::ResizeLines::mouseMoveEvent( QMouseEvent * e )
     if ( e->state() != LeftButton )
 	return;
 
-    QPoint np( QCursor::pos() );
+    QPoint np( e->globalPos() );
     int w = np.x() - p.x() + s.width();
     int h = np.y() - p.y() + s.height();
     if ( w < 1 )

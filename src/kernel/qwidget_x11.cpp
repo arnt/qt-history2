@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#255 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#256 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -72,6 +72,7 @@ static QWidget *keyboardGrb = 0;
 #endif
 
 extern Atom qt_wm_delete_window;		// defined in qapplication_x11.cpp
+extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	(uint)(
@@ -90,7 +91,7 @@ const uint stdDesktopEventMask =			// X event mask
 	    KeyPressMask | KeyReleaseMask |
 	    KeymapStateMask |
 	    EnterWindowMask | LeaveWindowMask |
-	    FocusChangeMask
+	    FocusChangeMask | PropertyChangeMask
 	);
 
 
@@ -315,6 +316,13 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    clearWFlags( WState_Visible );
 	else
 	    setWFlags( WState_Visible );
+    }
+    
+    //resize grip
+    if ( !topLevel && testWFlags(WStyle_Sizegrip) ) {
+	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(), 
+			qt_sizegrip, qt_sizegrip, 32,
+			PropModeReplace, (unsigned char *)&id, 1);
     }
 
     if ( destroyw )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#110 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#111 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -231,6 +231,7 @@ const uint WStyle_Minimize	= 0x00020000;
 const uint WStyle_Maximize	= 0x00040000;
 const uint WStyle_MinMax	= WStyle_Minimize | WStyle_Maximize;
 const uint WStyle_Tool		= 0x00080000;
+const uint WStyle_Sizegrip		= 0x00100000;
 const uint WStyle_Mask		= 0x000ff000;
 
 const uint WCursorSet		= 0x00100000;	// misc widget flags

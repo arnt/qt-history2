@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#324 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#325 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -141,6 +141,8 @@ static Atom	qt_qt_scrolldone;		// scroll synchronization
 static Atom	qt_xsetroot_id;
 Atom		qt_selection_property;
 Atom		qt_wm_state;
+static Atom 	qt_resource_manager;   	// X11 Resource manager
+Atom 		qt_sizegrip;		// sizegrip 
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -437,6 +439,80 @@ static void set_local_font()
 }
 
 
+// set font, foreground and background from x11 resources. The
+// arguments may override the resource settings.
+static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0) 
+{
+    Atom   type = None;
+    int	   format;
+    ulong  nitems, after = 1;
+    long offset = 0;
+    char *data;
+    QString res;
+    while (after > 0) {
+	XGetWindowProperty( appDpy, appRootWin, qt_resource_manager, 
+			    offset, 256, FALSE, AnyPropertyType,
+			    &type, &format, &nitems, &after, (unsigned char**) &data );
+	res += data;
+	offset += 256;
+    }
+    int l = 0, r, i;
+    QString item, key, value;
+    QString resFont, resFG, resBG;
+    while( (unsigned) l < res.length()) {
+	r = res.find( "\n", l );
+	if ( r < 0 )
+	    r = res.length();
+	item = res.mid( l, r - l ).simplifyWhiteSpace();
+	l = r + 1;
+	i = item.find( ":" );
+	key = item.left( i ).simplifyWhiteSpace();
+	value = item.right( item.length() - i - 1 ).simplifyWhiteSpace();
+	if ( !font && key == "*font")
+	    resFont = value.copy();
+	else if  ( !fg &&  key == "*foreground" )
+	    resFG = value.copy();
+	else if ( !bg && key == "*background")
+	    resBG = value.copy();
+    }
+    
+    if ( resFont.isEmpty() )
+	resFont = font;
+    if ( resFG.isEmpty() )
+	resFG = fg;
+    if ( resBG.isEmpty() )
+	resBG = bg;
+    
+    if ( !resFont.isEmpty() ) {				// set application font
+	QFont font;
+	font.setRawMode( TRUE );
+	font.setFamily( resFont );
+	QApplication::setFont( font, TRUE );
+    }
+    if ( !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
+	QColor bg;
+	QColor fg;
+	if ( !resBG.isEmpty() )
+	    bg = QColor(resBG);
+	else
+	    bg = lightGray;
+	if ( !resFG.isEmpty() )
+	    fg = QColor(resFG);
+	else
+	    fg = black;
+	QColorGroup cg( fg, bg, bg.light(),
+			bg.dark(), bg.dark(150), fg, white );
+	QColor disabled( (fg.red()+bg.red())/2,
+			 (fg.green()+bg.green())/2,
+			 (fg.blue()+bg.blue())/2 );
+	QColorGroup dcg( disabled, bg, bg.light( 125 ), bg.dark(), bg.dark(150),
+			 disabled, white );
+	QPalette pal( cg, dcg, cg );
+	QApplication::setPalette( pal, TRUE );
+    }
+}
+
+
 /*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
@@ -599,9 +675,12 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "QT_SCROLL_DONE", &qt_qt_scrolldone );
     qt_x11_intern_atom( "QT_SELECTION", &qt_selection_property );
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
+    qt_x11_intern_atom( "RESOURCE_MANAGER", &qt_resource_manager );
+    qt_x11_intern_atom( "QT_SIZEGRIP", &qt_sizegrip );
 
     qt_xdnd_setup();
 
+    // Finally create all atoms
     qt_x11_process_intern_atoms();
 
   // Misc. initialization
@@ -613,33 +692,10 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     gettimeofday( &watchtime, 0 );
 
     qApp->setName( appName );
-    if ( appFont ) {				// set application font
-	QFont font;
-	font.setRawMode( TRUE );
-	font.setFamily( appFont );
-	QApplication::setFont( font );
-    }
-    if ( appBGCol || appFGCol ) {		// set application colors
-	QColor bg;
-	QColor fg;
-	if ( appBGCol )
-	    bg = QColor(appBGCol);
-	else
-	    bg = lightGray;
-	if ( appFGCol )
-	    fg = QColor(appFGCol);
-	else
-	    fg = black;
-	QColorGroup cg( fg, bg, bg.light(),
-			bg.dark(), bg.dark(150), fg, white );
-	QColor disabled( (fg.red()+bg.red())/2,
-			 (fg.green()+bg.green())/2,
-			 (fg.blue()+bg.blue())/2 );
-	QColorGroup dcg( disabled, bg, bg.light( 125 ), bg.dark(), bg.dark(150),
-			 disabled, white );
-	QPalette pal( cg, dcg, cg );
-	QApplication::setPalette( pal );
-    }
+    
+    XSelectInput( appDpy, appRootWin, PropertyChangeMask );
+    qt_set_x11_resources(appFont, appFGCol, appBGCol);
+
 #if !defined(NO_XIM)
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
@@ -1871,6 +1927,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     if ( event->type == MappingNotify ) {	// keyboard mapping changed
 	XRefreshKeyboardMapping( &event->xmapping );
+	return 0;
+    }
+
+    if ( event->type == PropertyNotify ) {	// some properties changed
+	if ( event->xproperty.window == appRootWin ) {
+	    if ( event->xproperty.atom == qt_resource_manager)
+		qt_set_x11_resources();
+	}
 	return 0;
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#108 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -317,6 +317,22 @@ HANDLE QFont::handle( HANDLE ) const
     last = d->fin->fontStruct()->fid;
     return last;
 }
+
+/*!
+  Returns the name of the font within the underlying system.
+  <em>Using the return value of this function is usually not
+  portable.</em>
+  
+  \sa setRawMode(), rawMode()
+*/
+const char* QFont::rawName() const
+{
+    if ( DIRTY_FONT ) 
+	load();
+    return d->fin->name();
+} 
+
+
 
 /*!
   Returns TRUE if the font attributes have been changed and the font has to

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#47 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#48 $
 **
 ** Definition of QFont class
 **
@@ -96,6 +96,8 @@ public:
     bool	isCopyOf( const QFont & ) const;
 
     HANDLE	handle( HANDLE=0 ) const;
+
+    const char* rawName() const;
 
     QString	key() const;
 

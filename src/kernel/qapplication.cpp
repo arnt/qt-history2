@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#142 $
 **
 ** Implementation of QApplication class
 **
@@ -532,7 +532,7 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
     app_font = new QFont( font );
     CHECK_PTR( app_font );
     QFont::setDefaultFont( *app_font );
-    if ( updateAllWidgets ) {			// set for all widgets now
+    if ( updateAllWidgets && is_app_running && !is_app_closing) {		// set for all widgets now
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
@@ -853,7 +853,7 @@ void QApplication::setWinStyleHighlightColor( const QColor &c )
 {
     if ( !winHighlightColor )
 	winHighlightColor = new QColor( darkBlue );
-    
+
     if ( *winHighlightColor == c )
 	return;
 
