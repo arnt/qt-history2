@@ -1470,11 +1470,13 @@ template <> inline void qInit<double>(double &t) { t = 0.0; }
 template <> inline void qInit<long double>(long double &t) { t = 0.0; }
 #endif
 
+/*
+   These functions make it possible to use standard C++ functions with
+   a similar name from Qt header files (especially template classes).
+*/
 Q_CORE_EXPORT void *qMalloc(size_t size);
 Q_CORE_EXPORT void qFree(void *ptr);
 Q_CORE_EXPORT void *qRealloc(void *ptr, size_t size);
-Q_CORE_EXPORT int qRand(void);
-Q_CORE_EXPORT void qSeedRand(int seed);
 Q_CORE_EXPORT void *qMemCopy(void *dest, const void *src, size_t n);
 Q_CORE_EXPORT void *qMemSet(void *dest, int c, size_t n);
 

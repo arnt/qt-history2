@@ -13,6 +13,8 @@
 
 #include "qmap.h"
 
+#include <stdlib.h>
+
 QMapData QMapData::shared_null = {
     reinterpret_cast<Node *>(&shared_null),
     { reinterpret_cast<Node *>(&shared_null), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0,
@@ -58,7 +60,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
 
     ++randomBits;
     if (level == 3 && !insertInOrder)
-        randomBits = qRand();
+        randomBits = ::rand();
 
     if (level > topLevel) {
         Node *e = reinterpret_cast<Node *>(this);

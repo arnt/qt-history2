@@ -247,10 +247,9 @@ QDirPrivate::detach()
     }
 }
 
-//************* QDir
 /*!
     \class QDir
-    \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
+    \brief The QDir class provides access to directory structures and their contents.
 
     \ingroup io
     \reentrant

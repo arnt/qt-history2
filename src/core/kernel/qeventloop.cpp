@@ -37,7 +37,7 @@ QEventLoopPrivate::QEventLoopPrivate()
 
 /*!
     \class QEventLoop
-    \brief The QEventLoop class manages Qt's event queue.
+    \brief The QEventLoop class manages Qt's event queue, excluding GUI-related events.
 
     \ingroup application
     \ingroup events
@@ -52,7 +52,7 @@ QEventLoopPrivate::QEventLoopPrivate()
     For finer control of the application's event loop call
     QApplication::eventLoop() and call functions on the QEventLoop
     object that is returned. If you want to use your own instance of
-    QEventLoop or of a QEventLoop subclass, you must create your
+    QEventLoop, QGuiEventLoop, or a QEventLoop subclass, you must create your
     instance \e before you create the QApplication object.
 
     The event loop is started by calling exec(), and stopped by
@@ -71,6 +71,7 @@ QEventLoopPrivate::QEventLoopPrivate()
     includes a reimplementation of QEventLoop that merges Qt and Motif
     events together.
 
+    \sa QGuiEventLoop
 */
 
 /*!
@@ -107,12 +108,12 @@ QEventLoopPrivate::QEventLoopPrivate()
 
 
 /*!
-    Creates a QEventLoop object. This object becomes the global event
-    loop object. There can only be one event loop object. The
+    Constructs a QEventLoop object. This object becomes the global
+    event loop object. There can only be one event loop object. The
     QEventLoop is usually constructed by calling
-    QApplication::eventLoop(). If you want to create your own event
-    loop object you \e must create it before you instantiate the
-    QApplication object.
+    QCoreApplication::eventLoop(). If you want to create your own
+    event loop object you \e must create it before you instantiate
+    the QApplication object.
 
     The \a parent argument is passed on to the QObject constructor.
 */

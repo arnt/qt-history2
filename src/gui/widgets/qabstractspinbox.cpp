@@ -39,8 +39,8 @@ QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
 double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
 
 /*!
-    \class QAbstractSpinBox q4abstractspinbox.h \brief
-    The QAbstractSpinBox class provides a spinwidget and a lineedit to
+    \class QAbstractSpinBox
+    \brief The QAbstractSpinBox class provides a spinwidget and a lineedit to
     display values.
 
     \ingroup abstractwidgets
