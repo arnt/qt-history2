@@ -2355,6 +2355,12 @@ void qt_format_text( const QFont& font, const QRect &r,
 	QRect parRect = parag->rect();
 	qDebug("painting parag: %d, rect: %d", parRect.width(), r.width());
 #endif
+	QRegion reg;
+	if ( painter->hasClipping() )
+	    reg = painter->clipRegion();
+	reg = reg.unite( rect );
+	reg.translate( painter->translationX(), painter->translationY() );
+	painter->setClipRegion( reg );
   	painter->translate( xoff, yoff);
 	parag->paint( *painter, cg );
 	painter->restore();
