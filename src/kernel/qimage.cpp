@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#230 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -34,6 +34,7 @@
 #include "qintdict.h"
 #include "qasyncimageio.h"
 #include "qpngio.h"
+#include "qmap.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -135,6 +136,53 @@
 #if defined(_CC_DEC_) && defined(__alpha) && (__DECCXX_VER >= 50190001)
 #pragma message disable narrowptr
 #endif
+
+class QImageDataMisc {
+public:
+    QImageDataMisc() { }
+    QImageDataMisc( const QImageDataMisc& o ) :
+	text_lang(o.text_lang) { }
+
+    QImageDataMisc& operator=(const QImageDataMisc& o)
+    {
+	text_lang = o.text_lang;
+	return *this;
+    }
+
+    QValueList<QImageTextKeyLang> list()
+    {
+	QValueList<QImageTextKeyLang> r;
+	QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
+	for ( ; it != text_lang.end(); ++it )
+	    r.append( it.key() );
+	return r;
+    }
+
+    QStringList languages()
+    {
+	QStringList r;
+	QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
+	for ( ; it != text_lang.end(); ++it ) {
+	    r.remove( it.key().lang );
+	    r.append( it.key().lang );
+	}
+	return r;
+    }
+
+    QStringList keys()
+    {
+	QStringList r;
+	QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
+	for ( ; it != text_lang.end(); ++it ) {
+	    r.remove( it.key().key );
+	    r.append( it.key().key );
+	}
+	return r;
+    }
+
+    QMap<QImageTextKeyLang,QString> text_lang;
+};
+
 
 
 /*****************************************************************************
@@ -336,6 +384,13 @@ QImage QImage::copy() const
 	memcpy( image.bits(), bits(), numBytes() );
 	memcpy( image.colorTable(), colorTable(), numColors()*sizeof(QRgb) );
 	image.setAlphaBuffer(hasAlphaBuffer());
+	image.data->dpmx = dotsPerMeterX();
+	image.data->dpmy = dotsPerMeterY();
+	image.data->offset = offset();
+	if ( data->misc ) {
+	    image.data->misc = new QImageDataMisc;
+	    *image.data->misc = misc();
+	}
     }
     return image;
 }
@@ -521,9 +576,8 @@ void QImage::reset()
 {
     freeBits();
     setNumColors( 0 );
-    data->w = data->h = data->d = 0;
-    data->nbytes = 0;
-    data->bitordr = IgnoreEndian;
+    delete data->misc;
+    init(); // simply resets
 }
 
 
@@ -815,6 +869,10 @@ void QImage::init()
     data->bits = 0;
     data->bitordr = QImage::IgnoreEndian;
     data->alpha = FALSE;
+    data->misc = 0;
+    data->dpmx = 0;
+    data->dpmy = 0;
+    data->offset = QPoint(0,0);
 }
 
 /*!
@@ -2594,6 +2652,7 @@ static void init_image_handlers()		// initialize image handlers
 				   read_xbm_image, write_xbm_image );
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
+	qInitPngIO();
     }
 }
 
@@ -2665,7 +2724,7 @@ void QImageIO::defineIOHandler( const char *format,
     p = new QImageHandler( format, header, flags && *flags == 'T',
 			   read_image, write_image );
     CHECK_PTR( p );
-    imageHandlers->insert( 0, p );
+    imageHandlers->prepend( p );
 }
 
 
@@ -3799,7 +3858,7 @@ public:
 
     void changed(const QRect&) { }
     void end() { }
-    void frameDone(const QPoint&, const QRect&) { }
+    void frameDone(const QPoint&, const QRect&) { framecount++; }
     void frameDone() { framecount++; }
     void setLooping(int) { }
     void setFramePeriod(int) { }
@@ -3808,7 +3867,7 @@ public:
 
 static void read_async_image( QImageIO *iio )
 {
-    const int buf_len = 512;
+    const int buf_len = 2048;
     uchar buffer[buf_len];
     QIODevice  *d = iio->ioDevice();
     QImageIOFrameGrabber* consumer = new QImageIOFrameGrabber();
@@ -4514,3 +4573,137 @@ bool QImage::operator!=( const QImage & i ) const
 }
 
 
+
+
+/*!
+    \fn int QImage::dotsPerMeterX() const
+
+    Returns the number of pixels that fit horizontally in a physical meter.
+    This and dotsPerMeterY() define the intended scale and aspect ratio
+    of the image.
+
+    \sa setDotsPerMeterX()
+*/
+
+/*!
+    \fn int QImage::dotsPerMeterY() const
+
+    Returns the number of pixels that fit vertically in a physical meter.
+    This and dotsPerMeterX() define the intended scale and aspect ratio
+    of the image.
+
+    \sa setDotsPerMeterY()
+*/
+
+/*!
+    Sets the value returned by dotsPerMeterX() to \a x.
+*/
+void QImage::setDotsPerMeterX(int x)
+{
+    data->dpmy = x;
+}
+
+/*!
+    Sets the value returned by dotsPerMeterY() to \a y.
+*/
+void QImage::setDotsPerMeterY(int y)
+{
+    data->dpmy = y;
+}
+
+/*!
+    \fn QPoint QImage::offset() const
+
+    Returns the number of pixels by which the image is intended to by
+    offset by when positioning relative to other images.
+*/
+
+/*!
+    Sets the value returned by offset() to \a p.
+*/
+void QImage::setOffset(const QPoint& p)
+{
+    data->offset = p;
+}
+
+/*!
+    Returns the internal QImageDataMisc object, possibly creating it.
+*/
+QImageDataMisc& QImage::misc() const
+{
+    if ( !data->misc ) {
+	QImage* that = (QImage*)this;
+	that->data->misc = new QImageDataMisc;
+	return *that->data->misc;
+    }
+    return *data->misc;
+}
+
+/*!
+    Returns the string recorded for the keyword \a key in language \a lang,
+    or in a default language if \a lang is 0.
+*/
+QString QImage::text(const char* key, const char* lang) const
+{
+    QImageTextKeyLang x(key,lang);
+    return misc().text_lang[x];
+}
+
+/*!
+    Returns the string recorded for the keyword and language \a kl,
+    or in a default language if \a lang is 0.
+*/
+QString QImage::text(const QImageTextKeyLang& kl) const
+{
+    return misc().text_lang[kl];
+}
+
+/*!
+    Returns the language identifiers for which some texts are recorded.
+
+    \sa textList(), text(), setText(), textKeys()
+*/
+QStringList QImage::textLanguages() const
+{
+    if ( !data->misc )
+	return QStringList();
+    return misc().languages();
+}
+
+/*!
+    Returns the keywords for which some texts are recorded.
+
+    \sa textList(), text(), setText(), textLanguages()
+*/
+QStringList QImage::textKeys() const
+{
+    if ( !data->misc )
+	return QStringList();
+    return misc().keys();
+}
+
+/*!
+    Returns a list of QImageTextKeyLang objects which enumerate
+    all the texts key/languaage pairs set by setText() for this image.
+*/
+QValueList<QImageTextKeyLang> QImage::textList() const
+{
+    if ( !data->misc )
+	return QValueList<QImageTextKeyLang>();
+    return misc().list();
+}
+
+/*!
+    Records \a s for the keyword \a key.  The \a key should be a portable
+    keyword recognizable by other software - some suggested values can
+    be found in
+    <a href=http://www.cdrom.com/pub/png/spec/PNG-Chunks.html#C.tEXt>
+    the PNG specification</a>.  \a s can be any text.  \a lang should
+    specify the language code (see
+    <a href=ftp://ftp.isi.edu/in-notes/1766>RFC 1766</a>) or 0.
+*/
+void QImage::setText(const char* key, const char* lang, const QString& s)
+{
+    QImageTextKeyLang x(key,lang);
+    misc().text_lang.replace(x,s);
+}

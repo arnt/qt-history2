@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#22 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -29,10 +29,6 @@ extern "C" {
 #include "qiodevice.h"
 #include "qpngio.h"
 
-// NOT SUPPORTED: experimental PNG animation.
-#ifdef PNG_USER_CHUNK_SUPPORTED
-#undef PNG_USER_CHUNK_SUPPORTED
-#endif
 
 /*
   The following PNG Test Suite (October 1996) images do not load correctly,
@@ -302,6 +298,34 @@ void QPNGImageWriter::setFrameDelay(int msecs)
 }
 
 
+static void set_text(const QImage& image, png_structp png_ptr, png_infop info_ptr, bool short_not_long)
+{
+    QValueList<QImageTextKeyLang> keys = image.textList();
+    if ( keys.count() ) {
+	png_textp text_ptr = new png_text[keys.count()];
+	int i=0;
+	for (QValueList<QImageTextKeyLang>::Iterator it=keys.begin();
+		it != keys.end(); ++it)
+	{
+	    QString t = image.text(*it);
+	    if ( (t.length() <= 200) == short_not_long ) {
+		if ( t.length() < 40 )
+		    text_ptr[i].compression = PNG_TEXT_COMPRESSION_NONE;
+		else
+		    text_ptr[i].compression = PNG_TEXT_COMPRESSION_zTXt;
+		text_ptr[i].key = (png_charp)(*it).key.data();
+		text_ptr[i].text = (png_charp)t.latin1();
+		//text_ptr[i].text = strdup(t.latin1());
+		i++;
+	    }
+	}
+	png_set_text(png_ptr, info_ptr, text_ptr, i);
+	//for (int j=0; j<i; j++)
+	    //free(text_ptr[i].text);
+	delete [] text_ptr;
+    }
+}
+
 bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
 {
     png_structp png_ptr;
@@ -395,7 +419,9 @@ bool QPNGImageWriter::writeImage(const QImage& image, int off_x, int off_y)
     if ( frames_written > 0 )
         png_set_sig_bytes(png_ptr, 8);
 
+    set_text(image,png_ptr,info_ptr,TRUE);
     png_write_info(png_ptr, info_ptr);
+    set_text(image,png_ptr,info_ptr,FALSE);
 
     if ( image.depth() != 1 )
 	png_set_packing(png_ptr);
@@ -870,16 +896,40 @@ void QPNGFormat::end(png_structp png, png_infop info)
 	base_offy = offy;
 	first_frame = 0;
     }
+    image->setOffset(QPoint(offx,offy));
+    image->setDotsPerMeterX(png_get_x_pixels_per_meter(png,info));
+    image->setDotsPerMeterY(png_get_y_pixels_per_meter(png,info));
+    png_textp text_ptr;
+    int num_text;
+    png_get_text(png,info,&text_ptr,&num_text);
+    while (num_text--) {
+	image->setText(text_ptr->key,0,text_ptr->text);
+	text_ptr++;
+    }
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
     state = FrameStart;
     unused_data = png->buffer_size; // Since libpng doesn't tell us
 }
 
+static bool skip(png_uint_32& max, png_bytep& data)
+{
+    while (*data) {
+	if ( !max ) return FALSE;
+	max--;
+	data++;
+    }
+    if ( !max ) return FALSE;
+    max--;
+    data++; // skip to after NUL
+    return TRUE;
+}
+
 #ifdef PNG_USER_CHUNK_SUPPORTED
 int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    png_bytep data, png_uint_32 length)
 {
+#if 0 // NOT SUPPORTED: experimental PNG animation.
     // debug("Got %ld-byte %s chunk", length, png->chunk_name);
     if ( 0==strcmp((char*)png->chunk_name, "gIFg")
 	    && length == 4 ) {
@@ -890,7 +940,7 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	int ms_delay = ((data[2] << 8) | data[3])*10;
 	consumer->setFramePeriod(ms_delay);
 	return 1;
-    } if ( 0==strcmp((char*)png->chunk_name, "gIFx")
+    } else if ( 0==strcmp((char*)png->chunk_name, "gIFx")
 	    && length == 13 ) {
 	if ( strncmp((char*)data,"NETSCAPE2.0",11)==0 ) {
 	    int looping = (data[0xC]<<8)|data[0xB];
@@ -898,6 +948,26 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	    return 1;
 	}
     }
+#endif
+
+    if ( 0==strcmp((char*)png->chunk_name, "iTXt") && length>=6 ) {
+	const char* keyword = (const char*)data;
+	if ( !skip(length,data) ) return 0;
+	if ( length >= 4 ) {
+	    char compression_flag = *data++;
+	    char compression_method = *data++;
+	    const char* lang = (const char*)data;
+	    if ( !skip(length,data) ) return 0;
+	    const char* keyword_utf8 = (const char*)data;
+	    if ( !skip(length,data) ) return 0;
+	    const char* text_utf8 = (const char*)data;
+	    if ( !skip(length,data) ) return 0;
+	    QString text = QString::fromUtf8(text_utf8);
+	    image->setText(keyword,lang[0] ? lang : 0,text);
+	    return 1;
+	}
+    }
+
     return 0;
 }
 #endif
@@ -915,9 +985,12 @@ void qCleanupPngIO()
 
 void qInitPngIO()
 {
-    QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, read_png_image, write_png_image);
-    globalPngFormatTypeObject = new QPNGFormatType;
-    qAddPostRoutine( qCleanupPngIO );
+    if ( !globalPngFormatTypeObject ) {
+	QImageIO::defineIOHandler("PNG", "^.PNG\r", 0, 0/*read_png_image*/,
+	    write_png_image);
+	globalPngFormatTypeObject = new QPNGFormatType;
+	qAddPostRoutine( qCleanupPngIO );
+    }
 }
 
 

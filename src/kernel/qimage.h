@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#78 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#79 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -29,7 +29,23 @@
 #ifndef QT_H
 #include "qpixmap.h"
 #include "qstrlist.h"
+#include "qstringlist.h"
 #endif // QT_H
+
+class QImageDataMisc; // internal
+
+class QImageTextKeyLang {
+public:
+    QImageTextKeyLang(const char* k, const char* l) : key(k), lang(l) { }
+    QImageTextKeyLang() { }
+
+    QCString key;
+    QCString lang;
+
+    int operator < (const QImageTextKeyLang& other) const
+	{ return key < other.key || key==other.key && lang < other.lang; }
+};
+
 
 
 class Q_EXPORT QImage
@@ -123,6 +139,20 @@ public:
     QRgb	pixel( int x, int y ) const;
     void	setPixel( int x, int y, uint index_or_rgb );
 
+    // Auxiliary data
+    int dotsPerMeterX() const;
+    int dotsPerMeterY() const;
+    void setDotsPerMeterX(int);
+    void setDotsPerMeterY(int);
+    QPoint offset() const;
+    void setOffset(const QPoint&);
+    QValueList<QImageTextKeyLang> textList() const;
+    QStringList textLanguages() const;
+    QStringList textKeys() const;
+    QString text(const char* key, const char* lang=0) const;
+    QString text(const QImageTextKeyLang&) const;
+    void setText(const char* key, const char* lang, const QString&);
+
 private:
     void	init();
     void	freeBits();
@@ -138,7 +168,13 @@ private:
 	QRgb   *ctbl;				// color table
 	uchar **bits;				// image data
 	bool	alpha;				// alpha buffer
+	int	dpmx;				// dots per meter X (or 0)
+	int	dpmy;				// dots per meter Y (or 0)
+	QPoint	offset;				// offset in pixels
+	QImageDataMisc* misc;			// less common stuff
     } *data;
+
+    QImageDataMisc& misc() const;
 
     friend Q_EXPORT void bitBlt( QImage* dst, int dx, int dy,
 				 const QImage* src, int sx, int sy,
@@ -282,6 +318,21 @@ inline uchar *QImage::scanLine( int i ) const
 	warningIndexRange( "scanLine", i );
 #endif
     return data->bits ? data->bits[i] : 0;
+}
+
+inline int QImage::dotsPerMeterX() const
+{
+    return data->dpmx;
+}
+
+inline int QImage::dotsPerMeterY() const
+{
+    return data->dpmy;
+}
+
+inline QPoint QImage::offset() const
+{
+    return data->offset;
 }
 
 
