@@ -258,7 +258,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
         staticMaximizePixmapXPM = xpm;
         staticMaximizePixmap = new QPixmap(xpm);
     }
-    if (staticNormalizePixmapXPM != (xpm = xpmForRegion(Normalize)) || staticNormalizePixmap) {
+    if (staticNormalizePixmapXPM != (xpm = xpmForRegion(Normalize)) || !staticNormalizePixmap) {
         staticNormalizePixmapXPM = xpm;
         staticNormalizePixmap = new QPixmap(xpm);
     }
