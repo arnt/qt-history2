@@ -355,9 +355,14 @@ QPoint QuickEditedWidget::mapTo( QWidget* ancestor, QWidget* decendant, QPoint p
 {
     while ( decendant != ancestor )
     {
+#if defined(CHECK_RANGE)
+	if ( !decendant ) {
+	    fatal( "QuickEditedWidget::mapTo - "
+		   " ancestor is not ancestor of decendant" );
+	}
+#endif
 	p = decendant->mapToParent( p );
 	decendant = decendant->parentWidget();
-	ASSERT( decendant );
     }
     return p;
 }
@@ -494,6 +499,34 @@ QWidget* QuickEditedWidget::top(QWidget* decendant)
 }
 
 /*!
+  Returns the widget under \a root which is \e visually the parent
+  of a widget with area \a wrect.  That is, the logically-lowest widget
+  that completely encloses
+  \a wrect.  In searching, the widget \a exclude is ignored.
+  If more than one such widget exists, the uppermost one is returned.
+  \a wrect is relative to \a root.
+*/
+QWidget* QuickEditedWidget::visualParent(QWidget* root, QRect wrect, QWidget* exclude)
+{
+    QWidget* result = root;
+    if ( root->children() ) {
+	QObjectListIt it(*root->children());
+	QObject *obj;
+	while ( (obj=it.current()) ) {
+	    ++it;
+	    if ( obj->isWidgetType() && obj != exclude ) {
+		QWidget *child = ((QWidget*)obj);
+		if (child->geometry().contains(wrect)) {
+		    QRect r = wrect; r.moveBy( -child->x(), -child->y() );
+		    result = visualParent(child, r, exclude);
+		}
+	    }
+	}
+    }
+    return result;
+}
+
+/*!
   Filter events to all \link monitor() monitored\endlink widgets,
   including this QuickEditedWidget.  This is the central controller
   of editing.
@@ -550,6 +583,31 @@ bool QuickEditedWidget::mouseEventFilter( QMouseEvent* e, QWidget* w )
 	}
 	return TRUE;
       case Event_MouseButtonRelease:
+	if ( primary_selection ) {
+	    QWidget *visual_parent =
+		visualParent(this,
+		    mapToMe(primary_selection, primary_selection->rect()),
+		    primary_selection);
+	    if (visual_parent != primary_selection->parentWidget()
+	    && 0!=strcmp("qt_viewport", primary_selection->parentWidget()->name()))
+	    {
+		if (QMessageBox::warning(this, "Reparenting",
+		    "The widget is now visually in\n"
+		    "a different parent. Should the\n"
+		    "structure be changed accordingly?",
+		    QMessageBox::Yes | QMessageBox::Default,
+                    QMessageBox::No ) == QMessageBox::Yes)
+		{
+		    primary_selection->recreate(
+			visual_parent,
+			0,
+			mapToMe( primary_selection, QPoint(0,0) )
+			-mapToMe( visual_parent, QPoint(0,0) ),
+			TRUE
+		    );
+		}
+	    }
+	}
 	stopManip();
 	return TRUE;
       case Event_MouseMove:

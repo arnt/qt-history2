@@ -8,7 +8,7 @@
 ####### Compiler, tools and options
 
 CC	=	gcc
-CFLAGS	=	-Wall -W -O2 -fno-strength-reduce
+CFLAGS	=	-Wall -W -g -fno-strength-reduce
 INCPATH	=	-I$(QTDIR)/include
 LINK	=	gcc
 LFLAGS	=	

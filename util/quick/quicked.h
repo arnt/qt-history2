@@ -47,10 +47,11 @@ private:
     static void repaintChildren( QWidget* parent, const QRect& r );
 
     QPoint mapToMe( QWidget* decendant, QPoint p );
-    QRect mapTo( QWidget* ancestor, QWidget* decendant, QRect r );
+    static QRect mapTo( QWidget* ancestor, QWidget* decendant, QRect r );
     QRect mapToMe( QWidget* decendant, QRect r );
     static QPoint mapTo( QWidget* ancestor, QWidget* decendant, QPoint p );
     QWidget* top(QWidget* decendant);
+    static QWidget* visualParent(QWidget*, QRect, QWidget*);
 
 private: // members
     QPoint drag_last_pos;
