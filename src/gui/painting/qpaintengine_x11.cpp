@@ -1023,6 +1023,7 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
             XSetTile(d->dpy, d->gc_brush, pm.handle());
             s = FillTiled;
         }
+	XSetTSOrigin(d->dpy, d->gc_brush, ps->bgOrigin.x(), ps->bgOrigin.y());
     }
     XSetFillStyle(d->dpy, d->gc_brush, s);
 }
