@@ -133,7 +133,7 @@ QMutexPool::~QMutexPool()
 */
 QMutex *QMutexPool::get( void *address )
 {
-    int index = (int) address % count;
+    int index = (int) ( (unsigned long) address % count );
 
     if ( ! mutexes[index] ) {
 	// mutex not created, create one
