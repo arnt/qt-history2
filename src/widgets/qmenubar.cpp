@@ -353,12 +353,8 @@ void QMenuBar::menuContentsChanged()
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
-    if( !pendingDelayedStateChanges ) { // if the timer hasn't been started yet
-	if ( isVisible() )
-	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
-	else
-	    performDelayedContentsChanged();
-    }
+    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
+	QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
 
 void QMenuBar::performDelayedContentsChanged()
@@ -416,12 +412,8 @@ void QMenuBar::menuStateChanged()
     if( pendingDelayedStateChanges )
         return;
     pendingDelayedStateChanges = 1;
-    if( !pendingDelayedContentsChanges ) { // if the timer hasn't been started yet
-	if ( isVisible() )
-	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
-	else
-	    performDelayedStateChanged();
-    }
+    if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
+	QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
 
 void QMenuBar::performDelayedStateChanged()
@@ -780,6 +772,7 @@ void QMenuBar::show()
 	resize( parentWidget()->width(), height() );
 
     QApplication::sendPostedEvents( this, QEvent::Resize );
+    performDelayedChanges();
     calculateRects();
 
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
@@ -850,7 +843,7 @@ int QMenuBar::calculateRects( int max_width )
 {
     polish();
     bool update = ( max_width < 0 );
-    
+
     if ( update ) {
 	rightSide = 0;
 	if ( !badSize )				// size was not changed

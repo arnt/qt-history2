@@ -361,12 +361,8 @@ void QPopupMenu::menuContentsChanged()
     if( pendingDelayedContentsChanges )
         return;
     pendingDelayedContentsChanges = 1;
-    if( !pendingDelayedStateChanges ) { // if the timer hasn't been started yet
-	if ( isVisible() )
-	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
-	else
-	    performDelayedContentsChanged();
-    }
+    if( !pendingDelayedStateChanges ) // if the timer hasn't been started yet
+	QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
 
 void QPopupMenu::performDelayedContentsChanged()
@@ -407,12 +403,8 @@ void QPopupMenu::menuStateChanged()
     if( pendingDelayedStateChanges )
 	return;
     pendingDelayedStateChanges = 1;
-    if( !pendingDelayedContentsChanges ) { // if the timer hasn't been started yet
-	if ( isVisible() )
-	    QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
-	else
-	    performDelayedStateChanged();
-    }
+    if( !pendingDelayedContentsChanges ) // if the timer hasn't been started yet
+	QTimer::singleShot( 0, this, SLOT(performDelayedChanges()));
 }
 
 void QPopupMenu::performDelayedStateChanged()
@@ -551,7 +543,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	int off_top = 0, off_bottom = 0;
 	if(y+h > sy+sh)
 	    off_bottom = (y+h) - (sy+sh);
-	if(y < sy) 
+	if(y < sy)
 	    off_top = sy - y;
 	if(off_bottom || off_top) {
 	    if(off_top) {
@@ -583,7 +575,7 @@ void QPopupMenu::popup( const QPoint &pos, int indexAtPoint )
 	x = sx+sw - w;				//   be visible
     if ( y+h > sy+sh )
 	y = sy+sh - h;
-    if ( x < sx ) 
+    if ( x < sx )
 	x = sx;
     if ( y < sy )
 	y = sy;
@@ -1310,6 +1302,7 @@ void QPopupMenu::show()
 	emit aboutToShow();
     else
 	supressAboutToShow = FALSE;
+    performDelayedChanges();
     if ( badSize )
 	updateSize();
     QWidget::show();
