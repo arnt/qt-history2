@@ -259,9 +259,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveElement pe,
 		p->setPen( QPen( cg.text(), 1 ) );
 	    else
 		p->setPen( QPen( cg.dark(), 1 ) );
-	    rr.addCoords( 1, 2, -3, -3 );
-	    p->drawRect( rr );
-	    rr.addCoords( 0, -1, 0, 0 );
+	    p->drawRect( r.x()+1, r.y()+1, 11, 11 );
 	}
 	if (! (flags & Style_Off)) {
 	    QPointArray a( 7*2 );
