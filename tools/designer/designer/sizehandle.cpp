@@ -40,7 +40,7 @@ SizeHandle::SizeHandle( FormWindow *parent, Direction d, WidgetSelection *s )
     formWindow = parent;
     sel = s;
     updateCursor();
-}	
+}
 
 void SizeHandle::updateCursor()
 {
@@ -301,7 +301,7 @@ bool WidgetSelection::isUsed() const
 
 void WidgetSelection::updateGeometry()
 {
-    if ( !wid )
+    if ( !wid || !wid->parentWidget() )
 	return;
 
     QPoint p = wid->parentWidget()->mapToGlobal( wid->pos() );
