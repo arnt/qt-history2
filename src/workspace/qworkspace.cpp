@@ -232,7 +232,6 @@ public:
     int menuId;
     int controlId;
     QString topCaption;
-    bool autoFocusChange;
 
     QScrollBar *vbar, *hbar;
     QWidget *corner;
@@ -283,7 +282,6 @@ QWorkspace::init()
     d->px = 0;
     d->py = 0;
     d->becomeActive = 0;
-    d->autoFocusChange = FALSE;
 #if defined( QT_WORKSPACE_WINDOWMODE ) && defined( Q_WS_MAC )
     d->wmode = AutoDetect;
 #else
@@ -1071,13 +1069,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 	    }
 	}
 	insertIcon( c->iconWidget() );
-	bool wasFocused = c->titlebar->isActive();
 	c->hide();
-	if ( wasFocused && d->active && d->active->testWState( WState_Minimized ) ) {
-	    blockSignals( TRUE );
-	    activateWindow( w, FALSE );
-	    blockSignals( FALSE );
-	}
 	if ( wasMax )
 	    c->setGeometry( d->maxRestore );
 	d->focus.append( c );
@@ -1300,24 +1292,25 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     case QEvent::HideToParent:
 	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() )
 	    break;
-	d->focus.removeRef( (QWorkspaceChild*)o );
-	if ( d->active != o )
-	    break;
-	if ( d->focus.isEmpty() ) {
-	    activateWindow( 0 );
-	} else {
-	    d->autoFocusChange = TRUE;
-	    activatePreviousWindow();
-	    QWorkspaceChild* c = d->active;
-	    while ( d->active &&
-		    d->active->windowWidget() &&
-		    d->active->windowWidget()->testWFlags( WStyle_Tool ) ) {
-		activatePreviousWindow();
-		if ( d->active == c )
+	if ( d->active == o ) {
+	    int a = d->focus.find( d->active );
+	    for ( ;; ) {
+		if ( --a < 0 )
+		    a = d->focus.count()-1;
+		QWorkspaceChild* c = d->focus.at( a );
+		if ( !c ) {
+		    activateWindow( 0 );
 		    break;
+		}
+		if ( c == o )
+		    break;
+		if ( c->isShown() ) {
+		    activateWindow( c->windowWidget(), FALSE );
+		    break;
+		}
 	    }
-	    d->autoFocusChange = FALSE;
 	}
+	d->focus.removeRef( (QWorkspaceChild*)o );
 	if ( d->maxWindow == o && d->maxWindow->isHidden() ) {
 	    d->maxWindow->setGeometry( d->maxRestore );
 	    d->maxWindow = 0;
@@ -1697,17 +1690,8 @@ void QWorkspace::activatePreviousWindow()
     }
 
     int a = d->focus.find( d->active ) - 1;
-
     if ( a < 0 )
 	a = d->focus.count()-1;
-
-    if ( d->autoFocusChange ) {
-	QWidget *widget = 0;
-	while ( a >= 0 && d->focus.at( a ) && ( widget = d->focus.at( a )->windowWidget() ) && !widget->isVisible() )
-	    a--;
-	if ( a < 0 )
-	    a = d->focus.count() - 1;
-    }
 
     if ( d->focus.at( a ) )
 	activateWindow( d->focus.at( a )->windowWidget(), FALSE );
