@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#188 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#189 $
 #
 # this is a massive hack, written very quickly
 #
@@ -289,7 +289,7 @@ sub preprocessdocs {
 
     foreach $url ( sort keys %type ) {
 	$doc{$url} =~ s@\\define\s+(\S+)@
-	    $anchor{$1} = $url;
+	    $anchor{$1} = $url unless defined($anchor{$1});
 	    sprintf("");
 	@egsx;
     }
@@ -446,6 +446,7 @@ sub processdocs {
 	    $doc =~ s/^\s*\\internal\s/For internal use only.\\internal /s;
 	    $doc =~ s/\\internal\s.*//s;
 	}
+	$doc = "" if ( $doc =~ /\s\\obsolete\b/s );
 
 	if ($doc =~ s/\s*\\important\s+(.*?)(?:(?:\n\s*\n\s*)|(?:$ ))/\n\n/s) {
 	    $important{$url} = $1;
@@ -756,9 +757,6 @@ sub manglefn {
     local($type, $class, $name, $sig, $const, $home) = @_;
     local($url, $d, $mc);
 
-# what did I want to do?
-#    $mc =
-
     $type =~ s/\s+/-/g;
     $type =~ s/^-*(.*?)-*$/$1/;
     $type =~ s/-*([\*\&]+)-*/$1/g;
@@ -816,7 +814,8 @@ sub manglefn {
     }
 
     $url = $urls{$url}; #cool!
-#    print "Saw $url\n";
+#    print "Saw $url ($type)\n" if ( $type =~ /QCollection/ );
+#    $url;
 }
 
 
@@ -1599,30 +1598,6 @@ sub printclass {
 
     $fnheader = "<hr><h2>Member Function Documentation</h2>\n";
     $tail = $footer;
-    if (defined ($cfiles{$includefile{$url}})) {
-	my(%files);
-	$files{$includefile{$url}}++;
-	$tail = join("\n", $tail,
-		     "<p>",
-		     "It was generated from the following files:",
-		     "<ul>",
-		     "<li>" . $includefile{$url} .
-		     (defined($dates{$includefile{$url}}) ?
-		      (": " . $dates{$includefile{$url}}) :
-		      ("")),
-		     "");
-	foreach (sort split(/\s+/, $cfiles{$includefile{$url}})) {
-	    if ($_ ne "" && !defined($files{$_})) {
-		$files{$_}++;
-		if (defined($dates{$_})) {
-		    $tail = join("", $tail, "<li>", $_, ": ", $dates{$_}, "\n");
-		} else {
-		    $tail = join("", $tail, "<li>", $_);
-		}
-	    }
-	}
-	$tail .= "</ul>\n";
-    }
     $tail .= $address;
 
     print O $doctype, "<html><head><meta name=\"robots\" content=\"noindex,noarchive\">\n<title>", $module_long, " - ",
