@@ -372,6 +372,8 @@ static void saveDefaultProperties( QWidget *w, int id )
 	QVariant var = w->property( lst.at( i ) );
 	if ( !var.isValid() && qstrcmp( "pixmap", lst.at( i ) ) == 0 )
 	    var = QVariant( QPixmap() );
+	else if ( !var.isValid() && qstrcmp( "iconSet", lst.at( i ) ) == 0 )
+	    var = QVariant( QIconSet() );
 	propMap.insert( lst.at( i ), var );
     }
     defaultProperties->insert( id, propMap );
