@@ -158,9 +158,7 @@ typedef struct
     QPrinter::PageSize qtSizeName;
 } PageSizeNames;
 
-static QPrinter::PageSize mapDevmodePageSize( int s )
-{
-    static PageSizeNames names[] = {
+static PageSizeNames names[] = {
 	  { DMPAPER_LETTER,		QPrinter::Letter },
 	  { DMPAPER_LETTERSMALL,	QPrinter::Letter },
 	  { DMPAPER_TABLOID,		QPrinter::Tabloid },
@@ -230,12 +228,22 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 	  { DMPAPER_A3_TRANSVERSE,	QPrinter::A3 },
 	  { DMPAPER_A3_EXTRA_TRANSVERSE,	QPrinter::A3 },
 	  { -1, QPrinter::A4 }
-    };
+};
 
+static QPrinter::PageSize mapDevmodePageSize( int s )
+{
     int i = 0;
     while ( (names[i].winSizeName > 0) && (names[i].winSizeName != s) )
 	i++;
     return names[i].qtSizeName;
+}
+
+static int mapPageSizeDevmode( QPrinter::PageSize s )
+{
+	int i = 0;
+	while ( (names[i].qtSizeName > 0) && (names[i].qtSizeName != s) )
+	i++;
+	return names[i].winSizeName;
 }
 
 /*
@@ -471,7 +479,14 @@ bool QPrinter::setup( QWidget *parent )
 			dm->dmOrientation = DMORIENT_PORTRAIT;
 		    else
 			dm->dmOrientation = DMORIENT_LANDSCAPE;
-		    GlobalUnlock( pd.hDevMode );
+			dm->dmCopies = ncopies;
+			dm->dmPaperSize = mapPageSizeDevmode( page_size );
+			qDebug("%d", page_size );
+			if ( colorMode() == Color )
+			dm->dmColor = DMCOLOR_COLOR;
+			else
+			dm->dmColor = DMCOLOR_MONOCHROME;
+			GlobalUnlock( pd.hDevMode );
 		}
 	    }
 	    // } writePdlg
@@ -517,6 +532,13 @@ bool QPrinter::setup( QWidget *parent )
 			dm->dmOrientation = DMORIENT_PORTRAIT;
 		    else
 			dm->dmOrientation = DMORIENT_LANDSCAPE;
+			dm->dmCopies = ncopies;
+			dm->dmPaperSize = mapPageSizeDevmode( page_size );
+			qDebug("%d", page_size );
+			if ( colorMode() == Color )
+			dm->dmColor = DMCOLOR_COLOR;
+			else
+			dm->dmColor = DMCOLOR_MONOCHROME;
 		    GlobalUnlock( pd.hDevMode );
 		}
 	    }
