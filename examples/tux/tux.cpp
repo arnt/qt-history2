@@ -52,7 +52,7 @@ int main( int argc, char **argv )
 	    QBitmap bm;
 	    bm = img.createAlphaMask();
 	    p.setMask( bm );
-	} {
+	} else {
 	    QBitmap bm;
 	    bm = img.createHeuristicMask();
 	    p.setMask( bm );
