@@ -2231,6 +2231,11 @@ void QTable::doAutoScroll()
     fixRow( tmpRow, pos.y() );
     fixCol( tmpCol, pos.x() );
 
+    if ( tmpRow < 0 || tmpRow > numRows() - 1 )
+	tmpRow = currentRow();
+    if ( tmpCol < 0 || tmpCol > numCols() - 1 )
+	tmpCol = currentColumn();
+
     ensureCellVisible( tmpRow, tmpCol );
 
     if ( currentSel && selMode != NoSelection ) {
