@@ -109,13 +109,14 @@ bool QFile::remove( const QString &fileName )
 
   <strong>Important:</strong> When working with buffered files, data may
   not be written to the file at once. Call flush()
-  to make sure the data is really written.
+  to make sure that the data is really written.
 
-  \warning We have experienced problems with some C libraries when a buffered
-  file is opened for both reading and writing. If a read operation takes place
-  immediately after a write operation, the read buffer contains garbage data.
-  Worse, the same garbage is written to the file. Calling flush() before
-  readBlock() solved this problem.
+
+    \warning If you have a buffered file opened for both reading and
+    writing you must not perform an input operation immediately after
+    an output operation or vice versa. You should always call flush()
+    or a file positioning operation, e.g. seek(), between input and
+    output operations, otherwise the buffer may contain garbage.
 
   If the file does not exist and \c IO_WriteOnly or \c IO_ReadWrite is
   specified, it is created.
