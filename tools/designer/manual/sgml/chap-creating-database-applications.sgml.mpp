@@ -33,13 +33,15 @@ Date, ISBN 0201385902.
 
 <para>
 In the following text we describe the creation of the 'book'
-application. The application demonstrates how to use \class[QDataTable]s including
-in-place record editing and setting up master-detail relationships
-between \class[QDataTable]s. It also explains how to drill down from a \class[QDataTable] to another
-widget, for example to a \class[QDataBrowser] or a \class[QDataView] and how to perform record
-editing in \class[QDataBrowser]s. A great deal of functionality is available from the
-classes directly in \qd although subclassing is always available for
-finer control.
+application. The application demonstrates how to use \class[QDataTable]s
+including in-place record editing and setting up master-detail
+relationships between \class[QDataTable]s. It also explains how to drill
+down from a \class[QDataTable] to another widget, for example to a
+\class[QDataBrowser] or a \class[QDataView] and how to perform record
+editing in \class[QDataBrowser]s. A great deal of functionality is
+available from the classes directly in \qd although subclassing is
+always available for finer control. If you want to build the example you
+will need to create the example schema on your database.
 <figure><title>The Book Application</title>
 \img[book-main]
 </figure>
@@ -62,9 +64,9 @@ The format table is used to store 'paperback', 'hardback', etc.
 \scan eg/book/book.sql /CREATE VIEW/ /CREATE VIEW/
 </programlisting></example>
 The book_view is used to present the book's format as a textual value
-rather than as a raw id. The author_view has a one-to-one correspondence
-with the author table and allows us to select an author on the basis of
-a single field, in a combobox for example.
+rather than as a raw id. The author_view maps one-to-one with the author
+table and allows us to select an author on the basis of a single field,
+in a combobox for example.
 </para>
 </sidebar>
 
@@ -89,17 +91,18 @@ a single field, in a combobox for example.
 	bar. The Database Connections dialog will appear. Click
 	<guibutton>New Connection</>. For applications that use a single
 	database it will probably be most convenient to use the default
-	connection name of "(default)". If you use more than one
-	database give each one a unique name. A driver must be chosen
-	from the Driver combo box. The database name may be available in
-	the Database Name combo box or may have to be typed in. The
-	database name, username, password and hostname should be
+	connection name of '(default)'. If you use more than one
+	database each one must be given a unique name. A driver must be
+	chosen from the Driver combo box. The database name may be
+	available in the Database Name combo box or may have to be typed
+	in. The database name, username, password and hostname should be
 	provided by your database systems administrator. When the
 	Connection information has been completed click
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or quit \qd. 
+	will remain in force until you change or delete them or quit
+	\qd. 
 	</para>
 
 	<para>
@@ -415,7 +418,7 @@ bool createConnections()
 	    to appear rather than the format id when we show the book table.
 	    Whilst this can be achieved programmatically, e.g. using
 	    calculated fields, it is far easier to create a view that
-	    encompases the fields we wish to make visible to the user. A
+	    encompasses the fields we wish to make visible to the user. A
 	    view also places the burden of work on the database rather than
 	    the client application. In the examples we have created the
 	    book_view view to demonstrate this approach.
@@ -432,7 +435,7 @@ bool createConnections()
 	<para>
 	Record insertion into a relational database usually requires
 	the generation of a unique primary key. Also we often want to
-	create default values for some fields to minimise the user's
+	create default values for some fields to minimize the user's
 	work. We will create a slot to capture the \class[QDataTable]s
 	<function>primeInsert</> signal and populate the
 	<classname>QSqlRecord</> insertion buffer with a unique primary
@@ -485,7 +488,7 @@ bool createConnections()
 		retrieved, i.e. the next sequence number, into the
 		buffer's id field.
 		(Note that not all databases support the nextval
-		function so you may need to read your database engine's
+		function so you may need to read your database's
 		documentation to see how to generate unique keys in
 		code.) 
 		</para>
@@ -547,7 +550,7 @@ bool createConnections()
 		the user presses Return or Tabs off the end of the last
 		field. If autoEdit is TRUE the update will take place if
 		the user navigates to another record. \upd is cancelled
-		by pressing Esc (Escape). If autoEdit is FALSE
+		by pressing <keycap>Escape</>. If autoEdit is FALSE
 		navigating to another record also cancels the \upd.
 		Setting confirmUpdate to TRUE will require the user to
 		confirm each \upd.
@@ -555,7 +558,7 @@ bool createConnections()
 
 		\item\p
 		\del is achieved by right-clicking the record and
-		clicking Delete or by pressing the Del (Delete) key.
+		clicking Delete or by pressing the <keycap>Delete</> key.
 		Setting confirmDelete to TRUE will require the user to
 		confirm each \del.
 		\P\Item
@@ -576,10 +579,10 @@ bool createConnections()
 	Databases often have pairs of tables that are related. For
 	example an invoice table might list the numbers, dates and
 	customers for invoices, but not the actual invoice items which
-	the invoiceitem table might store. In the book application we 
+	the invoice item table might store. In the book application we 
 	wish to have a \class[QDataTable] that we can use to browse
-	through the authors and a second \class[QDataTable] to show
-	the books they've written. 
+	through the authors table and a second \class[QDataTable] to
+	show the books they've written. 
 	</para>
 
 	<para>
@@ -676,10 +679,11 @@ bool createConnections()
 	Run the form by clicking <guimenuitem>Preview|Preview Form</>.
 	All the authors are displayed in the top \class[QDataTable]
 	and all the books are displayed in the bottom
-	\class[QDataTable]. Unfortunately we only want the books of the currently
-	selected author showing in the bottom \class[QDataTable]. We will deal with
-	this by filtering the records in the book_view according to the
-	author in the author table.
+	\class[QDataTable]. However we only want the books of the
+	currently selected author showing in the bottom
+	\class[QDataTable]. We will deal with this by filtering the
+	records in the book_view according to the author in the author
+	table.
 	</para>
 
 	<sidebar><title>Using the Table Editor</>
@@ -765,10 +769,11 @@ bool createConnections()
 		<listitem>
 		    <para>
 		    Click <guimenuitem>Connect Signal/Slots</>, then click
-		    the AuthorDataTable and drag to the form; release the
-		    mouse on the form. The Edit Connections dialog will
-		    appear. Click the <function>currentChanged</> signal
-		    and the <function>newCurrentAuthor</> slot. Click \ok.
+		    the AuthorDataTable \class[QDataTable] and drag to
+		    the form; release the mouse on the form. The Edit
+		    Connections dialog will appear. Click the
+		    <function>currentChanged</> signal and the
+		    <function>newCurrentAuthor</> slot. Click \ok.
 		    </para>
 		</listitem>
 
@@ -790,7 +795,7 @@ bool createConnections()
 <programlisting>
 \scan eg/book/book3/book.cpp /BookForm::newCurrentAuthor/ /^}/
 </programlisting>
-		All that's required is to change the BookDataTable's
+		All that's required now is to change the BookDataTable's
 		filter and refresh the \class[QDataTable] to show the
 		results of the filter.
 		</para>
@@ -832,9 +837,11 @@ bool createConnections()
 			<listitem><para>QuitPushButton -- &amp;Quit</para>
 			</listitem>
 		    </itemizedlist>
-		    Shift+Click both buttons and click the <guibutton>Lay
-		    Out Horizontally</> toolbar button. Click the form and
-		    click the <guibutton>Lay Out Vertically</> toolbar
+		    Hold down the Shift key and Click both buttons (i.e.
+		    Shift+Click the buttons) and click the
+		    <guibutton>Lay Out Horizontally</> toolbar button.
+		    Click the form and click the <guibutton>Lay Out
+		    Vertically</> toolbar
 		    button.
 		    </para>
 		</listitem>
@@ -910,15 +917,15 @@ bool createConnections()
 
 	    <listitem>
 		<para> 
-		The <emphasis>Displayed Fields</> wizard page wizard
-		provides a means of selecting which fields should be
-		displayed in the \class[QDataBrowser] and in what order. By default all
-		fields except the primary key (if there is one) are in the
-		right hand Displayed Fields list box. The left and right
-		blue arrow buttons can be used to move fields between the
-		Displayed Fields and the Available Fields list boxes. The
-		blue up and down arrow buttons are used to select the
-		display order of the displayed fields. 
+		The <emphasis>Displayed Fields</> wizard page provides a
+		means of selecting which fields should be displayed in
+		the \class[QDataBrowser] and in what order. By default
+		all fields except the primary key (if there is one) are
+		in the right hand Displayed Fields list box. The left
+		and right blue arrow buttons can be used to move fields
+		between the Displayed Fields and the Available Fields
+		list boxes. The blue up and down arrow buttons are used
+		to select the display order of the displayed fields. 
 		<para>
 
 		<para>
@@ -980,11 +987,12 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		The \class[QDataBrowser] will now appear on the form. Drag the bottom of the
-		form up to make it shorter. Click the \class[QDataBrowser] then click the
-		<guibutton>Break Layout</> toolbar button. Click the buttons
-		then click the <guibutton>Break Layout</> toolbar button. 
-		Add another button called 'PushButtonClose' with the text
+		The \class[QDataBrowser] will now appear on the form.
+		Drag the bottom of the form up to make it shorter. Click
+		the \class[QDataBrowser] then click the <guibutton>Break
+		Layout</> toolbar button. Click the buttons then click
+		the <guibutton>Break Layout</> toolbar button. Add
+		another button called 'PushButtonClose' with the text
 		'&amp;Close' and place it to the right of the Delete button.
 		</para>
 	    </listitem>
@@ -992,12 +1000,13 @@ bool createConnections()
 	    <listitem>
 		<para>
 		Shift+Click the Insert, Update, Delete and Close
-		buttons, then click the <guibutton>Lay Out Horizontally</>
-		toolbar button. Click the \class[QDataBrowser], then click the
-		<guibutton>Lay Out in a Grid</> toolbar button. Finally
-		click the form and click the <guibutton>Lay Out
-		Vertically</> toolbar button. Now click the \class[QDataBrowser] and
-		rename it 'BookDataBrowser'.
+		buttons, then click the <guibutton>Lay Out
+		Horizontally</> toolbar button. Click the
+		\class[QDataBrowser], then click the <guibutton>Lay Out
+		in a Grid</> toolbar button. Finally click the form and
+		click the <guibutton>Lay Out Vertically</> toolbar
+		button. Now click the \class[QDataBrowser] and rename it
+		'BookDataBrowser'.
 		</para>
 	    </listitem>
 
@@ -1060,10 +1069,12 @@ bool createConnections()
 		(i.e. a second time) the \ins will take place and a new
 		insertion will be initiated. If autoEdit is TRUE the
 		\ins will take place if the user navigates to another
-		record. \ins is cancelled by pressing the Delete key. If
-		autoEdit is FALSE navigating to another record also
-		cancels the \ins. Setting confirmInsert to TRUE will
-		require the user to confirm each \ins.
+		record. \ins is cancelled by pressing the
+		<keycap>Escape</>
+		key or by pressing the Delete button. If autoEdit is
+		FALSE navigating to another record also cancels the
+		\ins. Setting confirmInsert to TRUE will require the
+		user to confirm each \ins.
 		\P\Item
 
 		\item\p
@@ -1071,10 +1082,12 @@ bool createConnections()
 		navigates to a record. An update will take place if the
 		user presses the Update button. If autoEdit is TRUE the
 		update will take place if the user navigates to another
-		record. \upd is cancelled by pressing the Delete button.
-		If autoEdit is FALSE navigating to another record also
-		cancels the \upd. Setting confirmUpdate to TRUE will
-		require the user to confirm each \upd.
+		record. \upd is cancelled by pressing the
+		<keycap>Escape</>
+		key or by pressing the Delete button. If autoEdit is
+		FALSE navigating to another record also cancels the
+		\upd. Setting confirmUpdate to TRUE will require the
+		user to confirm each \upd.
 		\P\Item
 
 		\item\p
