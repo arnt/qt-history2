@@ -371,8 +371,21 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     Walkthrough walkthrough;
     QString substr;
     QString arg, brief;
-    QString className, enumName, extName, fileName, groupName, moduleName;
-    QString enumPrefix, title, heading, prototype, relates, value, x;
+    QString className;
+    QString enumName;
+    QString extName;
+    QString fileName;
+    QString groupName;
+    QString moduleName;
+
+    QString enumPrefix;
+    QString title;
+    QString heading;
+    QString prototype;
+    QString relates;
+    QString value;
+    QString x;
+
     StringSet groups, headers, keywords, examples;
     StringSet documentedParams, documentedValues;
     QStringList seeAlso, important;
@@ -615,14 +628,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 	    case hash( 'h', 6 ):
 		consume( "header" );
-		fileName = getWord( yyIn, yyPos );
+		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( fileName.isEmpty() ) {
+		if ( x.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected file name after '\\header'" );
 		} else {
-		    headers.insert( fileName );
+		    headers.insert( x );
 		    setKindHasToBe( Doc::Class, command );
 		}
 		break;
@@ -635,16 +648,16 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    break;
 		if ( command[2] == QChar('c') ) {
 		    consume( "include" );
-		    fileName = getWord( yyIn, yyPos );
+		    x = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 		    flushWalkthrough( walkthrough, &examples );
 
-		    if ( fileName.isEmpty() )
+		    if ( x.isEmpty() )
 			warning( 2, location(),
 				 "Expected file name after '\\include'" );
 		    else
-			walkthrough.includePass1( fileName, Doc::resolver() );
-		    yyOut += QString( "\\include " ) + fileName + QChar( '\n' );
+			walkthrough.includePass1( x, Doc::resolver() );
+		    yyOut += QString( "\\include " ) + x + QChar( '\n' );
 		} else {
 		    consume( "ingroup" );
 		    groupName = getWord( yyIn, yyPos );
@@ -771,9 +784,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.printto( substr, location() );
 		startPreOutput();
-		yyOut += QString( "\\printto " );
-		yyOut += substr;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\printto " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 'p', 9 ):
 		if ( command.length() != 9 )
@@ -795,9 +806,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    substr = getRestOfLine( yyIn, yyPos );
 		    walkthrough.printline( substr, location() );
 		    startPreOutput();
-		    yyOut += QString( "\\printline " );
-		    yyOut += substr;
-		    yyOut += QChar( '\n' );
+		    yyOut += QString( "\\printline " ) + substr + QChar( '\n' );
 		}
 		break;
 	    case hash( 'p', 10 ):
@@ -805,9 +814,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.printuntil( substr, location() );
 		startPreOutput();
-		yyOut += QString( "\\printuntil " );
-		yyOut += substr;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\printuntil " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 'r', 5 ):
 		consume( "reimp" );
@@ -840,25 +847,19 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		consume( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipto( substr, location() );
-		yyOut += QString( "\\skipto " );
-		yyOut += substr;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 8 ):
 		consume( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipline( substr, location() );
-		yyOut += QString( "\\skipline " );
-		yyOut += substr;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\skipline " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 's', 9 ):
 		consume( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walkthrough.skipuntil( substr, location() );
-		yyOut += QString( "\\skipuntil " );
-		yyOut += substr;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
 	    case hash( 't', 5 ):
 		consume( "title" );
@@ -912,19 +913,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 #endif
 	    case hash( 'w', 11 ):
 		consume( "walkthrough" );
-		fileName = getWord( yyIn, yyPos );
+		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 		flushWalkthrough( walkthrough, &examples );
 
-		if ( fileName.isEmpty() )
+		if ( x.isEmpty() )
 		    warning( 2, location(),
 			     "Expected file name after '\\walkthrough'" );
 		else
-		    walkthrough.startPass1( fileName, Doc::resolver() );
+		    walkthrough.startPass1( x, Doc::resolver() );
 
-		yyOut += QString( "\\walkthrough " );
-		yyOut += fileName;
-		yyOut += QChar( '\n' );
+		yyOut += QString( "\\walkthrough " ) + x + QChar( '\n' );
 	    }
 	    if ( !consumed ) {
 		yyOut += QString( "\\" );
