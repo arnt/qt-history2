@@ -188,7 +188,7 @@ public slots:
 
 
 MovieStarter::MovieStarter(const char *dir)
-    : QFileDialog(dir, "*.gif")
+    : QFileDialog(dir, "*.gif *.mng")
 {
     //behave as in getOpenFilename
     setMode( ExistingFile );
