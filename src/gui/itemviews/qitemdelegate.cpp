@@ -400,50 +400,63 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
                              QRect *textRect, bool hint) const
 {
     if (pixmapRect && textRect) {
-        static const int spacing = 0; // FIXME: for now
         int x = option.rect.left();
         int y = option.rect.top();
-        int b = border * 2;
+        int bb = border * 2;
         int w, h;
         if (hint) {
-            w = qMax(textRect->width(), pixmapRect->width()) + b;
-            h = qMax(textRect->height(), pixmapRect->height()) + b;
+            w = qMax(textRect->width(), pixmapRect->width()) + bb;
+            h = qMax(textRect->height(), pixmapRect->height()) + bb;
         } else {
             x += border;
             y += border;
-            w = option.rect.width() - b;
-            h = option.rect.height() - b;
+            w = option.rect.width() - bb;
+            h = option.rect.height() - bb;
         }
+        QRect display;
         QRect decoration;
         switch (option.decorationPosition) {
         case QStyleOptionViewItem::Top: {
             decoration.setRect(x, y, w, pixmapRect->height());
-            h = hint ? textRect->height() : h - pixmapRect->height() - spacing;
-            textRect->setRect(x, y + pixmapRect->height() + spacing, w, h);
+            h = hint ? textRect->height() : h - pixmapRect->height();
+            display.setRect(x, y + pixmapRect->height(), w, h);
             break;}
-        case QStyleOptionViewItem::Bottom: {
-            textRect->setRect(x, y, w, textRect->height());
-            h = hint ? pixmapRect->height() : h - textRect->height() - spacing;
-            decoration.setRect(x, y + textRect->height() + spacing, w, h);
+        case QStyleOptionViewItem::Bottom: { // FIXME: doesn't work properly
+            decoration.setRect(x, y + h - pixmapRect->height(), w, pixmapRect->height());
+            h = hint ? textRect->height() : h - pixmapRect->height();
+            display.setRect(x, y, w, h);
             break;}
         case QStyleOptionViewItem::Left: {
+            if (QApplication::reverseLayout()) {
+                decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
+                w = hint ? textRect->width() : w - pixmapRect->width(); 
+                display.setRect(x, y, w, h);
+                break;
+            }
             decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width() - spacing;
-            textRect->setRect(x + pixmapRect->width() + spacing, y, w, h);
+            w = hint ? textRect->width() : w - pixmapRect->width(); 
+            display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
-            textRect->setRect(x, y, textRect->width(), h);
-            w = hint ? pixmapRect->width() : w - textRect->width() - spacing;
-            decoration.setRect(x + textRect->width() + spacing, y, w, h);
+            if (QApplication::reverseLayout()) {
+                decoration.setRect(x, y, pixmapRect->width(), h);
+                w = hint ? textRect->width() : w - pixmapRect->width(); 
+                display.setRect(x + pixmapRect->width(), y, w, h);
+                break;
+            }
+            decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
+            w = hint ? textRect->width() : w - pixmapRect->width(); 
+            display.setRect(x, y, w, h);
             break;}
         default:
             qWarning("doLayout: decoration positon is invalid");
             decoration = *pixmapRect;
             break;
         }
-        if (hint)
-            *pixmapRect = decoration;
-        else
+
+        *pixmapRect = decoration;
+        *textRect = display;
+        if (!hint) // we only need to do the internal layout if we are going to paint
             doAlignment(decoration, option.decorationAlignment, pixmapRect);
     }
 }
