@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#230 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -766,12 +766,15 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( testWFlags(WStyle_Tool) )
+    if ( testWFlags(WStyle_Tool) ) {
+	QSize fSize = frameSize();
 	SetWindowPos( winId(), 0,
-		      fpos.x(), fpos.y(), crect.width(), crect.height(),
+		      fpos.x(), fpos.y(), fSize.width(), fSize.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
-    else
+    }
+    else {
 	ShowWindow( winId(), SW_SHOW );
+    }
     UpdateWindow( winId() );
 }
 
