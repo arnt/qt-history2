@@ -2568,6 +2568,8 @@ void EnumPopup::insertEnums( QValueList<EnumItem> lst )
 	cb = new QCheckBox( this );
 	cb->setText( (*it).key );
 	cb->setChecked( (*it).selected );
+	if ( it == itemList.begin() )
+	    cb->setFocus();
 	checkBoxList.append( cb );
 	cb->resize( width(), cb->height() );
 	popLayout->addWidget( cb );
@@ -2579,19 +2581,21 @@ void EnumPopup::keyPressEvent( QKeyEvent *e )
     if ( e->key() == Key_Escape ) {
 	hide();
 	emit hidden();
+    } else if ( e->key() == Key_Enter || e->key() == Key_Return ) {
+	closeWidget();
     }
 }
 
-void EnumPopup::closeEvent( QCloseEvent *e )
+void EnumPopup::closeWidget()
 {
     QPtrListIterator<QCheckBox> it( checkBoxList );
     int i = 0;
     while ( it.current() != 0 ) {
 	itemList[i].selected = (*it)->isChecked();
-        ++it;
+	++it;
 	++i;
     }
-    e->accept();
+    close();
     emit closed();
 }
 
@@ -2601,9 +2605,24 @@ QValueList<EnumItem> EnumPopup::enumList() const
 }
 
 EnumBox::EnumBox( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QComboBox( parent, name )
 {
+    pop = new EnumPopup( this, "popup", QObject::WType_Popup );
+    connect( pop, SIGNAL( hidden() ), this, SLOT( popupHidden() ) );
+    connect( pop, SIGNAL( closed() ), this, SLOT( popupClosed() ) );
+    popupShown = FALSE;
     arrowDown = FALSE;
+}
+
+void EnumBox::popupHidden()
+{
+    popupShown = FALSE;
+}
+
+void EnumBox::popupClosed()
+{
+    popupShown = FALSE;
+    emit valueChanged();
 }
 
 void EnumBox::paintEvent( QPaintEvent * )
@@ -2642,7 +2661,30 @@ void EnumBox::paintEvent( QPaintEvent * )
 	p.drawText( x, y, str );
 	p.restore();
     }
+}
 
+void EnumBox::insertEnums( QValueList<EnumItem> lst )
+{
+    pop->insertEnums( lst );
+}
+
+QValueList<EnumItem> EnumBox::enumList() const
+{
+    return pop->enumList();
+}
+
+void EnumBox::popup()
+{
+    if ( popupShown ) {
+	pop->closeWidget();
+	popupShown = FALSE;
+	return;
+    }
+    pop->move( ((QWidget*)parent())->mapToGlobal( geometry().bottomLeft() ) );
+    pop->setMinimumWidth( width() );
+    emit aboutToShowPopup();
+    pop->show();
+    popupShown = TRUE;
 }
 
 void EnumBox::mousePressEvent( QMouseEvent *e )
@@ -2660,8 +2702,19 @@ void EnumBox::mousePressEvent( QMouseEvent *e )
 	arrowDown = TRUE;
 	repaint( FALSE );
     }
-    emit popup();
+
+    popup();
     QTimer::singleShot( 100, this, SLOT( restoreArrow() ) );
+}
+
+void EnumBox::keyPressEvent( QKeyEvent *e )
+{
+    if ( e->key() == Key_Space ) {
+	popup();
+	QTimer::singleShot( 100, this, SLOT( restoreArrow() ) );
+    } else if ( e->key() == Key_Enter || e->key() == Key_Return ) {
+	popup();
+    }
 }
 
 void EnumBox::restoreArrow()
@@ -2687,10 +2740,8 @@ PropertyEnumItem::PropertyEnumItem( PropertyList *l,
     box = new EnumBox( listview->viewport() );
     box->hide();
     box->installEventFilter( listview );
-    pop = new EnumPopup( box, 0, QObject::WType_Popup);
-    connect( box, SIGNAL( popup() ), this, SLOT( popup() ) );
-    connect( pop, SIGNAL( closed() ), this, SLOT( setValue() ) );
-    connect( pop, SIGNAL( hidden() ), this, SLOT( popupHidden() ) );
+    connect( box, SIGNAL( aboutToShowPopup() ), this, SLOT( insertEnums() ) );
+    connect( box, SIGNAL( valueChanged() ), this, SLOT( setValue() ) );
 }
 
 PropertyEnumItem::~PropertyEnumItem()
@@ -2707,6 +2758,7 @@ void PropertyEnumItem::showEditor()
 	box->setText( enumString );
 	listView()->viewport()->setFocus();
     }
+    box->setFocus();
 }
 
 void PropertyEnumItem::hideEditor()
@@ -2730,28 +2782,14 @@ void PropertyEnumItem::setValue( const QVariant &v )
     PropertyItem::setValue( v );
 }
 
-void PropertyEnumItem::popup()
+void PropertyEnumItem::insertEnums()
 {
-    if ( popShown ) {
-	pop->close();
-	popShown = FALSE;
-	return;
-    }
-    pop->insertEnums( enumList );
-    pop->move( listview->viewport()->mapToGlobal( box->geometry().bottomLeft() ) );
-    pop->setMinimumWidth( box->width() );
-    pop->show();
-    popShown = TRUE;
-}
-
-void PropertyEnumItem::popupHidden()
-{
-    popShown = FALSE;
+    box->insertEnums( enumList );
 }
 
 void PropertyEnumItem::setValue()
 {
-    enumList = pop->enumList();
+    enumList = box->enumList();
     enumString = "";
     QValueListConstIterator<EnumItem> it = enumList.begin();
     for ( ; it != enumList.end(); ++it ) {
