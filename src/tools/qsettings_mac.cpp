@@ -96,7 +96,7 @@ QString
 qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=QString::null)
 {
     if(file.isNull())
-	file = "/Users/sam/Library/Preferences/.GlobalPreferences";
+	file = ".GlobalPreferences";
     CFStringRef k = CFStringCreateWithCharacters(NULL, (UniChar *)key.unicode(), key.length()),
 	       id = CFStringCreateWithCharacters(NULL, (UniChar *)file.unicode(), file.length());
     if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)) {
