@@ -288,7 +288,7 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	isel = fi.fileName();
     }
 
-    if ( !fi.exists() )
+    if ( !fi.dir().exists() )
     *initialDirectory = tr("%HOMEPATH%");
 
     QString title = caption;
@@ -343,7 +343,7 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	isel = fi.fileName();
     }
 
-    if ( !fi.exists() )
+    if ( !fi.dir().exists() )
     *initialDirectory = tr("%HOMEPATH%");
 
     QString title = caption;
