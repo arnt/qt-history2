@@ -4359,9 +4359,9 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     uint result_len = s.length()
     	    	    	- d.escape_len
 			+ (d.occurrences - d.locale_occurrences)
-			    *QMAX(abs_field_width, arg.length())
+			    *qMax(abs_field_width, arg.length())
 			+ d.locale_occurrences
-			    *QMAX(abs_field_width, larg.length());
+			    *qMax(abs_field_width, larg.length());
 
     QString result;
     result.resize(result_len);
@@ -4400,9 +4400,9 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
     	    uint pad_chars;
     	    if (locale_arg)
-	    	pad_chars = QMAX(abs_field_width, larg.length()) - larg.length();
+	    	pad_chars = qMax(abs_field_width, larg.length()) - larg.length();
 	    else
-	    	pad_chars = QMAX(abs_field_width, arg.length()) - arg.length();
+	    	pad_chars = qMax(abs_field_width, arg.length()) - arg.length();
 
     	    if (field_width > 0) { // left padded
 		for (uint i = 0; i < pad_chars; ++i)

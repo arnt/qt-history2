@@ -19,7 +19,7 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
-
+#ifdef QT_COMPAT
 template<class T>
 class QValueStack : public QValueList<T>
 {
@@ -37,5 +37,6 @@ public:
     T& top() { return this->last(); }
     const T& top() const { return this->last(); }
 };
+#endif
 
 #endif

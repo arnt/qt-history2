@@ -15,6 +15,7 @@
 #ifndef QDICT_H
 #define QDICT_H
 
+#ifdef QT_COMPAT
 #ifndef QT_H
 #include "qgdict.h"
 #endif // QT_H
@@ -91,5 +92,6 @@ public:
     type *operator++()	      { return (type *)QGDictIterator::operator++(); }
     type *operator+=(uint j)  { return (type *)QGDictIterator::operator+=(j); }
 };
+#endif //Q_COMPAT
 
 #endif // QDICT_H
