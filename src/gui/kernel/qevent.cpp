@@ -1669,6 +1669,7 @@ void QDropEvent::setDropAction(QDrag::DropAction action)
     The opposite of accept(); i.e. you have ignored the drop event.
 */
 
+#ifdef QT_COMPAT
 /*!
     \fn bool QDropEvent::isActionAccepted () const
 
@@ -1689,6 +1690,7 @@ QT_COMPAT QDropEvent::Action QDropEvent::action() const
         return Copy;
     }
 }
+#endif
 
 /*!
     \fn void QDropEvent::setPoint (const QPoint &point)

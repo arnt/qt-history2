@@ -25,35 +25,35 @@ class QCopChannel : public QObject
 {
     Q_OBJECT
 public:
-    QCopChannel(const QByteArray &channel, QObject *parent=0);
+    QCopChannel(const char *channel, QObject *parent=0);
 #ifdef QT_COMPAT
-    QCopChannel(const QByteArray &channel, QObject *parent, const char *name);
+    QCopChannel(const char *channel, QObject *parent, const char *name);
 #endif
     virtual ~QCopChannel();
 
-    QByteArray channel() const;
+    const char* channel() const;
 
-    static bool isRegistered(const QByteArray& channel);
-    static bool send(const QByteArray &channel, const QByteArray &msg);
-    static bool send(const QByteArray &channel, const QByteArray &msg,
+    static bool isRegistered(const char * channel);
+    static bool send(const char *channel, const char *msg);
+    static bool send(const char *channel, const char *msg,
                       const QByteArray &data);
 
-    static void sendLocally( const QByteArray &ch, const QByteArray &msg,
+    static void sendLocally( const char *ch, const char *msg,
                                const QByteArray &data);
 
-    virtual void receive(const QByteArray &msg, const QByteArray &data);
+    virtual void receive(const char *msg, const QByteArray &data);
 
 signals:
-    void received(const QByteArray &msg, const QByteArray &data);
+    void received(const char *msg, const QByteArray &data);
 
 private:
-    void init(const QByteArray &channel);
+    void init(const char *channel);
 
     // server side
-    static void registerChannel(const QString &ch, QWSClient *cl);
+    static void registerChannel(const char *ch, QWSClient *cl);
     static void detach(QWSClient *cl);
-    static void answer(QWSClient *cl, const QByteArray &ch,
-                        const QByteArray &msg, const QByteArray &data);
+    static void answer(QWSClient *cl, const char *ch,
+                        const char *msg, const QByteArray &data);
     // client side
     QCopChannelPrivate* d;
 

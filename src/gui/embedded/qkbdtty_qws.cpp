@@ -88,8 +88,8 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
 #if defined(Q_OS_LINUX)
     // Virtual console switching
     int term = 0;
-    bool ctrl = modifiers & Qt::ControlButton;
-    bool alt = modifiers & Qt::AltButton;
+    bool ctrl = modifiers & Qt::ControlModifier;
+    bool alt = modifiers & Qt::AltModifier;
     if (ctrl && alt && keycode >= Qt::Key_F1 && keycode <= Qt::Key_F10)
         term = keycode - Qt::Key_F1 + 1;
     else if (ctrl && alt && keycode == Qt::Key_Left)

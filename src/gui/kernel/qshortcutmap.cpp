@@ -356,8 +356,8 @@ QKeySequence::SequenceMatch QShortcutMap::nextState(QKeyEvent *e)
 
     result = find(e);
     if (result == QKeySequence::NoMatch && e->modifiers() & Qt::ShiftModifier) {
-        // If Shift + Key_BackTab, also try Shift + Qt::Key_Tab
-        if (e->key() == Qt::Key_BackTab) {
+        // If Shift + Key_Backtab, also try Shift + Qt::Key_Tab
+        if (e->key() == Qt::Key_Backtab) {
             QKeyEvent pe = QKeyEvent(e->type(), Qt::Key_Tab, e->modifiers(), e->text());
             result = find(&pe);
         }

@@ -720,6 +720,7 @@ void QWSServer::initServer(int flags)
     openDisplay();
 
     d->screensavertimer = new QTimer(this);
+    d->screensavertimer->setSingleShot(true);
     connect(d->screensavertimer, SIGNAL(timeout()), this, SLOT(screenSaverTimeout()));
     screenSaverWake();
 
@@ -2056,7 +2057,7 @@ void QWSServer::invokeRegisterChannel(QWSQCopRegisterChannelCommand *cmd,
 {
   // QCopChannel will force us to emit the newChannel signal if this channel
   // didn't already exist.
-  QCopChannel::registerChannel(cmd->channel, client);
+  QCopChannel::registerChannel(cmd->channel.utf8(), client);
 }
 
 void QWSServer::invokeQCopSend(QWSQCopSendCommand *cmd, QWSClient *client)
@@ -2902,7 +2903,7 @@ void QWSServer::screenSaverWake()
                 if (d->saver) d->saver->restore();
             }
         }
-        d->screensavertimer->start(*screensaverinterval,true);
+        d->screensavertimer->start(*screensaverinterval);
         d->screensavertime.start();
     }
     qt_disable_lowpriority_timers=false;
@@ -2915,7 +2916,7 @@ void QWSServer::screenSaverSleep()
     d->screensavertimer->stop();
 #else
     if (screensaverinterval) {
-        d->screensavertimer->start(*screensaverinterval,true);
+        d->screensavertimer->start(*screensaverinterval);
         d->screensavertime.start();
     } else {
         d->screensavertimer->stop();
@@ -2941,7 +2942,7 @@ void QWSServer::screenSave(int level)
     if (d->saver) {
         if (d->saver->save(level)) {
             if (screensaverinterval && screensaverinterval[1]) {
-                d->screensavertimer->start(*++screensaverinterval,true);
+                d->screensavertimer->start(*++screensaverinterval);
                 d->screensavertime.start();
             } else {
                 screensaverinterval = 0;
@@ -2950,7 +2951,7 @@ void QWSServer::screenSave(int level)
             // for some reason, the saver don't want us to change to the
             // next level, so we'll stay at this level for another interval
             if (screensaverinterval && *screensaverinterval) {
-                d->screensavertimer->start(*screensaverinterval,true);
+                d->screensavertimer->start(*screensaverinterval);
                 d->screensavertime.start();
             }
         }

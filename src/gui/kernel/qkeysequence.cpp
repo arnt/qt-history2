@@ -92,8 +92,8 @@ static struct {
     { Qt::Key_Up,           QT_TRANSLATE_NOOP("QShortcut", "Up") },
     { Qt::Key_Right,        QT_TRANSLATE_NOOP("QShortcut", "Right") },
     { Qt::Key_Down,         QT_TRANSLATE_NOOP("QShortcut", "Down") },
-    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QShortcut", "PgUp") },
-    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QShortcut", "PgDown") },
+    { Qt::Key_PageUp,       QT_TRANSLATE_NOOP("QShortcut", "PgUp") },
+    { Qt::Key_PageDown,     QT_TRANSLATE_NOOP("QShortcut", "PgDown") },
     { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "CapsLock") },
     { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "NumLock") },
     { Qt::Key_ScrollLock,   QT_TRANSLATE_NOOP("QShortcut", "ScrollLock") },
@@ -145,8 +145,8 @@ static struct {
     // --------------------------------------------------------------
     // More consistent namings
     { Qt::Key_Print,        QT_TRANSLATE_NOOP("QShortcut", "Print Screen") },
-    { Qt::Key_Prior,        QT_TRANSLATE_NOOP("QShortcut", "Page Up") },
-    { Qt::Key_Next,         QT_TRANSLATE_NOOP("QShortcut", "Page Down") },
+    { Qt::Key_PageUp,       QT_TRANSLATE_NOOP("QShortcut", "Page Up") },
+    { Qt::Key_PageDown,     QT_TRANSLATE_NOOP("QShortcut", "Page Down") },
     { Qt::Key_CapsLock,     QT_TRANSLATE_NOOP("QShortcut", "Caps Lock") },
     { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Num Lock") },
     { Qt::Key_NumLock,      QT_TRANSLATE_NOOP("QShortcut", "Number Lock") },

@@ -130,19 +130,19 @@ static inline QPoint qt_intersect_edge(const QPoint &p1, const QPoint &p2, const
     switch (edge) {
         case 0:
             x = r.left();
-            y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+            y = p1.y() + dy * qAbs(p1.x() - x) / qAbs(dx);
             break;
         case 1:
             y = r.top();
-            x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+            x = p1.x() + dx * qAbs(p1.y() - y) / qAbs(dy);
             break;
         case 2:
             x = r.right();
-            y = p1.y() + dy * QABS(p1.x() - x) / QABS(dx);
+            y = p1.y() + dy * qAbs(p1.x() - x) / qAbs(dx);
             break;
         case 3:
             y = r.bottom();
-            x = p1.x() + dx * QABS(p1.y() - y) / QABS(dy);
+            x = p1.x() + dx * qAbs(p1.y() - y) / qAbs(dy);
             break;
     }
 
@@ -603,8 +603,8 @@ bool QScreenCursor::restoreUnder(const QRect &r, QGfxRasterBase *g)
             // This is faster than the above - at least until blt is
             // better optimized.
             int linestep = gfx->linestep();
-            int startCol = x < 0 ? QABS(x) : 0;
-            int startRow = y < 0 ? QABS(y) : 0;
+            int startCol = x < 0 ? qAbs(x) : 0;
+            int startRow = y < 0 ? qAbs(y) : 0;
             int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
             int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
@@ -671,8 +671,8 @@ void QScreenCursor::saveUnder()
         // This is faster than the above - at least until blt is
         // better optimized.
         int linestep = gfx->linestep();
-        int startRow = y < 0 ? QABS(y) : 0;
-        int startCol = x < 0 ? QABS(x) : 0;
+        int startRow = y < 0 ? qAbs(y) : 0;
+        int startCol = x < 0 ? qAbs(x) : 0;
         int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
         int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
@@ -741,8 +741,8 @@ void QScreenCursor::drawCursor()
     int depth = gfx->bitDepth();
 
     // clipping
-    int startRow = y < 0 ? QABS(y) : 0;
-    int startCol = x < 0 ? QABS(x) : 0;
+    int startRow = y < 0 ? qAbs(y) : 0;
+    int startCol = x < 0 ? qAbs(x) : 0;
     int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
     int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
@@ -1532,10 +1532,10 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
         y1=y3;
 #ifdef GFX_CORRECT_POLYLINE_JOIN
         if (gfx_noLineOverwrite) {
-            if (x2-x1 > QABS(y2-y1))
+            if (x2-x1 > qAbs(y2-y1))
                 gfx_storedLineRead -= x2-x1;
             else
-                gfx_storedLineRead -= QABS(y2-y1);
+                gfx_storedLineRead -= qAbs(y2-y1);
             gfx_storedLineDir = -gfx_storedLineDir;
         }
 #endif
@@ -1544,7 +1544,7 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
     int dx=x2-x1;
     int dy=y2-y1;
 
-    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+    GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, qAbs(dy)+1))
 
     if((*gfx_optype))
     sync();
@@ -1580,8 +1580,8 @@ void QGfxRaster<depth,type>::drawLine(int x1, int y1, int x2, int y2)
 #endif
     // Bresenham algorithm from Graphics Gems
 
-    int ax=QABS(dx)*2;
-    int ay=QABS(dy)*2;
+    int ax=qAbs(dx)*2;
+    int ay=qAbs(dy)*2;
     int sy=dy>0 ? 1 : -1;
     int x=x1;
     int y=y1;
@@ -3434,7 +3434,7 @@ void QGfxRaster<depth,type>::scroll(int rx,int ry,int w,int h,int sx, int sy)
     if (dx == 0 && dy == 0)
         return;
 
-    GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
+    GFX_START(QRect(qMin(rx+xoffs,sx+xoffs), qMin(ry+yoffs,sy+yoffs), w+qAbs(dx)+1, h+qAbs(dy)+1))
 
     srcbits=buffer;
     srclinestep=linestep();
@@ -3757,8 +3757,8 @@ void QGfxRaster<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     /* ???
     if (buffer_offset >= 0 && src_buffer_offset >= 0) {
         cursRect = QRect(qMin(rx,srcoffs.x()), qMin(ry,srcoffs.y()),
-                        qMax(w, sw)+QABS(rx - srcoffs.x())+1,
-                        qMax(h, sh)+QABS(ry - srcoffs.y())+1);
+                        qMax(w, sw)+qAbs(rx - srcoffs.x())+1,
+                        qMax(h, sh)+qAbs(ry - srcoffs.y())+1);
     } else if (src_buffer_offset >= 0) {
         cursRect = QRect(srcoffs.x(), srcoffs.y(), sw+1, sh+1);
     }

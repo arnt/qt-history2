@@ -66,7 +66,7 @@ public:
     to the QObject constructor.
 */
 
-QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent) :
+QCopChannel::QCopChannel(const char *channel, QObject *parent) :
     QObject(parent)
 {
     init(channel);
@@ -77,7 +77,7 @@ QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent) :
     Use the two argument overload, and call setObjectName() to \a name
     the instance, instead.
 */
-QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent, const char *name) :
+QCopChannel::QCopChannel(const char *channel, QObject *parent, const char *name) :
     QObject(parent)
 {
     setObjectName(name);
@@ -85,7 +85,7 @@ QCopChannel::QCopChannel(const QByteArray &channel, QObject *parent, const char 
 }
 #endif
 
-void QCopChannel::init(const QByteArray &channel)
+void QCopChannel::init(const char *channel)
 {
     d = new QCopChannelPrivate;
     d->channel = channel;
@@ -141,7 +141,7 @@ QCopChannel::~QCopChannel()
     Returns the name of the channel.
 */
 
-QByteArray QCopChannel::channel() const
+const char *QCopChannel::channel() const
 {
     return d->channel;
 }
@@ -157,7 +157,7 @@ QByteArray QCopChannel::channel() const
 
     Example:
     \code
-    void MyClass::receive(const QByteArray &msg, const QByteArray &data)
+    void MyClass::receive(const char *msg, const QByteArray &data)
     {
         QDataStream stream(data, QIODevice::ReadOnly);
         if (msg == "execute(QString,QString)") {
@@ -181,13 +181,13 @@ QByteArray QCopChannel::channel() const
 
     \sa send()
  */
-void QCopChannel::receive(const QByteArray &msg, const QByteArray &data)
+void QCopChannel::receive(const char *msg, const QByteArray &data)
 {
     emit received(msg, data);
 }
 
 /*!
-    \fn void QCopChannel::received(const QByteArray &msg, const QByteArray &data)
+    \fn void QCopChannel::received(const char *msg, const QByteArray &data)
 
     This signal is emitted with the \a msg and \a data whenever the
     receive() function gets incoming data.
@@ -199,7 +199,7 @@ void QCopChannel::receive(const QByteArray &msg, const QByteArray &data)
     Returns true if \a channel is registered; otherwise returns false.
 */
 
-bool QCopChannel::isRegistered(const QByteArray& channel)
+bool QCopChannel::isRegistered(const char * channel)
 {
     QByteArray data;
     QDataStream s(&data, QIODevice::WriteOnly);
@@ -221,7 +221,7 @@ bool QCopChannel::isRegistered(const QByteArray& channel)
     \sa receive()
 */
 
-bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg)
+bool QCopChannel::send(const char *channel, const char *msg)
 {
     QByteArray data;
     return send(channel, msg, data);
@@ -256,7 +256,7 @@ bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg)
     \sa receive()
 */
 
-bool QCopChannel::send(const QByteArray &channel, const QByteArray &msg,
+bool QCopChannel::send(const char *channel, const char *msg,
                        const QByteArray &data)
 {
     if (!qt_fbdpy) {
@@ -295,7 +295,7 @@ void QWSServerSignalBridge::emitRemovedChannel(const QString& channel) {
     Server side: subscribe client \a cl on channel \a ch.
 */
 
-void QCopChannel::registerChannel(const QString &ch, QWSClient *cl)
+void QCopChannel::registerChannel(const char *ch, QWSClient *cl)
 {
     if (!qcopServerMap)
         qcopServerMap = new QCopServerMap;
@@ -347,11 +347,11 @@ void QCopChannel::detach(QWSClient *cl)
     specified channel.
 */
 
-void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
-                          const QByteArray &msg, const QByteArray &data)
+void QCopChannel::answer(QWSClient *cl, const char *ch,
+                          const char *msg, const QByteArray &data)
 {
     // internal commands
-    if (ch.isEmpty()) {
+    if (!ch) {
         if (msg == "isRegistered()") {
             QByteArray c;
             QDataStream s(data);
@@ -381,14 +381,14 @@ void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
             }
             return;
         }
-        qWarning("QCopChannel: unknown internal command %s", msg.data());
+        qWarning("QCopChannel: unknown internal command %s", msg);
         QWSServer::sendQCopEvent(cl, "", "bad", data);
         return;
     }
 
     QList<QWSClient*> clist = (*qcopServerMap)[ch];
     if (clist.isEmpty()) {
-        qWarning("QCopChannel: no client registered for channel %s", ch.data());
+        qWarning("QCopChannel: no client registered for channel %s", ch);
         return;
     }
 
@@ -403,13 +403,13 @@ void QCopChannel::answer(QWSClient *cl, const QByteArray &ch,
     Client side: distribute received event to the QCop instance managing the
     channel.
 */
-void QCopChannel::sendLocally(const QByteArray &ch, const QByteArray &msg,
+void QCopChannel::sendLocally(const char *ch, const char *msg,
                                 const QByteArray &data)
 {
     Q_ASSERT(qcopClientMap);
 
     // filter out internal events
-    if (ch.isEmpty())
+    if (!ch)
         return;
 
     // feed local clients with received data

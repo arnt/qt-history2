@@ -137,12 +137,12 @@ static const QWSKeyMap pc101KeyM[] = {
     {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // break
     {        Qt::Key_Home,            0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_Up,                0xffff  , 0xffff  , 0xffff  },
-    {        Qt::Key_Prior,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_PageUp,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_Left,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_Right,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_End,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_Down,                0xffff  , 0xffff  , 0xffff  },
-    {        Qt::Key_Next,                0xffff  , 0xffff  , 0xffff  },
+    {        Qt::Key_PageDown,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_Insert,                0xffff  , 0xffff  , 0xffff  }, // 110
     {        Qt::Key_Delete,                0xffff  , 0xffff  , 0xffff  },
     {        Qt::Key_unknown,        0xffff  , 0xffff  , 0xffff  }, // macro
@@ -245,7 +245,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
             keyCode = Qt::Key_Home;
             break;
         case 73:
-            keyCode = Qt::Key_Prior;
+            keyCode = Qt::Key_PageUp;
             break;
         case 83:
             keyCode = Qt::Key_Delete;
@@ -254,7 +254,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
             keyCode = Qt::Key_End;
             break;
         case 81:
-            keyCode = Qt::Key_Next;
+            keyCode = Qt::Key_PageDown;
             break;
         case 28:
             keyCode = Qt::Key_Enter;
@@ -361,7 +361,7 @@ void QWSPC101KeyboardHandler::doKey(uchar code)
             || code == 98 || code == 118)
 #endif
     {
-        keypad = Qt::Keypad;
+        keypad = Qt::KeypadModifier;
     }
 
     // Ctrl-Alt-Backspace exits qws

@@ -1273,8 +1273,8 @@ QDebug operator<<(QDebug dbg, const QVariant &v)
         break;
 #endif
 #ifndef QT_NO_ICON
-    case QVariant::IconSet:
-        dbg.nospace() << v.toIconSet();
+    case QVariant::Icon:
+        dbg.nospace() << v.toIcon();
         break;
 #endif
     case QVariant::SizePolicy:
@@ -1353,7 +1353,7 @@ template<> QColor QVariant_to<QColor>(const QCoreVariant &v)
 template<> QPalette QVariant_to<QPalette>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toPalette(); }
 template<> QIcon QVariant_to<QIcon>(const QCoreVariant &v)
-{ return static_cast<const QVariant &>(v).toIconSet(); }
+{ return static_cast<const QVariant &>(v).toIcon(); }
 template<> QTextLength QVariant_to<QTextLength>(const QCoreVariant &v)
 { return static_cast<const QVariant &>(v).toTextLength(); }
 template<> QPointArray QVariant_to<QPointArray>(const QCoreVariant &v)

@@ -526,7 +526,7 @@ bool QWSPcMouseHandlerPrivate::sendEvent(QWSPcMouseSubHandler& h)
 
     if (h.reliable()) {
         QPoint motion = h.takeMotion();
-        if (QABS(motion.x()) > accel_limit || QABS(motion.y()) > accel_limit)
+        if (qAbs(motion.x()) > accel_limit || qAbs(motion.y()) > accel_limit)
             motion *= accel;
         QPoint newPos = handler->pos() + motion;
         handler->limitToScreen(newPos);

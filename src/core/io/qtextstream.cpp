@@ -766,8 +766,8 @@ void QTextStreamPrivate::ts_putc(QChar c)
             encoder = mapper->makeEncoder();
         int len = 1;
         QString s(c);
-        QByteArray block = encoder->fromUnicode(s, len);
-        dev->write(block, len);
+        QByteArray block = encoder->fromUnicode(s);
+        dev->write(block);
     } else
 #endif
     if (latin1) {
@@ -921,9 +921,8 @@ QTextStream &QTextStreamPrivate::write(const char* p, uint len)
         if (!encoder)
             encoder = mapper->makeEncoder();
         QString s = QString::fromLatin1(p, len);
-        int l = len;
-        QByteArray block = encoder->fromUnicode(s, l);
-        dev->write(block, l);
+        QByteArray block = encoder->fromUnicode(s);
+        dev->write(block);
     }
 #endif
     else {
@@ -948,9 +947,8 @@ QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
         if (!encoder)
             encoder = mapper->makeEncoder();
         QString s(p, len);
-        int l = len;
-        QByteArray block = encoder->fromUnicode(s, l);
-        dev->write(block, l);
+        QByteArray block = encoder->fromUnicode(s);
+        dev->write(block);
     } else
 #endif
     if (latin1) {

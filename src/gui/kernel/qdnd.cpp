@@ -250,20 +250,20 @@ QString dragActionsToString(QDrag::DropActions actions)
 QString KeyboardModifiersToString(Qt::KeyboardModifiers moderfies)
 {
     QString str;
-    if (moderfies & Qt::ControlButton) {
+    if (moderfies & Qt::ControlModifier) {
         if (!str.isEmpty())
             str += " | ";
-        str += Qt::ControlButton;
+        str += Qt::ControlModifier;
     }
-    if (moderfies & Qt::AltButton) {
+    if (moderfies & Qt::AltModifier) {
         if (!str.isEmpty())
             str += " | ";
-        str += Qt::AltButton;
+        str += Qt::AltModifier;
     }
-    if (moderfies & Qt::ShiftButton) {
+    if (moderfies & Qt::ShiftModifier) {
         if (!str.isEmpty())
             str += " | ";
-        str += Qt::ShiftButton;
+        str += Qt::ShiftModifier;
     }
     return str;
 }
@@ -323,20 +323,20 @@ QDrag::DropAction QDragManager::defaultAction(QDrag::DropActions possibleActions
 #endif
 
 #ifdef Q_WS_MAC
-    if (modifiers & Qt::ControlButton && modifiers & Qt::AltButton)
+    if (modifiers & Qt::ControlModifier && modifiers & Qt::AltModifier)
         defaultAction = QDrag::LinkAction;
-    else if (modifiers & Qt::AltButton)
+    else if (modifiers & Qt::AltModifier)
         defaultAction = QDrag::CopyAction;
     else
         defaultAction = QDrag::MoveAction;
 #else
-    if (modifiers & Qt::ControlButton && modifiers & Qt::ShiftButton)
+    if (modifiers & Qt::ControlModifier && modifiers & Qt::ShiftModifier)
         defaultAction = QDrag::LinkAction;
-    else if (modifiers & Qt::ControlButton)
+    else if (modifiers & Qt::ControlModifier)
         defaultAction = QDrag::CopyAction;
-    else if (modifiers & Qt::ShiftButton)
+    else if (modifiers & Qt::ShiftModifier)
         defaultAction = QDrag::MoveAction;
-    else if (modifiers & Qt::AltButton)
+    else if (modifiers & Qt::AltModifier)
         defaultAction = QDrag::LinkAction;
 #endif
 

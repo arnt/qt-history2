@@ -28,6 +28,7 @@ public:
     QWSKbPrivate(QWSKeyboardHandler *h) {
         handler = h;
         arTimer = new QTimer(this);
+        arTimer->setSingleShot(true);
         connect(arTimer, SIGNAL(timeout()), SLOT(autoRepeat()));
         repeatdelay = 400;
         repeatperiod = 80;
@@ -37,7 +38,7 @@ public:
         unicode = uni;
         keycode = code;
         modifier = mod;
-        arTimer->start(repeatdelay, true);
+        arTimer->start(repeatdelay);
     }
     void endAutoRepeat() {
         arTimer->stop();
@@ -47,7 +48,7 @@ private slots:
     void autoRepeat() {
         handler->processKeyEvent(unicode, keycode, modifier, false, true);
         handler->processKeyEvent(unicode, keycode, modifier, true, true);
-        arTimer->start(repeatperiod, true);
+        arTimer->start(repeatperiod);
     }
 
 private:

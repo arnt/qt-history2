@@ -276,17 +276,17 @@ bool QDecorationWindows::paint(QPainter *painter, const QWidget *widget, int dec
     if ((paintAll || decorationRegion & Title && titleRect.width() > 0) && state == Normal
         && widget->testWFlags(Qt::WStyle_Title)) {
         painter->setClipRegion(oldClipRegion);
-        QBrush fromBrush, toBrush;
+        QColor fromBrush, toBrush;
         QPen   titlePen;
 
         if (widget == qApp->activeWindow() || qApp->activeWindow() == qApp->activePopupWidget()) {
-            fromBrush = pal.brush(QPalette::Highlight);
+            fromBrush = pal.color(QPalette::Highlight);
             titlePen   = pal.color(QPalette::HighlightedText);
         } else {
-            fromBrush = pal.brush(QPalette::Background);
+            fromBrush = pal.color(QPalette::Background);
             titlePen   = pal.color(QPalette::Text);
         }
-        toBrush = fromBrush.color().light(300);
+        toBrush = fromBrush.light(300);
 
         painter->setPen(Qt::NoPen);
         QPoint p1(titleRect.x(), titleRect.y() + titleRect.height()/2);
