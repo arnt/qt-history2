@@ -2,121 +2,81 @@
 # Qt Global Makefile
 #############################################################################
 
-####### Directories
-
-BASEDIR		= $(QTDIR)
-INCDIR		= $(BASEDIR)/include
-LIBDIR		= $(BASEDIR)/lib
-
-####### Compiler
-
-#CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
-CFLAGS		= -W -Wtemplate-debugging -Wparentheses -Wuninitialized \
-		-Wchar-subscripts -Wformat -Wtrigraphs -Wcomment -Wswitch \
-		-Wunused -Wreturn-type -Wimplicit -Wpointer-arith -Wsynth \
-		-Wconversion -Wno-overloaded-virtual \
-		-O2 -fno-strength-reduce
-CDBGFLAGS	= -g -W -Wall -Wpointer-arith -Wsynth -Wconversion
-CPROFLAGS	= -pg -O2 -fno-strength-reduce
-CSTATICFLAGS	=
-CSHAREDFLAGS	= -fPIC
-CC		= gcc
-
-####### Targets
-
-STATICTARGET	= $(LIBDIR)/libqt.a
-SHAREDTARGET	= $(LIBDIR)/libqt.so.1.30
-
-#######	Sub directories (excluding moc)
-
-DIRS		= tools kernel widgets dialogs
-
-#######	Build rules
-
 all:
-	@echo "PLEASE SPECIFY A TARGET"
+	@echo "SPECIFY BUILD TARGET:"
 	@echo "  make static    - creates a static library"
 	@echo "  make staticdbg - creates a static library w/debug info"
 	@echo "  make staticpro - creates a static library w/profiling code"
 	@echo "  make shared    - creates a shared library"
 	@echo "  make shareddbg - creates a shared library w/debug info"
 	@echo "  make moc       - creates the meta object compiler"
-	@echo "  make tools     - creates the tools library"
-	@exit 1
+	@echo
+	@echo "MAINTENANCE:"
+	@echo "  make include   - creates symlinks for the include files"
+	@echo "  make clean     - removes temporary files"	
+	@echo "  make tags      - updates the TAGS file"	
+	@echo
+	@echo "MORE INFORMATION:"
+	@echo "  make help	- getting started with our make system"
+	@echo "  make details	- more details about our make system"
+	@echo
 
 #
 # Create the meta object compiler
 #
 
-moc: tools mochack
-
-mochack:
+moc: FORCE
 	$(MAKE) -C moc
+	cp moc/moc ../bin
 
 #
 # Create a library, called from static, staticdbg, shared and shareddbg
 #
 
-FORCE:
+static: Makefile.static
+	make -f Makefile.static
 
+staticdbg: Makefile.staticdbg
+	make -f Makefile.staticdbg
 
-lib: tools kernel widgets dialogs
+shared: Makefile.shared
+	make -f Makefile.shared
 
-# need FORCE because the directories' dates confuse make terribly
-tools kernel widgets dialogs: dodepend FORCE
-	-mkdir -p $(OBJDIR)/$@
-	-rm -f $@/*.o
-	-ln -f $(OBJDIR)/$@/*.o $@
-	$(MAKE) -C $@ obj
-	rm -f $(OBJDIR)/$@/*.o
-	mv -f $@/*.o $(OBJDIR)/$@
+shareddbg: Makefile.shareddbg
+	make -f Makefile.shareddbg
 
-comeau:
-	$(MAKE) lib CC=como CFLAGS="--strict_warnings -a" OBJDIR=obj/comeau
+Makefile.static: qtx11.pro qtinternal.pro Makefile
+	mkdir -p obj/static
+	tmake qtx11.pro -p qtinternal.pro -o Makefile.static "CONFIG+=staticlib" "OBJECTS_DIR=obj/static"
 
-static:
-	/bin/rm -f $(STATICTARGET)
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/static'
-	ar q $(STATICTARGET) obj/static/*/*.o
-	ranlib $(STATICTARGET)
+Makefile.staticdbg: qtx11.pro qtinternal.pro Makefile
+	mkdir -p obj/staticdbg
+	tmake qtx11.pro -p qtinternal.pro -o Makefile.staticdbg "CONFIG+=staticlib debug" "OBJECTS_DIR=obj/staticdbg"
 
-staticdbg:
-	/bin/rm -f $(STATICTARGET)
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticdbg'
-	ar q $(STATICTARGET) obj/staticdbg/*/*.o
-	ranlib $(STATICTARGET)
+Makefile.shared: qtx11.pro qtinternal.pro Makefile
+	mkdir -p obj/shared
+	tmake qtx11.pro -p qtinternal.pro -o Makefile.shared "OBJECTS_DIR=obj/shared"
 
-staticpro:
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CPROFLAGS) $(CSTATICFLAGS)' 'OBJDIR=obj/staticpro'
-	/bin/rm -f $(STATICTARGET)
-	ar q $(STATICTARGET) obj/staticpro/*/*.o
-	ranlib $(STATICTARGET)
+Makefile.shareddbg: qtx11.pro qtinternal.pro Makefile
+	mkdir -p obj/shareddbg
+	tmake qtx11.pro -p qtinternal.pro -o Makefile.sharedebg "CONFIG+=debug" "OBJECTS_DIR=obj/shareddbg"
 
-shared:
-	/bin/rm -f $(SHAREDTARGET)
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shared'
-	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shared/*/*.o -L/usr/X11R6/lib -lX11 -ldl -lc -lgcc
-
-shareddbg:
-	/bin/rm -f $(SHAREDTARGET)
-	$(MAKE) lib 'CC=$(CC)' 'CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)' 'OBJDIR=obj/shareddbg'
-	$(CC) -shared -Wl,-soname,libqt.so.1 -o $(SHAREDTARGET) \
-		obj/shareddbg/*/*.o -L/usr/X11R6/lib -lX11 -ldl -lc -lgcc
 
 showdirs:
-	@echo $(DIRS)
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("DIRS")'
 
-showfiles showheaders showsources showinternal:
-	@set -e ; for a in $(DIRS) ; do $(MAKE) -s -C $$a $@ | fmt -1 | sed 's-^-'$${a}/- ; done
+showfiles:
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")'
 
-dodepend:
-	$(MAKE) include
-	$(MAKE) depend
-	touch dodepend
+showheaders:
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS")'
 
-depend:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d depend ; done
+showsources:
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("SOURCES")'
+
+showinternal:
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("INTERNAL")'
+
 
 include:
 	-rm -f $(INCDIR)/*.h
@@ -127,8 +87,49 @@ include:
 	  ln -s -f ../src/dialogs/*.h . )
 
 clean:
-	-rm -f dodepend
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
+	-rm -f */moc_q*.cpp
+	-rm -f Makefile.static Makefile.staticdbg
+	-rm -f Makefile.shared Makefile.shareddbg
+
 
 tags:
-	echo */*.cpp */*.h | fmt -1 | egrep -v '_win|_os2|moc/' | etags --c++ -
+	@tmake qtx11.pro -p qtinternal.pro -e 'Expand("HEADERS","SOURCES")' \
+		| fmt -1 | etags --c++ -
+
+
+help:
+	@echo "To use our make system, you must first install perl 5 or later"
+	@echo "and the most recent version of tmake."
+	@echo ""
+	@echo "Make sure the QTDIR environment variable is correctly set, e.g:"
+	@echo "    export QTDIR=\$$(HOME)/qt"
+	@echo ""
+	@echo "Make sure the TMAKEPATH environment variable is correctly set, e.g:"
+	@echo "    export TMAKEPATH=\$$(HOME)/tmake/lib/linux-gcc:\$$(QTDIR)/tmake/linux-gcc"
+	@echo ""
+	@echo "Before building the library the first time, do the following:"
+	@echo "    make include"
+	@echo "    make moc"
+	@echo ""
+	@echo "To create the library, build one of the following targets:"
+	@echo "    make shared		- shared library"
+	@echo "    make shareddbg	- shared library with debug info"
+	@echo "    make static		- static library"
+	@echo "    make staticdbg	- static library with debug info"
+	@echo ""
+	@echo "If you are unhappy with the default compiler settings, you can"
+	@echo "copy the \$$(HOME)/tmake/lib/linux-gcc/tmake.conf file to qt/src"
+	@echo "and modify it to suit your needs."
+	@echo ""
+
+details:
+	@echo "The file qtx11.pro contains a list of all public Qt files."
+	@echo "You should not need to modify this file."
+	@echo ""
+	@echo "The file qtinternal.pro is an internal project file for Troll Tech."
+	@echo "It lists files that we use internally.  If you want to add new"
+	@echo "files, e.g. qcolordialog.h and .cpp, add them to the INT_HEADERS"
+	@echo "and INT_SOURCES sections."
+
+
+FORCE:

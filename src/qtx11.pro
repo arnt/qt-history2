@@ -214,5 +214,5 @@ SOURCES     =	dialogs/qfiledlg.cpp \
 		widgets/qtooltip.cpp \
 		widgets/qvalidator.cpp
 TARGET      =	qt
-VERSION     =	1.3
+VERSION     =	1.30
 DESTDIR     =	../lib
