@@ -486,7 +486,11 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 		checkedSelectionsForMove = FALSE;
 		moving.clear();
 	    } else if ( e->button() == RightButton ) { // RMB menu
-		mainwindow->popupWidgetMenu( e->globalPos(), this, realWidget);
+		if ( mainContainer()->inherits( "QMainWindow" ) &&
+		     ( (QMainWindow*)mainContainer() )->centralWidget() == realWidget )
+		    mainwindow->popupFormWindoMenu( e->globalPos(), this );
+		else
+		    mainwindow->popupWidgetMenu( e->globalPos(), this, realWidget);
 	    }
 	} else { // press was on the formwindow
 	    if ( e->button() == LeftButton ) { // left button: start rubber selection and show formwindow properties
@@ -931,6 +935,16 @@ void FormWindow::selectWidget( QObject *o, bool select )
     QWidget *w = (QWidget*)o;
 
     if ( isMainContainer( w ) ) {
+	QObject *opw = propertyWidget;
+	propertyWidget = mainContainer();
+	if ( opw->isWidgetType() )
+	    repaintSelection( (QWidget*)opw );
+	emitShowProperties( propertyWidget );
+	return;
+    }
+
+    if ( mainContainer()->inherits( "QMainWindow" ) &&
+	 w == ( (QMainWindow*)mainContainer() )->centralWidget() ) {
 	QObject *opw = propertyWidget;
 	propertyWidget = mainContainer();
 	if ( opw->isWidgetType() )
