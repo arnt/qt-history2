@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#29 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#28 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#29 $";
 #endif
 
 
@@ -405,8 +405,6 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	x += dt;
 	y += dt;
     }
-    if ( hasFocus() )
-	p->pen().setColor( red );		// TEST!!!
     p->drawText( x+2, y+2, w-4, h-4,
 		 AlignCenter|SingleLine|ShowPrefix, text() );
 }
