@@ -472,7 +472,9 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	}
 #endif
 	qt_paint_children(widget, reg, PC_Now | PC_ForceErase);
+#if defined(MACOSX_102)
 	CopyRgn(rgn, outRgn);	// 10.2 fix for making sure the Window manager updates the area.
+#endif
     }
 
     return 0;
