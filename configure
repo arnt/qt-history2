@@ -831,8 +831,8 @@ if [ ! -z "$l_FLAGS" ] || [ ! -z "$L_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"LIBS+=$L_FLAGS $l_FLAGS\""
 fi
-[ ! -z $R_FLAGS ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
-if [ ! -z $I_FLAGS ]
+[ ! -z "$R_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LFLAGS+=$R_FLAGS\""
+if [ ! -z "$I_FLAGS" ]
 then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
