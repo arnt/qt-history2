@@ -78,11 +78,12 @@
 
 	/usr/bin/make
 
-    This technology preview was tested on Mac OS X 10.3 with Xcode Tools 1.2
-    and higher.  If your platform or compiler is not supported, please contact
-    us at qt-bugs@trolltech.com so that we can assist you. If it is supported
-    but you have problems, see http://www.trolltech.com/platforms/ for
-    information on known issues.
+    This release was tested on Mac OS X 10.3 (Panther) and 10.2
+    (Jaguar). If your OS version or compiler is not supported, please
+    contact us at qt-bugs@trolltech.com so that we can assist you. If
+    it is supported but you have problems, see
+    http://www.trolltech.com/platforms/ for information on known
+    issues.
 
 6.  Launching Qt applications from the Finder.
 
