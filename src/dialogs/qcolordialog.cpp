@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#15 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#16 $
 **
 ** Implementation of QColorDialog class
 **
@@ -345,9 +345,9 @@ QValidator::State QColIntValidator::validate( QString &s, int &pos ) const
     }
     return state;
 }
-    
-    
-    
+
+
+
 class QColNumLineEdit : public QLineEdit
 {
 public:
@@ -381,7 +381,7 @@ public:
     void setCurrentAlpha( int a ) { alphaEd->setNum( a ); }
     void showAlpha( bool b );
 
-    
+
     QRgb currentColor() const { return curCol; }
 signals:
     void newCol( QRgb rgb );
@@ -439,7 +439,7 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
 {
     QColIntValidator *val256 = new QColIntValidator( 0, 255, this );
     QColIntValidator *val360 = new QColIntValidator( 0, 360, this );
-    
+
     QGridLayout *gl = new QGridLayout( this, 1, 1, 6 );
     lab = new QColorShowLabel( this );
     lab->setMinimumWidth( 60 ); //###
@@ -495,7 +495,7 @@ QColorShower::QColorShower( QWidget *parent, const char *name )
     gl->addWidget( alphaEd, 3, 4 );
     alphaEd->hide();
     alphaLab->hide();
-    
+
     connect( hEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
     connect( sEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
     connect( vEd, SIGNAL(textChanged(const QString&)), this, SLOT(hsvEd()) );
@@ -593,7 +593,7 @@ public:
     int currentAlpha() const { return cs->currentAlpha(); }
     void setCurrentAlpha( int a ) { cs->setCurrentAlpha( a ); }
     void showAlpha( bool b ) { cs->showAlpha( b ); }
-    
+
 private slots:
     void addCustom();
 
@@ -794,23 +794,32 @@ QColor QColorDialog::getColor( QColor initial, QWidget *parent,
 
 /*!
   Pops up a modal color dialog, letting the user choose a color and an
-  alpha channel value
+  alpha channel value. The color+alpha is initially set to \a initial.
+
+  If \a ok is non-null, \c *ok is set to TRUE if the user clicked OK,
+  and FALSE if the user clicked Cancel.
+
+  If the user clicks Cancel the \a initial value is returned.
 */
 
-QColor QColorDialog::getColor( QColor initial, int &alpha, 
-				      QWidget *parent, const char* name )
+QRgb QColorDialog::getRgba( QRgb initial, bool *ok,
+			    QWidget *parent, const char* name )
 {
     int allocContext = QColor::enterAllocContext();
     QColorDialog *dlg = new QColorDialog( parent, name, TRUE );  //modal
     dlg->setSelectedColor( initial );
-    dlg->setSelectedAlpha( alpha );
+    dlg->setSelectedAlpha( qAlpha(initial) );
     int resultCode = dlg->exec();
     QColor::leaveAllocContext();
-    QColor result;
+    QRgb result = initial;
     if ( resultCode == QDialog::Accepted ) {
-	result = dlg->selectedColor();
-	alpha = dlg->selectedAlpha();
+	QRgb c = dlg->selectedColor().rgb();
+	int alpha = dlg->selectedAlpha();
+	result = qRgba( qRed(c), qGreen(c), qBlue(c), alpha );
     }
+    if ( ok )
+	*ok = resultCode == QDialog::Accepted;
+
     QColor::destroyAllocContext(allocContext);
     delete dlg;
     return result;
