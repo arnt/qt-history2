@@ -218,7 +218,7 @@ void HelpWindow::keyPressEvent(QKeyEvent *e)
 void HelpWindow::copy()
 {
     if (textFormat() == PlainText) {
-        QTextEdit::copy();
+        QTextBrowser::copy();
     } else {
         TextFormat oldTf = textFormat();
         setTextFormat(PlainText);
