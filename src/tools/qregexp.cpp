@@ -2130,7 +2130,11 @@ bool QRegExpEngine::matchHere()
 	    mmInNextStack[mmNextStack[j]] = -1;
 
 	// avoid needless iteration that confuses mmMatchedLen
-	if ( nnext == 1 && mmNextStack[0] == FinalState )
+	if ( nnext == 1 && mmNextStack[0] == FinalState
+#ifndef QT_NO_REGEXP_BACKREF
+	     && mmSleeping.isEmpty()
+#endif
+	     )
 	    stop = TRUE;
 
 	qSwap( mmCurStack, mmNextStack );
