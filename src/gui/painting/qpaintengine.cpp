@@ -670,7 +670,7 @@ void QPaintEngine::drawPoint(const QPointF &pf)
 
 void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
-#ifndef Q_WS_X11
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
 	useFontEngine = true;

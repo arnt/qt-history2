@@ -29,6 +29,7 @@
 #include "qt_windows.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
+#include "qvarlengtharray.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
@@ -37,6 +38,9 @@
 #include <qdebug.h>
 
 #include <math.h>
+#ifndef M_PI
+#define M_PI 3.14159265358979
+#endif
 
 // #define QT_NO_NATIVE_XFORM
 // #define QT_NO_NATIVE_GRADIENT
@@ -929,12 +933,156 @@ void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int 
         return;
     }
 
-    HDC oldHdc = ti.fontEngine->hdc;
-    ti.fontEngine->hdc = d->hdc;
-    QPaintEngine::drawTextItem(p, ti, textFlags);
-    ti.fontEngine->hdc = oldHdc;
-}
+    QFontEngine *fe = ti.fontEngine;
+    QPainterState *state = painterState();
 
+    double scale = 1.;
+    int angle = 0;
+    bool transform = false;
+    float x = p.x();
+    float y = p.y();
+
+    if (state->txop >= QPainterPrivate::TxScale
+        && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
+        // Draw rotated and sheared text on Windows 95, 98
+
+        // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
+        // Shearing transformations are done by QPainter.
+
+        // rotation + scale + translation
+        scale = sqrt(state->matrix.m11()*state->matrix.m22()
+                      - state->matrix.m12()*state->matrix.m21());
+        angle = 1800*acos(state->matrix.m11()/scale)/M_PI;
+        if (state->matrix.m12() < 0)
+            angle = 3600 - angle;
+
+        transform = true;
+    } else if (!hasFeature(QPaintEngine::CoordTransform) && state->txop == QPainterPrivate::TxTranslate) {
+        state->painter->matrix().map(x, y, &x, &y);
+    }
+
+    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle) {
+        LOGFONT lf = fe->logfont;
+        lf.lfUnderline = (bool)(textFlags & Qt::TextUnderline);
+        lf.lfStrikeOut = (bool)(textFlags & Qt::TextStrikeOut);
+        if (angle) {
+            lf.lfOrientation = -angle;
+            lf.lfEscapement = -angle;
+        }
+        if (scale != 1.) {
+            lf.lfHeight = (int) (lf.lfHeight*scale);
+            lf.lfWidth = (int) (lf.lfWidth*scale);
+        }
+        HFONT hf = QT_WA_INLINE(CreateFontIndirectW(&lf), CreateFontIndirectA((LOGFONTA*)&lf));
+        SelectObject(d->hdc, hf);
+    } else {
+        SelectObject(d->hdc, fe->hfont);
+    }
+
+    unsigned int options =  fe->ttf ? ETO_GLYPH_INDEX : 0;
+
+    QGlyphLayout *glyphs = ti.glyphs;
+
+#if 0
+    // ###### should be moved to the printer GC
+    if(p->pdev->devType() == QInternal::Printer) {
+        // some buggy printer drivers can't handle glyph indices correctly for latin1
+        // If the string is pure latin1, we output the string directly, not the glyph indices.
+        // There must be a better way to get this working, but currently I can't think of one.
+        const QChar *uc = engine->string.unicode() + ti.position;
+        int l = engine->length(si - &engine->items[0]);
+        int i = 0;
+        bool latin = (l == ti.num_glyphs);
+        while (latin && i < l) {
+            if(uc[i].unicode() >= 0x100)
+                latin = false;
+            ++i;
+        }
+        if(latin) {
+            glyphs = (glyph_t *)uc;
+            options = 0;
+        }
+    }
+#endif
+
+    int xo = x;
+
+    if (!(ti.right_to_left)) {
+        // hack to get symbol fonts working on Win95. See also QFontEngine constructor
+        if (fe->useTextOutA) {
+            // can only happen if !ttf
+            for(int i = 0; i < ti.num_glyphs; i++) {
+                QString str(QChar(glyphs->glyph));
+                QByteArray cstr = str.toLocal8Bit();
+                TextOutA(d->hdc, x + qRound(glyphs->offset.x()), y + qRound(glyphs->offset.y()),
+                         cstr.data(), cstr.length());
+                x += qRound(glyphs->advance.x());
+                glyphs++;
+            }
+        } else {
+            bool haveOffsets = false;
+            int w = 0;
+            for(int i = 0; i < ti.num_glyphs; i++) {
+                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0) {
+                    haveOffsets = true;
+                    break;
+                }
+                w += qRound(glyphs[i].advance.x());
+            }
+
+            if (haveOffsets || transform) {
+                for(int i = 0; i < ti.num_glyphs; i++) {
+                    wchar_t chr = glyphs->glyph;
+                    int xp = x + qRound(glyphs->offset.x());
+                    int yp = y + qRound(glyphs->offset.y());
+                    if (transform)
+                        state->painter->matrix().map(xp, yp, &xp, &yp);
+                    ExtTextOutW(d->hdc, xp, yp, options, 0, &chr, 1, 0);
+                    x += qRound(glyphs->advance.x());
+                    glyphs++;
+                }
+            } else {
+                // fast path
+                QVarLengthArray<wchar_t> g(ti.num_glyphs);
+                for (int i = 0; i < ti.num_glyphs; ++i)
+                    g[i] = glyphs[i].glyph;
+                // fast path
+                ExtTextOutW(d->hdc,
+                            x + qRound(glyphs->offset.x()),
+                            y + qRound(glyphs->offset.y()),
+                            options, 0, g.data(), ti.num_glyphs, 0);
+                x += w;
+            }
+        }
+    } else {
+        glyphs += ti.num_glyphs;
+        for(int i = 0; i < ti.num_glyphs; i++) {
+            glyphs--;
+            wchar_t chr = glyphs->glyph;
+            int xp = x + qRound(glyphs->offset.x());
+            int yp = y + qRound(glyphs->offset.y());
+            if (transform)
+                state->painter->matrix().map(xp, yp, &xp, &yp);
+            ExtTextOutW(d->hdc, xp, yp, options, 0, &chr, 1, 0);
+            x += qRound(glyphs->advance.x());
+        }
+    }
+
+    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle)
+        DeleteObject(SelectObject(d->hdc, fe->hfont));
+
+    if (textFlags & Qt::TextOverline) {
+        int lw = qRound(fe->lineThickness());
+        int yp = y - qRound(fe->ascent()) -1;
+        Rectangle(d->hdc, xo, yp, x, yp + lw);
+
+    }
+
+#if 0
+    if (nat_xf)
+        p->nativeXForm(false);
+#endif
+}
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
@@ -2442,6 +2590,7 @@ void QGdiplusPaintEngine::cleanup()
 
 void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int /* flag */)
 {
+#if 0
     HDC dc = ti.fontEngine->dc();
     QtGpFont *font;
     GdipCreateFontFromLogfontW(dc, &ti.fontEngine->logfont, &font);
@@ -2455,6 +2604,7 @@ void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, in
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
     GdipDeleteFont(font);
+#endif
 }
 
 static QtGpBitmap *qt_convert_to_gdipbitmap(const QPixmap *pixmap, QImage *image)

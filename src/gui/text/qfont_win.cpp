@@ -68,35 +68,23 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
 }
 
 
-static inline float pixelSize(const QFontDef &request, QPaintDevice *paintdevice,
-                               int)
+static inline float pixelSize(const QFontDef &request, int dpi)
 {
     float pSize;
-    if (request.pointSize != -1) {
-        if (paintdevice)
-            pSize = request.pointSize *
-                    QPaintDeviceMetrics(paintdevice).logicalDpiY() / 720.;
-        else
-            pSize = (request.pointSize*GetDeviceCaps(shared_dc,LOGPIXELSY) + 360) / 720;
-    } else {
+    if (request.pointSize != -1)
+        pSize = request.pointSize * dpi/ 720.;
+    else
         pSize = request.pixelSize;
-    }
     return pSize;
 }
 
-static inline float pointSize(const QFontDef &fd, QPaintDevice *paintdevice,
-                               int)
+static inline float pointSize(const QFontDef &fd, int dpi)
 {
     float pSize;
-    if (fd.pointSize == -1) {
-        if (paintdevice)
-            pSize = fd.pixelSize * 720. /
-                    QPaintDeviceMetrics(paintdevice).logicalDpiY();
-        else
-            pSize = fd.pixelSize * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY);
-    } else {
+    if (fd.pointSize == -1)
+        pSize = fd.pixelSize * 720. / ((float)dpi);
+    else
         pSize = fd.pointSize;
-    }
     return pSize;
 }
 
@@ -137,14 +125,14 @@ void QFontPrivate::load(QFont::Script script)
     Q_ASSERT(script >= 0 && script < QFont::LastPrivateScript);
 
     QFontDef req = request;
-    int px = int(pixelSize(req, paintdevice, screen) + .5);
+    int px = qRound(pixelSize(req, dpi));
     req.pixelSize = px;
 
     // set the point size to 0 to get better caching
     req.pointSize = 0;
 
     if (! engineData) {
-        QFontCache::Key key(req, QFont::NoScript, (int)paintdevice);
+        QFontCache::Key key(req, QFont::NoScript);
 
         // look for the requested font in the engine data cache
         engineData = QFontCache::instance->findEngineData(key);
@@ -159,7 +147,7 @@ void QFontPrivate::load(QFont::Script script)
     }
 
     // set it to the actual pointsize, so QFontInfo will do the right thing
-    req.pointSize = qRound(pointSize(request, paintdevice, screen));
+    req.pointSize = qRound(pointSize(request, dpi));
 
     // the cached engineData could have already loaded the engine we want
     if (engineData->engines[script]) return;
@@ -291,11 +279,12 @@ int QFontMetrics::leftBearing(QChar ch) const
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);
 
+    SelectObject(shared_dc, engine->hfont);
     if (IS_TRUETYPE) {
         ABC abc;
         QT_WA({
             uint ch16 = ch.unicode();
-            GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
+            GetCharABCWidths(shared_dc, ch16, ch16, &abc);
         } , {
             uint ch8;
             if (ch.row() || ch.cell() > 127) {
@@ -306,14 +295,14 @@ int QFontMetrics::leftBearing(QChar ch) const
             } else {
                 ch8 = ch.cell();
             }
-            GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
+            GetCharABCWidthsA(shared_dc, ch8, ch8, &abc);
         });
         return abc.abcA;
     } else {
         QT_WA({
             uint ch16 = ch.unicode();
             ABCFLOAT abc;
-            GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
+            GetCharABCWidthsFloat(shared_dc, ch16, ch16, &abc);
             return int(abc.abcfA);
         } , {
             return 0;
@@ -332,11 +321,12 @@ int QFontMetrics::rightBearing(QChar ch) const
     QFontEngine *engine = d->engineForScript((QFont::Script) fscript);
     Q_ASSERT(engine != 0);
 
+    SelectObject(shared_dc, engine->hfont);
     if (IS_TRUETYPE) {
         ABC abc;
         QT_WA({
             uint ch16 = ch.unicode();
-            GetCharABCWidths(engine->dc(),ch16,ch16,&abc);
+            GetCharABCWidths(shared_dc, ch16, ch16, &abc);
             return abc.abcC;
         } , {
             uint ch8;
@@ -348,14 +338,14 @@ int QFontMetrics::rightBearing(QChar ch) const
             } else {
                 ch8 = ch.cell();
             }
-            GetCharABCWidthsA(engine->dc(),ch8,ch8,&abc);
+            GetCharABCWidthsA(shared_dc, ch8, ch8, &abc);
         });
         return abc.abcC;
     } else {
         QT_WA({
             uint ch16 = ch.unicode();
             ABCFLOAT abc;
-            GetCharABCWidthsFloat(engine->dc(),ch16,ch16,&abc);
+            GetCharABCWidthsFloat(shared_dc, ch16, ch16, &abc);
             return int(abc.abcfC);
         } , {
             return -TMW.tmOverhang;

@@ -89,7 +89,7 @@ public:
     virtual QOpenType *openType() const { return 0; }
     virtual void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
-#ifndef Q_WS_X11
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 #endif
     virtual void addOutlineToPath(float, float, const QGlyphLayout *, int, QPainterPath *) { }
@@ -123,16 +123,13 @@ public:
     int cache_count;
 
 #ifdef Q_WS_WIN
-    HDC dc() const;
     void getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *glyphs, bool mirrored) const;
     void getCMap();
 
     QString        _name;
-    HDC                hdc;
     HFONT        hfont;
     LOGFONT     logfont;
     uint        stockFont   : 1;
-    uint        paintDevice : 1;
     uint        useTextOutA : 1;
     uint        ttf         : 1;
     uint        symbol      : 1;
@@ -248,7 +245,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-#ifndef Q_WS_X11
+#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 #endif
 
@@ -495,7 +492,7 @@ public:
 class QFontEngineWin : public QFontEngine
 {
 public:
-    QFontEngineWin(const QString &name, HDC, HFONT, bool, LOGFONT);
+    QFontEngineWin(const QString &name, HFONT, bool, LOGFONT);
 
     FECaps capabilites() const;
 

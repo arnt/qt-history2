@@ -59,30 +59,8 @@ static inline HFONT systemFont()
 
 QFontEngine::~QFontEngine()
 {
-    QT_WA({
-        if (hdc) {                                // one DC per font (Win NT)
-            //SelectObject(hdc, systemFont());
-            if (!stockFont)
-                DeleteObject(hfont);
-            if (!paintDevice)
-                ReleaseDC(0, hdc);
-            hdc = 0;
-            hfont = 0;
-        }
-    } , {
-        if (hfont) {                                // shared DC (Windows 95/98)
-            if (shared_dc_font == hfont) {        // this is the current font
-                Q_ASSERT(shared_dc != 0);
-                SelectObject(shared_dc, systemFont());
-                shared_dc_font = 0;
-            }
-            if (!stockFont)
-                DeleteObject(hfont);
-            hfont = 0;
-        }
-    });
-    delete [] cmap;
-
+    // make sure we aren't by accident still selected
+    SelectObject(shared_dc, systemFont());
 #if 0
     // for Uniscribe
     if (ScriptFreeCache)
@@ -110,19 +88,6 @@ float QFontEngine::underlinePosition() const
     return (lineThickness() * 2 + 3) / 6.0;
 }
 
-
-HDC QFontEngine::dc() const
-{
-    if (hdc || (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) // either NT_based or Printer
-        return hdc;
-    Q_ASSERT(shared_dc != 0 && hfont != 0);
-    if (shared_dc_font != hfont) {
-        SelectObject(shared_dc, hfont);
-        shared_dc_font = hfont;
-    }
-    return shared_dc;
-}
-
 void QFontEngine::getCMap()
 {
     QT_WA({
@@ -130,7 +95,7 @@ void QFontEngine::getCMap()
     } , {
         ttf = (bool)(tm.a.tmPitchAndFamily & TMPF_TRUETYPE);
     });
-    HDC hdc = dc();
+    HDC hdc = shared_dc;
     SelectObject(hdc, hfont);
     bool symb = false;
     cmap = ttf ? ::getCMap(hdc, symb) : 0;
@@ -194,17 +159,15 @@ void QFontEngine::getGlyphIndexes(const QChar *ch, int numChars, QGlyphLayout *g
 
 // non Uniscribe engine
 
-QFontEngineWin::QFontEngineWin(const QString &name, HDC _hdc, HFONT _hfont, bool stockFont, LOGFONT lf)
+QFontEngineWin::QFontEngineWin(const QString &name, HFONT _hfont, bool stockFont, LOGFONT lf)
 {
-    paintDevice = false;
     //qDebug("regular windows font engine created: font='%s', size=%d", name, lf.lfHeight);
 
     _name = name;
 
-    hdc = _hdc;
     hfont = _hfont;
     logfont = lf;
-    SelectObject(dc(), hfont);
+    SelectObject(shared_dc, hfont);
     this->stockFont = stockFont;
 
     lbearing = SHRT_MIN;
@@ -212,9 +175,9 @@ QFontEngineWin::QFontEngineWin(const QString &name, HDC _hdc, HFONT _hfont, bool
 
     BOOL res;
     QT_WA({
-        res = GetTextMetricsW(dc(), &tm.w);
+        res = GetTextMetricsW(shared_dc, &tm.w);
     } , {
-        res = GetTextMetricsA(dc(), &tm.a);
+        res = GetTextMetricsA(shared_dc, &tm.a);
     });
     if (!res)
         qErrnoWarning("QFontEngineWin: GetTextMetrics failed");
@@ -250,7 +213,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
     getGlyphIndexes(str, len, glyphs, flags & QTextEngine::RightToLeft);
 
-    HDC hdc = dc();
+    HDC hdc = shared_dc;
     HGDIOBJ oldFont = SelectObject(hdc, hfont);
     unsigned int glyph;
     int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
@@ -278,156 +241,6 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 // #define COLOR_VALUE(c) ((p->flags & QPainter::RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 #define COLOR_VALUE(c) c.pixel()
 
-void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
-{
-    QPainterState *state = p->painterState();
-
-    double scale = 1.;
-    int angle = 0;
-    bool transform = false;
-
-    if (state->txop >= QPainterPrivate::TxScale
-        && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
-        // Draw rotated and sheared text on Windows 95, 98
-
-        // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
-        // Shearing transformations are done by QPainter.
-
-        // rotation + scale + translation
-        scale = sqrt(state->matrix.m11()*state->matrix.m22()
-                      - state->matrix.m12()*state->matrix.m21());
-        angle = 1800*acos(state->matrix.m11()/scale)/M_PI;
-        if (state->matrix.m12() < 0)
-            angle = 3600 - angle;
-
-        transform = true;
-    } else if (!p->hasFeature(QPaintEngine::CoordTransform)
-               && state->txop == QPainterPrivate::TxTranslate) {
-        state->painter->matrix().map(x, y, &x, &y);
-    }
-
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle) {
-        LOGFONT lf = logfont;
-        lf.lfUnderline = (bool)(textFlags & Qt::TextUnderline);
-        lf.lfStrikeOut = (bool)(textFlags & Qt::TextStrikeOut);
-        if (angle) {
-            lf.lfOrientation = -angle;
-            lf.lfEscapement = -angle;
-        }
-        if (scale != 1.) {
-            lf.lfHeight = (int) (lf.lfHeight*scale);
-            lf.lfWidth = (int) (lf.lfWidth*scale);
-        }
-        HFONT hf = QT_WA_INLINE(CreateFontIndirectW(&lf), CreateFontIndirectA((LOGFONTA*)&lf));
-        SelectObject(hdc, hf);
-    } else {
-        SelectObject(hdc, hfont);
-    }
-
-    unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
-
-    QGlyphLayout *glyphs = si.glyphs;
-
-#if 0
-    // ###### should be moved to the printer GC
-    if(p->pdev->devType() == QInternal::Printer) {
-        // some buggy printer drivers can't handle glyph indices correctly for latin1
-        // If the string is pure latin1, we output the string directly, not the glyph indices.
-        // There must be a better way to get this working, but currently I can't think of one.
-        const QChar *uc = engine->string.unicode() + si.position;
-        int l = engine->length(si - &engine->items[0]);
-        int i = 0;
-        bool latin = (l == si.num_glyphs);
-        while (latin && i < l) {
-            if(uc[i].unicode() >= 0x100)
-                latin = false;
-            ++i;
-        }
-        if(latin) {
-            glyphs = (glyph_t *)uc;
-            options = 0;
-        }
-    }
-#endif
-
-    int xo = x;
-
-    if (!(si.right_to_left)) {
-        // hack to get symbol fonts working on Win95. See also QFontEngine constructor
-        if (useTextOutA) {
-            // can only happen if !ttf
-            for(int i = 0; i < si.num_glyphs; i++) {
-                QString str(QChar(glyphs->glyph));
-                QByteArray cstr = str.toLocal8Bit();
-                TextOutA(hdc, x + qRound(glyphs->offset.x()), y + qRound(glyphs->offset.y()),
-                         cstr.data(), cstr.length());
-                x += qRound(glyphs->advance.x());
-                glyphs++;
-            }
-        } else {
-            bool haveOffsets = false;
-            int w = 0;
-            for(int i = 0; i < si.num_glyphs; i++) {
-                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0) {
-                    haveOffsets = true;
-                    break;
-                }
-                w += qRound(glyphs[i].advance.x());
-            }
-
-            if (haveOffsets || transform) {
-                for(int i = 0; i < si.num_glyphs; i++) {
-                    wchar_t chr = glyphs->glyph;
-                    int xp = x + qRound(glyphs->offset.x());
-                    int yp = y + qRound(glyphs->offset.y());
-                    if (transform)
-                        state->painter->matrix().map(xp, yp, &xp, &yp);
-                    ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
-                    x += qRound(glyphs->advance.x());
-                    glyphs++;
-                }
-            } else {
-                // fast path
-                QVarLengthArray<wchar_t> g(si.num_glyphs);
-                for (int i = 0; i < si.num_glyphs; ++i)
-                    g[i] = glyphs[i].glyph;
-                // fast path
-                ExtTextOutW(hdc,
-                            x + qRound(glyphs->offset.x()),
-                            y + qRound(glyphs->offset.y()),
-                            options, 0, g.data(), si.num_glyphs, 0);
-                x += w;
-            }
-        }
-    } else {
-        glyphs += si.num_glyphs;
-        for(int i = 0; i < si.num_glyphs; i++) {
-            glyphs--;
-            wchar_t chr = glyphs->glyph;
-            int xp = x + qRound(glyphs->offset.x());
-            int yp = y + qRound(glyphs->offset.y());
-            if (transform)
-                state->painter->matrix().map(xp, yp, &xp, &yp);
-            ExtTextOutW(hdc, xp, yp, options, 0, &chr, 1, 0);
-            x += qRound(glyphs->advance.x());
-        }
-    }
-
-    if (textFlags & Qt::TextUnderline || textFlags & Qt::TextStrikeOut || scale != 1. || angle)
-        DeleteObject(SelectObject(hdc, hfont));
-
-    if (textFlags & Qt::TextOverline) {
-        int lw = qRound(lineThickness());
-        int yp = y - qRound(ascent()) -1;
-        Rectangle(hdc, xo, yp, x, yp + lw);
-
-    }
-
-#if 0
-    if (nat_xf)
-        p->nativeXForm(false);
-#endif
-}
 
 glyph_metrics_t QFontEngineWin::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
@@ -447,15 +260,14 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
 #ifndef Q_OS_TEMP
     GLYPHMETRICS gm;
 
-    HDC hdc = dc();
-    HGDIOBJ oldFont = SelectObject(hdc, hfont);
+    HDC hdc = shared_dc;
+    SelectObject(hdc, hfont);
     if(!ttf) {
         SIZE s = {0, 0};
         WCHAR ch = glyph;
         BOOL res = GetTextExtentPoint32W(hdc, &ch, 1, &s);
         Q_UNUSED(res);
         int overhang = (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) ? tm.a.tmOverhang : 0;
-        SelectObject(hdc, oldFont);
         return glyph_metrics_t(0, -tm.a.tmAscent, s.cx, tm.a.tmHeight, s.cx-overhang, 0);
     } else {
         DWORD res = 0;
@@ -465,11 +277,10 @@ glyph_metrics_t QFontEngineWin::boundingBox(glyph_t glyph)
         mat.eM21.value = mat.eM12.value = 0;
         mat.eM21.fract = mat.eM12.fract = 0;
         QT_WA({
-            res = GetGlyphOutlineW(dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat);
+            res = GetGlyphOutlineW(hdc, glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat);
         } , {
-            res = GetGlyphOutlineA(dc(), glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat);
+            res = GetGlyphOutlineA(hdc, glyph, GGO_METRICS|GGO_GLYPH_INDEX, &gm, 0, 0, &mat);
         });
-        SelectObject(hdc, oldFont);
         if (res != GDI_ERROR)
             return glyph_metrics_t(gm.gmptGlyphOrigin.x, -gm.gmptGlyphOrigin.y,
                                   gm.gmBlackBoxX, gm.gmBlackBoxY, gm.gmCellIncX, gm.gmCellIncY);
@@ -540,9 +351,9 @@ float QFontEngineWin::minRightBearing() const
     if (rbearing == SHRT_MIN) {
         int ml = 0;
         int mr = 0;
+        HDC hdc = shared_dc;
+        SelectObject(hdc, hfont);
         if (ttf) {
-            HDC hdc = dc();
-            SelectObject(hdc, hfont);
             ABC *abc = 0;
             int n = QT_WA_INLINE(tm.w.tmLastChar - tm.w.tmFirstChar, tm.a.tmLastChar - tm.a.tmFirstChar);
             if (n <= max_font_count) {
@@ -683,7 +494,8 @@ void QFontEngineWin::addOutlineToPath(float x, float y, const QGlyphLayout *glyp
     mat.eM21.value = mat.eM12.value = 0;
     mat.eM21.fract = mat.eM12.fract = 0;
 
-    HDC hdc = dc();
+    HDC hdc = shared_dc;
+    SelectObject(hdc, hfont);
     Q_ASSERT(hdc);
     GLYPHMETRICS gMetric;
     uint glyphFormat = GGO_BEZIER | GGO_GLYPH_INDEX | GGO_UNHINTED;
@@ -754,12 +566,10 @@ QFontEngineBox::QFontEngineBox(int size)
     : _size(size)
 {
     cache_cost = 1;
-    hdc = (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) ? GetDC(0) : shared_dc;
 #ifndef Q_OS_TEMP
     hfont = (HFONT)GetStockObject(ANSI_VAR_FONT);
 #endif
     stockFont = true;
-    paintDevice = false;
     ttf = false;
 
     cmap = 0;
@@ -792,18 +602,6 @@ bool QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs,
         (glyphs++)->advance.setX(_size);
 
     return true;
-}
-
-void QFontEngineBox::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
-{
-    Q_UNUSED(p);
-    Q_UNUSED(x);
-    Q_UNUSED(y);
-    Q_UNUSED(si);
-    Q_UNUSED(textFlags);
-//     qDebug("QFontEngineXLFD::draw(%d, %d, numglyphs=%d", x, y, numGlyphs);
-
-    // ########
 }
 
 glyph_metrics_t QFontEngineBox::boundingBox(const QGlyphLayout *, int numGlyphs)

@@ -673,16 +673,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
     LOGFONT lf;
     memset(&lf, 0, sizeof(LOGFONT));
 
-    QPaintDevice *paintdevice = fp->paintdevice;
-
-    HDC hdc;
-    if (paintdevice && paintdevice->devType() == QInternal::Printer) {
-        hdc = paintdevice->getDC();
-//    } else if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
-//        hdc = GetDC(0);
-    } else {
-        hdc = shared_dc;
-    }
+    HDC hdc = shared_dc;
 
     bool stockFont = false;
 
@@ -873,10 +864,6 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
 #endif
 
     }
-    if(!paintdevice && (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based))
-        hdc = 0;
-    QFontEngine *fe = new QFontEngineWin(family->name, hdc, hfont, stockFont, lf);
-    if (paintdevice)
-        fe->paintDevice = true;
+    QFontEngine *fe = new QFontEngineWin(family->name, hfont, stockFont, lf);
     return fe;
 }
