@@ -1525,8 +1525,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     int dx = 0, dy = 0;
     QStyle::SFlags flags = QStyle::Style_Default;
     if ( index == handleIdx && ( state == Pressed || state == Moving ) ) {
-	dx = style().pixelMetric( QStyle::PM_ButtonShiftVertical, this );
-	dy = style().pixelMetric( QStyle::PM_ButtonShiftHorizontal, this );
+	dx = style().pixelMetric( QStyle::PM_ButtonShiftHorizontal, this );
+	dy = style().pixelMetric( QStyle::PM_ButtonShiftVertical, this );
 	flags |= QStyle::Style_Sunken;
     }
     if ( isEnabled() )
