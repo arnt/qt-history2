@@ -146,7 +146,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     // keep trying while busy, wish I could implement this better.
     while ((res = sqlite3_step(stmt)) == SQLITE_BUSY) {
         // sleep instead requesting result again immidiately.
-#if defined Q_WS_WIN32
+#if defined Q_OS_WIN
         Sleep(1000);
 #else
         sleep(1);
