@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#13 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#13 $";
 #endif
 
 
@@ -374,7 +374,11 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     int cellw = cellWidth( col );
     int gs = style();
     if ( mi->isSeparator() ) {			// draw separator
-	p->drawShadeLine( 0, 0, cellw, 0, darkColor, lightColor );
+	QPen pen( darkColor );	
+	p->setPen( pen );
+	p->drawLine( 0, 0, cellw, 0 );
+	pen.setColor( lightColor );
+	p->drawLine( 0, 1, cellw, 1 );
 	return;
     }
     if ( row == actItem )			// active item frame
@@ -515,8 +519,10 @@ void QPopupMenu::mouseMoveEvent( QMouseEvent *e )
     int  item = itemAtPos( e->pos() );
     if ( item == -1 ) {				// no valid item
 	if ( popupActive == -1 ) {		// no active popup sub menu
+	    int lastActItem = actItem;
 	    actItem = -1;
-	    repaint( FALSE );
+	    if ( lastActItem >= 0 )
+		updateCell( lastActItem, 0, FALSE );
 	}
 	if ( !clientRect().contains( e->pos() ) && !tryMenuBar( e ) )
 	    hidePopups();
