@@ -64,10 +64,10 @@ public:
     bool event(QEvent *);
 #endif
 
+    void setResult(int r);
+
 public slots:
     int exec();
-
-protected slots:
     virtual void done(int);
     virtual void accept();
     virtual void reject();
@@ -77,7 +77,6 @@ protected slots:
 protected:
     QDialog(QDialogPrivate &, QWidget *parent, Qt::WFlags f = 0);
 
-    void setResult(int r);
     void keyPressEvent(QKeyEvent *);
     void closeEvent(QCloseEvent *);
     void showEvent(QShowEvent *);
