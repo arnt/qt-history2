@@ -417,7 +417,7 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
         while (bytesRead < QTEXTSTREAM_BUFFERSIZE) {
             char c;
             qint64 ret = device->read(&c, 1);
-            if (ret == -1 && bytesRead == 0) {
+            if (ret <= 0 && bytesRead == 0) {
                 bytesRead = -1;
                 break;
             }
@@ -432,8 +432,11 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     qDebug("QTextStreamPrivate::fillReadBuffer(), device->read(\"%s\", %d) == %d",
            qt_prettyDebug(buf, qMin(32,int(bytesRead)) , int(bytesRead)).constData(), sizeof(buf), int(bytesRead));
 #endif
-    if (bytesRead <= 0)
+    if (bytesRead <= 0) {
+        if (device->isSequential())
+            device->close();
         return false;
+    }
 
 #ifndef QT_NO_TEXTCODEC
     // codec auto detection, explicitly defaults to locale encoding if
@@ -593,6 +596,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
     // then we accept what we got. if we are not at the end of input,
     // we return false.
     if (!foundToken && ((maxlen && totalSize < maxlen)
+                        || totalSize == 0
                         || (string && stringOffset + totalSize < string->size())
                         || (device && !device->atEnd()))) {
 #if defined (QTEXTSTREAM_DEBUG)
@@ -1261,12 +1265,12 @@ bool QTextStream::atEnd() const
 QString QTextStream::readAll()
 {
     Q_D(QTextStream);
-    CHECK_VALID_STREAM(QLatin1String(""));
+    CHECK_VALID_STREAM(QString());
 
     const QChar *readPtr;
     int length;
     if (!d->scan(&readPtr, &length, /* maxlen = */ 0, QTextStreamPrivate::EndOfFile))
-        return QLatin1String("");
+        return QString();
 
     QString tmp = QString(readPtr, length);
     d->consumeLastToken();
@@ -1290,12 +1294,12 @@ QString QTextStream::readAll()
 QString QTextStream::readLine(qint64 maxlen)
 {
     Q_D(QTextStream);
-    CHECK_VALID_STREAM(QLatin1String(""));
+    CHECK_VALID_STREAM(QString());
 
     const QChar *readPtr;
     int length;
     if (!d->scan(&readPtr, &length, int(maxlen), QTextStreamPrivate::EndOfLine))
-        return QLatin1String("");
+        return QString();
 
     QString tmp = QString(readPtr, length);
     d->consumeLastToken();
@@ -1749,7 +1753,8 @@ QTextStream &QTextStream::operator>>(QByteArray &array)
 /*!
     \overload
 
-    Stores the word in \a c.
+    Stores the word in \a c, terminated by a '\0' character. If no word is
+    available, only the '\0' character is stored.
 
     Warning: Although convenient, this operator is dangerous and must
     be used with care. QTextStream assumes that \a c points to a
@@ -1761,6 +1766,7 @@ QTextStream &QTextStream::operator>>(QByteArray &array)
 QTextStream &QTextStream::operator>>(char *c)
 {
     Q_D(QTextStream);
+    *c = 0;
     CHECK_VALID_STREAM(*this);
     d->scan(0, 0, 0, QTextStreamPrivate::NotSpace);
     d->consumeLastToken();

@@ -522,7 +522,7 @@ bool QIODevice::seek(qint64 pos)
 */
 bool QIODevice::atEnd() const
 {
-    return pos() == size();
+    return isOpen() && (pos() == size());
 }
 
 /*!

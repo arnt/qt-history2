@@ -24,6 +24,10 @@ bool QBufferedFSFileEngine::open(int /* flags */, FILE *fh)
     Q_D(QBufferedFSFileEngine);
     d->fh = fh;
     d->fd = fileno(fh);
+    struct stat st;
+    if (::fstat(fileno(fh), &st) != 0)
+	return false;
+    d->sequential = !S_ISREG(st.st_mode);
     return true;
 }
 

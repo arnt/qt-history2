@@ -1085,10 +1085,8 @@ qint64 QFile::pos() const
 
 bool QFile::atEnd() const
 {
-    if (!isOpen()) {
-        qWarning("QFile::atEnd: IODevice is not open");
+    if (!isOpen())
         return true;
-    }
     if(!d->buffer.isEmpty())
         return false;
     return QIODevice::atEnd();
