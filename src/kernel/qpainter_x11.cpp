@@ -1165,6 +1165,16 @@ bool QPainter::end()				// end painting
     if ( testf(ExtDev) )
 	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
 
+#ifndef QT_NO_XRENDER
+    if (rendhd) {
+	// reset clipping/subwindow mode on our render picture
+	XRenderPictureAttributes pattr;
+	pattr.subwindow_mode = ClipByChildren;
+	pattr.clip_mask = None;
+	XRenderChangePicture(dpy, rendhd, CPClipMask | CPSubwindowMode, &pattr);
+    }
+#endif // QT_NO_XRENDER
+
     flags = 0;
     pdev->painters--;
     pdev = 0;
@@ -2442,12 +2452,12 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( sw <= 0 || sh <= 0 )
 	return;
 
-     if ( pdev->x11Screen() != pixmap.x11Screen() ) {
-	 QPixmap* p = (QPixmap*) &pixmap;
+    if ( pdev->x11Screen() != pixmap.x11Screen() ) {
+	QPixmap* p = (QPixmap*) &pixmap;
  	p->x11SetScreen( pdev->x11Screen() );
-     }
+    }
 
-     QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
+    QPixmap::x11SetDefaultScreen( pixmap.x11Screen() );
 
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
@@ -2573,7 +2583,17 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	XSetTSOrigin( dpy, gc, 0, 0 );
 	XSetFillStyle( dpy, gc, FillSolid );
     } else {
-	XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
+#ifndef QT_NO_XRENDER
+	if (rendhd && pixmap.x11RenderHandle() &&
+	    pixmap.data->alphapm->x11RenderHandle())
+	    XRenderComposite(dpy, PictOpOver,
+			     pixmap.x11RenderHandle(),
+			     pixmap.data->alphapm->x11RenderHandle(),
+			     rendhd,
+			     sx, sy, sx, sy, x, y, sw, sh);
+	else
+#endif // QT_NO_XRENDER
+	    XCopyArea( dpy, pixmap.handle(), hd, gc, sx, sy, sw, sh, x, y );
     }
 
     if ( mask ) {				// restore clipping

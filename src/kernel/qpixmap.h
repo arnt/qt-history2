@@ -161,7 +161,7 @@ public:
     static int x11SetDefaultScreen( int screen );
     void x11SetScreen( int screen );
 #endif
-    
+
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
     bool operator==( const QPixmap& ) const { return FALSE; }
@@ -200,6 +200,7 @@ protected:
 #elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;
+	QPixmap *alphapm;
 #elif defined(Q_WS_MAC)
 	ColorTable *clut;
 #elif defined(Q_WS_QWS)
