@@ -391,8 +391,9 @@ public:
     void		scroll( int dx, int dy );
     void		scroll( int dx, int dy, const QRect& );
 
-    void		drawText( int x, int y, const QString &);
-    void		drawText( const QPoint &, const QString &);
+    void drawText( const QPoint &, const QString &);
+    inline void drawText(int x, int y, const QString &s)
+	{ drawText(QPoint(x, y), s); }
 
     // Misc. functions
 
@@ -824,9 +825,6 @@ inline void QWidget::resize( const QSize &s )
 
 inline void QWidget::setGeometry( const QRect &r )
 { setGeometry( r.left(), r.top(), r.width(), r.height() ); }
-
-inline void QWidget::drawText( const QPoint &p, const QString &s )
-{ drawText( p.x(), p.y(), s ); }
 
 inline QWidget *QWidget::parentWidget( bool sameWindow ) const
 {

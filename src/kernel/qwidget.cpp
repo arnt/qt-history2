@@ -40,7 +40,7 @@
 #include "qwsmanager_qws.h"
 #endif
 #include "qfontdata_p.h"
-
+#include "qpainter.h"
 
 /*!
     \class QWidget qwidget.h
@@ -5689,7 +5689,7 @@ void QWidget::repaint( bool erase )
 
 
 /*!
-    \overload void QWidget::drawText( const QPoint &pos, const QString& str )
+    \overload void QWidget::drawText( int x, int y, const QString& str )
 
     Draws the string \a str at position \a pos.
 */
@@ -5707,12 +5707,12 @@ void QWidget::repaint( bool erase )
     \sa setFont(), foregroundColor(), QPainter::drawText()
 */
 
-void QWidget::drawText(int x, int y, const QString &str)
+void QWidget::drawText(const QPoint &p, const QString &str)
 {
     if(!testWState(WState_Visible))
 	return;
     QPainter paint(this);
-    paint.drawText(x, y, str);
+    paint.drawText(p.x(), p.y(), str);
 }
 
 
