@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#40 $
 **
 ** Implementation of event classes
 **
@@ -11,7 +11,7 @@
 
 #include "qevent.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qevent.cpp#40 $");
 
 
 void qRemovePostedEvent( QEvent * );		// defined in qapp_xxx.cpp
@@ -343,7 +343,7 @@ void QEvent::peErrMsg()				// posted event error message
   The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
   receive focus events.
 
-  \sa QWidget::setFocus(), QWidget::setAcceptFocus()
+  \sa QWidget::setFocus(), QWidget::setFocusEnabled()
 */
 
 /*!

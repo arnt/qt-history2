@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#99 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#100 $
 **
 ** Definition of QWidget class
 **
@@ -117,6 +117,8 @@ public:
 
     bool	 isActiveWindow() const;
     void	 setActiveWindow();
+    bool	 isFocusEnabled() const;
+    void	 setFocusEnabled( bool );
     bool	 hasFocus() const;
     void	 setFocus();
     void	 clearFocus();
@@ -221,8 +223,10 @@ protected:
     virtual void paletteChange( const QPalette & );
     virtual void fontChange( const QFont & );
 
+#if 1	/* OBSOLETE */
     bool	 acceptFocus()	const;
     void	 setAcceptFocus( bool );
+#endif
     int		 metric( int )	const;
 
     WFlags	 getWFlags()	const;
@@ -346,6 +350,9 @@ inline QFontInfo QWidget::fontInfo() const
 
 inline bool QWidget::hasMouseTracking() const
 { return testWFlags(WState_TrackMouse); }
+
+inline bool QWidget::isFocusEnabled() const
+{ return testWFlags(WState_AcceptFocus); }
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_BlockUpdates); }
