@@ -286,7 +286,7 @@ inline T qt_cast(const QObject *object)
 
 
 #define Q_DECLARE_INTERFACE(IFace) \
-IFace *qt_cast(const QObject *object, IFace * = 0) \
+inline IFace *qt_cast(const QObject *object, IFace * = 0) \
 { return (IFace *)(object ? object->qt_metacast(#IFace) : 0); }
 
 #ifndef QT_NO_DEBUG
