@@ -2500,6 +2500,11 @@ QRect QRegion::boundingRect() const
 */
 QVector<QRect> QRegion::rects() const
 {
+    //### QVector has the concept of an allocated size which
+    // is different from the actual size. We should use that
+    // instead of storing the size separately.
+    d->region->rects.resize( d->region->numRects );
+
     return d->region->rects;
 }
 
