@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#101 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#101 $");
 
 
 /*!
@@ -2843,8 +2843,9 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	} else {
 	    r = " [a-z] ";	// symbolic color names: die die die
 	    i = r.match( buf );
-	    QColor tmp( buf.mid( 2, i > -1 ? i-2 : buf.length() ) );
-	    image.setColor( currentColor, 0xff000000 | tmp.rgb() );
+	    QString colorName = buf.mid(2, i > -1 ? i-2 : buf.length());
+	    QColor c( colorName );
+	    image.setColor( currentColor, 0xff000000 | c.rgb() );
 	    colorMap.insert( index, (int*)(currentColor+1) );
 	}
     }
