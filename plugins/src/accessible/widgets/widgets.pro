@@ -1,13 +1,13 @@
-TEMPLATE += lib
-CONFIG += qt plugin
-TARGET += accwidgets
-VERSION = 1.0.0
-DESTDIR = ../../..
+TEMPLATE  = lib
+CONFIG   += qt plugin
+TARGET   += accwidgets
+VERSION   = 1.0.0
+DESTDIR   = ../../..
 REQUIRES += accessibility
 
-SOURCES += main.cpp \
+SOURCES  += main.cpp \
 	qaccessiblewidget.cpp \
 	qaccessiblemenu.cpp
 
-HEADERS += qaccessiblewidget.h \
+HEADERS  += qaccessiblewidget.h \
 	qaccessiblemenu.h
