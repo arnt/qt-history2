@@ -50,7 +50,7 @@
         QTcpSocket.
     \o  QUdpSocket is an API for sending and receiving UDP datagrams.
     \endlist
-    
+
     QTcpSocket and QUdpSocket inherit most of their functionality
     from QAbstractSocket. You can also use QAbstractSocket directly
     as a wrapper around a native socket descriptor, or subclass
@@ -157,7 +157,7 @@
 
     \quotefile network/broadcastreceiver/receiver.cpp
     \skipto udpSocket = new QUdpSocket
-    \printline udpSocket
+    \printuntil udpSocket->bind
     \skipto connect(udpSocket
     \printuntil );
 
