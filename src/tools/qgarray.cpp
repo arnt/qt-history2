@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#20 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#21 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#21 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -62,6 +62,15 @@ RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#20 $")
   word.
 
   \todo proper docs */
+
+/*! \fn QArray::QArray()
+
+  FIXME
+
+  Documentation put here is instantiated in the constructors that
+  don't supply their own text.
+
+*/
 
 /*! \class QGArray qgarray.h
 
