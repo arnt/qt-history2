@@ -93,6 +93,7 @@ protected:
     virtual void addedTo( int index, QPopupMenu *menu );
 
 public slots:
+    void activate();
     void toggle();
     virtual void setOn( bool );
     virtual void setEnabled( bool );

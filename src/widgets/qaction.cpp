@@ -860,9 +860,27 @@ bool QAction::isToggleAction() const
 }
 
 /*!
+    Activates the action and executes all connected slots.
+    This only works for actions that are not toggle action.
+
+    \sa toggle()
+*/
+void QAction::activate()
+{
+    if ( isToggleAction() ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QAction::%s() (%s) Toggle actions "
+		  "can not be activated", "activate", name() );
+#endif
+	return;
+    }
+    emit activated();    
+}
+
+/*!
     Toggles the state of a toggle action.
 
-    \sa on, toggled(), isToggleAction()
+    \sa on, activate(), toggled(), isToggleAction()
 */
 void QAction::toggle()
 {
