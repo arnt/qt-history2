@@ -322,14 +322,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QString mocpath = var( "QMAKE_MOC" );
 		mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
 
-		QString mocFile;
-		if(!project->variables()["MOC_DIR"].isEmpty())
-		    mocFile = project->first("MOC_DIR");
-		
-		QString uiDir;
-		if(!project->variables()["UI_DIR"].isEmpty())
-		    uiDir = project->first("UI_DIR");
-
 		QStringList &list = project->variables()["FORMS"];
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
@@ -343,9 +335,16 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 			fpath = fname.left( lbs + 1 );
 		    fname = fname.right( fname.length() - lbs - 1 );
 
-		    if ( mocFile.isNull() )
+		    QString mocFile;
+		    if(!project->variables()["MOC_DIR"].isEmpty())
+			mocFile = project->first("MOC_DIR");
+		    else
 			mocFile = fpath;
-		    if ( uiDir.isNull() )
+
+		    QString uiDir;
+		    if(!project->variables()["UI_DIR"].isEmpty())
+			uiDir = project->first("UI_DIR");
+		    else
 			uiDir = fpath;
 
 		    t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\" \"$(QTDIR)\\bin\\uic.exe\"" << endl << endl;
