@@ -18,7 +18,7 @@ struct QReadWriteLockPrivate
     volatile int accessCount;
     int maxReaders;
     QAtomic waitingWriters;
-    QAtomic waitingReaders;
+    int     waitingReaders; //waitingReaders is protected by a mutex, so it can be an int
     pthread_mutex_t mutex;
     pthread_cond_t readerWait;
     pthread_cond_t writerWait;

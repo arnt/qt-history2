@@ -51,6 +51,7 @@ QReadWriteLock::QReadWriteLock(const int maxReaders)
     d->maxReaders=maxReaders;
     d->accessCount=0;
     d->waitingWriters=0;
+    d->waitingReaders=0;
     report_error(pthread_mutex_init(&d->mutex, NULL), "QReadWriteLock", "mutex init");
     report_error(pthread_cond_init(&d->readerWait, NULL), "QReadWriteLock", "cv init");
     report_error(pthread_cond_init(&d->writerWait, NULL), "QReadWriteLock", "cv init");
@@ -83,7 +84,6 @@ QReadWriteLock::~QReadWriteLock()
 void QReadWriteLock::lock(AccessMode mode)
 {
     if(mode==ReadAccess) {
-        ++d->waitingReaders;
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
@@ -91,16 +91,17 @@ void QReadWriteLock::lock(AccessMode mode)
                      break;
             } else {
                 report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
+                ++d->waitingReaders;
                 if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount <= d->maxReaders) {
                     report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                     continue;
                 }
                 report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
+                --d->waitingReaders;    
                 report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                 continue;
             }
         }
-        --d->waitingReaders;
     } else { //mode==WriteAccess
         ++d->waitingWriters;
         for(;;) {
@@ -142,7 +143,6 @@ bool QReadWriteLock::tryLock(AccessMode mode)
 {
     bool result;
     if(mode==ReadAccess) {
-        ++d->waitingReaders;
         for(;;){
             int localAccessCount(d->accessCount);
             if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
@@ -155,7 +155,6 @@ bool QReadWriteLock::tryLock(AccessMode mode)
                 break;
             }
         }
-        --d->waitingReaders;
     } else { //mode==WriteAccess
         ++d->waitingWriters;
         for(;;){
