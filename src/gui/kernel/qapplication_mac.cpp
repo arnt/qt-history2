@@ -1761,13 +1761,13 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if(clt && clt->topLevelWidget()->isPopup())
                     widget = clt;
             }
-            if(!widget) 
+            if(!widget)
                 widget = QApplication::activePopupWidget();
         } else {
-            if(ekind != kEventMouseDown && qt_button_down) {
-                widget = qt_button_down;
-            } else if(mac_mouse_grabber) {
+            if(mac_mouse_grabber) {
                 widget = mac_mouse_grabber;
+            } else if(ekind != kEventMouseDown && qt_button_down) {
+                widget = qt_button_down;
             } else {
                 {
                     WindowPtr window = 0;
