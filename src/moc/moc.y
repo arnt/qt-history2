@@ -3138,7 +3138,7 @@ void generateClass()		      // generate C++ source code for a class
 		} else {
 		    QCString castType = castToUType( type );
 		    if(castType == type)
-			fprintf( out, "%s(*((%s*)static_QUType_ptr.get(_o+%d)))", type.data(),
+			fprintf( out, "(%s)(*((%s*)static_QUType_ptr.get(_o+%d)))", type.data(),
 				 castType.data(), offset+1 );
 		    else
 			fprintf( out, "(%s)*((%s*)static_QUType_ptr.get(_o+%d))", type.data(),
