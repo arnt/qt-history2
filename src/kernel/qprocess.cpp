@@ -481,13 +481,15 @@ QString QProcess::readLineStdout()
 	buf->consumeBytes( size, 0 );
 
 	// get rid of terminating \n or \r\n
-	if ( a.at( size - 1 ) == '\n' ) {
-	    if ( a.at( size - 2 ) == '\r' )
+	if ( size>0 && a.at( size - 1 ) == '\n' ) {
+	    if ( size>1 && a.at( size - 2 ) == '\r' )
 		a.at( size - 2 ) = '\0';
 	    else
 		a.at( size - 1 ) = '\0';
 	}
 	return QString( a );
+    } else if ( canReadLineStdout() ) {
+	return QString( buf->readAll() );
     }
     return QString::null;
 }
@@ -508,13 +510,15 @@ QString QProcess::readLineStderr()
 	buf->consumeBytes( size, 0 );
 
 	// get rid of terminating \n or \r\n
-	if ( a.at( size - 1 ) == '\n' ) {
-	    if ( a.at( size - 2 ) == '\r' )
+	if ( size>0 && a.at( size - 1 ) == '\n' ) {
+	    if ( size>1 && a.at( size - 2 ) == '\r' )
 		a.at( size - 2 ) = '\0';
 	    else
 		a.at( size - 1 ) = '\0';
 	}
 	return QString( a );
+    } else if ( canReadLineStderr() ) {
+	return QString( buf->readAll() );
     }
     return QString::null;
 }
