@@ -38,7 +38,6 @@
 #ifndef QFONTDATA_P_H
 #define QFONTDATA_P_H
 
-
 //
 //  W A R N I N G
 //  -------------
@@ -51,6 +50,9 @@
 //
 //
 
+#ifdef Q_WS_WIN
+#include <qt_windows.h>
+#endif
 
 // font description
 struct QFontDef {
@@ -112,7 +114,7 @@ public:
 class QFontPrivate : public QShared
 {
 public:
-    enum Script {
+	enum Script {
 	// Basic Latin with Latin-1 Supplement
 	BASICLATIN,
 
@@ -161,26 +163,22 @@ public:
 
     static Script scriptForChar(const QChar &c);
 
-
+public:
     QFontPrivate()
-	: exactMatch(FALSE), lineWidth(1)
+	: exactMatch(FALSE), lWidth(1)
     {
-
 #ifndef QT_NO_COMPAT
 	// charset = QFont::AnyCharSet;
 #endif
-
     }
 
     QFontPrivate(const QFontPrivate &fp)
 	: QShared(fp), request(fp.request), actual(fp.actual),
-	  exactMatch(fp.exactMatch), lineWidth(1)
+	  exactMatch(fp.exactMatch), lWidth(1)
     {
-
 #ifndef QT_NO_COMPAT
 	// charset = fp.charset;
 #endif
-
     }
 
     // requested font
@@ -189,16 +187,19 @@ public:
     QFontDef actual;
 
     bool exactMatch;
-    int lineWidth;
+    int lWidth;
 
+	// common functions
     QString defaultFamily() const;
     QString lastResortFamily() const;
     QString lastResortFont() const;
     QString key() const;
+    int		    lineWidth()  const;
 
+	static int getFontWeight(const QCString &, bool = FALSE);
 
-#if defined(Q_WS_X11)
-    static char **getXFontNames(const char *, int *);
+#if defined(Q_WS_X11)    
+	static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
     static bool parseXFontName(const QCString &, char **);
     static bool fillFontDef(const QCString &, QFontDef *, QCString *);
@@ -281,12 +282,31 @@ public:
 #endif // Q_WS_X11
 
 #if defined(Q_WS_WIN)
+	QFontPrivate( const QString &key );
     void load();
+
+    bool	    dirty()      const;
+    HDC		    dc()	 const;
+    HFONT	    font()	 const;
+    TEXTMETRICA	   *textMetricA() const;
+    TEXTMETRICW	   *textMetricW() const;
+    const QFontDef *spec()	 const;
+    void	    reset();
+private:
+    QFontInternal( const QString & );
+    QString	k;
+    HDC		hdc;
+    HFONT	hfont;
+    bool	stockFont;
+    union {
+	TEXTMETRICW	w;
+	TEXTMETRICA	a;
+    } tm;
+    QFontDef	s;
+    int		lw;
+//    friend void QFont::initFontInfo() const;
 #endif
     
-	static int getFontWeight(const QCString &, bool = FALSE);
-
-
 #ifndef QT_NO_COMPAT
     // source compatibility for QFont
     // QFont::CharSet charsetcompat;
