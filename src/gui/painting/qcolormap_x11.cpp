@@ -146,9 +146,9 @@ static void query_colormap(QColormapPrivate *d, int screen)
 
     d->colors.resize(q_colors);
     for (int x = 0; x < q_colors; ++x) {
-        d->colors[x] = QColor::fromRgb(int(queried[x].red / float(USHRT_MAX)),
-                                       int(queried[x].green / float(USHRT_MAX)),
-                                       int(queried[x].blue / float(USHRT_MAX)));
+        d->colors[x] = QColor::fromRgbF(queried[x].red / float(USHRT_MAX),
+                                        queried[x].green / float(USHRT_MAX),
+                                        queried[x].blue / float(USHRT_MAX));
 
         if (queried[x].red == 0
             && queried[x].green == 0
