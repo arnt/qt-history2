@@ -625,9 +625,6 @@ void QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTableCell 
         }
 
     layoutFlow(cell.begin(), layoutStruct);
-
-    const int col = cell.column();
-    td->minWidths[col] = qMax(td->minWidths[col], layoutStruct->minimumWidth);
 }
 
 void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom*/, int /*layoutTo*/)
@@ -684,14 +681,54 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
             if (constraints.at(i) == QTextTableFormat::VariableLength) {
                 td->minWidths[i] = 0;
                 for (int row = 0; row < rows; ++row) {
+                    const QTextTableCell cell = table->cellAt(row, i);
+                    if (cell.columnSpan() == 1) {
+                        LayoutStruct layoutStruct;
+                        layoutStruct.frame = table;
+                        layoutStruct.y = layoutStruct.x_left = 0;
+                        layoutStruct.x_right = sharedWidth - 2 * td->padding;
+
+                        layoutCell(table, cell, &layoutStruct);
+
+                        td->minWidths[i] = qMax(td->minWidths[i], layoutStruct.minimumWidth);
+                    }
+                }
+                td->widths[i] = td->minWidths[i];
+                totalWidth -= td->minWidths[i];
+            }
+
+        // second pass for cells that span more than one column
+        // ### merge?
+        for (int i = 0; i < columns; ++i)
+            if (constraints.at(i) == QTextTableFormat::VariableLength) {
+                for (int row = 0; row < rows; ++row) {
+                    const QTextTableCell cell = table->cellAt(row, i);
+                    const int cspan = cell.columnSpan();
+                    if (cspan == 1)
+                        continue;
+
+                    if (i != cell.column())
+                        continue;
+
                     LayoutStruct layoutStruct;
                     layoutStruct.frame = table;
                     layoutStruct.y = layoutStruct.x_left = 0;
                     layoutStruct.x_right = sharedWidth - 2 * td->padding;
-                    layoutCell(table, table->cellAt(row, i), &layoutStruct);
+
+                    layoutCell(table, cell, &layoutStruct);
+
+                    int widthToDistribute = layoutStruct.minimumWidth;
+                    for (int n = cspan; n > 0; --n) {
+                        const int col = n - 1 + i;
+                        int w = widthToDistribute / n; // n == number of cols left to distribute on
+                        if (td->minWidths[col] < w) {
+                            totalWidth -= w - td->minWidths[col];
+                            td->minWidths[col] = w;
+                        }
+                    }
+
                 }
                 td->widths[i] = td->minWidths[i];
-                totalWidth -= td->minWidths[i];
             }
 
         if (totalWidth > 0) {
@@ -722,12 +759,16 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int /*layoutFrom
         const int y = td->rowPositions.at(r) + td->padding;
         for (int c = 0; c < columns; ++c) {
             QTextTableCell cell = table->cellAt(r, c);
-            int rspan = cell.rowSpan();
-            int cspan = cell.columnSpan();
+            const int rspan = cell.rowSpan();
+            const int cspan = cell.columnSpan();
+
+            if (cspan > 1 && cell.column() != c)
+                continue;
+
             if (rspan != 1) {
                 int cr = cell.row();
                 if (cr != r) {
-                    // already layouted colspan cell
+                    // already layouted rowspan cell
 #if 0
                     // adjust height so cell fits
                     if (cr + rspan == r + 1)
