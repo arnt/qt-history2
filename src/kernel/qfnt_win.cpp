@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#38 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -28,7 +28,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#37 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#38 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -527,7 +527,7 @@ int QFontMetrics::leftBearing() const
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
 
-    if ( def->lbearing != SHRT_MIN ) {
+    if ( def->lbearing == SHRT_MIN ) {
 	rightBearing(); // calculates both
     }
 
@@ -540,7 +540,7 @@ int QFontMetrics::rightBearing() const
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
 
-    if ( def->rbearing != SHRT_MIN ) {
+    if ( def->rbearing == SHRT_MIN ) {
 	TEXTMETRIC *tm = TM;
 	int n = tm->tmLastChar - tm->tmFirstChar+1;
 	ABC *abc = new ABC[n];

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#89 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#90 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#90 $");
 
 
 static const int fontFields = 14;
@@ -1029,7 +1029,7 @@ int QFontMetrics::rightBearing() const
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
 
-    if ( def->rbearing != SHRT_MIN ) {
+    if ( def->rbearing == SHRT_MIN ) {
 	XFontStruct *f = FS;
 	XCharStruct *c = f->per_char;
 	int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
