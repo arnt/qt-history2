@@ -23,7 +23,6 @@ QAction* QActionPlugIn::create( const QString& classname, QObject* parent )
 	return 0;
 
     QAction* w = ((QActionInterface*)plugInterface())->create( classname, parent );
-    guard( w );
     return w;
 }
 
