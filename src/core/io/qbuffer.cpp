@@ -29,7 +29,7 @@ public:
 #ifndef QT_NO_QOBJECT
         signalsEmitted(false), writtenSinceLastEmit(0),
 #endif
-        ioIndex(0), isOpen(false), buf(0)  { }
+        ioIndex(0), buf(0)  { }
     ~QBufferPrivate() { }
 
 #ifndef QT_NO_QOBJECT
@@ -41,7 +41,6 @@ public:
 #endif
 
     qint64 ioIndex;
-    bool isOpen;
     QByteArray *buf;
 
     QByteArray defaultBuf;
@@ -319,12 +318,9 @@ bool QBuffer::open(OpenMode flags)
 */
 void QBuffer::close()
 {
-    if(!isOpen())
-        return;
     QIODevice::close();
 
     Q_D(QBuffer);
-    d->isOpen = false;
     if(d->ioIndex == qint64(-1))
         return;
     d->ioIndex = qint64(-1);
