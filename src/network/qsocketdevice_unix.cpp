@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#15 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#16 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -118,12 +118,14 @@
 // This mess (it's not yet a mess but I'm sure it'll be one before it's
 // done) defines SOCKLEN_T to socklen_t or whatever else, for this system.
 // Single Unix 1998 says it's to be socklen_t, classically (XNS4) it's int,
-// who knows what it might be on different modern unixes.  size_t seems to
-// have been a short-lived non-LP64 compatible error on most decent systems.
+// who knows what it might be on different modern unixes.
 //
 // Short answer: Single Unix 1995 with XNS4 seems to be the default on most
 // modern unixes and you have to explicitly _ask_ for Single Unix 1998 by
 // setting for example _XOPEN_SOURCE=500 and we don't do that.
+//
+// Note: size_t seems to have been a short-lived non-LP64 compatible error
+// on most decent systems.
 
 #if defined(SOCKLEN_T)
 #  undef SOCKLEN_T
