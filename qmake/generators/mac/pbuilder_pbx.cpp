@@ -598,7 +598,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
     for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)
-	t << "\t\t\t\t" << (*it) << " = " << getenv((*it)) << ";" << "\n";
+	t << "\t\t\t\t" << (*it) << " = \"" << getenv((*it)) << "\";" << "\n";
     t << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "conditionalBuildSettings = {" << "\n"
       << "\t\t\t" << "};" << "\n"
