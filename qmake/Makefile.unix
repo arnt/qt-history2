@@ -16,16 +16,13 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
            generators/unix/unixmake.cpp generators/win32/msvc_nmake.cpp generators/win32/borland_bmake.cpp \
 	   generators/win32/winmakefile.cpp generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
 	   generators/mac/pbuilder_pbx.cpp generators/win32/msvc_objectmodel.cpp \
-	   @SOURCE_PATH@/src/core/tools/qchar.cpp \
-	   @SOURCE_PATH@/src/core/tools/qstring.cpp \
+	   @SOURCE_PATH@/src/core/tools/qchar.cpp @SOURCE_PATH@/src/core/tools/qstring.cpp \
 	   @SOURCE_PATH@/src/core/tools/qstringmatcher.cpp \
 	   @SOURCE_PATH@/src/core/io/qtextstream.cpp @SOURCE_PATH@/src/core/io/qiodevice.cpp \
-	   @SOURCE_PATH@/src/core/global/qglobal.cpp \
-	   @SOURCE_PATH@/src/core/tools/qbytearray.cpp \
-	   @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp \
+	   @SOURCE_PATH@/src/core/global/qglobal.cpp @SOURCE_PATH@/src/core/tools/qregexp.cpp \
+	   @SOURCE_PATH@/src/core/tools/qbytearray.cpp @SOURCE_PATH@/src/core/tools/qbytearraymatcher.cpp \
 	   @SOURCE_PATH@/src/core/io/qdatastream.cpp @SOURCE_PATH@/src/core/io/qbuffer.cpp \
-	   @SOURCE_PATH@/src/tools/qlist.cpp @SOURCE_PATH@/src/core/io/qfile.cpp \
-	   @SOURCE_PATH@/src/core/io/qfile_unix.cpp @SOURCE_PATH@/src/core/tools/qregexp.cpp \
+	   @SOURCE_PATH@/src/core/io/qfile.cpp @SOURCE_PATH@/src/core/io/qfile_unix.cpp \
 	   @SOURCE_PATH@/src/core/tools/qvector.cpp @SOURCE_PATH@/src/core/tools/qbitarray.cpp \
 	   @SOURCE_PATH@/src/core/io/qdir.cpp @SOURCE_PATH@/src/core/library/quuid.cpp \
 	   @SOURCE_PATH@/src/core/io/qfileinfo_unix.cpp @SOURCE_PATH@/src/core/io/qdir_unix.cpp \
