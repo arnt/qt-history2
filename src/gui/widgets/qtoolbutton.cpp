@@ -731,6 +731,7 @@ void QToolButtonPrivate::popupTimerDone()
         }
     }
     p.rx() = qMax(0, qMin(p.x(), screen.right() - sh.width()));
+    p.ry() += 1;
     QPointer<QToolButton> that = q;
     actualMenu->setNoReplayFor(q);
     actualMenu->exec(p);
