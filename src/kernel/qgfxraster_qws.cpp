@@ -5746,7 +5746,6 @@ QScreen::~QScreen()
 
 void QScreen::shutdownDevice()
 {
-    qDebug("shutdownCard");
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->hide();
 #endif
@@ -6114,7 +6113,7 @@ QScreen *qt_lookup_screen( int display_id, QString driver )
 	}
 	i++;
     }
-    return 0;    
+    return 0;
 }
 #endif
 
