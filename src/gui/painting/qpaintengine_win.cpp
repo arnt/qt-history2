@@ -446,6 +446,9 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
     setDirty(QPaintEngine::DirtyBackground);
     setDirty(QPaintEngine::DirtyBrush);
 
+    d->pColor = RGB(0, 0, 0);
+    d->bColor = RGB(0, 0, 0);
+
     // force a call to switch advanced mode on/off
     d->setNativeMatrix(QMatrix());
 
