@@ -1027,9 +1027,7 @@ QSize QPopupMenu::updateSize(bool force_update, bool do_resize)
 	
 	int dh = QApplication::desktop()->height();
 	ncols = 1;
-	if(style().styleHint(QStyle::SH_PopupMenu_Scrollable, this))
-	    height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
-	
+	height += style().pixelMetric(QStyle::PM_PopupMenuFrameVerticalExtra, this) * 2;
 	for ( QMenuItemListIt it2( *mitems ); it2.current(); ++it2 ) {
 	    mi = it2.current();
 	    if ( !mi->isVisible() )
