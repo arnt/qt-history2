@@ -387,12 +387,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    d->focus.append( child );
 	child->internalRaise();
 
-	if ( hasBeenHidden )
-	    w->hide();
-	else if ( !isVisible() ) 	// that's a case were we don't receive a showEvent in time. Tricky.
-	    child->show();
-
-	if ( !hasPos )
+	if ( !hasPos ) 
 	    place( child );
 	if ( hasSize )
 	    child->resize(width + child->baseSize().width(), height + child->baseSize().height() );
@@ -400,6 +395,11 @@ void QWorkspace::childEvent( QChildEvent * e)
 	    child->adjustSize();
 	if ( hasPos )
 	    child->move( x, y );
+
+	if ( hasBeenHidden )
+	    w->hide();
+	else if ( !isVisible() ) 	// that's a case were we don't receive a showEvent in time. Tricky.
+	    child->show();
 
 	activateWindow( w );
 	updateWorkspace();
@@ -445,6 +445,9 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
     while ( it.current () ) {
      	QWorkspaceChild* c = it.current();
 	++it;
+	if(windowMode() == QWorkspace::WS_TopLevel && c->isTopLevel() && 
+	    c->windowWidget() == w && !c->isActive()) 
+	    c->setActiveWindow();
 	c->setActive( c->windowWidget() == w );
 	if (c->windowWidget() == w)
 	    d->active = c;
@@ -626,6 +629,13 @@ void QWorkspace::place( QWidget* w)
     }
     while( overlap != 0 && overlap != -1 );
 
+#if 0
+    if(windowMode() == QWorkspace::WS_TopLevel && wpos.y()) {
+	QPoint fr = w->topLevelWidget()->frameGeometry().topLeft(),
+		r = w->topLevelWidget()->geometry().topLeft();
+	wpos += QPoint(r.x() - fr.x(), r.y() - fr.y());
+    }
+#endif
     w->move(wpos);
     updateWorkspace();
 }
@@ -1910,8 +1920,10 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
     connect( widgetResizeHandler, SIGNAL( activate() ),
 	     this, SLOT( activate() ) );
     widgetResizeHandler->setExtraHeight( th + 1 );
-    if(parent->windowMode() == QWorkspace::WS_TopLevel && isTopLevel())
+    if(parent->windowMode() == QWorkspace::WS_TopLevel && isTopLevel()) {
+	move(0, 0);
 	widgetResizeHandler->setActive( FALSE );
+    }
     setBaseSize( baseSize() );
 }
 
@@ -1946,7 +1958,8 @@ bool QWorkspaceChild::event( QEvent *e )
 	    break;
 #endif
 	case QEvent::WindowActivate:
-	    activate();
+	    if(((QWorkspace*)parentWidget())->activeWindow() == windowWidget())
+		activate();
 	    if(statusbar) 
 		statusbar->show();
 	    else if(((QWorkspace*) parentWidget() )->d->mainwindow) 
@@ -2495,9 +2508,6 @@ void QWorkspaceChild::internalRaise()
 	     c->windowWidget()->testWFlags( WStyle_StaysOnTop ) )
 	     c->raise();
     }
-    if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && isTopLevel())
-	setActiveWindow();
-
     setUpdatesEnabled( TRUE );
 }
 
