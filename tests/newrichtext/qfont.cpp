@@ -49,6 +49,7 @@
 #include "qstringlist.h"
 
 #include "fontengine.h"
+#include "qtextdata.h"
 
 // #define QFONTCACHE_DEBUG
 
@@ -1865,8 +1866,17 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 */
 QRect QFontMetrics::boundingRect( QChar ch ) const
 {
-    // ###
-    return QRect();
+    QFont::Script script;
+    SCRIPT_FOR_CHAR( script, ch );
+    d->load( script );
+
+    FontEngineIface *fe = d->x11data.fontstruct[script];
+
+    GlyphIndex glyphs[10];
+    int nglyphs = 9;
+    fe->stringToCMap( &ch, 1, glyphs, &nglyphs );
+    QGlyphMetrics gi = fe->boundingBox( glyphs[0] );
+    return QRect( gi.xoff, gi.yoff, gi.width, gi.height );
 }
 
 
