@@ -406,11 +406,6 @@
 #define QT_NO_MOVIE
 #endif
 
-// Network file access
-#if !defined(QT_NO_NETWORKPROTOCOL) && (defined(QT_NO_NETWORK) || defined(QT_NO_DIR))
-#define QT_NO_NETWORKPROTOCOL
-#endif
-
 // Printing
 #if !defined(QT_NO_PRINTER) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST) || defined(QT_NO_SPRINTF))
 #define QT_NO_PRINTER

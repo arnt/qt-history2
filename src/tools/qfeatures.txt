@@ -364,12 +364,6 @@ Requires: NETWORK STRINGLIST TEXTSTREAM SPRINTF
 Name: DNS
 SeeAlso: ???
 
-Feature: NETWORKPROTOCOL
-Section: Networking
-Requires: NETWORK DIR
-Name: Network file access
-SeeAlso: ???
-
 Feature: NETWORKPROTOCOL_FTP
 Section: Networking
 Requires: NETWORKPROTOCOL DNS TEXTDATE
