@@ -176,7 +176,7 @@ void QTabWidgetPrivate::init()
     QObject::connect(stack, SIGNAL(widgetRemoved(int)), q, SLOT(removeTab(int)));
     q->setTabBar(new QTabBar(q));
 
-    stack->setFrameStyle(QFrame::Box | QFrame::Plain);
+    stack->setFrameStyle(QFrame::Panel | QFrame::Raised);
 #ifdef Q_OS_TEMP
     pos = QTabWidget::Bottom;
 #endif
