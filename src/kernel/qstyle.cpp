@@ -164,41 +164,49 @@ void QStyle::unPolish( QWidget*)
 
 
 /*!
-    \overload
+  \overload
   Late initialization of the QApplication object.
 
   \sa unPolish(QApplication*)
- */
+*/
 void QStyle::polish( QApplication*)
 {
 }
 
 /*!
-    \overload
+  \overload
   Undoes the application polish.
 
   \sa polish(QApplication*)
- */
+*/
 void QStyle::unPolish( QApplication*)
 {
 }
 
 /*!
-    \overload
+  \overload
   The style may have certain requirements for color palettes.  In this
   function it has the chance to change the palette according to these
   requirements.
 
   \sa QPalette, QApplication::setPalette()
- */
+*/
 void QStyle::polish( QPalette&)
+{
+}
+
+/*!
+  Polishes the popup menu according to the GUI style. This is usually means
+  setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
+  the menu is checkable by default ( QPopupMenu::setCheckable() ).
+*/
+void QStyle::polishPopupMenu( QPopupMenu *)
 {
 }
 
 /*!
   Returns the appropriate area within a rectangle in which to
   draw text or a pixmap.
-
 */
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,
@@ -366,28 +374,42 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::ControlElement
 
-  \value CE_PushButton
-  \value CE_PushButtonLabel
+  This enum represents a ControlElement.  A ControlElement is part of a widget that
+  does some action or display information to the user.
 
-  \value CE_CheckBox
-  \value CE_CheckBoxLabel
 
-  \value CE_RadioButton
-  \value CE_RadioButtonLabel
+  \value CE_PushButton  the bevel and default indicator of a QPushButton.
+  \value CE_PushButtonLabel  the label ( iconset with text or pixmap ) of a QPushButton.
 
-  \value CE_TabBarTab
-  \value CE_TabBarLabel
 
-  \value CE_ProgressBarGroove
-  \value CE_ProgressBarContents
-  \value CE_ProgressBarLabel
+  \value CE_CheckBox  the indicator of a QCheckBox.
+  \value CE_CheckBoxLabel  the label ( text or pixmap ) of a QCheckBox.
 
-  \value CE_PopupMenuItem
-  \value CE_MenuBarItem
+
+  \value CE_RadioButton  the indicator of a QRadioButton.
+  \value CE_RadioButtonLabel  the label ( text or pixmap ) of a QRadioButton.
+
+
+  \value CE_TabBarTab  the tab within a QTabBar ( a QTab ).
+  \value CE_TabBarLabel  the label with in a QTab.
+
+
+  \value CE_ProgressBarGroove  the groove where the progress indicator is drawn in
+         a QProgressBar.
+  \value CE_ProgressBarContents  the progress indicator of a QProgressBar.
+  \value CE_ProgressBarLabel  the text label of a QProgressBar.
+
+
+  \value CE_PopupMenuItem  a menu item of a QPopupMenu.
+
+
+  \value CE_MenuBarItem  a menu item of a QMenuBar.
 */
 
 /*!
   \enum QStyle::ControlElementFlags
+
+
 
   \value CStyle_Default
   \value CStyle_Selected
