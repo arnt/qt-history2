@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#40 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#40 $";
 #endif
 
 
@@ -127,22 +127,22 @@ void QPainter::setTabArray( int *ta )		// set tab array
 
 
 struct QPState {				// painter state
-    QFont	 font;
-    QPen	 pen;
-    QBrush	 brush;
-    QColor	 bgc;
-    uchar	 bgm;
-    uchar	 pu;
-    uchar	 rop;
-    QPoint	 bro;
-    QRect	 wr, vr;
-    Q2DMatrix	 wm;
-    bool	 vxf;
-    bool	 wxf;
-    QRegion	 rgn;
-    bool	 clip;
-    int		 ts;
-    int		*ta;
+    QFont	font;
+    QPen	pen;
+    QBrush	brush;
+    QColor	bgc;
+    uchar	bgm;
+    uchar	pu;
+    uchar	rop;
+    QPoint	bro;
+    QRect	wr, vr;
+    QWMatrix	wm;
+    bool	vxf;
+    bool	wxf;
+    QRegion	rgn;
+    bool	clip;
+    int		ts;
+    int	       *ta;
 };
 
 declare(QStackM,QPState);
@@ -375,7 +375,7 @@ void QPainter::setWorldXForm( bool enable )	// set world transform
   Returns the world transformation matrix.
 */
 
-const Q2DMatrix &QPainter::worldMatrix() const	// get world xform matrix
+const QWMatrix &QPainter::worldMatrix() const	// get world xform matrix
 {
     return wxmat;
 }
@@ -391,7 +391,7 @@ const Q2DMatrix &QPainter::worldMatrix() const	// get world xform matrix
   setViewXForm()
 */
 
-void QPainter::setWorldMatrix( const Q2DMatrix &m, bool combine )
+void QPainter::setWorldMatrix( const QWMatrix &m, bool combine )
 {						// set world xform matrix
     if ( combine )
 	wxmat = m * wxmat;			// combines

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#108 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#107 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#108 $";
 #endif
 
 
@@ -910,7 +910,7 @@ static inline int d2i_round( double d )
 
 void QPainter::updateXForm()			// update xform params
 {
-    Q2DMatrix m;
+    QWMatrix m;
     if ( testf(VxF) ) {
 	m.translate( vx, vy );
 	m.scale( 1.0*vw/ww, 1.0*vh/wh );
@@ -2105,9 +2105,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		return;
 	    }
 							// world transform
-	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
-			   wm21/65536.0, wm22/65536.0,
-			   wdx/65536.0,	 wdy/65536.0 );
+	    QWMatrix mat( wm11/65536.0, wm12/65536.0,
+			  wm21/65536.0, wm22/65536.0,
+			  wdx/65536.0,	 wdy/65536.0 );
 	    mat = QPixmap::trueMatrix( mat, sw, sh );
 	    QPixmap bm_clip( sw, sh, 1 );
 	    bm_clip.fill( color1 );
@@ -2177,7 +2177,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 // Generate a string that describes a transformed bitmap. This string is used
 // to insert and find bitmaps in the global pixmap cache.
 //
-static QString gen_xbm_key( const Q2DMatrix &m, const QFontInfo &fi,
+static QString gen_xbm_key( const QWMatrix &m, const QFontInfo &fi,
 			    const char *str, int len )
 {
     QString s = str;
@@ -2198,7 +2198,7 @@ static QString gen_xbm_key( const Q2DMatrix &m, const QFontInfo &fi,
 }
 
 
-static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFontInfo &fi,
+static QPixmap *get_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, fi, str, len );
@@ -2206,7 +2206,7 @@ static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFontInfo &fi,
 }
 
 
-static void ins_text_bitmap( const Q2DMatrix &m, const QFontInfo &fi,
+static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
 			     const char *str, int len, QPixmap *pm )
 {
     QString k = gen_xbm_key( m, fi, str, len );
@@ -2250,10 +2250,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
-	    Q2DMatrix mat1( wm11/65536.0, wm12/65536.0,
-			    wm21/65536.0, wm22/65536.0,
-			    wdx/65536.0,  wdy/65536.0 );
-	    Q2DMatrix mat = QPixmap::trueMatrix( mat1, w, h );
+	    QWMatrix mat1( wm11/65536.0, wm12/65536.0,
+			   wm21/65536.0, wm22/65536.0,
+			   wdx/65536.0,  wdy/65536.0 );
+	    QWMatrix mat = QPixmap::trueMatrix( mat1, w, h );
 	    QPixmap *wx_bm = get_text_bitmap( mat, fi, str, len );
 	    bool create_new_bm = wx_bm == 0;
 	    if ( create_new_bm ) {		// no such cached bitmap

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#25 $
 **
 ** Implementation of QPicture class
 **
@@ -18,7 +18,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#25 $";
 #endif
 
 
@@ -28,8 +28,8 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpicture.cpp#24 $";
 commands.
 
 A picture serializes painter commands to an IO device in a
-platform-independent format.  A picture created under OS/2
-Presentation Manager can easily be read on a Sun SPARC.
+platform-independent format.  A picture created under Windows
+can be read on a Sun SPARC.
 
 Pictures are called meta-files on some platforms.
 
@@ -209,7 +209,7 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, long nrecords )
     QPen	pen;
     QBrush	brush;
     QRegion	rgn;
-    Q2DMatrix	matrix;
+    QWMatrix	matrix;
 
     while ( nrecords-- && !s.eos() ) {
 	s >> c;					// read cmd
