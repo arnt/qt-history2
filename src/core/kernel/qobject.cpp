@@ -1980,9 +1980,9 @@ bool QObject::connect(const QObject *sender, const char *signal,
             rmember = rmeta->signal(member_index);
             break;
         }
-        if(smember.isCompat())
+        if(smember.attributes() & QMetaMember::Compatability)
             qWarning("Object::connect: Connecting from COMPAT signal (%s).", signal);
-        if(rmember.isCompat())
+        if(rmember.attributes() & QMetaMember::Compatability)
             qWarning("Object::connect: Connecting to COMPAT %s (%s).",
                      (membcode == QSLOT_CODE) ? "slot" : "signal", member);
         switch(rmember.access()) {

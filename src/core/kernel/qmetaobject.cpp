@@ -108,8 +108,8 @@ enum FunctionFlags  {
     AccessPublic          = 0x02,
     AccessProtected       = 0x04,
     AccessMask            = 0x07, //mask
-    Compatability         = 0x08,
-    Cloned                = 0x10
+    Compatability         = QMetaMember::Compatability,
+    Cloned                = QMetaMember::Cloned
 };
 
 struct QMetaObjectPrivate
@@ -846,21 +846,11 @@ const char *QMetaMember::tag() const
 
 
 /*! \internal */
-
-bool QMetaMember::isCompat() const
+int QMetaMember::attributes() const
 {
     if (!mobj)
         return false;
-    return mobj->d.data[handle + 4] & Compatability;
-}
-
-/*! \internal */
-
-bool QMetaMember::isCloned() const
-{
-    if (!mobj)
-        return false;
-    return mobj->d.data[handle + 4] & Cloned;
+    return mobj->d.data[handle + 4] & ~AccessMask;
 }
 
 /*!
@@ -1216,8 +1206,12 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     }
     QCoreVariant value;
     void *argv[1];
+    void *user = 0;
     if ((uint)t == 0xffffffff) {
         argv[0] = &value;
+    } else if (t == QCoreVariant::UserType) {
+        qVariantSet(value, user, type());
+        argv[0] = &user;
     } else {
         value = QCoreVariant(t, (void*)0);
         argv[0] = value.data();
@@ -1225,7 +1219,7 @@ QCoreVariant QMetaProperty::read(const QObject *obj) const
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
                      idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
                      argv);
-    if ((uint)t != 0xffffffff && argv[0] != value.data())
+    if ((uint)t != 0xffffffff && t != QCoreVariant::UserType && argv[0] != value.data())
         return QCoreVariant(t, argv[0]);
     return value;
 }
@@ -1258,7 +1252,7 @@ bool QMetaProperty::write(QObject *obj, const QCoreVariant &value) const
         if (t == QCoreVariant::Invalid)
             t = QCoreVariant::nameToType(mobj[QMetaObject::WriteProperty]->d.stringdata
                                       + mobj[QMetaObject::WriteProperty]->d.data[handle + 1]);
-        if (t != QCoreVariant::Invalid && (uint)t != 0xffffffff && !v.cast(t))
+        if (t != QCoreVariant::Invalid && (uint)t != 0xffffffff && t != QCoreVariant::UserType &&  !v.cast(t))
             return false;
     }
 

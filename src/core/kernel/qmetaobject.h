@@ -32,8 +32,8 @@ public:
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
-    bool isCompat() const;
-    bool isCloned() const;
+    enum Attributes { Compatability = 0x08, Cloned = 0x10 };
+    int attributes() const;
 
 private:
     const QMetaObject *mobj;
