@@ -4087,13 +4087,12 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     p->save();
     p->setPen( defFormat->color() );
 
-    QFont font = p->font();
     QFont font2( defFormat->font() );
-    font2.setPointSize( length() > 0 && at( 0 )->format() ? at( 0 )->format()->font().pointSize() : defFormat->font().pointSize() );
+    if ( length() > 0 && at( 0 )->format() )
+	font2.setPointSize( at( 0 )->format()->font().pointSize() );
     p->setFont( font2 );
     QFontMetrics fm( p->fontMetrics() );
-    QFontMetrics dfm( defFormat->font() );
-    int size = dfm.lineSpacing() / 3;
+    int size = fm.lineSpacing() / 3;
 
     switch ( s ) {
     case QStyleSheetItem::ListDecimal:
@@ -4146,7 +4145,6 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     }
 
     p->restore();
-    p->setFont( font );
 }
 
 void QTextParag::setStyleSheetItems( const QPtrVector<QStyleSheetItem> &vec )
@@ -4391,12 +4389,13 @@ int QTextParag::topMargin() const
 	if ( it != p )
 	    break;
 	int mar = it->margin( QStyleSheetItem::MarginTop );
-	m += mar != QStyleSheetItem::Undefined ? mar : 0;
+	m += (mar != QStyleSheetItem::Undefined) ? mar : 0;
 	if ( it->displayMode() != QStyleSheetItem::DisplayInline )
 	    break;
     }
     
-    m = scale( m, painter() );
+    // ### don't know why, but using the scale method here gives wrong results
+    //    m = scale( m, painter() );
 
     ( (QTextParag*)this )->tm = m;
     return tm;
@@ -4427,7 +4426,8 @@ int QTextParag::bottomMargin() const
 	    break;
     }
 
-    m = scale ( m, painter() );
+    // ### don't know why, but using the scale method here gives wrong results
+    //    m = scale ( m, painter() );
 
     ( (QTextParag*)this )->bm = m;
     return bm;
@@ -4448,10 +4448,12 @@ int QTextParag::leftMargin() const
 	int mar = item->margin( QStyleSheetItem::MarginLeft );
 	m += mar != QStyleSheetItem::Undefined ? mar : 0;
 	if ( item->name() == "ol" || item->name() == "ul" ) {
+	    defFormat->setPainter( 0 );
 	    m += defFormat->width( '1' ) +
 		 defFormat->width( '2' ) +
 		 defFormat->width( '3' ) +
 		 defFormat->width( '.' );
+	    defFormat->setPainter( painter() );
 	}
     }
 
