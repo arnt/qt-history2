@@ -4,3 +4,4 @@ HEADERS		=
 SOURCES		= newfont.cpp
 INTERFACES	= 
 TARGET		= newfont
+CLEAN_FILES	= newfont.core

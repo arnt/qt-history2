@@ -4,3 +4,5 @@ HEADERS		=
 SOURCES		= chk.cpp 
 INTERFACES	= 
 TARGET		= chk
+DEFINES		= Q_SUPERFONT
+

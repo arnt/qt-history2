@@ -1,6 +1,7 @@
 #include <qfeatures.h>
 #include <qtextcodec.h>
 
+
 #ifndef QT_NO_CODECS
 
 #include <qjpunicode.h>
@@ -44,7 +45,7 @@ QFontJis0208Codec::QFontJis0208Codec()
 
 const char* QFontJis0208Codec::name() const
 {
-    return "JIS_X0208";
+    return "QFont::JISX0208";
 }
 
 int QFontJis0208Codec::mibEnum() const
@@ -128,7 +129,7 @@ QFontKsc5601Codec::QFontKsc5601Codec()
 
 const char* QFontKsc5601Codec::name() const
 {
-    return "KSC_5601";
+    return "QFont::KSC5601";
 }
 
 int QFontKsc5601Codec::mibEnum() const
