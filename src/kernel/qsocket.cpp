@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#10 $
 **
 ** Implementation of QSocket class
 **
@@ -456,7 +456,8 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
 	    d->rba.remove();
 	    d->rindex = 0;
 	    if ( nbytes == 0 ) {		// nothing more to skip
-		ASSERT( d->rba.isEmpty() );
+	        if ( d->mode == Ascii )
+		    d->newline = scanNewline();
 		return TRUE;
 	    }
 	} else {
@@ -464,6 +465,8 @@ bool QSocket::skipReadBuf( int nbytes, char *copyInto )
 	    if ( copyInto )
 		memcpy( copyInto, a->data()+d->rindex, nbytes );
 	    d->rindex += nbytes;
+	    if ( d->mode == Ascii )
+	        d->newline = scanNewline();
 	    return TRUE;
 	}
     }
@@ -528,6 +531,7 @@ bool QSocket::scanNewline( QByteArray *store )
 	    p = a->data() + d->rindex;
 	    n = a->size() - d->rindex;
 	} else {
+	    debug("try the next byte array");
 	    a = d->rba.next();
 	    if ( !a || a->size() == 0 )
 		return FALSE;
@@ -539,12 +543,18 @@ bool QSocket::scanNewline( QByteArray *store )
 		*(store->data()+i) = *p;
 		if ( ++i == (int)store->size() )
 		    store->resize( store->size()*2 );
-		if ( *p == '\n' ) {
-		    *(store->data()+i) = '\0';
-		    debug( "yep, we got a text %d bytes, %s",
-			   strlen(store->data()), store->data() );
-		    store->resize( i );
-		    return TRUE;
+		switch ( *p ) {
+		    case '\0':
+			debug( "oops, unexpected 0-terminated text, %d bytes, %s",
+			       strlen(store->data()), store->data() );
+			store->resize( i );
+			return FALSE;
+		    case '\n':
+		        *(store->data()+i) = '\0';
+			debug( "yep, we got a text %d bytes, %s",
+			       strlen(store->data()), store->data() );
+			store->resize( i );
+			return TRUE;
 		}
 		p++;
 	    }
