@@ -2523,11 +2523,11 @@ private:
     Constructs a simple XML reader with the following feature settings:
     \table
     \header \i Feature \i Setting
-    \row \i \l http://xml.org/sax/features/namespaces \i TRUE
-    \row \i \l http://xml.org/sax/features/namespace-prefixes \i FALSE
-    \row \i \l http://trolltech.com/xml/features/report-whitespace-only-CharData
+    \row \i \e http://xml.org/sax/features/namespaces \i TRUE
+    \row \i \e http://xml.org/sax/features/namespace-prefixes \i FALSE
+    \row \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData
 	 \i TRUE
-    \row \i \l http://trolltech.com/xml/features/report-start-end-entity \i FALSE
+    \row \i \e http://trolltech.com/xml/features/report-start-end-entity \i FALSE
     \endtable
 
     More information about features can be found in the \link
@@ -2596,18 +2596,18 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
     The following features are supported:
     \table
     \header \i Feature \i Notes
-    \row \i \l http://xml.org/sax/features/namespaces
+    \row \i \e http://xml.org/sax/features/namespaces
 	 \i If this feature is TRUE, namespace processing is
 	    performed.
-    \row \i \l http://xml.org/sax/features/namespace-prefixes
+    \row \i \e http://xml.org/sax/features/namespace-prefixes
 	 \i If this feature is TRUE, the the original prefixed names
 	    and attributes used for namespace declarations are
 	    reported.
-    \row \i \l http://trolltech.com/xml/features/report-whitespace-only-CharData
+    \row \i \e http://trolltech.com/xml/features/report-whitespace-only-CharData
 	 \i If this feature is TRUE, CharData that consist of
 	    whitespace only (and no other characters) are not reported
 	    via QXmlContentHandler::characters().
-    \row \i \l http://trolltech.com/xml/features/report-start-end-entity
+    \row \i \e http://trolltech.com/xml/features/report-start-end-entity
 	 \i If this feature is TRUE, the parser reports
 	    QXmlContentHandler::startEntity() and
 	    QXmlContentHandler::endEntity() events. So character data
