@@ -774,7 +774,9 @@ bool FileDriver::rangeAction( const localsql::List* data, const localsql::List* 
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
-	    ERROR_RETURN( "Internal error: Bad field type:" + QString( value.typeName() ) );
+	    QVariant v; v.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
+	    ERROR_RETURN( "Incompatible types: '" + QString( value.typeName() ) + "' and '" +
+			  QString( v.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
 		     name;
@@ -966,7 +968,10 @@ bool FileDriver::createIndex( const localsql::List& data, bool unique )
 	    ERROR_RETURN( "Internal error: Field not found:" + name );
 	}
 	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( type ) ) {
-	    ERROR_RETURN( "Internal error: Bad field type:" + name );
+	    QVariant v1; v1.cast( type );
+	    QVariant v2; v2.cast( xbaseTypeToVariant( d->file.GetFieldType( fieldnum ) ) );
+	    ERROR_RETURN( "Incompatible types: '" + QString( v1.typeName() ) + "' and '" +
+			  QString( v2.typeName() ) + "'" );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
     }

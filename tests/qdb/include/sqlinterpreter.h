@@ -205,6 +205,7 @@ private:
     void matchDataType();
     QStringList matchColumnList();
     void matchTableConstraintDef();
+    void matchColumnConstraintDef();
     void matchBaseTableElement();
     void matchBaseTableElementList();
     void matchCreateStatement();
