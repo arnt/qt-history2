@@ -1055,7 +1055,7 @@ void QWSServer::doClient( QWSClient *client )
 		microF = TRUE;
 		microX = cmd->simpleData.x;
 		microY = cmd->simpleData.y;
-		current_IM_Rect = QRect( cmd->simpleData.x1, 
+		current_IM_Rect = QRect( cmd->simpleData.x1,
 					 cmd->simpleData.y1,
 					 cmd->simpleData.w,
 					 cmd->simpleData.h );
@@ -1245,7 +1245,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 
 #ifndef QT_NO_QWS_IM
     //reset input method if we click outside
-    
+
     static int oldstate = 0;
     bool isPress = state > oldstate;
     oldstate = state;
@@ -1253,15 +1253,15 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	QWSWindow *kbw = keyboardGrabber ? keyboardGrabber :
 			 qwsServer->focusw;
 
-	
+
 	//checking for virtual keyboards ### could be better
-	QWidget *target = winClient == serverClient ? 
+	QWidget *target = winClient == serverClient ?
 			  QApplication::widgetAt( pos ) : 0;
 	if ( kbw != win && (!target || !target->testWFlags( WStyle_Tool ) || target->focusPolicy() != QWidget::NoFocus) )
 	    resetInputMethod();
     }
 #endif
-    
+
     if ( serverClient )
        serverClient->sendEvent( &event );
     if ( winClient && winClient != serverClient )
@@ -1588,7 +1588,7 @@ void QWSServer::requestMarkedText()
        serverClient->sendEvent( &event );
     if ( win && win->client() && win->client() != serverClient )
        win->client()->sendEvent( &event );
-    
+
 }
 
 
@@ -1867,7 +1867,7 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 	    QString s( (const QChar*)cmd->data, cmd->rawLen/2 );
 	    emit markedText( s );
 	}
-#endif	     
+#endif
     }
 }
 
@@ -2044,15 +2044,15 @@ void QWSServer::invokeSetIMInfo( const QWSSetIMInfoCommand *cmd,
 {
     current_IM_y = cmd->simpleData.y;
 
-    current_IM_Rect = QRect( cmd->simpleData.x1, 
+    current_IM_Rect = QRect( cmd->simpleData.x1,
 			     cmd->simpleData.y1,
 			     cmd->simpleData.w,
 			     cmd->simpleData.h );
 
     //??? reset if  windowid != current_IM_winId  ???
-    
+
     current_IM_winId = cmd->simpleData.windowid;
-    
+
     if ( current_IM )
       current_IM->setMicroFocus( cmd->simpleData.x, cmd->simpleData.y );
 }
@@ -2061,7 +2061,7 @@ void QWSServer::resetInputMethod()
 {
     if ( current_IM_State == IMEnd )
 	current_IM_State = IMInternal;
-    
+
     if ( current_IM && qwsServer ) {
       current_IM->reset();
     }
@@ -2425,11 +2425,9 @@ void QWSServer::openMouse()
     closeMouse();
     bool needviscurs = TRUE;
     if ( mice != "None" ) {
-#ifndef QT_NO_STRINGLIST
 	QStringList mouse = QStringList::split(" ",mice);
 	for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
 	    QString ms = *m;
-#else
 	    QString ms = mice; // Assume only one
 	    {
 #endif
@@ -2514,7 +2512,6 @@ void QWSServer::openKeyboard()
 	return;
     QString device;
     QString type;
-#ifndef QT_NO_STRINGLIST
     QStringList keyboard = QStringList::split(" ",keyboards);
     for (QStringList::Iterator k=keyboard.begin(); k!=keyboard.end(); ++k) {
 	QString spec = *k;
@@ -2528,17 +2525,6 @@ void QWSServer::openKeyboard()
 	QWSKeyboardHandler* kh = QKbdDriverFactory::create( type, device );
 	keyboardhandlers.append(kh);
     }
-#else
-    int colon=keyboards.find(':');
-    if ( colon>=0 ) {
-	type = keyboards.left(colon);
-	device = keyboards.mid(colon+1);
-    } else {
-	type = keyboards;
-    }
-    QWSKeyboardHandler* kh = QKbdDriverFactory::create(type, device); //assume only one
-    keyboardhandlers.append(kh);
-#endif
 }
 
 #endif //QT_NO_QWS_KEYBOARD

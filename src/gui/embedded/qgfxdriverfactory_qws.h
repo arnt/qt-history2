@@ -23,9 +23,7 @@ class QScreen;
 class Q_GUI_EXPORT QGfxDriverFactory
 {
 public:
-#ifndef QT_NO_STRINGLIST
     static QStringList keys();
-#endif
     static QScreen *create( const QString&, int );
 };
 

@@ -159,14 +159,12 @@ public:
     QString toString() const;
     bool fromString(const QString &);
 
-#ifndef QT_NO_STRINGLIST
     static QString substitute(const QString &);
     static QStringList substitutes(const QString &);
     static QStringList substitutions();
     static void insertSubstitution(const QString&, const QString &);
     static void insertSubstitutions(const QString&, const QStringList &);
     static void removeSubstitution(const QString &);
-#endif //QT_NO_STRINGLIST
     static void initialize();
     static void cleanup();
 #ifndef Q_WS_QWS

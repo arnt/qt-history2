@@ -94,9 +94,7 @@ public:
 
     static void initialize();
     static void cleanup();
-#ifndef QT_NO_STRINGLIST
     static QStringList colorNames();
-#endif
     enum { Dirt = 0x44495254, Invalid = 0x49000000 };
 
 private:

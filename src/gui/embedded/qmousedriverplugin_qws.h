@@ -32,9 +32,7 @@ public:
     QMouseDriverPlugin();
     ~QMouseDriverPlugin();
 
-#ifndef QT_NO_STRINGLIST
     virtual QStringList keys() const = 0;
-#endif
     virtual QWSMouseHandler* create( const QString& driver, const QString &device ) = 0;
 
 private:

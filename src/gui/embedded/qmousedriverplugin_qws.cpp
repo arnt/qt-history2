@@ -59,9 +59,7 @@ public:
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
     Q_REFCOUNT;
 
-#ifndef QT_NO_STRINGLIST
     QStringList featureList() const;
-#endif
 
     QWSMouseHandler* create( const QString& driver, const QString &device );
 
@@ -91,12 +89,10 @@ QRESULT QMouseDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInt
     return QS_OK;
 }
 
-#ifndef QT_NO_STRINGLIST
 QStringList QMouseDriverPluginPrivate::featureList() const
 {
     return plugin->keys();
 }
-#endif
 
 QWSMouseHandler* QMouseDriverPluginPrivate::create( const QString& driver, const QString &device )
 {

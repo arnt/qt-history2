@@ -125,7 +125,6 @@ QWSMouseHandler *QMouseDriverFactory::create( const QString& key, const QString 
     return 0;
 }
 
-#ifndef QT_NO_STRINGLIST
 /*!
     Returns the list of keys this factory can create drivers for.
 
@@ -179,4 +178,3 @@ QStringList QMouseDriverFactory::keys()
 
     return list;
 }
-#endif

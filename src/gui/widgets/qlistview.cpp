@@ -1988,7 +1988,6 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 		ci->truncated = TRUE;
 		ci->tmpText = qEllipsisText( t, fm, width - pw, align );
 	    } else if ( mlenabled && fm.width( t ) + pw > width ) {
-#ifndef QT_NO_STRINGLIST
 		QStringList list = t.split(QChar('\n'));
 		for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
 		    QString z = *it;
@@ -2000,7 +1999,6 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 
 		if ( ci->truncated )
 		    ci->tmpText = list.join( QString("\n") );
-#endif
 	    }
 	}
 

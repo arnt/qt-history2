@@ -55,10 +55,8 @@ public:
     static const char* pictureFormat( const QString &fileName );
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
-#ifndef QT_NO_STRINGLIST
     static QStringList inputFormatList();
     static QStringList outputFormatList();
-#endif
 #endif
 
     QPaintEngine *engine() const;// { Q_ASSERT(!"QPicture::engine() is not implemented!"); return 0; }

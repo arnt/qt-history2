@@ -149,7 +149,6 @@ QScreen *QGfxDriverFactory::create( const QString& key, int displayId )
     return 0;
 }
 
-#ifndef QT_NO_STRINGLIST
 /*!
     Returns the list of keys this factory can create drivers for.
 
@@ -215,4 +214,3 @@ QStringList QGfxDriverFactory::keys()
 
     return list;
 }
-#endif

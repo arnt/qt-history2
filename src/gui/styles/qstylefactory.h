@@ -25,9 +25,7 @@ class QStyle;
 class Q_GUI_EXPORT QStyleFactory
 {
 public:
-#ifndef QT_NO_STRINGLIST
     static QStringList keys();
-#endif
     static QStyle *create( const QString& );
 };
 

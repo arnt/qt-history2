@@ -23,9 +23,7 @@ class QWSKeyboardHandler;
 class Q_GUI_EXPORT QKbdDriverFactory
 {
 public:
-#ifndef QT_NO_STRINGLIST
     static QStringList keys();
-#endif
     static QWSKeyboardHandler *create( const QString&, const QString& );
 };
 

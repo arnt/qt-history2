@@ -3284,7 +3284,6 @@ static QStringList qToStringList(const QList<QByteArray> arr)
     return list;
 }
 
-#ifndef QT_NO_STRINGLIST
 /*!
     Returns a list of image formats that are supported for image
     input.
@@ -3329,7 +3328,6 @@ QStringList QImage::outputFormatList()
 {
     return qToStringList(QImageIO::outputFormats());
 }
-#endif //QT_NO_STRINGLIST
 
 /*!
     Returns a list of image formats that are supported for image

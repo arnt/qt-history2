@@ -143,9 +143,6 @@
 // Standard template library compatiblity
 //#define QT_NO_STL
 
-// QStringList
-//#define QT_NO_STRINGLIST
-
 // Character set conversions
 //#define QT_NO_TEXTCODEC
 
@@ -177,11 +174,6 @@
 #define QT_NO_COP
 #endif
 
-// QFontDatabase
-#if !defined(QT_NO_FONTDATABASE) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_FONTDATABASE
-#endif
-
 // Image formats
 #if !defined(QT_NO_IMAGEIO) && (defined(QT_NO_REGEXP))
 #define QT_NO_IMAGEIO
@@ -192,11 +184,6 @@
 #define QT_NO_IMAGE_16_BIT
 #endif
 
-// Image file text strings
-#if !defined(QT_NO_IMAGE_TEXT) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_IMAGE_TEXT
-#endif
-
 // Shared library wrapper
 #if !defined(QT_NO_LIBRARY) && (defined(QT_NO_REGEXP))
 #define QT_NO_LIBRARY
@@ -205,11 +192,6 @@
 // Pixmap transformations
 #if !defined(QT_NO_PIXMAP_TRANSFORMATION) && (defined(QT_NO_WMATRIX))
 #define QT_NO_PIXMAP_TRANSFORMATION
-#endif
-
-// Convert UUID to/from string
-#if !defined(QT_NO_QUUID_STRING) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_QUUID_STRING
 #endif
 
 // The "BeOS" style
@@ -312,11 +294,6 @@
 #define QT_NO_SEMIMODAL
 #endif
 
-// Session management
-#if !defined(QT_NO_SESSIONMANAGER) && (defined(QT_NO_STRINGLIST))
-#define QT_NO_SESSIONMANAGER
-#endif
-
 // QString::sprintf()
 #if !defined(QT_NO_SPRINTF) && (defined(QT_NO_REGEXP))
 #define QT_NO_SPRINTF
@@ -348,12 +325,12 @@
 #endif
 
 // BDF font files
-#if !defined(QT_NO_BDF) && (defined(QT_NO_TEXTSTREAM) || defined(QT_NO_STRINGLIST))
+#if !defined(QT_NO_BDF) && defined(QT_NO_TEXTSTREAM)
 #define QT_NO_BDF
 #endif
 
 // QDir
-#if !defined(QT_NO_DIR) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_REGEXP))
+#if !defined(QT_NO_DIR) && defined(QT_NO_REGEXP)
 #define QT_NO_DIR
 #endif
 
@@ -388,12 +365,12 @@
 #endif
 
 // External process invocation.
-#if !defined(QT_NO_PROCESS) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_REGEXP))
+#if !defined(QT_NO_PROCESS) && (defined(QT_NO_REGEXP))
 #define QT_NO_PROCESS
 #endif
 
 // Regular expression capture
-#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP) || defined(QT_NO_STRINGLIST))
+#if !defined(QT_NO_REGEXP_CAPTURE) && (defined(QT_NO_REGEXP))
 #define QT_NO_REGEXP_CAPTURE
 #endif
 
@@ -403,12 +380,12 @@
 #endif
 
 // Template classes in QVariant
-#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST))
+#if !defined(QT_NO_TEMPLATE_VARIANT) && (defined(QT_NO_VARIANT))
 #define QT_NO_TEMPLATE_VARIANT
 #endif
 
 // Month and day names in dates
-#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_DATESTRING))
+#if !defined(QT_NO_TEXTDATE) && (defined(QT_NO_DATESTRING))
 #define QT_NO_TEXTDATE
 #endif
 
@@ -448,7 +425,7 @@
 #endif
 
 // DNS
-#if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
+#if !defined(QT_NO_DNS) && (defined(QT_NO_NETWORK) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_SPRINTF))
 #define QT_NO_DNS
 #endif
 
@@ -638,17 +615,17 @@
 #endif
 
 // Properties
-#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_ICONSET))
+#if !defined(QT_NO_PROPERTIES) && (defined(QT_NO_VARIANT) || defined(QT_NO_ICONSET))
 #define QT_NO_PROPERTIES
 #endif
 
 // RichText (HTML) display
-#if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_STYLE) || defined(QT_NO_LAYOUT) || defined(QT_NO_STRINGLIST) || defined(QT_NO_TEXTSTREAM))
+#if !defined(QT_NO_RICHTEXT) && (defined(QT_NO_STYLE) || defined(QT_NO_LAYOUT) || defined(QT_NO_TEXTSTREAM))
 #define QT_NO_RICHTEXT
 #endif
 
 // SQL classes
-#if !defined(QT_NO_SQL) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_VARIANT) || defined(QT_NO_SPRINTF) || defined(QT_NO_DATESTRING))
+#if !defined(QT_NO_SQL) && (defined(QT_NO_REGEXP_CAPTURE) || defined(QT_NO_VARIANT) || defined(QT_NO_SPRINTF) || defined(QT_NO_DATESTRING))
 #define QT_NO_SQL
 #endif
 
@@ -763,7 +740,7 @@
 #endif
 
 // QListBox
-#if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW) || defined(QT_NO_STRINGLIST))
+#if !defined(QT_NO_LISTBOX) && (defined(QT_NO_SCROLLVIEW))
 #define QT_NO_LISTBOX
 #endif
 
@@ -933,7 +910,7 @@
 #endif
 
 // Main-windows
-#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_STRINGLIST) || defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_STATUSBAR))
+#if !defined(QT_NO_MAINWINDOW) && (defined(QT_NO_POPUPMENU) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_STATUSBAR))
 #define QT_NO_MAINWINDOW
 #endif
 

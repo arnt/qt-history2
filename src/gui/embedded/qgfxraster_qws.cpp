@@ -6112,13 +6112,11 @@ QScreen *qt_get_screen( int display_id, const char *spec )
     bool foundDriver = FALSE;
     QString driverName = driver;
 
-#ifndef QT_NO_STRINGLIST
     QStringList driverList = QGfxDriverFactory::keys();
     QStringList::Iterator it;
     for ( it = driverList.begin(); it != driverList.end(); ++it ) {
 	if ( driver.isEmpty() || QString( *it ) == driver ) {
 	    driverName = *it;
-#endif
 	    qt_screen = QGfxDriverFactory::create( driverName, display_id );
 	    if ( qt_screen ) {
 		foundDriver = TRUE;
@@ -6129,10 +6127,8 @@ QScreen *qt_get_screen( int display_id, const char *spec )
 		    qt_screen = 0;
 		}
 	    }
-#ifndef QT_NO_STRINGLIST
 	}
     }
-#endif
 
     if ( driver.isNull() )
 	qFatal( "No suitable driver found" );

@@ -162,7 +162,6 @@ QStyle *QStyleFactory::create( const QString& key )
     return ret;
 }
 
-#ifndef QT_NO_STRINGLIST
 /*!
     Returns the list of keys this factory can create styles for.
 
@@ -227,5 +226,4 @@ QStringList QStyleFactory::keys()
 
     return list;
 }
-#endif
 #endif // QT_NO_STYLE

@@ -14,7 +14,6 @@
 
 #include "qstringlist.h"
 
-#ifndef QT_NO_STRINGLIST
 #include "qregexp.h"
 #include "qtl.h"
 
@@ -351,4 +350,3 @@ QDataStream& operator<<( QDataStream& s, const QStringList& l )
 }
 #endif // QT_NO_DATASTREAM
 
-#endif //QT_NO_STRINGLIST

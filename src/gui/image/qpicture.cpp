@@ -1159,7 +1159,6 @@ QList<QByteArray> QPicture::inputFormats()
     return QPictureIO::inputFormats();
 }
 
-#ifndef QT_NO_STRINGLIST
 static QStringList qToStringList(const QList<QByteArray> arr)
 {
     QStringList list;
@@ -1212,7 +1211,6 @@ QStringList QPicture::outputFormatList()
 {
     return qToStringList(QPictureIO::outputFormats());
 }
-#endif //QT_NO_STRINGLIST
 
 /*!
     Returns a list of picture formats that are supported for picture

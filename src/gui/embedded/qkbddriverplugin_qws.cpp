@@ -59,9 +59,7 @@ public:
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
     Q_REFCOUNT;
 
-#ifndef QT_NO_STRINGLIST
     QStringList featureList() const;
-#endif
 
     QWSKeyboardHandler* create( const QString& driver, const QString &device );
 
@@ -91,12 +89,10 @@ QRESULT QKbdDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
     return QS_OK;
 }
 
-#ifndef QT_NO_STRINGLIST
 QStringList QKbdDriverPluginPrivate::featureList() const
 {
     return plugin->keys();
 }
-#endif
 
 QWSKeyboardHandler* QKbdDriverPluginPrivate::create( const QString& driver, const QString &device )
 {

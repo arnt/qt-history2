@@ -59,9 +59,7 @@ public:
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
     Q_REFCOUNT;
 
-#ifndef QT_NO_STRINGLIST
     QStringList featureList() const;
-#endif
 
     QScreen* create( const QString& driver, int displayId );
 
@@ -91,12 +89,10 @@ QRESULT QGfxDriverPluginPrivate::queryInterface( const QUuid &iid, QUnknownInter
     return QS_OK;
 }
 
-#ifndef QT_NO_STRINGLIST
 QStringList QGfxDriverPluginPrivate::featureList() const
 {
     return plugin->keys();
 }
-#endif
 
 QScreen* QGfxDriverPluginPrivate::create( const QString& driver, int displayId )
 {

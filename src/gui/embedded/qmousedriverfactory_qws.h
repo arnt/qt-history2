@@ -23,9 +23,7 @@ class QWSMouseHandler;
 class Q_GUI_EXPORT QMouseDriverFactory
 {
 public:
-#ifndef QT_NO_STRINGLIST
     static QStringList keys();
-#endif
     static QWSMouseHandler *create( const QString&, const QString & );
 };
 

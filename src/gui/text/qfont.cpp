@@ -1645,22 +1645,9 @@ QString QFont::toString() const
  */
 bool QFont::fromString(const QString &descrip)
 {
-#ifndef QT_NO_STRINGLIST
     QStringList l(descrip.split(','));
 
     int count = l.count();
-#else
-    int count = 0;
-    QString l[11];
-    int from = 0;
-    int to = descrip.find( ',' );
-    while ( to > 0 && count < 11 ) {
-	l[count] = descrip.mid( from, to-from );
-	count++;
-	from = to+1;
-	to = descrip.find( ',', from );
-    }
-#endif // QT_NO_STRINGLIST
     if ( !count || ( count > 2 && count < 9 ) || count > 11 ) {
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
 	return FALSE;

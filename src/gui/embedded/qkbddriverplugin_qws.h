@@ -32,9 +32,7 @@ public:
     QKbdDriverPlugin();
     ~QKbdDriverPlugin();
 
-#ifndef QT_NO_STRINGLIST
     virtual QStringList keys() const = 0;
-#endif
     virtual QWSKeyboardHandler* create( const QString& driver, const QString &device ) = 0;
 
 private:
