@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#16 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#17 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -183,6 +183,7 @@ typedef ulong WFlags;
 #define WType_Overlap	0x00000100		// widget type flags
 #define WType_Modal	0x00000200
 #define WType_Popup	0x00000400
+#define WType_Desktop	0x00000800
 
 #define WStyle_Title	0x00001000		// widget style flags
 #define WStyle_Border	0x00002000
