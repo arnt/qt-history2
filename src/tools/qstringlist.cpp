@@ -148,11 +148,9 @@ QStringList QStringList::split( const QChar &sep, const QString &str,
   This version of the function uses a QChar as separator, rather than
   a full regular expression.
 
-  If \a is an empty string, the return value is a list of
-  one-character string: split( QString( "" ), "mfc" ) returns the
+  If \a sep is an empty string, the return value is a list of
+  one-character strings: split( QString( "" ), "mfc" ) returns the
   three-item list "m", "f", "c".
-
-  If \a sep is an empty string,
 */
 
 QStringList QStringList::split( const QString &sep, const QString &str,
@@ -164,14 +162,12 @@ QStringList QStringList::split( const QString &sep, const QString &str,
     int i = str.find( sep, j );
 
     while ( i != -1 ) {
-	if ( str.mid( j, i - j ).length() > 0 )
+	if ( i > j && i <= str.length() )
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
 	j = i + sep.length();
-	i = str.find( sep, j );
-	if ( i == j ) // for separators that match zero-length strings
-	    i = str.find( sep, j+1 );
+	i = str.find( sep, sep.length() > 0 ? j : j+1 );
     }
 
     int l = str.length() - 1;
@@ -216,10 +212,11 @@ QStringList QStringList::split( const QRegExp &sep, const QString &str,
 	    lst << str.mid( j, i - j );
 	else if ( allowEmptyEntries )
 	    lst << QString::null;
-	j = i + tep.matchedLength();
+	if ( tep.matchedLength() == 0 )
+	    j = i + 1;
+	else
+	    j = i + tep.matchedLength();
 	i = tep.search( str, j );
-	if ( i == j ) // for separators that match zero-length strings
-	    i = tep.search( str, j+1 );
     }
 
     int l = str.length() - 1;
