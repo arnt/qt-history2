@@ -33,8 +33,6 @@ public:
     { free(); }
 
     bool operator==(const QTextFormatProperty &rhs) const;
-    inline bool operator!=(const QTextFormatProperty &rhs) const
-    { return !operator==(rhs); }
 
     QTextFormat::PropertyType type;
     union {
