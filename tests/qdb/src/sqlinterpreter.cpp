@@ -1,5 +1,4 @@
 #include <sqlinterpreter.h>
-#include <qsql.h>
 #include <qcleanuphandler.h>
 #include <qdatetime.h>
 #include <qfile.h>
@@ -125,6 +124,27 @@ qdb::Op* Program::next()
 
 ////////
 
+struct ResultSetField
+{
+    QString name;
+    QVariant::Type type;
+};
+
+class ResultSet::Header
+{
+public:
+    QMap<int,ResultSetField> fields;
+    int position( const QString& name )
+    {
+	for ( uint i = 0; i < fields.count(); ++i ) {
+	    if ( fields[i].name == name )
+		return i;
+	}
+	return -1;
+    }
+
+};
+
 /*!  Constructs an empty
 
 */
@@ -132,6 +152,7 @@ qdb::Op* Program::next()
 ResultSet::ResultSet( qdb::Environment* environment )
     : env( environment )
 {
+    head = new Header();
 }
 
 ResultSet::ResultSet( const ResultSet& other )
@@ -143,7 +164,7 @@ ResultSet::ResultSet( const ResultSet& other )
 ResultSet& ResultSet::operator=( const ResultSet& other )
 {
     env = other.env;
-    head = other.head;
+    *head = *other.head;
     data = other.data;
     env = other.env;
     sortKey = other.sortKey;
@@ -159,16 +180,35 @@ ResultSet& ResultSet::operator=( const ResultSet& other )
 
 ResultSet::~ResultSet()
 {
+    delete head;
 }
 
+void ResultSet::clear()
+{
+    data.clear();
+    sortKey.clear();
+    head->fields.clear();
+}
 
 /*!
 
 */
 
-bool ResultSet::setHeader( const QSqlRecord& record )
+bool ResultSet::setHeader( const qdb::List& list )
 {
-    head = record;
+    if ( !list.count() ) {
+	env->setLastError("ResultSet::setHeader: no fields defined");
+	return 0;
+    }
+    for ( int i = 0; i < (int)list.count(); ++i ) {
+	QValueList<QVariant> fieldDescription = list[i].toList();
+	if ( fieldDescription.count() != 2 ) {
+	    env->setLastError("ResultSet::setHeader: bad field description");
+	    return 0;
+	}
+	head->fields[i].name = fieldDescription[0].toString();
+	head->fields[i].type = fieldDescription[1].type();
+    }
     return TRUE;
 }
 
@@ -182,16 +222,16 @@ bool ResultSet::append( QValueList<QVariant>& buf )
 	qWarning( "ResultSet: no environment" );
 	return FALSE;
     }
-    if ( !head.count() ) {
+    if ( !head->fields.count() ) {
 	env->setLastError( "ResultSet: no header" );
 	return FALSE;
     }
-    if ( head.count() != buf.count() ) {
+    if ( head->fields.count() != buf.count() ) {
 	env->setLastError( "ResultSet: incorrect number of buffer fields" );
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
-	if ( buf[j].type() != head.field(j)->type() ) {
+	if ( buf[j].type() != head->fields[j].type ) {
 	    env->setLastError( "ResultSet: incorrect buffer field type" );
 	    return FALSE;
 	}
@@ -285,7 +325,7 @@ bool ResultSet::prev()
     return TRUE;
 }
 
-Record& ResultSet::currentRecord()
+qdb::Record& ResultSet::currentRecord()
 {
     if ( !data.count() ) {
 	env->output() << "ResultSet::currentRecord: no data available!";
@@ -299,13 +339,13 @@ Record& ResultSet::currentRecord()
 }
 
 
-static void reverse( ColumnKey& colkey, uint elements )
+static void reverse( qdb::ColumnKey& colkey, uint elements )
 {
     if ( !colkey.count() || !elements )
 	return;
-    ColumnKey::Iterator asc = colkey.begin();
+    qdb::ColumnKey::Iterator asc = colkey.begin();
     int a = 0;
-    ColumnKey::Iterator des = --colkey.end();
+    qdb::ColumnKey::Iterator des = --colkey.end();
     int d = des.data().count()-1;
     for ( uint i = 0; i < elements/2; ++i ) {
 	qSwap<int>( asc.data()[a], des.data()[d] );
@@ -328,21 +368,39 @@ static void reverse( ColumnKey& colkey, uint elements )
 
 */
 
-bool ResultSet::sort( const QSqlIndex* index )
+bool ResultSet::sort( const qdb::List& index )
 {
     if ( !env ) {
-	env->setLastError( "ResultSet: no environment" );
+	env->setLastError( "ResultSet::sort: no environment" );
 	return FALSE;
     }
-    if ( !head.count() ) {
-	env->setLastError( "ResultSet: no header" );
+    if ( !head->fields.count() ) {
+	env->setLastError( "ResultSet::sort: no header" );
 	return FALSE;
     }
-    if ( !data.count() || !index->count() ) /* nothing to do */
+    if ( !data.count() ) /* nothing to do */
 	return TRUE;
+    if ( !index.count() ) {
+	env->setLastError("ResultSet::sort: no fields defined!");
+	return 0;
+    }
+    if ( (index.count() % 2) != 0 ) {
+	env->setLastError("ResultSet::sort: wrong multiple of list elements!");
+	return 0;
+    }
     uint i = 0;
-    for ( i = 0; i < index->count(); ++i ) {
-	switch ( index->field(i)->type() ) {
+    QMap<int,bool> desc; /* indicates fields with a descending sort */
+    Header sortIndex;
+    for ( uint i = 0; i < index.count(); ++i ) {
+	QValueList<QVariant> fieldDescription = index[i].toList();
+	if ( fieldDescription.count() != 2 ) {
+	    env->setLastError("ResultSet::sort: bad field description!");
+	    return 0;
+	}
+	sortIndex.fields[i].name = fieldDescription[0].toString();
+	sortIndex.fields[i].type = fieldDescription[1].type();
+	desc[i] = index[++i].toBool();
+	switch ( sortIndex.fields[i].type ) {
 	case QVariant::String:
 	case QVariant::CString:
 	case QVariant::Int:
@@ -354,15 +412,13 @@ bool ResultSet::sort( const QSqlIndex* index )
 	case QVariant::DateTime:
 	    continue;
 	default:
-	    env->setLastError( "ResultSet: invalid sort field type" );
+	    env->setLastError( "ResultSet::sort: invalid sort field type" );
 	    return FALSE;
 	}
-    }
-    for ( i = 0; i < index->count(); ++i ) {
-	int sortField = head.position( index->field( index->count()-1 )->name() );
+	int sortField = head->position( sortIndex.fields[i].name );
 	if ( sortField == -1 ) {
 	    env->setLastError( "ResultSet: sort field not found:" +
-					 index->field( index->count()-1 )->name() );
+			       sortIndex.fields[i].name );
 	    return FALSE;
 	}
     }
@@ -371,7 +427,7 @@ bool ResultSet::sort( const QSqlIndex* index )
 
     /* init the sort key */
     for ( i = 0; i < data.count(); ++i ) {
-	int sortField = head.position( index->field( index->count()-1 )->name() );
+	int sortField = head->position( sortIndex.fields[sortIndex.fields.count()-1].name );
 	/* initialize - also handles the common case (sort by one field) */
 	QVariant& v = data[i][sortField];
 	if ( sortKey.find( v ) == sortKey.end() ) {
@@ -384,27 +440,27 @@ bool ResultSet::sort( const QSqlIndex* index )
 	    nl.append( i );
 	}
     }
-    if ( index->count() > 1 ) {
+    if ( sortIndex.fields.count() > 1 ) {
 	/* reverse logic below */
-	if ( index->isDescending( index->count()-1 ) ) {
+	if ( desc[ sortIndex.fields.count()-1 ] ) {
 	    /* descending */
-	    if ( !index->isDescending( index->count()-2 ) )
+	    if ( desc[ sortIndex.fields.count()-2 ] )
 		reverse( sortKey, data.count() );
 	} else {
 	    /* ascending? */
-	    if ( index->isDescending( index->count()-2 ) )
+	    if ( desc[ sortIndex.fields.count()-2 ] )
 		reverse( sortKey, data.count() );
 	}
     }
-    if ( index->count() == 1 && index->isDescending( 0 ) )
+    if ( sortIndex.fields.count() == 1 && desc[ 0 ] )
 	reverse( sortKey, data.count() );
 
-    ColumnKey::Iterator it;
-    if ( index->count() > 1 ) {
+    qdb::ColumnKey::Iterator it;
+    if ( sortIndex.fields.count() > 1 ) {
 	/* sort rest of fields */
-	for ( int idx = index->count()-2; idx >= 0; --idx ) {
-	    int sortField = head.position( index->field(idx)->name() );
-	    ColumnKey subSort;
+	for ( int idx = sortIndex.fields.count()-2; idx >= 0; --idx ) {
+	    int sortField = head->position( sortIndex.fields[idx].name );
+	    qdb::ColumnKey subSort;
 	    for ( it = sortKey.begin();
 		  it != sortKey.end();
 		  ++it ) {
@@ -426,17 +482,17 @@ bool ResultSet::sort( const QSqlIndex* index )
 	    sortKey = subSort; /* save and continue */
 	    if ( idx > 0 ) {
 		/* reverse logic below */
-		if ( index->isDescending( idx ) ) {
+		if ( desc[ idx ] ) {
 		    /* descending */
-		    if ( !index->isDescending( idx-1 ) )
+		    if ( desc[ idx-1 ] )
 			reverse( sortKey, data.count() );
 		} else {
 		    /* ascending? */
-		    if ( index->isDescending( idx-1 ) )
+		    if ( desc[ idx-1 ] )
 			reverse( sortKey, data.count() );
 		}
 	    }
-	    if ( idx == 0 && index->isDescending( idx ) )
+	    if ( idx == 0 && desc[ idx ] )
 		reverse( sortKey, data.count() );
 	}
     }

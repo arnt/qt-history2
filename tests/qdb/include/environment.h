@@ -4,16 +4,15 @@
 #include <qvariant.h>
 #include <qvaluestack.h>
 #include <qtextstream.h>
-#include <qsqlrecord.h>
-#include <qsqlindex.h>
 
 class QIODevice;
 
-typedef QValueList<QVariant> Record;
-typedef QValueList<Record> Data;
-typedef QMap< QVariant, QValueList<int> > ColumnKey;
-
 namespace qdb {
+
+    typedef QValueList<QVariant> List; /* list which may contain other lists */
+    typedef QValueList<QVariant> Record; /* list which only contains non-list datatypes */
+    typedef QValueList<Record> Data; /* list of records */
+    typedef QMap< QVariant, QValueList<int> > ColumnKey;
 
     struct Parser {
 	//## todo
@@ -22,10 +21,9 @@ namespace qdb {
     struct ResultSet
     {
 	virtual void clear() = 0;
-	virtual bool setHeader( const QSqlRecord& record ) = 0;
-	virtual QSqlRecord& header() = 0;
+	virtual bool setHeader( const List& data ) = 0;
 	virtual bool append( Record& buf ) = 0;
-	virtual bool sort( const QSqlIndex* index ) = 0;
+	virtual bool sort( const List& index ) = 0;
 	virtual bool first() = 0;
 	virtual bool last() = 0;
 	virtual bool next() = 0;
@@ -36,25 +34,25 @@ namespace qdb {
 
     struct FileDriver
     {
-	virtual bool create( QValueList<QVariant>& fields ) = 0;
+	virtual bool create( const List& data ) = 0;
 	virtual bool open() = 0;
 	virtual bool isOpen() const = 0;
 	virtual bool close() = 0;
-	virtual bool insert( const QSqlRecord* record ) = 0;
+	virtual bool insert( const List& data ) = 0;
 	virtual int at() const = 0;
 	virtual bool next() = 0;
 	virtual bool mark() = 0;
 	virtual bool deleteMarked() = 0;
 	virtual bool commit() = 0;
 	virtual bool field( uint i, QVariant& v ) = 0;
-	virtual bool updateMarked( const QSqlRecord* record ) = 0;
+	virtual bool updateMarked( const List& data ) = 0;
 	virtual bool rewindMarked() = 0;
 	virtual bool nextMarked() = 0;
-	virtual bool update( const QSqlRecord* record ) = 0;
+	virtual bool update( const List& data ) = 0;
 	virtual void setLastError( const QString& error ) = 0;
 	virtual QString lastError() const = 0;
-	virtual bool rangeScan( const QSqlRecord* index ) = 0;
-	virtual bool createIndex( const QSqlRecord* index, bool unique ) = 0;
+	virtual bool rangeScan( const List& data ) = 0;
+	virtual bool createIndex( const List& index, bool unique ) = 0;
 	virtual bool drop() = 0;
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
 	virtual bool fieldDescription( int i, QVariant& v ) = 0;

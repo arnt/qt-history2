@@ -17,25 +17,25 @@ public:
 
     QString name() const { return nm; }
 
-    bool create( QValueList<QVariant>& fields );
+    bool create( const qdb::List& data );
     bool open();
     bool close();
     bool isOpen() const { return opened; }
-    bool insert( const QSqlRecord* record );
+    bool insert( const qdb::List& data );
     int at() const { return internalAt; }
     bool next();
     bool mark();
     bool deleteMarked();
     bool commit();
     bool field( uint i, QVariant& v );
-    bool updateMarked( const QSqlRecord* record );
+    bool updateMarked( const qdb::List& data );
     bool rewindMarked();
     bool nextMarked();
-    bool update( const QSqlRecord* record );
+    bool update( const qdb::List& data );
     void setLastError( const QString& error ) { err = error; }
     QString lastError() const { return err; }
-    bool rangeScan( const QSqlRecord* index );
-    bool createIndex( const QSqlRecord* index, bool unique );
+    bool rangeScan( const qdb::List& data );
+    bool createIndex( const qdb::List& data, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );
     bool fieldDescription( int i, QVariant& v );
@@ -68,25 +68,25 @@ public:
     ResultSet( const ResultSet& other );
     ResultSet& operator=( const ResultSet& other );
 
-    bool setHeader( const QSqlRecord& record );
-    QSqlRecord& header() { return head; }
+    bool setHeader( const qdb::List& list );
     bool append( QValueList<QVariant>& buf );
-    void clear() { data.clear(); sortKey.clear(); head.clear(); }
-    bool sort( const QSqlIndex* index );
+    void clear();
+    bool sort( const qdb::List& index );
     bool first();
     bool last();
     bool next();
     bool prev();
-    Record& currentRecord();
+    qdb::Record& currentRecord();
     uint size() { return data.count(); }
 
 private:
-    QSqlRecord head;
-    Data data;
+    class Header;
+    Header* head;
+    qdb::Data data;
     qdb::Environment* env;
-    ColumnKey sortKey;
-    ColumnKey::ConstIterator keyit;
-    Data::Iterator datait;
+    qdb::ColumnKey sortKey;
+    qdb::ColumnKey::ConstIterator keyit;
+    qdb::Data::Iterator datait;
     int j;
 };
 
@@ -112,7 +112,7 @@ public:
 private:
     QList< qdb::Op > ops;
     int pc;
-    ColumnKey sortKey;
+    qdb::ColumnKey sortKey;
 
     Program( const Program& other );
     Program& operator=( const Program& other );

@@ -6,8 +6,6 @@
 #include <qvariant.h>
 #include <qlist.h>
 #include <qvaluelist.h>
-#include <qsqlrecord.h>
-#include <qsqlindex.h>
 
 /* Base class for all ops.
 */
@@ -505,8 +503,21 @@ public:
 
 /* Pop the top of the stack (which must be a 'list', see PushList) and
    insert it into the file identified by 'id'.  The values of the list
-   must corespond in number and type to the file they are being
-   inserted to.  The file must be open.
+   must be of the following form:
+
+  field data
+  field data
+  field data
+...
+
+  Where each 'field data' is a value list of the form:
+
+  data
+  name
+
+
+  The file must be open.
+
 */
 class Insert : public Label
 {
@@ -522,19 +533,7 @@ public:
 	    env->setLastError("Insert: file not open!" );
 	    return 0;
 	}
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("Insert: no values!");
-	    return 0;
-	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QVariant val = list[i];
-	    QSqlField field( QString::null, val.type() );
-	    field.setValue( val );
-	    rec.append( field );
-	}
-	return drv->insert( &rec );
+	return drv->insert( env->stack()->pop().toList() );
     }
 };
 
@@ -583,12 +582,22 @@ public:
 };
 
 /*  Pops the top of the stack (which must be a 'list', see PushList)
-and updates all record from the file identified by 'id' which have
-been previously marked by Mark.  The marked records are updated only
-with the fields specified by the list.  The file must be open. The
-list must be a list of fields (see the docs of Create). The 'type'
-element of eac field will also be used as the value when updating the
-file fields.  All marks are cleared after this op.
+  and updates all record from the file identified by 'id' which have
+  been previously marked by Mark.  The marked records are updated only
+  with the fields specified by the list.  The file must be open. The
+  list must be of the following form:
+
+  field data
+  field data
+  field data
+...
+
+  Where each 'field data' is a value list of the form:
+
+  data
+  name
+
+  All marks are cleared after this op.
 */
 
 class UpdateMarked : public Label
@@ -600,30 +609,12 @@ public:
     QString name() const { return "UpdateMarked"; }
     int exec( qdb::Environment* env )
     {
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("UpdateMarked: no fields defined!");
-	    return 0;
-	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->setLastError("Create: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
-	    QSqlField field( name, type );
-	    field.setValue( fieldDescription[1] );
-	    rec.append( field );
-	}
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
 	    env->setLastError("UpdateMarked: file not open!" );
 	    return 0;
 	}
-	bool b = drv->updateMarked( &rec );
+	bool b = drv->updateMarked( env->stack()->pop().toList() );
 	if ( !b )
 	    env->setLastError( drv->lastError() );
 	return b;
@@ -717,6 +708,8 @@ stack.  'nameOrNumber' can be the name of the field or the number of
 the field within the file.  The field must exist in the file.
 */
 
+//## drop this op???
+
 class PushFieldDesc : public Label
 {
 public:
@@ -762,7 +755,7 @@ public:
     QString name() const { return "SaveResult"; }
     int exec( qdb::Environment* env )
     {
-	QValueList<QVariant> list = env->stack()->pop().toList();
+	qdb::List list = env->stack()->pop().toList();
 	if ( !list.count() ) {
 	    env->setLastError("SaveResult: no values!");
 	    return 0;
@@ -790,25 +783,8 @@ public:
     QString name() const { return "CreateResult"; }
     int exec( qdb::Environment* env )
     {
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("CreateResult: no fields defined!");
-	    return 0;
-	}
-	for ( int i = 0; i < (int)list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->setLastError("CreateResult: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
-	    QSqlField field( name, type );
-	    rec.append( field );
-	}
 	env->addResultSet( p1.toInt() );
-	return env->resultSet( p1.toInt() )->setHeader( rec );
+	return env->resultSet( p1.toInt() )->setHeader( env->stack()->pop().toList() );
     }
 };
 
@@ -869,8 +845,19 @@ public:
 
 /* Pop the top of the stack (which must be a 'list', see PushList) and
    use it to update all fields of the current record buffer of the
-   file identified by 'id'.  The list must correspond in number and
-   type to the fields in the file.  The file must be open.
+   file identified by 'id'.  The list must be in the following form:
+
+  field data
+  field data
+  field data
+  ...
+
+  Where each 'field data' is a value list of the form:
+
+  data
+  name
+
+   The file must be open.
 */
 
 class Update : public Label
@@ -887,19 +874,7 @@ public:
 	    env->setLastError("Update: file not open!" );
 	    return 0;
 	}
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("Update: no values!");
-	    return 0;
-	}
-	for ( uint i = 0;  i < list.count(); ++i ) {
-	    QVariant val = list[i];
-	    QSqlField field( QString::null, val.type() );
-	    field.setValue( val );
-	    rec.append( field );
-	}
-	bool b = drv->update( &rec );
+	bool b = drv->update( env->stack()->pop().toList() );
 	if ( !b )
 	    env->setLastError( drv->lastError() );
 	return b;
@@ -926,21 +901,16 @@ public:
 
    The 'list' which is popped from the top of the stack must be of the form:
 
-   "dave" (beginning of list)
-   list: field description (see PushFieldDesc)
-   99
-   list: field description (see PushFieldDesc)
+   field data
+   field data
+   field data
+   ...
 
-   IOW, the list represents alternating 'values'/'field descriptions'.
-   The field descriptions are used to identify the fields in the file,
-   and the values are used to range scan the actual data.  For
-   example, the following code snippet does a range scan:
+   Where each 'field data' is a value list of the form:
 
-   Open( 0, "myfile.dbf" )
-   PushFieldDesc( 0, "name", 15 )
-   Push( "trolltech" )
-   PushList( 2 )
-   RangeScan( 0 )
+   data
+   name
+
 
    The above will range scan the "myfile.dbf" file by name="trolltech".
 
@@ -960,35 +930,12 @@ public:
     QString name() const { return "RangeScan"; }
     int exec( qdb::Environment* env )
     {
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("RangeScan: no range scan fields defined!");
-	    return 0;
-	}
-	if ( (list.count() % 2) != 0 ) {
-	    env->setLastError("RangeScan: wrong multiple of list elements!");
-	    return 0;
-	}
-	for ( uint j = 0; j < list.count(); ++j ) {
-	    QValueList<QVariant> fieldDescList = list[j].toList();
-	    if ( fieldDescList.count() != 2 ) {
-		env->setLastError("RangeScan: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescList[0].toString();
-	    QVariant::Type type = fieldDescList[1].type();
-	    QSqlField field( name, type );
-	    QVariant value = list[++j];
-	    field.setValue( value );
-	    rec.append( field );
-	}
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
 	    env->setLastError("RangeScan: file not open!" );
 	    return 0;
 	}
-	bool b = drv->rangeScan( &rec );
+	bool b = drv->rangeScan( env->stack()->pop().toList() );
 	if ( !b )
 	    env->setLastError( drv->lastError() );
 	return b;
@@ -996,8 +943,21 @@ public:
 };
 
 /*  Pop the top of the stack (which must be a list, see PushList) and
-use it as a description of fields.  Creates an index on the file
-identified by 'id'.  The file must be open.
+  use it as a description of fields, which must be of the form:
+
+   field data
+   field data
+   field data
+   ...
+
+   Where each 'field data' is a value list of the form:
+
+   descending (bool)
+   type (QVariant::Type)
+   name
+
+  Creates an index on the file identified by 'id'.  The file must be
+  open.
 */
 
 class CreateIndex : public Label
@@ -1010,30 +970,12 @@ public:
     QString name() const { return "CreateIndex"; }
     int exec( qdb::Environment* env )
     {
-	QSqlRecord rec;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("CreateIndex: no fields defined!");
-	    return 0;
-	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->setLastError("Create: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
-	    QSqlField field( name, type );
-	    field.setValue( fieldDescription[1] );
-	    rec.append( field );
-	}
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
 	    env->setLastError("CreateIndex: file not open!" );
 	    return 0;
 	}
-	bool b = drv->createIndex( &rec, p2.toBool() );
+	bool b = drv->createIndex( env->stack()->pop().toList(), p2.toBool() );
 	if ( !b )
 	    env->setLastError( drv->lastError() );
 	return b;
@@ -1102,35 +1044,12 @@ public:
     QString name() const { return "Sort"; }
     int exec( qdb::Environment* env )
     {
-	QSqlIndex idx;
-	QValueList<QVariant> list = env->stack()->pop().toList();
-	if ( !list.count() ) {
-	    env->setLastError("Sort: no fields defined!");
-	    return 0;
-	}
-	if ( (list.count() % 2) != 0 ) {
-	    env->setLastError("Sort: wrong multiple of list elements!");
-	    return 0;
-	}
-	for ( uint i = 0; i < list.count(); ++i ) {
-	    QValueList<QVariant> fieldDescription = list[i].toList();
-	    if ( fieldDescription.count() != 2 ) {
-		env->setLastError("Create: bad field description!");
-		return 0;
-	    }
-	    QString name = fieldDescription[0].toString();
-	    QVariant::Type type = fieldDescription[1].type();
-	    QSqlField field( name, type );
-	    field.setValue( fieldDescription[1] );
-	    bool descend = list[++i].toBool();
-	    idx.append( field, descend );
-	}
 	qdb::FileDriver* drv = env->fileDriver( p1.toInt() );
 	if ( !drv->isOpen() ) {
 	    env->setLastError("Sort: file not open!" );
 	    return 0;
 	}
-	bool b = env->resultSet( p1.toInt() )->sort( &idx );
+	bool b = env->resultSet( p1.toInt() )->sort( env->stack()->pop().toList() );
 	if ( !b )
 	    env->setLastError( drv->lastError() );
 	return b;

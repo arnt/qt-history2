@@ -1,6 +1,5 @@
 #include "sqlinterpreter.h"
 
-#include <qsql.h>
 #include <qarray.h>
 #include <qdatetime.h>
 #include <qvariant.h>
@@ -75,6 +74,23 @@ FileDriver& FileDriver::operator=( const FileDriver& other )
     return *this;
 }
 
+static QVariant::Type xbaseTypeToVariant( char type )
+{
+    switch ( type ) {
+    case 'N': /* numeric */
+	return QVariant::Int;
+    case 'F': /* float */
+	return QVariant::Double;
+    case 'D': /* date */
+	return QVariant::Date;
+    case 'L': /* logical */
+	return QVariant::Bool;
+    case 'C': /* character */
+    default:
+	return QVariant::String;
+    }
+}
+
 static char variantToXbaseType( QVariant::Type type )
 {
     switch ( type ) {
@@ -95,7 +111,7 @@ static char variantToXbaseType( QVariant::Type type )
     }
 }
 
-bool FileDriver::create( QValueList<QVariant>& fields )
+bool FileDriver::create( const qdb::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::create..." << flush;
@@ -103,14 +119,14 @@ bool FileDriver::create( QValueList<QVariant>& fields )
     if ( !name() ) {
 
     }
-    if ( !fields.count() ) {
+    if ( !data.count() ) {
 	ERROR_RETURN( "FileDriver::create: no fields defined" );
     }
-    QArray<xbSchema> xbrec( fields.count()+1 ); /* one extra for null entry */
+    QArray<xbSchema> xbrec( data.count()+1 ); /* one extra for null entry */
     xbSchema x;
     uint i = 0;
-    for ( i = 0; i < fields.count(); ++i ) {
-	QValueList<QVariant> fieldDescription = fields[i].toList();
+    for ( i = 0; i < data.count(); ++i ) {
+	QValueList<QVariant> fieldDescription = data[i].toList();
 	if ( fieldDescription.count() != 4 ) {
 	    ERROR_RETURN( "FileDriver::create: bad field description" );
 	}
@@ -127,7 +143,7 @@ bool FileDriver::create( QValueList<QVariant>& fields )
 	xbrec[i] = x;
     }
     memset( &x, 0, sizeof(xbSchema) );
-    xbrec[ fields.count()+1 ] = x;
+    xbrec[ data.count()+1 ] = x;
     d->file.SetVersion( 4 );   /* create dbase IV style files */
     xbShort rc;
     if ( ( rc = d->file.CreateDatabase( name().latin1(), xbrec.data(), XB_OVERLAY ) )
@@ -196,22 +212,30 @@ bool FileDriver::close()
     return TRUE;
 }
 
-bool FileDriver::insert( const QSqlRecord* record )
+bool FileDriver::insert( const qdb::List& data )
 {
     if ( !isOpen() )
 	return FALSE;
-    if ( (int)record->count() != d->file.FieldCount() ) {
-	ERROR_RETURN( "FileDriver::insert: wrong number of fields" );
+    if ( !data.count() ) {
+	ERROR_RETURN("FileDriver::insert: no values!");
     }
-    uint i = 0;
-    for ( i = 0; i < record->count(); ++i ) {
-	if ( variantToXbaseType(record->field(i)->type()) != d->file.GetFieldType(i) ) {
-	    ERROR_RETURN( "FileDriver::insert: invalid field type" );
-	}
+    if ( (int)data.count() > d->file.FieldCount() ) {
+	ERROR_RETURN( "FileDriver::insert: too many values");
     }
     d->file.BlankRecord();
-    for ( i = 0; i < record->count(); ++i ) {
-	if ( d->file.PutField( i, record->value(i).toString().latin1() ) != XB_NO_ERROR ) {
+    uint i = 0;
+    for ( ; i < data.count(); ++i ) {
+	qdb::List insertData = data[i].toList();
+	if ( !insertData.count() ) {
+	    ERROR_RETURN( "FileDriver::insert: no insert data" );
+	}
+	QString name = insertData[0].toString(); //## handle field position, not just name
+	int pos = d->file.GetFieldNo( name );
+	if ( pos == -1 ) {
+	    ERROR_RETURN( "FileDriver::insert: unknown field: " + name );
+	}
+	QVariant val = insertData[1];
+	if ( d->file.PutField( pos, val.toString().latin1() ) != XB_NO_ERROR ) {
 	    ERROR_RETURN( "FileDriver::insert: invalid field number or data");
 	}
     }
@@ -342,36 +366,18 @@ bool FileDriver::fieldDescription( int i, QVariant& v )
 	ERROR_RETURN( "FileDriver::fieldDescription: field does not exist" );
     }
     QValueList<QVariant> field;
-    QVariant val;
-    switch ( d->file.GetFieldType( i ) ) {
-    case 'N': /* numeric */
-	val.cast( QVariant::Int );
-	break;
-    case 'F': /* float */
-	val.cast( QVariant::Double );
-	break;
-    case 'D': /* date */
-	val.cast( QVariant::Date );
-	break;
-    case 'L': /* logical */
-	val.cast( QVariant::Bool );
-	break;
-    case 'C': /* character */
-    default:
-	val.cast( QVariant::String );
-	break;
-    }
+    QVariant::Type type = xbaseTypeToVariant( d->file.GetFieldType( i ) );
     int len = d->file.GetFieldLen( i );
     int prec = d->file.GetFieldDecimal( i );
     field.append( nm );
-    field.append( val );
+    field.append( type );
     field.append( len );
     field.append( prec );
     v = field;
     return TRUE;
 }
 
-bool FileDriver::updateMarked( const QSqlRecord* record )
+bool FileDriver::updateMarked( const qdb::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::updateMarked..." << flush;
@@ -381,14 +387,24 @@ bool FileDriver::updateMarked( const QSqlRecord* record )
     }
     if ( !d->marked.count() )
 	return TRUE;
+    if ( !data.count() ) {
+	ERROR_RETURN("FileDriver::updateMarked: no fields defined" );
+    }
+    if ( (int)data.count() > d->file.FieldCount() ) {
+	ERROR_RETURN( "FileDriver::updateMarked: too many fields" );
+    }
     uint i = 0;
-    for ( i = 0; i < record->count(); ++i ) {
-	xbShort fieldnum = d->file.GetFieldNo( record->field(i)->name().latin1() );
-	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "FileDriver::updateMarked: field not found:" + record->field(i)->name() );
+    for ( ; i < data.count(); ++i ) {
+	qdb::List updateData = data[i].toList();
+	if ( !updateData.count() ) {
+	    ERROR_RETURN( "FileDriver::updateMarked: no update data" );
 	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( record->field(i)->type() ) ) {
-	    ERROR_RETURN( "FileDriver::updateMarked: bad field type:" + record->field(i)->name() );
+	xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
+	if (  fieldnum == -1 ) {
+	    ERROR_RETURN( "FileDriver::updateMarked: field not found:" + updateData[0].toString() );
+	}
+	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( updateData[1].type() ) ) {
+	    ERROR_RETURN( "FileDriver::updateMarked: bad type:" + updateData[0].toString() );
 	}
     }
     for ( i = 0; i < d->marked.count(); ++i ) {
@@ -396,9 +412,10 @@ bool FileDriver::updateMarked( const QSqlRecord* record )
 	    ERROR_RETURN( "FileDriver::updateMarked: unable to retrieve marked record" );
 	}
 	uint j = 0;
-	for ( j = 0; j < record->count(); ++j ) {
-	    xbShort fieldnum = d->file.GetFieldNo( record->field(j)->name().latin1() );
-	    if ( d->file.PutField( fieldnum, record->value(j).toString().latin1() ) != XB_NO_ERROR ) {
+	for ( j = 0; j < data.count(); ++j ) {
+	    qdb::List updateData = data[i].toList();
+	    xbShort fieldnum = d->file.GetFieldNo( updateData[0].toString().latin1() );
+	    if ( d->file.PutField( fieldnum, updateData[1].toString().latin1() ) != XB_NO_ERROR ) {
 		ERROR_RETURN( "FileDriver::updateMarked: invalid field number or data");
 	    }
 	}
@@ -438,7 +455,7 @@ bool FileDriver::nextMarked()
     return TRUE;
 }
 
-bool FileDriver::update( const QSqlRecord* record )
+bool FileDriver::update( const qdb::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::update..." << flush;
@@ -449,19 +466,30 @@ bool FileDriver::update( const QSqlRecord* record )
     if ( d->file.GetCurRecNo() == 0 ) {
 	ERROR_RETURN( "FileDriver::update: not positioned on valid record" );
     }
-    if ( (int)record->count() != d->file.FieldCount() ) {
+    if ( (int)data.count() != d->file.FieldCount() ) {
 	ERROR_RETURN( "FileDriver::update: incorrect number of fields" );
     }
-    uint i = 0;
-    for ( i = 0; i < record->count(); ++i ) {
-	if ( variantToXbaseType(record->field(i)->type()) != d->file.GetFieldType(i) ) {
-	    ERROR_RETURN( "FileDriver::update: invalid field type" );
-	}
+    if ( !data.count() ) {
+	ERROR_RETURN("FileDriver::update: no values!");
     }
-    for ( i = 0; i < record->count(); ++i ) {
-	if ( d->file.PutField( i, record->value(i).toString().latin1() ) != XB_NO_ERROR ) {
-	    ERROR_RETURN( "FileDriver::update: invalid field number or data");
+    uint i = 0;
+    for ( ;  i < data.count(); ++i ) {
+	qdb::List updateData = data[i].toList();
+	if ( !updateData.count() ) {
+	    ERROR_RETURN( "FileDriver::update: no update data" );
 	}
+	QString name = updateData[0].toString();
+	int pos = d->file.GetFieldNo( name.latin1() );
+	if ( pos == -1 ) {
+	    ERROR_RETURN( "FileDriver::update: field not found:" + name );
+	}
+	if ( variantToXbaseType( updateData[1].type() ) != d->file.GetFieldType( pos ) ) {
+	    ERROR_RETURN( "FileDriver::update: invalid field type:" + name );
+	}
+	if ( d->file.PutField( pos, updateData[1].toString().latin1() ) != XB_NO_ERROR ) {
+	    ERROR_RETURN( "FileDriver::update: invalid field number or data:" + name);
+	}
+
     }
     if ( d->file.PutRecord() != XB_NO_ERROR ) {
 	ERROR_RETURN( "FileDriver::update: unable to put record" );
@@ -472,7 +500,7 @@ bool FileDriver::update( const QSqlRecord* record )
     return TRUE;
 }
 
-bool FileDriver::rangeScan( const QSqlRecord* index )
+bool FileDriver::rangeScan( const qdb::List& data )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::rangeScan..." << flush;
@@ -480,31 +508,31 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::rangeScan: file not open" );
     }
-    uint i = 0;
-    for ( i = 0; i < index->count(); ++i ) {
-	xbShort fieldnum = d->file.GetFieldNo( index->field(i)->name().latin1() );
-	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "FileDriver::rangeScan: field not found:" + index->field(i)->name() );
-	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( index->field(i)->type() ) ) {
-	    ERROR_RETURN( "FileDriver::rangeScan: bad field type:" + index->field(i)->name() );
-	}
+    if ( !data.count() ) {
+	ERROR_RETURN("FileDriver::rangeScan: no fields defined!");
     }
     d->marked.clear();
     bool forceScan = TRUE;
     xbShort rc = XB_NO_ERROR;
-    /* do we have a matching idx? */
     QString indexDesc;
-    for ( i = 0; i < index->count(); ++i ) {
-	xbShort fieldnum = d->file.GetFieldNo( index->field(i)->name().latin1() );
-	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "FileDriver::rangeScan: field not found:" + index->field(i)->name() );
+    uint i = 0;
+    for ( i = 0; i < data.count(); ++i ) {
+	qdb::List rangeScanFieldData = data[i].toList();
+	if ( rangeScanFieldData.count() != 2 ) {
+	    ERROR_RETURN("FileDriver::rangeScanFieldData: bad field description!");
 	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( index->field(i)->type() ) ) {
-	    ERROR_RETURN( "FileDriver::rangeScan: bad field type:" + index->field(i)->name() );
+	QString name = rangeScanFieldData[0].toString();
+	QVariant value = rangeScanFieldData[1];
+	xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
+	if (  fieldnum == -1 ) {
+	    ERROR_RETURN( "FileDriver::rangeScan: field not found:" + name );
+	}
+	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( value.type() ) ) {
+	    ERROR_RETURN( "FileDriver::rangeScan: bad field type:" + name );
 	}
 	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
-		     index->field(i)->name();
+		     name;
+
     }
     /* check if index already exists */
     char buf[XB_MAX_NDX_NODE_SIZE];
@@ -519,10 +547,11 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 		/* create search value */
 		QString searchValue;
 		bool numeric = TRUE;
-		for ( uint j = 0; j < index->count(); ++j ) {
-		    searchValue += index->value(j).toString();
-		    if ( index->field(j)->type() == QVariant::String ||
-			 index->field(j)->type() == QVariant::CString )
+		for ( uint j = 0; j < data.count(); ++j ) {
+		    QVariant val = data[i].toList()[1];
+		    searchValue += val.toString();
+		    if ( val.type() == QVariant::String ||
+			 val.type() == QVariant::CString )
 			numeric = FALSE;
 		}
 #ifdef DEBUG_XBASE
@@ -537,11 +566,14 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 		    /* found a key, now scan until we hit a new key value */
 		    for ( ; rc == XB_NO_ERROR ; ) {
 			bool markOK = TRUE;
-			for ( uint k = 0; k < index->count(); ++k ) {
-			    xbShort fieldnum = d->file.GetFieldNo( index->field(k)->name().latin1() );
+			for ( uint k = 0; k < data.count(); ++k ) {
+			    qdb::List rangeScanFieldData = data[i].toList();
+			    QString name = rangeScanFieldData[0].toString();
+			    QVariant value = rangeScanFieldData[1];
+			    xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 			    QVariant v;
 			    field( fieldnum, v );
-			    if ( v != index->field( k )->value() ) {
+			    if ( v != value ) {
 				markOK = FALSE;
 				break;
 			    }
@@ -562,11 +594,14 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 	rc = d->file.GetFirstRecord();
 	while ( rc == XB_NO_ERROR ) {
 	    bool markRecord = FALSE;
-	    for ( i = 0; i < index->count(); ++i ) {
-		xbShort fieldnum = d->file.GetFieldNo( index->field(i)->name().latin1() );
+	    for ( i = 0; i < data.count(); ++i ) {
+		qdb::List rangeScanFieldData = data[i].toList();
+		QString name = rangeScanFieldData[0].toString();
+		QVariant value = rangeScanFieldData[1];
+		xbShort fieldnum = d->file.GetFieldNo( name.latin1() );
 		QVariant v;
 		field( fieldnum, v );
-		if ( v == index->field(i)->value() )
+		if ( v == value )
 		    markRecord = TRUE;
 		else {
 		    markRecord = FALSE;
@@ -584,7 +619,7 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
     return TRUE;
 }
 
-bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
+bool FileDriver::createIndex( const qdb::List& data, bool unique )
 {
 #ifdef DEBUG_XBASE
     env->output() << "FileDriver::createIndex..." << flush;
@@ -592,20 +627,29 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::createIndex: file not open" );
     }
+    if ( !data.count() ) {
+	ERROR_RETURN( "FileDriver::createIndex: no fields defined");
+    }
     uint i = 0;
     xbShort rc;
-    /* create the index description string */
     QString indexDesc;
-    for ( i = 0; i < index->count(); ++i ) {
-	xbShort fieldnum = d->file.GetFieldNo( index->field(i)->name().latin1() );
+    for ( ; i < data.count(); ++i ) {
+	qdb::List createIndexData = data[i].toList();
+	if ( createIndexData.count() != 3 ) {
+	    ERROR_RETURN( "FileDriver::createIndex: no index data");
+	}
+	QString name = createIndexData[0].toString();
+	QVariant::Type type = (QVariant::Type)createIndexData[1].toInt();
+	//bool desc = createIndexData[2].toBool(); //## duh?
+	/* create the index description string */
+	xbShort fieldnum = d->file.GetFieldNo( name );
 	if (  fieldnum == -1 ) {
-	    ERROR_RETURN( "FileDriver::createIndex: field not found:" + index->field(i)->name() );
+	    ERROR_RETURN( "FileDriver::createIndex: field not found:" + name );
 	}
-	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( index->field(i)->type() ) ) {
-	    ERROR_RETURN( "FileDriver::createIndex: bad field type:" + index->field(i)->name() );
+	if ( d->file.GetFieldType( fieldnum ) != variantToXbaseType( type ) ) {
+	    ERROR_RETURN( "FileDriver::createIndex: bad field type:" + name );
 	}
-	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) +
-		     index->field(i)->name();
+	indexDesc += QString(( indexDesc.length()>0 ? QString("+") : QString::null ) ) + name;
     }
     /* check if index already exists */
     bool forceCreate = TRUE;
