@@ -16,8 +16,6 @@
 
 #include <qapplication.h>
 #include <qevent.h>
-//#include <qfocusdata.h>
-//#include <qobjectlist.h>
 #include <qguardedptr.h>
 #include <qlayout.h>
 #include <qmenubar.h>
@@ -112,7 +110,6 @@ protected:
     void focusOutEvent(QFocusEvent *e);
     void paintEvent(QPaintEvent *e);
     void windowActivationChange(bool oldActive);
-    bool focusNextPrevChild(bool next);
     
     QAxHostWindow *axhost;
     
@@ -1260,11 +1257,6 @@ void QAxHostWidget::focusOutEvent(QFocusEvent *e)
         return;
     
     axhost->m_spInPlaceObject->UIDeactivate();
-}
-
-bool QAxHostWidget::focusNextPrevChild(bool next)
-{
-    return QWidget::focusNextPrevChild(next);
 }
 
 void QAxHostWidget::windowActivationChange(bool oldActive)
