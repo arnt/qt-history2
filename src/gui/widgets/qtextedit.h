@@ -115,9 +115,6 @@ public slots:
     void setHtml(const QString &text);
     void setHtml(const QByteArray &html);
 
-
-    void undo();
-    void redo();
     void cut();
     void copy();
     void paste();
@@ -286,7 +283,6 @@ public:
     { return document()->isUndoAvailable(); }
     inline QT_COMPAT bool isRedoAvailable() const
     { return document()->isRedoAvailable(); }
-
     /*
     inline QT_COMPAT QColor paragraphBackgroundColor(int parag) const
     { return blockAt(parag).blockFormat().backgroundColor(); }
@@ -302,6 +298,10 @@ public:
 public slots:
     inline QT_MOC_COMPAT void setModified(bool m = true)
     { document()->setModified(m); }
+    inline QT_MOC_COMPAT void undo() const
+    { document()->undo(); }
+    inline QT_MOC_COMPAT void redo() const
+    { document()->undo(); }
 
 #endif
 };
