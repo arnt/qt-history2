@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#277 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#278 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1439,13 +1439,13 @@ static QStringList makeFiltersList( const QString &filter )
 
 /*!
   \fn void QFileDialog::slotIsDir()
-  
+
   \internal
 */
 
 /*!
   \fn void QFileDialog::slotIsFile()
-  
+
   \internal
 */
 
@@ -1642,16 +1642,16 @@ void QFileDialog::init()
     connect( d->modeButtons, SIGNAL(clicked(int)),
 	     this, SLOT(changeMode(int)) );
 
-    d->detailView = new QPushButton( this, "list view" );
-    QToolTip::add( d->detailView, tr( "Detail View" ) );
-    d->detailView->setPixmap( *detailViewIcon );
-    d->detailView->setToggleButton( TRUE );
-    d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
     d->mcView = new QPushButton( this, "mclistbox view" );
     QToolTip::add( d->mcView, tr( "List View" ) );
     d->mcView->setPixmap( *multiColumnListViewIcon );
     d->mcView->setToggleButton( TRUE );
     d->stack->addWidget( d->moreFiles, d->modeButtons->insert( d->mcView ) );
+    d->detailView = new QPushButton( this, "list view" );
+    QToolTip::add( d->detailView, tr( "Detail View" ) );
+    d->detailView->setPixmap( *detailViewIcon );
+    d->detailView->setToggleButton( TRUE );
+    d->stack->addWidget( files, d->modeButtons->insert( d->detailView ) );
 
     d->previewInfo = new QPushButton( this, "preview info view" );
     QToolTip::add( d->previewInfo, tr( "Preview File Info" ) );
@@ -1705,7 +1705,6 @@ void QFileDialog::init()
     h->addWidget( d->mcView );
     h->addWidget( d->previewInfo );
     h->addWidget( d->previewContents );
-    h->addSpacing( 16 );
 
     d->topLevelLayout->addWidget( d->splitter );
 	
