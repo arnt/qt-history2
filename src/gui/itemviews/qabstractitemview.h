@@ -94,9 +94,6 @@ public:
     void setAutoScroll(bool enable);
     bool hasAutoScroll() const;
 
-    void setKeyTracking(bool enable);
-    bool hasKeyTracking() const;
-
     void setTabKeyNavigation(bool enable);
     bool tabKeyNavigation() const;
 
