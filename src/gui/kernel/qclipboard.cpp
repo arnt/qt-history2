@@ -205,6 +205,8 @@ QClipboard::~QClipboard()
 QString QClipboard::text(QString &subtype, Mode mode) const
 {
     const QMimeData *data = mimeData(mode);
+    if (!data)
+        return QString();
     if (subtype.isEmpty()) {
         QStringList formats = data->formats();
         if (formats.contains("text/plain"))
@@ -238,7 +240,8 @@ QString QClipboard::text(QString &subtype, Mode mode) const
 */
 QString QClipboard::text(Mode mode) const
 {
-    return mimeData(mode)->text();
+    const QMimeData *data = mimeData(mode);
+    return data ? data->text() : QString();
 }
 
 /*!
@@ -274,7 +277,10 @@ void QClipboard::setText(const QString &text, Mode mode)
 */
 QImage QClipboard::image(Mode mode) const
 {
-    QPixmap pm = mimeData(mode)->pixmap();
+    const QMimeData *data = mimeData(mode);
+    if (!data)
+        return QImage();
+    QPixmap pm = data->pixmap();
     QImage r = pm.toImage();
     return r;
 }
@@ -325,7 +331,8 @@ void QClipboard::setImage(const QImage &image, Mode mode)
 */
 QPixmap QClipboard::pixmap(Mode mode) const
 {
-    return mimeData(mode)->pixmap();
+    const QMimeData *data = mimeData(mode);
+    return data ? data->pixmap() : QPixmap();
 }
 
 /*!
@@ -349,7 +356,7 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 }
 
 
-/*! 
+/*!
     \fn QMimeData *QClipboard::mimeData(Mode mode) const
 
     Returns a reference to a QMimeData representation of the current
@@ -367,7 +374,7 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
     \sa setMimeData()
 */
 
-/*! 
+/*!
     \fn void QClipboard::setMimeData(QMimeData *src, Mode mode)
 
     Sets the clipboard data to \a src. Ownership of the data is
@@ -399,7 +406,7 @@ void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 */
 
 #ifdef QT_COMPAT
-/*! 
+/*!
     \fn QMimeSource *QClipboard::data(Mode mode) const
     \compat
 
@@ -420,7 +427,7 @@ QMimeSource *QClipboard::data(Mode mode) const
 }
 
 
-/*! 
+/*!
     \fn void QClipboard::setData(QMimeSource *src, Mode mode)
     \compat
 
