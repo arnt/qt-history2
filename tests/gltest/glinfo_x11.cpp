@@ -16,13 +16,13 @@
 ****************************************************************************/
 
 #include "glinfo.h"
-#include <qstring.h>
 
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
+#include <GL/glx.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
-#include <GL/glx.h>
+
+#include <qstring.h>
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
