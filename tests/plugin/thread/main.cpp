@@ -16,6 +16,8 @@
 #include <qcdestyle.h>
 #include <qplatinumstyle.h>
 #include <qmotifplusstyle.h>
+#include <qsignalmapper.h>
+#include <qstylefactory.h>
 
 class TestInterface;
 
@@ -55,23 +57,22 @@ protected:
 private slots:
     void startThread();
     void countWidgets();
-    void actionWindowsStyle();
-    void actionMotifStyle();
-    void actionSGIStyle();
-    void actionCDEStyle();
-    void actionPlatinumStyle();
-    void actionMotifPlusStyle();
+    void setStyle( const QString& );
 
 private:
     QGuardedCleanupHandler<QAction> actions;
+    QActionGroup *styleGroup;
+    QSignalMapper styleMapper;
+
     TestThread* thread;
     QDialog* dialog;
     QLCDNumber* lcd;
 };
 
 TestInterface::TestInterface( QUnknownInterface *parent, const char *name )
-: ActionInterface( parent, name ), thread( 0 ), dialog( 0 )
+: ActionInterface( parent, name ), styleMapper( this ), thread( 0 ), dialog( 0 )
 {
+    connect( &styleMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( setStyle( const QString& ) ) );
 }
 
 TestInterface::~TestInterface()
@@ -131,31 +132,32 @@ QAction* TestInterface::create( const QString& actionname, QObject* parent )
 	return a;
     } else if ( actionname == "Set Style" ) {
 	QActionGroup *ag = new QActionGroup( parent, 0 );
+	styleGroup = ag;
 	ag->setIconSet( QIconSet( (const char**)editmark_xpm ) );
 	ag->setMenuText( actionname );
 	ag->setText( actionname );
 	ag->setUsesDropDown( TRUE );
 	ag->setExclusive( FALSE );
 
+	QStringList list = QStyleFactory::styles();
 	QAction *a;
-	a = new QAction( "Windows", QIconSet(), "&Windows", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionWindowsStyle()) );
-	a = new QAction( "Motif", QIconSet(), "&Motif", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionMotifStyle()) );
-	a = new QAction( "CDE", QIconSet(), "&CDE", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionCDEStyle()) );
-	a = new QAction( "SGI", QIconSet(), "&SGI", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionSGIStyle()) );
-	a = new QAction( "Platinum", QIconSet(), "&Platinum", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionPlatinumStyle()) );
-	a = new QAction( "GTK", QIconSet(), "&GTK", 0, ag, 0, ag->isExclusive() );
-	connect( a, SIGNAL( activated() ), this, SLOT(actionMotifPlusStyle()) );
+	for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it ) {
+	    QString style = *it;
+	    a = new QAction( style, QIconSet(), "&"+style, 0, ag, 0, ag->isExclusive() );
+	    connect( a, SIGNAL( activated() ), &styleMapper, SLOT(map()) );
+	    styleMapper.setMapping( a, a->text() );
+	}
 
 	actions.add( ag );
 	return ag;	
     }
 
     return 0;
+}
+
+void TestInterface::setStyle( const QString& style )
+{
+    QApplication::setStyle( style );
 }
 
 QString TestInterface::group( const QString & )
@@ -182,38 +184,12 @@ void TestInterface::countWidgets()
     sbIface->release();
 }
 
-void TestInterface::actionWindowsStyle()
-{
-    QApplication::setStyle( new QWindowsStyle );
-}
-
-void TestInterface::actionMotifStyle()
-{
-    QApplication::setStyle( new QMotifStyle );
-}
-
-void TestInterface::actionPlatinumStyle()
-{
-    QApplication::setStyle( new QPlatinumStyle );
-}
-
-void TestInterface::actionSGIStyle()
-{
-    QApplication::setStyle( new QSGIStyle );
-}
-
-void TestInterface::actionCDEStyle()
-{
-    QApplication::setStyle( new QCDEStyle );
-}
-
-void TestInterface::actionMotifPlusStyle()
-{
-    QApplication::setStyle( new QMotifPlusStyle );
-}
-
 void TestInterface::startThread()
 {
+    styleGroup->setEnabled( !styleGroup->isEnabled() );
+
+    return;
+
     if ( !thread )
 	thread = new TestThread( this );
 
