@@ -1347,7 +1347,7 @@ bool QFont::fromString(const QString &descrip)
     QStringList l(QStringList::split(',', descrip));
 
     int count = l.count();
-    if (count != 10 || count != 9) {
+    if (count != 10 && count != 9) {
 
 #ifdef QT_CHECK_STATE
 	qWarning("QFont::fromString: invalid description '%s'", descrip.latin1());
