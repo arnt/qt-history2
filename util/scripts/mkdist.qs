@@ -40,6 +40,8 @@ var checkoutRemove = [ new RegExp("^gif"),
 		       new RegExp("^util"),
 		       new RegExp("^examples"),
 		       new RegExp("^tutorial"),
+		       new RegExp("^pics"),
+		       new RegExp("^extensions/xt"),
 
 		       new RegExp("^LICENSE.TROLL"),
 		       new RegExp("^tools/designer") ];
@@ -52,6 +54,12 @@ var editionRemove = new Array();
 var editionKeep = new Array();
 
 platformRemove["win"] = [ new RegExp("^dist"),
+			  new RegExp("^config.tests"),
+			  new RegExp("^extensions/motif"),
+			  new RegExp("^include/QtMotif"),
+			  new RegExp("^extensions/nsplugin"),
+			  new RegExp("^include/QtNsPlugin"),
+			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("_x11"),
 			  new RegExp("_unix"),
 			  new RegExp("_qws"),
@@ -59,10 +67,17 @@ platformRemove["win"] = [ new RegExp("^dist"),
 			  new RegExp("_mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^bin/syncqt") ];
+			  new RegExp("^configure"),
+			  new RegExp("^bin/syncqt"),
+			  new RegExp("^install.exe") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^dist"),
+			  new RegExp("^extensions"),
+			  new RegExp("^include/ActiveQt"),
+			  new RegExp("^include/QtNsPlugin"),
+			  new RegExp("^include/QtMotif"),
+			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -74,6 +89,11 @@ platformRemove["x11"] = [ new RegExp("^dist"),
 platformKeep["x11"] = [ new RegExp(".") ];
 
 platformRemove["mac"] = [ new RegExp("^dist"),
+			  new RegExp("^extensions"),
+			  new RegExp("^include/ActiveQt"),
+			  new RegExp("^include/QtNsPlugin"),
+			  new RegExp("^include/QtMotif"),
+			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -123,11 +143,11 @@ for (var p in validPlatforms) {
 	    print("Copying dist files...");
 	    copyDist(platDir, platform, edition);
 
-  	    // run syncqt
+	    // run syncqt
   	    print("Running syncqt...");
   	    syncqt(platDir, platform);
 
-  	    // run qdoc
+	    // run qdoc
   	    print("Running qdoc...");
   	    qdoc(platDir);
 
@@ -578,11 +598,25 @@ function qdoc(packageDir)
  */
 function replaceTags(packageDir, fileList, platform, edition)
 {
+    var replace = new Array();
+    replace[Date().getYear().toString()] = /\$THISYEAR\$/;
+    replace[options["version"]] = /\%VERSION\%/g;
+    
     var fileName = new String();
     var absFileName = new String();
+    var content = new String();
     for (var i in fileList) {
 	fileName = fileList[i];
 	absFileName = packageDir + "/" + fileName;
+	//only replace in non binaries but not for .html files
+	if (File.isFile(absFileName) &&
+	    !binaryFile(absFileName) &&
+	    !absFileName.endsWith(".html")) {
+	    content = File.read(absFileName);
+	    for (var i in replace)
+		content = content.replace(replace[i], i);
+	    File.write(absFileName, content);
+	}
     }
 }
 
