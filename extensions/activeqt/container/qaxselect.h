@@ -26,6 +26,7 @@ public:
     QString clsid() const { return ActiveX->text(); }
 
 private slots:
+    void on_ActiveXList_clicked(const QModelIndex& index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
     void on_ActiveXList_doubleClicked(const QModelIndex& index, Qt::MouseButton button, Qt::KeyboardModifiers modifiers);
 };
 
