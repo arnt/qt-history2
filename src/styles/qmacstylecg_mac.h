@@ -62,7 +62,7 @@ public:
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QMacStyleCG(const QMacStyleCG &);
-    QMacStyleCG& operator=(const QMacStyleCG &);
+    QMacStyleCG &operator=(const QMacStyleCG &);
 #endif
 
 protected:

@@ -68,6 +68,7 @@ void QMacStyleQDPainter::setport()
 #include <qregexp.h>
 #include <qscrollbar.h>
 #include <qscrollview.h>
+#include <qslider.h>
 #include <qspinbox.h>
 #include <qsplitter.h>
 #include <qtable.h>
@@ -272,12 +273,6 @@ void QMacStyleQDPrivate::doFocus(QWidget *w)
 	focusWidget = new QMacStyleQDFocusWidget(w);
     focusWidget->setFocusWidget(w);
 }
-
-
-#define private public //ugh, what I'll do, guess we have to wait until 4.0
-                       //to access positionToValue()..
-#include <qslider.h>
-#undef private
 
 static int mac_count = 0;
 
@@ -1408,7 +1403,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
-	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
+	ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 #if QT_MACOSX_VERSION >= 0x1020
 	if(flags & Style_HasFocus)
@@ -1756,7 +1751,7 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
-	ttdi.value = sldr->valueFromPosition(sldr->sliderStart());
+	ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(sldr->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
@@ -2165,7 +2160,7 @@ QSize QMacStyleQD::sizeFromContents(ContentsType contents, const QWidget *widget
 	break; }
     case CT_PushButton:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);
-	sz = QSize(sz.width() + 16, sz.height()); //###
+	sz = QSize(sz.width() + 16, sz.height()); //##
 	break;
     default:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, opt);

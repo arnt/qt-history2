@@ -8,6 +8,7 @@
 #include "qpushbutton.h"
 #include "qpointer.h"
 #include "qpopupmenu.h"
+#include "qslider.h"
 #include "qt_mac.h"
 
 QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
@@ -140,6 +141,7 @@ void QMacStyleCG::polish(QApplication *app)
     QPainter p(&px);
     
     // This gives us the metal look, of course.
+    /*
     HIThemeBackgroundDrawInfo bginfo;
     bginfo.version = qt_mac_hitheme_version;
     bginfo.state = kThemeStateActive;
@@ -147,15 +149,16 @@ void QMacStyleCG::polish(QApplication *app)
     HIRect rect = CGRectMake(0, 0, px.width(), px.height());
     HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(p.handle()),
                           kHIThemeOrientationNormal);
+     */
     
-    /* Believe it or not, we get the "older" style with this pixmap
+    // Believe it or not, we get the "older" style with this pixmap
     HIThemeMenuDrawInfo mtinfo;
     mtinfo.version = qt_mac_hitheme_version;
     mtinfo.menuType = kThemeMenuTypeHierarchical;
     HIRect rect = CGRectMake(0, 0, px.width(), px.height());
     HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
                               kHIThemeOrientationNormal);
-     */
+    
     p.end();
     QBrush background(black, px);
     pal.setBrush(QPalette::Background, background);
@@ -234,7 +237,7 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r
 	}
 	break; }
     case PE_FocusRect:
-	break;     //This is not used because of the QAquaFocusWidget thingie...
+	break;     //This is not used because of the QAquaFocusWidget thingie.
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
@@ -313,16 +316,99 @@ void QMacStyleCG::drawControl(ControlElement element, QPainter *p, const QWidget
 	HIThemeDrawButton(qt_glb_mac_rect(r, p), &info, static_cast<CGContextRef>(p->handle()),
 		          kHIThemeOrientationNormal, 0);
 	break; }
+    case CE_PushButtonLabel: {
+        // ### This is wrong, we should probably have another couple of rects, the arrow shouldn't be part of the label.
+#ifndef QT_NO_PUSHBUTTON
+        const QPushButton *button = static_cast<const QPushButton *>(widget);
+        QRect ir = r;
+        if (button->isMenuButton()) {
+            int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+            QRect ar(ir.right() - mbi, ir.height() - 13, mbi, ir.height() - 4);
+            drawPrimitive(PE_ArrowDown, p, ar, pal, how, opt);
+            ir.setWidth(ir.width() - mbi);
+        }
+        int tf = AlignVCenter | ShowPrefix | NoAccel;
+        
+#ifndef QT_NO_ICONSET
+        if (button->iconSet() && ! button->iconSet()->isNull()) {
+            QIconSet::Mode mode = button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
+            if (mode == QIconSet::Normal && button->hasFocus())
+                mode = QIconSet::Active;
+            
+            QIconSet::State state = QIconSet::Off;
+            if (button->isToggleButton() && button->isOn())
+                state = QIconSet::On;
+            
+            QPixmap pixmap = button->iconSet()->pixmap(QIconSet::Small, mode, state);
+            int pixw = pixmap.width();
+            int pixh = pixmap.height();
+            
+            //Center the icon if there is neither text nor pixmap
+            if (button->text().isEmpty() && !button->pixmap())
+                p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
+                              ir.y() + ir.height() / 2 - pixh / 2, pixmap);
+            else
+                p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
+            
+            ir.moveBy(pixw + 4, 0);
+            ir.setWidth(ir.width() - (pixw + 4));
+            // left-align text if there is
+            if (!button->text().isEmpty())
+                tf |= AlignLeft;
+            else if (button->pixmap())
+                tf |= AlignHCenter;
+        } else
+#endif //QT_NO_ICONSET
+            tf |= AlignHCenter;
+        drawItem(p, ir, tf, pal,
+                 how & Style_Enabled, button->pixmap(), button->text(), -1,
+                 &(pal.buttonText().color()) );
+#endif
+        break; }
     default:
 	QWindowsStyle::drawControl(element, p, widget, r, pal, how, opt);
     }
 }
 
-void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter* p, const QWidget* w,
-				     const QRect& r, const QPalette& pal, SFlags flags, SCFlags sub,
+void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const QWidget *w,
+				     const QRect &r, const QPalette& pal, SFlags flags, SCFlags sub,
 				     SCFlags subActive, const QStyleOption &opt) const
 {
-    QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+    switch (control) {
+    case CC_Slider: {
+        const QSlider *slider = static_cast<const QSlider *>(w);
+        HIThemeTrackDrawInfo tdi;
+        tdi.version = qt_mac_hitheme_version;
+        tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallSlider
+                                                               : kThemeMediumSlider;
+        tdi.bounds = *qt_glb_mac_rect(r, p);
+        tdi.min = slider->minValue();
+        tdi.max = slider->maxValue();
+        tdi.value = slider->value();
+        tdi.reserved = 0;
+        tdi.attributes = kThemeTrackShowThumb;
+        if (qMacVersion() >= Qt::MV_JAGUAR) {
+            if (flags & Style_HasFocus)
+                tdi.attributes |= kThemeTrackHasFocus;
+        }
+	if (slider->orientation() == Qt::Horizontal)
+	    tdi.attributes |= kThemeTrackHorizontal;
+	tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
+	if (slider->tickmarks() == QSlider::Above)
+	    tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
+	else if (slider->tickmarks() == QSlider::Below)
+	    tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
+        else if (slider->tickmarks() == QSlider::NoMarks)
+            tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
+	if (subActive == SC_SliderGroove)
+	    tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
+	else if (subActive == SC_SliderHandle)
+	    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
+        HIThemeDrawTrack(&tdi, 0, static_cast<CGContextRef>(p->handle()), kHIThemeOrientationNormal);
+        break; }
+    default:
+        QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
+    }
 }
 
 int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
@@ -354,7 +440,7 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	GetThemeMetric(tm, &ret);
 	break; }
     case PM_MenuButtonIndicator:
-        GetThemeMetric(kThemeMetricLittleArrowsWidth, &ret);
+        GetThemeMetric(kThemeMetricDisclosureTriangleWidth, &ret);
         break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
@@ -406,7 +492,15 @@ QStyle::SubControl QMacStyleCG::querySubControl(ComplexControl control, const QW
 int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOption &opt,
 		       QStyleHintReturn *ret) const
 {
-    return QWindowsStyle::styleHint(sh, widget, opt, ret);
+    int returnMe;
+    switch (sh) {
+    case SH_UnderlineAccelerator:
+        returnMe = false;
+        break;
+    default:
+        returnMe = QWindowsStyle::styleHint(sh, widget, opt, ret);
+    }
+    return returnMe;
 }
 
 QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *w,
@@ -424,7 +518,8 @@ QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
 				 const QStyleOption &opt) const
 {
     IconRef icon = 0;
-    switch(sp) {
+    switch (sp) {
+        case SP_MessageBoxQuestion:
         case SP_MessageBoxInformation:
             GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
             break;
@@ -434,12 +529,10 @@ QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
         case SP_MessageBoxCritical:
             GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
             break;
-        case SP_MessageBoxQuestion:
-            //no idea how to do this ###
         default:
             break;
     }
-    if(icon) {
+    if (icon) {
 	QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
 	ReleaseIconRef(icon);
 	return ret;
