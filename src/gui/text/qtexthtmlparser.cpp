@@ -1237,7 +1237,21 @@ void QTextHtmlParser::parseAttributes()
                         format.setVAlign(QTextFormat::AlignNormal);
 #endif
                 } else if (style.startsWith(QLatin1String("color:"))) {
-                    node->color.setNamedColor(style.mid(6));
+                    QString s = style.mid(6).trimmed();
+                    if (s.startsWith(QLatin1String("rgb("))
+                        && s.at(s.length() - 1) == QLatin1Char(')')) {
+
+                        s.chop(1);
+                        s.remove(0, 4);
+
+                        const QStringList rgb = s.split(',');
+                        if (rgb.count() == 3)
+                            node->color.setRgb(rgb[0].toInt(), rgb[1].toInt(), rgb[2].toInt());
+                        else
+                            node->color = QColor();
+                    } else {
+                        node->color.setNamedColor(style.mid(6));
+                    }
                 } else if (style.startsWith(QLatin1String("float:"))) {
                     QString s = style.mid(6).trimmed();
                     node->cssFloat = QTextFrameFormat::InFlow;
