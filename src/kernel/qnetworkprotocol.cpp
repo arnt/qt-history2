@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#40 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -737,7 +737,9 @@ bool QNetworkProtocol::autoDelete() const
 void QNetworkProtocol::removeMe()
 {
     if ( d->autoDelete ) {
-	qDebug( "******************** autodelet of QNetworkProtocol %p ****************", this );
+#if 0
+	qDebug( "******************** autodelete of QNetworkProtocol %p ****************", this );
+#endif
 	delete url();
     }
 }
