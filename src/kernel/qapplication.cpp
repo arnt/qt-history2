@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#176 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#177 $
 **
 ** Implementation of QApplication class
 **
@@ -170,16 +170,16 @@ void process_cmdline( int* argcptr, char ** argv )
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
 	    qApp->setStyle( new QMotifStyle );
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
-	    qApp->setStyle( new QPlatinumStyle() );
+	    qApp->setStyle( new QPlatinumStyle );
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
 	    if ( s == "windows" )
-		qApp->setStyle( new QWindowsStyle() );
+		qApp->setStyle( new QWindowsStyle );
 	    else if ( s == "motif" )
-		qApp->setStyle( new QMotifStyle() );
+		qApp->setStyle( new QMotifStyle );
 	    else if ( s == "platinum" )
-		qApp->setStyle( new QPlatinumStyle() );
+		qApp->setStyle( new QPlatinumStyle );
 	} else
 	    argv[j++] = argv[i];
     }
@@ -297,6 +297,7 @@ void QApplication::init_precmdline()
 #if defined(_WS_WIN_)
     app_style = new QWindowsStyle;// default style for Windows
 #elif defined(_WS_X11_)
+    //    app_style = new QWindowsStyle;// default style for X Windows
     app_style = new QMotifStyle;// default style for X Windows
 #endif
     qApp = this;
@@ -435,7 +436,7 @@ void QApplication::setStyle( QStyle *style )
 {
     QStyle* old = app_style;
     app_style = style;
-    
+
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
@@ -673,7 +674,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets, c
 
 
 /*!
-  \fn QFont *QApplication::font()
+  \fn QFont *QApplication::font(const QWidget* = 0)
   Returns the default application font.	 There is always an application
   font, i.e. the returned pointer is guaranteed to be non-null.
   \sa setFont(), fontMetrics(), QWidget::font()
