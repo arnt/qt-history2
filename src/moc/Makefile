@@ -79,7 +79,7 @@ TARGET	=	moc.exe
 
 all: $(TARGET)
 
-$(TARGET): $(OBJECTS) $(OBJMOC) 
+$(TARGET): $(OBJECTS) $(OBJMOC)
 	$(LINK) $(LFLAGS) /OUT:$(TARGET) @<<
 	    $(OBJECTS) $(OBJMOC) $(LIBS)
 <<
@@ -350,6 +350,7 @@ $(LEXOUT): $(LEXIN)
 	$(LEX) $(LEXIN)
 
 $(MOCGEN): $(YACCIN) $(LEXOUT)
+	@test "x`yacc --version 2> /dev/null | grep 'GNU Bison'> /dev/null`" = "x" || ( echo "Bison does not work.  Please use Byacc or Yacc." ; false )
 	$(YACC) $(YACCIN)
 	-del $(MOCGEN)
 	-ren $(YACCOUT) $(MOCGEN)
