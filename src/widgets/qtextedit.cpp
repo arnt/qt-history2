@@ -4289,8 +4289,7 @@ void QTextEdit::clear()
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( optimMode ) {
-	optimRemoveSelection();
-	optimSetText( "" );
+	optimSetText("");
     } else {
 #endif
 	// make clear undoable
@@ -4949,24 +4948,27 @@ QString QTextEdit::optimText() const
 /*! \internal */
 void QTextEdit::optimSetText( const QString &str )
 {
+    optimRemoveSelection();
     if ( str == optimText() )
 	return;
-
     od->numLines = 0;
     od->lines.clear();
     od->len = str.length();
-    QStringList strl = QStringList::split( '\n', str, TRUE );
+    od->maxLineWidth = 0;
     QFontMetrics fm( QScrollView::font() );
-    int lWidth = 0;
-    for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
-	od->lines[ od->numLines++ ] = *it;
-	lWidth = fm.width( *it );
-	if ( lWidth > od->maxLineWidth )
-	    od->maxLineWidth = lWidth;
+    if ( !(str.isEmpty() || str.isNull()) ) {
+	QStringList strl = QStringList::split( '\n', str, TRUE );
+	int lWidth = 0;
+	for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
+	    od->lines[ od->numLines++ ] = *it;
+	    lWidth = fm.width( *it );
+	    if ( lWidth > od->maxLineWidth )
+		od->maxLineWidth = lWidth;
+	}
     }
     resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() +
 		    fm.descent() + 1 );
-    repaintContents( FALSE );
+    repaintContents();
     emit textChanged();
 }
 
@@ -4974,7 +4976,8 @@ void QTextEdit::optimSetText( const QString &str )
 QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
 							  const QString & tag )
 {
-    QTextEditOptimPrivate::FormatTag * t = new QTextEditOptimPrivate::FormatTag;
+    QTextEditOptimPrivate::FormatTag * t = new QTextEditOptimPrivate::FormatTag, * tmp;
+    
     if ( od->tags == 0 )
 	od->tags = t;
     t->line  = od->numLines;
@@ -4987,20 +4990,19 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
 	od->lastTag->next = t;
     t->next = 0;
     od->lastTag = t;
-    if ( !od->tagIndex[ t->line ] || (od->tagIndex[ t->line ] &&
-	  od->tagIndex[ t->line ]->index > t->index) ) {
-	od->tagIndex[ t->line ] = t;
-    }
+    tmp = od->tagIndex[ t->line ];
+    if ( !tmp || (tmp && tmp->index > t->index) )
+	od->tagIndex.replace( t->line, t );
     return t;
 }
 
 /*! \internal 
   
-  Find any tags in \a line and pull them out.
+  Find tags in \a line, pull them out and put them in a structure.
  
   A tag is delimited by '<' and '>'. The characters '<' and '>' are
   escaped by using "<<" and ">>". Left-tags marks the starting point for
-  formatting, while right-tags marks the end point. A right-tag is the
+  formatting, while right-tags mark the ending point. A right-tag is the
   same as a left-tag, but with a '/' appearing before the tag keyword.
   E.g a valid left-tag: <red>, and a valid right-tag: </red>.
   Currently, tags can only be used to change the color of a piece of text.
@@ -5013,77 +5015,75 @@ QTextEditOptimPrivate::FormatTag * QTextEdit::optimAppendTag( int index,
   blue.</blue>
 
   Limitations:
-  1. A tag specification cannot span several lines.
+  1. A tag cannot span several lines.
+  2. Very limited error checking - mismatching right-tags is the
+  only thing that is detected.
+  
 */
 void QTextEdit::optimParseTags( QString * line )
 {
-//     if ( !line->contains('<') || !line->contains('>') )
-// 	return;
-    
-    QString tag;
     int len = line->length();
     int i, startIndex = -1, endIndex = -1;
-    QChar prevChar = '\0';
     int state = 0; // 0 = outside tag, 1 = inside tag
+    bool tagOpen, tagClose;
+    QString tagStr;
     QPtrStack<QTextEditOptimPrivate::FormatTag> tagStack;
+
     for ( i = 0; i < len; i++ ) {
-	if ( i > 0 )
-	    prevChar = (*line)[i-1];
-	if ( state == 1 && prevChar == '<' && (*line)[i] == '<' ) {
+	tagOpen = (*line)[i] == '<';
+	tagClose = (*line)[i] == '>';
+	
+	if ( ( (*line)[i-1] == '<' && tagOpen ) ||
+	     ( (*line)[i-1] == '>' && tagClose ) )
+	{
 	    state = 0;
 	    line->remove( i, 1 );
 	    len -= 1;
 	    i -= 1;
 	    continue;
-	}
-	if ( state == 0 && prevChar == '>' && (*line)[i] == '>' ) {
-	    line->remove( i, 1 );
-	    len -= 1;
-	    i -= 1;
-	    continue;
-	}
-	if ( state == 0 && (*line)[i] == '<' ) {
+	}	
+	if ( state == 0 && tagOpen ) {
 	    state = 1;
 	    startIndex = i;
 	    continue;
 	}
-	if ( state == 1 && (*line)[i] == '>' ) {
+	if ( state == 1 && tagClose ) {
 	    state = 0;
 	    endIndex = i;
-	    if ( !tag.isEmpty() ) {
-		QTextEditOptimPrivate::FormatTag * ftag, * curTag, * tmpTarget;
-		ftag = od->appendTag( startIndex, tag );
-		// ### move this into QTextOptimPrivate::appendTag()
-		if ( tag[0] == '/' ) { // this is a right-tag
-		    // This is a right-tag:
-		    // 1. find corresponding left-tag (if any)
-		    // 2. update leftTag member in the right-tag's struct
-		    curTag = ftag;
-		    while ( (curTag = curTag->prev) ) {
-			if ( curTag->tag[0] == '/' ) {
-			    tagStack.push( curTag );
+	    if ( !tagStr.isEmpty() ) {
+		QTextEditOptimPrivate::FormatTag * tag, * cur, * tmp;
+		tag = optimAppendTag( startIndex, tagStr );
+		if ( tagStr[0] == '/' ) { 
+		    // ok, this is a right-tag - search for the left-tag
+		    // and possible parent tag
+		    cur = tag->prev;
+		    while ( cur ) {
+			if ( cur->leftTag ) {
+			    tagStack.push( cur );
 			} else {
-			    tmpTarget = tagStack.pop();
-			    if ( !tmpTarget ) {
-				if ( ("/" + curTag->tag) == ftag->tag ) {
-				    ftag->leftTag = curTag;
-				    tmpTarget = curTag->prev;
-				    // find the parent of this tag
-				    if ( tmpTarget && tmpTarget->parent )
-					ftag->parent = tmpTarget->parent;
-				    else if ( tmpTarget && !tmpTarget->leftTag )
-					ftag->parent = tmpTarget;
+			    tmp = tagStack.pop();
+			    if ( !tmp ) {
+				if ( ("/" + cur->tag) == tag->tag ) {
+				    // set up the left and parent of this tag
+				    tag->leftTag = cur;
+				    tmp = cur->prev;
+				    if ( tmp && tmp->parent ) {
+					tag->parent = tmp->parent;
+				    } else if ( tmp && !tmp->leftTag ) {
+					tag->parent = tmp;
+				    }
 				    break;
 				}
-			    } else if ( ("/" + curTag->tag) != tmpTarget->tag ) {
-				qWarning( ftag->tag );
-				qWarning( "QTextEdit::optimParseLine(): missing right-tag for \"<" + curTag->tag + ">\"" );
-				break;
+			    } else if ( ("/" + cur->tag) != tmp->tag ) {
+#ifdef QT_CHECK_RANGE				
+				qWarning( "QTextEdit::optimParseTags(): mismatching right-tag for '<" + cur->tag + ">' in line %d.", cur->line + 1 );
+#endif
+				return; // something is amiss - give up
 			    }
 			}
+			cur = cur->prev;
 		    }
 		}
-		// ### move end
 	    }
 	    if ( startIndex != -1 ) {
 		int l = (endIndex == -1) ? 
@@ -5092,12 +5092,12 @@ void QTextEdit::optimParseTags( QString * line )
 		len = line->length();
 		i -= l+1;
 	    }
-	    tag = "";
+	    tagStr = "";
 	    continue;
 	}
 	
 	if ( state == 1 ) {
-	    tag += (*line)[i];
+	    tagStr += (*line)[i];
 	}
     }
 }
@@ -5217,10 +5217,10 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
     if ( od->tags ) {
 	int i = startLine;
 	QMapConstIterator<int,QTextEditOptimPrivate::FormatTag *> it;
-	QTextEditOptimPrivate::FormatTag * tag, * tmp = 0;
+	QTextEditOptimPrivate::FormatTag * tag = 0, * tmp = 0;
   	QTextCursor cur( td );
 	// Step 1 - find previous lef-tag
- 	tmp = optimPreviousLeftTag( i );
+  	tmp = optimPreviousLeftTag( i );
 	for ( ; i < startLine + nLines; i++ ) {
 	    if ( (it = od->tagIndex.find( i )) != od->tagIndex.end() )
 		tag = it.data();
@@ -5479,7 +5479,7 @@ int QTextEdit::optimCharIndex( const QString &str )
     if ( mousePos.x() > fm.width( str ) )
 	return str.length();
 
-    // XXX: tab character does not return correct width
+    // ### tab character does not return correct width
     while ( i < str.length() ) {
 	dd = fm.width( str.left( i ) ) - mousePos.x();
 	if ( QABS(dd) < dist || dist == dd ) {
@@ -5489,6 +5489,7 @@ int QTextEdit::optimCharIndex( const QString &str )
 	}
 	i++;
     }
+// debug
 //     qWarning("x: %d, y: %d, c: %d, tabwidth: %d, strwidth(1): %d",
 // 	     mousePos.x(), mousePos.y(), curpos, fm.width("\t"),
 // 	     fm.width(str.left(1) ) );
