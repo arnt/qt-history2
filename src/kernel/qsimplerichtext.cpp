@@ -334,3 +334,11 @@ bool QSimpleRichText::inText( const QPoint& pos ) const
     return c.totalOffsetX() + c.parag()->at( c.index() )->x +
 	c.parag()->at( c.index() )->format()->width( c.parag()->at( c.index() )->c ) > pos.x();
 }
+
+/*! Sets the default font for the document to \a f */
+
+void QSimpleRichText::setDefaultFont( const QFont &f )
+{
+    d->font = f;
+    d->doc->setDefaultFont( f );
+}

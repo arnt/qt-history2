@@ -67,6 +67,7 @@ public:
 
     void setWidth( int );
     void setWidth( QPainter*, int );
+    void setDefaultFont( const QFont &f );
     int width() const;
     int widthUsed() const;
     int height() const;

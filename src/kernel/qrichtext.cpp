@@ -2440,7 +2440,7 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 
 void QTextDocument::setDefaultFont( const QFont &f )
 {
-    fCollection->defFormat->setFont( f );
+    updateFontSizes( f.pointSize() );
 }
 
 void QTextDocument::registerCustomItem( QTextCustomItem *i, QTextParag *p )

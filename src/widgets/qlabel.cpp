@@ -271,6 +271,7 @@ void QLabel::setText( const QString &text )
     if ( textformat == RichText ||
 	 ( textformat == AutoText && QStyleSheet::mightBeRichText(ltext) ) ) {
 	doc = new QSimpleRichText( ltext, font() );
+	doc->setDefaultFont( font() );
 	doc->setWidth( 10 );
 	d->minimumWidth = doc->widthUsed();
     }
@@ -1200,8 +1201,15 @@ void QLabel::setTextFormat( Qt::TextFormat format )
 
 void QLabel::fontChange( const QFont & )
 {
-    if ( !ltext.isEmpty() )
+    if ( !ltext.isEmpty() ) {
+#ifndef QT_NO_RICHTEXT
+	if ( doc ) {
+	    doc->setDefaultFont( font() );
+	    update();
+	}
+#endif
 	updateLabel( QSize( -1, -1 ) );
+    }
 }
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
@@ -1237,5 +1245,19 @@ void QLabel::setScaledContents( bool enable )
 	updateMask();
     update();
 }
+
 #endif // QT_NO_IMAGE_SMOOTHSCALE
+
+void QLabel::setFont( const QFont &f )
+{
+    QFrame::setFont( f );
+#ifndef QT_NO_RICHTEXT
+    if ( doc ) {
+	doc->setDefaultFont( f );
+	update();
+    }
+#endif
+}
+
+
 #endif // QT_NO_LABEL

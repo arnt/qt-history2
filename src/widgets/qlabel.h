@@ -98,6 +98,8 @@ public:
 
     int		 heightForWidth(int) const;
 
+    void setFont( const QFont &f );
+
 public slots:
     virtual void setText( const QString &);
     virtual void setPixmap( const QPixmap & );
