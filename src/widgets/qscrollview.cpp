@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#131 $
 **
 ** Implementation of QScrollView class
 **
@@ -727,7 +727,7 @@ void QScrollView::updateScrollBars()
 
 
 /*! \reimp
-  
+
   Ensures that scrollbars have the correct size when the widget is shown.
 */
 void QScrollView::show()
@@ -739,7 +739,7 @@ void QScrollView::show()
 }
 
 /*! \reimp
-  
+
   Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resize( int w, int h )
@@ -764,7 +764,7 @@ void QScrollView::resize( int w, int h )
 }
 
 /*! \reimp
-  
+
   Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resize( const QSize& s )
@@ -773,7 +773,7 @@ void QScrollView::resize( const QSize& s )
 }
 
 /*! \reimp
-  
+
   Ensures that scrollbars have the correct size when the widget is resized.
 */
 void QScrollView::resizeEvent( QResizeEvent* event )
@@ -1814,7 +1814,7 @@ void QScrollView::drawContentsOffset(QPainter* p, int offsetx, int offsety, int 
   {
     // Fill a 40000 by 50000 rectangle at (100000,150000)
 
-    // Calculate the coordinates... (don't use QPoint, QRect, etc!)
+    // Calculate the coordinates... 
     int x1 = 100000, y1 = 150000;
     int x2 = x1+40000-1, y2 = y1+50000-1;
 
