@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qtabwidget.cpp#15 $
 **
 ** Implementation of QTabWidget class
 **
@@ -197,7 +197,7 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 
     //#### accelerators
     int id = d->stack->id( w );
-    if ( !id )
+    if ( id < 0 )
 	return;
     QTab* t = d->tabs->tab( id );
     if ( !t )
@@ -214,7 +214,7 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
 {
     //#### accelerators
     int id = d->stack->id( w );
-    if ( !id )
+    if ( id < 0 )
 	return;
     QTab* t = d->tabs->tab( id );
     if ( !t )
@@ -237,7 +237,7 @@ void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &
 bool QTabWidget::isTabEnabled( QWidget* w ) const
 {
     int id = d->stack->id( w );
-    if ( id )
+    if ( id >= 0 )
 	return w->isEnabled();
     else
 	return FALSE;
@@ -260,7 +260,7 @@ bool QTabWidget::isTabEnabled( QWidget* w ) const
 void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 {
     int id = d->stack->id( w );
-    if ( id ) {
+    if ( id >= 0 ) {
 	w->setEnabled( enable );
 	d->tabs->setTabEnabled( id, enable );
     }
@@ -276,7 +276,7 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 void QTabWidget::showPage( QWidget * w)
 {
     int id = d->stack->id( w );
-    if ( id ) {
+    if ( id >= 0 ) {
 	d->stack->raiseWidget( w );
 	d->tabs->setCurrentTab( id );
     }
@@ -289,7 +289,7 @@ void QTabWidget::showPage( QWidget * w)
 void QTabWidget::removePage( QWidget * w )
 {
     int id = d->stack->id( w );
-    if ( id ) {
+    if ( id >= 0 ) {
 	d->tabs->setTabEnabled( id, FALSE );
 	d->stack->removeWidget( w );
 	d->tabs->removeTab( d->tabs->tab(id) );
