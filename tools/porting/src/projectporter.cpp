@@ -142,7 +142,7 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
         QString logText = "Added entry to .pro file: " + insertText;
         logger->addEntry("profile", logText,  QString() , -2, -1); //TODO get line/column here
     }
-    if (!tagMap["FORMS"].isEmpty()) {
+    if (!tagMap["FORMS"].isEmpty() || !tagMap["INTERFACES"].isEmpty()) {
         contents += "\n#The following line was inserted by the Qt porting tool\n";
         QString insertText = "CONFIG += uic3\n";
         contents += insertText;
