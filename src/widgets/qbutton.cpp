@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#94 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#95 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#94 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#95 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -29,7 +29,7 @@ static const int drawingPixWidth  = 300;
 static const int drawingPixHeight = 100;
 
 
-/* 
+/*
   Returns a pixmap of dimension (drawingPixWidth x drawingPixHeight). The
   pixmap is used by paintEvent for flicker-free drawing.
  */
@@ -166,7 +166,7 @@ static int shortcutChar( const char *str )
   You can also set a custom accelerator using the setAccel() function.
   This is very useful for pixmap buttons since they have no automatic
   accelerator.
- 
+
   \code
     QPushButton *p;
     p->setPixmap( QPixmap("print.gif") );
@@ -614,7 +614,7 @@ void QButton::drawButtonLabel( QPainter * )
   Space is the only key that has any effect; it calls animateClick().
 */
 
-void QButton::keyPressEvent( QKeyEvent *e ) 
+void QButton::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key() == Key_Space )
 	animateClick();
@@ -706,14 +706,14 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 void QButton::paintEvent( QPaintEvent *event )
 {
     QPainter paint;
-    
+
     if ( event && width() <= drawingPixWidth && height() <= drawingPixHeight ) {
 	QPixmap *pm = getDrawingPixmap();
 	ASSERT( pm );
-
+	
+	pm->fill( this, 0, 0 );
 	paint.begin( pm );
 	paint.setFont( font() );
-	pm->fill( this, 0, 0 );
 	drawButton( &paint );
 	paint.end();
 	
