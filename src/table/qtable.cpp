@@ -946,7 +946,7 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
 {
     setReplaceable( FALSE );
     if ( !fakeCombo ) {
-	fakeCombo = new QComboBox( FALSE, 0 );
+	fakeCombo = new QComboBox( FALSE, 0, 0 );
 	fakeCombo->hide();
     }
 }
