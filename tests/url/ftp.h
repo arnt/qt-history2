@@ -17,13 +17,12 @@ public:
     void read();
     void open( const QString &host_, int port, const QString &path_ = "/"  );
     void close();
-    
+
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info );
 
-    QSocket *commandSocket;
+    QSocket *commandSocket, *dataSocket;
     QString host;
-    bool expectList;
     QCString buffer;
     QString path;
 
@@ -32,6 +31,10 @@ protected slots:
     void connected();
     void closed();
     void readyRead();
+    void dataHostFound();
+    void dataConnected();
+    void dataClosed();
+    void dataReadyRead();
 
 signals:
     void newEntry( const QUrlInfo & );

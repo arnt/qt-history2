@@ -17,14 +17,44 @@ void FTP::closed()
 {
 }
 
+void FTP::dataHostFound()
+{
+}
+
+void FTP::dataConnected()
+{
+    QString cmd = "CWD " + path + "\r\n";
+    commandSocket->writeBlock( cmd.latin1(), cmd.length() );
+}
+
+void FTP::dataClosed()
+{
+}
+
+void FTP::dataReadyRead()
+{
+    QCString s;
+    s.resize( dataSocket->bytesAvailable() );
+    dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
+    QString ss = s.copy();
+    QStringList lst = QStringList::split( '\n', ss );
+    QStringList::Iterator it = lst.begin();
+    for ( ; it != lst.end(); ++it ) {
+	QUrlInfo inf;
+	parseDir( *it, inf );
+	if ( !inf.name().isEmpty() )
+	    emit newEntry( inf );
+    }
+}
+
 void FTP::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QStringList lst = QStringList::split( " ", buffer );
     QString tmp;
-    
+
     // permissions
     tmp = lst[ 0 ];
-    
+
     if ( tmp[ 0 ] == QChar( 'd' ) ) {
 	info.setDir( TRUE );
 	info.setFile( FALSE );
@@ -33,63 +63,52 @@ void FTP::parseDir( const QString &buffer, QUrlInfo &info )
 	info.setFile( TRUE );
     } else
 	return; // ### todo links
-    
+
     // owner
     tmp = lst[ 2 ];
     info.setOwner( tmp );
-    
+
     // group
     tmp = lst[ 3 ];
     info.setGroup( tmp );
-    
+
     // date, time #### todo
-    
+
     // name
     info.setName( lst[ 8 ].stripWhiteSpace() );
-    
+
 }
 
 void FTP::readyRead()
 {
-    if ( expectList ) {
-	QCString s;
-	s.resize( commandSocket->bytesAvailable() );
-	commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-	QString ss = s.copy();
-	QStringList lst = QStringList::split( '\n', ss );
-	QStringList::Iterator it = lst.begin();
-	for ( ; it != lst.end(); ++it ) {
-	    QUrlInfo inf;
-	    parseDir( *it, inf );
-	    if ( !inf.name().isEmpty() )
-		emit newEntry( inf );
-	}
+    QCString s;
+    s.resize( commandSocket->bytesAvailable() );
+    commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
 	
-	if ( s.contains( "213 End" ) )
-	    expectList = FALSE;
-    } else {
-
-	QCString s;
-	s.resize( commandSocket->bytesAvailable() );
-	commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-
-	if ( s.contains( "220" ) ) {
-	    int i = commandSocket->writeBlock( "USER anonymous\r\n", strlen( "USER anonymous\r\n" ) );
-	} else if ( s.contains( "331" ) ) {
-	    int i = commandSocket->writeBlock( "PASS reggie@troll.no\r\n", strlen( "PASS reggie@troll.no\r\n" ) );
-	} else if ( s.contains( "230" ) ) {
-	    QString cmd = "STAT " + path + "\r\n";
-	    int i = commandSocket->writeBlock( cmd.latin1(), cmd.length() );
-	    expectList = TRUE;
-	    buffer = "";
-	}
-    }	
+    if ( s.contains( "220" ) ) {
+	commandSocket->writeBlock( "USER anonymous\r\n", strlen( "USER anonymous\r\n" ) );
+    } else if ( s.contains( "331" ) ) {
+	commandSocket->writeBlock( "PASS reggie@troll.no\r\n", strlen( "PASS reggie@troll.no\r\n" ) );
+    } else if ( s.contains( "230" ) ) {
+	commandSocket->writeBlock( "PASV\r\n", strlen( "PASV\r\n") );
+    } else if ( s.contains( "227" ) ) {
+	int i = s.find( "(" );
+	int i2 = s.find( ")" );
+	s = s.mid( i + 1, i2 - i - 1 );
+	if ( !dataSocket->host().isEmpty() )
+	    dataSocket->close();
+	QStringList lst = QStringList::split( ',', s );
+	int port = ( lst[ 4 ].toInt() << 8 ) + lst[ 5 ].toInt();
+	dataSocket->connectToHost( lst[ 0 ] + "." + lst[ 1 ] + "." + lst[ 2 ] + "." + lst[ 3 ], port );
+    } else if ( s.contains( "250" ) ) {
+	commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
+    }
 }
 
 FTP::FTP()
-    : expectList( FALSE )
 {
     commandSocket = new QSocket( this );
+    dataSocket = new QSocket( this );
     connect( commandSocket, SIGNAL( hostFound() ),
 	     this, SLOT( hostFound() ) );
     connect( commandSocket, SIGNAL( connected() ),
@@ -98,6 +117,15 @@ FTP::FTP()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
+
+    connect( dataSocket, SIGNAL( hostFound() ),
+	     this, SLOT( dataHostFound() ) );
+    connect( dataSocket, SIGNAL( connected() ),
+	     this, SLOT( dataConnected() ) );
+    connect( dataSocket, SIGNAL( closed() ),
+	     this, SLOT( dataClosed() ) );
+    connect( dataSocket, SIGNAL( readyRead() ),
+	     this, SLOT( dataReadyRead() ) );
 
 }
 
@@ -116,7 +144,7 @@ void FTP::close()
     }
 }
 
-FTP::~FTP() 
+FTP::~FTP()
 {
     if ( !commandSocket->host().isEmpty() ) {
 	commandSocket->writeBlock( "quit\r\n", strlen( "quit\r\n" ) );
@@ -128,7 +156,6 @@ FTP::~FTP()
 
 FTP &FTP::operator=( const FTP &ftp )
 {
-    expectList = FALSE;
     disconnect( commandSocket, SIGNAL( hostFound() ),
 		this, SLOT( hostFound() ) );
     disconnect( commandSocket, SIGNAL( connected() ),
