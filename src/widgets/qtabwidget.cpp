@@ -818,7 +818,7 @@ QString QTabWidget::label( int index ) const
 /*!
   Returns the current alignment of the tabs in the tab bar.
   
-  \sa QTabWidget::setAlignment()
+  \sa setTabAlignment()
 */
 int QTabWidget::tabAlignment() const
 {
@@ -830,7 +830,7 @@ int QTabWidget::tabAlignment() const
   
   Possible values are Qt::AlignLeft, Qt::AlignHCenter, Qt::AlignRight.
   
-  \sa QTabWidget::alignment()
+  \sa tabAlignment()
 */
 void QTabWidget::setTabAlignment( int a )
 {
