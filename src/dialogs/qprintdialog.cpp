@@ -1079,18 +1079,17 @@ QGroupBox * QPrintDialog::setupPaper()
     Private::isc( d, tr( "A7 (74 x 105 mm)" ), QPrinter::A7 );
     Private::isc( d, tr( "A8 (52 x 74 mm)" ), QPrinter::A8 );
     Private::isc( d, tr( "A9 (37 x 52 mm)" ), QPrinter::A9 );
-    Private::isc( d, tr( "B0 (1030 x 1456 mm)" ), QPrinter::B0 );
-    Private::isc( d, tr( "B1 (728 x 1030 mm)" ), QPrinter::B1 );
-    Private::isc( d, tr( "B10 (32 x 45 mm)" ), QPrinter::B10 );
-    Private::isc( d, tr( "B2 (515 x 728 mm)" ), QPrinter::B2 );
-    Private::isc( d, tr( "B3 (364 x 515 mm)" ), QPrinter::B3 );
-    Private::isc( d, tr( "B4 (257 x 364 mm)" ), QPrinter::B4 );
-    Private::isc( d, tr( "B5 (182x257 mm, 7.17x10.13 inches)" ),
-                              QPrinter::B5 );
-    Private::isc( d, tr( "B6 (128 x 182 mm)" ), QPrinter::B6 );
-    Private::isc( d, tr( "B7 (91 x 128 mm)" ), QPrinter::B7 );
-    Private::isc( d, tr( "B8 (64 x 91 mm)" ), QPrinter::B8 );
-    Private::isc( d, tr( "B9 (45 x 64 mm)" ), QPrinter::B9 );
+    Private::isc( d, tr( "B0 (1000 x 1414 mm)" ), QPrinter::B0 );
+    Private::isc( d, tr( "B1 (707 x 1000 mm)" ), QPrinter::B1 );
+    Private::isc( d, tr( "B2 (500 x 707 mm)" ), QPrinter::B2 );
+    Private::isc( d, tr( "B3 (353 x 500 mm)" ), QPrinter::B3 );
+    Private::isc( d, tr( "B4 (250 x 353 mm)" ), QPrinter::B4 );
+    Private::isc( d, tr( "B5 (176 x 250 mm, 6.93x9.84 inches)" ), QPrinter::B5 );
+    Private::isc( d, tr( "B6 (125 x 176 mm)" ), QPrinter::B6 );
+    Private::isc( d, tr( "B7 (88 x 125 mm)" ), QPrinter::B7 );
+    Private::isc( d, tr( "B8 (62 x 88 mm)" ), QPrinter::B8 );
+    Private::isc( d, tr( "B9 (44 x 62 mm)" ), QPrinter::B9 );
+    Private::isc( d, tr( "B10 (31 x 44 mm)" ), QPrinter::B10 );
     Private::isc( d, tr( "C5E (163 x 229 mm)" ), QPrinter::C5E );
     Private::isc( d, tr( "DLE (110 x 220 mm)" ), QPrinter::DLE );
     Private::isc( d, tr( "Executive (7.5x10 inches, 191x254 mm)" ),
