@@ -47,7 +47,7 @@ RSC=rc.exe
 BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS $$MSVCDSP_VERSION /subsystem:$$MSVCDSP_SUBSYSTEM $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS
+# ADD LINK32 $$MSVCDSP_LIBS $$MSVCDSP_VERSION /subsystem:$$MSVCDSP_SUBSYSTEM $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS
 
 !ELSEIF  "$(CFG)" == "$$MSVCDSP_PROJECT - Win32 Debug"
 
@@ -67,7 +67,7 @@ LINK32=link.exe
 BSC32=bscmake.exe
 # ADD BSC32 /nologo
 LINK32=link.exe
-# ADD LINK32 kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib $$MSVCDSP_LIBS $$MSVCDSP_VERSION /subsystem:$$MSVCDSP_SUBSYSTEM /debug $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS /pdbtype:sept
+# ADD LINK32 $$MSVCDSP_LIBS $$MSVCDSP_VERSION /subsystem:$$MSVCDSP_SUBSYSTEM /debug $$MSVCDSP_TARGET $$MSVCDSP_LFLAGS /pdbtype:sept
 
 !ENDIF 
 
