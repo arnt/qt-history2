@@ -670,7 +670,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    if ( c != EOF )
 		buf[rnum++] = (char)c;
 	} else {
-	    if ( ungetHack != QEOF )
+	    if ( (QChar)ungetHack != QEOF )
 		buf[rnum++] = (char)ungetHack;
 	    uint rlen = len - rnum;
 	    char *cbuf = new char[rlen];
@@ -695,7 +695,7 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	} else {
 	    uint rlen = 2 * ( len-rnum );
 	    char *cbuf = new char[rlen]; // for paranoids: overflow possible
-	    if ( ungetHack != QEOF ) {
+	    if ( (QChar)ungetHack != QEOF ) {
 		rlen = 1+dev->readBlock( cbuf+1, rlen-1 );
 		cbuf[0] = (char)ungetHack;
 	    } else {
