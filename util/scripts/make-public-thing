@@ -1,12 +1,17 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#9 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#10 $
 
 #$quiet=1;
 
 use File::Find;
 
 sub copy {
+    # 
+    #  Copy $dir/$_ (.../qt/...) to $base/cvs/qt/... while removing
+    #  all branches and any revisions older than $date (unless that
+    #  would leave no head).  Also creates directories.
+    # 
     if ( $_ ne "." && $_ ne ".." && $_ ne "Attic" ) {
 	my $dir = $File::Find::dir;
 	$dir =~ s-/?$-/-;
@@ -19,6 +24,10 @@ sub copy {
 	    $f = join( "", <I> );
 	    $v = $f;
 	    $v =~ s/\nsymbols[^;]*/\nsymbols/s;
+
+	    #
+	    # Copy the file
+	    #
 	    close(I);
 	    open( O, "> $dir$_" ) || die "could not open $dir$_, stopped";
 	    print O $v;
@@ -65,6 +74,8 @@ sub copy {
     }
 }
 
+# Maybe we should check out tmake?
+#
 die '$TMAKEDIR not set - need $TMAKEDIR/lib/linux-g++/tmake.conf'
     if ! -f "$ENV{TMAKEDIR}/lib/linux-g++/tmake.conf";
 
@@ -84,7 +95,7 @@ find( \&copy, "/local/lib/cvs/qt" );
 
 print SH "cd $base/cvs/qt
 
-# Move-around CVS files
+# Move-around CVS files to be like regular release
 mv dist/free/LICENSE,v .
 
 # WWA: Eh?
@@ -98,6 +109,7 @@ rm GNUmakefile.inc,v
 rm Makefile.inc,v
 rm make.help,v
 
+# Check-out current public CVS
 cd ..
 mkdir $base/head
 cd $base/head
@@ -105,14 +117,14 @@ cvs -Q -d $base/cvs co qt
 mkdir qt/doc/html
 cd qt
 cp gif/*.gif doc/html
+
+# WWA: WHY? [btw, too late here, GNUmakefile.inc is gone
+#make -C src include
+
 export QTDIR=$base/head/qt
-
-# WHY?
-make -C src include
-
 export PATH=\$QTDIR/bin:\$QTDIR/util/scripts:\$PATH:/home/agulbra/bin
 
-# Generate and check-in documentation
+# Generate and check-in [changes to] the documentation
 perl util/qdoc/qdoc
 cd doc/html
 mkdir $base/cvs/qt/html
@@ -121,17 +133,19 @@ for B in *.html
 do
   ci -mnone -t-'' -u \$B $base/cvs/qt/html/\${B},v
 done
+mv $base/cvs/qt/gif/*.gif,v $base/cvs/qt/html
 
-# Generate and check-in X11 Makefiles
+# Generate and check-in [changes to] the X11 makefiles/build files
 cd $base/head/qt
 for B in `util/scripts/makeunixmake -p`
 do
   ci -mnone -t-'' -u \$B $base/cvs/qt/\$B,v
 done
 
+# Remove non-public files
 cd $base/cvs/qt
-mv gif/*.gif,v html
-rm -rf bin bugs dist doc.conf,v etc iconify listview mlined netscape nsplugin printpicture reqs tests util
+rm -rf bin bugs dist doc.conf,v etc iconify listview \
+    mlined netscape nsplugin printpicture reqs tests util
 ";
 
-# Should we close(SH) now?  We want to wait for the script to complete.
+close(SH) # We want to wait for the script to complete.
