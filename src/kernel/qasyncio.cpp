@@ -37,7 +37,6 @@
 
 #include "qasyncio.h"
 #include "qiodevice.h"
-#include "qtimer.h"
 #include <stdlib.h>
 
 #ifndef QT_NO_ASYNC_IO

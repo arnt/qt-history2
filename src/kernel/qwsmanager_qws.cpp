@@ -455,7 +455,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
 #ifndef QT_NO_CURSOR
-    static QCursorShape shape[] = { ArrowCursor, ArrowCursor, ArrowCursor,
+    static CursorShape shape[] = { ArrowCursor, ArrowCursor, ArrowCursor,
 			    SizeVerCursor, SizeVerCursor, SizeHorCursor,
 			    SizeHorCursor, SizeFDiagCursor, SizeBDiagCursor,
 			    SizeBDiagCursor, SizeFDiagCursor, ArrowCursor,

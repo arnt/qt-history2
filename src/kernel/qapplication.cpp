@@ -59,7 +59,6 @@
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
-#include "qvaluestack.h"
 #endif
 
 
@@ -259,7 +258,7 @@ void qt_init( Display* dpy );
 QApplication *qApp = 0;			// global application object
 
 QStyle   *QApplication::app_style      = 0;	// default application style
-int	  QApplication::app_cspec = QApplication::NormalColor;
+int	  QApplication::app_cspec      = QApplication::NormalColor;
 #ifndef QT_NO_PALETTE
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 #endif
@@ -283,7 +282,7 @@ bool	  qt_is_gui_used;
 static int drag_time = 500;
 static int drag_distance = 4;
 static bool reverse_layout = false;
-QSize     QApplication::app_strut      = QSize( 0,0 ); // no default application strut
+QSize     QApplication::app_strut	= QSize( 0,0 ); // no default application strut
 bool	  QApplication::animate_ui	= TRUE;
 bool	  QApplication::animate_menu	= FALSE;
 bool	  QApplication::fade_menu	= FALSE;

@@ -52,8 +52,6 @@ struct QLayoutData;
 class QLayoutItem;
 class QLayout;
 class QSpacerItem;
-class QDomElement;
-class QConfigureLayoutEvent;
 
 class Q_EXPORT QGLayoutIterator : public QShared
 {

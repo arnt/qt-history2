@@ -579,6 +579,25 @@ public:
 	UI_FadeTooltip
     };
 
+    enum CursorShape {
+	ArrowCursor,
+	UpArrowCursor,
+	CrossCursor,
+	WaitCursor,
+	IbeamCursor,
+	SizeVerCursor,
+	SizeHorCursor,
+	SizeBDiagCursor,
+	SizeFDiagCursor,
+	SizeAllCursor,
+	BlankCursor,
+	SplitVCursor,
+	SplitHCursor,
+	PointingHandCursor,
+	ForbiddenCursor,
+	LastCursor	= ForbiddenCursor,
+	BitmapCursor	= 24
+    };
 
     // Global cursors
 

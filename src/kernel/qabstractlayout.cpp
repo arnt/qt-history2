@@ -38,7 +38,6 @@
 #include "qabstractlayout.h"
 
 #ifndef QT_NO_LAYOUT
-#include "qwidget.h"
 #include "qmenubar.h"
 #include "qapplication.h"
 

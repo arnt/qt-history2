@@ -39,7 +39,6 @@
 
 #ifndef QT_NO_ASYNC_IMAGE_IO
 
-#include "qpainter.h"
 #include "qlist.h"
 #include "qgif.h"
 #include <stdlib.h>

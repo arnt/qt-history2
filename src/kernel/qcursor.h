@@ -41,7 +41,6 @@
 #ifndef QT_H
 #include "qpoint.h"
 #include "qshared.h"
-#include "qnamespace.h"
 #endif // QT_H
 
 /*
@@ -111,18 +110,6 @@ private:
     QCursor	 *find_cur(int);
 };
 
-
-
-/*****************************************************************************
-  Cursor shape identifiers (correspond to global cursor objects)
- *****************************************************************************/
-
-// ############ Should be moved to QNamespace in 3.0!!!!!!
-enum QCursorShape {
-    ArrowCursor, UpArrowCursor, CrossCursor, WaitCursor, IbeamCursor,
-    SizeVerCursor, SizeHorCursor, SizeBDiagCursor, SizeFDiagCursor,
-    SizeAllCursor, BlankCursor, SplitVCursor, SplitHCursor, PointingHandCursor,
-    ForbiddenCursor, LastCursor = ForbiddenCursor, BitmapCursor=24 };
 
 
 /*****************************************************************************

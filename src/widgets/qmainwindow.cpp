@@ -198,7 +198,7 @@ public:
 	inMovement = FALSE;
 	dockMenu = TRUE;
 #ifndef QT_NO_CURSOR
-	oldCursor = ArrowCursor;
+	oldCursor = Qt::ArrowCursor;
 #endif
     }
 
