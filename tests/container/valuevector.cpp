@@ -1,6 +1,8 @@
 #include <qvaluevector.h>
 #include <qstringlist.h>
 #include <qstring.h>
+#include <qfile.h>
+#include <qdatastream.h>
 #include <iostream>
 #include <vector>
 
@@ -250,6 +252,19 @@ int main()
     QValueVector<int> cvec2 = stdvec;
     std::cout << "Should contain 5 elements: 100,100,100,100,100" << std::endl;
     print( cvec2 );
+
+    QFile f( "file.dta" );
+    f.open( IO_WriteOnly );
+    QDataStream s( &f );
+    s << cvec2;
+    f.close();
+
+    f.open( IO_ReadOnly );
+    QValueVector<int> in;
+    s >> in;
+    std::cout << "Should contain 5 elements: 100,100,100,100,100" << std::endl;
+    print( in );
+
 
 
     return 0;
