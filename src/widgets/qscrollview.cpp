@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#77 $
 **
 ** Implementation of QScrollView class
 **
@@ -856,6 +856,8 @@ void QScrollView::viewportWheelEvent( QWheelEvent * )
  of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
+
+ This function never returns 0.
 */
 QScrollBar* QScrollView::horizontalScrollBar() const
 {
@@ -868,6 +870,8 @@ QScrollBar* QScrollView::horizontalScrollBar() const
  of arrow scroll rates: bar->setSteps( rate, bar->pageStep() ).
 
  It should not be otherwise manipulated.
+
+ This function never returns 0.
 */
 QScrollBar* QScrollView::verticalScrollBar() const {
     return &d->vbar;
