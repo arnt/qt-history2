@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: tutorial.doc,v 1.1 1995/12/18 08:59:49 eiriken Exp $
+** $Id: tutorial.doc,v 1.2 1995/12/19 11:09:08 hanord Exp $
 **
 ** Tutorial
 **
@@ -64,7 +64,7 @@ This line includes the QPushButton class definition.  The <a
 href=hierarchy.html>reference documentation</a> for each class
 mentions at the top which file needs to be included to use that class.
 
-QPushButton is classical GUI push button, which the user can press and
+QPushButton is a classical GUI push button, which the user can press and
 release.  It manages its own look and feel, like every other \link
 QWidget widget \endlink (a widget is a user interface object).  The
 programmer can change both the overall \link QWidget::setStyle() look
@@ -86,7 +86,7 @@ array of command-line arguments, as always.
 
 \line QApplication
 
-a is this program's QApplication.  Here it is created and processes
+\c a is this program's QApplication.  Here it is created and processes
 some of the command-line arguments (such as -display on X).  Note that
 all command-line arguments processed are \e removed.  It is essential
 that the QApplication object is created before any window-system parts
@@ -130,7 +130,7 @@ appropriate widgets.
 
 That's it.
 
-<h2>Behaviour</h2>
+<h2>Behavior</h2>
 
 You should now try to \link makefiles.html compile \endlink and \link
 QApplication::QApplication() run \endlink this program.
@@ -160,8 +160,7 @@ Having \e created a window in \link chapter one, \endlink we will now
 go on to close it properly and make the application quit properly when
 the user tells it to.
 
-We will also use a specific font, a font not as boring as the default
-one, at that.
+We will also use a font that is more exciting than the default one.
 
 \include t2/t2.cpp
 
@@ -183,7 +182,7 @@ will do when the user clicks the button.  This is not a coincidence.
 Since "Quit" is rather shorter than "Hello World!" we've made the
 button a bit smaller.  We could also have used
 QPushButton::setAutoResize(), or even QFontMetrics if the built-in
-resizing wasn't quite right for this button.
+resizing wasn't quite right for our taste.
 
 \line setFont
 
@@ -196,7 +195,9 @@ default font \endlink for the whole application.
 
 \line connect
 
-connect() is perhaps \e the central feature of Qt.
+connect() is perhaps \e the most central feature of Qt.
+Note that connect() is a static function in QObject. Do not confuse it
+with the connect function in the socket library.
 
 This line establishes a one-way connection between two Qt objects
 (objects that inherit QObject, directly or indirectly).  Every Qt
@@ -217,6 +218,11 @@ chapter one, filled with an even smaller button.
 
 Try to resize the window.  Press the button.  Oops!  That connect()
 would seem to make some difference :)
+
+<h2>Excercises</h2>
+
+Are there any other signals in QPushButton you can connect to quitApp?
+Hint: The QPushButton inherits most of its behavior from QButton.
 
 You may now go on to \link t3.html chapter three. \endlink
 
@@ -294,10 +300,8 @@ Try changing the arguments to quit.move() and/or quit.resize().  What
 happens if quit is partly "outside" w?
 
 Also try moving the w.resize() to after the quit.move/resize, and to
-after a.setMainWidget().  Does -geometry still work?
-
-Are there any other signals in QPushButton you can connect to quitApp?
-Hint: The QPushButton inherits most of its behaviour from QButton.
+after \link QApplication::setMainWidget() a.setMainWidget()\endlink.
+Does -geometry still work?
 
 You may now go on to \link t4.html chapter four. \endlink
 
@@ -363,6 +367,8 @@ similar in this case.
 \c quit is a local variable in the constructor.  MyWidget does not
 keep track of it, but Qt does, and will by default delete it when
 MyWidget is deleted.  This is why MyWidget doesn't need a destructor.
+There is no harm in deleting a child when you choose to, the child
+will automatically tell Qt about its imminent death.
 
 The setGeometry() call does the same as move() and resize() did in the
 previous chapters.
@@ -370,8 +376,9 @@ previous chapters.
 \line qApp
 \line }
 
-Since MyWidget object doesn't know about the application object, it
-has to connect to Qt's pointer to it, \c qApp.
+Since the MyWidget class doesn't know about the application object, it
+has to connect to Qt's pointer to it, \c qApp.  See the QApplication
+documentation for details.
 
 A widget is a <a link=components.html>software component</a> and
 should know as little as possible about its environment in order to be
@@ -388,8 +395,9 @@ execute the application.
 
 <h2>Behavior</h2>
 
-It may seem indistinguishable from the previous chapter, but it
-behaves very distinguishably, just try to resize it to see.
+This program is very similar in behavior to the previous one.  The difference
+lies in the way we have implemented it.  It does behave slightly different.
+Just try to resize it to see.
 
 <h2>Excercises</h2>
 
@@ -425,7 +433,8 @@ using signals and slots, and how to handle resize events.
 \skip qapp
 \until qfont
 
-Two new include files here, because we use two new classes.
+Two new include files here, qscrbar.h and qlcdnum.h, because we use two
+new classes.
 
 \skip MyWidget
 \until parent=0
@@ -463,14 +472,11 @@ pixels, we only set a minimum size.
 fashion.  This instance is set up to display two digits, be a child of
 \e this and is named "lcd".
 
-It is located at 10,50 relative to the top left corner of MyWidget.
+It is located at x position 10 and a y position giving 10 pixels between the
+quit button and the LCD number.  It is a good idea to take a look at
+\link coordsys.html The Coordinate System\endlink.
 Note that its size is not set here, resizeEvent() will do that when
 MyWidget's own size is set.
-
-50 is not a random number: It is exactly five pixels below the bottom
-of \c quit, which looks nice.  We could have written
-<code>quit-\>\link QWidget::y()\endlink() + quit.\link
-QWidget::height() height\endlink() + 5</code> in place of 50.
 
 Hardcoding positions like this is tedious when you have many widgets,
 but Qt does not include a nice designer yet.  Stay tuned.
@@ -545,13 +551,13 @@ You may now go on to \link t6.html chapter six. \endlink
 Qt tutorial - Chapter 6
 </title></head><body>
 
-<h1>Chapter 5: Lego Galore!</h1>
+<h1>Chapter 6: Lego Galore!</h1>
 
 <img src=t6.gif>
 
-This example shows how to create and connect together \e many widgets
-using signals and slots.  For the first time, we use a custom widget
-as a child widget.
+This example shows how to encapsulate two widgets into a new component and
+how easy it is to use many widgets.  For the first time, we use a custom
+widget as a child widget.
 
 \include t6/t6.cpp
 
@@ -597,14 +603,26 @@ destroyed.
 In the resize event, we calculate and set the geometry of all 16
 LCDRanges in a simple for loop.
 
-First we calculate the top left position of the top left LCDRange and
-new size of each LCDRange.  From there, it's an easy matter to loop
-over the LCDRange array and set the geometry of each one.
+First we calculate the top left position of the top left LCDRange.
+We give it a 10 pixel border to the left and a 10 pixel border up
+to the quit button (see \link coordsys.html The Coordinate System
+\endlink)
+
+We then calculate the size of each LCDRange. We want a grid of 4x4
+widgets with a 10 pixel border to the right and 5 pixels between 
+each one (i.e. 3 borders of 5 pixels in each direction).
+Note that since we divide by the integer 4, we will get small roundoff
+errors.
+
+Next, we set each individual geometry in a simple loop. We calculate
+the position using integer modulo and divide and remember to add 5
+for the border between each one. 
 
 <h2>Behavior</h2>
 
-This program appears much like the one in chapter five (on speed, that
-is), the important difference is in the code.
+This program shows how easy it is to use many widgets at a time.
+Each single one behaves like the scroll bar and LCD number in the 
+previous chapter.  Again, the difference lies in the implementation.
 
 <h2>Excercises</h2>
 
@@ -695,7 +713,8 @@ setValue() is our first custom slot and valueChanged() is our first
 custom signal.
 
 Slots must be implemented in the normal way (remember, a slot is also
-a C++ member function).  Signals are automatically implemented.
+a C++ member function).  Signals are automatically implemented in the
+\link metaobjects.html meta object\endlink file.
 
 <h3>lcdrange.cpp</h3>
 
@@ -708,15 +727,16 @@ only the changes are noted here.
 \line connect
 \line connect
 
-The first connect is the same kind you've seen in the previous
+The first connect is the same you've seen in the previous
 chapter.  The second is new: It connects sBar's valueChanged() signal
-to this object's valueChanged \e signal.
+to this object's valueChanged \e signal. connect() with 3 arguments
+always connect to signals or slots in \c this object.
 
 Yes, that's right.  Signals can be connected to other signals.  When
 the first is emitted, the second signal is also emitted.
 
 Let's look at what happens when the user operates the scrollbar: The
-scrollbar sees that its value has change, and emits the valueChanged()
+scrollbar sees that its value has changed, and emits the valueChanged()
 signal.  That signal is connected both to the display() slot of the
 QLCDNumber and to the valueChanged() signal of the LCDRange.
 
@@ -735,21 +755,208 @@ the scrollbar's value.
 \line setValue
 \until }
 
-The implementation of value() is equally straightforward.  Note that
+The implementation of setValue() is equally straightforward.  Note that
 since the scrollbar and LCD number is connected, setting the
 scrollbar's value automatically updates the LCD number as well.
+In addition the scroll bar will automatically adjust the value if it is
+outside the scroll bar's legal range.
 
-<h3>
+<h3>t7.cpp</h3>
+\dontinclude t7/t7.cpp
 
+\skip setMinimumSize
+\skip for(
+\line 16
+\until }
+
+Apart from moving LCDRange into two separate files, these lines are the
+only changes to the main.cpp file. As in the previous chapter, we create
+16 LCDRange objects. In addition, we now connect them together using
+the \link metaobjects.html signal/slot\endlink mechanism.
+Each one has its valueChanged() signal connected to the setValue()
+slot in the previous one.  Since LCDRange emits the signal valueChanged()
+when its value changes (surprise!), we are here creating a "chain" of
+signals and slots.
+
+\dontinclude maa fikse make og gytta!!!!
 
 <h2>Behavior</h2>
 
-
+On startup, the program's appearance is identical to the previous one.
+Try operating the scroll bar to the bottom right...
 
 <h2>Excercises</h2>
 
+Use the bottom right scroll bar to set all LCDs to 30. Then set the
+top half to 29 by using the rightmost scroll bar on the 2nd row.
+Now, use the one to the left of the last one operated to set the first seven
+LCDs back to 30. Click on the left arrow on the bottom right scroll bar.
+What happens? Why is this the correct behavior?
 
-You may now go on to \link t7.html chapter seven. \endlink
+You may now go on to \link t8.html chapter seven. \endlink
+
+ */
+
+
+
+
+/*! \page t8.html
+
+<title>
+Qt tutorial - Chapter 8
+</title></head><body>
+
+<h1>Chapter 8: One Thing Leads to Another</h1>
+
+<img src=t8.gif>
+
+This example shows how to create custom widgets with signals and
+slots, and how to connect them together in more complex ways.  For the
+first time, the source is split among several files.
+
+<ul>
+<li> \link t8/lcdrange.h lcdrange.h \endlink contains the LCDRange
+class definition
+<li> \link t8/lcdrange.cpp lcdrange.cpp \endlink contains the LCDRange
+implementation
+<li> \link t8/t8.cpp t8.cpp \endlink contains MyWidget and main.
+<li> \link t8/Makefile Makefile \endlink contains some rules for
+generating the metaobject information necessary for <a
+href=metaobjects.html>signal/slot creation.</a>
+</ul>
+
+<h2>Line by Line Walk-Through</h2>
+
+<h3>lcdrange.h</h3>
+
+This file is mainly lifted from \link t6/t6.cpp t6.cpp \endlink and
+only the changes are noted here.
+
+\dontinclude t8/lcdrange.h
+
+\skip ifndef
+\until define
+
+This is the classical C construction to avoid errors if a header file
+happens to be included more than once.  If you don't use it already:
+It is a very good habit.  The #ifndef should enclose \e all of the
+header file.
+
+\line include
+\line QScrollBar
+\line QLCDNumber
+
+\c qwidget.h is included.  LCDRange inherits QWidget, and the header
+file of a parent class must always be included.  Until now, \c
+qwidget.h has been included indirectly via other header files like \c
+qpushbt.h.
+
+Since the class declaration only uses pointers to QScrollBar and
+QLCDNumber it does not need their definitions, so we merely declare
+their names in the header files.  This makes the job a little easier
+for the compiler.
+
+\skip LCDRange
+\until parent=0
+
+Note the Q_OBJECT.  This macro must be included in \e all classes that
+contain signals and/or slots.  For the curious, it defines the
+functions that are implemented in the <a
+href=metaobject.html>metaobject file</a>.
+
+\line value
+\until valueChanged
+
+These three members make up an interface between this widget and other
+components in a program.  Until now, LCDRange didn't really have an
+interface at all.
+
+value() is a public function for accessing the value of the LCDRange.
+setValue() is our first custom slot and valueChanged() is our first
+custom signal.
+
+Slots must be implemented in the normal way (remember, a slot is also
+a C++ member function).  Signals are automatically implemented in the
+\link metaobjects.html meta object\endlink file.
+
+<h3>lcdrange.cpp</h3>
+
+\dontinclude t8/lcdrange.cpp
+
+This file is mainly lifted from \link t6/t6.cpp t6.cpp \endlink and
+only the changes are noted here.
+
+\skip connect
+\line connect
+\line connect
+
+The first connect is the same you've seen in the previous
+chapter.  The second is new: It connects sBar's valueChanged() signal
+to this object's valueChanged \e signal. connect() with 3 arguments
+always connect to signals or slots in \c this object.
+
+Yes, that's right.  Signals can be connected to other signals.  When
+the first is emitted, the second signal is also emitted.
+
+Let's look at what happens when the user operates the scrollbar: The
+scrollbar sees that its value has changed, and emits the valueChanged()
+signal.  That signal is connected both to the display() slot of the
+QLCDNumber and to the valueChanged() signal of the LCDRange.
+
+Thus, when the signal is emitted, LCDRange emits its own
+valueChanged() signal.  In addition, QLCDNumber::display() is called
+and shows the new number.
+
+Note that you're not guaranteed any particular order of execution.
+
+\skip LCDRange::value
+\until }
+
+The implementation of value() is straightforward, it simply returns
+the scrollbar's value.
+
+\line setValue
+\until }
+
+The implementation of setValue() is equally straightforward.  Note that
+since the scrollbar and LCD number is connected, setting the
+scrollbar's value automatically updates the LCD number as well.
+In addition the scroll bar will automatically adjust the value if it is
+outside the scroll bar's legal range.
+
+<h3>t8.cpp</h3>
+\dontinclude t8/t8.cpp
+
+\skip setMinimumSize
+\skip for(
+\line 16
+\until }
+
+Apart from moving LCDRange into two separate files, these lines are the
+only changes to the main.cpp file. As in the previous chapter, we create
+16 LCDRange objects. In addition, we now connect them together using
+the \link metaobjects.html signal/slot\endlink mechanism.
+Each one has its valueChanged() signal connected to the setValue()
+slot in the previous one.  Since LCDRange emits the signal valueChanged()
+when its value changes (surprise!), we are here creating a "chain" of
+signals and slots.
+
+\dontinclude maa fikse make og gytta!!!!
+
+<h2>Behavior</h2>
+
+On startup, the program's appearance is identical to the previous one.
+Try operating the scroll bar to the bottom right...
+
+<h2>Excercises</h2>
+
+Use the bottom right scroll bar to set all LCDs to 30. Then set the
+top half to 29 by using the rightmost scroll bar on the 2nd row.
+Now, use the one to the left of the last one operated to set the first seven
+LCDs back to 30. Click on the left arrow on the bottom right scroll bar.
+What happens? Why is this the correct behavior?
+
+You may now go on to \link t8.html chapter eight. \endlink
 
  */
 
