@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#150 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#151 $
 **
 ** Implementation of QListBox widget class
 **
@@ -428,7 +428,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
     setFocusPolicy( StrongFocus );
 }
 
-static QListBox * QListBox::changedListBox = 0;
+QListBox * QListBox::changedListBox = 0;
 
 /*!
   Destroys the list box.  Deletes all list box items.

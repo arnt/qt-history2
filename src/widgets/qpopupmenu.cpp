@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#162 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#163 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -132,7 +132,7 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 
 static int getWidthOfCheckCol( QPopupMenu *that, int gs )
 {
-    int pmw = maxPMWidth;
+    int pmw = that->maxPMWidth;
     int cmw = 7;   // check mark width
     int w = cmw > pmw ? cmw : pmw;
     if ( gs == MotifStyle )
@@ -334,7 +334,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     tabCheck	  = 0;
     hasDoubleItem = FALSE;
     maxPMWidth = 0;
-    
+
     setTabMark( 0 );
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
@@ -366,8 +366,6 @@ QPopupMenu::~QPopupMenu()
 	syncMenu = 0;
     }
 	
-    if ( qpm_extraStuff )
-	qpm_extraStuff->remove( this );
     delete autoaccel;
     if ( parentMenu )
 	parentMenu->removePopup( this );	// remove from parent menu
