@@ -24,24 +24,13 @@
     qt_x11.h
     qt_windows.h
     qgfxmach64defs_qws.h
-    qthread.h
     qmutex.h
     qgeneric.h
     qpaintdevicedefs.h
     qwindow.h
     qtranslatordialog.h
+    qsmartptr.h
 };
-
-@NETWORK_HEADERS = qw {
-    qftp.h
-    qdns.h
-    qhostaddress.h
-    qserversocket.h
-    qsocket.h
-    qsocketdevice.h
-};
-
-@IGNORE = ( @IGNORE, @NETWORK_HEADERS );
 
 $IGNORE=join "|", map { "\Q$_" } @IGNORE;
 
@@ -91,18 +80,6 @@ print QT_H
 **
 ** This file is part of the Qt GUI Toolkit.
 **
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
-**
-** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
-**
 *****************************************************************************/
 
 #ifndef QT_H
@@ -111,7 +88,7 @@ print QT_H
 
 
 
-$include = '#include\s*(["<])([^\n]*)[">]';
+$include = '#include\s*(["<])([^\n]*?)[">]';
 
 sub do_headers
 {
@@ -143,8 +120,12 @@ sub do_headers
 	    }
 	}
 	if ( $fix ) {
-	    #$include = '#include\s*["<][^\n]*[">]';
-	    $content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/gs;
+	    #$include = '#include\s*["<][^\n]*?[">]';
+	    $content =~ s/(($include\s)+)/$STARTMARK\n$1$ENDMARK\n/s
+		|| $content =~ s/\n/\n$STARTMARK\n$ENDMARK\n/s;
+	    if ( ! -w "$DIR/$h" ) {
+		system("p4 edit $ENV{QTDIR}/src/*/$h");
+	    }
 	    open OUT, ">$DIR/$h";
 	    print OUT $content;
 	} else {
@@ -203,7 +184,6 @@ map { $IGNORE_HEADERS{$_}=1; } @QWS_HEADERS;
 do_headers @QT_HEADERS;
 %IGNORE_HEADERS=();
 print QT_H "\n#ifdef _WS_QWS_\n";
-do_headers @NETWORK_HEADERS;
 do_headers @QWS_HEADERS;
 print QT_H "#endif // _WS_QWS_\n\n";
 

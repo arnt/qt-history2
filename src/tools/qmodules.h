@@ -1,4 +1,6 @@
 #define QT_MODULE_ICONVIEW
+#ifndef QT_H
+#endif // QT_H
 #define QT_MODULE_TABLE
 #define QT_MODULE_CANVAS
 #define QT_MODULE_XML

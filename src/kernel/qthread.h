@@ -38,7 +38,9 @@
 #ifndef QTHREAD_H
 #define QTHREAD_H
 
+#ifndef QT_H
 #include <qwindowdefs.h>
+#endif // QT_H
 
 #if defined(QT_THREAD_SUPPORT)
 
