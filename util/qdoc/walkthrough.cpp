@@ -11,6 +11,15 @@
 #include "messages.h"
 #include "walkthrough.h"
 
+static QString classPart( const QString& link )
+{
+    int k = link.find( QChar('#') );
+    if ( k == -1 )
+	return link;
+    else
+	return link.left( k );
+}
+
 static QString stripTrailingBlankLine( const QString& s )
 {
     if ( s.right(2) == QString("\n\n") )
@@ -71,7 +80,7 @@ QString Walkthrough::printline( const QString& substr, const Location& docLoc )
 {
     int lineNo0 = walkloc.lineNum();
     QString t = xline( substr, docLoc, QString("printline") );
-    incrementScores( FALSE, lineNo0, 200 );
+    incrementScores( FALSE, lineNo0, 1001 );
     return t;
 }
 
@@ -81,7 +90,7 @@ QString Walkthrough::printto( const QString& substr, const Location& docLoc )
     QString t = xto( substr, docLoc, QString("printto") );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
 	incrementScores( FALSE, i,
-			 90 + 200 / (walkloc.lineNum() - lineNo0 + 1) );
+			 484 + 989 / (walkloc.lineNum() - lineNo0 + 1) );
     return t;
 }
 
@@ -91,7 +100,7 @@ QString Walkthrough::printuntil( const QString& substr, const Location& docLoc )
     QString t = xuntil( substr, docLoc, QString("printuntil") );
     for ( int i = lineNo0; i < walkloc.lineNum(); i++ )
 	incrementScores( FALSE, i,
-			 90 + 200 / (walkloc.lineNum() - lineNo0 + 1) );
+			 484 + 989 / (walkloc.lineNum() - lineNo0 + 1) );
     return t;
 }
 
@@ -135,14 +144,6 @@ void Walkthrough::addANames( QString *text, const LinkMap& exampleLinkMap )
 
 	    while ( link != (*links).end() ) {
 		text->insert( k, QString("<a name=\"%1\"></a>").arg(*link) );
-
-// ### take out, when all is right
-#if 0
-		k = text->find( QChar('\n'), k );
-		text->insert( k, QString("   \t<b>[%1:%2]</b>")
-		.arg(links.key()).arg(*link) );
-#endif
-
 		++link;
 	    }
 	}
@@ -198,13 +199,34 @@ QString Walkthrough::start( bool include, bool firstPass,
 
     code.replace( trailingSpacesPlusNL, QChar('\n') );
 
+    occMap.clear();
+    classOccCounts.clear();
+    totalOccCount = 0;
+
     scores.clear();
     if ( firstPass ) {
 	occMap = occurrenceMap( code, resolver, QFileInfo(f).dirPath() );
+	OccurrenceMap::ConstIterator occsOnLine = occMap.begin();
+	while ( occsOnLine != occMap.end() ) {
+	    StringSet::ConstIterator occ = (*occsOnLine).begin();
+	    while ( occ != (*occsOnLine).end() ) {
+		QString base = classPart( *occ );
+		QMap<QString, int>::Iterator count =
+			classOccCounts.find( base );
+		if ( count == classOccCounts.end() )
+		    classOccCounts.insert( base, 1 );
+		else
+		    (*count)++;
+		totalOccCount++;
+		++occ;
+	    }
+	    ++occsOnLine;
+	}
+
 	if ( include ) {
 	    int numLines = code.contains( QChar('\n') );
 	    for ( int i = 0; i < numLines; i++ )
-		incrementScores( TRUE, i, 90 );
+		incrementScores( TRUE, i, 484 );
 	}
 	includeText = code;
     } else {
@@ -371,7 +393,12 @@ void Walkthrough::incrementScores( bool include, int lineNo, int contribution )
     StringSet occsOnLine = occMap[lineNo];
     StringSet::ConstIterator occ = occsOnLine.begin();
     while ( occ != occsOnLine.end() ) {
-	scores[*occ].addContribution( include, lineNo, contribution );
+	int proportionOfSameClass =
+		( classOccCounts[classPart(*occ)] << 10 ) / totalOccCount;
+	int alpha = ( proportionOfSameClass + 1 ) >> 1;
+
+	int netContribution = ( alpha * contribution ) >> 10;
+	scores[*occ].addContribution( include, lineNo, netContribution );
 	++occ;
     }
 }

@@ -62,7 +62,8 @@ typedef QMap<int, StringSet> LinkMap;
 class Walkthrough
 {
 public:
-    Walkthrough() : shutUp( FALSE ), justIncluded( TRUE ) { }
+    Walkthrough()
+	: totalOccCount( 0 ), shutUp( FALSE ), justIncluded( TRUE ) { }
 
     void includePass1( const QString& fileName, const Resolver *resolver );
     QString includePass2( const QString& fileName, const Resolver *resolver,
@@ -102,11 +103,12 @@ private:
 		    const QString& command );
     QString getNextLine( const Location& docLoc );
     void incrementScores( bool include, int lineNo, int contribution );
-    ScoreMap scoreMapForOccurrenceMap( const OccurrenceMap& occMap );
 
     QString fname;
     QString fpath;
     OccurrenceMap occMap;
+    QMap<QString, int> classOccCounts;
+    int totalOccCount;
     ScoreMap scores;
     LinkMap exmap;
     QString includeText;

@@ -42,6 +42,15 @@
 
 static QString punctuation( ".,:;" );
 
+static QString linkBase( const QString& link )
+{
+    int k = link.find( QChar('#') );
+    if ( k == -1 )
+	return link;
+    else
+	return link.left( k );
+}
+
 // ### speed up
 static bool isCppSym( QChar ch )
 {
@@ -1080,26 +1089,26 @@ static int xunique = 1;
 void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
 				  StringSet *thruwalked )
 {
-    if ( walk.fileName().isEmpty() )
+    // this function is often called for nothing
+    if ( walk.scoreMap().isEmpty() )
 	return;
 
     bool alreadyIncluded = includedExamples.contains( walk.fileName() );
     bool alreadyThruwalked = thruwalkedExamples.contains( walk.fileName() );
 
-    bool onlyInclude = TRUE;
-    bool onlyWalkthrough = TRUE;
+    int numIncludes = 0;
+    int numWalkthroughs = 0;
 
-    ScoreMap scoreMap = walk.scoreMap();
-    ScoreMap::ConstIterator score = scoreMap.begin();
-    while ( score != scoreMap.end() ) {
+    ScoreMap::ConstIterator score = walk.scoreMap().begin();
+    while ( score != walk.scoreMap().end() ) {
 	// score.key() is qaction.html#setWhatsThis, (*score) is a HighScore
 
 	if ( ((*score).inInclude() && !alreadyIncluded) ||
 	     (!(*score).inInclude() && !alreadyThruwalked) ) {
 	    if ( (*score).inInclude() )
-		onlyWalkthrough = FALSE;
+		numIncludes++;
 	    else
-		onlyInclude = FALSE;
+		numWalkthroughs++;
 
 	    ExampleLocation exloc( walk.fileName(), (*score).inInclude(),
 				   (*score).lineNum(), xunique++ );
@@ -1122,15 +1131,16 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
 	++score;
     }
 
-qDebug( "%s onlyInc %d onlyWalk %d", walk.fileName().latin1(), onlyInclude,
-onlyWalkthrough );
-
-    if ( !alreadyIncluded && onlyInclude ) {
-	included->insert( walk.fileName() );    
-	includedExamples.insert( walk.fileName() );
-    } else if ( !alreadyThruwalked && onlyWalkthrough ) {
-	thruwalked->insert( walk.fileName() );    
-	thruwalkedExamples.insert( walk.fileName() );
+    if ( numIncludes == 0 ) {
+	if ( !alreadyThruwalked && numWalkthroughs > 0 ) {
+	    thruwalked->insert( walk.fileName() );
+	    thruwalkedExamples.insert( walk.fileName() );
+	}
+    } else if ( numWalkthroughs == 0 ) {
+	if ( !alreadyIncluded && numIncludes > 0 ) {
+	    included->insert( walk.fileName() );
+	    includedExamples.insert( walk.fileName() );
+	}
     }
 }
 
@@ -1370,14 +1380,14 @@ QString Doc::href( const QString& name, const QString& text )
 	k = keywordLinks[t.left(t.length() - 1)]; 
     // try a URL
     if ( k.isEmpty() ) {
-	if ( name.left(5) == QString("file:") ||
-	     name.left(4) == QString("ftp:") ||
-	     name.left(5) == QString("http:") ||
-	     name.left(7) == QString("mailto:") ) {
+	if ( name.startsWith(QString("file:")) ||
+	     name.startsWith(QString("ftp:")) ||
+	     name.startsWith(QString("http:")) ||
+	     name.startsWith(QString("mailto:")) ) {
 	    k = name;
 
 	    // chop the protocol
-	    if ( t == name && t.left(5) != QString("http:") )
+	    if ( t == name && !t.startsWith(QString("http:")) )
 		t = name.mid( name.find(QChar(':')) + 1 );
 	}
     }
@@ -1767,14 +1777,11 @@ void Doc::setLink( const QString& link, const QString& title )
       addresses.
     */
     if ( !kwords.isEmpty() ) {
-	int k = link.find( QChar('#') );
-	if ( k == -1 )
-	    k = link.length();
-
+	QString base = linkBase( link );
 	StringSet::ConstIterator s = kwords.begin();
 	while ( s != kwords.end() ) {
 	    if ( kind() == Page )
-		kwordLnk = link.left( k ) + QChar( '#' ) + indexAnchor( *s );
+		kwordLnk = base + QChar( '#' ) + indexAnchor( *s );
 	    else
 		kwordLnk = link;
 
@@ -1835,7 +1842,7 @@ QString Doc::htmlSeeAlso() const
 	if ( name.right(1) != QChar(')') && resolver()->resolvefn(name) )
 	    name += QString( "()" );
 
-	if ( name.left(5) == QString("\\link") ) {
+	if ( name.startsWith(QString("\\link")) ) {
 	    QStringList toks =
 		    QStringList::split( QChar(' '),
 					name.mid(5).stripWhiteSpace() );
@@ -1851,7 +1858,7 @@ QString Doc::htmlSeeAlso() const
 	QString y = href( name, text );
 	if ( text.isEmpty() )
 	    text = name;
-	if ( y.length() == text.length() && text.left(2) != QString("<a") )
+	if ( y.length() == text.length() && text.startsWith(QString("<a")) )
 	    warning( 1, location(), "Unresolved '\\sa' to '%s'",
 		     name.latin1() );
 
@@ -1871,12 +1878,7 @@ void Doc::printHtml( HtmlWriter& out ) const
 	  This belongs elsewhere. It's an easy solution to problems
 	  caused by '\important'.
 	*/
-	QString fileName = lnk;
-	int k = fileName.find( QChar('#') );
-	if ( k != -1 )
-	    fileName.truncate( k );
-
-	if ( fileName == out.fileName() ) {
+	if ( linkBase(lnk) == out.fileName() ) {
 	    if ( resolver()->warnChangedSinceLastRun(location(), lnk, t)
 		 && !dependsOn().isEmpty() ) {
 		StringSet::ConstIterator d = dependsOn().begin();
@@ -2141,7 +2143,7 @@ QString Doc::finalHtml() const
 		  is at foo.html#big-mice; (2) The current doc and
 		  the entry are both at foo.html#printBar.
 		*/
-		if ( lnk != keywordLinks[t].left(lnk.length()) &&
+		if ( !keywordLinks[t].startsWith(lnk) &&
 		     offsetOK(&offsetMap, yyOut.length(), t) ) {
 		    yyOut.replace( k + 1, t.length(),
 				   QString("<a href=\"%1\">%2</a>")
@@ -2182,11 +2184,7 @@ QString Doc::finalHtml() const
 	    else
 		link = thruwalkedExampleLinks[(*e).exampleFile()];
 
-	    int k = link.find( QChar('#') );
-	    if ( k != -1 )
-		link.truncate( k );
-	    link += QString( "#x%1" ).arg( (*e).uniqueNum() );
-
+	    link = linkBase( link ) + QString( "#x%1" ).arg( (*e).uniqueNum() );
 	    yyOut += QString( "<a href=\"%1\">%2</a>" )
 		     .arg( link ).arg( (*e).exampleFile() );
 	    yyOut += seps.pop();

@@ -95,7 +95,7 @@ Config::Config( int argc, char **argv )
       styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
       super( FALSE ), dotHtml( ".html" ), membersDotHtml( "-members.html" )
 {
-    QString confFilePath( "./qdoc.conf" );
+    QString confFilePath( "qdoc.conf" );
     int i;
 
     i = 1;
@@ -117,7 +117,7 @@ Config::Config( int argc, char **argv )
 		confFilePath = QString( argv[i] );
 	    while ( i < argc )
 		argv[i++][0] = '\0';
-	} else if ( opt.left(1) != QChar('-') ) {
+	} else if ( !opt.startsWith(QChar('-')) ) {
 	    confFilePath = opt;
 	    argv[i - 1][0] = '\0';
 	    break;
@@ -203,10 +203,10 @@ Config::Config( int argc, char **argv )
 	QString val;
 	bool plus = FALSE;
 
-	if ( opt.left(2) == QString("--") ) {
+	if ( opt.startsWith(QString("--")) ) {
 	    int k = opt.find( QChar('=') );
 	    if ( k == -1 ) {
-		if ( i < argc && QString(argv[i]).left(1) != QChar('-') )
+		if ( i < argc && !QString(argv[i]).startsWith(QChar('-')) )
 		    val = QString( argv[i++] );
 		else
 		    val = QString( "yes" );
@@ -251,24 +251,24 @@ Config::Config( int argc, char **argv )
 		warning( 0, "Unknown command-line option '%s'", opt.latin1() );
 		showHelp();
 	    }
-	} else if ( opt.left(1) == QChar('-') ) {
+	} else if ( opt.startsWith(QChar('-')) ) {
 	    if ( opt == QString("-a") ) {
 		autoh = TRUE;
 	    } else if ( opt == QString("-A") ) {
 		autoh = FALSE;
-	    } else if ( opt.left(2) == QString("-D") ) {
+	    } else if ( opt.startsWith(QString("-D")) ) {
 		setPattern( &defsym, opt.mid(2), TRUE );
-	    } else if ( opt.left(2) == QString("-F") ) {
+	    } else if ( opt.startsWith(QString("-F")) ) {
 		setPattern( &falsesym, opt.mid(2), TRUE );
 	    } else if ( opt == QString("-i") ) {
 		internal = TRUE;
 	    } else if ( opt == QString("-I") ) {
 		internal = FALSE;
-	    } else if ( opt.left(2) == QString("-m") ) {
+	    } else if ( opt.startsWith(QString("-m")) ) {
 		maxSim = opt.mid( 2 ).toInt();
-	    } else if ( opt.left(2) == QString("-M") ) {
+	    } else if ( opt.startsWith(QString("-M")) ) {
 		maxAll = opt.mid( 2 ).toInt();
-	    } else if ( opt.left(2) == QString("-O") ) {
+	    } else if ( opt.startsWith(QString("-O")) ) {
 		setPattern( &onlyfn, opt.mid(2), TRUE );
 	    } else if ( opt == QString("-s") ) {
 		super = TRUE;
