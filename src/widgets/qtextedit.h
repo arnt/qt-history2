@@ -355,7 +355,7 @@ protected slots:
 private slots:
     void formatMore();
     void doResize();
-    void doAutoScroll();
+    void autoScrollTimerDone();
     void blinkCursor();
     void setModified();
     void startDrag();
@@ -390,6 +390,7 @@ private:
 
 private:
     void updateCursor( const QPoint & pos );
+    void handleMouseMove( const QPoint& pos );
     void drawContents( QPainter * );
     virtual bool linksEnabled() const { return FALSE; }
     void init();

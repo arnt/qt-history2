@@ -686,7 +686,7 @@ void QTextEdit::init()
 
     scrollTimer = new QTimer( this );
     connect( scrollTimer, SIGNAL( timeout() ),
-	     this, SLOT( doAutoScroll() ) );
+	     this, SLOT( autoScrollTimerDone() ) );
 
     interval = 0;
     changeIntervalTimer = new QTimer( this );
@@ -1801,7 +1801,7 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 	}
 #endif
 	mousePos = e->pos();
-	doAutoScroll();
+	handleMouseMove( mousePos );
 	oldMousePos = mousePos;
     }
 
@@ -2064,15 +2064,28 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 #endif
 }
 
-void QTextEdit::doAutoScroll()
+
+void QTextEdit::autoScrollTimerDone()
+{
+    if ( mousePressed )
+	handleMouseMove(  viewportToContents( viewport()->mapFromGlobal( QCursor::pos() )  ) );
+}
+
+void QTextEdit::handleMouseMove( const QPoint& pos )
 {
     if ( !mousePressed )
 	return;
 
-    QPoint pos( mapFromGlobal( QCursor::pos() ) );
+    if ( !scrollTimer->isActive() && pos.y() < contentsY() || pos.y() > contentsY() + visibleHeight() )
+	scrollTimer->start( 100, FALSE );
+    else if ( scrollTimer->isActive() && pos.y() >= contentsY() && pos.y() <= contentsY() + visibleHeight() )
+	scrollTimer->stop();
+
     drawCursor( FALSE );
     QTextCursor oldCursor = *cursor;
-    placeCursor( viewportToContents( pos ) );
+    
+    placeCursor( pos );
+    
     if ( inDoubleClick ) {
 	QTextCursor cl = *cursor;
 	cl.gotoPreviousWord();
@@ -2109,11 +2122,6 @@ void QTextEdit::doAutoScroll()
 	repaintChanged();
 	drawCursor( TRUE );
     }
-
-    if ( !scrollTimer->isActive() && pos.y() < 0 || pos.y() > height() )
-	scrollTimer->start( 100, FALSE );
-    else if ( scrollTimer->isActive() && pos.y() >= 0 && pos.y() <= height() )
-	scrollTimer->stop();
 
     if ( currentFormat && currentFormat->key() != cursor->parag()->at( cursor->index() )->format()->key() ) {
 	currentFormat->removeRef();
@@ -3081,7 +3089,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
     updateContents();
-    
+
     if ( isModified() )
 	setModified( FALSE );
     emit textChanged();
