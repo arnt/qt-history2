@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#121 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#120 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#121 $");
 
 
 /*!
@@ -434,6 +434,12 @@ void QApplication::setColorSpec( int spec )
 
 QPalette *QApplication::palette()
 {
+#if defined(CHECK_STATE)
+    if ( !qApp ) {
+	warning( "QApplication::palette: This function must be "
+		 "called after the QApplication object is created" );
+    }
+#endif
     return app_pal;
 }
 
