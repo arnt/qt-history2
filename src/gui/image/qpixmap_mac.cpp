@@ -241,12 +241,11 @@ QImage QPixmap::toImage() const
     int h = data->h;
     int d = data->d;
     QImage::Format format = QImage::Format_Mono;
-    if(d != 1) { //Doesn't support index color modes
-        d = 32;
+    if(data->d != 1) //Doesn't support index color modes
         format = (data->has_alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
-    }
-    QImage image(w, h, d, format);
-    if(d == 1) {
+
+    QImage image(w, h, format);
+    if(image.format() == QImage::Format_Mono) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
         image.setColor(1, qRgba(0, 0, 0, 0));
@@ -258,7 +257,7 @@ QImage QPixmap::toImage() const
         srow = (uint *)((char *)sptr + (yy * bytesPerRow));
         for(int xx=0;xx<w;xx++) {
             r = *(srow + xx);
-            if(d == 1)
+            if(format == QImage::Format_Mono)
                 image.setPixel(xx, yy, (r & RGB_MASK) ? 0 : 1);
             else
                 image.setPixel(xx, yy, r);
