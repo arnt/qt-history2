@@ -1893,6 +1893,7 @@ void QLineEdit::insert( const QString &newText )
     }
 
     d->checkUndoRedoInfo( UndoRedoInfo::Insert );
+    d->undoRedoInfo.index = cp1;
 
     QString t2 = t1;
     t2.insert( cp1, t );
@@ -1907,7 +1908,7 @@ void QLineEdit::insert( const QString &newText )
     blinkOn();
 
     if ( t2 == this->text() )
-	d->undoRedoInfo.text += t;
+ 	d->undoRedoInfo.text += t;
     update();
     d->selectionStart = d->cursor->index();
 #if defined(QT_ACCESSIBILITY_SUPPORT)
