@@ -3,6 +3,7 @@ Dokumentasjon:
     temasider (programmers guide)
     qvector.doc
     which/that
+    riktig bruk av X windows, eller hva som naa var riktig...
 
 Støttefunksjoner:
 -----------------
