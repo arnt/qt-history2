@@ -2672,7 +2672,7 @@ QString QAxBase::generateDocumentation()
     return docu;
 }
 
-static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const char *name )
+static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const char *name, uint argerr )
 {
     switch( hres ) {
     case S_OK:
@@ -2737,12 +2737,12 @@ static bool checkHRESULT( HRESULT hres, EXCEPINFO *exc, QAxBase *that, const cha
 	return FALSE;
     case DISP_E_PARAMNOTFOUND:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter not found.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Parameter %d not found.", name, argerr );
 #endif
 	return FALSE;
     case DISP_E_TYPEMISMATCH:
 #if defined(QT_CHECK_STATE)
-	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch.", name );
+	qWarning( "QAxBase: Error calling IDispatch member %s: Type mismatch in parameter %d.", name, argerr );
 #endif
 	return FALSE;
     case DISP_E_UNKNOWNINTERFACE:
@@ -2859,7 +2859,7 @@ bool QAxBase::qt_invoke( int _id, QUObject* _o )
 	clearVARIANT( params.rgvarg+p );
     delete [] params.rgvarg;
 
-    return checkHRESULT( hres, &excepinfo, this, slot->name );
+    return checkHRESULT( hres, &excepinfo, this, slot->name, slotcount-argerr-1 );
 }
 
 bool wrapComPointer( QVariant &var, VARTYPE vt, QObject *parent, const char *name )
@@ -2931,7 +2931,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYPUT, &params, 0, &excepinfo, &argerr );
 		clearVARIANT( &arg );
 
-		return checkHRESULT( hres, &excepinfo, this, prop->n );
+		return checkHRESULT( hres, &excepinfo, this, prop->n, argerr );
 	    }
 	case 1: // Get
 	    {
@@ -2945,7 +2945,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 
 		EXCEPINFO excepinfo;
 		HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, &arg, &excepinfo, 0 );
-		if ( !checkHRESULT( hres, &excepinfo, this, prop->n ) )
+		if ( !checkHRESULT( hres, &excepinfo, this, prop->n, 0 ) )
 		    return FALSE;
 
 		// map result VARIANTARG to QVariant
@@ -3119,10 +3119,11 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
     params.rgdispidNamedArgs = (disptype == DISPATCH_PROPERTYPUT) ? &dispidNamed : 0;
     params.rgvarg = arg;
     EXCEPINFO excepinfo;
+    UINT argerr = 0;
 
-    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, &excepinfo, 0 );
+    HRESULT hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, disptype, &params, res, &excepinfo, &argerr );
     if ( hres == DISP_E_MEMBERNOTFOUND && disptype == DISPATCH_METHOD )
-	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, 0 );
+	hres = disp->Invoke( dispid, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_PROPERTYGET, &params, res, &excepinfo, &argerr );
 
     if ( disptype == DISPATCH_METHOD && id >= 0 && varc ) {
 	for ( int i = 0; i < varc; ++i )
@@ -3135,7 +3136,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	clearVARIANT( params.rgvarg+i );
     delete[] arg;
 
-    return checkHRESULT( hres, &excepinfo, this, function );
+    return checkHRESULT( hres, &excepinfo, this, function, varc-argerr-1 );
 }
 
 
