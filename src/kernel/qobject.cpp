@@ -20,11 +20,6 @@
 #include "qmetaobject.h"
 #include "qdesktopwidget.h" // used in reparent()
 
-#ifdef QT_THREAD_SUPPORT
-#include <qmutex.h>
-#include <private/qmutexpool_p.h>
-#endif
-
 #include <ctype.h>
 #include <limits.h>
 
@@ -366,8 +361,10 @@ QObject::~QObject()
 	c->guarded = 0;
     }
 
-    if ( QApplication::eventLoop() && pendTimer )				// might be pending timers
+    // might have pending timers
+    if ( QApplication::eventLoop() && pendTimer )
 	QApplication::eventLoop()->unregisterTimers(this);
+
     if ( parentObj )				// remove it from parent object
 	setParent_helper(0);
 
