@@ -47,7 +47,7 @@ HEADERS	= command.h \
 		  config.h \
 		  previewframe.h \
 		  previewwidgetimpl.h \
-		  paletteeditoradvancedimpl.h
+		  paletteeditoradvancedimpl.h \
 		  pixmapcollection.h \
 		  sourcefile.h
 
@@ -95,7 +95,7 @@ SOURCES	= command.cpp \
 		  pixmapcollection.cpp \
 		  previewframe.cpp \
 		  previewwidgetimpl.cpp \
-		  paletteeditoradvancedimpl.cpp
+		  paletteeditoradvancedimpl.cpp \
 		  sourcefile.cpp
 
 TARGET	= designer
