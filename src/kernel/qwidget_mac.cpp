@@ -65,6 +65,7 @@ static WId serial_id = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
+static long mac_os_version=0;
 
 /*****************************************************************************
   Externals
@@ -306,9 +307,9 @@ bool qt_recreate_root_win() {
 bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 {
     QWidget *widget = QWidget::find((WId)id);
-    long macos_version=0;
-    Gestalt(gestaltSystemVersion, &macos_version);
-    if (macos_version < 0x1020) {
+    if (!mac_os_version)
+      Gestalt(gestaltSystemVersion, &mac_os_version);
+    if (mac_os_version < 0x1020) {
     switch(wcode) {
     case kWindowOpaqueRgn:
     case kWindowStructureRgn: {
@@ -1954,9 +1955,9 @@ void QWidget::setMask(const QRegion &region)
 	qt_dirty_wndw_rgn("setMask",this, clp);
     }
     if (isTopLevel()) {
-    long macos_version=0;
-    Gestalt(gestaltSystemVersion, &macos_version);
-    if (macos_version < 4128 &&
+    if (!mac_os_version)
+      Gestalt(gestaltSystemVersion, &mac_os_version);
+    if (mac_os_version < 0x1020 &&
 	testWFlags(WStyle_Customize) && testWFlags(WStyle_NoBorder)) {
 	    /* We do this because the X/Y seems to move to the first paintable point
 	       (ie the bounding rect of the mask). We must offset everything or else
