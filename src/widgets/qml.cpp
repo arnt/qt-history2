@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#46 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#47 $
 **
 ** Implementation of QML classes
 **
@@ -1291,8 +1291,7 @@ void QMLHorizontalLine::draw(QPainter* p, int x, int y,
     }
     QPen pen(p->pen());
     pen.setWidth( 2 );
-    p->setPen( pen );
-    p->drawLine( cx-ox , y-oy+4, cx-ox+cw, y-oy+4 );
+    p->setPen( pen );    p->drawLine( cx-ox+x , y-oy+4, cx-ox+cw, y-oy+4 );
 }
 
 
@@ -1599,7 +1598,7 @@ void QMLRow::draw(QMLContainer* box, QPainter* p, int obx, int oby, int ox, int 
 			    p->fillRect(tx+obx-ox, y+oby-oy+base, tw, height-base, *paper);
 		    }
 		    ((QMLCustomNode*)t)->draw(p,tx+obx,y+oby+base-h,
-					      ox, oy, cx, cy, cw, ch, backgroundRegion, cg, paper);
+					      ox, oy, cx, cy, QMIN(tx+obx+width,cw), ch, backgroundRegion, cg, paper);
 		
 		    if ( t->isSelected ) {
 			QRect tr( tx+obx-ox, y+oby-oy+base-h, tw, h );
