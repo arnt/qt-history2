@@ -53,6 +53,9 @@
 #ifdef QT_SQL_TDS
 #include "drivers/tds/qsql_tds.h"
 #endif
+#ifdef QT_SQL_DB2
+#include "drivers/tds/qsql_db2.h"
+#endif
 
 #include "qapplication.h"
 #include "qsqlresult.h"
@@ -405,6 +408,10 @@ QStringList QSqlDatabase::drivers()
     if ( !l.contains( "QTDS7" ) )
 	l << "QTDS7";
 #endif
+#ifdef QT_SQL_DB2
+    if ( !l.contains( "QDB2" ) )
+	l << "QDB2";
+#endif
 
     return l;
 }
@@ -445,6 +452,7 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
     \i QTDS7 - Sybase Adaptive Server and Microsoft SQL Server Driver
     \i QMYSQL3 - MySQL Driver
+    \i QDB2 - IBM DB2, v7.1 and higher
     \endlist
 
     Note that additional 3<sup>rd</sup> party drivers can be loaded
@@ -493,6 +501,11 @@ void QSqlDatabase::init( const QString& type, const QString&  )
 #ifdef QT_SQL_TDS
 	if ( type == "QTDS7" )
 	    d->driver = new QTDSDriver();
+#endif
+
+#ifdef QT_SQL_DB2
+	if ( type == "QDB2" )
+	    d->driver = new QDB2Driver();
 #endif
 
     }

@@ -53,7 +53,7 @@ sql {
 		    $$SQL_CPP/qsqlselectcursor.cpp
 
 	contains(sql-drivers, all ) {
-		sql-driver += psql mysql odbc oci tds
+		sql-driver += psql mysql odbc oci tds db2
 	}			
 
 	contains(sql-drivers, psql) {
@@ -148,4 +148,17 @@ sql {
 		}
 	}
 
+	contains(sql-drivers, db2) {
+		HEADERS += $$SQL_CPP/drivers/db2/qsql_db2.h
+		SOURCES += $$SQL_CPP/drivers/db2/qsql_db2.cpp
+		DEFINES += QT_SQL_DB2
+		unix {
+			LIBS += -ldb2
+		}
+		win32 {
+			!win32-borland:LIBS += db2cli.lib
+#			win32-borland:LIBS  += $(BCB)/lib/PSDK/db2cli.lib
+		}
+	}
 }
+
