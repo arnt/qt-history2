@@ -4970,7 +4970,7 @@ void QCanvasSprite::setFrame(int f)
 /*!
     Sets the animation characteritics for the sprite.
 
-    For \a type == Cyclic, the frames will increase by \a step
+    For \a type == Cycle, the frames will increase by \a step
     at each advance, modulo the frameCount().
 
     For \a type == Oscillate, the frames will increase by \a step
