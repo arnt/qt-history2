@@ -2082,7 +2082,7 @@ QTextStream &QTextStream::operator<<( const QCString & s )
 
 QTextStream &QTextStream::operator<<( const QString& s )
 {
-    if ( latin1 )
+    if ( !mapper && latin1 )
 	return operator<<(s.latin1());
     CHECK_STREAM_PRECOND
     QString s1 = s;
@@ -2454,6 +2454,8 @@ void QTextStream::setCodec( QTextCodec *codec )
 	return; // QString does not need any codec
     mapper = codec;
     latin1 = ( codec->mibEnum() == 4 );
+    if ( latin1 )
+	mapper = 0;
     doUnicodeHeader = FALSE;
 }
 #endif
