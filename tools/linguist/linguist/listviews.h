@@ -29,7 +29,8 @@ class LVI : public QListViewItem
 public:
     LVI( QListView *parent, QString text = QString::null );
     LVI( QListViewItem *parent, QString text = QString::null );
-    virtual QString key( int column, bool ascending ) const;
+    virtual int compare( QListViewItem *other, int column,
+			 bool ascending ) const;
     virtual bool danger() const { return FALSE; }
 
 protected:

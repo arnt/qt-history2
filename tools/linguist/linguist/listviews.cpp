@@ -87,18 +87,26 @@ void LVI::drawObsoleteText( QPainter * p, const QColorGroup & cg, int column,
 	    
 }
 
-QString LVI::key( int column, bool /*ascending*/ ) const
+int LVI::compare( QListViewItem *other, int column, bool ascending ) const
 {
-    // see Section 5, Exercice 4 in The Art of Computer Programming
-    QString k = text( column ).lower();
-    k.replace( QRegExp("&"), QString("") );
-    k += QChar::null;
-    k += text( column );
-    return k;
+    QString thisKey = key( column, ascending );
+    QString otherKey = other->key( column, ascending );
+
+    if ( thisKey.contains('&') || otherKey.contains('&') ) {
+	QString nicerThisKey = thisKey;
+	QString nicerOtherKey = otherKey;
+
+	nicerThisKey.replace( QRegExp("&"), "" );
+	nicerOtherKey.replace( QRegExp("&"), "" );
+
+	int delta = nicerThisKey.localeAwareCompare( nicerOtherKey );
+	if ( delta != 0 )
+	    return delta;
+    }
+    return thisKey.localeAwareCompare( otherKey );
 }
 
-
-static const QString qFixEllipsis( const QString & str, int len )
+static QString fixEllipsis( const QString & str, int len )
 {
     QString shortened = str.simplifyWhiteSpace();
     if ( (int) shortened.length() > len ) {
@@ -122,7 +130,7 @@ MessageLVI::MessageLVI( QListView *parent,
 	QString t = "";
 	m.setTranslation( t );
     }
-    setText( 1, qFixEllipsis( text, Text0MaxLen ) );
+    setText( 1, fixEllipsis( text, Text0MaxLen ) );
     fini = TRUE;
     d = FALSE;
 
@@ -132,7 +140,7 @@ MessageLVI::MessageLVI( QListView *parent,
 
 void MessageLVI::updateTranslationText()
 {
-    setText( 2, qFixEllipsis( m.translation(), Text1MaxLen ) );
+    setText( 2, fixEllipsis( m.translation(), Text1MaxLen ) );
 }
 
 void MessageLVI::paintCell( QPainter * p, const QColorGroup & cg, int column, 
