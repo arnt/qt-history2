@@ -715,6 +715,12 @@ void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 /*! \reimp */
 
+void QTextEdit::drawContents( QPainter * )
+{
+}
+
+/*! \reimp */
+
 bool QTextEdit::event( QEvent *e )
 {
     if ( e->type() == QEvent::AccelOverride && !isReadOnly() ) {
