@@ -1555,7 +1555,9 @@ void QAbstractSocket::close()
         qDebug("QAbstractSocket::close() emits stateChanged(), then closing()");
 #endif
         emit stateChanged(d->state);
+#ifdef QT_COMPAT
         emit connectionClosed(); // compat signal
+#endif
         emit closing();
     } else {
 #if defined(QABSTRACTSOCKET_DEBUG)
@@ -1594,7 +1596,9 @@ void QAbstractSocket::close()
     qDebug("QAbstractSocket::close() emits stateChanged(), then closed()");
 #endif
     emit stateChanged(d->state);
+#ifdef QT_COMPAT
     emit delayedCloseFinished(); // compat signal
+#endif
     emit closed();
 }
 

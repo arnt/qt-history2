@@ -203,7 +203,7 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
                                                Q_UINT16 port, const QHostAddress & address, sockaddr ** sockAddrPtr, QT_SOCKLEN_T *sockAddrSize)
 {
 #if !defined(QT_NO_IPV6)
-    if (address.isIPv6Address()) {
+    if (address.protocol() == Qt::IPv6Protocol) {
         memset(sockAddrIPv6, 0, sizeof(qt_sockaddr_in6));
         sockAddrIPv6->sin6_family = AF_INET6;
         WSAHtons(socketDescriptor, port, &(sockAddrIPv6->sin6_port));
@@ -213,7 +213,8 @@ static inline void qt_socket_setPortAndAddress(SOCKET socketDescriptor, sockaddr
         *sockAddrPtr = (struct sockaddr *) sockAddrIPv6;
     } else
 #endif
-    if (address.isIPv4Address()) {
+    if (address.protocol() == Qt::IPv4Protocol
+        || address.protocol() == Qt::UnknownNetworkLayerProtocol) {
         memset(sockAddrIPv4, 0, sizeof(sockaddr_in));
         sockAddrIPv4->sin_family = AF_INET;
         WSAHtons(socketDescriptor, port, &(sockAddrIPv4->sin_port));
