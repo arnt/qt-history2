@@ -952,7 +952,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
                 return;
             }
         }
-        setCurrentIndex(index);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     }
     setState(SelectingState);
     setSelection(QRect(topLeft, bottomRight).normalize(),
