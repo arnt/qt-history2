@@ -15,6 +15,7 @@
 #include "tabbedbrowser.h"
 #include "helpdialogimpl.h"
 #include "config.h"
+#include "assistantapplication.h"
 
 #include <qurl.h>
 #include <qmessagebox.h>
@@ -33,17 +34,28 @@
 #endif
 
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
-    : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE ), blockScroll( FALSE )
+    : QTextBrowser( parent, name ), mw( w ), blockScroll( FALSE ), newWindow( FALSE )
 {
 
+}
+
+void HelpWindow::setSource(const QString &name, bool newWin)
+{
+    if (newWin) {
+	newWindow = TRUE;
+	setSource(name);
+	newWindow = FALSE;
+    } else {
+	QTextBrowser::setSource(name);
+    }
 }
 
 void HelpWindow::setSource( const QString &name )
 {
     if ( name.isEmpty() )
 	return;
-
-    if ( shiftPressed ) {
+    
+    if (newWindow || ((AssistantApplication *)qApp)->isShiftKeyPressed()) {
 	removeSelection();
 	mw->saveSettings();
 	mw->saveToolbarSettings();
@@ -148,10 +160,9 @@ void HelpWindow::openLinkInNewWindow()
 {
     if ( lastAnchor.isEmpty() )
 	return;
-    bool oldShiftPressed = shiftPressed;
-    shiftPressed = TRUE;
-    setSource( lastAnchor );
-    shiftPressed = oldShiftPressed;
+    newWindow = TRUE;
+    setSource(lastAnchor);
+    newWindow = FALSE;
 }
 
 void HelpWindow::openLinkInNewWindow( const QString &link )
@@ -203,18 +214,6 @@ QPopupMenu *HelpWindow::createPopupMenu( const QPoint& pos )
     mw->actionEditCopy->addTo( m );
     mw->actionEditFind->addTo( m );
     return m;
-}
-
-void HelpWindow::keyPressEvent( QKeyEvent *e )
-{
-    shiftPressed = e->key() == Key_Shift   ? TRUE : shiftPressed;
-    QTextBrowser::keyPressEvent( e );
-}
-
-void HelpWindow::keyReleaseEvent( QKeyEvent *e )
-{
-    shiftPressed = e->key() == Key_Shift   ? FALSE : shiftPressed;
-    QTextBrowser::keyReleaseEvent( e );
 }
 
 void HelpWindow::blockScrolling( bool b )

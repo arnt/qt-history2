@@ -6,7 +6,8 @@ SOURCES	+= main.cpp \
 	settingsdialogimpl.cpp \
 	index.cpp \
         profile.cpp \
-        config.cpp
+        config.cpp \
+	assistantapplication.cpp
 
 HEADERS	+= helpwindow.h \
 	topicchooserimpl.h \
@@ -15,7 +16,8 @@ HEADERS	+= helpwindow.h \
 	settingsdialogimpl.h \
 	index.h \
         profile.h \
-        config.h 
+        config.h \
+	assistantapplication.h
 
 TARGET	= assistant
 

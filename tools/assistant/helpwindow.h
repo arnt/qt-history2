@@ -24,6 +24,7 @@ class HelpWindow : public QTextBrowser
     Q_OBJECT
 public:
     HelpWindow( MainWindow *m, QWidget *parent = 0, const char *name = 0 );
+    void setSource(const QString &name, bool newWin);
     void setSource( const QString &name );
     QPopupMenu *createPopupMenu( const QPoint& pos );
     void blockScrolling( bool b );
@@ -33,10 +34,6 @@ public:
 
 signals:
     void chooseWebBrowser();
-
-protected:
-    void keyPressEvent( QKeyEvent *e );
-    void keyReleaseEvent( QKeyEvent *e );
 
 protected slots:
     void ensureCursorVisible();
@@ -48,9 +45,9 @@ private slots:
 private:
     void setCharacterEncoding( const QString &name );
     MainWindow *mw;
-    bool shiftPressed;
     QString lastAnchor;
     bool blockScroll;
+    bool newWindow;
     QMimeSourceFactory *mimeSourceFactory;
 
 };

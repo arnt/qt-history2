@@ -13,8 +13,8 @@
 #include "mainwindow.h"
 #include "helpdialogimpl.h"
 #include "config.h"
+#include "assistantapplication.h"
 
-#include <qapplication.h>
 #include <qserversocket.h>
 #include <qsocket.h>
 #include <qpixmap.h>
@@ -134,7 +134,7 @@ int main( int argc, char ** argv )
 	    withGUI = FALSE;
 #endif
     }
-    QApplication a( argc, argv, withGUI );
+    AssistantApplication a(argc, argv, withGUI);
 
     QString resourceDir;
     AssistantServer *as = 0;
