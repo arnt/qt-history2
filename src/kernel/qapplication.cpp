@@ -976,12 +976,6 @@ QApplication::~QApplication()
 
     qt_cleanup();
 
-#ifndef QT_NO_SESSIONMANAGER
-    // delete the session manager
-    delete session_manager;
-    session_manager = 0;
-#endif
-
     delete static_eventloop;
     static_eventloop = 0;
 
@@ -2268,13 +2262,18 @@ void QApplication::processOneEvent()
  *****************************************************************************/
 
 /*!
-  Returns the event loop object set for the application object.
+  Returns the application event loop.  This function will return
+  zero if called during and after destroying QApplication.
 */
 QEventLoop *QApplication::eventLoop()
 {
-    if ( ! qApp )
+
+#ifdef QT_CHECK_STATE
+    if ( ! qApp && ! is_app_closing )
 	qWarning( "Cannot create QEventLoop without a global application object." );
-    if ( ! static_eventloop )
+#endif // QT_CHECK_STATE
+
+    if ( ! static_eventloop && ! is_app_closing )
 	QApplication::setEventLoop( new QEventLoop( qApp, "default event loop" ) );
     return static_eventloop;
 }

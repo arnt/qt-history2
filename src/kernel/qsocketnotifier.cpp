@@ -245,10 +245,15 @@ void QSocketNotifier::setEnabled( bool enable )
     if ( snenabled == enable )			// no change
 	return;
     snenabled = enable;
+
+    QEventLoop *eventloop = QApplication::eventLoop();
+    if ( ! eventloop ) // perhaps application is shutting down
+	return;
+
     if ( snenabled )
-        QApplication::eventLoop()->registerSocketNotifier( this );
+	eventloop->registerSocketNotifier( this );
     else
-	QApplication::eventLoop()->unregisterSocketNotifier( this );
+	eventloop->unregisterSocketNotifier( this );
 }
 
 
