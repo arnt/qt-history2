@@ -33,7 +33,7 @@ QIconSet QWidgetCellItem::icon() const
 
 void QWidgetCellItem::setIcon(const QIconSet &icon)
 {
-    store(QAbstractItemModel::DisplayRole, icon);
+    store(QAbstractItemModel::DecorationRole, icon);
 }
 
 /*!
