@@ -1,0 +1,119 @@
+/*! \page qaxserver-demo-hierarchy.html
+
+  \title Qt Widget Hierarchy
+
+\raw html
+<script language=javascript>
+function createSubWidget( form )
+{
+    ParentWidget.createSubWidget( form.nameEdit.value );
+}
+
+function renameSubWidget( form )
+{
+    var SubWidget = ParentWidget.subWidget( form.nameEdit.value );
+    if ( !SubWidget ) {
+        alert( "No such widget " + form.nameEdit.value + "!" );
+        return;
+    }
+    SubWidget.label = form.labelEdit.value;
+    form.nameEdit.value = SubWidget.label;
+}
+
+function setFont( form )
+{
+    ParentWidget.font = form.fontEdit.value;
+}
+</script>
+
+<p>
+This widget can have many children!<br>
+<object ID="ParentWidget" CLASSID="CLSID:d574a747-8016-46db-a07c-b2b4854ee75c"
+CODEBASE=http://www.trolltech.com/demos/hierarchy.cab>
+[Object not available! Did you forget to build and register the server?]
+</object><br>
+<form>
+<input type="edit" ID="nameEdit" value = "<enter object name>">
+<input type="button" value = "Create" onClick="createSubWidget(this.form)">
+<input type="edit" ID="labelEdit">
+<input type="button" value = "Rename" onClick="renameSubWidget(this.form)">
+<br>
+<input type="edit" ID="fontEdit" value = "MS Sans Serif">
+<input type="button" value = "Set Font" onClick="setFont(this.form)">
+</form>
+\endraw
+*/
+
+/*! \page qaxserver-example-hierarchy.html
+    \ingroup qaxserver-examples
+  \title Qt Widget Hierarchy (in-process)
+
+  The ActiveX control in this example is a QWidget
+  subclass with child widgets that are accessible as sub types.
+
+  \quotefile hierarchy/objects.h
+  \skipto class QParentWidget
+
+  The \c QParentWidget class provides slots to create a widget
+  with a name, and to return a pointer to a named widget.
+  \printuntil };
+
+  \quotefile hierarchy/objects.cpp
+  \skipto QParentWidget::QParentWidget
+  The constructor of QParentWidget creates a vertical box layout.
+  New child widgets are automatically added to the layout.
+  \printto ::createSubWidget
+  The \c createSubWidget slot creates a new \c QSubWidget with
+  the name provided in the parameter, and sets the label to that
+  name. The widget is also shown explicitly.
+  \printto ::subWidget
+  The \c subWidget slot uses the \c QObject::child() function and
+  returns the first child of type \c QSubWidget that has the requested
+  name.
+  \printto ::sizeHint
+  
+  \quotefile hierarchy/objects.h
+  \skipto class QSubWidget :
+  The \c QSubWidget class has a single string-property \c label,
+  and implements the paintEvent to draw the label.
+   \printuntil };
+
+  \quotefile hierarchy/objects.cpp
+  \skipto QSubWidget::QSubWidget
+  The implementation of the QSubWidget class is self-explanatory.
+  \printuntil .drawText
+  \printuntil }
+
+  \quotefile hierarchy/main.cpp
+  \skipto class ActiveQtFactory
+  The \c ActiveQtFactory class implements a QAxFactory. It returns
+  the class names of all supported types, \c QParentWidget and
+  \c QSubWidget, from the \c featureList() reimplementation.
+  \printto create(
+  The factory can however only create objects of the \c QParentWidget
+  type directly - objects of subtypes can only be created through the
+  interface of \c QParentWidget objects.
+  \printto classID
+  COM however requires the IDs for the interfaces of the sub types as
+  well to be able to marshal calls correctly.
+  \printto exposeToSuperClass
+  Objects of the \c QSubWidget type should not expose the full 
+  functionality of e.g. QWidget. Only those properties and slots
+  explicitly declared in the type are accessible.
+  \printuntil };
+  The factory is then exported using the \c QAXFACTORY_EXPORT
+  macro.
+
+  To build the example you must first build the \link qaxserver.html
+  QAxServer \endlink library. Then run qmake and your make tool in 
+  \c examples/multiple.
+
+  <hr>
+
+  The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
+  WebBrowser to support ActiveX controls, and scripting to be enabled.
+
+  \quotefile hierarchy/hierarchy.doc
+  \skipuntil raw html
+  \printto endraw
+*/

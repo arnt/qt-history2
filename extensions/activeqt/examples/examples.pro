@@ -7,6 +7,7 @@ SUBDIRS = testcon \
 	  simple \
 	  tetrax \
 	  wrapper \
-	  menus
+	  menus \
+	  hierarchy
 
 opengl:SUBDIRS += opengl
