@@ -49,13 +49,16 @@ public:
 
     inline bool intersects(const QItemSelectionRange &other) const
     {
-        return (p == other.p)
-                   && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
-                   && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r));
+        return (p == other.p
+                && ((t <= other.t && b >= other.t) || (t >= other.t && t <= other.b))
+                && ((l <= other.l && r >= other.l) || (l >= other.l && l <= other.r)));
     }
 
     inline QItemSelectionRange intersect(const QItemSelectionRange &other) const
-        { return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l), qMin(b, other.b), qMin(r, other.r)); }
+    {
+        return QItemSelectionRange(p, qMax(t, other.t), qMax(l, other.l),
+                                   qMin(b, other.b), qMin(r, other.r));
+    }
 
     inline bool operator==(const QItemSelectionRange &other) const
     {
@@ -63,6 +66,7 @@ public:
                 && t == other.t && l == other.l
                 && b == other.b && r == other.r);
     }
+
     inline bool operator!=(const QItemSelectionRange &other) const { return !operator==(other); }
     inline bool isValid() const { return (t <= b && l <= r && t > -1 && l > -1); }
 
@@ -111,6 +115,7 @@ public:
 
     QAbstractItemModel *model() const;
     QModelIndexList selectedIndexes() const;
+    const QItemSelection selection() const;
 
 public slots:
     void setCurrentIndex(const QModelIndex &index, SelectionFlags command);

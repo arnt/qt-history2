@@ -792,6 +792,16 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 }
 
 /*!
+  Returns the selection ranges stored in the selection model.
+*/
+const QItemSelection QItemSelectionModel::selection() const
+{
+    QItemSelection selected = d->ranges;
+    selected.merge(d->currentSelection, d->currentCommand);
+    return selected;
+}
+
+/*!
   Compares the two selections \a newSelection and \a oldSelection
   and emits selectionChanged() with the deselected and selected items.
 */

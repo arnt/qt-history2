@@ -17,6 +17,21 @@
 #include <qtableview.h>
 #include <qlist.h>
 
+class Q_GUI_EXPORT QTableWidgetSelectionRange
+{
+public:
+    QTableWidgetSelectionRange();
+    QTableWidgetSelectionRange(int top, int left, int bottom, int right);
+    QTableWidgetSelectionRange(const QTableWidgetSelectionRange &other);
+    ~QTableWidgetSelectionRange();
+    inline int topRow() const { return top; }
+    inline int bottomRow() const { return bottom; }
+    inline int leftColumn() const { return left; }
+    inline int rightColumn() const { return right; }
+private:
+    int top, left, bottom, right;
+};
+
 class Q_GUI_EXPORT QTableWidgetItem
 {
     friend class QTableWidget;
@@ -152,6 +167,8 @@ public:
 
     bool isSelected(const QTableWidgetItem *item) const;
     void setSelected(const QTableWidgetItem *item, bool select);
+
+    QList<QTableWidgetSelectionRange> selectedRanges() const;
     QList<QTableWidgetItem*> selectedItems() const;
 
     QList<QTableWidgetItem*> findItems(const QString &text,

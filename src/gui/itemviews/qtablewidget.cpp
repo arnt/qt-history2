@@ -400,7 +400,73 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
     emit dataChanged(idx, idx);
 }
 
-// item
+
+/*!
+  \class QTableWidgetSelectionRange
+  \brief The QTableWidgetSelectionRange provides a class for storing a selection range in a QTableWidget.
+  \ingroup model-view
+
+  The QTableWidgetSelectionRange class stores the top left and bottom right rows and columns of a selection range
+  in a table. The selections in the table may consist of several selection ranges.
+
+  \sa QTableWidget
+*/
+
+/*!
+  Constructs the table selection range.
+*/
+QTableWidgetSelectionRange::QTableWidgetSelectionRange()
+    : top(-1), left(-1), bottom(-1), right(-1)
+{
+}
+
+/*!
+  Constructs the table selection range from the given \a top, \a left, \a bottom and \a right table rows and columns.
+*/
+QTableWidgetSelectionRange::QTableWidgetSelectionRange(int top, int left, int bottom, int right)
+    : top(top), left(left), bottom(bottom), right(right)
+{
+}
+
+/*!
+  Constructs a the table selection range by copying the given \a other table selection range.
+*/
+QTableWidgetSelectionRange::QTableWidgetSelectionRange(const QTableWidgetSelectionRange &other)
+    : top(other.top), left(other.left), bottom(other.bottom), right(other.right)
+{
+}
+
+/*!
+  Destroys the table selection range.
+*/
+QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
+{
+}
+
+/*!
+  \fn inline int QTableWidgetSelectionRange::topRow() const
+
+  Returns the top row of the range.
+*/
+
+/*!
+  \fn inline int QTableWidgetSelectionRange::bottomRow() const
+
+  Returns the bottom row of the range.
+*/
+
+/*!
+  \fn inline int QTableWidgetSelectionRange::leftColumn() const
+
+  Returns the left column of the range.
+*/
+
+/*!
+  \fn inline int QTableWidgetSelectionRange::rightColumn() const
+
+  Returns the right column of the range.
+*/
+
 
 /*!
     \class QTableWidgetItem
@@ -1229,6 +1295,24 @@ void QTableWidget::setSelected(const QTableWidgetItem *item, bool select)
 {
     QModelIndex index = d->model()->index(item);
     selectionModel()->select(index, select ? QItemSelectionModel::Select : QItemSelectionModel::Deselect);
+}
+
+/*!
+  Returns a list of all selected ranges.
+
+  \sa QTableWidgetSelectionRange
+*/
+
+QList<QTableWidgetSelectionRange> QTableWidget::selectedRanges() const
+{
+    const QList<QItemSelectionRange> ranges = selectionModel()->selection();
+    QList<QTableWidgetSelectionRange> result;
+    for (int i = 0; i < ranges.count(); ++i)
+        result.append(QTableWidgetSelectionRange(ranges.at(i).top(),
+                                                 ranges.at(i).left(),
+                                                 ranges.at(i).bottom(),
+                                                 ranges.at(i).right()));
+    return result;
 }
 
 /*!
