@@ -603,6 +603,7 @@ QTextEdit::~QTextEdit()
 
 void QTextEdit::init()
 {
+    undoEnabled = TRUE;
     readonly = TRUE;
     setReadOnly( FALSE );
     d = new QTextEditPrivate;
@@ -2133,7 +2134,7 @@ void QTextEdit::removeParagraph( int para )
 
 void QTextEdit::undo()
 {
-    if ( isReadOnly() || !doc->commands()->isUndoAvailable() )
+    if ( isReadOnly() || !doc->commands()->isUndoAvailable() || !undoEnabled )
 	return;
 
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
@@ -2174,7 +2175,7 @@ void QTextEdit::undo()
 
 void QTextEdit::redo()
 {
-    if ( isReadOnly() || !doc->commands()->isRedoAvailable() )
+    if ( isReadOnly() || !doc->commands()->isRedoAvailable() || !undoEnabled )
 	return;
 
     for ( int i = 0; i < (int)doc->numSelections(); ++i )
@@ -4196,6 +4197,20 @@ QColor QTextEdit::paragraphBackgroundColor( int para ) const
     if ( c )
 	return *c;
     return QColor();
+}
+
+/*! \property QTextEdit::undoRedoEnabled
+  \brief whether undo/redo is enabled
+*/
+
+void QTextEdit::setUndoRedoEnabled( bool b )
+{
+    undoEnabled = b;
+}
+
+bool QTextEdit::isUndoRedoEnabled() const
+{
+    return undoEnabled;
 }
 
 #endif //QT_NO_TEXTEDIT

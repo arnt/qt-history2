@@ -87,6 +87,7 @@ class Q_EXPORT QTextEdit : public QScrollView
     Q_PROPERTY( bool overwriteMode READ isOverwriteMode WRITE setOverwriteMode )
     Q_PROPERTY( bool modified READ isModified WRITE setModified DESIGNABLE false )
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
+    Q_PROPERTY( bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled )
 
 public:
     enum WordWrap {
@@ -207,6 +208,8 @@ public:
     bool isOverwriteMode() const { return overWrite; }
     QColor paragraphBackgroundColor( int para ) const;
 
+    bool isUndoRedoEnabled() const;
+
 public slots:
     void setEnabled( bool );
     virtual void setMimeSourceFactory( QMimeSourceFactory* factory );
@@ -281,6 +284,8 @@ public slots:
 
     virtual void setParagraphBackgroundColor( int para, const QColor &bg );
     virtual void clearParagraphBackground( int para );
+
+    virtual void setUndoRedoEnabled( bool b );
 
 signals:
     void textChanged();
@@ -395,27 +400,31 @@ private:
 private:
     QTextDocument *doc;
     QTextCursor *cursor;
-    bool mousePressed;
     QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer, *dragStartTimer;
     QTextParag *lastFormatted;
     int interval;
     UndoRedoInfo undoRedoInfo;
     QTextFormat *currentFormat;
     int currentAlignment;
-    bool inDoubleClick;
     QPoint oldMousePos, mousePos;
-    bool cursorVisible, blinkCursorVisible;
-    bool readOnly, modified, mightStartDrag;
     QPoint dragStartPos;
     QString onLink;
-    bool overWrite;
     WordWrap wrapMode;
     WrapPolicy wPolicy;
-    int wrapWidth;
+    int wrapWidth : 1;
     QString pressedLink;
     QTextEditPrivate *d;
-    bool inDnD;
-    bool readonly;
+    bool inDoubleClick : 1;
+    bool mousePressed : 1;
+    bool cursorVisible : 1;
+    bool blinkCursorVisible : 1;
+    bool readOnly : 1;
+    bool modified : 1;
+    bool mightStartDrag : 1;
+    bool inDnD : 1;
+    bool readonly : 1;
+    bool undoEnabled : 1;
+    bool overWrite : 1;
 };
 
 inline QTextDocument *QTextEdit::document() const
