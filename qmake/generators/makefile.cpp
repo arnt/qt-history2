@@ -1205,7 +1205,7 @@ MakefileGenerator::fileFixify(QString &file) const
 	    return FALSE;
 	QString match_dir = Option::output_dir;
 	if(file.left(match_dir.length()) == match_dir &&
-	   QString(file.at(match_dir.length())) == Option::dir_sep) {
+	   file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 	    file = file.right(file.length() - (match_dir.length() + 1));
 	} else {
 	    for(int i = 1; i <= depth; i++) {
@@ -1216,7 +1216,7 @@ MakefileGenerator::fileFixify(QString &file) const
 		if(match_dir.isEmpty())
 		    break;
 		if(file.left(match_dir.length()) == match_dir &&
-		   file.mid(match_dir.length()+1, Option::dir_sep.length()) == Option::dir_sep) {
+		   file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
 		    //concat
 		    int remlen = file.length() - (match_dir.length() + 1);
 		    if (remlen < 0)
