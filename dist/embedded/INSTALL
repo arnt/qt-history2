@@ -43,7 +43,7 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
   Remember to re-source environment files, if necessary.
 
 
-3.  Compile the Qt/Embedded library, and the server
+3. Compile the Qt/Embedded library and examples
 
 	cd ~/qt-embedded
 	make
@@ -61,9 +61,8 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
 
    You may need to recompile your kernel to enable the framebuffer.
    This document does not describe how to do this; the file
-   README-Framebuffer.embedded contains a short description. (You
-   should see a penguin logo at boot time when the frame buffer is
-   enabled.)
+   HOWTO-Framebuffer contains a short description. (You should see
+   a penguin logo at boot time when the frame buffer is enabled.)
 
    For Matrox G100/G200/G400 use the matrox frame buffer driver.
 
@@ -86,7 +85,7 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
 
 
 
-6. How to run the demo
+6. How to run the demonstration program
 
    Log into a virtual console and do:
 
@@ -133,3 +132,4 @@ export TMAKEPATH=$TMAKEDIR/lib/linux-qws-g++
    unneeded features. The file qt-embedded/src/tools/qfeatures.h
    defines macros of the form QT_FEATURE_XXXX. To remove a feature
    from Qt/Embedded, set the macro to 0.
+
