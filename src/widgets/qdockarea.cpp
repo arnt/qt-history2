@@ -167,10 +167,7 @@ void QDockAreaLayout::invalidate()
 static int start_pos( const QRect &r, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
-	if ( !qApp->reverseLayout() )
-	    return QMAX( 0, r.x() );
-	else
-	    return r.x() + r.width();
+	return QMAX( 0, r.x() );
     } else {
 	return QMAX( 0, r.y() );
     }
@@ -179,10 +176,7 @@ static int start_pos( const QRect &r, Qt::Orientation o )
 static void add_size( int s, int &pos, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
-	if ( !qApp->reverseLayout() )
-	    pos += s;
-	else
-	    pos -= s;
+	pos += s;
     } else {
 	pos += s;
     }
@@ -191,10 +185,7 @@ static void add_size( int s, int &pos, Qt::Orientation o )
 static int space_left( const QRect &r, int pos, Qt::Orientation o )
 {
     if ( o == Qt::Horizontal ) {
-	if ( !qApp->reverseLayout() )
-	    return ( r.x() + r.width() ) - pos;
-	else
-	    return pos - r.x();
+	return ( r.x() + r.width() ) - pos;
     } else {
 	return ( r.y() + r.height() ) - pos;
     }
@@ -372,7 +363,8 @@ int QDockAreaLayout::layoutItems( const QRect &rect, bool testonly )
 		pos = QMAX( op, size_extent( r.size(), orientation() ) - 1 - dockExtend );
 	}
 	// do some calculations and add the remember the rect which the docking widget requires for the placing
-	lastLine.append( DockData( dw, QRect( pos, sectionpos, dockExtend, dock_strut( dw, orientation() ) ) ) );
+	QRect dwRect( QStyle::visualRect( QRect(pos, sectionpos, dockExtend, dock_strut( dw, orientation()  ) ), rect ) );
+	lastLine.append( DockData( dw, dwRect ) );
 	if ( dw->inherits( "QToolBar" ) )
 	    tbstrut = QMAX( tbstrut, dock_strut( dw, orientation() ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );

@@ -363,8 +363,8 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 	flags |= QStyle::PStyle_Vertical;
 
     style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
-			   style().subRect( QStyle::SR_DockWindowHandleRect,
-					    this ),
+			   QStyle::visualRect( style().subRect( QStyle::SR_DockWindowHandleRect,
+								this ), this ),
 			   colorGroup(), flags );
 
 // ### Remember the WindowsStyle dep. when doing the Motif impl.

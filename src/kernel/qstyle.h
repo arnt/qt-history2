@@ -428,6 +428,8 @@ public:
 
     static QRect visualRect( const QRect &logical, const QWidget *w );
 
+    static QRect visualRect( const QRect &logical, const QRect &bounding );
+
 
 
 

@@ -313,5 +313,13 @@ QRect QStyle::visualRect( const QRect &logical, const QWidget *w )
     return r;
 }
 
+QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
+{
+    QRect r = logical;
+    if ( QApplication::reverseLayout() )
+	r.moveBy( 2*(boundingRect.right() - logical.right()) + logical.width() - boundingRect.width(), 0 );
+    return r;
+}    
+
 
 #endif // QT_NO_STYLE
