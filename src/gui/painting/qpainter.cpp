@@ -38,7 +38,7 @@
 #define d d_func()
 #define q q_func()
 
-// #define QT_DEBUG_DRAW
+//#define QT_DEBUG_DRAW
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
                     int len, QRect *brect, int tabstops, int* tabarray, int tabarraylen,
@@ -1716,7 +1716,7 @@ Qt::BGMode QPainter::backgroundMode() const
 void QPainter::setPen(const QColor &color)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setPen(), color=%p\n", color.rgb());
+    printf("QPainter::setPen(), color=%04x\n", color.rgb());
 #endif
     QPen newPen = QPen(color.isValid() ? color : Qt::black, 0, Qt::SolidLine);
     if (newPen == d->state->pen)
@@ -1740,7 +1740,7 @@ void QPainter::setPen(const QPen &pen)
 {
 
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setPen(), color=%p, style=%d, cap=%d, join=%d\n",
+    printf("QPainter::setPen(), color=%04x, style=%d, cap=%d, join=%d\n",
            pen.color().rgb(), pen.style(), pen.capStyle(), pen.joinStyle());
 #endif
 
@@ -1802,7 +1802,7 @@ const QPen &QPainter::pen() const
 void QPainter::setBrush(const QBrush &brush)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setBrush(), color=%p, style=%d\n", brush.color().rgb(), brush.style());
+    printf("QPainter::setBrush(), color=%04x, style=%d\n", brush.color().rgb(), brush.style());
 #endif
 
     if (d->state->brush == brush)
@@ -1860,7 +1860,7 @@ const QBrush &QPainter::brush() const
 void QPainter::setBackground(const QBrush &bg)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setBackground(), color=%p, style=%d\n", bg.color().rgb(), bg.style());
+    printf("QPainter::setBackground(), color=%04x, style=%d\n", bg.color().rgb(), bg.style());
 #endif
 
     d->state->bgBrush = bg;
@@ -1880,7 +1880,7 @@ void QPainter::setBackground(const QBrush &bg)
 void QPainter::setFont(const QFont &font)
 {
 #ifdef QT_DEBUG_DRAW
-    printf("QPainter::setBackground(), family=%s, pointSize=%d\n", font.family(), font.pointSize());
+    printf("QPainter::setBackground(), family=%s, pointSize=%d\n", font.family().latin1(), font.pointSize());
 #endif
 
     d->state->font = font.resolve(d->state->deviceFont);
