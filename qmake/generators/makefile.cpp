@@ -797,7 +797,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	      << project->variables()[pvar].first() << "\n\t"
 	      << target << endl << endl;
 	    all_installs += QString("install_") + (*it) + " ";
-	} else {
+	}   else if(Option::debug_level >= 1) {
 	    fprintf(stderr, "no definition for install %s: install target not created\n",(*it).latin1());
 	}
     }
