@@ -70,13 +70,26 @@ bool QMacPrintEngine::end()
     return true;
 }
 
-void QMacPrintEngine::setPrinterName(const QString &)
+void QMacPrintEngine::setPrinterName(const QString &name)
 {
+    OSStatus status = PMSessionSetCurrentPrinter(d->session, QCFString(name));
+    if (status == noErr)
+        qWarning("QMacPrintEngine::setPrinterName: Error setting printer %ld", status);
 }
 
 QString QMacPrintEngine::printerName() const
 {
-    return QString();
+    QString ret;
+    CFIndex currIndex;
+    PMPrinter unused;
+    QCFType<CFArrayRef> printerList;
+    OSStatus status = PMSessionCreatePrinterList(d->session, &printerList, &currIndex, &unused);
+    if (status != noErr)
+        qWarning("QMacPrintEngine::printerName: Problem getting list of printers %ld", status);
+    if (printerList)
+        ret = QCFString::toQString(static_cast<CFStringRef>(CFArrayGetValueAtIndex(printerList,
+                                                                                   currIndex)));
+    return ret;
 }
 
 void QMacPrintEngine::setOutputToFile(bool toFile)
@@ -100,19 +113,103 @@ QString QMacPrintEngine::outputFileName()const
 }
 
 void QMacPrintEngine::setPrintProgram(const QString &) {}
-QString QMacPrintEngine::printProgram() const {return QString(); }
+QString QMacPrintEngine::printProgram() const { return QString(); }
 
 void QMacPrintEngine::setDocName(const QString &) {}
-QString QMacPrintEngine::docName() const {return QString(); }
+QString QMacPrintEngine::docName() const { return QString(); }
 
 void QMacPrintEngine::setCreator(const QString &) {}
-QString QMacPrintEngine::creator() const{return QString(); }
+QString QMacPrintEngine::creator() const { return QString(); }
 
-void QMacPrintEngine::setOrientation(QPrinter::Orientation) {}
-QPrinter::Orientation QMacPrintEngine::orientation() const { return (QPrinter::Orientation)0; }
+void QMacPrintEngine::setOrientation(QPrinter::Orientation orientation)
+{
+    PMOrientation o = orientation == QPrinter::Portrait ? kPMPortrait : kPMLandscape;
+    PMSetOrientation(d->format, o, false);
+}
 
-void QMacPrintEngine::setPageSize(QPrinter::PageSize) {}
-QPrinter::PageSize QMacPrintEngine::pageSize() const {return (QPrinter::PageSize)0;}
+QPrinter::Orientation QMacPrintEngine::orientation() const
+{
+    PMOrientation orientation;
+    PMGetOrientation(d->format, &orientation);
+    return orientation == kPMPortrait ? QPrinter::Portrait : QPrinter::Landscape;
+}
+
+struct PaperSize
+{
+    int w;
+    int h;
+};
+
+static const PaperSize sizes[] = {
+    { 210, 297 },   // A4
+    { 176, 250 },   // B5
+    { 216, 279 },   // U.S. Letter
+    { 216, 356 },   // U.S. Legal
+    { 191, 254 },   // U.S. Executive
+    { 841, 1189 },  // A0
+    { 594, 841 },   // A1
+    { 420, 594 },   // A2
+    { 297, 420 },   // A3
+    { 148, 210 },   // A5
+    { 105, 148 },   // A6
+    { 74, 105 },    // A7
+    { 52, 74 },     // A8
+    { 37, 52 },     // A9
+    { 1000, 1414 }, // B0
+    { 707, 1000 },  // B1
+    { 31, 44 },     // B10
+    { 500, 707 },   // B2
+    { 353, 500 },   // B3
+    { 250, 353 },   // B4
+    { 125, 176 },   // B6
+    { 88, 125 },    // B7
+    { 62, 88 },     // B8
+    { 44, 62 },     // B9
+    { 162, 229 },   // C5E
+    { 105, 241 },   // Comm10E
+    { 110, 222 },   // DLE
+    { 216, 330 },   // Folio
+    { 432, 279 },   // Ledger
+    { 279, 432 }   // Tabloid
+};
+
+void QMacPrintEngine::setPageSize(QPrinter::PageSize ps)
+{
+    PaperSize newSize = sizes[ps];
+    QCFType<CFArrayRef> formats;
+    PMPrinter printer;
+    
+    if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr 
+        && PMSessionCreatePageFormatList(d->session, printer, &formats) == noErr) {
+        CFIndex total = CFArrayGetCount(formats);
+        PMPageFormat tmp;
+        PMRect paper;
+        for (CFIndex idx = 0; idx < total; ++idx) {
+            tmp = static_cast<PMPageFormat>(
+                                        const_cast<void *>(CFArrayGetValueAtIndex(formats, idx)));
+            PMGetUnadjustedPaperRect(tmp, &paper);
+            int wMM = int((paper.right - paper.left) / 72 * 25.4 + 0.5);
+            int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
+            if (newSize.w == wMM && newSize.h == hMM) {
+                PMCopyPageFormat(tmp, d->format);
+                break;
+            }
+        }
+    }    
+}
+
+QPrinter::PageSize QMacPrintEngine::pageSize() const
+{
+    PMRect paper;
+    PMGetUnadjustedPaperRect(d->format, &paper);
+    int wMM = int((paper.right - paper.left) / 72 * 25.4 + 0.5);
+    int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
+    for (int i = QPrinter::A4; i < QPrinter::NPageSize; ++i) {
+        if (sizes[i].w == wMM && sizes[i].h == hMM)
+            return (QPrinter::PageSize)i;
+    }
+    return QPrinter::Custom;
+}
 
 void QMacPrintEngine::setPageOrder(QPrinter::PageOrder) {}
 QPrinter::PageOrder QMacPrintEngine::pageOrder() const {return (QPrinter::PageOrder)0; }
@@ -123,17 +220,34 @@ int QMacPrintEngine::resolution() const {return 0;}
 void QMacPrintEngine::setColorMode(QPrinter::ColorMode) {}
 QPrinter::ColorMode QMacPrintEngine::colorMode() const {return (QPrinter::ColorMode) 0; }
 
-void QMacPrintEngine::setFullPage(bool) {}
-bool QMacPrintEngine::fullPage() const {return false;}
+void QMacPrintEngine::setFullPage(bool fullPage)
+{
+    d->fullPage = fullPage;
+}
 
-void QMacPrintEngine::setNumCopies(int) {}
-int QMacPrintEngine::numCopies() const {return 0;}
+bool QMacPrintEngine::fullPage() const
+{
+    return d->fullPage;
+}
+
+void QMacPrintEngine::setNumCopies(int copies)
+{
+    PMSetCopies(d->settings, copies, false);
+}
+
+int QMacPrintEngine::numCopies() const
+{
+    return 1; /* Carbon handles # of copies for us */
+}
 
 void QMacPrintEngine::setCollateCopies(bool) {}
-bool QMacPrintEngine::collateCopies() const {return false;}
+bool QMacPrintEngine::collateCopies() const { return false; }
 
 void QMacPrintEngine::setPaperSource(QPrinter::PaperSource) {}
-QPrinter::PaperSource QMacPrintEngine::paperSource()   const{return (QPrinter::PaperSource) 0;}
+QPrinter::PaperSource QMacPrintEngine::paperSource() const
+{
+    return (QPrinter::PaperSource) 0;
+}
 
 QList<int> QMacPrintEngine::supportedResolutions() const
 {
@@ -300,6 +414,8 @@ void QMacPrintEnginePrivate::initialize()
     Q_ASSERT(!settings);
     Q_ASSERT(!session);
 
+    fullPage = false;
+
     if (PMCreateSession(&session) != noErr)
         session = 0;
     
@@ -364,7 +480,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
     CGContextScaleCTM(hd, 1, -1);
     CGContextTranslateCTM(hd, 0, -paper.height());
     if (ret) {
-        if (q->fullPage()) {
+        if (fullPage) {
             CGContextTranslateCTM(hd, page.x() - paper.x(), page.y() - paper.y());
         } else {
             CGContextTranslateCTM(hd, 0, 0);
