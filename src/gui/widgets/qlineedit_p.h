@@ -131,7 +131,7 @@ public:
     inline bool isRedoAvailable() const { return !readOnly && undoState < (int)history.size(); }
 
     // bidi
-    inline bool isRightToLeft() const { return direction==QChar::DirON?text.isRightToLeft():(direction==QChar::DirR); }
+    inline bool isRightToLeft() const { return direction==QChar::DirON?q_func()->isRightToLeft():(direction==QChar::DirR); }
 
     // selection
     int selstart, selend;

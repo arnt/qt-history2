@@ -2102,7 +2102,10 @@ void QLineEditPrivate::updateTextLayout()
     }
     textLayout.setFont(q->font());
     textLayout.setText(str);
-    textLayout.setDirection((QChar::Direction)direction);
+    QChar::Direction dir = (QChar::Direction)direction;
+    if (dir == QChar::DirON)
+        dir = q->layoutDirection() == Qt::LeftToRight ? QChar::DirL : QChar::DirR;
+    textLayout.setDirection(dir);
     textLayout.setLayoutMode(QTextLayout::SingleLine);
     textLayout.beginLayout();
     QTextLine l = textLayout.createLine();

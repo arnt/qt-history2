@@ -912,7 +912,7 @@ bool QAbstractItemView::event(QEvent *e)
         break;
     case QEvent::KeyPress: {
         if (!d->tabKeyNavigation)
-            break; 
+            break;
         // This is to avoid loosing focus on Tab and Backtab
         QKeyEvent *ke = static_cast<QKeyEvent*>(e);
         if (ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab) {
@@ -1916,7 +1916,8 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.decorationSize = QStyleOptionViewItem::Small;
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
-    option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;
+    option.displayAlignment = layoutDirection() == Qt::LeftToRight
+                              ? Qt::AlignLeft|Qt::AlignVCenter : Qt::AlignRight|Qt::AlignVCenter;
     return option;
 }
 

@@ -745,19 +745,22 @@ void QLabel::paintEvent(QPaintEvent *)
     const int mov = 0;
 #endif
 
+    int align = d->align;
+    if ((align & Qt::AlignHorizontal_Mask) == Qt::AlignAuto)
+        align |= QStyle::horizontalAlignment(layoutDirection(), QFlag(d->align));
+
     if (!mov && !pix && !pic) {
         int m = indent();
         if (m < 0 && frameWidth()) // no indent, but we do have a frame
             m = fontMetrics().width('x') / 2 - d->margin;
         if (m > 0) {
-            int hAlign = QStyle::horizontalAlignment(layoutDirection(), QFlag(d->align));
-            if (hAlign & Qt::AlignLeft)
+            if (align & Qt::AlignLeft)
                 cr.setLeft(cr.left() + m);
-            if (hAlign & Qt::AlignRight)
+            if (align & Qt::AlignRight)
                 cr.setRight(cr.right() - m);
-            if (d->align & Qt::AlignTop)
+            if (align & Qt::AlignTop)
                 cr.setTop(cr.top() + m);
-            if (d->align & Qt::AlignBottom)
+            if (align & Qt::AlignBottom)
                 cr.setBottom(cr.bottom() - m);
         }
     }
@@ -765,8 +768,7 @@ void QLabel::paintEvent(QPaintEvent *)
 #ifndef QT_NO_MOVIE
     if (mov) {
         // ### should add movie to qDrawItem
-        QRect r = style()->itemRect(&paint, cr, d->align, isEnabled(), mov->framePixmap(),
-                                    QString::null);
+        QRect r = style()->itemRect(&paint, cr, align, isEnabled(), mov->framePixmap(), QString::null);
         // ### could resize movie frame at this point
         paint.drawPixmap(r.x(), r.y(), mov->framePixmap());
     }
@@ -779,9 +781,9 @@ void QLabel::paintEvent(QPaintEvent *)
         layout->setPageSize(QSize(cr.width(), INT_MAX));
         int rh = layout->sizeUsed().height();
         int yo = 0;
-        if (d->align & Qt::AlignVCenter)
+        if (align & Qt::AlignVCenter)
             yo = (cr.height()-rh)/2;
-        else if (d->align & Qt::AlignBottom)
+        else if (align & Qt::AlignBottom)
             yo = cr.height()-rh;
         QAbstractTextDocumentLayout::PaintContext context;
         context.textColorFromPalette = true;
@@ -831,13 +833,13 @@ void QLabel::paintEvent(QPaintEvent *)
         } else {
             int xo = 0;
             int yo = 0;
-            if (d->align & Qt::AlignVCenter)
+            if (align & Qt::AlignVCenter)
                 yo = (cr.height()-rh)/2;
-            else if (d->align & Qt::AlignBottom)
+            else if (align & Qt::AlignBottom)
                 yo = cr.height()-rh;
-            if (d->align & Qt::AlignRight)
+            if (align & Qt::AlignRight)
                 xo = cr.width()-rw;
-            else if (d->align & Qt::AlignHCenter)
+            else if (align & Qt::AlignHCenter)
                 xo = (cr.width()-rw)/2;
             paint.drawPicture(cr.x()+xo-br.x(), cr.y()+yo-br.y(), *pic);
         }
@@ -856,14 +858,12 @@ void QLabel::paintEvent(QPaintEvent *)
             pix = *d->pix;
         }
 #endif
-        int alignment = d->align;
         QStyleOption opt(0);
         opt.init(this);
-        if ((alignment & Qt::TextShowMnemonic)
-                && !style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
-            alignment |= Qt::TextHideMnemonic;
+        if ((align & Qt::TextShowMnemonic) && !style()->styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
+            align |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
-        style()->drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);
+        style()->drawItem(&paint, cr, align, palette(), isEnabled(), pix, d->ltext);
     }
 }
 

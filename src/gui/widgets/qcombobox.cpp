@@ -1478,7 +1478,9 @@ void QComboBox::paintEvent(QPaintEvent *)
             textRect.setLeft(textRect.left() + 1);
             textRect.setRight(textRect.right() -1 );
             painter.setClipRect(textRect);
-            painter.drawText(textRect, Qt::AlignAuto|Qt::AlignVCenter, txt);
+            Qt::Alignment align = layoutDirection() == Qt::LeftToRight ?
+                                  Qt::AlignLeft|Qt::AlignVCenter : Qt::AlignRight|Qt::AlignVCenter;
+            painter.drawText(textRect, align, txt);
         }
     }
 }
