@@ -397,6 +397,7 @@ QByteArray qt_olednd_obtain_data(const char *format)
                 HGLOBAL hText = medium.hGlobal;
                 const QByteArray r = QByteArray::fromRawData((char*)GlobalLock(hText), GlobalSize(hText));
                 result = wm->convertToMime(r,format,cf);
+		result.detach(); // insure that we no longer reference the global data.
                 GlobalUnlock(hText);
                 ReleaseStgMedium(&medium);
             }
