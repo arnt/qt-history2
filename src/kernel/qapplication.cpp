@@ -587,11 +587,6 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 
 void QApplication::construct( int &argc, char **argv, Type type )
 {
-
-#if defined(QT_THREAD_SUPPORT)
-    qt_mutex = new QMutex(TRUE);
-#endif
-
     qt_is_gui_used = (type != Tty);
     init_precmdline();
     static const char *empty = "";
@@ -602,6 +597,10 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
     initialize( argc, argv );
+
+#if defined(QT_THREAD_SUPPORT)
+    qt_mutex = new QMutex(TRUE);
+#endif
 }
 
 
