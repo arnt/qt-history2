@@ -380,6 +380,20 @@ SOURCE=.\Template\toolbar.h
 # End Source File
 # Begin Source File
 
+SOURCE=.\Template\view.cpp
+# PROP Exclude_From_Scan -1
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\Template\view.h
+# PROP Exclude_From_Scan -1
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
 SOURCE=.\Template\window.cpp
 # PROP Exclude_From_Scan -1
 # PROP BASE Exclude_From_Build 1
@@ -388,6 +402,20 @@ SOURCE=.\Template\window.cpp
 # Begin Source File
 
 SOURCE=.\Template\window.h
+# PROP Exclude_From_Scan -1
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\Template\workspace.cpp
+# PROP Exclude_From_Scan -1
+# PROP BASE Exclude_From_Build 1
+# PROP Exclude_From_Build 1
+# End Source File
+# Begin Source File
+
+SOURCE=.\Template\workspace.h
 # PROP Exclude_From_Scan -1
 # PROP BASE Exclude_From_Build 1
 # PROP Exclude_From_Build 1

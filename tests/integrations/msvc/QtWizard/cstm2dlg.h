@@ -23,6 +23,7 @@ public:
 	BOOL	m_bStatusBar;
 	BOOL	m_bToolBar;
 	BOOL	m_bComments;
+	BOOL	m_bMDI;
 	//}}AFX_DATA
 	CStatic	m_ctrlPicture;
 	CStatic m_ctrlDetail;

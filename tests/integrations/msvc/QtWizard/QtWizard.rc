@@ -114,19 +114,21 @@ IDD_CUSTOM2 DIALOG DISCARDABLE  0, 0, 303, 197
 STYLE DS_CONTROL | WS_CHILD | WS_TABSTOP
 FONT 8, "MS Sans Serif"
 BEGIN
-    GROUPBOX        "GUI Options",IDC_STATIC,144,4,154,75
+    GROUPBOX        "GUI Options",IDC_STATIC,144,4,154,97
     CONTROL         "Add a menu bar",IDC_MENUBAR,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,149,15,66,10
     CONTROL         "Add a toolbar",IDC_TOOLBAR,"Button",BS_AUTOCHECKBOX | 
                     WS_TABSTOP,149,26,58,10
     CONTROL         "Add a status bar",IDC_STATUSBAR,"Button",
                     BS_AUTOCHECKBOX | WS_TABSTOP,149,37,67,10
-    LTEXT           "Central widget class",IDC_STATIC,149,52,64,8
-    COMBOBOX        IDC_CENTRALWIDGET,149,62,109,135,CBS_DROPDOWN | CBS_SORT | 
+    LTEXT           "View widget type",IDC_STATIC,149,50,54,8
+    COMBOBOX        IDC_CENTRALWIDGET,149,60,109,135,CBS_DROPDOWN | CBS_SORT | 
                     WS_VSCROLL | WS_TABSTOP
     CONTROL         "Generate source code comments",IDC_COMMENTS,"Button",
-                    BS_AUTOCHECKBOX | WS_TABSTOP,149,93,121,10
-    GROUPBOX        "Generated source options",IDC_STATIC,144,80,154,40
+                    BS_AUTOCHECKBOX | WS_TABSTOP,149,116,121,10
+    GROUPBOX        "Generated source options",IDC_STATIC,144,103,154,40
+    CONTROL         "MDI Support",IDC_MDI,"Button",BS_AUTOCHECKBOX | 
+                    WS_TABSTOP,149,76,56,10
 END
 
 
@@ -153,6 +155,10 @@ FILENEW.BMP             TEMPLATE DISCARDABLE    "Template\\filenew.bmp"
 BACKGROUND.PNG          TEMPLATE DISCARDABLE    "Template\\background.png"
 CUSTOM.CPP              TEMPLATE DISCARDABLE    "Template\\custom.cpp"
 CUSTOM.H                TEMPLATE DISCARDABLE    "Template\\custom.h"
+VIEW.CPP                TEMPLATE DISCARDABLE    "Template\\view.cpp"
+VIEW.H                  TEMPLATE DISCARDABLE    "Template\\view.h"
+WORKSPACE.CPP           TEMPLATE DISCARDABLE    "Template\\workspace.cpp"
+WORKSPACE.H             TEMPLATE DISCARDABLE    "Template\\workspace.h"
 
 /////////////////////////////////////////////////////////////////////////////
 //

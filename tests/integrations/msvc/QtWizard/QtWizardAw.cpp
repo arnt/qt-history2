@@ -71,11 +71,14 @@ void CQtWizardAppWiz::CustomizeProject(IBuildProject* pProject)
 	IConfigurations* pConfigurations;
 	CString strTmp;
 	char buffer[ 256 ];
-	VARIANT varConfig, var;
+	VARIANT varConfig, var, varBool;
 	IUnknown* pUnk;
 	IEnumVARIANT* pEnum;
+	CString strFile, strMocFile, strMoc;
+	HRESULT hr;
 
 	GetEnvironmentVariable( "QTDIR", &buffer[ 0 ], 256 );
+	strMoc = CString( &buffer[ 0 ] ) + "\\bin\\moc.exe ";
 
 	if( SUCCEEDED( pProject->get_Configurations( &pConfigurations ) ) )
 	{
@@ -97,6 +100,25 @@ void CQtWizardAppWiz::CustomizeProject(IBuildProject* pProject)
 						pConfiguration->AddToolSettings( CString( "link.exe" ).AllocSysString(), strTmp.AllocSysString(), var );
 						
 						pConfiguration->AddToolSettings( CString( "mfc" ).AllocSysString(), CString( "0" ).AllocSysString(), var );
+
+						varBool.vt = VT_BOOL;
+
+						strFile = QtWizardaw.m_Dictionary[ "Root" ] + "Menu";
+						strMocFile = "moc_"+ strFile + ".cpp";
+
+						varBool.boolVal = true;
+						hr = pProject->AddFile( strMocFile.AllocSysString(), varBool );
+						varBool.boolVal = false;
+						hr = pConfiguration->AddCustomBuildStepToFile( CString( strFile + ".h" ).AllocSysString(), CString( strMoc + "$(InputDir)\\$(InputName).h -o " + strMocFile ).AllocSysString(), strMocFile.AllocSysString(), CString( "MOCing " + strFile + ".h ..." ).AllocSysString(), varBool );
+
+						strFile = QtWizardaw.m_Dictionary[ "Root" ] + "Toolbar";
+						strMocFile = "moc_"+ strFile + ".cpp";
+
+						varBool.boolVal = true;
+						pProject->AddFile( strMocFile.AllocSysString(), varBool );
+						varBool.boolVal = false;
+						pConfiguration->AddCustomBuildStepToFile( CString( strFile + ".h" ).AllocSysString(), CString( strMoc + "$(InputDir)\\$(InputName).h -o " + strMocFile ).AllocSysString(), strMocFile.AllocSysString(), CString( "MOCing " + strFile + ".h ..." ).AllocSysString(), varBool );
+
 						pConfiguration->Release();
 						pConfiguration = NULL;
 					}
@@ -128,7 +150,6 @@ const CString CQtWizardAppWiz::m_WidgetTypes[] =
 	"QMultiLineEdit",
 	"QProgressBar",
 	"QTextBrowser",
-	"QWorkspace",
 	"Custom widget (QWidget)"
 };
 
@@ -144,6 +165,27 @@ const bool CQtWizardAppWiz::m_bSupportsetText[] =
 	1,
 	0,
 	1,
-	0,
 	0
 };
+
+void CQtWizardAppWiz::splitFileName( CString& strFile, CString& strPath, CString& strName, CString& strExt )
+{
+	int pathpos, extpos;
+
+    // cut file into filepath and file
+    pathpos = strFile.ReverseFind( '\\' );
+
+    if ( pathpos != -1 )
+	{
+		strPath = strFile.Left( pathpos + 1 );
+		strFile = strFile.Mid( pathpos + 1 );
+    }
+    // cut file into filetitle and fileext (without dot)
+    extpos = strFile.ReverseFind( '.' );
+    if ( extpos != -1 )
+	{
+		strName = strFile.Left( extpos );
+		strExt = strFile.Mid( extpos + 1 );	
+    }
+}
+

@@ -8,8 +8,9 @@
 
 class C$$Root$$Toolbar : public QToolBar
 {
+	Q_OBJECT
 public:
-	C$$Root$$Toolbar( QMainWindow* pParent, QApplication* pApp );
+	C$$Root$$Toolbar( QMainWindow* pParent );
 	virtual ~C$$Root$$Toolbar();
 
 $$IF(QT_COMMENTS)
@@ -39,4 +40,11 @@ $$ENDIF
 	static const QString m_strButtonTexts[ BUTTON_MAX ];
 	static const QString m_strButtonNames[ BUTTON_MAX ];
 	static const QString m_strButtonImages[ BUTTON_MAX ];
+	static const QString m_strSignals[ BUTTON_MAX ];
+
+signals:
+	void sigFileNew( void );
+	void sigFileOpen( void );
+	void sigFileSave( void );
+	void sigFilePrint( void );
 };

@@ -23,6 +23,8 @@ menu.h	.\$$Root$$Menu.h
 menu.cpp	.\$$Root$$Menu.cpp
 toolbar.h	.\$$Root$$Toolbar.h
 toolbar.cpp	.\$$Root$$Toolbar.cpp
+view.h	.\$$Root$$View.h
+view.cpp	.\$$Root$$View.cpp
 $$ENDIF
 
 $$IF(QT_CUSTOMWIDGET)
@@ -30,13 +32,15 @@ custom.h	.\$$Root$$Widget.h
 custom.cpp	.\$$Root$$Widget.cpp
 $$ENDIF
 
+$$IF(QT_MDI)
+workspace.h	.\$$Root$$Workspace.h
+workspace.cpp	.\$$Root$$Workspace.cpp
+:=background.png	.\background.png
+$$ENDIF
+
 $$IF(QT_TOOLBAR)
 :=filenew.bmp	.\filenew.bmp
 :=fileopen.bmp	.\fileopen.bmp
 :=filesave.bmp	.\filesave.bmp
 :=fileprint.bmp	.\fileprint.bmp
-$$ENDIF
-
-$$IF(QT_BACKGROUND)
-:=background.png	.\background.png
 $$ENDIF

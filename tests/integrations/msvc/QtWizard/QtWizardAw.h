@@ -19,6 +19,7 @@ public:
 	virtual void InitCustomAppWiz();
 	virtual void ExitCustomAppWiz();
 	virtual void CustomizeProject(IBuildProject* pProject);
+	void splitFileName( CString& strFile, CString& strPath, CString& strName, CString& strExt );
 
 protected:
 	CDialogChooser* m_pChooser;
@@ -43,7 +44,6 @@ public:
 		WIDGET_MULTILINEEDIT,
 		WIDGET_PROGRESSBAR,
 		WIDGET_TEXTBROWSER,
-		WIDGET_WORKSPACE,
 		WIDGET_CUSTOM,
 
 		WIDGET_MAX

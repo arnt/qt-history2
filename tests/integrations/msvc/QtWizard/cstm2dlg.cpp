@@ -58,6 +58,7 @@ CCustom2Dlg::CCustom2Dlg()
 	m_bStatusBar = true;
 	m_bToolBar = true;
 	m_bComments = true;
+	m_bMDI = true;
 	//}}AFX_DATA_INIT
 }
 
@@ -114,6 +115,7 @@ void CCustom2Dlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_STATUSBAR, m_bStatusBar);
 	DDX_Check(pDX, IDC_TOOLBAR, m_bToolBar);
 	DDX_Check(pDX, IDC_COMMENTS, m_bComments);
+	DDX_Check( pDX, IDC_MDI, m_bMDI );
 	//}}AFX_DATA_MAP
 }
 
@@ -172,15 +174,6 @@ BOOL CCustom2Dlg::OnDismiss()
 		QtWizardaw.m_Dictionary.RemoveKey( "QT_COMMENTS" );
 	}
 
-	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_WORKSPACE ] )
-	{
-		QtWizardaw.m_Dictionary[ "QT_BACKGROUND" ] = "background.png";
-	}
-	else
-	{
-		QtWizardaw.m_Dictionary.RemoveKey( "QT_BACKGROUND" );
-	}
-
 	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_CUSTOM ] )
 	{
 		QtWizardaw.m_Dictionary[ "QT_CUSTOMWIDGET" ] = "Yes";
@@ -188,6 +181,15 @@ BOOL CCustom2Dlg::OnDismiss()
 	else
 	{
 		QtWizardaw.m_Dictionary.RemoveKey( "QT_CUSTOMWIDGET" );
+	}
+
+	if ( m_bMDI )
+	{
+		QtWizardaw.m_Dictionary[ "QT_MDI" ] = "Yes";
+	}
+	else
+	{
+		QtWizardaw.m_Dictionary.RemoveKey( "QT_MDI" );
 	}
 
 	return TRUE;	// return FALSE if the dialog shouldn't be dismissed

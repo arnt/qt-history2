@@ -9,7 +9,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-C$$Root$$Toolbar::C$$Root$$Toolbar( QMainWindow* pParent, QApplication* pApp ) :
+C$$Root$$Toolbar::C$$Root$$Toolbar( QMainWindow* pParent ) :
 	QToolBar( pParent )
 {
 	int i;
@@ -21,7 +21,7 @@ $$ENDIF
 	for( i = 0; i < BUTTON_MAX; i++ )
 	{
 		m_pPixmaps[ i ] = new QPixmap( m_strButtonImages[ i ] );
-		m_pButtons[ i ] = new QToolButton( *m_pPixmaps[ i ], m_strButtonNames[ i ], m_strButtonTexts[ i ], NULL, NULL, this );
+		m_pButtons[ i ] = new QToolButton( *m_pPixmaps[ i ], m_strButtonNames[ i ], m_strButtonTexts[ i ], this, m_strSignals[ i ], this );
 	}
 }
 
@@ -62,3 +62,10 @@ const QString C$$Root$$Toolbar::m_strButtonImages[ BUTTON_MAX ] =
 	"fileprint.bmp"
 };
 
+const QString C$$Root$$Toolbar::m_strSignals[ BUTTON_MAX ] =
+{
+	SIGNAL( sigFileNew() ),
+	SIGNAL( sigFileOpen() ),
+	SIGNAL( sigFileSave() ),
+	SIGNAL( sigFilePrint() )
+};
