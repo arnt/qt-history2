@@ -22,23 +22,56 @@ Connectivity), QOCI (Oracle), QPSQL6 (PostgreSQL 6), QPSQL7 (PostgreSQL
 </para>
 
 <para>
-Although you can use the Qt data-aware widgets to browse and edit data in
-SQL databases without having to write any SQL, a basic
-understanding of SQL is highly recommended. We assume some familiarity
-with <literal>SELECT</>, &i;, &u; and
-&d; statements and with the concept of foreign keys. A
-standard text covering SQL databases is <citetitle pubwork="book">An
-Introduction to Database Systems (7th ed.)</> by C. J. Date, ISBN
-0201385902. 
+Although you can use the Qt data-aware widgets to browse and edit data
+in SQL databases without having to write any SQL, a basic understanding
+of SQL is highly recommended. We assume some familiarity with
+<literal>SELECT</>, &i;, &u; and &d; statements. We also assume a basic
+understanding of the concepts of normalisation and of primary and
+foreign keys. A standard text covering SQL databases is <citetitle
+pubwork="book">An Introduction to Database Systems (7th ed.)</> by C. J.
+Date, ISBN 0201385902. 
 </para>
 
+<para>
+In the following text we describe the creation of the 'book'
+application. The application demonstrates how to use &st;s including
+in-place record editing and drilldown from one &st; to another. It also
+demonstrates how to create &sd;s for data-aware forms. A great deal of
+functionality is available from the classes directly in &qd;, but
+where extra power is required, for example for foreign key handling,
+we explain how to subclass to achieve finer control. 
+<screenshot>
+<graphic format="jpg" fileref="images/book.jpg"></graphic>
+</screenshot>
+</para>
+
+<sidebar><title>The Example Schema</title>
 <para>
 Note that the examples in this chapter all use the tables, views and
 records which are defined in the
 <filename>designer/eg/book.sql</> file. This file has been
 tested with PostgreSQL 6. You may need to modify the SQL in this file to
-recreate the example database on your own system.
+recreate the example database on your own system. 
+<example><title>Schema <literal>CREATE TABLE</> Statements</><programlisting>
+CREATE TABLE author (id int primary key, forename varchar(40), surname varchar(40));
+CREATE TABLE book (id int primary key, title varchar(40), price float, authorid int, formatid int);
+CREATE TABLE format (id int primary key, name varchar(20));
+</programlisting></example>
+The book table is simplified for the purposes of example. It can only
+relate a book to a single author (authorid) and lacks an ISBN field.
+The format table is used to store 'paperpack', 'hardback', etc.
+<example><title>Schema <literal>CREATE VIEW</> Statements</><programlisting>
+CREATE VIEW book_view AS (SELECT book.id AS id, book.title AS title,
+book.price AS price, authorid, format.name AS format FROM book, author,
+format WHERE book.authorid=author.id AND book.formatid=format.id);
+CREATE VIEW author_view AS (SELECT author.id AS id, author.forename || ' ' || author.surname AS name);
+</programlisting></example>
+The book_view is used to present the book's format as a textual value
+rather than as a raw id. The author_view has a one-to-one correspondence
+with the author table and allows us to select an author on the basis of
+a single field, in a combobox for example.
 </para>
+</sidebar>
 
 <sect1 id="setting-up-database-connections">
 <title>Setting Up Database Connections</>
@@ -70,24 +103,30 @@ recreate the example database on your own system.
 	Connection information has been completed click
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
-	dialog. You can now close the dialog; the connection will remain
-	in force until you delete it or quit &qd;. 
+	dialog. You can now close the dialog; the connection settings
+	will remain in force until you change or delete them or quit &qd;. 
 	</para>
 
 	<para>
 	&qd; can remember database connection settings in
 	<application>qmake</> project files. Create a new project, e.g.
-	choose <guimenuitem>File|New Project</> and complete the Project
-	Settings dialog. Next time you start <emphasis>Qt Designer</>
-	instead of opening individual <literal>.ui</> files open the
+	click <guimenuitem>File|New Project</> and complete the Project
+	Settings dialog. (See <xref linkend="using-project-files">
+	"Using Project Files".) Next time you start &qd; instead of
+	opening individual <literal>.ui</> files open the
 	<literal>.pro</> project file instead and &qd; will
-	automatically make the connections you have set up. (See <xref
-	linkend="using-project-files"> "Using Project Files".) Opening a
-	project file will also cause &qd; to load in the list of forms
-	associated with the project into the Form List window. In most
-	of the discussion that follows we will assume that you have made
-	the connection and use project files so that the connection is
-	always live when you work in &qd;.
+	automatically reload the project's connection settings.  To
+	activate the connection click <guimenuitem>Edit|Database
+	Connections</>. The connections previously saved with the
+	project will be listed in the left hand list box. Click the
+	connection you wish to use and then click <guibutton>Connect</>.
+	This connection will be used from now on, e.g. for previewing
+	&st;s. Opening a project file also causes &qd; to load in the
+	list of forms associated with the project into the Form List
+	window. In most of the discussion that follows we will assume
+	that you use project files and have clicked <guibutton>Connect</>
+	so that there is always a connection available when you work in
+	&qd;.
 	</para>
 
     </sect2>
@@ -147,6 +186,14 @@ int main( int argc, char *argv[] )
 	url="http://doc.trolltech.com/sql.html">Qt SQL Module
 	documentation</>.
 	</para>
+	
+	<para>
+	Note that we do not need to keep a reference to database
+	connections. If you use a single database connection, the
+	"default" connection, any database functions will use this
+	connection automatically. We can always get a pointer to
+	a connection by calling <function>QSqlDatabase::database</>.
+	</para>
 
     </sect2>
 </sect1>
@@ -156,22 +203,27 @@ int main( int argc, char *argv[] )
 
     <para>
     &st;s may be placed on any form and provide browsing of database
-    tables and views. &st;s can also be used to insert new records or
-    update or delete existing records, but inserting data usually
-    requires some subclassing. If we wish to present records using a
-    form view (perhaps combining several tables and views) we would use
-    a &sd; or <classname>QSqlWidget</>.
+    tables and views. &st;s can also be used to update or delete
+    records in-place. Inserting records via a &st; usually requires some
+    subclassing, so that we can generate primary keys for example, or
+    provide default values. If we wish to present records using a form
+    view (perhaps combining several tables and views) we would use a
+    &sd;; see <xref linkend="using-qdialog-to-create-data-aware-forms">
+    "Using &sd; to Create Data-Aware Forms". 
     </para>
 
     <sect2 id="quickly-viewing-a-database-table">
     <title>Quickly Viewing a Database Table</>
 
 	<para>
-	Start a new project by clicking <guimenuitem>File|New
-	Project</>. Complete the dialog by entering a project name and a
-	project file name. In our first example the project is
-	called 'Book' and the project file
-	<filename>designer/eg/book1/book.pro</>. Now click
+	This example, along with all the other examples in this
+	chapter, has the project name 'book' and uses the database
+	created by the <filename>book.sql</> script. As we work through
+	the chapter we will build the 'book' application. The project
+	file for this first example is
+	<filename>designer/eg/book1/book.pro</>. Start a new project by
+	clicking <guimenuitem>File|New Project</>. Complete the dialog
+	by entering a project name and a project file name.  Now click
 	<guimenuitem>Edit|Database Connections</>. Fill in the
 	connection information appropriate to your database then press
 	<guibutton>Connect</>. The connection name should now appear in
@@ -183,34 +235,113 @@ int main( int argc, char *argv[] )
 	<para>
 	Click <guimenuitem>File|New</>. The New Form dialog presents us
 	with a number of form templates to choose from. Choose the
-	'Dialog' form and click &ok;. Now click
-	<guimenuitem>File|Save</>. You will be prompted for a filename,
-	call it <filename>book.ui</>. 
+	'Dialog' form, <emphasis>not</> 'SQL Dialog', and click &ok;.
+	Now click <guimenuitem>File|Save</>. You will be prompted for a
+	filename, call it <filename>book.ui</>. 
 	</para>
 
 	<para>
-	If you look at the widget toolbar to the right of the
-	<classname>QTable</> toolbutton you should see the
-	&st; toolbutton. Click the
-	&st; toolbutton and then click on the form to
-	place the &st; on the form. Now click on the
-	form again and click the <guibutton>Lay out Vertically</>
-	toolbar button. We now need to connect the form's
-	&st; to a table or view in the database.
-	Click the &st; and look at the very last
-	property, 'Database', in the Property window. Expand this
-	property by clicking the + sign. The Connection field is already
-	filled in with the default connection. Click on the Table field
-	and choose the book_view view. Now click
-	<guimenuitem>Preview|Preview Form</>; the form will run and the
-	table will automatically display all the records.
+	To place a &st; widget on the form either click
+	<guimenuitem>Tools|Views|QSqlTable</> or click the &st; toolbar
+	button (to the right of the <classname>QTable</> toolbar
+	button). Click on the form and the SQL Table Wizard dialog will
+	appear. 
+
+	<orderedlist numeration="arabic">
+	    <listitem>
+		<para>
+		The <emphasis>Database Connection and Table</>
+		wizard page is used to set up a connection if one doesn't exist
+		and to choose the table or view for the &st;. (See <xref
+		linkend="setting-up-qt-designers-connections"> "Setting
+		Up &qd;'s Connections".)
+		</para>
+
+		<para>
+		Click the connection you wish to use, listed in the left hand
+		list box, e.g. "(default)". The tables and views will appear in
+		the right hand Table list box. Click the book_view view and then
+		click the <guibutton>Next</> button. 
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		The <emphasis>Displayed Fields</> wizard page
+		wizard provides a means of selecting which fields should be
+		displayed in the &st; and in what order. By default all fields
+		except the primary key (if there is one) are in the right hand
+		Displayed Fields list box. The left and right blue arrow buttons
+		can be used to move fields between the Displayed Fields and the
+		Available Fields list boxes. The blue up and down arrow buttons
+		are used to select the display order of the displayed fields. 
+		</para>
+
+		<para>
+		Move the id and authorid fields to the Available Fields list
+		box. Move the title field to the top of the Displayed Fields
+		list box followed by the price field. Click <guibutton>Next</>.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		The <emphasis>Table Properties</> wizard page
+		provides convenient access to the database-related properties of
+		the &st;. 
+		</para>
+
+		<para>
+		Click the Read-Only checkbox, then click <guibutton>Next</>.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		The <emphasis>SQL</> wizard page is used to set
+		the &st;'s Filter and Sort properties. The Filter is an SQL
+		<literal>WHERE</> clause (without the word 'WHERE'). For
+		example, to only list books whose titles begin with 'T', we
+		would enter <literal>title LIKE 'T%'</>. The Available Fields
+		list box lists all the fields. The Sort By list box lists the
+		fields that the &st; is to sort by and the direction of their
+		sorting (ASCending or DESCending). The left and right blue
+		arrows are used to move fields between the two list boxes. The
+		up and down blue arrows move fields up and down within the Sort
+		By list box. The ASC or DESC setting is changed with the sort
+		order button.
+		</para>
+
+		<para>
+		Move the title field into the Sort By list box and click
+		<guibutton>Finish</>.
+		</para>
+	    </listitem>
+	</orderedlist>
+	</para>
+
+	<para>
+	The table will appear on the form with each column labelled with
+	a default column name. If you wish to change the settings
+	most of them are available in the property window. The display
+	names, the fields they are based upon, and the order of
+	appearance of the columns can be changed using the Edit Table
+	dialog (explained later) by right clicking the &st; and left
+	clicking Edit.
+	</para>
+
+	<para>
+	Click on the form and click the <guibutton>Lay out Vertically</>
+	toolbar button. Now click <guimenuitem>Preview|Preview Form</>;
+	the form will run and the table will automatically display all
+	the records.
 	</para>
 
 	<para>
 	This example shows how quick and easy it is to use
 	&st; to show the contents of a database table
-	or view. In real applications we will need more functionality,
-	for example choosing which fields to display and in what order,
+	or view. However, in real applications we will need more
+	functionality, for example making the table or view editable,
 	displaying more than one table and relating the tables together.
 	</para>
 
@@ -263,35 +394,109 @@ int main( int argc, char *argv[] )
 	<para>
 	Open the book project if it isn't already in &qd;. We will
 	modify this project to show two &st;s that
-	relate the author table to the book_view view. Click the
-	book_view &st; and then click the <guibutton>Break
-	Layout</> toolbutton. Drag the top of the
-	&st; down so that it only occupies the top
-	half of the form. Since we're going to be subclassing it is a
-	good idea to give our own names to the widgets we are going to
-	use since we will be referring to them in code. Click the
-	book_view &st; and change its name to "BookQSqlTable".
-	Click the form and change its name to "BookFormBase". (Our
-	subclass will be called "BookForm".) Now click on the
-	&st; toolbutton and click on the top half of
-	the form. Change this &st;'s name to
-	"AuthorQSqlTable" and set its Table property to author.
-	Shift+Click the bottom &st; so that both
-	&st;s are selected and then click the <guibutton>Lay out
-	Vertically (in Splitter)</> toolbar button. Click on the form
-	and click the <guibutton>Lay out Vertically</> toolbar button. 
+	relate the author table to the book_view view. 
+
+	<orderedlist numeration="arabic">
+	    <listitem>
+		<para>
+		Click the book_view &st; and then click the
+		<guibutton>Break Layout</> toolbutton.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Drag the top of the &st; down so that it only occupies
+		the bottom half of the form.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Since we're going to be subclassing it is a good
+		idea to give our own names to the widgets we are going to use
+		since we will be referring to them in code. Click the book_view
+		&st; and change its name to "BookQSqlTable". Click the form and
+		change its name to "BookFormBase". (Our subclass will be called
+		"BookForm".) 
+		</para>
+	    </listitem>
+		
+	    <listitem>
+		<para>
+		Now click on the &st; toolbutton and click on the top
+		half of the form. The SQL Table Wizard will appear.
+		(This Wizard is explained in <xref
+		linkend="quickly-viewing-a-database-table"> "Quickly
+		Viewing a Database Table".) 
+		<orderedlist numeration="arabic" inheritnum="inherit">
+		    <listitem>
+			<para>
+			Click the connection you're using and click the
+			author table. Click the <guibutton>Next</> button.
+			</para>
+		    </listitem>
+
+		    <listitem>
+			<para>
+			The Displayed Fields page shows the id field in
+			the Available Fields list box and the surname
+			and forename fields in the Displayed Fields list
+			box. Move the forename field to the top and then
+			click the <guibutton>Next</> button.
+			</para>
+		    </listitem>
+
+		    <listitem>
+			<para>
+			On the Table Properties page click Confirm
+			Deletes then click the <guibutton>Next</>
+			button.
+			</para>
+		    </listitem>
+
+		    <listitem>
+			<para>
+			On the SQL page we will leave the Filter
+			(<literal>WHERE</> clause) empty. Move the
+			surname field to the Sort By list box and click
+			<guibutton>Finish</>.
+			</para>
+		    </listitem>
+
+		    <listitem>
+			<para>
+			Change this &st;'s name to "AuthorQSqlTable".
+			</para>
+		    </listitem>
+		</orderedlist>
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Shift+Click the bottom &st; so that both &st;s
+		are selected and then click the <guibutton>Lay out Vertically
+		(in Splitter)</> toolbar button. 
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Click on the form and click the <guibutton>Lay
+		out Vertically</> toolbar button. 
+		</para>
+	    </listitem>
+	</orderedlist>
 	</para>
 
 	<para>
 	Run the form by clicking <guimenuitem>Preview|Preview Form</>.
 	All the authors are displayed in the top &st;
 	and all the books are displayed in the bottom
-	&st;. Unfortunately we only want the books of
-	the currently selected author showing in the bottom
-	&st;. We also want to choose which fields are
-	displayed and their order of display. Refining our query is
-	achieved by subclassing. &qd;'s table editor is used to set the
-	properties of displayed tables.
+	&st;. Unfortunately we only want the books of the currently
+	selected author showing in the bottom &st;: we will achieve this
+	through subclassing. 
 	</para>
 
 	<sidebar><title>Using the Table Editor</>
@@ -299,26 +504,53 @@ int main( int argc, char *argv[] )
 	<screenshot>
 	<graphic format="jpg" fileref="images/edit-table-dialog.jpg"></graphic>
 	</screenshot>
-	The table editor is invoked by right clicking the
-	&st; and left clicking the
-	<guimenuitem>Edit</> menu item. The right hand half of the Edit
-	Table dialog is where we choose the fields we wish to display,
-	their order and their labels. The procedure for creating columns
-	is as follows:
+	&st;s are created and set up using the SQL Table Wizard. Like
+	any other &qd; widget their properties may be changed in the
+	Properties window. Some of the column and row based properties
+	can also be be changed using the Edit Table dialog. This
+	dialog is invoked by right clicking the &st; and left
+	clicking the <guimenuitem>Edit</> menu item. The right hand half
+	of the Edit Table dialog is where we choose the fields we wish
+	to display, their order and their labels. The procedure for
+	creating columns is as follows:
+
 	<orderedlist numeration="arabic">
-	<listitem><para>Click the <guibutton>New Column</>
-	button</para></listitem> 
-	<listitem><para>Click the triangle at the right hand side of the
-	Field combobox to drop down the list of available
-	fields</para></listitem>
-	<listitem><para>Click the field you wish to include at this
-	point</para></listitem>
-	<listitem><para><emphasis>Optionally</> edit the Label if the
-	default isn't appropriate</para></listitem>
-	<listitem><para><emphasis>Optionally</> click the Pixmap
-	<guibutton>...</> button to choose a pixmap to be displayed to
-	the left of the column's label</para></listitem>
+	    <listitem>
+		<para>
+		Click the <guibutton>New Column</> button
+		</para>
+	    </listitem> 
+
+	    <listitem>
+		<para>
+		Click the triangle at the right hand side of the
+		Field combobox to drop down the list of available
+		fields
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Click the field you wish to include at this point
+		</para>
+	    </listitem>
+
+	    <listitem>
+	    <para>
+		<emphasis>Optionally</> edit the Label if the default
+		isn't appropriate 
+	    </para>
+	    </listitem>
+
+	    <listitem>
+	    <para>
+	    <emphasis>Optionally</> click the Pixmap <guibutton>...</>
+	    button to choose a pixmap to be displayed to the left of the
+	    column's label
+	    </para>
+	    </listitem>
 	</orderedlist>
+
 	Repeat the steps listed above for each column you wish to add.
 	Once all the fields have been added you can change their
 	ordering by using the blue up and down arrow buttons. At any
@@ -330,14 +562,6 @@ int main( int argc, char *argv[] )
 	</sidebar>
 
 	<para>
-	Use the table editor to change the appearance of the
-	&st;s: make the author table display the
-	forename and surname with labels "Forename" and "Surname" and
-	make the book_view &st; display the "Title",
-	"Price" and "Format". 
-	</para>
-
-	<para>
 	Now that we have set up the visual design we need to create a
 	slot on the form so that as the user navigates through the
 	author table the book view can be updated to show only those
@@ -345,27 +569,42 @@ int main( int argc, char *argv[] )
 	<classname>QSqlRecord</> pointer to the slot so we need to
 	create a forward declaration of this class, then we need to
 	create the slot and connect it.
-	<itemizedlist mark="bullet" spacing="compact">
-	<listitem><para>Click <guimenuitem>Edit|Form Settings</> to
-	invoke the Form Settings dialog. Click the <guibutton>New
-	Forward</> button and replace the text in the edit box under the
-	New Forward button with <literal>class QSqlRecord;</>. Now click
-	&ok;.</para></listitem>
-	<listitem><para>Click <guimenuitem>Edit|Slots</> to invoke the
-	Edit Slots dialog. Click the <guibutton>New Slot</> button and
-	change the default slot name in the Slot edit box to
-	<literal>slotNewAuthor(const SqlRecord *)</>. Now click
-	&ok;.</para></listitem>
-	<listitem><para>Click on the <guibutton>Connect Signals/Slots</>
-	toolbar button then click on the author table and drag to the
-	form; release the mouse button over the form. The Edit Connections
-	dialog should appear with the signals list entitled Signals
-	(AuthorSqlTable) and the slots list entitled Slots
-	(BookFormBase). Click the currentChanged signal. The list of
-	slots will change to show our slotNewAuthor slot; click
-	slotNewAuthor to make the connection. Now click
-	&ok;.</para></listitem>
-	</itemizedlist>
+	<orderedlist numeration="arabic">
+	    <listitem>
+		<para>
+		Click <guimenuitem>Edit|Form Settings</> to
+		invoke the Form Settings dialog. Click the <guibutton>New
+		Forward</> button and replace the text in the edit box under the
+		New Forward button with <literal>class QSqlRecord;</>. Now click
+		&ok;.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Click <guimenuitem>Edit|Slots</> to invoke the
+		Edit Slots dialog. Click the <guibutton>New Slot</> button and
+		change the default slot name in the Slot edit box to
+		<literal>slotNewAuthor(const SqlRecord *)</>. Now click
+		&ok;.
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Click on the <guibutton>Connect Signals/Slots</>
+		toolbar button then click on the author table and drag to the
+		form; release the mouse button over the form. The Edit Connections
+		dialog should appear with the signals list entitled Signals
+		(AuthorSqlTable) and the slots list entitled Slots
+		(BookFormBase). Click the currentChanged signal. The list of
+		slots will change to show our slotNewAuthor slot; click
+		slotNewAuthor to make the connection. Now click
+		&ok;.
+		</para>
+	    </listitem>
+
+	</orderedlist>
 	</para>
 
 	<para>
@@ -408,7 +647,7 @@ public slots:
 	created in &qd; active. (Remember to add <filename>bookform.h</>
 	and <filename>bookform.cpp</> to the <filename>book.pro</>
 	project file and run <application>qmake</> to update the
-	<filename>Makefile</>.
+	<filename>Makefile</>.)
 	</para>
 
 	<para>
@@ -533,18 +772,22 @@ BookForm::BookForm( QWidget * parent, const char * name, bool modal, WFlags f ) 
 	transaction, not all drivers support transactions: without
 	editable views or transactions it may not be possible to
 	guarantee consistent view updates so views displayed in
-	&st;s should always be set to read only.
+	&st;s should always be set to read only unless the underlying
+	database you are using supports updateable views.
 	</para>
 
 	<sect3 id="editing-table-records">
 	    <title>Editing Table Records</>
 
 	<para>
-	The author table's &st; already provides &u; and
-	&d; operations. &i; will not work
-	however because there is no way for the user to enter an author
-	id. The solution is a simple extension to our AuthorCursor
-	subclass.
+	The author table's &st; already provides &u; and &d; operations.
+	However, &i; will not work because the user cannot enter an
+	author id. The author id is a unique primary key and should be
+	generated by the database or in code to maintain the integrity
+	of the database. The solution is a simple extension to our
+	AuthorCursor subclass where we reimplement
+	<classname>QSqlCursor</>'s <literal>primeInsert()</> virtual
+	function.
 <example><title>AuthorCursor from <filename>designer/eg/book4/bookform.h</></><programlisting>
 class AuthorCursor : public QSqlCursor
 {
@@ -571,7 +814,8 @@ QSqlRecord *AuthorCursor::primeInsert()
 	acquire a pointer to the cursor's internal edit buffer, generate
 	the next unique author id and set the edit buffer's value to the
 	new id. (Note that not all databases support sequences or the
-	<function>nextval</> function.)
+	<function>nextval</> function. Your database documentation
+	should explain how to deal with auto-numbered fields in code.)
 	</para>
 
 	<para>
@@ -583,9 +827,12 @@ QSqlRecord *AuthorCursor::primeInsert()
 	press <keycap>F2</> to &u; the current record;
 	press the <keycap>Delete</> key to &d; the
 	current record. All these operations take place live and
-	immediately. (Users can be given the opportunity to confirm
-	their edits by setting the &st;'s confirmEdits property to
-	True.)
+	immediately. Users can be given the opportunity to confirm
+	their edits by setting the &st;'s confirmEdits property to True.
+	If the confirmEdits property is True user confirmation will
+	be required for all insertions, updates and deletes. For finer
+	control you can set the confirmInsert, confirmUpdate and
+	confirmDelete properties individually.
 	</para>
 
 	</sect3>
@@ -602,52 +849,68 @@ QSqlRecord *AuthorCursor::primeInsert()
 	</para>
 
 	<para>
-	Click on the book_view &st;; click on the readOnly property and
-	set it to True.
-	</para>
+	<orderedlist numeration="arabic">
 
-	<para>
-	Right click on the form and click the <guimenuitem>Break
-	Layout</> menu item from the pop up menu. Make some space below
-	the book view &st; e.g. by dragging the bottom of the form down.
-	Insert a button at the bottom of the form: click the
-	<guibutton>PushButton</> toolbar button then click the bottom of
-	the form. Now insert two more buttons to the right of the first
-	one. Shift+Click the buttons then click the <guibutton>Lay Out
-	Horizontally</> toolbar button. Click the form and then click
-	the <guibutton>Lay Out Vertically</> toolbar button.
-	</para>
+	    <listitem>
+		<para>
+		Click on the book_view &st;; click on the readOnly property and
+		set it to True.
+		</para>
+	    </listitem>
 
-	<para>
-	Click the first (left-most) button and change its name to
-	"InsertBookPushButton" and its text to "&amp;Insert Book". Click
-	the second (middle) button and change its name to
-	"UpdateBookPushButton" and its text to "&amp;Update Book". Click
-	the third (right-most) button and change its name to
-	"DeleteBookPushButton" and its text to "&amp;Delete Book".
-	</para>
+	    <listitem>
+		<para>
+		Right click on the form and click the <guimenuitem>Break
+		Layout</> menu item from the pop up menu. Make some space below
+		the book view &st; e.g. by dragging the bottom of the form down.
+		Insert a button at the bottom of the form: click the
+		<guibutton>PushButton</> toolbar button then click the bottom of
+		the form. Now insert two more buttons to the right of the first
+		one. Shift+Click the buttons then click the <guibutton>Lay Out
+		Horizontally</> toolbar button. Click the form and then click
+		the <guibutton>Lay Out Vertically</> toolbar button.
+		</para>
+	    </listitem>
 
-	<para>
-	Click <guimenuitem>Edit|Slots</> to invoke the Edit Slots
-	dialog. Click the <guibutton>New Slot</> button and replace the
-	default slot name with <literal>slotInsertBook()</>. Click the
-	<guibutton>New Slot</> button again and replace the default slot
-	with <literal>slotUpdateBook()</>. Create one more slot called
-	<literal>slotDeleteBook()</>. Click &ok; to save the
-	new slots. 
-	</para>
+	    <listitem>
+		<para>
+		Click the first (left-most) button and change its name to
+		"InsertBookPushButton" and its text to "&amp;Insert Book". Click
+		the second (middle) button and change its name to
+		"UpdateBookPushButton" and its text to "&amp;Update Book". Click
+		the third (right-most) button and change its name to
+		"DeleteBookPushButton" and its text to "&amp;Delete Book".
+		</para>
+	    </listitem>
 
-	<para>
-	Click the <guibutton>Connect Signals/Slots</> toolbar button
-	then click the Insert Book <classname>QPushButton</> and drag to
-	the form; release the mouse over the form. The Edit Connections
-	dialog will appear showing Signals for the InsertBookPushButton
-	and Slots for BookFormBase. Click the clicked() signal and the
-	slotInsertBook() slot. Click &ok;. In the same way
-	connect the Update Book <classname>QPushButton</>'s clicked()
-	signal to the slotUpdateBook() slot and connect the Delete Book
-	<classname>QPushButton</>'s clicked() signal to the
-	slotDeleteBook() slot.
+	    <listitem>
+		<para>
+		Click <guimenuitem>Edit|Slots</> to invoke the Edit Slots
+		dialog. Click the <guibutton>New Slot</> button and replace the
+		default slot name with <literal>slotInsertBook()</>. Click the
+		<guibutton>New Slot</> button again and replace the default slot
+		with <literal>slotUpdateBook()</>. Create one more slot called
+		<literal>slotDeleteBook()</>. Click &ok; to save the
+		new slots. 
+		</para>
+	    </listitem>
+
+	    <listitem>
+		<para>
+		Click the <guibutton>Connect Signals/Slots</> toolbar button
+		then click the Insert Book <classname>QPushButton</> and drag to
+		the form; release the mouse over the form. The Edit Connections
+		dialog will appear showing Signals for the InsertBookPushButton
+		and Slots for BookFormBase. Click the clicked() signal and the
+		slotInsertBook() slot. Click &ok;. In the same way
+		connect the Update Book <classname>QPushButton</>'s clicked()
+		signal to the slotUpdateBook() slot and connect the Delete Book
+		<classname>QPushButton</>'s clicked() signal to the
+		slotDeleteBook() slot.
+		</para>
+	    </listitem>
+	
+	</orderedlist>
 	</para>
 	
 	<para>
@@ -700,6 +963,9 @@ The &sd; class provides an easy way of generating data aware forms. In
 this section we will explain how to create a simple &sd; that provides
 browsing and editing of the book table. We will then specialise the
 dialog and integrate it with the book_view &st;.
+<screenshot>
+<graphic format="jpg" fileref="images/book-dialog.jpg"></graphic>
+</screenshot>
 </para>
 
 <sect1 id="browsing-a-table-through-a-qsqldialog-form">
@@ -708,29 +974,83 @@ dialog and integrate it with the book_view &st;.
 
 <para>
 Click <guimenuitem>File|New</> to invoke the New Form dialog. Click the
-SQL Dialog template and then click &ok;. The SQL Form Wizard will
-appear on the "Choose the Database and Table" page. The Connection list
-box in the middle will show the "(default)" connection. (If no
-connection is shown you can create a connection by clicking the
-<guibutton>Setup Database Connections</> button: see <xref
-linkend="setting-up-qt-designers-connections"> "Setting Up &qd;'s
-Connections".) The Table list box will be empty. Click the "(default)"
-connection (or whichever connection you wish to use if there are
-several), and the Table list box will update to show the tables and views
-available through that connection. Click the table you wish to use, for
-our example, the book table. Click the <guibutton>Next</> button.
-The "Autopopulate Form" page shows the id field in the left hand list
-box (available fields) and the remaining fields, formatid, authorid,
-price and title in the right hand list box (fields to place on the
-form). We will accept the defaults so simply click the
-<guibutton>Next</> button. The "Navigation and Editing" page allows us
-to choose navigation and editing buttons that we can have placed on the
-form; again we will accept the defaults so click the <guibutton>Next</>
-button. The "SQL" page allows us to set up a filter and sorting. Click
-the title field and the right pointing blue arrow to have the form sort
-in order of title. (The white two headed arrow button is used to change
-the sort order between ascending and descending.) Click the
-<guibutton>Finish</> button.
+SQL Dialog template and then click &ok; to invoke the SQL Form Wizard.
+</para>
+
+<para>
+    <orderedlist numeration="arabic">
+	<listitem>
+	    <para>
+	    The <emphasis>Database Connection and Table</>
+	    wizard page is used to set up a connection if one doesn't exist
+	    and to choose the table or view for the &st;. (See <xref
+	    linkend="setting-up-qt-designers-connections"> "Setting
+	    Up &qd;'s Connections".)
+	    </para>
+
+	    <para>
+	    Click the connection you wish to use, listed in the left hand
+	    list box, e.g. "(default)". The tables and views will appear in
+	    the right hand Table list box. Click the book table and then
+	    click the <guibutton>Next</> button. 
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    The <emphasis>Displayed Fields</> wizard page
+	    wizard provides a means of selecting which fields should be
+	    displayed in the &st; and in what order. By default all fields
+	    except the primary key (if there is one) are in the right hand
+	    Displayed Fields list box. The left and right blue arrow buttons
+	    can be used to move fields between the Displayed Fields and the
+	    Available Fields list boxes. The blue up and down arrow buttons
+	    are used to select the display order of the displayed fields. 
+	    </para>
+
+	    <para>
+	    Move the formatid and authorid fields to the Available
+	    Fields list box. Move the title field to the top of the
+	    Displayed Fields list box. Click <guibutton>Next</>.
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    The <emphasis>Navigation and Editing</> wizard page allows
+	    us to choose which navigation and editing buttons should
+	    appear on the form.
+	    </para>
+	    
+	    <para>
+	    We will accept the defaults and simply click the
+	    <guibutton>Next</> button. 
+	    </para>
+	</listitem>
+
+	<listitem>
+	    <para>
+	    The <emphasis>SQL</> wizard page is used to set
+	    the &st;'s Filter and Sort properties. The Filter is an SQL
+	    <literal>WHERE</> clause (without the word 'WHERE'). For
+	    example, to only list books that cost less than 50 (of our
+	    currency, e.g. dollars), we 
+	    would enter <literal>price < 50</>. The Available Fields
+	    list box lists all the fields. The Sort By list box lists the
+	    fields that the &st; is to sort by and the direction of their
+	    sorting (ASCending or DESCending). The left and right blue
+	    arrows are used to move fields between the two list boxes. The
+	    up and down blue arrows move fields up and down within the Sort
+	    By list box. The ASC or DESC setting is changed with the sort
+	    order button.
+	    </para>
+
+	    <para>
+	    Move the title field into the Sort By list box and click
+	    <guibutton>Finish</>.
+	    </para>
+	</listitem>
+    </orderedlist>
 </para>
 
 <para>
@@ -739,15 +1059,17 @@ Click <guimenuitem>File|Save</> and call the form
 click the form and change its name to "EditBookFormBase" and its caption
 to "Edit Book". If you click the <classname>QLineEdit</> box to the
 right of the price field you will see that its name has been set
-automatically to "QLineEditprice". Run the form in preview mode (press
+automatically to "QLineEditPrice". Run the form in preview mode (press
 Ctrl+T) and navigate through the book records.
 </para>
 
 <important>
-<para>Note: Whenever we create a new file for a project we must add it
+<para>
+Note: Whenever we create a new file for a project we must add it
 to the <literal>.pro</> project file and run <application>qmake</> on
 the project file so that the new form is included in the build, e.g.
-<literal>qmake book.pro &gt; Makefile</>.
+<literal>qmake -o Makefile book.pro</>.
+
 </para>
 </important>
 
