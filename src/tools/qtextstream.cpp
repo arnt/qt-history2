@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#69 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#70 $
 **
 ** Implementation of QTextStream class
 **
@@ -67,7 +67,7 @@
   appropriate for dealing with binary data (but QDataStream is).
 
   Note that all 8-bit characters are interpreted as Latin1 characters.
-  
+
   \sa QDataStream
 */
 
@@ -167,6 +167,7 @@ QChar QTextStream::eat_ws()
 
 void QTextStream::init()
 {
+    ungetcBuf = QEOF;
     dev = 0;					// no device set
     fstrm = owndev = FALSE;
     mapper = 0;
@@ -522,18 +523,23 @@ QChar QTextStream::ts_getc()
 	}
     }
     if ( mapper ) {
-	if ( !decoder )
-	    decoder = mapper->makeDecoder();
-	QString s;
-	do {
-	    char b[1];
-	    int c = dev->getch();
-	    if ( c == EOF )
-		return QEOF;
-	    b[0] = c;
-	    s  = decoder->toUnicode( b, 1 );
-	} while ( s.isEmpty() );
-	r = s[0];
+	if ( ungetcBuf != QEOF ) {
+	    r = ungetcBuf;
+	    ungetcBuf = QEOF;
+	} else {
+	    if ( !decoder )
+		decoder = mapper->makeDecoder();
+	    QString s;
+	    do {
+		char b[1];
+		int c = dev->getch();
+		if ( c == EOF )
+		    return QEOF;
+		b[0] = c;
+		s  = decoder->toUnicode( b, 1 );
+	    } while ( s.isEmpty() );
+	    r = s[0];
+	}
     } else if ( latin1 ) {
 	int c = dev->getch();
 	if ( c == EOF )
@@ -565,10 +571,10 @@ void QTextStream::ts_putc( QChar c )
 	dev->writeBlock( b, len );
 	delete[] b;
     } else if ( latin1 ) {
-	if( c.row ) 
+	if( c.row )
 	    dev->putch( '?' ); //######unknown character???
 	else
-	    dev->putch( c.cell ); 
+	    dev->putch( c.cell );
     } else {
 	if ( doUnicodeHeader ) {
 	    doUnicodeHeader = FALSE;
@@ -618,7 +624,7 @@ void QTextStream::ts_ungetc( QChar c )
 {
     debug( "QTextStream::ts_ungetc" );
     if ( mapper ) {
-	warning( "QTextStream::ts_ungetc() mapper not supported" );
+	ungetcBuf = c;
     } else if ( latin1 ) {
 	dev->ungetch( c );
     } else {
@@ -646,7 +652,7 @@ void QTextStream::ts_ungetc( QChar c )
 
   \warning The behaviour of this function is undefined unless the
   stream's encoding is set to Unicode or Latin1.
-  
+
   \sa QIODevice::readBlock()
 */
 
@@ -699,7 +705,7 @@ QTextStream &QTextStream::writeBlock( const char* p, uint len )
 	dev->writeBlock( p, len );
     } else {
 	for (uint i=0; i<len; i++)
-	    ts_putc( p[i] ); 
+	    ts_putc( p[i] );
     }
     return *this;
 }
@@ -1802,9 +1808,9 @@ QTextStream &reset( QTextStream &s )
   <li> \c Unicode Using  Unicode for input and output.
   <li> \c Latin1  ISO-8859-1. Will not autodetect Unicode.
   <li> \c UnicodeReverse Using reverse network order Unicode for input. You only need this when
-  reading Unicode data that does not start with the byte order marker. 
+  reading Unicode data that does not start with the byte order marker.
   </ul>
-  
+
   \note This function should be called before any data is read to/written from the stream.
   \sa setCodec
 */
@@ -1825,14 +1831,11 @@ void QTextStream::setEncoding( Encoding e )
 	swapUnicode = TRUE; //###
 	break;
     case Locale: {
-	char * lang = qstrdup( getenv( "LANG" ) ); //########QApplication::language();
 	latin1 = TRUE; //fallback to Latin 1
-	if ( lang )
-	    mapper = QTextCodec::codecForName( lang );
-	debug ( "mapper: %p, name: %s, MIBenum: %d", mapper, 
+	mapper = QTextCodec::codecForName( QTextCodec::locale() );
+	debug ( "mapper: %p, name: %s, MIBenum: %d", mapper,
 		mapper?mapper->name():"(none)",
 		mapper?mapper->mib():-1 );
-	
 	doUnicodeHeader = TRUE;
     }
     break;
@@ -1847,7 +1850,7 @@ void QTextStream::setEncoding( Encoding e )
 
 /*!
   Sets the codec for this stream to \a codec. Will not try to autodetect Unicode.
-  
+
     \note This function should be called before any data is read to/written from the stream.
     \sa setEncoding
 */

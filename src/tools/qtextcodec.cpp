@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#9 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#10 $
 **
 ** Implementation of QTextCodec class
 **
@@ -681,7 +681,7 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
    &lt;<i>token</i>&gt; /<i>any</i>/<i>any</i>... &lt;U<i>unicode</i>&gt; ...
    END CHARMAP
 \endcode
-  The resulting QTextCodec is returned (and also added to the 
+  The resulting QTextCodec is returned (and also added to the
   global list of codecs).  The name() of the result is taken
   from the code_set_name.
 */
@@ -695,3 +695,19 @@ QTextCodec* QTextCodec::loadCharmap(QIODevice* iod)
     return r;
 }
 
+
+
+/*!
+  Returns a string representing the current language. 
+*/
+
+const char* QTextCodec::locale()
+{
+    static Q1String lang;
+    if ( lang.isEmpty() ) {
+	lang = getenv( "LANG" ); //########Windows??
+	if ( lang.isEmpty() )
+	    lang = "C";
+    }
+    return lang;
+}
