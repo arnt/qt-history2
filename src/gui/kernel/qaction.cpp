@@ -33,7 +33,8 @@ void QActionPrivate::sendDataChanged()
 QAction::QAction(QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->group = parent;
-    parent->addAction(this);
+    if(parent)
+        parent->addAction(this);
 }
 
 QAction::QAction(QWidget* parent) : QObject(*(new QActionPrivate), parent)
@@ -45,14 +46,16 @@ QAction::QAction(const QString &text, Q4Menu *menu, QActionGroup* parent) : QObj
     d->text = text;
     d->menu = menu;
     d->group = parent;
-    parent->addAction(this);
+    if(parent)
+        parent->addAction(this);
 }
 
 QAction::QAction(const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->group = parent;
-    parent->addAction(this);
+    if(parent)
+        parent->addAction(this);
 }
 
 QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
@@ -60,7 +63,8 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
     d->icons = new QIconSet(icon);
     d->text = text;
     d->group = parent;
-    parent->addAction(this);
+    if(parent) 
+        parent->addAction(this);
 }
 
 QAction::QAction(const QString &text, Q4Menu *menu, QWidget* parent) : QObject(*(new QActionPrivate), parent)
@@ -147,8 +151,8 @@ void QAction::setActionGroup(QActionGroup *group)
     if(d->group)
         d->group->removeAction(this);
     d->group = group;
-    if(d->group)
-        d->group->addAction(this);
+    if(group)
+        group->addAction(this);
 }
 
 QActionGroup *QAction::actionGroup() const
@@ -263,7 +267,6 @@ void QAction::setEnabled(bool b)
     d->enabled = b;
     d->forceDisabled = !b;
     d->sendDataChanged();
-    activate(Trigger);
 }
 
 bool QAction::isEnabled() const
