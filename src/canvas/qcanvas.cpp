@@ -3315,7 +3315,17 @@ void QCanvasSprite::draw(QPainter& painter)
     Use setWorldMatrix() to set the canvas view's world matrix: you must
     ensure that the world matrix is invertible. The current world matrix
     is retrievable with worldMatrix(), and its inversion is retrievable
-    with inverseWorldMatrix().
+    with inverseWorldMatrix().  For example:
+
+    The following code finds the part of the canvas that is visible in
+    this view, i.e. the bounding rectangle of the view in canvas coordinates.
+
+  \code
+    QRect canvasRect;
+    QRect rc = QRect(myCanvasView->contentsX(), myCanvasView->contentsY(),
+               myCanvasView->visibleWidth(), myCanvasView->visibleHeight());
+    canvasRect = myCanvasView->inverseWorldMatrix().mapRect(rc);
+  \endcode
 
   \sa QWMatrix QPainter::setWorldMatrix()
 
