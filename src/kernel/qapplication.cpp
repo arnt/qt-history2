@@ -2090,11 +2090,15 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     case QEvent::Accel:
 	{
 	    QKeyEvent* key = (QKeyEvent*) e;
-	    res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
-	    if ( !res )
-		res = internalNotify( receiver, e );
+	    res = internalNotify( receiver, e );
+
+	    // next lines are for compatibility with Qt <= 3.0.x: old
+	    // QAccel was listening on toplevel widgets
 	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
 		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
+
+	    if ( !res && !key->isAccepted() )
+		res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
 	}
     break;
 #endif //QT_NO_ACCEL
@@ -2301,13 +2305,13 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	    widget->clearWState( WState_HasMouse );
 
 	// throw away mouse events to disabled widgets
-	if ( ( e->type() <= QEvent::MouseMove &&
+	if ( !widget->isEnabled()
+	     && ( e->type() <= QEvent::MouseMove &&
 	       e->type() >= QEvent::MouseButtonPress ||
 	       e->type() == QEvent::Wheel ||
 	       e->type() == QEvent::ContextMenu ||
 	       e->type() >= QEvent::DragEnter &&
-	       e->type() <= QEvent::DragResponse ) &&
-	     !widget->isEnabled() ) {
+		  e->type() <= QEvent::DragResponse ) ) {
 	    ( (QMouseEvent*) e)->ignore();
 	    goto done;
 	}

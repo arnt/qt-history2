@@ -4350,6 +4350,9 @@ bool QWidget::event( QEvent *e )
 	    if ( ! ((QTabletEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
+	case QEvent::Accel:
+	    ((QKeyEvent*)e)->ignore();
+	    return FALSE;
 	case QEvent::KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
