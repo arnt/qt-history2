@@ -147,7 +147,7 @@ protected:
                         progressbars.removeAt(i);
                     } else {
                         if (pb->totalSteps() == 0 || pb->progress() > 0
-                            && pb->progrss() < pb->totalSteps())
+                            && pb->progress() < pb->totalSteps())
                             pb->update();
                         ++i;
                     }
