@@ -9,7 +9,7 @@
 
 KALedMeter::KALedMeter( QWidget *parent ) : QFrame( parent )
 {
-    mCRanges.setAutoDelete( true );
+    mCRanges.setAutoDelete( TRUE );
     mRange = 100;
     mCount = 20;
     mCurrentCount = 0;

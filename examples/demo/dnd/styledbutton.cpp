@@ -30,7 +30,7 @@
 #include <qdragobject.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
-    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), mousePressed( false )
+    : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), mousePressed( FALSE )
 {
     setMinimumSize( minimumSizeHint() );
     setAcceptDrops( TRUE );
@@ -200,7 +200,7 @@ void StyledButton::onEditor()
 void StyledButton::mousePressEvent(QMouseEvent* e)
 {
     QButton::mousePressEvent(e);
-    mousePressed = true;
+    mousePressed = TRUE;
     pressPos = e->pos();
 }
 
@@ -219,7 +219,7 @@ void StyledButton::mouseMoveEvent(QMouseEvent* e)
 	    p.drawRect( 0, 0, pix.width(), pix.height() );
 	    p.end();
 	    drg->setPixmap( pix );
-	    mousePressed = false;
+	    mousePressed = FALSE;
 	    drg->dragCopy();
 	}
 	else if ( edit == PixmapEditor && pix && !pix->isNull() ) {
@@ -227,7 +227,7 @@ void StyledButton::mouseMoveEvent(QMouseEvent* e)
 	    QImageDrag *drg = new QImageDrag( img, this );
 	    if(spix)
 		drg->setPixmap( *spix );
-	    mousePressed = false;
+	    mousePressed = FALSE;
 	    drg->dragCopy();
 	}
     }

@@ -272,31 +272,31 @@ void KAstTopLevel::keyPressEvent( QKeyEvent *event )
     switch ( a )
     {
         case RotateLeft:
-            view->rotateLeft( true );
+            view->rotateLeft( TRUE );
             break;
 
         case RotateRight:
-            view->rotateRight( true );
+            view->rotateRight( TRUE );
             break;
 
         case Thrust:
-            view->thrust( true );
+            view->thrust( TRUE );
             break;
 
         case Shoot:
-            view->shoot( true );
+            view->shoot( TRUE );
             break;
 
         case Shield:
-            view->setShield( true );
+            view->setShield( TRUE );
             break;
 
         case Teleport:
-            view->teleport( true );
+            view->teleport( TRUE );
             break;
 
         case Brake:
-            view->brake( true );
+            view->brake( TRUE );
             break;
 
         default:
@@ -319,38 +319,38 @@ void KAstTopLevel::keyReleaseEvent( QKeyEvent *event )
     switch ( a )
     {
         case RotateLeft:
-            view->rotateLeft( false );
+            view->rotateLeft( FALSE );
             break;
 
         case RotateRight:
-            view->rotateRight( false );
+            view->rotateRight( FALSE );
             break;
 
         case Thrust:
-            view->thrust( false );
+            view->thrust( FALSE );
             break;
 
         case Shoot:
-            view->shoot( false );
+            view->shoot( FALSE );
             break;
 
         case Brake:
-            view->brake( false );
+            view->brake( FALSE );
             break;
 
         case Shield:
-            view->setShield( false );
+            view->setShield( FALSE );
             break;
 
         case Teleport:
-            view->teleport( false );
+            view->teleport( FALSE );
             break;
 
         case Launch:
             if ( waitShip )
             {
                 view->newShip();
-                waitShip = false;
+                waitShip = FALSE;
                 view->hideText();
             }
             else
@@ -366,11 +366,11 @@ void KAstTopLevel::keyReleaseEvent( QKeyEvent *event )
 /*
         case Pause:
             {
-                view->pause( true );
+                view->pause( TRUE );
                 QMessageBox::information( this,
                                           tr("KAsteroids is paused"),
                                           tr("Paused") );
-                view->pause( false );
+                view->pause( FALSE );
             }
             break;
 */
@@ -416,9 +416,9 @@ void KAstTopLevel::slotNewGame()
     view->addRocks( levels[0].nrocks );
 //    view->showText( tr( "Press L to launch." ), yellow );
     view->newShip();
-    waitShip = false;
+    waitShip = FALSE;
     view->hideText();
-    isPaused = false;
+    isPaused = FALSE;
 }
 
 void KAstTopLevel::slotShipKilled()
@@ -430,7 +430,7 @@ void KAstTopLevel::slotShipKilled()
 
     if ( shipsRemain )
     {
-        waitShip = true;
+        waitShip = TRUE;
         view->showText( tr( "Ship Destroyed. Press L to launch."), yellow );
     }
     else
