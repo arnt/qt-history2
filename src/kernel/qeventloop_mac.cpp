@@ -839,8 +839,12 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 #ifdef QMAC_USE_APPLICATION_EVENT_LOOP
 	RunApplicationEventLoop();
 #else
+#if 1
 	EventRef event;
 	ReceiveNextEvent(0, 0, kEventDurationForever, FALSE, &event);
+#else
+	while(CFRunLoopRunInMode(kCFRunLoopDefaultMode, 1.0e20, true) == kCFRunLoopRunTimedOut);
+#endif
 #endif
 #if defined(QT_THREAD_SUPPORT)
 	locker.mutex()->lock();
