@@ -2638,7 +2638,8 @@ void QApplication::setOverrideCursor( const QCursor &cursor, bool replace )
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
-	qt_x11_enforce_cursor( w, FALSE );
+	if ( w->testWState(WState_OwnCursor) )
+	    qt_x11_enforce_cursor( w, FALSE );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
@@ -2665,7 +2666,8 @@ void QApplication::restoreOverrideCursor()
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// set back to original cursors
-	    qt_x11_enforce_cursor( w, !w->testWState( WState_OwnCursor ) );
+	    if ( w->testWState(WState_OwnCursor) )
+		qt_x11_enforce_cursor( w, FALSE );
 	    ++it;
 	}
 	XFlush( appDpy );
