@@ -51,8 +51,9 @@ following toolbar buttons:
   compiler)
 - Add UIC - add an existing Qt Designer .ui file to an existing project. 
 
-More information about the add-in is available in 
-%QTDIR%\tools\designer\integration\QMsDev\readme.txt
+More information about the add-in is available in the chapter "Customizing
+and Integrating Qt Designer" in the Qt Designer manual which is included
+in the online reference manual.
 
 Note also that MS Visual Studio project (.dsp) files are provided for all
 Qt example and tutorial programs.
