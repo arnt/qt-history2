@@ -3573,6 +3573,7 @@ CONFIG += $QMAKE_CONFIG dylib create_prl link_prl depend_includepath QTDIR_build
 QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
+QMAKE_MOC_SRC = \$\$QT_SOURCE_TREE/src/moc
 ARCH = $ARCH
 EOF
 
