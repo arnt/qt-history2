@@ -21,6 +21,7 @@
 class QHeaderModel : public QAbstractTableModel
 {
     friend class QHeaderWidgetItem;
+
 public:
     QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWidget *parent);
     ~QHeaderModel();
@@ -49,13 +50,13 @@ public:
     int columnCount() const;
 
     void clear();
-    void itemChanged(QHeaderWidgetItem *item);
+    void emitDataChanged(QHeaderWidgetItem *item);
 
 private:
     QVector<QHeaderWidgetItem*> items;
     Qt::Orientation orientation;
-    mutable QChar strbuf[65];
 };
+
 QHeaderModel::QHeaderModel(Qt::Orientation orientation, int sections, QHeaderWidget *parent)
     : QAbstractTableModel(parent),
       orientation(orientation)
@@ -143,8 +144,10 @@ void QHeaderModel::removeItem(QHeaderWidgetItem *item)
 {
     int i = items.indexOf(item);
     if (i != -1) {
+        items.at(i)->model = 0;
+        items.at(i)->view = 0;
         delete items.at(i);
-        item[i] = 0;
+        items[i] = 0;
     }
 }
 
@@ -162,7 +165,9 @@ QVariant QHeaderModel::headerData(int section, Qt::Orientation orientation, int 
 {
     if (orientation != this->orientation || section < 0 || section >= items.count())
         return QVariant();
-    return items.at(section)->data(role);
+    if (items.at(section))
+        return items.at(section)->data(role);
+    return section;
 }
 
 bool QHeaderModel::setHeaderData(int section, Qt::Orientation orientation, int role, QVariant &value)
@@ -187,40 +192,65 @@ int QHeaderModel::columnCount() const
 void QHeaderModel::clear()
 {
     for (int i = 0; i < items.count(); ++i) {
+        items.at(i)->model = 0;
+        items.at(i)->view = 0;
         delete items.at(i);
         items[i] = 0;
     }
     emit reset();
 }
 
-void QHeaderModel::itemChanged(QHeaderWidgetItem *item)
+void QHeaderModel::emitDataChanged(QHeaderWidgetItem *item)
 {
     int sec = items.indexOf(item);
     emit headerDataChanged(orientation, sec, sec);
 }
 
-// item
+/*!
+  \class QHeaderWidgetItem
+  \brief The QHeaderWidgetItem class provides an item for use with the
+  QHeaderWidget item view class.
 
-QHeaderWidgetItem::QHeaderWidgetItem(QHeaderWidget *view)
-    : itemFlags(QAbstractItemModel::ItemIsEnabled),
-      model(model)
+  \ingroup model-view
+
+*/
+
+/*!
+  Creates an empty header item.
+*/
+
+QHeaderWidgetItem::QHeaderWidgetItem()
+    : view(0), model(0),
+      itemFlags(QAbstractItemModel::ItemIsEnabled)
 {
-    if (view)
-        model = ::qt_cast<QHeaderModel*>(view->model());
 }
+
+/*!
+  Destroys the header item.
+*/
 
 QHeaderWidgetItem::~QHeaderWidgetItem()
 {
     if (model) {
         int sec = model->items.indexOf(this);
-        model->items[sec] = 0;
+        model->items[sec] = 0; // remove this
     }
 }
+
+/*!
+  Returns true if this items text is less then \a other items text.
+*/
 
 bool QHeaderWidgetItem::operator<(const QHeaderWidgetItem &other) const
 {
     return text() < other.text();
 }
+
+/*!
+    This function sets \a value for a given \a role (see
+  {QAbstractItemModel::Role}). Reimplement this function if you need
+  extra roles or special behavior for certain roles.
+*/
 
 void QHeaderWidgetItem::setData(int role, const QVariant &value)
 {
@@ -233,8 +263,14 @@ void QHeaderWidgetItem::setData(int role, const QVariant &value)
     }
     values.append(Data(role, value));
     if (model)
-        model->itemChanged(this);
+        model->emitDataChanged(this);
 }
+
+/*!
+   This function returns the items data for a given \a role (see
+   {QAbstractItemModel::Role}). Reimplement this function if you need
+   extra roles or special behavior for certain roles.
+*/
 
 QVariant QHeaderWidgetItem::data(int role) const
 {
@@ -269,7 +305,7 @@ void QHeaderWidgetPrivate::emitClicked(int section, Qt::ButtonState state)
 void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int first, int last)
 {
     Q_UNUSED(orientation);
-    if (first == left) // this should always be true
+    if (first == last) // this should always be true
         emit q->itemChanged(model()->item(first));
     else
         qWarning("QHeaderWidgetPrivate: several items were changed");
@@ -278,40 +314,89 @@ void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int firs
 
 // public
 
-QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, QWidget *parent)
+/*!
+  \class QHeaderWidget qheaderwidget.h
+
+  \brief The QHeaderWidget class provides a header that uses a perdefined model.
+
+  \ingroup model-view
+
+  ### more docs needed
+*/
+
+
+/*!
+    Constructs a header view with the given \a orientation and \a parent widget,
+    using the default model
+*/
+
+QHeaderWidget::QHeaderWidget(Qt::Orientation orientation, int sections, QWidget *parent)
     : QHeaderView(orientation, parent)
 {
-    setModel(new QHeaderModel(orientation, 0, this));
+    setModel(new QHeaderModel(orientation, sections, this));
 }
+
+/*!
+    Destroys the header widget and all its items.
+*/
 
 QHeaderWidget::~QHeaderWidget()
 {
 }
+
+/*!
+  Sets the number of sections in the header to \a sections.
+*/
 
 void QHeaderWidget::setSectionCount(int sections)
 {
     d->model()->setSectionCount(sections);
 }
 
+/*!
+  Returns the pointer to the item at \a section.
+*/
+
 QHeaderWidgetItem *QHeaderWidget::item(int section) const
 {
     return d->model()->item(section);
 }
 
+/*!
+  Sets the item at \a section to be \a item.
+*/
+
 void QHeaderWidget::setItem(int section, QHeaderWidgetItem *item)
 {
+    item->view = this;
+    item->model = d->model();
     d->model()->setItem(section, item);
 }
 
+/*!
+  Removes the item at \a section and returns it.
+*/
+
 QHeaderWidgetItem *QHeaderWidget::takeItem(int section)
 {
-    return d->model()->takeItem(section);
+    QHeaderWidgetItem *item = d->model()->takeItem(section);
+    item->view = 0;
+    item->model = 0;
+    return item;
 }
+
+/*!
+  Removes all items in the header.
+*/
 
 void QHeaderWidget::clear()
 {
     d->model()->clear();
 }
+
+/*!
+  \internal
+*/
 
 void QHeaderWidget::setModel(QAbstractItemModel *model)
 {

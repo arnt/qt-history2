@@ -16,13 +16,13 @@
 
 #include <qheaderview.h>
 
-class QHeaderWidget;
-
 class Q_GUI_EXPORT QHeaderWidgetItem
 {
+    friend class QHeaderWidget;
     friend class QHeaderModel;
+
 public:
-    QHeaderWidgetItem(QHeaderWidget *view);
+    QHeaderWidgetItem();
     virtual ~QHeaderWidgetItem();
 
     inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
@@ -86,8 +86,11 @@ protected:
     };
 
     QVector<Data> values;
-    QAbstractItemModel::ItemFlags itemFlags;
+    QHeaderWidget *view;
+
+private:
     QHeaderModel *model;
+    QAbstractItemModel::ItemFlags itemFlags;
 };
 
 class QHeaderWidgetPrivate;
@@ -101,7 +104,7 @@ public:
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QHeaderWidget(QWidget *parent, const char *name);
 #endif
-    QHeaderWidget(Qt::Orientation orientation, QWidget *parent = 0);
+    QHeaderWidget(Qt::Orientation orientation, int sections = 0, QWidget *parent = 0);
     ~QHeaderWidget();
 
     void setSectionCount(int sections);
