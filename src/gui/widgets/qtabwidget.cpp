@@ -34,12 +34,14 @@
     \ingroup advanced
     \mainclass
 
-    A tab widget provides a tab bar of tabs and a "page area" below
-    (or above, see \l{TabPosition}) the tabs. Each tab is associated
-    with a different widget (called a "page"). Only the current tab's
-    widget is shown in the page area; all the other tabs' widgets are
-    hidden. The user can show a different page by clicking on its tab
-    or by pressing its Alt+\e{letter} shortcut if it has one.
+    A tab widget provides a tab bar (see QTabBar) and a "page area"
+    that is used to display pages related to each tab. By default, the
+    tab bar is shown above the page area, but different configurations
+    are available (see \l{TabPosition}). Each tab is associated with a
+    different widget (called a page). Only the current page is shown in
+    the page area; all the other pages are hidden. The user can show a
+    different page by clicking on its tab or by pressing its
+    Alt+\e{letter} shortcut if it has one.
 
     The normal way to use QTabWidget is to do the following in the
     constructor:
