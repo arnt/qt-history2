@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#261 $
+** $Id: //depot/qt/main/src/moc/moc.y#262 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -448,7 +448,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 12;		// moc output format revision
+const int  formatRevision = 13;		// moc output format revision
 
 %}
 
@@ -2682,7 +2682,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#261 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#262 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2770,17 +2770,17 @@ void generateClass()		      // generate C++ source code for a class
     fprintf( out, "static QMetaObjectCleanUp cleanUp_%s = QMetaObjectCleanUp();\n\n", cname );
 
 //
-// Generate tr member function ### 3.0 one function
+// Generate tr and trUtf8 member functions
 //
     fprintf( out, "#ifndef QT_NO_TRANSLATION\n" );
-    fprintf( out, "QString %s::tr(const char* s)\n{\n",
+    fprintf( out, "QString %s::tr( const char *s, const char *c )\n{\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return qApp->translate"
-	     "( \"%s\", s, 0 );\n}\n\n", (const char*)qualifiedClassName() );
-    fprintf( out, "QString %s::tr(const char* s, const char * c)\n{\n",
+    fprintf( out, "    return qApp->translate( \"%s\", s, c, FALSE );\n}\n",
 	     (const char*)qualifiedClassName() );
-    fprintf( out, "    return qApp->translate"
-	     "( \"%s\", s, c );\n}\n", (const char*)qualifiedClassName() );
+    fprintf( out, "QString %s::trUtf8( const char *s, const char *c )\n{\n",
+	     (const char*)qualifiedClassName() );
+    fprintf( out, "    return qApp->translate( \"%s\", s, c, TRUE );\n}\n",
+	     (const char*)qualifiedClassName() );
     fprintf( out, "#endif // QT_NO_TRANSLATION\n\n" );
 
 //

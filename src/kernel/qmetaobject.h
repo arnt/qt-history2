@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 12
+#define Q_MOC_OUTPUT_REVISION 13
 #endif
 
 class QObject;
@@ -64,7 +64,7 @@ struct QMetaEnum				// enumerator meta data
 {						//  for properties
     const char *name;				// - enumerator name
     uint count;					// - number of values
-    struct Item				// - a name/value pair
+    struct Item					// - a name/value pair
     {
 	const char *key;
 	int value;

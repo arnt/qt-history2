@@ -51,8 +51,6 @@ bool Uic::toBool( const QString& s )
     return s == "true" || s.toInt() != 0;
 }
 
-// fixString is only used in conjunction with tr(). We need to write out the
-// string in utf8 and make sure it's converted from utf8 when created.
 QString Uic::fixString( const QString &str )
 {
     QString s( str );
@@ -60,20 +58,7 @@ QString Uic::fixString( const QString &str )
     s.replace( QRegExp( "\"" ), "\\\"" );
     s.replace( QRegExp( "\n" ), "\\n\"\n\"" );
     s.replace( QRegExp( "\r" ), "\\r" );
-
-    bool onlyAscii = TRUE;
-    unsigned int i;
-    for ( i = 0; i < s.length(); i++ ) {
-	if ( s.at(i).unicode() >= 0x80 ) {
-	    onlyAscii = FALSE;
-	    break;
-	}
-    }
-    if ( onlyAscii )
-	s = "\"" + s + "\"";
-    else
-	s = "QString::fromUtf8( \"" + s + "\" )";
-    return s;
+    return "\"" + s + "\"";
 }
 
 QString Uic::mkStdSet( const QString& prop )
@@ -1251,7 +1236,7 @@ int main( int argc, char * argv[] )
 	out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "tr", className );
+    Uic( out, doc, !impl, subcl, trmacro ? trmacro : "trUt8", className );
 
     if ( !protector.isEmpty() ) {
 	out << endl;

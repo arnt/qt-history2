@@ -76,6 +76,7 @@ private slots:
     void print();
     void find();
     void findAgain();
+    void setCodec();
     void newPhraseBook();
     void openPhraseBook();
     void closePhraseBook( int id );
@@ -182,6 +183,7 @@ private:
     Action *selectAllAct;
     Action *findAct;
     Action *findAgainAct;
+    Action *setCodecAct;
     Action *newPhraseBookAct;
     Action *openPhraseBookAct;
     Action *acceleratorsAct;
@@ -199,7 +201,6 @@ private:
     Action *nextUnfinishedAct;
     Action *finishedAndNextAct;
     Action *doGuessesAct;
-
 };
 
 #endif

@@ -49,9 +49,10 @@ static const char MagicComment[] = "TRANSLATOR ";
   yyBraceDepth.)
 */
 
-enum { Tok_Eof, Tok_class, Tok_tr, Tok_translate, Tok_Ident, Tok_Comment,
-       Tok_String, Tok_Gulbrandsen, Tok_RightBrace, Tok_LeftParen,
-       Tok_RightParen, Tok_Comma, Tok_Semicolon };
+enum { Tok_Eof, Tok_class, Tok_tr, Tok_trUtf8, Tok_translate,
+       Tok_translateUtf8, Tok_Ident, Tok_Comment, Tok_String,
+       Tok_Gulbrandsen, Tok_RightBrace, Tok_LeftParen,
+       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_TRUE, Tok_FALSE };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -130,25 +131,41 @@ static int getToken()
 	    yyIdent[yyIdentLen] = '\0';
 
 	    switch ( yyIdent[0] ) {
+	    case 'F':
+		if ( qstricmp(yyIdent + 1, "alse") == 0 )
+		    return Tok_FALSE;
+		break;
 	    case 'Q':
-		if ( strcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
+		if ( qstrcmp(yyIdent + 1, "T_TR_NOOP") == 0 )
 		    return Tok_tr;
-		else if ( strcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
+		else if ( qstrcmp(yyIdent + 1, "T_TRANSLATE_NOOP") == 0 )
 		    return Tok_translate;
 		break;
+	    case 'T':
+		if ( qstricmp(yyIdent + 1, "RUE") == 0 )
+		    return Tok_TRUE;
+		break;
 	    case 'c':
-		if ( strcmp(yyIdent + 1, "lass") == 0 )
+		if ( qstrcmp(yyIdent + 1, "lass") == 0 )
 		    return Tok_class;
 		break;
+	    case 'f':
+		if ( qstrcmp(yyIdent + 1, "alse") == 0 )
+		    return Tok_FALSE;
+		break;
 	    case 's':
-		if ( strcmp(yyIdent + 1, "truct") == 0 )
+		if ( qstrcmp(yyIdent + 1, "truct") == 0 )
 		    return Tok_class;
 		break;
 	    case 't':
-		if ( strcmp(yyIdent + 1, "r") == 0 )
+		if ( qstrcmp(yyIdent + 1, "r") == 0 )
 		    return Tok_tr;
-		else if ( strcmp(yyIdent + 1, "ranslate") == 0 )
+		else if ( qstrcmp(yyIdent + 1, "rUtf8") == 0 )
+		    return Tok_trUtf8;
+		else if ( qstrcmp(yyIdent + 1, "ranslate") == 0 )
 		    return Tok_translate;
+		else if ( qstrcmp(yyIdent + 1, "rue") == 0 )
+		    return Tok_TRUE;
 	    }
 	    return Tok_Ident;
 	} else {
@@ -316,6 +333,13 @@ static bool matchString( QCString *s )
     return matches;
 }
 
+static bool matchBool( bool *b )
+{
+    bool matches = ( yyTok == Tok_TRUE || yyTok == Tok_FALSE );
+    *b = ( yyTok == Tok_TRUE );
+    return matches;
+}
+
 static void parse( MetaTranslator *tor, const char *initialContext,
 		   const char *defaultContext )
 {
@@ -324,6 +348,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
     QCString com;
     QCString functionContext = initialContext;
     QCString prefix;
+    bool utf8 = FALSE;
 
     yyTok = getToken();
     while ( yyTok != Tok_Eof ) {
@@ -345,6 +370,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    }
 	    break;
 	case Tok_tr:
+	case Tok_trUtf8:
+	    utf8 = ( yyTok == Tok_trUtf8 );
 	    yyTok = getToken();
 	    if ( match(Tok_LeftParen) && matchString(&text) ) {
 		com = "";
@@ -356,11 +383,13 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 			context = prefix;
 		    prefix = (const char *) 0;
 
-		    tor->insert( MetaTranslatorMessage(context, text, com) );
+		    tor->insert( MetaTranslatorMessage(context, text, com,
+						       QString::null, utf8) );
 		}
 	    }
 	    break;
 	case Tok_translate:
+	    utf8 = FALSE;
 	    yyTok = getToken();
 	    if ( match(Tok_LeftParen) &&
 		 matchString(&context) &&
@@ -370,8 +399,12 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		if ( match(Tok_RightParen) ||
 		     (match(Tok_Comma) &&
 		      matchString(&com) &&
-		      match(Tok_RightParen)) )
-		    tor->insert( MetaTranslatorMessage(context, text, com) );
+		      (match(Tok_RightParen) ||
+		       match(Tok_Comma) &&
+		       matchBool(&utf8) &&
+		       match(Tok_RightParen))) )
+		    tor->insert( MetaTranslatorMessage(context, text, com,
+						       QString::null, utf8) );
 	    }
 	    break;
 	case Tok_Ident:
@@ -391,7 +424,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		if ( k >= 0 ) {
 		    context = com.left( k );
 		    com.remove( 0, k + 1 );
-		    tor->insert( MetaTranslatorMessage(context, "", com) );
+		    tor->insert( MetaTranslatorMessage(context, "", com,
+						       QString::null, FALSE) );
 		}
 	    }
 	    yyTok = getToken();
@@ -525,8 +559,9 @@ bool UiHandler::fatalError( const QXmlParseException& exception )
 void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
-	tor->insert( MetaTranslatorMessage(context.latin1(), source.latin1(),
-					   comment.latin1()) );
+	tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
+					   comment.utf8(), QString::null,
+					   TRUE) );
     source.truncate( 0 );
     comment.truncate( 0 );
 }

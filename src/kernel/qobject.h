@@ -72,8 +72,8 @@ public:
     virtual bool qt_property( const QMetaProperty*, int, QVariant* );
 #endif
 
-    static QString tr( const char * );
-    static QString tr( const char *, const char * );
+    static QString tr( const char *sourceText, const char *comment = 0 );
+    static QString trUtf8( const char *sourceText, const char *comment = 0 );
 
     virtual bool event( QEvent * );
     virtual bool eventFilter( QObject *, QEvent * );
@@ -237,11 +237,11 @@ public:
 };
 
 #ifdef QT_NO_TRANSLATION
-inline QString QObject::tr( const char *s ) {
-    return QString::fromLatin1( s );
+inline QString QObject::tr( const char *sourceText, const char * ) {
+    return QString::fromLatin1( sourceText );
 }
-inline QString QObject::tr( const char *s, const char * ) {
-    return QString::fromLatin1( s );
+inline QString QObject::trUtf8( const char *sourceText, const char * ) {
+    return QString::fromUtf8( sourceText );
 }
 #endif
 

@@ -183,7 +183,7 @@ CandidateList similarTextHeuristicCandidates( const MetaTranslator *tor,
 	     (*it).translation().isEmpty() )
 	    continue;
 
-	QString s = tor->toUnicode( (*it).sourceText() );
+	QString s = tor->toUnicode( (*it).sourceText(), (*it).utf8() );
 	CoMatrix cm( s.latin1() );
 	int delta = QABS( (int) s.length() - targetLen );
 

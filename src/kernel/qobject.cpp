@@ -1944,41 +1944,39 @@ void QObject::accessibilityEvent( QEvent * )
 
 #ifndef QT_NO_TRANSLATION // Otherwise we have a simple inline version
 
-/*! \overload
+/*!
+  Returns a translated version of \a sourceText, or \a sourceText
+  itself if there is no appropriate translated version.  The
+  translation context is QObject with \a comment (null by default).
+  All QObject subclasses using the Q_OBJECT macro automatically have
+  a reimplementation of this function with the subclass name as
+  context.
 
-  Returns a translated version of \a text or \a text itself if there is
-  no appropriate translated version.  The translation context is
-  QObject. All QObject subclasses which use the Q_OBJECT macro have a
-  reimplementation of this function which uses the relevant class name
-  as context.
-
-  \sa QApplication::translate()
+  \sa trUtf8() QApplication::translate()
+      \link i18n.html Internationalization with Qt\endlink
 */
 
-QString QObject::tr( const char *text )
+QString QObject::tr( const char *sourceText, const char *comment )
 {
     if ( qApp )
-	return qApp->translate( "QObject", text, 0 );
+	return qApp->translate( "QObject", sourceText, comment, FALSE );
     else
-	return QString::fromLatin1(text);
+	return QString::fromLatin1( sourceText );
 }
 
 /*!
-  Returns a translated version of \a text or \a text itself if there is
-  no appropriate translated version.  The translation context is
-  QObject with \a comment. All QObject subclasses which use the Q_OBJECT
-  macro have a reimplementation of this function which uses the relevant
-  class name as context.
+  Returns a translated version of \a sourceText, or
+  QString::fromUtf8(\a sourceText) if there is no apporpriate version.
+  It is otherwise identical to \l tr().
 
-  \sa QApplication::translate()
+  \sa tr() QApplication::translate()
 */
-
-QString QObject::tr( const char *text, const char * comment )
+QString QObject::trUtf8( const char *sourceText, const char *comment )
 {
     if ( qApp )
-	return qApp->translate( "QObject", text, comment );
+	return qApp->translate( "QObject", sourceText, comment, TRUE );
     else
-	return QString::fromLatin1(text);
+	return QString::fromUtf8( sourceText );
 }
 
 #endif

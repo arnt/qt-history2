@@ -694,15 +694,19 @@ void TrWindow::openFile( const QString& name )
 		qApp->processEvents();
 		ContextLVI *c = contexts.find( QString((*it).context()) );
 		if ( c == 0 ) {
-		    c = new ContextLVI( lv, tor.toUnicode((*it).context()) );
+		    c = new ContextLVI( lv, tor.toUnicode((*it).context(),
+							  (*it).utf8()) );
 		    contexts.insert( QString((*it).context()), c );
 		}
 		if ( (*it).sourceText()[0] == '\0' ) {
-		    c->appendToComment( tor.toUnicode((*it).comment()) );
+		    c->appendToComment( tor.toUnicode((*it).comment(),
+						      (*it).utf8()) );
 		} else {
 		    MessageLVI * tmp = new MessageLVI( slv, *it,
-					   tor.toUnicode((*it).sourceText()),
-					   tor.toUnicode((*it).comment()), c );
+					   tor.toUnicode((*it).sourceText(),
+							 (*it).utf8()),
+					   tor.toUnicode((*it).comment(),
+							 (*it).utf8()), c );
 		    tmp->setDanger( danger(tmp->sourceText(),
 					   tmp->translation()) &&
 				    tmp->message().type() ==
@@ -975,6 +979,11 @@ void TrWindow::findAgain()
     foundItem   = 0;
     foundWhere  = 0;
     foundOffset = 0;
+}
+
+void TrWindow::setCodec()
+{
+    qWarning( "Not implemented yet" ); // ###
 }
 
 int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
@@ -1711,18 +1720,18 @@ QString TrWindow::friendlyString( const QString& str )
 void TrWindow::setupMenuBar()
 {
     QMenuBar * m = menuBar();
-    QPopupMenu * filep        = new QPopupMenu( this );
-    QPopupMenu * editp        = new QPopupMenu( this );
+    QPopupMenu * filep = new QPopupMenu( this );
+    QPopupMenu * editp  = new QPopupMenu( this );
     QPopupMenu * translationp = new QPopupMenu( this );
-    QPopupMenu * validationp  = new QPopupMenu( this );
+    QPopupMenu * validationp = new QPopupMenu( this );
     validationp->setCheckable( TRUE );
     phrasep = new QPopupMenu( this );
-    closePhraseBookp   = new QPopupMenu( this );
-    editPhraseBookp    = new QPopupMenu( this );
-    printPhraseBookp   = new QPopupMenu( this );
+    closePhraseBookp = new QPopupMenu( this );
+    editPhraseBookp = new QPopupMenu( this );
+    printPhraseBookp = new QPopupMenu( this );
     QPopupMenu * viewp = new QPopupMenu( this );
     viewp->setCheckable( TRUE );
-    QPopupMenu * helpp   = new QPopupMenu( this );
+    QPopupMenu * helpp = new QPopupMenu( this );
 
     m->insertItem( tr("&File"), filep );
     m->insertItem( tr("&Edit"), editp );
@@ -1795,8 +1804,11 @@ void TrWindow::setupMenuBar()
 			  QAccel::stringToKey(tr("Ctrl+F")) );
     findAct->setEnabled( FALSE );
     findAgainAct = new Action( editp, tr("Find &Next"),
-			  this, SLOT(findAgain()), Key_F3 );
+			       this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
+    editp->insertSeparator();
+    setCodecAct = new Action( editp, tr("&Set Codec..."),
+			      this, SLOT(setCodec()) );
 
     // Translation menu
     startFromSourceAct = new Action( translationp, tr("&Start From Source"),
@@ -2023,7 +2035,7 @@ bool TrWindow::savePhraseBook( const QString& name, const PhraseBook& pb )
 void TrWindow::updateProgress()
 {
     if ( numNonobsolete == 0 )
-	progress->setText( QString("        ") );
+	progress->setText( QString("    " "    ") );
     else
 	progress->setText( QString(" %1/%2 ").arg(numFinished)
 			   .arg(numNonobsolete) );

@@ -33,16 +33,17 @@ public:
     MetaTranslatorMessage( const char *context, const char *sourceText,
 			   const char *comment,
 			   const QString& translation = QString::null,
-			   Type type = Unfinished )
+			   bool utf8 = FALSE, Type type = Unfinished )
 	: QTranslatorMessage( context, sourceText, comment, translation ),
-	  ty( type ) { }
+	  utfeight( utf8 ), ty( type ) { }
     MetaTranslatorMessage( const MetaTranslatorMessage& m )
-	: QTranslatorMessage( m ), ty( m.ty ) { }
+	: QTranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty ) { }
 
     MetaTranslatorMessage& operator=( const MetaTranslatorMessage& m );
 
     void setType( Type nt ) { ty = nt; }
     Type type() const { return ty; }
+    bool utf8() const { return utfeight; }
 
     bool operator==( const MetaTranslatorMessage& m ) const;
     bool operator!=( const MetaTranslatorMessage& m ) const
@@ -56,6 +57,7 @@ public:
     { return !operator<( m ); }
 
 private:
+    bool utfeight;
     Type ty;
 };
 
@@ -76,7 +78,7 @@ public:
     void insert( const MetaTranslatorMessage& m );
 
     void setCodec( const char *name );
-    QString toUnicode( const char *str ) const;
+    QString toUnicode( const char *str, bool utf8 ) const;
 
     QValueList<MetaTranslatorMessage> messages() const;
 

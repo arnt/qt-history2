@@ -169,7 +169,8 @@ public:
 #endif
     QString	     translate( const char * context,
 				const char * key,
-				const char * comment = 0 ) const;
+				const char * comment = 0,
+				bool utf8 = FALSE ) const;
 #ifndef QT_NO_PALETTE
     // obsolete functions
     static void      setWinStyleHighlightColor( const QColor &c ) {
@@ -436,10 +437,13 @@ inline bool QApplication::sendSpontaneousEvent( QObject *receiver, QEvent *event
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions
-inline QString QApplication::translate( const char *, const char *key,
-					const char * ) const
+inline QString QApplication::translate( const char *, const char *sourceText,
+					const char *, bool utf8 ) const
 {
-    return QString::fromLatin1( key );
+    if ( utf8 )
+	return QString::fromUtf8( sourceText );
+    else
+	return QString::fromLatin1( sourceText );
 }
 #endif
 

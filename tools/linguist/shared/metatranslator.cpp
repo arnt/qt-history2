@@ -29,7 +29,8 @@ class TsHandler : public QXmlDefaultHandler
 public:
     TsHandler( MetaTranslator *translator )
 	: tor( translator ), type( MetaTranslatorMessage::Finished ),
-	  inMessage( FALSE ), ferrorCount( 0 ) { }
+	  inMessage( FALSE ), ferrorCount( 0 ), contextIsUtf8( FALSE ),
+	  messageIsUtf8( FALSE ) { }
 
     virtual bool startElement( const QString& namespaceURI,
 			       const QString& localName, const QString& qName,
@@ -43,13 +44,15 @@ private:
     MetaTranslator *tor;
     MetaTranslatorMessage::Type type;
     bool inMessage;
-    QCString context;
-    QCString source;
-    QCString comment;
+    QString context;
+    QString source;
+    QString comment;
     QString translation;
 
     QString accum;
     int ferrorCount;
+    bool contextIsUtf8;
+    bool messageIsUtf8;
 };
 
 bool TsHandler::startElement( const QString& /* namespaceURI */,
@@ -62,12 +65,22 @@ bool TsHandler::startElement( const QString& /* namespaceURI */,
 	source.truncate( 0 );
 	comment.truncate( 0 );
 	translation.truncate( 0 );
+	for ( int i = 0; i < atts.length(); i++ ) {
+	    if ( atts.qName(i) == QString("utf8") )
+		contextIsUtf8 = ( atts.value(i) == QString("true") );
+	}
     } else if ( qName == QString("message") ) {
 	inMessage = TRUE;
 	type = MetaTranslatorMessage::Finished;
 	source.truncate( 0 );
 	comment.truncate( 0 );
 	translation.truncate( 0 );
+
+	messageIsUtf8 = contextIsUtf8;
+	for ( int i = 0; i < atts.length(); i++ ) {
+	    if ( atts.qName(i) == QString("utf8") )
+		messageIsUtf8 = ( atts.value(i) == QString("true") );
+	}
     } else if ( qName == QString("translation") ) {
 	for ( int i = 0; i < atts.length(); i++ ) {
 	    if ( atts.qName(i) == QString("type") ) {
@@ -95,16 +108,29 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
     } else if ( qName == QString("source") ) {
 	source = accum;
     } else if ( qName == QString("comment") ) {
-	if ( inMessage )
+	if ( inMessage ) {
 	    comment = accum;
-	else
-	    tor->insert( MetaTranslatorMessage(context, "", accum,
-			 QString::null, MetaTranslatorMessage::Unfinished) );
+	} else {
+	    if ( contextIsUtf8 )
+		tor->insert( MetaTranslatorMessage(context.utf8(), "",
+			     accum.utf8(), QString::null, TRUE,
+			     MetaTranslatorMessage::Unfinished) );
+	    else
+		tor->insert( MetaTranslatorMessage(context.ascii(), "",
+			     accum.ascii(), QString::null, FALSE,
+			     MetaTranslatorMessage::Unfinished) );
+	}
     } else if ( qName == QString("translation") ) {
 	translation = accum;
     } else if ( qName == QString("message") ) {
-	tor->insert( MetaTranslatorMessage(context, source, comment,
-					   translation, type) );
+	if ( messageIsUtf8 )
+	    tor->insert( MetaTranslatorMessage(context.utf8(), source.utf8(),
+					       comment.utf8(), translation,
+					       TRUE, type) );
+	else
+	    tor->insert( MetaTranslatorMessage(context.ascii(), source.ascii(),
+					       comment.ascii(), translation,
+					       FALSE, type) );
 	inMessage = FALSE;
     }
     return TRUE;
@@ -132,10 +158,8 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
     return FALSE;
 }
 
-static QCString protect( const QCString& str )
+static QString protect( const QCString& str )
 {
-    // evil conversion back and forth... still likely to be faster because
-    // of all the appending going on.
     int k = 0;
     int l = (int) str.length();
     QString result;
@@ -162,50 +186,55 @@ static QCString protect( const QCString& str )
 	}
 	k++;
     }
-    return result.ascii();
+    return result;
 }
 
-static QCString evilBytes( const QCString& str )
+static QString evilBytes( const QCString& str, bool utf8 )
 {
-    // ditto
-    int k = 0;
-    QString result;
-    QCString tmp = protect( str );
-    int l = (int) tmp.length();
-    while( k < l ) {
-	if ( (uchar)(tmp[k]) > 127 )
-	    result += ( QString::fromLatin1( "&#x" ) +
-		        QString::number( (uint)(uchar)(tmp[k]), 16 ) +
-			QString::fromLatin1( ";" ) );
-	else
-	    result += QChar( tmp[k] );
-	k++;
+    if ( utf8 ) {
+	return protect( str );
+    } else {
+	// not very efficient
+	int k = 0;
+	QString result;
+	QCString tmp = protect( str ).ascii();
+	int l = (int) tmp.length();
+	while( k < l ) {
+	    if ( (uchar)tmp[k] >= 128 )
+		result += ( QString::fromLatin1( "&#x" ) +
+		            QString::number( (uint)(uchar)tmp[k], 16 ) +
+			    QChar(';') );
+	    else
+		result += QChar( tmp[k] );
+	    k++;
+	}
+	return result;
     }
-    return result.ascii();
 }
 
 MetaTranslatorMessage& MetaTranslatorMessage::operator=(
 	const MetaTranslatorMessage& m )
 {
     QTranslatorMessage::operator=( m );
+    utfeight = m.utfeight;
     ty = m.ty;
     return *this;
 }
 
 bool MetaTranslatorMessage::operator==( const MetaTranslatorMessage& m ) const
 {
-    return strcmp( context(), m.context() ) == 0 &&
-	   strcmp( sourceText(), m.sourceText() ) == 0 &&
-	   strcmp( comment(), m.comment() ) == 0;
+    return qstrcmp( context(), m.context() ) == 0 &&
+	   qstrcmp( sourceText(), m.sourceText() ) == 0 &&
+	   qstrcmp( comment(), m.comment() ) == 0;
 }
 
 bool MetaTranslatorMessage::operator<( const MetaTranslatorMessage& m ) const
 {
-    int delta = strcmp( context(), m.context() );
+    int delta = qstrcmp( context(), m.context() );
     if ( delta == 0 )
-	delta = strcmp( sourceText(), m.sourceText() );
+	delta = qstrcmp( sourceText(), m.sourceText() );
     if ( delta == 0 )
-	delta = strcmp( comment(), m.comment() );
+	delta = qstrcmp( comment(), m.comment() );
     return delta < 0;
 }
 
@@ -273,27 +302,38 @@ bool MetaTranslator::save( const QString& filename ) const
     while ( m != mm.end() ) {
 	TMMInv inv;
 	TMMInv::Iterator i;
+	bool contextIsUtf8 = m.key().utf8();
 	QCString context = m.key().context();
 	QCString comment = "";
 
 	do {
-	    if ( QCString(m.key().sourceText()).isEmpty() )
-		comment += QCString( m.key().comment() );
-	    else
+	    if ( QCString(m.key().sourceText()).isEmpty() ) {
+		if ( m.key().type() != MetaTranslatorMessage::Obsolete ) {
+		    contextIsUtf8 = m.key().utf8();
+		    comment = QCString( m.key().comment() );
+		}
+	    } else {
 		inv.insert( *m, m.key() );
+	    }
 	} while ( ++m != mm.end() && QCString(m.key().context()) == context );
 
-	t << "<context>\n";
-	t << "    <name>" << evilBytes( context ) << "</name>\n";
+	t << "<context utf8=\"" << ( contextIsUtf8 ? "true" : "false" )
+	  << "\">\n";
+	t << "    <name>" << evilBytes( context, contextIsUtf8 )
+	  << "</name>\n";
 	if ( !comment.isEmpty() )
-	    t << "    <comment>" << evilBytes( comment ) << "</comment>\n";
+	    t << "    <comment>" << evilBytes( comment, contextIsUtf8 )
+	      << "</comment>\n";
 
 	for ( i = inv.begin(); i != inv.end(); ++i ) {
-	    t << "    <message>\n"
-	      << "        <source>" << evilBytes( (*i).sourceText() )
+	    t << "    <message utf8=\"" << ( (*i).utf8() ? "true" : "false" )
+	      << "\">\n"
+	      << "        <source>" << evilBytes( (*i).sourceText(),
+						  (*i).utf8() )
 	      << "</source>\n";
 	    if ( !QCString((*i).comment()).isEmpty() )
-		t << "        <comment>" << evilBytes( (*i).comment() )
+		t << "        <comment>" << evilBytes( (*i).comment(),
+						       (*i).utf8() )
 		  << "</comment>\n";
 	    t << "        <translation";
 	    if ( (*i).type() == MetaTranslatorMessage::Unfinished )
@@ -346,9 +386,11 @@ void MetaTranslator::setCodec( const char *name )
 	codec = 0;
 }
 
-QString MetaTranslator::toUnicode( const char *str ) const
+QString MetaTranslator::toUnicode( const char *str, bool utf8 ) const
 {
-    if ( codec == 0 )
+    if ( utf8 )
+	return QString::fromUtf8( str );
+    else if ( codec == 0 )
 	return QString::fromLatin1( str );
     else
 	return codec->toUnicode( str );

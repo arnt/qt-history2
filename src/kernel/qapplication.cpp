@@ -2155,7 +2155,8 @@ QTextCodec* QApplication::defaultCodec() const
   recently installed message file back to the first installed message
   file.
 
-  QObject::tr() offers a more convenient way to use this functionality.
+  QObject::tr() and QObject::trUtf8() provide this functionality more
+  conveniently.
 
   \a context is typically a class name (e.g., "MyDialog") and
   \a sourceText is either English text or a short marker text, if
@@ -2168,21 +2169,23 @@ QTextCodec* QApplication::defaultCodec() const
   See the \l QTranslator documentation for more information about
   contexts and comments.
 
-  If none of the message files contain a translation for \a sourceText
-  in \a context, this function returns \a sourceText.
+  If none of the message files contain a translation for \a
+  sourceText in \a context, this function returns a QString
+  equivalent of \a sourceText. It \a utf8 is TRUE, the \a sourceText
+  is interpreted as a UTF-8 encoded string. If \a utf8 is FALSE (the
+  default), the defaultCodec() (or Latin-1 if none is set) is used.
 
-  This function is not virtual, but you can use alternative translation
-  techniques by installing subclasses of QTranslator.
+  This function is not virtual. You can use alternative translation
+  techniques by subclassing \l QTranslator.
 
-  \sa QObject::tr() installTranslator() removeTranslator() QTranslator
+  \sa QObject::tr() installTranslator() defaultCodec() QString::fromUtf8()
 */
 
 QString QApplication::translate( const char * context, const char * sourceText,
-				 const char * comment ) const
+				 const char * comment, bool utf8 ) const
 {
     if ( !sourceText )
 	return QString::null;
-    // context can be null, for global stuff
 
     if ( translators ) {
 	QPtrListIterator<QTranslator> it( *translators );
@@ -2195,7 +2198,9 @@ QString QApplication::translate( const char * context, const char * sourceText,
 		return result;
 	}
     }
-    if ( default_codec != 0 )
+    if ( utf8 )
+	return QString::fromUtf8( sourceText );
+    else if ( default_codec != 0 )
 	return default_codec->toUnicode( sourceText );
     else
 	return QString::fromLatin1( sourceText );

@@ -44,10 +44,12 @@
 
 
 #ifndef QT_NO_TRANSLATION
-#define QT_TR_FUNCTION static QString tr(const char*); \
-		       static QString tr(const char*, const char*);
+#define QT_TR_FUNCTIONS \
+    static QString tr( const char *, const char * = 0 ); \
+    static QString trUtf8( const char *, const char * = 0 );
 #else
-#define QT_TR_FUNCTION // inherit the one from QObject
+// inherit the ones from QObject
+#define QT_TR_FUNCTIONS
 #endif
 
 // The following macros are our "extensions" to C++
@@ -68,7 +70,7 @@ struct QUObject;
  #define Q_OBJECT_FAKE		    Q_OBJECT_FAKE
 
 #else
- #define slots					// slots:   in class
+ #define slots					// slots: in class
  #define signals protected			// signals: in class
  #define emit					// emit signal
  #define Q_CLASSINFO( name, value )		// class info
@@ -89,7 +91,7 @@ public:								\
     bool qt_property( const QMetaProperty*, int, QVariant* );	\
     static QMetaObject* staticMetaObject();			\
     QObject* qObject() { return this; } 			\
-    QT_TR_FUNCTION						\
+    QT_TR_FUNCTIONS						\
 private:							\
     static QMetaObject *metaObj;
 
@@ -112,9 +114,6 @@ private:							\
 #define METHOD_CODE	0			// member type codes
 #define SLOT_CODE	1
 #define SIGNAL_CODE	2
-
-
-// Forward declarations so you don't have to include files you don't need
 
 class QObject;
 class QMetaObject;
