@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#78 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#79 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#78 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#79 $";
 #endif
 
 
@@ -2431,7 +2431,7 @@ void QPainter::drawBezier( const QPointArray &a, int index, int npoints )
 
 void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 {						// draw pixmap
-    if ( !isActive() )
+    if ( !isActive() || pixmap.isNull() )
 	return;
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) ) {
@@ -2444,8 +2444,48 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap )
 	    pdev->cmd( PDC_DRAWPIXMAP, param );
 	    return;
 	}
-	if ( testf(WxF) )			// no scaling or rotation ;-(
+	if ( testf(WxF) ) {			// heavy transformation
+	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
+			   wm21/65536.0, wm22/65536.0,
+			   wdx/65536.0,  wdy/65536.0 );
+	    mat = QPixmap::trueMatrix( mat, pixmap.width(), pixmap.height() );
+	    QPixmap bm_clip( pixmap.width(), pixmap.height(), 1 );
+	    bm_clip.fill( color1 );
+	    QPixmap pm = pixmap.xForm( mat );
+	    QPixmap bm = bm_clip.xForm( mat );
 	    WXFORM_P( x, y );
+	    int dx, dy;
+	    mat.map( 0, 0, &dx, &dy );		// compute position of pixmap
+	    x -= dx;  y -= dy;
+	    bool do_clip = hasClipping();
+	    QPixmap *draw_pm;
+	    if ( do_clip ) {
+		draw_pm = new QPixmap( pm.width(), pm.height(), pm.depth() );
+		QPainter paint;
+		paint.begin( draw_pm );
+		QRegion rgn = crgn.copy();
+		rgn.move( -x, -y );
+		paint.setClipRegion( rgn );
+		paint.drawPixmap( 0, 0, pm );
+		paint.end();
+	    }
+	    else
+		draw_pm = &pm;
+	    XSetClipMask( dpy, gc, bm.handle() );
+	    XSetClipOrigin( dpy, gc, x, y );
+	    ushort save_flags = flags;
+	    flags = IsActive;
+	    drawPixmap( x, y, pm );
+	    flags = save_flags;
+	    XSetClipOrigin( dpy, gc, 0, 0 );
+	    if ( do_clip ) {
+		delete draw_pm;
+		XSetRegion( dpy, gc, crgn.handle() );
+	    }
+	    else
+		XSetClipMask( dpy, gc, None );
+	    return;
+	}
 	if ( testf(VxF) )
 	    VXFORM_P( x, y );
     }
@@ -2556,13 +2596,12 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    QRect bbox = fm.boundingRect( str, len );
 	    int w=bbox.width(), h=bbox.height();
 	    int tx=-bbox.x(),  ty=-bbox.y();	// text position
-	    Q2DMatrix eff_mat( wm11/65536.0, wm12/65536.0,
-			       wm21/65536.0, wm22/65536.0,
-			       wdx/65536.0,  wdy/65536.0 );
-	    QPixmap *wx_bm = get_text_bitmap( eff_mat, cfont, str, len );
+	    Q2DMatrix mat( wm11/65536.0, wm12/65536.0,
+			   wm21/65536.0, wm22/65536.0,
+			   wdx/65536.0,  wdy/65536.0 );
+	    mat = QPixmap::trueMatrix( mat, w, h );
+	    QPixmap *wx_bm = get_text_bitmap( mat, cfont, str, len );
 	    bool create_new_bm = wx_bm == 0;
-	    Q2DMatrix mat( 1, 0, 0, 1, -eff_mat.dx(), -eff_mat.dy() );
-	    mat = eff_mat * mat;
 	    if ( create_new_bm ) {		// no such cached bitmap
 		QPixmap bm( w, h, 1 );		// create bitmap
 		bm.fill( color0 );
@@ -2572,8 +2611,11 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.drawText( tx, ty, str, len );
 		paint.end();
 		wx_bm = new QPixmap( bm.xForm( mat ) );	// transform bitmap
+		if ( wx_bm->isNull() ) {
+		    delete wx_bm;		// nothing to draw
+		    return;
+		}
 	    }
-	    mat = QPixmap::trueMatrix( mat, w, h );
 	    WXFORM_P( x, y );
 	    int dx, dy;
 	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
@@ -2625,7 +2667,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 	    else				// restore clip mask
 		XSetClipMask( dpy, gc, None );
 	    if ( create_new_bm )
-		ins_text_bitmap( eff_mat, cfont, str, len, wx_bm );
+		ins_text_bitmap( mat, cfont, str, len, wx_bm );
 	    return;
 	}
 	if ( testf(VxF) )
