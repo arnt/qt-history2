@@ -15,7 +15,7 @@ public:
 	Manual
     };
 
-    QPlugIn( const QString& filename, LibraryPolicy = Default );
+    QPlugIn( const QString& filename, LibraryPolicy = Default, const char* fn = 0 );
     ~QPlugIn();
 
     bool load();
@@ -50,6 +50,7 @@ private:
 #endif
     QString libfile;
     LibraryPolicy libPol;
+    QCString function;
 };
 
 #endif // QPLUGIN_H

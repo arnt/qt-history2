@@ -1,7 +1,7 @@
 #ifndef QAPPLICATIONINTERFACES_H
 #define QAPPLICATIONINTERFACES_H
 
-#include <qapplication.h>
+#include <qobject.h>
 
 class QDualInterface : public QObject
 {
@@ -44,13 +44,6 @@ class QApplicationInterface : public QDualInterface
 public:
     void requestProperty( const QCString&, QVariant& ) = 0;
     void requestSetProperty( const QCString&, const QVariant& ) = 0;
-};
-
-class PlugMainWindowInterface : public QApplicationInterface
-{
-public:
-    void requestProperty( const QCString&, QVariant& );
-    void requestSetProperty( const QCString&, const QVariant& );
 };
 
 #endif //QAPPLICATIONINTERFACES_H

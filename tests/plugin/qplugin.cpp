@@ -1,5 +1,6 @@
 #include "qplugin.h"
 #include "qapplicationinterfaces.h"
+#include <qapplication.h>
 
 #ifdef _WS_WIN_
 #include <qt_windows.h>
@@ -33,9 +34,13 @@
 
   \sa setPolicy()
 */
-QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol )
+QPlugIn::QPlugIn( const QString& filename, LibraryPolicy pol, const char* fn )
     : pHnd( 0 ), libfile( filename ), libPol( pol )
 {
+    if ( fn )
+	function = fn;
+    else
+	function = "loadInterface";
     ifc = 0;
     if ( pol == OptimizeSpeed )
 	load();
@@ -196,9 +201,9 @@ bool QPlugIn::loadInterface()
 
     LoadInterfaceProc proc;
 #ifdef _WS_WIN_
-    proc = (LoadInterfaceProc) GetProcAddress( pHnd, "loadInterface" );
+    proc = (LoadInterfaceProc) GetProcAddress( pHnd, function );
 #else
-    proc = (LoadInterfaceProc) dlsym( pHnd, "loadInterface" );
+    proc = (LoadInterfaceProc) dlsym( pHnd, function );
 #endif
     if ( !proc )
 	return FALSE;
@@ -212,11 +217,15 @@ bool QPlugIn::loadInterface()
 	ifc = 0;
 	return FALSE;
     } else {
-	QClientInterface* ci = plugInterface()->requestClientInterface( queryPlugInInterface() );
-	QApplicationInterface* ai = qApp->requestApplicationInterface( queryPlugInInterface() );
-	if ( ci && ai ) {
-	    QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
-	    QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+	QStrList appIfaces = qApp->queryInterfaceList();
+	for ( uint i = 0; i < appIfaces.count(); i++ ) {
+	    QCString iface = appIfaces.at( i );
+	    QClientInterface* ci = plugInterface()->requestClientInterface( iface );
+	    QApplicationInterface* ai = qApp->requestApplicationInterface( iface );
+	    if ( ci && ai ) {
+		QObject::connect( ci, SIGNAL(writeProperty(const QCString&, const QVariant&)), ai, SLOT(requestSetProperty(const QCString&, const QVariant&)) );
+		QObject::connect( ci, SIGNAL(readProperty(const QCString&,QVariant&)), ai, SLOT(requestProperty(const QCString&,QVariant&)) );
+	    }
 	}
     }
 

@@ -2,13 +2,14 @@
 #define QPLUGININTERFACE_H
 
 #include <qstringlist.h>
-
-class QClientInterface;
+#include <qstrlist.h>
+#include "qapplicationinterfaces.h"
 
 class QPlugInInterface
 {
+    friend class QPlugIn;
 public:
-    QPlugInInterface() {}
+    QPlugInInterface() { cIface = 0; }
     virtual ~QPlugInInterface() {}
 
     virtual QString name() { return QString::null; }
@@ -18,10 +19,27 @@ public:
     virtual QStringList featureList() { return QStringList(); }
     
     virtual QCString queryPlugInInterface() const = 0;
-    virtual QClientInterface* requestClientInterface( const QCString& ) 
+    virtual QStrList queryInterfaceList() const
     {
-	return 0;
+	return QStrList();
     }
+
+protected:
+    QClientInterface* clientInterface() const
+    {
+	return cIface;
+    }
+
+private:
+    QClientInterface* requestClientInterface( const QCString& request ) 
+    {
+	if ( queryInterfaceList().contains( request ) )
+	    return cIface ? cIface : ( cIface = new QClientInterface );
+	else
+	    return 0;
+    }
+
+    QClientInterface* cIface;
 };
 
 #endif
