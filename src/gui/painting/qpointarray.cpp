@@ -16,6 +16,9 @@
 #include "qdatastream.h"
 #include "qmatrix.h"
 #include "qdebug.h"
+#include "qpainterpath.h"
+#include "qpainterpath_p.h"
+#include "qbezier_p.h"
 #include <stdarg.h>
 
 const double Q_PI = 3.14159265358979323846;
@@ -416,9 +419,9 @@ void QPointArray::makeArc(int x, int y, int w, int h, int a1, int a2, const QMat
     qt_find_ellipse_coords(r, a1, a2, &startPoint, 0);
 
     QPainterPath path(startPoint);
-    path.addArc(r, a1, a2);
+    path.arcTo(r, a1, a2);
     path = path * xf;
-    return path.toSubpathPolygon().at(0).toPointArray();
+    *this = path.toSubpathPolygons().at(0).toPointArray();
 }
 
 #endif // QT_NO_TRANSFORMATIONS
@@ -433,7 +436,7 @@ void QPointArray::makeEllipse(int x, int y, int w, int h)
 {
     QPainterPath path;
     path.addEllipse(x, y, w, h);
-    return path.toSubpathPolygon().at(0).toPointArray();
+    *this = path.toSubpathPolygons().at(0).toPointArray();
 }
 
 #ifndef QT_NO_BEZIER
