@@ -59,7 +59,7 @@ class QSqlDriver;
 class QSql;
 class QSqlResultInfo;
 class QSqlResultPrivate;
-struct QSqlResultShared;
+class QSqlResultShared;
 
 class QM_EXPORT_SQL QSqlResult
 {
