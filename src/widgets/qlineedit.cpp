@@ -750,13 +750,27 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == RightButton ) {
-	d->popup->setItemEnabled( d->id[ 0 ], !d->readonly && !d->undoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 1 ], !d->readonly && !d->redoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 2 ], !d->readonly && hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 3 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 4 ], !d->readonly && (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( d->id[ 5 ], !d->readonly && (bool)text().length() );
-	int id = d->popup->exec( e->globalPos() );
+        int id;
+	bool enable;
+        id = d->id[0];
+	enable = !d->readonly && !d->undoList.isEmpty();
+	d->popup->setItemEnabled( id, enable );
+	id = d->id[ 1 ];
+	enable = !d->readonly && !d->redoList.isEmpty();
+	d->popup->setItemEnabled( id, enable );
+	id = d->id[ 2 ];
+	enable = !d->readonly && !d->readonly && hasMarkedText();
+	d->popup->setItemEnabled( id, enable );
+	id = d->id[ 3 ];
+	enable = hasMarkedText();
+	d->popup->setItemEnabled( id, enable );
+	id = d->id[ 4 ];
+	enable = !d->readonly && (bool)QApplication::clipboard()->text().length();
+	d->popup->setItemEnabled( id, enable );
+	id = d->id[ 5 ];
+	enable = !d->readonly && (bool)text().length();
+	d->popup->setItemEnabled( id, enable );
+	id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undoInternal();
 	else if ( id == d->id[ 1 ] )
