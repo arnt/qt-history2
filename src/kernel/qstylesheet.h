@@ -61,7 +61,7 @@ public:
     ~QStyleSheetItem();
 
     QStyleSheetItem& operator=( const QStyleSheetItem& other );
-    
+
     QString name() const;
 
     QStyleSheet* styleSheet();
@@ -204,14 +204,14 @@ public:
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     virtual QTextCustomItem* tag( const QString& name,
-			    const QMap<QString, QString> &attr,
-			    const QString& context,
-			    const QMimeSourceFactory& factory,
-			    bool emptyTag, QTextDocument *doc ) const;
+				  const QMap<QString, QString> &attr,
+				  const QString& context,
+				  const QMimeSourceFactory& factory,
+				  bool emptyTag, QTextDocument *doc ) const;
 #endif
-
     static QString escape( const QString& );
-    static QString convertFromPlainText( const QString&, QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre );
+    static QString convertFromPlainText( const QString&,
+					 QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre );
     static bool mightBeRichText( const QString& );
 
     virtual void scaleFont( QFont& font, int logicalSize ) const;
