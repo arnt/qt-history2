@@ -30,6 +30,6 @@ To run the demo:
 cd ~/qt-%VERSION%/examples/launcher
 ./start_demo
 
-See the HTML documentation in docs/html for detailed installation
+See the HTML documentation in doc/html for detailed installation
 instructions.
 
