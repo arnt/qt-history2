@@ -15,7 +15,6 @@
 #include "qhostaddress.h"
 #include "qstringlist.h"
 
-#ifndef QT_NO_NETWORK
 class QHostAddressPrivate
 {
 public:
@@ -401,5 +400,3 @@ bool QHostAddress::isNull() const
     }
     return true;
 }
-
-#endif //QT_NO_NETWORK

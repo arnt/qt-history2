@@ -25,7 +25,6 @@
 #define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
 #endif
 
-#ifndef QT_NO_NETWORK
 class QHostAddressPrivate;
 
 typedef struct {
@@ -70,5 +69,4 @@ private:
     QHostAddressPrivate *d;
 };
 
-#endif //QT_NO_NETWORK
 #endif

@@ -55,9 +55,6 @@ static inline int qt_socket_socket(int domain, int type, int protocol)
 #endif
 
 #include "qsocketdevice.h"
-
-#ifndef QT_NO_NETWORK
-
 #include "qwindowdefs.h"
 
 #include <errno.h>
@@ -1022,5 +1019,3 @@ QHostAddress QSocketDevice::peerAddress() const
 {
     return d->pa;
 }
-
-#endif //QT_NO_NETWORK

@@ -20,7 +20,6 @@
 #include "qhostaddress.h"
 #include "qsocketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
-#ifndef QT_NO_NETWORK
 
 #if !defined(QT_MODULE_NETWORK) || defined(QT_LICENSE_PROFESSIONAL) || defined(QT_INTERNAL_NETWORK)
 #define QM_EXPORT_NETWORK
@@ -64,5 +63,4 @@ private:
     void init(const QHostAddress & address, Q_UINT16 port, int backlog);
 };
 
-#endif // QT_NO_NETWORK
 #endif // QSERVERSOCKET_H

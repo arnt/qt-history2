@@ -13,9 +13,6 @@
 ****************************************************************************/
 
 #include "qserversocket.h"
-
-#ifndef QT_NO_NETWORK
-
 #include "qsocketnotifier.h"
 
 class QServerSocketPrivate {
@@ -267,5 +264,3 @@ void QServerSocket::setSocket(int socket)
     connect(d->n, SIGNAL(activated(int)),
              this, SLOT(incomingConnection(int)));
 }
-
-#endif //QT_NO_NETWORK

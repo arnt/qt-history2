@@ -13,7 +13,6 @@
 ****************************************************************************/
 
 #include "qsocket.h"
-#ifndef QT_NO_NETWORK
 #include "qlist.h"
 #include "qtimer.h"
 #include "qsocketnotifier.h"
@@ -1453,5 +1452,3 @@ Q_ULONG QSocket::readBufferSize() const
 }
 
 #include "moc_qsocket.cpp"
-
-#endif //QT_NO_NETWORK

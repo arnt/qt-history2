@@ -13,8 +13,6 @@
 ****************************************************************************/
 
 #include "qsocketdevice.h"
-
-#ifndef QT_NO_NETWORK
 #include "qsocketdevice_p.h"
 
 #include <string.h>
@@ -544,5 +542,4 @@ void QSocketDevice::setError(Error err)
 {
     d->e = err;
 }
-#endif //QT_NO_NETWORK
 

@@ -26,7 +26,6 @@
 #define QM_EXPORT_NETWORK Q_NETWORK_EXPORT
 #endif
 
-#ifndef QT_NO_NETWORK
 class QSocketDevicePrivate;
 
 class QM_EXPORT_NETWORK QSocketDevice : public QIODevice
@@ -117,5 +116,4 @@ private:
 #endif
 };
 
-#endif // QT_NO_NETWORK
 #endif // QSOCKETDEVICE_H
