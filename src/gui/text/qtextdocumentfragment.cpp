@@ -464,28 +464,12 @@ void QTextHTMLImporter::import()
             Q_ASSERT(!tables.isEmpty());
             tables[tables.size() - 1].currentRow++;
             continue;
-        } else if (node->isTableCell) {
-            Q_ASSERT(!tables.isEmpty());
-
-            QTextCharFormat charFmt;
-            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
-
-            if (node->bgColor.isValid())
-                charFmt.setTableCellBackgroundColor(node->bgColor);
-
-            charFmt.setTableCellColumnSpan(node->tableCellColSpan);
-            charFmt.setTableCellRowSpan(node->tableCellRowSpan);
-
-            QTextBlockFormat fmt;
-            appendBlock(fmt, charFmt, QTextBeginningOfFrame);
-
-            tables[tables.size() - 1].currentColumnCount += node->tableCellColSpan;
-
-            hasBlock = false;
         }
 
         if (node->isBlock) {
             QTextBlockFormat block;
+
+            QChar separator = QChar::ParagraphSeparator;
 
             if (hasBlock) {
                 Q_ASSERT(d->fragments.last().blockFormat >= 0);
@@ -509,6 +493,26 @@ void QTextHTMLImporter::import()
             }
             block.setAlignment(node->alignment);
 
+            QTextCharFormat charFmt = node->charFormat();
+
+            if (node->isTableCell) {
+                Q_ASSERT(!tables.isEmpty());
+
+                charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
+
+                if (node->bgColor.isValid())
+                    charFmt.setTableCellBackgroundColor(node->bgColor);
+
+                charFmt.setTableCellColumnSpan(node->tableCellColSpan);
+                charFmt.setTableCellRowSpan(node->tableCellRowSpan);
+
+                separator = QTextBeginningOfFrame;
+
+                tables[tables.size() - 1].currentColumnCount += node->tableCellColSpan;
+
+                hasBlock = false;
+            }
+
             // ####################
 //                block.setFloatPosition(node->cssFloat);
 
@@ -518,14 +522,16 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 block.setBackgroundColor(node->bgColor);
 
-            QTextCharFormat charFmt = node->charFormat();
 
             if (hasBlock) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
                 d->fragments.last().charFormat = d->formatCollection.indexForFormat(charFmt);
             } else {
-                appendBlock(block, charFmt);
+                appendBlock(block, charFmt, separator);
             }
+
+            // don't merge the next block with our table cell
+            if (!node->isTableCell)
             hasBlock = true;
         } else if (node->id == Html_img) {
             QTextImageFormat fmt;
