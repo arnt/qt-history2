@@ -256,6 +256,7 @@ void FormWindowManager::addFormWindow(AbstractFormWindow *w)
         return;
 
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(slotUpdateActions()));
+    connect(formWindow->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(slotUpdateActions()));
     connect(formWindow, SIGNAL(editModeChanged(AbstractFormWindow::EditMode)), this, SLOT(slotUpdateActions()));
 
     m_formWindows.append(formWindow);
@@ -301,6 +302,16 @@ void FormWindowManager::setActiveFormWindow(AbstractFormWindow *w)
 
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
+    }
+    
+    if (old != 0) {
+        disconnect(m_actionUndo, 0, old->commandHistory(), 0);
+        disconnect(m_actionRedo, 0, old->commandHistory(), 0);
+    }
+    
+    if (m_activeFormWindow != 0) {
+        connect(m_actionUndo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(undo()));
+        connect(m_actionRedo, SIGNAL(triggered()), m_activeFormWindow->commandHistory(), SLOT(redo()));
     }
 }
 
@@ -413,7 +424,13 @@ void FormWindowManager::setupActions()
     m_actionBreakLayout->setWhatsThis(whatsThisFrom("Layout|Break Layout"));
     connect(m_actionBreakLayout, SIGNAL(triggered()), this, SLOT(slotActionBreakLayoutActivated()));
     m_actionBreakLayout->setEnabled(false);
-
+    
+    m_actionUndo = new QAction(tr("Undo"));
+    m_actionUndo->setShortcut(Qt::CTRL + Qt::Key_Z);
+    m_actionUndo->setEnabled(false);
+    m_actionRedo = new QAction(tr("Redo"));
+    m_actionRedo->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
+    m_actionRedo->setEnabled(false);
 }
 
 void FormWindowManager::slotActionCutActivated()
@@ -550,6 +567,10 @@ void FormWindowManager::slotUpdateActions()
         m_actionLower->setEnabled(false);
         m_actionRaise->setEnabled(false);
         m_actionAdjustSize->setEnabled(false);
+        m_actionUndo->setText(tr("Undo"));
+        m_actionUndo->setEnabled(false);
+        m_actionRedo->setText(tr("Redo"));
+        m_actionRedo->setEnabled(false);
         return;
     }
 
@@ -664,6 +685,11 @@ void FormWindowManager::slotUpdateActions()
         m_actionGridLayout->setEnabled(false);
         m_actionBreakLayout->setEnabled(false);
     }
+    
+    m_actionUndo->setEnabled(m_activeFormWindow->commandHistory()->canUndo());
+    m_actionUndo->setText(tr("Undo ") + m_activeFormWindow->commandHistory()->undoDescription());
+    m_actionRedo->setEnabled(m_activeFormWindow->commandHistory()->canRedo());
+    m_actionRedo->setText(tr("Redo ") + m_activeFormWindow->commandHistory()->redoDescription());
 }
 
 void FormWindowManager::layoutContainerHorizontal()
@@ -708,12 +734,12 @@ AbstractFormWindow *FormWindowManager::createFormWindow(QWidget *parentWidget, Q
 
 QAction *FormWindowManager::actionUndo() const
 {
-    return QtUndoManager::manager()->undoAction();
+    return m_actionUndo;
 }
 
 QAction *FormWindowManager::actionRedo() const
 {
-    return QtUndoManager::manager()->redoAction();
+    return m_actionRedo;
 }
 
 // DnD stuff

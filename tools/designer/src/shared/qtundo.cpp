@@ -1,33 +1,31 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
-#include "qtundo.h"
-
 #include <QApplication>
 #include <QAction>
 #include <qalgorithms.h>
 #include <qdebug.h>
 
+#include "qtundo.h"
 
 Q_GLOBAL_STATIC(QtUndoManager, g_manager)
 
+class UndoRedoAction : public QAction
+{
+    Q_OBJECT
+
+    public:
+        UndoRedoAction(QWidget *parent) : QAction(parent) {}
+
+    public slots:
+            // It's a pity QAction::setText() is not a slot...
+            void setTextSlot(const QString &text) { setText(text); }
+};
 
 /*!
     \class QtCommand
 
     \brief The QtCommand class is the base class of all commands stored on a QtUndoStack.
 
-    For an overview of the Qt Undo/Redo framework, see \l overview.html.
+    For an overview of the Qt Undo/Redo framework, see the
+    \link overview.html overview\endlink.
 
     A QtCommand represents a single editing action which an
     application can make, for example, inserting or deleting a block
@@ -73,8 +71,14 @@ Q_GLOBAL_STATIC(QtUndoManager, g_manager)
     the same class (ascertained using QObject::className()) \e and if
     the new command's merge flag is true.
 
+    A QtCommand object has a description(), which describes its effect
+    on the edited object. This description is used to give
+    human-readable information to the widgets which trigger undo or
+    redo in an application, such as the QAction objects returned by
+    QtUndoManager::createUndoAction() and QtUndoManager::createRedoAction().
+
     \warning All classes derived from QtCommand must contain the
-    Q_OBJECT macro in their declaration.
+    \c Q_OBJECT macro in their declaration.
 
     \sa QtUndoStack QtUndoManager
 */
@@ -108,9 +112,9 @@ QtCommand::QtCommand(const QString &description, bool canMerge)
 }
 
 /*!
-    Constructs a QtCommand object of \a type, with \a description and
-    the merge flag set to \a canMerge. This is the preferred
-    constructor for macro delimiters.
+    Constructs a QtCommand object of the given \a type, with a \a
+    description and the merge flag set to \a canMerge. This is the
+    preferred constructor for macro delimiters.
 
     \sa QtCommand::Type description() canMerge()
 */
@@ -123,12 +127,12 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
 }
 
 /*!
-    \fn QtCommand::Type QtCommand::type()
+    \fn QtCommand::Type QtCommand::type() const
 
     Returns the type of this command.
 */
 /*!
-    \fn bool QtCommand::isMacroBegin()
+    \fn bool QtCommand::isMacroBegin() const
 
     Returns true if the command is a macro start delimiter; otherwise
     returns false.
@@ -136,7 +140,7 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
     \sa QtCommand::Type type()
 */
 /*!
-    \fn bool QtCommand::isMacroEnd()
+    \fn bool QtCommand::isMacroEnd() const
 
     Returns true if the command is a macro end delimiter; otherwise
     returns false.
@@ -145,7 +149,7 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
 
 */
 /*!
-    \fn bool QtCommand::isCommand()
+    \fn bool QtCommand::isCommand() const
 
     Returns true if the command is an ordinary editing command;
     otherwise returns false.
@@ -155,18 +159,18 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
 /*!
     \fn QString QtCommand::description() const
 
-    Returns a string which describes the effects of this command.
+    Returns a string which describes the effect of this command on
+    the edited object.
 
-    The description of the current command is appended to the text
-    property of the QAction returned by QUndoManager::undoAction(),
-    whenever an object associated with the manager's undo stack has
-    focus. The description of the command preceding the current
-    command in the undo stack is appended to the text property of the
-    QAction returned by QUndoManager::redoAction(), whenever an object
-    associated with this undo stack has focus. Typical examples
-    include "typing", "delete block", "change font", etc.
+    Typical examples include "typing", "delete block", "change font", etc.
 
-    \sa setDescription()
+    This description is used to assign human-readable information to
+    the widgets which trigger undo or redo in an application, such as
+    the QAction objects returned by QtUndoManager::createUndoAction()
+    and QtUndoManager::createRedoAction().
+
+
+    \sa setDescription() QtUndoStack::undoDescription() QtUndoStack::redoDescription() QtUndoManager::undoDescription() QtUndoManager::redoDescription()
 */
 
 /*!
@@ -200,12 +204,12 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
 /*!
     \fn bool QtCommand::mergeMeWith(QtCommand *other)
 
-    Attempts to merge \a other into this command. Returns true if it
-    succeeds; otherwise returns false. If this function returns false,
-    QtUndoStack::push() will push \a other on top of the stack. The
-    default implementation does nothing and returns false. This function
-    must be reimplemented in each derived command class which sets its
-    merge flag to true.
+    Attempts to merge the \a other command into this command. Returns
+    true if it succeeds; otherwise returns false. If this function
+    returns false, QtUndoStack::push() will push the \a other command
+    on top of the stack. The default implementation does nothing and
+    returns false. This function must be reimplemented in each derived
+    command class which sets its merge flag to true.
 
     \code
     CmdChangeColor::CmdChangeColor(Face *face, const QString &color)
@@ -223,7 +227,6 @@ QtCommand::QtCommand(Type type, const QString &description, bool canMerge)
             return false;
 
         m_new_color = other->m_new_color;
-        setDescription("change " + m_old_color + " to " + m_new_color);
         setDescription(tr("change %1 to %2").arg(m_old_color).arg(m_new_color));
         return true;
     }
@@ -242,6 +245,8 @@ bool QtCommand::mergeMeWith(QtCommand *)
 
     This virtual function must be reimplemented by subclasses to apply
     changes.
+
+    \sa undo()
 */
 
 /*!
@@ -257,7 +262,8 @@ bool QtCommand::mergeMeWith(QtCommand *)
 
     \brief The QtUndoStack class is a stack of QtCommand objects.
 
-    For an overview of the Qt Undo/Redo framework, see \l overview.html.
+    For an overview of the Qt Undo/Redo framework, see the
+    \link overview.html overview\endlink.
 
     New commands are added with push(). When a command is pushed on to
     the stack, QtUndoStack takes ownership of the command and applies
@@ -288,15 +294,14 @@ bool QtCommand::mergeMeWith(QtCommand *)
 
     QtUndoStack supports command compression. This is useful when
     several commands can be compressed into a single command, which
-    can be undone and redone in one go. An example of this is a text
-    editor. When the user types in a character, a new action is
-    created, which inserts that character into the document at the
-    cursor position. However, it is more convenient for the user to be
-    able to undo or redo typing in whole words, sentences and
-    paragraphs. Command compression allows these single-character
-    commands to be merged into a single command which inserts or
-    deletes chunks of text. See push() for more information on
-    command compression.
+    can be undone and redone in one go. For example, in a text editor,
+    when the user types in a character, a new action is created, which
+    inserts that character into the document at the cursor position.
+    However, it is more convenient for the user to be able to undo or
+    redo typing in whole words, sentences, and paragraphs. Command
+    compression allows these single-character commands to be merged
+    into a single command which inserts or deletes chunks of text. See
+    push() for more information on command compression.
 
     QtUndoStack supports command macros. A command macro is a sequence
     of commands which are undone and redone in one go. The sequence
@@ -324,8 +329,13 @@ bool QtCommand::mergeMeWith(QtCommand *)
     }
     \endcode
 
-    \sa QtCommand QtUndoManager
+    A certain state of the edited object may be marked as "clean",
+    using setClean(). This function is usually called whenever the
+    edited object is saved.  QtUndoStack emits the cleanChanged()
+    signal whenever the edited object enters or leaves the clean
+    state.
 
+    \sa QtCommand QtUndoManager
 */
 
 /*!
@@ -346,18 +356,120 @@ QtUndoStack::QtUndoStack(QObject *parent)
 
     m_macro_nest = 0;
     m_num_commands = 0;
+
+    m_clean_command = 0; // the initial empty stack is clean
+    m_have_clean_command = true;
 }
 
-int QtUndoStack::findMacroBegin(int it)
+/*!
+    \internal
+*/
+
+QtCommand *QtUndoStack::commandAt(CommandIter it) const
+{
+    if (it == -1)
+        return 0;
+    return at(it);
+}
+
+/*!
+    Returns true if the edited object is in a clean state; otherwise
+    returns false. The edited object is in a clean state if setClean()
+    was previously called and the state of the edited object at the
+    time of the call was the same as it is now.
+
+    More precisely, the edited object is in a clean state if the
+    current QtUndoStack command is the same one as it was at the time
+    of the last call to setClean().
+
+    \sa setClean() cleanChanged()
+*/
+bool QtUndoStack::isClean() const
+{
+    return m_have_clean_command
+                && m_clean_command == commandAt(m_current_iter);
+}
+
+/*!
+    \fn void QtUndoStack::cleanChanged(bool clean)
+
+    This signal is emitted whenever the edited object enters or leaves the
+    clean state. If \a clean is true, the edited object is currently clean;
+    otherwise it is currently not clean.
+
+    \sa isClean() setClean()
+*/
+
+
+/*!
+    Marks the state of the edited object as clean. This function is
+    usually called whenever the edited object is saved. The
+    cleanChanged() signal is emited whenever the edited object enters
+    or leaves the clean state.
+
+    \sa isClean() cleanChanged()
+*/
+
+void QtUndoStack::setClean()
+{
+    bool old_clean = isClean();
+
+    m_have_clean_command = true;
+    m_clean_command = commandAt(m_current_iter);
+
+    if (old_clean != isClean())
+            emit cleanChanged(isClean());
+}
+
+struct QtUndoState
+{
+    bool can_undo, can_redo, clean;
+    QString undo_description, redo_description;
+};
+
+/*!
+    \internal
+*/
+void QtUndoStack::beforeChange(QtUndoState &state)
+{
+    state.clean = isClean();
+    state.can_undo = canUndo();
+    state.can_redo = canRedo();
+    state.undo_description = undoDescription();
+    state.redo_description = redoDescription();
+}
+
+/*!
+    \internal
+*/
+void QtUndoStack::afterChange(const QtUndoState &state)
+{
+    if (state.can_undo != canUndo())
+        emit canUndoChanged(canUndo());
+    if (state.can_redo != canRedo())
+        emit canRedoChanged(canRedo());
+    if (state.undo_description != undoDescription())
+        emit undoDescriptionChanged(undoDescription());
+    if (state.redo_description != redoDescription())
+        emit redoDescriptionChanged(redoDescription());
+    if (state.clean != isClean())
+        emit cleanChanged(isClean());
+    QtUndoManager::manager()->updateActions();
+}
+
+/*!
+    \internal
+*/
+QtUndoStack::CommandIter QtUndoStack::findMacroBegin(CommandIter it) const
 {
     int nest = 1;
 
-    QtCommand *command = at(it);
+    QtCommand *command = commandAt(it);
     Q_ASSERT(command != 0 && command->isMacroEnd());
     do {
         --it;
 
-        command = at(it);
+        command = commandAt(it);
         Q_ASSERT(command != 0);
 
         if (command->isMacroBegin())
@@ -370,16 +482,19 @@ int QtUndoStack::findMacroBegin(int it)
     return it;
 }
 
-int QtUndoStack::findMacroEnd(int it)
+/*!
+    \internal
+*/
+QtUndoStack::CommandIter QtUndoStack::findMacroEnd(CommandIter it) const
 {
     int nest = 1;
 
-    QtCommand *command = at(it);
+    QtCommand *command = commandAt(it);
     Q_ASSERT(command != 0 && command->isMacroBegin());
     do {
         ++it;
 
-        command = at(it);
+        command = commandAt(it);
         Q_ASSERT(command != 0);
 
         if (command->isMacroEnd())
@@ -393,10 +508,12 @@ int QtUndoStack::findMacroEnd(int it)
 }
 
 /*!
-    Pushes \a command onto this stack or merges it with the current
-    command. If the current command is not topmost on the stack, all
-    commands above it are deleted. Calls the \a command's
-    QtCommand::redo() function to apply it.
+    Pushes the \a command onto this stack or merges it with the
+    current command, and calls the \a{command}'s QtCommand::redo()
+    function to apply it.
+
+    If the current command is not topmost on the stack, all commands
+    above it are deleted.
 
     This function will attempt to merge a new command with the command
     on top of the stack only if they are both instances of the same
@@ -411,32 +528,44 @@ int QtUndoStack::findMacroEnd(int it)
     \sa undo() redo() clear()
 */
 
+
 void QtUndoStack::push(QtCommand *command)
 {
+    QtUndoState state;
+    beforeChange(state);
+
     command->redo();
 
     // If the current command on the stack is not last, we delete all
     // commands that follow it before adding the new command.
-
-    while (m_current_iter != size() - 1)
+    while (m_current_iter != size() - 1) {
+        if (m_have_clean_command
+                    && commandAt(m_current_iter) == m_clean_command) {
+            m_have_clean_command = false;
+            m_clean_command = 0;
+        }
         delete takeLast();
+    }
 
     switch (command->type()) {
 
         case QtCommand::Command: {
             // Either merge the new command with the current command, or append it to the
             // stack.
-            QtCommand *current = m_current_iter == -1 ? 0 : at(m_current_iter);
+            QtCommand *current = commandAt(m_current_iter);
             if (command->canMerge()
                     && current != 0
                     && current->metaObject() == command->metaObject()
+                    && (!m_have_clean_command || m_clean_command != current)
                     && current->mergeMeWith(command))
                 delete command;
             else
                 append(command);
 
-            if (m_macro_nest == 0)
+            if (m_macro_nest == 0) {
                 ++m_num_commands;
+                emit commandExecuted();
+            }
 
             break;
         }
@@ -449,28 +578,33 @@ void QtUndoStack::push(QtCommand *command)
         case QtCommand::MacroEnd:
             if (m_macro_nest == 0) {
                 qWarning("QtUndoStack::push(): MacroEnd without MacroBegin");
-                return;
+                        break;
             }
 
             append(command);
             --m_macro_nest;
-            if (m_macro_nest == 0)
-                ++m_num_commands;
 
             // Set the description to the corresponding MacroBegin's description
-            int it = size() - 1;
+            CommandIter it = size() - 1;
             it = findMacroBegin(it); // I've just pushed the MacroEnd
-            Q_ASSERT(at(it) != 0);
-            command->setDescription(at(it)->description());
+            Q_ASSERT(it != -1);
+            command->setDescription(commandAt(it)->description());
+
+            if (m_macro_nest == 0) {
+                ++m_num_commands;
+                emit commandExecuted();
+            }
 
             break;
     }
 
     m_current_iter = size() - 1;
-    QtUndoManager::manager()->updateActions();
+    afterChange(state);
 }
 
 /*!
+    \fn bool QtUndoStack::canUndo() const
+
     Returns true if a command is available for undo; otherwise returns
     false. Undo is not possible if the stack is empty or if the bottom
     command on the stack has already been undone.
@@ -478,7 +612,7 @@ void QtUndoStack::push(QtCommand *command)
     \sa undo() canRedo()
 */
 
-bool QtUndoStack::canUndo()
+bool QtUndoStack::canUndo() const
 {
     if (isEmpty())
         return false;
@@ -486,13 +620,15 @@ bool QtUndoStack::canUndo()
     if (m_macro_nest > 0)
         return false;
 
-    if (m_current_iter < 0 || m_current_iter == size())
+    if (m_current_iter == -1)
         return false;
 
     return true;
 }
 
 /*!
+    \fn bool QtUndoStack::canRedo() const
+
     Returns true if a command is available for redo; otherwise returns
     false. Redo is not possible if the stack is empty or if the top
     command on the stack has already been redone.
@@ -500,17 +636,10 @@ bool QtUndoStack::canUndo()
     \sa redo() canUndo()
 */
 
-bool QtUndoStack::canRedo()
+bool QtUndoStack::canRedo() const
 {
-    if (isEmpty())
-        return false;
-
     if (m_macro_nest > 0)
         return false;
-
-    // We know the stack is not empty
-    if (m_current_iter < 0)
-        return true;
 
     if (m_current_iter == size() - 1)
         return false;
@@ -518,11 +647,15 @@ bool QtUndoStack::canRedo()
     return true;
 }
 
+
+/*!
+    \internal
+*/
 void QtUndoStack::undoMacro()
 {
     Q_ASSERT(m_macro_nest == 0);
-    Q_ASSERT(at(m_current_iter) != 0);
-    Q_ASSERT(at(m_current_iter)->type() == QtCommand::MacroEnd);
+    Q_ASSERT(m_current_iter != -1);
+    Q_ASSERT(commandAt(m_current_iter)->type() == QtCommand::MacroEnd);
 
     int nest = 1;
 
@@ -530,7 +663,7 @@ void QtUndoStack::undoMacro()
     do {
         --m_current_iter;
 
-        command = at(m_current_iter);
+        command = commandAt(m_current_iter);
         Q_ASSERT(command != 0);
 
         if (command->isMacroBegin())
@@ -543,11 +676,14 @@ void QtUndoStack::undoMacro()
     } while (nest > 0 || !command->isMacroBegin());
 }
 
+/*!
+    \internal
+*/
 void QtUndoStack::redoMacro()
 {
     Q_ASSERT(m_macro_nest == 0);
-    Q_ASSERT(at(m_current_iter) != 0);
-    Q_ASSERT(at(m_current_iter)->type() == QtCommand::MacroBegin);
+    Q_ASSERT(m_current_iter != -1);
+    Q_ASSERT(commandAt(m_current_iter)->type() == QtCommand::MacroBegin);
 
     int nest = 1;
 
@@ -555,7 +691,7 @@ void QtUndoStack::redoMacro()
     do {
         ++m_current_iter;
 
-        command = at(m_current_iter);
+        command = commandAt(m_current_iter);
         Q_ASSERT(command != 0);
 
         if (command->isMacroBegin())
@@ -571,113 +707,125 @@ void QtUndoStack::redoMacro()
 /*!
     If the current command's \link QtCommand::type() type()\endlink is
     \c Command, calls the current command's \link QtCommand::undo()
-    undo()\endlink function and moves the current pointer one command
+    undo()\endlink function and moves the current position one command
     down the stack.
 
     If the current command's \link QtCommand::type() type()\endlink is
     \c MacroEnd, traverses the stack downwards calling each command's
     \link QtCommand::undo() undo()\endlink, until a command of type \c
-    MacroBegin is found. The current pointer is then set to one
+    MacroBegin is found. The current position is then set to one
     command below the macro begin marker.
+
+    This process is repeated \a count times. \a count defaults to 1.
 
     \sa push() redo() canUndo()
 */
 
-void QtUndoStack::undo()
+void QtUndoStack::undo(int count)
 {
-    if (!canUndo()) {
-        qWarning("QtUndoStack::undo(): can't undo");
-        return;
+    QtUndoState state;
+    beforeChange(state);
+
+    int i = 0;
+    for (; i < count; ++i) {
+        if (!canUndo()) {
+            qWarning("QtUndoStack::undo(): can't undo");
+            break;
+        }
+
+        QtCommand *command = commandAt(m_current_iter);
+        Q_ASSERT(!command->isMacroBegin());
+
+        if (command->isCommand())
+            command->undo();
+        else
+            undoMacro();
+
+        --m_current_iter;
     }
 
-    QtCommand *command = at(m_current_iter);
-    Q_ASSERT(!command->isMacroBegin());
-
-    if (command->isCommand())
-        command->undo();
-    else
-        undoMacro();
-
-    --m_current_iter;
-
-    QtUndoManager::manager()->updateActions();
+    if (i > 0) {
+        afterChange(state);
+        emit commandExecuted();
+    }
 }
 
 
 /*!
     If the current command's \link QtCommand::type() type()\endlink is
-    \c Command, moves the current pointer one command up in the stack
+    \c Command, moves the current position one command up in the stack
     and calls the new current command's \link QtCommand::redo()
     redo()\endlink.
 
     If the current command's \link QtCommand::type() type()\endlink is
     \c MacroBegin, traverses the stack upwards calling each command's
-    \link QtCommand::redo() redo()\endlink, until a command of type
-    \c MacroEnd is found. The current pointer is left pointing
-    to this command.
+    \link QtCommand::redo() redo()\endlink, until a command of type \c
+    MacroEnd is found. The current position remains at this command.
+
+    This process is repeated \a count times. \a count defaults to 1.
 
     \sa push() undo() canRedo()
 */
 
-void QtUndoStack::redo()
+void QtUndoStack::redo(int count)
 {
-    if (!canRedo()) {
-        qWarning("QtUndoStack::redo(): can't redo");
-        return;
-    }
+    QtUndoState state;
+    beforeChange(state);
 
-    if (m_current_iter < 0)
-        m_current_iter = 0;
-    else
+    int i = 0;
+    for (; i < count; ++i) {
+        if (!canRedo()) {
+            qWarning("QtUndoStack::redo(): can't redo");
+            break;
+        }
+
         ++m_current_iter;
 
-    QtCommand *command = at(m_current_iter);
-    Q_ASSERT(!command->isMacroEnd());
+        QtCommand *command = commandAt(m_current_iter);
+        Q_ASSERT(!command->isMacroEnd());
 
-    if (command->isCommand())
-        command->redo();
-    else
-        redoMacro();
-
-    QtUndoManager::manager()->updateActions();
-}
-
-/*!
-    Returns \link QtCommand::description() description()\endlink for
-    the current command on the stack, or a null string if there is no
-    current command.
-
-    \sa redoDescription()
-*/
-
-QString QtUndoStack::undoDescription()
-{
-    if (canUndo() )
-        return at(m_current_iter)->description();
-    else
-        return QString::null;
-}
-
-/*!
-    Returns \link QtCommand::description() description()\endlink for
-    the command preceding the current command on the stack, or a null
-    string if the current command is at the top.
-
-    \sa undoDescription()
-*/
-
-QString QtUndoStack::redoDescription()
-{
-    if (canRedo()) {
-        int it = m_current_iter;
-        if (it < m_current_iter)
-            it = 0;
+        if (command->isCommand())
+            command->redo();
         else
-            ++it;
-        return at(it)->description();
+            redoMacro();
     }
+
+    if (i > 0) {
+        afterChange(state);
+        emit commandExecuted();
+    }
+}
+
+/*!
+    Returns the \link QtCommand::description() description()\endlink
+    of the current command on the stack, or an empty string if there is
+    no current command.
+
+    \sa QtUndoManager::undoDescription() QtCommand::description() redoDescription()
+*/
+
+QString QtUndoStack::undoDescription() const
+{
+    if (canUndo())
+        return commandAt(m_current_iter)->description();
     else
-        return QString::null;
+        return QString();
+}
+
+/*!
+    Returns the \link QtCommand::description() description()\endlink for
+    the command preceding the current command on the stack, or an
+    empty string if the current command is at the top.
+
+    \sa QtUndoManager::redoDescription() QtCommand::description() undoDescription()
+*/
+
+QString QtUndoStack::redoDescription() const
+{
+    if (canRedo())
+        return commandAt(m_current_iter + 1)->description();
+    else
+        return QString();
 }
 
 /*!
@@ -688,12 +836,18 @@ QString QtUndoStack::redoDescription()
 
 void QtUndoStack::clear()
 {
-    while( !isEmpty() )
-        delete takeFirst();
+    QtUndoState state;
+    beforeChange(state);
 
-    QList<QtCommand*>::clear();
+    while (!isEmpty())
+        delete takeLast();
+    
     m_macro_nest = 0;
     m_num_commands = 0;
+    m_have_clean_command = true;
+    m_clean_command = 0;
+
+    afterChange(state);
 }
 
 /*!
@@ -703,28 +857,24 @@ void QtUndoStack::clear()
     \sa redoList()
 */
 
-QStringList QtUndoStack::undoList()
+QStringList QtUndoStack::undoList() const
 {
     QStringList result;
 
     if (m_macro_nest > 0)
         return result;
 
-    if (m_current_iter<0 || m_current_iter >= size())
+    if (m_current_iter == -1)
         return result;
 
-    int it = 0;
-    for (; it<size(); ++it) {
-        QtCommand *command = at(it);
+    for (int it = 0; it <= m_current_iter; ++it) {
+        QtCommand *command = commandAt(it);
 
         result.append(command->description());
 
         Q_ASSERT(!command->isMacroEnd());
         if (command->isMacroBegin())
             it = findMacroEnd(it);
-
-        if (it == m_current_iter)
-            break;
     }
 
     return result;
@@ -737,21 +887,15 @@ QStringList QtUndoStack::undoList()
     \sa undoList()
 */
 
-QStringList QtUndoStack::redoList()
+QStringList QtUndoStack::redoList() const
 {
     QStringList result;
 
     if (m_macro_nest > 0)
         return result;
 
-    int it = m_current_iter;
-    if (m_current_iter < 0)
-        it = 0;
-    else
-        ++it;
-
-    for (; it<size(); ++it) {
-        QtCommand *command = at(it);
+    for (int it = m_current_iter + 1; it < size(); ++it) {
+        QtCommand *command = commandAt(it);
 
         result.append(command->description());
 
@@ -763,6 +907,133 @@ QStringList QtUndoStack::redoList()
     return result;
 }
 
+/*!
+    Creates a QAction object connected to the QtUndoStack's undo()
+    slot. The \a parent becomes the owner and parent of the QAction.
+    This is significant, since any accelerators that are assigned to
+    the QAction will only work within the \a parent.
+
+    Unlike QtUndoManager::createUndoAction(), the returned QAction is
+    connected directly to this stack's undo() slot. This is useful if
+    you want each of your target windows to have it's own undo button.
+
+    The returned QAction will keep its text property in sync with
+    undoDescription() and disable itself whenever no commands are
+    available for undo.
+
+    If the application's default QMimeSourceFactory contains a pixmap
+    called "undo" or "undo.png", this pixmap is assigned to the QAction.
+
+    \sa undo() undoDescription() createRedoAction()
+*/
+
+QAction *QtUndoStack::createUndoAction(QWidget *parent) const
+{
+    UndoRedoAction *undo_action = new UndoRedoAction(parent);
+    connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
+    connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
+                        undo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(canUndoChanged(bool)),
+                        undo_action, SLOT(setEnabled(bool)));
+
+    undo_action->setEnabled(canUndo());
+    undo_action->setText(undoDescription());
+
+    return undo_action;
+}
+
+/*!
+    Creates a QAction object connected to the QtUndoStack's redo()
+    slot. The \a parent becomes the owner and parent of the QAction.
+    This is significant, since any accelerators that are assigned to
+    the QAction will only work within the \a parent.
+
+    Unlike QtUndoManager::createRedoAction(), the returned QAction is
+    connected directly to this stack's redo() slot. This is useful if
+    you want each of your target windows to have it's own redo button.
+
+    The returned QAction will keep its text property in sync with
+    redoDescription() and disable itself whenever no commands are
+    available for redo.
+
+    If the application's default QMimeSourceFactory contains a pixmap
+    called "redo" or "redo.png", this pixmap is assigned to the QAction.
+
+    \sa redo() redoDescription() createUndoAction()
+*/
+
+QAction *QtUndoStack::createRedoAction(QWidget *parent) const
+{
+    UndoRedoAction *redo_action = new UndoRedoAction(parent);
+    connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));
+    connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
+                        redo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(canRedoChanged(bool)),
+                        redo_action, SLOT(setEnabled(bool)));
+
+    redo_action->setEnabled(canRedo());
+    redo_action->setText(redoDescription());
+
+    return redo_action;
+}
+
+/*!
+    \fn void QtUndoStack::commandExecuted()
+
+    This signal is emitted whenever a QtCommand on the stack is undone
+    or redone. When macro commands are undone or redone, this signal is
+    emitted only once, even though the macro may contain more than one
+    command.
+
+    \sa redo() undo()
+*/
+
+/*!
+    \fn void QtUndoStack::undoDescriptionChanged(const QString &newDescription)
+
+    This signal is emitted whenever the undo description for this QtUndoStack changes.
+    \a newDescription is the new undo description. It is useful when
+    you want to trigger undo using a custom widget, rather than
+    using the QAction returned by createUndoAction().
+
+    \sa undoDescription() canUndoChanged() redoDescriptionChanged()
+*/
+
+/*!
+    \fn void QtUndoStack::redoDescriptionChanged(const QString &newDescription)
+
+    This signal is emitted whenever the redo description for this QtUndoStack changes.
+    \a newDescription is the new redo description. It is useful when
+    you want to trigger undo using a custom widget, rather than
+    using the QAction returned by createRedoAction().
+
+    \sa redoDescription() canRedoChanged() undoDescriptionChanged()
+*/
+
+/*!
+    \fn void QtUndoStack::canUndoChanged(bool enabled)
+
+    This signal is emitted whenever the state reported by canUndo()
+    changes. \a enabled is the new state.
+
+    This function is useful if you want to trigger undo with a custom
+    widget, rather than the QAction returned by createUndoAction().
+
+    \sa canUndo() undoDescriptionChanged() canRedoChanged()
+*/
+
+/*!
+    \fn void QtUndoStack::canRedoChanged(bool enabled)
+
+    This signal is emitted whenever the state reported by canRedo()
+    changes. \a enabled is the new state.
+
+    This function is useful if you want to trigger redo with a custom
+    widget, rather than the QAction returned by createRedoAction().
+
+    \sa canRedo() redoDescriptionChanged() canUndoChanged()
+*/
+
 
 /*!
     \class QtUndoManager
@@ -770,7 +1041,8 @@ QStringList QtUndoStack::redoList()
     \brief The QtUndoManager class manages command stacks in an
     undo/redo framework based on the Command design pattern.
 
-    For an overview of the Qt Undo/Redo framework, see \l overview.html.
+    For an overview of the Qt Undo/Redo framework, see the
+    \link overview.html overview\endlink.
 
     QtUndoManager keeps a list of QtUndoStack objects. Each is a list
     of QtCommand objects and a pointer to the last executed command
@@ -785,12 +1057,12 @@ QStringList QtUndoStack::redoList()
     QtUndoManager when it is called for the first time).
 
     Undo and redo are requested through the undo() and redo() slots.
-    QtUndoManager also provides two QAction objects connected to these
-    slots, returned by undoAction() and redoAction(). They have the
-    additional benefit that QtUndoManager appends
-    QtCommand::description() to their text properties to reflect the
-    command they will undo or redo. They are disabled whenever undo or
-    redo are not possible.
+    QtUndoManager also provides the functions createUndoAction() and
+    createRedoAction() for creating QAction objects that trigger undo
+    and redo. These QActions have the additional benefit of keeping
+    their text properties in sync with undoDescription() and
+    redoDescription(), as well as disabling themselves whenever no
+    commands are available for undo or redo.
 
     \code
     MainWindow::MainWindow(QWidget *parent, const char *name)
@@ -798,13 +1070,18 @@ QStringList QtUndoStack::redoList()
     {
         ...
         QtUndoManager *manager = QtUndoManager::manager();
+        QAction *undo_action = manager->createUndoAction(this);
+        QAction *redo_action = manager->createRedoAction(this);
+        undo_action->setAccel(QKeySequence("Ctrl+Z"));
+        redo_action->setAccel(QKeySequence("Shift+Ctrl+Z"));
+
         QToolBar *toolbar = new QToolBar(this);
-        manager->undoAction()->addTo(toolbar);
-        manager->redoAction()->addTo(toolbar);
+        undo_action->addTo(toolbar);
+        redo_action->addTo(toolbar);
 
         QPopupMenu *editmenu = new QPopupMenu(this);
-        manager->undoAction()->addTo(editmenu);
-        manager->redoAction()->addTo(editmenu);
+        undo_action->addTo(editmenu);
+        redo_action->addTo(editmenu);
         ...
     }
     \endcode
@@ -821,8 +1098,8 @@ QStringList QtUndoStack::redoList()
     application's main window.
 
     Whenever the widget with the keyboard focus has no targets in its
-    parent chain, the QAction objects returned by undoAction() and
-    redoAction() are disabled.
+    parent chain, the QAction objects created using createUndoAction() and
+    createRedoAction() are disabled.
 
     \img qtundo-menu.png
     <p>
@@ -835,12 +1112,9 @@ QStringList QtUndoStack::redoList()
 
 QtUndoManager::QtUndoManager()
 {
-    m_undo_action = new QAction(); /// ### these two actions needs a parent!!
-    m_redo_action = new QAction();
     m_current_stack = 0;
-
-    connect(m_undo_action, SIGNAL(triggered()), this, SLOT(undo()));
-    connect(m_redo_action, SIGNAL(triggered()), this, SLOT(redo()));
+    m_can_undo = false;
+    m_can_redo = false;
 
     updateActions();
 
@@ -848,105 +1122,145 @@ QtUndoManager::QtUndoManager()
 }
 
 /*!
-    Returns a QAction object connected to the QtUndoManager's undo()
-    slot. QtUndoManager appends the QtCommand::description() from the
-    current command on the focused target's stack to the QAction's
-    text property to reflect what the QAction will undo. If no undo
-    command is available, QtUndoManager disables this QAction.
+    Creates a QAction object connected to the QtUndoManager's undo()
+    slot. The \a parent becomes the owner and parent of the QAction.
+    This is significant, since any accelerators that are assigned to
+    the QAction will only work within the \a parent.
+
+    The returned QAction will keep its text property in sync with
+    undoDescription() and disable itself whenever no commands are
+    available for undo.
 
     If the application's default QMimeSourceFactory contains a pixmap
-    called "undo", this pixmap is assigned to the QAction.
+    called "undo" or "undo.png", this pixmap is assigned to the QAction.
 
-    \sa undo() redoAction()
+    \sa undo() undoDescription() createRedoAction()
 */
 
-QAction *QtUndoManager::undoAction() const
+QAction *QtUndoManager::createUndoAction(QWidget *parent) const
 {
-    return m_undo_action;
+    UndoRedoAction *undo_action = new UndoRedoAction(parent);
+    connect(undo_action, SIGNAL(activated()), this, SLOT(undo()));
+    connect(this, SIGNAL(undoDescriptionChanged(const QString&)),
+                        undo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(canUndoChanged(bool)),
+                        undo_action, SLOT(setEnabled(bool)));
+
+    undo_action->setEnabled(m_can_undo);
+    undo_action->setText(m_undo_description);
+
+    return undo_action;
 }
 
 /*!
-    Returns a QAction object connected to the QtUndoManager's redo()
-    slot. QtUndoManager appends the QtCommand::description() from the
-    command preceding the current command on the focused target's
-    stack to the QAction's text property to reflect what the QAction
-    will redo. If no redo command is available, QtUndoManager disables
-    this QAction.
+    Creates a QAction object connected to the QtUndoManager's redo()
+    slot. The \a parent becomes the owner and parent of the QAction.
+    This is significant, since any accelerators that are assigned to
+    the QAction will only work within the \a parent.
+
+    The returned QAction will keep its text property in sync with
+    redoDescription() and disable itself whenever no commands are
+    available for redo.
 
     If the application's default QMimeSourceFactory contains a pixmap
-    called "redo", this pixmap is assigned to the QAction.
+    called "redo" or "redo.png", this pixmap is assigned to the QAction.
 
-    \sa redo() undoAction()
+    \sa redo() redoDescription() createUndoAction()
 */
 
-QAction *QtUndoManager::redoAction() const
+QAction *QtUndoManager::createRedoAction(QWidget *parent) const
 {
-    return m_redo_action;
+    UndoRedoAction *redo_action = new UndoRedoAction(parent);
+    connect(redo_action, SIGNAL(activated()), this, SLOT(redo()));
+    connect(this, SIGNAL(redoDescriptionChanged(const QString&)),
+                        redo_action, SLOT(setTextSlot(const QString&)));
+    connect(this, SIGNAL(canRedoChanged(bool)),
+                        redo_action, SLOT(setEnabled(bool)));
+
+    redo_action->setEnabled(m_can_redo);
+    redo_action->setText(m_redo_description);
+
+    return redo_action;
 }
 
 /*! \internal */
 
 void QtUndoManager::updateActions()
 {
+    bool changed = false;
+
     QtUndoStack *stack = currentStack();
 
-    if (stack != 0 && stack->canUndo()) {
-        m_undo_action->setText("Undo " + stack->undoDescription());
-        m_undo_action->setEnabled(true);
+    bool undo_enabled = stack != 0 && stack->canUndo();
+    QString undo_description = tr("Undo");
+    if (undo_enabled)
+        undo_description += " " + stack->undoDescription();
+
+    if (undo_enabled != m_can_undo) {
+        changed = true;
+        m_can_undo = undo_enabled;
+        emit canUndoChanged(undo_enabled);
     }
-    else {
-        m_undo_action->setText("Undo");
-        m_undo_action->setEnabled(false);
+    if (undo_description != m_undo_description) {
+        changed = true;
+        m_undo_description = undo_description;
+        emit undoDescriptionChanged(undo_description);
     }
 
-    if (stack != 0 && stack->canRedo()) {
-        m_redo_action->setText("Redo " + stack->redoDescription());
-        m_redo_action->setEnabled(true);
+    bool redo_enabled = stack != 0 && stack->canRedo();
+    QString redo_description = tr("Redo");
+    if (redo_enabled)
+        redo_description += " " + stack->redoDescription();
+
+    if (redo_enabled != m_can_redo) {
+        changed = true;
+        m_can_redo = redo_enabled;
+        emit canRedoChanged(redo_enabled);
     }
-    else {
-        m_redo_action->setText("Redo");
-        m_redo_action->setEnabled(false);
+    if (redo_description != m_redo_description) {
+        changed = true;
+        m_redo_description = redo_description;
+        emit redoDescriptionChanged(redo_description);
     }
 
-    emit changed();
+    if (changed)
+            emit QtUndoManager::changed();
 }
 
 /*!
     Returns true if a command is available for redo; otherwise returns
-    false. Redo is not possible if: the widget with the keyboard focus
-    has no targets in its parent chain, or a target is found but the
-    associated stack is empty, or if the last command on the stack
-    has already been undone. The QAction returned by
-    QtUndoManager::undoAction() is disabled whenever canUndo() is
-    false.
+    false. Redo is not possible if the widget with the keyboard focus
+    has no targets in its parent chain, or if a target is found but
+    the associated stack is empty, or if the last command on the stack
+    has already been undone.
+
+    The QAction returned by createUndoAction() disables itself
+    whenever canUndo() is false.
 
     \sa undo() canRedo()
 */
 
-bool QtUndoManager::canUndo()
+bool QtUndoManager::canUndo() const
 {
-    QtUndoStack *stack = currentStack();
-
-    return stack != 0 && stack->canUndo();
+    return m_can_undo;
 }
 
 /*!
     Returns true if a command is available for undo; otherwise returns
-    false. Undo is not possible if: the widget with the keyboard focus
-    has no targets in its parent chain, or a target is found but the
-    associated stack is empty, or if the first command on the stack
-    has already been redone. The QAction returned by
-    QtUndoManager::redoAction() is disabled whenever canRedo() is
-    false.
+    false. Undo is not possible if the widget with the keyboard focus
+    has no targets in its parent chain, or if a target is found but
+    the associated stack is empty, or if the first command on the
+    stack has already been redone.
+
+    A QAction returned by createRedoAction() disables itself
+    whenever canRedo() is false.
 
     \sa redo() canUndo()
 */
 
-bool QtUndoManager::canRedo()
+bool QtUndoManager::canRedo() const
 {
-    QtUndoStack *stack = currentStack();
-
-    return stack != 0 && stack->canRedo();
+    return m_can_redo;
 }
 
 /*! \internal */
@@ -966,7 +1280,8 @@ void QtUndoManager::stackDestroyed(QObject *stack)
             m_stack_map.erase(it);
             it = tmp;
         }
-        else ++it;
+        else
+            ++it;
     }
 
     updateActions();
@@ -998,10 +1313,12 @@ void QtUndoManager::viewDestroyed(QObject *view)
     QtUndoStack::undo() is called on the associated stack. If no such
     target is found, this function does nothing.
 
+    \a count is the number of commands that should be undone. It defaults to 1.
+
     \sa redo() canUndo()
 */
 
-void QtUndoManager::undo()
+void QtUndoManager::undo(int count)
 {
     QtUndoStack *stack = currentStack();
 
@@ -1010,9 +1327,7 @@ void QtUndoManager::undo()
         return;
     }
 
-    stack->undo();
-
-    updateActions();
+    stack->undo(count);
 }
 
 /*!
@@ -1022,10 +1337,12 @@ void QtUndoManager::undo()
     QtUndoStack::redo() is called on the associated stack. If no such
     target is found, this function does nothing.
 
+    \a count is the number of commands that should be redone. It defaults to 1.
+
     \sa undo() canRedo()
 */
 
-void QtUndoManager::redo()
+void QtUndoManager::redo(int count)
 {
     QtUndoStack *stack = currentStack();
 
@@ -1034,11 +1351,10 @@ void QtUndoManager::redo()
         return;
     }
 
-    stack->redo();
-
-    updateActions();
+    stack->redo(count);
 }
 
+QtUndoManager *QtUndoManager::m_manager = 0;
 uint QtUndoManager::m_undo_limit = 0;
 
 /*!
@@ -1075,9 +1391,10 @@ void QtUndoManager::disassociateView(QObject *obj)
 }
 
 /*!
-    Associates \a obj with \a stack, making \a obj the \a stack's
-    target. undo() and redo() requests will be directed to \a stack,
-    whenever \a obj or one of its children has the keyboard focus.
+    Associates the object \a obj with the given \a stack, adding \a
+    obj the \a stack's targets. undo() and redo() requests will be
+    directed to \a stack, whenever \a obj or one of its children has
+    the keyboard focus.
 
     \sa disassociateView()
 */
@@ -1113,7 +1430,7 @@ void QtUndoManager::associateView(QObject *obj, QtUndoStack *stack)
     \sa setUndoLimit()
 */
 
-uint QtUndoManager::undoLimit()
+uint QtUndoManager::undoLimit() const
 {
     return m_undo_limit;
 }
@@ -1143,13 +1460,13 @@ bool QtUndoManager::eventFilter(QObject*, QEvent *e)
 
 /*! \internal */
 
-QtUndoStack *QtUndoManager::currentStack()
+QtUndoStack *QtUndoManager::currentStack() const
 {
     QWidget *w = qApp->focusWidget();
     while (w != 0) {
-        StackMap::iterator it = m_stack_map.find(w);
+        StackMap::const_iterator it = m_stack_map.find(w);
         if (it != m_stack_map.end()) {
-            m_current_stack = *it;
+            m_current_stack = (QtUndoStack*) *it;
             break;
         }
         w = w->parentWidget();
@@ -1164,14 +1481,109 @@ QtUndoStack *QtUndoManager::currentStack()
 */
 
 /*!
-    Returns a list of descriptions of all commands up to the the
+    Returns the current undo description.
+
+    The undo description is a string that describes what effects
+    calling QtUndoManager::undo() will have on the edited object.
+
+    It contains the text returned by QtCommand::description() for the
+    current command on the QtUndoStack associated with the target
+    widget that contains the keyboard focus.
+
+    The QAction returned by createUndoAction() keeps its text property
+    in sync with the undo description. This function is useful if you
+    want to trigger undo with a custom widget, rather than with this
+    QAction.
+
+    \sa undoDescriptionChanged() createUndoAction() QtCommand::description() QtUndoStack::undoDescription()
+*/
+
+QString QtUndoManager::undoDescription() const
+{
+    return m_undo_description;
+}
+
+/*!
+    Returns the current redo description.
+
+    The redo description is a string that describes what effects
+    calling QtUndoManager::redo() will have on the edited object.
+
+    It contains the text returned by QtCommand::description() for the
+    command preceding the current command on the QtUndoStack
+    associated with the target widget that contains the keyboard
+    focus.
+
+    The QAction returned by createRedoAction() keeps its text property
+    in sync with the redo description. This function is useful if you
+    want to trigger redo with a custom widget, rather than with this
+    QAction.
+
+    \sa redoDescriptionChanged() createRedoAction() QtCommand::description() QtUndoStack::redoDescription()
+*/
+
+QString QtUndoManager::redoDescription() const
+{
+    return m_redo_description;
+}
+
+/*!
+    \fn void QtUndoManager::redoDescriptionChanged(const QString &newDescription)
+
+    This signal is emitted whenever the redo description for the QtUndoStack associated
+    with the target widget that contains the keyboard focus changes.
+    \a newDescription is the new redo description. It is useful when
+    you want to trigger redo using a custom widget, rather than
+    using the QAction returned by createRedoAction().
+
+    \sa redoDescription() canRedoChanged() undoDescriptionChanged()
+*/
+
+/*!
+    \fn void QtUndoManager::undoDescriptionChanged(const QString &newDescription)
+
+    This signal is emitted whenever the undo description for the QtUndoStack associated
+    with the target widget that contains the keyboard focus changes.
+    \a newDescription is the new undo description. It is useful when
+    you want to trigger undo using a custom widget, rather than
+    using the QAction returned by createUndoAction().
+
+    \sa undoDescription() canUndoChanged() redoDescriptionChanged()
+*/
+
+/*!
+    \fn void QtUndoManager::canUndoChanged(bool enabled)
+
+    This signal is emitted whenever the state reported by canUndo()
+    changes. \a enabled is the new state.
+
+    This function is useful if you want to trigger undo with a custom
+    widget, rather than the QAction returned by createUndoAction().
+
+    \sa canUndo() undoDescriptionChanged() canRedoChanged()
+*/
+
+/*!
+    \fn void QtUndoManager::canRedoChanged(bool enabled)
+
+    This signal is emitted whenever the state reported by canRedo()
+    changes. \a enabled is the new state.
+
+    This function is useful if you want to trigger redo with a custom
+    widget, rather than the QAction returned by createRedoAction().
+
+    \sa canRedo() redoDescriptionChanged() canUndoChanged()
+*/
+
+/*!
+    Returns a list of descriptions of all the commands up to the
     current command in the stack associated with the currently focused
     target. If no target has focus, returns an empty list.
 
     \sa redoList()
 */
 
-QStringList QtUndoManager::undoList()
+QStringList QtUndoManager::undoList() const
 {
     QtUndoStack *stack = currentStack();
     if (stack == 0)
@@ -1181,14 +1593,14 @@ QStringList QtUndoManager::undoList()
 }
 
 /*!
-    Returns a list of descriptions of all commands preceding the
+    Returns a list of descriptions of all the commands preceding the
     current command in the stack associated with the currently focused
     target. If no target has focus, returns an empty list.
 
     \sa undoList()
 */
 
-QStringList QtUndoManager::redoList()
+QStringList QtUndoManager::redoList() const
 {
     QtUndoStack *stack = currentStack();
     if (stack == 0)
@@ -1196,6 +1608,26 @@ QStringList QtUndoManager::redoList()
 
     return stack->redoList();
 }
+
+/*!
+    \class QtUndoListBox
+
+    \brief The QtUndoListBox class is a QListBox which displays the
+    commands on the QtUndoStack associated with the focused target.
+
+    QtUndoListBox keeps track of changes in the stack and focus in the
+    application, and updates itself accordingly. Selecting a command
+    causes undo or redo until the selected command is current. Hence
+    the history of changes can be undone or redone by traversing the
+    list.
+
+    \img qtundo-list.png
+*/
+
+/*!
+    Constructs a QtUndoListBox. The \a parent and \a name are passed
+    on to the QListBox constructor.
+*/
 
 QtUndoListModel::QtUndoListModel(QObject *parent)
     : QAbstractItemModel(parent),
@@ -1253,13 +1685,13 @@ QVariant QtUndoListModel::data(const QModelIndex &index, int role) const
     }
 }
 
-
 QtUndoListView::QtUndoListView(QWidget *parent)
     : QListView(parent)
 {
     setModel(new QtUndoListModel(this));
     setSelectionMode(SingleSelection);
-    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)), this, SLOT(undoOrRedo()));
+    connect(selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIn
+dex&)), this, SLOT(undoOrRedo()));
 }
 
 QtUndoListView::~QtUndoListView()
@@ -1288,3 +1720,7 @@ void QtUndoListView::undoOrRedo()
 
     model()->blockSignals(block);
 }
+
+
+#include "qtundo.moc"
+

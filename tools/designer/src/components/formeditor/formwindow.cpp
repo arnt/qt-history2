@@ -898,6 +898,8 @@ bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 
 void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *target)
 {
+    qDebug() << "FormWindow::insertWidget()";
+
     QWidget *container = findContainer(target, false);
     if (!container)
         return;

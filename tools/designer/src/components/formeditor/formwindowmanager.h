@@ -100,6 +100,8 @@ private:
     void layoutContainerHorizontal();
     void layoutContainerVertical();
     void layoutContainerGrid();
+    
+    void setCurrentUndoStack(QtUndoStack *stack);
 
     bool isPassiveInteractor(QWidget *w) const;
 
@@ -129,6 +131,9 @@ private:
     QAction *m_actionBreakLayout;
     QAction *m_actionAdjustSize;
 
+    QAction *m_actionUndo;
+    QAction *m_actionRedo;
+    
     // DnD stuff
     void beginDrag(const QList<AbstractDnDItem*> &item_list);
     void endDrag(const QPoint &pos);

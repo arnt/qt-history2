@@ -1,16 +1,3 @@
-/****************************************************************************
-**
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
-** This file is part of the $MODULE$ of the Qt Toolkit.
-**
-** $LICENSE$
-**
-** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
-** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
-**
-****************************************************************************/
-
 #ifndef QTUNDO_H
 #define QTUNDO_H
 
@@ -40,8 +27,8 @@ class QT_SHARED_EXPORT QtCommand : public QObject
         QtCommand(const QString &description = QString::null,
                         bool canMerge = true);
 
-        virtual void redo() {}
-        virtual void undo() {}
+        virtual void redo() {};
+        virtual void undo() {};
 
         QString description() const
             { return m_description; }
@@ -51,15 +38,15 @@ class QT_SHARED_EXPORT QtCommand : public QObject
             { return m_can_merge; }
         void setCanMerge(bool b)
             { m_can_merge = b; }
-        Type type()
+        Type type() const
             { return m_type; }
 
-        bool isMacroBegin()
-            { return m_type == QtCommand::MacroBegin; }
-        bool isMacroEnd()
-            { return m_type == QtCommand::MacroEnd; }
-        bool isCommand()
-            { return m_type == QtCommand::Command; }
+        bool isMacroBegin() const
+            { return m_type == MacroBegin; }
+        bool isMacroEnd() const
+            { return m_type == MacroEnd; }
+        bool isCommand() const
+            { return m_type == Command; }
 
     protected:
         virtual bool mergeMeWith(QtCommand *other);
@@ -72,6 +59,7 @@ class QT_SHARED_EXPORT QtCommand : public QObject
         Type m_type;
 };
 
+struct QtUndoState;
 
 class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
 {
@@ -82,31 +70,55 @@ class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
     public:
         QtUndoStack(QObject *parent = 0);
         void push(QtCommand *command);
-        bool canUndo();
-        bool canRedo();
-        QString undoDescription();
-        QString redoDescription();
-        QStringList undoList();
-        QStringList redoList();
+        bool canUndo() const;
+        bool canRedo() const;
+        QString undoDescription() const;
+        QString redoDescription() const;
+        QStringList undoList() const;
+        QStringList redoList() const;
+        bool isClean() const;
 
-        inline int currentIndex() const
-        { return m_current_iter; }
+        QAction *createUndoAction(QWidget *parent) const;
+        QAction *createRedoAction(QWidget *parent) const;
 
+        inline int currentIndex() const { return m_current_iter; }
+    
     public slots:
-        void undo();
-        void redo();
+        void undo(int count = 1);
+        void redo(int count = 1);
         void clear();
 
+        void setClean();
+
+    signals:
+            void cleanChanged(bool clean);
+        void commandExecuted();
+
+        void undoDescriptionChanged(const QString &newDescription);
+        void redoDescriptionChanged(const QString &newDescription);
+        void canUndoChanged(bool enabled);
+        void canRedoChanged(bool enabled);
+
     private:
+        typedef int CommandIter;
+
         void undoMacro();
         void redoMacro();
-        int findMacroBegin(int it);
-        int findMacroEnd(int it);
+        CommandIter findMacroBegin(CommandIter it) const;
+        CommandIter findMacroEnd(CommandIter it) const;
+
+        void beforeChange(QtUndoState &state);
+        void afterChange(const QtUndoState &state);
 
         // *m_current_iter == 0 means "one-before-first"
-        int m_current_iter;
+        CommandIter m_current_iter;
         uint m_num_commands;
         int m_macro_nest;
+
+        bool m_have_clean_command;
+        const QtCommand *m_clean_command;
+        
+        QtCommand *commandAt(CommandIter it) const;
 };
 
 class QT_SHARED_EXPORT QtUndoManager : public QObject
@@ -115,45 +127,57 @@ class QT_SHARED_EXPORT QtUndoManager : public QObject
 
     public:
         QtUndoManager();
-
-        QAction *undoAction() const;
-        QAction *redoAction() const;
+        
+        QAction *createUndoAction(QWidget *parent) const;
+        QAction *createRedoAction(QWidget *parent) const;
 
         void associateView(QObject *obj, QtUndoStack *stack);
         void disassociateView(QObject *obj);
 
-        bool canUndo();
-        bool canRedo();
+        bool canUndo() const;
+        bool canRedo() const;
+        QString undoDescription() const;
+        QString redoDescription() const;
         void setUndoLimit(uint i);
-        uint undoLimit();
-        QStringList undoList();
-        QStringList redoList();
+        uint undoLimit() const;
+        QStringList undoList() const;
+        QStringList redoList() const;
 
         static QtUndoManager *manager();
 
         virtual bool eventFilter(QObject *obj, QEvent *e);
 
     public slots:
-        void undo();
-        void redo();
+        void undo(int count = 1);
+        void redo(int count = 1);
 
-        void stackDestroyed(QObject *stack);
-        void viewDestroyed(QObject *view);
         void updateActions();
 
     signals:
         void changed();
 
+        void undoDescriptionChanged(const QString &newDescription);
+        void redoDescriptionChanged(const QString &newDescription);
+        void canUndoChanged(bool enabled);
+        void canRedoChanged(bool enabled);
+
+    private slots:
+        void stackDestroyed(QObject *stack);
+        void viewDestroyed(QObject *view);
+
     private:
         typedef QMap<QObject*, QtUndoStack*> StackMap;
 
-        QtUndoStack *currentStack();
+        QtUndoStack *currentStack() const;
 
         StackMap m_stack_map;
-        QAction *m_undo_action, *m_redo_action;
-        QtUndoStack *m_current_stack;
+        mutable QtUndoStack *m_current_stack;
 
+        static QtUndoManager *m_manager; // singleton
         static uint m_undo_limit;
+
+        bool m_can_undo, m_can_redo;
+        QString m_undo_description, m_redo_description;
 };
 
 class QT_SHARED_EXPORT QtUndoListModel: public QAbstractItemModel
@@ -193,4 +217,6 @@ private slots:
     void undoOrRedo();
 };
 
-#endif // QTUNDO_H
+
+
+#endif
