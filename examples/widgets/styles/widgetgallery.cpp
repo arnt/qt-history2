@@ -97,6 +97,7 @@ void WidgetGallery::createTopRightGroupBox()
     togglePushButton = new QPushButton(tr("Toggle Push Button"),
                                        topRightGroupBox);
     togglePushButton->setCheckable(true);
+    togglePushButton->setChecked(true);
     flatPushButton = new QPushButton(tr("Flat Push Button"), topRightGroupBox);
     flatPushButton->setFlat(true);
 
