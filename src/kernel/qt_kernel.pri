@@ -121,7 +121,6 @@ kernel {
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
-			  $$KERNEL_CPP/qfontencodings_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
 			  $$KERNEL_CPP/qpixmap_x11.cpp \
 			  $$KERNEL_CPP/qprinter_x11.cpp \

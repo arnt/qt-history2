@@ -41,12 +41,6 @@
 #include "qlist.h"
 #ifndef QT_NO_CODECS
 #include "qutfcodec.h"
-#include "qgbkcodec.h"
-#include "qeucjpcodec.h"
-#include "qjiscodec.h"
-#include "qsjiscodec.h"
-#include "qeuckrcodec.h"
-#include "qbig5codec.h"
 #include "qrtlcodec.h"
 #include "qtsciicodec.h"
 #endif
@@ -54,6 +48,7 @@
 #include "qfile.h"
 #include "qstrlist.h"
 #include "qstring.h"
+#include "qtextcodecfactory.h"
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -360,6 +355,14 @@ QTextCodec* QTextCodec::codecForMib(int mib)
         if ( result->mibEnum()==mib )
             break;
     }
+
+    if (result->mibEnum() != mib) {
+	QTextCodec *codec = QTextCodecFactory::createForMib(mib);
+
+	if (codec)
+	    result = codec;
+    }
+
     return result;
 }
 
@@ -648,6 +651,12 @@ QTextCodec* QTextCodec::codecForName( const char* name, int accuracy )
             result = cursor;
         }
     }
+
+    if (! result && localeMapper) {
+	qDebug("no codec for %s, localeMapper %p", name, localeMapper);
+	result = QTextCodecFactory::createForName(name);
+    }
+
     return result;
 }
 
@@ -2186,12 +2195,6 @@ static void setupBuiltinCodecs()
         (void)new QSimpleTextCodec( i );
     } while( unicodevalues[i++].mib != LAST_MIB );
 
-    (void)new QEucJpCodec;
-    (void)new QSjisCodec;
-    (void)new QJisCodec;
-    (void)new QEucKrCodec;
-    (void)new QGbkCodec;
-    (void)new QBig5Codec;
     (void)new QUtf8Codec;
     (void)new QUtf16Codec;
     (void)new QHebrewCodec;

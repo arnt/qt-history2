@@ -1202,9 +1202,11 @@ static bool qt_set_desktop_properties()
 	    QString dc;
 	    d >> dc;
 
-	    QTextCodec *codec = QTextCodec::codecForName(dc);
-	    if (codec)
-		qApp->setDefaultCodec(codec);
+	    if (! dc.isNull() && ! dc.isEmpty() && dc != "none") {
+		QTextCodec *codec = QTextCodec::codecForName(dc);
+		if (codec)
+		    qApp->setDefaultCodec(codec);
+	    }
 	}
 
 	if (! d.atEnd()) {

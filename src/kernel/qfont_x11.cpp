@@ -57,8 +57,6 @@
 
 #include "qt_x11.h"
 
-#include "qfontencodings_p.h"
-
 
 // #define QFONTLOADER_DEBUG
 
@@ -696,7 +694,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 		cache = run;
 		nmarks--;
 		lasts = i;
-	    } else 
+	    } else
 		if ( tmp != currs ) {
 		    if (lasts >= 0) {
 			QFontStruct *qfs = 0;
@@ -936,7 +934,7 @@ void QFontPrivate::drawText( Display *dpy, WId hd, GC gc, int x, int y,
 			      chars, cache->length );
 	    } else {
 		const char *chars = cache->mapped.data();
-		if ( chars ) 
+		if ( chars )
 		    XDrawString(dpy, hd, gc, x + cache->xoff, y + cache->yoff,
 				chars, cache->length );
 		else
@@ -966,7 +964,7 @@ bool QFontPrivate::inFont( const QChar &chr )
 	ch = qfs->codec->characterFromUnicode( QString( chr ), 0 );
     else
 	ch = chr;
-    
+
     XFontStruct *f = (XFontStruct *) qfs->handle;
 
     XCharStruct *xcs = 0;
@@ -2057,10 +2055,6 @@ void QFont::initialize()
     // create font codecs
 
 #ifndef QT_NO_CODECS
-    (void) new QFontJis0208Codec;
-    (void) new QFontKsc5601Codec;
-    (void) new QFontGB2312Codec;
-    (void) new QFontBig5Codec;
 //    (void) new QFontArabic68Codec;
 //    (void) new QFontArabicUnicodeCodec;
 #endif
@@ -2590,7 +2584,7 @@ int QFontMetrics::lineSpacing() const
 int QFontMetrics::width(QChar ch) const
 {
     if ( ch.combiningClass() > 0 ) return 0;
-    
+
     QFontPrivate::Script script = d->scriptForChar(ch);
 
     if (script == QFontPrivate::UnknownScript) {

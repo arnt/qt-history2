@@ -134,7 +134,8 @@ QEucJpCodec::QEucJpCodec() : conv(QJpUnicodeConv::newConverter( QJpUnicodeConv::
 */
 QEucJpCodec::~QEucJpCodec()
 {
-    // delete conv;
+    delete conv;
+    conv = 0;
 }
 
 /*!

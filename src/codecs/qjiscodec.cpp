@@ -126,6 +126,15 @@ QJisCodec::QJisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Defau
 {
 }
 
+
+/*! \internal */
+QJisCodec::~QJisCodec()
+{
+    delete conv;
+    conv = 0;
+}
+
+
 /*! \internal */
 int QJisCodec::mibEnum() const
 {

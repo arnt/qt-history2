@@ -88,9 +88,10 @@ public:
     int heuristicNameMatch(const char* hint) const;
 
     QSjisCodec();
+    ~QSjisCodec();
 
 protected:
-    const QJpUnicodeConv * const conv;
+    const QJpUnicodeConv *conv;
 };
 
 #endif

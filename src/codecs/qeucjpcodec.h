@@ -91,7 +91,7 @@ public:
     ~QEucJpCodec();
 
 protected:
-    const QJpUnicodeConv * const conv;
+    const QJpUnicodeConv *conv;
 };
 
 #endif

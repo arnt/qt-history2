@@ -105,6 +105,17 @@ QSjisCodec::QSjisCodec() : conv(QJpUnicodeConv::newConverter(QJpUnicodeConv::Def
 {
 }
 
+
+/*!
+  Destructs the Shift-JIS codec.
+*/
+QSjisCodec::~QSjisCodec()
+{
+    delete conv;
+    conv = 0;
+}
+
+
 /*!
   \reimp
 */
