@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#325 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#326 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2223,16 +2223,16 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    pos = mapToGlobal( pos );
 	    pos = widget->mapFromGlobal( pos );
 	}
-	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	QApplication::sendEvent( widget, &e );	// send event
-	if ( type != QEvent::MouseMove )
-	    pos.rx() = pos.ry() = -9999;	// init for move compression
 	if ( type == QEvent::MouseButtonRelease &&
 	     (state & (~button) & ( LeftButton |
 				    MidButton |
 				    RightButton)) == 0 ) {
 	    qt_button_down = 0;
 	}
+	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
+	QApplication::sendEvent( widget, &e );	// send event
+	if ( type != QEvent::MouseMove )
+	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
     return TRUE;
 }
