@@ -35,11 +35,9 @@
     action-based mainwindow, toolbar, menu, and docking architecture.
     \endlist
 
-    This beta release also previews the new \e{Qt Designer} user
-    interface design tool. The tool is still heavily under
-    development, but you can already try it out and give us feedback.
-    See the \l{qt4-designer.html}{Qt Designer overview} to get
-    started.
+    This beta release also includes the new \e{Qt Designer} user
+    interface design tool. See the \l{qt4-designer.html}{Qt Designer
+    overview} to get started.
 
     In addition, the following modules have been significantly improved
     since Qt 3:
@@ -335,9 +333,8 @@
     \section1 Supported Platforms
 
     For this beta release, we have tested the entire range of
-    platforms targeted by the final Qt 4.0 release, with three
-    exceptions: Windows with Borland C++, HP-UXi, and HP-UX with aCC
-    1.x.
+    platforms targeted by the final Qt 4.0 release, with two
+    exceptions: Windows with Borland C++ and HP-UXi.
 
     While testing, we found out that we needed to install patches on
     some of the compilers. If you run into problems when compiling,
