@@ -61,15 +61,15 @@
 /*!
   \class QClassInfo qmetaobject.h
 
-  \brief The QClassInfo struct stores a single class information
+  \brief The QClassInfo struct stores some basic information about a single class 
 
   \internal
 
-  A class information is a simple \e name / \e value pair:
+  The class information is a simple \e name - \e value pair:
 
   \code
-    const char* name;				// - name of the info
-    const char* value;				// - value of the info
+    const char* name;	
+    const char* value;
   \endcode
 
  */

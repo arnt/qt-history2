@@ -1417,11 +1417,14 @@ QWidget* QDropEvent::source() const
   about colors for drag-and-drop and over the clipboard. For example, it
   is used in the QColorDialog.
 
+  The color is set in the constructor but can be changed with
+  setColor().
+
   For detailed information about drag-and-drop, see the QDragObject class.
 */
 
 /*!
-  Constructs a color drag with the color \a col.
+  Constructs a color drag object with the color \a col.
 */
 
 QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name )
@@ -1431,7 +1434,7 @@ QColorDrag::QColorDrag( const QColor &col, QWidget *dragsource, const char *name
 }
 
 /*!
-  Constructs a color drag with a while color
+  Constructs a color drag object with a while color
 */
 
 QColorDrag::QColorDrag( QWidget *dragsource, const char *name )

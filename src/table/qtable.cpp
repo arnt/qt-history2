@@ -1131,36 +1131,36 @@ bool QComboTableItem::isEditable() const
 
 /*! \class QCheckTableItem qtable.h
 
-  \brief The QCheckTableItem class implements a convenient class to
-  use check boxes in QTables.
+  \brief The QCheckTableItem provides checkboxes in QTables.
 
   \module table
 
-  To fill a table cell with a check box instead of the usual
-  text and pixmap one creates a QCheckTableItem
-  object and uses QTable::setItem() to make it the content of
-  a table cell. This results in an item that paints itself like a check
-  box but is no real QCheckBox when the relevant cell does not have the focus.
-  When the item becomes current, it shows a
-  QCheckBox, so that the user can check or uncheck it.
+  To fill a table cell with a checkbox instead of the usual text or
+  pixmap create a QCheckTableItem object and use QTable::setItem() to
+  make it the contents of a table cell. 
+  
+  The QCheckTableItem is not a real checkbox, but paints itself to look
+  like one. When the focus is in the QCheckTableItem cell a checkbox
+  that the user can interact with is displayed. The QCheckTableItem
+  provides the appearance and functionality of a checkbox but without
+  the overhead of every cell actually being a checkbox.
 
-  This way the user always perceives the item as a
-  check box without the need of wasting resources by having a real QCheckBox
-  widget present all the time.
-
-  QCheckTableItems are of the edit type WhenCurrent.
-  To change the check label string use setText().
-  Check box items may however not include a pixmap.
+  QCheckTableItems have the edit type WhenCurrent.
+  To change the checkbox's label use setText(). The checkbox can be
+  checked and unchecked with setChecked() and its state retrieved using
+  isChecked(). Check box items cannot include a pixmap.
 
   QCheckTableItems can be distinguished from \l{QTableItem}s and
-  \l{QComboTableItem}s using their Run Time Type Identification number.
+  \l{QComboTableItem}s using their Run Time Type Identification (rtti)
+  number.
 
   \sa rtti() EditType
 */
 
-/*! Creates a QCheckTableItem of the EditType WhenCurrent
-  as a child of \a table. The check box
-  label is set to the string \a txt, for example
+/*! Creates a QCheckTableItem with an EditType of WhenCurrent
+  as a child of \a table. The checkbox's
+  label is set to the string \a txt. 
+  Example:
 
   \walkthrough table/small-table-demo/main.cpp
   \skipto QTable
@@ -1171,13 +1171,12 @@ bool QComboTableItem::isEditable() const
   (Code taken from \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink).
 
-  By default QCheckTableItem objects are unchecked. To set
-  their check marks use setChecked().
-  \a txt can be changed later using setText().
+  By default QCheckTableItem objects are unchecked. To check them use
+  setChecked(). The text can be changed using setText().
 
-  QTable::setItem() makes check box items the content of a
+  QTable::setItem() makes checkbox items the contents of a
   QTable that may or may not be the item's parent. It is
-  however impossible to use one item in more than one table
+  not possible to use a QCheckTableItem in more than one table
   at a time.
 */
 
@@ -1231,8 +1230,9 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
-/*! Sets the item's check mark if \a b is TRUE and unchecks the
-  check box if \a b is FALSE.
+/*! 
+    If \a b is TRUE the checkbox is checked; if \a b is FALSE the
+    checkbox is unchecked.
 
   \sa isChecked()
 */
@@ -1243,7 +1243,7 @@ void QCheckTableItem::setChecked( bool b )
     table()->updateCell( row(), col() );
 }
 
-/*! Returns whether the item is checked or not.
+/*! Returns whether the item is checked.
 
   \sa setChecked()
 */
@@ -1255,8 +1255,12 @@ bool QCheckTableItem::isChecked() const
 
 /*! \fn int QCheckTableItem::rtti() const
 
-  Returns the Run Time Identification number of \e this object
-  which is 2 for QCheckTableItems.
+    Returns 2.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between table items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
 
   \sa QTableItem::rtti()
 */
@@ -1307,7 +1311,7 @@ bool QCheckTableItem::isChecked() const
   (Code taken from \link wineorder-example.html
    table/wineorder/productlist.cpp \endlink)
 
-  Cells can also contain combo boxes and check boxes. In this
+  Cells can also contain combo boxes and checkboxes. In this
   case QComboTableItem and QCheckTableItem objects are
   linked to the relevant cells using setItem().
 

@@ -47,56 +47,56 @@
 
 /*!
   \class QCheckBox qcheckbox.h
-  \brief The QCheckBox widget provides a check box with a text label.
+  \brief The QCheckBox widget provides a checkbox with a text label.
 
   \ingroup basic
 
   QCheckBox and QRadioButton are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
   in how the choices for the user are restricted. Radio buttons define
-  a "one of many" choice, whereas check boxes provide "many of many"
+  a "one of many" choice, whereas checkboxes provide "many of many"
   choices.
 
   Although it is technically possible to implement radio behavior with
-  check boxes and vice versa, we strongly recommended sticking with
+  checkboxes and vice versa, we strongly recommended sticking with
   the well-known semantics.
 
-  QButtonGroup may be used to group check buttons visually.
+  A QButtonGroup can be used to group check buttons visually.
 
-  Whenever a check box is checked or cleared it emits the signal
+  Whenever a checkbox is checked or cleared it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
-  each time the box changes state. Otherwise, use isChecked() to query
-  whether or not a particular check box is selected.
+  each time the checkbox changes state. You can use isChecked() to query
+  whether or not a checkbox is checked.
 
   In addition to the usual checked and unchecked states, QCheckBox
   optionally provides a third state to indicate "no change".  This is
   useful whenever you need to give the user the option of neither
-  setting nor unsetting an option. If you need that third state,
+  checking nor unchecking a checkbox. If you need this third state,
   enable it with setTristate() and use state() to query the current
-  toggle state. When a tristate box changes state, it emits the
+  toggle state. When a tristate checkbox changes state, it emits the
   stateChanged() signal.
 
-  \important text, setText, text, pixmap, setPixmap, accel, setAccel,
-  isToggleButton, setDown, isDown, isOn, state, autoRepeat,
-  isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
-  clicked, toggled, state stateChanged
+  \important text(), setText(), text(), pixmap(), setPixmap(), accel(),
+  setAccel(), isToggleButton(), setDown(), isDown(), isOn(), state(),
+  autoRepeat(), isExclusiveToggle(), group(), setAutoRepeat(), toggle(),
+  pressed(), released(), clicked(), toggled(), state() stateChanged()
 
   <img src=qchkbox-m.png> <img src=qchkbox-w.png>
 
   \sa QButton QRadioButton
-  <a href="guibooks.html#fowler">Fowler: Check Box.</a>
+  <a href="guibooks.html#fowler">Fowler: Check Box</a>
 */
 
 /*! \property QCheckBox::checked
-    \brief Whether the checkbox is checked or not
+    \brief whether the checkbox is checked 
 */
 
 /*! \property QCheckBox::tristate
-    \brief Whether the checkbox is a tri-state checkbox or not
+    \brief whether the checkbox is a tri-state checkbox 
 */
 
 /*!
-  Constructs a check box with no text.
+  Constructs a checkbox with no text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
@@ -109,7 +109,7 @@ QCheckBox::QCheckBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a check box with a text.
+  Constructs a checkbox with text \a text.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
@@ -123,7 +123,7 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 }
 
 /*!
-  Sets the check box into the "no change" state.
+  Sets the checkbox to the "no change" state.
 
   \sa setTristate()
 */

@@ -247,8 +247,8 @@ bool QClipboard::ownsClipboard() const
 /*!
   Sets the clipboard selection mode.  If \a enable is TRUE, then subsequent
   calls to QClipboard::setData() and other functions which put data into the
-  clipboard will be put into the mouse selection, otherwise the data will be
-  put into the clipboard.
+  clipboard will put the data into the mouse selection, otherwise the
+  data will be put into the clipboard.
 
   \sa supportsSelection(), selectionModeEnabled()
 */
@@ -271,6 +271,7 @@ bool QClipboard::selectionModeEnabled() const
 
 /*!
   Internal function to clear mouse selection and clipboard contents.
+  \internal
 */
 void QClipboard::clobber()
 {
@@ -340,7 +341,7 @@ static inline int maxSelectionIncr( Display *dpy )
 }
 
 
-// uglehack: externed into qt_xdnd.cpp.  qt is really not designed for
+// uglyhack: externed into qt_xdnd.cpp.  qt is really not designed for
 // single-platform, multi-purpose blocks of code...
 bool qt_xclb_read_property( Display *dpy, Window win, Atom property,
 			   bool deleteProperty,
@@ -913,15 +914,18 @@ QMimeSource* QClipboard::data() const
 
 /*!
   Sets the clipboard data.  Ownership of the data is transferred to
-  the clipboard - the only ways to remove this data is to set
-  something else, or to call clear().  The QDragObject subclasses are
-  reasonable things to put on the clipboard (but do not try to call
-  QDragObject::drag() on the same object).  Any QDragObject placed in
-  the clipboard should have a parent of 0.  Do not put QDragMoveEvent
-  or QDropEvent subclasses on the clipboard, as they do not belong to
-  the event handler which receives them.
+  the clipboard. If you want to remove the data either call clear() or
+  call setData() again with new data. 
 
-  The setText() and setPixmap() functions are simpler wrappers for this.
+  The QDragObject subclasses are reasonable objects to put into the
+  clipboard (but do not try to call QDragObject::drag() on the same
+  object).  Any QDragObject placed in the clipboard should have a parent
+  of 0.  Do not put QDragMoveEvent or QDropEvent subclasses in the
+  clipboard, as they do not belong to the event handler which receives
+  them.
+
+  The setText() and setPixmap() functions are simpler wrappers for
+  setting text and image data respectively.
 */
 void QClipboard::setData( QMimeSource* src )
 {

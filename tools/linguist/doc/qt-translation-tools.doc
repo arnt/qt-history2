@@ -668,10 +668,14 @@ Books"</a> for details.)
     <ul>
     <li><em>Revert Sorting</em><br> puts the phrases in the source text
     pane into their original order.
+    <li><em>Display Guesses</em><br> turns the display of phrases and
+    guesses on or off.
+    <!--
     <li><em>Large Icons</em><br> switches between large or standard
     size icons on the toolbar.
     <li><em>Text Labels</em><br> toggles the use of text labels on the
     toolbar icons.
+    -->
     </ul>
     <br><br>
 </ul>

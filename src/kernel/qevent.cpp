@@ -961,40 +961,46 @@ void QFocusEvent::resetReason()
 
   Close events are sent to widgets that the user wants to close, usually
   by choosing "Close" from the window menu. They are also sent when you
-  call QWidget::close() to close a widget from inside the program.
+  call QWidget::close() to close a widget programmatically.
 
-  Close events contain a special accept flag that tells whether the
-  receiver wants the widget to be closed.  When a widget accepts the
-  close event, it is hidden. If it refuses to accept the close event,
-  either nothing happens or it is forcibly closed if the sender of
-  the close event really wants to.
+  Close events contain a flag that indicates whether the receiver wants
+  the widget to be closed or not.  When a widget accepts the close
+  event, it is hidden (and destroyed if it was created with the \c
+  WDestructiveClose flag). If it refuses to accept the close event
+  nothing happens. (Under X11 it is possible that the window manager
+  will forcibly close the window; but at the time of writing we are not
+  aware of any window manager that does this.)
 
   The main widget of the application - QApplication::mainWidget() - is
   a special case.  When it accepts the close event, Qt leaves the main
   event loop and the application is immediately terminated (i.e., it
-  returns back from the call to QApplication::exec() in your main()
+  returns from the call to QApplication::exec() in the main()
   function).
 
   The event handler QWidget::closeEvent() receives close events.  The
   default implementation of this event handler accepts the close
   event.  If you do not want your widget to be hidden, or want some
-  special handing, you need to reimplement the event handler.
+  special handing, you should reimplement the event handler.
 
   The <a href="simple-application.html#closeEvent">closeEvent() in the
   Application Walkthrough</a> shows a close event handler that asks
-  whether to save the document before closing.
+  whether to save a document before closing.
 
-  If you want your widget also to be deleted when it is closed, simply
+  If you want the widget to be deleted when it is closed, simply
   create it with the \c WDestructiveClose widget flag.  This is very
-  useful for the independent top-level windows of a multi-window
-  application. The Application Walkthrough example uses this too.
+  useful for independent top-level windows in a multi-window
+  application. 
 
   QObject emits the \link QObject::destroyed() destroyed()\endlink signal
-  when it is deleted.  This is a useful signal if a widget needs to know
-  when another widget is deleted.
+  when it is deleted.  
 
   If the last top-level window is closed, the
   QApplication::lastWindowClosed() signal is emitted.
+
+  The isAccepted() function returns TRUE if the event's receiver has
+  agreed to close the widget; call accept() to agree to close the widget
+  and call ignore() if the receiver of this event does not want the
+  widget to be closed.
 
   \sa QWidget::close(), QWidget::hide(), QObject::destroyed(),
   QApplication::setMainWidget(), QApplication::lastWindowClosed(),
@@ -1004,6 +1010,7 @@ void QFocusEvent::resetReason()
 /*!
   \fn QCloseEvent::QCloseEvent()
   Constructs a close event object with the accept parameter flag set to FALSE.
+  \sa accept()
 */
 
 /*!
@@ -1019,11 +1026,11 @@ void QFocusEvent::resetReason()
   Setting the accept flag indicates that the receiver of this event agrees
   to close the widget.
 
-  The accept flag is not set by default.
+  The accept flag is \e not set by default.
 
   If you choose to accept in QWidget::closeEvent(), the widget will be
-  hidden.  If the widget's WDestructiveClose flag is set, it is also
-  destroyed.
+  hidden.  If the widget's WDestructiveClose flag is set, it will also
+  be destroyed.
 
   \sa ignore(), QWidget::hide()
 */
@@ -1035,7 +1042,7 @@ void QFocusEvent::resetReason()
   Clearing the accept flag indicates that the receiver of this event does not
   want the widget to be closed.
 
-  The accept flag is not set by default.
+    The close event is constructed with the accept flag cleared.
 
   \sa accept()
 */
@@ -1046,15 +1053,16 @@ void QFocusEvent::resetReason()
 
   \ingroup event
 
-  Context events are sent to widgets when a user triggers a menu. What triggers this is
-  platform dependant, for example on windows pressing the menu button or releasing the
-  right button will cause this event to be sent. It is customary to use this to show a
-  QPopupMenu when this event is triggered if you have such a context menu.
+  Context events are sent to widgets when a user triggers a menu. What
+  triggers this is platform dependant, for example on windows pressing
+  the menu button or releasing the right button will cause this event to
+  be sent. It is customary to use this to show a QPopupMenu when this
+  event is triggered if you have such a context menu.
 
-  ContextMenu events contain a special accept flag that tells whether the
-  receiver accepted the contextMenu.  If the event handler does not accept
-  the event, then whatever triggered the event will be handled as a regular input
-  event if possible.
+  ContextMenu events contain a special accept flag that tells whether
+  the receiver accepted the contextMenu.  If the event handler does not
+  accept the event, then whatever triggered the event will be handled as
+  a regular input event if possible.
 
   \sa QPopupMenu
 */
@@ -1223,7 +1231,8 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \fn QChildEvent::QChildEvent( Type type, QObject *child )
-  Constructs a child event object.
+  Constructs a child event object. The \a child is the object that is to
+  be removed or inserted.
 
   The \a type parameter must be either \a QEvent::ChildInserted
   or \a QEvent::ChildRemoved.
@@ -1231,7 +1240,7 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
 /*!
   \fn QObject *QChildEvent::child() const
-  Returns the child widget inserted or removed.
+  Returns the child widget that was inserted or removed.
 */
 
 /*!

@@ -11312,13 +11312,11 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 /*! \class QCharRef qstring.h
   \brief The QCharRef class is a helper class for QString.
 
-  It provides the ability to work on characters in a QString in a natural
-  fashion.
-
   When you get an object of type QCharRef, you can assign to it, which
-  will operate on the string from which you got it.  That is its whole
-  purpose in life.  It becomes invalid once further modifications are
-  made to the string: If you want to keep it, copy it into a QChar.
+  will operate on the character in the string from which you got the
+  reference.  That is its whole purpose in life.  The QCharRef becomes
+  invalid once modifications are made to the string: if you want to keep
+  the character, copy it into a QChar.
 
   Most of the QChar member functions also exist in QCharRef.  However,
   they are not explicitly documented here.
@@ -11331,9 +11329,9 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 \brief The QChar class provides a lightweight Unicode character.
 
 Unicode characters are (so far) 16-bit entities without any markup or
-structure.  This class represents such an entity.  It is rather
+structure.  This class represents such an entity.  It is 
 lightweight, so it can be used everywhere.  Most compilers treat it
-approximately like "short int."  (In a few years it may be necessary
+like a "short int."  (In a few years it may be necessary
 to make QChar 32-bit when more than 65536 Unicode code points have
 been defined and come into use.)
 
@@ -11341,24 +11339,23 @@ QChar provides a full complement of testing/classification functions,
 converting to and from other formats, converting from composed to decomposed
 Unicode, and trying to compare and case-convert if you ask it to.
 
-The classification functions include functions like these in ctype.h,
+The classification functions include functions like those in ctype.h,
 but operating on the full range of Unicode characters.  They all
 return TRUE if the character is a certain type of character;
-otherwise they return FALSE.
-
-These functions are isNull() (returns TRUE if the character is
-U+0000), isPrint() (TRUE if the character is any sort of printable
-character, including whitespace), isPunct() (any sort of punctation),
-isMark() (Unicode Marks), isLetter (letters), isNumber() (any sort of
-numeric characters), isLetterOrNumber(), and isDigit() (decimal digits).
-All of these are wrappers around category() which return the
-Unicode-defined category of each character.
+otherwise they return FALSE. These classification functions are isNull()
+(returns TRUE if the character is U+0000), isPrint() (TRUE if the
+character is any sort of printable character, including whitespace),
+isPunct() (any sort of punctation), isMark() (Unicode Mark), isLetter
+(a letter), isNumber() (any sort of numeric character),
+isLetterOrNumber(), and isDigit() (decimal digits). All of these are
+wrappers around category() which return the Unicode-defined category of
+each character.
 
 QChar further provides direction(), which indicates the "natural"
-writing direction of this character, joining(). This indicates how
+writing direction of this character. The joining() function indicates how
 the character joins with its neighbors (needed mostly for Arabic)
 and finally mirrored(), which indicates whether the character needs
-to be mirrored when it is printed in its unnatural writing
+to be mirrored when it is printed in its "unnatural" writing
 direction.
 
 Composed Unicode characters (like &aring;) can be converted to
@@ -11366,7 +11363,7 @@ decomposed Unicode ("a" followed by "ring above") by using
 decomposition().
 
 In Unicode, comparison is not necessarily possible and case
-conversion is very hard at best.  Unicode, covering the "entire"
+conversion is very difficult at best.  Unicode, covering the "entire"
 world, also includes most of the world's case and sorting
 problems.  Qt tries, but not very hard: operator== and friends will do
 comparison based purely on the numeric Unicode value (code point) of
@@ -11392,15 +11389,15 @@ More information can be found in the document
 This enum maps the Unicode character categories.  The following
 characters are normative in Unicode:
 
-\value Mark_NonSpacing  (Unicode class name Mn
+\value Mark_NonSpacing  Unicode class name Mn
 
-\value Mark_SpacingCombining  (Unicode class name Mc
+\value Mark_SpacingCombining  Unicode class name Mc
 
-\value Mark_Enclosing  (Unicode class name Me
+\value Mark_Enclosing  Unicode class name Me
 
-\value Number_DecimalDigit  (Unicode class name Nd
+\value Number_DecimalDigit  Unicode class name Nd
 
-\value Number_Letter  (Unicode class name Nl
+\value Number_Letter  Unicode class name Nl
 
 \value Number_Other  Unicode class name No
 
@@ -11597,7 +11594,7 @@ Constructs a QChar for the character with Unicode code point \a rc.
 /*!
   Returns whether the character is a printable character.  This is
   any character not of category Cc or Cn.  Note that this gives no indication
-  of whether the character is available in some font.
+  of whether the character is available in a particular font.
 */
 bool QChar::isPrint() const
 {
@@ -11627,7 +11624,7 @@ bool QChar::isMark() const
 }
 
 /*!
-  Returns whether the character is punctuation (Punctuation_* categories).
+  Returns whether the character is a punctuation mark (Punctuation_* categories).
 */
 bool QChar::isPunct() const
 {
@@ -11713,7 +11710,7 @@ QChar::Category QChar::category() const
 }
 
 /*!
-  Returns the character's directionality.
+  Returns the character's direction.
 
   \sa Direction
 */
@@ -11765,7 +11762,7 @@ bool QChar::mirrored() const
 }
 
 /*!
-  Returns the mirrored char if this character is a mirrored char, or otherwise returns the char
+  Returns the mirrored char if this character is a mirrored char, otherwise returns the char
   itself.
 */
 QChar QChar::mirroredChar() const
@@ -11852,7 +11849,7 @@ unsigned char QChar::combiningClass() const
 
 /*!
   Returns the lowercase equivalent if the character is uppercase,
-  or otherwise returns the character itself.
+  otherwise returns the character itself.
 */
 QChar QChar::lower() const
 {
@@ -11871,7 +11868,7 @@ QChar QChar::lower() const
 
 /*!
   Returns the uppercase equivalent if the character is lowercase,
-  or otherwise returns the character itself.
+  otherwise returns the character itself.
 */
 QChar QChar::upper() const
 {
@@ -15104,7 +15101,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
   \overload
 
   The function returns a reference to the character at index \a i.  The
-  resulting reference can then be assigned to, or otherwise used
+  resulting reference can then be assigned to, or used
   immediately, but it will become invalid once further modifications
   are made to the original string.
 
@@ -15122,7 +15119,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
   \overload
 
   The function returns a reference to the character at index \a i.  The
-  resulting reference can then be assigned to, or otherwise used
+  resulting reference can then be assigned to, or used
   immediately, but it will become invalid once further modifications
   are made to the original string.
 

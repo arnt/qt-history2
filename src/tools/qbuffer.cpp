@@ -101,10 +101,10 @@ QBuffer::QBuffer()
     QCString str = "abc";
     QBuffer b( str );
     b.open( IO_WriteOnly );
-    b.at( 3 );                                  // position at \0
-    b.writeBlock( "def", 4 );                   // write including \0
+    b.at( 3 ); // position at the 4th character (the terminating \0)
+    b.writeBlock( "def", 4 ); // write "def" including the terminating \0
     b.close();
-      // Now, str == "abcdef"
+    // Now, str == "abcdef" with a terminating \0  
   \endcode
 
 
@@ -298,7 +298,14 @@ Q_LONG QBuffer::readBlock( char *p, Q_ULONG len )
 }
 
 /*!
-  \reimp
+    \fn Q_LONG QBuffer::writeBlock( const QByteArray& data )
+
+  This convenience function takes \a data and is the same as calling
+  \c{writeBlock( data.data(), data.size() )}.
+
+*/
+
+/*!
 
   Writes \a len bytes from \a p into the buffer at the current index,
   overwriting any characters there and extending the buffer if necessary.

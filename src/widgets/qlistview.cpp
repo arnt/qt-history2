@@ -358,6 +358,18 @@ static QPoint activatedP;
 */
 
 /*!
+    \fn int QCheckListItem::rtti() const
+
+    Returns 1.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between listview items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
+
+*/
+
+/*!
   Constructs a new top-level list view item in the QListView \a parent.
 */
 
@@ -5137,19 +5149,25 @@ void QListView::repaintItem( const QListViewItem * item ) const
   \class QCheckListItem qlistview.h
   \brief The QCheckListItem class provides checkable list view items.
 
-  There are three types of check list items: CheckBox, RadioButton and
-  Controller.
+  There are three types of check list items: checkboxes, radio buttons
+  and controllers.
 
-  Check boxes may be inserted at top level in the list view. A radio
+  Checkboxes may be inserted at the top level in the list view. A radio
   button must be the child of a controller.
+
+  The item can be checked or unchecked with setOn(). Its type can be
+  retrieved with type() and its text retrieved with text().
 */
 
 // ### obscenity is warranted.
 
 /*! \enum QCheckListItem::Type
 
-  This enum type defines the modes in which a QCheckListItem can be
-  the following:
+  This enum type specifies a QCheckListItem's type:
+
+  \value RadioButton
+  \value CheckBox
+  \value Controller
 */
 
 /* XPM */
@@ -5189,8 +5207,8 @@ struct QCheckListItemPrivate
 
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
-  \a tt. Note that a RadioButton must be child of a Controller, otherwise
-  it will not toggle.
+  \a tt. Note that a RadioButton must be the child of a Controller,
+  otherwise it will not toggle.
  */
 QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 				Type tt )
@@ -5209,8 +5227,8 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
-  \a tt. Note that this item must not be a a RadioButton. Radio buttons must
-  be children of a Controller.
+  \a tt. Note that this item must \e not be a a RadioButton. Radio
+  buttons must be children of a Controller.
  */
 QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 				Type tt )
@@ -5226,8 +5244,9 @@ QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 
 /*!
   Constructs a checkable item with parent \a parent, text \a text and type
-  \a tt. Note that \a tt must not be RadioButton, if so
-  it will not toggle.
+  \a tt. Note that \a tt must \e not be RadioButton. Radio
+  buttons must be children of a Controller.
+
  */
 QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				Type tt )
@@ -5294,13 +5313,13 @@ QCheckListItem::~QCheckListItem()
 */
 
 /*! \fn  bool QCheckListItem::isOn() const
-  Returns TRUE if this item is toggled on; otherwise it returns FALSE.
+  Returns TRUE if the item is toggled on; otherwise returns FALSE.
 */
 
 
 /*! \fn QString QCheckListItem::text() const
 
-  Returns the text of this item.
+  Returns the text of the item.
 */
 
 
@@ -5335,9 +5354,10 @@ void QCheckListItem::activate()
     }
 }
 
-/*!  Enables/Disables the item depending on what you pass as \a b
-  parameter. If the item is disabled, the user can't change the state
-  (see setOn()/isOn()) of the item.
+/*!  
+    If \a b is TRUE enables the item; if \a b is FALSE disables the
+    item. If the item is disabled, the user can't change the state (see
+    setOn()/isOn()) of the item.
 */
 
 void QCheckListItem::setEnabled( bool b )
@@ -5356,7 +5376,7 @@ bool QCheckListItem::isEnabled() const
 }
 
 /*!
-  Sets this button on if \a b is TRUE, off otherwise. Maintains radio button
+  Sets the button on if \a b is TRUE, off otherwise. Maintains radio button
   exclusivity.
  */
 void QCheckListItem::setOn( bool b  )
@@ -5392,6 +5412,8 @@ void QCheckListItem::stateChange( bool )
 }
 
 /*!
+    \reimp 
+
   Performs setup.
  */
 void QCheckListItem::setup()
@@ -5421,7 +5443,9 @@ int QCheckListItem::width( const QFontMetrics& fm, const QListView* lv, int colu
     return QMAX( r, QApplication::globalStrut().width() );
 }
 
-/*! Paints this item using the painter \a p and the color group \a cg.
+/*! Paints the item using the painter \a p and the color group \a cg.
+    The item is in column \a column, has width \a width and is aligned
+    \a align. (See Qt::AlignmentFlags for valid alignments.)
  */
 void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 			       int column, int width, int align )

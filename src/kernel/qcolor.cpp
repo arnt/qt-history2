@@ -113,7 +113,7 @@
   strong colors have saturation near 255.
 
   <li> V, for value, is 0-255 and represents lightness or brightness
-  of the color.  0 is black; 255 is far from black as possible.
+  of the color.  0 is black; 255 is as far from black as possible.
 
   </ul>
 
@@ -126,8 +126,25 @@
   too-big hue value, Qt forces it into range. Hue 360 or 720 is
   treated as 0; hue 540 is treated as 180.
 
+  A color can be set by passing setNamedColor() an RGB string like
+  "#112233", or a color name, e.g. "blue". The names are taken from
+  X11's rgb.txt database but can also be used under Windows. To get a
+  lighter or darker color use light() and dark() respectively. By
+  default colors are only allocated on demand; you can change this with
+  setLazyAlloc(). Colors can also be set using setRgb() and setHsv().
+  The color components can be accessed in one go with rgb() and hsv(), or
+  individually with red(), green() and blue().
+
+    Use maxColors() and numBitPlanes() to determine the maximum number
+    of colors and the number of bit planes supported by the underlying
+    window system, 
+
+  If you need to allocate many colors temporarily, for example in an
+  image viewer application, enterAllocContext(), leaveAllocContext() and
+  destroyAllocContext() will prove useful.
+
   \sa QPalette, QColorGroup, QApplication::setColorSpec(),
-  <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ.</a>
+  <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ</a>
 */
 
 /*****************************************************************************
@@ -227,6 +244,16 @@ void QColor::initGlobalColors()
     stdcol[18].setRgb( 128, 128,   0 );
 }
 
+/*!
+    \enum QColor::Spec
+
+    The type of color specified, either RGB or HSV, e.g. in the
+    \c{QColor::QColor( x, y, z, colorSpec)} constructor.
+
+    \value Rgb
+    \value Hsv
+*/
+
 
 /*!
   \fn QColor::QColor()
@@ -253,7 +280,7 @@ void QColor::initGlobalColors()
 /*!
   Constructs a color with an RGB value and a custom pixel value.
 
-  If the \a pixel = 0xffffffff, then the color uses the RGB value in a
+  If the \a pixel == 0xffffffff, then the color uses the RGB value in a
   standard way.  If \a pixel is something else, then the pixel value
   is set directly to \a pixel, skipping the normal allocation
   procedure.
@@ -273,13 +300,13 @@ QColor::QColor( QRgb rgb, uint pixel )
 /*!
   Constructs a color with the RGB \e or HSV value \a x, \a y, \a z.
 
-  The arguments are an RGB value if \a colorSpec is QColor==Rgb. \a
+  The arguments are an RGB value if \a colorSpec is QColor::Rgb. \a
   x (red), \a y (green), and \a z (blue). All of them must be in the
   range 0-255.
 
   The arguments are an HSV value if \a colorSpec is QColor::Hsv. \a x
   (hue) must be -1 for achromatic colors and 0-359 for chromatic
-  colors; \a y (saturation) and \a z (value) must be in the range
+  colors; \a y (saturation) and \a z (value) must both be in the range
   0-255.
 
   \sa setRgb(), setHsv()
@@ -295,7 +322,8 @@ QColor::QColor( int x, int y, int z, Spec colorSpec )
 
 
 /*!
-  Constructs a named color in the same way as setNamedColor().
+  Constructs a named color in the same way as setNamedColor() using name
+  \a name.
   \sa setNamedColor()
 */
 
@@ -306,7 +334,8 @@ QColor::QColor( const QString& name )
 
 
 /*!
-  Constructs a named color in the same way as setNamedColor().
+  Constructs a named color in the same way as setNamedColor() using name
+  \a name.
   \sa setNamedColor()
 */
 
@@ -388,17 +417,18 @@ static int hex2int( QChar hexchar )
 
 
 /*!
-  Sets the RGB value to \a name, which may be in one of these formats: <ul>
+  Sets the RGB value to \a name, which may be in one of these formats: 
+  <ul>
   <li> #RGB (each of R, G and B is a single hex digit)
   <li> #RRGGBB
   <li> #RRRGGGBBB
   <li> #RRRRGGGGBBBB
-  <li> A named from the X color database (rgb.txt) (e.g.
+  <li> A name from the X color database (rgb.txt) (e.g.
   "steelblue" or "gainsboro").  These color names also work
   under Qt for Windows.
   </ul>
 
-  The color is left invalid if \a name can not be parsed.
+  The color is left invalid if \a name cannot be parsed.
 */
 
 void QColor::setNamedColor( const QString& name )
@@ -443,9 +473,9 @@ void QColor::setNamedColor( const QString& name )
   \obsolete
 */
 
-/*!  Returns the current RGB value as HSV. \a h, \a s and \a v point
-  to the return values; if any of the three pointers are null, the
-  function does nothing.
+/*!  Returns the current RGB value as HSV. The contents of the \a h, \a
+    s and \a v pointers are set to the HSV values.  If any of
+    the three pointers are null, the function does nothing.
 
   The hue (which \a h points to) is set to -1 if the color is
   achromatic.
@@ -506,7 +536,8 @@ void QColor::hsv( int *h, int *s, int *v ) const
 /*!  Sets a HSV color value.  \a h is the hue, \a s is the saturation
   and \a v is the value of the HSV color.
 
-  If \a s or \a v is out of range, the color is not changed.
+  If \a s or \a v are not in the range 0-255, or \a h is < -1, the color
+  is not changed.
 
   \sa hsv(), setRgb()
 */
@@ -559,8 +590,9 @@ void QColor::setHsv( int h, int s, int v )
 */
 
 /*!
-  Returns the red, green and blue components of the RGB value in
-  \e *r, \e *g and \e *b.  The value range for a component is 0..255.
+    Sets the contents pointed to by \a r, \a g and \a b to the red,
+    green and blue components of the RGB value respectively. The value
+    range for a component is 0..255.
   \sa setRgb(), hsv()
 */
 
@@ -572,9 +604,9 @@ void QColor::rgb( int *r, int *g, int *b ) const
 }
 
 
-/*!  Sets the RGB value to \a r, \a g, \a b. \a r, \a g and \a b must
-  all be in the range 0..255.  If any of them are outside the legal
-  range, the color is not changed.
+/*!  Sets the RGB value to \a r, \a g, \a b. The arguments, \a r, \a g
+ and \a b must all be in the range 0..255.  If any of them are outside
+ the legal range, the color is not changed.
 
   \sa rgb(), setHsv()
 */
@@ -708,7 +740,7 @@ QColor QColor::dark( int factor ) const
 
 /*!
   \fn bool QColor::operator!=( const QColor &c ) const
-  Returns TRUE if this color has different RGB value from \a c,
+  Returns TRUE if this color has a different RGB value from \a c,
   or FALSE if they have equal RGB values.
 */
 

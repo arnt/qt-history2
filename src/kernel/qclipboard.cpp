@@ -57,8 +57,8 @@
   similar mechanisms. For advanced clipboard usage, you should read
   \link dnd.html the drag-and-drop documentation\endlink.
 
-  There is a single QClipboard object in an application, and you can gain
-  access to it using QApplication::clipboard().
+  There is a single QClipboard object in an application, and you can 
+  access it using QApplication::clipboard().
 
   Example:
   \code
@@ -75,13 +75,14 @@
   \endcode
 
   QClipboard features some convenience functions to access common data
-  types: The methods setText() allows exchanging Unicode text easily over
-  the clipboard, whereas setPixmap() setImage() allows exchanging QPixmap
-  and QImage between applications.  SetData() is the ultimate in
-  flexibility: it allows you to add any QMimeSource onto the clipboard.
-  (There are corresponding getters for each of these, e.g. text().)
+  types: setText() allows the exchange of Unicode text and 
+  setPixmap() and setImage() allows the exchange of QPixmaps
+  and QImages between applications. The setData() function is the
+  ultimate in flexibility: it allows you to add any QMimeSource into the
+  clipboard. (There are corresponding getters for each of these, e.g.
+  text().)
 
-  You can clear the clipboard by calling the method clear().
+  You can clear the clipboard by calling clear().
 
     The underlying clipboards of the X Window system and MS Windows
     differ. The X Window system has a concept of selection -- when text
@@ -91,8 +92,9 @@
     change the selection within a window X11 will only notify the owner
     and the previous owner of the change; in MS Windows the clipboard is
     a fully global resource so all applications are notified of changes.
-    See the multiclip example in the Qt Designer examples directory to
-    see the a cross-platform clipboard application.
+    See the multiclip example in the <em>Qt Designer</em> examples
+    directory for an example of a cross-platform clipboard application
+    that also demonstrates selection handling.
 */
 
 
@@ -100,11 +102,11 @@
   Constructs a clipboard object.
 
   Note that only QApplication should do this. Call
-  QApplication::clipboard() to get a pointer to the application global
+  QApplication::clipboard() to get a pointer to the application's global
   clipboard object.
 
   There is only one clipboard in the window system, and creating more
-  than one object to represent it is almost certainly a bug.
+  than one object to represent it is almost certainly an error.
 */
 
 QClipboard::QClipboard( QObject *parent, const char *name )
@@ -139,7 +141,7 @@ QClipboard::~QClipboard()
  *****************************************************************************/
 
 /*!
-  Returns a pointer to the application global clipboard.
+  Returns a pointer to the application's global clipboard.
 */
 
 QClipboard *QApplication::clipboard()
@@ -173,8 +175,8 @@ QString QClipboard::text(QCString& subtype) const
 }
 
 /*!
-  Returns the clipboard as plain text, or a null string
-  if the clipboard does not contain any text.
+  Returns the clipboard text as plain text, or a null string if the
+  clipboard does not contain any text.
 
   \sa setText() data(), QString::operator!()
 */
@@ -187,7 +189,7 @@ QString QClipboard::text() const
 
 
 /*!
-  Copies \a text into the clipboard.
+  Copies \a text into the clipboard as plain text.
   \sa text() setData()
 */
 
@@ -231,7 +233,7 @@ void QClipboard::setImage( const QImage &image )
 
 /*!
   Returns the clipboard pixmap, or null if the clipboard does not
-  contain any pixmap. Note that this can lose information. For
+  contain a pixmap. Note that this can lose information. For
   example, if the image is 24-bit and the display is 8-bit, the result is
   converted to 8 bits, and if the image has an alpha channel the
   result just has a mask.

@@ -57,12 +57,16 @@
   check boxes. Together with a dark background and a bright
   text/foreground color, the style looks quite attractive (at least
   for Motif fans).
+
+  Note that the functions provided by QCDEStyle are reimplementations
+  of QStyle functions; see QStyle for their documentation.
+
 */
 
 /*!
     Constructs a QCDEStyle.
 
-    If useHighlightCols is FALSE (the default value), then the style
+    If \a useHighlightCols is FALSE (the default), then the style
     will polish the application's color palette to emulate the Motif
     way of highlighting, which is a simple inversion between the base
     and the text color.
