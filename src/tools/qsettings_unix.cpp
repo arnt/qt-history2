@@ -97,19 +97,13 @@
     \code
     QStringList keys = entryList( "/MyApplication" );
     // keys contains 'background color' and 'foreground color'.
-    \endcode
 
-    \code
     QStringList keys = entryList( "/MyApplication/recent files" );
     // keys contains '1', '2' and '3'.
-    \endcode
 
-    \code
     QStringList subkeys = subkeyList( "/MyApplication" );
     // subkeys contains 'geometry' and 'recent files'
-    \endcode
 
-    \code
     QStringList subkeys = subkeyList( "/MyApplication/recent files" );
     // subkeys is empty.
     \endcode
@@ -135,18 +129,17 @@
     settings under Unix. In the examples the settings file will be
     searched for in the following directories:
     <ol>
-    <li>$QTDIR/etc
-    <li>/opt/MyCompany/share/MyApplication
+    <li>$QID/etc
+    <li>/opt/MyCompany/share/etc
+    <li>/opt/MyCompany/share/MyApplication/etc
     <li>$HOME/.qt
     </ol>
-    Settings will be read from each file working forwards, in the order
-    shown, with settings from later files overriding settings from
-    earlier files, the final values being the ones returned. Files for
-    which the user does not have access rights will be skipped. When
-    settings are saved the first file that the user has access rights to
-    will be used, working backwards up the list. The settings file will
-    be called 'myapplicationrc' (based on the key: see
-    insertSearchPath() for details). 
+    When reading settings the files are searched in the order shown
+    above, with later settings overriding earlier settings. Files for
+    which the user doesn't have read permission are ignored. When saving
+    settings QSettings works forwards in the order shown above writing
+    to the first settings file for which the user has write permission.
+    ($QID is the directory where Qt was installed.)
 
     For cross-platform applications you should ensure that the Windows
     size limitations are not exceeded.
@@ -463,27 +456,33 @@ QDateTime QSettingsPrivate::modificationTime()
 
   When \a s is \e Windows, and the execution environment is Windows, the
   search path list will be used as the first subfolder of the "Software"
-  folder in the registry. For example:
+  folder in the registry. 
+
+    When reading settings the folders are searched forwards from the first
+    folder (listed below) to the last, with later settings overriding
+    settings found earlier, and ignoring any folders for which the user
+    doesn't have read permission.
+  <ol>
+  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  <li>HKEY_CURRENT_USER/Software/MyApplication
+  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
+  <li>HKEY_LOCAL_MACHINE/Software/MyApplication
+  </ol>
 
   \code
   QSettings settings;
   settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
   settings.writeEntry( "/MyApplication/Tip of the day", TRUE );
   \endcode
-    This will try to write the subkey "Tip of the day" into the \e first
+    The code above will write the subkey "Tip of the day" into the \e first
     of the registry folders listed below that is found and for which the
-    user has write permission. The folders are searched backwards from
-    the last folder shown to the first:
+    user has write permission.
   <ol>
-  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
   <li>HKEY_LOCAL_MACHINE/Software/MyApplication
-  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
+  <li>HKEY_LOCAL_MACHINE/Software/MyCompany/MyApplication
   <li>HKEY_CURRENT_USER/Software/MyApplication
+  <li>HKEY_CURRENT_USER/Software/MyCompany/MyApplication
   </ol>
-  When reading settings the folders are searched forwards from the first
-  folder listed to the last, with later settings overriding settings
-  found earlier, and ignoring any folders for which the user doesn't
-  have read permission.
 
   When \a s is \e Unix, and the execution environment is Unix, the
   search path list will be used when trying to determine a suitable
@@ -491,7 +490,7 @@ QDateTime QSettingsPrivate::modificationTime()
   two entries in the search path:
 
   <ol>
-  <li>$QTDIR/etc - where $QTDIR is the directory where Qt was installed.
+  <li>$QID/etc - where $QID is the directory where Qt was installed.
   <li>$HOME/.qt/ - where $HOME is the user's home directory.
   </ol>
 
@@ -505,17 +504,17 @@ QDateTime QSettingsPrivate::modificationTime()
   \endcode
   Will result in a search path of:
   <ol>
-  <li>$QTDIR/etc
+  <li>$QID/etc
   <li>/opt/MyCompany/share/etc
   <li>/opt/MyCompany/share/MyApplication/etc
   <li>$HOME/.qt
   </ol>
-  When reading settings the files are searched in the order shown above,
-  with later settings overriding earlier settings. Files for which the
-  user doesn't have read permission are ignored. When saving settings
-  QSettings works backwards from the last directory to the first,
-  writing to the first settings file for which the user has write
-  permission.
+    When reading settings the files are searched in the order shown
+    above, with later settings overriding earlier settings. Files for
+    which the user doesn't have read permission are ignored. When saving
+    settings QSettings works forwards in the order shown above writing
+    to the first settings file for which the user has write permission.
+    ($QID is the directory where Qt was installed.)
 
   Settings under Unix are stored in files whose names are based on the
   first subkey of the key (not including the search path). The algorithm
