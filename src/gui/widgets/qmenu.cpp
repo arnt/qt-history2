@@ -461,13 +461,14 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         return;
     action->activate(action_e);
 
-#ifndef QT_NO_ACCESSIBILITY
     if(action_e == QAction::Hover) {
+#ifndef QT_NO_ACCESSIBILITY
         int actionID = indexOf(action);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
-    }
 #endif
+        action->showStatusText(q);
+    }
 
     for(QWidget *caused = q; caused;) {
         if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {

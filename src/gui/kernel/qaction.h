@@ -114,6 +114,7 @@ public:
 
     enum ActionEvent { Trigger, Hover };
     void activate(ActionEvent event);
+    bool showStatusText(QWidget *widget=0);
 
 #ifdef QT_COMPAT
     inline QT_COMPAT bool isOn() const { return isChecked(); }
