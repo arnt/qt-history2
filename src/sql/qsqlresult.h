@@ -71,11 +71,13 @@ protected:
     void addBindValue( const QVariant& val, QSql::ParameterType type );
     QVariant boundValue( const QString& placeholder ) const;
     QVariant boundValue( int pos ) const;
+    QSql::ParameterType boundValueType( const QString& placeholder ) const;
+    QSql::ParameterType boundValueType( int pos ) const;
     QMap<QString, QVariant> boundValues() const;
     QString executedQuery() const;
     bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
-    QVariant parameterValue( const QString& holder );
-    QVariant parameterValue( int pos );    
+    QVariant parameterValue( const QString& holder ) const;
+    QVariant parameterValue( int pos ) const;
     
     BindMethod bindMethod() const;
 

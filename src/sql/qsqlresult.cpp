@@ -514,25 +514,36 @@ void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
     ++d->bindCount;
 }
 
-QVariant QSqlResult::parameterValue( const QString& holder )
+QVariant QSqlResult::parameterValue( const QString& holder ) const
 {
     return d->values[ holder ].value;
 }
 
-QVariant QSqlResult::parameterValue( int pos )
+QVariant QSqlResult::parameterValue( int pos ) const
 {
     return d->values[ d->index[ pos ] ].value;
 }
 
-QVariant QSqlResult::boundValue( const QString& holder ) const
+QVariant QSqlResult::boundValue( const QString& placeholder ) const
 {
-    return d->values[ holder ].value;
+    return d->values[ placeholder ].value;
 }
 
 QVariant QSqlResult::boundValue( int pos ) const
 {
     return d->values[ d->index[ pos ] ].value;
 }
+
+QSql::ParameterType QSqlResult::boundValueType( const QString& placeholder ) const
+{
+    return d->values[ placeholder ].typ;
+}
+
+QSql::ParameterType QSqlResult::boundValueType( int pos ) const
+{
+    return d->values[ d->index[ pos ] ].typ;
+}
+
 
 QMap<QString, QVariant> QSqlResult::boundValues() const
 {
