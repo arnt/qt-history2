@@ -249,11 +249,14 @@ void DocEmitter::nailDownDocs()
 	    if ( !classDecl->headerFile().isEmpty() ) {
 		hlist.insert( classDecl->headerFile() );
 
-		QString got = classDecl->headerFile();
-		QString expected = classDecl->name().lower() + ".h";
-		if ( expected != got && expected != "qt.h" )
-		    headerfilesynonyms.puts( (expected + " " + got + "\n")
-					    .latin1() );
+		if ( !classDecl->isObsolete() ) {
+		    QString got = classDecl->headerFile();
+		    QString expected = classDecl->name().lower() + ".h";
+		    if ( expected != got && got.contains("_qws") == 0 &&
+			 expected != "qt.h" )
+			headerfilesynonyms.puts( (expected + " " + got + "\n")
+						.latin1() );
+		}
 	    }
 	    if ( classDecl->classDoc() != 0 &&
 		 !classDecl->classDoc()->headers().isEmpty() )
