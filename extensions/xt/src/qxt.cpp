@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#7 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.cpp#8 $
 **
 ** Implementation of Qt extension classes for Xt/Motif support.
 **
@@ -41,7 +41,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-#define HAVE_MOTIF
+//#define HAVE_MOTIF
 #ifdef HAVE_MOTIF
 #include <Xm/Xm.h>
 #endif
@@ -375,17 +375,36 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	xtw = XtCreateWidget(name, widget_class, parent, args, num_args);
 	if (managed)
 	    XtManageChild(xtw);
+    } else if ( qparent ) {
+	ASSERT(!managed);
+	ASSERT(!widget_class);
+	String n, c;
+	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
+	Arg args[10];
+	int i=0;
+	XtSetArg(args[i], XtNwidth, 100); i++;
+	XtSetArg(args[i], XtNheight, 100); i++;
+	XtSetArg(args[i], XtNoverrideRedirect, True); i++;
+	XtSetArg(args[i], XtNmappedWhenManaged, False); i++;
+	XtSetArg(args[i], XtNvisual, QPaintDevice::x11Visual()); i++;
+	XtSetArg(args[i], XtNcolormap, QPaintDevice::x11Colormap()); i++;
+	XtSetArg(args[i], XtNdepth,  QPaintDevice::x11Depth()); i++;
+	xtw=XtAppCreateShell("coolwidget", "coolwidget",
+				topLevelShellWidgetClass,
+				qt_xdisplay(), args, i);
+	XtRealizeWidget(xtw);
+	XSync(qt_xdisplay(), False);    // I want all windows to be created now
+	XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(), x(), y());
+	XtSetMappedWhenManaged(xtw, True);
+	XtMapWidget(xtw);
+	need_reroot=TRUE;
     } else {
 	ASSERT(!managed);
+
 	String n, c;
 	XtGetApplicationNameAndClass(qt_xdisplay(), &n, &c);
 	xtw = XtAppCreateShell(n, c, widget_class, qt_xdisplay(),
-	    args, num_args);
-	if ( qparent ) {
-	    XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(),
-		x(), y());
-	    need_reroot=TRUE;
-	}
+			       args, num_args);
     }
 
     Arg reqargs[20];
@@ -450,11 +469,10 @@ QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 
   The widget is unmanaged (in the Xt sense).
 */
-QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
-		     QWidget *parent, ArgList args, Cardinal num_args) :
+QXtWidget::QXtWidget(QWidget *parent, const char* name) :
     QWidget(parent, name)
 {
-    init(name, widget_class, 0, parent, args, num_args, FALSE);
+    init(name, 0, 0, parent, 0, 0, FALSE);
     create(parent->winId(), FALSE, FALSE);
 }
 
@@ -531,8 +549,8 @@ bool QXtWidget::x11Event( XEvent* ev )
 void QXtWidget::leaveEvent( QEvent* ev )
 {
     // Xt-style:  focus-follows-mouse-out-of-widget
-    QWidget * fw = qApp->focusWidget();
-    if (fw) fw->clearFocus();
+    //QWidget * fw = qApp->focusWidget();
+    //if (fw) fw->clearFocus();
 
     QWidget::leaveEvent(ev);
 }

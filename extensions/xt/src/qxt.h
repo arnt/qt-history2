@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/xt/src/qxt.h#5 $
+** $Id: //depot/qt/main/extensions/xt/src/qxt.h#6 $
 **
 ** Definition of Qt extension classes for Xt/Motif support.
 **
@@ -60,8 +60,7 @@ public:
     QXtWidget(const char* name, WidgetClass widget_class,
 	      QXtWidget *parent=0, ArgList args=0, Cardinal num_args=0,
 	      bool managed=FALSE);
-    QXtWidget(const char* name, WidgetClass widget_class,
-	      QWidget *parent, ArgList args=0, Cardinal num_args=0);
+    QXtWidget(QWidget *parent, const char* name);
     ~QXtWidget();
 
     Widget xtWidget() const { return xtw; }
