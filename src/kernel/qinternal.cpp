@@ -524,6 +524,8 @@ QPixmap *QSharedDoubleBuffer::getPixmap()
 
     if ( rw >= sharedLimitWidth || rh >= sharedLimitHeight ) {
 	if ( flags & Force ) {
+	    rw = QMIN(rw, 8000);
+	    rh = QMIN(rh, 8000);
 	    // need to create a big pixmap and start the cleaner
 	    if ( ! qdb_force_pixmap ) {
 		qdb_force_pixmap = new QPixmap( rw, rh );
