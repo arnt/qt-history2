@@ -37,4 +37,3 @@ private:
 #endif // QT_NO_QWS_KEYBOARD
 
 #endif // QKBDUSB_QWS_H
-

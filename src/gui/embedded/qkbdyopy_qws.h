@@ -23,7 +23,7 @@ class QWSYopyKbPrivate;
 class QWSYopyKeyboardHandler : public QWSKeyboardHandler
 {
 public:
-    QWSYopyKeyboardHandler(const QString&);
+    explicit QWSYopyKeyboardHandler(const QString&);
     virtual ~QWSYopyKeyboardHandler();
 
 private:

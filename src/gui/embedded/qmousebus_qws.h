@@ -23,7 +23,8 @@ class QWSBusMouseHandlerPrivate;
 class QWSBusMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSBusMouseHandler(const QString & = QString::null, const QString & = QString::null);
+    explicit QWSBusMouseHandler(const QString & = QString::null,
+                                const QString & = QString::null);
     ~QWSBusMouseHandler();
 
     void suspend();
@@ -34,5 +35,4 @@ protected:
 
 #endif
 
-#endif
-
+#endif // QMOUSEBUS_QWS_H

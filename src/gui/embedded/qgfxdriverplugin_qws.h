@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QGfxDriverPlugin : public QObject, public QGfxDriverFactoryIn
     Q_OBJECT
     Q_INTERFACES(QGfxDriverFactoryInterface:QFactoryInterface)
 public:
-    QGfxDriverPlugin(QObject *parent = 0);
+    explicit QGfxDriverPlugin(QObject *parent = 0);
     ~QGfxDriverPlugin();
 
     virtual QStringList keys() const = 0;

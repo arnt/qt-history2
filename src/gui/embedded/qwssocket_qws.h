@@ -23,7 +23,7 @@ class QWSSocket : public QTcpSocket
 {
     Q_OBJECT
 public:
-    QWSSocket(QObject *parent=0);
+    explicit QWSSocket(QObject *parent=0);
     ~QWSSocket();
 
     void connectToLocalFile(const QString &file);

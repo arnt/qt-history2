@@ -29,7 +29,7 @@
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {
 public:
-    QTransformedScreen(int display_id);
+    explicit QTransformedScreen(int display_id);
     virtual ~QTransformedScreen();
 
     virtual bool connect(const QString &displaySpec);

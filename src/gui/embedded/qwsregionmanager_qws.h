@@ -23,7 +23,7 @@ class QWSRegionIndex;
 class QWSRegionManager
 {
 public:
-    QWSRegionManager(const QString &filename, bool c = true);
+    explicit QWSRegionManager(const QString &filename, bool c = true);
     ~QWSRegionManager();
 
     // for clients

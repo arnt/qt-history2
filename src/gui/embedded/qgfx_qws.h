@@ -131,7 +131,3 @@ protected:
 };
 
 #endif // QGFX_QWS_H
-
-
-
-

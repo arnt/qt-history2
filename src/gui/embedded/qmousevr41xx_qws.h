@@ -23,7 +23,8 @@ class QWSVr41xxMouseHandlerPrivate;
 class QWSVr41xxMouseHandler : public QWSCalibratedMouseHandler
 {
 public:
-    QWSVr41xxMouseHandler(const QString & = QString::null, const QString & = QString::null);
+    explicit QWSVr41xxMouseHandler(const QString & = QString::null,
+                                   const QString & = QString::null);
     ~QWSVr41xxMouseHandler();
 
 protected:
@@ -32,5 +33,4 @@ protected:
 
 #endif
 
-#endif
-
+#endif // QMOUSEVR41XX_QWS_H

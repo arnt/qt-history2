@@ -32,7 +32,7 @@ class QLockData;
 class QLock
 {
 public:
-    QLock(const QString &filename, char id, bool create = false);
+    explicit QLock(const QString &filename, char id, bool create = false);
     ~QLock();
 
     enum Type { Read, Write };
@@ -54,7 +54,7 @@ private:
 class QLockHolder
 {
 public:
-    QLockHolder(QLock *l, QLock::Type type) : qlock(l) {
+    explicit QLockHolder(QLock *l, QLock::Type type) : qlock(l) {
         qlock->lock(type);
     }
     ~QLockHolder() { if (locked()) qlock->unlock(); }
@@ -67,4 +67,4 @@ private:
     QLock *qlock;
 };
 
-#endif
+#endif // QLOCK_P_H

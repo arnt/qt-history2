@@ -60,7 +60,7 @@ application.
 class QSNAPScreen : public QScreen
 {
 public:
-    QSNAPScreen( int display_id );
+    explicit QSNAPScreen( int display_id );
     virtual ~QSNAPScreen();
 
     virtual void setMode(int,int,int);

@@ -28,7 +28,7 @@ class QVga16Screen : public QLinuxFbScreen
 
 public:
 
-    QVga16Screen(int display_id);
+    explicit QVga16Screen(int display_id);
     virtual ~QVga16Screen();
     virtual bool connect(const QString &spec);
     virtual bool initDevice();
@@ -52,4 +52,3 @@ private:
 #endif // QT_NO_QWS_VGA16
 
 #endif // QGFXVGA16_QWS_H
-

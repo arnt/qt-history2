@@ -42,7 +42,7 @@ struct fb_fix_screeninfo;
 class QLinuxFbScreen : public QScreen
 {
 public:
-    QLinuxFbScreen(int display_id);
+    explicit QLinuxFbScreen(int display_id);
     virtual ~QLinuxFbScreen();
 
     virtual bool initDevice();

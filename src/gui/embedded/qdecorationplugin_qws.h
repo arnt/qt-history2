@@ -11,8 +11,8 @@
  **
  ****************************************************************************/
 
-#ifndef QDECORATIONPLUGIN_H
-#define QDECORATIONPLUGIN_H
+#ifndef QDECORATIONPLUGIN_QWS_H
+#define QDECORATIONPLUGIN_QWS_H
 
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
@@ -31,11 +31,11 @@ class QDecorationPlugin : public QObject,  public QDecorationFactoryInterface
     Q_OBJECT
     Q_INTERFACES(QDecorationFactoryInterface:QFactoryInterface)
         public:
-    QDecorationPlugin(QObject *parent = 0);
+    explicit QDecorationPlugin(QObject *parent = 0);
     ~QDecorationPlugin();
 
     virtual QStringList keys() const = 0;
     virtual QDecoration *create(const QString &key) = 0;
 };
 
-#endif // QDECORATIONPLUGIN_H
+#endif // QDECORATIONPLUGIN_QWS_H

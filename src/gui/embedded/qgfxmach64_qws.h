@@ -21,7 +21,7 @@
 class QMachScreen : public QLinuxFbScreen
 {
 public:
-    QMachScreen(int display_id);
+    explicit QMachScreen(int display_id);
     virtual ~QMachScreen();
 
     virtual bool connect(const QString &spec);
@@ -39,4 +39,3 @@ protected:
 #endif // QT_NO_QWS_MACH64
 
 #endif // QGFXMACH64_QWS_H
-

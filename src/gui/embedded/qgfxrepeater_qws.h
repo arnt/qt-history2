@@ -26,7 +26,7 @@ class QRepeaterScreen : public QScreen
 {
 public:
 
-    QRepeaterScreen(int);
+    explicit QRepeaterScreen(int);
     virtual ~QRepeaterScreen();
 
     virtual bool connect(const QString &);

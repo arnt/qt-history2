@@ -34,7 +34,7 @@ class Q_GUI_EXPORT QMouseDriverPlugin : public QObject, public QWSMouseHandlerFa
     Q_OBJECT
     Q_INTERFACES(QWSMouseHandlerFactoryInterface:QFactoryInterface)
 public:
-    QMouseDriverPlugin(QObject *parent = 0);
+    explicit QMouseDriverPlugin(QObject *parent = 0);
     ~QMouseDriverPlugin();
 
     virtual QStringList keys() const = 0;

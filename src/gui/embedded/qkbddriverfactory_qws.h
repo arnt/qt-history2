@@ -26,4 +26,4 @@ public:
     static QWSKeyboardHandler *create(const QString&, const QString&);
 };
 
-#endif //QKBDDRIVERFACTORY_QWS_H
+#endif // QKBDDRIVERFACTORY_QWS_H

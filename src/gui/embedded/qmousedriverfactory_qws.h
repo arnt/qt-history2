@@ -26,4 +26,4 @@ public:
     static QWSMouseHandler *create(const QString&, const QString &);
 };
 
-#endif //QMOUSEDRIVERFACTORY_QWS_H
+#endif // QMOUSEDRIVERFACTORY_QWS_H

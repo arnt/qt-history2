@@ -58,20 +58,14 @@ private:
 class Q_CORE_EXPORT QMutexLocker
 {
 public:
-    inline explicit QMutexLocker(QMutex *m)
-        : mtx(m)
-    { relock(); }
-    inline ~QMutexLocker()
-    { unlock(); }
+    inline explicit QMutexLocker(QMutex *m) : mtx(m) { relock(); }
+    inline ~QMutexLocker() { unlock(); }
 
-    inline void unlock()
-    { if (mtx) mtx->unlock(); }
+    inline void unlock() { if (mtx) mtx->unlock(); }
 
-    inline void relock()
-    { if (mtx) mtx->lock(); }
+    inline void relock() { if (mtx) mtx->lock(); }
 
-    inline QMutex *mutex() const
-    { return mtx; }
+    inline QMutex *mutex() const { return mtx; }
 
 private:
     Q_DISABLE_COPY(QMutexLocker)
@@ -86,6 +80,7 @@ class Q_CORE_EXPORT QMutex
 {
 public:
     enum RecursionMode { NonRecursive, Recursive };
+
     inline explicit QMutex(RecursionMode mode = NonRecursive) {}
     inline ~QMutex() {}
 
@@ -94,8 +89,7 @@ public:
     static void unlock() {}
 
 #if defined(QT_COMPAT)
-    static inline QT_COMPAT bool locked()
-    { return false; }
+    static inline QT_COMPAT bool locked() { return false; }
 #endif
 
 private:

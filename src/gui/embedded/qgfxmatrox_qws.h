@@ -21,7 +21,7 @@
 class QMatroxScreen : public QLinuxFbScreen
 {
 public:
-    QMatroxScreen(int display_id);
+    explicit QMatroxScreen(int display_id);
     virtual ~QMatroxScreen();
 
     virtual bool connect(const QString &spec);

@@ -24,7 +24,7 @@ class QObject;
 class Q_GUI_EXPORT QAccessibleObject : public QAccessibleInterface
 {
 public:
-    QAccessibleObject(QObject *object);
+    explicit QAccessibleObject(QObject *object);
 
     bool isValid() const;
     QObject *object() const;
@@ -70,6 +70,6 @@ public:
     QString actionText(int action, Text t, int child) const;
 };
 
-#endif //QT_NO_ACCESSIBILITY
+#endif // QT_NO_ACCESSIBILITY
 
-#endif //QACCESSIBLEOBJECT_H
+#endif // QACCESSIBLEOBJECT_H

@@ -19,7 +19,7 @@
 template <const int depth, const int type>
 class QGfxRaster : public QGfxRasterBase, protected QWSPolygonScanner {
 public:
-    QGfxRaster(unsigned char *, int w, int h);
+    explicit QGfxRaster(unsigned char *, int w, int h);
     ~QGfxRaster();
 
     virtual void drawPoint(int, int);

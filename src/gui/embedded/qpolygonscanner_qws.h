@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QPOLYGONSCANNER_H
-#define QPOLYGONSCANNER_H
+#ifndef QPOLYGONSCANNER_QWS_H
+#define QPOLYGONSCANNER_QWS_H
 
 #include "QtCore/qglobal.h"
 
@@ -29,4 +29,4 @@ public:
     virtual void processSpans(int n, QPoint* point, int* width)=0;
 };
 
-#endif // QPOLYGONSCANNER_H
+#endif // QPOLYGONSCANNER_QWS_H

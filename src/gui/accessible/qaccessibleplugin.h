@@ -36,7 +36,7 @@ class Q_GUI_EXPORT QAccessiblePlugin : public QObject, public QAccessibleFactory
     Q_OBJECT
     Q_INTERFACES(QAccessibleFactoryInterface:QFactoryInterface)
 public:
-    QAccessiblePlugin(QObject *parent = 0);
+    explicit QAccessiblePlugin(QObject *parent = 0);
     ~QAccessiblePlugin();
 
     virtual QStringList keys() const = 0;

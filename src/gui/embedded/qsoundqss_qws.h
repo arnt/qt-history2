@@ -26,7 +26,7 @@ class QWSSoundServerPrivate;
 class QWSSoundServer : public QObject {
     Q_OBJECT
 public:
-    QWSSoundServer(QObject* parent=0);
+    explicit QWSSoundServer(QObject* parent=0);
     ~QWSSoundServer();
     void playFile(const QString& filename);
 
@@ -38,7 +38,7 @@ private:
 class QWSSoundClient : public QTcpSocket {
     Q_OBJECT
 public:
-    QWSSoundClient(QObject* parent=0);
+    explicit QWSSoundClient(QObject* parent=0);
     void play(const QString& filename);
 };
 
@@ -46,7 +46,7 @@ class QWSSoundServerClient : public QTcpSocket {
     Q_OBJECT
 
 public:
-    QWSSoundServerClient(int s, QObject* parent);
+    explicit QWSSoundServerClient(int s, QObject* parent);
     ~QWSSoundServerClient();
 
 signals:
@@ -61,7 +61,7 @@ class QWSSoundServerSocket : public QTcpServer {
     Q_OBJECT
 
 public:
-    QWSSoundServerSocket(QObject* parent=0, const char* name=0);
+    explicit QWSSoundServerSocket(QObject* parent=0, const char* name=0);
     void incomingConnection(int s);
 
 signals:

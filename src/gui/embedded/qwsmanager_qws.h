@@ -34,7 +34,7 @@ class QWSManager : public QObject
     Q_OBJECT
     Q_DECLARE_PRIVATE(QWSManager)
 public:
-    QWSManager(QWidget *);
+    explicit QWSManager(QWidget *);
     ~QWSManager();
 
     static QDecoration *newDefaultDecoration();

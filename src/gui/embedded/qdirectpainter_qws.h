@@ -25,7 +25,7 @@ class QDirectPainterPrivate;
 
 class Q_GUI_EXPORT QDirectPainter : public QPainter {
 public:
-    QDirectPainter(QWidget*);
+    explicit QDirectPainter(QWidget*);
     ~QDirectPainter();
 
     uchar* frameBuffer();

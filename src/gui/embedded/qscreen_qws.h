@@ -171,7 +171,7 @@ class QScreen {
 
 public:
 
-    QScreen(int display_id);
+    explicit QScreen(int display_id);
     virtual ~QScreen();
     virtual bool initDevice() = 0;
     virtual bool connect(const QString &displaySpec) = 0;
@@ -305,5 +305,4 @@ extern "C" QScreen * qt_get_screen(int display_id, const char* spec);
 
 const unsigned char * qt_probe_bus();
 
-
-#endif
+#endif // QSCREEN_QWS_H

@@ -160,7 +160,7 @@ class QWSServer : public QObject
     Q_OBJECT
 
 public:
-    QWSServer(int flags = 0, QObject *parent=0);
+    explicit QWSServer(int flags = 0, QObject *parent=0);
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QWSServer(int flags, QObject *parent, const char *name);
 #endif
@@ -527,7 +527,7 @@ class QWSClient : public QObject
 {
     Q_OBJECT
 public:
-    QWSClient(QObject* parent, QTcpSocket *, int id);
+    explicit QWSClient(QObject* parent, QTcpSocket *, int id);
     ~QWSClient();
 
     int socket() const;

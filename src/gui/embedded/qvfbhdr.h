@@ -44,4 +44,4 @@ struct QVFbKeyData
     bool repeat;
 };
 
-#endif
+#endif // QVFBHDR_H

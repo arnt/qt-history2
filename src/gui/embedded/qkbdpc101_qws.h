@@ -30,7 +30,7 @@ typedef struct QWSKeyMap {
 class QWSPC101KeyboardHandler : public QWSKeyboardHandler
 {
 public:
-    QWSPC101KeyboardHandler(const QString&);
+    explicit QWSPC101KeyboardHandler(const QString&);
     virtual ~QWSPC101KeyboardHandler();
 
     virtual void doKey(uchar scancode);
@@ -54,5 +54,4 @@ protected:
 
 #endif // QT_NO_QWS_KEYBOARD
 
-#endif // QKBDTTY_QWS_H
-
+#endif // QKBDPC101_QWS_H

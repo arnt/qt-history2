@@ -35,7 +35,7 @@ template <const int depth, const int type>
 class QGfxShadow : public SHADOWFB_RASTER_PARENT
 {
 public:
-    QGfxShadow(unsigned char *b,int w,int h);
+    explicit QGfxShadow(unsigned char *b,int w,int h);
     virtual ~QGfxShadow();
 
     virtual void drawPoint(int,int);
@@ -70,7 +70,7 @@ class QShadowTimerHandler : public QObject
 
 public:
 
-    QShadowTimerHandler(QShadowFbScreen *);
+    explicit QShadowTimerHandler(QShadowFbScreen *);
     virtual void timerEvent(QTimerEvent *);
 
 private:
@@ -84,7 +84,7 @@ class QShadowFbScreen : public SHADOWFB_SCREEN_PARENT
 
 public:
 
-    QShadowFbScreen(int);
+    explicit QShadowFbScreen(int);
     virtual ~QShadowFbScreen();
     virtual bool initDevice();
     virtual bool connect(const QString &);
@@ -114,4 +114,4 @@ private:
 
 #endif
 
-#endif
+#endif // QGFXSHADOWFB_QWS_H

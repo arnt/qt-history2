@@ -29,7 +29,8 @@ public:
 class QWSMouseHandler
 {
 public:
-    QWSMouseHandler(const QString &driver = QString::null, const QString &device = QString::null);
+    explicit QWSMouseHandler(const QString &driver = QString::null,
+                             const QString &device = QString::null);
     virtual ~QWSMouseHandler();
 
     virtual void clearCalibration() {}
@@ -51,7 +52,8 @@ protected:
 class QWSCalibratedMouseHandler : public QWSMouseHandler
 {
 public:
-    QWSCalibratedMouseHandler(const QString &driver = QString::null, const QString &device = QString::null);
+    explicit QWSCalibratedMouseHandler(const QString &driver = QString::null,
+                                       const QString &device = QString::null);
 
     virtual void clearCalibration();
     virtual void calibrate(const QWSPointerCalibrationData *);

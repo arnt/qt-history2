@@ -14,7 +14,6 @@
 #ifndef QGFXVNC_QWS_H
 #define QGFXVNC_QWS_H
 
-
 #define VNCSCREEN_BASE QLinuxFbScreen
 #include "QtGui/qgfxlinuxfb_qws.h"
 
@@ -26,7 +25,7 @@ class QSharedMemory;
 
 class QVNCScreen : public VNCSCREEN_BASE {
 public:
-    QVNCScreen(int display_id);
+    explicit QVNCScreen(int display_id);
     virtual ~QVNCScreen();
     virtual bool initDevice();
     virtual bool connect(const QString &displaySpec);
@@ -51,4 +50,3 @@ public:
 #endif // QT_NO_QWS_VNC
 
 #endif // QGFXVNC_QWS_H
-

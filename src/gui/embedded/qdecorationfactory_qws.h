@@ -25,4 +25,4 @@ public:
     static QDecoration *create(const QString&);
 };
 
-#endif //QDECORATIONFACTORY_H
+#endif // QDECORATIONFACTORY_H

@@ -23,7 +23,7 @@ class QWSSL5000KbPrivate;
 class QWSSL5000KeyboardHandler : public QWSTtyKeyboardHandler
 {
 public:
-    QWSSL5000KeyboardHandler(const QString&);
+    explicit QWSSL5000KeyboardHandler(const QString&);
     virtual ~QWSSL5000KeyboardHandler();
 
     virtual void doKey(uchar scancode);
@@ -38,5 +38,4 @@ private:
 
 #endif // QT_NO_QWS_KBD_SL5000
 
-#endif // QKBDTTY_QWS_H
-
+#endif // QKBDSL5000_QWS_H

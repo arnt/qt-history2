@@ -21,7 +21,7 @@
 class QVoodooScreen : public QLinuxFbScreen
 {
 public:
-    QVoodooScreen(int display_id);
+    explicit QVoodooScreen(int display_id);
     virtual ~QVoodooScreen();
 
     virtual bool connect(const QString &spec);

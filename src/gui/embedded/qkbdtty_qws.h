@@ -25,7 +25,7 @@ class QWSTtyKbPrivate;
 class QWSTtyKeyboardHandler : public QWSPC101KeyboardHandler
 {
 public:
-    QWSTtyKeyboardHandler(const QString&);
+    explicit QWSTtyKeyboardHandler(const QString&);
     virtual ~QWSTtyKeyboardHandler();
 
 protected:
@@ -41,4 +41,3 @@ private:
 #endif // QT_NO_QWS_KEYBOARD
 
 #endif // QKBDTTY_QWS_H
-

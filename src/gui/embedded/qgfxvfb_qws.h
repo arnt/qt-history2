@@ -20,14 +20,13 @@
 
 #include "QtGui/qvfbhdr.h"
 
-
 class QVFbMouseHandler;
 class QVFbKeyboardHandler;
 
 class QVFbScreen : public QScreen
 {
 public:
-    QVFbScreen(int display_id);
+    explicit QVFbScreen(int display_id);
     virtual ~QVFbScreen();
     virtual bool initDevice();
     virtual bool connect(const QString &displaySpec);
