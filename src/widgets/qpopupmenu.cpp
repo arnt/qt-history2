@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#359 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#360 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -126,7 +126,9 @@ static bool preventAnimation = FALSE;
   items with insertItem().  An item is either a string, a pixmap or a
   custom item that provides its own drawing function (see
   QCustomMenuItem). In addition, items can have an optional icon drawn
-  on the very left side and an accelerator key such as "Ctrl-X".
+  on the very left side and an accelerator key such as "Ctrl-X".  The
+  accelerator can also be changed at run-time by holding the left mouse
+  button over and item and pressing the new accelerator.
 
   There are three kinds of menu items: separators, menu items that perform
   an action and menu items that show a submenu.  Separators are inserted
