@@ -403,7 +403,8 @@ void QGroupBox::addSpace( int size )
 	QSpacerItem *spacer
 	    = new QSpacerItem( ( dir == Horizontal ) ? 0 : size,
 			       ( dir == Vertical ) ? 0 : size,
-			       QSizePolicy::Fixed, QSizePolicy::Fixed );
+			       ( dir == Horizontal ) ? QSizePolicy::Expanding : QSizePolicy::Fixed,
+			       ( dir == Vertical ) ? QSizePolicy::Fixed : QSizePolicy::Expanding );
 	grid->addItem( spacer, row, col );
     }
 
