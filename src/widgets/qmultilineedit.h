@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#19 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#20 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -177,6 +177,7 @@ protected:
 				 int *line2, int *col2 ) const;
     int		lineLength( int row ) const;
     QString	*getString( int row ) const;
+    bool		isEndOfParagraph( int row ) const;
     QString     stringShown( int row ) const;
 
 protected:
