@@ -155,7 +155,7 @@ QDataBrowser::Boundary QDataBrowser::boundary()
 }
 
 
-/*! Sets boundary checking to \a active.  
+/*! Sets boundary checking to \a active.
 
     When boundary checking is on, i.e. \a active is TRUE (the default),
     signals are emitted indicating the current position of the default
@@ -225,7 +225,7 @@ void QDataBrowser::setFilter( const QString& filter )
 
 
 /*! Returns the current filter (WHERE clause), or an empty string if
-    no filter has been set. 
+    no filter has been set.
 
 */
 
@@ -282,9 +282,9 @@ QSqlCursor* QDataBrowser::sqlCursor() const
 }
 
 
-/*!  Sets the QDataBrowser's form to \a form. 
-    The cursor and all the navigation and data manipulation functions
-    that QDataBrowser provides become available to the \a form.
+/*!  Sets the borwser's default form to \a form.  The cursor and all
+  navigation and data manipulation functions that the browser provides
+  become available to the \a form.
 
 */
 
@@ -294,8 +294,8 @@ void QDataBrowser::setForm( QSqlForm* form )
 }
 
 
-/*! Returns a pointer to the QDataBrowser's form or 0 if no form has
-   been set.
+/*! Returns a pointer to the browser's default form or 0 if no form
+   has been set.
 
 */
 
@@ -500,7 +500,7 @@ bool QDataBrowser::autoEdit() const
   QSqlCursor::primeInsert() is \e not called on the default cursor, as
   this would corrupt values in the form.)
 
-  \sa insertCurrent()
+  \sa insert()
 
 */
 
@@ -508,11 +508,16 @@ bool QDataBrowser::autoEdit() const
 /*! \fn void QDataBrowser::primeUpdate( QSqlRecord* buf )
 
   This signal is emitted before the edit buffer is updated in the
-  database by the browser.  The \a buf parameter points to the record
-  buffer being updated. (Note that QSqlCursor::primeUpdate() is \e not
-  called on the default cursor, as this would corrupt values in the
-  form.) Connect to this signal in order to, for example, keep track of
-  which records have been updated, perhaps for auditing purposes.
+  database by the browser.  Note that during naviagtion ( first(),
+  last(), next(), prev()), each record that is shown in the default
+  form is primed for update.  The \a buf parameter points to the
+  record buffer being updated. (Note that QSqlCursor::primeUpdate() is
+  \e not called on the default cursor, as this would corrupt values in
+  the form.) Connect to this signal in order to, for example, keep
+  track of which records have been updated, perhaps for auditing
+  purposes.
+
+  \sa update()
 
 */
 
@@ -523,7 +528,9 @@ bool QDataBrowser::autoEdit() const
   buffer being deleted. (Note that QSqlCursor::primeDelete() is \e
   not called on the default cursor, as this would corrupt values in
   the form.)  Connect to this signal in order to, for example, save a
-  copy of the deleted record for auditing purposes. 
+  copy of the deleted record for auditing purposes.
+
+  \sa delete()
 
 */
 
@@ -556,18 +563,19 @@ void QDataBrowser::refresh()
   If auto-editing is on (see setAutoEdit()), the following happens:
 
   <ul>
-  <li> If the browser is already actively inserting a record, 
+  <li> If the browser is already actively inserting a record,
   the current form's data is inserted into the database.
   <li> If the browser is not inserting a record, but the current record
   was changed by the user, the record is updated in the database with
-  the current form's data (i.e. with the changes). 
+  the current form's data (i.e. with the changes).
   </ul>
 
   If there is an error handling any of the above auto-edit actions,
   handleError() is called and no insert or update is performed.
 
-  If no error occurred the browser begins actively inserting a record
-  into the database by performing the following actions:
+  If no error occurred, or auto-editing is not enabled, the browser
+  begins actively inserting a record into the database by performing
+  the following actions:
 
   <ul>
   <li> The default cursor is primed for insert using QSqlCursor::primeInsert()
@@ -629,7 +637,7 @@ void QDataBrowser::insert()
 }
 
 
-/*! Performs an update action on the browser's cursor. 
+/*! Performs an update action on the browser's cursor.
 
   If there is no default cursor or no default form, nothing happens.
   Otherwise, the following happens:
@@ -819,7 +827,7 @@ void QDataBrowser::writeFields()
 
 
 /*! Clears all the values in the form. For example the text of
-   QLineEdit's will be set to "". 
+   QLineEdit's will be set to "".
 
 */
 
