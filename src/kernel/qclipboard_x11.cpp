@@ -823,7 +823,7 @@ const char* QClipboardWatcher::format( int n ) const
 	    if ( *target == XA_PIXMAP )
 		that->formatList.append("image/ppm");
 	    else
-		that->formatList.append(qt_xdnd_atom_to_str(target[n]));
+		that->formatList.append(qt_xdnd_atom_to_str(target[i]));
     }
 
     if (n >= 0 && n < (signed) formatList.count())
