@@ -309,10 +309,14 @@ void QTextDocumentLayout::layoutBlock(QTextPieceTable::BlockIterator bl, const Q
 
     int from = 0;
     int len = tl->text().length();
-    while (from < len) {
-	QTextLine l = tl->createLine(from, y, x, x + lw);
-	y += l.ascent() + l.descent() + 1;
-	from += l.length();
+    if (len) {
+	while (from < len) {
+	    QTextLine l = tl->createLine(from, y, x, x + lw);
+	    y += l.ascent() + l.descent() + 1;
+	    from += l.length();
+	}
+    } else {
+	y += QFontMetrics(blockFormat.font()).lineSpacing();
     }
 
     y += blockFormat.bottomMargin();
