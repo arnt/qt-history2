@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#24 $
 **
 ** Implementation of QBitArray class
 **
@@ -13,7 +13,7 @@
 #include "qbitarry.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qbitarray.cpp#24 $")
 
 
 #define SHBLOCK  ((bitarr_data*)(sharedBlock()))
@@ -480,9 +480,9 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 }
 
 
-// --------------------------------------------------------------------------
-// QBitArray stream functions
-//
+/*****************************************************************************
+  QBitArray stream functions
+ *****************************************************************************/
 
 /*----------------------------------------------------------------------------
   \relates QBitArray
