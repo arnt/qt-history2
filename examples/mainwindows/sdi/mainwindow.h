@@ -13,6 +13,7 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow();
+    MainWindow(const QString &fileName);
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -26,6 +27,7 @@ private slots:
     void documentWasModified();
 
 private:
+    void init();
     void createActions();
     void createMenus();
     void createToolBars();
@@ -37,9 +39,11 @@ private:
     bool saveFile(const QString &fileName);
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
+    MainWindow *findMainWindow(const QString &fileName);
 
     QTextEdit *textEdit;
     QString curFile;
+    bool isUntitled;
 
     QMenu *fileMenu;
     QMenu *editMenu;

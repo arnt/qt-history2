@@ -4,22 +4,14 @@
 
 MainWindow::MainWindow()
 {
-    setAttribute(Qt::WA_DeleteOnClose);
+    init();
+    setCurrentFile("");
+}
 
-    textEdit = new QTextEdit(this);
-    setCentralWidget(textEdit);
-
-    createActions();
-    createMenus();
-    createToolBars();
-    createStatusBar();
-
-    readSettings();
-
-    connect(textEdit->document(), SIGNAL(contentsChanged()),
-            this, SLOT(documentWasModified()));
-
-    setWindowTitle(tr("SDI"));
+MainWindow::MainWindow(const QString &fileName)
+{
+    init();
+    loadFile(fileName);
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -34,24 +26,41 @@ void MainWindow::closeEvent(QCloseEvent *event)
 
 void MainWindow::newFile()
 {
-    const int Offset = 20;
     MainWindow *other = new MainWindow;
-    other->move(x() + Offset, y() + Offset);
+    other->move(x() + 40, y() + 40);
     other->show();
 }
 
 void MainWindow::open()
 {
-    if (maybeSave()) {
-        QString fileName = QFileDialog::getOpenFileName(this);
-        if (!fileName.isEmpty())
+    QString fileName = QFileDialog::getOpenFileName(this);
+    if (!fileName.isEmpty()) {
+        MainWindow *existing = findMainWindow(fileName);
+        if (existing) {
+            existing->show();
+            existing->raise();
+            existing->activateWindow();
+            return;
+        }
+
+        if (isUntitled && textEdit->document()->isEmpty()
+                && !isWindowModified()) {
             loadFile(fileName);
+        } else {
+            MainWindow *other = new MainWindow(fileName);
+            if (other->isUntitled) {
+                delete other;
+                return;
+            }
+            other->move(x() + 40, y() + 40);
+            other->show();
+        }
     }
 }
 
 bool MainWindow::save()
 {
-    if (curFile.isEmpty()) {
+    if (isUntitled) {
         return saveAs();
     } else {
         return saveFile(curFile);
@@ -60,7 +69,8 @@ bool MainWindow::save()
 
 bool MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                                    curFile);
     if (fileName.isEmpty())
         return false;
 
@@ -77,6 +87,26 @@ void MainWindow::about()
 void MainWindow::documentWasModified()
 {
     setWindowModified(true);
+}
+
+void MainWindow::init()
+{
+    setAttribute(Qt::WA_DeleteOnClose);
+
+    isUntitled = true;
+
+    textEdit = new QTextEdit(this);
+    setCentralWidget(textEdit);
+
+    createActions();
+    createMenus();
+    createToolBars();
+    createStatusBar();
+
+    readSettings();
+
+    connect(textEdit->document(), SIGNAL(contentsChanged()),
+            this, SLOT(documentWasModified()));
 }
 
 void MainWindow::createActions()
@@ -255,18 +285,35 @@ bool MainWindow::saveFile(const QString &fileName)
 
 void MainWindow::setCurrentFile(const QString &fileName)
 {
-    curFile = fileName;
+    static int sequenceNumber = 1;
+
+    isUntitled = fileName.isEmpty();
+    if (isUntitled) {
+        curFile = tr("document%1.txt").arg(sequenceNumber++);
+    } else {
+        curFile = QFileInfo(fileName).canonicalFilePath();
+    }
+
     textEdit->document()->setModified(false);
     setWindowModified(false);
 
-    if (curFile.isEmpty())
-        setWindowTitle(tr("SDI"));
-    else
-        setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
-                                    .arg(tr("SDI")));
+    setWindowTitle(tr("%1[*] - %2").arg(strippedName(curFile))
+                                       .arg(tr("SDI")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
+}
+
+MainWindow *MainWindow::findMainWindow(const QString &fileName)
+{
+    QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
+
+    foreach (QWidget *widget, qApp->topLevelWidgets()) {
+        MainWindow *mainWin = qobject_cast<MainWindow *>(widget);
+        if (mainWin && mainWin->curFile == canonicalFilePath)
+            return mainWin;
+    }
+    return 0;
 }
