@@ -320,7 +320,7 @@ struct XPThemeData
 	if ( sId )
 	    stateId = sId;
 
-	if ( name && name == "TAB" && (
+	if ( name == "TAB" && (
 	    partId == TABP_TABITEMLEFTEDGE ||
 	    partId == TABP_TABITEMRIGHTEDGE ||
 	    partId == TABP_TABITEM ) ) {
@@ -341,9 +341,9 @@ struct XPThemeData
 	    painter->setPen( tbBorderColor );
 	    if ( !flipped )
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
-	} else if ( name && name == "TREEVIEW" ) {
+	} else if ( name == "TREEVIEW" ) {
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
-	} else if ( name && name == "EDIT" ) {
+	} else if ( name == "EDIT" ) {
 	    // We assume upto 2px border on the lineedit
 	    // pixmap, and clip the rest to avoid flicker
 	    HRGN hr1 = CreateRectRgn( rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1 );
