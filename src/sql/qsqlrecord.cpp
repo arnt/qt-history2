@@ -661,7 +661,6 @@ QSqlRecordInfo::size_type QSqlRecordInfo::contains( const QString& fieldName ) c
 	if ( (*it).name().upper() == fName ) {
 	    ++i;
 	}
-	++it;
     }
     return i;
 }
@@ -678,7 +677,6 @@ QSqlFieldInfo QSqlRecordInfo::find( const QString& fieldName ) const
 	if ( (*it).name().upper() == fName ) {
 	    return *it;
 	}
-	++it;
     }
     return QSqlFieldInfo();
 }
