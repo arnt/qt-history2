@@ -14,6 +14,8 @@
 #ifndef QITEMSELECTIONMODEL_H
 #define QITEMSELECTIONMODEL_H
 
+#include <QtCore/qset.h>
+#include <QtCore/qvector.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qabstractitemmodel.h>
 
@@ -132,6 +134,9 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);
+
+// dummy implentation of qHash() necessary for instantiating QList<QItemSelectionRange>::toSet() with MSVC
+inline uint qHash(const QItemSelectionRange &) { return 0; }
 
 class Q_GUI_EXPORT QItemSelection : public QList<QItemSelectionRange>
 {

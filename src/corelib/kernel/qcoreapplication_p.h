@@ -29,15 +29,7 @@
 #include "qcoreapplication.h"
 #include "qtranslator.h"
 
-class Q_CORE_EXPORT QTranslatorList : private QList<QTranslator*>
-{
-public:
-    using QList<QTranslator*>::prepend;
-    using QList<QTranslator*>::removeAll;
-    using QList<QTranslator*>::isEmpty;
-    using QList<QTranslator*>::constBegin;
-    using QList<QTranslator*>::constEnd;
-};
+typedef QList<QTranslator*> QTranslatorList;
 
 class QAbstractEventDispatcher;
 
