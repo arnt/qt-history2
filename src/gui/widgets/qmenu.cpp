@@ -33,6 +33,7 @@
 #endif
 
 #include "qmenu_p.h"
+#include "qmenubar_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -207,7 +208,7 @@ void QMenuPrivate::hideUpToMenuBar()
         QWidget *caused = causedPopup;
         q->hide(); //hide after getting causedPopup
         while(caused) {
-            if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
                 mb->d->setCurrentAction(0);
                 caused = 0;
             } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
@@ -373,7 +374,7 @@ void QMenuPrivate::scrollMenu(uint dir)
 }
 
 /* This is poor-mans eventfilters. This avoids the use of
-   eventFilter (which can be nasty for users of Q4MenuBar's). */
+   eventFilter (which can be nasty for users of QMenuBar's). */
 bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
 {
     QPoint pos = q->mapFromGlobal(e->globalPos());
@@ -434,7 +435,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
         bool passOnEvent = false;
         QWidget *next_widget = 0;
         QPoint cpos = caused->mapFromGlobal(e->globalPos());
-        if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
             passOnEvent = mb->rect().contains(cpos);
         } else if(QMenu *m = qt_cast<QMenu*>(caused)) {
             passOnEvent = m->d->actionAt(cpos);
@@ -467,7 +468,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
 #endif
 
     for(QWidget *caused = q; caused;) {
-        if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+        if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
             if(action_e == QAction::Trigger)
                 emit mb->activated(action);
             else if(action_e == QAction::Hover)
@@ -736,7 +737,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
 
 #ifndef QT_NO_MENUBAR
     if((snapToMouse && (pos.y() + size.height()/2 < mouse.y())) ||
-       (qt_cast<Q4MenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
+       (qt_cast<QMenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
        vGuess = QEffects::UpScroll;
 #endif
 
@@ -791,7 +792,7 @@ void QMenu::hideEvent(QHideEvent *)
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     QAccessible::updateAccessibility(this, 0, QAccessible::PopupMenuEnd);
 #endif
-    if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(d->causedPopup))
+    if(QMenuBar *mb = qt_cast<QMenuBar*>(d->causedPopup))
         mb->d->setCurrentAction(0);
     d->mouseDown = false;
     d->causedPopup = 0;
@@ -1129,7 +1130,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
         if(QWidget *caused = d->causedPopup) {
             while(QMenu *m = qt_cast<QMenu*>(caused))
                 caused = m->d->causedPopup;
-            if(Q4MenuBar *mb = qt_cast<Q4MenuBar*>(caused)) {
+            if(QMenuBar *mb = qt_cast<QMenuBar*>(caused)) {
                 QMenuAction *oldAct = mb->d->currentAction;
                 QApplication::sendEvent(mb, e);
                 if(mb->d->currentAction != oldAct)

@@ -20,9 +20,6 @@
 #include <qiconset.h>
 #include <qaction.h>
 
-#ifndef QT_USE_NEW_MENU_SYSTEM
-# define QT_USE_NEW_MENU_SYSTEM
-#endif
 class QMenuPrivate;
 
 class Q_GUI_EXPORT QMenu : public QWidget
@@ -219,8 +216,8 @@ private:
 #endif
 
 private:
-    friend class Q4MenuBar;
-    friend class Q4MenuBarPrivate;
+    friend class QMenuBar;
+    friend class QMenuBarPrivate;
     friend class QTornOffMenu;
 
 #ifdef Q_WS_MAC

@@ -17,17 +17,20 @@
 
 #include "qmenu.h"
 
-class Q4MenuBarPrivate;
+class QMenuBarPrivate;
+#ifdef QT_COMPAT
+typedef QAction QMenuItem;
+#endif
 
-class Q_GUI_EXPORT Q4MenuBar : public QWidget
+class Q_GUI_EXPORT QMenuBar : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4MenuBar);
+    Q_DECLARE_PRIVATE(QMenuBar);
     Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
 
 public:
-    Q4MenuBar(QWidget *parent = 0);
-    ~Q4MenuBar();
+    QMenuBar(QWidget *parent = 0);
+    ~QMenuBar();
 
     QAction *addMenu(const QString &title, QMenu *menu);
     QAction *insertMenu(QAction *before, const QString &title, QMenu *menu);
@@ -192,33 +195,8 @@ private:
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    Q4MenuBar(const Q4MenuBar &);
-    Q4MenuBar &operator=(const Q4MenuBar &);
+    QMenuBar(const QMenuBar &);
+    QMenuBar &operator=(const QMenuBar &);
 #endif
 };
-
-
-
-
-#ifdef QT_USE_NEW_MENU_SYSTEM
-
-class Q_GUI_EXPORT QMenuBar : public Q4MenuBar
-{
-    Q_OBJECT
-public:
-    QMenuBar(QWidget* parent=0, const char* =0) : Q4MenuBar(parent) { }
-};
-typedef QAction QMenuItem;
-
-#else
-#include "q3menubar.h"
-class Q_GUI_EXPORT QMenuBar : public Q3MenuBar
-{
-    Q_OBJECT
-public:
-    QMenuBar(QWidget* parent=0, const char* name=0) : Q3MenuBar(parent, name) { }
-};
-typedef Q3MenuItem QMenuItem;
-#endif
-
 #endif // QMENUBAR_H

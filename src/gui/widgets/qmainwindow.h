@@ -170,7 +170,7 @@ private:
 #endif
 
     friend class QDockWindow;
-    friend class Q4MenuBarPrivate;
+    friend class QMenuBarPrivate;
 #ifdef QT_COMPAT
     friend class Q3MenuBar;
 #endif
