@@ -77,6 +77,9 @@ bool QMakeProject::ScopeIterator::exec(QMakeProject *p)
     parser_info pi = ::parser; 	
     //do the loop
     while(loop_forever || it != list.end()) {
+	if(!loop_forever && (*it).isEmpty()) //ignore empty items
+	    continue;
+	    
 	//set up the loop variable
 	QStringList va;
 	if(!variable.isEmpty()) {

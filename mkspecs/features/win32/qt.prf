@@ -34,9 +34,9 @@ for(QCONF, QCONFIG) {
    else:isEqual(QCONF, xml):qlib = qxml400
    else:isEqual(QCONF, opengl):qlib = qopengl400
    else:isEqual(QCONF, sql):qlib = qsql400
-   else:isEqual(QCONF, config):qlib = qcore400
+   else:isEqual(QCONF, core):qlib = qcore400
    else:isEqual(QCONF, compat):qlib = q3compat400
-   else:message("Unknown QCONFIG: $$qlib):qlib =
+   else:message("Unknown QCONFIG: $$QCONF):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
