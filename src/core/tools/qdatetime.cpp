@@ -1038,38 +1038,38 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 
     \table
     \header \i Expression \i Output
-    \row \i d \i the day as number without a leading zero (1 to31)
-    \row \i dd \i the day as number with a leading zero (01 to 31)
+    \row \i d \i The day as a number without a leading zero (1 to 31)
+    \row \i dd \i The day as a number with a leading zero (01 to 31)
     \row \i ddd
-         \i the abbreviated localized day name (e.g. 'Mon' to 'Sun').
+         \i The abbreviated localized day name (e.g. 'Mon' to 'Sun').
             Uses QDate::shortDayName().
     \row \i dddd
-         \i the long localized day name (e.g. 'Qt::Monday' to 'Qt::Sunday').
+         \i The long localized day name (e.g. 'Monday' to 'Sunday').
             Uses QDate::longDayName().
-    \row \i M \i the month as number without a leading zero (1-12)
-    \row \i MM \i the month as number with a leading zero (01-12)
+    \row \i M \i The month as a number without a leading zero (1 to 12)
+    \row \i MM \i The month as a number with a leading zero (01 to 12)
     \row \i MMM
-         \i the abbreviated localized month name (e.g. 'Jan' to 'Dec').
+         \i The abbreviated localized month name (e.g. 'Jan' to 'Dec').
             Uses QDate::shortMonthName().
     \row \i MMMM
-         \i the long localized month name (e.g. 'January' to 'December').
+         \i The long localized month name (e.g. 'January' to 'December').
             Uses QDate::longMonthName().
-    \row \i yy \i the year as two digit number (00 to 99)
-    \row \i yyyy \i the year as four digit number (1752 to 8000)
+    \row \i yy \i The year as two digit number (00 to 99)
+    \row \i yyyy \i The year as four digit number (1752 to 8000)
     \endtable
 
     All other input characters will be treated as text. Any sequence
-    of characters that are enclosed in singlequotes will also be
-    treated as text and not be used as an expression.
+    of characters that are enclosed in single quotes will also be
+    treated as text and will not be used as an expression.
 
     \code
     QDate date = QDate::fromString("1MM12car2003", "d'MM'MMcaryyyy"); // date is 1st of Dec 2003
     \endcode
 
-    If the format is not satisfied an invalid QDate is returned. This
-    expressions that don't have leading zeroes (d, M) will be greedy.
+    If the format is not satisfied, an invalid QDate is returned. The
+    expressions that don't expect leading zeroes (d, M) will be greedy.
     This means that they will use two digits even if this will put
-    them outside the range and/or leave too few digits for other
+    them outside the range even if this leaves too few digits for other
     sections.
 
     \code
