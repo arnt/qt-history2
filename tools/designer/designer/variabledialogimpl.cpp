@@ -28,8 +28,8 @@ VariableDialog::VariableDialog( FormWindow *fw, QWidget *parent )
     : VariableDialogBase( parent ), formWindow( fw )
 {
     varView->setSorting( -1 );
-    QValueList<MetaDataBase::Variable> varLst = MetaDataBase::variables( formWindow );
-    QValueList<MetaDataBase::Variable>::Iterator it = varLst.begin();
+    QList<MetaDataBase::Variable> varLst = MetaDataBase::variables( formWindow );
+    QList<MetaDataBase::Variable>::Iterator it = varLst.begin();
     for ( ; it != varLst.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( varView );
 	i->setText( 0, (*it).varName );
@@ -55,7 +55,7 @@ void VariableDialog::setCurrentItem( const QString &text )
 
 void VariableDialog::okClicked()
 {
-    QValueList<MetaDataBase::Variable> lst;
+    QList<MetaDataBase::Variable> lst;
 
     QListViewItemIterator it( varView );
     while ( it.current() != 0 ) {
@@ -69,9 +69,9 @@ void VariableDialog::okClicked()
     }
 
     if ( !lst.isEmpty() ) {
-	QValueList<MetaDataBase::Variable> invalidLst;
-	QValueList<MetaDataBase::Variable>::Iterator it1 = lst.begin();
-	QValueList<MetaDataBase::Variable>::Iterator it2;
+	QList<MetaDataBase::Variable> invalidLst;
+	QList<MetaDataBase::Variable>::Iterator it1 = lst.begin();
+	QList<MetaDataBase::Variable>::Iterator it2;
 	for ( ; it1 != lst.end(); ++it1 ) {
 	    it2 = it1;
 	    ++it2;

@@ -243,7 +243,7 @@ void SourceEditor::saveBreakPoints()
 {
     if ( !obj )
 	return;
-    QValueList<uint> l;
+    QList<uint> l;
     iFace->breakPoints( l );
     MetaDataBase::setBreakPoints( obj, l );
 }

@@ -202,20 +202,17 @@ SenderItem::SenderItem( QTable *table, FormWindow *fw )
 {
     QStringList lst;
 
-    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
-    while ( it.current() ) {
-	if ( lst.find( it.current()->name() ) != lst.end() ) {
-	    ++it;
+    QHash<QWidget*, QWidget*> *widgets = formWindow->widgets();
+    for(QHash<QWidget*, QWidget*>::Iterator it = widgets->begin(); it != widgets->end(); ++it) {
+	if ( lst.find( (*it)->name() ) != lst.end() ) 
 	    continue;
+	if ( !QString( (*it)->name() ).startsWith( "qt_dead_widget_" ) &&
+	     !qt_cast<QLayoutWidget*>((*it)) &&
+	     !qt_cast<Spacer*>((*it)) &&
+	     !qt_cast<SizeHandle*>((*it)) &&
+	     qstrcmp( (*it)->name(), "central widget" ) != 0 ) {
+	    lst << (*it)->name();
 	}
-	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !qt_cast<QLayoutWidget*>(it.current()) &&
-	     !qt_cast<Spacer*>(it.current()) &&
-	     !qt_cast<SizeHandle*>(it.current()) &&
-	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
-	    lst << it.current()->name();
-	}
-	++it;
     }
 
     lst += flatActions( formWindow->actionList() );
@@ -259,20 +256,17 @@ ReceiverItem::ReceiverItem( QTable *table, FormWindow *fw )
 {
     QStringList lst;
 
-    QPtrDictIterator<QWidget> it( *formWindow->widgets() );
-    while ( it.current() ) {
-	if ( lst.find( it.current()->name() ) != lst.end() ) {
-	    ++it;
+    QHash<QWidget*, QWidget*> *widgets = formWindow->widgets();
+    for(QHash<QWidget*, QWidget*>::Iterator it = widgets->begin(); it != widgets->end(); ++it) {
+	if ( lst.find( (*it)->name() ) != lst.end() ) 
 	    continue;
+	if ( !QString( (*it)->name() ).startsWith( "qt_dead_widget_" ) &&
+	     !qt_cast<QLayoutWidget*>((*it)) &&
+	     !qt_cast<Spacer*>((*it)) &&
+	     !qt_cast<SizeHandle*>((*it)) &&
+	     qstrcmp( (*it)->name(), "central widget" ) != 0 ) {
+	    lst << (*it)->name();
 	}
-	if ( !QString( it.current()->name() ).startsWith( "qt_dead_widget_" ) &&
-	     !qt_cast<QLayoutWidget*>(it.current()) &&
-	     !qt_cast<Spacer*>(it.current()) &&
-	     !qt_cast<SizeHandle*>(it.current()) &&
-	     qstrcmp( it.current()->name(), "central widget" ) != 0 ) {
-	    lst << it.current()->name();
-	}
-	++it;
     }
 
     lst += flatActions( formWindow->actionList() );
@@ -335,7 +329,7 @@ void SignalItem::senderChanged( QObject *sender )
     }
     if ( qt_cast<CustomWidget*>(sender) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)sender )->customWidget();
-	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin();
+	for ( QList<QCString>::Iterator it = w->lstSignals.begin();
 	      it != w->lstSignals.end(); ++it )
 	    lst << MetaDataBase::normalizeFunction( *it );
     }
@@ -447,9 +441,9 @@ void SlotItem::updateSlotList()
 	MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( !iface || iface->supports( LanguageInterface::ConnectionsToCustomSlots ) ) {
 	if ( formWindow->isMainContainer( (QWidget*)lastReceiver ) ) {
-	    QValueList<MetaDataBase::Function> moreSlots = MetaDataBase::slotList( formWindow );
+	    QList<MetaDataBase::Function> moreSlots = MetaDataBase::slotList( formWindow );
 	    if ( !moreSlots.isEmpty() ) {
-		for ( QValueList<MetaDataBase::Function>::Iterator it = moreSlots.begin();
+		for ( QList<MetaDataBase::Function>::Iterator it = moreSlots.begin();
 		      it != moreSlots.end(); ++it ) {
 		    QCString s = (*it).function;
 		    if ( !s.data() )
@@ -466,7 +460,7 @@ void SlotItem::updateSlotList()
 
     if ( qt_cast<CustomWidget*>(lastReceiver) ) {
 	MetaDataBase::CustomWidget *w = ( (CustomWidget*)lastReceiver )->customWidget();
-	for ( QValueList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin();
+	for ( QList<MetaDataBase::Function>::Iterator it = w->lstSlots.begin();
 	      it != w->lstSlots.end(); ++it ) {
 	    QCString s = (*it).function;
 	    if ( !s.data() )

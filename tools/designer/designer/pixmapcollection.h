@@ -15,7 +15,7 @@
 
 #include <qstring.h>
 #include <qpixmap.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include "designerappiface.h"
 
 class QMimeSourceFactory;
@@ -39,7 +39,7 @@ public:
     void removePixmap( const QString &name );
     QPixmap pixmap( const QString &name );
 
-    QValueList<Pixmap> pixmaps() const;
+    QList<Pixmap> pixmaps() const;
     bool isEmpty() const;
 
     void setActive( bool b );
@@ -56,7 +56,7 @@ private:
     void mkdir();
 
 private:
-    QValueList<Pixmap> pixList;
+    QList<Pixmap> pixList;
     QMimeSourceFactory *mimeSourceFactory;
     Project *project;
     DesignerPixmapCollectionImpl *iface;

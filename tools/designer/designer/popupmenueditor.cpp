@@ -372,7 +372,7 @@ void PopupMenuEditor::insert( QActionGroup * actionGroup, int index )
 
 int PopupMenuEditor::find( const QAction * action )
 {
-    for int index = 0;
+    int index = 0;
     for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
 	PopupMenuEditorItem *i = (*it);
 	if ( i->action() == action )
@@ -383,7 +383,7 @@ int PopupMenuEditor::find( const QAction * action )
 
 int PopupMenuEditor::find( PopupMenuEditor * menu )
 {
-    for int index = 0;
+    int index = 0;
     for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
 	PopupMenuEditorItem *i = (*it);
 	if ( i->subMenu() == menu )
@@ -468,8 +468,8 @@ void PopupMenuEditor::paste( int index )
 void PopupMenuEditor::insertedActions( QList<QAction*> & list )
 {
     QAction * a = 0;
-    for(QList<QAction>::Iterator it = list.begin(); it != list.end(); ++it) {
-	PopupMenuEditorItem * i = (*it);
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
+	PopupMenuEditorItem *i = (*it);
 	a = i->action();
 	if ( a )
 	    list.append( a );
@@ -603,7 +603,7 @@ void PopupMenuEditor::remove( int index )
     int idx = ( index == -1 ? currentIndex : index );
     PopupMenuEditorItem * i = itemList.at( idx );
     if ( i && i->isRemovable() ) {
-	itemList.remove( idx );
+	itemList.removeAt( idx );
 	int n = itemList.count() + 1;
 	if ( currentIndex >= n )
 	    currentIndex = itemList.count() + 1;
@@ -658,7 +658,7 @@ PopupMenuEditorItem * PopupMenuEditor::itemAt( int y )
 {
     int iy = 0;
 
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	iy += itemHeight( i );
 	if ( iy > y )
@@ -678,7 +678,7 @@ void PopupMenuEditor::setFocusAt( const QPoint & pos )
     currentIndex = 0;
     int iy = 0;
 
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	iy += itemHeight( i );
 	if ( iy > pos.y() )
@@ -778,8 +778,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 	    // If the item is dropped in the same list,
 	    //  we will have two instances of the same pointer
 	    // in the list. We use node instead.
-	    int idx = itemList.find( draggedItem );
-	    QLNode * node = itemList.currentNode();
+	    int idx = itemList.findIndex( draggedItem );
 
 	    d->dragCopy(); // dragevents and stuff happens
 
@@ -792,7 +791,7 @@ void PopupMenuEditor::mouseMoveEvent( QMouseEvent * e )
 		    showSubMenu();
 		}
 	    } else { // item was dropped
-		itemList.takeNode( node )->setVisible( TRUE );
+		itemList.takeAt( idx )->setVisible( TRUE );
 		if ( currentIndex > 0 && currentIndex > idx )
 		    --currentIndex;
 		// the drop might happen in another menu, so we'll resize
@@ -1076,8 +1075,7 @@ void PopupMenuEditor::drawWinFocusRect( QPainter * p, const QRect & r ) const
     else if ( currentField == 1 )
 	p->drawWinFocusRect( borderSize + iconWidth, y, textWidth, h );
     else if ( currentField == 2 )
-	p->drawWinFocusRect( borderSize + iconWidth + textWidth +
-			     borderSize * 3, y, accelWidth, h );
+	p->drawWinFocusRect( borderSize + iconWidth + textWidth + borderSize * 3, y, accelWidth, h );
 }
 
 void PopupMenuEditor::drawItems( QPainter * p )
@@ -1090,7 +1088,7 @@ void PopupMenuEditor::drawItems( QPainter * p )
     QRect focus;
     QRect rect( borderSize, borderSize, width() - borderSize * 2, 0 );
 
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	if ( i->isVisible() ) {
 	    rect.setHeight( itemHeight( i ) );
@@ -1136,9 +1134,8 @@ QSize PopupMenuEditor::contentsSize()
 
     int w = 0;
     int h = itemHeight( &addItem ) + itemHeight( &addSeparator );
-    PopupMenuEditorItem * i = itemList.first();
     QAction * a = 0;
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	if ( i->isVisible() ) {
 	    if ( !i->isSeparator() ) {
@@ -1177,7 +1174,7 @@ int PopupMenuEditor::itemPos( const PopupMenuEditorItem * item ) const
 {
     PopupMenuEditor * that = ( PopupMenuEditor * ) this;
     int y = 0;
-    for(QList<PopupMenuEditorItem*>::Iterator it = that->itemList.begin(); it != that->itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = that->itemList.begin(); it != that->itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	if ( i == item )
 	    return y;
@@ -1191,7 +1188,7 @@ int PopupMenuEditor::snapToItem( int y )
     int iy = 0;
     int dy = 0;
 
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	dy = itemHeight( i );
 	if ( iy + dy / 2 > y )
@@ -1208,7 +1205,7 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
     int dy = 0;
     int idx = 0;
 
-    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it, index++) {
+    for(QList<PopupMenuEditorItem*>::Iterator it = itemList.begin(); it != itemList.end(); ++it) {
 	PopupMenuEditorItem *i = (*it);
 	dy = itemHeight( i );
 	if ( iy + dy / 2 > y )
@@ -1216,7 +1213,7 @@ void PopupMenuEditor::dropInPlace( PopupMenuEditorItem * i, int y )
 	iy += dy;
 	idx++;
     }
-    int same = itemList.findRef( i );
+    int same = itemList.findIndex( i );
     AddActionToPopupCommand * cmd = new AddActionToPopupCommand( "Drop Item", formWnd, this, i, idx );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();

@@ -38,8 +38,8 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
     id = 0;
     functList.clear();
 
-    QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( fw );
-    for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
+    QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( fw );
+    for ( QList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
 	QListViewItem *i = new QListViewItem( functionListView );
 
 	i->setPixmap( 0, QPixmap::fromMimeSource( "designer_editslots.png" ) );
@@ -109,14 +109,14 @@ EditFunctions::EditFunctions( QWidget *parent, FormWindow *fw, bool justSlots )
 
 void EditFunctions::okClicked()
 {
-    QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
+    QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow );
     QString n = tr( "Add/Remove functions of '%1'" ).arg( formWindow->name() );
-    QPtrList<Command> commands;
-    QValueList<MetaDataBase::Function>::Iterator fit;
+    QList<Command*> commands;
+    QList<MetaDataBase::Function>::Iterator fit;
     if ( !functionList.isEmpty() ) {
 	for ( fit = functionList.begin(); fit != functionList.end(); ++fit ) {
 	    bool functionFound = FALSE;
-	    QValueList<FunctItem>::Iterator it = functList.begin();
+	    QList<FunctItem>::Iterator it = functList.begin();
 	    for ( ; it != functList.end(); ++it ) {
 		if ( MetaDataBase::normalizeFunction( (*it).oldName ) ==
 		     MetaDataBase::normalizeFunction( (*fit).function ) ) {
@@ -135,11 +135,11 @@ void EditFunctions::okClicked()
     }
 
     bool invalidFunctions = FALSE;
-    QValueList<FunctItem> invalidItems;
+    QList<FunctItem> invalidItems;
 
     if ( !functList.isEmpty() ) {
 	QStrList lst;
-	QValueList<FunctItem>::Iterator it = functList.begin();
+	QList<FunctItem>::Iterator it = functList.begin();
 	for ( ; it != functList.end(); ++it ) {
 	    MetaDataBase::Function function;
 	    function.function = (*it).newName;
@@ -191,10 +191,10 @@ void EditFunctions::okClicked()
 	if ( QMessageBox::information( this, tr( "Edit Functions" ),
 				       tr( "Some syntactically incorrect functions have been defined.\n"
 				       "Remove these functions?" ), tr( "&Yes" ), tr( "&No" ) ) == 0 ) {
-	    QValueList<FunctItem>::Iterator it = functList.begin();
+	    QList<FunctItem>::Iterator it = functList.begin();
 	    while ( it != functList.end() ) {
 		bool found = FALSE;
-		QValueList<FunctItem>::Iterator vit = invalidItems.begin();
+		QList<FunctItem>::Iterator vit = invalidItems.begin();
 		for ( ; vit != invalidItems.end(); ++vit ) {
 		    if ( (*vit).newName == (*it).newName ) {
 			invalidItems.remove( vit );
@@ -307,7 +307,7 @@ void EditFunctions::functionRemove()
     functionListView->blockSignals( TRUE );
     removedFunctions << MetaDataBase::normalizeFunction( functionListView->currentItem()->text( 0 ) );
     int delId = functionIds[ functionListView->currentItem() ];
-    QValueList<FunctItem>::Iterator it = functList.begin();
+    QList<FunctItem>::Iterator it = functList.begin();
     while ( it != functList.end() ) {
 	if ( (*it).id == delId ) {
 	    functList.remove( it );
@@ -435,7 +435,7 @@ void EditFunctions::changeItem( QListViewItem *item, Attribute a, const QString 
     else
 	return;
 
-    QValueList<FunctItem>::Iterator it = functList.begin();
+    QList<FunctItem>::Iterator it = functList.begin();
     for ( ; it != functList.end(); ++it ) {
 	if ( (*it).id == itemId ) {
 	    switch( a ) {
@@ -477,7 +477,7 @@ void EditFunctions::displaySlots( bool justSlots )
 {
     functionIds.clear();
     functionListView->clear();
-    for ( QValueList<FunctItem>::Iterator it = functList.begin(); it != functList.end(); ++it ) {
+    for ( QList<FunctItem>::Iterator it = functList.begin(); it != functList.end(); ++it ) {
 	if ( (*it).type == "function" && justSlots )
 	    continue;
 	QListViewItem *i = new QListViewItem( functionListView );

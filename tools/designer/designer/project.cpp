@@ -479,11 +479,11 @@ void Project::clear()
 
 bool Project::removeSourceFile( SourceFile *sf )
 {
-    if ( !sourcefiles.containsRef( sf ) )
+    if ( !sourcefiles.contains( sf ) )
 	return FALSE;
     if ( !sf->close() )
 	return FALSE;
-    sourcefiles.removeRef( sf );
+    sourcefiles.remove( sf );
     modified = TRUE;
     emit sourceFileRemoved( sf );
     return TRUE;
@@ -568,13 +568,15 @@ void Project::save( bool onlyProjectFile )
 {
     bool anythingModified = FALSE;
     if ( !onlyProjectFile ) {
-	for ( SourceFile *sf = sourcefiles.first(); sf; sf = sourcefiles.next() ) {
+	for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
+	    SourceFile* sf = (*sit);
 	    anythingModified = anythingModified || sf->isModified();
 	    if ( !sf->save() )
 		return;
 	}
 
-	for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
+	for(QList<FormFile*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
+	    FormFile *ff = (*fit);
 	    anythingModified = anythingModified || ff->isModified();
 	    if ( !ff->save() )
 		return;
@@ -614,7 +616,7 @@ void Project::save( bool onlyProjectFile )
 
     if ( !formfiles.isEmpty() ) {
 	contents += "FORMS\t= ";
-	for(QList<FormFiles*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) 
+	for(QList<FormFile*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) 
 	    contents += (*fit)->fileName() + ((*fit) != formfiles.last() ? " \\\n\t" : "");
 	contents += "\n";
     }
@@ -663,7 +665,8 @@ void Project::save( bool onlyProjectFile )
 
     if ( !sourcefiles.isEmpty() && iface ) {
 	QMap<QString, QStringList> sourceToKey;
-	for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
+	for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
+	    SourceFile* f = (*sit);
 	    QString key = iface->projectKeyForExtension( QFileInfo( f->fileName() ).extension() );
 	    QStringList lst = sourceToKey[ key ];
 	    lst << makeRelative( f->fileName() );
@@ -737,10 +740,11 @@ void Project::addDatabaseConnection( DatabaseConnection *conn )
 #ifndef QT_NO_SQL
 void Project::removeDatabaseConnection( const QString &c )
 {
-    for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
+    for(QList<DatabaseConnection*>::Iterator it = dbConnections.begin(); it != dbConnections.end(); ++it) {
+	DatabaseConnection *conn = (*it);
 	if ( conn->name() == c ) {
 	    conn->remove();
-	    dbConnections.removeRef( conn );
+	    dbConnections.remove( conn );
 	    delete conn;
 	    return;
 	}
@@ -752,8 +756,8 @@ void Project::removeDatabaseConnection( const QString &c )
 QStringList Project::databaseConnectionList()
 {
     QStringList lst;
-    for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() )
-	lst << conn->name();
+    for(QList<DatabaseConnection*>::Iterator it = dbConnections.begin(); it != dbConnections.end(); ++it) 
+	lst << (*it)->name();
     return lst;
 }
 #endif
@@ -762,9 +766,8 @@ QStringList Project::databaseConnectionList()
 QStringList Project::databaseTableList( const QString &connection )
 {
     DatabaseConnection *conn = databaseConnection( connection );
-    if ( !conn ) {
+    if ( !conn ) 
 	return QStringList();
-    }
     return conn->tables();
 }
 #endif
@@ -834,7 +837,8 @@ void Project::saveConnections()
 
 	/* db connections */
 	int indent = 0;
-	for ( DatabaseConnection *conn = dbConnections.first(); conn; conn = dbConnections.next() ) {
+	for(QList<DatabaseConnection*>::Iterator it = dbConnections.begin(); it != dbConnections.end(); ++it) {
+	    DatabaseConnection *conn = (*it);
 	    ts << makeIndent( indent ) << "<connection>" << endl;
 	    ++indent;
 	    saveSingleProperty( ts, "name", conn->name(), indent );
@@ -1005,7 +1009,7 @@ void Project::closeDatabase( const QString &connection )
 QObjectList *Project::formList( bool resolveFakeObjects ) const
 {
     QObjectList *l = new QObjectList;
-    for(QList<FormFiles*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
+    for(QList<FormFile*>::ConstIterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
 	FormFile* f = (*fit);
 	if ( f->formWindow() ) {
 	    if ( resolveFakeObjects && f->formWindow()->isFake() )
@@ -1091,7 +1095,7 @@ void Project::addSourceFile( SourceFile *sf )
 
 SourceFile* Project::findSourceFile( const QString& filename, SourceFile *ignore ) const
 {
-    for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
+    for(QList<SourceFile*>::ConstIterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
 	if ( (*sit) != ignore && (*sit)->fileName() == filename )
 	    return (*sit);
     }
@@ -1100,8 +1104,8 @@ SourceFile* Project::findSourceFile( const QString& filename, SourceFile *ignore
 
 FormFile* Project::findFormFile( const QString& filename, FormFile *ignore ) const
 {
-    for(QList<FormFiles*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
-	if ( (*fit) != ignore && (fit)->fileName() == filename )
+    for(QList<FormFile*>::ConstIterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
+	if ( (*fit) != ignore && (*fit)->fileName() == filename )
 	    return (*fit);
     }
     return 0;
@@ -1216,11 +1220,11 @@ void Project::addFormFile( FormFile *ff )
 
 bool Project::removeFormFile( FormFile *ff )
 {
-    if ( !formfiles.containsRef( ff ) )
+    if ( !formfiles.contains( ff ) )
 	return FALSE;
     if ( !ff->close() )
 	return FALSE;
-    formfiles.removeRef( ff );
+    formfiles.remove( ff );
     modified = TRUE;
     emit formFileRemoved( ff );
     return TRUE;
@@ -1287,12 +1291,12 @@ QObjectList Project::objects() const
 
 FormFile *Project::fakeFormFileFor( QObject *o ) const
 {
-    return fakeFormFiles.find( o );
+    return fakeFormFiles.value( o );
 }
 
 QObject *Project::objectForFakeForm( FormWindow *fw ) const
 {
-    for(QHash<QObject*, FormFile*>::Iterator it = fakeFormFiles.begin(); it != fakeFormFiles.end(); ++it) {
+    for(QHash<QObject*, FormFile*>::ConstIterator it = fakeFormFiles.begin(); it != fakeFormFiles.end(); ++it) {
 	if ( it.value()->formWindow() == fw || it.value() == fw->formFile() )
 	    return it.key();
     }
@@ -1301,7 +1305,7 @@ QObject *Project::objectForFakeForm( FormWindow *fw ) const
 
 QObject *Project::objectForFakeFormFile( FormFile *ff ) const
 {
-    for(QHash<QObject*, FormFile*>::Iterator it = fakeFormFiles.begin(); it != fakeFormFiles.end(); ++it) {
+    for(QHash<QObject*, FormFile*>::ConstIterator it = fakeFormFiles.begin(); it != fakeFormFiles.end(); ++it) {
 	if ( it.value() == ff )
 	    return it.key();
     }
@@ -1337,7 +1341,8 @@ void Project::removeTempProject()
 
 void Project::addAndEditFunction( const QString &function, const QString &functionBody, bool openDeveloper )
 {
-    for ( SourceFile *f = sourcefiles.first(); f; f = sourcefiles.next() ) {
+    for(QList<SourceFile*>::Iterator sit = sourcefiles.begin(); sit != sourcefiles.end(); ++sit) {
+	SourceFile* f = (*sit);
 	if ( QFileInfo( f->fileName() ).baseName() == "main" ) {
 	    QList<LanguageInterface::Function> funcs;
 	    LanguageInterface *iface = MetaDataBase::languageInterface( language() );
@@ -1417,8 +1422,8 @@ QWidget *Project::messageBoxParent() const
 
 void Project::designerCreated()
 {
-    for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
-	FormWindow *fw = ff->formWindow();
+    for(QList<FormFile*>::Iterator fit = formfiles.begin(); fit != formfiles.end(); ++fit) {
+	FormWindow *fw = (*fit)->formWindow();
 	if ( !fw || fw->mainWindow() )
 	    continue;
 	fw->setMainWindow( MainWindow::self );

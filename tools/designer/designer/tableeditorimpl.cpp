@@ -23,7 +23,7 @@
 #include <qpushbutton.h>
 #include "pixmapchooser.h"
 #include "command.h"
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qtabwidget.h>
 #include <qdatatable.h>
 #include "project.h"
@@ -304,8 +304,8 @@ void TableEditor::rowUpClicked()
 
 void TableEditor::applyClicked()
 {
-    QValueList<PopulateTableCommand::Row> rows;
-    QValueList<PopulateTableCommand::Column> cols;
+    QList<PopulateTableCommand::Row> rows;
+    QList<PopulateTableCommand::Column> cols;
 
     int i = 0;
 #ifndef QT_NO_TABLE

@@ -501,8 +501,8 @@ void FormFile::createFormCode()
 	return;
     if ( pro->isCpp() )
 	cod = codeComment();
-    QValueList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
-    for ( QValueList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
+    QList<MetaDataBase::Function> functionList = MetaDataBase::functionList( formWindow() );
+    for ( QList<MetaDataBase::Function>::Iterator it = functionList.begin(); it != functionList.end(); ++it ) {
 	cod += (!cod.isEmpty() ? "\n\n" : "") +
 	       iface->createFunctionStart( formWindow()->name(), make_func_pretty((*it).function),
 					   (*it).returnType.isEmpty() ?
@@ -553,15 +553,15 @@ void FormFile::parseCode( const QString &txt, bool allowModify )
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     if ( !iface )
 	return;
-    QValueList<LanguageInterface::Function> functions;
-    QValueList<MetaDataBase::Function> newFunctions, oldFunctions;
+    QList<LanguageInterface::Function> functions;
+    QList<MetaDataBase::Function> newFunctions, oldFunctions;
     oldFunctions = MetaDataBase::functionList( formWindow() );
     iface->functions( txt, &functions );
     QMap<QString, QString> funcs;
-    for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin();
+    for ( QList<LanguageInterface::Function>::Iterator it = functions.begin();
 	  it != functions.end(); ++it ) {
 	bool found = FALSE;
-	for ( QValueList<MetaDataBase::Function>::Iterator fit = oldFunctions.begin();
+	for ( QList<MetaDataBase::Function>::Iterator fit = oldFunctions.begin();
 	      fit != oldFunctions.end(); ++fit ) {
 	    QString f( (*fit).function );
 	    if ( MetaDataBase::normalizeFunction( f ) ==
@@ -665,10 +665,10 @@ void FormFile::addFunctionCode( MetaDataBase::Function function )
     if ( !iface )
 	return;
 
-    QValueList<LanguageInterface::Function> funcs;
+    QList<LanguageInterface::Function> funcs;
     iface->functions( cod, &funcs );
     bool hasFunc = FALSE;
-    for ( QValueList<LanguageInterface::Function>::Iterator it = funcs.begin();
+    for ( QList<LanguageInterface::Function>::Iterator it = funcs.begin();
 	  it != funcs.end(); ++it ) {
 	if ( MetaDataBase::normalizeFunction( (*it).name ) == MetaDataBase::normalizeFunction( function.function ) ) {
 	    hasFunc = TRUE;
@@ -712,10 +712,10 @@ void FormFile::removeFunctionCode( MetaDataBase::Function function )
     QString sourceCode = code();
     if ( sourceCode.isEmpty() )
 	return;
-    QValueList<LanguageInterface::Function> functions;
+    QList<LanguageInterface::Function> functions;
     iface->functions( sourceCode, &functions );
     QString fu = MetaDataBase::normalizeFunction( function.function );
-    for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin(); fit != functions.end(); ++fit ) {
+    for ( QList<LanguageInterface::Function>::Iterator fit = functions.begin(); fit != functions.end(); ++fit ) {
 	if ( MetaDataBase::normalizeFunction( (*fit).name ) == fu ) {
 	    int line = 0;
 	    int start = 0;

@@ -38,7 +38,7 @@ bool PixmapCollection::addPixmap( const Pixmap &pix, bool force )
     savePixmap( pixmap );
 
     if ( !force ) {
-	for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+	for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	    if ( (*it).name == pixmap.name )
 		return FALSE;
 	}
@@ -52,7 +52,7 @@ bool PixmapCollection::addPixmap( const Pixmap &pix, bool force )
 
 void PixmapCollection::removePixmap( const QString &name )
 {
-    for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+    for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( (*it).name == name ) {
 	    pixList.remove( it );
 	    break;
@@ -61,7 +61,7 @@ void PixmapCollection::removePixmap( const QString &name )
     project->setModified( TRUE );
 }
 
-QValueList<PixmapCollection::Pixmap> PixmapCollection::pixmaps() const
+QList<PixmapCollection::Pixmap> PixmapCollection::pixmaps() const
 {
     return pixList;
 }
@@ -72,7 +72,7 @@ QString PixmapCollection::unifyName( const QString &n )
     bool restart = FALSE;
     int added = 1;
 
-    for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+    for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( restart )
 	    it = pixList.begin();
 	restart = FALSE;
@@ -97,7 +97,7 @@ void PixmapCollection::setActive( bool b )
 
 QPixmap PixmapCollection::pixmap( const QString &name )
 {
-    for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
+    for ( QList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( (*it).name == name )
 	    return (*it).pix;
     }
