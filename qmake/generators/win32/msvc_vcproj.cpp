@@ -118,7 +118,7 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 			subdirs += tmp_subdirs;
 		    } else if(tmp_proj.first("TEMPLATE") == "vcapp" ||
 			      tmp_proj.first("TEMPLATE") == "vclib") {
-			QString vcproj = fi.baseName() + ".vcproj";
+			QString vcproj = fi.baseName() + project->first("VCPROJ_EXTENSION");
 			if(QFile::exists(vcproj) || 1) {
 			    VcprojGenerator tmp_dsp(&tmp_proj);
 			    tmp_dsp.setNoIO(TRUE);
@@ -172,13 +172,14 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
 	if(libVersion.match(vc->target) != -1) 
 	    uuids.insert(vc->target.left(vc->target.length() - libVersion.matchedLength()) + ".lib", 
 			 uuid);
-	qDebug("\"%s\" \"%s\" { %d }", vc->orig_target.latin1(), vc->vcprojFile.latin1(), uuid++);
+	t << "\"" << vc->orig_target << "\" \"" << vc->vcprojFile << "\" { " << uuid << " }" << endl;
+	uuid++;
     }
     for(vc = solution_depends.first(); vc; vc = solution_depends.next()) {
 	int uuid = uuids[vc->target], cnt = 0;
 	for(QStringList::iterator dit = vc->dependencies.begin(); dit != vc->dependencies.end(); ++dit) {
 	    if(uuids.contains((*dit)))
-		qDebug("%d.%d = %d", uuid, cnt++, uuids[(*dit)]);
+		t << uuid << "." << cnt++ << " = " << uuids[(*dit)] << endl;
 	}
     }
 }
@@ -988,8 +989,12 @@ bool VcprojGenerator::openOutput(QFile &file) const
 	if(fi.isDir())
 	    outdir = file.name() + QDir::separator();
     }
-    if(!outdir.isEmpty() || file.name().isEmpty())
-	file.setName(outdir + project->first("TARGET") + project->first("VCPROJ_EXTENSION"));
+    if(!outdir.isEmpty() || file.name().isEmpty()) {
+	QString ext = project->first("VCPROJ_EXTENSION");
+	if(project->first("TEMPLATE") == "vcsubdirs")
+	    ext = project->first("VCSOLUTION_EXTENSION");
+	file.setName(outdir + project->first("TARGET") + ext);
+    }
     if(QDir::isRelativePath(file.name())) {
 	QString ofile;
 	ofile = file.name();
