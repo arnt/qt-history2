@@ -424,6 +424,15 @@ bool QWin32PaintEngine::end()
 
     d->hdc = 0;
 
+    d->matrix = QWMatrix();
+    d->penAlphaColor = false;
+    d->brushAlphaColor = false;
+    d->noNativeXform = false;
+    d->advancedMode = false;
+    d->penStyle = Qt::SolidLine;
+    d->brushStyle = Qt::Brushstyle;
+    d->txop = QPainter::TxNone;
+
     setActive(false);
     return true;
 }
