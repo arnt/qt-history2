@@ -351,9 +351,19 @@ void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModel
 void QGenericTreeView::contentsRemoved(const QModelIndex &parent,
 				       const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    int pi = d->viewIndex(parent);
-    d->close(pi);
-    d->open(pi); // force relayout
+    if (parent.isValid()) {
+	int pi = d->viewIndex(parent);
+	d->close(pi);
+	d->open(pi); // force relayout
+    } else {
+	// FIXME: make this more effective
+	d->items.resize(0);
+	resizeContents(0, contentsWidth());
+	d->layout_parent_index = -1;
+	d->layout_from_index = -1;
+	d->layout_count = model()->rowCount(root());
+	startItemsLayout();
+    }
 }
 
 void QGenericTreeView::columnCountChanged(int, int)
