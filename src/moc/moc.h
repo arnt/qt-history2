@@ -66,6 +66,7 @@ struct ClassDef {
     QByteArray classname;
     QByteArray qualified;
     QList<QByteArray> superclassList;
+    QList<QList<QByteArray> >interfaceList;
 
     bool hasQObject;
 
@@ -134,6 +135,7 @@ public:
     void parseProperty(ClassDef *def, bool override);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseClassInfo(ClassDef *def);
+    void parseInterfaces(ClassDef *def);
     void parseSlotInPrivate(ClassDef *def);
 
     void parseFunctionArguments(FunctionDef *def);

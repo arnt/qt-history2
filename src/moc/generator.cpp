@@ -216,7 +216,7 @@ void Generator::generateCode()
     fprintf(out, "static const char qt_meta_stringdata_%s[] = {\n", qualifiedClassNameIdentifier.constData());
     fprintf(out, "    \"");
     int col = 0;
-    for (int i = 0; i < strings.size(); ++i) {
+    for (i = 0; i < strings.size(); ++i) {
 	QByteArray s = strings.at(i);
 	if (col && col + strlen(s) >= 72) {
 	    fprintf(out, "\"\n    \"");
@@ -264,10 +264,22 @@ void Generator::generateCode()
     fprintf(out, "\nvoid *%s::qt_metacast(const char *clname) const\n{\n", cdef->qualified.constData());
     fprintf(out, "    if (!clname) return 0;\n");
     fprintf(out, "    if (!strcmp(clname, qt_meta_stringdata_%s))\n"
-		  "\treturn (void*)this;\n", qualifiedClassNameIdentifier.constData());
-    for (int i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
+		  "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
+	    qualifiedClassNameIdentifier.constData(),  qualifiedClassNameIdentifier.constData());
+    for (i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
 	const char *cname = cdef->superclassList.at(i);
-	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n\treturn (%s*)this;\n", cname, cname);
+	fprintf(out, "    if (!strcmp(clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
+		cname, cname,   qualifiedClassNameIdentifier.constData());
+    }
+    for (i = 0; i < cdef->interfaceList.size(); ++i) {
+	const QList<QByteArray> &iface = cdef->interfaceList.at(i);
+	for (int j = 0; j < iface.size(); ++j) {
+	    fprintf(out, "    if (!strcmp(clname, %s::iid()))\n\treturn ", iface.at(j).constData());
+	    for (int k = j; k >= 0; --k)
+		fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
+	    fprintf(out, "const_cast<%s*>(this)%s;\n",
+		    qualifiedClassNameIdentifier.constData(), QByteArray(j+1, ')').constData());
+	}
     }
     if (purestSuperClass.size() && !isQObject)
 	fprintf(out, "    return %s::qt_metacast(clname);\n", purestSuperClass.constData());

@@ -485,6 +485,9 @@ void Moc::moc(FILE *out)
 		case Q_CLASSINFO_TOKEN:
 		    parseClassInfo(&def);
 		    break;
+		case Q_INTERFACES_TOKEN:
+		    parseInterfaces(&def);
+		    break;
 		case Q_PRIVATE_SLOT_TOKEN:
 		    parseSlotInPrivate(&def);
 		    break;
@@ -736,6 +739,21 @@ void Moc::parseClassInfo(ClassDef *def)
     def->classInfoList += infoDef;
 }
 
+void Moc::parseInterfaces(ClassDef *def)
+{
+    next(LPAREN);
+    while (test(IDENTIFIER)) {
+	QList<QByteArray> iface;
+	iface += lexem();
+	while (test(COLON)) {
+	    next(IDENTIFIER);
+	    iface += lexem();
+	}
+	def->interfaceList += iface;
+    }
+    next(RPAREN);
+
+}
 
 void Moc::parseSlotInPrivate(ClassDef *def)
 {
