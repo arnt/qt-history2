@@ -148,6 +148,28 @@ QLibrary::~QLibrary()
 	return -1;
     \endcode
 
+    The symbol must be exported as a C-function from the library. This
+    requires the \c {extern "C"} notation if the library is compiled
+    with a C++ compiler. On Windows you also have to explicitly export
+    the function from the DLL using the \c {__declspec(dllexport)}
+    compiler directive.
+
+    \code
+    extern "C" MY_EXPORT_MACRO int avg(int a, int b)
+    {
+	return (a + b) / 2;
+    }
+    \endcode
+
+    with \c MY_EXPORT defined as
+
+    \code
+    #ifdef Q_WS_WIN
+    # define MY_EXPORT __declspec(dllexport)
+    #else
+    # define MY_EXPORT
+    #endif
+    \endcode
 */
 void *QLibrary::resolve( const char* symb )
 {
