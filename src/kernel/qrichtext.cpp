@@ -4921,6 +4921,8 @@ QTextImage::QTextImage( QTextDocument *p, const QMap<QString, QString> &attr, co
 	    QPixmapInt& pmi = pixmap_map->operator[](imgId);
 	    pm = pmi.pm;
 	    pmi.ref++;
+	    width = pm.width();
+	    height = pm.height();
 	} else {
 	    QImage img;
 	    const QMimeSource* m =
