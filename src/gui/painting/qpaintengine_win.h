@@ -120,11 +120,14 @@ public:
     void drawChord(const QRect &r, int a, int alen);
     void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
     void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
-    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
+    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, 
+		     int npoints = -1);
     void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s);
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, 
+		    Qt::PixmapDrawingMode mode);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, 
+			 Qt::PixmapDrawingMode mdoe);
 
     void drawPath(const QPainterPath &p);
 
