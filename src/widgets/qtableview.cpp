@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#124 $
 **
 ** Implementation of QTableView class
 **
@@ -2243,8 +2243,16 @@ void QTableView::showOrHideScrollBars()
 
 void QTableView::updateTableSize()
 {
+    bool updateOn = autoUpdate();
+    setAutoUpdate( FALSE );
+    int xofs = xOffset();
+    xOffs++; //so that setOffset will not return immediately
+    setOffset(xofs,yOffset(),FALSE); //to calculate internal state correctly
+    setAutoUpdate(updateOn);
+    
     updateScrollBars( horSteps |  horRange |
 		      verSteps |  verRange );
     showOrHideScrollBars();
 }
+
 
