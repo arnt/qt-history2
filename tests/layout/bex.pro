@@ -3,3 +3,4 @@ CONFIG      +=	qt warn_on release
 HEADERS     =	
 SOURCES     =	bex.cpp
 TARGET	    =	bex
+QCONFIG         += compat
