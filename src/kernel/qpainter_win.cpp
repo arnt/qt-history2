@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#131 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -690,15 +690,11 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWState(QWS_InPaintEvent) ) {
-	    hdc = w->hdc;			// during paint event
-	} else {
-	    if ( w->testWFlags(WPaintUnclipped) )
-		hdc = GetWindowDC( w->winId() );
-	    else
-		hdc = GetDC( w->winId() );
-	    w->hdc = hdc;
-	}
+	if ( w->testWFlags(WPaintUnclipped) )
+	    hdc = GetWindowDC( w->winId() );
+	else
+	    hdc = GetDC( w->winId() );
+	w->hdc = hdc;
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 	if ( pm->isNull() ) {
@@ -817,11 +813,9 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
-	if ( !((QWidget*)pdev)->testWState(QWS_InPaintEvent) ) {
-	    QWidget *w = (QWidget*)pdev;
-	    ReleaseDC( w->winId(), hdc );
-	    w->hdc = 0;
-	}
+	QWidget *w = (QWidget*)pdev;
+	ReleaseDC( w->winId(), hdc );
+	w->hdc = hdc;
     } else if ( pdev->devType() == QInternal::Pixmap ) {
 	QPixmap *pm = (QPixmap*)pdev;
 	pm->freeMemDC();

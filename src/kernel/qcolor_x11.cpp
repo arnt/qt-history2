@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qcolor_x11.cpp#92 $
 **
 ** Implementation of QColor class for X11
 **
@@ -308,7 +308,7 @@ void QColor::cleanup()
 
   Allocating a color means to obtain a pixel value from the RGB
   specification.  The pixel value is an index into the global color
-  table.
+  table, but should be considered an arbitrary platform-dependent value.
 
   The pixel() function calls alloc() if necessary, so in general you
   don't need to call this function.

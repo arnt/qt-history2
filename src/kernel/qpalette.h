@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.h#38 $
+** $Id: //depot/qt/main/src/kernel/qpalette.h#39 $
 **
 ** Definition of QColorGroup and QPalette classes
 **
@@ -45,6 +45,7 @@ public:
 		 const QBrush &light, const QBrush &dark, const QBrush &mid,
 		 const QBrush &text,  const QBrush &bright_text, const QBrush &base,
 		 const QBrush &background);
+    QColorGroup(const QColorGroup&);
 
    ~QColorGroup();
 

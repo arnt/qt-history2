@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#86 $
 **
 ** Implementation of QColor class
 **
@@ -677,7 +677,8 @@ void QColor::setLazyAlloc( bool enable )
   Returns the pixel value.
 
   This value is used by the underlying window system to refer to a color.
-  It can be thought of as an index into the display hardware's color table.
+  It can be thought of as an index into the display hardware's color table,
+  but the value is an arbitrary 32-bit value.
 
   \sa setLazyAlloc(), alloc()
 */

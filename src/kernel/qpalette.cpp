@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#35 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -79,6 +79,14 @@ QColorGroup::QColorGroup()
 {						// all colors become black
 }
 
+/*!
+  Constructs a color group that is an independent copy of another color group.
+*/
+QColorGroup::QColorGroup(const QColorGroup& other)
+{
+    for (int i=0; i<MaxColorRole; i++)
+	br[i] = other.br[i];
+}
 
 /*!
 Constructs a color group. You can pass either brushes, pixmaps or
