@@ -111,13 +111,18 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::AutoLink:
         if (!inLink) {
             link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
-	    if (!link.isEmpty())
+	    if (!link.isEmpty()) {
 	        out() << "<a href=\"" << link << "\">";
-        }
-        out() << protect(atom->string());
-	if (!inLink) {
-            if (!link.isEmpty())
-                out() << "</a>";
+                inLink = true;
+                generateLink(atom, relative, marker);
+                if (inLink)
+                    out() << "</a>";
+                inLink = false;
+            } else {
+                out() << protect(atom->string());
+            }
+        } else {
+            out() << protect(atom->string());
         }
         break;
     case Atom::BaseName:
@@ -402,16 +407,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::SidebarRight:
 	break;
     case Atom::String:
-	if ( inLink && funcLeftParen.indexIn(atom->string()) != -1 ) {
-	    int k = funcLeftParen.pos( 1 );
-	    out() << protect( atom->string().left(k) );
-	    if ( link.isEmpty() ) {
-		out() << "</b>";
-	    } else {
-		out() << "</a>";
-	    }
-	    inLink = false;
-	    out() << protect( atom->string().mid(k) );
+	if (inLink) {
+            generateLink(atom, relative, marker);
 	} else {
 	    out() << protect( atom->string() );
 	}
@@ -1236,6 +1233,23 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 	out() << "</ul>\n";
 	if ( twoColumn )
 	    out() << "</td></tr>\n</table>\n";
+    }
+}
+
+void HtmlGenerator::generateLink(const Atom *atom, const Node *relative, CodeMarker *marker)
+{
+    if (funcLeftParen.indexIn(atom->string()) != -1) {
+	int k = funcLeftParen.pos( 1 );
+	out() << protect( atom->string().left(k) );
+	if ( link.isEmpty() ) {
+	    out() << "</b>";
+	} else {
+	    out() << "</a>";
+	}
+        inLink = false;
+	out() << protect(atom->string().mid(k));
+    } else {
+	out() << protect(atom->string());
     }
 }
 

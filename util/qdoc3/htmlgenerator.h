@@ -73,6 +73,7 @@ private:
     void generateFullName(const Node *apparentNode, const Node *relative, CodeMarker *marker,
 			  const Node *actualNode = 0);
     void generateDetailedMember(const Node *node, const InnerNode *relative, CodeMarker *marker);
+    void generateLink(const Atom *atom, const Node *relative, CodeMarker *marker);
 
     QString cleanRef( const QString& ref );
     QString registerRef( const QString& ref );

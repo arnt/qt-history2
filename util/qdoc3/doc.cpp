@@ -991,6 +991,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                         } else if (latin1Ch == '(') {
                             if (pos > startPos) {
                                 if (pos < len - 1 && in.at(pos + 1) == QLatin1Char(')')) {
+                                    ++numStrangeSymbols;
                                     pos += 2;
                                     break;
                                 } else {
