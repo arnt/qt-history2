@@ -68,6 +68,29 @@
         // x: [ 0, 0, 0, 1, 1 ]
     \endcode
 
+    For historical reasons, QBitArray distinguishes between a null
+    bit array and an empty bit array. A \e null bit array is a bit
+    array that is initialized using QBitArray's default constructor.
+    An \e empty bit array is any bit array with size 0. A null bit
+    array is always empty, but an empty bit array isn't necessarily
+    null:
+
+    \code
+        QBitArray().isNull();           // returns true
+        QBitArray().isEmpty();          // returns true
+
+        QBitArray(0).isNull();          // returns false
+        QBitArray(0).isEmpty();         // returns true
+
+        QBitArray(3).isNull();          // returns false
+        QBitArray(3).isEmpty();         // returns false
+    \endcode
+
+    All functions except isNull() treat null bit arrays the same as
+    empty bit arrays; for example, QBitArray() compares equal to
+    QBitArray(""). We recommend that you always use isEmpty() and
+    avoid isNull().
+
     \sa QByteArray, QVector
 */
 
@@ -84,6 +107,10 @@
 */
 QBitArray::QBitArray(int size, bool value)
 {
+    if (!size) {
+        d.resize(0);
+        return;
+    }
     d.resize(1 + (size+7)/8);
     uchar* c = (uchar*)d.data();
     memset(c, value ? 0xff : 0, d.size());
@@ -118,12 +145,16 @@ QBitArray::QBitArray(int size, bool value)
 */
 void QBitArray::resize(int size)
 {
-    int s = d.size();
-    d.resize(1 + (size+7)/8);
-    uchar* c = (uchar*)d.data();
-    if (size > (s << 3))
-        memset(c + s, 0, d.size() - s);
-    *c = d.size()*8 - size;
+    if (!size) {
+        d.resize(0);
+    } else {
+        int s = d.size();
+        d.resize(1 + (size+7)/8);
+        uchar* c = (uchar*)d.data();
+        if (size > (s << 3))
+            memset(c + s, 0, d.size() - s);
+        *c = d.size()*8 - size;
+    }
 }
 
 /*! \fn bool QBitArray::isEmpty() const
@@ -132,6 +163,25 @@ void QBitArray::resize(int size)
     false.
 
     \sa size()
+*/
+
+/*! \fn bool QBitArray::isNull() const
+
+    Returns true if this bit array is null; otherwise returns false.
+
+    Example:
+    \code
+        QBitArray().isNull();           // returns true
+        QBitArray(0).isNull();          // returns false
+        QBitArray(3).isNull();          // returns false
+    \endcode
+
+    Qt makes a distinction between null bit arrays and empty bit
+    arrays for historical reasons. For most applications, what
+    matters is whether or not a bit array contains any data,
+    and this can be determined using isEmpty().
+
+    \sa isEmpty()
 */
 
 /*! \fn bool QBitArray::isNull() const
@@ -192,7 +242,6 @@ void QBitArray::fill(bool value, int first, int last)
 
     \internal
 */
-
 
 /*! \fn void QBitArray::detach()
 
@@ -350,7 +399,7 @@ QBitArray &QBitArray::operator&=(const QBitArray &other)
     uchar *a1 = (uchar *)d.data()+1;
     const uchar *a2 = (const uchar *)other.d.constData() + 1;
     int n = qMin(d.size(), other.d.size()) - 1;
-    int p = qMax(d.size(), other.d.size()) - 1 - n;
+    int p = qMax(d.size(), other.d.size()) - 1 - n; // ### - 1 is right?
     while (n-- > 0)
         *a1++ &= *a2++;
     while (p-- > 0)
@@ -594,7 +643,7 @@ QDataStream &operator<<(QDataStream &out, const QBitArray &ba)
     Q_UINT32 len = ba.size();
     out << len;
     if (len > 0)
-        out.writeRawBytes(ba.d, ba.d.size());
+        out.writeRawBytes(ba.d.constData() + 1, ba.d.size() - 1);
     return out;
 }
 
@@ -613,13 +662,14 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
     if (!len) {
         ba.d.clear();
     } else {
-        ba.resize(len); // read size of array
-        if (ba.size() != (int)len) {                // resize array
+        ba.resize(len);
+        if (ba.size() != (int)len) {
             qWarning("QDataStream: Not enough memory to read QBitArray");
             len = 0;
+        } else {
+            in.readRawBytes(ba.d.data() + 1, ba.d.size() - 1);
+            *ba.d.data() = ba.d.size() * 8 - len;
         }
-        if (len > 0)                                // read data
-            in.readRawBytes(ba.d.data(), ba.d.size());
     }
     return in;
 }

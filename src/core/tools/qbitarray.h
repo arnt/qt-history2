@@ -13,15 +13,15 @@ class Q_CORE_EXPORT QBitArray
     QByteArray d;
 
 public:
-    inline QBitArray(){};
+    inline QBitArray(){}
     QBitArray(int size, bool val = false);
     inline QBitArray &operator=(const QBitArray &other) { d = other.d; return *this; }
-
 
     inline int size() const { return (d.size() << 3) - *d.constData(); }
     inline int count() const { return (d.size() << 3) - *d.constData(); }
 
     inline bool isEmpty() const { return d.isEmpty(); }
+    inline bool isNull() const { return d.isNull(); }
 
     void resize(int size);
 
@@ -47,8 +47,6 @@ public:
 
     inline bool operator==(const QBitArray& a) const { return d == a.d; }
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
-
-    inline bool isNull() const { return d.isNull(); }
 
     inline bool fill(bool val, int size = -1)
         { *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
