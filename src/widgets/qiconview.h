@@ -73,7 +73,7 @@ public:
     virtual QByteArray data() const;
     virtual void setData( const QByteArray &d );
 #if defined(_CC_GNU_) && __GNUC__ == 2 && __GNUC_MINOR__ <= 7
-    bool operator== ( const QIconDragItem& const );
+    bool operator== ( const QIconDragItem& const ) const;
 #endif // _CC_GNU_
 
 private:
