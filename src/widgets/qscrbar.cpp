@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#10 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#10 $";
 #endif
 
 
@@ -476,7 +476,7 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
     QPointArray bTop;				// top shadow.
     QPointArray bBot;				// bottom shadow.
     QPointArray bLeft;				// left shadow.
-    QWorldMatrix matrix;				// xform matrix
+    QWorldMatrix matrix;			// xform matrix
     bool vertical = style == MotifUpArrow || style == MotifDownArrow;
     bool horizontal = !vertical;
     int  dim = w < h ? w : h;
@@ -556,10 +556,10 @@ void qDrawMotifArrow( QPainter *p, MotifArrow style, bool down,
     cols[2] = (QColor *)&downColor;
     cols[3] = (QColor *)&lightShadow;
     cols[4] = (QColor *)&darkShadow;
-#define CMID	*cols[ (colspec>>12) & 15 ]
-#define CLEFT	*cols[ (colspec>>8) & 15 ]
-#define CTOP	*cols[ (colspec>>4) & 15 ]
-#define CBOT	*cols[ colspec & 15 ]
+#define CMID	*cols[ (colspec>>12) & 0xf ]
+#define CLEFT	*cols[ (colspec>>8) & 0xf ]
+#define CTOP	*cols[ (colspec>>4) & 0xf ]
+#define CBOT	*cols[ colspec & 0xf ]
 
     QPen   savePen   = p->pen();		// save current pen
     QBrush saveBrush = p->brush();		// save current brush
