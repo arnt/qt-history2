@@ -56,6 +56,7 @@
 
     \target modal
     \section1 Modal Dialogs
+
     A <b>modal</b> dialog is a dialog that blocks input to other
     visible windows in the same application. Users must finish
     interacting with the dialog and close it before they can access
@@ -83,6 +84,7 @@
 
     \target modeless
     \section1 Modeless Dialogs
+
     A <b>modeless</b> dialog is a dialog that operates
     independently of other windows in the same application. Find and
     replace dialogs in word-processors are often modeless to allow the
