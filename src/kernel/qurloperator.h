@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#6 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#7 $
 **
 ** Implementation of QFileDialog class
 **
@@ -107,10 +107,6 @@ inline void QUrlOperator::emitNewChild( const QUrlInfo &i, QNetworkOperation *re
 inline void QUrlOperator::emitFinished( QNetworkOperation *res )
 {
     emit finished( res );
-    if ( protocol() == "ftp" ) { // #### hack!!!!!!
-	deleteNetworkProtocol();
-	getNetworkProtocol();
-    }
 }
 
 inline void QUrlOperator::emitStart( QNetworkOperation *res )
