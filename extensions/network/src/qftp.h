@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#5 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#6 $
 **
 ** Implementation of Network Extension Library
 **
@@ -34,7 +34,7 @@
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 
-class QFtp : public QNetworkFileAccess
+class QFtp : public QNetworkProtocol
 {
     Q_OBJECT
 
@@ -54,6 +54,8 @@ public:
     virtual void isUrlDir();
     virtual void isUrlFile();
 
+    virtual int supportedOperations() const;
+    
     virtual QNetworkProtocol *copy() const;
 
 protected:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#9 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#10 $
 **
 ** Implementation of Network Extension Library
 **
@@ -31,7 +31,7 @@
 #include <qregexp.h>
 
 QFtp::QFtp()
-    : QNetworkFileAccess(), connectionReady( FALSE )
+    : QNetworkProtocol(), connectionReady( FALSE )
 {
     commandSocket = new QSocket( this );
     dataSocket = new QSocket( this );
@@ -150,6 +150,11 @@ void QFtp::isUrlDir()
 void QFtp::isUrlFile()
 {
     // #### todo
+}
+
+int QFtp::supportedOperations() const
+{
+    return OpListEntries | OpMkdir | OpRemove | OpRename | OpCopy | OpIsUrlDir | OpIsUrlFile;
 }
 
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
