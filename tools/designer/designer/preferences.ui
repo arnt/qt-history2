@@ -349,7 +349,7 @@
                                     <cstring>checkBoxWorkspace</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Restore Last Workspace on Startup</string>
+                                    <string>Restore Last &amp;Workspace on Startup</string>
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
@@ -383,7 +383,7 @@
                                     <cstring>checkAutoEdit</cstring>
                                 </property>
                                 <property name="text">
-                                    <string>&amp;Disable Database Auto-Edit in Preview</string>
+                                    <string>Disable Data&amp;base Auto-Edit in Preview</string>
                                 </property>
                                 <property name="checked">
                                     <bool>true</bool>
