@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#171 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#172 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -176,22 +176,7 @@ struct QComboData
     bool	completeNow;
     int		completeAt;
 
-    class ComboEdit: public QLineEdit
-    {
-    public:
-	ComboEdit( QWidget * parent )
-	    : QLineEdit( parent,"combo edit" )
-	{
-	}
-	bool validateAndSet( QString newText, int newPos,
-				int newMarkAnchor, int newMarkDrag )
-	{
-	    return QLineEdit::validateAndSet( newText, newPos,
-					      newMarkAnchor, newMarkDrag );
-	}
-    };
-
-    ComboEdit * ed;  // /bin/ed rules!
+    QLineEdit * ed;  // /bin/ed rules!
 };
 
 
@@ -335,7 +320,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
 
     if ( rw ) {
-	d->ed = new QComboData::ComboEdit( this );
+	d->ed = new QLineEdit( this, "combo edit" );
 	d->ed->setFrame( FALSE );
 	d->ed->setGeometry(style().comboButtonRect( 0, 0, width(), height() ));
 	d->ed->installEventFilter( this );
