@@ -1,0 +1,5 @@
+win32 {
+        QMAKE_UIC = $(QTDIR)\bin\uic3
+} else {
+        QMAKE_UIC = $(QTDIR)/bin/uic3
+}
