@@ -33,6 +33,7 @@ class QMultiCellPixmap;
 class QX11PaintEngine;
 #endif
 
+struct QPixmapData;
 
 class Q_GUI_EXPORT QPixmap : public QPaintDevice
 {
@@ -56,13 +57,13 @@ public:
     QPixmap &operator=(const QPixmap &);
     QPixmap &operator=(const QImage &);
 
-    inline bool isNull() const;
+    bool isNull() const;
 
-    int width() const { return data->w; }
-    int height() const { return data->h; }
-    QSize size() const { return QSize(data->w,data->h); }
-    QRect rect() const { return QRect(0,0,data->w,data->h); }
-    int depth() const { return data->d; }
+    int width() const;
+    int height() const;
+    QSize size() const;
+    QRect rect() const;
+    int depth() const;
     static int defaultDepth();
 
     void fill(const QColor &fillColor = Qt::white);
@@ -163,56 +164,7 @@ protected:
     };
 #endif
 
-    struct QPixmapData { // internal pixmap data
-        QPixmapData() : count(1) { }
-        void ref() { ++count; }
-        bool deref() { return !--count; }
-        uint count;
-
-        QCOORD w, h;
-        short d;
-        uint uninit:1;
-        uint bitmap:1;
-        uint selfmask:1;
-#if defined(Q_WS_WIN)
-        uint mcp:1;
-#endif
-        int ser_no;
-        QBitmap *mask;
-#if defined(Q_WS_WIN)
-        QPixmap *maskpm;
-        union {
-            HBITMAP hbm; // if mcp == false
-            QMCPI *mcpi; // if mcp == true
-        } hbm_or_mcpi;
-        uchar *realAlphaBits;
-#ifdef Q_OS_TEMP
-        uchar *ppvBits; // Pointer to DIBSection bits
-#endif
-#elif defined(Q_WS_X11)
-        void *ximage;
-        void *maskgc;
-        QPixmap *alphapm;
-        QX11Info xinfo;
-	Qt::HANDLE xft_hd;
-#elif defined(Q_WS_MAC)
-        CGImageRef cgimage;
-        QPixmap *alphapm;
-#elif defined(Q_WS_QWS)
-        int id;
-        QRgb * clut;
-        int numcols;
-        int rw;
-        int rh;
-        bool hasAlpha;
-#endif
-        Optimization optim;
-#if defined(Q_WS_WIN)
-        HBITMAP old_hbm;
-#endif
-        QPaintEngine *paintEngine;
-	Qt::HANDLE hd;
-    } *data;
+    QPixmapData *data;
 private:
 #ifndef QT_NO_IMAGEIO
     bool doImageIO(QImageIO* io, int quality) const;
@@ -241,70 +193,10 @@ private:
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);
 };
 
-
-inline bool QPixmap::isNull() const
+void QPixmap::fill(const QWidget *w, int x, int y)
 {
-    return data->w == 0;
+    fill(w, QPoint(x, y));
 }
-
-inline void QPixmap::fill(const QWidget *w, const QPoint &ofs)
-{
-    fill(w, ofs.x(), ofs.y());
-}
-
-inline void QPixmap::resize(const QSize &s)
-{
-    resize(s.width(), s.height());
-}
-
-inline const QBitmap *QPixmap::mask() const
-{
-    return data->mask;
-}
-
-inline bool QPixmap::selfMask() const
-{
-    return data->selfmask;
-}
-
-#if defined(Q_WS_WIN)
-inline HBITMAP QPixmap::hbm() const
-{
-    return data->mcp ? 0 : data->hbm_or_mcpi.hbm;
-}
-#endif
-
-inline int QPixmap::serialNumber() const
-{
-    return data->ser_no;
-}
-
-inline QPixmap::Optimization QPixmap::optimization() const
-{
-    return data->optim;
-}
-
-inline bool QPixmap::isQBitmap() const
-{
-    return data->bitmap;
-}
-
-#if defined(Q_WS_WIN)
-inline bool QPixmap::isMultiCellPixmap() const
-{
-    return data->mcp;
-}
-
-inline HDC QPixmap::winHDC() const
-{
-    return (HDC)data->hd;
-}
-#else
-inline Qt::HANDLE QPixmap::handle() const
-{
-    return data->hd;
-}
-#endif
 
 /*****************************************************************************
  QPixmap stream functions

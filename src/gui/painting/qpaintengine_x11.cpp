@@ -14,6 +14,8 @@
 #include "qplatformdefs.h"
 #include "qpaintengine_x11.h"
 
+#include "private/qpixmap_p.h"
+
 #include "qapplication.h"
 #include "qfont.h"
 #include "qwidget.h"

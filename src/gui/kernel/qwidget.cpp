@@ -1172,19 +1172,23 @@ QRect QWidgetPrivate::clipRect() const
     the background color of the widget.
 */
 
-/*! \overload
+
+/*!
+  \fn void QPixmap::fill( const QWidget *widget, const QPoint &offset )
+
+    \overload
 
     Fills the pixmap with the \a widget's background color or pixmap.
-    \a xoff, \a yoff is an offset in the widget.
+    If the background is empty, nothing is done. \a offset is
+    an offset in the widget.
 */
-
-void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
+void QPixmap::fill( const QWidget *widget, const QPoint &offset )
 {
-    QPoint offset(xoff, yoff);
+    QPoint offs = offset;
     QStack<QWidget*> parents;
     QWidget *w = const_cast<QWidget *>(widget);
     while (w->d->isBackgroundInherited()) {
-        offset += w->pos();
+        offs += w->pos();
         w = w->parentWidget();
         parents += w;
     }
@@ -1198,7 +1202,7 @@ void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
         QPainter p;
         p.begin(this);
         p.setPen(Qt::NoPen);
-        p.drawTiledPixmap(rect(), *brush.pixmap(), offset);
+        p.drawTiledPixmap(rect(), *brush.pixmap(), offs);
         p.end();
     }
 
@@ -1208,9 +1212,9 @@ void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
     w = parents.pop();
     for (;;) {
         if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-            QPainter::setRedirected(w, this, offset);
+            QPainter::setRedirected(w, this, offs);
             QRect rr = widget->d->clipRect();
-            rr.moveBy(offset);
+            rr.moveBy(offs);
             QPaintEvent e(rr);
             QApplication::sendEvent(w, &e);
             QPainter::restoreRedirected(w);
@@ -1218,7 +1222,7 @@ void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
         if (parents.size() == 0)
             break;
         w = parents.pop();
-        offset -= w->pos();
+        offs -= w->pos();
     }
 }
 

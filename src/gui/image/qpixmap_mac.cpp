@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qpixmap.h"
+#include "qpixmap_p.h"
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
 #include "qapplication.h"

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qbitmap.h"
+#include "qpixmap_p.h"
 #include "qimage.h"
 #include <qpainter.h>
 

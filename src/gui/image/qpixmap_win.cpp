@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qpixmap_p.h"
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdevicemetrics.h"
@@ -1156,11 +1157,24 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
   \fn HBITMAP QPixmap::hbm() const
   \internal
 */
+HBITMAP QPixmap::hbm() const
+{
+    return data->mcp ? 0 : data->hbm_or_mcpi.hbm;
+}
 
 /*!
   \fn bool QPixmap::isMultiCellPixmap() const
   \internal
 */
+bool QPixmap::isMultiCellPixmap() const
+{
+    return data->mcp;
+}
+
+HDC QPixmap::winHDC() const
+{
+    return (HDC)data->hd;
+}
 
 /*!
   \internal

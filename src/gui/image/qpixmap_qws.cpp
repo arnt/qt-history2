@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qglobal.h"
+#include "qpixmap_p.h"
 
 #include "qbitmap.h"
 #include "qcolormap.h"

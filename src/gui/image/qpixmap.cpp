@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include "qpixmap.h"
+#include "qpixmap_p.h"
 
 #include "qbitmap.h"
 #include "qimage.h"
@@ -467,6 +468,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     Returns true if this is a QBitmap; otherwise returns false.
 */
+bool QPixmap::isQBitmap() const
+{
+    return data->bitmap;
+}
 
 /*!
     \fn bool QPixmap::isNull() const
@@ -481,6 +486,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa resize()
 */
+bool QPixmap::isNull() const
+{
+    return data->w == 0;
+}
 
 /*!
     \fn int QPixmap::width() const
@@ -489,6 +498,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa height(), size(), rect()
 */
+int QPixmap::width() const
+{
+    return data->w;
+}
 
 /*!
     \fn int QPixmap::height() const
@@ -497,6 +510,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa width(), size(), rect()
 */
+int QPixmap::height() const
+{
+    return data->h;
+}
 
 /*!
     \fn QSize QPixmap::size() const
@@ -505,6 +522,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa width(), height(), rect()
 */
+QSize QPixmap::size() const
+{
+    return QSize(data->w,data->h);
+}
 
 /*!
     \fn QRect QPixmap::rect() const
@@ -513,6 +534,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa width(), height(), size()
 */
+QRect QPixmap::rect() const
+{
+    return QRect(0,0,data->w,data->h);
+}
 
 /*!
     \fn int QPixmap::depth() const
@@ -524,7 +549,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     \sa defaultDepth(), isNull(), QImage::convertDepth()
 */
-
+int QPixmap::depth() const
+{
+    return data->d;
+}
 
 /*!
     \fn void QPixmap::resize(const QSize &size)
@@ -532,6 +560,10 @@ QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 
     Resizes the pixmap to size \a size.
 */
+void QPixmap::resize(const QSize &s)
+{
+    resize(s.width(), s.height());
+}
 
 /*!
     Resizes the pixmap to \a w width and \a h height. If either \a w
@@ -593,6 +625,11 @@ void QPixmap::resize(int w, int h)
 
     \sa setMask(), QBitmap, hasAlpha()
 */
+const QBitmap *QPixmap::mask() const
+{
+    return data->mask;
+}
+
 
 /*!
     Sets a mask bitmap.
@@ -673,6 +710,10 @@ void QPixmap::setMask(const QBitmap &newmask)
 
     \sa mask()
 */
+bool QPixmap::selfMask() const
+{
+    return data->selfmask;
+}
 
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
@@ -937,6 +978,19 @@ bool QPixmap::doImageIO(QImageIO* io, int quality) const
 
 #endif //QT_NO_IMAGEIO
 
+
+// The implementation of QPixmap::fill(const QWidget *, const QPoint &)
+// is in qwidget.cpp
+/*!
+ \fn void QPixmap::fill(const QWidget *widget, int xoff, int yoff)
+
+ \overload
+
+    Fills the pixmap with the \a widget's background color or pixmap.
+    \a xoff, \a yoff is an offset in the widget.
+*/
+
+
 /*!
     \fn int QPixmap::serialNumber() const
 
@@ -948,6 +1002,33 @@ bool QPixmap::doImageIO(QImageIO* io, int quality) const
 
     \sa QPixmapCache
 */
+int QPixmap::serialNumber() const
+{
+    return data->ser_no;
+}
+
+
+/*!
+    \fn QPixmap::Optimization QPixmap::optimization() const
+
+    Returns the optimization setting for this pixmap.
+
+    The default optimization setting is \c QPixmap::NormalOptim. You
+    can change this setting in two ways:
+    \list
+    \i Call setDefaultOptimization() to set the default optimization
+    for all new pixmaps.
+    \i Call setOptimization() to set the optimization for individual
+    pixmaps.
+    \endlist
+
+    \sa setOptimization(), setDefaultOptimization(), defaultOptimization()
+*/
+
+QPixmap::Optimization QPixmap::optimization() const
+{
+    return data->optim;
+}
 
 
 /*!
@@ -1123,4 +1204,9 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
 
 #endif
 
-
+#ifndef Q_WS_WIN
+Qt::HANDLE QPixmap::handle() const
+{
+    return data->hd;
+}
+#endif

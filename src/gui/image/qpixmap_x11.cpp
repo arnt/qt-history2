@@ -27,6 +27,7 @@
 #undef QT_MITSHM
 #endif
 
+#include "qpixmap_p.h"
 #include "qplatformdefs.h"
 
 #include "qbitmap.h"
