@@ -46,7 +46,7 @@
     \ingroup events
 
     It receives events from the window system and other sources.  It
-    then sends them to QApplication for prcoessing and delivery.
+    then sends them to QApplication for processing and delivery.
 
     QEventLoop allows the application programmer to have more control
     over event delivery.  Programs that perform long operations can
