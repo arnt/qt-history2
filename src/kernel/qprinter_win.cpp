@@ -398,7 +398,8 @@ static PaperSourceNames sources[] = {
     { DMBIN_LARGEFMT,       QPrinter::LargeFormat },
     { DMBIN_LARGECAPACITY,  QPrinter::LargeCapacity },
     { DMBIN_CASSETTE,       QPrinter::Cassette },
-    { DMBIN_FORMSOURCE,     QPrinter::FormSource }
+    { DMBIN_FORMSOURCE,     QPrinter::FormSource },
+    { 0, (QPrinter::PaperSource) -1 }
 };
 
 static QPrinter::PaperSource mapDevmodePaperSource( int s )
@@ -406,7 +407,9 @@ static QPrinter::PaperSource mapDevmodePaperSource( int s )
     int i = 0;
     while ( (sources[i].winSourceName > 0) && (sources[i].winSourceName != s) )
         i++;
-    return sources[i].qtSourceName;
+    return sources[i].winSourceName
+	? sources[i].qtSourceName
+	: (QPrinter::PaperSource) s;
 }
 
 static int mapPaperSourceDevmode( QPrinter::PaperSource s )
@@ -415,7 +418,9 @@ static int mapPaperSourceDevmode( QPrinter::PaperSource s )
     while ( (sources[i].qtSourceName >= 0) && (sources[i].qtSourceName != s) ) {
         i++;
     }
-    return sources[i].winSourceName;
+    return sources[i].winSourceName
+	? sources[i].winSourceName
+	: s;
 }
 
 /*!
