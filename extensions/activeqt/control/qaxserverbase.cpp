@@ -758,7 +758,7 @@ public:
 	    }
 	}
 
-	QMetaObject *mo = qAxFactory()->metaObject(className);
+	const QMetaObject *mo = qAxFactory()->metaObject(className);
 	if (mo) {
 	    classKey = mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value();
 	    licensed = !classKey.isEmpty();
@@ -811,7 +811,7 @@ public:
 	if ( pUnkOuter ) {
 	    if (iid != IID_IUnknown)
 		return CLASS_E_NOAGGREGATION;
-	    QMetaObject *mo = qAxFactory()->metaObject(className);
+	    const QMetaObject *mo = qAxFactory()->metaObject(className);
 	    if (mo && QString(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value()) == "no")
 		return CLASS_E_NOAGGREGATION;
 	}
@@ -887,7 +887,7 @@ public:
 	pLicInfo->cbLicInfo = sizeof(LICINFO);
 
 	// class specific license key?
-	QMetaObject *mo = qAxFactory()->metaObject(className);
+	const QMetaObject *mo = qAxFactory()->metaObject(className);
 	const char *key = mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value();
 	pLicInfo->fRuntimeKeyAvail = key && key[0];
 

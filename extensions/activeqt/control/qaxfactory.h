@@ -13,9 +13,9 @@
 #ifndef QAXFACTORY_H
 #define QAXFACTORY_H
 
-#include <qdict.h>
-#include <quuid.h>
+#include <qhash.h>
 #include <private/qcom_p.h>
+#include <quuid.h>
 #include <qmetaobject.h>
 
 // {22B230F6-8722-4051-ADCB-E7C9CE872EB3}
@@ -34,7 +34,7 @@ public:
 #ifndef Q_QDOC
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 ) = 0;
     virtual QObject *createObject( const QString &key, QObject *parent = 0, const char *name = 0 ) = 0;
-    virtual QMetaObject *metaObject( const QString &key ) const = 0;
+    virtual const QMetaObject *metaObject( const QString &key ) const = 0;
     virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper) = 0;
 
     virtual QUuid classID( const QString &key ) const = 0;
@@ -71,7 +71,7 @@ public:
 #endif
     virtual QWidget *create( const QString &key, QWidget *parent = 0, const char *name = 0 );
     virtual QObject *createObject( const QString &key, QObject *parent = 0, const char *name = 0 );
-    virtual QMetaObject *metaObject( const QString &key ) const;
+    virtual const QMetaObject *metaObject( const QString &key ) const;
     virtual bool createObjectWrapper(QObject *object, IDispatch **wrapper);
 
     virtual QUuid classID( const QString &key ) const;
@@ -142,10 +142,10 @@ inline bool QAxFactory::stopServer()
 	    list << #Class; \
 	    return list; \
 	} \
-	QMetaObject *metaObject( const QString &key ) const \
+	const QMetaObject *metaObject( const QString &key ) const \
 	{ \
 	    if ( key == #Class ) \
-		return Class::staticMetaObject(); \
+		return &Class::staticMetaObject; \
 	    return 0; \
 	} \
 	QWidget *create( const QString &key, QWidget *parent, const char *name ) \
@@ -183,12 +183,13 @@ public:
     : QAxFactory(appId, libId)
     {}
 
-    QMetaObject *metaObject(const QString &key) const { return T::staticMetaObject(); }
-    QStringList featureList() const { return QString(T::staticMetaObject()->className()); }
+    const QMetaObject *metaObject(const QString &key) const { return &T::staticMetaObject; }
+    QStringList featureList() const { return QString(T::staticMetaObject.className()); }
     QWidget *create(const QString &key, QWidget *parent, const char *name)
     {
-	if (key != QString(T::staticMetaObject()->className())) return 0;
-	if (!qstrcmp(T::staticMetaObject()->classInfo("Creatable", TRUE), "no")) return 0;
+	if (key != QString(T::staticMetaObject.className())) return 0;
+	if (!qstrcmp(T::staticMetaObject.classInfo(T::staticMetaObject.indexOfClassInfo("Creatable")).value(), "no"))
+	    return 0;
 	return new T(parent, name);
     }
 };
@@ -197,12 +198,11 @@ public:
     class QAxFactoryList : public QAxFactory \
     { \
 	QStringList factoryKeys; \
-	QDict<QAxFactoryInterface> factories; \
+	QHash<QString, QAxFactoryInterface*> factories; \
     public: \
 	QAxFactoryList() \
 	: QAxFactory(IDApp, IDTypeLib) \
 	{ \
-	    factories.setAutoDelete(TRUE); \
 	    QAxFactoryInterface *factory = 0; \
 	    QStringList keys; \
 	    QStringList::Iterator it; \
@@ -217,6 +217,7 @@ public:
 
 #define QAXFACTORY_END() \
 	} \
+	~QAxFactoryList() { qDeleteAll(factories); } \
 	QStringList featureList() const {  return factoryKeys; } \
 	QWidget *create(const QString &key, QWidget *parent, const char *name) { \
 	    QAxFactoryInterface *f = factories[key]; \

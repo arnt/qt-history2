@@ -123,7 +123,7 @@ bool qax_startServer(QAxFactory::ServerType type)
 	    p->Release();
     }
 
-    qt_set_win_event_filter( QAxEventFilter );
+    // qt_set_win_event_filter( QAxEventFilter ); XXXX
     qAxIsServer = TRUE;
     return TRUE;
 }
@@ -137,7 +137,7 @@ bool qax_stopServer()
 	return TRUE;
 
     qAxIsServer = FALSE;
-    qt_set_win_event_filter(0);
+    // qt_set_win_event_filter(0);
 
     const QStringList keys = qAxFactory()->featureList();
     int object = 0;

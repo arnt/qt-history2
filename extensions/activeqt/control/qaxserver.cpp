@@ -1038,7 +1038,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     int res = S_OK;
     for ( key = keys.begin(); key != keys.end(); ++key ) {
 	QString className = *key;
-	QMetaObject *mo = qAxFactory()->metaObject( className );
+	const QMetaObject *mo = qAxFactory()->metaObject( className );
 	// We have meta object information for this type. Forward declare it.
 	if ( mo ) {
 	    out << "\tcoclass " << className << ";" << endl;

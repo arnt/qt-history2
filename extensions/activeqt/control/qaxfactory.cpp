@@ -288,7 +288,7 @@ QObject *QAxFactory::createObject( const QString &key, QObject *parent, const ch
     The default implementation returns the QMetaObject for the class
     \a key.
 */
-QMetaObject *QAxFactory::metaObject(const QString &key) const
+const QMetaObject *QAxFactory::metaObject(const QString &key) const
 {
     // XXX return QMetaObject::metaObject(key.latin1());
     return 0;
@@ -316,7 +316,7 @@ QMetaObject *QAxFactory::metaObject(const QString &key) const
 */
 QUuid QAxFactory::classID( const QString &key ) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ClassID")).value());
@@ -334,7 +334,7 @@ QUuid QAxFactory::classID( const QString &key ) const
 */
 QUuid QAxFactory::interfaceID( const QString &key ) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("InterfaceID")).value());
@@ -353,7 +353,7 @@ QUuid QAxFactory::interfaceID( const QString &key ) const
 */
 QUuid QAxFactory::eventsID( const QString &key ) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
     QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("EventsID")).value());
@@ -411,7 +411,7 @@ void QAxFactory::unregisterClass( const QString &key, QSettings *settings ) cons
 */
 bool QAxFactory::validateLicenseKey( const QString &key, const QString &licenseKey) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return TRUE;
 
@@ -447,7 +447,7 @@ bool QAxFactory::validateLicenseKey( const QString &key, const QString &licenseK
 */
 QString QAxFactory::exposeToSuperClass( const QString &key ) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QString::null;
     QString str = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ToSuperClass")).value());
@@ -485,7 +485,7 @@ bool QAxFactory::stayTopLevel( const QString &key ) const
 */
 bool QAxFactory::hasStockEvents( const QString &key ) const
 {
-    QMetaObject *mo = metaObject(key);
+    const QMetaObject *mo = metaObject(key);
     if (!mo)
 	return false;
     return QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("StockEvents")).value()) == "yes";
