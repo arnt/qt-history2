@@ -222,7 +222,7 @@ public:
 	WStaticContents		= 0x00400000,
 	WNoAutoErase		= 0x00800000,
 	WRepaintNoErase	= WNoAutoErase,
-	WResizeNoErase = WNoAutoErase,
+	WResizeNoErase = 0,
 	WNorthWestGravity	= WStaticContents,
 	WType_Modal		= WType_Dialog | WShowModal,
 	WStyle_Dialog		= WType_Dialog,
