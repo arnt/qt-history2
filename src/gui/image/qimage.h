@@ -175,18 +175,8 @@ public:
     void setText(const char* key, const char* lang, const QString&);
 #endif
 private:
-    void init();
-    void reinit();
-    void freeBits();
-
     QImageData *data;
 
-#ifndef QT_NO_IMAGE_TEXT
-    QImageDataMisc& misc() const;
-#endif
-#ifndef QT_NO_IMAGEIO
-    bool doImageIO(QImageIO* io, int quality) const;
-#endif
     friend Q_GUI_EXPORT void bitBlt(QImage* dst, int dx, int dy,
                                     const QImage* src, int sx, int sy,
                                     int sw, int sh, int conversion_flags);

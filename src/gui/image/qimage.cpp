@@ -27,8 +27,30 @@
 #include "qscreen_qws.h"
 #endif
 
+#ifndef Q_WS_QWS
+static inline QRgb qt_conv16ToRgb(ushort c) {
+    const int r = (c & 0xf800) >> (11 - (8-5));
+    const int g = (c & 0x07e0) >> (6 - (8-6));
+    const int b = (c & 0x001f) << (8-5);
+
+    return qRgb(r, g, b);
+}
+
+inline ushort qt_convRgbTo16(QRgb c)
+{
+    return (qRed(c) << (11 - (8-5))) + (qGreen(c) << (6 - (8-6))) + (qBlue(c) >> (8-5));
+}
+#endif
+
+
+#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
+#pragma message disable narrowptr
+#endif
 
 struct QImageData {        // internal image data
+    QImageData();
+    ~QImageData();
+
     QAtomic ref;
 
     int w;                    // image width
@@ -45,17 +67,57 @@ struct QImageData {        // internal image data
     int  dpmx;                // dots per meter X (or 0)
     int  dpmy;                // dots per meter Y (or 0)
     QPoint  offset;           // offset in pixels
+
 #ifndef QT_NO_IMAGE_TEXT
-    QImageDataMisc* misc;     // less common stuff
+    QMap<QImageTextKeyLang, QString> text_lang;
+
+    QStringList languages()
+    {
+        QStringList r;
+        QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
+        for (; it != text_lang.end(); ++it) {
+            r.removeAll(it.key().lang);
+            r.append(it.key().lang);
+        }
+        return r;
+    }
+    QStringList keys()
+    {
+        QStringList r;
+        QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
+        for (; it != text_lang.end(); ++it) {
+            r.removeAll(it.key().key);
+            r.append(it.key().key);
+        }
+        return r;
+    }
 #endif
-} *data;
-
-
-// 16bpp images on supported on Qt/Embedded
-#if !defined(Q_WS_QWS) && !defined(QT_NO_IMAGE_16_BIT)
-#define QT_NO_IMAGE_16_BIT
+#ifndef QT_NO_IMAGEIO
+    bool doImageIO(const QImage *image, QImageIO* io, int quality) const;
 #endif
 
+};
+
+QImageData::QImageData()
+{
+    w = h = d = ncols = 0;
+    nbytes = 0;
+    ctbl = 0;
+    bits = 0;
+    bitordr = QImage::IgnoreEndian;
+    alpha = false;
+
+    dpmx = 0;
+    dpmy = 0;
+    offset = QPoint(0,0);
+}
+
+QImageData::~QImageData()
+{
+    if (bits)
+        free(bits);
+    bits = 0;
+}
 
 /*!
     \class QImage
@@ -226,53 +288,6 @@ struct QImageData {        // internal image data
     Using 0 as the conversion flag sets all the default options.
 */
 
-#if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
-#pragma message disable narrowptr
-#endif
-
-#ifndef QT_NO_IMAGE_TEXT
-class QImageDataMisc {
-public:
-    QImageDataMisc() { }
-    QImageDataMisc(const QImageDataMisc& o) :
-        text_lang(o.text_lang) { }
-
-    QImageDataMisc& operator=(const QImageDataMisc& o)
-    {
-        text_lang = o.text_lang;
-        return *this;
-    }
-    QList<QImageTextKeyLang> list()
-    {
-        return text_lang.keys();
-    }
-
-    QStringList languages()
-    {
-        QStringList r;
-        QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
-        for (; it != text_lang.end(); ++it) {
-            r.removeAll(it.key().lang);
-            r.append(it.key().lang);
-        }
-        return r;
-    }
-    QStringList keys()
-    {
-        QStringList r;
-        QMap<QImageTextKeyLang,QString>::Iterator it = text_lang.begin();
-        for (; it != text_lang.end(); ++it) {
-            r.removeAll(it.key().key);
-            r.append(it.key().key);
-        }
-        return r;
-    }
-
-    QMap<QImageTextKeyLang,QString> text_lang;
-};
-#endif // QT_NO_IMAGE_TEXT
-
-
 
 /*****************************************************************************
   QImage member functions
@@ -322,7 +337,7 @@ const uchar *qt_get_bitflip_array()                        // called from QPixma
 
 QImage::QImage()
 {
-    init();
+    data = new QImageData;
 }
 
 /*!
@@ -337,7 +352,7 @@ QImage::QImage()
 
 QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
 {
-    init();
+    data = new QImageData;
     create(w, h, depth, numColors, bitOrder);
 }
 
@@ -352,7 +367,7 @@ QImage::QImage(int w, int h, int depth, int numColors, Endian bitOrder)
 */
 QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
 {
-    init();
+    data = new QImageData;
     create(size, depth, numColors, bitOrder);
 }
 
@@ -377,7 +392,7 @@ QImage::QImage(const QSize& size, int depth, int numColors, Endian bitOrder)
 
 QImage::QImage(const QString &fileName, const char* format)
 {
-    init();
+    data = new QImageData;
     load(fileName, format);
 }
 
@@ -407,7 +422,7 @@ extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage 
 
 QImage::QImage(const char * const xpm[])
 {
-    init();
+    data = new QImageData;
 #ifndef QT_NO_IMAGEIO_XPM
     qt_read_xpm_image_or_array(0, xpm, *this);
 #else
@@ -428,7 +443,7 @@ QImage::QImage(const char * const xpm[])
 */
 QImage::QImage(const QByteArray &array)
 {
-    init();
+    data = new QImageData;
     loadFromData(array);
 }
 #endif //QT_NO_IMAGEIO
@@ -461,7 +476,7 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth,
                 QRgb* colortable, int numColors,
                 Endian bitOrder)
 {
-    init();
+    data = new QImageData;
     if (w <= 0 || h <= 0 || depth <= 0 || numColors < 0)
         return;                                        // invalid parameter(s)
     data->w = w;
@@ -509,7 +524,7 @@ QImage::QImage(uchar* yourdata, int w, int h, int depth,
                 int bpl, QRgb* colortable, int numColors,
                 Endian bitOrder)
 {
-    init();
+    data = new QImageData;
     if (!yourdata || w <= 0 || h <= 0 || depth <= 0 || numColors < 0)
         return;                                        // invalid parameter(s)
     data->w = w;
@@ -611,10 +626,7 @@ QImage QImage::copy() const
         image.data->dpmy = dotsPerMeterY();
         image.data->offset = offset();
 #ifndef QT_NO_IMAGE_TEXT
-        if (data->misc) {
-            image.data->misc = new QImageDataMisc;
-            *image.data->misc = misc();
-        }
+        image.data->text_lang = data->text_lang;
 #endif
         return image;
     }
@@ -692,10 +704,7 @@ inline QImage QImage::copy(const QRect& r, int conversion_flags) const
     image.data->dpmy = dotsPerMeterY();
     image.data->offset = offset();
 #ifndef QT_NO_IMAGE_TEXT
-    if (data->misc) {
-        image.data->misc = new QImageDataMisc;
-        *image.data->misc = misc();
-    }
+    image.data->text_lang = data->text_lang;
 #endif
     return image;
 }
@@ -937,12 +946,7 @@ uchar *QImage::bits() const
 
 void QImage::reset()
 {
-    freeBits();
-    setNumColors(0);
-#ifndef QT_NO_IMAGE_TEXT
-    delete data->misc;
-#endif
-    reinit();
+    *this = QImage();
 }
 
 
@@ -1271,46 +1275,6 @@ bool QImage::create(const QSize& size, int depth, int numColors,
                      QImage::Endian bitOrder)
 {
     return create(size.width(), size.height(), depth, numColors, bitOrder);
-}
-
-/*!
-  \internal
-  Initializes the image data structure.
-*/
-
-void QImage::init()
-{
-    data = new QImageData;
-    reinit();
-}
-
-void QImage::reinit()
-{
-    data->w = data->h = data->d = data->ncols = 0;
-    data->nbytes = 0;
-    data->ctbl = 0;
-    data->bits = 0;
-    data->bitordr = QImage::IgnoreEndian;
-    data->alpha = false;
-#ifndef QT_NO_IMAGE_TEXT
-    data->misc = 0;
-#endif
-    data->dpmx = 0;
-    data->dpmy = 0;
-    data->offset = QPoint(0,0);
-}
-
-/*!
-  \internal
-  Deallocates the image data and sets the bits pointer to 0.
-*/
-
-void QImage::freeBits()
-{
-    if (data->bits) {                                // dealloc image bits
-        free(data->bits);
-        data->bits = 0;
-    }
 }
 
 
@@ -3379,7 +3343,7 @@ bool QImage::save(const QString &fileName, const char* format, int quality) cons
     if (isNull())
         return false;                                // nothing to save
     QImageIO io(fileName, format);
-    return doImageIO(&io, quality);
+    return data->doImageIO(this, &io, quality);
 }
 
 /*!
@@ -3402,17 +3366,17 @@ bool QImage::save(QIODevice* device, const char* format, int quality) const
     if (isNull())
         return false;                                // nothing to save
     QImageIO io(device, format);
-    return doImageIO(&io, quality);
+    return data->doImageIO(this, &io, quality);
 }
 
 /* \internal
 */
 
-bool QImage::doImageIO(QImageIO* io, int quality) const
+bool QImageData::doImageIO(const QImage *image, QImageIO* io, int quality) const
 {
     if (!io)
         return false;
-    io->setImage(*this);
+    io->setImage(*image);
     if (quality > 100  || quality < -1)
         qWarning("QPixmap::save: quality out of range [-1,100]");
     if (quality >= 0)
@@ -3780,18 +3744,6 @@ void QImage::setOffset(const QPoint& p)
     data->offset = p;
 }
 #ifndef QT_NO_IMAGE_TEXT
-/*!
-    \internal
-
-    Returns the internal QImageDataMisc object. This object will be
-    created if it doesn't already exist.
-*/
-QImageDataMisc& QImage::misc() const
-{
-    if (!data->misc)
-        data->misc = new QImageDataMisc;
-    return *data->misc;
-}
 
 /*!
     Returns the string recorded for the keyword \a key in language \a
@@ -3800,7 +3752,7 @@ QImageDataMisc& QImage::misc() const
 QString QImage::text(const char* key, const char* lang) const
 {
     QImageTextKeyLang x(key,lang);
-    return misc().text_lang[x];
+    return data->text_lang.value(x);
 }
 
 /*!
@@ -3810,7 +3762,7 @@ QString QImage::text(const char* key, const char* lang) const
 */
 QString QImage::text(const QImageTextKeyLang& kl) const
 {
-    return misc().text_lang[kl];
+    return data->text_lang.value(kl);
 }
 
 /*!
@@ -3832,9 +3784,7 @@ QString QImage::text(const QImageTextKeyLang& kl) const
 */
 QStringList QImage::textLanguages() const
 {
-    if (!data->misc)
-        return QStringList();
-    return misc().languages();
+    return data->languages();
 }
 
 /*!
@@ -3855,9 +3805,7 @@ QStringList QImage::textLanguages() const
 */
 QStringList QImage::textKeys() const
 {
-    if (!data->misc)
-        return QStringList();
-    return misc().keys();
+    return data->keys();
 }
 
 /*!
@@ -3877,9 +3825,7 @@ QStringList QImage::textKeys() const
 */
 QList<QImageTextKeyLang> QImage::textList() const
 {
-    if (!data->misc)
-        return QList<QImageTextKeyLang>();
-    return misc().list();
+    return data->text_lang.keys();
 }
 
 /*!
@@ -3894,7 +3840,7 @@ QList<QImageTextKeyLang> QImage::textList() const
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {
     QImageTextKeyLang x(key,lang);
-    misc().text_lang.insert(x,s);
+    data->text_lang.insert(x,s);
 }
 
 #endif // QT_NO_IMAGE_TEXT
