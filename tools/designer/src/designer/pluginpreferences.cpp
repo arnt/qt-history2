@@ -85,11 +85,11 @@ PluginPreferenceWidget::PluginPreferenceWidget(QWidget *parent)
 {
     QHBoxLayout *mainLayout = new QHBoxLayout(this);
     m_tree = new QTreeWidget(this);
-    m_tree->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_tree->setItemDelegate(new PluginDelegate(m_tree));
     m_tree->setColumnCount(2);
-    m_tree->setHeaderLabels(QStringList() << tr("Enabled") << tr("Path"));
-    m_tree->header()->setResizeMode(QHeaderView::Stretch, 1);
+    m_tree->setHeaderLabels(QStringList() << tr("Enabled") << tr("Plugin") << tr("Path"));
+    m_tree->header()->setResizeMode(QHeaderView::Custom, 2);
+    m_tree->header()->resizeSection(2, 700);
     connect(m_tree, SIGNAL(itemChanged(QTreeWidgetItem *, int)),
             this, SLOT(handleItemChanged(QTreeWidgetItem *, int)));
     connect(m_tree, SIGNAL(currentChanged(QTreeWidgetItem *, QTreeWidgetItem *)),
@@ -125,9 +125,15 @@ void PluginPreferenceWidget::addThisPath()
 void PluginPreferenceWidget::addItem(const QString &path)
 {
     QTreeWidgetItem *item = new QTreeWidgetItem(m_tree);
-    item->setFlags(item->flags() | QAbstractItemModel::ItemIsCheckable);
     item->setData(0, PluginDelegate::CheckedRole, true);
-    item->setText(1, path);
+    int lastSlash = path.lastIndexOf('/');
+    QString realPath = path;
+    if (lastSlash != -1) {
+        QString pluginName = path.mid(lastSlash + 1);
+        item->setText(1, pluginName);
+        realPath = path.left(lastSlash);
+    }
+    item->setText(2, realPath);
 }
 
 void PluginPreferenceWidget::removeThisPath()
@@ -135,7 +141,7 @@ void PluginPreferenceWidget::removeThisPath()
     QTreeWidgetItem *item = m_tree->currentItem();
     if (!item)
         return;
-    QString path = item->text(1);
+    QString path = item->text(2) + "/" + item->text(1);
     m_tree->takeTopLevelItem(m_tree->indexOfTopLevelItem(item));
     delete item;
     emit removePath(path);
@@ -145,7 +151,7 @@ void PluginPreferenceWidget::handleItemChanged(QTreeWidgetItem *item, int column
 {
     if (!item || column != 0)
         return;
-    emit setPluginPathEnabled(item->text(1), item->checkedState(0) == QCheckBox::On);
+    emit setPluginPathEnabled(item->text(2) + "/" + item->text(1), item->checkedState(0) == QCheckBox::On);
 }
 
 void PluginPreferenceWidget::changeButtonStatus(QTreeWidgetItem *item)
