@@ -192,6 +192,8 @@ protected:
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 
+    QTextEdit(QTextEditPrivate &dd, QWidget *parent);
+
 private:
     Q_PRIVATE_SLOT(d, void update(const QRect &r))
     Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
