@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#62 $
 **
 ** Implementation of event classes
 **
@@ -555,7 +555,7 @@ void QEvent::peErrMsg()				// posted event error message
 */
 
 /*!
-  \fn const QRect &QPaintEvent::region() const
+  \fn const QRegion &QPaintEvent::region() const
   Returns the region that should be updated.
 
   \sa rect(), QPainter::setClipRegion()

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#125 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#126 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -1982,14 +1982,14 @@ const char* QString::ascii() const
 */
 
 /*!
-  \fn QChar QString::at( uint ) const
+  \fn const QChar& QString::at( uint ) const
 
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
 */
 
 /*!
-  \fn QChar QString::operator[](int) const
+  \fn const QChar& QString::operator[](int) const
 
   Returns the character at \a i, or 0 if \a i is beyond the length
   of the string.
