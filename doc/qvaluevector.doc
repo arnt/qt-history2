@@ -536,7 +536,7 @@
   Inserts a copy of \a x at the position immediately before \a pos.
 */
 
-/*! \fn void detachInternal()
+/*! \fn void QValueVector::detachInternal()
     
     \internal
 */

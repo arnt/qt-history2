@@ -1475,6 +1475,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
     \value CT_DockWindow
     \value CT_ProgressBar
     \value CT_PopupMenuItem
+    \value CT_TabBarTab
 
 
     \value CT_CustomBase  base value for custom ControlElements. All

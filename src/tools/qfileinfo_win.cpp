@@ -588,6 +588,13 @@ QString QFileInfo::fileName() const
     }
 }
 
+/*!
+    Returns TRUE if the file is hidden; otherwise returns FALSE.
+
+    On Unix-like operating systems, including Mac OS X, a file is
+    hidden if its name begins with ".". On Windows a file is hidden if
+    its hidden attribute is set.
+*/
 bool QFileInfo::isHidden() const
 {
 #if defined(UNICODE)

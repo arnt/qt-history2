@@ -256,6 +256,17 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 
 
 /*!
+    \enum Qt::DateTimeSpec
+
+    \value LocalTime
+    \value UniversalTime
+    \value GreenwichMeanTime = UniversalTime
+    \value UTC = UniversalTime
+    \value GMT = GreenwichMeanTime = UniversalTime
+
+*/
+
+/*!
   \fn QDate::QDate()
   Constructs a null date. Null dates are invalid.
 

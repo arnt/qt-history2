@@ -175,6 +175,8 @@
   \value TabletPress A Wacom Tablet Press Event
   \value TabletRelease A Wacom Tablet Release Event
 
+  \value Style Internal use only
+
     User events should have values between User and MaxUser inclusive.
 */
 /*!
@@ -867,6 +869,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
     \value Key_CapsLock
     \value Key_NumLock
     \value Key_ScrollLock
+    \value Key_Clear
     \value Key_F1
     \value Key_F2
     \value Key_F3

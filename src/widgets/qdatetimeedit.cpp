@@ -879,10 +879,8 @@ public:
     \value Hours The hours section
     \value Minutes The minutes section
     \value Seconds The seconds section
-    \omit
-    \value Reserved
-    \endomit
     \value AMPM The AM/PM section
+    \value Reserved For internal use only
 
     The values can be or'ed together to show any combination.
 */

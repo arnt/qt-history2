@@ -708,13 +708,13 @@
 */
 
 /*!
-    \fn QValueList<Key> keys() const
+    \fn QValueList<Key> QMap::keys() const
 
     Returns a list of all the keys in the map.
 */
 
 /*!
-    \fn QValueList<T> values() const
+    \fn QValueList<T> QMap::values() const
 
     Returns a list of all the values in the map.
 */

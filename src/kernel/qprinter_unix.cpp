@@ -51,7 +51,7 @@
 // NOT REVISED
 
 
-struct QPrinterPrivate 
+struct QPrinterPrivate
 {
     uint topMargin;
     uint leftMargin;
@@ -542,7 +542,7 @@ int QPrinter::metric( int m ) const
     treated as the smallest sane left margin you can use, and
     margins().height() as the smallest sane top margin you can
     use.
-    
+
     If you have called setFullPage( FALSE ) (this is the default),
     margins() is automatically subtracted from the pageSize() by
     QPrinter.
@@ -553,7 +553,7 @@ QSize QPrinter::margins() const
 {
     if ( d )
 	return QSize( d->leftMargin, d->topMargin );
-    
+
     if (orient == Portrait)
         return QSize( res/2, res/3 );
 
@@ -561,7 +561,8 @@ QSize QPrinter::margins() const
 }
 
 /*!
-  
+    \overload
+
     Sets \a top, \a left, \a bottom and \a right to the margins of the
     printer.  On Unix, this is a best-effort guess, not based on
     perfect knowledge.
@@ -587,17 +588,18 @@ void QPrinter::margins( uint *top, uint *left, uint *bottom, uint *right ) const
 	*left = d->leftMargin;
 	*bottom = d->bottomMargin;
 	*right = d->rightMargin;
-    }	
+    }
 }
 
-/*! 
-  Sets the printer margins to the sizes specified. 
+/*!
+  Sets the printer margins to the sizes specified in \a top, \a left,
+  \a bottom and \a right.
 
   This function currently only has an effect on Unix systems.
 
   \sa margins()
 */
-void QPrinter::setMargins( uint top, uint left, uint bottom, uint right ) 
+void QPrinter::setMargins( uint top, uint left, uint bottom, uint right )
 {
     if ( !d )
 	d = new QPrinterPrivate;

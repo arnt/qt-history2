@@ -493,12 +493,6 @@ bool QFileInfo::isExecutable() const
 }
 
 #ifndef Q_WS_WIN
-/*!
-  Returns TRUE if the file is hidden; otherwise returns FALSE. On Unix/Mac
-  returns TRUE if file is not . or .. and filename starts with '.'.
-  ### terrible doc 
-*/
-
 bool QFileInfo::isHidden() const
 {
     return fileName()[ 0 ] == QChar( '.' ) && fileName() != QString( "." );

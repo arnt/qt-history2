@@ -204,7 +204,7 @@ bool qt_old_transformations = TRUE;
 
 /*!
     Sets the transformation mode that QWMatrix and painter
-    transformations use.
+    transformations use to \a m.
 
     \sa QWMatrix::TransformationMode
 */
