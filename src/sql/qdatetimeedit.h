@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -53,7 +59,7 @@
 class QPushButton;
 
 
-class Q_EXPORT QNumberSection
+class QM_EXPORT_SQL QNumberSection
 {
 public:
     QNumberSection( int selStart = 0, int selEnd = 0 )
@@ -71,7 +77,7 @@ private:
 
 class QDateTimeEditBasePrivate;
 
-class Q_EXPORT QDateTimeEditBase : public QWidget
+class QM_EXPORT_SQL QDateTimeEditBase : public QWidget
 {
     Q_OBJECT
     Q_PROPERTY( bool frame READ frame WRITE setFrame )
@@ -126,7 +132,7 @@ private:
 
 class QDateEditPrivate;
 
-class Q_EXPORT QDateEdit : public QDateTimeEditBase
+class QM_EXPORT_SQL QDateEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_ENUMS( Order )
@@ -191,7 +197,7 @@ private:
 
 class QTimeEditPrivate;
 
-class Q_EXPORT QTimeEdit : public QDateTimeEditBase
+class QM_EXPORT_SQL QTimeEdit : public QDateTimeEditBase
 {
     Q_OBJECT
     Q_PROPERTY( QTime time READ time WRITE setTime )
@@ -242,7 +248,7 @@ private:
 
 class QDateTimeEditPrivate;
 
-class Q_EXPORT QDateTimeEdit : public QFrame
+class QM_EXPORT_SQL QDateTimeEdit : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )

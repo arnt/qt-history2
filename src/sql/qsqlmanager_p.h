@@ -51,6 +51,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -67,7 +73,7 @@ class QSqlCursor;
 class QSqlForm;
 class QSqlCursorManagerPrivate;
 
-class Q_EXPORT QSqlCursorManager
+class QM_EXPORT_SQL QSqlCursorManager
 {
 public:
     QSqlCursorManager();
@@ -93,7 +99,7 @@ private:
 
 class QSqlFormManagerPrivate;
 
-class Q_EXPORT QSqlFormManager
+class QM_EXPORT_SQL QSqlFormManager
 {
 public:
     QSqlFormManager();
@@ -115,7 +121,7 @@ private:
 class QWidget;
 class QDataManagerPrivate;
 
-class Q_EXPORT QDataManager
+class QM_EXPORT_SQL QDataManager
 {
 public:
     QDataManager();

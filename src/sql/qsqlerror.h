@@ -39,13 +39,19 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
 #include "qstring.h"
 #endif // QT_H
 
-class Q_EXPORT QSqlError
+class QM_EXPORT_SQL QSqlError
 {
 public:
     enum Type {

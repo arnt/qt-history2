@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -56,7 +62,7 @@ template class Q_EXPORT QValueList<bool>;
 
 class QSqlCursor;
 
-class Q_EXPORT QSqlIndex : public QSqlRecord
+class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
 {
 public:
     QSqlIndex( const QString& cursorName = QString::null, const QString& name = QString::null );

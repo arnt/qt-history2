@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -48,7 +54,7 @@
 
 class QSqlFieldPrivate;
 
-class Q_EXPORT QSqlField
+class QM_EXPORT_SQL QSqlField
 {
 public:
     QSqlField( const QString& fieldName = QString::null, QVariant::Type type = QVariant::Invalid );

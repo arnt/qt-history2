@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -53,7 +59,7 @@ class QSqlPropertyMap;
 class QWidget;
 class QSqlFormPrivate;
 
-class Q_EXPORT QSqlForm : public QObject
+class QM_EXPORT_SQL QSqlForm : public QObject
 {
     Q_OBJECT
 public:

@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -55,7 +61,7 @@
 
 class QSqlDriver;
 
-struct Q_EXPORT QSqlDriverFactoryInterface : public QFeatureListInterface
+struct QM_EXPORT_SQL QSqlDriverFactoryInterface : public QFeatureListInterface
 {
     virtual QSqlDriver* create( const QString& name ) = 0;
 };

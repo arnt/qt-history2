@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -54,7 +60,7 @@ class QSqlIndex;
 class QSqlRecord;
 class QSqlDatabasePrivate;
 
-class Q_EXPORT QSqlDatabase : public QObject
+class QM_EXPORT_SQL QSqlDatabase : public QObject
 {
     Q_OBJECT
     Q_PROPERTY( QString databaseName  READ databaseName WRITE setDatabaseName )

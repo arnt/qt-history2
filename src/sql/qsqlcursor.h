@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -51,7 +57,7 @@
 class QSqlDatabase;
 class QSqlCursorPrivate;
 
-class Q_EXPORT QSqlCursor : public QSqlRecord, public QSqlQuery
+class QM_EXPORT_SQL QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
     QSqlCursor( const QString & name = QString::null, bool autopopulate = TRUE, QSqlDatabase* db = 0 );

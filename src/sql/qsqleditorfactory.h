@@ -39,6 +39,12 @@
 
 #include "qfeatures.h"
 
+#if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
+#define QM_EXPORT_SQL
+#else
+#define QM_EXPORT_SQL Q_EXPORT
+#endif
+
 #ifndef QT_NO_SQL
 
 #ifndef QT_H
@@ -47,7 +53,7 @@
 
 class QSqlField;
 
-class Q_EXPORT QSqlEditorFactory : public QEditorFactory
+class QM_EXPORT_SQL QSqlEditorFactory : public QEditorFactory
 {
 public:
     QSqlEditorFactory ( QObject * parent = 0, const char * name = 0 );
