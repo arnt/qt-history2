@@ -168,7 +168,7 @@ public:
     };
     typedef uint PFlags;
 
-    virtual void drawPrimitive( PrimitiveElement op,
+    virtual void drawPrimitive( PrimitiveElement pe,
 				QPainter *p,
 				const QRect &r,
 				const QColorGroup &cg,
@@ -348,7 +348,7 @@ public:
 	PM_SliderThickness,	       	// total slider thickness
 	PM_SliderControlThickness,    	// thickness of the business part
 	PM_SliderLength,		// total length of slider
-	PM_SliderTickmarkOffset,	// 
+	PM_SliderTickmarkOffset,	//
 	PM_SliderSpaceAvailable,	// available space for slider to move
 
 	PM_DockWindowSeparatorExtent,

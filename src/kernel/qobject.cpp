@@ -58,7 +58,7 @@ class QObjectPrivate
 {
 };
 
-// NOT REVISED
+
 /*! \class Qt qnamespace.h
 
   \brief The Qt class is a namespace for miscellaneous identifiers
@@ -68,7 +68,7 @@ class QObjectPrivate
 
   Normally, you can ignore this class.  QObject and a few other
   classes inherit it, so all the identifiers in the Qt namespace
-  are visible to you without qualification.
+  are usable without qualification.
 
   However, you may occasionally need to say \c Qt::black instead of just
   \c black, particularly in static utility functions (such as many
@@ -78,8 +78,12 @@ class QObjectPrivate
 
 /*! \enum Qt::Orientation
 
-  This type is used to signify whether an object should be \c
-  Horizontal or \c Vertical (for example in QScrollBar).
+  This type is used to signify an object's orientation.
+
+  \value Horizontal
+  \value Vertical
+
+    Orientation is used with QScrollBar for example.
 */
 
 
@@ -91,21 +95,21 @@ class QObjectPrivate
 
   QObject is the heart of the \link object.html Qt object model.
   \endlink The central feature in this model is a very powerful
-  mechanism for seamless object communication dubbed \link
-  signalsandslots.html signals and slots \endlink. With connect(), you
-  can connect a signal to a slot and destroy the connection with
-  disconnect(). To avoid neverending notification loops you can
+  mechanism for seamless object communication called \link
+  signalsandslots.html signals and slots \endlink. You can can connect
+  a signal to a slot with connect() and destroy the connection with
+  disconnect(). To avoid never ending notification loops you can
   temporarily block signals with blockSignals(). The protected
   functions connectNotify() and disconnectNotify() make it possible to
   track connections.
 
-  QObjects organize themselves in object trees. When you create a QObject
-  with another object as parent, it will automatically do an insertChild()
-  on the parent and thus show up in the parent's children() list. The
-  parent receives object ownership, i.e., it will automatically delete its
-  children in its destructor. You can look for an object by name and
-  optionally type using child() or queryList(), and get the list of tree
-  roots using objectTrees().
+  QObjects organize themselves in object trees. When you create a
+  QObject with another object as parent, the object will automatically
+  do an insertChild() on the parent and thus show up in the parent's
+  children() list. The parent takes ownership of the object i.e. it
+  will automatically delete its children in its destructor. You can
+  look for an object by name and optionally type using child() or
+  queryList(), and get the list of tree roots using objectTrees().
 
   Every object has an object name() and can report its className() and
   whether it inherits() another class in the QObject inheritance
@@ -115,7 +119,7 @@ class QObjectPrivate
   catch this signal to avoid dangling references to QObjects. The
   QGuardedPtr class provides an elegant way to use this feature.
 
-  QObjects can receive events through event() and filter events of
+  QObjects can receive events through event() and filter the events of
   other objects. See installEventFilter() and eventFilter() for
   details. A convenience handler childEvent() can be reimplemented to
   catch child events.
@@ -126,9 +130,10 @@ class QObjectPrivate
   Notice that the \c Q_OBJECT macro is mandatory for any object that
   implements signals, slots or properties.  You also need to run the \link
   moc.html moc program (Meta Object Compiler) \endlink on the source file.
-  We strongly recommend to use the macro in \e all subclasses of QObject
-  regardless whether or not they actually use signals, slots and
-  properties. Otherwise certain functions can show undefined behaviour.
+  We strongly recommend the use of this macro in \e all subclasses of QObject
+  regardless of whether or not they actually use signals, slots and
+  properties, since failure to do so may lead certain functions to
+  exhibit undefined behaviour.
 
   All Qt widgets inherit QObject. The convenience function
   isWidgetType() returns whether an object is actually a widget.  It
@@ -307,18 +312,18 @@ static void remove_tree( QObject* obj )
 
   The parent of an object may be viewed as the object's owner. For
   instance, a \link QDialog dialog box\endlink is the parent of the
-  "ok" and "cancel" buttons inside it.
+  "OK" and "Cancel" buttons it contains.
 
   The destructor of a parent object destroys all child objects.
 
   Setting \a parent to 0 constructs an object with no parent.
   If the object is a widget, it will become a top-level window.
 
-  The object name is a text that can be used to identify this QObject.
+  The object name is some text that can be used to identify a QObject.
   It's particularly useful in conjunction with
-    <a href=designer.html>the Qt Designer</a>.
-  You can find an object by name (and type) using child(), and more
-  than one using queryList().
+    \link designer.html \e{Qt Designer}\endlink.
+  You can find an object by name (and type) using child(). To find
+  several objects use queryList().
 
   \sa parent(), name(), child(), queryList()
 */
@@ -438,7 +443,7 @@ QObject::~QObject()
   Returns a pointer to the meta object of this object.
 
   A meta object contains information about a class that inherits
-  QObject: class name, super class name, properties, signals and
+  QObject, e.g. class name, superclass name, properties, signals and
   slots. Every class that contains the \c Q_OBJECT macro will also
   have a meta object.
 
@@ -461,14 +466,14 @@ QObject::~QObject()
 */
 
 /*!
-  Returns TRUE if this object is an instance of the class \a clname,
-  otherwise FALSE.
+  Returns TRUE if this object is an instance of the class \a clname;
+  otherwise returns FALSE.
 
   Example:
   \code
-    QTimer *t = new QTimer;		// QTimer inherits QObject
-    t->isA( "QTimer" );			// returns TRUE
-    t->isA( "QObject" );		// returns FALSE
+    QTimer *t = new QTimer; // QTimer inherits QObject
+    t->isA( "QTimer" );     // returns TRUE
+    t->isA( "QObject" );    // returns FALSE
   \endcode
 
   \sa inherits() metaObject()
@@ -481,21 +486,21 @@ bool QObject::isA( const char *clname ) const
 
 /*!
   Returns TRUE if this object is an instance of a class that inherits
-  \e clname, and \a clname inherits QObject.
+  \a clname, and \a clname inherits QObject; otherwise returns FALSE.
 
   A class is considered to inherit itself.
 
   Example:
   \code
-    QTimer *t = new QTimer;		// QTimer inherits QObject
-    t->inherits( "QTimer" );		// returns TRUE
-    t->inherits( "QObject" );		// returns TRUE
-    t->inherits( "QButton" );		// returns FALSE
+    QTimer *t = new QTimer;         // QTimer inherits QObject
+    t->inherits( "QTimer" );        // returns TRUE
+    t->inherits( "QObject" );       // returns TRUE
+    t->inherits( "QButton" );       // returns FALSE
 
     // QScrollBar inherits QWidget and QRangeControl
     QScrollBar *s = new QScrollBar( 0 );
-    s->inherits( "QWidget" );		// returns TRUE
-    s->inherits( "QRangeControl" );	// returns FALSE
+    s->inherits( "QWidget" );       // returns TRUE
+    s->inherits( "QRangeControl" ); // returns FALSE
   \endcode
 
   (\l QRangeControl is not a QObject.)
@@ -513,22 +518,22 @@ bool QObject::inherits( const char *clname ) const
 
   \brief the name of this object
 
-  You can find an object by name (and type) using child(), and more
-  than one using queryList().
+  You can find an object by name (and type) using child(). You can
+  find a set of objects with queryList().
 
   The object name is set by the constructor or by the setName()
   function. The object name is not very useful in the current version
   of Qt, but will become increasingly important in the future.
 
-  If the object does not have a name, the getter function name() returns
+  If the object does not have a name, the name() function returns
   "unnamed", so printf() (used in qDebug()) will not be asked to output a null
   pointer. If you want a null pointer to be returned for unnamed objects, you
   can call name( 0 ).
 
-  \code
-    qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
-	    name(), newPrecision );
-  \endcode
+\code
+qDebug( "MyClass::setPrecision(): (%s) unable to set precision to %f",
+	name(), newPrecision );
+\endcode
 
   \sa className(), child(), queryList()
 */
@@ -562,16 +567,16 @@ const char * QObject::name( const char * defaultName ) const
 
 
 /*!  Searches the children and optionally grandchildren of this object,
-  and returns a child that is named \a objName that inherits \a
+  and returns a child that is called \a objName that inherits \a
   inheritsClass. If \a inheritsClass is 0 (the default), any class
   matches.
 
-  If \a recursiveSearch is TRUE (the default), child() searches
-  \e {n}th-generation as well as first-generation children.
+  If \a recursiveSearch is TRUE (the default), child() performs a
+  depth-first search of the object's children.
 
   If there is no such object, this function returns 0. If there are
-  more than one, the first one in depth-first is retured; if you need
-  all of them, use queryList() instead.
+  more than one, the first one found is retured; if you need
+  all of them, use queryList().
 */
 QObject* QObject::child( const char *objName, const char *inheritsClass,
 			 bool recursiveSearch )
@@ -598,7 +603,7 @@ QObject* QObject::child( const char *objName, const char *inheritsClass,
 
 /*!
   \fn bool QObject::isWidgetType() const
-  Returns TRUE if the object is a widget, or FALSE if not.
+  Returns TRUE if the object is a widget; otherwise returns FALSE.
 
   Calling this function is equivalent to calling inherits("QWidget"),
   except that it is much faster.
@@ -674,12 +679,14 @@ void QObject::timerEvent( QTimerEvent * )
   Child events are sent to objects when children are inserted or removed.
 
   Note that events with QEvent::type() \c QEvent::ChildInserted are
-  posted (with QApplication::postEvent()) to make sure that the
+  posted (with \l{QApplication::postEvent()}) to make sure that the
   child's construction is completed before this function is called.
 
   If you change state based on \c ChildInserted events, call
   QWidget::constPolish(), or do
-  <code>QApplication::sendPostedEvents( this, QEvent::ChildInserted );</code>
+\code
+QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+\endcode
   in functions that depend on the state. One notable example is
   QWidget::sizeHint().
 
@@ -693,7 +700,7 @@ void QObject::childEvent( QChildEvent * )
 /*!
   This event handler can be reimplemented in a subclass to receive
   custom events. Custom events are user-defined events with a type
-  value at least as large as the "User" item of the QEvent::Type enum,
+  value at least as large as the "User" item of the \l QEvent::Type enum,
   and is typically a QCustomEvent or QCustomEvent subclass.
 
   \sa event(), QCustomEvent
@@ -1811,7 +1818,7 @@ bool QObject::disconnect( const QObject *sender,   const char *signal,
 */
 
 /*!  Delete this object deferred.
-  
+
   This function does not cause an immediate destruction - rather, it
   schedules a deferred delete event for processing when Qt returns to
   the main event loop.

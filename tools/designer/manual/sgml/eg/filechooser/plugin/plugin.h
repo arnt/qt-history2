@@ -9,7 +9,7 @@ public:
 
     // From QUnknownInterface
     QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
-    Q_REFCOUNT;
+    Q_REFCOUNT
 
     // From QFeatureListInterface
     QStringList featureList() const;

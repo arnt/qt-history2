@@ -109,7 +109,7 @@ QString qwf_currFileName = "";
   \class QWidgetFactory
 
   \brief The QWidgetFactory class provides for the creation of dynamically
-  create widgets from Qt Designer user interface description files
+  create widgets from Qt Designer user interface description files.
 
   This class basically offers two things:
 
@@ -144,6 +144,10 @@ QWidgetFactory::QWidgetFactory()
     defSpacing = 6;
     defMargin = 11;
 }
+
+/*! \fn QWidgetFactory::QWidgetFactory()
+    Destructor.
+*/
 
 /*! Loads the Qt Designer user interface description file \a uiFile
   and returns the toplevel widget of that description. \a parent and
@@ -1581,11 +1585,11 @@ QAction *QWidgetFactory::findAction( const QString &name )
     return 0;
 }
 
-/* If the pixmaps of the form are not saved in the XML file, but you
+/*! If the pixmaps of the form are not saved in the XML file, but you
    used a project with a pixmap collection, you have to load this
    pixmap collection. QWidgetFactory looks in the default
    QMimeSourceFactory for the pixmaps. Either you add it there
-   manually, or call this function and specify the directory, where
+   manually, or call this function and specify the directory where
    the images can be found, as \a dir. This is normally the directory
    \c images in the project directory.
 */

@@ -726,7 +726,7 @@ public:
    <emphasis> // From <emphasis role="bold">QUnknownInterface</>
 </>
     <emphasis role="bold">QRESULT</> queryInterface( const <emphasis role="bold">QUuid</>&amp;, <emphasis role="bold">QUnknownInterface</> **iface );
-    Q_REFCOUNT;
+    Q_REFCOUNT
 
    <emphasis> // From <emphasis role="bold">QFeatureListInterface</>
 </>

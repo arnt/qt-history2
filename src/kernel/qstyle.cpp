@@ -95,15 +95,27 @@ public:
   widget.  Use visualRect() when necessary to translate logical
   coordinates into screen coordinates for drawing.
 
+  In Qt versions prior to 3.0 if you wanted a low level route into
+  changng the appearance of a widget you would reimplement polish().
+  With the new 3.0 style engine the recommended approach is to
+  reimplement the draw functions, for example drawItem(),
+  drawPrimitive(), drawControl(), drawControlMask(),
+  drawComplexControl() and drawComplexControlMask(). Each of these
+  functions is called with a range of parameters that provide
+  information that you can use to determine how to draw them, e.g.
+  style flags, rectangle, color group, etc.
+
+    For information on changing elements of an existing style or
+    creating your own style see the \link customstyles.html Style
+    overview\endlink.
 */
-//  ### How about telling people how to use it!
 
 /*!
   \enum Qt::GUIStyle
 
   \obsolete
 
-  This enum only exists to keep existing source working.
+  This enum only exists to keep existing source code working.
 
   \value WindowsStyle
   \value MotifStyle
@@ -164,7 +176,11 @@ QStyle::~QStyle()
 
   Reasonable actions in this function might be to call
   QWidget::setBackgroundMode for the widget. An example of highly
-  unreasonable use would be setting the geometry!
+  unreasonable use would be setting the geometry! Reimplementing this
+  function gives you a backdoor through which you can change the
+  appearance of a widget. With Qt 3.0's style engine you will rarely
+  need to write your own polish(); instead reimplement drawItem(),
+  drawPrimitive(), etc.
 
   The QWidget::inherits() function may provide enough information to
   allow class-specific customizations.  But be careful not to hard-code
@@ -238,7 +254,8 @@ void QStyle::polishPopupMenu( QPopupMenu *)
   which to draw the \a text or \a pixmap using painter \a p. If \a len
   is -1 (the default) all the \a text is drawn; otherwise only the
   first \a len characters of \a text are drawn. The text is aligned
-  according to the alignment \a flags (see \l{Qt::AlignmentFlags}).
+  in accordance with the alignment \a flags (see \l{Qt::AlignmentFlags}).
+    The \a enabled bool indicates whether or not the item is enabled.
 
     If \a r is larger than the area needed to render the \a
     text the rectangle that is returned will be offset within \a r in
@@ -248,6 +265,9 @@ void QStyle::polishPopupMenu( QPopupMenu *)
     rectangle that is returned will be \e larger than \a r (the
     smallest rectangle large enough to render the \a text or \a
     pixmap).
+
+    By default, if both the text and the pixmap are not null, the
+    the text is ignored.
 */
 QRect QStyle::itemRect( QPainter *p, const QRect &r,
 			int flags, bool enabled, const QPixmap *pixmap,
@@ -263,11 +283,13 @@ QRect QStyle::itemRect( QPainter *p, const QRect &r,
   and color group \a g. The pen color is specified with \a penColor.
   The \a enabled bool indicates whether or not the item is enabled;
   when reimplementing this bool should influence how the item is
-  drawn.
-    If \a len is -1 (the default) all the \a text is drawn; otherwise
-    only the first \a len characters of \a text are drawn. The text is
-    aligned according to the alignment \a flags (see
-    \l{Qt::AlignmentFlags}).
+  drawn. If \a len is -1 (the default) all the \a text is drawn;
+  otherwise only the first \a len characters of \a text are drawn. The
+  text is aligned and wrapped according to the alignment \a flags (see
+  \l{Qt::AlignmentFlags}).
+
+    By default, if both the text and the pixmap are not null, the
+    pixmap is drawn and the text is ignored.
 */
 void QStyle::drawItem( QPainter *p, const QRect &r,
 		       int flags, const QColorGroup &g, bool enabled,
@@ -281,18 +303,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::PrimitiveElement
 
-  This enum represents a style PrimitiveElement.  A PrimitiveElement is
-  a common GUI element, such as a checkbox indicator or pushbutton bevel.
+  This enum represents the PrimitiveElements of a style.  A
+  PrimitiveElement is a common GUI element, such as a checkbox
+  indicator or pushbutton bevel.
 
-  \value PE_ButtonCommand  button that performs an action/command, for example: a
-  push button.
-  \value PE_ButtonBevel  general purpose button bevel.
-  \value PE_ButtonTool  tool button, for example: a button in a toolbar.
-  \value PE_ButtonDropDown  drop down button, for example: a tool button that displays
-  a popup menu.
+  \value PE_ButtonCommand  button used to initiate an action, for
+  example, a QPushButton.
+  \value PE_ButtonBevel  generic button bevel.
+  \value PE_ButtonTool  tool button, for example, a QToolButton.
+  \value PE_ButtonDropDown  drop down button, for example, a tool
+  button that displays a popup menu, for example, QPopupMenu.
 
 
-  \value PE_FocusRect  general purpose focus indicator.
+  \value PE_FocusRect  generic focus indicator.
 
 
   \value PE_ArrowUp  up arrow.
@@ -301,67 +324,68 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value PE_ArrowLeft  left arrow.
 
 
-  \value PE_SpinWidgetUp  up symbol for a spin widget.
+  \value PE_SpinWidgetUp  up symbol for a spin widget, for example a
+  QSpinBox.
   \value PE_SpinWidgetDown down symbol for a spin widget.
   \value PE_SpinWidgetPlus  increase symbol for a spin widget.
   \value PE_SpinWidgetMinus  decrease symbol for a spin widget.
 
-  For more explanation of a spin widget, see the QSpinBox documentation.
 
-
-  \value PE_Indicator  on/off indicator, for example: a check box.
+  \value PE_Indicator  on/off indicator, for example, a QCheckBox.
   \value PE_IndicatorMask  bitmap mask for an indicator.
-  \value PE_ExclusiveIndicator  exclusive on/off indicator, for example: a radio button.
+  \value PE_ExclusiveIndicator  exclusive on/off indicator, for example, a QRadioButton.
   \value PE_ExclusiveIndicatorMask  bitmap mask for an exclusive indicator.
 
 
-  \value PE_DockWindowHandle  tear off handle for dock windows and toolbars.
+  \value PE_DockWindowHandle  tear off handle for dock windows and toolbars, for example \l{QDockWindow}s and \l{QToolBar}s.
   \value PE_DockWindowSeparator  item separator for dock window and toolbar contents.
   \value PE_DockWindowResizeHandle  resize handle for dock windows.
 
+  \value PE_Splitter  splitter handle; see also QSplitter.
 
-  \value PE_Splitter  splitter handle.
 
-
-  \value PE_Panel  general purpose panel frame.
-  \value PE_PanelPopup  panel frame for popup windows/menus.
+  \value PE_Panel  generic panel frame; see also QFrame.
+  \value PE_PanelPopup  panel frame for popup windows/menus; see also
+  QPopupMenu.
   \value PE_PanelMenuBar  panel frame for menu bars.
   \value PE_PanelDockWindow  panel frame for dock windows and toolbars.
 
-  For more information on dock windows, see the QDockWindow documentation.
+  \value PE_TabBarBase  area below tabs in a tab widget, for example,
+  QTab.
 
 
-  \value PE_TabBarBase  area below tabs in a tab widget.
-
-
-  \value PO_HeaderSection  section of a list/table header.
-  \value PO_HeaderArrow arrow used to indicate sorting on a list/table
+  \value PE_HeaderSection  section of a list or table header; see also
+  QHeader.
+  \value PE_HeaderArrow arrow used to indicate sorting on a list or table
   header
-  \value PO_StatusBarSection  section of a status bar.
+  \value PE_StatusBarSection  section of a status bar; see also
+  QStatusBar.
 
 
-  \value PE_GroupBoxFrame  frame around a group box.
+  \value PE_GroupBoxFrame  frame around a group box; see also
+  QGroupBox.
 
 
-  \value PE_Separator  general purpose separator.
+  \value PE_Separator  generic separator.
 
 
-  \value PE_SizeGrip  window resize handle.
+  \value PE_SizeGrip  window resize handle; see also QSizeGrip.
 
 
-  \value PE_CheckMark  general purpose check mark.
+  \value PE_CheckMark  generic check mark; see also QCheckBox.
 
 
-  \value PE_ScrollBarAddLine  scrollbar line increase indicator (ie. scroll down).
-  \value PE_ScrollBarSubLine  scrollbar line decrease indicator (ie. scroll up).
-  \value PE_ScrollBarAddPage  scolllbar page increase indicator (ie. page down).
-  \value PE_ScrollBarSubPage  scrollbar page decrease indicator (ie. page up).
+  \value PE_ScrollBarAddLine  scrollbar line increase indicator (i.e. scroll down); see also QScrollBar.
+  \value PE_ScrollBarSubLine  scrollbar line decrease indicator (i.e. scroll up).
+  \value PE_ScrollBarAddPage  scolllbar page increase indicator (i.e. page down).
+  \value PE_ScrollBarSubPage  scrollbar page decrease indicator (i.e. page up).
   \value PE_ScrollBarSlider  scrollbar slider
-  \value PE_ScrollBarFirst  scrollbar first line indicator (ie. home).
-  \value PE_ScrollBarLast  scrollbar last line indicator (ie. end).
+  \value PE_ScrollBarFirst  scrollbar first line indicator (i.e. home).
+  \value PE_ScrollBarLast  scrollbar last line indicator (i.e. end).
 
 
-  \value PO_ProgressBarChunk  section of a progress bar indicator.
+  \value PE_ProgressBarChunk  section of a progress bar indicator; see
+  also QProgressBar.
 
   \sa drawPrimitive()
 */
@@ -369,10 +393,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::PrimitiveElementFlags
 
-  This enum represents flags for drawing PrimitiveElements.  Not all primitives
-  use all of these flags.  Note that these flags can have different meaning for
-  different primitives.  For an explanation of the relationship of various primitives
-  and flags, as well as the different meanings of the flags, see the Style overview.
+  This enum represents flags for drawing PrimitiveElements.  Not all
+  primitives use all of these flags.  Note that these flags may mean
+  different things to different primitives. For an explanation of the
+  relationship between primitives and their flags, as well as the
+  different meanings of the flags, see the \link customstyles.html Style overview\endlink.
 
   \value PStyle_Default
   \value PStyle_Enabled
@@ -396,9 +421,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawPrimitive ( PrimitiveElement op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
+  \fn void QStyle::drawPrimitive( PrimitiveElement pe, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
 
-  Draws the style PrimitiveElement \a op using the painter \a p in the
+  Draws the style PrimitiveElement \a pe using the painter \a p in the
   area \a r.  Colors are used from the color group \a cg.
 
   The rect \a r should be in screen coordinates.
@@ -406,12 +431,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   The \a flags argument is used to control how the PrimitiveElement is drawn.
   Multiple flags can be OR'ed together.
 
-  For example, a pressed button would be drawn with the flags \e PStyle_Enabled and
-  \e PStyle_Down.
+  For example, a pressed button would be drawn with the flags \c
+  PStyle_Enabled and \c PStyle_Down.
 
-  The \a data argument can be used to control how various PrimitiveElements are drawn.
-  Note that \a data can be zero even for PrimitiveElementss that make use of extra
-  data. When data is non-zero, the data is used as follows:
+  The \a data argument can be used to control how various
+  PrimitiveElements are drawn. Note that \a data may be zero even for
+  PrimitiveElements that make use of extra data. When data is
+  non-zero, the data is used as follows:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -422,11 +448,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <th>Notes</th>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top><b>PE_FocusRect</td>
+      <td valign=top><b>PE_FocusRect</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>const QColor *</td>
-      <td valign=top>pointer to the background color the on which focus rect is
-          being drawn.</td>
+      <td valign=top>pointer to the background color on which the focus rect is being drawn.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>PE_Panel</b></td>
@@ -453,26 +478,22 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top>line width for drawing the panel.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top><b>PE_GroupBoxFrame</b></td>
+      <td valign=top rowspan=4><b>PE_GroupBoxFrame</b></td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>frame shape for the group box.  See the documentation for QFrame
-          for more details.</td>
+      <td valign=top>frame shape for the group box.  See QFrame.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top></td>
       <td valign=top>data[1]</td>
       <td valign=top>int *</td>
       <td valign=top>frame shadow for the group box.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top></td>
       <td valign=top>data[2]</td>
       <td valign=top>int *</td>
       <td valign=top>line width for the group box.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top></td>
       <td valign=top>data[3]</td>
       <td valign=top>int *</td>
       <td valign=top>mid-line width for the group box.</td>
@@ -480,32 +501,33 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   </table>
   </center>
 
-  For all other PrimitiveElements, \a data is unused.
+  For all other \link QStyle::PrimitiveElement
+  PrimitiveElements\endlink, \a data is unused.
 
-  \sa PrimitiveElement, PrimitiveElementFlags
+  \sa PrimitiveElementFlags
 */
 
 /*!
   \enum QStyle::ControlElement
 
-  This enum represents a ControlElement.  A ControlElement is part of a widget that
-  does some action or display information to the user.
+  This enum represents a ControlElement.  A ControlElement is part of
+  a widget that performs some action or display information to the user.
 
 
   \value CE_PushButton  the bevel and default indicator of a QPushButton.
-  \value CE_PushButtonLabel  the label ( iconset with text or pixmap ) of a QPushButton.
+  \value CE_PushButtonLabel  the label (iconset with text or pixmap) of a QPushButton.
 
 
   \value CE_CheckBox  the indicator of a QCheckBox.
-  \value CE_CheckBoxLabel  the label ( text or pixmap ) of a QCheckBox.
+  \value CE_CheckBoxLabel  the label (text or pixmap) of a QCheckBox.
 
 
   \value CE_RadioButton  the indicator of a QRadioButton.
-  \value CE_RadioButtonLabel  the label ( text or pixmap ) of a QRadioButton.
+  \value CE_RadioButtonLabel  the label (text or pixmap) of a QRadioButton.
 
 
-  \value CE_TabBarTab  the tab within a QTabBar ( a QTab ).
-  \value CE_TabBarLabel  the label with in a QTab.
+  \value CE_TabBarTab  the tab within a QTabBar (a QTab).
+  \value CE_TabBarLabel  the label within a QTab.
 
 
   \value CE_ProgressBarGroove  the groove where the progress indicator is drawn in
@@ -514,10 +536,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CE_ProgressBarLabel  the text label of a QProgressBar.
 
 
-  \value CE_PopupMenuItem  a menu item of a QPopupMenu.
+  \value CE_PopupMenuItem  a menu item in a QPopupMenu.
 
 
-  \value CE_MenuBarItem  a menu item of a QMenuBar.
+  \value CE_MenuBarItem  a menu item in a QMenuBar.
 
   \sa drawControl()
 */
@@ -525,10 +547,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::ControlElementFlags
 
-  This enum represents flags for drawing ControlElements.  Not all controls use all
-  of these flags.  Note that these flags can have different meaning for different
-  controls.  For an explanation of the relationship of various controls and flags,
-  as well as the different meanings of the flags, see the Style overview.
+  This enum represents flags for drawing ControlElements.  Not all
+  controls use all of these flags. Note that these flags may mean
+  different things to different controls. For an explanation of the
+  relationship between control elements and their flags, as well as the
+  different meanings of the flags, see the \link customstyles.html Style overview\endlink.
 
   \value CStyle_Default
   \value CStyle_Selected
@@ -539,20 +562,21 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags how = CStyle_Default, void **data = 0 ) const;
 
-  Draws the ControlElement \a element using the painter \a p in the area \a r.  Colors
-  are used from the color group \a cg.
+  Draws the ControlElement \a element using the painter \a p in the
+  area \a r.  Colors are used from the color group \a cg.
 
   The rect \a r should be in screen coordinates.
 
-  The \a how argument is used to control how the ControlElement is drawn.  Multiple
-  flags can be OR'ed together.
+  The \a how argument is used to control how the ControlElement is
+  drawn.  Multiple flags can be OR'ed together.
 
-  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
-  widget can be cast to the appropriate type based on the value of \a element. The
-  \a data argument can be used to pass extra information required when drawing the
-  ControlElement.  Note that \a data can be zero even for ControlElements that make
-  use of the extra data.  See the table below for the appropriate \a widget and
-  \a data casts:
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a element. The \a data argument can be used to pass
+  extra information required when drawing the ControlElement.  Note
+  that \a data may be zero even for ControlElements that can make use
+  of the extra data.  See the table below for the appropriate \a
+  widget and \a data casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -567,50 +591,50 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top><b>CE_PushButton</b></td>
       <td valign=top>const QPushButton *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_PushButtonLabel</b></td>
       <td valign=top>const QPushButton *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CE_CheckBox</b></td>
       <td valign=top>const QCheckBox *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_CheckboxLabel</b></td>
       <td valign=top>const QCheckBox *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CE_RadioButton</b></td>
       <td valign=top>const QRadioButton *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_RadioButtonLabel</b></td>
       <td valign=top>const QRadioButton *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CE_TabBarTab</b></td>
       <td valign=top>const QTabBar *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_TabBarLabel</b></td>
@@ -623,40 +647,37 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top><b>CE_ProgressBarGroove</b></td>
       <td valign=top>const QProgressBar *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CE_ProgressBarContents</b></td>
       <td valign=top>const QProgressBar *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CE_ProgressBarLabel</b></td>
       <td valign=top>const QProgressBar *</b></td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top><b>CE_PopupMenuItem</b></td>
-      <td valign=top>const QPopupMenu *</td>
+      <td valign=top rowspan=3><b>CE_PopupMenuItem</b></td>
+      <td valign=top rowspan=3>const QPopupMenu *</td>
       <td valign=top>data[0]</td>
       <td valign=top>QMenuItem *</td>
-      <td valign=top>pointer to the menu item being drawn.</td>
+      <td valign=top>pointer to the menu item being drawn.
+      QMenuItem is currently an internal class.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top></td>
-      <td valign=top></td>
       <td valign=top>data[1]</td>
       <td valign=top>int *</td>
       <td valign=top>width of the tab column where key accelerators are drawn.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
-      <td valign=top></td>
-      <td valign=top></td>
       <td valign=top>data[2]</td>
       <td valign=top>int *</td>
       <td valign=top>maximum width of the check column where checkmarks and iconsets
@@ -678,9 +699,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
 
-  Draw a bitmask for the ControlElement \a element using the painter \a p in the
-  area \r.  See the documentation for drawControl() for an explanation on use
-  of the \a widget and \a data arguments.
+  Draw a bitmask for the ControlElement \a element using the painter
+  \a p in the area \r.  See drawControl() for an
+  explanation of the use of the \a widget and \a data arguments.
 
   The rect \a r should be in screen coordinates.
 
@@ -690,26 +711,31 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::SubRect
 
-  This enum represents a sub-area of a widget.  Style implementations would use these
-  areas to draw the different parts of a widget.
+  This enum represents a sub-area of a widget.  Style implementations
+  would use these areas to draw the different parts of a widget.
 
   \value SR_PushButtonContents  area containing the label (iconset with text or pixmap).
   \value SR_PushButtonFocusRect  area for the focus rect (usually larger than the
          contents rect).
 
-  \value SR_CheckBoxIndicator  area for the state indicator (eg. check mark).
+  \value SR_CheckBoxIndicator  area for the state indicator (e.g. check mark).
   \value SR_CheckBoxContents  area for the label (text or pixmap).
   \value SR_CheckBoxFocusRect  area for the focus indicator.
+
 
   \value SR_RadioButtonIndicator  area for the state indicator.
   \value SR_RadioButtonContents  area for the label.
   \value SR_RadioButtonFocusRect  area for the focus indicator.
 
+
   \value SR_ComboBoxFocusRect  area for the focus indicator.
+
 
   \value SR_SliderFocusRect  area for the focus indicator.
 
+
   \value SR_DockWindowHandleRect  area for the tear-off handle.
+
 
   \value SR_ProgressBarGroove  area for the groove.
   \value SR_ProgressBarContents  area for the progress indicator.
@@ -721,11 +747,13 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QRect QStyle::subRect( SubRect subrect, const QWidget *widget ) const;
 
-  Returns the sub-area \a subrect for \a widget in logical coordinates.
+  Returns the sub-area \a subrect for the \a widget in logical
+  coordinates.
 
-  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
-  widget can be cast to the appropriate type based on the value of \a subrect.  See
-  the table below for the appropriate \a widget casts:
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a subrect.  See the table below for the appropriate \a
+  widget casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -788,9 +816,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   </table>
   </center>
 
-  NOTE: The tear-off handle (SR_DockWindowHandleRect) for QDockWindow is a private
-  class.  You can gain access to the QDockWindow by using the QWidget::parentWidget()
-  function.  For example:
+  \e Note: the tear-off handle (SR_DockWindowHandleRect) for QDockWindow
+  is a private class.  You can gain access to the QDockWindow by using
+  the QWidget::parentWidget() function.  For example:
 
   \code
   if (! widget->parentWidget())
@@ -804,9 +832,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::ComplexControl
 
-  This enum represents a ComplexControl.  A ComplexControl is different from a
-  ControlElement.  ComplexControls have different behavior depending upon where
-  the user clicks or which keys are pressed.
+  This enum represents a ComplexControl. ComplexControls have
+  different behaviour depending upon where the user clicks on them or
+  which keys are pressed.
 
   \value CC_SpinWidget
   \value CC_ComboBox
@@ -827,25 +855,25 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SC_None   special value that matches no other SubControl.
 
 
-  \value SC_ScrollBarAddLine  scrollbar add line (ie. down/right arrow).
-  \value SC_ScrollBarSubLine  scrollbar sub line (ie. up/left arrow).
-  \value SC_ScrollBarAddPage  scrollbar add page (ie. page down).
-  \value SC_ScrollBarSubPage  scrollbar sub page (ie. page up).
-  \value SC_ScrollBarFirst  scrollbar first line (ie. home).
-  \value SC_ScrollBarLast  scrollbar last line (ie. end).
+  \value SC_ScrollBarAddLine  scrollbar add line (i.e. down/right arrow); see also QScrollbar.
+  \value SC_ScrollBarSubLine  scrollbar sub line (i.e. up/left arrow).
+  \value SC_ScrollBarAddPage  scrollbar add page (i.e. page down).
+  \value SC_ScrollBarSubPage  scrollbar sub page (i.e. page up).
+  \value SC_ScrollBarFirst  scrollbar first line (i.e. home).
+  \value SC_ScrollBarLast  scrollbar last line (i.e. end).
   \value SC_ScrollBarSlider  scrollbar slider handle.
   \value SC_ScrollBarGroove  special subcontrol which contains the area in which the
          slider handle may move.
 
 
-  \value SC_SpinWidgetUp  spinwidget up/increase.
+  \value SC_SpinWidgetUp  spinwidget up/increase; see also QSpinBox.
   \value SC_SpinWidgetDown  spinwidget down/decrease.
   \value SC_SpinWidgetFrame  spinwidget frame.
   \value SC_SpinWidgetEditField  spinwidget edit field.
   \value SC_SpinWidgetButtonField  spinwidget button field.
 
 
-  \value SC_ComboBoxEditField  combobox edit field.
+  \value SC_ComboBoxEditField  combobox edit field; see also QComboBox.
   \value SC_ComboBoxArrow  combobox arrow
 
 
@@ -855,11 +883,11 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SC_SliderTickmarks  slider tickmarks.
 
 
-  \value SC_ToolButton  tool button.
-  \value SC_ToolButtonMenu subcontrol for opening a popup menu in a tool button.
+  \value SC_ToolButton  tool button; see also QToolbutton.
+  \value SC_ToolButtonMenu subcontrol for opening a popup menu in a tool button; see also QPopupMenu.
 
 
-  \value SC_TitleBarSysMenu  system menu button (ie. restore, close, etc.).
+  \value SC_TitleBarSysMenu  system menu button (i.e. restore, close, etc.).
   \value SC_TitleBarMinButton  minimize button.
   \value SC_TitleBarMaxButton  maximize button.
   \value SC_TitleBarCloseButton  close button.
@@ -869,9 +897,9 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SC_TitleBarUnshadeButton  unshade button.
 
 
-  \value SC_ListView  ???
-  \value SC_ListViewBranch  ???
-  \value SC_ListViewExpand  expand item (ie. show/hide child items).
+  \value SC_ListView  (internal)
+  \value SC_ListViewBranch  (internal)
+  \value SC_ListViewExpand  expand item (i.e. show/hide child items).
 
 
   \value SC_All  special value that matches all SubControls.
@@ -883,24 +911,28 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags flags = CStyle_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
 
-  Draws the ComplexControl \a control using the painter \a p in the area \a r.  Colors
-  are used from the color group \a cg.  The \a sub argument specifies which SubControls
-  to draw.  Multiple SubControls can be OR'ed together.  The \a subActive argument
-  specifies which SubControl to draw as active.
+  Draws the ComplexControl \a control using the painter \a p in the
+  area \a r.  Colors are used from the color group \a cg.  The \a sub
+  argument specifies which SubControls to draw.  Multiple SubControls
+  can be OR'ed together.  The \a subActive argument specifies which
+  SubControl is active.
 
-  The rect \a r should be in logical coordinates.  Reimplementations of this function
-  should use visualRect() to change the logical corrdinates into screen coordinates
-  when using drawPrimitive() and drawControl().
+  The rect \a r should be in logical coordinates.  Reimplementations
+  of this function should use visualRect() to change the logical
+  coordinates into screen coordinates when using drawPrimitive() and
+  drawControl().
 
-  The \a flags argument is used to control how the ComplexControl is drawn.  Multiple
-  flags can OR'ed together.
+  The \a flags argument is used to control how the ComplexControl is
+  drawn.  Multiple flags can OR'ed together. See \l
+  ControlElementFlags.
 
-  The \a widget argument is a pointe rto a QWidget or one of its subclasses.  The widget
-  can be cast to the appropriate type based on the value of \a control.  The \a data
-  argument can be used to pass extra information required when drawing the
-  ComplexControl.  Note that \a data can be zero even for ComplexControls that make
-  use of the extra data.  See the table below for the appropriate \a widget and
-  \a data casts:
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a control.  The \a data argument can be used to pass
+  extra information required when drawing the ComplexControl.  Note
+  that \a data may be zero even for ComplexControls that can make use
+  of the extra data.  See the table below for the appropriate \a
+  widget and \a data casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -930,45 +962,40 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top>const QScrollBar *</td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>position in pixels for the start of the slider handle.</td>
+      <td valign=top>position in pixels for the start of the scrollbar handle.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CC_Slider</b></td>
       <td valign=top>const QSlider *</td>
       <td valign=top>data[0]</td>
       <td valign=top>int *</td>
-      <td valign=top>position in pixel for the start of the slider handle.</td>
+      <td valign=top>position in pixels for the start of the slider handle.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top><b>CC_ToolButton</b></td>
-      <td valign=top>const QToolButton *</td>
+      <td valign=top rowspan=3><b>CC_ToolButton</b></td>
+      <td valign=top rowspan=3>const QToolButton *</td>
       <td valign=top>data[0]</td>
       <td valign=top>bool *</td>
-      <td valign=top>when the tool button has auto-raise enabled, this bool is TRUE when
+      <td valign=top>if the tool button has auto-raise enabled, this bool is TRUE when
           the mouse is over the tool button, FALSE otherwise.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top></td>
-      <td valign=top></td>
       <td valign=top>data[1]</td>
       <td valign=top>bool *</td>
-      <td valign=top>this bool TRUE when the tool button only contains an arrow, FALSE
+      <td valign=top>this bool TRUE is when the tool button only contains an arrow, FALSE
           otherwise.</td>
     </tr>
     <tr bgcolor=#d0d0d0>
-      <td valign=top></td>
-      <td valign=top></td>
       <td valign=top>data[2]</td>
       <td valign=top>ArrowType *</td>
-      <td valign=top>when the tool button only contains an arrow, this is the arrow
-          type.</td>
+      <td valign=top>when the tool button only contains an arrow, this is the arrow's type.</td>
     </tr>
     <tr bgcolor=#f0f0f0>
       <td valign=top><b>CC_TitleBar</b></td>
       <td valign=top>const QWidget *</td>
       <td valign=top>unused</td>
-      <td valign=top></td>
-      <td valign=top></td>
+      <td valign=top>&nbsp;</td>
+      <td valign=top>&nbsp;</td>
     </tr>
     <tr bgcolor=#d0d0d0>
       <td valign=top><b>CC_ListView</b></td>
@@ -986,13 +1013,14 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
 
-  Draw a bitmask for the ComplexControl \a control using the painter \a p in the
-  area \a r.  See the documentation for drawComplexControl() for an explanation on the
-  use of the \a widget and \a data arguments.
+  Draw a bitmask for the ComplexControl \a control using the painter
+  \a p in the area \a r.  See drawComplexControl() for an explanation
+  of the use of the \a widget and \a data arguments.
 
-  The rect \a r should be in logical coordinates.  Reimplementations of this function
-  should use visualRect() to change the logical corrdinates into screen coordinates
-  when using drawPrimitive() and drawControl().
+  The rect \a r should be in logical coordinates.  Reimplementations
+  of this function should use visualRect() to change the logical
+  corrdinates into screen coordinates when using drawPrimitive() and
+  drawControl().
 
   \sa drawComplexControl, ComplexControl
 */
@@ -1000,14 +1028,16 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl subcontrol, void **data = 0 ) const;
 
-  Returns the rect for the SubControl \a subcontrol for \a widget in logical coordinates.
+  Returns the rect for the SubControl \a subcontrol for \a widget in
+  logical coordinates.
 
-  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
-  widget can be cast to the appropriate type based on the value of \a control.
-  The \a data argument can be used to pass extra information required when drawing the
-  ComplexControl.  Note that \a data can be zero even for ComplexControls that make
-  use of the extra data. See the documentation for drawComplexControl() for an
-  explanation of the \a widget and \a data arguments.
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a control. The \a data argument can be used to pass
+  extra information required when drawing the ComplexControl.  Note
+  that \a data may be zero even for ComplexControls that can make use of
+  the extra data. See drawComplexControl() for an explanation of the
+  \a widget and \a data arguments.
 
   \sa drawComplexControl(), ComplexControl, SubControl
 */
@@ -1015,17 +1045,19 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, void **data = 0 ) const;
 
-  Returns the SubControl for \a widget at the point \a pos.  The \a widget argument
-  is a pointer to a QWidget or one of its subclasses,.  The widget can be case to the
-  appropriate type based on the value of \a control.  The \a data argument can be
-  used to pass extra information required when drawing the ComplexControl.  Note
-  that \a data can be zero even for ComplexControls that make use of the extra data.
-  See the documentation for drawComplexControl() for an explanation of the \a widget
-  and \a data arguments.
+  Returns the SubControl for \a widget at the point \a pos.  The \a
+  widget argument is a pointer to a QWidget or one of its subclasses.
+  The widget can be casted to the appropriate type based on the value of
+  \a control.  The \a data argument can be used to pass extra
+  information required when drawing the ComplexControl.  Note that \a
+  data may be zero even for ComplexControls that can make use of the
+  extra data. See drawComplexControl() for an explanation of the \a
+  widget and \a data arguments.
 
-  Note that \a pos is passed in screen coordinates.  When using querySubControlMetrics()
-  to check for hits and misses, use visualRect() to change the logical coordinates
-  into screen coordinates.
+  Note that \a pos is passed in screen coordinates.  When using
+  querySubControlMetrics() to check for hits and misses, use
+  visualRect() to change the logical coordinates into screen
+  coordinates.
 
   \sa drawComplexControl(), ComplexControl, SubControl, querySubControlMetrics()
 */
@@ -1038,20 +1070,22 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PM_ButtonMargin  amount of whitespace between pushbutton labels and the frame.
   \value PM_ButtonDefaultIndicator  width of the default-button indicator frame.
-  \value PM_MenuButtonIndicator  width of the menu button indicator for a widget height.
+  \value PM_MenuButtonIndicator  width of the menu button indicator
+  proportional to the widget height.
   \value PM_ButtonShiftHorizontal  horizontal contents shift of a button when the
          button is down.
   \value PM_ButtonShiftVertical  vertical contents shift of a button when the
          button is down.
 
 
-  \value PM_DefaultFrameWidth  default frame width, usually 2
+  \value PM_DefaultFrameWidth  default frame width, usually 2.
   \value PM_SpinBoxFrameWidth  frame width of a spin box.
 
 
-  \value PM_MaximumDragDistance  Some feels require the scrollbar or other sliders to
-         jump back to the original position when the mouse pointer is too far away
-         while dragging.  A value of -1 disables this behavior.
+  \value PM_MaximumDragDistance  Some feels require the scrollbar or
+    other sliders to jump back to the original position when the mouse
+    pointer is too far away while dragging.  A value of -1 disables this
+    behavior.
 
 
   \value PM_ScrollBarExtent  width of a vertical scrollbar and the height of a
@@ -1077,7 +1111,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   \value PM_TabBarTabOverlap number of pixels the tabs should overlap.
   \value PM_TabBarTabHSpace extra space added to the tab width.
-  \value PM_TabBarTabVSpace extra space added to the tab heigth.
+  \value PM_TabBarTabVSpace extra space added to the tab height.
   \value PM_TabBarBaseHeight height of the area between the tab bar and the tab pages.
   \value PM_TabBarBaseOverlap number of pixels the tab bar overlaps the tab bar base.
 
@@ -1099,11 +1133,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn int QStyle::pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
-  Returns the pixel metric for \a metric.  The \a widget argument is a pointer to
-  a QWidget of one of its subclasses.  The widget can be cast to the appropriate type
-  based on the value of \a metric.  Note that \a widget can be zero even for
-  PixelMetrics that make use of \a widget. See the table below for the appropriate
-  \a widget casts:
+  Returns the pixel metric for \a metric.  The \a widget argument is a
+  pointer to a QWidget or one of its subclasses.  The widget can be
+  cast to the appropriate type based on the value of \a metric.  Note
+  that \a widget may be zero even for PixelMetrics that can make use
+  of \a widget. See the table below for the appropriate \a widget
+  casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -1156,8 +1191,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::ContentsType
 
-  This enum represents a ContentsType.  It is used to calculate sizes for the contents
-  of various widgets.
+  This enum represents a ContentsType.  It is used to calculate sizes
+  for the contents of various widgets.
 
   \value CT_PushButton
   \value CT_CheckBox
@@ -1175,13 +1210,16 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, void **data = 0 ) const;
 
-  Returns the size of \a widget based on the contents size \a contentsSize.
+  Returns the size of \a widget based on the contents size \a
+  contentsSize.
 
-  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
-  widget can be cast to the appropriate type based on the value of \a contents. The
-  \a data argument can be used to pass extra information required when calculating the
-  size.  Note that \a data can be zero even for ContentsTypes that make use of the
-  extra data.  See the table below for the appropriate \a widget and \a data casts:
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a contents. The \a data argument can be used to pass
+  extra information required when calculating the size.  Note that \a
+  data may be zero even for ContentsTypes that can make use of the extra
+  data.  See the table below for the appropriate \a widget and \a data
+  casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -1253,7 +1291,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
       <td valign=top>const QPopupMenu *</td>
       <td valign=top>data[0]</td>
       <td valign=top>QMenuItem *</td>
-      <td valign=top>pointer to the menu item to use when calculating the size</td>
+      <td valign=top>pointer to the menu item to use when calculating the size.
+      QMenuItem is currently an internal class.</td>
     </tr>
   </table>
   </center>
@@ -1264,21 +1303,31 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::StyleHint
 
-  This enum represents a StyleHint.  A StyleHint is a general Look and/or Feel hint.
+  This enum represents a StyleHint.  A StyleHint is a general look
+  and/or feel hint.
 
-  \value SH_ScrollBar_BackgroundMode  the background mode for a QScrollBar.  Possible
-         values are any in the \link Qt::BackgroundMode BackgroundMode\endlink enum.
-  \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value.  If TRUE, middle
-         clicking on a scrollbar causes the slider to jump to that position.  If FALSE,
-         the click is ignored.
-  \value SH_ScrollBar_ScrollWhenPointerLeavesControl  a boolean value.  If TRUE, when
-         clicking a scrollbar SubControl, holding the mouse button down and moving the
-	 pointer outside the SubControl, the scrollbar continues to scroll.  If FALSE,
-	 the scollbar stops scrolling when the pointer leaves the SubControl.
+  \value SH_ScrollBar_BackgroundMode  the background mode for a
+  QScrollBar.  Possible values are any of those in the \link
+  Qt::BackgroundMode BackgroundMode\endlink enum.
+
+  \value SH_ScrollBar_MiddleClickAbsolutePosition  a boolean value. If
+  TRUE, middle clicking on a scrollbar causes the slider to jump to
+  that position.  If FALSE, the middle clicking is ignored.
+
+  \value SH_ScrollBar_ScrollWhenPointerLeavesControl  a boolean value.
+  If TRUE, when clicking a scrollbar SubControl, holding the mouse
+  button down and moving the pointer outside the SubControl, the
+  scrollbar continues to scroll.  If FALSE, the scollbar stops
+  scrolling when the pointer leaves the SubControl.
 
 
-  \value SH_TabBar_Alignment  the alignment for tabs in a QTabWidget.  Possible values
-         are Qt::AlignLeft, Qt::AlignCenter and Qt::AlignRight.
+  \value SH_TabBar_Alignment  the alignment for tabs in a QTabWidget.
+  Possible values are Qt::AlignLeft, Qt::AlignCenter and
+  Qt::AlignRight.
+
+    \value SH_Header_Arrow_Alignment the alignment for the arrow that
+    may appear in list or table headers to indicate sorting. Possible
+    values are Qt::AlignTop or Qt::AlignBottom.
 
   \sa styleHint()
 */
@@ -1286,10 +1335,12 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, void ***returnData = 0 ) const;
 
-  Returns the style hint \a stylehint for \a widget.  Currently, \a widget and \a
-  returnData are unused, and are provided only for future development considerations.
+  Returns the style hint \a stylehint for \a widget.  Currently, \a
+  widget and \a returnData are unused, and are provided only for
+  future development considerations.
 
-  For explanation on the return values of this function, see the StyleHint documentation.
+  For an explanation of the return value see
+  \link QStyle::StyleHint StyleHint\endlink.
 
   \sa StyleHint
 */
@@ -1297,8 +1348,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::StylePixmap
 
-  This enum represents a StylePixmap.  A StylePixmap is a pixmap that can follow some
-  existing GUI style or guideline.
+  This enum represents a StylePixmap.  A StylePixmap is a pixmap that
+  can follow some existing GUI style or guideline.
 
 
   \value SP_TitleBarMinButton  minimize button on titlebars.  For example, in a
@@ -1310,7 +1361,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value SP_TitleBarUnshadeButton  unshade button on titlebars.
 
 
-  \value SP_DockWindowCloseButton  close button on dock windows.  See also QDockWindow.
+  \value SP_DockWindowCloseButton  close button on dock windows;  see also QDockWindow.
 
   \sa stylePixmap()
 */
@@ -1320,13 +1371,15 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
   Returns a pixmap for \a stylepixmap.
 
-  The \a data argument can be used to pass extra information required when drawing the
-  ControlElement.  Note that \a data can be zero even for StylePixmaps that make
-  use of the extra data.  Currently, the \a data argument is unused.
+  The \a data argument can be used to pass extra information required
+  when drawing the ControlElement.  Note that \a data may be zero even
+  for StylePixmaps that can make use of the extra data.  Currently,
+  the \a data argument is unused.
 
-  The \a widget argument is a pointer to a QWidget or one of its subclasses.  The
-  widget can be cast to the appropriate type based on the value of \a stylepixmap.
-  See the table below for the appropriate \a widget casts:
+  The \a widget argument is a pointer to a QWidget or one of its
+  subclasses.  The widget can be cast to the appropriate type based on
+  the value of \a stylepixmap. See the table below for the appropriate
+  \a widget casts:
 
   <center>
   <table cellpadding=4 cellspacing=2 border=0>
@@ -1411,7 +1464,7 @@ QRect QStyle::visualRect( const QRect &logical, const QRect &boundingRect )
   \obsolete
 */
 
-/*! 
+/*!
   \fn bool QStyle::operator==(GUIStyle s) const
   \obsolete
 */
