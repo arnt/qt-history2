@@ -293,6 +293,13 @@ is unnecessary, since all of the QNetwork classes are asynchronous.</li>
 thread other than the GUI thread.  This includes QDialog::exec(),
 QPopupMenu::exec(), QApplication::processEvents() and others.</li>
 
+<li>Don't mix the normal Qt library and the threaded Qt library in your
+application.  This means that if your application uses the threaded Qt library,
+you should not link with the normal Qt library, dynamically load the
+normal Qt library or dynamically load another library that depends on the
+normal Qt library.  On some systems, doing this can corrupt the static
+data used in the Qt library.</li>
+
 </ul>
  
 */
