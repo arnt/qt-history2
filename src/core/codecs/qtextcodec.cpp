@@ -55,17 +55,6 @@
 #if defined(_XOPEN_UNIX) && !defined(Q_OS_QNX6)
 #include <langinfo.h>
 #endif
-#if !defined( QWS ) && defined( Q_OS_MAC )
-#    ifdef qDebug
-#        undef qDebug
-#        include <Carbon/Carbon.h>
-#        ifdef QT_NO_DEBUG
-#            define qDebug qt_noop(),1?(void)0:qDebug
-#        endif
-#    else
-#        include <Carbon/Carbon.h>
-#    endif
-#endif
 
 static QList<QTextCodec*> *all = 0;
 static bool destroying_is_ok = false;

@@ -50,6 +50,18 @@
 #   define isnan(d) _isnan(d)
 #endif
 
+#if !defined( QWS ) && defined( Q_OS_MAC )
+#    ifdef qDebug
+#        undef qDebug
+#        include <Carbon/Carbon.h>
+#        ifdef QT_NO_DEBUG
+#            define qDebug qt_noop(),1?(void)0:qDebug
+#        endif
+#    else
+#        include <Carbon/Carbon.h>
+#    endif
+#endif
+
 // mingw defines NAN and INFINITY to 0/0 and x/0
 #if defined (Q_WS_WIN) && defined(Q_CC_GNU)
 #   undef NAN
