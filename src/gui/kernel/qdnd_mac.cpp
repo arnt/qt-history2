@@ -240,13 +240,13 @@ const char* QDropEvent::format(int n) const
     const char* mime = NULL;
     if(n >= 0) {
         ItemReference ref = NULL;
-        if(GetDragItemReferenceNumber(current_dropobj, 1, &ref))
-            return NULL;
+        if(GetDragItemReferenceNumber(current_dropobj, 1, &ref)) 
+            return 0;
 
         UInt16 cnt = 0;
         if(CountDragItemFlavors(current_dropobj, ref, &cnt))
-            return NULL;
-        if(n >= cnt)
+            return 0;
+        if(n >= cnt) 
             return 0;
 
         FlavorType flav;
@@ -359,8 +359,8 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         }
         if(desc) {
             QPoint pos(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
-            qDebug("Sending <%s>(%d, %d) event to %s %s [%d]",
-                   desc, pos.x(), pos.y(), q->className(), q->objectName().local8Bit(), ret);
+            qDebug("Sending <%s>(%d, %d) event to %s %s [%d] (%p)",
+                   desc, pos.x(), pos.y(), q->metaObject()->className(), q->objectName().local8Bit(), ret, dragRef);
         }
     }
 #endif
