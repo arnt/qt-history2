@@ -562,8 +562,10 @@ void QListViewItem::insertItem( QListViewItem * newChild )
     newChild->ownHeight = 0;
     newChild->configured = FALSE;
     QListView *lv = listView();
-    if ( lv && lv->hasFocus() && !lv->d->focusItem )
-	lv->setCurrentItem( lv->firstChild() );
+    if ( lv && lv->hasFocus() && !lv->d->focusItem ) {
+	lv->d->focusItem = lv->firstChild();
+	lv->repaintItem( lv->d->focusItem );
+    }
 }
 
 

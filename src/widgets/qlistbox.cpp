@@ -1093,8 +1093,10 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 	}
     }
 
-    if ( hasFocus() && !d->current )
-	setCurrentItem( d->head );
+    if ( hasFocus() && !d->current ) {
+	d->current = d->head;
+	updateItem( d->current );
+    }
 
     d->count++;
     triggerUpdate( TRUE );
@@ -1142,8 +1144,10 @@ void QListBox::insertItem( const QListBoxItem *lbi, const QListBoxItem *after )
 	}
     }
 
-    if ( hasFocus() && !d->current )
-	setCurrentItem( d->head );
+    if ( hasFocus() && !d->current ) {
+	d->current = d->head;
+	updateItem( d->current );
+    }
 
     d->count++;
     triggerUpdate( TRUE );
@@ -1526,7 +1530,7 @@ void QListBox::mousePressEvent( QMouseEvent *e )
 	d->current = d->head;
 	updateItem( d->head );
     }
-    
+
     if ( !i && ( e->button() == RightButton || isMultiSelection() ) )
 	clearSelection();
 
@@ -2807,7 +2811,7 @@ void QListBox::ensureCurrentVisible()
 {
     if ( !d->current )
 	return;
-    
+
     doLayout();
 
     int row = currentRow();

@@ -2152,8 +2152,10 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
 	}
     }
 
-    if ( !d->currentItem && hasFocus() )
- 	setCurrentItem( d->firstItem );
+    if ( !d->currentItem && hasFocus() ) {
+ 	d->currentItem = d->firstItem;
+	repaintItem( d->currentItem );
+    }
 
     d->count++;
     d->dirty = TRUE;
