@@ -2115,11 +2115,9 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             SInt32 headerHeight = 0;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
-            bdi.state = tds;
+            bdi.state = kThemeStateActive;
             QStyle::State flags = header->state;
             QRect ir = header->rect;
-            ir.setWidth(ir.width() - 1);
-            ir.setX(ir.x() - 1);
             if (w && (qt_cast<QTreeView *>(w->parentWidget())
 #ifdef QT_COMPAT
                         || w->parentWidget()->inherits("Q3ListView")
