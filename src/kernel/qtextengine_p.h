@@ -8,7 +8,6 @@
 #include <private/qfontdata_p.h>
 
 #include <assert.h>
-#include <malloc.h>
 
 
 class QFontPrivate;
