@@ -589,6 +589,7 @@ void QWin32PaintEngine::drawPolygon(const QPointF *points, int pointCount, Polyg
         } else {
 //            cPoints[pointCount-1].x = x2;
 //            cPoints[pointCount-1].y = y2;
+            vector[pointCount-1] = QPoint(x2, y2);
             Polyline(d->hdc, (const POINT*)vector.constData(), pointCount);
         }
         return;
