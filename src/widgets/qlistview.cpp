@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#311 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#312 $
 **
 ** Implementation of QListView widget class
 **
@@ -1815,6 +1815,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		    header()->cellSize( header()->count() - 1 );
 
 	    r.setRect( x, current->y - oy, w, ih );
+	    if ( d->h->mapToActual( 0 ) == 0 )
+		r.setLeft( r.left() + current->l * treeStepSize() );
 	    //WINDOWSBUG### should use this
 	    //p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
 	    current->i->paintFocus( p, colorGroup(), r );
