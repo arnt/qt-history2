@@ -525,7 +525,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
 }
 
 
-/*! \enum QBitArray::array_data
+/*! \enum QGArray::array_data
 
   \warning This will be renamed in the next major release of Qt.  Until
   then it is undocumented and we recommend against its use.
@@ -533,6 +533,7 @@ QBitArray operator^( const QBitArray &a1, const QBitArray &a2 )
   \internal
 
   ### 3.0 rename ###
+  ### 3.0 move it to QGArray? ###
 */
 
 

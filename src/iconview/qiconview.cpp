@@ -3739,7 +3739,7 @@ bool QIconView::wordWrapIconText() const
   is truncated because it's too large for one line. If you specify TRUE for
   \a b here and the user moves the mouse onto the item a tooltip with
   the whole item text is shown.
-  If you pass \a FALSE here this feature is switched off.
+  If you pass FALSE here this feature is switched off.
 
   \sa setWordWrapIconText()
 */

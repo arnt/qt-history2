@@ -309,6 +309,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		} else if ( ch == '>' ) {
 		    yyOut += QString( "&gt;" );
 		    yyPos++;
+		} else if ( ch == '\\' ) {
+		    /*
+		      Double backslashes are turned into &#92 so that the second
+		      pass does not interpret it.
+		    */
+		    yyOut += QString( "&#92" );
+		    yyPos++;
 		} else {
 		    yyOut += QChar( '\\' );
 		}
@@ -341,7 +348,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		break;
 
 	    /*
-	      Remove this bad-looking code when annotated.doc is fixed.
+	      ### Remove this bad-looking code once annotated.doc is fixed.
 	    */
 #if 1
 	    case hash( 'a', 18 ):
@@ -478,11 +485,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    warning( 1, location(), "Unexpected '\\endcode'" );
 		} else if ( command[3] == QChar('l') ) {
 		    consume( "endlink" );
-		    warning( 1, location(), "Unexpected '\\endlink'" );
+		    // we've found the missing link: it's Eirik Aavitsland
+		    warning( 1, location(), "Missing '\\link'" );
 		} else {
 		    consume( "example" );
 		    fileName = getWord( yyIn, yyPos );
-		skipRestOfLine( yyIn, yyPos );
+		    skipRestOfLine( yyIn, yyPos );
 		    setKind( Doc::Example, command );
 		}
 		break;

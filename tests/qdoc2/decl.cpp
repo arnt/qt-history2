@@ -1010,7 +1010,7 @@ void ClassDecl::emitHtmlListOfAllMemberFunctions() const
 }
 
 Parameter::Parameter( const CodeChunk& type, const QString& name,
-		      const QString& defaultValue )
+		      const CodeChunk& defaultValue )
     : t( type ), n( name ), d( defaultValue )
 {
 }
@@ -1031,15 +1031,19 @@ Parameter& Parameter::operator=( const Parameter& p )
 void Parameter::printHtmlShort( HtmlWriter& out ) const
 {
     dataType().printHtml( out, QString::null, name() );
-    if ( !defaultValue().isEmpty() )
-	out.printfMeta( "\xa0=\xa0%s", defaultValue().latin1() );
+    if ( !defaultValue().isEmpty() ) {
+	out.printfMeta( "\xa0=\xa0" );
+	defaultValue().printHtml( out );
+    }
 }
 
 void Parameter::printHtmlLong( HtmlWriter& out, const Decl *context ) const
 {
     printHtmlDataType( out, dataType(), context, name() );
-    if ( !defaultValue().isEmpty() )
-	out.printfMeta( "\xa0=\xa0%s", defaultValue().latin1() );
+    if ( !defaultValue().isEmpty() ) {
+	out.printfMeta( "\xa0=\xa0" );
+	defaultValue().printHtml( out );
+    }
 }
 
 FunctionDecl::FunctionDecl( const Location& loc, const QString& name,
@@ -1135,7 +1139,7 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 {
     if ( isVirtual() )
 	out.putsMeta( "virtual\xa0" );
-    if ( !returnType().toString().isEmpty() ) {
+    if ( !returnType().isEmpty() ) {
 	returnType().printHtml( out );
 	out.putsMeta( "\xa0" );
     }
@@ -1160,7 +1164,7 @@ void FunctionDecl::printHtmlShort( HtmlWriter& out ) const
 
 void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
 {
-    if ( !returnType().toString().isEmpty() ) {
+    if ( !returnType().isEmpty() ) {
 	printHtmlDataType( out, returnType(), context() );
 	out.putsMeta( "\xa0" );
     }
@@ -1207,7 +1211,7 @@ void FunctionDecl::printHtmlLong( HtmlWriter& out ) const
     out.putsMeta( "\n" );
 }
 
-EnumItem::EnumItem( const QString& ident, const QString& value )
+EnumItem::EnumItem( const QString& ident, const CodeChunk& value )
     : id( ident ), v( value )
 {
 }
@@ -1227,8 +1231,10 @@ EnumItem& EnumItem::operator=( const EnumItem& item )
 void EnumItem::printHtml( HtmlWriter& out ) const
 {
     out.putsMeta( ident().latin1() );
-    if ( !value().isEmpty() )
-	out.printfMeta( "\xa0=\xa0%s", value().latin1() );
+    if ( !value().isEmpty() ) {
+	out.printfMeta( "\xa0=\xa0%s" );
+	value().printHtml( out );
+    }
 }
 
 EnumDecl::EnumDecl( const Location& loc, const QString& name, Decl *context )

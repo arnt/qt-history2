@@ -203,7 +203,7 @@ static bool matchParameter( FunctionDecl *funcDecl )
 	    yyTok = getToken();
 	}
     }
-    funcDecl->addParameter( Parameter(type, name, defaultValue.toString()) );
+    funcDecl->addParameter( Parameter(type, name, defaultValue) );
     return TRUE;
 }
 
@@ -223,7 +223,7 @@ static bool matchFunctionDecl( Decl *context )
     bool gotFullName = FALSE;
 
     if ( yyTok == Tok_operator &&
-	 (returnType.toString().isEmpty() ||
+	 (returnType.isEmpty() ||
 	  returnType.toString().right(2) == QString("::")) ) {
 	name = returnType.toString() + yyTokenizer->lexeme() + QChar( ' ' );
 	returnType = CodeChunk();
@@ -391,7 +391,7 @@ static bool matchEnumItem( EnumDecl *enumDecl )
 	    yyTok = getToken();
 	}
     }
-    enumDecl->addItem( EnumItem(id, val.toString()) );
+    enumDecl->addItem( EnumItem(id, val) );
     return TRUE;
 }
 

@@ -624,14 +624,6 @@ bool QWidgetItem::isEmpty() const
 
 
 /*!
-  \fn QLayoutIterator QLayout::iterator()
-
-  Returns an iterator over the children of this layout.
-
-  This function must be implemented by subclasses.
-*/
-
-/*!
   Constructs a new top-level QLayout with main widget \a
   parent.  \a parent may not be 0.
 
@@ -738,7 +730,7 @@ QLayout::QLayout( int space, const char *name )
     delete it.
 */
 
-/*! \fn QLayoutIterator QLayout::iterator();
+/*! \fn QLayoutIterator QLayout::iterator()
   Implemented in subclasses to return an iterator that iterates over
   the children of this layout.
 
@@ -1509,12 +1501,12 @@ Sets the hasHeightForWidth() flag to \a b.
 */
 
 
-/*! \fn bool QSizePolicy::operator==( const QSizePolicy &s )
+/*! \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
   Returns TRUE if this policy is equal to \a s, or FALSE if
   they are different.
 */
 
-/*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s )
+/*! \fn bool QSizePolicy::operator!=( const QSizePolicy &s ) const
   Returns TRUE if this policy is different from \a s, or FALSE if
   they are equal.
 */

@@ -97,8 +97,8 @@
   accelerator item.
 
   A QAccel object handles key events to the QWidget::topLevelWidget()
-  containing \a parent, and hence to any child widgets of that window.
-  The accelerator will be deleted when \a parent is deleted, and will
+  containing \e parent, and hence to any child widgets of that window.
+  The accelerator will be deleted when \e parent is deleted, and will
   consume relevant key events until then.
 
   Example:
@@ -111,7 +111,7 @@
 
   \sa QKeyEvent QWidget::keyPressEvent() QMenuData::setAccel()
   QButton::setAccel() QLabel::setBuddy()
-  <a href="guibooks.html#fowler">GUI Design Handbook: Keyboard Shortcuts</a>.
+  \link guibooks.html#fowler GUI Design Handbook: Keyboard Shortcuts \endlink.
 */
 
 

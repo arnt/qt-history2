@@ -590,8 +590,8 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 }
 
 /*!
-  For Qt/Embedded, passing \a QApplication::GuiServer for \a type
-  make this application the server (equivalent to running with the
+  For Qt/Embedded, passing \c QApplication::GuiServer for \a type
+  makes this application the server (equivalent to running with the
   -qws option).
 */
 QApplication::QApplication( int &argc, char **argv, Type type )
@@ -1982,7 +1982,6 @@ QString QApplication::translate( const char * context, const char * key ) const
     return translate( context, key, "" );
 }
 
-
 /*!
   Returns the translation text for \a key, by querying the installed
   messages files.  The message file that was installed last is asked
@@ -2001,7 +2000,7 @@ QString QApplication::translate( const char * context, const char * key ) const
   contexts and comments.
 
   If none of the message files contain a translation for \a key in \a
-  scope, this function returns \a key.
+  context, this function returns \a key.
 
   This function is not virtual, but you can add alternative translation
   techniques by installing subclasses of QTranslator.
@@ -2009,12 +2008,12 @@ QString QApplication::translate( const char * context, const char * key ) const
   \sa QObject::tr() installTranslator() removeTranslator() QTranslator
 */
 
-QString QApplication::translate( const char * scope, const char * key,
+QString QApplication::translate( const char * context, const char * key,
 				 const char * comment ) const
 {
     if ( !key )
 	return QString::null;
-    // scope can be null, for global stuff
+    // context can be null, for global stuff
 
     if ( translators ) {
 	QListIterator<QTranslator> it( *translators );
@@ -2022,7 +2021,7 @@ QString QApplication::translate( const char * scope, const char * key,
 	QString result;
 	while( (mf=it.current()) != 0 ) {
 	    ++it;
-	    result = mf->find( scope, key, comment );
+	    result = mf->find( context, key, comment );
 	    if ( !result.isNull() )
 		return result;
 	}
@@ -2490,7 +2489,7 @@ void QApplication::setActiveWindow( QWidget* act )
   Creates the proper Enter/Leave event when widget \a enter is entered
   and widget \a leave is left.
  */
-void Q_EXPORT qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
+Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
 #if 0
     if ( leave ) {
 	QEvent e( QEvent::Leave );

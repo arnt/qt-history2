@@ -143,7 +143,7 @@ void Steering::nailDownDocs()
 	      Build the class hierarchy.
 	    */
 	    if ( !classDecl->superTypes().isEmpty() ) {
-		QString firstp = classDecl->superTypes().first().toString();
+		QString firstp = classDecl->superTypes().first().base();
 		Decl *parentDecl = resolvePlain( firstp );
 		if ( parentDecl != 0 )
 		    parent = parentDecl->name();

@@ -170,7 +170,7 @@ class Parameter
 public:
     Parameter() { }
     Parameter( const CodeChunk& type, const QString& name = QString::null,
-	       const QString& defaultValue = QString::null );
+	       const CodeChunk& defaultValue = CodeChunk() );
     Parameter( const Parameter& p );
 
     Parameter& operator=( const Parameter& p );
@@ -179,7 +179,7 @@ public:
 
     const CodeChunk& dataType() const { return t; }
     const QString& name() const { return n; }
-    const QString& defaultValue() const { return d; }
+    const CodeChunk& defaultValue() const { return d; }
 
     void printHtmlShort( HtmlWriter& out ) const;
     void printHtmlLong( HtmlWriter& out, const Decl *context = 0 ) const;
@@ -187,7 +187,7 @@ public:
 private:
     CodeChunk t;
     QString n;
-    QString d;
+    CodeChunk d;
 };
 
 class FunctionDecl : public Decl
@@ -252,19 +252,19 @@ class EnumItem
 {
 public:
     EnumItem() { }
-    EnumItem( const QString& ident, const QString& value );
+    EnumItem( const QString& ident, const CodeChunk& value );
     EnumItem( const EnumItem& item );
 
     EnumItem& operator=( const EnumItem& item );
 
     const QString& ident() const { return id; }
-    const QString& value() const { return v; }
+    const CodeChunk& value() const { return v; }
 
     void printHtml( HtmlWriter& out ) const;
 
 private:
     QString id;
-    QString v;
+    CodeChunk v;
 };
 
 class EnumDecl : public Decl

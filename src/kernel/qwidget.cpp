@@ -2902,12 +2902,12 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 }
 
 /*!
-  \fn void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
+  \fn void QWidget::recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt )
 
   \obsolete
 
-  This method is provided to aid porting from Qt 1.0 to Qt 2.0.  It
-  has been renamed reparent() in 2.0.
+  This method is provided to aid porting from Qt 1.0 to 2.0.  It has
+  been renamed reparent() in Qt 2.0.
 */
 
 

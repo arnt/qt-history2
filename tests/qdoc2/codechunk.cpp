@@ -126,6 +126,18 @@ void CodeChunk::appendHotspot()
 	hspot = s.length();
 }
 
+QString CodeChunk::toString() const
+{
+    QString t = s;
+    int i;
+
+    for ( i = 0; i < (int) t.length(); i++ ) {
+	if ( t[i] == QChar('\xa0') )
+	    t[i] = QChar( ' ' );
+    }
+    return t;
+}
+
 void CodeChunk::printHtml( HtmlWriter& out, const QString& baseHref,
 			   const QString& hotspotHtml ) const
 {

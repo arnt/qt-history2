@@ -13,10 +13,10 @@ class HtmlWriter;
   The CodeChunk class represents a tiny piece of C++ code.
 
   The class provides convertion between a list of lexemes and a string.  It adds
-  spaces at the right place for consistent style. 
+  spaces at the right place for consistent style.
 
-  The tiny pieces of code are data types, enum values, and default parameter
-  values.
+  The tiny pieces of code it represents are data types, enum values, and default
+  parameter values.
 */
 class CodeChunk
 {
@@ -31,7 +31,8 @@ public:
     void appendBase( const QString& lexeme );
     void appendHotspot();
 
-    const QString& toString() const { return s; }
+    bool isEmpty() const { return s.isEmpty(); }
+    QString toString() const;
     const QString& base() const { return b; }
 
     void printHtml( HtmlWriter& out,

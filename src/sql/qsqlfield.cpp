@@ -147,7 +147,7 @@ void QSqlField::setValue( const QVariant& value )
 /////////////////
 
 /*!
-    \class QSqlFields qsqlfield.h
+    \class QSqlFieldList qsqlfield.h
     \brief Template class used for manipulating a list of SQL database fields.
 
     \module database
