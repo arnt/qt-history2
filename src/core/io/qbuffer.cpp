@@ -23,15 +23,20 @@ class QBufferPrivate : public QIODevicePrivate
 
 public:
     QBufferPrivate()
-        : signalsEmitted(false), writtenSinceLastEmit(0),
-          ioIndex(0), isOpen(false), buf(0)  { }
+        :
+#ifndef QT_NO_QOBJECT
+        signalsEmitted(false), writtenSinceLastEmit(0),
+#endif
+        ioIndex(0), isOpen(false), buf(0)  { }
     ~QBufferPrivate() { }
 
+#ifndef QT_NO_QOBJECT
     // private slots
     void emitSignals();
 
     bool signalsEmitted;
     Q_LONGLONG writtenSinceLastEmit;
+#endif
 
     int ioIndex;
     bool isOpen;
@@ -40,6 +45,7 @@ public:
     QByteArray defaultBuf;
 };
 
+#ifndef QT_NO_QOBJECT
 void QBufferPrivate::emitSignals()
 {
     Q_Q(QBuffer);
@@ -48,6 +54,7 @@ void QBufferPrivate::emitSignals()
     emit q->readyRead();
     signalsEmitted = false;
 }
+#endif
 
 /*!
     \class QBuffer
@@ -382,14 +389,18 @@ Q_LONGLONG QBuffer::writeData(const char *data, Q_LONGLONG len)
     memcpy(d->buf->data() + d->ioIndex, (uchar *)data, len);
     d->ioIndex += len;
 
+#ifndef QT_NO_QOBJECT
     d->writtenSinceLastEmit += len;
     if (!d->signalsEmitted) {
         d->signalsEmitted = true;
         qInvokeMetaMember(this, "emitSignals", Qt::QueuedConnection);
     }
+#endif
     return len;
 }
 
-#define d d_func()
-#define q q_func()
-#include "moc_qbuffer.cpp"
+#ifndef QT_NO_QOBJECT
+#  define d d_func()
+#  define q q_func()
+#  include "moc_qbuffer.cpp"
+#endif
