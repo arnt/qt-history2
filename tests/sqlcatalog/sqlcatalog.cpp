@@ -10,7 +10,7 @@ int main( int argc, char** argv )
 {
     qDebug("Qt SQL Catalog Test");
     QApplication app( argc, argv );
-    
+
     database = new QSqlDatabase( qApp->argv()[1] );
     database->reset( qApp->argv()[2], qApp->argv()[3], qApp->argv()[4], qApp->argv()[5]);
 
@@ -20,14 +20,18 @@ int main( int argc, char** argv )
 	qDebug("...success.");
     else
 	qDebug("...FAILED.");
-    
+
     uint i;
-    qDebug("Getting list of tables...");
+    qDebug("Getting list of tables and fields...");
     QStringList tables = database->tables();
     qDebug("Table count:" + QString::number( tables.count()) );
-    for ( i = 0; i < tables.count(); ++i )
+    for ( i = 0; i < tables.count(); ++i ) {
 	qDebug( "..." + tables[i] );
-    
+	QSqlFieldInfoList fil = database->fields( tables[i] );
+	for ( uint j = 0; j < fil.count(); ++j )
+	    qDebug("......" + fil[j].name );
+    }
+
     qDebug("Getting list of table primary index...");
     for ( i = 0; i < tables.count(); ++i ) {
 	QSqlIndex pk = database->primaryIndex( tables[i] );

@@ -483,7 +483,25 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
 		  "and a.attrelid = c2.oid;");
     i << stmt.arg( tablename );
-    while ( i.isActive() && i.next() ) 
+    while ( i.isActive() && i.next() )
 	idx.append ( makeFieldInfo( this, tablename,  i[0].toString() ) );
     return idx;
+}
+
+
+QSqlFieldInfoList QPSQLDriver::fields( const QString& tablename ) const
+{
+    QSqlFieldInfoList fil;
+    QString stmt ( "select a.attname, a.atttypid, atttypmod, a.attlen "
+		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
+		   "where c.relname = '%1' "
+		   "and int4out(u.usesysid) = int4out(c.relowner) "
+		   "and c.oid= a.attrelid "
+		   "and a.atttypid = t.oid "
+		   "and (a.attnum > 0)");
+    QSql fi = createResult();
+    fi << stmt.arg( tablename );
+    while ( fi.next() )
+	fil.append( QSqlFieldInfo( fi[0].toString(), decodePSQLType(fi[1].toInt()), fi[2].toInt(), fi[3].toInt() ));
+    return fil;
 }
