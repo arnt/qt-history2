@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#16 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#17 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -177,9 +177,10 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
 
 void QtRichText::init( const QString& doc, const QFont& font, int margin )
 {
-    for (int i = 0; i < MAXVIEWS; i++)
+    int i;
+    for (i = 0; i < MAXVIEWS; i++)
 	views[i] = 0;
-    for (int i = 0; i < MAXVIEWS; i++)
+    for (i = 0; i < MAXVIEWS; i++)
 	flows[i] = new QtTextFlow();
     nviews = 0;
 
@@ -197,13 +198,10 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
 
     valid = TRUE;
     int pos = 0;
-    
+
     QTime before = QTime::currentTime();
     parse(this, base, 0, format, doc, pos);
     qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
-    exit(0);
-    
-    
 }
 
 QtRichText::~QtRichText()
@@ -842,7 +840,7 @@ bool QtRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 
 
 
-QtStyleSheet::QtStyleSheet( QObject *parent=0, const char *name=0 )
+QtStyleSheet::QtStyleSheet( QObject *parent, const char *name )
     : QStyleSheet( parent, name )
 {
 }
