@@ -40,6 +40,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qcleanuphandler.h"
+#include "qptrdict.h"
 
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
@@ -1193,6 +1194,47 @@ bool QGLContext::create( const QGLContext* shareContext )
     United States and other countries.
 */
 
+// ### BCI - fix in 4.0
+
+// the display list cache can't be global because display lists are
+// tied to the GL contexts for each individual widget
+
+class QGLWidgetPrivate
+{
+public:
+    QMap<QString, int> displayListCache;
+};
+
+static QPtrDict<QGLWidgetPrivate> * qgl_d_ptr = 0;
+static QSingleCleanupHandler< QPtrDict<QGLWidgetPrivate> > qgl_cleanup_d_ptr;
+
+static QGLWidgetPrivate * qgl_d( const QGLWidget * w )
+{
+    if ( !qgl_d_ptr ) {
+	qgl_d_ptr = new QPtrDict<QGLWidgetPrivate>;
+	qgl_cleanup_d_ptr.set( &qgl_d_ptr );
+    }
+    QGLWidgetPrivate * ret = qgl_d_ptr->find( (void *) w );
+    if ( !ret ) {
+	ret = new QGLWidgetPrivate;
+	qgl_d_ptr->replace( (void *) w, ret );
+    }
+    return ret;
+}
+
+static void qgl_delete_d( const QGLWidget * w )
+{
+    if ( qgl_d_ptr ) {
+	QGLWidgetPrivate * d = qgl_d_ptr->find( (void *) w );
+	if ( d ) {
+	    QMapIterator<QString, int> it;
+	    for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
+		glDeleteLists( it.data(), 256 );
+	    }
+	}
+	qgl_d_ptr->remove( (void *) w );
+    }
+}
 
 /*!
     Constructs an OpenGL widget with a \a parent widget and a \a name.
@@ -1287,6 +1329,7 @@ QGLWidget::~QGLWidget()
     }
 #endif
     cleanupColormaps();
+    qgl_delete_d( this );
 }
 
 
@@ -1949,6 +1992,33 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
     \sa colormap()
 */
 
+int QGLWidget::displayListBase( const QFont & fnt, int listBase )
+{
+    int base;
+    
+    QGLWidgetPrivate * d = qgl_d( this );
+    if ( !d ) { // this can't happen unless we run out of mem
+	return 0;
+    }
+    
+    if ( d->displayListCache.find( fnt.key() ) != d->displayListCache.end() ) {
+	base = d->displayListCache[ fnt.key() ];
+    } else {
+	int maxBase = listBase - 256;
+	QMapIterator<QString,int> it;
+	for ( it = d->displayListCache.begin(); it != d->displayListCache.end(); ++it ) {
+	    if ( maxBase < it.data() ) {
+		maxBase = it.data();
+	    }
+	}
+	maxBase += 256;
+	generateFontDisplayLists( fnt, maxBase );
+	d->displayListCache[ fnt.key() ] = maxBase;
+	base = maxBase;
+    }
+    return base;
+}
+
 /*!
    Renders the string \a str into the GL context of this widget.
    
@@ -1966,20 +2036,22 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
    not have to change this value unless you are using display lists in
    the same range.
 */
+
 void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt, int listBase )
 {
     GLint viewPort[4];
     GLint matrixMode;
     GLboolean lighting;
+    int currentBase;
     
     makeCurrent();
-    generateFontDisplayLists( fnt, listBase );
-    
     // lighting needs to be switched off while rendering the text
     glGetBooleanv( GL_LIGHTING, &lighting );
     if ( lighting ) {
 	glDisable( GL_LIGHTING );
     }
+    currentBase = displayListBase( fnt, listBase );
+
     // change the model/projection matrix stack so that the text is
     // rendered in window coordinates
     glGetIntegerv( GL_VIEWPORT, viewPort );
@@ -1992,9 +2064,9 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     glPushMatrix();
     glLoadIdentity();
     glTranslatef( 0.0, 0.0, -1.0 );
-
+    
     glRasterPos2i( x, y );
-    glListBase( listBase );
+    glListBase( currentBase );
     glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() ); 
 
     // restore the matrix stacks
@@ -2005,9 +2077,7 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
     if ( lighting ) {
 	glEnable( GL_LIGHTING );
     }
-    
     glFlush();
-    glDeleteLists( listBase, 256 );
 }
 
 /*! \overload
@@ -2020,15 +2090,26 @@ void QGLWidget::renderText( int x, int y, const QString & str, const QFont & fnt
 void QGLWidget::renderText( double x, double y, double z, const QString & str, const QFont & fnt,
 			    int listBase )
 {
+    GLboolean lighting;
+    int currentBase;
+
     makeCurrent();
-    generateFontDisplayLists( fnt, listBase );
- 
-    glRasterPos3d( x, y, z );
-    glListBase( listBase );
-    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() ); 
+    // lighting needs to be switched off while rendering the text
+    glGetBooleanv( GL_LIGHTING, &lighting );
+    if ( lighting ) {
+	glDisable( GL_LIGHTING );
+    }
     
+    currentBase = displayListBase( fnt, listBase );
+
+    glRasterPos3d( x, y, z );
+    glListBase( currentBase );
+    glCallLists( str.length(), GL_UNSIGNED_BYTE, str.local8Bit().data() ); 
+
+    if ( lighting ) {
+	glEnable( GL_LIGHTING );
+    }
     glFlush();
-    glDeleteLists( listBase, 256 );
 }
 
 /*****************************************************************************
