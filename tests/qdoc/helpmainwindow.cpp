@@ -1,0 +1,261 @@
+#include "helpmainwindow.h"
+#include "helpnavigation.h"
+#include "helpview.h"
+#include <qsplitter.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qfile.h>
+#include <qmessagebox.h>
+#include <qapplication.h>
+#include <qtoolbar.h>
+#include <qtoolbutton.h>
+#include <qpixmap.h>
+
+#include <stdlib.h>
+
+static const char * pix_back[]={
+    "16 16 5 1",
+    "# c #000000",
+    "a c #ffffff",
+    "c c #808080",
+    "b c #c0c0c0",
+    ". c None",
+    "................",
+    ".......#........",
+    "......##........",
+    ".....#a#........",
+    "....#aa########.",
+    "...#aabaaaaaaa#.",
+    "..#aabbbbbbbbb#.",
+    "...#abbbbbbbbb#.",
+    "...c#ab########.",
+    "....c#a#ccccccc.",
+    ".....c##c.......",
+    "......c#c.......",
+    ".......cc.......",
+    "........c.......",
+    "................",
+    "......................"};
+
+static const char * pix_forward[]={
+    "16 16 5 1",
+    "# c #000000",
+    "a c #ffffff",
+    "c c #808080",
+    "b c #c0c0c0",
+    ". c None",
+    "................",
+    "................",
+    ".........#......",
+    ".........##.....",
+    ".........#a#....",
+    "..########aa#...",
+    "..#aaaaaaabaa#..",
+    "..#bbbbbbbbbaa#.",
+    "..#bbbbbbbbba#..",
+    "..########ba#c..",
+    "..ccccccc#a#c...",
+    "........c##c....",
+    "........c#c.....",
+    "........cc......",
+    "........c.......",
+    "................",
+    "................"};
+
+static const char * pix_home[]={
+    "16 16 4 1",
+    "# c #000000",
+    "a c #ffffff",
+    "b c #c0c0c0",
+    ". c None",
+    "........... ....",
+    "   ....##.......",
+    "..#...####......",
+    "..#..#aabb#.....",
+    "..#.#aaaabb#....",
+    "..##aaaaaabb#...",
+    "..#aaaaaaaabb#..",
+    ".#aaaaaaaaabbb#.",
+    "###aaaaaaaabb###",
+    "..#aaaaaaaabb#..",
+    "..#aaa###aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#####.######..",
+    "................"};
+
+static const char * pix_print[] = {
+    "    16    14        6            1",
+    ". c #000000",
+    "# c #848284",
+    "a c #c6c3c6",
+    "b c #ffff00",
+    "c c #ffffff",
+    "d c None",
+    "ddddd.........dd",
+    "dddd.cccccccc.dd",
+    "dddd.c.....c.ddd",
+    "ddd.cccccccc.ddd",
+    "ddd.c.....c....d",
+    "dd.cccccccc.a.a.",
+    "d..........a.a..",
+    ".aaaaaaaaaa.a.a.",
+    ".............aa.",
+    ".aaaaaa###aa.a.d",
+    ".aaaaaabbbaa...d",
+    ".............a.d",
+    "d.aaaaaaaaa.a.dd",
+    "dd...........ddd"
+};
+
+HelpMainWindow::HelpMainWindow()
+    : QMainWindow()
+{
+    setCaption( tr( "Qt Documentation" ) );
+    QSplitter *splitter = new QSplitter( this );
+
+    QString docDir = QString( getenv( "QTDIR" ) ) + "/html";
+    if ( !QFile::exists( docDir ) )
+	docDir = QString( getenv( "QTDIR" ) ) + "/doc/html";
+    if ( !QFile::exists( docDir ) ) {
+	QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation directory!" ) );
+	exit( 0 );
+	return;
+    }
+	
+    if ( !QFile::exists( docDir + "/index" ) ) {
+	QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation index file!\n"
+							"Use mkindex to create it!" ) );
+	exit( 0 );
+	return;
+    }
+    
+    if ( !QFile::exists( docDir + "/titleindex" ) ) {
+	QMessageBox::critical( this, tr( "Error" ), tr( "Couldn't find the Qt documentation title index file!\n"
+							"Use mktitleindex to create it!" ) );
+	exit( 0 );
+	return;
+    }
+
+    navigation = new HelpNavigation( splitter, docDir + "/index",
+				     docDir + "/titleindex");
+    view = new HelpView( splitter, docDir );
+    splitter->setResizeMode( navigation, QSplitter::KeepSize );
+    setCentralWidget( splitter );
+    
+    connect( navigation, SIGNAL( showLink( const QString & ) ),
+	     view, SLOT( showLink( const QString & ) ) );
+    
+    QPopupMenu *file = new QPopupMenu( this );
+    menuBar()->insertItem( tr( "&File" ), file );
+    file->insertItem( tr( "&Print" ), this, SLOT( slotFilePrint() ), CTRL + Key_P );
+    file->insertSeparator();
+    file->insertItem( tr( "&Quit" ), qApp, SLOT( quit() ), CTRL + Key_Q );
+    
+    QPopupMenu *edit = new QPopupMenu( this );
+    menuBar()->insertItem( tr( "&Edit" ), edit );
+    
+    edit->insertItem( tr( "&Copy" ), this, SLOT( slotEditCopy() ), CTRL + Key_C );
+    edit->insertItem( tr( "Select &All" ), this, SLOT( slotEditSelectAll() ), CTRL + Key_A );
+    edit->insertSeparator();
+    edit->insertItem( tr( "&Find in this Topic..." ), this, SLOT( slotEditFind() ), CTRL + Key_F );
+
+    QPopupMenu *view = new QPopupMenu( this );
+    menuBar()->insertItem( tr( "&View" ), view );
+    
+    view->insertItem( tr( "&Contents" ), this, SLOT( slotViewContents() ), ALT + Key_C );
+    view->insertItem( tr( "&Index" ), this, SLOT( slotViewIndex() ), ALT + Key_I );
+    view->insertItem( tr( "&Search" ), this, SLOT( slotViewSearch() ), ALT + Key_S );
+    view->insertItem( tr( "&Bookmarks" ), this, SLOT( slotViewBookmarks() ), ALT + Key_B );
+
+    QPopupMenu *go = new QPopupMenu( this );
+    menuBar()->insertItem( tr( "&Go" ), go );
+    
+    go->insertItem( tr( "&Back" ), this, SLOT( slotGoBack() ), CTRL + Key_Left );
+    go->insertItem( tr( "&Forward" ), this, SLOT( slotGoForward() ), CTRL + Key_Right );
+    go->insertItem( tr( "&Home" ), this, SLOT( slotGoHome() ), CTRL + Key_Home );
+    go->insertSeparator();
+    history = new QPopupMenu( this );
+    go->insertItem( tr( "History" ), history );
+    
+    QPopupMenu *help = new QPopupMenu( this );
+    menuBar()->insertSeparator();
+    menuBar()->insertItem( tr( "&Help" ), help );
+
+    help->insertItem( tr( "&About" ), this, SLOT( slotHelpAbout() ), Key_F1 );
+    help->insertItem( tr( "About &Qt" ), this, SLOT( slotHelpAboutQt() ) );
+
+    QToolBar *tb = new QToolBar( this );
+
+    QToolButton *b = new QToolButton( QPixmap( pix_back ), tr( "Back" ), "", this,
+				      SLOT( slotGoBack() ), tb );
+    b = new QToolButton( QPixmap( pix_forward ), tr( "Forward" ), "", this,
+			 SLOT( slotGoForward() ), tb );
+    b = new QToolButton( QPixmap( pix_home ), tr( "Home" ), "", this,
+			 SLOT( slotGoHome() ), tb );
+    tb->addSeparator();
+    b = new QToolButton( QPixmap( pix_print ), tr( "Print" ), "", this,
+			 SLOT( slotFilePrint() ), tb );
+    tb->setStretchableWidget( new QWidget( tb ) );
+    tb->setStretchMode( QToolBar::FullWidth );
+    setUsesTextLabel( TRUE );
+}
+
+void HelpMainWindow::slotFilePrint()
+{
+}
+
+void HelpMainWindow::slotEditCopy()
+{
+}
+
+void HelpMainWindow::slotEditSelectAll()
+{
+}
+
+void HelpMainWindow::slotEditFind()
+{
+}
+
+void HelpMainWindow::slotViewContents()
+{
+    navigation->setViewMode( HelpNavigation::Contents );
+}
+
+void HelpMainWindow::slotViewIndex()
+{
+    navigation->setViewMode( HelpNavigation::Index );
+}
+
+void HelpMainWindow::slotViewSearch()
+{
+    navigation->setViewMode( HelpNavigation::Search );
+}
+
+void HelpMainWindow::slotViewBookmarks()
+{
+    navigation->setViewMode( HelpNavigation::Bookmarks );
+}
+
+void HelpMainWindow::slotGoBack()
+{
+}
+
+void HelpMainWindow::slotGoForward()
+{
+}
+
+void HelpMainWindow::slotGoHome()
+{
+}
+
+void HelpMainWindow::slotHelpAbout()
+{
+}
+ 
+void HelpMainWindow::slotHelpAboutQt()
+{
+    QMessageBox::aboutQt( this, "Qt Application Example" );
+}
