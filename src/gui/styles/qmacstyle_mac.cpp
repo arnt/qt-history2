@@ -2180,10 +2180,10 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
             if (cc == QStyle::CC_Slider && slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numMarks;
                 if (slider->tickInterval)
-                        numMarks = (slider->maximum - slider->minimum + 1)
-					/ slider->tickInterval;
+                        numMarks = ((slider->maximum - slider->minimum + 1)
+					/ slider->tickInterval) + 1;
                 else
-                    numMarks = (slider->maximum - slider->minimum + 1) / slider->pageStep;
+                    numMarks = ((slider->maximum - slider->minimum + 1) / slider->pageStep) + 1;
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     // They asked for both, so we'll give it to them.
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
@@ -3716,10 +3716,10 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
             if (slider->subControls & QStyle::SC_SliderTickmarks) {
                 int numTicks;
                 if (slider->tickInterval)
-                        numTicks = (slider->maximum - slider->minimum + 1)
-					/ slider->tickInterval;
+                        numTicks = ((slider->maximum - slider->minimum + 1)
+					/ slider->tickInterval) + 1;
                 else
-                    numTicks = (slider->maximum - slider->minimum + 1) / slider->pageStep;
+                    numTicks = ((slider->maximum - slider->minimum + 1) / slider->pageStep) + 1;
                 if (tdi.trackInfo.slider.thumbDir == kThemeThumbPlain) {
                     tdi.trackInfo.slider.thumbDir = kThemeThumbDownward;
                     DrawThemeTrackTickMarks(&tdi, numTicks, 0, 0);
