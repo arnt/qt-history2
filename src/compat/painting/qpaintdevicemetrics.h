@@ -17,34 +17,21 @@
 #include "qpaintdevice.h"
 
 
-class Q_GUI_EXPORT QPaintDeviceMetrics                        // paint device metrics
+class Q_COMPAT_EXPORT QPaintDeviceMetrics                        // paint device metrics
 {
 public:
     QPaintDeviceMetrics(const QPaintDevice *);
 
-    enum {
-        PdmWidth = 1,
-        PdmHeight,
-        PdmWidthMM,
-        PdmHeightMM,
-        PdmNumColors,
-        PdmDepth,
-        PdmDpiX,
-        PdmDpiY,
-        PdmPhysicalDpiX,
-        PdmPhysicalDpiY
-    };
-
-    int width() const { return pdev->metric(PdmWidth); }
-    int height() const { return pdev->metric(PdmHeight); }
-    int widthMM() const { return pdev->metric(PdmWidthMM); }
-    int heightMM() const { return pdev->metric(PdmHeightMM); }
-    int logicalDpiX() const { return pdev->metric(PdmDpiX); }
-    int logicalDpiY() const { return pdev->metric(PdmDpiY); }
-    int physicalDpiX() const { return pdev->metric(PdmPhysicalDpiX); }
-    int physicalDpiY() const { return pdev->metric(PdmPhysicalDpiY); }
-    int numColors() const { return pdev->metric(PdmNumColors); }
-    int depth() const { return pdev->metric(PdmDepth); }
+    int width() const { return pdev->width(); }
+    int height() const { return pdev->height(); }
+    int widthMM() const { return pdev->widthMM(); }
+    int heightMM() const { return pdev->heightMM(); }
+    int logicalDpiX() const { return pdev->logicalDpiX(); }
+    int logicalDpiY() const { return pdev->logicalDpiY(); }
+    int physicalDpiX() const { return pdev->physicalDpiX(); }
+    int physicalDpiY() const { return pdev->physicalDpiY(); }
+    int numColors() const { return pdev->numColors(); }
+    int depth() const { return pdev->depth(); }
 
 private:
     const QPaintDevice *pdev;

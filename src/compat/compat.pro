@@ -16,6 +16,7 @@ include(dialogs/dialogs.pri)
 include(text/text.pri)
 include(canvas/canvas.pri)
 include(network/network.pri)
+include(painting/painting.pri)
 
 mac:LIBS += -framework Carbon
 
