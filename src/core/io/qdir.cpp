@@ -746,7 +746,7 @@ bool QDir::cdUp()
 QStringList QDir::nameFilters() const
 {
     Q_D(const QDir);
-    
+
     return d->data->nameFilters;
 }
 
@@ -1012,7 +1012,7 @@ QStringList QDir::entryList(const QStringList &nameFilters, int filterSpec, int 
         d->updateFileLists();
         return d->data->files;
     }
-    QStringList l = d->data->fileEngine->entryList(d->data->filterSpec, nameFilters), ret;
+    QStringList l = d->data->fileEngine->entryList(filterSpec, nameFilters), ret;
     d->sortFileList(sortSpec, l, &ret, 0);
     return ret;
 }
@@ -1300,7 +1300,7 @@ QDir &QDir::operator=(const QDir &dir)
         delete d->data;
     d->data = dir.d_func()->data;
     ++ d->data->ref;
-   
+
     return *this;
 }
 
