@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#125 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#126 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#125 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#126 $");
 
 
 /*!
@@ -57,6 +57,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#125 $");
   according to the \e -geometry option.	 To preserve this functionality,
   you must set your defaults before setMainWidget() and any overrides
   after.
+
+  While Qt is not optimized or designed for writing non-GUI programs,
+  it's possible to use <a href="tools.html">some of its classes</a>
+  without creating a QApplication.  This can be very useful if you
+  wish to share code between a non-GUI server and a GUI client.
 
   \header qkeycode.h
   \header qwindefs.h
@@ -120,8 +125,8 @@ static void destroy_palettes()
 
 
 /*!
-  Constructs an application object with the command line arguments \e argc
-  and \e argv.
+  Initializes the window system and onstructs an application object
+  with the command line arguments \e argc and \e argv.
 
   The global \c qApp pointer refers to this application object. Only
   one application object should be created.
@@ -142,10 +147,11 @@ static void destroy_palettes()
   <li> \c -sync (only under X11), switches to synchronous mode for
 	debugging.
   </ul>
-  See <a href=debug.html> Debugging Techniques</a> for
-  a more detailed explanation.
 
-  The X11 version of Qt support a few more command line options:
+  See <a href="debug.html">Debugging Techniques</a> for a more
+  detailed explanation.
+
+  The X11 version of Qt supports a few more command line options:
   <ul>
   <li> \c -display \e display, sets the X display (default is $DISPLAY).
   <li> \c -geometry \e geometry, sets the client geometry of the
@@ -185,7 +191,8 @@ QApplication::QApplication( int &argc, char **argv )
 #if defined(_WS_X11_)
 
 /*!
-  Create an application, given an already open display.  X11 only.
+  Create an application, given an already open display.  This is
+  available only on X11
 */
 
 QApplication::QApplication( Display* dpy )
@@ -228,8 +235,8 @@ void QApplication::initialize( int argc, char **argv )
 
 /*!
   Deletes all remaining widgets and cleans up any window system
-  resources that were allocated by this application.  Sets the global \c
-  qApp to null.
+  resources that were allocated by this application.  Sets the global
+  variable \c qApp to null.
 */
 
 QApplication::~QApplication()
