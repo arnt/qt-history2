@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#14 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.h#15 $
 **
 ** Definition of Windows-like style class
 **
@@ -62,19 +62,47 @@ public:
     void polish( QWidget * );
     void unPolish( QWidget * );
 
+    // new
+    void drawPrimitive( PrimitiveOperation op,
+			QPainter *p,
+			const QRect &r,
+			const QColorGroup &cg,
+			PFlags flags = PStyle_Default,
+			void *data = 0 ) const;
+
+    void drawControl( ControlElement element,
+		      QPainter *p,
+		      const QWidget *widget,
+		      const QRect &r,
+		      const QColorGroup &cg,
+		      CFlags how = CStyle_Default,
+		      void *data = 0 ) const;
+
+    int pixelMetric( PixelMetric metic, const QWidget *widget = 0 ) const;
+
+    QSize sizeFromContents( ContentsType contents,
+			    const QWidget *w,
+			    const QSize &contentsSize,
+			    void *data ) const;
+
+    // convenience
+    void drawButton( QPainter *p, const QRect &r,
+                     const QColorGroup &g, bool sunken) const;
+    void drawBevelButton( QPainter *p, const QRect &r,
+                          const QColorGroup &g, bool sunken) const;
+
+    // old
     void drawButton( QPainter *p, int x, int y, int w, int h,
                      const QColorGroup &g, bool sunken = FALSE,
                      const QBrush *fill = 0 );
     void drawBevelButton( QPainter *p, int x, int y, int w, int h,
                           const QColorGroup &g, bool sunken = FALSE,
                           const QBrush *fill = 0 );
+    void drawPushButton( QPushButton* btn, QPainter *p);
+    void getButtonShift( int &x, int &y) const;
 
     void drawFocusRect( QPainter*,
-                        const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
-
-    void drawPushButton( QPushButton* btn, QPainter *p);
-
-    void getButtonShift( int &x, int &y) const;
+			const QRect&, const QColorGroup &, const QColor* =0,  bool = FALSE );
 
     void drawPanel( QPainter *p, int x, int y, int w, int h,
                     const QColorGroup &, bool sunken=FALSE,
@@ -89,12 +117,12 @@ public:
                     const QColorGroup &g, bool enabled, const QBrush *fill = 0 );
 
     void drawToolButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
-		     const QBrush *fill = 0 );
+			 const QColorGroup &g, bool on, bool down, bool enabled, bool autoRaised = FALSE,
+			 const QBrush *fill = 0 );
 
     void drawDropDownButton( QPainter *p, int x, int y, int w, int h,
-		     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
-		     const QBrush *fill = 0 );
+			     const QColorGroup &g, bool down, bool enabled, bool autoRaised = FALSE,
+			     const QBrush *fill = 0 );
 
     QSize indicatorSize() const;
     void drawIndicator( QPainter* p,  int x, int y, int w, int h, const QColorGroup &g,
@@ -124,9 +152,9 @@ public:
 
     int sliderLength() const;
     void drawSlider( QPainter *p,
-                             int x, int y, int w, int h,
-                             const QColorGroup &g,
-                             Orientation, bool tickAbove, bool tickBelow);
+		     int x, int y, int w, int h,
+		     const QColorGroup &g,
+		     Orientation, bool tickAbove, bool tickBelow);
     void drawSliderGroove( QPainter *p,
                            int x, int y, int w, int h,
                            const QColorGroup& g, QCOORD c,
@@ -136,11 +164,11 @@ public:
 
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
-                             const QColorGroup &g, Orientation);
+		       const QColorGroup &g, Orientation);
 
     void drawCheckMark( QPainter *p, int x, int y, int w, int h,
-                             const QColorGroup &g,
-                             bool act, bool dis );
+			const QColorGroup &g,
+			bool act, bool dis );
     void polishPopupMenu( QPopupMenu* );
 
     int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi,
@@ -176,9 +204,10 @@ protected:
                         int x, int y, int w, int h,
                         const QColor &c1, const QColor &c2,
                         const QColor &c3, const QColor &c4,
-                        const QBrush *fill );
+                        const QBrush *fill ) const;
 
     bool eventFilter( QObject *o, QEvent *e );
+
 
 private:        // Disabled copy constructor and operator=
     QWindowsStylePrivate *d;

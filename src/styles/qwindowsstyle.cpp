@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#43 $
+** $Id: //depot/qt/main/src/styles/qwindowsstyle.cpp#44 $
 **
 ** Implementation of Windows-like style class
 **
@@ -60,6 +60,7 @@
 
 #include <limits.h>
 
+
 class QWindowsStylePrivate
 {
 public:
@@ -69,6 +70,7 @@ public:
 
     QWidget *hotWidget;
 };
+
 
 // NOT REVISED
 /*!
@@ -80,6 +82,7 @@ public:
   platform. Naturally it is also Qt's default GUI style on Windows.
 */
 
+
 /*!
     Constructs a QWindowsStyle
 */
@@ -88,12 +91,14 @@ QWindowsStyle::QWindowsStyle() : QCommonStyle(WindowsStyle)
     d = new QWindowsStylePrivate;
 }
 
+
 /*!\reimp
 */
 QWindowsStyle::~QWindowsStyle()
 {
     delete d;
 }
+
 
 /*!\reimp */
 void QWindowsStyle::polish( QWidget *widget )
@@ -102,10 +107,150 @@ void QWindowsStyle::polish( QWidget *widget )
 	widget->installEventFilter( this );
 }
 
+
 /*!\reimp */
 void QWindowsStyle::unPolish( QWidget *widget )
 {
     widget->removeEventFilter( this );
+}
+
+
+/*!
+  \reimp
+*/
+void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
+				   QPainter *p,
+				   const QRect &r,
+				   const QColorGroup &cg,
+				   PFlags flags,
+				   void *data ) const
+{
+    switch (op) {
+    case PO_ButtonCommand:
+    case PO_ButtonBevel:
+	drawButton(p, r, cg, flags & PStyle_Sunken);
+	break;
+
+    default:
+	QCommonStyle::drawPrimitive(op, p, r, cg, flags, data);
+    }
+}
+
+
+/*!
+  \reimp
+*/
+void QWindowsStyle::drawControl( ControlElement element,
+				 QPainter *p,
+				 const QWidget *widget,
+				 const QRect &r,
+				 const QColorGroup &cg,
+				 CFlags how,
+				 void *data ) const
+{
+    switch (element) {
+    case CE_PushButton: {
+	QPushButton *button = (QPushButton *) widget;
+	QRect br = r;
+	int dbi = pixelMetric(PM_ButtonDefaultIndicator, widget);
+
+	PFlags flags = PStyle_Default;
+	if (button->isEnabled())
+	    flags |= PStyle_Enabled;
+	if (button->isDown())
+	    flags |= PStyle_Sunken;
+
+	if (button->isDefault() || button->autoDefault()) {
+	    if ( button->isDefault()) {
+		p->setPen(cg.shadow());
+		p->drawRect(br);
+	    }
+
+	    br.setCoords(br.left()   + dbi,
+			 br.top()    + dbi,
+			 br.right()  - dbi,
+			 br.bottom() - dbi);
+	}
+
+	drawPrimitive(PO_ButtonCommand, p, br, cg, flags);
+	break; }
+
+    default:
+	QCommonStyle::drawControl(element, p, widget, r, cg, how, data);
+    }
+}
+
+
+/*!
+  \reimp
+*/
+int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
+{
+    int ret;
+
+    switch (metric) {
+    case PM_ButtonDefaultIndicator:
+	ret = 1;
+	break;
+
+    default:
+	ret = QCommonStyle::pixelMetric(metric, widget);
+	break;
+    }
+
+    return ret;
+}
+
+
+/*!
+  \reimp
+*/
+QSize QWindowsStyle::sizeFromContents( ContentsType contents,
+				       const QWidget *widget,
+				       const QSize &contentsSize,
+				       void *data ) const
+{
+    QSize sz = QCommonStyle::sizeFromContents(contents, widget, contentsSize, data);
+
+    if (contents == CT_PushButtonContents) {
+	QPushButton *button = (QPushButton *) widget;
+	int w = sz.width(), h = sz.height();
+
+	if (w < 85 && ! button->pixmap() &&
+	    (button->isDefault() || button->autoDefault()))
+	    w = 80;
+	if (h <= 25)
+	    h = 22;
+
+	sz = QSize(w, h);
+    }
+
+    return sz;
+}
+
+
+/*!
+ */
+void QWindowsStyle::drawButton( QPainter *p, const QRect &r, const QColorGroup &cg,
+				bool sunken) const
+{
+    if (sunken)
+        drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
+                       cg.shadow(), cg.light(), cg.dark(), cg.button(),
+                       &cg.brush( QColorGroup::Button ) );
+    else
+        drawWinShades( p, r.x(), r.y(), r.width(), r.height(),
+                       cg.light(), cg.shadow(), cg.button(), cg.dark(),
+                       &cg.brush( QColorGroup::Button ) );
+}
+
+
+/*!
+ */
+void QWindowsStyle::drawBevelButton( QPainter *p, const QRect &r, const QColorGroup &cg,
+				     bool sunken) const
+{
+    drawButton(p, r, cg, sunken);
 }
 
 
@@ -194,7 +339,7 @@ void QWindowsStyle::drawWinShades( QPainter *p,
                                    int x, int y, int w, int h,
                                    const QColor &c1, const QColor &c2,
                                    const QColor &c3, const QColor &c4,
-                                   const QBrush *fill )
+                                   const QBrush *fill ) const
 {
     if ( w < 2 || h < 2 )                       // can't do anything with that
         return;
@@ -296,10 +441,8 @@ QWindowsStyle::drawArrow( QPainter *p, ArrowType type, bool down,
         return;
 
     if ( down ) {
-	int xs, ys;
-	getButtonShift( xs, ys );
-        x += xs;
-        y += ys;
+        x += pixelMetric(PM_ButtonShiftHorizontal, 0),
+        y += pixelMetric(PM_ButtonShiftVertical, 0);
     }
 
     QPen savePen = p->pen();                    // save current pen
@@ -439,23 +582,15 @@ QWindowsStyle::exclusiveIndicatorSize() const
 }
 
 
-
-
-/*!\reimp
+/*!
+  \reimp
 */
 void QWindowsStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-                                const QColorGroup &g, bool sunken, const QBrush* fill)
+                                const QColorGroup &g, bool sunken, const QBrush *)
 {
-    if (sunken)
-        drawWinShades( p, x, y, w, h,
-                       g.shadow(), g.light(), g.dark(), g.button(),
-                       fill?fill: &g.brush( QColorGroup::Button ) );
-    else
-        drawWinShades( p, x, y, w, h,
-                       g.light(), g.shadow(), g.button(), g.dark(),
-                       fill?fill:&g.brush( QColorGroup::Button ) );
-
+    drawButton(p, QRect(x, y, w, h), g, sunken);
 }
+
 
 /*!\reimp
  */
@@ -466,75 +601,22 @@ void QWindowsStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*!\reimp
- */
-void
-QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
+/*!
+  \reimp
+  */
+void QWindowsStyle::drawPushButton( QPushButton* , QPainter *)
 {
-#ifndef QT_NO_PUSHBUTTON
-    QColorGroup g = btn->colorGroup();
-    int x1, y1, x2, y2;
 
-    btn->rect().coords( &x1, &y1, &x2, &y2 );   // get coordinates
-
-    p->setPen( g.foreground() );
-    p->setBrush( QBrush(g.button(),NoBrush) );
-
-    int diw = buttonDefaultIndicatorWidth();
-    if ( btn->isDefault() || btn->autoDefault() ) {
-        if ( btn->isDefault() ) {
-            p->setPen( g.shadow() );
-            p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-        }
-        x1 += diw;
-        y1 += diw;
-        x2 -= diw;
-        y2 -= diw;
-    }
-
-    bool clearButton = TRUE;
-    if ( btn->isDown() ) {
-        if ( btn->isDefault() ) {
-            p->setPen( g.dark() );
-            p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-        } else {
-            drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE,
-                        &g.brush( QColorGroup::Button ) );
-        }
-    } else {
-        if ( btn->isToggleButton() && btn->isOn() && btn->isEnabled() ) {
-            QBrush fill(g.light(), Dense4Pattern );
-            drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE, &fill );
-            clearButton = FALSE;
-        } else {
-            if ( !btn->isFlat() )
-                drawButton( p, x1, y1, x2-x1+1, y2-y1+1, g, btn->isOn(),
-                        &g.brush( QColorGroup::Button ) );
-        }
-    }
-    if ( clearButton ) {
-        if (btn->isDown())
-            p->setBrushOrigin(p->brushOrigin() + QPoint(1,1));
-        p->fillRect( x1+2, y1+2, x2-x1-3, y2-y1-3,
-                     g.brush( QColorGroup::Button ) );
-        if (btn->isDown())
-            p->setBrushOrigin(p->brushOrigin() - QPoint(1,1));
-    }
-
-    if ( p->brush().style() != NoBrush )
-        p->setBrush( NoBrush );
-
-#endif
 }
 
-
-/*!\reimp
- */
+/*
+  !\reimp
+*/
 void QWindowsStyle::getButtonShift( int &x, int &y ) const
 {
-    x = 1;
-    y = 1;
+    x = y = 1;
 }
+
 
 /*!\reimp
  */
@@ -1668,7 +1750,7 @@ void QWindowsStyle::drawListViewItemBranch( QPainter *p, int y, int w, int h, co
 	dotlines[c++] = QPoint( bx, linetop );
 	dotlines[c++] = QPoint( bx, linebot );
     }
-	
+
     p->setPen( cg.dark() );
 
     static QBitmap *verticalLine = 0, *horizontalLine = 0;

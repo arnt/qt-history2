@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#85 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#86 $
 **
 ** Definition of QStyle class
 **
@@ -75,36 +75,37 @@ private:
 public:
     virtual ~QStyle();
 
-    // New QStyle API
+    // New QStyle API - most of these should probably be pure virtual
 
-    virtual void polish( QWidget* );
-    virtual void unPolish( QWidget* );
+    virtual void polish( QWidget * );
+    virtual void unPolish( QWidget * );
 
-    virtual void polish( QApplication*);
-    virtual void unPolish( QApplication*);
+    virtual void polish( QApplication * );
+    virtual void unPolish( QApplication * );
 
-    virtual void polish( QPalette&);
+    virtual void polish( QPalette & );
 
-
-    virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
+    virtual QRect itemRect( QPainter *p, const QRect &r,
 			    int flags, bool enabled,
 			    const QPixmap *pixmap,
-			    const QString& text, int len=-1 ) const;
+			    const QString &text, int len = -1 ) const;
 
-    virtual void drawItem( QPainter *p, int x, int y, int w, int h,
+    virtual void drawItem( QPainter *p, const QRect &r,
 			   int flags, const QColorGroup &g, bool enabled,
-			   const QPixmap *pixmap, const QString& text,
-			   int len=-1, const QColor* penColor = 0 );
+			   const QPixmap *pixmap, const QString &text,
+			   int len = -1, const QColor *penColor = 0 ) const;
+
 
     enum PrimitiveOperation {
+	PO_ButtonCommand,
+	PO_ButtonBevel,
+	PO_ButtonTool
+
 	/*
 	  PO_ArrowUp,
 	  PO_ArrowDown,
 	  PO_ArrowRight,
 	  PO_ArrowLeft,
-	  PO_Button,
-	  PO_ButtonBevel,
-	  PO_ButtonTool,
 	  PO_Panel,
 	  PO_PanelPopup,
 	  PO_PanelMenu,
@@ -125,16 +126,14 @@ public:
     };
 
     enum PrimitiveOperationFlags {
-	PStyle_Default = 		0x00000000
+	PStyle_Default = 		0x00000000,
+	PStyle_Enabled = 		0x00000001,
+	PStyle_Sunken = 		0x00000002,
+	PStyle_Off =			0x00000004,
+	PStyle_NoChange=		0x00000008,
+	PStyle_On=			0x00000010
 
 	/*
-	  ,
-	  PStyle_Enabled = 		0x00000001,
-	  PStyle_Sunken = 		0x00000002,
-	  PStyle_Off =			0x00000004,
-	  PStyle_NoChange=		0x00000008,
-	  PStyle_On=			0x00000010,
-
 	  PStyle_FocusHighlight=	0x00000001,
 	  PStyle_FocusAtBorder=		0X00000002
 	*/
@@ -146,14 +145,16 @@ public:
 				const QRect &r,
 				const QColorGroup &cg,
 				PFlags flags = PStyle_Default,
-				void *data = 0 );
+				void *data = 0 ) const = 0;
+
 
     enum ControlElement{
+	CE_PushButton,
+	CE_PushButtonLabel
+
 	/*
 	  CE_Tab,
 	  CE_MenuBarItem,
-	  CE_PushButton,
-	  CE_PushButtonLabel
 	*/
     };
 
@@ -169,12 +170,11 @@ public:
 
     virtual void drawControl( ControlElement element,
 			      QPainter *p,
-			      QWidget *w,
-			      const QColorGroup& cg,
-			      const QRect& r,
+			      const QWidget *widget,
+			      const QRect &r,
+			      const QColorGroup &cg,
 			      CFlags how = CStyle_Default,
-			      void *data = 0 );
-
+			      void *data = 0 ) const = 0;
 
     enum SubRect {
 	/*
@@ -183,13 +183,14 @@ public:
 	  SR_MenuFrameContents,
 
 	  SR_ButtonContents,
-	  SR_BevelButtonContents,
+	  SR_BevelButtonContents
 	  SR_PushButtonContents,
 	  SR_ToolButtonContents,
 	*/
     };
 
-    virtual QRect subRect( SubRect r, QWidget *w );
+    virtual QRect subRect( SubRect r, const QWidget *widget ) const = 0;
+
 
     enum ComplexControl{
 	/*
@@ -235,38 +236,41 @@ public:
 
 
     virtual void drawComplexControl( ComplexControl control,
-				     QPainter* p,
-				     QWidget* w,
-				     const QColorGroup& cg,
-				     const QRect& r,
+				     QPainter *p,
+				     const QWidget *widget,
+				     const QRect &r,
+				     const QColorGroup &cg,
 				     CFlags flags = CStyle_Default,
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
-				     void* data = 0 );
+				     void *data = 0 ) const = 0;
 
     virtual QRect querySubControlMetrics( ComplexControl control,
-					  QWidget* w,
+					  const QWidget *widget,
 					  SubControl sc,
-					  void* data = 0 );
+					  void *data = 0 ) const = 0;
     virtual SubControl querySubControl( ComplexControl control,
-					QWidget* w,
-					const QPoint& pos,
-					void* data = 0 );
+					const QWidget *widget,
+					const QPoint &pos,
+					void *data = 0 ) const = 0;
 
 
     enum PixelMetric {
+	PM_ButtonMargin,
+	PM_ButtonDefaultIndicator,
+	PM_MenuButtonIndicator,
+	PM_ButtonShiftHorizontal,
+	PM_ButtonShiftVertical,
+
+	PM_DefaultFrameWidth
+
 	/*
-	  PM_DefaultFrameWidth,
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
 
-	  PM_ButtonDefaultIndicator,
 	  PM_SplitterWidth,
 	  PM_SliderLength,
 	  PM_MaximimumSliderDragDistance,
-	  PM_ButtonShiftHorizontal,
-	  PM_ButtonShiftVertical,
-	  PM_MenuButtonIndicatorWidth,
 	  PM_TabBarOverlap,
 
 	  PM_TabBarBaseHeight,
@@ -284,20 +288,18 @@ public:
 	*/
     };
 
-    virtual int pixelMetric( PixelMetric m, QWidget* w = 0 );
+    virtual int pixelMetric( PixelMetric metic,
+			     const QWidget *widget = 0 ) const = 0;
 
 
-    enum SizeHintConstraint {
-	/*
-	  SHC_PushButton
-	*/
+    enum ContentsType {
+	CT_PushButtonContents
     };
 
-    virtual QSize sizeHintConstraint( SizeHintConstraint s,
-				      QWidget* w,
-				      const QSize& sizeHint,
-				      void* data = 0 );
-
+    virtual QSize sizeFromContents( ContentsType contents,
+				    const QWidget *widget,
+				    const QSize &contentsSize,
+				    void *data = 0 ) const = 0;
 
     enum FeelHint  {
 	/*
@@ -305,7 +307,9 @@ public:
 	*/
     };
 
-    virtual int feelHint( FeelHint f, QWidget* w = 0, void** returnData = 0 );
+    virtual int feelHint( FeelHint f,
+			  const QWidget *w = 0,
+			  void **returnData = 0 ) const = 0;
 
 
 
@@ -334,14 +338,15 @@ public:
     // virtual void polish( QApplication*);
     // virtual void unPolish( QApplication*);
     // virtual void polish( QPalette&);
-    // virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
-    // int flags, bool enabled,
-    // const QPixmap *pixmap,
-    // const QString& text, int len=-1 ) const;
-    // virtual void drawItem( QPainter *p, int x, int y, int w, int h,
-    // int flags, const QColorGroup &g, bool enabled,
-    // const QPixmap *pixmap, const QString& text,
-    // int len=-1, const QColor* penColor = 0 );
+
+    virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
+			    int flags, bool enabled,
+			    const QPixmap *pixmap,
+			    const QString& text, int len=-1 ) const;
+    virtual void drawItem( QPainter *p, int x, int y, int w, int h,
+			   int flags, const QColorGroup &g, bool enabled,
+			   const QPixmap *pixmap, const QString& text,
+			   int len=-1, const QColor* penColor = 0 );
 
     virtual void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
 				const QColorGroup &g, bool sunken = TRUE,

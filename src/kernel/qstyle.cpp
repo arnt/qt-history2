@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#115 $
 **
 ** Implementation of QStyle class
 **
@@ -1135,109 +1135,34 @@ const QWidget *QStyle::contextWidget()
 
 
 
+
+
+
+// New QStyle API
+
 /*!
-  Draws a primitive operation.
+  Returns the appropriate area within a rectangle in which to
+  draw text or a pixmap.
 */
-void QStyle::drawPrimitive( PrimitiveOperation op,
-			    QPainter *p,
-			    const QRect &r,
-			    const QColorGroup &cg,
-			    PFlags flags = PStyle_Default,
-			    void *data = 0 )
+QRect QStyle::itemRect( QPainter *p, const QRect &r,
+			int flags, bool enabled, const QPixmap *pixmap,
+			const QString& text, int len ) const
 {
-
-}
-
-
-/*
-  Draws a control.
-*/
-void QStyle::drawControl( ControlElement element,
-			  QPainter *p,
-			  QWidget *w,
-			  const QColorGroup& cg,
-			  const QRect& r,
-			  CFlags how = CStyle_Default,
-			  void *data = 0 )
-{
-
-}
-
-/*
-  Returns a contents(?) subrect.
-*/
-QRect QStyle::subRect( SubRect r, QWidget *w )
-{
-    return QRect();
+    return qItemRect( p, gs, r.x(), r.y(), r.width(), r.height(),
+		      flags, enabled, pixmap, text, len );
 }
 
 
 /*!
-  Draws a complex control.
+  Draws text or a pixmap in an area.
 */
-void QStyle::drawComplexControl( ComplexControl control,
-				 QPainter* p,
-				 QWidget* w,
-				 const QColorGroup& cg,
-				 const QRect& r,
-				 CFlags flags = CStyle_Default,
-				 SCFlags sub = SC_None,
-				 SCFlags subActive = SC_None,
-				 void* data = 0 )
+void QStyle::drawItem( QPainter *p, const QRect &r,
+		       int flags, const QColorGroup &g, bool enabled,
+		       const QPixmap *pixmap, const QString& text, int len,
+		       const QColor* penColor ) const
 {
-
-}
-
-
-/*!
-  Returns the metrics of a subcontrol in a complex control.
-*/
-QRect QStyle::querySubControlMetrics( ComplexControl control,
-				      QWidget* w,
-				      SubControl sc,
-				      void* data = 0 )
-{
-
-}
-
-
-/*!
-  Returns the subcontrol in a complex control.
-*/
-QStyle::SubControl QStyle::querySubControl( ComplexControl control,
-					    QWidget* w,
-					    const QPoint& pos,
-					    void* data = 0 )
-{
-
-}
-
-/*!
-  Returns a pixel metric.
-*/
-int QStyle::pixelMetric( PixelMetric m, QWidget* w = 0 )
-{
-
-}
-
-
-/*!
-  Returns the size hint constraint (minimum size hint).
-*/
-QSize QStyle::sizeHintConstraint( SizeHintConstraint s,
-				  QWidget* w,
-				  const QSize& sizeHint,
-				  void* data = 0 )
-{
-
-}
-
-/*!
-  Returns a feel hint.
-*/
-int QStyle::feelHint( FeelHint f, QWidget* w = 0, void** returnData = 0 )
-{
-
+    qDrawItem( p, gs, r.x(), r.y(), r.width(), r.height(),
+	       flags, g, enabled, pixmap, text, len, penColor );
 }
 
 

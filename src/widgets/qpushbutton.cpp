@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#206 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#207 $
 **
 ** Implementation of QPushButton class
 **
@@ -340,58 +340,37 @@ void QPushButton::setDefault( bool enable )
 QSize QPushButton::sizeHint() const
 {
     constPolish();
-    int w = 0;
-    int h = 0;
 
+    int h = style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) * 2,
+	w = h * 2;
+
+    // calculate contents size...
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
-	w = pm->width() + style().buttonMargin();
-	h = pm->height() + style().buttonMargin();
+	w += pm->width();
+	h += pm->height();
     } else {
 	QString s( text() );
 	if ( s.isEmpty() )
 	    s = QString::fromLatin1("XXXX");
 	QFontMetrics fm = fontMetrics();
 	QSize sz = fm.size( ShowPrefix, s );
-	w = sz.width() + style().buttonMargin();
-	h = sz.height() + sz.height()/8 + 4 + style().buttonMargin();
-//	w += h;
+	w += sz.width();
+	h += sz.height();
     }
-
 
     if ( iconSet() && !iconSet()->isNull() ) {
 	int iw = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4;
 	int ih = iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height();
-	w += iw + style().buttonMargin() - 2;
-	h = QMAX( h, ih + style().buttonMargin() );
-    }
-
-
-    if ( isDefault() || autoDefault() ) {
-	w += 2*style().buttonDefaultIndicatorWidth();
-	h += 2*style().buttonDefaultIndicatorWidth();
+	w += iw - 2;
+	h = QMAX( h, ih );
     }
 
     if ( isMenuButton() )
-	w += style().menuButtonIndicatorWidth( h );
+	w += style().pixelMetric(QStyle::PM_MenuButtonIndicator, this);
 
-#ifndef Q_WS_QWS
-     if ( style() == WindowsStyle ) {
-	// in windows style, try a little harder to conform to
-	// microsoft's size specifications
-	if ( h <= 25 )
-	    h = 22;
-	if ( w < 85 && !pixmap() && ( isDefault() || autoDefault() ) )
-	    w = 80;
-     } else if ( !pixmap() && (isDefault() || autoDefault() ) ) {
-	 // un-unglify motifstyles until we fix boxlayout to treat
-	 // pushbuttons differently
-	 if ( w < 80 )
-	     w = 80;
-     }
-#endif
-
-     return QSize( w, h ).expandedTo( QApplication::globalStrut() );
+    return style().sizeFromContents(QStyle::CT_PushButtonContents,
+				    this, QSize(w, h));
 }
 
 
@@ -451,7 +430,8 @@ void QPushButton::drawButton( QPainter *paint )
 {
     int diw = 0;
     if ( isDefault() || autoDefault() ) {
-	diw = style().buttonDefaultIndicatorWidth();
+	diw = style().pixelMetric(QStyle::PM_ButtonDefaultIndicator, this);
+
 	if ( diw > 0 ) {
 	    if (backgroundMode() == X11ParentRelative) {
 		erase( 0, 0, width(), diw );
@@ -486,14 +466,19 @@ void QPushButton::drawButton( QPainter *paint )
 	}
     }
 
-    style().drawPushButton(this, paint);
+    style().drawControl(QStyle::CE_PushButton, paint, this, rect(), colorGroup());
     drawButtonLabel( paint );
-    int x1, y1, x2, y2;
-    style().pushButtonContentsRect( this ).coords( &x1, &y1, &x2, &y2 );// get coordinates
-    if ( hasFocus() ) {
- 	QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
- 	style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
-    }
+
+    /*
+      int x1, y1, x2, y2;
+      // get coordinates
+      style().pushButtonContentsRect( this ).coords( &x1, &y1, &x2, &y2 );
+      if ( hasFocus() ) {
+      QRect r(x1+2, y1+2, x2-x1-3, y2-y1-3);
+      style().drawFocusRect( paint, r , colorGroup(), &colorGroup().button() );
+      }
+    */
+
     lastEnabled = isEnabled();
 }
 
@@ -502,7 +487,7 @@ void QPushButton::drawButton( QPainter *paint )
 */
 void QPushButton::drawButtonLabel( QPainter *paint )
 {
-    style().drawPushButtonLabel( this, paint );
+    style().drawControl(QStyle::CE_PushButtonLabel, paint, this, rect(), colorGroup());
 }
 
 

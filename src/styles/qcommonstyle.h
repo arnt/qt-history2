@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.h#12 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.h#13 $
 **
 ** Definition of QCommonStyle class
 **
@@ -54,9 +54,64 @@ private:
     friend class QMotifStyle;
     friend class QWindowsStyle;
     friend class QPlatinumStyle;
-public:
 
-     // push buttons
+
+public:
+    virtual void drawPrimitive( PrimitiveOperation op,
+				QPainter *p,
+				const QRect &r,
+				const QColorGroup &cg,
+				PFlags flags = PStyle_Default,
+				void *data = 0 ) const;
+
+    virtual void drawControl( ControlElement element,
+			      QPainter *p,
+			      const QWidget *w,
+			      const QRect &r,
+			      const QColorGroup &cg,
+			      CFlags how = CStyle_Default,
+			      void *data = 0 ) const;
+
+    virtual QRect subRect( SubRect r, const QWidget *w ) const;
+
+    virtual void drawComplexControl( ComplexControl control,
+				     QPainter *p,
+				     const QWidget *w,
+				     const QRect &r,
+				     const QColorGroup &cg,
+				     CFlags flags = CStyle_Default,
+				     SCFlags sub = SC_None,
+				     SCFlags subActive = SC_None,
+				     void *data = 0 ) const;
+
+    virtual QRect querySubControlMetrics( ComplexControl control,
+					  const QWidget *w,
+					  SubControl sc,
+					  void *data = 0 ) const;
+    virtual SubControl querySubControl( ComplexControl control,
+					const QWidget *w,
+					const QPoint &pos,
+					void *data = 0 ) const;
+
+    virtual int pixelMetric( PixelMetric m, const QWidget *w = 0 ) const;
+
+    virtual QSize sizeFromContents( ContentsType s,
+				    const QWidget *w,
+				    const QSize &contentsSize,
+				    void *data = 0 ) const;
+
+    virtual int feelHint( FeelHint f,
+			  const QWidget *w = 0,
+			  void **returnData = 0 ) const;
+
+
+
+
+
+
+
+
+    // push buttons
     void drawPushButtonLabel( QPushButton* btn, QPainter *p);
     QRect pushButtonContentsRect( QPushButton* btn ) const;
 
@@ -96,7 +151,7 @@ public:
     // title bar
     virtual void titleBarMetrics( const QTitleBar*, int&, int&, int&, int&) const;
     virtual void drawTitleBarControls( QPainter*,  const QTitleBar*,
-					uint controls, uint activeControl );
+				       uint controls, uint activeControl );
     virtual TitleControl titleBarPointOver( const QTitleBar*, const QPoint& );
 
     ListViewItemControl listViewItemPointOver( const QListViewItem *, const QPoint & );

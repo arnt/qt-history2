@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#32 $
+** $Id: //depot/qt/main/src/styles/qcommonstyle.cpp#33 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -95,8 +95,8 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    bool, bool, bool )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
-    drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	    g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
+    drawItem( p, QRect(x, y, w, h), AlignCenter|ShowPrefix|DontClip|SingleLine,
+	      g, mi->isEnabled(), mi->pixmap(), mi->text(), -1, &g.buttonText() );
 #endif
 }
 
@@ -309,7 +309,7 @@ void QCommonStyle::drawSpinWidgetSymbol( QPainter *p, int x, int y, int w,
 /*! \reimp */
 void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled )
 {
-    drawItem( p, x, y, w, h, AlignCenter + ShowPrefix, g, enabled, 0, text );
+    drawItem( p, QRect(x, y, w, h), AlignCenter + ShowPrefix, g, enabled, 0, text );
 }
 
 /*! \reimp */
@@ -499,11 +499,12 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	QPixmap pm(titleBarPixmap(tb, TitleCloseButton));
 	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			tb->colorGroup(), FALSE, down, TRUE, FALSE );
-	int xoff=0, yoff=0;
+	int xoff = 0, yoff = 0;
 	if(down)
 	    getButtonShift(xoff, yoff);
-	drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		  TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			   TITLEBAR_CONTROL_HEIGHT),
+		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 
 	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*2),
 		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
@@ -512,11 +513,13 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	pm = QPixmap(titleBarPixmap(tb, TitleMaxButton));
 	drawToolButton( p, r.x(), r.y(), r.width(), r.height(),
 			tb->colorGroup(), FALSE, down, TRUE, FALSE );
-	xoff=0, yoff=0;
+	xoff = 0;
+	yoff = 0;
 	if(down)
 	    getButtonShift(xoff, yoff);
-	drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		  TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			   TITLEBAR_CONTROL_HEIGHT),
+		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 
 	r = QRect(tb->width()-((TITLEBAR_CONTROL_WIDTH+TITLEBAR_SEPARATION)*3),
 		  2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
@@ -528,8 +531,9 @@ void QCommonStyle::drawTitleBarControls( QPainter*p,  const QTitleBar*tb,
 	xoff=0, yoff=0;
 	if(down)
 	    getButtonShift(xoff, yoff);
-	drawItem( p, r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
-		  TITLEBAR_CONTROL_HEIGHT, AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
+	drawItem( p, QRect(r.x()+xoff, r.y()+yoff, TITLEBAR_CONTROL_WIDTH,
+			   TITLEBAR_CONTROL_HEIGHT),
+		  AlignCenter, tb->colorGroup(), TRUE, &pm, QString::null );
 
  	if ( !tb->pixmap.isNull() ) {
 	    r = QRect( 2 + TITLEBAR_CONTROL_WIDTH / 2 - tb->pixmap.width() / 2,
@@ -585,4 +589,217 @@ QCommonStyle::listViewItemPointOver( const QListViewItem *i, const QPoint &pos )
 
 
 
+
+
+// New QStyle API
+
+
+/*!
+  Draws a primitive operation.
+*/
+void QCommonStyle::drawPrimitive( PrimitiveOperation op,
+				  QPainter *p,
+				  const QRect &r,
+				  const QColorGroup &cg,
+				  PFlags flags,
+				  void *data ) const
+{
+    switch (op) {
+    case PO_ButtonCommand:
+    case PO_ButtonBevel:
+    case PO_ButtonTool:
+	qDrawShadePanel(p, r.x(), r.y(), r.width(), r.height(), cg,
+			flags & PStyle_Sunken, 1);
+	break;
+    }
+}
+
+
+/*
+  Draws a control.
+*/
+void QCommonStyle::drawControl( ControlElement element,
+				QPainter *p,
+				const QWidget *widget,
+				const QRect &r,
+				const QColorGroup &cg,
+				CFlags how,
+				void *data ) const
+{
+    switch (element) {
+    case CE_PushButton: {
+	QPushButton *button = (QPushButton *) widget;
+
+	PFlags flags = PStyle_Default;
+	if (button->isEnabled())
+	    flags |= PStyle_Enabled;
+	if (button->isDown())
+	    flags |= PStyle_Sunken;
+
+	drawPrimitive(PO_ButtonCommand, p, r, cg, flags);
+	break; }
+
+    case CE_PushButtonLabel: {
+	QPushButton *button = (QPushButton *) widget;
+	QRect ir = r;
+	if (button->isDown())
+	    ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+		      pixelMetric(PM_ButtonShiftVertical, widget));
+
+	if ( button->iconSet() && ! button->iconSet()->isNull() ) {
+	    QIconSet::Mode mode =
+		button->isEnabled() ? QIconSet::Normal : QIconSet::Disabled;
+	    if ( mode == QIconSet::Normal && button->hasFocus() )
+		mode = QIconSet::Active;
+
+	    QIconSet::State state = QIconSet::Off;
+	    if ( button->isToggleButton() && button->isOn() )
+		state = QIconSet::On;
+
+	    QPixmap pixmap = button->iconSet()->pixmap( QIconSet::Small, mode, state );
+	    int pixw = pixmap.width();
+	    int pixh = pixmap.height();
+	    p->drawPixmap( ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap );
+
+	    ir.moveBy(pixw + 4, 0);
+	    ir.setWidth(ir.width() - pixw + 4);
+	}
+
+	drawItem(p, ir, AlignCenter, cg, button ? button->isEnabled() : true,
+		 button->pixmap(), button->text());
+	break; }
+    }
+}
+
+
+/*
+  Returns a contents(?) subrect.
+*/
+QRect QCommonStyle::subRect(SubRect r, const QWidget *widget) const
+{
+    return QRect();
+}
+
+
+/*!
+  Draws a complex control.
+*/
+void QCommonStyle::drawComplexControl( ComplexControl control,
+				       QPainter* p,
+				       const QWidget *w,
+				       const QRect &r,
+				       const QColorGroup &cg,
+				       CFlags flags,
+				       SCFlags sub,
+				       SCFlags subActive,
+				       void *data ) const
+{
+
+}
+
+
+/*!
+  Returns the metrics of a subcontrol in a complex control.
+*/
+QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
+					    const QWidget *w,
+					    SubControl sc,
+					    void *data ) const
+{
+    return QRect();
+}
+
+
+/*!
+  Returns the subcontrol in a complex control.
+*/
+QCommonStyle::SubControl QCommonStyle::querySubControl(ComplexControl control,
+						       const QWidget *widget,
+						       const QPoint &pos,
+						       void *data ) const
+{
+    return SC_None;
+}
+
+
+/*!
+  Returns a pixel metric.
+*/
+int QCommonStyle::pixelMetric(PixelMetric m, const QWidget * widget) const
+{
+    int ret;
+
+    switch (m) {
+    case PM_ButtonMargin:
+	ret = 6;
+	break;
+
+    case PM_ButtonDefaultIndicator:
+	ret = 0;
+	break;
+
+    case PM_MenuButtonIndicator:
+	if (! widget)
+	    ret = 12;
+	else
+	    ret = QMAX(12, (widget->height() - 4) / 3);
+	break;
+
+    case PM_ButtonShiftHorizontal:
+    case PM_ButtonShiftVertical:
+	ret = 0;
+	break;
+
+    case PM_DefaultFrameWidth:
+	ret = 2;
+	break;
+
+    default:
+	ret = 0;
+	break;
+    }
+
+    return ret;
+}
+
+
+/*!
+  Returns the size for the contents.
+*/
+QSize QCommonStyle::sizeFromContents(ContentsType contents,
+				     const QWidget *widget,
+				     const QSize &contentsSize,
+				     void *data ) const
+{
+    switch (contents) {
+    case CT_PushButtonContents: {
+	QPushButton *button = (QPushButton *) widget;
+	int w = contentsSize.width(),
+	    h = contentsSize.height(),
+	   bm = pixelMetric(PM_ButtonMargin, widget),
+	   fw = pixelMetric(PM_DefaultFrameWidth, widget);
+
+	w += bm;
+	h += bm;
+
+	if (button->isDefault() || button->autoDefault()) {
+	    int dbw = pixelMetric(PM_ButtonDefaultIndicator, widget) * 2;
+	    w += dbw;
+	    h += dbw;
+	}
+
+	return QSize(w, h); }
+    }
+
+    return contentsSize;
+}
+
+
+/*!
+  Returns a feel hint.
+*/
+int QCommonStyle::feelHint(FeelHint, const QWidget *, void **) const
+{
+    return 0;
+}
 
