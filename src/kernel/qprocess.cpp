@@ -45,7 +45,7 @@
 #include "qapplication.h"
 
 
-//#define QPROCESS_DEBUG
+//#define QT_QPROCESS_DEBUG
 
 
 /*!
@@ -593,28 +593,28 @@ void QProcess::writeToStdin( const QString& buf )
 */
 void QProcess::connectNotify( const char * signal )
 {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
     qDebug( "QProcess::connectNotify(): signal %s has been connected", signal );
 #endif
     if ( !ioRedirection )
 	if ( qstrcmp( signal, SIGNAL(readyReadStdout()) )==0 ||
 		qstrcmp( signal, SIGNAL(readyReadStderr()) )==0
 	   ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	    qDebug( "QProcess::connectNotify(): set ioRedirection to TRUE" );
 #endif
 	    setIoRedirection( TRUE );
 	    return;
 	}
     if ( !notifyOnExit && qstrcmp( signal, SIGNAL(processExited()) )==0 ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::connectNotify(): set notifyOnExit to TRUE" );
 #endif
 	setNotifyOnExit( TRUE );
 	return;
     }
     if ( !wroteToStdinConnected && qstrcmp( signal, SIGNAL(wroteToStdin()) )==0 ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::connectNotify(): set wroteToStdinConnected to TRUE" );
 #endif
 	setWroteStdinConnected( TRUE );
@@ -630,19 +630,19 @@ void QProcess::disconnectNotify( const char * )
 	    receivers( SIGNAL(readyReadStdout()) ) ==0 &&
 	    receivers( SIGNAL(readyReadStderr()) ) ==0
 	    ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set ioRedirection to FALSE" );
 #endif
 	setIoRedirection( FALSE );
     }
     if ( notifyOnExit && receivers( SIGNAL(processExited()) ) == 0 ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set notifyOnExit to FALSE" );
 #endif
 	setNotifyOnExit( FALSE );
     }
     if ( wroteToStdinConnected && receivers( SIGNAL(wroteToStdin()) ) == 0 ) {
-#if defined(QPROCESS_DEBUG)
+#if defined(QT_QPROCESS_DEBUG)
 	qDebug( "QProcess::disconnectNotify(): set wroteToStdinConnected to FALSE" );
 #endif
 	setWroteStdinConnected( FALSE );
