@@ -1182,11 +1182,13 @@ void QDateTimeEditPrivate::readLocaleSettings()
         str.replace(index, shortMonthName.size(), QLatin1String("MMM"));
     }
 
-    index = str.indexOf(QLatin1String("99"));
-    if (index > 1 && str.at(index - 1) == QLatin1Char('9') && str.at(index - 2) == QLatin1Char('9')) {
-        str.replace(index - 2, 4, QLatin1String("yyyy"));
-    } else if (index != -1){
-        str.replace(index, 2, QLatin1String("yy"));
+    index = str.indexOf(QLatin1String("1999"));
+    if (index != -1) {
+        str.replace(index, 4, QLatin1String("yyyy"));
+    } else {
+        index = str.indexOf(QLatin1String("99"));
+        if (index != -1)
+            str.replace(index, 2, QLatin1String("yy"));
     }
 
     defaultDateFormat = str;
