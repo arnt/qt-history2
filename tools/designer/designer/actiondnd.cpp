@@ -6,6 +6,8 @@
 #include <qapplication.h>
 #include <qlayout.h>
 
+static bool doReinsert = TRUE;
+
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
 {
@@ -13,6 +15,24 @@ QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     afterAnchor = TRUE;
     setAcceptDrops( TRUE );
     insertingAction = 0;
+}
+
+QDesignerToolBar::QDesignerToolBar( QMainWindow *mw, Dock dock )
+    : QToolBar( QString::null, mw, dock), lastIndicatorPos( -1, -1 )
+{
+    insertAnchor = 0;
+    afterAnchor = TRUE;
+    setAcceptDrops( TRUE );
+    insertingAction = 0;
+}
+
+void QDesignerToolBar::addAction( QAction *a )
+{
+    doReinsert = FALSE;
+    insertingAction = a;
+    actionList.append( a );
+    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
+    doReinsert = TRUE;
 }
 
 #ifndef QT_NO_DRAGANDDROP
@@ -57,8 +77,6 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 }
 
 #endif
-
-static bool doReinsert = TRUE;
 
 void QDesignerToolBar::reInsert()
 {

@@ -17,6 +17,9 @@ class QDesignerToolBar : public QToolBar
 
 public:
     QDesignerToolBar( QMainWindow *mw );
+    QDesignerToolBar( QMainWindow *mw, Dock dock );
+    QList<QAction> insertedActions() const { return actionList; }
+    void addAction( QAction *a );
 
 protected:
 #ifndef QT_NO_DRAGANDDROP
@@ -29,7 +32,7 @@ protected:
 
 private slots:
     void actionRemoved();
-    
+
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );

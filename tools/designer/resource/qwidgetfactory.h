@@ -48,6 +48,7 @@ private:
     void loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
     void loadActions( const QDomElement &e );
+    void loadToolBars( const QDomElement &e );
 
 private:
     struct Image {

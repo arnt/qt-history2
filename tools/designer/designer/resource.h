@@ -40,6 +40,7 @@ class MainWindow;
 class QDomElement;
 class QDesignerGridLayout;
 class QListViewItem;
+class QMainWindow;
 
 class Resource
 {
@@ -89,6 +90,7 @@ private:
     void saveMetaInfo( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent );
     void saveActions( const QList<QAction> &actions, QTextStream &ts, int indent );
+    void saveToolBars( QMainWindow *mw, QTextStream &ts, int indent );
 
     QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
@@ -104,6 +106,7 @@ private:
     void loadTabOrder( const QDomElement &e );
     void loadItem( const QDomElement &n, QPixmap &pix, QString &txt, bool &hasPixmap );
     void loadActions( const QDomElement &n );
+    void loadToolBars( const QDomElement &n );
     QColorGroup loadColorGroup( const QDomElement &e );
     QPixmap loadPixmap( const QDomElement &e );
 

@@ -149,6 +149,10 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     while ( actions.tagName() != "actions" && !actions.isNull() )
 	actions = actions.nextSibling().toElement();
 
+    QDomElement toolbars = firstWidget;
+    while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
+	toolbars = toolbars.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	widgetFactory->loadImageCollection( imageCollection );
 
@@ -161,6 +165,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     if ( !actions.isNull() )
 	widgetFactory->loadActions( actions );
+    if ( !toolbars.isNull() )
+	widgetFactory->loadToolBars( toolbars );
 
     if ( w && name && qstrlen( name ) > 0 )
 	w->setName( name );
@@ -1223,6 +1229,32 @@ void QWidgetFactory::loadActions( const QDomElement &e )
 		n2 = n2.nextSibling().toElement();
 	    }
 	    actionList.append( a );
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void QWidgetFactory::loadToolBars( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMainWindow *mw = ( (QMainWindow*)toplevel );
+    QToolBar *tb = 0;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "toolbar" ) {
+	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
+	    tb = new QToolBar( QString::null, mw, dock );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "action" ) {
+		    for ( QAction *a = actionList.first(); a; a = actionList.next() ) {
+			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
+			    a->addTo( tb );
+			    break;
+			}
+		    }
+		}
+		n2 = n2.nextSibling().toElement();
+	    }
 	}
 	n = n.nextSibling().toElement();
     }

@@ -31,6 +31,7 @@
 #include "command.h"
 #include "pixmapchooser.h"
 #include "database.h"
+#include "actiondnd.h"
 
 #include <qfile.h>
 #include <qtextstream.h>
@@ -204,6 +205,10 @@ bool Resource::load( QIODevice* dev, const QString& filename )
     while ( actions.tagName() != "actions" && !actions.isNull() )
 	actions = actions.nextSibling().toElement();
 
+    QDomElement toolbars = firstWidget;
+    while ( toolbars.tagName() != "toolbars" && !toolbars.isNull() )
+	toolbars = toolbars.nextSibling().toElement();
+
     if ( !imageCollection.isNull() )
 	loadImageCollection( imageCollection );
     if ( !customWidgets.isNull() )
@@ -215,6 +220,8 @@ bool Resource::load( QIODevice* dev, const QString& filename )
 
     if ( !actions.isNull() )
 	loadActions( actions );
+    if ( !toolbars.isNull() )
+	loadToolBars( toolbars );
 
     if ( !connections.isNull() )
 	loadConnections( connections );
@@ -261,6 +268,10 @@ bool Resource::save( QIODevice* dev )
     ts << "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">" << endl;
     saveMetaInfo( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
+    if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
+	// ## save menu
+	saveToolBars( (QMainWindow*)formwindow->mainContainer(), ts, 0 );
+    }
     if ( !MetaDataBase::customWidgets()->isEmpty() && !usedCustomWidgets.isEmpty() )
 	saveCustomWidgets( ts, 0 );
     if ( formwindow->mainContainer()->inherits( "QMainWindow" ) )
@@ -1965,6 +1976,57 @@ void Resource::loadActions( const QDomElement &e )
 		n2 = n2.nextSibling().toElement();
 	    }
 	    formwindow->actionList().append( a );
+	}
+	n = n.nextSibling().toElement();
+    }
+}
+
+void Resource::saveToolBars( QMainWindow *mw, QTextStream &ts, int indent )
+{
+    ts << makeIndent( indent ) << "<toolbars>" << endl;
+    indent++;
+
+    QList<QToolBar> tbList;
+    for ( int i = 0; i <= (int)Qt::Minimized; ++i ) {
+	tbList = mw->toolBars( (Qt::Dock)i );
+	if ( tbList.isEmpty() )
+	    continue;
+	for ( QToolBar *tb = tbList.first(); tb; tb = tbList.next() ) {
+	    ts << makeIndent( indent ) << "<toolbar dock=\"" << i << "\">" << endl;
+	    indent++;
+	    QList<QAction> actionList = ( (QDesignerToolBar*)tb )->insertedActions();
+	    for ( QAction *a = actionList.first(); a; a = actionList.next() )
+		ts <<  makeIndent( indent ) << "<action name=\"" << a->name() << "\"/>" << endl;
+	    indent--;
+	    ts << makeIndent( indent ) << "</toolbar>" << endl;
+	}
+    }
+    indent--;
+    ts << makeIndent( indent ) << "</toolbars>" << endl;
+}
+
+void Resource::loadToolBars( const QDomElement &e )
+{
+    QDomElement n = e.firstChild().toElement();
+    QMainWindow *mw = ( (QMainWindow*)formwindow->mainContainer() );
+    QDesignerToolBar *tb = 0;
+    while ( !n.isNull() ) {
+	if ( n.tagName() == "toolbar" ) {
+	    Qt::Dock dock = (Qt::Dock)n.attribute( "dock" ).toInt();
+	    tb = new QDesignerToolBar( mw, dock );
+	    QDomElement n2 = n.firstChild().toElement();
+	    while ( !n2.isNull() ) {
+		if ( n2.tagName() == "action" ) {
+		    for ( QAction *a = formwindow->actionList().first(); a; a = formwindow->actionList().next() ) {
+			if ( QString( a->name() ) == n2.attribute( "name" ) ) {
+			    a->addTo( tb );
+			    tb->addAction( a );
+			    break;
+			}
+		    }
+		}
+		n2 = n2.nextSibling().toElement();
+	    }
 	}
 	n = n.nextSibling().toElement();
     }
