@@ -7524,10 +7524,10 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 	QTextTableCell *cell = cells.at( i );
 	if ( !cell )
 	    continue;
-	QRect r( outerborder+cell->geometry().x(),
-		 outerborder+cell->geometry().y(),
-		 cell->geometry().width(),
-		 cell->geometry().height() );
+	QRect r( cell->geometry().x(),
+		 cell->geometry().y(),
+		 cell->geometry().width() + 2 * innerborder + 2 * outerborder,
+		 cell->geometry().height() + 2 * innerborder + 2 * outerborder );
 
 	if ( r.left() <= pos.x() && r.right() >= pos.x() ) {
 	    if ( cell->geometry().y() > lastY ) {
