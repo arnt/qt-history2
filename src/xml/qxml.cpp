@@ -6838,6 +6838,7 @@ bool QXmlSimpleReader::parseReference()
     signed char input;
 
     if ( d->parseStack==0 || d->parseStack->isEmpty() ) {
+	d->parseReference_charDataRead = FALSE;
 	state = Init;
     } else {
 	state = d->parseStack->top()->state;
