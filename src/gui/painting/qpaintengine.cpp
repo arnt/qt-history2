@@ -484,7 +484,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier |= LinearGradients;
         else
             emulationSpecifier &= ~LinearGradients;
-        if (s->brush.color().alpha() != 255 && !hasFeature(AlphaFill))
+        if (s->brush.style() != Qt::LinearGradientPattern
+            && s->brush.color().alpha() != 255 && !hasFeature(AlphaFill))
             emulationSpecifier |= AlphaFill;
         else
             emulationSpecifier &= ~AlphaFill;
