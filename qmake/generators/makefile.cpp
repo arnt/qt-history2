@@ -510,7 +510,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 	    fqn = Option::fixPathToTargetOS(fqn, FALSE);
 	    if(from_source_dir)
 		fqn = fileFixify(fqn);
-	    debug_msg(4, "Resolved dependancy of %s to %s", inc.latin1(), fqn.latin1());
+	    debug_msg(4, "Resolved dependency of %s to %s", inc.latin1(), fqn.latin1());
 	    if(outdeps && outdeps->findIndex(fqn) == -1)
 		outdeps->append(fqn);
 	}
@@ -528,7 +528,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, const
 		    fndeps.append((*it));
 	}
     }
-    debug_msg(2, "Dependancies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
+    debug_msg(2, "Dependencies: %s -> %s", fn.latin1(), fndeps.join(" :: ").latin1());
     return TRUE;
 }
 
@@ -663,7 +663,7 @@ MakefileGenerator::init()
 		deplist.append(new MakefileDependDir(r.replace("\"",""),
 						     l.replace("\"","")));
 	    }
-	    debug_msg(1, "Dependancy Directories: %s", incDirs.join(" :: ").latin1());
+	    debug_msg(1, "Dependency Directories: %s", incDirs.join(" :: ").latin1());
 	    if(Option::output.name() != "-" && project->isActiveConfig("qmake_cache")) {
 		QFile cachef(cache_file);
 		if(cachef.open(IO_ReadOnly | IO_Translate)) {
@@ -718,7 +718,7 @@ MakefileGenerator::init()
 					}
 				    }
 				    if(found) {
-					debug_msg(2, "Dependancies (cached): %s -> %s", file.latin1(),
+					debug_msg(2, "Dependencies (cached): %s -> %s", file.latin1(),
 						  files.join(" :: ").latin1());
 					findDependencies(file) = files;
 				    }
@@ -863,7 +863,7 @@ MakefileGenerator::init()
 			    generateMocList((*val_it));
 			}
 		        if(!found_cache_dep && sources[x] != "OBJECTS") {
-		  	    debug_msg(5, "Looking for dependancies for %s", (*val_it).latin1());
+		  	    debug_msg(5, "Looking for dependencies for %s", (*val_it).latin1());
 			    generateDependencies(deplist, (*val_it), doDepends());
 		        }
  		    }

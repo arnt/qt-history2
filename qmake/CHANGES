@@ -8,7 +8,7 @@
 
 1.02a -
 
-  Dependancy / Mocable caching. qmake can cache these expensive operations with qmake_cache
+  Dependency / Mocable caching. qmake can cache these expensive operations with qmake_cache
   CONFIG.
 
   The parser has been improved to cover more error cases, as well as more forgiving 
@@ -21,7 +21,7 @@
 
  New system for library linking. This system allows a user several different features:
 
- 1) libtool like library dependancies to static libraries build with qmake
+ 1) libtool like library dependencies to static libraries build with qmake
  2) library dependencies, when on .pro depends on another library - it will
     automatically build that other library (unix makefiles only)
  3) automatic detection of configurations for Qt, if CONFIG qt is specified
