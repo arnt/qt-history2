@@ -149,6 +149,11 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    }
 	    break;
 	}
+	while(x < total_size_read && 
+	      ((*(big_buffer+x) >= 'a' && *(big_buffer+x) <= 'z') || 
+	       (*(big_buffer+x) >= 'A' && *(big_buffer+x) <= 'Z') ||
+	       (*(big_buffer+x) <= '0' && *(big_buffer+x) >= '9') ||
+	       *(big_buffer+x) == '_')) x++;
     }
 #undef OBJ_LEN
 #undef DIS_LEN
