@@ -472,6 +472,7 @@ void SetupWizardImpl::configDone()
 
 	if( !make.start() )
 	    logOutput( "Could not start make process" );
+	    backButton()->setEnabled( TRUE );
     }
 }
 
