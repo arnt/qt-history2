@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#16 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#17 $
 **
 ** Implementation of QDir class
 **
@@ -16,7 +16,7 @@
 #include "qregexp.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#16 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#17 $")
 
 
 #if !defined(PATH_MAX)
@@ -143,7 +143,7 @@ QDir::QDir()
   Constructs a QDir.
 
   \arg \e path is the directory.
-  \arg \e filter is the file name filter.
+  \arg \e nameFilter is the file name filter.
   \arg \e sortSpec is the sort specification, which describes how to
   sort the files in the directory.
   \arg \e filterSpec is the filter specification, which describes how
@@ -160,11 +160,12 @@ QDir::QDir()
 	printf( "%s\n", d[i] );
   \endcode
 
-pointing to the given directory, setting the name filter
-  to \e nameF. No check is made to ensure that the directory exists.
+  If \e path is "" or null, the directory is set to "." (the current
+  directory).  If \e nameFilter is "" or null, it is set to "*" (all
+  files).
 
-  If \e path is "" or null, it is set to "." (the current directory).
-  If \e filter is "
+  No check is made to ensure that the directory exists.
+
   \sa exists(), setPath(), setNameFilter(), setFilter(), setSorting()
  ----------------------------------------------------------------------------*/
 
@@ -667,7 +668,7 @@ const QStrList *QDir::entryList( const char *nameFilter,
 	sortSpec = sortS;
     QDir *that = (QDir*)this;			// mutable function
     if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
-	return fList;
+	return that->fList;
     else
 	return 0;
 }
@@ -715,7 +716,7 @@ const QFileInfoList *QDir::entryInfoList( const char *nameFilter,
 	sortSpec = sortS;
     QDir *that = (QDir*)this;			// mutable function
     if ( that->readDirEntries(nameFilter, filterSpec, sortSpec) )
-	return fiList;
+	return that->fiList;
     else
 	return 0;
 }
@@ -1417,7 +1418,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 		 (const char *)dPath );
 #endif
 
-#endif
+#endif // UNIX
 
     if ( dirsFirst ) {
 	char	  *tmp	 = dList ->last();
