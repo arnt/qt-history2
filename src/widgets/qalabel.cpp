@@ -41,6 +41,7 @@ QAccelLabel::QAccelLabel( QWidget * buddy, int key, const char * text,
 			   QWidget *parent, const char *name, WFlags f )
     : QLabel( text, parent, name, f )
 {
+    initMetaObject();
     a = new QAccel( buddy, "accel label accel" );
     CHECK_PTR( a );
     a->connectItem( a->insertItem( key ), this, SLOT(setFocus()) );

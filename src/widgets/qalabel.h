@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qalabel.h#1 $
+** $Id: //depot/qt/main/src/widgets/qalabel.h#2 $
 **
 ** Definition of QAccelLabel widget class
 **
@@ -22,7 +22,6 @@ class QAccelLabel : public QLabel
 public:
     QAccelLabel( QWidget * buddy, int key, const char * text,
 		 QWidget *parent, const char *name=0, WFlags f=0 );
-   ~QAccelLabel();
 
     QWidget * buddy() const { return b; }
 
