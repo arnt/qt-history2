@@ -3,13 +3,17 @@
 
 #include <qstringlist.h>
 #include <qstrlist.h>
+#include <qdict.h>
 #include "qapplicationinterfaces.h"
 
 class QPlugInInterface
 {
     friend class QPlugIn;
 public:
-    QPlugInInterface() { cIface = 0; }
+    QPlugInInterface(): cIfaces( 53 ) 
+    {
+	cIfaces.setAutoDelete( TRUE );
+    }
     virtual ~QPlugInInterface() {}
 
     virtual QString name() { return QString::null; }
@@ -25,21 +29,15 @@ public:
     }
 
 protected:
-    QClientInterface* clientInterface() const
+    QClientInterface* clientInterface( const QCString& request ) const
     {
-	return cIface;
+	return cIfaces[request];
     }
 
 private:
-    QClientInterface* requestClientInterface( const QCString& request ) 
-    {
-	if ( queryInterfaceList().contains( request ) )
-	    return cIface ? cIface : ( cIface = new QClientInterface );
-	else
-	    return 0;
-    }
+    QClientInterface* requestClientInterface( const QCString& request );
 
-    QClientInterface* cIface;
+    QDict<QClientInterface> cIfaces;
 };
 
 #endif

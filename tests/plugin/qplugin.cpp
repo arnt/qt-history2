@@ -9,6 +9,107 @@
 #endif
 
 /*!
+  \class QPlugInInterface qplugininterface.h
+
+  \brief An abstract class to provide a common interface to functionality a plugin provides.
+
+  \sa QClientInterface
+*/
+
+/*!
+  \fn QPlugInInterface::QPlugInInterface()
+  
+  Creates a QPlugInInterface and initializes the object.
+*/
+
+/*!
+  \fn QPlugInInterface::~QPlugInInterface()
+  
+  Destroys the QPlugInInterface and disconnects the plugin from the application.
+  Reimplement the destructor in the plugin to provide cleanup for object created 
+  in your plugin.
+
+  \sa QCleanUpHandler
+*/
+
+/*!
+  \fn QString QPlugInInterface::name()
+
+  Reimplement this function to return the name of the plugin.
+  The default implementation returns QString::null.
+*/
+
+/*!
+  \fn QString QPlugInInterface::description()
+
+  Reimplement this function to return a description of the plugin.
+  The default implementation returns QString::null.
+*/
+
+/*!
+  \fn QString QPlugInInterface::author()
+
+  Reimplement this function to return information about the author of 
+  the plugin.
+  The default implementation returns QString::null.
+*/
+
+/*!
+  \fn QStringList QPlugInInterface::featureList()
+
+  Reimplement this function to provide a list of features your plugin
+  provides. This function is used by a QPlugInManager to locate the
+  plugin that provides a requested feature.
+
+  The default implementation returns an empty list.
+
+  \sa QPlugInManager
+*/
+
+/*!
+  \fn QCString QPlugInInterface::queryPlugInInterface() const
+  \overload
+
+  Returns the name of the plugin's interface. You have to overwrite this 
+  method in your subclass for the plugin loader to identify the library.
+*/
+
+/*!
+  \fn QStrList QPlugInInterface::queryInterfaceList() const
+
+  Reimplement this function to provide a list of interfaces your plugin
+  would like to use. The plugin-loader will connect your plugin's QClientInterface
+  to all matching interfaces the application provides.
+
+  \sa clientInterface()
+*/
+
+/*!
+  \fn QClientInterface* QPlugInInterface::clientInterface( const QCString& request ) const
+
+  Returns a pointer to the client interface the plugin can use to access the
+  application's interface \a request.
+*/
+
+/*
+  Called by the plugin to connect the a QClientInterface matching \a request to the 
+  corresponding QApplicationInterface.
+*/
+QClientInterface* QPlugInInterface::requestClientInterface( const QCString& request ) 
+{
+    if ( queryInterfaceList().contains( request ) ) {
+	QClientInterface* ifc = cIfaces[request];
+	if ( !ifc ) {
+	    ifc = new QClientInterface;
+	    cIfaces.insert( request, ifc );
+	}
+	return ifc;
+    } else {
+	return 0;
+    }
+}
+
+/*!
   \class QPlugIn qplugin.h
 
   \brief This class provides a wrapper for library loading and unloading.
