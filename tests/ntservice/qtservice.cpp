@@ -131,10 +131,30 @@ void QtServicePrivate::setStatus( DWORD state )
     ::SetServiceStatus( serviceStatus, &status);
 }
 
+/*!
+    \class QtService qtservice.h
+    \brief The QtService class provides an interface to the Windows NT service manager.
+*/
+
+/*!
+    Constructs a QtService object with the name \a name. The service can pause and
+    continue if \a canPause is TRUE, and interact with the desktop (ie. open a window) 
+    if \a useGui is TRUE (the default).
+
+    The service is not installed or started. The \a name of a service must not contain
+    any backslashes.
+
+    \sa install(), canPause(), isInteractive()
+*/
 QtService::QtService( const QString &name, bool canPause, bool useGui )
 {
+    if ( instance ) {
+	qFatal( "Only one instance of QtService can exist." );
+    }
     d = new QtServicePrivate;
     d->servicename = name;
+    if ( d->servicename.contains( '\\' ) )
+	d->servicename.replace( '\\', 0 );
 
     QT_WA( {
 	TCHAR path[_MAX_PATH];
@@ -148,11 +168,6 @@ QtService::QtService( const QString &name, bool canPause, bool useGui )
 
     if ( filePath().contains( ' ' ) )
 	filePath() = QString( "\"%1\"" ).arg( filePath() );
-
-    if ( instance ) {
-	// ###
-	delete instance;
-    }
 
     instance = this;
 
@@ -170,12 +185,26 @@ QtService::QtService( const QString &name, bool canPause, bool useGui )
     d->status.dwWaitHint		    = 0;
 }
 
+/*!
+    Destroys this service objects. This does not stop 
+    or uninstall the service.
+
+    \sa uninstall()
+*/
 QtService::~QtService()
 {
     instance = 0;
     delete d;
 }
 
+/*!
+    Installs the service in the default Service Control Manager of Windows NT
+    and returns TRUE if successful, otherwise returns FALSE.
+
+    The service reports the result of the installation to the system event log.
+
+    \sa uninstall()
+*/
 bool QtService::install()
 {
     // Open the Service Control Manager
@@ -205,6 +234,9 @@ bool QtService::install()
     if (!hService) {
 	::CloseServiceHandle(hSCM);
 	reportEvent( "Installing the service failed", Error );
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "Installing the service failed" );
+#endif
 	return FALSE;
     }
 
@@ -215,6 +247,14 @@ bool QtService::install()
     return TRUE;
 }
 
+/*!
+    Uninstalls the service from the default Service Control Manager of Windows NT
+    and returns TRUE if successful, otherwise returns FALSE.
+
+    The service reports the result of the uninstallation to the system event log.
+
+    \sa install()
+*/
 bool QtService::uninstall()
 {
     bool result = FALSE;
@@ -246,9 +286,22 @@ bool QtService::uninstall()
     ::CloseServiceHandle (hSCM);
     if ( result )
 	reportEvent( "Service uninstalled" );
+    else {
+	reportEvent( "Uninstalling the service failed", Error );
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "Uninstalling the service failed" );
+#endif
+    }
+
     return result;
 }
 
+/*!
+    Returns TRUE if the service is installed in the default Service Control
+    Manager, otherwise returns FALSE.
+
+    \sa install()
+*/
 bool QtService::isInstalled() const
 {
     bool result = FALSE;
@@ -280,6 +333,12 @@ bool QtService::isInstalled() const
     return result;
 }
 
+/*!
+    Returns TRUE if the service is running, otherwise returns FALSE.
+    The service needs to be installed to be able to run.
+
+    \sa isInstalled(), exec(), start()
+*/
 bool QtService::isRunning() const
 {
     bool result = FALSE;
@@ -315,19 +374,42 @@ bool QtService::isRunning() const
     return result;
 }
 
+/*!
+    Returns TRUE if the service can interact with the desktop (ie. have a GUI).
+
+    \sa QtService()
+*/
 bool QtService::isInteractive() const
 {
     return d->status.dwServiceType & SERVICE_INTERACTIVE_PROCESS;
 }
 
+/*!
+    Returns TRUE if the service implements pause and continue command handling.
+    
+    \sa QtService()
+*/
 bool QtService::canPause() const
 {
     return d->status.dwControlsAccepted & SERVICE_ACCEPT_PAUSE_CONTINUE;
 }
 
+/*!
+    Starts the service, and returns TRUE if successful, otherwise returns FALSE.
+    The service needs to be installed to be able to run.
+
+    Call this function when the service application has been started without
+    any commandline switches to allow the Service Control Manager to start the 
+    service.
+
+    The service reports an error event to the system event log if starting the 
+    service fails.
+
+    \sa install(), exec(), isRunning()
+*/
 bool QtService::start()
 {
-    if ( !isInstalled() && !install() )
+    if ( !isInstalled() )
 	return FALSE;
 
     bool res = FALSE;
@@ -351,12 +433,35 @@ bool QtService::start()
 
 	res = ::StartServiceCtrlDispatcherA(st);
     } );
-    if ( !res )
+    if ( !res ) {
 	reportEvent( "The Service failed to start", Error );
+#if defined(QT_CHECK_STATE)
+	qSystemWarning( "The Service failed to start" );
+#endif
+    }
     return res;
 }
 
-void QtService::exec( int argc, char **argv )
+/*!
+    Executes the service, passing \a argc and \a argv to the run() 
+    implementation.
+
+    If the service is installed it is started through the Service Control
+    Manager, and the function returns 0 when the server could be started, otherwise
+    a non-zero error code.
+
+    If the service is not installed the run() implementation is called directly, and
+    the result is returned.
+
+    Call this function to start the service explicitely (ie. when
+    the user passes a certain commandline switch).
+
+    The service reports an error event to the system event log if starting the 
+    service fails.
+
+    \sa install()
+*/
+int QtService::exec( int argc, char **argv )
 {
     if ( isInstalled() ) {
 	SC_HANDLE hSCM = 0;
@@ -367,7 +472,7 @@ void QtService::exec( int argc, char **argv )
 	    hSCM = ::OpenSCManagerA( NULL, NULL, SC_MANAGER_ALL_ACCESS );
 	} );
 	if ( !hSCM )
-	    return;
+	    return -1;
 
 	QT_WA( {
 	    hService = ::OpenServiceW( hSCM, serviceName().ucs2(), SERVICE_START );
@@ -376,13 +481,27 @@ void QtService::exec( int argc, char **argv )
 	} );
 
 	// Not much point blowing up argv to wide characters - they end up being ANSI anyway.
+	BOOL res = FALSE;
 	if ( hService )
-	    StartServiceA( hService, argc, (const char**)argv );
+	    res = StartServiceA( hService, argc, (const char**)argv );
+	if ( !res ) {
+	    reportEvent( "The Service failed to execute", Error );
+	    int r = GetLastError();
+#if defined(QT_CHECK_STATE)
+	    qSystemWarning( "The Service failed to execute", r );
+#endif
+	    return r;
+	} else {
+	    return 0;
+	}
     } else {
-	run( argc, argv );
+	return run( argc, argv );
     }
 }
 
+/*!
+    Stops the service if it is running, otherwise does nothing.
+*/
 void QtService::stop()
 {
     if ( !isRunning() )
@@ -414,38 +533,80 @@ void QtService::stop()
     ::CloseServiceHandle(hSCM);
 }
 
+/*!
+    Reimplement this function to perform service initialization,
+    and return TRUE if successfull, otherwise return FALSE.
+
+    The default implementation returns TRUE.
+
+    \sa run()
+*/
 bool QtService::initialize()
 {
     return TRUE;
 }
 
+/*!
+    Reimplement this function to pause the service execution (e.g.
+    stop a polling timer, or ignore socket notifiers).
+
+    The default implementation does nothing.
+
+    \sa resume()
+*/
 void QtService::pause()
 {
 }
 
+/*!
+    Reimplement this function to continue the service after
+    a call to pause().
+
+    The default implementation does nothing.
+*/
 void QtService::resume()
 {
 }
 
+/*!
+    Reimplement this function to process the user command 
+    \a code.
+
+    The default implementation does nothing.
+*/
 void QtService::user( int code )
 {
+    Q_UNUSED(code)
 }
 
+/*!
+    Returns the name of the service.
+*/
 QString QtService::serviceName() const
 {
     return d->servicename;
 }
 
+/*!
+    Returns the absolute path to the service executable.
+*/
 QString QtService::filePath() const
 {
     return d->filepath;
 }
 
-void QtService::reportEvent( const QString &message, EventType type, uint category, const QByteArray &data )
+/*!
+    Report an event of type \a type with text \a message to the local system event log. 
+    The event identifier \a ID and the event category \a category are user defined values.
+    \a data can contain binary data.
+
+    Message strings for \a ID and \a category must be provided by a message file, which
+    needs to be registered in the system registry.
+*/
+void QtService::reportEvent( const QString &message, EventType type, int ID, uint category, const QByteArray &data )
 {
     HANDLE h;
     WORD wType;
-    WORD dwEventID = 5;
 
     switch ( type ) {
     case Error:
@@ -470,7 +631,7 @@ void QtService::reportEvent( const QString &message, EventType type, uint catego
 	    return;
 	const TCHAR *msg = message.ucs2();
 	char *bindata = data.size() ? data.data() : 0;
-	ReportEventW( h, wType, category, dwEventID, NULL, 1, data.size(), (const TCHAR**)&msg, bindata );
+	ReportEventW( h, wType, category, ID, NULL, 1, data.size(), (const TCHAR**)&msg, bindata );
     }, {
 	h = RegisterEventSourceA( NULL, serviceName().local8Bit() );
 	if ( !h )
@@ -478,7 +639,7 @@ void QtService::reportEvent( const QString &message, EventType type, uint catego
 	QCString cmsg = message.local8Bit();
 	const char *msg = cmsg.data();
 	char *bindata = data.size() ? data.data() : 0;
-	ReportEventA( h, wType, category, dwEventID, NULL, 1, data.size(), (const char**)&msg, bindata );
+	ReportEventA( h, wType, category, ID, NULL, 1, data.size(), (const char**)&msg, bindata );
     } );
 
     DeregisterEventSource( h );

@@ -7,7 +7,6 @@ class QtServicePrivate;
 
 class QtService
 {
-    friend class QtServicePrivate;
 public:
     QtService( const QString &name, bool canPause = FALSE, bool useGui = TRUE );
     virtual ~QtService();
@@ -21,13 +20,12 @@ public:
     virtual bool uninstall();
     virtual bool start();
 
-    void exec( int argc, char **argv );
+    int exec( int argc, char **argv );
     void stop();
 
     QString serviceName() const;
     QString filePath() const;
 
-protected:
     enum EventType
     {
 	Success = 0, Error, Warning, Information
@@ -40,7 +38,7 @@ protected:
     virtual void resume();
     virtual void user( int code );
 
-    virtual void reportEvent( const QString &, EventType type = Success, uint category = 0, const QByteArray &data = QByteArray() );
+    virtual void reportEvent( const QString &, EventType type = Success, int ID = 0, uint category = 0, const QByteArray &data = QByteArray() );
 
 private:
     QtServicePrivate *d;
