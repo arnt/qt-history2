@@ -91,8 +91,6 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
 
-    void resizeEvent(QResizeEvent *e);
-
     virtual void paintSection(QPainter *painter, QAbstractItemDelegate *delegate, QItemOptions *options,
 			      const QModelIndex &item);
 
@@ -104,6 +102,8 @@ protected:
     QModelIndex item(int section) const;
     void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;
+
+    void updateGeometries();
 };
 
 #endif

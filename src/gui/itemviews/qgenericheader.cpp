@@ -75,9 +75,9 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Orientation o, QWidget
     d->orientation = o;
     setFrameStyle(NoFrame);
 
-    viewport()->setMouseTracking(true);
-    viewport()->setBackgroundRole(QPalette::Background);
-    viewport()->setFocusPolicy(NoFocus);
+    d->viewport->setMouseTracking(true);
+    d->viewport->setBackgroundRole(QPalette::Background);
+    d->viewport->setFocusPolicy(NoFocus);
     setFocusPolicy(NoFocus);
 
     // FIXME: this should also be called in setModel()
@@ -101,7 +101,7 @@ int QGenericHeader::offset() const
 void QGenericHeader::setOffset(int o)
 {
     d->offset = o; // this is the scrollvalue
-    viewport()->update();
+    d->viewport->update();
 }
 
 int QGenericHeader::size() const
@@ -162,7 +162,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
 
 void QGenericHeader::paintEvent(QPaintEvent *)
 {
-    QPainter painter(viewport());
+    QPainter painter(d->viewport);
 
     int offset = d->offset;
 
@@ -172,10 +172,10 @@ void QGenericHeader::paintEvent(QPaintEvent *)
     int start, end;
     if (orientation() == Horizontal) {
 	start = indexAt(offset);
-	end = indexAt(offset + viewport()->width());
+	end = indexAt(offset + d->viewport->width());
     } else {
 	start = indexAt(offset);
-	end = indexAt(offset +  + viewport()->height());
+	end = indexAt(offset +  + d->viewport->height());
     }
 
     int tmp = start;
@@ -290,7 +290,7 @@ void QGenericHeader::initializeSections(int start, int end)
     end += 1; // one past the last item, so we get the end position of the last section
     d->sections.resize(end + 1);
     if (oldCount >= count()) {
-	viewport()->update();
+	d->viewport->update();
 	emit sectionCountChanged(start, end);
 	return;
     }
@@ -353,7 +353,7 @@ void QGenericHeader::initializeSections(int start, int end)
 	}
     }
     emit sectionCountChanged(oldCount, count());
-    viewport()->update();
+    d->viewport->update();
 }
 
 void QGenericHeader::updateSection(int section)
@@ -432,7 +432,7 @@ void QGenericHeader::resizeSections()
     ResizeMode mode;
     int secSize;
     int stretchSecs = 0;
-    int stretchSize = orientation() == Horizontal ? viewport()->width() : viewport()->height();
+    int stretchSize = orientation() == Horizontal ? d->viewport->width() : d->viewport->height();
     QList<int> section_sizes;
     int count = qMax(d->sections.count() - 1, 0);
     QGenericHeaderPrivate::HeaderSection *secs = d->sections.data();
@@ -604,7 +604,7 @@ void QGenericHeader::moveSection(int from, int to)
 	}
     }
 
-    viewport()->update();
+    d->viewport->update();
     emit sectionIndexChanged(sec, from, to);
 }
 
@@ -643,7 +643,7 @@ void QGenericHeader::resizeSection(int section, int size)
 	r = QRect(pos, 0, width() - pos, height());
     else
 	r = QRect(0, pos, width(), height() - pos);
-    viewport()->update(r);
+    d->viewport->update(r);
     emit sectionSizeChanged(section, oldSize, size);
 }
 
@@ -663,12 +663,6 @@ void QGenericHeader::showSection(int section)
 bool QGenericHeader::isSectionHidden(int section) const
 {
     return d->sections[index(section)].hidden;
-}
-
-void QGenericHeader::resizeEvent(QResizeEvent *e)
-{
-    QViewport::resizeEvent(e);
-//    resizeSections();
 }
 
 QModelIndex QGenericHeader::itemAt(int x, int y) const
@@ -852,14 +846,20 @@ int QGenericHeader::contentsWidth() const
 {
     if (orientation() == Qt::Horizontal)
 	return size();
-    return viewport()->width();
+    return d->viewport->width();
 }
 
 int QGenericHeader::contentsHeight() const
 {
     if (orientation() == Qt::Vertical)
 	return size();
-    return viewport()->height();
+    return d->viewport->height();
+}
+
+void QGenericHeader::updateGeometries()
+{
+    if (d->stretchSections)
+	resizeSections();
 }
 
 int QGenericHeaderPrivate::sectionHandleAt(int position)
@@ -876,7 +876,7 @@ int QGenericHeaderPrivate::sectionHandleAt(int position)
 void QGenericHeaderPrivate::setupSectionIndicator()
 {
     if (!sectionIndicator) {
-	sectionIndicator = new QWidget(q->viewport());
+	sectionIndicator = new QWidget(q->d->viewport);
 	sectionIndicator->setBackgroundRole(QPalette::Text);
     }
 }
