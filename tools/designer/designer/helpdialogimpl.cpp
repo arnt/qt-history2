@@ -179,23 +179,29 @@ void HelpDialog::loadIndexFile()
 	if ( !f.open( IO_ReadOnly ) )
 	    return;
 	QTextStream ts( &f );
-	while ( !ts.atEnd() ) {
+	while ( !ts.atEnd() && isVisible() ) {
 	    qApp->processEvents();
+	    if ( !isVisible() )
+		break;
 	    QString l = ts.readLine();
 	    lst->append( l );
 	    if ( bar )
 		bar->setProgress( bar->progress() + l.length() );
 	}
-	qHeapSort( *lst );
+	if ( ts.atEnd() ) {
+	    qHeapSort( *lst );
 
-	QFile indexout( QDir::homeDirPath() + "/.designer/indexdb" );
-	if ( indexout.open( IO_WriteOnly ) ) {	
-	    QDataStream s( &indexout );
-	    s << QFileInfo( f ).lastModified();
-	    s << f.size();
-	    s << *lst;
+	    QFile indexout( QDir::homeDirPath() + "/.designer/indexdb" );
+	    if ( indexout.open( IO_WriteOnly ) ) {	
+		QDataStream s( &indexout );
+		s << QFileInfo( f ).lastModified();
+		s << f.size();
+		s << *lst;
+	    }
+	    indexout.close();
+	} else {
+	    indexDone = FALSE;
 	}
-	indexout.close();
     }
 
     QValueList<MyString>::Iterator it = lst->begin();
