@@ -3687,9 +3687,7 @@ bool QETWidget::translateTabletEvent( const MSG &msg, PACKET *localPacketBuf,
 	    csr_physid;
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_TYPE, &csr_type );
 	ptrWTInfo( WTI_CURSORS + localPacketBuf[i].pkCursor, CSR_PHYSID, &csr_physid );
-	QTabletDeviceId llId;
-	llId.miType = csr_type;
-	llId.miPhyId = csr_physid;        
+	QPair<int,int> llId( csr_type, csr_physid );	
 	QTabletEvent e( localPos, localPos, dev, prsNew, tiltX, tiltY, llId );
 	sendEvent = QApplication::sendSpontaneousEvent( w, &e );
     }
