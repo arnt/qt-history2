@@ -142,7 +142,7 @@ static QString qODBCWarn( const QODBCPrivate* odbc)
 static void qSqlWarning( const QString& message, const QODBCPrivate* odbc )
 {
 #ifdef QT_CHECK_RANGE
-    qWarning( "%s\tError: %s", message.local8Bit().data(), qODBCWarn( odbc ).local8Bit().data() );
+    qWarning( "%s\tError: %s", message.local8Bit(), qODBCWarn( odbc ).local8Bit() );
 #endif
 }
 
@@ -796,7 +796,7 @@ QVariant QODBCResult::data( int field )
 		fieldCache[ current ] = QVariant( qGetDoubleData( d->hStmt, current, isNull ) );
 	    nullCache[ current ] = isNull;
 	    break;
-	case QVariant::CString:
+// ###	case QVariant::CString:
 	default:
 	    isNull = FALSE;
 	    fieldCache[ current ] = QVariant( qGetStringData( d->hStmt, current, 
@@ -1075,7 +1075,7 @@ bool QODBCResult::exec()
 	    para++;
 	    if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-		qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit().data() );
+		qWarning( "QODBCResult::exec: unable to bind variable: %s", qODBCWarn( d ).local8Bit() );
 #endif
 		setLastError( qMakeError( "Unable to bind variable", QSqlError::Statement, d ) );
 		return FALSE;
@@ -1085,7 +1085,7 @@ bool QODBCResult::exec()
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit().data() );
+	qWarning( "QODBCResult::exec: Unable to execute statement: %s", qODBCWarn( d ).local8Bit() );
 #endif
 	setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	return FALSE;
@@ -1153,7 +1153,7 @@ bool QODBCResult::exec()
 		    }
 		    // fall through
 	        default: {
-		    QCString * str = qAutoDeleterData( (QAutoDeleter<QCString>*)tmpStorage.getFirst() );
+		    QByteArray * str = qAutoDeleterData( (QAutoDeleter<QByteArray>*)tmpStorage.getFirst() );
 		    extension()->values[ it.data() ].value = QVariant( *str );
 		    break; }
 	    }
