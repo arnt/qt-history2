@@ -88,7 +88,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     QStringList &incs = project->variables()["INCLUDEPATH"];
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
-	inc.replace(QRegExp("\\\\$"), "\\\\");
+	inc.replace(QRegExp("\\\\*$"), "");
 	t << " -I\"" << inc << "\"";
     }
     t << endl;
