@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/main.cpp#14 $
+** $Id: //depot/qt/main/examples/demo/main.cpp#15 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -27,12 +27,6 @@
 int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
-    QFont fnt;
-    fnt.setFamily("tahoma");
-    fnt.setCharSet( QFont::Unicode );
-    if ( fnt.substitute( "tahoma" ) == "tahoma" )
-	a.setFont( fnt );
-
     Frame frame;
 
     QImage img( "../listboxcombo/qtlogo.png" );

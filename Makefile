@@ -3,7 +3,7 @@
 # Main Makefile for building the Qt library, examples and tutorial.
 # Read PORTING for instructions how to port Qt to a new platform.
 
-all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
+all: symlinks src-qmake src-moc sub-src sub-codecs sub-tools sub-tutorial sub-examples
 	@echo .
 	@echo The Qt library is now built in .\lib
 	@echo The Qt examples are built in the directories in .\examples
@@ -38,6 +38,11 @@ sub-src: src-moc .qmake.cache FORCE
 	$(MAKE)
 	$(MAKE) -f Makefile.main
 	cd ..
+
+sub-codecs: sub-src .qmake.cache FORCE
+	cd src\codecs\src
+	$(MAKE)
+	cd ..\..\..
 
 sub-tutorial: sub-src FORCE
 	cd tutorial
