@@ -221,6 +221,7 @@ kernel {
 		  $$KERNEL_CPP/qsocketnotifier.cpp \
 		  $$KERNEL_CPP/qsound.cpp \
 		  $$KERNEL_CPP/qstylesheet.cpp \
+		  $$KERNEL_CPP/qthread.cpp \
 		  $$KERNEL_CPP/qtimer.cpp \
 		  $$KERNEL_CPP/qurl.cpp \
 		  $$KERNEL_CPP/qlocalfs.cpp \

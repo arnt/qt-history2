@@ -50,7 +50,7 @@
 #include "qtl.h"
 
 #ifdef QT_THREAD_SUPPORT
-#include "qmutexpool_p.h"
+#include "qthreadstorage.h"
 #endif // QT_THREAD_SUPPORT
 
 #undef QT_TRANSLATE_NOOP
@@ -3202,50 +3202,53 @@ struct QRegExpPrivate
 };
 
 #ifndef QT_NO_REGEXP_OPTIM
-static QCache<QRegExpEngine> *engineCache = 0;
 static QSingleCleanupHandler<QCache<QRegExpEngine> > cleanup_cache;
-#endif
+#  ifndef QT_THREAD_SUPPORT
+static QCache<QRegExpEngine> *engineCache = 0;
+#  endif // QT_THREAD_SUPPORT
+#endif // QT_NO_REGEXP_OPTIM
 
-static QRegExpEngine *newEngine( const QString& pattern, bool caseSensitive )
+static void regexpEngine( QRegExpEngine *&eng, const QString &pattern,
+			  bool caseSensitive, bool deref )
 {
+#  ifdef QT_THREAD_SUPPORT
+    static QThreadStorage<QCache<QRegExpEngine> *> engineCaches;
+    QCache<QRegExpEngine> *&engineCache = engineCaches.localData();
+#endif // QT_THREAD_SUPPORT
+
+    if ( !deref ) {
 #ifndef QT_NO_REGEXP_OPTIM
-    if ( engineCache != 0 ) {
-#ifdef QT_THREAD_SUPPORT
-	QMutexLocker locker( qt_global_mutexpool ?
-			     qt_global_mutexpool->get( &engineCache ) : 0 );
-#endif
-	QRegExpEngine *eng = engineCache->take( pattern );
-	if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
-	    delete eng;
-	} else {
-	    eng->ref();
-	    return eng;
+	if ( engineCache != 0 ) {
+	    eng = engineCache->take( pattern );
+	    if ( eng == 0 || eng->caseSensitive() != caseSensitive ) {
+		delete eng;
+	    } else {
+		eng->ref();
+		return;
+	    }
 	}
+#endif // QT_NO_REGEXP_OPTIM
+	eng = new QRegExpEngine( pattern, caseSensitive );
+	return;
     }
-#endif
-    return new QRegExpEngine( pattern, caseSensitive );
-}
 
-static void derefEngine( QRegExpEngine *eng, const QString& pattern )
-{
-#ifdef QT_THREAD_SUPPORT
-    QMutexLocker locker( qt_global_mutexpool ?
-			 qt_global_mutexpool->get( &engineCache ) : 0 );
-#endif
     if ( eng->deref() ) {
 #ifndef QT_NO_REGEXP_OPTIM
 	if ( engineCache == 0 ) {
 	    engineCache = new QCache<QRegExpEngine>;
 	    engineCache->setAutoDelete( TRUE );
+#  ifndef QT_THREAD_SUPPORT
 	    cleanup_cache.set( &engineCache );
+#  endif // !QT_THREAD_SUPPORT
 	}
 	if ( !pattern.isNull() &&
 	     engineCache->insert(pattern, eng, 4 + pattern.length() / 4) )
 	    return;
 #else
 	Q_UNUSED( pattern );
-#endif
+#endif // QT_NO_REGEXP_OPTIM
 	delete eng;
+	eng = 0;
     }
 }
 
@@ -3928,7 +3931,8 @@ void QRegExp::prepareEngine() const
 	    priv->rxpattern = priv->pattern.isNull() ? QString::fromLatin1( "" )
 			      : priv->pattern;
 	QRegExp *that = (QRegExp *) this;
-	that->eng = newEngine( priv->rxpattern, priv->cs );
+	// that->eng = newEngine( priv->rxpattern, priv->cs );
+	regexpEngine( that->eng, priv->rxpattern, priv->cs, FALSE );
 	priv->captured.detach();
 	priv->captured.fill( -1, 2 + 2 * eng->numCaptures() );
     }
@@ -3948,7 +3952,7 @@ void QRegExp::prepareEngineForMatch( const QString& str ) const
 void QRegExp::invalidateEngine()
 {
     if ( eng != 0 ) {
-	derefEngine( eng, priv->rxpattern );
+	regexpEngine( eng, priv->rxpattern, priv->cs, TRUE );
 	priv->rxpattern = QString();
 	eng = 0;
     }

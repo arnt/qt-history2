@@ -55,6 +55,8 @@ tools {
 		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
+		  $$TOOLS_H/qthreadinstance_p.h \
+		  $$TOOLS_H/qthreadstorage.h\
 		  $$TOOLS_H/qunicodetables_p.h \
 		  $$TOOLS_H/qptrvector.h \
 	          $$TOOLS_H/qvaluelist.h \
@@ -73,6 +75,7 @@ tools {
 		  $$TOOLS_CPP/qmutex_win.cpp \
 		  $$TOOLS_CPP/qwaitcondition_win.cpp \
 		  $$TOOLS_CPP/qsemaphore_win.cpp \
+		  $$TOOLS_CPP/qthreadstorage_win.cpp \
 		  $$TOOLS_CPP/qcriticalsection_p.cpp
 
         offmac:SOURCES += $$TOOLS_CPP/qdir_mac.cpp \
@@ -83,6 +86,7 @@ tools {
 		  $$TOOLS_CPP/qfileinfo_unix.cpp \
 		  $$TOOLS_CPP/qmutex_unix.cpp \
 		  $$TOOLS_CPP/qsemaphore_unix.cpp \
+		  $$TOOLS_CPP/qthreadstorage_unix.cpp \
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
         mac:!embedded:SOURCES += $$TOOLS_CPP/qsettings_mac.cpp

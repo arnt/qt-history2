@@ -29,13 +29,14 @@
 
 #if defined(QT_THREAD_SUPPORT)
 
-#include "qthread.h"
 #include "qt_windows.h"
-#include "qobject.h"
-#include "qapplication.h"
-#include "qintdict.h"
-#include <private/qmutexpool_p.h>
 
+#include "qthread.h"
+#include "qthread_p.h"
+#include <private/qmutexpool_p.h>
+#include "qthreadstorage.h"
+
+#include "qapplication.h"
 #include <private/qcriticalsection_p.h>
 
 #ifndef Q_OS_TEMP
@@ -45,107 +46,127 @@
 #include <process.h>
 #endif
 
-/*
-  QThreadPrivate
-*/
 
-class QThreadPrivate
+static QThreadInstance *main_instance = 0;
+
+
+static QMutexPool *qt_thread_mutexpool = 0;
+
+
+static DWORD qt_tls_index = 0;
+static void create_tls()
 {
-public:
-    static void internalRun( QThread* );
-
-    QThreadPrivate( unsigned int ss = 0 );
-    ~QThreadPrivate();
-
-    Qt::HANDLE handle;
-    unsigned int id;
-    unsigned int stacksize;
-    bool finished  : 1;
-    bool running   : 1;
-    bool deleted   : 1;
-};
-
-static QIntDict<QThreadPrivate> *threadDict = 0;
-static QCriticalSection *dictSection_ = 0;
-static QCriticalSection *dictSection()
-{
-    if ( !dictSection_ )
-	dictSection_ = new QCriticalSection();
-    return dictSection_;
+    static QCriticalSection cs;
+    cs.enter();
+    if ( ! qt_tls_index )
+	qt_tls_index = TlsAlloc();
+    cs.leave();
 }
 
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
 
-static unsigned int __stdcall start_thread(void* that )
+/**************************************************************************
+ ** QThreadInstance
+ *************************************************************************/
+
+QThreadInstance *QThreadInstance::current()
 {
-    QThreadPrivate::internalRun( (QThread*)that );
+    QThreadInstance *ret = (QThreadInstance *) TlsGetValue( qt_tls_index );
+    if ( ret ) return ret;
+
+    qWarning( "QThread: WARNING:\n"
+	      "         Creating QThreadInstance for unknown thread %lx\n"
+	      "         The QThreadInstance and local data stored with\n"
+	      "         QThreadStorage might be leaked",
+	      QThread::currentThread() );
+
+    ret = new QThreadInstance;
+    ret->args[1] = ret;
+    ret->running = TRUE;
+    ret->orphan = TRUE;
+    ret->handle = GetCurrentThread();
+    ret->id = GetCurrentThreadId();
+
+    TlsSetValue( qt_tls_index, ret );
+
+    return ret;
+}
+
+QThreadInstance::QThreadInstance( unsigned int stackSize )
+    :  stacksize( stackSize ), thread_storage( 0 ),
+       finished( FALSE ), running( FALSE ), orphan( FALSE ),
+       handle( 0 ), id( 0 )
+{
+    args[0] = args[1] = 0;
+
+    // threads have not been initialized yet, do it now
+    if ( ! qt_thread_mutexpool ) QThread::initialize();
+}
+
+unsigned int QThreadInstance::start( void *_arg )
+{
+    void **arg = (void **) _arg;
+
+    create_tls();
+    TlsSetValue( qt_tls_index, arg[1] );
+
+    ( (QThread *) arg[0] )->run();
+
+    finish( (QThreadInstance *) arg[1] );
 
     return 0;
 }
 
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
-QThreadPrivate::QThreadPrivate( unsigned int ss )
+void QThreadInstance::finish( QThreadInstance *d )
 {
-    // threads have not been initialized yet, do it now
-    if ( ! qt_global_mutexpool ) QThread::initialize();
-
-    handle = 0;
-    id = 0;
-    stacksize = ss;
-    running = FALSE;
-    finished = FALSE;
-    deleted = FALSE;
-}
-
-QThreadPrivate::~QThreadPrivate()
-{
-    if ( running && !finished ) {
-	qWarning("QThread object destroyed while thread is still running. Terminating thread...");
-	TerminateThread( handle, 0 );
-	finished = TRUE;
-    } else if ( handle && !CloseHandle( handle ) ) {
-#ifdef QT_CHECK_RANGE
-	qSystemWarning("Thread destroy failure");
-#endif
+    if ( ! d ) {
+	#ifdef QT_CHECK_STATE
+	qWarning( "QThread: internal error: zero data for running thread." );
+#endif // QT_CHECK_STATE
+	return;
     }
-}
 
-void QThreadPrivate::internalRun( QThread* that )
-{
-    QThreadPrivate *d = that->d;
-    dictSection()->enter();
-    if ( !threadDict )
-	threadDict = new QIntDict<QThreadPrivate>();
-    threadDict->insert( d->id, d );
-    dictSection()->leave();
-
-    that->run();
-
-    dictSection()->enter();
-    if ( threadDict ) {
-	threadDict->remove( d->id );
-    }
-    d->id = 0;
-    dictSection()->leave();
-
-    d->finished = TRUE;
+    // this is copied to QThread::exit() - if you modify this code,
+    // make sure you fix below as well
+    QMutexLocker locker( d->mutex() );
     d->running = FALSE;
-    if ( d->deleted )
+    d->finished = TRUE;
+    d->args[0] = d->args[1] = 0;
+
+    QThreadStoragePrivate::finish( d->thread_storage );
+    d->thread_storage = 0;
+
+    d->id = 0;
+
+    if ( d->orphan )
 	delete d;
 }
 
-/*
-  QThread implementation
-*/
+QMutex *QThreadInstance::mutex() const
+{
+    return qt_thread_mutexpool ? qt_thread_mutexpool->get( (void *) this ) : 0;
+}
 
-/*
-  QThread static functions
-*/
+void QThreadInstance::terminate()
+{
+    /*
+      delete the thread storage *after* the thread has been
+      terminated.  we could end up deleting the thread's data while it
+      is accessing it (but before the thread stops), which results in
+      a crash.
+    */
+    void **storage = d->thread_storage;
+    d->thread_storage = 0;
+
+    finish( this );
+    TerminateThread( d->handle, 0 );
+
+    QThreadStoragePrivate::finish( storage );
+}
+
+
+/**************************************************************************
+ ** QThread
+ *************************************************************************/
 
 Qt::HANDLE QThread::currentThread()
 {
@@ -156,39 +177,47 @@ void QThread::initialize()
 {
     if ( ! qt_global_mutexpool )
 	qt_global_mutexpool = new QMutexPool( TRUE );
+    if ( ! qt_thread_mutexpool )
+	qt_thread_mutexpool = new QMutexPool( FALSE );
+
+    // get a QThreadInstance for the main() thread
+    create_tls();
+    QThreadInstance *inst = (QThreadInstance *) TlsGetValue( qt_tls_index );
+
+    if ( ! inst ) {
+	// create a new QThreadInstance
+	main_instance = new QThreadInstance;
+	main_instance->args[1] = main_instance;
+	main_instance->running = TRUE;
+	main_instance->orphan = TRUE;
+	main_instance->handle = GetCurrentThread();
+	main_instance->id = GetCurrentThreadId();
+
+	TlsSetValue( qt_tls_index, main_instance );
+    } else {
+	/*
+	  It seems that someone did something to make Qt create a
+	  QThreadInstance before the QApplication constructor.  We
+	  take over control of said QThreadInstance.
+	*/
+	main_instance = inst;
+    }
 }
 
 void QThread::cleanup()
 {
     delete qt_global_mutexpool;
     qt_global_mutexpool = 0;
+    delete qt_thread_mutexpool;
+    qt_thread_mutexpool = 0;
+
+    QThreadInstance::finish( main_instance );
+    main_instance = 0;
 }
 
 void QThread::postEvent( QObject *o,QEvent *e )
 {
     QApplication::postEvent( o, e );
-}
-
-void QThread::exit()
-{
-    DWORD id = GetCurrentThreadId();
-    dictSection()->enter();
-    QThreadPrivate *that = threadDict->take( id );
-    if ( !threadDict->count() ) {
-	delete threadDict;
-	threadDict = 0;
-    }
-    dictSection()->leave();
-
-    if ( that ) {
-	that->running = FALSE;
-	that->finished = TRUE;
-	CloseHandle( that->handle );
-	that->handle = 0;
-	that->id = 0;
-    }
-
-    _endthreadex(0);
 }
 
 void QThread::sleep( unsigned long secs )
@@ -206,44 +235,11 @@ void QThread::usleep( unsigned long usecs )
     ::Sleep( ( usecs / 1000 ) + 1 );
 }
 
-QThread::QThread()
-{
-    d = new QThreadPrivate;
-}
-
-QThread::QThread( unsigned int stackSize )
-{
-    d = new QThreadPrivate( stackSize );
-}
-
-QThread::~QThread()
-{
-    if ( threadDict ) {
-	dictSection()->enter();
-	threadDict->remove( d->id );
-	dictSection()->leave();
-	if ( !threadDict->count() ) {
-	    delete threadDict;
-	    threadDict = 0;
-	}
-    }
-    if ( dictSection_ && !threadDict ) {
-	delete dictSection_;
-	dictSection_ = 0;
-    }
-
-    if( d->running && !d->finished ) {
-#if defined(QT_CHECK_RANGE)
-	qWarning("QThread object destroyed while thread is still running.");
-#endif
-	d->deleted = TRUE;
-    } else {
-	delete d;
-    }
-}
 
 void QThread::start()
 {
+    QMutexLocker locker( d->mutex() );
+
     if ( d->running && !d->finished ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "Thread is already running" );
@@ -253,8 +249,11 @@ void QThread::start()
 
     d->running = TRUE;
     d->finished = FALSE;
-    d->handle = (Qt::HANDLE)_beginthreadex( NULL, d->stacksize, start_thread,
-	this, 0, &(d->id) );
+    d->args[0] = this;
+    d->args[1] = d;
+
+    d->handle = (Qt::HANDLE)_beginthreadex( NULL, d->stacksize, QThreadInstance::start,
+					    this, 0, &(d->id) );
 
     if ( !d->handle ) {
 #ifdef QT_CHECK_STATE
@@ -263,18 +262,14 @@ void QThread::start()
 
 	d->running = FALSE;
 	d->finished = TRUE;
+	d->args[0] = d->args[1] = 0;
     }
-}
-
-void QThread::terminate()
-{
-    TerminateThread( d->handle, 0 );
-    d->running = FALSE;
-    d->finished = TRUE;
 }
 
 bool QThread::wait( unsigned long time )
 {
+    QMutexLocker locker( d->mutex() );
+
     if ( d->id == GetCurrentThreadId() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "Thread tried to wait on itself" );
@@ -298,14 +293,38 @@ bool QThread::wait( unsigned long time )
     return TRUE;
 }
 
-bool QThread::finished() const
+void QThread::exit()
 {
-    return d->finished;
+    QThreadInstance *d = QThreadInstance::current();
+
+    if ( ! d ) {
+#ifdef QT_CHECK_STATE
+	qWarning( "QThread::exit() called without a QThread instance." );
+#endif // QT_CHECK_STATE
+
+	_endthreadex(0);
+	return;
+    }
+
+    // this is copied from QThreadInstance::finish() - if you modify
+    // this code, make sure you fix above as well
+    QMutexLocker locker( d->mutex() );
+    d->running = FALSE;
+    d->finished = TRUE;
+    d->args[0] = d->args[1] = 0;
+
+    QThreadStoragePrivate::finish( d->thread_storage );
+    d->thread_storage = 0;
+
+    d->id = 0;
+
+    CloseHandle( d->handle );
+
+    if ( d->orphan )
+	delete d;
+
+    _endthreadex(0);
 }
 
-bool QThread::running() const
-{
-    return d->running;
-}
 
-#endif
+#endif // QT_THREAD_SUPPORT

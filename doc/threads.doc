@@ -81,6 +81,7 @@ These classes are built into the Qt library when thread support is enabled:
 \i QThread - Provides the means to start a new thread, which begins
 execution in your reimplementation of QThread::run().  This is similar
 to the Java thread class.
+\i QThreadStorage - Provides per-thread data storage.
 \i QMutex - Provides a mutual exclusion lock (also know as a mutex).
 \i QMutexLocker - A convenience class which automatically locks and
 unlocks a QMutex.  QMutexLocker is useful in complicated code, or in

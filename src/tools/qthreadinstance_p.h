@@ -1,13 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Definition of QThread class
+** ...
 **
-** Created : 931107
+** Copyright (C) 2003 Trolltech AS.  All rights reserved.
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
-**
-** This file is part of the kernel module of the Qt GUI Toolkit.
+** This file is part of the tools module of the Qt GUI Toolkit.
 **
 ** This file may be distributed under the terms of the Q Public License
 ** as defined by Trolltech AS of Norway and appearing in the file
@@ -35,66 +33,62 @@
 **
 **********************************************************************/
 
-#ifndef QTHREAD_H
-#define QTHREAD_H
+#ifndef QTHREAD_P_H
+#define QTHREAD_P_H
 
-#if defined(QT_THREAD_SUPPORT)
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of QThread and QThreadStorage. This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+//
 
-#ifndef QT_H
-#include "qwindowdefs.h"
-#ifndef QT_NO_COMPAT
+#ifdef QT_THREAD_SUPPORT
+
 #include "qmutex.h"
-#include "qsemaphore.h"
+#ifdef Q_OS_UNIX
 #include "qwaitcondition.h"
-#endif // QT_NO_COMPAT
-#endif // QT_H
+#endif // Q_OS_UNIX
 
-#include <limits.h>
 
-class QThreadInstance;
-
-class Q_EXPORT QThread : public Qt
-{
+class QThreadInstance {
 public:
-    static Qt::HANDLE currentThread();
-    static void postEvent( QObject *,QEvent * ); // ### remove 4.0
+    static QThreadInstance *current();
 
-    static void initialize();
-    static void cleanup();
+    QThreadInstance( unsigned int stackSize = 0 );
 
-    static void exit();
-
-    QThread();					// ### remove 4.0
-    QThread( unsigned int stackSize );		// ### default arg = 0 in 4.0
-    virtual ~QThread();
-
-    // default argument causes thread to block indefinately
-    bool wait( unsigned long time = ULONG_MAX );
-
-    void start();
+    QMutex *mutex() const;
     void terminate();
 
-    bool finished() const;
-    bool running() const;
+    unsigned int stacksize;
+    void *args[2];
+    void **thread_storage;
+    bool finished : 1;
+    bool running  : 1;
+    bool orphan   : 1;
 
+#ifdef Q_OS_UNIX
+    QWaitCondition thread_done;
+    pthread_t thread_id;
 
-protected:
-    virtual void run() = 0;
+    static void *start( void * );
+    static void finish( void * );
+#endif // Q_OS_UNIX
 
-    static void sleep( unsigned long );
-    static void msleep( unsigned long );
-    static void usleep( unsigned long );
+#ifdef Q_OS_WIN32
+    Qt::HANDLE handle;
+    unsigned int id;
 
-private:
-    QThreadInstance * d;
-    friend class QThreadInstance;
-
-#if defined(Q_DISABLE_COPY)
-    QThread( const QThread & );
-    QThread &operator=( const QThread & );
-#endif // Q_DISABLE_COPY
+    static unsigned int start( void * );
+    static void finish();
+#endif // Q_OS_WIN32
 };
 
-#endif // QT_THREAD_SUPPORT
 
-#endif // QTHREAD_H
+#endif // QT_THREAD_SUPPORT
+#endif // QTHREAD_P_H
