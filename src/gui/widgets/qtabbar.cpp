@@ -889,12 +889,12 @@ void QTabBar::keyPressEvent(QKeyEvent * e)
 
             QTab *t = 0;
             int i;
-            for (i=d->lstatic.size(); i>=0; --i) {
+            for (i=d->lstatic.size()-1; i>=0; --i) {
                 t = d->lstatic.at(i);
                 if (!t || t->id == d->focus)
                     break;
             }
-            for (; i>=0; --i) {
+            for (--i; i>=0; --i) {
                 t = d->lstatic.at(i);
                 if (!t || t->enabled)
                     break;
@@ -914,7 +914,7 @@ void QTabBar::keyPressEvent(QKeyEvent * e)
             if (!t || t->id == d->focus)
                 break;
         }
-        for (; i<d->lstatic.size(); ++i) {
+        for (++i; i<d->lstatic.size(); ++i) {
             t = d->lstatic.at(i);
             if (!t || t->enabled)
                 break;
