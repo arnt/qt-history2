@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#3 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#4 $
 **
 ** Definition of QImage class
 **
 ** Author  : Haavard Nord
 ** Created : 950207
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
 *****************************************************************************/
 
@@ -34,7 +34,7 @@ public:
     QImage     &operator=( const QPixMap & );
     QImage     &operator=( const QImage & );
 
-    bool    	operator==( const QImage & ) const;
+    bool	operator==( const QImage & ) const;
 
     bool	isNull()	const	{ return data->pm == 0; }
 
@@ -48,8 +48,6 @@ public:
     int		depth()		const;
     int		numColors()	const;
 
-    bool	trueColor()	const;
-
     uchar      *bits()		const;
 
     void	createImage( const QImageData * );
@@ -60,6 +58,7 @@ public:
 
     static void	defineIOHandler( const char *format,
 				 const char *header,
+				 const char *flags,
 				 image_io_handler read_image,
 				 image_io_handler write_image );
 
@@ -99,23 +98,35 @@ QDataStream &operator>>( QDataStream &, QImage & );
 //
 
 struct QImageData {
+    enum	{ BigEndian, LittleEndian, IgnoreEndian };
+
     QImageData();
    ~QImageData();
-    int	       width;				// image width
-    int	       height;				// image height
-    int	       depth;				// image depth
-    int	       ncols;				// number of colors
-    ulong     *ctbl;				// color table
-    uchar    **bits;				// image data
-    bool       bigend;				// big endian byte ordering
+    int		width;				// image width
+    int		height;				// image height
+    int		depth;				// image depth
+    int		ncols;				// number of colors
+    ulong      *ctbl;				// color table
+    uchar     **bits;				// image data
+    int		bitOrder;			// bit order (1 bit depth)
 
-    long       nBytes() const;
-    void       allocBits();
-    void       freeBits();
+    long	nBytes() const;
+    void	allocBits();
+    void	freeBits();
 
-    static int red( ulong rgb )   { return (int)(rgb & 0xff); }
+    bool	contiguousBits()  const;	// contiguous
+    bool	convertDepth( int, QImageData *dest ) const;
+    void	convertBitOrder( int );		// convert bit  order (1 bit)
+    void	togglePix01();
+    int		systemBitOrder()  const;	// display HW bit order
+    static int	systemByteOrder();		// client computer byte order
+
+    static int red( ulong rgb )	  { return (int)(rgb & 0xff); }
     static int green( ulong rgb ) { return (int)((rgb >> 8) & 0xff); }
     static int blue( ulong rgb )  { return (int)((rgb >> 16) & 0xff); }
+    static int gray( int r, int g, int b )
+	{ return (r*11 + g*16 + b*5) / 32; }
+    static int gray( ulong rgb );
     static ulong setRGB( int r, int g, int b )
 	{ return (uchar)r | ((ushort)g << 8) | ((ulong)b << 16); }
 };
@@ -128,7 +139,6 @@ struct QImageIO : public QImageData {
     int	       status;				// IO status
     QString    format;				// image format
     QIODevice *iodev;				// IO device
-    long       length;				// length of input stream
     QString    fname;				// file name
     QString    params;				// image parameters
     QString    descr;				// image description
