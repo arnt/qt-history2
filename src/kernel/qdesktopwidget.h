@@ -7,6 +7,7 @@
 #endif // QT_H
 
 class QDesktopWidgetPrivate; /* Don't touch! */
+struct QAccessibleInterface;
 
 class Q_EXPORT QDesktopWidget : public QWidget
 {
@@ -26,6 +27,13 @@ public:
     QWidget *screen( int screen = -1 );
     
     const QRect& screenGeometry( int screen = -1 ) const;
+
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessibleInterface *createAccessibilityInterface()
+    {
+	return 0;
+    }
+#endif
 
 private:
     QDesktopWidgetPrivate *d;

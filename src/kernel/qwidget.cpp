@@ -2784,6 +2784,9 @@ void QWidget::setFocus()
 	if ( !isPopup() )
 	    SetFocus( winId() );
 #endif
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+	emit accessibilityChanged( QAccessible::Focus );
+#endif
     }
 }
 
