@@ -238,8 +238,9 @@ mergetr), you can use \e qm2ts to convert your old
 .qm files.
 
 \e linguist, \e lupdate and \e lrelease are installed in
-$(QTDIR)/bin. Click Help|Manual to access the user's manual. It
-contains a three-chapter tutorial to get you started.
+$(QTDIR)/bin. Click Help|Manual in Qt Linguist to access the
+user's manual. It contains a three-chapter tutorial to get you
+started.
 
 While these utilities offer a convenient way to create .qm files, any
 system that writes .qm files is sufficient. You could make an
