@@ -125,11 +125,11 @@ void QReadWriteLock::lockForRead()
                 break;
         } else {
             report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
-            ++d->waitingReaders;
             if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount < INT_MAX) {
                 report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                 continue;
             }
+            ++d->waitingReaders;
             report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
             --d->waitingReaders;
             report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
