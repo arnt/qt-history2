@@ -27,7 +27,6 @@ class QAction;
 class Q3PopupMenu;
 class Q3MenuItem;
 class QTab;
-class QListViewItem;
 class QCheckListItem;
 class QFontMetrics;
 
@@ -56,7 +55,6 @@ public:
 #endif
     QStyleOption(const QColor& c) : def(false), cl(&c) {}
     QStyleOption(QTab* t) : def(false), tb(t) {}
-    QStyleOption(QListViewItem* i) : def(false), li(i) {}
     QStyleOption(QCheckListItem* i) : def(false), cli(i) {}
     QStyleOption(Qt::ArrowType a) : def(false), i1((int)a) {}
     QStyleOption(const QRect& r) : def(false), i1(r.x()), i2(r.y()), i3(r.width()),i4(r.height()){}
@@ -84,7 +82,6 @@ public:
     QTab* tab() const { return tb; }
 
     QCheckListItem* checkListItem() const { return cli; }
-    QListViewItem* listViewItem() const { return li; }
 
     Qt::ArrowType arrowType() const { return (Qt::ArrowType)i1; }
     QRect rect() const { return QRect(i1, i2, i3, i4); }
@@ -97,7 +94,7 @@ private:
     QAction *act;
     Q3MenuItem* mi;
     QTab* tb;
-    QListViewItem* li;
+//     QListViewItem* li;
     const QColor* cl;
     int i1, i2, i3, i4, i5, i6; // reserved
     QCheckListItem* cli;
