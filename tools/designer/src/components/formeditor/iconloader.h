@@ -19,6 +19,13 @@
 #include <QString>
 
 inline QIcon createIconSet(const QString &name)
-{ return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/") + name); }
+{
+    QPixmap pix(QString::fromUtf8(":/trolltech/formeditor/images/") + name);
+
+    if (!pix.isNull())
+        return pix;
+
+    return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/designer_") + name);
+}
 
 #endif // ICONLOADER_H
