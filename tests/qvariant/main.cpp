@@ -1,6 +1,8 @@
 #include <qapplication.h>
 #include <qvariant.h>
 
+extern int get_qv_count();
+
 int count = 0;
 
 class MyValue
@@ -373,7 +375,19 @@ int main( int argc, char** argv )
 	ASSERT( v.toString() == "Hallo" );
     }
     ASSERT( count == 0 );
-	
+
+    qDebug("------------------ Shared 1 -----------------");
+    {
+	v = QVariant( "Torben" );
+	QVariant v2;
+	v2 = v;
+	v.asString() = "Claudia";
+	ASSERT( v.toString() == "Claudia" && v2.toString() == "Torben" );
+    }
+    ASSERT( count == 0 );
+
+    ASSERT( get_qv_count() == 1 );
+    
     qDebug("------------------ Finished -----------------");
 }
 
