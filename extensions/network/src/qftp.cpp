@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#4 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -165,7 +165,7 @@ QString QFtp::toString() const
 void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 {
     QStringList lst = QStringList::split( " ", buffer );
-    
+
     if ( lst.count() < 9 ) {
 	if ( buffer[ 0 ] == QChar( 'd' ) ||
 	     buffer[ 0 ] == QChar( '-' ) ||
@@ -173,7 +173,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	    tmp = buffer.stripWhiteSpace();
 	return;
     }
-    
+
     QString tmp_;
 
     // permissions
@@ -199,7 +199,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     // size
     tmp_ = lst[ 4 ];
     info.setSize( tmp_.toInt() );
-    
+
     // date, time #### todo
 
     // name
@@ -280,7 +280,7 @@ void QFtp::dataConnected()
 void QFtp::dataClosed()
 {
     if ( url )
-	url->emitFinished();
+	url->emitFinished( QUrl::ActListDirectory );
 }
 
 void QFtp::dataReadyRead()
