@@ -741,17 +741,20 @@ static bool qt_set_desktop_properties()
 	/*
 	  Qt settings:
 
-	  /qt/palette          - QPalette
-	  /qt/font             - QFont
-	  /qt/style            - QString
-	  /qt/doubleclicktime  - int
-	  /qt/cursorflashtime  - int
-	  /qt/wheelscrolllines - int
-	  /qt/guieffects       - QString
-	  /qt/colorspec        - QString
-	  /qt/defaultcodec     - QString
-	  /qt/globalstrut      - QSize
+	  /qt/palette           - QPalette
+	  /qt/font              - QFont
+	  /qt/style             - QString
+	  /qt/doubleclicktime   - int
+	  /qt/cursorflashtime   - int
+	  /qt/wheelscrolllines  - int
+	  /qt/guieffects        - QString
+	  /qt/colorspec         - QString
+	  /qt/defaultcodec      - QString
+	  /qt/globalstrut       - QSize
 	  /qt/librarypath       - QString
+
+	  TODO:
+	  /qt/fontsubstitutions - QMap<QString,QStringList>
 
 	*/
 
@@ -1812,6 +1815,11 @@ void qt_cleanup()
 
     delete activeBeforePopup;
     activeBeforePopup = 0;
+
+#ifdef Q_OS_UNIX
+    close(qt_thread_pipe[0]);
+    close(qt_thread_pipe[1]);
+#endif // Q_OS_UNIX
 }
 
 
