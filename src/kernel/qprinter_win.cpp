@@ -992,7 +992,9 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
         ncols = 256;
     }
     else if ( d > 8 ) {
-        d = 32;                                 //   > 8  ==> 32
+	// some windows printer drivers can't handle 32 bit DIBs, so we have to use 
+	// 24 bits here.
+        d = 24;                                 
         ncols = 0;
     }
 
@@ -1212,7 +1214,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
 	    int bpp = GetDeviceCaps(hdc,BITSPIXEL);
-	    if ( (rc & RC_STRETCHBLT) != 0 && ( bpp >= 8  || !( rc & RC_STRETCHDIB) ) ) {
+	    if ( (rc & RC_STRETCHDIB) != 0 ) {
+                // StretchDIBits supported
+                StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
+		    bits, bmi, DIB_RGB_COLORS, SRCCOPY );
+	    } else if ( (rc & RC_STRETCHBLT) != 0 ) {
                 // StretchBlt supported
                 HDC     hdcPrn = CreateCompatibleDC( hdc );
                 HBITMAP hbm    = CreateDIBitmap( hdc, bmh, CBM_INIT,
@@ -1223,11 +1229,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 SelectObject( hdcPrn, oldHbm );
                 DeleteObject( hbm );
                 DeleteObject( hdcPrn );
-            } else if ( (rc & RC_STRETCHDIB) != 0 ) {
-                // StretchDIBits supported
-                StretchDIBits( hdc, pos.x(), pos.y(), dw, dh, 0, 0, w, h,
-		    bits, bmi, DIB_RGB_COLORS, SRCCOPY );
-	    }
+            }
             if ( image.isNull() ) {
                 delete [] bits;
             }
