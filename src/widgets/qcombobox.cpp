@@ -793,10 +793,13 @@ void QComboBox::removeItem( int index )
     int cnt = count();
     if ( !checkIndex( "removeItem", name(), cnt, index ) )
 	return;
-    if ( d->usingListBox() )
+    if ( d->usingListBox() ) {
+	if( style().styleHint(QStyle::SH_ComboBox_Popup) && !d->popup())
+	    d->popup()->removeItemAt( index );
 	d->listBox()->removeItem( index );
-    else
+    } else {
 	d->popup()->removeItemAt( index );
+    }
     if ( index != cnt-1 )
 	reIndex();
     if ( index == d->current ) {
@@ -837,6 +840,8 @@ void QComboBox::removeItem( int index )
 void QComboBox::clear()
 {
     if ( d->usingListBox() ) {
+	if( style().styleHint(QStyle::SH_ComboBox_Popup) && !d->popup())
+	    d->popup()->clear();
 	d->listBox()->resize( 0, 0 );
 	d->listBox()->clear();
     } else {
