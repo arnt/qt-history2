@@ -393,7 +393,8 @@ BorlandMakefileGenerator::init()
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
 	"HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
     QStringList &l = project->variables()["QMAKE_FILETAGS"];
-    for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+    QStringList::Iterator it;
+    for(it = l.begin(); it != l.end(); ++it) {
 	QStringList &gdmf = project->variables()[(*it)];
 	for(QStringList::Iterator inner = gdmf.begin(); inner != gdmf.end(); ++inner)
 	    (*inner) = Option::fixPathToTargetOS((*inner), FALSE);
