@@ -1,4 +1,9 @@
+
+
 #include "keyboard.h"
+
+#ifdef _WS_QWS_
+
 #include <qwindowsystem_qws.h>
 #include <qpainter.h>
 #include <qfontmetrics.h>
@@ -249,3 +254,5 @@ QSize Keyboard::sizeHint() const
     int d = fm.lineSpacing() - 1;
     return QSize( 15*d, 5*d );
 }
+
+#endif // _WS_QWS_
