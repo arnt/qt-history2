@@ -5988,7 +5988,7 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 			unsigned char r = ((qRed(*s)-qRed(*d)) * a) / 256 + qRed(*d);
 			unsigned char g = ((qGreen(*s)-qGreen(*d)) * a) / 256 + qGreen(*d);
 			unsigned char b = ((qBlue(*s)-qBlue(*d)) * a) / 256 + qBlue(*d);
-			a = QMAX(qAlpha(*d),a); // alternatives...
+			a = QMAX(qAlpha(*d),int(a)); // alternatives...
 			*d++ = qRgba(r,g,b,a);
 			++s;
 		    }
