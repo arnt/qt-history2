@@ -1,8 +1,8 @@
 #ifndef PROPERTYOBJECT_H
 #define PROPERTYOBJECT_H
 
-#include <qobject.h>
-#include <qwidgetlist.h>
+#include <qlist.h>
+#include <qwidget.h>
 #include <qcursor.h>
 
 class PropertyObject : public QObject

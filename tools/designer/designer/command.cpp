@@ -301,7 +301,8 @@ bool MoveCommand::canMerge( Command *c )
 
 void MoveCommand::execute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout ) {
 	    if ( newParent && oldParent && newParent != oldParent ) {
 		QPoint pos = newParent->mapFromGlobal( w->mapToGlobal( QPoint( 0,0 ) ) );
@@ -312,7 +313,7 @@ void MoveCommand::execute()
 		formWindow()->mainWindow()->objectHierarchy()->widgetRemoved( w );
 		formWindow()->mainWindow()->objectHierarchy()->widgetInserted( w );
 	    }
-	    w->move( newPos[ widgets.at() ] );
+	    w->move( newPos[i] );
 	}
 	formWindow()->updateSelection( w );
 	formWindow()->updateChildSelections( w );
@@ -322,7 +323,8 @@ void MoveCommand::execute()
 
 void MoveCommand::unexecute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout ) {
 	    if ( newParent && oldParent && newParent != oldParent ) {
 		QPoint pos = oldParent->mapFromGlobal( w->mapToGlobal( QPoint( 0,0 ) ) );
@@ -333,7 +335,7 @@ void MoveCommand::unexecute()
 		formWindow()->mainWindow()->objectHierarchy()->widgetRemoved( w );
 		formWindow()->mainWindow()->objectHierarchy()->widgetInserted( w );
 	    }
-	    w->move( oldPos[ widgets.at() ] );
+	    w->move( oldPos[i] );
 	}
 	formWindow()->updateSelection( w );
 	formWindow()->updateChildSelections( w );
@@ -350,11 +352,12 @@ DeleteCommand::DeleteCommand( const QString &n, FormWindow *fw,
     widgets.setAutoDelete( FALSE );
 
     // Include the children of the selected items when deleting
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	QObjectList children = w->queryList( "QWidget" );
 	for (int i = 0; i < children.size(); ++i) {
 	    QWidget *c = static_cast<QWidget *>(children.at(i));
-	    if ( widgets.find( c ) == -1 && formWindow()->widgets()->find( c ) )
+	    if ( widgets.indexOf( c ) == -1 && formWindow()->widgets()->find( c ) )
 		widgets.append( c );
 	}
     }
@@ -364,7 +367,8 @@ void DeleteCommand::execute()
 {
     formWindow()->setPropertyShowingBlocked( TRUE );
     connections.clear();
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->hide();
 	QString s = w->name();
 	s.prepend( "qt_dead_widget_" );
@@ -389,7 +393,8 @@ void DeleteCommand::unexecute()
 {
     formWindow()->setPropertyShowingBlocked( TRUE );
     formWindow()->clearSelection( FALSE );
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->show();
 	QString s = w->name();
 	s.remove( 0, QString( "qt_dead_widget_" ).length() );
@@ -778,8 +783,10 @@ void BreakLayoutCommand::execute()
     formWindow()->clearSelection( FALSE );
     layout->breakLayout();
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() )
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->resize( QMAX( 16, w->width() ), QMAX( 16, w->height() ) );
+    }
 }
 
 void BreakLayoutCommand::unexecute()
@@ -1354,7 +1361,8 @@ LowerCommand::LowerCommand( const QString &name, FormWindow *fw, const QWidgetLi
 
 void LowerCommand::execute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->lower();
 	formWindow()->raiseSelection( w );
     }
@@ -1363,7 +1371,8 @@ void LowerCommand::execute()
 
 void LowerCommand::unexecute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->raise();
 	formWindow()->raiseSelection( w );
     }
@@ -1378,7 +1387,8 @@ RaiseCommand::RaiseCommand( const QString &name, FormWindow *fw, const QWidgetLi
 
 void RaiseCommand::execute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->raise();
 	formWindow()->raiseSelection( w );
     }
@@ -1387,7 +1397,8 @@ void RaiseCommand::execute()
 
 void RaiseCommand::unexecute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->lower();
 	formWindow()->raiseSelection( w );
     }
@@ -1403,7 +1414,8 @@ PasteCommand::PasteCommand( const QString &n, FormWindow *fw,
 
 void PasteCommand::execute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->show();
 	formWindow()->selectWidget( w );
 	formWindow()->widgets()->insert( w, w );
@@ -1413,7 +1425,8 @@ void PasteCommand::execute()
 
 void PasteCommand::unexecute()
 {
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->hide();
 	formWindow()->selectWidget( w, FALSE );
 	formWindow()->widgets()->remove( w );

@@ -20,7 +20,6 @@
 #include <qptrlist.h>
 #include <qsizepolicy.h>
 #include <qsize.h>
-#include <qwidgetlist.h>
 #include <qcursor.h>
 #include <qcstring.h>
 

@@ -15,7 +15,6 @@
 
 #include "qwidget.h"
 #include "qwidget_p.h"
-#include "qwidgetlist.h"
 #include "qhash.h"
 #include "qptrdict.h"
 #include "qfocusdata.h"
@@ -929,42 +928,6 @@ void QWidget::destroyMapper()
     delete myMapper;
 }
 
-
-static QWidgetList *wListInternal( QWidgetMapper *mapper, bool onlyTopLevel )
-{
-    QWidgetList *list = new QWidgetList;
-    Q_CHECK_PTR( list );
-    if ( mapper ) {
-	for (QWidgetMapper::ConstIterator it = mapper->constBegin(); it != mapper->constEnd(); ++it) {
-	    register QWidget *w = *it;
-	    if ( !onlyTopLevel || w->isTopLevel() )
-		list->append( w );
-	}
-    }
-    return list;
-}
-
-/*!
-  \internal
-  Returns a list of all widgets.
-  \sa tlwList(), QApplication::allWidgets()
-*/
-
-QWidgetList *QWidget::wList()
-{
-    return wListInternal( mapper, FALSE );
-}
-
-/*!
-  \internal
-  Returns a list of all top level widgets.
-  \sa wList(), QApplication::topLevelWidgets()
-*/
-
-QWidgetList *QWidget::tlwList()
-{
-    return wListInternal( mapper, TRUE );
-}
 
 
 void QWidget::setWinId( WId id )		// set widget identifier
@@ -3994,17 +3957,16 @@ bool QWidget::close( bool alsoDelete )
 	/* if there is no non-withdrawn top level window left (except
 	   the desktop, popups, or dialogs with parents), we emit the
 	   lastWindowClosed signal */
-	QWidgetList *list   = qApp->topLevelWidgets();
-	QWidget     *widget = list->first();
-	while ( widget ) {
-	    if ( !widget->isHidden()
-		 && !widget->isDesktop()
-		 && !widget->isPopup()
-		 && (!widget->isDialog() || !widget->parentWidget()))
-		break;
-	    widget = list->next();
+	QWidgetList list = qApp->topLevelWidgets();
+	QWidget *widget = 0;
+	for (int i = 0; !widget && i < list.size(); ++i) {
+	    QWidget *w = list.at(i);
+	    if ( !w->isHidden()
+		 && !w->isDesktop()
+		 && !w->isPopup()
+		 && (!w->isDialog() || !w->parentWidget()))
+		widget = w;
 	}
-	delete list;
 	if ( widget == 0 )
 	    emit qApp->lastWindowClosed();
     }

@@ -21,7 +21,6 @@
 #include <qwidget.h>
 #include <qptrdict.h>
 #include <qpixmap.h>
-#include <qwidgetlist.h>
 #include <qmap.h>
 
 class QPaintEvent;

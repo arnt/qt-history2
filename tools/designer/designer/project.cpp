@@ -1458,7 +1458,8 @@ QString Project::locationOfObject( QObject *o )
 
     if ( MainWindow::self ) {
 	QWidgetList windows = MainWindow::self->qWorkspace()->windowList();
-	for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	for (int i = 0; i < windows.size(); ++i) {
+	    QWidget *w = windows.at(i);
 	    FormWindow *fw = qt_cast<FormWindow*>(w);
 	    SourceEditor *se = qt_cast<SourceEditor*>(w);
 	    if ( fw ) {

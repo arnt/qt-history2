@@ -26,7 +26,6 @@
 #include <qptrdict.h>
 #include <qstrlist.h>
 #include <qmetaobject.h>
-#include <qwidgetlist.h>
 #include <qmainwindow.h>
 #include <qregexp.h>
 #include <private/qpluginmanager_p.h>

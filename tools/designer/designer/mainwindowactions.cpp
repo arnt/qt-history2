@@ -1109,14 +1109,12 @@ void MainWindow::fileCloseProject()
 
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	QWidgetListIt wit( windows );
-	while ( wit.current() ) {
-	    QWidget *w = wit.current();
-	    ++wit;
+	for (int i = 0; i < windows.size(); ++i) {
+	    QWidget *w = windows.at(i);
 	    if ( w->inherits( "FormWindow" ) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 		    if ( !( (FormWindow*)w )->formFile()->close() )
 			return;
 		}
@@ -1137,7 +1135,8 @@ void MainWindow::fileCloseProject()
 	    statusBar()->message( "Selected project '" + tr( currentProject->projectName() + "'") );
 	}
 	if ( !windows.isEmpty() ) {
-	    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+	    for (int i = 0; i < windows.size(); ++i) {
+		QWidget *w = windows.at(i);
 		if ( !w->inherits( "FormWindow" ) )
 		    continue;
 		w->setFocus();
@@ -1666,7 +1665,8 @@ void MainWindow::editBreakLayout()
 	return;
     } else {
 	QWidgetList widgets = formWindow()->selectedWidgets();
-	for ( w = widgets.first(); w; w = widgets.next() ) {
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets.at(i);
 	    if ( WidgetFactory::layoutType( w ) != WidgetFactory::NoLayout ||
 		 w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 		break;

@@ -18,7 +18,6 @@
 #include "qeventloop_p.h"
 #include "qwidget.h"
 #include "qobject_p.h"
-#include "qwidgetlist.h"
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
 
@@ -362,17 +361,11 @@ void qt_setMaxWindowRect(const QRect& r)
 {
     qt_maxWindowRect = r;
     // Re-resize any maximized windows
-    QWidgetList* l = QApplication::topLevelWidgets();
-    if ( l ) {
-	QWidget *w = l->first();
-	while ( w ) {
-	    if ( w->isVisible() && w->isMaximized() )
-	    {
-		w->showMaximized();
-	    }
-	    w = l->next();
-	}
-	delete l;
+    QWidgetList l = QApplication::topLevelWidgets();
+    for (int i = 0; i < l.size(); ++i) {
+	QWidget *w = l.at(i);
+	if ( w->isVisible() && w->isMaximized() )
+	    w->showMaximized();
     }
 }
 
@@ -920,7 +913,7 @@ void QApplication::initialize( int argc, char **argv )
 
 QWidget *QApplication::activePopupWidget()
 {
-    return popupWidgets ? popupWidgets->getLast() : 0;
+    return popupWidgets && !popupWidgets->isEmpty() ? popupWidgets->last() : 0;
 }
 
 
@@ -940,7 +933,7 @@ QWidget *QApplication::activePopupWidget()
 
 QWidget *QApplication::activeModalWidget()
 {
-    return qt_modal_stack ? qt_modal_stack->getFirst() : 0;
+    return qt_modal_stack && !qt_modal_stack->isEmpty() ? qt_modal_stack->first() : 0;
 }
 
 /*!
@@ -1939,10 +1932,18 @@ void QApplication::polish( QWidget *w )
   \sa allWidgets(), QWidget::isTopLevel(), QWidget::isVisible(),
       QPtrList::isEmpty()
 */
-
-QWidgetList *QApplication::topLevelWidgets()
+QWidgetList QApplication::topLevelWidgets()
 {
-    return QWidget::tlwList();
+    QWidgetList list;
+    if ( QWidget::mapper ) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+	     it != QWidget::mapper->constEnd(); ++it) {
+	    QWidget *w = *it;
+	    if ( w->isTopLevel() )
+		list.append( w );
+	}
+    }
+    return list;
 }
 
 /*!
@@ -1975,9 +1976,15 @@ QWidgetList *QApplication::topLevelWidgets()
   \sa topLevelWidgets(), QWidget::isVisible(), QPtrList::isEmpty(),
 */
 
-QWidgetList *QApplication::allWidgets()
+QWidgetList QApplication::allWidgets()
 {
-    return QWidget::wList();
+    QWidgetList list;
+    if ( QWidget::mapper ) {
+	for (QWidgetMapper::ConstIterator it = QWidget::mapper->constBegin();
+	     it != QWidget::mapper->constEnd(); ++it)
+	    list.append( *it );
+    }
+    return list;
 }
 
 /*!
@@ -2068,18 +2075,15 @@ void QApplication::closeAllWindows()
 	    break;
 	did_close = w->close();
     }
-    QWidgetList *list = QApplication::topLevelWidgets();
-    for ( w = list->first(); did_close && w; ) {
+    QWidgetList list = QApplication::topLevelWidgets();
+    for (int i = 0; i < list.size(); ++i) {
+	w = list.at(i);
 	if ( !w->isHidden() ) {
 	    did_close = w->close();
-	    delete list;
 	    list = QApplication::topLevelWidgets();
-	    w = list->first();
-	} else {
-	    w = list->next();
+	    i = -1;
 	}
     }
-    delete list;
 }
 
 /*!
@@ -2449,8 +2453,9 @@ bool QApplication::event( QEvent *e )
 	ce->accept();
 	closeAllWindows();
 
-	QWidgetList *list = topLevelWidgets();
-	for(QWidget *w = list->first(); w; w = list->next()) {
+	QWidgetList list = topLevelWidgets();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *w = list.at(i);
 	    if ( !w->isHidden() && !w->isDesktop() && !w->isPopup() &&
 		 (!w->isDialog() || !w->parentWidget())) {
 		ce->ignore();
@@ -2841,14 +2846,11 @@ void QApplication::installTranslator( QTranslator * mf )
     // hook to set the layout direction of dialogs
     setReverseLayout( qt_detectRTLLanguage() );
 
-    QWidgetList *list = topLevelWidgets();
-    QWidgetListIt it( *list );
-    QWidget *w;
-    while ( ( w=it.current() ) != 0 ) {
-	++it;
+    QWidgetList list = topLevelWidgets();
+    for (int i = 0; i < list.size(); ++i) {
+	QWidget *w = list.at(i);
 	postEvent( w, new QEvent( QEvent::LanguageChange ) );
     }
-    delete list;
 }
 
 /*!
@@ -2867,14 +2869,11 @@ void QApplication::removeTranslator( QTranslator * mf )
     if ( translators->remove( mf ) && ! qApp->closingDown() ) {
 	setReverseLayout( qt_detectRTLLanguage() );
 
-	QWidgetList *list = topLevelWidgets();
-	QWidgetListIt it( *list );
-	QWidget *w;
-	while ( ( w=it.current() ) != 0 ) {
-	    ++it;
+	QWidgetList list = topLevelWidgets();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *w = list.at(i);
 	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
 	}
-	delete list;
     }
 }
 
@@ -3341,21 +3340,21 @@ void QApplication::setActiveWindow( QWidget* act )
 	QWidgetList deacts;
 #ifndef QT_NO_STYLE
 	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
-	    QWidgetList *list = topLevelWidgets();
-	    if ( list ) {
-		for ( QWidget *w = list->first(); w; w = list->next() ) {
-		    if ( w->isVisible() && w->isActiveWindow() )
-			deacts.append(w);
-		}
-		delete list;
+	    QWidgetList list = topLevelWidgets();
+	    for (int i = 0; i < list.size(); ++i) {
+		QWidget *w = list.at(i);
+		if ( w->isVisible() && w->isActiveWindow() )
+		    deacts.append(w);
 	    }
 	} else
 #endif
 	    deacts.append(active_window);
 	active_window = 0;
 	QEvent e( QEvent::WindowDeactivate );
-	for(QWidget *w = deacts.first(); w; w = deacts.next())
+	for(int i = 0; i < deacts.size(); ++i) {
+	    QWidget *w = deacts.at(i);
 	    QApplication::sendSpontaneousEvent( w, &e );
+	}
     }
 
     active_window = window;
@@ -3364,19 +3363,19 @@ void QApplication::setActiveWindow( QWidget* act )
 	QWidgetList acts;
 #ifndef QT_NO_STYLE
 	if ( style().styleHint(QStyle::SH_Widget_ShareActivation, active_window ) ) {
-	    QWidgetList *list = topLevelWidgets();
-	    if ( list ) {
-		for ( QWidget *w = list->first(); w; w = list->next() ) {
-		    if ( w->isVisible() && w->isActiveWindow() )
-			acts.append(w);
-		}
-		delete list;
+	    QWidgetList list = topLevelWidgets();
+	    for (int i = 0; i < list.size(); ++i) {
+		QWidget *w = list.at(i);
+		if ( w->isVisible() && w->isActiveWindow() )
+		    acts.append(w);
 	    }
 	} else
 #endif
 	    acts.append(active_window);
-	for(QWidget *w = acts.first(); w; w = acts.next())
+	for (int i = 0; i < acts.size(); ++i) {
+	    QWidget *w = acts.at(i);
 	    QApplication::sendSpontaneousEvent( w, &e );
+	}
     }
 
     // then focus events
@@ -3474,11 +3473,14 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
     }
 
     QEvent leaveEvent( QEvent::Leave );
-    for ( w = leaveList.first(); w; w = leaveList.next() )
+    for (int i = 0; i < leaveList.size(); ++i) {
+	w = leaveList.at(i);
 	if ( !qApp->activeModalWidget() || w->topLevelWidget() == qApp->activeModalWidget() )
 	    QApplication::sendEvent( w, &leaveEvent );
+    }
     QEvent enterEvent( QEvent::Enter );
-    for ( w = enterList.first(); w; w = enterList.next() ) {
+    for (int i = 0; i < enterList.size(); ++i) {
+	w = enterList.at(i);
 	if ( !qApp->activeModalWidget() || w->topLevelWidget() == qApp->activeModalWidget() )
 	    QApplication::sendEvent( w, &enterEvent );
     }
@@ -3528,13 +3530,12 @@ bool qt_tryModalHelper( QWidget *widget, QWidget **rettop ) {
     if ( groupLeader ) {
 	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
-	modal = qt_modal_stack->first();
-	while (modal && unrelated) {
+	for (int i = 0; unrelated && i < qt_modal_stack->size(); ++i) {
+	    modal = qt_modal_stack->at(i);
 	    QWidget* p = modal->parentWidget();
 	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
 		p = p->parentWidget();
 	    }
-	    modal = qt_modal_stack->next();
 	    if ( p == groupLeader ) unrelated = FALSE;
 	}
 
@@ -3761,26 +3762,22 @@ void QApplication::commitData( QSessionManager& sm  )
 
     if ( sm.allowsInteraction() ) {
 	QWidgetList done;
-	QWidgetList *list = QApplication::topLevelWidgets();
+	QWidgetList list = QApplication::topLevelWidgets();
 	bool cancelled = FALSE;
-	QWidget* w = list->first();
-	while ( !cancelled && w ) {
+	for (int i = 0; !cancelled && i < list.size(); ++i) {
+	    QWidget* w = list.at(i);
 	    if ( !w->isHidden() ) {
 		QCloseEvent e;
 		sendEvent( w, &e );
 		cancelled = !e.isAccepted();
 		if ( !cancelled )
 		    done.append( w );
-		delete list; // one never knows...
 		list = QApplication::topLevelWidgets();
-		w = list->first();
-	    } else {
-		w = list->next();
+		i = -1;
 	    }
-	    while ( w && done.containsRef( w ) )
-		w = list->next();
+	    while ( i < list.size()-1 && done.contains( list.at(i-1) ) )
+		++i;
 	}
-	delete list;
 	if ( cancelled )
 	    sm.cancel();
     }
@@ -3903,14 +3900,11 @@ void QApplication::setReverseLayout( bool b )
 
     reverse_layout = b;
 
-    QWidgetList *list = topLevelWidgets();
-    QWidgetListIt it( *list );
-    QWidget *w;
-    while ( ( w=it.current() ) != 0 ) {
-	++it;
+    QWidgetList list = topLevelWidgets();
+    for (int i = 0; i < list.size(); ++i) {
+	QWidget *w = list.at(i);
 	postEvent( w, new QEvent( QEvent::LayoutDirectionChange ) );
     }
-    delete list;
 }
 
 /*!

@@ -421,7 +421,8 @@ void FormWindow::insertWidget()
     if ( !lst.isEmpty() ) {
 	QWidget *pw = WidgetFactory::containerOfWidget( w );
 	QValueList<QPoint> op, np;
-	for ( QWidget *i = lst.first(); i; i = lst.next() ) {
+	for (int j = 0; j < lst.size(); ++j) {
+	    QWidget *i = lst.at(j);
 	    op.append( i->pos() );
 	    QPoint pos = pw->mapFromGlobal( i->mapToGlobal( QPoint( 0, 0 ) ) );
 	    pos -= r.topLeft();
@@ -645,12 +646,14 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 	break;
     case ORDER_TOOL:
 	if ( !isMainContainer( w ) ) { // press on a child widget
-	    orderedWidgets.removeRef( w );
+	    orderedWidgets.remove( w );
 	    orderedWidgets.append( w );
-	    for ( QWidget *wid = orderedWidgets.last(); wid; wid = orderedWidgets.prev() ) {
-		int i = stackedWidgets.findRef( wid );
-		if ( i != -1 ) {
-		    stackedWidgets.removeRef( wid );
+	    for (int i = orderedWidgets.size(); i >= 0; ) {
+		--i;
+		QWidget *wid = orderedWidgets.at(i);
+		int i = stackedWidgets.indexOf( wid );
+		if ( i > 0 ) {
+		    stackedWidgets.remove( wid );
 		    stackedWidgets.insert( 0, wid );
 		}
 	    }
@@ -693,10 +696,11 @@ void FormWindow::handleMouseDblClick( QMouseEvent *, QWidget *w )
 	if ( !isMainContainer( w ) ) { // press on a child widget
 	    orderedWidgets.clear();
 	    orderedWidgets.append( w );
-	    for ( QWidget *wid = orderedWidgets.last(); wid; wid = orderedWidgets.prev() ) {
-		int i = stackedWidgets.findRef( wid );
-		if ( i != -1 ) {
-		    stackedWidgets.removeRef( wid );
+	    for (int i = orderedWidgets.size(); i >= 0; ) {
+		QWidget *wid = orderedWidgets.at(i);
+		int i = stackedWidgets.indexOf( wid );
+		if ( i > 0 ) {
+		    stackedWidgets.remove( wid );
 		    stackedWidgets.insert( 0, wid );
 		}
 	    }
@@ -1475,7 +1479,8 @@ void FormWindow::editAdjustSize()
 	}
 	return;
     }
-    for ( QWidget* w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 	    continue;
 	QRect oldr = w->geometry();
@@ -1738,7 +1743,7 @@ void FormWindow::showOrderIndicators()
 	     w->focusPolicy() != NoFocus ) {
 	    OrderIndicator* ind = new OrderIndicator( order++, w, this );
 	    orderIndicators.append( ind );
-	    if ( stackedWidgets.findRef( w ) == -1 )
+	    if ( stackedWidgets.indexOf( w ) == -1 )
 		stackedWidgets.append( w );
 	}
     }
@@ -1753,7 +1758,8 @@ void FormWindow::hideOrderIndicators()
 void FormWindow::updateOrderIndicators()
 {
     int order = 1;
-    for ( QWidget *w = stackedWidgets.first(); w; w = stackedWidgets.next() ) {
+    for (int i = 0; i < stackedWidgets.size(); ++i) {
+	QWidget *w = stackedWidgets.at(i);
 	for ( OrderIndicator* i = orderIndicators.first(); i; i = orderIndicators.next() )
 	    i->setOrder( order, w );
 	order++;
@@ -1892,8 +1898,10 @@ void FormWindow::checkAccels()
 					       tr( "&Cancel" ), QString::null, 2 ) ) {
 	    case 0: // select
 		clearSelection( FALSE );
-		for ( wid = (*it).first(); wid; wid = (*it).next() )
+		for (int i = 0; i < (*it).size(); ++i) {
+		    wid = (*it).at(i);
 		    selectWidget( wid, TRUE );
+		}
 		return;
 	    case 1: // cancel
 		return;
@@ -2473,7 +2481,7 @@ QWidget *FormWindow::containerAt( const QPoint &pos, QWidget *notParentOf )
 	    continue;
 	if ( !it.current()->isVisibleTo( this ) )
 	    continue;
-	if ( selected.find( it.current() ) != -1 )
+	if ( selected.indexOf( it.current() ) != -1 )
 	    continue;
 	if ( !WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( it.current() ) ) ) &&
 	     it.current() != mainContainer() )

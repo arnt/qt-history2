@@ -32,8 +32,8 @@
 #include <qmap.h>
 #include <qstringlist.h>
 #include <qvaluelist.h>
-#include <qwidgetlist.h>
 #include <qcstring.h>
+#include <qobject.h>
 
 struct DesignerProject;
 struct DesignerDatabase;

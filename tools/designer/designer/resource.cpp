@@ -567,11 +567,12 @@ QString Resource::copy()
     ts << "<!DOCTYPE UI-SELECTION><UI-SELECTION>" << endl;
     QWidgetList widgets = formwindow->selectedWidgets();
     QWidgetList tmp( widgets );
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	QWidget *p = w->parentWidget();
 	bool save = TRUE;
 	while ( p ) {
-	    if ( tmp.findRef( p ) != -1 ) {
+	    if ( tmp.indexOf( p ) != -1 ) {
 		save = FALSE;
 		break;
 	    }
@@ -827,7 +828,8 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 			if ( !containers.isEmpty() ) {
 			    saved = TRUE;
 			    int i = 0;
-			    for ( QWidget *w = containers.first(); w; w = containers.next(), ++i ) {
+			    for (int j = 0; j < containers.size(); ++j) {
+				QWidget *w = containers.at(j);
 				if ( WidgetDatabase::
 				     idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
 				    continue; // we don't know this widget
@@ -2482,7 +2484,8 @@ void Resource::saveTabOrder( QTextStream &ts, int indent )
     ts << makeIndent( indent ) << "<tabstops>" << endl;
     indent++;
 
-    for ( QWidget *w = l.first(); w; w = l.next() ) {
+    for (int i = 0; i < l.size(); ++i) {
+	QWidget *w = l.at(i);
 	if ( w->testWState( Qt::WState_ForceHide ) || knownNames.findIndex( w->name() ) == -1 )
 	    continue;
 	ts << makeIndent( indent ) << "<tabstop>" << w->name() << "</tabstop>" << endl;

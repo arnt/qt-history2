@@ -19,7 +19,6 @@
 #include <qobject.h>
 #include <qlayout.h>
 #include <qmap.h>
-#include <qwidgetlist.h>
 
 class FormWindow;
 class QPaintEvent;

@@ -28,7 +28,6 @@
 #include "qpopupmenu.h"
 #include "qcombobox.h"
 #include "qtimer.h"
-#include "qwidgetlist.h"
 #include "qstyle.h"
 
 static const char * const arrow_v_xpm[] = {

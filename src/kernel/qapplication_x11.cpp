@@ -44,7 +44,6 @@
 #include "qcursor.h"
 #include "qwidget.h"
 #include "qwidget_p.h"
-#include "qwidgetlist.h"
 #include "qbitarray.h"
 #include "qpainter.h"
 #include "qpixmapcache.h"
@@ -586,14 +585,11 @@ void QApplication::create_xim()
 					     (XIMProc) xim_create_callback, 0);
 #endif // USE_X11R6_XIM
 
-	    QWidgetList *list= qApp->topLevelWidgets();
-	    QWidgetListIt it(*list);
-	    QWidget * w;
-	    while( (w=it.current()) != 0 ) {
-		++it;
+	    QWidgetList list = qApp->topLevelWidgets();
+	    for (int i = 0; i < list.size(); ++i) {
+		QWidget *w = list.at(i);
 		w->createTLSysExtra();
 	    }
-	    delete list;
 	} else {
 	    // Give up
 	    qWarning( "No supported input style found."
@@ -616,13 +612,9 @@ void QApplication::close_xim()
     // We prefer a less serious memory leak
 
     qt_xim = 0;
-    QWidgetList *list = qApp->topLevelWidgets();
-    QWidgetListIt it(*list);
-    while(it.current()) {
-	it.current()->destroyInputContext();
-	++it;
-    }
-    delete list;
+    QWidgetList list = qApp->topLevelWidgets();
+    for (int i = 0; i < list.size(); ++i)
+	list.at(i)->destroyInputContext();
 #endif // QT_NO_XIM
 }
 
@@ -3818,7 +3810,7 @@ void qt_enter_modal( QWidget *widget )
 
 void qt_leave_modal( QWidget *widget )
 {
-    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+    if ( qt_modal_stack && qt_modal_stack->remove(widget) ) {
 	if ( qt_modal_stack->isEmpty() ) {
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
@@ -3918,7 +3910,7 @@ void QApplication::closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
-    popupWidgets->removeRef( popup );
+    popupWidgets->remove( popup );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
@@ -3954,7 +3946,7 @@ void QApplication::closePopup( QWidget *popup )
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
 	 QFocusEvent::setReason( QFocusEvent::Popup );
-	 QWidget* aw = popupWidgets->getLast();
+	 QWidget* aw = popupWidgets->last();
 	 if (aw->focusWidget())
 	     aw->focusWidget()->setFocus();
 	 else

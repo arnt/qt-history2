@@ -16,9 +16,10 @@
 #define QFOCUSDATA_H
 
 #ifndef QT_H
-#include "qwidgetlist.h"
+#include "qptrlist.h"
 #endif // QT_H
 
+class QWidget;
 
 class Q_EXPORT QFocusData {
 public:
@@ -36,8 +37,8 @@ private:
 
     QFocusData()
 	: it(focusWidgets) {}
-    QWidgetList	  focusWidgets;
-    QWidgetListIt it;
+    QPtrList<QWidget> focusWidgets;
+    QPtrListIterator<QWidget> it;
 };
 
 

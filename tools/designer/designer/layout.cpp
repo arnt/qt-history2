@@ -76,7 +76,8 @@ void Layout::setup()
     // its child here. After that we keep working on the list of
     // childs which has the most entries.
     // Widgets which are already laid out are thrown away here too
-    for ( w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	w = widgets.at(i);
 	if ( w->parentWidget() && WidgetFactory::layoutType( w->parentWidget() ) != WidgetFactory::NoLayout )
 	    continue;
 	if ( lastParent != w->parentWidget() ) {
@@ -127,7 +128,8 @@ void Layout::setup()
     // be placed and connect to widgetDestroyed() signals of the
     // widgets to get informed if one gets deleted to be able to
     // handle that and do not crash in this case
-    for ( w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	connect( w, SIGNAL( destroyed() ),
 		 this, SLOT( widgetDestroyed() ) );
 	startPoint = QPoint( QMIN( startPoint.x(), w->x() ),
@@ -143,15 +145,17 @@ void Layout::setup()
 void Layout::widgetDestroyed()
 {
      if ( sender() && sender()->isWidgetType() )
-	widgets.removeRef( (QWidget*)sender() );
+	widgets.remove( (QWidget*)sender() );
 }
 
 bool Layout::prepareLayout( bool &needMove, bool &needReparent )
 {
     if ( !widgets.count() )
 	return FALSE;
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() )
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	w->raise();
+    }
     needMove = !layoutBase;
     needReparent = needMove || qt_cast<QLayoutWidget*>(layoutBase) || qt_cast<QSplitter*>(layoutBase);
     if ( !layoutBase ) {
@@ -220,9 +224,10 @@ void Layout::breakLayout()
 {
     QMap<QWidget*, QRect> rects;
     if ( !widgets.isEmpty() ) {
-	QWidget *w;
-	for ( w = widgets.first(); w; w = widgets.next() )
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets.at(i);
 	    rects.insert( w, w->geometry() );
+	}
     }
     WidgetFactory::deleteLayout( layoutBase );
     bool needReparent = qstrcmp( layoutBase->className(), "QLayoutWidget" ) == 0 ||
@@ -231,7 +236,8 @@ void Layout::breakLayout()
 			  layoutBase != formWindow->mainContainer() );
     bool needResize = qstrcmp( layoutBase->className(), "QSplitter" ) == 0;
     bool add = geometries.isEmpty();
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( needReparent )
 	    w->reparent( layoutBase->parentWidget(), 0,
 			 layoutBase->pos() + w->pos(), TRUE );
@@ -258,22 +264,45 @@ void Layout::breakLayout()
 	formWindow->selectWidget( formWindow );
 }
 
+#include <qtl.h>
+
 class HorizontalLayoutList : public QWidgetList
 {
 public:
     HorizontalLayoutList( const QWidgetList &l )
 	: QWidgetList( l ) {}
 
-    int compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 ) {
-	QWidget *w1 = (QWidget*)item1;
-	QWidget *w2 = (QWidget*)item2;
-	if ( w1->x() == w2->x() )
-	    return 0;
-	if ( w1->x() > w2->x() )
-	    return 1;
-	return -1;
-    }
+    void sort() {
+	// Goto last element;
+	Iterator last = end();
+	Iterator b = begin();
+	--last;
+	// only one element or no elements ?
+	if (last == b)
+	    return;
 
+	// So we have at least two elements in here
+	while(b != last) {
+	    bool swapped = false;
+	    Iterator swap_pos = b;
+	    Iterator x = end();
+	    Iterator y = x;
+	    y--;
+	    do {
+		--x;
+		--y;
+		if ((*x)->x() < (*y)->x()) {
+		    swapped = true;
+		    qSwap(*x, *y);
+		    swap_pos = y;
+		}
+	    } while(y != b);
+	    if (!swapped)
+		return;
+	    b = swap_pos;
+	    b++;
+	}
+    }
 };
 
 HorizontalLayout::HorizontalLayout( const QWidgetList &wl, QWidget *p, FormWindow *fw, QWidget *lb, bool doSetup, bool splitter )
@@ -299,7 +328,8 @@ void HorizontalLayout::doLayout()
 
     QHBoxLayout *layout = (QHBoxLayout*)WidgetFactory::createLayout( layoutBase, 0, WidgetFactory::HBox );
 
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( needReparent && w->parent() != layoutBase )
 	    w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	if ( !useSplitter ) {
@@ -328,14 +358,36 @@ public:
     VerticalLayoutList( const QWidgetList &l )
 	: QWidgetList( l ) {}
 
-    int compareItems( QPtrCollection::Item item1, QPtrCollection::Item item2 ) {
-	QWidget *w1 = (QWidget*)item1;
-	QWidget *w2 = (QWidget*)item2;
-	if ( w1->y() == w2->y() )
-	    return 0;
-	if ( w1->y() > w2->y() )
-	    return 1;
-	return -1;
+    void sort() {
+	// Goto last element;
+	Iterator last = end();
+	Iterator b = begin();
+	--last;
+	// only one element or no elements ?
+	if (last == b)
+	    return;
+
+	// So we have at least two elements in here
+	while(b != last) {
+	    bool swapped = false;
+	    Iterator swap_pos = b;
+	    Iterator x = end();
+	    Iterator y = x;
+	    y--;
+	    do {
+		--x;
+		--y;
+		if ((*x)->y() < (*y)->y()) {
+		    swapped = true;
+		    qSwap(*x, *y);
+		    swap_pos = y;
+		}
+	    } while(y != b);
+	    if (!swapped)
+		return;
+	    b = swap_pos;
+	    b++;
+	}
     }
 
 };
@@ -363,7 +415,8 @@ void VerticalLayout::doLayout()
 
     QVBoxLayout *layout = (QVBoxLayout*)WidgetFactory::createLayout( layoutBase, 0, WidgetFactory::VBox );
 
-    for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	if ( needReparent && w->parent() != layoutBase )
 	    w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
 	if ( !useSplitter ) {
@@ -740,7 +793,8 @@ void GridLayout::doLayout()
 
     QWidget* w;
     int r, c, rs, cs;
-    for ( w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	w = widgets.at(i);
 	if ( grid->locateWidget( w, r, c, rs, cs) ) {
 	    if ( needReparent && w->parent() != layoutBase )
 		w->reparent( layoutBase, 0, QPoint( 0, 0 ), FALSE );
@@ -783,7 +837,8 @@ void GridLayout::buildGrid()
     // Using push_back would look nicer, but operator[] is much faster
     int index  = 0;
     QWidget* w = 0;
-    for ( w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	w = widgets.at(i);
 	QRect widgetPos = w->geometry();
 	x[index]   = widgetPos.left();
 	x[index+1] = widgetPos.right();
@@ -822,7 +877,8 @@ void GridLayout::buildGrid()
     grid = new Grid( y.size()-1, x.size()-1 );
 
     // Mark the cells in the grid that contains a widget
-    for ( w = widgets.first(); w; w = widgets.next() ) {
+    for (int i = 0; i < widgets.size(); ++i) {
+	QWidget *w = widgets.at(i);
 	QRect c(0,0,0,0), widgetPos = w->geometry();
 	// From left til right (not including)
 	for (int cw=0; cw<x.size(); cw++) {

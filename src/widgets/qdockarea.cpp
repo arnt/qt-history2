@@ -20,7 +20,6 @@
 #include "qptrvector.h"
 #include "qapplication.h"
 #include "qpainter.h"
-#include "qwidgetlist.h"
 #include "qmap.h"
 #include "qmainwindow.h"
 

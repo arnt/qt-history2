@@ -19,7 +19,6 @@
 #include "qpushbutton.h"
 #include "qfocusdata.h"
 #include "qapplication.h"
-#include "qwidgetlist.h"
 #include "qlayout.h"
 #include "qsizegrip.h"
 #include "qwhatsthis.h"
@@ -309,11 +308,11 @@ void QDialog::hideSpecial()
     QObjectListIt it( *list );
     QPushButton *pb;
     while ( (pb = (QPushButton*)it.current()) ) {
-	if ( !showOK && 
+	if ( !showOK &&
 	     pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] ) ) {
 	    pb->hide();
 	    showOK = TRUE;
-	} else if ( !showX && 
+	} else if ( !showX &&
 		    pb->text() == qApp->translate( "QMessageBox", mb_texts[QMessageBox::Cancel] ) ) {
 	    pb->hide();
 	    showX = TRUE;
@@ -423,17 +422,16 @@ void QDialog::done( int r )
 	/* if there is no non-withdrawn top level window left (except
 	   the desktop, popups, or dialogs with parents), we emit the
 	   lastWindowClosed signal */
-	QWidgetList *list   = qApp->topLevelWidgets();
-	QWidget     *widget = list->first();
-	while ( widget ) {
+	QWidgetList list   = qApp->topLevelWidgets();
+	QWidget *widget = 0;
+	for (int i = 0; i < list.size(); ++i) {
+	    widget = list.at(i);
 	    if ( !widget->isHidden()
 		 && !widget->isDesktop()
 		 && !widget->isPopup()
 		 && (!widget->isDialog() || !widget->parentWidget()))
 		break;
-	    widget = list->next();
 	}
-	delete list;
 	if ( widget == 0 )
 	    emit qApp->lastWindowClosed();
     }
@@ -576,7 +574,7 @@ void QDialog::closeEvent( QCloseEvent *e )
 
 #ifdef Q_OS_TEMP
 /*! \internal
-    \reimp 
+    \reimp
 */
 bool QDialog::event( QEvent *e )
 {
@@ -584,7 +582,7 @@ bool QDialog::event( QEvent *e )
     case QEvent::OkRequest:
     case QEvent::HelpRequest:
 	{
-	    QString bName = 
+	    QString bName =
 		(e->type() == QEvent::OkRequest)
 		? qApp->translate( "QMessageBox", mb_texts[QMessageBox::Ok] )
 		: qApp->tr( "Help" );
@@ -741,23 +739,17 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
     }
     desk = QApplication::desktop()->availableGeometry( scrn );
 
-    QWidgetList  *list = QApplication::topLevelWidgets();
-    QWidgetListIt it( *list );
-    while ( (extraw == 0 || extrah == 0) &&
-	    it.current() != 0 ) {
-	int framew, frameh;
-	QWidget * current = it.current();
-	++it;
-	if ( ! current->isVisible() )
-	    continue;
+    QWidgetList list = QApplication::topLevelWidgets();
+    for (int i = 0; (extraw == 0 || extrah == 0) && i < list.size(); ++i) {
+	QWidget * current = list.at(i);
+	if ( current->isVisible() ) {
+	    int framew = current->geometry().x() - current->x();
+	    int frameh = current->geometry().y() - current->y();
 
-	framew = current->geometry().x() - current->x();
-	frameh = current->geometry().y() - current->y();
-
-	extraw = QMAX( extraw, framew );
-	extrah = QMAX( extrah, frameh );
+	    extraw = QMAX( extraw, framew );
+	    extrah = QMAX( extrah, frameh );
+	}
     }
-    delete list;
 
     // sanity check for decoration frames. With embedding, we
     // might get extraordinary values

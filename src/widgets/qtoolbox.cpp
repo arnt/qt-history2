@@ -23,7 +23,6 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qapplication.h>
-#include <qwidgetlist.h>
 #include <qlayout.h>
 #include <qlist.h>
 #include <qtooltip.h>
@@ -429,12 +428,10 @@ void QToolBox::buttonClicked()
 	INIT_TIMER;
 	while ( dist < h ) {
 	    CHECK_TIMER {
-		QWidgetListIt it( buttons );
-		while ( it.current() ) {
-		    it.current()->raise();
-		    it.current()->move( it.current()->x(),
-					it.current()->y() + direction );
-		    ++it;
+		for (int i = 0; i < buttons.size(); ++i) {
+		    QWidget *b = buttons.at(i);
+		    b->raise();
+		    b->move( b->x(), b->y() + direction );
 		}
 		dist += QABS( direction );
 		REINIT_TIMER;

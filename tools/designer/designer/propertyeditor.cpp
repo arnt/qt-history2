@@ -3183,13 +3183,12 @@ void PropertyList::setupProperties()
 
     if ( w->isA("PropertyObject") ) {
 	const QWidgetList wl = ( (PropertyObject*)w )->widgetList();
-	QPtrListIterator<QWidget> wIt( wl );
-	while ( *wIt ) {
-	    if ( (*wIt)->inherits("CustomWidget") ) {
-		MetaDataBase::CustomWidget *cw = ( (CustomWidget*)*wIt )->customWidget();
+	for (int i = 0; i < wl.size(); ++i) {
+	    QWidget *w = wl.at(i);
+	    if ( w->inherits("CustomWidget") ) {
+		MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();
 		setupCusWidgetProperties( cw, unique, item );
 	    }
-	    ++wIt;
 	}
     } else if ( w->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();

@@ -23,7 +23,6 @@
 #ifndef QT_NO_TOOLBOX
 
 class QToolBoxPrivate;
-class QWidgetList;
 
 class Q_EXPORT QToolBox : public QWidget
 {

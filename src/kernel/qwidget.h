@@ -602,6 +602,8 @@ private:
     uint	 widget_state;
     uint	 widget_flags;
     uint	 focus_policy : 4;
+    uint         has_focus : 1;
+    uint         own_focus_chain : 1;
     uint 	 own_font :1;
     uint 	 own_palette :1;
     uint 	 sizehint_forced :1;
@@ -659,8 +661,6 @@ private:
 
     static void	 createMapper();
     static void	 destroyMapper();
-    static QWidgetList	 *wList();
-    static QWidgetList	 *tlwList();
     static QWidgetMapper *mapper;
     friend class QApplication;
     friend class QBaseApplication;
@@ -678,9 +678,9 @@ private:	// Disabled copy constructor and operator=
 
 public: // obsolete functions to dissappear or to become inline in 3.0
 #ifndef QT_NO_PALETTE
-    void setPalette( const QPalette &p, bool ) { setPalette( p ); }
+    inline void setPalette( const QPalette &p, bool ) { setPalette( p ); }
 #endif
-    void setFont( const QFont &f, bool ) { setFont( f ); }
+    inline void setFont( const QFont &f, bool ) { setFont( f ); }
 };
 
 

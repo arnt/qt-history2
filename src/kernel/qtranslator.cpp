@@ -29,7 +29,6 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #ifndef QT_NO_TRANSLATION
 
 #include "qfileinfo.h"
-#include "qwidgetlist.h"
 #include "qintdict.h"
 #include "qstring.h"
 #include "qapplication.h"
@@ -641,14 +640,11 @@ void QTranslator::clear()
     if ( qApp && qApp->loopLevel() ) {
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
-	QWidgetList *list = QApplication::topLevelWidgets();
-	QWidgetListIt it( *list );
-	QWidget *w;
-	while ( ( w=it.current() ) != 0 ) {
-	    ++it;
+	QWidgetList list = QApplication::topLevelWidgets();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *w = list.at(i);
 	    qApp->postEvent( w, new QEvent( QEvent::LanguageChange ) );
 	}
-	delete list;
     }
 }
 

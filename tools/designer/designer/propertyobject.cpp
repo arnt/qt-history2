@@ -24,7 +24,8 @@ PropertyObject::PropertyObject( const QWidgetList &objs )
     v.resize( objects.count() );
     v.setAutoDelete( TRUE );
 
-    for ( QObject *o = objects.first(); o; o = objects.next() ) {
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	const QMetaObject *m = o->metaObject();
 	QPtrList<QMetaObject> *mol = new QPtrList<QMetaObject>;
 	while ( m ) {
@@ -45,7 +46,7 @@ PropertyObject::PropertyObject( const QWidgetList &objs )
     }
 
     const QMetaObject *m = v[0]->at( --minDepth );
-    
+
     for ( int j = 0; j < numObjects; ++j ) {
 	if ( v[j]->at( minDepth ) != m ) {
 	    m = v[0]->at( --minDepth );
@@ -54,14 +55,16 @@ PropertyObject::PropertyObject( const QWidgetList &objs )
     }
 
     mobj = m;
-    
+
     Q_ASSERT( mobj );
 }
 
 bool PropertyObject::setProperty( const char *name, const QVariant& value )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	o->setProperty( name, value );
+    }
 
     return TRUE;
 }
@@ -73,13 +76,16 @@ QVariant PropertyObject::property( const char *name ) const
 
 void PropertyObject::mdPropertyChanged( const QString &property, bool changed )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	MetaDataBase::setPropertyChanged( o, property, changed );
+    }
 }
 
 bool PropertyObject::mdIsPropertyChanged( const QString &property )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() ) {
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	if ( MetaDataBase::isPropertyChanged( o, property ) )
 	    return TRUE;
     }
@@ -88,8 +94,10 @@ bool PropertyObject::mdIsPropertyChanged( const QString &property )
 
 void PropertyObject::mdSetPropertyComment( const QString &property, const QString &comment )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	MetaDataBase::setPropertyComment( o, property, comment );
+    }
 }
 
 QString PropertyObject::mdPropertyComment( const QString &property )
@@ -99,8 +107,10 @@ QString PropertyObject::mdPropertyComment( const QString &property )
 
 void PropertyObject::mdSetFakeProperty( const QString &property, const QVariant &value )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	MetaDataBase::setFakeProperty( o, property, value );
+    }
 }
 
 QVariant PropertyObject::mdFakeProperty( const QString &property )
@@ -110,7 +120,8 @@ QVariant PropertyObject::mdFakeProperty( const QString &property )
 
 void PropertyObject::mdSetCursor( const QCursor &c )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() ) {
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	if ( o->isWidgetType() )
 	    MetaDataBase::setCursor( (QWidget*)o, c );
     }
@@ -123,8 +134,10 @@ QCursor PropertyObject::mdCursor()
 
 void PropertyObject::mdSetPixmapKey( int pixmap, const QString &arg )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	MetaDataBase::setPixmapKey( o, pixmap, arg );
+    }
 }
 
 QString PropertyObject::mdPixmapKey( int pixmap )
@@ -134,8 +147,10 @@ QString PropertyObject::mdPixmapKey( int pixmap )
 
 void PropertyObject::mdSetExportMacro( const QString &macro )
 {
-    for ( QObject *o = objects.first(); o; o = objects.next() )
+    for (int i = 0; i < objects.size(); ++i) {
+	QObject *o = objects.at(i);
 	MetaDataBase::setExportMacro( o, macro );
+    }
 }
 
 QString PropertyObject::mdExportMacro()

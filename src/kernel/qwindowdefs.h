@@ -55,12 +55,10 @@ class QTime;
 class QClipboard;
 class QString;
 class QByteArray;
+class QApplication;
 
-
-// Widget list (defined in qwidgetlist.h)
-
-class QWidgetList;
-class QWidgetListIt;
+template<typename T> class QList;
+typedef QList<QWidget *> QWidgetList;
 
 // Window system dependent definitions
 
@@ -138,8 +136,6 @@ class QGfx;
 
 template<class K, class V> class QHash;
 typedef QHash<WId, QWidget *> QWidgetMapper;
-
-class QApplication;
 
 #if defined(NEEDS_QMAIN)
 #define main qMain

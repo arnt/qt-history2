@@ -96,8 +96,8 @@ public:
     virtual void     setMainWidget( QWidget * );
     virtual void     polish( QWidget * );
 
-    static QWidgetList *allWidgets();
-    static QWidgetList *topLevelWidgets();
+    static QWidgetList allWidgets();
+    static QWidgetList topLevelWidgets();
 
     static QDesktopWidget   *desktop();
 

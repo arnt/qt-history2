@@ -27,8 +27,9 @@
 //
 
 #include <private/qcom_p.h>
-#include <qwidgetlist.h>
-#include <qcstring.h>
+#include <qstring.h>
+class QWidget;
+class QObject;
 
 // {5c168ee7-4bee-469f-9995-6afdb04ce5a2}
 #ifndef IID_Preference

@@ -13,7 +13,6 @@
 #include <qpixmap.h>
 #include <qiconset.h>
 #include <qapplication.h>
-#include <qwidgetlist.h>
 #include <qlabel.h>
 #include <qtextedit.h>
 
@@ -158,14 +157,12 @@ void I18nDemo::windowSlot(int id)
 	return;
 
     QWidgetList list = workspace->windowList();
-    Wrapper *wrapper = (Wrapper *) list.first();
-    while (wrapper) {
+    for (int i = 0; i < list.size(); ++i) {
+	Wrapper *wrapper = (Wrapper *) list.at(i);
 	if (wrapper->id == id) {
 	    wrapper->setFocus();
 	    break;
 	}
-
-	wrapper = (Wrapper *) list.next();
     }
 }
 

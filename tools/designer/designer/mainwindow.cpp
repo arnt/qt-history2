@@ -848,7 +848,7 @@ void MainWindow::showProperties( QObject *o )
 	if ( fw->numSelectedWidgets() > 1 ) {
 	    QWidgetList wl = fw->selectedWidgets();
 	    if ( wl.first() != w ) {
-		wl.removeRef( w );
+		wl.remove( w );
 		wl.insert( 0, w );
 	    }
 	    propertyEditor->setWidget( new PropertyObject( wl ), fw );
@@ -1221,7 +1221,7 @@ FormWindow *MainWindow::formWindow()
 	if ( qworkspace->activeWindow()->inherits( "FormWindow" ) )
 	    fw = (FormWindow*)qworkspace->activeWindow();
 	else if ( lastActiveFormWindow &&
-		    qworkspace->windowList().find( lastActiveFormWindow ) != -1)
+		    qworkspace->windowList().indexOf( lastActiveFormWindow ) != -1)
 	    fw = lastActiveFormWindow;
 	return fw;
     }
@@ -1992,7 +1992,8 @@ void MainWindow::selectionChanged()
     if ( selectedWidgets > 1 ) {
 	int unlaidout = 0;
 	int laidout = 0;
-	for ( QWidget *w = widgets.first(); w; w = widgets.next() ) {
+	for (int i = 0; i < widgets.size(); ++i) {
+	    QWidget *w = widgets.at(i);
 	    if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
 		unlaidout++;
 	    else
@@ -2415,15 +2416,13 @@ void MainWindow::closeEvent( QCloseEvent *e )
     }
 
     QWidgetList windows = qWorkspace()->windowList();
-    QWidgetListIt wit( windows );
-    while ( wit.current() ) {
-	QWidget *w = wit.current();
-	++wit;
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( w->inherits( "FormWindow" ) ) {
 	    if ( ( (FormWindow*)w )->formFile()->editor() )
-		windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+		windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 	    if ( ( (FormWindow*)w )->formFile()->formWindow() )
-		windows.removeRef( ( (FormWindow*)w )->formFile()->formWindow() );
+		windows.remove( ( (FormWindow*)w )->formFile()->formWindow() );
 	    if ( !( (FormWindow*)w )->formFile()->close() ) {
 		e->ignore();
 		return;
@@ -2674,7 +2673,8 @@ void MainWindow::rebuildCommonWidgetsToolBoxPage()
 bool MainWindow::isCustomWidgetUsed( MetaDataBase::CustomWidget *wid )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( w->inherits( "FormWindow" ) ) {
 	    if ( ( (FormWindow*)w )->isCustomWidgetUsed( wid ) )
 		return TRUE;
@@ -2689,7 +2689,8 @@ void MainWindow::setGrid( const QPoint &p )
 	return;
     grd = p;
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
@@ -2702,7 +2703,8 @@ void MainWindow::setShowGrid( bool b )
 	return;
     sGrid = b;
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( !w->inherits( "FormWindow" ) )
 	    continue;
 	( (FormWindow*)w )->mainContainer()->update();
@@ -3255,7 +3257,8 @@ void MainWindow::enableAll( bool enable )
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
     QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	FormWindow *fw = 0;
 	SourceEditor *se = 0;
 	SourceFile *sf = 0;
@@ -3390,7 +3393,8 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 QObject *MainWindow::findRealObject( QObject *o )
 {
     QWidgetList windows = qWorkspace()->windowList();
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( w->inherits( "FormWindow" ) && QString( w->name() ) == QString( o->name() ) )
 	    return w;
 	else if ( w->inherits( "SourceEditor" ) && ( (SourceEditor*)w )->formWindow() &&
@@ -3581,14 +3585,12 @@ void MainWindow::setSingleProject( Project *pro )
 	pro->save();
 	QWidgetList windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( TRUE );
-	QWidgetListIt wit( windows );
-	while ( wit.current() ) {
-	    QWidget *w = wit.current();
-	    ++wit;
+	for (int i = 0; i < windows.size(); ++i) {
+	    QWidget *w = windows.at(i);
 	    if ( w->inherits( "FormWindow" ) ) {
 		if ( ( (FormWindow*)w )->project() == pro ) {
 		    if ( ( (FormWindow*)w )->formFile()->editor() )
-			windows.removeRef( ( (FormWindow*)w )->formFile()->editor() );
+			windows.remove( ( (FormWindow*)w )->formFile()->editor() );
 		    ( (FormWindow*)w )->formFile()->close();
 		}
 	    } else if ( w->inherits( "SourceEditor" ) ) {

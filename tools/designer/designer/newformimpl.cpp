@@ -114,7 +114,8 @@ static void unifyFormName( FormWindow *fw, QWorkspace *qworkspace )
 {
     QStringList lst;
     QWidgetList windows = qworkspace->windowList();
-    for ( QWidget *w =windows.first(); w; w = windows.next() ) {
+    for (int i = 0; i < windows.size(); ++i) {
+	QWidget *w = windows.at(i);
 	if ( w == fw )
 	    continue;
 	lst << w->name();

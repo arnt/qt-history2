@@ -77,7 +77,6 @@
 #include "qfile.h"
 #include "qpixmap.h"
 #include "qstrlist.h"
-#include "qwidgetlist.h"
 #include "qdialog.h"
 #include <qfontdatabase.h>
 #include <qfontdialog.h>
