@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#3 $
 **
 ** Implementation of Windows-like style class
 **
@@ -1056,12 +1056,12 @@ int QWindowsStyle::widthOfPopupCheckColumn( int maxpm )
 
 
 
-int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+int QWindowsStyle::extraPopupMenuItemWidth( bool /*checkable*/, QMenuItem* /*mi*/, const QFontMetrics& /*fm*/ )
 {
     return 0;
 }
 
-int QWindowsStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+int QWindowsStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
     int h = 0;
     if ( mi->isSeparator() ) {			// separator height
@@ -1081,8 +1081,12 @@ int QWindowsStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFo
 
 }
 
-void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi,
-				       const QFontMetrics& fm,
-				       bool act, int x, int y, int w, int h)
+void QWindowsStyle::drawPopupMenuItem( QPainter* /*p*/,
+				       bool /*checkable*/, int /*tab*/,
+				       QMenuItem* /*mi*/,
+				       const QFontMetrics& /*fm*/,
+				       bool /*act*/, 
+				       int /*x*/, int /*y*/,
+				       int /*w*/, int /*h*/)
 {
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#3 $
 **
 ** Implementation of Motif-like style class
 **
@@ -855,12 +855,12 @@ int QMotifStyle::widthOfPopupCheckColumn( int maxpm )
 }
 
 
-int QMotifStyle::extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+int QMotifStyle::extraPopupMenuItemWidth( bool /*checkable*/, QMenuItem* /*mi*/, const QFontMetrics& /*fm*/ )
 {
     return 0;
 }
 
-int QMotifStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+int QMotifStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
     int h = 0;
     if ( mi->isSeparator() ) {			// separator height
@@ -880,8 +880,12 @@ int QMotifStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFont
     return h;
 }
 
-void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi,
-				     const QFontMetrics& fm,
-				     bool act, int x, int y, int w, int h)
+void QMotifStyle::drawPopupMenuItem( QPainter* /*p*/,
+				     bool /*checkable*/,
+				     int /*tab*/, QMenuItem* /*mi*/,
+				     const QFontMetrics& /*fm*/,
+				     bool /*act*/,
+				     int /*x*/, int /*y*/,
+				     int /*w*/, int /*h*/)
 {
 }
