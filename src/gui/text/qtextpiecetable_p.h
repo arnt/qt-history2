@@ -176,6 +176,7 @@ private:
     int remove_block(int pos, int *blockformat, int command);
 
     void adjustDocumentChanges(int from, int addedOrRemoved);
+    void documentChange(int from, int length);
 
 public:
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }

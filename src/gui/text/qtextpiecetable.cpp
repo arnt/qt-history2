@@ -458,6 +458,7 @@ void QTextPieceTable::setBlockFormat(const QTextBlockIterator &from, const QText
 	}
     }
 
+    documentChange(from.position(), to.position() + to.length() - from.position());
     emit contentsChanged();
 
     endEditBlock();
@@ -576,6 +577,7 @@ void QTextPieceTable::undoRedo(bool undo)
             } else if (group) {
                 group->blockFormatChanged(it);
             }
+            documentChange(it.position(), it.length());
 	    break;
 	}
 	case UndoCommand::GroupFormatChange: {
@@ -681,6 +683,22 @@ void QTextPieceTable::endEditBlock()
     docChangeFrom = -1;
 }
 
+void QTextPieceTable::documentChange(int from, int length)
+{
+    if (docChangeFrom < 0) {
+        docChangeFrom = from;
+        docChangeOldLength = length;
+        docChangeLength = length;
+        return;
+    }
+    int start = qMin(from, docChangeFrom);
+    int end = qMax(from + length, docChangeFrom + docChangeLength);
+    int diff = end - start - length;
+    docChangeFrom = start;
+    docChangeOldLength += diff;
+    docChangeLength += diff;
+}
+
 void QTextPieceTable::adjustDocumentChanges(int from, int addedOrRemoved)
 {
     if (docChangeFrom < 0) {
@@ -763,6 +781,7 @@ int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMod
 
 void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
 {
+    beginEditBlock();
     int oldFormatIndex = group->d_func()->index;
     group->d_func()->index = format;
 
@@ -770,9 +789,7 @@ void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
     for (int i = 0; i < blocks.size(); ++i) {
         // invalidate blocks and tell layout
         const QTextBlockIterator &block = blocks.at(i);
-        int start = block.position();
-        int len = block.length() - 1;
-        lout->documentChange(start, len, len);
+        documentChange(block.position(), block.length());
     }
 
     if (undoEnabled) {
@@ -783,4 +800,6 @@ void QTextPieceTable::changeGroupFormat(QTextFormatGroup *group, int format)
         appendUndoItem(c);
         Q_ASSERT(undoPosition == undoStack.size());
     }
+    emit contentsChanged();
+    endEditBlock();
 }
