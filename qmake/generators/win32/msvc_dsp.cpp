@@ -770,6 +770,12 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             if (compilerName.isEmpty())
                 compilerName << compiler;
             QStringList compilerDepends = config->project->variables()[compiler + ".depends"];
+            QString compilerDependsCommand = config->project->variables()[compiler + ".depend_command"].join(" ");
+            if (!compilerDependsCommand.isEmpty()) {
+                QString argv0 = Option::fixPathToLocalOS(compilerDependsCommand.split(' ').first());
+                if (!config->exists(argv0))
+                compilerDependsCommand = QString();
+            }
             QStringList compilerConfig = config->project->variables()[compiler + ".CONFIG"];
 
             if (!config->verifyExtraCompiler(compiler, file))
@@ -798,6 +804,26 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
                 if (!step.deps.contains(dependency, Qt::CaseInsensitive))
                     step.deps << dependency;
             }
+            // depends command
+            if (!compilerDependsCommand.isEmpty() && config->doDepends()) {
+                char buff[256];
+                QString dep_cmd = config->replaceExtraCompilerVariables(compilerDependsCommand, file,
+                    fileOut);
+                dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
+                    QString indeps;
+                    while(!feof(proc)) {
+                        int read_in = (int)fread(buff, 1, 255, proc);
+                        if(!read_in)
+                            break;
+                        indeps += QByteArray(buff, read_in);
+                    }
+                    fclose(proc);
+                    if(!indeps.isEmpty())
+                        step.deps += config->fileFixify(indeps.replace('\n', ' ').simplified().split(' '));
+                }
+            }
+        
 
             QString mappedFile;
             if (hasBuiltin) {
