@@ -3304,7 +3304,7 @@ void QWidget::show()
 	raise();
     } else if ( testWFlags(WType_TopLevel) ) {
 	while ( QApplication::activePopupWidget() )
-	    QApplication::activePopupWidget()->hide();
+	    QApplication::activePopupWidget()->close();
     }
 
     if ( !testWState(WState_Polished) )
