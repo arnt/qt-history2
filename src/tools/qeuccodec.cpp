@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qeuccodec.cpp#2 $
 **
 ** Implementation of QEucCodec class
 **
@@ -16604,5 +16604,81 @@ int QEucCodec::heuristicContentMatch(const char* chars, int len) const
 	}
     }
     return score;
+}
+
+
+
+
+class QEucDecoder : public QTextDecoder {
+    uchar buf[3];
+    int nbuf;
+public:
+    QEucDecoder() : nbuf(0)
+    {
+    }
+
+    QString toUnicode(const char* chars, int len)
+    {
+	QString result;
+	for (int i=0; i<len; i++) {
+	    uchar ch = chars[i];
+	    switch (nbuf) {
+	      case 0:
+		if ( ch < 128 ) {
+		    // ASCII
+		    result += QChar(ch);
+		} else if ( ch < 142 || ch > 254 ) {
+		    // Invalid
+		    result += QChar::replacement;
+		} else {
+		    buf[0] = ch;
+		    nbuf = 1;
+		}
+		break;
+	      case 1:
+		if ( buf[0] == 142 ) {
+		    // Half-width katakana
+		    if ( ch >= 0xa1 && ch <= 0xdf ) {
+			result += QChar(ch-0x40,0xff);
+		    } else {
+			result += QChar::replacement;
+		    }
+		    nbuf = 0;
+		} else if ( buf[0] == 143 ) {
+		    // User-defined characters
+		    buf[1] = ch;
+		    nbuf = 2;
+		} else {
+		    // JIS X 0208-1990
+		    if ( ch < 161 || ch > 254 ) {
+			// Error
+			result += QChar::replacement;
+		    } else {
+			int c = (buf[0] << 8) | ch;
+			ushort rc = euc_to_unicode[c];
+			result += QChar(rc&0xff,(rc>>8)&0xff);
+		    }
+		    nbuf = 0;
+		}
+		break;
+	    case 2:
+		// User-defined characters
+		if ( ch < 161 || ch > 254 ) {
+		    result += QChar::replacement;
+		} else {
+		    // We don't decoder user-defined characters
+		    // ### Could use the user-defined space in Unicode
+		    result += QChar::replacement;
+		}
+		nbuf = 0;
+	    }
+	}
+	return result;
+    }
+};
+
+QTextDecoder* QEucCodec::makeDecoder() const
+{
+    return new QEucDecoder;
 }
 

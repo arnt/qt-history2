@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#1 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#2 $
 **
 ** Definition of QTextCodec class
 **
@@ -26,6 +26,20 @@
 
 #include "qstring.h"
 
+class QTextCodec;
+
+class QTextEncoder {
+public:
+    virtual ~QTextEncoder();
+    virtual char* fromUnicode(const QString& uc, int& len_in_out) = 0;
+};
+
+class QTextDecoder {
+public:
+    virtual ~QTextDecoder();
+    virtual QString toUnicode(const char* chars, int len) = 0;
+};
+
 class QTextCodec {
 public:
     QTextCodec();
@@ -38,11 +52,18 @@ public:
 
     virtual const char* name() const = 0;
     virtual int mib() const = 0;
-    virtual QString toUnicode(const char* chars, int len) const = 0;
-    virtual char* fromUnicode(const QString& uc, int& len_in_out) const = 0;
+
+    virtual QTextDecoder* makeDecoder() const;
+    virtual QTextEncoder* makeEncoder() const;
+
+    virtual QString toUnicode(const char* chars, int len) const;
+    virtual char* fromUnicode(const QString& uc, int& len_in_out) const;
 
     virtual int heuristicContentMatch(const char* chars, int len) const = 0;
     virtual int heuristicNameMatch(const char* hint) const;
+
+protected:
+    static int simpleHeuristicNameMatch(const char* name, const char* hint);
 };
 
 #endif

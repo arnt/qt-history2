@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#3 $
 **
 ** Implementation of QTextCodec class
 **
@@ -27,6 +27,43 @@
 #include <ctype.h>
 
 static QList<QTextCodec> all;
+
+
+class QTextStatelessEncoder : public QTextEncoder {
+    const QTextCodec* codec;
+public:
+    QTextStatelessEncoder(const QTextCodec*);
+    char* fromUnicode(const QString& uc, int& len_in_out);
+};
+
+class QTextStatelessDecoder : public QTextDecoder {
+    const QTextCodec* codec;
+public:
+    QTextStatelessDecoder(const QTextCodec*);
+    QString toUnicode(const char* chars, int len);
+};
+
+QTextStatelessEncoder::QTextStatelessEncoder(const QTextCodec* c) :
+    codec(c)
+{
+}
+
+char* QTextStatelessEncoder::fromUnicode(const QString& uc, int& len_in_out)
+{
+    return codec->fromUnicode(uc,len_in_out);
+}
+
+QTextStatelessDecoder::QTextStatelessDecoder(const QTextCodec* c) :
+    codec(c)
+{
+}
+
+QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
+{
+    return codec->toUnicode(chars,len);
+}
+
+
 
 /*!
   \class QTextCodec
@@ -69,20 +106,31 @@ QTextCodec::~QTextCodec()
 
 /*!
   Returns a value indicating how likely this decoder is
-  for decoding some format that has the given name.  The
-  default implementation does some very minor character-skipping
-  so that almost-extact matches score high.
+  for decoding some format that has the given name.
 
   A good match returns a positive number around the length of
   the string.  A bad match is negative.
+
+  The default implementation calls simpleHeuristicNameMatch()
+  with the name of the codec.
 */
 int QTextCodec::heuristicNameMatch(const char* hint) const
+{
+    return simpleHeuristicNameMatch(name(),hint);
+}
+
+/*!
+  A simple utility function for heuristicNameMatch() - it
+  does some very minor character-skipping
+  so that almost-exact matches score high.
+*/
+int QTextCodec::simpleHeuristicNameMatch(const char* name, const char* hint)
 {
     int r = -10;
     int toggle = 0;
     while ( *hint ) {
 	const char* approx = hint++;
-	const char* actual = name();
+	const char* actual = name;
 	while ( *approx && *actual ) {
 	    // Skip punctuation
 	    while ( approx[1] && !isalnum(*approx) )
@@ -194,21 +242,6 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 */
 
 /*!
-  \fn QString QTextCodec::toUnicode(const char* chars, int len) const
-  Subclasses of QTextCodec must override this function.  It converts
-  the first \a len characters of \a chars to Unicode.
-*/
-
-/*!
-  \fn char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
-  Subclasses of QTextCodec must override this function.  It converts
-  the first \a len_in_out characters of \a uc from Unicode to
-  the encoding of the subclass.  The value returns is the property
-  of the caller, which is responsible for deleting it with "delete []".
-  The length of the resulting character sequence is returned in \a len_in_out.
-*/
-
-/*!
   \fn int QTextCodec::heuristicContentMatch(const char* chars, int len) const
 
   Subclasses of QTextCodec must override this function.  It examines
@@ -217,7 +250,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
   encoding of the subclass.  Any negative return value indicates that the text
   is detectably not in the encoding (eg. it contains undefined characters).
   A return value of 0 indicates that the text should be decoded with this
-  mapper rather than as ASCII, but there
+  codec rather than as ASCII, but there
   is no particular evidence.  The value should range up to \a len.  Thus,
   most decoders will return -1, 0, or -\a len.
 
@@ -225,4 +258,90 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
   \sa codecForContent().
 */
+
+
+/*!
+  Creates a QTextToUnicode which stores enough state to decode chunks
+  of char* data to create chunks of Unicode data.  The default implementation
+  creates a stateless decoder, which is sufficient for only the simplest
+  encodings where each byte corresponds to exactly one Unicode character.
+
+  The caller is responsible for deleting the returned object.
+*/
+QTextDecoder* QTextCodec::makeDecoder() const
+{
+    return new QTextStatelessDecoder(this);
+}
+
+/*!
+  Creates a QTextToUnicode which stores enough state to encode chunks
+  of Unicode data as char* data.  The default implementation
+  creates a stateless encoder, which is sufficient for only the simplest
+  encodings where each Unicode character corresponds to exactly one char.
+
+  The caller is responsible for deleting the returned object.
+*/
+QTextEncoder* QTextCodec::makeEncoder() const
+{
+    return new QTextStatelessEncoder(this);
+}
+
+/*!
+  Subclasses of QTextCodec must override this function or
+  makeDecoder().  It converts
+  the first \a len characters of \a chars to Unicode.
+
+  The default implementation makes an encoder with makeDecoder() and
+  converts the input with that.  Note that the default makeDecoder()
+  implementation makes a decoder that simply calls
+  this function, hence subclasses \e must reimplement one function or
+  the other to avoid infinite recursion.
+*/
+QString QTextCodec::toUnicode(const char* chars, int len) const
+{
+    QTextDecoder* i = makeDecoder();
+    QString result = i->toUnicode(chars,len);
+    delete i;
+    return result;
+}
+
+/*!
+  Subclasses of QTextCodec must override either this function or
+  makeEncoder().  It converts
+  the first \a len_in_out characters of \a uc from Unicode to
+  the encoding of the subclass.  The value returns is the property
+  of the caller, which is responsible for deleting it with "delete []".
+  The length of the resulting character sequence is returned in \a len_in_out.
+
+  The default implementation makes an encoder with makeEncoder() and
+  converts the input with that.  Note that the default makeEncoder()
+  implementation makes an encoder that simply calls
+  this function, hence subclasses \e must reimplement one function or
+  the other to avoid infinite recursion.
+*/
+char* QTextCodec::fromUnicode(const QString& uc, int& len_in_out) const
+{
+    QTextEncoder* i = makeEncoder();
+    char* result = i->fromUnicode(uc, len_in_out);
+    delete i;
+    return result;
+}
+
+
+/*!
+  Destroys the encoder.
+*/
+QTextEncoder::~QTextEncoder()
+{
+}
+
+/*!
+  Destroys the decoder.
+*/
+QTextDecoder::~QTextDecoder()
+{
+}
+
+
+
 
