@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#228 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#229 $
 **
 ** Implementation of QApplication class
 **
@@ -2012,14 +2012,27 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   The QSessionManager class provides access to the session manager
   during a \link session.html session management \endlink action.  In
   Qt, session management actions are handled in the two virtual
-  functions QApplication::commitData() and
-  QApplication::saveState(). Both functions take a reference to a
-  session manager object as argument, thus allowing the application to
-  communicate with the session manager.
+  functions QApplication::commitData() and QApplication::saveState().
+  Both functions provde a reference to a session manager object as
+  argument, thus allowing the application to communicate with the
+  session manager.
 
-  One of 
-TODO
-
+  During a session management action, i.e. within one of the two
+  mentioned functions, no user interaction is possible, \e unless the
+  application got explicit permission from the session manager. An
+  ordinary permission can be requested with allowsInteraction(). With
+  allowsErrorInteraction(), applications can ask for a higher priority
+  interaction permission in case an error occured.
+  
+  Another important function is cancel(), which asks the session
+  manager to cancel the shutdown process.
+  
+  For sophisticated session managers as provided on Unix,
+  QSessionManager offers further possibilites to finetune an
+  application's session management behaviour: setRestartCommand(),
+  setDiscardCommand(), setRestartHint(), setProperty(),
+  requestPhase2(). Please see the respective function descriptions for
+  further details.
 */
 
 /*! \fn     QString QSessionManager::sessionId()
@@ -2029,22 +2042,22 @@ TODO
 
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that previous session.
-  
+
   \sa QApplication::sessionId();
  */
 
 /*! \fn     bool QSessionManager::allowsInteraction()
-  
+
   Asks the session manager for permission to interact with the
   user. Returns TRUE if the interaction was granted, FALSE
-  otherwise. 
-  
+  otherwise.
+
   The rationale behind this is to make it possible to synchronize user
   interaction during a shutdown. Fancy session managers on
   multitasking operating systems may ask all applications
   simultaniously to commit their data, which results in a much faster
   shutdown.
-  
+
   After the interaction is is recommended (though not necessary) to
   release the session manager with a call to release(). This way,
   other applications may get the chance to interact with the user
@@ -2053,10 +2066,10 @@ TODO
   If the user decides to cancel the shutdown process during the
   interaction phase, inform the session manager with a call to
   cancel().
-  
+
   Here's an example usage of the mentioned functions that may occur
-  in the QApplication::commitData() function of an application: 
-  
+  in the QApplication::commitData() function of an application:
+
 \code
 void MyApplication::commitData( QSessionManager& sm ) {
     if ( sm.allowsInteraction() ) {
@@ -2068,7 +2081,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 					0, 2) ) {
 	case 0: // yes
 	    sm.release();
-	    // save document here 
+	    // save document here
 	    break;
 	case 1: // no
 	    sm.release;
@@ -2089,28 +2102,32 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
 
 /*! \fn     bool QSessionManager::allowsErrorInteraction()
-  
+
   Like allowsInteraction() but tells the session manager in addition
   that an error occured. Session managers may treat error interaction
   requests with higher priority. That means it is more likely that an
   error interaction is granted. However, you are still not guaranteed
   that the session manager will follow your request.
-  
+
   \sa allowsInteraction(), release(), cancel()
  */
 
 /*! \fn     void QSessionManager::release()
 
-  Releases the session manager after an interaction phase. 
-  
+  Releases the session manager after an interaction phase.
+
   \sa allowsInteraction(), allowsErrorInteraction()
-  
+
  */
 
 /*! \fn     void QSessionManager::cancel()
+
+  Tells the session manager to cancel the shutdown
+  process. Applications should not call this function without asking
+  the user first.
   
-  Tells the session manager to cancel the shutdown process.
-  
+  \sa allowsInteraction(), allowsErrorInteraction()
+
  */
 
 
@@ -2118,17 +2135,17 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   Sets the application's restart hint to \a hint. The restart hint
   defines, under what circumstances an application should be restarted
-  by the session manager in the next session. 
-  
+  by the session manager in the next session.
+
   The following values are possible:
-  
+
   <ul>
   <li> \c RestartIfRunning
-          - This is the default hint. If the application still 
+          - This is the default hint. If the application still
              runs by the time the session is shut down, it shall be
              restarted.
-	     
-	     
+	
+	
   <li> \c RestartAnyway
             - Restart the application in the next session, regardless
             whether it runs at the end of this session or not. This is
@@ -2143,48 +2160,48 @@ void MyApplication::commitData( QSessionManager& sm ) {
   <li> \c RestartNever
           - Do not restart this application under any circumstances.
   </ul>
-  
+
   The default hint is \c RestartIfRunning. Note that these flags are only hints,
   a session manager may or may not obey them.
-  
+
   \sa restartHint()
  */
 
 /*! \fn     QSessionManager::RestartHint QSessionManager::restartHint() const
-  
+
   Returns the application's current restart hint. The default is \c RestartIfRunning.
-  
+
   \sa setRestartHint()
  */
 
 /*! \fn     void QSessionManager::setRestartCommand( const QStringList& )
-  
+
  */
 
 /*! \fn     QStringList QSessionManager::restartCommand() const
-  
+
  */
 
 /*! \fn     void QSessionManager::setDiscardCommand( const QStringList& )
-  
+
  */
 
 /*! \fn     QStringList QSessionManager::discardCommand() const
 
-  
+
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QString& value )
-  
+
  */
 
 /*! \fn     void QSessionManager::setProperty( const QString& name, const QStringList& value )
 
-  
+
  */
 
 /*! \fn     bool QSessionManager::isPhase2()
-  
+
  */
 
 /*! \fn     void QSessionManager::requestPhase2()
