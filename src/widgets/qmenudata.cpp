@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#87 $
 **
 ** Implementation of QMenuData class
 **
@@ -1187,7 +1187,7 @@ bool QMenuData::configure( QWidget* _this, const QDomElement& element )
   for( ; !r.isNull(); r = r.nextSibling().toElement() )
   {
     if ( r.tagName() == "Entry" )
-    { 
+    {
       QString text;
       QString whatsthis;
       QPopupMenu* menu = 0;
@@ -1201,7 +1201,7 @@ bool QMenuData::configure( QWidget* _this, const QDomElement& element )
 	whatsthis = prop.stringValue();
       if ( r.hasAttribute( "id" ) )
 	id = r.attribute( "id" ).toInt();
-     
+
       QDomElement c = r.firstChild().toElement();
       for( ; !c.isNull(); c = c.nextSibling().toElement() )
       {
@@ -1225,8 +1225,15 @@ bool QMenuData::configure( QWidget* _this, const QDomElement& element )
 	id = insertItem( text, id );
       if ( !whatsthis.isEmpty() )
 	setWhatsThis( id, whatsthis );
+
+      if ( r.hasAttribute( "icon" ) )
+      {
+	QVariant v = r.property( "icon", QVariant::Pixmap );
+	if ( !v.isEmpty() )
+	  changeItem( id, QIconSet( v.pixmapValue() ), text );
+      }
     }
-  }  
+  }
   return TRUE;
 }
 #endif
