@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#36 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -18,7 +18,7 @@
 #include "qfile.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#35 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#36 $");
 
 #if !defined(QT_HEADER_PS)
      // produced from qpshdr.txt
@@ -215,17 +215,15 @@ static void ps_dumpPixmapData( QTextStream &stream, QImage img,
 	for( x = 0 ; x < width ; x++ ) {
 	    if ( pixWidth == 1 ) {
 		cval = img.color( scanLine[x] );
-		hexOut( stream, qRed(cval) );
-		hexOut( stream, qGreen(cval) );
-		hexOut( stream, qBlue(cval) );
 	    } else {
-		hexOut( stream, scanLine[4*x] );
-		hexOut( stream, scanLine[4*x + 1] );
-		hexOut( stream, scanLine[4*x + 2] );
+		cval = ((QRgb*) scanLine)[x];
 	    }
-	    if ( !(count++ % 11) )
-		stream << '\n';
+	    hexOut( stream, qRed(cval) );
+	    hexOut( stream, qGreen(cval) );
+	    hexOut( stream, qBlue(cval) );
 	}
+	if ( !(count++ % 11) )
+	    stream << '\n';
     }
     if ( --count % 11 )
 	stream << '\n';

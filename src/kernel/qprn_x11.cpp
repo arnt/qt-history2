@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qprn_x11.cpp#31 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -10,6 +10,8 @@
 *****************************************************************************/
 
 #include "qprinter.h"
+#include "qfileinf.h"
+#include "qdir.h"
 #include "qpaintdc.h"
 #include "qpsprn.h"
 #include "qprndlg.h"
@@ -23,7 +25,7 @@
 #include <process.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_x11.cpp#31 $");
 
 
 /*****************************************************************************
@@ -131,7 +133,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
     if ( c ==  PDC_BEGIN ) {			// begin; start printing
 	if ( ps && state == PST_IDLE ) {
 	    if ( !ps->epsf ) {
-		char *fname	 = output_file ? output_filename.data() : tmpnam(0);
+		char *fname = output_file ? output_filename.data() : tmpnam(0);
 		if ( !fname || *fname == '\0' ) {
 #if defined(DEBUG)
 		    warning( "QPrinter: File name cannot be null" );
@@ -193,11 +195,14 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 			    ;			// couldn't exec, ignored
 			}
 			exit( 0 );		// exit print job
+			QFileInfo fi( output->name() );
+			fi.dir().remove( fi.fileName() );
 		    }
 #endif
 		}
 		output->close();
 		delete output;
+		
 		ps->device = 0;
 	    }
 	}
@@ -228,8 +233,8 @@ int QPrinter::metric( int m ) const
 #if defined(CHECK_RANGE)
     ASSERT( (uint)s <= (uint)Executive );
 #endif
-    static int widths[]	 = { 559, 480, 576, 576, 504 };
-    static int heights[] = { 806, 693, 756, 972, 684 };
+    static int widths[]	 = { 595, 516, 612, 612, 541 };
+    static int heights[] = { 842, 729, 791, 1009, 720 };
     static int widthsMM[]  = { 210, 182, 216, 216, 191 };
     static int heightsMM[] = { 297, 257, 279, 356, 254 };
     switch ( m ) {

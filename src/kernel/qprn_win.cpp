@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprn_win.cpp#23 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#23 $");
 
 
 // QPrinter states
@@ -37,11 +37,11 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprn_win.cpp#22 $");
 QPrinter::QPrinter()
     : QPaintDevice( PDT_PRINTER | PDF_EXTDEV )	  // set device type
 {
-    orient = Portrait;
-    page_size = A4;
-    ncopies = 1;
-    from_pg = to_pg = min_pg  = max_pg = 0;
-    state = PST_IDLE;
+    orient      = Portrait;
+    page_size   = A4;
+    ncopies     = 1;
+    from_pg     = to_pg = min_pg  = max_pg = 0;
+    state       = PST_IDLE;
     output_file = FALSE;
 }
 
@@ -58,6 +58,16 @@ bool QPrinter::newPage()
 	state = PST_ERROR;
     }
     return FALSE;
+}
+
+void QPrinter::setActive()
+{
+    state == PST_ACTIVE;
+}
+
+void QPrinter::setIdle()
+{
+    state == PST_IDLE;
 }
 
 

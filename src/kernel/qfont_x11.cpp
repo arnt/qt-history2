@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#93 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#92 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#93 $");
 
 
 static const int fontFields = 14;
@@ -52,7 +52,6 @@ static bool	parseXFontName( QString &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
 static bool	smoothlyScalable( const char *fontName );
 static bool	fontExists( const char *fontName );
-static int	computeLineWidth( const char *fontName );
 static int	getWeight( const char *weightString, bool adjustScore=FALSE );
 
 
@@ -89,16 +88,20 @@ public:
    ~QFontInternal();
     bool	    dirty() const;
     const char	   *name()  const;
+    int		    xResolution() const;
     XFontStruct	   *fontStruct() const;
     const QFontDef *spec()  const;
     int		    lineWidth() const;
     void	    reset();
 private:
     QFontInternal( const QString & );
+    void computeLineWidth();
+
     QString	    n;
     XFontStruct	   *f;
     QFontDef	    s;
     int		    lw;
+    int		    xres;
     friend void QFont::load(HANDLE) const;
     friend void QFont::initFontInfo() const;
 };
@@ -132,6 +135,11 @@ inline const QFontDef *QFontInternal::spec() const
 inline int QFontInternal::lineWidth() const
 {
     return lw;
+}
+
+inline int QFontInternal::xResolution() const
+{
+    return xres;
 }
 
 inline void QFontInternal::reset()
@@ -419,7 +427,7 @@ void QFont::initFontInfo() const
     QFontInternal *f = d->fin;
     if ( !f->s.dirty )				// already initialized
 	return;
-    f->lw = computeLineWidth( f->name() );
+    f->computeLineWidth();
     if ( exactMatch() ) {			// match: copy font description
 	f->s = d->req;
 	f->s.dirty = FALSE;
@@ -932,6 +940,21 @@ void *QFontMetrics::fontStruct() const
 #define FS (type() == FontInternal ? u.f->fontStruct() : (XFontStruct*)fontStruct())
 
 
+#undef RETURN_PRINTER_ADJUSTED
+#define RETURN_PRINTER_ADJUSTED(val) \
+    if ( type() == Painter && u.p->device() &&        	\
+	 u.p->device()->devType() == PDT_PRINTER ) {	\
+	QFont fnt =  u.p->font();				\
+	fnt.handle();					\
+	int xres = fnt.d->fin->xResolution();		\
+	return qRound((val)*75.0/(xres*1.0));		\
+    } else {						\
+	return (val);					\
+    }							\
+
+
+
+
 /*!
   Returns the maximum ascent of the font.
 
@@ -943,7 +966,7 @@ void *QFontMetrics::fontStruct() const
 
 int QFontMetrics::ascent() const
 {
-    return FS->max_bounds.ascent;
+    RETURN_PRINTER_ADJUSTED(FS->max_bounds.ascent);
 }
 
 
@@ -959,7 +982,7 @@ int QFontMetrics::ascent() const
 
 int QFontMetrics::descent() const
 {
-    return FS->max_bounds.descent - 1;
+    RETURN_PRINTER_ADJUSTED(FS->max_bounds.descent - 1);
 }
 
 /*!
@@ -1057,9 +1080,8 @@ int QFontMetrics::maxRightBearing() const
 int QFontMetrics::height() const
 {
     XFontStruct *f = FS;
-    return f->max_bounds.ascent + f->max_bounds.descent;
+    RETURN_PRINTER_ADJUSTED(f->max_bounds.ascent + f->max_bounds.descent);
 }
-
 
 /*!
   Returns the leading of the font.
@@ -1074,7 +1096,11 @@ int QFontMetrics::leading() const
     XFontStruct *f = FS;
     int l = f->ascent		 + f->descent -
 	    f->max_bounds.ascent - f->max_bounds.descent;
-    return l > 0 ? l : 0;
+    if ( l > 0 ) {
+	RETURN_PRINTER_ADJUSTED(l)
+    } else {
+	return 0;
+    }
 }
 
 
@@ -1088,7 +1114,7 @@ int QFontMetrics::leading() const
 
 int QFontMetrics::lineSpacing() const
 {
-    return leading() + height();
+    RETURN_PRINTER_ADJUSTED(leading() + height());
 }
 
 
@@ -1111,7 +1137,7 @@ int QFontMetrics::width( const char *str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
-    return XTextWidth( FS, str, len );
+    RETURN_PRINTER_ADJUSTED(XTextWidth( FS, str, len ));
 }
 
 
@@ -1191,7 +1217,18 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 		ascent = soTop;
 	}
     }
+    if ( type() == Painter && u.p->device() &&
+	 u.p->device()->devType() == PDT_PRINTER ) {
+	QFont fnt =  u.p->font();
+	fnt.handle();
+	int xres = fnt.d->fin->xResolution();
+	return QRect( qRound((startX)*75.0/(xres*1.0)),
+		      qRound((-ascent)*75.0/(xres*1.0)),
+		      qRound((width)*75.0/(xres*1.0)),
+		      qRound((descent + ascent)*75.0/(xres*1.0)) );
+    } else {
     return QRect( startX, -ascent, width, descent + ascent );
+    }
 }
 
 
@@ -1201,7 +1238,7 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    return FS->max_bounds.width;
+    RETURN_PRINTER_ADJUSTED(FS->max_bounds.width);
 }
 
 
@@ -1214,7 +1251,11 @@ int QFontMetrics::maxWidth() const
 int QFontMetrics::underlinePos() const
 {
     int pos = (lineWidth()*2 + 3)/6;
-    return pos ? pos : 1;
+    if ( pos ) {
+	RETURN_PRINTER_ADJUSTED(pos);
+    } else {
+	return 1;
+    } 
 }
 
 
@@ -1227,7 +1268,11 @@ int QFontMetrics::underlinePos() const
 int QFontMetrics::strikeOutPos() const
 {
     int pos = FS->max_bounds.ascent/3;
-    return pos ? pos : 1;
+    if ( pos ) {
+	RETURN_PRINTER_ADJUSTED(pos);
+    } else {
+	return 1;
+    } 
 }
 
 
@@ -1244,7 +1289,7 @@ int QFontMetrics::lineWidth() const
     } else {
 	QFont f = font();
 	f.handle();
-	return f.d->fin->lineWidth();
+	RETURN_PRINTER_ADJUSTED(f.d->fin->lineWidth());
     }
 }
 
@@ -1352,26 +1397,36 @@ static bool fontExists( const char *fontName )
 
 
 //
-// Computes the line width (underline,strikeout) for the X font.
+// Computes the line width (underline,strikeout) for the X font
+// and fills in the X resolution of the font.
 //
 
-static int computeLineWidth( const char *fontName )
+void QFontInternal::computeLineWidth()
 {
     char *tokens[fontFields];
     QString buffer(256);		// X font name always <= 255 chars
-    strcpy( buffer.data(), fontName );
-    if ( !parseXFontName(buffer, tokens) )
-	return 1;			// name did not conform to X LFD
+    strcpy( buffer.data(), name() );
+    if ( !parseXFontName(buffer, tokens) ) {
+	lw   = 1;                   // name did not conform to X LFD
+	xres = 75;
+	return;
+    }
     int weight = getWeight( tokens[Weight_] );
     int pSize  = atoi( tokens[PointSize] ) / 10;
     if ( strcmp( tokens[ResolutionX], "75") != 0 || // adjust if not 75 dpi
 	 strcmp( tokens[ResolutionY], "75") != 0 )
 	pSize = ( 2*pSize*atoi(tokens[ResolutionY]) + 75 ) / ( 75 * 2 );
+    QString tmp = tokens[ResolutionX];
+    bool ok;
+    xres = tmp.toInt( &ok );
+    if ( !ok || xres == 0 )
+	xres = 75;		
     int score = pSize*weight;		// ad hoc algorithm
-    int lw = ( score ) / 700;
+    lw = ( score ) / 700;
     if ( lw < 2 && score >= 1050 )	// looks better with thicker line
 	lw = 2;				//   for small pointsizes
-    return lw ? lw : 1;
+    if ( lw == 0 )
+	lw = 1;
 }
 
 
