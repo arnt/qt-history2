@@ -581,7 +581,7 @@ void QMotifDialog::realize( Widget w )
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
-	    if (!widget) continue;
+	    if (!widget || widget->isTopLevel()) continue;
 
 	    XReparentWindow(widget->x11Info()->display(), widget->winId(), newid,
 			    widget->x(), widget->y());

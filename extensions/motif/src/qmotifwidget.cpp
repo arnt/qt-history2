@@ -481,7 +481,7 @@ void QMotifWidget::realize( Widget w )
 	QObjectList list = children();
 	for (int i = 0; i < list.size(); ++i) {
 	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
-	    if (!widget) continue;
+	    if (!widget || widget->isTopLevel()) continue;
 
 	    XReparentWindow(x11Info()->display(), widget->winId(), newid,
 			    widget->x(), widget->y());
@@ -520,11 +520,6 @@ void QMotifWidget::realize( Widget w )
 */
 void qmotif_widget_shell_destroy(Widget w)
 {
-    XtWidgetProc destroy =
-	((CoreWidgetClass)topLevelShellClassRec.core_class.
-	 superclass)->core_class.destroy;
-    (*destroy)(w);
-
     QMotifWidget *widget = 0;
     if (XtIsSubclass(w, qapplicationShellWidgetClass)) {
 	widget = ((QApplicationShellWidget) w)->qapplicationshell.widget;
@@ -544,8 +539,7 @@ void qmotif_widget_shell_destroy(Widget w)
 void qmotif_widget_shell_realize( Widget w, XtValueMask *mask, XSetWindowAttributes *attr )
 {
     XtRealizeProc realize =
-	((CoreWidgetClass)topLevelShellClassRec.core_class.
-	 superclass)->core_class.realize;
+        XtSuperclass(w)->core_class.realize;
     (*realize)( w, mask, attr );
 
     QMotifWidget *widget = 0;
@@ -567,8 +561,7 @@ void qmotif_widget_shell_realize( Widget w, XtValueMask *mask, XSetWindowAttribu
 void qmotif_widget_shell_change_managed( Widget w )
 {
     XtWidgetProc change_managed =
-	((CompositeWidgetClass)topLevelShellClassRec.core_class.
-	 superclass)->composite_class.change_managed;
+        ((CompositeWidgetClass) XtSuperclass(w))->composite_class.change_managed;
     (*change_managed)( w );
 
     QMotifWidget *widget = 0;
