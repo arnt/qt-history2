@@ -99,7 +99,7 @@ QSql::QSql( QSqlResult * r )
   database \a databaseName.
 
 */
-QSql::QSql( const QString& query = QString::null, const QString& databaseName = QSqlConnection::defaultDatabase )
+QSql::QSql( const QString& query, const QString& databaseName)
 {
     d = new QSqlResultShared( 0 );
     *this = ( QSqlConnection::database( databaseName )->driver()->createResult() );
