@@ -863,12 +863,6 @@ bool QApplication::processNextEvent( bool canWait )
     if(qt_is_gui_used) {
 	sendPostedEvents();
 
-#if 0
-	/* this gives QD a chance to flush buffers, I don't like doing it! FIXME!! */
-	EventRecord ev;
-	EventAvail(everyEvent, &ev);
-#endif
-
 	if(qt_replay_event) {	//ick
 	    EventRef ev = qt_replay_event;
 	    qt_replay_event = NULL;
@@ -904,6 +898,11 @@ bool QApplication::processNextEvent( bool canWait )
 	    if(ret != noErr)
 		break;
 	    nevents++;
+
+	    //send posted events if the event queue is empty
+	    ret = ReceiveNextEvent( 0, 0, 0.01, FALSE, &event );
+	    if(ret != eventLoopTimedOutErr && ret != eventLoopQuitErr)
+		sendPostedEvents();
 	} while(1);
 	sendPostedEvents();
     }
@@ -1277,17 +1276,13 @@ QApplication::qt_trap_context_mouse(EventLoopTimerRef r, void *)
 
     //finally send the event to the widget if its not the popup
     if ( widget ) {
-	QPoint plocal(widget->mapFromGlobal( where ));
-	QMouseEvent qme( QEvent::MouseButtonPress, plocal, where, 
-			 QMouseEvent::RightButton, QMouseEvent::RightButton );
-#ifdef DEBUG_MOUSE_MAPS
-	qDebug("Going to send hacked context menu: %s %s", widget->className(), widget->name());
-#endif
+	QContextMenuEvent qme( QContextMenuEvent::Mouse );
 	QApplication::sendEvent( widget, &qme );
+	if(qme.isAccepted()) { //once this happens the events before are pitched
+	    qt_button_down = NULL;
+	    mouse_button_state = 0;
+	}
     }
-    //once this happens the events before are pitched
-    qt_button_down = NULL;
-    mouse_button_state = 0;
 }
 
 QMAC_PASCAL OSStatus
@@ -1323,18 +1318,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
 			      sizeof(mb), NULL, &mb);
 
-	    if(mb == kEventMouseButtonPrimary) {
-		if(keys & Qt::ControlButton) {
-		    keys &= ~(Qt::ControlButton);
-		    button = QMouseEvent::RightButton;
-		} else {
-		    button = QMouseEvent::LeftButton;
-		}
-	    } else if(mb == kEventMouseButtonSecondary) {
+	    if(mb == kEventMouseButtonPrimary) 
+		button = QMouseEvent::LeftButton;
+	    else if(mb == kEventMouseButtonSecondary) 
 		button = QMouseEvent::RightButton;
-	    } else {
+	    else 
 		button = QMouseEvent::MidButton;
-	    }
 	}
 
 	Point where;
@@ -1395,19 +1384,28 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GlobalToLocal( &gp ); //now map it to the window
 	    popupwidget = recursive_match(popupwidget, gp.h, gp.v);
 
-	    QPoint p( where.h, where.v );
-	    QPoint plocal(popupwidget->mapFromGlobal( p ));
-	    if(wheel_delta) {
-		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
-		QApplication::sendEvent( popupwidget, &qwe);
-	    } else {
-		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
-		QApplication::sendEvent( popupwidget, &qme );
+	    bool not_context = TRUE;
+	    if(etype == QEvent::MouseButtonPress && 	
+	       ((button == QMouseEvent::RightButton) ||
+		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
+		QContextMenuEvent cme(QContextMenuEvent::Mouse );
+		QApplication::sendEvent( popupwidget, &cme );
+		not_context = cme.isAccepted();
 	    }
-
-	    if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
-	       qt_closed_popup)
-		special_close = TRUE;
+	    if(not_context) {
+		QPoint p( where.h, where.v );
+		QPoint plocal(popupwidget->mapFromGlobal( p ));
+		if(wheel_delta) {
+		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
+		    QApplication::sendEvent( popupwidget, &qwe);
+		} else {
+		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		    QApplication::sendEvent( popupwidget, &qme );
+		}
+		if(etype == QEvent::MouseButtonPress && app->activePopupWidget() != popupwidget &&
+		   qt_closed_popup)
+		    special_close = TRUE;
+	    }
 	}
 
 	if(ekind == kEventMouseDown && !app->do_mouse_down( &where ))
@@ -1495,40 +1493,50 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 
-#ifdef DEBUG_MOUSE_MAPS
-	    char *desc = NULL;
-	    switch(ekind) {
-	    case kEventMouseDown: desc = "MouseButtonPress"; break;
-	    case kEventMouseUp: desc = "MouseButtonRelease"; break;
-	    case kEventMouseDragged:
-	    case kEventMouseMoved: desc = "MouseMove"; break;
-	    case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
+	    bool not_context = TRUE;
+	    if(etype == QEvent::MouseButtonPress && 	
+	       ((button == QMouseEvent::RightButton) ||
+		(button == QMouseEvent::LeftButton && (keys & Qt::ControlButton)))) {
+		QContextMenuEvent cme(QContextMenuEvent::Mouse );
+		QApplication::sendEvent( widget, &cme );
+		not_context = cme.isAccepted();
 	    }
-	    qDebug("Would send (%s) event to %s %s (%d %d %d)", desc,
-		   widget->name(), widget->className(), button|keys, state|keys,
-		   wheel_delta);
-#endif
-	    QPoint p( where.h, where.v );
-	    QPoint plocal(widget->mapFromGlobal( p ));
-	    if(wheel_delta) {
-		QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
-		QApplication::sendEvent( widget, &qwe);
-	    } else {
-#ifdef QMAC_SPEAK_TO_ME
-		if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
-		    QVariant v = widget->property("text");
-		    if(!v.isValid()) v = widget->property("caption");
-		    if(v.isValid()) {
-			QString s = v.toString();
-			s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
-			SpeechChannel ch;
-			NewSpeechChannel(NULL, &ch);
-			SpeakText(ch, s.latin1(), s.length());
-		    }
+	    if(not_context) {
+#ifdef DEBUG_MOUSE_MAPS
+		char *desc = NULL;
+		switch(ekind) {
+		case kEventMouseDown: desc = "MouseButtonPress"; break;
+		case kEventMouseUp: desc = "MouseButtonRelease"; break;
+		case kEventMouseDragged:
+		case kEventMouseMoved: desc = "MouseMove"; break;
+		case kEventMouseWheelMoved: desc = "MouseWheelMove"; break;
 		}
+		qDebug("Would send (%s) event to %s %s (%d %d %d)", desc,
+		       widget->name(), widget->className(), button|keys, state|keys,
+		       wheel_delta);
 #endif
-		QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
-		QApplication::sendEvent( widget, &qme );
+		QPoint p( where.h, where.v );
+		QPoint plocal(widget->mapFromGlobal( p ));
+		if(wheel_delta) {
+		    QWheelEvent qwe( plocal, p, wheel_delta, state | keys);
+		    QApplication::sendEvent( widget, &qwe);
+		} else {
+#ifdef QMAC_SPEAK_TO_ME
+		    if(etype == QMouseEvent::MouseButtonDblClick && (keys & Qt::AltButton)) {
+			QVariant v = widget->property("text");
+			if(!v.isValid()) v = widget->property("caption");
+			if(v.isValid()) {
+			    QString s = v.toString();
+			    s.replace(QRegExp("(\\&|\\<[^\\>]*\\>)"), "");
+			    SpeechChannel ch;
+			    NewSpeechChannel(NULL, &ch);
+			    SpeakText(ch, s.latin1(), s.length());
+			}
+		    }
+#endif
+		    QMouseEvent qme( etype, plocal, p, button | keys, state | keys );
+		    QApplication::sendEvent( widget, &qme );
+		}
 	    }
 	}
 	break;
@@ -1617,14 +1625,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	    RgnHandle r = NewRgn();
 	    GetWindowRegion((WindowPtr)widget->handle(), kWindowUpdateRgn, r);
+//	    ValidWindowRgn((WindowPtr)widget->handle(), r); 
 	    OffsetRgn( r, -widget->x(), -widget->y());
 	    QRegion rgn(0, 0, 1, 1);
 	    CopyRgn(r, (RgnHandle)rgn.handle());
 	    DisposeRgn(r);
 
-	    BeginUpdate((WindowPtr)widget->handle());
+//	    BeginUpdate((WindowPtr)widget->handle());
 	    widget->propagateUpdates(rgn);
-	    EndUpdate((WindowPtr)widget->handle());
+//	    EndUpdate((WindowPtr)widget->handle());
 	} else if(ekind == kEventWindowActivated) {
 	    if(widget) {
 		widget->raise();
