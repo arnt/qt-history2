@@ -2577,8 +2577,6 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
 }
 
 /*!
-    \reimp
-
     Sets the state of the feature \a name to \a value:
 
     If the feature is not recognized, it is ignored.
@@ -2612,6 +2610,7 @@ bool QXmlSimpleReader::feature( const QString& name, bool *ok ) const
     \printline reader
     \skipto setFeature
     \printline setFeature
+    \printline TRUE
 
     (Code taken from xml/tagreader-with-features/tagreader.cpp)
 
@@ -2632,13 +2631,7 @@ void QXmlSimpleReader::setFeature( const QString& name, bool value )
     }
 }
 
-/*!
-    \reimp
-
-    Returns TRUE if the class has a feature called \a name; otherwise
-    returns FALSE.
-
-    \sa setFeature() feature()
+/*! \reimp
 */
 bool QXmlSimpleReader::hasFeature( const QString& name ) const
 {
@@ -2652,10 +2645,7 @@ bool QXmlSimpleReader::hasFeature( const QString& name ) const
     }
 }
 
-/*!
-    \reimp
-
-    Returns 0 since this class does not support any properties.
+/*! \reimp
 */
 void* QXmlSimpleReader::property( const QString&, bool *ok ) const
 {
@@ -2664,10 +2654,7 @@ void* QXmlSimpleReader::property( const QString&, bool *ok ) const
     return 0;
 }
 
-/*!
-    \reimp
-
-    Does nothing since this class does not support any properties.
+/*! \reimp
 */
 void QXmlSimpleReader::setProperty( const QString&, void* )
 {
@@ -2675,8 +2662,6 @@ void QXmlSimpleReader::setProperty( const QString&, void* )
 
 /*!
     \reimp
-
-    Returns FALSE since this class does not support any properties.
 */
 bool QXmlSimpleReader::hasProperty( const QString& ) const
 {
