@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#2 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -20,7 +20,7 @@
 #include <qtextstream.h>
 #include <qstylesheet.h>
 
-HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* parent = 0, const char *name=0 )
+HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* parent, const char *name )
     : QMainWindow( parent, name )
 {
 
@@ -33,7 +33,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     setCentralWidget( browser );
 
     if ( !home_.isEmpty() )
-	browser->setText( home_ );
+	browser->setSource( home_, home_ );
 
     connect( browser, SIGNAL( highlighted( const QString&) ),
 	     statusBar(), SLOT( message( const QString&)) );
