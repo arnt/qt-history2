@@ -404,8 +404,8 @@ UnixMakefileGenerator::findLibraries()
                 }
             }
             if(!stub.isEmpty()) {
-                if(do_suffix && !project->isEmpty("QMAKE_" + stub + "_SUFFIX"))
-                    stub += project->first("QMAKE_" + stub + "_SUFFIX");
+                if(do_suffix && !project->isEmpty("QMAKE_" + stub.toUpper() + "_SUFFIX"))
+                    stub += project->first("QMAKE_" + stub.toUpper() + "_SUFFIX");
                 bool found = false;
                 QStringList extens;
                 if(!extn.isNull())
@@ -489,8 +489,8 @@ UnixMakefileGenerator::processPrlFiles()
                             }
 
                             QString prl = (*dep_it).local() + Option::dir_sep + "lib" + lib;
-                            if(!project->isEmpty("QMAKE_" + lib + "_SUFFIX"))
-                                prl += project->first("QMAKE_" + lib + "_SUFFIX");
+                            if(!project->isEmpty("QMAKE_" + lib.toUpper() + "_SUFFIX"))
+                                prl += project->first("QMAKE_" + lib.toUpper() + "_SUFFIX");
                             if(processPrlFile(prl)) {
                                 if(prl.startsWith((*dep_it).local()))
                                     prl.replace(0, (*dep_it).local().length(), (*dep_it).real());

@@ -94,8 +94,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
                 QString suffix;
-                if(!project->isEmpty("QMAKE_" + lib + "_SUFFIX"))
-                    suffix = project->first("QMAKE_" + lib + "_SUFFIX");
+                if(!project->isEmpty("QMAKE_" + lib.toUpper() + "_SUFFIX"))
+                    suffix = project->first("QMAKE_" + lib.toUpper() + "_SUFFIX");
                 for(QList<QMakeLocalFileName>::Iterator it = dirs.begin();
                     it != dirs.end(); ++it) {
                     QString extension;
@@ -129,8 +129,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                 file = file.left(file.length() - 4);
                 if(!file.at(file.length()-1).isNumber()) {
                     QString suffix;
-                    if(!project->isEmpty("QMAKE_" + file.section(Option::dir_sep, -1) + "_SUFFIX"))
-                        suffix = project->first("QMAKE_" + file.section(Option::dir_sep, -1) + "_SUFFIX");
+                    if(!project->isEmpty("QMAKE_" + file.section(Option::dir_sep, -1).toUpper() + "_SUFFIX"))
+                        suffix = project->first("QMAKE_" + file.section(Option::dir_sep, -1).toUpper() + "_SUFFIX");
                     for(QList<QMakeLocalFileName>::Iterator dep_it = lib_dirs.begin(); dep_it != lib_dirs.end(); ++dep_it) {
                         QString lib_tmpl(file + "%1" + suffix + ".lib");
                         int ver = findHighestVersion((*dep_it).local(), file);
