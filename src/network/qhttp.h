@@ -165,6 +165,10 @@ public:
     int setHost(const QString &hostname, Q_UINT16 port=80);
     int setSocket(QSocket *socket);
 
+    int setProxy(const QString &host, int port,
+                 const QString &username = QString::null,
+                 const QString &password = QString::null);
+
     int get(const QString& path, QIODevice* to=0);
     int post(const QString& path, QIODevice* data, QIODevice* to=0 );
     int post(const QString& path, const QByteArray& data, QIODevice* to=0);
@@ -234,6 +238,7 @@ private:
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
     friend class QHttpSetSocketRequest;
+    friend class QHttpSetProxyRequest;
     friend class QHttpCloseRequest;
     friend class QHttpPGHRequest;
 };

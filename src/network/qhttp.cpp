@@ -101,6 +101,11 @@ public:
     int idleTimer;
 
     QMembuf rba;
+
+    QString proxyHost;
+    int proxyPort;
+    QString proxyUser;
+    QString proxyPassword;
 };
 
 int QHttpRequest::idCounter = 0;
@@ -281,6 +286,44 @@ void QHttpSetHostRequest::start(QHttp *http)
     http->d->port = port;
     http->finishedWithSuccess();
 }
+
+/****************************************************
+ *
+ * QHttpSetProxyRequest
+ *
+ ****************************************************/
+
+class QHttpSetProxyRequest : public QHttpRequest
+{
+public:
+    inline QHttpSetProxyRequest(const QString &proxyHost, int proxyPort,
+                                const QString &proxyUser, const QString &proxyPassword)
+    {
+        this->proxyHost = proxyHost;
+        this->proxyPort = proxyPort;
+        this->proxyUser = proxyUser;
+        this->proxyPassword = proxyPassword;
+    }
+
+    inline void start(QHttp *http)
+    {
+        http->d->proxyHost = proxyHost;
+        http->d->proxyPort = proxyPort;
+        http->d->proxyUser = proxyUser;
+        http->d->proxyPassword = proxyPassword;
+        http->finishedWithSuccess();
+    }
+
+    inline QIODevice *sourceDevice()
+    { return 0; }
+    inline QIODevice *destinationDevice()
+    { return 0; }
+private:
+    QString proxyHost;
+    int proxyPort;
+    QString proxyUser;
+    QString proxyPassword;
+};
 
 /****************************************************
  *
@@ -1592,6 +1635,15 @@ int QHttp::setSocket(QSocket *socket)
     return addRequest(new QHttpSetSocketRequest(socket));
 }
 
+/* ###
+
+*/
+int QHttp::setProxy(const QString &host, int port,
+                    const QString &username, const QString &password)
+{
+    return addRequest(new QHttpSetProxyRequest(host, port, username, password));
+}
+
 /*!
     Sends a get request for \a path to the server set by setHost() or
     as specified in the constructor.
@@ -1806,6 +1858,30 @@ void QHttp::startNextRequest()
 
 void QHttp::sendRequest()
 {
+    // Proxy support. Insert the Proxy-Authorization item into the
+    // header before it's sent off to the proxy.
+    if (!d->proxyHost.isEmpty()) {
+        QUrl proxyUrl;
+        proxyUrl.setScheme("http");
+        proxyUrl.setHost(d->hostname);
+        if (d->port && d->port != 80) proxyUrl.setPort(d->port);
+        QString request = proxyUrl.resolved(QUrl(d->header.path())).toEncoded();
+
+        d->header = QHttpRequestHeader(d->header.method(), request,
+                                       d->header.majorVersion(),
+                                       d->header.minorVersion());
+        if (!d->proxyUser.isEmpty()) {
+            QByteArray pass = d->proxyUser.toAscii();
+            if (!d->proxyPassword.isEmpty()) {
+                pass += ":";
+                pass += d->proxyPassword.toAscii();
+            }
+            d->header.setValue("Proxy-Authorization", pass.toBase64());
+        }
+
+        d->hostname = d->proxyHost;
+    }
+
     if (d->hostname.isNull()) {
         finishedWithError(tr("No server set to connect to"), UnknownError);
         return;
@@ -1817,7 +1893,10 @@ void QHttp::sendRequest()
     // existing one?
     if (d->socket->peerName() != d->hostname || d->socket->state() != QSocket::Connection) {
         setState(QHttp::Connecting);
-        d->socket->connectToHost(d->hostname, d->port);
+        if (d->proxyHost.isEmpty())
+            d->socket->connectToHost(d->hostname, d->port);
+        else
+            d->socket->connectToHost(d->proxyHost, d->proxyPort);
     } else {
         slotConnected();
     }
