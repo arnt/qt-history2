@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#25 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#26 $
 **
 ** Definition of QListBox widget class
 **
@@ -62,7 +62,7 @@ public:
     const char *text( int index )	const;
     const QPixmap *pixmap( int index )	const;
 #if defined(OBSOLETE)
-    cost char *string( int index )	const { return text(index); }
+    const char *string( int index )	const { return text(index); }
 #endif
     void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );

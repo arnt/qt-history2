@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#73 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#74 $
 **
 ** Definition of QWidget class
 **
@@ -47,9 +47,9 @@ public:
     bool	 isEnabled()	const;
     void	 setEnabled( bool );
 #if defined(OBSOLETE)
-    void	 enable()		{ setEnabled(TRUE); }
-    void	 disable()		{ setEnabled(FALSE); }
-    bool	 isDisabled()	const	{ return !isEnabled(); }
+    void	 enable();
+    void	 disable();
+    bool	 isDisabled()	const;
 #endif
 
   // Widget coordinates
@@ -132,8 +132,7 @@ public:
     bool	 isUpdatesEnabled() const;
     void	 setUpdatesEnabled( bool enable );
 #if defined(OBSOLETE)
-    bool	 enableUpdates( bool enable )
-    { bool last=isUpdatesEnabled(); setUpdatesEnabled(enable); return last; }
+    bool	 enableUpdates( bool enable );
 #endif
 
     void	 update();
@@ -282,6 +281,17 @@ inline bool QWidget::isDesktop() const
 inline bool QWidget::isEnabled() const
 { return !testWFlags(WState_Disabled); }
 
+#if defined(OBSOLETE)
+inline void QWidget::enable()
+{ setEnabled(TRUE); }
+
+inline void QWidget::disable()
+{ setEnabled(FALSE); }
+
+inline bool QWidget::isDisabled() const
+{ return !isEnabled(); }
+#endif
+
 inline const QRect &QWidget::frameGeometry() const
 { return frect; }
 
@@ -326,6 +336,15 @@ inline QFontInfo QWidget::fontInfo() const
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_DisUpdates); }
+
+#if defined(OBSOLETE)
+inline bool QWidget::enableUpdates( bool enable )
+{
+    bool last=isUpdatesEnabled();
+    setUpdatesEnabled(enable);
+    return last;
+}
+#endif
 
 inline void QWidget::repaint( bool erase )
 { repaint( 0, 0, crect.width(), crect.height(), erase ); }
