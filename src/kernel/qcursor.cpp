@@ -92,7 +92,7 @@
 
     \table
     \header \i Qt::CursorShape Values   \i Cursor Names
-    \row \i Qt::ArrowCursor             \i arrow
+    \row \i Qt::ArrowCursor             \i left_ptr
     \row \i Qt::UpArrowCursor           \i up_arrow
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait

@@ -494,7 +494,7 @@ void QCursor::update() const
 
 #ifndef QT_NO_XCURSOR
     static const char *cursorNames[] = {
-	"arrow",
+	"left_ptr",
 	"up_arrow",
 	"cross",
 	"wait",
