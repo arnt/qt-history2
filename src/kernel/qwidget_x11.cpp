@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#76 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#75 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#76 $";
 #endif
 
 
@@ -295,37 +295,13 @@ bool QWidget::setMouseTracking( bool enable )
 }
 
 /*!
-Returns the background color of this widget.
+  Sets the background color of this widget.
 
-The background color is independent of the color group.
-The background color will be overwritten when setting a new palette.
-\sa setBackgroundColor(). */
-
-QColor QWidget::backgroundColor() const		// get background color
-{
-    return bg_col;
-}
-
-/*!
-Returns the foreground color of this widget.
-
-The foreground color equals <code>colorGroup().foreground()</code>.
-
-\sa backgroundColor() and colorGroup().
+  The background color is independent of the widget color group.<br>
+  Notice that the background color will be overwritten when setting
+  a new palette.
+  \sa backgroundColor(), setPalette(), setBackgroundPixmap()
 */
-
-QColor QWidget::foregroundColor() const		// get foreground color
-{
-    return colorGroup().foreground();
-}
-
-/*!
-Sets the background color of this widget.
-
-The background color is independent of the widget color group.<br>
-Notice that the background color will be overwritten when setting
-a new palette.
-\sa backgroundColor() and setPalette(). */
 
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
@@ -335,9 +311,10 @@ void QWidget::setBackgroundColor( const QColor &c )
 }
 
 /*!
-Sets the background pixmap of the widget to \e pm.
+  Sets the background pixmap of the widget to \e pm.
 
-The background pixmap is tiled.
+  The background pixmap is tiled.
+  \sa setBackgroundColor()
 */
 
 void QWidget::setBackgroundPixmap( const QPixmap &pm )
@@ -352,63 +329,17 @@ void QWidget::setBackgroundPixmap( const QPixmap &pm )
 
 
 /*!
-Returns the font currently set for the widget.
+  Sets the widget cursor shape to \e cursor.
 
-QFontInfo will tell you what font is actually being used.
+  The mouse cursor will assume this shape when it's over this widget.
+  See a list of cursor shapes in the QCursor documentation.
 
-\sa setFont(), fontMetrics() and fontInfo().
-*/
+  An editor widget would for example use an I-beam cursor:
+  \code
+    setCursor( ibeamCursor );
+  \endcode
 
-const QFont &QWidget::font()
-{
-    return fnt;
-}
-
-/*!
-Sets the font of the widget.
-
-The fontInfo() function reports the actual font that is being used by the
-widget.
-
-This code fragment switches to a bold version of whatever font is being used:
-\code
-  QFont f = font();
-  f.setWeight( QFont::Bold );
-  setFont( f );
-\endcode
-
-\sa font() and fontInfo().
-*/
-
-void QWidget::setFont( const QFont &font )	// set font
-{
-    fnt = font;
-    update();
-}
-
-
-/*!
-Returns the widget cursor shape.
-\sa setCursor().
-*/
-
-QCursor QWidget::cursor() const
-{
-    return curs;
-}
-
-/*!
-Sets the widget cursor shape.
-
-The mouse cursor will assume this shape when it's over this widget.
-The available shapes are listed in the QCursor documentation.
-
-An editor widget would for example use an I-beam cursor:
-\code
-  setCursor( ibeamCursor );
-\endcode
-
-\sa cursor().
+  \sa cursor()
 */
 
 void QWidget::setCursor( const QCursor &cursor )
@@ -424,19 +355,19 @@ void QWidget::setCursor( const QCursor &cursor )
 extern bool qt_nograb();
 
 /*!
-Grabs the mouse input.
+  Grabs the mouse input.
 
-This widget will be the only one to receive mouse events until
-releaseMouse() is called.
+  This widget will be the only one to receive mouse events until
+  releaseMouse() is called.
 
-\warning Grabbing the mouse might lock the terminal.
+  \warning Grabbing the mouse might lock the terminal.
 
-It is almost never necessary to grab the mouse when using Qt since Qt
-grabs and releases it sensibly.	 In particular, Qt grabs the mouse
-when a button is pressed and keeps it until the last button is
-released.
+  It is almost never necessary to grab the mouse when using Qt since Qt
+  grabs and releases it sensibly.	 In particular, Qt grabs the mouse
+  when a button is pressed and keeps it until the last button is
+  released.
 
-\sa releaseMouse(), grabKeyboard(), releaseKeyboard()
+  \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
 */
 
 void QWidget::grabMouse()
@@ -453,15 +384,15 @@ void QWidget::grabMouse()
 }
 
 /*!
-Grabs the mouse intput and changes the cursor shape.
+  Grabs the mouse intput and changes the cursor shape.
 
-The cursor will assume shape \e cursor (for as long as the mouse focus is
-grabbed) and this widget will be the only one to receive mouse events
-until releaseMouse() is called().
+  The cursor will assume shape \e cursor (for as long as the mouse focus is
+  grabbed) and this widget will be the only one to receive mouse events
+  until releaseMouse() is called().
 
-\warning Grabbing the mouse might lock the terminal.
+  \warning Grabbing the mouse might lock the terminal.
 
-\sa releaseMouse(), grabKeyboard(), releaseKeyboard(), setCursor()
+  \sa releaseMouse(), grabKeyboard(), releaseKeyboard(), setCursor()
 */
 
 void QWidget::grabMouse( const QCursor &cursor )
@@ -479,9 +410,9 @@ void QWidget::grabMouse( const QCursor &cursor )
 }
 
 /*!
-Releases the mouse grab.
+  Releases the mouse grab.
 
-\sa grabMouse(), grabKeyboard(), releaseKeyboard()
+  \sa grabMouse(), grabKeyboard(), releaseKeyboard()
 */
 
 void QWidget::releaseMouse()
@@ -496,14 +427,14 @@ void QWidget::releaseMouse()
 }
 
 /*!
-Grabs all keyboard input.
+  Grabs all keyboard input.
 
-This widget will receive all keyboard events, independent of the active
-window.
+  This widget will receive all keyboard events, independent of the active
+  window.
 
-\warning Grabbing the keyboard might lock the terminal.
+  \warning Grabbing the keyboard might lock the terminal.
 
-\sa releaseKeyboard(), grabMouse(), releaseMouse()
+  \sa releaseKeyboard(), grabMouse(), releaseMouse()
 */
 
 void QWidget::grabKeyboard()
@@ -517,9 +448,9 @@ void QWidget::grabKeyboard()
 }
 
 /*!
-Releases the keyboard grab.
+  Releases the keyboard grab.
 
-\sa grabKeyboard(), grabMouse(), releaseMouse()
+  \sa grabKeyboard(), grabMouse(), releaseMouse()
 */
 
 void QWidget::releaseKeyboard()
@@ -533,7 +464,7 @@ void QWidget::releaseKeyboard()
 
 
 /*!
-Gives the keyboard input focus to the widget.
+  Gives the keyboard input focus to the widget.
 */
 
 void QWidget::setFocus()			// set keyboard input focus
@@ -571,7 +502,7 @@ void QWidget::setFocus()			// set keyboard input focus
 }
 
 /*!
-\internal Handles TAB.
+  \internal Handles TAB.
 */
 
 bool QWidget::focusNextChild()
@@ -598,7 +529,7 @@ bool QWidget::focusNextChild()
 }
 
 /*!
-\internal Handles Shift+TAB.
+  \internal Handles Shift+TAB.
 */
 
 bool QWidget::focusPrevChild()
@@ -608,8 +539,11 @@ bool QWidget::focusPrevChild()
 
 
 /*!
-Enables or disables updates of this widget.  If updates are
-disabled, the widget will not receive repaint events.
+  Enables widget updates if \e enable is TRUE, or  disables widget updates
+  if \e enable is FALSE.
+
+  If updates are disabled, the widget will not receive repaint events.
+  \sa update(), repaint(), paintEvent()
 */
 
 bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
@@ -622,9 +556,13 @@ bool QWidget::enableUpdates( bool enable )	// enable widget update/repaint
     return last;
 }
 
-/*! Updates the entire widget.	If updates are enabled, of course.  The
-  default action of this is to clear the widget, so widgets that wish
-  to actually interact with the user should reimplement it.  */
+/*!
+  Updates the widget unless updates are disabled.
+
+  Updating the widget will erase the widget contents and generate a paint
+  event from the window system.
+  \sa repaint(), paintEvent(), enableUpdates(), erase()
+*/
 
 void QWidget::update()				// update widget
 {
@@ -633,9 +571,12 @@ void QWidget::update()				// update widget
 }
 
 /*!
-Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget.
+  Updates a rectangle (\e x, \e y, \e w, \e h) inside the widget
+  unless updates are disabled.
 
-Calling update() will generate a paint event from the X server.
+  Updating the widget will erase the widget area \e (x,y,w,h) and
+  generate a paint event from the window system.
+  \sa repaint(), paintEvent(), enableUpdates(), erase()
 */
 
 void QWidget::update( int x, int y, int w, int h )
@@ -644,44 +585,59 @@ void QWidget::update( int x, int y, int w, int h )
 	XClearArea( dpy, ident, x, y, w, h, TRUE );
 }
 
-/*! \fn void QWidget::repaint( bool erase )
+/*!
+  \fn void QWidget::repaint( bool erase )
+  Repaints the widget directly by calling paintEvent() directly,
+  unless updates are disabled.
 
-  Repaints the widget directly.
+  Erases the widget contents if \e erase is TRUE.
 
-  Doing a repaint() is faster than doing an update(), but since
-  repaint() does not make a server trip and there is some time skew
-  between the server and client, your client may get confused. */
+  Doing a repaint() usually is faster than doing an update(), but
+  calling update() many times in a row will generate a single paint
+  event.
+  \sa update(), paintEvent(), enableUpdates(), erase()
+*/
 
-/*! \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
+/*!
+  \fn void QWidget::repaint( int x, int y, int w, int h, bool erase )
+  Repaints the widget directly by calling paintEvent() directly,
+  unless updates are disabled.
 
-  Repaints the widget directly.
+  Erases the widget area  \e (x,y,w,h) if \e erase is TRUE.
 
-  Doing a repaint() is faster than doing an update(), but since
-  repaint() does not make a server trip and there is some time skew
-  between the server and client, your client may get confused. */
+  Doing a repaint() usually is faster than doing an update(), but
+  calling update() many times in a row will generate a single paint
+  event.
+  \sa update(), paintEvent(), enableUpdates(), erase()
+*/
 
-/*! Repaints the widget directly.
+/*!
+  Repaints the widget directly by calling paintEvent() directly,
+  unless updates are disabled.
 
-  This function is virtual, and the other overloaded repaint()s call
-  it, but reimplementing it is strongly discouraged.  FYI, \link
-  QTableWidget::repaint() QTableWidget \endlink reimplements it.
+  Erases the widget area  \e r if \e erase is TRUE.
 
-  Doing a repaint() is faster than doing an update(), but since
-  repaint() does not make a server trip and there is some time skew
-  between the server and client, your client may get confused. */
+  Doing a repaint() usually is faster than doing an update(), but
+  calling update() many times in a row will generate a single paint
+  event.
+  \sa update(), paintEvent(), enableUpdates(), erase()
+*/
 
-void QWidget::repaint( const QRect &r, bool eraseArea )
+void QWidget::repaint( const QRect &r, bool erase )
 {
     if ( !isVisible() || testWFlags(WNoUpdates) ) // ignore repaint
 	return;
     QPaintEvent e( r );				// send fake paint event
-    if ( eraseArea )
+    if ( erase )
 	XClearArea( dpy, ident, r.x(), r.y(), r.width(), r.height(), FALSE );
     QApplication::sendEvent( this, &e );
 }
 
 
-/*! Makes the widget and its children visible on the screen. */
+/*!
+  Makes the widget and its children visible on the screen.
+  \sa hide(), isVisible()
+*/
 
 void QWidget::show()				// show widget
 {
@@ -710,7 +666,10 @@ void QWidget::show()				// show widget
 	qt_open_popup( this );
 }
 
-/*! Makes the widget invisible. */
+/*!
+  Makes the widget invisible.
+  \sa show(), isVisible()
+*/
 
 void QWidget::hide()				// hide widget
 {
@@ -730,15 +689,21 @@ void QWidget::hide()				// hide widget
 }
 
 
-/*! Raises the widget to the top of the window stack. */
+/*!
+  Raises this widget to the top of the window stack.
+  \sa lower()
+*/
 
 void QWidget::raise()				// raise widget
 {
     XRaiseWindow( dpy, ident );
 }
 
-/*! Lowers the widget to the bottom of the windows stack.  Only the
-  parent window will be behind this one afterwards. */
+/*!
+  Lowers the widget to the bottom of the windows stack.  Only the
+  parent window will be behind this one afterwards.
+  \sa raise()
+*/
 
 void QWidget::lower()				// lower widget
 {
@@ -772,17 +737,23 @@ static void do_size_hints( Display *dpy, WId ident, QWExtra *x, XSizeHints *s )
     XSetNormalHints( dpy, ident, s );
 }
 
-/*! \fn void QWidget::move( const QPoint &p )
+/*!
+  \fn void QWidget::move( const QPoint &p )
+  Moves the widget to position \e p relative to the parent widget.
 
-  Moves the widget to position \e p, which is relative to the widget's
-  arent.  If necessary, the window manager is told about the
-  change.  A \link moveEvent move event \endlink is sent at
-  once. \sa resize(), setGeometry(), moveEvent(). */
+  A \link moveEvent() move event\endlink is generated immediately.
+  \sa resize(), setGeometry(), moveEvent()
+*/
 
-/*! Moves the widget.  \e x and \e y are relative to the widget's
-  parent.  If necessary, the window manager is told about the
-  change. A \link QWidget::moveEvent move event \endlink is sent at
-  once. \sa resize(), setGeometry(), QWidget::moveEvent().*/
+/*!
+  Moves the widget to the position \e (x,y) relative to the parent widget.
+
+  A \link moveEvent() move event\endlink is generated immediately.
+
+  This function is virtual, and all other overloaded move()
+  implementations call it.
+  \sa resize(), setGeometry(), moveEvent()
+*/
 
 void QWidget::move( int x, int y )		// move widget
 {
@@ -806,15 +777,23 @@ void QWidget::move( int x, int y )		// move widget
 }
 
 
-/*! \fn void QWidget::resize(const QSize & p)
+/*!
+ \fn void QWidget::resize(const QSize & p)
+  Resizes the widget to size \e p.
 
-  Resizes the widget to size \e p.  If necessary, the window manager
-  is told about the change.  A resize event is sent at once. \sa
-  move(), setGeometry(), resizeEvent(). */
+  A \link resizeEvent() resize event\endlink is generated at once.
+  \sa move(), setGeometry(), resizeEvent()
+*/
 
-/*! Resizes the widget to size \e w pixels by \e h.  If necessary, the
-  window manager is told about the change.  A resize event is sent at
-  once. \sa move(), setGeometry(), resizeEvent(). */
+/*!
+  Resizes the widget to size \e w by \e h pixels.
+
+  A \link resizeEvent() resize event\endlink is generated at once.
+
+  This function is virtual, and all other overloaded resize()
+  implementations call it.
+  \sa move(), setGeometry(), resizeEvent()
+*/
 
 void QWidget::resize( int w, int h )		// resize widget
 {
@@ -841,22 +820,28 @@ void QWidget::resize( int w, int h )		// resize widget
     QApplication::sendEvent( this, &e );	// send resize event immediatly
 }
 
-/*! \fn void QWidget::setGeometry( const QRect &r )
-
+/*!
+  \fn void QWidget::setGeometry( const QRect &r )
   Changes the widget geometry to \e r, relative to its parent
-  widget.  If necessary, the window manager is informed.  First a
-  resize and then a move event is sent to the widget itself.  \sa
-  move(), resize(). */
+  widget.
 
-/*! Changes the widget geometry to \e w pixels by \e h, positioned at
-  \e x,y in its parent widget.	If necessary, the window manager is
-  informed.  First a resize and then a move event is sent to the widget
-  itself.
+  A \link resizeEvent() resize event\endlink and a
+  \link moveEvent() move event\endlink is generated immediately.
+  \sa move(), resize()
+*/
+
+/*!
+  Changes the widget geometry to \e w by \e h, positioned at
+  \e x,y in its parent widget.
+
+  A \link resizeEvent() resize event\endlink and a
+  \link moveEvent() move event\endlink is generated immediately.
 
   This function is virtual, and all other overloaded setGeometry()
   implementations call it.
 
-  \sa move(), resize(). */
+  \sa move(), resize()
+*/
 
 void QWidget::setGeometry( int x, int y, int w, int h )
 {						// move and resize widget
@@ -886,10 +871,11 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QApplication::sendEvent( this, &e2 );	// send move event
 }
 
-/*! Sets the minimum size of the widget to \e w pixels wide and \e h
-  pixels high.	The user will not be able to resize the widget to a
-  smaller size.	 \sa setMaximumSize(), setSizeIncrement(), size() and
-  geometry(). */
+/*!
+  Sets the minimum size of the widget to \e w by \e h pixels.
+  The user will not be able to resize the window to a smaller size.
+  \sa setMaximumSize(), setSizeIncrement(), frameGeometry(), size()
+*/
 
 void QWidget::setMinimumSize( int w, int h )	// set minimum size
 {
@@ -903,10 +889,11 @@ void QWidget::setMinimumSize( int w, int h )	// set minimum size
     }
 }
 
-/*! Sets the maximum size of the widget to \e w pixels wide and \e h
-  pixels high.	The user will not be able to resize the widget to a
-  larger size.	\sa setMinimumSize(), setSizeIncrement(), size() and
-  geometry(). */
+/*!
+  Sets the maximum size of the widget to \e w by \e h pixels.
+  The user will not be able to resize the window to a larger size.
+  \sa setMinimumSize(), setSizeIncrement(), frameGeometry(), size()
+*/
 
 void QWidget::setMaximumSize( int w, int h )	// set maximum size
 {
@@ -920,10 +907,14 @@ void QWidget::setMaximumSize( int w, int h )	// set maximum size
     }
 }
 
-/*! Sets the size increment of the widget.  When the user resizes the
-  widget, the size will move in steps of \e w horizontally and \e h
-  vertically.  Both default to 1. \sa setMaximumSize() and
-  setSizeIncrement(). */
+/*!
+  Sets the size increment of the widget.  When the user resizes the
+  window, the size will move in steps of \e w pixels horizontally and
+  \e h pixels vertically.
+
+  The default setting is 1 for both \e w and \e h.
+  \sa setMinimumSize(), setMaximumSize(), frameGeometry(), size()
+*/
 
 void QWidget::setSizeIncrement( int w, int h )
 {						// set size increment
@@ -937,32 +928,35 @@ void QWidget::setSizeIncrement( int w, int h )
     }
 }
 
-/*! Clears the widget on-screen.  Child widgets are not disturbed, and
-  repaint events are \e not generated. */
+/*!
+  Erases the widget contents without generating a \link paintEvent()
+  paint event\endlink.
+
+  Child widgets are not affected.
+
+  \sa repaint()
+*/
 
 void QWidget::erase()				// erase widget contents
 {
     XClearArea( dpy, ident, 0, 0, 0, 0, FALSE );
 }
 
-/*! Move the contents of the widget \e dx pixels rightwards and \e dy
-  pixels downwards.  If \e dx/dy is negative, the move is
+/*!
+  Scrolls the contents of the widget \e dx pixels rightwards and \e dy
+  pixels downwards.  If \e dx/dy is negative, the scroll direction is
   leftwards/upwards.  Child widgets are moved accordingly.
 
-  The leftmost/top/rightmost/bottom (you know where) part of the
-  widget is cleared, and repaint events will eventually be generated
-  for it.  It's better, though, to redraw at once, if you wait for
-  repaint() the screen may flicker.
+  The areas of the widget that are exposed will be erased and a
+  \link paintEvent() paint event\endlink will be generated.
 
-  If there are windows on top of your widget, you will get repaint
-  events for areas of your widget that are scrolled.
-
-  \sa setBackgroundColor(), setBackgroundPixmap(). */
+  \sa erase(), bitBlt()
+*/
 
 void QWidget::scroll( int dx, int dy )		// scroll widget contents
 {
-    QSize sz = size();
-    int x1, y1, x2, y2, w=sz.width(), h=sz.height();
+    QSize s = size();
+    int x1, y1, x2, y2, w=s.width(), h=s.height();
     if ( dx > 0 ) {
 	x1 = 0;
 	x2 = dx;
@@ -999,28 +993,35 @@ void QWidget::scroll( int dx, int dy )		// scroll widget contents
     }
     if ( dx ) {
 	x1 = x2 == 0 ? w : 0;
-	XClearArea( dpy, ident, x1, 0, sz.width()-w, sz.height(), TRUE );
+	XClearArea( dpy, ident, x1, 0, s.width()-w, s.height(), TRUE );
     }
     if ( dy ) {
 	y1 = y2 == 0 ? h : 0;
-	XClearArea( dpy, ident, 0, y1, sz.width(), sz.height()-h, TRUE );
+	XClearArea( dpy, ident, 0, y1, s.width(), s.height()-h, TRUE );
     }
 }
 
-/*! \fn void QWidget::drawText( const QPoint &p, const char *s )
 
-  Writes \e s to position \e p.	 The y position is the base line, not
-  the top or bottom of the text.  The text is drawn in the current
-  font and so on.  \sa setFont(), FontMetrics(),
-  QPainter::drawText. */
+/*! \fn void QWidget::drawText( const QPoint &pos, const char *str )
+  Writes \e str at position \e pos. The \e pos.y() position is the base line
+  position of the text.
+  The text is drawn using the current font and the current foreground color.
 
-/*! Writes \e str to position \e x,y.  The y position is the base
-  line, not the top or bottom of the text.  The text is drawn in the
-  current font and so on.  \sa setFont(), FontMetrics(),
-  QPainter::drawText. */
+  We recommend using a \link QPainter painter\endlink instead.
+  \sa setFont(), setPalette(), QPainter::drawText()
+*/
+
+/*!
+  Writes \e str at position \e x,y.  The \e y position is the base
+  line position of the text.
+  The text is drawn using the current font and the current foreground color.
+
+  We recommend using a \link QPainter painter\endlink instead.
+  \sa setFont(), setPalette(), QPainter::drawText()
+*/
 
 void QWidget::drawText( int x, int y, const char *str )
-{						// draw text in widget
+{
     if ( testWFlags( WState_Visible ) ) {
 	QPainter paint;
 	paint.begin( this );
@@ -1030,18 +1031,13 @@ void QWidget::drawText( int x, int y, const char *str )
 }
 
 
-/*! Returns any of several widget metrics.  This may be of use
-  e.g. for selecting monochrome or color appearance in a widget, but
-  application programmers should use QPaintDeviceMetrics instead, or
-  even better, write code that works without depending on these metrics.
+/*!
+  Internal implementation of the virtual QPaintDevice::metric() function.
 
-  The metric commands are defined in qpaintdc.h.  At the time of
-  writing, <code>PDM_WIDTH, PDM_HEIGHT, PDM_WIDTHMM, PDM_HEIGHTMM,
-  PDM_NUMCOLORS</code> and \c PDM_NUMPLANES are supported.  \c
-  PDM_NUMCOLORS returns the number of actual colors, not the number of
-  possible colors, use \e PDM_NUMPLANES if that's what you want. */
+  Use the QPaintDeviceMetrics class instead.
+*/
 
-long QWidget::metric( int m ) const		// get metric information
+long QWidget::metric( int m ) const		// return widget metrics
 {
     long val;
     if ( m == PDM_WIDTH || m == PDM_HEIGHT ) {
@@ -1082,23 +1078,35 @@ long QWidget::metric( int m ) const		// get metric information
 // QView member functions
 //
 
-void QView::setCaption( const char *s )		// set caption text
+/*!
+Sets the window caption (title).
+*/
+
+void QView::setCaption( const char *text )	// set caption text
 {
-    ctext = s;
+    ctext = text;
     XStoreName( dpy, id(), (const char *)ctext );
 }
 
-void QView::setIconText( const char *s )	// set icon text
+/*!
+Sets the text of the window's icon.
+*/
+
+void QView::setIconText( const char *text )	// set icon text
 {
-    itext = s;
+    itext = text;
     XSetIconName( dpy, id(), (const char *)itext );
 }
 
-void QView::setIcon( QPixmap *pm )		// set icon pixmap
+/*!
+Sets the window icon pixmap.
+*/
+
+void QView::setIcon( QPixmap *pixmap )		// set icon pixmap
 {
-    if ( ipm != pm ) {
+    if ( ipm != pixmap ) {
 	delete ipm;
-	ipm = pm;
+	ipm = pixmap;
     }
     XWMHints wm_hints;				// window manager hints
     wm_hints.input = True;

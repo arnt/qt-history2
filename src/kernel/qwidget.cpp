@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#54 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#54 $";
 #endif
 
 /*!
@@ -215,38 +215,56 @@ void QWidget::createExtra()			// create extra data
     }
 }
 
-/*! Returns a pointer to the widget with Window ID \e id.  The Window
-  ID type depends by the underlying window system, see qwindefs.h for
-  the actual definition.  If there is no widget with ID \e id, a null
-  pointer is returned. \sa wmapper(), id(). */
+/*!
+  Returns a pointer to the widget with window identifer/handle \e id.
+
+  The window identifier type depends by the underlying window system,
+  see qwindefs.h for the actual definition.
+  If there is no widget with this identifier, a null pointer is returned.
+  \sa wmapper(), id()
+*/
 
 QWidget *QWidget::find( WId id )		// find widget with id
 {
     return mapper ? mapper->find( id ) : 0;
 }
 
-/*! \fn QWidgetMapper *QWidget::wmapper()
-\internal
-Returns a pointer to the widget mapper.	 The widget mapper is an
-internal dictionary that's used to map between the underlying window
-system's window IDs and Qt's widget pointers.
-\todo isn't this really const? */
+/*!
+  \fn QWidgetMapper *QWidget::wmapper()
+  \internal
+  Returns a pointer to the widget mapper.
 
-/*! \fn WFlags QWidget::getWFlags() const
-\internal
-Returns the widget flags for this this widget.	Widget flags are
-internal, not meant for general use.  \sa testWFlags(), setWFlags(),
-clearWFlags() */
+  The widget mapper is an internal dictionary that is used to map from
+  window identifiers/handles to widget pointers.
+  \sa find(), id()
+*/
+
+
+/*!
+  \fn WFlags QWidget::getWFlags() const
+  \internal
+  Returns the widget flags for this this widget.
+
+  Widget flags are internal, not meant for public use.
+  \sa testWFlags(), setWFlags(), clearWFlags() */
 
 /*! \fn void QWidget::setWFlags( WFlags f )
-\internal
-Sets the widget flags \e f.  Widget flags are internal, not meant
-for general use.  \sa testWFlags(), setWFlags(), clearWFlags() */
+  \internal
+  Sets the widget flags \e f.
 
-/*! \fn void QWidget::clearWFlags( WFlags f )
-\internal
-Clears the widget flags \e f.  Widget flags are internal, not meant
-for general use.  \sa testWFlags(), setWFlags(), clearWFlags() */
+  Widget flags are internal, not meant for public use.
+  \sa testWFlags(), getWFlags(), clearWFlags()
+*/
+
+/*!
+  \fn void QWidget::clearWFlags( WFlags f )
+  \internal
+  Clears the widget flags \e f.
+
+  Widget flags are internal, not meant for public use.
+  \sa testWFlags(), getWFlags(), setWFlags()
+*/
+
 
 /*! \fn void QWidget::destroyed()
 This signal is emitted immediately before the widget is destroyed.
@@ -255,10 +273,22 @@ All the widget's children will be destroyed before the signal is
 emitted.
 */
 
-/*!
-Returns the GUI style of the widget.
 
-\sa setStyle() and QApplication::style(). */
+/*!
+  \fn WId QWidget::id() const
+  Returns the window system identifier of the widget.
+
+  Portable in principle, but if you use it you are probably about to do
+  something non-portable. Be careful.
+  \sa find()
+*/
+
+
+/*!
+  Returns the GUI style for this widget.
+
+  \sa setStyle(), QApplication::style().
+*/
 
 GUIStyle QWidget::style() const			// get widget GUI style
 {
@@ -266,11 +296,11 @@ GUIStyle QWidget::style() const			// get widget GUI style
 }
 
 /*!
-Sets the GUI style of the widget.
+  Sets the GUI style for this widget.
 
-Only \c MotifStyle is allowed in this version of Qt.
+  Only \c MotifStyle is allowed in this version of Qt.
 
-\sa style() and QApplication::setStyle().
+  \sa style(), QApplication::setStyle().
 */
 
 void QWidget::setStyle( GUIStyle style )	// set widget GUI style
@@ -287,8 +317,8 @@ void QWidget::setStyle( GUIStyle style )	// set widget GUI style
 
 
 /*!
-Enables the widget so that it can receive mouse and keyboard events.
-\sa disable() and isDisabled().
+  Enables the widget so that it can receive mouse and keyboard events.
+  \sa disable(), isDisabled()
 */
 
 void QWidget::enable()				// enable events
@@ -297,8 +327,8 @@ void QWidget::enable()				// enable events
 }
 
 /*!
-Disables the widget so that it will not receive mouse and keyboard events.
-\sa enable() and isDisabled().
+  Disables the widget so that it will not receive mouse and keyboard events.
+  \sa enable(), isDisabled()
 */
 
 void QWidget::disable()				// disable events
@@ -307,69 +337,107 @@ void QWidget::disable()				// disable events
 }
 
 /*! \fn bool QWidget::isDisabled() const
-Returns TRUE if the widget is disabled, or FALSE if it is enabled.
-\sa enable() and disable(). */
-
-/*! \fn QRect QWidget::frameGeometry() const
-Returns the geometry of the widget, relative to its parent and
-including any frame the window manager decides to decorate the
-window with.
-\sa geometry(). */
-
-/*! \fn QRect QWidget::geometry() const
-Returns the geometry of the widget, relative to its parent widget
-and excluding frames and other decorations.
-\sa frameGeometry(), QRect, size(), x(), y(), pos(), and rect(). */
-
-/*! \fn int QWidget::x() const
-Returns the x coordinate of the widget, relative to its parent
-widget and including the frame.
-\sa frameGeometry(), y(), pos() */
-
-/*! \fn int QWidget::y() const
-Returns the y coordinate of the widget, relative to its parent
-widget and including the frame.
-\sa frameGeometry(), x(), pos() */
-
-/*! \fn QPoint QWidget::pos() const
-Returns the postion of the widget in its parent widget, including
-the frame.
-\sa frameGeometry(), x(), y() */
-
-/*! \fn QSize QWidget::size() const
-Returns the size of the widget, excluding the window frame.
-\sa geometry(), width(), height() */
-
-/*! \fn int QWidget::width() const
-Returns the width of the widget, excluding the window frame.
-\sa geometry(), height(), size() */
-
-/*! \fn int QWidget::height() const
-Returns the height of the widget, excluding the window frame.
-\sa geometry(), width(), size() */
-
-/*! \fn QRect QWidget::rect() const
-Returns the the internal geometry of the widget, excluding the window frame.
-rect() equals QRect(0,0,width(),height()).
-\sa size(). */
-
-/*! \fn WId QWidget::id() const
-Returns the window system identifier of the widget.
-Portable in principle, but if you use it you are probably about to do something
-non-portable. Be careful.
-\sa find(). */
+  Returns TRUE if the widget is disabled, or FALSE if it is enabled.
+  \sa enable(), disable()
+*/
 
 
 /*!
-Returns the current color group of the widget palette.
+  \fn const QRect &QWidget::frameGeometry() const
+  Returns the geometry of the widget, relative to its parent and
+  including the window frame.
+  \sa geometry(), x(), y(), pos()
+*/
 
-The color group is determined by the state of the widget.
+/*!
+  \fn const QRect &QWidget::geometry() const
+  Returns the geometry of the widget, relative to its parent widget
+  and excluding the window frame.
+  \sa frameGeometry(), size(), rect()
+*/
 
-A disabled widget returns the QPalette::disabled() color group.<br>
-A widget in focus returns the QPalette::active() color group.<br>
-A normale widget returns the QPalette::normal() color group.<br>
+/*!
+  \fn int QWidget::x() const
+  Returns the x coordinate of the widget, relative to its parent
+  widget and including the window frame.
+  \sa frameGeometry(), y(), pos()
+*/
 
-\sa palette() and setPalette().
+/*!
+  \fn int QWidget::y() const
+  Returns the y coordinate of the widget, relative to its parent
+  widget and including the window frame.
+  \sa frameGeometry(), x(), pos()
+*/
+
+/*!
+  \fn QPoint QWidget::pos() const
+  Returns the postion of the widget in its parent widget, including
+  the window frame.
+  \sa frameGeometry(), x(), y()
+*/
+
+/*!
+  \fn QSize QWidget::size() const
+  Returns the size of the widget, excluding the window frame.
+  \sa geometry(), width(), height()
+*/
+
+/*!
+  \fn int QWidget::width() const
+  Returns the width of the widget, excluding the window frame.
+  \sa geometry(), height(), size()
+*/
+
+/*!
+  \fn int QWidget::height() const
+  Returns the height of the widget, excluding the window frame.
+  \sa geometry(), width(), size()
+*/
+
+/*!
+  \fn QRect QWidget::rect() const
+  Returns the the internal geometry of the widget, excluding the window frame.
+  rect() equals QRect(0,0,width(),height()).
+  \sa size()
+*/
+
+
+/*!
+  Returns the background color of this widget.
+
+  The background color is independent of the color group.
+  The background color will be overwritten when setting a new palette.
+  \sa setBackgroundColor(), foregroundColor(), colorGroup()
+*/
+
+const QColor &QWidget::backgroundColor() const
+{
+    return bg_col;
+}
+
+/*!
+  Returns the foreground color of this widget.
+
+  The foreground color equals <code>colorGroup().foreground()</code>.
+  \sa backgroundColor(), colorGroup()
+*/
+
+const QColor &QWidget::foregroundColor() const
+{
+    return colorGroup().foreground();
+}
+
+/*!
+  Returns the current color group of the widget palette.
+
+  The color group is determined by the state of the widget.
+
+  A disabled widget returns the QPalette::disabled() color group.<br>
+  A widget in focus returns the QPalette::active() color group.<br>
+  A normale widget returns the QPalette::normal() color group.<br>
+
+  \sa palette(), setPalette()
 */
 
 const QColorGroup &QWidget::colorGroup() const	// get current colors
@@ -383,9 +451,8 @@ const QColorGroup &QWidget::colorGroup() const	// get current colors
 }
 
 /*!
-Returns the widget palette.
-
-\sa setPalette() and colorGroup().
+  Returns the widget palette.
+  \sa setPalette(), colorGroup().
 */
 
 const QPalette &QWidget::palette() const	// get widget palette
@@ -394,9 +461,9 @@ const QPalette &QWidget::palette() const	// get widget palette
 }
 
 /*!
-Sets the widget palette to \e p. The widget background color is set to
-<code>colorGroup().background()</code>.
-\sa palette() and colorGroup().
+  Sets the widget palette to \e p. The widget background color is set to
+  <code>colorGroup().background()</code>.
+  \sa palette(), colorGroup().
 */
 
 void QWidget::setPalette( const QPalette &p )	// set widget palette
@@ -406,16 +473,73 @@ void QWidget::setPalette( const QPalette &p )	// set widget palette
     update();
 }
 
-/*! \fn QFontMetrics QWidget::fontMetrics() const
-Returns the font metrics of the font currently in use by this widget.
-\sa fontInfo(), font() and setFont().
+
+/*!
+  Returns the font metrics of the font currently in use by this widget.
+  \sa fontInfo(), font(), setFont()
 */
 
+QFontMetrics QWidget::fontMetrics() const
+{
+    return QFontMetrics(fnt);
+}
 
-/*! \fn QFontInfo QWidget::fontInfo() const
+/*!
 Returns the font information of the font currently in use by this widget.
-\sa fontMetrics(), font() and setFont().
+\sa fontMetrics(), font(), setFont()
 */
+
+QFontInfo QWidget::fontInfo() const
+{
+    return QFontInfo(fnt);
+}
+
+
+/*!
+Returns the font currently set for the widget.
+
+QFontInfo will tell you what font is actually being used.
+
+\sa setFont(), fontInfo(), fontMetrics()
+*/
+
+const QFont &QWidget::font()
+{
+    return fnt;
+}
+
+/*!
+Sets the font for the widget.
+
+The fontInfo() function reports the actual font that is being used by the
+widget.
+
+This code fragment switches to a bold version of whatever font is being used:
+\code
+  QFont f = font();
+  f.setWeight( QFont::Bold );
+  setFont( f );
+\endcode
+
+\sa font(), fontInfo(), fontMetrics()
+*/
+
+void QWidget::setFont( const QFont &font )
+{
+    fnt = font;
+    update();
+}
+
+
+/*!
+Returns the widget cursor shape.
+\sa setCursor()
+*/
+
+const QCursor &QWidget::cursor() const
+{
+    return curs;
+}
 
 
 /*! \fn bool QWidget::setMouseTracking( bool enable )
