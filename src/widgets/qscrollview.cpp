@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#57 $
 **
 ** Implementation of QScrollView class
 **
@@ -1212,8 +1212,8 @@ bool QScrollView::focusNextPrevChild( bool next )
     r = d->ancestorRec( candidate );
     if ( r && ( r->child == candidate ||
 		candidate->isVisibleTo( r->child ) ) ) {
-	QPoint cp = candidate->mapToGlobal(QPoint(0,0));
-	QPoint cr = r->child->mapToGlobal(QPoint(0,0)) - cp;
+	QPoint cp = r->child->mapToGlobal(QPoint(0,0));
+	QPoint cr = candidate->mapToGlobal(QPoint(0,0)) - cp;
 	ensureVisible( r->x+cr.x()+candidate->width()/2,
 		       r->y+cr.y()+candidate->height()/2,
 		       candidate->width()/2,
