@@ -1297,11 +1297,10 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 				    w, h, dd );
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
-    if ( data->optim == BestOptim ||
-	 ( data->optim == NormalOptim && w*h <= 48*48 ) ) {
-	data->ximage = xi;			// keep ximage that we created
-    } else {		
-	qSafeXDestroyImage( xi );		// throw away image
+    if ( data->optim != BestOptim ) {		// throw away image
+	qSafeXDestroyImage( xi );
+    } else {					// keep ximage that we created
+	data->ximage = xi;
     }
     data->w = w;
     data->h = h;
