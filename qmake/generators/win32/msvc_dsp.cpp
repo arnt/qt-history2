@@ -176,6 +176,37 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t << "# Begin Source File\n\nSOURCE=.\\" << base << "\n# End Source File" << endl;
 		}
 	    }
+	    else if (variable == "MSVCDSP_MOCSOURCES" && project->isActiveConfig("moc")) {
+		if ( project->variables()["SRCMOC"].isEmpty())
+		    continue;
+
+		QStringList &list = project->variables()["SRCMOC"];
+		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+		    t << "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
+		    if ( project->isActiveConfig("moc") &&
+			 (*it).right(qstrlen(Option::moc_ext)) == Option::moc_ext) {
+			QString base = (*it);
+			base.replace(QRegExp("\\..*$"), "").upper();
+			base.replace(QRegExp("[^a-zA-Z]"), "_");
+
+			QString mocpath = var( "QMAKE_MOC" );
+			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
+
+			QString build = "\n\n# Begin Custom Build - Moc'ing " + findMocSource((*it)) +
+					"...\n" "InputPath=.\\" + (*it) + "\n\n" "\"" + (*it) + "\""
+					" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
+					"\t" + mocpath + findMocSource((*it)) + " -o " +
+					(*it) + "\n\n" "# End Custom Build\n\n";
+
+			t << "USERDEP_" << base << "=\"" << findMocSource((*it)) << "\"" << endl << endl;
+
+			t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
+			  << "!ELSEIF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Debug\""
+			  << build << "!ENDIF " << endl << endl;
+		    }
+		    t << "# End Source File" << endl;
+		}
+	    }
 	    else if(variable == "MSVCDSP_FORMS") {
 		if(project->variables()["FORMS"].isEmpty())
 		    continue;
@@ -552,9 +583,6 @@ DspMakefileGenerator::init()
 	    "PostBuild_Desc=Copy DLL to " + project->first("DLLDESTDIR") + "\n"
 	    "PostBuild_Cmds=copy \"" + dest + "\" \"" + project->first("DLLDESTDIR") + "\"\n"
 	    "# End Special Build Tool");
-    }
-    if ( project->isActiveConfig("moc") ) {
-	project->variables()["SOURCES"] += project->variables()["SRCMOC"];
     }
     if ( !project->variables()["SOURCES"].isEmpty() || !project->variables()["RC_FILE"].isEmpty() ) {
 	project->variables()["SOURCES"] += project->variables()["RC_FILE"];

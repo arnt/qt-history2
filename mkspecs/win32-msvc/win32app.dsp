@@ -90,13 +90,11 @@ LINK32=link.exe
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 $$MSVCDSP_SOURCES
 $$MSVCDSP_IMAGES
-$$MSVCDSP_FORMSOURCES
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 $$MSVCDSP_HEADERS
-$$MSVCDSP_FORMHEADERS
 # End Group
 # Begin Group "Resource Files"
 
@@ -113,6 +111,12 @@ $$MSVCDSP_LEXSOURCES
 # Begin Group "Yaccables"
 $$MSVCDSP_YACCSOURCES
 # Prop Default_Filter "y"
+# End Group
+# Begin Group "Generated"
+$$MSVCDSP_MOCSOURCES
+$$MSVCDSP_FORMSOURCES
+$$MSVCDSP_FORMHEADERS
+# Prop Default_Filter "moc"
 # End Group
 # End Target
 # End Project

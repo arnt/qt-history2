@@ -40,6 +40,7 @@ RSC=rc.exe
 # PROP Use_Debug_Libraries 0
 # PROP Output_Dir "Release"
 # PROP Intermediate_Dir "Release"
+# PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /FD /c
 # ADD CPP /nologo $$MSVCDSP_MTDEF $$MSVCDSP_STL /W3 /O1 $$MSVCDSP_INCPATH /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES $$MSVCDSP_RELDEFS /FD /c
@@ -66,6 +67,7 @@ $$MSVCDSP_COPY_DLL
 # PROP Use_Debug_Libraries 1
 # PROP Output_Dir "Debug"
 # PROP Intermediate_Dir "Debug"
+# PROP Ignore_Export_Lib 1
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" /FD /c
 # ADD CPP /nologo $$MSVCDSP_MTDEFD $$MSVCDSP_STL /W3 /Gm $$MSVCDSP_DEBUG_OPT /Od $$MSVCDSP_INCPATH /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /D "_MBCS" /D "_USRDLL" $$MSVCDSP_DEFINES /FD /c
@@ -91,13 +93,12 @@ $$MSVCDSP_COPY_DLL
 
 # PROP Default_Filter "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat"
 $$MSVCDSP_SOURCES
-$$MSVCDSP_FORMSOURCES
+$$MSVCDSP_IMAGES
 # End Group
 # Begin Group "Header Files"
 
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 $$MSVCDSP_HEADERS
-$$MSVCDSP_FORMHEADERS
 # End Group
 # Begin Group "Resource Files"
 
@@ -105,7 +106,6 @@ $$MSVCDSP_FORMHEADERS
 # End Group
 # Begin Group "Forms"
 $$MSVCDSP_FORMS
-
 # Prop Default_Filter "ui"
 # End Group
 # Begin Group "Lexables"
@@ -115,6 +115,12 @@ $$MSVCDSP_LEXSOURCES
 # Begin Group "Yaccables"
 $$MSVCDSP_YACCSOURCES
 # Prop Default_Filter "y"
+# End Group
+# Begin Group "Generated"
+$$MSVCDSP_MOCSOURCES
+$$MSVCDSP_FORMSOURCES
+$$MSVCDSP_FORMHEADERS
+# Prop Default_Filter "moc"
 # End Group
 # End Target
 # End Project
