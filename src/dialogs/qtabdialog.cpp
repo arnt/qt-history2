@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#5 $
 **
 ** Implementation of tab dialog
 **
@@ -11,7 +11,7 @@
 #include "qpushbt.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#5 $");
 
 
 // a small private class to show the tabs on top
@@ -40,6 +40,7 @@ QTab::QTab( QWidget * child, const char * tabString,
     w = child;
     name = qstrdup( tabString );
     daddy = parent;
+    setFont( QFont("helvetica" ) );
 }
 
 
@@ -70,6 +71,9 @@ void QTab::paintEvent( QPaintEvent * )
 		     width() - 2, height() - 2);
 	p.setPen( white );
 	p.drawLine( width()-3, height() - 1, width(), height() - 1 );
+	QFont bold( font() );
+	bold.setBold( TRUE );
+	p.setFont( bold );
     } else {
 	p.drawLine( 1, height() - 2, 1, 4 );
 	p.drawPoint( 2, 3 );
@@ -142,6 +146,30 @@ QTabDialog::~QTabDialog()
     delete ok;
     delete db;
     delete cb;
+}
+
+
+/*! Sets the font for the tabs to \e font.
+
+  The weight is forced to QFont::Bold for the active tab and
+  QFont::Light for the others.  (QTabDialog::font() returns the
+  latter.)
+
+  If the widget is visible, the display is updated with the new font
+  immediately.  There may be some geometry changes, depending on the
+  size of the old and few fonts. */
+
+void QTabDialog::setFont( const QFont & font )
+{
+    QFont f( font );
+    f.setWeight( QFont::Light );
+    QDialog::setFont( f );
+    for ( QTab * t = tabs; t; t=t->next )
+	t->setFont( f );
+    if ( isVisible() ) {
+	setSizes();
+	showTab();
+    }
 }
 
 

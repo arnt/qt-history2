@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#5 $
 **
 ** Definition of tab dialog
 **
@@ -23,6 +23,7 @@ public:
     ~QTabDialog();
 
     void show();
+    void setFont( const QFont & font );
 
     void addTab( QWidget *, const char * );
 
@@ -33,6 +34,7 @@ public:
     bool hasCancelButton() { return cb != 0; }
 
     bool eventFilter( QObject *, QEvent * );
+
 
 protected:
     void paintEvent( QPaintEvent * );
