@@ -79,10 +79,10 @@ void qt_mac_set_port(const QPainter *p)
     NormalizeThemeDrawingState();
 }
 
-static inline QPoint domap(const QPainter *p, int x, int y)
+static inline QPoint domap(const QPainter *p, QPoint pt)
 {
-    p->map(x, y, &x, &y);
-    return QPoint(x, y);
+    pt = pt * p->matrix();
+    return pt;
 }
 
 // Utility to generate correct rectangles for AppManager internals
@@ -116,7 +116,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPainter *p,
                                           bool off=true, const QRect &rect=QRect())
 {
     QPoint pt = qr.topLeft();
-    QRect r(domap(p, pt.x(), pt.y()), qr.size());
+    QRect r(domap(p, pt), qr.size());
     return qt_glb_mac_rect(r, p->device(), off, rect);
 }
 
@@ -444,7 +444,9 @@ static inline HIRect qt_hirectForQRect(const QRect &convertRect, QPainter *p = 0
 //            offset = 2;
     }
     if (p) {
-        p->map(convertRect.x(), convertRect.y(), &x, &y);
+        QPoint pt = domap(p, convertRect.topLeft());
+        x = pt.x();
+        y = pt.y();
     } else {
         x = convertRect.x();
         y = convertRect.y();
