@@ -25,8 +25,10 @@ static QGLFormat* qgl_default_overlay_format = 0;
 #if defined(Q_WS_X11)
 #include "private/qt_x11_p.h"
 #define INT32 dummy_INT32
+#define INT8 dummy_INT8
 #include <GL/glx.h>
 #undef INT32
+#undef INT8
 #include "qx11info_x11.h"
 static void *gl_pixmap_visual = 0;
 #endif
