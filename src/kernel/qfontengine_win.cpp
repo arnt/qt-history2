@@ -591,8 +591,6 @@ static const ushort char_table[] = {
 	884,
 	922,
 	1070,
-	3636,
-	3660,
 	12386,
 	0
 };

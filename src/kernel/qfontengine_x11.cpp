@@ -1876,10 +1876,7 @@ static const ushort char_table[] = {
 	884,
 	922,
 	1070,
-	3636,
-	3660,
-	12386,
-	0
+	12386
 };
 
 static const int char_table_entries = sizeof(char_table)/sizeof(ushort);
