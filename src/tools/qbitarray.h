@@ -47,7 +47,7 @@ public:
     inline bool operator==(const QBitArray& a) const { return d == a.d; }
     inline bool operator!=(const QBitArray& a) const { return d != a.d; }
 
-    inline bool isNull() { return d.isNull(); }
+    inline bool isNull() const { return d.isNull(); }
 
     inline bool fill(bool val, int size = -1)
 	{ *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
