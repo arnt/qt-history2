@@ -887,7 +887,11 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
     if ( !dl ) {
 	moveToolBar( toolBar, edge, 0, TRUE );
     } else {
-	QMainWindowPrivate::ToolBar *tb = dl->at( index );
+	QMainWindowPrivate::ToolBar *tb = 0;
+	if ( index >= (int)dl->count() )
+	    tb = 0;
+	else
+	    tb = dl->at( index );
 	if ( !tb )
 	    moveToolBar( toolBar, edge, 0, TRUE );
 	else
@@ -895,7 +899,8 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, int index )
     }
 }
 
-/*!  Removes \a toolBar from this main window, if \a toolBar is
+/*! 
+  Removes \a toolBar from this main window, if \a toolBar is
   non-null and known by this main window.
 */
 
@@ -1742,3 +1747,42 @@ bool QMainWindow::findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, in
 
     return TRUE;
 }
+
+/*!
+  Returns a list of all toolbars which are placed in \a dock.
+*/
+
+QList<QToolBar> QMainWindow::toolBarsOnDock( ToolBarDock dock ) const
+{
+    QList<QToolBar> lst;
+    QMainWindowPrivate::ToolBarDock *tdock = 0;
+    switch ( dock ) {
+    case QMainWindow::Left:
+	tdock = d->left;
+	break;
+    case QMainWindow::Right:
+	tdock = d->right;
+	break;
+    case QMainWindow::Top:
+	tdock = d->top;
+	break;
+    case QMainWindow::Bottom:
+	tdock = d->bottom;
+	break;
+    case QMainWindow::Unmanaged:
+	tdock = d->unmanaged;
+	break;
+    case QMainWindow::TornOff:
+	tdock = d->tornOff;
+	break;
+    }
+    
+    if ( tdock ) {
+	QMainWindowPrivate::ToolBar *t = tdock->first();
+	for ( ; t; t = tdock->next() )
+	    lst.append( t->t );
+    }
+    
+    return lst;
+}
+

@@ -78,6 +78,8 @@ public:
     bool eventFilter( QObject*, QEvent* );
 
     bool findDockAndIndexOfToolbar( QToolBar *tb, ToolBarDock &dock, int &index ) const;
+
+    QList<QToolBar> toolBarsOnDock( ToolBarDock dock ) const;
     
 public slots:
     virtual void setRightJustification( bool );

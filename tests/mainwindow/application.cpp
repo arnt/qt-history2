@@ -53,7 +53,8 @@ const char * filePrintText = "Click this button to print the file you "
 ApplicationWindow::ApplicationWindow()
     : QMainWindow( 0, "example application main window", WDestructiveClose )
 {
-
+    // Toolbars
+    
     QFile f( ".tbconfig" );
     bool tbconfig = f.open( IO_ReadOnly );
     QMap< QString, int > docks;
@@ -63,119 +64,30 @@ ApplicationWindow::ApplicationWindow()
 	s >> docks;
 	s >> indices;
     }
+
+    QString toolBars[] = { 
+	"file operations",
+	"file2 operations",
+	"file3 operations",
+	"file4 operations"
+    };			     
     
-    // Tool bar 1:
-
-    QPixmap openIcon, saveIcon, printIcon;
-
-    QToolBar* fileTools = new QToolBar( this, "file operations" );
-
-    openIcon = QPixmap( fileopen );
-    QToolButton * fileOpen
-	= new QToolButton( openIcon, "Open File", QString::null,
-			   this, SLOT(load()), fileTools, "open file" );
-
-    saveIcon = QPixmap( filesave );
-    QToolButton * fileSave
-	= new QToolButton( saveIcon, "Save File", QString::null,
-			   this, SLOT(save()), fileTools, "save file" );
-
-    printIcon = QPixmap( fileprint );
-    QToolButton * filePrint
-	= new QToolButton( printIcon, "Print File", QString::null,
-			   this, SLOT(print()), fileTools, "print file" );
-
-    (void)QWhatsThis::whatsThisButton( fileTools );
-
-    QWhatsThis::add( fileOpen, fileOpenText );
-    QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
-    QWhatsThis::add( fileSave, fileSaveText );
-    QWhatsThis::add( filePrint, filePrintText );
-
-    if ( docks.contains( fileTools->name() ) &&
-	 indices.contains( fileTools->name() ) ) 
-	moveToolBar( fileTools, (ToolBarDock)docks[ fileTools->name() ],
-		     indices[ fileTools->name() ] );
-        
-    // Tool bar 2:
-
-    QPixmap openIcon2, saveIcon2, printIcon2;
-
-    QToolBar* fileTools2 = new QToolBar( this, "file2 operations" );
-
-    openIcon2 = QPixmap( fileopen2 );
-    (void)new QToolButton( openIcon2, "Open File2", QString::null,
-			   this, SLOT(load2()), fileTools2, "open file2" );
-
-    saveIcon2 = QPixmap( filesave2 );
-    (void)new QToolButton( saveIcon2, "Save File2", QString::null,
-			   this, SLOT(save2()), fileTools2, "save file2" );
-
-    printIcon2 = QPixmap( fileprint2 );
-    (void)new QToolButton( printIcon2, "Print File", QString::null,
-			   this, SLOT(print2()), fileTools2, "print file2" );
-
-    addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
-
-    if ( docks.contains( fileTools2->name() ) &&
-	 indices.contains( fileTools2->name() ) ) 
-	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
-		     indices[ fileTools2->name() ] );
-
-    // Tool bar 3:
-
-    fileTools2 = new QToolBar( this, "file3 operations" );
-
-    openIcon2 = QPixmap( fileopen2 );
-    (void)new QToolButton( openIcon2, "Open File2", QString::null,
-			   this, SLOT(load2()), fileTools2, "open file2" );
-
-    saveIcon2 = QPixmap( filesave2 );
-    (void)new QToolButton( saveIcon2, "Save File2", QString::null,
-			   this, SLOT(save2()), fileTools2, "save file2" );
-
-    printIcon2 = QPixmap( fileprint2 );
-    (void)new QToolButton( printIcon2, "Print File", QString::null,
-			   this, SLOT(print2()), fileTools2, "print file2" );
-    (void)new QToolButton( printIcon2, "Print File", QString::null,
-			   this, SLOT(print2()), fileTools2, "print file2" );
-    (void)new QToolButton( printIcon2, "Print File", QString::null,
-			   this, SLOT(print2()), fileTools2, "print file2" );
-
-    addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
-
-    if ( docks.contains( fileTools2->name() ) &&
-	 indices.contains( fileTools2->name() ) ) 
-	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
-		     indices[ fileTools2->name() ] );
-
-    // Tool bar 4:
-
-    fileTools2 = new QToolBar( this, "file4 operations" );
-
-    openIcon2 = QPixmap( fileopen2 );
-    (void)new QToolButton( openIcon, "Open File2", QString::null,
-			   this, SLOT(load2()), fileTools2, "open file2" );
-
-    saveIcon2 = QPixmap( filesave );
-    (void)new QToolButton( saveIcon, "Save File2", QString::null,
-			   this, SLOT(save2()), fileTools2, "save file2" );
-    (void)new QToolButton( saveIcon, "Save File2", QString::null,
-			   this, SLOT(save2()), fileTools2, "save file2" );
-
-    printIcon2 = QPixmap( fileprint );
-    (void)new QToolButton( printIcon2, "Print File", QString::null,
-			   this, SLOT(print2()), fileTools2, "print file2" );
-
-    addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
-
-    if ( docks.contains( fileTools2->name() ) &&
-	 indices.contains( fileTools2->name() ) ) 
-	moveToolBar( fileTools2, (ToolBarDock)docks[ fileTools2->name() ],
-		     indices[ fileTools2->name() ] );
-
+    if ( tbconfig ) {
+	QMap< QString, int >::Iterator dit, iit;
+	dit = docks.begin();
+	iit = indices.begin();
+	for ( ; dit != docks.end(); ++dit, ++iit ) {
+	    QToolBar *tb = createToolbar( dit.key().mid( 1, 0xFFFFFF ) );
+	    moveToolBar( tb, (ToolBarDock)*dit, *iit );
+	}
+    } else {
+	for ( unsigned int i = 0; i < 4; ++i )
+	    createToolbar( toolBars[ i ] );
+    }
+    
     // Menus:
 
+    QPixmap openIcon, saveIcon, printIcon;
     QPopupMenu * file = new QPopupMenu( this );
     menuBar()->insertItem( "&File", file );
 
@@ -221,8 +133,6 @@ ApplicationWindow::ApplicationWindow()
     help->insertSeparator();
     help->insertItem( "What's &This", this, SLOT(whatsThis()), SHIFT+Key_F1);
 
-
-
     // Central widget:
 
     e = new QMultiLineEdit( this, "editor" );
@@ -236,28 +146,125 @@ ApplicationWindow::ApplicationWindow()
     resize( 450, 600 );
 }
 
+QToolBar* ApplicationWindow::createToolbar( const QString &name )
+{
+    QPixmap openIcon, saveIcon, printIcon;
+    QPixmap openIcon2, saveIcon2, printIcon2;
+
+    if ( name == "file operations" ) {
+	QToolBar* fileTools = new QToolBar( this, "file operations" );
+
+	openIcon = QPixmap( fileopen );
+	QToolButton * fileOpen
+	    = new QToolButton( openIcon, "Open File", QString::null,
+			       this, SLOT(load()), fileTools, "open file" );
+
+	saveIcon = QPixmap( filesave );
+	QToolButton * fileSave
+	    = new QToolButton( saveIcon, "Save File", QString::null,
+			       this, SLOT(save()), fileTools, "save file" );
+
+	printIcon = QPixmap( fileprint );
+	QToolButton * filePrint
+	    = new QToolButton( printIcon, "Print File", QString::null,
+			       this, SLOT(print()), fileTools, "print file" );
+
+	(void)QWhatsThis::whatsThisButton( fileTools );
+
+	QWhatsThis::add( fileOpen, fileOpenText );
+	QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon );
+	QWhatsThis::add( fileSave, fileSaveText );
+	QWhatsThis::add( filePrint, filePrintText );
+	return fileTools;
+    } else if ( name == "file2 operations" ) {
+	QToolBar* fileTools2 = new QToolBar( this, "file2 operations" );
+
+	openIcon2 = QPixmap( fileopen2 );
+	(void)new QToolButton( openIcon2, "Open File2", QString::null,
+			       this, SLOT(load2()), fileTools2, "open file2" );
+
+	saveIcon2 = QPixmap( filesave2 );
+	(void)new QToolButton( saveIcon2, "Save File2", QString::null,
+			       this, SLOT(save2()), fileTools2, "save file2" );
+
+	printIcon2 = QPixmap( fileprint2 );
+	(void)new QToolButton( printIcon2, "Print File", QString::null,
+			       this, SLOT(print2()), fileTools2, "print file2" );
+
+	addToolBar( fileTools2, "FILETOOLS2", Top, FALSE );
+	return fileTools2;
+    } else if ( name == "file3 operations" ) {
+	QToolBar *fileTools3 = new QToolBar( this, "file3 operations" );
+
+	openIcon2 = QPixmap( fileopen2 );
+	(void)new QToolButton( openIcon2, "Open File2", QString::null,
+			       this, SLOT(load2()), fileTools3, "open file2" );
+
+	saveIcon2 = QPixmap( filesave2 );
+	(void)new QToolButton( saveIcon2, "Save File2", QString::null,
+			       this, SLOT(save2()), fileTools3, "save file2" );
+
+	printIcon2 = QPixmap( fileprint2 );
+	(void)new QToolButton( printIcon2, "Print File", QString::null,
+			       this, SLOT(print2()), fileTools3, "print file2" );
+	(void)new QToolButton( printIcon2, "Print File", QString::null,
+			       this, SLOT(print2()), fileTools3, "print file2" );
+	(void)new QToolButton( printIcon2, "Print File", QString::null,
+			       this, SLOT(print2()), fileTools3, "print file2" );
+
+	addToolBar( fileTools3, "FILETOOLS2", Top, FALSE );
+	return fileTools3;
+    } else if ( name == "file4 operations" ) {
+	QToolBar* fileTools4 = new QToolBar( this, "file4 operations" );
+
+	openIcon = QPixmap( fileopen );
+	(void)new QToolButton( openIcon, "Open File2", QString::null,
+			       this, SLOT(load2()), fileTools4, "open file2" );
+
+	saveIcon = QPixmap( filesave );
+	(void)new QToolButton( saveIcon, "Save File2", QString::null,
+			       this, SLOT(save2()), fileTools4, "save file2" );
+	(void)new QToolButton( saveIcon, "Save File2", QString::null,
+			       this, SLOT(save2()), fileTools4, "save file2" );
+
+	printIcon2 = QPixmap( fileprint );
+	(void)new QToolButton( printIcon2, "Print File", QString::null,
+			       this, SLOT(print2()), fileTools4, "print file2" );
+
+	addToolBar( fileTools4, "FILETOOLS2", Top, FALSE );
+	return fileTools4;
+    }
+    
+    return 0;
+}
+
 
 ApplicationWindow::~ApplicationWindow()
 {
-    QObjectList *l = queryList( "QToolBar" );
-    if ( l && l->first() ) {
-	QToolBar *tb = 0;
-	QMap< QString, int > docks;
-	QMap< QString, int > indices;
-	QMainWindow::ToolBarDock dock;
-	int index;
-	for ( tb = (QToolBar*)l->first(); tb; tb = (QToolBar*)l->next() ) {
+    QList<QToolBar> lst;
+    ToolBarDock da[] = { Left, Right, Top, Bottom };
+    QMap< QString, int > docks;
+    QMap< QString, int > indices;
+    int j = 0;
+    for ( unsigned int i = 0; i < 4; ++i ) {
+	lst = toolBarsOnDock( da[ i ] );
+	QToolBar *tb = lst.first();
+	while ( tb ) {
+	    ToolBarDock dock;
+	    int index;
 	    if ( findDockAndIndexOfToolbar( tb, dock, index ) ) {
-		docks[ tb->name() ] = dock;
-		indices[ tb->name() ] = index;
+		docks[ QString::number( j ) + tb->name() ] = dock;
+		indices[ QString::number( j ) + tb->name() ] = index;
+		++j;
 	    }
+	    tb = lst.next();
 	}
-	QFile file( ".tbconfig" );
-	file.open( IO_WriteOnly );
-	QDataStream s( &file );
-	s << docks;
-	s << indices;
     }
+    QFile file( ".tbconfig" );
+    file.open( IO_WriteOnly );
+    QDataStream s( &file );
+    s << docks;
+    s << indices;
 }
 
 

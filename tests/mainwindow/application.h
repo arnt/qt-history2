@@ -23,7 +23,7 @@ class ApplicationWindow: public QMainWindow
 public:
     ApplicationWindow();
     ~ApplicationWindow();
-    
+
 
 private slots:
     void newDoc();
@@ -45,6 +45,8 @@ private slots:
     void aboutQt();
 
 private:
+    QToolBar *createToolbar( const QString &name );
+    
     QMultiLineEdit *e;
     QString filename;
 
