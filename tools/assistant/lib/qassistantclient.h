@@ -37,6 +37,8 @@ public:
 
     bool isOpen() const;
 
+    void setArguments( const QStringList &args );
+
 public slots:
     virtual void openAssistant();
     virtual void closeAssistant();

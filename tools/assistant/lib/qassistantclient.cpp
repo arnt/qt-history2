@@ -25,6 +25,26 @@
 #include <qprocess.h>
 #include <qtimer.h>
 
+class QAssistantClientPrivate
+{
+    friend class QAssistantClient;
+    QStringList arguments;
+};
+
+static QMap<const QAssistantClient*,QAssistantClientPrivate*> *dpointers = 0;
+
+static QAssistantClientPrivate *data( const QAssistantClient *client, bool create=FALSE )
+{
+    if( !dpointers )
+	dpointers = new QMap<const QAssistantClient*,QAssistantClientPrivate*>;
+    QAssistantClientPrivate *d = (*dpointers)[client];
+    if( !d && create ) {
+	d = new QAssistantClientPrivate;
+	dpointers->insert( client, d );
+    }
+    return d;
+}
+
 /*!
     \class QAssistantClient qassistantclient.h
     \brief The QAssistantClient class provides a means of using Qt
@@ -125,6 +145,18 @@ QAssistantClient::~QAssistantClient()
 	proc->tryTerminate();
 	proc->kill();
     }
+
+    if( dpointers ) {
+	QAssistantClientPrivate *d = (*dpointers)[ this ];
+	if( d ) {
+	    dpointers->remove( this );
+	    delete d;
+	    if( dpointers->isEmpty() ) {
+		delete dpointers;
+		dpointers = 0;
+	    }
+	}
+    }
 }
 
 /*!
@@ -142,6 +174,16 @@ void QAssistantClient::openAssistant()
     proc = new QProcess( this );
     proc->addArgument( assistantCommand );
     proc->addArgument( "-server" );
+
+    QAssistantClientPrivate *d = data( this );
+    if( d ) {
+	QStringList::ConstIterator it = d->arguments.begin();
+	while( it!=d->arguments.end() ) {
+	    proc->addArgument( *it );
+	    ++it;
+	}
+    }
+
     if ( !proc->launch( QString::null ) ) {
 	delete proc;
 	proc = 0;
@@ -155,6 +197,7 @@ void QAssistantClient::openAssistant()
 void QAssistantClient::readPort()
 {
     QString p = proc->readLineStdout();
+    qDebug( "read from assistant: " + p );
     Q_UINT16 port = p.toUShort();
     if ( port == 0 ) {
 	emit error( tr( "Cannot connect to Qt Assistant." ) );
@@ -222,4 +265,14 @@ void QAssistantClient::socketConnectionClosed()
     proc = 0;
     opened = FALSE;
     emit assistantClosed();
+}
+
+/*!
+  This function is used to set extra command line arguments used
+  to configure how Qt Assistant is started.
+*/
+void QAssistantClient::setArguments( const QStringList &args )
+{
+    QAssistantClientPrivate *d = data( this, TRUE );
+    d->arguments = args;
 }
