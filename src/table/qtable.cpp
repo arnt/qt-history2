@@ -2355,6 +2355,9 @@ void QTable::resizeData( int len )
     If \a swapHeader is TRUE, the rows' header contents is also
     swapped.
 
+    This function will not update the QTable, you will have to do
+    this manually, e.g. by calling updateContents().
+
     \sa swapColumns() swapCells()
 */
 
@@ -5478,7 +5481,7 @@ void QTable::adjustColumn( int col )
     w = QMAX( w, 20 );
     for ( int i = 0; i < numRows(); ++i ) {
 	QTableItem *itm = item( i, col );
-	if ( !itm ) { 
+	if ( !itm ) {
 	    QWidget *widget = cellWidget( i, col );
 	    if ( widget )
 		w = QMAX( w, widget->sizeHint().width() );
