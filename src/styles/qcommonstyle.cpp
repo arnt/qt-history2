@@ -162,7 +162,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	//QPointArray a;
 	//	p->eraseRect( x, y, w, h );
 
-	if ( item->isEnabled() )
+	if ( flags & Style_Enabled )
 	    p->setPen( cg.text() );
 	else
 	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ) ) );
@@ -187,7 +187,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	//	p->setPen( fillColor );
 	//	p->setBrush( fillColor );
 	//	p->drawPolygon( a );
-	if ( item->isOn() ) {
+	if ( flags & Style_On ) {
 	    p->setPen( NoPen );
 	    p->setBrush( cg.text() );
 	    p->drawRect( x+5, y+4, 2, 4 );
@@ -201,7 +201,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    return;
 	int x = r.x(), y = r.y(), w = r.width(), h = r.width(), marg = lv->itemMargin();
 
-	if ( item->isEnabled() )
+	if ( flags & Style_Enabled )
 	    p->setPen( QPen( cg.text(), 2 ) );
 	else
 	    p->setPen( QPen( lv->palette().color( QPalette::Disabled, QColorGroup::Text ),
@@ -210,7 +210,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	if ( item->parent() && item->parent()->rtti() == 1  &&
 	     ((QCheckListItem*) item->parent())->type() == QCheckListItem::Controller )
 	    parentControl = TRUE;
-	if ( item->isSelected() && !lv->rootIsDecorated() && !parentControl ) {
+	if ( flags & Style_Selected && !lv->rootIsDecorated() && !parentControl ) {
 	    p->fillRect( 0, 0, x + marg + w + 4, item->height(),
 			 cg.brush( QColorGroup::Highlight ) );
 	    if ( item->isEnabled() )
@@ -221,7 +221,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	/////////////////////
 	x++;
 	y++;
-	if ( item->isOn() ) {
+	if ( flags & Style_On ) {
 	    QPointArray a( 7*2 );
 	    int i, xx = x+1+marg, yy=y+5;
 	    for ( i=0; i<3; i++ ) {

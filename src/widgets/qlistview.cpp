@@ -5722,6 +5722,16 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	 ((QCheckListItem*) parent())->type() == Controller )
 	parentControl = TRUE;
 
+    int styleflags = QStyle::Style_Default;
+    if ( isOn() )
+	styleflags |= QStyle::Style_On;
+    else
+	styleflags |= QStyle::Style_Off;
+    if ( isSelected() )
+	styleflags |= QStyle::Style_Selected;
+    if ( isEnabled() && lv->isEnabled() )
+	styleflags |= QStyle::Style_Enabled;
+
     if ( myType == Controller ) {
 	int x = 0;
 	if(!parentControl)
@@ -5729,7 +5739,7 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	lv->style().drawPrimitive(QStyle::PE_CheckListController, p,
 				  QRect(x, 0, boxsize,
 					fm.height() + 2 + marg),
-				  cg, QStyle::Style_Default, QStyleOption(this));
+				  cg, styleflags, QStyleOption(this));
 	r += boxsize + 4;
     } else {
 	Q_ASSERT( lv ); //###
@@ -5742,16 +5752,17 @@ void QCheckListItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    x = (width - boxsize - fm.width(text()))/2;
 	int y = (fm.height() + 2 + marg - boxsize) / 2;
 	//	p->setPen( QPen( cg.text(), winStyle ? 2 : 1 ) );
+
 	if ( myType == CheckBox ) {
 	    lv->style().drawPrimitive(QStyle::PE_CheckListIndicator, p,
 				      QRect(x, y, boxsize,
 					    fm.height() + 2 + marg),
-				      cg, QStyle::Style_Default, QStyleOption(this));
+				      cg, styleflags, QStyleOption(this));
 	} else { //radio button look
 	    lv->style().drawPrimitive(QStyle::PE_CheckListExclusiveIndicator,
 					      p, QRect(x, y, boxsize,
 						       fm.height() + 2 + marg),
-					      cg, QStyle::Style_Default, QStyleOption(this));
+					      cg, styleflags, QStyleOption(this));
 	}
 	r += boxsize + 4;
     }
