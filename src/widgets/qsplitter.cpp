@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#22 $
 **
 **  Splitter widget
 **
@@ -178,8 +178,10 @@ void QInternalSplitter::paintEvent( QPaintEvent * )
   dragging the boundary between the children.
 
   The current implementation is limited to two children.  The two
-  widgets to be managed are the first two children added. 
-  
+  widgets to be managed are the first two children added.  If you
+  need to split more than two widgets, you can nest splitters (although
+  it may be difficult to control the relative sizing to your requirements).
+
   To show a QListBox and a QMultiLineEdit side by side:
   
   \code
@@ -579,11 +581,15 @@ void QSplitter::recalc( bool update)
 
 
 /*!
-  Sets resize mode of  \a w to \a mode.
-  \a mode can be \c Stretch (the default) which means that \a w will
-  resize when the splitter resizes, or \c KeepSize which means that
-  \a w will keep its size.
+  Sets resize mode of \a w to \a mode.
+  \a mode can be one of:
 
+  \define QSplitter::ResizeMode
+
+  <ul>
+    <li> \c Stretch (the default) - \a w will resize when the splitter resizes
+    <li> \c KeepSize - \a w will keep its size.
+  </ul>
 */
 
 void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
