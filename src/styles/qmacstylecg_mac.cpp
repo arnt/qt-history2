@@ -7,7 +7,10 @@
 #include "qpainter.h"
 #include "qpushbutton.h"
 #include "qpointer.h"
+#include "qpopupmenu.h"
 #include "qt_mac.h"
+
+QPixmap qt_mac_convert_iconref(IconRef, int, int); //qpixmap_mac.cpp
 
 const int qt_mac_hitheme_version = 0; //the HITheme version we speak
 // Utility to generate correct rectangles for AppManager internals
@@ -49,7 +52,7 @@ class QMacStyleCGPrivate : public QObject
 {
 public:
     static const int RefreshRate = 33;  // Gives us about 30 frames a second.
-    QPointer<QPushButton> defaultButton, noPulse;
+    QPointer<QPushButton> defaultButton;
     CFAbsoluteTime defaultButtonStart;
     int timerID;
     
@@ -74,7 +77,6 @@ protected:
         if (!defaultButton.isNull()) {
             defaultButton->update();
         } else {
-            // We somehow got out of sync.
             killTimer(timerID);
             timerID = -1;
             defaultButtonStart = 0;
@@ -105,6 +107,24 @@ void QMacStyleCG::polish(QWidget *w)
             d->animateButton(btn);
         }
     }
+    
+    QPopupMenu *pop = ::qt_cast<QPopupMenu *>(w);
+    if (pop) {
+        QPalette pal = pop->palette();
+        QPixmap px(200, 200, 32);
+        QPainter p(&px);
+        HIThemeMenuDrawInfo mtinfo;
+        mtinfo.version = qt_mac_hitheme_version;
+        mtinfo.menuType = kThemeMenuTypePopUp;
+        HIRect rect = CGRectMake(0, 0, px.width(), px.height());
+        HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
+                                  kHIThemeOrientationNormal);
+        p.end();
+        QBrush background(black, px);
+        pal.setBrush(QPalette::Background, background);
+        pal.setBrush(QPalette::Button, background);
+        pop->setPalette(pal);
+    }
     QWindowsStyle::polish(w);
 }
 
@@ -115,7 +135,32 @@ void QMacStyleCG::unPolish(QWidget *w)
 
 void QMacStyleCG::polish(QApplication *app)
 {
-    QWindowsStyle::polish(app);
+    QPalette pal = app->palette();
+    QPixmap px(200, 200, 32);
+    QPainter p(&px);
+    
+    // This gives us the metal look, of course.
+    HIThemeBackgroundDrawInfo bginfo;
+    bginfo.version = qt_mac_hitheme_version;
+    bginfo.state = kThemeStateActive;
+    bginfo.kind = kThemeBackgroundMetal;
+    HIRect rect = CGRectMake(0, 0, px.width(), px.height());
+    HIThemeDrawBackground(&rect, &bginfo, static_cast<CGContextRef>(p.handle()),
+                          kHIThemeOrientationNormal);
+    
+    /* Believe it or not, we get the "older" style with this pixmap
+    HIThemeMenuDrawInfo mtinfo;
+    mtinfo.version = qt_mac_hitheme_version;
+    mtinfo.menuType = kThemeMenuTypeHierarchical;
+    HIRect rect = CGRectMake(0, 0, px.width(), px.height());
+    HIThemeDrawMenuBackground(&rect, &mtinfo, static_cast<CGContextRef>(p.handle()),
+                              kHIThemeOrientationNormal);
+     */
+    p.end();
+    QBrush background(black, px);
+    pal.setBrush(QPalette::Background, background);
+    pal.setBrush(QPalette::Button, background);
+    app->setPalette(pal);
 }
 
 void QMacStyleCG::drawPrimitive(PrimitiveElement pe, QPainter *p, const QRect &r,
@@ -367,12 +412,38 @@ int QMacStyleCG::styleHint(StyleHint sh, const QWidget *widget, const QStyleOpti
 QSize QMacStyleCG::sizeFromContents(ContentsType contents, const QWidget *w,
 				    const QSize &contentsSize, const QStyleOption &opt) const
 {
-    return QWindowsStyle::sizeFromContents(contents, w, contentsSize, opt);
+    QSize sz;
+    switch (contents) {
+    default:
+        sz = QWindowsStyle::sizeFromContents(contents, w, contentsSize, opt);
+    }
+    return sz;
 }
 
 QPixmap QMacStyleCG::stylePixmap(StylePixmap sp, const QWidget *widget,
 				 const QStyleOption &opt) const
 {
+    IconRef icon = 0;
+    switch(sp) {
+        case SP_MessageBoxInformation:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertNoteIcon, &icon);
+            break;
+        case SP_MessageBoxWarning:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertCautionIcon, &icon);
+            break;
+        case SP_MessageBoxCritical:
+            GetIconRef(kOnSystemDisk, kSystemIconsCreator, kAlertStopIcon, &icon);
+            break;
+        case SP_MessageBoxQuestion:
+            //no idea how to do this ###
+        default:
+            break;
+    }
+    if(icon) {
+	QPixmap ret = qt_mac_convert_iconref(icon, 64, 64);
+	ReleaseIconRef(icon);
+	return ret;
+    }
     return QWindowsStyle::stylePixmap(sp, widget, opt);
 }
 
