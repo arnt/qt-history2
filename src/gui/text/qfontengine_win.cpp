@@ -288,7 +288,8 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
     int angle = 0;
     bool transform = false;
 
-    if (state->txop >= QPainter::TxScale && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
+    if (state->txop >= QPainterPrivate::TxScale
+        && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
         // Draw rotated and sheared text on Windows 95, 98
 
         // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
@@ -302,7 +303,8 @@ void QFontEngineWin::draw(QPaintEngine *p, int x, int y, const QTextItem &si, in
             angle = 3600 - angle;
 
         transform = true;
-    } else if (!p->hasFeature(QPaintEngine::CoordTransform) && state->txop == QPainter::TxTranslate) {
+    } else if (!p->hasFeature(QPaintEngine::CoordTransform)
+               && state->txop == QPainterPrivate::TxTranslate) {
         state->painter->map(x, y, &x, &y);
     }
 

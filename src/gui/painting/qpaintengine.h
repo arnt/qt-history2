@@ -222,6 +222,7 @@ private:
     friend class QMacPrintEngine;
     friend class QMacPrintEnginePrivate;
     friend class QPainter;
+    friend class QPainterPrivate;
     friend class QWidget;
     friend class QWin32PaintEngine;
     friend class QWin32PaintEnginePrivate;

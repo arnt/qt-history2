@@ -43,21 +43,230 @@ void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& s
                     QPainter* painter);
 void qt_fill_linear_gradient(const QRect &r, QPainter *pixmap, const QBrush &brush);
 
-QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, QPainter::ShapeType shape)
+QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape)
 {
     switch (shape) {
-    case QPainter::EllipseShape: {
+    case EllipseShape: {
         QPainterPath path;
         path.addEllipse(*reinterpret_cast<const QRectF*>(data));
         return path.toFillPolygon() * state->matrix;
     }
-    case QPainter::RectangleShape:
+    case RectangleShape:
         return (*reinterpret_cast<const QRectF*>(data)) * state->matrix;
-    case QPainter::PathShape:
+    case PathShape:
         return reinterpret_cast<const QPainterPath*>(data)->toFillPolygon() * state->matrix;
     default:
         return (*reinterpret_cast<const QPolygon*>(data)) * state->matrix;
     }
+}
+
+void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shape, DrawOperation op)
+{
+//     printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d\n",
+//            winding, shape, op);
+
+    enum { Normal, PathBased, None } outlineMode = Normal;
+    if (state->pen.style() == Qt::NoPen)
+        op = DrawOperation(op&~StrokeDraw);
+    if (state->brush.style() == Qt::NoBrush)
+        op = DrawOperation(op&~FillDraw);
+
+    // Creates an outline path to handle the stroking.
+     if ((op & StrokeDraw)
+        && (engine->emulationSpecifier & QPaintEngine::PenWidthTransform
+            || engine->emulationSpecifier & QPaintEngine::AlphaStroke))
+        outlineMode = PathBased;
+
+    // Do the filling for gradients or alpha.
+    if (op & FillDraw) {
+        if (engine->emulationSpecifier & QPaintEngine::LinearGradients
+            || engine->emulationSpecifier & QPaintEngine::AlphaFill) {
+            QRectF bounds;
+            // set clip to match polygon to fill
+            if (shape != RectangleShape) {
+                q->save();
+                QPainterPath clip;
+                switch (shape) {
+                case EllipseShape:
+                    bounds = *reinterpret_cast<const QRectF*>(data);
+                    clip.addEllipse(bounds);
+                    break;
+                case PathShape:
+                    clip = *reinterpret_cast<const QPainterPath*>(data);
+                    break;
+                default:
+                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
+                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                    break;
+                }
+                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
+                q->setClipPath(clip);
+            } else {
+                bounds = *reinterpret_cast<const QRectF*>(data);
+            }
+            if (engine->emulationSpecifier & QPaintEngine::LinearGradients) {
+                qt_fill_linear_gradient(bounds.toRect(), q, state->brush);
+            } else { // AlphaFill
+                const int BUFFERSIZE = 16;
+                QImage image(BUFFERSIZE, BUFFERSIZE, 32);
+                image.fill(state->brush.color().rgb());
+                image.setAlphaBuffer(true);
+                QPixmap pm(image);
+                q->drawTiledPixmap(bounds.toRect(), pm);
+            }
+
+            if (shape != RectangleShape)
+                q->restore();
+        } else if (engine->emulationSpecifier & QPaintEngine::CoordTransform) {
+            outlineMode = None;
+            QPolygon xformed = draw_helper_xpolygon(data, shape);
+            q->save();
+            q->resetMatrix();
+            engine->drawPolygon(xformed,
+                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            q->restore();
+        } else {
+            // Custom outlining only, do standard draw...
+            QPen oldPen = state->pen;
+            q->setPen(Qt::NoPen);
+            engine->updateState(state);
+            switch (shape) {
+            case EllipseShape:
+                engine->drawEllipse(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case RectangleShape:
+                engine->drawRect(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case PathShape: {
+                const QPainterPath *path = reinterpret_cast<const QPainterPath*>(data);
+                if (engine->hasFeature(QPaintEngine::PainterPaths))
+                    engine->drawPath(*path);
+                else
+                    engine->drawPolygon(path->toFillPolygon(), winding
+                                           ? QPaintEngine::WindingMode
+                                           : QPaintEngine::OddEvenMode);
+                break;
+            }
+            default:
+                engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data), winding
+                                           ? QPaintEngine::WindingMode
+                                           : QPaintEngine::OddEvenMode);
+                break;
+            }
+        }
+    } // end of filling
+
+    // Do the outlining...
+    if (op & StrokeDraw) {
+        if (outlineMode == Normal && state->pen.style() != Qt::NoPen) {
+            QBrush originalBrush = state->brush;
+            q->setBrush(Qt::NoBrush);
+            engine->updateState(state);
+            QPolygon xformed = draw_helper_xpolygon(data, shape);
+            engine->drawPolygon(xformed,
+                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+            q->setBrush(originalBrush);
+        } else if (outlineMode == PathBased) {
+            QPainterPath path;
+            switch (shape) {
+            case EllipseShape:
+                path.addEllipse(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case RectangleShape:
+                path.addRect(*reinterpret_cast<const QRectF*>(data));
+                break;
+            case PathShape:
+                path = *reinterpret_cast<const QPainterPath*>(data);
+                break;
+            default:
+                path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
+                break;
+            }
+            QPainterPathStroker stroker;
+            stroker.setWidth(state->pen.width());
+            stroker.setStyle(state->pen.style());
+            stroker.setCapStyle(state->pen.capStyle());
+            stroker.setJoinStyle(state->pen.joinStyle());
+            q->fillPath(stroker.createStroke(path), QBrush(state->pen.color()));
+        }
+    } // end of stroking
+}
+
+
+void QPainterPrivate::init()
+{
+    state->painter = q;
+}
+
+void QPainterPrivate::updateMatrix()
+{
+    QMatrix m;
+    if (state->VxF) {
+        double scaleW = (double)state->vw/(double)state->ww;
+        double scaleH = (double)state->vh/(double)state->wh;
+        m.setMatrix(scaleW, 0, 0, scaleH, state->vx - state->wx*scaleW, state->vy - state->wy*scaleH);
+    }
+    if (state->WxF) {
+        if (state->VxF)
+            m = state->worldMatrix * m;
+        else
+            m = state->worldMatrix;
+    }
+    state->matrix = m;
+
+    txinv = false;                                // no inverted matrix
+    state->txop  = TxNone;
+    if (state->matrix.m12()==0.0 && state->matrix.m21()==0.0
+        && state->matrix.m11() >= 0.0 && state->matrix.m22() >= 0.0) {
+        if (state->matrix.m11()==1.0 && state->matrix.m22()==1.0) {
+            if (state->matrix.dx()!=0.0 || state->matrix.dy()!=0.0)
+                state->txop = TxTranslate;
+        } else {
+            state->txop = TxScale;
+        }
+    } else {
+        state->txop = TxRotShear;
+    }
+    if (!redirection_offset.isNull()) {
+        state->txop |= TxTranslate;
+        state->WxF = true;
+        // We want to translate in dev space so we do the adding of the redirection
+        // offset manually.
+        state->matrix = QMatrix(state->matrix.m11(), state->matrix.m12(),
+                              state->matrix.m21(), state->matrix.m22(),
+                              state->matrix.dx()-redirection_offset.x(),
+                              state->matrix.dy()-redirection_offset.y());
+    }
+    engine->setDirty(QPaintEngine::DirtyTransform);
+//     printf("VxF=%d, WxF=%d\n", state->VxF, state->WxF);
+//     printf("Using matrix: %f, %f, %f, %f, %f, %f\n",
+//            state->matrix.m11(),
+//            state->matrix.m12(),
+//            state->matrix.m21(),
+//            state->matrix.m22(),
+//            state->matrix.dx(),
+//            state->matrix.dy());
+}
+
+/*! \internal */
+void QPainterPrivate::updateInvMatrix()
+{
+    Q_ASSERT(txinv == false);
+    txinv = true;                                // creating inverted matrix
+    bool invertible;
+    QMatrix m;
+    if (state->VxF) {
+        m.translate(state->vx, state->vy);
+        m.scale(1.0*state->vw/state->ww, 1.0*state->vh/state->wh);
+        m.translate(-state->wx, -state->wy);
+    }
+    if (state->WxF) {
+        if (state->VxF)
+            m = state->worldMatrix * m;
+        else
+            m = state->worldMatrix;
+    }
+    invMatrix = m.invert(&invertible);                // invert matrix
 }
 
 /*!
@@ -291,8 +500,8 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, QPainter::Shape
 
 QPainter::QPainter()
 {
-    d_ptr = new QPainterPrivate;
-    init();
+    d_ptr = new QPainterPrivate(this);
+    d->init();
 }
 
 /*!
@@ -333,8 +542,8 @@ QPainter::QPainter()
 
 QPainter::QPainter(QPaintDevice *pd)
 {
-    d_ptr = new QPainterPrivate;
-    init();
+    d_ptr = new QPainterPrivate(this);
+    d->init();
     Q_ASSERT(pd != 0);
     begin(pd);
 }
@@ -348,11 +557,6 @@ QPainter::~QPainter()
     if (isActive())
         end();
     delete d;
-}
-
-void QPainter::init()
-{
-    d->state->painter = this;
 }
 
 /*!
@@ -557,7 +761,7 @@ bool QPainter::begin(QPaintDevice *pd)
     Q_ASSERT(d->engine->isActive());
 
     if (!d->redirection_offset.isNull())
-        updateMatrix();
+        d->updateMatrix();
 
     Q_ASSERT(d->engine->isActive());
     d->engine->clearRenderHints(QPainter::LineAntialiasing);
@@ -730,7 +934,7 @@ QRegion QPainter::clipRegion() const
         qWarning("QPainter::clipRegion(), painter not active");
         return QRegion();
     }
-    if (d->state->txop > TxNone)
+    if (d->state->txop > QPainterPrivate::TxNone)
 	return d->state->clipRegion * d->state->clipMatrix * d->state->matrix.invert();
     else
 	return d->state->clipRegion;
@@ -851,7 +1055,7 @@ void QPainter::setMatrix(const QMatrix &matrix, bool combine)
     if (!d->state->WxF)
         setMatrixEnabled(true);
     else
-        updateMatrix();
+        d->updateMatrix();
 }
 
 /*!
@@ -913,7 +1117,7 @@ void QPainter::setMatrixEnabled(bool enable)
         d->engine->updateState(d->state);
 
     d->state->WxF = enable;
-    updateMatrix();
+    d->updateMatrix();
 }
 
 /*!
@@ -1033,7 +1237,8 @@ void QPainter::setClipPath(const QPainterPath &path)
     if (!d->engine->hasFeature(QPaintEngine::PainterPaths)) {
         QPolygon p = path.toFillPolygon();
 
-        if (d->state->txop > TxNone && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
+        if (d->state->txop > QPainterPrivate::TxNone
+            && !d->engine->hasFeature(QPaintEngine::ClipTransform)) {
             p = p * d->state->matrix;
             QMatrix oldMatrix = d->state->matrix;
             d->state->matrix = QMatrix();
@@ -1057,138 +1262,6 @@ void QPainter::setClipPath(const QPainterPath &path)
   \internal
 
 */
-void QPainter::draw_helper(const void *data, bool winding, ShapeType shape, DrawOperation op)
-{
-//     printf("QPainter::drawHelper: winding=%d, shape=%d, op=%d\n",
-//            winding, shape, op);
-
-    enum { Normal, PathBased, None } outlineMode = Normal;
-    if (d->state->pen.style() == Qt::NoPen)
-        op = DrawOperation(op&~StrokeDraw);
-    if (d->state->brush.style() == Qt::NoBrush)
-        op = DrawOperation(op&~FillDraw);
-
-    // Creates an outline path to handle the stroking.
-     if ((op & StrokeDraw)
-        && (d->engine->emulationSpecifier & QPaintEngine::PenWidthTransform
-            || d->engine->emulationSpecifier & QPaintEngine::AlphaStroke))
-        outlineMode = PathBased;
-
-    // Do the filling for gradients or alpha.
-    if (op & FillDraw) {
-        if (d->engine->emulationSpecifier & QPaintEngine::LinearGradients
-            || d->engine->emulationSpecifier & QPaintEngine::AlphaFill) {
-            QRectF bounds;
-            // set clip to match polygon to fill
-            if (shape != RectangleShape) {
-                save();
-                QPainterPath clip;
-                switch (shape) {
-                case EllipseShape:
-                    bounds = *reinterpret_cast<const QRectF*>(data);
-                    clip.addEllipse(bounds);
-                    break;
-                case PathShape:
-                    clip = *reinterpret_cast<const QPainterPath*>(data);
-                    break;
-                default:
-                    bounds = reinterpret_cast<const QPolygon*>(data)->boundingRect();
-                    clip.addPolygon(*reinterpret_cast<const QPolygon*>(data));
-                    break;
-                }
-                clip.setFillMode(winding ? QPainterPath::Winding : QPainterPath::OddEven);
-                setClipPath(clip);
-            } else {
-                bounds = *reinterpret_cast<const QRectF*>(data);
-            }
-            if (d->engine->emulationSpecifier & QPaintEngine::LinearGradients) {
-                qt_fill_linear_gradient(bounds.toRect(), this, d->state->brush);
-            } else { // AlphaFill
-                const int BUFFERSIZE = 16;
-                QImage image(BUFFERSIZE, BUFFERSIZE, 32);
-                image.fill(d->state->brush.color().rgb());
-                image.setAlphaBuffer(true);
-                QPixmap pm(image);
-                drawTiledPixmap(bounds.toRect(), pm);
-            }
-
-            if (shape != RectangleShape)
-                restore();
-        } else if (d->engine->emulationSpecifier & QPaintEngine::CoordTransform) {
-            outlineMode = None;
-            QPolygon xformed = d->draw_helper_xpolygon(data, shape);
-            save();
-            resetMatrix();
-            d->engine->drawPolygon(xformed,
-                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
-            restore();
-        } else {
-            // Custom outlining only, do standard draw...
-            QPen oldPen = d->state->pen;
-            setPen(Qt::NoPen);
-            d->engine->updateState(d->state);
-            switch (shape) {
-            case EllipseShape:
-                d->engine->drawEllipse(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case RectangleShape:
-                d->engine->drawRect(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case PathShape: {
-                const QPainterPath *path = reinterpret_cast<const QPainterPath*>(data);
-                if (d->engine->hasFeature(QPaintEngine::PainterPaths))
-                    d->engine->drawPath(*path);
-                else
-                    d->engine->drawPolygon(path->toFillPolygon(), winding
-                                           ? QPaintEngine::WindingMode
-                                           : QPaintEngine::OddEvenMode);
-                break;
-            }
-            default:
-                d->engine->drawPolygon(*reinterpret_cast<const QPolygon*>(data), winding
-                                           ? QPaintEngine::WindingMode
-                                           : QPaintEngine::OddEvenMode);
-                break;
-            }
-        }
-    } // end of filling
-
-    // Do the outlining...
-    if (op & StrokeDraw) {
-        if (outlineMode == Normal && d->state->pen.style() != Qt::NoPen) {
-            QBrush originalBrush = d->state->brush;
-            setBrush(Qt::NoBrush);
-            d->engine->updateState(d->state);
-            QPolygon xformed = d->draw_helper_xpolygon(data, shape);
-            d->engine->drawPolygon(xformed,
-                                   winding ? QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
-            setBrush(originalBrush);
-        } else if (outlineMode == PathBased) {
-            QPainterPath path;
-            switch (shape) {
-            case EllipseShape:
-                path.addEllipse(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case RectangleShape:
-                path.addRect(*reinterpret_cast<const QRectF*>(data));
-                break;
-            case PathShape:
-                path = *reinterpret_cast<const QPainterPath*>(data);
-                break;
-            default:
-                path.addPolygon(*reinterpret_cast<const QPolygon*>(data));
-                break;
-            }
-            QPainterPathStroker stroker;
-            stroker.setWidth(d->state->pen.width());
-            stroker.setStyle(d->state->pen.style());
-            stroker.setCapStyle(d->state->pen.capStyle());
-            stroker.setJoinStyle(d->state->pen.joinStyle());
-            fillPath(stroker.createStroke(path), QBrush(d->state->pen.color()));
-        }
-    } // end of stroking
-}
-
 
 /*!
     Draws the outline (strokes) the path \a path with the pen specified
@@ -1244,7 +1317,7 @@ void QPainter::drawPath(const QPainterPath &path)
 
     if (d->engine->hasFeature(QPaintEngine::PainterPaths)) {
         if (d->engine->emulationSpecifier) {
-            draw_helper(&path, path.fillMode() == QPainterPath::Winding, PathShape);
+            d->draw_helper(&path, path.fillMode() == QPainterPath::Winding, QPainterPrivate::PathShape);
             return;
         }
         d->engine->drawPath(path);
@@ -1266,7 +1339,8 @@ void QPainter::drawPath(const QPainterPath &path)
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
         if (d->engine->emulationSpecifier)
-            draw_helper(&fillPoly, path.fillMode() == QPainterPath::Winding, PolygonShape);
+            d->draw_helper(&fillPoly, path.fillMode() == QPainterPath::Winding,
+                           QPainterPrivate::PolygonShape);
 	else
             d->engine->drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding ?
                                    QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
@@ -1279,8 +1353,8 @@ void QPainter::drawPath(const QPainterPath &path)
 	    d->engine->updateState(d->state);
             if (d->engine->emulationSpecifier) {
                 QPolygon polygon = polygons.at(i);
-                draw_helper(&polygon, path.fillMode() == QPainterPath::Winding,
-                            PolygonShape, StrokeDraw);
+                d->draw_helper(&polygon, path.fillMode() == QPainterPath::Winding,
+                               QPainterPrivate::PolygonShape, QPainterPrivate::StrokeDraw);
             } else {
                 d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
             }
@@ -1315,12 +1389,12 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
     QLineF line(p1, p2);
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             line += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             QPolygon polyline;
             polyline << p1 << p2;
-            draw_helper(&polyline, false, LineShape, StrokeDraw);
+            d->draw_helper(&polyline, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
             return;
         }
     }
@@ -1351,10 +1425,10 @@ void QPainter::drawRect(const QRectF &r)
 
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            draw_helper(&rect, false, RectangleShape);
+            d->draw_helper(&rect, false, QPainterPrivate::RectangleShape);
             return;
         }
     }
@@ -1406,7 +1480,8 @@ void QPainter::drawRects(const QList<QRectF> &rects)
     d->engine->updateState(d->state);
 
     QList<QRectF> rectangles = rects;
-    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+    if (d->state->txop == QPainterPrivate::TxTranslate
+        && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         for (int i=0; i<rects.size(); ++i)
             rectangles[i].moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
     } else if (d->engine->emulationSpecifier) {
@@ -1432,11 +1507,11 @@ void QPainter::drawPoint(const QPoint &p)
     QPointF pt(p);
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             pt += QPointF(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             QRectF rect(pt.x(), pt.y(), 1, 1);
-            draw_helper(&rect, false, RectangleShape);
+            d->draw_helper(&rect, false, QPainterPrivate::RectangleShape);
             return;
         }
     }
@@ -1464,12 +1539,12 @@ void QPainter::drawPoints(const QPointArray &pa)
     QPolygon a = QPolygon::fromPointArray(pa);
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             a.translate(d->state->matrix.dx(), d->state->matrix.dy());
         } else {
             for (int i=0; i<a.size(); ++i) {
                 QRectF rect(a.at(i).x(), a.at(i).y(), 1, 1);
-                draw_helper(&rect, false, RectangleShape);
+                d->draw_helper(&rect, false, QPainterPrivate::RectangleShape);
             }
             return;
         }
@@ -1773,10 +1848,10 @@ void QPainter::drawEllipse(const QRect &r)
 
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            draw_helper(&rect, false, EllipseShape);
+            d->draw_helper(&rect, false, QPainterPrivate::EllipseShape);
             return;
         }
     }
@@ -1950,7 +2025,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     QList<QLineF> lines;
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             QPoint offset(d->state->matrix.dx(), d->state->matrix.dy());
             for (int i=index; i<index + nlines*2; i+=2)
                 lines << QLineF(a.at(i) + offset, a.at(i+1) + offset);
@@ -1958,7 +2033,7 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
             for (int i=index; i<index + nlines*2; i+=2) {
                 QPolygon p;
                 p << a.at(i) << a.at(i+1);
-                draw_helper(&p, false, LineShape, StrokeDraw);
+                d->draw_helper(&p, false, QPainterPrivate::LineShape, QPainterPrivate::StrokeDraw);
             }
             return;
         }
@@ -2000,10 +2075,10 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
 
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            draw_helper(&pa, false, PolygonShape, StrokeDraw);
+            d->draw_helper(&pa, false, QPainterPrivate::PolygonShape, QPainterPrivate::StrokeDraw);
             return;
         }
     }
@@ -2054,10 +2129,10 @@ void QPainter::drawPolygon(const QPolygon &polygon, bool winding, int index, int
 
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
-            && d->state->txop == TxTranslate) {
+            && d->state->txop == QPainterPrivate::TxTranslate) {
             pa.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
-            draw_helper(&pa, winding, PolygonShape);
+            d->draw_helper(&pa, winding, QPainterPrivate::PolygonShape);
             return;
         }
     }
@@ -2222,7 +2297,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
     if (sw <= 0 || sh <= 0)
         return;
 
-    if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
+    if ((d->state->txop > QPainterPrivate::TxTranslate
+         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) ||
         ((w != sw || h != sh) && !d->engine->hasFeature(QPaintEngine::PixmapScale))) {
         QPixmap source;
         if(sx || sy || sw != pm.width() || sh != pm.height()) {
@@ -2242,7 +2318,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         QPixmap pmx = source.transform(mat);
         if (pmx.isNull())                        // xformed into nothing
             return;
-        if (!pmx.mask() && d->state->txop == TxRotShear) {
+        if (!pmx.mask() && d->state->txop == QPainterPrivate::TxRotShear) {
             QBitmap bm_clip(sw, sh, 1);        // make full mask, xform it
             bm_clip.fill(Qt::color1);
             pmx.setMask(bm_clip.transform(mat));
@@ -2494,7 +2570,8 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
     else
         sy = sy % sh;
 
-    if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+    if (d->state->txop > QPainterPrivate::TxTranslate
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         // ##### what's this crap? Why do we need an image at all here?
 	QImage img(r.width(), r.height(), 32);
 	img.setAlphaBuffer(true);
@@ -2509,7 +2586,8 @@ void QPainter::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoi
 
     int x = r.x();
     int y = r.y();
-    if (d->state->txop == TxTranslate && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
+    if (d->state->txop == QPainterPrivate::TxTranslate
+        && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         x += qRound(d->state->matrix.dx());
         y += qRound(d->state->matrix.dy());
     }
@@ -2610,78 +2688,6 @@ void QPainter::fillRect(const QRect &r, const QBrush &brush)
   \internal
 */
 
-void QPainter::updateMatrix()
-{
-    QMatrix m;
-    if (d->state->VxF) {
-        double scaleW = (double)d->state->vw/(double)d->state->ww;
-        double scaleH = (double)d->state->vh/(double)d->state->wh;
-        m.setMatrix(scaleW, 0, 0, scaleH, d->state->vx - d->state->wx*scaleW, d->state->vy - d->state->wy*scaleH);
-    }
-    if (d->state->WxF) {
-        if (d->state->VxF)
-            m = d->state->worldMatrix * m;
-        else
-            m = d->state->worldMatrix;
-    }
-    d->state->matrix = m;
-
-
-    d->txinv = false;                                // no inverted matrix
-    d->state->txop  = TxNone;
-    if (d->state->matrix.m12()==0.0 && d->state->matrix.m21()==0.0
-        && d->state->matrix.m11() >= 0.0 && d->state->matrix.m22() >= 0.0) {
-        if (d->state->matrix.m11()==1.0 && d->state->matrix.m22()==1.0) {
-            if (d->state->matrix.dx()!=0.0 || d->state->matrix.dy()!=0.0)
-                d->state->txop = TxTranslate;
-        } else {
-            d->state->txop = TxScale;
-        }
-    } else {
-        d->state->txop = TxRotShear;
-    }
-    if (!d->redirection_offset.isNull()) {
-        d->state->txop |= TxTranslate;
-        d->state->WxF = true;
-        // We want to translate in dev space so we do the adding of the redirection
-        // offset manually.
-        d->state->matrix = QMatrix(d->state->matrix.m11(), d->state->matrix.m12(),
-                              d->state->matrix.m21(), d->state->matrix.m22(),
-                              d->state->matrix.dx()-d->redirection_offset.x(),
-                              d->state->matrix.dy()-d->redirection_offset.y());
-    }
-    d->engine->setDirty(QPaintEngine::DirtyTransform);
-//     printf("VxF=%d, WxF=%d\n", d->state->VxF, d->state->WxF);
-//     printf("Using matrix: %f, %f, %f, %f, %f, %f\n",
-//            d->state->matrix.m11(),
-//            d->state->matrix.m12(),
-//            d->state->matrix.m21(),
-//            d->state->matrix.m22(),
-//            d->state->matrix.dx(),
-//            d->state->matrix.dy());
-}
-
-
-/*! \internal */
-void QPainter::updateInvMatrix()
-{
-    Q_ASSERT(d->txinv == false);
-    d->txinv = true;                                // creating inverted matrix
-    bool invertible;
-    QMatrix m;
-    if (d->state->VxF) {
-        m.translate(d->state->vx, d->state->vy);
-        m.scale(1.0*d->state->vw/d->state->ww, 1.0*d->state->vh/d->state->wh);
-        m.translate(-d->state->wx, -d->state->wy);
-    }
-    if (d->state->WxF) {
-        if (d->state->VxF)
-            m = d->state->worldMatrix * m;
-        else
-            m = d->state->worldMatrix;
-    }
-    d->invMatrix = m.invert(&invertible);                // invert matrix
-}
 
 
 /*!
@@ -2799,7 +2805,7 @@ void QPainter::setWindow_helper(const QRect &r)
     d->state->ww = r.width();
     d->state->wh = r.height();
     if (d->state->VxF)
-        updateMatrix();
+        d->updateMatrix();
     else
         setViewXForm(true);
 }
@@ -2859,7 +2865,7 @@ void QPainter::setViewport_helper(const QRect &r)
     d->state->vw = r.width();
     d->state->vh = r.height();
     if (d->state->VxF)
-        updateMatrix();
+        d->updateMatrix();
     else
         setViewXForm(true);
 }
@@ -2898,7 +2904,7 @@ void QPainter::setViewXForm(bool enable)
         d->engine->updateState(d->state);
 
     d->state->VxF = enable;
-    updateMatrix();
+    d->updateMatrix();
 }
 
 
@@ -2946,7 +2952,7 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 QPoint QPainter::xForm(const QPoint &p) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return p;
     return p * d->state->matrix;
 #else
@@ -2970,7 +2976,7 @@ QPoint QPainter::xForm(const QPoint &p) const
 QRect QPainter::xForm(const QRect &r)        const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return r;
     return d->state->matrix.mapRect(r);
 #else
@@ -2990,7 +2996,7 @@ QRect QPainter::xForm(const QRect &r)        const
 QPointArray QPainter::xForm(const QPointArray &a) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     return a * d->state->matrix;
 #else
@@ -3048,11 +3054,11 @@ QPointArray QPainter::xForm(const QPointArray &av, int index, int npoints) const
 QPoint QPainter::xFormDev(const QPoint &p) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if(d->state->txop == TxNone)
+    if(d->state->txop == QPainterPrivate::TxNone)
         return p;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvMatrix();
+        that->d_ptr->updateInvMatrix();
     }
     return p * d->invMatrix;
 #else
@@ -3073,11 +3079,11 @@ QPoint QPainter::xFormDev(const QPoint &p) const
 QRect QPainter::xFormDev(const QRect &r)  const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return r;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvMatrix();
+        that->d_ptr->updateInvMatrix();
     }
     return d->invMatrix.mapRect(r);
 #else
@@ -3097,11 +3103,11 @@ QRect QPainter::xFormDev(const QRect &r)  const
 QPointArray QPainter::xFormDev(const QPointArray &a) const
 {
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvMatrix();
+        that->d_ptr->updateInvMatrix();
     }
     return a * d->invMatrix;
 #else
@@ -3141,11 +3147,11 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
     QPointArray a(lastPoint-index);
     memcpy(a.data(), ad.data()+index, (lastPoint-index)*sizeof(QPoint));
 #ifndef QT_NO_TRANSFORMATIONS
-    if (d->state->txop == TxNone)
+    if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     if (!d->txinv) {
         QPainter *that = (QPainter*)this;        // mutable
-        that->updateInvMatrix();
+        that->d_ptr->updateInvMatrix();
     }
     return a * d->invMatrix;
 #else

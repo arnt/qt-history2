@@ -17,6 +17,7 @@
 #include "qregion.h"
 #include "qpen.h"
 #include <private/qpaintengine_p.h>
+#include <private/qpainter_p.h>
 
 #include "qx11info_x11.h"
 #include <private/qt_x11_p.h>
@@ -46,7 +47,7 @@ public:
         //             pfont = 0;
         //             block_ext = false;
         xinfo = 0;
-        txop = QPainter::TxNone;
+        txop = QPainterPrivate::TxNone;
     }
     Display *dpy;
     int scrn;
@@ -76,7 +77,7 @@ public:
     uint clip_serial;
     QX11Info *xinfo;
     QPointF bg_origin;
-    QPainter::TransformationCodes txop;
+    QPainterPrivate::TransformationCodes txop;
 };
 
 #endif // QPAINTENGINE_X11_P_H

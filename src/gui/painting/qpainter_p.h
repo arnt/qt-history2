@@ -138,9 +138,10 @@ public:
 
 class QPainterPrivate
 {
+    Q_DECLARE_PUBLIC(QPainter)
 public:
-    QPainterPrivate()
-        : txinv(0), device(0), engine(0)
+    QPainterPrivate(QPainter *painter)
+        : q_ptr(painter), txinv(0), device(0), engine(0)
     {
         states.push_back(new QPainterState());
         state = states.back();
@@ -152,7 +153,7 @@ public:
             delete states.at(i);
     }
 
-    QPolygon draw_helper_xpolygon(const void *data, QPainter::ShapeType type);
+    QPainter *q_ptr;
 
     QPoint redirection_offset;
 
@@ -163,6 +164,33 @@ public:
     QMatrix invMatrix;
     uint txinv:1;
 #endif
+
+    enum TransformationCodes {
+        TxNone = 0,
+        TxTranslate = 1,
+        TxScale = 2,
+        TxRotShear = 3
+    };
+
+    enum DrawOperation { StrokeDraw        = 0x1,
+                         FillDraw          = 0x2,
+                         StrokeAndFillDraw = 0x3
+    };
+
+    enum ShapeType { LineShape,
+                     RectangleShape,
+                     EllipseShape,
+                     PolygonShape,
+                     PathShape
+    };
+
+    QPolygon draw_helper_xpolygon(const void *data, ShapeType type);
+    void draw_helper(const void *data, bool winding, ShapeType type,
+                     DrawOperation operation = StrokeAndFillDraw);
+
+    void updateMatrix();
+    void updateInvMatrix();
+    void init();
 
     QPaintDevice *device;
     QPaintEngine *engine;

@@ -107,7 +107,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
     QMatrix xmat = pState->matrix;
 
     if(!p->hasFeature(QPaintEngine::CoordTransform)) {
-        if(txop >= QPainter::TxScale) {
+        if(txop >= QPainterPrivate::TxScale) {
             int aw = si.width, ah = si.ascent + si.descent + 1;
             if(aw == 0 || ah == 0)
                 return;
@@ -134,7 +134,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItem &si,
             pState->painter->drawPixmap(x, y - si.ascent, pm);
             return;
         }
-        if(txop == QPainter::TxTranslate)
+        if(txop == QPainterPrivate::TxTranslate)
             pState->painter->map(x, y, &x, &y);
     }
     if(p->type() == QPaintEngine::QuickDraw) {

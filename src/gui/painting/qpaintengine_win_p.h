@@ -18,6 +18,7 @@
 
 #include "qnamespace.h"
 #include "qpaintengine_p.h"
+#include <private/qpainter_p.h>
 
 #define COLOR_VALUE(c) ((d->flags & RGBColor) ? RGB(c.red(),c.green(),c.blue()) : c.pixel())
 
@@ -103,7 +104,7 @@ public:
         pWidth(0),
         pColor(0),
         bColor(0),
-        txop(QPainter::TxNone),
+        txop(QPainterPrivate::TxNone),
         gdiplusInUse(false),
         gdiplusEngine(0)
     {
@@ -140,7 +141,7 @@ public:
     Qt::BGMode bgMode;
 
     QMatrix matrix;
-    QPainter::TransformationCodes txop;
+    QPainterPrivate::TransformationCodes txop;
 
     /*!
      Switches the paint engine into GDI+ mode

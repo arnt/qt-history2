@@ -158,14 +158,14 @@ QFontEngine::Error QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyp
 void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int textFlags)
 {
     bool force_bitmap = p->rop != QPainter::CopyROP;
-    force_bitmap |= p->txop >= QPainter::TxScale
+    force_bitmap |= p->txop >= QPainterPrivate::TxScale
                     && !(tm.w.tmPitchAndFamily & (TMPF_VECTOR|TMPF_TRUETYPE));
 
     double scale = 1.;
     int angle = 0;
     bool transform = false;
 
-    if (force_bitmap || p->txop >= QPainter::TxScale) {
+    if (force_bitmap || p->txop >= QPainterPrivate::TxScale) {
         // Draw rotated and sheared text on CE
 
         // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
@@ -263,7 +263,7 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItem &si, int te
             angle = 3600 - angle;
 
         transform = true;
-    } else if (p->txop == QPainter::TxTranslate) {
+    } else if (p->txop == QPainterPrivate::TxTranslate) {
         p->map(x, y, &x, &y);
     }
 

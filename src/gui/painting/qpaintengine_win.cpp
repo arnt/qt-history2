@@ -448,7 +448,7 @@ bool QWin32PaintEngine::end()
     d->advancedMode = false;
     d->penStyle = Qt::SolidLine;
     d->brushStyle = Qt::SolidPattern;
-    d->txop = QPainter::TxNone;
+    d->txop = QPainterPrivate::TxNone;
 
     setActive(false);
     return true;
@@ -1192,17 +1192,17 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
     }
 
     if (mtx.m12() != 0 || mtx.m21() != 0)
-        d->txop = QPainter::TxRotShear;
+        d->txop = QPainterPrivate::TxRotShear;
     else if (mtx.m11() != 1 || mtx.m22() != 1)
-        d->txop = QPainter::TxScale;
+        d->txop = QPainterPrivate::TxScale;
     else if (mtx.dx() != 0 || mtx.dy() != 0)
-        d->txop = QPainter::TxTranslate;
+        d->txop = QPainterPrivate::TxTranslate;
     else
-        d->txop = QPainter::TxNone;
+        d->txop = QPainterPrivate::TxNone;
     d->matrix = mtx;
 
     XFORM m;
-    if (d->txop > QPainter::TxNone && !d->noNativeXform) {
+    if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
         m.eM11 = mtx.m11();
         m.eM12 = mtx.m12();
         m.eM21 = mtx.m21();

@@ -271,35 +271,10 @@ public:
 #endif
 
 private:
-    enum DrawOperation { StrokeDraw        = 0x1,
-                         FillDraw          = 0x2,
-                         StrokeAndFillDraw = 0x3
-    };
-
-    enum ShapeType { LineShape,
-                     RectangleShape,
-                     EllipseShape,
-                     PolygonShape,
-                     PathShape
-    };
-    void draw_helper(const void *data, bool winding, ShapeType type,
-                     DrawOperation operation = StrokeAndFillDraw);
-
     friend void qt_format_text(const QFont& font, const QRect &_r,
                                int tf, const QString& str, int len, QRect *brect,
                                int tabstops, int* tabarray, int tabarraylen,
                                QPainter* painter);
-
-    enum TransformationCodes {
-        TxNone = 0,
-        TxTranslate = 1,
-        TxScale = 2,
-        TxRotShear = 3
-    };
-
-    void updateMatrix();
-    void updateInvMatrix();
-    void init();
 
     QPainterPrivate *d_ptr;
 

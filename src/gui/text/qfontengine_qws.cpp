@@ -159,9 +159,9 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 
 void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags)
 {
-    Q_ASSERT(p->painterState()->txop < QPainter::TxScale);
+    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
 
-    if (p->painterState()->txop == QPainter::TxTranslate)
+    if (p->painterState()->txop == QPainterPrivate::TxTranslate)
         p->painterState()->painter->map(x, y, &x, &y);
 
     if (textFlags) {

@@ -1877,13 +1877,13 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
 {
     if (mtx.m12() != 0 || mtx.m21() != 0)
-        d->txop = QPainter::TxRotShear;
+        d->txop = QPainterPrivate::TxRotShear;
     else if (mtx.m11() != 1 || mtx.m22() != 1)
-        d->txop = QPainter::TxScale;
+        d->txop = QPainterPrivate::TxScale;
     else if (mtx.dx() != 0 || mtx.dy() != 0)
-        d->txop = QPainter::TxTranslate;
+        d->txop = QPainterPrivate::TxTranslate;
     else
-        d->txop = QPainter::TxNone;
+        d->txop = QPainterPrivate::TxNone;
 }
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
@@ -1938,7 +1938,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
-    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainter::TxTranslate) {
+    if (pixmap.mask() == 0 && pixmap.depth() > 1 && d->txop <= QPainterPrivate::TxTranslate) {
 #if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
         ::Picture pict = d->xft_hd ? XftDrawPicture(d->xft_hd) : 0;
         QPixmap *alpha = pixmap.data->alphapm;
@@ -2035,13 +2035,13 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItem &ti, int textFla
     int y = qRound(p.y());
     int s = size - 3;
 
-    if (d->txop > QPainter::TxTranslate) {
+    if (d->txop > QPainterPrivate::TxTranslate) {
         for (int k = 0; k < ti.num_glyphs; k++) {
             qt_draw_transformed_rect(this, x, y, s, s, false);
             x += size;
         }
     } else {
-        if (d->txop == QPainter::TxTranslate) {
+        if (d->txop == QPainterPrivate::TxTranslate) {
             x += qRound(state->matrix.dx());
             y += qRound(state->matrix.dy());
         }
@@ -2080,7 +2080,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
     Qt::HANDLE font_id = xlfd->handle();
     double scale = si.fontEngine->scale();
-    if ( d->txop > QPainter::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
+    if ( d->txop > QPainterPrivate::TxTranslate || scale < 0.9999 || scale > 1.0001  ) {
         // XServer or font don't support server side transformations, need to do it by hand
         QPaintEngine::drawTextItem(p, si, textFlags);
         return;
@@ -2089,7 +2089,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItem &si, int textFl
     float x(xpos);
     float y(ypos);
 
-    if (d->txop == QPainter::TxTranslate) {
+    if (d->txop == QPainterPrivate::TxTranslate) {
         x += state->matrix.dx();
         y += state->matrix.dy();
     }
@@ -2252,13 +2252,13 @@ void QX11PaintEngine::drawXft(const QPointF &p, const QTextItem &si, int textFla
     float ypos = p.y();
 
     QFontEngineXft *xft = static_cast<QFontEngineXft *>(si.fontEngine);
-    XftFont *fnt = d->txop >= QPainter::TxScale ? xft->transformedFont(state->matrix) : xft->xftFont();
+    XftFont *fnt = d->txop >= QPainterPrivate::TxScale ? xft->transformedFont(state->matrix) : xft->xftFont();
     XftDraw *draw = d->xft_hd;
     int screen = d->scrn;
 
-    bool transform = d->txop >= QPainter::TxScale;
+    bool transform = d->txop >= QPainterPrivate::TxScale;
 
-    if (d->txop == QPainter::TxTranslate) {
+    if (d->txop == QPainterPrivate::TxTranslate) {
         xpos += state->matrix.dx();
         ypos += state->matrix.dy();
     }

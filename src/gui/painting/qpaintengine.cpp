@@ -473,7 +473,8 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~AlphaStroke;
 
         // Check for emulation of pen xform
-        if (s->txop > QPainter::TxTranslate && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+        if (s->txop > QPainterPrivate::TxTranslate
+            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
             emulationSpecifier |= PenWidthTransform;
         else
             emulationSpecifier &= ~PenWidthTransform;
@@ -517,7 +518,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             updateClipRegion(s->clipRegion, s->clipEnabled);
             setDirty(DirtyTransform);
         } else {
-            QRegion region = s->txop > QPainter::TxNone
+            QRegion region = s->txop > QPainterPrivate::TxNone
                              ? (s->clipRegion * s->clipMatrix)
                              : s->clipRegion;
             updateClipRegion(region, s->clipEnabled);
@@ -528,7 +529,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
     if (testDirty(DirtyTransform)) {
         updateMatrix(s->matrix);
         clearDirty(DirtyTransform);
-        if (s->txop >= QPainter::TxTranslate) {
+        if (s->txop >= QPainterPrivate::TxTranslate) {
             if (!hasFeature(CoordTransform))
                 emulationSpecifier |= CoordTransform;
             else
@@ -612,17 +613,17 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
     bool useFontEngine = false;
     if (hasFeature(QPaintEngine::UsesFontEngine)) {
 	useFontEngine = true;
-        if (state->txop > QPainter::TxTranslate) {
+        if (state->txop > QPainterPrivate::TxTranslate) {
             useFontEngine = false;
             QFontEngine *fe = ti.fontEngine;
             QFontEngine::FECaps fecaps = fe->capabilites();
-            if (state->txop == QPainter::TxRotShear) {
+            if (state->txop == QPainterPrivate::TxRotShear) {
                 useFontEngine = (fecaps == QFontEngine::FullTransformations);
                 if (!useFontEngine
                     && state->matrix.m11() == state->matrix.m22()
                     && state->matrix.m12() == -state->matrix.m21())
                     useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
-            } else if (state->txop == QPainter::TxScale) {
+            } else if (state->txop == QPainterPrivate::TxScale) {
                 useFontEngine = (fecaps & QFontEngine::Scale);
             }
         }
