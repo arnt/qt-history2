@@ -260,11 +260,8 @@ void QItemDelegate::setEditorData(QWidget *editor,
 {
     QVariant v = model->data(index, QAbstractItemModel::EditRole);
     QByteArray n = d->editorFactory()->valuePropertyName(v.type());
-    if (!n.isEmpty()) {
+    if (!n.isEmpty())
         editor->setProperty(n, v);
-//         qDebug("value type %d property name %s", v.type(), n.data());
-//         qDebug("text %s", v.toString().latin1());
-    }
 }
 
 /*!

@@ -72,11 +72,6 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         sb->setMinimum(INT_MIN);
         sb->setMaximum(INT_MAX);
         return sb; }
-    case QVariant::String:
-    case QVariant::Double: {
-        QLineEdit *le = new QLineEdit(parent);
-        le->setFrame(false);
-        return le; }
     case QVariant::Date:
         return new QDateTimeEdit(QDate(), parent);
     case QVariant::Time:
@@ -85,8 +80,13 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         return new QDateTimeEdit(parent);
     case QVariant::Pixmap:
         return new QLabel(parent);
-    default:
-        return 0;
+    case QVariant::String:
+    case QVariant::Double:
+    default: {
+        // the default editor is a lineedit
+        QLineEdit *le = new QLineEdit(parent);
+        le->setFrame(false);
+        return le; }
     }
 }
 
@@ -101,17 +101,17 @@ QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) con
     case QVariant::UInt:
     case QVariant::Int:
         return value;
-    case QVariant::String:
-    case QVariant::Double:
-        return text;
     case QVariant::Date:
         return "date";
     case QVariant::Time:
         return "time";
     case QVariant::DateTime:
         return "dateTime";
+    case QVariant::String:
+    case QVariant::Double:
     default:
-        return QByteArray();
+        // the default editor is a lineedit
+        return text;
     }
 }
 

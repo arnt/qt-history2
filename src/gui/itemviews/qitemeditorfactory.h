@@ -43,9 +43,10 @@ private:
 class QItemEditorFactory
 {
 public:
+    virtual ~QItemEditorFactory();
+
     virtual QWidget *createEditor(QVariant::Type type, QWidget *parent) const;
     virtual QByteArray valuePropertyName(QVariant::Type type) const;
-    virtual ~QItemEditorFactory();
 
     void registerEditor(QVariant::Type type, QItemEditorCreatorBase *creator);
 
