@@ -1,5 +1,6 @@
 #include "qcomplextext_p.h"
 #include "qrichtext_p.h"
+#include "qfontdata_p.h"
 #include "qfontmetrics.h"
 #include "qrect.h"
 #include <stdlib.h>
@@ -645,7 +646,7 @@ void QComplexText::glyphPositions( QTextString *str )
     //qDebug("---- end string ---");
 }
 
-QPointArray QComplexText::positionMarks( const QFont &f, const QString &str, int pos )
+QPointArray QComplexText::positionMarks( QFontPrivate *f, const QString &str, int pos )
 {
     int len = str.length();
     int nmarks = 0;
@@ -655,9 +656,8 @@ QPointArray QComplexText::positionMarks( const QFont &f, const QString &str, int
     if ( !nmarks )
         return QPointArray();
 
-    QFontMetrics fm( f );
     QChar baseChar = QComplexText::shapedCharacter( str, pos );
-    QRect baseRect = fm.boundingRect( baseChar );
+    QRect baseRect = f->boundingRect( baseChar );
 
     QPointArray pa( nmarks );
     int i;
@@ -668,12 +668,12 @@ QPointArray QComplexText::positionMarks( const QFont &f, const QString &str, int
         unsigned char cmb = mark.combiningClass();
         // combining marks of different class don't interact. Reset the rectangle.
         if ( cmb != lastCmb ) {
-            qDebug( "resetting rect" );
+            //qDebug( "resetting rect" );
             attachmentRect = baseRect;
         }
 
         QPoint p;
-        QRect markRect = fm.boundingRect( mark );
+        QRect markRect = f->boundingRect( mark );
         switch( cmb ) {
         case QChar::Combining_DoubleBelow:
                 // ### wrong in rtl context!

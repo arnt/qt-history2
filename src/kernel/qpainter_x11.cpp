@@ -2720,20 +2720,6 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 }
 
 
-// used for fancy drawText
-struct qt_truple
-{
-    qt_truple()
-	: script((QFontPrivate::Script) -1), stroffset(-1), xoffset(0)
-    { ; }
-
-    QFontPrivate::TextPaintCache cache;
-    QFontPrivate::Script script;
-    int stroffset;
-    int xoffset;
-};
-
-
 /*!
   Draws at most \a len characters of the string \a str to position \a (x,y).
 
@@ -2886,163 +2872,28 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len )
     // 7. delete array from step 1
 
     // step 1
-    struct qt_truple *truples = new qt_truple[len + 1];
-    int currt = 0;
-    int currx = x;
 
-    // step 2
     QString shaped = QComplexText::shapedString( str,  pos, len );
     len = shaped.length();
-    const QChar *uc = shaped.unicode();
-    QFontPrivate::Script currs = QFontPrivate::NoScript, tmp;
-    QFontStruct *qfs;
-    XFontStruct *f;
-    int i;
+    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
 
-    // find encoding boundaries
-    for (i = 0; i < len; i++) {
-	tmp = cfont.d->scriptForChar(*uc++);
+    int width = cfont.d->textWidth( shaped, 0, len, cache );
+    cfont.d->drawText( dpy, hd, gc, x, y, cache );
 
-	// 2a. encoding boundary
-	if (tmp != currs) {
-	    if (currt != 0) {
-		// 2b. string width (this is for the PREVIOUS truple)
-		currx += cfont.d->textWidth( truples[currt-1].script, shaped, 
-					     truples[currt - 1].stroffset - pos,
-					     i + pos - truples[currt - 1].stroffset, 
-					     &truples[currt - 1].cache );
-	    }
-
-	    currs = tmp;
-
-	    // 2c.
-	    truples[currt].script = currs;
-	    truples[currt].stroffset = i + pos;
-	    truples[currt].xoffset = currx;
-	    currt++;
-	}
-    }
-
-    if (currt != 0) {
-	// 2b. string width (this is for the PREVIOUS truple)
-	currx += cfont.d->textWidth( truples[currt-1].script, shaped, 
-				     truples[currt - 1].stroffset - pos,
-				     i + pos - truples[currt - 1].stroffset, 
-				     &truples[currt - 1].cache );
-    } else if (truples[currt].script != QFontPrivate::UnknownScript) {
-	// make sure the last font for the text is at least loaded
-	// cfont.d->load(truples[currt].script);
-    }
-
-    // step 3
-    for (i = 0; i < len; i++) {
-	// step 4... if nothing is found, the for-condition will
-	// break us out of the loop
-	if (truples[i].stroffset == -1) {
-	    break;
-	}
-
-	// step 5
-	int j;
-	currs = truples[i].script;
-
-	if (currs != QFontPrivate::UnknownScript) {
-	    qfs = cfont.d->x11data.fontstruct[currs];
-	} else {
-	    qfs = 0;
-	}
-
-	if (qfs && qfs != (QFontStruct *) -1) {
-	    f = (XFontStruct *) qfs->handle;
-	    XSetFont(dpy, gc, f->fid);
-
-	    for (j = i; j < len; j++) {
-		if (truples[j].stroffset == -1) {
-		    break;
-		}
-
-		if (truples[j].script != currs) {
-		    continue;
-		}
-
-		int l;
-		if (truples[j + 1].stroffset == -1) {
-		    l = len + pos - truples[j].stroffset;
-		} else {
-		    l = truples[j + 1].stroffset - truples[j].stroffset;
-		}
-
-		if (truples[j].cache.mapped.isNull() && !f->max_byte1 ) {
-		    // STOP: we want to use unicode, but don't have a multi-byte
-		    // font?  something is seriously wrong... assume we have text
-		    // we know nothing about
-		    
-		    XRectangle *rects = new XRectangle[l];
-		    int inc = cfont.d->request.pointSize * 3 / 40;
-		    
-		    for (int k = 0; k < l; k++) {
-			rects[k].x = truples[j].xoffset + (k * inc);
-			rects[k].y = y - inc + 2;
-			rects[k].width = rects[k].height = inc - 3;
-		    }
-		    
-		    XDrawRectangles(dpy, hd, gc, rects, l);
-		    delete [] rects;
-		} else {
-		    QFontPrivate::drawText( qfs, dpy, hd, gc, truples[j].xoffset, y, &truples[j].cache );
-		}
-	    }
-	} else {
-	    for (j = i; j < len; j++) {
-		if (truples[j].stroffset == -1) {
-		    break;
-		}
-
-		if (truples[j].script != currs) {
-		    continue;
-		}
-
-		int inc = cfont.d->request.pointSize * 3 / 40;
-		int l;
-
-		if (truples[j + 1].stroffset == -1) {
-		    l = len + pos - truples[j].stroffset;
-		} else {
-		    l = truples[j + 1].stroffset - truples[j].stroffset;
-		}
-
-		XRectangle *rects = new XRectangle[l];
-
-		for (int k = 0; k < l; k++) {
-		    rects[k].x = truples[j].xoffset + (k * inc);
-		    rects[k].y = y - inc + 2;
-		    rects[k].width = rects[k].height = inc - 3;
-		}
-
-		XDrawRectangles(dpy, hd, gc, rects, l);
-		delete [] rects;
-	    }
-	}
-
-	// step 6 - gotta love loops
-    }
-
-    // step 7
-    delete [] truples;
+    delete cache;
 
     if ( cfont.underline() || cfont.strikeOut() ) {
 	QFontMetrics fm = fontMetrics();
 	int lw = fm.lineWidth();
-	int tw = currx - x;
 
 	// draw underline effect
 	if ( cfont.underline() ) {
-	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), tw, lw );
+	    XFillRectangle( dpy, hd, gc, x, y+fm.underlinePos(), width, lw );
 	}
 
 	// draw strikeout effect
 	if ( cfont.strikeOut() ) {
-	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), tw, lw );
+	    XFillRectangle( dpy, hd, gc, x, y-fm.strikeOutPos(), width, lw );
 	}
     }
 }

@@ -6,6 +6,7 @@
 #include <qfont.h>
 
 class QTextString;
+class QFontPrivate;
 
 class Q_EXPORT QComplexText {
 public:
@@ -23,7 +24,7 @@ public:
     static void glyphPositions( QTextString *str );
 
     // positions non spacing marks relative to the base character at position pos.
-    static QPointArray positionMarks( const QFont &f, const QString &str, int pos );
+    static QPointArray positionMarks( QFontPrivate *f, const QString &str, int pos );
 };
 
 

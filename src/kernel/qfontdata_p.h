@@ -339,7 +339,8 @@ public:
     // int lineWidth()  const;
 
     static int getFontWeight(const QCString &, bool = FALSE);
-
+    QRect boundingRect( const QChar &ch );
+    
 #ifdef Q_WS_X11
     Script scriptForChar(const QChar &c);
     Script hanHack( const QChar & c );
@@ -399,34 +400,22 @@ public:
        non spacing marks can change the extents of a string to draw. At the same time 
        drawing needs to take care to correctly position non spacing marks.
     */
-    struct TextPaintCache {
-	TextPaintCache() { sub = 0; string = 0; length = 0; }
-	~TextPaintCache() { if ( sub ) delete sub; }
-	struct SubString {
-	    int from;
-	    int len;
-	    int xoff;
-	    int yoff;
-	};
-	void createSubstring() {
-	    if ( sub ) return;
-	    sub = new QArray<SubString>(1);
-	    SubString &str = sub->at(0);
-	    str.xoff = 0;
-	    str.yoff = 0;
-	    str.from = 0;
-	    str.len = 0;
-	}
+    struct TextRun {
+	TextRun() { xoff = 0; yoff = 0; fs = 0; string = 0; length = 0; next = 0; }
+	~TextRun() { if ( next ) delete next; }
+	int xoff;
+	int yoff;
+	QFontStruct *fs;
 	QByteArray mapped;
 	const QChar *string;
 	int length;
-	QArray<SubString> *sub;
+	TextRun *next;
     };
     
-    int textWidth( Script script, const QString &str, int pos, int len, TextPaintCache *item = 0 );
-    void textExtents( Script script, const QString &str, int pos, int len, XCharStruct *overall );
-    static void drawText( QFontStruct *qfs, Display *dpy, WId hd, GC gc, int x, int y, 
-			  const QFontPrivate::TextPaintCache *cache );
+    int textWidth( const QString &str, int pos, int len );
+    int textWidth( const QString &str, int pos, int len, TextRun *cache );
+    void textExtents( const QString &str, int pos, int len, XCharStruct *overall );
+    void drawText( Display *dpy, WId hd, GC gc, int x, int y, const TextRun *cache );
     
     class QFontX11Data {
     public:
