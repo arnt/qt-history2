@@ -110,8 +110,8 @@ void QItemDelegate::paint(QPainter *painter,
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-    static QPoint pt(0, 0);
-    static QSize sz(border * 2, border * 2);
+    const static QPoint pt(0, 0);
+    const static QSize sz(border * 2, border * 2);
 
     QStyleOptionViewItem opt = option;
     const QAbstractItemModel *model = index.model();
@@ -161,6 +161,9 @@ void QItemDelegate::paint(QPainter *painter,
 QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
                               const QModelIndex &index) const
 {
+    const static QPoint pt(0, 0);
+    const static QSize sz(border * 2, border * 2);
+
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
 
@@ -172,7 +175,7 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
-    QRect textRect(QPoint(0, 0), QFontMetrics(fnt).size(0, text) + QSize(border * 2, border * 2));
+    QRect textRect(pt, QFontMetrics(fnt).size(0, text) + sz);
     doLayout(option, &pixmapRect, &textRect, true);
 
     return pixmapRect.unite(textRect).size();
@@ -247,7 +250,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
                                          const QModelIndex &index) const
 {
-    static QPoint pt(0, 0);
+    const static QPoint pt(0, 0);
     if (editor) {
         const QAbstractItemModel *model = index.model();
         Q_ASSERT(model);
