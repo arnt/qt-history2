@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#35 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#35 $";
 #endif
 
 
@@ -78,7 +78,7 @@ static inline bool checkIndex( const char *method, int count, int index )
   item, and selected() is emitted when the user actually selects the
   current item.
 
-  If the user does not select anything, no signals are emitted and the
+  If the user does not select anything, no signals are emitted and
   currentItem() returns -1.
 
   New items may be inserted using either insertItem(), insertStrList()
@@ -89,12 +89,12 @@ static inline bool checkIndex( const char *method, int count, int index )
   specific policy.
 
   If you need a list box that contains other types, you must inherit
-  QLBItem and QListBox and reimplement deleteItem(), newItem(),
-  itemWidth(), itemHeight() and paintItem().  You must also call
-  setUserItems( TRUE ) in the subclass constructor.
+  QListBox and reimplement itemWidth(), itemHeight() and paintItem().
+  You must also call setUserItems( TRUE ) in the subclass constructor.
 
-  QLBItem is at present not documented, see qlistbox.h for its
-  declaration.
+  You must use QLBItem quite a bit, see qlistbox.h for its declaration
+  and nowhere (yet) for its documentation.  If you inherit QLBItem as
+  well, you need to reimplement deleteItem() and newItem().
 
   \sa QComboBox, QPopupMenu, QStrList, QPixmap, QString.
 
