@@ -454,8 +454,7 @@ void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 }
 
 /*!
-  Returns the rectangle on the viewport occupied by the item at \a
-  index.
+  Returns the rectangle on the viewport occupied by the item at \a index.
   If the index is not visible or explicitly hidden, the returned rectangle is invalid.
 */
 QRect QTreeView::visualRect(const QModelIndex &index) const
@@ -674,8 +673,8 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
 /*!
   Draws the branches in the tree view on the same row as the model item
-  \a index, using the \a painter given. Only the branches within the
-  rectangle specified by \a rect are drawn.
+  \a index, using the \a painter given. The branches are drawn in the
+  rectangle specified by \a rect.
 */
 void QTreeView::drawBranches(QPainter *painter, const QRect &rect,
                              const QModelIndex &index) const

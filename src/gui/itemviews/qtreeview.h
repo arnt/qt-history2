@@ -107,7 +107,9 @@ protected:
     virtual void drawRow(QPainter *painter,
                          const QStyleOptionViewItem &options,
                          const QModelIndex &index) const;
-    virtual void drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const;
+    virtual void drawBranches(QPainter *painter,
+                              const QRect &rect,
+                              const QModelIndex &index) const;
 
     void mousePressEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
