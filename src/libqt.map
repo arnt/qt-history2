@@ -1,0 +1,13 @@
+{
+  local:
+  extern "C++"
+  {
+	QFDProgress*;
+	QFtpDTP::*;
+	QFtpPI*;
+	Q*Private::*;
+	QPSPrinterFont*;
+	Q*RegExpEngine::*;
+	Q*SvgDevice::*
+  };
+};
