@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#10 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#11 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -266,6 +266,8 @@ void QSocketDevice::flush()
 
   The size is meaningless for a socket, therefore this function returns 0.
 */
+// ### This behaviour is not consistent with QSocket::size(). Maybe we should
+// fix that?
 Q_ULONG QSocketDevice::size() const
 {
     return 0;
