@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#198 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1966,4 +1966,16 @@ QSize QListBox::sizeHint() const
 QSizePolicy QListBox::sizePolicy() const
 {
     return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}
+
+/*!  Returns a pointer to the QListBoxItem at \a pos.  Note
+  that \a pos is in the coordinate system of the visible listbox
+  widget, not in the much larger coordinate system of the scrolling
+  area.
+
+  itemAt() returns 0 if there is no such item.
+*/
+QListBoxItem * QListBox::itemAt( const QPoint & pos ) const
+{
+    return  item( findItem( pos.y() ) );
 }
