@@ -21,6 +21,8 @@ void DisplayWidget::paintEvent( QPaintEvent * )
     p.scale( sc, sc );
     p.translate( x0, y0 );
     p.drawPicture( pic );
+    p.setPen( Qt::red );
+    p.drawRect( pic.boundingRect() );
     p.end();
 }
 
@@ -28,7 +30,7 @@ void DisplayWidget::keyPressEvent( QKeyEvent *k )
 {
     const double delta = 50.0;
 
-    switch ( k->ascii() ) {
+    switch ( k->key() ) {
     case '+':
 	sc++;
 	update();
