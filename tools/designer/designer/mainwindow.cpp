@@ -3234,7 +3234,7 @@ bool MainWindow::openProjectSettings( Project *pro )
     QValueList<Tab>::Iterator it;
     for ( it = projectTabs.begin(); it != projectTabs.end(); ++it ) {
 	Tab t = *it;
-	if ( t.title != currentProject->language() )
+	if ( t.title != pro->language() )
 	    continue;
 	dia.tabWidget->addTab( t.w, t.title );
 	if ( t.receiver ) {
