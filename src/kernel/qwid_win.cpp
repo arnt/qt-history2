@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qwid_win.cpp#13 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_win.cpp#13 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -292,7 +292,6 @@ void QWidget::grabKeyboard()
 	    keyboardGrb->releaseKeyboard();
 	setWFlags( WState_KGrab );
 	if ( !qt_nograb() ) {
-	    debug( "QWidget::grabKeyboard: Not implemented" );
 	    keyboardGrb = this;
 	}
     }
@@ -303,7 +302,6 @@ void QWidget::releaseKeyboard()
     if ( testWFlags(WState_KGrab) ) {
 	clearWFlags( WState_KGrab );
 	if ( !qt_nograb() ) {
-	    debug( "QWidget::releaseKeyboard: Not implemented" );
 	    keyboardGrb = 0;
 	}
     }
@@ -553,9 +551,10 @@ void QWidget::erase( int x, int y, int w, int h )
 	tmphdc = GetDC( id() );
     HANDLE hbrush = CreateSolidBrush( bg_col.pixel() );
     RECT r;
-    r.left = r.top = 0;
-    r.right  = width();
-    r.bottom = height();
+    r.left = x;
+    r.top  = y;
+    r.right  = x + w - 1;
+    r.bottom = y + h - 1;
     FillRect( tmphdc, &r, hbrush );
     DeleteObject( hbrush );
     if ( !hdc )
