@@ -162,6 +162,21 @@
 */
 
 
+class QColorGroupPrivate : public QShared
+{
+public:
+    QBrush br[QColorGroup::NColorRoles];
+    QColorGroupPrivate* detach() {
+	if ( count > 1 ) {
+	    deref();
+	    QColorGroupPrivate* d = new QColorGroupPrivate;
+	    for (int i=0; i<QColorGroup::NColorRoles; i++)
+		d->br[i] = br[i];
+	    return d;
+	}
+	return this;
+    }
+};
 
 /*!
   Constructs a color group with all colors set to black.
@@ -169,14 +184,16 @@
 
 QColorGroup::QColorGroup()
 {
-    br = new QBrush[(uint)NColorRoles];	// all colors become black
-
-    // The d pointer may allow sharing in the future.  The br pointer
-    // then will be a redundant pointer that makes possible the inlines
-    // in the header file.  Don't forget to add delete d in the destructor.
-    // QPalette, the main QColorGroup user, is already shared though,
-    // so perhaps not much is to be gained.
-    d = 0;
+    static QColorGroupPrivate* defColorGroupData = 0;
+    if ( !defColorGroupData ) {
+	static QSingleCleanupHandler<QColorGroupPrivate> defColorGroupCleanup;
+	defColorGroupData = new QColorGroupPrivate;
+	defColorGroupData->ref();
+	defColorGroupCleanup.set( &defColorGroupData );
+    }
+    d = defColorGroupData;
+    br = d->br;
+    d->ref();
 }
 
 /*!
@@ -184,10 +201,9 @@ QColorGroup::QColorGroup()
 */
 QColorGroup::QColorGroup( const QColorGroup& other )
 {
-    br = new QBrush[(uint)NColorRoles];
-    for (int i=0; i<NColorRoles; i++)
-	br[i] = other.br[i];
-    d = 0;
+    d = other.d;
+    d->ref();
+    br = d->br;
 }
 
 /*!
@@ -195,8 +211,13 @@ QColorGroup::QColorGroup( const QColorGroup& other )
 */
 QColorGroup& QColorGroup::operator =(const QColorGroup& other)
 {
-    for (int i=0; i<NColorRoles; i++)
-	br[i] = other.br[i];
+    if ( d != other.d ) {
+	if ( d->deref() )
+	    delete d;
+	d = other.d;
+	br = d->br;
+	d->ref();
+    }
     return *this;
 }
 
@@ -222,7 +243,8 @@ such long lists of arguments are rather error-prone.
 			   const QBrush &bright_text, const QBrush &base,
 			   const QBrush &background)
 {
-    br = new QBrush[(uint)NColorRoles];
+    d = new QColorGroupPrivate;
+    br = d->br;
     br[Foreground]      = foreground;
     br[Button]		= button;
     br[Light]		= light;
@@ -253,7 +275,8 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
 			  const QColor &mid,
 			  const QColor &text, const QColor &base )
 {
-    br = new QBrush[(uint)NColorRoles];
+    d = new QColorGroupPrivate;
+    br = d->br;
     br[Foreground]      = QBrush(foreground);
     br[Button]          = QBrush(background);
     br[Light]           = QBrush(light);
@@ -278,7 +301,8 @@ QColorGroup::QColorGroup( const QColor &foreground, const QColor &background,
 
 QColorGroup::~QColorGroup()
 {
-    delete [] br;
+    if ( d->deref() )
+	delete d;
 }
 
 /*!
@@ -317,6 +341,8 @@ void QColorGroup::setColor( ColorRole r, const QColor &c )
 */
 void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 {
+    d = d->detach();
+    br = d->br;
     br[r] = b;
 }
 
@@ -448,6 +474,8 @@ void QColorGroup::setBrush( ColorRole r, const QBrush &b )
 
 bool QColorGroup::operator==( const QColorGroup &g ) const
 {
+    if ( d == g.d )
+	return TRUE;
     for( int r = 0 ; r < NColorRoles ; r++ )
 	if ( br[r] != g.br[r] )
 	    return FALSE;
@@ -540,8 +568,8 @@ QPalette::QPalette()
     if ( !defPalData ) {                // create common palette data
         defPalData = new QPalData;      //   for the default palette
         Q_CHECK_PTR( defPalData );
-	static QCleanupHandler<QPalData> defPalCleanup;
-	defPalCleanup.add( &defPalData );
+	static QSingleCleanupHandler<QPalData> defPalCleanup;
+	defPalCleanup.set( &defPalData );
         defPalData->ser_no = palette_count++;
     }
     data = defPalData;
@@ -710,7 +738,7 @@ void QPalette::setBrush( ColorGroup gr, QColorGroup::ColorRole r,
 {
     detach();
     data->ser_no = palette_count++;
-    directBrush( gr, r ) = b;
+    directSetBrush( gr, r, b);
 }
 
 /*!
@@ -735,9 +763,9 @@ void QPalette::setBrush( QColorGroup::ColorRole r, const QBrush &b )
 {
     detach();
     data->ser_no = palette_count++;
-    directBrush( Active,   r ) = b;
-    directBrush( Disabled, r ) = b;
-    directBrush( Inactive,   r ) = b;
+    directSetBrush( Active, r, b );
+    directSetBrush( Disabled, r, b );
+    directSetBrush( Inactive, r, b );
 }
 
 
@@ -1009,7 +1037,7 @@ bool QPalette::isCopyOf( const QPalette & p )
     return data && data == p.data;
 }
 
-QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
+const QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
 {
     if ( (uint)gr > (uint)QPalette::NColorGroups ) {
 #if defined(QT_CHECK_RANGE)
@@ -1040,6 +1068,38 @@ QBrush &QPalette::directBrush( ColorGroup gr, QColorGroup::ColorRole r ) const
     qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
 #endif
     return data->active.br[QColorGroup::Foreground]; // Satisfy compiler
+}
+
+void QPalette::directSetBrush( ColorGroup gr, QColorGroup::ColorRole r, const QBrush& b)
+{
+    if ( (uint)gr > (uint)QPalette::NColorGroups ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QPalette::directBrush: colorGroup(%i) out of range", gr );
+#endif
+	return;
+    }
+    if ( (uint)r >= (uint)QColorGroup::NColorRoles ) {
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QPalette::directBrush: colorRole(%i) out of range", r );
+#endif
+	return;
+    }
+    switch( gr ) {
+    case Active:
+	data->active.setBrush(r,b);
+	break;
+    case Disabled:
+	data->disabled.setBrush(r,b);
+	break;
+    case Inactive:
+	data->inactive.setBrush(r,b);
+	break;
+    default:
+#if defined(QT_CHECK_RANGE)
+	qWarning( "QPalette::directBrush: colorGroup(%i) internal error", gr );
+#endif
+	break;
+    }
 }
 
 

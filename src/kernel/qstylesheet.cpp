@@ -1178,7 +1178,7 @@ void QStyleSheet::init()
 
 
 static QStyleSheet* defaultsheet = 0;
-static QCleanupHandler<QStyleSheet> qt_cleanup_stylesheet;
+static QSingleCleanupHandler<QStyleSheet> qt_cleanup_stylesheet;
 
 /*!
   Returns the application-wide default style sheet. This style sheet is
@@ -1194,7 +1194,7 @@ QStyleSheet* QStyleSheet::defaultSheet()
 {
     if (!defaultsheet) {
 	defaultsheet = new QStyleSheet();
-	qt_cleanup_stylesheet.add( &defaultsheet );
+	qt_cleanup_stylesheet.set( &defaultsheet );
     }
     return defaultsheet;
 }
@@ -1210,12 +1210,12 @@ void QStyleSheet::setDefaultSheet( QStyleSheet* sheet)
 {
     if ( defaultsheet != sheet ) {
 	if ( defaultsheet )
-	    qt_cleanup_stylesheet.remove( &defaultsheet );
+	    qt_cleanup_stylesheet.reset();
 	delete defaultsheet;
     }
     defaultsheet = sheet;
     if ( defaultsheet )
-	qt_cleanup_stylesheet.add( &defaultsheet );
+	qt_cleanup_stylesheet.set( &defaultsheet );
 }
 
 /*!\internal

@@ -256,7 +256,7 @@ bool qt_use_antialiasing = FALSE;
 #ifndef QT_NO_XFTFREETYPE
 typedef QIntDict<QPixmap> QPixmapDict;
 static QPixmapDict *qt_xft_render_sources = 0;
-QCleanupHandler<QPixmapDict> cleanup_pixmapdict;
+QSingleCleanupHandler<QPixmapDict> cleanup_pixmapdict;
 #endif // QT_NO_XFTFREETYPE
 
 
@@ -2685,8 +2685,8 @@ bool QFont::dirty() const
 // **********************************************************************
 
 QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
-QCleanupHandler<QFontCache> cleanup_fontcache;
-QCleanupHandler<QFontNameDict> cleanup_fontnamedict;
+QSingleCleanupHandler<QFontCache> cleanup_fontcache;
+QSingleCleanupHandler<QFontNameDict> cleanup_fontnamedict;
 
 extern bool qt_use_xrender; // defined in qapplication_x11.cpp
 
@@ -2703,14 +2703,14 @@ void QFont::initialize()
     if ( ! QFontPrivate::fontCache ) {
 	QFontPrivate::fontCache = new QFontCache();
 	Q_CHECK_PTR(QFontPrivate::fontCache);
-	cleanup_fontcache.add(&QFontPrivate::fontCache);
+	cleanup_fontcache.set(&QFontPrivate::fontCache);
     }
 
     if ( ! fontNameDict ) {
 	fontNameDict = new QFontNameDict(QFontPrivate::fontCache->size());
 	Q_CHECK_PTR(fontNameDict);
 	fontNameDict->setAutoDelete(TRUE);
-	cleanup_fontnamedict.add(&fontNameDict);
+	cleanup_fontnamedict.set(&fontNameDict);
     }
 
 #ifndef QT_NO_CODECS
@@ -2738,7 +2738,7 @@ void QFont::initialize()
 
 	if ( ! qt_xft_render_sources ) {
 	    qt_xft_render_sources = new QPixmapDict();
-	    cleanup_pixmapdict.add(&qt_xft_render_sources);
+	    cleanup_pixmapdict.set(&qt_xft_render_sources);
 	}
     }
 #endif // QT_NO_XFTFREETYPE

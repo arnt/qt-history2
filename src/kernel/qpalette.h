@@ -158,7 +158,8 @@ public:
 
 private:
     void	detach();
-    QBrush	&directBrush( ColorGroup, QColorGroup::ColorRole ) const;
+    const QBrush &directBrush( ColorGroup, QColorGroup::ColorRole ) const;
+    void directSetBrush( ColorGroup, QColorGroup::ColorRole, const QBrush& );
 
     struct QPalData : public QShared {
 	QColorGroup disabled;

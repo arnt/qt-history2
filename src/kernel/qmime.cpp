@@ -62,7 +62,7 @@
 
 static int qt_mime_serial_number = 0;
 static QMimeSourceFactory* defaultfactory = 0;
-static QCleanupHandler<QMimeSourceFactory> qmime_cleanup_factory;
+static QSingleCleanupHandler<QMimeSourceFactory> qmime_cleanup_factory;
 
 /*! Constructs a mime source and assigns a globally unique serial
   number to it.
@@ -539,7 +539,7 @@ QMimeSourceFactory* QMimeSourceFactory::defaultFactory()
 {
     if (!defaultfactory) {
 	defaultfactory = new QMimeSourceFactory();
-	qmime_cleanup_factory.add( &defaultfactory );
+	qmime_cleanup_factory.set( &defaultfactory );
     }
     return defaultfactory;
 }

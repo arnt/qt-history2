@@ -490,7 +490,7 @@ uint qGlobalPostedEventsCount()
     return globalPostedEvents->count();
 }
 
-static QCleanupHandler<QPostEventList> qapp_cleanup_events;
+static QSingleCleanupHandler<QPostEventList> qapp_cleanup_events;
 
 #ifndef QT_NO_PALETTE
 QPalette *qt_std_pal = 0;
@@ -2621,7 +2621,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	globalPostedEvents = new QPostEventList;
 	Q_CHECK_PTR( globalPostedEvents );
 	globalPostedEvents->setAutoDelete( TRUE );
-	qapp_cleanup_events.add( &globalPostedEvents );
+	qapp_cleanup_events.set( &globalPostedEvents );
     }
     if ( receiver == 0 ) {
 #if defined(QT_CHECK_NULL)

@@ -46,6 +46,7 @@
 #include "qapplication.h"
 #include "qrichtext_p.h"
 #include "qregexp.h"
+#include "qcleanuphandler.h"
 #ifdef Q_WS_QWS
 #include "qgfx_qws.h"
 #endif
@@ -3369,7 +3370,18 @@ void QBrush::init( const QColor &color, BrushStyle style )
 
 QBrush::QBrush()
 {
-    init( Qt::black, NoBrush );
+    static QBrushData* defBrushData = 0;
+    if ( !defBrushData ) {
+	static QSingleCleanupHandler<QBrushData> defBrushCleanup;
+	defBrushData = new QBrushData;
+	defBrushData->style = NoBrush;
+	defBrushData->color = Qt::black;
+	defBrushData->pixmap = 0;
+	defBrushData->ref();
+	defBrushCleanup.set( &defBrushData );
+    }
+    data = defBrushData;
+    data->ref();
 }
 
 /*!

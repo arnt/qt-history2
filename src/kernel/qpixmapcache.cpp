@@ -157,7 +157,7 @@ bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
 
 static QPMCache *pm_cache = 0;			// global pixmap cache
 
-static QCleanupHandler<QPMCache> qpm_cleanup_cache;
+static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
   Returns the pixmap associated with the \a key in the cache, or null
@@ -242,7 +242,7 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
 	Q_CHECK_PTR( pm_cache );
-	qpm_cleanup_cache.add( &pm_cache );
+	qpm_cleanup_cache.set( &pm_cache );
     }
     return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
 }
@@ -267,7 +267,7 @@ bool QPixmapCache::insert( const QString &key, const QPixmap& pm )
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
 	Q_CHECK_PTR( pm_cache );
-	qpm_cleanup_cache.add( &pm_cache );
+	qpm_cleanup_cache.set( &pm_cache );
     }
     QPixmap *p = new QPixmap(pm);
     bool rt = pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 );
