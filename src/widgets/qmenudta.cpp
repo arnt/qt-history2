@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#23 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#23 $";
 #endif
 
 
@@ -230,9 +230,9 @@ int QMenuData::insertItem( const char *text,
 /*!
 Inserts a menu item with a text. Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
 identifier if \e id == -1 (default).
-The \e id must not be 0 or less than -1.
+The \e id must not less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
 appended at the end of the list if \e index is negative.
@@ -241,7 +241,7 @@ appended at the end of the list if \e index is negative.
 int QMenuData::insertItem( const char *text, int id, int index )
 {
 #if defined(CHECK_RANGE)
-    if ( id < -1 || id == 0 )
+    if ( id < -1 )
 	warning( "QMenuData::insertItem: Invalid identifier %d", id );
 #endif
     return insertAny( text, 0, 0, id, index );
@@ -251,9 +251,9 @@ int QMenuData::insertItem( const char *text, int id, int index )
 Inserts a menu item with a text and a sub menu.
 Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
 identifier if \e id == -1 (default).
-The \e id must not be 0 or less than -1.
+The \e id must not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
 appended at the end of the list if \e index is negative.
@@ -263,7 +263,7 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 			   int id, int index )
 {
 #if defined(CHECK_RANGE)
-    if ( id < -1 || id == 0 )
+    if ( id < -1 )
 	warning( "QMenuData::insertItem: Invalid identifier %d", id );
 #endif
     return insertAny( text, 0, popup, id, index );
@@ -273,9 +273,9 @@ int QMenuData::insertItem( const char *text, QPopupMenu *popup,
 Inserts a menu item with a pixmap.
 Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
 identifier if \e id == -1 (default).
-The \e id must not be 0 or less than -1.
+The \e id must not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
 appended at the end of the list if \e index is negative.
@@ -284,7 +284,7 @@ appended at the end of the list if \e index is negative.
 int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 {
 #if defined(CHECK_RANGE)
-    if ( id < -1 || id == 0 )
+    if ( id < -1 )
 	warning( "QMenuData::insertItem: Invalid identifier %d", id );
 #endif
     return insertAny( 0, &pixmap, 0, id, index );
@@ -294,9 +294,9 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 Inserts a menu item with a pixmap and a sub menu.
 Returns the menu item identifier.
 
-The menu item gets the identifier \e id if \e id > 0 or a unique, negative
+The menu item gets the identifier \e id if \e id >= 0 or a unique, negative
 identifier if \e id == -1 (default).
-The \e id must not be 0 or less than -1.
+The \e id must not be less than -1.
 
 The \e index specifies the position in the menu.  The menu item is
 appended at the end of the list if \e index is negative.
@@ -306,7 +306,7 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			   int id, int index )
 {
 #if defined(CHECK_RANGE)
-    if ( id < -1 || id == 0 )
+    if ( id < -1 )
 	warning( "QMenuData::insertItem: Invalid identifier %d", id );
 #endif
     return insertAny( 0, &pixmap, popup, id, index );
@@ -331,7 +331,7 @@ Removes the menu item which has the identifier \e id.
 Removes the menu item at position \e index.
 */
 
-void QMenuData::removeItemAt( int index )	// remove menu item
+void QMenuData::removeItemAt( int index )
 {
     if ( index < 0 || index >= mitems->count() ) {
 #if defined(CHECK_RANGE)
@@ -352,7 +352,7 @@ void QMenuData::removeItemAt( int index )	// remove menu item
 Removes all menu items.
 */
 
-void QMenuData::clear()				// remove all menu items
+void QMenuData::clear()
 {
     register QMenuItem *mi = mitems->first();
     while ( mi ) {
@@ -372,7 +372,7 @@ Returns the accelerator key that has been defined for the menu item \e id,
 or 0 if there is no accelerator key.
 */
 
-long QMenuData::accel( int id ) const		// get accelerator key
+long QMenuData::accel( int id ) const
 {
     QMenuItem *mi = findItem( id );
     return mi ? mi->key() : 0;
@@ -402,7 +402,7 @@ Example of use:
 \endcode
 */
 
-void QMenuData::setAccel( long key, int id )	// set accelerator key
+void QMenuData::setAccel( long key, int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi ) {

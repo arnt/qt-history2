@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.h#18 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.h#19 $
 **
 ** Definition of QMenuData class
 **
@@ -80,12 +80,10 @@ public:
 
     int		insertItem( const char *text,
 			    const QObject *receiver, const char *member,
-			    long accel_key=0 );
-
+			    long accel=0 );
     int		insertItem( const char *text, int id=-1, int index=-1 );
     int		insertItem( const char *text, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
-
     int		insertItem( const QPixmap &pixmap, int id=-1, int index=-1 );
     int		insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 			    int id=-1, int index=-1 );
@@ -96,11 +94,11 @@ public:
     void	removeItemAt( int index );
     void	clear();
 
-    long	accel( int id )	 const;		// get accelerator key
-    void	setAccel( long key, int id );	// set accelerator key
+    long	accel( int id )		const;
+    void	setAccel( long key, int id );
 
-    const char *text( int id ) const;		// get text of item id
-    QPixmap    *pixmap( int id )  const;	// get pixmap of item id
+    const char *text( int id )		const;
+    QPixmap    *pixmap( int id )	const;
     void	changeItem( const char *text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
 
@@ -115,22 +113,22 @@ public:
     void	checkItem( int id )		{ setItemChecked( id, TRUE ); }
     void	uncheckItem( int id )		{ setItemChecked( id, FALSE );}
 
-    virtual void updateItem( int id );		// redraw the item
+    virtual void updateItem( int id );
 
-    int		indexOf( int id ) const;	// get index of specified item
-    int		idAt( int index ) const;	// get id of item at index
-    void	setId( int index, int id );	// set id of item at index
+    int		indexOf( int id )	const;
+    int		idAt( int index )	const;
+    void	setId( int index, int id );
 
-    bool	connectItem( int id,		// connect item to method
+    bool	connectItem( int id,
 			     const QObject *receiver, const char *member );
     bool	disconnectItem( int id,
 				const QObject *receiver, const char *member );
 
-    QMenuItem  *findItem( int id ) const;
+    QMenuItem  *findItem( int id )	const;
 
 protected:
-    int		   actItem;			// active menu item
-    QMenuItemList *mitems;			// list of menu items
+    int		   actItem;
+    QMenuItemList *mitems;
     QMenuData	  *parentMenu;
     uint	   isPopup	: 1;
     uint	   isMenuBar	: 1;
