@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#261 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#262 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12619,6 +12619,8 @@ QCString QString::local8Bit() const
 */
 QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
+    if ( !local8Bit )
+	return QString::null;
 #ifdef _WS_X11_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     if ( len < 0 ) len = strlen(local8Bit);
@@ -13262,6 +13264,8 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 {
     if ( uclen < 0 )
 	uclen = s.length();
+    if ( uclen == 0 )
+	return QCString();
     BOOL used_def;
     QCString mb(4096);
     int len;
@@ -13288,6 +13292,8 @@ QCString qt_winQString2MB( const QString& s, int uclen )
 // WATCH OUT: mblen must include the NUL (or just use -1)
 QString qt_winMB2QString( const char* mb, int mblen )
 {
+    if ( !mb )
+	return QString::null;
     const int wclen_auto = 4096;
     WCHAR wc_auto[wclen_auto];
     int wclen = wclen_auto;
