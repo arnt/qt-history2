@@ -70,7 +70,7 @@ foreach $p ( @dirs ) {
     if ( -d "$basedir/$p" ) {
 	chdir "$basedir/$p";
 	my @ff = find_files( ".", "^[-a-z0-9]*(?:_[^p].*)?\\.h\$" , 0 );
-	my @pf = find_files( ".", "^[-a-z0-9]*[_][p]\\.h\$" , 0 );
+	my @pf = find_files( ".", "^[-a-z0-9_]*[_][p]\\.h\$" , 0 );
 	foreach ( @ff ) { 
 	  my $file = "$p/$_"; 
 	  my $h = $file; 
