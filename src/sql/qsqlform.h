@@ -13,7 +13,14 @@ class QSqlField;
 class QSqlCursor;
 class QEditorFactory;
 
-class QSqlPropertyMap {
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QMap<QString,QString>;
+template class Q_EXPORT QMap<QWidget*, QSqlField*>;
+// MOC_SKIP_END
+#endif
+
+class Q_EXPORT QSqlPropertyMap {
 public:
     QSqlPropertyMap();
     
@@ -29,7 +36,7 @@ private:
     QMap< QString, QString > propertyMap;
 };
 
-class QSqlFormMap
+class Q_EXPORT QSqlFormMap
 {
 public:
     QSqlFormMap();
