@@ -25,7 +25,7 @@
 #include <qvalidator.h>
 #include <qpopupmenu.h>
 #include <qhash.h>
-#include <qpopupmenu.h>
+#include <q3popupmenu.h>
 
 class QProgressBar;
 class MainWindow;
@@ -48,7 +48,7 @@ class SearchValidator : public QValidator
     Q_OBJECT
 public:
     SearchValidator( QObject *parent, const char *name = 0 )
-	: QValidator( parent, name ) {}
+        : QValidator( parent, name ) {}
     ~SearchValidator() {}
     QValidator::State validate( QString &str, int & ) const;
 };
@@ -142,7 +142,7 @@ private:
     bool initDoneMsgShown;
     void getAllContents();
     QHash<QString, ContentList> contentList;
-    QPopupMenu *itemPopup;
+    Q3PopupMenu *itemPopup;
     QString cacheFilesPath;
 };
 

@@ -18,7 +18,8 @@ void FindDialog::init()
     onceFound = FALSE;
     findExpr = "";
     sb = new QStatusBar( this );
-    FindDialogLayout->addWidget( sb );
+    if (layout())
+        layout()->addWidget( sb );
     sb->message( tr( "Enter the text you are looking for." ) );
 }
 
@@ -37,29 +38,29 @@ void FindDialog::doFind(bool forward)
     sb->clear();
 
     if (comboFind->currentText() != findExpr || lastBrowser != browser)
-	onceFound = false;
+        onceFound = false;
     findExpr = comboFind->currentText();
 
     bool found;
     if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
-	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
-			      forward);
+        found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
+                              forward);
     } else {
-	int para = forward ? 0 : INT_MAX;
-	int index = forward ? 0 : INT_MAX;
-	found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
-			      forward, &para, &index);
+        int para = forward ? 0 : INT_MAX;
+        int index = forward ? 0 : INT_MAX;
+        found = browser->find(findExpr, checkCase->isChecked(), checkWords->isChecked(),
+                              forward, &para, &index);
     }
 
     if (!found) {
-	if (onceFound) {
-	    if (forward)
-		statusMessage(tr("Search reached end of the document"));
-	    else
-		statusMessage(tr("Search reached start of the document"));
-	} else {
-	    statusMessage(tr( "Text not found" ));
-	}
+        if (onceFound) {
+            if (forward)
+                statusMessage(tr("Search reached end of the document"));
+            else
+                statusMessage(tr("Search reached start of the document"));
+        } else {
+            statusMessage(tr( "Text not found" ));
+        }
     }
     onceFound |= found;
     lastBrowser = browser;
@@ -80,8 +81,8 @@ bool FindDialog::hasFindExpression()
 void FindDialog::statusMessage(const QString &message)
 {
     if (isVisible())
-	sb->message(message);
+        sb->message(message);
     else
-	((MainWindow*) parent())->statusBar()->message(message, 2000);
+        ((MainWindow*) parent())->statusBar()->message(message, 2000);
 
 }

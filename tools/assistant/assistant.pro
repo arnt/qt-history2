@@ -1,37 +1,38 @@
 TEMPLATE = app
 LANGUAGE = C++
-TARGET	 = assistant
+TARGET         = assistant
 
-CONFIG	+= qt warn_off
-QT += compat
+CONFIG        += qt warn_off
+QT += compat xml
 
-PROJECTNAME	= Assistant
-DESTDIR		= ../../bin
+PROJECTNAME        = Assistant
+DESTDIR                = ../../bin
+INCLUDEPATH += $(QTDIR)/include/flat
 
-SOURCES	+= main.cpp \
-	helpwindow.cpp \
-	topicchooserimpl.cpp \
-	docuparser.cpp \
-	helpdialogimpl.cpp \
-	settingsdialogimpl.cpp \
-	index.cpp \
+SOURCES        += main.cpp \
+        helpwindow.cpp \
+        topicchooserimpl.cpp \
+        docuparser.cpp \
+        helpdialogimpl.cpp \
+        settingsdialogimpl.cpp \
+        index.cpp \
         profile.cpp \
-        config.cpp 
+        config.cpp
 
-HEADERS	+= helpwindow.h \
-	topicchooserimpl.h \
-	docuparser.h \
-	helpdialogimpl.h \
-	settingsdialogimpl.h \
-	index.h \
+HEADERS        += helpwindow.h \
+        topicchooserimpl.h \
+        docuparser.h \
+        helpdialogimpl.h \
+        settingsdialogimpl.h \
+        index.h \
         profile.h \
         config.h
 
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
-!network:DEFINES	+= QT_INTERNAL_NETWORK
+!network:DEFINES        += QT_INTERNAL_NETWORK
 else:QT += network
-!xml: DEFINES		+= QT_INTERNAL_XML
+!xml: DEFINES                += QT_INTERNAL_XML
 else:QT += xml
 include( ../../src/qt_professional.pri )
 
@@ -45,33 +46,33 @@ assistanttranslations.files = *.qm
 assistanttranslations.path = $$translations.path
 INSTALLS += assistanttranslations
 
-TRANSLATIONS	= assistant_de.ts \
-		  assistant_fr.ts
+TRANSLATIONS        = assistant_de.ts \
+                  assistant_fr.ts
 
-unix:!zlib:LIBS	+= -lz
+unix:!zlib:LIBS        += -lz
 
-FORMS	= mainwindow.ui \
-	topicchooser.ui \
-	finddialog.ui \
-	helpdialog.ui \
-	settingsdialog.ui \
-	tabbedbrowser.ui
-IMAGES	= images/editcopy.png \
-	images/find.png \
-	images/home.png \
-	images/next.png \
-	images/previous.png \
-	images/print.png \
-	images/whatsthis.xpm \
-	images/book.png \
-	images/designer.png \
-	images/assistant.png \
-	images/linguist.png \
-	images/qt.png \
-	images/zoomin.png \
-	images/zoomout.png \
-	images/splash.png \
-	images/appicon.png \
-	images/addtab.png \
-	images/closetab.png \
-	images/d_closetab.png
+FORMS        = mainwindow.ui \
+        topicchooser.ui \
+        finddialog.ui \
+        helpdialog.ui \
+        settingsdialog.ui \
+        tabbedbrowser.ui
+IMAGES        = images/editcopy.png \
+        images/find.png \
+        images/home.png \
+        images/next.png \
+        images/previous.png \
+        images/print.png \
+        images/whatsthis.xpm \
+        images/book.png \
+        images/designer.png \
+        images/assistant.png \
+        images/linguist.png \
+        images/qt.png \
+        images/zoomin.png \
+        images/zoomout.png \
+        images/splash.png \
+        images/appicon.png \
+        images/addtab.png \
+        images/closetab.png \
+        images/d_closetab.png

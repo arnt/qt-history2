@@ -58,26 +58,26 @@ static bool verifyDirectory(const QString &str)
 {
     QFileInfo dirInfo(str);
     if (!dirInfo.exists())
-	return QDir().mkdir(str);
+        return QDir().mkdir(str);
     if (!dirInfo.isDir()) {
-	qWarning("'%s' exists but is not a directory", str.latin1());
-	return false;
+        qWarning("'%s' exists but is not a directory", str.latin1());
+        return false;
     }
     return true;
 }
 
 struct IndexKeyword {
     IndexKeyword(const QString &kw, const QString &l)
-	: keyword(kw), link(l) {}
+        : keyword(kw), link(l) {}
     IndexKeyword() : keyword(QString::null), link(QString::null) {}
     bool operator<(const IndexKeyword &ik) const {
-	return keyword.lower() < ik.keyword.lower();
+        return keyword.lower() < ik.keyword.lower();
     }
     bool operator<=(const IndexKeyword &ik) const {
-	return keyword.lower() <= ik.keyword.lower();
+        return keyword.lower() <= ik.keyword.lower();
     }
     bool operator>(const IndexKeyword &ik) const {
-	return keyword.lower() > ik.keyword.lower();
+        return keyword.lower() > ik.keyword.lower();
     }
     Q_DUMMY_COMPARISON_OPERATOR(IndexKeyword)
     QString keyword;
@@ -101,11 +101,11 @@ QDataStream &operator<<(QDataStream &s, const IndexKeyword &ik)
 QValidator::State SearchValidator::validate(QString &str, int &) const
 {
     for (int i = 0; i < (int) str.length(); ++i) {
-	QChar c = str[i];
-	if (!c.isLetterOrNumber() && c != '\'' && c != '`'
-	    && c != '\"' && c != ' ' && c != '-' && c != '_'
-	    && c!= '*')
-	    return QValidator::Invalid;
+        QChar c = str[i];
+        if (!c.isLetterOrNumber() && c != '\'' && c != '`'
+            && c != '\"' && c != ' ' && c != '-' && c != '_'
+            && c!= '*')
+            return QValidator::Invalid;
     }
     return QValidator::Acceptable;
 }
@@ -119,13 +119,13 @@ void HelpNavigationListItem::addLink(const QString &link)
 {
     int hash = link.find('#');
     if (hash == -1) {
-	linkList << link;
-	return;
+        linkList << link;
+        return;
     }
 
     QString preHash = link.left(hash);
     if (linkList.grep(preHash, false).count() > 0)
-	return;
+        return;
     linkList << link;
 }
 
@@ -159,47 +159,47 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
 void HelpDialog::initialize()
 {
     connect(tabWidget, SIGNAL(selected(const QString&)),
-	     this, SLOT(currentTabChanged(const QString&)));
+             this, SLOT(currentTabChanged(const QString&)));
     connect(listContents, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint &, int)),
-	     this, SLOT(showTopic(int,QListViewItem*, const QPoint &)));
+             this, SLOT(showTopic(int,QListViewItem*, const QPoint &)));
     connect(listContents, SIGNAL(currentChanged(QListViewItem*)),
-	     this, SLOT(currentContentsChanged(QListViewItem*)));
+             this, SLOT(currentContentsChanged(QListViewItem*)));
     connect(listContents, SIGNAL(selectionChanged(QListViewItem*)),
-	     this, SLOT(currentContentsChanged(QListViewItem*)));
+             this, SLOT(currentContentsChanged(QListViewItem*)));
     connect(listContents, SIGNAL(doubleClicked(QListViewItem*)),
-	     this, SLOT(showTopic(QListViewItem*)));
+             this, SLOT(showTopic(QListViewItem*)));
     connect(listContents, SIGNAL(returnPressed(QListViewItem*)),
-	     this, SLOT(showTopic(QListViewItem*)));
+             this, SLOT(showTopic(QListViewItem*)));
     connect(listContents, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
-	     this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
+             this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
     connect(editIndex, SIGNAL(returnPressed()),
-	     this, SLOT(showTopic()));
+             this, SLOT(showTopic()));
     connect(editIndex, SIGNAL(textChanged(const QString&)),
-	     this, SLOT(searchInIndex(const QString&)));
+             this, SLOT(searchInIndex(const QString&)));
 
     connect(listIndex, SIGNAL(selectionChanged(QListBoxItem*)),
-	     this, SLOT(currentIndexChanged(QListBoxItem*)));
+             this, SLOT(currentIndexChanged(QListBoxItem*)));
     connect(listIndex, SIGNAL(returnPressed(QListBoxItem*)),
-	     this, SLOT(showTopic()));
+             this, SLOT(showTopic()));
     connect(listIndex, SIGNAL(mouseButtonClicked(int, QListBoxItem*, const QPoint &)),
-	     this, SLOT(showTopic(int, QListBoxItem *, const QPoint &)));
+             this, SLOT(showTopic(int, QListBoxItem *, const QPoint &)));
     connect(listIndex, SIGNAL(currentChanged(QListBoxItem*)),
-	     this, SLOT(currentIndexChanged(QListBoxItem*)));
+             this, SLOT(currentIndexChanged(QListBoxItem*)));
     connect(listIndex, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
-	     this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
+             this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
     connect(listBookmarks, SIGNAL(mouseButtonClicked(int, QListViewItem*, const QPoint&, int)),
-	     this, SLOT(showTopic(int, QListViewItem*, const QPoint &)));
+             this, SLOT(showTopic(int, QListViewItem*, const QPoint &)));
     connect(listBookmarks, SIGNAL(returnPressed(QListViewItem*)),
-	     this, SLOT(showTopic(QListViewItem*)));
+             this, SLOT(showTopic(QListViewItem*)));
     connect(listBookmarks, SIGNAL(selectionChanged(QListViewItem*)),
-	     this, SLOT(currentBookmarkChanged(QListViewItem*)));
+             this, SLOT(currentBookmarkChanged(QListViewItem*)));
     connect(listBookmarks, SIGNAL(currentChanged(QListViewItem*)),
-	     this, SLOT(currentBookmarkChanged(QListViewItem*)));
+             this, SLOT(currentBookmarkChanged(QListViewItem*)));
     connect(listBookmarks, SIGNAL(contextMenuRequested(QListViewItem*, const QPoint&, int)),
-	     this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
+             this, SLOT(showItemMenu(QListViewItem*, const QPoint&)));
     connect(resultBox, SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)),
-	     this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
+             this, SLOT(showItemMenu(QListBoxItem*, const QPoint&)));
 
     cacheFilesPath = QDir::homeDirPath() + "/.assistant/"; //### Find a better location for the dbs
 
@@ -213,7 +213,7 @@ void HelpDialog::initialize()
 
     termsEdit->setValidator(new SearchValidator(termsEdit));
 
-    itemPopup = new QPopupMenu(this);
+    itemPopup = new Q3PopupMenu(this);
     itemPopup->insertItem(tr("Open Link in Current Tab"), 0);
     itemPopup->insertItem(tr("Open Link in New Window"), 1);
     itemPopup->insertItem(tr("Open Link in New Tab"), 2);
@@ -246,8 +246,8 @@ void HelpDialog::removeOldCacheFiles()
 {
     QString dir = cacheFilesPath; // ### remove the last '/' ?
     if (!verifyDirectory(cacheFilesPath)) {
-	qWarning("Failed to created assistant directory");
-	return;
+        qWarning("Failed to created assistant directory");
+        return;
     }
     QString pname = "." + Config::configuration()->profileName();
 
@@ -255,10 +255,10 @@ void HelpDialog::removeOldCacheFiles()
     fileList <<  "indexdb" << "indexdb.dict" << "indexdb.doc" << "contentdb";
     QStringList::iterator it = fileList.begin();
     for (; it != fileList.end(); ++it) {
-	if (QFile::exists(cacheFilesPath + *it + pname)) {
-	    QFile f(cacheFilesPath + *it + pname);
-	    f.remove();
-	}
+        if (QFile::exists(cacheFilesPath + *it + pname)) {
+            QFile f(cacheFilesPath + *it + pname);
+            f.remove();
+        }
     }
 }
 
@@ -267,14 +267,14 @@ void HelpDialog::timerEvent(QTimerEvent *e)
     static int opacity = 255;
     help->setWindowOpacity((opacity-=4)/255.0);
     if (opacity<=0)
-	qApp->quit();
+        qApp->quit();
 }
 
 
 void HelpDialog::loadIndexFile()
 {
     if (indexDone)
-	return;
+        return;
 
     setCursor(waitCursor);
     indexDone = true;
@@ -289,35 +289,35 @@ void HelpDialog::loadIndexFile()
 
     QList<IndexKeyword> lst;
     QFile indexFile(cacheFilesPath + "indexdb." +
-		     Config::configuration()->profileName());
+                     Config::configuration()->profileName());
     if (!indexFile.open(IO_ReadOnly)) {
-	buildKeywordDB();
-	processEvents();
-	if(lwClosed)
-	    return;
-	if (!indexFile.open(IO_ReadOnly)) {
-	    QMessageBox::warning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
-							      "Assistant will not work!"));
+        buildKeywordDB();
+        processEvents();
+        if(lwClosed)
+            return;
+        if (!indexFile.open(IO_ReadOnly)) {
+            QMessageBox::warning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
+                                                              "Assistant will not work!"));
 #if defined Q_WS_WIN || defined Q_WS_MACX
-	    startTimer(50);
+            startTimer(50);
 #endif
-	    return;
-	}
+            return;
+        }
     }
 
     QDataStream ds(&indexFile);
     Q_UINT32 fileAges;
     ds >> fileAges;
     if (fileAges != getFileAges()) {
-	indexFile.close();
-	buildKeywordDB();
-	if (!indexFile.open(IO_ReadOnly)) {
-	    QMessageBox::warning(help, tr("Qt Assistant"),
-		tr("Cannot open the index file %1").arg(QFileInfo(indexFile).absFilePath()));
-	    return;
-	}
-	ds.setDevice(&indexFile);
-	ds >> fileAges;
+        indexFile.close();
+        buildKeywordDB();
+        if (!indexFile.open(IO_ReadOnly)) {
+            QMessageBox::warning(help, tr("Qt Assistant"),
+                tr("Cannot open the index file %1").arg(QFileInfo(indexFile).absFilePath()));
+            return;
+        }
+        ds.setDevice(&indexFile);
+        ds >> fileAges;
     }
     ds >> lst;
     indexFile.close();
@@ -330,10 +330,10 @@ void HelpDialog::loadIndexFile()
     QString lastKeyword = QString::null;
     QList<IndexKeyword>::ConstIterator it = lst.begin();
     for (; it != lst.end(); ++it) {
-	if (lastKeyword.lower() != (*it).keyword.lower())
-	    lastItem = new HelpNavigationListItem(listIndex, (*it).keyword);
-	lastItem->addLink((*it).link);
-	lastKeyword = (*it).keyword;
+        if (lastKeyword.lower() != (*it).keyword.lower())
+            lastItem = new HelpNavigationListItem(listIndex, (*it).keyword);
+        lastItem->addLink((*it).link);
+        lastKeyword = (*it).keyword;
     }
     framePrepare->hide();
     showInitDoneMessage();
@@ -347,9 +347,9 @@ Q_UINT32 HelpDialog::getFileAges()
 
     Q_UINT32 fileAges = 0;
     for(; i != addDocuFiles.end(); ++i) {
-	QFileInfo fi(*i);
-	if (fi.exists())
-	    fileAges += fi.lastModified().toTime_t();
+        QFileInfo fi(*i);
+        if (fi.exists())
+            fileAges += fi.lastModified().toTime_t();
     }
 
     return fileAges;
@@ -362,7 +362,7 @@ void HelpDialog::buildKeywordDB()
 
     int steps = 0;
     for(; i != addDocuFiles.end(); i++)
-	steps += QFileInfo(*i).size();
+        steps += QFileInfo(*i).size();
 
     labelPrepare->setText(tr("Prepare..."));
     progressPrepare->setTotalSteps(steps);
@@ -372,76 +372,76 @@ void HelpDialog::buildKeywordDB()
     QList<IndexKeyword> lst;
     Q_UINT32 fileAges = 0;
     for(i = addDocuFiles.begin(); i != addDocuFiles.end(); i++){
-	QFile file(*i);
-	if (!file.exists()) {
-	    QMessageBox::warning(this, tr("Warning"),
-		tr("Documentation file %1 does not exist!\n"
-		    "Skipping file.").arg(QFileInfo(file).absFilePath()));
-	    continue;
+        QFile file(*i);
+        if (!file.exists()) {
+            QMessageBox::warning(this, tr("Warning"),
+                tr("Documentation file %1 does not exist!\n"
+                    "Skipping file.").arg(QFileInfo(file).absFilePath()));
+            continue;
         }
-	fileAges += QFileInfo(file).lastModified().toTime_t();
-	DocuParser *handler = DocuParser::createParser(*i);
-	bool ok = handler->parse(&file);
-	file.close();
-	if(!ok){
-	    QString msg = QString("In file %1:\n%2")
-			  .arg(QFileInfo(file).absFilePath())
-			  .arg(handler->errorProtocol());
-	    QMessageBox::critical(this, tr("Parse Error"), tr(msg));
-	    delete handler;
-	    continue;
-	}
+        fileAges += QFileInfo(file).lastModified().toTime_t();
+        DocuParser *handler = DocuParser::createParser(*i);
+        bool ok = handler->parse(&file);
+        file.close();
+        if(!ok){
+            QString msg = QString("In file %1:\n%2")
+                          .arg(QFileInfo(file).absFilePath())
+                          .arg(handler->errorProtocol());
+            QMessageBox::critical(this, tr("Parse Error"), tr(msg));
+            delete handler;
+            continue;
+        }
 
-	QList<IndexItem*> indLst = handler->getIndexItems();
-	int counter = 0;
-	foreach (IndexItem *indItem, indLst) {
-	    QFileInfo fi(indItem->reference);
-	    lst.append(IndexKeyword(indItem->keyword, fi.absFilePath()));
-	    if (progressPrepare)
-		progressPrepare->setProgress(progressPrepare->progress() +
-					      int(fi.absFilePath().length() * 1.6));
+        QList<IndexItem*> indLst = handler->getIndexItems();
+        int counter = 0;
+        foreach (IndexItem *indItem, indLst) {
+            QFileInfo fi(indItem->reference);
+            lst.append(IndexKeyword(indItem->keyword, fi.absFilePath()));
+            if (progressPrepare)
+                progressPrepare->setProgress(progressPrepare->progress() +
+                                              int(fi.absFilePath().length() * 1.6));
 
-	    if(++counter%100 == 0) {
-		processEvents();
-		if(lwClosed) {
-		    return;
-		}
-	    }
-	}
-	delete handler;
+            if(++counter%100 == 0) {
+                processEvents();
+                if(lwClosed) {
+                    return;
+                }
+            }
+        }
+        delete handler;
     }
     if (!lst.isEmpty())
-	qHeapSort(lst);
+        qHeapSort(lst);
 
     QFile indexout(cacheFilesPath + "indexdb." + Config::configuration()->profileName());
     if (verifyDirectory(cacheFilesPath) && indexout.open(IO_WriteOnly)) {
-	QDataStream s(&indexout);
-	s << fileAges;
-	s << lst;
-	indexout.close();
+        QDataStream s(&indexout);
+        s << fileAges;
+        s << lst;
+        indexout.close();
     }
 }
 
 void HelpDialog::setupTitleMap()
 {
     if (titleMapDone)
-	return;
+        return;
     if (Config::configuration()->docRebuild()) {
-	removeOldCacheFiles();
-	Config::configuration()->setDocRebuild(false);
-	Config::configuration()->saveProfile(Config::configuration()->profile());
+        removeOldCacheFiles();
+        Config::configuration()->setDocRebuild(false);
+        Config::configuration()->saveProfile(Config::configuration()->profile());
     }
     if (contentList.isEmpty())
-	getAllContents();
+        getAllContents();
 
     titleMapDone = true;
     titleMap.clear();
     for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
-	ContentList lst = it.value();
-	foreach (ContentItem item, lst) {
-	    QFileInfo link(item.reference.simplifyWhiteSpace());
-	    titleMap[link.absFilePath()] = item.title.stripWhiteSpace();
-	}
+        ContentList lst = it.value();
+        foreach (ContentItem item, lst) {
+            QFileInfo link(item.reference.simplifyWhiteSpace());
+            titleMap[link.absFilePath()] = item.title.stripWhiteSpace();
+        }
     }
     processEvents();
 }
@@ -451,24 +451,24 @@ void HelpDialog::getAllContents()
     QFile contentFile(cacheFilesPath + "contentdb." + Config::configuration()->profileName());
     contentList.clear();
     if (!contentFile.open(IO_ReadOnly)) {
-	buildContentDict();
-	return;
+        buildContentDict();
+        return;
     }
 
     QDataStream ds(&contentFile);
     Q_UINT32 fileAges;
     ds >> fileAges;
     if (fileAges != getFileAges()) {
-	contentFile.close();
-	buildContentDict();
-	return;
+        contentFile.close();
+        buildContentDict();
+        return;
     }
     QString key;
     QList<ContentItem> lst;
     while (!ds.atEnd()) {
-	ds >> key;
-	ds >> lst;
-	contentList.insert(key, QList<ContentItem>(lst));
+        ds >> key;
+        ds >> lst;
+        contentList.insert(key, QList<ContentItem>(lst));
     }
     contentFile.close();
     processEvents();
@@ -481,63 +481,63 @@ void HelpDialog::buildContentDict()
 
     Q_UINT32 fileAges = 0;
     for(QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
-	QFile file(*it);
-	if (!file.exists()) {
-	    QMessageBox::warning(this, tr("Warning"),
-	    tr("Documentation file %1 does not exist!\n"
-	        "Skipping file.").arg(QFileInfo(file).absFilePath()));
-	    continue;
+        QFile file(*it);
+        if (!file.exists()) {
+            QMessageBox::warning(this, tr("Warning"),
+            tr("Documentation file %1 does not exist!\n"
+                "Skipping file.").arg(QFileInfo(file).absFilePath()));
+            continue;
         }
-	fileAges += QFileInfo(file).lastModified().toTime_t();
-	DocuParser *handler = DocuParser::createParser(*it);
-	if(!handler) {
-	    QMessageBox::warning(this, tr("Warning"),
-	    tr("Documentation file %1 is not compatible!\n"
-	        "Skipping file.").arg(QFileInfo(file).absFilePath()));
-	    continue;
-	}
-	bool ok = handler->parse(&file);
-	file.close();
-	if(ok) {
-	    contentList.insert(*it, QList<ContentItem>(handler->getContentItems()));
-	    delete handler;
-	} else {
-	    QString msg = QString("In file %1:\n%2")
-			  .arg(QFileInfo(file).absFilePath())
-			  .arg(handler->errorProtocol());
-	    QMessageBox::critical(this, tr("Parse Error"), tr(msg));
-	    continue;
-	}
+        fileAges += QFileInfo(file).lastModified().toTime_t();
+        DocuParser *handler = DocuParser::createParser(*it);
+        if(!handler) {
+            QMessageBox::warning(this, tr("Warning"),
+            tr("Documentation file %1 is not compatible!\n"
+                "Skipping file.").arg(QFileInfo(file).absFilePath()));
+            continue;
+        }
+        bool ok = handler->parse(&file);
+        file.close();
+        if(ok) {
+            contentList.insert(*it, QList<ContentItem>(handler->getContentItems()));
+            delete handler;
+        } else {
+            QString msg = QString("In file %1:\n%2")
+                          .arg(QFileInfo(file).absFilePath())
+                          .arg(handler->errorProtocol());
+            QMessageBox::critical(this, tr("Parse Error"), tr(msg));
+            continue;
+        }
     }
 
     QFile contentOut(cacheFilesPath + "contentdb." + Config::configuration()->profileName());
     if (contentOut.open(IO_WriteOnly)) {
-	QDataStream s(&contentOut);
-	s << fileAges;
-	for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
-	    s << it.key();
-	    s << it.value();
-	}
-	contentOut.close();
+        QDataStream s(&contentOut);
+        s << fileAges;
+        for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+            s << it.key();
+            s << it.value();
+        }
+        contentOut.close();
     }
 }
 
 void HelpDialog::currentTabChanged(const QString &s)
 {
     if (stripAmpersand(s).contains(tr("Index")))
-	QTimer::singleShot(0, this, SLOT(loadIndexFile()));
+        QTimer::singleShot(0, this, SLOT(loadIndexFile()));
     else if (stripAmpersand(s).contains(tr("Bookmarks")))
-	insertBookmarks();
+        insertBookmarks();
     else if (stripAmpersand(s).contains(tr("Contents")))
-	QTimer::singleShot(0, this, SLOT(insertContents()));
+        QTimer::singleShot(0, this, SLOT(insertContents()));
     else if (stripAmpersand(s).contains(tr("Search")))
-	QTimer::singleShot(0, this, SLOT(setupFullTextIndex()));
+        QTimer::singleShot(0, this, SLOT(setupFullTextIndex()));
 }
 
 void HelpDialog::showInitDoneMessage()
 {
     if (initDoneMsgShown)
-	return;
+        return;
     initDoneMsgShown = true;
     help->statusBar()->message(tr("Done"), 3000);
 }
@@ -548,40 +548,40 @@ void HelpDialog::currentIndexChanged(QListBoxItem *)
 
 
 void HelpDialog::showTopic(int button, QListBoxItem *item,
-			    const QPoint &)
+                            const QPoint &)
 {
     if(button == LeftButton && item)
-	showTopic();
+        showTopic();
 }
 
 void HelpDialog::showTopic(int button, QListViewItem *item,
-			    const QPoint &)
+                            const QPoint &)
 {
     if(button == LeftButton && item)
-	showTopic();
+        showTopic();
 }
 
 void HelpDialog::showTopic(QListViewItem *item)
 {
     if(item)
-	showTopic();
+        showTopic();
 }
 
 void HelpDialog::showTopic()
 {
     if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index")))
-	showIndexTopic();
+        showIndexTopic();
     else if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Bookmarks")))
-	showBookmarkTopic();
+        showBookmarkTopic();
     else if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Contents")))
-	showContentsTopic();
+        showContentsTopic();
 }
 
 void HelpDialog::showIndexTopic()
 {
     QListBoxItem *i = listIndex->item(listIndex->currentItem());
     if (!i)
-	return;
+        return;
 
     editIndex->blockSignals(true);
     editIndex->setText(i->text());
@@ -591,19 +591,19 @@ void HelpDialog::showIndexTopic()
 
     QStringList links = item->links();
     if (links.count() == 1) {
-	emit showLink(links.first());
+        emit showLink(links.first());
     } else {
-	qHeapSort(links);
-	QStringList::Iterator it = links.begin();
-	QStringList linkList;
-	QStringList linkNames;
-	for (; it != links.end(); ++it) {
-	    linkList << *it;
-	    linkNames << titleOfLink(*it);
-	}
-	QString link = TopicChooser::getLink(this, linkNames, linkList, i->text());
-	if (!link.isEmpty())
-	    emit showLink(link);
+        qHeapSort(links);
+        QStringList::Iterator it = links.begin();
+        QStringList linkList;
+        QStringList linkNames;
+        for (; it != links.end(); ++it) {
+            linkList << *it;
+            linkNames << titleOfLink(*it);
+        }
+        QString link = TopicChooser::getLink(this, linkNames, linkList, i->text());
+        if (!link.isEmpty())
+            emit showLink(link);
     }
 }
 
@@ -612,14 +612,14 @@ void HelpDialog::searchInIndex(const QString &s)
     QListBoxItem *i = listIndex->firstItem();
     QString sl = s.lower();
     while (i) {
-	QString t = i->text();
-	if (t.length() >= sl.length() &&
-	     i->text().left(s.length()).lower() == sl) {
-	    listIndex->setCurrentItem(i);
-	    listIndex->setTopItem(listIndex->index(i));
-	    break;
-	}
-	i = i->next();
+        QString t = i->text();
+        if (t.length() >= sl.length() &&
+             i->text().left(s.length()).lower() == sl) {
+            listIndex->setCurrentItem(i);
+            listIndex->setTopItem(listIndex->index(i));
+            break;
+        }
+        i = i->next();
     }
 }
 
@@ -629,41 +629,41 @@ QString HelpDialog::titleOfLink(const QString &link)
     s.remove(s.find('#'), s.length());
     s = titleMap[ s ];
     if (s.isEmpty())
-	return link;
+        return link;
     return s;
 }
 
 bool HelpDialog::eventFilter(QObject * o, QEvent * e)
 {
     if (!o || !e)
-	return true;
+        return true;
 
     if (o == editIndex && e->type() == QEvent::KeyPress) {
-	QKeyEvent *ke = (QKeyEvent*)e;
-	if (ke->key() == Key_Up) {
-	    int i = listIndex->currentItem();
-	    if (--i >= 0) {
-		listIndex->setCurrentItem(i);
-		editIndex->blockSignals(true);
-		editIndex->setText(listIndex->currentText());
-		editIndex->blockSignals(false);
-	    }
-	    return true;
-	} else if (ke->key() == Key_Down) {
-	    int i = listIndex->currentItem();
-	    if (++i < int(listIndex->count())) {
-		listIndex->setCurrentItem(i);
-		editIndex->blockSignals(true);
-		editIndex->setText(listIndex->currentText());
-		editIndex->blockSignals(false);
-	    }
-	    return true;
-	} else if (ke->key() == Key_Next || ke->key() == Key_Prior) {
-	    QApplication::sendEvent(listIndex, e);
-	    editIndex->blockSignals(true);
-	    editIndex->setText(listIndex->currentText());
-	    editIndex->blockSignals(false);
-	}
+        QKeyEvent *ke = (QKeyEvent*)e;
+        if (ke->key() == Key_Up) {
+            int i = listIndex->currentItem();
+            if (--i >= 0) {
+                listIndex->setCurrentItem(i);
+                editIndex->blockSignals(true);
+                editIndex->setText(listIndex->currentText());
+                editIndex->blockSignals(false);
+            }
+            return true;
+        } else if (ke->key() == Key_Down) {
+            int i = listIndex->currentItem();
+            if (++i < int(listIndex->count())) {
+                listIndex->setCurrentItem(i);
+                editIndex->blockSignals(true);
+                editIndex->setText(listIndex->currentText());
+                editIndex->blockSignals(false);
+            }
+            return true;
+        } else if (ke->key() == Key_Next || ke->key() == Key_Prior) {
+            QApplication::sendEvent(listIndex, e);
+            editIndex->blockSignals(true);
+            editIndex->setText(listIndex->currentText());
+            editIndex->blockSignals(false);
+        }
     }
 
     return QWidget::eventFilter(o, e);
@@ -672,12 +672,12 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
 void HelpDialog::addBookmark()
 {
     if (!bookmarksInserted)
-	insertBookmarks();
+        insertBookmarks();
     QString link = QUrl( help->browsers()->currentBrowser()->context(),
-			  help->browsers()->currentBrowser()->source()).path();
+                          help->browsers()->currentBrowser()->source()).path();
     QString title = help->browsers()->currentBrowser()->documentTitle();
     if (title.isEmpty())
-	title = titleOfLink(link);
+        title = titleOfLink(link);
     HelpNavigationContentsItem *i = new HelpNavigationContentsItem(listBookmarks, 0);
     i->setText(0, title);
     i->setLink(link);
@@ -688,12 +688,12 @@ void HelpDialog::addBookmark()
 void HelpDialog::removeBookmark()
 {
     if (!listBookmarks->currentItem())
-	return;
+        return;
 
     delete listBookmarks->currentItem();
     saveBookmarks();
     if (listBookmarks->firstChild()) {
-	listBookmarks->setSelected(listBookmarks->firstChild(), true);
+        listBookmarks->setSelected(listBookmarks->firstChild(), true);
     }
     help->updateBookmarkMenu();
 }
@@ -701,17 +701,17 @@ void HelpDialog::removeBookmark()
 void HelpDialog::insertBookmarks()
 {
     if (bookmarksInserted)
-	return;
+        return;
     bookmarksInserted = true;
     listBookmarks->clear();
     QFile f(cacheFilesPath + "bookmarks." + Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
-	return;
+        return;
     QTextStream ts(&f);
     while (!ts.atEnd()) {
-	HelpNavigationContentsItem *i = new HelpNavigationContentsItem(listBookmarks, 0);
-	i->setText(0, ts.readLine());
-	i->setLink(ts.readLine());
+        HelpNavigationContentsItem *i = new HelpNavigationContentsItem(listBookmarks, 0);
+        i->setText(0, ts.readLine());
+        i->setLink(ts.readLine());
     }
     help->updateBookmarkMenu();
     showInitDoneMessage();
@@ -724,12 +724,12 @@ void HelpDialog::currentBookmarkChanged(QListViewItem *)
 void HelpDialog::showBookmarkTopic()
 {
     if (!listBookmarks->currentItem())
-	return;
+        return;
 
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listBookmarks->currentItem();
     QString absPath = "";
     if (QFileInfo(i->link()).isRelative())
-	absPath = documentationPath + "/";
+        absPath = documentationPath + "/";
     emit showLink(absPath + i->link());
 }
 
@@ -737,13 +737,13 @@ void HelpDialog::saveBookmarks()
 {
     QFile f(cacheFilesPath + "bookmarks." + Config::configuration()->profileName());
     if (!f.open(IO_WriteOnly))
-	return;
+        return;
     QTextStream ts(&f);
     QListViewItemIterator it(listBookmarks);
     for (; it.current(); ++it) {
-	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)it.current();
-	ts << i->text(0) << endl;
-	ts << i->link() << endl;
+        HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)it.current();
+        ts << i->text(0) << endl;
+        ts << i->link() << endl;
     }
     f.close();
 }
@@ -751,63 +751,63 @@ void HelpDialog::saveBookmarks()
 void HelpDialog::insertContents()
 {
     if (contentsInserted)
-	return;
+        return;
 
     if (contentList.isEmpty())
-	getAllContents();
+        getAllContents();
 
     contentsInserted = true;
     listContents->clear();
     setCursor(waitCursor);
     if (!titleMapDone)
-	setupTitleMap();
+        setupTitleMap();
 
     listContents->setSorting(-1);
 
     for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
-	HelpNavigationContentsItem *newEntry;
+        HelpNavigationContentsItem *newEntry;
 
-	HelpNavigationContentsItem *contentEntry;
-	QStack<HelpNavigationContentsItem*> stack;
-	stack.clear();
-	int depth = 0;
-	bool root = false;
+        HelpNavigationContentsItem *contentEntry;
+        QStack<HelpNavigationContentsItem*> stack;
+        stack.clear();
+        int depth = 0;
+        bool root = false;
 
-	HelpNavigationContentsItem *lastItem[64];
-	for(int j = 0; j < 64; ++j)
-	    lastItem[j] = 0;
+        HelpNavigationContentsItem *lastItem[64];
+        for(int j = 0; j < 64; ++j)
+            lastItem[j] = 0;
 
-	ContentList lst = it.value();
-	for (ContentList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
-	    ContentItem item = *it;
-	    if (item.depth == 0) {
-		newEntry = new HelpNavigationContentsItem(listContents, 0);
-		newEntry->setPixmap(0, QPixmap::fromMimeSource("book.png"));
-		newEntry->setText(0, item.title);
-		newEntry->setLink(item.reference);
-		stack.push(newEntry);
-		depth = 1;
-		root = true;
-	    }
-	    else{
-		if((item.depth > depth) && root) {
-		    depth = item.depth;
-		    stack.push(contentEntry);
-		}
-		if(item.depth == depth) {
-		    contentEntry = new HelpNavigationContentsItem(stack.top(), lastItem[ depth ]);
-		    lastItem[ depth ] = contentEntry;
-		    contentEntry->setText(0, item.title);
-		    contentEntry->setLink(item.reference);
-		}
-		else if(item.depth < depth) {
-		    stack.pop();
-		    depth--;
-		    item = *(--it);
-		}
-	    }
-	}
-	processEvents();
+        ContentList lst = it.value();
+        for (ContentList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
+            ContentItem item = *it;
+            if (item.depth == 0) {
+                newEntry = new HelpNavigationContentsItem(listContents, 0);
+                newEntry->setPixmap(0, QPixmap::fromMimeSource("book.png"));
+                newEntry->setText(0, item.title);
+                newEntry->setLink(item.reference);
+                stack.push(newEntry);
+                depth = 1;
+                root = true;
+            }
+            else{
+                if((item.depth > depth) && root) {
+                    depth = item.depth;
+                    stack.push(contentEntry);
+                }
+                if(item.depth == depth) {
+                    contentEntry = new HelpNavigationContentsItem(stack.top(), lastItem[ depth ]);
+                    lastItem[ depth ] = contentEntry;
+                    contentEntry->setText(0, item.title);
+                    contentEntry->setLink(item.reference);
+                }
+                else if(item.depth < depth) {
+                    stack.pop();
+                    depth--;
+                    item = *(--it);
+                }
+            }
+        }
+        processEvents();
     }
     setCursor(arrowCursor);
     showInitDoneMessage();
@@ -821,99 +821,99 @@ void HelpDialog::showContentsTopic()
 {
     HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)listContents->currentItem();
     if (!i)
-	return;
+        return;
     emit showLink(i->link());
 }
 
 void HelpDialog::toggleContents()
 {
     if (!isVisible() || tabWidget->currentPageIndex() != 0) {
-	tabWidget->setCurrentPage(0);
-	parentWidget()->show();
+        tabWidget->setCurrentPage(0);
+        parentWidget()->show();
     }
     else
-	parentWidget()->hide();
+        parentWidget()->hide();
 }
 
 void HelpDialog::toggleIndex()
 {
     if (!isVisible() || tabWidget->currentPageIndex() != 1 || !editIndex->hasFocus()) {
-	tabWidget->setCurrentPage(1);
-	parentWidget()->show();
-	editIndex->setFocus();
+        tabWidget->setCurrentPage(1);
+        parentWidget()->show();
+        editIndex->setFocus();
     }
     else
-	parentWidget()->hide();
+        parentWidget()->hide();
 }
 
 void HelpDialog::toggleBookmarks()
 {
     if (!isVisible() || tabWidget->currentPageIndex() != 2) {
-	tabWidget->setCurrentPage(2);
-	parentWidget()->show();
+        tabWidget->setCurrentPage(2);
+        parentWidget()->show();
     }
     else
-	parentWidget()->hide();
+        parentWidget()->hide();
 }
 
 void HelpDialog::toggleSearch()
 {
     if (!isVisible() || tabWidget->currentPageIndex() != 3) {
-	tabWidget->setCurrentPage(3);
-	parentWidget()->show();
+        tabWidget->setCurrentPage(3);
+        parentWidget()->show();
     }
     else
-	parentWidget()->hide();
+        parentWidget()->hide();
 }
 
 void HelpDialog::setupFullTextIndex()
 {
     if (fullTextIndex)
-	return;
+        return;
 
     QMap<QString, QString>::ConstIterator it = titleMap.begin();
     QStringList documentList;
     for (; it != titleMap.end(); ++it)
-	documentList << it.key();
+        documentList << it.key();
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index(documentList, QDir::homeDirPath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
-	QMessageBox::warning(help, tr("Qt Assistant"),
-			     tr("Failed to save fulltext search index\n"
-				"Assistant will not work!"));
-	return;
+        QMessageBox::warning(help, tr("Qt Assistant"),
+                             tr("Failed to save fulltext search index\n"
+                                "Assistant will not work!"));
+        return;
     }
     fullTextIndex->setDictionaryFile(cacheFilesPath + "indexdb.dict." + pname);
     fullTextIndex->setDocListFile(cacheFilesPath + "indexdb.doc." + pname);
     processEvents();
 
     connect(fullTextIndex, SIGNAL(indexingProgress(int)),
-	     this, SLOT(setIndexingProgress(int)));
+             this, SLOT(setIndexingProgress(int)));
     QFile f(cacheFilesPath + "indexdb.dict." + pname);
     if (!f.exists()) {
-	help->statusBar()->clear();
-	setCursor(waitCursor);
-	labelPrepare->setText(tr("Indexing files..."));
-	progressPrepare->setTotalSteps(100);
-	progressPrepare->reset();
-	progressPrepare->show();
-	framePrepare->show();
-	processEvents();
-	if (fullTextIndex->makeIndex() == -1)
-	    return;
-	fullTextIndex->writeDict();
-	progressPrepare->setProgress(100);
-	framePrepare->hide();
-	setCursor(arrowCursor);
-	showInitDoneMessage();
+        help->statusBar()->clear();
+        setCursor(waitCursor);
+        labelPrepare->setText(tr("Indexing files..."));
+        progressPrepare->setTotalSteps(100);
+        progressPrepare->reset();
+        progressPrepare->show();
+        framePrepare->show();
+        processEvents();
+        if (fullTextIndex->makeIndex() == -1)
+            return;
+        fullTextIndex->writeDict();
+        progressPrepare->setProgress(100);
+        framePrepare->hide();
+        setCursor(arrowCursor);
+        showInitDoneMessage();
     } else {
-	setCursor(waitCursor);
-	help->statusBar()->message(tr("Reading dictionary..."));
-	processEvents();
-	fullTextIndex->readDict();
-	help->statusBar()->message(tr("Done"), 3000);
-	setCursor(arrowCursor);
+        setCursor(waitCursor);
+        help->statusBar()->message(tr("Reading dictionary..."));
+        processEvents();
+        fullTextIndex->readDict();
+        help->statusBar()->message(tr("Done"), 3000);
+        setCursor(arrowCursor);
     }
 }
 
@@ -936,36 +936,36 @@ void HelpDialog::startSearch()
     QStringList seqWords;
     QStringList::iterator it = terms.begin();
     for (; it != terms.end(); ++it) {
-	(*it) = (*it).simplifyWhiteSpace();
-	(*it) = (*it).lower();
-	(*it) = (*it).replace("\"", "");
+        (*it) = (*it).simplifyWhiteSpace();
+        (*it) = (*it).lower();
+        (*it) = (*it).replace("\"", "");
     }
     if (str.contains('\"')) {
-	if ((str.count('\"'))%2 == 0) {
-	    int beg = 0;
-	    int end = 0;
-	    QString s;
-	    beg = str.find('\"', beg);
-	    while (beg != -1) {
-		beg++;
-		end = str.find('\"', beg);
-		s = str.mid(beg, end - beg);
-		s = s.lower();
-		s = s.simplifyWhiteSpace();
-		if (s.contains('*')) {
-		    QMessageBox::warning(this, tr("Full Text Search"),
-			tr("Using a wildcard within phrases is not allowed."));
-		    return;
-		}
-		seqWords += QStringList::split(' ', s);
-		termSeq << s;
-		beg = str.find('\"', end + 1);
-	    }
-	} else {
-	    QMessageBox::warning(this, tr("Full Text Search"),
-		tr("The closing quotation mark is missing."));
-	    return;
-	}
+        if ((str.count('\"'))%2 == 0) {
+            int beg = 0;
+            int end = 0;
+            QString s;
+            beg = str.find('\"', beg);
+            while (beg != -1) {
+                beg++;
+                end = str.find('\"', beg);
+                s = str.mid(beg, end - beg);
+                s = s.lower();
+                s = s.simplifyWhiteSpace();
+                if (s.contains('*')) {
+                    QMessageBox::warning(this, tr("Full Text Search"),
+                        tr("Using a wildcard within phrases is not allowed."));
+                    return;
+                }
+                seqWords += QStringList::split(' ', s);
+                termSeq << s;
+                beg = str.find('\"', end + 1);
+            }
+        } else {
+            QMessageBox::warning(this, tr("Full Text Search"),
+                tr("The closing quotation mark is missing."));
+            return;
+        }
     }
     setCursor(waitCursor);
     foundDocs.clear();
@@ -974,28 +974,28 @@ void HelpDialog::startSearch()
     help->statusBar()->message(tr(msg), 3000);
     resultBox->clear();
     for (it = foundDocs.begin(); it != foundDocs.end(); ++it)
-	resultBox->insertItem(fullTextIndex->getDocumentTitle(*it));
+        resultBox->insertItem(fullTextIndex->getDocumentTitle(*it));
 
     terms.clear();
     bool isPhrase = false;
     QString s = "";
     for (int i = 0; i < (int)buf.length(); ++i) {
-	if (buf[i] == '\"') {
-	    isPhrase = !isPhrase;
-	    s = s.simplifyWhiteSpace();
-	    if (!s.isEmpty())
-		terms << s;
-	    s = "";
-	} else if (buf[i] == ' ' && !isPhrase) {
-	    s = s.simplifyWhiteSpace();
-	    if (!s.isEmpty())
-		terms << s;
-	    s = "";
-	} else
-	    s += buf[i];
+        if (buf[i] == '\"') {
+            isPhrase = !isPhrase;
+            s = s.simplifyWhiteSpace();
+            if (!s.isEmpty())
+                terms << s;
+            s = "";
+        } else if (buf[i] == ' ' && !isPhrase) {
+            s = s.simplifyWhiteSpace();
+            if (!s.isEmpty())
+                terms << s;
+            s = "";
+        } else
+            s += buf[i];
     }
     if (!s.isEmpty())
-	terms << s;
+        terms << s;
 
     setCursor(arrowCursor);
 }
@@ -1008,84 +1008,84 @@ void HelpDialog::showSearchHelp()
 void HelpDialog::showResultPage(int button, QListBoxItem *i, const QPoint &)
 {
     if(button == LeftButton) {
-	showResultPage(i);
+        showResultPage(i);
     }
 }
 
 void HelpDialog::showResultPage(QListBoxItem *i)
 {
     if(!i)
-	return;
+        return;
     emit showSearchLink(foundDocs[resultBox->index(i)], terms);
 }
 
 void HelpDialog::showItemMenu(QListBoxItem *item, const QPoint &pos)
 {
     if (!item)
-	return;
+        return;
     int id = itemPopup->exec(pos);
     if (id == 0) {
-	if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index")))
-	    showTopic();
-	else {
-	    showResultPage(item);
-	}
+        if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index")))
+            showTopic();
+        else {
+            showResultPage(item);
+        }
     } else if (id > 0) {
-	HelpWindow *hw = help->browsers()->currentBrowser();
-	if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index"))) {
-	    editIndex->blockSignals(true);
-	    editIndex->setText(item->text());
-	    editIndex->blockSignals(false);
+        HelpWindow *hw = help->browsers()->currentBrowser();
+        if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Index"))) {
+            editIndex->blockSignals(true);
+            editIndex->setText(item->text());
+            editIndex->blockSignals(false);
 
-	    HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
+            HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
 
-	    QStringList links = hi->links();
-	    if (links.count() == 1) {
-		if (id == 1)
-		    hw->openLinkInNewWindow(links.first());
-		else
-		    hw->openLinkInNewPage(links.first());
-	    } else {
-		QStringList::Iterator it = links.begin();
-		QStringList linkList;
-		QStringList linkNames;
-		for (; it != links.end(); ++it) {
-		    linkList << *it;
-		    linkNames << titleOfLink(*it);
-		}
-		QString link = TopicChooser::getLink(this, linkNames, linkList, item->text());
-		if (!link.isEmpty()) {
-		    if (id == 1)
-			hw->openLinkInNewWindow(link);
-		    else
-			hw->openLinkInNewPage(link);
-		}
-	    }
-	} else {
-	    QString link = foundDocs[ resultBox->index(item) ];
-	    if (id == 1)
-		hw->openLinkInNewWindow(link);
-	    else
-		hw->openLinkInNewPage(link);
-	}
+            QStringList links = hi->links();
+            if (links.count() == 1) {
+                if (id == 1)
+                    hw->openLinkInNewWindow(links.first());
+                else
+                    hw->openLinkInNewPage(links.first());
+            } else {
+                QStringList::Iterator it = links.begin();
+                QStringList linkList;
+                QStringList linkNames;
+                for (; it != links.end(); ++it) {
+                    linkList << *it;
+                    linkNames << titleOfLink(*it);
+                }
+                QString link = TopicChooser::getLink(this, linkNames, linkList, item->text());
+                if (!link.isEmpty()) {
+                    if (id == 1)
+                        hw->openLinkInNewWindow(link);
+                    else
+                        hw->openLinkInNewPage(link);
+                }
+            }
+        } else {
+            QString link = foundDocs[ resultBox->index(item) ];
+            if (id == 1)
+                hw->openLinkInNewWindow(link);
+            else
+                hw->openLinkInNewPage(link);
+        }
     }
 }
 
 void HelpDialog::showItemMenu(QListViewItem *item, const QPoint &pos)
 {
     if (!item)
-	return;
+        return;
     int id = itemPopup->exec(pos);
     if (id == 0) {
-	if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Contents")))
-	    showContentsTopic();
-	else
-	    showBookmarkTopic();
+        if (stripAmpersand(tabWidget->tabLabel(tabWidget->currentPage())).contains(tr("Contents")))
+            showContentsTopic();
+        else
+            showBookmarkTopic();
     } else if (id > 0) {
-	HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
-	if (id == 1)
-	    help->browsers()->currentBrowser()->openLinkInNewWindow(i->link());
-	else
-	    help->browsers()->currentBrowser()->openLinkInNewPage(i->link());
+        HelpNavigationContentsItem *i = (HelpNavigationContentsItem*)item;
+        if (id == 1)
+            help->browsers()->currentBrowser()->openLinkInNewWindow(i->link());
+        else
+            help->browsers()->currentBrowser()->openLinkInNewPage(i->link());
     }
 }

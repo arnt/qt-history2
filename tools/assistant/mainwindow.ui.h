@@ -42,7 +42,7 @@ void MainWindow::init()
     goActionDocFiles = new QMap<QAction*,QString>;
 
     if (!windows)
-	windows = new QList<MainWindow*>;
+        windows = new QList<MainWindow*>;
     windows->append(this);
     tabs = new TabbedBrowser(this, "qt_assistant_tabbedbrowser");
     setCentralWidget(tabs);
@@ -65,11 +65,11 @@ void MainWindow::init()
     setupGoActions();
 
     if (!config->isMaximized()) {
-	QRect geom = config->geometry();
-	if(geom.isValid()) {
-	    resize(geom.size());
-	    move(geom.topLeft());
-	}
+        QRect geom = config->geometry();
+        if(geom.isValid()) {
+            resize(geom.size());
+            move(geom.topLeft());
+        }
     }
 
     QString mainWindowLayout = config->mainWindowLayout();
@@ -78,7 +78,7 @@ void MainWindow::init()
     ts >> *this;
 
     if (config->sideBarHidden())
-	dw->hide();
+        dw->hide();
 
     tabs->setup();
     QTimer::singleShot(0, this, SLOT(setup()));
@@ -105,14 +105,14 @@ void MainWindow::setup()
     connect(actionEditCopy, SIGNAL(activated()), tabs, SLOT(copy()));
     connect(actionFileExit, SIGNAL(activated()), qApp, SLOT(closeAllWindows()));
     connect(actionAddBookmark, SIGNAL(activated()),
-	     helpDock, SLOT(addBookmark()));
+             helpDock, SLOT(addBookmark()));
     connect(helpDock, SIGNAL(showLink(const QString&)),
-	     this, SLOT(showLink(const QString&)));
+             this, SLOT(showLink(const QString&)));
     connect(helpDock, SIGNAL(showSearchLink(const QString&, const QStringList&)),
-	     this, SLOT(showSearchLink(const QString&, const QStringList&)));
+             this, SLOT(showSearchLink(const QString&, const QStringList&)));
 
     connect(bookmarkMenu, SIGNAL(activated(int)),
-	     this, SLOT(showBookmark(int)));
+             this, SLOT(showBookmark(int)));
     connect(actionZoomIn, SIGNAL(activated()), tabs, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(activated()), tabs, SLOT(zoomOut()));
 
@@ -131,13 +131,13 @@ void MainWindow::setup()
 
     QAccel *a = new QAccel(this, dw);
     a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+T"))),
-		    helpDock, SLOT(toggleContents()));
+                    helpDock, SLOT(toggleContents()));
     a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+I"))),
-		    helpDock, SLOT(toggleIndex()));
+                    helpDock, SLOT(toggleIndex()));
     a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+B"))),
-		    helpDock, SLOT(toggleBookmarks()));
+                    helpDock, SLOT(toggleBookmarks()));
     a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+S"))),
-		    helpDock, SLOT(toggleSearch()));
+                    helpDock, SLOT(toggleSearch()));
 
     Config *config = Config::configuration();
 
@@ -159,8 +159,8 @@ void MainWindow::setupGoActions()
     static bool separatorInserted = false;
 
     foreach (QAction *a, goActions) {
-	a->removeFrom(goMenu);
-	a->removeFrom(goActionToolbar);
+        a->removeFrom(goMenu);
+        a->removeFrom(goActionToolbar);
     }
     qDeleteAll(goActions);
     goActionDocFiles->clear();
@@ -168,26 +168,28 @@ void MainWindow::setupGoActions()
     int addCount = 0;
 
     foreach (QString title, titles) {
-	QPixmap pix = config->docIcon(title);
-	if(!pix.isNull()) {
-	    if(!separatorInserted) {
-		goMenu->insertSeparator();
-		separatorInserted = true;
-	    }
-	    action = new QAction(title, QIconSet(pix), title, 0, 0);
-	    action->addTo(goMenu);
-	    action->addTo(goActionToolbar);
-	    goActions.append(action);
-	    goActionDocFiles->insert(action, config->indexPage(title));
-	    connect(action, SIGNAL(activated()),
-		     this, SLOT(showGoActionLink()));
-	    ++addCount;
-	}
+        QPixmap pix = config->docIcon(title);
+        if(!pix.isNull()) {
+            if(!separatorInserted) {
+                goMenu->insertSeparator();
+                separatorInserted = true;
+            }
+            action = new QAction(this);
+            action->setText(title);
+            action->setIcon(QIconSet(pix));
+            goMenu->addAction(action);
+            goActionToolbar->addAction(action);
+            goActions.append(action);
+            goActionDocFiles->insert(action, config->indexPage(title));
+            connect(action, SIGNAL(activated()),
+                     this, SLOT(showGoActionLink()));
+            ++addCount;
+        }
     }
     if(!addCount)
-	goActionToolbar->hide();
+        goActionToolbar->hide();
     else
-	goActionToolbar->show();
+        goActionToolbar->show();
 
 }
 
@@ -208,8 +210,8 @@ void MainWindow::destroy()
 {
     windows->remove(this);
     if (windows->isEmpty()) {
-	delete windows;
-	windows = 0;
+        delete windows;
+        windows = 0;
     }
     delete goActionDocFiles;
 }
@@ -218,20 +220,20 @@ void MainWindow::about()
 {
     QMessageBox box(this);
     box.setText("<center><img src=\"splash.png\">"
-		 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
-		 "<p>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
-		 "</p></center><p></p>"
-		 "<p>Qt Commercial Edition license holders: This program is"
-		 " licensed to you under the terms of the Qt Commercial License"
-		 " Agreement. For details, see the file LICENSE that came with"
-		 " this software distribution.</p><p></p>"
-		 "<p>Qt Free Edition users: This program is licensed to you"
-		 " under the terms of the GNU General Public License Version 2."
-		 " For details, see the file LICENSE.GPL that came with this"
-		 " software distribution.</p><p>The program is provided AS IS"
-		 " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
-		 " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
-		 "</p>");
+                 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
+                 "<p>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
+                 "</p></center><p></p>"
+                 "<p>Qt Commercial Edition license holders: This program is"
+                 " licensed to you under the terms of the Qt Commercial License"
+                 " Agreement. For details, see the file LICENSE that came with"
+                 " this software distribution.</p><p></p>"
+                 "<p>Qt Free Edition users: This program is licensed to you"
+                 " under the terms of the GNU General Public License Version 2."
+                 " For details, see the file LICENSE.GPL that came with this"
+                 " software distribution.</p><p>The program is provided AS IS"
+                 " with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF"
+                 " DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE."
+                 "</p>");
     box.setCaption(tr("Qt Assistant"));
     box.setIcon(QMessageBox::NoIcon);
     box.exec();
@@ -241,15 +243,15 @@ void MainWindow::aboutApplication()
 {
     QString url = Config::configuration()->aboutURL();
     if (url == "about_qt") {
-	QMessageBox::aboutQt(this, "Qt Assistant");
-	return;
+        QMessageBox::aboutQt(this, "Qt Assistant");
+        return;
     }
     QString text;
     QFile file(url);
     if(file.exists() && file.open(IO_ReadOnly))
-	text = QString(file.readAll());
+        text = QString(file.readAll());
     if(text.isNull())
-	text = tr("Failed to open about application contents in file: '%1'").arg(url);
+        text = tr("Failed to open about application contents in file: '%1'").arg(url);
 
     QMessageBox box(this);
     box.setText(text);
@@ -261,7 +263,7 @@ void MainWindow::aboutApplication()
 void MainWindow::find()
 {
     if (!findDialog)
-	findDialog = new FindDialog(this);
+        findDialog = new FindDialog(this);
     findDialog->comboFind->setFocus();
     findDialog->comboFind->lineEdit()->setSelection(
         0, findDialog->comboFind->lineEdit()->text().length());
@@ -271,8 +273,8 @@ void MainWindow::find()
 void MainWindow::findAgain()
 {
     if (!findDialog || !findDialog->hasFindExpression()) {
-	find();
-	return;
+        find();
+        return;
     }
     findDialog->doFind(true);
 }
@@ -280,8 +282,8 @@ void MainWindow::findAgain()
 void MainWindow::findAgainPrev()
 {
     if (!findDialog || !findDialog->hasFindExpression()) {
-	find();
-	return;
+        find();
+        return;
     }
     findDialog->doFind(false);
 }
@@ -296,50 +298,50 @@ void MainWindow::print()
     QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
     if (printer.setup(this)) {
-	QPainter p;
-	if (!p.begin(&printer))
-	    return;
+        QPainter p;
+        if (!p.begin(&printer))
+            return;
 
-	qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
-	qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+        qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
+        qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 
-	QPaintDeviceMetrics metrics(p.device());
-	QTextBrowser *browser = tabs->currentBrowser();
-	int dpiy = metrics.logicalDpiY();
-	int margin = (int) ((2/2.54)*dpiy);
-	QRect body(margin,
-		    margin,
-		    metrics.width() - 2 * margin,
-		    metrics.height() - 2 * margin);
-	QSimpleRichText richText(browser->text(), browser->QWidget::font(), browser->context(),
-				  browser->styleSheet(), browser->mimeSourceFactory(),
-				  body.height(), Qt::black, false);
-	richText.setWidth(&p, body.width());
-	QRect view(body);
-	int page = 1;
-	do {
-	    qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+        QPaintDeviceMetrics metrics(p.device());
+        QTextBrowser *browser = tabs->currentBrowser();
+        int dpiy = metrics.logicalDpiY();
+        int margin = (int) ((2/2.54)*dpiy);
+        QRect body(margin,
+                    margin,
+                    metrics.width() - 2 * margin,
+                    metrics.height() - 2 * margin);
+        QSimpleRichText richText(browser->text(), browser->QWidget::font(), browser->context(),
+                                  browser->styleSheet(), browser->mimeSourceFactory(),
+                                  body.height(), Qt::black, false);
+        richText.setWidth(&p, body.width());
+        QRect view(body);
+        int page = 1;
+        do {
+            qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 
-	    richText.draw(&p, body.left(), body.top(), view, colorGroup());
-	    view.moveBy(0, body.height());
-	    p.translate(0 , -body.height());
-	    p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
-			view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
-	    if (view.top() >= richText.height())
-		break;
-	    printer.newPage();
-	    page++;
-	} while (true);
+            richText.draw(&p, body.left(), body.top(), view, colorGroup());
+            view.moveBy(0, body.height());
+            p.translate(0 , -body.height());
+            p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
+                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
+            if (view.top() >= richText.height())
+                break;
+            printer.newPage();
+            page++;
+        } while (true);
 
-	qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
-	qApp->restoreOverrideCursor();
+        qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
+        qApp->restoreOverrideCursor();
     }
 }
 
 void MainWindow::updateBookmarkMenu()
 {
     for(QList<MainWindow*>::Iterator it = windows->begin(); it != windows->end(); ++it)
-	(*it)->setupBookmarkMenu();
+        (*it)->setupBookmarkMenu();
 }
 
 void MainWindow::setupBookmarkMenu()
@@ -349,22 +351,22 @@ void MainWindow::setupBookmarkMenu()
     actionAddBookmark->addTo(bookmarkMenu);
 
     QFile f(QDir::homeDirPath() + "/.assistant/bookmarks." +
-	Config::configuration()->profileName());
+        Config::configuration()->profileName());
     if (!f.open(IO_ReadOnly))
-	return;
+        return;
     QTextStream ts(&f);
     bookmarkMenu->insertSeparator();
     while (!ts.atEnd()) {
-	QString title = ts.readLine();
-	QString link = ts.readLine();
-	bookmarks.insert(bookmarkMenu->insertItem(title), link);
+        QString title = ts.readLine();
+        QString link = ts.readLine();
+        bookmarks.insert(bookmarkMenu->insertItem(title), link);
     }
 }
 
 void MainWindow::showBookmark(int id)
 {
     if (bookmarks.find(id) != bookmarks.end())
-	showLink(*bookmarks.find(id));
+        showLink(*bookmarks.find(id));
 }
 
 void MainWindow::showLinkFromClient(const QString &link)
@@ -374,13 +376,13 @@ void MainWindow::showLinkFromClient(const QString &link)
     setActiveWindow();
     showLink(link);
     if (isMinimized())
-	showNormal();
+        showNormal();
 }
 
 void MainWindow::showLink(const QString &link)
 {
     if(link.isEmpty()) {
-	qWarning("The link is empty!");
+        qWarning("The link is empty!");
     }
 
     int find = link.find('#');
@@ -389,33 +391,33 @@ void MainWindow::showLink(const QString &link)
     QString absLink = link;
     QFileInfo fi(name);
     if (fi.isRelative()) {
-	if (find >= 0)
-	    absLink = fi.absFilePath() + link.right(link.length() - find);
-	else
-	    absLink = fi.absFilePath();
+        if (find >= 0)
+            absLink = fi.absFilePath() + link.right(link.length() - find);
+        else
+            absLink = fi.absFilePath();
     }
     if(fi.exists()) {
-	tabs->setSource(absLink);
-	tabs->currentBrowser()->setFocus();
+        tabs->setSource(absLink);
+        tabs->currentBrowser()->setFocus();
     } else {
-	// ### Default 404 site!
-	statusBar()->message(tr("Failed to open link: '%1'").arg(link), 5000);
-	tabs->currentBrowser()->setText(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
-					     "<h3>'%1'</h3></div>").arg(link));
-	tabs->updateTitle(tr("Error..."));
+        // ### Default 404 site!
+        statusBar()->message(tr("Failed to open link: '%1'").arg(link), 5000);
+        tabs->currentBrowser()->setText(tr("<div align=\"center\"><h1>The page could not be found!</h1><br>"
+                                             "<h3>'%1'</h3></div>").arg(link));
+        tabs->updateTitle(tr("Error..."));
     }
 }
 
 void MainWindow::showLinks(const QStringList &links)
 {
     if (links.size() == 0) {
-	qWarning("MainWindow::showLinks() - Empty link");
-	return;
+        qWarning("MainWindow::showLinks() - Empty link");
+        return;
     }
 
     if (links.size() == 1) {
-	showLink(links.first());
-	return;
+        showLink(links.first());
+        return;
     }
 
     pendingLinks = links;
@@ -423,14 +425,14 @@ void MainWindow::showLinks(const QStringList &links)
     QStringList::ConstIterator it = pendingLinks.begin();
     // Initial showing, The tab is empty so update that without creating it first
     if (tabs->currentBrowser()->source().isEmpty()) {
-	pendingBrowsers.append(tabs->currentBrowser());
-	tabs->setTitle(tabs->currentBrowser(), pendingLinks.first());
+        pendingBrowsers.append(tabs->currentBrowser());
+        tabs->setTitle(tabs->currentBrowser(), pendingLinks.first());
     }
     ++it;
 
     while(it != pendingLinks.end()) {
-	pendingBrowsers.append(tabs->newBackgroundTab(*it));
-	++it;
+        pendingBrowsers.append(tabs->newBackgroundTab(*it));
+        ++it;
     }
 
     startTimer(50);
@@ -444,7 +446,7 @@ void MainWindow::timerEvent(QTimerEvent *e)
     pendingLinks.pop_front();
     pendingBrowsers.removeFirst();
     if (pendingLinks.size() == 0)
-	killTimer(e->timerId());
+        killTimer(e->timerId());
     win->setSource(link);
 }
 
@@ -466,7 +468,7 @@ void MainWindow::showWebBrowserSettings()
 void MainWindow::showSettingsDialog(int page)
 {
     if (!settingsDia){
-	settingsDia = new SettingsDialog(this);
+        settingsDia = new SettingsDialog(this);
     }
     QFontDatabase fonts;
     settingsDia->fontCombo->clear();
@@ -478,20 +480,20 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->linkUnderlineCB->setChecked(tabs->linkUnderline());
     settingsDia->colorButton->setPaletteBackgroundColor(tabs->palette().color(QPalette::Active, QColorGroup::Link));
     if (page != -1)
-	settingsDia->settingsTab->setCurrentPage(page);
+        settingsDia->settingsTab->setCurrentPage(page);
 
     int ret = settingsDia->exec();
 
     if (ret != QDialog::Accepted)
-	return;
+        return;
 
     QObjectList lst = Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
-	QObject *obj = lst.at(i);
-	if (obj->isA("QToolBarSeparator")) {
-	    delete obj;
-	    break;
-	}
+        QObject *obj = lst.at(i);
+        if (obj->isA("QToolBarSeparator")) {
+            delete obj;
+            break;
+        }
     }
 
     setupGoActions();
@@ -531,9 +533,9 @@ MainWindow* MainWindow::newWindow()
     MainWindow *mw = new MainWindow;
     mw->move(geometry().topLeft());
     if (isMaximized())
-	mw->showMaximized();
+        mw->showMaximized();
     else
-	mw->show();
+        mw->show();
     mw->goHome();
     return mw;
 }
@@ -554,7 +556,7 @@ void MainWindow::saveSettings()
     QStringList lst;
     QList<HelpWindow*> browsers = tabs->browsers();
     foreach (HelpWindow *browser, browsers)
-	lst << browser->source();
+        lst << browser->source();
     config->setSource(lst);
     config->save();
 }
@@ -578,9 +580,9 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
     hw->blockScrolling(true);
     hw->setCursor(waitCursor);
     if (hw->source() == link)
-	hw->reload();
+        hw->reload();
     else
-	showLink(link);
+        showLink(link);
     hw->sync();
     hw->setCursor(arrowCursor);
 
@@ -588,17 +590,17 @@ void MainWindow::showSearchLink(const QString &link, const QStringList &terms)
     int minPar = INT_MAX;
     int minIndex = INT_MAX;
     foreach (QString term, terms) {
-	int para = 0;
-	int index = 0;
-	bool found = hw->find(term, false, true, true, &para, &index);
-	while (found) {
-	    if (para < minPar) {
-		minPar = para;
-		minIndex = index;
-	    }
-	    hw->setColor(red);
-	    found = hw->find(term, false, true, true);
-	}
+        int para = 0;
+        int index = 0;
+        bool found = hw->find(term, false, true, true, &para, &index);
+        while (found) {
+            if (para < minPar) {
+                minPar = para;
+                minIndex = index;
+            }
+            hw->setColor(red);
+            found = hw->find(term, false, true, true);
+        }
     }
     hw->blockScrolling(false);
     hw->viewport()->setUpdatesEnabled(true);
@@ -611,8 +613,8 @@ void MainWindow::showGoActionLink()
 {
     const QObject *origin = sender();
     if(!origin ||
-	origin->metaObject()->className() != QString("QAction"))
-	return;
+        origin->metaObject()->className() != QString("QAction"))
+        return;
 
     QAction *action = (QAction*) origin;
     QString docfile = *(goActionDocFiles->find(action));
@@ -650,12 +652,12 @@ void MainWindow::updateProfileSettings()
     helpMenu->insertSeparator();
     helpAbout_Qt_AssistantAction->addTo(helpMenu);
     if (!config->aboutApplicationMenuText().isEmpty())
-	actionAboutApplication->addTo(helpMenu);
+        actionAboutApplication->addTo(helpMenu);
     helpMenu->insertSeparator();
     actionHelpWhatsThis->addTo(helpMenu);
 
     actionAboutApplication->setMenuText(config->aboutApplicationMenuText());
 
     if(!config->title().isNull())
-	setCaption(config->title());
+        setCaption(config->title());
 }

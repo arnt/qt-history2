@@ -73,12 +73,12 @@ void SettingsDialog::setFile( QLineEdit *le, const QString &caption )
 {
     QFileDialog *fd = new QFileDialog( this );
     fd->setCaption( caption );
-    fd->setMode( QFileDialog::AnyFile );
-    fd->setDir( QDir::homeDirPath() );
+    fd->setFileMode( QFileDialog::AnyFile );
+    // ### fd->setDir( QDir::homeDirPath() );
 
     if ( fd->exec() == QDialog::Accepted ) {
-	if ( !fd->selectedFile().isEmpty() )
-	   le->setText( fd->selectedFile() );
+        if ( !fd->selectedFiles().isEmpty() )
+           le->setText( fd->selectedFiles().at(0) );
     }
 }
 
