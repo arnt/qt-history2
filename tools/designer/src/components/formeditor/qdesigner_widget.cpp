@@ -283,6 +283,8 @@ bool QLayoutWidget::event(QEvent *e)
 
         case QEvent::LayoutRequest: {
             bool rtn = QWidget::event(e);
+            if (LayoutInfo::layoutType(formWindow()->core(), parentWidget()) == LayoutInfo::NoLayout)
+                resize(layout()->sizeHint());
             update();
             return rtn;
         }
