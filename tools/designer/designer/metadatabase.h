@@ -101,8 +101,10 @@ public:
 	Include() : header(), location(), implDecl( "in implementation" ) {}
 	QString header;
 	QString location;
+	bool operator==( const Include &i ) const {
+	    return header == i.header && location == i.location;
+	}
 	QString implDecl;
-	bool operator==( const Include & ) const;
     };
 
     struct MetaInfo
