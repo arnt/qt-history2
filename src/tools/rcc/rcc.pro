@@ -50,9 +50,7 @@ SOURCES += \
            #codecs
            ../../core/codecs/qtextcodec.cpp ../../core/codecs/qutfcodec.cpp \
            #global
-           ../../core/global/qglobal.cpp \
-           #mutex
-           ../../core/thread/qmutexpool.cpp
+           ../../core/global/qglobal.cpp 
 #platform specific
 win32:SOURCES += ../../core/io/qfileengine_win.cpp
 else:unix:SOURCES += ../../core/io/qfileengine_unix.cpp
