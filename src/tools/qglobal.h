@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#132 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#133 $
 **
 ** Global type declarations and definitions
 **
@@ -36,7 +36,7 @@
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
-//   WIN32	- Win32 (Windows 95 and Windows NT)
+//   WIN32	- Win32 (Windows 95/98 and Windows NT)
 //   SUN	- SunOS
 //   SOLARIS	- Sun Solaris
 //   HPUX	- HP-UX
