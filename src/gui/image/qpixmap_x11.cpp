@@ -1195,7 +1195,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         newbits = (uchar *)malloc(xi->bytes_per_line*h);
         Q_CHECK_PTR(newbits);
         if (!newbits)                                // no memory
-            return false;
+            return QPixmap();
         int    bppc = xi->bits_per_pixel;
 
         bool contig_bits = n_bits(red_mask) == rbits &&
@@ -1519,7 +1519,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         newbits = (uchar *)malloc(nbytes);        // copy image into newbits
         Q_CHECK_PTR(newbits);
         if (!newbits)                                // no memory
-            return false;
+            return QPixmap();
         uchar* p = newbits;
         memcpy(p, cimage.bits(), nbytes);        // copy image data into newbits
 
@@ -1641,7 +1641,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             ushort *newerbits = (ushort *)malloc(xi->bytes_per_line * h);
             Q_CHECK_PTR(newerbits);
             if (!newerbits)                                // no memory
-                return false;
+                return QPixmap();
             uchar* p = newbits;
             for (int y = 0; y < h; y++) {                // OOPS: Do right byte order!!
                 p2 = newerbits + p2inc*y;
