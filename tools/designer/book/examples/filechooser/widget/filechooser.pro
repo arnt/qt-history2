@@ -1,6 +1,8 @@
-TEMPLATE	= app
-CONFIG+= qt warn_on release
-HEADERS		= filechooser.h
-SOURCES		= filechooser.cpp main.cpp
-INTERFACES	=
+SOURCES	+= filechooser.cpp main.cpp 
+HEADERS	+= filechooser.h 
 TARGET		= filechooser
+TEMPLATE	=app
+CONFIG	+= qt warn_on release
+DBFILE	= filechooser.db
+PROJECTNAME	= Filechooser
+LANGUAGE	= C++

@@ -1,5 +1,9 @@
-TEMPLATE = app
-CONFIG+= qt warn_on release
-HEADERS  = vcr.h
-SOURCES  = vcr.cpp main.cpp
+SOURCES	+= vcr.cpp main.cpp 
+HEADERS	+= vcr.h 
 TARGET   = vcr
+TEMPLATE	=app
+CONFIG	+= qt warn_on release
+DBFILE	= vcr.db
+PROJECTNAME	= Vcr
+LANGUAGE	= C++
+CPP_ALWAYS_CREATE_SOURCE	= TRUE

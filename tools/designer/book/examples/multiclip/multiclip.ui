@@ -2,8 +2,10 @@
 <class>MulticlipForm</class>
 <include location="global" impldecl="in declaration">qclipboard.h</include>
 <include location="global" impldecl="in implementation">qapplication.h</include>
+<include location="local" implDecl="in declaration">multiclip.ui.h</include>
 <variable>QClipboard *cb;</variable>
 <pixmapinproject/>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>MulticlipForm</cstring>
@@ -12,8 +14,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>589</width>
-            <height>474</height>
+            <width>585</width>
+            <height>472</height>
         </rect>
     </property>
     <property name="caption">
@@ -81,7 +83,7 @@
                     </property>
                 </widget>
                 <spacer row="2" column="1">
-                    <property name="name" stdset="0">
+                    <property name="name">
                         <cstring>Spacer4</cstring>
                     </property>
                     <property name="orientation">
@@ -160,100 +162,38 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>quitPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MulticlipForm</receiver>
         <slot>accept()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>addPushButton</sender>
         <signal>clicked()</signal>
         <receiver>MulticlipForm</receiver>
         <slot>addClipping()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>copyPushButton</sender>
         <signal>pressed()</signal>
         <receiver>MulticlipForm</receiver>
         <slot>copyPrevious()</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>deletePushButton</sender>
         <signal>clicked()</signal>
         <receiver>MulticlipForm</receiver>
         <slot>deleteClipping()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">addClipping()</slot>
-    <slot access="public" language="C++" returnType="void">dataChanged()</slot>
-    <slot access="public" language="C++" returnType="void">deleteClipping()</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="public" language="C++" returnType="void">selectionChanged()</slot>
-    <slot access="public" language="C++" returnType="void">copyPrevious()</slot>
-    <slot access="public" language="C++" returnType="void">clippingChanged( const QString &amp; clipping )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">addClipping()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">dataChanged()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">deleteClipping()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">selectionChanged()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">copyPrevious()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clippingChanged( const QString &amp; clipping )</slot>
 </connections>
-<functions>
-    <function name="destroy()" >{ 
-    
-}</function>
-    <function name="addClipping()" >{ 
-    QString text = currentLineEdit-&gt;text(); 
-    if ( ! text.isEmpty() ) { 
-	lengthLCDNumber-&gt;display( (int)text.length() ); 	 
-	int i = 0; 
-	for ( ; i &lt; (int)clippingsListBox-&gt;count(); i++ ) { 
-	    if ( clippingsListBox-&gt;text( i ) == text ) { 
-		i = -1; // Do not add duplicates 
-		break; 
-	    } 
-	} 
-	if ( i != -1 )  
-	    clippingsListBox-&gt;insertItem( text, 0 );   	     
-    } 
-}</function>
-    <function name="dataChanged()" >{ 
-    QString text;  
-    text = cb-&gt;text();   	 
-    clippingChanged( text ); 
-    if ( autoCheckBox-&gt;isChecked() ) 
-	addClipping(); 
-}</function>
-    <function name="deleteClipping()" >{  
-    clippingChanged( "" );  
-    clippingsListBox-&gt;removeItem( clippingsListBox-&gt;currentItem() ); 
-}</function>
-    <function name="init()" >{ 
-    lengthLCDNumber-&gt;setBackgroundColor( darkBlue ); 
-    currentLineEdit-&gt;setFocus(); 
-     
-    cb = qApp-&gt;clipboard(); 
-    connect( cb, SIGNAL( dataChanged() ), SLOT( dataChanged() ) ); 
-    if ( cb-&gt;supportsSelection() ) 
-	connect( cb, SIGNAL( selectionChanged() ), SLOT( selectionChanged() ) ); 
-     
-    dataChanged(); 
-}</function>
-    <function name="selectionChanged()" >{ 
-    cb-&gt;setSelectionMode( TRUE );  
-    dataChanged(); 
-    cb-&gt;setSelectionMode( FALSE );  
-}</function>
-    <function name="copyPrevious()" >{ 
-    if ( clippingsListBox-&gt;currentItem() != -1 ) { 
-	cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
-	if ( cb-&gt;supportsSelection() ) { 
-	    cb-&gt;setSelectionMode( TRUE ); 
-	    cb-&gt;setText( clippingsListBox-&gt;currentText() ); 
-	    cb-&gt;setSelectionMode( FALSE ); 
-	} 
-    } 
-}</function>
-    <function name="clippingChanged(const QString&amp;)" >{ 
-    currentLineEdit-&gt;setText( clipping ); 
-    lengthLCDNumber-&gt;display( (int)clipping.length() );  
-}</function>
-</functions>
 <tabstops>
     <tabstop>currentLineEdit</tabstop>
     <tabstop>clippingsListBox</tabstop>

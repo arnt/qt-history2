@@ -1,5 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>BookForm</class>
+<include location="local" implDecl="in declaration">book.ui.h</include>
+<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>BookForm</cstring>
@@ -8,8 +10,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>570</width>
-            <height>466</height>
+            <width>566</width>
+            <height>464</height>
         </rect>
     </property>
     <property name="caption">
@@ -121,41 +123,19 @@
     </vbox>
 </widget>
 <connections>
-    <connection>
+    <connection language="C++">
         <sender>AuthorDataTable</sender>
         <signal>currentChanged(QSqlRecord*)</signal>
         <receiver>BookForm</receiver>
         <slot>newCurrentAuthor(QSqlRecord*)</slot>
     </connection>
-    <connection>
+    <connection language="C++">
         <sender>AuthorDataTable</sender>
         <signal>primeInsert(QSqlRecord*)</signal>
         <receiver>BookForm</receiver>
         <slot>primeInsertAuthor(QSqlRecord*)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">newCurrentAuthor( QSqlRecord *author )</slot>
-    <slot access="public" language="C++" returnType="void">primeInsertAuthor( QSqlRecord *buffer )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">newCurrentAuthor( QSqlRecord * author )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">primeInsertAuthor( QSqlRecord * buffer )</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-    
-}</function>
-    <function name="destroy()" >{
-    
-}</function>
-    <function name="newCurrentAuthor(QSqlRecord*)" >{
-    BookDataTable-&gt;setFilter( "authorid=" + author-&gt;value( "id" ).toString() );  
-    BookDataTable-&gt;refresh();
-}</function>
-    <function name="primeInsertAuthor(QSqlRecord*)" >{
-    QSqlQuery query;
-    query.exec( "UPDATE sequence SET sequence = sequence + 1 WHERE tablename='author';" );
-    query.exec( "SELECT sequence FROM sequence WHERE tablename='author';" );
-    if ( query.next() ) {
-	buffer-&gt;setValue( "id", query.value( 0 ) );
-    }
-}</function>
-</functions>
 </UI>

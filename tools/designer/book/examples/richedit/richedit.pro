@@ -1,8 +1,8 @@
-TEMPLATE	= app
-CONFIG += qt warn_on release
+SOURCES	+= main.cpp 
 TARGET	= richedit
-SOURCES += main.cpp
 INTERFACES	= richedit.ui 
+TEMPLATE	=app
+CONFIG	+= qt warn_on release
 DBFILE	= richedit.db
 IMAGEFILE	= images.cpp
 PROJECTNAME	= richedit

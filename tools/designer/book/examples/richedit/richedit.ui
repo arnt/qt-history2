@@ -18,8 +18,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>650</width>
-            <height>438</height>
+            <width>646</width>
+            <height>436</height>
         </rect>
     </property>
     <property name="caption">
@@ -43,6 +43,8 @@
                 <sizepolicy>
                     <hsizetype>7</hsizetype>
                     <vsizetype>7</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
                 </sizepolicy>
             </property>
             <property name="textFormat">
@@ -595,17 +597,16 @@
         <receiver>textEdit</receiver>
         <slot>setFocus()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">fileExit()</slot>
-    <slot access="public" language="C++" returnType="void">fileNew()</slot>
-    <slot access="public" language="C++" returnType="void">fileOpen()</slot>
-    <slot access="public" language="C++" returnType="void">fileSave()</slot>
-    <slot access="public" language="C++" returnType="void">fileSaveAs()</slot>
-    <slot access="public" language="C++" returnType="void">helpAbout()</slot>
-    <slot access="public" language="C++" returnType="void">helpContents()</slot>
-    <slot access="public" language="C++" returnType="void">helpIndex()</slot>
-    <slot access="public" language="C++" returnType="void">changeAlignment(QAction * align)</slot>
-    <slot access="public" language="C++" returnType="int">saveAndContinue(const QString &amp; action)</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">fileExit()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">fileNew()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">fileOpen()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">fileSave()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">fileSaveAs()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">helpAbout()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">helpContents()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">helpIndex()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">changeAlignment( QAction * align )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="int">saveAndContinue( const QString &amp; action )</slot>
 </connections>
 </UI>

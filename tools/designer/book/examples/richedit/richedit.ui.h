@@ -14,11 +14,6 @@ void EditorForm::init()
     }
 }
 
-void EditorForm::destroy()
-{
-    
-}
-
 void EditorForm::fileExit()
 {
     if ( saveAndContinue( "Exit" ) )

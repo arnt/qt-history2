@@ -1,5 +1,6 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>CreditFormBase</class>
+<include location="local" implDecl="in declaration">creditformbase.ui.h</include>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
@@ -10,8 +11,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>280</width>
-            <height>226</height>
+            <width>276</width>
+            <height>224</height>
         </rect>
     </property>
     <property name="caption">
@@ -206,19 +207,6 @@
         <receiver>amountSpinBox</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">setAmount()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">setAmount()</slot>
 </connections>
-<functions>
-    <function name="init()" >{
-
-}</function>
-    <function name="destroy()" >{
-
-}</function>
-    <function name="setAmount()" >{
-
-}</function>
-</functions>
 </UI>
