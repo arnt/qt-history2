@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#139 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#140 $
 **
 ** Global type declarations and definitions
 **
@@ -28,7 +28,7 @@
 
 
 #define QT_VERSION	200
-#define QT_VERSION_STR	"2.00"
+#define QT_VERSION_STR	"2.00beta"
 
 
 //
