@@ -168,7 +168,7 @@ void QProcessPrivate::cleanup()
 {
     Q_Q(QProcess);
 
-    q->setOpenMode(QIODevice::NotOpen);
+    q->setOpenMode(QIODevice::ReadOnly);
     processChannel = QProcess::StandardOutput;
     processError = QProcess::UnknownError;
     processState = QProcess::NotRunning;
