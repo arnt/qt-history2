@@ -43,9 +43,9 @@
   can be switched on (checked) or off (unchecked). The classes differ
   in how the choices for the user are restricted. Check-boxes define
   "many of many" choices, while radio buttons provide a "one of many"
-  choice. In a group of radio button, only one button at a time can be
-  checked. If the user selects another button, the previously selected
-  button is switched off.
+  choice. In a group of radio buttons, only one button at a time can
+  be checked. If the user selects another button, the previously
+  selected button is switched off.
 
   While it is technically possible to imlement radio-behaviour with
   check boxes and vice versa, it's strongly recommended to stick with

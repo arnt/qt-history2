@@ -38,37 +38,37 @@
 
   \ingroup realwidgets
 
-  QRadioButton and QCheckBox are both option buttons. That is, they
+  QCheckBox and QRadioButton are both option buttons. That is, they
   can be switched on (checked) or off (unchecked). The classes differ
   in how the choices for the user are restricted. Radio buttons define
   a "one of many" choice, while check-boxes provide "many of many"
   choices.
-  
+
   While it is technically possible to imlement radio-behaviour with
   check boxes and vice versa, it's strongly recommended to stick with
   the well-known semantics. Otherwise your users would be pretty
   confused.
 
-  Use QButtonGroup to group check-buttons visually. 
-  
+  Use QButtonGroup to group check-buttons visually.
+
   Whenver a check box is checked or cleared, it emits the signal
   toggled(). Connect to this signal if you want to trigger an action
   each time the box changes state. Otherwise, use isChecked() to query
   whether or not a particular check box is selected.
-  
+
   In addition to the usual checked and unchecked states, QCheckBox
   optionally provides a third state to indicate "no change".  This is
-  useful whener you need to give the user the option of neither
+  useful whenever you need to give the user the option of neither
   setting nor unsetting an option. If you need that third state,
   enable it with setTristate() and use state() to query the current
-  toggle state. When a check box changes state, it emits the
+  toggle state. When a tristate box changes state, it emits the
   stateChanged() signal.
 
   \important text, setText, text, pixmap, setPixmap, accel, setAccel,
   isToggleButton, setDown, isDown, isOn, state, autoRepeat,
   isExclusiveToggle, group, setAutoRepeat, toggle, pressed, released,
   clicked, toggled, state stateChanged
-  
+
   <img src=qchkbox-m.png> <img src=qchkbox-w.png>
 
   \sa QButton QRadioButton
@@ -130,7 +130,7 @@ void QCheckBox::setNoChange()
 /*!
   Makes the check box a tristate check box if \a y is TRUE.  A tristate
   check box provides an additional state NoChange.
-  
+
   Use tristate check boxes whenever you need to give the user the
   option of neither setting nor unsetting an option. A typical example
   is the "Italic" check box in the font dialog of a word processor
