@@ -576,8 +576,7 @@ mkpath $includedir, 0777;
 my @ignore_headers = ();
 my @ignore_for_master_contents = ( "qt.h", "qpaintdevicedefs.h" );
 
-if(0) {
-#foreach (@modules_to_sync) {
+foreach (@modules_to_sync) {
     #iteration info
     my $lib = $_;
     my $dir = "$modules{$lib}";
