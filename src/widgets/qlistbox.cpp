@@ -3000,7 +3000,8 @@ QSize QListBox::sizeHint() const
 	   d->columnPos[i] < 200 )
 	i++;
     int x;
-    x = QMIN( 200, d->columnPos[i] );
+    x = QMIN( 200, d->columnPos[i] +
+	      2 * style().pixelMetric( QStyle::PM_DefaultFrameWidth ) );
     x = QMAX( 40, x );
 
     i = 0;
@@ -3009,7 +3010,8 @@ QSize QListBox::sizeHint() const
 	   d->rowPos[i] < 200 )
 	i++;
     int y;
-    y = QMIN( 200, d->rowPos[i] );
+    y = QMIN( 200, d->rowPos[i] +
+	      2 * style().pixelMetric( QStyle::PM_DefaultFrameWidth ) );
     y = QMAX( 40, y );
 
     QSize s( x, y );
