@@ -300,19 +300,12 @@ QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 		    cr = QRegion(widget->rect());
 		cr.translate(widget->x(), widget->y());
 		CopyRgn((RgnHandle)cr.handle(TRUE), s->winRgn);
-		qDebug("%d %d %s %s", widget->x(), widget->y(), widget->name(), widget->className());
 	    }
 	    break; }
 	default:
 	    result = errWindowRegionCodeInvalid;
 	    break;
 	}
-	QRegion r(s->winRgn);
-	QArray<QRect> a = r.rects();
-	qDebug("%d ******************", s->regionCode);
-	for(int i = 0; i < (int)a.count(); i++) 
-	    qDebug("%d %d %d %d", a[i].x(), a[i].y(), a[i].width(), a[i].height());
-	qDebug("*********************");
 	break; }
     default:
 	qDebug("Shouldn't happen %s:%d %d", __FILE__, __LINE__, message);
