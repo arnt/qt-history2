@@ -5763,8 +5763,12 @@ void QTextEdit::updateCursor( const QPoint & pos )
 	placeCursor( pos, &c, TRUE );
 
 #ifndef QT_NO_NETWORKPROTOCOL
-	if ( c.paragraph() && c.paragraph()->at( c.index() ) &&
-		c.paragraph()->at( c.index() )->isAnchor()) {
+	bool insideParagRect = TRUE;
+	if (c.paragraph() == doc->lastParagraph()
+	    && c.paragraph()->rect().y() + c.paragraph()->rect().height() < pos.y())
+	    insideParagRect = FALSE;
+	if (insideParagRect && c.paragraph() && c.paragraph()->at( c.index() ) &&
+	    c.paragraph()->at( c.index() )->isAnchor()) {
 	    if (!c.paragraph()->at( c.index() )->anchorHref().isEmpty()
 		    && c.index() < c.paragraph()->length() - 1 )
 		onLink = c.paragraph()->at( c.index() )->anchorHref();
