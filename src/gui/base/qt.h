@@ -117,7 +117,6 @@
 #include <qhash.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
-#include <qkeycode.h>
 #include <qaccel.h>
 #include "qlabel.h"
 #include "qlayout.h"
@@ -141,7 +140,6 @@
 #include <qmovie.h>
 #include "qptrvector.h"
 #include "qbutton.h"
-#include <qnetwork.h>
 #include <qftp.h>
 #include <qlistview.h>
 #include <qobjectcleanuphandler.h>
@@ -166,7 +164,6 @@
 #include <qprinter.h>
 #include "qdir.h"
 #include "qprogressbar.h"
-#include "qsemimodal.h"
 #include <qobjectdict.h>
 #include "qptrdict.h"
 #include <qerrormessage.h>
