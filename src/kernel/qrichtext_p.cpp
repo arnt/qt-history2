@@ -112,6 +112,7 @@ int QTextCursor::x() const
     if ( !c->rightToLeft &&
 	 c->c.isSpace() &&
 	 idx > 0 &&
+	 para->at( idx - 1 )->c != '\t' &&
 	 !c->lineStart &&
 	 ( para->alignment() & Qt::AlignJustify ) == Qt::AlignJustify )
 	curx = para->at( idx - 1 )->x + para->string()->width( idx - 1 );
