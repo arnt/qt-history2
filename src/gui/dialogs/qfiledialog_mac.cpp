@@ -138,7 +138,7 @@ static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
             tmp[str[0]] = '\0';
             file = tmp;
         }
-        DisposeHandle((Handle)alias);
+        DisposeHandle(reinterpret_cast<Handle>(alias));
     } else if (theItem->descriptorType == typeFSRef) {
         FSRef ref;
         AEGetDescData(theItem, &ref, sizeof(ref));
