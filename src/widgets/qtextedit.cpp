@@ -5259,6 +5259,15 @@ bool QTextEdit::allowTabs() const
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 /* Implementation of optimized LogText mode follows */
 
+void qSwap( int * a, int * b )
+{
+    if ( !a || !b )
+	return;
+    int tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
 /*! \internal */
 bool QTextEdit::checkOptimMode()
 {
@@ -5765,10 +5774,8 @@ void QTextEdit::optimDrawContents( QPainter * p, int clipx, int clipy,
 	int selEnd = d->od->selEnd.line;
 	int idxEnd = d->od->selEnd.index;
 	if ( selEnd < selStart ) {
-	    selStart = d->od->selEnd.line;
-	    idxStart = d->od->selEnd.index;
-	    selEnd = d->od->selStart.line;
-	    idxEnd = d->od->selStart.index;
+	    qSwap( &selStart, &selEnd );
+	    qSwap( &idxStart, &idxEnd );
 	}
 	if ( selEnd > d->od->numLines-1 ) {
 	    selEnd = d->od->numLines-1;
@@ -5882,17 +5889,11 @@ void QTextEdit::optimMouseReleaseEvent( QMouseEvent * e )
 	mousePos = e->pos();
 	d->od->selEnd.index = optimCharIndex( str, mousePos.x() );
 	if ( d->od->selEnd.line < d->od->selStart.line ) {
-	    int tmp = d->od->selStart.line;
-	    d->od->selStart.line = d->od->selEnd.line;
-	    d->od->selEnd.line = tmp;
-	    tmp = d->od->selStart.index;
-	    d->od->selStart.index = d->od->selEnd.index;
-	    d->od->selEnd.index = tmp;
+	    qSwap( &d->od->selStart.line, &d->od->selEnd.line ); 
+	    qSwap( &d->od->selStart.index, &d->od->selEnd.index ); 
 	} else if ( d->od->selStart.line == d->od->selEnd.line &&
 		    d->od->selStart.index > d->od->selEnd.index ) {
-	    int tmp = d->od->selStart.index;
-	    d->od->selStart.index = d->od->selEnd.index;
-	    d->od->selEnd.index = tmp;
+	    qSwap( &d->od->selStart.index, &d->od->selEnd.index );
 	}
 	oldMousePos = e->pos();
 	repaintContents( FALSE );
