@@ -180,6 +180,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "OBJMOC = " << objMoc << endl;
     t << "DIST	   = " << varList("DISTFILES") << endl;
     t << "QMAKE_TARGET = " << var("QMAKE_ORIG_TARGET") << endl;
+    t << "DESTDIR  = " << var("DESTDIR") << endl;
     t << "TARGET   = " << var("TARGET") << endl;
     if(project->isActiveConfig("plugin") ) {
 	t << "TARGETD   = " << var("TARGET") << endl;
