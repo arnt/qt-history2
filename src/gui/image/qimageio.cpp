@@ -249,6 +249,7 @@ typedef QList<QImageHandler *> QIHList;
 static QIHList imageHandlers;
 
 #ifndef QT_NO_COMPONENT
+Q_GLOBAL_STATIC(QMutex, mutex)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QImageFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
@@ -257,10 +258,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 void qt_init_image_plugins()
 {
 #ifndef QT_NO_COMPONENT
-    static QStaticMutex mutex = 0;
-    if (mutex)
-        return;
-    QMutexLocker locker(mutex);
+    QMutexLocker locker(mutex());
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i) {
@@ -336,7 +334,7 @@ static QImageHandler *get_image_handler(const char *format)
 }
 
 
-/*! 
+/*!
     \fn QImageIO::defineIOHandler(const char *format, const char *header, const char *flags, image_io_handler read_image, image_io_handler write_image);
     \overload
 
@@ -365,7 +363,7 @@ static QImageHandler *get_image_handler(const char *format)
     is used to select a handler to read an image file.
 
     When a file is attempted to be loaded but is not found \a
-    extension is used as a suffix to try loading again. 
+    extension is used as a suffix to try loading again.
 
     If \a readImage is a null pointer, the QImageIO will not be able
     to read images in \a format. If \a writeImage is a null pointer,
@@ -824,7 +822,7 @@ bool QImageIO::read()
                 }
             }
             if(!file.isOpen())
-                return false;                        
+                return false;
         }
         iodev = &file;
     } else {                                        // no file name or io device

@@ -1154,6 +1154,7 @@ typedef QList<QPictureHandler *> QPHList;
 static QPHList pictureHandlers;
 
 #ifndef QT_NO_COMPONENT
+Q_GLOBAL_STATIC(QMutex, mutex)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QPictureFormatInterface_iid,
                            QCoreApplication::libraryPaths(),
@@ -1162,10 +1163,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 void qt_init_picture_plugins()
 {
 #ifndef QT_NO_COMPONENT
-    static QStaticMutex mutex = 0;
-    if (mutex)
-        return;
-    QMutexLocker locker(mutex);
+    QMutexLocker locker(mutex());
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();
     for (int i = 0; i < keys.count(); ++i)
