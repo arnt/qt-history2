@@ -122,10 +122,9 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o, QSplitter *parent,
 
 QSize QSplitterHandle::sizeHint() const
 {
-    int sw = parentWidget()->style().pixelMetric( QStyle::PM_SplitterWidth,
-						  this );
+    int hw = s->handleWidth();
     return parentWidget()->style().sizeFromContents( QStyle::CT_Splitter, s,
-						     QSize(sw, sw) )
+						     QSize(hw, hw) )
 				  .expandedTo( QApplication::globalStrut() );
 }
 
@@ -201,11 +200,12 @@ QCOORD QSplitterLayoutStruct::getSizer( Qt::Orientation orient )
 class QSplitterData
 {
 public:
-    QSplitterData() : opaque( FALSE ), firstShow( TRUE ) {}
+    QSplitterData() : opaque( FALSE ), firstShow( TRUE ), handleWidth( 0 ) { }
 
     QPtrList<QSplitterLayoutStruct> list;
     bool opaque;
     bool firstShow;
+    int handleWidth;
 };
 
 
@@ -456,19 +456,19 @@ void QSplitter::setRubberband( int p )
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
     const int rBord = 3; // customizable?
-    int sw = style().pixelMetric( QStyle::PM_SplitterWidth, this );
+    int hw = handleWidth();
     if ( orient == Horizontal ) {
 	if ( opaqueOldPos >= 0 )
-	    paint.drawRect( opaqueOldPos + sw/2 - rBord , r.y(),
-			    2*rBord, r.height() );
+	    paint.drawRect( opaqueOldPos + hw / 2 - rBord, r.y(),
+			    2 * rBord, r.height() );
 	if ( p >= 0 )
-	    paint.drawRect( p + sw/2 - rBord, r.y(), 2*rBord, r.height() );
+	    paint.drawRect( p + hw / 2 - rBord, r.y(), 2 * rBord, r.height() );
     } else {
 	if ( opaqueOldPos >= 0 )
-	    paint.drawRect( r.x(), opaqueOldPos + sw/2 - rBord,
-			    r.width(), 2*rBord );
+	    paint.drawRect( r.x(), opaqueOldPos + hw / 2 - rBord,
+			    r.width(), 2 * rBord );
 	if ( p >= 0 )
-	    paint.drawRect( r.x(), p + sw/2 - rBord, r.width(), 2*rBord );
+	    paint.drawRect( r.x(), p + hw / 2 - rBord, r.width(), 2 * rBord );
     }
     opaqueOldPos = p;
 }
@@ -664,12 +664,9 @@ void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
     int maxVal;
 
     if ( orient == Horizontal && QApplication::reverseLayout() ) {
-	int splitterWidth = style().pixelMetric( QStyle::PM_SplitterWidth,
-						 this );
-	minVal = r.width() - QMIN( maxBefore, pick(r.size()) - minAfter )
-		 - splitterWidth;
-	maxVal = r.width() - QMAX( minBefore, pick(r.size()) - maxAfter )
-		 - splitterWidth;
+	int hw = handleWidth();
+	minVal = r.width() - QMIN( maxBefore, pick(r.size()) - minAfter ) - hw;
+	maxVal = r.width() - QMAX( minBefore, pick(r.size()) - maxAfter ) - hw;
     } else {
 	minVal = pick( r.topLeft() )
 		 + QMAX( minBefore, pick(r.size()) - maxAfter );
@@ -813,7 +810,6 @@ void QSplitter::doResize()
 	setGeo( s->wid, a[i].pos, a[i].size, FALSE );
     }
 }
-
 
 void QSplitter::recalc( bool update )
 {
@@ -1008,7 +1004,7 @@ void QSplitter::moveToLast( QWidget *w )
 	s = data->list.next();
     }
     if ( !found )
-	addWidget( w);
+	addWidget( w );
     recalcId();
 }
 
@@ -1175,6 +1171,20 @@ void QSplitter::setSizes( QValueList<int> list )
     doResize();
 }
 
+int QSplitter::handleWidth() const
+{
+    if ( data->handleWidth > 0 ) {
+	return data->handleWidth;
+    } else {
+	return style().pixelMetric( QStyle::PM_SplitterWidth, this );
+    }
+}
+
+void QSplitter::setHandleWidth( int width )
+{
+    data->handleWidth = width;
+    updateHandles();
+}
 
 /*!
     Gets all posted child events, ensuring that the internal state of
@@ -1193,15 +1203,20 @@ void QSplitter::processChildEvents()
 
 void QSplitter::styleChange( QStyle& old )
 {
-    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
+    updateHandles();
+    QFrame::styleChange( old );
+}
+
+void QSplitter::updateHandles()
+{
+    int hw = handleWidth();
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
 	if ( s->isSplitter )
-	    s->sizer = sw;
+	    s->sizer = hw;
 	s = data->list.next();
     }
-    doResize();
-    QFrame::styleChange( old );
+    recalc( isVisible() );
 }
 
 #ifndef QT_NO_TEXTSTREAM

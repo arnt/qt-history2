@@ -34,6 +34,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+
 #ifndef QSPLITTER_H
 #define QSPLITTER_H
 
@@ -53,6 +54,7 @@ class Q_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( Orientation orientation READ orientation WRITE setOrientation )
+    Q_PROPERTY( int handleWidth READ handleWidth WRITE setHandleWidth )
 
 public:
     // ### Qt 4.0: put Auto first
@@ -78,6 +80,9 @@ public:
 
     QValueList<int> sizes() const;
     void setSizes( QValueList<int> );
+
+    int handleWidth() const;
+    void setHandleWidth( int );
 
 protected:
     void childEvent( QChildEvent * );
@@ -109,6 +114,7 @@ private:
     void doMove( bool backwards, int pos, int id, int delta, bool upLeft,
 		 bool maySquash );
     void setGeo( QWidget *w, int pos, int size, bool splitterMoved );
+    void updateHandles();
 
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
