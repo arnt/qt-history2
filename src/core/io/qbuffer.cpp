@@ -202,12 +202,48 @@ void QBuffer::setBuffer(QByteArray *a)
 }
 
 /*!
+    Returns this buffer's byte array.
+
+    \sa setBuffer()
+*/
+
+QByteArray &QBuffer::buffer()
+{
+    Q_D(const QBuffer);
+    return *d->buf;
+}
+
+/*!
+    Returns this buffer's byte array.
+
+    \sa setBuffer()
+*/
+
+const QByteArray &QBuffer::buffer() const
+{
+    Q_D(const QBuffer);
+    return *d->buf;
+}
+
+/*!
     \fn void QBuffer::setData(const char *data, int len)
 
     \overload
 
     Sets the data to be the first \a len bytes of the \a data string.
 */
+
+/*!
+    Returns this buffer's byte array.
+
+    \sa setData()
+*/
+
+const QByteArray &QBuffer::data() const
+{
+    Q_D(const QBuffer);
+    return *d->buf;
+}
 
 /*!
     Sets the byte array for the buffer to be \a data.
@@ -248,27 +284,6 @@ bool QBuffer::open(OpenMode flags)
         d->ioIndex = 0;
 
     return true;
-}
-
-/*!
-    Returns this buffer's byte array.
-
-    \sa setBuffer()
-*/
-
-QByteArray &QBuffer::buffer()
-{
-    Q_D(QBuffer);
-    return *d->buf;
-}
-
-/*!
-    \overload
-*/
-const QByteArray &QBuffer::buffer() const
-{
-    Q_D(const QBuffer);
-    return *d->buf;
 }
 
 /*!

@@ -38,8 +38,10 @@ public:
     QByteArray &buffer();
     const QByteArray &buffer() const;
     void setBuffer(QByteArray *a);
+
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
+    const QByteArray &data() const;
 
     bool open(OpenMode openMode);
 
