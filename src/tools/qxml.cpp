@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qxml.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qxml.cpp#2 $
 **
 ** Implementation of QXML classes
 **
@@ -157,6 +157,11 @@ int QXMLSimpleParser::parse( const QString &text, QXMLConsumer* consumer )
   else if ( text[pos].isSpace() )
   {
     tag = text.mid( start, pos - start );
+
+    if ( consumer )
+      if ( !consumer->tagStart( tag ) )
+	return pos;
+
     pos++;
     goto Node5;
   }
@@ -212,9 +217,9 @@ int QXMLSimpleParser::parse( const QString &text, QXMLConsumer* consumer )
   if ( pos == len )
     goto Failed;
 
-  if ( consumer )
+  /* if ( consumer )
     if ( !consumer->tagStart( tag ) )
-      return pos;
+    return pos; */
 
   else if ( text[pos].isSpace() )
   {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#13 $
+** $Id: //depot/qt/main/src/tools/qmap.h#14 $
 **
 ** Definition of QMap class
 **
@@ -260,6 +260,7 @@ public:
     header->color = Node::Red;
     header->parent = 0;
     header->left = header->right = header;
+    node_count = 0;
   }
 
   void clear( NodePtr p )
