@@ -236,7 +236,7 @@ public slots:
     void helpManual();
     void helpAbout();
     void helpAboutQt();
-
+    void helpRegister();
 private slots:
     void activeWindowChanged( QWidget *w );
     void updateUndoRedo( bool, bool, const QString &, const QString & );
@@ -356,6 +356,9 @@ private:
     QAction* actionCurrentTool;
     QAction *actionHelpContents, *actionHelpAbout, *actionHelpAboutQt, *actionHelpWhatsThis;
     QAction *actionHelpManual;
+#if defined(QT_NON_COMMERCIAL)
+    QAction *actionHelpRegister;
+#endif
     QAction *actionToolsCustomWidget, *actionEditPreferences, *actionEditProjectSettings;
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;

@@ -64,13 +64,15 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 	strCmdString.LoadString(IDS_OPENDESIGNER_STRING);
 	VERIFY_OK(pApplication->AddCommand(CComBSTR(szOpenDesigner + strCmdString), CComBSTR(_T("QMsDevStartDesigner")), 3, m_dwCookie, &bRet));
 
+#ifndef QT_NON_COMMERCIAL
 	LPCTSTR szUseQt = _T("Use Qt");
-	strCmdString.LoadString(IDS_USEQT_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szUseQt + strCmdString), CComBSTR(_T("QMsDevUseQt")), 4, m_dwCookie, &bRet));
+  	strCmdString.LoadString(IDS_USEQT_STRING);
+  	VERIFY_OK(pApplication->AddCommand(CComBSTR(szUseQt + strCmdString), CComBSTR(_T("QMsDevUseQt")), 4, m_dwCookie, &bRet));
+#endif
 
 	LPCTSTR szAddMOCStep = _T("Add MOC step");
 	strCmdString.LoadString(IDS_ADDMOCSTEP_STRING);
-	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddMOCStep + strCmdString), CComBSTR(_T("QMsDevAddMOCStep")), 5, m_dwCookie, &bRet));
+	VERIFY_OK(pApplication->AddCommand(CComBSTR(szAddMOCStep + strCmdString), CComBSTR(_T("QMsDevAddMOCStep")), 5 , m_dwCookie, &bRet));
 
 	if ( bFirstTime == VARIANT_TRUE )
 	{
@@ -111,8 +113,10 @@ STDMETHODIMP CDSAddIn::OnConnection(IApplication* pApp, VARIANT_BOOL bFirstTime,
 			AddCommandBarButton(dsGlyph, CComBSTR(szNewQtDialog), m_dwCookie));
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szOpenDesigner), m_dwCookie));
+#ifndef QT_NON_COMMERCIAL
 		VERIFY_OK(pApplication->
-			AddCommandBarButton(dsGlyph, CComBSTR(szUseQt), m_dwCookie));
+  			AddCommandBarButton(dsGlyph, CComBSTR(szUseQt), m_dwCookie));
+#endif
 		VERIFY_OK(pApplication->
 			AddCommandBarButton(dsGlyph, CComBSTR(szAddMOCStep), m_dwCookie));
 		VERIFY_OK(pApplication->

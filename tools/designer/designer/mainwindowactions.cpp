@@ -911,6 +911,13 @@ void MainWindow::setupHelpActions()
     actionHelpAboutQt->setWhatsThis( tr("Get information about the Qt Toolkit") );
     connect( actionHelpAboutQt, SIGNAL( activated() ), this, SLOT( helpAboutQt() ) );
 
+#if defined(QT_NON_COMMERCIAL)
+    actionHelpRegister = new QAction( tr("Register Qt"), QPixmap(), tr("&Register Qt..."), 0, this, 0 );
+    actionHelpRegister->setStatusTip( tr("Launches web browser with evaluation form at www.trolltech.com") );
+    actionHelpRegister->setWhatsThis( tr("Register with Trolltech") );
+    connect( actionHelpRegister, SIGNAL( activated() ), this, SLOT( helpRegister() ) );
+#endif
+
     actionHelpWhatsThis = new QAction( tr("What's This?"), QIconSet( whatsthis_image, whatsthis_image ),
 				       tr("What's This?"), SHIFT + Key_F1, this, 0 );
     actionHelpWhatsThis->setStatusTip( tr("\"What's This?\" context sensitive help") );
@@ -940,6 +947,10 @@ void MainWindow::setupHelpActions()
     menu->insertSeparator();
     actionHelpAbout->addTo( menu );
     actionHelpAboutQt->addTo( menu );
+#if defined(QT_NON_COMMERCIAL)
+    actionHelpRegister->addTo( menu );
+#endif
+
     menu->insertSeparator();
     actionHelpWhatsThis->addTo( menu );
 }

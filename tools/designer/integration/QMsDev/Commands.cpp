@@ -301,13 +301,17 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     }
     const CComBSTR compiler("cl.exe");
     const CComBSTR linker("link.exe");
-    const CComBSTR dllDefine("/D QT_DLL");
+    const CComBSTR dllDefine("/D QT_DLL /D QT_THREAD_SUPPORT");
     const CComBSTR incPath(" /I$(QTDIR)\\include");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
     LPCTSTR sharedLibText = CString("$(QTDIR)\\lib\\") + qtFile + CString(" $(QTDIR)\\lib\\qtmain.lib");
     const CComBSTR sharedLib(sharedLibText);
     const CComBSTR defLibs( "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib" );
     const CComBSTR sysLibs( "kernel32.lib user32.lib gdi32.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib imm32.lib wsock32.lib" );
+    const CComBSTR threadLibD("/MLd");
+    const CComBSTR threadLibR("/ML");
+    const CComBSTR correctLibD("/MDd");
+    const CComBSTR correctLibR("/MD");
 
     VERIFY_OK(pConfig->AddToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( compiler, incPath, CComVariant(VARIANT_FALSE) ));
@@ -315,6 +319,10 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     VERIFY_OK(pConfig->AddToolSettings( linker, sysLibs, CComVariant(VARIANT_FALSE) ));    
     VERIFY_OK(pConfig->RemoveToolSettings( linker, staticLib, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->AddToolSettings( linker, sharedLib, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLibD, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLibD, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->RemoveToolSettings( compiler, threadLibR, CComVariant(VARIANT_FALSE) ));
+    VERIFY_OK(pConfig->AddToolSettings( compiler, correctLibR, CComVariant(VARIANT_FALSE) ));
     m_pApplication->PrintToOutputWindow( CComBSTR("\t\tadded Qt shared library") );
 }
 
@@ -795,14 +803,19 @@ STDMETHODIMP CCommands::QMsDevNewQtProject()
 	VERIFY_OK(pConfigs->Item(Varc, &pConfig));
 	BSTR bstr;
 	pConfig->get_Name(&bstr);
+#ifndef QT_NON_COMMERCIAL
 	if ( dialog.m_shared ) {
+#else
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding Qt shared library to "+ CString(bstr) + "...") );
 	    addSharedSettings( pConfig );
+#endif
+#ifndef QT_NON_COMMERCIAL
 	} else {
 	    m_pApplication->PrintToOutputWindow( CComBSTR("\tadding Qt static library to "+ CString(bstr) + "...") );
 	    addStaticSettings( pConfig );
 	}
-    }
+#endif      
+   }
 
     CString projectName = dialog.m_name;
     dialog.m_name.MakeLower();
@@ -967,6 +980,7 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     CFileDialog fd( FALSE, "ui", "NewDialog.ui", OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT | OFN_PATHMUSTEXIST, 
 	"User Interface File (*.ui)|*.ui|"
 	"All Files (*.*)|*.*||", NULL);
+    fd.m_ofn.lpstrInitialDir = filepath;
     int result = fd.DoModal();
     if ( result == IDCANCEL ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));

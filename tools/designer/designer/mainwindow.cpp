@@ -142,7 +142,13 @@ MainWindow::MainWindow( bool asClient )
     actionEditPixmapCollection = 0;
 
     statusBar()->clear();
+#if defined(QT_NON_COMMERCIAL)
+    statusBar()->addWidget( new QLabel(tr("Ready - This is the non-commercial version of Qt - For commercial"
+	" evaluation purposes, use the help menu to register with Trolltech."), statusBar()), 1 );
+#else
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
+#endif
+
 
     set_splash_status( "Setting up GUI..." );
     setupMDI();
@@ -836,6 +842,56 @@ void MainWindow::helpAbout()
 void MainWindow::helpAboutQt()
 {
     QMessageBox::aboutQt( this, "Qt Designer" );
+}
+
+#if defined(_WS_WIN_)
+#include <qt_windows.h>
+#include <qprocess.h>
+#endif
+
+void MainWindow::helpRegister()
+{
+#if defined(_WS_WIN_)
+    HKEY key;
+    HKEY subkey;
+    long res;
+    DWORD type;
+    DWORD size = 255;
+    QString command;
+    QString sub( "htmlfile\\shell" );
+#if defined(UNICODE)
+    if ( QApplication::winVersion() & Qt::WV_NT_based ) {
+	unsigned char data[256];
+	res = RegOpenKeyExW( HKEY_CLASSES_ROOT, NULL, 0, KEY_READ, &key );
+	res = RegOpenKeyExW( key, (TCHAR*)qt_winTchar( sub, TRUE ), 0, KEY_READ, &subkey );
+	res = RegQueryValueExW( subkey, NULL, NULL, &type, data, &size );
+	command = qt_winQString( data ) + "\\command";
+	size = 255;
+	res = RegOpenKeyExW( subkey, (TCHAR*)qt_winTchar( command, TRUE ), 0, KEY_READ, &subkey );
+	res = RegQueryValueExW( subkey, NULL, NULL, &type, data, &size );
+	command = qt_winQString( data );
+    } else
+#endif
+    {
+	unsigned char data[256];
+	res = RegOpenKeyExA( HKEY_CLASSES_ROOT, NULL, 0, KEY_READ, &key );
+	res = RegOpenKeyExA( key, sub.local8Bit(), 0, KEY_READ, &subkey );
+	res = RegQueryValueExA( subkey, NULL, NULL, &type, data, &size );
+	command = QString::fromLocal8Bit( (const char*) data ) + "\\command";
+	size = 255;
+	res = RegOpenKeyExA( subkey, command.local8Bit(), 0, KEY_READ, &subkey );
+	res = RegQueryValueExA( subkey, NULL, NULL, &type, data, &size );
+	command = QString::fromLocal8Bit( (const char*) data );
+    }
+    
+    res = RegCloseKey( subkey );
+    res = RegCloseKey( key );
+    
+    QProcess process( command + " www.trolltech.com/products/download/eval/evaluation.html" );
+    if ( !process.start() )
+	QMessageBox::information( this, "Register Qt", "Launching your web browser failed.\n"
+	"To register Qt, point your browser to www.trolltech.com/products/download/eval/evaluation.html" );
+#endif
 }
 
 void MainWindow::showProperties( QObject *o )
