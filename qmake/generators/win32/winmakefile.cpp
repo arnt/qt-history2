@@ -53,6 +53,8 @@ Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenera
 void
 Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
+    unsigned int subLevels;
+    unsigned int i;
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
@@ -68,33 +70,67 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     QStringList &sdirs = project->variables()["SUBDIRS"];
     QStringList::Iterator sdirit;
 
+    t << "### DEBUG" << endl;
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
-	t << (*sdirit) << ":";
+	QString subdir = *sdirit;
+	t << subdir << ":";
+	subLevels = 1;
+	for( i = 0; i < subdir.length(); i++ ) {
+	    if( subdir.at( i ) == '/' ) subLevels++;
+	}
 	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
 	t << "\n\t"
-	  << "cd " << (*sdirit) << "\n\t"
+	  << "cd " << subdir << "\n\t"
 	  << "$(MAKE)" << "\n\t"
-	  << "@cd .." << endl << endl;
+	  << "@cd ..";
+        for( i = 1; i < subLevels; i++ )
+        {
+	    t << "\\..";
+	}
+	t << endl << endl;
     }
 
     writeMakeQmake(t);
 
     t << "qmake_all:";
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	QString subdir = *sdirit;
+	int lastSeparator( 0 );
+	subLevels = 1;
+	for( i = 0; i < subdir.length(); i++ ) {
+	    if( subdir.at( i ) == '/' ) {
+		subLevels++;
+		lastSeparator = i;
+	    }
+	}
 	t << "\n\t"
-	  << "cd " << (*sdirit) << "\n\t"
-	  << "$(QMAKE) " << (*sdirit) << ".pro -o $(MAKEFILE)" << "\n\t"
+	  << "cd " << subdir << "\n\t";
+	if( lastSeparator ) {
+	    subdir = subdir.mid( lastSeparator + 1 );
+	}
+	t << "$(QMAKE) " << subdir << ".pro -o $(MAKEFILE)" << "\n\t"
 	  << "@cd ..";
+	for( i = 1; i < subLevels; i++ ) {
+	    t << "\\..";
+	}
     }
     t << endl << endl;
 
     t << "clean:";
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	QString subdir = *sdirit;
+	subLevels = 1;
+	for( i = 0; i < subdir.length(); i++ ) {
+	    if( subdir.at( i ) == '/' ) subLevels++;
+	}
 	t << "\n\t"
-	  << "cd " << (*sdirit) << "\n\t"
+	  << "cd " << subdir << "\n\t"
 	  << "$(MAKE) clean" << "\n\t"
 	  << "@cd ..";
+	for( i = 1; i < subLevels; i++ ) {
+	    t << "\\..";
+	}
     }
     t << endl << endl;
 
