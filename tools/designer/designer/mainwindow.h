@@ -154,6 +154,7 @@ private slots:
     void editConnections();
     void editFormSettings();
     void editProjectSettings();
+    void editDatabaseConnections();
     void editPreferences();
 
     void previewForm();
@@ -268,7 +269,8 @@ private:
     QAction *actionWindowTile, *actionWindowCascade, *actionWindowClose, *actionWindowCloseAll;
     QAction *actionWindowNext, *actionWindowPrevious;
     QAction *actionEditFormSettings, *actionEditAccels;
-
+    QAction *actionEditDatabaseConnections;
+    
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
     QPopupMenu *customWidgetMenu, *windowMenu;
@@ -282,7 +284,7 @@ private:
     QInterfaceManager<ActionInterface>* actionPluginManager;
     ActionEditor *actionEditor;
     Project *currentProject;
-    
+
 };
 
 #endif

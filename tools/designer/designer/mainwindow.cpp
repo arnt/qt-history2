@@ -97,6 +97,7 @@
 #include "actiondnd.h"
 #include "project.h"
 #include "projectsettingsimpl.h"
+#include "dbconnectionsimpl.h"
 
 static int forms = 0;
 
@@ -151,7 +152,7 @@ MainWindow::MainWindow( bool asClient )
     actionEditor = 0;
     currentProject = 0;
     formList = 0;
-    
+
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
 
@@ -350,6 +351,13 @@ void MainWindow::setupEditActions()
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
 
+    actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
+						 tr( "&Database Connections..." ), 0, this, 0 );
+    actionEditDatabaseConnections->setStatusTip( tr("Opens a dialog to edit the database connections of the current project") );
+    actionEditDatabaseConnections->setWhatsThis( tr("<b>Edit the database connections of the current project</b>"
+					     "<p>####TODO</p>") );
+    connect( actionEditDatabaseConnections, SIGNAL( activated() ), this, SLOT( editDatabaseConnections() ) );
+
     actionEditPreferences = new QAction( tr( "Preferences" ), QPixmap(),
 					 tr( "P&references..." ), 0, this, 0 );
     actionEditPreferences->setStatusTip( tr("Opens a dialog to change preferences") );
@@ -400,7 +408,9 @@ void MainWindow::setupEditActions()
     actionEditSlots->addTo( menu );
     actionEditConnections->addTo( menu );
     actionEditFormSettings->addTo( menu );
+    menu->insertSeparator();
     actionEditProjectSettings->addTo( menu );
+    actionEditDatabaseConnections->addTo( menu );
     menu->insertSeparator();
     actionEditPreferences->addTo( menu );
 }
@@ -1599,6 +1609,12 @@ void MainWindow::editFormSettings()
 void MainWindow::editProjectSettings()
 {
     ProjectSettings dia( currentProject, this, 0, TRUE );
+    dia.exec();
+}
+
+void MainWindow::editDatabaseConnections()
+{
+    DatabaseConnection dia( this, 0, TRUE );
     dia.exec();
 }
 

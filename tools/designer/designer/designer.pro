@@ -47,7 +47,8 @@ HEADERS	= command.h \
 		  actiondnd.h \
 		  database.h \
 		  project.h \
-		  projectsettingsimpl.h
+		  projectsettingsimpl.h \
+		  dbconnectionsimpl.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -93,7 +94,8 @@ SOURCES	= command.cpp \
 		  actiondnd.cpp \
 		  database.cpp \
 		  project.cpp \
-		  projectsettingsimpl.cpp
+		  projectsettingsimpl.cpp \
+		  dbconnectionsimpl.cpp
 
 TARGET	= designer
 INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
@@ -102,5 +104,5 @@ win32:LIBS	+= $(QTDIR)/lib/qutil.lib
 DEFINES	+= DESIGNER
 DESTDIR	= $(QTDIR)/bin
 win32-msvc:RC_FILE = designer.rc
-INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui dbconnections.ui 
+INTERFACES	= listboxeditor.ui connectioneditor.ui editslots.ui newform.ui listvieweditor.ui connectionviewer.ui customwidgeteditor.ui texteditpreview.ui listviewpreview.ui paletteeditor.ui radiopreview.ui checkboxpreview.ui widgetpreview.ui iconvieweditor.ui preferences.ui helpdialog.ui topicchooser.ui multilineeditor.ui formsettings.ui about.ui pixmapfunction.ui createtemplate.ui actioneditor.ui projectsettings.ui dbconnections.ui
 PROJECTNAME	= Designer
