@@ -46,7 +46,10 @@ public:
 
 QOpenGLPaintEngine::QOpenGLPaintEngine(const QPaintDevice *)
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
-                   PaintEngineFeatures(CoordTransform | PenWidthTransform | PixmapTransform))
+                   PaintEngineFeatures(CoordTransform
+				       | PenWidthTransform
+				       | PixmapTransform
+				       | PixmapScale ))
 {
 }
 
@@ -715,7 +718,7 @@ static void bind_texture_from_cache(const QPixmap &pm)
     }
 }
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &, bool)
+void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, bool)
 {
     // see if we have this pixmap cached as a texture - if not cache it
     bind_texture_from_cache(pm);
@@ -732,10 +735,15 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
 
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(0.0, 1.0); glVertex2i(r.x(), r.y());
-        glTexCoord2f(1.0, 1.0); glVertex2i(r.x()+r.width(), r.y());
-        glTexCoord2f(1.0, 0.0); glVertex2i(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(0.0, 0.0); glVertex2i(r.x(), r.y()+r.height());
+        double x1 = sr.x() / (double) pm.width();
+        double x2 = x1 + sr.width() / (double) pm.width();
+        double y1 = sr.y() / (double) pm.height();
+        double y2 = y1 + sr.height() / (double) pm.height();
+	
+        glTexCoord2f(x1, y2); glVertex2i(r.x(), r.y());
+        glTexCoord2f(x2, y2); glVertex2i(r.x()+r.width(), r.y());
+        glTexCoord2f(x2, y1); glVertex2i(r.x()+r.width(), r.y()+r.height());
+        glTexCoord2f(x1, y1); glVertex2i(r.x(), r.y()+r.height());
     }
     glEnd();
 
