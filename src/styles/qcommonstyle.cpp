@@ -836,9 +836,9 @@ void QCommonStyle::drawControl( ControlElement element,
     case CE_ProgressBarContents:
 	{
 	    const QProgressBar *progressbar = (const QProgressBar *) widget;
-
 	    bool reverse = QApplication::reverseLayout();
-	    int w = r.width() - 4;
+	    int fw = 2;
+	    int w = r.width() - 2*fw;
 	    if ( !progressbar->totalSteps() ) {
 		// draw busy indicator
 		int x = progressbar->progress() % (w * 2);
@@ -846,7 +846,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		    x = 2 * w - x;
 		x = reverse ? r.right() - x : x + r.x();
 		p->setPen( QPen(cg.highlight(), 4) );
-		p->drawLine(x, r.y() + 1, x, r.height() - 2);
+		p->drawLine(x, r.y() + 1, x, r.height() - fw);
 	    } else {
 		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
 		int u;
@@ -855,7 +855,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		else
 		    u = w / unit_width;
 		int p_v = progressbar->progress();
-		int t_s = progressbar->totalSteps();
+		int t_s = progressbar->totalSteps() ? progressbar->totalSteps() : 1;
 
 		if ( u > 0 && p_v >= INT_MAX / u && t_s >= u ) {
 		    // scale down to something usable.
@@ -865,10 +865,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 		// nu < tnu, if last chunk is only a partial chunk
 		int tnu, nu;
-		if ( 1 == t_s )
-		    tnu = nu = p_v * u;
-		else
-		    tnu = nu = p_v * u / (t_s - 1);
+		tnu = nu = p_v * u / t_s;
 
 		if (nu * unit_width > w)
 		    nu--;
@@ -879,7 +876,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		// display at the end.
 		int x = 0;
 		int x0 = reverse ? r.right() - ((unit_width > 1) ?
-						unit_width : 2) : r.x() + 2;
+						unit_width : fw) : r.x() + fw;
 		for (int i=0; i<nu; i++) {
 		    drawPrimitive( PE_ProgressBarChunk, p,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
