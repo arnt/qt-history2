@@ -22,8 +22,9 @@ HEADERS += \
 
 SOURCES += \
     default_membersheet.cpp \
+    signalsloteditor.cpp \
     signalsloteditor_tool.cpp \
     signalsloteditor_plugin.cpp \
-    signalsloteditor.cpp
+    signalsloteditor_instance.cpp
 
 include(../../sharedcomponents.pri)

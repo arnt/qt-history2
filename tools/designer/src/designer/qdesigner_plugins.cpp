@@ -12,7 +12,9 @@
 ****************************************************************************/
 
 #include <buddyeditor/buddyeditor_plugin.h>
+#include <signalsloteditor/signalsloteditor_plugin.h>
 
 #include <QtCore/qplugin.h>
 
 Q_IMPORT_PLUGIN(BuddyEditorPlugin)
+Q_IMPORT_PLUGIN(SignalSlotEditorPlugin)

@@ -1925,6 +1925,10 @@ void FormWindow::setEditMode(EditMode mode)
             setCurrentTool(1);
         } break;
 
+        case ConnectionEditMode: {
+            setCurrentTool(2);
+        } break;
+
         case TabOrderEditMode:
             showOrderIndicators();
             break;
