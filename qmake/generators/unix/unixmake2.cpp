@@ -803,15 +803,15 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         destdir += Option::dir_sep;
     t << "distclean: " << "clean\n";
     if(project->first("TEMPLATE") == "app" && project->isActiveConfig("resource_fork"))
-        t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << "\n";
+        t << "\t-$(DEL_FILE) -r " << destdir.section(Option::dir_sep, 0, -4) << endl;
     else if(project->isActiveConfig("compile_libtool"))
-        t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << "\n";
+        t << "\t-$(LIBTOOL) --mode=clean $(DEL_FILE) " << "$(TARGET)" << endl;
     else
-        t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << "$(TARGET)" << "\n";
+        t << "\t-$(DEL_FILE) " << destdir << "$(TARGET)" << " " << endl;
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin") && !project->isActiveConfig("compile_libtool"))
         t << "\t-$(DEL_FILE) " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) "
-          << destdir << "$(TARGET2) $(TARGETA)" << "\n";
+          << destdir << "$(TARGET2) $(TARGETA)" << endl;
     t << endl << endl;
 
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
