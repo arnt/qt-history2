@@ -1263,9 +1263,9 @@ QMenu *QTextEdit::createContextMenu(const QPoint &pos)
     QAction *a;
 
     if (!d->readOnly) {
-        a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), this, SLOT(undo()));
+        a = menu->addAction(tr("&Undo") + ACCEL_KEY(Z), d->doc, SLOT(undo()));
         a->setEnabled(d->doc->isUndoAvailable());
-        a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), this, SLOT(redo()));
+        a = menu->addAction(tr("&Redo") + ACCEL_KEY(Y), d->doc, SLOT(redo()));
         a->setEnabled(d->doc->isRedoAvailable());
         menu->addSeparator();
 
