@@ -112,12 +112,16 @@ bool DspMakefileGenerator::writeBuildstepForFile(QTextStream &t, const QString &
             project->variables()["GENERATED"] << mocFile;
 
         QStringList generated(project->variables()["GENERATED"]);
-        if (!file.endsWith(Option::cpp_moc_ext) && generated.contains(file)) {
-            QStringList srcmoc(project->variables()["SRCMOC"]);
-            QStringList objmoc(project->variables()["OBJMOC"]);
-            int index = srcmoc.indexOf(file);
-            if (index >= objmoc.count())
+        if (generated.contains(file)) {
+            if (file.endsWith(".idl")) {
                 t << "# PROP Exclude_From_Build 1" << endl;
+            } else if (!file.endsWith(Option::cpp_moc_ext)) {
+                QStringList srcmoc(project->variables()["SRCMOC"]);
+                QStringList objmoc(project->variables()["OBJMOC"]);
+                int index = srcmoc.indexOf(file);
+                if (index >= objmoc.count())
+                    t << "# PROP Exclude_From_Build 1" << endl;
+            }
         }
 
         if (!mocFile.isEmpty() && !mocFile.endsWith(Option::cpp_moc_ext)) {
