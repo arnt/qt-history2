@@ -60,6 +60,15 @@ static QString entitize( const QString &s )
     return s2;
 }
 
+static QString convert_type( const QString &s )
+{
+    QString str( s );
+    if ( str[ 0 ] == 'Q' )
+	str.remove( 0, 1 );
+    str[ 0 ] = str[ 0 ].upper();
+    return str;
+}
+
 static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 {
     int indent = 0;
@@ -109,7 +118,7 @@ static void createDescription( const QValueList<Widget> &l, QTextStream &ts )
 		const QMetaProperty *p = w.w->metaObject()->property( props.at( i ), TRUE );
 		if ( !p )
 		    continue;
-		ts << makeIndent( indent ) << "<property type=\"" << p->type() << "\">" << entitize( p->name() ) << "</property>" << endl;
+		ts << makeIndent( indent ) << "<property type=\"" << convert_type( p->type() ) << "\">" << entitize( p->name() ) << "</property>" << endl;
 	    }
 	}
 	indent--;
