@@ -74,6 +74,7 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/core/library/qlibrary.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qbitarray.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qbytearray.cpp \
+		  $$QT_SOURCE_TREE/src/core/tools/qbytearraymatcher.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qchar.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qdatetime.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qhash.cpp \
@@ -85,8 +86,8 @@ SOURCES		= binarywriter.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qstack.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qstring.cpp \
 		  $$QT_SOURCE_TREE/src/core/tools/qstringlist.cpp \
-                  $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp \
                   $$QT_SOURCE_TREE/src/core/tools/qstringmatcher.cpp \
+                  $$QT_SOURCE_TREE/src/core/tools/qunicodetables.cpp \
                   $$QT_SOURCE_TREE/src/core/tools/qvector.cpp
 unix:SOURCES	+= $$QT_SOURCE_TREE/src/core/io/qdir_unix.cpp \
 		  $$QT_SOURCE_TREE/src/core/io/qfile_unix.cpp \

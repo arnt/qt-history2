@@ -21,8 +21,9 @@ static const char kwords[][32] = {
     "char", "class", "const", "double", "enum", "int", "long", "namespace",
     "operator", "private", "protected", "public", "short", "signals", "signed",
     "slots", "static", "struct", "template", "typedef", "union", "unsigned",
-    "virtual", "void", "volatile", "Q_DUMMY_COMPARISON_OPERATOR", "Q_ENUMS",
-    "Q_FLAGS", "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY", "QDOC_PROPERTY", "Q_SETS"
+    "virtual", "void", "volatile", "Q_DECLARE_PRIVATE",
+    "Q_DUMMY_COMPARISON_OPERATOR", "Q_ENUMS", "Q_FLAGS", "Q_OBJECT",
+    "Q_OVERRIDE", "Q_PROPERTY","QDOC_PROPERTY", "Q_SETS"
 };
 
 static const int KwordHashTableSize = 1024;

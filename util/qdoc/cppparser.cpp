@@ -621,6 +621,7 @@ static bool matchDeclList( Decl *context )
 	case Tok_Q_ENUMS:
         case Tok_Q_FLAGS:
 	case Tok_Q_SETS:
+        case Tok_Q_DECLARE_PRIVATE:
 	case Tok_Q_DUMMY_COMPARISON_OPERATOR:
 	    yyTok = getToken();
 	    while ( yyTok != Tok_RightParen && yyTok != Tok_Eoi )
