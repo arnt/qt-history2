@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#18 $
+** $Id: //depot/qt/main/src/dialogs/qfiledlg.h#19 $
 **
 ** Definition of QFileDialog class
 **
@@ -51,7 +51,7 @@ public:
     const QDir *dir() const;
 
     void rereadDir();
-    
+
     enum Mode { AnyFile, ExistingFile, Directory };
     void setMode( Mode );
     Mode mode() const;
