@@ -1026,7 +1026,7 @@ QWidget *QApplication::topLevelAt(const QPoint &p)
     return widget;
 }
 
-QWidget *QApplication::widgetAt_sys(int x, int y)
+QWidget *QApplicationPrivate::widgetAt_sys(int x, int y)
 {
     QWidget *widget = QApplication::topLevelAt(x, y);
     if(!widget)
@@ -1340,8 +1340,8 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
 
     //close down the popups
     int popup_close_count = 0;
-    if(q->inPopupMode() && widget != q->activePopupWidget()) {
-        while(q->inPopupMode()) {
+    if(inPopupMode() && widget != q->activePopupWidget()) {
+        while(inPopupMode()) {
             q->activePopupWidget()->close();
             ++popup_close_count;
             if(windowPart == inContent)
@@ -1845,7 +1845,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             break;
         }
         //figure out which widget to send it to
-        if(app->inPopupMode()) {
+        if(app->d->inPopupMode()) {
             QWidget *popup = qApp->activePopupWidget();
             if (qt_button_down && qt_button_down->window() == popup) {
                 widget = qt_button_down;
@@ -2084,7 +2084,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             //find which widget to send to
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
-            else if (app->inPopupMode())
+            else if (app->d->inPopupMode())
                 widget = (app->activePopupWidget()->focusWidget() ?
                           app->activePopupWidget()->focusWidget() : app->activePopupWidget());
             else if(QApplicationPrivate::focus_widget)
@@ -2172,7 +2172,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
-        else if (app->inPopupMode())
+        else if (app->d->inPopupMode())
             widget = (app->activePopupWidget()->focusWidget() ?
                       app->activePopupWidget()->focusWidget() : app->activePopupWidget());
         else if(QApplicationPrivate::focus_widget)
@@ -2377,7 +2377,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
-            while(app->inPopupMode())
+            while(app->d->inPopupMode())
                 app->activePopupWidget()->close();
             app->clipboard()->saveScrap();
             if(app) {
@@ -2547,7 +2547,7 @@ bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 /*!
     \internal
 */
-void QApplication::openPopup(QWidget *popup)
+void QApplicationPrivate::openPopup(QWidget *popup)
 {
     if(!QApplicationPrivate::popupWidgets)                        // create list
         QApplicationPrivate::popupWidgets = new QWidgetList;
@@ -2559,9 +2559,9 @@ void QApplication::openPopup(QWidget *popup)
     if(popup->focusWidget()) {
         popup->focusWidget()->setFocus(Qt::PopupFocusReason);
     } else if (QApplicationPrivate::popupWidgets->count() == 1) { // this was the first popup
-        if (QWidget *fw = focusWidget()) {
+        if (QWidget *fw = QApplication::focusWidget()) {
             QFocusEvent e(QEvent::FocusOut, Qt::PopupFocusReason);
-            sendEvent(fw, &e);
+            q->sendEvent(fw, &e);
         }
     }
 }
@@ -2569,7 +2569,7 @@ void QApplication::openPopup(QWidget *popup)
 /*!
     \internal
 */
-void QApplication::closePopup(QWidget *popup)
+void QApplicationPrivate::closePopup(QWidget *popup)
 {
     if(!QApplicationPrivate::popupWidgets)
         return;
@@ -2587,11 +2587,11 @@ void QApplication::closePopup(QWidget *popup)
         QApplicationPrivate::popupWidgets = 0;
         if (QApplicationPrivate::active_window) {
             if (QWidget *fw = QApplicationPrivate::active_window->focusWidget()) {
-                if (fw != focusWidget()) {
+                if (fw != QApplication::focusWidget()) {
                     fw->setFocus(Qt::PopupFocusReason);
                 } else {
                     QFocusEvent e(QEvent::FocusIn, Qt::PopupFocusReason);
-                    sendEvent(fw, &e);
+                    q->sendEvent(fw, &e);
                 }
             }
         }
