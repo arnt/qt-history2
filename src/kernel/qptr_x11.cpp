@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#231 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#232 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#231 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#232 $");
 
 
 /*****************************************************************************
@@ -497,23 +497,16 @@ QPainter::QPainter( const QPaintDevice *pd )
 {
     init();
     begin( pd );
-    flags |= CtorBegin;
 }
 
 /*!
-  Destroys the painter.
+  Destroys the painter.  Calls end() if the painter is still open.
 */
 
 QPainter::~QPainter()
 {
-    if ( isActive() ) {
-	if ( (flags & CtorBegin) == 0 ) {
-#if defined(CHECK_STATE)
-	    warning( "QPainter: You called begin() but not end()" );
-#endif
-	}
+    if ( isActive() )
 	end();
-    }
     if ( tabarray )				// delete tab array
 	delete tabarray;
     if ( ps_stack )
@@ -1503,7 +1496,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
   \sa drawRect(), QApplication::style()
 */
 
-void QPainter::drawWinFocusRect( int x, int y, int w, int h, 
+void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 				 const QColor &bgColor )
 {
     drawWinFocusRect( x, y, w, h, FALSE, bgColor );

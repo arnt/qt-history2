@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#100 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#101 $
 **
 ** Definition of QPainter class
 **
@@ -148,7 +148,7 @@ public:
     void	drawWinFocusRect( int x, int y, int w, int h,
 				  const QColor &bgColor );
     void	drawWinFocusRect( const QRect & );
-    void	drawWinFocusRect( const QRect &, 
+    void	drawWinFocusRect( const QRect &,
 				  const QColor &bgColor );
     void	drawRoundRect( int x, int y, int w, int h, int, int );
     void	drawRoundRect( const QRect &, int, int );
@@ -219,13 +219,13 @@ private:
     void	mapInv( int, int, int *, int * ) const;
     void	mapInv( int, int, int, int, int *, int *, int *, int * ) const;
     void	drawPolyInternal( const QPointArray &, bool close=TRUE );
-    void	drawWinFocusRect( int x, int y, int w, int h, bool xorPaint, 
+    void	drawWinFocusRect( int x, int y, int w, int h, bool xorPaint,
 				  const QColor &penColor );
 
     enum { IsActive=0x01, ExtDev=0x02, IsStartingUp=0x04, NoCache=0x08,
 	   VxF=0x10, WxF=0x20, ClipOn=0x40, SafePolygon=0x80, MonoDev=0x100,
 	   DirtyFont=0x200, DirtyPen=0x400, DirtyBrush=0x800,
-	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000, CtorBegin=0x8000 };
+	   RGBColor=0x1000, FontMet=0x2000, FontInf=0x4000 };
     ushort	flags;
     bool	testf( ushort b ) const { return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
