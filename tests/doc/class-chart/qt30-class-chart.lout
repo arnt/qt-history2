@@ -12,60 +12,61 @@ macro @DialogColour	{ rgb 1.00 1.00 0.00 }
 macro @XMLColour	{ rgb 0.90 0.90 8.00 } 
 macro @MiscColour	{ rgb 0.80 0.70 1.00 }
 macro @CollectionColour	{ rgb 0.80 0.90 1.00 }
+macro @WatermarkColour  { grey }
 @Doc 
 //
 @Text @Begin
-@Place x { 3.45c } y { 15.05c }
+@Place x { 3.85c } y { 15.05c }
 {
-1.35 @Scale lightgrey @Colour 0d @Rotate
+1.35 @Scale @WatermarkColour @Colour 0d @Rotate
 @F @Verbatim { connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) ); }
 }
 @Place
-    x { 13.5c }
+    x { 13.9c }
     y { 1.5c }
 {
-0.75 @Scale lightgrey @Colour 180d @Rotate
+0.75 @Scale @WatermarkColour @Colour 180d @Rotate
 { Qt"/"Embedded @CDot Qt"/"Mac @CDot Qt"/"Windows @CDot Qt"/"X11 }
 }
 @Place 
-    x { 25.90c }
+    x { 26.30c }
     y { 1c }
 {
 0.80 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
 }
 @Place 
-    x { 19.0c }
+    x { 19.4c }
     y { 31.0c }
 {
-1.5 @Scale lightgrey @Colour 150d @Rotate
+1.5 @Scale @WatermarkColour @Colour 150d @Rotate
 { Qt by Trolltech }
 }
 @Place 
-    x { 24.75c }
+    x { 25.15c }
     y { 10.50c }
 {
-1.5 @Scale lightgrey @Colour @CurveBox linewidth { 0.025f } margin { 0.2f } 90d @Rotate
+1.5 @Scale @WatermarkColour @Colour @CurveBox linewidth { 0.025f } margin { 0.2f } 90d @Rotate
 @F { info@trolltech.com }
 }
 @Place 
-    x { 23.50c }
+    x { 23.90c }
     y { 1.5c }
 {
-0.75 @Scale lightgrey @Colour 90d @Rotate
+0.75 @Scale @WatermarkColour @Colour 90d @Rotate
 Slope @Font 11.5c @Wide {
 Qt is a C++ toolkit for cross-platform GUI and application
 development. In addition to the Qt C++ class library, the 
 toolkit includes tools like Qt Designer that make writing applications
 fast and straightforward. Qt's cross-platform capabilities and
 extensive internationalization support ensure that Qt applications
-can reach the widest possible @BI{mark}et. 
+can reach the widest possible darkgrey @Colour{mark}et. 
 }
 }
 @Place 
-    x { 16.50c }
+    x { 16.90c }
     y { 24.45c }
 {
-0.5 @Scale 90d @Rotate lightgrey @Colour 
+0.5 @Scale 90d @Rotate @WatermarkColour @Colour 
 @F @Verbatim @Begin 
 #include <qapplication.h>
 #include <qlabel.h>
@@ -85,59 +86,59 @@ int main( int argc, char **argv )
 }
 @End @Verbatim
 }
-@Place x { 5.4c } y { 5c }
-{ 0.75 @Scale lightgrey @Colour 120d @Rotate
+@Place x { 5.8c } y { 5c }
+{ 0.75 @Scale @WatermarkColour @Colour 120d @Rotate
 { Windows~95 } }
-@Place x { 24.4c } y { 32.75c }
-{ 0.75 @Scale lightgrey @Colour 10d @Rotate
+@Place x { 24.8c } y { 32.75c }
+{ 0.75 @Scale @WatermarkColour @Colour 10d @Rotate
 { Windows~98 } }
-@Place x { 5.40c } y { 35.5c }
-{ 0.75 @Scale lightgrey @Colour 50d @Rotate
+@Place x { 5.80c } y { 35.5c }
+{ 0.75 @Scale @WatermarkColour @Colour 50d @Rotate
 { Windows~NT~4 } }
-@Place x { 21.25c } y { 19.00c }
-{ 0.75 @Scale lightgrey @Colour 140d @Rotate
+@Place x { 21.65c } y { 18.75c }
+{ 0.75 @Scale @WatermarkColour @Colour 140d @Rotate
 { Windows~ME } }
-@Place x { 6.0c } y { 24.0c }
-{ 0.75 @Scale lightgrey @Colour 170d @Rotate
+@Place x { 6.4c } y { 24.0c }
+{ 0.75 @Scale @WatermarkColour @Colour 170d @Rotate
 { Windows~2000 } }
-@Place x { 20.20c } y { 5.75c }
-{ 0.75 @Scale lightgrey @Colour 160d @Rotate
+@Place x { 20.60c } y { 5.75c }
+{ 0.75 @Scale @WatermarkColour @Colour 160d @Rotate
 { AIX } }
-@Place x { 16.9c } y { 20.00c }
-{ 0.75 @Scale lightgrey @Colour 30d @Rotate
+@Place x { 17.6c } y { 19.95c }
+{ 0.75 @Scale @WatermarkColour @Colour 30d @Rotate
 { OpenBSD } }
-@Place x { 12.95c } y { 5.75c }
-{ 0.75 @Scale lightgrey @Colour 50d @Rotate
+@Place x { 13.35c } y { 5.75c }
+{ 0.75 @Scale @WatermarkColour @Colour 50d @Rotate
 { FreeBSD } }
-@Place x { 13.75c } y { 26.00c }
-{ 0.75 @Scale lightgrey @Colour 30d @Rotate
+@Place x { 14.15c } y { 26.00c }
+{ 0.75 @Scale @WatermarkColour @Colour 30d @Rotate
 { HP-UX } }
-@Place x { 22.25c } y { 36.2c }
-{ 0.75 @Scale lightgrey @Colour 110d @Rotate
+@Place x { 22.65c } y { 36.2c }
+{ 0.75 @Scale @WatermarkColour @Colour 110d @Rotate
 { Irix } }
-@Place x { 11.5c } y { 19.5c }
-{ 0.75 @Scale lightgrey @Colour 150d @Rotate
+@Place x { 11.9c } y { 19.5c }
+{ 0.75 @Scale @WatermarkColour @Colour 150d @Rotate
 { Linux } }
-@Place x { 7.65c } y { 5.5c }
-{ 0.75 @Scale lightgrey @Colour 20d @Rotate
+@Place x { 8.05c } y { 5.5c }
+{ 0.75 @Scale @WatermarkColour @Colour 20d @Rotate
 { NetBSD } }
-@Place x { 18.30c } y { 12.75c }
-{ 0.75 @Scale lightgrey @Colour 170d @Rotate
+@Place x { 18.75c } y { 12.75c }
+{ 0.75 @Scale @WatermarkColour @Colour 170d @Rotate
 { BSDI } }
-@Place x { 6.2c } y { 20.25c }
-{ 0.75 @Scale lightgrey @Colour 30d @Rotate
+@Place x { 6.80c } y { 20.25c }
+{ 0.75 @Scale @WatermarkColour @Colour 30d @Rotate
 { Solaris } }
-@Place x { 10.25c } y { 36.5c }
-{ 0.75 @Scale lightgrey @Colour 70d @Rotate
+@Place x { 10.65c } y { 36.5c }
+{ 0.75 @Scale @WatermarkColour @Colour 70d @Rotate
 { Tru64 } }
-@Place x { 16.60c } y { 6.25c }
-{ 0.75 @Scale lightgrey @Colour 110d @Rotate
+@Place x { 17.00c } y { 6.25c }
+{ 0.75 @Scale @WatermarkColour @Colour 110d @Rotate
 { Mac~OS~X } }
-@Place x { 18.4c } y { 36.35c }
-{ 0.75 @Scale lightgrey @Colour 150d @Rotate
+@Place x { 18.8c } y { 36.35c }
+{ 0.75 @Scale @WatermarkColour @Colour 150d @Rotate
 { UnixWare } }
-@Place x { 3.30c } y { 31.00c }
-{ 0.5 @Scale lightgrey @Colour 90d @Rotate rlines @Break { 
+@Place x { 3.70c } y { 31.00c }
+{ 0.5 @Scale @WatermarkColour @Colour 90d @Rotate rlines @Break { 
 utf16 @CDot Unicode
 utf8 @CDot Unicode
 
@@ -152,7 +153,7 @@ KO18-R @CDot Russian
 TSCII @CDot Tamil
 TIS-620 @CDot Thai
 KO18-U @CDot Ukranian
-//5.75vx
+//5.90vx
 ISO8859-15 @CDot Western
 ISO8859-14
 ISO8859-13
@@ -182,10 +183,10 @@ CP 1257 @CDot Baltic
 CP 1258
 } 
 }
-@Place x { 27.45c } y { 26.15c }
+@Place x { 27.90c } y { 26.15c }
 { 0.5 @Scale grey @Colour 90d @Rotate
-{ Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. @Sup{V6}} }
-@Place x { 22.75c } y { 37.5c }
+{ Copyright @CopyRight 2002 Trolltech AS. All Rights Reserved. @Sup{V7}} }
+@Place x { 23.15c } y { 37.5c }
 { 0.175 @Scale 90d @Rotate
 @IncludeGraphic { logo_face_trolltech.eps.gz } }
 @CD 
@@ -228,7 +229,9 @@ CP 1258
 		  @Cell F | @Cell G | @Cell H | @Cell I | @Cell J |
 		  @Cell K | @Cell L | @Cell M | @Cell N | @Cell O |
 		  @Cell P | @Cell Q | @Cell R | @Cell S }
-	cformat { @StartHSpan @Cell indent { ctr } font { BoldSlope +20p } A | 
+	cformat { @StartHSpan 
+		  @Cell height { 2.0c } 
+		        iv { top } indent { ctr } font { BoldSlope +20p } A | 
 		  @HSpan | @HSpan | @HSpan | @HSpan |
 		  @HSpan | @HSpan | @HSpan | @HSpan | @HSpan |
 		  @HSpan | @HSpan | @HSpan | @HSpan | @HSpan |
