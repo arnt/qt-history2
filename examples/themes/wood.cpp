@@ -831,15 +831,15 @@ void NorwegianWoodStyle::polish( QApplication *app)
     
     QPalette op(QColor(212,140,95));
     // QPalette op(white);
-    QColorGroup active (op.normal().foreground(),
-		     QBrush(op.normal().button(),button),
-		     QBrush(op.normal().light(), light),
-		     QBrush(op.normal().dark(), dark),
-		     QBrush(op.normal().mid(), mid),
-		     op.normal().text(),
+    QColorGroup active (op.active().foreground(),
+		     QBrush(op.active().button(),button),
+		     QBrush(op.active().light(), light),
+		     QBrush(op.active().dark(), dark),
+		     QBrush(op.active().mid(), mid),
+		     op.active().text(),
 		     Qt::white,
 		     QColor(236,182,120),
-		     QBrush(op.normal().background(), background)
+		     QBrush(op.active().background(), background)
 		     );
     QColorGroup disabled (op.disabled().foreground(),
 		     QBrush(op.disabled().button(),button),
