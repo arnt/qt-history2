@@ -1435,8 +1435,9 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
     if(!cache)
         cache = new QHash<ReplaceExtraCompilerCacheKey, QString>;
     ReplaceExtraCompilerCacheKey cacheKey(var, in, out);
-    if(cache->contains(cacheKey))
-        return cache->value(cacheKey);
+    QString cacheVal = cache->value(cacheKey);
+    if(!cacheVal.isNull())
+        return cacheVal;
 
     //do the work
     QString ret = var;
@@ -2390,9 +2391,8 @@ MakefileGenerator::fileFixify(const QString& file, const QString &out_d, const Q
     if(!cache)
         cache = new QHash<FileFixifyCacheKey, QString>;
     FileFixifyCacheKey cacheKey(ret, out_d, in_d, fix, canon);
-    static QString empty_value;
     QString cacheVal = cache->value(cacheKey);
-    if(cacheVal != empty_value)
+    if(!cacheVal.isNull())
         return cacheVal;
 
     //do the fixin'

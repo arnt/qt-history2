@@ -40,11 +40,25 @@ struct parser_info {
     bool from_file;
 } parser;
 
-static QString remove_quotes(QString arg)
+static QString remove_quotes(const QString &arg)
 {
-    if(arg.size() >= 2 &&
-       (arg.at(0) == QLatin1Char('\'') || arg.at(0) == QLatin1Char('"')) && arg.at(arg.length()-1) == arg.at(0))
-        return arg.mid(1, arg.length()-2);
+    static bool symbols_init = false;
+    enum { SINGLEQUOTE, DOUBLEQUOTE };
+    static ushort symbols[2];
+    if(!symbols_init) {
+        symbols_init = true;
+        symbols[SINGLEQUOTE] = QChar('\'').unicode();
+        symbols[DOUBLEQUOTE] = QChar('"').unicode();
+    }
+
+    const QChar *arg_data = arg.data();
+    const ushort first = arg_data->unicode();
+    const int arg_len = arg.length();
+    if(first == symbols[SINGLEQUOTE] || first == symbols[DOUBLEQUOTE]) {
+        const ushort last = (arg_data+arg_len-1)->unicode();
+        if(last == first)
+            return arg.mid(1, arg_len-2);
+    }
     return arg;
 }
 
@@ -401,9 +415,9 @@ static QStringList split_arg_list(QString params)
     int quote = 0;
     QStringList args;
 
-    static int symbols_init = false;
+    static bool symbols_init = false;
     enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, COMMA };
-    static int symbols[5];
+    static ushort symbols[5];
     if(!symbols_init) {
         symbols_init = true;
         symbols[LPAREN] = QChar('(').unicode();
@@ -413,7 +427,7 @@ static QStringList split_arg_list(QString params)
         symbols[COMMA] = QChar(',').unicode();
     }
 
-    int unicode;
+    ushort unicode;
     const QChar *params_data = params.data();
     const int params_len = params.length();
     for(int x = 0, last = 0, parens = 0; x <= params_len; x++) {
@@ -458,9 +472,9 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     QStringList ret;
     QStack<char> quote;
 
-    static int symbols_init = false;
+    static bool symbols_init = false;
     enum { LPAREN, RPAREN, SINGLEQUOTE, DOUBLEQUOTE, SLASH, SEMICOLON };
-    static int symbols[6];
+    static ushort symbols[6];
     if(!symbols_init) {
         symbols_init = true;
         symbols[LPAREN] = QChar('(').unicode();
@@ -472,7 +486,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=false
     }
 
 
-    int unicode;
+    ushort unicode;
     const QChar *vals_data = vals.data();
     const int vals_len = vals.length();
     for(int x = 0, parens = 0; x < vals_len; x++) {
@@ -2279,83 +2293,111 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
     if(str.isEmpty())
         return true;
 
+    static bool symbols_init = false;
+    enum { LSQUARE, RSQUARE, LCURLY, RCURLY, LPAREN, RPAREN, DOLLAR, SLASH, UNDERSCORE, DOT };
+    static ushort symbols[10];
+    if(!symbols_init) {
+        symbols_init = true;
+        symbols[LSQUARE] = QChar('[').unicode();
+        symbols[RSQUARE] = QChar(']').unicode();
+        symbols[LCURLY] = QChar('{').unicode();
+        symbols[RCURLY] = QChar('}').unicode();
+        symbols[LPAREN] = QChar('(').unicode();
+        symbols[RPAREN] = QChar(')').unicode();
+        symbols[DOLLAR] = QChar('$').unicode();
+        symbols[SLASH] = QChar('\\').unicode();
+        symbols[UNDERSCORE] = QChar('_').unicode();
+        symbols[DOT] = QChar('.').unicode();
+    }
+
+    ushort unicode;
+    const QChar *str_data = str.data();
+    const int str_len = str.length();
+
+    ushort term;
+    QString replacement;
+    QString var, args;
+
     QString ret;
     int replaced = 0;
-    for(int i = 0; i < str.size(); ++i) {
+    for(int i = 0; i < str_len; ++i) {
+        unicode = (str_data+i)->unicode();
         const int start_var = i;
-        QChar c = str.at(i);
-        if(c == QLatin1Char('\\')) {
-            if(str.at(i+1) == QLatin1Char('$')) {
+        if(unicode == symbols[SLASH]) {
+            if(*(str_data+i+1) == symbols[DOLLAR]) {
                 i++;
                 if(!(replaced++))
                     ret = str.left(start_var);
                 ret.append(str.at(i));
             } else if(replaced) {
-                ret.append(c);
+                ret.append(QChar(unicode));
             }
             continue;
         }
-        if(c == QLatin1Char('$') && str.length() > i+2) {
-            c = str.at(++i);
-            if(c == QLatin1Char('$')) {
-                QChar term;
-                QString var, args;
+        if(unicode == symbols[DOLLAR] && str_len > i+2) {
+            unicode = (str_data+(++i))->unicode();
+            if(unicode == symbols[DOLLAR]) {
+                term = 0;
+                var.clear();
+                args.clear();
                 enum { VAR, ENVIRON, FUNCTION, PROPERTY } var_type = VAR;
-                c = str.at(++i);
-                if(c == QLatin1Char('[')) {
-                    c = str.at(++i);
-                    term = QLatin1Char(']');
+                unicode = (str_data+(++i))->unicode();
+                if(unicode == symbols[LSQUARE]) {
+                    unicode = (str_data+(++i))->unicode();
+                    term = symbols[RSQUARE];
                     var_type = PROPERTY;
-                } else if(c == QLatin1Char('{')) {
-                    c = str.at(++i);
+                } else if(unicode == symbols[LCURLY]) {
+                    unicode = (str_data+(++i))->unicode();
                     var_type = VAR;
-                    term = QLatin1Char('}');
-                } else if(c == QLatin1Char('(')) {
-                    c = str.at(++i);
+                    term = symbols[RCURLY];
+                } else if(unicode == symbols[LPAREN]) {
+                    unicode = (str_data+(++i))->unicode();
                     var_type = ENVIRON;
-                    term = QLatin1Char(')');
+                    term = symbols[RPAREN];
                 }
                 while(1) {
-                    if(!c.isLetter() && !c.isNumber() && c != QLatin1Char('.') &&
-                       c != QLatin1Char('_'))
+                    if(!(unicode & (0xFF<<8)) &&
+                       unicode != symbols[DOT] && unicode != symbols[UNDERSCORE] &&
+                       (unicode < 'a' || unicode > 'z') && (unicode < 'A' || unicode > 'Z') &&
+                       (unicode < '0' || unicode > '9'))
                         break;
-                    var.append(c);
-                    if(++i == str.size())
+                    var.append(QChar(unicode));
+                    if(++i == str_len)
                         break;
-                    c = str.at(i);
+                    unicode = (str_data+i)->unicode();
                 }
-                if(var_type == VAR && c == QLatin1Char('(')) {
+                if(var_type == VAR && unicode == symbols[LPAREN]) {
                     var_type = FUNCTION;
                     int depth = 0;
                     while(1) {
-                        if(++i == str.size())
+                        if(++i == str_len)
                             break;
-                        c = str.at(i);
-                        if(c == QLatin1Char('(')) {
+                        unicode = (str_data+i)->unicode();
+                        if(unicode == symbols[LPAREN]) {
                             depth++;
-                        } else if(c == QLatin1Char(')')) {
+                        } else if(unicode == symbols[RPAREN]) {
                             if(!depth)
                                 break;
                             --depth;
                         }
-                        args.append(c);
+                        args.append(QChar(unicode));
                     }
-                    if(i < str.size()-1)
-                        c = str.at(++i);
+                    if(i < str_len-1)
+                        unicode = (str_data+(++i))->unicode();
                     else
-                        c = QChar();
+                        unicode = 0;
                 }
-                if(!term.isNull()) {
-                    if(c != term) {
-                        qmake_error_msg("Missing " + term + " terminator [found " + c + "]");
+                if(term) {
+                    if(unicode != term) {
+                        qmake_error_msg("Missing " + QChar(term) + " terminator [found " + QChar(unicode) + "]");
                         return false;
                     }
-                    c = QChar();
-                } else if(i > str.size()-1) {
-                    c = QChar();
+                    unicode = 0;
+                } else if(i > str_len-1) {
+                    unicode = 0;
                 }
 
-                QString replacement;
+                replacement.clear();
                 if(var_type == ENVIRON) {
                     replacement = qgetenv(var.toLatin1().constData());
                 } else if(var_type == PROPERTY) {
@@ -2398,8 +2440,8 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
                     ret.append("$");
             }
         }
-        if(replaced && !c.isNull())
-            ret.append(c);
+        if(replaced && unicode)
+            ret.append(QChar(unicode));
     }
     if(replaced)
         str = ret;
