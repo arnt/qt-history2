@@ -107,17 +107,16 @@ public:
     virtual void	setPassword( const QString& password );
     virtual void	setHostName( const QString& host );
     virtual void	setPort( int p );
+    void 		setConnectOption( const QString& option, const QVariant& value );
     QString		databaseName() const;
     QString		userName() const;
     QString		password() const;
     QString		hostName() const;
     QString		driverName() const;
     int         	port() const;
+    QVariant 		connectOption( const QString& option ) const;
 
     QSqlDriver*		driver() const;
-
-    void 		setConnectOption( const QString& option, const QVariant& value );
-    QVariant 		connectOption( const QString& option ) const;
     
     // MOC_SKIP_BEGIN
     QT_STATIC_CONST char * const defaultConnection;
