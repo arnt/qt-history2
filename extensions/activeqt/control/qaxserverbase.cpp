@@ -278,6 +278,7 @@ private:
     unsigned stayTopLevel	:1;
     unsigned isInPlaceActive	:1;
     unsigned isUIActive		:1;
+    unsigned wasUIActive	:1;
     unsigned isBindable		:1;
     short freezeEvents;
 
@@ -730,6 +731,7 @@ QAxServerBase::QAxServerBase( const QString &classname )
     stayTopLevel	= FALSE;
     isInPlaceActive	= FALSE;
     isUIActive		= FALSE;
+    wasUIActive		= FALSE;
     isBindable		= FALSE;
     freezeEvents = 0;
 
@@ -2702,6 +2704,12 @@ HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
 
 HRESULT WINAPI QAxServerBase::OnFrameWindowActivate( BOOL fActivate )
 {
+    if ( fActivate ) {
+	if ( wasUIActive )
+	    ::SetFocus( m_hWnd );
+    } else {
+	wasUIActive = isUIActive;
+    }
     return S_OK;
 }
 
