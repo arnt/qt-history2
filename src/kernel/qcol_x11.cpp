@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qcol_x11.cpp#9 $
 **
 ** Implementation of QColor class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -17,7 +17,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#9 $";
 #endif
 
 
@@ -32,7 +32,6 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_x11.cpp#8 $";
 //
 
 #include "qintdict.h"
-// #include "qlist.h"
 
 typedef declare(QIntDictM,QColor) QColorDict;
 typedef declare(QIntDictIteratorM,QColor) QColorDictIt;
@@ -83,27 +82,28 @@ void QColor::initialize()			// called from startup routines
 
   // Initialize global color objects
 
-    ((QColor*)(&black))->rgb = _RGB( 0, 0, 0 );
     ((QColor*)(&black))->pix = BlackPixel( dpy, screen );
-    ((QColor*)(&white))->rgb = _RGB( 255, 255, 255 );
     ((QColor*)(&white))->pix = WhitePixel( dpy, screen );
 
+#if 0 /* 0 == allocate colors on demand */
     aalloc = TRUE;				// allocate global colors
-    ((QColor*)(&darkGray))->   	setRGB( 128, 128, 128 );
-    ((QColor*)(&gray))->       	setRGB( 160, 160, 160 );
-    ((QColor*)(&lightGray))->  	setRGB( 192, 192, 192 );
-    ((QColor*)(&::red))->      	setRGB( 255,   0,   0 );
-    ((QColor*)(&::green))->    	setRGB(	 0, 255,   0 );
-    ((QColor*)(&::blue))->     	setRGB(	 0,   0, 255 );
-    ((QColor*)(&cyan))->       	setRGB(	 0, 255, 255 );
-    ((QColor*)(&magenta))->    	setRGB( 255,   0, 255 );
-    ((QColor*)(&yellow))->     	setRGB( 255, 255,   0 );
-    ((QColor*)(&darkRed))->    	setRGB( 128,   0,   0 );
-    ((QColor*)(&darkGreen))->  	setRGB(	 0, 128,   0 );
-    ((QColor*)(&darkBlue))->   	setRGB(	 0,   0, 128 );
-    ((QColor*)(&darkCyan))->   	setRGB(	 0, 128, 128 );
-    ((QColor*)(&darkMagenta))->	setRGB( 128,   0, 128 );
-    ((QColor*)(&darkYellow))-> 	setRGB( 128, 128,   0 );
+    ((QColor*)(&darkGray))->   	alloc();
+    ((QColor*)(&gray))->       	alloc();
+    ((QColor*)(&lightGray))->  	alloc();
+    ((QColor*)(&::red))->      	alloc();
+    ((QColor*)(&::green))->    	alloc();
+    ((QColor*)(&::blue))->     	alloc();
+    ((QColor*)(&cyan))->       	alloc();
+    ((QColor*)(&magenta))->    	alloc();
+    ((QColor*)(&yellow))->     	alloc();
+    ((QColor*)(&darkRed))->    	alloc();
+    ((QColor*)(&darkGreen))->  	alloc();
+    ((QColor*)(&darkBlue))->	alloc();
+    ((QColor*)(&darkCyan))->   	alloc();
+    ((QColor*)(&darkMagenta))->	alloc();
+    ((QColor*)(&darkYellow))-> 	alloc();
+    aalloc = FALSE;
+#endif
     if ( white.pixel() == 0 ) {
 	((QColor*)(&trueColor)) ->setRGB( black.getRGB() );
 	((QColor*)(&falseColor))->setRGB( white.getRGB() );
@@ -112,7 +112,6 @@ void QColor::initialize()			// called from startup routines
 	((QColor*)(&trueColor)) ->setRGB( white.getRGB() );
 	((QColor*)(&falseColor))->setRGB( black.getRGB() );
     }
-    aalloc = FALSE;
 }
 
 void QColor::cleanup()
@@ -174,9 +173,9 @@ bool QColor::alloc()				// allocate color
     int b = (int)((rgb >> 16) & 0xff);
     XColor col;
     Display *dpy = qXDisplay();
-    col.red = r << 8;
+    col.red   = r << 8;
     col.green = g << 8;
-    col.blue = b << 8;
+    col.blue  = b << 8;
     if ( colorAvail && XAllocColor( dpy, cmap, &col ) ) {
 	pix = col.pixel;			// allocated X11 color
 	rgb &= RGB_MASK;

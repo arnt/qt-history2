@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#10 $
 **
 ** Implementation of QColor class
 **
 ** Author  : Haavard Nord
 ** Created : 940112
 **
-** Copyright (C) 1994 by Troll Tech AS.	 All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,7 +14,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#10 $";
 #endif
 
 
@@ -22,25 +22,25 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qcolor.cpp#9 $";
 // Global colors
 //
 
-const QColor trueColor;
-const QColor falseColor;
-const QColor black;
-const QColor white;
-const QColor darkGray;
-const QColor gray;
-const QColor lightGray;
-const QColor red;
-const QColor green;
-const QColor blue;
-const QColor cyan;
-const QColor magenta;
-const QColor yellow;
-const QColor darkRed;
-const QColor darkGreen;
-const QColor darkBlue;
-const QColor darkCyan;
-const QColor darkMagenta;
-const QColor darkYellow;
+const QColor trueColor  (   0,   0,   0 );
+const QColor falseColor ( 255, 255, 255 );
+const QColor black	(   0,   0,   0 );
+const QColor white	( 255, 255, 255 );
+const QColor darkGray   ( 128, 128, 128 );
+const QColor gray	( 160, 160, 160 );
+const QColor lightGray	( 192, 192, 192 );
+const QColor red	( 255,   0,   0 );
+const QColor green	(   0, 255,   0 );
+const QColor blue	(   0,   0, 255 );
+const QColor cyan	(   0, 255, 255 );
+const QColor magenta	( 255,   0, 255 );
+const QColor yellow	( 255, 255,   0 );
+const QColor darkRed	( 128,   0,   0 );
+const QColor darkGreen	(   0, 128,   0 );
+const QColor darkBlue   (   0,   0, 128 );
+const QColor darkCyan   (   0, 128, 128 );
+const QColor darkMagenta( 128,   0, 128 );
+const QColor darkYellow	( 128, 128,   0 );
 
 
 // --------------------------------------------------------------------------
