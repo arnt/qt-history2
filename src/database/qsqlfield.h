@@ -18,6 +18,7 @@ public:
     QSqlResultField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     QSqlResultField( const QSqlResultField& other );
     QSqlResultField& operator=( const QSqlResultField& other );
+    virtual bool operator==( const QSqlResultField& other );
     virtual ~QSqlResultField();
 
     QVariant      value();
@@ -41,14 +42,7 @@ public:
     QSqlField( const QString& fieldName = QString::null, int fieldNumber = -1, QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
-    bool operator==(const QSqlField& other) const {
-	return label == other.label &&
-	    ro == other.ro &&
-	    nul == other.nul &&
-	    pIdx == other.pIdx &&
-	    iv == other.iv &&
-	    cf == other.cf;
-    }
+    bool operator==(const QSqlField& other) const;
     ~QSqlField();
 
     void          setDisplayLabel( const QString& l ) { label = l; }

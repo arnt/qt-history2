@@ -35,6 +35,14 @@ QSqlResultField& QSqlResultField::operator=( const QSqlResultField& other )
     return *this;
 }
 
+bool QSqlResultField::operator==( const QSqlResultField& other )
+{
+    return nm == other.nm &&
+	num == other.num &&
+	val == other.val;
+}
+
+
 /*!
   Destroys the object and frees any allocated resources.
 
@@ -125,6 +133,17 @@ QSqlField& QSqlField::operator=( const QSqlField& other )
     iv = other.iv;
     cf = other.cf;
     return *this;
+}
+
+bool QSqlField::operator==(const QSqlField& other) const 
+{
+    return (QSqlResultField)*this == (QSqlResultField)other &&
+	label == other.label &&
+	ro == other.ro &&
+	nul == other.nul &&
+	pIdx == other.pIdx &&
+	iv == other.iv &&
+	cf == other.cf;
 }
 
 
@@ -338,7 +357,7 @@ void QSqlFieldList::clear()
 
 */
 
-QString QSqlFieldList::toString( const QString& prefix = QString::null ) const
+QString QSqlFieldList::toString( const QString& prefix ) const
 {
     if ( prefix.isNull() )
 	return fieldListStr;
