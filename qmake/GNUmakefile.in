@@ -60,10 +60,10 @@ msvc_dsp.o: msvc_dsp.cpp
 
 #default rules
 %.o: %.c
-	$(CXX) -c -o $@ $(CFLAGS) -O $^
+	$(CXX) -c -o $@ $(CFLAGS) $^
 
 %.o: %.cpp
-	$(CXX) -c -o $@ $(CFLAGS) -O $^
+	$(CXX) -c -o $@ $(CFLAGS) $^
 
 %.dep: %.cpp
 	@$(CXX) -M $(CFLAGS) $(<) > .deps/$(@)
