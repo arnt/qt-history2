@@ -834,35 +834,62 @@ void QSkinStyle::drawControl(ControlElement element,
 
     QSkinStyleItem *i = d->getItem(widget);
     if(i) {
-	if (i->images.count() == 0) {
-	    QWindowsStyle::drawControl(element, p, widget, r, cg, 
-		    flags, data);
-	    return;
-	}
+	int count = i->images.count();
 	switch(element) {
-	    case CE_PushButton:
-	        i->clips.first();
-		i->images.first();
-		if(flags & Style_Down) {
-		    i->clips.next();
-		    i->images.next();
-		} else if (flags & Style_On) {
-		    i->clips.next();
-		    i->clips.next();
-		    i->images.next();
-		    i->images.next();
-		}
+	    case CE_PushButton: 
+		{
+		    if (count < 2) {
+			QWindowsStyle::drawControl(element, p, widget, r, cg, 
+				flags, data);
+			return;
+		    }
+		    /* For a push button the images are
+		       flag		image	(backup)
+		       Raised	0	0
+		       Down		1	1
+		       On		2	1
+		       Disabled	3	0
+		       Focus&Raised 4	0
+		       Focus&Down   5	1
+		       Focus&On	6	2, then 1;
 
-		if(!i->images.current()) {
-		    i->clips.last();
-		    i->images.last();
-		}
+		     */
+		    int ind = 0;
+		    if (flags & Style_HasFocus && count > 6)
+			ind += 4;
+		    if (flags & Style_On && count > 2)
+			ind += 2;
+		    if (flags & Style_Down)
+			ind += 1;
 
-		p->drawPixmap(r.topLeft(), 
-			*(i->images.current()), *(i->clips.current()));
+		    /* = because being disabled overides the others */
+		    if (!(flags & Style_Enabled) && count > 3)
+			ind = 3;
+
+		    i->clips.first();
+		    i->images.first();
+		    while(ind--) {
+			i->images.next();
+			i->clips.next();
+		    }
+
+		    if(!i->images.current()) {
+			i->clips.last();
+			i->images.last();
+		    }
+
+		    p->drawPixmap(r.topLeft(), 
+			    *(i->images.current()), *(i->clips.current()));
+		}
 		break;
 	    case CE_PushButtonLabel:
 		/* we don't draw a label */
+		if (i->images.count() < 2) {
+		    /* Unless of course we didn't draw the button */
+		    QWindowsStyle::drawControl(element, p, widget, r, cg, 
+			    flags, data);
+			return;
+	        }
 		break;
 	    default:
 		/* don't know how to draw this...  Could be a custom widget */
