@@ -397,8 +397,9 @@ void QProcessPrivate::startProcess()
     startupNotification();
 }
 
-void QProcessPrivate::execChild()
+void QProcessPrivate::execChild(const QByteArray &encodedProgramName)
 {
+    Q_UNUSED(encodedProgramName);
     // unix only
 }
 
