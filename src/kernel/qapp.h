@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#67 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#68 $
 **
 ** Definition of QApplication class
 **
@@ -30,7 +30,7 @@ class QApplication : public QObject		// application class
 public:
     QApplication( int &argc, char **argv );
 #if defined(_WS_X11_)
-    QApplication::QApplication( Display* dpy );
+    QApplication( Display* dpy );
 #endif
     virtual ~QApplication();
 
