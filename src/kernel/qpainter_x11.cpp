@@ -933,29 +933,25 @@ void QPainter::updateBrush()
     XSetBackground( dpy, gc_brush, bg_col.pixel(scrn) );
 
     if ( bs == CustomPattern || pat ) {
-        QPixmap *pm;
+        QPixmap pm;
         if ( pat ) {
             QString key;
             key.sprintf( "$qt-brush$%d", bs );
-            pm = QPixmapCache::find( key );
-            bool del = FALSE;
-            if ( !pm ) {                        // not already in pm dict
-                pm = new QBitmap( d, d, pat, TRUE );
-                Q_CHECK_PTR( pm );
-                del = !QPixmapCache::insert( key, pm );
+            if ( !QPixmapCache::find( key,pm) ) {                        // not already in pm dict
+                pm = QBitmap( d, d, pat, TRUE );
+                QPixmapCache::insert( key, pm );
             }
             if ( cbrush.data->pixmap )
                 delete cbrush.data->pixmap;
-            cbrush.data->pixmap = new QPixmap( *pm );
-            if (del) delete pm;
+            cbrush.data->pixmap = new QPixmap( pm );
         }
-        pm = cbrush.data->pixmap;
-        pm->x11SetScreen( scrn );
-        if ( pm->depth() == 1 ) {
-            XSetStipple( dpy, gc_brush, pm->handle() );
+        pm = *cbrush.data->pixmap;
+        pm.x11SetScreen( scrn );
+        if ( pm.depth() == 1 ) {
+            XSetStipple( dpy, gc_brush, pm.handle() );
             s = bg_mode == TransparentMode ? FillStippled : FillOpaqueStippled;
         } else {
-            XSetTile( dpy, gc_brush, pm->handle() );
+            XSetTile( dpy, gc_brush, pm.handle() );
             s = FillTiled;
         }
     }

@@ -216,27 +216,23 @@ void QRadioButton::drawButton( QPainter *paint )
     QTextOStream os(&pmkey);
     os << "$qt_radio_" << style().className() << "_"
        << palette().serialNumber() << "_" << irect.width() << "x" << irect.height() << "_" << kf;
-    QPixmap *pm = QPixmapCache::find( pmkey );
-    if ( pm ) {					// pixmap exists
+    QPixmap pm;
+    if (QPixmapCache::find( pmkey, pm)) {
 	drawButtonLabel( p );
-	p->drawPixmap( irect.topLeft(), *pm );
+	p->drawPixmap( irect.topLeft(), pm );
 	return;
     }
-    bool use_pm = TRUE;
     QPainter pmpaint;
     int wx, wy;
-    if ( use_pm ) {
-	pm = new QPixmap( irect.size() );	// create new pixmap
-	Q_CHECK_PTR( pm );
-	pm->fill(cg.background());
-	QPainter::redirect(this, pm);
-	pmpaint.begin(this);
-	p = &pmpaint;				// draw in pixmap
-	wx = irect.x();				// save x,y coords
-	wy = irect.y();
-	irect.moveTopLeft(QPoint(0, 0));
-	p->setBackgroundColor( cg.background() );
-    }
+    pm = QPixmap( irect.size() );	// create new pixmap
+    pm.fill(cg.background());
+    QPainter::redirect(this, &pm);
+    pmpaint.begin(this);
+    p = &pmpaint;				// draw in pixmap
+    wx = irect.x();				// save x,y coords
+    wy = irect.y();
+    irect.moveTopLeft(QPoint(0, 0));
+    p->setBackgroundColor( cg.background() );
 #endif
 
     QStyle::SFlags flags = QStyle::Style_Default;
@@ -256,22 +252,19 @@ void QRadioButton::drawButton( QPainter *paint )
     style().drawControl(QStyle::CE_RadioButton, p, this, irect, cg, flags);
 
 #if defined(SAVE_RADIOBUTTON_PIXMAPS)
-    if ( use_pm ) {
+    pmpaint.end();
+    QPainter::redirect(this, NULL);
+    if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
+	QBitmap bm( pm.size() );
+	bm.fill( color0 );
+	pmpaint.begin( &bm );
+	style().drawControlMask(QStyle::CE_RadioButton, &pmpaint, this, irect);
 	pmpaint.end();
-	QPainter::redirect(this, NULL);
-	if ( backgroundPixmap() || backgroundMode() == X11ParentRelative ) {
-	    QBitmap bm( pm->size() );
-	    bm.fill( color0 );
-	    pmpaint.begin( &bm );
-	    style().drawControlMask(QStyle::CE_RadioButton, &pmpaint, this, irect);
-	    pmpaint.end();
-	    pm->setMask( bm );
-	}
-	p = paint;				// draw in default device
-	p->drawPixmap( wx, wy, *pm );
-	if (!QPixmapCache::insert(pmkey, pm) )	// save in cache
-	    delete pm;
+	pm.setMask( bm );
     }
+    p = paint;				// draw in default device
+    p->drawPixmap( wx, wy, pm );
+    QPixmapCache::insert(pmkey, pm);	// save in cache
 #endif
 
     drawButtonLabel( p );

@@ -630,15 +630,11 @@ void qDrawItem( QPainter *p, Qt::GUIStyle gs,
 	    } else {				// color pixmap, no mask
 		QString k;
 		k.sprintf( "$qt-drawitem-%x", pm.serialNumber() );
-		QPixmap *mask = QPixmapCache::find(k);
-		bool del=FALSE;
-		if ( !mask ) {
-		    mask = new QPixmap( pm.createHeuristicMask() );
-		    mask->setMask( *((QBitmap*)mask) );
-		    del = !QPixmapCache::insert( k, mask );
+		if ( !QPixmapCache::find(k, pm) ) {
+		    pm = pm.createHeuristicMask();
+		    pm.setMask( (QBitmap&)pm );
+		    QPixmapCache::insert( k, pm );
 		}
-		pm = *mask;
-		if (del) delete mask;
 #endif
 	    }
 	    if ( gs == Qt::WindowsStyle ) {

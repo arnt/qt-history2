@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qpixmapcache.h"
-#include "q3cache.h"
+#include "qcache.h"
 #include "qobject.h"
 #include "qcleanuphandler.h"
 
@@ -98,19 +98,18 @@ static int cache_limit	  = 256;		// 256 KB cache limit
 static int cache_limit	  = 1024;		// 1024 KB cache limit
 #endif
 
-class QPMCache: public QObject, public Q3Cache<QPixmap>
+class QPMCache: public QObject, public QCache<QString, QPixmap>
 {
 public:
     QPMCache():
 	QObject( 0, "global pixmap cache" ),
-	Q3Cache<QPixmap>( cache_limit * 1024, cache_size ),
+	QCache<QString, QPixmap>( cache_limit * 1024, cache_size ),
 	id( 0 ), ps( 0 ), t( FALSE )
 	{
-	    setAutoDelete( TRUE );
 	}
    ~QPMCache() {}
     void timerEvent( QTimerEvent * );
-    bool insert( const QString& k, const QPixmap *d, int c, int p = 0 );
+    bool insert( const QString& k, const QPixmap &d, int c );
 private:
     int id;
     int ps;
@@ -137,7 +136,7 @@ void QPMCache::timerEvent( QTimerEvent * )
     setMaxCost( mc );
     ps = totalCost();
 
-    if ( !count() ) {
+    if ( !size() ) {
 	killTimer( id );
 	id = 0;
     } else if ( nt != t ) {
@@ -147,14 +146,14 @@ void QPMCache::timerEvent( QTimerEvent * )
     }
 }
 
-bool QPMCache::insert( const QString& k, const QPixmap *d, int c, int p )
+bool QPMCache::insert( const QString& k, const QPixmap &d, int c )
 {
-    bool r = Q3Cache<QPixmap>::insert( k, d, c, p );
-    if ( r && !id ) {
+    QCache<QString, QPixmap>::insert( k, d, c );
+    if ( !id ) {
 	id = startTimer( 30000 );
 	t = FALSE;
     }
-    return r;
+    return true;
 }
 
 static QPMCache *pm_cache = 0;			// global pixmap cache
@@ -162,6 +161,8 @@ static QPMCache *pm_cache = 0;			// global pixmap cache
 static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 /*!
+  \obsolete
+
     Returns the pixmap associated with the \a key in the cache, or
     null if there is no such pixmap.
 
@@ -186,7 +187,9 @@ static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 QPixmap *QPixmapCache::find( const QString &key )
 {
-    return pm_cache ? pm_cache->find(key) : 0;
+    if (!pm_cache->contains(key))
+	return false;
+    return &pm_cache->ref(key);
 }
 
 
@@ -210,9 +213,9 @@ QPixmap *QPixmapCache::find( const QString &key )
 
 bool QPixmapCache::find( const QString &key, QPixmap& pm )
 {
-    QPixmap* p = pm_cache ? pm_cache->find(key) : 0;
-    if ( p ) pm = *p;
-    return !!p;
+    if (!pm_cache)
+	return false;
+    return pm_cache->find(key, pm);
 }
 
 
@@ -241,10 +244,9 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache;
-	Q_CHECK_PTR( pm_cache );
 	qpm_cleanup_cache.set( &pm_cache );
     }
-    return pm_cache->insert( key, pm, pm->width()*pm->height()*pm->depth()/8 );
+    return pm_cache->insert( key, *pm, pm->width()*pm->height()*pm->depth()/8 );
 }
 
 /*!
@@ -271,12 +273,9 @@ bool QPixmapCache::insert( const QString &key, const QPixmap& pm )
 	Q_CHECK_PTR( pm_cache );
 	qpm_cleanup_cache.set( &pm_cache );
     }
-    QPixmap *p = new QPixmap(pm);
-    bool rt = pm_cache->insert( key, p, p->width()*p->height()*p->depth()/8 );
-    if ( !rt )
-	delete p;
+    pm_cache->insert( key, pm, pm.width()*pm.height()*pm.depth()/8 );
 
-    return rt;
+    return true;
 }
 
 /*!
