@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#35 $
 **
 ** Implementation of QGGeometry class
 **
@@ -128,9 +128,12 @@ public:
     virtual bool removeWidget( QWidget * ) { return FALSE; }
     virtual void annihilate() {}
 
+    virtual void setName( const char * ) {}
+    virtual const char *name() { return 0; }
 
 protected:
     virtual bool addC( QChain *s ) = 0;
+    
 private:
     QGManager::Direction dir;
 
@@ -226,6 +229,9 @@ public:
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
 
+    void setName( const char *s ) { nam = s; }
+    const char *name() { return nam; }
+    
 private:
     int maxsize;
     int minsize;
@@ -235,6 +241,7 @@ private:
 
     int minMax();
     int maxMin();
+    QString nam;
 };
 
 
@@ -266,6 +273,9 @@ public:
     int maxSize() { return  maxsize; }
     int minSize() { return minsize; }
 
+    void setName( const char *s ) { nam = s; }
+    const char *name() { return nam; }
+
 private:
     int maxsize;
     int minsize;
@@ -275,6 +285,7 @@ private:
     int sumMax();
     int sumMin();
     int sumStretch();
+    QString nam;
 };
 
 
@@ -386,11 +397,17 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
     fixed available = toFixed( space - minSize() );
     if ( available < 0 ) {
 	QString msg;
-	msg.sprintf( "QGManager: not enough space for %d-item %sal chain with %d branches",
-	    chain.count(),
-	    horz( direction() ) ? "horizont" : "vertic",
-	    branches.count()
-	);
+	if ( !name() )
+	    msg.sprintf( "QGManager: not enough space for"
+			 " unnamed %d-item %s chain",
+			 chain.count(),
+			 horz( direction() ) ? "horizontal" : "vertical",
+			 branches.count()
+			 );
+	else
+	    msg.sprintf( "QGManager: not enough space for %s chain %s", 
+			 horz( direction() ) ? "horizontal" : "vertical",
+			 name() );
 	warning( msg );
 	available = 0;
     }
@@ -479,7 +496,7 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
     for ( i = 0; i < (int)chain.count(); i++ ) {
 	tsize += sizes[i];
 	if ( chain.at(i)->stretch() == 0
-	  && sizes[i] < toFixed( chain.at(i)->maxSize() ) ) nsf0++;
+	     && sizes[i] < toFixed( chain.at(i)->maxSize() ) ) nsf0++;
     }
     while ( tsize < toFixed(space) && nsf0 ) {
 	fixed tsp = (toFixed(space) - tsize);
@@ -488,20 +505,20 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	int n = nsf0;
 	for ( i = 0; i < (int)chain.count(); i++ ) {
 	    if ( chain.at(i)->stretch() == 0
-	      && sizes[i] < toFixed( chain.at(i)->maxSize() ) )
-	    {
-		fixed extra = toFixed( chain.at(i)->maxSize() ) - sizes[i];
-		if ( --n == 0 ) {
-		    portion = tsp - (n0-1) * portion;
+		 && sizes[i] < toFixed( chain.at(i)->maxSize() ) )
+		{
+		    fixed extra = toFixed( chain.at(i)->maxSize() ) - sizes[i];
+		    if ( --n == 0 ) {
+			portion = tsp - (n0-1) * portion;
+		    }
+		    if ( extra <= portion ) {
+			nsf0--;
+		    } else {
+			extra = portion;
+		    }
+		    sizes[i] += portion;
+		    tsize += portion;
 		}
-		if ( extra <= portion ) {
-		    nsf0--;
-		} else {
-		    extra = portion;
-		}
-		sizes[i] += portion;
-		tsize += portion;
-	    }
 	}
     }
 #endif
@@ -999,3 +1016,14 @@ void QGManager::remove( QChain *c )
 }
 
 #endif
+
+
+/*!
+  Sets the name of \a chain to \a name. The name is used for debugging
+  purposes.
+*/
+
+void QGManager::setName( QChain *chain, const char *name )
+{
+    chain->setName( name );
+}

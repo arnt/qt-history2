@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#32 $
 **
 ** Implementation of layout classes
 **
@@ -21,7 +21,7 @@
   This is an abstract base class. The concrete layout managers
   QBoxLayout and QGidLayout inherit from this one and make QLayout's
   functionality avaialble in friendly APIs.
-  
+
   Most users of Q*Layout are likely to use some of the basic functions
   provided by QLayout, such as <ul><li>activate(), which compiles the
   layout into an internal representation and activates the result,
@@ -255,57 +255,61 @@ void QLayout::setMenuBar( QMenuBar *w )
   \class QBoxLayout qlayout.h
   \brief The QBoxLayout class lines up child widgets horizontally or vertically.
   \ingroup geomanagement
-  
+
   QBoxLayout takes the space it gets (from its parent layout or from
   the mainWindget()), divides it up into a row of boxes and makes each
   managed widget fill one box.
-  
+
   If the QBoxLayout is \c Horizontal, the boxes are beside each other,
   with suitable sizes.  Each widget (or other box) will get at least
   its minimum sizes and at most its maximum size, and any excess space
   is shared according to the stretch factors (more about that below).
-  
+
   If the QBoxLayout is \c Vertical, the boxes are above and below each
   other, again with suitable sizes.
-  
-  To create and fill a QBoxLayout, you must first call a constructor
-  to specify its direction, \c LeftToRight, \c Down, \c RightToLeft or
-  \c Up.
 
-  If the QBoxLayout is the top-level layout (ie. is not managing the
+  The easiest way to create a QBoxLayout is to use one of the
+  convenience classes QHBoxLayout (for \c Horizontal boxes) or 
+  QVBoxLayout (for \c Vertical boxes). You can also use the
+  QBoxLayout constuctor directly, specifying its
+  direction as \c LeftToRight, \c Down, \c RightToLeft or \c Up.
+
+  If the QBoxLayout is not the top-level layout (ie. is not managing the
   entirety of the widget's area), you must add it to its parent
   layout, typically using parentLayout->addLayout().
 
-  Then, you add boxes to the QBoxLayout using one of three functions: <ul>
-  
+  Then, you add boxes to the QBoxLayout using one of four functions: <ul>
+
   <li> addWidget() to add a widget to the QBoxLayout and set the
-  widget's strech factor.  (The stretch factor is along the row if
+  widget's stretch factor.  (The stretch factor is along the row if
   boxes.)
 
   <li> addSpacing() to create an empty box; this is one of the
   functions you use to create nice and spacious dialogs.  See below
-  for the two other ways to get spacing.
+  for ways to set margins.
+
+  <li> addStretch() to create an empty, stretchable box.
   
   <li> addLayout() to add a box containing another QLayout to the row
   and set that layout's stretch factor.
-  
+
   </ul>
 
   Finally, if the layout is a top-level one, you activate() it.
 
-  QBoxLayout also includes to spacings: The border width and the
+  QBoxLayout also includes two margin widths: The border width and the
   inter-box width.  The border width is the width of the reserved
   space along each of the QBoxLayout's four sides.  The intra-widget
   width is the width of the automatically allocated spacing between
   neighbouring boxes.  (You can use addSpacing() to get more space.)
-  
+
   The border width defaults to 0, and the intra-widget width defaults
   to the same as the border width.  Both are set using arguments to
   the constructor.
-  
-  Qt also provides two convenience classes for QBoxLayout: QVBoxLayout
-  and QHBoxLayout.  Their chief advantage is their simpler
-  constructors.
+
+  You will almost always want to use the convenience classes for
+  QBoxLayout: QVBoxLayout and QHBoxLayout.  The advantage is
+  their simpler constructors.
 */
 
 static inline bool horz( QGManager::Direction dir )
@@ -327,7 +331,7 @@ static inline QGManager::Direction perp( QGManager::Direction dir )
 
   \a border is the number of pixels between the edge of the widget and
   the managed children.	 \a autoBorder is the default number of pixels
-  between adjacent managed children.  If \a autoBorder is -1 the value
+  between neighbouring children.  If \a autoBorder is -1 the value
   of \a border is used.
 
   \a name is the internal object name
@@ -343,6 +347,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
     dir = (QGManager::Direction)d;
 
     serChain = basicManager()->newSerChain( dir );
+    basicManager()->setName( serChain, name );
     if ( horz( dir )  ) {
 	basicManager()->add( basicManager()->xChain(), serChain );
 	parChain = basicManager()->yChain();
@@ -350,6 +355,7 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 	basicManager()->add( basicManager()->yChain(), serChain );
 	parChain = basicManager()->xChain();
     }
+
 }
 
 /*!
@@ -385,6 +391,7 @@ QBoxLayout::~QBoxLayout()
 void QBoxLayout::initGM()
 {
     serChain = basicManager()->newSerChain( dir );
+    basicManager()->setName( serChain, name() );
     parChain = basicManager()->newParChain( perp( dir ) );
 }
 
@@ -591,6 +598,9 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
     } else {
 	QGManager::Direction d = perp( dir );
 	QChain *sc = basicManager()->newSerChain( d );
+	QString n;
+	n.sprintf( "%s-alignment", name( "widget" ) );
+	basicManager()->setName( serChain, n );
 	if ( align & last || align & AlignCenter ) {
 	    basicManager()->addSpacing(sc, 0);
 	}
@@ -739,7 +749,9 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
     : QLayout( parent, border, autoBorder, name )
 {
     horChain = basicManager()->newSerChain( QGManager::LeftToRight );
+    basicManager()->setName( horChain, name );
     verChain = basicManager()->newSerChain( QGManager::Down );
+    basicManager()->setName( verChain, name );
     basicManager()->add( basicManager()->xChain(), horChain );
     basicManager()->add( basicManager()->yChain(), verChain );
     init( nRows, nCols );
@@ -836,7 +848,9 @@ void QGridLayout::expand( int nRows, int nCols )
 void QGridLayout::initGM()
 {
     horChain = basicManager()->newSerChain( QGManager::LeftToRight );
+    basicManager()->setName( horChain, name( "QGridLayout" ) );
     verChain = basicManager()->newSerChain( QGManager::Down );
+    basicManager()->setName( verChain, name( "QGridLayout" ) );
     init( rr, cc );
 }
 
