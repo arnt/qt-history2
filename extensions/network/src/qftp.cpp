@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#36 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#37 $
 **
 ** Implementation of Network Extension Library
 **
@@ -145,7 +145,7 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
 	}
 	return;
     }
-    
+
     QString tmp_;
 
     // permissions
@@ -166,11 +166,11 @@ void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
     } else {
 	return;
     }
-    
+
     if ( lst.count() > 9 && QString( "dl-" ).find( tmp_[ 0 ] ) == -1 ) {
 	return;
     }
-    
+
     // owner
     tmp_ = lst[ 2 ];
     info.setOwner( tmp_ );
@@ -290,6 +290,18 @@ void QFtp::okGoOn( int code, const QCString &data )
     } break;
     case 226: // listing directory (in passive mode) finished and data socket closing
 	break;
+    case 257: { // mkdir worked 
+	if ( operationInProgress() && operationInProgress()->operation() == OpMkdir ) {
+	    operationInProgress()->setState( StDone );
+	    // ######## todo get correct info
+	    QUrlInfo inf( operationInProgress()->arg1(), 0, "", "", 0, QDateTime(),
+			  QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
+	    emit newChild( inf, operationInProgress() );
+	    emit createdDirectory( inf, operationInProgress() );
+	    emit finished( operationInProgress() );
+	    reinitCommandSocket();
+	}
+    } break;
     }
 }
 
@@ -405,7 +417,7 @@ void QFtp::dataReadyRead()
     QByteArray s;
     s.resize( dataSocket->bytesAvailable() );
     dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
-    
+
     switch ( operationInProgress()->operation() ) {
     case OpListChildren: { // parse directory entry
 	QString ss = QString::fromLatin1( s.copy() );
