@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#58 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#59 $
 **
 ** Definition of QIconView widget class
 **
@@ -90,6 +90,12 @@ protected:
  * Class QIconDrag
  *
  *****************************************************************************/
+
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QValueList<QIconDragItem>;
+// MOC_SKIP_END
+#endif
 
 typedef QValueList<QIconDragItem> QIconList;
 
