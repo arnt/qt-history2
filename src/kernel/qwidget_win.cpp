@@ -1058,6 +1058,10 @@ void QWidget::hideWindow()
 void QWidget::showMinimized()
 {
     if ( isTopLevel() ) {
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
+	    topData()->fullscreen = 0;
+	}
 #ifndef Q_OS_TEMP
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMINIMIZED );
@@ -1096,9 +1100,12 @@ bool QWidget::isMaximized() const
 void QWidget::showMaximized()
 {
     if ( isTopLevel() ) {
-
-	if ( topData()->normalGeometry.width() < 0 )
+	if ( topData()->fullscreen ) {
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
+	    topData()->fullscreen = 0;
+	} else if ( topData()->normalGeometry.width() < 0 ) {
 	    topData()->normalGeometry = geometry();
+	}
 	if ( isVisible() )
 	    ShowWindow( winId(), SW_SHOWMAXIMIZED );
 	else {
@@ -1118,7 +1125,7 @@ void QWidget::showNormal()
     if ( isTopLevel() ) {
 	if ( topData()->fullscreen ) {
 	    // when reparenting, preserve some widget flags
-	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), QPoint(0,0) );
+	    reparent( 0, WType_TopLevel | (getWFlags() & 0xffff0000), topData()->normalGeometry.topLeft() );
 	    topData()->fullscreen = 0;
 	    QRect r = topData()->normalGeometry;
 	    if ( r.width() >= 0 ) {
