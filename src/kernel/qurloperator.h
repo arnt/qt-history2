@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#3 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#4 $
 **
 ** Implementation of QFileDialog class
 **
@@ -54,7 +54,8 @@ public:
     virtual const QNetworkOperation *remove( const QString &filename );
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
     virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
-    virtual const QNetworkOperation *get( const QString &data );
+    virtual const QNetworkOperation *get( const QCString &data );
+    virtual const QNetworkOperation *post( const QCString &data );
     virtual QList<QNetworkOperation> copy( const QStringList &files, const QString &dest, bool move );
     virtual bool isDir();
 
@@ -69,7 +70,7 @@ public:
     void emitCreatedDirectory( const QUrlInfo &, QNetworkOperation *res );
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
-    void emitData( const QString &, QNetworkOperation *res );
+    void emitData( const QCString &, QNetworkOperation *res );
     void emitCopyProgress( int step, int total, QNetworkOperation *res );
 
     QUrlOperator& operator=( const QUrlOperator &url );
@@ -81,7 +82,7 @@ signals:
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );
     void itemChanged( QNetworkOperation *res );
-    void data( const QString &, QNetworkOperation *res );
+    void data( const QCString &, QNetworkOperation *res );
     void copyProgress( int step, int total, QNetworkOperation *res );
 
 protected:
@@ -107,8 +108,10 @@ inline void QUrlOperator::emitNewChild( const QUrlInfo &i, QNetworkOperation *re
 inline void QUrlOperator::emitFinished( QNetworkOperation *res )
 {
     emit finished( res );
-    deleteNetworkProtocol();
-    getNetworkProtocol();
+    if ( protocol() == "ftp" ) { // #### hack!!!!!!
+	deleteNetworkProtocol();
+	getNetworkProtocol();
+    }
 }
 
 inline void QUrlOperator::emitStart( QNetworkOperation *res )
@@ -131,7 +134,7 @@ inline void QUrlOperator::emitItemChanged( QNetworkOperation *res )
     emit itemChanged( res );
 }
 
-inline void QUrlOperator::emitData( const QString &d, QNetworkOperation *res )
+inline void QUrlOperator::emitData( const QCString &d, QNetworkOperation *res )
 {
     emit data( d, res );
 }

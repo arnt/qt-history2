@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#20 $
 **
 ** Implementation of QFileDialog class
 **
@@ -139,8 +139,8 @@ QNetworkProtocol::QNetworkProtocol()
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
 
-    connect( this, SIGNAL( data( const QString &, QNetworkOperation * ) ),
-	     this, SLOT( emitData( const QString &, QNetworkOperation * ) ) );
+    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
+	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
     connect( this, SIGNAL( start( QNetworkOperation * ) ),
@@ -189,9 +189,22 @@ void QNetworkProtocol::setUrl( QUrlOperator *u )
   #### todo
 */
 
-const QNetworkOperation *QNetworkProtocol::get( const QString &d )
+const QNetworkOperation *QNetworkProtocol::get( const QCString &d )
 {
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
+						    QString::fromLatin1( d ),
+						    QString::null, QString::null );
+    addOperation( res );
+    return res;
+}
+
+/*!
+  #### todo
+*/
+
+const QNetworkOperation *QNetworkProtocol::post( const QCString &d )
+{
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPost,
 						    QString::fromLatin1( d ),
 						    QString::null, QString::null );
     addOperation( res );
@@ -379,6 +392,9 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
     case OpGet:
 	operationGet( op );
 	break;
+    case OpPost:
+	operationPost( op );
+	break;
     }
 }
 
@@ -421,6 +437,13 @@ void QNetworkProtocol::operationCopy( QNetworkOperation * )
  */
 
 void QNetworkProtocol::operationGet( QNetworkOperation * )
+{
+}
+
+/*!
+ */
+
+void QNetworkProtocol::operationPost( QNetworkOperation * )
 {
 }
 

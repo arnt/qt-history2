@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#6 $
 **
 ** Implementation of QFileDialog class
 **
@@ -113,7 +113,7 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::data( const QString &data )
+  \fn void QUrlOperator::data( const QCString &data )
 
   This signal is emitted when new \a data has been received.
 */
@@ -524,13 +524,14 @@ bool QUrlOperator::isDir()
 /*!
  */
 
-const QNetworkOperation *QUrlOperator::get( const QString &data )
+const QNetworkOperation *QUrlOperator::get( const QCString &data )
 {
     if ( !checkValid() )
 	return 0;
 
     QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
-						    data, QString::null, QString::null );
+						    QString::fromLatin1( data ), 
+						    QString::null, QString::null );
 
     if ( d->networkProtocol &&
 	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
@@ -539,6 +540,36 @@ const QNetworkOperation *QUrlOperator::get( const QString &data )
     } else {
 	QString msg = tr( "The protocol `%1' is not supported\n"
 			  "or `%2' doesn't support get" ).
+		      arg( protocol() ).arg( protocol() );
+	res->setState( QNetworkProtocol::StFailed );
+	res->setProtocolDetail( msg );
+	res->setErrorCode( QNetworkProtocol::ErrUnsupported );
+	emit finished( res );
+	delete res;
+    }
+
+    return 0;
+}
+
+/*!
+ */
+
+const QNetworkOperation *QUrlOperator::post( const QCString &data )
+{
+    if ( !checkValid() )
+	return 0;
+
+    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpPost,
+						    QString::fromLatin1( data ), 
+						    QString::null, QString::null );
+
+    if ( d->networkProtocol &&
+	 d->networkProtocol->supportedOperations() & QNetworkProtocol::OpGet ) {
+	d->networkProtocol->addOperation( res );
+	return res;
+    } else {
+	QString msg = tr( "The protocol `%1' is not supported\n"
+			  "or `%2' doesn't support post" ).
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
