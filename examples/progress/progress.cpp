@@ -288,7 +288,7 @@ private:
 	    pb = newProgressDialog("Drawing rectangles.\n"
 				   "Using timer event.", n, FALSE);
 	    pb->setCaption("Please Wait");
-	    connect(pb, SIGNAL(cancelled()), this, SLOT(stopDrawing()));
+	    connect(pb, SIGNAL(canceled()), this, SLOT(stopDrawing()));
 	    enableDrawingItems(FALSE);
 	    timerId = startTimer(0);
 	    got_stop = FALSE;
