@@ -3662,6 +3662,8 @@ int QTextEdit::wrapColumnOrWidth() const
   \value AtWhiteSpace  Break lines at whitespace, e.g. spaces or
   newlines.
   \value Anywhere  Break anywhere, including within words.
+  \value AtWordBoundary Don't use this deprecated value (it is a
+  synonym for AtWhiteSpace which you should use instead).
 
    \sa setWrapPolicy()
 */

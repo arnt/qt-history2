@@ -101,18 +101,19 @@ When you add widgets to a layout the layout process works as follows:
 amount of space in accordance with their QWidget::sizePolicy(). 
 \i If any of the widgets have stretch factors set, with a value greater than
 zero, then they are allocated space in proportion to their \link
-#stretch stretch factor\endlink. Of these, space is allocated to
-widgets with an Expanding size policy first.
+#stretch stretch factor\endlink. 
 \i If any of the widgets have stretch factors set to zero they will
-only get more space if no other widgets want the space.
-\i Any widgets that are allocated less space than
-their minimum size hints are allocated the minimum size hint space
-they require. (Widgets don't have to have a minimum size in which case
-the strech factor is their determining factor.)
-\i Any widgets that are allocated more space than
-their maximum size hints are allocated the maximum size hint space
-they require. (Widgets don't have to have a maximum size in which case
-the strech factor is their determining factor.)
+only get more space if no other widgets want the space. Of these,
+space is allocated to widgets with an Expanding size policy first.
+\i Any widgets that are allocated less space than their minimum size
+(or minimum size hint in no minimum size is specified) are allocated
+this minimum size they require. (Widgets don't have to have a minimum
+size or minimum size hint in which case the strech factor is their
+determining factor.)
+\i Any widgets that are allocated more space than their maximum size
+are allocated the maximum size space they require. (Widgets don't have
+to have a maximum size in which case the strech factor is their
+determining factor.)
 \endlist
 
 \target stretch

@@ -1629,9 +1629,10 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
 
   \value None    No device, or an unknown device
   \value Puck    A Puck.
-  \value Sylus  A Stylus (the narrow end of the pen)
+  \value Stylus  A Stylus (the narrow end of the pen)
   \value Eraser  An Eraser (the broad end of the pen)
-  \value Menu  A menu button was pressed ( currently unimplemented )
+  \omit
+  \value Menu  A menu button was pressed (currently unimplemented)
 */
 
 /*!

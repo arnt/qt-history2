@@ -50,7 +50,7 @@ bool qt_file_access( const QString& fn, int t )
 }
 
 /*!
-    \overload  
+    \overload
     Removes the file \a fileName.
   Returns TRUE if successful, otherwise FALSE.
 */
@@ -405,6 +405,7 @@ QIODevice::Offset QFile::size() const
 */
 
 /*!
+    \overload
   Sets the file index to \a pos. Returns TRUE if successful, otherwise FALSE.
 
   Example:

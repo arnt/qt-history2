@@ -84,7 +84,7 @@
   rich text formatted string, it will be rendered using the default
   stylesheet. This makes it also possible to embed images. See
   QStyleSheet::defaultSheet() for details.
-  
+
   \walkthrough action/application.cpp
   \skipto fileOpenText
   \printuntil setWhatsThis
@@ -715,7 +715,8 @@ void QWhatsThis::remove( QWidget * widget )
 
 /*!
   Returns the text for widget \a w or a null string if there
-  is no What's This? help for widget.
+  is no What's This? help for widget. \a pos contains the mouse
+  position.
 
   If \a includeParents is TRUE, parent widgets are taken into
   consideration as well.
@@ -926,7 +927,7 @@ void QWhatsThis::leaveWhatsThisMode( const QString& text, const QPoint& pos )
 {
     if ( !inWhatsThisMode() )
 	return;
-    
+
     wt->leaveWhatsThisMode();
     if ( !text.isNull() )
 	wt->say( 0, text, pos );

@@ -2057,7 +2057,10 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
 /*!
     \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr, int conversionFlags = 0 );
-    
+
+    Draws the rectangle \a sr from the image at the given point.
+*/
+/*
     Draws at point \a p the \sr rect from image \a pm, using \a
     conversionFlags if the image needs to be converted to a pixmap.
     The default value for \a conversionFlags is 0; see
@@ -2066,7 +2069,6 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
   This function may convert \a image to a pixmap and then draw it, if
   device() is a QPixmap or a QWidget, or else draw it directly, if
   device() is a QPrinter or QPicture.
-
 */
 
 /*!  Draws at (\a x, \a y) the \a sw by \a sh area of pixels from (\a
@@ -2256,7 +2258,10 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn void	QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+    \overload void	QPainter::drawText( const QPoint &, const QString &, int len = -1, TextDirection dir = Auto );
+    Draws the text at the given point.
+*/
+/*
     Draws the text in \a s at point \a p. If \a len is -1 the entire
     string is drawn, otherwise just the first \a len characters. The
     text's direction is specified by \a dir.
@@ -2264,15 +2269,15 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
 
 /*!
-    \fn void     QPainter::drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
-    Draws the text in \a s, from position \a pos, at point \a ( x, y ). If \a
-    len is -1 the entire string is drawn, otherwise just the first \a
-    len characters. The text's direction is specified by \a dir.
+    \overload void     QPainter::drawText( int x, int y, const QString &, int pos, int len, TextDirection dir = Auto );
+    Draws the text from position \a pos, at point \a ( x, y ). If
+    len is -1 the entire string is drawn, otherwise just the first
+    len characters. The text's direction is specified by dir.
 */
 
 /*!
     \fn void     QPainter::drawText( const QPoint &p, const QString &, int pos, int len, TextDirection dir = Auto );
-    Draws the text in \a s, from position \a pos, at point \a p If \a
+    Draws the text from position \a pos, at point \a p If \a
     len is -1 the entire string is drawn, otherwise just the first \a
     len characters. The text's direction is specified by \a dir.
 */
@@ -2312,6 +2317,8 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 //
 
 /*!
+    \overload
+
   Draws at most \a len characters from \a str in the rectangle \a r.
 
   Note that the meaning of \a {r}.y() is not the same for the two drawText()
@@ -2620,7 +2627,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 }
 
 /*!
-
+    \overload
   Returns the bounding rectangle of the aligned text that would be
   printed with the corresponding drawText() function (the first \a len
   characters from \a str).  The drawing, and hence the bounding
@@ -2629,7 +2636,7 @@ void qt_format_text( const QFont& font, const QRect &r,
   If \a len is negative (default value), the whole string is used.
 
   The \a tf argument is
-  the bitwise OR of the following flags:  
+  the bitwise OR of the following flags:
   \list
   \i AlignAuto aligns according to the language, usually left.
   \i AlignLeft aligns to the left border.
@@ -2672,14 +2679,14 @@ QRect QPainter::boundingRect( const QRect &r, int tf,
 
   Returns the bounding rectangle of the aligned text that would be
   printed with the corresponding drawText() function (the first \a len
-  characters from \a str).  The drawing, and hence the bounding
+  characters from the string).  The drawing, and hence the bounding
   rectangle, is constrained to the rectangle that begins at point \a
   (x, y) with width \a w and hight \a h.
 
   If \a len is negative (default value), the whole string is used.
-  The \a flags argument is the bitwise OR of the alignment flags.  
-  The \a internal parameter should not be used.
-  
+  The \a flags argument is the bitwise OR of the alignment flags.
+  The \a intern parameter should not be used.
+
   \sa Qt::TextFlags
 */
 

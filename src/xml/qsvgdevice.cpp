@@ -133,7 +133,7 @@ QSvgDevice::~QSvgDevice()
 }
 
 /*!
-  Loads and parses \a file into the device. Returns TRUE on success,
+  Loads and parses \a fileName into the device. Returns TRUE on success,
   FALSE if errors were encountered.
  */
 
@@ -240,6 +240,9 @@ bool QSvgDevice::play( QPainter *painter )
     return play( svg );
 }
 
+/*!
+    Returns the XML as a single string.
+*/
 QString QSvgDevice::toString() const
 {
     if ( doc.isNull() )
@@ -300,7 +303,7 @@ bool QSvgDevice::save( const QString &fileName )
  */
 
 /*!
-  Sets the bounding rectangle of the vector graphic.
+  Sets the bounding rectangle of the vector graphic to \a r.
  */
 
 void QSvgDevice::setBoundingRect( const QRect &r )
@@ -315,6 +318,7 @@ void QSvgDevice::setBoundingRect( const QRect &r )
 
   A QSvgDevice has the following hard coded values:
   dpi = 72, numcolors=16777216 and depth=24.
+  \a m is the metric to get.
 */
 
 int QSvgDevice::metric( int m ) const
