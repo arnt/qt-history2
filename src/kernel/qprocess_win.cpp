@@ -65,10 +65,10 @@ public:
 
     ~QProcessPrivate()
     {
-	cleanup();
+	reset();
     }
 
-    void cleanup()
+    void reset()
     {
 	while ( !stdinBuf.isEmpty() ) {
 	    delete stdinBuf.dequeue();
@@ -79,11 +79,6 @@ public:
 	    CloseHandle( pipeStdout[0] );
 	if( pipeStderr[0] != 0 )
 	    CloseHandle( pipeStderr[0] );
-    }
-
-    void reset()
-    {
-	cleanup();
 	stdinBufRead = 0;
 	pipeStdin[0] = 0;
 	pipeStdin[1] = 0;
