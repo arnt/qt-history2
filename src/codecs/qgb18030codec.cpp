@@ -109,7 +109,7 @@
 
 #include "qgb18030codec.h"
 
-#ifndef QT_NO_CODECS
+#ifndef QT_NO_BIG_CODECS
 
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)	((c) <= 0x7F)
