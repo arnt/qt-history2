@@ -216,6 +216,8 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 //
     connect(editModeActions(), SIGNAL(triggered(QAction*)),
             this, SLOT(updateEditMode(QAction*)));
+
+    fixActionContext();
 }
 
 QDesignerActions::~QDesignerActions()
@@ -541,7 +543,7 @@ void QDesignerActions::saveFormAs()
 
 void QDesignerActions::saveFormAsTemplate()
 {
-    QMessageBox::information(core()->topLevel(), tr("Designer"), tr("Feature not implemented yet!"));
+    notImplementedYet();
 }
 
 void QDesignerActions::notImplementedYet()
@@ -587,4 +589,16 @@ void QDesignerActions::previewForm()
     }
 }
 
+void QDesignerActions::fixActionContext()
+{
+    QList<QAction*> actions;
+    actions += m_fileActions->actions();
+    actions += m_editActions->actions();
+    actions += m_editModeActions->actions();
+    actions += m_formActions->actions();
+    actions += m_windowActions->actions();
 
+    foreach (QAction *a, actions) {
+        a->setShortcutContext(Qt::ApplicationShortcut);
+    }
+}

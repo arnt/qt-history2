@@ -113,6 +113,7 @@ private:
     bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName);
     bool saveForm(AbstractFormWindow *fw);
     bool saveFormAs(AbstractFormWindow *fw);
+    void fixActionContext();
 
 private:
     QDesignerMainWindow *m_mainWindow;
