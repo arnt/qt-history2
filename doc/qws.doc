@@ -649,6 +649,10 @@ example, using the X11 VNC client to view the application from the same machine:
   vncviewer localhost:0
 \endcode
 
+By default, Qt/Embedded will create a 640 by 480 pixel display. You can change
+this by setting the <tt>QWS_SIZE</tt> environment variable to another size,
+eg. <tt>QWS_SIZE=240x320</tt>.
+
 VNC clients are available for a vast array of display systems - X11, Windows, Amiga,
 DOS, VMS, and dozens of others.
 
