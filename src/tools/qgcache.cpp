@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#11 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#12 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#12 $";
 #endif
 
 
@@ -223,7 +223,8 @@ GCI QGCache::take( const char *key )
     GCI gci = tmp ? tmp->data : 0;
     if ( tmp ) {
 	tCost -= tmp->cost;
-	lruList->remove( tmp );			// remove from list and delete
+	ASSERT( lruList->findRef( tmp ) >= 0 );
+	lruList->remove();			// remove from list and delete
     }
     return gci;
 }
