@@ -16,7 +16,7 @@ classes:
 the QApplication derived class using the virtual 
 requestApplicationInterface method. A plugin can acquire this interface
 in it's connectNotify reimplementation.
-  Each QComponentInterface represents one instance of an QObject 
+  Each QComponentInterface represents one instance of a QObject 
 derived class, e.g. a main window. The existing functionality provides 
 methods to use the read and write methods of the property system, 
 methods to set up connections (in both directions) and a method to 
@@ -54,7 +54,7 @@ plugin interface.
   The library just has to subclass the interface and implement the
 functions. Additionally, a C function "loadInterface" has to be 
 provided that returns a new interface. This can be done platform 
-independendly using the QT_EXPORT_INTERFACE macro.
+independantly using the QT_EXPORT_INTERFACE macro.
 
 
 Difficulties using dynamic loading of libraries
@@ -71,7 +71,7 @@ QGuardedCleanUpHandler for pointers to QObject derived classes. As
 long as those objects are not referenced to in any special way this is
 enough (e.g. the deletion of a QObject deletes all connections, parent
 children etc.).
-  To more subtle problems leads the usage of classes that provide 
+  There are more subtle problems associated with the usage of classes that provide 
 sharing, e.g. all QString related classes. Interface methods returning
 QString or QStringList return data that is allocated in the library's 
 memory, thus leaving even copies of the - shared - classes with 
