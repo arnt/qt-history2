@@ -579,9 +579,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
         if (!initDir->isEmpty()) {
             // ### Lars asks: is this correct for the A version????
             QT_WA({
-                SendMessage(hwnd, BFFM_SETSELECTION, true, Q_ULONG(initDir->utf16()));
+                SendMessage(hwnd, BFFM_SETSELECTION, true, ulong(initDir->utf16()));
             } , {
-                SendMessageA(hwnd, BFFM_SETSELECTION, true, Q_ULONG(initDir->utf16()));
+                SendMessageA(hwnd, BFFM_SETSELECTION, true, ulong(initDir->utf16()));
             });
         }
     } else if (uMsg == BFFM_SELCHANGED) {
@@ -594,7 +594,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
                 SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
             else
                 SendMessage(hwnd, BFFM_ENABLEOK, 0, 0);
-            SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
+            SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, ulong(path));
         } , {
             char path[MAX_PATH];
             SHGetPathFromIDListA(LPITEMIDLIST(lParam), path);
@@ -603,7 +603,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
                 SendMessageA(hwnd, BFFM_ENABLEOK, 1, 1);
             else
                 SendMessageA(hwnd, BFFM_ENABLEOK, 0, 0);
-            SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
+            SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, ulong(path));
         });
     }
 #endif
@@ -649,7 +649,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         bi.pszDisplayName = initPath;
         bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE;
         bi.lpfn = winGetExistDirCallbackProc;
-        bi.lParam = Q_ULONG(&initDir);
+        bi.lParam = ulong(&initDir);
         LPITEMIDLIST pItemIDList = ptrSHBrowseForFolder(&bi);
         if (pItemIDList) {
             ptrSHGetPathFromIDList(pItemIDList, path);
@@ -678,7 +678,7 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         bi.pszDisplayName = initPath;
         bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT | BIF_NEWDIALOGSTYLE;
         bi.lpfn = winGetExistDirCallbackProc;
-        bi.lParam = Q_ULONG(&initDir);
+        bi.lParam = ulong(&initDir);
         LPITEMIDLIST pItemIDList = SHBrowseForFolderA(&bi);
         if (pItemIDList) {
             SHGetPathFromIDListA(pItemIDList, path);
