@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#207 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#208 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -268,6 +268,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     if ( destroyw ) {
 	DestroyWindow( destroyw );
     }
+
+    setFontSys();
 }
 
 
@@ -408,6 +410,7 @@ void QWidget::setFontSys()
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool text)
 {
     CreateCaret( winId(), 0, width, height );
+    HideCaret( winId() );
     SetCaretPos( x, y );
 
     if ( text ) {
