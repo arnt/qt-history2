@@ -34,7 +34,7 @@ QString loadFile( const QString &fileName )
     QFile file( fileName );
     if ( !file.open(IO_ReadOnly) ) {
         fprintf( stderr, "error: Cannot load '%s': %s\n",
-                 file.name().latin1(),
+                 file.fileName().latin1(),
                  file.errorString().latin1() );
         return QString();
     }
