@@ -42,7 +42,10 @@ for(QCONF, QCONFIG) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
       } else {
-	 isEqual(QCONF, compat):!contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
+	 isEqual(QCONF, compat) {
+	    QTDIR_build:warning(***USE of $$upper($${QCONF}) inside of QTDIR!**)
+	    !contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
+	 }
          LIBS   += -l$${qlib}
       }
    }
