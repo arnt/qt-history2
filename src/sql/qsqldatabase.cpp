@@ -63,6 +63,41 @@
 
 QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultDatabase = "qt_sql_default_database";
 
+class QNullResult : public QSqlResult
+{
+public:
+    QNullResult(const QSqlDriver* d): QSqlResult(d){}
+    ~QNullResult(){}
+protected:
+    QVariant    data( int ) { return QVariant(); }
+    bool	reset ( const QString& sqlquery ) { QString s(sqlquery); return FALSE; }
+    bool	fetch( int i ) { i = i; return FALSE; }
+    bool	fetchFirst() { return FALSE; }
+    bool	fetchLast() { return FALSE; }
+    bool	isNull( int ) {return FALSE; }
+    QSqlRecord   record() {return QSqlRecord();}
+    int             size()  {return 0;}
+    int             numRowsAffected() {return 0;}
+};
+
+class QNullDriver : public QSqlDriver
+{
+public:
+    QNullDriver(): QSqlDriver(){}
+    ~QNullDriver(){}
+    bool    hasTransactionSupport() const { return FALSE;} ;
+    bool    hasQuerySizeSupport() const { return FALSE;} ;
+    bool    canEditBinaryFields() const { return FALSE;} ;
+    bool    open( const QString & ,
+			const QString & ,
+			const QString & ,
+			const QString &  ) {
+				return FALSE;
+			}
+    void    close() {}
+    QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
+};
+
 class QSqlDatabaseManager
 {
 public:
@@ -169,6 +204,7 @@ bool QSqlDatabaseManager::contains( const QString& name )
 QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString & name )
 {
     QSqlDatabaseManager* sqlConnection = instance();
+    sqlConnection->removeDatabase( name );
     sqlConnection->dbDict.insert( name, db );
     return db;
 }
@@ -187,43 +223,6 @@ void QSqlDatabaseManager::removeDatabase( const QString& name )
     sqlConnection->dbDict.remove( name );
     sqlConnection->dbDict.setAutoDelete( FALSE );
 }
-
-//
-
-class QNullResult : public QSqlResult
-{
-public:
-    QNullResult(const QSqlDriver* d): QSqlResult(d){}
-    ~QNullResult(){}
-protected:
-    QVariant    data( int ) { return QVariant(); }
-    bool	reset ( const QString& sqlquery ) { QString s(sqlquery); return FALSE; }
-    bool	fetch( int i ) { i = i; return FALSE; }
-    bool	fetchFirst() { return FALSE; }
-    bool	fetchLast() { return FALSE; }
-    bool	isNull( int ) {return FALSE; }
-    QSqlRecord   record() {return QSqlRecord();}
-    int             size()  {return 0;}
-    int             numRowsAffected() {return 0;}
-};
-
-class QNullDriver : public QSqlDriver
-{
-public:
-    QNullDriver(): QSqlDriver(){}
-    ~QNullDriver(){}
-    bool    hasTransactionSupport() const { return FALSE;} ;
-    bool    hasQuerySizeSupport() const { return FALSE;} ;
-    bool    canEditBinaryFields() const { return FALSE;} ;
-    bool    open( const QString & ,
-			const QString & ,
-			const QString & ,
-			const QString &  ) {
-				return FALSE;
-			}
-    void    close() {}
-    QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
-};
 
 class QSqlDatabasePrivate
 {
