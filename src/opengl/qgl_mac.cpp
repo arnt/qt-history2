@@ -49,7 +49,6 @@
 /*****************************************************************************
   QGLFormat UNIX/AGL-specific code
  *****************************************************************************/
-
 bool QGLFormat::hasOpenGL()
 {
     return TRUE;
@@ -66,7 +65,7 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
-
+QPoint posInWindow(QWidget *); //qwidget_mac.cpp
 bool QGLContext::chooseContext( const QGLContext* shareContext )
 {
     GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
@@ -106,10 +105,20 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
     AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->cx : NULL));
     cx = (void *)ctx;
     if(ctx) {
-	if(paintDevice->devType() == QInternal::Widget)
+	if(paintDevice->devType() == QInternal::Widget) {
+	    QWidget *w = (QWidget *)paintDevice;
+	    GLint offs[4];
+	    QPoint mp(posInWindow(w));
+	    offs[0] = mp.x();
+	    offs[1] = mp.y();
+	    offs[2] = w->width();
+	    offs[3] = w->height();
+	    aglSetInteger(ctx, AGL_SWAP_RECT, offs);
+
 	    aglSetDrawable(ctx, GetWindowPort((WindowPtr)paintDevice->handle()));
-	else
+	} else {
 	    aglSetDrawable(ctx, (CGrafPtr)paintDevice->handle());
+	}
 	return TRUE;
     }
     return FALSE;
@@ -143,7 +152,6 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = pmDepth;
     } else {
-	attribs[cnt++] = AGL_RGBA;
 	attribs[cnt++] = AGL_DEPTH_SIZE;
 	attribs[cnt++] = 8;
     }
@@ -161,7 +169,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
     AGLPixelFormat fmt = aglChoosePixelFormat(&device, 1, attribs);
     if(!fmt) {
 	GLenum err = aglGetError();
-	qDebug("got an error tex: %d", err);
+	qDebug("got an error tex: %d", (int)err);
     }
     return fmt;
 }
@@ -182,9 +190,6 @@ void QGLContext::reset()
     initDone = FALSE;
 }
 
-static RgnHandle old_clip = NULL;
-QPoint posInWindow(QWidget *); //qwidget_mac.cpp
-
 void QGLContext::makeCurrent()
 {
     if ( !valid ) {
@@ -197,14 +202,7 @@ void QGLContext::makeCurrent()
     QMacSavedPortInfo::setPaintDevice(paintDevice);
     if(0 && !deviceIsPixmap()) {
 	QWidget *w = (QWidget *)paintDevice;
-
-	if(!old_clip)
-	    old_clip = NewRgn();
-	GetClip(old_clip);
 	SetClip((RgnHandle)w->clippedRegion().handle());
-
-	QPoint mp(posInWindow(w));
-	SetOrigin(-mp.x(), -mp.y());
     }
     aglSetCurrentContext((AGLContext)cx);
     currentCtx = this;
@@ -214,14 +212,8 @@ void QGLContext::doneCurrent()
 {
     if ( currentCtx != this )
 	return;
-
     currentCtx = 0;
     QMacSavedPortInfo::setPaintDevice(paintDevice);
-    if(0 && !deviceIsPixmap()) {
-	if(old_clip)
-	    SetClip(old_clip);
-	SetOrigin(0, 0);
-    }
     aglSetCurrentContext(NULL);
 }
 
@@ -242,8 +234,6 @@ static QColor cmap[256];
 static bool init = FALSE;
 uint QGLContext::colorIndex( const QColor&c) const
 {
-    qDebug("called..");
-
     int ret = -1;
     if(!init) {
 	init = TRUE;
@@ -263,19 +253,17 @@ uint QGLContext::colorIndex( const QColor&c) const
 		break;
 	if(ret == 256) {
 	    ret = -1;
-	    qDebug("whoa, I'm fucked..");
+	    qDebug("whoa, that's no good..");
 	} else {
 	    qDebug("creating color %d %d %d :: at %d", c.red(), c.green(), c.blue(), ret);
 	    cmap[ret] = c;
 
-	    qDebug("done.. %d", __LINE__);
-	    GDHandle dev = GetMainDevice(); //doesn't handle multiple heads, fixme!
-	    qDebug("done.. %d", __LINE__);
-	    AGLRendererInfo info = aglQueryRendererInfo(&dev, 1);
-	    qDebug("done.. %d", __LINE__);
-	    GLint val = ret << 24 | (c.red() << 16) | (c.green() << 8) | c.blue();
-	    qDebug("done.. %d", __LINE__);
-	    aglDescribeRenderer(info, AGL_COLORMAP_ENTRY, &val);
+	    GLint vals[4];
+	    vals[0] = ret;
+	    vals[1] = c.red();
+	    vals[2] = c.green();
+	    vals[3] = c.blue();
+	    aglSetInteger((AGLContext)cx, AGL_COLORMAP_ENTRY, vals);
 	    qDebug("done.. %d", __LINE__);
 	}
     }
@@ -329,7 +317,7 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 {
     if ( !isValid() )
 	return;
-    aglUpdateContext((AGLContext)context()->cx);
+//    aglUpdateContext((AGLContext)context()->cx);
     makeCurrent();
     if ( !glcx->initialized() )
 	glInit();
