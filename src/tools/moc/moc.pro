@@ -1,21 +1,34 @@
-TARGET = rcc
-CONFIG += console
-mac:CONFIG -= app_bundle
+TEMPLATE	= app
+TARGET		= moc
+
+CONFIG 	       += console qtinc
+CONFIG         -= qt
 build_all:CONFIG += release
+mac:CONFIG     -= app_bundle incremental
+DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT \
+		  QT_NO_STL QT_NO_COMPRESS QT_NO_DATASTREAM QT_NO_TEXTSTREAM \
+		  QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_NO_THREAD \
+		  QT_NO_REGEXP QT_NO_QOBJECT
+win32:DEFINES  += QT_NODLL
+DESTDIR         = ../../../bin
 
-DEFINES	       += QT_RCC QT_LITE_UNICODE QT_NO_DATASTREAM QT_NO_THREAD QT_NO_QOBJECT \
-                  QT_NO_UNICODETABLES QT_NO_COMPONENT
 
-CONFIG -= qt
 INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
-                   $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml
-DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io ../../corelib/codecs ../../xml
+                   $$QT_BUILD_TREE/include/QtCore
+DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io
+LIBS	        =
+OBJECTS_DIR	= .
 
-unix:LIBS += -lz
 
-SOURCES += main.cpp
+HEADERS = moc.h preprocessor.h scanner.h symbols.h token.h utils.h \
+           generator.h outputrevision.h qdatetime_p.h
+SOURCES =  moc.cpp \
+           preprocessor.cpp \
+           main.cpp \
+           generator.cpp \
+           scanner.cpp
 
-# Qt tools needed to link rcc
+# Qt tools needed to link moc
 SOURCES	+= ../../corelib/global/qglobal.cpp \
 	   ../../corelib/io/qbuffer.cpp \
 	   ../../corelib/io/qdir.cpp		\
@@ -40,17 +53,8 @@ SOURCES	+= ../../corelib/global/qglobal.cpp \
            ../../corelib/io/qbufferedfsfileengine.cpp  \
            ../../corelib/io/qfileengine.cpp  \
            ../../corelib/tools/qbytearray.cpp	\
-           ../../corelib/tools/qbitarray.cpp	\
            ../../corelib/tools/qunicodetables.cpp	\
-           ../../corelib/tools/qvsnprintf.cpp \
-           ../../corelib/tools/qregexp.cpp \
-           ../../corelib/codecs/qtextcodec.cpp \
-           ../../corelib/codecs/qutfcodec.cpp \
-           ../../corelib/codecs/qisciicodec.cpp \
-           ../../corelib/codecs/qtsciicodec.cpp \
-           ../../corelib/codecs/qlatincodec.cpp \
-           ../../corelib/codecs/qsimplecodec.cpp \
-           ../../xml/qdom.cpp ../../xml/qxml.cpp 
+           ../../corelib/tools/qvsnprintf.cpp 
 
 unix:SOURCES += ../../corelib/io/qfsfileengine_unix.cpp
 
@@ -65,5 +69,17 @@ macx: {
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
 
-DESTDIR = ../../../bin
+*-mwerks {
+   TEMPLATE = lib
+   TARGET = McMoc
+   CONFIG -= static
+   CONFIG += shared plugin
+   DEFINES += MOC_MWERKS_PLUGIN
+   MWERKSDIR = $QT_SOURCE_TREE/util/mwerks_plugin
+   INCLUDEPATH += $$MWERKSDIR/Headers
+   LIBS += $$MWERKSDIR/Libraries/PluginLib4.shlb
+   SOURCES += mwerks_mac.cpp
+}
+
 include(../../qt_targets.pri)
+

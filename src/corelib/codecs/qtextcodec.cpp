@@ -20,9 +20,11 @@
 
 #include "qlist.h"
 #include "qfile.h"
-#include "qcoreapplication.h"
-#include "qtextcodecplugin.h"
-#include "private/qfactoryloader_p.h"
+#ifndef QT_NO_COMPONENT
+# include "qcoreapplication.h"
+# include "qtextcodecplugin.h"
+# include "private/qfactoryloader_p.h"
+#endif
 #include "qstringlist.h"
 
 #include "qutfcodec_p.h"
@@ -87,6 +89,7 @@ static bool nameMatch(const QByteArray &name, const QByteArray &test)
 
 static QTextCodec *createForName(const QByteArray &name)
 {
+#ifndef QT_NO_COMPONENT
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -98,15 +101,22 @@ static QTextCodec *createForName(const QByteArray &name)
             }
         }
     }
+#else
+    Q_UNUSED(name);
+#endif
     return 0;
 }
 
 static QTextCodec *createForMib(int mib)
 {
+#ifndef QT_NO_COMPONENT
     QString name = QLatin1String("MIB: ") + QString::number(mib);
     if (QTextCodecFactoryInterface *factory
         = qobject_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
         return factory->create(name);
+#else
+    Q_UNUSED(mib);
+#endif
     return 0;
 }
 
@@ -734,6 +744,7 @@ QList<QByteArray> QTextCodec::availableCodecs()
         codecs += all->at(i)->name();
         codecs += all->at(i)->aliases();
     }
+#ifndef QT_NO_COMPONENT
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -743,6 +754,7 @@ QList<QByteArray> QTextCodec::availableCodecs()
                 codecs += keys.at(i).toLatin1();
         }
     }
+#endif
 
     return codecs;
 }
@@ -760,6 +772,7 @@ QList<int> QTextCodec::availableMibs()
     QList<int> codecs;
     for (int i = 0; i < all->size(); ++i)
         codecs += all->at(i)->mibEnum();
+#ifndef QT_NO_COMPONENT
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -769,6 +782,7 @@ QList<int> QTextCodec::availableMibs()
                 codecs += mib;
         }
     }
+#endif
 
     return codecs;
 }

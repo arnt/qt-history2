@@ -3,15 +3,10 @@ CONFIG += ordered
 
 # this order is important
 win32:SUBDIRS += winmain
-SUBDIRS += moc corelib gui sql
-contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
-SUBDIRS += xml network
-contains(QT_CONFIG, qt3support): SUBDIRS += qt3support
-
+SUBDIRS += tools/moc tools/rcc corelib xml tools/uic gui sql network
+!embedded:contains(QT_CONFIG, opengl): SUBDIRS +=  opengl
+contains(QT_CONFIG, qt3support): SUBDIRS += qt3support tools/uic3
 SUBDIRS += plugins
-
-embedded:SUBDIRS -= opengl
-SUBDIRS += tools
 
 # This gives us a top level debug/release
 unix {
