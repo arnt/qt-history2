@@ -1994,7 +1994,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 		    widget = (QETWidget*)g;
 		else if ( qApp->focusWidget() )
 		    widget = (QETWidget*)qApp->focusWidget();
-		else
+		else if ( !widget || widget->winId() == GetFocus() ) // We faked the message to go to exactly that widget.
 		    widget = (QETWidget*)widget->topLevelWidget();
 		if ( widget->isEnabled() )
 		    result = widget->translateKeyEvent( msg, g != 0 );

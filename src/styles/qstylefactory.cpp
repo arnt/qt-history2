@@ -57,7 +57,7 @@ QCString p2qstring(const unsigned char *c); //qglobal.cpp
 #endif
 #include <stdlib.h>
 
-#if defined(QT_MAKEDLL)
+#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #include <private/qpluginmanager_p.h>
 #ifndef QT_NO_COMPONENT
 class QStyleFactoryPrivate : public QObject
@@ -157,7 +157,7 @@ QStyle *QStyleFactory::create( const QString& key )
 	return new QMacStyle;
 #endif
 
-#if defined(QT_MAKEDLL)
+#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QStyleFactoryPrivate;
@@ -182,7 +182,7 @@ QStyle *QStyleFactory::create( const QString& key )
 QStringList QStyleFactory::keys()
 {
     QStringList list;
-#if defined(QT_MAKEDLL)
+#if (!defined(Q_OS_WIN32) && !defined(Q_OS_WIN64)) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
     if ( !instance )
 	instance = new QStyleFactoryPrivate;

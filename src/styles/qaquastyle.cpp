@@ -542,10 +542,6 @@ void QAquaStyle::polish( QWidget * w )
     if( w->inherits("QToolButton") ){
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( FALSE );
-	if( btn->group() ){
-	    btn->group()->setMargin( 0 );
-	    btn->group()->setInsideSpacing( 0 );
-	}
     }
 
     if( w->inherits("QToolBar") ){
