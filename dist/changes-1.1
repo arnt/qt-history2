@@ -1,0 +1,54 @@
+Here is a list of user-visible changes in Qt from 1.0 to 1.1.
+As usual, we fixed some bugs and improved the documentation.
+
+
+****************************************************************************
+*               Changes that might affect runtime behavior                 *
+****************************************************************************
+
+
+
+****************************************************************************
+*               Changes that might generate compile errors                 *
+*                        when compiling old code                           *
+****************************************************************************
+
+Q_DECLARE, qgeneric.h
+
+
+
+****************************************************************************
+*               Type changes that might generate warnings:                 *
+****************************************************************************
+
+none
+
+
+
+****************************************************************************
+*                         Obsoleted functions                              *
+****************************************************************************
+
+none
+
+
+
+****************************************************************************
+*                    All other changes from 1.0 to 1.1                     *
+****************************************************************************
+
+Added QApplication::setColorMode() and colorMode().
+
+Removed some GNU-make features from the makefiles.
+
+Added a QPalette constructor to construct an entire palette from a single
+background color, for convenience.
+
+moc output now has a version number #define.
+
+AIX support added.
+
+Rewrote a couple of functions to work around compiler bugs, or
+purify/boundschecker overzealousness.
+
+Fixed that ugly man-page SYNOPSIS bug.
