@@ -93,7 +93,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     else
 	bpl = ((w*actualdepth+31)/32)*4;
     
-    int dataSize = bpl * h + 1024;
+    int dataSize = bpl * h + sizeof( QVFbHeader );
     shmId = shmget( key, dataSize, IPC_CREAT|0666);
     if ( shmId != -1 )
 	data = (unsigned char *)shmat( shmId, 0, 0 );
