@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#71 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#72 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -130,8 +130,8 @@ static void parsePrintcap( QListView * printers )
 	    QString printerName, printerComment, printerHost;
 	    if ( i >= 0 ) {
 		// have : want |
-		int j = printerDesc.findRev( '|', i-1 );
-		printerName = printerDesc.mid( j+1, i-j-1 );
+		int j = printerDesc.find( '|' );
+		printerName = printerDesc.left( j > 0 ? j : i );
 		if ( j > 0 ) {
 		    // try extracting a comment from the aliases...
 		    printerComment = qApp->translate( "QPrintDialog",
@@ -152,6 +152,10 @@ static void parsePrintcap( QListView * printers )
 		    printerComment = printerDesc.mid( i, j-i );
 		    printerComment = printerComment.simplifyWhiteSpace();
 		}
+ 		// look for lprng psuedo all printers entry
+ 		i = printerDesc.find( QRegExp( ": *all *=" ) );
+ 		if ( i >= 0 )
+		    printerName = "";
 		// look for signs of this being a remote printer
 		i = printerDesc.find(
 			QRegExp( QString::fromLatin1(": *rm *=") ) );
