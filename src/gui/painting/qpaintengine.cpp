@@ -212,7 +212,7 @@ void QPaintEngine::drawEllipse(const QRectF &r)
 
 void QPaintEngine::drawLines(const QList<QLineF> &lines)
 {
-    for (int i=0; i+1<lines.size(); i+=2)
+    for (int i=0; i+1<lines.size(); ++i)
         drawLine(lines.at(i));
 }
 
