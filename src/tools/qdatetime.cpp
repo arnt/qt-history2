@@ -317,8 +317,7 @@ QString QDate::dayName( int weekday ) const
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is YYYY-MM-DD
   where YYYY is the year, MM is the month of the year (between 01 and
-  12), and DD is the day of the month between 01 and 31. If the date
-  is invalid, QString::null is returned.
+  12), and DD is the day of the month between 01 and 31. 
 
   \sa dayName(), monthName()
 */
@@ -330,13 +329,9 @@ QString QDate::toString( Qt::DateFormat f ) const
     switch ( f ) {
     case Qt::ISODate:
 	{
-	    if ( isValid() ) {
-		QString month( QString::number( m ).rightJustify( 2, '0' ) );
-		QString day( QString::number( d ).rightJustify( 2, '0' ) );
-		return QString::number( y ) + "-" + month + "-" + day;
-	    } else {
-		return QString::null;
-	    }
+	    QString month( QString::number( m ).rightJustify( 2, '0' ) );
+	    QString day( QString::number( d ).rightJustify( 2, '0' ) );
+	    return QString::number( y ) + "-" + month + "-" + day;
 	}
     default:
     case Qt::TextDate:
@@ -737,7 +732,7 @@ int QTime::msec() const
 
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates, which is also
-  HH:MM:SS. If the time is invalid, QString::null is returned.
+  HH:MM:SS. 
 
 */
 
@@ -747,12 +742,9 @@ QString QTime::toString( Qt::DateFormat f ) const
     default:
     case Qt::ISODate:
     case Qt::TextDate:
-	if ( isValid() ) {
-	    QString buf;
-	    buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
-	    return buf;
-	} else
-	    return QString::null;
+	QString buf;
+	buf.sprintf( "%.2d:%.2d:%.2d", hour(), minute(), second() );
+	return buf;
     }
 }
 
@@ -1250,8 +1242,8 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
   If \a f is Qt::ISODate, the string format corresponds to the ISO
   8601 specification for representations of dates and times, which is
   YYYY-MM-DDTHH:MM:SS.
-  
-  If the datetime or \a f is invalid, toString() returns a null string.
+
+  If the format \a f is invalid, toString() returns a null string.
 
   \sa QDate::toString() QTime::toString
 
@@ -1259,7 +1251,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 
 QString QDateTime::toString( Qt::DateFormat f ) const
 {
-    if ( f == Qt::ISODate && isValid() ) {
+    if ( f == Qt::ISODate ) {
 	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
     } else if ( f == Qt::TextDate ) {
 	QString buf = d.dayName(d.dayOfWeek());
