@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#243 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#244 $
 **
 ** Implementation of QListBox widget class
 **
@@ -1448,7 +1448,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
             i = currentItem() + numItemsVisible();
             i = i > (int)count() - 1 ? (int)count() - 1 : i;
             setCurrentItem( i );
-            setTopItem( i );
+            setBottomItem( i );
         } else {
             // I'm not sure about this behavior...
             if ( currentRow() == numRows() - 1 )
@@ -1458,7 +1458,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
             i = i > (int)count() ? (int)count() : i;
             setCurrentItem( i );
         }
-        
+
         if ( d->selectionMode == Multi &&
              e->state() & ShiftButton &&
              ++old <= i ) {
@@ -1514,7 +1514,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
             i = currentItem() - numItemsVisible();
             i = i < 0 ? 0 : i;
             setCurrentItem( i );
-            setBottomItem( i );
+            setTopItem( i );
         } else {
             // I'm not sure about this behavior...
             if ( currentRow() == 0 )
@@ -1524,7 +1524,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
             i = i < 0 ? 0 : i;
             setCurrentItem( i );
         }
-        
+
         if ( d->selectionMode == Multi &&
              e->state() & ShiftButton &&
              --old >= i ) {
@@ -1588,7 +1588,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         int old = currentItem();
         setCurrentItem( 0 );
         int i = 0;
-        
+
         if ( d->selectionMode == Multi &&
              e->state() & ShiftButton &&
              --old >= i ) {
@@ -1602,7 +1602,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                 --old;
             }
             emitChangedSignal( TRUE );
-        } 
+        }
     } break;
     case Key_End:
     {
@@ -1611,7 +1611,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
         if ( numColumns() > 1 )
             ++i;
         setCurrentItem( i );
-        
+
         if ( d->selectionMode == Multi &&
              e->state() & ShiftButton &&
              ++old <= i ) {
@@ -1625,7 +1625,7 @@ void QListBox::keyPressEvent( QKeyEvent *e )
                 ++old;
             }
             emitChangedSignal( TRUE );
-        } 
+        }
     } break;
     default:
         e->ignore();
