@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qembed/qembed.cpp#7 $
+** $Id: //depot/qt/main/util/qembed/qembed.cpp#8 $
 **
 ** Utility program for embedding binary data into a C/C++ source code.
 **
 ** Author  : Haavard Nord
 ** Created : 951017
 **
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1995-1998 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** This utility reads a binary file and generates a C array with the binary
@@ -44,7 +44,7 @@ int main( int argc, char **argv )
     QTextStream cout( &output );
 
 
-    QListT<Embed> list;
+    QList<Embed> list;
     list.setAutoDelete( TRUE );
 
   // Embed data for all input files
