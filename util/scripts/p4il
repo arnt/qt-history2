@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 
+$force = 0;
 $abort = 0;
 $P4 = "p4";
 $P4I = "p4i";
@@ -15,13 +16,15 @@ chomp $userName;
 # Check if "--help" is an argument, or use
 # argument as username
 # ------------------------------------------------
-if ( $#ARGV == 0 ) {
-  if ( $ARGV[0] eq "--help" ) {
-    printf "$0 [p4client username]\n";
+for $arg ( @ARGV ) {
+  if ( $arg eq "--help" ) {
+    printf "$0 [--force] [p4client username]\n";
     printf "     default username is login name ($userName)\n";
     exit( 0 );
+  } elsif ( $arg eq "--force" ) {
+    $force = 1;
   } else {
-    $userName = $ARGV[0];
+    $userName = $arg;
   }
 }
 
@@ -54,16 +57,19 @@ if ( $#myChanges == -1 ) {
 open ( P4, "$P4 describe -s $myChanges[0] |") || die "$0: Couldn't get description of change #$myChanges[0]";
 @description = <P4>;
 close( P4 );
-grep {
-  if ( /[iI]ntegrat(e|ed|ion)/ ) {
-    $abort = 1;
-  }
-} @description;
 
-if ( $abort ) {
-  print @description;
-  printf "$0: Change $myChanges[0] seems to be an integration, aborting...\n";
-  exit 1;
+if ( !$force ) {
+  grep {
+    if ( /[iI]ntegrat(e|ed|ion)/ ) {
+      $abort = 1;
+    }
+  } @description;
+
+  if ( $abort ) {
+    print @description;
+    printf "$0: Change $myChanges[0] seems to be an integration, aborting... (--force to force)\n";
+    exit 1;
+  }
 }
 
 

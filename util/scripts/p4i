@@ -75,7 +75,7 @@ print "Checking files are closed: $files\n";
 open( P4, "$P4 opened $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
     chomp( $line );
-    ($file, $message) = split( / - /, $line );
+    ($file, $message) = split( m/ - /, $line );
     if ( $message ne "file(s) not opened on this client." ) {
 	print STDERR "File $file is open; \"$message\"\n";
 	$abort = 1;
@@ -87,14 +87,15 @@ if ( $abort ) {
     die "$0: Exiting; not all files were closed.\n";
 }
 
-# Check all files are up-to-date
+# Check all files are up-to-date newly added
 
 print "Checking files are up-to-date: $files\n";
 open( P4, "$P4 sync -n $files 2>&1 |") || die "$0: Couldn't exec $P4: $!\n";
 while ( $line = <P4> ) {
     chomp( $line );
-    ($file, $message) = split( / - /, $line );
-    if ( $message ne "file(s) up-to-date." ) {
+    ($file, $message) = split( m/ - /, $line );
+    if ( $message ne "file(s) up-to-date."
+      && $message ne "no such file(s)." ) {
 	print STDERR "File $file is not up-to-date; \"$message\"\n";
 	$abort = 1;
     }
@@ -110,8 +111,9 @@ for ( $count = 0; $count < @branchFiles; $count++ ) {
     open( P4, "$P4 integrate -n $branchFiles[$count]\@$change $mainFiles[$count] |") || die "$0: Couldn't exec $P4: $!\n";
     while ( $line = <P4> ) {
 	chomp( $line );
-	($file, $message) = split( / - /, $line );
-	if ( $message ne "integrate from $branchFiles[$count]#".$branchRevisions[$count] ) {
+	($file, $message) = split( m/ - /, $line );
+	if ( $message ne "integrate from $branchFiles[$count]#".$branchRevisions[$count]
+	  && $message ne "branch/sync from $branchFiles[$count]#".$branchRevisions[$count] ) {
 	    print STDERR "Gaps in integration of $file: \"$message\"\n";
 	    $message =~ s/.*\#([0-9]+),\#([0-9]+)/$1 $2/g;
 	    ($start, $end) = split( " ", $message );
@@ -136,7 +138,8 @@ for ( $count = 0; $count < @branchFiles; $count++ ) {
 	chomp( $line );
 	# Discard revisions here.
 	$line =~ s/\#[0-9]+//g;
-	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]" ) {
+	if ( $line ne "$mainFiles[$count] - integrate from $branchFiles[$count]"
+	  && $line ne "$mainFiles[$count] - branch/sync from $branchFiles[$count]" ) {
 	    print STDERR "$P4 returned unexpected line \"$line\"\n";
 	    $abort = 1;
 	}
@@ -157,7 +160,7 @@ while ( @filesToResolve ) {
     while ( $line = <P4> ) {
 	chomp( $line );
 	if ( $line =~ /^\/\// ) {
-	    ($file, $message) = split( / - /, $line);
+	    ($file, $message) = split( m/ - /, $line);
 	    if ( $message eq "resolve skipped." ) {
 		push ( @skippedFiles, $file );
 		print "File $file skipped: $message\n";
