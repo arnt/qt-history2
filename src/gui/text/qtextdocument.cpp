@@ -210,30 +210,42 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
     \ingroup text
     \mainclass
 
-    A text document can be thought of as a list of strings and their
-    associated formats. A format can contain "references" to objects,
-    such as a QTextList, a QTextFrame, or a QTextTable, and these are
-    available using object().
+    QTextDocument is a container for structured rich text documents, providing
+    support for styled text and various types of document elements, such as
+    lists, tables, frames, and images.
+    They can be created for use in a QTextEdit, or used independently.
 
-    A QTextDocument can be edited programmatically using a
-    \l{QTextCursor}.
+    Each document element is described by an associated format object. Each
+    format object is treated as a unique object by QTextDocuments, and can be
+    passed to objectForFormat() to obtain the document element that it is
+    applied to.
+
+    A QTextDocument can be edited programmatically using a QTextCursor, and
+    its contents can be examined by traversing the document structure. The
+    entire document structure is stored as a hierarchy of document elements
+    beneath the root frame, found with the rootFrame() function. Alternatively,
+    if you just want to iterate over the textual contents of the document you
+    can use begin(), end(), and findBlock() to retrieve text blocks that you
+    can examine and iterate over.
 
     The layout of a document is determined by the documentLayout();
     you can create your own QAbstractTextDocumentLayout subclass and
     set it using setDocumentLayout() if you want to use your own
-    layout logic. The document's title is available using
-    documentTitle().
+    layout logic. The document's title can be obtained by calling the
+    documentTitle() function.
 
-    You can retrieve the contents of the document using plainText() or
-    html(). If you want the text with format information, or wish to
-    edit the text, use a QTextCursor The text can be searched using
-    the find() functions. If you want to iterate over the contents of
-    the document you can use begin(), end(), or findBlock() to
-    retrieve a QTextBlock that you can query and iterate from.
+    The toPlainText() and toHtml() convenience functions allow you to retrieve the
+    contents of the document as plain text and HTML. 
+    The document's text can be searched using the find() functions.
 
-    Undo/redo can be controlled using setUndoRedoEnabled(). undo() and
-    redo() slots are provided, along with contentsChanged(),
-    undoAvailable() and redoAvailable() signals.
+    Undo/redo of operations performed on the document can be controlled using
+    the setUndoRedoEnabled() function. The undo/redo system can be controlled
+    by an editor widget through the undo() and redo() slots; the document also
+    provides contentsChanged(), undoAvailable(), and redoAvailable() signals
+    that inform connected editor widgets about the state of the undo/redo
+    system.
+
+    \sa QTextCursor QTextEdit \link rich-text.html Rich Text Processing\endlink
 */
 
 /*!
@@ -309,9 +321,9 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 
 /*!
     \property QTextDocument::undoRedoEnabled
-    \brief Whether undo/redo are enabled for this document.
+    \brief whether undo/redo are enabled for this document
 
-    This defaults to true. If disabled the undo stack is cleared and
+    This defaults to true. If disabled, the undo stack is cleared and
     no items will be added to it.
 */
 void QTextDocument::setUndoRedoEnabled(bool enable)
@@ -335,17 +347,17 @@ bool QTextDocument::isUndoRedoEnabled() const
 
 
 /*!
-    \fn QTextDocument::undoAvailable(bool b);
+    \fn QTextDocument::undoAvailable(bool available);
 
     This signal is emitted whenever undo operations become available
-    (\a b is true) or unavailable (\a b is false).
+    (\a available is true) or unavailable (\a available is false).
 */
 
 /*!
-    \fn QTextDocument::redoAvailable(bool b);
+    \fn QTextDocument::redoAvailable(bool available);
 
     This signal is emitted whenever redo operations become available
-    (\a b is true) or unavailable (\a b is false).
+    (\a available is true) or unavailable (\a available is false).
 */
 
 /*!
@@ -450,9 +462,9 @@ void QTextDocument::setPlainText(const QString &text)
     Replaces the entire contents of the document with the given
     HTML-formatted text in the \a html string.
 
-    The HTML formatting is respected as much as possible, i.e.
-    "<b>bold</b> text" will have the text "bold text" with the first
-    word having a character format with a bold font weight.
+    The HTML formatting is respected as much as possible; for example,
+    "<b>bold</b> text" will produce text where the first word has a font
+    weight that gives it a bold appearance: "\bold{bold} text".
 
     \sa setPlainText()
 */
