@@ -792,6 +792,7 @@ void QDataBrowser::del()
 	    conf = confirmEdit( QSql::Delete );
 	switch ( conf ) {
 	case QSql::Yes:
+	    emit primeDelete( buf );
 	    deleteCurrent();
 	    break;
 	case QSql::No:
