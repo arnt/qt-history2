@@ -118,6 +118,10 @@ SOURCES =	#$ ExpandList("SOURCES");
 OBJECTS =	#$ ExpandList("OBJECTS"); (Project("TARGET") eq "qt") && ($text = $text . ' $(QT_PNG_OBJ) $(QT_ZLIB_OBJ)');
 SRCMOC	=	#$ ExpandList("SRCMOC");
 OBJMOC	=	#$ ExpandList("OBJMOC");
+#$ (Project("TARGET") eq "qt") || DisableOutput();
+PNG_OBJECTS  = #$ ExpandList("PNG_OBJECTS");
+ZLIB_OBJECTS = #$ ExpandList("ZLIB_OBJECTS");
+#$ (Project("TARGET") eq "qt") || EnableOutput();
 
 ####### Implicit rules
 
