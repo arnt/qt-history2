@@ -432,8 +432,8 @@ bool EditorCompletion::continueComplete()
     if ( res.isEmpty() )
 	return FALSE;
     completionListBox->clear();
-    for ( QValueList<CompletionEntry>::ConstIterator it = res.begin(); it != res.end(); ++it )
-	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
+    for ( QValueList<CompletionEntry>::ConstIterator it2 = res.begin(); it2 != res.end(); ++it2 )
+	(void)new CompletionItem( completionListBox, (*it2).text, (*it2).type, (*it2).prefix );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setSelected( completionListBox->currentItem(), TRUE );
     return TRUE;
