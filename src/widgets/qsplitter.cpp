@@ -653,7 +653,8 @@ void QSplitter::doResize()
 	    a[i].empty = FALSE;
 	} else if ( s->mode == KeepSize ) {
 	    a[i].stretch = 0;
-	    a[i].sizeHint = a[i].minimumSize = s->sizer;
+	    a[i].minimumSize = pick( minSize(s->wid) );
+	    a[i].sizeHint = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	    a[i].empty = FALSE;
 	} else if ( s->mode == FollowSizeHint ) {
