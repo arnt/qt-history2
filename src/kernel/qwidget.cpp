@@ -4293,6 +4293,17 @@ bool QWidget::event( QEvent *e )
 	    }
 	    break;
 
+	case QEvent::LocaleChange:
+	    if ( children() ) {
+		QObjectListIt it( *children() );
+		QObject *o;
+		while( ( o = it.current() ) != 0 ) {
+		    ++it;
+		    QApplication::sendEvent( o, e );
+		}
+	    }
+	    break;
+
 	default:
 	    return FALSE;
     }
