@@ -75,9 +75,11 @@ QDesignerActions::QDesignerActions(QDesignerMainWindow *mainWindow)
 
     m_saveFormAction = new QAction(tr("&Save Form"), this);
     m_saveFormAction->setShortcut(tr("CTRL+S"));
+    connect(m_saveFormAction, SIGNAL(triggered()), this, SLOT(saveForm()));
     m_fileActions->addAction(m_saveFormAction);
 
     m_saveFormAsAction = new QAction(tr("Save Form &As..."), this);
+    connect(m_saveFormAsAction, SIGNAL(triggered()), this, SLOT(saveFormAs()));
     m_fileActions->addAction(m_saveFormAsAction);
 
     m_fileActions->addSeparator();
@@ -378,7 +380,7 @@ bool QDesignerActions::readInForm(const QString &fileName)
 
     // Otherwise load it.
     QFile f(fileName);
-    if (!f.open(QIODevice::ReadOnly)) {
+    if (!f.open(QFile::ReadOnly)) {
         QMessageBox::warning(core()->topLevel(), tr("Read Error"), tr("Couldn't open file: %1\nReason: %2")
                 .arg(f.fileName()).arg(f.errorString()));
         return false;
@@ -396,9 +398,121 @@ bool QDesignerActions::readInForm(const QString &fileName)
     return true;
 }
 
+bool QDesignerActions::writeOutForm(AbstractFormWindow *fw, const QString &saveFile)
+{
+    Q_ASSERT(fw && !saveFile.isEmpty());
+    QFile f(saveFile);
+    while (!f.open(QFile::WriteOnly)) {
+        QMessageBox box(tr("Save Form?"),
+                        tr("Could not open file: %1"
+                                "\nReason: %2"
+                                "\nWould you like to retry or change your file?")
+                                .arg(f.fileName()).arg(f.errorString()),
+                        QMessageBox::Warning,
+                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
+                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Retry"));
+        box.setButtonText(QMessageBox::No, tr("Select New File"));
+        switch(box.exec()) {
+            case QMessageBox::Yes:
+                break;
+                case QMessageBox::No: {
+                    QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                            QDir::current().absolutePath(), QString("*.ui"));
+                    if (fileName.isEmpty())
+                        return false;
+                    f.setFileName(fileName);
+                    fw->setFileName(fileName);
+                    break; }
+            case QMessageBox::Cancel:
+                return false;
+        }
+    }
+    QByteArray utf8Array = fw->contents().toUtf8();
+    while (f.write(utf8Array, utf8Array.size()) != utf8Array.size()) {
+        QMessageBox box(tr("Save Form?"),
+                        tr("Could not write file: %1\nReason:%2\nWould you like to retry?")
+                                .arg(f.fileName()).arg(f.errorString()),
+                        QMessageBox::Warning,
+                        QMessageBox::Yes | QMessageBox::Default, QMessageBox::No, 0,
+                        fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Retry"));
+        box.setButtonText(QMessageBox::No, tr("Don't Retry"));
+        switch(box.exec()) {
+            case QMessageBox::Yes:
+                f.resize(0);
+                break;
+            case QMessageBox::No:
+                return false;
+        }
+    }
+    fw->setDirty(false);
+    return true;
+}
 
+bool QDesignerActions::saveFormAs(AbstractFormWindow *fw)
+{
+    QString fileName = fw->fileName().isEmpty() ? QDir::current().absolutePath()
+            + QLatin1String("/untitled.ui") : fw->fileName();
+    QString saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+            fileName,
+            tr("Designer UI files (*.ui)"));
+    if (saveFile.isEmpty())
+        return false;
+    bool breakLoop = false;
+    QFileInfo fi(saveFile);
+    while (fi.exists() && !breakLoop) {
+        QFileInfo fi2(fi.absoluteFilePath());
+        QMessageBox box(tr("File already exists"),
+                        tr("<b>%1 already exits.<br>Do you want to replace it?</b><br>"
+                                "A file with the same name already exists in %2."
+                                " Replacing it will overwrite its current contents.")
+                                .arg(fi.baseName()).arg(fi2.baseName()),
+                        QMessageBox::Information,
+                        QMessageBox::Yes, QMessageBox::No| QMessageBox::Default,
+                        QMessageBox::Cancel | QMessageBox::Escape, fw, Qt::WMacSheet);
+        box.setButtonText(QMessageBox::Yes, tr("Overwrite file"));
+        box.setButtonText(QMessageBox::No, tr("Choose another name"));
+        switch (box.exec()) {
+            default: break;
+            case QMessageBox::Cancel:
+                return false;
+            case QMessageBox::Yes:
+                breakLoop = true;
+                break;
+            case QMessageBox::No:
+                saveFile = QFileDialog::getSaveFileName(fw, tr("Save form as"),
+                        fileName,
+                        tr("Designer UI files (*.ui)"));
+                fi.setFile(saveFile);
+                break;
+        }
+    }
+    fw->setFileName(saveFile);
+    return writeOutForm(fw, saveFile);
+}
 
+void QDesignerActions::saveForm()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+        saveForm(fw);
+}
 
+bool QDesignerActions::saveForm(AbstractFormWindow *fw)
+{
+    bool ret;
+    if (fw->fileName().isEmpty())
+        ret = saveFormAs(fw);
+    else
+        ret =  writeOutForm(fw, fw->fileName());
+    return ret;
+}
+
+void QDesignerActions::saveFormAs()
+{
+    if (AbstractFormWindow *fw = core()->formWindowManager()->activeFormWindow())
+        saveFormAs(fw);
+}
 
 
 

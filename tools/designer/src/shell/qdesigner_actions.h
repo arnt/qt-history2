@@ -22,6 +22,7 @@ class QDesignerWorkbench;
 class QAction;
 class QActionGroup;
 class AbstractFormEditor;
+class AbstractFormWindow;
 
 class QDesignerActions: public QObject
 {
@@ -94,9 +95,14 @@ private slots:
     void setWorkbenchVisible(bool visible);
     void createForm();
     void openForm();
+    void saveForm();
+    void saveFormAs();
 
 private:
     bool readInForm(const QString &fileName);
+    bool writeOutForm(AbstractFormWindow *formWindow, const QString &fileName);
+    bool saveForm(AbstractFormWindow *fw);
+    bool saveFormAs(AbstractFormWindow *fw);
 
 private:
     QDesignerMainWindow *m_mainWindow;
