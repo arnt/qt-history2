@@ -45,14 +45,16 @@
 #include "qstringlist.h"
 #endif // QT_H
 
+//#define QT_DEBUG_COMPONENT
+
 #ifndef QT_NO_COMPONENT
 
 template<class Type>
 class Q_EXPORT QInterfaceManager
 {
 public:
-    QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Default )
-	: interfaceId( id ), defPol( pol )
+    QInterfaceManager( const QGuid& id, const QString& path = QString::null, const QString& filter = "*.dll; *.so", QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+	: interfaceId( id ), defPol( pol ), casesens( cs )
     {
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -89,18 +91,26 @@ public:
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
 		useful = TRUE;
-#ifdef QT_CHECK_RANGE
-		if ( !plugDict[*f] )
-		    plugDict.replace( *f, plugin );
+		QString feat;
+		if ( casesens )
+		    feat = *f;
 		else
-		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*f).latin1() );
+		    feat = (*f).lower();
+#ifdef QT_CHECK_RANGE
+#ifdef QT_DEBUG_COMPONENT
+		qDebug("Adding feature %s", feat.latin1() );
+#endif
+		if ( !plugDict[feat] )
+		    plugDict.replace( feat, plugin );
+		else
+		    qWarning("%s: Feature %s already defined!", plugin->library().latin1(), feat.latin1() );
 #else
-		plugDict.replace( *f, plugin );
+		plugDict.replace( feat, plugin );
 #endif
 	    }
 	    iFace->release();
 	}
-	if ( defPol != QLibrary::OptimizeSpeed )
+	if ( defPol != QLibrary::Immediately )
 	    plugin->unload();
 
 	if ( useful ) {
@@ -125,7 +135,10 @@ public:
 	if ( iFace ) {
 	    QStringList fl = iFace->featureList();
 	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-		plugDict.remove( *f );
+		if( casesens )
+		    plugDict.remove( *f );
+		else
+		    plugDict.remove( (*f).lower() );
 	    }
 	    iFace->release();
 	}
@@ -149,21 +162,18 @@ public:
 	return defPol;
     }
 
-    Type *queryInterface(const QString& feature) const
-    {
-	if ( feature.isEmpty() )
-	    return 0;
-	QLibrary* plugin = plugDict[feature];
-	if ( !plugin )
-	    return 0;
-	return (Type*)plugin->queryInterface( interfaceId );
-    }
-
     QLibrary* library( const QString& feature ) const
     {
 	if ( feature.isEmpty() )
 	    return 0;
-	return plugDict[feature];
+	return casesens ? plugDict[feature] : plugDict[feature.lower()];
+    }
+
+    Type *queryInterface(const QString& feature) const
+    {
+	QLibrary* plugin = library( feature );
+
+	return plugin ? (Type*)plugin->queryInterface( interfaceId ) : 0;
     }
 
     QStringList featureList() const
@@ -205,6 +215,7 @@ private:
     QDict<QLibrary> libDict;	    // Dict to match library file with library
 
     QLibrary::Policy defPol;
+    uint casesens : 1;
 };
 
 #endif //QT_NO_COMPONENT

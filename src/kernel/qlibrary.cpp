@@ -204,7 +204,6 @@ static void* qt_resolve_symbol( void* handle, const char* f )
 
 #endif
 
-
 /*!
   \class QCleanupHandler qcleanuphandler.h
 
@@ -253,22 +252,22 @@ static void* qt_resolve_symbol( void* handle, const char* f )
   policy.
   Defined values are:
   <ul>
-  <li> \c Default - The library get's loaded as soon as needed
-  <li> \c OptimizeSpeed - The library is loaded immediately
+  <li> \c Delayed - The library get's loaded as soon as needed
+  <li> \c Immediately - The library is loaded immediately
   <li> \c Manual - The library has to be loaded and unloaded manually
   </ul>
 */
 
 /*!
   Creates a QLibrary object for the shared library \a filename.
-  The library get's loaded immediately if \a pol is OptimizeSpeed.
+  The library get's loaded if \a pol is Immediately.
 
   \sa setPolicy(), load()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
     : pHnd( 0 ), libfile( filename ), libPol( pol ), info( 0 )
 {
-    if ( pol == OptimizeSpeed )
+    if ( pol == Immediately )
 	load();
 }
 
@@ -343,6 +342,9 @@ bool QLibrary::isLoaded() const
   Releases the component and unloads the library when successful.
   Returns TRUE if the library could be unloaded, otherwise FALSE.
 
+  This function gets called automatically in the destructor if 
+  the policy is not Manual.
+
   \warning
   If \a force is set to TRUE, the library gets unloaded
   at any cost, which is in most cases a segmentation fault,
@@ -358,15 +360,12 @@ bool QLibrary::unload( bool force )
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
 		qDebug( "%s is still in use!", libfile.latin1() );
 #endif
-		if ( force ) {
+		if ( force )
 		    delete info;
-		    info = 0;
-		} else {
+		else
 		    return FALSE;
-		}
-	    } else {
-		info = 0;
 	    }
+	    info = 0;
 	}
 	if ( !qt_free_library( pHnd ) )
 #if defined(QT_DEBUG_COMPONENT)
@@ -386,7 +385,7 @@ bool QLibrary::unload( bool force )
 
 /*!
   Sets the current policy to \a pol.
-  If \a pol is set to OptimizeSpeed, the library gets load immediately.
+  The library is loaded if \a pol is set to Immediately.
 
   \sa LibraryPolicy
 */
@@ -394,7 +393,7 @@ void QLibrary::setPolicy( Policy pol )
 {
     libPol = pol;
 
-    if ( libPol == OptimizeSpeed )
+    if ( libPol == Immediately && !info )
 	load();
 }
 

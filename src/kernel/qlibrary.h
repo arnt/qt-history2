@@ -53,12 +53,12 @@ class Q_EXPORT QLibrary
 public:
     enum Policy
     {
-	Default,
-	OptimizeSpeed,
+	Delayed,
+	Immediately,
 	Manual
     };
 
-    QLibrary( const QString& filename, Policy = Default );
+    QLibrary( const QString& filename, Policy = Delayed );
     ~QLibrary();
 
     QUnknownInterface* load();
