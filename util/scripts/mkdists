@@ -1,7 +1,12 @@
 #!/bin/bash
 
 #customizing
-P4=/usr/local/bin/p4	#p4 location
+P4=                     #p4 location
+if which p4 >/dev/null 2>&1; then
+    P4=`which p4`
+else
+    P4=/usr/local/bin/p4
+fi
 P4PORT=p4.troll.no:866	#point p4 to the correct server
 
 #internal variables
@@ -9,13 +14,6 @@ YEAR=`date +%Y`
 CREATED_MANIFEST=no
 MYNAME=`whoami`
 [ -z $MYNAME ] && MYNAME="shellssuck"
-
-TMP_DIR=/tmp
-# This is ugly, but it is faster to do a workaround than to aks a
-# sysadmin to increase the size of /tmp
-[ "$MYNAME" = "espenr" ] && TMP_DIR=~/tmp
-TMP_FILE=${TMP_DIR}/qt-tmpf-$$
-echo "Temporary directory: $TMP_DIR"
 
 #version info
 REL_VERSION=0.0.0
@@ -93,6 +91,7 @@ showhelp()
     echo "Paths:"
     echo "  -manifest <file>     : Specify path and filename of manifest file (will create)"
     echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
+    echo "  -p4 <executable>     : Where p4 lives (default $P4)"
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
     echo "  -qmake <executable>  : Where qmake lives (default $QMAKE_PATH)"
     echo "  -qpkg <executable>   : Where qpkg lives (default $QPKG_PATH)"
@@ -139,6 +138,11 @@ while [ -n "$1" ]; do
    -manifest)
 	shift
 	VAR=manifest
+	VAL=$1
+	;;
+   -p4)
+	shift
+	VAR=p4
 	VAL=$1
 	;;
    -version)
@@ -227,6 +231,7 @@ while [ -n "$1" ]; do
    qmake_path) QMAKE_PATH=$VAL ;;
    qdoc_path) QDOC_PATH=$VAL;;
    outdir) OUT_TREE=$VAL;;
+   p4) P4=$VAL;;
    manifest) MANIFEST_FILE=$VAL;;
    local)
        [ -d "$VAL" ] || die "Unknown directory: $VAL"
@@ -309,6 +314,17 @@ if [ "$BRANCH" = "auto" ]; then
     fi
 fi
 
+TMP_DIR=
+if [ -d "$HOME/tmp" ]; then
+   TMP_DIR="$HOME/tmp"
+elif [ -d "/tmp" ]; then
+   TMP_DIR="/tmp"
+else
+   die "Cannot find a suitable temporary directory!"
+fi
+echo "Temporary directory: $TMP_DIR"
+TMP_FILE=${TMP_DIR}/qt-tmpf-$$
+
 #make sure everything is in order before bothering..
 [ ! -x "$QMAKE_PATH" ] && die "qmake not found, failed (${QMAKE_PATH})"
 if [ "x$DO_DOC" = "xyes" ]; then
@@ -333,17 +349,17 @@ if [ "x$DO_PKG" = "xyes" ]; then
     fi
     [ ! -x "$QPKG_PATH" ] && die "qpkg not found, failed (${QPKG_PATH})"
 fi
+[ -z "$LOCAL_TREE" ] && [ ! -x "$P4" ] && die "Coult not find P4!"
 rm -f "$TMP_FILE" && { [ -e "$TMP_FILE" ] && die "Could not remove tmp file, failed (${TMP_FILE})" ; }
 [ ! -d "$OUT_TREE" ] && { mkdir -p $OUT_TREE >>$LOG 2>&1 || die "Could not create outdir, failed (${OUT_TREE})" ; }
-
 
 DISTDIR="${TMP_DIR}/qt-$BRANCH-$MYNAME-$$"
 
 #Checkout P4
-if [ -z $LOCAL_TREE ]; then
+if [ -z "$LOCAL_TREE" ]; then
     export P4PORT
     checkoutlabel=""
-    if ! $P4 fstat //depot/qt/$BRANCH/util/qdoc/qdoc.conf 2>&1 | grep " depotFile " >>$LOG 2>&1 ; then
+    if ! $P4 fstat //depot/qt/$BRANCH/util/qdoc/qdoc.conf 2>/dev/null | grep " depotFile " >>$LOG 2>&1 ; then
 	die "//depot/qt/$BRANCH/... is not in the depot, stopped"
     fi
     if [ ! -z $LABEL ]; then
