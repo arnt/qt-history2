@@ -33,7 +33,7 @@ class QWidgetResizeHandler;
 
 class QDockWindowPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QDockWindow);
+    Q_DECLARE_PUBLIC(QDockWindow)
 
 public:
     inline QDockWindowPrivate(QMainWindow *parent)

@@ -33,7 +33,7 @@ class QToolBarButtonPrivate;
 class QToolBarButton : public QAbstractButton
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QToolBarButton);
+    Q_DECLARE_PRIVATE(QToolBarButton)
 
 public:
     QToolBarButton(QWidget *parent);

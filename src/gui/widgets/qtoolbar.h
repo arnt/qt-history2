@@ -24,7 +24,7 @@ class QMainWindow;
 
 class Q_GUI_EXPORT QToolBar : public QFrame
 {
-    Q_DECLARE_PRIVATE(QToolBar);
+    Q_DECLARE_PRIVATE(QToolBar)
     Q_OBJECT
 
     Q_PROPERTY(bool movable READ isMovable WRITE setMovable)

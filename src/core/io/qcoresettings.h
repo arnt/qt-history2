@@ -19,7 +19,7 @@ class QCoreSettingsPrivate;
 class Q_CORE_EXPORT QCoreSettings : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QCoreSettings);
+    Q_DECLARE_PRIVATE(QCoreSettings)
 
 public:
     enum Status { NoError = 0, AccessError, FormatError };

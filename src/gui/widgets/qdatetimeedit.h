@@ -108,7 +108,7 @@ signals:
     void dateChanged(const QDate &date);
 
 private:
-    Q_DECLARE_PRIVATE(QDateTimeEdit);
+    Q_DECLARE_PRIVATE(QDateTimeEdit)
 };
 
 #endif

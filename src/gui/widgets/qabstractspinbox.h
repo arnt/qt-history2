@@ -23,7 +23,7 @@ class QAbstractSpinBoxPrivate;
 class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractSpinBox);
+    Q_DECLARE_PRIVATE(QAbstractSpinBox)
     Q_FLAGS(StepEnabledFlag)
     Q_ENUMS(ButtonSymbols)
     Q_PROPERTY(bool wrapping READ wrapping WRITE setWrapping)

@@ -36,7 +36,7 @@
 
 class QSqlQueryModelPrivate: public QAbstractItemModelPrivate
 {
-    Q_DECLARE_PUBLIC(QSqlQueryModel);
+    Q_DECLARE_PUBLIC(QSqlQueryModel)
 public:
     QSqlQueryModelPrivate(): atEnd(false) {}
 

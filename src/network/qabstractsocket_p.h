@@ -42,7 +42,7 @@ private:
 
 class QAbstractSocketPrivate : public QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QAbstractSocket);
+    Q_DECLARE_PUBLIC(QAbstractSocket)
 public:
     QAbstractSocketPrivate();
     virtual ~QAbstractSocketPrivate();

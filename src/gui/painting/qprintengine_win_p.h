@@ -22,7 +22,7 @@ class QPrinterPrivate;
 
 class QWin32PrintEnginePrivate : public QWin32PaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QWin32PrintEngine);
+    Q_DECLARE_PUBLIC(QWin32PrintEngine)
 public:
     QWin32PrintEnginePrivate() :
 	hPrinter(0),

@@ -19,7 +19,7 @@ class QSpinBoxPrivate;
 class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QSpinBox);
+    Q_DECLARE_PRIVATE(QSpinBox)
 
     Q_PROPERTY(int value READ value WRITE setValue)
     Q_PROPERTY(int maximum READ maximum WRITE setMaximum)
@@ -84,7 +84,7 @@ class QDoubleSpinBoxPrivate;
 class Q_GUI_EXPORT QDoubleSpinBox : public QAbstractSpinBox
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QDoubleSpinBox);
+    Q_DECLARE_PRIVATE(QDoubleSpinBox)
 
     Q_PROPERTY(double value READ value WRITE setValue)
     Q_PROPERTY(double maximum READ maximum WRITE setMaximum)

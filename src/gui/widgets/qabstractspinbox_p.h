@@ -53,7 +53,7 @@ enum Button {
 
 class QAbstractSpinBoxPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QAbstractSpinBox);
+    Q_DECLARE_PUBLIC(QAbstractSpinBox)
 public:
     QAbstractSpinBoxPrivate();
 

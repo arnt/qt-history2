@@ -64,7 +64,7 @@ class QToolBarHandle;
 
 class QToolBarPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QToolBar);
+    Q_DECLARE_PUBLIC(QToolBar)
 
 public:
     inline QToolBarPrivate()

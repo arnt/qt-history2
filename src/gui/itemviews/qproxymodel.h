@@ -21,7 +21,7 @@ class QProxyModelPrivate;
 class Q_GUI_EXPORT QProxyModel : public QAbstractItemModel
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QProxyModel);
+    Q_DECLARE_PRIVATE(QProxyModel)
 
 public:
     QProxyModel(QObject *parent = 0);

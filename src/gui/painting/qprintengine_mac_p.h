@@ -23,7 +23,7 @@ class QPrinterPrivate;
 
 class QMacPrintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QMacPrintEngine);
+    Q_DECLARE_PUBLIC(QMacPrintEngine)
 public:
     QPrinter::PrinterMode mode;
     QPrinter::PrinterState state;

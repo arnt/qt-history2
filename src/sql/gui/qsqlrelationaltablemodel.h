@@ -39,7 +39,7 @@ class QSqlRelationalTableModelPrivate;
 
 class Q_SQL_EXPORT QSqlRelationalTableModel: public QSqlTableModel
 {
-//    Q_DECLARE_PRIVATE(DBCachedTableModel);
+//    Q_DECLARE_PRIVATE(DBCachedTableModel)
 
 public:
     QSqlRelationalTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());

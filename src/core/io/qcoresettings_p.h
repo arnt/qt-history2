@@ -106,7 +106,7 @@ private:
 
 class Q_CORE_EXPORT QCoreSettingsPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QCoreSettings);
+    Q_DECLARE_PUBLIC(QCoreSettings)
 
 public:
     typedef QString (*VariantToStringFunc)(const QCoreVariant &v);
