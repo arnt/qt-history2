@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#104 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#105 $
 **
 ** Definition of QPixmap class
 **
@@ -42,8 +42,6 @@ class QMultiCellPixmap;
 
 class Q_EXPORT QPixmap : public QPaintDevice, public Qt
 {
-friend class QPaintDevice;
-friend class QPainter;
 public:
     enum ColorMode { Auto, Color, Mono };
     enum Optimization { DefaultOptim, NoOptim, MemoryOptim=NoOptim,
@@ -182,6 +180,9 @@ private:
     friend Q_EXPORT void bitBlt( QPaintDevice *, int, int,
 				 const QImage* src,
 				 int, int, int, int, int conversion_flags );
+    friend class QBitmap;
+    friend class QPaintDevice;
+    friend class QPainter;
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#42 $
 **
 ** Implementation of QBitmap class
 **
@@ -197,16 +197,14 @@ QBitmap &QBitmap::operator=( const QBitmap &bitmap )
 QBitmap &QBitmap::operator=( const QPixmap &pixmap )
 {
     if ( pixmap.isNull() ) {			// a null pixmap
-	QBitmap bm;
-	bm.data->optim = data->optim;
+	QBitmap bm( 0, 0, FALSE, pixmap.optimization() );
 	QBitmap::operator=(bm);
     } else if ( pixmap.depth() == 1 ) {		// 1-bit pixmap
 	if ( pixmap.isQBitmap() ) {		// another QBitmap
 	    QPixmap::operator=(pixmap);		// shallow assignment
 	} else {				// not a QBitmap, but 1-bit
-	    QBitmap bm( pixmap.size() );
+	    QBitmap bm( pixmap.size(), FALSE, pixmap.optimization() );
 	    bitBlt( &bm, 0,0, &pixmap, 0,0,pixmap.width(),pixmap.height() );
-	    bm.data->optim = data->optim;
 	    QBitmap::operator=(bm);
 	}
     } else {					// n-bit depth pixmap
@@ -246,6 +244,10 @@ QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
 {
     QPixmap pm = QPixmap::xForm( matrix );
     QBitmap bm;
+    // Here we fake the pixmap to think it's a QBitmap. With this trick,
+    // the QBitmap::operator=(const QPixmap&) will just refer the
+    // pm.data and we do not need to perform a bitBlt.
+    pm.data->bitmap = TRUE;
     bm = pm;
     return bm;
 }
