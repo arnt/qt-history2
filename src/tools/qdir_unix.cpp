@@ -200,7 +200,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #endif
     QFileInfo fi;
     DIR	     *dir;
-    struct dirent   *file;
+    dirent   *file;
 
     dir = opendir( QFile::encodeName(dPath) );
     if ( !dir ) {
