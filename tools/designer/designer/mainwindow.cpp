@@ -1875,6 +1875,12 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
     buffer.close();
     buffer.open( IO_ReadOnly );
 
+    if ( logWindowPluginManager ) {
+	LogWindowInterface *iface = (LogWindowInterface*)logWindowPluginManager->queryInterface( "LogWindow" );
+	if ( iface )
+	    iface->logWindow( 0 )->parentWidget()->show();
+    }
+	
     QWidget *w = QWidgetFactory::create( &buffer );
     if ( w ) {
 	if ( style )
