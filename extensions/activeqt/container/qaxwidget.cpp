@@ -14,6 +14,7 @@
 #include "qaxwidget.h"
 #include <activeqt/qaxaggregated.h>
 
+#include <qabstracteventdispatcher.h>
 #include <qapplication.h>
 #include <qevent.h>
 #include <qlayout.h>
@@ -34,8 +35,8 @@
 
 #include "../shared/types.h"
 
-static HHOOK hhook = 0;
-static int hhookref = 0;
+static QAbstractEventDispatcher::EventFilter previous_filter = 0;
+static int filter_ref = 0;
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	QEvent::MouseMove,		0,
@@ -359,7 +360,6 @@ private:
     CONTROLINFO control_info;
     
     QSize sizehint;
-    
     unsigned long ref;
     QAxWidget *widget;
     QPointer<QAxHostWidget> host;
@@ -368,58 +368,50 @@ private:
 };
 
 // The filter procedure listening to user interaction on the control
-LRESULT CALLBACK axc_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
+bool axc_FilterProc(void *m)
 {
-    static bool reentrant = false;
-    static QPoint pos;
-    static POINT gpos={-1,-1};
-    QEvent::Type type;				// event parameters
-    int	   button;
-    int	   i;
-
-    if (!reentrant && lParam && nCode >= 0 && wParam == PM_REMOVE) {
-        reentrant = true;
-        MSG *msg = (MSG*)lParam;
-        const uint message = msg->message;
-        if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST)
-            ||(message >= WM_KEYFIRST && message <= WM_KEYLAST)) {
-            HWND hwnd = msg->hwnd;
-            QWidget *widget = 0;
-            QAxWidget *ax = 0;
-            while (!ax && hwnd) {
-                widget = QWidget::find(hwnd);
-                if (widget)
-                    ax = (QAxWidget*)widget->qt_metacast("QAxWidget");
-                hwnd = ::GetParent(hwnd);
-            }
-            if (ax && msg->hwnd != ax->winId()) {
-                if (message >= WM_KEYFIRST && message <= WM_KEYLAST) {
-                    QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
-                    QAxHostWindow *site = host ? host->clientSite() : 0;
-                    if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
+    MSG *msg = (MSG*)m;
+    const uint message = msg->message;
+    if ((message >= WM_MOUSEFIRST && message <= WM_MOUSELAST) ||(message >= WM_KEYFIRST && message <= WM_KEYLAST)) {
+        HWND hwnd = msg->hwnd;
+        QWidget *widget = 0;
+        QAxWidget *ax = 0;
+        while (!ax && hwnd) {
+            widget = QWidget::find(hwnd);
+            if (widget)
+                ax = qt_cast<QAxWidget*>(widget);
+            hwnd = ::GetParent(hwnd);
+        }
+        if (ax && msg->hwnd != ax->winId()) {
+            if (message >= WM_KEYFIRST && message <= WM_KEYLAST) {
+                QAxHostWidget *host = qFindChild<QAxHostWidget*>(ax);
+                QAxHostWindow *site = host ? host->clientSite() : 0;
+                if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
                         site->inPlaceObject()->TranslateAccelerator(msg);
-                } else {
-                    for (i=0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3)
-                        ;
-                    if (!mouseTbl[i])
-                        return CallNextHookEx(hhook, nCode, wParam, lParam);
-                    type   = (QEvent::Type)mouseTbl[++i];	// event type
-                    button = mouseTbl[++i];			// which button
+            } else {
+                int i;
+                for (i = 0; (UINT)mouseTbl[i] != message && mouseTbl[i]; i += 3)
+                    ;
+                if (mouseTbl[i]) {
+                    QEvent::Type type = (QEvent::Type)mouseTbl[++i];
+                    int button = mouseTbl[++i];
                     DWORD ol_pos = GetMessagePos();
-                    gpos.x = LOWORD(ol_pos);
-                    gpos.y = HIWORD(ol_pos);
-                    pos = widget->mapFromGlobal(QPoint(gpos.x, gpos.y));
+                    QPoint gpos(LOWORD(ol_pos), HIWORD(ol_pos));
+                    QPoint pos = widget->mapFromGlobal(gpos);
 
-		    QMouseEvent e(type, pos, QPoint(gpos.x, gpos.y), (Qt::MouseButton)button,
+		    QMouseEvent e(type, pos, gpos, (Qt::MouseButton)button,
 			    translateMouseButtonState(msg->wParam, type, button),
 			    translateModifierState(msg->wParam));
                     QApplication::sendEvent(ax, &e);
                 }
             }
         }
-        reentrant = false;
     }
-    return CallNextHookEx(hhook, nCode, wParam, lParam);
+
+    if (previous_filter)
+        return previous_filter(m);
+
+    return false;
 }
 
 QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
@@ -1484,14 +1476,9 @@ bool QAxWidget::createHostWindow(bool initialized)
 
     container = new QAxHostWindow(this, initialized);
     
-    if (!hhook) {
-        QT_WA({
-            hhook = SetWindowsHookEx(WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId());
-        }, {
-            hhook = SetWindowsHookExA(WH_GETMESSAGE, axc_FilterProc, 0, GetCurrentThreadId());
-        })
-    }
-    ++hhookref;
+    if (!filter_ref)
+        previous_filter = QAbstractEventDispatcher::instance()->setEventFilter(axc_FilterProc);
+    ++filter_ref;
 
     container->hostWidget()->resize(size());
     if (!container->hostWidget()->isHidden())
@@ -1530,10 +1517,10 @@ void QAxWidget::clear()
     if (isNull())
         return;
     if (!control().isEmpty()) {
-        if (hhook) {
-            if (!--hhookref) {
-                UnhookWindowsHookEx(hhook);
-                hhook = 0;
+        if (filter_ref) {
+            if (!--filter_ref) {
+                QAbstractEventDispatcher::instance()->setEventFilter(previous_filter);
+                previous_filter = 0;
             }
         }
     }
