@@ -644,6 +644,7 @@ void Project::save( bool onlyProjectFile )
 		  contents += ++it != pixmaps.end() ? " \\\n\t" : "";
 		  --it;
 	}
+	contents += "\n";
     }
     
     remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
