@@ -10,7 +10,7 @@
 class CppToQsConverter
 {
 public:
-    CppToQsConverter() { }
+    CppToQsConverter();
 
     ClassNode *findClassNode( Tree *qsTree, const QString& qtName );
     QString convertedDataType( Tree *qsTree, const QString& leftType,
@@ -21,14 +21,12 @@ public:
     static void terminate();
 
 private:
-    int convertCodeLine( Tree *qsTree, QString& code );
+    void clearState();
+    QString convertCodeLine( Tree *qsTree, const QStringList& program,
+			     QString code );
     void updateDelimDepths( const QString& code );
 
-    int indent;
-    int braceDepth;
-    int parenDepth;
-
-    static int columnForIndex( const QString& str, int index );
+    QString returnType;
 
     static int tabSize;
 };

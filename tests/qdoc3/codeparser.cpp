@@ -5,14 +5,14 @@
 #include "codeparser.h"
 #include "node.h"
 
-#define COMMAND_DEPRECATED          Doc::alias( "deprecated" )
-#define COMMAND_INGROUP             Doc::alias( "ingroup" )
-#define COMMAND_INMODULE            Doc::alias( "inmodule" )
-#define COMMAND_OBSOLETE            Doc::alias( "obsolete" )
-#define COMMAND_PRELIMINARY         Doc::alias( "preliminary" )
-#define COMMAND_PRIVATE             Doc::alias( "private" )
-#define COMMAND_PROTECTED           Doc::alias( "protected" )
-#define COMMAND_PUBLIC              Doc::alias( "public" )
+#define COMMAND_DEPRECATED              Doc::alias( "deprecated" )
+#define COMMAND_INGROUP                 Doc::alias( "ingroup" )
+#define COMMAND_INMODULE                Doc::alias( "inmodule" )
+#define COMMAND_OBSOLETE                Doc::alias( "obsolete" )
+#define COMMAND_PRELIMINARY             Doc::alias( "preliminary" )
+#define COMMAND_PRIVATE                 Doc::alias( "private" )
+#define COMMAND_PROTECTED               Doc::alias( "protected" )
+#define COMMAND_PUBLIC                  Doc::alias( "public" )
 
 QValueList<CodeParser *> CodeParser::parsers;
 

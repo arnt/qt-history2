@@ -11,25 +11,25 @@
 #include "tokenizer.h"
 #include "tree.h"
 
-#define CONFIG_QUICK                "quick"
-#define CONFIG_REPLACES             "replaces"
+#define CONFIG_QUICK                    "quick"
+#define CONFIG_REPLACES                 "replaces"
 
-#define COMMAND_BRIEF               Doc::alias( "brief" )
-#define COMMAND_CODE                Doc::alias( "code" )
-#define COMMAND_ENDCODE             Doc::alias( "endcode" )
-#define COMMAND_ENDQUICKCODE        Doc::alias( "endquickcode" )
-#define COMMAND_FILE                Doc::alias( "file" )
-#define COMMAND_GROUP               Doc::alias( "group" )
-#define COMMAND_MODULE              Doc::alias( "module" )
-#define COMMAND_PAGE                Doc::alias( "page" )
-#define COMMAND_QUICKCLASS          Doc::alias( "quickclass" )
-#define COMMAND_QUICKCODE           Doc::alias( "quickcode" )
-#define COMMAND_QUICKENUM           Doc::alias( "quickenum" )
-#define COMMAND_QUICKFN             Doc::alias( "quickfn" )
-#define COMMAND_QUICKIFY            Doc::alias( "quickify" )
-#define COMMAND_QUICKPROPERTY       Doc::alias( "quickproperty" )
-#define COMMAND_PROTECTED           Doc::alias( "protected" )
-#define COMMAND_REPLACE             Doc::alias( "replace" )
+#define COMMAND_BRIEF                   Doc::alias( "brief" )
+#define COMMAND_CODE                    Doc::alias( "code" )
+#define COMMAND_ENDCODE                 Doc::alias( "endcode" )
+#define COMMAND_ENDQUICKCODE            Doc::alias( "endquickcode" )
+#define COMMAND_FILE                    Doc::alias( "file" )
+#define COMMAND_GROUP                   Doc::alias( "group" )
+#define COMMAND_MODULE                  Doc::alias( "module" )
+#define COMMAND_PAGE                    Doc::alias( "page" )
+#define COMMAND_QUICKCLASS              Doc::alias( "quickclass" )
+#define COMMAND_QUICKCODE               Doc::alias( "quickcode" )
+#define COMMAND_QUICKENUM               Doc::alias( "quickenum" )
+#define COMMAND_QUICKFN                 Doc::alias( "quickfn" )
+#define COMMAND_QUICKIFY                Doc::alias( "quickify" )
+#define COMMAND_QUICKPROPERTY           Doc::alias( "quickproperty" )
+#define COMMAND_PROTECTED               Doc::alias( "protected" )
+#define COMMAND_REPLACE                 Doc::alias( "replace" )
 
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
@@ -55,8 +55,7 @@ void QsCodeParser::initializeParser( const Config& config )
     nodeTypeMap.insert( COMMAND_QUICKFN, Node::Function );
 
     QString quickDotReplaces = CONFIG_QUICK + Config::dot + CONFIG_REPLACES;
-    QStringList replaces = config.getStringList( CONFIG_QUICK + Config::dot +
-						 CONFIG_REPLACES );
+    QStringList replaces = config.getStringList( quickDotReplaces );
     QStringList::ConstIterator r = replaces.begin();
     while ( r != replaces.end() ) {
 	if ( replaceRegExp.exactMatch(*r) ) {

@@ -7,23 +7,21 @@
 #include "config.h"
 #include "cpptoqsconverter.h"
 
+#define CONFIG_QUICK                    "quick"
+#define CONFIG_INDENTSIZE               "indentsize"
+
+void setTabSize( int size );
+void setIndentSize( int size );
+int columnForIndex( const QString& t, int index );
+int indentForBottomLine( const QStringList& program, QChar typedIn );
+
 static QString balancedParens = "(?:[^()]+|\\([^()]*\\))*";
 
 int CppToQsConverter::tabSize;
 
-int CppToQsConverter::columnForIndex( const QString& str, int index )
+CppToQsConverter::CppToQsConverter()
 {
-    int endOfPrevLine = str.findRev( "\n", index - 1 );
-    int column = 0;
-
-    for ( int i = endOfPrevLine + 1; i < index; i++ ) {
-	if ( str[i] == '\t' ) {
-	    column = ( (column / tabSize) + 1 ) * tabSize;
-	} else {
-	    column++;
-	}
-    }
-    return column;
+    clearState();
 }
 
 ClassNode *CppToQsConverter::findClassNode( Tree *qsTree,
@@ -111,13 +109,11 @@ QString CppToQsConverter::convertedDataType( Tree *qsTree,
 QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code )
 {
     QString result;
-    QStringList leftSide;
-    QStringList rightSide;
+    QStringList program;
+    QStringList comments;
     int leftSizeWidth = 0;
 
-    indent = 0;
-    braceDepth = 0;
-    parenDepth = 0;
+    clearState();
 
     QStringList originalLines = QStringList::split( "\n", code, TRUE );
     QStringList::ConstIterator ol = originalLines.begin();
@@ -134,37 +130,41 @@ QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code )
 		while ( code[code.length() - 1].isSpace() )
 		    code.truncate( code.length() - 1 );
 	    }
-
-	    int width = columnForIndex( code, code.length() );
-	    if ( width > leftSizeWidth )
-		leftSizeWidth = width;
 	}
-	convertCodeLine( qsTree, code );
-	updateDelimDepths( code );
-	leftSide.append( code );
-	rightSide.append( comment );
+
+	code = convertCodeLine( qsTree, program, code );
+	program.append( code );
+	comments.append( comment );
+
+	int n = indentForBottomLine( program, QChar::null );
+	for ( int i = 0; i < n; i++ )
+	    program.last().prepend( " " );
+
+	int width = columnForIndex( code, code.length() );
+	if ( width > leftSizeWidth )
+	    leftSizeWidth = width;
 	++ol;
     }
 
     leftSizeWidth += 2;
     leftSizeWidth = ( (leftSizeWidth + (tabSize - 1)) / tabSize ) * tabSize;
 
-    QStringList::ConstIterator ls = leftSide.begin();
-    QStringList::ConstIterator rs = rightSide.begin();
-    while ( rs != rightSide.end() ) {
-	if ( rs != rightSide.begin() )
+    QStringList::ConstIterator p = program.begin();
+    QStringList::ConstIterator c = comments.begin();
+    while ( c != comments.end() ) {
+	if ( c != comments.begin() )
 	    result += "\n";
-	result += *ls;
-	if ( !(*rs).isEmpty() ) {
-	    if ( !(*ls).stripWhiteSpace().isEmpty() ) {
-		int i = columnForIndex( *ls, (*ls).length() );
+	result += *p;
+	if ( !(*c).isEmpty() ) {
+	    if ( !(*p).stripWhiteSpace().isEmpty() ) {
+		int i = columnForIndex( *p, (*p).length() );
 		while ( i++ < leftSizeWidth )
 		    result += " ";
 	    }
-	    result += *rs;
+	    result += *c;
 	}
-	++ls;
-	++rs;
+	++p;
+	++c;
     }
     return result;
 }
@@ -172,72 +172,61 @@ QString CppToQsConverter::convertedCode( Tree *qsTree, const QString& code )
 void CppToQsConverter::initialize( const Config& config )
 {
     tabSize = config.getInt( CONFIG_TABSIZE );
+    setTabSize( tabSize );
+
+    int size = config.getInt( CONFIG_QUICK + Config::dot + CONFIG_INDENTSIZE );
+    if ( size > 0 )
+	setIndentSize( size );
 }
 
 void CppToQsConverter::terminate()
 {
 }
 
-int CppToQsConverter::convertCodeLine( Tree *qsTree, QString& code )
+void CppToQsConverter::clearState()
+{
+    returnType = "";
+}
+
+QString CppToQsConverter::convertCodeLine( Tree *qsTree,
+					   const QStringList& program,
+					   QString code )
 {
     static QString dataTypeFmt = "[^=()]*\\s+[*&]?";
     static QRegExp funcPrototypeRegExp(
 	"(" + dataTypeFmt + ")\\s+[*&]?([A-Z][a-zA-Z_0-9]*::)"
-	"([a-z][a-zA-Z_0-9]*)\\(([^);]*)\\)?(?:\\s*const)?" );
+	"([a-z][a-zA-Z_0-9]*)\\(([^);]*)(\\)?)(?:\\s*const)?" );
     static QRegExp paramRegExp(
 	"\\s*(" + dataTypeFmt + ")([a-z][a-zA-Z_0-9]*)\\s*(,)?\\s*" );
 
     int start = 0;
     while ( start < (int) code.length() && code[start].isSpace() )
 	start++;
-    QString core = code.mid( start );
-    if ( core.isEmpty() || core == "{" || core == "}" )
-	return indent;
+    code = code.mid( start );
+    if ( code.isEmpty() || code == "{" || code == "}" )
+	return code;
 
-    if ( braceDepth == 0 && parenDepth == 0 &&
-	 funcPrototypeRegExp.exactMatch(core) ) {
-	QString returnType = funcPrototypeRegExp.cap( 1 );
+    QString result;
+
+    if ( funcPrototypeRegExp.exactMatch(code) ) {
+	returnType = funcPrototypeRegExp.cap( 1 );
 	QString className = funcPrototypeRegExp.cap( 2 );
 	QString funcName = funcPrototypeRegExp.cap( 3 );
 	QString params = funcPrototypeRegExp.cap( 4 );
-	bool continued = funcPrototypeRegExp.cap( 5 ).isEmpty();
+	bool toBeContinued = funcPrototypeRegExp.cap( 5 ).isEmpty();
 
 	className.replace( "::", "." );
 
-	core = "function " + className + funcName + "(";
+	result = "function " + className + funcName + "(";
 
-
-	if ( continued ) {
-	    core += ")";
+	if ( !toBeContinued ) {
+	    result += ")";
 	    returnType = convertedDataType( qsTree, returnType );
 	    if ( !returnType.isEmpty() )
-		core += " : " + returnType;
+		result += " : " + returnType;
 	}
     } else {
-	// ...
+	result = code;
     }
-    code.replace( start, code.length() - start, core );
-    return indent;
-}
-
-void CppToQsConverter::updateDelimDepths( const QString& code )
-{
-    QChar quote( 'X' );
-
-    for ( int i = 0; i < (int) code.length(); i++ ) {
-	if ( quote == 'X' ) {
-	    if ( code[i] == QChar('"') || code[i] == QChar('\'') )
-		quote = code[i];
-	} else if ( code[i] == quote ) {
-	    quote = 'X';
-	} else if ( code[i] == QChar('{') ) {
-	    braceDepth++;
-	} else if ( code[i] == QChar('}') ) {
-	    braceDepth--;
-	} else if ( code[i] == QChar('(') ) {
-	    parenDepth++;
-	} else if ( code[i] == QChar(')') ) {
-	    parenDepth--;
-	}
-    }
+    return result;
 }

@@ -70,4 +70,5 @@ SOURCES += archiveextractor.cpp \
 	   text.cpp \
 	   tokenizer.cpp \
 	   tree.cpp \
-	   uncompressor.cpp
+	   uncompressor.cpp \
+	   $(QTDIR)/tools/designer/editor/yyindent.cpp
