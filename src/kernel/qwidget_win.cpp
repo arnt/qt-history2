@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#64 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -25,7 +25,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#64 $");
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
@@ -54,10 +54,10 @@ static HANDLE	journalRec  = 0;
  *****************************************************************************/
 
 
-bool QWidget::create()
+void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 {
-    if ( testWFlags(WState_Created) )		// already created
-	return FALSE;
+    if ( testWFlags(WState_Created) && window == 0 )
+	return;
     setWFlags( WState_Created );		// set created flag
 
     if ( !parentWidget() )
@@ -72,8 +72,11 @@ bool QWidget::create()
     bool   desktop  = testWFlags(WType_Desktop);
     HANDLE appinst  = qWinAppInst();
     const char *wcln = qt_reg_winclass( tool ? 1 : 0 );
-    HANDLE parentw;
+    HANDLE parentw, destroyw = 0;
     WId	   id;
+
+    if ( !window )				// always initialize
+	initializeWindow = TRUE;
 
     if ( popup )				// a popup is a tool window
 	setWFlags(WStyle_Tool);
@@ -91,9 +94,9 @@ bool QWidget::create()
     }
 
     if ( desktop ) {				// desktop widget
+	modal = popup = FALSE;			// force this flags off
 	frect.setRect( 0, 0, sw, sh );
 	crect = frect;
-	modal = popup = FALSE;			// force this flags off
     }
 
     parentw = topLevel ? 0 : parentWidget()->winId();
@@ -147,7 +150,12 @@ bool QWidget::create()
         // and resize events during creation
     clearWFlags( WState_Created );
 
-    if ( desktop ) {				// desktop widget
+    if ( window ) {				// override the old window
+	if ( destroyOldWindow )
+	    destroyw = winid;
+	id = window;
+	setWinId( window );
+    } else if ( desktop ) {			// desktop widget
 	id = GetDesktopWindow();
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
@@ -197,7 +205,8 @@ bool QWidget::create()
 		w = 100;
 		h = 30;
 	    }
-	    MoveWindow( winId(), x, y, w, h, TRUE );
+	    if ( initializeWindow )
+		MoveWindow( winId(), x, y, w, h, TRUE );
 	    GetWindowRect( id, &fr );		// update rects
 	    GetClientRect( id, &cr );
 	}
@@ -208,17 +217,39 @@ bool QWidget::create()
 	ClientToScreen( id, &pt );
 	crect = QRect( QPoint(pt.x+cr.left,  pt.y+cr.top),
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
-	setCursor( arrowCursor );		// default cursor
+	if ( initializeWindow )
+	    setCursor( arrowCursor );		// default cursor
     }
 
     setWFlags( WState_Created );		// accept move/resize events
     hdc = 0;					// no display context
 
+    if ( window ) {				// got window from outside
+	if ( IsWindowVisible(window) )
+	    setWFlags( WState_Visible );
+	else
+	    clearWFlags( WState_Visible );
+    }
+
+    if ( destroyw )
+	DestroyWindow( destroyw );
+}
+
+
+void QWidget::create( WId window )
+{
+    create( window, TRUE, TRUE );
+}
+
+
+bool QWidget::create()
+{
+    create( 0, TRUE, TRUE );
     return TRUE;
 }
 
 
-bool QWidget::destroy()
+void QWidget::destroy( bool destroyWindow )
 {
     if ( qApp->focus_widget == this )
 	qApp->focus_widget = 0;			// reset focus widget
@@ -233,7 +264,7 @@ bool QWidget::destroy()
 	    while ( (obj=it.current()) ) {	// destroy all widget children
 		++it;
 		if ( obj->isWidgetType() )
-		    ((QWidget*)obj)->destroy();
+		    ((QWidget*)obj)->destroy(destroyWindow);
 	    }
 	}
 	if ( mouseGrb == this )
@@ -244,10 +275,16 @@ bool QWidget::destroy()
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )
 	    qt_close_popup( this );
-	if ( !testWFlags(WType_Desktop) )
+	if ( destroyWindow && !testWFlags(WType_Desktop) )
 	    DestroyWindow( winId() );
 	setWinId( 0 );
     }
+}
+
+
+bool QWidget::destroy()
+{
+    destroy( TRUE );
     return TRUE;
 }
 

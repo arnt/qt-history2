@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#182 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#181 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#182 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -130,8 +130,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( desktop ) {				// desktop widget
-	frect.setRect( 0, 0, sw, sh );
 	modal = popup = FALSE;			// force these flags off
+	frect.setRect( 0, 0, sw, sh );
     } else if ( topLevel ) {			// calc pos/size from screen
 	frect.setRect( sw/4, 3*sh/10, sw/2, 4*sh/10 );
     } else {					// child widget
@@ -139,10 +139,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     crect = frect;				// default client rect
 
-    if ( topLevel )
-	parentw = root_win;
-    else
-	parentw = parentWidget()->winId();
+    parentw = topLevel ? root_win : parentWidget()->winId();
 
     XSetWindowAttributes wsa;
 
