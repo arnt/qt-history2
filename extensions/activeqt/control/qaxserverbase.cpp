@@ -130,6 +130,10 @@ public:
 
     static LRESULT CALLBACK ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
+// Object registration with OLE
+    void registerActiveObject(IUnknown *object);
+    void revokeActiveObject();
+
 // IUnknown
     unsigned long WINAPI AddRef()
     {
@@ -334,6 +338,7 @@ private:
     CRITICAL_SECTION createWindowSection;
 
     unsigned long ref;
+    unsigned long ole_ref;
 
     QString class_name;
 
@@ -359,6 +364,7 @@ public:
 	: m_outerUnknown( outerUnknown ), ref(0)
     {
 	object = new QAxServerBase( className, outerUnknown );
+	object->registerActiveObject(this);
 
 	InitializeCriticalSection( &refCountSection );
 	InitializeCriticalSection( &createWindowSection );
@@ -569,7 +575,7 @@ public:
 	EnterCriticalSection( &refCountSection );
 	unsigned long r = ++ref;
 	LeaveCriticalSection( &refCountSection );
-	return ++r;
+	return r;
     }
     unsigned long __stdcall Release()
     {
@@ -809,6 +815,8 @@ public:
 	    res = activeqt->QueryInterface( iid, ppObject );
 	    if (FAILED(res))
 		delete activeqt;
+	    else
+		activeqt->registerActiveObject((IUnknown*)(IDispatch*)activeqt);
 	}
 	return res;
     }
@@ -928,7 +936,7 @@ HRESULT GetClassObject( REFIID clsid, REFIID iid, void **ppUnk )
     the COM server for the respective CLSID.
 */
 QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
-: aggregatedObject(0), ref(0), class_name(classname),
+: aggregatedObject(0), ref(0), ole_ref(0), class_name(classname),
   slotlist(0), signallist(0),proplist(0), proplist2(0),
   m_hWnd(0), m_hWndCD(m_hWnd), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(outerUnknown)
@@ -942,7 +950,7 @@ QAxServerBase::QAxServerBase( const QString &classname, IUnknown *outerUnknown )
     Constructs a QAxServerBase object wrapping \a o.
 */
 QAxServerBase::QAxServerBase( QObject *o )
-: aggregatedObject(0), ref( 0),
+: aggregatedObject(0), ref( 0), ole_ref(0),
   slotlist(0), signallist(0),proplist(0), proplist2(0),
   m_hWnd(0), m_hWndCD( m_hWnd ), hmenuShared(0), hwndMenuOwner(0),
   m_outerUnknown(0)
@@ -1007,6 +1015,8 @@ void QAxServerBase::init()
 */
 QAxServerBase::~QAxServerBase()
 {
+    revokeActiveObject();
+
     for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it ) {
 	if ( it.data() )
 	    (*it)->Release();
@@ -1047,6 +1057,29 @@ QAxServerBase::~QAxServerBase()
     delete signallist;
     delete proplist;
     delete proplist2;
+}
+
+/*
+    Registering with OLE
+*/
+void QAxServerBase::registerActiveObject(IUnknown *object)
+{
+    extern char qAxModuleFilename[MAX_PATH];
+    if (ole_ref || !qt.object || !QString::fromLocal8Bit(qAxModuleFilename).lower().endsWith(".exe"))
+	return;
+
+    const QMetaObject *mo = qt.object->metaObject();
+    if (!qstrcmp(mo->classInfo("RegisterObject", TRUE), "yes"))
+	RegisterActiveObject(object, qAxFactory()->classID(class_name), ACTIVEOBJECT_WEAK, &ole_ref);
+}
+
+void QAxServerBase::revokeActiveObject()
+{
+    if (!ole_ref)
+	return;
+
+    RevokeActiveObject(ole_ref, 0);
+    ole_ref = 0;
 }
 
 /*
