@@ -91,6 +91,7 @@ void Editor::setErrorSelection( int line )
     c.gotoLineEnd();
     document()->setSelectionEnd( Error, &c );
     hasError = TRUE;
+    viewport()->repaint( FALSE );
 }
 
 void Editor::setStepSelection( int line )
@@ -105,6 +106,7 @@ void Editor::setStepSelection( int line )
     document()->setSelectionStart( Step, &c );
     c.gotoLineEnd();
     document()->setSelectionEnd( Step, &c );
+    viewport()->repaint( FALSE );
 }
 
 void Editor::doChangeInterval()
