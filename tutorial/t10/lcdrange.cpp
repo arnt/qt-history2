@@ -1,11 +1,14 @@
 /****************************************************************************
-** Implementation of LCDRange class, Qt tutorial 10
+** Implementation of LCDRange class, Qt tutorial 11
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
 #include "lcdrange.h"
+
+#include <qscrbar.h>
+#include <qlcdnum.h>
 
 LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
         : QWidget( parent, name )

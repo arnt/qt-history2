@@ -1,5 +1,5 @@
 /****************************************************************************
-** Definition of LCDRange class, Qt tutorial 9
+** Definition of LCDRange class, Qt tutorial 11
 **
 ** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
 **
@@ -8,8 +8,10 @@
 #ifndef LCDRANGE_H
 #define LCDRANGE_H
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qwidget.h>
+
+class QScrollBar;
+class QLCDNumber;
 
 
 class LCDRange : public QWidget

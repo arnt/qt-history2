@@ -8,8 +8,10 @@
 #ifndef LCDRANGE_H
 #define LCDRANGE_H
 
-#include <qscrbar.h>
-#include <qlcdnum.h>
+#include <qwidget.h>
+
+class QScrollBar;
+class QLCDNumber;
 
 
 class LCDRange : public QWidget

@@ -7,6 +7,9 @@
 
 #include "lcdrange.h"
 
+#include <qscrbar.h>
+#include <qlcdnum.h>
+
 LCDRange::LCDRange( QWidget *parent=0, const char *name=0 )
         : QWidget( parent, name )
 {
