@@ -3476,7 +3476,7 @@ void QWidget::setUpdatesEnabled( bool enable )
 }
 
 
-static inline QSize qt_initial_size(QWidget *w) {
+QSize qt_initial_size(QWidget *w) {
     QSize s = w->sizeHint();
     QSizePolicy::ExpandData exp;
 #ifndef QT_NO_LAYOUT

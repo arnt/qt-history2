@@ -62,6 +62,7 @@ int mac_window_count = 0;
   Externals
  *****************************************************************************/
 QString cfstring2qstring(CFStringRef); //qglobal.cpp
+QSize qt_initial_size(QWidget *w); //qwidget.cpp
 void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
@@ -1664,9 +1665,15 @@ void QWidget::setWindowState(uint newstate)
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
 	    if(newstate & WindowFullScreen) {
-		if(d->topData()->normalGeometry.width() < 0)
-		    d->topData()->normalGeometry = QRect(pos(), size());
-		d->topData()->savedFlags = getWFlags();
+		if(QTLWExtra *tlextra = d->topData()) {
+		    if(tlextra->normalGeometry.width() < 0) {
+			if(testAttribute(WA_Resized))
+			    tlextra->normalGeometry = geometry();
+			else
+			    tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
+		    }
+		    tlextra->savedFlags = getWFlags();
+		}
 		setParent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
 			  (getWFlags() & 0xffff0000)); 			  // preserve some widget flags
 		const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
@@ -1685,15 +1692,19 @@ void QWidget::setWindowState(uint newstate)
 		QDesktopWidget *dsk = QApplication::desktop();
 		QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
 		SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
-		if(QWExtra   *extra = d->extraData()) {
+		if(QWExtra *extra = d->extraData()) {
 		    if(bounds.right - bounds.left > extra->maxw)
 			bounds.right = bounds.left + extra->maxw;
 		    if(bounds.bottom - bounds.top > extra->maxh)
 			bounds.bottom = bounds.top + extra->maxh;
 		}
 		if(QTLWExtra *tlextra = d->topData()) {
-		    if(tlextra->normalGeometry.width() < 0)
-			tlextra->normalGeometry = geometry();
+		    if(tlextra->normalGeometry.width() < 0) {
+			if(testAttribute(WA_Resized))
+			    tlextra->normalGeometry = geometry();
+			else
+			    tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
+		    }
 		    if(data->fstrut_dirty)
 			updateFrameStrut();
 		    bounds.left += tlextra->fleft;
@@ -1705,12 +1716,16 @@ void QWidget::setWindowState(uint newstate)
 		    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
 		if(orect.size() != nrect.size()) { // no real point..
 		    Rect oldr;
-		    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
+		    if(QTLWExtra *tlextra = d->topData()) 
+			SetRect(&oldr, tlextra->normalGeometry.left(), tlextra->normalGeometry.top(), 
+				tlextra->normalGeometry.right()+1, tlextra->normalGeometry.bottom()+1);
+		    else
+			SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
 		    SetWindowUserState((WindowPtr)hd, &oldr);
-		    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
+		    qt_dirty_wndw_rgn("showMaxim", this, mac_rect(rect()));
 
 		    SetWindowStandardState((WindowPtr)hd, &bounds);
-		    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
+		    ZoomWindow((WindowPtr)hd, inZoomOut, false);
 
 		    data->crect = nrect;
 		    if(isVisible()) {
@@ -1725,7 +1740,7 @@ void QWidget::setWindowState(uint newstate)
 		}
 	    } else {
 		Rect bounds;
-		ZoomWindow((WindowPtr)hd, inZoomIn, FALSE);
+		ZoomWindow((WindowPtr)hd, inZoomIn, false);
 		GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
 		qt_dirty_wndw_rgn("showNormal",this, &bounds);
 	    }
