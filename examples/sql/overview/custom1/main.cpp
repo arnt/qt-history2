@@ -68,11 +68,11 @@ FormDialog::FormDialog()
     propMap->insert( forenameEdit->className(), "upperLine" );
 
     sqlForm = new QSqlForm( this );
-    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->installPropertyMap( propMap );
     sqlForm->insert( forenameEdit, "forename" );
     sqlForm->insert( surnameEdit, "surname" );
     sqlForm->insert( salaryEdit, "salary" );
+    sqlForm->setRecord( staffCursor->primeUpdate() );
     sqlForm->readFields();
 }
 
