@@ -798,8 +798,9 @@ void QWidgetPrivate::show_sys()
         }
 #endif
         q->qwsDisplay()->requestRegion(data.winid, r);
-        if (q->windowType() != Qt::Tool
-                && (q->windowType() != Qt::ToolTip)) {
+        if (q->windowType() != Qt::Popup
+            && q->windowType() != Qt::Tool
+            && q->windowType() != Qt::ToolTip ) {
             q->qwsDisplay()->requestFocus(data.winid,true);
         }
         q->qwsDisplay()->setAltitude(data.winid,
