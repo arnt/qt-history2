@@ -31,11 +31,15 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i Q_INT16
      \i \list
-	\i signed 16 bit integer
+	\i signed 16-bit integer
 	\endlist
 \row \i Q_INT32
      \i \list
-	\i signed 32 bit integer
+	\i signed 32-bit integer
+	\endlist
+\row \i Q_INT64
+     \i \list
+	\i signed 64-bit integer
 	\endlist
 \row \i Q_UINT8
      \i \list
@@ -43,26 +47,30 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i Q_UINT16
      \i \list
-	\i unsigned 16 bit integer
+	\i unsigned 16-bit integer
 	\endlist
 \row \i Q_UINT32
      \i \list
-	\i unsigned 32 bit integer
+	\i unsigned 32-bit integer
+	\endlist
+\row \i Q_UINT64
+     \i \list
+	\i unsigned 64-bit integer
 	\endlist
 \row \i float
      \i \list
-	\i 32-bit floating point number using the standard IEEE-754 format
+	\i 32-bit floating point number using the standard IEEE 754 format
 	\endlist
 \row \i double
      \i \list
-	\i 64-bit floating point number using the standard IEEE-754 format
+	\i 64-bit floating point number using the standard IEEE 754 format
 	\endlist
-\row \i char *
+\row \i const char *
      \i \list
 	\i The size of the string including the terminating 0 (Q_UINT32)
 	\i The string bytes including the terminating 0
 	\endlist
-	The null string is represented as \c {(Q_UINT32) 0}.
+	The null string is represented as \c {(Q_UINT32)0}.
 \row \i QBitArray
      \i \list
 	\i The array size (Q_UINT32)
@@ -76,39 +84,20 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i QByteArray
      \i \list
-        \i If the string is null: 0xffffffff (Q_UINT32)<br>
-	otherwise: the array size (Q_UINT32)
-	followed by the array bytes, i.e. size bytes
+        \i If the byte array is null: 0xFFFFFFFF (Q_UINT32)
+        \i Otherwise: the array size (Q_UINT32) followed by the array bytes, i.e. size bytes
 	\endlist
-\row \i QCString
-     \i \list
-	\i The size of the string including the terminating 0 (Q_UINT32)
-	\i The string bytes including the terminating 0
-	\endlist
-	The null string is represented as \c {(Q_UINT32) 0}.
 \row \i \l QColor
      \i \list \i RGB value serialized as a Q_UINT32 \endlist
-\row \i QColorGroup
+\row \i QCoreVariant
      \i \list
-	\i foreground (QBrush)
-	\i button (QBrush)
-	\i light (QBrush)
-	\i midLight (QBrush)
-	\i dark (QBrush)
-	\i mid (QBrush)
-	\i text (QBrush)
-	\i brightText (QBrush)
-	\i ButtonText (QBrush)
-	\i base (QBrush)
-	\i background (QBrush)
-	\i shadow (QBrush)
-	\i highlight (QBrush)
-	\i highlightedText (QBrush)
+	\i The type of the data (Q_UINT32)
+	\i The data of the specified type
 	\endlist
 \row \i QCursor
      \i \list
-	\i Shape id (Q_INT16)
-	\i If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap) and hot spot (QPoint)
+	\i Shape ID (Q_INT16)
+	\i If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap), and hot spot (QPoint)
 	\endlist
 \row \i QDate
      \i \list
@@ -121,12 +110,17 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i QFont
      \i \list
-	\i The family (QCString)
+	\i The family (QString)
 	\i The point size (Q_INT16)
 	\i The style hint (Q_UINT8)
 	\i The char set (Q_UINT8)
 	\i The weight (Q_UINT8)
 	\i The font bits (Q_UINT8)
+	\endlist
+\row \i QHash\<Key, T\>
+     \i \list
+	\i The number of items (Q_UINT32)
+	\i For all items, the key (Key) and value (T)
 	\endlist
 \row \i QImage
      \i \list
@@ -136,21 +130,53 @@ and to read back into the same Qt integer type when reading.
 	stream the image into a QBuffer (using QImageIO) and stream
 	that.
 	\endlist
-\row \i QMap
+\row \i QKeySequence
+     \i A QList\<int\>, where each integer is a key in the key sequence
+\row \i QLinkedList\<T\>
      \i \list
 	\i The number of items (Q_UINT32)
-	\i For all items, the key and value
+	\i The items (T)
+	\endlist
+\row \i QList\<T\>
+     \i \list
+	\i The number of items (Q_UINT32)
+	\i The items (T)
+	\endlist
+\row \i QMap\<Key, T\>
+     \i \list
+	\i The number of items (Q_UINT32)
+	\i For all items, the key (Key) and value (T)
+	\endlist
+\row \i QPair\<T1, T2\>
+     \i \list
+	\i first (T1)
+	\i second (T2)
 	\endlist
 \row \i QPalette
-     \i \list
-	\i active (QColorGroup)
-	\i disabled (QColorGroup)
-	\i inactive (QColorGroup)
+     \i The disabled, active, and inactive color groups, each of which consists
+        of the following:
+        \list
+	\i foreground (QBrush)
+	\i button (QBrush)
+	\i light (QBrush)
+	\i midlight (QBrush)
+	\i dark (QBrush)
+	\i mid (QBrush)
+	\i text (QBrush)
+	\i brightText (QBrush)
+	\i buttonText (QBrush)
+	\i base (QBrush)
+	\i background (QBrush)
+	\i shadow (QBrush)
+	\i highlight (QBrush)
+	\i highlightedText (QBrush)
+        \i link (QBrush)
+        \i linkVisited (QBursh)
 	\endlist
 \row \i QPen
      \i \list
 	\i The pen styles (Q_UINT8)
-	\i The pen width (Q_UINT8)
+	\i The pen width (Q_UINT16)
 	\i The pen color (QColor)
 	\endlist
 \row \i QPicture
@@ -193,23 +219,17 @@ and to read back into the same Qt integer type when reading.
 	\endlist
 \row \i QString
      \i \list
-	\i If the string is null: 0xffffffff (Q_UINT32)<br>
-	   otherwise: The string length (Q_UINT32) followed by the
-	   data in UTF-16
+	\i If the string is null: 0xFFFFFFFF (Q_UINT32)
+	\i Otherwise: The string length (Q_UINT32) followed by the data in UTF-16
 	\endlist
 \row \i QTime
      \i \list
 	\i Milliseconds since midnight (Q_UINT32)
 	\endlist
-\row \i QValueList
+\row \i QVector\<T\>
      \i \list
-	\i The number of list elements (Q_UINT32)
-	\i All the elements in sequential order
-	\endlist
-\row \i QVariant
-     \i \list
-	\i The type of the data (Q_UINT32)
-	\i The data of the specified type
+	\i The number of items (Q_UINT32)
+	\i The items (T)
 	\endlist
 \row \i QWMatrix
      \i \list
