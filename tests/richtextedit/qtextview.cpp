@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#10 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#11 $
 **
 ** Implementation of the QtTextView class
 **
@@ -100,7 +100,6 @@ public:
     bool linkunderline;
     QTimer* resizeTimer;
     Qt::TextFormat textformat;
-    QtTextCursor* fc;
     QtTextCursor* fcresize;
 };
 
@@ -118,7 +117,7 @@ public:
   with the standard \a parent and \a name optional arguments.
 */
 QtTextView::QtTextView(QWidget *parent, const char *name)
-    : QScrollView( parent, name )
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     init();
 }
@@ -131,7 +130,7 @@ QtTextView::QtTextView(QWidget *parent, const char *name)
 */
 QtTextView::QtTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
-    : QScrollView( parent, name )
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     init();
     setText( text, context );
@@ -146,7 +145,6 @@ void QtTextView::init()
     d->mylinkcol = blue;
     d->paplinkcol = d->mylinkcol;
     d->linkunderline = TRUE;
-    d->fc = 0;
     d->fcresize = 0;
 
     setKeyCompression( TRUE );
@@ -214,6 +212,24 @@ void QtTextView::setText( const QString& text, const QString& context)
     else // rich text
 	d->txt = text;
 
+    
+    if ( isVisible() ) {
+	richText().flow(d->viewId)->x = 0;
+	delete d->fcresize;
+	d->fcresize = new QtTextCursor( richText(), d->viewId );
+	d->fcresize->initFlow( richText().flow(d->viewId), viewport()->width() );
+	{
+	    QPainter p( viewport() );
+	    d->fcresize->initParagraph( &p, &richText() );
+	    d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
+	}
+	setContentsPos( 0, 0 );
+	resizeContents( richText().flow( d->viewId )->widthUsed, 
+			richText().flow( d->viewId)->height );
+	d->resizeTimer->start( 0, TRUE );
+	viewport()->repaint( FALSE );
+    }
+    setContentsPos( 0, 0 );
 //     if ( isVisible() ) {
 // 	QPainter * p = new QPainter( this );
 // 	// first try to use the full width of the viewport
@@ -232,8 +248,6 @@ void QtTextView::setText( const QString& text, const QString& context)
 // 	viewport()->setCursor( arrowCursor );
 //     }
 
-    delete d->fc;
-    d->fc = 0;
 }
 
 void QtTextView::setView( QtTextView* other )
@@ -246,8 +260,6 @@ void QtTextView::setView( QtTextView* other )
 
     d->original_txt = other->d->original_txt;
     d->contxt = other->d->contxt;
-   delete d->fc;
-    d->fc = new QtTextCursor( *d->doc_, d->viewId );
 }
 
 
@@ -282,7 +294,6 @@ void QtTextView::createRichText()
     qDebug("create rich text for %p = %p", this, d->doc_ );
     d->viewId = d->doc_->registerView( this );
     qDebug("register view %d (%p)", d->viewId, this );
-    d->fc = new QtTextCursor( richText(), d->viewId );
     if (d->doc_->attributes().contains("bgcolor")){
 	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
 	if ( col.isValid() )
@@ -508,52 +519,40 @@ const QBrush& QtTextView::paper()
 void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
-    if ( !d->fc ) {
-	qDebug("ooops");
-	return;
-    }
     QRegion r(cx-ox, cy-oy, cw, ch);
-    QtTextParagraph* b = &richText();
-    while ( b->child )
- 	b = b->child;
-    d->fc->gotoParagraph( p, b );
 
-//     while ( b && !b->dirty[d->viewId] && 
-// 	    b->y[d->viewId] + b->height[d->viewId] < cy ) {
-//  	y = b->y[d->viewId] + b->height[d->viewId];
-//  	b = b->nextInDocument();
-//      }
-
+    QtTextCursor tc( richText(), d->viewId );
+    tc.gotoParagraph( p, &richText() );
+    QtTextParagraph* b = tc.paragraph;
 
     // TODO merge with update, this is only draw. Everything needs to be clean!
     QFontMetrics fm( p->fontMetrics() );
-    while ( b && d->fc->referenceTop() <= cy + ch ) {
+    while ( b && tc.referenceTop() <= cy + ch ) {
 	// this doesn't belong here...
 	if ( b && b->dirty[ d->viewId ] ) {
-	    d->fc->initParagraph( p, b );
-	    d->fc->doLayout( p, d->fc->referenceBottom() );
-	    // hier kommt er manchmal durcheinander (probe.html)
+	    tc.initParagraph( p, b );
+	    tc.doLayout( p, tc.referenceBottom() );
 	}
 
-	d->fc->gotoParagraph( p, b );
+	tc.gotoParagraph( p, b );
 
-	if ( d->fc->referenceBottom() > cy ) {
+	if ( tc.referenceBottom() > cy ) {
 	    do {
-		d->fc->makeLineLayout( p, fm );
-		QRect geom( d->fc->lineGeometry() );
+		tc.makeLineLayout( p, fm );
+		QRect geom( tc.lineGeometry() );
 		if ( geom.bottom() > cy && geom.top() < cy+ch )
-		    d->fc->drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
+		    tc.drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
 	    }
-	    while ( d->fc->gotoNextLine( p, fm ) );
+	    while ( tc.gotoNextLine( p, fm ) );
 	}
 	b = b->nextInDocument();
     };
 
 
-//     if ( d->fc->lineGeometry().top() >= contentsHeight() ) {
+//     if ( tc.lineGeometry().top() >= contentsHeight() ) {
 //  	bool u = viewport()->isUpdatesEnabled();
 //  	viewport()->setUpdatesEnabled( FALSE );
-//  	resizeContents( viewport()->width(), d->fc->lineGeometry().top() );
+//  	resizeContents( viewport()->width(), tc.lineGeometry().top() );
 //  	viewport()->setUpdatesEnabled( u );
 //     }
 
@@ -597,7 +596,8 @@ void QtTextView::doResize()
 	QPainter p( viewport() );
 	if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
 	    d->resizeTimer->start( 0, TRUE );
-	resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
+	QtTextFlow* flow = richText().flow( d->viewId );
+	resizeContents( flow->widthUsed, flow->height );
     }
 }
 
@@ -607,8 +607,9 @@ void QtTextView::doResize()
 void QtTextView::paragraphChanged( QtTextParagraph* b)
 {
     QPainter p( viewport() );
-    d->fc->gotoParagraph( &p, b );
-    d->fc->updateParagraph( &p );
+    QtTextCursor tc( richText(), d->viewId );
+    tc.gotoParagraph( &p, b );
+    tc.updateParagraph( &p );
 }
 
 /*!
@@ -616,26 +617,21 @@ void QtTextView::paragraphChanged( QtTextParagraph* b)
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
-
-    if ( !d->fc ) {
-	qDebug("resizeEvent: nothing to do");
-	return;
-    }
     viewport()->setUpdatesEnabled( FALSE );
     QScrollView::resizeEvent( e );
-   viewport()->setUpdatesEnabled( TRUE );
+    viewport()->setUpdatesEnabled( TRUE );
     richText().invalidateLayout( d->viewId );
-    richText().flow(d->viewId)->x = 20;
-    d->fc->initFlow( richText().flow(d->viewId), viewport()->width()-40 );
+    richText().flow(d->viewId)->x = 0;
+    delete d->fcresize;
+    d->fcresize = new QtTextCursor( richText(), d->viewId );
+    d->fcresize->initFlow( richText().flow(d->viewId), viewport()->width() );
     {
 	QPainter p( viewport() );
-	d->fc->initParagraph( &p, &richText() );
-	d->fc->doLayout( &p, viewport()->height() + contentsY() );
-	resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
-	delete d->fcresize;
-	d->fcresize = new QtTextCursor( *d->fc );
- 	d->resizeTimer->start( 0, TRUE );
+	d->fcresize->initParagraph( &p, &richText() );
+	d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
     }
+    resizeContents( viewport()->width(), richText().flow( d->viewId)->height );
+    d->resizeTimer->start( 0, TRUE );
     viewport()->repaint( FALSE );
 }
 
@@ -668,8 +664,10 @@ void QtTextView::keyPressEvent( QKeyEvent * e)
 {
     switch (e->key()) {
     case Key_Right:
+	scrollBy( 10, 0 );
 	break;
     case Key_Left:
+	scrollBy( -10, 0 );
 	break;
     case Key_Up:
 	scrollBy( 0, -10 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#15 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#16 $
 **
 ** Definition of the QtTextView class
 **
@@ -50,7 +50,7 @@ QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
 }
 
 
- 
+
 QtTextCharFormat::~QtTextCharFormat()
 {
 }
@@ -95,7 +95,7 @@ int QtTextCharFormat::removeRef()
     return --ref;
 }
 
-QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style, 
+QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 						   const QMap<QString,QString>& attr,
 						   QtTextCustomItem*  item )
 {
@@ -105,7 +105,7 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 	format.anchor_href = attr["href"];
 	format.anchor_name = attr["name"];
     }
-    
+
     if ( style->fontWeight() != QStyleSheetItem::Undefined )
         format.font_.setWeight( style->fontWeight() );
     if ( style->fontSize() != QStyleSheetItem::Undefined )
@@ -144,15 +144,13 @@ QtTextFormatCollection::QtTextFormatCollection()
 
 QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat &format )
 {
-    if ( format.customItem() )
-	qDebug("register format with  customItem");
     if ( lastRegisterFormat ) {
         if ( format.key == lastRegisterFormat->key ) {
 	    lastRegisterFormat->addRef();
 	    return lastRegisterFormat;
         }
     }
-    
+
     if ( format.parent == this ) {
 	QtTextCharFormat* f = ( QtTextCharFormat*) &format;
 	f->addRef();
@@ -177,10 +175,10 @@ QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat
 void QtTextFormatCollection::unregisterFormat( const QtTextCharFormat &format )
 {
     QtTextCharFormat* f  = 0;
-    
+
     if ( format.parent == this )
 	f = ( QtTextCharFormat*)&format;
-    else if ( cKey.contains( format.key ) ) 
+    else if ( cKey.contains( format.key ) )
 	f = cKey[ format.key ];
 
     if ( f ) {

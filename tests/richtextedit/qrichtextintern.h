@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#12 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#13 $
 **
 ** Internal rich text classes
 **
@@ -125,12 +125,7 @@ public:
 
     ~QtTextParagraph();
 
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion,
-	      const QColorGroup& cg, const QtTextOptions& ,
-	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-
-
+    QtTextParagraph* realParagraph();
     QtTextParagraph* parent;
     QtTextFormatCollection* formats;
     QtTextCharFormat format;
@@ -151,7 +146,6 @@ public:
     }
 
     int y[MAXVIEWS];
-    int widthUsed[MAXVIEWS];
     int height[MAXVIEWS];
     bool dirty[MAXVIEWS];
     QtTextFlow* flows[MAXVIEWS];
@@ -164,6 +158,38 @@ public:
 	    return style->margin(m);
 	return 0;
     }
+
+    inline int topMargin() const
+    {
+	int m = margin( QStyleSheetItem::MarginTop );
+	if ( !prev && parent )
+	    m += parent->topMargin();
+	return m;
+    }
+
+    inline int bottomMargin() const
+    {
+	int m = margin( QStyleSheetItem::MarginBottom );
+	if ( !next && parent )
+	    m += parent->bottomMargin();
+	return m;
+    }
+
+    inline int labelMargin() const
+    {
+	return style->displayMode() == QStyleSheetItem::DisplayListItem ? 25: 0;
+    }
+
+    inline int totalMargin(QStyleSheetItem::Margin m) const
+    {
+	int tm = parent? parent->totalMargin( m ) : 0;
+	if (style->margin(m) != QStyleSheetItem::Undefined)
+	    tm += style->margin(m);
+	 if ( m == QStyleSheetItem::MarginLeft )
+	     tm += labelMargin();
+	return tm;
+    }
+
 
     inline QStyleSheetItem::WhiteSpaceMode  whiteSpaceMode() const
     {
@@ -188,40 +214,6 @@ private:
     void init();
 };
 
-
-
-
-/*
-
-class QtTextMulticol : public QtTextContainer
-{
-private:
-    int ncols;
-public:
-    QtTextMulticol( const QStyleSheetItem *stl)
-	: QtTextContainer(stl)
-	{
-	    ncols = 1;
-	}
-    QtTextMulticol( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-	: QtTextContainer(stl, attr)
-	{
-	    if ( attr.contains("cols") )
-		ncols =  attr["cols"].toInt();
-	    ncols = QMAX( 1, ncols);
-	}
-
-    ~QtTextMulticol()
-	{
-	}
-
-    int numberOfColumns() const
-	{
-	    return ncols;
-	}
-};
-
-*/
 
 class QtTextCustomItem : public Qt
 {
@@ -293,7 +285,7 @@ class QtTextCursor {
 
     void initFlow( QtTextFlow* frm, int w  );
     void initParagraph( QPainter* p, QtTextParagraph* b );
-    bool doLayout( QPainter* p, int ymax, QtTextFlow* backFlow = 0 );
+    bool doLayout( QPainter* p, int ymax = -1, QtTextFlow* backFlow = 0 );
 
 
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
@@ -302,17 +294,23 @@ class QtTextCursor {
     void drawLine( QPainter* p, int ox, int oy,
 		   QRegion& backgroundRegion,
 		   const QColorGroup& cg, const QtTextOptions& to );
+    void drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
+		   QRegion& backgroundRegion,
+		   const QColorGroup& cg, const QtTextOptions& to );
     void gotoNextItem( QPainter* p, const QFontMetrics& fm );
 
     void updateCharFormat( QPainter* p, const QFontMetrics& fm );
 
     int y_;
     int y() const { return y_; }
+    QtTextCharFormat* currentFormat();
     int width;
     int widthUsed;
     int height;
     int base;
     int fill;
+    int lmargin;
+    int rmargin;
 
 
     bool adjustFlowMode;
@@ -326,12 +324,12 @@ class QtTextCursor {
     void down( QPainter* p );
     void insert( QPainter*, const QString& text );
 
-    void rightOneItem( QPainter* p );
+    bool rightOneItem( QPainter* p );
     QtRichText* doc;
     int xline;
     QtTextParagraph* xline_paragraph;
     int xline_current;
-    
+
     int referenceTop();
     int referenceBottom();
 };
@@ -347,17 +345,20 @@ public:
     void mapToView( int yp, int& gx, int& gy );
     int availableWidth( int yp );
 
-    void countFlow( int yp, int h, bool pages = TRUE  );
-    void adjustFlow( int  &yp, int h, bool pages = TRUE );
-    
+    void countFlow( int yp, int w, int h, bool pages = TRUE  );
+    void adjustFlow( int  &yp, int w, int h, bool pages = TRUE );
+
     int x;
     int y;
     int width;
+    int widthUsed;
     int height;
 
     int ncols;
+    int colwidth;
     int colheight;
     int totalheight;
+    int additional_height;
 
     QtTextFlow* parent;
 };
@@ -452,3 +453,7 @@ inline bool QtTextRichString::haveSameFormat( int index1, int index2 ) const
     return items[index1].format == items[index2].format;
 }
 
+inline QtTextCharFormat* QtTextCursor::currentFormat()
+{
+    return paragraph->text.formatAt( current );
+}

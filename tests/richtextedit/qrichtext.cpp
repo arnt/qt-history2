@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#14 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#15 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -279,6 +279,8 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 	if (hasPrefix(doc, pos, QChar('<')) ){
 	    if (hasPrefix(doc, pos+1, QChar('/'))) {
 		ENSURE_ENDTOKEN;
+		if ( curstyle->isAnchor() )
+		    (dummy?dummy:current)->text.append( '\0', fmt );
 		return TRUE;
 	    }
 	    QMap<QString, QString> attr;
@@ -318,9 +320,11 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		}
 		if ( custom )
 		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
-		else // br
+		else {// br
 		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
-		
+		    if ( !pre )
+			eatSpace(doc, pos);
+		}
 	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
@@ -335,16 +339,7 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		}
 		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
 		
-		if ( !current->child )
-		    current->child = subparagraph;
-		else {
-		    QtTextParagraph* it = current->child;
-		    while ( it->next )
-			it = it->next;
-		    it->next = subparagraph;
-		    subparagraph->prev = it;
-		}
-		dummy = 0;
+		bool recover = FALSE;
 		if (parse( subparagraph, nstyle, 0, fmt.makeTextFormat( nstyle, attr ), doc, pos) ) {
 		    (void) eatSpace(doc, pos);
 		    int recoverPos = pos;
@@ -355,12 +350,28 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 		    if (!valid) {
 			pos = recoverPos;
 			valid = TRUE;
-			return TRUE;
+			recover = TRUE;
 		    }
-		    if (!valid)
-			return TRUE;
+		}
+		if ( subparagraph->style->displayMode() == QStyleSheetItem::DisplayNone ) {
+		    // delete invisible paragraphs
+		    delete subparagraph;
+		} else {
+		    // connect visible paragraphs
+		    if ( !current->child )
+			current->child = subparagraph;
+		    else {
+			QtTextParagraph* it = current->child;
+			while ( it->next )
+			    it = it->next;
+			it->next = subparagraph;
+			subparagraph->prev = it;
 		    }
-
+		    dummy = 0;
+		}
+		
+		if ( recover )
+		    return TRUE; // sloppy, we could return FALSE to abort
 		(void) eatSpace(doc, pos);
 	    }
 	    else { // containers and empty tags
@@ -405,6 +416,159 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
     }
     return TRUE;
 }
+
+
+/*
+bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyle, QtTextParagraph* dummy,
+			QtTextCharFormat fmt, const QString &doc, int& pos)
+{
+    bool pre = current->whiteSpaceMode() == QStyleSheetItem::WhiteSpacePre;
+    if ( !pre )
+	eatSpace(doc, pos);
+    while ( valid && pos < int(doc.length() )) {
+	int beforePos = pos;
+	if (hasPrefix(doc, pos, QChar('<')) ){
+	    if (hasPrefix(doc, pos+1, QChar('/'))) {
+		ENSURE_ENDTOKEN;
+		if ( curstyle->isAnchor() )
+		    (dummy?dummy:current)->text.append( '\0', fmt );
+		return TRUE;
+	    }
+	    QMap<QString, QString> attr;
+	    bool emptyTag = FALSE;
+	    QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
+	
+	    const QStyleSheetItem* nstyle = sheet_->item(tagname);
+ 	    if ( nstyle && !nstyle->selfNesting() && ( tagname == curstyle->name() ) ) {
+ 		pos = beforePos;
+		ENSURE_ENDTOKEN;
+ 		return FALSE;
+ 	    }
+
+	    if ( nstyle && !nstyle->allowedInContext( curstyle ) ) {
+		QString msg;
+		msg.sprintf( "QtText Warning: Document not valid ( '%s' not allowed in '%s' #%d)",
+			 tagname.ascii(), current->style->name().ascii(), pos);
+		sheet_->error( msg );
+		pos = beforePos;
+		ENSURE_ENDTOKEN;
+		return FALSE;
+	    }
+	
+	    // TODO was wenn wir keinen nstyle haben?
+	    if ( !nstyle )
+		nstyle = nullstyle;
+	
+	    QtTextCustomItem* custom = sheet_->tagEx( tagname, attr, contxt, *factory_ , emptyTag );
+	    if ( custom || tagname == "br") {
+		if ( current->child && !dummy ) {
+		    dummy = new QtTextParagraph( current, formats, fmt,  nullstyle );
+		    QtTextParagraph* it = current->child;
+		    while ( it->next )
+			it = it->next;
+		    it->next = dummy;
+		    dummy->prev = it;
+		}
+		if ( custom )
+		    (dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom ) );
+		else {// br
+		    (dummy?dummy:current)->text.append( "\n", fmt ) ;
+		    if ( !pre )
+			eatSpace(doc, pos);
+		}
+	    }
+	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
+		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
+		) {
+		if ( !current->text.isEmpty() ) {
+		    dummy = new QtTextParagraph( current, formats, fmt, nullstyle );
+		    dummy->text = current->text;
+		    dummy->text.append( "*", fmt );
+		    current->text.clear();
+		    current->child = dummy;
+		}
+		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
+		
+		bool recover = FALSE;
+		if (parse( subparagraph, nstyle, 0, fmt.makeTextFormat( nstyle, attr ), doc, pos) ) {
+		    (void) eatSpace(doc, pos);
+		    int recoverPos = pos;
+		    valid = (hasPrefix(doc, pos, QChar('<'))
+			     && hasPrefix(doc, pos+1, QChar('/'))
+			     && eatCloseTag(doc, pos, tagname) );
+		    // sloppy mode, warning was done in eatCloseTag
+		    if (!valid) {
+			pos = recoverPos;
+			valid = TRUE;
+			recover = TRUE;
+		    }
+		}
+		if ( subparagraph->style->displayMode() == QStyleSheetItem::DisplayNone ) {
+		    // delete invisible paragraphs
+		    delete subparagraph;
+		} else {
+		    // connect visible paragraphs
+		    if ( !current->child )
+			current->child = subparagraph;
+		    else {
+			QtTextParagraph* it = current->child;
+			while ( it->next )
+			    it = it->next;
+			it->next = subparagraph;
+			subparagraph->prev = it;
+		    }
+		    dummy = 0;
+		}
+		
+		if ( recover )
+		    return TRUE; // sloppy, we could return FALSE to abort
+		(void) eatSpace(doc, pos);
+	    }
+	    else { // containers and empty tags
+		// TODO: check empty tags and custom tags in stylesheet
+		if ( nstyle->isAnchor() ) {
+		    qt_link_count++;
+		}
+		// for now: assume container
+		if ( parse( current, nstyle, dummy, fmt.makeTextFormat( nstyle, attr ), doc, pos ) ) {
+		    (void) eatSpace(doc, pos);
+		    int recoverPos = pos;
+		    valid = (hasPrefix(doc, pos, QChar('<'))
+			     && hasPrefix(doc, pos+1, QChar('/'))
+			     && eatCloseTag(doc, pos, tagname) );
+		    // sloppy mode, warning was done in eatCloseTag
+		    if (!valid) {
+			pos = recoverPos;
+			valid = TRUE;
+			return TRUE;
+		    }
+		    if (!valid)
+			return TRUE;
+		}
+	    }
+	}
+	else { // plain text
+	    if ( current->child && !dummy ) {
+		dummy = new QtTextParagraph( current, formats, fmt,  nullstyle );
+		    QtTextParagraph* it = current->child;
+		    while ( it->next )
+			it = it->next;
+		    it->next = dummy;
+		    dummy->prev = it;
+	    }
+ 	    QString word = parsePlainText( doc, pos, pre, TRUE );
+ 	    if (valid){
+		(dummy?dummy:current)->text.append( word, fmt );
+		if (!pre && doc[pos] == '<')
+		    (void) eatSpace(doc, pos);
+	    }
+	}
+    }
+    return TRUE;
+}
+
+*/
 
 bool QtRichText::eatSpace(const QString& doc, int& pos, bool includeNbsp )
 {
@@ -716,6 +880,14 @@ void QtTextParagraph::invalidateLayout( int view )
 }
 
 
+QtTextParagraph* QtTextParagraph::realParagraph()
+{
+    // to work around dummy paragraphs
+    if ( parent &&style->name().isEmpty() )
+	return parent->realParagraph();
+    return this;
+}
+
 QStyleSheetItem::ListStyle QtTextParagraph::listStyle()
 {
     QString s =  attributes()["type"];
@@ -777,10 +949,15 @@ void QtTextParagraph::init()
 
     child = next = prev = 0;
     for (int i = 0; i < MAXVIEWS; i++) {
-	widthUsed[i] = height[i] = y[i] = 0;
+	height[i] = y[i] = 0;
 	dirty[i] = TRUE;
 	if ( multicol ) {
-	    flows[i] = new QtTextFlow( parent?parent->flow(i):0, 2 );
+	    QString s ( attributes_["cols"] );
+	    bool ok;
+	    int n = s.toInt( &ok );
+	    if ( !ok || n < 1 )
+		n = 2;
+	    flows[i] = new QtTextFlow( parent?parent->flow(i):0, n );
 	}
 	else
 	    flows[i] = 0;
@@ -982,6 +1159,7 @@ QtTextCursor::QtTextCursor(QtRichText& document, int view)
     first = y_ = width = widthUsed = height = base = fill = 0;
     last = first - 1;
     current = currentx = currentoffset = currentoffsetx = 0;
+    lmargin = rmargin = 0;
     currentasc  = currentdesc = 0;
     xline_current = 0;
     xline = 0;
@@ -1036,32 +1214,27 @@ void QtTextCursor::gotoParagraph( QPainter* p, QtTextParagraph* b )
     first = y_ = width = widthUsed = height = base = fill = 0;
     last = first - 1;
 
-//     QtTextParagraph* bp = b->parent;
-//     while ( bp ) {
-// 	x_ += bp->margin( QStyleSheetItem::MarginLeft );
-// 	bp = bp->parent;
-//     }
 
     y_ =  b->y[viewId];
-    int m =  b->margin( QStyleSheetItem::MarginTop ); // todo: if first par, think about daddy!
-
+    int m =  b->topMargin();
     if ( adjustFlowMode )
-	flow->adjustFlow( y_, m ) ;
+	flow->adjustFlow( y_, widthUsed, m ) ;
     else
-	flow->countFlow( y_, m );
+	flow->countFlow( y_, widthUsed, m );
 
     y_ += m;
 
+    lmargin = paragraph->totalMargin( QStyleSheetItem::MarginLeft );
+    rmargin = paragraph->totalMargin( QStyleSheetItem::MarginRight );
+
     current = 0;
 
-    currentx = 0;
+    currentx = lmargin;
     currentoffset = 0;
     currentoffsetx = 0;
     QFontMetrics fm( p->fontMetrics() );
     updateCharFormat( p, fm );
 
-    //qDebug("goto paragraph. Width = %d", width );
-    widthUsed = 0;
 }
 
 void QtTextCursor::update( QPainter* p )
@@ -1083,18 +1256,24 @@ bool QtTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
     if ( atEnd() ) {
 	current++;
 	y_ += height + 1; // first pixel below us
-	int m = paragraph->margin( QStyleSheetItem::MarginBottom );
-	if ( adjustFlowMode )
-	    flow->adjustFlow( y_, m ) ;
-	else
-	    flow->countFlow( y_, m );
-	y_ += m;
+	int m = paragraph->bottomMargin();
+	QtTextParagraph* nid = paragraph->nextInDocument();
+	if ( nid ) {
+	    m -= nid->topMargin();
+	}
+	if ( m > 0 ) {
+	    if ( adjustFlowMode )
+		flow->adjustFlow( y_, widthUsed, m ) ;
+	    else
+		flow->countFlow( y_, widthUsed, m );
+	    y_ += m;
+	}
 	paragraph->height[viewId] = y() - paragraph->y[viewId]; //####
 	paragraph->dirty[viewId] = FALSE;
 	return FALSE;
     }
     current++;
-    currentx = 0;
+    currentx = lmargin;
     y_ += height;
 
     height = 0;
@@ -1106,7 +1285,7 @@ void QtTextCursor::gotoLineStart( QPainter* p, const QFontMetrics& fm )
 {
     current = first;
     currentoffset = currentoffsetx = 0;
-    currentx = fill;
+    currentx = lmargin + fill;
     updateCharFormat( p, fm );
 }
 
@@ -1115,7 +1294,7 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 {
     if ( pastEnd() )
 	return;
-    QtTextCharFormat* fmt = paragraph->text.formatAt( current );
+    QtTextCharFormat* fmt = currentFormat();
     p->setFont( fmt->font() );
     p->setPen( fmt->color() );
     currentasc = fm.ascent();
@@ -1127,6 +1306,74 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 
 }
 
+
+void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
+	   QRegion& backgroundRegion,
+	   const QColorGroup& cg, const QtTextOptions& to )
+{
+    if ( !par->parent )
+	return;
+    if ( par->style->displayMode() != QStyleSheetItem::DisplayListItem )
+	return;
+
+    QRect r (x - ox, y-oy, w, h ); ///#### label width?
+    QStyleSheetItem::ListStyle s = par->parent->listStyle();
+	
+    switch ( s ) {
+    case QStyleSheetItem::ListDecimal:
+    case QStyleSheetItem::ListLowerAlpha:
+    case QStyleSheetItem::ListUpperAlpha:
+	{
+	    int n = 1;
+	    n = par->parent->numberOfSubParagraph( par, TRUE );
+	    QString l;
+	    switch ( s ) {
+	    case QStyleSheetItem::ListLowerAlpha:
+		if ( n < 27 ) {
+		    l = QChar( ('a' + (char) (n-1)));
+		    break;
+		}
+	    case QStyleSheetItem::ListUpperAlpha:
+		if ( n < 27 ) {
+		    l = QChar( ('A' + (char) (n-1)));
+		    break;
+		}
+		break;
+	    default:  //QStyleSheetItem::ListDecimal:
+		l.setNum( n );
+		break;
+	    }
+	    l += QString::fromLatin1(". ");
+	    QFont font = p->font();
+	    p->setFont( par->parent->format.font() );
+	    p->drawText( r, Qt::AlignRight|Qt::AlignVCenter, l);
+	    p->setFont( font );
+	}
+	break;
+    case QStyleSheetItem::ListSquare:
+	{
+	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
+	}
+	break;
+    case QStyleSheetItem::ListCircle:
+	{
+	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    p->drawEllipse( er );
+	}
+	break;
+    case QStyleSheetItem::ListDisc:
+    default:
+	{
+	    p->setBrush( cg.brush( QColorGroup::Foreground ));
+	    QRect er( r.right()-10, r.center().y()-1, 6, 6);
+	    p->drawEllipse( er );
+	    p->setBrush( Qt::NoBrush );
+	}
+	break;
+    }
+
+}
 
 void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 		    QRegion& backgroundRegion,
@@ -1143,24 +1390,40 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
     int gx, gy;
     flow->mapToView( y_, gx, gy );
 	
-    // todo ask flow to get position
-    QRegion r(gx-ox, gy-oy, width, height);
+    int realWidth = QMAX( width, widthUsed );
+    QRegion r(gx-ox, gy-oy, realWidth, height);
     p->setClipRegion( r );
-    p->setClipping( TRUE );
 
     backgroundRegion = backgroundRegion.subtract(r);
 
     if (TRUE ) { //!onlyDirty && !onlySelection && to.paper) {
 	if ( to.paper->pixmap() )
-	    p->drawTiledPixmap(gx-ox, gy-oy, width, height, *to.paper->pixmap(), gx, gy);
+	    p->drawTiledPixmap(gx-ox, gy-oy, realWidth, height, *to.paper->pixmap(), gx, gy);
 	else
-	    p->fillRect(gx-ox, gy-oy, width, height, *to.paper);
+	    p->fillRect(gx-ox, gy-oy, realWidth, height, *to.paper);
     }
 
+    if ( first == 0 ) {
+	//#### TODO cache existence of label
+	QtTextParagraph*it = paragraph;
+	int m = 0;
+	while ( it &&
+		( it->style->displayMode() == QStyleSheetItem::DisplayListItem
+		  || it->prev == 0 ) ) {
+	    int itm = it->labelMargin();
+	    m += itm;
+	    drawLabel( p, it, gx+lmargin-m, gy, itm, height, ox, oy, backgroundRegion, cg, to );
+	    m += it->margin( QStyleSheetItem::MarginLeft );
+	    if ( it->style->displayMode() == QStyleSheetItem::DisplayListItem && it->prev )
+		it = 0;
+	    else
+		it = it->parent;
+	}
+    }
 
     QString c;
     while ( !atEndOfLine() ) {
-	QtTextCharFormat *format  = paragraph->text.formatAt( current );
+	QtTextCharFormat *format  = currentFormat();
 	if ( !format->anchorHref().isEmpty() ) {
 	    p->setPen( to.linkColor );
 	    if ( to.linkUnderline ) {
@@ -1205,16 +1468,21 @@ bool QtTextCursor::atEndOfLine() const
     return current > last || (current == last && currentoffset >= int(paragraph->text.charAt( current ).length())-1);
 }
 
-
-
-void QtTextCursor::rightOneItem( QPainter* p )
+bool QtTextCursor::rightOneItem( QPainter* p )
 {
     QFontMetrics fm( p->fontMetrics() );
     if ( atEnd() ) {
-	if ( paragraph->nextInDocument() ) {
-	    gotoParagraph( p, paragraph->nextInDocument() );
+	QtTextParagraph* next = paragraph->nextInDocument();
+	if ( next ) {
+	    if ( next->dirty[ viewId ] ) {
+		qDebug("rightOneItem: dirty, make layout**************");
+		doLayout( p );
+	    }
+	    gotoParagraph( p, next );
 	    makeLineLayout( p, fm );
 	    gotoLineStart( p, fm );
+	} else {
+	    return FALSE;
 	}
     }
     else if ( current >= last ) {
@@ -1225,6 +1493,7 @@ void QtTextCursor::rightOneItem( QPainter* p )
     else {
 	gotoNextItem( p, fm );
     }
+    return TRUE;
 }
 
 void QtTextCursor::right( QPainter* p )
@@ -1232,7 +1501,7 @@ void QtTextCursor::right( QPainter* p )
     if ( !pastEnd() && !pastEndOfLine() ) {
 	QString c =  paragraph->text.charAt( current );
 	if ( currentoffset  < int(c.length()) - 1 ) {
-	    QtTextCharFormat* fmt = paragraph->text.formatAt( current );
+	    QtTextCharFormat* fmt = currentFormat();
 	    p->setFont( fmt->font() );
 	    QFontMetrics fm( p->fontMetrics() );
 	    currentoffset++;
@@ -1240,7 +1509,7 @@ void QtTextCursor::right( QPainter* p )
 	    return;
 	}
     }
-    rightOneItem( p );
+    (void) rightOneItem( p );
 }
 
 void QtTextCursor::left( QPainter* p )
@@ -1248,7 +1517,7 @@ void QtTextCursor::left( QPainter* p )
     QFontMetrics fm( p->fontMetrics() );
     if ( currentoffset > 0 ) {
 	QString c =  paragraph->text.charAt( current );
-	QtTextCharFormat* fmt = paragraph->text.formatAt( current );
+	QtTextCharFormat* fmt = currentFormat();
 	p->setFont( fmt->font() );
 	currentoffset--;
 	currentoffsetx = fm.width( c, currentoffset );
@@ -1259,7 +1528,7 @@ void QtTextCursor::left( QPainter* p )
 	    makeLineLayout( p, fm );
 	    gotoLineStart( p, fm );
 	    while ( !atEnd() )
-		rightOneItem( p );
+		(void) rightOneItem( p );
 	}
     }
     else {
@@ -1270,11 +1539,11 @@ void QtTextCursor::left( QPainter* p )
 	}
 	gotoLineStart( p, fm );
 	while ( current <  i - 1 )
-	    rightOneItem( p );
+	    (void) rightOneItem( p );
 	QString c =  paragraph->text.charAt( current );
 	if ( c.length() > 1 ) {
 	    currentoffset = c.length() - 1;
-	    QtTextCharFormat* fmt = paragraph->text.formatAt( current );
+	    QtTextCharFormat* fmt = currentFormat();
 	    p->setFont( fmt->font() );
 	    QFontMetrics fm( p->fontMetrics() );
 	    currentoffsetx = fm.width( c, currentoffset );
@@ -1304,8 +1573,8 @@ void QtTextCursor::down( QPainter* p )
     if ( xline_paragraph != paragraph || xline_current != current )
 	xline = currentx + currentoffsetx;
     while ( current < last )
-	rightOneItem( p );
-    rightOneItem( p );
+	(void) rightOneItem( p );
+    (void) rightOneItem( p );
     while ( !atEndOfLine() && currentx + currentoffsetx < xline ) {
 	right( p );
     }
@@ -1318,8 +1587,7 @@ void QtTextCursor::insert( QPainter* p, const QString& text )
 {
     QFontMetrics fm( p->fontMetrics() );
     if ( paragraph->text.isCustomItem( current ) ) {
-	paragraph->text.insert( current, text,
-				paragraph->text.formatAt( current )->formatWithoutCustom() );
+	paragraph->text.insert( current, text, currentFormat()->formatWithoutCustom() );
 	current++;
 	currentoffset = 0;
     }
@@ -1329,7 +1597,7 @@ void QtTextCursor::insert( QPainter* p, const QString& text )
 	    sref.insert( currentoffset, text[i] );
 	    if ( text[i] == ' ' && currentoffset < int(sref.length())-1 ) { // not isSpace() to ignore nbsp
 		paragraph->text.insert( current+1, sref.mid( currentoffset+1 ),
-					*paragraph->text.formatAt( current ) );
+					*currentFormat() );
 		sref.truncate( currentoffset+1 );
 		current++;
 		currentoffset = 0;
@@ -1424,8 +1692,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     if ( pastEnd() )
 	return;
 
-    width = flow->availableWidth(y_ ); // TODO #### margins
-		
+    width = flow->availableWidth(y_ );
 
     last = first;
     int rh = 0;
@@ -1441,7 +1708,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     int lastDesc = rdesc;
     bool noSpaceFound = TRUE;
 
-    QtTextCharFormat* fmt = paragraph->text.formatAt( current );
+    QtTextCharFormat* fmt = currentFormat();
     int fmt_current = current;
     p->setFont( fmt->font() );
     int minRightBearing = fm.minRightBearing();
@@ -1454,7 +1721,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
     while ( !pastEnd() ) {
 	
 	if ( !paragraph->text.haveSameFormat( fmt_current, current ) ) {
-	    fmt = paragraph->text.formatAt( current );
+	    fmt = currentFormat();
 	    fmt_current = current;
 	    p->setFont( fmt->font() );
 	    minRightBearing = fm.minRightBearing();
@@ -1485,8 +1752,11 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 
 	    gotoNextItem( p, fm );
 	}
-	// TODO fake newlines with custom items that expand horizontally!
-	if ( currentx > width - space_width + minRightBearing && !noSpaceFound )
+	// if a wordbreak is possible and required, do it. Unless we
+	// have a newline, of course. In that case we break after the
+	// newline to avoid empty lines.
+	if ( currentx > width - rmargin - space_width + minRightBearing
+	     && !noSpaceFound && lastc != '\n' )
 	    break;
 	
 	// word break is possible (a) after a space, (b) after a
@@ -1520,25 +1790,25 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	fill = 0;
 	break;
     case Qt::AlignCenter:
-	fill = (width - lastWidth) / 2;
+	fill = (width - rmargin - lastWidth) / 2;
 	break;
     case Qt::AlignRight:
-	fill = width - lastWidth;
+	fill = width - rmargin - lastWidth;
 	break;
     }
 
     current = lastSpace;//###
 
     int min = lastWidth - lastBearing;
-    if ( min > widthUsed )
-	widthUsed = min;
+    if ( min + rmargin > widthUsed )
+	widthUsed = min + rmargin;
     if ( widthUsed > width )
-	fill = 0;
+	fill = 0; // fall back to left alignment if there isn't sufficient space
 
     if ( adjustFlowMode )
-	flow->adjustFlow( y_, height ) ;
+	flow->adjustFlow( y_, widthUsed, height ) ;
     else
-	flow->countFlow( y_, height );
+	flow->countFlow( y_, widthUsed, height );
 }
 
 bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
@@ -1571,9 +1841,9 @@ bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
 		    other.doLayout( p, -1, oldFlow );
 
 		    if ( adjustFlowMode )
-			oldFlow->adjustFlow( flow->y, flow->height, FALSE );
+			oldFlow->adjustFlow( flow->y, flow->x + flow->widthUsed, flow->height, FALSE );
 		    else
-			oldFlow->countFlow( flow->y, flow->height, FALSE );
+			oldFlow->countFlow( flow->y, flow->x + flow->widthUsed, flow->height, FALSE );
 		
 		    if ( flow->y != y_ ) {
 			// adjust possible page breaks
@@ -1587,7 +1857,7 @@ bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
 		    initParagraph( p, b );
 	    }
 	    paragraph->dirty[viewId] = FALSE;
-	} 
+	}
     };
     return b == 0;
 }
@@ -1613,7 +1883,7 @@ QRect QtTextCursor::lineGeometry() const
 {
     int gx, gy;
     flow->mapToView( y_, gx, gy );
-    return QRect( gx, gy, width, height );
+    return QRect( gx, gy, widthUsed, height );
 }
 
 
@@ -1648,8 +1918,8 @@ QtTextFlow::QtTextFlow( QtTextFlow* parentFlow, int ncolumns )
 {
     parent = parentFlow;
     ncols = ncolumns;
-    totalheight = colheight = 0;
-    x = y = width = height = 0;
+    totalheight = colheight = additional_height = colwidth = 0;
+    x = y = width = widthUsed = height = 0;
 }
 
 QtTextFlow::~QtTextFlow()
@@ -1663,6 +1933,8 @@ void QtTextFlow::initialize( int w)
     totalheight = colheight = 0;
     y = 0;
     width = w;
+    widthUsed = 0;
+    colwidth = width / ncols;
 }
 
 void QtTextFlow::mapToView( int yp, int& gx, int& gy )
@@ -1683,15 +1955,13 @@ void QtTextFlow::mapToView( int yp, int& gx, int& gy )
     }
 
     int col = yp / colheight ;
-    gx += col  * (width/ncols);
+    gx += col  * colwidth;
     gy += yp % colheight;
 
     if ( col >= ncols ) {
-	gx -= (col-ncols+1) * (width/ncols);
+	gx -= (col-ncols+1) * colwidth;
 	gy += (col-ncols+1) * colheight;
     }
-
-    //TODO pages for printing
 
 }
 
@@ -1701,22 +1971,27 @@ int QtTextFlow::availableWidth( int yp )
 	return width;
     }
     yp = 0; // shut up, compiler
-    return width/ncols - 5;
+    return colwidth - 5;
 }
 
 
 const int pagesize = 500;
 
-void QtTextFlow::adjustFlow( int  &yp, int h, bool pages )
+void QtTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
 {
     if ( totalheight ) {
-	colheight = totalheight / ncols;
+	colheight = (totalheight+additional_height) / ncols;
 	totalheight = 0;
+	additional_height = 0;
+	widthUsed = ncols * colwidth + 5;
     }
 
+    if ( w > widthUsed )
+	widthUsed = w;
+
     if ( ncols > 1 ) {
-  	if ( yp+h < colheight * ncols && yp % colheight  + h > colheight )
-  	    yp = (yp/colheight)*colheight + colheight;
+   	if ( yp+h < colheight * ncols && yp % colheight  + h > colheight )
+   	    yp = (yp/colheight)*colheight + colheight;
 	if ( colheight  ) {
 	    if ( yp - ncols * colheight + colheight > height)
 		height = yp -  ncols * colheight + colheight;
@@ -1739,20 +2014,19 @@ void QtTextFlow::adjustFlow( int  &yp, int h, bool pages )
     }
 
     height = QMAX( colheight, height );
-
-    //TODO pages for printing
-
 }
 
-void QtTextFlow::countFlow( int yp, int h, bool pages )
+void QtTextFlow::countFlow( int yp, int w, int h, bool pages )
 {
     totalheight = yp + h;
-
-    if ( pages ) {
- 	if ( totalheight % pagesize + h > pagesize - 2  )
- 	    totalheight += pagesize - (totalheight % pagesize) + 2 ;
+    if ( w > widthUsed )
+	widthUsed = w;
+    if ( widthUsed + 5 > colwidth )
+	colwidth = widthUsed + 5;
+     if ( pages ) {
+  	if ( yp % pagesize + h > pagesize - 2  )
+  	    additional_height += pagesize - (yp % pagesize) + 2 ;
      }
 
-    //totalheight += h;
 }
 
