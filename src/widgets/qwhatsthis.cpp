@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#5 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#5 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -82,7 +82,7 @@ QWhatsThisPrivate::Item::~Item()
     if ( count )
 	fatal( "Internal error #10%d in What's This", count );
     if ( dc )
-	delete[] s;
+	delete[] (char*)s;
 }
 
 
