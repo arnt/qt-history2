@@ -1437,10 +1437,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (sb->parts & SC_SpinBoxUp) {
                 copy.parts = SC_SpinBoxUp;
-                copy.state = Style_Default | Style_Enabled;
                 QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepUpEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
+                }
+
                 copy.palette = pal2;
 
                 if (sb->activeParts == SC_SpinBoxUp) {
@@ -1458,10 +1459,11 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (sb->parts & SC_SpinBoxDown) {
                 copy.parts = SC_SpinBoxDown;
-                copy.state = Style_Default | Style_Enabled;
+                copy.state = sb->state;
                 QPalette pal2 = sb->palette;
-                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled))
+                if (!(sb->stepEnabled & QAbstractSpinBox::StepDownEnabled)) {
                     pal2.setCurrentColorGroup(QPalette::Disabled);
+                }
                 copy.palette = pal2;
 
                 if (sb->activeParts == SC_SpinBoxDown) {
@@ -1479,7 +1481,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             }
 
             if (sb->parts & PE_SpinBoxSlider) {
-                copy.state = Style_Default | Style_Enabled;
+                copy.state = sb->state;
                 pe = PE_SpinBoxSlider;
                 copy.parts = SC_SpinBoxSlider;
                 copy.rect = sb->rect;
@@ -1752,6 +1754,21 @@ QStyle::SubControl QCommonStyle::querySubControl(ComplexControl cc, const QStyle
                 sc = SC_ListViewExpand;
         }
         break;
+    case CC_SpinBox:
+        if (const QStyleOptionSpinBox *spinbox = qt_cast<const QStyleOptionSpinBox *>(opt)) {
+            QRect r;
+            uint ctrl = SC_SpinBoxUp;
+            while (ctrl <= SC_SpinBoxSlider) {
+                r = visualRect(querySubControlMetrics(cc, spinbox, QStyle::SubControl(ctrl), widget), widget);
+                if (r.isValid() && r.contains(pt)) {
+                    sc = QStyle::SubControl(ctrl);
+                    break;
+                }
+                ctrl <<= 1;
+            }
+        }
+        break;
+
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qt_cast<const QStyleOptionTitleBar *>(opt)) {
             QRect r;
