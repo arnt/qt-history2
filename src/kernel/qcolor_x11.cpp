@@ -430,10 +430,19 @@ uint QColor::alloc()
 	    }
 
 	    if ( i == -1 ) {			// no nearest color?!
-		d.argb = qRgb(0,0,0);
-		d.d8.invalid = FALSE;
-		d.d8.dirty = FALSE;
-		d.d8.pix = (uint)BlackPixel( dpy, scr );
+		int unused, value;
+		hsv(&unused, &unused, &value);
+		if (value < 128) { // dark, use black
+		    d.argb = qRgb(0,0,0);
+		    d.d8.invalid = FALSE;
+		    d.d8.dirty = FALSE;
+		    d.d8.pix = (uint)BlackPixel( dpy, scr );
+		} else { // light, use white
+		    d.argb = qRgb(0xff,0xff,0xff);
+		    d.d8.invalid = FALSE;
+		    d.d8.dirty = FALSE;
+		    d.d8.pix = (uint)WhitePixel( dpy, scr );
+		}
 		return d.d8.pix;
 	    }
 	    if ( g_our_alloc[i] ) {		// we've already allocated it
@@ -464,10 +473,19 @@ uint QColor::alloc()
     } while ( try_again && try_count < 2 );
 
     if ( try_again ) {				// no hope of allocating color
-	d.argb = qRgb(0,0,0);
-	d.d8.invalid = FALSE;
-	d.d8.dirty = FALSE;
-	d.d8.pix = (uint)BlackPixel( dpy, scr );
+	int unused, value;
+	hsv(&unused, &unused, &value);
+	if (value < 128) { // dark, use black
+	    d.argb = qRgb(0,0,0);
+	    d.d8.invalid = FALSE;
+	    d.d8.dirty = FALSE;
+	    d.d8.pix = (uint)BlackPixel( dpy, scr );
+	} else { // light, use white
+	    d.argb = qRgb(0xff,0xff,0xff);
+	    d.d8.invalid = FALSE;
+	    d.d8.dirty = FALSE;
+	    d.d8.pix = (uint)WhitePixel( dpy, scr );
+	}
 	return d.d8.pix;
     }
     // All colors outside context 0 must go into the dictionary
