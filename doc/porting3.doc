@@ -90,11 +90,12 @@ the top of the file giving the error.
 Header files that you might need to add #include directives for include:
 \list
 \i \c <qcursor.h>
-\i \c <qregexp.h>
 \i \c <qpainter.h>
 \i \c <qpen.h>
 \i \c <qstringlist.h>
+\i \c <qregexp.h>
 \i \c <qstrlist.h>
+\i \c <qstyle.h>
 \i \c <qvaluelist.h>
 \endlist
 
