@@ -270,7 +270,7 @@ void Win32MakefileGenerator::processRcFileVar()
     if (project->variables()["RC_FILE"].isEmpty() && project->variables()["RES_FILE"].isEmpty()
         && !project->isActiveConfig("no_generated_target_info")
         && (project->isActiveConfig("dll") || !project->variables()["QMAKE_APP_FLAG"].isEmpty())) {
-        QFile rcFile(project->variables()["TARGET"].first() + ".rc");
+        QFile rcFile(project->variables()["TARGET"].first() + "_resource" + ".rc");
         if (rcFile.open(QFile::WriteOnly)) {
             QTextStream ts(&rcFile);
 
