@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#27 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -102,7 +102,6 @@ void QPMCache::timerEvent( QTimerEvent * )
 {
     int mc = maxCost();
     bool nt = totalCost() == ps;
-    int d = totalCost();
     setMaxCost( nt ? totalCost() * 3 / 4 : totalCost() -1 );
     setMaxCost( mc );
     ps = totalCost();
