@@ -440,7 +440,7 @@ void QWorkspace::activateWindow( QWidget* w, bool change_focus )
 	return;
     }
 
-    if ( d->active && d->active->windowWidget() == w && w->hasFocus() )
+    if ( d->active && d->active->windowWidget() == w )
 	return;
 
     QPtrListIterator<QWorkspaceChild> it( d->windows );
