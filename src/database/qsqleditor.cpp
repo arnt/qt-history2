@@ -2,13 +2,12 @@
 
 #ifndef QT_NO_SQL
 
-
-/*!  Constructs a SQL editor that operates on field \a field.
+/*!  Constructs an empty
 
 */
 
-QSqlEditor::QSqlEditor( QSqlField& field )
-    : fld(field)
+QSqlEditor::QSqlEditor( QSqlField& field, QWidget * parent, const char * name, WFlags f )
+    : QWidget( parent, name, f ), fld(field)
 {
     
 }
@@ -19,7 +18,7 @@ QSqlEditor::QSqlEditor( QSqlField& field )
 
 QSqlEditor::~QSqlEditor()
 {
-    
+
 }
 
 /*!
@@ -34,7 +33,7 @@ void QSqlEditor::syncToEditor()
 
 
 /*!
-  Moves the contents of the editor into the QSqlField. 
+  Moves the contents of the editor into the QSqlField.
 
 */
 
@@ -50,9 +49,9 @@ void QSqlEditor::syncToField()
 */
 
 QSqlLineEdit::QSqlLineEdit( QWidget * parent, QSqlField& field, const char * name )
-    : QSqlEditor( field ), QLineEdit( parent, name )
+    : QSqlEditor( field, parent, name )
 {
-    
+    ed = new QLineEdit( this, name );
 }
 
 /*!  Constructs a SQL line edit
@@ -60,29 +59,31 @@ QSqlLineEdit::QSqlLineEdit( QWidget * parent, QSqlField& field, const char * nam
 */
 
 QSqlLineEdit::QSqlLineEdit( const QString & contents, QWidget * parent, QSqlField& field, const char * name )
-    : QSqlEditor( field ), QLineEdit( contents, parent, name )    
+    : QSqlEditor( field, parent, name )
 {
-    
+    ed = new QLineEdit( contents, this, name );
 }
 
-/*! 
+/*!
   \reimpl
 
 */
 
 QVariant QSqlLineEdit::editorValue()
 {
-    return QVariant(text());
+    return QVariant(ed->text());
 }
 
-/*! 
+/*!
   \reimpl
 
 */
 
 void QSqlLineEdit::takeValue( QVariant& value )
 {
-    setText( value.toString() );
+    ed->setText( value.toString() );
 }
 
 #endif
+
+
