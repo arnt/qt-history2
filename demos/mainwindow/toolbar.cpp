@@ -48,7 +48,7 @@ static QPixmap genIcon(const QSize &iconSize, const QString &string, const QColo
             image.setPixel(x, y, qRgba(color.red(), color.green(), color.blue(), 255-alpha));
         }
     }
-    pixmap = image;
+    pixmap = QPixmap::fromImage(image);
 
     return pixmap;
 }

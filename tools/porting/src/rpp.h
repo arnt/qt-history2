@@ -129,6 +129,7 @@ protected:
 
 struct ItemComposite
 {
+    virtual ~ItemComposite() {}
     virtual int count() const = 0;
     virtual Item *item(int index) const = 0;
     virtual void add(Item *item) = 0;

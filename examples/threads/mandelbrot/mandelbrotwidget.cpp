@@ -141,7 +141,7 @@ void MandelbrotWidget::updatePixmap(const QImage &image, double scaleFactor)
     if (!lastDragPos.isNull())
         return;
 
-    pixmap = image;
+    pixmap = QPixmap::fromImage(image);
     pixmapOffset = QPoint();
     lastDragPos = QPoint();
     pixmapScale = scaleFactor;

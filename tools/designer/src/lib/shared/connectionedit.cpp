@@ -238,7 +238,7 @@ Connection::Connection(ConnectionEdit *edit)
     m_edit = edit;
     m_source = 0;
     m_target = 0;
-    
+
     m_source_pos = QPoint(-1, -1);
     m_target_pos = QPoint(-1, -1);
 }
@@ -680,7 +680,7 @@ void Connection::updatePixmap(EndPoint::Type type)
 
     QFontMetrics fm = m_edit->fontMetrics();
     QSize size = fm.size(Qt::TextSingleLine, text) + QSize(HLABEL_MARGIN*2, VLABEL_MARGIN*2);
-    pm->resize(size);
+    *pm = QPixmap(size);
     pm->fill(m_edit->palette().color(QPalette::Normal, QPalette::Base));
 
     QPainter p(pm);
@@ -691,7 +691,7 @@ void Connection::updatePixmap(EndPoint::Type type)
     LineDir dir = labelDir(type);
 
     if (dir == DownDir)
-        *pm = pm->transform(QMatrix(0.0, -1.0, 1.0, 0.0, 0.0, 0.0));
+        *pm = pm->transformed(QMatrix(0.0, -1.0, 1.0, 0.0, 0.0, 0.0));
 }
 
 void Connection::checkWidgets()
@@ -785,7 +785,7 @@ void ConnectionEdit::updateBackground()
     p.setPen(QColor(0, 0, 255, 22));
     for (int y = 0; y < m_bg_pixmap.height(); y += 2)
         p.drawLine(0, y, m_bg_pixmap.width(), y); */
-    
+
     updateLines();
     update();
 }
@@ -999,7 +999,7 @@ void ConnectionEdit::findObjectsUnderMouse(const QPoint &pos)
 
     if (state() != Connecting && w == m_bg_widget)
         w = 0;
-    
+
     if (w != m_widget_under_mouse) {
         if (!m_widget_under_mouse.isNull())
             update(widgetRect(m_widget_under_mouse));
@@ -1084,7 +1084,7 @@ void ConnectionEdit::endConnection(QWidget *target, const QPoint &pos)
         new_con->setEndPoint(EndPoint::Target, target, m_tmp_con->endPointPos(EndPoint::Target));
         m_undo_stack->push(new AddConnectionCommand(this, new_con));
     }
-    
+
     delete m_tmp_con;
     m_tmp_con = 0;
 

@@ -511,8 +511,7 @@ void ColorProperty::setValue(const QVariant &value)
 
 QVariant ColorProperty::decoration() const
 {
-    QPixmap pix;
-    pix.resize(16, 16);
+    QPixmap pix(16, 16);
     pix.fill(qvariant_cast<QColor>(value()));
     return qVariantFromValue(pix);
 }
@@ -588,8 +587,7 @@ void FontProperty::setValue(const QVariant &value)
 
 QVariant FontProperty::decoration() const
 {
-    QPixmap pix;
-    pix.resize(16, 16);
+    QPixmap pix(16, 16);
     pix.fill(Qt::white);
     QPainter p(&pix);
     QFont fnt = qvariant_cast<QFont>(value());

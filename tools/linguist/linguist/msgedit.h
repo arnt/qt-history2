@@ -26,6 +26,7 @@
 #include <qtextedit.h>
 #include <qscrollarea.h>
 #include <QTextCharFormat>
+#include <qbitmap.h>
 
 template <typename T> class QList;
 class QSplitter;
@@ -89,8 +90,8 @@ public:
         : QWidget(parent)
     {
         QPixmap px = TrWindow::pageCurl();
-        if ( px.mask() ) {
-            setMask( *px.mask() );
+        if ( !px.mask().isNull() ) {
+            setMask( px.mask() );
         }
         QPalette pal = palette();
         pal.setBrush(backgroundRole(), px);
