@@ -254,6 +254,10 @@
 
   Equivalent to the [] operator.
 
+  \warning Your application will crash if you call find() on an empty
+  dictionary; you can check with isEmpty() or count(). We don't
+  perform this check for efficiency reasons. 
+
   \sa operator[]()
 */
 
@@ -268,6 +272,10 @@
   that was inserted will be found.
 
   Equivalent to the find() function.
+
+  \warning Your application will crash if you call find() on an empty
+  dictionary; you can check with isEmpty() or count(). We don't
+  perform this check for efficiency reasons. 
 
   \sa find()
 */
