@@ -52,7 +52,7 @@ QDataStream &operator<<( QDataStream &s, const Document &l )
 }
 
 Index::Index( const QString &dp, const QString &hp )
-    : QObject( 0, 0 ), dict( 8999 ), docPath( dp ), homePath( hp )
+    : QObject( 0, 0 ), dict( 8999 ), docPath( dp )
 {
     alreadyHaveDocList = FALSE;
     lastWindowClosed = FALSE;
@@ -61,7 +61,7 @@ Index::Index( const QString &dp, const QString &hp )
 }
 
 Index::Index( const QStringList &dl, const QString &hp )
-    : QObject( 0, 0 ), dict( 8999 ), homePath( hp )
+    : QObject( 0, 0 ), dict( 8999 )
 {
     docList = dl;
     alreadyHaveDocList = TRUE;

@@ -147,6 +147,7 @@ private:
     void getAllContents();
     QDict<ContentList> contentList;
     QPopupMenu *itemPopup;
+    QString cacheFilesPath;
 };
 
 #endif

@@ -91,6 +91,7 @@ void TabbedBrowser::newTab( const QString &lnk )
     tab->showPage( win );
     connect( win, SIGNAL( highlighted( const QString & ) ),
 	     (const QObject*) (mainWin->statusBar()), SLOT( message( const QString & ) ) );
+    connect( win, SIGNAL( chooseWebBrowser() ), mainWin, SLOT( showWebBrowserSettings() ) );
 
     if( !link.isNull() ) {
 	win->setSource( link );

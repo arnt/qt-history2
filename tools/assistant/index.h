@@ -93,7 +93,7 @@ private:
     QDict<Entry> dict;
     QDict<PosEntry> miniDict;
     uint wordNum;
-    QString docPath, homePath;
+    QString docPath;
     QString dictFile, docListFile;
     bool alreadyHaveDocList;
     bool lastWindowClosed;

@@ -143,6 +143,7 @@ int main( int argc, char ** argv )
     QString file, profileName;
     bool server = FALSE;
     bool hideSidebar = FALSE;
+    bool startClean = FALSE;
     if ( argc == 2 ) {
 	if ( (argv[1])[0] != '-' )
 	    file = argv[1];
@@ -157,6 +158,8 @@ int main( int argc, char ** argv )
 	        server = TRUE;
 	    //} else if ( QString( argv[i] ).lower() == "-disablefirstrun" ) {
 	    //    allowFirstRun = FALSE;
+	    } else if ( QString( argv[i] ).lower() == "-startclean" ) {
+		startClean = TRUE;
 	    } else if ( QString( argv[i] ).lower() == "-addprofile" ) {
 		INDEX_CHECK( "Missing profile argument!" );
 		QString path = "";
@@ -202,18 +205,15 @@ int main( int argc, char ** argv )
 		INDEX_CHECK( "Missing resource directory argument!" );
 		resourceDir = QString( argv[++i] );
 	    } else {
-		fprintf( stderr, "Unrecognized option '%s'. Try -help to get help.\n",
-			 argv[i] );
-		exit( 1 );
+		qFatal( "Unrecognized option '%s'. Try -help to get help.\n", argv[i] );
 	    }
 	}
     }
 
-    if( resourceDir.isNull() )
+    if ( resourceDir.isNull() )
 	resourceDir = qInstallPath() + QString( "/translations/" );
-    if( !QFile::exists( resourceDir ) ) {
-	fprintf( stderr, "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
-    }
+    if ( !QFile::exists( resourceDir ) )
+	qWarning( "Resource file directory '%s' does not exist!\n", resourceDir.latin1() );
 
     QTranslator translator( 0 );
     translator.load( QString("assistant_") + QTextCodec::locale(), resourceDir );
@@ -224,20 +224,12 @@ int main( int argc, char ** argv )
     a.installTranslator( &qtTranslator );
 
     Config *conf = new Config( profileName );
-    if ( !conf->validProfileName() ) {
-	fprintf( stderr, "Profile '%s' does not exist!\n", profileName.latin1() );
-	exit( 1 );
-    }
+    if ( !conf->validProfileName() )
+	qFatal( "Profile '%s' does not exist!\n", profileName.latin1() );
 
     bool max = conf->isMaximized();
     QString link = conf->source();
     conf->hideSideBar( hideSidebar );
-
-//     QString firstRunString = config->readEntry( DocuParser::DocumentKey + "FirstRunString" );
-//     if ( firstRunString != QString( QT_VERSION_STR ) ) {
-// 	EditDocs ed;
-// 	ed.initDocFiles();
-//     }
 
     QGuardedPtr<MainWindow> mw = new MainWindow( 0, "Assistant", Qt::WDestructiveClose );
 
@@ -246,7 +238,7 @@ int main( int argc, char ** argv )
 	printf("%d\n", as->port() );
 	fflush( stdout );
 	as->connect( as, SIGNAL( showLinkRequest( const QString& ) ),
-		mw, SLOT( showLinkFromClient( const QString& ) ) );
+		     mw, SLOT( showLinkFromClient( const QString& ) ) );
     }
 
     if ( max )
