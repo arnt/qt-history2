@@ -121,7 +121,7 @@ private:
     int col;
     int nRows, nCols;
     Orientation dir;
-    int spacing, margin;
+    int spac, marg;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

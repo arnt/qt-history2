@@ -152,8 +152,8 @@ void QGroupBox::init()
     lenvisible = 0;
     nCols = nRows = 0;
     dir = Horizontal;
-    margin = 11;
-    spacing = 5;
+    marg = 11;
+    spac = 5;
 }
 
 void QGroupBox::setTextSpacer()
@@ -403,7 +403,7 @@ void QGroupBox::setColumns( int c )
 */
 int QGroupBox::insideMargin() const
 {
-    return margin;
+    return marg;
 }
 
 /*!
@@ -418,7 +418,7 @@ int QGroupBox::insideMargin() const
 */
 int QGroupBox::insideSpacing() const
 {
-    return spacing;
+    return spac;
 }
 
 /*!
@@ -429,7 +429,7 @@ int QGroupBox::insideSpacing() const
 */
 void QGroupBox::setInsideMargin( int m )
 {
-    margin = m;
+    marg = m;
     setColumnLayout( columns(), dir );
 }
 
@@ -439,7 +439,7 @@ void QGroupBox::setInsideMargin( int m )
 */
 void QGroupBox::setInsideSpacing( int s )
 {
-    spacing = s;
+    spac = s;
     setColumnLayout( columns(), dir );
 }
 
@@ -481,7 +481,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
     if ( columns < 0 ) // if 0, we create the vbox but not the grid. See below.
 	return;
 
-    vbox = new QVBoxLayout( this, margin, 0 );
+    vbox = new QVBoxLayout( this, marg, 0 );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Minimum,
 					   QSizePolicy::Fixed );
@@ -511,7 +511,7 @@ void QGroupBox::setColumnLayout(int columns, Orientation direction)
 	nCols = 1;
 	nRows = columns;
     }
-    grid = new QGridLayout( nRows, nCols, spacing );
+    grid = new QGridLayout( nRows, nCols, spac );
     row = col = 0;
     grid->setAlignment( AlignTop );
     vbox->addLayout( grid );
