@@ -6,14 +6,18 @@
 #include "qwmatrix.h"
 #include "qt_mac.h"
 
+static QImage convertPixmapToImage(const QPixmap *, GWorldPtr);
+
 #ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
+#define CALC_COST(pm) (pm->width() * pm->height() * pm->depth() / 4)
 #include <qintcache.h>
 
 class QMacInternalPixmapCache : public QIntCache<QPixmap>
 {
+    int pixmap_key, cache_used;
 public:
-    static int pixmap_key, cache_used;
-    QMacInternalPixmapCache() : QIntCache<QPixmap>(640*480*4, 149) { } //640x480 32bit
+    QMacInternalPixmapCache() : 
+	QIntCache<QPixmap>(640*480*4, 149), pixmap_key(0), cache_used(0) { } //640x480 32bit
     ~QMacInternalPixmapCache() { }
     Qt::HANDLE getGWorld(const QPixmap *);
 protected:
@@ -23,8 +27,9 @@ protected:
 void QMacInternalPixmapCache::deleteItem(Item d)
 {
     QPixmap *p = (QPixmap *)d;
+    cache_used -= CALC_COST(p);
     if(p->data->cache.gworld) {
-	p->data->cache.img = new QImage(p->convertToImage());
+	p->data->cache.img = new QImage(convertPixmapToImage(p, (GWorldPtr)p->data->cache.gworld));
 #ifdef ONE_PIXEL_LOCK
 	UnlockPixels(GetGWorldPixMap((GWorldPtr)p->data->cache.gworld));
 #endif
@@ -47,22 +52,22 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 	return NULL;
     Rect rect;
     SetRect(&rect,0,0,w,h);
-    int cost = w * h * pm->depth() / 4; //some cost
+    int cost = CALC_COST(pm); //some cost
 
-    for(int tries = 1; TRUE; tries++) {
+    for(int tries = 1; tries < 10; tries++) { //I'm willing to try 10 times
 	QDErr e = 0;
 	const int params = alignPix | stretchPix | newDepth;
 #if 0    
 	if(w <= 300 && h <= 100) //try to get it into distant memory
-	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, pm->data->clut ? &pm->data->clut : NULL, 0, 
-			  useDistantHdwrMem | params);
-	if(!pm->data->cache.gworld) //oh well I tried
+	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, 
+			  pm->data->clut ? &pm->data->clut : NULL, 0, useDistantHdwrMem | params);
+	if(e != noErr) //oh well I tried
 #endif  
-	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, pm->data->clut ? &pm->data->clut : NULL, 0,
-			  params);
+	    e = NewGWorld((GWorldPtr *)&pm->data->cache.gworld, 32, &rect, 
+			  pm->data->clut ? &pm->data->clut : NULL, 0, params);
 
 	/* error? */
-	if((e & gwFlagErr)!=0) {
+	if(e != noErr) {
 	    pm->data->cache.gworld=0; //just to be sure
 	    if(int mc = maxCost()) {
 		setMaxCost(mc > (cost * tries) ? mc - (cost*tries) : 0); //throw away some things
@@ -79,7 +84,9 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 	    cache_used += cost;
 	    if(cache_used > maxCost())
 		setMaxCost(cache_used);
-	    insert(pm->data->cache.key = pixmap_key++, p, cost);
+	    //try to resize the cache 3 times to fit the new pixmap
+	    for(int i = 0; !insert(pm->data->cache.key = pixmap_key++, p, cost) && i < 3; i++)
+		setMaxCost(maxCost() + cost);
 	    if(pm->data->cache.img) { 	    //back like it was before
 		pm->convertFromImage(*pm->data->cache.img);
 		delete pm->data->cache.img;
@@ -90,8 +97,6 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
     }
     return pm->data->cache.gworld;
 }
-int QMacInternalPixmapCache::pixmap_key = 0;
-int QMacInternalPixmapCache::cache_used = 0;
 static QMacInternalPixmapCache g_pixmap_cache;
 
 /*! \internal
@@ -99,8 +104,12 @@ static QMacInternalPixmapCache g_pixmap_cache;
 */
 Qt::HANDLE QPixmap::handle() const
 {
-    Qt::HANDLE hd = g_pixmap_cache.getGWorld(this);
-    return hd;
+    //Optimization: don't need the cache hit when working with one pixmap
+    static const QPixmap *last_pix = NULL; 
+    if(last_pix == this && data->cache.gworld)
+	return data->cache.gworld;
+    last_pix = this;
+    return g_pixmap_cache.getGWorld(this);;
 }
 #endif
 
@@ -316,21 +325,25 @@ int get_index(QImage * qi,QRgb mycol)
 
 QImage QPixmap::convertToImage() const
 {
-    if ( isNull() ) {
+    return convertPixmapToImage(this, (GWorldPtr)handle());
+}
+
+static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd) 
+{
+    if ( pm->isNull() ) {
 #if defined(QT_CHECK_NULL)
         warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
         QImage nullImage;
         return nullImage;
     }
-    GWorldPtr hd = (GWorldPtr)handle();
     if( hd==0 ) {
         QImage nullImage;
         return nullImage;
     }  
-    int w = width();
-    int h = height();
-    int d = depth();
+    int w = pm->width();
+    int h = pm->height();
+    int d = pm->depth();
     int ncols = 2;
 
 #if 0
@@ -395,7 +408,7 @@ QImage QPixmap::convertToImage() const
 #endif
 
     //how do I handle a mask?
-    const QBitmap* msk = mask();
+    const QBitmap* msk = pm->mask();
 
     if (msk) {
 	QImage alpha = msk->convertToImage();
@@ -468,6 +481,7 @@ void QPixmap::fill( const QColor &fillColor )
     RGBColor rc;
 
     //at the end of this function this will go out of scope and the destructor will restore the state
+    detach();					// detach other references
     QMacSavedPortInfo saveportstate(this); 
 #ifndef ONE_PIXEL_LOCK
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
@@ -529,32 +543,29 @@ int QPixmap::metric(int m) const
 
 void QPixmap::deref()
 {
-    // Destroy image if last ref
-    if ( data && data->deref() ) {                      // last reference lost
+    if ( data && data->deref() ) {     // Destroy image if last ref
         if ( data->mask ) {
             delete data->mask;
             data->mask = 0;
         }
+
+	GWorldPtr gw = NULL;
 #ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
 	g_pixmap_cache.take(data->cache.key);
-        if ( data->cache.gworld && qApp ) {
-#ifdef ONE_PIXEL_LOCK
-	    UnlockPixels(GetGWorldPixMap((GWorldPtr)data->cache.gworld));
-#endif
-            DisposeGWorld((GWorldPtr)data->cache.gworld);
-            data->cache.gworld = NULL;
-        }
+	gw = (GWorldPtr)data->cache.gworld;
+	data->cache.gworld = NULL;
 	delete data->cache.img;
 	data->cache.img = NULL;
 #else
-        if ( hd && qApp ) {
+	gw = (GWorldPtr)hd;
+	hd = NULL;
+#endif
+        if ( gw && qApp ) {
 #ifdef ONE_PIXEL_LOCK
-	    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+	    UnlockPixels(GetGWorldPixMap(gw));
 #endif
-            DisposeGWorld((GWorldPtr)hd);
-            hd = 0;
+            DisposeGWorld(gw);
         }
-#endif
         delete data;
 	data = NULL;
     }
@@ -789,8 +800,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     Q_CHECK_PTR( data );
     memset( data, 0, sizeof(QPixmapData) );
 #ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
-    data->cache.img = NULL;
-    data->cache.gworld = NULL;
     data->cache.key = -1;
 #endif
     data->count=1;
@@ -819,6 +828,31 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	return;
     data->w=w;
     data->h=h;
+
+#ifndef QMAC_VIRTUAL_PIXMAP_SUPPORT
+    QDErr e = 0;
+    const int params = alignPix | stretchPix | newDepth;
+#if 0    
+    if(w <= 300 && h <= 100) //try to get it into distant memory
+	e = NewGWorld((GWorldPtr *)&pm->hd, 32, &rect, 
+		      pm->data->clut ? &pm->data->clut : NULL, 0, useDistantHdwrMem | params);
+    if(e != noErr) //oh well I tried
+#endif  
+	e = NewGWorld((GWorldPtr *)&pm->hd, 32, &rect, 
+		      pm->data->clut ? &pm->data->clut : NULL, 0, params);
+
+    /* error? */
+    if(e != noErr) {
+	data->w = data->h = 0;
+	pm->hd=0; //just to be sure
+	qDebug( "QPixmap::init Something went wrong");
+	Q_ASSERT(0);
+    } else {
+#ifdef ONE_PIXEL_LOCK
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->data->cache.gworld)));
+#endif
+    }
+#endif
 }
 
 int QPixmap::defaultDepth()
