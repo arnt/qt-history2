@@ -741,6 +741,14 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QCheckListItem *imfolder = new QCheckListItem( advancedList, "Image Formats" );
 	imfolder->setOpen( true );
 
+	folder = new QCheckListItem( imfolder, "GIF" );
+	folder->setOpen( true );
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/GIF", "Off", &settingsOK );
+	gifOff = new QCheckListItem( folder, "Off", QCheckListItem::RadioButton );
+	gifOff->setOn( entry == "Off" );
+	gifDirect = new QCheckListItem( folder, "Direct", QCheckListItem::RadioButton );
+	gifDirect->setOn( entry == "Direct" );
+
 	folder = new QCheckListItem( imfolder, "MNG" );
 	folder->setOpen( true );
 	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/MNG", "Plugin", &settingsOK );
@@ -1239,6 +1247,12 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	args += "-qt-mng";
 #endif
 
+	entry = settings.readEntry( "/Trolltech/Qt/Image Formats/GIF", "Direct", &settingsOK );
+	if ( entry == "Direct" )
+	    args += "-qt-gif";
+	else if ( entry == "Off" )
+	    args += "-no-gif";
+
 	entry = settings.readEntry( "/Trolltech/Qt/Styles/Windows", "Direct", &settingsOK );
 	if ( entry == "Direct" )
 	    args += "-qt-style-windows";
@@ -1646,6 +1660,19 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	explainOption->setText( "Qt ships with support for a wide range of common image formats. "
 				"Standard formats are always included in Qt, and some more special formats "
 				"can be left out from the Qt library itself and provided by a plugin instead." );
+    } else if ( i == gifOff ) {
+	explainOption->setText( "Turn off support for GIF images." );
+    } else if ( i == gifDirect ) {
+	explainOption->setText( "<p>Support for GIF images is compiled into Qt.</p>"
+				"<p><font color=\"red\">If you are in a country "
+				"which recognizes software patents and in which "
+				"Unisys holds a patent on LZW compression and/or "
+				"decompression and you want to use GIF, Unisys "
+				"may require you to license the technology. Such "
+				"countries include Canada, Japan, the USA, "
+				"France, Germany, Italy and the UK.</font></p>" );
+    } else if ( i->text(0) == "GIF" ) {
+	explainOption->setText( "Qt supports the \"Graphics Interchange Format\".");
     } else if ( i == mngPlugin ) {
 	explainOption->setText( "Support for MNG images is provided by a plugin that is loaded on demand." );
     } else if ( i == mngOff ) {

@@ -115,6 +115,7 @@ private:
     QCheckListItem /* *mngPresent, */ *mngDirect, *mngPlugin, *mngOff;
     QCheckListItem /* *jpegPresent, */ *jpegDirect, *jpegPlugin, *jpegOff;
     QCheckListItem /* *pngPresent, */ *pngDirect, *pngPlugin, *pngOff;
+    QCheckListItem *gifDirect, *gifOff;
 
     QCheckListItem *sgiDirect, *sgiPlugin, *sgiOff;
     QCheckListItem *cdeDirect, *cdePlugin, *cdeOff;
