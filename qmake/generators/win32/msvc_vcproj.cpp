@@ -54,9 +54,9 @@ bool use_net2003_version()
     } else {
 	// Have both, so figure out the current
 	QString paths = getenv("PATH");
-	QStringList pathlist = QStringList::split(";", paths.lower());
+	QStringList pathlist = QStringList::split(";", paths.toLower());
 
-	path2003 = path2003.lower();
+	path2003 = path2003.toLower();
 	QStringList::iterator it;
 	for(it=pathlist.begin(); it!=pathlist.end(); ++it) {
 	    if((*it).contains(path2003)) {
