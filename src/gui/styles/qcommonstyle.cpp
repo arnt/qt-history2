@@ -364,21 +364,30 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break;
     case PE_RubberBandMask:
     case PE_RubberBand: {
-        QPen oldPen = p->pen();
-        QBrush oldBrush = p->brush();
-        if (pe == PE_RubberBandMask)
-            p->setPen(QPen(Qt::color1, 5));
-        else
-            p->setPen(QPen(opt->palette.foreground(), 5));
-        if (opt->state & Style_Rectangle)
-            p->setBrush(QBrush(Qt::NoBrush));
-        else if (pe == PE_RubberBandMask)
-            p->setBrush(QBrush(Qt::color1));
-        else
-            p->setBrush(QBrush(opt->palette.foreground()));
-        p->drawRect(opt->rect);
-        p->setPen(oldPen);
-        p->setBrush(oldBrush);
+	p->save();
+        if (pe == PE_RubberBandMask) {
+            p->setPen(QPen(Qt::color1, 7));
+	    if (opt->state & Style_Rectangle)
+		p->setBrush(Qt::NoBrush);
+	    else
+		p->setBrush(QBrush(Qt::color1));
+	    p->drawRect(opt->rect);
+	} else {
+	    QRect r = opt->rect;
+	    p->setPen(Qt::NoPen);
+	    p->setBrush(Qt::Dense4Pattern);
+	    p->setBackground(QBrush(opt->palette.base()));
+	    p->setBackgroundMode(Qt::OpaqueMode);
+	    p->drawRect(r);
+	    p->setPen(QPen(opt->palette.foreground()));
+	    p->setBrush(Qt::NoBrush);
+	    p->drawRect(r);
+	    if (opt->state & Style_Rectangle) {
+		r.addCoords(3,3, -3,-3);
+		p->drawRect(r);
+	    }
+	}
+	p->restore();
         break; }
     case PE_TreeBranch: {
         static QPixmap open(tree_branch_open_xpm);
