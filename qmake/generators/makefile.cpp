@@ -717,11 +717,17 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
+#ifdef Q_OS_WIN32
+	  << "-del " << impl << " " << decl << "\n\t"
+	  << "-move y.tab.h " << decl << "\n\t"
+	  << "-move y.tab.c " << impl << endl << endl;
+#else
 	  << "-rm -f " << impl << " " << decl << "\n\t"
 	  << "-mv y.tab.h " << decl << "\n\t"
 	  << "-mv y.tab.c " << impl << endl << endl;
-
+#endif
 	t << decl << ": " << impl << endl << endl;
+
     }
 }
 
@@ -736,9 +742,14 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	t << impl << ": " << (*it) << " \\\n\t\t"
 	  << depends[(*it)].join(" \\\n\t\t") << "\n\t"
 	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
+#ifdef Q_OS_WIN32
+	  << "-del " << impl << " " << "\n\t"
+	  << "-move lex.yy.c " << impl << endl << endl;
+#else
 	  << "-rm -f " << impl << " " << "\n\t"
 	  << "-mv lex.yy.c " << impl << endl << endl;
-    }
+#endif
+	}
 }
 
 QString
