@@ -4,4 +4,4 @@ Oppdater qVersion
 Sjekk at foelgende ikke er med:
     *comm* qnpipe.* qres.*
 
-grep paa ### !!! og todo 
+grep paa ### !!! og todo paa hele koden
