@@ -3041,14 +3041,12 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
             QBitmap bitmap;
             if (p->mask()) {
                 bitmap = *p->mask();
-            } else {
-                bitmap = QBitmap(p->width(), p->height());
+                QPainter pt(&bitmap);
+                Q_ASSERT(!pm.mask()->mask());
+                pt.drawPixmap(x, y, w, h, *pm.mask(), sx, sy, sw, sh);
+                pt.end();
+                p->setMask(bitmap);
             }
-            QPainter pt(&bitmap);
-            Q_ASSERT(!pm.mask()->mask());
-            pt.drawPixmap(x, y, w, h, *pm.mask(), sx, sy, sw, sh);
-            pt.end();
-            p->setMask(bitmap);
         }
     }
 }
