@@ -846,6 +846,7 @@ void QWin32PrintEngine::setOutputFileName(const QString &name)
         return;
     }
     d->fileName = name;
+    d->printToFile = !name.isEmpty();
 }
 
 QString QWin32PrintEngine::outputFileName()const
