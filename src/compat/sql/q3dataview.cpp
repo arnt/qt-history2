@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdataview.h"
+#include "q3dataview.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 

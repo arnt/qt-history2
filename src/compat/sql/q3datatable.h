@@ -18,9 +18,9 @@
 #include "qvariant.h"
 #include "qtable.h"
 #include "qsql.h"
-#include "qsqlcursor.h"
+#include "q3sqlcursor.h"
 #include "qsqlindex.h"
-#include "qsqleditorfactory.h"
+#include "q3sqleditorfactory.h"
 #include "qicon.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS

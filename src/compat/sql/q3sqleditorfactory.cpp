@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsqleditorfactory.h"
+#include "q3sqleditorfactory.h"
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 

@@ -18,7 +18,7 @@
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qwidget.h"
-#include "qsqlcursor.h"
+#include "q3sqlcursor.h"
 #include "qsqlfield.h"
 #include "qsqlform.h"
 #include "qsqldriver.h"

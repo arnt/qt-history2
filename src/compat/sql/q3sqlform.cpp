@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qsqlform.h"
+#include "q3sqlform.h"
 
 #ifndef QT_NO_SQL_FORM
 
 #include "qsqlfield.h"
-#include "qsqlpropertymap.h"
+#include "q3sqlpropertymap.h"
 #include "qsqlrecord.h"
 #include "qstringlist.h"
 #include "qwidget.h"

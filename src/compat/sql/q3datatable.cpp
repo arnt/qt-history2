@@ -11,21 +11,21 @@
 **
 ****************************************************************************/
 
-#include "qdatatable.h"
+#include "q3datatable.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
 #include "qevent.h"
 #include "qsqldriver.h"
-#include "qsqleditorfactory.h"
+#include "q3sqleditorfactory.h"
 #include "qsqlfield.h"
-#include "qsqlpropertymap.h"
+#include "q3sqlpropertymap.h"
 #include "qapplication.h"
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qpopupmenu.h"
 #include "qlist.h"
-#include "private/qsqlmanager_p.h"
+#include "private/q3sqlmanager_p.h"
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qtimer.h"
@@ -107,7 +107,7 @@ void qt_debug_buffer(const QString& msg, QSqlRecord* cursor)
 
 
 /*!
-    \class Q3DataTable qdatatable.h
+    \class Q3DataTable q3datatable.h
     \brief The Q3DataTable class provides a flexible SQL table widget that supports browsing and editing.
 
     \compat

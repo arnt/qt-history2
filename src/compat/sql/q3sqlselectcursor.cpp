@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#include "qsqlselectcursor.h"
+#include "q3sqlselectcursor.h"
 #include "qsqldriver.h"
-#include "qsqlrecordinfo.h"
+#include "q3sqlrecordinfo.h"
 
 #ifndef QT_NO_SQL
 

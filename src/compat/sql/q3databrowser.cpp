@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qdatabrowser.h"
+#include "q3databrowser.h"
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
-#include "qsqlform.h"
-#include "private/qsqlmanager_p.h"
+#include "q3sqlform.h"
+#include "private/q3sqlmanager_p.h"
 #include "qsqlresult.h"
 
 class Q3DataBrowserPrivate

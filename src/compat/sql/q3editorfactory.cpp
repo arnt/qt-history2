@@ -17,7 +17,7 @@
 #include "qspinbox.h"
 #include "qcombobox.h"
 
-#include "qeditorfactory.h"
+#include "q3editorfactory.h"
 #include "qdatetimeedit.h"
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS

@@ -20,7 +20,7 @@
 
 #include "qvaluelist.h"
 #include "qsqlrecord.h"
-#include "qsqlfieldinfo.h"
+#include "q3sqlfieldinfo.h"
 
 /* Q3SqlRecordInfo Class
    This class is obsolete, use QSqlRecord instead.

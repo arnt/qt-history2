@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsqlcursor.h"
+#include "q3sqlcursor.h"
 
 #ifndef QT_NO_SQL
 
@@ -20,8 +20,8 @@
 #include "qdatetime.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "qsqlrecordinfo.h"
-#include "qsqlfieldinfo.h"
+#include "q3sqlrecordinfo.h"
+#include "q3sqlfieldinfo.h"
 
 class Q3SqlCursorPrivate
 {
@@ -102,7 +102,7 @@ QString qWhereClause(QSqlRecord* rec, const QString& prefix, const QString& sep,
 }
 
 /*!
-    \class Q3SqlCursor qsqlcursor.h
+    \class Q3SqlCursor q3sqlcursor.h
     \brief The Q3SqlCursor class provides browsing and editing of SQL
     tables and views.
 

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsqlpropertymap.h"
+#include "q3sqlpropertymap.h"
 
 #ifndef QT_NO_SQL_FORM
 

@@ -33,7 +33,7 @@
 #include "qsql.h"
 #include "qsqlerror.h"
 #include "qsqlindex.h"
-#include "qsqlcursor.h"
+#include "q3sqlcursor.h"
 
 #ifndef QT_NO_SQL
 

@@ -32,7 +32,7 @@
 #include <qevent.h>
 #include <qlistbox.h>
 #include <qstyle.h>
-#include <qdatatable.h>
+#include <q3datatable.h>
 #include <qvalidator.h>
 #include <qbutton.h>
 
@@ -3558,7 +3558,7 @@ void Q3Table::selectCells(int start_row, int start_col, int end_row, int end_col
   \sa Q3TableSelection
 */
 
-// ### Make this virtual in 4.0 and remove hack for QDataTable
+// ### Make this virtual in 4.0 and remove hack for Q3DataTable
 void Q3Table::selectRow(int row)
 {
     row = QMIN(numRows()-1, row);

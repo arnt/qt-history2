@@ -14,7 +14,7 @@
 #ifndef QSQLEDITORFACTORY_H
 #define QSQLEDITORFACTORY_H
 
-#include "qeditorfactory.h"
+#include "q3editorfactory.h"
 
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
