@@ -348,11 +348,12 @@ void Moc::parseFunction(FunctionDef *def)
         def->type = "int";
     } else {
         next(IDENTIFIER);
-        def->name = lexem();
-        if (test(IDENTIFIER)) {
-            def->tag = def->name;
+        do {
+            if (!def->tag.isEmpty())
+                def->tag += ' ';
+            def->tag += def->name;
             def->name = lexem();
-        }
+        } while (test(IDENTIFIER));
         next(LPAREN, "Variable as signal or slot");
     }
 
@@ -390,11 +391,12 @@ bool Moc::parsePropertyCandidate(FunctionDef *def)
     } else {
         if (!test(IDENTIFIER))
             return false;
-        def->name = lexem();
-        if (test(IDENTIFIER)) {
-            def->tag = def->name;
+        do {
+            if (!def->tag.isEmpty())
+                def->tag += ' ';
+            def->tag += def->name;
             def->name = lexem();
-        }
+        } while (test(IDENTIFIER));
         if (!test(LPAREN))
             return false;
     }
