@@ -119,8 +119,13 @@ BiDi (Lars)
     menubars have to go from right to left, etc.
 
 Database classes (Dave)
-    Description missing here...
-
+    Classes to query SQL databases.  Eventually use the plugin system to
+    dynamically load required drivers.  Also, eventually create 'data 
+    aware' widgets to speed Qt database app development.  Integrate them 
+    into designer.  Possibly integrate with XML query mechanism so that
+    you can run SQL queries against XML files as if it were just another
+    database.
+    
 QSettings (Brad, Volker)
     QSetting class to store Qt settings in a XML tree
     structure. Offer API so that Qt apps can use that to store
@@ -156,6 +161,8 @@ XML Query mechanism (rms?)
     engine as a query mechanism for QDom trees? (Ask Matthias about the
     marketting power of XML database queries!)"
     Also consider the possibility to use XPath.
+    Also consider integrating this mechanism into the database classes (would
+    require a SQL parser though...).
 
 
 Extending existing functionality
