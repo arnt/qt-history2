@@ -513,7 +513,7 @@ bool Resource::save( QIODevice* dev )
     QTextStream ts( dev );
     ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 
-    ts << "<!DOCTYPE UI><UI version=\"3.0\" stdsetdef=\"1\">" << endl;
+    ts << "<!DOCTYPE UI><UI version=\"3.1\" stdsetdef=\"1\">" << endl;
     saveMetaInfoBefore( ts, 0 );
     saveObject( formwindow->mainContainer(), 0, ts, 0 );
     if ( formwindow->mainContainer()->inherits( "QMainWindow" ) ) {
