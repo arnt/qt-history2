@@ -1055,8 +1055,6 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
-    QuitApplicationEventLoop();
-
     QApplication *app = (QApplication *)data;
     if (app->macEventFilter(event)) //someone else ate it
 	return noErr;
@@ -1278,7 +1276,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_MOUSE_MAPS
 	    qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
-	    return 1;
+	    break;
 	}
 
 	//handle popup's first
@@ -1343,7 +1341,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_MOUSE_MAPS
 		qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
-		return 0;
+		break;
 	    } else if(QWidget* w = widget) {
 		while(w->focusProxy())
 		    w = w->focusProxy();
@@ -1605,8 +1603,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	else if(focus_widget)
 	    widget = focus_widget;
 	if(widget) {
-	    if (app_do_modal && !qt_try_modal(widget, event))
-		return 1;
+	    if(app_do_modal && !qt_try_modal(widget, event))
+		break;
 
 	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
@@ -1698,6 +1696,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 	break; }
     case kEventClassWindow: {
+	remove_context_timer = FALSE;
+
 	WindowRef wid;
 	GetEventParameter(event, kEventParamDirectObject, typeWindowRef, NULL,
 			  sizeof(WindowRef), NULL, &wid);
@@ -1715,6 +1715,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    remove_context_timer = FALSE;
 	    widget->propagateUpdates();
 	} else if(ekind == kEventWindowBoundsChanged) {
+	    handled_event = FALSE;
 	    UInt32 flags;
 	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL,
 			      sizeof(flags), NULL, &flags);
@@ -1747,7 +1748,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 
 	    if(app_do_modal && !qt_try_modal(widget, event))
-		return 1;
+		break;
 
 	    if(widget) {
 		QWidget *tlw = widget->topLevelWidget();
@@ -1889,6 +1890,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
     if(!handled_event) //let the event go through
 	return CallNextEventHandler(er, event);
+    QuitApplicationEventLoop();
     return noErr; //we eat the event
 }
 
