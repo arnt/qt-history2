@@ -500,7 +500,7 @@ bool qt_mac_update_palette(QPalette &pal, bool do_init)
     BIND_CLR(-4, QPalette::Inactive, QColorGroup::Highlight);
     BIND_CLR(kThemeBrushButtonActiveDarkShadow, QPalette::Active, QColorGroup::Shadow);
     BIND_CLR(kThemeBrushButtonInactiveDarkShadow, QPalette::Inactive, QColorGroup::Shadow);
-#if defined(QMAC_QAQUA_MODIFY_TEXT_COLOURS)
+#if defined(QMAC_QAQUA_MODIFY_TEXT_COLOURS) && 0
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Text);
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::Foreground);
     BIND_CLR(kThemeTextColorDialogActive, QPalette::Active, QColorGroup::HighlightedText);
