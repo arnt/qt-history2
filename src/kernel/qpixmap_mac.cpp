@@ -42,112 +42,109 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 
 bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 {
-  if ( img.isNull() ) {
+    if ( img.isNull() ) {
 #if defined(QT_CHECK_NULL)
-    warning( "QPixmap::convertFromImage: Cannot convert a null image" );
+	warning( "QPixmap::convertFromImage: Cannot convert a null image" );
 #endif
-    return FALSE;
-  }
-
-  //FIXME@!!!!!!@$!@$!@#
-  init( img.width(), img.height(), img.depth(), FALSE, DefaultOptim);
-
-
-  if(hd==0) {
-    return FALSE;
-  }
-
-  QImage image = img;
-  int    d     = image.depth();
-  int    dd    = defaultDepth();
-  bool force_mono = (dd == 1 || isQBitmap() ||
-		     (conversion_flags & ColorMode_Mask)==MonoOnly );
-
-  if ( force_mono ) {                         // must be monochrome
-    if ( d != 1 ) {
-      image = image.convertDepth( 1, conversion_flags );  // dither
-      d = 1;
+	return FALSE;
     }
-  } else {                                    // can be both
-    bool conv8 = FALSE;
-    if ( d > 8 && dd <= 8 ) {               // convert to 8 bit
-      if ( (conversion_flags & DitherMode_Mask) == AutoDither )
-	conversion_flags = (conversion_flags & ~DitherMode_Mask)
-	  | PreferDither;
-      conv8 = TRUE;
-    } else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
-      conv8 = d == 1;                     // native depth wanted
-    } else if ( d == 1 ) {
-      if ( image.numColors() == 2 ) {
-	QRgb c0 = image.color(0);       // Auto: convert to best
-	QRgb c1 = image.color(1);
-	conv8 = QMIN(c0,c1) != qRgb(0,0,0) || QMAX(c0,c1) != qRgb(255,255,255);
-      } else {
-	// eg. 1-color monochrome images (they do exist).
-	conv8 = TRUE;
-      }
-    }
-    if ( conv8 ) {
-      image = image.convertDepth( 8, conversion_flags );
-      d = 8;
-    }
-  }
 
-  if ( d == 1 )                               // 1 bit pixmap (bitmap)
-    image = image.convertBitOrder( QImage::BigEndian );
+    //FIXME@!!!!!!@$!@$!@#
+    init( img.width(), img.height(), img.depth(), FALSE, DefaultOptim);
+    if(!hd)
+	return FALSE;
+
+    QImage image = img;
+    int    d     = image.depth();
+    int    dd    = defaultDepth();
+    bool force_mono = (dd == 1 || isQBitmap() ||
+		       (conversion_flags & ColorMode_Mask)==MonoOnly );
+
+    if ( force_mono ) {                         // must be monochrome
+	if ( d != 1 ) {
+	    image = image.convertDepth( 1, conversion_flags );  // dither
+	    d = 1;
+	}
+    } else {                                    // can be both
+	bool conv8 = FALSE;
+	if ( d > 8 && dd <= 8 ) {               // convert to 8 bit
+	    if ( (conversion_flags & DitherMode_Mask) == AutoDither )
+		conversion_flags = (conversion_flags & ~DitherMode_Mask)
+				   | PreferDither;
+	    conv8 = TRUE;
+	} else if ( (conversion_flags & ColorMode_Mask) == ColorOnly ) {
+	    conv8 = d == 1;                     // native depth wanted
+	} else if ( d == 1 ) {
+	    if ( image.numColors() == 2 ) {
+		QRgb c0 = image.color(0);       // Auto: convert to best
+		QRgb c1 = image.color(1);
+		conv8 = QMIN(c0,c1) != qRgb(0,0,0) || QMAX(c0,c1) != qRgb(255,255,255);
+	    } else {
+		// eg. 1-color monochrome images (they do exist).
+		conv8 = TRUE;
+	    }
+	}
+	if ( conv8 ) {
+	    image = image.convertDepth( 8, conversion_flags );
+	    d = 8;
+	}
+    }
+
+    if ( d == 1 )                               // 1 bit pixmap (bitmap)
+	image = image.convertBitOrder( QImage::BigEndian );
 
  
-  int w = image.width();
-  int h = image.height();
+    int w = image.width();
+    int h = image.height();
 
-  if ( width() == w && height() == h && ( (d == 1 && depth() == 1) ||
-					  (d != 1 && depth() != 1) ) ) {
-    // same size etc., use the existing pixmap
-    detach();
-    if ( data->mask ) {                     // get rid of the mask
-      delete data->mask;
-      data->mask = 0;
+    if ( width() == w && height() == h && ( (d == 1 && depth() == 1) ||
+					    (d != 1 && depth() != 1) ) ) {
+	// same size etc., use the existing pixmap
+	detach();
+	if ( data->mask ) {                     // get rid of the mask
+	    delete data->mask;
+	    data->mask = 0;
+	}
+    } else {
+	// different size or depth, make a new pixmap
+	QPixmap pm( w, h, d == 1 ? 1 : -1 );
+	pm.data->bitmap = data->bitmap;         // keep is-a flag
+	pm.data->optim  = data->optim;          // keep optimization flag
+	*this = pm;
     }
-  } else {
-    // different size or depth, make a new pixmap
-    QPixmap pm( w, h, d == 1 ? 1 : -1 );
-    pm.data->bitmap = data->bitmap;         // keep is-a flag
-    pm.data->optim  = data->optim;          // keep optimization flag
-    *this = pm;
-  }
 
 
-  GWorldPtr savedworld;
-  GDHandle savedhandle;
-  GetGWorld(&savedworld, &savedhandle);
-  SetGWorld((GWorldPtr)hd,0);
-  ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+    GWorldPtr savedworld;
+    GDHandle savedhandle;
+    GetGWorld(&savedworld, &savedhandle);
+    SetGWorld((GWorldPtr)hd,0);
+    ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
   
-  //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
-  RGBColor r;
-  int loopc,loopc2;
-  QRgb q;
-  for(loopc=0;loopc<image.width();loopc++) {
-    for(loopc2=0;loopc2<image.height();loopc2++) {
-      q=image.pixel(loopc,loopc2);
-      r.red=qRed(q)*256;
-      r.green=qGreen(q)*256;
-      r.blue=qBlue(q)*256;
-      SetCPixel(loopc,loopc2,&r);
+    //OPTIMIZATION FIXME, we should not be iterating all the pixels, fix this on optimization pass
+    RGBColor r;
+    int loopc,loopc2;
+    QRgb q;
+    for(loopc=0;loopc<image.width();loopc++) {
+	for(loopc2=0;loopc2<image.height();loopc2++) {
+	    q=image.pixel(loopc,loopc2);
+	    r.red=qRed(q)*256;
+	    r.green=qGreen(q)*256;
+	    r.blue=qBlue(q)*256;
+	    SetCPixel(loopc,loopc2,&r);
+	}
     }
-  }
-  data->uninit = FALSE;
+    data->uninit = FALSE;
 
-  if ( img.hasAlphaBuffer() ) {
-    QBitmap m;
-    m = img.createAlphaMask( conversion_flags );
-    setMask( m );
-  }
+    if ( img.hasAlphaBuffer() ) {
+	QBitmap m;
+	m = img.createAlphaMask( conversion_flags );
+	setMask( m );
+    }
 
-  UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
-  SetGWorld(savedworld,savedhandle);
+    UnlockPixels(GetGWorldPixMap((GWorldPtr)hd));    
+    SetGWorld(savedworld,savedhandle);
 
-  return TRUE;
+    return TRUE;
 }
 
 int get_index(QImage * qi,QRgb mycol)
@@ -315,11 +312,16 @@ void QPixmap::deref()
     }
 }
 
+void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
+		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		   Qt::RasterOp rop, bool imask);
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
+#if 0
     qDebug("Grr.. I really need to work on this function..");
     return *this;
+#endif
 
     int	   w, h;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
@@ -374,12 +376,11 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 
 	QPixmap pm( w, h, depth(), NormalOptim );
-	bitBlt(&pm, 0, 0, this, ws, hs, w, h);
+	scaledBitBlt(&pm, 0, 0, w, h, this, ws, hs, width(), height(), Qt::CopyROP, TRUE);
 
-	if ( data->mask ) {
+	if ( 0 && data->mask ) {
 	    QBitmap bm =
-		data->selfmask ? *((QBitmap*)(&pm)) :
-					 data->mask->xForm(matrix);
+		data->selfmask ? *((QBitmap*)(&pm)) : data->mask->xForm(matrix);
 	    pm.setMask( bm );
 	}
 	return pm;
@@ -595,28 +596,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
   someflags=alignPix | stretchPix | newDepth;
   SetRect(&rect,0,0,w,h);
 
-#if 0
-  /* setup clut */
-  if(d == 1) {
-      data->clut = (ColorTable *)malloc(sizeof(ColorTable));
-      data->clut->ctSeed = 666; /* huh? FIXME */
-      data->clut->ctFlags = 0;
-      data->clut->ctSize = 2;
-
-      RGBColor r;
-      data->clut->ctTable = (CSpecArray *)calloc(2, sizeof(ColorSpec));
-      data->clut->ctTable[0].value = 0;
-      r.red = r.blue = r.green = 255;
-      data->clut->ctTable[0].rgb = r;
-      data->clut->ctTable[1].value = 1;
-      r.red = r.blue = r.green = 0;
-      data->clut->ctTable[1].rgb = r;
-  }
-#endif  
-
-  /* FIXME FIXME FIXME! setting the depth to d breaks masking (for example radio buttons), however
-     setting it to 0 crashes lots of things, might need to setup a clut (as above) or something? 
-     **** This needs immediate attention!! *****/
   /* actually create world */
   e=NewGWorld( (GWorldPtr *)&hd, 0, &rect, data->clut ? &data->clut : NULL, 0, someflags );
 

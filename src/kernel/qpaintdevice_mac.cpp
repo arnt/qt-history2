@@ -88,92 +88,110 @@ int QPaintDevice::fontInf( QFont *, int ) const
 
 QPoint posInWindow(QWidget *w);
 
-void unclippedBitBlt( QPaintDevice *dst, int dx, int dy, 
+void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
 {
-  if(dx+sw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
-    sw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
-  }
-  if(dy+sh>dst->metric(QPaintDeviceMetrics::PdmHeight)) {
-    sh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
-  }
+    if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) {
+	sw=src->metric(QPaintDeviceMetrics::PdmWidth)-sx;
+    }
+    if(sy+sh>src->metric(QPaintDeviceMetrics::PdmHeight)) {
+	sh=src->metric(QPaintDeviceMetrics::PdmHeight)-sy;
+    }
 
-  if(!sw || !sh)
-      return;
+#if 0
+    if(dx+dw>dst->metric(QPaintDeviceMetrics::PdmWidth)) {
+	dw=dst->metric(QPaintDeviceMetrics::PdmWidth)-dx;
+    }
+    if(dy+dh>dst->metric(QPaintDeviceMetrics::PdmHeight)) {
+	dh=dst->metric(QPaintDeviceMetrics::PdmHeight)-dy;
+    }
+#endif
 
-  if(!dst || !src) {
-      qDebug("Asked to paint to or from a null paintdevice, something is hosed.");
-      return;
-  }
+    if(!sw || !sh)
+	return;
 
-  int srcoffx = 0, srcoffy = 0;
-  BitMap *srcbitmap=NULL;
-  const QBitmap *srcbitmask=NULL;
-  if(src->devType() == QInternal::Widget) {
-      QWidget *w = (QWidget *)src;
-      srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+    if(!dst || !src) {
+	qDebug("Asked to paint to or from a null paintdevice, something is hosed.");
+	return;
+    }
 
-      QPoint p(posInWindow(w));
-      srcoffx = p.x();
-      srcoffy = p.y();
+    int srcoffx = 0, srcoffy = 0;
+    BitMap *srcbitmap=NULL;
+    const QBitmap *srcbitmask=NULL;
+    if(src->devType() == QInternal::Widget) {
+	QWidget *w = (QWidget *)src;
+	srcbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
 
-      if(sw < 0)
-	  sw = w->width();
-      if(sh < 0)
-	  sh = w->height();
-  } else if(src->devType() == QInternal::Pixmap) {
-      QPixmap *pm = (QPixmap *)src;
-      srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
-      srcbitmask = pm->mask();
+	QPoint p(posInWindow(w));
+	srcoffx = p.x();
+	srcoffy = p.y();
 
-      if(sw < 0)
-	  sw = pm->width();
-      if(sh < 0)
-	  sh = pm->height();
-  }
+	if(sw < 0)
+	    sw = w->width();
+	if(sh < 0)
+	    sh = w->height();
+    } else if(src->devType() == QInternal::Pixmap) {
+	QPixmap *pm = (QPixmap *)src;
+	srcbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+	srcbitmask = pm->mask();
 
-  ::RGBColor f;
-  f.red = f.green = f.blue = 0;
-  RGBForeColor( &f );
+	if(sw < 0)
+	    sw = pm->width();
+	if(sh < 0)
+	    sh = pm->height();
+    }
 
-  int dstoffx=0, dstoffy=0;
-  const BitMap *dstbitmap=NULL;
-  if(dst->devType() == QInternal::Widget) {
+    ::RGBColor f;
+    f.red = f.green = f.blue = 0;
+    RGBForeColor( &f );
 
-      QWidget *w = (QWidget *)dst;
-      dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
-      SetPortWindowPort((WindowPtr)w->handle()); //wtf?
+    int dstoffx=0, dstoffy=0;
+    const BitMap *dstbitmap=NULL;
+    if(dst->devType() == QInternal::Widget) {
 
-      QPoint p(posInWindow(w));
-      dstoffx = p.x();
-      dstoffy = p.y();
+	QWidget *w = (QWidget *)dst;
+	dstbitmap = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)w->handle()));
+	SetPortWindowPort((WindowPtr)w->handle()); //wtf?
 
-  } else if(dst->devType() == QInternal::Pixmap) {
+	QPoint p(posInWindow(w));
+	dstoffx = p.x();
+	dstoffy = p.y();
 
-      QPixmap *pm = (QPixmap *)dst;
-      SetGWorld((GWorldPtr)pm->handle(),0);
-      ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
-      dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
+	if(dw < 0)
+	    dw = sw;
+	if(dh < 0)
+	    dh = sh;
 
-  }
+    } else if(dst->devType() == QInternal::Pixmap) {
 
-  if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
-      qWarning("This shouldn't have happened yet, but fix me! %s:%d", __FILE__, __LINE__);
-      return;
-  }
+	QPixmap *pm = (QPixmap *)dst;
+	SetGWorld((GWorldPtr)pm->handle(),0);
+	ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	dstbitmap = (BitMap *)*GetGWorldPixMap((GWorldPtr)pm->handle());
 
-  short copymode;
-  switch(rop) {
-  default:
-  case Qt::CopyROP:   copymode = srcCopy; break;
-  case Qt::OrROP:     copymode = srcOr; break;
-  case Qt::XorROP:    copymode = srcXor; break; 
-  case Qt::NotAndROP: copymode = srcBic; break;
-  case Qt::NotCopyROP:copymode = notSrcCopy; break;
-  case Qt::NotOrROP:  copymode = notSrcOr; break;
-  case Qt::NotXorROP: copymode = notSrcXor; break;
-  case Qt::AndROP:     copymode = notSrcBic; break;
+	if(dw < 0)
+	    dw = sw;
+	if(dh < 0)
+	    dh = sh;
+    }
+
+    if(!dstbitmap || !srcbitmap) {  //FIXME, need to handle ExtDevice!!!!!!
+	qWarning("This shouldn't have happened yet, but fix me! %s:%d", __FILE__, __LINE__);
+	return;
+    }
+
+    short copymode;
+    switch(rop) {
+    default:
+    case Qt::CopyROP:   copymode = srcCopy; break;
+    case Qt::OrROP:     copymode = srcOr; break;
+    case Qt::XorROP:    copymode = srcXor; break; 
+    case Qt::NotAndROP: copymode = srcBic; break;
+    case Qt::NotCopyROP:copymode = notSrcCopy; break;
+    case Qt::NotOrROP:  copymode = notSrcOr; break;
+    case Qt::NotXorROP: copymode = notSrcXor; break;
+    case Qt::AndROP:     copymode = notSrcBic; break;
 /*
   case NotROP:      dst = NOT dst
   case ClearROP:    dst = 0
@@ -184,41 +202,39 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
   case NandROP:     dst = NOT (src AND dst)
   case NorROP:      dst = NOT (src OR dst)
 */
-  }
+    }
 
-  Rect r;
-  SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
-  Rect r2;
-  SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
-  if(srcbitmask && !imask) {
-      BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
-      Rect maskr;
-      SetRect(&maskr, 0, 0, sw, sh);
-      CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &maskr, &r2, copymode, 0);
-  }
-  else {
-      CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
-  }
+    Rect r;
+    SetRect(&r,sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy);
+    Rect r2;
+    SetRect(&r2,dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
+//    qDebug("%d %d %d %d - %d %d %d %d", sx+srcoffx,sy+srcoffy,sx+sw+srcoffx,sy+sh+srcoffy,
+//	   dx+dstoffx,dy+dstoffy,dx+dw+dstoffx,dy+dh+dstoffy);
+	
+    if(srcbitmask && !imask) {
+	BitMap *maskbits = (BitMap *)*GetGWorldPixMap((GWorldPtr)srcbitmask->handle());
+	CopyDeepMask(srcbitmap, maskbits, dstbitmap, &r, &r, &r2, copymode, 0);
+    }
+    else {
+	CopyBits(srcbitmap, dstbitmap, &r,&r2,copymode, 0);
+    }
 
-  if(dst->devType() == QInternal::Pixmap) {
-      QPixmap *pm = (QPixmap *)dst;
-      UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));    
-  } 
-#if 0 //this is good for debugging and not much else, do not leave this in production
-else if(dst->devType() == QInternal::Widget) {
-      GWorldPtr cgworld;
-      GDHandle cghandle;
-      GetGWorld(&cgworld, &cghandle);
-      QRegion rup(dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
-      QDFlushPortBuffer(cgworld, (RgnHandle)rup.handle());
-  }
-#endif
+    if(dst->devType() == QInternal::Pixmap) {
+	QPixmap *pm = (QPixmap *)dst;
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)pm->handle()));    
+    } 
 }
 
+void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
+		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		      Qt::RasterOp rop, bool imask)
+{
+    unclippedScaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
+}
 
-void bitBlt( QPaintDevice *dst, int dx, int dy, 
-	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
-	     Qt::RasterOp rop, bool imask)
+void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
+		   const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+		   Qt::RasterOp rop, bool imask)
 {
   //at the end of this function this will go out of scope and the destructor will restore the state
   QMacSavedPortInfo saveportstate; 
@@ -231,8 +247,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
       QRegion rgn(0,0,pm->width(),pm->height());
       SetClip((RgnHandle)rgn.handle());
   }
-  unclippedBitBlt(dst, dx, dy, src, sx, sy, sw, sh, rop, imask);
+  unclippedScaledBitBlt(dst, dx, dy, dw, dh, src, sx, sy, sw, sh, rop, imask);
 }
+
+void bitBlt( QPaintDevice *dst, int dx, int dy,
+	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
+	     Qt::RasterOp rop, bool imask)
+{
+    scaledBitBlt(dst, dx, dy, sw, sh, src, sx, sy, sw, sh, rop, imask);
+}
+
 
 Qt::HANDLE QPaintDevice::handle() const
 {
