@@ -42,7 +42,11 @@ use File::Find;
     qsmartptr.h
 };
 
-$IGNORE=join "|", map { "\Q$_" } @IGNORE;
+@IGNORE_RE = qw {
+    qconfig.*\.h
+};
+
+$IGNORE=join "|", (@IGNORE_RE, map { "\Q$_" } @IGNORE);
 
 $verbose = 0;
 

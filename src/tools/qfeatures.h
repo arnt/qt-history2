@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#89 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#90 $
 **
 ** Global feature selection
 **
@@ -47,6 +47,7 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 //
+#if !defined(QT_MOC)
 #if defined(QCONFIG_LOCAL)
 #include <qconfig-local.h>
 #elif defined(QCONFIG_MINIMAL)
@@ -59,6 +60,7 @@
 #include <qconfig-large.h>
 #else // everything...
 #include <qconfig.h>
+#endif
 #endif
 
 // prune to local config

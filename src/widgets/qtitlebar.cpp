@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qtitlebar.cpp#43 $
 **
 ** Implementation of some Qt private functions.
 **
@@ -304,6 +304,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
     case QStyle::TitleLabel:
 	if ( (moveOffset - mapToParent( e->pos() ) ).manhattanLength() >= 4 ) {
 	    QPoint p = mapFromGlobal(e->globalPos());
+#ifndef QT_NO_WORKSPACE
 	    if(window && window->parentWidget()->inherits("QWorkspaceChild")) {
 		QWidget *w = window->parentWidget()->parentWidget();
 		if(w && w->inherits("QWorkspace")) {
@@ -321,6 +322,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 		    }
 		}
 	    }
+#endif
 	    QPoint pp = p - moveOffset;
 	    parentWidget()->move( pp );
 	}

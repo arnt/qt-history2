@@ -28,6 +28,9 @@ X11_PLATFORM=no
 MAC_PLATFORM=no
 QWS_PLATFORM=no
 
+mv $relpath/src/tools/qconfig.h qconfig.h-hold
+echo "# All features enabled while configuring" >$relpath/src/tools/qconfig.h
+
 if [ -d mkspecs/qws ]
 then
     QWS_CANDIDATE="yes"
@@ -1312,12 +1315,9 @@ then
     D_FLAGS="$D_FLAGS QT_NO_QWS_VNC"
 fi
 
+mv qconfig.h-hold $relpath/src/tools/qconfig.h
 
 case "$QCONFIG" in
-  local|qpe|qpe-single)
-    # Not known to be sufficient for anything.
-    continue
-    ;;
   minimal|small|medium|large|full)
     # These are a sequence of increasing functionality.
     for c in minimal small medium large full
@@ -1330,10 +1330,13 @@ case "$QCONFIG" in
     done
     ;;
   *)
-    echo >&2 "No such configuration: $QCONFIG"
-    HELP=yes
+    # Not known to be sufficient for anything.
+    if [ ! -f $relpath/src/tools/qconfig-$QCONFIG.h ]
+    then
+	echo >&2 "No such configuration: $QCONFIG"
+	HELP=yes
+    fi
 esac
-rm -f $relpath/src/tools/qconfig.h.new   # KLUDGE - shouldn't be in p4 depot
 case "$QCONFIG" in
   full)
     echo "// Everything" >$relpath/src/tools/qconfig.h.new
@@ -1641,15 +1644,15 @@ do
 	    continue
 	fi
 	;;
-    *moc*) CONF=$QMAKESPEC ;;
-    *) CONF=$XQMAKESPEC ;;
+    *moc*) SPEC=$QMAKESPEC; echo "USING $SPEC FOR MOC" ;;
+    *) SPEC=$XQMAKESPEC ;;
     esac
     file=`basename $a`
     dir=`dirname $a | sed -e "s;$sepath;.;g"`
     test -d $dir || mkdir -p $dir
     N=$outpath/$dir/Makefile
     QMAKE_EXTRA_ARGS="\"QMAKE_ABSOLUTE_SOURCE_PATH=$relpath/$dir\""
-    PIPE="$outpath/bin/qmake $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
+    PIPE="$outpath/bin/qmake -spec $SPEC $QMAKE_SWITCHES $QMAKE_EXTRA_ARGS -o $N $a"
     if [ "x$CONCURRENT" = "x0" ] || [ "x$CONCURRENT" = "x1" ]
     then
 	EXEC=$PIPE
@@ -1672,7 +1675,7 @@ do
     fi
     if [ "$VERBOSE" = "yes" ]
     then
-	echo " (`basename $CONF`)"
+	echo " (`basename $SPEC`)"
 	if echo '\c' | grep '\c' >/dev/null
 	then
 	    echo -n "$EXEC"
