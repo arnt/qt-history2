@@ -313,9 +313,6 @@ static bool	    popupGrabOk;
 
 static bool sm_blockUserInput = FALSE;		// session management
 
-// one day in the future we will be able to have static objects in libraries....
-static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
-
 int qt_xfocusout_grab_counter = 0;
 
 #if defined (QT_TABLET_SUPPORT)
@@ -2384,9 +2381,6 @@ void qt_cleanup()
 	appName = 0;
     }
 
-    delete activeBeforePopup;
-    activeBeforePopup = 0;
-
     if (qt_net_supported_list)
 	delete [] qt_net_supported_list;
     qt_net_supported_list = 0;
@@ -3884,9 +3878,6 @@ void QApplication::openPopup( QWidget *popup )
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
-	if ( !activeBeforePopup )
-	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append( popup );		// add to end of list
 
@@ -3947,18 +3938,15 @@ void QApplication::closePopup( QWidget *popup )
 	    XUngrabPointer( popup->x11Display(), CurrentTime );
 	    XFlush( popup->x11Display() );
 	}
-	// restore the former active window immediately, although
-	// we'll get a focusIn later from X
-	if ( *activeBeforePopup ) {
-	    active_window = (*activeBeforePopup)->topLevelWidget();
+	if ( active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::Popup );
-	    (*activeBeforePopup)->setFocus();
+	    if ( active_window->focusWidget() )
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
 	    QFocusEvent::resetReason();
-	} else {
-	    active_window = 0;
 	}
-    }
-     else {
+    } else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets

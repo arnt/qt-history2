@@ -135,7 +135,6 @@ static DMExtendedNotificationUPP mac_display_changeUPP = NULL;
 static EventHandlerRef app_proc_handler = NULL;
 static EventHandlerUPP app_proc_handlerUPP = NULL;
 //popup variables
-static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
@@ -390,7 +389,7 @@ void qt_mac_update_os_settings()
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
 	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") ||
 		      !strcmp(mac_widget_colours[i].qt_class, "QHeader")) { //special
-		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
+		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText,
 			     pal.color(QPalette::Disabled, QColorGroup::Text));
 		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText,
 			     pal.color(QPalette::Inactive, QColorGroup::Text));
@@ -1250,7 +1249,7 @@ void qt_enter_modal(QWidget *widget)
     }
     qt_modal_stack->insert(0, widget);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal) 
+    if(!app_do_modal)
 	qt_event_request_menubarupdate();
 #endif
     app_do_modal = TRUE;
@@ -1274,7 +1273,7 @@ void qt_leave_modal(QWidget *widget)
 #endif
     app_do_modal = (qt_modal_stack != 0);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
-    if(!app_do_modal) 
+    if(!app_do_modal)
 	qt_event_request_menubarupdate();
 #endif
 }
@@ -1634,7 +1633,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    mouse_button_state = after_state;
 	    if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
 		activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
-		if(!app->do_mouse_down(&where, NULL)) 
+		if(!app->do_mouse_down(&where, NULL))
 		    mouse_button_state = 0;
 	    }
 #ifdef DEBUG_MOUSE_MAPS
@@ -2424,9 +2423,6 @@ void QApplication::openPopup(QWidget *popup)
     if(!popupWidgets) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR(popupWidgets);
-	if(!activeBeforePopup)
-	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append(popup);		// add to end of list
 
@@ -2459,15 +2455,13 @@ void QApplication::closePopup(QWidget *popup)
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
-	// restore the former active window immediately, although
-	// we'll get a focusIn later
-	if(*activeBeforePopup) {
-	    active_window = (*activeBeforePopup)->topLevelWidget();
-	    QFocusEvent::setReason(QFocusEvent::Popup);
-	    (*activeBeforePopup)->setFocus();
+	if ( active_window ) {
+	    QFocusEvent::setReason( QFocusEvent::Popup );
+	    if ( active_window->focusWidget() )
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
 	    QFocusEvent::resetReason();
-	} else {
-	    active_window = 0;
 	}
     } else {
 	// popups are not focus-handled by the window system (the

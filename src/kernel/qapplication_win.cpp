@@ -279,8 +279,6 @@ static bool	sm_smActive	     = FALSE;
 extern QSessionManager* qt_session_manager_self;
 static bool	sm_cancel;
 
-// one day in the future we will be able to have static objects in libraries....
-static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static bool replayPopupMouseEvent = FALSE; // replay handling when popups close
 
 static bool ignoreNextMouseReleaseEvent = FALSE; // ignore the next release event if
@@ -513,9 +511,9 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 #ifdef Q_OS_TEMP
     TCHAR uniqueAppID[256];
     GetModuleFileName( 0, uniqueAppID, 255 );
-    appUniqueID = RegisterWindowMessage( 
+    appUniqueID = RegisterWindowMessage(
 		  QString::fromUcs2(uniqueAppID)
-		  .lower().remove('\\').ucs2() ); 
+		  .lower().remove('\\').ucs2() );
 #endif
 }
 
@@ -925,8 +923,6 @@ void qt_cleanup()
     if ( ptrWTClose )
 	ptrWTClose( hTab );
 #endif
-    delete activeBeforePopup;
-    activeBeforePopup = 0;
 }
 
 
@@ -2404,9 +2400,6 @@ void QApplication::openPopup( QWidget *popup )
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR( popupWidgets );
-	if ( !activeBeforePopup )
-	    activeBeforePopup = new QGuardedPtr<QWidget>;
-	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
     popupWidgets->append( popup );		// add to end of list
     if ( popupWidgets->count() == 1 && !qt_nograb() )
@@ -2436,16 +2429,13 @@ void QApplication::closePopup( QWidget *popup )
 	popupWidgets = 0;
 	if ( !qt_nograb() )			// grabbing not disabled
 	    releaseAutoCapture();
-	// windows does not have
-	// A reasonable focus handling for our popups => we have
-	// to restore the focus manually.
-	if ( *activeBeforePopup ) {
-	    active_window = (*activeBeforePopup)->topLevelWidget();
+	if ( active_window ) {
 	    QFocusEvent::setReason( QFocusEvent::Popup );
-	    (*activeBeforePopup)->setFocus();
+	    if ( active_window->focusWidget() )
+		active_window->focusWidget()->setFocus();
+	    else
+		active_window->setFocus();
 	    QFocusEvent::resetReason();
-	} else {
-	    active_window = 0;
 	}
     } else {
 	// Popups are not focus-handled by the window system (the
