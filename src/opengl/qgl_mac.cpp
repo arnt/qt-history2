@@ -370,7 +370,9 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 
 static EventTypeSpec widget_opengl_events[] = {
     { kEventClassControl, kEventControlOwningWindowChanged },
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     { kEventClassControl, kEventControlVisibilityChanged },
+#endif
     { kEventClassControl, kEventControlBoundsChanged }
 };
 static EventHandlerUPP widget_opengl_handlerUPP = 0;
@@ -390,7 +392,10 @@ OSStatus QGLWidget::globalEventProcessor(EventHandlerCallRef, EventRef event, vo
     switch(eclass) {
     case kEventClassControl:
         handled_event = false;
-        if(ekind == kEventControlOwningWindowChanged || ekind == kEventControlVisibilityChanged 
+        if(ekind == kEventControlOwningWindowChanged
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+           || ekind == kEventControlVisibilityChanged 
+#endif
            || ekind == kEventControlBoundsChanged) 
             widget->d->updatePaintDevice();
         break;
