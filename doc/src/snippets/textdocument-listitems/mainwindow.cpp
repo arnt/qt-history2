@@ -70,11 +70,10 @@ void MainWindow::showList()
     QStringList headerLabels;
     headerLabels << tr("Lists");
     treeWidget->setHeaderLabels(headerLabels);
-    QTreeWidgetItem *parentItem = new QTreeWidgetItem(treeWidget);
-    parentItem->setText(0, tr("List items"));
 
+    QTreeWidgetItem *parentItem = 0;
     QTreeWidgetItem *item;
-    lastItem = parentItem;
+    QTreeWidgetItem *lastItem = 0;
     parentItems.clear();
     previousItems.clear();
 
@@ -95,14 +94,24 @@ void MainWindow::showList()
                     listStructures.append(list);
                     parentItem = lastItem;
                     lastItem = 0;
+
+                    if (parentItem != 0)
+                        item = new QTreeWidgetItem(parentItem, lastItem);
+                    else
+                        item = new QTreeWidgetItem(treeWidget, lastItem);
+
                 } else {
-                    while (listStructures.last() != list) {
+
+                    while (parentItem != 0 && listStructures.last() != list) {
                         listStructures.pop_back();
                         parentItem = parentItems.takeLast();
                         lastItem = previousItems.takeLast();
                     }
+                    if (parentItem != 0)
+                        item = new QTreeWidgetItem(parentItem, lastItem);
+                    else
+                        item = new QTreeWidgetItem(treeWidget, lastItem);
                 }
-                item = new QTreeWidgetItem(parentItem, lastItem);
                 item->setText(0, block.text());
                 lastItem = item;
             }
