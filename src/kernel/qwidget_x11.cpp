@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#179 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#180 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#179 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#180 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -955,8 +955,12 @@ void QWidget::show()
 	    }
 	}
     }
-    if ( testWFlags(WType_Popup) )
+    if ( testWFlags(WType_Popup) ) {
 	raise();
+    } else if ( testWFlags(WType_TopLevel) && !testWFlags(WStyle_Tool) ) {
+	while ( QApplication::activePopupWidget() )
+	    QApplication::activePopupWidget()->hide();
+    }
     XMapWindow( dpy, winid );
     setWFlags( WState_Visible );
     clearWFlags( WState_DoHide );
