@@ -24,6 +24,10 @@ BuddyEditorPlugin::BuddyEditorPlugin()
 {
 }
 
+BuddyEditorPlugin::~BuddyEditorPlugin()
+{
+}
+
 bool BuddyEditorPlugin::isInitialized() const
 {
     return m_initialized;

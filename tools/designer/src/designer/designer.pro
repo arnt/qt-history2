@@ -68,6 +68,7 @@ SOURCES += main.cpp \
     qdesigner_integration.cpp \
     qdesigner_preferences.cpp \
     qdesigner_actions.cpp \
+    qdesigner_plugins.cpp \
     pluginpreferences.cpp \
     preferencedialog.cpp \
     newform.cpp
