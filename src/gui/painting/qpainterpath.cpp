@@ -566,13 +566,14 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
     operations is that it is possible to build up non-linear shapes
     which can be drawn later in one go.
 
-    Building blocks can be joined in closed sub-paths, such as a
+    Building blocks can be joined in closed subpaths, such as a
     rectangle or an ellipse, or they can exist independently as unclosed
-    sub-paths. Note that unclosed paths will not be filled.
+    subpaths. Note that unclosed paths will not be filled.
 
     Below is a code snippet that shows how a path can be used. The
     painter in this case has a pen width of 3 and a light blue brush.
-    We first add a rectangle, which becomes a closed sub-path.  We
+    The painter path is initially empty when constructed.
+    We first add a rectangle, which becomes a closed subpath.  We
     then add two bezier curves, and finally draw the entire path.
 
     \code
@@ -585,6 +586,8 @@ QPainterPath QPainterPathPrivate::createStroke(const QPen &pen)
 
     painter.drawPath(path);
     \endcode
+
+    \sa QPainter
 */
 
 /*!
