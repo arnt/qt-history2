@@ -6,10 +6,10 @@
 <include location="global" impldecl="in implementation">qaction.h</include>
 <include location="global" impldecl="in implementation">qpixmap.h</include>
 <include location="global" impldecl="in implementation">qdict.h</include>
-<forward>class QWidget;</forward>
-<forward>struct QUnknownInterface;</forward>
+<forward>struct DesignerFormWindow;</forward>
 <forward>struct DesignerInterface;</forward>
-<forward>class DesignerFormWindow;</forward>
+<forward>struct QUnknownInterface;</forward>
+<forward>class QWidget;</forward>
 <variable>QWidget *widget;</variable>
 <variable>DesignerInterface *dIface;</variable>
 <variable>DesignerFormWindow *dfw;</variable>
@@ -21,8 +21,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>582</width>
-            <height>395</height>
+            <width>578</width>
+            <height>393</height>
         </rect>
     </property>
     <property name="caption">
