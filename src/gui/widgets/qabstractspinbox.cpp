@@ -31,8 +31,6 @@
 #define d d_func()
 #define q q_func()
 
-bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
-bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator+(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator-(const QCoreVariant &arg1, const QCoreVariant &arg2);
 QCoreVariant operator*(const QCoreVariant &arg1, double multiplier);
@@ -464,7 +462,8 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 {
     QStyleOptionSpinBox opt = d->styleOption();
     opt.subControls = QStyle::SC_SpinBoxEditField;
-    d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect, style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
+    d->edit->setGeometry(QStyle::visualRect(opt.direction, opt.rect,
+                                            style()->querySubControlMetrics(QStyle::CC_SpinBox, &opt,
                                                                             QStyle::SC_SpinBoxEditField, this)));
     QWidget::resizeEvent(e);
 }
@@ -596,7 +595,7 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
 void QAbstractSpinBox::focusInEvent(QFocusEvent *e)
 {
     d->edit->event(e);
-    QWidget::focusOutEvent(e);
+    QWidget::focusInEvent(e);
 }
 
 /*!
@@ -638,7 +637,7 @@ void QAbstractSpinBox::hideEvent(QHideEvent *e)
 
 void QAbstractSpinBox::timerEvent(QTimerEvent *e)
 {
-    if (e->timerId() == d->spinkeytimerid || e->timerId() == d->spinclicktimerid) {
+    if (/*e->timerId() == d->spinkeytimerid || */e->timerId() == d->spinclicktimerid) {
         if (d->buttonstate & Up) {
             stepBy(1);
             if (!(stepEnabled() & StepUpEnabled))
@@ -755,7 +754,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 */
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
-    : edit(0), spinclicktimerid(-1), spinkeytimerid(-1), spinclicktimerinterval(100), spinkeytimerinterval(200),
+    : edit(0), spinclicktimerid(-1), /*spinkeytimerid(-1),*/ spinclicktimerinterval(100), /*spinkeytimerinterval(200), */
       buttonstate(None), sizehintdirty(true), dirty(true), useprivate(false), pendingemit(false),
       tracking(false), wrapping(false), dragging(false), ignorecursorpositionchanged(false), slider(false),
       sliderpressed(false), frame(true), buttonsymbols(QAbstractSpinBox::UpDownArrows)
@@ -898,7 +897,7 @@ void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos
 void QAbstractSpinBoxPrivate::init()
 {
     spinclicktimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
-    spinkeytimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
+//    spinkeytimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_KeyPressAutoRepeatRate, 0, q);
     edit = new QLineEdit(q);
     edit->setFrame(false);
     edit->setAttribute(Qt::WA_InputMethodEnabled, false);
@@ -957,9 +956,9 @@ void QAbstractSpinBoxPrivate::resetState()
         if (spinclicktimerid != -1)
             q->killTimer(spinclicktimerid);
         spinclicktimerid = -1;
-        if (spinkeytimerid != -1)
-            q->killTimer(spinkeytimerid);
-        spinkeytimerid = -1;
+//         if (spinkeytimerid != -1)
+//             q->killTimer(spinkeytimerid);
+//         spinkeytimerid = -1;
         updateSpinBox();
     }
 }

@@ -33,6 +33,9 @@
 #include <qvalidator.h>
 #include <private/qwidget_p.h>
 
+bool operator<(const QCoreVariant &arg1, const QCoreVariant &arg2);
+bool operator>(const QCoreVariant &arg1, const QCoreVariant &arg2);
+
 #define TIME_MIN QTime(0, 0, 0, 0)
 #define TIME_MAX QTime(23, 59, 59, 999)
 #define DATE_MIN QDate(1752, 9, 14)
@@ -75,7 +78,7 @@ public:
     QCoreVariant getZeroVariant() const;
     void setBoundary(Boundary b, const QCoreVariant &val);
     virtual void setValue(const QCoreVariant &val, EmitPolicy ep);
-    QCoreVariant bound(const QCoreVariant &val, const QCoreVariant &old = QCoreVariant(), int steps = 0) const;
+    virtual QCoreVariant bound(const QCoreVariant &val, const QCoreVariant &old = QCoreVariant(), int steps = 0) const;
     QLineEdit *lineEdit();
     void updateSpinBox();
     void updateSlider();
@@ -103,7 +106,8 @@ public:
     QString prefix, suffix, specialvaluetext;
     QCoreVariant value, minimum, maximum, singlestep;
     QCoreVariant::Type type;
-    int spinclicktimerid, spinkeytimerid, spinclicktimerinterval, spinkeytimerinterval;
+    int spinclicktimerid, spinclicktimerinterval;
+//    int spinkeytimerid, spinkeytimerinterval;
     uint buttonstate;
     mutable QSize cachedsizehint, cachedminimumsizehint;
     mutable uint sizehintdirty : 1;
