@@ -138,10 +138,11 @@ public:
     // corresponds to ScriptLayout in Uniscribe
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
 
-#if 0
     // ScriptShape && ScriptPlace
-    ShapedItem shape( const QRTString &string, const ScriptItemArray &items, int item ) {}
+    virtual void shape( ShapedItem &shaped, const QRTString &string,
+			const ScriptItemArray &items, int item ) const = 0;
 
+#if 0
 
 
     // ### we need something for justification

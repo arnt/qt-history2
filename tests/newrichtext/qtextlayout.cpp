@@ -29,6 +29,18 @@ CharAttributesArray::~CharAttributesArray()
 }
 
 
+ShapedItem::ShapedItem()
+{
+    d = 0;
+}
+
+ShapedItem::~ShapedItem()
+{
+    // ####
+    if ( d )
+	delete ( (QString *)d );
+}
+
 ScriptEngine **scriptEngines = 0;
 
 
@@ -42,7 +54,8 @@ public:
     void attributes( CharAttributesArray &attributes, const QString &string,
 		     const ScriptItemArray &items, int item ) const;
 
-
+    void shape( ShapedItem &shaped, const QRTString &string,
+		const ScriptItemArray &items, int item ) const;
 };
 
 
@@ -89,6 +102,18 @@ void TextLayoutQt::attributes( CharAttributesArray &attrs, const QString &string
 }
 
 
+void TextLayoutQt::shape( ShapedItem &shaped, const QRTString &string,
+	    const ScriptItemArray &items, int item ) const
+{
+    const ScriptItem &si = items[item];
+    int from = si.position;
+    item++;
+    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
+
+    QFont f;
+    scriptEngines[si.analysis.script]->shape( f, string.str(), from, len, si.analysis, &shaped );
+}
+
 
 static TextLayout *_instance = 0;
 
@@ -113,3 +138,4 @@ void TextLayout::bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrd
 {
     ::bidiReorder(numRuns, levels, visualOrder );
 }
+

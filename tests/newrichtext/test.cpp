@@ -55,13 +55,25 @@ void MyWidget::paintEvent( QPaintEvent * )
 	for ( int i = 0; i < items.size(); i++ ) {
 	    int current = visualOrder[i];
 	    const ScriptItem &it = items[ current ];
+	    ShapedItem shaped;
+	    TextLayout::instance()->shape( shaped, string, items, current );
+	    str = *(QString *)shaped.d;
+
 	    int pos = it.position;
-	    int length = (current == items.size() -1 ? str.length() : items[current+1].position ) - pos;
-	    p.drawText( x, y, str, pos, length,
-			it.analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR );
-	    for ( int j = 0; j < length; j++ )
-		x += p.fontMetrics().width( str[pos+j] );
+	    int length = str.length();
+	    int xold = x;
 	    qDebug("visual %d x=%d length=%d", visualOrder[i], x,  length);
+	    for ( int j = 0; j < length; j++ ) {
+		x += p.fontMetrics().width( str[j] );
+		p.setPen( Qt::red );
+		p.drawLine( xold, y, x, y );
+		p.setPen( Qt::black );
+		p.drawText( xold, y, str, j, 1,
+			    it.analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR );
+		xold = x;
+		y += 2;  //j % 2 ? 4 : -4;
+	    }
+
 	    y += 20;
 	}
 

@@ -16,7 +16,7 @@ void ScriptEngineLatin::charAttributes( const QString &text, int from, int len, 
 void ScriptEngineLatin::shape( const FontEngine &f, const QString &text, int from, int len,
 			const ScriptAnalysis &analysis, ShapedItem *result )
 {
-
+    result->d = (ShapedItemPrivate *)(new QString(text.mid(from, len)));
 }
 
 int ScriptEngineLatin::cursorToX( int cursorPos, const FontEngine &f, const QString &text, int from, int len,
