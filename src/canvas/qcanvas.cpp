@@ -3423,6 +3423,7 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, WFl
 QCanvasView::~QCanvasView()
 {
     delete d;
+    d = 0;
     setCanvas(0);
 }
 
@@ -3448,7 +3449,8 @@ void QCanvasView::setCanvas(QCanvas* canvas)
 	connect(viewing,SIGNAL(resized()), this, SLOT(updateContentsSize()));
 	viewing->addView(this);
     }
-    updateContentsSize();
+    if ( d ) // called by d'tor
+        updateContentsSize();
 }
 
 #ifndef QT_NO_TRANSFORMATIONS
