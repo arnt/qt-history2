@@ -13,6 +13,33 @@ Detailed changes information on what's new in Qt 3.0 is included in
 the Online Reference Documentation.  For a brief overview, see
 http://www.trolltech.com/company/announce/30pre.html
 
+One significant change is the removal of QCom (Qt's component model)
+from the public API.
+ 
+Previous Qt 3.0 betas introduced a module called QCom that provides a
+COM-like component system. The feedback we received on this module
+during the 3.0 beta phase has been mixed. Many users think this module
+lacks the intuitiveness and compactness that they have learned to
+expect from a Qt API. We have therefore made the difficult decision to
+withdraw the QCom API from the Qt 3.0 release. We will continue to
+develop this API until it is mature enough for our customers, and will
+include the improved version in a later release.
+ 
+Please note that the new plugin functionality in 3.0 will still be
+provided. This includes using custom widgets in Qt Designer, as well
+as runtime addition of styles, codecs, SQL drivers, and image format
+handlers. This functionality is now available through a substantially
+simplified API.
+ 
+Please also note that it will still be convenient to add custom plugin
+capabilities to Qt 3.0 applications, since the new QLibrary class will
+still be available. This class takes care of the low-level,
+platform-dependent issues regarding loading of DLLs and obtaining
+pointers to the functions exported by the DLLs.
+ 
+We apologize for any inconvenience this may have caused, but not for
+our efforts to maintain the soundness and quality of Qt.
+
 Thanks to our greatly enlarged development team we have been able to
 realise far more of your requests in this release. Qt 3.0 is a huge
 step towards realising our vision of an ideal cross-platform
