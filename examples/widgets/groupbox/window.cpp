@@ -60,6 +60,7 @@ QGroupBox *Window::createSecondExclusiveGroup()
 QGroupBox *Window::createNonExclusiveGroup()
 {
     QGroupBox *groupBox = new QGroupBox(tr("Non-Exclusive Checkboxes"), this);
+    groupBox->setFlat(true);
 
     QCheckBox *checkBox1 = new QCheckBox(tr("&Checkbox 1"), groupBox);
     QCheckBox *checkBox2 = new QCheckBox(tr("C&heckbox 2"), groupBox);
