@@ -118,7 +118,15 @@ private:
 
 
 #if !defined(QT_CLEAN_NAMESPACE)
+// CursorShape is defined in X11/X.h
+#ifdef CursorShape
+#define X_CursorShape CursorShape
+#undef CursorShape
+#endif
 typedef Qt::CursorShape QCursorShape;
+#ifdef X_CursorShape
+#define CursorShape X_CursorShape
+#endif
 #endif
 
 
