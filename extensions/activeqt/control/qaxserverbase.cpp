@@ -81,26 +81,6 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
     qAxException = new QAxExceptInfo(code, src, desc, context);
 }
 
-static QHash<HWND, QAxServerBase*> *ax_ServerMapper = 0;
-static QHash<HWND, QAxServerBase*> *axServerMapper()
-{
-    if (!ax_ServerMapper) {
-	ax_ServerMapper = new QHash<HWND, QAxServerBase*>;
-    }
-    return ax_ServerMapper;
-}
-static void axTakeServer(HWND hWnd)
-{
-    if (!ax_ServerMapper)
-	return;
-
-    axServerMapper()->take(hWnd);
-    if (!axServerMapper()->count()) {
-	delete ax_ServerMapper;
-	ax_ServerMapper = 0;
-    }
-}
-
 
 /*
     \class QAxServerBase qaxserverbase.cpp
@@ -754,7 +734,7 @@ LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
 bool qax_winEventFilter(void *message)
 {
     MSG *pMsg = (MSG*)message;
-    if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
+    if (pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
 	return false;
 
     bool ret = false;
@@ -765,7 +745,20 @@ bool qax_winEventFilter(void *message)
     HWND baseHwnd = ::GetParent(aqt->winId());
     QAxServerBase *axbase = 0;
     while (!axbase && baseHwnd) {
-	axbase = axServerMapper()->value(baseHwnd);
+#ifdef GWLP_USERDATA
+        QT_WA({
+            axbase = (QAxServerBase*)GetWindowLongPtrW(baseHwnd, GWLP_USERDATA);
+        }, {
+            axbase = (QAxServerBase*)GetWindowLongW(baseHwnd, GWLP_USERDATA);
+        });
+#else
+        QT_WA({
+            axbase = (QAxServerBase*)GetWindowLongW(baseHwnd, GWL_USERDATA);
+        }, {
+            axbase = (QAxServerBase*)GetWindowLongA(baseHwnd, GWL_USERDATA);
+        });
+#endif
+
 	baseHwnd = ::GetParent(baseHwnd);
     }
     if (!axbase)
@@ -1079,9 +1072,6 @@ QAxServerBase::~QAxServerBase()
     delete aggregatedObject;
     aggregatedObject = 0;
     if (theObject) {
-	axTakeServer(m_hWnd);
-	if (qt.widget->isWidgetType())
-	    axTakeServer(qt.widget->winId());
 	qt.object->disconnect(this);
 	QObject *aqt = qt.object;
 	qt.object = 0;
@@ -1329,7 +1319,20 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	    that = (QAxServerBase*)cs->lpCreateParams;
 	});
 
-	axServerMapper()->insert(hWnd, that);
+#ifdef GWLP_USERDATA
+        QT_WA({
+            SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)that);
+        }, {
+            SetWindowLongPtrW(hWnd, GWLP_USERDATA, (LONG_PTR)that);
+        });
+#else
+        QT_WA({
+            SetWindowLongW(hWnd, GWL_USERDATA, (LONG)that);
+        }, {
+            SetWindowLongA(hWnd, GWL_USERDATA, (LONG)that);
+        });
+#endif
+
 	that->m_hWnd = hWnd;
 
 	QT_WA({
@@ -1339,12 +1342,26 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 	});
     }
 
-    QAxServerBase *that = axServerMapper()->value(hWnd);
+    QAxServerBase *that = 0;
+
+#ifdef GWLP_USERDATA
+    QT_WA({
+        that = (QAxServerBase*)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
+    }, {
+        that = (QAxServerBase*)GetWindowLongW(hWnd, GWLP_USERDATA);
+    });
+#else
+    QT_WA({
+        that = (QAxServerBase*)GetWindowLongW(hWnd, GWL_USERDATA);
+    }, {
+        that = (QAxServerBase*)GetWindowLongA(hWnd, GWL_USERDATA);
+    });
+#endif
+
     if (that) switch (uMsg)
     {
     case WM_NCDESTROY:
 	that->m_hWnd = 0;
-	axTakeServer(hWnd);
 	break;
 
     case WM_QUERYENDSESSION:
