@@ -1478,18 +1478,45 @@ void QTextView::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::
 
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
+	clearUndoRedo();
+	undoRedoInfo.type = UndoRedoInfo::ParagType;
+	QValueList< QVector<QStyleSheetItem> > oldStyles;
+	undoRedoInfo.oldStyles.clear();
+	undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
+	undoRedoInfo.oldListStyles.clear();
+	undoRedoInfo.oldListStyles << cursor->parag()->listStyle();
+	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	undoRedoInfo.listStyle = listStyle;
+	undoRedoInfo.id = cursor->parag()->paragId();
+	undoRedoInfo.eid = cursor->parag()->paragId();
+	undoRedoInfo.d->text = " ";
+	undoRedoInfo.index = 1;
+	clearUndoRedo();
 	cursor->parag()->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
 	repaintChanged();
     } else {
 	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
 	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
 	lastFormatted = start;
+	clearUndoRedo();
+	undoRedoInfo.type = UndoRedoInfo::ParagType;
+	undoRedoInfo.id = start->paragId();
+	undoRedoInfo.eid = end->paragId();
+	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	undoRedoInfo.listStyle = listStyle;
+	undoRedoInfo.oldStyles.clear();
+	undoRedoInfo.oldListStyles.clear();
 	while ( start ) {
+	    undoRedoInfo.oldStyles << start->styleSheetItems();
+	    undoRedoInfo.oldListStyles << start->listStyle();
 	    start->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
 	    if ( start == end )
 		break;
 	    start = start->next();
 	}
+	undoRedoInfo.d->text = " ";
+	undoRedoInfo.index = 1;
+	clearUndoRedo();
 	repaintChanged();
 	formatMore();
     }
@@ -2006,13 +2033,14 @@ void QTextView::selectAll( bool select )
 void QTextView::UndoRedoInfo::clear()
 {
     if ( valid() ) {
-	if ( type == Alignment )
 	if ( type == Insert || type == Return )
 	    doc->addCommand( new QTextInsertCommand( doc, id, index, d->text.rawData() ) );
 	else if ( type == Format )
 	    doc->addCommand( new QTextFormatCommand( doc, id, index, eid, eindex, d->text.rawData(), format, flags ) );
 	else if ( type == Alignment )
 	    doc->addCommand( new QTextAlignmentCommand( doc, id, eid, newAlign, oldAligns ) );
+	else if ( type == ParagType )
+	    doc->addCommand( new QTextParagTypeCommand( doc, id, eid, list, listStyle, oldStyles, oldListStyles ) );
 	else if ( type != Invalid )
 	    doc->addCommand( new QTextDeleteCommand( doc, id, index, d->text.rawData() ) );
     }

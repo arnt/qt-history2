@@ -989,6 +989,25 @@ private:
 
 };
 
+class Q_EXPORT QTextParagTypeCommand : public QTextCommand
+{
+public:
+    QTextParagTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
+			   QStyleSheetItem::ListStyle s, const QValueList< QVector<QStyleSheetItem> > &os,
+			   const QValueList<QStyleSheetItem::ListStyle> &ols );
+    Commands type() const { return ParagType; }
+    QTextCursor *execute( QTextCursor *c );
+    QTextCursor *unexecute( QTextCursor *c );
+
+private:
+    int firstParag, lastParag;
+    bool list;
+    QStyleSheetItem::ListStyle listStyle;
+    QValueList< QVector<QStyleSheetItem> > oldStyles;
+    QValueList<QStyleSheetItem::ListStyle> oldListStyles;
+
+};
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 struct Q_EXPORT QTextParagSelection

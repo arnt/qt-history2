@@ -42,6 +42,8 @@
 #include "qscrollview.h"
 #include "qstylesheet.h"
 #include "qpainter.h"
+#include "qvector.h"
+#include "qvaluelist.h"
 #endif // QT_H
 
 class QPainter;
@@ -218,6 +220,10 @@ private:
 	QTextDocument *doc;
 	QArray<int> oldAligns;
 	int newAlign;
+	bool list;
+	QStyleSheetItem::ListStyle listStyle;
+	QValueList< QVector<QStyleSheetItem> > oldStyles;
+	QValueList<QStyleSheetItem::ListStyle> oldListStyles;
     };
 
     enum KeyboardActionPrivate { // keep in sync with QTextEdit

@@ -355,6 +355,48 @@ QTextCursor *QTextAlignmentCommand::unexecute( QTextCursor *c )
     return c;
 }
 
+QTextParagTypeCommand::QTextParagTypeCommand( QTextDocument *d, int fParag, int lParag, bool l,
+					      QStyleSheetItem::ListStyle s, const QValueList< QVector<QStyleSheetItem> > &os,
+					      const QValueList<QStyleSheetItem::ListStyle> &ols )
+    : QTextCommand( d ), firstParag( fParag ), lastParag( lParag ), list( l ), listStyle( s ), oldStyles( os ), oldListStyles( ols )
+{
+}
+
+QTextCursor *QTextParagTypeCommand::execute( QTextCursor *c )
+{
+    QTextParag *p = doc->paragAt( firstParag );
+    if ( !p )
+	return c;
+    while ( p ) {
+	p->setList( list, (int)listStyle );
+	if ( p->paragId() == lastParag )
+	    break;
+	p = p->next();
+    }
+    return c;
+}
+
+QTextCursor *QTextParagTypeCommand::unexecute( QTextCursor *c )
+{
+    QTextParag *p = doc->paragAt( firstParag );
+    if ( !p )
+	return c;
+    QValueList< QVector<QStyleSheetItem> >::Iterator it = oldStyles.begin();
+    QValueList<QStyleSheetItem::ListStyle>::Iterator lit = oldListStyles.begin();
+    while ( p ) {
+	if ( it != oldStyles.end() )
+	    p->setStyleSheetItems( *it );
+	if ( lit != oldListStyles.end() )
+	    p->setListStyle( *lit );
+	if ( p->paragId() == lastParag )
+	    break;
+	p = p->next();
+	++it;
+	++lit;
+    }
+    return c;
+}
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextCursor::QTextCursor( QTextDocument *d )
@@ -3508,6 +3550,9 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
 void QTextParag::setStyleSheetItems( const QVector<QStyleSheetItem> &vec )
 {
     styleSheetItemsVec = vec;
+    invalidate( 0 );
+    lm = rm = tm = bm = -1;
+    numSubParag = -1;
 }
 
 void QTextParag::setList( bool b, int listStyle )
