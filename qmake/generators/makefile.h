@@ -68,13 +68,14 @@ protected:
 	MakefileDependDir(QString r, QString l) : real_dir(r), local_dir(l) { }
 	QString real_dir, local_dir;
     };
-    bool generateDependancies(QList<MakefileDependDir> &dirs, QString x);
+    bool generateDependencies(QList<MakefileDependDir> &dirs, QString x);
 
     QString cleanFilePath(const QString &file) const;
     bool generateMocList(QString fn);
 
     QString findMocSource(const QString &moc_file) const;
     QString findMocDestination(const QString &src_file) const;
+    QStringList &findDependencies(const QString &file);
 
     void setMocAware(bool o);
     bool mocAware() const;

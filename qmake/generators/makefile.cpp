@@ -156,7 +156,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 
 		if(fn_target.right(ext_len) == Option::cpp_ext) {
 		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
-		    depends[fn_target].append(mocFile);
+		    findDependencies(fn_target).append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
 		} else if(fn_target.right(ext_len) == Option::h_ext &&
 			  project->variables()["HEADERS"].findIndex(fn_target) != -1) {
@@ -184,13 +184,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 }
 
 bool
-MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString fn)
+MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString fn)
 {
     fileFixify(fn);
-
-    QStringList &fndeps = depends[fn];
+    QStringList &fndeps = findDependencies(fn);
     if(!fndeps.isEmpty())
 	return TRUE;
+
     fn = Option::fixPathToLocalOS(fn, FALSE);
 
     QString fndir;
@@ -334,9 +334,8 @@ MakefileGenerator::generateDependancies(QList<MakefileDependDir> &dirs, QString 
     }
 
     for(QStringList::Iterator fnit = fndeps.begin(); fnit != fndeps.end(); ++fnit) {
-	generateDependancies(dirs, (*fnit));
-
-	QStringList &deplist = depends[(*fnit)];
+	generateDependencies(dirs, (*fnit));
+	QStringList &deplist = findDependencies((*fnit));
 	for(QStringList::Iterator it = deplist.begin(); it != deplist.end(); ++it)
 	    if(fndeps.findIndex((*it)) == -1)
 		fndeps.append((*it));
@@ -436,7 +435,7 @@ MakefileGenerator::init()
 	    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		if(!(*val_it).isEmpty()) {
 		    if(doDepends())
-			generateDependancies(deplist, (*val_it));
+			generateDependencies(deplist, (*val_it));
 		        if(mocAware() && !generateMocList((*val_it)))
 			    warn_msg(WarnLogic, "Failure to open: %s", (*val_it).latin1());
 		    }
@@ -478,7 +477,7 @@ MakefileGenerator::init()
 	    logicWarn(decl, "HEADERS");
 	    decls.append(decl);
 	    impls.append(impl);
-	    depends[impl].append(decl);
+	    findDependencies(impl).append(decl);
 
 	    QString mocable = (v["MOC_DIR"].isEmpty() ? (fi.dirPath() + Option::dir_sep): v["MOC_DIR"].first()) +
 			      Option::moc_mod + fi.baseName() + Option::cpp_ext;
@@ -511,7 +510,7 @@ MakefileGenerator::init()
 		warn_msg(WarnLogic, "Failure to open: %s", f.latin1());
 		continue;
 	    }
-	    depends[imgfile].append(f);
+	    findDependencies(imgfile).append(f);
 	}
 	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
     }
@@ -528,8 +527,8 @@ MakefileGenerator::init()
 	    if( ! project->isActiveConfig("lex_included")) {
 		v["SOURCES"].append(impl);
 		// attribute deps of lex file to impl file
-		QStringList &lexdeps = depends[(*it)];
-		QStringList &impldeps = depends[impl];
+		QStringList &lexdeps = findDependencies((*it));
+		QStringList &impldeps = findDependencies(impl);
 		for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
 		    if(!impldeps.contains(*d))
 			impldeps.append(*d);
@@ -554,10 +553,10 @@ MakefileGenerator::init()
 	    decls.append(decl);
 	    impls.append(impl);
 	    v["SOURCES"].append(impl);
-	    QStringList &impldeps = depends[impl];
+	    QStringList &impldeps = findDependencies(impl);
  	    impldeps.append(decl);
 	    // attribute deps of yacc file to impl file
-	    QStringList &yaccdeps = depends[(*it)];
+	    QStringList &yaccdeps = findDependencies((*it));
 	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
 		if(!impldeps.contains(*d))
 		    impldeps.append(*d);
@@ -569,7 +568,7 @@ MakefileGenerator::init()
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
 		    impldeps.append(lexsrc);
-		    QStringList &lexdeps = depends[lexsrc];
+		    QStringList &lexdeps = findDependencies(lexsrc);
 		    for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
 			if(!impldeps.contains(*d))
 			    impldeps.append(*d);
@@ -652,8 +651,7 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	if((*sit).isEmpty())
 	    continue;
 
-	t << (*oit) << ": " << (*sit) << " "
-	  << depends[(*sit)].join(" \\\n\t\t");
+	t << (*oit) << ": " << (*sit) << " " << findDependencies((*sit)).join(" \\\n\t\t");
 
 	QString comp, cimp;
 	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext) {
@@ -679,7 +677,7 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 {
     QStringList &uil = project->variables()[ui];
     for(QStringList::Iterator it = uil.begin(); it != uil.end(); it++) {
-	QString deps =  depends[(*it)].join(" \\\n\t\t"), decl, impl;
+	QString deps = findDependencies((*it)).join(" \\\n\t\t"), decl, impl;
 	{
 	    QString tmp = (*it);
 	    decl = tmp.replace(QRegExp("\\.ui$"), Option::h_ext);
@@ -728,8 +726,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 
 	QString hdr = findMocSource(src);
 	t << (*oit) << ": " << src << " "
-	  << hdr << " "
-	  << depends[hdr].join(" \\\n\t\t");
+	  << hdr << " " << findDependencies(hdr).join(" \\\n\t\t");
 	if ( !project->variables()["OBJECTS_DIR"].isEmpty() ||
 	     !project->variables()["MOC_DIR"].isEmpty() ||
 	     project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty()) {
@@ -795,7 +792,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 	    stub = fi.baseName();
 	    lexflags += " -P" + stub;
 	}
-	t << impl << ": " << (*it) << " " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	t << impl << ": " << (*it) << " " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
 	  << ( "$(LEX) " + lexflags + " " ) << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex." << stub << ".c " << impl << endl << endl;
@@ -831,9 +828,9 @@ MakefileGenerator::writeImageSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	t << (*it) << ": " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
+	t << (*it) << ": " << findDependencies((*it)).join(" \\\n\t\t") << "\n\t"
 	  << "$(UIC) " << " -embed " << project->first("QMAKE_ORIG_TARGET") 
-	  << " " << depends[(*it)].join(" ") << " -o " << (*it) << endl << endl;
+	  << " " << findDependencies((*it)).join(" ") << " -o " << (*it) << endl << endl;
     }
 }
 
@@ -1166,4 +1163,14 @@ void MakefileGenerator::logicWarn(const QString &f, const QString &w)
 	    break;
 	}
     }
+}
+
+QStringList
+&MakefileGenerator::findDependencies(const QString &file)
+{
+    QString key = file;
+    Option::fixPathToTargetOS(key);
+    if(key.find(Option::dir_sep))
+	key = key.right(key.length() - key.findRev(Option::dir_sep) - 1);
+    return depends[key];
 }
