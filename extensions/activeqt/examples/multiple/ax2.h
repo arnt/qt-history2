@@ -27,9 +27,6 @@ public:
 	repaint();
     }
 
-signals:
-    void clicked();
-
 protected:
     void paintEvent( QPaintEvent *e )
     {
@@ -41,11 +38,6 @@ protected:
 	QRect r = rect();
 	r.addCoords( 10, 10, -10, -10 );
 	paint.drawEllipse( r );
-    }
-
-    void mouseReleaseEvent(QMouseEvent *e)
-    {
-	emit clicked();
     }
 
 private:
