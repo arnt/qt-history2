@@ -985,6 +985,8 @@ void QTextEdit::init()
     viewport()->setFocusProxy( this );
     viewport()->setFocusPolicy( WheelFocus );
     viewport()->installEventFilter( this );
+    connect( this, SIGNAL(horizontalSliderReleased()), this, SLOT(sliderReleased()) );
+    connect( this, SIGNAL(verticalSliderReleased()), this, SLOT(sliderReleased()) );
     installEventFilter( this );
 }
 
@@ -1942,7 +1944,8 @@ void QTextEdit::viewportResizeEvent( QResizeEvent *e )
 
 void QTextEdit::ensureCursorVisible()
 {
-    if ( !isVisible() ) {
+    // Not visible or the user is draging the window, so don't position to caret yet
+    if ( !isVisible() || isHorizontalSliderPressed() || isVerticalSliderPressed() ) {
 	d->ensureCursorVisibleInShowEvent = TRUE;
 	return;
     }
@@ -1955,6 +1958,14 @@ void QTextEdit::ensureCursorVisible()
     y += cursor->paragraph()->rect().y() + cursor->offsetY();
     int w = 1;
     ensureVisible( x, y + h / 2, w, h / 2 + 2 );
+}
+
+void QTextEdit::sliderReleased()
+{
+    if ( d->ensureCursorVisibleInShowEvent && isVisible() ) {
+	d->ensureCursorVisibleInShowEvent = FALSE;
+	ensureCursorVisible();
+    }
 }
 
 /*!

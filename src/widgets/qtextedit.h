@@ -431,6 +431,10 @@ protected:
 
 protected slots:
     virtual void doChangeInterval();
+    void sliderReleased(); // ### make virtual in 4.0
+#if (QT_VERSION >= 0x040000)
+#error "Some functions need to be changed to virtual for Qt 4.0"
+#endif
 
 private slots:
     void formatMore();

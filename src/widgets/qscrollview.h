@@ -136,6 +136,9 @@ public:
 
     void	removeChild(QObject* child);
 
+    bool	isHorizontalSliderPressed();
+    bool	isVerticalSliderPressed();
+
 #ifndef QT_NO_DRAGANDDROP
     virtual void setDragAutoScroll( bool b );
     bool	 dragAutoScroll() const;
@@ -143,6 +146,10 @@ public:
 
 signals:
     void	contentsMoving(int x, int y);
+    void	horizontalSliderPressed();
+    void	horizontalSliderReleased();
+    void	verticalSliderPressed();
+    void	verticalSliderReleased();
 
 public slots:
     virtual void resizeContents( int w, int h );
@@ -232,6 +239,10 @@ private:
 private slots:
     void hslide(int);
     void vslide(int);
+    void hbarIsPressed();
+    void hbarIsReleased();
+    void vbarIsPressed();
+    void vbarIsReleased();
 #ifndef QT_NO_DRAGANDDROP
     void doDragAutoScroll();
     void startDragAutoScroll();

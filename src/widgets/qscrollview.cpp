@@ -142,6 +142,8 @@ public:
 	signal_choke = FALSE;
 	static_bg = FALSE;
 	fake_scroll = FALSE;
+	hbarPressed = FALSE;
+	vbarPressed = FALSE;
     }
     ~QScrollViewData();
 
@@ -171,6 +173,8 @@ public:
 
     QScrollBar*  hbar;
     QScrollBar*  vbar;
+    bool hbarPressed;
+    bool vbarPressed;
     QViewportWidget*	viewport;
     QClipperWidget*	clipped_viewport;
     int         flags;
@@ -581,6 +585,13 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
         this, SLOT( hslide( int ) ) );
     connect( d->vbar, SIGNAL( valueChanged( int ) ),
         this, SLOT( vslide( int ) ) );
+
+    connect( d->hbar, SIGNAL(sliderPressed()), this, SLOT(hbarIsPressed()) );
+    connect( d->hbar, SIGNAL(sliderReleased()), this, SLOT(hbarIsReleased()) );
+    connect( d->vbar, SIGNAL(sliderPressed()), this, SLOT(vbarIsPressed()) );
+    connect( d->vbar, SIGNAL(sliderReleased()), this, SLOT(vbarIsReleased()) );
+
+
     d->viewport->installEventFilter( this );
 
     connect( &d->scrollbar_timer, SIGNAL( timeout() ),
@@ -616,6 +627,65 @@ QScrollView::~QScrollView()
     d = 0;
 }
 
+/*!
+    \fn void QScrollView::horizontalSliderPressed()
+
+    This signal is emitted whenever the user presses the horizontal slider.
+*/
+/*!
+    \fn void QScrollView::horizontalSliderReleased()
+
+    This signal is emitted whenever the user releases the horizontal slider.
+*/
+/*!
+    \fn void QScrollView::verticalSliderPressed()
+
+    This signal is emitted whenever the user presses the vertical slider.
+*/
+/*!
+    \fn void QScrollView::verticalSliderReleased()
+
+    This signal is emitted whenever the user releases the vertical slider.
+*/
+void QScrollView::hbarIsPressed()
+{
+    d->hbarPressed = TRUE;
+    emit( horizontalSliderPressed() );
+}
+
+void QScrollView::hbarIsReleased()
+{
+    d->hbarPressed = FALSE;
+    emit( horizontalSliderReleased() );
+}
+
+/*!
+    Returns TRUE if horizontal slider is pressed by user; otherwise returns FALSE.
+*/
+bool QScrollView::isHorizontalSliderPressed()
+{
+    return d->hbarPressed;
+}
+
+void QScrollView::vbarIsPressed()
+{
+    d->vbarPressed = TRUE;
+    emit( verticalSliderPressed() );
+}
+
+void QScrollView::vbarIsReleased()
+{
+    d->vbarPressed = FALSE;
+    emit( verticalSliderReleased() );
+}
+
+/*!
+    Returns TRUE if vertical slider is pressed by user; otherwise returns FALSE.
+*/
+bool QScrollView::isVerticalSliderPressed()
+{
+    return d->vbarPressed;
+}
 
 /*!
     \reimp
