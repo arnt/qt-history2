@@ -58,6 +58,10 @@ Funksjonalitet:
 Ferdigstilling:
 ---------------
 
+    Moc
+	-p "/usr/include"	path prefix for #include 
+	-i "hurra.h"		#include "hurra.h"
+
     Windows porting (mest kritisk: rotert tekst)
 
     Clipboard
