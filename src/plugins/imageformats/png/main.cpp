@@ -78,7 +78,7 @@ bool PNGFormat::saveImage(const QString &format, const QString &filename, const 
 
 bool PNGFormat::installIOHandler(const QString &name)
 {
-    if (name != "PNG")
+    if (name.toUpper() != "PNG")
         return false;
 
     qInitPngIO();
