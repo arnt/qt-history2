@@ -665,6 +665,10 @@ void MainWindow::closeEvent(QCloseEvent *ev)
     if (dirtyForms.size()) {
         if (dirtyForms.size() == 1) {
             dirtyForms.at(0)->close();
+            if (!mCloseForm) {
+                ev->ignore();
+                return;
+            }
         } else {
             QMessageBox box(tr("Save Forms?"),
                     tr("There are %1 forms with unsaved changes."
