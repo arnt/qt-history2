@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#14 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#15 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -794,7 +794,7 @@ NPP_Write(NPP instance, NPStream *stream, int32 offset, int32 len, void *buffer)
 
 
 extern "C" NPError 
-NPP_DestroyStream(NPP instance, NPStream *stream, NPError /*reason*/)
+NPP_DestroyStream(NPP instance, NPStream *stream, NPError reason)
 {
     _NPInstance* This;
 
@@ -805,6 +805,16 @@ NPP_DestroyStream(NPP instance, NPStream *stream, NPError /*reason*/)
 	This = (_NPInstance*) instance->pdata;
 
 	QNPStream* qnps = (QNPStream*)stream->pdata;
+	switch (reason) {
+	  case NPRES_DONE:
+	    qnps->setComplete(TRUE);
+	    break;
+	  case NPRES_USER_BREAK:
+	    break;
+	  case NPRES_NETWORK_ERR:
+	    qnps->setOkay(FALSE);
+	    break;
+	}
 
 	if (This) {
 	    // Give the instance a chance to do something
@@ -1381,7 +1391,10 @@ void QNPInstance::streamAsFile(QNPStream*, const char*)
 }
 
 /*!
-  Called when a stream is destroyed.
+  Called when a stream is destroyed.  At this this, the stream may
+  be complete() and okay().  If it is not okay(), then an error has
+  occurred.  If it is okay(), but not complete(), then the user has
+  cancelled the transmission - do not give an error message in this case.
 
   See also:
   <a href=http://developer.netscape.com/library/documentation/communicator/plugin/refpgst.htm#nppdestroystream>
@@ -1580,7 +1593,8 @@ QNPStream* QNPInstance::newStream(const char* mimetype, const char* window,
     bool as_file)
 {
     NPStream* s=0;
-    NPN_NewStream(pi->npp, (char*)mimetype, window, &s);
+    NPError err = NPN_NewStream(pi->npp, (char*)mimetype, window, &s);
+    if (err != NPERR_NO_ERROR) return 0;
     return s ? new QNPStream(this, mimetype, s, as_file) : 0;
 }
 
@@ -1634,6 +1648,8 @@ QNPStream::QNPStream(QNPInstance* in,const char* mt, _NPStream* st, bool se) :
     mtype(mt),
     seek(se)
 {
+    isokay = TRUE;
+    iscomplete = FALSE;
 }
 
 /*!
@@ -1692,6 +1708,39 @@ const char* QNPStream::type() const
 bool QNPStream::seekable() const
 {
     return seek;
+}
+
+/*!
+  \internal
+*/
+void QNPStream::setOkay(bool y)
+{
+    isokay = y;
+}
+
+/*!
+  \internal
+*/
+void QNPStream::setComplete(bool y)
+{
+    iscomplete = y;
+}
+
+/*!
+  Returns TRUE if no errors have occurred on the stream.
+*/
+bool QNPStream::okay() const
+{
+    return isokay;
+}
+
+/*!
+  Returns TRUE if the stream has received all the data from
+  the source.
+*/
+bool QNPStream::complete() const
+{
+    return iscomplete;
 }
 
 /*!

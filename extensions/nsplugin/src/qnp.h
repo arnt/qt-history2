@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#10 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.h#11 $
 **
 ** Definition of Qt extension classes for Netscape Plugin support.
 **
@@ -29,18 +29,24 @@ public:
 
     const char* type() const;
     bool seekable() const;
+    bool okay() const;
+    bool complete() const;
 
     void requestRead(int offset, uint length);
     int write( int len, void* buffer );
 
     QNPInstance* instance() { return inst; }
     QNPStream(QNPInstance*,const char*,_NPStream*,bool);
+    void setOkay(bool);
+    void setComplete(bool);
 
 private:
     QNPInstance* inst;
     _NPStream* stream;
     QString mtype;
-    bool seek;
+    int seek:1;
+    int isokay:1;
+    int iscomplete:1;
 };
 
 class QNPWidget : public QWidget {
@@ -97,7 +103,7 @@ public:
 	     uint len, const char* buf, bool file);
 
     QNPStream* newStream(const char* mimetype, const char* window,
-	bool as_file);
+	bool as_file=FALSE);
     virtual void streamAsFile(QNPStream*, const char* fname);
 
     void* getJavaPeer() const;
