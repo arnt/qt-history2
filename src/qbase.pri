@@ -108,7 +108,7 @@ unix {
 }
 
 DEFINES += QT_NO_CAST_TO_ASCII
-contains(QT_CONFIG, compat):DEFINES *= QT3_SUPPORT_WARNINGS #enable warnings
+contains(QT_CONFIG, qt3support):DEFINES *= QT3_SUPPORT_WARNINGS #enable warnings
 
 !debug_and_release|build_pass {
    CONFIG(debug, debug|release) {

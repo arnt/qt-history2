@@ -288,7 +288,7 @@ CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
 CFG_USER_BUILD_KEY=
 CFG_ACCESSIBILITY=auto
-CFG_COMPAT=yes
+CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_FRAMEWORK=no
@@ -378,7 +378,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake|-framework)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-inputmethod|-inputmethod-ext|-confirm-license|-gnumake|-framework|-qt3support)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -486,9 +486,9 @@ while [ "$#" -gt 0 ]; do
 
     UNKNOWN_OPT=no
     case $VAR in
-    compat)
+    qt3support)
         if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
-	    CFG_COMPAT="$VAL"
+	    CFG_QT3SUPPORT="$VAL"
 	else
 	    UNKNOWN_OPT=yes
         fi
@@ -2923,11 +2923,9 @@ if [ -n "$CFG_QWS_DEPTHS" -a "$PLATFORM_QWS" = "yes" ]; then
     fi
 fi
 
-# disable compat
-if [ "$CFG_COMPAT" = "no" ]; then
-    QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_COMPAT"
-else
-    QT_CONFIG="$QT_CONFIG compat"
+# enable Qt3 support functionality
+if [ "$CFG_QT3SUPPORT" = "yes" ]; then
+    QT_CONFIG="$QT_CONFIG qt3support"
 fi
 
 # disable accessibility
@@ -3670,7 +3668,7 @@ fi
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 echo "Debug................ $CFG_DEBUG"
-echo "Qt-3 compatibility... $CFG_COMPAT"
+echo "Qt-3 compatibility... $CFG_QT3SUPPORT"
 echo "STL support ......... $CFG_STL"
 echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"
