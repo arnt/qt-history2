@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $
 **
 ** Implementation of QPointArray class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#50 $");
 
 /*!
   \class QPointVal qpntarry.h
@@ -320,9 +320,10 @@ bool QPointArray::setPoints( int nPoints, int firstx, int firsty,
     a.putPoints( 1, 2, points );
   \endcode
 
-  The example code creates an array with two points (1,2), (3,4) and (5,6).
+  The example code creates an array with three points: (1,2), (3,4)
+  and (5,6).
 
-  This function differs from setPoints() because it does not resize the
+  This function differs from setPoints() in that it does not resize the
   array unless the array size is exceeded.
 
   \sa resize(), setPoints()
