@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#12 $
 **
 ** Implementation of movie classes
 **
@@ -447,18 +447,18 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		gcmap=!!(hold[4]&0x80);
 		//UNUSED: bpchan=(((hold[4]&0x70)>>3)+1);
 		//UNUSED: gcmsortflag=!!(hold[4]&0x08);
-		ncols=2<<(hold[4]&0x7);
+		gncols=2<<(hold[4]&0x7);
 		bgcol=(gcmap && hold[5]) ? hold[5] : -1;
 		//aspect=hold[6] ? double(hold[6]+15)/64.0 : 1.0;
-//printf("%dx%d screen, bg=%d, ncols=%d, %sgcmap\n",swidth,sheight,bgcol,ncols,gcmap?"":"!");
 
-		img.create(swidth, sheight, 8, gcmap ? ncols : 256);
+		img.create(swidth, sheight, 8, gcmap ? gncols : 256);
 		line = img.jumpTable();
 		if (consumer) digress = !consumer->setSize(swidth, sheight);
 
 		trans = -1;
 		preserve_trans = FALSE;
 		count=0;
+		ncols=gncols;
 		if (gcmap) {
 		    ccount=0;
 		    state=GlobalColorMap;
@@ -520,6 +520,8 @@ int QGIFDecoder::decode(QImage& img, QImageConsumer* consumer,
 		if (lncols) {
 		    if (lncols > ncols) img.setNumColors(lncols);
 		    ncols = lncols;
+		} else {
+		    ncols = gncols;
 		}
 		frame++;
 //printf(" %dx%d+%d+%d, %slcmap, %sinterlace, %d lncols\n",width,height,left,top,lcmap?"":"!",interlace?"":"!",lncols);
