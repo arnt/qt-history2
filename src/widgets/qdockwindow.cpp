@@ -308,12 +308,19 @@ void QDockWindowHandle::paintEvent( QPaintEvent *e )
 	style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
 				   dockWindow->orientation(), FALSE, colorGroup() );
     } else {
-	if ( dockWindow->area()->orientation() == Horizontal )
-	    style().drawToolBarHandle( &p, QRect( 0, 12, width(), height() - 12 ),
+	if ( dockWindow->area()->orientation() == Horizontal ) {
+	    int offs = 0;
+	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
+		offs += 2;
+	    style().drawToolBarHandle( &p, QRect( offs, 15, width() - offs, height() - 15 ),
 				       dockWindow->orientation(), FALSE, colorGroup() );
-	else
-	    style().drawToolBarHandle( &p, QRect( 0, 1, width() - 12, height() - 1 ),
+	} else {
+	    int offs = 1;
+	    if ( dockWindow->isCloseEnabled() && style() != WindowsStyle )
+		offs++;
+	    style().drawToolBarHandle( &p, QRect( 0, offs, width() - 15, height() - offs ),
 				       dockWindow->orientation(), FALSE, colorGroup() );
+	}
     }
 
     QWidget::paintEvent( e );
@@ -395,8 +402,8 @@ void QDockWindowHandle::updateGui()
 QSize QDockWindowHandle::minimumSizeHint() const
 {
     if ( dockWindow->orientation() == Horizontal )
-	return QSize( dockWindow->isCloseEnabled() ? 18 : 12, 0 );
-    return QSize( 0, dockWindow->isCloseEnabled() ? 18 : 12 );
+	return QSize( dockWindow->isCloseEnabled() ? 17 : 12, 0 );
+    return QSize( 0, dockWindow->isCloseEnabled() ? 17 : 12 );
 }
 
 QSizePolicy QDockWindowHandle::sizePolicy() const
@@ -838,7 +845,7 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	QApplication::sendPostedEvents();
     }
     Orientation oo = orientation();
-    
+
     if ( state == InDock ) {
 	if ( tmpDockArea ) {
 	    if ( dockArea && dockArea != tmpDockArea ) {
