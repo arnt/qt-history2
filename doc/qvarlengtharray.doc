@@ -197,6 +197,12 @@
     Same as constData().
 */
 
+/*!
+    \fn void QVarLengthArray::append(const T &t)
+
+    Appends item \a t to the array, extending the array if necessary.
+*/
+
 /*! \fn T *QVarLengthArray::data()
 
     Returns a pointer to the data stored in the array. The pointer can

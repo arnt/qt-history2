@@ -352,7 +352,7 @@ old header-file names are still supported.
 
 In Qt 2.x, the function QButtonGroup::selected() returns the selected
 \e radio button (QRadioButton). In Qt 3.0, it returns the selected \e
-toggle button (\l QButton::toggleButton), a more general concept.
+toggle button (QButton::toggleButton), a more general concept.
 This might affect programs that use QButtonGroups that contain a
 mixture of radio buttons and non-radio (e.g. QCheckBox) toggle buttons.
 
@@ -562,7 +562,7 @@ Qt 4.x.)
 \section2 QRegExp::find()
 
 This function was removed, after a brief appearance in Qt 2.2.  Its
-name clashed with QString::find().  Use \l QRegExp::search() or
+name clashed with QString::find().  Use QRegExp::search() or
 QString::find() (Qt 3.x) or QString::indexOf() (Qt 4.x) instead.
 
 \section2 QString::findRev() and QString::contains()
@@ -631,7 +631,7 @@ icons. In 3.0, this mechanism was moved into the \l QIconSet class
 
 The old QToolButton::onIconSet and QToolButton::offIconSet
 properties are still provided so that old source will compile, but
-their semantics have changed: they are now synonyms for \l
+their semantics have changed: they are now synonyms for
 QToolButton::iconSet. If you used that distinction in Qt 2.x, you will
 need to adjust your code to use the QIconSet On/Off mechanism.
 
@@ -658,7 +658,7 @@ Finally, this function is no longer virtual:
 
 If you have a class that inherits QToolButton and that reimplements
 QToolButton::setIconSet(), you should make the signature of the
-reimplementation agree with the new \l QToolButton::setIconSet(),
+reimplementation agree with the new QToolButton::setIconSet(),
 a virtual function.
 
 \section1 QTextStream

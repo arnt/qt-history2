@@ -86,7 +86,7 @@ QLineEdit, a read-only \l QComboBox and an editable \l QComboBox.
 
 \img groupbox-w.png
 
-The screenshot below shows a \l QPopupMenu.
+The screenshot below shows a \l QMenu.
 
 \img qpopmenu-w.png
 
