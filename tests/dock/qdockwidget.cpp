@@ -506,8 +506,6 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
     }
     curPlace = state;
     updateGui();
-    if ( state == OutsideDock )
-	adjustSize();
     emit orientationChanged( orientation() );
 }
 

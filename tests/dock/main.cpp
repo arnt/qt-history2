@@ -9,6 +9,7 @@
 #include <qvbox.h>
 #include <qlistview.h>
 #include "fileopen.xpm"
+#include <qdial.h>
 
 class MyMainWindow : public QMainWindow
 {
@@ -38,6 +39,7 @@ int main( int argc, char ** argv )
 
     QDockWidget *dw = new QDockWidget( 0 );
     dw->setGeometry( 20, 20, 200, 70 );
+    dw->setWidget( new QDial( dw ) );
     dw->show();
 
     dw = new QDockWidget( 0 );
@@ -47,7 +49,7 @@ int main( int argc, char ** argv )
 
     dw = new QDockWidget( 0 );
     dw->setGeometry( 60, 60, 200, 70 );
-
+    
     QToolBar *b = new QToolBar( "", 0, dw );
     b->setShowHandle( FALSE );
     QToolButton *t = new QToolButton( b );

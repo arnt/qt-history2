@@ -24,7 +24,7 @@ class QToolLayout : public QLayout
 
 public:
     QToolLayout( QWidget* parent, Qt::Orientation o, QList<QDockWidget> *wl, int space = -1, int margin = -1, const char *name = 0 )
-	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ) { init(); }
+	: QLayout( parent, space, margin, name ), orient( o ), dockWidgets( wl ), parentWidget( parent ) { init(); }
     ~QToolLayout() {}
 
     void addItem( QLayoutItem * ) {}
@@ -37,7 +37,9 @@ public:
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::NoDirection; }
     void invalidate();
     Qt::Orientation orientation() const { return orient; }
-
+    QValueList<QRect> lineList() const { return lines; }
+    QList<QDockWidget> lineStarts() const { return ls; }
+    
 protected:
     void setGeometry( const QRect& );
 
@@ -48,7 +50,10 @@ private:
     int cached_width, cached_height;
     int cached_hfw, cached_wfh;
     QList<QDockWidget> *dockWidgets;
-
+    QWidget *parentWidget;
+    QValueList<QRect> lines;
+    QList<QDockWidget> ls;
+    
 };
 
 
@@ -204,11 +209,14 @@ static void set_geometry( QDockWidget *w, int pos, int sectionpos, int extend, i
 	w->setGeometry( sectionpos, pos, strut, extend );
 }
 
-static int size_extend( const QSize &s, Qt::Orientation o )
+static int size_extend( const QSize &s, Qt::Orientation o, bool swap = FALSE )
 {
-    if ( o == Qt::Horizontal )
-	return s.width();
-    return s.height();
+    return o == Qt::Horizontal ? ( swap ? s.height() : s.width() ) : ( swap ? s.width() :  s.height() );
+}
+
+static int point_pos( const QPoint &p, Qt::Orientation o, bool swap = FALSE )
+{
+    return o == Qt::Horizontal ? ( swap ? p.y() : p.x() ) : ( swap ? p.x() : p.y() );
 }
 
 static void place_line( const QValueList<DockData> &lastLine, Qt::Orientation o, int linestrut, int fullextend )
@@ -243,6 +251,10 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 {
     if ( !dockWidgets || !dockWidgets->first() )
 	return 0;
+    if ( !testonly ) {
+	lines.clear();
+	ls.clear();
+    }
     QListIterator<QDockWidget> it( *dockWidgets );
     QDockWidget *dw = 0;
     int start = start_pos( r, orientation() );
@@ -252,23 +264,36 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     QValueList<DockData> lastLine;
     while ( ( dw = it.current() ) != 0 ) {
  	++it;
+	if ( !dw->isVisibleTo( parentWidget ) )
+	    continue;
 	if ( !lastLine.isEmpty() &&
 	     ( space_left( r, pos, orientation() ) < dock_extend( dw, orientation() ) || dw->newLine() ) ) {
 	    if ( !testonly )
 		place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+	    if ( orientation() == Horizontal )
+		lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
+	    else
+		lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
 	    lastLine.clear();
 	    sectionpos += linestrut;
 	    linestrut = 0;
 	    pos = start;
 	}
 
-	lastLine.append( DockData( dw, QRect( QMAX( pos, dw->offset() ), sectionpos,
+	if ( lastLine.isEmpty() )
+	    ls.append( dw );
+	pos = QMAX( pos, dw->offset() );
+	lastLine.append( DockData( dw, QRect( pos, sectionpos,
 					      dock_extend( dw, orientation() ), dock_strut( dw, orientation() ) ) ) );
 	linestrut = QMAX( dock_strut( dw, orientation() ), linestrut );
 	add_size( dock_extend( dw, orientation() ), pos, orientation() );
     }
     if ( !testonly )
 	place_line( lastLine, orientation(), linestrut, size_extend( r.size(), orientation() ) );
+    if ( orientation() == Horizontal )
+	lines.append( QRect( 0, sectionpos, r.width(), linestrut ) );
+    else
+	lines.append( QRect( sectionpos, 0, linestrut, r.height() ) );
     return sectionpos + linestrut;
 }
 
@@ -313,20 +338,85 @@ QDockArea::~QDockArea()
     delete dockWidgets;
 }
 
-void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )
+void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r, bool swap )
 {
     QDockWidget *dockWidget = 0;
     int i = findDockWidget( w );
     if ( i != -1 ) {
-	dockWidget = dockWidgets->at( i );
+	dockWidget = dockWidgets->take( i );
     } else {
 	dockWidget = w;
 	dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
 	if ( swap )
 	    dockWidget->resize( dockWidget->height(), dockWidget->width() );
-	dockWidgets->append( dockWidget );
 	w->installEventFilter( this );
     }
+
+    QPoint pos = mapFromGlobal( p );
+    QRect rect = QRect( mapFromGlobal( r.topLeft() ), r.size() );
+    dockWidget->setOffset( point_pos( rect.topLeft(), orientation() ) );
+    if ( dockWidgets->isEmpty() ) {
+	dockWidgets->append( dockWidget );
+    } else {
+	QValueList<QRect> lines = layout->lineList();
+	int dockLine = -1;
+	bool insertLine = FALSE;
+	int i = 0;
+	QRect lineRect;
+	for ( QValueList<QRect>::Iterator it = lines.begin(); it != lines.end(); ++it, ++i ) {
+	    if ( point_pos( pos, orientation(), TRUE ) >= point_pos( (*it).topLeft(), orientation(), TRUE ) && 
+		 point_pos( pos, orientation(), TRUE ) <= point_pos( (*it).topLeft(), orientation(), TRUE ) + 
+		 size_extend( (*it).size(), orientation(), TRUE ) ) {
+		dockLine = i;
+		lineRect = *it;
+		break;
+	    }
+	}
+	if ( dockLine == -1 ) {
+	    insertLine = TRUE;
+	    if ( point_pos( pos, orientation(), TRUE ) < 0 )
+		dockLine = 0;
+	    else
+		dockLine = lines.count();
+	} else {
+	    if ( point_pos( pos, orientation(), TRUE ) < point_pos( lineRect.topLeft(), orientation(), TRUE ) + 
+		 size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
+		insertLine = TRUE;
+	    } else if ( point_pos( pos, orientation(), TRUE ) > point_pos( lineRect.topLeft(), orientation(), TRUE ) + 
+			3 * size_extend( lineRect.size(), orientation(), TRUE ) / 4 ) {
+		insertLine = TRUE;
+		dockLine++;
+	    }
+	}
+	QDockWidget *dw = 0;
+	if ( dockLine >= (int)dockWidgets->count() ) {
+	    dockWidgets->append( dockWidget );
+	    dockWidget->setNewLine( TRUE );
+	} else if ( dockLine == 0 && insertLine ) {
+	    dockWidgets->insert( 0, dockWidget );
+	    dockWidgets->at( 1 )->setNewLine( TRUE );
+	} else {
+	    int searchLine = dockLine;
+	    QList<QDockWidget> lineStarts = layout->lineStarts();
+	    if ( insertLine )
+		searchLine--;
+	    int index = dockWidgets->find( lineStarts.at( searchLine ) );
+	    int lastPos = 0;
+	    for ( dw = dockWidgets->current(); dw; dw = dockWidgets->next() ) {
+		if ( point_pos( dw->pos(), orientation() ) < lastPos )
+		    break;
+		if ( point_pos( pos, orientation() ) < size_extend( dw->size(), orientation() ) / 2 )
+		    break;
+		index++;
+	    }
+	    if ( index >= 0 && index < (int)dockWidgets->count() && dockWidgets->at( index )->newLine() ) {
+		dockWidgets->at( index )->setNewLine( FALSE );
+		dockWidget->setNewLine( TRUE );
+	    }
+	    dockWidgets->insert( index, dockWidget );
+	}
+    }
+    
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Fixed,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Fixed ) );
