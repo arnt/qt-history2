@@ -1688,13 +1688,9 @@ static void init_wintab_functions()
 
 static void qt_tablet_init()
 {
-    static bool runOnce = FALSE;
-    if (runOnce)
-	return;
-    runOnce = TRUE;
-
     if ( qt_tablet_widget )
 	return;
+    qt_tablet_widget = new QWidget( 0, "Qt internal tablet widget" );
     LOGCONTEXT lcMine;
     qAddPostRoutine( qt_tablet_cleanup );
     struct tagAXIS tpOri[3];
@@ -1722,7 +1718,6 @@ static void qt_tablet_init()
         lcMine.lcOutExtX = GetSystemMetrics( SM_CXSCREEN );
         lcMine.lcOutOrgY = 0;
         lcMine.lcOutExtY = -GetSystemMetrics( SM_CYSCREEN );
-        qt_tablet_widget = new QWidget( 0, "Qt internal tablet widget" );
         qt_tablet_context = ptrWTOpen( qt_tablet_widget->winId(), &lcMine, TRUE);
 	if ( qt_tablet_context == NULL ) {
 	    qWarning( "Failed to open the tablet" );
