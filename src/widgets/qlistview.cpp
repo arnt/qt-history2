@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#208 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#209 $
 **
 ** Implementation of QListView widget class
 **
@@ -948,6 +948,10 @@ int QListViewItem::totalHeight() const
 /*!  Returns the text in column \a column, or a
   \link QString::operator!() null string\endlink if there
   is no text in that column.
+
+  The returned pointer must be copied or used at once so that
+  reimplementations of this function are at liberty to e.g. return a
+  pointer into a static buffer.
 
   This function works even if this item is not contained in a list
   view, but reimplementations of it are not required to work properly
@@ -3698,6 +3702,7 @@ QSize QListView::sizeHint() const
 	s.setHeight( s.width() / 2 );
     else if ( s.width() * 2 > s.height() * 3 )
 	s.setHeight( s.width() * 3 / 2 );
+
 
     return s;
 }

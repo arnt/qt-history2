@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#43 $
 **
 ** Implementation of QML classes
 **
@@ -1136,9 +1136,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 class QMLDocument : public QMLBox
 {
 public:
-    QMLDocument( const QString &doc, const QWidget* w = 0, int margin = 8 );
-    QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w = 0, int margin = 8);
-    QMLDocument( const QString &doc,  QMLProvider& provider, const QMLStyleSheet& sheet, const QWidget* w = 0, int margin = 8);
+    QMLDocument( const QString &doc, const QWidget* w = 0, int margin = 8, QMLProvider* provider = 0, const QMLStyleSheet* sheet = 0 );
     ~QMLDocument();
 
 
@@ -3000,32 +2998,15 @@ QString QMLProvider::path() const
 //************************************************************************
 
 
-QMLDocument::QMLDocument( const QString &doc, const QWidget* w, int margin )
+QMLDocument::QMLDocument( const QString &doc, const QWidget* w, int margin,  QMLProvider* provider, const QMLStyleSheet* sheet  )
     :QMLBox( (base = new QMLStyle( 0, "")) )
 {
-    provider_ = QMLProvider::defaultProvider(); // for access during parsing only
-    sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
+    provider_ = provider? provider : QMLProvider::defaultProvider(); // for access during parsing only
+    sheet_ = sheet? sheet : QMLStyleSheet::defaultSheet();// for access during parsing only
     init( doc, w, margin );
     provider_ = 0;
 }
 
-QMLDocument::QMLDocument( const QString &doc, QMLProvider& provider, const QWidget* w, int margin)
-    :QMLBox( (base = new QMLStyle(0, "")) )
-{
-    provider_ = &provider; // for access during parsing only
-    sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
-    init( doc, w, margin );
-}
-
-QMLDocument::QMLDocument(const QString &doc,  QMLProvider& provider,
-			 const QMLStyleSheet& sheet, const QWidget* w, int margin )
-    :QMLBox( (base = new QMLStyle(0, "")) )
-{
-
-    provider_ = &provider; // for access during parsing only
-    sheet_ = &sheet; // for access during parsing only
-    init( doc, w, margin );
-}
 
 void QMLDocument::init( const QString& doc, const QWidget* w, int margin )
 {
@@ -3677,7 +3658,7 @@ QString QMLView::contents() const
 void QMLView::createDocument()
 {
     d->papcolgrp = d->mypapcolgrp;
-    d->doc_ = new QMLDocument( d->txt, *provider(), *styleSheet(), viewport() );
+    d->doc_ = new QMLDocument( d->txt, viewport(), 8, provider(), styleSheet() );
     if ( !d->doc_->attributes() )
 	return;
     if (d->doc_->attributes()->find("bgcolor")){
@@ -3798,7 +3779,7 @@ QString QMLView::documentTitle() const
 */
 int QMLView::heightForWidth( int w ) const
 {
-    QMLDocument doc ( d->txt, *provider(), *styleSheet(), viewport() );
+    QMLDocument doc ( d->txt, viewport(), 8, provider(), styleSheet());
     {
 	QPainter p( this );
 	doc.setWidth(&p, w);
@@ -4689,17 +4670,18 @@ public:
 /*!
   Constructs a QMLSimpleDocument from the QML \a contents.
 
-  If \a w is
-  not 0, its properties (font, etc.) are used to set default
-  properties for the display. No reference is kept to the widget.
+  If \a w is not 0, its properties (font, etc.) are used to set
+  default properties for the display. No reference is kept to the
+  widget. \a s is an optional stylesheet. If it is 0, the
+  QMLStyleSheet::defaultSheet() will be used.
 
   Once created, changes cannot be made (just throw it away and make
   a new one with the new contents).
 */
-QMLSimpleDocument::QMLSimpleDocument( const QString& contents, const QWidget* w)
+QMLSimpleDocument::QMLSimpleDocument( const QString& contents, const QWidget* w, const QMLStyleSheet* s)
 {
     d  = new QMLSimpleDocumentData;
-    d->doc = new QMLDocument( contents, w, 0 );
+    d->doc = new QMLDocument( contents, w, 0, 0, s );
 }
 
 /*!

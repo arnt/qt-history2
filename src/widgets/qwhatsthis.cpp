@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#41 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -92,10 +92,10 @@ public:
     // an item for storing texts
     struct WhatsThisItem: public QShared
     {
-	WhatsThisItem(): QShared() {}
+	WhatsThisItem(): QShared() { whatsthis = 0; }
 	~WhatsThisItem();
-	bool qml;
 	QString s;
+	QWhatsThis* whatsthis;
     };
 
     // the (these days pretty small) state machine
@@ -107,7 +107,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     // say it.
-    void say( QWidget *, const QString&, bool isQml );
+    void say( QWidget *, const QString&, QPoint* = 0 );
 
     // setup and teardown
     static void tearDownWhatsThis();
@@ -302,8 +302,13 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	    }
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
-	    if ( i )
-		say( w, i->s, i->qml );
+	    if ( i ) {
+		QPoint pos =  ((QMouseEvent*)e)->pos();
+		if ( i->whatsthis )
+		    say( w, i->whatsthis->text( pos ), &pos );
+		else
+		    say( w, i->s, &pos );
+	    }
 	    QApplication::restoreOverrideCursor();
 	    return TRUE;
 	} else if ( e->type() == QEvent::MouseButtonPress ||
@@ -332,7 +337,10 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
  	    QWidget * w = ((QWidget *)o)->focusWidget();
  	    QWhatsThisPrivate::WhatsThisItem * i = 0;
  	    if ( w && (i=dict->find( w )) != 0 && !i->s.isNull() ) {
- 		say( w, i->s, i->qml );
+		if ( i->whatsthis )
+		    say( w, i->whatsthis->text( QPoint(0,0) ) );
+		else
+		    say( w, i->s );
 		((QKeyEvent *)e)->accept();
 		return TRUE;
  	    }
@@ -358,7 +366,7 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 }
 
 
-void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text, QPoint* ppos)
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
@@ -386,8 +394,8 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
     QRect r;
     QMLSimpleDocument* qmlDoc = 0;
 
-    if ( isQml ) {
-	qmlDoc = new QMLSimpleDocument( text, whatsThat );
+    if ( QWhatsThis::styleSheet() ) {
+	qmlDoc = new QMLSimpleDocument( text, whatsThat, QWhatsThis::styleSheet() );
 	qmlDoc->setWidth( &p, w );
 	r.setRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
     }
@@ -409,9 +417,11 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
     // with nice alignment if possible.
     if ( w > widget->width() + 16 )
 	x = pos.x() + widget->width()/2 - w/2;
+    else if ( ppos )
+	x = widget->mapToGlobal(*ppos).x() - w/2;
     else
 	x = pos.x();
-
+    
     // squeeze it in if that would result in part of what's this
     // being only partially visible
     if ( x + w > QApplication::desktop()->width() )
@@ -422,11 +432,24 @@ void QWhatsThisPrivate::say( QWidget * widget, const QString &text, bool isQml )
     if ( x < 0 )
 	x = 0;
 
-    int y = pos.y() + widget->height() + 2; // below, two pixels spacing
-    // what's this is above or below, wherever there's most space
-    if ( y + h + 10 > QApplication::desktop()->height() )
-	y = pos.y() + 2 - shadowWidth - h; // above, overlap
+    int y;
+    if ( h > widget->height() + 16 ) {
+	y = pos.y() + widget->height() + 2; // below, two pixels spacing
+	// what's this is above or below, wherever there's most space
+	if ( y + h + 10 > QApplication::desktop()->height() )
+	    y = pos.y() + 2 - shadowWidth - h; // above, overlap
+    }
+    else if ( ppos )
+	y = widget->mapToGlobal(*ppos).y() + 2;
+    else
+	y = pos.y();
 
+    // squeeze it in if that would result in part of what's this
+    // being only partially visible
+    if ( y + h > QApplication::desktop()->height() )
+	y = QMIN(QApplication::desktop()->height(),
+		 pos.y() + widget->height())
+	    - h;
     if ( y < 0 )
 	y = 0;
 
@@ -507,7 +530,6 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 
     i = new QWhatsThisPrivate::WhatsThisItem;
     i->s = text;
-    i->qml = FALSE;
     wt->dict->insert( (void *)widget, i );
     QWidget * tlw = widget->topLevelWidget();
     if ( !wt->tlw->find( (void *)tlw ) ) {
@@ -515,28 +537,6 @@ void QWhatsThis::add( QWidget * widget, const QString &text )
 	tlw->installEventFilter( wt );
     }
 }
-
-/*!  Adds \a qml text as What's This help for \a widget.
-*/
-
-void QWhatsThis::addQML( QWidget * widget, const QString &qml )
-{
-    QWhatsThisPrivate::setUpWhatsThis();
-    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
-    if ( i )
-	remove( widget );
-
-    i = new QWhatsThisPrivate::WhatsThisItem;
-    i->s = qml;
-    i->qml = TRUE;
-    wt->dict->insert( (void *)widget, i );
-    QWidget * tlw = widget->topLevelWidget();
-    if ( !wt->tlw->find( (void *)tlw ) ) {
-	wt->tlw->insert( (void *)tlw, tlw );
-	tlw->installEventFilter( wt );
-    }
-}
-
 
 
 /*!  Removes the What's This help for \a widget.  \sa add() */
@@ -556,16 +556,18 @@ void QWhatsThis::remove( QWidget * widget )
 }
 
 
-/*!  Returns the text (not the title) for \a widget, or 0 if there
+/*!  Returns the text for \a widget, or a null string if there
   isn't any What's This help for \a widget.
 
   \sa add() */
 
-QString QWhatsThis::textFor( QWidget * widget )
+QString QWhatsThis::textFor( QWidget * widget, const QPoint& pos)
 {
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( widget );
-    return i ? i->s : QString::null;
+    if (!i)
+	return QString::null;
+    return i->whatsthis? i->whatsthis->text( pos ) : i->s;
 }
 
 
@@ -700,13 +702,24 @@ rzs7fu9vvu5V7vNkv+uwXvWQfu0flepw3+dyL/N03+lFf/Rsny9u3/JSv/cqERAAOw==
 */
 
 
-/*!  Constructs a dynamic What's This object for \a widget.  
+/*!  Constructs a dynamic What's This object for \a widget.
 */
 
 QWhatsThis::QWhatsThis( QWidget * widget)
 {
     QWhatsThisPrivate::setUpWhatsThis();
+    QWhatsThisPrivate::WhatsThisItem * i = wt->dict->find( (void *)widget );
+    if ( i )
+	remove( widget );
 
+    i = new QWhatsThisPrivate::WhatsThisItem;
+    i->whatsthis = this;
+    wt->dict->insert( (void *)widget, i );
+    QWidget * tlw = widget->topLevelWidget();
+    if ( !wt->tlw->find( (void *)tlw ) ) {
+	wt->tlw->insert( (void *)tlw, tlw );
+	tlw->installEventFilter( wt );
+    }
 }
 
 
@@ -725,25 +738,11 @@ QWhatsThis::~QWhatsThis()
   This text for a position, QString::null may be returned.
 
   The default implementation returns QString::null.
-  
+
   \sa qml()
 */
 
 QString QWhatsThis::text( const QPoint & )
-{
-    return QString::null; //####
-}
-
-/*!  This virtual functions returns the qml text for position \e p in the
-  widget this What's This object documents.  If there is no What's
-  This text for a position, QString::null may be returned.
-
-  The default implementation returns QString::null.
-  
-  \sa text()
-*/
-
-QString QWhatsThis::qml( const QPoint & )
 {
     return QString::null; //####
 }
@@ -769,3 +768,32 @@ void QWhatsThis::enterWhatsThisMode()
     }
 }
 
+
+static QMLStyleSheet* whatsThisStyleSheet = 0;
+static bool whatsThisStyleSheetSet = FALSE;
+
+/*!
+  Returns the current style sheet for all What's This help windows.
+
+  \sa setStyleSheet()
+*/
+QMLStyleSheet* QWhatsThis::styleSheet()
+{
+    return whatsThisStyleSheetSet ? whatsThisStyleSheet : QMLStyleSheet::defaultSheet() ;
+}
+
+/*!
+  Sets a style sheet for all What's This help windows. 
+  
+  Usually What's This uses the QMLStyleSheet::defaultSheet() to render
+  the help texts.  You can, however, set a different stylesheet with
+  this function. If \a styleSheet is 0, no QML rendering is done at
+  all.
+
+  \sa styleSheet()
+*/
+void QWhatsThis::setStyleSheet( QMLStyleSheet* styleSheet )
+{
+    whatsThisStyleSheet = styleSheet;
+    whatsThisStyleSheetSet = TRUE;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#12 $
+** $Id: //depot/qt/main/src/widgets/qml.h#13 $
 **
 ** Definition of QML classes
 **
@@ -168,7 +168,7 @@ class QMLSimpleDocumentData;
 class Q_EXPORT QMLSimpleDocument
 {
 public:
-    QMLSimpleDocument( const QString& contents, const QWidget* w = 0);
+    QMLSimpleDocument( const QString& contents, const QWidget* w = 0, const QMLStyleSheet* s = 0);
     ~QMLSimpleDocument();
 
     void setWidth( QPainter*, int );
