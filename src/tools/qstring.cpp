@@ -15958,10 +15958,10 @@ public:
     }
 
     int worth() const {
-	int w = 0;
+	int result = 0;
 	for ( int i = 0; i < 50; i++ )
-	    w += bitCount[b[i]];
-	return w;
+	    result += bitCount[b[i]];
+	return result;
     }
 
     static CoMatrix reunion( const CoMatrix& m, const CoMatrix& n )
