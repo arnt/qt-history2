@@ -88,7 +88,7 @@ public:
 
     QString documentTitle() const;
 
-    QString toHtml(const QString &encoding = QString()) const;
+    QString toHtml(const QByteArray &encoding = QByteArray()) const;
     void setHtml(const QString &html);
 
     QString toPlainText() const;

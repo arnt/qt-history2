@@ -829,7 +829,7 @@ class QTextHtmlExporter
 public:
     QTextHtmlExporter(const QTextDocument *_doc);
 
-    QString toHtml(const QString &encoding);
+    QString toHtml(const QByteArray &encoding);
 
 private:
     void emitFrame(QTextFrame::Iterator frameIt);
@@ -861,14 +861,14 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     perfect, especially for complex documents, due to the limitations
     of HTML.
 */
-QString QTextHtmlExporter::toHtml(const QString &encoding)
+QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
 {
     // ### title
 
     html = QLatin1String("<html>");
 
     if (!encoding.isEmpty())
-        html += QString("<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\"></head>").arg(encoding);
+        html += QString("<head><meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\"></head>").arg(QString::fromAscii(encoding));
 
     html += QString("<body style=\" white-space: pre-wrap; font-family:%1; font-weight:%2; font-style:%3; text-decoration:none;\">")
             .arg(defaultCharFormat.fontFamily())
@@ -1402,7 +1402,7 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
     transmission over a network or when saving to disk you should specify
     the encoding you're going to use for the conversion to a byte array here.
 */
-QString QTextDocument::toHtml(const QString &encoding) const
+QString QTextDocument::toHtml(const QByteArray &encoding) const
 {
     return QTextHtmlExporter(this).toHtml(encoding);
 }
