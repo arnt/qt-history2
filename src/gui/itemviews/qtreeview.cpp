@@ -157,9 +157,15 @@ void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 QModelIndexList QTreeView::selectedIndexes() const
 {
     QModelIndexList viewSelected;
-    foreach (QModelIndex index, selectionModel()->selectedIndexes()) {
-        if (!isIndexHidden(index) && d->viewIndex(index) != -1)
-            viewSelected.append(index);
+    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    for (int i=0; i<modelSelected.count(); ++i) {
+        // check that neither the parents nor the index is hidden before we add
+        QModelIndex index = modelSelected.at(i);
+        while (index.isValid() && !isIndexHidden(index))
+            index = model()->parent(index);
+        if (index.isValid())
+            continue;
+        viewSelected.append(modelSelected.at(i));
     }
     return viewSelected;
 }
