@@ -2,10 +2,12 @@
   qscodeparser.cpp
 */
 
+#include <qfile.h>
 #include <qregexp.h>
 
 #include "config.h"
 #include "qscodeparser.h"
+#include "tokenizer.h"
 #include "tree.h"
 
 #define CONFIG_QUICK                "quick"
@@ -95,7 +97,40 @@ void QsCodeParser::parseHeaderFile( const Location& location,
 				    const QString& filePath, Tree *tree )
 {
     qsTre = tree;
-    CppCodeParser::parseSourceFile( location, filePath, tree );
+
+    FILE *in = fopen( QFile::encodeName(filePath), "r" );
+    if ( in == 0 ) {
+	location.error( tr("Cannot open Qt Script class list '%1'")
+			.arg(filePath) );
+	return;
+    }
+
+    NodeList quickClasses;
+
+    Location fileLocation( filePath );
+    FileTokenizer fileTokenizer( fileLocation, in );
+    int tok = fileTokenizer.getToken();
+    while ( tok != Tok_Eoi ) {
+	if ( tok == Tok_Ident ) {
+	    ClassNode *quickClass = new ClassNode( qsTre->root(),
+						   fileTokenizer.lexeme() );
+	    quickClass->setLocation( fileTokenizer.location() );
+	    quickClasses << quickClass;
+	} else {
+	    fileTokenizer.location().error( tr("Unexpected token '%1' in Qt"
+					       " Script class list")
+					    .arg(fileTokenizer.lexeme()) );
+	    break;
+	}
+	tok = fileTokenizer.getToken();
+    }
+    fclose( in );
+
+    NodeList::ConstIterator c = quickClasses.begin();
+    while ( c != quickClasses.end() ) {
+	quickifyClass( (ClassNode *) *c );
+	++c;
+    }
 }
 
 void QsCodeParser::parseSourceFile( const Location& location,
@@ -129,9 +164,6 @@ Set<QString> QsCodeParser::topicCommands()
 Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 					 const QString& arg )
 {
-    ClassNode *wrapperClass = 0;
-    ClassNode *qtClass = 0;
-
     if ( command == COMMAND_QUICKFN ) {
 	QStringList path;
 	FunctionNode *clone;
@@ -166,68 +198,16 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	}
 	return 0;
     } else if ( command == COMMAND_QUICKCLASS ) {
-	QString quickClassName = arg;
-	QString qtClassName = arg;
-	QString bare = arg;
-	if ( arg != "Qt" ) {
-	    if ( arg.startsWith("Q") ) {
-		bare = bare.mid( 1 );
-	    } else {
-		qtClassName.prepend( "Q" );
-	    }
-	}
-
-	if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
-					   " by '%2'")
-					.arg(qtClassName)
-					.arg(wrapperClass->name()) );
-		return 0;
-	    }
-	} else if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
-	    qtClass = tryClass( qtClassName );
-	    if ( qtClass == 0 ) {
-		qtClass = wrapperClass;
-		wrapperClass = 0;
-	    }
-	} else if ( (wrapperClass = tryClass("Quick" + bare + "Ptr")) != 0 ) {
-	    QRegExp ptrToQtType( "(Q[A-Za-z0-9_]+)\\s*\\*" );
-	    FunctionNode *ctor =
-		    wrapperClass->findFunctionNode( wrapperClass->name() );
-	    if ( ctor != 0 && !ctor->parameters().isEmpty() &&
-		 ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
-		qtClassName = ptrToQtType.cap( 1 );
-
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
-					   " by '%2'")
-					.arg(qtClassName)
-					.arg(wrapperClass->name()) );
-		return 0;
-	    }
-	} else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
-	    if ( (qtClass = tryClass(qtClassName)) == 0 ) {
-		doc.location().warning( tr("Cannot find Qt class '%1' wrapped"
-					   " by '%2'")
-					.arg(qtClassName)
-					.arg(wrapperClass->name()) );
-		return 0;
-	    }
+	QStringList path = QStringList::split( ".", arg );
+	ClassNode *quickClass =
+		(ClassNode *) qsTre->findNode( path, Node::Class );
+	if ( quickClass == 0 ) {
+	    doc.location().warning( tr("Cannot resolve '%1' specified with"
+				       " '\\%2'")
+				    .arg(arg).arg(command) );
 	} else {
-	    qtClass = tryClass( qtClassName );
-	    if ( qtClass == 0 ) {
-		doc.location().warning( tr("Cannot find C++ class '%1'")
-					.arg(qtClassName) );
-		return 0;
-	    }
+	    setQuickDoc( quickClass, doc );	
 	}
-
-	ClassNode *quickClass = new ClassNode( qsTre->root(), quickClassName );
-qDebug( "Quickifying '%s'", qtClassName.latin1() );
-	quickifyClass( quickClass, qtClass, wrapperClass );
-	setQtDoc( quickClass, qtClass->doc() );
-	setQuickDoc( quickClass, doc );
 	return 0;
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );
@@ -295,29 +275,86 @@ void QsCodeParser::applyReplacementList( QString *source, const Doc& doc )
     }
 }
 
-void QsCodeParser::quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
-				  ClassNode *wrapperClass )
+void QsCodeParser::quickifyClass( ClassNode *quickClass )
 {
-    QMap<QString, int> blackList;
+    QString qtClassName = quickClass->name();
+    QString bare = quickClass->name();
+    if ( quickClass->name() != "Qt" ) {
+	if ( quickClass->name().startsWith("Q") ) {
+	    bare = bare.mid( 1 );
+	} else {
+	    qtClassName.prepend( "Q" );
+	}
+    }
+
+qDebug( "Quickifying '%s'", qtClassName.latin1() );
+
+    ClassNode *qtClass = 0;
+    ClassNode *wrapperClass = 0;
+
+    if ( (wrapperClass = tryClass("Quick" + bare + "Interface")) != 0 ) {
+	qtClass = tryClass( qtClassName );
+    } else if ( (wrapperClass = tryClass("Quick" + bare)) != 0 ) {
+	qtClass = tryClass( qtClassName );
+	if ( qtClass == 0 ) {
+	    qtClass = wrapperClass;
+	    wrapperClass = 0;
+	}
+    } else if ( (wrapperClass = tryClass("Quick" + bare + "Ptr")) != 0 ) {
+	QRegExp ptrToQtType( "(Q[A-Za-z0-9_]+)\\s*\\*" );
+	FunctionNode *ctor =
+		wrapperClass->findFunctionNode( wrapperClass->name() );
+	if ( ctor != 0 && !ctor->parameters().isEmpty() &&
+	     ptrToQtType.exactMatch(ctor->parameters().first().leftType()) )
+	    qtClassName = ptrToQtType.cap( 1 );
+	qtClass = tryClass( qtClassName );
+    } else if ( (wrapperClass = tryClass("Q" + bare + "Ptr")) != 0 ) {
+	qtClass = tryClass( qtClassName );
+    } else {
+	qtClass = tryClass( qtClassName );
+    }
+
+    if ( qtClass == 0 ) {
+	if ( wrapperClass == 0 ) {
+	    quickClass->location().warning( tr("Cannot find Qt class '%1'")
+					    .arg(qtClassName) );
+	} else {
+	    quickClass->location().warning( tr("Cannot find Qt class '%1'"
+					       " wrapped by '%2'")
+					    .arg(qtClassName)
+					    .arg(wrapperClass->name()) );
+	}
+	return;
+    }
 
     NodeList children = qtClass->childNodes();
     if ( wrapperClass != 0 )
 	children += wrapperClass->childNodes();
 
-    NodeList::ConstIterator c = children.begin();
-    while ( c != children.end() ) {
-	if ( (*c)->access() == Node::Public &&
-	     (*c)->status() == Node::Commendable ) {
-	    if ( (*c)->type() == Node::Function )  {
-		FunctionNode *func = (FunctionNode *) *c;
-		quickifyFunction( quickClass, qtClass, func, &blackList );
-	    } else if ( (*c)->type() == Node::Property ) {
-		PropertyNode *property = (PropertyNode *) *c;
-		quickifyProperty( quickClass, qtClass, property, &blackList );
+    QMap<QString, int> blackList;
+    for ( int pass = 0; pass < 2; pass++ ) {
+	NodeList::ConstIterator c = children.begin();
+	while ( c != children.end() ) {
+	    if ( (*c)->access() == Node::Public &&
+		 (*c)->status() == Node::Commendable ) {
+		if ( pass == 0 ) {
+		    if ( (*c)->type() == Node::Property ) {
+			PropertyNode *property = (PropertyNode *) *c;
+			quickifyProperty( quickClass, qtClass, property,
+					  &blackList );
+		    }
+		} else {
+		    if ( (*c)->type() == Node::Function )  {
+			FunctionNode *func = (FunctionNode *) *c;
+			quickifyFunction( quickClass, qtClass, func,
+					  &blackList );
+		    }
+		}
 	    }
+	    ++c;
 	}
-	++c;
     }
+    setQtDoc( quickClass, qtClass->doc() );
 }
 
 void QsCodeParser::quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,

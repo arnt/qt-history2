@@ -36,8 +36,7 @@ private:
     void extractTarget( const QString& target, QString *source,
 			const Doc& doc );
     void applyReplacementList( QString *source, const Doc& doc );
-    void quickifyClass( ClassNode *quickClass, ClassNode *qtClass,
-			ClassNode *wrapperClass );
+    void quickifyClass( ClassNode *quickClass );
     void quickifyFunction( ClassNode *quickClass, ClassNode *qtClass,
 			   FunctionNode *func, QMap<QString, int> *blackList );
     void quickifyProperty( ClassNode *quickClass, ClassNode *qtClass,

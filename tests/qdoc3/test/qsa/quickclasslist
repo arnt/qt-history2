@@ -1,136 +1,136 @@
-/*! \quickclass QAccel  */
-/*! \quickclass QAction  */
-/*! \quickclass QActionGroup  */
-/*! \quickclass QApplication  */
-/*! \quickclass QAquaStyle  */
-/*! \quickclass QAssistantClient  */
-/*! \quickclass QBoxLayout  */
-/*! \quickclass QButton  */
-/*! \quickclass QButtonGroup  */
-/*! \quickclass QByteArray */
-/*! \quickclass QCDEStyle  */
-/*! \quickclass QCanvas  */
-/*! \quickclass QCanvasView  */
-/*! \quickclass QCheckBox  */
-/*! \quickclass QClipboard  */
-/*! \quickclass QColor */
-/*! \quickclass QColorDialog  */
-/*! \quickclass QColorDrag  */
-/*! \quickclass QComboBox  */
-/*! \quickclass QCommonStyle  */
-/*! \quickclass QDataBrowser  */
-/*! \quickclass QDataTable  */
-/*! \quickclass QDataView  */
-/*! \quickclass QDate */
-/*! \quickclass QDateTime */
-/*! \quickclass QDateTimeEdit  */
-/*! \quickclass QDesktopWidget  */
-/*! \quickclass QDial  */
-/*! \quickclass QDialog  */
-/*! \quickclass QDns  */
-/*! \quickclass QDockArea  */
-/*! \quickclass QDockWindow  */
-/*! \quickclass QDoubleValidator  */
-/*! \quickclass QDragObject  */
-/*! \quickclass QEditorFactory  */
-/*! \quickclass QErrorMessage  */
-/*! \quickclass QEventLoop  */
-/*! \quickclass QFileDialog  */
-/*! \quickclass QFileIconProvider  */
-/*! \quickclass QFont */
-/*! \quickclass QFontDialog  */
-/*! \quickclass QFrame  */
-/*! \quickclass QFtp  */
-/*! \quickclass QGLWidget  */
-/*! \quickclass QGrid  */
-/*! \quickclass QGridLayout  */
-/*! \quickclass QGridView  */
-/*! \quickclass QGroupBox  */
-/*! \quickclass QHBox  */
-/*! \quickclass QHBoxLayout  */
-/*! \quickclass QHButtonGroup  */
-/*! \quickclass QHGroupBox  */
-/*! \quickclass QHeader  */
-/*! \quickclass QHttp  */
-/*! \quickclass QIconDrag  */
-/*! \quickclass QIconView  */
-/*! \quickclass QImageDrag  */
-/*! \quickclass QInputDialog  */
-/*! \quickclass QIntValidator  */
-/*! \quickclass QLCDNumber  */
-/*! \quickclass QLabel  */
-/*! \quickclass QLayout  */
-/*! \quickclass QLineEdit  */
-/*! \quickclass QListBox  */
-/*! \quickclass QListView  */
-/*! \quickclass QLocalFs  */
-/*! \quickclass QMacStyle  */
-/*! \quickclass QMainWindow  */
-/*! \quickclass QMenuBar  */
-/*! \quickclass QMessageBox  */
-/*! \quickclass QNetworkOperation  */
-/*! \quickclass QNetworkProtocol  */
-/*! \quickclass QObject  */
-/*! \quickclass QObjectCleanupHandler  */
-/*! \quickclass QPixmap */
-/*! \quickclass QPlatinumStyle  */
-/*! \quickclass QPoint */
-/*! \quickclass QPopupMenu  */
-/*! \quickclass QProcess  */
-/*! \quickclass QProgressBar  */
-/*! \quickclass QProgressDialog  */
-/*! \quickclass QPushButton  */
-/*! \quickclass QRadioButton  */
-/*! \quickclass Rect */
-/*! \quickclass RegExp  */
-/*! \quickclass QRegExpValidator  */
-/*! \quickclass QSGIStyle  */
-/*! \quickclass QScrollBar  */
-/*! \quickclass QScrollView  */
-/*! \quickclass QServerSocket  */
-/*! \quickclass QSessionManager  */
-/*! \quickclass QSignal  */
-/*! \quickclass QSignalMapper  */
-/*! \quickclass QSize */
-/*! \quickclass QSizeGrip  */
-/*! \quickclass QSlider  */
-/*! \quickclass QSocket  */
-/*! \quickclass QSocketNotifier  */
-/*! \quickclass QSound  */
-/*! \quickclass QSpinBox  */
-/*! \quickclass QSplitter  */
-/*! \quickclass QSqlDatabase  */
-/*! \quickclass QSqlDriver  */
-/*! \quickclass QSqlEditorFactory  */
-/*! \quickclass QSqlForm  */
-/*! \quickclass QStatusBar  */
-/*! \quickclass QStoredDrag  */
-/*! \quickclass String */
-/*! \quickclass QStyle  */
-/*! \quickclass QStyleSheet  */
-/*! \quickclass QTabBar  */
-/*! \quickclass QTabDialog  */
-/*! \quickclass QTabWidget  */
-/*! \quickclass QTable  */
-/*! \quickclass QTextBrowser  */
-/*! \quickclass QTextDrag  */
-/*! \quickclass QTextEdit  */
-/*! \quickclass QTextView  */
-/*! \quickclass QTime */
-/*! \quickclass QTimer  */
-/*! \quickclass QToolBar  */
-/*! \quickclass QToolButton  */
-/*! \quickclass QToolTipGroup  */
-/*! \quickclass QTranslator  */
-/*! \quickclass QUriDrag  */
-/*! \quickclass QUrlOperator  */
-/*! \quickclass QVBox  */
-/*! \quickclass QVBoxLayout  */
-/*! \quickclass QVButtonGroup  */
-/*! \quickclass QVGroupBox  */
-/*! \quickclass QValidator  */
-/*! \quickclass QWidget  */
-/*! \quickclass QWidgetStack  */
-/*! \quickclass QWindowsStyle  */
-/*! \quickclass QWizard  */
-/*! \quickclass QWorkspace  */
+QAccel
+QAction
+QActionGroup
+QApplication
+QAquaStyle
+QAssistantClient
+QBoxLayout
+QButton
+QButtonGroup
+QByteArray
+QCDEStyle
+QCanvas
+QCanvasView
+QCheckBox
+QClipboard
+QColor
+QColorDialog
+QColorDrag
+QComboBox
+QCommonStyle
+QDataBrowser
+QDataTable
+QDataView
+QDate
+QDateTime
+QDateTimeEdit
+QDesktopWidget
+QDial
+QDialog
+QDns
+QDockArea
+QDockWindow
+QDoubleValidator
+QDragObject
+QEditorFactory
+QErrorMessage
+QEventLoop
+QFileDialog
+QFileIconProvider
+QFont
+QFontDialog
+QFrame
+QFtp
+QGLWidget
+QGrid
+QGridLayout
+QGridView
+QGroupBox
+QHBox
+QHBoxLayout
+QHButtonGroup
+QHGroupBox
+QHeader
+QHttp
+QIconDrag
+QIconView
+QImageDrag
+QInputDialog
+QIntValidator
+QLCDNumber
+QLabel
+QLayout
+QLineEdit
+QListBox
+QListView
+QLocalFs
+QMacStyle
+QMainWindow
+QMenuBar
+QMessageBox
+QNetworkOperation
+QNetworkProtocol
+QObject
+QObjectCleanupHandler
+QPixmap
+QPlatinumStyle
+QPoint
+QPopupMenu
+QProcess
+QProgressBar
+QProgressDialog
+QPushButton
+QRadioButton
+Rect
+RegExp
+QRegExpValidator
+QSGIStyle
+QScrollBar
+QScrollView
+QServerSocket
+QSessionManager
+QSignal
+QSignalMapper
+QSize
+QSizeGrip
+QSlider
+QSocket
+QSocketNotifier
+QSound
+QSpinBox
+QSplitter
+QSqlDatabase
+QSqlDriver
+QSqlEditorFactory
+QSqlForm
+QStatusBar
+QStoredDrag
+String
+QStyle
+QStyleSheet
+QTabBar
+QTabDialog
+QTabWidget
+QTable
+QTextBrowser
+QTextDrag
+QTextEdit
+QTextView
+QTime
+QTimer
+QToolBar
+QToolButton
+QToolTipGroup
+QTranslator
+QUriDrag
+QUrlOperator
+QVBox
+QVBoxLayout
+QVButtonGroup
+QVGroupBox
+QValidator
+QWidget
+QWidgetStack
+QWindowsStyle
+QWizard
+QWorkspace
