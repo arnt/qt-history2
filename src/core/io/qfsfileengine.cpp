@@ -22,6 +22,9 @@
 # define HAS_ASYNC_FILEMODE
 # define QT_OPEN_ASYNC O_NDELAY
 #endif
+#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
+# define HAS_TEXT_FILEMODE                        // has translate/text filemode
+#endif
 
 // POSIX Large File Support redefines open -> open64
 #if defined(open)
@@ -90,8 +93,6 @@ QFSFileEngine::open(int mode, const QString &file)
     if (mode & QFile::Translate)
         oflags |= QT_OPEN_TEXT;
     else
-#endif
-#if defined Q_OS_WIN32
         oflags |= QT_OPEN_BINARY;
 #endif
 #if defined(HAS_ASYNC_FILEMODE)
