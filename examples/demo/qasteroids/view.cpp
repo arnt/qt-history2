@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <qapplication.h>
-#include <qkeycode.h>
 #include <qaccel.h>
 #include <qmessagebox.h>
 
