@@ -1494,7 +1494,37 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
     return true;
 }
 
+void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)
+{
+    if (action == MovePgUp) {
+        d->pageUp(mode);
+        return;
+    } else if (action == MovePgDown) {
+        d->pageDown(mode);
+        return;
+    }
+
+    QTextCursor::MoveOperation op = QTextCursor::NoMove;
+    switch (action) {
+        case MoveBackward: op = QTextCursor::Left; break;
+        case MoveForward: op = QTextCursor::Right; break;
+        case MoveWordBackward: op = QTextCursor::WordLeft; break;
+        case MoveWordForward: op = QTextCursor::WordRight; break;
+        case MoveUp: op = QTextCursor::Up; break;
+        case MoveDown: op = QTextCursor::Down; break;
+        case MoveLineStart: op = QTextCursor::StartOfLine; break;
+        case MoveLineEnd: op = QTextCursor::EndOfLine; break;
+        case MoveHome: op = QTextCursor::Start; break;
+        case MoveEnd: op = QTextCursor::End; break;
+        default: return;
+    }
+    d->cursor.movePosition(op, mode);
+    ensureCursorVisible();
+    d->updateCurrentCharFormatAndSelection();
+}
+
 #ifdef QT_COMPAT
+
 void QTextEdit::doKeyboardAction(KeyboardAction action)
 {
     switch (action) {

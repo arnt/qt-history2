@@ -50,6 +50,21 @@ public:
 
     Q_DECLARE_FLAGS(AutoFormatting, AutoFormattingFlag);
 
+    enum CursorAction {
+        MoveBackward,
+        MoveForward,
+        MoveWordBackward,
+        MoveWordForward,
+        MoveUp,
+        MoveDown,
+        MoveLineStart,
+        MoveLineEnd,
+        MoveHome,
+        MoveEnd,
+        MovePgUp,
+        MovePgDown
+    };
+
     QTextEdit(QWidget *parent);
     QTextEdit(const QString &text, QWidget *parent);
     virtual ~QTextEdit();
@@ -103,6 +118,8 @@ public:
     void append(const QString &text);
 
     void ensureCursorVisible();
+
+    void moveCursor(CursorAction action, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
 public slots:
     void setFontPointSize(float s);
@@ -178,43 +195,6 @@ public:
         if (wo)
             flags |= QTextDocument::FindWholeWords;
         return find(exp, flags);
-    }
-
-    enum CursorAction {
-        MoveBackward,
-        MoveForward,
-        MoveWordBackward,
-        MoveWordForward,
-        MoveUp,
-        MoveDown,
-        MoveLineStart,
-        MoveLineEnd,
-        MoveHome,
-        MoveEnd /*,
-        MovePgUp,
-        MovePgDown
-        */
-    };
-
-    inline QT_COMPAT void moveCursor(CursorAction action, bool select)
-    {
-        QTextCursor::MoveOperation op = QTextCursor::NoMove;
-        switch (action) {
-            case MoveBackward: op = QTextCursor::Left; break;
-            case MoveForward: op = QTextCursor::Right; break;
-            case MoveWordBackward: op = QTextCursor::WordLeft; break;
-            case MoveWordForward: op = QTextCursor::WordRight; break;
-            case MoveUp: op = QTextCursor::Up; break;
-            case MoveDown: op = QTextCursor::Down; break;
-            case MoveLineStart: op = QTextCursor::StartOfLine; break;
-            case MoveLineEnd: op = QTextCursor::EndOfLine; break;
-            case MoveHome: op = QTextCursor::Start; break;
-            case MoveEnd: op = QTextCursor::End; break;
-        }
-        QTextCursor::MoveMode mode = (select ? QTextCursor::MoveAnchor : QTextCursor::KeepAnchor);
-        QTextCursor curs = cursor();
-        curs.movePosition(op, mode);
-        setCursor(curs);
     }
 
     inline QT_COMPAT void sync() {}
