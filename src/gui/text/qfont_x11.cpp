@@ -26,7 +26,6 @@
 #include "qtextcodec.h"
 #include "qiodevice.h"
 
-#include <private/qfontcodecs_p.h>
 #include <private/qunicodetables_p.h>
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
@@ -141,24 +140,6 @@ void QFont::initialize()
 {
     // create global font cache
     if (! QFontCache::instance) (void) new QFontCache;
-
-#ifndef QT_NO_CODECS
-#ifndef QT_NO_BIG_CODECS
-    static bool codecs_once = false;
-    if (! codecs_once) {
-//         (void) new QFontJis0201Codec;
-//         (void) new QFontJis0208Codec;
-//         (void) new QFontKsc5601Codec;
-//         (void) new QFontGb2312Codec;
-//         (void) new QFontGbkCodec;
-//         (void) new QFontGb18030_0Codec;
-//         (void) new QFontBig5Codec;
-//         (void) new QFontBig5hkscsCodec;
-//         (void) new QFontLaoCodec;
-        codecs_once = true;
-    }
-#endif // QT_NO_BIG_CODECS
-#endif // QT_NO_CODECS
 
     extern int qt_encoding_id_for_mib(int mib); // from qfontdatabase_x11.cpp
     QTextCodec *codec = QTextCodec::codecForLocale();
