@@ -153,7 +153,6 @@ private:
 
     uint wrap		: 1;
     uint edited		: 1;
-    uint selreq 	: 1;
 
     void arrangeWidgets();
 
