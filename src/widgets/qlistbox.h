@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#52 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#53 $
 **
 ** Definition of QListBox widget class
 **
@@ -196,6 +196,7 @@ private:
     void	insert( const QListBoxItem *, int, bool );
     void	change( const QListBoxItem *lbi, int );
     void	setMaxItemWidth( int );
+    void	ensureCurrentVisible( int = -1 );
 
     void	emitChangedSignal( bool );
 

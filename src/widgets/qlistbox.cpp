@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#130 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#130 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -1382,30 +1382,16 @@ void QListBox::keyPressEvent( QKeyEvent *e )
     switch ( e->key() ) {
     case Key_Up:
 	if ( currentItem() > 0 ) {
-	    setCurrentItem( currentItem() - 1 );
-	    if ( currentItem() < topItem()	)
-		setTopItem( currentItem() );
+	    ensureCurrentVisible( currentItem() - 1 );
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
 	}
 	break;
     case Key_Down:
 	if ( currentItem() < (int)count() - 1 ) {
-	    bool a = autoUpdate();
-	    bool u = FALSE;
-	    setAutoUpdate( FALSE );
-	    setCurrentItem( currentItem() + 1 );
-	    while ( currentItem() < (int)count() - 1
-		 && currentItem() >= lastRowVisible() )
-	    {
-		setTopItem( topItem() + currentItem() + 1 - lastRowVisible() );
-		u = TRUE;
-	    }
-	    setAutoUpdate( a );
+	    ensureCurrentVisible( currentItem()+1 );
 	    if ( e->state() & ShiftButton )
 		toggleCurrentItem();
-	    if ( u )
-		repaint();
 	}
 	break;
     case Key_Next:
@@ -1504,17 +1490,7 @@ void QListBox::timerEvent( QTimerEvent * )
 	    int y = QMAX(currentItem(),lastRowVisible())+1;
 	    if ( y >= (int)count() )
 		y = count() - 1;
-	    int h = viewHeight();
-	    int i = y;
-	    while( i > 0 && h > 0 ) {
-		h -= cellHeight( i );
-		if ( h >= 0 )
-		    i--;
-	    }
-	    if ( h <= 0 && i < y ) // make sure ALL of y is visible
-		i++;
-	    setTopItem( i );
-	    setCurrentItem( y );
+	    ensureCurrentVisible( y );
 	}
     } else {
 	if ( topItem() != 0 ) {
@@ -1862,4 +1838,29 @@ void QListBox::emitChangedSignal( bool lazy ) {
 	emit changedListBox->selectionChanged();
 
     changedListBox = lazy ? this : 0;
+}
+
+
+/*!  Make sure that all of currentItem() is on-screen */
+
+void QListBox::ensureCurrentVisible( int newCurrent )
+{
+    if ( newCurrent < 0 )
+	newCurrent = currentItem();
+    if ( newCurrent < topItem() ) {
+	setTopItem( newCurrent );
+    } else if ( newCurrent >= lastRowVisible() ) {
+	int h = viewHeight();
+	int i = newCurrent;
+	while( i > 0 && h > 0 ) {
+	    h -= cellHeight( i );
+	    if ( h >= 0 )
+		i--;
+	}
+	if ( h <= 0 && i < newCurrent ) // make sure ALL of y is visible
+	    i++;
+	setTopItem( i );
+    }
+    if ( newCurrent != currentItem() )
+	setCurrentItem( newCurrent );
 }
