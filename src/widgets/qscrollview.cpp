@@ -972,9 +972,9 @@ void QScrollView::updateScrollBars()
     }
 
     // Finally, show the scroll bars
-    if ( showh && d->hbar->isHidden() )
+    if ( showh && ( d->hbar->isHidden() || !d->hbar->isVisible() ) )
         d->hbar->show();
-    if ( showv && d->vbar->isHidden() )
+    if ( showv && ( d->vbar->isHidden() || !d->vbar->isVisible() ) )
         d->vbar->show();
 
     d->signal_choke=TRUE;
