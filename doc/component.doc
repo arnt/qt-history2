@@ -162,7 +162,8 @@ as the descriptor for an interface ID.
 
 quuidgen is located in the tools/quuidgen subdirectory of your Qt distribution and is not build by
 default, as the required header files or libraries are not present on all platforms. If you have
-difficulties building the quuidgen tool, use e.g. www.google.com and search for \e libuuid
+difficulties building the quuidgen tool, go to e.g. <a href="http://www.google.com"> www.google.com </a>
+and search for \e libuuid
 
 \section1 Implementing an Interface
 
