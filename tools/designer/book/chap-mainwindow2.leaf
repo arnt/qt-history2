@@ -1204,7 +1204,7 @@ generate a Makefile:
 Now make the project (run \c{nmake} on Windows, \c{make} on other
 platforms). Providing you commented out the "findForm" and
 "loadSettings" lines in the \Func{init()} function, the program should
-build. 
+build. (If it doesn't build see the \l{Troubleshooting} section.)
 
 Once the make has finished, run the program. You still can't change
 views since we haven't written the code for that yet, but it does
@@ -1281,7 +1281,7 @@ Implementation)", click \Menu{New}, enter "qstatusbar.h" then press
 
 Try saving (press \Key Ctrl+S), making and running the application.
 Move to different colors and see the status bar indicating the color
-you are on.
+you are on. (If it doesn't build see the \l{Troubleshooting} section.)
 
 \section2 Changing Views
 
@@ -1490,7 +1490,8 @@ Try making and running the program. If you have \File{rgb.txt} on your
 system try loading it and saving it under a new name for testing
 purposes. If you don't have this file, save the standard colors and
 use those. In the next section we'll cover adding and deleting colors
-so that you can create your own color files.
+so that you can create your own color files. (If it doesn't build see
+the \l{Troubleshooting} section.)
 
 \section2 Editing the Code: The Edit Options
 

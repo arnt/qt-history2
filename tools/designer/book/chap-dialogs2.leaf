@@ -460,7 +460,8 @@ attempt to exit or load another color file before they've saved this
 one.
 
 Try building and running the application. You should now be able to
-add your own colors.
+add your own colors. (If it doesn't build see the \l{Troubleshooting}
+section.)
 
 The application is essentially complete. We can load and save color
 files, we can show them in the table or icon view and users can add
@@ -697,7 +698,7 @@ invokes the \Widget{Edit Functions} dialog. Change the Type to "slot",
 then click \OK.
 
 Save the application (\Key Ctrl+S), then build it and try out some
-searches.
+searches. (If it doesn't build see the \l{Troubleshooting} section.)
 
 \section1 User Options
 
@@ -897,7 +898,8 @@ Uncomment the "loadSettings();" line in the \Func{init()} function.
 Build the application and run it. Change to the icon view and change
 one or two of the options in the options dialog. Move the window and
 resize it. Exit the application and restart it; your view, window size
-and position and your options are all restored.
+and position and your options are all restored. (If it doesn't build
+see the \l{Troubleshooting} section.)
 
 \section1 Wrapping Up
 
@@ -932,3 +934,87 @@ time experiementing with \QD's layouts. Try for example, to reproduce
 a form that has the look and resizing characteristics of the multiclip
 example (in \c{qt/tools/designer/examples/multiclip}).
 
+\section1 Troubleshooting
+
+The most likely source of error is if you missed out or misspelled an
+include file, a forward declaration or a variable. Check them against
+the following lists and insert or correct them as appropriate. (In all
+cases look at \Widget{Object Explorer}'s Members tab; if you need to
+edit, right click the relevant section, then click Edit to invoke the
+relevant dialog.)
+
+\section2 The MainForm Members
+
+Class Variables:
+\list
+\i FindForm *findForm;
+\i QClipboard *clipboard;
+\i QMap\<QString,QColor\> m_colors;
+\i bool m_show_web;
+\i int m_clip_as;
+\i bool m_icons_dirty;
+\i bool m_table_dirty;
+\i bool m_changed;
+\i QString m_filename;
+\i QStringList m_comments;
+\endlist
+
+Forward Declarations:
+\list
+\i class QColor;
+\i class QString;
+\endlist
+
+Includes (in Declaration):
+\list
+\i "findform.h"
+\endlist
+
+Includes (in Implementation):
+\list
+\i "optionsform.h"
+\i "qlineedit.h"
+\i "qlabel.h"
+\i "qclipboard.h"
+\i "qmessagebox.h"
+\i "qstatusbar.h"
+\i "qpainter.h"
+\i "qstring.h"
+\i "qcolor.h"
+\i "qapplication.h"
+\i "qfiledialog.h"
+\i "qfile.h"
+\i "qregexp.h"
+\i "qcolordialog.h"
+\i "colornameform.h"
+\i "qcheckbox.h"
+\i "qradiobutton.h"
+\i "qsettings.h"
+\endlist
+
+\section2 ColorNameForm Members
+
+We put all the ColorNameForm declarations in the source code file. The
+file \c{colornameform.ui.h} should begin with the following
+declarations:
+\quotefile colortool/colornameform.ui.h
+\skipto #include
+\printuntil QMap
+
+\section2 FindForm Members
+
+Signals:
+\list
+\i lookfor(const QString\&)
+\endlist
+
+\section2 OptionsForm Members
+
+The OptionsForm has no members.
+
+\section2 main.cpp Members
+
+This file should begin with the following declarations:
+\quotefile colortool/main.cpp
+\skipto #include
+\printuntil mainform.h
