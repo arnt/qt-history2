@@ -78,14 +78,12 @@ static const int windowsCheckMarkWidth		= 12; // checkmarks width on windows
 static bool use2000style = TRUE;
 
 
-// NOT REVISED
 /*!
   \class QWindowsStyle qwindowsstyle.h
-  \brief The QWindowsStyle class provides Microsoft Windows look and feel.
+  \brief The QWindowsStyle class provides a Microsoft Windows-like look and feel.
   \ingroup appearance
 
-  This class implements the look and feel known from the Windows
-  platform. Naturally it is also Qt's default GUI style on Windows.
+  This style is Qt's default GUI style on Windows.
 */
 
 /*!

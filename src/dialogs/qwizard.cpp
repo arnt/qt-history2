@@ -60,30 +60,37 @@
 
   \brief The QWizard class provides a framework for wizard dialogs.
 
-  A wizard is a special type of input dialog that consists of a sequence of dialog pages.
-  A wizard's purpose is to assist a user by automating a task and by walking the user through
-  the process step by step. Wizards are useful for complex or infrequently occurring tasks that people
-  may find difficult to learn or do.
+  A wizard is a special type of input dialog that consists of a
+  sequence of dialog pages. A wizard's purpose is to assist a user by
+  automating a task by walking the user through the process step
+  by step. Wizards are useful for complex or infrequently occurring
+  tasks that people may find difficult to learn or do.
 
-  QWizard provides page titles and displays Next, Back, Finish, Cancel, and Help push buttons, as
-  appropriate to the current position in the page sequence.
-
-  Create and populate dialog pages inheriting from QWidget and add them to the wizard using addPage().
-  Use insertPage() to add a dialog page at a certain position in the page sequence. Use removePage() to remove
-  a page from the page sequence.
-
-  Use currentPage() to retrieve a pointer to the currently displayed page. page() returns a pointer to the page at a certain
+  QWizard provides page titles and displays Next, Back, Finish,
+  Cancel, and Help push buttons, as appropriate to the current
   position in the page sequence.
 
-  Use pageCount() to retrieve the total number of pages in the page sequence. indexOf() will return the index of a page in the
-  page sequence.
+  Create and populate dialog pages that inherit from QWidget and add
+  them to the wizard using addPage(). Use insertPage() to add a dialog
+  page at a certain position in the page sequence. Use removePage() to
+  remove a page from the page sequence.
 
-  QWizard provides functionality to mark pages irrelevant for the current context. Use setAppropriate() to mark a page (ir)relevant for
-  the current context. The idea is that a page may be irrelevant and should be skipped depending on the data entered by the user on
-  a preceding page.
+  Use currentPage() to retrieve a pointer to the currently displayed
+  page. page() returns a pointer to the page at a certain position in
+  the page sequence.
 
-  It is considered good design to provide a greater number of simple pages with fewer choices instead of a smaller
-  number of complex pages.
+  Use pageCount() to retrieve the total number of pages in the page
+  sequence. indexOf() will return the index of a page in the page
+  sequence.
+
+  QWizard provides functionality to mark pages as appropriate (or not)
+  in the current context with setAppropriate(). The idea is that a
+  page may be irrelevant and should be skipped depending on the data
+  entered by the user on a preceding page.
+
+  It is generally considered good design to provide a greater number
+  of simple pages with fewer choices rather than a smaller number of
+  complex pages.
 
   Example code is available here: \l wizard/wizard.cpp \l wizard/wizard.h
 */
@@ -197,8 +204,9 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
 }
 
 
-/*! Destroys the object and frees any allocated resources, including,
-of course, all pages and controllers.
+/*!
+    Destroys the object and frees any allocated resources, including
+    all pages and controllers.
 */
 
 QWizard::~QWizard()
@@ -231,7 +239,7 @@ void QWizard::setFont( const QFont & font )
 }
 
 
-/*!  Adds \a page to the end of the page sequence, titled \a title.
+/*!  Adds \a page to the end of the page sequence, with the title, \a title.
 */
 
 void QWizard::addPage( QWidget * page, const QString & title )
@@ -254,8 +262,10 @@ void QWizard::addPage( QWidget * page, const QString & title )
     d->pages.append( p );
 }
 
-/*!  Inserts \a page at index \a index into the page sequence, titled \a title.
-     If index equals -1, the page will be appended to the end of the wizard.
+/*!
+    Inserts \a page at index \a index into the page sequence, with
+    title \a title. If index is -1, the page will be appended to
+    the end of the wizard's page sequence.
 */
 
 void QWizard::insertPage( QWidget * page, const QString & title, int index )
@@ -284,8 +294,9 @@ void QWizard::insertPage( QWidget * page, const QString & title, int index )
 
 /*!
   \fn void QWizard::selected(const QString&)
-  This signal is emitted when the current page changes, signalling
-  the title of the page.
+
+  This signal is emitted when the current page changes. The parameter
+  contains the title of the page.
 */
 
 
@@ -366,10 +377,11 @@ void QWizard::next()
 
 /*!
   \fn void QWizard::helpClicked()
+
   This signal is emitted when the user clicks on the Help button.
 */
 
-/*!  Called when the user clicks the Help button, this fucntion emits the
+/*!  Called when the user clicks the Help button, this function emits the
   helpClicked() signal.
 */
 
@@ -482,10 +494,12 @@ void QWizard::setHelpEnabled( QWidget * page, bool enable )
 }
 
 
-/*!  Called when the Next button is clicked; this virtual function returns
-  TRUE if \a page is relevant for display in the current context, and FALSE
-  if QWizard should ignore it. The default implementation returns the value set
-  using setAppropriate(). The ultimate default is TRUE.
+/*!
+    Called when the Next button is clicked; this virtual function
+    returns TRUE if \a page is relevant for display in the current
+    context; otherwise it is ignored by QWizard and returns FALSE. The
+    default implementation returns the value set using
+    setAppropriate(). The ultimate default is TRUE.
 
   \warning The last page of the wizard will be displayed if no page is relevant
   in the current context.
@@ -582,7 +596,7 @@ void QWizard::setTitleFont( const QFont & font )
   Returns a pointer to the Back button of the dialog.
 
   By default, this button is connected to the back() slot,
-  which is virtual so you may reimplement it in a QWizard subclass.
+  which is virtual so you can reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::backButton() const
 {
@@ -594,7 +608,7 @@ QPushButton * QWizard::backButton() const
   Returns a pointer to the Next button of the dialog.
 
   By default, this button is connected to the next() slot,
-  which is virtual so you may reimplement it in a QWizard subclass.
+  which is virtual so you can reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::nextButton() const
 {
@@ -606,7 +620,7 @@ QPushButton * QWizard::nextButton() const
   Returns a pointer to the Finish button of the dialog.
 
   By default, this button is connected to the QDialog::accept() slot,
-  which is virtual so you may reimplement it in a QWizard subclass.
+  which is virtual so you can reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::finishButton() const
 {
@@ -618,7 +632,7 @@ QPushButton * QWizard::finishButton() const
   Returns a pointer to the Cancel button of the dialog.
 
   By default, this button is connected to the QDialog::reject() slot,
-  which is virtual so you may reimplement it in a QWizard subclass.
+  which is virtual so you can reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::cancelButton() const
 {
@@ -630,7 +644,7 @@ QPushButton * QWizard::cancelButton() const
   Returns a pointer to the Help button of the dialog.
 
   By default, this button is connected to the help() slot,
-  which is virtual so you may reimplement it in a QWizard subclass.
+  which is virtual so you can reimplement it in a QWizard subclass.
 */
 QPushButton * QWizard::helpButton() const
 {
@@ -709,11 +723,12 @@ void QWizard::layOutButtonRow( QHBoxLayout * layout )
 }
 
 
-/*!  This virtual function is responsible for laying out the title row
-and adding the vertical divider between the title and the wizard page.
-\a layout is the vertical layout for the wizard, and \a title is the title
-for this page. This function is called every time \a title
-changes.
+/*!
+    This virtual function is responsible for laying out the title row
+    and adding the vertical divider between the title and the wizard
+    page. \a layout is the vertical layout for the wizard, and \a
+    title is the title for this page. This function is called every
+    time \a title changes.
 */
 
 void QWizard::layOutTitleRow( QHBoxLayout * layout, const QString & title )
@@ -797,8 +812,8 @@ void QWizard::removePage( QWidget * page )
 
 
 /*!
-  Returns a pointer to the page at index \a index in the sequence, or 0 if \a index is out of range.
-  The first page has index 0.
+  Returns a pointer to the page at position \a index in the sequence,
+  or 0 if \a index is out of range. The first page has index 0.
 */
 
 QWidget* QWizard::page( int index ) const

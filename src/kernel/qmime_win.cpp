@@ -50,43 +50,45 @@ extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 
 static QPtrList<QWindowsMime> mimes;
 
-// NOT REVISED
 /*!
   \class QWindowsMime qmime.h
-  \brief The QWindowsMime class maps open-standard MIME types with Window Clipboard formats.
+  \brief The QWindowsMime class maps open-standard MIME to Window Clipboard formats.
   \ingroup io
   \ingroup draganddrop
   \ingroup misc
 
-  The drag-and-drop and clipboard facilities of Qt use the MIME standard.
-  On X11, this maps trivially to the Xdnd protocol, but on Windows only
-  some applications use MIME types to describe the clipboard formats,
-  while others use arbitrary non-standardized naming conventions, or
-  completely unnamed built-in formats of Windows.
+  Qt's drag-and-drop and clipboard facilities use the MIME standard.
+  On X11, this maps trivially to the Xdnd protocol, but on Windows
+  although some applications use MIME types to describe clipboard
+  formats, others use arbitrary non-standardized naming conventions,
+  or unnamed built-in formats of Windows.
 
   By instantiating subclasses of QWindowsMime that provide conversions
   between Windows Clipboard and MIME formats, you can convert
   proprietary clipboard formats to MIME formats.
 
   Qt has predefined support for the following Windows Clipboard formats:
-  <ul>
-    <li> \c CF_UNICODETEXT - converted to "text/plain;charset=ISO-10646-UCS-2"
-	    and thus supported by QTextDrag.
-    <li> \c CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
-	    and thus supported by QTextDrag.
-    <li> \c CF_DIB - converted to "image/*", where * is
+  \list
+    \i CF_UNICODETEXT - converted to "text/plain;charset=ISO-10646-UCS-2"
+	    and supported by QTextDrag.
+    \i CF_TEXT - converted to "text/plain;charset=system" or "text/plain"
+	    and supported by QTextDrag.
+    \i CF_DIB - converted to "image/*", where * is
 		a \link QImage::outputFormats() Qt image format\endlink,
-	    and thus supported by QImageDrag.
-    <li> \c CF_HDROP - converted to "text/uri-list",
-	    and thus supported by QUriDrag.
-  </ul>
+	    and supported by QImageDrag.
+    \i CF_HDROP - converted to "text/uri-list",
+	    and supported by QUriDrag.
+  \endlist
 
-  An example usage of this class would be to map the Windows Metafile
+  An example use of this class would be to map the Windows Metafile
   clipboard format (CF_METAFILEPICT) to and from the MIME type "image/x-wmf".
   This conversion might simply be adding or removing a header, or even
   just passing on the data.  See the
   \link dnd.html Drag-and-Drop documentation\endlink for more information
   on choosing and definition MIME types.
+
+  You can check if a MIME type is convertible using canConvert() and
+  can perform conversions with convertToMime() and convertFromMime().
 */
 
 /*!
@@ -695,7 +697,7 @@ void QWindowsMime::initialize()
 
 /*!
   Returns the most-recently created QWindowsMime that can convert
-  between \a mime and \a cf formats.  Returns 0 if no such convertor
+  between the \a mime and \a cf formats.  Returns 0 if no such convertor
   exists.
 */
 QWindowsMime*
@@ -736,7 +738,7 @@ QPtrList<QWindowsMime> QWindowsMime::all()
 
   Returns a name for the convertor.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
@@ -745,27 +747,28 @@ QPtrList<QWindowsMime> QWindowsMime::all()
   Returns the number of Windows Clipboard formats supported by this
   convertor.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
   \fn int QWindowsMime::cf(int index)
 
-  Returns the Windows Clipboard formats supported by this
-  convertor that is ordinarily at \a index.  So cf(0) returns
-  the first Windows Clipboard format supported, cf(countCf()-1) returns
-  the last.  Return values out of range are undefined.
+  Returns the Windows Clipboard format supported by this convertor
+  that is ordinarily at position \a index. This means that cf(0)
+  returns the first Windows Clipboard format supported, and
+  cf(countCf()-1) returns the last. If \a index is out of range the
+  return value is undefined.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
   \fn bool QWindowsMime::canConvert( const char* mime, int cf )
 
   Returns TRUE if the convertor can convert (both ways) between
-  \a mime and \a cf.
+  \a mime and \a cf; otherwise returns FALSE.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
@@ -774,7 +777,7 @@ QPtrList<QWindowsMime> QWindowsMime::all()
   Returns the MIME type used for Windows Clipboard format \a cf, or
   0 if this convertor does not support \a cf.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
@@ -783,7 +786,7 @@ QPtrList<QWindowsMime> QWindowsMime::all()
   Returns the Windows Clipboard type used for MIME type \a mime, or
   0 if this convertor does not support \a mime.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
@@ -795,7 +798,7 @@ QPtrList<QWindowsMime> QWindowsMime::all()
   Note that Windows Clipboard formats must all be self-terminating.  The
   input \a data may contain trailing data.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 /*!
@@ -807,7 +810,7 @@ QPtrList<QWindowsMime> QWindowsMime::all()
   Note that Windows Clipboard formats must all be self-terminating.  The
   return value may contain trailing data.
 
-  All subclasses must reimplement this purely virtual function.
+  All subclasses must reimplement this pure virtual function.
 */
 
 #endif // QT_NO_MIME
