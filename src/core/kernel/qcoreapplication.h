@@ -41,7 +41,6 @@ class Q_CORE_EXPORT QCoreApplication : public QObject
     Q_DECLARE_PRIVATE(QCoreApplication)
 public:
     QCoreApplication(int &argc, char **argv);
-    QCoreApplication(QCoreApplicationPrivate &p);
     ~QCoreApplication();
 
     int argc() const;
@@ -132,6 +131,9 @@ protected:
     bool event(QEvent *);
 
     virtual bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
+
+protected:
+    QCoreApplication(QCoreApplicationPrivate &p);
 
 private:
     static bool sendSpontaneousEvent(QObject *receiver, QEvent *event);
