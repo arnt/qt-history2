@@ -124,12 +124,11 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isTopLevel)
 
 public:
-    QWidget(QWidget* parent, const char *name, WFlags f = 0);
-    QWidget(QWidget* parent=0, WFlags f=0 );
+    QWidget(QWidget* parent = 0, WFlags f = 0 );
+    QWidget(QWidget* parent, const char *name, WFlags f = 0); // deprecated
     ~QWidget();
 
     WId		 winId() const;
-    void	 setName( const char *name );
 #ifndef QT_NO_STYLE
     // GUI style setting
 

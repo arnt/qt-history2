@@ -228,7 +228,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     GetWindowAttributes((WindowRef)w->handle(), &attr);
     if(remove_grip) {
 	if(attr & kWindowResizableAttribute) {
-	    ChangeWindowAttributes((WindowRef)w->handle(), kWindowNoAttributes, 
+	    ChangeWindowAttributes((WindowRef)w->handle(), kWindowNoAttributes,
 				    kWindowResizableAttribute);
 	    w->dirtyClippedRegion(true);
 	    ReshapeCustomWindow((WindowPtr)w->handle());
@@ -798,7 +798,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		// Only add extra decorations (well, buttons) for widgets that can have them
 		// and have an actual border we can put them on.
 		if (wclass != kModalWindowClass && wclass != kMovableModalWindowClass
-			&& wclass != kSheetWindowClass && wclass != kPlainWindowClass 
+			&& wclass != kSheetWindowClass && wclass != kPlainWindowClass
 			&& !testWFlags(WStyle_NoBorder)) {
 		    if(testWFlags(WStyle_Maximize))
 			wattr |= kWindowFullZoomAttribute;
@@ -902,7 +902,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 
 	if(wclass == kFloatingWindowClass) //these dialogs don't hide
-	    ChangeWindowAttributes((WindowRef)id, kWindowNoAttributes, 
+	    ChangeWindowAttributes((WindowRef)id, kWindowNoAttributes,
 				    kWindowHideOnSuspendAttribute | kWindowNoActivatesAttribute);
 #if QT_MACOSX_VERSION >= 0x1020
 	if(qt_mac_is_macdrawer(this))
@@ -1289,7 +1289,7 @@ void QWidget::setWindowIcon(const QPixmap &pixmap)
 	    }
 	}
 	SetWindowProxyIcon((WindowRef)handle(), qt_mac_create_iconref(pixmap));
-    } 
+    }
     QEvent e( QEvent::WindowIconChange );
     QApplication::sendEvent( this, &e );
 }
@@ -2157,11 +2157,6 @@ void QWidget::setMask(const QBitmap &bitmap)
 void QWidget::clearMask()
 {
     setMask(QRegion());
-}
-
-void QWidget::setName(const char *name)
-{
-    QObject::setName(name);
 }
 
 void QWidget::propagateUpdates(bool update_rgn)

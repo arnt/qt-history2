@@ -1664,11 +1664,6 @@ void QWidget::clearMask()
     SetWindowRgn( winId(), 0, TRUE );
 }
 
-void QWidget::setName( const char *name )
-{
-    QObject::setName( name );
-}
-
 void QWidget::updateFrameStrut() const
 {
     QWidget *that = (QWidget *) this;

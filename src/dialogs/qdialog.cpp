@@ -233,7 +233,8 @@ QDialog::QDialog( QWidget *parent, WFlags f )
 {
 }
 
-#ifdef QT_COMPAT
+/*!\overload \obsolete
+ */
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     : QWidget( *new QDialogPrivate, parent,
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
@@ -242,7 +243,6 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
     if (!name)
 	setObjectName(name);
 }
-#endif
 
 /*!
   Destroys the QDialog, deleting all its children.

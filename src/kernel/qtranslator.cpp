@@ -320,14 +320,14 @@ QTranslator::QTranslator(QObject * parent)
 {
 }
 
-#ifdef QT_COMPAT
+/*!\overload \obsolete
+ */
 QTranslator::QTranslator( QObject * parent, const char * name )
     : QObject(*new QTranslatorPrivate, parent)
 {
     if (name)
 	setObjectName(name);
 }
-#endif
 
 /*!
     Destroys the object and frees any allocated resources.

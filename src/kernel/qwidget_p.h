@@ -193,6 +193,8 @@ public:
     void checkChildrenDnd();
     void removePendingPaintEvents();
     QRegion invalidated_region;
+
+    void setWindowRole(const char *role);
 #endif
 
     QWExtra *extra;

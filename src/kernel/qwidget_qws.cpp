@@ -1600,14 +1600,6 @@ void QWidget::clearMask()
     setMask( QRegion() );
 }
 
-void QWidget::setName( const char *name )
-{
-    QObject::setName( name );
-    if ( isTopLevel() ) {
-	// XXX
-    }
-}
-
 /*!
     \internal
 */

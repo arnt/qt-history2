@@ -72,14 +72,14 @@ QSignalMapper::QSignalMapper(QObject* parent) :
 {
 }
 
-#ifdef QT_COMPAT
+/*!\overload \obsolete
+ */
 QSignalMapper::QSignalMapper(QObject* parent, const char* name) :
     QObject(*new QSignalMapperPrivate, parent)
 {
     if (name)
 	setObjectName(name);
 }
-#endif
 
 /*!
     Destroys the QSignalMapper.

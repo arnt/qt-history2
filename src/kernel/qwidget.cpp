@@ -718,7 +718,8 @@ QWidget::QWidget(QWidget *parent, WFlags f)
     d->init(f);
 }
 
-#ifdef QT_COMPAT
+/*!\overload \obsolete
+ */
 QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
     : QObject(*new QWidgetPrivate, ((parent && parent->isDesktop()) ? 0 : parent)), QPaintDevice(QInternal::Widget)
 {
@@ -726,7 +727,6 @@ QWidget::QWidget(QWidget *parent, const char *name, WFlags f)
 	setObjectName(name);
     d->init(f);
 }
-#endif
 
 /*! \internal
 */
@@ -1456,8 +1456,8 @@ QStyle* QWidget::setStyle( const QString &style )
     \sa showMinimized(), visible, show(), hide(), showNormal(), maximized
 */
 bool QWidget::isMinimized() const
-{ 
-    return testWState(WState_Minimized); 
+{
+    return testWState(WState_Minimized);
 }
 
 /*!
@@ -1490,8 +1490,8 @@ void QWidget::showMinimized()
     \sa windowState(), showMaximized(), visible, show(), hide(), showNormal(), minimized
 */
 bool QWidget::isMaximized() const
-{ 
-    return testWState(WState_Maximized); 
+{
+    return testWState(WState_Maximized);
 }
 
 
@@ -1558,8 +1558,8 @@ void QWidget::setWindowState(uint windowState)
     \sa windowState(), minimized, maximized
 */
 bool QWidget::isFullScreen() const
-{ 
-    return testWState(WState_FullScreen); 
+{
+    return testWState(WState_FullScreen);
 }
 
 /*!
@@ -4567,6 +4567,14 @@ void QWidget::changeEvent( QEvent * e )
     case QEvent::PaletteChange:
 	update();
 	break;
+
+#if defined(Q_WS_X11)
+    case QEvent::ObjectNameChange:
+	if (isTopLevel())
+	    d->setWindowRole(objectName());
+	break;
+#endif
+
     default:
 	break;
     }

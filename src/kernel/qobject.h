@@ -45,8 +45,8 @@ class Q_CORE_EXPORT QObject: public Qt
     Q_PROPERTY( QByteArray objectName READ objectName WRITE setObjectName )
 
 public:
-    QObject(QObject *parent, const char *name);
     QObject(QObject *parent=0);
+    QObject(QObject *parent, const char *name); // deprecated
     virtual ~QObject();
 
     const char *className() const;

@@ -279,7 +279,8 @@ QObject::QObject(QObject *parent)
 }
 
 
-#ifdef QT_COMPAT
+/*!\overload \obsolete
+ */
 QObject::QObject( QObject *parent, const char *name )
     :
     isWidget( FALSE ), 				// assume not a widget object
@@ -299,8 +300,6 @@ QObject::QObject( QObject *parent, const char *name )
     QCoreApplication::sendEvent( this, &e );
     QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
-
-#endif
 
 /*!\internal*/
 QObject::QObject(QObjectPrivate &dd, QObject *parent)
@@ -547,6 +546,8 @@ void QObject::setObjectName( const char *name )
 	delete [] (char*) d->objectName;
     d->ownObjectName = true;
     d->objectName = name ? qstrdup(name) : 0;
+    QEvent e(QEvent::ObjectNameChange);
+    QCoreApplication::sendEvent(q, &e);
 }
 
 /*!
@@ -558,6 +559,8 @@ void QObject::setObjectNameConst(const char *name)
 	delete [] (char*) d->objectName;
     d->ownObjectName = false;
     d->objectName = name;
+    QEvent e(QEvent::ObjectNameChange);
+    QCoreApplication::sendEvent(q, &e);
 }
 
 /*!

@@ -34,8 +34,8 @@ friend class QPushButton;
     Q_PROPERTY( bool modal READ isModal WRITE setModal )
 
 public:
-    QDialog( QWidget* parent, const char* name, bool modal=false, WFlags f=0 );
-    QDialog( QWidget* parent=0, WFlags f=0 );
+    QDialog(QWidget* parent = 0, WFlags f = 0);
+    QDialog( QWidget* parent, const char* name, bool modal=false, WFlags f=0 ); // deprecated
     ~QDialog();
 
     enum DialogCode { Rejected, Accepted };

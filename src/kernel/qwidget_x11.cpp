@@ -2405,19 +2405,6 @@ void QWidget::clearMask()
 		       None, ShapeSet );
 }
 
-/*!\reimp
- */
-void QWidget::setName( const char *name )
-{
-    QObject::setName( name );
-    if ( isTopLevel() ) {
-	XChangeProperty( x11Display(), winId(),
-			 ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
-			 (unsigned char *)name, qstrlen( name ) );
-    }
-}
-
-
 /*!
   \internal
 
@@ -2580,4 +2567,11 @@ void QWidget::setWindowTransparency(double)
 double QWidget::windowTransparency() const
 {
     return 0.0;
+}
+
+void QWidgetPrivate::setWindowRole(const char *role)
+{
+    XChangeProperty(q->x11Display(), q->winId(),
+		    ATOM(WM_WINDOW_ROLE), XA_STRING, 8, PropModeReplace,
+		    (unsigned char *)role, qstrlen(role));
 }
