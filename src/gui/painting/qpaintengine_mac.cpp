@@ -1393,7 +1393,7 @@ QCoreGraphicsPaintEngine::drawPoint(const QPoint &p)
     Q_ASSERT(isActive());
 
     CGContextMoveToPoint((CGContextRef)d->hd, p.x(), p.y());
-    CGContextAddLineToPoint((CGContextRef)d->hd, p.x()+1, p.y());
+    CGContextAddLineToPoint((CGContextRef)d->hd, p.x(), p.y()+1);
     CGContextStrokePath((CGContextRef)d->hd);
 }
 
@@ -1405,7 +1405,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointArray &pa, int index, int npoin
     for(int i=0; i<npoints; i++) {
 	float x = pa[index+i].x(), y = pa[index+i].y();
 	CGContextMoveToPoint((CGContextRef)d->hd, x, y);
-	CGContextAddLineToPoint((CGContextRef)d->hd, x+1, y);
+	CGContextAddLineToPoint((CGContextRef)d->hd, x, y+1);
 	CGContextStrokePath((CGContextRef)d->hd);
     }
 }
