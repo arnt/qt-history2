@@ -34,8 +34,6 @@
     documentation and/or software.
 */
 
-/* derived from the RSA Data Security, Inc. MD5 Message-Digest Algorithm */
-
 #ifndef QTMD5_H
 #define QTMD5_H
 
