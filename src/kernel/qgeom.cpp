@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#7 $
 **
 **  Studies in Geometry Management
 **
@@ -12,7 +12,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#6 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#7 $")
 
 
 
@@ -99,7 +99,7 @@ Starts geometry management.
   value. Thus freeze(0,0) (the default) will fix the widget to its
   minimum size.
   */
-void QBoxLayout::freeze( int w = 0, int h = 0 ) 
+void QBoxLayout::freeze( int w, int h ) 
 {
     if ( !topLevel ) {
 	warning( "Only top-level QBoxLayout can be frozen." );
