@@ -77,11 +77,11 @@ QStandardItemModel::QStandardItemModel(QObject *parent) : QAbstractItemModel(par
 /*!
     Creates a model with \a rows number of rows and \a columns number of columns.
 */
-QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent) : QAbstractItemModel(parent)
+QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent) : QAbstractItemModel(parent), topLevelRows(rows), topLevelColumns(columns)
 {
-    insertColumns(0, QModelIndex::Null, columns);
-    insertRows(0, QModelIndex::Null, rows);
+    // nothing
 }
+
 
 /*!
     Destroys the model.
