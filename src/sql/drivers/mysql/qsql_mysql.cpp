@@ -261,9 +261,7 @@ QCoreVariant QMYSQLResult::data(int field)
     case QCoreVariant::String:
         return QCoreVariant(val);
     }
-#ifdef QT_CHECK_RANGE
     qWarning("QMYSQLResult::data: unknown data type");
-#endif
     return QCoreVariant();
 }
 
@@ -356,9 +354,7 @@ static void qServerInit()
     // has no effect on client/server library
     // but is vital for the embedded lib
     if (mysql_server_init(0, 0, 0)) {
-#  ifdef QT_CHECK_RANGE
         qWarning("QMYSQLDriver::qServerInit: unable to start server.");
-#  endif
     }
     init = true;
 # endif // MYSQL_VERSION_ID
@@ -591,9 +587,7 @@ bool QMYSQLDriver::beginTransaction()
     return false;
 #endif
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QMYSQLDriver::beginTransaction: Database not open");
-#endif
         return false;
     }
     if (mysql_query(d->mysql, "BEGIN WORK")) {
@@ -610,9 +604,7 @@ bool QMYSQLDriver::commitTransaction()
     return false;
 #endif
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QMYSQLDriver::commitTransaction: Database not open");
-#endif
         return false;
     }
     if (mysql_query(d->mysql, "COMMIT")) {
@@ -629,9 +621,7 @@ bool QMYSQLDriver::rollbackTransaction()
     return false;
 #endif
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QMYSQLDriver::rollbackTransaction: Database not open");
-#endif
         return false;
     }
     if (mysql_query(d->mysql, "ROLLBACK")) {

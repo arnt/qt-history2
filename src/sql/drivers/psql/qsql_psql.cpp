@@ -264,13 +264,11 @@ QCoreVariant QPSQLResult::data(int i)
         const_cast<QSqlDriver *>(driver())->beginTransaction();
         Oid oid = atoi(val);
         int fd = lo_open(d->connection, oid, INV_READ);
-#ifdef QT_CHECK_RANGE
         if (fd < 0) {
             qWarning("QPSQLResult::data: unable to open large object for read");
             const_cast<QSqlDriver *>(driver())->commitTransaction();
             return QCoreVariant(ba);
         }
-#endif
         int size = 0;
         int retval = lo_lseek(d->connection, fd, 0L, SEEK_END);
         if (retval >= 0) {
@@ -311,10 +309,7 @@ QCoreVariant QPSQLResult::data(int i)
     }
     default:
     case QCoreVariant::Invalid:
-#ifdef QT_CHECK_RANGE
         qWarning("QPSQLResult::data: unknown data type");
-#endif
-        ;
     }
     return QCoreVariant();
 }
@@ -409,11 +404,9 @@ static bool setEncodingUtf8(PGconn* connection)
 static void setDatestyle(PGconn* connection)
 {
     PGresult* result = PQexec(connection, "SET DATESTYLE TO 'ISO'");
-#ifdef QT_CHECK_RANGE
     int status =  PQresultStatus(result);
     if (status != PGRES_COMMAND_OK)
         qWarning("%s", PQerrorMessage(connection));
-#endif
     PQclear(result);
 }
 
@@ -430,9 +423,7 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
             int vMaj = rx.cap(1).toInt();
             int vMin = rx.cap(2).toInt();
             if (vMaj < 6) {
-#ifdef QT_CHECK_RANGE
                 qWarning("This version of PostgreSQL is not supported and may not work.");
-#endif
                 return QPSQLDriver::Version6;
             }
             if (vMaj == 6) {
@@ -446,9 +437,7 @@ static QPSQLDriver::Protocol getPSQLVersion(PGconn* connection)
             return QPSQLDriver::Version73;
         }
     } else {
-#ifdef QT_CHECK_RANGE
         qWarning("This version of PostgreSQL is not supported and may not work.");
-#endif
     }
 
     return QPSQLDriver::Version6;
@@ -568,9 +557,7 @@ QSqlQuery QPSQLDriver::createQuery() const
 bool QPSQLDriver::beginTransaction()
 {
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QPSQLDriver::beginTransaction: Database not open");
-#endif
         return false;
     }
     PGresult* res = PQexec(d->connection, "BEGIN");
@@ -587,9 +574,7 @@ bool QPSQLDriver::beginTransaction()
 bool QPSQLDriver::commitTransaction()
 {
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QPSQLDriver::commitTransaction: Database not open");
-#endif
         return false;
     }
     PGresult* res = PQexec(d->connection, "COMMIT");
@@ -606,9 +591,7 @@ bool QPSQLDriver::commitTransaction()
 bool QPSQLDriver::rollbackTransaction()
 {
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QPSQLDriver::rollbackTransaction: Database not open");
-#endif
         return false;
     }
     PGresult* res = PQexec(d->connection, "ROLLBACK");

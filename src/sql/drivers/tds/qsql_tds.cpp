@@ -414,9 +414,7 @@ bool QTDSResult::reset (const QString& query)
             ret = dbbind(d->dbproc, i+1, BINARYBIND, DBINT(dbcollen(d->dbproc, i+1) + 1), (unsigned char *)p);
             break;
         default: //don't bind the field since we do not support it
-#ifdef QT_CHECK_RANGE
             qWarning("QTDSResult::reset: Unsupported type for field \"%s\"", dbcolname(d->dbproc, i+1));
-#endif
             break;
         }
         if (ret == SUCCEED) {
@@ -571,9 +569,7 @@ bool QTDSDriver::beginTransaction()
     return false;
 /*
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QTDSDriver::beginTransaction: Database not open");
-#endif
         return false;
     }
     if (dbcmd(d->dbproc, "BEGIN TRANSACTION") == FAIL) {
@@ -598,9 +594,7 @@ bool QTDSDriver::commitTransaction()
     return false;
 /*
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QTDSDriver::commitTransaction: Database not open");
-#endif
         return false;
     }
     if (dbcmd(d->dbproc, "COMMIT TRANSACTION") == FAIL) {
@@ -625,9 +619,7 @@ bool QTDSDriver::rollbackTransaction()
     return false;
 /*
     if (!isOpen()) {
-#ifdef QT_CHECK_RANGE
         qWarning("QTDSDriver::rollbackTransaction: Database not open");
-#endif
         return false;
     }
     if (dbcmd(d->dbproc, "ROLLBACK TRANSACTION") == FAIL) {
