@@ -52,6 +52,7 @@
 #include <qtextstream.h>
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
+#include <qprocess.h>
 
 #include "phraselv.h"
 
@@ -1129,11 +1130,16 @@ void TrWindow::revertSorting()
     slv->setSorting( 0 );
 }
 
-void TrWindow::overview()
+void TrWindow::manual()
 {
-    ov->show();
-    ov->setActiveWindow();
-    ov->raise();
+//     ov->show();
+//     ov->setActiveWindow();
+//     ov->raise();
+    QStringList lst;
+    lst << "assistant" << "qt-translation-tools.html";
+    QProcess proc( lst );
+    proc.start();
+
 }
 
 void TrWindow::about()
@@ -1855,10 +1861,10 @@ void TrWindow::setupMenuBar()
     doGuessesAct->setOn( TRUE );
     
     // Help
-    overviewAct = new Action( helpp, tr("&Overview..."),
-			      this, SLOT(overview()) );
-    aboutAct = new Action( helpp, tr("&About..."), this, SLOT(about()),
-			   Key_F1 );
+    manualAct = new Action( helpp, tr("&Manual..."), this, SLOT(manual()),
+			    Key_F1 );
+    helpp->insertSeparator();
+    aboutAct = new Action( helpp, tr("&About..."), this, SLOT(about()) );
     aboutQtAct = new Action( helpp, tr("About &Qt..."), this, SLOT(aboutQt()) );
     helpp->insertSeparator();
     whatsThisAct = new Action( helpp, tr("&What's This?"),
@@ -1908,7 +1914,7 @@ void TrWindow::setupMenuBar()
 				       " as in the message file.") );
 
     doGuessesAct->setWhatsThis( tr("Set whether or not to display translation guesses.") );
-    overviewAct->setWhatsThis( tr("Display an introduction to %1.")
+    manualAct->setWhatsThis( tr("Display the manual for %1.")
 			       .arg(tr("Qt Linguist")) );
     aboutAct->setWhatsThis( tr("Display information about %1.")
 			    .arg(tr("Qt Linguist")) );

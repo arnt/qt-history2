@@ -81,7 +81,7 @@ private slots:
     void closePhraseBook( int id );
     void editPhraseBook( int id );
     void printPhraseBook( int id );
-    void overview();
+    void manual();
     void revertSorting();
     void about();
     void aboutQt();
@@ -190,7 +190,7 @@ private:
     Action *revertSortingAct;
     Action *aboutAct;
     Action *aboutQtAct;
-    Action *overviewAct;
+    Action *manualAct;
     Action *whatsThisAct;
     Action *startFromSourceAct;
     Action *prevAct;
