@@ -12,8 +12,6 @@ main(int argc, char** argv)
     QVBox box;
     QLCDNumber lcd( &box );
     QDial dial( &box );
-    dial.setFocusPolicy(QWidget::StrongFocus);
-    dial.setFocus();
     dial.setShowNotches( TRUE );
     box.show();
 
