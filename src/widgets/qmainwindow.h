@@ -26,6 +26,14 @@
 #ifndef QMAINWINDOW_H
 #define QMAINWINDOW_H
 
+#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && defined(QLIST_H)
+#warning Qt warning:
+#warning Headers qvaluelist.h or qmap.h are included before qvariant.h.
+#warning The compiler you are using lacks proper template support.
+#warning You will probably see errors now...
+#warning Try changing the order of inclusion of your header files.
+#endif
+
 #ifndef QT_H
 #include "qwidget.h"
 #endif // QT_H

@@ -26,8 +26,12 @@
 #ifndef QVARIANT_H
 #define QVARIANT_H
 
-#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && defined(QVALUELIST_H)
-#warning "This compiler will not let you include qvaluelist.h before qvariant.h"
+#if defined(Q_TEMPLATE_NEEDS_CLASS_DECLARATION) && ( defined(QVALUELIST_H) || defined(QMAP_H) )
+#warning Qt warning:
+#warning Headers qvaluelist.h or qmap.h are included before qvariant.h.
+#warning The compiler you are using lacks proper template support.
+#warning You will probably see errors now...
+#warning Try changing the order of inclusion of your header files.
 #endif
 
 #ifndef QT_H
