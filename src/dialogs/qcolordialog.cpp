@@ -52,7 +52,6 @@
 #include "qgridview.h"
 #include "qapplication.h"
 #include "qstyle.h"
-#include "qsettings.h"
 
 #ifdef Q_WS_MAC
 QRgb macGetRgba( QRgb initial, bool *ok, QWidget *parent, const char* name );
@@ -1436,13 +1435,6 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 {
     setSizeGripEnabled( FALSE );
     d = new QColorDialogPrivate( this );
-    QSettings settings;
-    for ( int i = 0; i < 2*8; ++i ) {
-	bool ok = FALSE;
-	QRgb rgb = (QRgb)settings.readNumEntry( "/qt/customColors/" + QString::number( i ) + "/", 0, &ok );
-	if ( ok )
-	    cusrgb[i] = rgb;
-    }
 }
 
 
@@ -1545,9 +1537,6 @@ QColor QColorDialog::color() const
 
 QColorDialog::~QColorDialog()
 {
-    QSettings settings;
-    for ( int i = 0; i < 2*8; ++i )
-	settings.writeEntry( "/qt/customColors/" + QString::number( i ) + "/", (int)cusrgb[i] );
 }
 
 
