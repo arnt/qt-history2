@@ -210,7 +210,10 @@ void QSplashScreen::setPixmap(const QPixmap &pixmap)
     QRect r(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
     resize(d->pixmap.size());
     move(QApplication::desktop()->screenGeometry().center() - r.center());
-    repaint();
+    if (!isVisible())
+        d->drawContents();
+    else
+        repaint();
 }
 
 /*!
