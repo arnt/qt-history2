@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#1 $
+** $Id: //depot/qt/main/examples/demo/qthumbwheel.cpp#2 $
 **
 ** Definition of QThumbWheel class
 **
@@ -234,6 +234,16 @@ void QThumbWheel::drawContents( QPainter *p )
     QPen pen1( colorGroup().mid() );
 
     if ( orient == Horizontal ) {
+	double r = 0.5*cr.width();
+	int y0 = cr.y()+1;
+	int y1 = cr.bottom()-1;
+	for ( int i = 0; i < n; i++ ) {
+	    int x = cr.x() + int((1-cos(delta*double(i)+alpha))*r);
+	    p->setPen( pen0 );
+	    p->drawLine( x, y0, x, y1 );
+	    p->setPen( pen1 );
+	    p->drawLine( x+1, y0, x+1, y1 );
+	}
     } else {
 	// vertical orientation
 	double r = 0.5*cr.height();
