@@ -2297,16 +2297,16 @@ void QApplication::removeTranslator( QTranslator * mf )
     translators->first();
     while ( translators->current() && translators->current() != mf )
 	translators->next();
-    translators->take();
+    if ( translators->take() && !qApp->closingDown() ) {
+	setReverseLayout( qt_detectRTLLanguage() );
 
-    setReverseLayout( qt_detectRTLLanguage() );
-
-    QWidgetList *list = topLevelWidgets();
-    QWidgetListIt it( *list );
-    QWidget *w;
-    while ( ( w=it.current() ) != 0 ) {
-	++it;
-	postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	QWidgetList *list = topLevelWidgets();
+	QWidgetListIt it( *list );
+	QWidget *w;
+	while ( ( w=it.current() ) != 0 ) {
+	    ++it;
+	    postEvent( w, new QEvent( QEvent::LanguageChange ) );
+	}
     }
 }
 

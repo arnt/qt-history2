@@ -622,7 +622,7 @@ void QTranslator::clear()
     d->messages = 0;
 #endif
 
-    if ( qApp && qApp->translators && qApp->translators->contains(this) ) {
+    if ( qApp && qApp->translators && qApp->translators->contains(this) && qApp->loopLevel() ) {
 	qApp->setReverseLayout( qt_detectRTLLanguage() );
 
 	QWidgetList *list = QApplication::topLevelWidgets();
