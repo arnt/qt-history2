@@ -48,7 +48,7 @@
 #define LEN 0x1c5c
 #define DWGCTL 0x1c00
 #define FCOL 0x1c24
-#define STATUS 0x1e14
+#define MATROX_STATUS 0x1e14
 #define BCOL 0x1c20
 #define FXBNDRY 0x1c84
 #define SGN 0x1c58

@@ -132,7 +132,7 @@ inline void QGfxMatrox<depth,type>::sync()
 {
     int loopc;
     for(loopc=0;loopc<1000000;loopc++) {
-        unsigned int stat=matrox_regr(STATUS);
+        unsigned int stat=matrox_regr(MATROX_STATUS);
 	if((!(stat & 0x10000)) && loopc>20) {
 	    return;
 	}
