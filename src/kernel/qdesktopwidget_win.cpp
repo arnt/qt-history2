@@ -159,7 +159,7 @@ bool QDesktopWidget::isVirtualDesktop() const
 /*!
   Returns the index of the primary screen.
 
-  \sa numScreens
+  \sa numScreens()
 */
 int QDesktopWidget::primaryScreen() const
 {
@@ -169,7 +169,7 @@ int QDesktopWidget::primaryScreen() const
 /*!
   Returns the total number of available screens.
 
-  \sa primaryScreen
+  \sa primaryScreen()
 */
 int QDesktopWidget::numScreens() const
 {
@@ -193,7 +193,7 @@ int QDesktopWidget::numScreens() const
   If the system uses a virtual desktop, the returned widget will have
   the geometry of the desktop for every \a screen.
 
-  \sa primaryScreen, numScreens, isVirtualDesktop
+  \sa primaryScreen(), numScreens(), isVirtualDesktop()
 */
 QWidget *QDesktopWidget::screen( int /*screen*/ )
 {
@@ -204,7 +204,7 @@ QWidget *QDesktopWidget::screen( int /*screen*/ )
 /*!
   Returns the geometry of the display with index \a screen.
 
-  \sa screenNumber( QWidget* )
+  \sa screenNumber()
 */
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
@@ -222,7 +222,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
   Returns the index of the screen that contains the biggest
   part of \a widget.
 
-  \sa primaryScreen
+  \sa primaryScreen()
 */
 int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
@@ -253,7 +253,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 /*!
   Returns the index of the screen that contains \a point.
 
-  \sa primaryScreen
+  \sa primaryScreen()
 */
 int QDesktopWidget::screenNumber( const QPoint &point ) const
 {
