@@ -49,6 +49,8 @@ QTextEdit::QTextEdit( QWidget *parent, const QString &text )
 
 QTextEdit::~QTextEdit()
 {
+    if ( painter.isActive() )
+	painter.end();
     delete buf_pixmap;
 }
 
