@@ -3734,7 +3734,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     // reverse any contiguous sequence of characters that are at that level or higher.
 
     // reversing is only done up to the lowest odd level
-    if(!levelLow%2) levelLow++;
+    if(!(levelLow%2)) levelLow++;
 
 #ifdef BIDI_DEBUG
     cout << "reorderLine: lineLow = " << (uint)levelLow << ", lineHigh = " << (uint)levelHigh << endl;
