@@ -62,6 +62,7 @@ The drivers shipped with Qt are:
 \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
+\i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.2 and higher)
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Free Edition
@@ -331,7 +332,7 @@ make in the statement above.
 
 The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We
 recommend compiling the plugin with a recent version of the PostgreSQL
-Client API (libpq) because it is more stable and still downward
+client library (libpq) because it is more stable and still backwards
 compatible.
 
 If you want to link the plugin against the libpq shipped with version
@@ -445,6 +446,40 @@ nmake
 By default the Microsoft library is used on Windows, if you want to force
 the use of the Sybase Open Client, you must define
 \c Q_USE_SYBASE in \c{%QTDIR%\src\sql\drivers\tds\qsql_tds.cpp}.
+
+\target QDB2
+\section2 QDB2 - IBM DB2 Driver (v7.1 or higher)
+
+\keyword QDB2
+
+\section3 General information
+
+The Qt DB2 plugin makes it possible to access IBM DB2 databases. It
+has been tested with IBM DB2 v7.1 and 7.2. You have to install the IBM
+DB2 development client library, which contains the header and library
+files needed to compile the QDB2 plugin.
+
+The QDB2 driver supports prepared queries, reading/writing of Unicode
+strings and reading/writing BLOBs.
+
+If you want to call stored procedures, we suggest using a forward-only
+query (see QSqlQuery::setForwardOnly()).
+
+\section3 How to build the plugin on Unix/Linux
+
+\code
+cd $QTDIR/plugins/src/sqldrivers/db2
+qmake -o Makefile "INCLUDEPATH+=$DB2DIR/include" "LIBS+=-L$DB2DIR/lib -ldb2"
+make
+\endcode
+
+\section3 How to build the plugin on Windows
+
+\code
+cd %QTDIR%\plugins\src\sqldrivers\db2
+qmake -o Makefile "INCLUDEPATH+=<DB2 home>/sqllib/include" "LIBS+=<DB2 home>/sqllib/lib/db2cli.lib"
+nmake
+\endcode
 
 \target troubleshooting
 \section1 Troubleshooting
