@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#273 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#274 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1829,10 +1829,7 @@ QFileDialog::~QFileDialog()
 
 QString QFileDialog::selectedFile() const
 {
-    QString s = d->currentFileName;
-    if ( s.left( 5 ) == "file:" )
-	s.remove( 0, 5 );
-    return s;
+    return d->currentFileName;
 }
 
 /*!
@@ -2038,7 +2035,7 @@ void QFileDialog::setUrl( const QUrl &url )
     d->waitFor.append( wfs );
 
     d->url = url;
-    
+
     if ( !d->url.isDir() )
 	d->waitFor.remove( (uint)0 );
 }
@@ -3429,8 +3426,6 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	while( i ) {
 	    if ( i->isSelected() ) {
 		QString u = QUrl( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() );
-		if ( u.left( 5 ) == "file:" )
-		    u.remove( 0, 5 );
 		s.append( u );
 	    }
 	    i = i->nextSibling();
