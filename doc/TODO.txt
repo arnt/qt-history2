@@ -67,6 +67,8 @@ Drag and Drop
 QTextStream (rms)
   There is still need to optimize speed, especially readLine().
 
+QWorkspace (vohi)
+  Support focusPolicy() for mdi clients to prevent them becoming the active window
 
 Feature Requests
 ----------------
