@@ -146,9 +146,10 @@ MainWindow::MainWindow( bool asClient )
 
     // ### we need a better test to find if we have Quick installed or not
     QString dir = getenv( "QTDIR" );
-    dir += "/lib";
-    if ( QFile::exists( dir + "/libqscript.so" ) || QFile::exists( dir + "/qscript.dll" ) )
+    if ( QFile::exists( dir + "/lib/libqscript.so" ) || QFile::exists( dir + "/lib/qscript.dll" ) )
 	MetaDataBase::setEventsEnabled( TRUE );
+
+    templateWizardPluginManager = new QInterfaceManager<TemplateWizardInterface>( IID_TemplateWizardInterface, dir + "/plugins", "*.dll; *.so" );
 
     setupEditor();
 
@@ -2367,6 +2368,11 @@ FormWindow* MainWindow::insertFormWindow( int type )
 	QWidget *w = WidgetFactory::create( WidgetDatabase::idFromClassName( "QSqlDialog" ), fw, n.latin1() );
 	fw->setMainContainer( w );
     }
+
+    TemplateWizardInterface *iface = templateWizardPluginManager->queryInterface( fw->mainContainer()->className() );
+    if ( iface )
+	iface->setup( fw->mainContainer()->className(), fw->mainContainer() );
+
     fw->setCaption( n );
     fw->resize( 600, 480 );
     MetaDataBase::addEntry( fw );

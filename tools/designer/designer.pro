@@ -2,6 +2,7 @@ TEMPLATE	= subdirs
 SUBDIRS		= util \
 		   uic \
 		   resource \
-		   designer
+		   designer \
+		  plugins/wizards
 CONFIG += ordered
 

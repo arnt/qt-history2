@@ -24,6 +24,7 @@
 #include "metadatabase.h"
 #include "actioninterface.h" // for GCC 2.7.* compatibility
 #include "../shared/editorinterface.h"
+#include "../shared/templatewizardiface.h"
 #include "sourceeditor.h"
 
 #if defined(HAVE_KDE)
@@ -297,6 +298,7 @@ private:
     ActionEditor *actionEditor;
     Project *currentProject;
     QInterfaceManager<EditorInterface> *editorPluginManager;
+    QInterfaceManager<TemplateWizardInterface> *templateWizardPluginManager;
     QList<SourceEditor> sourceEditors;
     bool previewing;
 };
