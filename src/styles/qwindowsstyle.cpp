@@ -546,7 +546,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 r2.top() + 1,
 				 r2.right() - (lastTab ? 0 : 2),
 				 r2.top() + 1 );
-		
+
 		    if ( rightAligned && lastTab )
 			p->drawPoint( r2.right(), r2.top() );
 		    p->setPen( cg.dark() );
@@ -961,10 +961,14 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 			     2*windowsItemFrame);
 	    }
 
-	    if (! mi->text().isNull() && mi->text().find('\t') >= 0)
-		w += windowsTabSpacing;
-	    else if (mi->popup())
+	    if (! mi->text().isNull() && mi->text().find('\t') >= 0) {
+		if ( use2000style )
+		    w += 20;
+		else
+		    w += windowsTabSpacing;
+	    } else if (mi->popup()) {
 		w += 2*windowsArrowHMargin;
+	    }
 
 	    if (use2000style) {
 		if (checkable && maxpmw < 20)
@@ -973,8 +977,6 @@ QSize QWindowsStyle::sizeFromContents( ContentsType contents,
 		if (checkable && maxpmw < windowsCheckMarkWidth)
 		    w += windowsCheckMarkWidth - maxpmw;
 	    }
-	    if (maxpmw)
-		w += maxpmw + 6;
 	    if (checkable || maxpmw > 0)
 		w += windowsCheckMarkHMargin;
 	    if (use2000style)
