@@ -9,6 +9,7 @@ MOCGEN		= mocgen.cpp
 SOURCES		= $$MOCGEN		    \
 		  ../tools/qbuffer.cpp	    \
 		  ../tools/qcollection.cpp  \
+		  ../tools/qcstring.cpp	    \
 		  ../tools/qdatetime.cpp    \
 		  ../tools/qdatastream.cpp  \
 		  ../tools/qgarray.cpp	    \
