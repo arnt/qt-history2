@@ -38,7 +38,7 @@ application. The application demonstrates how to use
 up master-detail relationships between \class[QDataTable]s. It also
 explains how to drill down from a \class[QDataTable] to another
 widget, for example to a \class[QDataBrowser] or a \class[QDataView]
-and how to perform record editing in \class[QDataBrowser]s. A great
+and how to perform record editing in a \class[QDataBrowser]. A great
 deal of functionality is available from the classes directly in \qd
 although subclassing is always available for finer control. If you
 want to build the 'book' examples you will need to create the example
@@ -62,14 +62,15 @@ system.
 \scan eg/book/book.sql /CREATE TABLE\s*sequence/ /;/
 </programlisting></example>
 
-The 'book' table is simplified for the purposes of example. It can
+The 'book' table is simplified for the purposes of the example. It can
 only relate a book to a single author (authorid) and lacks an ISBN
 field.  The 'sequence' table is used for generating unique index
 values for the example tables.  Note that SQL databases often provide
-their own method for achieving the same thing (for example, using the
-CREATE SEQUENCE command).  This is a more optimal solution, however
-for the purposes of the example, we will use a 'sequence' table which
-is portable to the vast majority of SQL databases.
+their own method for creating sequences (for example, using the
+<literal>CREATE SEQUENCE</> command) which is very likely to be a more
+optimal solution. For the sake of portability the examples will use a
+'sequence' table which will work with the vast majority of SQL
+databases.
 </para>
 </sidebar>
 
@@ -95,17 +96,17 @@ is portable to the vast majority of SQL databases.
 	<guibutton>New Connection</>. For applications that use a single
 	database it will probably be most convenient to use the default
 	connection name of '(default)'. If you use more than one
-	database each one must be given a unique name. A driver must be
+	database then each one must be given a unique name. A driver must be
 	chosen from the Driver combo box. The database name may be
 	available in the Database Name combo box or may have to be typed
 	in. The database name, username, password and hostname should be
-	provided by your database systems administrator. When the
+	provided by your database system administrator. When the
 	Connection information has been completed click
 	<guibutton>Connect</>. If the connection is made the connection
 	name will appear in the list box on the left hand side of the
 	dialog. You can now close the dialog; the connection settings
-	will remain in force until you change or delete them or quit
-	\qd.
+	will remain in force until you change or delete them or exit
+	from \qd.
 	</para>
 
 	<para>
@@ -124,7 +125,7 @@ is portable to the vast majority of SQL databases.
 	This connection will be used from now on, e.g. for previewing
 	\class[QDataTable]s. Opening a project file also causes \qd to load in the
 	list of forms associated with the project into the Form List
-	window. In most of the discussion that follows we will assume
+	window. In most of the explanation that follows we will assume
 	that you use project files and have clicked <guibutton>Connect</>
 	so that there is always a connection available when you work in
 	\qd.
@@ -171,7 +172,7 @@ bool createConnections()
 	file and make use of the default connection. If you need to
 	connect to multiple databases use the two-argument form of
 	<function>addDatabase</>, passing it both the name of the driver
-	and a unique identifier. This is explained in the <ulink
+	and a unique identifier. This is explained further in the <ulink
 	url="http://doc.trolltech.com/sql.html">Qt SQL Module
 	documentation</>.
 	</para>
@@ -314,7 +315,7 @@ bool createConnections()
 		    to move fields between the two list boxes. The up
 		    and down blue arrows move fields up and down within
 		    the Sort By list box. The ASC or DESC setting is
-		    changed with the sort order button.
+		    changed with the 'sort order' toolbar button.
 		    </para>
 
 		    <para>
@@ -342,11 +343,11 @@ bool createConnections()
 	    <para>
 	    The table will appear on the form with each column labelled with
 	    a default column name. If you wish to change the settings
-	    most of them are available in the property window. The display
-	    names, the fields they are based upon, and the order of
-	    appearance of the columns can be changed using the Edit Table
-	    dialog (explained later) by right clicking the \class[QDataTable] and left
-	    clicking Edit.
+	    then most of them are available in the property window. The
+	    display names, the fields they are based upon, and the order
+	    of appearance of the columns can be changed using the Edit
+	    Table dialog (explained later) by right clicking the
+	    \class[QDataTable] and left clicking <guibutton>Edit</guibutton>.
 	    </para>
 
 	</sect3>
@@ -363,7 +364,7 @@ bool createConnections()
 	    </para>
 
 	    <para>
-	    To turn the form we've created into a runnable application we
+	    To turn the form we've created into an executable application we
 	    must add the <filename>main.cpp</> file to the project file and
 	    make the project. We should also do some renaming to make things
 	    easier to understand.
@@ -422,7 +423,7 @@ bool createConnections()
 	    visible but rather the text associated with it. Thus, we
 	    would want the author's name to appear rather than the
 	    author id when we show book information.  In many
-	    databases, this can be achieved using a view.  See your
+	    databases, this can be achieved by using a view.  See your
 	    database's documentation for details.
 	    </para>
 	    </sidebar>
@@ -513,11 +514,11 @@ bool createConnections()
 	<para>
 	Browsing is
 	supported by clicking records and by using the arrow keys. Once
-	a record is active (highlighted) we can edit the database. Press
+	a record is active (highlighted) we can edit the it. Press
 	the <keycap>Insert</> key to \ins a new record;
 	press <keycap>F2</> to \upd the current record;
 	press the <keycap>Delete</> key to \del the
-	current record. All these operations take place live and
+	current record. All these operations take place 
 	immediately. Users can be given the opportunity to confirm
 	their edits by setting the \class[QDataTable]'s confirmEdits property to True.
 	If the confirmEdits property is True user confirmation will
@@ -542,7 +543,7 @@ bool createConnections()
 		clicking Insert or by pressing the Ins (Insert) key. The
 		user moves between fields using Tab and Shift+Tab. The
 		\ins will take place if the user presses Return or Tabs
-		off the end of the last field. If autoEdit is TRUE the
+		off the last field. If autoEdit is TRUE the
 		insert will take place if the user navigates to another
 		record. \ins is cancelled by pressing Esc (Escape). If
 		autoEdit is FALSE navigating to another record also
@@ -553,7 +554,7 @@ bool createConnections()
 		\item\p
 		\upd is initiated by right-clicking the record and clicking
 		Update or by pressing F2. The update will take place if
-		the user presses Return or Tabs off the end of the last
+		the user presses Return or Tabs off the last
 		field. If autoEdit is TRUE the update will take place if
 		the user navigates to another record. \upd is cancelled
 		by pressing <keycap>Escape</>. If autoEdit is FALSE
@@ -606,7 +607,7 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		Resize the \class[QDataTable] up so that it only
+		Resize the \class[QDataTable] so that it only
 		occupies the top half of the form.
 		</para>
 	    </listitem>
@@ -718,8 +719,7 @@ bool createConnections()
 
 	    <listitem>
 		<para>
-		Click the down-pointing arrow at the right hand side of
-		the Field combobox to drop down the list of available
+		Drop down the Field combobox to list the available
 		fields.
 		</para>
 	    </listitem>
@@ -739,9 +739,9 @@ bool createConnections()
 
 	    <listitem>
 	    <para>
-	    <emphasis>Optionally</> click the Pixmap <guibutton>...</>
-	    button to choose a pixmap to be displayed to the left of the
-	    column's label.
+	    <emphasis>Optionally</> click the Pixmap ellipsis
+	    (<guibutton>...</>) button to choose a pixmap to be
+	    displayed to the left of the column's label.
 	    </para>
 	    </listitem>
 	</orderedlist>
@@ -817,7 +817,7 @@ bool createConnections()
 	<title>Preparing the Interface for Drilldown</title>
 
 	    <para>
-	    We can now browse/edit authors and see their books in the
+	    We can now browse and edit authors and see their books in the
 	    BookDataTable.  In the next section we explore
 	    \class[QDataBrowser], which will allow us to drill down to
 	    a dialog through which we can edit books. For now we will
@@ -883,7 +883,7 @@ bool createConnections()
 
 
     <sect2 id="drilling-down-to-a-form-with-qdatabrowser">
-    <title>Drilling Down to a Form with \class[QDataBrowser]</>
+    <title>Drilling Down to a Form using \class[QDataBrowser]</>
 
 	<sect3 id="setting-up-a-qdatabrowser">
 	<title>Setting up a \class[QDataBrowser]</title>
@@ -998,7 +998,7 @@ bool createConnections()
 	    <listitem>
 		<para>
 		The \class[QDataBrowser] will now appear on the form.
-		Resize the form up to make it shorter. Click
+		Resize the form to make it shorter. Click
 		the \class[QDataBrowser] then click the <guibutton>Break
 		Layout</> toolbar button. Click the buttons then click
 		the <guibutton>Break Layout</> toolbar button. Add
@@ -1045,7 +1045,7 @@ bool createConnections()
 	is created by connecting slots and signals. The slots provided are:
 	    \list[*]
 		\item\p
-		\fn[insert()], \fn[update()] and \fn[del()] for edits;
+		\fn[insert()], \fn[update()] and \fn[del()] for editing;
 		\P\Item
 
 		\item\p
@@ -1089,7 +1089,7 @@ bool createConnections()
 		record. \ins is cancelled by pressing the
 		<keycap>Escape</>
 		key or by pressing the Delete button. If autoEdit is
-		FALSE navigating to another record also cancels the
+		FALSE then navigating to another record also cancels the
 		\ins. Setting confirmInsert to TRUE will require the
 		user to confirm each \ins.
 		\P\Item
@@ -1102,10 +1102,9 @@ bool createConnections()
 		record. \upd is cancelled by pressing the
 		<keycap>Escape</>
 		key or by pressing the Delete button. If autoEdit is
-		FALSE navigating to another record also cancels the
+		FALSE then navigating to another record also cancels the
 		\upd. Setting confirmUpdate to TRUE will require the
-		user to confirm each \upd.
-		\P\Item
+		user to confirm each \upd. \P\Item
 
 		\item\p
 		\del is achieved by pressing the Delete button.
@@ -1178,8 +1177,8 @@ bool createConnections()
 		the BookForm, then click on the Source tab of the
 		Object Hierarchy window. Right click the 'Includes (In
 		Declaration)' item and click New. Type in
-		<filename>editbook.h</>. Now add a second include,
-		this time, <filename>qdatabrowser.h</>.
+		<filename>"editbook.h"</>. Now add a second include,
+		this time, <filename>&lt;qdatabrowser.h&gt;</>.
 		</para>
 	    </listitem>
 
@@ -1302,12 +1301,12 @@ bool createConnections()
 	\List1
 
 	\p
-	We need to write some code so that the ComboBox will populate
-	with author names and scroll to the current book's author. We
-	also need to ensure that we put the author's id into the book
-	table's authorid field when a book record is inserted or
-	updated. We'll ensure the code is executed at the right time by
-	putting it in slots and connecting signals to our slots.
+	We need to write some code so that the ComboBox will be
+	populated with author names and scroll to the current book's
+	author. We also need to ensure that we put the author's id into
+	the book table's authorid field when a book record is inserted
+	or updated. We'll ensure the code is executed at the right time
+	by putting it in slots and connecting signals to our slots.
 	\P
 
 	\list[1]
@@ -1320,8 +1319,8 @@ bool createConnections()
 	\P\Item
 
 	\item\p
-	When the user navigates through the dialog each time they move
-	to a new record a \fn[primeUpdate()] signal is emitted. We connect
+	When the user navigates through the dialog, each time they move
+	to a new record, a \fn[primeUpdate()] signal is emitted. We connect
 	to this so that we can update the ComboBox's display. Just
 	before a record is updated or inserted into the database a
 	\fn[beforeUpdate()] or \fn[beforeInsert()] signal is emitted. We
@@ -1368,7 +1367,7 @@ bool createConnections()
 
 	    \item\p
 	    As the user navigates through the records we ensure
-	    that the ComboBox reflects the current author.  xset r on
+	    that the ComboBox reflects the current author.  
 <programlisting>
 \scan eg/book/book7/editbook.cpp /EditBookForm::primeUpdateBook/ /^}/
 </programlisting>
