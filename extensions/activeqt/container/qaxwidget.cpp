@@ -814,7 +814,9 @@ HRESULT WINAPI QAxHostWindow::OnInPlaceActivate()
 {
     OleLockRunning(m_spOleObject, true, false);
     if (!m_spInPlaceObject) {
+/* ### disabled for now
         m_spOleObject->QueryInterface(IID_IOleInPlaceObjectWindowless, (void**) &m_spInPlaceObject);
+*/
         if (m_spInPlaceObject) {
             inPlaceObjectWindowless = true;
         } else {
