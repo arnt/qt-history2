@@ -1285,6 +1285,8 @@ QTextTable *QTextCursor::insertTable(int rows, int cols)
 }
 
 /*!
+    \fn QTextTable *QTextCursor::insertTable(int rows, int columns, const QTextTableFormat &format)
+
     Creates a new table with the given number of \a rows and \a columns
     in the specified \a format, inserts it at the current cursor position()
     in the document, and returns the table object. The cursor is moved to

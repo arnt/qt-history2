@@ -555,17 +555,6 @@ uint QTextFormatPrivate::recalcHash() const
 */
 
 /*!
-    \enum QTextTableFormat::TableColumnConstraint
-
-    This enum describes the types of constraint that can be applied to a column
-    in a table:
-
-    \value FixedLength       a fixed width column
-    \value VariableLength    a variable width column
-    \value PercentageLength  a width based on the width of the surrounding block
-*/
-
-/*!
     \enum QTextFormat::ObjectTypes
 
     \value NoObject
