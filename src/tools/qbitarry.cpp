@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#7 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#8 $
 **
 ** Implementation of QBitArray class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#8 $";
 #endif
 
 
@@ -25,14 +25,21 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#7 $";
 // QBitArray class
 //
 
-#define BA_SIZE	  *((UINT32*)data())
-#define SZ_SIZE	  sizeof(UINT32)
-#define BA_DATA	  (data()+SZ_SIZE)
+#define BA(p)	((bitarr_data*)(p))
 
-QBitArray::QBitArray( uint size ) : QByteArray( SZ_SIZE + (size+7)/8 )
+
+QBitArray::QBitArray() : QByteArray( 0, 0 )
 {
-    BA_SIZE = size;				// set number of bits
-    memset( BA_DATA, 0, (size+7)/8 );		// set all bits to zero
+    p = newData();
+    CHECK_PTR( p );
+    BA(p)->nbits = 0;
+}
+
+QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
+{
+    p = newData();
+    CHECK_PTR( p );
+    resize( size );
 }
 
 
@@ -44,23 +51,20 @@ void QBitArray::pad0()				// pad last byte with 0-bits
     uchar mask = 1 << (sz%8);
     if ( mask )
 	mask--;
-    *(BA_DATA+sz/8) &= mask;
+    *(data()+sz/8) &= mask;
 }
 
 
 bool QBitArray::resize( uint sz )		// resize bit array
 {
     uint s = size();
-    if ( !QByteArray::resize( SZ_SIZE + (sz+7)/8 ) )
+    if ( !QByteArray::resize( (sz+7)/8 ) )
 	return FALSE;				// cannot resize
+    BA(p)->nbits = sz;
     if ( sz != 0 ) {				// not null array
-	BA_SIZE = sz;
 	int ds = (int)(sz+7)/8 - (int)(s+7)/8;	// number of bytes difference
-	if ( ds > 0 ) {
-	    if ( !s )				// was null
-		*BA_DATA = 0;
-	    memset( BA_DATA + (s+7)/8, 0, ds );
-	}
+	if ( ds > 0 )				// expanding array
+	    memset( data() + (s+7)/8, 0, ds );	//   reset new data
     }
     return TRUE;
 }
@@ -74,9 +78,19 @@ bool QBitArray::fill( bool v, int sz )		// fill bit array with value
     }
     else
 	sz = size();
-    memset( BA_DATA, v ? 0xff : 0, (sz+7)/8 );	// set many bytes, fast
-    pad0();
+    memset( data(), v ? 0xff : 0, (sz+7)/8 );	// set many bytes, fast
+    if ( v )
+	pad0();
     return TRUE;
+}
+
+
+QBitArray QBitArray::copy() const		// get deep copy
+{
+    QBitArray tmp;
+    tmp.duplicate( *this );
+    BA(tmp.p)->nbits = BA(p)->nbits;		// copy extra data
+    return tmp;
 }
 
 
@@ -88,7 +102,7 @@ bool QBitArray::testBit( uint i ) const		// test if bit set
 	return FALSE;
     }
 #endif
-    return *(BA_DATA+(i>>3)) & (1 << (i & 7));
+    return *(data()+(i>>3)) & (1 << (i & 7));
 }
 
 void QBitArray::setBit( uint i )		// set bit
@@ -99,7 +113,7 @@ void QBitArray::setBit( uint i )		// set bit
 	return;
     }
 #endif
-    *(BA_DATA+(i>>3)) |= (1 << (i & 7));
+    *(data()+(i>>3)) |= (1 << (i & 7));
 }
 
 void QBitArray::clearBit( uint i )		// clear bit
@@ -110,7 +124,7 @@ void QBitArray::clearBit( uint i )		// clear bit
 	return;
     }
 #endif
-    *(BA_DATA+(i>>3)) &= ~(1 << (i & 7));
+    *(data()+(i>>3)) &= ~(1 << (i & 7));
 }
 
 bool QBitArray::toggleBit( uint i )		// toggle/invert bit
@@ -121,7 +135,7 @@ bool QBitArray::toggleBit( uint i )		// toggle/invert bit
 	return FALSE;
     }
 #endif
-    register char *p = BA_DATA + (i>>3);
+    register char *p = data() + (i>>3);
     uchar b = (1 << (i & 7));			// bit position
     uchar c = *p & b;				// read bit
     *p ^= b;					// toggle bit
@@ -132,9 +146,9 @@ bool QBitArray::toggleBit( uint i )		// toggle/invert bit
 QBitArray &QBitArray::operator&=( const QBitArray &a )
 {						// AND bits
     if ( size() == a.size() ) {			// must have same length
-	register uchar *a1 = (uchar *)data()+SZ_SIZE;
-	register uchar *a2 = (uchar *)a.data()+SZ_SIZE;
-	int n = QByteArray::size() - SZ_SIZE;
+	register uchar *a1 = (uchar *)data();
+	register uchar *a2 = (uchar *)a.data();
+	int n = QByteArray::size();
 	while ( --n >= 0 )
 	    *a1++ &= *a2++;
     }
@@ -148,9 +162,9 @@ QBitArray &QBitArray::operator&=( const QBitArray &a )
 QBitArray &QBitArray::operator|=( const QBitArray &a )
 {						// OR bits
     if ( size() == a.size() ) {			// must have same length
-	register uchar *a1 = (uchar *)data()+SZ_SIZE;
-	register uchar *a2 = (uchar *)a.data()+SZ_SIZE;
-	int n = QByteArray::size() - SZ_SIZE;
+	register uchar *a1 = (uchar *)data();
+	register uchar *a2 = (uchar *)a.data();
+	int n = QByteArray::size();
 	while ( --n >= 0 )
 	    *a1++ |= *a2++;
     }
@@ -164,9 +178,9 @@ QBitArray &QBitArray::operator|=( const QBitArray &a )
 QBitArray &QBitArray::operator^=( const QBitArray &a )
 {						// XOR bits
     if ( size() == a.size() ) {			// must have same length
-	register uchar *a1 = (uchar *)data()+SZ_SIZE;
-	register uchar *a2 = (uchar *)a.data()+SZ_SIZE;
-	int n = QByteArray::size() - SZ_SIZE;
+	register uchar *a1 = (uchar *)data();
+	register uchar *a2 = (uchar *)a.data();
+	int n = QByteArray::size();
 	while ( --n >= 0 )
 	    *a1++ ^= *a2++;
     }
@@ -180,9 +194,9 @@ QBitArray &QBitArray::operator^=( const QBitArray &a )
 QBitArray QBitArray::operator~() const		// NOT bits
 {
     QBitArray a( size() );
-    register uchar *a1 = (uchar *)data()+SZ_SIZE;
-    register uchar *a2 = (uchar *)a.data()+SZ_SIZE;
-    int n = QByteArray::size() - SZ_SIZE;
+    register uchar *a1 = (uchar *)data();
+    register uchar *a2 = (uchar *)a.data();
+    int n = QByteArray::size();
     while ( n-- )
 	*a2++ = ~*a1++;
     a.pad0();
@@ -220,8 +234,8 @@ QDataStream &operator<<( QDataStream &s, const QBitArray &a )
 {
     UINT32 len = a.size();
     s << len;					// write size of array
-    if ( len )					// write data
-	s.writeRawBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
+    if ( len > 0 )				// write data
+	s.writeRawBytes( a.data(), a.QByteArray::size() );
     return s;
 }
 
@@ -236,6 +250,6 @@ QDataStream &operator>>( QDataStream &s, QBitArray &a )
 	len = 0;
     }
     if ( len > 0 )				// read data
-	s.readRawBytes( a.data()+SZ_SIZE, a.QByteArray::size()-SZ_SIZE );
+	s.readRawBytes( a.data(), a.QByteArray::size() );
     return s;
 }

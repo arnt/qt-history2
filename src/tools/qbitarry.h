@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.h#5 $
+** $Id: //depot/qt/main/src/tools/qbitarry.h#6 $
 **
 ** Definition of QBitArray class
 **
@@ -42,20 +42,19 @@ public:
 class QBitArray : public QByteArray
 {
 public:
-    QBitArray() {}
+    QBitArray();
     QBitArray( uint size );
     QBitArray( const QBitArray &a ) : QByteArray( a ) {}
 
     QBitArray &operator=( const QBitArray &a )	// shallow copy
 	{ return (QBitArray&)assign( a ); }
 
-    uint    size() const { return isNull() ? 0 : (uint)(*((UINT32*)data())); }
+    uint    size() const { return ((bitarr_data*)p)->nbits; }
     bool    resize( uint size );		// resize bit array
 
     bool    fill( bool v, int size = -1 );	// fill bit array with value
 
-    QBitArray copy() const			// get deep copy
-		{ QBitArray tmp; return *((QBitArray*)&tmp.duplicate(*this)); }
+    QBitArray copy() const;			// get deep copy
 
     bool    testBit( uint i ) const;		// test if bit set
     void    setBit( uint i );			// set bit
@@ -74,6 +73,12 @@ public:
     QBitArray &operator^=( const QBitArray & ); // XOR bits
     QBitArray  operator~() const;		// NOT bits
 
+protected:
+    struct bitarr_data : array_data {		// shared bit array
+	uint   nbits;
+    };
+    array_data *newData()		    { return new bitarr_data; }
+    void	deleteData( array_data *p ) { delete (bitarr_data*)p; }
 private:
     void    pad0();
 };
