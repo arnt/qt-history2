@@ -812,6 +812,7 @@ bool QTextCursor::place( const QPoint &p, QTextParag *s, bool link )
 #ifndef QT_NO_TEXTCUSTOMITEM
     if ( inCustom && doc && parag()->at( curpos )->isCustom() && parag()->at( curpos )->customItem()->isNested() ) {
 	QTextDocument *oldDoc = doc;
+	pos.setX( pos.x() - parag()->at( curpos )->x );
 	gotoIntoNested( pos );
 	if ( oldDoc == doc )
 	    return TRUE;
@@ -4281,7 +4282,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		break;
 	    if ( lastBaseLine == 0 )
 		lastBaseLine = baseLine;
-	    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) 
+	    if ( QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
 		painter.fillRect( chr->x, cy, full_sel_width - chr->x, h, cg.brush( QColorGroup::Base ) );
 	}
 
@@ -7635,9 +7636,10 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 	QTextTableCell *cell = cells.at( i );
 	if ( !cell )
 	    continue;
-	QRect r = cell->geometry();
-	r.addCoords( outerborder - innerborder, outerborder - innerborder,
-		     outerborder + 2* innerborder, outerborder + 2*innerborder );
+	QRect r( cell->geometry().x(),
+		 cell->geometry().y(),
+		 cell->geometry().width() + 2 * innerborder + 2 * outerborder,
+		 cell->geometry().height() + 2 * innerborder + 2 * outerborder );
 
 	if ( r.left() <= pos.x() && r.right() >= pos.x() ) {
 	    if ( cell->geometry().y() > lastY ) {
