@@ -95,7 +95,7 @@ bool UType_QVariant::canConvertFrom( UObject *o, UType *t )
     return t->canConvertTo( o, this );
 }
 
-bool UType_QVariant::canConvertTo( UObject * /*o*/, UType *t )
+bool UType_QVariant::canConvertTo( UObject * /*o*/, UType * /*t*/ )
 {
     return false;
 }
@@ -105,7 +105,7 @@ bool UType_QVariant::convertFrom( UObject *o, UType *t )
     return t->convertTo( o, this );
 }
 
-bool UType_QVariant::convertTo( UObject *o, UType *t )
+bool UType_QVariant::convertTo( UObject * /*o*/, UType * /*t*/ )
 {
     return false;
 }
