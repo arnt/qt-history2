@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#122 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#123 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qimage.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#122 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#123 $");
 
 
 /*!
@@ -1559,6 +1559,17 @@ void QPainter::fillRect( int x, int y, int w, int h, const QBrush &brush )
   \overload void QPainter::drawWinFocusRect( const QRect &r, const QColor &bgColor )
 */
 
+
+#if !defined(_WS_X11_)
+// The doc and X implementation of this functions is in qptr_x11.cpp
+void QPainter::drawWinFocusRect( int, int, int, int,
+				 bool, const QColor & )
+{
+    // do nothing, only called from X11 specific functions
+}
+#endif
+
+
 /*!
   \overload void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 */
@@ -1593,6 +1604,65 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 {
     drawPixmap( p.x(), p.y(), pm, 0, 0, pm.width(), pm.height() );
 }
+
+
+/*!
+  Draws at (\a x, \a y) the \a sw by \a sh area of pixels
+  from (\a sx, \a sy) in \a image.
+
+  This function simply converts \a image to a QPixmap and draws it.
+
+  \sa drawPixmap() QPixmap::convertFromImage()
+*/
+void QPainter::drawImage( int x, int y, const QImage & image,
+			    int sx, int sy, int sw, int sh )
+{
+    if ( sw < 0 ) sw = image.width();
+    if ( sh < 0 ) sh = image.height();
+
+    bool all = image.rect().intersect(QRect(sx,sy,sw,sh)) == image.rect();
+    QImage subimage = all ? image : image.copy(sx,sy,sw,wh);
+
+    if ( testf(ExtDev) ) {
+	// ###
+	// ### add QPrinter shortcut here
+	// ###
+	// ### return;
+	// ###
+    }
+
+    QPixmap pm;
+    pm.convertFromImage( subimage );
+    drawPixmap( x, y, pm );
+}
+
+/*!
+  \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr )
+*/
+
+/*!
+  \overload void QPainter::drawImage( const QPoint &, const QImage & )
+*/
+void QPainter::drawImage( const QPoint & p, const QImage & i )
+{
+    drawImage(p, i, i.rect());
+}
+
+
+void bitBlt( QPaintDevice *dst, int dx, int dy,
+	     const QImage *src, int sx, int sy, int sw, int sh,
+	     int conversion_flags )
+{
+    QPixmap tmp;
+    tmp.convertFromImage( src->copy( sx, sy, sw, sh, conversion_flags),
+			  conversion_flags );
+    bitBlt( dst, dx, dy, &tmp );
+}
+
+
+/*!
+  \overload void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm, const QPoint &sp )
+*/
 
 /*!
   \overload void QPainter::fillRect( const QRect &r, const QBrush &brush )
@@ -2824,66 +2894,4 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     else
 	b = QBrush( color, (BrushStyle)style );
     return s;
-}
-
-#if !defined(_WS_X11_)
-// The doc and X implementation of this functions is in qptr_x11.cpp
-void QPainter::drawWinFocusRect( int, int, int, int,
-				 bool, const QColor & )
-{
-    // do nothing, only called from X11 specific functions
-}
-#endif
-
-
-/*!
-  Draws at (\a x, \a y) the \a sw by \a sh area of pixels
-  from (\a sx, \a sy) in \a image.
-
-  This function simply converts \a image to a QPixmap and draws it.
-
-  \sa drawPixmap() QPixmap::convertFromImage()
-*/
-void QPainter::drawImage( int x, int y, const QImage & image,
-			    int sx, int sy, int sw, int sh )
-{
-    if ( sw < 0 ) sw = image.width();
-    if ( sh < 0 ) sh = image.height();
-
-    bool all = image.rect().intersect(QRect(sx,sy,sw,sh)) == image.rect();
-    QImage subimage = all ? image : image.copy(sx,sy,sw,wh);
-
-    if ( testf(ExtDev) ) {
-	// ###
-	// ### add QPrinter shortcut here
-	// ###
-	// ### return;
-	// ###
-    }
-
-    QPixmap pm;
-    pm.convertFromImage( subimage );
-    drawPixmap( x, y, pm );
-}
-
-/*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage &, const QRect &sr )
-*/
-
-/*!
-  \overload void QPainter::drawImage( const QPoint &, const QImage & )
-*/
-void QPainter::drawImage( const QPoint & p, const QImage & i )
-{
-    drawImage(p, i, i.rect());
-}
-
-
-void bitBlt( QPaintDevice *dst, int dx, int dy,
-	     const QImage *src, int sx, int sy, int sw, int sh,
-	     int conversion_flags )
-{
-    QPixmap tmp;
-    tmp.convertFromImage(src->copy( sx, sy, sw, sh, conversion_flags), conversion_flags);
-    bitBlt( dst, dx, dy, &tmp );
 }

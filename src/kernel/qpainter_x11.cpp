@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#238 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#237 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#238 $");
 
 
 /*****************************************************************************
@@ -2255,6 +2255,119 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	XSetClipOrigin( dpy, gc, 0, 0 );
 	XSetRegion( dpy, gc, crgn.handle() );
 	delete mask;				// delete comb, created above
+    }
+}
+
+
+/* Internal, used by drawTiledPixmap */
+
+static void drawTile( QPainter *p, int x, int y, int w, int h,
+		      const QPixmap &pixmap, int sx, int sy )
+{
+    int py, px, sh, sw, yy, xx;
+    for ( py=y; py<y+h; ) {
+	sh = pixmap.height();
+	yy = py == y ? sy : 0;
+	if ( py + sh > y + h )
+	    sh = y + h - py;
+	for ( px=x; px<x+w; ) {
+	    sw = pixmap.width();
+	    xx = px == x ? sx : 0;
+	    if ( px + sw > x + w )
+		sw = x + w - px;
+	    p->drawPixmap( px, py, pixmap, xx, yy, sw, sh );
+	    px += sw - xx;
+	}
+	py += sh - yy;
+    }
+}
+
+/* Internal, used by drawTiledPixmap */
+
+static void fillTile(  QPixmap *tile, const QPixmap &pixmap )
+{
+    bitBlt( tile, 0, 0, &pixmap, 0, 0, -1, -1, CopyROP, TRUE );
+    int x = pixmap.width();
+    while ( x < tile->width() ) {
+	bitBlt( tile, x, 0, tile, 0, 0, x, pixmap.height(), CopyROP, TRUE );
+	x *= 2;
+    }
+    int y = pixmap.height();
+    while ( y < tile->height() ) {
+	bitBlt( tile, 0, y, tile, 0, 0, tile->width(), y, CopyROP, TRUE );
+	y *= 2;
+    }
+}
+
+/*!
+  Draws a tiled \a pixmap in the specified rectangle.
+
+  \arg \a (x,y,w,h) is the rectangle to be filled.
+  \arg \a (sx,sy) spefify an offset in the pixmap.
+
+  The pixmap is clipped if a \link QPixmap::setMask() mask\endlink has
+  been set.
+
+  Calling drawTiledPixmap() is similar to calling drawPixmap()
+  several times to fill (tile) an area with a pixmap.
+
+  \sa drawPixmap()
+*/
+
+void QPainter::drawTiledPixmap( int x, int y, int w, int h,
+				const QPixmap &pixmap, int sx, int sy )
+{
+    int sw = pixmap.width();
+    int sh = pixmap.height();
+    if ( sx < 0 )
+	sx = sw - -sx % sw;
+    else
+	sx = sx % sw;
+    if ( sy < 0 )
+	sy = sh - -sy % sh;
+    else
+	sy = sy % sh;
+    /*
+      Requirements for optimizing tiled pixmaps::
+       - not an external device
+       - not scale or rotshear
+       - not both clipping and mask
+       - not mono pixmap
+    */
+    QBitmap *mask = (QBitmap *)pixmap.mask();
+    if ( !testf(ExtDev) && txop <= TxTranslate &&
+	 !(mask && hasClipping()) && pixmap.depth() > 1 ) {
+	if ( txop == TxTranslate )
+	    map( x, y, &x, &y );
+	if ( mask ) {
+	    XSetClipMask( dpy, gc, mask->handle() );
+	}
+	XSetFillStyle( dpy, gc, FillTiled );
+	XSetTSOrigin( dpy, gc, -sx, -sy );
+	XFillRectangle( dpy, hd, gc, x, y, w, h );
+	XSetTSOrigin( dpy, gc, 0, 0 );	    
+	XSetFillStyle( dpy, gc, FillSolid );
+	if ( mask ) {
+	    XSetClipMask( dpy, gc, 0 );
+	}
+    }
+    if ( sw*sh < 8192 ) {
+	int tw = sw, th = sh;
+	while ( tw*th < 32678 && tw < w/2 )
+	    tw *= 2;
+	while ( tw*th < 32678 && th < h/2 )
+	    th *= 2;
+	QPixmap tile( tw, th, pixmap.depth() );
+	fillTile( &tile, pixmap );
+	if ( mask ) {
+	    QBitmap tilemask( tw, th );
+	    fillTile( &tilemask, *mask );
+	    tile.setMask( tilemask );
+	}
+	tile.setOptimization( QPixmap::BestOptim );
+	drawTile( this, x, y, w, h, tile, sx, sy );
+    } else {
+	drawTile( this, x, y, w, h, pixmap, sx, sy );
     }
 }
 

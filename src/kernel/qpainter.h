@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#105 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#106 $
 **
 ** Definition of QPainter class
 **
@@ -174,10 +174,14 @@ public:
 			    const QRect &sr );
     void	drawPixmap( const QPoint &, const QPixmap & );
     void	drawImage( int x, int y, const QImage &,
-			    int sx=0, int sy=0, int sw=-1, int sh=-1 );
+			   int sx=0, int sy=0, int sw=-1, int sh=-1 );
     void	drawImage( const QPoint &, const QImage &,
-			    const QRect &sr );
+			   const QRect &sr );
     void	drawImage( const QPoint &, const QImage & );
+    void	drawTiledPixmap( int x, int y, int w, int h, const QPixmap &,
+				 int sx, int sy );
+    void	drawTiledPixmap( const QRect &, const QPixmap &,
+				 const QPoint & );
     void	drawPicture( const QPicture & );
 
     void	fillRect( int x, int y, int w, int h, const QBrush & );
@@ -496,9 +500,15 @@ inline void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm,
 }
 
 inline void QPainter::drawImage( const QPoint &p, const QImage &pm,
-				  const QRect &sr )
+				 const QRect &sr )
 {
     drawImage( p.x(), p.y(), pm, sr.x(), sr.y(), sr.width(), sr.height() );
+}
+
+inline void QPainter::drawTiledPixmap( const QRect &r, const QPixmap &pm,
+				       const QPoint &sp )
+{
+    drawTiledPixmap( r.x(), r.y(), r.width(), r.height(), pm, sp.x(), sp.y() );
 }
 
 inline void QPainter::fillRect( const QRect &r, const QBrush &brush )
