@@ -2142,6 +2142,14 @@ QTable::~QTable()
 void QTable::setReadOnly( bool b )
 {
     readOnly = b;
+
+    QTableItem *i = item(curRow, curCol);
+    if (readOnly && isEditing()) {
+	endEdit(editRow, editCol, TRUE, FALSE);
+    } else if (!readOnly && i && (i->editType() == QTableItem::WhenCurrent
+				  || i->editType() == QTableItem::Always)) {
+	beginEdit(curRow, curCol, FALSE);
+    }
 }
 
 /*!
@@ -2161,6 +2169,16 @@ void QTable::setRowReadOnly( int row, bool ro )
 	roRows.replace( row, new int( 0 ) );
     else
 	roRows.remove( row );
+
+    if (curRow == row) {
+	QTableItem *i = item(curRow, curCol);
+	if (ro && isEditing()) {
+	    endEdit(editRow, editCol, TRUE, FALSE);
+	} else if (!ro && i && (i->editType() == QTableItem::WhenCurrent
+				      || i->editType() == QTableItem::Always)) {
+	    beginEdit(curRow, curCol, FALSE);
+	}
+    }
 }
 
 /*!
@@ -2181,6 +2199,16 @@ void QTable::setColumnReadOnly( int col, bool ro )
 	roCols.replace( col, new int( 0 ) );
     else
 	roCols.remove( col );
+
+    if (curCol == col) {
+	QTableItem *i = item(curRow, curCol);
+	if (ro && isEditing()) {
+	    endEdit(editRow, editCol, TRUE, FALSE);
+	} else if (!ro && i && (i->editType() == QTableItem::WhenCurrent
+				      || i->editType() == QTableItem::Always)) {
+	    beginEdit(curRow, curCol, FALSE);
+	}
+    }
 }
 
 /*!
