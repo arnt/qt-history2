@@ -119,11 +119,11 @@ showhelp()
     echo
 
     echo "Platforms:"
-    echo "  -no-mac / -do-mac   (default $DO_MAC)"
-    echo "  -no-win / -do-win   (default $DO_WIN)"
-    echo "  -no-x11 / -do-x11   (default $DO_X11)"
-    echo "  -no-qnx6 / -do-qnx6   (default $DO_QNX6)"
-    echo "  -no-embedded / -do-qws   (default $DO_EMBEDDED)"
+    echo "  -no-mac / -do-mac             (default $DO_MAC)"
+    echo "  -no-win / -do-win             (default $DO_WIN)"
+    echo "  -no-x11 / -do-x11             (default $DO_X11)"
+    echo "  -no-qnx6 / -do-qnx6           (default $DO_QNX6)"
+    echo "  -no-embedded / -do-embedded   (default $DO_EMBEDDED)"
     echo
 
     echo "Various:"
@@ -706,7 +706,33 @@ public_file () {
      return 1
 }
 
-
+copy_dist_file()
+{
+   in_file=$1
+   out_file=$2
+   edition=$3
+   platform=$4
+   platname=$5
+   if [ -f "$in_file" ] && [ ! -e "$out_file" ] && [ ! -x "$in_file" ]; then
+	sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
+	    -e "s/%VERSION_NUMBER%/${REL_VERSION}/g" -e "s,%DISTNAME%,$platname,g" \
+	    -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $in_file >${TMP_FILE}
+	if [ "$TYPE" = "snapshot" ]; then
+	    cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%/$1/g; $crap =~ s/%STABLEONLY[^%]*%//g; print $crap' >$out_file
+	else
+	   cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%//g; $crap =~ s/%STABLEONLY[^%]*%/$1/g; print $crap' >$out_file
+	fi
+	if [ "$edition" = "free" ]; then
+	   cat ${out_file} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%FREEONLY([^%]*)%/$1/g; $crap =~ s/%COMMERCIALONLY[^%]*%//g; print $crap' >${TMP_FILE}
+	else
+	   cat ${out_file} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%FREEONLY[^%]*%//g; $crap =~ s/%COMMERCIALONLY([^%]*)%/$1/g; print $crap' >${TMP_FILE}
+	fi
+	mv "${TMP_FILE}" "$out_file"
+	less "$out_file"
+   else
+        cp -ar "$in_file" "$out_file"
+   fi
+}
 
 copy_platform_files() {
     dir="$DISTDIR/qt/dist/$1"
@@ -714,13 +740,13 @@ copy_platform_files() {
     platform=$3
     o_dir=$4
     platname=$5
-    cp -arf "$DISTDIR/qt/dist/README" "$o_dir/README"
+    [ ! -e "$o_dir/README" ] && copy_dist_file "$DISTDIR/qt/dist/README" "$o_dir/README" "$edition" "$platform" "$platname"
     [ ! -d $dir ] && return 1
     for a in `find $dir`; do
 	a_file=`echo $a | sed "s,$dir,,"`
 	o_file=$a_file
 	{ [ -z $a_file ] || [ -d $a ] ; } && continue
-
+	[ "$platform" = "mac" ] && [ `basename $a_file` = "README.outside" ] && continue
 	if [ "$platform" = "embedded" ] || [ "$platform" = "qnx6" ]; then
 	    case `basename $a` in
 	    *.qws) o_file=`basename $a | sed "s,\.qws,,"` ;;
@@ -731,15 +757,11 @@ copy_platform_files() {
 		[ $o_file = "LICENSE-US" ] && o_file=".LICENSE-US"
 	    fi
 	else
-	    echo $o_file | grep '.qws$' >>$LOG 2>&1 && continue
+	    echo $o_file | grep '.qws$' >>/dev/null 2>&1 && continue
 	fi
-	[ "$platform" = "mac" ] && [ `basename $a` = "README.outside" ] && continue
-	if [ `basename $a` = "LICENSE.QPL" ]; then
-	    if [ "$platform" = "embedded" ] || [ "$platform" = "mac" ]; then
-	       continue
-            fi
+	if [ "$platform" = "embedded" ] || [ "$platform" = "mac" ]; then
+	   [ `basename $a_file` = "LICENSE.QPL" ] && continue
         fi
-
 	case $edition in
 	commercial|review|academic)
 	    if [ "$platform" = "win" ]; then
@@ -757,18 +779,7 @@ copy_platform_files() {
 	final_dir=`dirname $o_dir/$o_file`
 	[ ! -d $final_dir ] && mkdir -p $final_dir
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
-	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_file" ]; then
-	    sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
-		-e "s/%VERSION_NUMBER%/${REL_VERSION}/g" -e "s,%DISTNAME%,$platname,g" \
-		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
-	    if [ "$TYPE" = "snapshot" ]; then
-	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%/$1/g; $crap =~ s/%STABLEONLY[^%]*%//g; print $crap' >$o_dir/$o_file
-	    else
-	      cat ${TMP_FILE} | perl -e '$crap.=<STDIN> until(eof(STDIN)); $crap =~ s/%SNAPSHOTONLY([^%]*)%//g; $crap =~ s/%STABLEONLY[^%]*%/$1/g; print $crap' >$o_dir/$o_file
-	    fi
-	else
-	    cp -ar "$dir/$a_file" "$o_dir/$o_file"
-	fi
+        copy_dist_file "$dir/$a_file" "$o_dir/$o_file" "$edition" "$platform" "$platname"
     done
     return 0
 }
@@ -1121,18 +1132,10 @@ for plat in mac win x11 qnx6 embedded; do
 		   pack_name="${pack_name}.gz"
 		   pack_cmd="${pack_cmd}z"
 	       fi
-
-	       sed -e "s/%YEAR%/$YEAR/g" -e "s/%VERSION%/${VERSION_STR}/g" \
-	           -e "s,%UNPACK_NAME%,$(basename $pack_name),g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
-		   -e "s,%DISTNAME%,$PLATNAME,g" -e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" \
-		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}
-	       if [ "$TYPE" = "snapshot" ]; then
-		  sed -e "s/%SNAPSHOTONLY\([^%]*\)%/\1/g" -e "s/%STABLEONLY[^%]*%//g" \
-		      ${TMP_FILE} >${create_dir}/README
-	       else
-		  sed -e "s/%SNAPSHOTONLY[^%]*%//g" -e "s/%STABLEONLY\([^%]\)*%/\1/g" \
-		      ${TMP_FILE} >${create_dir}/README
-	       fi
+	       sed -e "s,%UNPACK_NAME%,$(basename $pack_name),g" -e "s/%UNPACK_CMD%/$pack_cmd/g" \
+		   "$DISTDIR/qt/dist/mac/README.outside" >${TMP_FILE}-mac-outside
+	       copy_dist_file "${TMP_FILE}-mac-outside" "${create_dir}/README" "$edition" "$plat" "$PLATNAME"
+	       rm -f "${TMP_FILE}-mac-outside"
 	       cp "$pack_name" "$create_dir"
                stuff -q "-n=${OUT_TREE}/${PLATNAME}.sit" "$create_dir"
 	       rm -rf "$create_dir"
@@ -1263,11 +1266,11 @@ if [ "$DO_QMAKE" = "yes" ]; then
 	txtfiles=""
 	binfiles=""
 	for fl in `find "${PLATNAME}"`; do
-	  extn=`echo $fl | sed "s,.*\.,,"`
-	  case $extn in
-	  dll|gif|png|mng|jpg|bmp|any|pic|ppm|exe|zip|qm|ico|msi) binfiles="$fl $binfiles" ;;
-	  *)  txtfiles="$fl $txtfiles" ;;
-	  esac
+	  if binary_file $fl; then
+	     binfiles="$fl $binfiles"
+	  else
+	     txtfiles="$fl $txtfiles"
+	  fi
 	done
 	if [ ! -z "$txtfiles" ]; then
 	    status "Text files..."

@@ -13,4 +13,5 @@ documentation on properly installing Qt/Mac.
 
 Please contect Trolltech support with any problems.
 
-support@trolltech.com
+%FREEONLY qt-bugs@trolltech.com%
+%COMMERCIALONLY support@trolltech.com%
