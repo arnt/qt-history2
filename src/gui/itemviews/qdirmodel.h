@@ -42,6 +42,7 @@ class Q_GUI_EXPORT QDirModel : public QAbstractItemModel
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QDirModel)
+    Q_PROPERTY(bool resolveSymlinks READ resolveSymlinks WRITE setResolveSymlinks)
 
 public:
     QDirModel(const QString &path = QString::null,
@@ -88,6 +89,9 @@ public:
     QDir::FilterSpec filter() const;
     void setSorting(int spec);
     QDir::SortSpec sorting() const;
+
+    void setResolveSymlinks(bool enable);
+    bool resolveSymlinks() const;
 
     void refresh(const QModelIndex &parent = QModelIndex::Null);
 

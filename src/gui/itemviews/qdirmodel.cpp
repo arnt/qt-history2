@@ -113,9 +113,11 @@ QIconSet QFileIconProvider::icons(const QFileInfo &info) const
     if (info.isRoot())
         return driveHD;
     if (info.isFile())
-        return info.isSymLink() ? fileLink : file;
+        return file;
     if (info.isDir())
-        return info.isSymLink() ? dirLink : dir;
+        return dir;
+    if (info.isSymLink())
+        return fileLink;
     return QIconSet();
 }
 
@@ -131,6 +133,8 @@ QString QFileIconProvider::type(const QFileInfo &info) const
         return info.suffix() + " File";
     if (info.isDir())
         return "Directory";
+    if (info.isSymLink())
+        return "Symbolic Link";
     return "Unknown";
 }
 
@@ -147,9 +151,7 @@ public:
 
     QDirModelPrivate()
         : rootIsVirtual(true),
-//           filterSpec(QDir::All|QDir::AllDirs|QDir::Drives),
-//           sortSpec(QDir::Name|QDir::IgnoreCase|QDir::DirsFirst),
-//           nameFilters(QStringList(QString::fromLatin1("*"))),
+          resolveSymlinks(true),
           iconProvider(&defaultProvider) {}
 
     void init(const QDir &directory);
@@ -172,6 +174,7 @@ public:
 
     mutable QDirNode root;
     bool rootIsVirtual;
+    bool resolveSymlinks;
 
     int filterSpec;
     int sortSpec;
@@ -801,6 +804,16 @@ QDir::SortSpec QDirModel::sorting() const
     return static_cast<QDir::SortSpec>(d->sortSpec);
 }
 
+void QDirModel::setResolveSymlinks(bool enable)
+{
+    d->resolveSymlinks = enable;
+}
+
+bool QDirModel::resolveSymlinks() const
+{
+    return d->resolveSymlinks;
+}
+
 /*!
   Refreshes (rereads) the children of \a parent.
 
@@ -1151,6 +1164,8 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) co
     if (isDir && nodes->isEmpty()) {
 //        qDebug("node: refreshing children");
 	*nodes = children(parent);
+    } else if (parent && parent->info.isSymLink() && d->resolveSymlinks) {
+        qDebug("node: it's a link");
     }
 
     if (row >= nodes->count()) {
@@ -1181,7 +1196,15 @@ QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent)
     QVector<QDirNode> nodes(info.count());
     for (int i = 0; i < (int)info.count(); ++i) {
         nodes[i].parent = parent;
-        nodes[i].info = info.at(i);
+        if (d->resolveSymlinks && info.at(i).isSymLink()) {
+            QString link = info.at(i).readLink();
+            //qDebug("children: it's a link: %s", link.latin1());
+            if (link.at(link.size() - 1) == QDir::separator())
+                link.chop(1);
+            nodes[i].info = QFileInfo(link);
+        } else {
+            nodes[i].info = info.at(i);
+        }
     }
 
     return nodes;
@@ -1225,7 +1248,15 @@ void QDirModelPrivate::refresh(QDirNode *parent)
 
     for (int i = 0; i < (int)info.count(); ++i) {
         (*nodes)[i].parent = parent;
-        (*nodes)[i].info = info.at(i);
+        if (d->resolveSymlinks && info.at(i).isSymLink()) {
+            QString link = info.at(i).readLink();
+            //qDebug("refresh: it's a link: %s", link.latin1());
+            if (link.at(link.size() - 1) == QDir::separator())
+                link.chop(1);
+            (*nodes)[i].info = QFileInfo(link);
+        } else {
+            (*nodes)[i].info = info.at(i);
+        }
         if (nodes->at(i).children.count() > 0)
             refresh(&(*nodes)[i]);
     }
