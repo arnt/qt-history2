@@ -279,7 +279,7 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 
     NavDialogRef dlg;
     if (directory) {
-	if(NavCreateChooseFolderDialog(&options, NULL, NULL, NULL, &dlg)) {
+	if(NavCreateChooseFolderDialog(&options, make_navProcUPP(), NULL, NULL, &dlg)) {
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	    return retstrl;
 	}
