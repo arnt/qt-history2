@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#58 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#59 $
 **
 ** Implementation of QCheckBox class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#59 $");
 
 
 /*!
@@ -234,22 +234,14 @@ void QCheckBox::drawButtonLabel( QPainter *p )
 	       pixmap(), text() );
 
     if ( hasFocus() ) {
-	QRect br;
-	if ( pixmap() ) {
-	    br.setRect( (w - pixmap()->width())/2,
-			(h - pixmap()->height())/2,
-			pixmap()->width(),
-			pixmap()->height() );
-	} else {
-	    br = p->boundingRect( x, y, w, h, 
-				  AlignLeft|AlignVCenter|ShowPrefix,
-				  text() );
-	}
-	br.setLeft( QMAX( x, br.left()-2 ) );
-	br.setRight( QMIN( width()-1, br.right()-2 ) );
-	br.setTop( QMAX( y, br.top()-2 ) );
-	br.setBottom( QMIN( height()-1, br.bottom()+2 ) );
-
+	QRect br = qItemRect( p, gs, x, y, w, h, 
+			      AlignLeft|AlignVCenter|ShowPrefix,
+			      isEnabled(),
+			      pixmap(), text() );
+	br.setLeft( br.left()-2 );
+	br.setRight( br.right()+2 );
+	br.setTop( br.top()-2 );
+	br.setBottom( br.bottom()+2);
 	if ( gs == WindowsStyle ) {
 	    p->drawWinFocusRect( br );
 	} else {
