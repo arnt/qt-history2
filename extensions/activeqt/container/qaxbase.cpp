@@ -638,9 +638,9 @@ public:
     \i QDateTime&
     \row
     \i CY
-    \i Q_ULLONG
-    \i Q_ULLONG
-    \i Q_ULLONG&
+    \i Q_LLONG
+    \i Q_LLONG
+    \i Q_LLONG&
     \row
     \i OLE_COLOR
     \i QColor
@@ -1053,7 +1053,7 @@ static QString guessTypes( const TYPEDESC &tdesc, ITypeInfo *info, const QDict<Q
 	str = "uint";
 	break;
     case VT_CY:
-	str = "Q_ULLONG";
+	str = "Q_LLONG";
 	break;
     case VT_R4:
     case VT_R8:
