@@ -340,8 +340,10 @@ QString WorkspaceItem::key( int column, bool ) const
     QString key = text( column );
     if ( t == FormFileType )
 	key.prepend( "0" );
-    else
+    else if ( t == ObjectType )
 	key.prepend( "a" );
+    else
+	key.prepend( "A" );
     return key;
 }
 
