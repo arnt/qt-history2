@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#54 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -821,7 +821,7 @@ void QUrlDrag::setUrls( QStrList urls )
     for (const char* s = urls.first(); s; s = urls.next() ) {
 	int l = strlen(s)+1;
 	a.resize(c+l);
-	memcpy(a.data(),s,l);
+	memcpy(a.data()+c,s,l);
 	c+=l;
     }
     a.resize(c-1); // chop off last nul
@@ -855,16 +855,13 @@ bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
 	    uint f = c;
 	    while (c < payload.size() && d[c])
 		c++;
-	    char* s;
 	    if ( c < payload.size() ) {
-	        s = qstrdup(d+f);
+		l.append( d+f );
 		c++;
 	    } else {
-		s = new char[c-f+1];
-		memcpy(s,d+f,c-f);
-		s[c-f]='\0';
+		Q1String s(d+f,c-f+1);
+		l.append( s );
 	    }
-	    l.append( s );
 	}
 	return TRUE;
     }
@@ -933,7 +930,7 @@ bool QUrlDrag::decodeLocalFiles( QDropEvent* e, QStrList& l )
     for (const char* s=u.first(); s; s=u.next()) {
 	QString lf = urlToLocalFile(s);
 	if ( !lf.isNull() )
-	    l.append( qstrdup(lf) );
+	    l.append( lf );
     }
     return TRUE;
 }
