@@ -1048,7 +1048,6 @@ QDate QDate::currentDate()
 QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 {
     if ((s.isEmpty()) || (f == Qt::LocalDate)) {
-        qWarning("QDate::fromString: Parameter out of range");
         QDate d;
         d.jd = 0;
         return d;
