@@ -36,7 +36,7 @@
 typedef struct _XftDraw XftDraw;
 #include "qx11info_x11.h"
 
-typedef struct qt_XPoint {
+struct qt_XPoint {
     short x;
     short y;
 };
