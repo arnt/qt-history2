@@ -428,24 +428,22 @@ void qFatal( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtFatalMsg, buf );
     } else {
-#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
+#if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #else
-	vsprintf( buf, msg, ap );
-	va_end( ap );
 	fprintf( stderr, "%s\n", buf );		// add newline
 #endif
     }
 
 #if defined(Q_OS_UNIX) && defined(QT_DEBUG)
     abort();				// trap; generates core dump
-#elif defined(Q_OS_TEMP) && defined(_DEBUG)
+#elif defined(Q_OS_TEMP) && defined(QT_DEBUG)
     QString fstr;
-    fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+    fstr.sprintf( "%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf );
     OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(QT_DEBUG)
     _CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #else
     exit( 1 );				// goodbye cruel world
@@ -531,28 +529,17 @@ void qSystemWarning( const char *msg, ... )
 	}
 	(*handler)( QtSystemMsg, buf );
     } else {
-#ifdef Q_CC_MWERKS
-	int n = vsprintf( buf.data(), msg, ap );
+	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
-	buf.resize(n);
-	if (!!sys) {
-	    buf += ": ";
-	    buf += sys;
-	}
+#if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
-#else
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	if (!!sys)
-	    fprintf( stderr, ": %s", sys.data() );
-	fprintf( stderr, "\n" );		// add newline
-#endif
-#if defined(Q_OS_TEMP) && defined(_DEBUG)
+#elif defined(Q_OS_TEMP)
 	QString fstr( buf );
-	OutputDebugString( fstr.ucs2() );
+	OutputDebugString( (fstr + "\n").ucs2() );
+#else
+	fprintf( stderr, "%s\n", buf );		// add newline
 #endif
     }
-
 }
 
 /*!
@@ -865,18 +852,15 @@ void qDebug( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtDebugMsg, buf );
     } else {
-#if defined(Q_CC_MWERKS)
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
+#if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
-#else
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
-#endif
-#if defined(Q_OS_TEMP) && defined(_DEBUG)
+#elif defined(Q_OS_TEMP)
 	QString fstr( buf );
-	OutputDebugString( fstr.ucs2() );
+	OutputDebugString( (fstr + "\n").ucs2() );
+#else
+	fprintf( stderr, "%s\n", buf );		// add newline
 #endif
     }
 }
@@ -896,20 +880,18 @@ void qWarning( const char *msg, ... )
 	va_end( ap );
 	(*handler)( QtWarningMsg, buf );
     } else {
-#ifdef Q_CC_MWERKS
 	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
+#if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
 #else
-	vfprintf( stderr, msg, ap );
-	va_end( ap );
-	fprintf( stderr, "\n" );		// add newline
+	fprintf( stderr, "%s\n", buf );		// add newline
 #endif
-#if defined(Q_OS_TEMP) && defined(_DEBUG)
+#if defined(Q_OS_TEMP) && defined(QT_DEBUG)
 	QString fstr;
-	fstr.sprintf( "%s:%s %s %s", __FILE__, __LINE__, QT_VERSION_STR, buf );
+	fstr.sprintf( "%s:%s %s %s\n", __FILE__, __LINE__, QT_VERSION_STR, buf );
 	OutputDebugString( fstr.ucs2() );
-#elif defined(Q_CC_MSVC) && defined(_DEBUG)
+#elif defined(Q_CC_MSVC) && defined(QT_DEBUG)
 	_CrtDbgReport( _CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf );
 #endif
     }
