@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.7 1999/01/28 15:40:35 warwick Exp $
+** $Id: qarray.doc,v 2.8 1999/04/18 13:23:51 weis Exp $
 **
 ** QArray class documentation
 **
@@ -367,3 +367,36 @@
 
   \sa operator==()
 */
+
+/*!
+  \fn Iterator QArray::begin()
+  Returns an iterator pointing at the beginning of this array.
+  This iterator can be used as the iterators of QValueList and QMap
+  for example. In fact it does not only behave like a usual pointer:
+  It is a pointer.
+*/
+
+/*!
+  \fn Iterator QArray::end()
+  Returns an iterator pointing behind the last element of this array.
+  This iterator can be used as the iterators of QValueList and QMap
+  for example. In fact it does not only behave like a usual pointer:
+  It is a pointer.
+*/
+
+/*!
+  \fn ConstIterator QArray::begin() const
+  Returns a const iterator pointing at the beginning of this array.
+  This iterator can be used as the iterators of QValueList and QMap
+  for example. In fact it does not only behave like a usual pointer:
+  It is a pointer.
+*/
+
+/*!
+  \fn ConstIterator QArray::end() const
+  Returns a const iterator pointing behind the last element of this array.
+  This iterator can be used as the iterators of QValueList and QMap
+  for example. In fact it does not only behave like a usual pointer:
+  It is a pointer.
+*/
+
