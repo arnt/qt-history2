@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#26 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -366,7 +366,10 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 
     titlebar->setText( clientw->caption() );
 
-    clientw->reparent( this, ((QProtectedWidget*)clientw)->getWFlags(), QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
+    WFlags flags = ((QProtectedWidget*)clientw)->getWFlags();
+    flags = flags & ~WType_Mask;
+
+    clientw->reparent( this, flags, QPoint( contentsRect().x()+BORDER, TITLEBAR_HEIGHT + BORDER + contentsRect().y() ) );
     clientw->show();
 
     resize( clientw->width() + 2*frameWidth() + 2*BORDER, clientw->height() + 2*frameWidth() + TITLEBAR_HEIGHT +2*BORDER);
