@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.h#15 $
+** $Id: //depot/qt/main/src/widgets/qtableview.h#16 $
 **
 ** Definition of QTableView class
 **
@@ -101,8 +101,8 @@ protected:
     int		findRow( int yPos ) const;
     int		findCol( int xPos ) const;
 
-    bool	rowYPos( int row, int *xPos ) const;
-    bool	colXPos( int col, int *yPos ) const;
+    bool	rowYPos( int row, int *yPos ) const;
+    bool	colXPos( int col, int *xPos ) const;
 
     int		maxXOffset();
     int		maxYOffset();
