@@ -64,7 +64,7 @@
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -123,7 +123,7 @@
                         </property>
                     </widget>
                     <spacer row="0" column="0" rowspan="2" colspan="1">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer1_3</cstring>
                         </property>
                         <property name="orientation">
@@ -140,7 +140,7 @@
                         </property>
                     </spacer>
                     <spacer row="0" column="2" rowspan="2" colspan="1">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer3</cstring>
                         </property>
                         <property name="orientation">
@@ -193,7 +193,7 @@
                     <pixmap>image1</pixmap>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -341,7 +341,7 @@
                 </vbox>
             </widget>
             <spacer row="2" column="1">
-                <property name="name">
+                <property name="name" stdset="0">
                     <cstring>Spacer1</cstring>
                 </property>
                 <property name="orientation">
@@ -395,7 +395,7 @@
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -462,7 +462,7 @@
                         </property>
                     </widget>
                     <spacer row="7" column="2">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer7</cstring>
                         </property>
                         <property name="orientation">
@@ -508,7 +508,7 @@
 Alternatively, the installation wizard may read them from a license file.</string>
                         </property>
                         <property name="alignment">
-                            <set>WordBreak|AlignAuto|AlignVCenter</set>
+                            <set>WordBreak|AlignVCenter</set>
                         </property>
                     </widget>
                     <widget class="QLabel" row="4" column="0">
@@ -545,7 +545,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                                 <number>6</number>
                             </property>
                             <spacer>
-                                <property name="name">
+                                <property name="name" stdset="0">
                                     <cstring>Spacer5</cstring>
                                 </property>
                                 <property name="orientation">
@@ -570,7 +570,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                                 </property>
                             </widget>
                             <spacer>
-                                <property name="name">
+                                <property name="name" stdset="0">
                                     <cstring>Spacer6</cstring>
                                 </property>
                                 <property name="orientation">
@@ -659,13 +659,13 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
             <spacer row="1" column="1">
-                <property name="name">
+                <property name="name" stdset="0">
                     <cstring>Spacer2</cstring>
                 </property>
                 <property name="orientation">
@@ -839,7 +839,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                         </property>
                     </widget>
                     <spacer row="1" column="2">
-                        <property name="name">
+                        <property name="name" stdset="0">
                             <cstring>Spacer8</cstring>
                         </property>
                         <property name="orientation">
@@ -895,7 +895,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -1339,7 +1339,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -1420,7 +1420,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -1501,7 +1501,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <bool>false</bool>
                 </property>
                 <property name="alignment">
-                    <set>AlignAuto|AlignTop</set>
+                    <set>AlignTop</set>
                 </property>
                 <property name="vAlign" stdset="0">
                 </property>
@@ -1651,16 +1651,15 @@ Alternatively, the installation wizard may read them from a license file.</strin
     <tabstop>devSysPath</tabstop>
     <tabstop>devSysPathButton</tabstop>
     <tabstop>folderGroups</tabstop>
-    <tabstop>configList</tabstop>
     <tabstop>configTabs</tabstop>
+    <tabstop>configList</tabstop>
     <tabstop>advancedList</tabstop>
+    <tabstop>explainOption</tabstop>
+    <tabstop>rebuildInstallation</tabstop>
     <tabstop>filesDisplay</tabstop>
     <tabstop>outputDisplay</tabstop>
     <tabstop>finishText</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">setupwizard.ui.h</include>
-</includes>
 <slots>
     <slot>clickedDevSysPath()</slot>
     <slot>clickedEnvironmentButton()</slot>
