@@ -397,8 +397,7 @@ bool QAxScriptEngine::load(const QString &code, const QString &language)
 
     script_code += code;
 
-    // This is "some uuid" to trigger the call to initialize()
-    setControl("{2ad11b7e-62a9-439c-9724-fb1b686c8457}");
+    metaObject();
     return isValid();
 }
 

@@ -489,8 +489,8 @@ class QAxBasePrivate
 public:
     QAxBasePrivate()
 	: useEventSink( TRUE ), useMetaObject( TRUE ), useClassInfo( TRUE ),
-	  cachedMetaObject( FALSE ), ptr( 0 ), disp( 0 ), propWritable( 0 ),
-	  metaobj( 0 )
+	  cachedMetaObject( FALSE ), initialized( FALSE ), tryCache( FALSE ),
+	  ptr( 0 ), disp( 0 ), propWritable( 0 ), metaobj( 0 )
     {
 	mo_cache_ref++;
     }
@@ -525,6 +525,8 @@ public:
     bool useMetaObject	    :1;
     bool useClassInfo	    :1;
     bool cachedMetaObject   :1;
+    bool initialized	    :1;
+    bool tryCache	    :1;
 
     IUnknown *ptr;
     IDispatch *disp;
@@ -768,6 +770,7 @@ QAxBase::QAxBase( IUnknown *iface )
     if ( d->ptr ) {
 	moduleLock();
 	d->ptr->AddRef();
+	d->initialized = TRUE;
     }
 }
 
@@ -863,9 +866,11 @@ bool QAxBase::setControl( const QString &c )
 	if ( ctrl.isEmpty() )
 	    ctrl = c;
     }
+    d->tryCache = TRUE;
     moduleLock();
     if ( !initialize( &d->ptr ) )
 	moduleUnlock();
+    d->initialized = TRUE;
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
 	qWarning( "QAxBase::setControl: requested control %s could not be instantiated.", c.latin1() );
@@ -959,6 +964,7 @@ void QAxBase::clear()
     if ( d->ptr ) {
 	d->ptr->Release();
 	d->ptr = 0;
+	d->initialized = FALSE;
 	moduleUnlock();
     }
 
@@ -1173,6 +1179,11 @@ bool QAxBase::initializeRemote(IUnknown** ptr)
 long QAxBase::queryInterface( const QUuid &uuid, void **iface ) const
 {
     *iface = 0;
+    if (!d->ptr) {
+	((QAxBase*)this)->initialize(&d->ptr);
+	d->initialized = TRUE;
+    }
+
     if ( d->ptr && !uuid.isNull() )
 	return d->ptr->QueryInterface( uuid, iface );
 
@@ -2427,7 +2438,7 @@ static const QMetaProperty props_tbl[] = {
 QMetaObject *MetaObjectGenerator::metaObject( QMetaObject *parentObject )
 {
     readClassInfo();
-    if ( d->useClassInfo && tryCache() )
+    if ( d->tryCache && tryCache() )
 	return d->metaobj;
     readEnumInfo();
     readFuncInfo();
@@ -2582,6 +2593,11 @@ QMetaObject *QAxBase::metaObject() const
     if ( d->metaobj )
 	return d->metaobj;
     QMetaObject* parentObject = parentMetaObject();
+
+    if (!d->ptr && !d->initialized) {
+	((QAxBase*)this)->initialize(&d->ptr);
+	d->initialized = TRUE;
+    }
 
     // return the default meta object if not yet initialized
     if ( !d->ptr || !d->useMetaObject ) {
@@ -3702,6 +3718,12 @@ private:
 QAxBase::PropertyBag QAxBase::propertyBag() const
 {
     PropertyBag result;
+
+    if (!d->ptr && !d->initialized) {
+	((QAxBase*)this)->initialize(&d->ptr);
+	d->initialized = TRUE;
+    }
+
     if ( isNull() )
 	return result;
     IPersistPropertyBag *persist = 0;
@@ -3744,6 +3766,11 @@ QAxBase::PropertyBag QAxBase::propertyBag() const
 */
 void QAxBase::setPropertyBag( const PropertyBag &bag )
 {
+    if (!d->ptr && !d->initialized) {
+	initialize(&d->ptr);
+	d->initialized = TRUE;
+    }
+
     if ( isNull() )
 	return;
     IPersistPropertyBag *persist = 0;
@@ -3821,6 +3848,11 @@ bool QAxBase::isNull() const
 */
 QVariant QAxBase::asVariant() const
 {
+    if (!d->ptr && !d->initialized) {
+	((QAxBase*)this)->initialize(&d->ptr);
+	d->initialized = TRUE;
+    }
+
     QVariant var;
     if ( isNull() )
 	return var;
