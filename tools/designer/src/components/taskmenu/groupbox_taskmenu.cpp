@@ -62,7 +62,7 @@ void GroupBoxTaskMenu::editTitle()
         connect(fw, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_groupbox->parentWidget() != 0);
 
-        m_editor = new InPlaceEditor(m_groupbox);
+        m_editor = new InPlaceEditor(m_groupbox, fw);
         m_editor->setFrame(false);
         m_editor->setText(m_groupbox->title());
         m_editor->selectAll();

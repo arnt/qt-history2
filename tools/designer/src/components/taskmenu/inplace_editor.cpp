@@ -11,18 +11,20 @@
 **
 ****************************************************************************/
 
+#include "abstractformwindow.h"
 #include "inplace_editor.h"
 
 #include <QtGui/QResizeEvent>
 #include <QtCore/qdebug.h>
 
-InPlaceEditor::InPlaceEditor(QWidget *widget)
+InPlaceEditor::InPlaceEditor(QWidget *widget, AbstractFormWindow *fw)
     : QLineEdit(),
       m_widget(widget)
 {
     m_noChildEvent = widget->testAttribute(Qt::WA_NoChildEventsForParent);
     setParent(widget->window());
     m_widget->installEventFilter(this);
+    connect(this, SIGNAL(destroyed()), fw->mainContainer(), SLOT(setFocus()));
 }
 
 InPlaceEditor::~InPlaceEditor()

@@ -16,11 +16,13 @@
 
 #include <QtGui/QLineEdit>
 
+class AbstractFormWindow;
+
 class InPlaceEditor: public QLineEdit
 {
     Q_OBJECT
 public:
-    InPlaceEditor(QWidget *widget);
+    InPlaceEditor(QWidget *widget, AbstractFormWindow *fw);
     virtual ~InPlaceEditor();
 
     virtual bool eventFilter(QObject *object, QEvent *event);

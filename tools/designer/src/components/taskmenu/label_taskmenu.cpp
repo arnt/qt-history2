@@ -58,7 +58,7 @@ void LabelTaskMenu::editText()
         connect(m_formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
         Q_ASSERT(m_label->parentWidget() != 0);
 
-        m_editor = new InPlaceEditor(m_label);
+        m_editor = new InPlaceEditor(m_label, m_formWindow);
         m_editor->setObjectName("__qt__passive_m_editor");
 
         m_editor->setFrame(false);
