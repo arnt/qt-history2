@@ -1044,6 +1044,12 @@ class_specifier:	  full_class_head
 			  '}'			{ BEGIN QT_DEF; } /*catch ';'*/
 			| class_head		{ BEGIN QT_DEF;	  /* -- " -- */
 						  skipClass = TRUE; }
+ 			| class_head IDENTIFIER	{ BEGIN QT_DEF;	  /* -- " -- */
+ 						  skipClass = TRUE; }
+ 			| class_head '*' IDENTIFIER	{ BEGIN QT_DEF;	  /* -- " -- */
+ 						  skipClass = TRUE; }
+ 			| class_head '&' IDENTIFIER	{ BEGIN QT_DEF;	  /* -- " -- */
+ 						  skipClass = TRUE; }
 			| class_head
 			  '(' IDENTIFIER ')' /* Qt macro name */
 						{ BEGIN QT_DEF; /* catch ';' */
