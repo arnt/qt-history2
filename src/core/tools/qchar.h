@@ -7,6 +7,17 @@
 
 class QString;
 
+struct QLatin1Char
+{
+public:
+    inline explicit QLatin1Char(const char c) : ch(c) {}
+    inline char latin1() const { return ch; }
+    inline unsigned short unicode() const { return (ushort)ch; }
+private:
+    const char ch;
+};
+
+
 class Q_CORE_EXPORT QChar {
 public:
     QChar();
@@ -22,6 +33,7 @@ public:
     QChar(short rc);
     QChar(uint rc);
     QChar(int rc);
+    QChar(const QLatin1Char &ch);
     enum SpecialChars {
 	null = 0x0000,
 	replacement = 0xfffd,
@@ -187,6 +199,7 @@ inline QChar::QChar(short rc) : ucs((ushort) rc){}
 inline QChar::QChar(uint rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(int rc) : ucs((ushort) (rc & 0xffff)){}
 inline QChar::QChar(QChar::SpecialChars s) : ucs((ushort) s) {}
+inline QChar::QChar(const QLatin1Char &ch) : ucs((ushort) ch.latin1()) {}
 
 inline bool operator==(QChar c1, QChar c2) { return c1.ucs == c2.ucs; }
 inline bool operator!=(QChar c1, QChar c2) { return c1.ucs != c2.ucs; }

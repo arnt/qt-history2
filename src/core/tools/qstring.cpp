@@ -346,6 +346,11 @@ QString::QString(int size, QChar c)
     }
 }
 
+/*! \fn QString::QString(const QLatin1String &latin1)
+
+    Creates a string out of a QLatin1String \a latin1.
+*/
+
 /*!
     Constructs a string of length one, containing the character \a c.
 */
@@ -839,6 +844,52 @@ bool operator==(const QString &s1, const QString &s2)
 	(memcmp((char*)s1.unicode(),(char*)s2.unicode(),
 		s1.size()*sizeof(QChar))==0);
 }
+
+
+bool operator==(const QString &a, const QLatin1String &b)
+{
+    const unsigned short *uc = a.ucs2();
+    const unsigned char *c = (unsigned char *) b.latin1();
+
+    while (*uc == *c) {
+	if (!*uc)
+	    return true;
+	++uc;
+	++c;
+    }
+    return false;
+}
+
+bool operator>(const QString &a, const QLatin1String &b)
+{
+    const unsigned short *uc = a.ucs2();
+    const unsigned char *c = (unsigned char *) b.latin1();
+
+    while (*uc == *c) {
+	if (!*uc)
+	    return false;
+	++uc;
+	++c;
+    }
+    return *uc > *c;
+
+}
+
+bool operator<(const QString &a, const QLatin1String &b)
+{
+    const unsigned short *uc = a.ucs2();
+    const unsigned char *c = (unsigned char *) b.latin1();
+
+    while (*uc == *c) {
+	if (!*uc)
+	    return false;
+	++uc;
+	++c;
+    }
+    return *uc < *c;
+
+}
+
 
 /*!
     Finds the first occurrence of the character \a c, starting at
@@ -4500,7 +4551,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     If there is no place marker (\c %1, \c %2, etc.), a warning
     message (qWarning()) is output and the result is undefined.
 */
-QString QString::arg( const QString& a, int fieldWidth ) const
+QString QString::arg(const QString& a, int fieldWidth) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
