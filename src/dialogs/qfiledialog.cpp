@@ -2504,7 +2504,7 @@ void QFileDialog::init()
     d->moreFiles->installEventFilter( this );
     d->moreFiles->viewport()->installEventFilter( this );
 
-    okB = new QPushButton( tr("OK"), this, "OK" ); //### Or "Save (see other "OK")
+    okB = new QPushButton( tr("&OK"), this, "OK" ); //### Or "Save (see other "OK")
     okB->setDefault( TRUE );
     okB->setEnabled( FALSE );
     connect( okB, SIGNAL(clicked()), this, SLOT(okClicked()) );
@@ -4588,7 +4588,7 @@ void QFileDialog::setMode( Mode newMode )
     QString okt;
     bool changeFilters = FALSE;
     if ( mode() == AnyFile ) {
-	okt = tr("Save");
+	okt = tr("&Save");
 	d->fileL->setText( tr("File &name:") );
 	if ( d->types->count() == 1 ) {
 	    d->types->setCurrentItem( 0 );
@@ -4598,13 +4598,13 @@ void QFileDialog::setMode( Mode newMode )
 	}
     }
     else if ( mode() == Directory || mode() == DirectoryOnly ) {
-	okt = tr("OK");
+	okt = tr("&OK");
 	d->fileL->setText( tr("Directory:") );
 	d->types->clear();
 	d->types->insertItem( tr("Directories") );
     }
     else {
-	okt = tr("Open");
+	okt = tr("&Open");
 	d->fileL->setText( tr("File &name:") );
 	if ( d->types->count() == 1 ) {
 	    d->types->setCurrentItem( 0 );
@@ -4639,7 +4639,8 @@ void QFileDialog::done( int i )
 	    if ( file.isNull() )
 		continue;
 	    if ( d->url.isLocalFile() && !QFile::exists( file ) ) {
-		QMessageBox::information( this, tr("Error"), tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
+		QMessageBox::information( this, tr("Error"),
+					  tr("%1\nFile not found.\nCheck path and filename.").arg( file ) );
 		return;
 	    }
 	}
