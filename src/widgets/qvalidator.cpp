@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#11 $
 **
 ** Implementation of validator classes.
 **
@@ -14,7 +14,7 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#10 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#11 $");
 
 
 /*!
@@ -34,7 +34,7 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#10 $");
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
   call fixup() if the user presses Return and the content is not
-  currently valid, in case fixup() can do do magic.
+  currently valid, in case fixup() can do magic.
 
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
