@@ -162,11 +162,6 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		    out << indent << parent << "->insert( " << objName << ", " << value << " );" << endl;
 		continue;
 	    }
-	    if ( prop == "sort" ) {
-		out << indent << "QStringList " << objName << "Sort;" << endl;
-		out << indent << objName << "Sort << \"" << value << "\";" << endl;
-		value = objName + "Sort";
-	    }
 	    if ( prop == "frameworkCode" )
 		continue;
 	    if ( prop == "geometry" ) {

@@ -878,15 +878,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	    } else {
 		out << indent;
 	    }
-	    if ( prop == "sort" ) {
-		QString defaultTable = getDatabaseInfo( e, "table" );
-		if ( !defaultTable.isEmpty() ) {
-		    out << "QStringList " << defaultTable << "Sort;" << endl;
-		    out << indent << defaultTable << "Sort << \"" << value << "\";" << endl;
-		    out << indent;
-		    value = defaultTable + "Sort";
-		}
-	    }
 
 	    if ( prop == "geometry" && n2.tagName() == "rect") {
 		QDomElement n3 = n2.firstChild().toElement();
