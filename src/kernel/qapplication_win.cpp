@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#262 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#263 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -246,18 +246,18 @@ static void outColor(const char* s, const QColor& col) {
 }
 
 
-static void qt_show_system_menu( QWidget* tlw) 
+static void qt_show_system_menu( QWidget* tlw)
 {
     HMENU menu = GetSystemMenu( tlw->winId(), FALSE );
     if ( !menu )
 	return; // no menu for this window
-    
+
 #define enabled (MF_BYCOMMAND | MF_ENABLED)
 #define disabled (MF_BYCOMMAND | MF_GRAYED)
-    
+
     EnableMenuItem( menu, SC_MINIMIZE, enabled);
     bool maximized  = IsZoomed( tlw->winId() );
-    
+
     EnableMenuItem( menu, SC_MAXIMIZE, maximized?disabled:enabled);
     EnableMenuItem( menu, SC_RESTORE, maximized?enabled:disabled);
 
@@ -269,7 +269,7 @@ static void qt_show_system_menu( QWidget* tlw)
 #undef enabled
 #undef disabled
 			
-    int ret = TrackPopupMenuEx( menu, 
+    int ret = TrackPopupMenuEx( menu,
 				TPM_LEFTALIGN  | TPM_TOPALIGN | TPM_NONOTIFY | TPM_RETURNCMD,
 				tlw->geometry().x(), tlw->geometry().y(),
 				tlw->winId(),
@@ -2312,7 +2312,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    break;
 		}
 	    }
-	    
+	
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock ) {
@@ -2348,7 +2348,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    }
         }
     }
-    
+
     return k0 || k1;
 }
 
@@ -2455,9 +2455,9 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	return TRUE;
     setWState( WState_ConfigPending );		// set config flag
     QRect r = geometry();
-    WORD a = LOWORD(msg.lParam);
-    WORD b = HIWORD(msg.lParam);
     if ( msg.message == WM_SIZE ) {		// resize event
+	WORD a = LOWORD(msg.lParam);
+	WORD b = HIWORD(msg.lParam);
 	QSize oldSize = size();
 	QSize newSize( a, b );
 	r.setSize( newSize );
@@ -2505,6 +2505,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	if ( !testWFlags(WResizeNoErase) )
 	    repaint( TRUE );
     } else if ( msg.message == WM_MOVE ) {	// move event
+	int a = (int) (short) LOWORD(msg.lParam);
+	int b = (int) (short) HIWORD(msg.lParam);
 	QPoint oldPos = pos();
 	// Ignore silly Windows move event to wild pos after iconify.
 	if ( a <= QCOORD_MAX && b <= QCOORD_MAX ) {
