@@ -8,7 +8,7 @@
 
 #endif // QT_H
 
-struct QListData {
+struct Q_EXPORT QListData {
     struct DataHeader {
 	QAtomic ref;
 	int alloc, begin, end;
