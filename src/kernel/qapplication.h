@@ -363,9 +363,9 @@ private:
 #endif
 
     static QSize     app_strut;
-
+#ifndef QT_NO_COMPONENT
     static QStringList *app_libpaths;
-
+#endif
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
 

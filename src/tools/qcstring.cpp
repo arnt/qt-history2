@@ -1745,7 +1745,7 @@ QCString &QCString::replace( char c1, char c2 )
 }
 
 
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
 /*!
     \overload
 

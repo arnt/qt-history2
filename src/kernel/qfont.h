@@ -151,10 +151,10 @@ public:
 
     QString key() const;
 
-#ifndef QT_NO_STRINGLIST
     QString toString() const;
     bool fromString(const QString &);
 
+#ifndef QT_NO_STRINGLIST
     static QString substitute(const QString &);
     static QStringList substitutes(const QString &);
     static QStringList substitutions();

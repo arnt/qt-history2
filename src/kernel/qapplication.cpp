@@ -346,7 +346,9 @@ bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
 bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
+#ifndef QT_NO_COMPONENT
 QStringList *QApplication::app_libpaths = 0;
+#endif
 
 #ifdef QT_THREAD_SUPPORT
 QMutex *QApplication::qt_mutex		= 0;
@@ -989,8 +991,10 @@ QApplication::~QApplication()
     delete static_eventloop;
     static_eventloop = 0;
 
+#ifndef QT_NO_COMPONENT
     delete app_libpaths;
     app_libpaths = 0;
+#endif
 
 #ifdef QT_THREAD_SUPPORT
     delete qt_mutex;

@@ -1375,7 +1375,6 @@ QString QFont::key() const
     return d->key();
 }
 
-#ifndef QT_NO_STRINGLIST
 /*!
     Returns a description of the font. The description is a
     comma-separated list of the attributes, perfectly suited for use
@@ -1385,6 +1384,7 @@ QString QFont::key() const
  */
 QString QFont::toString() const
 {
+#ifndef QT_NO_STRINGLIST
     QStringList l;
     l.append(family());
     l.append(QString::number(pointSizeFloat()));
@@ -1397,6 +1397,18 @@ QString QFont::toString() const
     l.append(QString::number((int)fixedPitch()));
     l.append(QString::number((int)rawMode()));
     return l.join(",");
+#else
+    return  family()+","+
+	    QString::number(pointSizeFloat())+","+
+	    QString::number(pixelSize())+","+
+	    QString::number((int)styleHint())+","+
+	    QString::number(weight())+","+
+	    QString::number((int)italic())+","+
+	    QString::number((int)underline())+","+
+	    QString::number((int)strikeOut())+","+
+	    QString::number((int)fixedPitch())+","+
+	    QString::number((int)rawMode());
+#endif
 }
 
 
@@ -1409,9 +1421,22 @@ QString QFont::toString() const
  */
 bool QFont::fromString(const QString &descrip)
 {
+#ifndef QT_NO_STRINGLIST
     QStringList l(QStringList::split(',', descrip));
 
     int count = l.count();
+#else
+    int count = 0;
+    QString l[11];
+    int from = 0;
+    int to = descrip.find( ',' );
+    while ( to > 0 && count < 10 ) {
+	l[count] = descrip.mid( from, to-from );
+	count++;
+	from = to+1;
+	to = descrip.find( ',', from );
+    }
+#endif // QT_NO_STRINGLIST
     if ( !count || ( count > 2 && count < 9 ) || count > 10 ) {
 
 #ifdef QT_CHECK_STATE
@@ -1446,7 +1471,6 @@ bool QFont::fromString(const QString &descrip)
 
     return TRUE;
 }
-#endif // QT_NO_STRINGLIST
 
 #if !defined( Q_WS_QWS ) // && !defined( Q_WS_MAC )
 /*! \internal

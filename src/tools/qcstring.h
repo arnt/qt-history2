@@ -174,7 +174,7 @@ public:
 #endif
     int		findRev( char c, int index=-1, bool cs=TRUE) const;
     int		findRev( const char *str, int index=-1, bool cs=TRUE) const;
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
     int		findRev( const QRegExp &, int index=-1 ) const;
 #endif
     int		contains( char c, bool cs=TRUE ) const;

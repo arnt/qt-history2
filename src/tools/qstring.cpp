@@ -15355,7 +15355,7 @@ QString &QString::replace( QChar c1, QChar c2 )
 }
 
 
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
 
 /*! \overload
 
@@ -15579,7 +15579,7 @@ QString &QString::replace( const QString & before, const QString & after )
     return *this;
 }
 
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
 /*! \overload
 
   Replaces every occurrence of the regexp \a rx in the string with \a str.

@@ -37,13 +37,13 @@
 
 #ifndef QT_NO_QWS_MANAGER
 
-#ifndef QT_NO_IMAGEIO_XPM
-
 QPixmap * QWSDefaultDecoration::staticMenuPixmap=0;
 QPixmap * QWSDefaultDecoration::staticClosePixmap=0;
 QPixmap * QWSDefaultDecoration::staticMinimizePixmap=0;
 QPixmap * QWSDefaultDecoration::staticMaximizePixmap=0;
 QPixmap * QWSDefaultDecoration::staticNormalizePixmap=0;
+
+#ifndef QT_NO_IMAGEIO_XPM
 
 /* XPM */
 static const char * const default_menu_xpm[] = {

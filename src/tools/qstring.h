@@ -520,7 +520,7 @@ public:
     QString    &replace( char c, const QString & after )
     { return replace( QChar(c), after ); }
     QString    &replace( const QString &, const QString & );
-#ifndef QT_NO_REGEXP
+#ifndef QT_NO_REGEXP_CAPTURE
     QString    &replace( const QRegExp &, const QString & );
 #endif
     QString    &replace( QChar, QChar );
