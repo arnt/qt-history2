@@ -42,6 +42,7 @@
 #include "qwidgetintdict.h"
 #include "qptrdict.h"
 #include "qcleanuphandler.h"
+#include "qdesktopwidget.h"
 
 #include "qtranslator.h"
 #include "qtextcodec.h"
@@ -2581,17 +2582,15 @@ Q_EXPORT void qt_dispatchEnterLeave( QWidget* enter, QWidget* leave ) {
   application's main desktop is returned.
 */
 
-#ifndef Q_WS_X11
 QWidget *QApplication::desktop()
 {
     if ( !desktopWidget || // not created yet
 	 !desktopWidget->isDesktop() ) { // reparented away
-	desktopWidget = new QWidget( 0, "desktop", WType_Desktop );
+	desktopWidget = new QDesktopWidget();
 	Q_CHECK_PTR( desktopWidget );
     }
     return desktopWidget;
 }
-#endif
 
 /*!
   By default, Qt will try to get the current standard colors, fonts

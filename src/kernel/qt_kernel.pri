@@ -18,6 +18,7 @@ kernel {
 		  $$KERNEL_H/qcomponentinterface.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
+		  $$KERNEL_H/qdesktopwidget.h \
 		  $$KERNEL_H/qdialog.h \
 		  $$KERNEL_H/qdragobject.h \
 		  $$KERNEL_H/qdrawutil.h \
@@ -97,6 +98,7 @@ kernel {
 		  $$KERNEL_CPP/qclipboard_win.cpp \
 		  $$KERNEL_CPP/qcolor_win.cpp \
 		  $$KERNEL_CPP/qcursor_win.cpp \
+		  $$KERNEL_CPP/qdesktopwidget_win.cpp \
 		  $$KERNEL_CPP/qdnd_win.cpp \
 		  $$KERNEL_CPP/qfont_win.cpp \
 		  $$KERNEL_CPP/qmime_win.cpp \
@@ -117,6 +119,7 @@ kernel {
 			  $$KERNEL_CPP/qcolor_x11.cpp \
 			  $$KERNEL_CPP/qcursor_x11.cpp \
 			  $$KERNEL_CPP/qdnd_x11.cpp \
+			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qfontencodings_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
@@ -137,6 +140,7 @@ kernel {
 			  $$KERNEL_CPP/qcolor_mac.cpp \
 			  $$KERNEL_CPP/qcursor_mac.cpp \
 			  $$KERNEL_CPP/qdnd_mac.cpp \
+			  $$KERNEL_CPP/qdesktopwidget_mac.cpp \
 			  $$KERNEL_CPP/qpixmap_mac.cpp \
 			  $$KERNEL_CPP/qprinter_mac.cpp \
 			  $$KERNEL_CPP/qpaintdevice_mac.cpp \

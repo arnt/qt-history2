@@ -121,11 +121,7 @@ public:
     static QWidgetList *allWidgets();
     static QWidgetList *topLevelWidgets();
 
-#if defined(Q_WS_X11)
-    static QWidget     *desktop( int screen = -1 );
-#else
-    static QWidget 	*desktop();
-#endif
+    static QWidget  *desktop();
 
     static QWidget     *activePopupWidget();
     static QWidget     *activeModalWidget();

@@ -2047,27 +2047,6 @@ bool qt_wstate_iconified( WId winid )
     return iconic;
 }
 
-
-QWidget *QApplication::desktop( int screen )
-{
-    extern int qt_x11_create_desktop_on_screen; // defined in qwidget_x11.cpp
-
-    static QWidget** desktopWidget = 0;
-    if ( screen < 0 || screen >= screenCount )
-	screen = appScreen;
-
-    if ( !desktopWidget )
-	memset( (desktopWidget = new QWidget*[screenCount] ), 0, screenCount * sizeof( QWidget*) );
-    if ( !desktopWidget[screen] || // not created yet
-	 !desktopWidget[screen]->isDesktop() ) { // reparented away
-	qt_x11_create_desktop_on_screen = screen;
-	desktopWidget[screen] = new QWidget( 0, "desktop", WType_Desktop );
-	qt_x11_create_desktop_on_screen = -1;
-    }
-    return desktopWidget[screen];
-}
-
-
 /*!
   \relates QApplication
 
