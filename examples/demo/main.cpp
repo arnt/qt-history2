@@ -79,7 +79,7 @@ QWidget *Frame::createCategory(const QString &cat)
     } else if(cat == "3D Graphics") {
 	tab = new QTabWidget();
 	w = new GLWorkspace( tab );
-	tab->addTab( w, tr( "3d Demo" ) );
+	tab->addTab( w, "3D Demo" );
 	w = new GLLandscapeViewer( tab );
 	tab->addTab( w, tr( "Fractal landscape" ) );
 #endif
