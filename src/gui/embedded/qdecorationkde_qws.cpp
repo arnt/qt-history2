@@ -14,23 +14,23 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwskdedecoration_qws.h"
+#include "qdecorationkde_qws.h"
 
 #ifndef QT_NO_QWS_KDE_WM_STYLE
 
-QWSKDEDecoration::QWSKDEDecoration()
-    : QWSDefaultDecoration()
+QDecorationKDE::QDecorationKDE()
+    : QDecorationDefault()
 {
 }
 
-QWSKDEDecoration::~QWSKDEDecoration()
+QDecorationKDE::~QDecorationKDE()
 {
 }
 
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QWSKDEDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationKDE::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
     int titleHeight = getTitleHeight(widget);
 //  int titleWidth = getTitleWidth(widget);
@@ -65,14 +65,14 @@ QRegion QWSKDEDecoration::region(const QWidget *widget, const QRect &rect, QWSDe
         case BottomLeft:
         case BottomRight:
         default:
-            region = QWSDefaultDecoration::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationKDE::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -150,8 +150,8 @@ void QWSKDEDecoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationKDE::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
 

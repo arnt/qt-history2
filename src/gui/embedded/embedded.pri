@@ -8,6 +8,13 @@ embedded {
 	!mac:HEADERS += embedded/qsoundqss_qws.h 
 	HEADERS += \
 		    embedded/qcopchannel_qws.h \
+		    embedded/qdecoration_qws.h \
+		    embedded/qdecorationbeos_qws.h \
+		    embedded/qdecorationdefault_qws.h \
+		    embedded/qdecorationhydro_qws.h \
+		    embedded/qdecorationkde2_qws.h \
+		    embedded/qdecorationkde_qws.h \
+		    embedded/qdecorationwindows_qws.h \
 		    embedded/qdirectpainter_qws.h \
 		    embedded/qgfx_qws.h \
 		    embedded/qgfxraster_qws.h \
@@ -15,61 +22,59 @@ embedded {
 		    embedded/qmemorymanager_qws.h \
 		    embedded/qscreen_qws.h \
 		    embedded/qwindowsystem_qws.h \
-		    embedded/qwsbeosdecoration_qws.h \
 		    embedded/qwscommand_qws.h \
 		    embedded/qwscursor_qws.h \
-		    embedded/qwsdecoration_qws.h \
-		    embedded/qwsdefaultdecoration_qws.h \
 		    embedded/qwsdisplay_qws.h \
 		    embedded/qwsevent_qws.h \
-		    embedded/qwshydrodecoration_qws.h \
-		    embedded/qwskde2decoration_qws.h \
-		    embedded/qwskdedecoration_qws.h \
 		    embedded/qwsmanager_qws.h \
 		    embedded/qwsproperty_qws.h \
 		    embedded/qwsregionmanager_qws.h \
 		    embedded/qwssocket_qws.h \
-		    embedded/qwsutils_qws.h \
-		    embedded/qwswindowsdecoration_qws.h
+		    embedded/qwsutils_qws.h 
 
 	 !mac:SOURCES += embedded/qsoundqss_qws.cpp
          SOURCES +=  \
 		    embedded/qcopchannel_qws.cpp \
+		    embedded/qdecoration_qws.cpp \
+		    embedded/qdecorationbeos_qws.cpp \
+		    embedded/qdecorationdefault_qws.cpp \
+		    embedded/qdecorationhydro_qws.cpp \
+		    embedded/qdecorationkde2_qws.cpp \
+		    embedded/qdecorationkde_qws.cpp \
+		    embedded/qdecorationwindows_qws.cpp \
 		    embedded/qdirectpainter_qws.cpp \
 		    embedded/qgfx_qws.cpp \
 		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \
 		    embedded/qmemorymanager_qws.cpp \
 		    embedded/qwindowsystem_qws.cpp \
-		    embedded/qwsbeosdecoration_qws.cpp \
 		    embedded/qwscommand_qws.cpp \
 		    embedded/qwscursor_qws.cpp \
-		    embedded/qwsdecoration_qws.cpp \
-		    embedded/qwsdefaultdecoration_qws.cpp \
 		    embedded/qwsevent_qws.cpp \
-		    embedded/qwshydrodecoration_qws.cpp \
-		    embedded/qwskde2decoration_qws.cpp \
-		    embedded/qwskdedecoration_qws.cpp \
 		    embedded/qwsmanager_qws.cpp \
 		    embedded/qwsproperty_qws.cpp \
 		    embedded/qwsregionmanager_qws.cpp \
-		    embedded/qwssocket_qws.cpp \
-		    embedded/qwswindowsdecoration_qws.cpp
+		    embedded/qwssocket_qws.cpp
 
 	contains(QT_CONFIG, ft) {
 	    SOURCES += \
 		../3rdparty/freetype/builds/unix/ftsystem.c \
-		../3rdparty/freetype/src/base/ftdebug.c \
-		../3rdparty/freetype/src/base/ftinit.c \
-		../3rdparty/freetype/src/base/ftbase.c \
-		../3rdparty/freetype/src/base/ftglyph.c \
-		../3rdparty/freetype/src/base/ftmm.c \
-		../3rdparty/freetype/src/base/ftbbox.c \
 		../3rdparty/freetype/src/autohint/autohint.c \
+		../3rdparty/freetype/src/base/ftbase.c \
+		../3rdparty/freetype/src/base/ftbbox.c \
+		../3rdparty/freetype/src/base/ftdebug.c \
+		../3rdparty/freetype/src/base/ftglyph.c \
+		../3rdparty/freetype/src/base/ftinit.c \
+		../3rdparty/freetype/src/base/ftmm.c \
+		../3rdparty/freetype/src/bdf/bdf.c \
 		../3rdparty/freetype/src/cache/ftcache.c \
 		../3rdparty/freetype/src/cff/cff.c \
 		../3rdparty/freetype/src/cid/type1cid.c \
+		../3rdparty/freetype/src/gzip/ftgzip.c \
+		../3rdparty/freetype/src/pcf/pcf.c \
+		../3rdparty/freetype/src/pfr/pfr.c \
 		../3rdparty/freetype/src/psaux/psaux.c \
+		../3rdparty/freetype/src/pshinter/pshinter.c \
 		../3rdparty/freetype/src/psnames/psmodule.c \
 		../3rdparty/freetype/src/raster/raster.c \
 		../3rdparty/freetype/src/sfnt/sfnt.c \
@@ -77,11 +82,6 @@ embedded {
 		../3rdparty/freetype/src/truetype/truetype.c \
 		../3rdparty/freetype/src/type1/type1.c \
 		../3rdparty/freetype/src/type42/type42.c \
-		../3rdparty/freetype/src/pshinter/pshinter.c \
-		../3rdparty/freetype/src/pcf/pcf.c \
-		../3rdparty/freetype/src/pfr/pfr.c \
-		../3rdparty/freetype/src/bdf/bdf.c \
-		../3rdparty/freetype/src/gzip/ftgzip.c \
 		../3rdparty/freetype/src/winfonts/winfnt.c
 
 	    INCLUDEPATH += \

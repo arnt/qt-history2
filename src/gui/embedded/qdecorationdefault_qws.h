@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWSDEFAULTDECORATION_QWS_H
-#define QWSDEFAULTDECORATION_QWS_H
+#ifndef QDECORATIONDEFAULT_QWS_H
+#define QDECORATIONDEFAULT_QWS_H
 
 #ifndef QT_H
 #include "qwsmanager_qws.h"
@@ -25,11 +25,11 @@
 #define BOTTOM_BORDER_WIDTH        2*BORDER_WIDTH
 
 
-class QWSDefaultDecoration : public QWSDecoration
+class QDecorationDefault : public QDecoration
 {
 public:
-    QWSDefaultDecoration();
-    virtual ~QWSDefaultDecoration();
+    QDecorationDefault();
+    virtual ~QDecorationDefault();
 
     virtual QRegion region(const QWidget *, const QRect &rect, Region);
     virtual void paint(QPainter *, const QWidget *);
@@ -62,4 +62,4 @@ private:
 
 #endif // QT_NO_QWS_MANAGER
 
-#endif // QWSDEFAULTDECORATION_QWS_H
+#endif // QDECORATIONDEFAULT_QWS_H

@@ -14,7 +14,7 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwskde2decoration_qws.h"
+#include "qdecorationkde2_qws.h"
 
 #ifndef QT_NO_STYLE
 #define QT_NO_STYLE // ##### this file uses old style API
@@ -22,19 +22,19 @@
 
 #ifndef QT_NO_QWS_KDE2_WM_STYLE
 
-QWSKDE2Decoration::QWSKDE2Decoration()
-    : QWSDefaultDecoration()
+QDecorationKDE2::QDecorationKDE2()
+    : QDecorationDefault()
 {
 }
 
-QWSKDE2Decoration::~QWSKDE2Decoration()
+QDecorationKDE2::~QDecorationKDE2()
 {
 }
 
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QWSKDE2Decoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationKDE2::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
     int titleHeight = getTitleHeight(widget);
 //  int titleWidth = getTitleWidth(widget);
@@ -69,14 +69,14 @@ QRegion QWSKDE2Decoration::region(const QWidget *widget, const QRect &rect, QWSD
         case BottomLeft:
         case BottomRight:
         default:
-            region = QWSDefaultDecoration::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationKDE2::paint(QPainter *painter, const QWidget *widget)
 {
 #ifndef QT_NO_STYLE
     QStyle &style = QApplication::style();
@@ -165,8 +165,8 @@ void QWSKDE2Decoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSKDE2Decoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationKDE2::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
 #ifndef QT_NO_STYLE

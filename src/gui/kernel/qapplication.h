@@ -36,7 +36,7 @@ class QStyle;
 class QEventLoop;
 template <typename T> class QList;
 #if defined(Q_WS_QWS)
-class QWSDecoration;
+class QDecoration;
 #endif
 
 
@@ -162,8 +162,8 @@ public:
     int              qwsProcessEvent(QWSEvent*);
     void             qwsSetCustomColors(QRgb *colortable, int start, int numColors);
 #ifndef QT_NO_QWS_MANAGER
-    static QWSDecoration &qwsDecoration();
-    static void      qwsSetDecoration(QWSDecoration *);
+    static QDecoration &qwsDecoration();
+    static void      qwsSetDecoration(QDecoration *);
 #endif
 #endif
 

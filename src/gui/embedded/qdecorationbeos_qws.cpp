@@ -14,31 +14,31 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwsbeosdecoration_qws.h"
+#include "qdecorationbeos_qws.h"
 
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
 
-QWSBeOSDecoration::QWSBeOSDecoration()
-    : QWSDefaultDecoration()
+QDecorationBeOS::QDecorationBeOS()
+    : QDecorationDefault()
 {
 }
 
-QWSBeOSDecoration::~QWSBeOSDecoration()
+QDecorationBeOS::~QDecorationBeOS()
 {
 }
 
-const char **QWSBeOSDecoration::menuPixmap()
+const char **QDecorationBeOS::menuPixmap()
 {
     return (const char **)0;
 }
 
-int QWSBeOSDecoration::getTitleWidth(const QWidget *w)
+int QDecorationBeOS::getTitleWidth(const QWidget *w)
 {
     int titleWidth = w->width();
     return (titleWidth > 100) ? titleWidth : 100;
 }
 
-int QWSBeOSDecoration::getTitleHeight(const QWidget *)
+int QDecorationBeOS::getTitleHeight(const QWidget *)
 {
     return 15;
 }
@@ -46,7 +46,7 @@ int QWSBeOSDecoration::getTitleHeight(const QWidget *)
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QWSBeOSDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationBeOS::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
 //    int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -126,14 +126,14 @@ QRegion QWSBeOSDecoration::region(const QWidget *widget, const QRect &rect, QWSD
         case BottomLeft:
         case BottomRight:
         default:
-            region = QWSDefaultDecoration::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationBeOS::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -206,8 +206,8 @@ void QWSBeOSDecoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSBeOSDecoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationBeOS::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
 //    const QPalette &pal = w->palette();

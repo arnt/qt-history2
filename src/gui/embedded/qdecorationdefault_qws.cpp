@@ -14,15 +14,15 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 
 #ifndef QT_NO_QWS_MANAGER
 
-QPixmap * QWSDefaultDecoration::staticMenuPixmap=0;
-QPixmap * QWSDefaultDecoration::staticClosePixmap=0;
-QPixmap * QWSDefaultDecoration::staticMinimizePixmap=0;
-QPixmap * QWSDefaultDecoration::staticMaximizePixmap=0;
-QPixmap * QWSDefaultDecoration::staticNormalizePixmap=0;
+QPixmap * QDecorationDefault::staticMenuPixmap=0;
+QPixmap * QDecorationDefault::staticClosePixmap=0;
+QPixmap * QDecorationDefault::staticMinimizePixmap=0;
+QPixmap * QDecorationDefault::staticMaximizePixmap=0;
+QPixmap * QDecorationDefault::staticNormalizePixmap=0;
 
 #ifndef QT_NO_IMAGEIO_XPM
 
@@ -151,12 +151,12 @@ static const char * const default_normalize_xpm[] = {
 
 #endif // QT_NO_IMAGEIO_XPM
 
-QWSDefaultDecoration::QWSDefaultDecoration()
-    : QWSDecoration()
+QDecorationDefault::QDecorationDefault()
+    : QDecoration()
 {
 }
 
-QWSDefaultDecoration::~QWSDefaultDecoration()
+QDecorationDefault::~QDecorationDefault()
 {
     delete staticMenuPixmap;
     delete staticClosePixmap;
@@ -164,7 +164,7 @@ QWSDefaultDecoration::~QWSDefaultDecoration()
     delete staticMaximizePixmap;
     delete staticNormalizePixmap;
 
-    // This makes it safe to delete and then create a QWSDefaultDecoration
+    // This makes it safe to delete and then create a QDecorationDefault
     staticMenuPixmap = 0;
     staticClosePixmap = 0;
     staticMinimizePixmap = 0;
@@ -173,34 +173,34 @@ QWSDefaultDecoration::~QWSDefaultDecoration()
 }
 
 #ifndef QT_NO_IMAGEIO_XPM
-const char **QWSDefaultDecoration::menuPixmap()
+const char **QDecorationDefault::menuPixmap()
 {
     return (const char **)default_menu_xpm;
 }
 
-const char **QWSDefaultDecoration::closePixmap()
+const char **QDecorationDefault::closePixmap()
 {
     return (const char **)default_close_xpm;
 }
 
-const char **QWSDefaultDecoration::minimizePixmap()
+const char **QDecorationDefault::minimizePixmap()
 {
     return (const char **)default_minimize_xpm;
 }
 
-const char **QWSDefaultDecoration::maximizePixmap()
+const char **QDecorationDefault::maximizePixmap()
 {
     return (const char **)default_maximize_xpm;
 }
 
-const char **QWSDefaultDecoration::normalizePixmap()
+const char **QDecorationDefault::normalizePixmap()
 {
     return (const char **)default_normalize_xpm;
 }
 #endif
 
 
-QPixmap QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
+QPixmap QDecorationDefault::pixmapFor(const QWidget* w, QDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
     static const char** staticMenuPixmapXPM=0;
@@ -267,17 +267,17 @@ QPixmap QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region 
 #endif
 }
 
-int QWSDefaultDecoration::getTitleWidth(const QWidget *widget)
+int QDecorationDefault::getTitleWidth(const QWidget *widget)
 {
     return widget->width() - 4 * getTitleHeight(widget) - 4;
 }
 
-int QWSDefaultDecoration::getTitleHeight(const QWidget *)
+int QDecorationDefault::getTitleHeight(const QWidget *)
 {
     return 20;
 }
 
-QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
 //    int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -443,7 +443,7 @@ QRegion QWSDefaultDecoration::region(const QWidget *widget, const QRect &rect, Q
     return region;
 }
 
-void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationDefault::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -520,8 +520,8 @@ void QWSDefaultDecoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationDefault::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();

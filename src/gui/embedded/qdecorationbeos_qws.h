@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#ifndef QWSBEOSDECORATION_QWS_H
-#define QWSBEOSDECORATION_QWS_H
+#ifndef QDECORATIONBEOS_QWS_H
+#define QDECORATIONBEOS_QWS_H
 
 #ifndef QT_H
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 #endif // QT_H
 
 
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
 
 
-class QWSBeOSDecoration : public QWSDefaultDecoration
+class QDecorationBeOS : public QDecorationDefault
 {
 public:
-    QWSBeOSDecoration();
-    virtual ~QWSBeOSDecoration();
+    QDecorationBeOS();
+    virtual ~QDecorationBeOS();
 
     virtual QRegion region(const QWidget *, const QRect &rect, Region);
     virtual void paint(QPainter *, const QWidget *);
@@ -40,4 +40,4 @@ protected:
 
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 
-#endif // QWSBEOSDECORATION_QWS_H
+#endif // QDECORATIONBEOS_QWS_H

@@ -17,7 +17,7 @@
 #ifndef QT_H
 #include "qpixmap.h"
 #include "qobject.h"
-#include "qwsdecoration_qws.h"
+#include "qdecoration_qws.h"
 #include "qevent.h"
 #endif // QT_H
 
@@ -40,7 +40,7 @@ public:
     QWSManager(QWidget *);
     ~QWSManager();
 
-    static QWSDecoration *newDefaultDecoration();
+    static QDecoration *newDefaultDecoration();
 
     QRegion region();
     QWidget *widget();
@@ -54,7 +54,7 @@ protected slots:
 
 protected:
     void handleMove();
-    virtual QWSDecoration::Region pointInRegion(const QPoint &);
+    virtual QDecoration::Region pointInRegion(const QPoint &);
 
     virtual bool event(QEvent *e);
     virtual void mouseMoveEvent(QMouseEvent *);
@@ -80,11 +80,11 @@ private:
 class QWSButton
 {
 public:
-    QWSButton(QWSManager *m, QWSDecoration::Region t, bool tb = false);
+    QWSButton(QWSManager *m, QDecoration::Region t, bool tb = false);
 
     enum State { MouseOver = 0x01, Clicked = 0x02, On = 0x04 };
     int state() { return flags; }
-    QWSDecoration::Region type() { return typ; }
+    QDecoration::Region type() { return typ; }
     bool setMouseOver(bool);
     bool setClicked(bool);
     bool setOn(bool);
@@ -92,12 +92,11 @@ public:
 private:
     int  flags;
     bool toggle;
-    QWSDecoration::Region typ;
+    QDecoration::Region typ;
     QWSManager *manager;
 };
 
-// class QWSDefaultDecoration : public QWSDecoration;
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 
 #endif // QT_NO_QWS_MANAGER
 

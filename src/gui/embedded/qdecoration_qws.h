@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QWSDECORATION_QWS_H
-#define QWSDECORATION_QWS_H
+#ifndef QDECORATION_QWS_H
+#define QDECORATION_QWS_H
 
 #ifndef QT_H
 #include "qregion.h"
@@ -23,11 +23,11 @@ class QPopupMenu;
 /*
  Implements decoration styles
 */
-class QWSDecoration
+class QDecoration
 {
 public:
-    QWSDecoration() {}
-    virtual ~QWSDecoration() {}
+    QDecoration() {}
+    virtual ~QDecoration() {}
 
     enum Region { None=0, All=1, Title=2, Top=3, Bottom=4, Left=5, Right=6,
                 TopLeft=7, TopRight=8, BottomLeft=9, BottomRight=10,
@@ -43,4 +43,4 @@ public:
     virtual void paintButton(QPainter *, const QWidget *, Region, int state) = 0;
 };
 
-#endif // QWSDECORATION_QWS_H
+#endif // QDECORATION_QWS_H

@@ -14,7 +14,7 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwshydrodecoration_qws.h"
+#include "qdecorationhydro_qws.h"
 
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
 
@@ -661,16 +661,16 @@ static const char * const hydro_right_corner_xpm[] = {
 
 #endif // QT_NO_IMAGEIO_XPM
 
-QWSHydroDecoration::QWSHydroDecoration()
-    : QWSDefaultDecoration()
+QDecorationHydro::QDecorationHydro()
+    : QDecorationDefault()
 {
 }
 
-QWSHydroDecoration::~QWSHydroDecoration()
+QDecorationHydro::~QDecorationHydro()
 {
 }
 
-const char **QWSHydroDecoration::menuPixmap()
+const char **QDecorationHydro::menuPixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_menu_xpm;
@@ -679,7 +679,7 @@ const char **QWSHydroDecoration::menuPixmap()
 #endif
 }
 
-const char **QWSHydroDecoration::closePixmap()
+const char **QDecorationHydro::closePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_close_xpm;
@@ -688,7 +688,7 @@ const char **QWSHydroDecoration::closePixmap()
 #endif
 }
 
-const char **QWSHydroDecoration::minimizePixmap()
+const char **QDecorationHydro::minimizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_minimize_xpm;
@@ -697,7 +697,7 @@ const char **QWSHydroDecoration::minimizePixmap()
 #endif
 }
 
-const char **QWSHydroDecoration::maximizePixmap()
+const char **QDecorationHydro::maximizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_maximize_xpm;
@@ -706,7 +706,7 @@ const char **QWSHydroDecoration::maximizePixmap()
 #endif
 }
 
-const char **QWSHydroDecoration::normalizePixmap()
+const char **QDecorationHydro::normalizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)hydro_maximize_xpm;
@@ -715,7 +715,7 @@ const char **QWSHydroDecoration::normalizePixmap()
 #endif
 }
 
-int QWSHydroDecoration::getTitleHeight(const QWidget *)
+int QDecorationHydro::getTitleHeight(const QWidget *)
 {
     return 15;
 }
@@ -723,7 +723,7 @@ int QWSHydroDecoration::getTitleHeight(const QWidget *)
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QWSHydroDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationHydro::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
     int titleHeight = getTitleHeight(widget);
 //    int titleWidth = getTitleWidth(widget);
@@ -789,14 +789,14 @@ QRegion QWSHydroDecoration::region(const QWidget *widget, const QRect &rect, QWS
         case BottomLeft:
         case BottomRight:
         default:
-            region = QWSDefaultDecoration::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationHydro::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -873,8 +873,8 @@ void QWSHydroDecoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSHydroDecoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationHydro::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
     QRect brect(region(w, w->rect(), type).boundingRect());

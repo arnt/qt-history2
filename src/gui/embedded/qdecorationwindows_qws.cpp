@@ -14,7 +14,7 @@
 #include <qwidget.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
-#include "qwswindowsdecoration_qws.h"
+#include "qdecorationwindows_qws.h"
 
 #ifndef QT_NO_QWS_WINDOWS_WM_STYLE
 
@@ -153,16 +153,16 @@ static const char * const win_normalize_xpm[] = {
 #endif // QT_NO_IMAGEIO_XPM
 
 
-QWSWindowsDecoration::QWSWindowsDecoration()
-    : QWSDefaultDecoration()
+QDecorationWindows::QDecorationWindows()
+    : QDecorationDefault()
 {
 }
 
-QWSWindowsDecoration::~QWSWindowsDecoration()
+QDecorationWindows::~QDecorationWindows()
 {
 }
 
-const char **QWSWindowsDecoration::menuPixmap()
+const char **QDecorationWindows::menuPixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_menu_xpm;
@@ -171,7 +171,7 @@ const char **QWSWindowsDecoration::menuPixmap()
 #endif
 }
 
-const char **QWSWindowsDecoration::closePixmap()
+const char **QDecorationWindows::closePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_close_xpm;
@@ -180,7 +180,7 @@ const char **QWSWindowsDecoration::closePixmap()
 #endif
 }
 
-const char **QWSWindowsDecoration::minimizePixmap()
+const char **QDecorationWindows::minimizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_minimize_xpm;
@@ -189,7 +189,7 @@ const char **QWSWindowsDecoration::minimizePixmap()
 #endif
 }
 
-const char **QWSWindowsDecoration::maximizePixmap()
+const char **QDecorationWindows::maximizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_maximize_xpm;
@@ -198,7 +198,7 @@ const char **QWSWindowsDecoration::maximizePixmap()
 #endif
 }
 
-const char **QWSWindowsDecoration::normalizePixmap()
+const char **QDecorationWindows::normalizePixmap()
 {
 #ifndef QT_NO_IMAGEIO_XPM
     return (const char **)win_normalize_xpm;
@@ -207,7 +207,7 @@ const char **QWSWindowsDecoration::normalizePixmap()
 #endif
 }
 
-int QWSWindowsDecoration::getTitleWidth(const QWidget *widget)
+int QDecorationWindows::getTitleWidth(const QWidget *widget)
 {
     return widget->width();
 }
@@ -215,7 +215,7 @@ int QWSWindowsDecoration::getTitleWidth(const QWidget *widget)
 /*
     If rect is empty, no frame is added. (a hack, really)
 */
-QRegion QWSWindowsDecoration::region(const QWidget *widget, const QRect &rect, QWSDecoration::Region type)
+QRegion QDecorationWindows::region(const QWidget *widget, const QRect &rect, QDecoration::Region type)
 {
     int titleHeight = getTitleHeight(widget);
 //    int titleWidth = getTitleWidth(widget);
@@ -250,14 +250,14 @@ QRegion QWSWindowsDecoration::region(const QWidget *widget, const QRect &rect, Q
         case BottomLeft:
         case BottomRight:
         default:
-            region = QWSDefaultDecoration::region(widget, rect, type);
+            region = QDecorationDefault::region(widget, rect, type);
             break;
     }
 
     return region;
 }
 
-void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
+void QDecorationWindows::paint(QPainter *painter, const QWidget *widget)
 {
     int titleWidth = getTitleWidth(widget);
     int titleHeight = getTitleHeight(widget);
@@ -349,8 +349,8 @@ void QWSWindowsDecoration::paint(QPainter *painter, const QWidget *widget)
 
 }
 
-void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
-                        QWSDecoration::Region type, int state)
+void QDecorationWindows::paintButton(QPainter *painter, const QWidget *w,
+                        QDecoration::Region type, int state)
 {
 #ifndef QT_NO_PALETTE
     QPalette pal = QApplication::palette();

@@ -28,7 +28,7 @@
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
 
@@ -47,28 +47,28 @@ enum WMStyle {
 
 
 #ifndef QT_NO_QWS_WINDOWS_WM_STYLE
-#include "qwswindowsdecoration_qws.h"
-QWSDefaultDecoration *new_Windows_WMDecorations() { return new QWSWindowsDecoration(); }
+#include "qdecorationwindows_qws.h"
+QDecorationDefault *new_Windows_WMDecorations() { return new QDecorationWindows(); }
 #endif // QT_NO_QWS_WINDOWS_WM_STYLE
 #ifndef QT_NO_QWS_KDE_WM_STYLE
-#include "qwskdedecoration_qws.h"
-QWSDefaultDecoration *new_KDE_WMDecorations() { return new QWSKDEDecoration(); }
+#include "qdecorationkde_qws.h"
+QDecorationDefault *new_KDE_WMDecorations() { return new QDecorationKDE(); }
 #endif // QT_NO_QWS_KDE_WM_STYLE
 #ifndef QT_NO_QWS_KDE2_WM_STYLE
-#include "qwskde2decoration_qws.h"
-QWSDefaultDecoration *new_KDE2_WMDecorations() { return new QWSKDE2Decoration(); }
+#include "qdecorationkde2_qws.h"
+QDecorationDefault *new_KDE2_WMDecorations() { return new QDecorationKDE2(); }
 #endif // QT_NO_QWS_KDE2_WM_STYLE
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
-#include "qwsbeosdecoration_qws.h"
-QWSDefaultDecoration *new_BeOS_WMDecorations() { return new QWSBeOSDecoration(); }
+#include "qdecorationbeos_qws.h"
+QDecorationDefault *new_BeOS_WMDecorations() { return new QDecorationBeOS(); }
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
-#include "qwshydrodecoration_qws.h"
-QWSDefaultDecoration *new_Hydro_WMDecorations() { return new QWSHydroDecoration(); }
+#include "qdecorationhydro_qws.h"
+QDecorationDefault *new_Hydro_WMDecorations() { return new QDecorationHydro(); }
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-#include "qwsdefaultdecoration_qws.h"
-QWSDefaultDecoration *new_Default_WMDecorations() { return new QWSDefaultDecoration(); }
+#include "qdecorationdefault_qws.h"
+QDecorationDefault *new_Default_WMDecorations() { return new QDecorationDefault(); }
 #define d d_func()
 #define q q_func()
 
@@ -76,32 +76,32 @@ QWSDefaultDecoration *new_Default_WMDecorations() { return new QWSDefaultDecorat
 struct WMStyleFactoryItem {
         WMStyle WMStyleType;
         QString WMStyleName;
-        QWSDefaultDecoration *(*new_WMDecorations)();
+        QDecorationDefault *(*new_WMDecorations)();
 } WMStyleList[] = {
 #ifndef QT_NO_QWS_WINDOWS_WM_STYLE
-    { Windows_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Windows"), new_Windows_WMDecorations },
+    { Windows_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Windows"), new_Windows_WMDecorations },
 #endif // QT_NO_QWS_WINDOWS_WM_STYLE
 #ifndef QT_NO_QWS_KDE_WM_STYLE
-    { KDE_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "KDE"), new_KDE_WMDecorations },
+    { KDE_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "KDE"), new_KDE_WMDecorations },
 #endif // QT_NO_QWS_KDE_WM_STYLE
 #ifndef QT_NO_QWS_KDE2_WM_STYLE
-    { KDE2_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "KDE2"), new_KDE2_WMDecorations },
+    { KDE2_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "KDE2"), new_KDE2_WMDecorations },
 #endif // QT_NO_QWS_KDE2_WM_STYLE
 #ifndef QT_NO_QWS_BEOS_WM_STYLE
-    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "BeOS"), new_BeOS_WMDecorations },
+    { BeOS_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "BeOS"), new_BeOS_WMDecorations },
 #endif // QT_NO_QWS_BEOS_WM_STYLE
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
-    { Hydro_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Hydro"), new_Hydro_WMDecorations },
+    { Hydro_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Hydro"), new_Hydro_WMDecorations },
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-    { Default_WMStyle, QT_TRANSLATE_NOOP("QWSDecoration", "Default"), new_Default_WMDecorations },
+    { Default_WMStyle, QT_TRANSLATE_NOOP("QDecoration", "Default"), new_Default_WMDecorations },
     { Default_WMStyle, QString::null, NULL }
 };
 
 
-QWSDecoration *QWSManager::newDefaultDecoration()
+QDecoration *QWSManager::newDefaultDecoration()
 {
-    return new QWSDefaultDecoration;
+    return new QDecorationDefault;
 }
 
 
@@ -111,7 +111,7 @@ class QWSManagerPrivate : public QObjectPrivate
 public:
     QWSManagerPrivate();
 
-    QWSDecoration::Region activeRegion;
+    QDecoration::Region activeRegion;
     QWidget *managed;
     QMenu *popup;
     QWSButton *menuBtn;
@@ -141,7 +141,7 @@ QPoint QWSManagerPrivate::mousePos;
 
 
 QWSManagerPrivate::QWSManagerPrivate()
-    : QObjectPrivate(), activeRegion(QWSDecoration::None), managed(0), popup(0), menuBtn(0),
+    : QObjectPrivate(), activeRegion(QDecoration::None), managed(0), popup(0), menuBtn(0),
       closeBtn(0), minimizeBtn(0), maximizeBtn(0), dx(0), dy(0)
 {
 }
@@ -154,10 +154,10 @@ QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
     d->managed = w;
-    d->menuBtn = new QWSButton(this, QWSDecoration::Menu);
-    d->closeBtn = new QWSButton(this, QWSDecoration::Close);
-    d->minimizeBtn = new QWSButton(this, QWSDecoration::Minimize);
-    d->maximizeBtn = new QWSButton(this, QWSDecoration::Maximize, true);
+    d->menuBtn = new QWSButton(this, QDecoration::Menu);
+    d->closeBtn = new QWSButton(this, QDecoration::Close);
+    d->minimizeBtn = new QWSButton(this, QDecoration::Minimize);
+    d->maximizeBtn = new QWSButton(this, QDecoration::Maximize, true);
 }
 
 QWSManager::~QWSManager()
@@ -189,17 +189,17 @@ QRegion QWSManager::region()
     return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
 }
 
-QWSDecoration::Region QWSManager::pointInRegion(const QPoint &p)
+QDecoration::Region QWSManager::pointInRegion(const QPoint &p)
 {
-    QWSDecoration &dec = QApplication::qwsDecoration();
+    QDecoration &dec = QApplication::qwsDecoration();
     QRect rect(d->managed->geometry());
 
-    for (int i = QWSDecoration::LastRegion; i >= QWSDecoration::Title; i--) {
-        if (dec.region(d->managed, rect, (QWSDecoration::Region)i).contains(p))
-            return (QWSDecoration::Region)i;
+    for (int i = QDecoration::LastRegion; i >= QDecoration::Title; i--) {
+        if (dec.region(d->managed, rect, (QDecoration::Region)i).contains(p))
+            return (QDecoration::Region)i;
     }
 
-    return QWSDecoration::None;
+    return QDecoration::None;
 }
 
 bool QWSManager::event(QEvent *e)
@@ -244,30 +244,30 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
     d->dy = 0;
     d->activeRegion = pointInRegion(d->mousePos);
     switch (d->activeRegion) {
-    case QWSDecoration::Menu:
+    case QDecoration::Menu:
         menu(d->managed->geometry().topLeft());
         break;
-    case QWSDecoration::Close:
+    case QDecoration::Close:
         setClicked(d->closeBtn, true);
         break;
-    case QWSDecoration::Minimize:
+    case QDecoration::Minimize:
         setClicked(d->minimizeBtn, true);
         break;
-    case QWSDecoration::Maximize:
+    case QDecoration::Maximize:
         setClicked(d->maximizeBtn, true);
         break;
     default:
         break;
     }
-    if (d->activeRegion != QWSDecoration::None &&
-         d->activeRegion != QWSDecoration::Menu) {
+    if (d->activeRegion != QDecoration::None &&
+         d->activeRegion != QDecoration::Menu) {
         d->active = d->managed;
         d->managed->grabMouse();
     }
-    if (d->activeRegion != QWSDecoration::None &&
-         d->activeRegion != QWSDecoration::Close &&
-         d->activeRegion != QWSDecoration::Minimize &&
-         d->activeRegion != QWSDecoration::Menu) {
+    if (d->activeRegion != QDecoration::None &&
+         d->activeRegion != QDecoration::Close &&
+         d->activeRegion != QDecoration::Minimize &&
+         d->activeRegion != QDecoration::Menu) {
         d->managed->raise();
     }
     if (e->button() == Qt::RightButton) {
@@ -281,32 +281,32 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
     if (e->button() == Qt::LeftButton) {
         handleMove();
         d->mousePos = e->globalPos();
-        QWSDecoration::Region rgn = pointInRegion(e->globalPos());
-        QWSDecoration::Region activatedRegion = d->activeRegion;
-        d->activeRegion = QWSDecoration::None;
+        QDecoration::Region rgn = pointInRegion(e->globalPos());
+        QDecoration::Region activatedRegion = d->activeRegion;
+        d->activeRegion = QDecoration::None;
         d->active = 0;
         switch (activatedRegion) {
-            case QWSDecoration::Close:
+            case QDecoration::Close:
                 setClicked(d->closeBtn, false);
-                if (rgn == QWSDecoration::Close) {
+                if (rgn == QDecoration::Close) {
                     close();
                     return;
                 }
                 break;
-            case QWSDecoration::Minimize:
+            case QDecoration::Minimize:
                 setClicked(d->minimizeBtn, false);
-                if (rgn == QWSDecoration::Minimize)
+                if (rgn == QDecoration::Minimize)
                     minimize();
                 break;
-            case QWSDecoration::Maximize:
+            case QDecoration::Maximize:
                 setClicked(d->maximizeBtn, false);
-                if (rgn == QWSDecoration::Maximize)
+                if (rgn == QDecoration::Maximize)
                     toggleMaximize();
                 break;
             default:
                 break;
         }
-    } else if (d->activeRegion == QWSDecoration::None) {
+    } else if (d->activeRegion == QDecoration::None) {
         d->active = 0;
     }
 }
@@ -322,10 +322,10 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
     // cursor
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
-    if (d->activeRegion == QWSDecoration::None)
+    if (d->activeRegion == QDecoration::None)
     {
         if (!QWidget::mouseGrabber()) {
-            QWSDecoration::Region r = pointInRegion(e->globalPos());
+            QDecoration::Region r = pointInRegion(e->globalPos());
             qwsd->selectCursor(d->managed, shape[r]);
         }
     } else
@@ -353,11 +353,11 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
     handleMove();
 
     // button regions
-    QWSDecoration::Region r = pointInRegion(e->globalPos());
-    setMouseOver(d->menuBtn, r == QWSDecoration::Menu);
-    setMouseOver(d->closeBtn, r == QWSDecoration::Close);
-    setMouseOver(d->minimizeBtn, r == QWSDecoration::Minimize);
-    setMouseOver(d->maximizeBtn, r == QWSDecoration::Maximize);
+    QDecoration::Region r = pointInRegion(e->globalPos());
+    setMouseOver(d->menuBtn, r == QDecoration::Menu);
+    setMouseOver(d->closeBtn, r == QDecoration::Close);
+    setMouseOver(d->minimizeBtn, r == QDecoration::Minimize);
+    setMouseOver(d->maximizeBtn, r == QDecoration::Maximize);
 }
 
 void QWSManager::handleMove()
@@ -373,31 +373,31 @@ void QWSManager::handleMove()
     QRect geom(d->managed->geometry());
 
     switch (d->activeRegion) {
-        case QWSDecoration::Title:
+        case QDecoration::Title:
             geom = QRect(x + d->dx, y + d->dy, w, h);
             break;
-        case QWSDecoration::Top:
+        case QDecoration::Top:
             geom = QRect(x, y + d->dy, w, h - d->dy);
             break;
-        case QWSDecoration::Bottom:
+        case QDecoration::Bottom:
             geom = QRect(x, y, w, h + d->dy);
             break;
-        case QWSDecoration::Left:
+        case QDecoration::Left:
             geom = QRect(x + d->dx, y, w - d->dx, h);
             break;
-        case QWSDecoration::Right:
+        case QDecoration::Right:
             geom = QRect(x, y, w + d->dx, h);
             break;
-        case QWSDecoration::TopRight:
+        case QDecoration::TopRight:
             geom = QRect(x, y + d->dy, w + d->dx, h - d->dy);
             break;
-        case QWSDecoration::TopLeft:
+        case QDecoration::TopLeft:
             geom = QRect(x + d->dx, y + d->dy, w - d->dx, h - d->dy);
             break;
-        case QWSDecoration::BottomLeft:
+        case QDecoration::BottomLeft:
             geom = QRect(x + d->dx, y, w - d->dx, h + d->dy);
             break;
-        case QWSDecoration::BottomRight:
+        case QDecoration::BottomRight:
             geom = QRect(x, y, w + d->dx, h + d->dy);
             break;
         default:
@@ -448,7 +448,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 {
     if (!d->managed->isVisible())
         return;
-    QWSDecoration &dec = QApplication::qwsDecoration();
+    QDecoration &dec = QApplication::qwsDecoration();
     if (d->managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
     d->managed->setWState(Qt::WState_InPaintEvent);
@@ -480,10 +480,10 @@ void QWSManager::paintEvent(QPaintEvent *)
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
     dec.paint(&painter, d->managed);
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paintButton(&painter, d->managed, QWSDecoration::Menu, d->menuBtn->state());
-    dec.paintButton(&painter, d->managed, QWSDecoration::Close, d->closeBtn->state());
-    dec.paintButton(&painter, d->managed, QWSDecoration::Minimize, d->minimizeBtn->state());
-    dec.paintButton(&painter, d->managed, QWSDecoration::Maximize, d->maximizeBtn->state());
+    dec.paintButton(&painter, d->managed, QDecoration::Menu, d->menuBtn->state());
+    dec.paintButton(&painter, d->managed, QDecoration::Close, d->closeBtn->state());
+    dec.paintButton(&painter, d->managed, QDecoration::Minimize, d->minimizeBtn->state());
+    dec.paintButton(&painter, d->managed, QDecoration::Maximize, d->maximizeBtn->state());
     d->managed->clearWState(Qt::WState_InPaintEvent);
 }
 
@@ -493,12 +493,12 @@ void QWSManager::menu(const QPoint &pos)
     if (!d->popup) {
         // Basic window operation menu
         d->popup = new QMenu();
-        d->menuActions[QWSManagerPrivate::NormalizeAction] = new QAction(qApp->translate("QWSDecoration",  "&Restore"));
-        d->menuActions[QWSManagerPrivate::TitleAction] = new QAction(qApp->translate("QWSDecoration",  "&Move"));
-        d->menuActions[QWSManagerPrivate::BottomRightAction] = new QAction(qApp->translate("QWSDecoration",  "&Size"));
-        d->menuActions[QWSManagerPrivate::MinimizeAction] = new QAction(qApp->translate("QWSDecoration",  "Mi&nimize"));
-        d->menuActions[QWSManagerPrivate::MaximizeAction] = new QAction(qApp->translate("QWSDecoration",  "Ma&ximize"));
-        d->menuActions[QWSManagerPrivate::CloseAction] = new QAction(qApp->translate("QWSDecoration",  "Close"));
+        d->menuActions[QWSManagerPrivate::NormalizeAction] = new QAction(qApp->translate("QDecoration",  "&Restore"));
+        d->menuActions[QWSManagerPrivate::TitleAction] = new QAction(qApp->translate("QDecoration",  "&Move"));
+        d->menuActions[QWSManagerPrivate::BottomRightAction] = new QAction(qApp->translate("QDecoration",  "&Size"));
+        d->menuActions[QWSManagerPrivate::MinimizeAction] = new QAction(qApp->translate("QDecoration",  "Mi&nimize"));
+        d->menuActions[QWSManagerPrivate::MaximizeAction] = new QAction(qApp->translate("QDecoration",  "Ma&ximize"));
+        d->menuActions[QWSManagerPrivate::CloseAction] = new QAction(qApp->translate("QDecoration",  "Close"));
 
         d->popup->addAction(d->menuActions[QWSManagerPrivate::NormalizeAction]);
         d->popup->addAction(d->menuActions[QWSManagerPrivate::TitleAction]);
@@ -512,7 +512,7 @@ void QWSManager::menu(const QPoint &pos)
         // Add Style menu
         QMenu *styleMenu = new QMenu("Style");
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
-            styleMenu->addAction(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()));
+            styleMenu->addAction(qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()));
         connect(styleMenu, SIGNAL(triggered(QAction*)), this, SLOT(styleMenuTriggered(QAction*)));
         d->popup->addSeparator();
         d->popup->addAction(styleMenu->menuAction());
@@ -536,7 +536,7 @@ void QWSManager::menu(const QPoint &pos)
 void QWSManager::styleMenuTriggered(QAction *item)
 {
     for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++) {
-        if (item->text() == qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()))
+        if (item->text() == qApp->translate("QDecoration", WMStyleList[i].WMStyleName.latin1()))
             qApp->qwsSetDecoration(WMStyleList[i].new_WMDecorations());
     }
 
@@ -557,12 +557,12 @@ void QWSManager::menuTriggered(QAction *item)
         toggleMaximize();
     } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
         d->mousePos = QCursor::pos();
-        d->activeRegion = QWSDecoration::Title;
+        d->activeRegion = QDecoration::Title;
         d->active = d->managed;
         d->managed->grabMouse();
     } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
         d->mousePos = QCursor::pos();
-        d->activeRegion = QWSDecoration::BottomRight;
+        d->activeRegion = QDecoration::BottomRight;
         d->active = d->managed;
         d->managed->grabMouse();
     } else {
@@ -619,7 +619,7 @@ void QWSManager::repaintButton(QWSButton *b)
 {
     if (!d->managed->isVisible())
         return;
-    QWSDecoration &dec = QApplication::qwsDecoration();
+    QDecoration &dec = QApplication::qwsDecoration();
     if (d->managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::repaintButton() recursive paint event detected");
     d->managed->setWState(Qt::WState_InPaintEvent);
@@ -633,7 +633,7 @@ void QWSManager::repaintButton(QWSButton *b)
 
 /*
 */
-QWSButton::QWSButton(QWSManager *m, QWSDecoration::Region t, bool tb)
+QWSButton::QWSButton(QWSManager *m, QDecoration::Region t, bool tb)
     : flags(0), toggle(tb), typ(t), manager(m)
 {
 }

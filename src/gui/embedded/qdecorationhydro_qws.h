@@ -11,22 +11,22 @@
 **
 ****************************************************************************/
 
-#ifndef QWSHYDRODECORATION_QWS_H
-#define QWSHYDRODECORATION_QWS_H
+#ifndef QDECORATIONHYDRO_QWS_H
+#define QDECORATIONHYDRO_QWS_H
 
 #ifndef QT_H
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 #endif // QT_H
 
 
 #ifndef QT_NO_QWS_HYDRO_WM_STYLE
 
 
-class QWSHydroDecoration : public QWSDefaultDecoration
+class QDecorationHydro : public QDecorationDefault
 {
 public:
-    QWSHydroDecoration();
-    virtual ~QWSHydroDecoration();
+    QDecorationHydro();
+    virtual ~QDecorationHydro();
 
     virtual QRegion region(const QWidget *, const QRect &rect, Region);
     virtual void paint(QPainter *, const QWidget *);
@@ -43,4 +43,4 @@ protected:
 
 #endif // QT_NO_QWS_HYDRO_WM_STYLE
 
-#endif // QWSHYDRODECORATION_QWS_H
+#endif // QDECORATIONHYDRO_QWS_H

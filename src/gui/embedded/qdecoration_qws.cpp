@@ -10,7 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#include "qwsdecoration_qws.h"
+#include "qdecoration_qws.h"
 
 #ifndef QT_NO_QWS_MANAGER
 
@@ -22,8 +22,8 @@
 
 
 /*!
-    \class QWSDecoration qwsdecoration_qws.h
-    \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
+    \class QDecoration qdecoration_qws.h
+    \brief The QDecoration class allows the appearance of the Qt/Embedded Window
     Manager to be customized.
 
     \ingroup qws
@@ -31,7 +31,7 @@
     Qt/Embedded provides window management to top level windows. The
     appearance of the borders and buttons (the decoration) around the
     managed windows can be customized by creating your own class
-    derived from QWSDecoration and overriding a few methods.
+    derived from QDecoration and overriding a few methods.
 
     This class is non-portable. It is available \e only in Qt/Embedded.
 
@@ -39,19 +39,19 @@
 */
 
 /*!
-    \fn QWSDecoration::QWSDecoration()
+    \fn QDecoration::QDecoration()
 
     Constructs a decorator.
 */
 
 /*!
-    \fn QWSDecoration::~QWSDecoration()
+    \fn QDecoration::~QDecoration()
 
     Destroys a decorator.
 */
 
 /*!
-    \enum QWSDecoration::Region
+    \enum QDecoration::Region
 
     This enum describes the regions in the window decorations.
 
@@ -77,7 +77,7 @@
 */
 
 /*!
-    \fn QRegion QWSDecoration::region(const QWidget *widget, const QRect &rect, Region type)
+    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, Region type)
 
     Returns the requested region \a type which will contain \a widget
     with geometry \a rect.
@@ -90,7 +90,7 @@
 
     The default behavior is to close the widget.
 */
-void QWSDecoration::close(QWidget *widget)
+void QDecoration::close(QWidget *widget)
 {
     widget->close();
 }
@@ -135,7 +135,7 @@ public:
 
     The default behavior is to ignore this action.
 */
-void QWSDecoration::minimize(QWidget * /* widget */)
+void QDecoration::minimize(QWidget * /* widget */)
 {
 //      new MinimisedWindow(w);
 
@@ -152,7 +152,7 @@ void QWSDecoration::minimize(QWidget * /* widget */)
     This method can be overridden e.g. to allow room for launch
     panels.
 */
-void QWSDecoration::maximize(QWidget *widget)
+void QDecoration::maximize(QWidget *widget)
 {
     QRect nr;
 
@@ -187,14 +187,14 @@ void QWSDecoration::maximize(QWidget *widget)
 }
 
 /*!
-    \fn void QWSDecoration::paint(QPainter *painter, const QWidget *widget)
+    \fn void QDecoration::paint(QPainter *painter, const QWidget *widget)
 
     Override to paint the border and title decoration around \a widget
     using \a painter.
 */
 
 /*!
-    \fn void QWSDecoration::paintButton(QPainter *painter, const QWidget *widget, Region type, int state)
+    \fn void QDecoration::paintButton(QPainter *painter, const QWidget *widget, Region type, int state)
 
     Override to paint a button of type \a type using \a painter.
 

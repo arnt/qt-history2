@@ -125,7 +125,7 @@ static int mouse_state = 0;
 bool qws_overrideCursor = false;
 static bool qws_regionRequest = false;
 #ifndef QT_NO_QWS_MANAGER
-static QWSDecoration *qws_decoration = 0;
+static QDecoration *qws_decoration = 0;
 #endif
 #undef gettimeofday
 extern "C" int gettimeofday(struct timeval *, struct timezone *);
@@ -2333,7 +2333,7 @@ void QApplication::qwsSetCustomColors(QRgb *colorTable, int start, int numColors
 
     \sa QWSDecoration
 */
-QWSDecoration &QApplication::qwsDecoration()
+QDecoration &QApplication::qwsDecoration()
 {
     return *qws_decoration;
 }
@@ -2347,7 +2347,7 @@ QWSDecoration &QApplication::qwsDecoration()
 
     \sa QWSDecoration
 */
-void QApplication::qwsSetDecoration(QWSDecoration *dec)
+void QApplication::qwsSetDecoration(QDecoration *dec)
 {
     if (dec) {
         delete qws_decoration;

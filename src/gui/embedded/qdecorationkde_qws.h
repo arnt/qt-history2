@@ -11,21 +11,21 @@
 **
 ****************************************************************************/
 
-#ifndef QWSKDEDECORATION_QWS_H
-#define QWSKDEDECORATION_QWS_H
+#ifndef QDECORATIONKDE_QWS_H
+#define QDECORATIONKDE_QWS_H
 
 #ifndef QT_H
-#include "qwsdefaultdecoration_qws.h"
+#include "qdecorationdefault_qws.h"
 #endif // QT_H
 
 #ifndef QT_NO_QWS_KDE_WM_STYLE
 
 
-class QWSKDEDecoration : public QWSDefaultDecoration
+class QDecorationKDE : public QDecorationDefault
 {
 public:
-    QWSKDEDecoration();
-    virtual ~QWSKDEDecoration();
+    QDecorationKDE();
+    virtual ~QDecorationKDE();
 
     virtual QRegion region(const QWidget *, const QRect &rect, Region);
     virtual void paint(QPainter *, const QWidget *);
@@ -44,4 +44,4 @@ protected:
 
 #endif // QT_NO_QWS_KDE_WM_STYLE
 
-#endif // QWSKDEDECORATION_QWS_H
+#endif // QDECORATIONKDE_QWS_H
