@@ -2418,6 +2418,7 @@ QString QFontPrivate::key() const
     if (request.rawMode)
 	return request.family;
 
+#if 1
     int len = (request.family.length() * 2) +
 	      (request.addStyle.length() * 2) +
 	      2 +  // point size
@@ -2447,6 +2448,16 @@ QString QFontPrivate::key() const
 	    (int) request.styleHint : (int) QFont::AnyStyle);
 
     return QString((QChar *) buf.data(), buf.size() / 2);
+#else
+    // this version is for debugging as it gives better readable strings.
+    QString k = request.family;
+    if ( request.addStyle.length() )
+	k += request.addStyle;
+    k += "%1/%2/%3/%4/%5";
+    k = k.arg( request.pointSize ).arg( request.pixelSize ).arg( get_font_bits( request ) ).arg( request.weight )
+	.arg( (request.hintSetByUser ? (int) request.styleHint : (int) QFont::AnyStyle) );
+    return k;
+#endif
 }
 
 QFont::Script QFontPrivate::scriptForChar( const QChar &c )

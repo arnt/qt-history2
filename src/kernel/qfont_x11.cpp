@@ -1400,6 +1400,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     if ( paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != QPaintDevice::x11AppDpiY() ) {
 	size_value = pixelSize( request, paintdevice );
 	sizeFormat = XFT_PIXEL_SIZE;
+	//qDebug("requesting scaled font, dpy=%d, pixelsize=%f", QPaintDeviceMetrics( paintdevice ).logicalDpiY(), size_value);
     } else if ( request.pointSize != -1 ) {
 	size_value = request.pointSize / 10.;
 	sizeFormat = XFT_SIZE;
@@ -2016,8 +2017,9 @@ void QFontPrivate::initFontInfo(QFont::Script script)
 
 	QFontDef font;
 	if ( fillFontDef(x11data.fontstruct[script]->name, &font, 0)) {
-	    if ( pixelSize != 0 )
+	    if ( font.pixelSize != 0 )
 		x11data.fontstruct[script]->scale = _pixelSize/((float) font.pixelSize);
+	    //qDebug("setting scale to %f requested pixel=%f got %d", x11data.fontstruct[script]->scale, _pixelSize, font.pixelSize);
 	}
 	return;
     }
@@ -2327,7 +2329,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
     // Look for font name in fontNameDict based on QFont::key()
     QString k(key() + script_table[script].list[script_table[script].index]);
     if ( paintdevice )
-	k += "/" + QPaintDeviceMetrics( paintdevice ).logicalDpiY();
+	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
     QXFontName *qxfn = fontNameDict->find(k);
 
     if (! qxfn) {
@@ -2406,6 +2408,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
 	if (qfs != (QFontStruct *) -1) {
 	    qfs->ref();
+	    initFontInfo(script);
 	}
 
 	request.dirty = FALSE;

@@ -322,7 +322,7 @@ void QFontPrivate::load()
 
     QString k = key();
     if ( paintdevice )
-	k += "/" + QPaintDeviceMetrics( paintdevice ).logicalDpiY();
+	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
     QFontStruct *qfs = fontCache->find( k );
 
     if ( !qfs ) {			// font was never loaded
