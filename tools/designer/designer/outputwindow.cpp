@@ -27,7 +27,7 @@ OutputWindow::~OutputWindow()
 
 void OutputWindow::setupError()
 {
-    errorView = new QListView( this );
+    errorView = new QListView( this, "OutputWindow::errorView" );
     addTab( errorView, tr( "Error Messages" ) );
     errorView->addColumn( tr( "Message" ) );
     errorView->addColumn( tr( "Line" ) );
@@ -51,7 +51,7 @@ void debugMessageOutput( QtMsgType type, const char *msg )
 
 void OutputWindow::setupDebug()
 {
-    debugView = new QTextEdit( this );
+    debugView = new QTextEdit( this, "OutputWindow::debugView" );
     addTab( debugView, "Debug Output" );
     oldMsgHandler = qInstallMsgHandler( debugMessageOutput );
 }
