@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#18 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qframe.cpp#18 $";
 #endif
 
 
@@ -254,8 +254,8 @@ void QFrame::updateFrameWidth()
   Returns the width of the frame that will be drawn.
 
   Notice that the frame width depends on the \link QFrame::setFrameStyle()
-  frame style \endlink, not only the line width and the mid line width.  For
-  example, the style \c NoFrame will have a frame width 0, while the
+  frame style \endlink, not only the line width and the mid line width.
+  For example, the style \c NoFrame will have a frame width 0, while the
   style \c Panel will have a frame width equivalent to the line width.
 
   \sa lineWidth(), midLineWidth(), frameStyle()

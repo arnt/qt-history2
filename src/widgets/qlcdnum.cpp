@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#19 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -16,7 +16,7 @@
 #include <stdio.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#18 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#19 $";
 #endif
 
 
@@ -56,7 +56,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 	    int len = 0;
 	    *p = '\0';
 	    do {
-		*--p = ((n&1)+'0');
+		*--p = (char)((n&1)+'0');
 		n >>= 1;
 		len++;
 	    } while ( n != 0 );

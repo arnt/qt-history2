@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#19 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#20 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#20 $";
 #endif
 
 
@@ -243,8 +243,12 @@ void QLabel::adjustSize()
     p.begin( this );
     QRect br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
     p.end();
-    resize( br.width()	+ 4 + frameWidth(),
-	    br.height() + 4 + frameWidth() );
+    int w = br.width()	+ 4 + frameWidth();
+    int h = br.height() + 4 + frameWidth();
+    if ( w == width() && h == height() )
+	updateLabel();
+    else
+	resize( w, h );
 }
 
 
