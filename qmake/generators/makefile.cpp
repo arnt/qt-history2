@@ -1542,7 +1542,6 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
         QStringList subdirs = project->variables()["SUBDIRS"];
         for(QStringList::Iterator it = subdirs.begin(); it != subdirs.end(); ++it) {
             QString file = (*it);
-            file = fileFixify(file);
             SubTarget *st = new SubTarget;
             targets.append(st);
             st->makefile = "$(MAKEFILE)";
