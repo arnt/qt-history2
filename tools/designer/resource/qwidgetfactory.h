@@ -82,12 +82,22 @@ private:
 	QStringList functions;
     };
 
+    struct SqlWidgetConnection
+    {
+	SqlWidgetConnection() {}
+	SqlWidgetConnection( const QString &c, const QString &t )
+	    : conn( c ), table( t ), dbControls( new QMap<QString, QString>() ) {}
+	QString conn;
+	QString table;
+	QMap<QString, QString> *dbControls;
+    };
+
     QValueList<Image> images;
     QWidget *toplevel;
     QListViewItem *lastItem;
-    QMap<QString, QString> dbControls;
+    QMap<QString, QString> *dbControls;
     QMap<QString, QStringList> dbTables;
-    QString defConnection, defTable;
+    QMap<QWidget*, SqlWidgetConnection> sqlWidgetConnections;
     QMap<QString, QString> buddies;
     QMap<QTable*, QValueList<Field> > fieldMaps;
     QList<QAction> actionList;

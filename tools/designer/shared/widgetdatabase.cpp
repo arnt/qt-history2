@@ -219,7 +219,7 @@ void WidgetDatabase::setupDataBase()
     r = new WidgetDatabaseRecord;
     r->iconSet = "table.xpm";
     r->name = "QSqlTable";
-    r->group = widgetGroup( "Views" );
+    r->group = widgetGroup( "Database" );
     r->toolTip = "SQL Table";
 
     append( r );
@@ -474,7 +474,9 @@ void WidgetDatabase::setupDataBase()
     r->iconSet = "";
     r->name = "QSqlWidget";
     r->includeFile = "qsqlwidget.h";
-    r->group = widgetGroup( "Temp" );
+    r->group = widgetGroup( "Database" );
+    r->toolTip = "SQL Widget";
+    r->iconSet = "sqlwidget.h";
     r->isContainer = TRUE;
 
     append( r );

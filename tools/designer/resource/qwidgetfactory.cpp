@@ -93,6 +93,7 @@ static QInterfaceManager<EventInterface> *eventInterfaceManager = 0;
 /*! Constructs a QWidgetFactory. */
 
 QWidgetFactory::QWidgetFactory()
+    : dbControls( 0 )
 {
 }
 
@@ -199,13 +200,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     if ( widgetFactory->toplevel ) {
 #ifndef QT_NO_SQL
-	if ( widgetFactory->toplevel->inherits( "QDesignerSqlWidget" ) )
-	    ( (QDesignerSqlWidget*)widgetFactory->toplevel )->
-		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
-	else if ( widgetFactory->toplevel->inherits( "QDesignerSqlDialog" ) )
-	    ( (QDesignerSqlDialog*)widgetFactory->toplevel )->
-		initPreview( widgetFactory->defConnection, widgetFactory->defTable, widgetFactory->toplevel, widgetFactory->dbControls );
-
+	QMap<QWidget*, SqlWidgetConnection>::Iterator cit = widgetFactory->sqlWidgetConnections.begin();
+	for( ; cit != widgetFactory->sqlWidgetConnections.end(); ++cit ) {
+	    if ( cit.key()->inherits( "QDesignerSqlWidget" ) )
+		( (QDesignerSqlWidget*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	    else if ( cit.key()->inherits( "QDesignerSqlDialog" ) )
+		( (QDesignerSqlDialog*)cit.key() )->initPreview( (*cit).conn, (*cit).table, cit.key(), *(*cit).dbControls );
+	}
+	
 	for ( QMap<QString, QStringList>::Iterator it = widgetFactory->dbTables.begin(); it != widgetFactory->dbTables.end(); ++it ) {
 	    QSqlTable *table = (QSqlTable*)widgetFactory->toplevel->child( it.key(), "QSqlTable" );
 	    if ( !table )
@@ -531,7 +533,9 @@ QWidget *QWidgetFactory::createWidgetInternal( const QDomElement &e, QWidget *pa
 	if ( n.tagName() == "spacer" ) {
 	    createSpacer( n, layout );
 	} else if ( n.tagName() == "widget" ) {
+	    QMap< QString, QString> *oldDbControls = dbControls;
 	    createWidgetInternal( n, w, layout, n.attribute( "class", "QWidget" ) );
+	    dbControls = oldDbControls;
 	} else if ( n.tagName() == "hbox" ) {
 	    QLayout *parentLayout = layout;
 	    if ( layout && layout->inherits( "QGridLayout" ) )
@@ -723,17 +727,20 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		if ( !v.toString().isEmpty() )
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
 	    }
-	    if ( prop == "database" && obj != toplevel ) {
+	    if ( prop == "database" && !obj->inherits( "QSqlWidget" ) && !obj->inherits( "QSqlDialog" ) ) {
 		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
-		if ( lst.count() > 2 )
-		    dbControls.insert( obj->name(), lst[ 2 ] );
-		else if ( lst.count() == 2 )
+		if ( lst.count() > 2 ) {
+		    if ( dbControls )
+			dbControls->insert( obj->name(), lst[ 2 ] );
+		} else if ( lst.count() == 2 ) {
 		    dbTables.insert( obj->name(), lst );
-	    } else if ( prop == "database" && obj == toplevel ) {
+		}
+	    } else if ( prop == "database" ) {
 		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
-		if ( lst.count() == 2 ) {
-		    defConnection = lst[ 0 ];
-		    defTable = lst[ 1 ];
+		if ( lst.count() == 2 && obj->inherits( "QWidget" ) ) {
+		    SqlWidgetConnection conn( lst[ 0 ], lst[ 1 ] );
+		    sqlWidgetConnections.insert( (QWidget*)obj, conn );
+		    dbControls = conn.dbControls;
 		}
 	    } else if ( prop == "buddy" ) {
 		buddies.insert( obj->name(), v.toCString() );

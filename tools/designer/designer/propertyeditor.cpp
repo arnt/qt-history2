@@ -2279,6 +2279,20 @@ static QVariant::Type type_to_variant( const QString &s )
     return QVariant::Invalid;
 }
 
+static bool parent_is_data_aware( QObject *o )
+{
+    if ( !o->inherits( "QWidget" ) )
+	return FALSE;
+    QWidget *w = (QWidget*)o;
+    QWidget *p = w->parentWidget();
+    while ( p && !p->isTopLevel() ) {
+	if ( p->inherits( "QDesignerSqlWidget" ) || p->inherits( "QDesignerSqlDialog" ) )
+	    return TRUE;
+	p = p->parentWidget();
+    }
+    return FALSE;
+}
+
 /*!  Sets up the property list by adding an item for each designable
 property of the widget which is just edited.
 */
@@ -2434,22 +2448,20 @@ void PropertyList::setupProperties()
     }
 
 #ifndef QT_NO_SQL
-    if ( ( editor->formWindow()->mainContainer()->inherits( "QDesignerSqlWidget" ) ||
-	   editor->formWindow()->mainContainer()->inherits( "QDesignerSqlDialog" ) ) &&
-	 !editor->widget()->inherits( "QSqlTable" ) ) {
+    if ( !editor->widget()->inherits( "QSqlTable" ) && !editor->widget()->inherits( "QSqlWidget" ) && parent_is_data_aware( editor->widget() ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", editor->formWindow()->mainContainer() != w );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
-#endif
 
-    if ( editor->widget()->inherits( "QSqlTable" ) ) {
+    if ( editor->widget()->inherits( "QSqlTable" ) || editor->widget()->inherits( "QSqlWidget" ) ) {
 	item = new PropertyDatabaseItem( this, item, 0, "database", FALSE );
 	setPropertyValue( item );
 	if ( MetaDataBase::isPropertyChanged( editor->widget(), "database" ) )
 	    item->setChanged( TRUE, FALSE );
     }
+#endif
 
     if ( w->inherits( "CustomWidget" ) ) {
 	MetaDataBase::CustomWidget *cw = ( (CustomWidget*)w )->customWidget();

@@ -243,6 +243,16 @@ static QPushButton *create_widget( QWidget *parent, const char *name,
     return pb;
 }
 
+static QWidget *find_formwindow( QWidget *w )
+{
+    while ( w ) {
+	if ( w->inherits( "FormWindow" ) )
+	    return w;
+	w = w->parentWidget();
+    }
+    return w;
+}
+
 void SqlFormWizard::accept()
 {
     if ( !appIface )
@@ -300,6 +310,7 @@ void SqlFormWizard::accept()
     const int SPACING = 25;
 
     uint j;
+    QWidget *fw = find_formwindow( widget );
     switch ( mode ) {
     case None:
 	break;
@@ -340,22 +351,22 @@ void SqlFormWizard::accept()
 	    if ( checkBoxFirst->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonFirst", "|< &First",
 						 QRect( SPACING * 10, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "firstRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "firstRecord()" );
 	    }
 	    if ( checkBoxPrev->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonPrev", "<< &Prev",
 						 QRect( SPACING * 13, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "prevRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "prevRecord()" );
 	    }
 	    if ( checkBoxNext->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonNext", "&Next >>",
 						 QRect( SPACING * 16, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "nextRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "nextRecord()" );
 	    }
 	    if ( checkBoxLast->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonLast", "&Last >|",
 						 QRect( SPACING * 19, SPACING, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "lastRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "lastRecord()" );
 	    }
 	}
 
@@ -363,17 +374,17 @@ void SqlFormWizard::accept()
 	    if ( checkBoxInsert->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonInsert", "&Insert",
 						 QRect( SPACING * 10, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "insertRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "insertRecord()" );
 	    }
 	    if ( checkBoxUpdate->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonUpdate", "&Update",
 						 QRect( SPACING * 13, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "updateRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "updateRecord()" );
 	    }
 	    if ( checkBoxDelete->isChecked() ) {
 		QPushButton *pb = create_widget( widget, "PushButtonDelete", "&Delete",
 						 QRect( SPACING * 16, SPACING *3, SPACING * 3, SPACING ), mdbIface, fIface, wfIface );
-		mdbIface->addConnection( widget->parentWidget(), pb, "clicked()", widget, "deleteRecord()" );
+		mdbIface->addConnection( fw, pb, "clicked()", widget, "deleteRecord()" );
 	    }
 	}
 	break;
