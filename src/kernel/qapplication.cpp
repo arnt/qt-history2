@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#284 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#285 $
 **
 ** Implementation of QApplication class
 **
@@ -232,32 +232,37 @@ void qt_init( Display* dpy );
 #endif
 
 QNonBaseApplication *qApp = 0;			// global application object
-QStyle *QApplication::app_style	       = 0;	// default application style
+
+QStyle   *QApplication::app_style      = 0;	// default application style
+int	  QApplication::app_cspec = QApplication::NormalColor;
 QPalette *QApplication::app_pal	       = 0;	// default application palette
 QFont	 *QApplication::app_font       = 0;	// default application font
-// Default application palettes and fonts (per widget type)
-QAsciiDict<QPalette> *QApplication::app_palettes = 0;
-QAsciiDict<QFont>    *QApplication::app_fonts = 0;
 QCursor	 *QApplication::app_cursor     = 0;	// default application cursor
 int	  QApplication::app_tracking   = 0;	// global mouse tracking
 bool	  QApplication::is_app_running = FALSE;	// app starting up if FALSE
 bool	  QApplication::is_app_closing = FALSE;	// app closing down if TRUE
+bool	  QApplication::app_exit_loop  = FALSE;	// flag to exit local loop
 int	  QApplication::loop_level     = 0;	// event loop level
 QWidget	 *QApplication::main_widget    = 0;	// main application widget
 QWidget	 *QApplication::focus_widget   = 0;	// has keyboard input focus
-QWidget	 *QApplication::active_window  = 0;	// toplevel that has keyboard input focus
+QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
 bool	  QApplication::obey_desktop_settings = TRUE;  // use winsys resources
-int	  QApplication::cursor_flash_time = 1000;  // text caret flash time
-int	  QApplication::mouse_double_click_time = 400;  // text caret flash time
-QWidgetList *QApplication::popupWidgets= 0;	// has keyboard input focus
-static bool makeqdevel = FALSE;		// developer tool needed?
-//static QDeveloper* qdevel = 0;		// developer tool
-static QWidget *desktopWidget	= 0;		// root window widget
-static QTextCodec *default_codec	= 0;		// root window widget
-bool QApplication::app_exit_loop = FALSE;	// flag to exit local loop
-bool QApplication::is_gui_used;
+int	  QApplication::cursor_flash_time = 1000;      // text caret flash time
+int	  QApplication::mouse_double_click_time = 400; // mouse dbl click limit
+bool	  QApplication::is_gui_used;
 
-//Definitions for posted events.
+// Default application palettes and fonts (per widget type)
+QAsciiDict<QPalette> *QApplication::app_palettes = 0;
+QAsciiDict<QFont>    *QApplication::app_fonts = 0;
+
+QWidgetList *QApplication::popupWidgets = 0;	// has keyboard input focus
+
+static bool	   makeqdevel	 = FALSE;	// developer tool needed?
+//static QDeveloper* qdevel = 0;		// developer tool
+static QWidget	  *desktopWidget = 0;		// root window widget
+static QTextCodec *default_codec = 0;		// root window widget
+
+// Definitions for posted events
 struct QPostEvent {
     QPostEvent( QObject *r, QEvent *e ) { receiver=r; event=e; }
    ~QPostEvent()			{ delete event; }
@@ -265,18 +270,15 @@ struct QPostEvent {
     QEvent   *event;
 };
 
-typedef QList<QPostEvent> QPostEventList;
+typedef QList<QPostEvent>	  QPostEventList;
 typedef QListIterator<QPostEvent> QPostEventListIt;
 static QPostEventList *postedEvents = 0;	// list of posted events
 
 static void cleanupPostedEvents();
 
 
-int	 QApplication::app_cspec = QApplication::NormalColor;
-
-
-
 QPalette *qt_std_pal = 0;
+
 void qt_create_std_palette()
 {
     if ( qt_std_pal )
@@ -306,7 +308,6 @@ static void qt_fix_tooltips()
     QPalette pal( cg, cg, cg );
     QApplication::setPalette( pal, TRUE, "QTipLabel");
 }
-
 
 
 void QApplication::process_cmdline( int* argcptr, char ** argv )
@@ -429,7 +430,7 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 */
 
 //######### BINARY COMPATIBILITY constructor
-QApplication::QApplication( int &argc, char **argv)
+QApplication::QApplication( int &argc, char **argv )
 {
     is_gui_used = TRUE;
     init_precmdline();
@@ -472,11 +473,8 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
     }
     qt_init( &argc, argv );   // Must be called before initialize()
     process_cmdline( &argc, argv );
-
     initialize( argc, argv );
 }
-
-
 
 /*!
   Create an application, given an already open display.  This is
@@ -500,9 +498,8 @@ void QApplication::init_precmdline()
     is_session_restored = FALSE;
 #if defined(CHECK_STATE)
     if ( qApp )
-	qWarning( "QApplication: There should be only one application object" );
+	qWarning( "QApplication: There should be max one application object" );
 #endif
-
     qApp = (QNonBaseApplication*)this;
 }
 
@@ -512,7 +509,6 @@ void QApplication::init_precmdline()
 
 void QApplication::initialize( int argc, char **argv )
 {
-
     app_argc = argc;
     app_argv = argv;
     quit_now = FALSE;
@@ -527,9 +523,11 @@ void QApplication::initialize( int argc, char **argv )
 
     if (!app_style) {
 #if defined(_WS_WIN_)
-	app_style = new QWindowsStyle;// default style for Windows
+	app_style = new QWindowsStyle;		// default style for Windows
 #elif defined(_WS_X11_)
-	app_style = new QMotifStyle;// default style for X Windows
+	app_style = new QMotifStyle;		// default style for X Windows
+#elif defined(_WS_MAC_)
+	app_style = new QPlatinumStyle;
 #endif
     }
 
@@ -557,6 +555,8 @@ void QApplication::initialize( int argc, char **argv )
 
 QApplication::~QApplication()
 {
+    delete desktopWidget;
+    desktopWidget = 0;
     is_app_closing = TRUE;
     QWidget::destroyMapper();
     delete qt_std_pal;
@@ -578,8 +578,8 @@ QApplication::~QApplication()
     objectDict = 0;
     qApp = 0;
     is_app_running = FALSE;
-    //can not delete codecs until after QDict destructors
-    //QTextCodec::deleteAllCodecs();
+    // Cannot delete codecs until after QDict destructors
+    // QTextCodec::deleteAllCodecs()
 }
 
 
@@ -666,8 +666,8 @@ void QApplication::setStyle( QStyle *style )
 	    register QWidget *w;
 	    while ( (w=it.current()) ) {		// for all widgets...
 		++it;
-		if ( !w->testWFlags(WType_Desktop) // (except desktop)
-		     && w->testWState(WState_Polished) ) { // (and have been polished)
+		if ( !w->testWFlags(WType_Desktop) &&	// except desktop
+		     w->testWState(WState_Polished) ) { // has been polished
 		    old->unPolish(w);
 		}
 	    }
@@ -681,9 +681,9 @@ void QApplication::setStyle( QStyle *style )
 	    register QWidget *w;
 	    while ( (w=it.current()) ) {		// for all widgets...
 		++it;
-		if ( !w->testWFlags(WType_Desktop) ) { // (except desktop)
+		if ( !w->testWFlags(WType_Desktop) ) {	// except desktop
 		    if ( w->testWState(WState_Polished) )
-			app_style->polish(w); // repolish
+			app_style->polish(w);		// repolish
 		    w->styleChange( *old );
 		    if ( w->isVisible() ){
 			w->update();
@@ -930,15 +930,13 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
 	if ( !app_pal ) {
 	    app_pal = new QPalette( pal );
 	    CHECK_PTR( app_pal );
-	}
-	else {
+	} else {
 	    *app_pal = pal;
 	}
 	delete app_palettes;
 	app_palettes = 0;
 	qt_fix_tooltips();		// ### Doesn't (always) work
-    }
-    else {
+    } else {
 	if ( !app_palettes ) {
 	    app_palettes = new QAsciiDict<QPalette>;
 	    CHECK_PTR( app_palettes );
@@ -946,17 +944,15 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
 	}
 	app_palettes->insert( className, new QPalette( pal ) );
     }
-
     if ( updateAllWidgets && is_app_running && !is_app_closing ) {
 	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( ( !className || w->inherits( className ) )
-		 && !w->testWFlags(WType_Desktop) 	     // except desktop
-		 && !w->testWState(WState_PaletteFixed) ) {  // except fixed
-		w->setPalette( QApplication::palette( w ) );
-	    }
+	    if ( (!className || w->inherits(className))   // matching class
+		 && !w->testWFlags(WType_Desktop) 	  // except desktop
+		 && !w->testWState(WState_PaletteFixed) ) // except fixed
+		w->setPalette( QApplication::palette(w) );
 	}
     }
 }
@@ -970,7 +966,7 @@ void QApplication::setPalette( const QPalette &palette, bool updateAllWidgets,
   \sa setFont(), fontMetrics(), QWidget::font()
 */
 
-QFont QApplication::font( const QWidget* w )
+QFont QApplication::font( const QWidget *w )
 {
     if ( w && app_fonts ) {
 	QAsciiDictIterator<QFont> it( *app_fonts );
@@ -1012,14 +1008,14 @@ QFont QApplication::font( const QWidget* w )
   \sa font(), fontMetrics(), QWidget::setFont()
 */
 
-void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char* className )
+void QApplication::setFont( const QFont &font, bool updateAllWidgets,
+			    const char* className )
 {
-    if (!className) {
+    if ( !className ) {
 	if ( !app_font ) {
 	    app_font = new QFont( font );
 	    CHECK_PTR( app_font );
-	}
-	else {
+	} else {
 	    *app_font = font;
 	}
 	delete app_fonts;
@@ -1039,13 +1035,14 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
 	register QWidget *w;
 	while ( (w=it.current()) ) {		// for all widgets...
 	    ++it;
-	    if ( ( !className  || w->inherits( className ) ) && // that fit with classname
-		 !w->testWFlags(WType_Desktop) // (except desktop)
-		 && !w->testWState(WState_FontFixed) ) // (and except fixed fonts)
-		w->setFont( QApplication::font( w ) );
+	    if ( (!className || w->inherits(className)) // matching class
+		 && !w->testWFlags(WType_Desktop)	// except desktop
+		 && !w->testWState(WState_FontFixed) )  // except fixed
+		w->setFont( QApplication::font(w) );
 	}
     }
 }
+
 
 /*!
   Polishing of widgets.
@@ -1064,7 +1061,7 @@ void QApplication::setFont( const QFont &font, bool updateAllWidgets, const char
   \sa QStyle::polish(), QWidget::polish(), setPalette(), setFont()
 */
 
-void QApplication::polish(QWidget* w)
+void QApplication::polish( QWidget *w )
 {
     if ( !w->testWState( WState_PaletteSet ) ) {
 	if ( !palette( w ).isCopyOf( palette() ) )
@@ -1074,10 +1071,8 @@ void QApplication::polish(QWidget* w)
 	if ( !font( w ).isCopyOf( font() ) )
 	    w->setFont( font( w ) );
     }
-
     app_style->polish( w );
 }
-
 
 
 /*!
@@ -1383,7 +1378,6 @@ bool QApplication::notify( QObject *receiver, QEvent *event )
 	}
     }
 
-
     if ( eventFilters ) {
 	QObjectListIt it( *eventFilters );
 	register QObject *obj;
@@ -1431,6 +1425,7 @@ bool QApplication::closingDown()
 {
     return is_app_closing;
 }
+
 
 /*!
   Processes pending events, for 3 seconds or until there
@@ -1501,15 +1496,17 @@ const QColor& QApplication::winStyleHighlightColor()
     return palette().normal().highlight();
 }
 
+
 /*!
   \fn Qt::WindowsVersion QApplication::winVersion()
 
   Returns the version of the Windows operating system running:
 
   <ul>
-  <li> \c WV_NT Windows NT.
-  <li> \c WV_95 Windows 95.
-  <li> \c WV_32s Win32s.
+  <li> \c Qt::WV_NT Windows NT.
+  <li> \c Qt::WV_95 Windows 95.
+  <li> \c Qt::WV_98 Windows 98.
+  <li> \c Qt::WV_32s Win32s.
   </ul>
 
   Note that this function is implemented for the Windows version
@@ -1530,7 +1527,8 @@ void QApplication::noteTopLevel( QWidget*  )
 }
 
 
-/*!  Adds \a mf to the list of message files to be used for
+/*!
+  Adds \a mf to the list of message files to be used for
   localization.  Message files are searched starting with the most
   recently added file.
 
@@ -1546,7 +1544,8 @@ void QApplication::installTranslator( QTranslator * mf )
 }
 
 
-/*!  Removes \a mf from the list of message files used by this
+/*!
+  Removes \a mf from the list of message files used by this
   application.  Does not, of course, delete mf.
 
   \sa installTranslator() translate(), QObject::tr()
@@ -1591,6 +1590,7 @@ void QApplication::removeTranslator( QTranslator * mf )
   strings.  These strings are in English, so for a full translation, a
   codec would be required for these strings.
 */
+
 void QApplication::setDefaultCodec( QTextCodec* codec )
 {
     default_codec = codec;
@@ -1600,12 +1600,14 @@ void QApplication::setDefaultCodec( QTextCodec* codec )
   Returns the default codec (see setDefaultCodec()).
   Returns 0 by default (no codec).
 */
+
 QTextCodec* QApplication::defaultCodec() const
 {
     return default_codec;
 }
 
-/*!  Returns the best available translation for \a key in \a scope, by
+/*!
+  Returns the best available translation for \a key in \a scope, by
   querying the installed messages files.  The message file that was
   installed last is asked first.
 
@@ -1795,7 +1797,7 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    QResizeEvent e(newsize, oldsize);
 	    sendEvent( receiver, &e );
 	} else if ( event_type == QEvent::Paint ) {
-	    if ( receiver->isWidgetType() && ( (QWidget*) receiver )->isVisible() ) {
+	    if ( receiver->isWidgetType() && ((QWidget*)receiver)->isVisible() ) {
 		QWidget* w = (QWidget*)receiver;
 		if ( !erasePaintRegion.isEmpty() )
 		    w->repaint( erasePaintRegion, TRUE );
@@ -1814,9 +1816,8 @@ static void cleanupPostedEvents()		// cleanup list
 }
 
 
-
-
-/*!  Removes all events posted using postEvent() for \a receiver.
+/*!
+  Removes all events posted using postEvent() for \a receiver.
 
   The events are \e not dispatched, simply removed from the queue.
   You should never need to call this function.
@@ -1840,7 +1841,8 @@ void QApplication::removePostedEvents( QObject *receiver )
 }
 
 
-/*!  Removes \a event from the queue of posted events, and emits a
+/*!
+  Removes \a event from the queue of posted events, and emits a
   warning message if appropriate.
 */
 
@@ -1920,7 +1922,7 @@ void QApplication::removePostedEvent( QEvent *  event )
 		n = "<other>";
 		break;
 	    }
-	    qWarning( "QEvent: Warning: %s event deleted while posted to %s %s",
+	    qWarning("QEvent: Warning: %s event deleted while posted to %s %s",
 		     n,
 		     pe->receiver ? pe->receiver->className() : "null ",
 		     pe->receiver ? pe->receiver->name() : "object" );
@@ -1934,7 +1936,8 @@ void QApplication::removePostedEvent( QEvent *  event )
 
 
 
-/*! Returns the desktop widget (also called the root window).
+/*!
+  Returns the desktop widget (also called the root window).
 
   The desktop widget is useful for obtaining the size of the screen.
   It can also be used to draw on the desktop.
@@ -1956,7 +1959,6 @@ QWidget *QApplication::desktop()
     }
     return desktopWidget;
 }
-
 
 
 /*!
@@ -2038,23 +2040,26 @@ void QApplication::exit_loop()
   Returns the current loop level
 
   \sa enter_loop(), exit_loop()
- */
+*/
+
 int QApplication::loopLevel() const
 {
     return loop_level;
 }
 
 
-/*! \fn bool QApplication::isSessionRestored() const
+/*!
+  \fn bool QApplication::isSessionRestored() const
 
   Returns whether the application has been restored from an earlier
   \link session.html session \endlink.
 
-\sa sessionId(), commitData(), saveState()
- */
+  \sa sessionId(), commitData(), saveState()
+*/
 
 
-/*! \fn QString QApplication::sessionId() const
+/*!
+  \fn QString QApplication::sessionId() const
 
   Returns the identifier of the current \link session.html session
   \endlink.
@@ -2093,8 +2098,9 @@ int QApplication::loopLevel() const
   Details about session management in general can be found \link
   session.html here \endlink.
 
-\sa isSessionRestored(), sessionId(), saveState()
- */
+  \sa isSessionRestored(), sessionId(), saveState()
+*/
+
 void QApplication::commitData( QSessionManager& /* sm */ )
 {
 }
@@ -2127,11 +2133,12 @@ void QApplication::commitData( QSessionManager& /* sm */ )
   Details about session management in general can be found \link
   session.html here \endlink
 
-\sa isSessionRestored(), sessionId(), commitData() */
+  \sa isSessionRestored(), sessionId(), commitData()
+*/
+
 void QApplication::saveState( QSessionManager& /* sm */ )
 {
 }
-
 
 
 
@@ -2167,7 +2174,8 @@ void QApplication::saveState( QSessionManager& /* sm */ )
   further details.
 */
 
-/*! \fn     QString QSessionManager::sessionId() const
+/*!
+  \fn QString QSessionManager::sessionId() const
 
   Returns the identifier of the current \link session.html session
   \endlink.
@@ -2179,13 +2187,15 @@ void QApplication::saveState( QSessionManager& /* sm */ )
  */
 
 
-/*! \fn HANDLE QSessionManager::handle() const
+/*!
+  \fn HANDLE QSessionManager::handle() const
 
   X11 only: returns a handle to the current \c SmcConnection.
- */
+*/
 
 
-/*! \fn     bool QSessionManager::allowsInteraction()
+/*!
+  \fn bool QSessionManager::allowsInteraction()
 
   Asks the session manager for permission to interact with the
   user. Returns TRUE if the interaction was granted, FALSE
@@ -2229,7 +2239,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 	    break;
 	}
     } else {
-	// we did not get permission to interact, do something reasonable instead.
+	// we did not get permission to interact, then
+	// do something reasonable instead.
     }
 }
 \endcode
@@ -2241,7 +2252,8 @@ void MyApplication::commitData( QSessionManager& sm ) {
 */
 
 
-/*! \fn     bool QSessionManager::allowsErrorInteraction()
+/*!
+  \fn bool QSessionManager::allowsErrorInteraction()
 
   Like allowsInteraction() but tells the session manager in addition
   that an error occured. Session managers may treat error interaction
@@ -2250,17 +2262,18 @@ void MyApplication::commitData( QSessionManager& sm ) {
   that the session manager will follow your request.
 
   \sa allowsInteraction(), release(), cancel()
- */
+*/
 
-/*! \fn     void QSessionManager::release()
+/*!
+  \fn void QSessionManager::release()
 
   Releases the session manager after an interaction phase.
 
   \sa allowsInteraction(), allowsErrorInteraction()
+*/
 
- */
-
-/*! \fn     void QSessionManager::cancel()
+/*!
+  \fn void QSessionManager::cancel()
 
   Tells the session manager to cancel the shutdown
   process. Applications should not call this function without asking
@@ -2268,10 +2281,10 @@ void MyApplication::commitData( QSessionManager& sm ) {
 
   \sa allowsInteraction(), allowsErrorInteraction()
 
- */
+*/
 
-
-/*! \fn     void QSessionManager::setRestartHint( RestartHint hint )
+/*!
+  \fn void QSessionManager::setRestartHint( RestartHint hint )
 
   Sets the application's restart hint to \a hint. The restart hint
   defines, under what circumstances an application should be restarted
@@ -2306,23 +2319,27 @@ void MyApplication::commitData( QSessionManager& sm ) {
   QApplication::saveState() since most session managers perform a
   checkpoint immediately after an application's startup.
 
-  \sa restartHint() */
+  \sa restartHint()
+*/
 
-/*! \fn     QSessionManager::RestartHint QSessionManager::restartHint() const
+/*!
+  \fn QSessionManager::RestartHint QSessionManager::restartHint() const
 
-  Returns the application's current restart hint. The default is \c RestartIfRunning.
+  Returns the application's current restart hint. The default is
+  \c RestartIfRunning.
 
   \sa setRestartHint()
- */
+*/
 
-/*! \fn     void QSessionManager::setRestartCommand( const QStringList& command)
+/*!
+  \fn void QSessionManager::setRestartCommand( const QStringList& command)
 
   If the session manager is capable of restoring sessions, it will
   execute \a command in order to restore the application. The command
   defaults to
 
   \code
-	       appname -session  id
+	       appname -session id
   \endcode
 
   The \c -session option is mandatory, otherwise QApplication can not
@@ -2336,53 +2353,57 @@ void MyApplication::commitData( QSessionManager& sm ) {
   marking the data with the unique sessionId(), you will be able to
   restore the application in a future session.
 
-
   \sa restartCommand(), setDiscardCommand(), setRestartHint()
- */
+*/
 
-/*! \fn     QStringList QSessionManager::restartCommand() const
+/*!
+  \fn QStringList QSessionManager::restartCommand() const
 
   Returns the currently set restart command.
 
   \sa setRestartCommand(), restartHint()
- */
+*/
 
-/*! \fn     void QSessionManager::setDiscardCommand( const QStringList& )
+/*!
+  \fn void QSessionManager::setDiscardCommand( const QStringList& )
 
-  \sa  discardCommand(), setRestartCommand()
+  \sa discardCommand(), setRestartCommand()
 */
 
 
-/*! \fn     QStringList QSessionManager::discardCommand() const
+/*!
+  \fn QStringList QSessionManager::discardCommand() const
 
   Returns the currently set discard command.
 
   \sa setDiscardCommand(), restartCommand(), setRestartCommand()
- */
+*/
 
-/*! \fn     void QSessionManager::setProperty( const QString& name, const QString& value )
-
-  Low-level write access to the application's identification and state
-  record kept in the session manager.
-
- */
-
-/*! \fn     void QSessionManager::setProperty( const QString& name, const QStringList& value )
+/*!
+  \fn void QSessionManager::setProperty( const QString& name, const QString& value )
 
   Low-level write access to the application's identification and state
   record kept in the session manager.
+*/
 
- */
+/*!
+  \fn void QSessionManager::setProperty( const QString& name, const QStringList& value )
 
-/*! \fn     bool QSessionManager::isPhase2() const
+  Low-level write access to the application's identification and state
+  record kept in the session manager.
+*/
+
+/*!
+  \fn bool QSessionManager::isPhase2() const
 
   Returns whether the session manager is currently performing a second
   session management phase.
 
   \sa requestPhase2()
- */
+*/
 
-/*! \fn     void QSessionManager::requestPhase2()
+/*!
+  \fn void QSessionManager::requestPhase2()
 
   Requests a second session management phase for the application. The
   application may then simply return from the
@@ -2397,6 +2418,4 @@ void MyApplication::commitData( QSessionManager& sm ) {
   respective session management tasks.
 
   \sa isPhase2()
- */
-
-
+*/

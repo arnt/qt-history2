@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#134 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#135 $
 **
 ** Definition of QApplication class
 **
@@ -65,7 +65,7 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
-    static QStyle&	    style();
+    static QStyle  &style();
     static void	    setStyle( QStyle* );
 
 #if 1	/* OBSOLETE */
@@ -85,14 +85,16 @@ public:
     static bool	     hasGlobalMouseTracking();
     static void	     setGlobalMouseTracking( bool enable );
 
-    static QPalette	     palette( const QWidget* = 0 );
-    static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE, const char* className = 0 );
+    static QPalette  palette( const QWidget* = 0 );
+    static void	     setPalette( const QPalette &, bool updateAllWidgets=FALSE,
+				 const char* className = 0 );
 #ifdef QT_BUILDER
-    static QPalette	     palette( const QWidget*, const char* className  );
+    static QPalette  palette( const QWidget*, const char* className  );
 #endif // QT_BUILDER
 
-    static QFont 	     font( const QWidget* = 0 );
-    static void	     setFont( const QFont &, bool updateAllWidgets=FALSE, const char* className = 0 );
+    static QFont     font( const QWidget* = 0 );
+    static void	     setFont( const QFont &, bool updateAllWidgets=FALSE,
+			      const char* className = 0 );
     static QFontMetrics fontMetrics();
 
     QWidget	    *mainWidget()  const;
@@ -117,7 +119,7 @@ public:
     void	     processOneEvent();
     int		     enter_loop();
     void	     exit_loop();
-    int	     loopLevel() const;
+    int		     loopLevel() const;
     static void	     exit( int retcode=0 );
 
     static bool	     sendEvent( QObject *receiver, QEvent *event );
@@ -143,21 +145,21 @@ public:
     void	     removeTranslator( QTranslator * );
     QString	     translate( const char * scope, const char * key ) const;
 
-    static void 	setWinStyleHighlightColor( const QColor & );
-    static const QColor& winStyleHighlightColor();
+    static void      setWinStyleHighlightColor( const QColor & );
+    static const QColor &winStyleHighlightColor();
 
-    static void 	setDesktopSettingsAware( bool );
-    static bool 	desktopSettingsAware();
+    static void      setDesktopSettingsAware( bool );
+    static bool      desktopSettingsAware();
 
-    static void 	setCursorFlashTime( int );
-    static int 	cursorFlashTime();
+    static void      setCursorFlashTime( int );
+    static int       cursorFlashTime();
 
-    static void 	setDoubleClickInterval( int );
-    static int 	doubleClickInterval();
+    static void      setDoubleClickInterval( int );
+    static int       doubleClickInterval();
 
 
 #if defined(_WS_MAC_)
-    void do_mouse_down(void *);
+    void	     do_mouse_down(void *);
     virtual bool     macEventFilter( MSG * );
     int              macProcessEvent( MSG * );
 #elif defined(_WS_WIN_)
@@ -174,19 +176,19 @@ public:
     static void	     winMouseButtonUp();
 #endif
 
-
     // session management
-    bool isSessionRestored() const;
-    QString sessionId() const;
-    virtual void commitData( QSessionManager& sm );
-    virtual void saveState( QSessionManager& sm );
+    bool	     isSessionRestored() const;
+    QString	     sessionId() const;
+    virtual void     commitData( QSessionManager& sm );
+    virtual void     saveState( QSessionManager& sm );
 
     // ### Experimental:
-    static bool  is_gui_used;
+    static bool	     is_gui_used;
 
 signals:
     void	     lastWindowClosed();
     void	     aboutToQuit();
+
 public slots:
     void	     quit();
     void	     closeAllWindows();
@@ -217,21 +219,21 @@ private:
     static bool	     obey_desktop_settings;
     static int	     cursor_flash_time;
     static int	     mouse_double_click_time;
-    QList<QTranslator> * translators;
-    QSessionManager* session_manager;
-    QString session_id;
-    bool is_session_restored;
+    QList<QTranslator> *translators;
+    QSessionManager *session_manager;
+    QString	     session_id;
+    bool	     is_session_restored;
 
     static QAsciiDict<QPalette> *app_palettes;
     static QAsciiDict<QFont>    *app_fonts;
 
     static QWidgetList *popupWidgets;
-    bool	    inPopupMode() const;
-    void	    closePopup( QWidget *popup );
-    void	    openPopup( QWidget *popup );
-    void	    noteTopLevel( QWidget* tlw );
+    bool	     inPopupMode() const;
+    void	     closePopup( QWidget *popup );
+    void	     openPopup( QWidget *popup );
+    void	     noteTopLevel( QWidget* tlw );
 
-    static void	removePostedEvent( QEvent * );
+    static void      removePostedEvent( QEvent * );
 
     friend class QWidget;
     friend class QETWidget;
@@ -239,7 +241,8 @@ private:
 #if defined QT_BASEAPP
     friend QNonBaseApplication;
 #endif
-private:	// Disabled copy constructor and operator=
+
+private: // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QApplication( const QApplication & );
     QApplication &operator=( const QApplication & );
@@ -325,7 +328,7 @@ private:	// Disabled copy constructor and operator=
 };
 
 inline bool QBaseApplication::sendEvent( QObject *receiver, QEvent *event )
-	{ return qApp->notify( receiver, event ); }
+{ return qApp->notify( receiver, event ); }
 
 #if defined(Q_MOC_OUTPUT_REVISION) && defined(Q_MOC_QApplication)
 #if defined(QT_MAKEDLL)
@@ -335,9 +338,8 @@ inline bool QBaseApplication::sendEvent( QObject *receiver, QEvent *event )
 
 #else
 inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
-	{ return qApp->notify( receiver, event ); }
+{ return qApp->notify( receiver, event ); }
 #endif
-
 
 
 #endif // QAPPLICATION_H
