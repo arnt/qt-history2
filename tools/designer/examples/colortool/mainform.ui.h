@@ -71,21 +71,24 @@ void MainForm::populate()
 	}
 
 	colorTable->setNumRows( m_colors.count() );
-	QPixmap pixmap( 22, 22 );
-	int row = 0;
-	QMap<QString,QColor>::Iterator it;
-	for ( it = m_colors.begin(); it != m_colors.end(); ++it ) {
-	    QColor color = it.data();
-	    pixmap.fill( color );
-	    colorTable->setText( row, COL_NAME, it.key() );
-	    colorTable->setPixmap( row, COL_NAME, pixmap );
-	    colorTable->setText( row, COL_HEX, color.name().upper() );
-	    if ( m_show_web ) {
-		QCheckTableItem *item = new QCheckTableItem( colorTable, "" );
-		item->setChecked( isWebColor( color ) );
-		colorTable->setItem( row, COL_WEB, item );
+	if ( ! m_colors.isEmpty() ) {
+	    QPixmap pixmap( 22, 22 );
+	    int row = 0;
+	    QMap<QString,QColor>::Iterator it;
+	    for ( it = m_colors.begin(); it != m_colors.end(); ++it ) {
+		QColor color = it.data();
+		pixmap.fill( color );
+		colorTable->setText( row, COL_NAME, it.key() );
+		colorTable->setPixmap( row, COL_NAME, pixmap );
+		colorTable->setText( row, COL_HEX, color.name().upper() );
+		if ( m_show_web ) {
+		    QCheckTableItem *item = new QCheckTableItem( colorTable, "" );
+		    item->setChecked( isWebColor( color ) );
+		    colorTable->setItem( row, COL_WEB, item );
+		}
+		row++;
 	    }
-	    row++;
+	    colorTable->setCurrentCell( 0, 0 );
 	}
 	colorTable->adjustColumn( COL_NAME );
 	colorTable->adjustColumn( COL_HEX );
@@ -468,7 +471,9 @@ bool MainForm::isWebColor( QColor color )
 void MainForm::editAdd()
 {
     QColor color = white;
+    int row = 0;
     if ( ! m_colors.isEmpty() ) {
+	row = colorTable->currentRow();
 	QWidget *visible = colorWidgetStack->visibleWidget();
 	if ( visible == tablePage )
 	    color = colorTable->text( colorTable->currentRow(),
@@ -488,9 +493,6 @@ void MainForm::editAdd()
 	    m_colors[name] = color;
 	    QPixmap pixmap( 22, 22 );
 	    pixmap.fill( color );
-	    int row = colorTable->currentRow();
-	    if ( row < 0 )
-		row = 0;
 	    colorTable->insertRows( row, 1 );
 	    colorTable->setText( row, COL_NAME, name );
 	    colorTable->setPixmap( row, COL_NAME, pixmap );
