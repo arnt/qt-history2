@@ -1,20 +1,24 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>GLTest</class>
-<include location="local" impldecl="in implementation">gldepth.h</include>
-<include location="local" impldecl="in implementation">glalpha.h</include>
-<include location="local" impldecl="in implementation">glstencil.h</include>
+<include location="local" impldecl="in implementation">glinfo.h</include>
 <include location="local" impldecl="in implementation">gldouble.h</include>
+<include location="local" impldecl="in implementation">glstencil.h</include>
+<include location="local" impldecl="in implementation">glalpha.h</include>
+<include location="local" impldecl="in implementation">gldepth.h</include>
 <layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>GLTest</cstring>
     </property>
+    <property name="enabled">
+        <bool>true</bool>
+    </property>
     <property name="geometry">
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>452</width>
-            <height>421</height>
+            <width>404</width>
+            <height>397</height>
         </rect>
     </property>
     <property name="sizePolicy">
@@ -55,12 +59,49 @@
             <property name="name">
                 <cstring>tabWidget</cstring>
             </property>
+            <property name="enabled">
+                <bool>true</bool>
+            </property>
+            <property name="tabShape">
+                <enum>Rounded</enum>
+            </property>
             <widget class="QWidget">
                 <property name="name">
                     <cstring>Widget8</cstring>
                 </property>
                 <attribute name="title">
                     <string>Info</string>
+                </attribute>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>11</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QTextView">
+                        <property name="name">
+                            <cstring>infoView</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="text">
+                            <string>GLTest:
+Some information should be included...</string>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>tab</cstring>
+                </property>
+                <attribute name="title">
+                    <string>Alpha</string>
                 </attribute>
                 <hbox>
                     <property name="name">
@@ -72,16 +113,21 @@
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QLabel">
+                    <widget class="GLAlpha">
                         <property name="name">
-                            <cstring>infoLabel</cstring>
+                            <cstring>glalpha</cstring>
                         </property>
-                        <property name="text">
-                            <string>GLTest:
-Some info will be inserted here...</string>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>1</vsizetype>
+                            </sizepolicy>
                         </property>
-                        <property name="alignment">
-                            <set>AlignAuto|AlignTop</set>
+                        <property name="minimumSize">
+                            <size>
+                                <width>240</width>
+                                <height>240</height>
+                            </size>
                         </property>
                     </widget>
                 </hbox>
@@ -120,150 +166,8 @@ Some info will be inserted here...</string>
                             </size>
                         </property>
                         <property name="cursor">
-                            <cursor>14</cursor>
+                            <cursor>0</cursor>
                         </property>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout5</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>stencilButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="cursor">
-                                    <cursor>14</cursor>
-                                </property>
-                                <property name="text">
-                                    <string>Disable Stencil</string>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
-                </hbox>
-            </widget>
-            <widget class="QWidget">
-                <property name="name">
-                    <cstring>tab</cstring>
-                </property>
-                <attribute name="title">
-                    <string>Alpha</string>
-                </attribute>
-                <hbox>
-                    <property name="name">
-                        <cstring>unnamed</cstring>
-                    </property>
-                    <property name="margin">
-                        <number>11</number>
-                    </property>
-                    <property name="spacing">
-                        <number>6</number>
-                    </property>
-                    <widget class="GLAlpha">
-                        <property name="name">
-                            <cstring>glalpha</cstring>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>1</vsizetype>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                            <size>
-                                <width>240</width>
-                                <height>240</height>
-                            </size>
-                        </property>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout4</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer3</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>alphaButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="cursor">
-                                    <cursor>14</cursor>
-                                </property>
-                                <property name="text">
-                                    <string>Disable Alpha</string>
-                                </property>
-                            </widget>
-                        </vbox>
                     </widget>
                 </hbox>
             </widget>
@@ -301,59 +205,6 @@ Some info will be inserted here...</string>
                             </size>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout4</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer4</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>doubleButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="cursor">
-                                    <cursor>14</cursor>
-                                </property>
-                                <property name="text">
-                                    <string>Disable Double</string>
-                                </property>
-                            </widget>
-                        </vbox>
-                    </widget>
                 </hbox>
             </widget>
             <widget class="QWidget">
@@ -389,59 +240,6 @@ Some info will be inserted here...</string>
                                 <height>240</height>
                             </size>
                         </property>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout5</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer5</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>depthButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="cursor">
-                                    <cursor>14</cursor>
-                                </property>
-                                <property name="text">
-                                    <string>Disable Depth</string>
-                                </property>
-                            </widget>
-                        </vbox>
                     </widget>
                 </hbox>
             </widget>
@@ -479,61 +277,8 @@ Some info will be inserted here...</string>
                             </size>
                         </property>
                         <property name="cursor">
-                            <cursor>14</cursor>
+                            <cursor>0</cursor>
                         </property>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>Layout6</cstring>
-                        </property>
-                        <vbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <property name="margin">
-                                <number>0</number>
-                            </property>
-                            <property name="spacing">
-                                <number>6</number>
-                            </property>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>Spacer6</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Vertical</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>20</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QPushButton">
-                                <property name="name">
-                                    <cstring>accumButton</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>0</hsizetype>
-                                        <vsizetype>0</vsizetype>
-                                    </sizepolicy>
-                                </property>
-                                <property name="cursor">
-                                    <cursor>14</cursor>
-                                </property>
-                                <property name="text">
-                                    <string>Disable Accumulation</string>
-                                </property>
-                            </widget>
-                        </vbox>
                     </widget>
                 </hbox>
             </widget>
@@ -679,69 +424,8 @@ Some info will be inserted here...</string>
 </connections>
 <functions>
     <function name="init()" >{
-    bool test1[9], test2[9];
-    QString testHelp[] = { "doubleBuffer", "depth", "rbga", "alpha", "accum",
-    "stencil", "stereo", "directRendering" "overlay" };
-    GLStencil *c = new GLStencil(this, "test", 0, QGLFormat::defaultFormat());
-    QGLFormat glF = c-&gt;context()-&gt;format();
-    delete c;   
-
-    test1[0] = glF.doubleBuffer(); 
-    test1[1] = glF.depth();
-    test1[2] = glF.rgba(); 
-    test1[3] = glF.alpha(); 
-    test1[4] = glF.accum(); 
-    test1[5] = glF.stencil(); 
-    test1[6] = glF.stereo(); 
-    test1[7] = glF.directRendering();  
-    test1[8] = glF.hasOverlay();
-    
-    glF.setDoubleBuffer( glF.doubleBuffer() ? FALSE : TRUE );
-    glF.setDepth( glF.depth() ? FALSE : TRUE );
-    glF.setRgba( glF.rgba() ? FALSE : TRUE ); 
-    glF.setAlpha( glF.alpha() ? FALSE : TRUE );
-    glF.setAccum( glF.accum() ? FALSE : TRUE );
-    glF.setStencil( glF.stencil() ? FALSE : TRUE );
-    glF.setStereo( glF.stereo() ? FALSE : TRUE ); 
-    glF.setDirectRendering( glF.directRendering() ? FALSE : TRUE );
-    //glF.setOverlay( glF.hasOverlay() ? FALSE : TRUE );
-
-    qDebug("before setting widget");
-    qDebug("doubleBuffer: %d", glF.doubleBuffer() );
-    qDebug("depth: %d", glF.depth() );
-    qDebug("rbga: %d", glF.rgba() );
-    qDebug("alpha: %d", glF.alpha() );
-    qDebug("accum: %d", glF.accum() );
-    qDebug("stencil: %d", glF.stencil() );
-    qDebug("stereo: %d", glF.stereo() );
-    qDebug("directRendering: %d", glF.directRendering() );
-    qDebug("overlay: %d", glF.hasOverlay() );
- 
-    c = new GLStencil( this, "test", 0, glF );
-    glF = c-&gt;context()-&gt;format();
-    
-    test2[0] = glF.doubleBuffer();  
-    test2[1] = glF.depth(); 
-    test2[2] = glF.rgba();  
-    test2[3] = glF.alpha();  
-    test2[4] = glF.accum();  
-    test2[5] = glF.stencil();  
-    test2[6] = glF.stereo();  
-    test2[7] = glF.directRendering();   
-    test2[8] = glF.hasOverlay();
-
-    qDebug("after setting widget");
-    qDebug("doubleBuffer: %d", c-&gt;format().doubleBuffer() );
-    qDebug("depth: %d", c-&gt;format().depth() );
-    qDebug("rbga: %d", c-&gt;format().rgba() );
-    qDebug("alpha: %d", c-&gt;format().alpha() );
-    qDebug("accum: %d", c-&gt;format().accum() );
-    qDebug("stencil: %d", c-&gt;format().stencil() );
-    qDebug("stereo: %d", c-&gt;format().stereo() );
-    qDebug("directRendering: %d", c-&gt;format().directRendering() );
-    qDebug("overlay: %d", c-&gt;format().hasOverlay() );
-
-    delete c;
+    GLInfo info;
+    infoView-&gt;setText(info.getText());
 }</function>
     <function name="destroy()" >{
 
