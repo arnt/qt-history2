@@ -532,6 +532,9 @@ void QProcess::consumeBufStderr( int consume )
   If the process is running, it is NOT terminated! Standard input, standard
   output and standard error of the process are closed.
 
+  You can connect the destroyed() signal to the kill() slot, if you want the
+  process to be terminated automatically when the class is destroyed.
+
   \sa tryTerminate() kill()
 */
 QProcess::~QProcess()
