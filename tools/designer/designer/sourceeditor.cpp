@@ -78,7 +78,14 @@ void SourceEditor::setObject( QObject *o, Project *p )
     }
     obj = o;
     pro = p;
-    setCaption( tr( "Edit %1" ).arg( ( formWindow() ? QString( obj->name() ) : QString( sourceFile()->fileName() ) ) ) );
+    if ( formWindow() ) {
+	if ( formWindow()->isFake() )
+	    setCaption( formWindow()->project()->objectForFakeForm( formWindow() )->name() );
+	else
+	    setCaption( obj->name() );
+    } else {
+	setCaption( sourceFile()->fileName() );
+    }
     if ( sourceFile() )
 	sourceFile()->setEditor( this );
     else if ( formWindow() )
