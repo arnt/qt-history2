@@ -612,14 +612,14 @@ void WidgetCollectionModel::saveToUserXmlFile()
 }
 
 /*******************************************************************************
-** WidgetBoxView
+** WidgetBoxContainer
 */
 
-class WidgetBoxView : public QWidget
+class WidgetBoxContainer : public QWidget
 {
     Q_OBJECT
 public:
-    WidgetBoxView(WidgetCollectionModel *model, QWidget *parent = 0)
+    WidgetBoxContainer(WidgetCollectionModel *model, QWidget *parent = 0)
         : QWidget(parent), m_model(model) {}
 
 signals:
@@ -634,7 +634,7 @@ private:
     WidgetCollectionModel *m_model;
 };
 
-void WidgetBoxView::contextMenuEvent (QContextMenuEvent *e)
+void WidgetBoxContainer::contextMenuEvent (QContextMenuEvent *e)
 {
     e->accept();
 }
@@ -671,7 +671,7 @@ void WidgetBoxDelegate::paint(QPainter *painter,
         QStyleOptionButton buttonOption;
 
         buttonOption.state = option.state;
-        buttonOption.state |= QStyle::State_Raised;
+        // buttonOption.state |= QStyle::State_Raised;
         buttonOption.state &= ~QStyle::State_HasFocus;
 
         buttonOption.rect = option.rect;
@@ -681,7 +681,7 @@ void WidgetBoxDelegate::paint(QPainter *painter,
         m_view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, m_view);
 
         QStyleOption branchOption;
-        static const int i = 9; // hardcoded in qcommonstyle.cpp
+        static const int i = 9; // ### hardcoded in qcommonstyle.cpp
         QRect r = option.rect;
         branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
         branchOption.palette = option.palette;
@@ -766,7 +766,7 @@ void WidgetBoxListViewChild::fixSize()
     resizeColumnToContents(0);
 }
 
-class WidgetBoxListView : public WidgetBoxView
+class WidgetBoxListView : public WidgetBoxContainer
 {
     Q_OBJECT
 
@@ -778,7 +778,7 @@ private slots:
 };
 
 WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *parent)
-    : WidgetBoxView(model, parent)
+    : WidgetBoxContainer(model, parent)
 {
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);

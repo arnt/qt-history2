@@ -30,7 +30,7 @@ class QAction;
 class QActionGroup;
 class WidgetCollectionModel;
 class Scratchpad;
-class WidgetBoxView;
+class WidgetBoxContainer;
 class DomWidget;
 
 class QT_WIDGETBOX_EXPORT WidgetBox : public AbstractWidgetBox
@@ -67,7 +67,7 @@ private:
 
     ViewMode m_mode;
 
-    WidgetBoxView *m_view;
+    WidgetBoxContainer *m_view;
 
     QActionGroup *m_mode_action_group;
     QAction *m_tree_mode_action;

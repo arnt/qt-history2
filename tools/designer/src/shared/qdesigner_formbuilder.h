@@ -27,16 +27,18 @@ class QT_SHARED_EXPORT QDesignerFormBuilder: public FormBuilder
 public:
     QDesignerFormBuilder(AbstractFormEditor *core);
 
+    QWidget *createWidgetFromContents(const QString &contents, QWidget *parentWidget = 0);
+
     virtual QWidget *createWidget(DomWidget *ui_widget, QWidget *parentWidget = 0)
         { return FormBuilder::create(ui_widget, parentWidget); }
-        
+
     inline AbstractFormEditor *core() const
     { return m_core; }
-    
+
 protected:
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
-    
+
 private:
     AbstractFormEditor *m_core;
     QMap<QString, ICustomWidget*> m_customFactory;

@@ -70,6 +70,7 @@ private slots:
     void saveSettings();
     void openRecentForm();
     void clearRecentFiles();
+    void showWidgetBox(bool);
     void showPropertyEditor(bool);
     void showObjectInspector(bool);
     void minimizeForm();
@@ -86,7 +87,6 @@ private slots:
     void showPreferenceDialog();
 
 private:
-    void setupWidgetBox();
     void setupFormEditor();
     void setupMenuBar();
     void setupToolBar();
@@ -103,6 +103,7 @@ private:
     QAction *m_actionClose;
     QAction *m_actionSave;
     QAction *m_actionSaveAs;
+    QAction *m_actionWB;
     QAction *m_actionPE;
     QAction *m_actionOI;
     QAction *m_actionMinimize;
@@ -113,7 +114,7 @@ private:
     QAction *m_connectionEditMode;
     QAction *m_tabOrderEditMode;
     QAction *m_buddyEditMode;
-#ifdef DESIGNER_VIEW3D    
+#ifdef DESIGNER_VIEW3D
     QAction *m_view3DEditMode;
 #endif
     QActionGroup *m_editModeGrp;

@@ -304,7 +304,8 @@ void FormWindow::init()
     endWidget = 0;
 
     m_commandHistory = new QtUndoStack(this);
-    connect(QtUndoManager::manager(), SIGNAL(changed()), this, SLOT(updateDirty()));
+    connect(m_commandHistory, SIGNAL(commandExecuted()), this, SLOT(updateDirty()));
+    connect(m_commandHistory, SIGNAL(commandExecuted()), this, SIGNAL(changed()));
 
     core()->metaDataBase()->add(this);
 

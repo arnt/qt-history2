@@ -19,6 +19,7 @@
 #include <qextensionmanager.h>
 #include <abstractformeditor.h>
 
+#include <QBuffer>
 #include <QWidget>
 
 QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
@@ -42,6 +43,14 @@ QDesignerFormBuilder::QDesignerFormBuilder(AbstractFormEditor *core)
         }
     }
 }
+
+QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents, QWidget *parentWidget)
+{
+    QByteArray data = contents.toUtf8();
+    QBuffer buffer(&data);
+    return load(&buffer, parentWidget);
+}
+
 
 QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {

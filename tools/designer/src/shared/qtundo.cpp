@@ -841,7 +841,7 @@ void QtUndoStack::clear()
 
     while (!isEmpty())
         delete takeLast();
-    
+
     m_macro_nest = 0;
     m_num_commands = 0;
     m_have_clean_command = true;

@@ -17,6 +17,8 @@
 #include "newformdialog.h"
 #include "propertyeditorview.h"
 #include "objectinspectorview.h"
+#include "widgetboxview.h"
+#include "formsoverview.h"
 
 // components
 #include <qdesigner_formbuilder.h>
@@ -83,7 +85,6 @@ MainWindow::MainWindow()
 #endif
     setWindowTitle(tr("Qt Designer"));
     setupFormEditor();
-    setupWidgetBox();
     setupMenuBar();
     setupToolBar();
     enableFormActions(false);
@@ -91,21 +92,10 @@ MainWindow::MainWindow()
     connect(core->propertyEditor(), SIGNAL(propertyChanged(const QString&, const QVariant&)),
             this, SLOT(propertyChanged(const QString&, const QVariant&)));
 
-#ifndef IDE_NO_DEBUGVIEWS
-    QWidget *dbShell = new QVBoxWidget(this, Qt::WType_Dialog);
-    dbShell->setWindowTitle(tr("Widget DB"));
-    WidgetDataBaseView *dbView = new WidgetDataBaseView(dbShell);
-    dbView->setWidgetDataBase(core->widgetDataBase());
-    connect(core->widgetDataBase(), SIGNAL(changed()), dbView, SLOT(refresh()));
-    dbShell->show();
+    // set up the Forms overview
+    FormsOverview *formsOverview = new FormsOverview(core, this);
+    setCentralWidget(formsOverview);
 
-    QWidget *mdbShell = new QVBoxWidget(this, Qt::WType_Dialog);
-    mdbShell->setWindowTitle(tr("Meta DB"));
-    MetaDataBaseView *mdbView = new MetaDataBaseView(mdbShell);
-    mdbView->setMetaDataBase(core->metaDataBase());
-    connect(core->metaDataBase(), SIGNAL(changed()), mdbView, SLOT(refresh()));
-    mdbShell->show();
-#endif
     readSettings();
 
     statusBar()->show();
@@ -113,10 +103,6 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    // the widgetbox has to go before formwindowmanager, 'cause of the scratchpad.
-    delete core->widgetBox();
-    core->setWidgetBox(0);
-
 #ifdef Q_WS_WIN32
     delete invisibleParent;
 #endif
@@ -132,6 +118,7 @@ void MainWindow::setupFormEditor()
     connect(m_formWindowManager, SIGNAL(formWindowClosing(AbstractFormWindow *, bool *)),
             this, SLOT(handleClose(AbstractFormWindow *, bool *)));
 
+    new WidgetBoxView(core, invisibleParent);
     new PropertyEditorView(core, invisibleParent);
     new ObjectInspectorView(core, invisibleParent);
     // new SpecialEditorSupport(core); ### disabled for now
@@ -172,13 +159,6 @@ void MainWindow::handleClose(AbstractFormWindow *fw, bool *accept)
     if (m_formWindowManager->formWindowCount() == 1 && *accept
             && QSettings().value("newFormDialog/ShowOnStartup", true).toBool())
         QTimer::singleShot(200, this, SLOT(newForm()));  // Use timer in case we are quitting.
-}
-
-void MainWindow::setupWidgetBox()
-{
-    WidgetBox *wb = new WidgetBox(core, WidgetBox::TreeMode, this);
-    core->setWidgetBox(wb);
-    setCentralWidget(wb);
 }
 
 void MainWindow::enableFormActions(bool enable)
@@ -432,6 +412,15 @@ void MainWindow::setupMenuBar()
     connect(m_readOnly, SIGNAL(checked(bool)), this, SLOT(readOnly(bool)));
 
     menu = mb->addMenu(tr("&Tools"));
+
+    m_actionWB = menu->addAction(tr("&Widget Box"));
+    m_formActionList.append(m_actionWB);
+    m_actionWB->setCheckable(true);
+
+    WidgetBoxView *tmpWB = qt_cast<WidgetBoxView *>(core->widgetBox()->topLevelWidget());
+    Q_ASSERT(tmpWB);
+    connect(m_actionWB, SIGNAL(checked(bool)), this, SLOT(showWidgetBox(bool)));
+    connect(tmpWB, SIGNAL(visibilityChanged(bool)), m_actionWB, SLOT(setChecked(bool)));
 
     m_actionPE = menu->addAction(tr("&Property Editor"));
     m_actionPE->setShortcut(Qt::CTRL + Qt::Key_I);
@@ -1048,6 +1037,19 @@ void MainWindow::addRecentFile(const QString &fileName)
 
     settings.setValue("recentFilesList", files);
     updateRecentFileActions();
+}
+
+void MainWindow::showWidgetBox(bool checked)
+{
+    if (QWidget *topLevel = core->widgetBox()->topLevelWidget()) {
+        if (checked) {
+            topLevel->raise();
+            topLevel->show();
+            selectionChanged();
+        } else {
+            topLevel->hide();
+        }
+    }
 }
 
 void MainWindow::showPropertyEditor(bool checked)
