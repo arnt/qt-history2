@@ -192,7 +192,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
   definition representing NULL values as strings.
 */
 
-QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate = TRUE, QWidget * parent = 0, const char * name = 0 )
+QSqlTable::QSqlTable ( QSqlCursor* cursor, bool autoPopulate, QWidget * parent, const char * name )
     : QTable( parent, name )
 {
     init();
