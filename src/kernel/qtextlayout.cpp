@@ -451,7 +451,11 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     int available = d->lineWidth - d->widthUsed;
 
     // ### FIXME
-    if ( alignment == Qt::AlignAuto )
+    if ( alignment & Qt::AlignJustify ) {
+	// #### justify items
+	alignment = Qt::AlignAuto;
+    }
+    if ( (alignment & Qt::AlignHorizontal_Mask) == Qt::AlignAuto )
 	alignment = Qt::AlignLeft;
 
     int numRuns = d->currentItem - d->firstItemInLine - numSpaceItems;
@@ -471,13 +475,9 @@ QTextLayout::Result QTextLayout::endLine( int x, int y, int alignment,
     }
     d->bidiReorder( numRuns, levels, visual );
 
-    if ( alignment & Qt::AlignJustify ) {
-	// #### justify items
-    }
-
     if ( alignment & Qt::AlignRight )
 	x += available;
-    else if ( alignment & Qt::AlignCenter )
+    else if ( alignment & Qt::AlignHCenter )
 	x += available/2;
 
 
