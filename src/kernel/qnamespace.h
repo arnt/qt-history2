@@ -191,6 +191,7 @@ public:
 #if defined(Q_WS_X11)
 	WX11BypassWM		= 0x01000000,
 	WWinOwnDC		= 0x00000000,
+	WMacMetal               = 0x00000000,
 	WMacNoSheet             = 0x00000000,
         WMacDrawer              = 0x00000000,
 #elif defined(Q_WS_MAC)
@@ -198,9 +199,11 @@ public:
 	WWinOwnDC		= 0x00000000,
 	WMacNoSheet             = 0x01000000,
         WMacDrawer              = 0x20000000,
+	WMacMetal               = 0x40000000,
 #else
 	WX11BypassWM		= 0x00000000,
 	WWinOwnDC		= 0x01000000,
+	WMacMetal               = 0x00000000,
 	WMacNoSheet             = 0x00000000,
         WMacDrawer              = 0x00000000,
 #endif

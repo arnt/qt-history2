@@ -95,34 +95,39 @@ public:
 CGContextRef QMacCGExtra::getCGHandle(bool do_children, QWidget *widg)
 {
     uint serial = widg->clippedSerial(do_children);
-    CGContextRef ret = 0;
+    CGContextRef *ret = 0;
     if(do_children) {
 	if(cg_clip) {
 	    if(cg_clip_serial == serial)
 		return cg_clip;
 	    CGContextRelease(cg_clip);
 	}
-	CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), &cg_clip);
-	ret = cg_clip;
+	cg_clip_serial = serial;
+	ret = &cg_clip;
     } else {
 	if(cg_sibs) {
 	    if(cg_sibs_serial == serial)
 		return cg_sibs;
 	    CGContextRelease(cg_sibs);
 	}
-	CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), &cg_sibs);
-	ret = cg_sibs;
+	cg_sibs_serial = serial;
+	ret = &cg_sibs;
     }
     if(ret) {
+	if(!(*ret)) 
+	    CreateCGContextForPort(GetWindowPort((WindowPtr)widg->handle()), ret);
+
 	QRegion rgn = widg->clippedRegion(do_children);
-	Rect r;
-	{
-	    QRect qr = rgn.boundingRect();
+	QRect qr = rgn.boundingRect();
+	if(!rgn.handle()) {
+	    CGContextClipToRect(*ret, CGRectMake(qr.x(), qr.y(), qr.width(), qr.height()));
+	} else {
+	    Rect r;
 	    SetRect(&r, qr.left(), qr.top(), qr.right(), qr.bottom());
+	    ClipCGContextToRegion(*ret, &r, rgn.handle());
 	}
-	ClipCGContextToRegion(ret, &r, rgn.handle(TRUE));
     }
-    return ret;
+    return *ret;
 }
 
 
@@ -674,7 +679,7 @@ bool qt_mac_is_macsheet(QWidget *w, bool ignore_exclusion=false)
 {
 #if 0
     if(w && w->isTopLevel() && w->testWFlags(Qt::WStyle_DialogBorder) &&
-       (ignore_exclusion || !w->testWFlags(Qt::WMacNotSheet)) &&
+       (ignore_exclusion || !w->testWFlags(Qt::WMacNoSheet)) &&
        w->parentWidget() && !w->parentWidget()->topLevelWidget()->isDesktop() &&
        w->parentWidget()->topLevelWidget()->isVisible() &&
        (w->style().inherits("QAquaStyle") || w->style().inherits("QMacStyle")))
@@ -825,6 +830,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 		}
 	    }
 	}
+	if(testWFlags(Qt::WMacMetal))
+	    wattr |= kWindowMetalAttribute;
 	wattr |= kWindowLiveResizeAttribute;
 
 #ifdef DEBUG_WINDOW_CREATE
@@ -833,6 +840,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    UInt32 tag;
 	    const char *name;
 	} known_attribs[] = {
+	    ADD_DEBUG_WINDOW_NAME(kWindowMetalAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowStandardHandlerAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowCollapseBoxAttribute),
 	    ADD_DEBUG_WINDOW_NAME(kWindowHorizontalZoomAttribute),

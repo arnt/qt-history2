@@ -627,6 +627,7 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WX11BypassWM
     \value WMacNoSheet
     \value WMacDrawer
+    \value WMacMetal
     \value WStyle_Mask
     \value WType_Mask
 
