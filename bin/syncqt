@@ -21,9 +21,10 @@ my $includedir = $basedir . "/include";
 
 #options
 my $showonly = 0;
-my $force_win=0;
-my $force_relative=0;
-$force_relative=1 if ( -d "/System/Library/Frameworks" );
+my $force_win = 0;
+my $force_relative = 0;
+my $remove_stale = 0;
+$force_relative = 1 if ( -d "/System/Library/Frameworks" );
 
 while($#ARGV >= 0) {
     if($ARGV[0] eq "-show") {
@@ -38,8 +39,10 @@ while($#ARGV >= 0) {
 	} else {
 	    $includedir = $outdir;
 	}
+    } elsif($ARGV[0] eq "-remove-stale") {
+	$remove_stale = 1;
     } elsif($ARGV[0] eq "-windows") {
-	$force_win=1;
+	$force_win = 1;
     }
     shift;
 }
@@ -67,8 +70,41 @@ my %dirs = (
 
 $dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"}; 
 
-my $dir;
-foreach $dir (keys %dirs) {
+
+if($remove_stale) { #remove files that don't seem to belong..
+    my @subdirs = ($includedir);
+    foreach (@subdirs) {
+	my $subdir = "$_";
+	opendir DIR, "$subdir";
+	while(my $t = readdir(DIR)) {
+	    my $file = "$subdir/$t";
+	    if(-d "$file") {
+		push @subdirs, "$file" unless($t eq "." || $t eq ".." || $t eq "arch");
+	    } else {
+		my $remove_file = 0;
+		if(open(F, "<$file")) {
+		    while(<F>) {
+			my $line = $_;
+			chomp $line;
+			if($line =~ /^\#include \"([^\"]*)\"$/) {
+			    my $include = $1;
+			    $include = $subdir . "/" . $include unless(substr($include, 0, 1) eq "/");
+			    $remove_file = 1 unless(-e "$include");
+			} else {
+			    $remove_file = 0;
+			    last;
+			}
+		    }
+		    unlink "$file" if($remove_file);
+		}
+	    }
+	}
+	closedir DIR;
+    }
+}
+
+foreach (keys %dirs) {
+    my $dir = "$_";
     my $lib = $dirs{$dir};
 
     #calc subdirs
