@@ -1271,7 +1271,7 @@ int QSocket::socket() const
 void QSocket::setSocket(int socket)
 {
     d->setSocket(socket);
-    d->state = Connection;
+    d->state = Connected;
     d->rsn->setEnabled(true);
 }
 
