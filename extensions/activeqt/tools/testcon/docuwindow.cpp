@@ -84,7 +84,7 @@ DocuWindow::DocuWindow( const QString& docu, QWidget *parent, QWidget *source )
 }
 
 void DocuWindow::save()
-{/*
+{
     QString filename = QFileDialog::getSaveFileName( QString::null, QString::null,
 					       this );
 
@@ -103,7 +103,6 @@ void DocuWindow::save()
     f.close();
 
     statusBar()->message( QString( "File %1 saved" ).arg(filename), 2000 );
-*/
 }
 
 void DocuWindow::print()

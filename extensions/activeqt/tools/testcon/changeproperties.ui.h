@@ -10,7 +10,7 @@
 *****************************************************************************/
 
 #include <qmessagebox.h>
-//#include <qfiledialog.h>
+#include <qfiledialog.h>
 #include <qpixmap.h>
 #include <qregexp.h>
 
@@ -109,10 +109,8 @@ void ChangeProperties::setValue()
     case QVariant::Pixmap:
 	{
 	    QString fileName = editValue->text();
-/*
 	    if ( fileName.isEmpty() )
 		fileName = QFileDialog::getOpenFileName( QString::null, QString::null, this );
-*/
 	    QPixmap pm( fileName );
 	    if ( pm.isNull() )
 		return;

@@ -176,7 +176,6 @@ void MainWindow::controlInfo()
 
 void MainWindow::fileLoad()
 {
-/*
     QString fname = QFileDialog::getOpenFileName( QString::null, "*.qax", this );
     if ( fname.isEmpty() )
 	return;
@@ -195,12 +194,10 @@ void MainWindow::fileLoad()
     container->show();
 
     updateGUI();
-*/
 }
 
 void MainWindow::fileSave()
 {
-/*
     QAxWidget *container = 0;
     if ( workspace->activeWindow() )
 	container = (QAxWidget*)workspace->activeWindow()->qt_metacast("QAxWidget");
@@ -218,7 +215,6 @@ void MainWindow::fileSave()
     }
     QDataStream d( &file );
     d << *container;
-*/
 }
 
 void MainWindow::updateGUI()
