@@ -621,6 +621,7 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	break;
     case PdcRestore:
 	current = current.parentNode();
+	dirtyTransform = !pt->worldMatrix().isIdentity();
 	// ### reset dirty flags
 	break;
     case PdcSetBkColor:
@@ -667,8 +668,11 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	// ### optimize application of attributes utilizing <g>
 	if ( dirtyStyle )		// only reset when entering
 	    applyStyle( &e, c );	// or leaving a <g> tag
-	if ( dirtyTransform )		// same as above
+	if ( dirtyTransform ) {		// same as above
 	    applyTransform( &e );
+	    if ( c == PdcSave )
+		dirtyTransform = FALSE;
+	}
     }
 
     return TRUE;
