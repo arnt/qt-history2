@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#127 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#126 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#127 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -187,7 +187,7 @@ QListBoxItem::~QListBoxItem()
 
 /*!
   \class QListBoxText qlistbox.h
-  \brief QListBoxText provides list box items with text.
+  \brief The QListBoxText class provides list box items with text.
 
   The text is drawn in the widget's current font. If you need several
   different fonts, you have to make your own subclass of QListBoxItem.
@@ -253,7 +253,7 @@ int QListBoxText::width( const QListBox *lb ) const
 
 /*!
   \class QListBoxPixmap qlistbox.h
-  \brief QListBoxPixmap provides list box items with a pixmap.
+  \brief The QListBoxPixmap class provides list box items with a pixmap.
 
   \sa QListBox, QListBoxItem
 */

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#78 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,12 +16,12 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#78 $");
 
 
 /*!
   \class QPixmap qpixmap.h
-  \brief The QPixmap class is an off-screen buffer paint device.
+  \brief The QPixmap class is an off-screen pixel-based paint device.
 
   \ingroup drawing
   \ingroup shared

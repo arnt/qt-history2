@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#99 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,12 +18,13 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbt.cpp#99 $");
 
 
 /*!
   \class QPushButton qpushbt.h
-  \brief The QPushButton widget provides a push button with a text label.
+  \brief The QPushButton widget provides a push button with a text
+	    or pixmap label.
 
   \ingroup realwidgets
 

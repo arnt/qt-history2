@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#31 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -14,7 +14,7 @@
 #include "qdict.h"
 #include "qstring.h"				/* used for statistics */
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#30 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgcache.cpp#31 $");
 
 
 /*!
@@ -482,7 +482,7 @@ void QGCache::statistics() const
 /*!
   \class QGCacheIterator qgcache.h
 
-  \brief The QGCacheIterator is an internal class for implementing QCacheIterator and QIntCacheIterator.
+  \brief An internal class for implementing QCacheIterator and QIntCacheIterator.
 
   QGCacheIterator is a strictly internal class that does the heavy work for
   QCacheIterator and QIntCacheIterator.

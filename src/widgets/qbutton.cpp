@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#92 $
 **
 ** Implementation of QButton widget class
 **
@@ -19,7 +19,7 @@
 #include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#91 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#92 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -100,7 +100,7 @@ static int shortcutChar( const char *str )
   \class QButton qbutton.h
 
   \brief The QButton class is the abstract base class of button
-  widgets, and provides functionality common to buttons.
+  widgets, providing functionality common to buttons.
 
   \ingroup abstractwidgets
 

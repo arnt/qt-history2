@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#48 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#49 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#48 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qgdict.cpp#49 $");
 
 
 /*!
@@ -509,7 +509,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 
 /*!
   \class QGDictIterator qgdict.h
-  \brief The QGDictIterator is an internal class for implementing QDictIterator and QIntDictIterator.
+  \brief An internal class for implementing QDictIterator and QIntDictIterator.
 
   QGDictIterator is a strictly internal class that does the heavy work for
   QDictIterator and QIntDictIterator.

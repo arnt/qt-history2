@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#15 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -12,7 +12,7 @@
 #include "qpalette.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpalette.cpp#15 $");
 
 
 /*****************************************************************************
@@ -162,7 +162,7 @@ bool QColorGroup::operator==( const QColorGroup &g ) const
 /*!
   \class QPalette qpalette.h
 
-  \brief The QPalette class contains color groups.
+  \brief The QPalette class contains color groups for each widget state.
 
   \ingroup color
   \ingroup shared

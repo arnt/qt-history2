@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#12 $
 **
 ** Implementation of validator classes.
 **
@@ -14,13 +14,13 @@
 
 #include <limits.h> // *_MIN, *_MAX
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qvalidator.cpp#12 $");
 
 
 /*!
   \class QValidator qvalidator.h
 
-  \brief The QValidator class provides ways to validate an input text.
+  \brief The QValidator class provides validation of input text.
 
   The class itself is abstract; two subclasses provide rudimentary
   numeric range checking.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#25 $
 **
 ** Implementation of layout classes
 **
@@ -12,12 +12,12 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#24 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#25 $");
 
 
 /*!
   \class QLayout qlayout.h
-  \brief QLayout is the base class of geometry specifiers.
+  \brief The QLayout class is the base class of geometry specifiers.
 
   This is an abstract base class. Various layout managers inherit
   from this one.
@@ -250,7 +250,7 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \class QBoxLayout qlayout.h
-  \brief The QBoxLayout class specifies child widget geometry. More... 
+  \brief The QBoxLayout class specifies child widget geometry.
 
   Contents are arranged serially, either horizontal or vertical.
   The contents fill the available space.

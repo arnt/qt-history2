@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#17 $
 **
 **  Table header
 **
@@ -80,7 +80,7 @@ static unsigned char vsplitm_bits[] = {
 
 /*!
   \class QHeader qheader.h
-  \brief The QHeader widget class provides a table header.
+  \brief The QHeader class provides a table header.
 
   This is a table heading of the type used in a list view. It gives
   the user the opportunity to resize and move the columns (or rows for

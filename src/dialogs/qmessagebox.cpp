@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#54 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#55 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#54 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#55 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -84,7 +84,7 @@ static const unsigned char critical_gif_data[] = {
 
 /*!
   \class QMessageBox qmsgbox.h
-  \brief The QMessageBox widget provides a message box.
+  \brief Displays a brief message, an icon, and some buttons.
   \ingroup dialogs
 
   \define QMessageBox::Icon

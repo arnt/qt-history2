@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#44 $
 **
 ** Implementation of QDir class
 **
@@ -25,7 +25,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#44 $");
 
 
 #if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
@@ -53,8 +53,8 @@ static void slashify( char * )
 
 /*!
   \class QDir qdir.h
-  \brief QDir can traverse the directory structure and read the contents of
-	 directories in a platform-independent way.
+  \brief Traverses directory structures and contents in a
+	    platform-independent way.
 
   \ingroup tools
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#101 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -19,7 +19,7 @@
 #include "qstack.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#100 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#101 $");
 
 
 /*!
@@ -1066,7 +1066,7 @@ void QPainter::drawPixmap( const QPoint &p, const QPixmap &pm )
 
 /*!
   \class QPen qpen.h
-  \brief The QPen class defines how the QPainter should draw lines and outlines
+  \brief The QPen class defines how a QPainter should draw lines and outlines
   of shapes.
   \ingroup drawing
 
@@ -1350,8 +1350,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
 /*!
   \class QBrush qbrush.h
 
-  \brief The QBrush class defines the fill pattern of shapes drawn using the
-  QPainter.
+  \brief The QBrush class defines the fill pattern of shapes drawn by a QPainter.
 
   \ingroup drawing
   \ingroup shared
