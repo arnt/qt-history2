@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#21 $
+** $Id: //depot/qt/main/src/tools/qmap.h#22 $
 **
 ** Definition of QMap class
 **
@@ -63,7 +63,7 @@ struct QMapNode : public QMapNodeBase
 {
     QMapNode( const K& _key, const T& _data ) { data = _data; key = _key; }
     QMapNode( const K& _key )	   { key = _key; }
-    QMapNode( const QMapNode& _n ) { key = _n.key; data = _n.data; }
+    QMapNode( const QMapNode<K,T>& _n ) { key = _n.key; data = _n.data; }
     QMapNode() { }
     T data;
     K key;
