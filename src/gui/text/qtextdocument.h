@@ -138,4 +138,12 @@ protected:
 #endif
 };
 
+// ### just a temporary hook/interface, until Q4TextBrowser and friends moved into main
+// ### will be gone soon again
+struct QTextDocumentLoaderInterface
+{
+    virtual QImage image(const QString &name, const QString &context = QString::null) = 0;
+};
+Q_DECLARE_INTERFACE(QTextDocumentLoaderInterface, "http://trolltech.com/Qt/QTextDocumentLoaderInterface/1.0")
+
 #endif

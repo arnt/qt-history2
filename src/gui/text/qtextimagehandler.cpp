@@ -24,7 +24,7 @@
 
 QTextImageHandler::ExternalImageLoaderFunction QTextImageHandler::externalLoader = 0;
 
-static QPixmap getPixmap(const QTextImageFormat &format)
+static QPixmap getPixmap(const QTextImageFormat &format, QObject *layout)
 {
     QPixmap pm;
 
@@ -45,6 +45,10 @@ static QPixmap getPixmap(const QTextImageFormat &format)
             // ###
             QString context;
             img = QTextImageHandler::externalLoader(name, context);
+        } else if (layout && layout->parent() && layout->parent()->parent()) { // ### temporary, until Q4TextBrowser and friends are in main
+            QTextDocumentLoaderInterface *loader = qt_cast<QTextDocumentLoaderInterface *>(layout->parent()->parent());
+            if (loader)
+                img = loader->image(name);
         }
 
         if (img.isNull()) // try direct loading
@@ -68,14 +72,14 @@ QSize QTextImageHandler::intrinsicSize(const QTextFormat &format)
 {
     QTextImageFormat imageFormat = format.toImageFormat();
 
-    QPixmap pixmap = getPixmap(imageFormat);
+    QPixmap pixmap = getPixmap(imageFormat, parent());
     return pixmap.size();
 }
 
 void QTextImageHandler::drawObject(QPainter *p, const QRect &rect, const QTextFormat &format)
 {
     QTextImageFormat imageFormat = format.toImageFormat();
-    QPixmap pixmap = getPixmap(imageFormat);
+    QPixmap pixmap = getPixmap(imageFormat, parent());
 
     p->drawPixmap(rect, pixmap);
 }
