@@ -76,6 +76,11 @@ text and user settings. The Qt OpenGL support is greatly improved, and
 uses the hardware-accelerated drivers.
 
 
+Qt/Embedded
+-----------
+Graphics, mouse and keyboard drivers can now be compiled as plugins.
+
+
 Qt API
 ------
 In addition to the new additions and enhancements referred to above,
