@@ -187,13 +187,6 @@ void Keyboard::paintEvent(QPaintEvent* e)
 }
 
 
-static void doKey( unsigned int unicode, int mod = 0 )
-{
-    QWSServer::sendKeyEvent( unicode, mod, TRUE, FALSE );
-    QWSServer::sendKeyEvent( unicode, mod, FALSE, FALSE );
-}
-
-
 
 void Keyboard::mousePressEvent(QMouseEvent *e)
 {
@@ -207,6 +200,7 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
     int k = keycode( i2, j );
     bool need_repaint = FALSE;
     int u = -1;
+    int qk = 0;
     if ( k >= 0x80 ) {
 	if ( k == ShiftCode ) {
 	    shift = !shift;
@@ -221,20 +215,21 @@ void Keyboard::mousePressEvent(QMouseEvent *e)
 	    ctrl = !ctrl;
 	    need_repaint = TRUE;
 	} else {
-	    int qk = specialM[ k - 0x80 ].qcode;
+	    qk = specialM[ k - 0x80 ].qcode;
 	    u = specialM[ k - 0x80 ].unicode;
-	    u |= qk << 16;
 	}
     } else {
-	int qk = QWSServer::keyMap()[k].key_code;
+	qk = QWSServer::keyMap()[k].key_code;
 	if ( qk != Key_unknown ) {
 	    u = shift^lock ? QWSServer::keyMap()[k].shift_unicode : 
 		QWSServer::keyMap()[k].unicode;
-	    u |= qk << 16;
 	}
     }
     if  ( u != -1 ) {
-	doKey( u );
+	int mod = (shift?Qt::ShiftButton:0)|(ctrl?Qt::ControlButton:0)|
+		  (alt?Qt::AltButton:0);
+	QWSServer::sendKeyEvent( u, qk, mod, TRUE, FALSE );
+	QWSServer::sendKeyEvent( u, qk, mod, FALSE, FALSE );
 	need_repaint = shift || alt || ctrl;
 	shift = alt = ctrl = FALSE;
 	qDebug( "pressed %d -> %04x ('%c')", k, u, u&0xffff < 256 ? u&0xff : 0 );

@@ -14,7 +14,7 @@ QWSPenInput::QWSPenInput( QWidget *parent, const char *name,
 
 void QWSPenInput::keyPress( unsigned int unicode )
 {
-    QWSServer::sendKeyEvent( unicode, 0, TRUE, FALSE );
-    QWSServer::sendKeyEvent( unicode, 0, FALSE, FALSE );
+    QWSServer::sendKeyEvent( unicode&0xffff, unicode>>16, 0, TRUE, FALSE );
+    QWSServer::sendKeyEvent( unicode&0xffff, unicode>>16, 0, FALSE, FALSE );
 }
 

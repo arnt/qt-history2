@@ -308,7 +308,8 @@ void QWSTtyKeyboardHandler::readKeyboardData()
     static int alt   = 0;
     static int ctrl  = 0;
     static bool extended = false;
-    static int previous = 0;
+    static int prevuni = 0;
+    static int prevkey = 0;
 
     unsigned char buf[81];
     int n;
@@ -423,16 +424,17 @@ void QWSTtyKeyboardHandler::readKeyboardData()
 		    unicode =  QWSServer::keyMap()[ch].unicode ?  QWSServer::keyMap()[ch].unicode : 0xffff;
 		//printf("unicode: %c\r\n", unicode);
 	    }
-	    unicode |= keyCode << 16;
 	    int modifiers = alt | ctrl | shift;
 	    bool repeat = FALSE;
-	    if (previous == unicode && !release)
+	    if (prevuni == unicode && prevkey == keyCode && !release)
 		repeat = TRUE;
-	    server->processKeyEvent( unicode, modifiers, !release, repeat );
-	    if (!release)
-		previous = unicode;
-	    else
-		previous = 0;
+	    server->processKeyEvent( unicode, keyCode, modifiers, !release, repeat );
+	    if (!release) {
+		prevuni = unicode;
+		prevkey = keyCode;
+	    } else {
+		prevkey = prevuni = 0;
+	    }
 	}
 	extended = false;
     }
@@ -502,9 +504,8 @@ void QWSVr41xxButtonsHandler::readKeyboardData()
 	    qDebug("Unrecognised key sequence %d %d",buf[0],buf[1]);
 	    keycode=Qt::Key_unknown;
 	}
-	int unicode=keycode << 16;
-	server->processKeyEvent( unicode, 0, true, false );
-	server->processKeyEvent( unicode, 0, false, false );
+	server->processKeyEvent( 0, keycode, 0, true, false );
+	server->processKeyEvent( 0, keycode, 0, false, false );
     }
 }
 
@@ -564,7 +565,8 @@ void QWSVFbKeyboardHandler::readKeyboardData()
     int idx = 0;
     while ( kbdIdx - idx >= sizeof( QVFbKeyData ) ) {
 	QVFbKeyData *kd = (QVFbKeyData *)(kbdBuffer + idx);
-	server->processKeyEvent( kd->unicode, kd->modifiers, kd->press, kd->repeat );
+	server->processKeyEvent( kd->unicode&0xffff, kd->unicode>>16,
+				 kd->modifiers, kd->press, kd->repeat );
 	idx += sizeof( QVFbKeyData );
     }
 

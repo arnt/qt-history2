@@ -121,9 +121,9 @@ public:
     
     enum GUIMode { NoGui = FALSE, NormalGUI = TRUE, Server };
     
-    static void sendKeyEvent(int unicode, int modifiers, bool isPress,
+    static void sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 			     bool autoRepeat);
-    static void processKeyEvent(int unicode, int modifiers, bool isPress,
+    static void processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
 				bool autoRepeat);
 
     typedef struct KeyMap {
@@ -139,7 +139,7 @@ public:
     class KeyboardFilter
     {
     public:
-	virtual bool filter(int unicode, int modifiers, bool isPress,
+	virtual bool filter(int unicode, int keycode, int modifiers, bool isPress,
 		      bool autoRepeat)=0;
     };
     

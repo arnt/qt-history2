@@ -257,7 +257,7 @@ class SimpleIM : public QWSServer::KeyboardFilter
 {
 public:
     SimpleIM( const QString &fn );
-    bool filter(int unicode, int modifiers, bool isPress,
+    bool filter(int unicode, int keycode, int modifiers, bool isPress,
 		      bool autoRepeat);
 
 private:
@@ -296,23 +296,21 @@ SimpleIM::SimpleIM( const QString &fn )
 
 
 
-static void fakeKey( int unicode )
+static void fakeKey( int unicode, int keycode )
 {
-    QWSServer::sendKeyEvent( unicode, 0, TRUE, FALSE );
-    QWSServer::sendKeyEvent( unicode, 0, FALSE, FALSE );
+    QWSServer::sendKeyEvent( unicode, keycode, 0, TRUE, FALSE );
+    QWSServer::sendKeyEvent( unicode, keycode, 0, FALSE, FALSE );
 }
 
 static void fakeKey( const QString &s )
 {
     for ( int i = 0; i < s.length(); i++ )
-	fakeKey( s[i].unicode() );
+	fakeKey( s[i].unicode(), 0 );
 }
 
-bool SimpleIM::filter(int code, int modifiers, bool isPress,
+bool SimpleIM::filter(int unicode, int keycode, int modifiers, bool isPress,
 		       bool autoRepeat)
 {
-    int unicode = code & 0xffff;
-    int keycode = code >> 16;
     if ( modifiers == Qt::ShiftButton && keycode == Qt::Key_Space ) {
 	if ( !isPress ) {
 	    active = !active;
@@ -322,7 +320,7 @@ bool SimpleIM::filter(int code, int modifiers, bool isPress,
 	return TRUE; //filter
     }
     if ( active  && !(modifiers&~Qt::ShiftButton) ) {
-	if ( isPress && code>>16 != Qt::Key_Shift ) {
+	if ( isPress && keycode != Qt::Key_Shift ) {
 	    soFar = soFar + QChar( unicode );
 	    soFar = soFar.right( maxlen );
 	
@@ -332,14 +330,14 @@ bool SimpleIM::filter(int code, int modifiers, bool isPress,
 		//qDebug( "trying %s", candidate.latin1() );
 		if ( map.contains( candidate ) ) {
 		    for ( int i = 0; i < n-1; i++ )
-			fakeKey( Qt::Key_Backspace << 16 );
+			fakeKey( 0, Qt::Key_Backspace);
 		    fakeKey( map[candidate] );
 		    return TRUE;
 		}
 		n--;
 	    }
 	}
-	QWSServer::sendKeyEvent( code, modifiers, isPress, autoRepeat );
+	QWSServer::sendKeyEvent( unicode, keycode,  modifiers, isPress, autoRepeat );
 	return TRUE;
     }
     soFar = "";

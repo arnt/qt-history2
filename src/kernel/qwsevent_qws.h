@@ -65,7 +65,8 @@ struct QWSKeyEvent: QWSEvent {
 	      (char*)&simpleData ) {}
     struct SimpleData {
 	int window;
-	int unicode;
+	ushort unicode;
+	ushort keycode;
 	int modifiers;
 	uint is_press:1;
 	uint is_auto_repeat:1;

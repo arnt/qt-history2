@@ -622,12 +622,13 @@ QWSWindow *QWSServer::windowAt( const QPoint& pos )
 }
 
 
-void QWSServer::sendKeyEvent(int unicode, int modifiers, bool isPress,
+void QWSServer::sendKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
     QWSKeyEvent event;
     event.simpleData.window = qwsServer->focusw ? qwsServer->focusw->winId() : 0;
     event.simpleData.unicode = unicode;
+    event.simpleData.keycode = keycode;
     event.simpleData.modifiers = modifiers;
     event.simpleData.is_press = isPress;
     event.simpleData.is_auto_repeat = autoRepeat;
@@ -1474,12 +1475,12 @@ void QWSServer::emergency_cleanup()
 
 static QWSServer::KeyboardFilter *keyFilter;
 
-void QWSServer::processKeyEvent(int unicode, int modifiers, bool isPress,
+void QWSServer::processKeyEvent(int unicode, int keycode, int modifiers, bool isPress,
   bool autoRepeat)
 {
     if ( !keyFilter ||
-	 !keyFilter->filter( unicode, modifiers, isPress, autoRepeat ) )
-	sendKeyEvent( unicode, modifiers, isPress, autoRepeat );
+	 !keyFilter->filter( unicode, keycode, modifiers, isPress, autoRepeat ) )
+	sendKeyEvent( unicode, keycode, modifiers, isPress, autoRepeat );
 }
 
 

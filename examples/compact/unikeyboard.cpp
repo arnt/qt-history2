@@ -137,11 +137,10 @@ void UniScrollview::contentsMousePressEvent(QMouseEvent *e )
     int row = e->y()/cellsize;
     int col = (e->x()-xoff)/cellsize;
     int u = row*nw+col;
-    u |= u<<16;
     qDebug( "pressed %04x", u );
 #ifdef _WS_QWS_
-    QWSServer::sendKeyEvent( u, 0, TRUE, FALSE );
-    QWSServer::sendKeyEvent( u, 0, FALSE, FALSE );
+    QWSServer::sendKeyEvent( u, u, 0, TRUE, FALSE );
+    QWSServer::sendKeyEvent( u, u, 0, FALSE, FALSE );
 #endif
 }
 

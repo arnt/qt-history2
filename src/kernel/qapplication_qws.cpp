@@ -2561,13 +2561,13 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
     bool    autor = event->simpleData.is_auto_repeat;
     QString text;
     char   ascii = 0;
-    if ( event->simpleData.unicode & 0xffff ) {
-	QChar ch(event->simpleData.unicode & 0xffff);
+    if ( event->simpleData.unicode ) {
+	QChar ch(event->simpleData.unicode );
 	if ( ch.unicode() != 0xffff )
 	    text += ch;
 	ascii = ch.latin1();
     }
-    code = event->simpleData.unicode >> 16;
+    code = event->simpleData.keycode;
 
     bool isAccel = FALSE;
     if (!grab) { // test for accel if the keyboard is not grabbed
