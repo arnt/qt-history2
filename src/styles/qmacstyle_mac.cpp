@@ -1478,10 +1478,13 @@ bool QMacStyle::event(QEvent *e)
     if(e->type() == QEvent::Style) {
 	RGBColor c;
 	GetThemeBrushAsColor(MAC_ACTIVE_HIGHLIGHT_COLOR, 32, true, &c );
-	qt_mac_highlight_active_color = QColor(c.red / 256, c.green / 256, c.blue / 256);
+	QColor hac = QColor(c.red / 256, c.green / 256, c.blue / 256);
 	GetThemeBrushAsColor(MAC_INACTIVE_HIGHLIGHT_COLOR, 32, true, &c );
-	qt_mac_highlight_inactive_color = QColor(c.red / 256, c.green / 256, c.blue / 256);
-	if(e->spontaneous()) {
+	QColor hic = QColor(c.red / 256, c.green / 256, c.blue / 256);
+	if(e->spontaneous() && (hac != qt_mac_highlight_active_color ||
+	    hic != qt_mac_highlight_inactive_color)) {
+	    qt_mac_highlight_active_color = hac;
+	    qt_mac_highlight_inactive_color = hic;
 	    QPalette pal = qApp->palette();
 	    pal.setColor(QPalette::Active, QColorGroup::Highlight, 
 			  qt_mac_highlight_active_color);
