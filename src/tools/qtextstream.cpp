@@ -559,16 +559,12 @@ QTextStream::QTextStream( QByteArray a, int mode )
     d->sourceType = QTextStreamPrivate::ByteArray;
 }
 
-/*!
-  Constructs a text stream that operates on an existing file handle \e fh
-  through an internal QFile device.
+/*!  Constructs a text stream that operates on an existing file handle
+  \e fh through an internal QFile device.
 
-  Example:
-  \code
-    QTextStream cout( stdout, IO_WriteOnly );
-    QTextStream cin ( stdin,  IO_ReadOnly );
-    QTextStream cerr( stderr, IO_WriteOnly );
- \endcode
+  Note that if you create a QTextStream \c cout or another name that
+  is also used for another variable of a different type, some linkers
+  may confuse the two variables, which will often cause crashes.
 */
 
 QTextStream::QTextStream( FILE *fh, int mode )
