@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.cpp#139 $
 **
 ** Implementation of QMetaObject class
 **
@@ -784,7 +784,7 @@ bool QMetaProperty::stored( QObject* o ) const
 {
     if ( !o || !testFlags( Writable ) || !testFlags( Readable ) )
 	return FALSE;
-    return o->qt_property( this, 4, 0 );
+    return o->qt_property( this, 5, 0 );
 }
 
 /*!
@@ -796,6 +796,17 @@ bool QMetaProperty::designable( QObject* o ) const
     if ( !o || !testFlags( Readable) || !testFlags(Writable) )
 	return FALSE;
     return o->qt_property( this, 3, 0 );
+}
+
+/*!
+  Returns whether the property is scriptable for object \a o or
+  not.
+ */
+bool QMetaProperty::scriptable( QObject* o ) const
+{
+    if ( !o || !testFlags( Readable) || !testFlags(Writable) )
+	return FALSE;
+    return o->qt_property( this, 4, 0 );
 }
 
 

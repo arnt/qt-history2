@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#84 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#85 $
 **
 ** Definition of QMetaObject class
 **
@@ -44,7 +44,7 @@
 #endif // QT_H
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 13
+#define Q_MOC_OUTPUT_REVISION 14
 #endif
 
 class QObject;
@@ -99,6 +99,7 @@ public:
 
     bool stored( QObject* ) const;
     bool designable( QObject* ) const;
+    bool scriptable( QObject* ) const;
 
     bool reset( QObject* ) const;
 

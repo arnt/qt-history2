@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#269 $
+** $Id: //depot/qt/main/src/moc/moc.y#270 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -277,10 +277,10 @@ public:
 struct Property
 {
     Property( int l, const char* t, const char* n, const char* s, const char* g, const char* r,
-	      const QCString& st, const QCString& d, bool ov )
+	      const QCString& st, const QCString& d, const QCString& sc, bool ov )
 	: lineNo(l), type(t), name(n), set(s), get(g), reset(r), setfunc(0), getfunc(0),
 	  sspec(Unspecified), gspec(Unspecified), stored( st ),
-	  designable( d ), override( ov ), oredEnum( -1 )
+	  designable( d ), scriptable( sc ), override( ov ), oredEnum( -1 )
     {}
 
     int lineNo;
@@ -291,6 +291,7 @@ struct Property
     QCString reset;
     QCString stored;
     QCString designable;
+    QCString scriptable;
     bool override;
 
     Function* setfunc;
@@ -448,7 +449,7 @@ int	   tmpYYStart2;			// Used to store the lexers current mode
 					//  (if tmpYYStart is already used)
 
 // if the format revision changes, you HAVE to change it in qmetaobject.h too
-const int  formatRevision = 13;		// moc output format revision
+const int  formatRevision = 14;		// moc output format revision
 
 %}
 
@@ -520,6 +521,7 @@ const int  formatRevision = 13;		// moc output format revision
 %token			WRITE
 %token			STORED
 %token			DESIGNABLE
+%token			SCRIPTABLE
 %token			RESET
 
 %type  <string>		class_name
@@ -1287,16 +1289,17 @@ property:		IDENTIFIER IDENTIFIER
 				{
 				     g->propWrite = "";
 				     g->propRead = "";
-				     if ( tmpPropOverride )
-					 g->propStored = "";
-				     else
-					 g->propStored = "true";
-				     g->propReset = "";
 				     g->propOverride = tmpPropOverride;
-				     if ( tmpPropOverride )
+				     g->propReset = "";
+				     if ( g->propOverride ) {
+					 g->propStored = "";
 					 g->propDesignable = "";
-				     else
+					 g->propScriptable = "";
+				     } else {
+					 g->propStored = "true";
 					 g->propDesignable = "true";
+					 g->propScriptable = "true";
+				     }
 				}
 			prop_statements
 				{
@@ -1313,8 +1316,9 @@ property:		IDENTIFIER IDENTIFIER
 					}
 				    }
 				    g->props.append( new Property( lineNo, $1, $2,
-								g->propWrite, g->propRead, g->propReset, g->propStored,
-								g->propDesignable, g->propOverride ) );
+								g->propWrite, g->propRead, g->propReset, 
+								   g->propStored, g->propDesignable, 
+								   g->propScriptable, g->propOverride ) );
 				}
 			;
 
@@ -1324,6 +1328,7 @@ prop_statements:	  /* empty */
 			| RESET IDENTIFIER prop_statements { g->propReset = $2; }
 			| STORED IDENTIFIER prop_statements { g->propStored = $2; }
 			| DESIGNABLE IDENTIFIER prop_statements { g->propDesignable = $2; }
+			| SCRIPTABLE IDENTIFIER prop_statements { g->propScriptable = $2; }
 			;
 
 qt_enums:		  /* empty */ { }
@@ -1391,6 +1396,7 @@ class parser_reg {
     QCString propReset;				// reset function
     QCString propStored;				//
     QCString propDesignable;				// "true", "false" or function or empty if not specified
+    QCString propScriptable;				// "true", "false" or function or empty if not specified
     bool propOverride;				// Wether OVERRIDE was detected
 
     QStrList qtEnums;				// Used to store the contents of Q_ENUMS
@@ -2682,7 +2688,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#269 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#270 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3090,6 +3096,11 @@ void generateClass()		      // generate C++ source code for a class
 	    propindex ++;
 	    fprintf( out, "    case %d: ", propindex );
 	    fprintf( out, "switch( _f ) {\n" );
+	    
+	    uint flag_break = 0;
+	    uint flag_propagate = 0;
+	    
+	    
 	    if ( it.current()->setfunc ) {
 		fprintf( out, "\tcase 0: %s(", it.current()->setfunc->name.data() );
 		QCString type = it.current()->type.copy(); // detach on purpose
@@ -3111,7 +3122,7 @@ void generateClass()		      // generate C++ source code for a class
 		fprintf( out, "); break;\n" );
 
 	    } else if ( it.current()->override ) {
-		fprintf( out, "\tcase 0: if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
+		flag_propagate |= 1 << (0+1);
 	    }
 	    if ( it.current()->getfunc ) {
 		if ( it.current()->gspec == Property::Pointer )
@@ -3126,32 +3137,49 @@ void generateClass()		      // generate C++ source code for a class
 			     it.current()->getfunc->name.data(),
 			     it.current()->type == "bool" ? ", 0" : "" );
 	    } else if ( it.current()->override ) {
-		fprintf( out, "\tcase 1: if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
+		flag_propagate |= 1<< (1+1);
 	    }
 
 	    if ( !it.current()->reset.isEmpty() )
-		fprintf( out, "\tcase 2: %s(); break;\n", it.current()->reset.data() );
+		flag_break |= 1 << (2+1);
 
-	    if ( it.current()->designable == "true" && it.current()->stored == "true" )
-		fprintf( out, "\tcase 3: case 4: break;\n" );
-	    else {
-		if ( it.current()->designable.isEmpty() )
-		    fprintf( out, "\tcase 3: if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
-		else if ( it.current()->designable == "true" )
-		    fprintf( out, "\tcase 3: break;\n" );
-		else if ( it.current()->designable == "false" )
-		    fprintf( out, "\tcase 3: return FALSE;\n" );
-		else
-		    fprintf( out, "\tcase 3: return %s();\n", it.current()->designable.data() );
+	    if ( it.current()->designable.isEmpty() )
+		flag_propagate |= 1 << (3+1);
+	    else if ( it.current()->designable == "true" )
+		flag_break |= 1 << (3+1);
+	    else if ( it.current()->designable != "false" )
+		fprintf( out, "\tcase 3: return %s();\n", it.current()->designable.data() );
 
-		if ( it.current()->stored.isEmpty() )
-		    fprintf( out, "\tcase 4: if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
-		else if ( it.current()->stored == "true" )
-		    fprintf( out, "\tcase 4: break;\n" );
-		else if ( it.current()->stored == "false" )
-		    fprintf( out, "\tcase 4: return FALSE;\n" );
-		else
-		    fprintf( out, "\tcase 4: return %s();\n", it.current()->stored.data() );
+	    if ( it.current()->scriptable.isEmpty() )
+		flag_propagate |= 1 << (4+1);
+	    else if ( it.current()->scriptable == "true" )
+		flag_break |= 1 << (4+1);
+	    else if ( it.current()->scriptable != "false" )
+		fprintf( out, "\tcase 4: return %s();\n", it.current()->scriptable.data() );
+
+	    if ( it.current()->stored.isEmpty() )
+		flag_propagate |= 1 << (5+1);
+	    else if ( it.current()->stored == "true" )
+		flag_break |= 1 << (5+1);
+	    else if ( it.current()->stored != "false" )
+		fprintf( out, "\tcase 5: return %s();\n", it.current()->stored.data() );
+	    
+	    int i = 0;
+	    if ( flag_propagate != 0 ) {
+		fprintf( out, "\t" );
+		for ( i = 0; i <= 5; i++ ) {
+		    if ( flag_propagate & (1 << (i+1) ) )
+			fprintf( out, "case %d: ", i );
+		}
+		fprintf( out, "if (_p->p) return qt_property( _p->p, _f, _v ); return FALSE;\n");
+	    }
+	    if ( flag_break != 0 ) {
+		fprintf( out, "\t" );
+		for ( i = 0; i <= 5; i++ ) {
+		    if ( flag_break & (1 << (i+1) ) )
+			fprintf( out, "case %d: ", i );
+		}
+		fprintf( out, "break;\n");
 	    }
 
 	    fprintf( out, "\tdefault: return FALSE;\n    } break;\n" );

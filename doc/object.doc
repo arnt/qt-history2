@@ -61,7 +61,7 @@ In addition to C++, Qt provides
   trees</a> that organize object ownership in a natural way.
 <li> guarded pointers, \l QGuardedPtr, that are automatically
   set to null when the referenced object is destroyed, unlike normal C++
-  pointers which become "dangling pointers" in that case. 
+  pointers which become "dangling pointers" in that case.
 </ul>
 
 Many of these Qt features are implemented with standard C++
@@ -298,7 +298,8 @@ declare it with the \c Q_PROPERTY macro. The syntax is as follows:
 
 \code
 Q_PROPERTY( type name READ getFunction [WRITE setFunction]
-            [STORED bool] [DESIGNABLE bool] [RESET resetFunction])
+            [RESET resetFunction] [DESIGNABLE bool] 
+            [SCRIPTABLE  bool] [STORED bool] )
 \endcode
 
 For the declaration to be valid, the get function has to be const and
@@ -342,25 +343,28 @@ enumeration values can be or'ed together.  An I/O class might have
 enumeration values "Read" and "Write" and accept "Read|Write": Such an
 enum is best handled with \c Q_SETS, not \c Q_ENUMS.
 
-The remaining keywords in the \c Q_PROPERTY section are \c STORED, \c
-DESIGNABLE and \c RESET.
-
-\c STORED declares whether the property's value is stored in the
-object. Stored makes only sense for writable properties. The default
-value is \c true.
-
-\c DESIGNABLE declares whether this property is suited for
-modification by a GUI designer program.  The default is \c true for
-writable properties, otherwise \c false.
+The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
+DESIGNABLE, \c SCRIPTABLE and STORED.
 
 \c RESET names a function that will set the property to its default
 state (which may have changed since initialization).  The function
 must return void and take no arguments.
 
-*/
+\c DESIGNABLE declares whether this property is suited for
+modification by a GUI designer program.  The default is \c true for
+writable properties, otherwise \c false. Instead of \c true or \c
+false, You may also specify a boolean member function.
 
-/* Arnt didn't understand why this exists, so he left it out until he
-can fit it into the text:
+\c SCRIPTABLE declares whether this property is suited for access by a
+scripting engine.  The default is \c true. Instead of \c true or \c false,
+You may also specify a boolean member function.
+
+\c STORED declares whether the property's value has to be remembered
+when storing an object's state.  Stored makes only sense for writable
+properties. The default value is \c true. Technically superfluent
+properties (like QPoint pos if QRect geometry is already a property)
+define this to be \c false.
+
 
 Connected to the property system is an additional macro, "Q_CLASSINFO",
 that can be used to attach additional name/value-pairs to a classes'

@@ -99,7 +99,7 @@ extern void addExpressionString( const char * );
 extern void moc_warn( const char *msg );
 %}
 
-%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_DEF_ARG IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_PROPDEF IN_CLASSINFO
+%start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_DEF_ARG IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_CLASSINFO
 
 %%
 <OUTSIDE>"class"		{ X;
@@ -163,24 +163,8 @@ extern void moc_warn( const char *msg );
 <IN_PROPERTY>"STORED"		{ X; return STORED; }
 <IN_PROPERTY>"RESET"		{ X; return RESET; }
 <IN_PROPERTY>"DESIGNABLE"	{ X; return DESIGNABLE; }
+<IN_PROPERTY>"SCRIPTABLE"	{ X; return SCRIPTABLE; }
 
-<IN_PROPDEF>"READ"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return READ; }
-<IN_PROPDEF>"WRITE"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return WRITE; }
-<IN_PROPDEF>"STORED"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return STORED; }
-<IN_PROPDEF>"RESET"		{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return RESET; }
-<IN_PROPDEF>"DESIGNABLE"	{ X; if ( expLevel == 1 ) BEGIN IN_PROPERTY; return DESIGNABLE; }
-<IN_PROPDEF>"("			{ addExpressionChar( '(' ); expLevel++;X; }
-<IN_PROPDEF>")"			{ expLevel--;Y;if (expLevel == 0)
-					{ X; BEGIN IN_PROPERTY; return ')';}
-				  else
-					{ addExpressionChar( ')' ); }
-				}
-<IN_PROPDEF>"["			{ addExpressionChar( '[' ); expLevel++;X; }
-<IN_PROPDEF>"]"			{ expLevel--;X;if (expLevel == 0)
-					{ X; BEGIN IN_PROPERTY; return ']';}
-				  else
-					{ addExpressionChar( ']' ); }
-				}
 
 <IN_EXPR>"("			{ expLevel++;X; }
 <IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
@@ -355,29 +339,6 @@ extern void moc_warn( const char *msg );
 			}
 
 
-<IN_PROPDEF>\"[^"]*	     { if (yytext[yyleng - 1] == '\\') {
-			      yymore();
-			  }
-			  else {
-			      X;
-			      addExpressionString( yytext );
-			      addExpressionChar( '"' );
-			      input();		/* discard the '"' */
-			 }
-			}
-
-<IN_PROPDEF>\'[^']*	     { if (yytext[yyleng - 1] == '\\') {
-			      yymore();
-			  }
-			  else {
-			      X;
-			      addExpressionString( yytext );
-			      addExpressionChar( '"' );
-			      input();		/* discard the ''' */
-			 }
-			}
-
-
 <QT_DEF>'.'	     { X;
 			  yylval.char_val = yytext[1];
 			  return CHAR_VAL;
@@ -534,7 +495,6 @@ extern void moc_warn( const char *msg );
 <IN_EXPR>.		  { addExpressionChar( yytext[0] ); }
 <IN_DEF_ARG>.		;
 <IN_ENUM>.		  { addExpressionChar( yytext[0] ); }
-<IN_PROPDEF>.		  { addExpressionChar( yytext[0] ); }
 <OUTSIDE>.		;
 <SKIP>.		        ;
 <QT_DEF>.		{
