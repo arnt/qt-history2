@@ -204,7 +204,9 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     }
     QString targetfilename = project->variables()["TARGET"].first();
     if(project->isActiveConfig("activeqt")) {
-	QString version = project->variables()["VERSION"].first();
+	QString version;
+	if (!project->variables()["VERSION"].isEmpty())
+	    version = project->variables()["VERSION"].first();
 	if ( version.isEmpty() )
 	    version = "1.0";
 

@@ -854,7 +854,9 @@ DspMakefileGenerator::init()
     if ( project->isActiveConfig("activeqt") ) {
 	QString idl = project->variables()["QMAKE_IDL"].first();
 	QString idc = project->variables()["QMAKE_IDC"].first();
-	QString version = project->variables()["VERSION"].first();
+	QString version;
+	if (!project->variables()["VERSION"].isEmpty())
+	    version = project->variables()["VERSION"].first();
 	if ( version.isEmpty() )
 	    version = "1.0";
 
