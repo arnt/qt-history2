@@ -355,6 +355,33 @@ void QDataTable::setColumnWidth( int col, int w )
     }
 }
 
+/*! Resizes column \a col so that the column width is wide enough to
+  display the widest item the column contains. Note that opposed to
+  QTable the QDataTable is not immediately redrawn, you have to call
+  refresh() first. If the table's QSqlCursor is currently not active,
+  the cursor will be refreshed before the column width is
+  calculated. Be aware that this function may be slow on tables that
+  contain large result sets.
+
+  \sa refresh()
+*/
+void QDataTable::adjustColumn( int col )
+{
+    QSqlCursor * cur = sqlCursor();
+    if ( !cur || cur->count() < (uint)col )
+	return;
+    if ( !cur->isActive() ) {
+	d->cur.refresh();
+    }
+    int oldRow = currentRow(), w = 0;
+    cur->first();
+    while ( cur->next() ) {
+	w = QMAX( w, fontMetrics().width( cur->value( col ).toString() ) + 10 );
+    }
+    setColumnWidth( col, w );
+    cur->seek( oldRow );
+}
+
 QString QDataTable::filter() const
 {
     return d->cur.filter();
@@ -661,7 +688,9 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 	if ( sql && sql->driver() && 
 	     !sql->driver()->hasFeature( QSqlDriver::QuerySize ) &&
 	     ke->key() == Key_End && d->dat.mode() == QSql::None ) {
+#ifndef QT_NO_CURSOR
 	    QApplication::setOverrideCursor( Qt::WaitCursor );
+#endif
 	    int i = sql->at();
 	    if ( i < 0 ) {
 		i = 0;
@@ -671,7 +700,9 @@ bool QDataTable::eventFilter( QObject *o, QEvent *e )
 		i++;
 	    setNumRows( i+1 );
 	    setCurrentCell( i+1, currentColumn() );
+#ifndef QT_NO_CURSOR
 	    QApplication::restoreOverrideCursor();
+#endif
 	    return TRUE;
 	}
 	break;
