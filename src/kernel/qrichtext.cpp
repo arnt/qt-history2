@@ -589,7 +589,7 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
 		    }
 
 		    if ( row >= 0 && col >= 0 ) {
-			const QStyleSheetItem* style = sheet_->item(tagname);
+			const QStyleSheetItem* s = sheet_->item(tagname);
 			if ( !attr2.contains("bgcolor") ) {
 			    if (!rowbgcolor.isEmpty() )
 				attr2["bgcolor"] = rowbgcolor;
@@ -601,8 +601,8 @@ QTextCustomItem* QRichText::parseTable( const QMap<QString, QString> &attr, cons
 				attr2["align"] = rowalign;
 			}
 			QTextTableCell* cell  = new QTextTableCell( table, row, col,
-			      attr2, style,
-			      fmt.makeTextFormat( style, attr2, 0 ),
+			      attr2, s,
+			      fmt.makeTextFormat( s, attr2, 0 ),
 			      contxt, *factory_, sheet_, doc, pos );
 			if ( cell->colspan() > 1 || cell->rowspan() > 1 )
 			    multicells.append( cell );
@@ -941,9 +941,9 @@ QTextParagraph* QRichText::getParBefore( int y ) const
 	while ( b->child )
 	    b = b->child;
     }
-    while ( b->y > y  && b->prevInDocument() )
+    while ( b->ypos > y  && b->prevInDocument() )
 	b = b->prevInDocument();
-    while ( b->y + b->height < y && b->nextInDocument() )
+    while ( b->ypos + b->height < y && b->nextInDocument() )
 	b = b->nextInDocument();
     QRichText* that = (QRichText*) this;
     that->b_cache = b;
@@ -1202,7 +1202,7 @@ void QTextParagraph::init()
     id = qt_text_paragraph_id++;
 
     child = next = prev = 0;
-    height = y = 0;
+    height = ypos = 0;
     dirty = TRUE;
     selected = FALSE;
     flow_ = 0;
@@ -1303,22 +1303,22 @@ void QTextRichString::clear()
 }
 
 
-void QTextRichString::remove( int index, int len )
+void QTextRichString::remove( int index, int lgth )
 {
-    for (int i = 0; i < len; ++i )
+    for (int i = 0; i < lgth; ++i )
 	formats->unregisterFormat( *formatAt( index + i ) );
 
     int olen = length();
-    if ( index + len >= olen ) {		// range problems
+    if ( index + lgth >= olen ) {		// range problems
 	if ( index < olen ) {			// index ok
 	    setLength( index );
 	}
-    } else if ( len != 0 ) {
-// 	memmove( items+index, items+index+len,
-// 		 sizeof(Item)*(olen-index-len) );
-	for (int i = index; i < olen-len; ++i)
-	    items[i] = items[i+len];
-	setLength( olen-len );
+    } else if ( lgth != 0 ) {
+// 	memmove( items+index, items+index+lgth,
+// 		 sizeof(Item)*(olen-index-lgth) );
+	for (int i = index; i < olen-lgth; ++i)
+	    items[i] = items[i+lgth];
+	setLength( olen-lgth );
     }
 }
 
@@ -1430,10 +1430,10 @@ QRichTextFormatter::~QRichTextFormatter()
  */
 void QRichTextFormatter::initParagraph( QPainter* p, QTextParagraph* b )
 {
-	b->y = y_;
+	b->ypos = y_;
 	b->height = 0;
 	while ( b->child  ) {
-	    b->child->y = b->y;
+	    b->child->ypos = b->ypos;
 	    b = b->child;
 	}
 	gotoParagraph( p, b );
@@ -1456,7 +1456,7 @@ void QRichTextFormatter::gotoParagraph( QPainter* p, QTextParagraph* b )
     last = first - 1;
 
 
-    y_ =  b->y;
+    y_ =  b->ypos;
     int m =  b->topMargin();
     flow->adjustFlow( y_, widthUsed, m ) ;
 
@@ -1514,7 +1514,7 @@ bool QRichTextFormatter::gotoNextLine( QPainter* p )
 	lmargin = flow->adjustLMargin( y_, static_lmargin );
 	lmargin += static_labelmargin;
 	rmargin = flow->adjustRMargin( y_, static_rmargin );
-	paragraph->height = y() - paragraph->y; //####
+	paragraph->height = y() - paragraph->ypos; //####
 	paragraph->dirty = FALSE;
 	return FALSE;
     }
@@ -1722,9 +1722,9 @@ void QRichTextFormatter::drawLine( QPainter* p, int ox, int oy,
 	if ( custom ) {
 	    int h = custom->height;
 	    if ( custom->placeInline() ) {
-		custom->x = gx + currentx;
-		custom->y = gy + base - h;
-		custom->draw(p, custom->x, custom->y, ox, oy,
+		custom->xpos = gx + currentx;
+		custom->ypos = gy + base - h;
+		custom->draw(p, custom->xpos, custom->ypos, ox, oy,
 			     cx, cy, cw, ch, backgroundRegion, cg, to );
 	    }
 	} else {
@@ -2080,15 +2080,16 @@ void QRichTextFormatter::makeLineLayout( QPainter* p )
     int fl = lmargin;
     int fr = width - rmargin;
     for ( QTextCustomItem* item = floatingItems.first(); item; item = floatingItems.next() ) {
-	item->y = y_ + height + 1;
+	item->ypos = y_ + height + 1;
 	if ( item->isTable() )
-	    ( (QTextTable*)item)->verticalBreak( item->y, flow );
-	flow->adjustFlow( item->y, item->width, item->height, !item->isTable() );
+	    ( (QTextTable*)item)->verticalBreak( item->ypos, flow );
+	flow->adjustFlow( item->ypos, item->width, item->height,
+			  !item->isTable() );
 	if ( item->placement() == QTextCustomItem::PlaceRight ) {
 	    fr -= item->width;
-	    item->x = fr;
+	    item->xpos = fr;
 	} else {
-	    item->x = fl;
+	    item->xpos = fl;
 	    fl += item->width;
 	}
 	flow->registerFloatingItem( item, item->placement() == QTextCustomItem::PlaceRight );
@@ -2103,7 +2104,7 @@ bool QRichTextFormatter::updateLayout( QPainter* p, int ymax )
     while ( b && ( ymax < 0 || y_ <= ymax ) ) {
 
 	if ( !b->dirty )
-	    y_ = b->y + b->height;
+	    y_ = b->ypos + b->height;
 	else do {
 		makeLineLayout( p );
 	} while ( gotoNextLine( p ) );
@@ -2153,8 +2154,8 @@ void QTextFlow::initialize( int w)
 int QTextFlow::adjustLMargin( int yp, int margin )
 {
     for ( QTextCustomItem* item = leftItems.first(); item; item = leftItems.next() ) {
-	if ( yp >= item->y && yp < item->y + item->height )
-	    margin = QMAX( margin, item->x + item->width + 4 );
+	if ( yp >= item->ypos && yp < item->ypos + item->height )
+	    margin = QMAX( margin, item->xpos + item->width + 4 );
     }
     return margin;
 }
@@ -2162,8 +2163,8 @@ int QTextFlow::adjustLMargin( int yp, int margin )
 int QTextFlow::adjustRMargin( int yp, int margin )
 {
     for ( QTextCustomItem* item = rightItems.first(); item; item = rightItems.next() ) {
-	if ( yp >= item->y && yp < item->y + item->height )
-	    margin = QMAX( margin, width - item->x - 4 );
+	if ( yp >= item->ypos && yp < item->ypos + item->height )
+	    margin = QMAX( margin, width - item->xpos - 4 );
     }
     return margin;
 }
@@ -2205,11 +2206,11 @@ void QTextFlow::drawFloatingItems(QPainter* p,
 {
     QTextCustomItem *item;
     for ( item = leftItems.first(); item; item = leftItems.next() ) {
-	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+	item->draw( p, item->xpos, item->ypos, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 
     for ( item = rightItems.first(); item; item = rightItems.next() ) {
-	item->draw( p, item->x, item->y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+	item->draw( p, item->xpos, item->ypos, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
     }
 }
 

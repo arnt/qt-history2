@@ -3756,19 +3756,19 @@ void QMultiLineEdit::killLine()
 {
     if ( d->undo ) {
 	d->undo = FALSE;
-	int cursorY, cursorX;
-	cursorPosition( &cursorY, &cursorX );
-	int offset = positionToOffsetInternal( cursorY, cursorX );
-	QMultiLineEditRow* r = contents->at( cursorY );
+	int curY, curX;
+	cursorPosition( &curY, &curX );
+	int offset = positionToOffsetInternal( curY, curX );
+	QMultiLineEditRow* r = contents->at( curY );
 	deselect();
 
 	addUndoCmd( new QBeginCommand );
-	if (cursorX == (int)r->s.length()) {
+	if (curX == (int)r->s.length()) {
 	    if ( ! atEnd() && r->newline )
-		deleteNextChar( offset, cursorY, cursorX );
+		deleteNextChar( offset, curY, curX );
 	}
 	else {
-	    QString str = r->s.mid( cursorX, r->s.length() );
+	    QString str = r->s.mid( curX, r->s.length() );
 	    addUndoCmd( new QDelTextCmd( offset, str ) );
 	}
 

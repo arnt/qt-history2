@@ -443,7 +443,7 @@ QApplication::QApplication( int &argc, char **argv )
 {
     qt_is_gui_used = TRUE;
     init_precmdline();
-    static char *empty = "";
+    static char *empty = (char*)"";
     if ( argc == 0 || argv == 0 ) {
 	argc = 0;
 	argv = &empty;
@@ -475,7 +475,7 @@ QApplication::QApplication( int &argc, char **argv, bool GUIenabled  )
 {
     qt_is_gui_used = GUIenabled;
     init_precmdline();
-    static char *empty = "";
+    static char *empty = (char*)"";
     if ( argc == 0 || argv == 0 ) {
 	argc = 0;
 	argv = &empty;

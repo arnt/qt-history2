@@ -152,7 +152,7 @@ class QTextCustomItem : public Qt
 {
 public:
     QTextCustomItem()
-	: x(0), y(0), width(-1), height(0)
+	: xpos(0), ypos(0), width(-1), height(0)
     {}
     virtual ~QTextCustomItem() {}
     virtual void draw(QPainter* p, int x, int y,
@@ -173,8 +173,8 @@ public:
 
     virtual bool isTable() const { return FALSE; }
 
-    int x; // used for floating items
-    int y; // used for floating items
+    int xpos; // used for floating items
+    int ypos; // used for floating items
     int width;
     int height;
 };
@@ -273,7 +273,7 @@ public:
 	return attributes_;
     }
 
-    int y;
+    int ypos;
     int height;
     bool dirty;
     bool selected;
