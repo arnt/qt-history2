@@ -63,8 +63,7 @@ protected slots:
     virtual void contentsRemoved(const QModelIndex &parent,
 				 const QModelIndex &topLeft, const QModelIndex &bottomRight);
 
-    virtual void selectionChanged(const QItemSelectionPointer &deselected,
-				  const QItemSelectionPointer &selected);
+    virtual void selectionChanged(const QItemSelectionPointer &deselected, const QItemSelectionPointer &selected);
 
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
 

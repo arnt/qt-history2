@@ -372,6 +372,8 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
     int w = columnWidth(item.column());
     int v = verticalScrollBar()->value();
     int vi = d->viewIndex(item, v);
+    if (vi < 0)
+	return QRect();
     if (item.column() == 0) {
 	int i = d->indentation(vi);
 	x += i;
