@@ -3487,6 +3487,8 @@ QSize QCanvasView::sizeHint() const
     return canvas()->size()+QSize(frameWidth(),frameWidth())*2;
 }
 
+// ### Qt 4.0 customer request: operate on doubles rather than int.
+// ### I know, almost impossible due to the use of QRegion etc.
 /*!
   \class QCanvasPolygonalItem qcanvas.h
   \brief The QCanvasPolygonalItem class provides a polygonal canvas item
