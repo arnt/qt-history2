@@ -14,7 +14,7 @@
 
 // #define FONTENGINE_DEBUG
 
-#include <qcstring.h>
+#include <qbytearray.h>
 #include <qtextcodec.h>
 
 #include "qbitmap.h"
@@ -446,7 +446,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	bool degenerate = QABS( p->m11()*p->m22() - p->m12()*p->m21() ) < 0.01;
 	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
 	    // need a transformed font from the server
-	    QCString xlfd_transformed = _name;
+	    QByteArray xlfd_transformed = _name;
 	    int field = 0;
 	    const char *data = xlfd_transformed;
 	    int pos = 0;
@@ -458,7 +458,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	    int endPos = pos;
 	    while ( data[endPos] != '-' )
 		endPos++;
-	    float size = xlfd_transformed.mid( pos, endPos-pos ).toInt();
+	    float size = QString(xlfd_transformed.mid( pos, endPos-pos )).toInt();
 	    float mat[4];
 	    mat[0] = p->m11()*size*_scale;
 	    mat[1] = -p->m12()*size*_scale;
@@ -495,7 +495,7 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 		}
 		font_id = trf->xlfd_font;
 	    } else {
-		QCString matrix="[";
+		QByteArray matrix="[";
 		for ( int i = 0; i < 4; i++ ) {
 		    float f = mat[i];
 		    if ( f < 0 ) {
