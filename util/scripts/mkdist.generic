@@ -7,6 +7,9 @@ freecomm=$1
 platform=$2
 DISTDIR=$3
 
+x11onlysrc="qpsprn.cpp qprndlg.cpp mprndlg.cpp"
+x11onlyhdr="qpsprn.h   qprndlg.h"
+
 unset goodparam1
 unset goodparam2
 
@@ -51,13 +54,6 @@ cd qt/src/kernel
 find . -name '*_x11.cpp' -o -name '*_win.cpp' -o -name '*_os2.cpp' \
 	| grep -v "_${platform}" | xargs rm -f
 
-if [ "${platform}" = "win" ]; then
-  echo "Removing X11-only files" >&2
-  cd ${DISTDIR}/qt
-  rm -rf makefiles
-  rm -f src/kernel/qpsprn.cpp
-fi
-
 if [ "${freecomm}" = "free" ]; then
   echo "Adding non-commercial banner in .h and .cpp files" >&2
   cd ${DISTDIR}/qt/src
@@ -86,7 +82,14 @@ if [ "${platform}" = "win" ]; then
   mv tools/q*.h kernel/q*.h widgets/q*.h dialogs/q*.h ../include
   mkdir win
   mv tools/*.cpp kernel/*.cpp widgets/*.cpp dialogs/*.cpp win
+  echo "Removing X11-only files" >&2
   rm -rf tools kernel widgets dialogs Makefile*
+  cd win
+  rm ${x11onlysrc}
+  cd ${DISTDIR}/qt/include
+  rm ${x11onlyhdr}
+  cd ${DISTDIR}/qt
+  rm -rf makefiles
   echo "Converting Unix text files to DOS" >&2
   cd ${DISTDIR}
   find qt -type f | xargs ${curdir}/unix_to_dos
@@ -114,8 +117,10 @@ fi
 echo "Copy the README, LICENSE etc. files" >&2
 cd ${DISTDIR}/qt/dist
 cp [A-Z]* .. 2> /dev/null
-cp -f ${freecomm}/* ..
-cp -f ${platform}/* ..
+cd ${DISTDIR}/qt/dist/${freecomm}
+tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
+cd ${DISTDIR}/qt/dist/${platform}
+tar cf - * | (cd ${DISTDIR}/qt ; tar xf -)
 cd ${DISTDIR}
 rm -rf qt/dist
 
