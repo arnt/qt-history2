@@ -911,7 +911,11 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
     if (d->preeditLength > 0)
 	d->parag->remove(d->preeditStart, d->preeditLength);
     d->cursor->setIndex( d->preeditStart );
+    int insertLength = d->parag->length();
     insert( e->text() );
+    if (insertLength == d->parag->length() )
+	return;
+
     d->preeditLength = e->text().length();
 
     d->parag->setSelection( QTextDocument::IMCompositionText,
@@ -1346,7 +1350,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;
-	
+
 	d->trippleClickTimer.start( qApp->doubleClickInterval(), TRUE );
 	d->trippleClickPoint = e->globalPos();
     }
