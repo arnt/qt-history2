@@ -547,6 +547,10 @@ void qSystemWarning( const char *msg, ... )
 	    fprintf( stderr, ": %s", sys.data() );
 	fprintf( stderr, "\n" );		// add newline
 #endif
+#if defined(Q_OS_TEMP) && defined(_DEBUG)
+	QString fstr( buf );
+	OutputDebugString( fstr.ucs2() );
+#endif
     }
 
 }
@@ -869,6 +873,10 @@ void qDebug( const char *msg, ... )
 	vfprintf( stderr, msg, ap );
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
+#endif
+#if defined(Q_OS_TEMP) && defined(_DEBUG)
+	QString fstr( buf );
+	OutputDebugString( fstr.ucs2() );
 #endif
     }
 }
