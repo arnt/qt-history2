@@ -41,6 +41,7 @@ void QMacStyleQDPainter::setport()
     if(d->engine && (d->engine->type() == QPaintEngine::QuickDraw || d->engine->type() == QPaintEngine::CoreGraphics))
         mpe = (QQuickDrawPaintEngine*)d->engine;
     if(mpe) {
+        mpe->updateState(d->state);
         if(mpe->type() == QPaintEngine::CoreGraphics) {
             mpe->setupQDPort(true);
         } else {
@@ -64,8 +65,6 @@ void QMacStyleQDPainter::setport()
 #include <qlineedit.h>
 #include <qlistview.h>
 #include <qmainwindow.h>
-//#include <q3menubar.h>
-//#include <q3popupmenu.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
@@ -2899,6 +2898,7 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             DrawThemeMenuTitle(&mrect, &irect, tms, 0, 0, 0);
             QWindowsStyle::drawControl(ce, mi, p, widget);
         }
+        break;
     case CE_MenuBarEmptyArea:
         if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
             static_cast<QMacStyleQDPainter *>(p)->setport();

@@ -193,8 +193,9 @@ protected:
 
     QPaintEnginePrivate *d_ptr;
 
-private:
     inline void updateState(QPainterState *state, bool updateGC = true);
+
+private:
     inline QPainterState *painterState() const { return state; }
     void updateInternal(QPainterState *state, bool updateGC = true);
 

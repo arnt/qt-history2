@@ -169,11 +169,6 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev, bool unclipped)
     d->unclipped = unclipped;
     if(type() != CoreGraphics)
         setupQDPort(true); //force setting paint device, this does unclipped fu
-    // ### Should be handled by QPainter
-//     updateXForm(ps);
-//     updateBrush(ps);
-//     updatePen(ps);
-//     updateClipRegion(ps);
     return true;
 }
 
@@ -1306,6 +1301,7 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipE
         setf(ClipOn);
     else
         clearf(ClipOn);
+    QQuickDrawPaintEngine::setClippedRegionInternal(const_cast<QRegion *>(&clipRegion)); //compat
     if(clipEnabled || old_clipEnabled)
         setupCGClip(clipEnabled ? &clipRegion : 0);
 }
