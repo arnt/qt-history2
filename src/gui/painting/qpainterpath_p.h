@@ -77,7 +77,7 @@ class QPainterPathPrivate
 {
 public:
     QPainterPathPrivate() :
-        fillMode(QPainterPath::OddEven), bits(0)
+        fillMode(QPainterPath::OddEven)
     {
     }
 
@@ -89,9 +89,6 @@ public:
 
     QList<QPainterSubpath> subpaths;
     QPainterPath::FillMode fillMode;
-
-    uchar *bits;
-
 };
 
 

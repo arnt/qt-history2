@@ -26,6 +26,8 @@ public:
     enum FillMode { OddEven, Winding };
 
     QPainterPath();
+    QPainterPath(const QPainterPath &other);
+    QPainterPath &operator=(const QPainterPath &other);
     ~QPainterPath();
 
     void beginSubpath();

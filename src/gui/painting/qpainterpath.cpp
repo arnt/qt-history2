@@ -250,8 +250,6 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                                           const QWMatrix &xform,
                                           QRect *boundingRect)
 {
-    Q_ASSERT(!bits);
-
     QList<QPointArray> flatCurves = flatten(xform);
 
     QRect pathBounds;
@@ -352,6 +350,17 @@ QPainterPath::QPainterPath()
 {
     d_ptr = new QPainterPathPrivate;
     d->subpaths.append(QPainterSubpath());
+}
+
+QPainterPath::QPainterPath(const QPainterPath &other)
+    : d_ptr(new QPainterPathPrivate(*other.d_ptr))
+{
+}
+
+QPainterPath &QPainterPath::operator=(const QPainterPath &other)
+{
+    *d_ptr = *other.d_ptr;
+    return *this;
 }
 
 QPainterPath::~QPainterPath()
