@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#32 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -228,9 +228,11 @@ QRect QRegion::boundingRect() const
 }
 
 
-QArray<QRect> QRegion::getRects() const
+QArray<QRect> QRegion::rects() const
 {
     QArray<QRect> a;
+    if ( data->rgn == 0 )
+	return a;
 
     int numBytes = GetRegionData( data->rgn, 0, 0 );
     if ( numBytes == 0 )
