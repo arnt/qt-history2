@@ -140,8 +140,6 @@ inline bool operator == ( const QScriptAnalysis &sa1, const QScriptAnalysis &sa2
 struct QGlyphLayout
 {
     unsigned short glyph;
-    int advance;
-    struct { short x; short y; } offset;
     struct Attributes {
 	// highest value means highest priority for justification. Justification is done by first inserting kashidas
 	// starting with the highest priority positions, then stretching spaces, afterwards extending inter char
@@ -169,6 +167,9 @@ struct QGlyphLayout
 	unsigned short combiningClass  :8;
     };
     Attributes attributes;
+    //struct {short x; short y; } advance;
+    int advance;
+    struct { short x; short y; } offset;
 };
 Q_DECLARE_TYPEINFO(QGlyphLayout, Q_PRIMITIVE_TYPE);
 

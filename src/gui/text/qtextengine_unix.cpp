@@ -40,7 +40,8 @@ void QTextEngine::shapeText( int item ) const
     ((QTextEngine *)this)->used += si.num_glyphs;
 
     QGlyphLayout *g = glyphs(&si);
-#ifndef QT_NO_XFTFREETYPE
+    // ############ general solution needed
+#if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)
     if ( this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
 	FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
 	if (FT_HAS_KERNING(face)) {

@@ -22,7 +22,7 @@ static void hebrew_shape(int script, const QString &string, int from, int len,
 {
     assert(script == QFont::Hebrew);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
@@ -49,7 +49,7 @@ static void hebrew_shape(int script, const QString &string, int from, int len,
 static void syriac_shape( int script, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
@@ -67,7 +67,7 @@ static void thaana_shape(int script, const QString &string, int from, int len,
 {
     assert(script == QFont::Thaana);
 
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
@@ -1474,7 +1474,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	control |= (form(reordered[i]) == Control);
 
     QFontEngine *font = engine->fontEngine(*si);
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     if (openType) {
 	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, glyphs,
 					     &len, (si->analysis.bidiLevel %2));
@@ -1738,7 +1738,7 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     si->num_glyphs = 0;
     int sstart = from;
     int end = sstart + len;
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
     if (openType && !openType->supportsScript(script))
@@ -1903,7 +1903,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
     int firstGlyph = si->num_glyphs;
 
     QFontEngine *font = engine->fontEngine(*si);
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     if (openType) {
 	int error = font->stringToCMap(str, len, glyphs, &len,
 					     (si->analysis.bidiLevel %2));
@@ -2008,7 +2008,7 @@ static void tibetan_shape( int script, const QString &string, int from, int len,
 
     si->num_glyphs = 0;
 
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
     if (openType && !openType->supportsScript(script))
@@ -2384,7 +2384,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     int firstGlyph = si->num_glyphs;
 
     QFontEngine *font = engine->fontEngine(*si);
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     int j;
     if (openType) {
 	int error = font->stringToCMap((QChar *)reordered, len, glyphs, &len,
@@ -2469,7 +2469,7 @@ static void khmer_shape( int script, const QString &string, int from, int len, Q
 
     si->num_glyphs = 0;
 
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
     if (openType && !openType->supportsScript(script))
@@ -2657,7 +2657,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     int len = syllableLength;
 
     QFontEngine *font = engine->fontEngine(*si);
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
     if (openType && !composed) {
 
 	QVarLengthArray<QGlyphLayout> glyphs(len);
@@ -2759,7 +2759,7 @@ static void hangul_shape( int script, const QString &string, int from, int len, 
     }
 
     if (!allPrecomposed) {
-#ifndef QT_NO_XFTFREETYPE
+#ifdef QT_OPENTYPE
 	QFontEngine *font = engine->fontEngine(*si);
 	QOpenType *openType = font->openType();
 	if (openType && !openType->supportsScript(script))

@@ -17,6 +17,7 @@
 #include <private/qpainter_p.h>
 #include "qpaintengine_qws.h"
 #include "qtextengine_p.h"
+#include "qopentype_p.h"
 
 #define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
 #include "qgfx_qws.h"
@@ -30,7 +31,7 @@ public:
 	data(0) {}
     ~QGlyph() {}
 
-    Q_UINT8 linestep;
+    Q_UINT8 pitch;
     Q_UINT8 width;
     Q_UINT8 height;
 
@@ -47,17 +48,24 @@ static void render(FT_Face face, glyph_t index, QGlyph *result, bool smooth)
 {
     FT_Error err;
 
-    int loadFlags = FT_LOAD_RENDER;
-    if (!smooth)
-	loadFlags |= FT_LOAD_MONOCHROME;
-    err=FT_Load_Glyph(face, index, loadFlags);
+    err=FT_Load_Glyph(face, index, FT_LOAD_DEFAULT);
     if (err) {
 	qDebug("failed loading glyph %d from font", index);
 	Q_ASSERT(!err);
     }
+    if (face->glyph->format != FT_GLYPH_FORMAT_BITMAP) {
+	FT_Render_Mode render_mode = FT_RENDER_MODE_NORMAL;
+	if (!smooth)
+	    render_mode = FT_RENDER_MODE_MONO;
+	err = FT_Render_Glyph( face->glyph, render_mode);
+	if (err) {
+	    qDebug("failed rendering glyph %d from font", index);
+	    Q_ASSERT(!err);
+	}
+    }
 
     FT_Bitmap bm = face->glyph->bitmap;
-    result->linestep = bm.pitch;
+    result->pitch = bm.pitch;
     result->width = bm.width;
     result->height = bm.rows;
 
@@ -82,9 +90,10 @@ FT_Face QFontEngineFT::handle() const
 
 QFontEngineFT::QFontEngineFT(const QFontDef& d, const QPaintDevice *pd, FT_Face ft_face)
 {
+    _openType = 0;
     fontDef = d;
     face = ft_face;
-    scale = pd ? (pd->resolution()<<8)/75 : 1<<8;
+    _scale = pd ? (pd->resolution()<<8)/72 : 1<<8;
 
     smooth = FT_IS_SCALABLE(face);
     if (fontDef.styleStrategy & QFont::NoAntialias)
@@ -119,23 +128,27 @@ QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyp
     if ( mirrored ) {
 	for(int i = 0; i < len; i++ ) {
 	    unsigned short ch = ::mirroredChar(str[i]).unicode();
+	    if (ch == 0xa0) ch = 0x20;
 	    glyphs[i].glyph = FT_Get_Char_Index(face, ch);
 	}
     } else {
-	for(int i = 0; i < len; i++ )
-	    glyphs[i].glyph = FT_Get_Char_Index(face, str[i].unicode());
+	for(int i = 0; i < len; i++ ) {
+	    unsigned short ch = str[i].unicode();
+	    if (ch == 0xa0) ch = 0x20;
+	    glyphs[i].glyph = FT_Get_Char_Index(face, ch);
+	}
     }
     *nglyphs = len;
     for(int i = 0; i < len; i++) {
 	int g = glyphs[i].glyph;
 	if (!rendered_glyphs[g]) {
+	    Q_ASSERT(g < face->num_glyphs);
 	    rendered_glyphs[g] = new QGlyph;
 	    render(face, g, rendered_glyphs[g], smooth);
+	    if ( ::category(str[i]) == QChar::Mark_NonSpacing )
+		rendered_glyphs[g]->advance = 0;
 	}
-	if ( ::category(str[i]) == QChar::Mark_NonSpacing )
-	    glyphs[i].advance = 0;
-	else
-	    glyphs[i].advance = rendered_glyphs[g]->advance;
+	glyphs[i].advance = rendered_glyphs[g]->advance;
     }
     return NoError;
 }
@@ -185,11 +198,11 @@ void QFontEngineFT::draw( QPaintEngine *p, int x, int y, const QTextItem &si, in
 	const QGlyph *glyph = rendered_glyphs[g->glyph];
 	Q_ASSERT(glyph);
 	int myw = glyph->width;
-	gfx->setAlphaSource(glyph->data, glyph->linestep);
+	gfx->setAlphaSource(glyph->data, glyph->pitch);
 	int myx = x + g->offset.x + glyph->bearingx;
 	int myy = y + g->offset.y - glyph->bearingy;
 
-	if( glyph->width != 0 && glyph->height != 0 && glyph->linestep != 0)
+	if( glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
 	    gfx->blt(myx,myy,myw,glyph->height,0,0);
 
 	x += g->advance;
@@ -215,7 +228,7 @@ glyph_metrics_t QFontEngineFT::boundingBox( const QGlyphLayout *glyphs, int numG
     const QGlyphLayout *end = glyphs + numGlyphs;
     while( end > glyphs )
 	w += (--end)->advance;
-    w = (w*scale)>>8;
+    w = (w*_scale)>>8;
     return glyph_metrics_t(0, -ascent(), w, ascent()+descent()+1, w, 0 );
 }
 
@@ -223,9 +236,9 @@ glyph_metrics_t QFontEngineFT::boundingBox( glyph_t glyph )
 {
     const QGlyph *g = rendered_glyphs[glyph];
     Q_ASSERT(g);
-    return glyph_metrics_t( (g->bearingx*scale)>>8, (g->bearingy*scale)>>8,
-			    (g->width*scale)>>8, (g->height*scale)>>8,
-			    (g->advance*scale)>>8, 0 );
+    return glyph_metrics_t( (g->bearingx*_scale)>>8, (g->bearingy*_scale)>>8,
+			    (g->width*_scale)>>8, (g->height*_scale)>>8,
+			    (g->advance*_scale)>>8, 0 );
 }
 
 bool QFontEngineFT::canRender( const QChar *string,  int len )
@@ -268,13 +281,13 @@ int QFontEngineFT::maxCharWidth() const
 int QFontEngineFT::minLeftBearing() const
 {
     return 0;
-//     return (memorymanager->fontMinLeftBearing(handle())*scale)>>8;
+//     return (memorymanager->fontMinLeftBearing(handle())*_scale)>>8;
 }
 
 int QFontEngineFT::minRightBearing() const
 {
     return 0;
-//     return (memorymanager->fontMinRightBearing(handle())*scale)>>8;
+//     return (memorymanager->fontMinRightBearing(handle())*_scale)>>8;
 }
 
 int QFontEngineFT::underlinePosition() const
@@ -290,6 +303,33 @@ int QFontEngineFT::lineThickness() const
 QFontEngine::Type QFontEngineFT::type() const
 {
     return Freetype;
+}
+
+
+QOpenType *QFontEngineFT::openType() const
+{
+//     qDebug("openTypeIface requested!");
+    if ( _openType )
+	return _openType;
+
+    if ( !FT_IS_SFNT( face ) )
+	return 0;
+
+    QFontEngineFT *that = const_cast<QFontEngineFT *>(this);
+    that->_openType = new QOpenType( that->face );
+    return _openType;
+}
+
+void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs) const
+{
+    for ( int i = 0; i < len; i++ ) {
+	FT_UInt g = glyphs[i].glyph;
+	if (!rendered_glyphs[g]) {
+	    rendered_glyphs[g] = new QGlyph;
+	    render(face, g, rendered_glyphs[g], smooth);
+	}
+	glyphs[i].advance = (rendered_glyphs[g]->advance);//*_scale)>>8;
+    }
 }
 
 

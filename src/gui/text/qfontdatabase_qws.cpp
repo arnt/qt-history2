@@ -204,6 +204,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp,
     if (!pixelSize)
 	pixelSize = request.pixelSize;
     FT_Set_Pixel_Sizes(face, pixelSize, pixelSize);
+    qDebug("setting pixel size to %d", pixelSize);
 
     QFontEngine *fe = new QFontEngineFT( request, paintdevice, face );
     return fe;

@@ -212,7 +212,7 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
     const QChar &ch = str.unicode()[ pos ];
     if ( ch.unicode() < QFontEngineData::widthCacheSize &&
 	 d->engineData && d->engineData->widthCache[ ch.unicode() ] )
-	return (d->engineData->widthCache[ ch.unicode() ]*d->engineData->engine->scale)>>8;
+	return (d->engineData->widthCache[ ch.unicode() ]*d->engineData->engine->_scale)>>8;
 
     if ( ::isMark( ch.unicode() ) )
 	return 0;
@@ -250,7 +250,7 @@ int QFontMetrics::width( QChar ch ) const
     QFontEngine *engine = d->engineForScript( QFont::NoScript );
     if ( uc < QFontEngineData::widthCacheSize &&
 	 d->engineData && d->engineData->widthCache[ uc ] )
-	return (d->engineData->widthCache[ uc ]*engine->scale)>>8;
+	return (d->engineData->widthCache[ uc ]*engine->_scale)>>8;
 
     if ( ::category( ch ) == QChar::Mark_NonSpacing )
 	return 0;
@@ -263,7 +263,7 @@ int QFontMetrics::width( QChar ch ) const
     if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance < 0x100 )
 	d->engineData->widthCache[ uc ] = glyphs[0].advance;
 
-    return (glyphs[0].advance*engine->scale)>>8;
+    return (glyphs[0].advance*engine->_scale)>>8;
 }
 
 

@@ -20,7 +20,9 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 #include <qvarlengtharray.h>
-
+#ifdef QT_OPENTYPE
+#include "qopentype_p.h"
+#endif
 
 #undef None
 #undef Pre
@@ -850,7 +852,7 @@ static void shapedString(const QString& uc, int from, int len, QChar *shapeBuffe
     *shapedLength = data - shapeBuffer;
 }
 
-#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+#if defined(QT_OPENTYPE)
 
 static void arabicSyriacOpenTypeShape( int script, QOpenType *openType, const QString &string, int from,
 				       int len, QTextEngine *engine, QScriptItem *si )
@@ -964,7 +966,7 @@ static void arabic_attributes( int /*script*/, const QString &text, int from, in
 static void arabic_shape( int /*script*/, const QString &string, int from, int len,
 			  QTextEngine *engine, QScriptItem *si )
 {
-#if defined( Q_WS_X11) && !defined( QT_NO_XFTFREETYPE )
+#ifdef QT_OPENTYPE
     QFontEngine *font = engine->fontEngine(*si);
     QOpenType *openType = font->openType();
 
@@ -993,12 +995,10 @@ static void arabic_shape( int /*script*/, const QString &string, int from, int l
     q_heuristicPosition( engine, si );
 }
 
-#ifdef Q_WS_X11
-# include "qscriptengine_x11.cpp"
+#if defined(Q_WS_X11) || defined(Q_WS_QWS)
+# include "qscriptengine_unix.cpp"
 #elif defined( Q_WS_WIN )
 # include "qscriptengine_win.cpp"
 #elif defined( Q_WS_MAC )
 # include "qscriptengine_mac.cpp"
-#elif defined( Q_WS_QWS )
-# include "qscriptengine_qws.cpp"
 #endif
