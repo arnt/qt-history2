@@ -54,8 +54,6 @@ private slots:
 private:
     QToolBar *createToolbar( const QString &name, bool nl );
 
-    QToolBar *tool1, *tool2, *tool3, *tool4;
-    
     QComboBox *cb;
     QPushButton *pb;
 

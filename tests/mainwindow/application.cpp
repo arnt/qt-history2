@@ -157,26 +157,6 @@ ApplicationWindow::ApplicationWindow()
     setCentralWidget( e );
 
 
-    tool1 = new QToolBar( this );
-    QWidget *wid = new QWidget( tool1 );
-    wid->setMinimumSize( 16, 16 );
-    wid->setBackgroundColor( red );
-    
-    tool2 = new QToolBar( this );
-    wid = new QWidget( tool2 );
-    wid->setMinimumSize( 16, 16 );
-    wid->setBackgroundColor( green );
-
-    tool3 = new QToolBar( this );
-    wid = new QWidget( tool3 );
-    wid->setMinimumSize( 16, 16 );
-    wid->setBackgroundColor( blue );
-
-    tool4 = new QToolBar( this );
-    wid = new QWidget( tool4 );
-    wid->setMinimumSize( 16, 16 );
-    wid->setBackgroundColor( black );
-
     // Start:
 
     statusBar()->message( "Ready", 2000 );
@@ -475,26 +455,11 @@ void ApplicationWindow::toggleTextLabel()
     menuBar()->setItemChecked( textlabelid, usesTextLabel() );
 }
 
-static bool shown = TRUE;
-
 void ApplicationWindow::toggleOpaque()
 {
     debug( "toggleOpaque" );
-//     setOpaqueMoving( !opaqueMoving() );
-//     menuBar()->setItemChecked( opaqueId, opaqueMoving() );
-    shown = !shown;
-    if ( shown ) {
-	tool1->show();
-	tool2->show();
-	tool3->show();
-	tool4->show();
-    } else {
-	tool1->hide();
-	tool2->hide();
-	tool3->hide();
-	tool4->hide();
-    }
-    setDockMenuEnabled( shown );
+    setOpaqueMoving( !opaqueMoving() );
+    menuBar()->setItemChecked( opaqueId, opaqueMoving() );
 }
 
 void ApplicationWindow::toggleFullScreen()
