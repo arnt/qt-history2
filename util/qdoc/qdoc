@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#44 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#45 $
 #
 # this is a massive hack, written very quickly
 #
@@ -794,7 +794,7 @@ sub printout {
 		    $name = $_;
 		    $name =~ s/^[^\#]*\#//;
 		    $header = $def{$_};
-		    $header =~ s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
+		    $header =~ s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
 		    $relatives = join ("", $relatives, "<p><h3>", $header,
 				       "</h3>\n<p>", $doc{$_}, "\n");
 		}
@@ -894,7 +894,7 @@ sub printout {
 			    &fixdefvalues($u, $a) if ($type{$u} eq "fn");
 			    next unless ($internal || 
 					 ($mode =~ /public/) ||
-					 ($doc{$u} ne ""));
+					 ($doc{$u} =~ /\S/s));
 			    if ($type{$u} eq "fn") {
 				$_ = join("", &html($t), "<a href=", $u,
 					  "><strong>", &html($f), 
@@ -907,17 +907,31 @@ sub printout {
 			    }
 			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
 				if (defined($capt{$u}));
-			} else {
-			    if (/^\s*enum\s+(\w+)/s &&
-				defined($anchor{$name{$url} . "::" . $1})) {
-				my($name);
-				$name = $1;
-				$_ = &html($_);
-				s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+			} elsif (/^\s*enum\s+(\w+)/s &&
+				 defined($anchor{$name{$url} . "::" . $1})) {
+			    my($name);
+			    $name = $1;
+			    $_ = &html($_);
+			     s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong><a name=$name>$2</a></strong>;s;
+			} elsif (/^operator\s+([\w\s\*\&]+?)\s*\(\s*\)\s*((?:const)?)\s*$/s) {
+			    my($u, $r, $c);
+			    $r = $1;
+			    $c = $2;
+			    $u = &manglefn($r, $name{$url}, 
+					   "casting-operator", "", $c);
+			    if ($type{$u} eq "fn") {
+				$_ = join("", "operator <a href=", $u,
+					  "><strong>", &html($r),
+					  "</strong></a> ()", $c);
 			    } else {
-				$_ = &html($_);
-				s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
+				$_ = join("", "operator <strong>", &html($r),
+					  "</strong> ()", $c);
 			    }
+			    $_ = join ("", $_, " - <em>", $capt{$u}, "</em>")
+				if (defined($capt{$u}));
+			} else {
+			    $_ = &html($_);
+			    s;(\w+[^\=:\(\{]*)\b(\w+);$1<strong>$2</strong>;s;
 			}
 			print O "<li>", $_, "\n";
 		    }
@@ -942,7 +956,7 @@ sub printout {
 		print O $fnheader;
 		$fnheader = "";
 		$fntail = "\n";
-		s;([^\(]*)\b(\w+);$1<a name=$name>$2</a>;s;
+		s;([^\(]*\s)\b(\S+);$1<a name=$name>$2</a>;s;
 		print O "<p><h3>", $_, "</h3>\n<p>", $doc{$url};
 	    }
 	}
@@ -1091,9 +1105,11 @@ foreach $arg ( 0..$#ARGV ) {
 
 
 &printout();
-&inheritanceindex();
-&classindex();
-&enumindex();
-&headerindex();
+if ($#ARGV > 4) {
+    &inheritanceindex();
+    &classindex();
+    &enumindex();
+    &headerindex();
+}
 
 print "Documented entities: ", $uniq, "\n";
