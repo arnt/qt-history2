@@ -67,8 +67,8 @@ public:
     TextPosition textPosition() const;
 
 public slots:
-    virtual void setUsesBigPixmap(bool enable);
-    virtual void setUsesTextLabel(bool enable);
+    void setUsesBigPixmap(bool enable);
+    void setUsesTextLabel(bool enable);
     void setTextPosition(TextPosition pos);
 
 protected:
