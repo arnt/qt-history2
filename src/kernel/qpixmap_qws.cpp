@@ -188,7 +188,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	    for ( int i = 0; i < qt_screen->numCols(); i++ )
 		data->clut[i] = qt_screen->clut()[i];
 	}
-    } 
+    }
 
     data->id=memorymanager->newPixmap(w,h,data->d);
 }
@@ -408,7 +408,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     memorymanager->deletePixmap(data->id);
 
-    if ( image.hasAlphaBuffer() && dd > 8 ) {
+    bool manycolors=(qt_screen->depth() > 8);
+    
+    if ( image.hasAlphaBuffer() && dd > 8 && manycolors ) {
 	dd=32;
     }
 
@@ -422,7 +424,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     delete mygfx;
 
     if ( image.hasAlphaBuffer() ) {
-	if ( data->d != 32 ) {
+	if ( (data->d != 32) || (!manycolors) ) {
 	    QBitmap m;
 	    m = image.createAlphaMask( conversion_flags );
 	    setMask( m );
