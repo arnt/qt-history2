@@ -624,8 +624,8 @@ void QGenericTreeView::verticalScrollbarAction(int action)
     int factor = d->verticalFactor;
     int value = verticalScrollBar()->value();
     int item = value / factor;
-    int above = (value % factor) * d->delegate->sizeHint(fontMetrics(), options,
-                                                         d->modelIndex(item)).height();
+    int iheight = d->delegate->sizeHint(fontMetrics(), options, d->modelIndex(item)).height();
+    int above = (value % factor) * iheight;
     int y = -(above / factor); // above the page
 
     if (action == QScrollBar::SliderPageStepAdd) {

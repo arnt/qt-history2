@@ -204,6 +204,7 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model, QObject *par
     : QObject(*new QItemSelectionModelPrivate, parent)
 {
     d->model = model;
+    d->init();
 }
 
 /*!
@@ -213,6 +214,7 @@ QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstra
     : QObject(dd, parent)
 {
     d->model = model;
+    d->init();
 }
 
 /*!
@@ -567,4 +569,11 @@ void QItemSelectionModel::emitSelectionChanged(const QItemSelection &oldSelectio
     }
 
     emit selectionChanged(deselected, selected);
+}
+
+void QItemSelectionModelPrivate::init()
+{
+    QObject::connect(model, SIGNAL(contentsInserted(const QModelIndex &, const QModelIndex&)), q, SLOT(clear()));
+    QObject::connect(model, SIGNAL(contentsRemoved(const QModelIndex &, const QModelIndex&, const QModelIndex&)),
+                     q, SLOT(clear()));
 }

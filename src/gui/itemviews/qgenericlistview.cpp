@@ -1050,6 +1050,7 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
     intersectVector.clear();
     QAbstractItemModel *model = q->model();
 
+    QModelIndex index;
     QModelIndex root = q->root();
     int first, last, count, i, j;
     bool wraps = wrapVector.count() > 1;
@@ -1062,8 +1063,13 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
             count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
             last = first + count;
             i = qBinarySearch<int>(xposVector, area.left(), first, last);
-            for (; i <= last && xposVector.at(i) < area.right(); ++i)
-                intersectVector.push_back(model->index(i, 0, root));
+            for (; i <= last && xposVector.at(i) < area.right(); ++i) {
+                index = model->index(i, 0, root);
+                if (index.isValid())
+                    intersectVector.push_back(index);
+                else
+                    qWarning("intersectingStaticSet: index was invalid");
+            }
         }
     } else { // flow == TopToBottom
         if (xposVector.count() == 0)
@@ -1074,8 +1080,13 @@ void QGenericListViewPrivate::intersectingStaticSet(const QRect &area) const
             count = (wraps && j < layoutWraps ? wrapVector.at(j + 1) : layoutStart) - first - 1;
             last = first + count;
             i = qBinarySearch<int>(yposVector, area.top(), first, last);
-            for (; i <= last && yposVector.at(i) < area.bottom(); ++i)
-                intersectVector.push_back(model->index(i, 0, root));
+            for (; i <= last && yposVector.at(i) < area.bottom(); ++i) {
+                index = model->index(i, 0, root);
+                if (index.isValid())
+                    intersectVector.push_back(index);
+                else
+                    qWarning("intersectingStaticSet: index was invalid");
+            }
         }
     }
 }

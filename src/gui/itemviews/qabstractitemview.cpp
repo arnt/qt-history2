@@ -242,7 +242,6 @@ QModelIndex QAbstractItemView::currentItem() const
 void QAbstractItemView::setRoot(const QModelIndex &index)
 {
     d->root = index;
-    setCurrentItem(model()->index(0, 0, index));
 //    if (isVisible())
     startItemsLayout();
     update();
@@ -678,11 +677,13 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
 void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex &)
 {
     // do nothing
+    // NOTE: if root() was a valid QModelIndex, it may have been invalidated
 }
 
 void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &, const QModelIndex &)
 {
     // do nothing
+    // NOTE: if root() was a valid QModelIndex, it may have been invalidated
 }
 
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
@@ -725,12 +726,12 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 
     if (old.isValid())
         updateItem(old);
-    if (current.isValid())
+    if (current.isValid()) {
         updateItem(current);
-
-    // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
-    //qApp->processEvents(); // force paint events to be processed
-    startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+        // FIXME: the QWidget::scroll() will sometimes blit before we get the chance to repaint the old item
+        //qApp->processEvents(); // force paint events to be processed
+        startEdit(current, QAbstractItemDelegate::CurrentChanged, 0);
+    }
 }
 
 void QAbstractItemView::startItemsLayout()

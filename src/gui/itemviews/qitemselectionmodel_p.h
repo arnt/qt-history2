@@ -10,14 +10,15 @@ public:
     QItemSelectionModelPrivate()
         : model(0), currentCommand(QItemSelectionModel::NoUpdate) {}
 
+    void init();
+    QItemSelection expandSelection(const QItemSelection &selection, int selectionCommand) const;
+    
     inline void remove(QList<QItemSelectionRange> &r)
     {
         QList<QItemSelectionRange>::const_iterator it = r.constBegin();
         for (; it != r.constEnd(); ++it)
             ranges.removeAll(*it);
     }
-
-    QItemSelection expandSelection(const QItemSelection &selection, int selectionCommand) const;
 
     QAbstractItemModel *model;
     QItemSelection ranges;
