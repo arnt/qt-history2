@@ -63,7 +63,7 @@ FORCE:
 lib: tools kernel widgets dialogs
 
 # need FORCE because the directories' dates confuse make terribly
-tools kernel widgets dialogs: dodepend
+tools kernel widgets dialogs: dodepend FORCE
 	-mkdir -p $(OBJDIR)/$@
 	-rm -f $@/*.o
 	-ln -f $(OBJDIR)/$@/*.o $@
@@ -102,10 +102,12 @@ showfiles showheaders showsources showbeta:
 	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
 
 dodepend:
+	$(MAKE) include
 	$(MAKE) depend
 	touch dodepend
 
-depend: include
+depend:
+	set -e ; for d in $(DIRS); do $(MAKE) -C $$d depend ; done
 
 include:
 	-rm $(INCDIR)/*.h
