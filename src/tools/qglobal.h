@@ -38,11 +38,11 @@
 #ifndef QGLOBAL_H
 #define QGLOBAL_H
 
-#define QT_VERSION_STR   "3.1.0"
+#define QT_VERSION_STR   "3.2.0-snapshot"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
-#define QT_VERSION 0x030100
+#define QT_VERSION 0x030200
 
 /*
    The operating system, must be one of: (Q_OS_x)
