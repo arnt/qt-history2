@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#91 $
 **
 ** Definition of QIconView widget class
 **
@@ -40,6 +40,7 @@
 #include <qapplication.h>
 #include <qmultilineedit.h>
 #include <qmap.h>
+#include <qarray.h>
 
 #include <stdlib.h>
 #include <math.h>
@@ -3036,21 +3037,39 @@ void QIconView::insertInGrid( QIconViewItem *item )
 	    begin = begin->next;
 	}
     } else {
-	// ### todo find a good place for the new item
-	QIconViewItem *i = d->lastItem;
-	if ( !i || !i->prev) {
-	    item->move( d->spacing, d->spacing );
-	    return;
+	QRegion r( QRect( 0, 0, QMAX( contentsWidth(), visibleWidth() ), 
+			  QMAX( contentsHeight(), visibleHeight() ) ) );
+	
+	QIconViewItem *i = d->firstItem;
+	int y = -1;
+	for ( ; i; i = i->next ) {
+	    r = r.subtract( i->rect() );
+	    y = QMAX( y, i->y() + i->height() );
+	}
+	    
+	QArray<QRect> rects = r.rects();
+	QArray<QRect>::Iterator it = rects.begin();
+	bool foundPlace = FALSE;
+	for ( ; it != rects.end(); ++it ) {
+	    QRect rect = *it;
+	    if ( rect.width() >= item->width() &&
+		 rect.height() >= item->height() ) {
+		int sx = 0, sy = 0;
+		if ( rect.width() >= item->width() + d->spacing )
+		    sx = d->spacing;
+		if ( rect.height() >= item->height() + d->spacing )
+		    sy = d->spacing;
+		item->move( rect.x() + sx, rect.y() + sy );
+		foundPlace = TRUE;
+		break;
+	    }
 	}
 	
-	i = i->prev;
+	if ( !foundPlace )
+	    item->move( d->spacing, y + d->spacing );
 	
-	int w = i->x() + i->width();
-	item->move( w + d->spacing, i->y() );
-	
-	w = QMAX( contentsWidth(), item->x() + item->width() );
-	int h = QMAX( contentsHeight(), item->y() + item->height() );
-	resizeContents( w, h );
+	resizeContents( QMAX( contentsWidth(), item->x() + item->width() ),
+			QMAX( contentsHeight(), item->y() + item->height() ) );	
     }
 }
 
@@ -3234,7 +3253,7 @@ QSizePolicy QIconView::sizePolicy() const
 
 /*!
   \internal
-  Clears string which is used for setting the current item 
+  Clears string which is used for setting the current item
   when the user types something in
 */
 
@@ -3434,7 +3453,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 
 /*!
   \internal
-  Calculates how many cells and item of the width \a w needs in a grid with of 
+  Calculates how many cells and item of the width \a w needs in a grid with of
   \a x and returns the result.
 */
 
