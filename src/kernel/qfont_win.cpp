@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#121 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -380,8 +380,7 @@ void QFont::load() const
     if ( !d->fin->font() ) {			// font not loaded
 	if ( qt_winver == Qt::WV_NT )
 	    d->fin->hdc = GetDC(0);
-	d->fin->hfont = create( &d->fin->stockFont, d->fin->dc() );
-	//d->fin->hfont = create( &d->fin->stockFont, 0 );
+	d->fin->hfont = create( &d->fin->stockFont, d->fin->hdc );
 	SelectObject( d->fin->dc(), d->fin->hfont );
 #ifdef UNICODE
 	if ( qt_winver == Qt::WV_NT ) {
