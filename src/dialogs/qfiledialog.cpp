@@ -4305,7 +4305,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
 			      lst[ 1 ].simplifyWhiteSpace().toInt(),
 			      0, &si, 1 );
 
-	if ( res != -1 ) {
+	if ( res ) {
 	    defaultFolder.resize( pixw, pixh );
 	    initPixmap( defaultFolder );
 	    QPainter p( &defaultFolder );
@@ -4325,7 +4325,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     res = ExtractIconExA( "shell32.dll",
 			     0, 0, &si, 1 );
 
-    if ( res != -1 ) {
+    if ( res ) {
 	defaultFile.resize( pixw, pixh );
 	initPixmap( defaultFile );
 	QPainter p( &defaultFile );
@@ -4342,7 +4342,7 @@ QWindowsIconProvider::QWindowsIconProvider( QWidget *parent, const char *name )
     res = ExtractIconExA( "shell32.dll",
 			  2, 0, &si, 1 );
 
-    if ( res != -1 ) {
+    if ( res ) {
 	defaultExe.resize( pixw, pixh );
 	initPixmap( defaultExe );
 	QPainter p( &defaultExe );
@@ -4416,7 +4416,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 			      lst[ 1 ].stripWhiteSpace().toInt(),
 			      NULL, &si, 1 );
 
-	if ( res != -1 ) {
+	if ( res ) {
 	    pix.resize( pixw, pixh );
 	    initPixmap( pix );
 	    QPainter p( &pix );
@@ -4445,7 +4445,7 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 				  0, &si, 1 );
 	}
 
-	if ( res != -1 ) {
+	if ( res ) {
 	    pix.resize( pixw, pixh );
 	    initPixmap( pix );
 	    QPainter p( &pix );
