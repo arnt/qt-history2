@@ -412,7 +412,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn const QModelIndex::QAbstractItemModel *model() const
+    \fn const QAbstractItemModel *QModelIndex::model() const
 
     \internal
 
@@ -563,17 +563,6 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value)
-
-    \overload
-
-    Sets the title for the \a section in the header with the given
-    \a orientation to the \a value specified.
-
-    \sa headerData()
-*/
-
-/*!
     \fn void QAbstractItemModel::headerDataChanged(Qt::Orientation orientation, int first, int last)
 
     This signal is emitted whenever a header is changed. The \a orientation
@@ -664,7 +653,7 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 
     This signal is emitted just before rows are removed from the
     model. The removed items are those between \a start and \a end
@@ -684,7 +673,7 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int start, int end)
+    \fn void QAbstractItemModel::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 
     This signal is emitted just before columns are removed
     from the model. The removed items are those between \a start and
@@ -806,7 +795,10 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 }
 
 /*!
-  Returns a list of the supported mime types.
+    Returns a list of MIME types that can be used to describe a list of
+    model indexes.
+
+    \sa mimeData()
 */
 QStringList QAbstractItemModel::mimeTypes() const
 {
@@ -816,7 +808,12 @@ QStringList QAbstractItemModel::mimeTypes() const
 }
 
 /*!
-  Returns the mimedata associated with the given \a indexes.
+    Returns an object that contains a serialized description of the specified
+    \a indexes. The format used to describe the items corresponding to the
+    indexes is obtained from the mimeTypes() function.
+
+    If the list of indexes is empty, 0 is returned rather than a serialized
+    empty list.
 */
 QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 {
@@ -885,7 +882,7 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 }
 
 /*!
-  Inserts \a count new columns in the model before the given \a column.
+  Inserts \a count new columns into the model before the given \a column.
   The items in each new column will be children of the item represented by the
   \a parent model index.
 
@@ -907,8 +904,8 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 }
 
 /*!
-    Removes \a count rows starting with row \a row under parent \a
-    parent from the model. Returns true if the rows were successfully
+    Removes \a count rows starting with the given \a row under parent
+    \a parent from the model. Returns true if the rows were successfully
     removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
@@ -919,8 +916,8 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 }
 
 /*!
-    Removes \a count columns starting with column \a column under parent
-    \a parent from the model.  Returns true if the columns were
+    Removes \a count columns starting with the given \a column under
+    parent \a parent from the model.  Returns true if the columns were
     successfully removed; otherwise returns false.
 
     The base class implementation does nothing and returns false.
@@ -1338,69 +1335,6 @@ void QAbstractItemModel::setPersistentIndex(int position, const QModelIndex &ind
 */
 
 /*!
-  \fn bool QAbstractTableModel::insertColumns(int column, int count)
-
-  Inserts \a count new columns in the model before position \a column. If \a
-  column is 0 the columns are prepended to the model, if \a column is
-  columnCount() the columns are appended to the model. The items in the column
-  will be children of the item represented by the \a parent index.
-  If \a parent has no children, a single row with \a count columns is inserted.
-  Returns true if the columns were successfully inserted; otherwise
-  returns false.
-
-  The base class implementation does nothing and returns false. If
-  you want to be able to insert columns you must reimplement this
-  function.
-*/
-
-/*!
-  \fn bool QAbstractTableModel::insertRows(int row, int count)
-
-  Inserts \a count rows in the model before position \a row. If \a row is 0 the
-  rows are prepended to the model, if \a row is rowCount() the rows are
-  appended to the model. The row will be a child of \a parent.
-  If \a parent has no children \a count rows with at least one column is inserted.
-  Returns true if the rows were successfully inserted; otherwise returns
-  false.
-
-  The base class implementation does nothing and returns false. If
-  you want to be able to insert rows you must reimplement this
-  function.
-*/
-
-/*!
-    \fn bool QAbstractTableModel::removeColumns(int column, int count)
-
-    Removes \a count columns starting with column \a column under parent
-    \a parent from the model.  Returns true if the columns were
-    successfully removed; otherwise returns false.
-
-    The base class implementation does nothing and returns false.
-*/
-
-/*!
-    \fn bool QAbstractTableModel::removeRows(int row, int count)
-
-    Removes \a count rows starting with row \a row under parent \a
-    parent from the model. Returns true if the rows were successfully
-    removed; otherwise returns false.
-
-    The base class implementation does nothing and returns false.
-*/
-
-/*!
-    \fn int QAbstractTableModel::rowCount() const = 0
-
-    Returns the number of rows in the model.
-*/
-
-/*!
-    \fn int QAbstractTableModel::columnCount() const = 0
-
-    Returns the number of columns in the model.
-*/
-
-/*!
     Constructs an abstract table model for the given \a parent.
 */
 
@@ -1498,20 +1432,6 @@ bool QAbstractTableModel::hasChildren(const QModelIndex &) const
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemView QAbstractTableView
 
-*/
-
-/*!
-    \fn int QAbstractListModel::rowCount() const
-
-    Returns the number of rows in the model.
-    The number of rows is equal to the number of items stored in the model.
-*/
-
-/*!
-    \fn int QAbstractListModel::columnCount() const
-
-    Returns the number of columns in the model.
-    List models only contain one column of items.
 */
 
 /*!
