@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#117 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#116 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#117 $";
 #endif
 
 
@@ -2099,11 +2099,9 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	    }
 	    if ( testf(ExtDev) ) {
 		QPDevCmdParam param[3];
-		QRect  r(0,0,sw,sh);
 		QPoint p(x,y);
-		param[0].rect	= &r;
-		param[1].point	= &p;
-		param[2].pixmap = &pixmap;
+		param[0].point	= &p;
+		param[1].pixmap = &pixmap;
 		if ( !pdev->cmd(PDC_DRAWPIXMAP,this,param) || !hd )
 		    return;
 	    }
