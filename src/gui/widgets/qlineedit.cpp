@@ -703,6 +703,16 @@ void QLineEdit::backspace()
             --d->cursor;
             if (d->maskData)
                 d->cursor = d->prevMaskBlank(d->cursor);
+            QChar uc = d->text.at(d->cursor);
+            if (d->cursor > 0 && uc.unicode() >= 0xdc00 && uc.unicode() < 0xe000) {
+                // second half of a surrogate, check if we have the first half as well,
+                // if yes delete both at once
+                uc = d->text.at(d->cursor - 1);
+                if (uc.unicode() >= 0xd800 && uc.unicode() < 0xdc00) {
+                    d->del(true);
+                    --d->cursor;
+                }
+            }
             d->del(true);
     }
     d->finishChange(priorState);
@@ -2162,6 +2172,7 @@ void QLineEditPrivate::updateTextLayout()
     textLayout.setText(str);
     QTextOption option;
     option.setTextDirection(Qt::LayoutDirection(direction));
+    option.setFlags(QTextOption::IncludeTrailingSpaces);
     textLayout.setTextOption(option);
 
     textLayout.beginLayout();

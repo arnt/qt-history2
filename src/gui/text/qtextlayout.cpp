@@ -1085,7 +1085,7 @@ void QTextLine::layout_helper(int maxGlyphs)
     qreal minw = 0, spacew = 0;
     int glyphCount = 0;
 
-//     qDebug("from: %d:   item=%d, total %d width available %d/%d", line.from, item, eng->layoutData->items.size(), line.width.value(), line.width);
+//     qDebug("from: %d:   item=%d, total %d width available %f", line.from, item, eng->layoutData->items.size(), line.width);
 
     while (item < eng->layoutData->items.size()) {
         const QCharAttributes *attributes = eng->attributes();
@@ -1178,8 +1178,8 @@ void QTextLine::layout_helper(int maxGlyphs)
                 Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
             }
 
-//             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
-//                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
+//             qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %f, spacew=%f",
+//                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw, spacew);
 
             if (line.length && tmpw != qreal(0) && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
                 && eng->option.wrapMode() != QTextOption::ManualWrap)
@@ -1195,14 +1195,16 @@ void QTextLine::layout_helper(int maxGlyphs)
         ++item;
     }
  found:
-//     qDebug("line length = %d, ascent=%d, descent=%d, textWidth=%d (%d)", line.length, int(line.ascent),
-//            int(line.descent), int(line.textWidth), int(line.textWidth));
-//     qDebug("        : '%s'", eng->string.mid(line.from, line.length).utf8());
+//     qDebug("line length = %d, ascent=%f, descent=%f, textWidth=%f (spacew=%f)", line.length, line.ascent,
+//            line.descent, line.textWidth, spacew);
+//     qDebug("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
 
     eng->minWidth = qMax(eng->minWidth, minw);
     eng->maxWidth += line.textWidth;
     if (line.textWidth > 0 && item < eng->layoutData->items.size())
         eng->maxWidth += spacew;
+    if (eng->option.flags() & QTextOption::IncludeTrailingSpaces)
+        line.textWidth += spacew;
 
     line.justified = false;
     line.gridfitted = false;
@@ -1251,12 +1253,16 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
     int end = start + gf.num_chars;
     unsigned short *logClusters = eng->logClusters(&si);
     QGlyphLayout *glyphs = eng->glyphs(&si);
-    qreal w = gf.width;
+    qreal orig_width = gf.width;
 
     int *ul = eng->underlinePositions;
     if (ul)
         while (*ul != -1 && *ul < start)
             ++ul;
+    bool rtl = si.analysis.bidiLevel % 2;
+    if (rtl)
+        x += si.width;
+
     do {
         int gtmp = ge;
         int stmp = end;
@@ -1276,9 +1282,12 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
         }
         start = stmp;
         gf.width = w;
+        if (rtl)
+            x -= w;
         if (gf.num_chars)
             p->drawTextItem(QPointF(x, y), gf);
-        x += w;
+        if (!rtl)
+            x += w;
         if (ul && *ul != -1 && *ul < end) {
             // draw underline
             gtmp = (*ul == end-1) ? ge : logClusters[*ul+1-si.position];
@@ -1295,15 +1304,18 @@ static void drawMenuText(QPainter *p, qreal x, qreal y, const QScriptItem &si, Q
             ++start;
             gf.width = w;
             gf.flags |= QTextItem::Underline;
+            if (rtl)
+                x -= w;
             p->drawTextItem(QPointF(x, y), gf);
+            if (!rtl)
+                x += w;
             gf.flags &= ~QTextItem::Underline;
             ++gf.chars;
-            x += w;
             ++ul;
         }
     } while (gs < ge);
 
-    gf.width = w;
+    gf.width = orig_width;
 }
 
 
@@ -1335,9 +1347,11 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 
     int lineEnd = line.from + line.length;
     // don't draw trailing spaces or take them into the layout.
-    const QCharAttributes *attributes = eng->attributes();
-    while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
-        --lineEnd;
+    if (!eng->option.flags() & QTextOption::IncludeTrailingSpaces) {
+        const QCharAttributes *attributes = eng->attributes();
+        while (lineEnd > line.from && attributes[lineEnd-1].whiteSpace)
+            --lineEnd;
+    }
 
     int firstItem = eng->findItem(line.from);
     int lastItem = eng->findItem(lineEnd - 1);
