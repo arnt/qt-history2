@@ -30,7 +30,7 @@
     The line can be translated along the length of another line with the
     moveBy() function.
 
-    \sa QPointFloat
+    \sa QPointFloat QSizeFloat QRectFloat
 */
 
 /*!
