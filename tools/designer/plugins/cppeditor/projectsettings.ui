@@ -26,6 +26,7 @@
 **
 *********************************************************************</comment>
 <include location="local" implDecl="in declaration">projectsettings.ui.h</include>
+<include location="global" impldecl="in declaration">qmap.h</include>
 <forward>struct QUnknownInterface;</forward>
 <variable>QMap&lt;QString, QString&gt; config, libs, defines, includes;</variable>
 <pixmapinproject/>
