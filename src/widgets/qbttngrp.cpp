@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qbttngrp.cpp#23 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -15,7 +15,7 @@
 #include "qbutton.h"
 #include "qlist.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbttngrp.cpp#23 $")
 
 
 /*----------------------------------------------------------------------------
@@ -247,9 +247,9 @@ QButton *QButtonGroup::find( int id ) const
 void QButtonGroup::buttonPressed()
 {
     int id = -1;
-    QObject *sobj = sender();			// object that sent the signal
+    QButton *bt = (QButton *)sender();		// object that sent the signal
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
-	if ( sobj == i->button ) {		// button was clicked
+	if ( bt == i->button ) {		// button was clicked
 	    id = i->id;
 	    break;
 	}
@@ -266,9 +266,9 @@ void QButtonGroup::buttonPressed()
 void QButtonGroup::buttonReleased()
 {
     int id = -1;
-    QObject *sobj = sender();			// object that sent the signal
+    QButton *bt = (QButton *)sender();		// object that sent the signal
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() )
-	if ( sobj == i->button ) {		// button was clicked
+	if ( bt == i->button ) {		// button was clicked
 	    id = i->id;
 	    break;
 	}
@@ -285,11 +285,15 @@ void QButtonGroup::buttonReleased()
 void QButtonGroup::buttonClicked()
 {
     int id = -1;
-    QObject *sobj = sender();			// object that sent the signal
+    QButton *bt = (QButton *)sender();		// object that sent the signal
+#if defined(CHECK_NULL)
+    ASSERT( bt->inherits("QButton") );
+#endif
+    bool doToggle = excl_grp && bt->isToggleButton();
     for ( register QButtonItem *i=buttons->first(); i; i=buttons->next() ) {
-	if ( sobj == i->button )		// button was clicked
+	if ( bt == i->button )			// button was clicked
 	    id = i->id;
-	else if ( excl_grp && i->button->isToggleButton() )
+	else if ( doToggle && i->button->isToggleButton() )
 	    i->button->setOn( FALSE );		// turn other radio buttons off
     }
     if ( id != -1 )
