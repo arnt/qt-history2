@@ -70,6 +70,8 @@ public:
 
     void actionTriggered();
     void actionHovered();
+    void internalShortcutActivated(int);
+    void updateLayout();
 
     //extra widgets in the menubar
     QPointer<QWidget> leftWidget, rightWidget;

@@ -31,6 +31,8 @@
 
 #include "qmenu_p.h"
 #include "qmenubar_p.h"
+#include "qdebug.h"
+
 #define d d_func()
 #define q q_func()
 
@@ -48,27 +50,23 @@ void QMenuBarPrivate::updateActions()
 {
     if(!itemsDirty)
         return;
-    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2),
-        q_start = -1;
+    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
+    int q_start = -1;
     if(d->leftWidget || d->rightWidget) {
         int vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q) + q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q),
             hmargin = q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q);
         if(d->leftWidget && d->leftWidget->isVisible()) {
             QSize sz = d->leftWidget->sizeHint();
             q_width -= sz.width();
-            d->leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin), sz));
+            q_start = sz.width();
+            d->leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin + (q->fontMetrics().lineSpacing() - sz.height())/2), sz));
         }
         if(d->rightWidget && d->rightWidget->isVisible()) {
             QSize sz = d->rightWidget->sizeHint();
             q_width -= sz.width();
-            q_start = sz.width();
-            d->rightWidget->setGeometry(QRect(QPoint(q->width()-sz.width()-hmargin, vmargin), sz));
+            d->rightWidget->setGeometry(QRect(QPoint(q->width()-sz.width()-hmargin, vmargin + (q->fontMetrics().lineSpacing() - sz.height())/2), sz));
         }
     }
-#if 0
-    if(itemsWidth == q_width && q_start == itemsStart)
-        return;
-#endif
 
 #ifdef Q_WS_MAC
     if(d->mac_menubar) {//nothing to see here folks, move along..
@@ -827,8 +825,7 @@ void QMenuBar::actionEvent(QActionEvent *e)
     } else if(e->type() == QEvent::ActionRemoved) {
         e->action()->disconnect(this);
     }
-    if(isVisible())
-        update();
+    update();
 }
 
 /*!
@@ -895,7 +892,7 @@ bool QMenuBar::event(QEvent *e)
         int shortcutId = se->shortcutId();
         for(int j = 0; j < d->shortcutIndexMap.size(); ++j) {
             if (shortcutId == d->shortcutIndexMap.value(j))
-                internalShortcutActivated(j);
+                d->internalShortcutActivated(j);
         }
     }
     return QWidget::event(e);
@@ -1121,10 +1118,16 @@ int QMenuBar::heightForWidth(int max_width) const
 /*!
   \internal
 */
-void QMenuBar::internalShortcutActivated(int id)
+void QMenuBarPrivate::internalShortcutActivated(int id)
 {
-    QMenuAction *act = d->actionItems.at(id);
-    d->setCurrentAction(act, true);
+    QMenuAction *act = actionItems.at(id);
+    setCurrentAction(act, true);
+}
+
+void QMenuBarPrivate::updateLayout()
+{
+    itemsDirty = true;
+    q->update();
 }
 
 /*!
@@ -1137,10 +1140,11 @@ void QMenuBar::internalShortcutActivated(int id)
 */
 void QMenuBar::setLeftWidget(QWidget *w)
 {
-    d->itemsDirty = true;
-    if((d->leftWidget = w))
+    if((d->leftWidget = w)) {
         d->leftWidget->setParent(this);
-    d->updateActions();
+        connect(d->leftWidget, SIGNAL(destroyed()), SLOT(updateLayout()));
+    }
+    d->updateLayout();
 }
 
 /*!
@@ -1153,10 +1157,11 @@ void QMenuBar::setLeftWidget(QWidget *w)
 */
 void QMenuBar::setRightWidget(QWidget *w)
 {
-    d->itemsDirty = true;
-    if((d->rightWidget = w))
+    if((d->rightWidget = w)) {
         d->rightWidget->setParent(this);
-    d->updateActions();
+        connect(d->rightWidget, SIGNAL(destroyed()), SLOT(updateLayout()));
+    }
+    d->updateLayout();
 }
 
 /*!

@@ -746,7 +746,7 @@ void QAction::activate(ActionEvent event)
         }
         emit triggered();
 #ifdef QT_COMPAT
-        emit activated();
+        emit activated(d->param);
 #endif
     } else if(event == Hover) {
         emit hovered();

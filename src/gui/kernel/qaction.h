@@ -136,7 +136,7 @@ signals:
     void checked(bool);
 #ifdef QT_COMPAT
     QT_MOC_COMPAT void toggled(bool);
-    QT_MOC_COMPAT void activated();
+    QT_MOC_COMPAT void activated(int = 0);
 #endif
 
 private:

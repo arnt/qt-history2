@@ -1915,7 +1915,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
     if(shortcut)
         act->setShortcut(*shortcut);
     if(receiver && member)
-        QObject::connect(act, SIGNAL(triggered()), receiver, member);
+        QObject::connect(act, SIGNAL(activated(int)), receiver, member, Qt::DirectCompatConnection);
     if(index == -1)
         addAction(act);
     else

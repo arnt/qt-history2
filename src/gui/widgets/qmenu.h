@@ -264,7 +264,7 @@ public:
     }
     inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
         if(QAction *act = findActionForId(id)) {
-            QObject::connect(act, SIGNAL(triggered()), receiver, member);
+            QObject::connect(act, SIGNAL(activated(int)), receiver, member, Qt::DirectCompatConnection);
             return true;
         }
         return false;

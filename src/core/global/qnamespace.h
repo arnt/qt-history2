@@ -997,7 +997,8 @@ public:
     enum ConnectionType {
         AutoConnection,
         DirectConnection,
-        QueuedConnection
+        QueuedConnection,
+        DirectCompatConnection
     };
 
     // Documented in qwidget.cpp

@@ -86,9 +86,6 @@ protected:
     bool eventFilter(QObject *, QEvent *);
     bool event(QEvent *);
 
-private slots:
-    void internalShortcutActivated(int);
-
 protected:
     void setLeftWidget(QWidget *);
     void setRightWidget(QWidget *);
@@ -262,6 +259,9 @@ private:
 private:
     Q_PRIVATE_SLOT(d, void actionTriggered())
     Q_PRIVATE_SLOT(d, void actionHovered())
+    Q_PRIVATE_SLOT(d, void internalShortcutActivated(int))
+    Q_PRIVATE_SLOT(d, void updateLayout())
+
 
     friend class QMenu;
     friend class QWorkspacePrivate;

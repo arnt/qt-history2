@@ -1873,6 +1873,12 @@ bool QObject::connect(const QObject *sender, const char *signal,
                       const QObject *receiver, const char *member,
                       Qt::ConnectionType type)
 {
+    bool warnCompat = true;
+    if (type == Qt::DirectCompatConnection) {
+        type = Qt::DirectConnection;
+        warnCompat = false;
+    }
+
 #ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
         qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
@@ -1970,12 +1976,14 @@ bool QObject::connect(const QObject *sender, const char *signal,
             rmember = rmeta->signal(member_index);
             break;
         }
-        if(smember.attributes() & QMetaMember::Compatability) {
-            if (!(rmember.attributes() & QMetaMember::Compatability))
-                qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
-        } else if(rmember.attributes() & QMetaMember::Compatability && membcode != QSIGNAL_CODE) {
-            qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
-                     smeta->className(), signal, rmeta->className(), member);
+        if (warnCompat) {
+            if(smember.attributes() & QMetaMember::Compatability) {
+                if (!(rmember.attributes() & QMetaMember::Compatability))
+                    qWarning("Object::connect: Connecting from COMPAT signal (%s::%s).", smeta->className(), signal);
+            } else if(rmember.attributes() & QMetaMember::Compatability && membcode != QSIGNAL_CODE) {
+                qWarning("Object::connect: Connecting from %s::%s to COMPAT slot (%s::%s).",
+                         smeta->className(), signal, rmeta->className(), member);
+            }
         }
         switch(rmember.access()) {
         case QMetaMember::Private:
