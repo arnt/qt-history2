@@ -107,6 +107,7 @@
 #include "gotolinedialog.h"
 #include <qprocess.h>
 #include <qsettings.h>
+#include "pixmapcollectioneditor.h"
 
 static int forms = 0;
 static bool mblockNewForms = FALSE;
@@ -194,6 +195,7 @@ MainWindow::MainWindow( bool asClient )
     currentProject = 0;
     formList = 0;
     oWindow = 0;
+    actionEditPixmapCollection = 0;
 
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
@@ -426,6 +428,14 @@ void MainWindow::setupEditActions()
 					     "<p>####TODO</p>") );
     connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
 
+    actionEditPixmapCollection = new QAction( tr( "Pixmap Collection..." ), QPixmap(),
+					  tr( "P&ixmap Collection..." ), 0, this, 0 );
+    actionEditPixmapCollection->setStatusTip( tr("Opens a dialog to edit the pixmap collection of the current project") );
+    actionEditPixmapCollection->setWhatsThis( tr("<b>Edit pixmap collection of the current project</b>"
+						 "<p>####TODO</p>") );
+    connect( actionEditPixmapCollection, SIGNAL( activated() ), this, SLOT( editPixmapCollection() ) );
+    actionEditPixmapCollection->setEnabled( FALSE );
+
 #ifndef QT_NO_SQL
     actionEditDatabaseConnections = new QAction( tr( "Database Connections..." ), QPixmap(),
 						 tr( "&Database Connections..." ), 0, this, 0 );
@@ -487,6 +497,7 @@ void MainWindow::setupEditActions()
     actionEditFormSettings->addTo( menu );
     menu->insertSeparator();
     actionEditProjectSettings->addTo( menu );
+    actionEditPixmapCollection->addTo( menu );
 #ifndef QT_NO_SQL
     actionEditDatabaseConnections->addTo( menu );
 #endif
@@ -2016,6 +2027,12 @@ void MainWindow::editProjectSettings()
     }
 
     formList->setProject( currentProject );
+}
+
+void MainWindow::editPixmapCollection()
+{
+    PixmapCollectionEditor dia( this, 0, TRUE );
+    dia.exec();
 }
 
 void MainWindow::editDatabaseConnections()
@@ -4199,6 +4216,8 @@ void MainWindow::projectSelected( QAction *a )
     currentProject = *projects.find( a );
     if ( formList )
 	formList->setProject( currentProject );
+    if ( actionEditPixmapCollection )
+	actionEditPixmapCollection->setEnabled( currentProject != emptyProject() );
 }
 
 void MainWindow::openProject( const QString &fn )

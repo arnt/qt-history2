@@ -204,6 +204,7 @@ public slots:
     void editSource() { editSource( TRUE ); }
     void editFormSettings();
     void editProjectSettings();
+    void editPixmapCollection();
     void editDatabaseConnections();
     void editPreferences();
 
@@ -354,6 +355,7 @@ private:
     QAction *actionEditDatabaseConnections;
     QAction *actionEditSource;
     QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
+    QAction *actionEditPixmapCollection;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
