@@ -5530,7 +5530,7 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	m = 0;
     y += h + m;
     if ( !wrapEnabled )
-	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
+	minw = QMAX(minw, wused);
     return y;
 }
 
@@ -5683,7 +5683,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
 	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
 	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
+	       parag->isNewLinesAllowed() && lastChr == '\n' && firstChar < c ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
 	    if ( lastBreak < 0 ) {
@@ -5743,8 +5743,6 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lastBreak = -1;
 		col = 0;
 		tminw = marg;
-		if ( parag->isNewLinesAllowed() && lastChr == '\n' && c->c == '\n' )
-		    i++;
 		continue;
 	    }
 	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
@@ -5793,7 +5791,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     }
 
     minw = QMAX( minw, tminw );
-
+    
     int m = parag->bottomMargin();
     if ( parag->next() && doc && !doc->addMargins() )
 	m = QMAX( m, parag->next()->topMargin() );
@@ -5802,9 +5800,9 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	m = 0;
     y += h + m;
 
-    if ( !wrapEnabled || wrapAtColumn() != -1 )
-	minw = QMAX( minw, c->x + ww ); // #### Lars: Fix this for BiDi, please
     wused += rm;
+    if ( !wrapEnabled || wrapAtColumn() != -1 )
+	minw = QMAX(minw, wused);
     return y;
 }
 
