@@ -14,7 +14,8 @@ then
     echo
     echo
     echo '   The environment variable $QTDIR is not set correctly. It is currently'
-    echo '   set to "'`echo $QTDIR`'", but it should be set to "'`pwd`'".'
+    echo '   set to "'`echo $QTDIR`'", but it should be set this directory,'
+    echo '   which is "'`pwd`'".'
     echo
     echo '   Please read the INSTALL file for instructions on how to set $QTDIR'
     echo '   correctly. If you have set $QTDIR in your .profile or .login, you '
@@ -39,46 +40,59 @@ SM=no
 ZLIB=yes
 LIBPNG=yes
 
-###Warwick, here goes your platform detection code
-
 # Parse the arguments, setting things to "yes" or "no".
 
-for a in $* ; do
+while [ -n "$1" ]; do
    case $a in
    -platform)
-###Warwick I don't know the right syntax here
-       shift; PLATFORM=$1;
+       shift; PLATFORM=$1
+	;;
    -release)
-       DEBUG=no;;
+       DEBUG=no
+	;;
    -debug)
-       DEBUG=yes;;
+       DEBUG=yes
+	;;
    -shared)
-       SHARED=yes;;
+       SHARED=yes
+	;;
    -static)
-       SHARED=no;;
+       SHARED=no
+	;;
    -no-gif)
-       GIF=no;;
+       GIF=no
+	;;
    -gif)
-       GIF=yes;;
+       GIF=yes
+	;;
    -no-sm)
-       SM=no;;
+       SM=no
+	;;
    -sm)
-       SM=yes;;
+       SM=yes
+	;;
    -qt-zlib)
-       ZLIB=yes;;
+       ZLIB=yes
+	;;
    -system-zlib)
-       ZLIB=no;;
+       ZLIB=no
+	;;
    -qt-libpng)
-       LIBPNG=yes;;
+       LIBPNG=yes
+	;;
    -system-libpng)
-       LIBPNG=no;;
+       LIBPNG=no
+	;;
    -h | -help | --help)
-       HELP=yes;;
+       HELP=yes
+	;;
    *)
        echo ${a}: unknown argument
        HELP=yes;
-       ERROR=yes;;
+       ERROR=yes
+	;;
    esac
+   shift
 done
 
 
@@ -134,6 +148,42 @@ fi
 #        GIF="";;
 #    esac
 #done
+
+if [ -z "$PLATFORM" ]
+then
+    ##### Generate?  Look in configs/?
+    PLATFORMS="aix-g++ aix-xlc bsdi-g++ dgux-g++ freebsd-g++ gnu-g++ hpux-acc
+	hpux-cc hpux-g++ irix-64 irix-dcc irix-g++ irix-n32 irix-o32
+	linux-g++ netbsd-g++ openbsd-g++ osf1-cxx osf1-g++ qnx-g++ sco-g++
+	solaris-cc solaris-g++ sunos-g++ ultrix-g++ unixware-g++
+	unixware7-cc unixware7-g++"
+
+    case `uname -sr` in
+     Linux*)
+	PLATFORM=linux-g++
+	;;
+     SunOS\ 5*)
+	PLATFORM=solaris-cc
+	;;
+     SunOS\ 4*)
+	PLATFORM=sunos-g++
+	;;
+	# etc.
+     *)
+	echo
+	for p in $PLATFORMS
+	do
+	    echo "    $0 $* -platform $p"
+	done
+	echo
+	echo "The build script currently only recognizes a small number of"
+	echo "platforms.  However, Qt is targetted at all of the above"
+	echo "platforms.  Rerun this script with a -platform option listed"
+	echo "to set the operating system / compiler combination you use."
+	echo
+	exit
+    esac
+fi
 
 
 # Check if the platform + static + debug exists
