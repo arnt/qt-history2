@@ -19,6 +19,9 @@
 #include <QtCore/QPointer>
 #include <QtGui/QPixmap>
 #include <QtGui/QWidget>
+#include <QtGui/QRegion>
+#include <QtGui/QFont>
+#include <QtGui/QFontMetrics>
 
 class QtUndoStack;
 class AbstractFormWindow;
@@ -40,8 +43,14 @@ public slots:
 
 protected:    
     virtual void paintEvent(QPaintEvent *e);
+    virtual void mouseMoveEvent(QMouseEvent *e);
+    virtual void mousePressEvent(QMouseEvent *e);
+    virtual void mouseDoubleClickEvent(QMouseEvent *e);
 
 private:
+    QRect indicatorRect(int index) const;
+    int widgetIndexAt(const QPoint &pos) const;
+
     QPointer<AbstractFormWindow> m_form_window;
 
     QList<QWidget*> m_tab_order_list;
@@ -49,6 +58,10 @@ private:
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
+    QRegion m_indicator_region;
+
+    QFontMetrics m_font_metrics;
+    int m_current_index;
 };
 
 #endif
