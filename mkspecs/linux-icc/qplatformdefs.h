@@ -60,7 +60,7 @@
 #include <resolv.h>
 
 
-#if defined(QT_NO_COMPAT)
+#if !defined(QT_NO_COMPAT)
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat
 #define QT_STAT			::stat
