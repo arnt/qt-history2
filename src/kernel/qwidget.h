@@ -583,7 +583,6 @@ private:
     uint 	 in_show_maximized : 1;
     uint	 fstrut_dirty : 1;
     uint	 im_enabled : 1;
-    uint	 shown_mode : 8;
     QRect	 crect;
 #ifndef QT_NO_PALETTE
     mutable QPalette	 pal;

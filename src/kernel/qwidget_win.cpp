@@ -383,17 +383,11 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     setWState( WState_Created );		// accept move/resize events
     hdc = 0;					// no display context
     
-    shown_mode = SW_HIDE;
     if ( window ) {				// got window from outside
-	if ( IsWindowVisible(window) ) {
+	if ( IsWindowVisible(window) )
 	    setWState( WState_Visible );
-	    if ( testWFlags(WStyle_Tool) )
-		shown_mode = SW_SHOWNOACTIVATE;
-	    else
-		shown_mode = SW_SHOW;
-	} else {
+	else
 	    clearWState( WState_Visible );
-	}
     }
 
 #if defined(QT_NON_COMMERCIAL)
@@ -459,7 +453,6 @@ void QWidget::reparent_helper( QWidget *parent, WFlags f, const QPoint &p, bool 
     if ( isVisible() ) {
 	ShowWindow( winid, SW_HIDE );
 	SetParent( winid, 0 );
-	shown_mode = SW_HIDE;
     }
 
     bool accept_drops = acceptDrops();
@@ -1131,15 +1124,6 @@ void QWidget::setWindowState_helper(uint newstate)
 
 void QWidget::hideWindow()
 {
-#if 0
-    // Make sure that ShowWindow
-    // isn't called excessively
-    if (shown_mode == SW_HIDE)
-	return;
-    else
-	shown_mode = SW_HIDE;
-#endif
-
     deactivateWidgetCleanup();
     ShowWindow( winId(), SW_HIDE );
 }
@@ -1165,16 +1149,6 @@ void QWidget::showWindow()
     }
     if (testWFlags(WStyle_Tool) || isPopup())
 	sm = SW_SHOWNOACTIVATE;
-
-#if 0
-    // Make sure that ShowWindow and UpdateWindow
-    // isn't called excessively
-    if (extra)
-	if (extra->shown_mode == sm)
-	    return;
-	else
-	    extra->shown_mode = sm;
-#endif
 
     ShowWindow( winId(), sm );
     UpdateWindow( winId() );
@@ -1212,13 +1186,6 @@ void QWidget::showWindow()
 
     if ( testWFlags(WStyle_Tool) || isPopup() )
 	sm = SW_SHOWNOACTIVATE;
-
-    // Make sure that ShowWindow and UpdateWindow
-    // isn't called excessively
-    if (shown_mode == SW_HIDE)
-	return;
-    else
-	shown_mode = SW_HIDE;
 
     ShowWindow( winId(), sm );
     if ( isTopLevel() && sm == SW_SHOW )
