@@ -124,7 +124,7 @@ DesignerDatabase *DatabaseConnection::iFace()
 Project::Project( const QString &fn, const QString &pName, QInterfaceManager<ProjectSettingsInterface> *pm )
     : proName( pName ), projectSettingsPluginManager( pm )
 {
-    pixCollection = new PixmapCollection;
+    pixCollection = new PixmapCollection( this );
     iface = 0;
     lang = "C++";
     setFileName( fn );
@@ -833,6 +833,7 @@ void Project::saveImages()
 
 void Project::loadImages()
 {
+    pixCollection->load();
 }
 
 void Project::setActive()

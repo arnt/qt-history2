@@ -15,8 +15,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>386</width>
-            <height>285</height>
+            <width>382</width>
+            <height>283</height>
         </rect>
     </property>
     <property name="caption">
@@ -211,6 +211,10 @@
     updateView();
 }</function>
     <function name="removePixmap()" >{
+    if ( !project || !viewPixmaps-&gt;currentItem() )
+	return;
+    project-&gt;pixmapCollection()-&gt;removePixmap( viewPixmaps-&gt;currentItem()-&gt;text() );
+    updateView();
 }</function>
     <function name="updateView()" >{
     if ( !project )

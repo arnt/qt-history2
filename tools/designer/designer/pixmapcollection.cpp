@@ -19,9 +19,13 @@
 **********************************************************************/
 
 #include "pixmapcollection.h"
+#include "project.h"
 #include <qmime.h>
+#include <qdir.h>
+#include <qfileinfo.h>
 
-PixmapCollection::PixmapCollection()
+PixmapCollection::PixmapCollection( Project *pro )
+    : project( pro )
 {
     mimeSourceFactory = new QMimeSourceFactory();
 }
@@ -32,10 +36,12 @@ void PixmapCollection::addPixmap( const Pixmap &pix )
     pixmap.name = unifyName( pixmap.name );
     pixList.append( pixmap );
     mimeSourceFactory->setPixmap( pixmap.name, pixmap.pix );
+    savePixmap( pixmap );
 }
 
 void PixmapCollection::removePixmap( const QString &name )
 {
+    removePixmapFile( name );
     for ( QValueList<Pixmap>::Iterator it = pixList.begin(); it != pixList.end(); ++it ) {
 	if ( (*it).name == name ) {
 	    pixList.remove( it );
@@ -83,4 +89,38 @@ QPixmap PixmapCollection::pixmap( const QString &name )
 	    return (*it).pix;
     }
     return QPixmap();
+}
+
+void PixmapCollection::savePixmap( const Pixmap &pix )
+{
+    mkdir();
+    QString f = project->fileName();
+    pix.pix.save( QFileInfo( f ).dirPath( TRUE ) + "/images/" + pix.name, "PNG" );
+}
+
+void PixmapCollection::mkdir()
+{
+    QString f = project->fileName();
+    QDir d( QFileInfo( f ).dirPath( TRUE ) );
+    d.mkdir( "images" );
+}
+
+void PixmapCollection::removePixmapFile( const QString &name )
+{
+    QString f = project->fileName();
+    QDir d( QFileInfo( f ).dirPath( TRUE ) + "/images" );
+    d.remove( name );
+}
+
+void PixmapCollection::load()
+{
+    QString f = project->fileName();
+    QDir d( QFileInfo( f ).dirPath( TRUE ) + "/images" );
+    QStringList l = d.entryList( QDir::Files );
+    for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
+	Pixmap pix;
+	pix.name = *it;
+	pix.pix = QPixmap( d.path() + "/" + *it, "PNG" );
+	pixList.append( pix );
+    }
 }
