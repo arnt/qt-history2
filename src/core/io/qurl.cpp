@@ -32,7 +32,7 @@
     A URL can also be constructed piece by piece by calling
     setScheme(), setUserName(), setPassword(), setHost(), setPort(),
     setPath(), setEncodedQuery() and setFragment(). Some convenience
-    functions are also availble: setAuthority() sets the user name,
+    functions are also available: setAuthority() sets the user name,
     password, host and port. setUserInfo() sets the user name and
     password at once.
 
@@ -1724,7 +1724,7 @@ QString QUrl::path() const
 
     \a valueDelimiter will be used for separating keys from values,
     and \a pairDelimiter will be used to separate key-value pairs.
-    Any occurrances of these delimiting characters in the encoded
+    Any occurrences of these delimiting characters in the encoded
     representation of the keys and values of the query string are
     percent encoded.
 
