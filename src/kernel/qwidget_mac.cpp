@@ -964,6 +964,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
 		    QMacSavedPortInfo saveportstate; 
+		    SetPortWindowPort((WindowPtr)handle()); 
 		    ::RGBColor f;
 		    f.red = f.green = f.blue = 0;
 		    RGBForeColor( &f );
@@ -980,6 +981,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    blt_optim = oldregion;
 		    blt_optim.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
 		    blt_optim &= clippedRegion(FALSE);
+		    SetClip((RgnHandle)blt_optim.handle());
 		    
 		    //create a temporary space
 		    GWorldPtr tmppix;
@@ -988,8 +990,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    LockPixels(GetGWorldPixMap(tmppix));
 
 		    //now do the blt
-		    SetPortWindowPort((WindowPtr)handle()); 
-		    SetClip((RgnHandle)blt_optim.handle());
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		    BitMap *pixm = (BitMap *)*GetGWorldPixMap(tmppix);
 		    CopyBits(scrn, pixm, &oldr, &tmpr, srcCopy, 0);
