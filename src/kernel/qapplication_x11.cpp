@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#253 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#254 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#253 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#254 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1517,7 +1517,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
     if ( !widget ) {				// don't know this window
 	if ( (widget=(QETWidget*)QApplication::activePopupWidget()) )
 	{
-	    if ( event->type == ButtonRelease ) {
+	    // Danger - make sure we don't lock the server
+	    switch ( event->type ) {
+	      case ButtonPress:
+	      case ButtonRelease:
+	      case KeyPress:
+	      case KeyRelease:
 		widget->hide();
 		return 1;
 	    }

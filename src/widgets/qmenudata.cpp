@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#53 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#54 $
 **
 ** Implementation of QMenuData class
 **
@@ -14,7 +14,7 @@
 #include "qpopmenu.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#53 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenudata.cpp#54 $");
 
 
 /*!
@@ -208,6 +208,10 @@ int QMenuData::insertAny( const char *text, const QPixmap *pixmap,
     return mi->ident;
 }
 
+/*!
+  Internal function that finds the menu item where \a popup is located,
+  storing its index at \a index if \a index is not NULL.
+*/
 QMenuItem *QMenuData::findPopup( QPopupMenu *popup, int *index )
 {
     int i = 0;
@@ -218,7 +222,7 @@ QMenuItem *QMenuData::findPopup( QPopupMenu *popup, int *index )
 	i++;
 	mi = mitems->next();
     }
-    if ( index )
+    if ( index && mi )
 	*index = i;
     return mi;
 }
