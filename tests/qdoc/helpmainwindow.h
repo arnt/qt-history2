@@ -10,6 +10,7 @@ class QShowEvent;
 class QProgressBar;
 class QLabel;
 class QToolButton;
+class HelpFindDialog;
 
 class HelpMainWindow : public QMainWindow
 {
@@ -59,6 +60,8 @@ private slots:
     void backwardAvailable( bool );
 
     void updateViewMenu();
+
+    void findDialogClosed();
     
 private:
     QPopupMenu *history;
@@ -69,7 +72,8 @@ private:
     QToolButton *forward, *backward;
     int forward_id, backward_id, contents_id, index_id, bookmarks_id, search_id;
     QPopupMenu *go, *view;
-
+    HelpFindDialog *findDialog;
+    
 };
 
 #endif

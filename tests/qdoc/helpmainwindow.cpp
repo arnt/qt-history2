@@ -1,5 +1,6 @@
 #include "helpmainwindow.h"
 #include "helpnavigation.h"
+#include "helpfinddialog.h"
 #include "helpview.h"
 #include <qsplitter.h>
 #include <qmenubar.h>
@@ -232,6 +233,8 @@ HelpMainWindow::HelpMainWindow()
     statusBar()->addWidget( bar, 1, TRUE );
     label->setAlignment( Qt::AlignRight | Qt::AlignVCenter );
 
+    findDialog = 0;
+    
     connect( navigation, SIGNAL( preparePorgress( int ) ),
 	     this, SLOT( preparePorgress( int ) ) );
     connect( navigation, SIGNAL( incProcess() ),
@@ -243,7 +246,7 @@ HelpMainWindow::HelpMainWindow()
     connect( viewer, SIGNAL( backwardAvailable( bool ) ),
 	     this, SLOT( backwardAvailable( bool ) ) );
     connect( navigation, SIGNAL( tabChanged() ),
-	     this, SLOT( updateViewMenu() ) ); 
+	     this, SLOT( updateViewMenu() ) );
 }
 
 void HelpMainWindow::slotFilePrint()
@@ -320,6 +323,15 @@ void HelpMainWindow::slotEditSelectAll()
 
 void HelpMainWindow::slotEditFind()
 {
+    if ( findDialog ) {
+	findDialog->hide();
+	findDialog->show();
+    } else {
+	findDialog = new HelpFindDialog( this );
+	findDialog->show();
+	connect( findDialog, SIGNAL( closed() ),
+		 this, SLOT( findDialogClosed() ) );
+    }
 }
 
 void HelpMainWindow::slotViewContents()
@@ -480,12 +492,18 @@ void HelpMainWindow::backwardAvailable( bool b )
 
 void HelpMainWindow::updateViewMenu()
 {
-    view->setItemChecked( contents_id, 
+    view->setItemChecked( contents_id,
 			  navigation->viewMode() == HelpNavigation::Contents );
-    view->setItemChecked( index_id, 
+    view->setItemChecked( index_id,
 			  navigation->viewMode() == HelpNavigation::Index );
-    view->setItemChecked( bookmarks_id, 
+    view->setItemChecked( bookmarks_id,
 			  navigation->viewMode() == HelpNavigation::Bookmarks );
-    view->setItemChecked( search_id, 
+    view->setItemChecked( search_id,
 			  navigation->viewMode() == HelpNavigation::Search );
+}
+
+void HelpMainWindow::findDialogClosed()
+{
+    delete findDialog;
+    findDialog = 0;
 }
