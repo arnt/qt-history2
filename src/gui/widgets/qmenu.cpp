@@ -62,7 +62,7 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 
     QList<Q4MenuAction*> ret;
     QList<QAction*> items = q->actions();
-    int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1;
+    int max_column_width = 0, dh = QApplication::desktop()->height(), ncols = 1, y = 0;
 
     //for compatability now - will have to refactor this away..
     tabWidth = maxIconWidth = 0;
@@ -77,7 +77,7 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 
     //calculate size
     const QFontMetrics fm = q->fontMetrics();
-    for(int i = 0, y = 0; i < items.count(); i++) {
+    for(int i = 0; i < items.count(); i++) {
 	QAction *action = items.at(i);
 	if(!action->isVisible())
 	    continue;
@@ -130,20 +130,21 @@ QList<Q4MenuAction*> Q4MenuPrivate::calcActionRects() const
 	max_column_width += tabWidth+20; //finally add in the tab width
 
     //calculate position
-    int x = 0, y2 = 0;
+    int x = 0;
+    y = 0;
     for(int i = 0; i < ret.count(); i++) {
 	Q4MenuAction *action = ret.at(i);
 	if(!scroll &&
-	   y2+action->rect.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
+	   y+action->rect.height() > dh - (q->style().pixelMetric(QStyle::PM_MenuDesktopFrameWidth, q) * 2)) {
 	    ncols--;
 	    if(ncols < 0)
 		qWarning("Q4Menu: Column mismatch calculation. %d", ncols);
 	    x += max_column_width;
-	    y2 = 0;
+	    y = 0;
 	}
-	action->rect.moveBy(x, y2);                        //move
+	action->rect.moveBy(x, y);                        //move
 	action->rect.setWidth(max_column_width); //uniform width
-	y2 += action->rect.height();
+	y += action->rect.height();
     }
     return ret;
 }
@@ -1147,6 +1148,8 @@ void Q4Menu::internalDelayedPopup()
     if(Q4Menu *menu = d->activeMenu) {
 	d->activeMenu = NULL;
 	menu->hide();
+    } else if(!d->currentAction->action->menu()) { //nope..
+	return;
     }
 
     //setup
