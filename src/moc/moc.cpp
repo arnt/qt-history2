@@ -634,7 +634,9 @@ void Moc::generate(FILE *out)
     if (classList.size() && classList.first().classname == "Qt")
         fprintf(out, "#include <QtCore/qobject.h>\n");
 
-    fprintf(out, "#if !defined(Q_MOC_OUTPUT_REVISION) || (Q_MOC_OUTPUT_REVISION != %d)\n", mocOutputRevision);
+    fprintf(out, "#if !defined(Q_MOC_OUTPUT_REVISION)\n"
+            "#error \"The header file '%s' doesn't include <QObject>.\"\n", (const char *)fn);
+    fprintf(out, "#elif Q_MOC_OUTPUT_REVISION != %d\n", mocOutputRevision);
     fprintf(out, "#error \"This file was generated using the moc from %s."
             " It\"\n#error \"cannot be used with the include files from"
             " this version of Qt.\"\n#error \"(The moc has changed too"
