@@ -382,10 +382,33 @@ QString QDir::absFilePath( const QString &fileName,
 	return fileName;
 
     QString tmp = absPath();
-    if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
-			   fileName[0] != '/') )
-	tmp += '/';
-    tmp += fileName;
+#ifdef Q_OS_WIN32
+    if ( fileName[0].isLetter() && fileName[1] == ':' ) {
+	if ( _getdrive() != (fileName[0].latin1() - 'A' + 1) ) {
+	    if ( qt_winunicode ) {
+		TCHAR buf[PATH_MAX];
+		::_tgetdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
+		tmp = QString().setUnicodeCodes( buf, ::wcslen(buf) ) + "/" + fileName.right(fileName.length()-2);
+	    } else {
+		char buf[PATH_MAX];
+		::_getdcwd( fileName.upper()[0].latin1() - 'A' + 1, buf, PATH_MAX );
+		tmp = buf;
+	    }
+	    int x;
+	    for ( x = 0; x < (int) tmp.length(); x++ ) {
+		if ( tmp[x] == '\\' )
+		    tmp[x] = '/';
+	    }
+	}
+    } else
+#endif
+    {
+	if ( tmp.isEmpty() || (tmp[(int)tmp.length()-1] != '/' && !!fileName &&
+			       fileName[0] != '/') )
+	    tmp += '/';
+	tmp += fileName;
+ 
+    }
     return tmp;
 }
 
