@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#27 $ 
+** $Id: //depot/qt/main/src/tools/qglobal.h#28 $ 
 **
 ** Global type declarations and definitions
 **
@@ -239,6 +239,14 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 
 #if !defined(NOT_USED)
 #define NOT_USED(argument) argument=argument;
+#endif
+
+//
+// Avoid compiler warning "function defined but not used"
+//
+
+#if !defined(NOT_USED_FN)
+#define NOT_USED_FN __attribute__ ((unused))
 #endif
 
 //
