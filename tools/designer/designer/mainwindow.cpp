@@ -1955,7 +1955,11 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "View/TextLabels", usesTextLabel() );
     config.writeEntry( keybase + "View/BigIcons", usesBigPixmaps() );
 
-    QString fn = QDir::homeDirPath() + "/.designerrctb3";
+    QString fn = QDir::homeDirPath();
+    if ( singleProjectMode() )
+	fn += "/.designerrctb3s";
+    else
+	fn += "/.designerrctb3";
     QFile f( fn );
     f.open( IO_WriteOnly );
     QTextStream ts( &f );
@@ -2119,6 +2123,8 @@ void MainWindow::readConfig()
     QApplication::sendPostedEvents();
 #endif
     QString fn = QDir::homeDirPath() + "/.designerrc" + "tb3";
+    if ( singleProjectMode() )
+	fn += "s";
     QFile f( fn );
     if ( f.open( IO_ReadOnly ) ) {
 /*###	tbSettingsRead = TRUE;*/
