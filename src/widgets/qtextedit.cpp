@@ -722,21 +722,31 @@ bool QTextEdit::event( QEvent *e )
 	if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
 	    case Key_A:
-	    case Key_E:
-#if defined (Q_WS_WIN)
-	    case Key_Insert:
-#endif
-	    case Key_X:
-	    case Key_Z:
-	    case Key_Y:
-	    case Key_V:
+	    case Key_B:
 	    case Key_C:
+	    case Key_D:
+	    case Key_E:
+	    case Key_F:
+	    case Key_H:
+	    case Key_I: 
+	    case Key_K:
+	    case Key_N:
+	    case Key_P:
+	    case Key_T: 
+	    case Key_V:
+	    case Key_X:
+	    case Key_Y:
+	    case Key_Z:
 	    case Key_Left:
 	    case Key_Right:
 	    case Key_Up:
 	    case Key_Down:
 	    case Key_Home:
 	    case Key_End:
+	    case Key_Tab:
+#if defined (Q_WS_WIN)
+	    case Key_Insert:
+#endif
 		ke->accept();
 	    default:
 		break;

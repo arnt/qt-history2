@@ -886,18 +886,23 @@ bool QLineEdit::event( QEvent * e )
 	if ( ke->state() & ControlButton ) {
 	    switch ( ke->key() ) {
 	    case Key_A:
-	    case Key_E:
-#if defined (Q_WS_WIN)
-	    case Key_Insert:
-#endif
-	    case Key_X:
-	    case Key_V:
+	    case Key_B:
 	    case Key_C:
-	    case Key_Z:
+	    case Key_D:
+	    case Key_E:
+	    case Key_F:
+	    case Key_H:
+	    case Key_K:
+	    case Key_V:
+	    case Key_X:	    
 	    case Key_Y:
+	    case Key_Z:	    
 	    case Key_Left:
 	    case Key_Right:
-	    ke->accept();
+#if defined (_WS_WIN_)
+	    case Key_Insert:
+#endif
+		ke->accept();
 	    default:
 		break;
 	    }
