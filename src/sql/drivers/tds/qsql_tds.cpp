@@ -108,8 +108,6 @@
 #define CS_PUBLIC
 #endif
 
-//#define DEBUG_TDS
-
 QSqlError qMakeError( const QString& err, int type, int errNo = -1 )
 {
     return QSqlError( "QTDS: " + err, QString::null, type, errNo );
@@ -140,9 +138,6 @@ public:
     QTDSClientNullData( QTDSClientNullData& other ): QSqlClientNullData(), nullInfo( other.nullInfo ) {}
     bool isNull() const
     {
-#ifdef DEBUG_TDS
-	qDebug( "QTDSClientNullData::isNull: %i", nullInfo );
-#endif
 	if ( nullInfo == -1 )
 	    return TRUE;
 	return FALSE;
@@ -188,9 +183,6 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 			    char* /*procname*/,
 			    int /*line*/)
 {
-#ifdef DEBUG_TDS
-    qDebug( QString( "QTDSDriver warning (%1, severity %4): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ).arg( severity ) );
-#endif
     QTDSPrivate* p = errs.find( dbproc );
 
     if ( !p ) {
@@ -215,9 +207,6 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
 				char* dberrstr,
 				char* oserrstr)
 {
-#ifdef DEBUG_TDS
-    qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
-#endif
     QTDSPrivate* p = errs.find( dbproc );
     if ( !p ) {
 #ifdef QT_RANGE_CHECK
@@ -295,9 +284,6 @@ QVariant::Type qFieldType( QTDSPrivate* d, int i )
 QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
     : QSqlCachedResult( db )
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::QTDSResult" );
-#endif
     d = new QTDSPrivate( *p );
     // insert d in error handler dict
     errs.insert( (void*)d->dbproc, d );
@@ -307,9 +293,6 @@ QTDSResult::QTDSResult( const QTDSDriver* db, const QTDSPrivate* p )
 
 QTDSResult::~QTDSResult()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::~QTDSResult" );
-#endif
     cleanup();
     dbclose( d->dbproc );
     errs.remove( d->dbproc );
@@ -339,9 +322,6 @@ bool QTDSResult::gotoNext()
 
 bool QTDSResult::reset ( const QString& query )
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::reset: \"" + query + "\"" );
-#endif
     cleanup();
     if ( !driver() )
 	return FALSE;
@@ -367,17 +347,7 @@ bool QTDSResult::reset ( const QString& query )
     }
 
     setSelect( (DBCMDROW( d->dbproc ) == SUCCEED) );
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::reset: creating buffer, num cols:" + QString::number( dbnumcols( d->dbproc ) ) );
-#endif
     for ( int i = 0; i < dbnumcols( d->dbproc ) ; ++i ) {
-#ifdef DEBUG_TDS
-	qDebug( "QTDSResult::reset: appending field: " + QString::number( i ) );
-	qDebug( "QTDSResult::reset: col %d is %s (type %i: %s; colLen: %i)", i, dbcolname( d->dbproc, i+1 ),
-								    dbcoltype( d->dbproc, i+1 ),
-								    QVariant::typeToName( qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) ) ),
-								    dbcollen( d->dbproc, i+1 ) );
-#endif
 	QVariant::Type vType = qDecodeTDSType( dbcoltype( d->dbproc, i+1 ) );
 	RETCODE ret = -1;
 	void* p = 0;
@@ -416,14 +386,8 @@ bool QTDSResult::reset ( const QString& query )
 	}
 	if ( ( ret != SUCCEED ) && ( ret != -1 ) ) {
 	    setLastError( d->lastError );
-#ifdef DEBUG_TDS
-	    qDebug( "QTDSResult::reset: some bind error!" );
-#endif
 	    return FALSE;
 	}
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::reset: done, active" );
-#endif	
     }
 
     setActive( TRUE );
@@ -432,17 +396,11 @@ bool QTDSResult::reset ( const QString& query )
 
 int QTDSResult::size()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::size()" );
-#endif
     return -1;
 }
 
 int QTDSResult::numRowsAffected()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSResult::numRowsAffected()" );
-#endif
     return DBCOUNT( d->dbproc );
 }
 
@@ -494,9 +452,6 @@ bool QTDSDriver::open( const QString & db,
 		       const QString & host,
 		       int /*port*/ )
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::open()" );
-#endif
     if ( isOpen() )
 	close();
     if ( !dbinit() ) {
@@ -504,18 +459,12 @@ bool QTDSDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::open: inited" );
-#endif
     d->login = dblogin();
     if ( !d->login ) {
 	setLastError( d->lastError );
 	setOpenError( TRUE );
 	return FALSE;
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::open: logged in as %s %s", user.local8Bit().data(), password.local8Bit().data() );
-#endif
     DBSETLPWD( d->login, password.local8Bit().data() );
     DBSETLUSER( d->login, user.local8Bit().data() );
 //    DBSETLAPP( d->login, "QTDS7"); //Well, we can set the name of the app here...
@@ -527,17 +476,11 @@ bool QTDSDriver::open( const QString & db,
 	setOpenError( TRUE );
 	return FALSE;
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::open: opened" );
-#endif
     if ( dbuse( d->dbproc, db.local8Bit().data() ) == FAIL ) {
 	setLastError( QSqlError( QString::null, tr( "Could not open database" ), QSqlError::Connection ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::open: database used" );
-#endif
     setOpen( TRUE );
     dbName = db;
     hostName = host;
@@ -546,9 +489,6 @@ bool QTDSDriver::open( const QString & db,
 
 void QTDSDriver::close()
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::close()" );
-#endif
     if ( isOpen() ) {
 	dbclose( d->dbproc );
 	errs.remove ( d->dbproc );
@@ -560,9 +500,6 @@ void QTDSDriver::close()
 
 QSqlQuery QTDSDriver::createQuery() const
 {
-#ifdef DEBUG_TDS
-    qDebug("QTDSDriver::createQuery()");
-#endif
     QTDSPrivate d2;
     d2.login = d->login;
 
@@ -570,15 +507,9 @@ QSqlQuery QTDSDriver::createQuery() const
     if ( !d2.dbproc ) {
 	return QSqlQuery();
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::createQuery: opened" );
-#endif
     if ( dbuse( d2.dbproc, dbName.local8Bit().data() ) == FAIL ) {
 	return QSqlQuery();
     }
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::createQuery: database used" );
-#endif
 
     return QSqlQuery( new QTDSResult( this, &d2 ) );
 }
@@ -666,9 +597,6 @@ bool QTDSDriver::rollbackTransaction()
 
 QSqlRecord QTDSDriver::record( const QSqlQuery& query ) const
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::record: " + query.lastQuery() );
-#endif
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
@@ -687,9 +615,6 @@ QSqlRecord QTDSDriver::record( const QSqlQuery& query ) const
 
 QSqlRecord QTDSDriver::record( const QString& tablename ) const
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::record: " + tablename );
-#endif
     QSqlRecord fil;
     if ( !isOpen() )
 	return fil;
@@ -706,9 +631,6 @@ QSqlRecord QTDSDriver::record( const QString& tablename ) const
 
 QStringList QTDSDriver::tables( const QString& /*user*/ ) const
 {
-#ifdef DEBUG_TDS
-    qDebug( "QTDSDriver::tables" );
-#endif
     QStringList list;
 
     if ( !isOpen() )
@@ -726,9 +648,6 @@ QStringList QTDSDriver::tables( const QString& /*user*/ ) const
 QString QTDSDriver::formatValue( const QSqlField* field,
 				  bool ) const
 {
-#ifdef DEBUG_TDS
-    qDebug("QTDSDriver::formatValue: " + field->name() );
-#endif
     QString r;
     if ( field->isNull() )
 	r = nullText();
