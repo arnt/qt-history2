@@ -38,10 +38,10 @@
 
 #include <math.h>
 
-#define QT_NO_NATIVE_XFORM
-#define QT_NO_NATIVE_GRADIENT
-#define QT_NO_NATIVE_PATH
-#define QT_NO_NATIVE_ALPHA
+// #define QT_NO_NATIVE_XFORM
+// #define QT_NO_NATIVE_GRADIENT
+// #define QT_NO_NATIVE_PATH
+// #define QT_NO_NATIVE_ALPHA
 
 // #define QT_DEBUG_DRAW
 
