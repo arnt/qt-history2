@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#32 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#32 $";
 #endif
 
 
@@ -44,11 +44,12 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#31 $";
 	p.begin( &pm );				// start painting pixmap
 	...					// draw something
 	p.end();				// painting done
-	bitBlt( this, 0,0, &pm, 0,0, -1,-1 );	// copy pixmap to widget
+	bitBlt( this, 0,0, &pm );		// copy pixmap to widget
     }
   \endcode
 
-  The bitBlt() function is explained in the QPaintDevice documentation.
+  The bitBlt() function has quite a few arguments that are not used in
+  this example.
 
   Pixel data in a pixmap is internal and managed by the underlying window
   system.  Pixels can only be accessed through QImage, QPainter functions
@@ -152,10 +153,13 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 /*----------------------------------------------------------------------------
   \fn int QPixmap::depth() const
+
   Returns the depth of the image.
+
   The pixmap depth is also called bits per pixel (bpp) or bit planes
   of a pixmap.  A null pixmap has depth 0.
-  \sa numColors(), isNull()
+
+  \sa numColors() isNull() QImage::convertDepth() convertToImage()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
