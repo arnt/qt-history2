@@ -338,15 +338,17 @@ public:
 
 	    // setup parameters
 	    int pindex = meta->findProperty( propname );
-	    QUObject o[2];
 	    QVariant var;
 	    combase->qt_property( pindex + meta->propertyOffset(), 1, &var );
 	    if ( !var.isValid() )
 		return S_OK;
-	    if ( QUType::isEqual( signal->method->parameters->type, &static_QUType_QVariant ) )
+
+	    QUObject o[2];
+	    const QUParameter *param = signal->method->parameters;
+	    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) )
 		static_QUType_QVariant.set( o+1, var );
 	    else
-		QVariantToQUObject( var, o[1] );
+		QVariantToQUObject( var, o[1], param );
 
 	    // emit the "changed" signal
 	    combase->qt_emit( index, o );
@@ -2422,7 +2424,7 @@ bool QAxBase::qt_property( int _id, int _f, QVariant* _v )
 		    if ( type != QVariant::Invalid )
 			_v->cast( type );
 		}
-		arg = QVariantToVARIANT( *_v, prop->type() );
+		QVariantToVARIANT( *_v, arg, prop->type() );
 
 		if ( arg.vt == VT_EMPTY ) {
 		    qDebug( "QAxBase::setProperty(): Unhandled property type" );
@@ -2547,7 +2549,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
 	    for ( int i = 0; i < varc; ++i ) {
 		const QUParameter *param = slot->method->parameters + i + retoff;
-		arg[varc-i-1] = QVariantToVARIANT( vars[i], param );
+		QVariantToVARIANT( vars[i], arg[varc-i-1], param );
 	    }
 	    disptype = DISPATCH_METHOD;
 	} else {
@@ -2564,7 +2566,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	    if ( varc ) {
 		varc = 1;
 		const QMetaProperty *prop = metaObject()->property( id, TRUE );
-		arg[0] = QVariantToVARIANT( vars[0], prop ? prop->type() : 0 );
+		QVariantToVARIANT( vars[0], arg[0], prop ? prop->type() : 0 );
 		res = 0;
 		disptype = DISPATCH_PROPERTYPUT;
 	    } else {
@@ -2617,7 +2619,7 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 	function = slot->method->name;
 	int retoff = ( slot->method->count && ( slot->method->parameters->inOut == QUParameter::Out ) ) ? 1 : 0;
 	for ( int i = 0; i < varc; ++i )
-	    vars[i] = VARIANTToQVariant( arg[varc-i-1] );
+	    vars[i] = VARIANTToQVariant( arg[varc-i-1], vars[i].typeName() );
 	disptype = DISPATCH_METHOD;
     }
 
@@ -2696,7 +2698,14 @@ QVariant QAxBase::dynamicCall( const QCString &function, const QVariant &var1,
     if ( !internalInvoke( function, &res, vars ) )
 	return QVariant();
 
-    QVariant qvar = VARIANTToQVariant( res );
+    int p = metaObject()->findProperty( function );
+    const char *type = 0;
+    if ( p != -1 ) {
+	const QMetaProperty *prop = metaObject()->property( p );
+	type = prop->type();
+    }
+
+    QVariant qvar = VARIANTToQVariant( res, type );
     VariantClear( &res );
 
     return qvar;
@@ -2732,7 +2741,13 @@ QVariant QAxBase::dynamicCall( const QCString &function, QValueList<QVariant> &v
     }
     delete[] vararray;
 
-    QVariant qvar = VARIANTToQVariant( res );
+    int p = metaObject()->findProperty( function );
+    const char *type = 0;
+    if ( p != -1 ) {
+	const QMetaProperty *prop = metaObject()->property( p );
+	type = prop->type();
+    }
+    QVariant qvar = VARIANTToQVariant( res, type );
     VariantClear( &res );
 
     return qvar;
@@ -2864,7 +2879,7 @@ public:
 
 	QCString property = BSTRToQString((TCHAR*)name).local8Bit();
 	QVariant qvar = map[property];
-	*var = QVariantToVARIANT( qvar );
+	QVariantToVARIANT( qvar, *var, (const char*)0 );
 	return S_OK;
     }
     HRESULT __stdcall Write( LPCOLESTR name, VARIANT *var )
@@ -2872,7 +2887,7 @@ public:
 	if ( !var )
 	    return E_POINTER;
 	QCString property = BSTRToQString((TCHAR*)name).local8Bit();
-	QVariant qvar = VARIANTToQVariant( *var );
+	QVariant qvar = VARIANTToQVariant( *var, 0 );
 	map[property] = qvar;
 
 	return S_OK;

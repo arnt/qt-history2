@@ -171,9 +171,8 @@ DATE QDateTimeToDATE( const QDateTime &dt )
     return vtime;
 }
 
-VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
+void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 {
-    VARIANT arg;
     arg.vt = VT_EMPTY;
 
     switch ( var.type() ) {
@@ -238,7 +237,8 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
 	    while ( it != list.end() ) {
 		QVariant qvar = *it;
 		++it;
-		VARIANT var = QVariantToVARIANT( qvar, qvar.typeName() );
+		VARIANT var;
+		QVariantToVARIANT( qvar, var, qvar.typeName() );
 		SafeArrayPutElement( arg.parray, &index, &var );
 		++index;
 	    }
@@ -248,11 +248,9 @@ VARIANT QVariantToVARIANT( const QVariant &var, const char *type )
     default:
 	break;
     }
-
-    return arg;
 }
 
-void VARIANTToQUObject( VARIANT arg, QUObject *obj, const QUParameter *param )
+void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
     QUType *preset = obj->type;
     if ( arg.vt & VT_BYREF ) {
@@ -433,13 +431,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    }
 	}
 	break;
-    case VT_UNKNOWN:
-	//var = (int)arg.punkVal; ###
-	break;
     case VT_USERDEFINED:
-	break;
-    case VT_EMPTY:
-	// empty VARIANT type return
 	break;
     case VT_ARRAY|VT_VARIANT:
 	{
@@ -487,7 +479,7 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
     return FALSE;
 }
 
-VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param )
+void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
     QUObject obj;
     obj.type = &static_QUType_Null;
@@ -509,25 +501,15 @@ VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param )
     if ( obj.type == &static_QUType_Null )
 	static_QUType_QVariant.set( &obj, var );
 
-    VARIANT res;
     QUObjectToVARIANT( &obj, res, param );
     obj.type->clear( &obj );
-
-    return res;
 }
 
-void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra )
+void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
 {
-    QUType *preset = obj.type;
     switch ( var.type() ) {
-    case QVariant::Invalid:
-    case QVariant::Map:
-    case QVariant::List:
-    break;
     case QVariant::String:
 	static_QUType_QString.set( &obj, var.toString() );
-	break;
-    case QVariant::StringList:
 	break;
     case QVariant::Font:
 	static_QUType_ptr.set( &obj, QFontToIFont( var.toFont() ) );
@@ -535,19 +517,8 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
     case QVariant::Pixmap:
 	static_QUType_ptr.set( &obj, QPixmapToIPicture( var.toPixmap() ) );
 	break;
-
-    case QVariant::Brush:
-    case QVariant::Rect:
-    case QVariant::Size:
-	break;
     case QVariant::Color:
 	static_QUType_int.set( &obj, QColorToOLEColor( var.toColor() ) );
-	break;
-    case QVariant::Palette:
-    case QVariant::ColorGroup:
-    case QVariant::IconSet:
-    case QVariant::Point:
-    case QVariant::Image:
 	break;
     case QVariant::Int:
 	static_QUType_int.set( &obj, var.toInt() );
@@ -564,12 +535,6 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
     case QVariant::CString:
 	static_QUType_charstar.set( &obj, var.toCString() );
 	break;
-    case QVariant::PointArray:
-    case QVariant::Region:
-    case QVariant::Bitmap:
-    case QVariant::Cursor:
-    case QVariant::SizePolicy:
-	break;
     case QVariant::Date:
 	static_QUType_ptr.set( &obj, new QDateTime( var.toDate() ) );
 	break;
@@ -579,19 +544,22 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExt
     case QVariant::DateTime:
 	static_QUType_ptr.set( &obj, new QDateTime( var.toDateTime() ) );
 	break;
-    case QVariant::ByteArray:
-    case QVariant::BitArray:
-    case QVariant::KeySequence:
+    case QVariant::List:
+	static_QUType_ptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
+	break;
     default:
 	return;
 	break;
     }
-    if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj.type ) ) {
+
+    QUType *preset = param->type;
+    if ( !QUType::isEqual( preset, obj.type ) ) {
 	if ( !preset->canConvertFrom( &obj, obj.type ) ) {
-	    if ( typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
-		&& QUType::isEqual( preset, &static_QUType_enum ) ) {
+	    if ( param->typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
+		&& QUType::isEqual( param->type, &static_QUType_enum ) ) {
+		const QUEnum *enumType = (const QUEnum *)param->typeExtra;
 		int value;
-		if ( enumValue( var.toString(), (const QUEnum *)typeExtra, value ) )
+		if ( enumValue( var.toString(), enumType, value ) )
 		    static_QUType_enum.set( &obj, value );
 	    }
 #ifndef QT_NO_DEBUG
@@ -648,7 +616,7 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		arg.pbstrVal = new BSTR(QStringToBSTR( value.toString() ) );
 	    }
 	} else {
-	    arg = QVariantToVARIANT( value );
+	    QVariantToVARIANT( value, arg, param );
 	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	const char *type = (const char*)param->typeExtra;

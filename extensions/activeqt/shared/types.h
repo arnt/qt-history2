@@ -85,13 +85,13 @@ static QColor OLEColorToQColor( uint col )
     return QColor( qBlue(col), qGreen(col), qRed(col) );
 }
 
-extern VARIANT QVariantToVARIANT( const QVariant &var, const char *type = 0 );
-extern VARIANT QVariantToVARIANT( const QVariant &var, const QUParameter *param );
-extern QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint = 0 );
+extern void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type );
+extern void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QUParameter *param );
+extern QVariant VARIANTToQVariant( const VARIANT &arg, const char *type );
 
-extern void QVariantToQUObject( const QVariant &var, QUObject &obj, const void *typeExtra = 0 );
+extern void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param );
 
-extern void VARIANTToQUObject( VARIANT arg, QUObject *obj, const QUParameter *param );
+extern void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param );
 extern void QUObjectToVARIANT( QUObject *obj, VARIANT &var, const QUParameter *param );
 
 #endif //TYPES_H

@@ -1955,7 +1955,7 @@ HRESULT QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    if ( !var.isValid() )
 		return DISP_E_MEMBERNOTFOUND;
 
-	    *pvarResult = QVariantToVARIANT( var );
+	    QVariantToVARIANT( var, *pvarResult, property->type() );
 	    res = S_OK;
 	}
 	break;
@@ -2079,12 +2079,13 @@ HRESULT QAxServerBase::Save( IPropertyBag *bag, BOOL /*clearDirty*/, BOOL /*save
     for ( int prop = 0; prop < mo->numProperties( TRUE ); ++prop ) {
 	if ( !proplist2->contains( prop ) )
 	    continue;
-	const char* property = mo->property( prop, TRUE )->name();
-	BSTR bstr = QStringToBSTR( property );
+	const QMetaProperty *property = mo->property( prop, TRUE );
+	BSTR bstr = QStringToBSTR( property->name() );
 	QVariant qvar;
 	if ( !activeqt->qt_property( prop, 1, &qvar ) )
 	    error = TRUE;
-	VARIANT var = QVariantToVARIANT( qvar );
+	VARIANT var;
+	QVariantToVARIANT( qvar, var, property->type() );
 	bag->Write( bstr, &var );
 	SysFreeString(bstr);
     }
