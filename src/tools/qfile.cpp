@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#20 $
 **
 ** Implementation of QFile class
 **
@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#20 $";
 #endif
 
 
@@ -99,10 +99,9 @@ void QFile::init()				// initialize internal data
   Example:
   \code
      QFile f;
-     QDir  d;
-     d.setCurrent( Q_SEPARATOR "tmp" );
+     QDir::setCurrent( "/tmp" );
      f.setName( "readme.txt" );
-     d.setCurrent( Q_SEPARATOR "home" );
+     QDir::setCurrent( "/home" );
      f.open( IO_ReadOnly );	   // will open "/home/readme.txt" under UNIX
   \endcode
 
@@ -180,8 +179,7 @@ bool QFile::exists( const char *fileName )
 
   Example:
   \code
-    QFile f1( Q_SEPARATOR "tmp" Q_SEPARATOR "data.bin" ); 
-                      // expands to "/tmp/data.bin" under UNIX
+    QFile f1( "/tmp/data.bin" );
     QFile f2( "readme.txt" );
     f1.open( IO_Raw | IO_ReadWrite | IO_Append );
     f2.open( IO_ReadOnly | IO_Translate );
