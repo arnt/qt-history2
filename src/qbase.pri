@@ -1,4 +1,4 @@
-isEmpty(TARGET):error(You must set TARGET before includ()'ing ${FILE})
+isEmpty(TARGET):error(You must set TARGET before include()'ing $${_FILE_})
 INCLUDEPATH *= $$QMAKE_INCDIR_QT/$$TARGET #just for today to have some compat
 TEMPLATE	= lib
 VERSION		= 4.0.0
