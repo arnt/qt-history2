@@ -69,6 +69,7 @@ void ComplexWizard::switchPage(WizardPage *oldPage)
     WizardPage *newPage = history.last();
     mainLayout->insertWidget(0, newPage);
     newPage->show();
+    newPage->setFocus();
     connect(newPage, SIGNAL(completeStateChanged()), this, SLOT(completeStateChanged()));
 
     bool isLastPage = newPage->isLastPage();

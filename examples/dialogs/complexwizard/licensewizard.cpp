@@ -24,14 +24,15 @@ TitlePage::TitlePage(LicenseWizard *wizard)
                              "Super Product One</i></b></font></center>"),
                           this);
 
-    evaluateRadioButton = new QRadioButton(tr("&Evaluate our product"), this);
     registerRadioButton = new QRadioButton(tr("&Register your copy"), this);
+    evaluateRadioButton = new QRadioButton(tr("&Evaluate our product"), this);
+    setFocusProxy(registerRadioButton);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(topLabel);
     layout->addSpacing(10);
-    layout->addWidget(evaluateRadioButton);
     layout->addWidget(registerRadioButton);
+    layout->addWidget(evaluateRadioButton);
     layout->addStretch(1);
 }
 
@@ -57,13 +58,14 @@ EvaluatePage::EvaluatePage(LicenseWizard *wizard)
     nameLabel = new QLabel(tr("&Name:"), this);
     nameLineEdit = new QLineEdit(this);
     nameLabel->setBuddy(nameLineEdit);
+    setFocusProxy(nameLineEdit);
 
     emailLabel = new QLabel(tr("&Email address:"), this);
     emailLineEdit = new QLineEdit(this);
     emailLabel->setBuddy(emailLineEdit);
 
-    bottomLabel = new QLabel(tr("Please fill in both fields.\nThis will entitle"
-                                " you to a 30-day evaluation."),
+    bottomLabel = new QLabel(tr("Please fill in both fields.\nThis will "
+                                "entitle you to a 30-day evaluation."),
                              this);
 
     connect(nameLineEdit, SIGNAL(textChanged(QString)),
@@ -108,6 +110,7 @@ RegisterPage::RegisterPage(LicenseWizard *wizard)
     nameLabel = new QLabel(tr("&Name:"), this);
     nameLineEdit = new QLineEdit(this);
     nameLabel->setBuddy(nameLineEdit);
+    setFocusProxy(nameLineEdit);
 
     upgradeKeyLabel = new QLabel(tr("&Upgrade key:"), this);
     upgradeKeyLineEdit = new QLineEdit(this);
@@ -159,6 +162,7 @@ DetailsPage::DetailsPage(LicenseWizard *wizard)
     companyLabel = new QLabel(tr("&Company name:"), this);
     companyLineEdit = new QLineEdit(this);
     companyLabel->setBuddy(companyLineEdit);
+    setFocusProxy(companyLineEdit);
 
     emailLabel = new QLabel(tr("&Email address:"), this);
     emailLineEdit = new QLineEdit(this);
@@ -217,6 +221,7 @@ FinishPage::FinishPage(LicenseWizard *wizard)
 
     agreeCheckBox = new QCheckBox(tr("I agree to the terms and conditions of "
                                      "the license"), this);
+    setFocusProxy(agreeCheckBox);
 
     connect(agreeCheckBox, SIGNAL(toggled(bool)),
             this, SIGNAL(completeStateChanged()));

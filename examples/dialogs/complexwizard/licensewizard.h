@@ -52,8 +52,8 @@ public:
 
 private:
     QLabel *topLabel;
-    QRadioButton *evaluateRadioButton;
     QRadioButton *registerRadioButton;
+    QRadioButton *evaluateRadioButton;
 };
 
 class EvaluatePage : public LicenseWizardPage
