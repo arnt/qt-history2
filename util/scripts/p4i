@@ -160,7 +160,7 @@ if( $checkmissing ) { #just look for missing
 		    if($line =~ /\.\.\. depotFile[0-9]+ \/\/depot\/qt\/$toBranch\/$file/) {
 			$pot_file = 1;
 		    } elsif($line =~ /\.\.\. action[0-9]+ (.*)/ && $pot_file) {
-			$file = 0 if($1 =~ /^integrate/);
+			$file = 0 if($1 =~ /^(integrate|branch|delete)/);
 			last;
 		    }
 		}
