@@ -6,7 +6,7 @@
 
 #include <math.h> // sin, cos
 
-#ifndef M_PI 
+#ifndef M_PI
 #define M_PI 3.1415
 #endif
 
@@ -70,7 +70,8 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
     int x = int(width / 2);
     int y = int(height / 2);
     int angle = 0;
-    double textTheta = 0.; // Use polar coords
+    double textTheta = 0.0; // Use polar coords
+    const double RScale = 0.7;
 
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
 	if ( m_elements[i].isValid() ) {
@@ -84,7 +85,7 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 				   BrushStyle(m_elements[i].valuePattern()) ) );
 	    arc->show();
 	    textTheta = ( angle + ( extent / 2 ) ) / 16;
-	    textTheta = ( textTheta / 180. ) * M_PI;
+	    textTheta = ( textTheta / 180.0 ) * M_PI;
 	    angle += extent;
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
@@ -93,42 +94,21 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 		double proX = m_elements[i].proX( PIE );
 		double proY = m_elements[i].proY( PIE );
 		if ( proX < 0 || proY < 0 ) {
-		  double rScale = 0.7;
-		  proX = ( ( rScale * cos( textTheta ) + 1 ) / 2 ) - text->boundingRect().width()/2.0/size;
-		  proY = ( ( -rScale * sin( textTheta ) + 1 ) / 2 ) - text->boundingRect().height()/2.0/size;
-		  /*
-		    // Find the centre of the pie segment
-		    QRect rect = arc->boundingRect();
-		    proX = ( rect.width() / 2 ) + rect.x();
-		    proY = ( rect.height() / 2 ) + rect.y();
-		    // Centre text over the centre of the pie segment
-		    rect = text->boundingRect();
-		    proX -= ( rect.width() / 2 );
-		    proY -= ( rect.height() / 2 );
-		    // Make proportional
-		    proX /= width;
-		    proY /= height;
-		  */
+		    proX = ( ( RScale * cos( textTheta ) + 1 ) / 2 ) -
+			   ( ( text->boundingRect().width() / 2.0 ) / size );
+		    proY = ( ( -RScale * sin( textTheta ) + 1 ) / 2 ) -
+			   ( ( text->boundingRect().height() / 2.0 ) / size );
 		}
-		text->setColor( m_elements[i].labelColor() );
-		//text->setX( proX * size + width );
-		//text->setY( proY * size + height );
-
-/*  		text->setX(  rScale * ( size / 2 ) * cos( textTheta ) + x -  ); */
-/*  		text->setY( -rScale * ( size / 2 ) * sin( textTheta ) + y - r.height()/2 ); */
-
-		if ( width>height ) {
-		  text->setX( proX*size + (width-size)/2 );
-		  text->setY( proY*size );
-		  
+		if ( width > height ) {
+		    text->setX( proX * size + ( width - size ) / 2 );
+		    text->setY( proY * size );
 		}
 		else {
-		  text->setX( proX*size );
-		  text->setY( proY*size + (height-size)/2 );
-		  
+		    text->setX( proX * size );
+		    text->setY( proY * size + ( height - size ) / 2 );
 		}
-
 		text->setZ( 1 );
+		text->setColor( m_elements[i].labelColor() );
 		text->show();
 		m_elements[i].setProX( PIE, proX );
 		m_elements[i].setProY( PIE, proY );

@@ -44,11 +44,14 @@ you'll see many of Qt's widgets in action.
 Qt comes with extensive documentation, with hypertext cross-references
 throughout, so you can easily click your way to whatever interests
 you. The part of the documentation that you'll probably use the most
-is the \link index.html API Reference\endlink. Each link provides
-a different way of navigating the API Reference; try them all to
-see which work best for you. There are also a growing number of 
-\link http://www.trolltech.com/developer/documentation/literature.html
-Qt books\endlink.
+is the \link index.html API Reference\endlink. Each link provides a
+different way of navigating the API Reference; try them all to see
+which work best for you. You might also like to try \link
+assistant.book Qt Assistant\endlink: this tool is supplied with Qt and
+provides access to the entire Qt API, and it provides a full text
+search facility. There are also a growing number of \link
+http://www.trolltech.com/developer/documentation/literature.html Qt
+books\endlink.
 
 You should now be ready to ground-break: good luck, and have fun!
 
