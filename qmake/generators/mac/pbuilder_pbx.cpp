@@ -127,7 +127,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     //DUMP SOURCES
     QMap<QString, QStringList> groups;
-    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
+    QString srcs[] = { "HEADERS", "SOURCES", "SRCMOC", "UICIMPLS", "QMAKE_IMAGE_COLLECTION", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
 	QStringList &src_list = project->variables()["QMAKE_PBX_" + srcs[i]];
@@ -207,6 +207,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		grp = "Sources [moc]";
 	    } else if(srcs[i] == "UICIMPLS") {
 		grp = "Sources [uic]";
+	    } else if(srcs[i] == "QMAKE_IMAGE_COLLECTION") {
+		grp = "Sources [images]";
 	    }
 	    QString grp_key = keyFor(grp);
 	    project->variables()["QMAKE_PBX_GROUPS"].append(grp_key);
@@ -251,6 +253,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    mkt << "DEL_FILE  = " << var("QMAKE_DEL_FILE") << endl;
 	    mkt << "MOVE      = " << var("QMAKE_MOVE") << endl << endl;
 	    mkt << "FORMS = " << varList("UICIMPLS") << endl;
+	    mkt << "IMAGES = " << varList("QMAKE_IMAGE_COLLECTION") << endl;
 	    mkt << "MOCS = " << varList("SRCMOC") << endl;
 	    mkt << "PARSERS =";
 	    if(!project->isEmpty("YACCSOURCES")) {
@@ -270,14 +273,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 	    }
 	    mkt << "\n";
-	    mkt << "preprocess: $(FORMS) $(MOCS) $(PARSERS)" << endl;
-	    mkt << "preprocess_clean: mocclean uiclean parser_clean" << endl << endl;
+	    mkt << "preprocess: $(FORMS) $(MOCS) $(PARSERS) $(IMAGES)" << endl;
+	    mkt << "preprocess_clean: mocclean uiclean parser_clean images_clean" << endl << endl;
 	    mkt << "mocclean:" << "\n";
 	    if(!project->isEmpty("SRCMOC"))
 		mkt << "\t-rm -f $(MOCS)" << "\n";
 	    mkt << "uiclean:" << "\n";
 	    if(!project->isEmpty("UICIMPLS"))
 		mkt << "\t-rm -f $(FORMS)" << "\n";
+	    if(!project->isEmpty("QMAKE_IMAGE_COLLECTION"))
+		mkt << "\t-rm -f $(IMAGES)" << "\n";
 	    mkt << "parser_clean:" << "\n";
 	    if(!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES"))
 		mkt << "\t-rm -f $(PARSERS)" << "\n";
@@ -287,6 +292,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    writeMocSrc(mkt, "UICDECLS");
 	    writeYaccSrc(mkt, "YACCSOURCES");
 	    writeLexSrc(mkt, "LEXSOURCES");
+	    writeImageSrc(mkt, "QMAKE_IMAGE_COLLECTION");
 	    mkf.close();
 	}
 	QString target_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
