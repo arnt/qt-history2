@@ -317,7 +317,7 @@ do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-debug|-release|-verbose|-fast)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-thread|-xinerama|-tablet|-stl|-freetype|-big-codecs|-xrender|-xft|-xkb|-nis|-remote|-h|-help|-v|-verbose|-debug|-release|-fast)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
