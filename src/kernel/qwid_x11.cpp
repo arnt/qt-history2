@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#235 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#236 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#235 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#236 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -60,14 +60,16 @@ static QWidget *keyboardGrb = 0;
 extern Atom qt_wm_delete_window;		// defined in qapp_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
-	KeyPressMask | KeyReleaseMask |
-	ButtonPressMask | ButtonReleaseMask |
-	KeymapStateMask |
-	ButtonMotionMask |
-	EnterWindowMask | LeaveWindowMask |
-	FocusChangeMask |
-	ExposureMask |
-	StructureNotifyMask | SubstructureRedirectMask;
+	(uint)(
+	    KeyPressMask | KeyReleaseMask |
+	    ButtonPressMask | ButtonReleaseMask |
+	    KeymapStateMask |
+	    ButtonMotionMask |
+	    EnterWindowMask | LeaveWindowMask |
+	    FocusChangeMask |
+	    ExposureMask |
+	    StructureNotifyMask | SubstructureRedirectMask
+	);
 
 
 /*
@@ -164,7 +166,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	id = window;
 	setWinId( window );
     } else if ( desktop ) {			// desktop widget
-	id = parentw;				// id = root window
+	id = (WId)parentw;			// id = root window
 	QWidget *otherDesktop = find( id );	// is there another desktop?
 	if ( otherDesktop && otherDesktop->testWFlags(WPaintDesktop) ) {
 	    otherDesktop->setWinId( 0 );	// remove id from widget mapper
@@ -175,7 +177,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
     } else {
 	if ( x11DefaultVisual() && x11DefaultColormap() ) {
-	    id = qt_XCreateSimpleWindow( this, dpy, parentw,
+	    id = (WId)qt_XCreateSimpleWindow( this, dpy, parentw,
 					 frect.left(), frect.top(),
 					 frect.width(), frect.height(),
 					 0,
@@ -185,7 +187,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    wsa.background_pixel = bg_col.pixel();
 	    wsa.border_pixel = black.pixel();		
 	    wsa.colormap = (Colormap)x11Colormap();
-	    id = qt_XCreateWindow( this, dpy, parentw,
+	    id = (WId)qt_XCreateWindow( this, dpy, parentw,
 				   frect.left(), frect.top(),
 				   frect.width(), frect.height(),
 				   0, x11Depth(), InputOutput,
@@ -722,7 +724,7 @@ void QWidget::setMouseTracking( bool enable )
     bool gmt = QApplication::hasGlobalMouseTracking();
     if ( enable == testWFlags(WState_TrackMouse) && !gmt )
 	return;
-    uint m = (enable || gmt) ? PointerMotionMask : 0;
+    uint m = (enable || gmt) ? (uint)PointerMotionMask : 0;
     if ( enable )
 	setWFlags( WState_TrackMouse );
     else
@@ -759,8 +761,8 @@ void QWidget::grabMouse()
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
 	XGrabPointer( dpy, winid, TRUE,
-		      ButtonPressMask | ButtonReleaseMask |
-		      PointerMotionMask | EnterWindowMask | LeaveWindowMask,
+		      (uint)(ButtonPressMask | ButtonReleaseMask |
+		             PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, CurrentTime );
 	mouseGrb = this;
@@ -785,8 +787,8 @@ void QWidget::grabMouse( const QCursor &cursor )
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
 	XGrabPointer( dpy, winid, TRUE,
-		      ButtonPressMask | ButtonReleaseMask |
-		      PointerMotionMask | EnterWindowMask | LeaveWindowMask,
+		      (uint)(ButtonPressMask | ButtonReleaseMask |
+			     PointerMotionMask | EnterWindowMask | LeaveWindowMask),
 		      GrabModeAsync, GrabModeAsync,
 		      None, cursor.handle(), CurrentTime );
 	mouseGrb = this;
@@ -891,7 +893,7 @@ bool QWidget::isActiveWindow() const
 
     if ( win == None) return FALSE;
 
-    QWidget *w = find( win );
+    QWidget *w = find( (WId)win );
     if ( w ) {
 	// We know that window
 	return w->topLevelWidget() == topLevelWidget();

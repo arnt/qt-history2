@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#43 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#42 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprinter.cpp#43 $");
 
 
 // NOTE: the first word of ps_header MUST be shorter than 78 characters
@@ -201,7 +201,7 @@ static char *ps_header =
 "    RRDict begin\n"
 "    /yr ED /xr ED /h ED /w ED /y ED /x ED\n"
 "    xr 0 le yr 0 le or\n"
-"    {x y w h R}	     % Do rectangle if one of rounding values is less than 0.\n"
+"    {x y w h R}	     % Do rect if one of rounding values is less than 0.\n"
 "    {xr 100 ge yr 100 ge or\n"
 "	{x y w h E}  % Do ellipse if both rounding values are larger than 100\n"
 "	{\n"

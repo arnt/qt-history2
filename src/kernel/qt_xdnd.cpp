@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#7 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -22,7 +22,7 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#7 $");
 
 // this stuff is copied from qapp_x11.cpp
 
@@ -202,7 +202,7 @@ void qt_handle_xdnd_status( QWidget * w, const XEvent * xe )
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    QDragResponseEvent e( l[1] & 1 );
+    QDragResponseEvent e( (int)(l[1] & 1) );
     QApplication::sendEvent( w, &e );
 }
 
@@ -289,8 +289,8 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 	    break;
 	while ( nread + nitems >= buf.size() )
 	    buf.resize( buf.size()*2 );
-	memcpy( buf.data()+nread, back, nitems );
-	nread += nitems;
+	memcpy( buf.data()+nread, back, (uint)nitems );
+	nread += (uint)nitems;
 	XFree( (char *)back );
     } while ( bytes_after > 0 );
 

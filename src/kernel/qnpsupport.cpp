@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#7 $
 **
 ** Low-level support for Netscape Plugins under X11.
 **
@@ -16,7 +16,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#7 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
@@ -129,7 +129,7 @@ int qt_event_handler( XEvent* event )
 	    qt_activate_timers();
 	    timeval *tm = qt_wait_timer();
 	    if (tm) {
-		int interval = QMIN(tm->tv_sec,INT_MAX/1000)*1000 + tm->tv_usec/1000;
+		int interval = (int)QMIN(tm->tv_sec,INT_MAX/1000)*1000 + tm->tv_usec/1000;
 		qt_np_set_timer(interval);
 	    }
 	}
