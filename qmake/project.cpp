@@ -160,7 +160,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 #define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
     int rep, rep_len;
     QRegExp reg_var;
-    int left, right;
+    int left = 0, right = 0;
     for(int x = 0; x < 2; x++) {
 	if( x == 0 ) {
 	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
@@ -441,7 +441,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    fprintf(stderr, "%d: count(var, count) requires two argument.\n", line_count);
 	    return FALSE;
 	}
-	return vars[args[0]].count() == args[1].toInt();
+	return vars[args[0]].count() == args[1].toUInt();
     } else if(func == "isEmpty") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%d: isEmpty(var) requires one argument.\n", line_count);
@@ -460,7 +460,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 
 	int rep, rep_len;
 	QRegExp reg_var;
-	int left, right;
+	int left = 0, right = 0;
 	for(int x = 0; x < 2; x++) {
 	    if( x == 0 ) {
 		reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");

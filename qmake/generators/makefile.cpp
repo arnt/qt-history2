@@ -65,7 +65,7 @@ static char *gimme_buffer(off_t s)
     static char *big_buffer = NULL;
     static int big_buffer_size = 0;
     if(!big_buffer || big_buffer_size < s)
-	big_buffer = (char *)realloc(big_buffer, s);
+ 	big_buffer = (char *)realloc(big_buffer, s);
     return big_buffer;
 }
 
@@ -87,7 +87,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 
     int total_size_read;
     for(int have_read = total_size_read = 0;
-	have_read = read(file, big_buffer + total_size_read, fst.st_size - total_size_read);
+	(have_read = read(file, big_buffer + total_size_read,\
+			  fst.st_size - total_size_read) > 0);
 	total_size_read += have_read);
     close(file);
 
@@ -186,7 +187,8 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 
     int total_size_read;
     for(int have_read = total_size_read = 0;
-	have_read = read(file, big_buffer + total_size_read, fst.st_size - total_size_read);
+	(have_read = read(file, big_buffer + total_size_read,
+			  fst.st_size - total_size_read) > 0);
 	total_size_read += have_read);
     close(file);
 
@@ -664,8 +666,8 @@ MakefileGenerator::init()
 
 	QStringList &l = v["SRCMOC"];
 	l = v["_HDRMOC"] + v["_SRCMOC"] + v["_UIMOC"];
-	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) 
-	    if(!(*val_it).isEmpty()) 
+	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
+	    if(!(*val_it).isEmpty())
 		(*val_it) = Option::fixPathToTargetOS((*val_it));
     }
 }
@@ -1031,7 +1033,7 @@ MakefileGenerator::fileFixify(QStringList &files) const
 	return FALSE;
     int ret = 0;
     for(QStringList::Iterator it = files.begin(); it != files.end(); ++it)
-	if(!(*it).isEmpty()) 
+	if(!(*it).isEmpty())
 	    ret += (int)fileFixify((*it));
     return ret != 0;
 }
