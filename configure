@@ -933,7 +933,6 @@ for a in $QMAKE_PROJECTS ; do
     test -d $buildpath || mkdir $buildpath
     MFILE=Makefile
     N=$buildpath/$MFILE
-    [ "x$file" = "xqtmain.pro" ] && continue #ignore qtmain.pro
 
     case $buildpath in
     *qtmain.pro) cont ;;
@@ -955,10 +954,13 @@ for a in $QMAKE_PROJECTS ; do
 	fi
     fi
 
-    echo "  Creating $N (`basename $CONF`)"
+    echo -n "  Creating $a"
     if [ "$VERBOSE" = "yes" ]; then
-	echo $EXEC
+	echo " (`basename $CONF`)"
+	echo -n $EXEC
     fi
+    echo 
+
     [ -f $dir/$MFILE ] && chmod +w $dir/$MFILE
 
     if [ "x$PROCS" = "x1" ]
