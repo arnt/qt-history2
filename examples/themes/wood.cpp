@@ -1270,7 +1270,8 @@ void NorwegianWoodStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 
   \sa QStyle
   */
-QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h){
+QRect NorwegianWoodStyle::buttonRect( int x, int y, int w, int h) const
+{
     int d = QMIN(w,h)/2;
     int b = buttonthickness( d );
 
