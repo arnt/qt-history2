@@ -299,7 +299,7 @@ QPixmap::QPixmap( const QString& fileName, const char *format, ColorMode mode )
   and ROMable when the application is to be stored in ROM.
 
   In order to use that sort of declaration you must cast the variable
-  back to \c{const&nbsp;char&nbsp;**} when you create the
+  back to \c{const char **} when you create the
   QPixmap.
 */
 
