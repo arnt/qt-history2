@@ -660,7 +660,6 @@ private:
 #ifndef QT_NO_CURSOR
     void updateCursor( const QRegion &r ) const;
 #endif
-    static void setGrabbingMouse(QWidget *);
 
     // used to accumulate dirty region when children moved/resized.
     QRegion dirtyChildren;

@@ -1827,7 +1827,7 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	return;
 
     if ( cmd->simpleData.grab ) {
-	if ( !mouseGrabber ) { //|| ( mouseGrabber->client() == client ) ) {
+	if ( !mouseGrabber || mouseGrabber->client() == client ) {
 	    mouseGrabbing = TRUE;
 	    mouseGrabber = win;
 	}

@@ -115,6 +115,8 @@ bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
 const char *qws_display_spec = ":0";
 int qws_display_id = 0;
+QWidget *qt_pressGrab = 0;
+QWidget *qt_mouseGrb = 0;
 int qt_last_x;
 int qt_last_y;
 bool qws_overrideCursor = FALSE;
@@ -1974,37 +1976,70 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	QPoint p(event->asMouse()->simpleData.x_root,
 		 event->asMouse()->simpleData.y_root);
 	int mouseButtonState = event->asMouse()->simpleData.state & btnMask;
-	static QWidget *pressGrab = 0;
 	static int btnstate = 0;
 
 	QETWidget *w = (QETWidget*)QWidget::mouseGrabber();
-	if ( w && !mouseButtonState && pressGrab == w ) {
-	    QWidget::setGrabbingMouse(0);
-	    pressGrab = 0;
-	}
+	if ( w && !mouseButtonState && qt_pressGrab == w )
+	    qt_pressGrab = 0;
 #ifndef QT_NO_QWS_MANAGER
 	if ( !w )
 	    w = (QETWidget*)QWSManager::grabbedMouse();
-	QWSManager *wm = widget->d->topData()->qwsManager;
 #endif
 	if (w) {
+	    // Our mouse is grabbed - send it.
 	    widget = w;
 	    btnstate = mouseButtonState;
-	} else
-#ifndef QT_NO_QWS_MANAGER
-	if (!wm || !(wm->region().contains(p)))
-#endif
-	{
+	} else {
 	    static QWidget *gw = 0;
-	    w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
-	    w = w ? (QETWidget*)w : widget;
+	    // Three jobs to do here:
+	    // 1. find the child widget this event belongs to.
+	    // 2. make sure the cursor is correct.
+	    // 3. handle implicit mouse grab due to button press.
+	    w = widget; // w is the widget the cursor is in.
+	    QSize s( qt_screen->width(), qt_screen->height() );
+	    QPoint dp = qt_screen->mapToDevice( p, s );
+	    bool inWmRegion = FALSE;
+	    
+#ifndef QT_NO_QWS_MANAGER
+	    inWmRegion = widget->topData()->decor_allocated_region.contains(dp);
+#endif
+	    if ( inWmRegion ) {
+		// The cursor is in our WM region.
+		gw = 0;
+	    } else if ( widget->alloc_region.contains(dp) ) {
+		// Find the child widget that the cursor is in.
+		w = (QETWidget*)findChildWidget(widget, widget->mapFromParent(p));
+		w = w ? (QETWidget*)w : widget;
+#ifndef QT_NO_CURSOR
+		// Update Cursor.
+		if ( !gw || gw != w || qt_last_cursor == 0xffffffff ) {
+		    QCursor *curs = app_cursor;
+		    if (!curs && w->extraData()) {
+			curs = w->extraData()->curs;
+		    }
+		    QWidget *pw = w;
+		    // If this widget has no cursor set, try parent.
+		    while (!curs) {
+			pw = pw->parentWidget();
+			if (!pw)
+			    break;
+			if (pw->extraData())
+			    curs = pw->extraData()->curs;
+		    }
+		    if ( !qws_overrideCursor ) {
+			if (curs)
+			    QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
+			else
+			    QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
+		    }
+		}
+#endif
+		gw = w;
+	    }
 	    if ( mouseButtonState && !btnstate ) {
 		// The server has grabbed the mouse for us.
 		// Remember which of my widgets has it.
-		QWidget::setGrabbingMouse(w);
-		pressGrab = w;
-		btnstate = mouseButtonState;
-		gw = w;
+		qt_pressGrab = w;
 		if ( !widget->isActiveWindow() &&
 		     ( !app_do_modal || QApplication::activeModalWidget() == widget ) &&
 		     !widget->testWFlags(WStyle_NoBorder|WStyle_Tool) ) {
@@ -2012,33 +2047,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    if ( widget->raiseOnClick() )
 			widget->raise();
 		}
-	    } else if ( !mouseButtonState && btnstate ) {
-		btnstate = 0;
-		gw = 0;
 	    }
-#ifndef QT_NO_CURSOR
-	    if ( !gw || gw == w ) {
-		QCursor *curs = app_cursor;
-		if (!curs && w->d->extraData()) {
-		    curs = w->d->extraData()->curs;
-		}
-		QWidget *pw = w;
-		// If this widget has no cursor set, try parent.
-		while (!curs) {
-		    pw = pw->parentWidget();
-		    if (!pw)
-			break;
-		    if (pw->d->extraData())
-			curs = pw->d->extraData()->curs;
-		}
-		if ( !qws_overrideCursor ) {	// is override cursor active?
-		    if (curs)
-			QPaintDevice::qwsDisplay()->selectCursor(widget, (int)curs->handle());
-		    else
-			QPaintDevice::qwsDisplay()->selectCursor(widget, ArrowCursor);
-		}
-	    }
-#endif
+	    btnstate = mouseButtonState;
 	    widget = w;
 	}
     }
@@ -2134,6 +2144,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 	    if ( focus_widget && !inPopupMode() ) {
 		QETWidget *old = (QETWidget *)active_window;
 		setActiveWindow(0);
+		qt_last_cursor = 0xffffffff;
 		//active_window = 0;
 		if (old)
 		    old->repaintDecoration(desktop()->rect(), FALSE);

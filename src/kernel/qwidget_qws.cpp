@@ -53,10 +53,11 @@ extern int qt_last_x;
 extern int qt_last_y;
 extern WId qt_last_cursor;
 extern bool qws_overrideCursor;
+extern QWidget *qt_pressGrab;
+extern QWidget *qt_mouseGrb;
 
 extern QRect qt_maxWindowRect;
 
-static QWidget *mouseGrb    = 0;
 static QWidget *keyboardGrb = 0;
 
 static int takeLocalId()
@@ -314,7 +315,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	        static_cast<QWidget*>(obj)->destroy(destroySubWindows,
 						     destroySubWindows);
 	}
-	if ( mouseGrb == this )
+	if ( qt_mouseGrb == this )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
@@ -575,39 +576,36 @@ void QWidget::setIconText( const QString &iconText )
 
 void QWidget::grabMouse()
 {
-    if ( mouseGrb )
-	mouseGrb->releaseMouse();
+    if ( qt_mouseGrb )
+	qt_mouseGrb->releaseMouse();
 
     qwsDisplay()->grabMouse(this,TRUE);
 
-    mouseGrb = this;
+    qt_mouseGrb = this;
+    qt_pressGrab = 0;
 }
 
 #ifndef QT_NO_CURSOR
 void QWidget::grabMouse( const QCursor &cursor )
 {
-    if ( mouseGrb )
-	mouseGrb->releaseMouse();
+    if ( qt_mouseGrb )
+	qt_mouseGrb->releaseMouse();
 
     qwsDisplay()->grabMouse(this,TRUE);
     qwsDisplay()->selectCursor(this, (unsigned int)cursor.handle());
-    mouseGrb = this;
+    qt_mouseGrb = this;
+    qt_pressGrab = 0;
 }
 #endif
 
 void QWidget::releaseMouse()
 {
-    if ( mouseGrb == this ) {
+    if ( qt_mouseGrb == this ) {
 	qwsDisplay()->grabMouse(this,FALSE);
-	mouseGrb = 0;
+	qt_mouseGrb = 0;
     }
-}
-
-// Internal
-// Allows the implicit grabs via mouse button press to be maintained.
-void QWidget::setGrabbingMouse( QWidget *w )
-{
-    mouseGrb = w;
+    if ( qt_pressGrab == this )
+	qt_pressGrab = 0;
 }
 
 void QWidget::grabKeyboard()
@@ -631,7 +629,9 @@ void QWidget::releaseKeyboard()
 
 QWidget *QWidget::mouseGrabber()
 {
-    return mouseGrb;
+    if ( qt_mouseGrb )
+	return qt_mouseGrb;
+    return qt_pressGrab;
 }
 
 
