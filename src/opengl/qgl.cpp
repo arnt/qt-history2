@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qgl.h"
 #include "qpixmap.h"
 #include "qpaintdevicemetrics.h"
