@@ -330,9 +330,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
 QByteArray qCompress( const uchar* data, int nbytes )
 {
     if ( nbytes == 0 ) {
-	QByteArray tmp( 4 );
-	tmp.fill( 0 );
-	return tmp;
+	return QByteArray(4, '\0');
     }
     if ( !data ) {
 	qWarning( "qCompress: data is NULL." );

@@ -1117,7 +1117,7 @@ QTranslatorMessage::QTranslatorMessage( const char * context,
 */
 
 QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
-    : cx( 0 ), st( 0 ), cm( 0 )
+    : h(0)
 {
     QString str16;
     char tag;

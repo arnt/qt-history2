@@ -123,7 +123,8 @@ QByteArray QSjisCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*2+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];

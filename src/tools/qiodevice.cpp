@@ -594,7 +594,8 @@ QByteArray QIODevice::readAll()
 	// we know the size
 	int n = size()-at(); // ### fix for 64-bit or large files?
 	int totalRead = 0;
-	QByteArray ba( n );
+	QByteArray ba;
+	ba.resize( n );
 	char* c = ba.data();
 	while ( n ) {
 	    int r = readBlock( c, n );

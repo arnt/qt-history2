@@ -1212,7 +1212,8 @@ void QUrl::decode( QString& url )
     QByteArray curl = url.toUtf8();
     int oldlen = curl.length();
 
-    QByteArray newUrl(oldlen);
+    QByteArray newUrl;
+    newUrl.resize(oldlen);
 
     int i = 0;
     while ( i < oldlen ) {

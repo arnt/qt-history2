@@ -27,7 +27,8 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
     if (lenInOut > 0)
 	l = qMin(l, lenInOut);
     int rlen = l*3+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     const QChar *ch = uc.unicode();
     for (int i=0; i < l; i++) {
@@ -235,13 +236,15 @@ public:
     {
 	if ( headerdone ) {
 	    lenInOut = uc.length()*sizeof(QChar);
-	    QByteArray d(lenInOut);
+	    QByteArray d;
+	    d.resize(lenInOut);
 	    memcpy(d.data(),uc.unicode(),lenInOut);
 	    return d;
 	} else {
 	    headerdone = TRUE;
 	    lenInOut = (1+uc.length())*sizeof(QChar);
-	    QByteArray d(lenInOut);
+	    QByteArray d;
+	    d.resize(lenInOut);
 	    QChar bom(QChar::byteOrderMark);
 	    memcpy(d.data(),&bom,sizeof(QChar));
 	    memcpy(d.data()+sizeof(QChar),uc.unicode(),uc.length()*sizeof(QChar));

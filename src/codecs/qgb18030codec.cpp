@@ -157,7 +157,8 @@ QByteArray QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*4+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGb18030Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
@@ -551,7 +552,8 @@ QByteArray QGbkCodec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*2+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGbkCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
@@ -750,7 +752,8 @@ QByteArray QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut) const
 {
     int l = qMin((int)uc.length(),(lenInOut<0)?(int)uc.length():lenInOut);
     int rlen = l*2+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
 
     //qDebug("QGb2312Codec::fromUnicode(const QString& uc, int& lenInOut = %d) const", lenInOut);

@@ -2269,7 +2269,8 @@ QByteArray QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
 
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len );
+    QByteArray r;
+    r.resize( len );
     int i = len;
     int u;
     const QChar* ucp = uc.unicode();
@@ -2438,7 +2439,8 @@ QByteArray QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len );
+    QByteArray r;
+    r.resize( len );
     char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();
@@ -2641,7 +2643,8 @@ QByteArray QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
 	len = uc.length();
-    QByteArray r( len );
+    QByteArray r;
+    r.resize( len );
     char *d = r.data();
     int i = 0;
     const QChar *ch = uc.unicode();

@@ -172,7 +172,8 @@ QByteArray QBig5Codec::fromUnicode(const QString& uc, int& lenInOut) const
     //qDebug("QBig5Codec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*3+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];
@@ -458,7 +459,8 @@ QByteArray QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut) const
     //qDebug("QBig5hkscsCodec::fromUnicode(const QString& uc, int& lenInOut = %d)", lenInOut);
     int l = qMin((int)uc.length(),lenInOut);
     int rlen = l*3+1;
-    QByteArray rstr(rlen);
+    QByteArray rstr;
+    rstr.resize(rlen);
     uchar* cursor = (uchar*)rstr.data();
     for (int i=0; i<l; i++) {
 	QChar ch = uc[i];

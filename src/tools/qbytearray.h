@@ -74,9 +74,7 @@ public:
     QByteArray();
     QByteArray(const char *);
     QByteArray(const char*, int size);
-#ifndef QT_COMPAT
     QByteArray(int size, char c);
-#endif
     QByteArray(const QByteArray &);
     ~QByteArray();
 
@@ -191,7 +189,7 @@ public:
 
     // compatibility
 #ifdef QT_COMPAT
-    explicit QT_COMPAT QByteArray(int size, char c = '\0');
+    explicit QT_COMPAT QByteArray(int size);
     QT_COMPAT QByteArray& duplicate(const QByteArray& a)
     { *this = a; return *this; }
     QT_COMPAT QByteArray& duplicate(const char *a, uint n)
@@ -266,6 +264,11 @@ inline QByteArray::~QByteArray()
 { if (!--d->ref) qFree(d); }
 inline QByteArray::QByteArray(const QByteArray &a) : d(a.d)
 { ++d->ref; }
+#ifdef QT_COMPAT
+inline QByteArray::QByteArray(int size) : d(&shared_null)
+{ ++d->ref; if (size > 0) fill('\0', size); }
+#endif
+
 inline int QByteArray::capacity() const
 { return d->alloc; }
 

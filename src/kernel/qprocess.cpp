@@ -477,7 +477,8 @@ QByteArray QProcess::readStderr()
 */
 QString QProcess::readLineStdout()
 {
-    QByteArray a( 256 );
+    QByteArray a;
+    a.resize( 256 );
     QMembuf *buf = membufStdout();
     if ( buf->scanNewline( &a ) ) {
 	uint size = a.size();
@@ -510,7 +511,8 @@ QString QProcess::readLineStdout()
 */
 QString QProcess::readLineStderr()
 {
-    QByteArray a( 256 );
+    QByteArray a;
+    a.resize( 256 );
     QMembuf *buf = membufStderr();
     if ( buf->scanNewline( &a ) ) {
 	uint size = a.size();

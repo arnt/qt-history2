@@ -2433,14 +2433,13 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	    idx += nan().length();
 	    break;
 	}
-	QChar &c = l_num.ref(idx);
 
-	if (c == plus()) {
-    	    c.unicode() = '+';
+	if (l_num.at(idx) == plus()) {
+    	    l_num[idx] = QChar('+');
     	    ++idx;
     	}
-	else if (c == minus()) {
-            c.unicode() = '-';
+	else if (l_num.at(idx) == minus()) {
+            l_num[idx] = QChar('-');
     	    ++idx;
 	}
 
@@ -2456,7 +2455,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 	}
 
 	while (idx < l_num.length()) {
-            QChar &c = l_num.ref(idx);
+            QChar c = l_num.at(idx);
 
             if (isDigit(c))
 		c = digitToCLocale(zero(), c);
@@ -2478,6 +2477,7 @@ QString &QLocalePrivate::numberToCLocale(QString &l_num) const
 		c = '%';
 	    else
 		break;
+	    l_num[idx] = c;
 
 	    ++idx;
 	}

@@ -1177,7 +1177,8 @@ void QProcess::socketRead( int fd )
 
     // try to read data first (if it fails, the filedescriptor was closed)
     const int basize = 4096;
-    QByteArray *ba = new QByteArray( basize );
+    QByteArray *ba = new QByteArray;
+    ba->resize( basize );
     n = ::read( fd, ba->data(), basize );
     if ( n > 0 ) {
 	ba->resize( n );
@@ -1224,7 +1225,8 @@ void QProcess::socketRead( int fd )
 	    FD_ZERO( &fds );
 	    FD_SET( fd, &fds );
 	    // read data
-	    ba = new QByteArray( basize );
+	    ba = new QByteArray;
+	    ba->resize( basize );
 	    n = ::read( fd, ba->data(), basize );
 	    if ( n > 0 ) {
 		ba->resize( n );

@@ -348,7 +348,6 @@ public:
     { return startsWith(s, cs?CaseSensitive:CaseInsensitive); }
     inline QT_COMPAT bool endsWith(const QString &s, bool cs) const
     { return endsWith(s, cs?CaseSensitive:CaseInsensitive); }
-    QCharRef at(int i);
     inline QT_COMPAT QString &setAscii( const char *str, int len=-1 )
     { *this = fromAscii(str, len); return *this; }
     inline QT_COMPAT QString &setLatin1( const char *str, int len=-1 )
@@ -625,8 +624,6 @@ inline const QString operator+(const QString &s, char c)
 #endif
 
 #ifdef QT_COMPAT
-inline QCharRef QString::at(int i)
-{ Q_ASSERT(i >= 0); return QCharRef(*this, i); }
 inline QChar &QString::ref(uint i)
 { if ((int)i > d->size || d->ref != 1) resize(qMax((int)i, d->size)); return (QChar&)d->data[i]; }
 #endif

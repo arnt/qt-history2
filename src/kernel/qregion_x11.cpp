@@ -34,7 +34,7 @@ void QRegion::updateX11Region() const
 
 void *QRegion::clipRectangles(int &num) const
 {
-    if (!d->xrectangles && !isNull()) {
+    if (!d->xrectangles && !(d == &shared_empty || d->qt_rgn->numRects == 0)) {
         XRectangle *r = static_cast<XRectangle*>(malloc(d->qt_rgn->numRects * sizeof(XRectangle)));
         d->xrectangles = r;
         for(int i = 0; i < d->qt_rgn->numRects; ++i) {
@@ -46,7 +46,7 @@ void *QRegion::clipRectangles(int &num) const
             ++r;
         }
     }
-    if (isNull())
+    if (d == &shared_empty || d->qt_rgn->numRects == 0)
         num = 0;
     else
         num = d->qt_rgn->numRects;
