@@ -53,8 +53,14 @@ Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenera
 void
 Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
-    t << "MAKEFILE=	" << var("MAKEFILE") << endl;
-    t << "QMAKE =	" << var("QMAKE") << endl;
+    QString ofile = Option::output.name();
+    if(ofile.findRev(Option::dir_sep) != -1)
+	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+    else
+	ofile = "Makefile";
+
+    t << "MAKEFILE=	" << ofile << endl;
+    t << "QMAKE =	" << "qmake" << endl;
     t << "SUBDIRS	=" << varList("SUBDIRS") << endl;
 
     t << "all: qmake_all $(SUBDIRS)" << endl << endl;

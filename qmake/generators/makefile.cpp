@@ -57,15 +57,21 @@
 
 MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc_aware(FALSE), project(p)
 {
+    QString currentDir = QDir::currentDirPath();
+
     QString dirs[] = { QString("OBJECTS_DIR"), QString("MOC_DIR"), QString("DESTDIR"), QString::null };
     for(int x = 0; dirs[x] != QString::null; x++) {
 	QString &path = project->variables()[dirs[x]].first();
 	path = Option::fixPathToTargetOS(path);
-	if (!path.isEmpty()) {
+	if (!path.isEmpty() && !QFile::exists( path ) ) {
 	    if(path.right(Option::dir_sep.length()) != Option::dir_sep)
 		path += Option::dir_sep;
 
 	    QDir d;
+
+	    if ( !QDir::isRelativePath( path ) )
+		d.cd( path.left( 2 ) );
+
 	    if(path.left(1) == Option::dir_sep) 
 	      d.cd(Option::dir_sep);
 
@@ -78,6 +84,8 @@ MakefileGenerator::MakefileGenerator(QMakeProject *p) : init_already(FALSE), moc
 	    }
 	}
     }
+
+    QDir::current().cd( currentDir );
 }
 
 #ifdef USE_GROSS_BIG_BUFFER_THING
