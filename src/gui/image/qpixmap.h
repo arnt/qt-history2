@@ -169,7 +169,6 @@ private:
     QPixmap copy(bool ignoreMask = false) const;
 #if defined(Q_WS_WIN)
     void initAlphaPixmap(uchar *bytes, int length, struct tagBITMAPINFO *bmi);
-    void convertToAlphaPixmap(bool initAlpha=true);
 #endif
     static Optimization defOptim;
     friend struct QPixmapData;
