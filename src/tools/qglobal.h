@@ -196,15 +196,21 @@
 */
 
 /* Symantec C++ is now Digital Mars? */
-#if defined(__SC__)
+#if defined(__DMC__) || defined(__SC__) || defined(__ZTC__)
 #  define Q_CC_SYM
+/* "explicit" semantics implemented in 8.1e but keyword recognized since 7.5 */
+#  if defined(__SC__) && __SC__ < 0x750
+#    define Q_NO_EXPLICIT_KEYWORD
+#  endif
 
 #elif defined(applec)
 #  define Q_CC_MPW
 #  define Q_NO_BOOL_TYPE
+#  define Q_NO_EXPLICIT_KEYWORD
 
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
+/* "explicit" recognized since 4.0d1 */
 #  define QMAC_PASCAL pascal
 
 #elif defined(_MSC_VER)
@@ -216,6 +222,7 @@
 #  define Q_CC_BOR
 #  if __BORLANDC__ < 0x500
 #    define Q_NO_BOOL_TYPE
+#    define Q_NO_EXPLICIT_KEYWORD
 #  endif
 
 #elif defined(__WATCOMC__)
@@ -260,6 +267,7 @@
 #  define Q_FULL_TEMPLATE_INSTANTIATION
 #  if __xlC__ < 0x400
 #    define Q_NO_BOOL_TYPE
+#    define Q_NO_EXPLICIT_KEYWORD
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #    define Q_CANNOT_DELETE_CONSTANT
 #  endif
@@ -318,6 +326,7 @@
 #elif defined(__USLC__)
 #  define Q_CC_USLC
 #  define Q_NO_BOOL_TYPE
+#  define Q_NO_EXPLICIT_KEYWORD
 
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
@@ -333,6 +342,7 @@
 /* 4.2 compiler or older */
 #  else
 #    define Q_NO_BOOL_TYPE
+#    define Q_NO_EXPLICIT_KEYWORD
 #  endif
 
 /* CDS++ does not seem to define __EDG__ or __EDG according to Reliant
@@ -354,6 +364,7 @@
 #    define bool int
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #    define Q_BROKEN_TEMPLATE_SPECIALIZATION
+#    define Q_NO_EXPLICIT_KEYWORD
 #  endif
 
 #else
@@ -453,6 +464,15 @@ const bool TRUE = !0;
 
 
 //
+// Use the "explicit" keyword on platforms that support it.
+//
+
+#if !defined(Q_NO_EXPLICIT_KEYWORD)
+#  define Q_EXPLICIT explicit
+#endif
+
+
+//
 // Workaround for static const members on MSVC++.
 //
 
@@ -531,7 +551,7 @@ extern bool qt_winunicode;
 #endif
 
 //
-// feature seubsetting
+// Feature subsetting
 //
 // Note that disabling some features will produce a libqt that is not
 // compatible with other libqt builds. Such modifications are only

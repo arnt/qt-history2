@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QDialog class
 **
@@ -56,7 +56,7 @@ friend class QPushButton;
     Q_PROPERTY( bool sizeGripEnabled READ isSizeGripEnabled WRITE setSizeGripEnabled )
 
 public:
-    QDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
+    Q_EXPLICIT QDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
 	     WFlags f=0 );
     ~QDialog();
 

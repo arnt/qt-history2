@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QWidget class
 **
@@ -127,7 +127,7 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( bool customWhatsThis READ customWhatsThis )
 
 public:
-    QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
+    Q_EXPLICIT QWidget( QWidget* parent=0, const char* name=0, WFlags f=0 );
     ~QWidget();
 
     WId		 winId() const;
