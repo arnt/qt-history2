@@ -493,7 +493,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
             qt_xdnd_current_position = p;
             //NOTUSED qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
-            if (last_target_accepted_action != QDrag::IgnoreAcction) {
+            if (last_target_accepted_action != Qt::IgnoreAction) {
                 me.setDropAction(last_target_accepted_action);
                 me.accept();
             }
@@ -504,7 +504,7 @@ static void handle_xdnd_position(QWidget *w, const XEvent * xe, bool passive)
                 last_target_accepted_action = accepted_action;
             } else {
                 response.data.l[0] = 0;
-                last_target_accepted_action = QDrag::IgnoreAcction;
+                last_target_accepted_action = Qt::IgnoreAction;
             }
             answerRect = me.answerRect().intersect(c->rect());
         }
