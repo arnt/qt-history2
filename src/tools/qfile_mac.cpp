@@ -71,7 +71,17 @@ bool QFile::open( int m,int f )
 
 uint QFile::size() const
 {
-    return 0;
+    char * thename=name().ascii();
+    FILE * f=fopen(thename,"r");
+    if(!f) {
+	qWarning("Couldn't open %s for QFile::size()\n",thename);
+	return 0;
+    }
+    fseek(f,0,SEEK_END);
+    uint ret;
+    ret=(uint)ftell(f);
+    fclose(f);
+    return ret;
 }
 
 bool QFile::at( int pos )
@@ -91,7 +101,13 @@ int QFile::writeBlock( const char * p, uint len )
 
 int QFile::handle() const
 {
-    return 0;
+    if ( !isOpen() )
+        return -1;
+    else if ( fh )
+	// Hmm
+        return (int)fh;
+    else
+        return fd;
 }
 
 void QFile::close()
