@@ -2464,7 +2464,6 @@ bool QTextDocument::setSelectionEnd( int id, const QTextCursor &cursor )
     QTextCursor tmp2 = cursor;
     tmp2.restoreState();
     c.setParagraph( tmp.paragraph()->paragId() < tmp2.paragraph()->paragId() ? tmp.paragraph() : tmp2.paragraph() );
-    QTextCursor old;
     bool hadStart = FALSE;
     bool hadEnd = FALSE;
     bool hadStartParag = FALSE;
@@ -2530,10 +2529,22 @@ bool QTextDocument::setSelectionEnd( int id, const QTextCursor &cursor )
 	if ( leftSelection )
 	    inSelection = FALSE;
 
-	old = c;
-	c.gotoNextLetter();
-	if ( old == c || noSelectionAnymore )
+	if ( noSelectionAnymore )
 	    break;
+	// *ugle*hack optimization
+	QTextParagraph *p = c.paragraph();
+	if (  p->mightHaveCustomItems || p == start.paragraph() || p == end.paragraph() || p == lastParagraph() ) {
+	    c.gotoNextLetter();
+	    if ( p == lastParagraph() && c.atParagEnd() )
+		break;
+	} else {
+	    if ( p->document()->parent() )
+		do {
+		    c.gotoNextLetter();
+		} while ( c.paragraph() == p );
+	    else
+		c.setParagraph( p->next() );		
+	}
     }
 
     if ( !sel.swapped )
