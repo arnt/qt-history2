@@ -52,17 +52,16 @@
 
 #include "qwindowdefs.h"
 
+// the following is necessary to work around breakage in many versions
+// of XFree86's Xlib.h still in use
+// ### which versions?
 #if defined(_XLIB_H_) // crude hack, but...
-#error "cannot include X11/Xlib.h before this file"
+#error "cannot include <X11/Xlib.h> before this file"
 #endif
-
-// the following is necessary to work around breakage in many
-// still-used versions of XFree86's Xlib.h.  *sigh*
 #define XRegisterIMInstantiateCallback qt_XRegisterIMInstantiateCallback
 #define XUnregisterIMInstantiateCallback qt_XUnregisterIMInstantiateCallback
 #define XSetIMValues qt_XSetIMValues
 #include <X11/Xlib.h>
-// we trust the include guard, and undef the symbols again ASAP.
 #undef XRegisterIMInstantiateCallback
 #undef XUnregisterIMInstantiateCallback
 #undef XSetIMValues
@@ -80,18 +79,57 @@
 #include <X11/extensions/shape.h>
 #endif // QT_NO_SHAPE
 
-// the wacom tablet ( Currently just the IRIX version )
+
+// the wacom tablet (currently just the IRIX version)
 #if defined (QT_TABLET_SUPPORT)
 #  include <X11/extensions/XInput.h>
 #  include <wacom.h>  // wacom driver defines for IRIX (quite handy)
-#endif  // QT_TABLET_SUPPORT
+#endif // QT_TABLET_SUPPORT
+
 
 // #define QT_NO_XINERAMA
 #ifndef QT_NO_XINERAMA
-// Why isn't Xinerama C++ified?
+#  if defined(Q_OS_SOLARIS)
+// Xinerama is only supported in Solaris 7 with patches 107648/108376 and
+// Solaris 8 or above which introduce the X11R6.4 Xserver.
+// To switch the Xinerama functionality on, you need to add the "+xinerama"
+// arguement to the Xsun start line.
+// At least Solaris 7 and 8 are missing Xinerama system headers and function
+// declarations (bug 4284701).
+// The Xinerama API is not documented. In theory it could change but it
+// probably won't because Sun are using it in at least dtlogin (bug 4221829).
+extern "C" Bool XPanoramiXQueryExtension(
+    Display*,
+    int*,
+    int*
+);
+extern "C" Status XPanoramiXQueryVersion(
+    Display*,
+    int*,
+    int*
+);
+extern "C" Status XPanoramiXGetState(
+    Display*,
+    Drawable,
+    XPanoramiXInfo*
+);
+extern "C" Status XPanoramiXGetScreenCount(
+    Display *,
+    Drawable,
+    XPanoramiXInfo*
+);
+extern "C" Status XPanoramiXGetScreenSize(
+    Display*,
+    Drawable,
+    int,
+    XPanoramiXInfo*
+);
+#  else
+// XFree86 does not C++ify Xinerama (at least up to XFree86 4.0.3).
 extern "C" {
-#  include <X11/extensions/Xinerama.h>
+#    include <X11/extensions/Xinerama.h>
 }
+#  endif
 #endif // QT_NO_XINERAMA
 
 
@@ -109,17 +147,18 @@ extern "C" {
 #  endif
 #endif // QT_NO_XRENDER
 
+
 #ifndef QT_NO_XKB
 #  include <X11/XKBlib.h>
 #endif // QT_NO_XKB
 
+
 #if !defined(XlibSpecificationRelease)
-#define X11R4
+#  define X11R4
 typedef char *XPointer;
 #else
-#undef  X11R4
+#  undef X11R4
 #endif
-
 
 // #define QT_NO_XIM
 #if defined(X11R4)
