@@ -197,15 +197,17 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 	    }
 #endif
 	    if ( state == Matra ) {
-		if ( uc[pos-1].unicode() == 0x0bc6 && ( uc[pos] == 0xbbe || uc[pos] == 0xbd7 ) )
+		if ( uc[pos-1].unicode() == 0x0bc6 &&
+		     ( uc[pos].unicode() == 0xbbe || uc[pos].unicode() == 0xbd7 ) )
 			break;
-		if ( uc[pos-1].unicode() == 0x0bc7 && uc[pos] == 0xbbe )
+		if ( uc[pos-1].unicode() == 0x0bc7 && uc[pos].unicode() == 0xbbe )
 			break;
 	    }
 	    goto finish;
 
 	case LengthMark:
-	    if ( state == Consonant || state == Matra || state == VowelMark || state == StressMark )
+	    if ( state == Consonant || state == Matra ||
+		 state == VowelMark || state == StressMark )
 		break;
 	case IndependentVowel:
 	case Invalid:
@@ -220,7 +222,7 @@ static int nextSyllableBoundary( const QString &s, int start, int end, bool *inv
 }
 
 // vowel matras that have to be split into two parts.
-static const unsigned short split_o[2] = { 0xbc6, 0xbbe };
+static const unsigned short split_o[2]  = { 0xbc6, 0xbbe };
 static const unsigned short split_oo[2] = { 0xbc7, 0xbbe };
 static const unsigned short split_au[2] = { 0xbc6, 0xbd7 };
 
