@@ -4285,7 +4285,8 @@ bool QETWidget::translateKeyEventInternal(const XEvent *event, int& count, QStri
     QChar converted;
     KeySym key = 0;
 
-    QWidget* tlw = topLevelWidget();
+    // ###
+    // QWidget* tlw = topLevelWidget();
 
     XKeyEvent xkeyevent = event->xkey;
 
