@@ -355,6 +355,7 @@ void QDial::repaintScreen( const QRect *cr )
 	    br.setWidth( br.width() + r / 3 );
 	    br.setHeight( br.height() + r / 3 );
 	}
+	// strange, but else we get redraw errors on windows!!
 	p.end();
 	p.begin( this );
 	p.save();
