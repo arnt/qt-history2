@@ -4568,7 +4568,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	    bool tryFirst = TRUE;
 	    while( keyItem ) {
 		// try twice, first with the previous string and this char
-		if ( d->currentPrefixTime.msecsTo( now ) <= 1500 ) 
+		if ( d->currentPrefixTime.msecsTo( now ) <= 1500 )
 		    input = input + e->text().lower();
 		else
 		    input = e->text().lower();
@@ -5550,9 +5550,12 @@ void QCheckListItem::activate()
 	    r.setRect( 0, 2, BoxSize-3, BoxSize-3 );
 	else
 	    r.setRect( 3, 2, BoxSize-3, BoxSize-3 );
-	if ( lv && lv->columnAlignment(0) == AlignCenter ) {
+	// columns might have been swapped
+	int sec = lv->header()->sectionAt( pos.x() );
+	r.moveBy( lv->header()->sectionPos( sec ), 0 );
+	if ( lv && lv->columnAlignment( sec ) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
-	    r.moveBy( (lv->columnWidth(0) - (BoxSize + fm.width(text()))) / 2, 0 );
+	    r.moveBy( (lv->columnWidth( sec ) - (BoxSize + fm.width( text() ))) / 2, 0 );
 	}
 	if ( !r.contains( pos ) )
 	    return;
