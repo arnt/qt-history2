@@ -20,15 +20,15 @@
 
 #include <stdlib.h>
 
-static QPixmap genIcon(const QString &string, const QColor &color)
+static QPixmap genIcon(const QSize &iconSize, const QString &string, const QColor &color)
 {
     QFont font;
     font.setBold(true);
-    font.setPixelSize(16);
+    font.setPixelSize(iconSize.height() * 3 / 4);
 
     QFontMetrics fm(font);
-    int w = qMax(22, fm.width(string));
-    int h = qMax(22, fm.lineSpacing());
+    int w = qMax(iconSize.width(), fm.width(string));
+    int h = qMax(iconSize.height(), fm.lineSpacing());
 
     QPixmap pixmap(w, h);
     pixmap.fill(Qt::white);
@@ -53,8 +53,8 @@ static QPixmap genIcon(const QString &string, const QColor &color)
     return pixmap;
 }
 
-static QPixmap genIcon(int number, const QColor &color)
-{ return genIcon(QString::number(number), color); }
+static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color)
+{ return genIcon(iconSize, QString::number(number), color); }
 
 ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
@@ -62,26 +62,26 @@ ToolBar::ToolBar(QWidget *parent)
     setWindowTitle(tr("Main Tool Bar"));
 
     menu = new QMenu("One", this);
-    menu->setIcon(genIcon(1, Qt::white));
-    menu->addAction(genIcon("1.1", Qt::yellow), "One One");
-    menu->addAction(genIcon("1.2", Qt::yellow), "One Two");
-    menu->addAction(genIcon("1.3", Qt::yellow), "One Three");
+    menu->setIcon(genIcon(iconSize(), 1, Qt::white));
+    menu->addAction(genIcon(iconSize(), "A", Qt::yellow), "A");
+    menu->addAction(genIcon(iconSize(), "B", Qt::yellow), "B");
+    menu->addAction(genIcon(iconSize(), "C", Qt::yellow), "C");
     addAction(menu->menuAction());
 
-    QAction *two = addAction(genIcon(2, QColor(0, 0, 160)), "Two");
+    QAction *two = addAction(genIcon(iconSize(), 2, QColor(0, 0, 160)), "Two");
     QFont boldFont;
     boldFont.setBold(true);
     two->setFont(boldFont);
 
-    addAction(genIcon(3, QColor(0, 160, 0)), "Three");
-    addAction(genIcon(4, QColor(160, 0, 0)), "Four");
-    addAction(genIcon(5, QColor(80, 0, 80)), "Five");
+    addAction(genIcon(iconSize(), 3, QColor(0, 160, 0)), "Three");
+    addAction(genIcon(iconSize(), 4, QColor(160, 0, 0)), "Four");
+    addAction(genIcon(iconSize(), 5, QColor(80, 0, 80)), "Five");
 
-    QAction *six = addAction(genIcon(6, QColor(0, 80, 80)), "Six");
+    QAction *six = addAction(genIcon(iconSize(), 6, QColor(0, 80, 80)), "Six");
     six->setCheckable(true);
-    QAction *seven = addAction(genIcon(7, QColor(80, 80, 0)), "Seven");
+    QAction *seven = addAction(genIcon(iconSize(), 7, QColor(80, 80, 0)), "Seven");
     seven->setCheckable(true);
-    QAction *eight = addAction(genIcon(8, Qt::black), "Eight");
+    QAction *eight = addAction(genIcon(iconSize(), 8, Qt::black), "Eight");
     eight->setCheckable(true);
 
     orderAction = new QAction(this);
