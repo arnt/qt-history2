@@ -152,8 +152,8 @@ public:
     virtual void setDragEnabled( bool allow );
     virtual void setDropEnabled( bool allow );
 
-    virtual QString text() const;
-    virtual QPixmap icon() const;
+    QString text() const;
+    QPixmap icon() const;
     virtual QString key() const;
 
     bool renameEnabled() const;
