@@ -1676,7 +1676,6 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    else
 		( (QKeyEvent*)event )->ignore();
 	} else if ( event->type() == QEvent::KeyRelease ) {
-	    d->completeNow = FALSE;
 	    keyReleaseEvent( (QKeyEvent *)event );
 	    return ((QKeyEvent *)event)->isAccepted();
 	} else if ( event->type() == QEvent::FocusIn ) {
@@ -1684,10 +1683,10 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	} else if ( event->type() == QEvent::FocusOut ) {
 	    focusOutEvent( (QFocusEvent *)event );
 	} else if ( d->useCompletion && d->completeNow ) {
+	    d->completeNow = FALSE;
 	    if ( !d->ed->text().isNull() &&
 		 d->ed->cursorPosition() > d->completeAt &&
 		 d->ed->cursorPosition() == (int)d->ed->text().length() ) {
-		d->completeNow = FALSE;
 		QString ct( d->ed->text() );
 		int i = completionIndex( ct, currentItem() );
 		if ( i > -1 ) {
