@@ -252,7 +252,7 @@ kernel {
 	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp \
 		  	    $$KERNEL_CPP/qfontengine_qws.cpp
 
-	wince-msvc {
+	wince-* {
 	      HEADERS += $$KERNEL_H/qfunctions_wce.h
 	      SOURCES += $$KERNEL_CPP/qfunctions_wce.cpp
 	}
