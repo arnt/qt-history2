@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#313 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#314 $
 **
 ** Implementation of QListBox widget class
 **
@@ -589,10 +589,10 @@ int QListBoxPixmap::width( const QListBox* ) const
   For compatibility with previous Qt versions there is still the
   setMultiSelection() methode. Calling setMultiSelection( TRUE )
   is equivalent to setSelectionMode( Multi ), and setMultiSelection( FALSE )
-  is equivalent to setSelectionMode( Single ). It's suggested not to 
+  is equivalent to setSelectionMode( Single ). It's suggested not to
   use setMultiSelection() anymore, but to use setSelectionMode()
   instead.
-    
+
   Since QListBox offers multiple selection it has to display keyboard
   focus and selection state separately.  Therefore there are functions
   both to set the selection state of an item, setSelected(), and to
@@ -2182,6 +2182,7 @@ void QListBox::emitChangedSignal( bool lazy ) {
 
 QSize QListBox::sizeHint() const
 {
+    d->layoutDirty = TRUE;
     doLayout();
 
     int i=0;
@@ -2189,14 +2190,14 @@ QSize QListBox::sizeHint() const
 	   i < (int)d->columnPos.size()-1 &&
 	   d->columnPos[i] < 200 )
 	i++;
-    int x = d->columnPos[i];
-
+    int x = QMIN( 200, d->columnPos[i] );
+    
     i = 0;
     while( i < 10 &&
 	   i < (int)d->rowPos.size()-1 &&
 	   d->rowPos[i] < 200 )
 	i++;
-    int y = d->rowPos[i];
+    int y = QMIN( 200, d->rowPos[i] );
 
     return QSize( QMAX( 40, x ), QMAX( 40, y ) );
 }
