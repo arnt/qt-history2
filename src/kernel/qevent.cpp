@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#9 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#9 $";
 #endif
 
 
@@ -379,7 +379,7 @@ QWidget::size().
 Close events are sent to widgets the user wants to close, for instance
 by choosing "close" from a window menu.
 
-Close events contains a special accept flag which tells whether the receiver
+Close events contain a special accept flag which tells whether the receiver
 wants the widget to be closed.
 
 The virtual function QWidget::closeEvent() receives close events.
