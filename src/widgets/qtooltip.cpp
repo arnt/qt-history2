@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#21 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -15,7 +15,7 @@
 #include "qpoint.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#21 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -30,7 +30,7 @@ static inline QRect entireWidget() {
 
 class QTipManager : public QObject
 {
-    Q_OBJECT
+    Q_OBJECT	/* tmake ignore Q_OBJECT */
 public:
     QTipManager();
     ~QTipManager();
