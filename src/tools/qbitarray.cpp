@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.cpp#8 $
+** $Id: //depot/qt/main/src/tools/qbitarray.cpp#9 $
 **
 ** Implementation of QBitArray class
 **
@@ -17,22 +17,18 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarray.cpp#9 $";
 #endif
 
 
-// --------------------------------------------------------------------------
-// QBitArray class
-//
-
-#define BA(p)	((bitarr_data*)(p))
+#define EXTRA(p) ((bitarr_data*)(p))
 
 
 QBitArray::QBitArray() : QByteArray( 0, 0 )
 {
     p = newData();
     CHECK_PTR( p );
-    BA(p)->nbits = 0;
+    EXTRA(p)->nbits = 0;
 }
 
 QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
@@ -60,7 +56,7 @@ bool QBitArray::resize( uint sz )		// resize bit array
     uint s = size();
     if ( !QByteArray::resize( (sz+7)/8 ) )
 	return FALSE;				// cannot resize
-    BA(p)->nbits = sz;
+    EXTRA(p)->nbits = sz;
     if ( sz != 0 ) {				// not null array
 	int ds = (int)(sz+7)/8 - (int)(s+7)/8;	// number of bytes difference
 	if ( ds > 0 )				// expanding array
@@ -89,7 +85,7 @@ QBitArray QBitArray::copy() const		// get deep copy
 {
     QBitArray tmp;
     tmp.duplicate( *this );
-    BA(tmp.p)->nbits = BA(p)->nbits;		// copy extra data
+    EXTRA(tmp.p)->nbits = EXTRA(p)->nbits;	// copy extra data
     return tmp;
 }
 
