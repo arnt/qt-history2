@@ -471,7 +471,7 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
     Q_ASSERT(delegate);
     d->delegate = delegate;
     QObject::connect(delegate, SIGNAL(doneEditing(QWidget*, bool)),
-                     this, SLOT(endEditing(QWidget*, bool)));
+                     this, SLOT(doneEditing(QWidget*, bool)));
 }
 
 /*!
@@ -1114,7 +1114,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
                                       ? QAbstractItemDelegate::Accepted
                                       : QAbstractItemDelegate::Cancelled,
                                       editor, d->model, index);
-        if (!editor)
+        if (!editor) // FIXME: should be removed anyway... but what about persistent editors ?
             d->editors.remove(persistent);
     }
     setFocus();
@@ -1168,7 +1168,7 @@ void QAbstractItemView::selectionModelDestroyed()
 /*!
   \internal
 */
-void QAbstractItemView::endEditing(QWidget *editor, bool accept)
+void QAbstractItemView::doneEditing(QWidget *editor, bool accept)
 {
     endEdit(d->editors.key(editor), accept); // FIXME: remove
 }
@@ -1354,10 +1354,11 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
         QPersistentModelIndex persistent(topLeft, model());
-        if (d->editors.contains(persistent))
-            itemDelegate()->setEditorData(d->editor(topLeft), d->model, topLeft);
-        else
+        if (d->editors.contains(persistent)) {
+            itemDelegate()->setEditorData(d->editors.value(persistent), d->model, topLeft);
+        } else {
             d->viewport->update(itemViewportRect(topLeft));
+        }
         return;
     }
     // single row changed
@@ -1365,7 +1366,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
         QModelIndex current = currentItem();
         QPersistentModelIndex persistent(topLeft, model());
         if (d->editors.contains(persistent)) { // FIXME: update all editors
-            itemDelegate()->setEditorData(d->editor(topLeft), d->model, current);
+            itemDelegate()->setEditorData(d->editors.value(persistent), d->model, current);
         } else {
             QRect tl = itemViewportRect(topLeft);
             QRect br = itemViewportRect(bottomRight);
@@ -1714,7 +1715,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
         return true;
     if (delegate && delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return true;
-    return editor(index) != 0;
+    return d->editors.contains(QPersistentModelIndex(index, model));
 }
 
 bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
@@ -1757,22 +1758,6 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         d->editors.insert(persistent, editor);
     }
     return editor;
-}
-
-QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index) const
-{
-    QPersistentModelIndex persistent(index, model);
-//     QMap<QPersistentModelIndex, QPointer<QWidget> >::ConstIterator it = editors.find(persistent);
-//     if (it != editors.end())
-//         return *it;
-//     return 0;
-    
-}
-
-void QAbstractItemViewPrivate::setEditor(QWidget *editor, const QModelIndex &index)
-{
-    QPersistentModelIndex persistent(index, model);
-    editors.insert(persistent, editor);
 }
 
 void QAbstractItemViewPrivate::doDelayedItemsLayout()

@@ -111,7 +111,7 @@ protected slots:
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
     virtual void selectionModelDestroyed();
-    virtual void endEditing(QWidget *editor, bool accept);
+    virtual void doneEditing(QWidget *editor, bool accept);
 
 signals:
     void rootChanged(const QModelIndex &old, const QModelIndex &root);

@@ -34,8 +34,7 @@ public:
 
     QWidget *requestEditor(QAbstractItemDelegate::BeginEditAction action,
                            QEvent *event, const QModelIndex &index);
-    QWidget *editor(const QModelIndex &index) const;
-    void setEditor(QWidget *editor, const QModelIndex &index);
+
     void doDelayedItemsLayout();
 
     mutable QAbstractItemModel *model;
