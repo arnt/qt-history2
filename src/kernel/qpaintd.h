@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#25 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#26 $
 **
 ** Definition of QPaintDevice class
 **
@@ -90,10 +90,10 @@ protected:
 
 
 inline QFontMetrics QPaintDevice::fontMetrics() const
-{  return QFontMetrics((QPaintDevice*)this); }
+{ return QFontMetrics(this); }
 
 inline QFontInfo QPaintDevice::fontInfo() const
-{ return QFontInfo((QPaintDevice*)this); }
+{ return QFontInfo(this); }
 
 
 void bitBlt( QPaintDevice *dst, int dx, int dy,
