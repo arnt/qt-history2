@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpointarray.cpp#24 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,12 +16,14 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpointarray.cpp#24 $")
 
 
 /*----------------------------------------------------------------------------
   \class QPointArray qpntarry.h
   \brief The QPointArray class provides an array of points.
+
+  \inherit QArray
 
   QPointArray is used by the QPainter to draw
   \link QPainter::drawLineSegments() line segments\endlink,
