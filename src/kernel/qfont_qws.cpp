@@ -131,7 +131,7 @@ void QFontPrivate::load( QFont::Script )
     if ( engineData->engine ) return;
 
     // load the font
-    engineData->engine = new QFontEngine(request);
+    engineData->engine = new QFontEngine(req);
     engineData->engine->ref();
 }
 
