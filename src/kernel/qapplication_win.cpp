@@ -53,6 +53,7 @@
 #include <private/qcriticalsection_p.h>
 #include <private/qinputcontext_p.h>
 #include "qstyle.h"
+#include <qmetaobject.h>
 
 #include <windowsx.h>
 #include <limits.h>
@@ -1497,6 +1498,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	bool endsession = (bool) wParam;
 
 	if ( endsession ) {
+	    // since the process will be killed immediately quit() has no real effect
+	    int index = qApp->metaObject()->findSignal( "aboutToQuit()", TRUE );
+	    qApp->qt_emit(index,0);
 	    qApp->quit();
 	}
 
