@@ -140,6 +140,7 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
+		  $$KERNEL_H/qcleanuphandler.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qcolor_p.h \
@@ -184,6 +185,9 @@ kernel:HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qpicture.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
+		  $$KERNEL_H/qplugin.h \
+		  $$KERNEL_H/qplugininterface.h \
+		  $$KERNEL_H/qpluginmanager.h \
 		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
@@ -489,6 +493,7 @@ kernel:SOURCES += kernel/qabstractlayout.cpp \
 		  kernel/qpicture.cpp \
 		  kernel/qpixmap.cpp \
 		  kernel/qpixmapcache.cpp \
+		  kernel/qplugin.cpp \
 		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
