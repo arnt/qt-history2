@@ -618,7 +618,8 @@ void QTextCursor::insert( const QString &str, bool checkNewLine, QMemArray<QText
 	    ++it;
 	    if ( !s.isEmpty() )
 		string->insert( idx, s );
-
+	    else
+		string->invalidate( 0 );
 	    if ( formatting ) {
 		int len = s.length();
 		for ( int i = 0; i < len; ++i ) {
@@ -4956,7 +4957,7 @@ QString QTextParag::richText() const
 	} else if ( ( formatChar->format()->key() != c->format()->key() ) ||
 		  (formatChar->isAnchor() != c->isAnchor() &&
 		   (!c->anchorHref().isEmpty() || !formatChar->anchorHref().isEmpty() ) ) )  {// lisp was here
-	    
+	
 	    if ( !spaces.isEmpty() ) {
 		if ( spaces.length() > 1 || spaces[0] == '\t' || lastCharWasSpace )
 		    s += "<wsp>" + spaces + "</wsp>";
