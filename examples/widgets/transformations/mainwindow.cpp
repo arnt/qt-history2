@@ -76,8 +76,6 @@ void MainWindow::setupShapes()
 
     QPainterPath truck;
     truck.setFillRule(Qt::WindingFill);
-    truck.addEllipse(20, 75, 25, 25);
-    truck.addEllipse(60, 75, 25, 25);
     truck.moveTo(0, 87);
     truck.lineTo(0, 60);
     truck.lineTo(10, 60);
@@ -86,10 +84,12 @@ void MainWindow::setupShapes()
     truck.lineTo(100, 87);
     truck.lineTo(0, 87);
     truck.moveTo(17, 60);
-    truck.lineTo(37, 40);
-    truck.lineTo(55, 40);
     truck.lineTo(55, 60);
+    truck.lineTo(55, 40);
+    truck.lineTo(37, 40);
     truck.lineTo(17, 60);
+    truck.addEllipse(20, 75, 25, 25);
+    truck.addEllipse(60, 75, 25, 25);
 
     QPainterPath clock;
     clock.addEllipse(-50, -50, 100, 100);
