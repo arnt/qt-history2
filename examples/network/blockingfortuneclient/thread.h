@@ -3,19 +3,17 @@
 
 #include <QThread>
 
-class QString;
-
-class FortuneThread : public QThread
+class Thread : public QThread
 {
     Q_OBJECT
 
 public:
-    void run();
     void requestNewFortune(const QString &hostName, Q_UINT16 port);
+    void run();
 
 signals:
-    void newFortune(const QString &);
-    void error(int, const QString &);
+    void newFortune(const QString &fortune);
+    void error(int socketError, const QString &errorStr);
 
 private:
     QString hostName;

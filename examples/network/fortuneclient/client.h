@@ -18,7 +18,7 @@ public:
 public slots:
     void requestNewFortune();
     void readFortune();
-    void displayError(int);
+    void displayError(int socketError);
 
 private:
     int blockSize;

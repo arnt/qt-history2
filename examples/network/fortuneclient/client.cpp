@@ -84,9 +84,9 @@ void Client::readFortune()
     statusLabel->setText(currentFortune);
 }
 
-void Client::displayError(int error)
+void Client::displayError(int socketError)
 {
-    switch (error) {
+    switch (socketError) {
     case Qt::HostNotFoundError:
         QMessageBox::information(this, tr("Fortune Client"),
                                  tr("The host was not found. Please check the "

@@ -1,4 +1,6 @@
-HEADERS += client.h thread.h
-SOURCES += client.cpp thread.cpp
-SOURCES += main.cpp
-QT += network
+HEADERS       = client.h \
+                thread.h
+SOURCES       = client.cpp \
+                main.cpp \
+                thread.cpp
+QT           += network

@@ -7,7 +7,7 @@
 
 class QLabel;
 class QLineEdit;
-class QPushButtonM;
+class QPushButton;
 
 class Client : public QDialog
 {
@@ -16,10 +16,10 @@ class Client : public QDialog
 public:
     Client(QWidget *parent = 0);
 
-public slots:
+private slots:
     void requestNewFortune();
     void showFortune(const QString &fortune);
-    void displayError(int, const QString &);
+    void displayError(int socketError, const QString &message);
 
 private:
     QLabel *portLabel;
@@ -29,7 +29,7 @@ private:
     QLabel *statusLabel;
     QPushButton *getFortuneButton;
     QPushButton *quitButton;
-    FortuneThread fortuneThread;
+    Thread thread;
     QString currentFortune;
 };
 

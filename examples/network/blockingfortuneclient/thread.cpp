@@ -2,45 +2,44 @@
 
 #include "thread.h"
 
-void FortuneThread::run()
+void Thread::requestNewFortune(const QString &hostName, Q_UINT16 port)
 {
+    this->hostName = hostName;
+    this->port = port;
+    start();
+}
+
+void Thread::run()
+{
+    const int Timeout = 5 * 1000;
+
     QTcpSocket socket;
-    socket.setBlocking(true, 5000);
+    socket.setBlocking(true, Timeout);
     if (!socket.connectToHost(hostName, port)) {
         emit error(socket.socketError(), socket.errorString());
         return;
     }
 
     while (socket.bytesAvailable() < sizeof(Q_UINT16)) {
-        if (!socket.waitForReadyRead(5000)) {
-            emit error(socket.socketError(),
-                       socket.errorString());
+        if (!socket.waitForReadyRead(Timeout)) {
+            emit error(socket.socketError(), socket.errorString());
             return;
         }
     }
 
     Q_UINT16 blockSize;
-    QDataStream stream(&socket);
-    stream.setVersion(7);
-    stream >> blockSize;
+    QDataStream in(&socket);
+    in.setVersion(7);
+    in >> blockSize;
 
     while (socket.bytesAvailable() < blockSize) {
-        if (!socket.waitForReadyRead(5000)) {
-            emit error(socket.socketError(),
-                       socket.errorString());
+        if (!socket.waitForReadyRead(Timeout)) {
+            emit error(socket.socketError(), socket.errorString());
             return;
         }
     }
 
     QString fortune;
-    stream >> fortune;
-
+    in >> fortune;
     emit newFortune(fortune);
-}
-
-void FortuneThread::requestNewFortune(const QString &hostName, Q_UINT16 port)
-{
-    this->hostName = hostName;
-    this->port = port;
-    start();
 }

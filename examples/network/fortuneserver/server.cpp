@@ -52,10 +52,10 @@ void Server::sendFortune()
     QByteArray block;
     QDataStream out(&block, QIODevice::WriteOnly);
     out.setVersion(7);
-    out << (Q_UINT16) 0;
+    out << (Q_UINT16)0;
     out << fortunes.at(std::rand() % fortunes.size());
     out.device()->seek(0);
-    out << (Q_UINT16) (block.size() - sizeof(Q_UINT16));
+    out << (Q_UINT16)(block.size() - sizeof(Q_UINT16));
 
     QTcpSocket *clientConnection = tcpServer->nextPendingConnection();
     connect(clientConnection, SIGNAL(closed()),

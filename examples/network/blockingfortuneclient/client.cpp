@@ -2,7 +2,6 @@
 #include <QtNetwork>
 
 #include "client.h"
-#include "thread.h"
 
 Client::Client(QWidget *parent)
     : QDialog(parent)
@@ -22,9 +21,9 @@ Client::Client(QWidget *parent)
     connect(getFortuneButton, SIGNAL(clicked()),
             this, SLOT(requestNewFortune()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(&fortuneThread, SIGNAL(newFortune(const QString &)),
+    connect(&thread, SIGNAL(newFortune(const QString &)),
             this, SLOT(showFortune(const QString &)));
-    connect(&fortuneThread, SIGNAL(error(int, const QString &)),
+    connect(&thread, SIGNAL(error(int, const QString &)),
             this, SLOT(displayError(int, const QString &)));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
@@ -52,8 +51,8 @@ void Client::requestNewFortune()
         return;
     }
 
-    fortuneThread.requestNewFortune(hostLineEdit->text(),
-                                    portLineEdit->text().toInt());
+    thread.requestNewFortune(hostLineEdit->text(),
+                             portLineEdit->text().toInt());
 }
 
 void Client::showFortune(const QString &nextFortune)
@@ -67,17 +66,15 @@ void Client::showFortune(const QString &nextFortune)
     statusLabel->setText(currentFortune);
 }
 
-void Client::displayError(int error, const QString &message)
+void Client::displayError(int socketError, const QString &message)
 {
-    using namespace Qt;
-
-    switch (error) {
-    case HostNotFoundError:
+    switch (socketError) {
+    case Qt::HostNotFoundError:
         QMessageBox::information(this, tr("Blocking Fortune Client"),
                                  tr("The host was not found. Please check the "
                                     "host and port settings."));
         break;
-    case ConnectionRefusedError:
+    case Qt::ConnectionRefusedError:
         QMessageBox::information(this, tr("Blocking Fortune Client"),
                                  tr("The connection was refused by the peer. "
                                     "Make sure the fortune server is running, "
@@ -88,5 +85,5 @@ void Client::displayError(int error, const QString &message)
         QMessageBox::information(this, tr("Blocking Fortune Client"),
                                  tr("The following error occurred: %1.")
                                  .arg(message));
-    };
+    }
 }
