@@ -1,10 +1,11 @@
+The contents of this file is superceded by the Qt documentation. To see
+Mac-specific differences please look at the documentation in
 
-This is a general Qt/Mac guide that outlines known issues for Qt/Mac.
+$QTDIR/doc/html/mac-differences.html
 
-Applications *must* be run out of a bundle (something like
-widgets.app/). Mac OS X needs this to dispatch events correctly, as
-well as gaining access to the menubar. If using GDB you must run with
-the *full* path to the executable.
+or on the Trolltech Website at:
+
+http://doc.trolltech.com/3.2/mac-differences.html
 
 ---
 As always please contact Trolltech with concerns/questions. For direct
