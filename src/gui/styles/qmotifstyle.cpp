@@ -1858,20 +1858,15 @@ QMotifStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *widget)
                      opt->rect.width() - ir.width() - 10, opt->rect.height());
         break; }
 
-    case SR_CheckBoxFocusRect: // extend input to all of contents area
-        rect = subRect(SR_CheckBoxContents, opt, widget) | QCommonStyle::subRect(sr, opt, widget);
-        rect &= opt->rect.adjusted(1,1,-1,-1);
-        break;
-
     case SR_RadioButtonContents: {
         QRect ir = subRect(SR_RadioButtonIndicator, opt, widget);
         rect.setRect(ir.right() + 10, opt->rect.y(),
                      opt->rect.width() - ir.width() - 10, opt->rect.height());
         break; }
 
-    case SR_RadioButtonFocusRect: // extend input to all of contents area
-        rect = subRect(SR_RadioButtonContents, opt, widget) | QCommonStyle::subRect(sr, opt, widget);
-        rect &= opt->rect.adjusted(1,1,-1,-1);
+    case SR_CheckBoxClickRect:
+    case SR_RadioButtonClickRect:
+        rect = opt->rect;
         break;
 
     default:

@@ -219,10 +219,12 @@ public:
         SR_CheckBoxIndicator,
         SR_CheckBoxContents,
         SR_CheckBoxFocusRect,
+        SR_CheckBoxClickRect,
 
         SR_RadioButtonIndicator,
         SR_RadioButtonContents,
         SR_RadioButtonFocusRect,
+        SR_RadioButtonClickRect,
 
         SR_ComboBoxFocusRect,
 

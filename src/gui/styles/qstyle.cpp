@@ -778,10 +778,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SR_CheckBoxIndicator  Area for the state indicator (e.g., check mark)
     \value SR_CheckBoxContents  Area for the label (text or pixmap)
     \value SR_CheckBoxFocusRect  Area for the focus indicator
+    \value SR_CheckBoxClickRect  Clickable area, defaults to SR_CheckBoxFocusRect
 
     \value SR_RadioButtonIndicator  Area for the state indicator
     \value SR_RadioButtonContents  Area for the label
     \value SR_RadioButtonFocusRect  Area for the focus indicator
+    \value SR_RadioButtonClickRect  Clickable area, defaults to SR_RadioButtonFocusRect
 
     \value SR_ComboBoxFocusRect  Area for the focus indicator
 

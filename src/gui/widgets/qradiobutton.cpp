@@ -146,8 +146,7 @@ QSize QRadioButton::sizeHint() const
 bool QRadioButton::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = getStyleOption(this);
-    QRect r =
-        QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonFocusRect, &opt, this));
+    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_RadioButtonClickRect, &opt, this));
     if (isRightToLeft()) {
         r.setRight(width());
     } else {

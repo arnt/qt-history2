@@ -1733,6 +1733,11 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *
         else
             r.setRect(x + 5, y, h / 2, h - margin * 2);
         break; }
+
+    case SR_RadioButtonClickRect:
+        return subRect(SR_RadioButtonFocusRect, opt, widget);
+    case SR_CheckBoxClickRect:
+        return subRect(SR_CheckBoxFocusRect, opt, widget);
     default:
         break;
     }

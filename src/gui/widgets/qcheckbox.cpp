@@ -257,7 +257,7 @@ void QCheckBox::updateMask()
 bool QCheckBox::hitButton(const QPoint &pos) const
 {
     QStyleOptionButton opt = d->getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxFocusRect, &opt, this));
+    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subRect(QStyle::SR_CheckBoxClickRect, &opt, this));
     if (qApp->layoutDirection() == Qt::RightToLeft) {
         r.setRight(width());
     } else {
