@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#4 $
 **
 ** Definition of the QWizard wizard framework
 **
@@ -22,6 +22,8 @@ class QWizardPrivate;
 class QWizardPagePrivate;
 class QWizard;
 
+class QHBoxLayout;
+
 
 class Q_EXPORT QWizard : public QDialog
 {
@@ -36,6 +38,8 @@ public:
 
     void addPage( QWidget *, const QString & );
 
+    QString title( QWidget * ) const;
+
     void showPage( QWidget * );
 
     QWidget * currentPage() const;
@@ -47,7 +51,10 @@ public:
     bool nextEnabled( QWidget * ) const;
     bool helpEnabled( QWidget * ) const;
 
-    bool finish( QWidget * );
+    QPushButton * backButton() const;
+    QPushButton * nextButton() const;
+    QPushButton * finishButton() const;
+    QPushButton * helpButton() const;
 
 public slots:
     virtual void setBackEnabled( QWidget *, bool );
@@ -60,10 +67,15 @@ public slots:
 protected slots:
     virtual void back();
     virtual void next();
+    virtual void finish();
     virtual void help();
 
 signals:
     void helpClicked();
+
+protected:
+    virtual void layOutButtonRow( QHBoxLayout * );
+    virtual void layOutTitleRow( QHBoxLayout *, const QString & );
 
 private:
     void setBackEnabled( bool );
@@ -77,45 +89,9 @@ private:
 
     int count() const;
 
+    void layOut();
     QWizardPrivate *d;
 };
-
-
-/*
-
-class QWizardPage: public QWidget
-{
-    Q_OBJECT
-public:
-    QWizardPage( QWizard * parent, const char * name = 0 );
-    ~QWizardPage();
-
-    bool backEnabled() const;
-    bool nextEnabled() const;
-    bool helpEnabled() const;
-
-    bool finish();
-
-public slots:
-    virtual void setBackEnabled( bool );
-    virtual void setNextEnabled( bool );
-
-    void setNextPage( QWidget * );
-
-    virtual void setHelpEnabled( bool );
-
-    virtual void setFinish( bool );
-
-signals:
-    void helpClicked();
-
-private:
-    QWizardPagePrivate * d;
-
-    friend QWizard;
-};
-
-*/
 
 
 #endif
