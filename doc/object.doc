@@ -289,7 +289,7 @@ Here's the final class declaration including the property declaration:
         void setPriority( Priority );
         Priority priority() const;
     };
-\end
+\endcode
 
 Another macro similar to "Q_ENUMS" is "Q_SETS". It also registers an
 enumeration type but marks it in addition as "set", i.e. the single
