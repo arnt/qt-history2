@@ -939,6 +939,7 @@ private:
     int nSelections;
     bool addMargs;
     bool oTextValid;
+    QColor linkColor;
 
 };
 

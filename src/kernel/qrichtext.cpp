@@ -1643,6 +1643,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				formatCollection()->defaultFormat()->setColor( c );
 				curtag.format.setColor( c );
 			    }
+			} else if ( it.key() == "link" ) {
+			    linkColor = QColor( *it );
 			}
 		    }
 		} else {
@@ -4108,7 +4110,10 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
     painter.setFont( lastFormat->font() );
 
     if ( doc && lastFormat->isAnchor() && !lastFormat->anchorHref().isEmpty() && lastFormat->useLinkColor() ) {
-	painter.setPen( QPen( cg.link() ) );
+	if ( doc->linkColor.isValid() )
+	    painter.setPen( doc->linkColor );
+	else
+	    painter.setPen( QPen( cg.link() ) );
 	if ( doc->underlineLinks() ) {
 	    QFont fn = lastFormat->font();
 	    fn.setUnderline( TRUE );
