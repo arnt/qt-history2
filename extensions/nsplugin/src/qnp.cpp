@@ -138,7 +138,6 @@ struct _NPInstance
 
 #ifdef Q_WS_WIN
     HWND            window;
-    WNDPROC            fDefaultWindowProc;
 #endif
 
     NPP npp;
@@ -333,11 +332,6 @@ NPP_New(NPMIMEType /*pluginType*/,
     This->fMode = mode;
 
     This->window = 0;
-
-#ifdef Q_WS_WIN
-    This->fDefaultWindowProc = NULL;
-#endif
-
     This->widget = 0;
 
     This->argc = argc;
@@ -367,11 +361,6 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
     This = (_NPInstance*) instance->pdata;
 
     if (This != NULL) {
-#ifdef Q_WS_WIN
-	SetWindowLong( This->window, GWL_WNDPROC,
-		(LONG)This->fDefaultWindowProc );
-#endif
-
 	delete This->widget;
 	delete This->instance;
 	delete [] This->argn;
@@ -385,7 +374,6 @@ NPP_Destroy(NPP instance, NPSavedData** /*save*/)
 
     return NPERR_NO_ERROR;
 }
-
 
 extern "C" NPError
 NPP_SetWindow(NPP instance, NPWindow* window)
@@ -401,11 +389,6 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 
     delete This->widget;
 
-#ifdef Q_WS_WIN
-    if (This->window)
-	SetWindowLong( This->window, GWL_WNDPROC,
-		       (LONG)This->fDefaultWindowProc );
-#endif
     if ( !window )
 	return result;
 
@@ -416,8 +399,6 @@ NPP_SetWindow(NPP instance, NPWindow* window)
 #endif
 #ifdef Q_WS_WIN
     This->window = (HWND) window->window;
-    This->fDefaultWindowProc =
-	(WNDPROC)GetWindowLong( This->window, GWL_WNDPROC);
 #endif
 
     This->x = window->x;
@@ -455,12 +436,19 @@ NPP_SetWindow(NPP instance, NPWindow* window)
     /* This->widget = */ // (happens sooner - in QNPWidget constructor)
     This->instance->newWindow();
 
+    if ( !This->widget )
+	return result;
+
 #ifdef Q_WS_X11
     This->widget->resize( This->width, This->height );
     XReparentWindow( This->widget->x11Display(), This->widget->winId(), This->window, 0, 0 );
     XSync( This->widget->x11Display(), False );
 #endif
 #ifdef Q_WS_WIN
+    ::SetWindowLong( This->widget->winId(), GWL_STYLE, WS_CHILD | WS_CLIPCHILDREN | WS_CLIPSIBLINGS );
+    ::SetParent( This->widget->winId(), This->window );
+    This->widget->raise();
+    This->widget->setGeometry( 0, 0, This->width, This->height );
 #endif
     This->widget->show();
     return result;
@@ -752,6 +740,14 @@ QNPWidget::QNPWidget() :
     }
     next_pi->widget = this;
     next_pi = 0;
+
+#ifdef Q_WS_WIN
+    clearWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu );
+    topData()->ftop = 0;
+    topData()->fright = 0;
+    topData()->fleft = 0;
+    topData()->fbottom = 0;
+#endif
 }
 
 /*!
@@ -929,10 +925,12 @@ QNPWidget* QNPInstance::widget()
 
     Note that the \c AsFileOnly method is not supported by Netscape
     2.0 and MSIE 3.0.
+
+    The default implementation accepts any stream.
 */
 bool QNPInstance::newStreamCreated(QNPStream*, StreamMode&)
 {
-    return FALSE;
+    return TRUE;
 }
 
 /*!
