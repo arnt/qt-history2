@@ -22,11 +22,9 @@
 
 class QTcpSocket;
 class QTimerEvent;
-class QTextStream;
 class QIODevice;
 
 class QHttpPrivate;
-class QHttpRequest;
 
 class QHttpHeaderPrivate;
 class Q_NETWORK_EXPORT QHttpHeader

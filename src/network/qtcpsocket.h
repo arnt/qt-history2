@@ -17,7 +17,6 @@
 #include "qabstractsocket.h"
 
 class QTcpSocketPrivate;
-class QHostAddress;
 
 class Q_NETWORK_EXPORT QTcpSocket : public QAbstractSocket
 {
