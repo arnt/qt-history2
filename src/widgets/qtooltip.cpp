@@ -1058,7 +1058,9 @@ QToolTipGroup::~QToolTipGroup()
   \property QToolTipGroup::delay
   \brief whether the display of the group text is delayed.
 
-  This property's default is TRUE.
+  If set to TRUE (the default), the group text is displayed at the time of
+  the tool tip.  Otherwise, the group text is displayed immediately when the
+  cursor enters the widget.
 */
 
 bool QToolTipGroup::delay() const
