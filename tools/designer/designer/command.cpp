@@ -41,7 +41,9 @@
 #include <qmultilineedit.h>
 #include <qstack.h>
 #include <qheader.h>
+#ifndef QT_NO_TABLE
 #include <qtable.h>
+#endif
 #include <qaction.h>
 
 CommandHistory::CommandHistory( int s )
@@ -506,7 +508,7 @@ bool SetPropertyCommand::checkProperty()
 	    setProperty( oldValue, oldCurrentItemText, FALSE );
 	    return FALSE;
 	}
-	
+
 	if ( widget->parent() && widget->parent()->inherits( "FormWindow" ) )
 	    formWindow()->mainWindow()->formNameChanged( (FormWindow*)( (QWidget*)widget )->parentWidget() );
     }
@@ -1313,6 +1315,7 @@ PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QT
 					    const QValueList<Column> &columns )
     : Command( n, fw ), newRows( rows ), newColumns( columns ), table( t )
 {
+#ifndef QT_NO_TABLE
     int i = 0;
     QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
     for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
@@ -1330,10 +1333,12 @@ PopulateTableCommand::PopulateTableCommand( const QString &n, FormWindow *fw, QT
 	    row.pix = table->verticalHeader()->iconSet( i )->pixmap();
 	oldRows.append( row );
     }
+#endif
 }
 
 void PopulateTableCommand::execute()
 {
+#ifndef QT_NO_TABLE
     QMap<QString, QString> columnFields;
     table->setNumCols( newColumns.count() );
     int i = 0;
@@ -1347,10 +1352,12 @@ void PopulateTableCommand::execute()
     i = 0;
     for ( QValueList<Row>::Iterator rit = newRows.begin(); rit != newRows.end(); ++rit, ++i )
 	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
+#endif
 }
 
 void PopulateTableCommand::unexecute()
 {
+#ifndef QT_NO_TABLE
     QMap<QString, QString> columnFields;
     table->setNumCols( oldColumns.count() );
     int i = 0;
@@ -1364,6 +1371,7 @@ void PopulateTableCommand::unexecute()
     i = 0;
     for ( QValueList<Row>::Iterator rit = oldRows.begin(); rit != oldRows.end(); ++rit, ++i )
 	table->verticalHeader()->setLabel( i, (*rit).pix, (*rit).text );
+#endif
 }
 
 // ------------------------------------------------------------
@@ -1603,4 +1611,3 @@ void AddToolBarCommand::unexecute()
 {
     toolBar->hide();
 }
-

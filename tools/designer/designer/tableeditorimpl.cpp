@@ -1,5 +1,7 @@
 #include "tableeditorimpl.h"
+#ifndef QT_NO_TABLE
 #include <qtable.h>
+#endif
 #include "formwindow.h"
 #include <qlabel.h>
 #include <qcombobox.h>
@@ -14,8 +16,13 @@
 #include "metadatabase.h"
 
 TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw, const char* name, bool modal, WFlags fl )
-    : TableEditorBase( parent, name, modal, fl ), editTable( (QTable*)editWidget ), formWindow( fw )
+    : TableEditorBase( parent, name, modal, fl ),
+#ifndef QT_NO_TABLE
+    editTable( (QTable*)editWidget ),
+#endif
+    formWindow( fw )
 {
+#ifndef QT_NO_TABLE
     labelColumnPixmap->setText( "" );
     labelRowPixmap->setText( "" );
 
@@ -48,6 +55,7 @@ TableEditor::TableEditor( QWidget* parent,  QWidget *editWidget, FormWindow *fw,
 #endif
 
     readFromTable();
+#endif
 }
 
 TableEditor::~TableEditor()
@@ -76,11 +84,13 @@ void TableEditor::columnTextChanged( const QString &s )
     if ( listColumns->currentItem() == -1 )
 	return;
     listColumns->changeItem( s, listColumns->currentItem() );
+#ifndef QT_NO_TABLE
     if ( table->horizontalHeader()->iconSet( listColumns->currentItem() ) )
 	table->horizontalHeader()->setLabel( listColumns->currentItem(),
 					     *table->horizontalHeader()->iconSet( listColumns->currentItem() ), s );
     else
 	table->horizontalHeader()->setLabel( listColumns->currentItem(), s );
+#endif
 }
 
 void TableEditor::columnUpClicked()
@@ -111,6 +121,7 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	labelColumnPixmap->setText( "" );
     editColumnText->blockSignals( FALSE );
 
+#ifndef QT_NO_TABLE
     if ( editTable->inherits( "QDataTable" ) ) {
 	QString s = *fieldMap.find( listColumns->index( i ) );
 	if ( s.isEmpty() )
@@ -120,6 +131,7 @@ void TableEditor::currentColumnChanged( QListBoxItem *i )
 	else
 	    comboFields->lineEdit()->setText( s );
     }
+#endif
 }
 
 void TableEditor::currentFieldChanged( const QString &s )
@@ -152,6 +164,7 @@ void TableEditor::deleteColumnClicked()
 {
     if ( listColumns->currentItem() == -1 )
 	return;
+#ifndef QT_NO_TABLE
     table->setNumCols( table->numCols() - 1 );
     delete listColumns->item( listColumns->currentItem() );
     readColumns();
@@ -159,12 +172,14 @@ void TableEditor::deleteColumnClicked()
 	listColumns->setCurrentItem( listColumns->firstItem() );
 	listColumns->setSelected( listColumns->firstItem(), TRUE );
     }
+#endif
 }
 
 void TableEditor::deleteRowClicked()
 {
     if ( listRows->currentItem() == -1 )
 	return;
+#ifndef QT_NO_TABLE
     table->setNumRows( table->numRows() - 1 );
     delete listRows->item( listRows->currentItem() );
     readRows();
@@ -172,10 +187,12 @@ void TableEditor::deleteRowClicked()
 	listRows->setCurrentItem( listRows->firstItem() );
 	listRows->setSelected( listRows->firstItem(), TRUE );
     }
+#endif
 }
 
 void TableEditor::newColumnClicked()
 {
+#ifndef QT_NO_TABLE
     table->setNumCols( table->numCols() + 1 );
     table->horizontalHeader()->setLabel( table->numCols() - 1, QString::number( table->numCols() ) );
     listColumns->insertItem( QString::number( table->numCols() ) );
@@ -188,16 +205,19 @@ void TableEditor::newColumnClicked()
 	editColumnText->setFocus();
 	editColumnText->selectAll();
     }
+#endif
 }
 
 void TableEditor::newRowClicked()
 {
+#ifndef QT_NO_TABLE
     table->setNumRows( table->numRows() + 1 );
     table->verticalHeader()->setLabel( table->numRows() - 1, QString::number( table->numRows() ) );
     listRows->insertItem( QString::number( table->numRows() ) );
     QListBoxItem *i = listRows->item( listRows->count() - 1 );
     listRows->setCurrentItem( i );
     listRows->setSelected( i, TRUE );
+#endif
 }
 
 void TableEditor::okClicked()
@@ -224,12 +244,14 @@ void TableEditor::rowTextChanged( const QString &s )
 {
     if ( listRows->currentItem() == -1 )
 	return;
+#ifndef QT_NO_TABLE
     listRows->changeItem( s, listRows->currentItem() );
     if ( table->verticalHeader()->iconSet( listRows->currentItem() ) )
 	table->verticalHeader()->setLabel( listRows->currentItem(),
 					     *table->verticalHeader()->iconSet( listRows->currentItem() ), s );
     else
 	table->verticalHeader()->setLabel( listRows->currentItem(), s );
+#endif
 }
 
 void TableEditor::rowUpClicked()
@@ -251,6 +273,7 @@ void TableEditor::applyClicked()
     QValueList<PopulateTableCommand::Column> cols;
 
     int i = 0;
+#ifndef QT_NO_TABLE
     for ( i = 0; i < table->horizontalHeader()->count(); ++i ) {
 	PopulateTableCommand::Column col;
 	col.text = table->horizontalHeader()->label( i );
@@ -266,11 +289,11 @@ void TableEditor::applyClicked()
 	    row.pix = table->verticalHeader()->iconSet( i )->pixmap();
 	rows.append( row );
     }
-
     PopulateTableCommand *cmd = new PopulateTableCommand( tr( "Edit Rows and Columns of '%1' " ).arg( editTable->name() ),
 							  formWindow, editTable, rows, cols );
     cmd->execute();
     formWindow->commandHistory()->addCommand( cmd );
+#endif
 }
 
 void TableEditor::chooseRowPixmapClicked()
@@ -286,16 +309,20 @@ void TableEditor::chooseRowPixmapClicked()
     if ( pix.isNull() )
 	return;
 
+#ifndef QT_NO_TABLE
     table->verticalHeader()->setLabel( listRows->currentItem(), pix, table->verticalHeader()->label( listRows->currentItem() ) );
     listRows->changeItem( pix, listRows->currentText(), listRows->currentItem() );
+#endif
 }
 
 void TableEditor::deleteRowPixmapClicked()
 {
     if ( listRows->currentItem() == -1 )
 	return;
+#ifndef QT_NO_TABLE
     table->verticalHeader()->setLabel( listRows->currentItem(), QPixmap(), table->verticalHeader()->label( listRows->currentItem() ) );
     listRows->changeItem( listRows->currentText(), listRows->currentItem() );
+#endif
 }
 
 void TableEditor::chooseColPixmapClicked()
@@ -310,21 +337,25 @@ void TableEditor::chooseColPixmapClicked()
 
     if ( pix.isNull() )
 	return;
-
+#ifndef QT_NO_TABLE
     table->horizontalHeader()->setLabel( listColumns->currentItem(), pix, table->horizontalHeader()->label( listColumns->currentItem() ) );
     listColumns->changeItem( pix, listColumns->currentText(), listColumns->currentItem() );
+#endif
 }
 
 void TableEditor::deleteColPixmapClicked()
 {
     if ( listColumns->currentItem() == -1 )
 	return;
+#ifndef QT_NO_TABLE
     table->horizontalHeader()->setLabel( listColumns->currentItem(), QPixmap(), table->horizontalHeader()->label( listColumns->currentItem() ) );
     listColumns->changeItem( listColumns->currentText(), listColumns->currentItem() );
+#endif
 }
 
 void TableEditor::readFromTable()
 {
+#ifndef QT_NO_TABLE
     QHeader *cols = editTable->horizontalHeader();
     table->setNumCols( cols->count() );
     QMap<QString, QString> columnFields = MetaDataBase::columnFields( editTable );
@@ -365,28 +396,33 @@ void TableEditor::readFromTable()
 	listRows->setCurrentItem( listRows->firstItem() );
 	listRows->setSelected( listRows->firstItem(), TRUE );
     }
+#endif
 }
 
 void TableEditor::readColumns()
 {
     int j = 0;
+#ifndef QT_NO_TABLE
     for ( QListBoxItem *i = listColumns->firstItem(); i; i = i->next(), ++j ) {
 	if ( i->pixmap() )
 	    table->horizontalHeader()->setLabel( j, *i->pixmap(), i->text() );
 	else
 	    table->horizontalHeader()->setLabel( j, i->text() );
     }
+#endif
 }
 
 void TableEditor::readRows()
 {
     int j = 0;
+#ifndef QT_NO_TABLE
     for ( QListBoxItem *i = listRows->firstItem(); i; i = i->next(), ++j ) {
 	if ( i->pixmap() )
 	    table->verticalHeader()->setLabel( j, *i->pixmap(), i->text() );
 	else
 	    table->verticalHeader()->setLabel( j, i->text() );
     }
+#endif
 }
 
 void TableEditor::saveFieldMap()

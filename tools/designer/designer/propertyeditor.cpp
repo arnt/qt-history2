@@ -2303,11 +2303,13 @@ static bool parent_is_data_aware( QObject *o )
 	return FALSE;
     QWidget *w = (QWidget*)o;
     QWidget *p = w->parentWidget();
+#ifndef QT_NO_SQL
     while ( p && !p->isTopLevel() ) {
 	if ( p->inherits( "QDesignerDataBrowser" ) || p->inherits( "QDesignerDataView" ) )
 	    return TRUE;
 	p = p->parentWidget();
     }
+#endif
     return FALSE;
 }
 

@@ -67,7 +67,9 @@
 #include <qregexp.h>
 #include <zlib.h>
 #include <qdatetime.h>
+#ifndef QT_NO_TABLE
 #include <qtable.h>
+#endif
 
 static QString makeIndent( int indent )
 {
@@ -600,7 +602,9 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "</column>" << endl;
 	}
 	saveItem( lv->firstChild(), ts, indent - 1 );
-    } else if ( obj->inherits( "QTable" ) ) {
+    }
+#ifndef QT_NO_TABLE
+    else if ( obj->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)obj;
 	int i;
 	QMap<QString, QString> columnFields = MetaDataBase::columnFields( table );
@@ -638,6 +642,7 @@ void Resource::saveItems( QObject *obj, QTextStream &ts, int indent )
 	    ts << makeIndent( indent ) << "</row>" << endl;
 	}
     }
+#endif
 }
 
 void Resource::saveItem( QListViewItem *i, QTextStream &ts, int indent )
@@ -1251,7 +1256,9 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	    lv->header()->setClickEnabled( clickable, i );
 	if ( !resizeable )
 	    lv->header()->setResizeEnabled( resizeable, i );
-    } else if ( widget->inherits( "QTable" ) ) {
+    }
+#ifndef QT_NO_TABLE
+    else if ( widget->inherits( "QTable" ) ) {
 	QTable *table = (QTable*)widget;
 	bool isRow;
 	if ( ( isRow = e.tagName() == "row" ) )
@@ -1291,6 +1298,7 @@ void Resource::createColumn( const QDomElement &e, QWidget *widget )
 	    fieldMap.insert( txt, field );
 	MetaDataBase::setColumnFields( table, fieldMap );
     }
+#endif
 }
 
 void Resource::loadItem( const QDomElement &e, QPixmap &pix, QString &txt, bool &hasPixmap )

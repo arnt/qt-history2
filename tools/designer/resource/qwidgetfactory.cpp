@@ -766,7 +766,9 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		if ( !v.toString().isEmpty() )
 		    QWhatsThis::add( (QWidget*)obj, v.toString() );
 	    }
-	    if ( prop == "database" && !obj->inherits( "QDataView" ) && !obj->inherits( "QDataBrowser" ) ) {
+#ifndef QT_NO_SQL
+	    if ( prop == "database" && !obj->inherits( "QDataView" )
+		 && !obj->inherits( "QDataBrowser" ) ) {
 		QStringList lst = DomTool::elementToVariant( e, QVariant( QStringList() ) ).toStringList();
 		if ( lst.count() > 2 ) {
 		    if ( dbControls )
@@ -781,7 +783,9 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		    sqlWidgetConnections.insert( (QWidget*)obj, conn );
 		    dbControls = conn.dbControls;
 		}
-	    } else if ( prop == "buddy" ) {
+	    } else
+#endif
+		if ( prop == "buddy" ) {
 		buddies.insert( obj->name(), v.toCString() );
 	    } else if ( prop == "frameworkCode" ) {
 		if ( !DomTool::elementToVariant( e, QVariant( TRUE, 0 ) ).toBool() ) {

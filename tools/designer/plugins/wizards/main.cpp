@@ -22,7 +22,10 @@
 #include <designerinterface.h>
 #include <qfeatures.h>
 #include <qwidget.h>
+#include <templatewizardiface.h>
+#ifndef QT_NO_SQL
 #include "sqlformwizardimpl.h"
+#endif
 #include "mainwindowwizard.h"
 
 class StandardTemplateWizardInterface : public TemplateWizardInterface
@@ -52,8 +55,11 @@ StandardTemplateWizardInterface::StandardTemplateWizardInterface()
 QStringList StandardTemplateWizardInterface::featureList() const
 {
     QStringList list;
-
-    list << "QDataBrowser" << "QDesignerDataBrowser" << "QDataView" << "QDesignerDataView" << "QMainWindow" << "QDataTable";
+#ifndef QT_NO_SQL
+    list << "QDataBrowser" << "QDesignerDataBrowser" << "QDataView" << \
+	"QDesignerDataView" << "QDataTable";
+#endif;
+    list << "QMainWindow";
 
     return list;
 }

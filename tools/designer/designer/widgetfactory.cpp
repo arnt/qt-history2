@@ -34,7 +34,9 @@
 #include "multilineeditorimpl.h"
 #include "../integration/kdevelop/kdewidgets.h"
 #include "../interfaces/widgetinterface.h"
+#ifndef QT_NO_TABLE
 #include "tableeditorimpl.h"
+#endif
 
 #include <qfeatures.h>
 
@@ -897,10 +899,12 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QRadioButton";
     else if ( o->inherits( "QDesignerCheckBox" ) )
 	return "QCheckBox";
+#ifndef QT_NO_SQL
     else if ( o->inherits( "QDesignerDataBrowser" ) )
 	return "QDataBrowser";
     else if ( o->inherits( "QDesignerDataView" ) )
 	return "QDataView";
+#endif
     return o->className();
 }
 
@@ -924,9 +928,11 @@ void WidgetFactory::initChangedProperties( QObject *o )
     } else if ( o->inherits( "QTabWidget" ) || o->inherits( "QWizard" ) ) {
 	MetaDataBase::setPropertyChanged( o, "pageTitle", TRUE );
 	MetaDataBase::setPropertyChanged( o, "pageName", TRUE );
+#ifndef QT_NO_TABLE
     } else if ( o->inherits( "QTable" ) && !o->inherits( "QDataTable" ) ) {
 	MetaDataBase::setPropertyChanged( o, "numRows", TRUE );
 	MetaDataBase::setPropertyChanged( o, "numCols", TRUE );
+#endif
     } else if ( o->inherits( "QSplitter" )  ) {
 	MetaDataBase::setPropertyChanged( o, "orientation", TRUE );
     }
@@ -1013,13 +1019,14 @@ void WidgetFactory::editWidget( int id, QWidget *parent, QWidget *editWidget, Fo
 	delete e;
 	return;
     }
-
+#ifndef QT_NO_TABLE
     if ( className.contains( "Table" ) ) {
 	TableEditor *e = new TableEditor( parent, editWidget, fw );
 	e->exec();
 	delete e;
 	return;
     }
+#endif
 }
 
 bool WidgetFactory::canResetProperty( QObject *w, const QString &propName )

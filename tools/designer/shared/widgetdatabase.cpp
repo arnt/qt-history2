@@ -242,6 +242,7 @@ void WidgetDatabase::setupDataBase()
 
     append( r );
 
+#ifndef QT_NO_SQL
     r = new WidgetDatabaseRecord;
     r->iconSet = "dateedit.xpm";
     r->name = "QDateEdit";
@@ -268,6 +269,7 @@ void WidgetDatabase::setupDataBase()
     r->includeFile = "qdatetimeedit.h";
 
     append( r );
+#endif
 
     r = new WidgetDatabaseRecord;
     r->iconSet = "multilineedit.xpm";
@@ -471,6 +473,7 @@ void WidgetDatabase::setupDataBase()
 
     append( r );
 
+#ifndef QT_NO_SQL
     r = new WidgetDatabaseRecord;
     r->iconSet = "";
     r->name = "QDataBrowser";
@@ -492,6 +495,7 @@ void WidgetDatabase::setupDataBase()
     r->isContainer = TRUE;
 
     append( r );
+#endif
 
     qt_init_kde_widget_database();
 
