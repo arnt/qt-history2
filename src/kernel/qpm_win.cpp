@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#63 $
+** $Id: //depot/qt/main/src/kernel/qpm_win.cpp#64 $
 **
 ** Implementation of QPixmap class for Win32
 **
@@ -23,7 +23,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#63 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_win.cpp#64 $");
 
 
 extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
@@ -372,14 +372,8 @@ QImage QPixmap::convertToImage() const
 	    uint *p = (uint*)image.scanLine(i);
 	    uint *end = p + image.width();
 	    while ( p < end ) {
-
-#if 0
-		#error "Need to take QPixmap::mask() into account here, "\
-			"by adding 0xff000000 (opaque) for 1-bits in the mask."
-#endif
-
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0xff00);
+		    (*p & 0x0000ff00);
 		p++;
 	    }
 	}
@@ -501,7 +495,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    uint *end = p + image.width();
 	    while ( p < end ) {
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0xff00);
+		    (*p & 0xff00ff00);
 		p++;
 	    }
 	}
@@ -514,7 +508,7 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    uint *end = p + image.width();
 	    while ( p < end ) {
 		*p = ((*p << 16) & 0xff0000) | ((*p >> 16) & 0xff) |
-		    (*p & 0xff00);
+		    (*p & 0xff00ff00);
 		p++;
 	    }
 	}
