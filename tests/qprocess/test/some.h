@@ -1,8 +1,7 @@
 #include <qobject.h>
 #include <qvbox.h>
 #include <qlabel.h>
-
-#include "../qprocess.h"
+#include <qprocess.h>
 
 
 class Some : public QObject

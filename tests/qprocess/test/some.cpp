@@ -5,7 +5,6 @@
 #include <qpushbutton.h>
 #include <qmessagebox.h>
 
-#include "../qprocess.h"
 #include "some.h"
 
 
