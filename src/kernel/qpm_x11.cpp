@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#60 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#61 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -10,7 +10,7 @@
 **
 *****************************************************************************/
 
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
 #include "qwmatrix.h"
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#60 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#61 $")
 
 
 /*****************************************************************************
@@ -63,15 +63,41 @@ bool QPixmap::optimAll = TRUE;
   Initializes the pixmap data.
  ----------------------------------------------------------------------------*/
 
-void QPixmap::init()
+void QPixmap::init( int w, int h, int d )
 {
+    static int serial = 0;
+    int dd = defaultDepth();
+
     data = new QPixmapData;
     CHECK_PTR( data );
+
     data->dirty	 = FALSE;
     data->optim	 = optimAll;
     data->uninit = TRUE;
     data->bitmap = FALSE;
+    data->ser_no = ++serial;
+    data->mask	 = 0;
     data->ximage = 0;
+
+    bool make_null = w == 0 || h == 0;		// create null pixmap
+    if ( d == 1 )				// monocrome pixmap
+	data->d = 1;
+    else if ( d < 0 || d == dd )		// def depth pixmap
+	data->d = dd;
+    else					// invalid depth
+	data->d = 0;
+    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
+	data->w = data->h = 0;
+	data->d = 0;
+#if defined(CHECK_RANGE)
+	if ( !make_null )
+	    warning( "QPixmap: Invalid pixmap parameters" );
+#endif
+	return;
+    }
+    data->w = w;
+    data->h = h;
+    hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
 
@@ -83,9 +109,7 @@ void QPixmap::init()
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
 {
-    init();
-    data->w = data->h = 0;
-    data->d = 0;
+    init( 0, 0, 0 );
 }
 
 /*----------------------------------------------------------------------------
@@ -106,27 +130,7 @@ QPixmap::QPixmap()
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
-    init();
-    int dd = DefaultDepth( dpy, qt_xscreen() );
-    bool make_null = w == 0 || h == 0;		// create null pixmap
-    if ( depth == 1 )				// monocrome pixmap
-	data->d = 1;
-    else if ( depth < 0 || depth == dd )	// compatible pixmap
-	data->d = dd;
-    else
-	data->d = 0;
-    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
-#if defined(CHECK_RANGE)
-	if ( !make_null )			// invalid parameters
-	    warning( "QPixmap: Invalid pixmap parameters" );
-#endif
-	return;
-    }
-    data->w = w;
-    data->h = h;
-    hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+    init( w, h, depth );
 }
 
 /*----------------------------------------------------------------------------
@@ -136,29 +140,7 @@ QPixmap::QPixmap( int w, int h, int depth )
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
-    int w = size.width();
-    int h = size.height();
-    init();
-    int dd = DefaultDepth( dpy, qt_xscreen() );
-    bool make_null = w == 0 || h == 0;		// create null pixmap
-    if ( depth == 1 )				// monocrome pixmap
-	data->d = 1;
-    else if ( depth < 0 || depth == dd )	// compatible pixmap
-	data->d = dd;
-    else
-	data->d = 0;
-    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
-#if defined(CHECK_RANGE)
-	if ( !make_null )			// invalid parameters
-	    warning( "QPixmap: Invalid pixmap parameters" );
-#endif
-	return;
-    }
-    data->w = w;
-    data->h = h;
-    hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
+    init( size.width(), size.height(), depth );
 }
 
 /*----------------------------------------------------------------------------
@@ -169,12 +151,10 @@ QPixmap::QPixmap( const QSize &size, int depth )
 QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
-    init();
-    if ( w <= 0 || h <= 0 ) {			// create null pixmap
-	data->w = data->h = 0;
-	data->d = 0;
+    init( 0, 0, 0 );
+    if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
-    }
+
     data->uninit = FALSE;
     data->w = w;  data->h = h;	data->d = 1;
     uchar *flipped_bits;
@@ -209,6 +189,8 @@ QPixmap::QPixmap( const QPixmap &pixmap )
 QPixmap::~QPixmap()
 {
     if( data->deref() ) {			// last reference lost
+	if ( data->mask )
+	    delete data->mask;
 	if ( data->ximage )
 	    XDestroyImage( (XImage*)data->ximage );
 	if ( hd )
@@ -227,6 +209,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 {
     pixmap.data->ref();				// avoid 'x = x'
     if ( data->deref() ) {			// last reference lost
+	if ( data->mask )
+	    delete data->mask;
 	if ( data->ximage )
 	    XDestroyImage( (XImage*)data->ximage );
 	if ( hd )
@@ -630,13 +614,17 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
     }
     detach();					// detach other references
     QImage  image = img;
-    int  w   = image.width();
-    int  h   = image.height();
-    int  d   = image.depth();
-    int  scr = qt_xscreen();
-    int  dd  = DefaultDepth(dpy,scr);
+    int	 w   = image.width();
+    int	 h   = image.height();
+    int	 d   = image.depth();
+    int	 scr = qt_xscreen();
+    int	 dd  = DefaultDepth(dpy,scr);
     bool force_mono = (dd == 1 || isQBitmap() || depth == 1);
 
+    if ( data->mask ) {				// get rid of the mask
+	delete data->mask;
+	data->mask = 0;
+    }
     if ( data->ximage ) {			// throw old image data
 	XDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
@@ -809,7 +797,7 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<256; i++ )	{		// compute number of colors
+	for ( i=0; i<256; i++ ) {		// compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
@@ -818,7 +806,7 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
 
 	PIX *pixarr	   = new PIX[ncols];	// pixel array
 	PIX *pixarr_sorted = new PIX[ncols];	// pixel array (sorted)
-	PIX *px 	   = &pixarr[0];
+	PIX *px		   = &pixarr[0];
 	int  maxpop = 0;
 	int  maxpix = 0;
 	CHECK_PTR( pixarr );
@@ -1004,21 +992,25 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
   Example of how to manually draw a rotated text at (100,200) in a widget:
   \code
-    QWidget  w;				// our widget
     char    *str = "Trolls R Qt";	// text to be drawn
     QFont    f( "Charter", 24 );	// use Charter 24pt font
-    QFontMetrics fm( f );		// get font metrics
-    QRect    r = fm.boundingRect(str);	// get text rectangle
+    QPixmap  pm( 8, 8 );
+    QPainter p;
+    QRect    r;				// text bounding rectangle
+    QPoint   bl;			// text baselink position
 
-    QPixmap  pm( r.size() );		// pixmap to be rotated
-    QPoint   bl = -r.topLeft();		// baseline position
-    QPainter p;				// paints pm
+    p.begin( &pm );			// first get the bounding
+    p.setFont( f );			//   text rectangle
+    r = p.fontMetrics().boundingRect(str);
+    bl = -r.topLeft();			// get baseline position
+    p.end();
 
-    pm.fill();				// fills pm with white
+    pm.resize( r.size() );		// resize to fit the text
+    pm.fill( white );			// fills pm with white
     p.begin( &pm );			// begin painting pm
     p.setFont( f );			// set the font
     p.setPen( blue );			// set blue text color
-    p.drawText( 0,bl, str );		// draw the text
+    p.drawText( bl, str );		// draw the text
     p.end();				// painting done
 
     QWMatrix m;				// transformation matrix
@@ -1029,11 +1021,32 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     int x, y;
     t.map( bl.x(),bl.y(), &x,&y );	// get pm's baseline pos in rp
 
-    bitBlt( &w, 100-x, 200-y,		// blt rp into the widget
+    bitBlt( myWidget, 100-x, 200-y,	// blt rp into a widget
 	    &rp, 0, 0, -1, -1 );
   \endcode
 
-  \bug 2 and 4 bits pixmaps not supported.
+  This example outlines how Qt implements rotated text under X-Windows.
+  The font calculation is the most tedious part. The rotation itself is
+  only 3 lines of code.
+
+  If you want to draw rotated text, you do not have to implement all the
+  code above. The code below does exactly the same thing as the example
+  above, except that it uses a QPainter.
+
+  \code
+    char    *str = "Trolls R Qt";	// text to be drawn
+    QFont    f( "Charter", 24 );	// use Charter 24pt font
+    QPainter p;
+
+    p.begin( myWidget );
+    p.translate( 100, 200 );		// translates coord system
+    p.rotate( -33.4 );			// rotates it counterclockwise
+    p.setFont( f );
+    p.drawText( 0, 0, str );
+    p.end();
+  \endcode
+
+  \bug 2 and 4 bits pixmaps are not supported.
 
   \sa trueMatrix(), QWMatrix, QPainter::setWorldMatrix()
  ----------------------------------------------------------------------------*/
@@ -1303,6 +1316,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QPixmap pm( w, h, (const char *)dptr, TRUE );
 	pm.data->bitmap = data->bitmap;
 	free( dptr );
+	if ( data->mask ) {
+	    if ( data->mask->data == data )	// pixmap == mask
+		pm.setMask( *((QBitmap*)(&pm)) );
+	    else
+		pm.setMask( data->mask->xForm(matrix) );
+	}
 	return pm;
     }
     else {
@@ -1315,6 +1334,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	pm.data->bitmap = data->bitmap;
 	XPutImage( dpy, pm.handle(), gc, xi, 0, 0, 0, 0, w, h);
 	XDestroyImage( xi );
+	if ( data->mask )			// xform mask, too
+	    pm.setMask( data->mask->xForm(matrix) );
 	return pm;
     }
 }

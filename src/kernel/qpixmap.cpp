@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#44 $
 **
 ** Implementation of QPixmap class
 **
@@ -10,14 +10,14 @@
 **
 *****************************************************************************/
 
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qimage.h"
 #include "qwidget.h"
 #include "qpainter.h"
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#43 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#44 $")
 
 
 /*----------------------------------------------------------------------------
@@ -110,8 +110,10 @@ void QPixmap::detach()
 QPixmap QPixmap::copy() const
 {
     QPixmap tmp( data->w, data->h, data->d );
-    if ( !tmp.isNull() )
+    if ( !tmp.isNull() )			// copy the bitmap
 	bitBlt( &tmp, 0,0, this, 0,0, data->w, data->h );
+    if ( data->mask )				// copy the mask
+	tmp.setMask( *data->mask );
     tmp.data->optim  = data->optim;		// copy optim flag
     tmp.data->bitmap = data->bitmap;		// copy bitmap flag
     return tmp;
@@ -182,6 +184,47 @@ QPixmap &QPixmap::operator=( const QImage &image )
 
 
 /*----------------------------------------------------------------------------
+  \fn const QBitmap *QPixmap::mask() const
+  Returns the mask bitmap, or null if no mask has been set.
+
+  \sa setMask(), QBitmap
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Sets a mask bitmap.
+
+  The \e mask bitmap defines the clip mask for this pixmap. Every pixel in
+  \e mask corresponds to a pixel in this pixmap. Pixel value 1 means opaque
+  and pixel value 0 means transparent.	The mask must have the same size as
+  this pixmap.
+
+  Setting a \link isNull() null\endlink mask resets the mask,
+
+  \sa mask(), QBitmap
+ ----------------------------------------------------------------------------*/
+
+void QPixmap::setMask( const QBitmap &mask )
+{
+    if ( mask.isNull() ) {			// reset the mask
+	delete data->mask;
+	data->mask = 0;
+	return;
+    }
+    if ( mask.width() != width() || mask.height() != height() ) {
+#if defined(CHECK_RANGE)
+	warning( "QPixmap::setMask: The pixmap and the mask must have "
+		 "the same size" );
+#endif
+	return;
+    }
+    if ( data->mask )				// mask was previously set
+	*data->mask = mask;
+    else					// new mask
+	data->mask = new QBitmap( mask );
+}
+
+
+/*----------------------------------------------------------------------------
   \fn void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
   Fills the pixmap with the widget's background color or pixmap.
 
@@ -225,7 +268,7 @@ void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
 
 void QPixmap::resize( int w, int h )
 {
-    if ( w<1 || h<1 ) {				// will become null?
+    if ( w < 1 || h < 1 ) {			// will become null?
 	QPixmap pm;
 	pm.data->optim	= data->optim;		// keep optimization flag
 	pm.data->bitmap = data->bitmap;		// keep is-a flag
@@ -245,6 +288,11 @@ void QPixmap::resize( int w, int h )
 		QMIN(height(),h) );
     pm.data->optim  = data->optim;		// keep optim flag
     pm.data->bitmap = data->bitmap;		// keep bitmap flag
+    if ( data->mask ) {				// resize mask as well
+	QBitmap m = *data->mask;
+	m.resize( w, h );
+	pm.setMask( m );
+    }
     *this = pm;
 }
 

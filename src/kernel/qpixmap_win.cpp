@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#21 $
 **
 ** Implementation of QPixmap class for Windows
 **
@@ -10,119 +10,91 @@
 **
 *****************************************************************************/
 
-#include "qpixmap.h"
+#include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdc.h"
 #include "qwmatrix.h"
 #include "qapp.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_win.cpp#21 $")
 
 
 bool QPixmap::optimAll = TRUE;
 
 
-void QPixmap::init()
+void QPixmap::init( int w, int h, int d )
 {
+    static int serial = 0;
+    int dd = defaultDepth();
+
     data = new QPixmapData;
     CHECK_PTR( data );
+
     data->dirty	 = FALSE;
     data->optim	 = optimAll;
     data->uninit = TRUE;
     data->bitmap = FALSE;
-    data->hbm = 0;
+    data->ser_no = ++serial;
+    data->mask	 = 0;
+    data->hbm	 = 0;
+
+    bool make_null = w == 0 || h == 0;		// create null pixmap
+    if ( d == 1 )				// monocrome pixmap
+	data->d = 1;
+    else if ( d < 0 || d == dd )		// compatible pixmap
+	data->d = dd;
+    else
+	data->d = 0;
+    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
+	data->w = data->h = 0;
+	data->d = 0;
+#if defined(CHECK_RANGE)
+	if ( !make_null )			// invalid parameters
+	    warning( "QPixmap: Invalid pixmap parameters" );
+#endif
+	return;
+    }
+    data->w = w;
+    data->h = h;
+    if ( data->d == dd ) {			// compatible bitmap
+	HANDLE hdc = GetDC( 0 );
+	data->hbm = CreateCompatibleBitmap( hdc, w, h );
+	ReleaseDC( 0, hdc );
+    }
+    else					// monocrome bitmap
+	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
+    if ( data->optim )
+	allocMemDC();
 }
 
 
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
 {
-    init();
-    data->w = data->h = 0;
-    data->d = 0;
+    init( 0, 0, 0 );
 }
 
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
-    init();
-    int dd = defaultDepth();
-    bool make_null = w == 0 || h == 0;		// create null pixmap
-    if ( depth == 1 )				// monocrome pixmap
-	data->d = 1;
-    else if ( depth < 0 || depth == dd )	// compatible pixmap
-	data->d = dd;
-    else
-	data->d = 0;
-    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
-#if defined(CHECK_RANGE)
-	if ( !make_null )			// invalid parameters
-	    warning( "QPixmap: Invalid pixmap parameters" );
-#endif
-	return;
-    }
-    data->w = w;
-    data->h = h;
-    if ( data->d == dd ) {			// compatible bitmap
-	HANDLE hdc = GetDC( 0 );
-	data->hbm = CreateCompatibleBitmap( hdc, w, h );
-	ReleaseDC( 0, hdc );
-    }
-    else					// monocrome bitmap
-	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
-    if ( data->optim )
-	allocMemDC();
+    init( w, h, depth );
 }
 
 QPixmap::QPixmap( const QSize &size, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
-    int w = size.width();
-    int h = size.height();
-    init();
-    int dd = defaultDepth();
-    bool make_null = w == 0 || h == 0;		// create null pixmap
-    if ( depth == 1 )				// monocrome pixmap
-	data->d = 1;
-    else if ( depth < 0 || depth == dd )	// compatible pixmap
-	data->d = dd;
-    else
-	data->d = 0;
-    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
-	data->w = data->h = 0;
-	data->d = 0;
-#if defined(CHECK_RANGE)
-	if ( !make_null )			// invalid parameters
-	    warning( "QPixmap: Invalid pixmap parameters" );
-#endif
-	return;
-    }
-    data->w = w;
-    data->h = h;
-    if ( data->d == dd ) {			// compatible bitmap
-	HANDLE hdc = GetDC( 0 );
-	data->hbm = CreateCompatibleBitmap( hdc, w, h );
-	ReleaseDC( 0, hdc );
-    }
-    else					// monocrome bitmap
-	data->hbm = CreateBitmap( w, h, 1, 1, 0 );
-    if ( data->optim )
-	allocMemDC();
+    init( size.width(), size.height(), depth );
 }
 
 QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
     extern char *qt_get_bitflip_array();	// defined in qimage.cpp
-    init();
-    if ( w <= 0 || h <= 0 ) {			// create null pixmap
-	data->w = data->h = 0;
-	data->d = 0;
+    init( 0, 0, 0 );
+    if ( w <= 0 || h <= 0 )			// create null pixmap
 	return;
-    }
+
     data->uninit = FALSE;
     data->w = w;  data->h = h;	data->d = 1;
 
@@ -181,6 +153,8 @@ QPixmap::~QPixmap()
 {
     if ( data->deref() ) {			// last reference lost
 	freeMemDC();
+	if ( data->mask )
+	    delete data->mask;
 	if ( data->hbm )
 	    DeleteObject( data->hbm );
 	delete data;
@@ -217,6 +191,8 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
     pixmap.data->ref();				// avoid 'x = x'
     if ( data->deref() ) {			// last reference lost
 	freeMemDC();
+	if ( data->mask )
+	    delete data->mask;
 	if ( data->hbm )
 	    DeleteObject( data->hbm );
 	delete data;
@@ -420,7 +396,7 @@ bool QPixmap::convertFromImage( const QImage &img, int depth )
 	return FALSE;
     }
     QImage image = img;
-    int    d = image.depth();
+    int	   d = image.depth();
     bool   force_mono = (isQBitmap() || depth == 1);
 
     if ( force_mono ) {				// must be monochrome
@@ -569,25 +545,18 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QWMatrix mat( 1.0F, 0.0F, 0.0F, 1.0F, -xmin, -ymin );
 	mat = matrix * mat;
 
-	if ( mat.m12() != 0.0 || mat.m21() != 0.0 ) {
-	    QPointArray a( QRect(0,0,ws,hs) );
-	    a = mat.map( a );
-	    QRect r = a.boundingRect().normalize();
-	    h = r.height();
-	    w = r.width();
-	}
-	else {					// no rotation/shearing
-	    h = qRound( mat.m22()*hs );
-	    w = qRound( mat.m11()*ws );
-	    h = QABS( h );
-	    w = QABS( w );
-	}
+	QPointArray a( QRect(0,0,ws,hs) );
+	a = mat.map( a );
+	QRect r = a.boundingRect().normalize();
+	h = r.height();
+	w = r.width();
+
 	bool invertible;
 	mat = mat.invert( &invertible );	// invert matrix
 
-	if ( !invertible )			// not invertible
+	if ( !invertible ) {			// not invertible
 	    w = 0;
-
+	}
 	else {
 	    p[0].x = qRound(x1 - xmin);
 	    p[0].y = qRound(y1 - ymin);
@@ -605,7 +574,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     }
 
     bool src_tmp;
-    QPixmap *self = (QPixmap*)this;
+    QPixmap *self = (QPixmap*)this;		// mutable
     if ( !handle() ) {
 	self->allocMemDC();
 	src_tmp = TRUE;
@@ -639,6 +608,12 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     if ( src_tmp )
 	self->freeMemDC();
 
+    if ( data->mask ) {
+	if ( data->mask->data == data )		// pixmap == mask
+	    pm.setMask( *((QBitmap*)(&pm)) );
+	else
+	    pm.setMask( data->mask->xForm(matrix) );
+    }
     return pm;
 }
 

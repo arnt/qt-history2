@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#50 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#51 $
 **
 ** Definition of QPixmap class
 **
@@ -39,7 +39,7 @@ public:
     QSize	size()		const { return QSize(data->w,data->h); }
     QRect	rect()		const { return QRect(0,0,data->w,data->h); }
     int		depth()		const { return data->d; }
-    static int  defaultDepth();
+    static int	defaultDepth();
 
     void	fill( const QColor &fillColor=white );
     void	fill( const QWidget *, int xofs, int yofs );
@@ -47,6 +47,8 @@ public:
     void	resize( int width, int height );
     void	resize( const QSize & );
 
+    const QBitmap *mask() const;
+    void	setMask( const QBitmap & );
 
     static  QPixmap  grabWindow( WId, int x=0, int y=0, int w=-1, int h=-1 );
 
@@ -93,6 +95,8 @@ protected:
 	uint	optim  : 1;
 	uint	uninit : 1;
 	uint	bitmap : 1;
+	int	ser_no;
+	QBitmap *mask;
 #if defined(_WS_WIN_)
 	HANDLE	hbm;
 #elif defined(_WS_PM_)
@@ -104,23 +108,12 @@ protected:
     } *data;
 
 private:
-    void	init();
+    void	init( int, int, int );
     QPixmap	copy() const;
     static bool optimAll;
     friend void bitBlt( QPaintDevice *, int, int, const QPaintDevice *,
 			int, int, int, int, RasterOp );
 };
-
-
-inline void QPixmap::resize( const QSize &s )
-{
-    resize( s.width(), s.height() );
-}
-
-inline void QPixmap::fill( const QWidget *w, const QPoint &ofs )
-{
-    fill( w, ofs.x(), ofs.y() );
-}
 
 
 inline bool QPixmap::isNull() const
@@ -130,6 +123,21 @@ inline bool QPixmap::isNull() const
 #else
     return data->hbm == 0;
 #endif
+}
+
+inline void QPixmap::fill( const QWidget *w, const QPoint &ofs )
+{
+    fill( w, ofs.x(), ofs.y() );
+}
+
+inline void QPixmap::resize( const QSize &s )
+{
+    resize( s.width(), s.height() );
+}
+
+inline const QBitmap *QPixmap::mask() const
+{
+    return data->mask;
 }
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
