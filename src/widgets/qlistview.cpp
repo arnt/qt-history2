@@ -103,12 +103,36 @@ struct QListViewPrivate
     // for sorting
     class SortableItem {
     public:
+	/*
+	  We could be smarter and keep a pointer to the QListView
+	  item instead of numCols, col and asc. This would then allow
+	  us to use the physical ordering of columns rather than the
+	  logical. Microsoft uses the logical ordering, so there is
+	  some virtue in doing so, although it prevents the user from
+	  chosing the secondary key.
+	*/
 	QListViewItem * item;
+	int numCols;
 	int col;
 	bool asc;
-	bool operator<( const SortableItem& i ) const { return item->compare( i.item, col, asc ) < 0; }
-	bool operator<=(const SortableItem& i ) const { return item->compare( i.item, col, asc ) <= 0; }
-	bool operator>( const SortableItem& i ) const { return item->compare( i.item, col, asc ) > 0; }
+
+	bool operator<( const SortableItem& i ) const { return cmp( i ) < 0; }
+	bool operator<=( const SortableItem& i ) const { return cmp( i ) <= 0; }
+	bool operator>( const SortableItem& i ) const { return cmp( i ) > 0; }
+
+	int cmp( const SortableItem& i ) const {
+	    int diff = item->compare( i.item, col, asc );
+	    if ( diff == 0 && numCols != 1 ) {
+		for ( int j = 0; j < numCols; j++ ) {
+		    if ( j != col ) {
+			diff = item->compare( i.item, j, asc );
+			if ( diff != 0 )
+			    break;
+		    }
+		}
+	    }
+	    return diff;
+	}
     };
 
     class ItemColumnInfo {
@@ -1217,8 +1241,10 @@ void QListViewItem::sortChildItems( int column, bool ascending )
     QListViewPrivate::SortableItem * siblings
 	= new QListViewPrivate::SortableItem[nChildren];
     QListViewItem * s = childItem;
+    int nColumns = listView()->columns();
     int i = 0;
-    while ( s && i<nChildren ) {
+    while ( s && i < nChildren ) {
+	siblings[i].numCols = nColumns;
 	siblings[i].col = column;
 	siblings[i].asc = ascending;
 	siblings[i].item = s;

@@ -388,8 +388,7 @@ void QPainter::updateFont()
 	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !hdc )
 	    return;
     }
-    bool   ownFont = pdev->devType() == QInternal::Printer;
-    if ( ownFont ) {
+    if ( pdev->devType() == QInternal::Printer ) {
 	int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
 	// ### fix compat mode
