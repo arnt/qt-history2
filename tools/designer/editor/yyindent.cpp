@@ -50,6 +50,7 @@
 */
 
 #include <qregexp.h>
+#include <qstringlist.h>
 
 /* qmake ignore Q_OBJECT */
 
