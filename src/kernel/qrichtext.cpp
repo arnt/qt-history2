@@ -3762,6 +3762,11 @@ void QTextString::checkBidi() const
     QTextString *that = (QTextString *)this;
     that->bidiDirty = FALSE;
     int length = data.size();
+    if ( !length ) {
+	that->bidi = FALSE;
+	that->rightToLeft = dir == QChar::DirR;
+	return;
+    }
     const QTextStringChar *start = data.data();
     const QTextStringChar *end = start + length;
 
