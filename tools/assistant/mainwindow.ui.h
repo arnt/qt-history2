@@ -489,6 +489,9 @@ void MainWindow::showSettingsDialog( int page )
     sh->item( "pre" )->setFontFamily( family );
     sh->item( "code" )->setFontFamily( family );
     sh->item( "tt" )->setFontFamily( family );
+    browser->setStyleSheet( sh );
+    browser->setText( browser->text() );
+    showLink( browser->source() );
 }
 
 void MainWindow::hide()
