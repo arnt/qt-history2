@@ -7,7 +7,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32 /Igenerators\mac /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 		/I$(QTDIR)\mkspecs\win32-msvc \
-		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL /DQT_NO_COMPRESS
+		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL /DQT_NO_COMPRESS /DUNICODE
 CXXFLAGS    =   $(CFLAGS)
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib
