@@ -5,6 +5,7 @@ $Id$
 #include "structureparser.h"
 #include <qfile.h>
 #include <qxml.h>
+#include <qwindowdefs.h>
 
 int main( int argc, char **argv )
 {
