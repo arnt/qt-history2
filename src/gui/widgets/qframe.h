@@ -28,8 +28,8 @@ class Q_GUI_EXPORT QFrame : public QWidget
     Q_PROPERTY(Shadow frameShadow READ frameShadow WRITE setFrameShadow)
     Q_PROPERTY(int lineWidth READ lineWidth WRITE setLineWidth)
     Q_PROPERTY(int midLineWidth READ midLineWidth WRITE setMidLineWidth)
-    QDOC_PROPERTY(int frameWidth READ frameWidth)
-    QDOC_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect)
+    Q_PROPERTY(int frameWidth READ frameWidth)
+    Q_PROPERTY(QRect frameRect READ frameRect WRITE setFrameRect DESIGNABLE false)
 
 public:
     QFrame(QWidget* parent = 0, Qt::WFlags f = 0);

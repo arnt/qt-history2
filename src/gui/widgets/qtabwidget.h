@@ -29,7 +29,7 @@ class Q_GUI_EXPORT QTabWidget : public QWidget
     Q_PROPERTY(TabPosition tabPosition READ tabPosition WRITE setTabPosition)
     Q_PROPERTY(TabShape tabShape READ tabShape WRITE setTabShape)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
-    QDOC_PROPERTY(int count READ count)
+    Q_PROPERTY(int count READ count)
     Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
 
 public:

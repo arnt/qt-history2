@@ -26,7 +26,7 @@ class Q_GUI_EXPORT QTabBar: public QWidget
     Q_ENUMS(Shape)
     Q_PROPERTY(Shape shape READ shape WRITE setShape)
     Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
-    QDOC_PROPERTY(int count READ count)
+    Q_PROPERTY(int count READ count)
 
 public:
     QTabBar(QWidget* parent=0);

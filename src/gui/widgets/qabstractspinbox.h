@@ -32,8 +32,8 @@ class Q_GUI_EXPORT QAbstractSpinBox : public QWidget
     Q_PROPERTY(bool slider READ slider WRITE setSlider)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(ButtonSymbols buttonSymbols READ buttonSymbols WRITE setButtonSymbols)
-    QDOC_PROPERTY(QString text READ text)
-    QDOC_PROPERTY(QString cleanText READ cleanText)
+    Q_PROPERTY(QString text READ text)
+    Q_PROPERTY(QString cleanText READ cleanText)
 
 public:
     QAbstractSpinBox(QWidget *parent = 0);
