@@ -21,6 +21,7 @@
 #include <qpopupmenu.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
+#include <qfiledialog.h>
 
 #include "qvfb.h"
 #include "qvfbview.h"
@@ -127,6 +128,8 @@ void QVFb::enableCursor( bool e )
 void QVFb::createMenu()
 {
     QPopupMenu *file = new QPopupMenu( this );
+    file->insertItem( "&Save image...", this, SLOT(saveImage()) );
+    file->insertSeparator();
     file->insertItem( "&Quit", qApp, SLOT(quit()) );
 
     menuBar()->insertItem( "&File", file );
@@ -143,6 +146,14 @@ void QVFb::createMenu()
     help->insertItem("About...", this, SLOT(about()));
     menuBar()->insertSeparator();
     menuBar()->insertItem( "&Help", help );
+}
+
+void QVFb::saveImage()
+{
+    QString filename = QFileDialog::getOpenFileName("snapshot.png", "*.png", this, "", "Save snapshot...");
+    if ( !!filename ) {
+	view->saveAs(filename);
+    }
 }
 
 void QVFb::toggleCursor()

@@ -35,6 +35,7 @@ public:
 
 public slots:
     void setRate( int );
+    void saveAs( const QString& );
 
 protected slots:
     void timeout();

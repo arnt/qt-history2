@@ -255,3 +255,11 @@ void QVFbView::keyReleaseEvent( QKeyEvent *e )
 		     FALSE, e->isAutoRepeat());
 }
 
+
+void QVFbView::saveAs( const QString& filename )
+{
+    QImage img( data + hdr->dataoffset,
+		hdr->width, hdr->height, hdr->depth, hdr->clut,
+		256, QImage::LittleEndian );
+    img.save(filename,"PNG");
+}

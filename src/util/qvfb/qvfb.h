@@ -34,6 +34,7 @@ public:
     void enableCursor( bool e );
 
 protected slots:
+    void saveImage();
     void toggleCursor();
     void changeRate();
     void about();
