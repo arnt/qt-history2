@@ -2,7 +2,6 @@
 #include "qtools_p.h"
 #include <string.h>
 
-
 /*
 
 Technicalities
@@ -56,8 +55,16 @@ void QListData::realloc(int alloc)
 void **QListData::append()
 {
     Q_ASSERT( d->ref == 1 );
-    if (d->end + 1 >  d->alloc)
-	realloc(grow(d->alloc + 1));
+    if (d->end == d->alloc) {
+	int n = d->end - d->begin;
+	if (d->begin > 2 * d->alloc / 3) {
+	    ::memcpy(d->array + n, d->array + d->begin, n * sizeof(void *));
+            d->begin = n;
+            d->end = n * 2;
+        } else {
+	    realloc(grow(d->alloc + 1));
+        }
+    }
     return d->array + d->end++;
 }
 
@@ -67,28 +74,30 @@ void **QListData::append(const QListData& l)
     int e = d->end;
     int n = l.d->end - l.d->begin;
     if (n) {
-	if (e + n >  d->alloc)
+	if (e + n > d->alloc)
 	    realloc(grow(e + l.d->end - l.d->begin));
-	::memcpy(d->array + d->end, l.d->array + l.d->begin,
-		  n * sizeof(void*));
+	::memcpy(d->array + d->end, l.d->array + l.d->begin, n * sizeof(void*));
 	d->end += n;
     }
     return d->array + e;
 }
 
-
 void **QListData::prepend()
 {
     Q_ASSERT( d->ref == 1 );
-    if ( d->begin == 0) {
-	realloc(grow(d->alloc + 1));
-	int offset = d->alloc - d->end;
-	::memmove(d->array + d->begin + offset, d->array + d->begin,
-		   (d->end-d->begin) * sizeof(void*));
-	d->begin += offset;
-	d->end += offset;
+    if (d->begin == 0) {
+	if (d->end >= d->alloc / 3)
+	    realloc(grow(d->alloc + 1));
+
+	if (d->end < d->alloc / 3)
+	    d->begin = d->alloc - 2 * d->end;
+        else
+	    d->begin = d->alloc - d->end;
+
+	::memmove(d->array + d->begin, d->array, d->end * sizeof(void *));
+        d->end += d->begin;
     }
-    return d->array +  --d->begin;
+    return d->array + --d->begin;
 }
 
 void **QListData::insert(int i)
@@ -113,12 +122,12 @@ void QListData::remove(int i)
     Q_ASSERT( d->ref == 1 );
     i += d->begin;
     if (i - d->begin < d->end - i) {
-	::memmove(d->array + d->begin + 1,  d->array + d->begin,
-		   (i - d->begin) * sizeof(void*));
+	if (int offset = i - d->begin)
+	    ::memmove(d->array + d->begin + 1,  d->array + d->begin, offset * sizeof(void *));
 	d->begin++;
     } else {
-	::memmove(d->array + i,  d->array + i + 1,
-		   (d->end - i - 1) * sizeof(void*));
+	if (int offset = d->end - i - 1)
+	    ::memmove(d->array + i,  d->array + i + 1, offset * sizeof(void *));
 	d->end--;
     }
 }
@@ -148,11 +157,11 @@ void QListData::move(int from, int to)
     to += d->begin;
     void *t = d->array[from]; 
     if (from < to) {
-      ::memmove(d->array + from, d->array + from + 1, 
-		(to - from) * sizeof(void*));
+	::memmove(d->array + from, d->array + from + 1, 
+		  (to - from) * sizeof(void*));
     } else {
-      ::memmove(d->array + to + 1, d->array + to, 
-		(from - to) * sizeof(void*));
+	::memmove(d->array + to + 1, d->array + to, 
+		  (from - to) * sizeof(void*));
     }
     d->array[to] = t;
 }
@@ -164,5 +173,3 @@ void **QListData::erase(void **xi)
     remove(i);
     return d->array + d->begin + i;
 }
-
-
