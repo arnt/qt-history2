@@ -246,6 +246,13 @@ void QToolBarSeparator::paintEvent( QPaintEvent * )
   You may use most widgets within a toolbar, with QToolButton
   and QComboBox being the most common.
 
+  Note that if you create a new widget on a already visible QToolBar,
+  this widget becomes automatically visible without explicitly calling
+  show() on it (unlike in all other widget containers in Qt). Please
+  call explicitly show() on all widgets you put into an already
+  visible QToolBar anyway, as this behavior might be fixed in the
+  future.
+
   QToolBars, like QDockWindows, are located in QDockAreas or float as
   top level windows. QMainWindow provides four QDockAreas (top, left,
   right and bottom). When you create a new toolbar (as in the example
