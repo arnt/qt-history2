@@ -257,7 +257,7 @@ QString WorkspaceItem::text( int column ) const
 	    return Project::tr("<No Project>" );
 	} else if ( MainWindow::self->singleProjectMode() ) {
 	    QString s = project->makeRelative( project->fileName() );
-	    s = s.left( s.find( '.' ) );
+	    s = s.left( s.findRev( '.' ) );
 	    return s;
 	}
 	return project->makeRelative( project->fileName() );
