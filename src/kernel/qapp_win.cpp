@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#22 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#21 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#22 $")
 
 
 // --------------------------------------------------------------------------
@@ -1239,20 +1239,18 @@ extern QCursor *qt_grab_cursor();
 
 bool QETWidget::translateMouseEvent( const MSG &msg )
 {
-    static bool capture = FALSE;
+    static bool	  capture = FALSE;
+    static QPoint pos;
     int	   type;				// event parameters
-    QPoint pos;
     int	   button;
     int	   state;
 
-    pos.rx() = LOWORD(msg.lParam);		// get position
-    pos.ry() = HIWORD(msg.lParam);
     for ( int i=0; mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 ) ;
     if ( !mouseTbl[i] )
 	return FALSE;
-    type = mouseTbl[++i];			// event type
+    type   = mouseTbl[++i];			// event type
     button = mouseTbl[++i];			// which button
-    state = translateButtonState( msg.wParam ); // button state
+    state  = translateButtonState( msg.wParam ); // button state
     if ( type == Event_MouseMove ) {
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
@@ -1275,6 +1273,17 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 	if ( (state == 0 || !capture) && !testWFlags(WMouseTracking) )
 	    return TRUE;			// no button
+	POINT curPos;
+	GetCursorPos( &curPos );		// compress mouse move
+	ScreenToClient( id(), &curPos );
+	if ( curPos.x == pos.x() && curPos.y == pos.y() )
+	    return TRUE;			// same position
+	pos.rx() = (short)curPos.x;
+	pos.ry() = (short)curPos.y;
+    }
+    else {
+	pos.rx() = LOWORD(msg.lParam);		// get position
+	pos.ry() = HIWORD(msg.lParam);
     }
     if ( popupWidgets ) {			// oops, in popup mode
 	QWidget *popup = popupWidgets->last();
@@ -1304,6 +1313,8 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	}
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( this, &e );	// send event
+	if ( type != Event_MouseMove )
+	    pos.rx() = pos.ry() = -9999;	// init for move compression
     }
     return TRUE;
 }
