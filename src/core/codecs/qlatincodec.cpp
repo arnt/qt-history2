@@ -52,11 +52,12 @@ QByteArray QLatin1Codec::name() const
 QList<QByteArray> QLatin1Codec::aliases() const
 {
     QList<QByteArray> list;
-    list << "US_ASCII"
-         << "latin1"
+    list << "latin1"
          << "CP819"
          << "IBM918"
-         << "iso-ir-100";
+         << "iso-ir-100"
+         << "US_ASCII"
+         << "ANSI_X3.4-1968";
     return list;
 }
 

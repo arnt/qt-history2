@@ -79,18 +79,26 @@ static bool nameMatch(const QByteArray &name, const QByteArray &test)
         }
         ++n;
     }
+    while (*h && !isalnum((uchar)*h))
+           ++h;
     return (*h == '\0');
 }
 
 
 static QTextCodec *createForName(const QByteArray &name)
 {
+    qDebug("looking for codec '%s'", name.data());
     QFactoryLoader *l = loader();
-    if (QTextCodecFactoryInterface *factory = qt_cast<QTextCodecFactoryInterface*>(l->instance(name))) {
-        QStringList keys = l->keys();
-        for (int i = 0; i < keys.size(); ++i) {
-            if (nameMatch(name, keys.at(i).toLatin1()))
-                return factory->create(keys.at(i).toLatin1());
+    QStringList keys = l->keys();
+    for (int i = 0; i < keys.size(); ++i) {
+        qDebug("  comparing to '%s'", keys.at(i).latin1());
+        if (nameMatch(name, keys.at(i).toLatin1())) {
+            QByteArray realName = keys.at(i).toLatin1();
+            if (QTextCodecFactoryInterface *factory
+                = qt_cast<QTextCodecFactoryInterface*>(l->instance(realName))) {
+                qDebug("    match!");
+                return factory->create(realName);
+            }
         }
     }
     return 0;
@@ -126,6 +134,8 @@ static void deleteAllCodecs()
 {
     if (!all)
         return;
+
+    destroying_is_ok = true;
 
     qDeleteAll(*all);
     delete all;

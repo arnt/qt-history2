@@ -32,6 +32,7 @@ public:
     virtual ~QTextCodec();
 
     static QTextCodec* codecForName(const QByteArray &name);
+    static QTextCodec* codecForName(const char *name) { return codecForName(QByteArray(name)); }
     static QTextCodec* codecForMib(int mib);
 
     static QList<QByteArray> availableCodecs();
