@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qpsprn.cpp#42 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -26,7 +26,7 @@
 #include <unistd.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#41 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpsprn.cpp#42 $");
 
 
 // NOTE: the first word of ps_header MUST be shorter than 78 characters
@@ -1532,7 +1532,7 @@ static struct {
     QFont::CharSet cs;
     Q_UINT16 values[128];
 } unicodevalues[] = {
-    // this comes from www.kiarchive.ru
+    // from RFC 1489, http://ds.internic.net/rfc/rfc1489.txt
     { QFont::KOI8R,
       { 0x2500, 0x2502, 0x250C, 0x2510, 0x2514, 0x2518, 0x251C, 0x2524,
 	0x252C, 0x2534, 0x253C, 0x2580, 0x2584, 0x2588, 0x258C, 0x2590,
@@ -1771,7 +1771,7 @@ static void makeFixedStrings()
     // fonts.
     font_vectors = new QIntDict<QString>( 17 );
     font_vectors->setAutoDelete( TRUE );
-    
+
     int i = 0;
     int k;
     int l = 0; // unicode to glyph accumulator
@@ -1872,7 +1872,7 @@ void QPSPrinter::setFont( const QFont & f )
 #endif
 	return;
     }
-    
+
     if ( !fixed_ps_header )
 	makeFixedStrings();
 
@@ -2479,7 +2479,7 @@ void QPSPrinter::emitHeader()
     if ( !fixed_ps_header ) {
 	makeFixedStrings();
     }
-    
+
     stream << "% Standard Qt prolog\n" << fixed_ps_header
 	   << "\n% Fonts and encodings used on pages 1-" << pageCount << "\n";
     stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
