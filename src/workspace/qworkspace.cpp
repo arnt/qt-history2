@@ -2008,9 +2008,12 @@ QWorkspaceChild::~QWorkspaceChild()
 {
     if ( iconw )
 	delete iconw->parentWidget();
-    if ( parentWidget() && parentWidget()->inherits( "QWorkspace" ) &&
-	 ((QWorkspace*)parentWidget())->d->active == this )
-	((QWorkspace*)parentWidget())->d->active = 0;
+    if ( parentWidget() && parentWidget()->inherits( "QWorkspace" ) ) {
+	if ( ((QWorkspace*)parentWidget())->d->active == this )
+	    ((QWorkspace*)parentWidget())->d->active = 0;
+	if ( ((QWorkspace*)parentWidget())->d->maxWindow == this )
+	    ((QWorkspace*)parentWidget())->d->maxWindow = 0;
+    }
 }
 
 bool QWorkspaceChild::event( QEvent *e )
