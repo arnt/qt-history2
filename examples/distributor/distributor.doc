@@ -17,16 +17,16 @@
     Prefix.
 
     \i Binaries - Location of binaries distributed with Qt (for
-    example, the Qt Assistant).
+    example, \e{Qt Assistant}).
 
-    \i Documentation - Location of Qt documentation.
+    \i Documentation - Location of the Qt documentation.
 
-    \i Headers - Location of Qt headers.
+    \i Headers - Location of the Qt headers.
 
     \i Libraries - Location of addition libraries distributed with Qt
     (for example, the \e qui library).
 
-    \i Plugins - Location of Qt plugins.
+    \i Plugins - Location of the Qt plugins.
 
     \i Data - Location of applicaton specific data for all programs
     distributed with Qt.
