@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#57 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -23,6 +23,7 @@
 
 #include "qcursor.h"
 #include "qbitmap.h"
+#include "qimage.h"
 #include "qapplication.h"
 #include "qdatastream.h"
 #define	 GC GC_QQQ
@@ -42,6 +43,7 @@ struct QCursorData : public QShared
     int	      cshape;
     QBitmap  *bm, *bmm;
     short     hx, hy;
+    XColor    fg,bg;
     Cursor    hcurs;
     Pixmap    pm, pmm;
 };
@@ -182,36 +184,7 @@ QCursor::QCursor( int shape )			// cursor with shape
     data = c->data;
 }
 
-
-/*!
-  Constructs a custom bitmap cursor.
-
-  \arg \e bitmap and
-  \arg \e mask make up the bitmap.
-  \arg \e hotX and
-  \arg \e hotY define the hot spot of this cursor.
-
-  If \e hotX is negative, it is set to the bitmap().width()/2.
-  If \e hotY is negative, it is set to the bitmap().height()/2.
-
-  The cursor \e bitmap (B) and \e mask (M) bits are combined this way:
-  <ol>
-  <li> B=1 and M=1 gives black.
-  <li> B=0 and M=1 gives white.
-  <li> B=0 and M=0 gives transparency.
-  <li> B=1 and M=0 gives an undefined result.
-  </ol>
-
-  Use the global color \c color0 to draw 0-pixels and \c color1 to draw
-  1-pixels in the bitmaps.
-
-  Allowed cursor sizes depend on the display hardware (or the underlying
-  window system). We recommend using 32x32 cursors, because this size
-  is supported on all platforms. Some platforms also support 16x16, 48x48
-  and 64x64 cursors.
-*/
-
-QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
+void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
@@ -232,7 +205,14 @@ QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
     data->cshape = BitmapCursor;
     data->hx = hotX >= 0 ? hotX : bitmap.width()/2;
     data->hy = hotY >= 0 ? hotY : bitmap.height()/2;
+    data->fg.red   = 0 << 8;
+    data->fg.green = 0 << 8;
+    data->fg.blue  = 0 << 8;
+    data->bg.red   = 255 << 8;
+    data->bg.green = 255 << 8;
+    data->bg.blue  = 255 << 8;
 }
+
 
 /*!
   Constructs a copy of the cursor \e c.
@@ -308,7 +288,6 @@ void QCursor::setShape( int shape )
 /*!
   Returns the cursor bitmap, or 0 if it is one of the standard cursors.
 */
-
 const QBitmap *QCursor::bitmap() const
 {
     return data->bm;
@@ -505,15 +484,8 @@ void QCursor::update() const
 
     Display *dpy = qt_xdisplay();
     if ( d->cshape == BitmapCursor ) {
-	XColor bg, fg;				// ignore stupid CFront message
-	bg.red   = 255 << 8;
-	bg.green = 255 << 8;
-	bg.blue  = 255 << 8;
-	fg.red   = 0;
-	fg.green = 0;
-	fg.blue  = 0;
 	d->hcurs = XCreatePixmapCursor( dpy, d->bm->handle(), d->bmm->handle(),
-					&fg, &bg, d->hx, d->hy );
+					&d->fg, &d->bg, d->hx, d->hy );
 	return;
     }
     if ( d->cshape >= SizeVerCursor && d->cshape < SizeAllCursor ||

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#30 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#31 $
 **
 ** Definition of QCursor class
 **
@@ -40,6 +40,8 @@ public:
     QCursor( int shape );
     QCursor( const QBitmap &bitmap, const QBitmap &mask,
 	     int hotX=-1, int hotY=-1 );
+    QCursor( const QPixmap &pixmap,
+	     int hotX=-1, int hotY=-1 );
     QCursor( const QCursor & );
    ~QCursor();
     QCursor &operator=( const QCursor & );
@@ -61,6 +63,8 @@ public:
     static void	  cleanup();
 
 private:
+    void	  setBitmap( const QBitmap &bitmap, const QBitmap &mask,
+				 int hotX, int hotY );
     void	  update() const;
     QCursorData	 *data;
     QCursor	 *find_cur(int);

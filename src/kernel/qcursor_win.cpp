@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#31 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -152,7 +152,7 @@ QCursor::QCursor( int shape )			// cursor with shape
     data = c->data;
 }
 
-QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
+void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {
     if ( bitmap.depth() != 1 || mask.depth() != 1 ||
