@@ -1504,7 +1504,7 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
                 str += "&";
             else if (!str.isEmpty() && hasEnum(str))
                 str += "&";
-            else if (!str.isEmpty() && str != "QFont" && str != "QPixmap")
+            else if (!str.isEmpty() && str != "QFont" && str != "QPixmap" && str != "QVariant")
                 str += "*";
         }
         break;
