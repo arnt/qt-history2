@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#441 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#442 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -272,7 +272,9 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
   // Install default debug handler
 
+#if defined(Q_CC_MSVC)
     qInstallMsgHandler( msgHandler );
+#endif
 
   // Create command line
 
