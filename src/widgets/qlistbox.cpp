@@ -67,10 +67,10 @@ class QListBoxPrivate
 {
 public:
     QListBoxPrivate( QListBox *lb ):
-	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ), highlighted( 0 ),
-	rowPosCache( 0 ), columnPosOne( 0 ),
-	rowMode( QListBox::FixedNumber ), columnMode( QListBox::FixedNumber ),
-	numRows( 1 ), numColumns( 1 ),
+	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ),
+	highlighted( 0 ), rowPos( 1 ), columnPos( 1 ), rowPosCache( 0 ),
+	columnPosOne( 0 ), rowMode( QListBox::FixedNumber ),
+	columnMode( QListBox::FixedNumber ), numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
 	mousePressRow( -1 ), mousePressColumn( -1 ),
 	mouseMoveRow( -1 ), mouseMoveColumn( -1 ), mouseInternalPress( FALSE ),
@@ -3336,13 +3336,13 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
 	doLayout();
     QPoint np = p;
 
-    /* take into acount frame margin to get to viewport */
-    np -= QPoint(margin(), margin());
+    // take into acount frame margin to get to viewport
+    np -= QPoint( margin(), margin() );
     if ((np.x() < 0) || (np.y() < 0))
 	return 0;
 
-    /* take into account contents position */
-    np = viewportToContents(np);
+    // take into account contents position
+    np = viewportToContents( np );
 
     int x = np.x();
     int y = np.y();
@@ -3358,12 +3358,11 @@ QListBoxItem * QListBox::itemAt( const QPoint& p ) const
     if ( i && numColumns() > 1 ) {
 	if ( d->columnPos[ col ] + i->width( this ) >= x )
 	    return i;
-	return 0;
     } else {
 	if ( d->columnPos[ col + 1 ] >= x )
 	    return i;
-	return 0;
     }
+    return 0;
 }
 
 
