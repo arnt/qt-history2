@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.h#9 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.h#1 $
 **
-** Definition of QSemiModal class
+** Definition of QSemiModal class for source compatibility
 **
-** Created : 970627
+** Created : 2000-10-10
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -44,7 +44,13 @@
 
 #ifndef QT_NO_COMPAT
 #ifndef QT_NO_SEMIMODAL
-typedef QDialog QSemiModal;
+class Q_EXPORT QSemiModal : public QDialog
+{
+    Q_OBJECT
+public:
+    QSemiModal( QWidget *parent=0, const char *name=0, bool modal=FALSE, WFlags f=0 )
+	: QDialog( parent, name, modal, f ) { }
+};
 #endif
 #endif
 
