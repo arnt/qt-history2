@@ -544,8 +544,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	createTLExtra();
     }
     QBitmap mask;
-    if ( pixmap.isNull() ) {
-    } else {
+    if ( !pixmap.isNull() ) {
 	extra->topextra->icon = new QPixmap( pixmap );
 	mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
