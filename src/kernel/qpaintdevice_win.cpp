@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#33 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -25,7 +25,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#32 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#33 $");
 
 
 QPaintDevice::QPaintDevice( uint devflags )
@@ -207,7 +207,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     if ( mask ) {
 	if ( qt_winver == WV_NT ) {
 	    MaskBlt( dst_dc, dx, dy, sw, sh, src_dc, sx, sy, mask->hbm(),
-		     sx, sy, MAKEROP4(0x00aa0029,ropCodes[rop]) );
+		     sx, sy, MAKEROP4(0x00aa0000,ropCodes[rop]) );
 	} else {
 	    if ( ((QPixmap*)src)->data->selfmask ) {
 		HBRUSH b = CreateSolidBrush( black.pixel() );
