@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#119 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#120 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#119 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#120 $")
 
 
 /*****************************************************************************
@@ -559,7 +559,8 @@ static QCursorList *cursorStack = 0;
   \fn QCursor *QApplication::cursor()
   Returns the active application cursor.
 
-  This function returns 0 if no application cursor has been defined.
+  This function returns 0 if no application cursor has been defined (i.e. the
+  internal cursor stack is empty).
 
   \sa setCursor(), restoreCursor()
  ----------------------------------------------------------------------------*/
@@ -567,10 +568,17 @@ static QCursorList *cursorStack = 0;
 /*----------------------------------------------------------------------------
   Sets the application cursor to \e cursor.
 
+  Application cursor are intended for showing the user that the application
+  is in a special state, for example during an operation that might take some
+  time.
+
   This cursor will be displayed in all application widgets until
   restoreCursor() or another setCursor() is called.
 
-  QWidget::setCursor() will override this.
+  Application cursors are stored on an internal stack.  setCursor() pushes
+  the cursor onto the stack, and restoreCursor() pops the active cursor off
+  the stack.  Every setCursor() must have an corresponding restoreCursor(),
+  otherwise the stack will get out of sync.
 
   Example:
   \code
@@ -589,24 +597,33 @@ void QApplication::setCursor( const QCursor &cursor )
 	CHECK_PTR( cursorStack );
 	cursorStack->setAutoDelete( TRUE );
     }
-    QCursor *c = new QCursor( cursor );
-    CHECK_PTR( c );
-    cursorStack->append( c );
-    app_cursor = c;
+    app_cursor = new QCursor( cursor );
+    CHECK_PTR( app_cursor );
+    cursorStack->append( app_cursor );
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// for all widgets that have
 	if ( w->testWFlags(WCursorSet) )	//   set a cursor
-	    XDefineCursor( w->display(), w->id(), c->handle() );
+	    XDefineCursor( w->display(), w->id(), app_cursor->handle() );
 	++it;
     }
     XFlush( appDpy );				// make X execute it NOW
 }
 
 /*----------------------------------------------------------------------------
-  Undoes the effect of setCursor() and gives the widgets their original
-  cursors.
-  \sa setCursor()
+  Restores the effect of setCursor().
+
+  If setCursor() has been called twice, calling restoreCursor() will activate
+  the first cursor set.  Calling restoreCursor() a second time will give
+  the widgets their old cursors back.
+
+  Application cursors are stored on an internal stack.  setCursor() pushes
+  the cursor onto the stack, and restoreCursor() pops the active cursor
+  off the stack.  Every setCursor() must have an corresponding
+  restoreCursor(), otherwise the stack will get out of sync.  cursor()
+  returns 0 if the cursor stack is empty.
+
+  \sa setCursor(), cursor().
  ----------------------------------------------------------------------------*/
 
 void QApplication::restoreCursor()
@@ -614,18 +631,18 @@ void QApplication::restoreCursor()
     if ( !cursorStack )				// no cursor stack
 	return;
     cursorStack->removeLast();
-    QCursor *c = cursorStack->last();
+    app_cursor = cursorStack->last();
     QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
     register QWidget *w;
     while ( (w=it.current()) ) {		// set back to original cursors
 	if ( w->testWFlags(WCursorSet) )
 	    XDefineCursor( w->display(), w->id(),
-			   c ? c->handle() : w->cursor().handle() );
+			   app_cursor ? app_cursor->handle()
+			   	      : w->cursor().handle() );
 	++it;
     }
     XFlush( appDpy );
-    app_cursor = c;
-    if ( !c ) {
+    if ( !app_cursor ) {
 	delete cursorStack;
 	cursorStack = 0;
     }

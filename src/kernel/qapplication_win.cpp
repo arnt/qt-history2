@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#23 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#22 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#23 $")
 
 
 // --------------------------------------------------------------------------
@@ -52,7 +52,7 @@ typedef void  (*VFPTR_ARG)( int, char ** );
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	debugHandler( const char * );	// default debug handler
+static void	msgHandler( QtMsgType, const char * );
 
 static void	cleanupPostedEvents();
 
@@ -67,7 +67,7 @@ static int	translateKeyCode( int );
 #define __export
 #endif
 
-extern "C" LRESULT CALLBACK __export WndProc( HWND, UINT, WORD, LONG );
+extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
 class QETWidget : public QWidget		// event translator widget
 {
@@ -94,12 +94,12 @@ typedef declare(QArrayM,pchar) ArgV;
 extern "C" int main( int, char ** );
 
 extern "C"
-int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
-		    LPSTR  cmdParam, int cmdShow )
+int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
+		      LPSTR  cmdParam, int cmdShow )
 {
   // Install default debug handler
 
-    installDebugHandler( (void (*)(char*))debugHandler );
+    qInstallMsgHandler( msgHandler );
 
   // Create command line
 
@@ -255,7 +255,7 @@ void qt_cleanup()
 // Platform specific global and internal functions
 //
 
-void debugHandler( const char *str )		// print debug message
+void msgHandler( QtMsgType, const char *str )	// print Qt message
 {
     OutputDebugString( str );
     OutputDebugString( "\n" );
@@ -369,22 +369,42 @@ QWidget *QApplication::desktop()
 }
 
 
-void QApplication::setCursor( const QCursor &c )// set application cursor
+/*****************************************************************************
+  QApplication cursor stack
+ *****************************************************************************/
+
+typedef declare(QListM,QCursor) QCursorList;
+
+static QCursorList *cursorStack = 0;
+
+void QApplication::setCursor( const QCursor &cursor )
 {
-    if ( app_cursor )
-	delete app_cursor;
-    app_cursor = new QCursor( c );
+    if ( !cursorStack ) {
+	cursorStack = new QCursorList;
+	CHECK_PTR( cursorStack );
+	cursorStack->setAutoDelete( TRUE );
+    }
+    app_cursor = new QCursor( cursor );
     CHECK_PTR( app_cursor );
+    cursorStack->append( app_cursor );
 }
 
-void QApplication::restoreCursor()		// restore application cursor
+void QApplication::restoreCursor()
 {
-    if ( !app_cursor )				// there is no app cursor
+    if ( !cursorStack )				// no cursor stack
 	return;
-    delete app_cursor;				// reset app_cursor
-    app_cursor = 0;
+    cursorStack->removeLast();
+    app_cursor = cursorStack->last();
+    if ( !app_cursor ) {
+	delete cursorStack;
+	cursorStack = 0;
+    }
 }
 
+
+/*****************************************************************************
+  Routines to find a Qt widget from a screen position
+ *****************************************************************************/
 
 QWidget *QApplication::widgetAt( int x, int y, bool child )
 {
@@ -672,8 +692,8 @@ void QApplication::winFocus( QWidget *w, bool gotFocus )
 // WndProc() receives all messages from the main event loop
 //
 
-extern "C" LRESULT CALLBACK
-WndProc( HWND hwnd, UINT message, WORD wParam, LONG lParam )
+extern "C"
+LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam )
 {
     if ( !qApp )				// unstable app state
 	return DefWindowProc(hwnd,message,wParam,lParam);
