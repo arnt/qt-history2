@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.h#42 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.h#43 $
 **
 ** Definition of QScrollBar class
 **
@@ -85,6 +85,20 @@ private:
     void	init();
     void	positionSliderFromValue();
     int		calculateValueFromSlider() const;
+
+    void	  sliderMinMax( int &, int & )		const;
+    void	  metrics( int &, int &, int &, int& )	const;
+
+    QStyle::ScrollControl pointOver( const QPoint &p ) const;
+
+    int		  rangeValueToSliderPos( int val ) const;
+    int		  sliderPosToRangeValue( int  val ) const;
+
+    void	  action( QStyle::ScrollControl control );
+
+    void	  drawControls( uint controls, uint activeControl ) const;
+    void	  drawControls( uint controls, uint activeControl,
+				QPainter *p ) const;
 
     uint	pressedControl	 : 8;
     uint	track		 : 1;

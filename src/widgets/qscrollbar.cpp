@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#120 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#121 $
 **
 ** Implementation of QScrollBar class
 **
@@ -154,28 +154,6 @@
 */
 
 
-
-class QScrollBar_Private : public QScrollBar
-{
-public:
-    void	  sliderMinMax( int &, int & )		const;
-    void	  metrics( int &, int &, int &, int& )	const;
-
-    QStyle::ScrollControl pointOver( const QPoint &p )		const;
-
-    int		  rangeValueToSliderPos( int val )	const;
-    int		  sliderPosToRangeValue( int  val )	const;
-
-    void	  action( QStyle::ScrollControl control );
-
-    void	  drawControls( uint controls, uint activeControl ) const;
-    void	  drawControls( uint controls, uint activeControl,
-				QPainter *p ) const;
-};
-
-
-#undef PRIV
-#define PRIV	((QScrollBar_Private *)this)
 
 static const int thresholdTime = 500;
 static const int repeatTime	= 10;
@@ -361,7 +339,7 @@ void QScrollBar::valueChange()
     int tmp = sliderPos;
     positionSliderFromValue();
     if ( tmp != sliderPos )
-	PRIV->drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE , pressedControl );
+	drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE , pressedControl );
     emit valueChanged(value());
 }
 
@@ -383,7 +361,7 @@ void QScrollBar::stepChange()
 void QScrollBar::rangeChange()
 {
     positionSliderFromValue();
-    PRIV->drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE | QStyle::SUB_LINE,
+    drawControls( QStyle::ADD_LINE | QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE | QStyle::SUB_LINE,
 			pressedControl );
 }
 
@@ -402,7 +380,7 @@ void QScrollBar::timerEvent( QTimerEvent * )
 	startTimer( repeatTime );	//   and start repeating
     }
     if ( clickedAt ){
-	PRIV->action( (QStyle::ScrollControl) pressedControl );
+	action( (QStyle::ScrollControl) pressedControl );
 	QApplication::syncX();
     }
 }
@@ -499,7 +477,7 @@ void QScrollBar::paintEvent( QPaintEvent *event )
 	    p.drawRect(  1, 1, width() - 2, height() - 2 );
 	}
     }
-    PRIV->drawControls( QStyle::ADD_LINE | QStyle::SUB_LINE | QStyle::ADD_PAGE | QStyle::SUB_PAGE | QStyle::SLIDER,
+    drawControls( QStyle::ADD_LINE | QStyle::SUB_LINE | QStyle::ADD_PAGE | QStyle::SUB_PAGE | QStyle::SLIDER,
 			pressedControl, &p );
 }
 
@@ -520,7 +498,7 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	return;
 
     clickedAt	   = TRUE;
-    pressedControl = PRIV->pointOver( e->pos() );
+    pressedControl = pointOver( e->pos() );
 
     if ( (pressedControl == QStyle::ADD_PAGE ||
 	  pressedControl == QStyle::SUB_PAGE ||
@@ -528,10 +506,10 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	 /*style() == MotifStyle &&*/
 	 e->button() == MidButton ) {
 	int dummy1, dummy2, dummy3, sliderLength;
-	PRIV->metrics( dummy1, dummy2, sliderLength, dummy3 );
+	metrics( dummy1, dummy2, sliderLength, dummy3 );
 	int newSliderPos = (HORIZONTAL ? e->pos().x() : e->pos().y())
 			   - sliderLength/2;
-	setValue( PRIV->sliderPosToRangeValue(newSliderPos) );
+	setValue( sliderPosToRangeValue(newSliderPos) );
 	sliderPos = newSliderPos;
 	pressedControl = QStyle::SLIDER;
     }
@@ -543,8 +521,8 @@ void QScrollBar::mousePressEvent( QMouseEvent *e )
 	sliderStartPos = sliderPos;
 	emit sliderPressed();
     } else if ( pressedControl != QStyle::NONE ) {
-	PRIV->drawControls( pressedControl, pressedControl );
-	PRIV->action( (QStyle::ScrollControl) pressedControl );
+	drawControls( pressedControl, pressedControl );
+	action( (QStyle::ScrollControl) pressedControl );
 	thresholdReached = FALSE;	// wait before starting repeat
 	startTimer(thresholdTime);
 	isTiming = TRUE;
@@ -575,7 +553,7 @@ void QScrollBar::mouseReleaseEvent( QMouseEvent *e )
 	if ( value() != prevValue() )
 	    emit valueChanged( value() );
     }
-    PRIV->drawControls( tmp, pressedControl );
+    drawControls( tmp, pressedControl );
 }
 
 
@@ -597,7 +575,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
     int newSliderPos;
     if ( pressedControl == QStyle::SLIDER ) {
 	int sliderMin, sliderMax;
-	PRIV->sliderMinMax( sliderMin, sliderMax );
+	sliderMinMax( sliderMin, sliderMax );
 	QRect r = rect();
 	int m = style().maximumSliderDragDistance();
 	if ( m >= 0 ) {
@@ -621,7 +599,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	    newSliderPos = sliderMax;
 	if ( newSliderPos == sliderPos )
 	    return;
-	int newVal = PRIV->sliderPosToRangeValue(newSliderPos);
+	int newVal = sliderPosToRangeValue(newSliderPos);
 	if ( newVal != slidePrevVal )
 	    emit sliderMoved( newVal );
 	if ( track && newVal != value() ) {
@@ -630,18 +608,18 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 	}
 	slidePrevVal = newVal;
 	sliderPos = (QCOORD)newSliderPos;
-	PRIV->drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE, pressedControl );
+	drawControls( QStyle::ADD_PAGE | QStyle::SLIDER | QStyle::SUB_PAGE, pressedControl );
     }
     else if ( style() == WindowsStyle ) {
 	// stop scrolling when the mouse pointer leaves a control similar to push buttons
-	if ( (int)pressedControl != PRIV->pointOver( e->pos() ) ) {
-	    PRIV->drawControls( pressedControl, QStyle::NONE );
+	if ( (int)pressedControl != pointOver( e->pos() ) ) {
+	    drawControls( pressedControl, QStyle::NONE );
 	    isTiming = FALSE;
 	    killTimers();
 	}
 	else if (!isTiming){
-	    PRIV->drawControls( pressedControl, pressedControl );
-	    PRIV->action( (QStyle::ScrollControl) pressedControl );
+	    drawControls( pressedControl, pressedControl );
+	    action( (QStyle::ScrollControl) pressedControl );
 	    thresholdReached = FALSE;	// wait before starting repeat
 	    startTimer(thresholdTime);
 	    isTiming = TRUE;
@@ -666,7 +644,7 @@ void QScrollBar::mouseMoveEvent( QMouseEvent *e )
 QRect QScrollBar::sliderRect() const
 {
     int sliderMin, sliderMax, sliderLength, buttonDim;
-    PRIV->metrics( sliderMin, sliderMax, sliderLength, buttonDim );
+    metrics( sliderMin, sliderMax, sliderLength, buttonDim );
     int b = style() == MotifStyle ? MOTIF_BORDER : 0;
 
     if ( HORIZONTAL )
@@ -679,41 +657,37 @@ QRect QScrollBar::sliderRect() const
 
 void QScrollBar::positionSliderFromValue()
 {
-    sliderPos = (QCOORD)PRIV->rangeValueToSliderPos( value() );
+    sliderPos = (QCOORD)rangeValueToSliderPos( value() );
 }
 
 int QScrollBar::calculateValueFromSlider() const
 {
-    return PRIV->sliderPosToRangeValue( sliderPos );
+    return sliderPosToRangeValue( sliderPos );
 }
 
 
-/*****************************************************************************
-  QScrollBar_Private member functions
- *****************************************************************************/
-
-void QScrollBar_Private::sliderMinMax( int &sliderMin, int &sliderMax) const
+void QScrollBar::sliderMinMax( int &sliderMin, int &sliderMax) const
 {
     int dummy1, dummy2;
     metrics( sliderMin, sliderMax, dummy1, dummy2 );
 }
 
 
-void QScrollBar_Private::metrics( int &sliderMin, int &sliderMax,
-				  int &sliderLength, int& buttonDim ) const
+void QScrollBar::metrics( int &sliderMin, int &sliderMax,
+			  int &sliderLength, int& buttonDim ) const
 {
 
     style().scrollBarMetrics( this, sliderMin, sliderMax, sliderLength, buttonDim);
 }
 
 
-QStyle::ScrollControl QScrollBar_Private::pointOver(const QPoint &p) const
+QStyle::ScrollControl QScrollBar::pointOver(const QPoint &p) const
 {
     return style().scrollBarPointOver(this, sliderStart(), p);
 }
 
 
-int QScrollBar_Private::rangeValueToSliderPos( int v ) const
+int QScrollBar::rangeValueToSliderPos( int v ) const
 {
     int smin, smax;
     sliderMinMax( smin, smax );
@@ -731,7 +705,7 @@ int QScrollBar_Private::rangeValueToSliderPos( int v ) const
     return r;
 }
 
-int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
+int QScrollBar::sliderPosToRangeValue( int pos ) const
 {
     int sliderMin, sliderMax;
     sliderMinMax( sliderMin, sliderMax );
@@ -750,7 +724,7 @@ int QScrollBar_Private::sliderPosToRangeValue( int pos ) const
 }
 
 
-void QScrollBar_Private::action( QStyle::ScrollControl control )
+void QScrollBar::action( QStyle::ScrollControl control )
 {
     switch( control ) {
 	case QStyle::ADD_LINE:
@@ -771,23 +745,22 @@ void QScrollBar_Private::action( QStyle::ScrollControl control )
 	    break;
 #if defined(CHECK_RANGE)
 	default:
-	    warning( "QScrollBar_Private::action: (%s) internal error",
+	    warning( "QScrollBar::action: (%s) internal error",
 		     name( "unnamed" ) );
 #endif
     }
 }
 
 
-void QScrollBar_Private::drawControls( uint controls,
-				       uint activeControl ) const
+void QScrollBar::drawControls( uint controls, uint activeControl ) const
 {
     QPainter p ( this );
     drawControls( controls, activeControl, &p );
 }
 
 
-void QScrollBar_Private::drawControls( uint controls, uint activeControl,
-				       QPainter *p ) const
+void QScrollBar::drawControls( uint controls, uint activeControl,
+			       QPainter *p ) const
 {
 
     style().drawScrollBarControls(p, this, sliderStart(), controls, activeControl);
