@@ -654,8 +654,9 @@ bool QSqlDatabase::rollback()
 
 /*! \property QSqlDatabase::databaseName
 
-  \brief the name of the database or the TNS Service Name
-	for the QOCI8 (Oracle) driver.
+  \brief the name of the database. Note that the database name is the
+  TNS Service Name for the QOCI8 (Oracle) driver, and the Data Source
+  Name for the QODBC3 driver.
 
     There is no default value.
 */
