@@ -57,6 +57,7 @@
 #include "qspinbox.h"
 #include "qapplication.h"
 #include "qheader.h"
+#include "qcleanuphandler.h"
 
 #include "qstring.h"
 #include "qregexp.h"
@@ -587,11 +588,7 @@ static char * parseCupsOutput( QListView * printers )
 
 static QPrintDialog * globalPrintDialog = 0;
 
-static void deleteGlobalPrintDialog()
-{
-    delete globalPrintDialog;
-    globalPrintDialog = 0;
-}
+QCleanUpHandler<QPrintDialog> qpd_cleanup_globaldialog;
 
 /*!
   \class QPrintDialog qprintdialog.h
@@ -1115,7 +1112,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
     if ( !globalPrintDialog ) {
 	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
 	globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
-	qAddPostRoutine( deleteGlobalPrintDialog );
+	qpd_cleanup_globaldialog.addCleanUp( globalPrintDialog );
     }
 
     globalPrintDialog->setPrinter( p );

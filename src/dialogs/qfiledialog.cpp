@@ -73,6 +73,7 @@
 #include "qnetworkprotocol.h"
 #include "qsemimodal.h"
 #include "qpainter.h"
+#include "qcleanuphandler.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -89,9 +90,6 @@
 
 // see comment near use of this variable
 static const char * egcsWorkaround = "%x  %X";
-
-static QFileIconProvider * fileIconProvider = 0;
-
 
 /* XPM */
 static const char * const start_xpm[]={
@@ -439,15 +437,23 @@ static QPixmap * symLinkFileIcon = 0;
 static QPixmap * fileIcon = 0;
 static QPixmap * startCopyIcon = 0;
 static QPixmap * endCopyIcon = 0;
+static QPixmap * previewContentsViewIcon = 0;
+static QPixmap * previewInfoViewIcon = 0;
+static QPixmap *goBackIcon = 0;
+static QFileIconProvider * fileIconProvider = 0;
+
+// Move these two guys to some private class... 
+// why do we need them on the heap anyway?
+static QSize *lastSize = 0;
 static QString * workingDirectory = 0;
+
 static bool bShowHiddenFiles = FALSE;
 static int sortFilesBy = (int)QDir::Name;
 static bool sortAscending = TRUE;
 static bool detailViewMode = FALSE;
-static QPixmap * previewContentsViewIcon = 0;
-static QPixmap * previewInfoViewIcon = 0;
-static QPixmap *goBackIcon = 0;
-static QSize *lastSize = 0;
+
+QCleanUpHandler<QPixmap> qfd_cleanup_pixmap;
+QCleanUpHandler<QFileIconProvider> qfd_cleanup_fip;
 
 static bool isDirectoryMode( int m )
 {
@@ -455,44 +461,10 @@ static bool isDirectoryMode( int m )
 }
 
 static void cleanup() {
-    delete openFolderIcon;
-    openFolderIcon = 0;
-    delete closedFolderIcon;
-    closedFolderIcon = 0;
-    delete detailViewIcon;
-    detailViewIcon = 0;
-    delete multiColumnListViewIcon;
-    multiColumnListViewIcon = 0;
-    delete cdToParentIcon;
-    cdToParentIcon = 0;
-    delete newFolderIcon;
-    newFolderIcon = 0;
-    delete fifteenTransparentPixels;
-    fifteenTransparentPixels = 0;
     delete workingDirectory;
     workingDirectory = 0;
-    delete previewContentsViewIcon;
-    previewContentsViewIcon = 0;
-    delete previewInfoViewIcon;
-    previewInfoViewIcon = 0;
-    delete symLinkDirIcon;
-    symLinkDirIcon = 0;
-    delete symLinkFileIcon;
-    symLinkFileIcon = 0;
-    delete fileIcon;
-    fileIcon = 0;
-    delete startCopyIcon;
-    startCopyIcon = 0;
-    delete endCopyIcon;
-    endCopyIcon = 0;
-    delete goBackIcon;
-    goBackIcon = 0;
     delete lastSize;
     lastSize = 0;
-#if defined (_WS_WIN_)
-    delete fileIconProvider;
-    fileIconProvider = 0;
-#endif
 }
 
 #if defined(_WS_WIN_)
@@ -520,23 +492,39 @@ static void makeVariables() {
     if ( !openFolderIcon ) {
 	qAddPostRoutine( cleanup );
 	workingDirectory = new QString( QDir::currentDirPath() );
+
 	openFolderIcon = new QPixmap( (const char **)open_xpm);
+	qfd_cleanup_pixmap.addCleanUp( openFolderIcon );
 	symLinkDirIcon = new QPixmap( (const char **)link_dir_xpm);
+	qfd_cleanup_pixmap.addCleanUp( symLinkDirIcon );
 	symLinkFileIcon = new QPixmap( (const char **)link_file_xpm);
+	qfd_cleanup_pixmap.addCleanUp( symLinkFileIcon );
 	fileIcon = new QPixmap( (const char **)file_xpm);
+	qfd_cleanup_pixmap.addCleanUp( fileIcon );
 	closedFolderIcon = new QPixmap( (const char **)closed_xpm);
+	qfd_cleanup_pixmap.addCleanUp( closedFolderIcon );
 	detailViewIcon = new QPixmap( (const char **)detailedview_xpm);
+	qfd_cleanup_pixmap.addCleanUp( detailViewIcon );
 	multiColumnListViewIcon = new QPixmap( (const char **)mclistview_xpm);
+	qfd_cleanup_pixmap.addCleanUp( multiColumnListViewIcon );
 	cdToParentIcon = new QPixmap( (const char **)cdtoparent_xpm);
+	qfd_cleanup_pixmap.addCleanUp( cdToParentIcon );
 	newFolderIcon = new QPixmap( (const char **)newfolder_xpm);
+	qfd_cleanup_pixmap.addCleanUp( newFolderIcon );
 	previewInfoViewIcon
 	    = new QPixmap( (const char **)previewinfoview_xpm );
+	qfd_cleanup_pixmap.addCleanUp( previewInfoViewIcon );
 	previewContentsViewIcon
 	    = new QPixmap( (const char **)previewcontentsview_xpm );
+	qfd_cleanup_pixmap.addCleanUp( previewContentsViewIcon );
 	startCopyIcon = new QPixmap( (const char **)start_xpm );
+	qfd_cleanup_pixmap.addCleanUp( startCopyIcon );
 	endCopyIcon = new QPixmap( (const char **)end_xpm );
+	qfd_cleanup_pixmap.addCleanUp( endCopyIcon );
 	goBackIcon = new QPixmap( (const char **)back_xpm );
+	qfd_cleanup_pixmap.addCleanUp( goBackIcon );
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
+	qfd_cleanup_pixmap.addCleanUp( fifteenTransparentPixels );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
 	m.fill( Qt::color0 );
 	fifteenTransparentPixels->setMask( m );
@@ -545,6 +533,7 @@ static void makeVariables() {
 	detailViewMode = FALSE;
 #if defined(_WS_WIN_)
 	fileIconProvider = new QWindowsIconProvider();
+	qfd_cleanup_fip.addCleanUp( fileIconProvider );
 #endif
     }
 }
