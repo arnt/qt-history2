@@ -420,7 +420,15 @@ void qmotif_widget_shell_change_managed( Widget w )
 	     widget->d->shell->core.height ),
 	d = widget->geometry();
     if ( d != r ) {
-	widget->setGeometry( r );
+	if ( ! widget->isTopLevel() ) {
+	    // the widget is most likely resized by a layout
+	    XtMoveWidget( w, d.x(), d.y() );
+	    XtResizeWidget( w, d.width(), d.height(), 0 );
+	    widget->setGeometry( d );
+	} else {
+	    // take the size from the motif widget
+	    widget->setGeometry( r );
+	}
     }
 }
 
