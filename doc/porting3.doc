@@ -101,7 +101,7 @@ nested header files. But in some cases you will find you need to add
 an extra #include to your files.
 
 <p> For example, if you get a message about QStringList or its functions
-not being defined, then add <code>#include &lt;qstring.h&gt;</code> at
+not being defined, then add <code>#include &lt;qstringlist.h&gt;</code> at
 the top of the file giving the error.
 
 <p> Headers that have been moved around include
