@@ -177,7 +177,6 @@ public slots:
     void updateStatus(QTableWidgetItem *item);
     void updateColor(QTableWidgetItem *item);
     void updateLineEdit(QTableWidgetItem *item);
-    void contextActions(QMenu *menu);
     void returnPressed();
     void selectColor();
     void selectFont();
@@ -185,13 +184,16 @@ public slots:
     void clear();
 
 protected:
+    void setupContextMenu();
     void setupContents();
 
 private:
     QToolBar *toolBar;
     QAction *colorAction;
     QAction *fontAction;
+    QAction *firstSeparator;
     QAction *sumAction;
+    QAction *seccondSeparator;
     QAction *clearAction;
     QTableWidget *table;
     QLineEdit *lineEdit;
@@ -209,7 +211,9 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     lineEdit = new QLineEdit();
     toolBar->addWidget(lineEdit);
 
-    toolBar->addSeparator();
+    firstSeparator = new QAction(toolBar);
+    firstSeparator->setSeparator(true);
+    toolBar->addAction(firstSeparator);
 
     fontAction = toolBar->addAction(QPixmap(":/images/font.xpm"), tr("Font..."));
     fontAction->setShortcut(Qt::ALT|Qt::Key_F);
@@ -220,7 +224,9 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(colorAction, SIGNAL(triggered()), this, SLOT(selectColor()));
     updateColor(0);
 
-    toolBar->addSeparator();
+    seccondSeparator = new QAction(toolBar);
+    seccondSeparator->setSeparator(true);
+    toolBar->addAction(seccondSeparator);
 
     clearAction = toolBar->addAction(QPixmap(":/images/clear.xpm"), tr("Clear"));
     clearAction->setShortcut(Qt::Key_Delete);
@@ -234,7 +240,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
         table->horizontalHeaderItem(c)->setTextAlignment(Qt::AlignCenter);
     }
 
-    table->setKeyTracking(true);
+    setupContextMenu();
     setupContents();
     setCentralWidget(table);
 
@@ -247,8 +253,6 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateStatus(QTableWidgetItem*)));
-    connect(table, SIGNAL(aboutToShowContextMenu(QMenu*, QTableWidgetItem*)),
-            this, SLOT(contextActions(QMenu*)));
     connect(lineEdit, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
@@ -280,18 +284,6 @@ void SpreadSheet::updateLineEdit(QTableWidgetItem *item)
         lineEdit->setText(item->data(QAbstractItemModel::EditRole).toString());
     else
         lineEdit->clear();
-}
-
-void SpreadSheet::contextActions(QMenu *menu)
-{
-    if (menu) {
-        menu->addAction(sumAction);
-        menu->addSeparator();
-        menu->addAction(colorAction);
-        menu->addAction(fontAction);
-        menu->addSeparator();
-        menu->addAction(clearAction);
-    }
 }
 
 void SpreadSheet::returnPressed()
@@ -360,6 +352,17 @@ void SpreadSheet::clear()
 {
     foreach (QTableWidgetItem *i, table->selectedItems())
         delete i;
+}
+
+void SpreadSheet::setupContextMenu()
+{
+    addAction(sumAction);
+    addAction(firstSeparator);
+    addAction(colorAction);
+    addAction(fontAction);
+    addAction(seccondSeparator);
+    addAction(clearAction);
+    setContextMenuPolicy(Qt::ActionsContextMenu);
 }
 
 void SpreadSheet::setupContents()
