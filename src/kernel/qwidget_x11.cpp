@@ -44,6 +44,7 @@
 #include "qobjectlist.h"
 #include "qlayout.h"
 #include "qtextcodec.h"
+#include "qdatetime.h"
 #include "qcursor.h"
 #include "qt_x11.h"
 
@@ -1537,14 +1538,18 @@ bool QWidget::isMaximized() const
     return testWState(WState_Maximized);
 }
 
-// ### ### this really needs to wait for a maximum of 0.N seconds
 void qt_wait_for_window_manager( QWidget* w )
 {
     QApplication::flushX();
     XEvent ev;
-    while (!XCheckTypedWindowEvent( w->x11Display(), w->winId(), ReparentNotify, &ev )) {
+    QTime t;
+    t.start();
+    while ( !XCheckTypedWindowEvent( w->x11Display(), w->winId(), ReparentNotify, &ev ) ) {
 	if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), MapNotify, &ev ) )
 	    break;
+	if ( t.elapsed() > 500 )
+	    return; // give up, no event available
+	qApp->syncX(); // non-busy wait
     }
     qApp->x11ProcessEvent( &ev );
     if ( XCheckTypedWindowEvent( w->x11Display(), w->winId(), ConfigureNotify, &ev ) )
