@@ -521,6 +521,10 @@ void QDialog::closeEvent( QCloseEvent *e )
   Geometry management.
  *****************************************************************************/
 
+#if defined(Q_WS_X11)
+extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long ); }
+#endif // Q_WS_X11
+
 /*!
     Shows a modeless or semi-modal dialog. Control returns immediately
     to the calling code.
@@ -548,10 +552,19 @@ void QDialog::show()
     if ( !did_resize )
 	adjustSize();
     if ( has_relpos && !did_move ) {
-	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget(), TRUE );
+	adjustPositionInternal( parentWidget(), TRUE );
     } else if ( !did_move ) {
-	adjustPositionInternal( parentWidget() ? parentWidget() : qApp->mainWidget() );
+	adjustPositionInternal( parentWidget() );
     }
+
+#if defined(Q_WS_X11)
+    if ( !parentWidget() && testWFlags( WShowModal ) &&
+	 qApp->mainWidget() && qApp->mainWidget()->isVisible() ) {
+	// make sure the transient for hint is set properly for modal dialogs
+        XSetTransientForHint( x11Display(), winId(), qApp->mainWidget()->winId() );
+    }
+#endif // Q_WS_X11
+
     QWidget::show();
     showExtension( d->doShowExtension );
 #ifndef QT_NO_PUSHBUTTON
@@ -620,9 +633,6 @@ void QDialog::adjustPosition( QWidget* w)
     adjustPositionInternal( w );
 }
 
-#if defined(Q_WS_X11)
-extern "C" { int XSetTransientForHint( Display *, unsigned long, unsigned long ); }
-#endif
 
 void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 {
@@ -637,12 +647,7 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	w = w->topLevelWidget();
     QRect desk;
     if ( w ) {
-	scrn =  QApplication::desktop()->screenNumber( w );
-
-#if defined(Q_WS_X11)
-        // make sure the transient for hint is set properly
-        XSetTransientForHint( x11Display(), winId(), w->winId() );
-#endif
+	scrn = QApplication::desktop()->screenNumber( w );
     } else {
 	scrn = QApplication::desktop()->screenNumber( QCursor::pos() );
     }
