@@ -44,9 +44,7 @@
 #include <qscrollview.h>
 #include <qpainter.h>
 #include <qstyle.h>
-#include <qobjectlist.h>
 #include <qapplication.h>
-#include <qwidgetlist.h>
 #include <qlayout.h>
 #include <qvaluelist.h>
 #include <qtooltip.h>
@@ -56,9 +54,9 @@
 class QToolBoxButton : public QButton
 {
 public:
-    QToolBoxButton( QWidget *parent, const char *name ) 
+    QToolBoxButton( QWidget *parent, const char *name )
 	: QButton( parent, name ), selected( FALSE )
-    { 
+    {
 	setBackgroundMode(PaletteBackground);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
 	setFocusPolicy(NoFocus);
@@ -140,9 +138,9 @@ void QToolBoxPrivate::updatePageBackgroundMode()
 {
     if ( pageBackgroundMode == Qt::NoBackground || !currentPage )
 	return;
-    QObjectList *l = currentPage->sv->viewport()->queryList( "QWidget" );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	QWidget *w = (QWidget*)o;
+    QObjectList l = currentPage->sv->viewport()->queryList( "QWidget" );
+    for (int i = 0; i < l.size(); ++i) {
+	QWidget *w = (QWidget*)l.at(i);
 	if ( w->backgroundMode() == pageBackgroundMode )
 	    continue;
 	w->setBackgroundMode( pageBackgroundMode );
@@ -229,7 +227,6 @@ void QToolBoxButton::drawButton( QPainter *p )
 		p->fontMetrics().width( label[i] )  < tr.width() )
 	    txt += label[i++];
 	txt += "...";
-	txt;
     }
 
     if ( ih )
@@ -501,7 +498,7 @@ QWidget *QToolBox::page( int index ) const
 }
 
 /*!
-    Returns the index position of page \a page, or -1 if \a page is not 
+    Returns the index position of page \a page, or -1 if \a page is not
     in this toolbox.
 */
 
@@ -601,7 +598,7 @@ bool QToolBox::isPageEnabled( QWidget *page ) const
 }
 
 /*!
-    Returns page \a page's tab label, or the null string if 
+    Returns page \a page's tab label, or the null string if
     \a page is not in this toolbox.
 */
 
