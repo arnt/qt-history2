@@ -35,7 +35,7 @@ void ResultWindow::slotExec()
     sql.setName( tableList->currentText() );
     sql.setSort( sql.primaryIndex() );
     dataGrid->setCursor( &sql, TRUE );
-    dataGrid->refresh( TRUE, TRUE );
+    dataGrid->refresh( QDataTable::RefreshAll );
 }
 
 void ResultWindow::newSelection( const QSqlRecord* fields )
