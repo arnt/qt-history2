@@ -2833,6 +2833,9 @@ void qt_format_text( const QFont& font, const QRect &_r,
 
     QTextLayout textLayout( text, painter ? painter->font() : font );
     QFontMetrics fm( painter ? painter->font() : font );
+    int rb = QMAX( 0, -fm.minRightBearing() );
+    int lb = QMAX( 0, -fm.minLeftBearing() );
+
     if ( text.isEmpty() ) {
 	height = fm.height();
 	left = right = 0;
@@ -2914,7 +2917,7 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	yoff = (r.height() - height)/2;
 
     if ( brect )
-	*brect = QRect( r.x() + left, r.y() + yoff, right-left, height );
+	*brect = QRect( r.x() + left, r.y() + yoff, right-left + lb+rb, height );
 
     if ( painter && !( tf & QPainter::DontPrint ) ) {
 	bool restoreClipping = FALSE;
@@ -2956,10 +2959,10 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 #ifdef Q_WS_X11
 	    if ( painter->bg_mode == Qt::OpaqueMode )
-		qt_draw_background( painter, r.x() + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
+		qt_draw_background( painter, r.x()+lb + ti.x(), r.y() + yoff + ti.y() - ti.ascent(),
 				    ti.width(), ti.ascent() + ti.descent());
 #endif
-	    painter->drawTextItem( r.x(), r.y() + yoff, ti, textFlags );
+	    painter->drawTextItem( r.x()+lb, r.y() + yoff, ti, textFlags );
 	}
 
 	if ( restoreClipping ) {
