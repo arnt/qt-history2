@@ -1333,7 +1333,7 @@ echo
 
 #do the qmake..
 [ -x "$relpath/bin/syncqt" ] && $relpath/bin/syncqt
-if [ '!' -f "$outpath/bin/qmake" ]
+if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     echo Creating qmake...
     [ -f $outpath/qmake/GNUmakefile ] && chmod 666 $outpath/qmake/GNUmakefile
