@@ -214,6 +214,17 @@ Irix		<standards.h>
 	example socket functions still use 'int' instead of 'socklen_t'.
 
 
+Reliant		<unistd.h>	
+
+	By default Reliant defines no macros, just like Solaris.
+
+	The system header files always check against _POSIX_SOURCE,
+	_XOPEN_SOURCE or _XOPEN_SOURCE_EXTENDED.
+
+	Once one of the above macros is defined, there's unfortunately
+	no way to return to the default environment.
+
+
 Solaris		<sys/feature_tests.h>	
 
 	By default Solaris defines no macros!
@@ -226,13 +237,12 @@ Solaris		<sys/feature_tests.h>
 		Solaris 	__EXTENSIONS__
 
 
-SCO	<unistd.h>	
+SCO		<unistd.h>	
 
-	By default Uniware defines no macros, just like Solaris.
+	By default SCO Openserver defines no macros, just like Solaris.
 
-	However The system header files always check against _XOPEN_SOURCE,
-	_XOPEN_SOURCE_EXTENDED, _POSIX_SOURCE - and even old _SCO_ODS_30 but
-	we don't need it.
+	The system header files always check against _XOPEN_SOURCE,
+	_XOPEN_SOURCE_EXTENDED or _POSIX_SOURCE.
 
 	Once one of the above macros is defined, there's unfortunately
 	no way to return to the default environment.
@@ -262,7 +272,7 @@ Tru64		<standards.h>
 
 Unixware	<unistd.h>	
 
-	By default Uniware defines no macros, just like Solaris.
+	By default Unixware defines no macros, just like Solaris.
 
 	The system header files always check against _XOPEN_SOURCE,
 	_POSIX_SOURCE, _POSIX_C_SOURCE, _XOPEN_SOURCE_EXTENDED.
