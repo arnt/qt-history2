@@ -21,7 +21,7 @@ public:
 		QSqlCursor( QString::null, autopopulate, db )
     {
 	exec( query );
-	if ( autopopulate ) {
+	if ( isSelect() && autopopulate ) {
 	    QSqlRecordInfo inf = ((QSqlQuery*)this)->driver()->recordInfo( *(QSqlQuery*)this );
 	    for ( QSqlRecordInfo::iterator it = inf.begin(); it != inf.end(); ++it ) {
 		append( *it );
