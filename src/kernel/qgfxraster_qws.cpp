@@ -2143,8 +2143,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_1(
  handle.
 */
 
-/*! \fn template <const int depth, const int type>
-  QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
+/*! \fn QGfxRaster::QGfxRaster(unsigned char * b,int w,int h)
   Constructs a QGfxRaster for a particular depth with a framebuffer pointed
   to by \a b, with a width and height of \a w and \a h (specified in
   pixels, not bytes)
@@ -2163,10 +2162,8 @@ QGfxRaster<depth,type>::QGfxRaster(unsigned char * b,int w,int h)
     }
 }
 
-/*! \fn template <const int depth, const int type>
-  QGfxRaster<depth,type>::~QGfxRaster()
-
-Destroys a QGfxRaster
+/*! \fn QGfxRaster::~QGfxRaster()
+  Destroys a QGfxRaster.
 */
 
 template <const int depth, const int type>
@@ -4466,12 +4463,14 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
     }
 }
 
+
+#ifndef QT_QDOC
+static GFX_INLINE
+#endif
+
 /*!
-  \fn static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
-					   int w, int linestep, int &astat,
-					   unsigned char &ahold,
-					   bool is_bigendian, bool rev)
-					   
+  \relates QGfxRaster
+
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
   endianness.
@@ -4483,11 +4482,10 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
   This is used by blt() to set up the pointer to the mask for
   Little/BigEndianMask alpha types.
 */
-
-static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
-					   int w, int linestep, int &astat,
-					   unsigned char &ahold,
-					   bool is_bigendian, bool rev)
+unsigned char * find_pointer(unsigned char * base,int x,int y,
+					       int w, int linestep, int &astat,
+					       unsigned char &ahold,
+					       bool is_bigendian, bool rev)
 {
     int nbits;
     int nbytes;
