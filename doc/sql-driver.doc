@@ -46,13 +46,14 @@ href="component.html">plugins</a> in order to communicate with
 different database APIs.  Since the Qt SQL Module API is
 database-independent, all database-specific code is contained within
 these drivers.  Several drivers are supplied with Qt and other drivers
-can be added.
+can be added. The driver source code is supplied and can be used as a
+model for \link #development writing your own drivers\endlink.
 
-To build a driver plugin you therefore need the client API that is
-shipped with every DBMS. Most installation programs also allow you
-to install "development libraries", this is what you need. These
-libraries are responsible for the low-level communication with the
-DBMS.
+To build a driver plugin you need the client API that is
+shipped with every DBMS (Database Management System). Most
+installation programs also allow you to install "development
+libraries", and these are what you need. These libraries are
+responsible for the low-level communication with the DBMS.
 
 The currently available drivers shipped with Qt are:
 \list
@@ -70,35 +71,38 @@ may be built.
 Note that configure cannot detect the neccessary libraries and include
 files if they are not in the standard paths, so it may be necessary to
 specify these paths using the "-I" and "-L" switches. If your MySQL
-include files are installed in /usr/local/mysql (or in c:\\mysql\\include
+include files are installed in /usr/local/mysql (or in C:\\mysql\\include
 on Windows), then pass the following parameter to configure:
-"-I/usr/local/mysql" (or "-Ic:\mysql\include" for Windows).
+"-I/usr/local/mysql" (or "-IC:\mysql\include" for Windows).
 
 Note that the parameter -I doesn't allow spaces in filenames, so use
-the 8.3 name instead ("c:\\progra~1\\mysql" instead of "c:\\program files\\mysql").
+the 8.3 name instead, i.e. use "C:\\progra~1\\mysql" instead of
+"C:\\program files\\mysql".
 
-See the chapters below if you want to build the sql drivers manually.
+See the sections below if you want to build the sql drivers manually.
 
 \target QMYSQL3
 \section1 QMYSQL3 - MySQL 3.x
 
+\keyword QMYSQL3
+
 \section2 General informations
 
-MySQL 3.x doesn't support SQL transactions by default, there are some backends
-however which offer this functionality. Recent versions of the MySQL client
+MySQL 3.x doesn't support SQL transactions by default. There are some backends
+which offer this functionality. Recent versions of the MySQL client
 libraries (>3.23.34) allow you to use transactions on those modified servers.
 
 If you have a recent client library and connect to a transaction-enabled MySQL
-server, a call to QSqlDriver::hasFeature( QSqlDriver::Transactions ) function
-returns TRUE and SQL transactions can be used.
+server, a call to the QSqlDriver::hasFeature( QSqlDriver::Transactions ) 
+function returns TRUE and SQL transactions can be used.
 
 You can find information about MySQL on \l http://www.mysql.com
 
 \section2 How to build the plugin on Unix/Linux
 
 You need the MySQL header files and as well as the shared library
-"libmysqlclient.so". Depending on your Linux distribution you need
-a package called "MySQL-devel" or "mysql-devel". Install it.
+"libmysqlclient.so". Depending on your Linux distribution you need to
+install a package which is usually called "mysql-devel".
 
 Tell qmake where to find the MySQL header files and shared libraries
 (here it is assumed that MySQL is installed in /usr/local) and run make:
@@ -127,11 +131,13 @@ statement above.
 
 Note that the pre-compiled LIBMYSQL.LIB has been generated with Microsoft
 Visual C++ so other compilers cannot link against it. Either recompile the
-whole library yourself or use the apropriate tools to convert the lib
+whole library yourself or use the appropriate tools to convert the lib
 (COFF2OMF.EXE for Borland C++).
 
 \target QOCI8
 \section1 QOCI8 - Oracle Call Interface
+
+\keyword QOCI8
 
 \section2 How to build the plugin on Unix/Linux
 
@@ -201,6 +207,8 @@ statement above.
 \target QODBC3
 \section1 QODBC3 - Open Database Connectivity
 
+\keyword QODBC3
+
 \section2 How to build the plugin on Unix/Linux
 
 It is recommended that you use unixODBC. You can find the newest
@@ -233,6 +241,8 @@ statement above.
 
 \target QPSQL7
 \section1 QPSQL7 - PostgreSQL version 6 and 7
+
+\keyword QPSQL7
 
 \section2 General information
 
@@ -270,6 +280,8 @@ make
 
 \target QTDS7
 \section1 QTDS7 - Sybase Adaptive Server and Microsoft SQL Server
+
+\keyword QTDS7
 
 \section2 How to build the plugin on Unix/Linux
 
