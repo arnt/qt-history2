@@ -71,7 +71,7 @@
 #include <langinfo.h>
 #endif
 #ifdef Q_OS_MAC
-#include "qt_mac.h"
+#include <Carbon/Carbon.h>
 #endif
 
 static QPtrList<QTextCodec> * all = 0;

@@ -32,8 +32,8 @@ SOURCES		= ../tools/qbuffer.cpp	    \
 		  ../codecs/qutfcodec.cpp
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp
-
 win32:SOURCES	+= ../tools/qfile_win.cpp
+macx:LIBS += -framework Carbon
 
 TARGET		= moc
 
