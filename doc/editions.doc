@@ -114,8 +114,15 @@ Editions.
     <td width="100" align="center"><b>X</b></td>
   </tr>
   <tr>
-    <td><a href="sql.html"><b>SQL module</b></a><br>
-      SQL database access classes.</td>
+    <td><a href="activeqt.html"><b>ActiveQt extension</b></a><br>
+      Support for building and hosting ActiveX controls on Windows.</td>
+    <td width="100" align="center"><br>
+    </td>
+    <td width="100" align="center"><b>X</b></td>
+  </tr>
+  <tr>
+    <td><a href="motif-extension.html"><b>QMotif extension</b></a><br>
+      Motif co-existence and migration support.</td>
     <td width="100" align="center"><br>
     </td>
     <td width="100" align="center"><b>X</b></td>
