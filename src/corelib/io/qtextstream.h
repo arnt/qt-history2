@@ -270,9 +270,7 @@ Q_CORE_EXPORT QTextStream &reset(QTextStream &s);
 
 Q_CORE_EXPORT QTextStream &bom(QTextStream &s);
 
-#ifdef QT3_SUPPORT
-inline Q_CORE_EXPORT QT3_SUPPORT QTextStream &ws(QTextStream &s) { s.skipWhiteSpace(); return s; }
-#endif
+Q_CORE_EXPORT QTextStream &ws(QTextStream &s);
 
 inline QTextStreamManipulator qSetFieldWidth(int width)
 {

@@ -130,6 +130,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \row    \o endl              \o Same as calling operator<<('\n') and flush().
     \row    \o flush             \o Same as calling flush().
     \row    \o reset             \o Same as calling reset().
+    \row    \o ws                \o Same as calling skipWhiteSpace().
     \row    \o bom               \o Same as calling setGenerateByteOrderMark(true).
     \endtable
 
@@ -2339,6 +2340,18 @@ QTextStream &flush(QTextStream &stream)
 QTextStream &reset(QTextStream &stream)
 {
     stream.reset();
+    return stream;
+}
+
+/*!
+    \fn QTextStream &ws(QTextStream &stream)
+    \relates QTextStream
+
+    Calls stream.skipWhiteSpace() and returns \a stream.
+*/
+QTextStream &ws(QTextStream &stream)
+{
+    stream.skipWhiteSpace();
     return stream;
 }
 
