@@ -2471,8 +2471,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 #ifndef QT_NO_TRANSFORMATIONS
 	    QRegion reg = painter->xmat * r;
 #else
-	    // ### might miss a translation
 	    QRegion reg = r;
+	    reg.translate( painter->xlatex, painter->xlatey );
 #endif
 	    if ( painter->hasClipping() )
 		reg &= painter->clipRegion();
@@ -2639,8 +2639,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 #ifndef QT_NO_TRANSFORMATIONS
 	    QRegion reg = painter->xmat * rect;
 #else
-	    // ### might miss a translation
 	    QRegion reg = rect;
+	    reg.translate( painter->xlatex, painter->xlatey );
 #endif
 	    if ( painter->hasClipping() )
 		reg &= painter->clipRegion();
