@@ -568,7 +568,6 @@ public:
 		    const QStyleSheetItem* style,
 		    const QTextFormat& fmt, const QString& context,
 		    QMimeSourceFactory &factory, QStyleSheet *sheet, const QString& doc );
-    QTextTableCell( QTextTable* table, int row, int column );
     virtual ~QTextTableCell();
 
     QSize sizeHint() const ;
@@ -819,9 +818,7 @@ public:
     QString context() const { return contxt; }
 
     void setStyleSheet( QStyleSheet *s );
-    void updateFontSizes( int base, bool usePixels );
-    void updateFontAttributes( const QFont &f, const QFont &old );
-    void updateColors( const QColor &c, const QColor &old );
+    void setDefaultFormat( const QFont &font, const QColor &color );
 #ifndef QT_NO_MIME
     void setMimeSourceFactory( QMimeSourceFactory *f ) { if ( f ) factory_ = f; }
 #endif
@@ -841,8 +838,6 @@ public:
     QTextParag *draw( QPainter *p, int cx, int cy, int cw, int ch, const QColorGroup &cg,
 		      bool onlyChanged = FALSE, bool drawCursor = FALSE, QTextCursor *cursor = 0,
 		      bool resetChanged = TRUE );
-
-    void setDefaultFont( const QFont &f );
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerCustomItem( QTextCustomItem *i, QTextParag *p );
@@ -1596,9 +1591,7 @@ public:
     virtual QTextFormat *createFormat( const QFont &f, const QColor &c ) { return new QTextFormat( f, c, this ); }
     void debug();
 
-    void updateFontSizes( QStyleSheet* sheet, int base, bool usePixels );
-    void updateFontAttributes( const QFont &f, const QFont &old );
-    void updateColors( const QColor &c, const QColor &old );
+    void updateDefaultFormat( const QFont &font, const QColor &c, QStyleSheet *sheet );
     QDict<QTextFormat> dict() const { return cKey; }
 
     QPaintDevice *paintDevice() const { return paintdevice; }

@@ -3034,19 +3034,8 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	p->fillRect( rect, *paper );
     }
 
-    if ( formatCollection()->defaultFormat()->color() != cg.text() ) {
-	QDict<QTextFormat> formats = formatCollection()->dict();
-	QDictIterator<QTextFormat> it( formats );
-	while ( it.current() ) {
-	    if ( it.current() == formatCollection()->defaultFormat() ) {
-		++it;
-		continue;
-	    }
-	    it.current()->setColor( cg.text() );
-	    ++it;
-	}
-	formatCollection()->defaultFormat()->setColor( cg.text() );
-    }
+    if ( formatCollection()->defaultFormat()->color() != cg.text() )
+	setDefaultFormat( formatCollection()->defaultFormat()->font(), cg.text() );
 
     QTextParag *parag = firstParag();
     while ( parag ) {
@@ -3237,15 +3226,25 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 /*
   #### this function only sets the default font size in the format collection
  */
-void QTextDocument::setDefaultFont( const QFont &f )
+void QTextDocument::setDefaultFormat( const QFont &font, const QColor &color )
 {
-    int s = f.pointSize();
-    bool usePixels = FALSE;
-    if ( s == -1 ) {
-	s = f.pixelSize();
-	usePixels = TRUE;
+    bool reformat = font != fCollection->defaultFormat()->font();
+    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
+	d->setDefaultFormat( font, color );
+    fCollection->updateDefaultFormat( font, color, sheet_ );
+
+    if ( !reformat )
+	return;
+
+    // invalidate paragraphs and custom items
+    QTextParag *p = fParag;
+    while ( p ) {
+	p->invalidate( 0 );
+	for ( int i = 0; i < p->length() - 1; ++i )
+	    if ( p->at( i )->isCustom() )
+		p->at( i )->customItem()->invalidate();
+	p = p->next();
     }
-    updateFontSizes( s, usePixels );
 }
 
 #ifndef QT_NO_TEXTCUSTOMITEM
@@ -3728,40 +3727,6 @@ void QTextDocument::setUnderlineLinks( bool b ) {
     underlLinks = b;
     for ( QTextDocument *d = childList.first(); d; d = childList.next() )
 	d->setUnderlineLinks( b );
-}
-
-void QTextDocument::updateFontSizes( int base, bool usePixels )
-{
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->updateFontSizes( base, usePixels );
-    invalidate();
-    fCollection->updateFontSizes( styleSheet(), base, usePixels );
-
-
-    // invalidate custom items
-    QTextParag *p = fParag;
-    while ( p ) {
-	for ( int i = 0; i < p->length() - 1; ++i )
-	    if ( p->at( i )->isCustom() )
-		p->at( i )->customItem()->invalidate();
-	p = p->next();
-    }
-}
-
-void QTextDocument::updateFontAttributes( const QFont &f, const QFont &old )
-{
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->updateFontAttributes( f, old );
-    invalidate();
-    fCollection->updateFontAttributes( f, old );
-}
-
-void QTextDocument::updateColors( const QColor &c, const QColor &old )
-{
-    for ( QTextDocument *d = childList.first(); d; d = childList.next() )
-	d->updateColors( c, old );
-    invalidate();
-    fCollection->updateColors( c, old );
 }
 
 void QTextStringChar::setFormat( QTextFormat *f )
@@ -6286,83 +6251,47 @@ void QTextFormatCollection::debug()
 #endif
 }
 
-void QTextFormatCollection::updateFontSizes( QStyleSheet* sheet, int base, bool usePixels )
-{
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *f;
-    while ( ( f = it.current() ) ) {
-	++it;
-	f->stdSize = base;
-	f->usePixelSizes = usePixels;
-	if ( usePixels )
-	    f->fn.setPixelSize( f->stdSize );
-	else
-	    f->fn.setPointSize( f->stdSize );
-	sheet->scaleFont( f->fn, f->logicalFontSize );
-	f->update();
-    }
-    f = defFormat;
-    f->stdSize = base;
-    f->usePixelSizes = usePixels;
-    if ( usePixels )
-	f->fn.setPixelSize( f->stdSize );
-    else
-	f->fn.setPointSize( f->stdSize );
-    sheet->scaleFont( f->fn, f->logicalFontSize );
-    f->update();
-    updateKeys();
-}
+#define UPDATE( up, lo, rest ) \
+	if ( font.##lo##rest() != defFormat->fn.##lo##rest() && fm->fn.##lo##rest() == defFormat->fn.##lo##rest() ) \
+	    fm->fn.set##up##rest( font.##lo##rest() )
 
-void QTextFormatCollection::updateFontAttributes( const QFont &f, const QFont &old )
+void QTextFormatCollection::updateDefaultFormat( const QFont &font, const QColor &color, QStyleSheet *sheet )
 {
     QDictIterator<QTextFormat> it( cKey );
     QTextFormat *fm;
+    bool usePixels = font.pointSize() == -1;
+    bool changeSize = usePixels ? font.pixelSize() != defFormat->fn.pixelSize() :
+	font.pointSize() != defFormat->fn.pointSize();
+    int base = usePixels ? font.pixelSize() : font.pointSize();
     while ( ( fm = it.current() ) ) {
 	++it;
-	if ( fm->fn.family() == old.family() &&
-	     fm->fn.weight() == old.weight() &&
-	     fm->fn.italic() == old.italic() &&
-	     fm->fn.underline() == old.underline() ) {
-	    fm->fn.setFamily( f.family() );
-	    fm->fn.setWeight( f.weight() );
-	    fm->fn.setItalic( f.italic() );
-	    fm->fn.setUnderline( f.underline() );
-	    fm->update();
+	UPDATE( F, f, amily );
+	UPDATE( W, w, eight );
+	UPDATE( B, b, old );
+	UPDATE( I, i, talic );
+	UPDATE( U, u, nderline );
+	if ( changeSize ) {
+	    fm->stdSize = base;
+	    fm->usePixelSizes = usePixels;
+	    if ( usePixels )
+		fm->fn.setPixelSize( fm->stdSize );
+	    else
+		fm->fn.setPointSize( fm->stdSize );
+	    sheet->scaleFont( fm->fn, fm->logicalFontSize );
 	}
-    }
-    fm = defFormat;
-    if ( fm->fn.family() == old.family() &&
-	 fm->fn.weight() == old.weight() &&
-	 fm->fn.italic() == old.italic() &&
-	 fm->fn.underline() == old.underline() ) {
-	fm->fn.setFamily( f.family() );
-	fm->fn.setWeight( f.weight() );
-	fm->fn.setItalic( f.italic() );
-	fm->fn.setUnderline( f.underline() );
+	if ( color.isValid() && color != defFormat->col && fm->col == defFormat->col )
+	    fm->col = color;
 	fm->update();
     }
+
+    defFormat->fn = font;
+    defFormat->col = color;
+    defFormat->update();
+    defFormat->stdSize = base;
+    defFormat->usePixelSizes = usePixels;
+
     updateKeys();
 }
-
-void QTextFormatCollection::updateColors( const QColor &c, const QColor &old )
-{
-    QDictIterator<QTextFormat> it( cKey );
-    QTextFormat *fm;
-    while ( ( fm = it.current() ) ) {
-	++it;
-	if ( fm->col == old ) {
-	    fm->col = c;
-	    fm->update();
-	}
-    }
-    fm = defFormat;
-    if ( fm->col == old ) {
-	fm->col = c;
-	fm->update();
-    }
-    updateKeys();
-}
-
 
 // the keys in cKey have changed, rebuild the hashtable
 void QTextFormatCollection::updateKeys()
@@ -6370,7 +6299,7 @@ void QTextFormatCollection::updateKeys()
     if ( cKey.isEmpty() )
 	return;
     cKey.setAutoDelete( FALSE );
-    QTextFormat** formats = new QTextFormat*[  cKey.count() + 1];
+    QTextFormat** formats = new QTextFormat*[ cKey.count() + 1 ];
     QTextFormat **f = formats;
     QDictIterator<QTextFormat> it( cKey );
     while ( ( *f = it.current() ) ) {
@@ -6381,6 +6310,7 @@ void QTextFormatCollection::updateKeys()
     for ( f = formats; *f; f++ )
        cKey.insert( (*f)->key(), *f );
     cKey.setAutoDelete( TRUE );
+    delete [] formats;
 }
 
 
@@ -8166,7 +8096,8 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     richtext->setUseFormatCollection( table->parent->useFormatCollection() );
     richtext->setMimeSourceFactory( &factory );
     richtext->setStyleSheet( sheet );
-    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
+    richtext->setDefaultFormat( table->parent->formatCollection()->defaultFormat()->font(),
+				table->parent->formatCollection()->defaultFormat()->color() );
     richtext->setRichText( doc, context );
     rowspan_ = 1;
     colspan_ = 1;
@@ -8201,31 +8132,6 @@ QTextTableCell::QTextTableCell( QTextTable* table,
 
     parent->addCell( this );
 }
-
-QTextTableCell::QTextTableCell( QTextTable* table, int row, int column )
-{
-    maxw = QWIDGETSIZE_MAX;
-    minw = 0;
-    cached_width = -1;
-    cached_sizehint = -1;
-
-    parent = table;
-    row_ = row;
-    col_ = column;
-    stretch_ = 0;
-    richtext = new QTextDocument( table->parent );
-    richtext->setTableCell( this );
-    richtext->setFormatter( table->parent->formatter() );
-    richtext->setUseFormatCollection( table->parent->useFormatCollection() );
-    richtext->setDefaultFont( table->parent->formatCollection()->defaultFormat()->font() );
-    richtext->setRichText( "<html></html>", QString::null );
-    rowspan_ = 1;
-    colspan_ = 1;
-    background = 0;
-    hasFixedWidth = FALSE;
-    parent->addCell( this );
-}
-
 
 QTextTableCell::~QTextTableCell()
 {

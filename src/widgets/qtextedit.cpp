@@ -85,7 +85,7 @@ public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),
 	ensureCursorVisibleInShowEvent(FALSE),
-	allowTabs(FALSE) 
+	allowTabs(FALSE)
     {
 	for ( int i=0; i<7; i++ )
 	    id[i] = 0;
@@ -366,7 +366,7 @@ static bool block_set_alignment = FALSE;
     have to be closed in the same order as they are opened. For
     example, \c <red><blue></blue></red> is valid, while \c
     <red><blue></red></blue> will output an error message.
-    
+
     By using tags it is possible to change the color, bold, italic and
     underline settings for a piece of text. A color can be specified
     either as a color name (from the X11 color database), as a RGB hex
@@ -375,12 +375,12 @@ static bool block_set_alignment = FALSE;
     valid color tags: \c {<red>}, \c {<blue>}, \c {<#223344>}, \c
     {<font color=red>}. Bold, italic and underline settings can be
     specified by the tags \c {<b>}, \c <i> and \c {<u>}. Note that a
-    tag does not necessarily have to be closed. A valid example: 
+    tag does not necessarily have to be closed. A valid example:
     \code
     This is <red>red</red> while <b>this</b> is <blue>blue</blue>.
     <green><font color=yellow>Yellow,</font> and <u>green</u>.
     \endcode
-    
+
     There are a few things that you need to be aware of when the
     widget is in this mode:
     \list
@@ -2443,13 +2443,10 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	if ( old != colorGroup().color( QColorGroup::Text ) ) {
 	    QColor c( colorGroup().color( QColorGroup::Text ) );
 	    doc->setMinimumWidth( -1 );
-	    doc->updateColors( c, old );
+	    doc->setDefaultFormat( doc->formatCollection()->defaultFormat()->font(), c );
 	    lastFormatted = doc->firstParag();
 	    formatMore();
 	    repaintChanged();
-	    QFont f = currentFormat->font();
-	    currentFormat->removeRef();
-	    currentFormat = doc->formatCollection()->format( f, c );
 	}
     }
 
@@ -3568,7 +3565,7 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
   \i AutoText - this is the default. The text edit autodetects
   which rendering style is best, \c PlainText or \c RichText. This is
   done by using the QStyleSheet::mightBeRichText() function.
-  \i LogText - special, limited text format which is used in an optimized 
+  \i LogText - special, limited text format which is used in an optimized
   mode for very large texts.
   \endlist
 */
@@ -3629,7 +3626,7 @@ int QTextEdit::linesOfParagraph( int para ) const
 int QTextEdit::paragraphLength( int para ) const
 {
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if ( d->optimMode ) { 
+    if ( d->optimMode ) {
 	if ( d->od->numLines >= para ) {
 	    if ( d->od->lines[ para ].isEmpty() ) // CR
 		return 1;
@@ -4848,8 +4845,7 @@ void QTextEdit::setFont( const QFont &f )
     QFont old( QScrollView::font() );
     QScrollView::setFont( f );
     doc->setMinimumWidth( -1 );
-    doc->setDefaultFont( f ); // sets the default font size in the collection
-    doc->updateFontAttributes( f, old );
+    doc->setDefaultFormat( f, doc->formatCollection()->defaultFormat()->color() );
     lastFormatted = doc->firstParag();
     formatMore();
     repaintChanged();
@@ -5369,12 +5365,12 @@ QTextEditOptimPrivate::Tag * QTextEdit::optimAppendTag( int index,
   to change the color of a piece of text, or set one of the following
   formatting attributes: bold, italic and underline.  These attributes
   are set using the <b>, <i> and <u> tags.  Example of valid tags:
-  <red>, <#ff0000>, </red>, <b>, <u>, <i>, </i>. 
+  <red>, <#ff0000>, </red>, <b>, <u>, <i>, </i>.
   Example of valid text:
   This is some <red>red text</red>, while this is some <green>green
   text</green>. <blue><yellow>This is yellow</yellow>, while this is
   blue.</blue>
-  
+
   Colors can also be specified using the HTML tag <font color=<color>>
   (the closing tag is </font>).
 

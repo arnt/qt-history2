@@ -153,9 +153,8 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc->setLeftMargin( 0 );
     d->doc->setRightMargin( 0 );
     d->doc->setFormatter( new QTextFormatterBreakWords );
-    d->doc->setDefaultFont( fnt );
     d->doc->setStyleSheet( (QStyleSheet*)sheet );
-    d->doc->formatCollection()->defaultFormat()->setFont( fnt );
+    d->doc->setDefaultFormat( fnt, QColor() );
     d->doc->setText( text, context );
 }
 
@@ -198,15 +197,14 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
     d->doc = new QTextDocument( 0 );
     d->doc->setTextFormat( Qt::RichText );
     d->doc->setFormatter( new QTextFormatterBreakWords );
-    d->doc->setDefaultFont( fnt );
+    d->doc->setStyleSheet( (QStyleSheet*)sheet );
+    d->doc->setDefaultFormat( fnt, QColor() );
     d->doc->flow()->setPageSize( pageBreak );
     d->doc->setPageBreakEnabled( TRUE );
-    d->doc->setStyleSheet( (QStyleSheet*)sheet );
 #ifndef QT_NO_MIME
     d->doc->setMimeSourceFactory( (QMimeSourceFactory*)factory );
 #endif
     d->doc->setUnderlineLinks( linkUnderline );
-    d->doc->formatCollection()->defaultFormat()->setFont( fnt );
     d->doc->setText( text, context );
 }
 
@@ -420,8 +418,7 @@ void QSimpleRichText::setDefaultFont( const QFont &f )
     d->font = f;
     d->cachedWidth = -1;
     d->cachedWidthWithPainter = FALSE;
-    d->doc->setDefaultFont( f ); // sets only the size...
-    d->doc->formatCollection()->defaultFormat()->setFont( f );
+    d->doc->setDefaultFormat( f, QColor() );
     d->doc->setText( d->doc->originalText(), d->doc->context() );
 }
 
