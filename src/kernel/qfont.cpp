@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#80 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#79 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#80 $");
 
 
 /*!
@@ -1232,19 +1232,6 @@ QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
     return *this;
 }
 
-
-/*!
-  Returns the pixel width of a \e ch.
-  \sa boundingRect()
-*/
-
-int QFontMetrics::width( char ch ) const
-{
-    char tmp[2];
-    tmp[1] = '\0';
-    tmp[0] = ch;
-    return width( tmp, 1 );
-}
 
 /*!
   Returns the bounding rectangle of \e ch relative to the leftmost

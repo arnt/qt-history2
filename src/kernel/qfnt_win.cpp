@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#45 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#44 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#45 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -520,24 +520,24 @@ int QFontMetrics::rightBearing(char ch) const
 {
     ABC abc;
     GetCharABCWidths(hdc(),ch,ch,&abc);
-    return -abc.abcC;
+    return abc.abcC;
 }
 
 
-int QFontMetrics::maxLeftBearing() const
+int QFontMetrics::minLeftBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
 
     if ( def->lbearing == SHRT_MIN ) {
-	maxRightBearing(); // calculates both
+	minRightBearing(); // calculates both
     }
 
     return def->lbearing;
 }
 
 
-int QFontMetrics::maxRightBearing() const
+int QFontMetrics::minRightBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
@@ -548,10 +548,10 @@ int QFontMetrics::maxRightBearing() const
 	ABC *abc = new ABC[n];
 	GetCharABCWidths(hdc(),tm->tmFirstChar,tm->tmLastChar,abc);
 	int ml = abc[0].abcA;
-	int mr = -abc[0].abcC;
+	int mr = abc[0].abcC;
 	for (int i=1; i<n; i++) {
 	    ml = QMIN(ml,abc[i].abcA);
-	    mr = QMAX(mr,-abc[i].abcC);
+	    mr = QMIN(mr,abc[i].abcC);
 	}
 	def->lbearing = ml;
 	def->rbearing = mr;
@@ -576,6 +576,14 @@ int QFontMetrics::lineSpacing() const
 {
     TEXTMETRIC *tm = TM;
     return tm->tmHeight + tm->tmExternalLeading;
+}
+
+int QFontMetrics::width( char ch ) const
+{
+    char tmp[2];
+    tmp[1] = '\0';
+    tmp[0] = ch;
+    return width( tmp, 1 );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#96 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#97 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#96 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#97 $");
 
 
 static const int fontFields = 14;
@@ -1004,9 +1004,11 @@ bool QFontMetrics::inFont(char ch) const
 */
 int QFontMetrics::leftBearing(char ch) const
 {
+    XFontStruct *f = FS;
     if ( !inFont(ch) )
-	ch = FS->default_char;
-    return printerAdjusted(FS->per_char[ch].lbearing);
+	ch = f->default_char;
+    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    return printerAdjusted(cs->lbearing);
 }
 
 /*!
@@ -1015,13 +1017,15 @@ int QFontMetrics::leftBearing(char ch) const
   The right bearing of the font is the distance of the right-most pixel
   of the character from the 0 position.  This is often a negative value.
 
-  \sa leftBearing(char), maxRightBearing()
+  \sa leftBearing(char), minRightBearing()
 */
 int QFontMetrics::rightBearing(char ch) const
 {
+    XFontStruct *f = FS;
     if ( !inFont(ch) )
-	ch = FS->default_char;
-    return printerAdjusted(FS->per_char[ch].rbearing);
+	ch = f->default_char;
+    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    return printerAdjusted(cs->width - cs->rbearing);
 }
 
 /*!
@@ -1030,7 +1034,7 @@ int QFontMetrics::rightBearing(char ch) const
   The left bearing of the font is the smallest leftBearing(char)
   of all characters in the font.
 
-  \sa maxRightBearing(), leftBearing(char)
+  \sa minRightBearing(), leftBearing(char)
 */
 int QFontMetrics::minLeftBearing() const
 {
@@ -1046,7 +1050,7 @@ int QFontMetrics::minLeftBearing() const
 
   \sa minLeftBearing(), rightBearing(char)
 */
-int QFontMetrics::maxRightBearing() const
+int QFontMetrics::minRightBearing() const
 {
     // Safely cast away const, as we cache rbearing there.
     QFontDef* def = (QFontDef*)spec();
@@ -1055,11 +1059,11 @@ int QFontMetrics::maxRightBearing() const
 	XFontStruct *f = FS;
 	XCharStruct *c = f->per_char;
 	int nc = f->max_char_or_byte2 - f->min_char_or_byte2 + 1;
-	int mx = c->rbearing - c->width;
-	if (!def->fixedPitch) {
-	    for ( int i=1; i < nc; i++ ) {
-		mx = QMAX(mx, c[i].rbearing - c[i].width);
-	    }
+	int mx = c->width - c->rbearing;
+	for ( int i=1; i < nc; i++ ) {
+	    int nmx = c[i].width - c[i].rbearing;
+	    if ( nmx < mx )
+		mx = nmx;
 	}
 	def->rbearing = mx;
     }
@@ -1116,6 +1120,19 @@ int QFontMetrics::lineSpacing() const
     return leading() + height();
 }
 
+/*!
+  Returns the pixel width of a \e ch.
+  \sa boundingRect()
+*/
+
+int QFontMetrics::width( char ch ) const
+{
+    XFontStruct *f = FS;
+    if ( !inFont(ch) )
+	ch = f->default_char;
+    XCharStruct* cs = f->per_char + (ch - f->min_char_or_byte2);
+    return printerAdjusted(cs->width);
+}
 
 /*!
   Returns the width in pixels of the first \e len characters of \e str.
