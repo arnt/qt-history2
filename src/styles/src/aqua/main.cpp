@@ -60,7 +60,7 @@ QStringList AquaStyle::featureList() const
 
 QStyle* AquaStyle::create( const QString& style )
 {
-    if ( style == "Aqua" )
+    if ( style.lower() == "aqua" )
         return new QAquaStyle();
     return 0;
 }

@@ -60,7 +60,7 @@ QStringList SGIStyle::featureList() const
 
 QStyle* SGIStyle::create( const QString& style )
 {
-    if ( style == "SGI" )
+    if ( style.lower() == "sgi" )
         return new QSGIStyle();
     return 0;
 }

@@ -60,7 +60,7 @@ QStringList CDEStyle::featureList() const
 
 QStyle* CDEStyle::create( const QString& style )
 {
-    if ( style == "CDE" )
+    if ( style.lower() == "cde" )
         return new QCDEStyle();
     return 0;
 }

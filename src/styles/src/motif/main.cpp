@@ -60,7 +60,7 @@ QStringList MotifStyle::featureList() const
 
 QStyle* MotifStyle::create( const QString& style )
 {
-    if ( style == "Motif" )
+    if ( style.lower() == "motif" )
 	return new QMotifStyle();
     return 0;
 }

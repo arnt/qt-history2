@@ -60,7 +60,7 @@ QStringList PlatinumStyle::featureList() const
 
 QStyle* PlatinumStyle::create( const QString& style )
 {
-    if ( style == "Platinum" )
+    if ( style.lower() == "platinum" )
         return new QPlatinumStyle();
     return 0;
 }

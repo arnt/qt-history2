@@ -60,7 +60,7 @@ QStringList WindowsStyle::featureList() const
 
 QStyle* WindowsStyle::create( const QString& style )
 {
-    if ( style == "Windows" )
+    if ( style.lower() == "windows" )
 	return new QWindowsStyle();
     return 0;
 }

@@ -60,7 +60,7 @@ QStringList CompactStyle::featureList() const
 
 QStyle* CompactStyle::create( const QString& style )
 {
-    if ( style == "Compact" )
+    if ( style.lower() == "compact" )
         return new QCompactStyle();
     return 0;
 }
