@@ -145,42 +145,42 @@ void DomTree::withoutNSProc()
 
 void DomTree::createElement()
 {
-    new DomTreeItem( TRUE, domTree->createElement( "element" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createElement( "element" ), tree, 0 );
 }
 
 void DomTree::createDocumentFragment()
 {
-    new DomTreeItem( TRUE, domTree->createDocumentFragment(), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createDocumentFragment(), tree, 0 );
 }
 
 void DomTree::createTextNode()
 {
-    new DomTreeItem( TRUE, domTree->createTextNode( "text" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createTextNode( "text" ), tree, 0 );
 }
 
 void DomTree::createComment()
 {
-    new DomTreeItem( TRUE, domTree->createComment( "comment" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createComment( "comment" ), tree, 0 );
 }
 
 void DomTree::createCDATASection()
 {
-    new DomTreeItem( TRUE, domTree->createCDATASection( "CDATA-Section" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createCDATASection( "CDATA-Section" ), tree, 0 );
 }
 
 void DomTree::createProcessingInstruction()
 {
-    new DomTreeItem( TRUE, domTree->createProcessingInstruction( "target", "data" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createProcessingInstruction( "target", "data" ), tree, 0 );
 }
 
 void DomTree::createAttribute()
 {
-    new DomTreeItem( TRUE, domTree->createAttribute( "attribute" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createAttribute( "attribute" ), tree, 0 );
 }
 
 void DomTree::createEntityReference()
 {
-    new DomTreeItem( TRUE, domTree->createEntityReference( "entity reference" ), tree, 0 );
+    new DomTreeItem( FALSE, domTree->createEntityReference( "entity reference" ), tree, 0 );
 }
 
 void DomTree::createElementNS()
