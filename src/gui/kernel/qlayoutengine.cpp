@@ -17,6 +17,13 @@
 #include "qvector.h"
 #include "qwidget.h"
 
+
+
+
+
+#include <qlist.h>
+#include <qalgorithms.h>
+
 #ifndef QT_NO_LAYOUT
 
 typedef Q_LLONG Fixed;
@@ -67,9 +74,45 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
     int extraspace = 0;
     if (spacerCount)
         spacerCount--; // only spacers between things
+
     if (space < cMin + spacerCount * spacer) {
+        /*
+          Less space than minimumSize; take from the biggest first
+        */
+
+        int minSize =  cMin + spacerCount * spacer;
+
+        //shrink the spacers proportionally
+        spacer = minSize > 0 ? (spacer * space) / minSize : 0;
+
+        QList<int> list;
+
+        for (int i = start; i < start+count; i++) {
+            list << chain[i].minimumSize;
+        }
+
+        qHeapSort(list);
+
+        int space_left = space - spacerCount*spacer;
+
+        int sum = 0;
+        int idx = 0;
+        int space_used=0;
+        int current = 0;
+        while (idx < count && space_used < space_left) {
+            current = list.at(start + idx);
+            space_used = sum + current * (count - idx);
+            sum += current;
+            ++idx;
+        }
+        --idx;
+        int deficit = space_used - space_left;
+
+        int items = count - idx;
+        int maxval = current - deficit/items;
+
         for (i = start; i < start+count; i++) {
-            chain[i].size = chain[i].minimumSize;
+            chain[i].size = qMin(chain[i].minimumSize, maxval);
             chain[i].done = true;
         }
     } else if (space < cHint + spacerCount*spacer) {
