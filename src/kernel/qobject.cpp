@@ -62,9 +62,10 @@ class QObjectPrivate {
 }
 #endif
 
-class QSenderObjectList : public QObjectList
+class QSenderObjectList : public QObjectList, public QShared
 {
 public:
+    QSenderObjectList():currentSender(0){}
     QObject *currentSender;
 };
 
@@ -398,15 +399,15 @@ QObject::~QObject()
 	parentObj->removeChild( this );
     register QObject *obj;
     if ( senderObjects ) {			// disconnect from senders
-	QObjectList *tmp = senderObjects;
+	QSenderObjectList *tmp = senderObjects;
 	senderObjects = 0;
 	obj = tmp->first();
 	while ( obj ) {				// for all senders...
 	    obj->disconnect( this );
 	    obj = tmp->next();
 	}
-	delete tmp;
-	senderObjects = 0;
+	if ( tmp->deref() )
+	    delete tmp;
     }
     if ( connections ) {			// disconnect receivers
 	for ( int i = 0; i < (int) connections->size(); i++ ) {
@@ -1429,7 +1430,16 @@ static void err_info_about_candidates( int code,
 
 const QObject *QObject::sender()
 {
-    return senderObjects ? ((QSenderObjectList *) senderObjects)->currentSender : 0;
+    if ( senderObjects &&
+	 senderObjects->currentSender &&
+	 /*currentSender may be a dangling pointer in case the object
+	  * it was pointing to was destructed from inside a slot. Thus
+	  * verify it still is contained inside the senderObjects list
+	  * which gets cleaned on both destruction and disconnect.
+	  */
+	 senderObjects->findRef( senderObjects->currentSender ) != -1 )
+	return senderObjects->currentSender;
+    return 0;
 }
 
 
@@ -1703,8 +1713,8 @@ void QObject::connectInternal( const QObject *sender, int signal_index, const QO
     QObject *s = (QObject*)sender;
     QObject *r = (QObject*)receiver;
 
-    if ( !s->connections ) {			// create connections dict
-	s->connections = new QSignalVec( 7 );
+    if ( !s->connections ) {			// create connections lookup table
+	s->connections = new QSignalVec( signal_index+1 );
 	Q_CHECK_PTR( s->connections );
 	s->connections->setAutoDelete( TRUE );
     }
@@ -1732,11 +1742,8 @@ void QObject::connectInternal( const QObject *sender, int signal_index, const QO
     QConnection *c = new QConnection( r, member_index, rm ? rm->name : "qt_invoke", membcode );
     Q_CHECK_PTR( c );
     clist->append( c );
-    if ( !r->senderObjects ) {			// create list of senders
+    if ( !r->senderObjects )			// create list of senders
 	r->senderObjects = new QSenderObjectList;
-	((QSenderObjectList *) r->senderObjects)->currentSender = 0;
-	Q_CHECK_PTR( r->senderObjects );
-    }
     r->senderObjects->append( s );		// add sender to list
 }
 
@@ -2115,27 +2122,47 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 	return;
 
     QObject *object;
+    QSenderObjectList* sol;
+    QObject* oldSender = 0;
     QConnection *c;
     if ( clist->count() == 1 ) { // save iterator
 	c = clist->first();
 	object = c->object();
-	if ( object->senderObjects )
-	    ((QSenderObjectList *) object->senderObjects)->currentSender = this;
+	sol = object->senderObjects;
+	if ( sol ) {
+	    oldSender = sol->currentSender;
+	    sol->ref();
+	    sol->currentSender = this;
+	}
 	if ( c->memberType() == QSIGNAL_CODE )
 	    object->qt_emit( c->member(), o );
 	else
 	    object->qt_invoke( c->member(), o );
+	if (sol ) {
+	    sol->currentSender = oldSender;
+	    if ( sol->deref() )
+		delete sol;
+	}
     } else {
 	QConnectionListIt it(*clist);
 	while ( (c=it.current()) ) {
 	    ++it;
 	    object = c->object();
-	    if ( object->senderObjects )
-		((QSenderObjectList *) object->senderObjects)->currentSender = this;
+	    sol = object->senderObjects;
+	    if ( sol ) {
+		oldSender = sol->currentSender;
+		sol->ref();
+		sol->currentSender = this;
+	    }
 	    if ( c->memberType() == QSIGNAL_CODE )
 		object->qt_emit( c->member(), o );
 	    else
 		object->qt_invoke( c->member(), o );
+	    if (sol ) {
+		sol->currentSender = oldSender;
+		if ( sol->deref() )
+		    delete sol;
+	    }
 	}
     }
 }

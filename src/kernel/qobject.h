@@ -53,6 +53,7 @@ class QMetaObject;
 class QVariant;
 class QMetaProperty;
 class QPostEventList;
+class QSenderObjectList;
 class QObjectPrivate;
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
@@ -191,7 +192,7 @@ private:
     QObject	*parentObj;
     QObjectList *childObjects;
     QSignalVec *connections;
-    QObjectList *senderObjects;
+    QSenderObjectList *senderObjects;
     QObjectList *eventFilters;
     QPostEventList *postedEvents;
     QObjectPrivate* d;
