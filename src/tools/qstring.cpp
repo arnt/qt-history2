@@ -13564,8 +13564,8 @@ ushort QString::toUShort( bool *ok, int base ) const
   \code
   QString str("FF");
   bool ok;
-  int hex = str.toInt( &ok, "16" ); // will return 255, and ok set to TRUE
-  int dec = str.toInt( &ok, "10" ); // will return 0, and ok set to FALSE
+  int hex = str.toInt( &ok, 16 ); // will return 255, and ok set to TRUE
+  int dec = str.toInt( &ok, 10 ); // will return 0, and ok set to FALSE
   \endcode
 
   If \a ok is non-null, \a *ok is set to TRUE if there are no
