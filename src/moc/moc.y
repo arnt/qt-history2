@@ -1407,6 +1407,8 @@ class parser_reg {
 
     QStrList qtEnums;				// Used to store the contents of Q_ENUMS
     QStrList qtSets;				// Used to store the contents of Q_SETS
+    
+    QStrList strings; 				// unified strings
 };
 FILE  *out;					// output file
 static parser_reg *g = NULL;
@@ -1882,6 +1884,7 @@ void initClass()				 // prepare for new class
     g->infos.clear();
     g->qtSets.clear();
     g->qtEnums.clear();
+    g->strings.clear();
 }
 
 struct NamespaceInfo
@@ -2195,6 +2198,56 @@ const int Slot_Num = 1;
 const int Signal_Num = 2;
 const int Prop_Num = 3;
 
+void addString( const char* s )
+{
+    if ( !g->strings.contains( s ) )
+	g->strings.append( s );
+}
+
+QCString stringRef( const QCString& s )
+{
+    int p = g->strings.find( s.data() );
+    QCString res;
+    if ( p == -1 )
+	res.sprintf("\"%s\"", s.data() );
+    else
+	res.sprintf( "s[%d]", p );
+    return res;
+}
+
+void addStringExtra( const QCString& s )
+{
+    if ( s[0] != '\"' )
+	return;
+    addString( s.mid( 1, s.length()-2).data() );
+}
+
+QCString stringRefExtra( const QCString& s )
+{
+    if ( s[0] != '\"' )
+	return s;
+    return stringRef( s.mid( 1, s.length()-2) );
+}
+
+void generateFuncsStrings( FuncList *list )
+{
+    Function *f;
+    for ( f=list->first(); f; f=list->next() ) {
+	if ( ( f->type != "void" && validUType( f->type ) ) || !f->args->isEmpty() ) {
+	    if ( f->type != "void" ) {
+		addStringExtra( uTypeExtra( f->type ) );
+	    }
+	    Argument* a = f->args->first();
+	    while ( a ) {
+		QCString type = a->leftType + ' ' + a->rightType;
+		type = type.simplifyWhiteSpace();
+		addStringExtra( uTypeExtra( type ) );
+		a = f->args->next();
+	    }
+	}
+    }
+}
+
 void generateFuncs( FuncList *list, const char *functype, int num )
 {
     Function *f;
@@ -2205,7 +2258,7 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 	    fprintf( out, "    static const QUParameter param_%s_%d[] = {\n", functype, list->at() );
 	    if ( f->type != "void" ) {
 		hasReturnValue = TRUE;
-		fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), uTypeExtra(f->type).data() );
+		fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::Out }", uType(f->type).data(), stringRefExtra(uTypeExtra(f->type)).data() );
 		if ( !f->args->isEmpty() )
 		    fprintf( out, ",\n" );
 	    }
@@ -2215,12 +2268,12 @@ void generateFuncs( FuncList *list, const char *functype, int num )
 		type = type.simplifyWhiteSpace();
 		if( a->name.isEmpty() )
 		    fprintf( out, "\t{ 0, pQUType_%s, %s, QUParameter::%s }",
-			     uType( type ).data(), uTypeExtra( type ).data(),
+			     uType( type ).data(), stringRefExtra(uTypeExtra( type )).data(),
 			     isInOut( type ) ? "InOut" : "In" );
 		else
 		    fprintf( out, "\t{ %s, pQUType_%s, %s, QUParameter::%s }",
 			     (QCString("\"")+a->name + "\"").data(),
-			     uType( type ).data(), uTypeExtra( type ).data(),
+			     uType( type ).data(), stringRefExtra(uTypeExtra( type )).data(),
 			     isInOut( type ) ? "InOut" : "In" );
 		a = f->args->next();
 		if ( a )
@@ -2341,14 +2394,8 @@ int generateEnums()
     return g->enums.count();
 }
 
-
-int generateProps()
+void generatePropsStrings()
 {
-    if ( displayWarnings && !Q_OBJECTdetected )
-	moc_err("The declaration of the class \"%s\" contains properties"
-		" but no Q_OBJECT macro!", g->className.data());
-
-    fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
     //
     // Resolve and verify property access functions
     //
@@ -2583,18 +2630,32 @@ int generateProps()
 	    }
 	}
     }
+    
+    if ( g->props.count() ) {
+	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it )
+	    addString( it.current()->type );
+    }
+		       
+}
 
+
+int generateProps()
+{
+    if ( displayWarnings && !Q_OBJECTdetected )
+	moc_err("The declaration of the class \"%s\" contains properties"
+		" but no Q_OBJECT macro!", g->className.data());
+
+    fprintf( out, "#ifndef QT_NO_PROPERTIES\n" );
     //
     // Create meta data
     //
-    if ( g->props.count() )
-    {
+    if ( g->props.count() )   {
 	fprintf( out, "    int id = parentObject->propertyOffset() + parentObject->numProperties();\n");
 	fprintf( out, "    static QMetaProperty props_tbl[%d]; ", g->props.count() );
 	fprintf( out, "QMetaProperty *p; int e = 0;\n" );
 	for( QPtrListIterator<Property> it( g->props ); it.current(); ++it ) {
 
-	    fprintf( out, "    (p=&props_tbl[e++])->t = \"%s\"; ", it.current()->type.data() );
+	    fprintf( out, "    (p=&props_tbl[e++])->t = %s; ", stringRef(it.current()->type).data() );
 	    fprintf( out, "p->n = \"%s\"; ", it.current()->name.data() );
 	    fprintf( out, "p->id = id++;\n" );
 
@@ -2811,6 +2872,26 @@ void generateClass()		      // generate C++ source code for a class
 //
     int n_enums = generateEnums();
 
+// Unify some strings as memory optimization
+
+    generateFuncsStrings( &g->slots );
+    generateFuncsStrings( &g->signals );
+    generatePropsStrings();
+    
+    if ( !g->strings.isEmpty() ) {
+	fprintf( out, "    const char* s[%d] = {\n", g->strings.count() );
+	(void) g->strings.first();
+	const char* s;
+	while ( ( s = g->strings.current() ) ) {
+	    (void ) g->strings.next();
+	    if ( g->strings.current() )
+		fprintf( out, "\t\"%s\",\n", s );
+	    else
+		fprintf( out, "\t\"%s\"\n", s );
+	}
+	fprintf( out, "    };\n" );
+    }
+    
 //
 // Build slots array in staticMetaObject()
 //
@@ -3154,7 +3235,6 @@ void generateClass()		      // generate C++ source code for a class
 
 	    if ( !it.current()->reset.isEmpty() )
 		fprintf( out, "\tcase 2: %s(); break;\n", it.current()->reset.data() );
-// 		flag_break |= 1 << (2+1);
 
 	    if ( it.current()->designable.isEmpty() )
 		flag_propagate |= 1 << (3+1);
@@ -3214,6 +3294,7 @@ void generateClass()		      // generate C++ source code for a class
     }
     fprintf( out, "#endif // QT_NO_PROPERTIES\n" );
 }
+    
 
 ArgList *addArg( Argument *a )			// add argument to list
 {
