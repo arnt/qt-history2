@@ -26,6 +26,7 @@ public:
 	step(0),
 	timerId(0)
     {
+        setBackgroundColor(white);
 	label+="\n... and wasting CPU\nwith this animation!\n";
 
 	for (int i=0; i<nqix; i++)
