@@ -103,7 +103,7 @@ QVariant Model::headerData(int section, Qt::Orientation orientation, int role) c
 bool Model::hasChildren(const QModelIndex &parent) const
 {
     Node *n = static_cast<Node*>(parent.data());
-    if (n && depth(n) >= d)
+    if (n && (depth(n) >= d || parent.column() > 0))
         return false;
     return rc > 0 && cc > 0;
 }
