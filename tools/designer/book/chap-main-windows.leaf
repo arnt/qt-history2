@@ -139,6 +139,10 @@ We will accept the defaults for File Actions, i.e. have menu
 	checkbox. Click \Button Next to move on to the next wizard
 	page.
 
+\img qd-chapmainwin-mainwinwiz1.png
+\caption Main Window Wizard- Choosing menus and toolbars
+
+
 	\i
 
 	\index Creating Toolbars
@@ -166,6 +170,8 @@ The \e {Setup Toolbar} wizard page is used to populate a toolbar
 	Copy and Paste actions to the Toolbar list box. Click
 	\Button Next and then click \Button Finish.
 
+\img qd-chapmainwin-mainwinwiz2.png
+\caption Main Window Wizard- Setting up the toolbar
 	\endlist
 
 	If you preview the form (\Key {Ctrl+T}) the File and Edit
@@ -175,36 +181,38 @@ The \e {Setup Toolbar} wizard page is used to populate a toolbar
 	toolbars are not functional yet but we will rectify this as we
 	progress.
 
-	Click \Menu{File|Save} to save the form as \File richedit.ui.
+\img qd-chapmainwin-mainwinwiz3.png
+\caption Previewing the Form
 
-	\section2 Creating and Deleting Actions and Action Groups
+Click \Menu{File|Save} to save the form as \File richedit.ui.
 
-	    \section3 Creating Actions
+\section2 Creating and Deleting Actions and Action Groups
 
-	    \index Actions and Action Groups!Adding Actions
+\section3 Creating Actions
+
+\index Actions and Action Groups!Adding Actions
 \index Adding!Actions and Action Groups
-Our application requires more menu items and toolbar buttons
-	    than the the defaults we created with the main window wizard.
-	    But before we create the menu items and toolbar buttons we
-	    will create the actions that they'll invoke. The Action
-	    Editor appears automatically when you create a main window.
-	    You can also access it through the Window menu (click
-	    \Menu {Window|Action Editor}).
+Our application requires more menu items and toolbar buttons than the
+the defaults we created with the main window wizard. But before we
+create the menu items and toolbar buttons we will create the actions
+that they'll invoke. The Action Editor appears automatically when you
+create a main window. You can also access it through the Window menu
+(click \Menu {Window|Action Editor}).
 
-	    For the richedit application we need to create actions for
-	    indicating bold, italic and underlined font attributes, and to
-	    set text alignment.
+\img qd-chapmainwin-actioneditor1.png
+\caption Action Editor
 
-	    Right click in the \Dialog {Action Editor} where the actions are
-	    listed, then left click New Action. This will create a new
-	    action called 'Action' at the top of the list of actions.
-	    The Property Editor will change to show the default settings
-	    for the new action. We'll now go through all the properties
-	    we need to change.
-	    \list 1
-	    \i
+For the richedit application we need to create actions for indicating
+bold, italic and underlined font attributes, and to set text
+alignment.
 
-	    Change the \Property name of the action to 'boldAction'.
+Right click in the \Dialog {Action Editor} where the actions are
+listed, then left click New Action. This will create a new action
+called 'Action' at the top of the list of actions. The Property Editor
+will change to show the default settings for the new action. We'll now
+go through all the properties we need to change. \list 1 \i
+
+Change the \Property name of the action to 'boldAction'.
 
 	    \i
 
@@ -215,65 +223,66 @@ Our application requires more menu items and toolbar buttons
 
 	    \index Adding!Pixmaps
 \index Pixmaps!Adding
-	    The \Property iconSet property is used to set an icon
-	    which will appear to the left of the action's name in any
-	    menu you associate the action with. The \Property iconSet
-	    is also used for the toolbar button if you associate the
-	    action with a toolbar. Click the ellipsis button (\Key
-	    {...}) to invoke the \Dialog {Choose an Image}
-	    dialog. The ellipsis button appears when you click in the
-	    Value part of the Properties list by a \Property pixmap or
-	    \Property iconSet property. The pixmap we require is not
-	    in the default collection. Click the \Button Add button
-	    and a file dialog will appear. The icons we require are in
-	    the Qt examples directory, \File qt/examples/textedit/.
-	    Navigate to the textedit directory and select the \File
-	    textbold.xpm file. Click the new textbold icon in the
-	    pixmap collection then click \OK.
+The \Property iconSet property is used to set an icon which will
+appear to the left of the action's name in any menu you associate the
+action with. The \Property iconSet is also used for the toolbar button
+if you associate the action with a toolbar. Click the ellipsis button
+(\Key {...}) to invoke the \Dialog {Choose an Image} dialog. The
+ellipsis button appears when you click in the Value part of the
+Properties list by a \Property pixmap or \Property iconSet property.
+The pixmap we require is not in the default collection. Click the
+\Button Add button and a file dialog will appear. The icons we require
+are in the Qt examples directory, \File qt/examples/textedit/.
+Navigate to the textedit directory and select the \File textbold.xpm
+file and then click \Button Open. Click the new textbold icon in the
+pixmap collection then click \OK.
 
-	    \i
+\img qd-chapmainwin-actioneditor2.png
+\caption Properties of Bold Action
 
-	    Change the \Property text property to 'bold'. This automatically
-	    changes the \Property menuText, \Property toolTip and \Property statusTip
-	    properties.
+\i
 
-	    \i
+Change the \Property text property to 'bold'. This automatically
+changes the \Property menuText, \Property toolTip and \Property
+statusTip properties.
 
-	    Change the menu text to '\&Bold'. If we choose to
-	    associate this action with a menu item then this property is
-	    used; otherwise it is ignored.
+\i
 
-	    \i
+Change the menu text to '\&Bold'. If we choose to associate this
+action with a menu item then this property is used; otherwise it is
+ignored.
 
-	    Change the \Property accel property to 'CTRL+B'. This will associate
-	    the \Key Ctrl+B keyboard accelerator with this action.
+\i
 
-	    \endlist
-	    Note that at this point the only way to invoke this action is to
-	    use the keyboard accelerator (\Key {Ctrl+B}), because we
-	    have not yet associated the action with a menu item or with a
-	    toolbar button.
+Change the \Property accel property to 'CTRL+B'. This will associate
+the \Key Ctrl+B keyboard accelerator with this action.
 
-	    \index Adding!Actions and Action Groups
-We need to add two more actions, italic and underline. For each
-	    one right click the \Dialog {Action Editor} and click New
-	    Action. Then repeat the steps listed above to change each
-	    action's properties:
-	    \list
-	    \i
+\img qd-chapmainwin-propeditnewact.png
+\caption Properties for the Bold Action
 
-	    For the italic action change its \Property name to 'italicAction' and
-	    ensure its \Property toggleAction property is True. The
-	    \Property iconSet is in
-	    the textedit directory and is called \File textitalic.xpm; add
-	    its pixmap in the same way that we added the bold pixmap.
-	    (For example, click the ellipsis (\Key {...}), click
-	    \Button Add, navigate to the textedit directory and click
-	    the \File textitalic.xpm pixmap. Then click the textitalic
-	    pixmap in the pixmap collection and click \OK). Change the
-	    action's \Property text to 'italic', its \Property menuText
-	    to '\&Italic' and
-	    its \Property accel to 'CTRL+I'.
+\endlist
+Note that at this point the only way to invoke this action is to use
+the keyboard accelerator (\Key {Ctrl+B}), because we have not yet
+associated the action with a menu item or with a toolbar button.
+
+\index Adding!Actions and Action Groups
+We need to add two more actions, italic and underline. For each one
+right click the \Dialog {Action Editor} and click New Action. Then
+repeat the steps listed above to change each action's properties:
+\list 
+
+\i
+
+For the italic action change its \Property name to 'italicAction' and
+ensure its \Property toggleAction property is True. The \Property
+iconSet is in the textedit directory and is called \File
+textitalic.xpm; add its pixmap in the same way that we added the bold
+pixmap. (For example, click the ellipsis (\Key {...}), click \Button
+Add, navigate to the textedit directory and click the \File
+textitalic.xpm pixmap. Then click the textitalic pixmap in the pixmap
+collection and click \OK). Change the action's \Property text to
+'italic', its \Property menuText to '\&Italic' and its \Property accel
+to 'CTRL+I'.
 
 	    \i
 
