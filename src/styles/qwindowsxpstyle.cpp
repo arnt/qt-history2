@@ -1648,12 +1648,14 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = RBS_NORMAL;
 		    theme.drawBackground( partId, stateId );
 		}
+#if 0
 		if ( sub & SC_TitleBarShadeButton ) {
 		    qDebug( "TODO: XP Shade button" );
 		}
 		if ( sub & SC_TitleBarUnshadeButton ) {
 		    qDebug( "TODO: XP Unshade button" );
 		}
+#endif
 	    }
 	    if ( sub & SC_TitleBarCloseButton ) {
 		theme.rec = visualRect( querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton ), w );
