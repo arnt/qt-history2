@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#381 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#382 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2276,7 +2276,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		
 		QRect& r = widget->crect;
 		XWindowAttributes *a;
-		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) )
+		if ( a1.x == 0 && a1.y == 0 && (a2.x + a2.y > 0) 
+		     && a2.x + a2.y < r.left() + r.top())
 		    a = &a2;			// typical for mwm, fvwm
 		else
 		    a = &a1;			// typical for twm, olwm
@@ -3445,10 +3446,10 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	}
 	curr_autorep = autor ? event->xkey.keycode : 0;
     }
-    
+
     // autorepeat compression
     int autoRepeatCount = 1;
-    if (event->type == XKeyPress && text.length() <= 1) { 
+    if (event->type == XKeyPress && text.length() <= 1) {
 	XEvent evPress = *event;
 	XEvent evRelease;
 	while (1) {
@@ -3468,7 +3469,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    autoRepeatCount++;
 	}
     }
-    
+
     if (autoRepeatCount > 1 && text.length() == 1) {
 	for (int i = 1; i < autoRepeatCount; i++)
 	    text += text[0];
