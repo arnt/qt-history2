@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#8 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#9 $
 **
 ** Definition of QToolBar class
 **
@@ -43,9 +43,8 @@ public:
     void show();
 
     QMainWindow * mainWindow();
-    
+
     void setStretchableWidget( QWidget * );
-    void addStretch();
 
 protected:
     void paintEvent( QPaintEvent * );
