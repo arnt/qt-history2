@@ -357,6 +357,35 @@ void FormList::addForm( FormWindow *fw )
     project->addUiFile( fn, fw );
 }
 
+void FormList::removeFormFromProject( QListViewItem *i )
+{
+    project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
+    bool doDelete = !( (FormListItem*)i )->text( 1 ).isEmpty() && ( (FormListItem*)i )->text( 1 ) != "(unnamed)";
+    if ( ( (FormListItem*)i )->formWindow() ) {
+	( (FormListItem*)i )->formWindow()->setProject( 0 );
+	( (FormListItem*)i )->formWindow()->commandHistory()->setModified( FALSE );
+	( (FormListItem*)i )->formWindow()->close();
+    }
+    if ( doDelete )
+	delete i;
+}
+
+void FormList::removeFormFromProject( const QString &file )
+{
+    qDebug( file );
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	if ( it.current()->rtti() == FormListItem::Form ) {
+	    qDebug( "   " + it.current()->text( 1 ) );
+	    if ( it.current()->text( 1 ) == file ) {
+		removeFormFromProject( it.current() );
+		return;
+	    }
+	}
+	++it;
+    }
+}
+
 void FormList::removeForm( FormWindow *fw )
 {
     FormListItem *i = findItem( fw );
@@ -572,16 +601,7 @@ void FormList::rmbClicked( QListViewItem *i )
 	    return;
 
 	if ( id == REMOVE_FORM ) {
-	    project->removeUiFile( ( (FormListItem*)i )->text( 1 ), ( (FormListItem*)i )->formWindow() );
-	    bool doDelete = !( (FormListItem*)i )->text( 1 ).isEmpty() &&
-			    ( (FormListItem*)i )->text( 1 ) != "(unnamed)";
-	    if ( ( (FormListItem*)i )->formWindow() ) {
-		( (FormListItem*)i )->formWindow()->setProject( 0 );
-		( (FormListItem*)i )->formWindow()->commandHistory()->setModified( FALSE );
-		( (FormListItem*)i )->formWindow()->close();
-	    }
-	    if ( doDelete )
-		delete i;
+	    removeFormFromProject( i );
 	} else if ( id == ADD_EXISTING_FORM ) {
 	    mainWindow->fileOpen( "Qt User-Interface Files (*.ui)", ";ui" );
 	} else if ( id == ADD_NEW_FORM ) {

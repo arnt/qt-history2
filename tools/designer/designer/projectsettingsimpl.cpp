@@ -27,6 +27,7 @@
 #include "mainwindow.h"
 #include "sourcefile.h"
 #include "pixmapchooser.h"
+#include "formlist.h"
 
 #include <qlineedit.h>
 #include <qtextedit.h>
@@ -166,33 +167,26 @@ void ProjectSettings::okClicked()
 
 void ProjectSettings::removeProject()
 {
-    QPtrList<QListViewItem> lst;
     QListViewItemIterator it( listInterfaces );
     while ( it.current() ) {
-	if ( it.current()->isSelected() )
-	    lst.append( it.current() );
+	QListViewItem *i = it.current();
+	if ( !i->isSelected() ) {
+	    ++it;
+	    continue;
+	}
+	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
+	if ( fit != formMap.end() ) {
+	    MainWindow::self->formlist()->removeFormFromProject( i->text( 0 ) );
+	} else {
+	    QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
+	    if ( sit != sourceMap.end() ) {
+	
+	    }
+	}
 	++it;
     }
 
-    for ( QListViewItem *i = lst.first(); i; i = lst.next() ) {
-	QMap<QListViewItem*, FormWindow*>::Iterator fit = formMap.find( i );
-	FormWindow *fw = 0;
-	if ( fit != formMap.end() ) {
-	    fw = *fit;
-	    project->removeUiFile( i->text( 0 ), fw );
-	    if ( fw ) {
-		fw->commandHistory()->setModified( FALSE );
-		fw->close();
-	    }
-	}
-	QMap<QListViewItem*, SourceFile*>::Iterator sit = sourceMap.find( i );
-	if ( sit != sourceMap.end() ) {
-	
-	}
-	
-    }
-
-    lst.setAutoDelete( TRUE );
+    fillFilesList();
 }
 
 void ProjectSettings::projectNameChanged( const QString &name )
@@ -244,23 +238,10 @@ void ProjectSettings::fillFilesList()
 	QListViewItem *item = new QListViewItem( forms, *it, tr( "<unknown>" ), 0 );
 	item->setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
 	QString className = project->formName( item->text( 0 ) );
+	FormWindow *fw = project->formWindow( item->text( 0 ) );
+	formMap.insert( item, fw );
 	if ( !className.isEmpty() )
 	    item->setText( 1, className );
-    }
-
-    QObjectList *l = parent()->queryList( "FormWindow", 0, FALSE, TRUE );
-    for ( QObject *o = l->first(); o; o = l->next() ) {
-	if ( ( (FormWindow*)o )->project() != project )
-	    continue;
-	QListViewItemIterator it( listInterfaces );
-	while ( it.current() ) {
-	    if ( project->makeAbsolute( ( it.current() )->text( 0 ) ) ==
-		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
-		it.current()->setText( 1, o->name() );
-		formMap.insert( it.current(), (FormWindow*)o );
-	    }
-	    ++it;
-	}
     }
 
     QPtrList<SourceFile> sourceList = project->sourceFiles();
