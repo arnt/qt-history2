@@ -383,7 +383,9 @@ int QKeySequence::decodeString( const QString& str )
 {
     int ret = 0;
     QString accel = str;
-#ifndef Q_OS_TEMP
+
+// Only MSVC 6 has a problem with this
+#if !defined(Q_CC_MSVC) || !defined(Q_OS_TEMP) || defined(Q_CC_MSVC_NET)
     struct {
 	int qt_key;
 	QString name;
@@ -406,17 +408,16 @@ int QKeySequence::decodeString( const QString& str )
 	{ META, "meta+" }, { ALT, QAccel::tr("Meta").lower() + "+" },
 	{ 0, QString::null } };
 #else
-    struct {
-	int qt_key;
-	const char *name;
-    } modifiers[] = {
-	{ CTRL, "ctrl+" }, 
-	{ SHIFT, "shift+" }, 
-	{ ALT, "alt+" }, 
-	{ META, "meta+" }, 
-	{ 0, 0 } };
+	struct {
+	    int qt_key;
+	    const char *name;
+	} modifiers[] = {
+	    { CTRL, "ctrl+" }, 
+	    { SHIFT, "shift+" }, 
+	    { ALT, "alt+" }, 
+	    { META, "meta+" }, 
+	    { 0, 0 } };
 #endif
-
     QString sl = accel.lower();
     for(int i = 0; modifiers[i].qt_key; i++) {
 	if(sl.contains(modifiers[i].name)) {
