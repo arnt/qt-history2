@@ -1140,7 +1140,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
     }
-    
+
 #if defined(UNIX) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
@@ -2064,7 +2064,7 @@ bool QApplication::processNextEvent( bool canWait )
     int	   nevents = 0;
 
     emit guiThreadAwake();
-    
+
     if (qt_is_gui_used ) {
 	sendPostedEvents();
 
@@ -2111,12 +2111,12 @@ bool QApplication::processNextEvent( bool canWait )
 	XFlush( appDpy );
     }
     int nsel;
-    
+
 #if defined(UNIX) && defined(QT_THREAD_SUPPORT)
-    FD_SET( qt_thread_pipe[1], &app_readfds );
-    highest = QMAX( highest, qt_thread_pipe[1] );
+    FD_SET( qt_thread_pipe[0], &app_readfds );
+    highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
-    
+
 
 #if defined(_OS_WIN32_)
 #define FDCAST (fd_set*)
@@ -2143,7 +2143,7 @@ bool QApplication::processNextEvent( bool canWait )
     }
 
 #if defined(UNIX) && defined(QT_THREAD_SUPPORT)
-    if ( FD_ISSET( qt_thread_pipe[1], &app_readfds ) ) {
+    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);
     }
@@ -2151,7 +2151,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     nevents += qt_activate_timers();		// activate timers
     qt_reset_color_avail();			// color approx. optimization
-    
+
     return (nevents > 0);
 }
 
@@ -2172,7 +2172,7 @@ void QApplication::wakeUpGuiThread()
     }
 #endif
 }
-    
+
 int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 {
     QETWidget *widget = (QETWidget*)w;
