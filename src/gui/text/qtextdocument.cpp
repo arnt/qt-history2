@@ -96,24 +96,21 @@ bool QTextDocument::isEmpty() const
 }
 
 /*!
-    \fn void QTextDocument::undo();
-
     Undoes the last editing operation on the document if
     \link QTextDocument::isUndoAvailable() undo is available\endlink.
 */
+void QTextDocument::undo()
+{
+    d->undoRedo(true);
+}
 
 /*!
-    \fn void QTextDocument::redo();
-
     Redoes the last editing operation on the document if \link
     QTextDocument::isRedoAvailable() redo is available\endlink.
 */
-
-/*! \internal
- */
-void QTextDocument::undoRedo(bool undo)
+void QTextDocument::redo()
 {
-    d->undoRedo(undo);
+    d->undoRedo(false);
 }
 
 /*!

@@ -87,16 +87,10 @@ public slots:
 protected:
     virtual QTextObject *createObject(const QTextFormat &f);
 
-private:
-    void undoRedo(bool undo);
-
 #if defined(Q_DISABLE_COPY)
     QTextDocument(const QTextDocument &);
     QTextDocument &operator=(const QTextDocument &);
 #endif
 };
-
-inline void QTextDocument::undo() { undoRedo(true); }
-inline void QTextDocument::redo() { undoRedo(false); }
 
 #endif
