@@ -433,7 +433,7 @@ void FormWindow::handleMousePress( QMouseEvent *e, QWidget *w )
 
     switch ( currTool ) {
     case POINTER_TOOL:
-	if ( !isMainContainer( w ) ) { // press on a child widget
+	if ( !isMainContainer( w ) && qstrcmp( w->name(), "central widget" ) != 0 ) { // press on a child widget
 	    // if the clicked widget is not in a layout, raise it
 	    if ( !w->parentWidget() || WidgetFactory::layoutType( w->parentWidget() ) == WidgetFactory::NoLayout )
 		w->raise();
