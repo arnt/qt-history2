@@ -120,7 +120,7 @@ void newWinFont( void * p )
 
     QString familyName;
     QT_WA( {
-        familyName = QString::fromUcs2( tc );
+        familyName = QString::fromUcs2( (ushort*)tc );
     } , {
         familyName = QString::fromLocal8Bit((const char*)tc);
     } );
@@ -143,7 +143,7 @@ void newWinFont( void * p )
 
     QString styleName;
     QT_WA( {
-        styleName = QString::fromUcs2( tc );
+        styleName = QString::fromUcs2( (ushort*)tc );
     } , {
         styleName = QString::fromLocal8Bit((const char*)tc);
     } );
