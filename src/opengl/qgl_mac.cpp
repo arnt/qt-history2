@@ -143,7 +143,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 }
 
 
-/*
+/*!
   <strong>Mac only</strong>: This virtual function tries to find a
   visual that matches the format, reducing the demands if the original
   request cannot be met.

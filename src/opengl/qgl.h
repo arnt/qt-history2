@@ -199,10 +199,12 @@ protected:
 
 #if defined(Q_WS_WIN)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
-#elif defined(Q_WS_X11)
+#endif
+#if defined(Q_WS_X11)
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
-#elif defined(Q_WS_MAC)
+#endif
+#if defined(Q_WS_MAC)
     virtual void*	chooseMacVisual(GDHandle);
 #endif
 
