@@ -582,7 +582,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             emulationSpecifier &= ~CoordTransform;
 
         if (state->txop >= QPainterPrivate::TxTranslate
-            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+            && s->pen.widthF() > .0f && !hasFeature(PenWidthTransform))
             emulationSpecifier |= PenWidthTransform;
         else
             emulationSpecifier &= ~PenWidthTransform;
@@ -608,7 +608,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
 
         // Check for emulation of pen xform
         if (s->txop > QPainterPrivate::TxTranslate
-            && s->pen.width() != 0 && !hasFeature(PenWidthTransform))
+            && s->pen.widthF() > .0f && !hasFeature(PenWidthTransform))
             emulationSpecifier |= PenWidthTransform;
         else
             emulationSpecifier &= ~PenWidthTransform;

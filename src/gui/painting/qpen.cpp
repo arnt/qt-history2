@@ -273,12 +273,16 @@ void QPen::setStyle(Qt::PenStyle s)
     the same as a line width of 1. The cap and join style have no
     effect on 0-width lines.
 
+    Setting a pen width with a negative value is not supported.
+
     \sa width()
 */
 
 void QPen::setWidthF(float width)
 {
-    if (d->width == width)
+    if (width < 0.f)
+        qWarning("QPen::setWidthF(): Setting a pen width with a negative value is not defined.");
+    if (qAbs(d->width - width) < 0.00000001f)
         return;
     detach();
     d->width = width;

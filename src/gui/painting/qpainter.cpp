@@ -326,14 +326,14 @@ void QPainterPrivate::draw_helper_stroke_pathbased(const void *data, ShapeType s
 
     Q_Q(QPainter);
 
-    qReal width = state->pen.width();
+    qReal width = state->pen.widthF();
     int txop = state->txop;
-    if (state->pen.width() == 0) {
+    if (!(state->pen.widthF() > .0f)) {
         if (state->txop != TxNone) {
             path = path * state->matrix;
             txop = TxNone;
         }
-        width = 1;
+        width = 1.f;
     }
 
     QPainterPathStroker stroker;
