@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#20 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#19 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#20 $";
 #endif
 
 
@@ -199,8 +199,7 @@ void QEvent::peErrMsg()				// posted event error message
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button,
-  int state )
+  \fn QMouseEvent::QMouseEvent( int type, const QPoint &pos, int button, int state )
 
   Constructs a mouse event object.
 
