@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#20 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#21 $
 **
 ** Definition of QRangeControl class
 **
@@ -27,6 +27,9 @@
 #ifndef QT_H
 #include "qglobal.h"
 #endif
+
+
+class QRangeControlPrivate;
 
 
 class Q_EXPORT QRangeControl
@@ -65,6 +68,8 @@ private:
     int		minVal, maxVal;
     int		line, page;
     int		val, prevVal;
+
+    QRangeControlPrivate * d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
