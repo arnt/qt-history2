@@ -82,6 +82,8 @@ QWorkspace (vohi)
 QTabWidget
   QWidget *page( int pos ) function like in QWizard
 
+QPrinter
+  More control about specific parameters (e.g. paper bin)
 
 Feature Requests
 ----------------
