@@ -903,8 +903,10 @@ void QDockArea::removeDockWindow( QDockWindow *w, bool makeFloating, bool swap, 
     QPtrList<QDockWindow> lineStarts = layout->lineStarts();
     if ( fixNewLines && lineStarts.findRef( dockWindow ) != -1 && i < (int)dockWindows->count() )
 	dockWindows->at( i )->setNewLine( TRUE );
-    if ( makeFloating )
-	dockWindow->reparent( topLevelWidget(), WType_Dialog | WStyle_Customize | WStyle_NoBorder, QPoint( 0, 0 ), FALSE );
+    if ( makeFloating ) {
+	QWidget *p = parentWidget() ? parentWidget() : topLevelWidget();
+	dockWindow->reparent( p, WType_Dialog | WStyle_Customize | WStyle_NoBorder, QPoint( 0, 0 ), FALSE );
+    }
     if ( swap )
 	dockWindow->resize( dockWindow->height(), dockWindow->width() );
     updateLayout();

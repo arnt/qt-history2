@@ -1605,14 +1605,6 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
 	}
-    } else if ( e->type() == QEvent::Close && o == this ) {
-	QPtrListIterator<QDockWindow> it( d->dockWindows );
-	QDockWindow *dw;
-	while ( ( dw = it.current() ) ) {
-	    ++it;
-	    if ( dw->place() == QDockWindow::OutsideDock )
-		delete dw;
-	}
     }
 
     return QWidget::eventFilter( o, e );
