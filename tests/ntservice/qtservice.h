@@ -2,10 +2,12 @@
 #define QTSERVICE_H
 
 #include <qstringlist.h>
-#include <qt_windows.h>
+
+class QtServicePrivate;
 
 class QtService
 {
+    friend class QtServicePrivate;
 public:
     QtService( const QString &name, bool canPause = FALSE );
     virtual ~QtService();
@@ -39,16 +41,7 @@ protected:
     virtual void reportEvent( const QString &, EventType type = Success, uint category = 0 );
 
 private:
-    void setStatus ( DWORD dwState );
-
-    static void WINAPI serviceMain( DWORD dwArgc, TCHAR** lpszArgv );
-    static void WINAPI handler( DWORD dwOpcode );
-
-    QString servicename;
-    QString filepath;
-
-    SERVICE_STATUS status;
-    SERVICE_STATUS_HANDLE serviceStatus;
+    QtServicePrivate *d;
 };
 
 #endif // QTSERVICE_H

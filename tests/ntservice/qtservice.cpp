@@ -1,26 +1,47 @@
 #include "qtservice.h"
 #include <qapplication.h>
+#include <qt_windows.h>
 
 static QtService *instance = 0;
+static QtServicePrivate *data = 0;
 
-void WINAPI QtService::serviceMain( DWORD dwArgc, TCHAR** lpszArgv )
+class QtServicePrivate
 {
-    if ( !instance )
+public:
+    QtServicePrivate()
+    {
+	data = this;
+    }
+
+    void setStatus ( DWORD dwState );
+    static void WINAPI serviceMain( DWORD dwArgc, TCHAR** lpszArgv );
+    static void WINAPI handler( DWORD dwOpcode );
+
+    QString servicename;
+    QString filepath;
+
+    SERVICE_STATUS status;
+    SERVICE_STATUS_HANDLE serviceStatus;
+};
+
+void WINAPI QtServicePrivate::serviceMain( DWORD dwArgc, TCHAR** lpszArgv )
+{
+    if ( !instance || !data )
 	return;
 
     // Register the control request handler
-    instance->serviceStatus = RegisterServiceCtrlHandler( (const TCHAR*)qt_winTchar( instance->servicename, TRUE ), handler );
-    if ( instance->serviceStatus == NULL )
+    data->serviceStatus = RegisterServiceCtrlHandler( (const TCHAR*)qt_winTchar( instance->serviceName(), TRUE ), handler );
+    if ( data->serviceStatus == NULL )
 	return;
     
     // Start the initialisation
-    instance->setStatus(SERVICE_START_PENDING);
+    data->setStatus(SERVICE_START_PENDING);
     if ( instance->initialize() ) {
-	instance->setStatus(SERVICE_RUNNING);
+	data->setStatus(SERVICE_RUNNING);
 	// Do the real work. 
-	instance->status.dwWin32ExitCode = NO_ERROR;
-	instance->status.dwCheckPoint = 0;
-	instance->status.dwWaitHint = 0;
+	data->status.dwWin32ExitCode = NO_ERROR;
+	data->status.dwCheckPoint = 0;
+	data->status.dwWaitHint = 0;
 
 	int argc = dwArgc;
 	char **argv = new char*[ argc ];
@@ -30,35 +51,35 @@ void WINAPI QtService::serviceMain( DWORD dwArgc, TCHAR** lpszArgv )
 	    strcpy( argv[i], a.latin1() );
 	}
 
-	instance->status.dwWin32ExitCode = instance->run( argc, argv );
+	data->status.dwWin32ExitCode = instance->run( argc, argv );
 	// When the Run function returns, the service has stopped.
     }
     
     // Tell the service manager we are stopped
-    instance->setStatus(SERVICE_STOPPED);
+    data->setStatus(SERVICE_STOPPED);
 }
 
-void WINAPI QtService::handler ( DWORD code )
+void WINAPI QtServicePrivate::handler ( DWORD code )
 {
-    if ( !instance )
+    if ( !instance || !data )
 	return;
 
     switch (code) {
     case SERVICE_CONTROL_STOP: // 1
-	instance->setStatus( SERVICE_STOP_PENDING );
+	data->setStatus( SERVICE_STOP_PENDING );
 	instance->quit();
 	break;
 
     case SERVICE_CONTROL_PAUSE: // 2
-	instance->setStatus( SERVICE_PAUSE_PENDING );
+	data->setStatus( SERVICE_PAUSE_PENDING );
 	instance->pause();
-	instance->setStatus( SERVICE_PAUSED );
+	data->setStatus( SERVICE_PAUSED );
 	break;
 
     case SERVICE_CONTROL_CONTINUE: // 3
-	instance->setStatus( SERVICE_CONTINUE_PENDING );
+	data->setStatus( SERVICE_CONTINUE_PENDING );
 	instance->resume();
-	instance->setStatus( SERVICE_RUNNING );
+	data->setStatus( SERVICE_RUNNING );
 	break;
 
     case SERVICE_CONTROL_INTERROGATE: // 4
@@ -72,18 +93,35 @@ void WINAPI QtService::handler ( DWORD code )
     }
     
     // Report current status
-    ::SetServiceStatus( instance->serviceStatus, &instance->status );
+    ::SetServiceStatus( data->serviceStatus, &data->status );
+}
+
+void QtServicePrivate::setStatus( DWORD state )
+{
+    status.dwCurrentState = state;
+    ::SetServiceStatus( serviceStatus, &status);
 }
 
 QtService::QtService( const QString &name, bool canPause )
-: servicename( name )
 {
-    TCHAR path[_MAX_PATH];
-    ::GetModuleFileName( NULL, path, sizeof(path) );
-    filepath = qt_winQString( path );
+    d = new QtServicePrivate;
+    d->servicename = name;
 
-    if ( filepath.contains( ' ' ) )
-	filepath = QString( "\"%1\"" ).arg( filepath );
+#if defined(UNICODE)
+    if ( qWinVersion() & Qt::WV_NT_based ) {
+	TCHAR path[_MAX_PATH];
+	::GetModuleFileName( NULL, path, sizeof(path) );
+	d->filepath = qt_winQString( path );
+    } else
+#endif
+    {
+	char path[_MAX_PATH];
+	::GetModuleFileNameA( NULL, path, sizeof(path) );
+	d->filepath = QString::fromLocal8Bit( path );
+    }
+
+    if ( filePath().contains( ' ' ) )
+	filePath() = QString( "\"%1\"" ).arg( filePath() );
 
     if ( instance ) {
 	// ###
@@ -92,21 +130,22 @@ QtService::QtService( const QString &name, bool canPause )
 
     instance = this;
 
-    serviceStatus		    = NULL;
-    status.dwServiceType	    = SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
-    status.dwCurrentState	    = SERVICE_STOPPED;
-    status.dwControlsAccepted	    = SERVICE_ACCEPT_STOP;
+    d->serviceStatus			    = NULL;
+    d->status.dwServiceType		    = SERVICE_WIN32_OWN_PROCESS | SERVICE_INTERACTIVE_PROCESS;
+    d->status.dwCurrentState		    = SERVICE_STOPPED;
+    d->status.dwControlsAccepted	    = SERVICE_ACCEPT_STOP;
     if ( canPause )
-	status.dwControlsAccepted  |= SERVICE_ACCEPT_PAUSE_CONTINUE;
-    status.dwWin32ExitCode	    = NO_ERROR;
-    status.dwServiceSpecificExitCode = 0;
-    status.dwCheckPoint		    = 0;
-    status.dwWaitHint		    = 0;
+	d->status.dwControlsAccepted	    |= SERVICE_ACCEPT_PAUSE_CONTINUE;
+    d->status.dwWin32ExitCode		    = NO_ERROR;
+    d->status.dwServiceSpecificExitCode	    = 0;
+    d->status.dwCheckPoint		    = 0;
+    d->status.dwWaitHint		    = 0;
 }
 
 QtService::~QtService()
 {
     instance = 0;
+    delete d;
 }
 
 bool QtService::install()
@@ -118,11 +157,11 @@ bool QtService::install()
 
     // Create the service
     SC_HANDLE hService = 0;
-    TCHAR *name = (TCHAR*)qt_winTchar_new( servicename );
+    TCHAR *name = (TCHAR*)qt_winTchar_new( serviceName() );
     hService = ::CreateService( hSCM, name, name, 
-				SERVICE_ALL_ACCESS, status.dwServiceType, 
+				SERVICE_ALL_ACCESS, d->status.dwServiceType, 
 				SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL, 
-				(TCHAR*)qt_winTchar( filepath, TRUE ),
+				(TCHAR*)qt_winTchar( filePath(), TRUE ),
 				NULL, NULL, NULL, NULL, NULL);
 
     if (!hService) {
@@ -147,7 +186,7 @@ bool QtService::uninstall()
 	return result;
 
     // Try to open the service
-    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), DELETE );
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( serviceName(), TRUE ), DELETE );
 
     if ( hService ) {
 	if ( ::DeleteService(hService) )
@@ -171,7 +210,7 @@ bool QtService::isInstalled() const
 	return result;
 
     // Try to open the service
-    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_CONFIG );
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( serviceName(), TRUE ), SERVICE_QUERY_CONFIG );
 
     if (hService) {
 	result = TRUE;
@@ -192,7 +231,7 @@ bool QtService::isRunning() const
 	return result;
 
     // Try to open the service
-    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_QUERY_STATUS );
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( serviceName(), TRUE ), SERVICE_QUERY_STATUS );
 
     if (hService) {
 	SERVICE_STATUS info;
@@ -207,12 +246,6 @@ bool QtService::isRunning() const
     return result;
 }
 
-void QtService::setStatus( DWORD state )
-{
-    status.dwCurrentState = state;
-    ::SetServiceStatus( serviceStatus, &status);
-}
-
 bool QtService::start()
 {
     if ( !isInstalled() && !install() )
@@ -220,9 +253,9 @@ bool QtService::start()
 
     bool res = FALSE;
     SERVICE_TABLE_ENTRY st [2];
-    TCHAR *sname = (TCHAR*)qt_winTchar_new( servicename );
+    TCHAR *sname = (TCHAR*)qt_winTchar_new( serviceName() );
     st[0].lpServiceName = sname;
-    st[0].lpServiceProc = QtService::serviceMain;
+    st[0].lpServiceProc = QtServicePrivate::serviceMain;
     st[1].lpServiceName = NULL;
     st[1].lpServiceProc = NULL;
 
@@ -239,7 +272,7 @@ void QtService::exec( int argc, char **argv )
 	if ( !hSCM )
 	    return;
 
-	SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_START );
+	SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( serviceName(), TRUE ), SERVICE_START );
 	if ( hService ) {
 	    DWORD dwArgc = argc;
 	    TCHAR **lpArgs = new TCHAR*[ dwArgc ];
@@ -261,7 +294,7 @@ void QtService::stop()
     if ( !hSCM )
 	return;
 
-    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( servicename, TRUE ), SERVICE_STOP );
+    SC_HANDLE hService = ::OpenService( hSCM, (const TCHAR*)qt_winTchar( serviceName(), TRUE ), SERVICE_STOP );
 
     if ( hService ) {
 	SERVICE_STATUS status;
@@ -288,12 +321,12 @@ void QtService::user( int code )
 
 QString QtService::serviceName() const
 {
-    return servicename;
+    return d->servicename;
 }
 
 QString QtService::filePath() const
 {
-    return filepath;
+    return d->filepath;
 }
 
 void QtService::reportEvent( const QString &message, EventType type, uint category )
@@ -319,7 +352,7 @@ void QtService::reportEvent( const QString &message, EventType type, uint catego
 	break;
     }
 
-    h = RegisterEventSource( NULL, (TCHAR*)qt_winTchar( servicename, TRUE ) );
+    h = RegisterEventSource( NULL, (TCHAR*)qt_winTchar( serviceName(), TRUE ) );
     if ( !h )
 	return;
     const TCHAR* msg = (TCHAR*)qt_winTchar( message, TRUE );
