@@ -114,6 +114,10 @@ public:
 
     int rawCommand( const QString &command );
 
+    Q_ULONG bytesAvailable() const;
+    Q_LONG readBlock( char *data, Q_ULONG maxlen );
+    QByteArray readAll();
+
     int currentId() const;
     Command currentCommand() const;
     bool hasPendingCommands() const;
@@ -130,7 +134,7 @@ public slots:
 signals:
     void stateChanged( int );
     void listInfo( const QUrlInfo& );
-    void newData( const QByteArray& );
+    void readyRead();
     void dataTransferProgress( int, int );
     void rawCommandReply( int, const QString& );
 
@@ -175,12 +179,13 @@ private slots:
     void piConnectState( int );
     void piFtpReply( int, const QString& );
 
+    void slotReadyRead(); // ### do we need this at all?
+
 protected slots:
     // ### make these private in Qt 4.0
     void hostFound();
     void connected();
     void closed();
-    void readyRead();
     void dataHostFound();
     void dataConnected();
     void dataClosed();

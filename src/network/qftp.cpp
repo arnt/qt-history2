@@ -137,13 +137,22 @@ public:
     QSocket::State socketState() const
     { return socket.state(); }
 
+    Q_ULONG bytesAvailable() const
+    { return socket.bytesAvailable(); }
+
+    Q_LONG readBlock( char *data, Q_ULONG maxlen )
+    { return socket.readBlock( data, maxlen ); }
+
+    QByteArray readAll()
+    { return socket.readAll(); }
+
     void abortConnection();
 
     static bool parseDir( const QString &buffer, const QString &userName, QUrlInfo *info );
 
 signals:
     void listInfo( const QUrlInfo& );
-    void newData( const QByteArray& );
+    void readyRead();
     void dataTransferProgress( int, int );
 
     void connectState( int );
@@ -562,22 +571,28 @@ void QFtpDTP::socketReadyRead()
 	    }
 	}
     } else {
-	QByteArray ba( socket.bytesAvailable() );
-	Q_LONG bytesRead = socket.readBlock( ba.data(), ba.size() );
-	if ( bytesRead < 0 ) {
-	    // ### error handling
-	    return;
-	}
-	ba.resize( bytesRead );
-	bytesDone += bytesRead;
+	if ( !data_ba && data.dev ) {
+	    QByteArray ba( socket.bytesAvailable() );
+	    Q_LONG bytesRead = socket.readBlock( ba.data(), ba.size() );
+	    if ( bytesRead < 0 ) {
+		// ### error handling
+		return;
+	    }
+	    ba.resize( bytesRead );
+	    bytesDone += bytesRead;
 #if defined(QFTPDTP_DEBUG)
-	qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
+	    qDebug( "QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
 #endif
-	emit dataTransferProgress( bytesDone, bytesTotal );
-	if ( !data_ba && data.dev )
+	    emit dataTransferProgress( bytesDone, bytesTotal );
 	    data.dev->writeBlock( ba );
-	else
-	    emit newData( ba );
+	} else {
+	    bytesDone += socket.bytesAvailable();
+#if defined(QFTPDTP_DEBUG)
+	    qDebug( "QFtpDTP readyRead: %d bytes (total %d bytes)", (int)bytesRead, bytesDone );
+#endif
+	    emit dataTransferProgress( bytesDone, bytesTotal );
+	    emit readyRead();
+	}
     }
 }
 
@@ -1068,7 +1083,7 @@ void QFtp::init()
     connect( commandSocket, SIGNAL( connectionClosed() ),
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
-	     this, SLOT( readyRead() ) );
+	     this, SLOT( slotReadyRead() ) );
     connect( commandSocket, SIGNAL( error( int ) ),
 	     this, SLOT( error( int ) ) );
     connect( dataSocket, SIGNAL( hostFound() ),
@@ -1099,8 +1114,8 @@ void QFtp::init()
     connect( &d->pi, SIGNAL(rawFtpReply(int, const QString&)),
 	    SLOT(piFtpReply(int, const QString&)) );
 
-    connect( &d->pi.dtp, SIGNAL(newData(const QByteArray&)),
-	    SIGNAL(newData(const QByteArray&)) );
+    connect( &d->pi.dtp, SIGNAL(readyRead()),
+	    SIGNAL(readyRead()) );
     connect( &d->pi.dtp, SIGNAL(dataTransferProgress(int,int)),
 	    SIGNAL(dataTransferProgress(int,int)) );
     connect( &d->pi.dtp, SIGNAL(listInfo(const QUrlInfo&)),
@@ -1151,8 +1166,10 @@ void QFtp::init()
 /*!  \fn void QFtp::done( bool error )
   This signal is emitted ###
 */
-/*!  \fn void QFtp::newData( const QByteArray &data )
+/*!  \fn void QFtp::readyRead()
   This signal is emitted ###
+
+  \sa get() readBlock() readAll() bytesAvailable()
 */
 /*!  \fn void QFtp::dataTransferProgress( int bytesDone, int bytesTotal )
   This signal is emitted ###
@@ -1269,8 +1286,9 @@ int QFtp::cd( const QString &dir )
 }
 
 /*!
-  Downloads the file \a file from the server. The downloaded file is reported
-  in chunks by the newData() signal.
+  Downloads the file \a file from the server. When there is data available to
+  read, the readyRead() signal is emitted. You can then read the data with the
+  readBlock() or readAll() function.
 
   This function returns immediately; the command is scheduled and its execution
   is done asynchronous. In order to identify this command, the function returns
@@ -1279,7 +1297,7 @@ int QFtp::cd( const QString &dir )
   When the command is started the commandStarted() signal is emitted. When it is
   finished, either the commandFinished() signal is emitted.
 
-  \sa newData() dataTransferProgress() commandStarted() commandFinished()
+  \sa readyRead() dataTransferProgress() commandStarted() commandFinished()
 */
 int QFtp::get( const QString &file )
 {
@@ -1296,7 +1314,7 @@ int QFtp::get( const QString &file )
   dev. Make sure that the \a dev pointer is valid throughout the whole pending
   operation (it is safe to emit it when the commandFinished() is emitted).
 
-  This overload emits the same signals, except for the newData() signal which
+  This overload emits the same signals, except for the readyRead() signal which
   is never emitted.
 */
 int QFtp::get( const QString &file, QIODevice *dev )
@@ -1422,6 +1440,41 @@ int QFtp::rawCommand( const QString &command )
 {
     QString cmd = command.stripWhiteSpace() + "\r\n";
     return addCommand( new QFtpCommand( FtpCommand, QStringList(cmd) ) );
+}
+
+/*!
+    Returns the number of bytes that can be read from the data socket at the
+    moment.
+
+    \sa get() readyRead() readBlock() readAll()
+*/
+Q_ULONG QFtp::bytesAvailable() const
+{
+    QFtpPrivate *d = ::d( this );
+    return d->pi.dtp.bytesAvailable();
+}
+
+/*!
+    Reads \a maxlen bytes from the data socket into \a data and returns the
+    number of bytes read. Returns -1 if an error occurred.
+
+    \sa get() readyRead() bytesAvailable() readAll()
+*/
+Q_LONG QFtp::readBlock( char *data, Q_ULONG maxlen )
+{
+    QFtpPrivate *d = ::d( this );
+    return d->pi.dtp.readBlock( data, maxlen );
+}
+
+/*!
+    Reads all bytes from the data socket and returns it.
+
+    \sa get() readyRead() bytesAvailable() readBlock()
+*/
+QByteArray QFtp::readAll()
+{
+    QFtpPrivate *d = ::d( this );
+    return d->pi.dtp.readAll();
 }
 
 /*!
@@ -1954,7 +2007,7 @@ void QFtp::closed()
     handler function.
 */
 
-void QFtp::readyRead()
+void QFtp::slotReadyRead()
 {
     while ( commandSocket->canReadLine() ) {
 	// read line with respect to line continuation
