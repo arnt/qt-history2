@@ -100,7 +100,7 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     QUuid uuid( cidStr ); // try to parse, and resolve CLSID if necessary
     if ( uuid.isNull() ) {
 	uuid = settings.readEntry( "/" + cid + "/CLSID/Default", QString::null, &ok );
-	cidStr = uuid.toString();
+	cidStr = uuid.toString().upper();
     }
 
     if ( cidStr.isEmpty() )
@@ -125,9 +125,9 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     if ( library->queryInterface( IID_QLibrary, (QUnknownInterface**)&libiface ) != QS_OK ) {
 	delete library;
     } else {
-	library->setPolicy( QLibrary::Delayed );
 	libiface->release();
-	// ### TODO: insert library into some magic dict that is deleted on exit rather than
+	// ### TODO: insert library into some magic cleanup list
+	// library->setPolicy( QLibrary::Delayed );
 	delete library;
     }
     return res;
@@ -137,9 +137,9 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
   Loads the shared library \a filename and queries for a
   QComponentRegistrationInterface. If the library implements this interface,
   the \link QComponentRegistrationInterface::registerComponents()
-  registerComponents \endlink function is called.
+  registerComponents() \endlink function is called.
 
-  Returns TRUE if the interface is found and successfully registered,
+  Returns TRUE if the interface is found and successfully called,
   otherwise returns FALSE.
 */
 QRESULT QComponentFactory::registerServer( const QString &filename )
@@ -159,7 +159,7 @@ QRESULT QComponentFactory::registerServer( const QString &filename )
   Loads the shared library \a filename and queries for a
   QComponentRegistrationInterface. If the library implements this interface,
   the \link QComponentRegistrationInterface::unregisterComponents()
-  unregisterComponents \endlink function is called.
+  unregisterComponents() \endlink function is called.
 
   Returns TRUE if the interface is found and successfully unregistered,
   otherwise returns FALSE.
@@ -180,14 +180,16 @@ QRESULT QComponentFactory::unregisterServer( const QString &filename )
   Registers the component with id \a cid in the system component registry and
   returns TRUE if the component was registerd successfully, otherwise returns
   FALSE. The component is registered with an optional \a name and \a description 
-  and is provided by the server at \a filepath. This function does nothing if a 
-  component with an identical \a cid is already registered on the system.
+  and is provided by the server at \a filepath. 
+  
+  This function does nothing and returns FALSE if a component with an identical 
+  \a cid does already exist on the system.
 
   A component that has been registered with a \a name can be created using both the
   \a cid and the \a name value using createInstance().
 
   Call this function for each component in an implementation of
-  \link QComponentRegistrationInterface::registerComponents() registerComponents \endlink.
+  \link QComponentRegistrationInterface::registerComponents() registerComponents() \endlink.
 
   \sa unregisterComponent(), registerServer(), createInstance()
 */
@@ -199,15 +201,19 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 
     QString cidStr = cid.toString().upper();
     QString old = settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
-    ok = !ok && settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
-    if ( !!description )
-	ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
+    if ( ok ) // don't overwrite existing component
+	return FALSE;
 
-    if ( ok && !name.isEmpty() ) {
+    ok = settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
+    if ( ok && !!description )
+	settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
+
+    // register the human-readable part
+    if ( ok && !!name ) {
 	settings.writeEntry( "/CLSID/" + cidStr + "/ProgID/Default", name );
 	ok = settings.writeEntry( "/" + name + "/CLSID/Default", cidStr );
-	if ( !!description )
-	    ok = ok && settings.writeEntry( "/" + name + "/Default", description );
+	if ( ok && !!description )
+	    settings.writeEntry( "/" + name + "/Default", description );
     }
 
     return ok;
@@ -215,41 +221,33 @@ bool QComponentFactory::registerComponent( const QUuid &cid, const QString &file
 
 /*!
   Unregisters the component with id \a cid from the system component registry and returns
-  TRUE if the component was unregistered successfully, otherwise returns FALSE. \a cid can 
-  either be the UUID or the human-readable name of the component.
+  TRUE if the component was unregistered successfully, otherwise returns FALSE.
 
   Call this function for each component in an implementation of
-  \link QComponentRegistrationInterface::unregisterComponents() unregisterComponents \endlink.
+  \link QComponentRegistrationInterface::unregisterComponents() unregisterComponents() \endlink.
 
   \sa registerComponent(), unregisterServer()
 */
-bool QComponentFactory::unregisterComponent( const QString &cid )
+bool QComponentFactory::unregisterComponent( const QUuid &cid )
 {
     QSettings settings;
     bool ok = FALSE;
     settings.insertSearchPath( QSettings::Windows, "/Classes" );
 
-    QString cidStr = cid;
-    QString name;
-    QUuid uuid( cidStr ); // try to parse, and resolve CLSID if necessary
-    if ( uuid.isNull() ) {
-	name = cid;
-	uuid = settings.readEntry( "/" + name + "/CLSID/Default", QString::null, &ok );
-	ok = ok && settings.removeEntry( "/" + name + "/CLSID/Default" );
-	cidStr = uuid.toString();
-    } else {
-	name = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
-	ok = settings.removeEntry( "/" + name + "/CLSID/Default" );
-	ok = ok && settings.removeEntry( "/" + name + "/Default" );
-    }
-
+    QString cidStr = cid.toString().upper();
     if ( cidStr.isEmpty() )
 	return FALSE;
 
-    settings.readEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", QString::null, &ok );
-    ok = settings.removeEntry( "/CLSID/" + cidStr + "/ProgID/Default" );
-    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
-    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
+    // unregister the human-readable part
+    QString name = settings.readEntry( "/CLSID/" + cidStr + "/ProgID/Default", QString::null, &ok );
+    if ( ok ) {
+	settings.removeEntry( "/" + name + "/CLSID/Default" );
+	settings.removeEntry( "/" + name + "/Default" );
+    }
+
+    settings.removeEntry( "/CLSID/" + cidStr + "/ProgID/Default" );
+    settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
+    ok = settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
 
     return ok;
 }
