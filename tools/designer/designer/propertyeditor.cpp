@@ -66,6 +66,7 @@
 #include <qworkspace.h>
 #include <qtimer.h>
 #include <qdragobject.h>
+#include <qdom.h>
 
 #ifndef QT_NO_SQL
 #include <qdatetimeedit.h>
@@ -102,6 +103,29 @@ static QStringList getFontList()
     }
     return fontDataBase->families();
 }
+
+
+class PropertyWhatsThis : public QWhatsThis
+{
+public:
+    PropertyWhatsThis( PropertyList *l );
+    QString text( const QPoint &pos );
+
+private:
+    PropertyList *propertyList;
+
+};
+
+PropertyWhatsThis::PropertyWhatsThis( PropertyList *l )
+    : QWhatsThis( l->viewport() ), propertyList( l )
+{
+}
+
+QString PropertyWhatsThis::text( const QPoint &pos )
+{
+    return propertyList->whatsThisAt( pos );
+}
+
 
 /*!
   \class PropertyItem propertyeditor.h
@@ -2242,6 +2266,7 @@ PropertyList::PropertyList( PropertyEditor *e )
 {
     init_colors();
 
+    (void)new PropertyWhatsThis( this );
     showSorted = FALSE;
     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
@@ -3041,6 +3066,61 @@ void PropertyList::viewportDropEvent ( QDropEvent *e )
     }
     else
 	e->ignore();
+}
+
+QString PropertyList::whatsThisAt( const QPoint &p )
+{
+    readPropertyDocs();
+    QListViewItem *i = itemAt( p );
+    if ( !i || !editor->widget() )
+	return QString::null;
+    if ( ( (PropertyItem*)i )->propertyParent() )
+	i = ( (PropertyItem*)i )->propertyParent();
+
+    const QMetaObject *mo = editor->widget()->metaObject();
+
+    QString prop = ( (PropertyItem*)i )->name();
+    while ( mo ) {
+	QString s;
+	s = QString( mo->className() ) + "::" + prop;
+	QMap<QString, QString>::Iterator it;
+	if ( ( it = propertyDocs.find( s ) ) != propertyDocs.end() ) {
+	    return *it;
+	}
+	mo = mo->superClass();
+    }
+    return QString::null;
+}
+
+void PropertyList::readPropertyDocs()
+{
+    if ( !propertyDocs.isEmpty() )
+	return;
+
+    QString docFile = MainWindow::self->documentationPath() + "/propertydocs";
+    QFile f( docFile );
+    if ( !f.open( IO_ReadOnly ) )
+	return;
+    QDomDocument doc;
+    QString errMsg;
+    int errLine;
+    if ( !doc.setContent( &f, &errMsg, &errLine ) )
+	return;
+    QDomElement e = doc.firstChild().toElement().firstChild().toElement();
+
+    for ( ; !e.isNull(); e = e.nextSibling().toElement() ) {
+	QDomElement n = e.firstChild().toElement();
+	QString name;
+	QString doc;
+	for ( ; !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( n.tagName() == "name" )
+		name = n.firstChild().toText().data();
+	    else if ( n.tagName() == "doc" )
+		doc = n.firstChild().toText().data();
+	}
+	doc.insert( 0, "<p><b>" + name + "</b></b>" );
+	propertyDocs.insert( name, doc );
+    }
 }
 
 // ------------------------------------------------------------

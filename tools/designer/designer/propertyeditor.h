@@ -484,6 +484,7 @@ public:
     virtual void setCurrentProperty( const QString &n );
 
     PropertyEditor *propertyEditor() const;
+    QString whatsThisAt( const QPoint &p );
 
 public slots:
     void updateEditorSize();
@@ -508,10 +509,14 @@ protected:
     PropertyEditor *editor;
 
 private:
+    void readPropertyDocs();
+
+private:
     PropertyListItem* pressItem;
     QPoint pressPos;
     bool mousePressed;
     bool showSorted;
+    QMap<QString, QString> propertyDocs;
 
 };
 
