@@ -6,7 +6,75 @@ QClipboard is new.
 There are few changes in the API (Qt header files).  Some functions have
 been renamed or the arguments have changed.  We keep the old functions
 until the next release.  Compile with -DOBSOLETE to compile programs that
-depend on the obsoleted functions.
+depend on the obsoleted functions. Note that, with some compilers, the
+Qt library also must be compiled with -DOBSOLETE ( for gcc 2.7.2 you can
+compile your code with -O2 -DOBSOLETE and it will work with both kinds
+of libraries. This is because obsoleted functions are inline #ifdef'ed
+functions.) 
+
+When you compile with -DOBSOLETE, a message will be written to debug output
+the first time you call each of the obsoleted functions.
+
+*************** Changes that might affect runtime behavior *****************
+
+QFileInfo:
+----------
+  size() returns uint(previousy int), 0 if the size cannot be fetched (was -1).
+	Use isFile() 
+
+QPopupMenu
+------------
+  When a popup menu is a submenu (directly or as a subsub...menu) of a
+  menu bar(QMenuBar), the menu bar will now always emit the activated() or
+  highlighted() signal when a submenu emits these signals. This fix might
+  have undesired effects if you previously have worked around it by
+  connecting to signals both in menu bar and its submenus.
+
+*************** Changes that might generate compile errors *****************
+**************    when compiling old code with -DOBSOLETE  *****************
+
+QDataStream:
+-----------
+  Removed serialization of int and uint. Doesn't work anymore when
+  INT32 and UINT32 are int and uint.
+
+QImage:
+-------
+  24-bpp pixel format no longer supported, use 32-bpp instead.
+
+QWidget:
+--------
+  setMouseTracking() does not return bool. Call hasMouseTracking() to
+  determine the mouse tracking state.
+
+  (There are other changes in QWidget, see below)
+
+
+*************** Type changes that might generate warnings: *****************
+
+
+QCache/QIntCache:
+-----------------
+  Using int/uint instead of long/ulong.
+
+QDate/QTime/QDateTime:
+----------------------
+  Using int/uint instead of long/ulong (MS-DOS required long).
+
+QIODevice/QBuffer/QFile:
+------------------------
+  Using int/uint instead of long/ulong.
+
+QTableView:
+------------
+  uint used instead of ulong (tableFlags() etc.)
+
+QTextStream:
+------------
+  int used instead of long (flags() etc.)
+
+
+***************** All other changes from 0.95 to 0.96 **********************
 
 moc
 ----------
@@ -50,11 +118,6 @@ QButtonGroup:
   Exclusive group setting added (isExclusive and setExclusive).
   find() is new.
 
-QCache/QIntCache:
------------------
-  Using int/uint instead of long/ulong.
-
-
 QColor:
 -------
   New type QRgb (uint), used for RGB triplet.
@@ -66,32 +129,6 @@ QComboBox:
 ----------
   setStrList() obsolete, use clear() + insertStrList() instead.
   string() obsolete, use text() instead.
-
-
-QDataStream:
------------
-  Removed serialization of int and uint. Doesn't work anymore when
-  INT32 and UINT32 are int and uint.
-
-
-QDate/QTime/QDateTime:
-----------------------
-  Using int/uint instead of long/ulong (MS-DOS required long).
-
-
-QFileInfo:
-----------
-  size() returns uint, 0 if the size cannot be fetched (was -1).
-
-
-QImage:
--------
-  24-bpp pixel format no longer supported, use 32-bpp instead.
-
-
-QIODevice/QBuffer/QFile:
-------------------------
-  Using int/uint instead of long/ulong.
 
 
 QKeyEvent:
@@ -112,7 +149,7 @@ QListbox:
 ---------
   The macro LBI_String is obsolete, use LBI_text instead.
   string() obsolete, use text() instead.
-  stringCopy() and setStringCopy() obsolete.
+  stringCopy() and setStringCopy() are obsolete.
 
 
 QMenuData:
@@ -132,7 +169,7 @@ QPaintDevice:
 
 QPainter:
 ---------
-  drawBezier draws cubic bezier, requires 4 control points.
+  drawBezier draws cubic bezier, requires 4 control points. 
 
 
 QPointArray:
@@ -163,15 +200,6 @@ QSocketNotifier:
   enabled() is obsolete. Use isEnabled() instead.
 
 
-QTableView:
-------------
-  uint used instead of ulong (tableFlags() etc.)
-
-QTextStream:
-------------
-  int used instead of long (flags() etc.)
-
-
 QWidget:
 --------
   New protected virtual functions styleChange(), backgroundColorChange(),
@@ -183,10 +211,10 @@ QWidget:
   enable(), disable() and isDisabled() are obsolete.
   Use setEnabled(TRUE/FALSE) and !isEnabled() instead.
 
-  enableUpdates() obsolete, use isUpdatesEnabled()/setUpdatesEnabled().
+  setMinimumSize(), setMaximumSize(), minimumSize(), maximumSize() are obsolete
+  use setMinSize(), setMaxSize(), minSize(), maxSize() instead.
 
-  setMouseTracking() does not return bool. Call hasMouseTracking() to
-  determine the mouse tracking state.
+  enableUpdates() obsolete, use isUpdatesEnabled()/setUpdatesEnabled().
 
   id() is obsolete, it has been renamed to winId().
 
