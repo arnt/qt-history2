@@ -1121,7 +1121,7 @@ fi
 
 #detect how mng should be built
 if [ "$CFG_MNG" = "auto" ]; then
-    if [ "$CFG_EMBEDDED" = "yes" ]; then
+    if [ "$PLATFORM_QWS" = "yes" ]; then
 	CFG_MNG=no
     elif [ "$CFG_SHARED" = "yes" ]; then
 	CFG_MNG=plugin
@@ -1140,7 +1140,7 @@ fi
 
 #detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
-    if [ "$CFG_EMBEDDED" = "yes" ]; then
+    if [ "$PLATFORM_QWS" = "yes" ]; then
 	CFG_JPEG=no
     elif [ "$CFG_MNG" = "yes" ]; then
 	CFG_JPEG=yes
@@ -1169,9 +1169,7 @@ fi
 
 #detect how png should be built
 if [ "$CFG_PNG" = "auto" ]; then
-    if [ "$CFG_EMBEDDED" = "yes" ]; then
-	CFG_PNG=no
-    elif [ "$CFG_MNG" = "yes" ]; then
+    if [ "$CFG_MNG" = "yes" ]; then
 	CFG_PNG=yes
     elif [ "$CFG_SHARED" = "yes" ]; then
 	CFG_PNG=plugin
