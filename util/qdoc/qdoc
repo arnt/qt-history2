@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#144 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#145 $
 #
 # this is a massive hack, written very quickly
 #
@@ -664,6 +664,12 @@ sub writepages {
 	$doc =~ s!\\code\b(.*?)\\endcode!&processcode($1)!esg;
 
 	$doc = &codeincludes($doc);
+
+	$doc =~ s!\\classhierarchy!&classhierarchy()!es;
+	$doc =~ s!\\classlist!&classlist()!es;
+	$doc =~ s!\\annotatedclasslist!&annotatedclasslist()!es;
+	$doc =~ s!\\headerfilelist!&headerfilelist()!es;
+	$doc =~ s!\\functionindex!&functionindex()!es;
 
 	$doc =~ s@\\version\b@$version@gs;
 
@@ -1878,6 +1884,35 @@ sub reimplementations {
 }
 
 
+
+sub classlist {
+    my $result;
+    $result = "<ul>\n";
+    foreach $url ( sort keys %type ) {
+	if (($type{$url} eq "class") && defined($documented{$url})) {
+	    $result = join( "", $result, "<li><a href=\"", $url, "\">",
+			   $name{$url}, "</a>\n" );
+	}
+    }
+    $result;
+}
+
+
+sub annotatedclasslist {
+    my $result;
+    $result = "<ul>\n";
+    foreach $url ( sort keys %type ) {
+	if (($type{$url} eq "class") && defined($documented{$url})) {
+	    $result = join( "", $result,  "<li><strong><a href=\"",
+			   $url, "\">", $name{$url}, "</a></strong> (",
+			   $capt{$url}, ")\n" )
+		if ( $capt{$url} =~ /\S/ );
+	}
+    }
+    $result;
+}
+
+
 sub classindex {
     open(O, "> $outputdir/classes.html")
 	|| die "can't open $outputdir/classes.html for writing";
@@ -1899,6 +1934,7 @@ sub classindex {
 <p>Here are the classes in ", $module, ", with brief descriptions:
 <ul compact>
 ";
+
     foreach $url ( sort keys %type ) {
 	if (($type{$url} eq "class") && defined($documented{$url})) {
 	    print O "<li><a href=\"", $url, "\">", $name{$url}, "</a>\n";
@@ -1913,6 +1949,18 @@ sub classindex {
     close(P);
 }
 
+
+sub headerfilelist {
+    my $result = "<ul>\n";
+    foreach $filename ( sort keys %headerfiles ) {
+	$_ = $filename;
+	s/\./-/;
+	s/$/.html/;
+	$result = join( "", $result,
+		       "<li><a href=\"", $_, "\">", $filename, "</a>\n" );
+    }
+    return $result . "</ul>\n";
+}
 
 sub enumindex {
     open(O, "> $outputdir/enums.html")
@@ -1969,6 +2017,61 @@ Only the most relevant code is here.
     close(O);
 }
 
+
+
+#	$doc =~ s!\\classhierarchy!&classhierarchy()!es;
+
+#
+# make a semi-graphical inheritance tree
+#
+sub inheritanceindex {
+    my $result;
+    $result = "<ul plain>\n";
+    foreach ( sort keys %members ) {
+	$result = join( "", $result, &classinheritance( $name{$_} ))
+	    if (($type{$_} eq "class") && 
+		(defined($documented{$_})) &&
+		!($inheritance{$_} =~ /\S/s));
+    }
+    foreach ( sort keys %members ) {
+	print "Not in hierarchy index page: ", $name{$_}, "\n"
+	    if (($type{$_} eq "class") &&
+		(defined($documented{$_})) &&
+		!defined($classtree{$name{$_}}));
+    }
+    $result .= "</ul>";
+}
+
+sub classinheritance {
+    my($class) = @_;
+    local($_);
+    my $result;
+    $result = "";
+
+    if ($inheritance{$_} =~ /\S/s) {
+	$_ = $inheritance{$_};
+	s/,.*//s;
+	s/^\s*\w+\s+//s;
+	&doclassinheritance($_) unless (defined($classtree{$_}));
+    }
+
+    unless (defined($classtree{$class}) || $doc{$anchor{$class}} =~ /^\s*$/s) {
+	$classtree{$class}++;
+	$result = "<li><a href=\"$anchor{$class}\">$class</a>\n";
+	if ($subclasses{$class} =~ /\S/s) {
+	    $result .= "<ul plain>\n";
+	    foreach ( sort split(/\s+/, $subclasses{$class} ) ) {
+		if ($inheritance{$anchor{$_}} =~ /,.*$class/s) {
+		    $result .= "<li><a href=\"$anchor{$_}\">$_</a>\n";
+		} else {
+		    $result .= &classinheritance( $_ );
+		}
+	    }
+	    $result .= "</ul>\n";
+	}
+    }
+    result;
+}
 
 
 #
@@ -2091,6 +2194,37 @@ sub byfunction {
 }
 
 
+
+sub functionindex {
+    my( $a, $b, $c, $result );
+    $result = "<ul>\n";
+
+    $a = "sex";
+
+    foreach ( sort byfunction keys %anchor ) {
+	if ( $type{$anchor{$_}} eq "fn" && $documented{$anchor{$_}} &&
+	     $name{$anchor{$_}} eq $_ ) {
+	    $b = $_;
+	    $b =~ s/.*:://;
+	    next if ( $b eq "_cast" || $b =~ /^~/ );
+	    $c = $_;
+	    $c =~ s/::.*//;
+	    next if ( $b eq $c );
+	    if ( $c eq "" ) {
+		print O "\n<li><a href=\"",$anchor{$_},"\">",&html($b),"</a>";
+	    } else {
+		if ( $a ne $b ) {
+		    $a = $b;
+		    print O "\n<li>", &html($b), ": ";
+		} else {
+		    print O ", ";
+		}
+		print O "<a href=\"", $anchor{$_}, "\">", $c, "</a>";
+	    }
+	}
+    }
+    return $result . "\n</ul>\n";
+}
 
 sub functionlist {
     local( $a, $b, $c );
