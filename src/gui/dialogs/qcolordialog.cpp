@@ -945,7 +945,7 @@ signals:
     void colorDropped(QRgb);
 
 protected:
-    void drawContents(QPainter *p);
+    void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
@@ -962,9 +962,11 @@ private:
 
 };
 
-void QColorShowLabel::drawContents(QPainter *p)
+void QColorShowLabel::paintEvent(QPaintEvent *e)
 {
-    p->fillRect(contentsRect(), col);
+    QPainter p(this);
+    drawFrame(&p);
+    p.fillRect(contentsRect()&e->rect(), col);
 }
 
 void QColorShower::showAlpha(bool b)
