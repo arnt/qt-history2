@@ -26,19 +26,22 @@ struct IPropertySheet
     virtual ~IPropertySheet() {}
 
     virtual int count() const = 0;
-    
+
     virtual int indexOf(const QString &name) const = 0;
-        
+
     virtual QString propertyName(int index) const = 0;
     virtual QString propertyGroup(int index) const = 0;
     virtual void setPropertyGroup(int index, const QString &group) = 0;
-    
+
     virtual bool isVisible(int index) const = 0;
     virtual void setVisible(int index, bool b) = 0;
 
+    virtual bool isAttribute(int index) const = 0;
+    virtual void setAttribute(int index, bool b) = 0;
+
     virtual QVariant property(int index) const = 0;
     virtual void setProperty(int index, const QVariant &value) = 0;
-    
+
     virtual bool isChanged(int index) const = 0;
     virtual void setChanged(int index, bool changed) = 0;
 };
@@ -60,7 +63,7 @@ struct FlagType
 
 Q_DECLARE_METATYPE(FlagType)
 
-namespace Utils 
+namespace Utils
 {
 
 inline int valueOf(const QVariant &value, bool *ok = 0)
@@ -69,9 +72,9 @@ inline int valueOf(const QVariant &value, bool *ok = 0)
     FlagType f;
     if (qVariantGet(value, e))
         return e.value.toInt(ok);
-    else if (qVariantGet(value, f)) 
+    else if (qVariantGet(value, f))
         return f.value.toInt(ok);
-        
+
     return value.toInt(ok);
 }
 

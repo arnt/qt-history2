@@ -250,6 +250,23 @@ void QDesignerPropertySheet::setVisible(int index, bool visible)
     m_info[index].visible = visible;
 }
 
+bool QDesignerPropertySheet::isAttribute(int index) const
+{
+    if (isFakeProperty(index))
+        return true;
+
+    return m_info.value(index).attribute;
+}
+
+void QDesignerPropertySheet::setAttribute(int index, bool attribute)
+{
+    if (!m_info.contains(index))
+        m_info.insert(index, Info());
+
+    m_info[index].attribute = attribute;
+}
+
+
 QDesignerPropertySheetFactory::QDesignerPropertySheetFactory(QExtensionManager *parent)
     : DefaultExtensionFactory(parent)
 {

@@ -644,8 +644,9 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
 
 bool QDesignerResource::checkProperty(QDesignerStackedWidget *widget, const QString &prop) const
 {
-    Q_UNUSED(widget);
-    Q_UNUSED(prop);
+    if (IPropertySheet *sheet = qt_extension<IPropertySheet*>(m_core->extensionManager(), widget))
+        return sheet->isAttribute(sheet->indexOf(prop)) == false;
+
     return true;
 }
 
