@@ -1,23 +1,23 @@
 	.machine	"ppc64"
 	.toc
 	.csect .text[PR]
+
 	.align 2
 	.globl q_atomic_test_and_set_int
 	.globl .q_atomic_test_and_set_int
 	.csect q_atomic_test_and_set_int[DS],3
 q_atomic_test_and_set_int:
-	.llong .q_atomic_test_and_set_int, TOC[tc0], 0
+	.llong .q_atomic_test_and_set_int,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_test_and_set_int:
-	lwarx  9,0,3
-	cmpw   9,4
+	lwarx  6,0,3
+	cmpw   6,4
 	bne-   $+20
 	stwcx. 5,0,3
-	bne-   $-20
-	li     6,1
-	b      $+8
-	li     6,0
-	extsw  3,6
+	bne-   $-16
+	addi   3,0,1
+	blr
+	addi   3,0,0
 	blr
 LT..q_atomic_test_and_set_int:
 	.long 0
@@ -27,23 +27,23 @@ LT..q_atomic_test_and_set_int:
 	.short 25
 	.byte "q_atomic_test_and_set_int"
 	.align 2
+
 	.align 2
 	.globl q_atomic_test_and_set_ptr
 	.globl .q_atomic_test_and_set_ptr
 	.csect q_atomic_test_and_set_ptr[DS],3
 q_atomic_test_and_set_ptr:
-	.llong .q_atomic_test_and_set_ptr, TOC[tc0], 0
+	.llong .q_atomic_test_and_set_ptr,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_test_and_set_ptr:
-	ldarx  9,0,3
-	cmpd   9,4
+	ldarx  6,0,3
+	cmpd   6,4
 	bne-   $+20
-	stdcx.  5,0,3
-	bne-   $-20
-	li     6,1
-	b      $+8
-	li     6,0
-	extsw  3,6
+	stdcx. 5,0,3
+	bne-   $-16
+	addi   3,0,1
+	blr
+	addi   3,0,0
 	blr
 LT..q_atomic_test_and_set_ptr:
 	.long 0
@@ -53,20 +53,21 @@ LT..q_atomic_test_and_set_ptr:
 	.short 25
 	.byte "q_atomic_test_and_set_ptr"
 	.align 2
+
 	.align 2
 	.globl q_atomic_increment
 	.globl .q_atomic_increment
 	.csect q_atomic_increment[DS],3
 q_atomic_increment:
-	.llong .q_atomic_increment, TOC[tc0], 0
+	.llong .q_atomic_increment,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_increment:
-	li 5,1
-	lwarx  4, 0, 3
-	add    4, 5, 4
-	stwcx. 4, 0, 3
+	lwarx  4,0,3
+	addi   5,4,1
+	extsw  4,5
+	stwcx. 4,0,3
 	bne-   $-12
-	extsw  3,4
+	mr     3,4
 	blr
 LT..q_atomic_increment:
 	.long 0
@@ -76,20 +77,21 @@ LT..q_atomic_increment:
 	.short 18
 	.byte "q_atomic_increment"
 	.align 2
+
 	.align 2
 	.globl q_atomic_decrement
 	.globl .q_atomic_decrement
 	.csect q_atomic_decrement[DS],3
 q_atomic_decrement:
-	.llong .q_atomic_decrement, TOC[tc0], 0
+	.llong .q_atomic_decrement,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_decrement:
-	li 5,-1
-	lwarx  4, 0, 3
-	add    4, 5, 4
-	stwcx. 4, 0, 3
+	lwarx  4,0,3
+	subi   5,4,1
+	extsw  4,5
+	stwcx. 4,0,3
 	bne-   $-12
-	extsw  3,4
+	mr     3,4
 	blr
 LT..q_atomic_decrement:
 	.long 0
@@ -99,16 +101,17 @@ LT..q_atomic_decrement:
 	.short 18
 	.byte "q_atomic_decrement"
 	.align 2
+
 	.align 2
 	.globl q_atomic_set_int
 	.globl .q_atomic_set_int
 	.csect q_atomic_set_int[DS],3
 q_atomic_set_int:
-	.llong .q_atomic_set_int, TOC[tc0], 0
+	.llong .q_atomic_set_int,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_set_int:
-	lwarx  5, 0, 3
-	stwcx. 4, 0, 3
+	lwarx  5,0,3
+	stwcx. 4,0,3
 	bne-   $-8
 	extsw  3,5
 	blr
@@ -125,13 +128,13 @@ LT..q_atomic_set_int:
 	.globl .q_atomic_set_ptr
 	.csect q_atomic_set_ptr[DS],3
 q_atomic_set_ptr:
-	.llong .q_atomic_set_ptr, TOC[tc0], 0
+	.llong .q_atomic_set_ptr,TOC[tc0],0
 	.csect .text[PR]
 .q_atomic_set_ptr:
-	ldarx  0, 0, 3
-	stdcx.  4, 0, 3
+	ldarx  5,0,3
+	stdcx. 4,0,3
 	bne-   $-8
-	mr 3,0
+	mr     3,5
 	blr
 LT..q_atomic_set_ptr:
 	.long 0
