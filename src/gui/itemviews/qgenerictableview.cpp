@@ -664,14 +664,16 @@ void QGenericTableView::showColumn(int column)
 
 void QGenericTableView::resizeRowToContents(int row)
 {
-    int size = rowSizeHint(row);
-    d->leftHeader->resizeSection(row, size);
+    int content = rowSizeHint(row);
+    int header = d->leftHeader->sectionSizeHint(row);
+    d->leftHeader->resizeSection(row, qMax(content, header));
 }
 
 void QGenericTableView::resizeColumnToContents(int column)
 {
-    int size = columnSizeHint(column);
-    d->topHeader->resizeSection(column, size);
+    int content = columnSizeHint(column);
+    int header = d->topHeader->sectionSizeHint(column);
+    d->topHeader->resizeSection(column, qMax(content, header));
 }
 
 void QGenericTableView::verticalScrollbarAction(int action)
