@@ -53,8 +53,6 @@
 class QPushButton;
 
 
-//## todo multiple ctor taking data types
-
 class Q_EXPORT QNumberSection
 {
 public:
@@ -128,6 +126,7 @@ class Q_EXPORT QDateEdit : public QDateTimeEditBase
 
 public:
     QDateEdit( QWidget * parent = 0,  const char * name = 0 );
+    QDateEdit( const QDate& date, QWidget * parent = 0,  const char * name = 0 );
     ~QDateEdit();
 
     enum Order {
@@ -164,6 +163,7 @@ protected:
     virtual void fix();
 
 private:
+    void init();
     int sectionOffsetEnd( int sec );
     int sectionLength( int sec );
     QString sectionText( int sec );
@@ -179,6 +179,7 @@ class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 
 public:
     QTimeEdit( QWidget * parent = 0,  const char * name = 0 );
+    QTimeEdit( const QTime& time, QWidget * parent = 0,  const char * name = 0 );
     ~QTimeEdit();
 
     QSize sizeHint() const;
@@ -206,6 +207,7 @@ protected:
     QString sectionText( int sec );
 
 private:
+    void init();
     class QTimeEditPrivate;
     QTimeEditPrivate* d;
 };
@@ -215,8 +217,11 @@ class Q_EXPORT QDateTimeEdit : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )
+
 public:
     QDateTimeEdit( QWidget * parent = 0, const char * name = 0 );
+    QDateTimeEdit( const QDateTime& datetime, QWidget * parent = 0,
+		   const char * name = 0 );
     ~QDateTimeEdit();
     QSize sizeHint() const;
     void  setDateTime( const QDateTime & dt );

@@ -51,9 +51,7 @@
 
 #include "math.h" // floor()
 
-// ## todo: implement valueChanged signals
-
-#define HIDDEN_CHAR '0'
+#define QDATETIMEEDIT_HIDDEN_CHAR '0'
 
 class QDateTimeEditBase::QDateTimeEditBasePrivate
 {
@@ -144,13 +142,13 @@ public:
 	    applyFocusSelection();
 	}
 
-	/* color all HIDDEN_CHAR chars to background color */
+	/* color all QDATETIMEEDIT_HIDDEN_CHAR chars to background color */
 	QTextFormat *fb = parag->formatCollection()->format( p.font(),
 							    cg.background() );
 	for ( uint i = 0; i < txt.length(); ++i ) {
 	    if ( inSectionSelection( i ) )
 		continue;
-	    if ( txt.at(i) == HIDDEN_CHAR )
+	    if ( txt.at(i) == QDATETIMEEDIT_HIDDEN_CHAR )
 		parag->setFormat( i, 1, fb );
 	}
 	fb->removeRef();
@@ -627,6 +625,7 @@ public:
     bool overwrite;
     bool adv;
     int timerId;
+    bool typing;
 };
 
 /*!  Constructs an empty
@@ -635,6 +634,21 @@ public:
 
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
+{
+    init();
+}
+
+QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
+    : QDateTimeEditBase( parent, name )
+{
+    init();
+    setDate( date );
+}
+
+/*! \internal
+*/
+
+void QDateEdit::init()
 {
     d = new QDateEditPrivate();
     appendSection( QNumberSection( 0,4 ) );
@@ -653,6 +667,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
     d->overwrite = TRUE;
     d->adv = FALSE;
     d->timerId = 0;
+    d->typing = FALSE;
 }
 
 /*! Destroys the object and frees any allocated resources.
@@ -692,9 +707,13 @@ QString QDateEdit::sectionFormattedText( int sec )
 {
     QString txt;
     txt = sectionText( sec );
-    setSectionSelection( sec, sectionOffsetEnd( sec ) - txt.length(),
-			 sectionOffsetEnd( sec ) );
-    txt = txt.rightJustify( sectionLength( sec ), HIDDEN_CHAR );
+    if ( d->typing && sec == focusSection() )
+	setSectionSelection( sec, sectionOffsetEnd( sec ) - txt.length(),
+			     sectionOffsetEnd( sec ) );
+    else
+	setSectionSelection( sec, sectionOffsetEnd( sec ) - sectionLength( sec ),
+			     sectionOffsetEnd( sec ) );
+    txt = txt.rightJustify( sectionLength( sec ), QDATETIMEEDIT_HIDDEN_CHAR );
     return txt;
 }
 
@@ -947,6 +966,7 @@ void QDateEdit::addNumber( int sec, int num )
 	return;
     killTimer( d->timerId );
     bool overwrite = FALSE;
+    d->typing = TRUE;
     QString txt;
     if ( sec == d->yearSection ) {
 	txt = QString::number( d->y );
@@ -1010,6 +1030,7 @@ bool QDateEdit::setFocusSection( int s )
     if ( s != focusSection() ) {
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
+	d->typing = FALSE;
 	fix();
 	emit valueChanged( date() );
     }
@@ -1053,6 +1074,7 @@ void QDateEdit::fix()
 bool QDateEdit::event( QEvent *e )
 {
     if( e->type() == QEvent::FocusOut ) {
+	d->typing = FALSE;
 	fix();
 	emit valueChanged( date() );
     }
@@ -1128,14 +1150,34 @@ public:
     bool adv;
     bool overwrite;
     int timerId;
+    bool typing;
 };
 
-/*!  Constructs an empty
+/*!  Constructs an empty time edit
 
 */
 
 QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     : QDateTimeEditBase( parent, name )
+{
+    init();
+}
+
+/*!  Constructs a time edit with the initial value \a time.
+
+*/
+
+QTimeEdit::QTimeEdit( const QTime& time, QWidget * parent, const char * name )
+    : QDateTimeEditBase( parent, name )
+{
+    init();
+    setTime( time );
+}
+
+/*! \internal
+ */
+
+void QTimeEdit::init()
 {
     d = new QTimeEditPrivate();
     appendSection( QNumberSection( 0,0 ) );
@@ -1149,8 +1191,8 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
     d->adv = FALSE;
     d->overwrite = FALSE;
     d->timerId = 0;
+    d->typing = FALSE;
 }
-
 
 /*! Destroys the object and frees any allocated resources.
 
@@ -1225,6 +1267,7 @@ bool QTimeEdit::autoAdvance() const
 bool QTimeEdit::event( QEvent *e )
 {
     if( e->type() == QEvent::FocusOut ) {
+	d->typing = FALSE;
 	emit valueChanged( time() );
     }
     return QDateTimeEditBase::event( e );
@@ -1293,20 +1336,12 @@ QString QTimeEdit::sectionFormattedText( int sec )
 {
     QString txt;
     txt = sectionText( sec );
-    int offset = 0;
-    switch( sec ) {
-    case 0:
-	offset = 2;
-	break;
-    case 1:
-	offset = 5;
-	break;
-    case 2:
-	offset = 8;
-	break;
-    }
-    setSectionSelection( sec, offset - txt.length(), offset );
-    txt = txt.rightJustify( 2, HIDDEN_CHAR );
+    int offset = sec*3 + 2;
+    if ( d->typing && sec == focusSection() )
+	setSectionSelection( sec, offset - txt.length(), offset );
+    else
+	setSectionSelection( sec, offset - 2, offset );
+    txt = txt.rightJustify( 2, QDATETIMEEDIT_HIDDEN_CHAR );
     return txt;
 }
 
@@ -1320,11 +1355,13 @@ bool QTimeEdit::setFocusSection( int s )
     if ( s != focusSection() ) {
 	killTimer( d->timerId );
 	d->overwrite = TRUE;
+	d->typing = FALSE;
+	int offset = s*3 + 2;
+	setSectionSelection( s, offset - 2, offset );
 	emit valueChanged( time() );
     }
     return QDateTimeEditBase::setFocusSection( s );
 }
-
 
 
 /*!
@@ -1401,6 +1438,7 @@ void QTimeEdit::addNumber( int sec, int num )
 	return;
     killTimer( d->timerId );
     bool overwrite = FALSE;
+    d->typing = TRUE;
     QString txt;
     if ( sec == 0 ) {
 	txt = QString::number( d->h );
@@ -1415,6 +1453,7 @@ void QTimeEdit::addNumber( int sec, int num )
 		d->h = temp;
 	    txt = QString::number( d->h );
 	    if ( d->adv && txt.length() == 2 ) {
+
 		setFocusSection( focusSection()+1 );
 		overwrite = TRUE;
 	    }
@@ -1554,14 +1593,28 @@ public:
 */
 
 /*!
+  Constructs an empty datetime edit
 
-  Constructs an empty QDateTimeEdit widget.
 */
 QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
     : QFrame( parent, name )
 {
     init();
 }
+
+
+/*!
+  Constructs a datetime edit with the initial value \datetime.
+
+*/
+QDateTimeEdit::QDateTimeEdit( const QDateTime& datetime,
+			      QWidget * parent, const char * name )
+    : QFrame( parent, name )
+{
+    init();
+    setDateTime( datetime );
+}
+
 
 
 /*! Destroys the object and frees any allocated resources.
