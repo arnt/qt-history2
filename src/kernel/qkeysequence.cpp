@@ -44,8 +44,10 @@
 #include "qvaluelist.h"
 
 #ifdef Q_WS_MAC
-#define QMAC_CTRL (QString(QChar(0x2318)))
-#define QMAC_ALT  (QString(QChar(0x2325)))
+#define QMAC_CTRL  (QString(QChar(0x2318)))
+#define QMAC_META  (QString(QChar(0x2303)))
+#define QMAC_ALT   (QString(QChar(0x2325)))
+#define QMAC_SHIFT (QString(QChar(0x21E7)))
 #endif
 
 /*!
@@ -413,22 +415,30 @@ done:
 	QString sl = str.lower();
 
 #ifdef QMAC_CTRL
-	if ( sl.contains(QMAC_CTRL+"+") )
+	if ( sl.contains(QMAC_CTRL) )
 	    k |= CTRL;
 #endif
 	if ( sl.contains("ctrl+") || sl.contains(QAccel::tr("Ctrl").lower() + "+") )
 	    k |= CTRL;
 
 #ifdef QMAC_ALT
-	if ( sl.contains(QMAC_ALT+"+") )
+	if ( sl.contains(QMAC_ALT) )
 	    k |= ALT;
 #endif
 	if ( sl.contains("alt+") || sl.contains(QAccel::tr("Alt").lower() + "+") )
 	    k |= ALT;
 
+#ifdef QMAC_META
+	if ( sl.contains(QMAC_META) )
+	    k |= META;
+#endif
 	if ( sl.contains("meta+") || sl.contains(QAccel::tr("Meta").lower() + "+") )
 	    k |= META;
 
+#ifdef QMAC_SHIFT
+	if ( sl.contains(QMAC_SHIFT) )
+	    k |= SHIFT;
+#endif
 	if ( sl.contains("shift+") || sl.contains(QAccel::tr("Shift").lower() + "+") )
 	    k |= SHIFT;
     }
@@ -443,34 +453,57 @@ done:
  */
 QString QKeySequence::encodeString( int key )
 {
+    bool plus_next = TRUE;
     QString s;
     if ( (key & CTRL) == CTRL ) {
+	plus_next = TRUE;
 	QString ctrl = QAccel::tr( "Ctrl" );
 #ifdef QMAC_CTRL
-	if(ctrl == "Ctrl")
+	if(ctrl == "Ctrl") {
+	    plus_next = FALSE;
 	    ctrl = QMAC_CTRL;
+	}
 #endif
 	s += ctrl;
     }
     if ( (key & ALT) == ALT ) {
-	if ( !s.isEmpty() )
+	if ( plus_next && !s.isEmpty() )
 	    s += QAccel::tr( "+" );
+	plus_next = TRUE;
 	QString alt = QAccel::tr( "Alt" );
 #ifdef QMAC_ALT
-	if(alt == "Alt")
+	if(alt == "Alt") {
+	    plus_next = FALSE;
 	    alt = QMAC_ALT;
+	}
 #endif
 	s += alt;
     }
     if ( (key & META) == META ) {
-	if ( !s.isEmpty() )
+	if ( plus_next && !s.isEmpty() )
 	    s += QAccel::tr( "+" );
-	s += QAccel::tr( "Meta" );
+	plus_next = TRUE;
+	QString meta = QAccel::tr( "Meta" ); 
+#ifdef QMAC_META
+	if(meta == "Meta") {
+	    plus_next = FALSE;
+	    meta = QMAC_META;
+	}
+#endif
+	s += meta;
     }
     if ( (key & SHIFT) == SHIFT ) {
-	if ( !s.isEmpty() )
+	if ( plus_next && !s.isEmpty() )
 	    s += QAccel::tr( "+" );
-	s += QAccel::tr( "Shift" );
+	plus_next = TRUE;
+	QString shift = QAccel::tr( "Shift" );
+#ifdef QMAC_SHIFT
+	if(shift == "Shift") {
+	    plus_next = FALSE;
+	    shift = QMAC_SHIFT;
+	}
+#endif
+	s += shift;
     }
     key &= ~(SHIFT | CTRL | ALT | META );
     QString p;
@@ -502,10 +535,11 @@ QString QKeySequence::encodeString( int key )
 	    // Note: This character should NOT be upper()'ed, see above!
 	    p = QChar(key & 0xffff);
     }
-    if ( s.isEmpty() )
+    if ( s.isEmpty() ) {
 	s = p;
-    else {
-	s += QAccel::tr( "+" );
+    } else {
+	if(plus_next)
+	    s += QAccel::tr( "+" );
 	s += p;
     }
     return s;
