@@ -1045,49 +1045,30 @@ bool QApplication::processNextEvent( bool canWait )
     qApp->lock();
 #endif
 
-    if(qt_is_gui_used) {
-
-	if(qt_replay_event) {	//ick
-	    EventRef ev = qt_replay_event;
-	    qt_replay_event = NULL;
-	    SendEventToWindow(ev, (WindowPtr)qt_mac_safe_pdev->handle());
-	    ReleaseEvent(ev);
-	}
-
-	sendPostedEvents();
-	activateNullTimers(); //try to send null timers..
-
-	EventRef event;
-	OSStatus ret;
-	do {
-	    do {
-		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		if(ret != noErr)
-		    break;
-		if(SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle()))
-		    nevents++;
-		ReleaseEvent(event);
-	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
-	    sendPostedEvents();
-	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
-    } else {
-	sendPostedEvents();
-	activateNullTimers(); //try to send null timers..
-
-	EventRef event;
-	OSStatus ret;
-	do {
-	    do {
-		ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
-		if(ret != noErr)
-		    break;
-		if(SendEventToApplication(event))
-		    nevents++;
-		ReleaseEvent(event);
-	    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
-	    sendPostedEvents();
-	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
+    if(qt_is_gui_used && qt_replay_event) {	//ick
+	EventRef ev = qt_replay_event;
+	qt_replay_event = NULL;
+	SendEventToWindow(ev, (WindowPtr)qt_mac_safe_pdev->handle());
+	ReleaseEvent(ev);
     }
+
+    sendPostedEvents();
+    activateNullTimers(); //try to send null timers..
+
+    EventRef event;
+    OSStatus ret;
+    do {
+	do {
+	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+	    if(ret != noErr)
+		break;
+	    if((qt_is_gui_used && SendEventToWindow(event, (WindowPtr)qt_mac_safe_pdev->handle())) ||
+	       (!qt_is_gui_used && SendEventToApplication(event)))
+		nevents++;
+	    ReleaseEvent(event);
+	} while(GetNumEventsInQueue(GetCurrentEventQueue()));
+	sendPostedEvents();
+    } while(GetNumEventsInQueue(GetCurrentEventQueue()));
 
     if( quit_now || app_exit_loop ) {
 #if defined(QT_THREAD_SUPPORT)
