@@ -159,7 +159,7 @@ void SetDataForm::valueChanged( int row, int col )
 	    table->setText(
 		row, col, QString( "%1" ).arg(
 			    d, 0, 'f', m_decimalPlaces ) );
-	else
+	else if ( !table->text( row, col ).isEmpty() )
 	    table->setText( row, col, table->text( row, col ) + "?" );
     }
 }
