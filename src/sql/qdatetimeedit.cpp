@@ -656,23 +656,35 @@ public:
 /*!
   \class QDateEdit qdatetimeedit.h
 
-  \brief The QDateEdit is a date editor.
+  \brief The QDateEdit class provides a date editor.
 
   QDateEdit allows the user to edit dates by using the keyboard or the
   arrow keys to increase/decrease date values. The arrow keys can be
-  used to move from field to field within the QDateEdit box. Dates
+  used to move from section to section within the QDateEdit box. Dates
   appear in year, month, day order by default. It is recommended that
   the QDateEdit be initialised with a date, e.g.
 
-  ### need reference to example here
+    \code
+    QDateEdit *dateedit = new QDateEdit( QDate::currentDate(), this );
+    dateedit->setMinValue( QDate::currentDate().addDays( -365 ) );
+    dateedit->setMaxValue( QDate::currentDate().addDays(  365 ) );
+    dateedit->setOrder( QDateEdit::MDY );
+    dateedit->setAutoAdvance( TRUE );
+    \endcode
 
-  See \l examples/datetime for an example.
+    Here we've created a new QDateEdit object initialised with today's
+    date and restricted the valid date range to today plus or minus 365
+    days. We've set the order to month, day, year. If the auto advance
+    property is TRUE (as we've set it here) when the user completes a
+    section of the date, e.g. enters two digits for the month, they are
+    automatically taken to the next section. 
 
-  \sa QTimeEdit
+  \sa QTimeEdit QDateTimeEdit
 */
 
 
-/*!  Constructs an empty date editor
+/*!  Constructs an empty date editor with parent \a parent and name \a
+   name.
 
 */
 
@@ -770,9 +782,9 @@ QString QDateEdit::sectionFormattedText( int sec )
 }
 
 
-/*! Returns the desired length of section \a sec.  This will
-  correspond to either the year, month or day section, depending on
-  the current display order.
+/*! Returns the desired length (number of digits) of section \a sec.
+   This will correspond to either the year, month or day section,
+   depending on the current display order.
 
   \sa setOrder()
 */
@@ -854,7 +866,7 @@ int QDateEdit::sectionOffsetEnd( int sec )
 
 
 /*! Sets the display order of the numbered section of the date editor
-  t \a order.
+  to \a order.
 
   \sa Order
 
@@ -939,6 +951,7 @@ void QDateEdit::stepDown()
 
 
 /*!  Sets the year to \a year, which must be a valid year.
+    The range currently supported is from 1752 to 8000.
 
   \sa QDate
 
@@ -956,7 +969,8 @@ void QDateEdit::setYear( int year )
 }
 
 
-/*! Sets the month to \a month, which must be a valid month.
+/*! Sets the month to \a month, which must be a valid month, i.e.
+   between 1 and 12.
 
 */
 
@@ -972,6 +986,8 @@ void QDateEdit::setMonth( int month )
 
 
 /*! Sets the day to day, which must be a valid day.
+    The function will ensure that the \a day set is valid for the
+    month and year.
 
 */
 
@@ -1109,7 +1125,21 @@ bool QDateEdit::setFocusSection( int s )
 }
 
 
-/*! Attempts to fix any invalid date entries. ### 70-30 window...
+/*! Attempts to fix any invalid date entries. 
+    
+    The rules applied are as follows:
+
+    <ul>
+    <li>If the year has four digits it is left unchanged.
+    <li>If the year has two digits in the range 70..99, the previous
+    century, i.e. 1900, will be added giving a year in the range
+    1970..1999. 
+    <li>If the year has two digits in the range 0..69, the current
+    century, i.e. 2000, will be added giving a year in the range
+    2000..2069.
+    <li>If the year is in the range 100..999, the current century, i.e.
+    2000, will be added giving a year in the range 2100..2999.
+    </ul>
 
 */
 
@@ -1179,8 +1209,8 @@ void QDateEdit::removeLastNumber( int sec )
 
 /*! Sets the auto advance property of the editor to \a advance.  If
   set to TRUE (the default is FALSE), the editor will automatically
-  advance focus to the next date field if a user has completed an
-  entry.
+  advance focus to the next date section if a user has completed a
+  section.
 
   \sa autoAdvance()
 */
@@ -1215,7 +1245,7 @@ void QDateEdit::timerEvent( QTimerEvent * )
 
 /*! \fn void QDateEdit::valueChanged( const QDate& date )
 
-  This signal is emitted whenever the editor value changes.  The date
+  This signal is emitted whenever the editor's value changes.  The date
   parameter is the new value.
 
 */
@@ -1237,23 +1267,31 @@ public:
 /*!
   \class QTimeEdit qdatetimeedit.h
 
-  \brief The QTimeEdit is a time editor.
+  \brief The QTimeEdit class provides a time editor.
 
   QTimeEdit allows the user to edit times by using the keyboard or the
   arrow keys to increase/decrease time values. The arrow keys can be
-  used to move from field to field within the QTimeEdit box. Times
+  used to move from section to section within the QTimeEdit box. Times
   appear in hour, minute, second order by default. It is recommended
   that the QTimeEdit be initialised with a time, e.g.
 
-  ### need reference to example here
+    \code
+    QTime timeNow = QTime::currentTime();
+    QTimeEdit *timeedit = new QTimeEdit( timeNow, this );
+    timeedit->setMinValue( timeNow );
+    timeedit->setMaxValue( timeNow.addSecs( 60 * 60 ) );
+    \endcode
 
-  See \l examples/datetime for an example.
+    Here we've created a QTimeEdit widget set to the current time. We've
+    also set the minimum value to the current time and the maximum time
+    to one hour from now.
 
-  \sa QDateEdit
+  \sa QDateEdit QDateTimeEdit
 */
 
 
-/*!  Constructs an empty time edit
+/*!  Constructs an empty time edit with parent \a parent and name \a
+   name.
 
 */
 
@@ -1339,8 +1377,8 @@ QTime QTimeEdit::time() const
 
 /*! Sets the auto advance property of the editor to \a advance.  If
   set to TRUE (the default is FALSE), the editor will automatically
-  advance focus to the next time field if a user has completed an
-  entry.
+  advance focus to the next time section if a user has completed a
+  section.
 
   \sa autoAdvance()
 */
@@ -1365,7 +1403,7 @@ bool QTimeEdit::autoAdvance() const
 
 /*! \fn void QTimeEdit::valueChanged( const QTime& time )
 
-  This signal is emitted whenever the editor value changes.  The time
+  This signal is emitted whenever the editor's value changes.  The time
   parameter is the new value.
 
 */
@@ -1506,7 +1544,8 @@ void QTimeEdit::setMinute( int m )
 }
 
 
-/*! Sets the second to \s, which must be a valid second.
+/*! Sets the second to \s, which must be a valid second, i.e. in the
+   range 0 to 59.
 
 */
 
@@ -1691,18 +1730,21 @@ public:
   hours, minutes, seconds using the 24 hour clock. It is recommended
   that the QDateTimeEdit is initialised with a datetime, e.g.
 
-    \dontinclude datetime/main.cpp
-    \skipto QDateTimeEdit
-    \printline
-    <h5 align="center">From \l datetime/main.cpp </h5>
+    \code
+    QDateTimeEdit *datetimeedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
+    dateedit->setMinValue( QDate::currentDateTime() );
+    dateedit->setMaxValue( QDate::currentDateTime().addDays( 7 ) );
+    \endcode
 
-  See \l examples/datetime for an example.
+    Here we've created a new QDateTimeEdit object with a minimum
+    date/time of now and a maximum date/time of a week from now.
 
   \sa QDateEdit QTimeEdit
 */
 
 /*!
-  Constructs an empty datetime edit
+  Constructs an empty datetime edit with parent \a parent and name \a
+  name.
 
 */
 QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
@@ -1888,8 +1930,8 @@ void QDateTimeEdit::newValue( const QTime& )
 
 /*! Sets the auto advance property of the editor to \a advance.  If
   set to TRUE (the default is FALSE), the editor will automatically
-  advance focus to the next date or time field if a user has completed
-  an entry.
+  advance focus to the next date or time section if a user has completed
+  a section.
 
 */
 
