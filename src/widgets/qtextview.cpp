@@ -711,6 +711,9 @@ void QTextView::removeSelectedText()
     if ( isReadOnly() )
 	return;
 
+    for ( int i = 1; i < (int)QTextDocument::Temp; ++i )
+	doc->removeSelection( i );
+
     drawCursor( FALSE );
     checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
     if ( !undoRedoInfo.valid() ) {
@@ -1349,6 +1352,7 @@ void QTextView::undo()
 	drawCursor( TRUE );
 	return;
     }
+    lastFormatted = 0;
     ensureCursorVisible();
     repaintChanged();
     drawCursor( TRUE );
@@ -1367,6 +1371,7 @@ void QTextView::redo()
 	drawCursor( TRUE );
 	return;
     }
+    lastFormatted = 0;
     ensureCursorVisible();
     repaintChanged();
     ensureCursorVisible();

@@ -187,19 +187,18 @@ QTextCursor *QTextDeleteCommand::execute( QTextCursor *c )
     cursor.setParag( s );
     cursor.setIndex( index );
     int len = text.size();
+    if ( c )
+	*c = cursor;
     if ( doc ) {
 	doc->setSelectionStart( QTextDocument::Temp, &cursor );
 	for ( int i = 0; i < len; ++i )
 	    cursor.gotoRight();
 	doc->setSelectionEnd( QTextDocument::Temp, &cursor );
 	doc->removeSelectedText( QTextDocument::Temp, &cursor );
+	if ( c )
+	    *c = cursor;
     } else {
 	s->remove( index, len );
-    }
-
-    if ( c ) {
-	c->setParag( s );
-	c->setIndex( index );
     }
 
     return c;
