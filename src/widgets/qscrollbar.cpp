@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#121 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#122 $
 **
 ** Implementation of QScrollBar class
 **
@@ -63,6 +63,10 @@
   lineStep(); and last but NOT least setRange() to set the minValue()
   and maxValue() of the scrollbar.  (QScrollBar has a convenience
   constructor with which you can set most of that.)
+  
+  Some GUI styles, for example the provided Windows and Motif styles,
+  also use the pageStep() value to calculate the size of the sliding
+  thumb (scroll indicator).
 
   In addition to the access functions from QRangeControl, QScrollBar
   has a comprehensive set of signals: <ul>
@@ -199,7 +203,7 @@ QScrollBar::QScrollBar( Orientation orientation, QWidget *parent,
   \arg \e minValue is the minimum scroll bar value.
   \arg \e maxValue is the maximum scroll bar value.
   \arg \e lineStep is the line step value.
-  \arg \e pageStep is the page step value.
+  \arg \e pageStep is the page step value. It is also used to calculate the size of the sliding thumb (scroll indicator).
   \arg \e value is the initial value.
   \arg \e orientation must be QScrollBar::Vertical or QScrollBar::Horizontal.
 
