@@ -1117,7 +1117,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             bool haveOffsets = false;
             float w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
-                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0) {
+                if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
                     haveOffsets = true;
                     break;
                 }
@@ -1132,7 +1132,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
                     if (transform)
                         state->painter->matrix().map(xp, yp, &xp, &yp);
                     ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-                    x += qRound(glyphs->advance.x());
+                    x += glyphs->advance.x() + ((float)glyphs->space_18d6) / 64.;
+                    y += glyphs->advance.y();
                     glyphs++;
                 }
             } else {
@@ -1149,16 +1150,37 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             }
         }
     } else {
-        glyphs += ti.num_glyphs;
-        for(int i = 0; i < ti.num_glyphs; i++) {
-            glyphs--;
-            wchar_t chr = glyphs->glyph;
-            float xp = x + glyphs->offset.x();
-            float yp = y + glyphs->offset.y();
-            if (transform)
-                state->painter->matrix().map(xp, yp, &xp, &yp);
-            ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-            x += glyphs->advance.x();
+        int i = ti.num_glyphs;
+        while(i--) {
+            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6) / 64.;
+            y += glyphs[i].advance.y();
+        }
+        i = 0;
+        while(i < ti.num_glyphs) {
+            x -= glyphs[i].advance.x();
+            y -= glyphs[i].advance.y();
+
+            int xp = qRound(x+glyphs[i].offset.x());
+            int yp = qRound(y+glyphs[i].offset.y());
+            ExtTextOutW(d->hdc, xp, yp, options, 0, &glyphs[i].glyph, 1, 0);
+
+            if (glyphs[i].nKashidas) {
+                QChar ch(0x640); // Kashida character
+                QGlyphLayout g[8];
+                int nglyphs = 7;
+                ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
+                for (uint k = 0; k < glyphs[i].nKashidas; ++k) {
+                    x -= g[0].advance.x();
+                    y -= g[0].advance.y();
+
+                    int xp = qRound(x+g[0].offset.x());
+                    int yp = qRound(y+g[0].offset.y());
+                    ExtTextOutW(d->hdc, xp, yp, options, 0, &g[0].glyph, 1, 0);
+                }
+            } else {
+                x -= ((float)glyphs[i].space_18d6) / 64;
+            }
+            ++i;
         }
     }
 
@@ -1185,7 +1207,7 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
 #endif
     d->pen = pen;
     d->penStyle = pen.style();
-    d->forceGdiplus  |= d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
+    d->forceGdiplus |= d->penStyle != Qt::NoPen && pen.color().alpha() != 255;
     if (d->tryGdiplus()) {
         d->gdiplusEngine->updatePen(pen);
         return;
@@ -2406,7 +2428,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
     d->penColor = pen.color();
 
     int status;
-    status = GdipSetPenWidth(d->pen, pen.width());
+    status = GdipSetPenWidth(d->pen, pen.widthF());
     Q_ASSERT(status == 0);
     status = GdipSetPenColor(d->pen, pen.color().rgba());
     Q_ASSERT(status == 0);
@@ -2714,16 +2736,57 @@ void QGdiplusPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
     GdipCreateFontFromLogfontW(hdc, &ti.fontEngine->logfont, &font);
     GdipReleaseDC(d->graphics, &hdc);
 
-    GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgb());
+    GdipSetSolidFillColor(d->cachedSolidBrush, d->penColor.rgba());
 
     QVarLengthArray<unsigned short> glyphs(ti.num_glyphs);
-    for (int i=0; i<ti.num_glyphs; ++i)
-        glyphs[i] = ti.glyphs[i].glyph;
+    QVarLengthArray<QPointF> positions(ti.num_glyphs);
+    QPointF pos = p;
 
-    uint flags = DriverStringOptionsRealizedAdvance;
+    if(ti.flags & QTextItem::RightToLeft) {
+        int i = ti.num_glyphs;
+        while(i--) {
+            pos.rx() += ti.glyphs[i].advance.x() + ((float)ti.glyphs[i].space_18d6)/64.;
+            pos.ry() += ti.glyphs[i].advance.y();
+        }
+        i = 0;
+        int nGlyphs = 0;
+        while(i < ti.num_glyphs) {
+            pos -= ti.glyphs[i].advance;
 
-    GdipDrawDriverString(d->graphics,
-                         glyphs.data(), ti.num_glyphs, font, d->cachedSolidBrush, &p, flags, 0);
+            positions[nGlyphs] = pos + ti.glyphs[i].offset;
+            glyphs[nGlyphs++] = ti.glyphs[i].glyph;
+
+            if (ti.glyphs[i].nKashidas) {
+                positions.resize(positions.size() + ti.glyphs[i].nKashidas);
+                glyphs.resize(glyphs.size() + ti.glyphs[i].nKashidas);
+                QChar ch(0x640); // Kashida character
+                QGlyphLayout g[8];
+                int nglyphs = 7;
+                ti.fontEngine->stringToCMap(&ch, 1, g, &nglyphs, 0);
+                for (uint k = 0; k < ti.glyphs[i].nKashidas; ++k) {
+                    pos -= g[0].advance;
+
+                    positions[nGlyphs] = pos;
+                    glyphs[nGlyphs++] = g[0].glyph;
+                }
+            } else {
+                pos.rx() -= ((float)ti.glyphs[i].space_18d6)/64.;
+            }
+            ++i;
+        }
+    } else {
+        for (int i=0; i<ti.num_glyphs; ++i)
+            glyphs[i] = ti.glyphs[i].glyph;
+        for (int i=0; i<ti.num_glyphs; ++i) {
+            positions[i] = pos + ti.glyphs[i].offset;
+            pos += ti.glyphs[i].advance;
+            pos.rx() += ((float)ti.glyphs[i].space_18d6)/64.;
+        }
+    }
+    const uint flags = 0;
+
+    GdipDrawDriverString(d->graphics, glyphs.data(), ti.num_glyphs, font, 
+                         d->cachedSolidBrush, positions.data(), flags, 0);
 
     GdipSetSolidFillColor(d->cachedSolidBrush, d->brushColor.rgb());
     GdipDeleteFont(font);
