@@ -1,0 +1,19 @@
+make			- builds the current target, debug version
+make RELEASE=1		- builds the current target, release version
+make <dir>		- builds the target in a sub directory, debug version
+make <dir> RELEASE=1	- builds the target in a sub directory, release version
+
+make showfiles		- shows the .h and .cpp files for the current target
+make showheaders	- shows the .h files
+make showsources	- shows the .cpp files
+
+make update		- cvs update & make depend for the current target
+make updateqt		- cvs update & make depend for qt/src
+make depend		- dependencies will be made the next time you run make
+make clean		- removes temporary files and cleans up
+make cleandsp		- also cleans up a MSVC++ project
+
+make project		- creates a tmake project file
+make dsp		- creates a MSVC++ developer studio project file
+make include		- synchonizes Qt header files (done by make depend)
+make tags		- Unix Qt lib only: updates the emacs TAGS file
