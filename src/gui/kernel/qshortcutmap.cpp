@@ -476,7 +476,6 @@ void QShortcutMap::createNewSequence(QKeyEvent *e, QKeySequence &seq)
 */
 bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     QWidget *wtlw = qApp->activeWindow();
-    Q_ASSERT(wtlw != 0);
 
     const QWidget *w = item.owner;
     if (!w->isVisible() || !w->isEnabled() || !wtlw)
