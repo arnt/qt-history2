@@ -452,10 +452,12 @@ void QPrinter::readPdlg( void* pdv )
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
 	    if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
-            if ( dm->dmCollate == DMCOLLATE_TRUE )
-                usercolcopies = TRUE;
-            else
-                usercolcopies = FALSE;
+            if ( dm->dmFields & DM_COLLATE ) {
+		if ( dm->dmCollate == DMCOLLATE_TRUE )
+		    usercolcopies = TRUE;
+		else
+		    usercolcopies = FALSE;
+	    }
 	    if ( dm->dmColor == DMCOLOR_COLOR )
 		color_mode = Color;
 	    else
@@ -523,10 +525,12 @@ void QPrinter::readPdlgA( void* pdv )
             paper_source = mapDevmodePaperSource( dm->dmDefaultSource );
             if (pd->Flags & PD_USEDEVMODECOPIESANDCOLLATE)
 		ncopies = dm->dmCopies;
-            if ( dm->dmCollate == DMCOLLATE_TRUE )
-                usercolcopies = TRUE;
-	    else
-		usercolcopies = FALSE;
+	    if ( dm->dmFields & DM_COLLATE ) {
+		if ( dm->dmCollate == DMCOLLATE_TRUE )
+		    usercolcopies = TRUE;
+		else
+		    usercolcopies = FALSE;
+	    }
 	    if ( dm->dmColor == DMCOLOR_COLOR )
 		color_mode = Color;
 	    else
@@ -661,7 +665,7 @@ static void setDefaultPrinter(const QString &printerName, HANDLE *hmode, HANDLE 
     }
 #endif
     else {
-	QCString pName = qt_winQString2MB( printerName );
+	QCString pName = printerName.local8Bit();
 	if ( !OpenPrinterA( pName.data(), &hPrinter,NULL ) ) {
 	    qDebug( "OpenPrinterA(%s) failed, error %d", pName.data(), GetLastError() );
 	    return;
@@ -1056,7 +1060,8 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #if defined(__MINGW32__)
             di.lpszDocName = (const TCHAR*)doc_name.unicode();
 #else
-            di.lpszDocName = qt_winQString2MB( doc_name ).data();
+	    QCString docNameA = doc_name.local8Bit();
+            di.lpszDocName = docNameA.data();
 #endif
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
