@@ -490,38 +490,31 @@ void QPushButtonPrivate::popupPressed()
 
     menu->setNoReplayFor(q);
     bool horizontal = true;
-    bool topLeft = true;                        // ### always true
 #if !defined(QT_NO_TOOLBAR)
     QToolBar *tb = qt_cast<QToolBar*>(q->parentWidget());
     if (tb && tb->orientation() == Qt::Vertical)
         horizontal = false;
 #endif
     QRect rect = q->rect();
+    QSize menuSize = menu->sizeHint();
+    QPoint globalPos = q->mapToGlobal(rect.topLeft());
+    int x = globalPos.x();
+    int y = globalPos.y();
     if (horizontal) {
-        if (topLeft) {
-            if (q->mapToGlobal(QPoint(0, rect.bottom())).y() + menu->sizeHint().height() <= qApp->desktop()->height())
-                menu->exec(q->mapToGlobal(rect.bottomLeft()));
-            else
-                menu->exec(q->mapToGlobal(rect.topLeft()));
+        if (globalPos.y() + rect.height() + menuSize.height() <= qApp->desktop()->height()) {
+            y += rect.height();
         } else {
-            QSize sz(menu->sizeHint());
-            QPoint p = q->mapToGlobal(rect.topLeft());
-            p.ry() -= sz.height();
-            menu->exec(p);
+            y -= menuSize.height();
         }
+        if (q->layoutDirection() == Qt::RightToLeft)
+            x += rect.width() - menuSize.width();
     } else {
-        if (topLeft) {
-            if (q->mapToGlobal(QPoint(rect.right(), 0)).x() + menu->sizeHint().width() <= qApp->desktop()->width())
-                menu->exec(q->mapToGlobal(rect.topRight()));
-            else
-                menu->exec(q->mapToGlobal(rect.topLeft()));
-        } else {
-            QSize sz(menu->sizeHint());
-            QPoint p = q->mapToGlobal(rect.topLeft());
-            p.rx() -= sz.width();
-            menu->exec(p);
-        }
+        if (globalPos.x() + rect.width() + menu->sizeHint().width() <= qApp->desktop()->width())
+            x += rect.width();
+        else
+            x -= menuSize.width();
     }
+    menu->exec(QPoint(x, y));
     q->setDown(false);
 }
 
