@@ -4645,11 +4645,18 @@ void QPSPrinterFontNotFound::download(QTextStream& s, bool)
 class QPSPrinterFontAsian
   : public QPSPrinterFontPrivate {
 public:
+      QPSPrinterFontAsian()
+	  : QPSPrinterFontPrivate(), codec( 0 ) {}
       void download(QTextStream& s, bool global);
       QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
                           QPSPrinterPrivate *d ) = 0;
       QString emitDef( QTextStream &stream, const QString &ps, const QFont &f,
 		       float slant, const QString &key, QPSPrinterPrivate *d);
+
+      void drawText( QTextStream &stream, uint spaces, const QPoint &p,
+                     const QString &text, QPSPrinterPrivate *d, QPainter *paint );
+      
+      QTextCodec *codec;
 };
 
 QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, const QFont &f,
@@ -4692,8 +4699,54 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
 void QPSPrinterFontAsian::download(QTextStream& s, bool)
 {
     //qDebug("downloading asian font %s", psname.latin1() );
-  s << "% Asian postscript font requested. Using ";
-  s << psname << endl;
+    s << "% Asian postscript font requested. Using "
+      << psname << endl;
+    //emitPSFontNameList( s, psname, replacementList );
+}
+
+void QPSPrinterFontAsian::drawText( QTextStream &stream, uint spaces, const QPoint &p,
+				    const QString &text, QPSPrinterPrivate *d, QPainter *paint)
+{
+    int x = p.x();
+    if ( spaces > 0 )
+        x += spaces * d->fm.width( ' ' );
+    int y = p.y();
+    if ( y != d->textY || d->textY == 0 )
+        stream << y << " Y";
+    d->textY = y;
+    QString mdf;
+    if ( paint->font().underline() )
+        mdf += " " + QString().setNum( y + d->fm.underlinePos() + d->fm.lineWidth() ) +
+               " " + QString::number( d->fm.lineWidth() ) + " Tl";
+    if ( paint->font().strikeOut() )
+        mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
+               " " + QString::number( d->fm.lineWidth() ) + " Tl";
+    QChar ch;
+    QCString out;
+    int l = text.length();
+    for ( int i = 0; i <= l; i++ ) {
+        if ( i < l ) {
+            ch = text.at(i);
+            if ( !ch.row() ) {
+		; // ignore, we should never get here anyway
+            } else {
+                if ( !codec )
+                    ch = QChar( 0x2222 ); // box
+                else
+                    ch = codec->characterFromUnicode( text, i );
+                char chj = ch.row();
+                if ( chj == '(' || chj == ')' || chj == '\\' )
+                    out += "\\";
+                out += chj;
+                chj = ch.cell();
+                if ( chj == '(' || chj == ')' || chj == '\\' )
+                    out += "\\";
+                out += chj;
+            }
+        }
+    }
+    int w = d->fm.width( text );
+    stream << "(" << out << ")" << w << " " << x << mdf << " T\n";
 }
 
 #ifndef QT_NO_TEXTCODEC
@@ -4704,8 +4757,6 @@ class QPSPrinterFontJapanese
   : public QPSPrinterFontAsian {
 public:
       QPSPrinterFontJapanese(const QFont& f);
-      void drawText( QTextStream &stream, uint spaces, const QPoint &p,
-                     const QString &text, QPSPrinterPrivate *d, QPainter *paint);
       QString defineFont( QTextStream &stream, QString ps, const QFont &f, const QString &key,
                           QPSPrinterPrivate *d );
 private:
@@ -4714,6 +4765,8 @@ private:
 
 QPSPrinterFontJapanese::QPSPrinterFontJapanese(const QFont& f)
 {
+    codec = QTextCodec::codecForMib( 63 ); // jisx0208.1983-0
+
     psname = makePSFontName( f );
     // now try to convert that to some japanese postscript font in a sensible way.
     // as we don't support font substitution at the moment, we just use the
@@ -4753,54 +4806,6 @@ QString QPSPrinterFontJapanese::defineFont( QTextStream &stream, QString ps, con
         ps = "Ryumin-Light-H";
     }
     return emitDef( stream, ps, f, slant, key, d );
-}
-
-void QPSPrinterFontJapanese::drawText( QTextStream &stream, uint spaces, const QPoint &p,
-                                  const QString &text, QPSPrinterPrivate *d, QPainter *paint)
-{
-    if ( !convJP )
-        convJP = QTextCodec::codecForName( "jisx0208.1983-0" );
-
-    int x = p.x();
-    if ( spaces > 0 )
-        x += spaces * d->fm.width( ' ' );
-    int y = p.y();
-    if ( y != d->textY || d->textY == 0 )
-        stream << y << " Y";
-    d->textY = y;
-    QString mdf;
-    if ( paint->font().underline() )
-        mdf += " " + QString().setNum( y + d->fm.underlinePos() + d->fm.lineWidth() ) +
-               " " + QString::number( d->fm.lineWidth() ) + " Tl";
-    if ( paint->font().strikeOut() )
-        mdf += " " + QString().setNum( y + d->fm.strikeOutPos() ) +
-               " " + QString::number( d->fm.lineWidth() ) + " Tl";
-    QChar ch;
-    QCString out;
-    int l = text.length();
-    for ( int i = 0; i <= l; i++ ) {
-        if ( i < l ) {
-            ch = text.at(i);
-            if ( !ch.row() ) {
-		; // ignore, we should never get here anyway
-            } else {
-                if ( !convJP )
-                    ch = QChar( 0x2222 ); // box
-                else
-                    ch = convJP->characterFromUnicode( text, i );
-                char chj = ch.row();
-                if ( chj == '(' || chj == ')' || chj == '\\' )
-                    out += "\\";
-                out += chj;
-                chj = ch.cell();
-                if ( chj == '(' || chj == ')' || chj == '\\' )
-                    out += "\\";
-                out += chj;
-            }
-        }
-    }
-    int w = d->fm.width( text );
-    stream << "(" << out << ")" << w << " " << x << mdf << " T\n";
 }
 
 // ----------- Korean --------------
@@ -4850,6 +4855,7 @@ public:
 
 QPSPrinterFontKorean::QPSPrinterFontKorean(const QFont& f)
 {
+    codec = QTextCodec::codecForMib( 36 ); // ksc5601.1987-0
     int type = getPsFontType( f );
     psname = SMMyungjo[type].psname;
     appendReplacements( replacementList, KoreanReplacements, type );
