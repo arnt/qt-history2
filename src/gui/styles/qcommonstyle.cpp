@@ -755,6 +755,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             qDrawShadePanel(p, frame->rect, frame->palette, frame->state & Style_Sunken,
                             frame->lineWidth);
         break;
+    case PE_MenuBarFrame:
+    case PE_PanelMenuBar:
+        if (const Q4StyleOptionFrame *frame = qt_cast<const Q4StyleOptionFrame *>(opt))
+            qDrawShadePanel(p, frame->rect, frame->palette, false, frame->lineWidth,
+                            &frame->palette.brush(QPalette::Button));
+        break;
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
@@ -1384,6 +1390,16 @@ void QCommonStyle::drawControl(ControlElement ce, const Q4StyleOption *opt,
         p->setPen(QPen(opt->palette.light(), 1, DashLine));
         p->drawLine(opt->rect.x() + 2, opt->rect.y() + opt->rect.height() / 2,
                     opt->rect.x() + opt->rect.width() - 4, opt->rect.y() + opt->rect.height() / 2);
+        break;
+    case CE_MenuBarItem:
+        if (const Q4StyleOptionMenuItem *mbi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            uint alignment = AlignCenter | ShowPrefix | DontClip | SingleLine;
+            if (!styleHint(SH_UnderlineShortcut, w, QStyleOption(), 0))
+                alignment |= NoAccel;
+            QPixmap pix = mbi->icon.pixmap(QIconSet::Small, QIconSet::Normal);
+            drawItem(p, mbi->rect, alignment, mbi->palette, mbi->state & Style_Enabled,
+                     pix, mbi->text, -1, &mbi->palette.buttonText().color());
+        }
         break;
     default:
         qWarning("QCommonStyle::drawControl not currently handled %d", ce);

@@ -2007,6 +2007,35 @@ void QMacStyleCG::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
                 }
             }
             break;
+        case CE_MenuBarItem:
+            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+                HIThemeMenuTitleDrawInfo tdi;
+                tdi.version = qt_mac_hitheme_version;
+                tdi.state = kThemeMenuActive;
+                if (!(mi->state & Style_Active))
+                    tdi.state = kThemeMenuDisabled;
+                if (mi->state & Style_Down)
+                    tdi.state = kThemeMenuSelected;
+                tdi.attributes = 0;
+                tdi.condensedTitleExtra = 0.0;
+                HIRect mbRect = qt_hirectForQRect(mi->menuRect);
+                HIRect rect = qt_hirectForQRect(mi->rect);
+                HIThemeDrawMenuTitle(&mbRect, &rect, &tdi, static_cast<CGContextRef>(p->handle()),
+                                     kHIThemeOrientationNormal, 0);
+                QWindowsStyle::drawControl(ce, mi, p, w);
+            }
+            break;
+        case CE_MenuBarEmptyArea:
+            if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+                HIThemeMenuBarDrawInfo bdi;
+                bdi.version = qt_mac_hitheme_version;
+                bdi.state = kThemeMenuBarNormal;
+                bdi.attributes = kThemeMenuSquareMenuBar;
+                HIRect hirect = qt_hirectForQRect(mi->rect);
+                HIThemeDrawMenuBarBackground(&hirect, &bdi, static_cast<CGContextRef>(p->handle()),
+                                             kHIThemeOrientationNormal);
+                break;
+            }
         default:
             QWindowsStyle::drawControl(ce, opt, p, w);
     }

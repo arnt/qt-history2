@@ -11,8 +11,8 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-#ifndef NEWSTYLE_H
-#define NEWSTYLE_H
+#ifndef QSTYLEOPTION_H
+#define QSTYLEOPTION_H
 
 #include "qiconset.h"
 #include "qslider.h"
@@ -48,7 +48,6 @@ struct Q4StyleOptionButton : public Q4StyleOption {
     enum Extras { None = 0x00, Flat = 0x01, HasMenu = 0x02 };
     uint extras;
     QString text;
-    QPixmap pixmap;
     QIconSet icon;
     Q4StyleOptionButton(int version) : Q4StyleOption(version, Button) {}
 };

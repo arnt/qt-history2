@@ -3109,6 +3109,27 @@ void QMacStyleQD::drawControl(ControlElement ce, const Q4StyleOption *opt, QPain
             }
         }
         break;
+    case CE_MenuBarItem:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            QRect ir(mi->rect.x(), 0, mi->rect.width(), mi->menuRect.height());
+            Rect mrect = *qt_glb_mac_rect(mi->menuRect, p),
+                 irect = *qt_glb_mac_rect(ir, p, false);
+            ThemeMenuState tms = kThemeMenuActive;
+            if (!(mi->state & Style_Active))
+                tms = kThemeMenuDisabled;
+            if (mi->state & Style_Down)
+                tms = kThemeMenuSelected;
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeMenuTitle(&mrect, &irect, tms, 0, 0, 0);
+            QWindowsStyle::drawControl(ce, mi, p, widget);
+        }
+    case CE_MenuBarEmptyArea:
+        if (const Q4StyleOptionMenuItem *mi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            static_cast<QMacStyleQDPainter *>(p)->setport();
+            DrawThemeMenuBarBackground(qt_glb_mac_rect(mi->rect, p, false), kThemeMenuBarNormal,
+                                       kThemeMenuSquareMenuBar);
+        }
+        break;
     default:
         QWindowsStyle::drawControl(ce, opt, p, widget);
     }

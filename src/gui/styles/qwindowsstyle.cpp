@@ -2870,6 +2870,29 @@ void QWindowsStyle::drawControl(ControlElement ce, const Q4StyleOption *opt, QPa
 
         }
         break;
+    case CE_MenuBarItem:
+        if (const Q4StyleOptionMenuItem *mbi = qt_cast<const Q4StyleOptionMenuItem *>(opt)) {
+            bool active = mbi->state & Style_Active;
+            bool hasFocus = mbi->state & Style_HasFocus;
+            bool down = mbi->state & Style_Down;
+            Q4StyleOptionMenuItem newMbi = *mbi;
+            p->fillRect(mbi->rect, mbi->palette.brush(QPalette::Button));
+            if (active || hasFocus) {
+                QBrush b = mbi->palette.brush(QPalette::Button);
+                if (active && down)
+                    p->setBrushOrigin(p->brushOrigin() + QPoint(1, 1));
+                if (active && hasFocus)
+                    qDrawShadeRect(p, mbi->rect.x(), mbi->rect.y(), mbi->rect.width(),
+                                   mbi->rect.height(), mbi->palette, active && down, 1, 0, &b);
+                if (active && down) {
+                    newMbi.rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+                                       pixelMetric(PM_ButtonShiftVertical, widget));
+                    p->setBrushOrigin(p->brushOrigin() - QPoint(1, 1));
+                }
+            }
+            QCommonStyle::drawControl(ce, &newMbi, p, widget);
+        }
+        break;
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }
@@ -3128,6 +3151,10 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const Q4StyleOption *opt,
                               mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
                               + 2 * windowsItemFrame));
         }
+        break;
+    case CT_MenuBarItem:
+        if (!sz.isEmpty())
+            sz = QSize(sz.width() + windowsItemVMargin * 2, sz.height() + windowsItemHMargin * 2);
         break;
     default:
         sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);

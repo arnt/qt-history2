@@ -1244,12 +1244,22 @@ void QMenu::paintEvent(QPaintEvent *e)
         borderReg += QRect(0, height()-fw, width(), fw); //bottom
         p.setClipRegion(borderReg);
         emptyArea -= borderReg;
-        style().drawPrimitive(QStyle::PE_MenuFrame, &p, rect(), palette(), QStyle::Style_Default);
+        Q4StyleOptionFrame frame(0);
+        frame.rect = rect();
+        frame.palette = palette();
+        frame.state = QStyle::Style_Default;
+        frame.lineWidth = style().pixelMetric(QStyle::PM_DefaultFrameWidth);
+        style().drawPrimitive(QStyle::PE_MenuFrame, &frame, &p, this);
     }
 
     //finally the rest of the space
     p.setClipRegion(emptyArea);
-    style().drawControl(QStyle::CE_MenuEmptyArea, &p, this, rect(), palette());
+    menuOpt.state = QStyle::Style_Default;
+    menuOpt.menuItemType = Q4StyleOptionMenuItem::EmptyArea;
+    menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    menuOpt.rect = rect();
+    menuOpt.menuRect = rect();
+    style().drawControl(QStyle::CE_MenuEmptyArea, &menuOpt, &p, this);
 }
 
 /*!

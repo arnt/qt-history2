@@ -186,7 +186,8 @@ QList<QMenuAction*> QMenuBarPrivate::calcActionRects(int max_width, int start) c
         }
 
         //let the style modify the above size..
-        sz = q->style().sizeFromContents(QStyle::CT_MenuBarItem, q, sz, QStyleOption(action));
+        Q4StyleOptionMenuItem opt = getStyleOption(action);
+        sz = q->style().sizeFromContents(QStyle::CT_MenuBarItem, &opt, sz, fm, q);
 
         if(!sz.isEmpty()) {
             if(separator == -1)
@@ -246,6 +247,30 @@ void QMenuBarPrivate::activateAction(QAction *action, QAction::ActionEvent actio
         emit q->activated(action);
     else if(action_e == QAction::Hover)
         emit q->highlighted(action);
+}
+
+Q4StyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) const
+{
+    Q4StyleOptionMenuItem opt(0);
+    opt.palette = q->palette();
+    opt.state = QStyle::Style_Default;
+    if (q->isEnabled() && action->isEnabled())
+        opt.state |= QStyle::Style_Enabled;
+    else
+        opt.palette.setCurrentColorGroup(QPalette::Disabled);
+    if (currentAction && currentAction->action == action) {
+        opt.state |= QStyle::Style_Active;
+        if (popupState && !closePopupMode)
+            opt.state |= QStyle::Style_Down;
+    }
+    if (q->hasFocus() || currentAction)
+        opt.state |= QStyle::Style_HasFocus;
+    opt.menuRect = q->rect();
+    opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+    opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    opt.text = action->text();
+    opt.icon = action->icon();
+    return opt;
 }
 
 /*!
@@ -475,32 +500,20 @@ void QMenuBar::paintEvent(QPaintEvent *e)
     QRegion emptyArea(rect());
 
     //draw the items
-    for(int i=0; i<(int)d->actionItems.count(); i++) {
+    for (int i = 0; i < d->actionItems.count(); ++i) {
         QMenuAction *action = d->actionItems.at(i);
         QRect adjustedActionRect = d->actionRect(action);
         if(!e->rect().intersects(adjustedActionRect))
            continue;
 
-        QPalette pal = palette();
-        QStyle::SFlags flags = QStyle::Style_Default;
-        if(isEnabled() && action->action->isEnabled())
-            flags |= QStyle::Style_Enabled;
-        else
-            pal.setCurrentColorGroup(QPalette::Disabled);
-        if(d->currentAction == action) {
-            flags |= QStyle::Style_Active;
-            if(d->popupState && !d->closePopupMode)
-                flags |= QStyle::Style_Down;
-        }
-        if(hasFocus() || d->currentAction)
-            flags |= QStyle::Style_HasFocus;
         emptyArea -= adjustedActionRect;
+        Q4StyleOptionMenuItem opt = d->getStyleOption(action->action);
+        opt.rect = adjustedActionRect;
         p.setClipRect(adjustedActionRect);
-        style().drawControl(QStyle::CE_MenuBarItem, &p, this,
-                            adjustedActionRect, pal, flags, QStyleOption(action->action));
+        style().drawControl(QStyle::CE_MenuBarItem, &opt, &p, this);
     }
      //draw border
-    if(int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)) {
+    if(int fw = style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)) {
         QRegion borderReg;
         borderReg += QRect(0, 0, fw, height()); //left
         borderReg += QRect(width()-fw, 0, fw, height()); //right
@@ -508,10 +521,22 @@ void QMenuBar::paintEvent(QPaintEvent *e)
         borderReg += QRect(0, height()-fw, width(), fw); //bottom
         p.setClipRegion(borderReg);
         emptyArea -= borderReg;
-        style().drawPrimitive(QStyle::PE_MenuBarFrame, &p, rect(), palette(), QStyle::Style_Default);
+        Q4StyleOptionFrame frame(0);
+        frame.rect = rect();
+        frame.palette = palette();
+        frame.state = QStyle::Style_Default;
+        frame.lineWidth = style().pixelMetric(QStyle::PM_MenuBarFrameWidth);
+        style().drawPrimitive(QStyle::PE_MenuBarFrame, &frame, &p, this);
     }
     p.setClipRegion(emptyArea);
-    style().drawControl(QStyle::CE_MenuBarEmptyArea, &p, this, rect(), palette());
+    Q4StyleOptionMenuItem menuOpt(0);
+    menuOpt.palette = palette();
+    menuOpt.state = QStyle::Style_Default;
+    menuOpt.menuItemType = Q4StyleOptionMenuItem::EmptyArea;
+    menuOpt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+    menuOpt.rect = rect();
+    menuOpt.menuRect = rect();
+    style().drawControl(QStyle::CE_MenuBarEmptyArea, &menuOpt, &p, this);
 }
 
 /*!
@@ -945,8 +970,18 @@ QSize QMenuBar::sizeHint() const
         if(sz.height() > ret.height())
             ret.setHeight(sz.height());
     }
-    if(as_gui_menubar)
-        return (style().sizeFromContents(QStyle::CT_MenuBar, this, ret.expandedTo(QApplication::globalStrut())));
+    if(as_gui_menubar) {
+        Q4StyleOptionMenuItem opt(0);
+        opt.rect = rect();
+        opt.menuRect = rect();
+        opt.state = QStyle::Style_Default;
+        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        opt.palette = palette();
+        return (style().sizeFromContents(QStyle::CT_MenuBar, &opt,
+                                         ret.expandedTo(QApplication::globalStrut()), fontMetrics(),
+                                         this));
+    }
     return ret;
 }
 
@@ -972,8 +1007,17 @@ int QMenuBar::heightForWidth(int max_width) const
         height = qMax(d->leftWidget->sizeHint().height(), height);
     if(d->rightWidget)
         height = qMax(d->rightWidget->sizeHint().height(), height);
-    if(as_gui_menubar)
-        return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
+    if(as_gui_menubar) {
+        Q4StyleOptionMenuItem opt(0);
+        opt.rect = rect();
+        opt.menuRect = rect();
+        opt.state = QStyle::Style_Default;
+        opt.menuItemType = Q4StyleOptionMenuItem::Normal;
+        opt.checkState = Q4StyleOptionMenuItem::NotCheckable;
+        opt.palette = palette();
+        return style().sizeFromContents(QStyle::CT_MenuBar, &opt, QSize(0, height), fontMetrics(),
+                                        this).height(); //not pretty..
+    }
     return height;
 }
 

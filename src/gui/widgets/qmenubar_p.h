@@ -15,6 +15,8 @@
 #define __QMENUBAR_P_H__
 
 #ifndef QMAC_Q3MENUBAR_CPP_FILE
+#include "qstyleoption.h"
+
 class QMenuBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenuBar)
@@ -35,6 +37,7 @@ public:
     }
 
     void init();
+    Q4StyleOptionMenuItem getStyleOption(const QAction *action) const;
 
     //item calculations
     uint itemsDirty : 1;
