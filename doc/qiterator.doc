@@ -399,7 +399,7 @@
         }
     \endcode
 
-    The example traverses a list, replacing negative numbers with
+    The example traverses a vector, replacing negative numbers with
     their absolute values, and eliminating zeroes.
 
     \sa QVectorIterator, QVector::iterator

@@ -10,7 +10,7 @@
     \code
 	int myfunc(int n)
         {
-	    int table[n + 1];
+	    int table[n + 1];  // WRONG
             ...
             return table[n];
 	}
@@ -30,6 +30,10 @@
         }
     \endcode
 
+    However, if myfunc() is called very frequently from the
+    application's inner loop, heap allocation can be a major source
+    of slowdown.
+
     QVarLengthArray is an attempt to work around this gap in the C++
     language. It allocates a certain number of elements on the stack,
     and if you resize the array to a larger size, it automatically
@@ -40,15 +44,15 @@
     \code
 	int myfunc(int n)
 	{
-	    QVarLengthArray<int, 512> array(n + 1);
+	    QVarLengthArray<int, 1024> array(n + 1);
             ...
             return array[n];
 	}
     \endcode
 
-    In the example above, QVarLengthArray will preallocate 512
+    In the example above, QVarLengthArray will preallocate 1024
     elements on the stack and use them unless \c{n + 1} is greater
-    than 512. If you omit the second template argument,
+    than 1024. If you omit the second template argument,
     QVarLengthArray's default of 256 is used.
 
     QVarLengthArray's value type must be an \l{assignable data type}.
