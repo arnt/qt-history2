@@ -771,7 +771,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                         x = getRestOfLine();
                         if (x.isEmpty())
                             location().warning(tr("Missing format name after '\\%1")
-                                               .arg(commandName(CMD_ELSE)));
+                                               .arg(commandName(CMD_RAW)));
                         append(Atom::FormatIf, x);
                         append(Atom::RawString, untabifyEtc(getUntilEnd(command)));
                         append(Atom::FormatElse);
