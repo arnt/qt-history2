@@ -122,44 +122,44 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_DoubleBelow:
                 // ### wrong in rtl context!
         case QChar::Combining_BelowLeft:
-            p += QPoint(0, offset);
+            p += QPointFloat(0, offset);
         case QChar::Combining_BelowLeftAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
             break;
         case QChar::Combining_Below:
-            p += QPoint(0, offset);
+            p += QPointFloat(0, offset);
         case QChar::Combining_BelowAttached:
             p += attachmentRect.bottomLeft() - markRect.topLeft();
             p += QPointFloat((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_BelowRight:
-            p += QPoint(0, offset);
+            p += QPointFloat(0, offset);
         case QChar::Combining_BelowRightAttached:
             p += attachmentRect.bottomRight() - markRect.topRight();
             break;
             case QChar::Combining_Left:
-            p += QPoint(-offset, 0);
+            p += QPointFloat(-offset, 0);
         case QChar::Combining_LeftAttached:
             break;
             case QChar::Combining_Right:
-            p += QPoint(offset, 0);
+            p += QPointFloat(offset, 0);
         case QChar::Combining_RightAttached:
             break;
         case QChar::Combining_DoubleAbove:
             // ### wrong in RTL context!
         case QChar::Combining_AboveLeft:
-            p += QPoint(0, -offset);
+            p += QPointFloat(0, -offset);
         case QChar::Combining_AboveLeftAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
             break;
             case QChar::Combining_Above:
-            p += QPoint(0, -offset);
+            p += QPointFloat(0, -offset);
         case QChar::Combining_AboveAttached:
             p += attachmentRect.topLeft() - markRect.bottomLeft();
             p += QPointFloat((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_AboveRight:
-            p += QPoint(0, -offset);
+            p += QPointFloat(0, -offset);
         case QChar::Combining_AboveRightAttached:
             p += attachmentRect.topRight() - markRect.bottomRight();
             break;
