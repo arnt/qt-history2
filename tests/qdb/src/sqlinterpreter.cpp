@@ -268,6 +268,7 @@ ResultSet::ResultSet( localsql::Environment* environment )
     : env( environment )
 {
     head = new Header();
+    datait = data.end();
 }
 
 ResultSet::ResultSet( const ResultSet& other )
@@ -499,7 +500,11 @@ localsql::Record& ResultSet::currentRecord()
     if ( sortKey.count() ) {
 	return data[ keyit.data()[j] ];
     } else {
-	return *datait;
+	if ( datait != data.end() ) {
+	    return *datait;
+	}
+	env->output() << "ResultSet::currentRecord: no current record";
+	return data[0];
     }
 }
 
