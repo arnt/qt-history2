@@ -188,7 +188,9 @@ void DemoViewer::itemSelected()
 
     QString name = listWidget->model()->data(listWidget->selectionModel()->currentIndex()).toString();
 
-    Q_ASSERT(!name.isEmpty());
+    if (name.isEmpty())
+        return;
+
     DemoWidget *demoWidget = widgetByName[name];
 
     Q_ASSERT(demoWidget);
