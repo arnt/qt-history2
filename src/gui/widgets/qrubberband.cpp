@@ -215,11 +215,11 @@ void QRubberBand::changeEvent(QEvent *ev)
     Changes the rubberband's geometry to have a top-left corner of (\a
     x, \a y), a width of \a w, and a height of \a h.
 */
-void QRubberBand::setGeometry(int x, int y, int w, int h)
+void QRubberBand::setGeometry(const QRect &geom)
 {
 #if 1
-    QRect mygeom(x, y, w, h);
-    d->rect = QRect(0, 0, w, h);
+    QRect mygeom = geom;
+    d->rect = QRect(0, 0, mygeom.width(), mygeom.height());
     if(QWidget *p = parentWidget()) {
         const QRect prect(p->mapToGlobal(QPoint(0, 0)), p->size());
         if(!prect.contains(mygeom)) {
@@ -256,6 +256,6 @@ void QRubberBand::setGeometry(int x, int y, int w, int h)
     }
     update();
 #else
-    QWidget::setGeometry(x, y, w, h);
+    QWidget::setMygeometry(geom);
 #endif
 }

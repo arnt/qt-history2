@@ -29,20 +29,21 @@ public:
 
     Shape shape() const;
 
-    void setGeometry(int x, int y, int w, int h);
+    void setGeometry(const QRect &r);
 
-    inline void move(const QPoint &p)
-    { move(p.x(), p.y()); }
+    inline void setGeometry(int x, int y, int w, int h)
+        { setGeometry(QRect(x, y, w, h)); }
     inline void move(int x, int y)
     { setGeometry(x + geometry().x() - QWidget::x(),
 		  y - geometry().y() - QWidget::y(),
 		  width(), height()); }
-    inline void resize(const QSize &s)
-    { resize(s.width(), s.height()); }
+    inline void move(const QPoint &p)
+    { move(p.x(), p.y()); }
     inline void resize(int w, int h)
     { setGeometry(geometry().x(), geometry().y(), w, h); }
-    inline void setGeometry(const QRect &r)
-    { setGeometry(r.left(), r.top(), r.width(), r.height()); }
+    inline void resize(const QSize &s)
+    { resize(s.width(), s.height()); }
+
 
 protected:
     virtual void drawRubberBandMask(QPainter *);
