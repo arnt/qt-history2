@@ -37,8 +37,7 @@ macx {
 	sql-driver += postgres
 	INCLUDEPATH+=/Users/sam/postgresql-7.0.2/src/include \
 		    /Users/sam/postgresql-7.0.2/src/interfaces/libpq
-
-	LIBS += -L/Users/sam/postgresql-7.0.2/src/interfaces/libpq -lpq
+	LIBS += -L/Users/sam/postgresql-7.0.2/src/interfaces/libpq 
      }
 } 
 
