@@ -900,7 +900,6 @@ for plat in mac win x11 qnx6 embedded; do
 	    #remove non-GPL sql stuff
 	    rm -rf $PLATDIR/src/sql/drivers/oci
 	    rm -rf $PLATDIR/src/sql/drivers/tds
-	    rm -rf $PLATDIR/src/sql/drivers/shared
 	    rm -rf $PLATDIR/src/sql/drivers/db2
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/oci
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
