@@ -1167,10 +1167,10 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if(d->newdocks.count() == 1)
 		    QTimer::singleShot(0, this, SLOT(dockWindowsShow()));
 	    }
-	} else if(e->type() == QEvent::Hide && !qstrncmp(o->name(), "QMagicDock_", 11)) {
+	} else if(e->type() == QEvent::Hide && !e->spontaneous() && !qstrncmp(o->name(), "QMagicDock_", 11)) {
 	    d->mainwindow->close();
 	}
-	return FALSE;
+	return QWidget::eventFilter(o, e);
     }
 
     static QTime* t = 0;

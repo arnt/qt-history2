@@ -3067,6 +3067,8 @@ void QWidget::setKeyCompression(bool compress)
 bool QWidget::isActiveWindow() const
 {
     QWidget *tlw = topLevelWidget();
+    if(testWFlags(WSubWindow) && parentWidget())
+	tlw = parentWidget()->topLevelWidget();
     if(tlw == qApp->activeWindow() || ( isVisible() && tlw->isPopup() ))
 	return TRUE;
 #ifndef QT_NO_STYLE
