@@ -132,6 +132,8 @@ int main( int argc, char** argv )
 	    for ( int i=0; qm[i]; i++ ) {
 		if ( r == 2 || qmb[i]->isChecked() ) {
 		    MyWidget* w = showLang((const char*)qm[i]);
+
+		    if( w == 0 ) exit( 0 );
 		    QObject::connect(w, SIGNAL(closed()), qApp, SLOT(quit()));
 		    w->setGeometry(x,y,197,356);
 		    w->show();
@@ -147,7 +149,9 @@ int main( int argc, char** argv )
 		    }
 		}
 	    }
-	}
+	} else {
+            exit( 0 );
+        }
     } else {
 	QString lang = argv[1];
 	QWidget* m = showLang(lang);
