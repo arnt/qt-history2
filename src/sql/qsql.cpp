@@ -81,6 +81,17 @@
 */
 
 /*!
+    \enum ParameterType
+
+    This enum is used to set the type of a bind parameter
+    
+    \value In  the bind parameter is used to put data into the database
+    \value Out  the bind parameter can only receive data from the database
+    \value InOut  the bind parameter is used to put data into the database and
+		  it will be overwritten with output data on executing a query.
+*/
+
+/*!
     \fn QSql::QSql()
 
     Constructs a Qt SQL namespace class

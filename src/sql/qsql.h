@@ -71,13 +71,11 @@ public:
 	Yes = 1
     };
 
-#ifndef Q_QDOC
     enum ParameterType {
-	In,
-	Out,
-	InOut
+	In = 1,
+	Out = 2,
+	InOut = 3  //InOut = In | Out
     };
-#endif
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
