@@ -38,6 +38,9 @@ public:
     void updateActionIcon( QAction *a );
     FormWindow *form() const { return formWindow; }
 
+    bool wantToBeShown() const { return !explicitlyClosed; }
+    void setWantToBeShown( bool b ) { explicitlyClosed = !b; }
+
 protected:
     void closeEvent( QCloseEvent *e );
 
@@ -58,6 +61,7 @@ private:
 private:
     QAction *currentAction;
     FormWindow *formWindow;
+    bool explicitlyClosed;
 
 };
 

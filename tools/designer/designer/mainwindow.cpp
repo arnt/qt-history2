@@ -1378,6 +1378,7 @@ void MainWindow::activeWindowChanged( QWidget *w )
     QWidget *old = formWindow();
     if ( w && w->inherits( "FormWindow" ) ) {
 	FormWindow *fw = (FormWindow*)w;
+	FormWindow *ofw = lastActiveFormWindow;
 	lastActiveFormWindow = fw;
 	lastActiveFormWindow->updateUndoInfo();
 	emit hasActiveForm( TRUE );
@@ -1389,11 +1390,15 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	}
 	workspace()->activeFormChanged( fw );
 	setAppropriate( (QDockWindow*)actionEditor->parentWidget(), lastActiveFormWindow->mainContainer()->inherits( "QMainWindow" ) );
-	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) )
-	    actionEditor->parentWidget()->show();
-	else
+	if ( appropriate( (QDockWindow*)actionEditor->parentWidget() ) ) {
+	    if ( actionEditor->wantToBeShown() )
+		actionEditor->parentWidget()->show();
+	} else {
+	    if ( ofw && ofw->mainContainer()->inherits( "QMainWindow" ) )
+		actionEditor->setWantToBeShown( !actionEditor->parentWidget()->isHidden() );
 	    actionEditor->parentWidget()->hide();
-
+	}
+	
 	actionEditor->setFormWindow( lastActiveFormWindow );
 	if ( wspace && fw->project() && fw->project() != currentProject ) {
 	    for ( QMap<QAction*, Project *>::Iterator it = projects.begin(); it != projects.end(); ++it ) {
