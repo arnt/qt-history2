@@ -79,30 +79,6 @@ struct QX11InfoData : public QShared {
     bool x_defvisual;
 };
 
-inline Display *QX11Info::display() const
-{ return x11data ? x11data->x_display : QX11Info::appDisplay(); }
-
-inline int QX11Info::screen() const
-{ return x11data ? x11data->x_screen : QX11Info::appScreen(); }
-
-inline int QX11Info::depth() const
-{ return x11data ? x11data->x_depth : QX11Info::appDepth(); }
-
-inline int QX11Info::cells() const
-{ return x11data ? x11data->x_cells : QX11Info::appCells(); }
-
-inline Colormap QX11Info::colormap() const
-{ return x11data ? x11data->x_colormap : QX11Info::appColormap(); }
-
-inline bool QX11Info::defaultColormap() const
-{ return x11data ? x11data->x_defcolormap : QX11Info::appDefaultColormap(); }
-
-inline Visual *QX11Info::visual() const
-{ return x11data ? x11data->x_visual : QX11Info::appVisual(); }
-
-inline bool QX11Info::defaultVisual() const
-{ return x11data ? x11data->x_defvisual : QX11Info::appDefaultVisual(); }
-
 inline Display *QX11Info::appDisplay()
 { return x_appdisplay; }
 
@@ -129,4 +105,29 @@ inline bool QX11Info::appDefaultColormap(int screen)
 
 inline bool QX11Info::appDefaultVisual(int screen)
 { return x_appdefvisual_arr[screen == -1 ? x_appscreen : screen]; }
+
+inline Display *QX11Info::display() const
+{ return x11data ? x11data->x_display : QX11Info::appDisplay(); }
+
+inline int QX11Info::screen() const
+{ return x11data ? x11data->x_screen : QX11Info::appScreen(); }
+
+inline int QX11Info::depth() const
+{ return x11data ? x11data->x_depth : QX11Info::appDepth(); }
+
+inline int QX11Info::cells() const
+{ return x11data ? x11data->x_cells : QX11Info::appCells(); }
+
+inline Colormap QX11Info::colormap() const
+{ return x11data ? x11data->x_colormap : QX11Info::appColormap(); }
+
+inline bool QX11Info::defaultColormap() const
+{ return x11data ? x11data->x_defcolormap : QX11Info::appDefaultColormap(); }
+
+inline Visual *QX11Info::visual() const
+{ return x11data ? x11data->x_visual : QX11Info::appVisual(); }
+
+inline bool QX11Info::defaultVisual() const
+{ return x11data ? x11data->x_defvisual : QX11Info::appDefaultVisual(); }
+
 #endif // Q_X11INFO_X11_H
