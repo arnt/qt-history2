@@ -1,4 +1,3 @@
-#include <QtCore> // ### for QSettings
 #include <QtGui>
 
 #include "mainwindow.h"
@@ -190,26 +189,14 @@ void MainWindow::setCurrentFile(const QString &fileName)
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
                                     .arg(tr("Recent Files")));
 
-#if 0
     QSettings settings("doc.trolltech.com", "Recent Files");
-    QStringList files = settings.value("recentFileList");
-#else
-    QSettings settings;
-    settings.setPath("doc.trolltech.com", "Recent Files");
-    settings.beginGroup("Recent Files");
-    QStringList files = settings.readListEntry("recentFileList");
-#endif
+    QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(fileName);
     files.prepend(fileName);
     while (files.size() > MaxRecentFiles)
         files.removeLast();
 
-#if 0
     settings.setValue("recentFileList", files);
-#else
-    settings.writeEntry("recentFileList", files);
-    settings.sync();
-#endif
 
     foreach (QWidget *widget, QApplication::topLevelWidgets()) {
         MainWindow *mainWin = qt_cast<MainWindow *>(widget);
@@ -220,16 +207,8 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-#if 0
     QSettings settings("doc.trolltech.com", "Recent Files");
-    QStringList files = settings.value("recentFileList");
-#else
-    QSettings settings;
-    settings.setPath("doc.trolltech.com", "Recent Files");
-    settings.sync();
-    settings.beginGroup("Recent Files");
-    QStringList files = settings.readListEntry("recentFileList");
-#endif
+    QStringList files = settings.value("recentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
 
