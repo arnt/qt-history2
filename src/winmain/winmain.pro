@@ -4,7 +4,7 @@ TARGET	 = qtmain
 DESTDIR	 = $$QMAKE_LIBDIR_QT
 
 CONFIG	+= staticlib warn_on
-CONFIG	-= qt
+CONFIG	-= qt shared
 
 win32 {
 	win32-g++:DEFINES += QT_NEEDS_QMAIN
@@ -16,3 +16,5 @@ win32 {
 }
 
 !win32:error("$$_FILE_ is intended only for Windows!")
+include(../qbase.pri)
+
