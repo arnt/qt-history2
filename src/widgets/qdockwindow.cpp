@@ -194,7 +194,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    dockWindow->area()->invalidNextOffset( dockWindow );
 	if ( orientation() == Horizontal ) {
 	    int dy;
-	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
+	    if ( dockWindow->area()->handlePosition() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
 		dy = e->globalPos().y() - firstPos.y();
 	    else
 		dy =  firstPos.y() - e->globalPos().y();
@@ -210,7 +210,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 	    }
 	} else {
 	    int dx;
-	    if ( dockWindow->area()->gravity() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
+	    if ( dockWindow->area()->handlePosition() == QDockArea::Normal || orientation() != dockWindow->area()->orientation() )
 		dx = e->globalPos().x() - firstPos.x();
 	    else
 		dx = firstPos.x() - e->globalPos().x();
@@ -900,7 +900,7 @@ void QDockWindow::updateGui()
 
 	    if ( area() ) {
 		if ( orientation() == Horizontal ) {
-		    if ( area()->gravity() == QDockArea::Normal ) {
+		    if ( area()->handlePosition() == QDockArea::Normal ) {
 			hHandleBottom->show();
 			hHandleTop->hide();
 		    } else {
@@ -913,7 +913,7 @@ void QDockWindow::updateGui()
 			vHandleRight->hide();
 		    vHandleLeft->hide();
 		} else {
-		    if ( area()->gravity() == QDockArea::Normal ) {
+		    if ( area()->handlePosition() == QDockArea::Normal ) {
 			vHandleRight->show();
 			vHandleLeft->hide();
 		    } else {

@@ -110,9 +110,9 @@ class Q_EXPORT QDockArea : public QWidget
     friend class QDockAreaLayout;
 
 public:
-    enum Gravity { Normal, Reverse };
+    enum HandlePosition { Normal, Reverse };
 
-    QDockArea( Orientation o, Gravity g = Normal, QWidget *parent = 0, const char *name = 0 );
+    QDockArea( Orientation o, HandlePosition h = Normal, QWidget *parent = 0, const char *name = 0 );
     ~QDockArea();
 
     void moveDockWindow( QDockWindow *w, const QPoint &globalPos, const QRect &rect, bool swap );
@@ -123,7 +123,7 @@ public:
     void invalidNextOffset( QDockWindow *dw );
 
     Orientation orientation() const { return orient; }
-    Gravity gravity() const { return grav; }
+    HandlePosition handlePosition() const { return hPos; }
 
     bool eventFilter( QObject *, QEvent * );
     bool isEmpty() const;
@@ -163,7 +163,7 @@ private:
     Orientation orient;
     QList<QDockWindow> *dockWindows;
     QDockAreaLayout *layout;
-    Gravity grav;
+    HandlePosition hPos;
     QList<QDockWindow> forbiddenWidgets;
 
 private:	// Disabled copy constructor and operator=

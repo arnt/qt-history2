@@ -401,7 +401,7 @@ int QDockAreaLayout::heightForWidth( int w ) const
 	mthis->cached_hfw = h;
 	return h;
     }
-    
+
     return cached_hfw;
 }
 
@@ -435,8 +435,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
   subclass.
 
   QMainWindow contains four QDockAreas which you can use for your
-  QToolbars and QDockWindows. 
-  
+  QToolbars and QDockWindows.
+
   In most situations you do not need to use the QDockArea class
   directly. But if it makes sense for your application to have a
   QDockArea somewhere other than a QMainWindow you can always create
@@ -449,9 +449,9 @@ int QDockAreaLayout::widthForHeight( int h ) const
   Returns the orientation of this dock area.
  */
 
-/*! \fn Gravity QDockArea::gravity() const
+/*! \fn HandlePosition QDockArea::handlePosition() const
 
-  Returns the gravity of this dock area.
+  Returns the handlePosition of this dock area.
  */
 
 /*! \fn void QDockArea::rightButtonPressed( const QPoint &globalPos )
@@ -463,23 +463,24 @@ int QDockAreaLayout::widthForHeight( int h ) const
  */
 
 /*!
-  \enum QDockArea::Gravity
-  
-  This enum speifices which way gravity points in a dock area.
+  \enum QDockArea::HandlePosition
 
-  \value Normal The top or left of an area is fixed and the bottom
-  or right end may be user-movable.
+  This enum speifices which way dock window resize handles are placed
+  in the dock area.
 
-  \value Reverse The bottom or right of an area is fixed and the top
-  or left end may be user-movable.
+  \value Normal The resize handles of dock windows are placed at the
+  right and/or bottom.
+
+  \value Reverse The resize handles of dock windows are placed at the
+  left and/or top.
 */
 
-/*! Creates a QDockArea with the orientation \a o, Gravity \a g as a
+/*! Creates a QDockArea with the orientation \a o, HandlePosition \a h as a
   child of \a parent.
 */
 
-QDockArea::QDockArea( Orientation o, Gravity g, QWidget *parent, const char *name )
-    : QWidget( parent, name ), orient( o ), layout( 0 ), grav( g )
+QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const char *name )
+    : QWidget( parent, name ), orient( o ), layout( 0 ), hPos( h )
 {
     dockWindows = new QList<QDockWindow>;
     layout = new QDockAreaLayout( this, o, dockWindows, -1, -1, "toollayout" );
