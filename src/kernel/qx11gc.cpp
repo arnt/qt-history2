@@ -1466,8 +1466,6 @@ void QX11GC::drawPixmap(int x, int y, const QPixmap &pixmap, int sx, int sy, int
 
     QRegion rgn = d->crgn; // ### remove this
 
-//     rgn.translate(-redirection_offset);
-
     if ( mask ) {                               // pixmap has clip mask
         // Implies that clipping is on, either explicit or implicit
         // Create a new mask that combines the mask with the clip region
@@ -1682,3 +1680,50 @@ void QX11GC::x11SetAppDpiY(int screen, int ydpi)
     dpisY[ screen ] = ydpi;
 }
 
+extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
+
+void QX11GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim)
+{
+    if (optim) {
+#ifndef QT_NO_XRENDER
+	QPixmap *alpha = pixmap.data->alphapm;
+
+	if (d->rendhd && pixmap.x11RenderHandle() && alpha && alpha->x11RenderHandle()) {
+	    // this is essentially drawTile() from above, inlined for
+	    // the XRenderComposite call
+	    int yPos, xPos, drawH, drawW, yOff, xOff;
+	    yPos = y;
+	    yOff = sy;
+	    while( yPos < y + h ) {
+		drawH = pixmap.height() - yOff;    // Cropping first row
+		if ( yPos + drawH > y + h )        // Cropping last row
+		    drawH = y + h - yPos;
+		xPos = x;
+		xOff = sx;
+		while( xPos < x + w ) {
+		    drawW = pixmap.width() - xOff; // Cropping first column
+		    if ( xPos + drawW > x + w )    // Cropping last column
+			drawW = x + w - xPos;
+		    XRenderComposite(d->dpy, PictOpOver, pixmap.x11RenderHandle(),
+				     alpha->x11RenderHandle(), d->rendhd,
+				     xOff, yOff, xOff, yOff, xPos, yPos, drawW, drawH);
+		    xPos += drawW;
+		    xOff = 0;
+		}
+		yPos += drawH;
+		yOff = 0;
+	    }
+	    return;
+	}
+#endif // QT_NO_XRENDER
+
+	XSetTile( d->dpy, d->gc, pixmap.handle() );
+	XSetFillStyle( d->dpy, d->gc, FillTiled );
+	XSetTSOrigin( d->dpy, d->gc, x-sx, y-sy );
+	XFillRectangle( d->dpy, d->hd, d->gc, x, y, w, h );
+	XSetTSOrigin( d->dpy, d->gc, 0, 0 );
+	XSetFillStyle( d->dpy, d->gc, FillSolid );
+    } else {
+ 	drawTile(this, x, y, w, h, pixmap, sx, sy);
+    }
+}

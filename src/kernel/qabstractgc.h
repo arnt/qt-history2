@@ -74,6 +74,7 @@ public:
 
     virtual void drawPixmap(int x, int y, const QPixmap &pm, int sx, int sy, int sw, int sh) = 0;
     virtual void drawTextItem(int x, int y, const QTextItem &ti, int textflags) = 0;
+    virtual void drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool optim) = 0;
 
 #if defined Q_WS_WIN // ### not liking this!!
     virtual HDC handle() const = 0;

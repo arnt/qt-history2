@@ -2,10 +2,10 @@
 #include "q4painter_p.h"
 
 QAbstractGC::QAbstractGC(GCCaps caps)
-    : state(0),
-      gccaps(caps),
-      dirtyFlag(0),
-      changeFlag(0)
+    : dirtyFlag(0),
+      changeFlag(0),
+      state(0),
+      gccaps(caps)
 {
     d_ptr = new QAbstractGCPrivate;
 }
@@ -48,7 +48,7 @@ void QAbstractGC::updateInternal(QPainterState *s, bool updateGC)
 	    updateBackground(s);
 	if ((changeFlag&DirtyTransform)!=0)
 	    updateXForm(s);
-	if ((changeFlag&DirtyClip)!=0)
+	if ((changeFlag&DirtyClip)!=0 || (changeFlag&DirtyClip) != 0)
 	    updateClipRegion(s);
 	changeFlag = 0;
 	// Different painter or state == 0 which is true for first time call

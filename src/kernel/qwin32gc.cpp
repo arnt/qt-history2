@@ -1303,3 +1303,28 @@ Qt::RasterOp qt_map_rop_for_bitmaps( Qt::RasterOp r )
     return ropCodes[r];
 }
 
+extern void qt_fill_tile( QPixmap *tile, const QPixmap &pixmap );
+extern void drawTile(QAbstractGC *, int, int, int, int, const QPixmap &, int, int);
+
+void QWin32GC::drawTiledPixmap(int x, int y, int w, int h, const QPixmap &pixmap, int sx, int sy, bool)
+{
+    QBitmap *mask = (QBitmap *)pixmap.mask();
+
+    if ( sw*sh < 8192 && sw*sh < 16*w*h ) {
+	int tw = sw, th = sh;
+	while ( tw*th < 32678 && tw < w/2 )
+	    tw *= 2;
+	while ( tw*th < 32678 && th < h/2 )
+	    th *= 2;
+	QPixmap tile( tw, th, pixmap.depth(), QPixmap::BestOptim );
+	qt_fill_tile( &tile, pixmap );
+	if ( mask ) {
+	    QBitmap tilemask( tw, th, FALSE, QPixmap::NormalOptim );
+	    qt_fill_tile( &tilemask, *mask );
+	    tile.setMask( tilemask );
+	}
+	drawTile( dgc, x, y, w, h, tile, sx, sy );
+    } else {
+	drawTile( dgc, x, y, w, h, pixmap, sx, sy );
+    }
+}
