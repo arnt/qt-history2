@@ -6,6 +6,7 @@ platforms. We check for the required IPv6 data structures. */
 #endif
 
 #include <sys/types.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 
 int main()
