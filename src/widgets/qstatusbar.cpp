@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#7 $
 **
 ** Implementation of QStatusBar class
 **
@@ -18,7 +18,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#6 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#7 $");
 
 
 /*! \class QStatusBar qstatusbar.h
@@ -144,8 +144,7 @@ QStatusBar::QStatusBar( QWidget * parent, const char * name )
 {
     d = new QStatusBarPrivate;
     d->box = 0;
-    d->resizer = 0;     // EE 060498 04:20
-    //    d->resizer = new QStatusBarPrivate::ResizeLines( this );
+    d->resizer = new QStatusBarPrivate::ResizeLines( this );
     d->timer = 0;
     reformat();
 }
