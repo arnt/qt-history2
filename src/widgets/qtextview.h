@@ -139,6 +139,9 @@ private:
     void clearSelection();
     void doSelection( const QPoint& );
 
+    // something like this will be public in a later version
+    QString selectedRichTextInternal() const;
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QTextView( const QTextView & );

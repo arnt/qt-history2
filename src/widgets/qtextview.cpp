@@ -731,6 +731,97 @@ QString QTextView::selectedText() const
     return txt;
 }
 
+static int logicalFontSize( QStyleSheet* style, QFont base, int pt )
+{
+    for (int i=0; i<10; i++) {
+	QFont b = base;
+	style->scaleFont(b,i);
+	if ( b.pointSize() >= pt )
+	    return i;
+    }
+    return 1; // else what?
+}
+
+static QString formatDiff(const QTextView* view, QTextCharFormat* pfmt, QTextCharFormat* nfmt)
+{
+    QString txt;
+    QFont basefont = view->font();
+    if ( pfmt != nfmt ) {
+	QString t,pre,post;
+	if ( pfmt->color() != nfmt->color() ) {
+	    QString c;
+	    t += c.sprintf("color=#%06x ", nfmt->color().rgb());
+	}
+	if ( pfmt->font() != nfmt->font() ) {
+	    int plsz = logicalFontSize( view->styleSheet(), basefont, pfmt->font().pointSize() );
+	    int nlsz = logicalFontSize( view->styleSheet(), basefont, nfmt->font().pointSize() );
+	    if ( nlsz != plsz ) {
+		QString f;
+		t += f.sprintf("size=%d ",nlsz-plsz);
+	    }
+	    if ( pfmt->font().family() != nfmt->font().family() ) {
+		t += "face=";
+		t += nfmt->font().family();
+		t += " ";
+	    }
+	    if ( pfmt->font().italic() != nfmt->font().italic() ) {
+		bool on = nfmt->font().italic();
+		if ( on )
+		    post = post + "<i>";
+		else
+		    pre = "</i>" + pre;
+	    }
+	    if ( pfmt->font().weight() != nfmt->font().weight() ) {
+		bool on = nfmt->font().weight() > 50;
+		if ( on )
+		    post = post + "<b>";
+		else
+		    pre = "</b>" + pre;
+	    }
+	}
+	txt += pre;
+	if ( !t.isEmpty() ) {
+	    t.truncate(t.length()-1); // chop space
+	    txt += "<font " + t + ">";
+	}
+	txt += post;
+    }
+    return txt;
+}
+
+/*!  Returns a copy of the selected text in rich text format (XML).
+
+  \sa hasSelectedText()
+*/
+QString QTextView::selectedRichTextInternal() const
+{
+    if ( !d->selection )
+	return QString::null;
+
+    QRichTextIterator it( richText() );
+    it.goTo( d->selstart );
+    QString txt;
+    QString s = it.text().mid( d->selstart.c );
+    QTextCharFormat ifmt;
+    QTextCharFormat* pfmt = &ifmt;
+    while ( it.position() < d->selend ) {
+	QTextCharFormat* nfmt = it.format();
+	txt += formatDiff(this,pfmt,nfmt);
+	pfmt = nfmt;
+	txt += s;
+	int oldpar = it.position().a;
+	if ( !it.right( FALSE ) )
+	    break;
+	if ( it.position().a != oldpar )
+	    txt += "</p><p>";
+	s = it.text();
+	if ( it.position().a == d->selend.a && it.position().b == d->selend.b )
+	    s = s.left( d->selend.c );
+    }
+    txt += formatDiff(this,pfmt,&ifmt);
+    return txt;
+}
+
 #ifndef QT_NO_CLIPBOARD
 /*!
   Copies the marked text to the clipboard.
