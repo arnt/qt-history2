@@ -695,7 +695,7 @@ QStringList QSettings::entryList( const QString &key ) const
 {
 #ifdef QT_CHECK_STATE
     if ( key.isNull() || key.isEmpty() ) {
-	qWarning("QSettings::listSubkeys: invalid null/empty key.");
+	qWarning("QSettings::entryList: invalid null/empty key.");
 
 	return QStringList();
     }
@@ -778,7 +778,7 @@ QStringList QSettings::subkeyList( const QString &key ) const
 {
 #ifdef QT_CHECK_STATE
     if ( key.isNull() || key.isEmpty() ) {
-	qWarning( "QSettings::listSubkeys: invalid null/empty key." );
+	qWarning( "QSettings::subkeyList: invalid null/empty key." );
 
 	return QStringList();
     }
