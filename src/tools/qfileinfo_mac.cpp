@@ -41,38 +41,16 @@ bool QFileInfo::isFile() const
     return true;
 }
 
-/*!
-  Returns TRUE if we are pointing to a directory or a symbolic link to
-  a directory.
-  \sa isFile(), isSymLink()
-*/
-
 bool QFileInfo::isDir() const
 {
     return true;
 }
-
-/*!
-  Returns TRUE if we are pointing to a symbolic link.
-  \sa isFile(), isDir(), readLink()
-*/
 
 bool QFileInfo::isSymLink() const
 {
     return true;
 }
 
-
-/*!
-  Returns the name a symlink points to, or a null QString if the
-  object does not refer to a symbolic link.
-
-  This name may not represent an existing file; it is only a string.
-  QFileInfo::exists() returns TRUE if the symlink points to an
-  existing file.
-
-  \sa exists(), isSymLink(), isDir(), isFile()
-*/
 
 QString QFileInfo::readLink() const
 {
@@ -82,60 +60,20 @@ QString QFileInfo::readLink() const
 
 static const uint nobodyID = (uint) -2;
 
-/*!
-  Returns the owner of the file.
-
-  On systems where files do not have owners this function returns 0.
-
-  Note that this function can be time-consuming under UNIX. (in the order
-  of milliseconds on a 486 DX2/66 running Linux).
-
-  \sa ownerId(), group(), groupId()
-*/
-
 QString QFileInfo::owner() const
 {
     return QString::null;
 }
-
-/*!
-  Returns the id of the owner of the file.
-
-  On systems where files do not have owners this function returns ((uint) -2).
-
-  \sa owner(), group(), groupId()
-*/
 
 uint QFileInfo::ownerId() const
 {
     return nobodyID;
 }
 
-/*!
-  Returns the group the file belongs to.
-
-  On systems where files do not have groups this function always
-  returns 0.
-
-  Note that this function can be time-consuming under UNIX (in the order of
-  milliseconds on a 486 DX2/66 running Linux).
-
-  \sa groupId(), owner(), ownerId()
-*/
-
 QString QFileInfo::group() const
 {
     return QString::null;
 }
-
-/*!
-  Returns the id of the group the file belongs to.
-
-  On systems where files do not have groups this function always
-  returns ((uind) -2).
-
-  \sa group(), owner(), ownerId()
-*/
 
 uint QFileInfo::groupId() const
 {
@@ -143,37 +81,10 @@ uint QFileInfo::groupId() const
 }
 
 
-/*!
-  \fn bool QFileInfo::permission( int permissionSpec ) const
-
-  Tests for file permissions.  The \e permissionSpec argument can be several
-  flags of type PermissionSpec or'ed together to check for permission
-  combinations.
-
-  On systems where files do not have permissions this function always
-  returns TRUE.
-
-  Example:
-  \code
-    QFileInfo fi( "/tmp/tonsils" );
-    if ( fi.permission( QFileInfo::WriteUser | QFileInfo::ReadGroup ) )
-	qWarning( "Tonsils can be changed by me, and the group can read them.");
-    if ( fi.permission( QFileInfo::WriteGroup | QFileInfo::WriteOther ) )
-	qWarning( "Danger! Tonsils can be changed by the group or others!" );
-  \endcode
-
-  \sa isReadable(), isWritable(), isExecutable()
-*/
-
 bool QFileInfo::permission( int permissionSpec ) const
 {
     return TRUE;
 }
-
-/*!
-  Returns the file size in bytes, or 0 if the file does not exist if the size
-  cannot be fetched.
-*/
 
 uint QFileInfo::size() const
 {
@@ -181,25 +92,11 @@ uint QFileInfo::size() const
 }
 
 
-/*!
-  Returns the date and time when the file was last modified.
-  \sa lastRead()
-*/
-
 QDateTime QFileInfo::lastModified() const
 {
     QDateTime dt;
     return dt;
 }
-
-/*!
-  Returns the date and time when the file was last read (accessed).
-
-  On systems that do not support last read times, the modification time is
-  returned.
-
-  \sa lastModified()
-*/
 
 QDateTime QFileInfo::lastRead() const
 {
