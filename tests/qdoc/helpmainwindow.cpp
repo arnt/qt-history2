@@ -207,6 +207,8 @@ HelpMainWindow::HelpMainWindow()
     tb->setStretchMode( QToolBar::FullWidth );
     setUsesTextLabel( TRUE );
 
+    //tb->setBackgroundPixmap( QPixmap( "marble.xpm" ) );
+    
     navigation->setViewMode( HelpNavigation::Index );
     viewer->blockSignals( TRUE );
     viewer->setSource( docDir + "/index.html" );
@@ -345,7 +347,7 @@ void HelpMainWindow::showEvent( QShowEvent *e )
 class StartDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     StartDialog( QWidget *parent, HelpNavigation *n ) : QDialog( parent, "", TRUE ) {
 	setCaption( tr( "Qt Documentation" ) );
@@ -358,20 +360,20 @@ public:
 
 protected:
     void showEvent( QShowEvent *e ) {
-	QTimer::singleShot( 100, this, SLOT( createDatabase() ) );
+	QTimer::singleShot( 500, this, SLOT( createDatabase() ) );
 	QDialog::showEvent( e );
     }
-    
+
 private slots:
     void createDatabase() {
 	navigation->loadIndexFile();
 	navigation->setupContentsView();
 	accept();
     }
-    
+
 private:
     HelpNavigation *navigation;
-    
+
 };
 
 void HelpMainWindow::createDatabase()
