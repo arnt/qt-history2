@@ -1748,9 +1748,12 @@ void QGLWidget::glDraw()
     if ( doubleBuffer() ) {
 	if ( autoSwap )
 	    swapBuffers();
-    }
-    else {
+    } else {
 	glFlush();
+#if defined( Q_WS_MAC ) && defined( QMAC_OPENGL_DOUBLEBUFFER )
+	if(gl_pix)
+	    bitBlt(this, 0, 0, gl_pix);
+#endif
     }
 }
 
