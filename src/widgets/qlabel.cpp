@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#29 $
 **
 ** Implementation of QLabel widget class
 **
@@ -14,7 +14,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlabel.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -174,12 +174,12 @@ void QLabel::setPixmap( const QPixmap &pixmap )
   \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
-void QLabel::setNum( long num )
+void QLabel::setNum( int num )
 {
-    QString tmp;
-    tmp.sprintf( "%ld", num );
-    if ( tmp != ltext ) {
-	ltext = tmp;
+    QString str;
+    str.setNum( num );
+    if ( str != ltext ) {
+	ltext = str;
 	if ( autoresize )
 	    adjustSize();
 	else
@@ -198,36 +198,16 @@ void QLabel::setNum( long num )
 
 void QLabel::setNum( double num )
 {
-    QString tmp;
-    tmp.sprintf( "%g", num );
-    if ( tmp != ltext ) {
-	ltext = tmp;
+    QString str;
+    str.sprintf( "%g", num );
+    if ( str != ltext ) {
+	ltext = str;
 	if ( autoresize )
 	    adjustSize();
 	else
 	    updateLabel();
     }
 }
-
-/*----------------------------------------------------------------------------
-  \fn void QLabel::setNum( int num )
-  Sets the label contents to \e num (converts it to text) and redraws the
-  contents.
-
-  The label resizes itself if auto-resizing is enabled.
-
-  \sa setAutoResize()
- ----------------------------------------------------------------------------*/
-
-/*----------------------------------------------------------------------------
-  \fn void QLabel::setNum( float num )
-  Sets the label contents to \e num (converts it to text) and redraws the
-  contents.
-
-  The label resizes itself if auto-resizing is enabled.
-
-  \sa setAutoResize()
- ----------------------------------------------------------------------------*/
 
 
 /*----------------------------------------------------------------------------
