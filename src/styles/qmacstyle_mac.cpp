@@ -1910,6 +1910,10 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_ScrollBar_LeftClickAbsolutePosition:
+	extern bool qt_scrollbar_jump_to_pos; //qapplication_mac.cpp
+	ret = qt_scrollbar_jump_to_pos;
+	break;
     case SH_TabBar_PreferNoArrows:
 	ret = TRUE;
 	break;

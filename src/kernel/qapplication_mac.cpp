@@ -122,6 +122,7 @@ extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 extern bool qt_tab_all_widgets; // from qapplication.cpp
 static char    *appName;                        // application name
+bool qt_scrollbar_jump_to_pos = FALSE;
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
 extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
 static QGuardedPtr<QWidget> qt_mouseover;
@@ -291,6 +292,12 @@ void qt_mac_update_os_settings()
 	int i = qt_mac_get_global_setting("AppleKeyboardUIMode", "0").toInt(&ok);
 	qt_tab_all_widgets = !ok || (i & 0x2);
     }
+    { //focus mode
+	/* I just reverse engineered this, I'm not so sure how well it will hold up but it works as of 10.2.3 */
+	QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "FALSE");
+	qt_scrollbar_jump_to_pos = (paging == "TRUE");
+    }
+
 #ifdef DEBUG_PLATFORM_SETTINGS
     qDebug("qt_mac_update_os_settings *********************************************************************");
 #endif

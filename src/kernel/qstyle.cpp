@@ -1594,13 +1594,17 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 	jump to that position. If FALSE, the middle clicking is
 	ignored.
 
+    \value SH_ScrollBar_LeftClickAbsolutePosition  a boolean value.
+	If TRUE, left clicking on a scrollbar causes the slider to
+	jump to that position. If FALSE, the left clicking will
+	behave as appropriate for each control.
+
     \value SH_ScrollBar_ScrollWhenPointerLeavesControl  a boolean
 	value. If TRUE, when clicking a scrollbar SubControl, holding
 	the mouse button down and moving the pointer outside the
 	SubControl, the scrollbar continues to scroll. If FALSE, the
 	scollbar stops scrolling when the pointer leaves the
 	SubControl.
-
 
     \value SH_TabBar_Alignment  the alignment for tabs in a
 	QTabWidget. Possible values are \c Qt::AlignLeft, \c

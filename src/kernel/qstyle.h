@@ -649,6 +649,9 @@ public:
 	//bool - if a tabbar prefers not to have scroller arrows
 	SH_TabBar_PreferNoArrows,
 
+	//bool - if left button should cause an absolute position
+	SH_ScrollBar_LeftClickAbsolutePosition,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };
