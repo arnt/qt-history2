@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#258 $
+** $Id: //depot/qt/main/src/moc/moc.y#259 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -175,54 +175,22 @@ enum Access { Private, Protected, Public };
 
 struct Argument					// single arg meta data
 {
-    Argument( const char *left, const char *right, const char* argName = 0, bool isDefaultArgument = FALSE  )
+    Argument( char *left, char *right, char* argName = 0 )
 	{ leftType  = rmWS( left );
 	  rightType = rmWS( right );
 	  if ( leftType == "void" && rightType.isEmpty() )
 	      leftType = "";
 	  name = argName;
-	  isDefault = isDefaultArgument;
 	}
     QCString leftType;
     QCString rightType;
     QCString name;
-    bool isDefault;
 };
 
 class ArgList : public QPtrList<Argument> {	// member function arg list
 public:
     ArgList() { setAutoDelete( TRUE ); }
    ~ArgList() { clear(); }
-    
-    /* the clone has one default argument less, the orignal has all default arguments removed */
-    ArgList* magicClone() { 
-	ArgList* l = new ArgList;
-	bool firstDefault = FALSE;
-	for ( first(); current(); next() ) {
-	    bool isDefault = current()->isDefault;
-	    if ( !firstDefault && isDefault ) {
-		isDefault = FALSE;
-		firstDefault = TRUE;
-	    }
-	    l->append( new Argument( current()->leftType, current()->rightType, current()->name, isDefault ) );
-	}
-	for ( first(); current(); ) {
-	    if ( current()->isDefault )
-		remove();
-	    else
-		next();
-	}
-	return l;
-    }
-    
-    bool hasDefaultArguments() {
-	for ( Argument* a = first(); a; a = next() ) {
-	    if ( a->isDefault )
-		return TRUE;
-	}
-	return FALSE;
-    }
-    
 };
 
 
@@ -774,15 +742,15 @@ argument_declaration:	  decl_specifiers abstract_decl_opt
 			| decl_specifiers abstract_decl_opt
 			  '=' { expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(straddSpc($1,$2),"", 0, TRUE ); }
+				{ $$ = new Argument(straddSpc($1,$2),""); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
 				{ $$ = new Argument(straddSpc($1,$2),$4, $3); }
 			| decl_specifiers abstract_decl_opt dname
 				abstract_decl_opt
-			  '='	{ expLevel = 0; }
+			  '='	{ expLevel = 1; }
 			  const_expression
-				{ $$ = new Argument(straddSpc($1,$2),$4, $3, TRUE); }
+				{ $$ = new Argument(straddSpc($1,$2),$4); }
 			;
 
 
@@ -2672,7 +2640,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#258 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#259 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -3215,25 +3183,18 @@ void addMember( Member m )
     tmpFunc->args	= tmpArgList;
     tmpFunc->lineNo	= lineNo;
 
-    while ( TRUE ) {
-	g->funcs.append( tmpFunc );
+    g->funcs.append( tmpFunc );
 
-	switch( m ) {
-	case SignalMember:
-	    g->signals.append( tmpFunc );
-	    break;
-	case SlotMember:
-	    g->slots.append( tmpFunc );
-	    // fall through
-	case PropertyCandidateMember:
-	    if ( !tmpFunc->name.isEmpty() && tmpFunc->access == Public )
-		g->propfuncs.append( tmpFunc );
-	}
-	
-	if ( !tmpFunc->args || !tmpFunc->args->hasDefaultArguments() )
-	    break;
-	tmpFunc = new Function( *tmpFunc );
-	tmpFunc->args = tmpFunc->args->magicClone();
+    switch( m ) {
+    case SignalMember:
+	g->signals.append( tmpFunc );
+	break;
+    case SlotMember:
+	g->slots.append( tmpFunc );
+	// fall through
+    case PropertyCandidateMember:
+	if ( !tmpFunc->name.isEmpty() && tmpFunc->access == Public )
+	    g->propfuncs.append( tmpFunc );
     }
 
  Failed:
