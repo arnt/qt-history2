@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#16 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <qmemchk.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#15 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#16 $")
 
 
 // --------------------------------------------------------------------------
@@ -89,6 +89,9 @@ public:
 };
 
 
+typedef declare(QArrayM,pchar) ArgV;
+
+
 // --------------------------------------------------------------------------
 // WinMain() - initializes Windows and calls user's startup function main()
 //
@@ -106,18 +109,56 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
   // Create command line
 
     GetModuleFileName( instance, appName, sizeof(appName) );
+
     char *p = cmdParam;
     int	 argc = 1;
-    char **argv = new pchar[ strlen( p )/3 + 3 ];
+    ArgV argv( 8 );
     argv[0] = appName;
     while ( *p ) {				// parse cmd line arguments
 	while ( isspace(*p) )
 	    p++;
-	argv[argc++] = p;
-	while ( !isspace(*p) && *p )
+	if ( *p ) {
+	    int quote;
+	    char *start, *r;
+	    if ( *p == '\"' || *p == '\'' ) {
+		quote = *p;
+		start = ++p;
+	    }
+	    else {
+		quote = 0;
+		start = p;
+	    }
+	    r = start;
+	    while ( *p ) {
+		if ( *p == '\\' ) {
+		    p++;
+		}
+		else if ( quote ) {
+		    if ( *p == quote ) {
+			p++;
+			if ( isspace(*p) )
+			    break;
+			quote = 0;
+		    }
+		}
+		else {
+		    if ( *p == '\"' || *p == '\'' ) {
+			quote = *p++;
+			continue;
+		    }
+		    else if ( isspace(*p) )
+			break;
+		}
+		*r++ = *p++;
+	    }
+	    *r = '\0';
 	    p++;
-	if ( *p )
-	    *p++ = '\0';
+
+	    if ( argc >= (int)argv.size() )	// expand array
+		argv.resize( argv.size()*2 );
+	    argv[argc++] = start;
+
+	}
     }
     p = strrchr( argv[0], '\\' );
     if ( p )
@@ -131,7 +172,7 @@ int PASCAL WinMain( HANDLE instance, HANDLE prevInstance,
 
   // Call user main()
 
-    int retcode = main( argc, argv );
+    int retcode = main( argc, argv.data() );
 
     return retcode;
 }
@@ -1459,12 +1500,12 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 bool QETWidget::translateCloseEvent( const MSG &msg )
 {
     QCloseEvent e;
-    if ( QApplication::sendEvent( this, &e ) ) {// close widget
+    if ( QApplication::sendEvent(this, &e) ) {	// accepts close
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
 	else
-	    return TRUE;			// accepts close
+	    return TRUE;			// delete this widget
     }
     return FALSE;
 }
