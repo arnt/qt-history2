@@ -898,7 +898,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             // (or lack) of the border.
             if(flags & Qt::FramelessWindowHint) {
                 if(wclass == kDocumentWindowClass)
-                    wclass = kPlainWindowClass;
+                    wclass = kSimpleWindowClass;
                 else if(wclass == kFloatingWindowClass)
                     wclass = kToolbarWindowClass;
             } else {
