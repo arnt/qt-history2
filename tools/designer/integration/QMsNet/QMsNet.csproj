@@ -127,14 +127,9 @@
                     BuildAction = "Compile"
                 />
                 <File
-                    RelPath = "NewProject.cs"
+                    RelPath = "NewProject3.cs"
                     SubType = "Form"
                     BuildAction = "Compile"
-                />
-                <File
-                    RelPath = "NewProject.resx"
-                    DependentUpon = "NewProject.cs"
-                    BuildAction = "EmbeddedResource"
                 />
                 <File
                     RelPath = "QMNCommands.cs"
