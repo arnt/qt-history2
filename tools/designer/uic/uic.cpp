@@ -242,45 +242,34 @@ QString Uic::getLayoutName( const QDomElement& e )
     return e.tagName();
 }
 
-/*! Extracts a connection name from \a e.
- */
 
-QString Uic::getConnectionName( const QDomElement& e )
+QString Uic::getDatabaseInfo( const QDomElement& e, const QString& tag )
 {
     QDomElement n;
+    QDomElement n1;
+    int child = 0;
+    // database info is a stringlist stored in this order    
+    if ( tag == "connection" )
+	child = 0;
+    else if ( tag == "table" )
+	child = 1;
+    else if ( tag == "field" )
+	child = 2;
+    else
+	return QString::null;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "database"
-	     && n.firstChild().toElement().tagName() == "cstring" )
-	    return n.firstChild().toElement().firstChild().toText().data();
-    }
-    return QString::null;
-}
-
-
-/*! Extracts a table name from \a e.
- */
-
-QString Uic::getTableName( const QDomElement& e )
-{
-    QDomElement n;
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "table"
-	     && n.firstChild().toElement().tagName() == "cstring" )
-	    return n.firstChild().toElement().firstChild().toText().data();
-    }
-    return QString::null;
-}
-
-/*! Extracts a field name from \a e.
- */
-
-QString Uic::getFieldName( const QDomElement& e )
-{
-    QDomElement n;
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "property"  && n.toElement().attribute("name") == "field"
-	     && n.firstChild().toElement().tagName() == "cstring" )
-	    return n.firstChild().toElement().firstChild().toText().data();
+	if ( n.tagName() == "property"  
+	     && n.toElement().attribute("name") == "database" 
+	     && n.firstChild().toElement().tagName() == "stringlist" ) {
+	    // find correct stringlist entry
+	    QDomElement n1 = n.firstChild().firstChild().toElement();
+	    for ( int i = 0; i < child && !n1.isNull(); ++i ) 
+		n1 = n1.nextSibling().toElement();
+	    if ( n1.isNull() ) {
+		return QString::null;
+	    }
+	    return n1.firstChild().toText().data();
+	}
     }
     return QString::null;
 }
@@ -904,7 +893,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	    if ( value.isEmpty() )
 		continue;
 	    if ( prop == "name" ) {
-		out << "    if ( !name )" << endl;
+		if ( dbAware ) 
+		    out << "    if ( !name() )" << endl;
+		else
+		    out << "    if ( !name )" << endl;
 		out << "\t";
 	    } else {
 		out << indent;
@@ -960,7 +952,7 @@ void Uic::createFormImpl( const QDomElement &e )
     // database support
 
     if ( dbAware ) {
-	QString defaultTable = getTableName( e );
+	QString defaultTable = getDatabaseInfo( e, "table" );
 	out << endl << indent << "// database support" << endl;
 	int dbFormCount = 0;
 	dbConnections = unique( dbConnections );
@@ -1121,16 +1113,18 @@ void Uic::createFormImpl( const QDomElement &e )
 		if ( s == "QSqlTable" ) {
 		    n = nl.item(i).toElement();
 		    QString c = getObjectName( n );
-		    QString conn = getConnectionName( n );
-		    QString tab = getTableName( n );
-		    out << indent << indent << "if ( !" << c << "->cursor() ) {" << endl;
-		    if ( conn == "(default)" )
-			out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\" );" << endl;
-		    else
-			out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
-		    out << indent << indent << indent << c << "->setCursor( c );" << endl;
-		    out << indent << indent << indent << c << "->setAutoDelete( TRUE );" << endl;
-		    out << indent << indent << "}" << endl;
+		    QString conn = getDatabaseInfo( n, "connection" );
+		    QString tab = getDatabaseInfo( n, "table" );
+		    if ( !(conn == QString::null || tab == QString::null) ) {
+			out << indent << indent << "if ( !" << c << "->cursor() ) {" << endl;
+			if ( conn == "(default)" )
+			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\" );" << endl;
+			else
+			    out << indent << indent << indent << "QSqlCursor* c = new QSqlCursor( \"" << tab << "\", " << conn << "Connection );" << endl;
+			out << indent << indent << indent << c << "->setCursor( c );" << endl;
+			out << indent << indent << indent << c << "->setAutoDelete( TRUE );" << endl;
+			out << indent << indent << "}" << endl;
+		    }
 		}
 	    }
 	    out << "    }" << endl;
@@ -1207,7 +1201,7 @@ void Uic::createFormImpl( const QDomElement& e, const QString& form, const QStri
 {
     if ( e.tagName() == "widget" ) {
 	if ( isWidgetInTable( e, connection, table ) )
-	    out << indent << indent << form << "Form->insert( " << getObjectName( e ) << ", buf->field( \"" << getFieldName( e ) << "\" ) );" << endl;
+	    out << indent << indent << form << "Form->insert( " << getObjectName( e ) << ", buf->field( \"" << getDatabaseInfo( e, "field" ) << "\" ) );" << endl;
     }
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -1276,7 +1270,7 @@ void Uic::createDatabaseImpl( const QDomElement& e )
     out << "}" << endl;
     out << endl;
 
-    QString defaultTable = getTableName( e );
+    QString defaultTable = getDatabaseInfo( e, "table" );
 
     out << "/*  " << endl;
     out << " *  Returns a pointer to the default cursor." << endl;
@@ -2150,29 +2144,10 @@ QColorGroup Uic::loadColorGroup( const QDomElement &e )
 
 bool Uic::isWidgetInTable( const QDomElement& e, const QString& connection, const QString& table )
 {
-    QDomElement n;
-    for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
-	QDomElement n2;
-	if ( n.tagName() == "property" ) {
-	    QString prop = n.attribute("name");
-	    if ( prop == "database" ) {
-		n2 = n.firstChild().toElement();
-		if ( n2.tagName() == "connection" ) {
-		    QString con = n2.firstChild().toText().data();
-		    if ( con != connection )
-			return FALSE;
-		    n2 = n2.nextSibling().toElement();
-		    if ( n2.tagName() == "table" ) {
-			QString tab = n2.firstChild().toText().data();
-			if ( tab == table )
-			    return TRUE;
-			else
-			    return FALSE;
-		    }
-		}
-	    }
-	}
-    }
+    QString conn = getDatabaseInfo( e, "connection" );
+    QString tab = getDatabaseInfo( e, "table" );
+    if ( conn == connection && tab == table )
+	return TRUE;
     return FALSE;
 }
 
@@ -2187,32 +2162,20 @@ void Uic::registerDatabases( const QDomElement& e )
     int i;
     nl = e.parentNode().toElement().elementsByTagName( "widget" );
     for ( i = 0; i < (int) nl.length(); ++i ) {
-	QDomNodeList nl2 = nl.item(i).toElement().elementsByTagName( "property" );
-	for ( int j = 0; j < (int) nl2.length(); ++j ) {
-	    n = nl2.item(j).toElement();
-	    if ( n.tagName() == "property" ) {
-		QString prop = n.attribute("name");
-		QDomElement n2 = n.firstChild().toElement();
-		if ( prop == "database" ) {
-		    if ( n2.tagName() == "connection" ) {
-			QString con = n2.text();
-			dbConnections += con;
-			n2 = n2.nextSibling().toElement();
-			if ( n2.tagName() == "table" ) {
-			    QString tab = n2.text();
-			    dbCursors[con] += tab;
-			    n2 = n2.nextSibling().toElement();
-			    if ( n2.tagName() == "field" ) {
-				dbForms[con] += tab;
-			    }
-			}
-		    }
-		}
+	n = nl.item(i).toElement();
+	QString conn = getDatabaseInfo( n, "connection"  );
+	QString tab = getDatabaseInfo( n, "table"  );
+	QString fld = getDatabaseInfo( n, "field"  );
+	if ( !conn.isNull() ) {
+	    dbConnections += conn;
+	    if ( !tab.isNull() ) {
+		dbCursors[conn] += tab;
+		if ( !fld.isNull() )
+		    dbForms[conn] += tab;
 	    }
 	}
     }
 }
-
 
 /*!
   Registers an object with name \a name.
@@ -2484,7 +2447,7 @@ int main( int argc, char * argv[] )
     const char* headerFile = 0;
     const char* outputFile = 0;
     const char* trmacro = 0;
-
+    bool fix = FALSE;
     for ( int n = 1; n < argc && error == 0; n++ ) {
 	QCString arg = argv[n];
 	if ( arg[0] == '-' ) {			// option
@@ -2535,6 +2498,8 @@ int main( int argc, char * argv[] )
 		} else {
 		    trmacro = &opt[1];
 		}
+	    } else if ( opt == "fix" ) {
+		fix = TRUE;
 	    }
 	} else {
 	    if ( fileName)		// can handle only one file
@@ -2589,6 +2554,11 @@ int main( int argc, char * argv[] )
 	qFatal( "uic: Failed to parse %s\n", fileName );
 
     fixDocument( doc );
+    
+    if ( fix ) {
+	out << doc.toString();
+	return 0;
+    }
 
     if ( !subcl ) {
 	out << "/****************************************************************************" << endl;
