@@ -2724,6 +2724,8 @@ void QPainter::drawText( const QRect &r, int tf,
 
 //#define QT_FORMAT_TEXT_DEBUG
 
+#define QChar_linesep QChar(0x2028U)
+
 void qt_format_text( const QFont& font, const QRect &r,
 		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
@@ -2900,7 +2902,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    parStr.setLength( len );
 	    // need to build paragraph
 	    parag = new QTextParag( 0, 0, 0, FALSE );
-	    parag->setNewLinesAllowed( TRUE );
 	    QTextFormatter *formatter;
 	    formatter = new QTextFormatterBreakWords;
 	    if ( !wordbreak )
@@ -2913,8 +2914,10 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    QChar *chr = (QChar*)parStr.unicode();
 	    int l = parStr.length();
 	    while ( l-- ) {
-		if ( *chr == '\r' || (singleline && *chr == '\n') )
+		if ( *chr == '\r' || ( singleline && *chr == '\n' ) )
 		    *chr = ' ';
+		else if ( *chr == '\n' )
+		    *chr = QChar_linesep;
 		chr++;
 	    }
 	    if ( showprefix || noaccel ) {

@@ -73,9 +73,6 @@
 class QTextFormatCollection;
 
 static QPtrDict<QTextFormatCollection> *qFormatCollectionDict = 0;
-const int QStyleSheetItem_WhiteSpaceNoCompression = 3; // ### belongs in QStyleSheetItem, fix 3.1
-const int QStyleSheetItem_WhiteSpaceNormalWithNewlines = 4; // ### belongs in QStyleSheetItem, fix 3.1
-
 const int border_tolerance = 2;
 
 #if defined(PARSER_DEBUG)
@@ -85,6 +82,8 @@ static QString debug_indent;
 #ifdef Q_WS_WIN
 #include "qt_windows.h"
 #endif
+
+#define QChar_linesep QChar(0x2028U)
 
 static inline bool is_printer( QPainter *p )
 {
@@ -1583,11 +1582,10 @@ struct Q_EXPORT QTextDocumentTag {
 
 
 #define NEWPAR       do{ if ( !hasNewPar) { \
-		    if ( doLineBreak && curpar->prev() ) curpar->prev()->ubm = 0;\
+		    if ( !textEditMode && curpar && curpar->length()>1 && curpar->at( curpar->length()-2)->c == QChar_linesep ) \
+			curpar->remove( curpar->length()-2, 1 ); \
 		    curpar = createParag( this, curpar ); } \
-		    curpar->utm = -1; \
 		    hasNewPar = TRUE; \
-		    doLineBreak = FALSE; \
 		    curpar->align = curtag.alignment; \
 		    curpar->listS = curtag.liststyle; \
 		    curpar->str->setDirection( (QChar::Direction)curtag.direction ); \
@@ -1620,10 +1618,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QTextDocumentTag initag( "", sheet_->item(""), *formatCollection()->defaultFormat() );
     QTextDocumentTag curtag = initag;
     bool space = TRUE;
-    bool doLineBreak = FALSE;
 
-    bool preserveWhitespace = FALSE;
-    bool preserveEmptyParagraphs = FALSE;
+    bool textEditMode = FALSE;
 
     const QChar* doc = text.unicode();
     int length = text.length();
@@ -1697,35 +1693,20 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		// some well-known tags, some have a nstyle, some not
 		if ( wellKnownTags.find( tagname ) != -1 ) {
 		    if ( tagname == "br" ) {
-			emptyTag = TRUE;
-			hasNewPar = FALSE;
-			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			    /* when linebreaking a list item, we do not
-			       actually want a new list item but just a new
-			       line. Fake this by pushing a paragraph onto
-			       the stack */
-			    tags.push( curtag );
-			    curtag.name = tagname;
-			    curtag.style = sheet_->item("");
-			}
-			NEWPAR;
-			curpar->utm = 0;
-			doLineBreak = TRUE;
+			emptyTag = space = TRUE;
+			int index = QMAX( curpar->length(),1) - 1;
+			QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
+			curpar->append( QChar_linesep );
+			curpar->setFormat( index, 1, &format );
 		    }  else if ( tagname == "hr" ) {
-			emptyTag = TRUE;
+			emptyTag = space = TRUE;
 			custom = sheet_->tag( tagname, attr, contxt, *factory_ , emptyTag, this );
 			NEWPAR;
-		    } else if ( !nstyle && tagname == "wsp" ) {
-			// compatibily with some minor 3.0.x Qt versions that had an undocumented <wsp> tag
-			preserveWhitespace =TRUE;
-			if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal )
-			    curtag.wsm = (QStyleSheetItem::WhiteSpaceMode) QStyleSheetItem_WhiteSpaceNoCompression;
 		    } else if ( tagname == "table" ) {
+			emptyTag = space = TRUE;
 			QTextFormat format = curtag.format.makeTextFormat(  nstyle, attr, scaleFontsFactor );
 			curpar->setAlignment( curtag.alignment );
 			custom = parseTable( attr, format, doc, length, pos, curpar );
-			(void)eatSpace( doc, length, pos );
-			emptyTag = TRUE;
 		    } else if ( tagname == "qt" || tagname == "body" ) {
 			if ( attr.contains( "bgcolor" ) ) {
 			    QBrush *b = new QBrush( QColor( attr["bgcolor"] ) );
@@ -1781,7 +1762,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			// end qt-tag handling
 		    } else if ( tagname == "meta" ) {
 			if ( attr["name"] == "qtextedit" && attr["content"] == "3.0.5" )
-			    preserveWhitespace = preserveEmptyParagraphs = TRUE;
+			    textEditMode = TRUE;
 		    } else if ( tagname == "title" ) {
 			QString title;
 			while ( pos < length ) {
@@ -1802,9 +1783,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    continue;
 
 		if ( custom ) {
-		    int index = curpar->length() - 1;
-		    if ( index < 0 )
-			index = 0;
+		    int index = QMAX( curpar->length(),1) - 1;
 		    QTextFormat format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    curpar->append( QChar('*') );
 		    curpar->setFormat( index, 1, &format );
@@ -1820,7 +1799,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		} else if ( !emptyTag ) {
 		    /* ignore whitespace for inline elements if there
 		       was already one*/
-		    if ( !preserveWhitespace && nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
+		    if ( !textEditMode && nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
 			 && ( space || nstyle->displayMode() != QStyleSheetItem::DisplayInline ) )
 			eatSpace( doc, length, pos );
 
@@ -1841,9 +1820,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag.style = nstyle;
 		    if ( nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal )
 			curtag.wsm = nstyle->whiteSpaceMode();
-		
-		    if ( preserveWhitespace && curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && curtag.name != "qt" )
-			curtag.wsm = (QStyleSheetItem::WhiteSpaceMode) QStyleSheetItem_WhiteSpaceNoCompression;
 		
 		    curtag.format = curtag.format.makeTextFormat( nstyle, attr, scaleFontsFactor );
 		    if ( nstyle->isAnchor() ) {
@@ -1972,7 +1948,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curtag = initag;
 
  		if ( needNewPar ) {
-		    if ( preserveEmptyParagraphs && tagname == "p" ) // really preserve them
+		    if ( textEditMode && tagname == "p" ) // preserve empty paragraphs
 			hasNewPar = FALSE;
 		    NEWPAR;
 		}
@@ -1982,17 +1958,42 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    QString s;
 	    QChar c;
 	    while ( pos < length && !hasPrefix(doc, length, pos, QChar('<') ) ){
-		QStyleSheetItem::WhiteSpaceMode wsm = curtag.wsm;
-		if ( wsm == QStyleSheetItem::WhiteSpaceNormal && s.length() > 4096 )
-		    wsm =  (QStyleSheetItem::WhiteSpaceMode)QStyleSheetItem_WhiteSpaceNormalWithNewlines;
+		if ( textEditMode ) {
+		    // text edit mode: we handle all white space but ignore newlines
+		    c = parseChar( doc, length, pos, QStyleSheetItem::WhiteSpacePre );
+		    if ( c == QChar_linesep )
+			break;
+		} else {
+		    int l = pos;
+		    c = parseChar( doc, length, pos, curtag.wsm );
 
-		c = parseChar( doc, length, pos, wsm );
+		    // in white space pre mode: treat any space as non  breakable
+		    if ( c == ' ' && curtag.wsm == QStyleSheetItem::WhiteSpacePre )
+			c = QChar::nbsp;
 
-		if ( c == '\n' )  // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
-		    break;  // we want a new line in this case
+		    if ( c == ' ' || c == QChar_linesep ) {
+			/* avoid overlong paragraphs by forcing a new
+			       paragraph after 4096 characters. This case can
+			       occur when loading undiscovered plain text
+			       documents in rich text mode. Instead of hanging
+			       forever, we do the trick.
+			    */
+			if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && s.length() > 4096 ) do {
+			    if ( doc[l] == '\n' ) {
+				hasNewPar = FALSE; // for a new paragraph ...
+				NEWPAR;
+				hasNewPar = FALSE; // ... and make it non-reusable
+				c = '\n';  // make sure we break below
+				break;
+			    }
+			} while ( ++l < pos );
+		    }
+		}
 
-		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U &&
-		   curtag.wsm != QStyleSheetItem_WhiteSpaceNoCompression;
+		if ( c == '\n' ) 
+		    break;  // break on  newlines, pre delievers a QChar_linesep
+
+		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U && !textEditMode;
 
 		if ( curtag.wsm == QStyleSheetItem::WhiteSpaceNormal && c_isSpace && space )
 		    continue;
@@ -2003,9 +2004,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 	    }
 	    if ( !s.isEmpty() && curtag.style->displayMode() != QStyleSheetItem::DisplayNone ) {
 		hasNewPar = FALSE;
-		int index = curpar->length() - 1;
-		if ( index < 0 )
-		    index = 0;
+		int index = QMAX( curpar->length(),1) - 1;
 		curpar->append( s );
 		QTextFormat* f = formatCollection()->format( &curtag.format );
 		curpar->setFormat( index, s.length(), f, FALSE ); // do not use collection because we have done that already
@@ -2020,16 +2019,9 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    anchorName = QString::null;
 		}
 	    }
-	    if (  curtag.wsm == QStyleSheetItem::WhiteSpacePre && c == '\n' ) {
-		hasNewPar = FALSE; // for a new paragraph ...
-		NEWPAR;
-		hasNewPar = FALSE; // ... and amke it non-reusable
-	    }
 	}
     }
 
-    if ( doLineBreak && curpar->prev() )
-        curpar->prev()->ubm = 0;
     if ( hasNewPar && curpar != fParag ) {
 	// cleanup unused last paragraphs
 	curpar = curpar->p;
@@ -2176,7 +2168,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	return p->richText();
     QString s = "";
     if ( !par ) {
-	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\"/></head><body style=\"font-size:" ;
+	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\" /></head><body style=\"font-size:" ;
 	s += QString::number( formatCollection()->defaultFormat()->font().pointSize() );
 	s += "pt;font-family:";
 	s += formatCollection()->defaultFormat()->font().family();
@@ -3915,7 +3907,6 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
     mightHaveCustomItems = FALSE;
     visible = TRUE;
     list_val = -1;
-    newLinesAllowed = FALSE;
     lastInFrame = FALSE;
     paintdevice = 0;
     defFormat = formatCollection()->defaultFormat();
@@ -4152,7 +4143,7 @@ void QTextParag::move( int &dy )
 
 void QTextParag::format( int start, bool doMove )
 {
-    if ( !str || str->length() == 0 || !formatter() )
+    if ( !str || str->length() == 0 || !formatter() || (hasdoc && document()->visibleWidth() == 0 ) )
 	return;
 
     if ( hasdoc &&
@@ -4199,12 +4190,12 @@ void QTextParag::format( int start, bool doMove )
 
     QTextStringChar *c = 0;
     if ( !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) ) {
- // do not do this on mac, as the paragraph
- // with has to be the full document width on mac as the selections
- // always extend completely to the right. This is a bit unefficient,
- // as this results in a bigger double buffer than needed but ok for
- // now.
-	if ( lineStarts.count() == 1 ) { //&& ( !doc || document()->flow()->isEmpty() ) ) {
+	// do not do this on mac, as the paragraph
+	// with has to be the full document width on mac as the selections
+	// always extend completely to the right. This is a bit unefficient,
+	// as this results in a bigger double buffer than needed but ok for
+	// now.
+	if ( lineStarts.count() == 1 ) { 
 	    if ( !string()->isBidi() ) {
 		c = &str->at( str->length() - 1 );
 		r.setWidth( c->x + str->width( str->length() - 1 ) );
@@ -4214,7 +4205,7 @@ void QTextParag::format( int start, bool doMove )
 	}
     }
 
-    if ( newLinesAllowed ) {
+    if ( !hasdoc ) { // qt_format_text bounding rect handling
 	it = lineStarts.begin();
 	int usedw = 0;
 	for ( ; it != lineStarts.end(); ++it )
@@ -4451,12 +4442,12 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 #endif
 
     QString qstr = str->toString();
-    // ### workaround so that \n are not drawn, actually this should be
-    // fixed in QFont somewhere (under Windows you get ugly boxes
+    // ### workaround so that \n are not drawn, actually this should
+    // be fixed in QFont somewhere (under Windows you get ugly boxes
     // otherwise)
     QChar* uc = (QChar*) qstr.unicode();
     for ( i = 0; i < (int) qstr.length(); i++ ) {
-	if ( uc[i]== '\n' )
+	if ( uc[i]== '\n' || uc[i] == QChar_linesep )
 	    uc[i] = 0x20;
     }
 
@@ -4545,7 +4536,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    formatChar = chr;
 	    lastY = cy;
 	    startX = chr->x;
-	    if ( !chr->isCustom() && chr->c != '\n' )
+	    if ( !chr->isCustom() && chr->c != '\n' && chr->c != QChar_linesep )
 		paintEnd = i;
 	    bw = cw;
 	    if ( !chr->isCustom() )
@@ -4611,7 +4602,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	    }
 #endif
 	    if ( !chr->isCustom() ) {
-		if ( chr->c != '\n' ) {
+		if ( chr->c != '\n' && chr->c != QChar_linesep ) {
 		    paintStart = i;
 		    paintEnd = i;
 		} else {
@@ -4645,7 +4636,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 #endif
 	    }
 	} else {
-	    if ( chr->c != '\n' ) {
+	    if ( chr->c != '\n' && chr->c != QChar_linesep ) {
 		if( chr->rightToLeft ) {
 		    startX = chr->x;
 		}
@@ -5161,6 +5152,8 @@ QString QTextParag::richText() const
 	    s += "&gt;";
 	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
+	else if ( c->c == '\n' || c->c == QChar_linesep )
+	    s += "<br />"; // space on purpose for compatibility with Netscape, Lynx & Co. 
 	else
 	    s += c->c;
     }
@@ -5740,10 +5733,9 @@ int QTextFormatterBreakInWords::format( QTextDocument *doc,QTextParag *parag,
 	}
 #endif
 
-	if ( wrapEnabled &&
-	     ( wrapAtColumn() == -1 && x + ww > w ||
-	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       parag->isNewLinesAllowed() && lastChr == '\n' ) {
+	if ( lastChr == QChar_linesep ||  
+	     ( wrapEnabled && ( wrapAtColumn() == -1 && x + ww > w ||
+			wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) ) {
 	    x = doc ? parag->document()->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 	    w = dw;
 	    y += h;
@@ -5930,13 +5922,13 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    if ( tw < QWIDGETSIZE_MAX )
 		minw = QMAX( minw, tw );
 	}
-#endif // QT_NO_TEXTCUSTOMITEM
-	if ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
-	     && ( lastBreak != -1 || allowBreakInWords() ) &&
-	     ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
-	       wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
-	       wrapAtColumn() != -1 && col >= wrapAtColumn() ) ||
-	       parag->isNewLinesAllowed() && lastChr == '\n' && firstChar < c ) {
+
+	if ( lastChr == QChar_linesep || 
+	     ( wrapEnabled && ( !c->c.isSpace() || lastBreak == -2 )
+	       && ( lastBreak != -1 || allowBreakInWords() ) &&
+	       ( wrapAtColumn() == -1 && x + ww > w && lastBreak != -1 ||
+		 wrapAtColumn() == -1 && x + ww > w - 4 && lastBreak == -1 && allowBreakInWords() ||
+		 wrapAtColumn() != -1 && col >= wrapAtColumn() ) ) ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
 	    if ( lastBreak < 0 ) {
@@ -5949,7 +5941,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lineStart = formatLine( parag, string, lineStart, firstChar, c-1, align, w - x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
-		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
+		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
 		    int nx = parag->nextTab( i, x - left ) + left;
 		    if ( nx < x )
 			ww = w - x;
@@ -5977,7 +5969,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ), align, w - string->at( i ).x );
 		x = doc ? doc->flow()->adjustLMargin( y + parag->rect().y(), parag->rect().height(), left, 4 ) : left;
 		w = dw - ( doc ? doc->flow()->adjustRMargin( y + parag->rect().y(), parag->rect().height(), rm, 4 ) : 0 );
-		if ( parag->isNewLinesAllowed() && c->c == '\t' ) {
+		if ( !doc && c->c == '\t' ) { // qt_format_text tab handling
 		    int nx = parag->nextTab( i, x - left ) + left;
 		    if ( nx < x )
 			ww = w - x;
@@ -6000,7 +5992,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		tminw = marg;
 		continue;
 	    }
-	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
+	} else if ( lineStart && ( isBreakable( string, i ) || c->c == QChar_linesep ) ) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 		tmph = QMAX( tmph, c->height() + linespace );
@@ -7352,19 +7344,10 @@ QChar QTextDocument::parseChar(const QChar* doc, int length, int& pos, QStyleShe
 
     if ( c.isSpace() && c != QChar::nbsp ) {
 	if ( wsm == QStyleSheetItem::WhiteSpacePre ) {
-	    if ( c == ' ' )
-		return QChar::nbsp;
+	    if ( c == '\n' )
+		return QChar_linesep;
 	    else
 		return c;
-	} else if ( wsm ==  QStyleSheetItem_WhiteSpaceNoCompression ) {
-	    return c;
-	} else if ( wsm == QStyleSheetItem_WhiteSpaceNormalWithNewlines ) {
-	    if ( c == '\n' )
-		return c;
-	    while ( pos< length &&
-		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp && doc[pos] != '\n' )
-		pos++;
-	    return ' ';
 	} else { // non-pre mode: collapse whitespace except nbsp
 	    while ( pos< length &&
 		    doc[pos].isSpace()  && doc[pos] != QChar::nbsp )

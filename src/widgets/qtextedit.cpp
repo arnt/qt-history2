@@ -1001,12 +1001,17 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     case Key_Return: case Key_Enter:
 	if ( doc->hasSelection( QTextDocument::Standard, FALSE ) )
 	    removeSelectedText();
+	if ( e->state() & ControlButton ) {
+	    // Ctrl-Enter inserts a line break
+	    insert( QString( QChar( 0x2028) ), TRUE, FALSE );
+	} else {
 #ifndef QT_NO_CURSOR
-	viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
 #endif
-	clearUndoRedoInfo = FALSE;
-	doKeyboardAction( ActionReturn );
-	emit returnPressed();
+	    clearUndoRedoInfo = FALSE;
+	    doKeyboardAction( ActionReturn );
+	    emit returnPressed();
+	}
 	break;
     case Key_Delete:
 #if defined (Q_WS_WIN)
@@ -1701,6 +1706,8 @@ void QTextEdit::moveCursor( CursorAction action )
 void QTextEdit::resizeEvent( QResizeEvent *e )
 {
     QScrollView::resizeEvent( e );
+    if ( doc->visibleWidth() == 0 )
+	doResize();
 }
 
 /*! \reimp */

@@ -1341,7 +1341,6 @@ private:
     uint firstPProcess : 1;
     uint needPreProcess : 1;
     uint fullWidth : 1;
-    uint newLinesAllowed : 1;
     uint lastInFrame : 1;
     uint visible : 1;
     uint breakable : 1;
@@ -2127,16 +2126,6 @@ inline void QTextParag::setExtraData( QTextParagData *data )
 inline QTextParagData *QTextParag::extraData() const
 {
     return eData;
-}
-
-inline void QTextParag::setNewLinesAllowed( bool b )
-{
-    newLinesAllowed = b;
-}
-
-inline bool QTextParag::isNewLinesAllowed() const
-{
-    return newLinesAllowed;
 }
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

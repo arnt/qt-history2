@@ -1180,6 +1180,11 @@ void QStyleSheet::init()
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
+     
+     // compatibily with some minor 3.0.x Qt versions that had an
+     // undocumented <wsp> tag. ### Remove 3.1
+     style = new QStyleSheetItem( this, QString::fromLatin1("wsp") );
+     style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpacePre );
 
      // tables
      style = new QStyleSheetItem( this, QString::fromLatin1("table") );
