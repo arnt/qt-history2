@@ -17,6 +17,7 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qdatastream.h"
+#include "qvariant.h"
 #include "qdebug.h"
 
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
@@ -370,6 +371,16 @@ QBrush &QBrush::operator=(const QBrush &b)
     return *this;
 }
 
+/*!
+   Returns the brush as a QVariant
+*/
+QBrush::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Brush, this);
+}
 
 /*!
     \fn Qt::BrushStyle QBrush::style() const

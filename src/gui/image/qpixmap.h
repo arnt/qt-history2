@@ -23,6 +23,7 @@
 class QImageWriter;
 class QPixmapPrivate;
 class QColor;
+class QVariant;
 class QX11Info;
 
 struct QPixmapData;
@@ -48,6 +49,7 @@ public:
 
     QPixmap &operator=(const QPixmap &);
     QPixmap &operator=(const QImage &);
+    operator QVariant() const;
 
     bool isNull() const;
 

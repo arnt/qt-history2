@@ -34,6 +34,7 @@ public:
     explicit QIcon(QIconEngine *engine);
     ~QIcon();
     QIcon &operator=(const QIcon &other);
+    operator QVariant() const;
 
     QPixmap pixmap(const QSize &size, Mode mode = Normal, State state = Off) const;
     inline QPixmap pixmap(int w, int h, Mode mode = Normal, State state = Off) const

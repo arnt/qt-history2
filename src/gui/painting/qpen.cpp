@@ -13,6 +13,7 @@
 
 #include "qpen.h"
 #include "qdatastream.h"
+#include "qvariant.h"
 
 /*!
     \class QPen qpen.h
@@ -206,6 +207,16 @@ QPen &QPen::operator=(const QPen &p)
     return *this;
 }
 
+/*!
+   Returns the pen as a QVariant
+*/
+QPen::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Pen, this);
+}
 
 /*!
     \fn Qt::PenStyle QPen::style() const

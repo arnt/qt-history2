@@ -20,6 +20,7 @@
 
 class QFontPrivate;                                     /* don't touch */
 class QStringList;
+class QVariant;
 class Q3TextFormatCollection;
 
 class Q_GUI_EXPORT QFont
@@ -136,6 +137,7 @@ public:
     bool operator==(const QFont &) const;
     bool operator!=(const QFont &) const;
     bool operator<(const QFont &) const;
+    operator QVariant() const;
     bool isCopyOf(const QFont &) const;
 
 

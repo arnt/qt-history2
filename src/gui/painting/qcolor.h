@@ -20,6 +20,7 @@
 
 class QColor;
 class QColormap;
+class QVariant;
 
 #ifndef QT_NO_DEBUG_STREAM
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QColor &);
@@ -139,6 +140,8 @@ public:
 
     bool operator==(const QColor &c) const;
     bool operator!=(const QColor &c) const;
+
+    operator QVariant() const;
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QColor(int x, int y, int z, Spec colorSpec)

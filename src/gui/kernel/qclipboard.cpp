@@ -305,7 +305,7 @@ QImage QClipboard::image(Mode mode) const
 void QClipboard::setImage(const QImage &image, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    data->setImageData(qVariant(image));
+    data->setImageData(image);
     setMimeData(data, mode);
 }
 
@@ -346,7 +346,7 @@ QPixmap QClipboard::pixmap(Mode mode) const
 void QClipboard::setPixmap(const QPixmap &pixmap, Mode mode)
 {
     QMimeData *data = new QMimeData;
-    data->setImageData(qVariant(pixmap));
+    data->setImageData(pixmap);
     setMimeData(data, mode);
 }
 

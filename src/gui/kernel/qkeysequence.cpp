@@ -21,6 +21,7 @@
 #ifndef QT_NO_DATASTREAM
 # include "qdatastream.h"
 #endif
+#include "qvariant.h"
 
 #ifdef Q_WS_MAC
 # include <private/qt_mac_p.h>
@@ -605,6 +606,16 @@ QKeySequence::operator QString() const
     return complete;
 }
 
+/*!
+   Returns the key sequence as a QVariant
+*/
+QKeySequence::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::KeySequence, this);
+}
 
 /*!
     \obsolete

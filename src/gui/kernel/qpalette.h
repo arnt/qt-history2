@@ -22,6 +22,7 @@
 
 class QColorGroup;
 class QPalettePrivate;
+class QVariant;
 
 class Q_GUI_EXPORT QPalette
 {
@@ -41,6 +42,7 @@ public:
     QPalette(const QPalette &palette);
     ~QPalette();
     QPalette &operator=(const QPalette &palette);
+    operator QVariant() const;
 
     // Do not change the order, the serialization format depends on it
     enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
@@ -149,6 +151,7 @@ public:
     inline QColorGroup(const QPalette &pal) : QPalette(pal) {}
     bool operator==(const QColorGroup &other) const;
     inline bool operator!=(const QColorGroup &other) const { return !(operator==(other)); }
+    operator QVariant() const;
 
     inline QT3_SUPPORT const QColor &foreground() const { return color(Foreground); }
     inline QT3_SUPPORT const QColor &button() const { return color(Button); }

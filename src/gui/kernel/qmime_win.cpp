@@ -866,7 +866,7 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, struct IDataO
         QDataStream s(&iod);
         s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
         if (qt_read_dib(s, img)) { // ##### encaps "-14"
-            result = qVariant(img);
+            result = img;
         }
     }
 #endif

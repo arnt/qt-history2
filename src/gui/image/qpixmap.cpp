@@ -401,6 +401,17 @@ QPixmap &QPixmap::operator=(const QImage &image)
 }
 
 /*!
+   Returns the pixmap as a QVariant
+*/
+QPixmap::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Pixmap, this);
+}
+
+/*!
     \fn bool QPixmap::operator!() const
 
     Returns true if this is a null pixmap; otherwise returns false.

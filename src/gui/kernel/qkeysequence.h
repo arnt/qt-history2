@@ -28,6 +28,7 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QKeySequence &ks);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &out, QKeySequence &ks);
 #endif
 
+class QVariant;
 class QKeySequencePrivate;
 
 class Q_GUI_EXPORT QKeySequence
@@ -55,6 +56,7 @@ public:
     static QKeySequence mnemonic(const QString &text);
 
     operator QString() const;
+    operator QVariant() const;
     operator int() const;
     int operator[](uint i) const;
     QKeySequence &operator=(const QKeySequence &other);

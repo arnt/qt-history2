@@ -401,12 +401,12 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
         } else if (s.startsWith(QLatin1String("@Rect("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 4) {
-                return qVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
+                return QVariant(QRect(args[0].toInt(), args[1].toInt(), args[2].toInt(), args[3].toInt()));
             }
         } else if (s.startsWith(QLatin1String("@Size("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 5);
             if (args.size() == 2) {
-                return qVariant(QSize(args[0].toInt(), args[1].toInt()));
+                return QVariant(QSize(args[0].toInt(), args[1].toInt()));
             }
             // ### see above
 //         } else if (s.startsWith(QLatin1String("@Color("))) {
@@ -417,7 +417,7 @@ QVariant QSettingsPrivate::stringToVariant(const QString &s)
         } else if (s.startsWith(QLatin1String("@Point("))) {
             QStringList args = QSettingsPrivate::splitArgs(s, 6);
             if (args.size() == 2) {
-                return qVariant(QPoint(args[0].toInt(), args[1].toInt()));
+                return QVariant(QPoint(args[0].toInt(), args[1].toInt()));
             }
         } else if (s == QLatin1String("@Invalid()")) {
             return QVariant();

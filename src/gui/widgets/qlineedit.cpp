@@ -1704,7 +1704,7 @@ QVariant QLineEdit::inputMethodQuery(Qt::InputMethodQuery property) const
     case Qt::ImMicroFocus:
         return d->cursorRect();
     case Qt::ImFont:
-        return qVariant(font());
+        return font();
     case Qt::ImCursorPosition:
         return QVariant(d->cursor);
     case Qt::ImSurroundingText:

@@ -58,7 +58,7 @@ public:
     inline QIcon icon() const
         { return qVariant_to<QIcon>(data(QAbstractItemModel::DecorationRole)); }
     inline void setIcon(const QIcon &icon)
-        { setData(QAbstractItemModel::DecorationRole, qVariant(icon)); }
+        { setData(QAbstractItemModel::DecorationRole, icon); }
 
     inline QString statusTip() const
         { return data(QAbstractItemModel::StatusTipRole).toString(); }
@@ -78,7 +78,7 @@ public:
     inline QFont font() const
         { return qVariant_to<QFont>(data(QAbstractItemModel::FontRole)); }
     inline void setFont(const QFont &font)
-        { setData(QAbstractItemModel::FontRole, qVariant(font)); }
+        { setData(QAbstractItemModel::FontRole, font); }
 
     inline int textAlignment() const
         { return data(QAbstractItemModel::TextAlignmentRole).toInt(); }
@@ -88,12 +88,12 @@ public:
     inline QColor backgroundColor() const
         { return qVariant_to<QColor>(data(QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(const QColor &color)
-        { setData(QAbstractItemModel::BackgroundColorRole, qVariant(color)); }
+        { setData(QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor() const
         { return qVariant_to<QColor>(data(QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(const QColor &color)
-        { setData(QAbstractItemModel::TextColorRole, qVariant(color)); }
+        { setData(QAbstractItemModel::TextColorRole, color); }
 
     inline Qt::CheckState checkState() const
         { return static_cast<Qt::CheckState>(data(QAbstractItemModel::CheckStateRole).toInt()); }

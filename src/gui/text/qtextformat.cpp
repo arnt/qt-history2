@@ -102,6 +102,17 @@
     \value PercentageLength
 */
 
+/*!
+   Returns the text length as a QVariant
+*/
+QTextLength::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::TextLength, this);
+}
+
 QDataStream &operator<<(QDataStream &stream, const QTextLength &length)
 {
     return stream << qint32(length.lengthType) << length.fixedValueOrPercentage;
@@ -452,6 +463,18 @@ QTextFormat::~QTextFormat()
 {
 }
 
+
+/*!
+   Returns the text format as a QVariant
+*/
+QTextFormat::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::TextFormat, this);
+}
+
 /*!
     Merges the \a other format with this format; where there are
     conflicts the \a other format takes precedence.
@@ -716,7 +739,7 @@ void QTextFormat::setProperty(int propertyId, const QString &value)
 */
 void QTextFormat::setProperty(int propertyId, const QColor &value)
 {
-    d->insertProperty(propertyId, qVariant(value));
+    d->insertProperty(propertyId, value);
 }
 
 
@@ -727,7 +750,7 @@ void QTextFormat::setProperty(int propertyId, const QColor &value)
 */
 void QTextFormat::setProperty(int propertyId, const QTextLength &value)
 {
-    d->insertProperty(propertyId, qVariant(value));
+    d->insertProperty(propertyId, value);
 }
 
 /*!
@@ -739,7 +762,7 @@ void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
     QVariantList list;
     for (int i=0; i<value.size(); ++i)
-        list << qVariant(value.at(i));
+        list << value.at(i);
     d->insertProperty(propertyId, list);
 }
 

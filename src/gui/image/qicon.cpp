@@ -21,6 +21,7 @@
 #include "qfileinfo.h"
 #include "qstyle.h"
 #include "qpixmapcache.h"
+#include "qvariant.h"
 #include "qdebug.h"
 
 /*!
@@ -488,6 +489,17 @@ QIcon &QIcon::operator=(const QIcon &other)
     if (x && !--x->ref)
         delete x;
     return *this;
+}
+
+/*!
+   Returns the icon as a QVariant
+*/
+QIcon::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Icon, this);
 }
 
 /*!

@@ -16,6 +16,7 @@
 #include "qnamespace.h"
 #include "qcolormap.h"
 #include "qdatastream.h"
+#include "qvariant.h"
 #include "qdebug.h"
 
 #include <math.h>
@@ -1642,6 +1643,17 @@ bool QColor::operator==(const QColor &color) const
 bool QColor::operator!=(const QColor &color) const
 { return !operator==(color); }
 
+
+/*!
+   Returns the color as a QVariant
+*/
+QColor::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Color, this);
+}
 
 /*! \internal
 

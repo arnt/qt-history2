@@ -16,6 +16,7 @@
 
 #include "QtGui/qcolor.h"
 
+class QVariant;
 
 class Q_GUI_EXPORT QPen
 {
@@ -43,6 +44,7 @@ public:
 
     bool operator==(const QPen &p) const;
     inline bool operator!=(const QPen &p) const { return !(operator==(p)); }
+    operator QVariant() const;
 
     bool isDetached() { return d->ref == 1; }
 private:

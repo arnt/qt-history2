@@ -16,6 +16,7 @@
 #ifndef QT_NO_PALETTE
 #include "qdatastream.h"
 #include "qcleanuphandler.h"
+#include "qvariant.h"
 
 static QBasicAtomic qt_palette_count = Q_ATOMIC_INIT(1);
 class QPalettePrivate {
@@ -626,6 +627,17 @@ QPalette &QPalette::operator=(const QPalette &p)
 }
 
 /*!
+   Returns the palette as a QVariant
+*/
+QPalette::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Palette, this);
+}
+
+/*!
     \fn const QColor &QPalette::color(ColorGroup gr, ColorRole r) const
     Returns the color in color group \a gr, used for color role \a r.
 
@@ -746,6 +758,17 @@ bool QColorGroup::operator==(const QColorGroup &other) const
             return false;
     }
     return true;
+}
+
+/*!
+   Returns the color group as a QVariant
+*/
+QColorGroup::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::ColorGroup, this);
 }
 #endif
 

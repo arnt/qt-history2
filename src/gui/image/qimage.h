@@ -21,6 +21,7 @@
 class QIODevice;
 class QStringList;
 class QMatrix;
+class QVariant;
 template <class T> class QList;
 #ifdef Q_WS_QWS
 class QWSPaintEngine;
@@ -71,6 +72,7 @@ public:
     QImage &operator=(const QImage &);
     bool operator==(const QImage &) const;
     bool operator!=(const QImage &) const;
+    operator QVariant() const;
     void detach();
     bool isDetached() const;
     QImage copy() const;

@@ -20,6 +20,7 @@
 
 class QMatrix;
 class QRect;
+class QVariant;
 
 class Q_GUI_EXPORT QPolygon : public QVector<QPoint>
 {
@@ -31,6 +32,7 @@ public:
     inline QPolygon(const QVector<QPoint> &v) : QVector<QPoint>(v) {}
     QPolygon(const QRect &r, bool closed=false);
     QPolygon(int nPoints, const int *points);
+    operator QVariant() const;
 
     void translate(int dx, int dy);
     void translate(const QPoint &offset);

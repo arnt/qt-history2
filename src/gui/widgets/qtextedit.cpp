@@ -1919,7 +1919,7 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
     case Qt::ImMicroFocus:
         return d->cursorRect();
     case Qt::ImFont:
-        return qVariant(currentFont());
+        return QVariant(currentFont());
     case Qt::ImCursorPosition:
         return QVariant(d->cursor.position() - block.position());
     case Qt::ImSurroundingText:

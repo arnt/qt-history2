@@ -20,6 +20,7 @@
 #include "qtoolbar.h"
 #include "qevent.h"
 #include "qstyle.h"
+#include "qvariant.h"
 #include "qwidget_p.h"
 #include "qlayout_p.h"
 #define d d_func()
@@ -30,6 +31,17 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
     if (menubar && !menubar->isExplicitlyHidden() && !menubar->isWindow())
         return menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
     return 0;
+}
+
+/*!
+   Returns the size policy as a QVariant
+*/
+QSizePolicy::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::SizePolicy, this);
 }
 
 /*!

@@ -392,7 +392,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 
     if (index.column() == 0) {
         if (role == FileIconRole)
-            return qVariant(fileIcon(index));
+            return fileIcon(index);
         if (role == FilePathRole)
             return filePath(index);
         if (role == FileNameRole)

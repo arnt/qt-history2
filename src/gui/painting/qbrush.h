@@ -22,6 +22,7 @@
 struct QBrushData;
 class QPixmap;
 class QGradient;
+class QVariant;
 
 class Q_GUI_EXPORT QBrush
 {
@@ -42,6 +43,7 @@ public:
 
     ~QBrush();
     QBrush &operator=(const QBrush &brush);
+    operator QVariant() const;
 
     inline Qt::BrushStyle style() const;
     void setStyle(Qt::BrushStyle);

@@ -17,6 +17,7 @@
 #include "qmatrix.h"
 #include "qdebug.h"
 #include "qpainterpath.h"
+#include "qvariant.h"
 #include "qpainterpath_p.h"
 #include "qbezier_p.h"
 
@@ -557,6 +558,17 @@ QPolygon QPolygonF::toPolygon() const
     for (int i=0; i<size(); ++i)
         a.append(at(i).toPoint());
     return a;
+}
+
+/*!
+   Returns the polygon as a QVariant
+*/
+QPolygon::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Polygon, this);
 }
 
 /*****************************************************************************

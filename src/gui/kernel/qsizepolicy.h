@@ -18,6 +18,8 @@
 
 // Documentation is in qabstractlayout.cpp.
 
+class QVariant;
+
 class Q_GUI_EXPORT QSizePolicy
 {
 private:
@@ -81,6 +83,7 @@ public:
 
     bool operator==(const QSizePolicy& s) const { return data == s.data; }
     bool operator!=(const QSizePolicy& s) const { return data != s.data; }
+    operator QVariant() const; // implemented in qabstractlayout.cpp
 
     uint horizontalStretch() const { return data >> 24; }
     uint verticalStretch() const { return (data >> 16) & 0xff; }

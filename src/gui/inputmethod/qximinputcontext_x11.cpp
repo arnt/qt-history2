@@ -225,14 +225,14 @@ extern "C" {
         QList<QInputMethodEvent::Attribute> attrs;
         if (cursor > 0)
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, cursor,
-                               qVariant(qic->standardFormat(QInputContext::PreeditFormat)));
+                               qic->standardFormat(QInputContext::PreeditFormat));
         if (sellen)
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, cursor, sellen,
-                               qVariant(qic->standardFormat(QInputContext::SelectionFormat)));
+                               qic->standardFormat(QInputContext::SelectionFormat));
         if (cursor + sellen < data->text.length())
             attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
                                      cursor + sellen, data->text.length() - cursor - sellen,
-                                     qVariant(qic->standardFormat(QInputContext::PreeditFormat)));
+                                     qic->standardFormat(QInputContext::PreeditFormat));
         QInputMethodEvent e(data->text, attrs);
 	qic->sendEvent(e);
 

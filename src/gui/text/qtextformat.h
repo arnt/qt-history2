@@ -67,6 +67,7 @@ public:
     { return lengthType == other.lengthType && fixedValueOrPercentage == other.fixedValueOrPercentage; }
     inline bool operator!=(const QTextLength &other) const
     { return lengthType != other.lengthType || fixedValueOrPercentage != other.fixedValueOrPercentage; }
+    operator QVariant() const;
 
 private:
     Type lengthType;
@@ -235,6 +236,7 @@ public:
 
     bool operator==(const QTextFormat &rhs) const;
     inline bool operator!=(const QTextFormat &rhs) const { return !operator==(rhs); }
+    operator QVariant() const;
 
     inline void setLayoutDirection(Qt::LayoutDirection direction)
         { setProperty(QTextFormat::LayoutDirection, direction); }

@@ -1211,6 +1211,17 @@ bool QFont::operator!=(const QFont &f) const
 }
 
 /*!
+   Returns the font as a QVariant
+*/
+QFont::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Font, this);
+}
+
+/*!
     Returns true if this font and \a f are copies of each other, i.e.
     one of them was created as a copy of the other and neither has
     been modified since. This is much stricter than equality.

@@ -19,6 +19,7 @@
 #include "QtGui/qwindowdefs.h"
 
 template <class T> class QVector;
+class QVariant;
 
 #if defined(Q_WS_QWS) || defined(Q_WS_X11) || defined(Q_WS_MAC)
 struct QRegionPrivate;
@@ -76,6 +77,7 @@ public:
 
     bool operator==(const QRegion &r) const;
     inline bool operator!=(const QRegion &r) const { return !(operator==(r)); }
+    operator QVariant() const;
 
 #if defined(Q_WS_WIN)
     inline HRGN    handle() const { return d->rgn; }

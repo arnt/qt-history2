@@ -16,6 +16,8 @@
 
 #include "QtGui/qpixmap.h"
 
+class QVariant;
+
 class Q_GUI_EXPORT QBitmap : public QPixmap
 {
 public:
@@ -35,6 +37,7 @@ public:
     QBitmap &operator=(const QBitmap &);
     QBitmap &operator=(const QPixmap &);
     QBitmap &operator=(const QImage  &);
+    operator QVariant() const;
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     QBitmap transform(const QMatrix &) const;

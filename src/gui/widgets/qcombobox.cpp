@@ -1180,7 +1180,7 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
         item = model()->index(index, 0, rootModelIndex());
         QMap<int, QVariant> values;
         values.insert(QAbstractItemModel::EditRole, text);
-        values.insert(QAbstractItemModel::DecorationRole, qVariant(icon));
+        values.insert(QAbstractItemModel::DecorationRole, icon);
         values.insert(QAbstractItemModel::UserRole, userData);
         model()->setItemData(item, values);
         if (!d->currentIndex.isValid())
@@ -1241,7 +1241,7 @@ void QComboBox::setItemIcon(int index, const QIcon &icon)
 {
     QModelIndex item = model()->index(index, 0, rootModelIndex());
     if (item.isValid()) {
-        model()->setData(item, qVariant(icon), QAbstractItemModel::DecorationRole);
+        model()->setData(item, icon, QAbstractItemModel::DecorationRole);
     }
 }
 

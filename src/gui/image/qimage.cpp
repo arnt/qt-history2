@@ -19,6 +19,7 @@
 #include "qimagereader.h"
 #include "qimagewriter.h"
 #include "qstringlist.h"
+#include "qvariant.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include <limits.h>
@@ -609,6 +610,17 @@ QImage &QImage::operator=(const QImage &image)
     if (!--x->ref)
         delete x;
     return *this;
+}
+
+/*!
+   Returns the image as a QVariant
+*/
+QImage::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Image, this);
 }
 
 /*!

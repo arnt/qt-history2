@@ -19,6 +19,7 @@
 #include <qbitmap.h>
 #include <qimage.h>
 #include <qdatastream.h>
+#include <qvariant.h>
 #include <private/qcursor_p.h>
 
 /*!
@@ -455,6 +456,17 @@ QCursor &QCursor::operator=(const QCursor &c)
         QCursorData::initialize();
     qAtomicAssign(d, c.d);
     return *this;
+}
+
+/*!
+   Returns the cursor as a QVariant
+*/
+QCursor::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Cursor, this);
 }
 
 #endif // QT_NO_CURSOR

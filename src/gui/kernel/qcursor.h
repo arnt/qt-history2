@@ -18,6 +18,8 @@
 #include "QtCore/qatomic.h"
 #include "QtGui/qwindowdefs.h"
 
+class QVariant;
+
 /*
   ### The fake cursor has to go first with old qdoc.
 */
@@ -55,6 +57,7 @@ public:
     QCursor(const QCursor &cursor);
     ~QCursor();
     QCursor &operator=(const QCursor &cursor);
+    operator QVariant() const;
 
     Qt::CursorShape shape() const;
     void setShape(Qt::CursorShape newShape);

@@ -1244,16 +1244,16 @@ QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type
                 QBitmap qbm(w,h);
                 XCopyArea(dpy,xpm,qbm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Bitmap)
-                    return qVariant(qbm);
+                    return qbm;
                 if (type == QVariant::Pixmap)
-                    return qVariant(QPixmap(qbm));
+                    return QPixmap(qbm);
                 imageWriter.setFormat("PBMRAW");
                 imageToWrite = qbm.toImage();
             } else {
                 QPixmap qpm(w,h);
                 XCopyArea(dpy,xpm,qpm.handle(),gc,0,0,w,h,0,0);
                 if (type == QVariant::Pixmap)
-                    return qVariant(qpm);
+                    return qpm;
                 imageWriter.setFormat("PPMRAW");
                 imageToWrite = qpm.toImage();
             }

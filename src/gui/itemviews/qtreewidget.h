@@ -44,7 +44,7 @@ public:
     inline QIcon icon(int column) const
         { return qVariant_to<QIcon>(data(column, QAbstractItemModel::DecorationRole)); }
     inline void setIcon(int column, const QIcon &icon)
-        { setData(column, QAbstractItemModel::DecorationRole, qVariant(icon)); }
+        { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
     inline QString statusTip(int column) const
         { return data(column, QAbstractItemModel::StatusTipRole).toString(); }
@@ -64,7 +64,7 @@ public:
     inline QFont font(int column) const
         { return qVariant_to<QFont>(data(column, QAbstractItemModel::FontRole)); }
     inline void setFont(int column, const QFont &font)
-        { setData(column, QAbstractItemModel::FontRole, qVariant(font)); }
+        { setData(column, QAbstractItemModel::FontRole, font); }
 
     inline int textAlignment(int column) const
         { return data(column, QAbstractItemModel::TextAlignmentRole).toInt(); }
@@ -74,12 +74,12 @@ public:
     inline QColor backgroundColor(int column) const
         { return qVariant_to<QColor>(data(column, QAbstractItemModel::BackgroundColorRole)); }
     inline void setBackgroundColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::BackgroundColorRole, qVariant(color)); }
+        { setData(column, QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor(int column) const
         { return qVariant_to<QColor>(data(column, QAbstractItemModel::TextColorRole)); }
     inline void setTextColor(int column, const QColor &color)
-        { setData(column, QAbstractItemModel::TextColorRole, qVariant(color)); }
+        { setData(column, QAbstractItemModel::TextColorRole, color); }
 
     inline Qt::CheckState checkState(int column) const
         { return static_cast<Qt::CheckState>(data(column, QAbstractItemModel::CheckStateRole).toInt()); }

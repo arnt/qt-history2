@@ -2725,7 +2725,7 @@ QVariant Q3TextEdit::inputMethodQuery(Qt::InputMethodQuery query) const
                      c.y() + cursor->paragraph()->rect().y() - contentsY() + frameWidth(), 1, h);
     }
     case Qt::ImFont:
-            return qVariant(c.paragraph()->at(c.index())->format()->font());
+            return c.paragraph()->at(c.index())->format()->font();
     default:
     // ##### fix the others!
         return QWidget::inputMethodQuery(query);

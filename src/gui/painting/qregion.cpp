@@ -15,6 +15,7 @@
 #include "qpolygon.h"
 #include "qbuffer.h"
 #include "qdatastream.h"
+#include "qvariant.h"
 
 #include <qdebug.h>
 
@@ -399,3 +400,15 @@ QRegion& QRegion::operator^=(const QRegion &r)
     Returns true if this region is different from the \a other region;
     otherwise returns false.
 */
+
+/*!
+   Returns the region as a QVariant
+*/
+QRegion::operator QVariant() const
+{
+    extern bool qRegisterGuiVariant();
+    static const bool b = qRegisterGuiVariant();
+    Q_UNUSED(b)
+    return QVariant(QVariant::Region, this);
+}
+
