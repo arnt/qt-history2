@@ -1956,20 +1956,8 @@ void QWidget::stackUnder(QWidget* w)
 }
 
 
-
-/*
-  The global variable qt_widget_tlw_gravity defines the window gravity of
-  the next top level window to be created. We do this when setting the
-  main widget's geometry and the "-geometry" command line option contains
-  a negative position.
-*/
-
-int qt_widget_tlw_gravity = -1;
-
 static void do_size_hints(QWidget* widget, QWExtra *x)
 {
-    if (qt_widget_tlw_gravity == -1)
-        qt_widget_tlw_gravity = QApplication::isRightToLeft() ? NorthEastGravity: NorthWestGravity;
     XSizeHints s;
     s.flags = 0;
     if (x) {
@@ -2010,9 +1998,7 @@ static void do_size_hints(QWidget* widget, QWExtra *x)
         }
     }
     s.flags |= PWinGravity;
-    s.win_gravity = qt_widget_tlw_gravity;        // usually NorthWest
-    // reset in case it was set
-    qt_widget_tlw_gravity = QApplication::isRightToLeft() ? NorthEastGravity: NorthWestGravity;
+    s.win_gravity = NorthWestGravity;
     XSetWMNormalHints(X11->display, widget->winId(), &s);
 }
 

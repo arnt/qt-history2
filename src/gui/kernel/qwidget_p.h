@@ -278,8 +278,4 @@ inline QTLWExtra *QWidgetPrivate::topData() const
     return extra->topextra;
 }
 
-#if defined (Q_WS_X11) || defined (Q_WS_QWS)
-extern int qt_widget_tlw_gravity;
-#endif
-
 #endif
