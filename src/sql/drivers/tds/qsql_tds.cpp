@@ -35,6 +35,7 @@
 
 #include "qsql_tds.h"
 
+#include <qapplication.h>
 #include <qglobal.h>
 #include <qptrdict.h>
 #include <qstringlist.h>
@@ -481,17 +482,21 @@ bool QTDSDriver::open( const QString & db,
     }
     DBSETLPWD( d->login, password.local8Bit().data() );
     DBSETLUSER( d->login, user.local8Bit().data() );
-//    DBSETLAPP( d->login, "QTDS7"); //Well, we can set the name of the app here...
+//    DBSETLAPP( d->login, "QTDS7"); // we could set the name of the application here
 
     d->dbproc = dbopen( d->login, host.local8Bit().data() );
     if ( !d->dbproc ) {
 	// we have to manually set the error here because the error handler won't fire when no dbproc exists
-	setLastError( QSqlError( QString::null, tr( "Could not open database connection" ), QSqlError::Connection ) );
+	setLastError( QSqlError( QString::null,
+				 qApp->translate( "QSql", "Could not open database connection" ),
+				 QSqlError::Connection ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
     if ( dbuse( d->dbproc, db.local8Bit().data() ) == FAIL ) {
-	setLastError( QSqlError( QString::null, tr( "Could not open database" ), QSqlError::Connection ) );
+	setLastError( QSqlError( QString::null,
+				 qApp->translate( "QSql", "Could not open database" ),
+				 QSqlError::Connection ) );
 	setOpenError( TRUE );
 	return FALSE;
     }
