@@ -144,8 +144,17 @@ extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.
 Boolean qmotif_event_dispatcher( XEvent *event )
 {
     static bool grabbed = FALSE;
+    static Window grab_window = None;
 
     QApplication::sendPostedEvents();
+
+
+    if (grabbed && event->type == DestroyNotify
+        && event->xdestroywindow.window == grab_window) {
+        // qDebug("Xt: grab window destroyed");
+        grab_window = None;
+        grabbed = FALSE;
+    }
 
     QWidgetIntDict *mapper = &static_d->mapper;
     QWidget* qMotif = mapper->find( event->xany.window );
@@ -169,11 +178,13 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	if ( w ) {
 	    if ( !grabbed && ( event->type        == XFocusIn &&
 			       event->xfocus.mode == NotifyGrab ) ) {
-		// qDebug( "Xt: grab started" );
+                // qDebug( "Xt: grab started" );
+                grab_window = XtWindow(w);
 		grabbed = TRUE;
 	    } else if ( grabbed && ( event->type        == XFocusOut &&
 				     event->xfocus.mode == NotifyUngrab ) ) {
-		// qDebug( "Xt: grab ended" );
+                // qDebug( "Xt: grab ended" );
+                grab_window = None;
 		grabbed = FALSE;
 	    }
 	}
@@ -235,7 +246,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	case EnterNotify:
 	case LeaveNotify:
 	case ClientMessage:
-	    // qDebug( "Qt: active popup - discarding event" );
+            // qDebug( "Qt: active popup - discarding event" );
 	    return True;
 
 	default:
@@ -247,7 +258,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	if ( qMotif ) {
 	    // send event through Qt modality handling...
 	    if ( !qt_try_modal( qMotif, event ) ) {
-		// qDebug( "Qt: active modal widget discarded event" );
+                // qDebug( "Qt: active modal widget discarded event" );
 		return True;
 	    }
 	} else {
@@ -274,7 +285,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 		case EnterNotify:
 		case LeaveNotify:
 		case ClientMessage:
-		    // qDebug( "Qt: active modal widget discarded unknown event" );
+                    // qDebug( "Qt: active modal widget discarded unknown event" );
 		    return True;
 		default:
 		    break;
