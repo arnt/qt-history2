@@ -366,6 +366,8 @@ private:
     QWSMouseEvent* mouse_event;
     QWSRegionModifiedEvent *region_event;
     QWSRegionModifiedEvent *region_ack;
+    QPoint region_offset;
+    int region_offset_window;
 #ifndef QT_NO_COP
     QWSQCopMessageEvent *qcop_response;
 #endif
@@ -411,6 +413,12 @@ public:
 #ifndef QT_NO_COP
     void waitForQCopResponse();
 #endif
+    void offsetPendingExpose( int, const QPoint & );
+    void translateExpose( QWSRegionModifiedEvent *re, const QPoint &p )
+    {
+	for ( int i = 0; i < re->simpleData.nrectangles; i++ )
+	    re->rectangles[i].moveBy(p.x(), p.y());
+    }
     void init();
     void create()
     {
@@ -466,6 +474,7 @@ void QWSDisplay::Data::init()
     region_ack = 0;
     mouse_event = 0;
     region_event = 0;
+    region_offset_window = 0;
 #ifndef QT_NO_COP
     qcop_response = 0;
 #endif
@@ -669,27 +678,31 @@ void QWSDisplay::Data::fillQueue()
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
 	    if ( re->simpleData.is_ack ) {
 		region_ack = re;
-#ifdef QT_NO_QWS_REPEATER
-		// For some reason the compression code here causes
-		// corruption with the repeater display
-	    } else if ( (!region_event || re->window() == region_event->window() ) ) {
-		if ( region_event ) {
-		    QRegion r1;
-		    r1.setRects( re->rectangles, re->simpleData.nrectangles );
-		    QRegion r2;
-		    r2.setRects( region_event->rectangles,
-				 region_event->simpleData.nrectangles );
-		    QRegion ur( r1 + r2 );
-		    region_event->setData( (char *)ur.rects().data(),
-					   ur.rects().count() * sizeof(QRect), TRUE );
-		    region_event->simpleData.nrectangles = ur.rects().count();
-		    delete e;
-		} else {
-		    region_event = re;
-		}
-#endif
+		region_offset = QPoint();
+		region_offset_window = 0;
 	    } else {
-		queue.append(e);
+		if ( region_offset_window == re->window() && !region_offset.isNull() ) {
+//		    qDebug( "Rgn Adjust a %d, %d", region_offset.x(), region_offset.y() );
+		    translateExpose( re, region_offset );
+		}
+		if ( (!region_event || re->window() == region_event->window() ) ) {
+		    if ( region_event ) {
+			QRegion r1;
+			r1.setRects( re->rectangles, re->simpleData.nrectangles );
+			QRegion r2;
+			r2.setRects( region_event->rectangles,
+				region_event->simpleData.nrectangles );
+			QRegion ur( r1 + r2 );
+			region_event->setData( (char *)ur.rects().data(),
+				ur.rects().count() * sizeof(QRect), TRUE );
+			region_event->simpleData.nrectangles = ur.rects().count();
+			delete e;
+		    } else {
+			region_event = re;
+		    }
+		} else {
+		    queue.append(e);
+		}
 	    }
 	} else if ( e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen ) {
 	    // Process this ASAP, in case new widgets are created (startup)
@@ -711,6 +724,33 @@ void QWSDisplay::Data::fillQueue()
 	e = readMore();
     }
 }
+
+void QWSDisplay::Data::offsetPendingExpose( int window, const QPoint &offset )
+{
+    if ( offset.isNull() )
+	return;
+
+    region_offset = offset;
+    region_offset_window = window;
+
+    QListIterator<QWSEvent> it(queue);
+    for ( ; it.current(); ++it ) {
+	QWSEvent *e = it.current();
+	if ( e->type == QWSEvent::RegionModified ) {
+	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
+	    if ( !re->simpleData.is_ack && region_offset_window == re->window() ) {
+//		qDebug( "Rgn Adjust b %d, %d", region_offset.x(), region_offset.y() );
+		translateExpose( re, region_offset );
+	    }
+	}
+    }
+
+    if ( region_event && region_offset_window == region_event->window() ) {
+//	qDebug( "Rgn Adjust c %d, %d", region_offset.x(), region_offset.y() );
+	translateExpose( region_event, region_offset );
+    }
+}
+
 
 void QWSDisplay::Data::waitForConnection()
 {
@@ -1015,6 +1055,7 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
     } else {
 	d->sendCommand( cmd );
     }
+    d->offsetPendingExpose( winId, QPoint(cmd.simpleData.dx, cmd.simpleData.dy) );
     d->waitForRegionAck();
 }
 
