@@ -208,8 +208,8 @@ QWidget * QSqlTable::createEditor( int row, int col, bool initFromCell ) const
 
 void QSqlTable::reset()
 {
-    ensureVisible( 0, 0 );    
-    verticalScrollBar()->setValue(0);    
+    ensureVisible( 0, 0 );
+    verticalScrollBar()->setValue(0);
     setNumRows(0);
     setNumCols(0);
     d->haveAllRows = FALSE;
@@ -374,7 +374,7 @@ void QSqlTable::sortColumn ( int col, bool ascending = TRUE,
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	rset->select( newSort );
-	repaintContents( 0, 0, viewport()->width(), viewport()->height() );
+	viewport()->repaint( FALSE );
     }
 }
 
@@ -483,7 +483,7 @@ void QSqlTable::setRowset( const QString& name, const QString& databaseName, boo
 void QSqlTable::setRowset( const QSqlRowset& rowset, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
-    reset();        
+    reset();
     setSorting( TRUE );
     d->resetMode( QSqlTablePrivate::Rowset );
     QSqlRowset* rset = d->rowset();
