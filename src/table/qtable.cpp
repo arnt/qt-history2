@@ -4263,7 +4263,7 @@ void QTable::updateCell( int row, int col )
     QRect cg = cellGeometry( row, col );
     QRect r( contentsToViewport( QPoint( cg.x() - 2, cg.y() - 2 ) ),
 	     QSize( cg.width() + 4, cg.height() + 4 ) );
-    QApplication::postEvent(viewport(), new QPaintEvent(r));
+    viewport()->update(r);
     inUpdateCell = FALSE;
 }
 

@@ -326,6 +326,7 @@ public:
 	PolishRequest = 74,			// object should be polished
 	Polish = 75,				// object is polished
 	LayoutRequest = 76,			// widget should be relayouted
+	UpdateRequest = 77,			// widget should be repainted
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
 	ContextMenu = 82,			// context popup menu

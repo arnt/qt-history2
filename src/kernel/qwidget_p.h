@@ -165,6 +165,7 @@ public:
     void focusInputContext();
     void checkChildrenDnd();
     void removePendingPaintEvents();
+    QRegion invalidated_region;
 #endif
 
     QWExtra *extra;

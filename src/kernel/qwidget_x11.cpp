@@ -1235,14 +1235,17 @@ void QWidget::update()
 {
     if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible ) {
 	d->removePendingPaintEvents();
-	QApplication::postEvent(this, new QPaintEvent(clipRegion()));
+	d->invalidated_region = d->clipRect();
+	QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
     }
 }
 
 void QWidget::update(const QRegion &rgn)
 {
-    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible)
-	QApplication::postEvent(this, new QPaintEvent(rgn&clipRegion()));
+    if ((widget_state & (WState_Visible|WState_BlockUpdates)) == WState_Visible) {
+	d->invalidated_region |= (rgn & d->clipRect());
+	QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+    }
 }
 
 void QWidget::update(int x, int y, int w, int h)
@@ -1252,8 +1255,10 @@ void QWidget::update(int x, int y, int w, int h)
 	    w = crect.width()  - x;
 	if ( h < 0 )
 	    h = crect.height() - y;
-	if ( w != 0 && h != 0 )
-	    QApplication::postEvent(this, new QPaintEvent(clipRegion().intersect(QRect(x,y,w,h))));
+	if ( w != 0 && h != 0 ) {
+	    d->invalidated_region |= (d->clipRect() & QRect(x, y, w, h));
+	    QApplication::postEvent(this, new QEvent(QEvent::UpdateRequest));
+	}
     }
 }
 
@@ -1341,6 +1346,9 @@ void QWidget::repaint(const QRegion& r)
     QRegion rgn(r.intersect(d->clipRect()));
     if (rgn.isEmpty())
 	return;
+
+    if (!d->invalidated_region.isEmpty())
+	d->invalidated_region -= r;
 
     setWState(WState_InPaintEvent);
 

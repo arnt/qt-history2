@@ -424,7 +424,7 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 
     // if this is one of the compressible events, do compression
     if (receiver->hasPostedEvents
-	&& (event->type() == QEvent::Paint
+	&& (event->type() == QEvent::UpdateRequest
 #ifndef QT_NO_COMPAT
 	    || event->type() == QEvent::LayoutHint
 #endif
@@ -436,15 +436,11 @@ void QKernelApplication::postEvent( QObject *receiver, QEvent *event )
 	    const QPostEvent &cur = postedEvents.at(i);
 	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
 		continue;
-	    if ( cur.event->type() == QEvent::Paint ) {
-		QPaintEvent * p = (QPaintEvent*)(cur.event);
-		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
-		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
-	    } else if ( cur.event->type() == QEvent::LayoutRequest
+	    if ( cur.event->type() == QEvent::LayoutRequest
 #ifndef QT_NO_COMPAT
 			|| cur.event->type() == QEvent::LayoutHint
 #endif
-		) {
+			|| cur.event->type() == QEvent::UpdateRequest ) {
 		;
 	    } else if ( cur.event->type() == QEvent::Resize ) {
 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
@@ -550,12 +546,7 @@ void QKernelApplication::sendPostedEvents( QObject *receiver, int event_type )
 	    if ( locker.mutex() ) locker.mutex()->unlock();
 #endif // QT_THREAD_SUPPORT
 	    // after all that work, it's time to deliver the event.
-	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
-		QWidget * w = (QWidget*)r;
-		QPaintEvent * p = (QPaintEvent*)e;
-		if ( w->isVisible() )
-		    w->repaint( p->reg);
-	    } else if ( e->type() == QEvent::PolishRequest) {
+	    if ( e->type() == QEvent::PolishRequest) {
 		r->ensurePolished();
 	    } else {
 		QKernelApplication::sendEvent( r, e );

@@ -2399,7 +2399,7 @@ void QScrollView::changeFrameRect(const QRect& r)
             fr = fr.unite( frameRect() );
             fr = fr.subtract( cr );
             if ( !fr.isEmpty() )
-                QApplication::postEvent(this, new QPaintEvent(fr));
+                update(fr);
         }
     }
 }

@@ -5367,7 +5367,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     info.window = winId();
     bool should_clip = translateBySips( this, paintRect );
 
-    QRegion paintRegion( paintRect );
+    QRegion paintRegion = d->invalidated_region;
+    paintRegion |= paintRect;
+    d->invalidated_region = QRegion();
 
     if ( merging_okay ) {
 	// WARNING: this is O(number_of_events * number_of_matching_events)
@@ -5505,10 +5507,6 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		!x11Event( &xevent ) ) // send event through filter
 	    ;
     }
-
-    if (was_resize && isVisible())
-	if (!testAttribute(WA_StaticContents))
-	    testWState(WState_InPaintEvent)?update():repaint();
 
     return TRUE;
 }
