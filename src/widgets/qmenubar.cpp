@@ -614,7 +614,7 @@ int QMenuBar::calculateRects( int max_width )
     int nlitems = 0;				// number on items on cur line
     int gs = style();
     int x = motifBarFrame + motifBarHMargin;
-    int y = motifBarFrame + motifBarVMargin - 2; // ##### not good....
+    int y = motifBarFrame + motifBarVMargin;
     int i = 0;
     int separator = -1;
     if ( gs == WindowsStyle )	//###H
@@ -672,7 +672,7 @@ int QMenuBar::calculateRects( int max_width )
 // 	    irects[i].setHeight( max_height - 2*motifBarFrame );
 	badSize = FALSE;
     }
-    
+
     return max_height;
 }
 
