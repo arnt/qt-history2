@@ -741,7 +741,7 @@ static QString groupKey( const QString &group, const QString &key )
 
   \list 1
   \i \c SYSCONF - where \c SYSCONF is a directory specified when
-  configuring Qt; by default it is INSTALL/etc.
+  configuring Qt; by default it is INSTALL/etc/settings.
   \i \c $HOME/.qt/ - where \c $HOME is the user's home directory.
   \endlist
 
