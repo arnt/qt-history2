@@ -180,19 +180,16 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   \endcode
 
   The last important function you will need to use when creating your
-  own file dialog is selectedFile().
+  own file dialog is selectedFiles().
 
   \code
-    QString fileName;
-    if (fd->exec() == QDialog::Accepted)
-        fileName = fd->selectedFile();
+    QStringList fileNames;
+    if (fileDialog->exec())
+        fileNames = fileNames->selectedFiles();
   \endcode
 
   In the above example, a modal file dialog is created and shown. If
   the user clicked OK, the file they selected is put in \c fileName.
-
-  If you are using the \c ExistingFiles mode then you will need to use
-  selectedFiles() which returns the selected files in a QStringList.
 
   The dialog's working directory can be set with setDirectory().
   The display of hidden files is controlled with showHidden().
@@ -434,23 +431,9 @@ void QFileDialog::selectFile(const QString &filename)
 /*!
   Returns a list of strings containing the absolute paths of the
   selected files in the dialog. If no files are selected, or
-  the mode is not ExistingFiles, selectedFiles is an empty list.
+  the mode is not ExistingFiles, selectedFiles() is an empty list.
 
-  It is more convenient to use selectedFile() if the mode is
-  \c ExistingFile, \c Directory or \c DirectoryOnly.
-
-  Note that if you want to iterate over the list, you should
-  iterate over a copy, e.g.
-    \code
-    QStringList list = myFileDialog.selectedFiles();
-    QStringList::Iterator it = list.begin();
-    while( it != list.end() ) {
-        myProcessing( *it );
-        ++it;
-    }
-    \endcode
-
-  \sa selectedFile, selectedFilter, QValueList::empty()
+  \sa selectedFilter, QValueList::empty()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -557,7 +540,7 @@ void QFileDialog::selectFilter(const QString &filter)
 /*!
   Returns the filter that the user selected in the file dialog.
 
-  \sa filterSelected(), selectedFiles, selectedFile
+  \sa filterSelected(), selectedFiles
 */
 
 QString QFileDialog::selectedFilter() const
@@ -2111,12 +2094,12 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     Use selectedFiles() instead.
 
     \oldcode
-    QString selected = dialog->selectedFile();
+        QString selected = dialog->selectedFile();
     \newcode
-    QStringList files = dialog->selectedFiles();
-    QString selected;
-    if (files.count())
-        selected = files[0];
+        QStringList files = dialog->selectedFiles();
+        QString selected;
+        if (!files.isEmpty())
+            selected = files[0];
     \endcode
 */
 QString QFileDialog::selectedFile() const
