@@ -543,7 +543,7 @@ private:
     void   	 setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
-    void	 updateFrameStrut();
+    void	 updateFrameStrut() const;
 #if defined(Q_WS_X11)
     void         setBackgroundX11Relative();
 #endif
@@ -558,11 +558,7 @@ private:
     uint 	 is_closing :1;
     uint 	 in_show : 1;
     uint	 fstrut_dirty : 1;
-
-    // frame strut
-    int		 fleft, fright, ftop, fbottom;
     QRect	 crect;
-
     QColor	 bg_col;
 #ifndef QT_NO_PALETTE
     QPalette	 pal;
@@ -659,33 +655,6 @@ inline bool QWidget::isEnabledToTLW() const
 
 inline const QRect &QWidget::geometry() const
 { return crect; }
-
-inline int QWidget::x() const
-{
-    if (fstrut_dirty) {
-	QWidget *that = (QWidget *) this;
-	that->updateFrameStrut();
-    }
-    return crect.x() - fleft;
-}
-
-inline int QWidget::y() const
-{
-    if (fstrut_dirty) {
-	QWidget *that = (QWidget *) this;
-	that->updateFrameStrut();
-    }
-    return crect.y() - ftop;
-}
-
-inline QPoint QWidget::pos() const
-{
-    if (fstrut_dirty) {
-	QWidget *that = (QWidget *) this;
-	that->updateFrameStrut();
-    }
-    return QPoint(crect.x() - fleft, crect.y() - ftop);
-}
 
 inline QSize QWidget::size() const
 { return crect.size(); }
@@ -866,6 +835,8 @@ struct Q_EXPORT QTLWExtra {
     QPixmap *icon;				// widget icon
     QFocusData *focusData;			// focus data (for TLW)
     short    incw, inch;			// size increments
+    // frame strut
+    ulong    fleft, fright, ftop, fbottom;
     uint     iconic: 1;				// iconified [cur. win32 only]
     uint     fullscreen : 1;			// full-screen mode
     uint     showMode: 2;			// 0 normal, 1 minimized, 2 maximized, 3 reset

@@ -1272,14 +1272,12 @@ void QWidget::setName( const char *name )
     QObject::setName( name );
 }
 
-void QWidget::updateFrameStrut()
+void QWidget::updateFrameStrut() const
 {
-    if ( !isVisible() )
-	return;
+    QWidget *that = (QWidget *) this;
 
-    if ( !isTopLevel() || isDesktop() ) {
-	fleft = fright = ftop = fbottom = 0;
-	fstrut_dirty = FALSE;
+    if ( !isVisible() || isDesktop() ) {
+	that->fstrut_dirty = isVisible();
 	return;
     }
 
@@ -1295,10 +1293,11 @@ void QWidget::updateFrameStrut()
     crect = QRect( QPoint( pt.x, pt.y ),
  		   QPoint( pt.x + cr.right, pt.y + cr.bottom ) );
 
-    ftop = crect.top() - fr.top;
-    fleft = crect.left() - fr.left;
-    fbottom = fr.bottom - crect.bottom();
-    fright = fr.right - crect.right();
+    QTLWExtra *top = that->topData();
+    top->ftop = crect.top() - fr.top;
+    top->fleft = crect.left() - fr.left;
+    top->fbottom = fr.bottom - crect.bottom();
+    top->fright = fr.right - crect.right();
 
-    fstrut_dirty = FALSE;
+    that->fstrut_dirty = FALSE;
 }

@@ -306,11 +306,16 @@ Atom            qt_net_wm_window_type   = 0;
 Atom            qt_net_wm_window_type_normal	= 0;
 Atom            qt_net_wm_window_type_dialog	= 0;
 Atom            qt_net_wm_window_type_toolbar	= 0;
-Atom            qt_net_wm_window_type_override	= 0;
+Atom            qt_net_wm_window_type_override	= 0;	// KDE extension
 Atom		qt_net_wm_frame_strut	= 0;	// KDE extension
 Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
 // Enlightenment support
 Atom		qt_enlightenment_desktop	= 0;
+
+// window managers list of supported "stuff"
+Atom		*qt_net_supported_list	= 0;
+// list of virtual root windows
+Window		*qt_net_virtual_root_list	= 0;
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -695,7 +700,7 @@ static bool qt_set_desktop_properties()
 
     bool read_settings = FALSE, success = FALSE, prop_exists = FALSE;
 
-    int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp, 0, 1,
+    int e = XGetWindowProperty(appDpy, appRootWin, qt_desktop_prop_stamp, 0, 0,
 			       FALSE, AnyPropertyType, &type, &format, &nitems,
 			       &after, &data);
     if (data)
@@ -1440,6 +1445,113 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 }
 
 
+// update the supported array
+void qt_get_net_supported()
+{
+    Atom type;
+    int format;
+    long offset = 0;
+    unsigned long nitems, after;
+    unsigned char *data;
+
+    int e = XGetWindowProperty(appDpy, appRootWin, qt_net_supported, 0, 0,
+			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+    if (data)
+	XFree(data);
+
+    if (qt_net_supported_list)
+	delete [] qt_net_supported_list;
+    qt_net_supported_list = 0;
+
+    if (e == Success && type == XA_ATOM && format == 32) {
+	QBuffer ts;
+	ts.open(IO_WriteOnly);
+
+	while (after > 0) {
+	    XGetWindowProperty(appDpy, appRootWin, qt_net_supported, offset, 1024,
+			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+
+	    if (type == XA_ATOM && format == 32) {
+		ts.writeBlock((const char *) data, nitems * 4);
+		offset += nitems;
+	    } else
+		after = 0;
+	}
+
+	// compute nitems
+	QByteArray buffer(ts.buffer());
+	nitems = buffer.size() / sizeof(Atom);
+	qt_net_supported_list = new Atom[nitems + 1];
+	Atom *a = (Atom *) buffer.data();
+	uint i;
+	for (i = 0; i < nitems; i++)
+	    qt_net_supported_list[i] = a[i];
+	qt_net_supported_list[nitems] = 0;
+    }
+}
+
+
+// update the virtual roots array
+void qt_get_net_virtual_roots()
+{
+    if (! qt_net_supported_list)
+	return;
+
+    if (qt_net_virtual_root_list)
+	delete [] qt_net_virtual_root_list;
+    qt_net_virtual_root_list = 0;
+
+    bool supports_virtual_roots = FALSE;
+    int i = 0;
+    while (qt_net_supported_list[i] != 0) {
+	if (qt_net_supported_list[i++] == qt_net_virtual_roots) {
+	    supports_virtual_roots = TRUE;
+	    break;
+	}
+    }
+
+    if (! supports_virtual_roots)
+	return;
+
+    Atom type;
+    int format;
+    long offset = 0;
+    unsigned long nitems, after;
+    unsigned char *data;
+
+    int e = XGetWindowProperty(appDpy, appRootWin, qt_net_virtual_roots, 0, 0,
+			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+    if (data)
+	XFree(data);
+
+    if (e == Success && type == XA_ATOM && format == 32) {
+	QBuffer ts;
+	ts.open(IO_WriteOnly);
+
+	while (after > 0) {
+	    XGetWindowProperty(appDpy, appRootWin, qt_net_virtual_roots, offset, 1024,
+			       FALSE, XA_ATOM, &type, &format, &nitems, &after, &data);
+
+	    if (type == XA_ATOM && format == 32) {
+		ts.writeBlock((const char *) data, nitems * 4);
+		offset += nitems;
+	    } else
+		after = 0;
+	}
+
+	// compute nitems
+	QByteArray buffer(ts.buffer());
+	nitems = buffer.size() / sizeof(Window);
+	qt_net_supported_list = new Window[nitems + 1];
+	Window *a = (Window *) buffer.data();
+	uint i;
+	for (i = 0; i < nitems; i++)
+	    qt_net_virtual_root_list[i] = a[i];
+	qt_net_virtual_root_list[nitems] = 0;
+    }
+}
+
+
 /*
   Returns a truecolor visual (if there is one). 8-bit TrueColor visuals
   are ignored, unless the user has explicitly requested -visual TrueColor.
@@ -1792,6 +1904,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
+
 	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
 	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
 	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
@@ -1802,7 +1915,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 			    &qt_net_wm_window_type_dialog );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_TOOLBAR",
 			    &qt_net_wm_window_type_toolbar );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_OVERRIDE",
+	qt_x11_intern_atom( "_KDE__NET_WM_WINDOW_TYPE_OVERRIDE",
 			    &qt_net_wm_window_type_override );
 	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
 	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
@@ -1814,6 +1927,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	// Finally create all atoms
 	qt_x11_process_intern_atoms();
+
+	// initialize NET lists
+	qt_get_net_supported();
+	qt_get_net_virtual_roots();
 
 	// Misc. initialization
 
@@ -2022,6 +2139,14 @@ void qt_cleanup()
     close(qt_thread_pipe[0]);
     close(qt_thread_pipe[1]);
 #endif // Q_OS_UNIX
+
+    if (qt_net_supported_list)
+	delete [] qt_net_supported_list;
+    qt_net_supported_list = 0;
+
+    if (qt_net_virtual_root_list)
+	delete [] qt_net_virtual_root_list;
+    qt_net_virtual_root_list = 0;
 }
 
 
@@ -3267,37 +3392,46 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		    emit clipboard()->dataChanged();
 	    } else if ( event->xproperty.atom == qt_input_encoding ) {
 		qt_set_input_encoding();
+	    } else if ( event->xproperty.atom == qt_net_supported ) {
+		qt_get_net_supported();
+	    } else if ( event->xproperty.atom == qt_net_virtual_roots ) {
+		qt_get_net_virtual_roots();
 	    } else if ( obey_desktop_settings ) {
 		if ( event->xproperty.atom == qt_resource_manager )
 		    qt_set_x11_resources();
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
 	    }
-	} else if ( widget && event->xproperty.window == widget->winId() ) { // widget properties
-	    if (event->xproperty.atom == qt_net_wm_frame_strut) {
-		Atom ret;
-		int format;
-		unsigned char *data = 0;
-		unsigned long nitems, after;
-		if (XGetWindowProperty(appDpy, event->xproperty.window,
-				       qt_net_wm_frame_strut, 0, 4, // struts are 4 longs
-				       FALSE, XA_CARDINAL, &ret, &format, &nitems,
-				       &after, &data) == Success &&
-		    ret == XA_CARDINAL && format == 32 && nitems == 4) {
-		    unsigned long *strut = (unsigned long *) data;
-		    widget->fleft   = strut[0];
-		    widget->fright  = strut[1];
-		    widget->ftop    = strut[2];
-		    widget->fbottom = strut[3];
-		    widget->fstrut_dirty = 0;
-		} else {
-		    // if failed, zero the strut and mark it dirty
-		    widget->fleft = widget->fright = widget->ftop = widget->fbottom = 0;
-		    widget->fstrut_dirty = 1;
-		}
+	} else if ( widget) {
+	    if (event->xproperty.window == widget->winId() ) { // widget properties
+		if (widget->isTopLevel() &&
+		    event->xproperty.atom == qt_net_wm_frame_strut) {
+		    Atom ret;
+		    int format;
+		    unsigned char *data = 0;
+		    unsigned long nitems, after;
+		    if (XGetWindowProperty(appDpy, event->xproperty.window,
+					   qt_net_wm_frame_strut,
+					   0, 4, // struts are 4 longs
+					   FALSE, XA_CARDINAL, &ret, &format, &nitems,
+					   &after, &data) == Success &&
+			ret == XA_CARDINAL && format == 32 && nitems == 4) {
+			unsigned long *strut = (unsigned long *) data;
+			widget->topData()->fleft   = strut[0];
+			widget->topData()->fright  = strut[1];
+			widget->topData()->ftop    = strut[2];
+			widget->topData()->fbottom = strut[3];
+			widget->fstrut_dirty = 0;
+		    } else {
+			// if failed, zero the strut and mark it dirty
+			widget->topData()->fleft = widget->topData()->fright =
+			 widget->topData()->ftop = widget->topData()->fbottom = 0;
+			widget->fstrut_dirty = 1;
+		    }
 
-		if (data)
-		    XFree(data);
+		    if (data)
+			XFree(data);
+		}
 	    }
 	}
 	return 0;
@@ -4662,7 +4796,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if ( key < 128 || key < 256 && (!input_mapper || input_mapper->mibEnum()==4) ) {
+    if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
 	chars[0] = key;
 	chars[1] = '\0';

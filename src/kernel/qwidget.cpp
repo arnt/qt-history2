@@ -683,7 +683,6 @@ same group.
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
-    fleft = fright = ftop = fbottom = 0;
     fstrut_dirty = 1;
 
     isWidget = TRUE;				// is a widget
@@ -919,7 +918,7 @@ void QWidget::createTLExtra()
 	QTLWExtra* x = extra->topextra = new QTLWExtra;
 	x->icon = 0;
 	x->focusData = 0;
-	// x->fsize = crect.size();
+	x->fleft = x->fright = x->ftop = x->fbottom = 0;
 	x->incw = x->inch = 0;
 	x->basew = x->baseh = 0;
 	x->iconic = 0;
@@ -1401,28 +1400,18 @@ void QWidget::enabledChange( bool )
 
 QRect QWidget::frameGeometry() const
 {
-    if (fstrut_dirty) {
+    if (isTopLevel()) {
+	if (fstrut_dirty)
+	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	that->updateFrameStrut();
+	QTLWExtra *top = that->topData();
+	return QRect(crect.x() - top->fleft,
+		     crect.y() - top->ftop,
+		     crect.width() + top->fleft + top->fright,
+		     crect.height() + top->ftop + top->fbottom);
     }
-    return QRect(crect.x() - fleft,
-		 crect.y() - ftop,
-		 crect.width() + fleft + fright,
-		 crect.height() + ftop + fbottom);
+    return crect;
 }
-
-
-
-/*!
-  \fn const QRect &QWidget::geometry() const
-  Returns the geometry of the widget, relative to its parent widget
-  and excluding the window frame.
-
-  See the \link geometry.html Window Geometry documentation\endlink
-  for an overview of geometry issues with top-level widgets.
-
-  \sa frameGeometry(), size(), rect()
-*/
 
 /*!
   \fn int QWidget::x() const
@@ -1434,6 +1423,16 @@ QRect QWidget::frameGeometry() const
 
   \sa frameGeometry(), y(), pos()
 */
+int QWidget::x() const
+{
+    if (isTopLevel()) {
+	if (fstrut_dirty)
+	    updateFrameStrut();
+	QWidget *that = (QWidget *) this;
+	return crect.x() - that->topData()->fleft;
+    }
+    return crect.x();
+}
 
 /*!
   \fn int QWidget::y() const
@@ -1445,6 +1444,16 @@ QRect QWidget::frameGeometry() const
 
   \sa frameGeometry(), x(), pos()
 */
+int QWidget::y() const
+{
+    if (isTopLevel()) {
+	if (fstrut_dirty)
+	    updateFrameStrut();
+	QWidget *that = (QWidget *) this;
+	return crect.y() - that->topData()->ftop;
+    }
+    return crect.y();
+}
 
 /*!
   \fn QPoint QWidget::pos() const
@@ -1455,6 +1464,28 @@ QRect QWidget::frameGeometry() const
   for an overview of geometry issues with top-level widgets.
 
   \sa move(), frameGeometry(), x(), y()
+*/
+QPoint QWidget::pos() const
+{
+    if (isTopLevel()) {
+	if (fstrut_dirty)
+	    updateFrameStrut();
+	QWidget *that = (QWidget *) this;
+	QTLWExtra *top = that->topData();
+	return QPoint(crect.x() - top->fleft, crect.y() - top->ftop);
+    }
+    return crect.topLeft();
+}
+
+/*!
+  \fn const QRect &QWidget::geometry() const
+  Returns the geometry of the widget, relative to its parent widget
+  and excluding the window frame.
+
+  See the \link geometry.html Window Geometry documentation\endlink
+  for an overview of geometry issues with top-level widgets.
+
+  \sa frameGeometry(), size(), rect()
 */
 
 /*!
@@ -2943,16 +2974,15 @@ void QWidget::reparentFocusWidgets( QWidget * oldtlw )
 */
 QSize QWidget::frameSize() const
 {
-    if (fstrut_dirty) {
+    if (isTopLevel()) {
+	if (fstrut_dirty)
+	    updateFrameStrut();
 	QWidget *that = (QWidget *) this;
-	that->updateFrameStrut();
+	QTLWExtra *top = that->topData();
+	return QSize(crect.width() + top->fleft + top->fright,
+		     crect.height() + top->ftop + top->fbottom);
     }
-    return QSize(crect.width() + fleft + fright,
-		 crect.height() + ftop + fbottom);
-
-    // return extra && extra->topextra
-    // ? extra->topextra->fsize
-    // : crect.size();
+    return crect.size();
 }
 
 

@@ -416,6 +416,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     if ( topLevel ) {
+	// when we create a toplevel widget, the frame strut should be dirty
+	fstrut_dirty = 1;
+
 	// declare the widget's object name as window role
 	XChangeProperty( dpy, id,
 			 qt_window_role, XA_STRING, 8, PropModeReplace,
@@ -427,7 +430,9 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			     qt_sm_client_id, XA_STRING, 8, PropModeReplace,
 			     (unsigned char *)session.data(), session.length() );
 	}
-    }
+    } else
+	// non-toplevel widgets don't have a frame, so no need to update the strut
+	fstrut_dirty = 0;
 
     if ( destroyw )
 	qt_XDestroyWindow( this, dpy, destroyw );
@@ -1460,8 +1465,12 @@ void QWidget::hideWindow()
 	if ( winId() ) // in nsplugin, may be 0
 	    XWithdrawWindow( x11Display(), winId(), x11Screen() );
 
-	crect.moveTopLeft( QPoint(crect.x() - fleft, crect.y() - ftop ));
-	fleft = fright = ftop = fbottom = 0;
+	QTLWExtra *top = topData();
+	crect.moveTopLeft( QPoint(crect.x() - top->fleft, crect.y() - top->ftop ) );
+
+	// zero the frame strut and mark it dirty
+	top->fleft = top->fright = top->ftop = top->fbottom = 0;
+	fstrut_dirty = TRUE;
     } else {
 	if ( winId() ) // in nsplugin, may be 0
 	    XUnmapWindow( x11Display(), winId() );
@@ -2322,12 +2331,14 @@ void QWidget::setName( const char *name )
 */
 
 extern Atom qt_enlightenment_desktop;
+extern unsigned long *qt_net_virtual_root_list;
 
-void QWidget::updateFrameStrut()
+void QWidget::updateFrameStrut() const
 {
-    if (! isTopLevel() || ! isVisible() || isDesktop()) {
-	fleft = fright = ftop = fbottom = 0;
-	fstrut_dirty = isVisible();
+    QWidget *that = (QWidget *) this;
+
+    if (! isVisible() || isDesktop()) {
+	that->fstrut_dirty = isVisible();
 	return;
     }
 
@@ -2343,12 +2354,15 @@ void QWidget::updateFrameStrut()
 	if (c && nc > 0)
 	    XFree(c);
 
+	if (! p) {
+	    qDebug("QWidget::updateFrameStrut(): ERROR - no parent");
+	    return;
+	}
+
 	// if the parent window is the root window, an Enlightenment virtual root or
 	// a NET WM virtual root window, stop here
-
    	data_ret = 0;
 	if (p == r ||
-#warning "TODO: NET WM virtual root support"
 	    (XGetWindowProperty(QPaintDevice::x11AppDisplay(), p,
 				qt_enlightenment_desktop, 0, 1, FALSE, XA_CARDINAL,
 				&type_ret, &i_unused, &l_unused, &l_unused,
@@ -2358,11 +2372,12 @@ void QWidget::updateFrameStrut()
 		XFree(data_ret);
 
 	    break;
-	}
-
-	if (! p) {
-	    qDebug("QWidget::updateFrameStrut(): ERROR - no parent");
-	    return;
+	} else if (qt_net_virtual_root_list) {
+	    int i = 0;
+	    while (qt_net_virtual_root_list[i] != 0) {
+		if (qt_net_virtual_root_list[i++] == p)
+		    break;
+	    }
 	}
 
 	l = w;
@@ -2375,10 +2390,11 @@ void QWidget::updateFrameStrut()
     if (XTranslateCoordinates(QPaintDevice::x11AppDisplay(), l, w,
 			      0, 0, &transx, &transy, &p) &&
 	XGetWindowAttributes(QPaintDevice::x11AppDisplay(), w, &wattr)) {
-	fleft = transx;
-	ftop = transy;
-	fright = wattr.width - crect.width() - fleft;
-	fbottom = wattr.height - crect.height() - ftop;
+	QTLWExtra *top = that->topData();
+	top->fleft = transx;
+	top->ftop = transy;
+	top->fright = wattr.width - crect.width() - top->fleft;
+	top->fbottom = wattr.height - crect.height() - top->ftop;
 
 	// add the border_width for the window managers frame... some window managers
 	// do not use a border_width of zero for their frames, and if we the left and
@@ -2386,11 +2402,11 @@ void QWidget::updateFrameStrut()
 	// will still be incorrect though... perhaps i should have foffset as well, to
 	// indicate the frame offset (equal to the border_width on X).
 	// - Brad
-	fleft += wattr.border_width;
-	fright += wattr.border_width;
-	ftop += wattr.border_width;
-	fbottom += wattr.border_width;
+	top->fleft += wattr.border_width;
+	top->fright += wattr.border_width;
+	top->ftop += wattr.border_width;
+	top->fbottom += wattr.border_width;
     }
 
-    fstrut_dirty = 0;
+    that->fstrut_dirty = 0;
 }
