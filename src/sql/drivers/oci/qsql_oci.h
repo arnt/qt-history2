@@ -44,11 +44,16 @@
 
 #include <oci.h>
 
+#ifdef QT_PLUGIN
+#define Q_EXPORT_SQLDRIVER_OCI
+#else
+#define Q_EXPORT_SQLDRIVER_OCI Q_EXPORT
+#endif
+
 // Check if OCI supports scrollable cursors (Oracle version >= 9)
 #ifdef OCI_STMT_SCROLLABLE_READONLY
 #define QOCI_USES_VERSION_9
 #endif
-
 
 class QOCIPrivate;
 class QOCIResultPrivate;
@@ -114,7 +119,7 @@ private:
 };
 #endif //QOCI_USES_VERSION_9
 
-class QOCIDriver : public QSqlDriver
+class Q_EXPORT_SQLDRIVER_OCI QOCIDriver : public QSqlDriver
 {
 public:
     QOCIDriver( QObject * parent=0, const char * name=0 );

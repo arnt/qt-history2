@@ -48,6 +48,12 @@
 #include <qt_windows.h>
 #endif
 
+#ifdef QT_PLUGIN
+#define Q_EXPORT_SQLDRIVER_ODBC
+#else
+#define Q_EXPORT_SQLDRIVER_ODBC Q_EXPORT
+#endif
+
 #include <sql.h>
 #include <sqlucode.h>
 #include <sqlext.h>
@@ -84,7 +90,7 @@ private:
     NullCache nullCache;
 };
 
-class QODBCDriver : public QSqlDriver
+class Q_EXPORT_SQLDRIVER_ODBC QODBCDriver : public QSqlDriver
 {
 public:
     QODBCDriver( QObject * parent=0, const char * name=0 );

@@ -48,6 +48,12 @@
 
 #include <mysql.h>
 
+#ifdef QT_PLUGIN
+#define Q_EXPORT_SQLDRIVER_MYSQL
+#else
+#define Q_EXPORT_SQLDRIVER_MYSQL Q_EXPORT
+#endif
+
 class QMYSQLDriverPrivate;
 class QMYSQLResultPrivate;
 class QMYSQLDriver;
@@ -76,7 +82,7 @@ private:
     QMYSQLResultPrivate* d;
 };
 
-class QMYSQLDriver : public QSqlDriver
+class Q_EXPORT_SQLDRIVER_MYSQL QMYSQLDriver : public QSqlDriver
 {
     friend class QMYSQLResult;
 public:

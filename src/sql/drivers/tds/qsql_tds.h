@@ -42,6 +42,12 @@
 #include <qsqldriver.h>
 #include "../shared/qsql_result.h"
 
+#ifdef QT_PLUGIN
+#define Q_EXPORT_SQLDRIVER_TDS
+#else
+#define Q_EXPORT_SQLDRIVER_TDS Q_EXPORT
+#endif
+
 class QTDSPrivate;
 class QTDSDriver;
 
@@ -61,7 +67,7 @@ private:
     QTDSPrivate*	d;
 };
 
-class QTDSDriver : public QSqlDriver
+class Q_EXPORT_SQLDRIVER_TDS QTDSDriver : public QSqlDriver
 {
 public:
     QTDSDriver( QObject * parent=0, const char * name=0 );

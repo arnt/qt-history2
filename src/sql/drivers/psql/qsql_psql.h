@@ -42,6 +42,12 @@
 #include <qsqldriver.h>
 #include <libpq-fe.h>
 
+#ifdef QT_PLUGIN
+#define Q_EXPORT_SQLDRIVER_PSQL
+#else
+#define Q_EXPORT_SQLDRIVER_PSQL Q_EXPORT
+#endif
+
 class QPSQLPrivate;
 class QPSQLDriver;
 class QSqlRecordInfo;
@@ -68,7 +74,7 @@ private:
     QPSQLPrivate*	d;
 };
 
-class QPSQLDriver : public QSqlDriver
+class Q_EXPORT_SQLDRIVER_PSQL QPSQLDriver : public QSqlDriver
 {
 public:
     enum Protocol {
