@@ -488,22 +488,17 @@ QRect QStyle::itemRect(const QFontMetrics &fm, const QRect &r,
                         const QString& text, int len) const
 {
     QRect result;
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-    Qt::GUIStyle gs = (Qt::GUIStyle)styleHint(SH_GUIStyle);
-
-    if (!text.isNull()) {
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
+    if (!text.isEmpty()) {
         result = fm.boundingRect(x, y, w, h, flags, text, len);
-        if (gs == Qt::WindowsStyle && !enabled) {
+        if (!enabled && styleHint(SH_EtchDisabledText)) {
             result.setWidth(result.width()+1);
             result.setHeight(result.height()+1);
         }
     } else {
         result = QRect(x, y, w, h);
     }
-
     return result;
 }
 
@@ -518,10 +513,8 @@ QRect QStyle::itemRect(const QRect &r,
                         int flags, const QPixmap &pixmap) const
 {
     QRect result;
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
     if ((flags & Qt::AlignVCenter) == Qt::AlignVCenter)
         y += h/2 - pixmap.height()/2;
     else if ((flags & Qt::AlignBottom) == Qt::AlignBottom)
@@ -567,14 +560,12 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
                        const QString& text, int len,
                        const QColor *penColor) const
 {
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
-    Qt::GUIStyle gs = (Qt::GUIStyle)styleHint(SH_GUIStyle);
-    p->setPen(penColor?*penColor:pal.foreground().color());
-    if (!text.isNull()) {
-        if (gs == Qt::WindowsStyle && !enabled) {
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
+
+    p->setPen(penColor ? *penColor : pal.foreground().color());
+    if (!text.isEmpty()) {
+        if (!enabled && styleHint(SH_EtchDisabledText)) {
             p->setPen(pal.light());
             p->drawText(x+1, y+1, w, h, flags, text, len);
             p->setPen(pal.text());
@@ -594,10 +585,8 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
                        const QPixmap &pixmap,
                        const QColor *penColor) const
 {
-    int x = r.x();
-    int y = r.y();
-    int w = r.width();
-    int h = r.height();
+    int x, y, w, h;
+    r.rect(&x, &y, &w, &h);
 
     p->setPen(penColor?*penColor:pal.foreground().color());
     QPixmap pm(pixmap);
