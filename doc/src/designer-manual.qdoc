@@ -17,224 +17,41 @@ that they will look and feel exactly as you intended.
 
 \list
 \i \l{designer-getting-started.html}{Getting Started}
- \list
-   \i
-   \raw HTML
-   <a href="designer-getting-started.html#sec.1">Launching Designer</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-getting-started.html#sec.2">The User Interface</a>
-   \endraw
- \endlist
+  \tableofcontents{1 designer-getting-started.html}
 \i \l{designer-designing-a-component.html}{Designing a Component}
- \list
-   \i
-   \raw HTML
-   <a href="designer-designing-a-component.html#sec.1">Creating a Dialog</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-designing-a-component.html#sec.2">Composing the Dialog</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-designing-a-component.html#sec.3">Creating a Layout</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-designing-a-component.html#sec.4">Signal and Slot Connections</a>
-   \endraw
- \endlist
+ \tableofcontents{1 designer-designing-a-component.html}
 \i \l{designer-using-a-component.html}{Using a Component in Your Application}
- \list
-   \i
-   \raw HTML
-   <a href="designer-using-a-component.html#sec.1">The Direct Approach</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-a-component.html#sec.2">The Single Inheritance Approach</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-a-component.html#sec.3">The Multiple Inheritance Approach</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-a-component.html#sec.4">Automatic Connections</a>
-   \endraw
-  \list
-    \i
-    \raw HTML
-    <a href="designer-using-a-component.html#sec.4.1">A Dialog Without Auto-Connect</a>
-    \endraw
-    \i
-    \raw HTML
-    <a href="designer-using-a-component.html#sec.4.2">A Dialog With Auto-Connect</a>
-    \endraw
-  \endlist
- \endlist
+ \tableofcontents{1 designer-using-a-component.html}
 \i \l{designer-editing-mode.html}{Form Editing Mode}
- \list
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.1">Managing Forms</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.2">Editing a Form</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.3">The Property Editor</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.4">The Object Inspector</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.5">Layouts</a>
-   \endraw
-  \list
-    \i
-    \raw HTML
-    <a href="designer-editing-mode.html#sec.5.1">Applying and Breaking Layouts</a>
-    \endraw
-    \i
-    \raw HTML
-    <a href="designer-editing-mode.html#sec.5.2">Horizontal and Vertical Layouts</a>
-    \endraw
-    \i
-    \raw HTML
-    <a href="designer-editing-mode.html#sec.5.3">The Grid Layout</a>
-    \endraw
-  \endlist
-   \i
-   \raw HTML
-   <a href="designer-editing-mode.html#sec.6">Previewing Forms</a>
-   \endraw
- \endlist
+ \tableofcontents{1 designer-editing-mode.html}
 \i \l{designer-using-containers.html}{Using Containers}
- \list
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.1">General Features</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.2">Frames</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.3">Group Boxes</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.4">Stacked Widgets</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.5">Tab Widgets</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-using-containers.html#sec.6">Toolbox Widgets</a>
-   \endraw
- \endlist
+ \tableofcontents{1 designer-using-containers.html}
 \i \l{designer-connection-mode.html}{Connection Editing Mode}
- \list
-   \i
-   \raw HTML
-   <a href="designer-connection-mode.html#sec.1">Connecting Objects</a>
-   \endraw
-   \i
-   \raw HTML
-   <a href="designer-connection-mode.html#sec.2">Editing Connections</a>
-   \endraw
- \endlist
+ \tableofcontents{1 designer-connection-mode.html}
 \endlist
 
 \section1 Figures and Hints
 
 \list
-\i
-\raw HTML
-<b><a href="designer-getting-started.html#sec.2"><i>Qt Designer</i>'s main window</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-getting-started.html#sec.2"><i>Qt Designer</i>'s toolbox</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.1">Choosing a form</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.2">Editing modes</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.2">Adding widgets to a form</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.2">The Property Editor</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.3">Placing widgets in layouts</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.4">Connecting widgets</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-designing-a-component.html#sec.4">Previewing a form</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-editing-mode.html#sec.2">Selecting objects</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-editing-mode.html#sec.2">Drag and drop</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-editing-mode.html#sec.3">Editing properties</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-editing-mode.html#sec.4">Editing properties</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-editing-mode.html#sec.5.1">Inserting objects into a layout</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-connection-mode.html#sec.1">Highlighted objects</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-connection-mode.html#sec.1">Making a connection</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-connection-mode.html#sec.1">Choosing signals and slots</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-connection-mode.html#sec.2">Editing connection paths</a></b>
-\endraw
-\i
-\raw HTML
-<b><a href="designer-connection-mode.html#sec.2">Deleting connections</a></b>
-\endraw
+\i \l{designer-getting-started.html#DesignerMainWindow}{\e{Qt Designer}'s main window}
+\i \l{designer-getting-started.html#DesignerToolbox}{\e{Qt Designer}'s toolbox}
+\i \l{designer-designing-a-component.html#ChoosingAForm}{Choosing a form}
+\i \l{designer-designing-a-component.html#EditingModes}{Editing modes}
+\i \l{designer-designing-a-component.html#AddingWidgetsToAForm}{Adding widgets to a form}
+\i \l{designer-designing-a-component.html#ThePropertyEditor}{The Property Editor}
+\i \l{designer-designing-a-component.html#PlacingWidgetsInLayouts}{Placing widgets in layouts}
+\i \l{designer-designing-a-component.html#ConnectingWidgets}{Connecting widgets}
+\i \l{designer-designing-a-component.html#PreviewingAForm}{Previewing a form}
+\i \l{designer-editing-mode.html#SelectingObjects}{Selecting objects}
+\i \l{designer-editing-mode.html#ShortcutsForEditing}{Shortcuts for editing}
+\i \l{designer-editing-mode.html#DragAndDrop}{Drag and drop}
+\i \l{designer-editing-mode.html#EditingProperties}{Editing properties}
+\i \l{designer-editing-mode.html#InsertingObjectsIntoALayout}{Inserting objects into a layout}
+\i \l{designer-connection-mode.html#HighlightedObjects}{Highlighted objects}
+\i \l{designer-connection-mode.html#MakingAConnection}{Making a connection}
+\i \l{designer-connection-mode.html#ChoosingSignalsAndSlots}{Choosing signals and slots}
+\i \l{designer-connection-mode.html#EditingConnectionPaths}{Editing connection paths}
+\i \l{designer-connection-mode.html#DeletingConnections}{Deleting connections}
 \endlist
 
 */
@@ -278,6 +95,7 @@ each of the tool panels to suit your working style. The main window
 consists of a menu bar, a tool bar, and a toolbox that contains the
 widgets you can use to create your user interface.
 
+\target DesignerMainWindow
 \table
 \row
 \i \inlineimage designer-main-window.png
@@ -301,6 +119,7 @@ toolbox. Some features are also available through context menus that can
 opened over the form windows. On most platforms, the right mouse button is
 used to open context menus.
 
+\target DesignerToolbox
 \table
 \row
 \i \inlineimage designer-toolbox.png
@@ -368,6 +187,7 @@ form you will be using; for example, you may require a dialog rather than
 a generic custom widget. New forms can be created by opening the \key File
 menu and selecting the \key{New Form...} option, or by pressing \key{Ctrl+N}.
 
+\target ChoosingAForm
 \table
 \row \i
 \inlineimage designer-choosing-form.png
@@ -401,6 +221,7 @@ We ensure that \QD is in form editing mode by opening the \key Form menu
 and selecting \key{Edit Widgets}. This makes it possible for widgets to be
 dragged from the main toolbox onto the form.
 
+\target EditingModes
 \table
 \row \i
 \inlineimage designer-editing-modes.png
@@ -442,6 +263,7 @@ we do not need to fine tune the positions of widgets - this task
 is the responsibility of the form's layout objects which we will add
 later.
 
+\target AddingWidgetsToAForm
 \table
 \row \i
 \inlineimage designer-dialog-initial.png
@@ -469,6 +291,7 @@ It is usually a good idea to give meaningful names to widgets in case
 you want to connect their signals to slots in other components, or
 refer to the widgets by name in your application.
 
+\target ThePropertyEditor
 \table
 \row \i
 \inlineimage designer-property-editor-link.png
@@ -508,6 +331,7 @@ associated input widgets into a grid layout. To do this, we need to ensure
 that all the widgets are lined up in a grid arrangement. We put the push
 buttons into a horizontal layout with the horizontal spacer.
 
+\target PlacingWidgetsInLayouts
 \table
 \row \i
 \inlineimage designer-dialog-layout.png
@@ -562,6 +386,7 @@ We change into connection editing mode by opening the \key{Form} menu
 and selecting \key{Connection Mode}. The objects in the form will now
 become highlighted as the cursor passes over them. 
 
+\target ConnectingWidgets
 \table
 \row \i
 \inlineimage designer-making-connection.png
@@ -581,6 +406,7 @@ pressed in the line edit. To try this out, we can open a preview of
 the dialog by pressing \key{Ctrl+R} or by opening the \key Form menu
 and selecting \key Preview.
 
+\target PreviewingAForm
 \table
 \row \i
 \inlineimage designer-dialog-preview.png
@@ -889,6 +715,7 @@ require a little more preparation are the \e Container widgets.
 These are described in more detail in the chapter on
 \l{designer-using-containers.html}{Using Containers}.
 
+\target SelectingObjects
 \table
 \row \i
 \inlineimage designer-selecting-widget.png
@@ -908,6 +735,7 @@ buffer to enable changes to be undone and redone as necessary. The
 shortcuts used to perform all of these actions are described in the table
 below.
 
+\target ShortcutsForEditing
 \table
 \header \i Action       \i Shortcut     \i Description
 \row    \i Cut          \i \key{Ctrl+X} \i Cuts the selected objects to the clipboard.
@@ -929,6 +757,7 @@ need. To quickly duplicate a widget, you can clone it by holding down the
 \key Ctrl key and dragging it. This allows widgets to be copied and placed
 on the form much more quickly than with clipboard operations.
 
+\target DragAndDrop
 \table
 \row \i
 \inlineimage designer-dragging-onto-form.png
@@ -955,6 +784,7 @@ on the object being edited, but all of the widgets provided have common
 properties such as \c objectName (the object's internal name) and
 \c enabled (whether it can be interacted with).
 
+\target EditingProperties
 \table
 \row \i 
 \inlineimage designer-property-editor.png
@@ -973,6 +803,7 @@ The Object Inspector shows an up-to-date hierarchical list of the objects
 (widgets, layouts, spacers, and other objects) on the form that is currently
 being edited.
 
+\target EditingProperties
 \table
 \row \i 
 \inlineimage designer-object-inspector.png
@@ -1011,6 +842,7 @@ manually, or you can influence the widget's geometry by resizing the
 layout. You can also add and remove spacers from the layout to influence
 the geometries of the widgets.
 
+\target InsertingObjectsIntoALayout
 \table
 \row
 \i \inlineimage designer-layout-inserting.png
@@ -1091,6 +923,7 @@ All widgets and layout objects on the form can be connected together.
 Spacers just provide spacing hints to layouts, so they cannot be connected
 to other objects.
 
+\target HighlightedObjects
 \table
 \target HighlightedObjects
 \row
@@ -1110,6 +943,7 @@ an arrow head that points to the destination object, indicating that a
 connection will be made between the two objects when you release the
 mouse button.
 
+\target MakingAConnection
 \table
 \row
 \i \inlineimage designer-making-connection.png
@@ -1125,6 +959,7 @@ the mouse button to make the connection. A dialog displays the signals
 from the source object and the slots from the destination object that
 can be used to connect the two objects.
 
+\target ChoosingSignalsAndSlots
 \table
 \row
 \i \inlineimage designer-connection-dialog.png
@@ -1160,6 +995,7 @@ between objects. This is purely a cosmetic concern: The .ui files
 created by \QD will contain the same basic information about the
 connections, and this will result in the same code being generated.
 
+\target EditingConnectionPaths
 \table
 \row
 \i \inlineimage designer-editing-connection.png
@@ -1185,6 +1021,7 @@ determines where the connection path ends. This node can be accessed by
 clicking the last path segment. It can either be repositioned within the
 destination object, or dragged outside.
 
+\target DeletingConnections
 \table
 \row
 \i \inlineimage designer-selecting-connection.png
