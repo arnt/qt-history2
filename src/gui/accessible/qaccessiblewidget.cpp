@@ -798,7 +798,7 @@ bool QAccessibleWidget::doAction(int action, int child, const QVariantList &para
     if (action == SetFocus || action == DefaultAction) {
         if (child || !widget()->isEnabled())
             return false;
-        if (widget()->focusPolicy() != QWidget::NoFocus)
+        if (widget()->focusPolicy() != Qt::NoFocus)
             widget()->setFocus();
         else if (widget()->isTopLevel())
             widget()->setActiveWindow();
@@ -828,7 +828,7 @@ int QAccessibleWidget::state(int child) const
     QWidget *w = widget();
     if (w->isHidden())
         state |= Invisible;
-    if (w->focusPolicy() != QWidget::NoFocus && w->isActiveWindow())
+    if (w->focusPolicy() != Qt::NoFocus && w->isActiveWindow())
         state |= Focusable;
     if (w->hasFocus())
         state |= Focused;

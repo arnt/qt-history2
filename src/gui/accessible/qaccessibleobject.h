@@ -24,7 +24,7 @@
 class QAccessibleObjectPrivate;
 class QObject;
 
-class Q_GUI_EXPORT QAccessibleObject : public Qt, public QAccessibleInterface
+class Q_GUI_EXPORT QAccessibleObject : public QAccessibleInterface
 {
 public:
     QAccessibleObject(QObject *object);
