@@ -68,11 +68,7 @@ To port code from Qt 2.x to Qt 3.x:
    you're a registered licensee.
 \endlist
 
-\omit
-Many very major projects, such as ###
-have been ported, so there is plenty of expertise in the collective conscious
-that is the Qt Developer Community!
-\endomit
+Table of contents:
 
 \tableofcontents
 
@@ -167,19 +163,158 @@ have been changed:
 
 All these functions have been removed in Qt 3.x:
 \list
-\i QCheckListItem::paintBranches()
-\i QFont::charSet(), QFont::setCharSet()
-\i QMenuBar::setActItem(), QMenuBar::setWindowsAltMode()
-\i QPushButton::upButton(), QPushButton::downButton()
-\i QRegExp::find() (has been renamed QRegExp::search())
-\i QSpinBox::upButton(), QPushButton::downButton()
-\i QString::visual(), QString::basicDirection()
-\i QStyle::set...
-\i QWidget::setFontPropagation(), QWidget::setPalettePropagation()
+\i QFont::charSet()
+\i QFont::setCharSet()
+\i QMenuBar::setActItem()
+\i QMenuBar::setWindowsAltMode()
+\i QPainter::drawQuadBezier()
+\i QPointArray::quadBezier()
+\i QPushButton::downButton()
+\i QPushButton::upButton()
+\i QRegExp::find()
+\i QSpinBox::downButton()
+\i QSpinBox::upButton()
+\i QString::basicDirection()
+\i QString::visual()
+\i QStyle::set...() functions
+\i QWidget::setFontPropagation()
+\i QWidget::setPalettePropagation()
 \endlist
-\omit
-    ### keep in sync with dist/changes-3.0
-\endomit
+
+Also, to avoid conflicts with \c <iostream>, the following three
+global functions have been renamed:
+\list
+\i setw() (renamed qSetW())
+\i setfill() (renamed qSetFill())
+\i setprecision() (renamed qSetPrecision())
+\endlist
+
+\section1 Obsoleted Functions
+
+The following functions have been obsoleted in Qt 3.0. The
+documentation of each of these functions should explain how to
+replace them in Qt 3.0.
+
+\warning It is best to consult \l http://doc.trolltech.com/3.0/
+rather than the documentation supplied with Qt to obtain the latest
+information regarding obsolete functions and how to replace them in
+new code.
+
+\list
+\i QAccel::keyToString( QKeySequence k )
+\i QAccel::stringToKey( const QString \& s )
+\i QActionGroup::insert( QAction *a )
+\i QButton::autoResize() const
+\i QButton::setAutoResize( bool )
+\i QCanvasItem::active() const
+\i QCanvasItem::enabled() const
+\i QCanvasItem::selected() const
+\i QCanvasItem::visible() const
+\i QCanvasPixmapArray::QCanvasPixmapArray( QPtrList\<QPixmap\> list, QPtrList\<QPoint\> hotspots )
+\i QCanvasPixmapArray::operator!()
+\i QColorGroup::QColorGroup( const QColor \& foreground, const QColor \& background, const QColor \& light, const QColor \& dark, const QColor \& mid, const QColor \& text, const QColor \& base )
+\i QComboBox::autoResize() const
+\i QComboBox::setAutoResize( bool )
+\i QDate::dayName( int weekday )
+\i QDate::monthName( int month )
+\i QDir::encodedEntryList( const QString \& nameFilter, int filterSpec = DefaultFilter, int sortSpec = DefaultSort ) const
+\i QDir::encodedEntryList( int filterSpec = DefaultFilter, int sortSpec = DefaultSort ) const
+\i QDockWindow::isHorizontalStretchable() const
+\i QDockWindow::isVerticalStretchable() const
+\i QDockWindow::setHorizontalStretchable( bool b )
+\i QDockWindow::setVerticalStretchable( bool b )
+\i QFont::defaultFont()
+\i QFont::setDefaultFont( const QFont \& f )
+\i QFont::setPixelSizeFloat( float pixelSize )
+\i QFontDatabase::bold( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::families( bool ) const
+\i QFontDatabase::font( const QString \& familyName, const QString \& style, int pointSize, const QString \& )
+\i QFontDatabase::isBitmapScalable( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::isFixedPitch( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::isScalable( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::isSmoothlyScalable( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::italic( const QString \& family, const QString \& style, const QString \& ) const
+\i QFontDatabase::pointSizes( const QString \& family, const QString \& style, const QString \& )
+\i QFontDatabase::smoothSizes( const QString \& family, const QString \& style, const QString \& )
+\i QFontDatabase::styles( const QString \& family, const QString \& ) const
+\i QFontDatabase::weight( const QString \& family, const QString \& style, const QString \& ) const
+\i QLabel::autoResize() const
+\i QLabel::setAutoResize( bool enable )
+\i QLineEdit::cursorLeft( bool mark, int steps = 1 )
+\i QLineEdit::cursorRight( bool mark, int steps = 1 )
+\i QLineEdit::hasMarkedText() const
+\i QLineEdit::markedText() const
+\i QLineEdit::repaintArea( int, int )
+\i QListBox::cellHeight( int i ) const
+\i QListBox::cellHeight() const
+\i QListBox::cellWidth() const
+\i QListBox::findItem( int yPos ) const
+\i QListBox::inSort( const QListBoxItem *lbi )
+\i QListBox::inSort( const QString \& text )
+\i QListBox::itemYPos( int index, int *yPos ) const
+\i QListBox::numCols() const
+\i QListBox::totalHeight() const
+\i QListBox::totalWidth() const
+\i QListBoxItem::current() const
+\i QListBoxItem::selected() const
+\i QListView::removeItem( QListViewItem *item )
+\i QListViewItem::removeItem( QListViewItem *item )
+\i QMainWindow::addToolBar( QDockWindow *, Dock = DockTop, bool newLine = FALSE )
+\i QMainWindow::addToolBar( QDockWindow *, const QString \& label, Dock = DockTop, bool newLine = FALSE )
+\i QMainWindow::lineUpToolBars( bool keepNewLines = FALSE )
+\i QMainWindow::moveToolBar( QDockWindow *, Dock = DockTop )
+\i QMainWindow::moveToolBar( QDockWindow *, Dock, bool nl, int index, int extraOffset = -1 )
+\i QMainWindow::removeToolBar( QDockWindow *)
+\i QMainWindow::setToolBarsMovable( bool )
+\i QMainWindow::toolBarPositionChanged( QToolBar *)
+\i QMainWindow::toolBarsMovable() const
+\i QMessageBox::message( const QString \& caption, const QString \& text, const QString \& buttonText = QString::null, QWidget *parent = 0, const char *= 0 )
+\i QMessageBox::query( const QString \& caption, const QString \& text, const QString \& yesButtonText = QString::null, const QString \& noButtonText = QString::null, QWidget *parent = 0, const char *= 0 )
+\i QMessageBox::standardIcon( Icon icon, GUIStyle style )
+\i QRegExp::match( const QString \& str, int index = 0, int *len = 0, bool indexIsStart = TRUE ) const
+\i QScrollView::childIsVisible( QWidget *child )
+\i QScrollView::showChild( QWidget *child, bool show = TRUE )
+\i QSignal::block( bool b )
+\i QSignal::isBlocked() const
+\i QSignal::parameter() const
+\i QSignal::setParameter( int value )
+\i QSimpleRichText::draw( QPainter *p, int x, int y, const QRegion \& clipRegion, const QColorGroup \& cg, const QBrush *paper = 0 ) const
+\i QString::ascii() const
+\i QString::data() const
+\i QString::setExpand( uint index, QChar c )
+\i QStyle::defaultFrameWidth() const
+\i QStyle::scrollBarExtent() const
+\i QStyle::tabbarMetrics( const QWidget *t, int \& hf, int \& vf, int \& ov ) const
+\i QTabDialog::isTabEnabled( const char *name ) const
+\i QTabDialog::selected( const QString \& )
+\i QTabDialog::selected( const QString \& tabLabel )
+\i QTabDialog::setTabEnabled( const char *name, bool enable )
+\i QTextStream::QTextStream( QString \& str, int filemode )
+\i QToolBar::QToolBar( const QString \& label, QMainWindow *, ToolBarDock = DockTop, bool newLine = FALSE, const char *name = 0 )
+\i QToolButton::iconSet( bool on ) const
+\i QToolButton::offIconSet() const
+\i QToolButton::onIconSet() const
+\i QToolButton::setIconSet( const QIconSet \& set, bool on )
+\i QToolButton::setOffIconSet( const QIconSet \& )
+\i QToolButton::setOnIconSet( const QIconSet \& )
+\i QToolTip::enabled()
+\i QToolTip::setEnabled( bool enable )
+\i QTranslator::find( const char *context, const char *sourceText, const char *comment = 0 ) const
+\i QTranslator::insert( const char *context, const char *sourceText, const QString \& translation )
+\i QTranslator::remove( const char *context, const char *sourceText )
+\i QUriDrag::setFilenames( const QStringList \& fnames )
+\i QWidget::backgroundColor() const
+\i QWidget::backgroundPixmap() const
+\i QWidget::iconify()
+\i QWidget::setBackgroundColor( const QColor \& c )
+\i QWidget::setBackgroundPixmap( const QPixmap \& pm )
+\i QWidget::setFont( const QFont \& f, bool )
+\i QWidget::setPalette( const QPalette \& p, bool )
+\i QWizard::setFinish( QWidget *, bool )
+\i QXmlInputSource::QXmlInputSource( QFile \& file )
+\i QXmlInputSource::QXmlInputSource( QTextStream \& stream )
+\i QXmlReader::parse( const QXmlInputSource \& input )
+\endlist
 
 Additionally, these preprocessor directives have been removed:
 
@@ -451,6 +586,11 @@ This change makes it possible to introduce a
 QString::replace(QString, QString) overload in a future version of Qt
 without breaking source compatibility.
 
+\section1 QSortedList
+
+The QSortedList class is now obsolete. Consider using a QDict, a QMap
+or a plain QPtrList instead.
+
 \section1 QTableView
 
 The QTableView class has been obsoleted and is no longer a part of the
@@ -511,7 +651,7 @@ the new names.
 
 The \l QTranslator class was extended in Qt 2.2, and these extensions
 lead to a new interface.  This interface is used mainly by translation
-tools (for example, \link http://www.trolltech.com/linguist/ Qt
+tools (for example, \link linguist-manual.book Qt
 Linguist \endlink).  For source compatibility, no member function was
 effectively removed.  The \l QTranslator documentation points out
 which functions are obsolete.
@@ -528,6 +668,20 @@ QTranslator::find(), you should reimplement QTranslator::findMessage() instead.
 In fact, find() is now defined in terms of findMessage().  By doing the
 conversion, you will also gain support for translator comments and for any
 future extensions.
+
+\section1 QWidget
+
+QWidget::backgroundColor(), QWidget::setBackgroundColor(),
+QWidget::backgroundPixmap() and QWidget::setBackgroundPixmap() have
+often been the source of much confusion in previous releases. Qt 3.0
+addresses this by obsoleting these functions and by remplacing them
+with eight new functions: QWidget::eraseColor(),
+QWidget::setEraseColor(), QWidget::erasePixmap(),
+QWidget::setErasePixmap(), QWidget::paletteBackgroundColor(),
+QWidget::setPaletteBackgroundColor(),
+QWidget::paletteBackgroundPixmap() and
+QWidget::setPaletteBackgroundPixmap(). See their documentation for
+details.
 
 \section1 QXml Classes
 
@@ -569,6 +723,12 @@ class in some other way, you must adjust your code to use the
 QXmlLocator that is reported by the
 QXmlContentHandler::setDocumentLocator() function.
 
+\section1 Asynchronous I/O Classes
+
+QASyncIO, QDataSink, QDataSource, QIODeviceSource and QDataPump were
+used internally in previous versions of Qt, but are not used anymore.
+They are now obsolete.
+
 \section1 Bezier Curves
 
 The function names for Bezier curves in QPainter and QPointArray have
@@ -600,7 +760,3 @@ QIconViewItem::compare(), QListBox::text(), QListViewItem::compare()
 or QTableItem::key() as appropriate.
 
 */
-
-// I split this to work around limitations in perl's regexp parser. --Arnt
-
-// warwick can regenerate this with his qt-2-report
