@@ -71,7 +71,7 @@ bool QFile::open( int m,int f )
 
 uint QFile::size() const
 {
-    char * thename=name().ascii();
+    const char * thename=name().ascii();
     FILE * f=fopen(thename,"r");
     if(!f) {
 	qWarning("Couldn't open %s for QFile::size()\n",thename);
