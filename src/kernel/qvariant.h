@@ -503,6 +503,8 @@ template<> inline QPoint qt_cast<QPoint>(const QVariant &v) { return v.toPoint()
 template<> inline QRect qt_cast<QRect>(const QVariant &v) { return v.toRect(); }
 template<> inline QSize qt_cast<QSize>(const QVariant &v) { return v.toSize(); }
 
+Q_DECLARE_TYPEINFO(QVariant, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QVariant);
 
 #endif // QT_NO_VARIANT
 #endif // QVARIANT_H

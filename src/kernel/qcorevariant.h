@@ -128,6 +128,10 @@ class Q_CORE_EXPORT QCoreVariant
 
     void clear();
 
+
+    inline void detach() { if (d->ref != 1) detach_helper(); }
+    inline bool isDetached() const;
+
     int toInt(bool *ok = 0) const;
     uint toUInt(bool *ok = 0) const;
     Q_LLONG toLongLong(bool *ok = 0) const;
@@ -186,7 +190,6 @@ class Q_CORE_EXPORT QCoreVariant
     void *rawAccess(void *ptr = 0, Type typ = Invalid, bool deepCopy = FALSE);
     void *data();
  private:
-    inline void detach() { if (d->ref != 1) detach_helper(); }
     void detach_helper();
 
  public:
@@ -341,6 +344,9 @@ Q_CORE_EXPORT QDataStream& operator>> ( QDataStream& s, QCoreVariant::Type& p );
 Q_CORE_EXPORT QDataStream& operator<< ( QDataStream& s, const QCoreVariant::Type p );
 #endif
 
+inline bool QCoreVariant::isDetached() const
+{ return d->ref == 1; }
+
 template<typename T> T qt_cast(const QCoreVariant &v);
 template<> inline int qt_cast<int>(const QCoreVariant &v) { return v.toInt(); }
 template<> inline uint qt_cast<uint>(const QCoreVariant &v) { return v.toUInt(); }
@@ -362,6 +368,9 @@ template<> QDateTime qt_cast<QDateTime>(const QCoreVariant &v);
 template<> QList<QCoreVariant> qt_cast<QList<QCoreVariant> >(const QCoreVariant &v);
 template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const QCoreVariant &v);
 #endif
+
+Q_DECLARE_TYPEINFO(QCoreVariant, Q_MOVABLE_TYPE);
+Q_DECLARE_SHARED(QCoreVariant);
 
 #endif //QT_NO_VARIANT
 #endif // QCOREVARIANT_H
