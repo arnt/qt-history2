@@ -75,7 +75,7 @@ public:
     QByteArray(const char *);
     QByteArray(const char *, int size);
     QByteArray(int size, char c);
-    QByteArray(const QByteArray &);
+    inline QByteArray(const QByteArray &);
     inline ~QByteArray();
 
     QByteArray &operator=(const QByteArray &);
