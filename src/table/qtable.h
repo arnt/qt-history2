@@ -138,6 +138,8 @@ public:
     virtual void setEnabled( bool b );
     bool isEnabled() const;
 
+    virtual int rtti() const;
+
 private:
     QString txt;
     QPixmap pix;
@@ -169,6 +171,8 @@ public:
     bool isEditable() const;
     virtual void setStringList( const QStringList &l );
 
+    int rtti() const { return 1; }
+
 private:
     QComboBox *cb;
     QStringList entries;
@@ -187,6 +191,8 @@ public:
 			const QRect &cr, bool selected );
     virtual void setChecked( bool b );
     bool isChecked() const;
+
+    int rtti() const { return 2; }
 
 private:
     QCheckBox *cb;

@@ -4008,4 +4008,23 @@ void QListBox::selectRange( QListBoxItem *from, QListBoxItem *to, bool invert, b
     if ( changed )
 	emit selectionChanged();
 }
+
+
+/*! Returns 0.
+
+  Although often frowned upon by purists, Run Time Type Identification
+  is very useful in this case, as it allows a QListBox to be an
+  efficient indexed storage mechanism.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between listbox items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
+*/
+
+int QListBoxItem::rtti() const
+{
+    return 0;
+}
+
 #endif // QT_NO_LISTBOX

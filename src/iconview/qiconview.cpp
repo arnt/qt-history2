@@ -544,6 +544,23 @@ QIconDrag::~QIconDrag()
     delete d;
 }
 
+/*! Returns 0.
+
+  Although often frowned upon by purists, Run Time Type Identification
+  is very useful in this case, as it allows a QIconView to be an
+  efficient indexed storage mechanism.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between iconview items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
+*/
+
+int QIconViewItem::rtti() const
+{
+    return 0;
+}
+
 /*!
   Append the QIconDragItem, \a i, to the QIconDrag object's list of items.
   You must also supply the geometry of the pixmap, \a pr, and of the
@@ -745,7 +762,7 @@ void QIconDragData::setTextRect( const QRect &r )
 
 /*!
   Constructs a QIconViewItem and inserts it into icon view \a parent
-  with no text and a default icon. 
+  with no text and a default icon.
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent )
@@ -1214,7 +1231,7 @@ QIconView *QIconViewItem::iconView() const
   Returns a pointer to the previous item, or 0 if this is the first item
   in the icon view.
 
-  To iterate the items in an icon view 
+  To iterate the items in an icon view
 */
 
 QIconViewItem *QIconViewItem::prevItem() const
@@ -1270,7 +1287,7 @@ void QIconViewItem::setSelected( bool s )
   is selected and the item previously selected is unselected.
 
   If \a s is TRUE and QIconView::selectionMode() is \c Extended, the
-  item is selected. If \a cb is TRUE, the selection state of the 
+  item is selected. If \a cb is TRUE, the selection state of the
   other items is left unchanged. If \a cb is FALSE (the default) all
   other items are unselected.
 
@@ -1333,8 +1350,8 @@ void QIconViewItem::setSelected( bool s, bool cb )
   The user is unable to select a non-selectable item using either the
   keyboard or the mouse. (The application programmer can select an item
   in code regardless of this setting.)
-  
-  \sa isSelectable() 
+
+  \sa isSelectable()
 */
 
 void QIconViewItem::setSelectable( bool enable )
@@ -1487,7 +1504,7 @@ QPoint QIconViewItem::pos() const
   If \a relative is TRUE, (the default), the returned rectangle is
   relative to the origin of the item's rectangle. If \a relative is
   FALSE, the returned rectangle is relative to the origin of the icon
-  view's contents coordinate system. 
+  view's contents coordinate system.
 */
 
 QRect QIconViewItem::textRect( bool relative ) const
@@ -1504,7 +1521,7 @@ QRect QIconViewItem::textRect( bool relative ) const
     If \a relative is TRUE, (the default), the rectangle is relative to
     the origin of the item's rectangle. If \a relative is FALSE, the
     returned rectangle is relative to the origin of the icon view's
-    contents coordinate system. 
+    contents coordinate system.
 */
 
 QRect QIconViewItem::pixmapRect( bool relative ) const
@@ -2210,7 +2227,7 @@ void QIconViewItem::checkRect()
   For an example implementation of complex drag-and-drop look at the
   qfileiconview example (qt/examples/qfileiconview).
 
-  \sa QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(), 
+  \sa QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
       QIconViewItem::acceptDrop(), QIconViewItem::dropped().
 
   <img src=qiconview-m.png> <img src=qiconview-w.png>
@@ -2351,7 +2368,7 @@ void QIconViewItem::checkRect()
 /*!
   \fn void QIconView::itemRenamed (QIconViewItem * item)
 
-  This signal is emitted when \a item has been renamed, usually by 
+  This signal is emitted when \a item has been renamed, usually by
   in-place renaming.
 
   \sa setRenameEnabled() rename()
@@ -2634,7 +2651,7 @@ QIconView::~QIconView()
   \a item is appended after the last item.
 
   \e{You should never need to call this function.} Instead create
-  QIconViewItem's and associate them with your icon view like this: 
+  QIconViewItem's and associate them with your icon view like this:
 
   \code
     (void) new QIconViewItem( myIconview, "The text of the item", aPixmap );
@@ -2693,7 +2710,7 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     d->dirty = TRUE;
 }
 
-/*!  
+/*!
   This slot is used for a slightly-delayed update.
 
     The icon view is not redrawn immediately after inserting a new item
@@ -3312,7 +3329,7 @@ void QIconView::showEvent( QShowEvent * )
 }
 
 /*!
-  Sets the selection mode of the icon view to \a m, which may be 
+  Sets the selection mode of the icon view to \a m, which may be
 \c Single (the default), \c Extended, \c Multi or \c NoSelection.
 
   \sa selectionMode()
@@ -3776,7 +3793,7 @@ QIconView::Arrangement QIconView::arrangement() const
 }
 
 /*!
-  Sets the resize mode of the icon view to \a rm, which must be 
+  Sets the resize mode of the icon view to \a rm, which must be
   \c Fixed or \c Adjust.
 
   \sa ResizeMode
@@ -3852,7 +3869,7 @@ int QIconView::maxItemTextLength() const
 /*!
   If \a b is TRUE, the user is allowed to move items around in
   the icon view; if \a b is FALSE, the user may not move items in the
-  icon view. 
+  icon view.
 */
 
 void QIconView::setItemsMovable( bool b )
@@ -3901,7 +3918,7 @@ bool QIconView::autoArrange() const
   items when a new item is inserted. If \a sort is FALSE, the icon
   view will not be sorted.
 
-  Note that autoArrange() has to be TRUE for sorting to take place. 
+  Note that autoArrange() has to be TRUE for sorting to take place.
 
   If \a ascending is TRUE, items are sorted in ascending order. If \a
   ascending is FALSE, items are sorted in descending order.
@@ -3943,13 +3960,13 @@ bool QIconView::sortDirection() const
     return d->sortDirection;
 }
 
-/*! 
+/*!
     This function sets the behaviour of the QIconView when it must
     display an item's text that is too long to fit the horizontal space
     available to the item.
 
     If \a b is TRUE, the text will be wrapped, and if \a b is FALSE, the
-    text will be shown truncated. 
+    text will be shown truncated.
 
   The initial value is TRUE.
 
@@ -5373,7 +5390,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 
 /*! Sorts and rearranges all items in the icon view. If \a ascending
   is TRUE, the items are sorted in increasing order, otherwise they
-  are sorted in decreasing order.  
+  are sorted in decreasing order.
 
   QIconViewItem::compare() is used to compare pairs of items. The
   sorting is based on the item's keys; these default to the item's text

@@ -330,6 +330,23 @@ QTableItem::~QTableItem()
     table()->takeItem( this );
 }
 
+/*! Returns 0.
+
+  Although often frowned upon by purists, Run Time Type Identification
+  is very useful in this case, as it allows a QTable to be an
+  efficient indexed storage mechanism.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between table items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
+*/
+
+int QTableItem::rtti() const
+{
+    return 0;
+}
+
 /*!  Returns the item's pixmap.
 */
 

@@ -217,6 +217,8 @@ public:
     virtual void setPixmap( const QPixmap &icon, bool recalc, bool redraw = TRUE );
     virtual void setKey( const QString &k );
 
+    virtual int rtti() const;
+
 protected:
     virtual void removeRenameBox();
     virtual void calcRect( const QString &text_ = QString::null );

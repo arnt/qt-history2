@@ -415,7 +415,7 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
   \skipto }
   \printline }
 
-  (from \link xml/tagreader-with-features/structureparser.cpp 
+  (from \link xml/tagreader-with-features/structureparser.cpp
   xml/tagreader-with-features/structureparser.cpp \endlink )
 
   \sa setText()
@@ -446,16 +446,16 @@ QListViewItem::QListViewItem( QListView * parent,
 
 
 /*!  Constructs a new list view item as a child of the QListViewItem
-  \a parent with optional constant strings \a label1, \a label2, ..., 
+  \a parent with optional constant strings \a label1, \a label2, ...,
   \a label8 as column contents.
 
   \walkthrough xml/tagreader-with-features/structureparser.cpp
   \skipto QListViewItem * element
   \printline QListViewItem * element
-  \skipto QListViewItem * attribute; 
+  \skipto QListViewItem * attribute;
   \printuntil }
 
-  (from \link xml/tagreader-with-features/structureparser.cpp 
+  (from \link xml/tagreader-with-features/structureparser.cpp
   xml/tagreader-with-features/structureparser.cpp \endlink )
 
 
@@ -573,6 +573,23 @@ void QListViewItem::sort()
     listView()->triggerUpdate();
 }
 
+
+/*! Returns 0.
+
+  Although often frowned upon by purists, Run Time Type Identification
+  is very useful in this case, as it allows a QListView to be an
+  efficient indexed storage mechanism.
+
+  Make your derived classes return their own values for rtti(), and
+  you can distinguish between listview items. You should use values
+  greater than 1000 preferably a large random number, to allow for
+  extensions to this class.
+*/
+
+int QListViewItem::rtti() const
+{
+    return 0;
+}
 
 /*!  Performs the initializations that's common to the constructors. */
 
@@ -1179,7 +1196,7 @@ void QListViewItem::invalidateHeight()
   user might collapse them by clicking the \e - icon symbolizing
   the node.
   If \a o is FALSE, the children of \e this item are initially unvisible.
-  The user might unhide them by clicking the \e + node icon. 
+  The user might unhide them by clicking the \e + node icon.
 
   \walkthrough xml/tagreader-with-features/structureparser.cpp
   \skipto QListViewItem
@@ -1189,7 +1206,7 @@ void QListViewItem::invalidateHeight()
   \skipto setOpen
   \printline setOpen
 
-  (c.f. \link xml/tagreader-with-features/structureparser.cpp 
+  (c.f. \link xml/tagreader-with-features/structureparser.cpp
   xml/tagreader-with-features/structureparser.cpp \endlink )
 
 
@@ -2036,7 +2053,7 @@ void QListViewPrivate::Root::setup()
 
   The simplest mode of usage is to create a QListView, add some column
   headers using addColumn() and create one or more QListViewItem objects
-  with the QListView as parent: 
+  with the QListView as parent:
 
   \walkthrough xml/tagreader-with-features/structureparser.h
   \skipto QListView * table
@@ -2058,11 +2075,11 @@ void QListViewPrivate::Root::setup()
   \printline for
   \printuntil }
 
-  (Code taken from 
-  \link xml/tagreader-with-features/structureparser.cpp 
-  xml/tagreader-with-features/structureparser.cpp \endlink ) 
+  (Code taken from
+  \link xml/tagreader-with-features/structureparser.cpp
+  xml/tagreader-with-features/structureparser.cpp \endlink )
 
-  The main setup functions are 
+  The main setup functions are
   <ul>
   <li> \l addColumn() - adds a column with text and perhaps width.
 
@@ -2734,7 +2751,7 @@ void QListView::setContentsPos( int x, int y )
     QScrollView::setContentsPos( x, y );
 }
 
-/*! Adds a \a width pixels wide column with the column header \a label 
+/*! Adds a \a width pixels wide column with the column header \a label
   to \e this QListView, and returns the index of the new column.
 
   All columns apart from the first one are inserted to the right of the

@@ -172,6 +172,8 @@ public:
     virtual void setEnabled( bool b );
     bool isEnabled() const;
 
+    virtual int rtti() const;
+
 protected:
     virtual void enforceSortOrder() const;
     virtual void setHeight( int );
@@ -450,6 +452,8 @@ public:
 
     void setEnabled( bool b );
     bool isEnabled() const;
+
+    int rtti() const { return 1; }
 
 protected:
     void activate();

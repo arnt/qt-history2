@@ -325,6 +325,8 @@ public:
     QListBoxItem *next() const;
     QListBoxItem *prev() const;
 
+    virtual int rtti() const;
+
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }
@@ -361,6 +363,8 @@ public:
     int	 height( const QListBox * ) const;
     int	 width( const QListBox * )  const;
 
+    int rtti() const { return 1; }
+
 protected:
     void  paint( QPainter * );
 
@@ -387,6 +391,8 @@ public:
 
     int	 height( const QListBox * ) const;
     int	 width( const QListBox * )  const;
+
+    int rtti() const { return 2; }
 
 protected:
     void paint( QPainter * );
