@@ -371,6 +371,23 @@ void QAbstractSpinBox::fixup(QString & /* input */) const
 }
 
 /*!
+  Calling this slot is analogous to calling stepBy(1);
+*/
+
+void QAbstractSpinBox::stepUp()
+{
+    stepBy(1);
+}
+
+/*!
+  Calling this slot is analogous to calling stepBy(1);
+*/
+
+void QAbstractSpinBox::stepDown()
+{
+    stepBy(-1);
+}
+/*!
     Virtual function that is called whenever the user triggers a step.
     The \a steps parameter indicates how many steps were taken, e.g.
     Pressing \c Qt::Key_Down will trigger a call to stepBy(-1),

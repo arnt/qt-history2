@@ -70,6 +70,8 @@ public:
 
     virtual void stepBy(int steps);
 public slots:
+    void stepUp();
+    void stepDown();
     void selectAll();
     virtual void clear();
 

@@ -857,18 +857,11 @@ bool QDateTimeEdit::focusNextPrevChild(bool next)
     if (!focusWidget())
         return false;
 
-    const QDateTimeEditPrivate::Section newSection = d->nextPrevSection(d->currentsection, next).section;
-    switch (newSection) {
-    case QDateTimeEditPrivate::NoSection:
-    case QDateTimeEditPrivate::FirstSection:
-    case QDateTimeEditPrivate::LastSection:
-        break;
-    default:
-        if (newSection != QDateTimeEditPrivate::NoSection) {
-            d->currentsection = newSection;
-            d->setSelected(newSection);
-            return true;
-        }
+    const QDateTimeEditPrivate::Section newSection =
+        d->nextPrevSection(d->currentsection, next).section;
+    if (newSection != QDateTimeEditPrivate::NoSection) {
+        d->setSelected(newSection);
+        return true;
     }
     return QAbstractSpinBox::focusNextPrevChild(next);
 }
@@ -1707,7 +1700,6 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
     } else {
         edit->setSelection(sectionPos(s) + sectionSize(s), -sectionSize(s));
     }
-    currentsection = s;
 }
 
 /*!
@@ -1932,6 +1924,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 
 QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bool forward) const
 {
+    Q_ASSERT(index >= 0);
     if (index < separators.first().size()) {
         return forward ? sections.first().section : FirstSection;
     } else if (last.pos - index < separators.last().size() + 1) {

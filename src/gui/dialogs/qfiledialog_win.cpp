@@ -320,8 +320,6 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     }
 
     if (args.parent) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(args.parent, &e);
         QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
@@ -355,8 +353,6 @@ QString qt_win_get_open_file_name(const QFileDialogArgs &args,
     });
     if (args.parent) {
         QApplicationPrivate::leaveModal(args.parent);
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();
@@ -404,8 +400,6 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     }
 
     if (args.parent) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(args.parent, &e);
         QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
@@ -439,8 +433,6 @@ QString qt_win_get_save_file_name(const QFileDialogArgs &args,
     });
     if (args.parent) {
         QApplicationPrivate::leaveModal(args.parent);
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();
@@ -489,8 +481,6 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     }
 
     if (args.parent) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(args.parent, &e);
         QApplicationPrivate::enterModal(args.parent);
     }
     QT_WA({
@@ -562,8 +552,6 @@ QStringList qt_win_get_open_file_names(const QFileDialogArgs &args,
     });
     if (args.parent) {
         QApplicationPrivate::leaveModal(args.parent);
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();
@@ -640,8 +628,6 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
         title = QObject::tr("Select a Directory");
 
     if (parent) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
     QT_WA({
@@ -705,8 +691,6 @@ QString qt_win_get_existing_directory(const QFileDialogArgs &args)
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
-        QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(parent, &e);
     }
 
     qt_win_eatMouseMove();

@@ -1039,7 +1039,7 @@ void QDoubleSpinBox::fixup(QString &input) const
 QSpinBoxPrivate::QSpinBoxPrivate()
 {
     minimum = QVariant((int)0);
-    maximum = QVariant((int)100);
+    maximum = QVariant((int)99);
     value = minimum;
     singlestep = QVariant((int)1);
     type = QVariant::Int;
