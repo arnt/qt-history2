@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#61 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#62 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#62 $");
 
 
 const int sbDim = 16;
@@ -1105,7 +1105,7 @@ void QTableView::snapToGrid( bool horizontal, bool vertical )
 	else
 	    newYCell = yCellOffs;
     }
-    setTopLeftCell( newXCell, newYCell );
+    setTopLeftCell( newYCell, newXCell );  //row,column
 }
 
 /*!
