@@ -4757,7 +4757,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     }
 
     // if we should draw a cursor, draw it now
-    if ( curx != -1 && cursor && 
+    if ( curx != -1 && cursor &&
 	 ((clipx == -1 || clipw == -1) || (curx + 4 >= clipx && curx - 4 <= clipx + clipw)) ) {
 	painter.fillRect( QRect( curx, cury, 1, curh - lineExtra() ), cg.color( QColorGroup::Text ) );
 	painter.save();
@@ -5810,17 +5810,22 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	bool hadBreakableChar = lastBreak != -1;
 	bool lastWasHardBreak = lastChr == QChar_linesep;
 	
-	// we break if wrapping is enabled and
+	// we break if
 	// 1. the last character was a hard break (QChar_linesep) or
 	// 2. the last charater was a own-line custom item (eg. table or ruler) or
-	// 3. it was not a space and following condition is true:
-	// We either had a breakable  character previously or we ar allowed to  break in words and
-	// - either we break at w pixels and the current char would exceed that or
-	// - we break at a column and the current character would exceed that.
-	if ( wrapEnabled &&
- 	     (lastWasHardBreak || lastWasOwnLineCustomItem ||
-	     (!c->c.isSpace() && (hadBreakableChar || allowBreakInWords()) &&
-	      ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) ) {
+	// 3. wrapping was enabled, it was not a space and following
+	// condition is true: We either had a breakable character
+	// previously or we ar allowed to break in words and - either
+	// we break at w pixels and the current char would exceed that
+	// or - we break at a column and the current character would
+	// exceed that.
+	if ( lastWasHardBreak || lastWasOwnLineCustomItem ||
+	     ( wrapEnabled &&
+	       ( (!c->c.isSpace() && (hadBreakableChar || allowBreakInWords()) &&
+		  ( (wrapAtColumn() == -1 && x + ww > w) ||
+		    (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) )
+	       )
+	     ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
 	    // if a break was forced (no breakable char, hard break or own line custom item), break immediately....
