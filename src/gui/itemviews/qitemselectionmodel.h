@@ -80,44 +80,29 @@ class Q_GUI_EXPORT QItemSelectionModel : public QObject
     Q_DECLARE_PRIVATE(QItemSelectionModel);
 
 public:
-    enum SelectionMode {
-        Single,
-        Multi
-    };
 
-    enum SelectionUpdateMode {
+    enum SelectionCommand {
         NoUpdate       = 0x0000,
         Clear          = 0x0001,
         Select         = 0x0002,
         Toggle         = 0x0004,
         Current        = 0x0008,
+        Rows           = 0x0010,
+        Columns        = 0x0020,
         SelectCurrent  = Select | Current,
         ToggleCurrent  = Toggle | Current,
         ClearAndSelect = Clear | Select
     };
 
-    enum SelectionBehavior {
-        SelectItems,
-        SelectRows,
-        SelectColumns
-    };
-
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
-    virtual void select(const QModelIndex &item, int updateMode,
-                        SelectionBehavior behavior);
-    virtual void select(const QItemSelection &selection, int updateMode,
-                        SelectionBehavior behavior);
+    virtual void select(const QModelIndex &item, int selectionCommand);
+    virtual void select(const QItemSelection &selection, int selectionCommand);
     virtual void clear();
 
     QModelIndex currentItem() const;
-    void setCurrentItem(const QModelIndex &item,
-                        SelectionUpdateMode mode,
-                        SelectionBehavior behavior);
-
-    SelectionMode selectionMode() const;
-    void setSelectionMode(SelectionMode mode);
+    void setCurrentItem(const QModelIndex &item, int selectionCommand);
 
     bool isSelected(const QModelIndex &item) const;
     bool isRowSelected(int row, const QModelIndex &parent) const;

@@ -97,7 +97,7 @@ protected:
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QRect itemViewportRect(const QModelIndex &item) const;
     QModelIndex item(int section) const;
-    void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) {}
+    void setSelection(const QRect&, int) {}
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void updateGeometries();

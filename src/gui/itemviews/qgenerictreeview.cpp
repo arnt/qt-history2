@@ -61,6 +61,7 @@ QGenericTreeView::QGenericTreeView(QAbstractItemModel *model, QWidget *parent)
     d->layout_from_index = -1;
     d->layout_count = model->rowCount(root());
     d->rootDecoration = true;
+    setSelectionBehavior(QAbstractItemView::SelectRows);
 }
 
 QGenericTreeView::~QGenericTreeView()
@@ -272,7 +273,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
 void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const QModelIndex &index) const
 {
 //    painter->drawRect(rect);
-    
+
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
     QModelIndex ancestor = model()->parent(current);
@@ -443,18 +444,11 @@ QModelIndex QGenericTreeView::moveCursor(QAbstractItemView::CursorAction cursorA
     return current;
 }
 
-QItemSelectionModel::SelectionBehavior QGenericTreeView::selectionBehavior() const
-{
-    return QItemSelectionModel::SelectRows;
-}
-
-void QGenericTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
+void QGenericTreeView::setSelection(const QRect &rect, int command)
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());
-    if (!tl.isValid() || !br.isValid())
-        return;
-    selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
+    selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
 QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) const

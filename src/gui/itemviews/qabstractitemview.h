@@ -18,6 +18,19 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_DECLARE_PRIVATE(QAbstractItemView);
 
 public:
+
+    enum SelectionMode {
+        Single,
+        Multi,
+        Extended
+    };
+
+    enum SelectionBehavior {
+        SelectItems,
+        SelectRows,
+        SelectColumns
+    };
+
     QAbstractItemView(QAbstractItemModel *model, QWidget *parent = 0);
     ~QAbstractItemView();
 
@@ -28,13 +41,13 @@ public:
     void setVerticalFactor(int factor);
     int verticalFactor() const;
 
-    virtual void clearSelections();
-    virtual void setSelectionMode(QItemSelectionModel::SelectionMode mode);
-    QItemSelectionModel::SelectionMode selectionMode() const;
-
-    virtual void setSelectionModel(QItemSelectionModel *selectionModel);
+    void clearSelections();
+    void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel* selectionModel() const;
-
+    void setSelectionMode(int mode);
+    int selectionMode() const;
+    void setSelectionBehavior(int behavior);
+    int selectionBehavior() const;
     void setCurrentItem(const QModelIndex &data);
     QModelIndex currentItem() const;
 
@@ -82,17 +95,17 @@ protected:
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
 
-    virtual void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) = 0;
+    virtual void setSelection(const QRect&, int command) = 0;
     virtual QRect selectionViewportRect(const QItemSelection &selection) const = 0;
 
     virtual bool startEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);
     QWidget *currentEditor() const;
 
-    virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
-    virtual QItemSelectionModel::SelectionUpdateMode selectionUpdateMode(
-        ButtonState state, const QModelIndex &item = QModelIndex(),
-        QEvent::Type type = QEvent::None, Qt::Key key = Qt::Key_unknown) const;
+    virtual int selectionCommand(ButtonState state,
+                                 const QModelIndex &item = QModelIndex(),
+                                 QEvent::Type type = QEvent::None,
+                                 Qt::Key key = Qt::Key_unknown) const;
 
     void clearArea(QPainter *painter, const QRect &rect) const;
 

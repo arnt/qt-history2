@@ -27,6 +27,7 @@ public:
     QModelIndex editItem;
     mutable QAbstractItemDelegate *delegate;
     QItemSelectionModel *selectionModel;
+    int selectionMode, selectionBehavior;
     QRubberBand *rubberBand;
  //    QVector<int> sorting;
 //     int sortColumn;

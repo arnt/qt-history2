@@ -26,7 +26,7 @@ public:
     void setWrapping(Wrap wrap);
     void setSpacing(int space);
     void setGridSize(const QSize &size);
-    void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
+    void setSelection(const QRect &rect, int selectionCommand);
 
 protected:
     QGenericListView(QGenericListViewPrivate &, QAbstractItemModel *model, QWidget *parent = 0);

@@ -304,21 +304,20 @@ QModelIndex QGenericTableView::moveCursor(QAbstractItemView::CursorAction cursor
     return QModelIndex();
 }
 
-void QGenericTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
+void QGenericTableView::setSelection(const QRect &rect, int command)
 {
     QModelIndex tl = itemAt(rect.left(), rect.top());
     QModelIndex br = itemAt(rect.right(), rect.bottom());
-    if (!tl.isValid() || !br.isValid())
-        return;
 
     if (d->topLeft == tl && d->bottomRight == br)
         return;
 
-    d->topLeft = tl;
-    d->bottomRight = br;
+    if (tl.isValid() && br.isValid()) {
+        d->topLeft = tl;
+        d->bottomRight = br;
+    }
 
-    // FIXME: only change selection when the tl and br items have changed
-    selectionModel()->select(QItemSelection(tl, br, model()), mode, selectionBehavior());
+    selectionModel()->select(QItemSelection(tl, br, model()), command);
 }
 
 QRect QGenericTableView::selectionViewportRect(const QItemSelection &selection) const
@@ -441,7 +440,7 @@ int QGenericTableView::columnSizeHint(int column) const
     int rowlast = rowAt(d->viewport->height());
     if (rowlast < 0)
         rowlast = d->leftHeader->count() - 1;
-    
+
     QItemOptions options;
     getViewOptions(&options);
 
@@ -550,29 +549,27 @@ void QGenericTableView::columnIndexChanged(int, int oldIndex, int newIndex)
 
 void QGenericTableView::selectRow(int row, ButtonState state)
 {
-    QModelIndex bottomRight = model()->bottomRight(root());
-    if (row >= 0 && row <= bottomRight.row()) {
+    if (row >= 0 && row < model()->rowCount()) {
         QModelIndex tl = model()->index(row, 0, root());
-        QModelIndex br = model()->index(row, bottomRight.column(), root());
-        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate,
-                                         QItemSelectionModel::SelectItems);
-        selectionModel()->select(QItemSelection(tl, br, model()),
-                                 selectionUpdateMode(state),
-                                 QItemSelectionModel::SelectItems);
+        QModelIndex br = model()->index(row, model()->columnCount() - 1, root());
+        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
+        if (d->selectionMode == Single)
+            selectionModel()->select(tl, selectionCommand(state, tl));
+        else
+           selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
     }
 }
 
 void QGenericTableView::selectColumn(int column, ButtonState state)
 {
-    QModelIndex bottomRight = model()->bottomRight(root());
-    if (column >= 0 && column <= bottomRight.column()) {
+    if (column >= 0 && column < model()->columnCount()) {
         QModelIndex tl = model()->index(0, column, root());
-        QModelIndex br = model()->index(bottomRight.row(), column, root());
-        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate,
-                                         QItemSelectionModel::SelectItems);
-        selectionModel()->select(QItemSelection(tl, br, model()),
-                                 selectionUpdateMode(state),
-                                 QItemSelectionModel::SelectItems);
+        QModelIndex br = model()->index(model()->rowCount() - 1, column, root());
+        selectionModel()->setCurrentItem(tl, QItemSelectionModel::NoUpdate);
+        if (d->selectionMode == Single)
+            selectionModel()->select(tl, selectionCommand(state, tl));
+        else
+           selectionModel()->select(QItemSelection(tl, br, model()), selectionCommand(state, tl));
     }
 }
 

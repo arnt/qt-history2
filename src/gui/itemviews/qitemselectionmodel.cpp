@@ -52,11 +52,13 @@ QItemSelection::QItemSelection(const QModelIndex &topLeft, const QModelIndex &bo
 void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &bottomRight,
                             const QAbstractItemModel *model)
 {
-    if (model->parent(topLeft) != model->parent(bottomRight))
+    if (model->parent(topLeft) != model->parent(bottomRight) ||
+        !topLeft.isValid() || !bottomRight.isValid())
         return;
-    append(QItemSelectionRange(model->parent(bottomRight),
-                               topLeft.row(), topLeft.column(),
-                               bottomRight.row(), bottomRight.column()));
+    append(QItemSelectionRange(
+               model->parent(bottomRight),
+               topLeft.row(), topLeft.column(),
+               bottomRight.row(), bottomRight.column()));
 }
 
 bool QItemSelection::contains(const QModelIndex &item, const QAbstractItemModel *model) const
@@ -127,38 +129,33 @@ void QItemSelection::merge(const QItemSelection &other, int update)
   \internal
 
   returns a QItemSelection where all ranges have been expanded to:
-  SelectRows: left: 0 and right: columnCount()-1
-  SelectColumns: top: 0 and bottom: rowCount()-1
+  Rows: left: 0 and right: columnCount()-1
+  Columns: top: 0 and bottom: rowCount()-1
 */
 
-QItemSelection QItemSelectionModelPrivate::expandSelection(
-    const QItemSelection &selection,
-    QItemSelectionModel::SelectionBehavior behavior) const
+QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection &selection,
+                                                           int selectionCommand) const
 {
-    if (selection.count() == 0)
+    if (selection.isEmpty() && !((selectionCommand & QItemSelectionModel::Rows) ||
+                                 (selectionCommand & QItemSelectionModel::Columns)))
         return selection;
 
     QItemSelection expanded;
-    switch (behavior) {
-    case QItemSelectionModel::SelectRows:
+    if (selectionCommand & QItemSelectionModel::Rows) {
         for (int i=0; i<selection.count(); ++i)
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 selection.at(i).top(),
                                                 0,
                                                 selection.at(i).bottom(),
                                                 model->columnCount(selection.at(i).parent())-1));
-        break;
-    case QItemSelectionModel::SelectColumns:
+    }
+    if (selectionCommand & QItemSelectionModel::Columns) {
         for (int i=0; i<selection.count(); ++i)
             expanded.append(QItemSelectionRange(selection.at(i).parent(),
                                                 0,
                                                 selection.at(i).left(),
                                                 model->rowCount(selection.at(i).parent())-1,
                                                 selection.at(i).right()));
-        break;
-    default:
-        expanded = selection;
-        break;
     }
     return expanded;
 }
@@ -185,51 +182,41 @@ QItemSelectionModel::~QItemSelectionModel()
 {
 }
 
-void QItemSelectionModel::select(const QModelIndex &item, int updateMode,
-                                 SelectionBehavior behavior)
+void QItemSelectionModel::select(const QModelIndex &item, int selectionCommand)
 {
     QItemSelection selection(item, item, model());
-    select(selection, updateMode, behavior);
+    select(selection, selectionCommand);
 }
 
-void QItemSelectionModel::select(const QItemSelection &selection, int updateMode,
-                                 SelectionBehavior behavior)
+void QItemSelectionModel::select(const QItemSelection &selection, int selectionCommand)
 {
-    if (updateMode == NoUpdate)
+    if (selectionCommand == NoUpdate)
         return;
 
+    // store old selection
     QItemSelection sel = selection;
     QItemSelection old = d->ranges;
     old.merge(d->currentSelection, d->toggleState ? Toggle : Select);
 
-    if (d->selectionMode == Single) {
-        if (!sel.isEmpty()) {
-            QModelIndex singleIndex = model()->index(sel.at(sel.count()-1).bottom(),
-                                                     sel.at(sel.count()-1).right(),
-                                                     sel.at(sel.count()-1).parent());
-            sel = QItemSelection(singleIndex, singleIndex, model());
-        }
-        updateMode |= Clear;
-    }
-
-    if (behavior != SelectItems)
-        sel = d->expandSelection(sel, behavior);
+    // expand selection according to SelectionBehavior
+    if (selectionCommand & Rows || selectionCommand & Columns)
+        sel = d->expandSelection(sel, selectionCommand);
 
     // clear ranges and currentSelection
-    if (updateMode & Clear) {
+    if (selectionCommand & Clear) {
         d->ranges.clear();
         d->currentSelection.clear();
     }
 
     // merge and clear currentSelection if Current was not set (ie. start new currentSelection)
-    if (!(updateMode & Current)) {
+    if (!(selectionCommand & Current)) {
         d->ranges.merge(d->currentSelection, d->toggleState ? Toggle : Select);
         d->currentSelection.clear();
     }
 
     // update currentSelection
-    if (updateMode & Toggle || updateMode & Select) {
-        d->toggleState = (updateMode & Toggle);
+    if (selectionCommand & Toggle || selectionCommand & Select) {
+        d->toggleState = (selectionCommand & Toggle);
         d->currentSelection = sel;
     }
 
@@ -251,12 +238,10 @@ void QItemSelectionModel::clear()
     emit selectionChanged(selection, QItemSelection());
 }
 
-void QItemSelectionModel::setCurrentItem(const QModelIndex &item,
-                                         SelectionUpdateMode mode,
-                                         SelectionBehavior behavior)
+void QItemSelectionModel::setCurrentItem(const QModelIndex &item, int selectionCommand)
 {
-    if (mode != NoUpdate)
-        select(item, mode, behavior); // select item
+    if (selectionCommand != NoUpdate)
+        select(item, selectionCommand); // select item
     if (item == d->currentItem)
         return;
     QModelIndex old = d->currentItem;
@@ -267,16 +252,6 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &item,
 QModelIndex QItemSelectionModel::currentItem() const
 {
     return d->currentItem;
-}
-
-void QItemSelectionModel::setSelectionMode(SelectionMode mode)
-{
-    d->selectionMode = mode;
-}
-
-QItemSelectionModel::SelectionMode QItemSelectionModel::selectionMode() const
-{
-    return d->selectionMode;
 }
 
 bool QItemSelectionModel::isSelected(const QModelIndex &item) const

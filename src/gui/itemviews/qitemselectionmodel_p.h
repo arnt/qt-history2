@@ -8,7 +8,7 @@ class QItemSelectionModelPrivate: public QObjectPrivate
     Q_DECLARE_PUBLIC(QItemSelectionModel);
 public:
     QItemSelectionModelPrivate()
-        : selectionMode(QItemSelectionModel::Multi), toggleState(false) {}
+        : model(0), toggleState(false) {}
 
     inline void remove(QList<QItemSelectionRange> &r)
     {
@@ -17,11 +17,9 @@ public:
             ranges.removeAll(*it);
     }
 
-    QItemSelection expandSelection(const QItemSelection &selection,
-                                   QItemSelectionModel::SelectionBehavior behavior) const;
+    QItemSelection expandSelection(const QItemSelection &selection, int selectionCommand) const;
 
     QAbstractItemModel *model;
-    QItemSelectionModel::SelectionMode selectionMode;
     QItemSelection ranges;
     QItemSelection currentSelection;
     QModelIndex currentItem;

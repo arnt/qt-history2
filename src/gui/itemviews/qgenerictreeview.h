@@ -64,8 +64,7 @@ protected:
     QRect itemViewportRect(const QModelIndex &item) const;
     void ensureItemVisible(const QModelIndex &item);
 
-    QItemSelectionModel::SelectionBehavior selectionBehavior() const;
-    void setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode);
+    void setSelection(const QRect &rect, int command);
     QRect selectionViewportRect(const QItemSelection &selection) const;
 
     void paintEvent(QPaintEvent *e);

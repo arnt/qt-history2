@@ -303,7 +303,7 @@ void QGenericListView::setGridSize(const QSize &size)
         startItemsLayout();
 }
 
-void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
+void QGenericListView::setSelection(const QRect &rect, int selectionCommand)
 {
     QRect crect(rect.left() + horizontalScrollBar()->value(), rect.top() + verticalScrollBar()->value(), rect.width(), rect.height());
 
@@ -312,8 +312,6 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     else
         d->intersectingDynamicSet(crect);
 
-    if (d->intersectVector.isEmpty())
-        return;
     //qHeapSort(items); // FIXME: should be sorted by row
 
     QItemSelection selection;
@@ -335,7 +333,7 @@ void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::Sele
     if (tl.isValid() && br.isValid())
         selection.select(tl, br, model());
 
-    selectionModel()->select(selection, mode, selectionBehavior());
+    selectionModel()->select(selection, selectionCommand);
 }
 
 void QGenericListView::scrollContentsBy(int dx, int dy)
