@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qrgn_win.cpp#2 $
 **
 ** Implementation of QRegion class for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_win.cpp#2 $";
 #endif
 
 
@@ -79,7 +79,7 @@ bool QRegion::isNull() const
 
 bool QRegion::contains( const QPoint &p ) const
 {
-    return data->rgn ? PtInRegion( data->rgn, p.getX(), p.getY() ) : FALSE;
+    return data->rgn ? PtInRegion( data->rgn, p.x(), p.y() ) : FALSE;
 }
 
 bool QRegion::contains( const QRect &r ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.h#2 $
+** $Id: //depot/qt/main/src/kernel/qpoint.h#3 $
 **
 ** Definition of QPoint class
 **
@@ -25,10 +25,13 @@ public:
 
     bool   isNull()	const	{ return xp==0 && yp==0; }
 
-    QCOOT &x()			{ return xp; }	// get/set x position
-    QCOOT &y()			{ return yp; }	// get/set y position
-    QCOOT  getX()	const	{ return xp; }	// x, when const is needed
-    QCOOT  getY()	const	{ return yp; }	// y, when const is needed
+    QCOOT  x()		const	{ return xp; }	// get x
+    QCOOT  y()		const	{ return yp; }	// get y
+    void   setX( QCOOT x )	{ xp=x; }	// set x
+    void   setY( QCOOT y )	{ yp=y; }	// set y
+
+    QCOOT &rx()			{ return xp; }	// get reference to x
+    QCOOT &ry()			{ return yp; }	// get reference to y
 
     QPoint &operator+=( const QPoint &p );	// add point
     QPoint &operator-=( const QPoint &p );	// subtract point

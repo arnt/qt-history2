@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#5 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#5 $";
 #endif
 
 
@@ -643,8 +643,8 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
     if ( !doXForm )
 	return pv;
-    return QPoint( (tw*(pv.getX()-sx))/sw + tx,
-		   (th*(pv.getY()-sy))/sh + ty );
+    return QPoint( (tw*(pv.x()-sx))/sw + tx,
+		   (th*(pv.y()-sy))/sh + ty );
 }
 
 QRect QPainter::xForm( const QRect &rv ) const
@@ -684,8 +684,8 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
     if ( !doXForm )
 	return pd;
-    return QPoint( (sw*(pd.getX()-tx))/tw + sx,
-		   (sh*(pd.getY()-ty))/th + sy );
+    return QPoint( (sw*(pd.x()-tx))/tw + sx,
+		   (sh*(pd.y()-ty))/th + sy );
 }
 
 QRect QPainter::xFormDev( const QRect &rd ) const
@@ -1176,10 +1176,10 @@ void QPainter::drawPixmap( int x, int y, const QPixMap &pixmap )
 	XFORM_P( x, y );
     if ( pixmap.bitPlanes == 1 )		// bitmap
 	XCopyPlane( dpy, pixmap.hd, hd, gc, 0, 0,
-		   pixmap.sz.getWidth(), pixmap.sz.getHeight(), x, y, 1 );
+		   pixmap.sz.width(), pixmap.sz.height(), x, y, 1 );
     else
 	XCopyArea( dpy, pixmap.hd, hd, gc, 0, 0,
-		   pixmap.sz.getWidth(), pixmap.sz.getHeight(), x, y );
+		   pixmap.sz.width(), pixmap.sz.height(), x, y );
 }
 
 

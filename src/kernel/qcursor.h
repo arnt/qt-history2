@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor.h#3 $
+** $Id: //depot/qt/main/src/kernel/qcursor.h#4 $
 **
 ** Definition of QCursor class
 **
@@ -55,7 +55,7 @@ public:
 
 inline void QCursor::setPos( const QPoint &p )
 {
-    setPos( p.getX(), p.getY() );
+    setPos( p.x(), p.y() );
 }
 
 

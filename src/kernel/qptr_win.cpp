@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#3 $
 **
 ** Implementation of QPainter class for Windows + NT
 **
@@ -18,7 +18,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#3 $";
 #endif
 
 
@@ -653,8 +653,8 @@ void QPainter::setTargetView( const QRect &r )	// set target view
 QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
     POINT p;
-    p.x = pv.getX();
-    p.y = pv.getY();
+    p.x = pv.x();
+    p.y = pv.y();
     LPtoDP( hdc, &p, 1 );
     return QPoint( (QCOOT)p.x, (QCOOT)p.y );
 }
@@ -688,8 +688,8 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
 QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
     POINT p;
-    p.x = pd.getX();
-    p.y = pd.getY();
+    p.x = pd.x();
+    p.y = pd.y();
     DPtoLP( hdc, &p, 1 );
     return QPoint( (QCOOT)p.x, (QCOOT)p.y );
 }
@@ -1005,7 +1005,7 @@ void QPainter::drawPixmap( int x, int y, const QPixMap &pm )
 	return;
     HDC hdcmem = CreateCompatibleDC( hdc );
     SelectObject( hdcmem, pm.hbm );
-    BitBlt( hdc, x, y, pm.sz.getWidth(), pm.sz.getHeight(),
+    BitBlt( hdc, x, y, pm.sz.width(), pm.sz.height(),
 	    hdcmem, 0, 0, SRCCOPY );
     DeleteDC( hdcmem );
 }

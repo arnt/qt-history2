@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qptr_os2.cpp#3 $
 **
 ** Implementation of QPainter class for OS/2 PM
 **
@@ -19,7 +19,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_os2.cpp#3 $";
 #endif
 
 
@@ -545,8 +545,8 @@ QPoint QPainter::xForm( const QPoint &pv ) const
 {						// map point, virtual -> device
     if ( !doXForm )
 	return pv;
-    return QPoint( (tw*(pv.getX()-sx))/sw + tx,
-		   (th*(pv.getY()-sy))/sh + ty );
+    return QPoint( (tw*(pv.x()-sx))/sw + tx,
+		   (th*(pv.y()-sy))/sh + ty );
 }
 
 QRect QPainter::xForm( const QRect &rv ) const
@@ -586,8 +586,8 @@ QPoint QPainter::xFormDev( const QPoint &pd ) const
 {						// map point, device -> virtual
     if ( !doXForm )
 	return pd;
-    return QPoint( (sw*(pd.getX()-tx))/tw + sx,
-		   (sh*(pd.getY()-ty))/th + sy );
+    return QPoint( (sw*(pd.x()-tx))/tw + sx,
+		   (sh*(pd.y()-ty))/th + sy );
 }
 
 QRect QPainter::xFormDev( const QRect &rd ) const
@@ -1007,8 +1007,8 @@ void QPainter::drawPixmap( int x, int y, const QPixMap &pm )
     POINTL pts[3];
     pts[0].x = x;				// target, lower left
     pts[0].y = dh - y;
-    pts[1].x = x + pm.sz.getWidth();		// target, upper right
-    pts[1].y = dh - y - pm.sz.getHeight();
+    pts[1].x = x + pm.sz.width();		// target, upper right
+    pts[1].y = dh - y - pm.sz.height();
     pts[2].x = 0;				// source, lower left
     pts[2].y = 0;
     GpiBitBlt( hps, pm.hps, 3, pts, ROP_SRCCOPY, BBO_AND );

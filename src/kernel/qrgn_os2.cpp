@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#2 $
 **
 ** Implementation of QRegion class for OS/2 PM
 **
@@ -16,7 +16,7 @@
 #include <os2.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrgn_os2.cpp#2 $";
 #endif
 
 
@@ -95,8 +95,8 @@ bool QRegion::contains( const QPoint &p ) const
     bool res = FALSE;
     if ( data->rgn ) {
 	POINTL pt;
-	pt.x = p.getX();
-	pt.y = p.getY();
+	pt.x = p.x();
+	pt.y = p.y();
 	res = GpiPtInRegion( hps, data->rgn, &pt ) == PRGN_INSIDE;
     }
     return res;

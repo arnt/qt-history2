@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#3 $
 **
 ** Implementation of QRect class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qrect.cpp#3 $";
 #endif
 
 
@@ -41,18 +41,18 @@ static inline QCOOT max( QCOOT a, QCOOT b )	// replaces max macro
 
 QRect::QRect( const QPoint &topleft, const QPoint &bottomright )
 {
-    x1 = topleft.getX();
-    y1 = topleft.getY();
-    x2 = bottomright.getX();
-    y2 = bottomright.getY();
+    x1 = topleft.x();
+    y1 = topleft.y();
+    x2 = bottomright.x();
+    y2 = bottomright.y();
 }
 
 QRect::QRect( const QPoint &topleft, const QSize &size )
 {
-    x1 = topleft.getX();
-    y1 = topleft.getY();
-    x2 = x1+size.getWidth()-1;
-    y2 = y1+size.getHeight()-1;
+    x1 = topleft.x();
+    y1 = topleft.y();
+    x2 = x1+size.width()-1;
+    y2 = y1+size.height()-1;
 }
 
 QRect::QRect( QCOOT left, QCOOT top, QCOOT width, QCOOT height )
@@ -156,42 +156,42 @@ void QRect::coords( int *xp1, int *yp1, int *xp2, int *yp2 ) const
 
 void QRect::setTopLeft( const QPoint &p )
 {
-    x2 += (p.getX() - x1);
-    y2 += (p.getY() - y1);
-    x1 = p.getX();
-    y1 = p.getY();
+    x2 += (p.x() - x1);
+    y2 += (p.y() - y1);
+    x1 = p.x();
+    y1 = p.y();
 }
 
 void QRect::setBottomRight( const QPoint &p )
 {
-    x1 += (p.getX() - x2);
-    y1 += (p.getY() - y2);
-    x2 = p.getX();
-    y2 = p.getY();
+    x1 += (p.x() - x2);
+    y1 += (p.y() - y2);
+    x2 = p.x();
+    y2 = p.y();
 }
 
 void QRect::setTopRight( const QPoint &p )
 {
-    x1 += (p.getX() - x2);
-    y2 += (p.getY() - y1);
-    x2 = p.getX();
-    y1 = p.getY();
+    x1 += (p.x() - x2);
+    y2 += (p.y() - y1);
+    x2 = p.x();
+    y1 = p.y();
 }
 
 void QRect::setBottomLeft( const QPoint &p )
 {
-    x2 += (p.getX() - x1);
-    y1 += (p.getY() - y2);
-    x1 = p.getX();
-    y2 = p.getY();
+    x2 += (p.x() - x1);
+    y1 += (p.y() - y2);
+    x1 = p.x();
+    y2 = p.y();
 }
 
 void QRect::setCenter( const QPoint &p )
 {
     QCOOT w = x2 - x1;
     QCOOT h = y2 - y1;
-    x1 = p.getX() - w/2;
-    y1 = p.getY() - h/2;
+    x1 = p.x() - w/2;
+    y1 = p.y() - h/2;
     x2 = x1 + w;
     y2 = y1 + h;
 }
@@ -229,18 +229,18 @@ QCOOT QRect::height() const
 
 void QRect::setSize( const QSize &s )
 {
-    x2 = x1+s.getWidth()-1;
-    y2 = y1+s.getHeight()-1;
+    x2 = x1+s.width()-1;
+    y2 = y1+s.height()-1;
 }
 
 bool QRect::contains( const QPoint &p, bool proper ) const
 {
     if ( proper )
-	return p.getX() > x1 && p.getX() < x2 &&
-	       p.getY() > y1 && p.getY() < y2;
+	return p.x() > x1 && p.x() < x2 &&
+	       p.y() > y1 && p.y() < y2;
     else
-	return p.getX() >= x1 && p.getX() <= x2 &&
-	       p.getY() >= y1 && p.getY() <= y2;
+	return p.x() >= x1 && p.x() <= x2 &&
+	       p.y() >= y1 && p.y() <= y2;
 }
 
 bool QRect::contains( const QRect &r, bool proper ) const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsize.h#3 $
 **
 ** Definition of QSize class
 **
@@ -26,10 +26,13 @@ public:
     bool   isEmpty()	const	{ return wd<1 || ht<1; }
     bool   isValid()	const	{ return wd>=0 && ht>=0; }
 
-    QCOOT &width()		{ return wd; }	// get/set width
-    QCOOT &height()		{ return ht; }	// get/set height
-    QCOOT  getWidth()	const	{ return wd; }	// width, when const is needed
-    QCOOT  getHeight()	const	{ return ht; }	// height, when const is needed
+    QCOOT  width()	const	{ return wd; }	// get width
+    QCOOT  height()	const	{ return ht; }	// get height
+    void   setWidth( QCOOT w ) 	{ wd=(QCOOT)w; }// set width
+    void   setHeight( QCOOT h )	{ ht=(QCOOT)h; }// set height
+
+    QCOOT &rwidth()		{ return wd; }	// get reference to width
+    QCOOT &rheight()		{ return ht; }	// get reference to height
 
     QSize &operator*=( int c );			// multiply with scalar
     QSize &operator*=( float c );		// multiply with scalar float

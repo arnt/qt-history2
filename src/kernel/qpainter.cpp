@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#2 $
 **
 ** Implementation of QPainter class
 **
@@ -11,7 +11,7 @@
 ** --------------------------------------------------------------------------
 ** This file containts the platform independent implementation of the
 ** QPainter class.  Platform dependent functions are implemented in the
-** qptr_xxx.C files.
+** qptr_xxx.cpp files.
 *****************************************************************************/
 
 #define QPAINTER_C
@@ -19,7 +19,7 @@
 #include "qpntarry.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#2 $";
 #endif
 
 
@@ -186,22 +186,22 @@ BGMode QPainter::backgroundMode() const
 
 void QPainter::drawPoint( const QPoint &p )
 {
-    drawPoint( p.getX(), p.getY() );
+    drawPoint( p.x(), p.y() );
 }
 
 void QPainter::moveTo( const QPoint &p )
 {
-    moveTo( p.getX(), p.getY() );
+    moveTo( p.x(), p.y() );
 }
 
 void QPainter::lineTo( const QPoint &p )
 {
-    lineTo( p.getX(), p.getY() );
+    lineTo( p.x(), p.y() );
 }
 
 void QPainter::drawLine( const QPoint &p1, const QPoint &p2 )
 {
-    drawLine( p1.getX(), p1.getY(), p2.getX(), p2.getY() );
+    drawLine( p1.x(), p1.y(), p2.x(), p2.y() );
 }
 
 void QPainter::drawRect( const QRect &r )
@@ -252,7 +252,7 @@ void QPainter::eraseRect( const QRect &r )
 void QPainter::drawShadeLine( const QPoint &p1, const QPoint &p2,
 			      const QColor &tC, const QColor &bC )
 {
-    drawShadeLine( p1.getX(), p1.getY(), p2.getX(), p2.getY(), tC, bC );
+    drawShadeLine( p1.x(), p1.y(), p2.x(), p2.y(), tC, bC );
 }
 
 void QPainter::drawShadeRect( const QRect &r,
@@ -273,7 +273,7 @@ void QPainter::drawShadePanel( const QRect &r,
 
 void QPainter::drawText( const QPoint &p, const char *s, int len )
 {
-    drawText( p.getX(), p.getY(), s, len );
+    drawText( p.x(), p.y(), s, len );
 }
 
 void QPainter::drawText( const QRect &r, TextAlignment ta, const char *s,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#3 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#3 $";
 #endif
 
 
@@ -684,14 +684,14 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( event->type == MotionNotify ) {	// mouse move
 	type = Event_MouseMove;
-	pos.x() = event->xmotion.x;
-	pos.y() = event->xmotion.y;
+	pos.rx() = event->xmotion.x;
+	pos.ry() = event->xmotion.y;
 	button = 0;				// no button causes motion
 	state = translateButtonState( event->xmotion.state );
     }
     else {					// button press or release
-	pos.x() = event->xbutton.x;
-	pos.y() = event->xbutton.y;
+	pos.rx() = event->xbutton.x;
+	pos.ry() = event->xbutton.y;
 	switch ( event->xbutton.button ) {
 	    case Button1: button = LeftButton;	break;
 	    case Button2: button = MidButton;	break;

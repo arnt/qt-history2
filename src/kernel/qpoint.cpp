@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#3 $
 **
 ** Implementation of QPoint class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpoint.cpp#3 $";
 #endif
 
 
@@ -149,13 +149,13 @@ QPoint operator-( const QPoint &p )
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
 {
-    return s << (INT16)p.getX() << (INT16)p.getY();
+    return s << (INT16)p.x() << (INT16)p.y();
 }
 
 QDataStream &operator>>( QDataStream &s, QPoint &p )
 {
     INT16 x, y;
-    s >> x; p.x() = x;
-    s >> y; p.y() = y;
+    s >> x;  p.rx() = x;
+    s >> y;  p.ry() = y;
     return s;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#2 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#3 $
 **
 ** Definition of QWidget class
 **
@@ -174,12 +174,12 @@ private:
 
 inline bool QWidget::move( const QPoint &p )
 {
-    return move( p.getX(), p.getY() );
+    return move( p.x(), p.y() );
 }
 
 inline bool QWidget::resize( const QSize &s )
 {
-    return resize( s.getWidth(), s.getHeight());
+    return resize( s.width(), s.height());
 }
 
 inline bool QWidget::changeGeometry( const QRect &r )
@@ -189,7 +189,7 @@ inline bool QWidget::changeGeometry( const QRect &r )
 
 inline bool QWidget::drawText( const QPoint &p, const char *s )
 {
-    return drawText( p.getX(), p.getY(), s );
+    return drawText( p.x(), p.y(), s );
 }
 
 
