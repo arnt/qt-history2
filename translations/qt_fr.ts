@@ -890,26 +890,6 @@ Vérifier le chemin et le nom du fichier.</translation>
 <context>
     <name>QLineEdit</name>
     <message>
-        <source>Undo</source>
-        <translation type='obsolete'>Annuler</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation type='obsolete'>Annuler Annuler</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation type='obsolete'>Couper</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type='obsolete'>Copier</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation type='obsolete'>Coller</translation>
-    </message>
-    <message>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
@@ -1007,14 +987,6 @@ en
     <message>
         <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This application was created with Qt version %1.&lt;/p&gt;</source>
         <translation>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type='obsolete'>&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;h3&gt;About Qt&lt;/h3&gt;&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a multi-platform C++ GUI application framework from Trolltech. Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX and many other versions of Unix with X11. Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
-        <translation type='obsolete'>&lt;h3&gt;À propos de Qt&lt;/h3&gt;&lt;p&gt;Ce programme utilise Qt version %1.&lt;/p&gt;&lt;p&gt;Qt est une boîte à outils multi-plateforme réalisée par Trolltech. Qt permet de porter un même code source sur Windows 95/98/NT4/ME/2000, Linux, Solaris, HP-UX et beaucoup d&apos;autres versions d&apos;Unix avec X11. Qt est aussi disponible pour les systèmes embarqués.&lt;/p&gt;&lt;p&gt;Consultez &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; pour de plus amples renseignements.&lt;/p&gt;</translation>
     </message>
     <message>
         <source>&lt;p&gt;This program uses Qt version %1.&lt;/p&gt;&lt;p&gt;Qt is a C++ toolkit for cross-platform GUI &amp;amp; application development.&lt;/p&gt;&lt;p&gt;Qt provides single-source portability across Windows 95/98/NT4/ME/2000, Mac&amp;nbsp;OS&amp;nbsp;X, Linux, Solaris, HP-UX and many other versions of Unix with X11.&lt;br&gt;Qt is also available for embedded devices.&lt;/p&gt;&lt;p&gt;Qt is a Trolltech product. See &lt;tt&gt;http://www.trolltech.com/qt/&lt;/tt&gt; for more information.&lt;/p&gt;</source>
@@ -1304,26 +1276,6 @@ en
 <context>
     <name>QTextEdit</name>
     <message>
-        <source>Undo</source>
-        <translation type='obsolete'>Annuler</translation>
-    </message>
-    <message>
-        <source>Redo</source>
-        <translation type='obsolete'>Annuler Annuler</translation>
-    </message>
-    <message>
-        <source>Cut</source>
-        <translation type='obsolete'>Couper</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type='obsolete'>Copier</translation>
-    </message>
-    <message>
-        <source>Paste</source>
-        <translation type='obsolete'>Coller</translation>
-    </message>
-    <message>
         <source>Clear</source>
         <translation>Effacer</translation>
     </message>
@@ -1435,10 +1387,6 @@ en
     <message>
         <source>KDE2</source>
         <translation>KDE2</translation>
-    </message>
-    <message>
-        <source>BEOS</source>
-        <translation type='obsolete'>BEOS</translation>
     </message>
     <message>
         <source>Hydro</source>
@@ -1614,14 +1562,6 @@ en
     <message>
         <source>wrong value for standalone declaration</source>
         <translation>valeur invalide pour déclaration autonome</translation>
-    </message>
-    <message>
-        <source>EDecl or SDDecl expected while reading the XML declaration</source>
-        <translation type='obsolete'>EDecl ou SDDecl attendue dans la déclaration XML</translation>
-    </message>
-    <message>
-        <source>SDDecl expected while reading the XML declaration</source>
-        <translation type='obsolete'>SDDecl attendue dans la déclaration XML</translation>
     </message>
     <message>
         <source>error occurred while parsing document type definition</source>
