@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qatomic_win.h"
+#include "qatomic.h"
 #include "qbitmap.h"
 #include "qbuffer.h"
 #include "qimage.h"
