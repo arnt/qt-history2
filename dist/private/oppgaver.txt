@@ -33,6 +33,7 @@ Bugs
        - Feil når sletting/insetting utenfor synlig område (ikke oppdatering)
        - Feil markering av fokus når horisontal scrolling
        - Blinkende scrollbar ved resize (cellWidth).
+       - Fokus merking bruker widget bredde
 
    QMenuBar tastatur-bugs:
        - (Hogne har klaget)
@@ -40,6 +41,10 @@ Bugs
 
 Funksjonalitet:
 ---------------
+
+    Legg inn nye navn på *alt* som ikke begynner med Q, behold de
+    gamle, må bruke kompilatorbryter for å få dem med i 2.0, fjern dem
+    helt i 3.0!
 
     Multi line editor
 
