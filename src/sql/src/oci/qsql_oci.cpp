@@ -90,7 +90,7 @@ QSqlError qMakeError( const QString& err, int type, const QOCIPrivate* p )
 QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, int ociscale )
 {
     QVariant::Type type = QVariant::Invalid;
-    if ( ocitype == "NVARCHAR2" || ocitype == "VARCHAR2" || ocitype == "VARCHAR" )
+    if ( ocitype == "VARCHAR2" || ocitype == "VARCHAR" || ocitype == "CHAR" || ocitype == "NVARCHAR2" )
 	type = QVariant::String;
     else if ( ocitype == "NUMBER" )
 	type = QVariant::Int;
@@ -110,6 +110,8 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	if ( ociscale > 0 )
 	    type = QVariant::Double;
     }
+    if ( type == QVariant::Invalid )
+	qWarning("qDecodeOCIType: unknown type:" + ocitype );
     return type;
 }
 
@@ -236,6 +238,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
+    
     type = qDecodeOCIType( colType );
     if ( type == QVariant::Int ) {
 	if ( colLength == 22 && colPrecision == 0 && colScale == 0 )
@@ -264,40 +267,6 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     return ofi;
 }
 
-//QString qFormatOraDate( const QDate& date )
-//{
-//     QString datestring;
-//     OCIDate ocidate;
-//     ub4 buflen = 100;
-//     text* buf = new text[buflen];
-//     OCIDateSetTime( &ocidate, 0, 0, 0 );
-//     OCIDateSetDate( &ocidate, date.year(), date.month(), date.day() );
-//     uword invalid;
-//     sword dc = OCIDateCheck( err, &ocidate, &invalid) != OCI_SUCCESS;
-//     if ( dc == OCI_ERROR ) {
-// 	delete buf;
-// 	return datestring;
-//     }
-//     int r = OCIDateToText ( err,
-// 			    &ocidate,
-// 			    (text*)0,
-// 			    0,
-// 			    (text*)0,
-// 			    0,
-// 			    &buflen,
-// 			    buf );
-//     if ( r == OCI_ERROR ) {
-// #ifdef QT_CHECK_RANGE
-// 	qWarning( "QOCIDriver: unable to format date" );
-// #endif
-// 	delete buf;
-// 	return datestring;
-//     }
-//     datestring = QString( (char*)buf );
-//     delete buf;
-//     return datestring;
-//}
-
 class QOCIResultPrivate
 {
 public:
@@ -324,7 +293,7 @@ public:
 
 	while ( parmStatus == OCI_SUCCESS ) {
 	    OraFieldInfo ofi = qMakeOraField( d, param );
-	    dataSize = ofi.oraLength;
+	    dataSize = ofi.oraLength + 1;
 	    QVariant::Type type = ofi.type;
 	    createType( count-1, type );
 	    switch ( type ) {
@@ -617,7 +586,7 @@ bool QOCIResult::reset ( const QString& query )
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
 	}
-	setSelect( FALSE );	
+	setSelect( FALSE );
     }
     setAt( BeforeFirst );
     setActive( TRUE);
@@ -632,6 +601,7 @@ bool QOCIResult::cacheNext()
     int r = 0;
     r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
     if ( r == OCI_NEED_DATA ) { /* piecewise */
+	// ###
 	OCIDefine 	*dfn;
 	ub4            typep;
 	ub1            in_outp;
@@ -683,8 +653,13 @@ bool QOCIResult::cacheNext()
 	}
     }
     if ( r == 0 ) {
-	for ( int i = 0; i < cols->size(); ++i )
-	    rowCache[currentRecord][i] = cols->value( i );
+	for ( int i = 0; i < cols->size(); ++i ) {
+	    QVariant v = cols->value( i );
+	    QSqlField f( QString::null, v.type() );
+	    f.setValue( v );
+	    f.setNull( cols->isNull(i) );
+	    rowCache[currentRecord][i] = f;
+	}
     } else {
 	cached = TRUE;
 	setAt( AfterLast );
@@ -716,8 +691,9 @@ bool QOCIResult::fetch( int i )
 	    return FALSE;
 	setAt( at() + 1 );
     }
-    if ( at() == i )
+    if ( at() == i ) {
 	return TRUE;
+    }
     return FALSE;
 }
 
@@ -742,7 +718,7 @@ bool QOCIResult::fetchLast()
     }
     if ( at() >= BeforeFirst ) {
 	while ( fetchNext() )
-	    ; // brute force
+	    ; /* brute force */
 	return fetch( rowCache.count() - 1 );
     }
     return FALSE;
@@ -750,12 +726,12 @@ bool QOCIResult::fetchLast()
 
 QVariant QOCIResult::data( int field )
 {
-    return rowCache[at()][field];
+    return rowCache[at()][field].value();
 }
 
 bool QOCIResult::isNull( int field )
 {
-    return cols->isNull( field );
+    return rowCache[at()][field].isNull();
 }
 
 int QOCIResult::size()
@@ -938,8 +914,9 @@ QStringList QOCIDriver::tables( const QString& ) const
     QSqlQuery t = createQuery();
     t.exec( "select table_name from user_tables;" );
     QStringList tl;
-    while ( t.next() )
+    while ( t.next() ) {
 	tl.append( t.value(0).toString() );
+    }
     return tl;
 }
 

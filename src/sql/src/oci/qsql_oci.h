@@ -62,7 +62,7 @@ protected:
     int         size();
     int         numRowsAffected();
 private:
-    typedef QMap< uint, QVariant > RowCache;
+    typedef QMap< uint, QSqlField > RowCache;
     typedef QMap< uint, RowCache > RowsetCache;
 
     QOCIPrivate* 	d;
