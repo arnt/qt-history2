@@ -63,9 +63,6 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
 void QTextCursorPrivate::setPosition(int newPosition)
 {
     Q_ASSERT(newPosition >= 0 && newPosition < pieceTable->length());
-    if (newPosition == position)
-        return;
-
     position = newPosition;
 }
 
