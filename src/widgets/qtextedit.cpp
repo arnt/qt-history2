@@ -3653,6 +3653,8 @@ void QTextEdit::setFontInternal( const QFont &f_ )
 
 QString QTextEdit::text() const
 {
+    if ( length() == 0 )
+	return QString::fromLatin1("");
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode ) {
 	return optimText();
