@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#5 $
 **
 ** Implementation of QObject class
 **
@@ -16,7 +16,7 @@
 #include "qview.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#5 $";
 #endif
 
 
@@ -112,26 +112,38 @@ bool QObject::bind( const char *signal, const QObject *object,
     }
     if ( !meta ) {				// has no meta object
 #if defined(CHECK_NULL)
-	fatal( "QObject::bind: No meta object for %s", className() );
+	fatal( "QObject::bind: No meta object for %s (WHY?)", className() );
 #else
 	return FALSE;
 #endif
     }
+#if defined(CHECK_RANGE)
+    int sigcode = (int)(*signal) - '0';
+    if ( sigcode != SIGNAL_CODE ) {
+	if ( sigcode == METHOD_CODE || sigcode == SLOT_CODE )
+	    warning( "QObject::bind: Attempt to bind non-signal '%s::%s'",
+		     className(), signal+1 );
+	else
+	    warning( "QObject::bind: Use the SIGNAL() macro to bind '%s::%s'",
+		     className(), signal );
+	return FALSE;
+    }
+#endif
     signal++;					// skip member type code
     if ( meta->signal( signal, TRUE ) == 0 ) {	// no such find signal
 #if defined(CHECK_RANGE)
 	if ( strchr(signal,')') == 0 )		// was common typing mistake
-	    warning( "QObject::bind: Missing parentheses for signal '%s'",
-		     signal );
+	    warning( "QObject::bind: Parentheses expected for signal '%s::%s'",
+		     className(), signal );
 	else
-	    warning( "QObject::bind: Invalid signal '%s'", signal );
+	    warning( "QObject::bind: No such signal '%s::%s'",
+		     className(), signal );
 #endif
 	return FALSE;
     }
 
     int memberCode = member[0] - '0';		// get member code
     member++;					// skip code
-
     QObject *r = object ?			// set receiver object
 		 (QObject *)object : parentObj;
     QMember *m = 0;
@@ -142,7 +154,7 @@ bool QObject::bind( const char *signal, const QObject *object,
     }
     if ( !rmeta ) {
 #if defined(CHECK_NULL)
-	fatal( "QObject::bind: No meta object for %s", r->className() );
+	fatal( "QObject::bind: No meta object for %s (WHY?)", r->className() );
 #else
 	return FALSE;
 #endif
@@ -162,10 +174,11 @@ bool QObject::bind( const char *signal, const QObject *object,
 	    default:	      memberType = "(unspecified)";
 	}
 	if ( strchr(member,')') == 0 )		// was common typing mistake
-	    warning( "QObject::bind: Missing parentheses for %s '%s'",
-		     memberType, member );
+	    warning( "QObject::bind: Parentheses expected for %s '%s::%s'",
+		     memberType, r->className(), member );
 	else
-	    warning( "QObject::bind: Invalid %s: '%s'", memberType, member );
+	    warning( "QObject::bind: No such %s: '%s::%s'", memberType,
+		     r->className(), member );
 #endif
 	return FALSE;
     }
@@ -174,9 +187,15 @@ bool QObject::bind( const char *signal, const QObject *object,
     const char *s2 = member;
     while ( *s1++ != '(' ) ;
     while ( *s2++ != '(' ) ;
-    if ( strcmp(s1,s2) != 0 ) {			// arguments differ
-	warning( "QObject::bind: Incompatible sender/receiver arguments" );
-	return FALSE;
+    if ( !(*s2 == ')' || strcmp(s1,s2) == 0) ) {
+	int s1len = strlen(s1);
+	int s2len = strlen(s2);
+	if ( !(s2len < s1len && !strncmp(s1,s2,s2len-1) && s1[s2len-1]==',')) {
+	    warning( "QObject::bind: Incompatible sender/receiver arguments"
+		     "\n\t'%s::%s' --> '%s::%s'", className(), signal,
+		     r->className(), member );
+	    return FALSE;
+	}
     }
 #endif
     if ( !connections ) {
