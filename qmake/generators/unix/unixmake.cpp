@@ -79,9 +79,9 @@ UnixMakefileGenerator::init()
 	}
     }
     if( project->isEmpty("QMAKE_COPY_FILE") )
-	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY) -p" );
+	project->variables()["QMAKE_COPY_FILE"].append( "$(COPY)" );
     if( project->isEmpty("QMAKE_COPY_DIR") )
-	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
+	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -R" );
     if( project->isEmpty("QMAKE_LIBTOOL") ) 
 	project->variables()["QMAKE_LIBTOOL"].append( "libtool --silent" );
     //If the TARGET looks like a path split it into DESTDIR and the resulting TARGET
@@ -766,4 +766,3 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     }
     return ret;
 }
-
