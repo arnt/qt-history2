@@ -595,7 +595,8 @@ bool QWidgetItem::isEmpty() const
   provided by QLayout, such as	setMenuBar(), which is necessary
   to manage a menu bar because of the special properties of menu bars,
   and  freeze(), which allows you to freeze the widget's size and
-  layout.
+  layout.  See the <a href="layout.html">layout overview page</a> for more
+  information.
 
   To make your own layout manager, make a subclass of QGLayoutIterator
   and implement the functions addItem(), sizeHint(), setGeometry() and
@@ -604,12 +605,19 @@ bool QWidgetItem::isEmpty() const
   support children whose height depend on their widths, implement
   hasHeightForWidth() and heightForWidth().
   See the <a href="customlayout.html">custom layout page</a> for an in-depth
-  description and the <a href="layout.html">layout overview page</a>
-  for an introduction.
+  description.
 
   Geometry management stops when the layout manager is deleted.
 */
 
+
+/*!
+  \fn QLayoutIterator QLayout::iterator()
+
+  Returns an iterator over the children of this layout.
+  
+  This function must be implemented by subclasses.
+*/
 
 /*!
   Constructs a new top-level QLayout with main widget \a
