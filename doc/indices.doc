@@ -115,17 +115,16 @@ Overviews
 </td>
 <td valign=top>
 \list
+\i \link overviews-list.html All Overviews and HOWTOs \endlink
 \i \link object.html   Qt Object Model \endlink
 \i \link signalsandslots.html   Signals and Slots \endlink
-\i \link moc.html   Using the Meta Object Compiler (moc) \endlink
 \i \link layout.html   Geometry Management  \endlink
 \i \link eventsandfilters.html   Events and Event Filters \endlink
-\i \link dnd.html   Drag and Drop (D'n'D) \endlink
 \i \link i18n.html   Internationalization (i18n)  \endlink
 \i \link debug.html   Debugging Techniques \endlink
-\i \link pictures.html   Widget Screenshots \endlink
 \i \link threads.html  Thread Support in Qt  \endlink
 \i \link component.html  Qt Component Model \endlink
+\i \link pictures.html   Widget Screenshots \endlink
 \endlist
 
 </td>
