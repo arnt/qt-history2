@@ -51,22 +51,22 @@ public:
         NoMove,
 
         Start,
+        Up,
         StartOfLine,
         PreviousBlock,
         PreviousCharacter,
         PreviousWord,
-        Up,
         Left,
         WordLeft,
 
         End,
+        Down,
         EndOfLine,
         EndOfWord,
         EndOfBlock,
         NextBlock,
         NextCharacter,
         NextWord,
-        Down,
         Right,
         WordRight
     };

@@ -18,7 +18,8 @@ public:
     ~QTextCursorPrivate();
 
     void adjustPosition(int positionOfChange, int charsAddedOrRemoved, UndoCommand::Operation op);
-    void adjustCursor();
+
+    void adjustCursor(QTextCursor::MoveOperation m);
 
     void remove();
     void setPosition(int newPosition);
@@ -29,9 +30,9 @@ public:
     bool movePosition(QTextCursor::MoveOperation op, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
     inline QTextBlock block() const
-    { return QTextBlock(pieceTable, pieceTable->blockMap().findNode(position)); }
+        { return QTextBlock(pieceTable, pieceTable->blockMap().findNode(position)); }
     inline QTextBlockFormat blockFormat() const
-    { return block().blockFormat(); }
+        { return block().blockFormat(); }
 
     QTextTable *tableAt(int position) const;
 

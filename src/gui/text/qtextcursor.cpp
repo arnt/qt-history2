@@ -126,7 +126,7 @@ QTextTable *QTextCursorPrivate::tableAt(int position) const
 }
 
 
-void QTextCursorPrivate::adjustCursor()
+void QTextCursorPrivate::adjustCursor(QTextCursor::MoveOperation m)
 {
     adjusted_anchor = anchor;
     if (position == anchor)
@@ -157,14 +157,17 @@ void QTextCursorPrivate::adjustCursor()
                 break;
         }
 
-        if (position < adjusted_anchor) {
+        if (m <= QTextCursor::WordLeft) {
             if (i < positionChain.size())
                 position = positionChain.at(i)->firstPosition() - 1;
-            if (i < anchorChain.size())
-                adjusted_anchor = anchorChain.at(i)->lastPosition() + 1;
         } else {
             if (i < positionChain.size())
                 position = positionChain.at(i)->lastPosition() + 1;
+        }
+        if (position < adjusted_anchor) {
+            if (i < anchorChain.size())
+                adjusted_anchor = anchorChain.at(i)->lastPosition() + 1;
+        } else {
             if (i < anchorChain.size())
                 adjusted_anchor = anchorChain.at(i)->firstPosition() - 1;
         }
@@ -180,14 +183,29 @@ void QTextCursorPrivate::adjustCursor()
     QTextTableCell c_position = table->cellAt(position);
     QTextTableCell c_anchor = table->cellAt(adjusted_anchor);
     if (c_position != c_anchor) {
+        bool before;
+        int col_position = c_position.column();
+        int col_anchor = c_anchor.column();
+        if (col_position == col_anchor) {
+            before = c_position.row() < c_anchor.row();
+        } else {
+            before = col_position < col_anchor;
+        }
+
         // adjust to cell boundaries
-        if (position < adjusted_anchor) {
+        if (m <= QTextCursor::WordLeft) {
             position = c_position.firstPosition();
-            adjusted_anchor = c_anchor.lastPosition();
+            if (!before)
+                --position;
         } else {
             position = c_position.lastPosition();
-            adjusted_anchor = c_anchor.firstPosition();
+            if (before)
+                ++position;
         }
+        if (position < adjusted_anchor)
+            adjusted_anchor = c_anchor.lastPosition();
+        else
+            adjusted_anchor = c_anchor.firstPosition();
     }
 }
 
@@ -214,6 +232,8 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
     Q_ASSERT(pieceTable->frameAt(position) == pieceTable->frameAt(adjusted_anchor));
 
+    int newPosition = position;
+
     switch(op) {
     case QTextCursor::NoMove:
         return true;
@@ -225,7 +245,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
 
         if (!line.isValid())
             break;
-        setPosition(blockIt.position() + line.from());
+        newPosition = blockIt.position() + line.from();
 
         break;
     }
@@ -234,16 +254,16 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             return false;
         blockIt = blockIt.previous();
 
-        setPosition(blockIt.position());
+        newPosition = blockIt.position();
         break;
     }
     case QTextCursor::PreviousCharacter:
     case QTextCursor::Left:
-        setPosition(pieceTable->previousCursorPosition(position, QTextLayout::SkipCharacters));
+        newPosition = pieceTable->previousCursorPosition(position, QTextLayout::SkipCharacters);
         break;
     case QTextCursor::PreviousWord:
     case QTextCursor::WordLeft:
-        setPosition(pieceTable->previousCursorPosition(position, QTextLayout::SkipWords));
+        newPosition = pieceTable->previousCursorPosition(position, QTextLayout::SkipWords);
         break;
     case QTextCursor::Up: {
         int i = line.line() - 1;
@@ -274,9 +294,9 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         }
         if (layout->numLines()) {
             QTextLine line = layout->lineAt(i);
-            setPosition(line.xToCursor(x) + blockIt.position());
+            newPosition = line.xToCursor(x) + blockIt.position();
         } else {
-            setPosition(blockIt.position());
+            newPosition = blockIt.position();
         }
         adjustX = false;
         break;
@@ -290,7 +310,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
             break;
         // currently we don't draw the space at the end, so move to the next
         // reasonable position.
-        setPosition(blockIt.position() + line.from() + line.length() - 1);
+        newPosition = blockIt.position() + line.from() + line.length() - 1;
 
         break;
     }
@@ -304,7 +324,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         while (relativePos < len && !attributes[relativePos].wordStop && !attributes[relativePos].whiteSpace)
             relativePos++;
 
-        setPosition(blockIt.position() + relativePos);
+        newPosition = blockIt.position() + relativePos;
         break;
     }
     case QTextCursor::EndOfBlock:
@@ -317,16 +337,16 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         if (!blockIt.isValid())
             return false;
 
-        setPosition(blockIt.position());
+        newPosition = blockIt.position();
         break;
     }
     case QTextCursor::NextCharacter:
     case QTextCursor::Right:
-        setPosition(pieceTable->nextCursorPosition(position, QTextLayout::SkipCharacters));
+        newPosition = pieceTable->nextCursorPosition(position, QTextLayout::SkipCharacters);
         break;
     case QTextCursor::NextWord:
     case QTextCursor::WordRight:
-        setPosition(pieceTable->nextCursorPosition(position, QTextLayout::SkipWords));
+        newPosition = pieceTable->nextCursorPosition(position, QTextLayout::SkipWords);
         break;
 
     case QTextCursor::Down: {
@@ -360,19 +380,33 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
         }
         if (layout->numLines()) {
             QTextLine line = layout->lineAt(i);
-            setPosition(line.xToCursor(x) + blockIt.position());
+            newPosition = line.xToCursor(x) + blockIt.position();
         } else {
-            setPosition(blockIt.position());
+            newPosition = blockIt.position();
         }
         adjustX = false;
         break;
     }
     }
+
+    if (mode == QTextCursor::KeepAnchor) {
+        QTextTable *table = qt_cast<QTextTable *>(pieceTable->frameAt(position));
+        if (table && ((op >= QTextCursor::PreviousBlock && op <= QTextCursor::WordLeft)
+                      || (op >= QTextCursor::NextBlock && op <= QTextCursor::WordRight))) {
+            int oldColumn = table->cellAt(position).column();
+            int newColumn = table->cellAt(newPosition).column();
+            if ((oldColumn > newColumn && op >= QTextCursor::End)
+                || (oldColumn < newColumn && op <= QTextCursor::WordLeft))
+                return false;
+        }
+    }
+    setPosition(newPosition);
+
     if (mode == QTextCursor::MoveAnchor) {
         anchor = position;
         adjusted_anchor = position;
     } else {
-        adjustCursor();
+        adjustCursor(op);
     }
 
     if (adjustX)
