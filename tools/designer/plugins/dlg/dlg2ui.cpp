@@ -198,7 +198,6 @@ static const struct {
   supported color roles in a color group. Changing these constants is
   dangerous.
 */
-static const int NumColorGroups = 3;
 static const int NumColorRoles = 14;
 
 static bool isTrue( const QString& val )
@@ -893,11 +892,9 @@ void Dlg2Ui::matchDialogCommon( const QDomElement& dialogCommon )
     QString dataSource;
     QString dataName;
     QString windowBaseClass( "QDialog" );
-    bool isModal = FALSE;
     bool isCustom = FALSE;
     QString customBaseHeader;
     QString windowCaption;
-    Qt::WidgetFlags windowFlags = (Qt::WidgetFlags) 0;
 
     yyClassName = "Form1";
 
@@ -926,15 +923,12 @@ void Dlg2Ui::matchDialogCommon( const QDomElement& dialogCommon )
 	    else
 		windowBaseClass = val;
 	} else if ( tagName == QString("IsModal") ) {
-	    isModal = isTrue( val );
 	} else if ( tagName == QString("CustomBase") ) {
 	    windowBaseClass = val;
 	} else if ( tagName == QString("CustomBaseHeader") ) {
 	    customBaseHeader = val;
 	} else if ( tagName == QString("WindowCaption") ) {
 	    windowCaption = val;
-	} else if ( tagName == QString("WindowFlags") ) {
-	    windowFlags = (Qt::WidgetFlags) val.toInt();
 	}
 	n = n.nextSibling();
     }
@@ -966,8 +960,6 @@ void Dlg2Ui::matchBoxLayout( const QDomElement& boxLayout )
     QString prevBoxKind = yyBoxKind;
     int border = 5;
     int autoBorder = 5;
-    int strut = 0;
-    int stretch = 1;
     QString name;
     bool needsWidget = needsQLayoutWidget( boxLayout );
     bool opened = FALSE;
@@ -1008,9 +1000,7 @@ void Dlg2Ui::matchBoxLayout( const QDomElement& boxLayout )
 	    } else if ( tagName == QString("AutoBorder") ) {
 		autoBorder = val.toInt();
 	    } else if ( tagName == QString("Strut") ) {
-		strut = val.toInt();
 	    } else if ( tagName == QString("Stretch") ) {
-		stretch = val.toInt();
 	    } else if ( tagName == QString("Name") ) {
 		name = val;
 	    } else {
@@ -1149,9 +1139,6 @@ void Dlg2Ui::matchGridLayout( const QDomElement& gridLayout )
 
 void Dlg2Ui::matchGridRow( const QDomElement& gridRow )
 {
-    int spacing = 0;
-    int stretch = 1;
-
     yyGridRow++;
 
     QDomNode n = gridRow.firstChild();
@@ -1165,9 +1152,7 @@ void Dlg2Ui::matchGridRow( const QDomElement& gridRow )
 	    QString val = getTextValue( n );
 
 	    if ( tagName == QString("Spacing") ) {
-		spacing = val.toInt();
 	    } else if ( tagName == QString("Stretch") ) {
-		stretch = val.toInt();
 	    } else {
 		syntaxError();
 	    }
@@ -1187,8 +1172,6 @@ void Dlg2Ui::matchLayoutWidget( const QDomElement& layoutWidget )
     QDomNodeList nodes = layoutWidget.childNodes();
     QDomElement children;
     QString widget;
-    int boxStretch;
-    int alignment;
 
     QDomNode n = layoutWidget.firstChild();
     while ( !n.isNull() ) {
@@ -1202,10 +1185,8 @@ void Dlg2Ui::matchLayoutWidget( const QDomElement& layoutWidget )
 	    if ( tagName == QString("Widget") ) {
 		widget = val;
 	    } else if ( tagName == QString("BoxStretch") ) {
-		boxStretch = val.toInt();
 	    } else if ( tagName == QString("Alignement") ||
 			tagName == QString("Alignment") ) {
-		alignment = val.toInt();
 	    } else {
 		syntaxError();
 	    }
@@ -1343,12 +1324,8 @@ void Dlg2Ui::matchWidgetLayoutCommon( const QDomElement& widgetLayoutCommon )
     QSize maxSize = getValue( children, QString("MaxSize"), QString("qsize") )
 		    .toSize();
 
-    bool textTranslated = TRUE;
     QVariant val = getValue( children, QString("TextTranslated"),
 			     QString("boolean") );
-    if ( val.isValid() )
-	textTranslated = val.toBool();
-
     if ( initialPos == QPoint(-1, -1) )
 	initialPos = QPoint( 0, 0 );
 
