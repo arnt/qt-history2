@@ -11,6 +11,7 @@ HEADERS += fontengine.h \
 	   qfontdatabase.h \
            qpainter.h \
            qtextdata.h \
+           qtextengine.h \
            qtextlayout.h \
            scriptengine.h \
            scriptenginearabic.h \
@@ -32,6 +33,7 @@ SOURCES += qfont.cpp \
 	   qfontdatabase.cpp \
            qpainter_x11.cpp \
            qtextdata.cpp \
+           qtextengine.cpp \
            qtextlayout.cpp \
            scriptenginearabic.cpp \
            scriptenginesyriac.cpp \

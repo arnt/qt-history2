@@ -1,7 +1,7 @@
 #include "opentype.h"
 
 #include <qglobal.h>
-#include "qtextlayout_p.h"
+#include "qtextengine.h"
 #include "qfont.h"
 #include "scriptenginebasic.h"
 

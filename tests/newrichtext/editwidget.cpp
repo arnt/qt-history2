@@ -3,7 +3,7 @@
 #include "editwidget.h"
 #include "fontengine.h"
 
-#include "qtextlayout_p.h"
+#include "qtextengine.h"
 #include <qmemarray.h>
 
 #include <qdatetime.h>
