@@ -123,8 +123,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!makeFile().isEmpty())
-	t << " -o " << makeFile();
+    if (!Option::output.name())
+	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "dist:" << "\n\t" 

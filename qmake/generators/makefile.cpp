@@ -234,7 +234,7 @@ MakefileGenerator::init()
 	    else
 		v["_UIMOC"].append(fi.dirPath() + Option::dir_sep + "moc_" + fi.baseName() + Option::cpp_ext);
 	}
-	v["OBJECTS"] += v["UICOBJECTS"] = createObjectList("INTERFACES");
+	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("INTERFACES"));
     }
 
     if ( mocAware() ) {

@@ -45,7 +45,6 @@ class MakefileGenerator
     bool generateDependancies(QStringList &dirs, QString x);
     bool generateMocList(QString fn);
     bool init_already, moc_aware;
-    QString mfile;
 
     QStringList createObjectList(const QString &var);
     void writeObj(QTextStream &, const QString &obj, const QString &src);
@@ -75,7 +74,6 @@ public:
     virtual ~MakefileGenerator() { }
 
     bool write();
-    QString makeFile() const { return mfile; }
 };
 
 #endif /* __MAKEFILE_H__ */

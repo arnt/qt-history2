@@ -131,8 +131,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!makeFile().isEmpty())
-	t << " -o " << makeFile();
+    if (!Option::output.name())
+	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "dist:" << "\n\t"
@@ -171,8 +171,8 @@ BorlandMakefileGenerator::writeSubdirs(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!makeFile().isEmpty())
-	t << " -o " << makeFile();
+    if (!Option::output.name())
+	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "tmake_all:";

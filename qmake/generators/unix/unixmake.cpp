@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "unixmake.h"
+#include "option.h"
 #include <time.h>
 #include <qfile.h>
 
@@ -190,8 +191,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!makeFile().isEmpty())
-	t << " -o " << makeFile();
+    if (!Option::output.name())
+	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "dist: " << "\n\t"
@@ -249,8 +250,8 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 
     t << "qmake: " << "\n\t"
       << "qmake " << project->projectFile();
-    if (!makeFile().isEmpty())
-	t << " -o " << makeFile();
+    if (!Option::output.name())
+	t << " -o " << Option::output.name();
     t << endl << endl;
 
     t << "tmake_all:" << "\n\t"
