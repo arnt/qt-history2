@@ -1191,6 +1191,8 @@ bool WidgetFactory::isPassiveInteractor( QObject* o )
  */
 const char* WidgetFactory::classNameOf( QObject* o )
 {
+    if ( o->isA( "PropertyObject" ) )
+	return o->className();
     if ( o->inherits( "QDesignerTabWidget" ) )
 	return "QTabWidget";
     else if ( o->inherits( "QDesignerWidgetStack" ) )
