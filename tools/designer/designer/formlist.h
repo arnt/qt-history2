@@ -95,6 +95,7 @@ public:
 
 public slots:
     void modificationChanged( bool m, QObject *obj );
+    void modificationChanged( bool m, FormWindow *fw ) { modificationChanged( m, (QObject*)fw ); }
     void fileNameChanged( const QString &s, FormWindow *fw );
     void activeFormChanged( FormWindow *fw );
     void activeEditorChanged( SourceEditor *se );
