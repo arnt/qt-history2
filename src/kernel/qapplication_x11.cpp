@@ -1753,8 +1753,11 @@ GC qt_xget_temp_gc( bool monochrome )		// get temporary GC
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
-#if QT_VERSION >= 300
-    ASSERT(!mainWidget->parentWidget()); // catch silly error
+#if defined(CHECK_STATE)
+    if ( mainWidget && mainWidget->parentWidget() )
+	qWarning( "QApplication::setMainWidget(): New main widget (%s/%s) "
+		  "has a parent!",
+		  mainWidget->className(), mainWidget->name() );
 #endif
     main_widget = mainWidget;
     if ( main_widget ) {			// give WM command line
