@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#17 $
+** $Id: //depot/qt/main/src/tools/qglist.h#18 $
 **
 ** Definition of QGList and QGListIterator classes
 **
@@ -76,8 +76,8 @@ protected:
     int	  findRef( GCI, bool = TRUE );		// find exact item in list
     int	  find( GCI, bool = TRUE );		// find equal item in list
 
-    uint  containsRef( GCI );			// get number of exact matches
-    uint  contains( GCI );			// get number of equal matches
+    uint  containsRef( GCI )	const;		// get number of exact matches
+    uint  contains( GCI )	const;		// get number of equal matches
 
     GCI	  at( uint index );			// access item at i'th pos
     int   at() const;				// get current index

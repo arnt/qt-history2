@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#12 $
+** $Id: //depot/qt/main/src/tools/qlist.h#13 $
 **
 ** Definition of QList template/macro class
 **
@@ -60,8 +60,9 @@ public:									      \
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE);} \
     int	  findRef( const type *d )	{ return QGList::findRef((GCI)d); }   \
     int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE);}\
-    uint  contains( const type *d )	{ return QGList::contains((GCI)d); }  \
-    uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d);}\
+    uint  contains( const type *d ) const { return QGList::contains((GCI)d); }\
+    uint  containsRef( const type *d ) const				      \
+					{ return QGList::containsRef((GCI)d);}\
     type *at( uint i )			{ return (type *)QGList::at(i); }     \
     int   at() const			{ return QGList::at(); }	      \
     type *current()  const		{ return (type *)QGList::get(); }     \
@@ -142,9 +143,10 @@ public:
     int	  find( const type *d )		{ return QGList::find((GCI)d); }
     int	  findNext( const type *d )	{ return QGList::find((GCI)d,FALSE); }
     int	  findRef( const type *d )	{ return QGList::findRef((GCI)d); }
-    int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE); }
-    uint  contains( const type *d )	{ return QGList::contains((GCI)d); }
-    uint  containsRef( const type *d )	{ return QGList::containsRef((GCI)d); }
+    int	  findNextRef( const type *d ){ return QGList::findRef((GCI)d,FALSE);}
+    uint  contains( const type *d ) const { return QGList::contains((GCI)d); }
+    uint  containsRef( const type *d ) const
+					{ return QGList::containsRef((GCI)d); }
     type *at( uint i )			{ return (type *)QGList::at(i); }
     int   at() const			{ return QGList::at(); }
     type *current()  const		{ return (type *)QGList::get(); }
