@@ -1479,7 +1479,7 @@ int QTime::restart()
   \sa start(), restart()
 */
 
-int QTime::elapsed()
+int QTime::elapsed() const
 {
     int n = msecsTo( currentTime() );
     if ( n < 0 )				// passed midnight

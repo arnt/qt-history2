@@ -154,7 +154,7 @@ public:
 
     void   start();
     int	   restart();
-    int	   elapsed();
+    int	   elapsed() const;
 
 private:
     static bool currentTime( QTime * );
