@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#96 $
+** $Id: //depot/qt/main/src/moc/moc.y#97 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#96 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#97 $");
 
 static Q1String rmWS( const char * );
 
@@ -59,6 +59,7 @@ struct Argument					// single arg meta data
 class ArgList : public QList<Argument> {	// member function arg list
 public:
     ArgList() { setAutoDelete(TRUE); }
+   ~ArgList() { clear(); }
 };
 
 
@@ -1259,7 +1260,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.30 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.31 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1415,7 +1416,7 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\n#include <%sqglobal.h>\n", (const char*)qtPath );
 	    fprintf( out, "#if QT_VERSION >= 200\n" );
 	    fprintf( out, "/" "/ the 2.x way of doing things\n" );
-	    fprintf( out, "#include <%sqlist.h>\n", (const char*)qtPath );
+	    fprintf( out, "#include <%sqsignalslotimp.h>\n", (const char*)qtPath );
 	    fprintf( out, "#else\n" );
 	    fprintf( out, "/" "/ for late-model 1.x header files\n" );
 	    fprintf( out, "#if !defined(Q_MOC_CONNECTIONLIST_DECLARED)\n" );
