@@ -22,7 +22,7 @@
 #include <qthread.h>
 #include <qdebug.h>
 #include <qhash.h>
-#include <qmutex.h>
+#include <qreadwritelock.h>
 
 #include <new>
 
@@ -88,7 +88,7 @@ struct QConnection {
 class QConnectionList
 {
 public:
-    QMutex mutex;
+    QReadWriteLock lock;
 
     typedef QMultiHash<const QObject *, int> Hash;
     Hash shash, rhash;
@@ -240,7 +240,7 @@ bool QObjectPrivate::isSender(const QObject *receiver, const char *signal) const
     if (signal_index < 0)
         return false;
     QConnectionList *list = ::connectionList();
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
     QConnectionList::Hash::const_iterator it = list->shash.find(q);
     while (it != list->shash.end() && it.key() == q) {
         const QConnection &c = list->list.at(it.value());
@@ -258,7 +258,7 @@ QObjectList QObjectPrivate::receiverList(const char *signal) const
     if (signal_index < 0)
         return receivers;
     QConnectionList *list = ::connectionList();
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
     QConnectionList::Hash::const_iterator it = list->shash.find(q);
     while (it != list->shash.end() && it.key() == q) {
         const QConnection &c = list->list.at(it.value());
@@ -273,7 +273,7 @@ QObjectList QObjectPrivate::senderList() const
 {
     QObjectList senders;
     QConnectionList *list = ::connectionList();
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
     QConnectionList::Hash::const_iterator it = list->rhash.find(q);
     while (it != list->rhash.end() && it.key() == q) {
         const QConnection &c = list->list.at(it.value());
@@ -294,7 +294,7 @@ void QMetaObject::addGuard(QObject **ptr)
         *ptr = 0;
         return;
     }
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
     list->addConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
 }
 
@@ -307,7 +307,7 @@ void QMetaObject::removeGuard(QObject **ptr)
     QConnectionList *list = ::connectionList();
     if (!list)
         return;
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
     list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
 }
 
@@ -320,7 +320,7 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
         *ptr = 0;
         return;
     }
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
     if (*ptr)
         list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
     *ptr = o;
@@ -590,7 +590,7 @@ QObject::~QObject()
 
     QConnectionList *list = ::connectionList();
     if (list) {
-        QMutexLocker locker(&list->mutex);
+        QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
         list->remove(this);
     }
 
@@ -1623,7 +1623,7 @@ int QObject::receivers(const char *signal) const
             return false;
         }
         QConnectionList *list = ::connectionList();
-        QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
         QHashIterator<const QObject *, int> it(list->shash);
         while (it.findNextKey(this)) {
             if (list->list.at(it.value()).signal == signal_index)
@@ -2075,7 +2075,7 @@ bool QMetaObject::connect(const QObject *sender, int signal_index,
     QConnectionList *list = ::connectionList();
     if (!list)
         return false;
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
     list->addConnection(const_cast<QObject *>(sender), signal_index,
                         const_cast<QObject *>(receiver), member_index, type, types);
     return true;
@@ -2092,7 +2092,7 @@ bool QMetaObject::disconnect(const QObject *sender, int signal_index,
     QConnectionList *list = ::connectionList();
     if (!list)
         return false;
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::WriteAccess);
     return list->removeConnection(const_cast<QObject*>(sender), signal_index,
                                   const_cast<QObject*>(receiver), member_index);
 }
@@ -2181,7 +2181,7 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
     QConnectionList *list = ::connectionList();
     if (!list)
         return;
-    QMutexLocker locker(&list->mutex);
+    QReadWriteLockLocker locker(&list->lock, QReadWriteLock::ReadAccess);
 
     QList<int> connections = list->shash.values(obj);
     int last_connection = connections.size();
