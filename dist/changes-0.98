@@ -1,7 +1,6 @@
 Here is a list of (major) changes in Qt from 0.96 to 0.98.
 As usual, we fixed some bugs and improved the documentation.
 
-
 moc:
 ----
   Moc previously gave a syntax error when the word "class" was found
@@ -9,7 +8,6 @@ moc:
   fixed.
 
   More moc arguments, run "moc -h" for details.
-
 
 QDate:
 ------
@@ -27,29 +25,29 @@ QLabel:
   setMargin() and margin() are new. setMargin() specifies a minimum margin
   when the label contents are justified.
 
-
 QListBox:
 ---------
-  The internals of QListBox is completely reworked. Definition of custom
+  The internals of QListBox are completely reworked. Definition of custom
   QListBoxItems is now much easier. This is *not* compatible with the old
   way of defining custom QLBItems. 
 
 QPainter:
 --------
   Fixed bug in drawing of ellipse, pie and chord when NoPen is set.
-  
 
 QTime:
 ------
   This was protected, now private:
 	uint   ds;
 
-
 QWidget:
 --------
   You can specify a custom widget frame for top level widgets, including
   no frame at all. See the widget constructor doc. for details.
-  resize() and setGeometry() obeys the widget's minimum/maximim size.
+
+  setMinimumSize() and setMaximumSize() now force the widget to 
+  a legal size.  resize() and setGeometry() obey the widget's
+  minimum/maximum size.
 
   Qt now has enter and leave events. Reimplement the virtual functions  
   void enterEvent( QEvent * ) and void leaveEvent( QEvent * ) to receive
@@ -57,23 +55,24 @@ QWidget:
   widget.
 
   The default behaviour of QWidget::closeEvent is now to hide the widget,
-  not to delete it as before (Which was potentially dangerous)! This means
+  not to delete it as before (which was potentially dangerous)! This means
   that if you have a top level widget and the user closes it via the close
   box, it will now hide itself if you have not reimplemented closeEvent().
   See the QWidget::closeEvent() and QCloseEvent documentation for details.
 
-
-Disabled copy constructors and operator=
-----------------------------------------
+Disabled copy constructors and operators=
+-----------------------------------------
   Copy constructors and operator= are disabled in the classes where
   they make no sense. This should lead to compile time errors where
   you would have got core dumps before. This is done in the following 
   classes:
 
-  QAccel QApplication QBuffer QButton QButtonGroup QCheckBox QClipboard
-  QComboBox QConnection QDataStream QDialog QFile QFileDialog QFrame
-  QGroupBox QIODevice QImageIO QLCDNumber QLabel QLineEdit QListBox
-  QMenuBar QMenuData QMenuItem QMessageBox QMetaObject QObject
-  QPSPrinter QPaintDevice QPainter QPicture QPopupMenu QPrintDialog
-  QPrinter QPushButton QRadioButton QRangeControl QScrollBar QSignal
-  QSocketNotifier QTableView QTextStream QTimer QWidget QWindow
+    QAccel QApplication QBuffer QButton QButtonGroup QCheckBox QClipboard
+    QComboBox QConnection QDataStream QDialog QFile QFileDialog QFrame
+    QGroupBox QIODevice QImageIO QLCDNumber QLabel QLineEdit QListBox
+    QMenuBar QMenuData QMenuItem QMessageBox QMetaObject QObject
+    QPSPrinter QPaintDevice QPainter QPicture QPopupMenu QPrintDialog
+    QPrinter QPushButton QRadioButton QRangeControl QScrollBar QSignal
+    QSocketNotifier QTableView QTextStream QTimer QWidget QWindow
+
+  The other classes all have sensible copy constructors and operators=.
