@@ -175,8 +175,8 @@ private:
     QObjectList *senderObjects;
     QObjectList *eventFilters;
     QPostEventList *postedEvents;
-    class Private;
-    Private* d;
+    class QObjectPrivate;
+    QObjectPrivate* d;
 
     friend class QApplication;
     friend class QBaseApplication;
