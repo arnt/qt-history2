@@ -2718,6 +2718,9 @@ void QTextEdit::setText( const QString &text, const QString &context )
     if ( this->text() == text && this->context() == context )
 	return;
 
+    if ( qApp->font() != QScrollView::font() )
+	setFont( QScrollView::font() );
+
     emit undoAvailable( FALSE );
     emit redoAvailable( FALSE );
     undoRedoInfo.clear();
@@ -2731,9 +2734,6 @@ void QTextEdit::setText( const QString &text, const QString &context )
     cursor->setDocument( doc );
     cursor->setParag( doc->firstParag() );
     cursor->setIndex( 0 );
-
-    if ( qApp->font() != QScrollView::font() )
-	setFont( QScrollView::font() );
 
     repaintContents( FALSE );
     emit textChanged();
