@@ -187,8 +187,8 @@ MainWindow::MainWindow( bool asClient )
     setupWindowActions();
 
     setupFormList();
-    setupPropertyEditor();
     setupHierarchyView();
+    setupPropertyEditor();
     setupActionEditor();
 
     setupActionManager();
@@ -1077,7 +1077,7 @@ void MainWindow::setupHierarchyView()
     dw->setResizeEnabled( TRUE );
     dw->setCloseMode( QDockWindow::Always );
     hierarchyView = new HierarchyView( dw );
-    addToolBar( dw, Qt::Right );
+    addToolBar( dw, Qt::Left );
     dw->setWidget( hierarchyView );
 
     dw->setCaption( tr( "Object Hierarchy" ) );
