@@ -90,8 +90,9 @@ moc: $(SRCMOC)
 
 tmake: GNUmakefile
 
-GNUmakefile: moc.pro
-	tmake moc.pro -o GNUmakefile
+# Do not regenerate GNUmakefile since it is revision controlled.
+#GNUmakefile: moc.pro
+#	tmake moc.pro -o GNUmakefile
 
 dist:
 	$(TAR) moc.tar moc.pro $(SOURCES) $(HEADERS) $(DIST)
