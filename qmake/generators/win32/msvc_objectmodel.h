@@ -5,14 +5,14 @@
 #ifndef __MSVC_OBJECTMODEL_H__
 #define __MSVC_OBJECTMODEL_H__
 
-/* \internal
+/*
     This Object model is of course VERY simplyfied, 
     and does not actually follow the original MSVC
     object model. However, it fulfilles the basic
     needs for qmake
 */
 
-/* \internal
+/*
     If a triState value is 'unset' then the 
     corresponding property is not in the output,
     forcing the tool to utilize default values. 
