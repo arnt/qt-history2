@@ -910,6 +910,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 bits = image.bits();
             }
             int rc = GetDeviceCaps(hdc,RASTERCAPS);
+	    int bpp = GetDeviceCaps(hdc,BITSPIXEL);
 	    if ( (rc & RC_STRETCHBLT) != 0 && ( bpp >= 8  || !( rc & RC_STRETCHDIB) ) ) {
                 // StretchBlt supported
                 HDC     hdcPrn = CreateCompatibleDC( hdc );
