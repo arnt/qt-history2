@@ -91,7 +91,6 @@ void writeEnums(QTextStream &out, const QMetaObject *mo)
         out << "    };" << endl;
         out << endl;
     }
-    out.flush();
 }
 
 void writeHeader(QTextStream &out, const QByteArray &nameSpace)
@@ -111,8 +110,6 @@ void writeHeader(QTextStream &out, const QByteArray &nameSpace)
     out << endl;
     out << "struct IDispatch;" << endl;
     out << endl;
-
-    out.flush();
 }
 
 void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray &nameSpace)
@@ -122,7 +119,6 @@ void generateNameSpace(QTextStream &out, const QMetaObject *mo, const QByteArray
     writeEnums(out, mo);
 
     // don't close on purpose
-    out.flush();
 }
 
 static QByteArray joinParameterNames(const QList<QByteArray> &parameterNames)
@@ -661,8 +657,6 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
     else
         out << "    return QAxObject::qt_metacast(_clname);" << endl;
     out << "}" << endl;
-
-    out.flush();
 }
 
 bool generateClass(QAxObject *object, const QByteArray &className, const QByteArray &nameSpace, const QByteArray &outname, ObjectCategory category)
@@ -700,7 +694,6 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
         out << "#endif" << endl;
         out << endl;
-        out.flush();
     }
 
     if (!(category & NoDeclaration)) {
@@ -740,7 +733,6 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
             out << endl;
             out << "};" << endl;
         }
-        out.flush();
     }
 
     if (!(category & (NoMetaObject|NoImplementation))) {
@@ -761,8 +753,6 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
         }
 
         generateClassImpl(out, mo, className, nameSpace, category);
-
-        out.flush();
     }
 
     return true;
@@ -1026,11 +1016,6 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << "#endif" << endl;
         declOut << endl;
     }
-
-    declOut.flush();
-    classesOut.flush();
-    inlinesOut.flush();
-    implOut.flush();
 
     typelib->Release();
     return true;
