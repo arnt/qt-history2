@@ -183,14 +183,6 @@ void  QSignal::activate()
     emit signal( val );
 }
 
-
-/*!
-  \fn void  QSignal::activate()
-  \obsolete
-
-  Sets the signal's parameter to \a value.
-*/
-
 /*!
   \fn int QSignal::parameter() const
   \obsolete

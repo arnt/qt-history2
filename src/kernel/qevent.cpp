@@ -1494,7 +1494,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragEnterEvent qevent.h
-  \brief A QDragEnterEvent is an event sent to widgets when a drag-and-drop first drags onto it.
+  \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop first drags onto the widget.
 
   This event is always immediate followed by a QDragMoveEvent, thus you need
   only respond to one or the other event.  Note that this class inherits most
@@ -1513,7 +1513,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QDragLeaveEvent qevent.h
-  \brief A QDragLeaveEvent is an event sent to widgets when a drag-and-drop leaves it.
+  \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
 
   This event is always preceded by a QDragEnterEvent and a series
   of QDragMoveEvent.  It is not sent if a QDropEvent is sent instead.
@@ -1530,7 +1530,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QHideEvent qevent.h
-  \brief A QHideEvent is an event sent after a widget is hidden.
+  \brief The QHideEvent class provides an event which is sent after a widget is hidden.
 
   This event is sent just before QWidget::hide() returns, and also when
   a top-level window has been hidden (iconified) by the user.
@@ -1554,7 +1554,7 @@ QCustomEvent::QCustomEvent( int type )
 
 /*!
   \class QShowEvent qevent.h
-  \brief A QShowEvent is an event sent when a widget is shown.
+  \brief The QShowEvent class provides an event which is sent when a widget is shown.
 
   There are two kinds of show events: spontaneous show events by the
   window system and internal show events. Spontaneous show events are

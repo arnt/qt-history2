@@ -723,7 +723,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 /*!
   When a widget gets focus, it should call setMicroFocusHint for some
-  appropriate position and size - \a x, \a y and \a w by \a h.  This
+  appropriate position and size - \a x, \a y and \a width by \a height.  This
   has no \e visual effect, it just provides hints to any
   system-specific input handling tools.
 

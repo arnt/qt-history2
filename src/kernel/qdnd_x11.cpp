@@ -1313,7 +1313,7 @@ bool qt_xdnd_handle_badwindow()
 // NOT REVISED
 /*!
   \class QDragMoveEvent qevent.h
-  \brief Event sent as a drag-and-drop is in progress.
+  \brief The QDragMoveEvent class provides an event which is sent while a drag-and-drop is in progress.
 
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
   it will receive this event repeatedly while the drag is inside that
@@ -1484,7 +1484,7 @@ bool qt_dnd_enable( QWidget* w, bool on )
 /*!
   \class QDropEvent qevent.h
 
-  \brief Event sent when a drag-and-drop is completed.
+  \brief The QDropEvent class provides an event which is sent when a drag and drop is completed.
 
   When a widget \link QWidget::setAcceptDrops() accepts drop events\endlink,
   it will receive this event if it has accepted the most recent

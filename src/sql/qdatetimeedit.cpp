@@ -739,7 +739,7 @@ QDateEdit::~QDateEdit()
   \brief the minimum editor value
 
   Setting the minimum date value is equivalent to calling
-  QDateEdit::setRange( d, maxValue() ), where \a d is the minimum
+  QDateEdit::setRange( d, maxValue() ), where \e d is the minimum
   date.
 */
 
@@ -756,7 +756,7 @@ QDate QDateEdit::minValue() const
   \brief the maximum editor value
 
   Setting the maximum date value for the editor is equivalent to
-  calling QDateEdit::setRange( minValue(), d ), where \a d is the
+  calling QDateEdit::setRange( minValue(), d ), where \e d is the
   maximum date.
 */
 
@@ -1522,7 +1522,7 @@ QTimeEdit::~QTimeEdit()
   \brief the minimum time value
 
   Setting the minimum time value is equivalent to calling
-  QTimeEdit::setRange( t, maxValue() ), where \a t is the minimum
+  QTimeEdit::setRange( t, maxValue() ), where \e t is the minimum
   time.
 */
 
@@ -1539,7 +1539,7 @@ QTime QTimeEdit::minValue() const
   \brief the maximum time value
 
   Setting the maximum time value is equivalent to calling
-  QTimeEdit::setRange( minValue(), t ), where \a t is the maximum
+  QTimeEdit::setRange( minValue(), t ), where \e t is the maximum
   time.
 */
 
@@ -1853,10 +1853,9 @@ QString QTimeEdit::sectionText( int sec )
 
 
 /*! \internal
- Returns TRUE if \a h, \a m, \a s is out of range.
+ Returns TRUE if \a h, \a m, and \a s are out of range.
  */
 
-/*! \internal */
 bool QTimeEdit::outOfRange( int h, int m, int s ) const
 {
      if ( QTime::isValid( h, m, s ) ) {

@@ -74,7 +74,7 @@ public:
 
 /*!
   \class QStyleSheetItem qstylesheet.h
-  \brief The QStyleSheetItem class encapsulates a text format.
+  \brief The QStyleSheetItem class provides an encapsulation of a set of text styles.
 
   A style consists of a name and a set of font, color, and other
   display properties.  When used in a \link QStyleSheet style

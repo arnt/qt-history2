@@ -47,7 +47,7 @@
 // NOT REVISED
 /*!
   \class QCDEStyle qcdestyle.h
-  \brief CDE Look and Feel
+  \brief The QCDEStyle class provides a CDE Look and Feel
 
   \ingroup appearance
 

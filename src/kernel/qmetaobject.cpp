@@ -43,8 +43,8 @@
 /*!
   \class QMetaData qmetaobject.h
 
-  \brief The QMetaData struct contains a member function that is known
-  to the meta object system.
+  \brief The QMetaData class provides a struct that contains a member function that is known
+  by the meta object system.
 
   \internal
 
@@ -61,7 +61,7 @@
 /*!
   \class QClassInfo qmetaobject.h
 
-  \brief The QClassInfo struct stores some basic information about a single class 
+  \brief The QClassInfo class provides a struct that stores some basic information about a single class.
 
   \internal
 
@@ -310,14 +310,14 @@ const QMetaData *QMetaObject::signal( int index, bool super ) const
 
 
 /*! \internal
-  \fn  int signalOffset() const;
+  \fn int QMetaObject::signalOffset() const;
 
   Returns the signal offset for this metaobject.
 
 */
 
 /*! \internal
-  \fn  int propertyOffset() const;
+  \fn int QMetaObject::propertyOffset() const;
 
   Returns the property offset for this metaobject.
 
@@ -339,7 +339,7 @@ int QMetaObject::findSignal( const char* n, bool super ) const
 }
 
 /*! \internal
-  \fn  int slotOffset() const;
+  \fn int QMetaObject::slotOffset() const;
 
   Returns the slot offset for this metaobject.
 
@@ -562,7 +562,7 @@ const QMetaEnum* QMetaObject::enumerator( const char* name, bool super ) const
 
 
 /*!
-  Returns TRUE if this class inherits \e clname within the meta
+  Returns TRUE if this class inherits \a clname within the meta
   object inheritance chain.
 
   (A class is considered to inherit itself.)
@@ -769,12 +769,6 @@ QMetaProperty::~QMetaProperty()
 
   \internal
 */
-
-/*! \fn bool QMetaProperty::designable() const
-
-  Returns whether the property is considered to be designable or not.
- */
-
 
 /*!
   Returns whether the property shall be stored for object \a o or

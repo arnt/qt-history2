@@ -444,7 +444,7 @@
 /*!
   \fn type *QAsciiCacheIterator::operator++()
 
-  Prefix ++ makes the iterator point to the item just after \a
+  Prefix ++ makes the iterator point to the item just after
   current(), and makes that the new current item for the iterator.  If
   current() was the last item, operator++() returns 0.
 */
@@ -452,7 +452,7 @@
 /*!
   \fn type *QAsciiCacheIterator::operator--()
 
-  Prefix -- makes the iterator point to the item just before \a
+  Prefix -- makes the iterator point to the item just before
   current(), and makes that the new current item for the iterator.  If
   current() was the first item, operator--() returns 0.
 */
