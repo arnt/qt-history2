@@ -13061,6 +13061,7 @@ static QCleanupHandler<QRegExp> qt_regexp_cleanup;
   \sa arg()
 */
 
+#ifndef QT_NO_SPRINTF
 QString &QString::sprintf( const char* cformat, ... )
 {
     va_list ap;
@@ -13200,7 +13201,7 @@ QString &QString::sprintf( const char* cformat, ... )
     va_end( ap );
     return *this;
 }
-
+#endif
 
 /*!
   \code

@@ -119,6 +119,10 @@
 */
 //#define QT_NO_REGEXP_WILDCARD
 
+/*!
+  QString::sprintf() -- dependencies not done yet
+ */
+//#define QT_NO_SPRINTF
 
 #if defined(QT_NO_IMAGE_SMOOTHSCALE)
 /*!

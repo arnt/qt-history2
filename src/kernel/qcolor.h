@@ -85,8 +85,9 @@ public:
 
     bool   isValid() const;
     bool   isDirty() const;
-
+#ifndef QT_NO_SPRINTF
     QString name() const;
+#endif    
     void   setNamedColor( const QString& name );
 
     void   rgb( int *r, int *g, int *b ) const;

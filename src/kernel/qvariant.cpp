@@ -1373,17 +1373,18 @@ const QString QVariant::toString() const
 	return QString::number( toUInt() );
     if ( d->typ == Double )
 	return QString::number( toDouble() );
+#ifndef QT_NO_SPRINTF
     if ( d->typ == Date )
 	return toDate().toString( Qt::ISODate );
     if ( d->typ == Time )
 	return toTime().toString( Qt::ISODate );
     if ( d->typ == DateTime )
 	return toDateTime().toString( Qt::ISODate );
+#endif
     if ( d->typ != String )
 	return QString::null;
     return *((QString*)d->value.ptr);
 }
-
 /*!
   Returns the variant as a QCString if the variant has type()
   CString or String, or a 0 otherwise.

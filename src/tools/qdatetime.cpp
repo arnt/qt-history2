@@ -307,7 +307,7 @@ QString QDate::dayName( int weekday ) const
     return QString::fromLatin1(qt_weekdayNames[weekday-1]);
 }
 
-
+#ifndef QT_NO_SPRINTF
 /*!  Returns the date as a string.  The \a f parameter determines the
   format of the string.
 
@@ -346,6 +346,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 	}
     }
 }
+#endif
 
 /*!
   Sets the year \a y, month \a m and day \a d.
@@ -773,6 +774,7 @@ int QTime::msec() const
 }
 
 
+#ifndef QT_NO_SPRINTF
 /*!  Returns the time as a string.  Milliseconds are not included.
   The \a f parameter determines the format of the string.
 
@@ -795,7 +797,7 @@ QString QTime::toString( Qt::DateFormat f ) const
 	return buf;
     }
 }
-
+#endif
 
 /*!
   Sets the time to hour \a h, minute \a m, seconds \a s and
@@ -1279,7 +1281,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 	    1000*tM->tm_sec;
 }
 
-
+#ifndef QT_NO_SPRINTF
 /*!  Returns the datetime as a string.  The \a f parameter determines
   the format of the string.
 
@@ -1315,6 +1317,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
     }
     return QString::null;
 }
+#endif
 
 /*!
   Returns a QDateTime object containing a datetime \a ndays days later

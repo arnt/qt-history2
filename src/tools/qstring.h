@@ -432,11 +432,13 @@ public:
     QString arg( const QString& a, int fieldwidth=0 ) const;
     QString arg( double a, int fieldwidth=0, char fmt='g', int prec=-1 ) const;
 
+#ifndef QT_NO_SPRINTF
     QString    &sprintf( const char* format, ... )
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
         __attribute__ ((format (printf, 2, 3)))
 #endif
         ;
+#endif
 
     int         find( QChar c, int index=0, bool cs=TRUE ) const;
     int         find( char c, int index=0, bool cs=TRUE ) const;

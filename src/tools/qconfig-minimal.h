@@ -65,3 +65,4 @@
 #define QT_NO_REGEXP_CAPTURE
 #define QT_NO_REGEXP_WILDCARD
 
+#define QT_NO_SPRINTF

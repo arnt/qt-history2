@@ -68,8 +68,9 @@ public:
     virtual QString monthName( int month ) const;
     virtual QString dayName( int weekday ) const;
 
+#ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
-
+#endif
     bool   setYMD( int y, int m, int d );
 
     QDate  addDays( int days )		const;
@@ -120,8 +121,9 @@ public:
     int	   second()	 const;			// 0..59
     int	   msec()	 const;			// 0..999
 
+#ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	 const;
-
+#endif
     bool   setHMS( int h, int m, int s, int ms=0 );
 
     QTime  addSecs( int secs )		const;
@@ -176,8 +178,9 @@ public:
     void   setTime( const QTime &time ) { t=time; }
     void   setTime_t( uint secsSince1Jan1970UTC );
 
+#ifndef QT_NO_SPRINTF
     QString toString( Qt::DateFormat f = Qt::TextDate )	const;
-
+#endif
     QDateTime addDays( int days )	const;
     QDateTime addMonths( int months )   const;
     QDateTime addYears( int years )     const;
