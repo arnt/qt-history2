@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#25 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#25 $";
 #endif
 
 
@@ -463,7 +463,8 @@ There are several different index pages: <ul>
 <li><a href=examples.html>All the example programs</a>
 </ul>
 
-<p>There are also topical pages on these topics:<ul>
+<p>There are also pages on these topics:<ul>
 <li><a href=fontmatch.html>Font matching</a>
 <li><a href=handleclass.html>Handle classes</a>
+<li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
 </ul> */
