@@ -531,6 +531,7 @@ QDockArea::QDockArea( Orientation o, HandlePosition h, QWidget *parent, const ch
 
 QDockArea::~QDockArea()
 {
+    dockWindows->setAutoDelete( TRUE );
     delete dockWindows;
     dockWindows = 0;
 }
