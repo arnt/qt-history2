@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#28 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#28 $")
 
 
 /*!
@@ -27,8 +27,12 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#27 $")
   \ingroup realwidgets
 
   It draws a label and calls a virtual function, drawContents(), to
-  fill in the frame.  QMenuBar, for example, uses this to "raise" the
-  menu bar above the surrounding screen:
+  fill in the frame.  This function is reimplemented by essentially
+  all subclasses.  There are also two other less useful functions,
+  drawFrame() and frameChanged().
+
+  QMenuBar uses this to "raise" the menu bar above the surrounding
+  screen:
 
   \code
     if ( style() == MotifStyle ) {
@@ -402,6 +406,10 @@ void QFrame::resizeEvent( QResizeEvent *e )
 /*!  Draws the frame using the current frame attributes and color
   group.  The rectangle inside the frame is not affected.
 
+  This function is virtual, but in general you don't need to
+  reimplement it.  If you do, note that the QPainter is already open
+  and must remain open.
+
   \sa frameRect() contentsRect() drawContents() frameStyle()
   setPalette() QColorGroup */
 
@@ -464,14 +472,13 @@ void QFrame::drawFrame( QPainter *p )
 /*!
   Virtual function that draws the contents of the frame.
 
+  The QPainter is already open when you get it, and you must leave it
+  open.
+
   This function is reimplemented by subclasses that draw something
   inside the frame.  It should draw only inside contentsRect().
   QFrame does not enable \link QPainter::setClipRect() clipping
-  \endlink but you may want to.
-
-  The QPainter is open when you get it, and you must leave it open.
-
-  The default function does nothing.
+  \endlink but you may want to.  The default function does nothing.
 
   \sa contentsRect() QPainter::setClipRect() */
 
