@@ -51,7 +51,7 @@
   Windows systems, QSettings uses the registry.
 
   Each setting comprises an identifying key and the data associated with
-  the key. A key is a unicode string which consists of \i two or more
+  the key. A key is a unicode string which consists of \e two or more
   subkeys. A subkey is a slash, '/', followed by one or more unicode
   characters (excluding slashes, newlines, carriage returns and equals,
   '=', signs). The associated data, called the entry, may be a boolean,
@@ -433,7 +433,7 @@ QDateTime QSettingsPrivate::modificationTime()
   settings.insertSearchPath( QSettings::Windows, "/MyCompany" );
   settings.writeEntry( "/MyApplication/Tip of the day", TRUE );
   \endcode
-    This will try to write the subkey "Tip of the day" into the \i first
+    This will try to write the subkey "Tip of the day" into the \e first
     of the registry folders listed below that is found and for which the
     user has write permission:
   <ul>
@@ -978,7 +978,7 @@ bool QSettings::removeEntry(const QString &key)
 
 
 /*!
-  Returns a list of the keys which contain entries under \a key. Does \i
+  Returns a list of the keys which contain entries under \a key. Does \e
   not return any keys that contain keys.
 
     Example settings:
@@ -1062,7 +1062,7 @@ QStringList QSettings::entryList(const QString &key) const
 
 
 /*!
-  Returns a list of the keys which contain keys under \a key. Does \i
+  Returns a list of the keys which contain keys under \a key. Does \e
   not return any keys that contain entries.
 
     Example settings:
