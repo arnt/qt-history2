@@ -569,13 +569,7 @@ bool qt_mac_can_clickThrough(const QWidget *w)
 
 bool qt_mac_is_macdrawer(const QWidget *w)
 {
-#if 1
-    if(w && w->parentWidget() && w->testWFlags(Qt::WMacDrawer) == Qt::WMacDrawer)
-        return true;
-#else
-    Q_UNUSED(w);
-#endif
-    return false;
+    return (w && w->windowType() == Qt::Drawer);
 }
 
 bool qt_mac_set_drawer_preferred_edge(QWidget *w, Qt::DockWindowArea where) //users of Qt/Mac can use this..
@@ -626,15 +620,9 @@ void QWidgetPrivate::toggleDrawers(bool visible)
 
 bool qt_mac_is_macsheet(const QWidget *w)
 {
-#if 1
-    if(w && w->testWFlags(Qt::WMacSheet) == Qt::WMacSheet
-       && w->parentWidget() && !w->parentWidget()->window()(->windowType() == Qt::Desktop)
-       && w->parentWidget()->window()->isVisible())
-        return true;
-#else
-    Q_UNUSED(w);
-#endif
-    return false;
+    return (w && w->windowType() == Qt::Sheet
+       && w->parentWidget() && !w->parentWidget()->window()->windowType() == Qt::Desktop
+       && w->parentWidget()->window()->isVisible());
 }
 
 
@@ -743,8 +731,7 @@ bool QWidgetPrivate::qt_widget_rgn(QWidget *widget, short wcode, RgnHandle rgn, 
                     QPoint rin_tl = rin.boundingRect().topLeft(); //in offset
                     rin.translate(-rin_tl.x(), -rin_tl.y()); //bring into same space as below
                     QRegion mask = widget->d->extra->mask;
-                    if(widget->isWindow() &&
-                       (!widget->testWFlags(Qt::WStyle_Customize) || !widget->testWFlags(Qt::WStyle_NoBorder))) {
+                    if(widget->isWindow() && !(widget->windowFlags() & Qt::FramelessWindowHint)) {
                         QRegion title;
                         {
                             RgnHandle rgn = qt_mac_get_rgn();
@@ -783,10 +770,33 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     d->window_event = 0;
     WId destroyid = 0;
 
-    bool topLevel = q->isWindow();
-    bool popup = (q->windowType() == Qt::Popup);
-    bool dialog = (q->windowType() == Qt::Dialog);
-    bool desktop = (q->windowType() == Qt::Desktop);
+    Qt::WindowType type = q->windowType();
+    Qt::WindowFlags &flags = data.window_flags;
+    QWidget *parentWidget = q->parentWidget();
+
+    bool topLevel = (flags & Qt::Window);
+    bool popup = (type == Qt::Popup);
+    bool dialog = (type == Qt::Dialog
+                   || type == Qt::Sheet
+                   || type == Qt::Drawer
+                   || (flags & Qt::MSWindowsFixedSizeDialogHint));
+    bool desktop = (type == Qt::Desktop);
+    bool tool = (type == Qt::Tool || type == Qt::SplashScreen);
+
+    if (type == Qt::ToolTip)
+        flags |= Qt::FramelessWindowHint;
+
+    bool customize =  (flags & (
+                                Qt::X11BypassWindowManagerHint
+                                | Qt::FramelessWindowHint
+                                | Qt::WindowTitleHint
+                                | Qt::WindowSystemMenuHint
+                                | Qt::WindowMinimizeButtonHint
+                                | Qt::WindowMaximizeButtonHint
+                                | Qt::WindowContextHelpButtonHint
+                                ));
+
+
 
     //position
     QRect dskr;
@@ -801,8 +811,8 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else {
         if(QDesktopWidget *dsk = QApplication::desktop()) {
             int deskn = dsk->primaryScreen();
-            if(q->parentWidget() && !q->parentWidget()(->windowType() == Qt::Desktop))
-                deskn = dsk->screenNumber(q->parentWidget());
+            if(parentWidget && !(parentWidget->windowType() == Qt::Desktop))
+                deskn = dsk->screenNumber(parentWidget);
             dskr = dsk->screenGeometry(deskn);
         }
         q->setAttribute(Qt::WA_WState_Visible, false);
@@ -818,19 +828,14 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         dialog = popup = false;                  // force these flags off
     if(!window)                              // always initialize
         initializeWindow=true;
-    if(dialog || popup || desktop) {          // these are top-level, too
-        topLevel = true;
-        q->setWFlags(Qt::WType_TopLevel);
-        if(popup)
-            q->setWFlags(Qt::WStyle_Tool|Qt::WStyle_StaysOnTop); // a popup is a tool window
+    if(topLevel && parentWidget) { // if our parent has Qt::WStyle_StaysOnTop, so must we
+        QWidget *ptl = parentWidget->window();
+        if(ptl && (ptl->windowFlags() & Qt::WindowStaysOnTopHint))
+            flags |= Qt::WindowStaysOnTopHint;
     }
-    if(topLevel && q->parentWidget()) { // if our parent has Qt::WStyle_StaysOnTop, so must we
-        QWidget *ptl = q->parentWidget()->window();
-        if(ptl && ptl->testWFlags(Qt::WStyle_StaysOnTop))
-            q->setWFlags(Qt::WStyle_StaysOnTop);
-    }
-    if(!q->testWFlags(Qt::WStyle_Customize) && !(desktop || popup) && !q->testAttribute(Qt::WA_ShowModal))
-        q->setWFlags(Qt::WStyle_Customize | Qt::WStyle_NormalBorder | Qt::WStyle_Title | Qt::WStyle_MinMax | Qt::WStyle_SysMenu);
+    if (!customize && !(desktop || popup) && !q->testAttribute(Qt::WA_ShowModal))
+        flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinMaxButtonsHint;
+
 
     d->hd = 0;
     d->cg_hd = 0;
@@ -855,20 +860,20 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             CFRetain((HIViewRef)hiview);
             d->setWinId((WId)hiview);
         }
-    } else if(q->isWindow()) {
+    } else if(topLevel) {
         Rect r;
         SetRect(&r, data.crect.left(), data.crect.top(), data.crect.right(), data.crect.bottom());
         WindowClass wclass = kSheetWindowClass;
         if(qt_mac_is_macdrawer(q))
             wclass = kDrawerWindowClass;
-        else if(popup || (q->testWFlags(Qt::WStyle_Splash) == Qt::WStyle_Splash))
+        else if(popup || type == Qt::SplashScreen)
             wclass = kModalWindowClass;
         else if(q->testAttribute(Qt::WA_ShowModal))
             wclass = kMovableModalWindowClass;
-        else if(q->testWFlags(Qt::WStyle_ToolTip))
+        else if(type == Qt::ToolTip)
             wclass = kHelpWindowClass;
-        else if((q->windowType() == Qt::Tool)
-                || (dialog && parentWidget() && !parentWidget()->window()(->windowType() == Qt::Desktop)))
+        else if(tool
+                || (dialog && parentWidget && !parentWidget->window()->windowType() == Qt::Desktop))
             wclass = kFloatingWindowClass;
         else if(dialog)
             wclass = kToolbarWindowClass;
@@ -877,7 +882,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
 
         WindowGroupRef grp = 0;
         WindowAttributes wattr = kWindowCompositingAttribute;
-        if(q->testWFlags(Qt::WStyle_Customize)) {
+        if(customize) {
             if(qt_mac_is_macsheet(q)) {
                 grp = GetWindowGroupOfClass(kMovableModalWindowClass);
                 wclass = kSheetWindowClass;
@@ -885,7 +890,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 grp = GetWindowGroupOfClass(wclass);
                 // Shift things around a bit to get the correct window class based on the presence
                 // (or lack) of the border.
-                if(q->testWFlags(Qt::WStyle_NoBorder) || q->testWFlags(Qt::WStyle_ToolTip)) {
+                if(flags & Qt::FramelessWindowHint) {
                     if(wclass == kDocumentWindowClass)
                         wclass = kPlainWindowClass;
                     else if(wclass == kFloatingWindowClass)
@@ -894,7 +899,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                     if(wclass != kModalWindowClass)
                         wattr |= kWindowResizableAttribute;
                     if(wclass == kToolbarWindowClass) {
-                        if(!q->parentWidget() || q->parentWidget()(->windowType() == Qt::Desktop))
+                        if(!parentWidget || parentWidget->window()->windowType() == Qt::Desktop)
                             wclass = kDocumentWindowClass;
                         else
                             wclass = kFloatingWindowClass;
@@ -904,18 +909,18 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                 // and have an actual border we can put them on.
                 if(wclass != kModalWindowClass && wclass != kMovableModalWindowClass
                     && wclass != kSheetWindowClass && wclass != kPlainWindowClass
-                    && !q->testWFlags(Qt::WStyle_NoBorder) && wclass != kDrawerWindowClass
+                    && !(flags & Qt::FramelessWindowHint) && wclass != kDrawerWindowClass
                     && wclass != kHelpWindowClass) {
-                    if(q->testWFlags(Qt::WStyle_Maximize))
+                    if(flags & Qt::WindowMaximizeButtonHint)
                         wattr |= kWindowFullZoomAttribute;
-                    if(q->testWFlags(Qt::WStyle_Minimize))
+                    if(flags & Qt::WindowMinimizeButtonHint)
                         wattr |= kWindowCollapseBoxAttribute;
-                    if(q->testWFlags(Qt::WStyle_Title) || q->testWFlags(Qt::WStyle_SysMenu))
+                    if(flags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint))
                        wattr |= kWindowCloseBoxAttribute;
                 }
             }
         }
-        if((q->windowType() == Qt::Tool) && q->testWFlags(Qt::WStyle_Splash) != Qt::WStyle_Splash && !q->isModal())
+        if(tool && type != Qt::SplashScreen && !q->isModal())
             wattr |= kWindowHideOnSuspendAttribute;
         wattr |= kWindowLiveResizeAttribute;
 
@@ -1004,13 +1009,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &d->window_event);
         }
-	if(q->testWFlags(Qt::WStyle_StaysOnTop) || !q->parentWidget())
+	if((flags & Qt::WindowStaysOnTopHint) || !parentWidget)
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
-        if(qt_mac_is_macdrawer(q) && q->parentWidget())
-            SetDrawerParent(window, qt_mac_window_for(q->parentWidget()));
-        if(dialog && !q->parentWidget() && !q->testAttribute(Qt::WA_ShowModal))
+        if(qt_mac_is_macdrawer(q) && parentWidget)
+            SetDrawerParent(window, qt_mac_window_for(parentWidget));
+        if(dialog && !parentWidget && !q->testAttribute(Qt::WA_ShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
-        if(q->testWFlags(Qt::WStyle_StaysOnTop)) {
+        if(flags & Qt::WindowStaysOnTopHint) {
             if(d->topData()->group)
                 qt_mac_release_window_group(d->topData()->group);
             d->topData()->group = qt_mac_get_stays_on_top_group();
@@ -1060,7 +1065,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         }
     } else {
         data.fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
-        if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)q->parentWidget()->winId())) {
+        if(HIViewRef hiview = qt_mac_create_widget((HIViewRef)parentWidget->winId())) {
             HIRect bounds = CGRectMake(data.crect.x(), data.crect.y(), data.crect.width(), data.crect.height());
             HIViewSetFrame(hiview, &bounds);
             d->setWinId((WId)hiview);
@@ -1545,12 +1550,12 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                         else
                             tlextra->normalGeometry = QRect(pos(), qt_initial_size(this));
                     }
-                    tlextra->savedFlags = getWFlags();
+                    tlextra->savedFlags = windowFlags();
                 }
                 needShow = isVisible();
                 const QRect fullscreen(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
                 setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-                          (getWFlags() & 0xffff0000));                           // preserve some widget flags
+                          (windowFlags() & 0xffff0000));                           // preserve some widget flags
                 setGeometry(fullscreen);
                 if(!qApp->desktop()->screenNumber(this))
                     qt_mac_set_fullscreen_mode(true);
@@ -1831,7 +1836,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         if(q->isWindow()) {
             WindowPtr window = qt_mac_window_for(q);
             qt_mac_update_sizer(q);
-            if(q->testWFlags(Qt::WStyle_Maximize)) {
+            if(q->windowFlags() & Qt::WindowMaximizeButtonHint) {
                 if(extra->maxw && extra->maxh && extra->maxw == extra->minw
                         && extra->maxh == extra->minh)
                     ChangeWindowAttributes(window, kWindowNoAttributes, kWindowFullZoomAttribute);

@@ -18,6 +18,7 @@
 #include "qhash.h"
 #include "qpointer.h"
 #include "qapplication.h"
+#include "qmainwindow.h"
 #include <CoreFoundation/CoreFoundation.h>
 
 /*****************************************************************************
@@ -663,19 +664,19 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef, 
                                   sizeof(role), &role);
             } else if(CFStringCompare(var, kAXEnabledAttribute, 0) == kCFCompareEqualTo) {
-                Boolean val = !((req_iface->state(req_child) & Unavailable)) ? true : false;
+                Boolean val = !((req_iface->state(req_child) & Unavailable));
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                   sizeof(val), &val);
             } else if(CFStringCompare(var, kAXExpandedAttribute, 0) == kCFCompareEqualTo) {
-                Boolean val = (req_iface->state(req_child) & Expanded) ? true : false;
+                Boolean val = (req_iface->state(req_child) & Expanded);
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                   sizeof(val), &val);
             } else if(CFStringCompare(var, kAXSelectedAttribute, 0) == kCFCompareEqualTo) {
-                Boolean val = (req_iface->state(req_child) & Selection) ? true : false;
+                Boolean val = (req_iface->state(req_child) & Selection);
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                   sizeof(val), &val);
             } else if(CFStringCompare(var, kAXFocusedAttribute, 0) == kCFCompareEqualTo) {
-                Boolean val = (req_iface->state(req_child) & Focus) ? true : false;
+                Boolean val = (req_iface->state(req_child) & Focus);
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                   sizeof(val), &val);
             } else if(CFStringCompare(var, kAXSelectedChildrenAttribute, 0) == kCFCompareEqualTo) {
@@ -708,7 +709,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                                   sizeof(cfList), &cfList);
             } else if(CFStringCompare(var, kAXMainAttribute, 0) == kCFCompareEqualTo) {
                 Boolean val = (req_iface->object() && req_iface->object()->isWidgetType() 
-                               && qApp->mainWidget() == req_iface->object()) ? true : false;
+                               && qApp->mainWidget() == req_iface->object());
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean,
                                   sizeof(val), &val);
             } else if(CFStringCompare(var, kAXCloseButtonAttribute, 0) == kCFCompareEqualTo) {
@@ -720,21 +721,21 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(CFStringCompare(var, kAXZoomButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = (widget->testWFlags(Qt::WStyle_Maximize)) ? true : false;
+                    Boolean val = (widget->windowFlags() & Qt::WindowMaximizeButtonHint);
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXMinimizeButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = (widget->testWFlags(Qt::WStyle_Minimize)) ? true : false;
+                    Boolean val = (widget->windowFlags() & Qt::WindowMinimizeButtonHint);
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }
             } else if(CFStringCompare(var, kAXToolbarButtonAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = (widget->inherits("QMainWindow")) ? true : false;
+                    Boolean val = qt_cast<QMainWindow *>(widget) != 0;
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }
@@ -747,7 +748,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             } else if(CFStringCompare(var, kAXMinimizedAttribute, 0) == kCFCompareEqualTo) {
                 if(req_iface->object() && req_iface->object()->isWidgetType()) {
                     QWidget *widget = (QWidget*)req_iface->object();
-                    Boolean val = (widget->windowState() & Qt::WindowMinimized) ? true : false;
+                    Boolean val = (widget->windowState() & Qt::WindowMinimized);
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeBoolean, 
                                       sizeof(val), &val);
                 }

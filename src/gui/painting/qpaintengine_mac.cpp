@@ -210,7 +210,7 @@ QQuickDrawPaintEngine::end()
 
     delete d->saved;
     d->saved = 0;
-    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)(->windowType() == Qt::Desktop))
+    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)->windowType() == Qt::Desktop)
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
 
     d->pdev = 0;
@@ -1153,7 +1153,7 @@ bool
 QCoreGraphicsPaintEngine::end()
 {
     setActive(false);
-    if(d->pdev->devType() == QInternal::Widget && ((QWidget*)d->pdev)(->windowType() == Qt::Desktop))
+    if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)->windowType() == Qt::Desktop)
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
     if(d->shading) {
         CGShadingRelease(d->shading);

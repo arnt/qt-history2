@@ -173,7 +173,7 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
         DragActions macAllowed = kDragActionNothing;
         GetDragAllowableActions(dragRef, &macAllowed);
         Qt::DropActions qtAllowed = qt_mac_dnd_map_mac_actions(macAllowed);
-        qtAction = QDragManager::self()->defaultAction(qtAllowed);
+        //qtAction = QDragManager::self()->defaultAction(qtAllowed);
 #if 1
         if(!(qtAllowed & qtAction))
             qtAction = qt_mac_dnd_map_mac_default_action(macAllowed);
@@ -361,13 +361,13 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
     bool ret = true;
     if(kind == kEventControlDragWithin) {
         QDragMoveEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                          QApplication::mouseBuutons(), QApplication::keyboardModifiers());
+                          QApplication::mouseButtons(), QApplication::keyboardModifiers());
         de.accept();
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragEnter) {
         QDragManager::self()->emitTargetChanged(q);
         QDragEnterEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                           QApplication::mouseBuutons(), QApplication::keyboardModifiers());
+                           QApplication::mouseButtons(), QApplication::keyboardModifiers());
         QApplication::sendEvent(q, &de);
         de.accept();
         if(!de.isAccepted()) 
@@ -377,7 +377,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
         QApplication::sendEvent(q, &de);
     } else if(kind == kEventControlDragReceive) {
         QDropEvent de(q->mapFromGlobal(QPoint(mouse.h, mouse.v)), qtAllowed, dropdata,
-                      QApplication::mouseBuutons(), QApplication::keyboardModifiers());
+                      QApplication::mouseButtons(), QApplication::keyboardModifiers());
         de.accept();
         if(QDragManager::self()->object) 
             QDragManager::self()->dragPrivate()->target = q;

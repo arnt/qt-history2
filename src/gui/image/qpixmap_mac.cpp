@@ -32,6 +32,8 @@ extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
+static int qt_pixmap_serial = 0;
+
 /*****************************************************************************
   QPixmap member functions
  *****************************************************************************/
@@ -581,7 +583,6 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     return pm;
 }
 
-static int qt_pixmap_serial = 0;
 
 void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 {
