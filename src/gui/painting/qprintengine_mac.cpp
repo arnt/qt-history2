@@ -46,7 +46,7 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
                                                                   QCFString(d->outputFilename),
                                                                   kCFURLPOSIXPathStyle,
                                                                   false);
-        if (PMSessionSetDestination(d->session, d->settings, kPMDestinationPreview,
+        if (PMSessionSetDestination(d->session, d->settings, kPMDestinationFile,
                                     kPMDocumentFormatPDF, outFile) != noErr) {
             qWarning("problem setting file [%s]", d->outputFilename.utf8());
             ret = false;
