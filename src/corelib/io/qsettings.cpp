@@ -1911,8 +1911,8 @@ QSettings::QSettings(const QString &organization, const QString &application, QO
     Internet domain name \a organization, and with parent \a parent.
 
     If \a scope is QSettings::UserScope, the QSettings object searches
-    user-specific settings first, before it seaches system-wide
-    settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
+    user-specific settings first, before it searches system-wide
+    settings as a fallback. If \a scope is
     QSettings::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
@@ -1933,8 +1933,8 @@ QSettings::QSettings(Scope scope, const QString &organization, const QString &ap
     Internet domain name \a organization, and with parent \a parent.
 
     If \a scope is QSettings::UserScope, the QSettings object searches
-    user-specific settings first, before it seaches system-wide
-    settings as a \l{Fallback Mechanism}{fallback}. If \a scope is
+    user-specific settings first, before it searches system-wide
+    settings as a fallback. If \a scope is
     QSettings::SystemScope, the QSettings object ignores user-specific
     settings and provides access to system-wide settings.
 
@@ -2053,7 +2053,7 @@ QSettings::~QSettings()
     Removes all entries in the primary location associated to this
     QSettings object.
 
-    Entries in \l{Fallback Mechanism}{fallback} locations are not removed.
+    Entries in fallback locations are not removed.
 
     \sa remove(), setFallbacksEnabled()
 */
@@ -2502,9 +2502,8 @@ void QSettings::setValue(const QString &key, const QVariant &value)
         // keys: ["ape"]
     \endcode
 
-    Be aware that if one of the \l{Fallback Mechanism}{fallback
-    locations} contains a setting with the same key, that setting
-    will be visible after calling remove().
+    Be aware that if one of the fallback locations contains a setting
+    with the same key, that setting will be visible after calling remove().
 
     \sa setValue(), value(), contains()
 */
@@ -2550,7 +2549,7 @@ bool QSettings::contains(const QString &key) const
 
     By default, fallbacks are enabled.
 
-    \sa fallbacksEnabled(), {Fallback Mechanism}
+    \sa fallbacksEnabled()
 */
 void QSettings::setFallbacksEnabled(bool b)
 {
@@ -2563,7 +2562,7 @@ void QSettings::setFallbacksEnabled(bool b)
 
     By default, fallbacks are enabled.
 
-    \sa setFallbacksEnabled(), {Fallback Mechanism}
+    \sa setFallbacksEnabled()
 */
 bool QSettings::fallbacksEnabled() const
 {
