@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcodemapper.h#3 $
+** $Id: //depot/qt/main/src/kernel/qcodemapper.h#4 $
 **
 ** Definition of QCodeMapper class
 **
@@ -31,15 +31,17 @@ public:
     QCodeMapper();
     virtual ~QCodeMapper();
 
-    static int heuristicMibFor(const char* encoding_name);
-    static int mibFor(const char* encoding_name);
-    static const char* mibName(int mib);
-    static QCodeMapper* mapperFor(int mib);
+    static QCodeMapper* mapperForMib(int mib);
+    static QCodeMapper* mapperForName(const char* hint);
+    static QCodeMapper* mapperForContent(const char* chars, int len);
 
     virtual const char* name() const = 0;
     virtual int mib() const = 0;
-    virtual QString toUnicode(const char* chars) const = 0;
+    virtual QString toUnicode(const char* chars, int len) const = 0;
     virtual char* fromUnicode(const QString& uc, int& len_in_out) const = 0;
+
+    virtual int heuristicContentMatch(const char* chars, int len) const = 0;
+    virtual int heuristicNameMatch(const char* hint) const;
 };
 
 #endif

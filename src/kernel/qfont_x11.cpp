@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#118 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#119 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -484,15 +484,13 @@ void QFont::initFontInfo() const
 	encoding += tokens[CharsetRegistry];
 	encoding += '-';
 	encoding += tokens[CharsetEncoding];
-	int mib = QCodeMapper::heuristicMibFor(encoding);
-	f->cmapper = QCodeMapper::mapperFor(mib);
+	f->cmapper = QCodeMapper::mapperForName(encoding);
     } else if ( PRIV->needsSet() ) {
 	static const char* enc[Set_N-Set_1+1] =
 		{ "eucJP","eucKO","TACTIS","eucCN","eucTW" };
 	QString encoding;
 	encoding += enc[charSet()-Set_1];
-	int mib = QCodeMapper::heuristicMibFor(encoding);
-	f->cmapper = QCodeMapper::mapperFor(mib);
+	f->cmapper = QCodeMapper::mapperForName(encoding);
     } else {
 	f->cmapper = 0;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#366 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#367 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -854,8 +854,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	if ( strcmp(locale,"ja_JP")==0 )
 	    locale = "ja_JP.eucJP";
 
-	int mib = QCodeMapper::heuristicMibFor(locale);
-	xim_mapper = QCodeMapper::mapperFor(mib);
+	xim_mapper = QCodeMapper::mapperForName(locale);
     }
 #endif
 }
@@ -3419,7 +3418,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     // convert chars (8bit) to text (unicode).
     QString text;
     if ( xim_mapper )
-        text = xim_mapper->toUnicode(chars);
+        text = xim_mapper->toUnicode(chars,count);
     else
         text = chars;
 #endif

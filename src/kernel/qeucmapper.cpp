@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qeucmapper.cpp#5 $
 **
 ** Implementation of QEUCMapper class
 **
@@ -16474,22 +16474,20 @@ char* QEUCMapper::fromUnicode(const QString& uc, int& len_in_out) const
     return result;
 }
 
-QString QEUCMapper::toUnicode(const char* chars) const
+QString QEUCMapper::toUnicode(const char* chars, int len) const
 {
     QString result;
-    while (*chars) {
-	uchar ch = *chars;
-	if ( ch < 128 || !chars[1] ) {
+    for (int i=0; i<len; i++) {
+	uchar ch = chars[i];
+	if ( ch < 128 || i==len-1 ) {
 	    result += ch;
-	    chars+=1;
 //debug("Euc%02x -> U00%02x", ch, ch);
 	} else {
-	    uchar c2 = chars[1];
-	    int i = (ch << 8) | c2;
-	    ushort rc = euc_to_unicode[i];
+	    uchar c2 = chars[++i];
+	    int c = (ch << 8) | c2;
+	    ushort rc = euc_to_unicode[c];
 	    result += QChar(rc&0xff,(rc>>8)&0xff);
 //debug("Euc%02x%02x -> U%02x%02x", chars[0], chars[1], rc&0xff,(rc>>8)&0xff);
-	    chars+=2;
 	}
     }
     return result;
@@ -16497,5 +16495,68 @@ QString QEUCMapper::toUnicode(const char* chars) const
 
 const char* QEUCMapper::name() const
 {
-    return "Japanese EUC";
+    return "eucJP";
+}
+
+int QEUCMapper::heuristicNameMatch(const char* hint) const
+{
+    if ( strnicmp(hint,"ja_JP",5)==0 )
+	return 1;
+    else
+	return QCodeMapper::heuristicNameMatch(hint);
+}
+
+int QEUCMapper::heuristicContentMatch(const char* chars, int len) const
+{
+    int score = 0;
+    for (int i=0; i<len; i++) {
+	uchar ch = chars[i];
+	// No nulls allowed.
+	if ( !ch )
+	    return -1;
+	if ( ch < 32 && ch != '\t' && ch != '\n' && ch != '\r' ) {
+	    // Suspicious
+	    if ( score )
+		score--;
+	} else if ( ch < 128 ) {
+	    // Inconclusive
+	} else if ( ch < 142 || ch > 254 ) {
+	    // Invalid
+	    return -1;
+	} else if ( ch == 142 ) {
+	    // Half-width katakana
+	    if ( i < len-1 ) {
+		uchar c2 = chars[i++];
+		if ( c2 < 161 || c2 >223 )
+		    return -1;
+		score++;
+	    }
+	    score++;
+	} else if ( ch == 143 ) {
+	    // User-defined characters
+	    if ( i < len-1 ) {
+		uchar c2 = chars[i++];
+		if ( c2 < 161 || c2 > 254 )
+		    return -1;
+		if ( i < len-1 ) {
+		    uchar c3 = chars[i++];
+		    if ( c3 < 161 || c3 > 254 )
+			return -1;
+		    score++;
+		}
+		score++;
+	    }
+	    score++;
+	} else {
+	    // JIS X 0208-1990
+	    if ( i < len-1 ) {
+		uchar c2 = chars[i++];
+		if ( c2 < 161 || c2 > 254 )
+		    return -1;
+		score++;
+	    }
+	    score++;
+	}
+    }
+    return score;
 }
