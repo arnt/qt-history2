@@ -37,6 +37,8 @@
 #include "qstyleinterface.h" // up here for GCC 2.7.* compatibility
 #include "qstylefactory.h"
 
+#ifndef QT_NO_STYLE
+
 #include "qinterfacemanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
@@ -159,3 +161,5 @@ QStringList QStyleFactory::styles()
 
     return list;
 }
+
+#endif // QT_NO_STYLE
