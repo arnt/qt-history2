@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#27 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,14 +21,14 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfont.cpp#27 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QFont qfont.h
   \brief The QFont class specifies a font used for drawing text.
-  \ingroup fonts
+  \ingroup font
 
   A QFont has a series of attributes that can be set to specify an abstract
   font. When actual drawing of text is done Qt will select a font in the
@@ -136,6 +136,8 @@ void QFont::detach()
 
 QFont::QFont()
 {
+    if ( !defFont )
+	defFont = new QFont( TRUE );
     d = defFont->d;
     d->ref();
 }
@@ -564,6 +566,7 @@ QFont::CharSet QFont::charSet() const
     if ( info.charSet() != Latin1 )	     // Check info, \e NOT font
 	fatal( "Cannot find a Latin 1 Times font" );
   \endcode
+
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
  ----------------------------------------------------------------------------*/
 
@@ -685,6 +688,8 @@ bool QFont::operator!=( const QFont &f ) const
 
 const QFont &QFont::defaultFont()
 {
+    if ( !defFont )
+	defFont = new QFont( TRUE );
     return *defFont;
 }
 
@@ -694,6 +699,8 @@ const QFont &QFont::defaultFont()
 
 void  QFont::setDefaultFont( const QFont &f )
 {
+    if ( !defFont )
+	defFont = new QFont( TRUE );
     *defFont = f;
 }
 
@@ -916,13 +923,13 @@ static void removeFontMetrics( QFontMetrics *fm )
   applications.
  ----------------------------------------------------------------------------*/
 
-void QFontMetrics::reset( const QPaintDevice *pdev )
+void QFontMetrics::reset( const void *obj )
 {
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->pdev == pdev )		// points to paint device
-		fm->pdev = 0;			// paint device dead
+	    if ( fm->data.w == obj )		// points to same thing
+		fm->data.w = 0;			// widget/painter dead
 	    fm = fm_list->next();
 	}
     }
@@ -932,46 +939,57 @@ void QFontMetrics::reset( const QPaintDevice *pdev )
 /*----------------------------------------------------------------------------
   \class QFontMetrics qfontmet.h
   \brief The QFontMetrics class provides font metrics information about
-  the current font for a paint device.
+  the current font for a widget or a painter.
+  \ingroup font
 
   QFontMetrics functions calculate size of characters and strings for a given
-  font.	 A font metric object can be obtained for a
-  \link QPaintDevice paint device\endlink.
+  font.
 
-  \sa QPaintDevice::fontMetrics(), QPainter::fontMetrics(), QFont, QFontInfo
+  Notice that the constructors are private and you can only get a font
+  metrics object from calling QWidget::fontMetrics() or
+  QPainter::fontMetrics().
+
+  A font metrics object will always refer to the font currently set for
+  the widget or painter that the font metrics object was obtained from.
+  Changing a widget font will update all QFontMetrics objects that
+  refer to this widget.
+
+  \sa QFont, QFontInfo
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Constructs a font metrics object for the paint device \e paintDev.
+  \internal
+  Constructs a font metrics object for a widget.
  ----------------------------------------------------------------------------*/
 
-QFontMetrics::QFontMetrics( const QPaintDevice *paintDev )
+QFontMetrics::QFontMetrics( const QWidget *widget )
 {
-    bool got_font = FALSE;
-    if ( paintDev ) {
-	pdev = (QPaintDevice *)paintDev;
-	pdev->devFlags |= PDF_FONTMET;		// tell pdev there's a ref
-	if ( pdev->devType() == PDT_WIDGET ) {
-	    f = ((QWidget*)pdev)->font();
-	    got_font = TRUE;
-	}
-    }
-    else
-	pdev = 0;
-    if ( !got_font )
-	f = QFont::defaultFont();
+#if defined(CHECK_NULL)
+    ASSERT( widget != 0 );
+#endif
+    data.widget = TRUE;
+    data.w = (QWidget *)widget;
+    data.w->setWFlags( WFont_Metrics );
     insertFontMetrics( this );			// register this object
 }
 
 /*----------------------------------------------------------------------------
-  Constructs a font metrics object via a painter.
+  \internal
+  Constructs a font metrics object for a painter.
  ----------------------------------------------------------------------------*/
 
-QFontMetrics::QFontMetrics( const QPainter *p )
+QFontMetrics::QFontMetrics( const QPainter *painter )
 {
-    pdev = p->device();
-    pdev->devFlags |= PDF_FONTMET;		// tell pdev there's a ref
-    f = p->font();
+#if defined(CHECK_NULL)
+    ASSERT( painter != 0 );
+#endif
+    data.widget = FALSE;
+    data.p = (QPainter *)painter;
+#if defined(CHECK_STATE)
+    if ( !data.p->isActive() )
+	warning( "QFontMetrics: Get font metrics after QPainter::begin()" );
+#endif
+    data.p->setf( QPainter::FontMet );
     insertFontMetrics( this );			// register this object
 }
 
@@ -1013,6 +1031,19 @@ QRect QFontMetrics::boundingRect( char ch ) const
 }
 
 
+/*----------------------------------------------------------------------------
+  Returns the font currently set for the widget or painter.
+ ----------------------------------------------------------------------------*/
+
+const QFont &QFontMetrics::font() const
+{
+    if ( data.widget )
+	return data.w->font();
+    else
+	return data.p->font();
+}
+
+
 /*****************************************************************************
   QFontInfo member functions
  *****************************************************************************/
@@ -1045,13 +1076,13 @@ static void removeFontInfo( QFontInfo *fi )
   applications.
  ----------------------------------------------------------------------------*/
 
-void QFontInfo::reset( const QPaintDevice *pdev )
+void QFontInfo::reset( const void *obj )
 {
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->pdev == pdev )		// points to paint device
-		fi->pdev = 0;			// paint device dead
+	    if ( fi->data.w == obj )		// points to paint thing
+		fi->data.w = 0;			// widget/painter dead
 	    fi = fi_list->next();
 	}
     }
@@ -1061,48 +1092,57 @@ void QFontInfo::reset( const QPaintDevice *pdev )
 /*----------------------------------------------------------------------------
   \class QFontInfo qfontinf.h
   \brief The QFontInfo class provides information about the current
-  font for a paint device.
+  font for a widget or a painter.
+  \ingroup font
 
   The QFont class might not always map exactly to the specified font for
-  a paint device.
+  a paint device. The QFontInfo class provides information of the actual
+  font that matched a QFont specification.
 
-  The QFontInfo class provides information of the actual font that
-  matches a QFont specification.
+  Notice that the constructors are private and you can only get a font
+  info object from calling QWidget::fontInfo() or QPainter::fontInfo().
 
-  \sa QPaintDevice::fontInfo(), QPainter::fontInfo(), QFont, QFontMetrics
+  A font info object will always refer to the font currently set for
+  the widget or painter that the font info object was obtained from.
+  Changing a widget font will update all QFontInfo objects that
+  refer to this widget.
+
+  \sa QFont, QFontMetrics
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Constructs a font info object for the paint device \e paintDev.
+  \internal
+  Constructs a font info object for a widget.
  ----------------------------------------------------------------------------*/
 
-QFontInfo::QFontInfo( const QPaintDevice *paintDev )
+QFontInfo::QFontInfo( const QWidget *widget )
 {
-    bool got_font = FALSE;
-    if ( paintDev ) {
-	pdev = (QPaintDevice *)paintDev;
-	pdev->devFlags |= PDF_FONTINF;		// tell pdev there's a ref
-	if ( pdev->devType() == PDT_WIDGET ) {
-	    f = ((QWidget*)pdev)->font();
-	    got_font = TRUE;
-	}
-    }
-    else
-	pdev = 0;
-    if ( !got_font )
-	f = QFont::defaultFont();
+#if defined(CHECK_NULL)
+    ASSERT( widget != 0 );
+#endif
+    data.widget = TRUE;
+    data.w = (QWidget *)widget;
+    data.w->setWFlags( WFont_Info );
     insertFontInfo( this );			// register this object
 }
 
 /*----------------------------------------------------------------------------
-  Constructs a font info object via a painter.
+  \internal
+  Constructs a font info object for a painter.
  ----------------------------------------------------------------------------*/
 
-QFontInfo::QFontInfo( const QPainter *p )
+QFontInfo::QFontInfo( const QPainter *painter )
 {
-    pdev = p->device();
-    pdev->devFlags |= PDF_FONTINF;		// tell pdev there's a ref
-    f = p->font();
+#if defined(CHECK_NULL)
+    ASSERT( painter != 0 );
+#endif
+    data.widget = FALSE;
+    data.p = (QPainter *)painter;
+#if defined(CHECK_STATE)
+    if ( !data.p->isActive() )
+	warning( "QFontInfo: Get font info after QPainter::begin()" );
+#endif
+    data.p->setf( QPainter::FontInf );
     insertFontInfo( this );			// register this object
 }
 
@@ -1116,13 +1156,6 @@ QFontInfo::~QFontInfo()
 }
 
 
-// !!!hanord Trenger vi dette lengre???
-#define UPDATE_DATA	     \
-    if ( f.d->req.dirty )    \
-	f.loadFont();	     \
-    if ( f.d->act.dirty )    \
-	f.updateFontInfo();
-
 /*----------------------------------------------------------------------------
   Returns the family name of the matched window system font.
   \sa QFont::family()
@@ -1130,7 +1163,8 @@ QFontInfo::~QFontInfo()
 
 const char *QFontInfo::family() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->act.family;
 }
 
@@ -1141,7 +1175,8 @@ const char *QFontInfo::family() const
 
 int QFontInfo::pointSize() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->act.pointSize / 10;
 }
 
@@ -1152,7 +1187,8 @@ int QFontInfo::pointSize() const
 
 bool QFontInfo::italic() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->act.italic;
 }
 
@@ -1163,7 +1199,8 @@ bool QFontInfo::italic() const
 
 int QFontInfo::weight() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return (int) f.d->act.weight;
 }
 
@@ -1178,7 +1215,8 @@ int QFontInfo::weight() const
 
 bool QFontInfo::underline() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return (int) f.d->act.underline;
 }
 
@@ -1193,7 +1231,8 @@ bool QFontInfo::underline() const
 
 bool QFontInfo::strikeOut() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return (int) f.d->act.strikeOut;
 }
 
@@ -1204,7 +1243,8 @@ bool QFontInfo::strikeOut() const
 
 bool QFontInfo::fixedPitch() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->act.fixedPitch;
 }
 
@@ -1217,7 +1257,8 @@ bool QFontInfo::fixedPitch() const
 
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return (QFont::StyleHint) f.d->act.styleHint;
 }
 
@@ -1228,7 +1269,8 @@ QFont::StyleHint QFontInfo::styleHint() const
 
 QFont::CharSet QFontInfo::charSet() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return (QFont::CharSet) f.d->act.charSet;
 }
 
@@ -1243,7 +1285,8 @@ QFont::CharSet QFontInfo::charSet() const
 
 bool QFontInfo::rawMode() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->act.rawMode;
 }
 
@@ -1255,6 +1298,20 @@ bool QFontInfo::rawMode() const
 
 bool QFontInfo::exactMatch() const
 {
-    UPDATE_DATA
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.updateFontInfo();
     return f.d->exactMatch;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns the font currently set for the widget or painter.
+ ----------------------------------------------------------------------------*/
+
+const QFont &QFontInfo::font() const
+{
+    if ( data.widget )
+	return data.w->font();
+    else
+	return data.p->font();
 }

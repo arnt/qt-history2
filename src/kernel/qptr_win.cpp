@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#12 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -21,7 +21,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#11 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_win.cpp#12 $";
 #endif
 
 
@@ -82,6 +82,7 @@ QPainter::QPainter()
     tabarray = 0;
     tabarraylen = 0;
     ps_stack = 0;
+    tm = 0;
 }
 
 QPainter::~QPainter()
@@ -164,6 +165,10 @@ void QPainter::setBrush( const QColor &color )	// set solid brush width color
 
 void QPainter::updateFont()			// update after changed font
 {
+    if ( tm ) {					// delete old text metrics
+	delete tm;
+	tm = 0;
+    }
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
@@ -436,6 +441,10 @@ bool QPainter::end()				// end painting
     flags = 0;
     pdev->devFlags &= ~PDF_PAINTACTIVE;
 
+    if ( tm ) {					// delete old text metrics
+	delete tm;
+	tm = 0;
+    }
     if ( !hdc ) {
 	pdev = 0;
 	return TRUE;

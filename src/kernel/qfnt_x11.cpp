@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#41 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -10,23 +10,22 @@
 **
 *****************************************************************************/
 
+#include "qwidget.h"
+#include "qpainter.h"
 #define GC GC_QQQ
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 #define QXFontStruct XFontStruct
-#include "qfont.h"
 #include "qfontdta.h"
-#include "qfontmet.h"
-#include "qfontinf.h"
 #include "qcache.h"
 #include "qdict.h"
 #include <ctype.h>
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#41 $";
 #endif
 
 
@@ -163,7 +162,8 @@ void QFont::initialize()			// called when starting up
     fontNameDict = new QFontNameDict( 29 );	// create font name dictionary
     CHECK_PTR( fontNameDict );
     fontNameDict->setAutoDelete( TRUE );
-    defFont = new QFont( TRUE );		// create the default font
+    if ( !defFont )
+	defFont = new QFont( TRUE );		// create the default font
 }
 
 /*----------------------------------------------------------------------------
@@ -347,6 +347,8 @@ static void resetFontDef( QFontDef *def )	// used by updateFontInfo()
 
 void QFont::updateFontInfo() const
 {
+    if ( !d->act.dirty )
+	return;
     if ( DIRTY_FONT )
 	loadFont();
     if ( exactMatch() ) {			// match: copy font description
@@ -729,8 +731,8 @@ QString QFont_Private::findFont( bool *exact )
 
 int QFontMetrics::ascent() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->max_bounds.ascent;
 }
 
@@ -746,8 +748,8 @@ int QFontMetrics::ascent() const
 
 int QFontMetrics::descent() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->max_bounds.descent - 1;
 }
 
@@ -761,8 +763,8 @@ int QFontMetrics::descent() const
 
 int QFontMetrics::height() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
 
@@ -776,8 +778,8 @@ int QFontMetrics::height() const
 
 int QFontMetrics::leading() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->ascent		  + f.d->xfd->f->descent -
 	   f.d->xfd->f->max_bounds.ascent - f.d->xfd->f->max_bounds.descent;
 }
@@ -792,8 +794,8 @@ int QFontMetrics::leading() const
 
 int QFontMetrics::lineSpacing() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->ascent + f.d->xfd->f->descent;
 }
 
@@ -814,8 +816,8 @@ int QFontMetrics::lineSpacing() const
 
 int QFontMetrics::width( const char *str, int len ) const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     if ( len < 0 )
 	len = strlen( str );
     return XTextWidth( f.d->xfd->f, str, len );
@@ -836,9 +838,9 @@ int QFontMetrics::width( const char *str, int len ) const
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
-    if ( len < 0 || len > strlen(str) )
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
+    if ( len < 0 )
 	len = strlen( str );
     XFontStruct *fs = f.d->xfd->f;
     int direction;
@@ -887,8 +889,8 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
 
 int QFontMetrics::maxWidth() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->xfd->f->max_bounds.width;
 }
 
@@ -914,8 +916,8 @@ int QFontMetrics::underlinePos() const
 
 int QFontMetrics::strikeOutPos() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     int pos = f.d->xfd->f->max_bounds.ascent/3;
     return pos ? pos : 1;
 }
@@ -929,8 +931,8 @@ int QFontMetrics::strikeOutPos() const
 
 int QFontMetrics::lineWidth() const
 {
-    if ( DIRTY_METRICS )
-	f.loadFont();
+    QFont f = data.widget ? data.w->font() : data.p->font();
+    f.handle();
     return f.d->lineW;
 }
 

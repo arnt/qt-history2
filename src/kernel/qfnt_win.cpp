@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#5 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#6 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Windows
 **
@@ -14,11 +14,12 @@
 #include "qfontdta.h"
 #include "qfontmet.h"
 #include "qfontinf.h"
-#include "qpaintd.h"
+#include "qwidget.h"
+#include "qpainter.h"
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#6 $";
 #endif
 
 
@@ -32,13 +33,17 @@ QFont *QFont::defFont = 0;			// default font
 QFontData::QFontData()
 {
     stockFont = FALSE;
-    hfont = 0;
+    hfont = hdc = 0;
 }
 
 QFontData::~QFontData()
 {
     if ( !stockFont && hfont )
 	DeleteObject( hfont );
+    if ( tm )
+	delete tm;
+    if ( hdc )
+	DeleteDC( hdc );
 }
 
 
@@ -48,7 +53,8 @@ QFontData::~QFontData()
 
 void QFont::initialize()
 {
-    defFont = new QFont( TRUE );
+    if ( !defFont )
+	defFont = new QFont( TRUE );
 }
 
 void QFont::cleanup()
@@ -119,6 +125,8 @@ QString QFont::lastResortFont() const
 
 void QFont::updateFontInfo() const
 {
+    if ( !d->act.dirty )
+	return;
     if ( DIRTY_FONT )
 	loadFont();
     d->act = d->req;				// !!!the easy way out
@@ -134,6 +142,13 @@ void QFont::loadFont() const
     d->lineW	  = 1;
     d->req.dirty  = FALSE;
     d->act.dirty  = TRUE;			// no longer valid
+
+    if ( !d->hdc )
+	d->hdc = CreateCompatibleDC( qt_display_dc() );
+    if ( d->tm ) {
+	delete d->tm;
+	d->tm = 0;
+    }
 
     if ( d->req.rawMode ) {
 	QString n = d->req.family;
@@ -154,6 +169,7 @@ void QFont::loadFont() const
 	else
 	    f = SYSTEM_FONT;
 	d->hfont = GetStockObject( f );
+	SelectObject( d->hdc, d->hfont );
 	d->stockFont = TRUE;
 	return;
     }
@@ -202,6 +218,7 @@ void QFont::loadFont() const
 	d->hfont = GetStockObject( ANSI_VAR_FONT );
 	d->stockFont = TRUE;
     }
+    SelectObject( d->hdc, d->hfont );
 }
 
 
@@ -209,98 +226,126 @@ void QFont::loadFont() const
   QFontMetrics member functions
  *****************************************************************************/
 
+class InternalPainter : public QPainter		// Access to QPainter::tm
+{
+public:
+    void *textMetric() const	   { return tm; }
+    void  setTextMetric( void *x ) { tm = x; }
+};
+
+static void *get_tm( bool widget, void *any )
+{
+    if ( any == 0 ) {
+#if defined(CHECK_NULL)
+	warning( "QFontMetrics: Cannot get font metrics" );      
+#endif
+	return 0;
+    }
+    void *tm;
+    if ( widget ) {
+	QWidget *w = (QWidget *)any;
+	QFont *f = (QFont *)&w->font();
+	f->handle();
+	tm = f->d.tm;
+	if ( !tm ) {
+	    tm = new TEXTMETRIC;
+	    GetTextMetrics( f->d.hdc, (TEXTMETRIC*)tm );
+	    f->d.tm = tm;
+	}
+    }
+    else {
+	InternalPainter *p = (InternalPainter*)any;
+	tm = p->textMetric();
+	if ( !tm ) {
+	    tm = new TEXTMETRIC;
+	    GetTextMetrics( p->handle(), (TEXTMETRIC*)tm );
+	    p->setTextMetric( tm );
+	}
+    }
+    return tm;
+}
+
 int QFontMetrics::ascent() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmAscent;
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmAscent : 0;
 }
 
 int QFontMetrics::descent() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmDescent;
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmDescent : 0;
 }
 
 int QFontMetrics::height() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmHeight;
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmHeight : 0;
 }
 
 int QFontMetrics::leading() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmExternalLeading;		// !!! er dette riktig?
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmExternalLeading : 0;
 }
 
 int QFontMetrics::lineSpacing() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmHeight + tm.tmExternalLeading;
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmHeight + tm->tmExternalLeading : 0;
 }
 
 int QFontMetrics::width( const char *str, int len ) const
 {
-//    if ( pdev && pdev->hdc ) {
-	if ( len < 0 )
-	    len = strlen( str );
+    if ( !data.w )
+	return 0;
+    if ( len < 0 )
+	len = strlen( str );
+    HDC  hdc;
+    if ( data.widget ) {
+	QFont f = data.w->font();
+	hdc = f.d->hdc;
+    }
+    else
+	hdc = data.p->handle();
 #if defined(_WS_WIN32_)
-	SIZE s;
-	GetTextExtentPoint( qt_display_dc(), str, len, &s );
-	return s.cx;
+    SIZE s;
+    GetTextExtentPoint( hdc, str, len, &s );
+    return s.cx;
 #else
-	not implemented for win 16
+    #error Not implemented for win 16
 #endif
-//    }
-//    return 0;
 }
 
 QRect QFontMetrics::boundingRect( const char *str, int len ) const
 {
- //   if ( pdev && pdev->hdc ) {
-	if ( len < 0 )
-	    len = strlen( str );
+    if ( !data.w )
+	return 0;
+    if ( len < 0 )
+	len = strlen( str );
+    HDC  hdc;
+    TEXTMETRICS *tm = get_tm( data.widget, data.w );
+    if ( !tm )
+	return QRect( 0, 0, 0, 0 );
+    if ( data.widget ) {
+	QFont f = data.w->font();
+	hdc = f.d->hdc;
+    }
+    else
+	hdc = data.p->handle();
 #if defined(_WS_WIN32_)
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	SIZE s;
-	GetTextExtentPoint( qt_display_dc(), str, len, &s );
-	return QRect( 0, -tm.tmAscent, s.cy, tm.tmAscent+tm.tmDescent );
+    SIZE s;
+    GetTextExtentPoint( hdc, str, len, &s );
+    return QRect( 0, -tm.tmAscent, s.cy, tm.tmAscent+tm.tmDescent );
 #else
-	not implemented for win 16
+#error not implemented for win 16
 #endif
- //   }
- //   return QRect( 0, 0, 0, 0 );
 }
 
 int QFontMetrics::maxWidth() const
 {
-//    if ( pdev && pdev->hdc ) {
-	TEXTMETRIC tm;
-	GetTextMetrics( qt_display_dc(), &tm );
-	return tm.tmMaxCharWidth;
-//    }
-//    return 0;
+    TEXTMETRIC *tm = get_tm( data.widget, data.w );
+    return tm ? tm->tmMaxCharWidth : 0;
 }
 
 int QFontMetrics::underlinePos() const
