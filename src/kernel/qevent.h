@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#18 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#19 $
 **
 ** Definition of event classes
 **
@@ -82,7 +82,7 @@ class QMouseEvent : public QEvent		// mouse event
 public:
     QMouseEvent( int type, const QPoint &pos, int button, int state )
 	: QEvent(type)		{ p=pos; b=button; st=(ushort)state; }
-    QPoint &pos()		{ return p; }	// mouse position
+    const QPoint &pos()	const	{ return p; }	// mouse position
     int	   button()	const	{ return b; }	// button which caused event
     int	   state()	const	{ return st; }	// button state (OR'ed)
 protected:
@@ -101,7 +101,7 @@ public:
 	: QEvent(type)		{ k=(ushort)kc; a=ac; st=(ushort)state;
 				  accpt=TRUE; accel=0; }
     int	   key()	const	{ return k; }	// key code (Key_Code)
-    uchar  ascii() const	{ return a; }	// ascii value
+    uchar  ascii()	const	{ return a; }	// ascii value
     int	   state()	const	{ return st; }	// keyboard status
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
@@ -129,7 +129,7 @@ class QPaintEvent : public QEvent		// widget paint event
 public:
     QPaintEvent( const QRect &paintRect )
 	: QEvent(Event_Paint)	{ r=paintRect; }
-    QRect &rect()		{ return r; }	// rectangle to be painted
+    const QRect &rect()	const	{ return r; }	// rectangle to be painted
 protected:
     QRect r;
 };
@@ -140,11 +140,12 @@ protected:
 class QMoveEvent : public QEvent		// widget move event
 {
 public:
-    QMoveEvent( const QPoint &pos )
-	: QEvent(Event_Move)	{ p=pos; }
-    QPoint &pos()		{ return p; }	// widget position
+    QMoveEvent( const QPoint &pos, const QPoint &oldPos )
+	: QEvent(Event_Move)	{ p=pos; oldp=oldPos; }
+    const QPoint &pos()	  const { return p; }	// new widget position
+    const QPoint &oldPos()const { return oldp;} // old widget position
 protected:
-    QPoint p;
+    QPoint p, oldp;
 };
 
 #define Q_MOVE_EVENT(x)		((QMoveEvent*)x)
@@ -153,11 +154,12 @@ protected:
 class QResizeEvent : public QEvent		// widget resize event
 {
 public:
-    QResizeEvent( const QSize &size )
-	: QEvent(Event_Resize)	{ s=size; }
-    QSize &size()		{ return s; }	// widget size
+    QResizeEvent( const QSize &size, const QSize &oldSize )
+	: QEvent(Event_Resize)	{ s=size; olds=oldSize; }
+    const QSize &size()	  const { return s; }	// new widget size
+    const QSize &oldSize()const { return olds;} // old widget size
 protected:
-    QSize s;
+    QSize s, olds;
 };
 
 #define Q_RESIZE_EVENT(x)	((QResizeEvent*)x)
