@@ -1523,7 +1523,7 @@ extern bool ignoreProps( const char *test );
 */
 void QAxServerBase::readMetaData()
 {
-    if ( !qt.object )
+    if ( !theObject )
 	return;
 
     if ( !slotlist ) {
@@ -2076,7 +2076,7 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 {
     if ( riid != IID_NULL )
 	return DISP_E_UNKNOWNINTERFACE;
-    if ( !qt.object )
+    if ( !theObject )
 	return E_UNEXPECTED;
 
     HRESULT res = DISP_E_MEMBERNOTFOUND;
@@ -2705,7 +2705,7 @@ HRESULT WINAPI QAxServerBase::OnMnemonic( LPMSG )
 */
 HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange( DISPID dispID )
 {
-    if ( !m_spClientSite || !qt.object )
+    if ( !m_spClientSite || !theObject )
 	return S_OK;
 
     IDispatch *disp = 0;
@@ -3514,7 +3514,7 @@ static int mapModifiers( int state )
 */
 bool QAxServerBase::eventFilter( QObject *o, QEvent *e )
 {
-    if ( !qt.object )
+    if ( !theObject )
 	return QObject::eventFilter( o, e );
 
     if ((e->type() == QEvent::Show || e->type() == QEvent::Hide) && (o == statusBar || o == menuBar)) {
