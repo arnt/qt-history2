@@ -117,7 +117,8 @@ public:
     inline bool less(const QModelIndex &left, const QModelIndex &right) const
         { return !(greater(left, right) || equal(left, right)); }
 
-    QModelIndexList match(const QModelIndex &start, int role, const QVariant &value, int hits) const;
+    QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
+                          int hits = 1, bool wrap = false) const;
 
 public slots:
     virtual void fetchMore();

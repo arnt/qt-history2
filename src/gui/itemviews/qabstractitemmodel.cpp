@@ -421,9 +421,10 @@ bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &rig
 /*!
   Retuns the list of the QModelIndex objects associated with the data items matching \a value in role \a role.
   The search starts from \a start and continues the number of matching data items equals \a hits
-  or the search reaches the last row.
+  or the search reaches the last row or \ start, depending on if \a wrap is true or false.
  */
-QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits) const
+QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
+                                          const QVariant &value, int hits, bool wrap) const
 {
     QModelIndexList result;
     QString val = value.toString().toLower();
@@ -436,6 +437,15 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, co
         if (data(idx, role).toString().toLower().startsWith(val)) {
             result.append(idx);
             ++hit;
+        }
+    }
+    if (wrap) {
+        for (int row = 0; row < start.row() && hit < hits; ++row) {
+            idx = index(row, col, par);
+            if (data(idx, role).toString().toLower().startsWith(val)) {
+                result.append(idx);
+                ++hit;
+            }
         }
     }
     return result;

@@ -227,6 +227,28 @@ static const char * const back_xpm [] = {
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
+class QFileDialogLineEdit : public QLineEdit
+{
+public:
+    QFileDialogLineEdit(QWidget *parent);
+    inline int lastKeyPressed() { return key; }
+protected:
+    virtual void keyPressEvent(QKeyEvent *e);
+private:
+    int key;
+};
+
+QFileDialogLineEdit::QFileDialogLineEdit(QWidget *parent)
+    : QLineEdit(parent), key(0)
+{
+}
+
+void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
+{
+    key = e->key();
+    QLineEdit::keyPressEvent(e);
+}
+
 class QFileDialogPrivate : public QDialogPrivate
 {
     Q_DECLARE_PUBLIC(QFileDialog);
@@ -258,7 +280,7 @@ public:
 
     QFrame *frame;
     QComboBox *lookIn;
-    QComboBox *fileName;
+    QFileDialogLineEdit *fileName;
     QComboBox *fileType;
 
     QToolButton *back;
@@ -492,10 +514,9 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
 {
-    QLineEdit *edit = d->fileName->lineEdit();
-    if (!edit->hasFocus() && current.isValid()) {
+    if (!d->fileName->hasFocus() && current.isValid()) {
         QString text = d->model->data(current, QAbstractItemModel::Display).toString();
-        edit->setText(text);
+        d->fileName->setText(text);
     }
 }
 
@@ -505,14 +526,17 @@ void QFileDialog::textChanged(const QString &text)
         QModelIndex current = d->current();
         if (!current.isValid())
             current = d->model->topLeft(d->root());
-        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Display, text, 5);
-        if (indices.count()) {
-            d->setCurrent(indices.at(0));
-//             //d->fileName->clear();
-//             for (int i = 0; i < indices.count(); ++i) {
-//                 QString text = d->model->data(indices.at(i), QAbstractItemModel::Display).toString();
-//                 d->fileName->insertItem(text);
-//        }
+        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Display, text, 1, true);
+        int key = d->fileName->lastKeyPressed();
+        if (indices.count() > 0 && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
+            d->setCurrent(indices.first());
+            QString completed = d->model->data(indices.first(), QAbstractItemModel::Display).toString();
+            int start = text.length();
+            int length = completed.length() - start;
+            bool block = d->fileName->blockSignals(true);
+            d->fileName->setText(completed);
+            d->fileName->setSelection(start, length);
+            d->fileName->blockSignals(block);
         }
     }
 }
@@ -606,17 +630,14 @@ void QFileDialogPrivate::setup()
     QObject::connect(reject, SIGNAL(clicked()), q, SLOT(reject()));
     grid->addWidget(reject, 3, 5, Qt::AlignLeft);
 
-    // conboboxes
+    // conboboxes && lineedit
     lookIn = new QComboBox(q);
     lookIn->insertItem(QDir::root().absPath());
-    //lookIn->insertItem(QDir::home().absPath());
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
-    fileName = new QComboBox(q);
-    fileName->setEditable(true);
-    fileName->setAutoCompletion(true);
-    QObject::connect(fileName->lineEdit(), SIGNAL(textChanged(const QString&)),
+    fileName = new QFileDialogLineEdit(q);
+    QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
                      q, SLOT(textChanged(const QString&)));
     grid->addWidget(fileName, 2, 2, 1, 3);
     fileType = new QComboBox(q);
