@@ -1,0 +1,68 @@
+\chapter Databases
+
+  \index Microsoft SQL Server
+  \index MySQL
+  \index OCI
+  \index ODBC
+  \index Oracle
+  \index PostgreSQL
+  \index SQL
+  \index Sybase
+  \index TDS
+
+The Qt SQL module provides a cross-platform interface for accessing
+SQL databases. Qt 3.0 includes portable drivers for Oracle,
+PostgreSQL, Microsoft SQL Server, Sybase Adaptive Server, MySQL and
+ODBC, which can be used to access any number of databases
+simultaneously.
+
+\section1 Executing SQL Commands
+
+  \index DDL
+  \index DML
+  \index queries
+  \index SELECT
+
+The \Class QSqlQuery class provides a low-level interface for
+executing a DML or DDL SQL command and for navigating the result set.
+
+Here's a query followed by navigation in the result set using \Func
+QSqlQuery::next():
+\code
+    QSqlQuery query( "SELECT id, surname FROM staff;" );
+    while ( query.next() ) {
+	qDebug( "Id: " + query.value(0).toString() );
+	qDebug( "Name: " + query.value(1).toString() );
+    }
+\endcode
+
+  \index DELETE
+  \index INSERT
+  \index UPDATE
+
+\c INSERT, \c UPDATE and \c DELETE are straight-forward:
+\code
+    QSqlQuery query( "UPDATE staff SET salary=60000 WHERE id=1155;" );
+    bool success = ( query.numRowsAffected() == 1 );
+\endcode
+
+  \index tables
+  \index views
+
+The \Class QSqlCursor provides a high-level interface to browsing and
+editing records in SQL tables or views without the need to write SQL.
+It supports calculated fields through reimplementing \Func
+QSqlCursor::calculate(). Calculated fields are useful both for real
+calculations (e.g. totals) and for converting foreign keys.
+
+\section1 Data-aware Widgets
+
+\Class QDataTable is a \Class QTable that displays records from a
+result set using a \Class QSqlCursor.
+
+Qt provides three data-aware widgets: \Class QDataTable, \Class
+QDataBrowser and \Class QDataView.
+
+\Class QDataTable
+
+\section1 Relating Data Visually

@@ -11,11 +11,11 @@
   \index themes
   \index user preferences
 
-Qt applications have a native 'look and feel' and respect user
-preferences for colors, fonts, sounds, etc. Qt programmers are free
-to use any of the supplied styles and can override any preferences.
-Programmers can also implement their own variations using Qt's
-powerful style engine.
+Qt applications automatically have a native 'look and feel' and
+respect user preferences for colors, fonts, sounds, etc. Qt
+programmers are also free to use any of the supplied styles and can
+override any preferences. Programmers can implement their own
+variations using Qt's powerful style engine.
 
 \section1 Built-in Styles
 
@@ -115,3 +115,9 @@ to preview a form in a custom style in \l {Qt Designer} without
 recompiling Qt or \l {Qt Designer}. The style of an existing Qt
 application can be changed using a style plugin without recompiling
 the application.
+
+\section1 Further Reading
+
+\list
+\i http://doc.trolltech.com/customstyle.html
+\endlist
