@@ -162,10 +162,12 @@ public:
     bool parse( const QString& commands, LocalSQLEnvironment *env );
 
 private:
+    enum { YYLexMaxLen = 256 };
+
     QString yyIn;
     int yyPos;
     int yyCurPos;
-    char yyLex[4096];
+    char yyLex[YYLexMaxLen];
     int yyLexLen;
     int yyLineNo;
     int yyCurLineNo;
@@ -174,6 +176,7 @@ private:
     int yyCh;
     QString yyStr;
     double yyNum;
+    char yyPrintfBuf[4 * YYLexMaxLen];
 
     void readChar();
     void startTokenizer( const QString& in );

@@ -52,6 +52,7 @@ inline void Parser::readChar()
 
     if ( yyCurPos == (int) yyIn.length() ) {
 	yyCh = EOF;
+	yyCurPos++;
     } else {
 	yyCh = yyIn[yyCurPos++].unicode();
 	if ( yyCh == '\n' ) {
@@ -164,7 +165,6 @@ static QString fixedColumnName( const QString& name )
 	    out += ch;
 	}
     }
-qDebug( "[%s]", out.latin1() );
     return out;
 }
 
@@ -194,30 +194,30 @@ void Parser::startTokenizer( const QString& in )
 
 void Parser::warning( const char *format, ... )
 {
-    //## need to use env->output() here
-
     va_list ap;
 
     va_start( ap, format );
-    fprintf( stderr, "%d:%d: ", yyLineNo, yyColumnNo );
-    vfprintf( stderr, format, ap );
-    putc( '\n', stderr );
+    sprintf( yyPrintfBuf, "%d:%d: ", yyLineNo, yyColumnNo );
+    vsprintf( yyPrintfBuf + strlen(yyPrintfBuf), format, ap );
+    yyEnv->output() << yyPrintfBuf;
     va_end( ap );
 }
 
 void Parser::error( const char *format, ... )
 {
-    //## need to use env->setLastError() here
+    if ( !yyOK )
+	return;
 
     va_list ap;
 
     va_start( ap, format );
-    fprintf( stderr, "%d:%d: ", yyLineNo, yyColumnNo );
-    vfprintf( stderr, format, ap );
-    putc( '\n', stderr );
+    sprintf( yyPrintfBuf, "%d:%d: ", yyLineNo, yyColumnNo );
+    vsprintf( yyPrintfBuf + strlen(yyPrintfBuf), format, ap );
+    yyEnv->output() << yyPrintfBuf;
     va_end( ap );
 
-    // ###
+    yyOK = FALSE;
+    yyPos = yyIn.length(); // skip the rest of the file
 }
 
 void Parser::readTrailingGarbage()
@@ -2010,7 +2010,7 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
-	yyProg->append( new Push( FALSE ) ); // ###
+	yyProg->append( new Push((int) FALSE) ); // ###
 	yyProg->append( new MakeList );
 
 	matchColumnDefOptions( column );
