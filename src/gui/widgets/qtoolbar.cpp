@@ -94,7 +94,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         button->addAction(action);
         QObject::connect(action, SIGNAL(triggered()), q, SLOT(actionTriggered()));
         if (action->menu()) {
-            QObject::connect(action->menu(), SIGNAL(activated(QAction *)),
+            QObject::connect(action->menu(), SIGNAL(triggered(QAction *)),
                              q, SIGNAL(actionTriggered(QAction *)));
         }
         item.widget = button;
@@ -605,7 +605,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                              this, SLOT(actionTriggered()));
             if (action->menu()) {
                 action->menu()->disconnect(this, SIGNAL(actionTriggered(QAction *)));
-                QObject::connect(item.action->menu(), SIGNAL(activated(QAction *)),
+                QObject::connect(item.action->menu(), SIGNAL(triggered(QAction *)),
                                  this, SIGNAL(actionTriggered(QAction *)));
             }
             break;
