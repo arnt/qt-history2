@@ -222,16 +222,27 @@ void QAbstractTextDocumentLayout::drawObject(QPainter *p, const QRect &rect, QTe
     QTextObjectHandler handler = d->handlers.value(f.objectType());
     if (!handler.component)
         return;
+
     handler.iface->drawObject(p, rect, document(), format);
 
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
-#if defined (Q_WS_WIN) || defined (Q_WS_MAC)
+#if defined (Q_WS_WIN)
+        static QPixmap tile;
+        if (tile.isNull()) {
+            QImage image(128, 128, 32);
+            image.fill((item.engine()->pal->highlight().color().rgb() & 0x00ffffff) | 0x7f000000);
+            image.setAlphaBuffer(true);
+            tile = QPixmap(image);
+        }
+        p->drawTiledPixmap(rect, tile);
+#elif defined (Q_WS_MAC)
         QColor hl = item.engine()->pal->highlight();
         QBrush brush(QColor(hl.red(), hl.green(), hl.blue(), 127));
+        p->fillRect(rect, brush);
 #else
         QBrush brush(item.engine()->pal->highlight(), Qt::Dense4Pattern);
-#endif
         p->fillRect(rect, brush);
+#endif
     }
 }
 
