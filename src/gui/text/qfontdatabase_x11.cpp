@@ -1235,7 +1235,7 @@ QFontEngine *loadEngine(QFont::Script script,
     }
 
 #ifndef QT_NO_XFT
-    if (encoding->encoding == -1) {
+    if (X11->has_xft && X11->use_xrender && encoding->encoding == -1) {
 
         FM_DEBUG("    using Xft");
 
@@ -1398,7 +1398,7 @@ static void parseFontName(const QString &name, QString &foundry, QString &family
 
 static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &request, QFont::Script script)
 {
-    if (!X11->has_xft)
+    if (!X11->has_xft || !X11->use_xrender)
 	return 0;
 
     QStringList family_list;
