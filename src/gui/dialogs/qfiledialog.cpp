@@ -533,12 +533,14 @@ QStringList QFileDialog::selectedFiles() const
             r = indexes.at(i).row();
         }
     }
-    if (d->fileMode == AnyFile && files.count() <= 0) { // a new filename
-        QString file = d->revert(d->fileName->text()); // to internal
-        if (QDir::isAbsolutePath(file))
-            files.append(file);
+
+    QString filename = d->revert(d->fileName->text()); // to internal
+    if ((d->fileMode == AnyFile && files.count() <= 0)
+        ||(d->fileMode == ExistingFile && QFileInfo(filename).exists())) { // a new filename
+        if (QFileInfo(filename).isAbsolute())
+            files.append(filename);
         else
-            files.append(d->revert(d->lookIn->currentText() + QDir::separator() + file)); // to internal
+            files.append(d->revert(d->lookIn->currentText() + QDir::separator() + filename)); // to internal
     }
     return files;
 }
