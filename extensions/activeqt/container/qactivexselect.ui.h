@@ -18,7 +18,8 @@
 #include <qmessagebox.h>
 
 #include <qt_windows.h>
-#include <ocidl.h> 
+#include <ocidl.h>
+#include <olectl.h>
 #include "../shared/types.h"
 
 class ListBoxText : public QListBoxText
