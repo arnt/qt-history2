@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qdial.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qdial.cpp#10 $
 **
 ** Implementation of something useful.
 **
@@ -28,20 +28,10 @@
 #include "qpainter.h"
 #include "qpointarray.h"
 
-#include <math.h> // M_PI, sin(), cos(), atan()
+#include <math.h> // sin(), cos(), atan()
 //### Forutsetter linking med math lib - Jfr kommentar i qpainter_x11.cpp!
 
-#ifdef _OS_WIN32_
-double M_PI = 3.14159265358979323846;
-#endif
-#ifdef _OS_UNIXWARE_
-#include <values.h>
-#endif
-#ifdef _OS_OS2EMX_
-#include <float.h> //M_PI is defined here
-#endif
-// WWA: Don't add another one.  pi is not a platform-specific value.
-//      When the universe changes, we can port Qt to the new value of pi.
+static const double m_pi = 3.14159265358979323846;
 
 
 class QDialPrivate
@@ -240,8 +230,8 @@ void QDial::paintEvent( QPaintEvent * e )
 	int i;
 	for( i=0; i<=notches; i++ ) {
 	    double angle = d->wrapping
-			   ? M_PI*3/2 - i*2*M_PI/notches
-			   : (M_PI*8 - i*10*M_PI/notches)/6;
+			   ? m_pi*3/2 - i*2*m_pi/notches
+			   : (m_pi*8 - i*10*m_pi/notches)/6;
 	    double s = sin( angle ); // sin/cos aren't defined as const...
 	    double c = cos( angle );
 	    if ( i == 0 ||
@@ -267,11 +257,11 @@ void QDial::paintEvent( QPaintEvent * e )
 
     double a;
     if ( maxValue() == minValue() )
-	a = M_PI/2;
+	a = m_pi/2;
     else if ( d->wrapping )
-	a = M_PI*3/2 - (value()-minValue())*2*M_PI/(maxValue()-minValue());
+	a = m_pi*3/2 - (value()-minValue())*2*m_pi/(maxValue()-minValue());
     else
-	a = (M_PI*8 - (value()-minValue())*10*M_PI/(maxValue()-minValue()))/6;
+	a = (m_pi*8 - (value()-minValue())*10*m_pi/(maxValue()-minValue()))/6;
     int len = r - bigLineSize - 1;
     if ( len < 5 )
 	len = 5;
@@ -281,10 +271,10 @@ void QDial::paintEvent( QPaintEvent * e )
     QPointArray arrow( 3 );
     arrow[0] = QPoint( (int)(0.5+xc+len*cos(a)),
 		       (int)(0.5+yc-len*sin(a)) );
-    arrow[1] = QPoint( (int)(0.5+xc+back*cos(a+M_PI*5/6)),
-		       (int)(0.5+yc-back*sin(a+M_PI*5/6)) );
-    arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-M_PI*5/6)),
-		       (int)(0.5+yc-back*sin(a-M_PI*5/6)) );
+    arrow[1] = QPoint( (int)(0.5+xc+back*cos(a+m_pi*5/6)),
+		       (int)(0.5+yc-back*sin(a+m_pi*5/6)) );
+    arrow[2] = QPoint( (int)(0.5+xc+back*cos(a-m_pi*5/6)),
+		       (int)(0.5+yc-back*sin(a-m_pi*5/6)) );
     p.setPen( colorGroup().foreground() );
     p.setBrush( colorGroup().foreground() );
     //p.setPen( red );
@@ -404,14 +394,14 @@ void QDial::rangeChange()
 int QDial::valueFromPoint( const QPoint & p ) const
 {
     double a = atan2( height()/2 - p.y(), p.x() - width()/2 );
-    if ( a < M_PI/-2 )
-	a = a + M_PI*2;
+    if ( a < m_pi/-2 )
+	a = a + m_pi*2;
 
     int r = maxValue()-minValue();
     if ( d->wrapping )
-	return bound((int)(0.5 + minValue() + r*(M_PI*3/2-a)/(2*M_PI)));
+	return bound((int)(0.5 + minValue() + r*(m_pi*3/2-a)/(2*m_pi)));
     else
-	return bound((int)(0.5 + minValue() + r*(M_PI*4/3-a)/(M_PI*10/6)));
+	return bound((int)(0.5 + minValue() + r*(m_pi*4/3-a)/(m_pi*10/6)));
 }
 
 
@@ -451,7 +441,7 @@ int QDial::notchSize() const
     // radius of the arc
     int r = QMIN( width(), height() )/2;
     // length of the whole arc
-    int l = (int)(r*(d->wrapping ? 6 : 5)*M_PI/6);
+    int l = (int)(r*(d->wrapping ? 6 : 5)*m_pi/6);
     // length of the arc from minValue() to minValue()+pageStep()
     if ( maxValue() > minValue()+pageStep() )
 	l = (int)(0.5 + l * pageStep() / (maxValue()-minValue()));
