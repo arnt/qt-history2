@@ -1597,7 +1597,7 @@ void QPainter::shear(double sh, double sv)
 }
 
 /*!
-    Rotates the coordinate system \a a degrees counterclockwise.
+    Rotates the coordinate system \a a degrees clockwise.
 
     \sa translate(), scale(), shear(), resetXForm(), setMatrix(),
     xForm()
