@@ -164,14 +164,14 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
                                                         .arg(var("MSVCDSP_CXXFLAGS"));
                         buildCmdsR = basicBuildCmd
                                             .arg("/D \"NDEBUG\"")
-                                            .arg(var("QMAKE_CXXFLAGS_RELEASE"))
+                                            .arg(var("MSVCDSP_CXXFLAGS_REL"))
                                             .arg(var("MSVCDSP_MTDEF"))
                                             .arg(var("MSVCDSP_RELDEFS"));
                         buildCmdsD = basicBuildCmd
-                                            .arg("/D \"_DEBUG\" /Od")
-                                            .arg(var("QMAKE_CXXFLAGS_DEBUG"))
+                                            .arg("/D \"_DEBUG\"")
+                                            .arg(var("MSVCDSP_CXXFLAGS_DEB"))
                                             .arg(var("MSVCDSP_MTDEFD"))
-                                            .arg(var("MSVCDSP_DEBUG_OPT"));
+                                            .arg(var("MSVCDSP_DEBDEFS"));
                         if (project->first("TEMPLATE") == "vcapp") {        // App
                             buildCmdsR += var("MSVCDSP_WINCONDEF");
                             buildCmdsD += var("MSVCDSP_WINCONDEF");
@@ -653,7 +653,6 @@ DspMakefileGenerator::init()
 
     fixTargetExt();
     project->variables()["MSVCDSP_VER"] = "6.00";
-    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /ZI";
 
     QString msvcdsp_project;
     if(project->variables()["TARGET"].count())
@@ -711,7 +710,39 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_LFLAGS"] += project->variables()["QMAKE_LFLAGS"];
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty())
         project->variables()["MSVCDSP_LFLAGS"].append(varGlue("QMAKE_LIBDIR","/LIBPATH:\"","\" /LIBPATH:\"","\""));
-    project->variables()["MSVCDSP_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS"];
+
+    // Create different compiler flags for release and debug: use default, remove opposite config, add current config
+    QStringList msvcdsp_cxxflags = project->variables()["QMAKE_CXXFLAGS"];
+    QStringList msvcdsp_cxxflags_rel(msvcdsp_cxxflags);
+    QStringList msvcdsp_cxxflags_deb(msvcdsp_cxxflags);
+
+    QStringList relflags(project->variables()["QMAKE_CXXFLAGS_RELEASE"]);
+    QStringList dbgflags(project->variables()["QMAKE_CXXFLAGS_DEBUG"]);
+    if (project->isActiveConfig("shared")) {
+        relflags += project->variables()["QMAKE_CXXFLAGS_MT_DLL"];
+        dbgflags += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
+    } else {
+        relflags += project->variables()["QMAKE_CXXFLAGS_MT"];
+        dbgflags += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
+    }
+
+    int i;
+    for (i = 0; i < relflags.count(); ++i) {
+        QString flag(relflags.at(i));
+        msvcdsp_cxxflags_deb.removeAll(flag);
+        if (!msvcdsp_cxxflags_rel.contains(flag))
+            msvcdsp_cxxflags_rel.append(flag);
+    }
+    for (i = 0; i < dbgflags.count(); ++i) {
+        QString flag(dbgflags.at(i));
+        msvcdsp_cxxflags_rel.removeAll(flag);
+        if (!msvcdsp_cxxflags_deb.contains(flag))
+            msvcdsp_cxxflags_deb.append(flag);
+    }
+
+    project->variables()["MSVCDSP_CXXFLAGS_REL"] += msvcdsp_cxxflags_rel;
+    project->variables()["MSVCDSP_CXXFLAGS_DEB"] += msvcdsp_cxxflags_deb;
+
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
 
