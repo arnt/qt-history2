@@ -149,7 +149,6 @@ void QSpinWidget::mousePressEvent( QMouseEvent *e )
 	} else if ( d->buttonDown & 2 ) {
 	    repaint( d->up, FALSE );
 	    stepUp();
-	    qDebug("start timer 300 button press");
 	    d->startTimer( TRUE, 300 );
 	}
     }
