@@ -395,6 +395,15 @@ void SqlFormWizard::accept()
 				    SPACING*3, SPACING );
 	    }
 	    formWindow->setPropertyChanged( editor, "geometry", TRUE );
+	    if ( QString(editor->className()) == "QLineEdit" &&
+		 (field->type() == QVariant::Double ||
+		  field->type() == QVariant::Int ||
+		  field->type() == QVariant::UInt ) ) {
+		/* default right-align numerics */
+		//##
+		((QLineEdit*)editor)->setAlignment( Qt::AlignRight );
+		formWindow->setPropertyChanged( editor, "alignment", TRUE );
+	    }
 	    QStringList lst;
 	    lst << conn << table << field->name();
 	    formWindow->setProperty( editor, "database", lst );
