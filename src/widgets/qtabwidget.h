@@ -109,6 +109,9 @@ public:
     int margin() const;
     void setMargin( int );
 
+    int tabAlignment() const;
+    void setTabAlignment( int );
+    
 protected:
     void showEvent( QShowEvent * );
     void resizeEvent( QResizeEvent * );

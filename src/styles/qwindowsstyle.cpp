@@ -419,8 +419,13 @@ void QWindowsStyle::drawControl( ControlElement element,
 
     case CE_TabBarTab: {
 	QTabBar * tb = (QTabBar *) widget;
+	bool lastIsCurrent = FALSE;
+	
+	if ( tb->alignment() == AlignRight && 
+	     tb->currentTab() == tb->indexOf(tb->count()-1) )
+	    lastIsCurrent = TRUE;
+	
 	QRect r( r );
-
 	if ( tb->shape()  == QTabBar::RoundedAbove ) {
 	    p->setPen( cg.midlight() );
 	    p->drawLine( r.left(), r.bottom(), r.right(), r.bottom() );
@@ -464,13 +469,13 @@ void QWindowsStyle::drawControl( ControlElement element,
 	    p->setPen( cg.dark() );
 	    x2 = r.right() - 1;
 	    p->drawLine( x2, r.top() + 2, x2, r.bottom() - 1 +
-			 ((how & CStyle_Selected) ? 1:-1));
+			 ((how & CStyle_Selected) ? 1:-1) );
 	    p->setPen( cg.shadow() );
 	    p->drawPoint( x2, r.top() + 1 );
 	    p->drawPoint( x2, r.top() + 1 );
 	    x2++;
 	    p->drawLine( x2, r.top() + 2, x2, r.bottom() -
-			 ((how & CStyle_Selected) ? 1:2));
+			 ((how & CStyle_Selected) ? (lastIsCurrent ? 0:1) :2));
 	} else if ( tb->shape() == QTabBar::RoundedBelow ) {
 	    if ( how & CStyle_Selected ) {
 		p->fillRect( QRect( r.left()+1, r.top(), r.width()-3, 1),

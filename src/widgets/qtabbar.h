@@ -91,6 +91,7 @@ class Q_EXPORT QTabBar: public QWidget
     Q_PROPERTY( int currentTab READ currentTab WRITE setCurrentTab )
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int keyboardFocusTab READ keyboardFocusTab )
+    Q_PROPERTY( int alignment READ alignment WRITE setAlignment )
 
 public:
     QTabBar( QWidget *parent = 0, const char *name = 0 );
@@ -111,6 +112,7 @@ public:
     virtual void setTabEnabled( int, bool );
     bool isTabEnabled( int ) const;
 
+    
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -124,10 +126,13 @@ public:
 
     virtual void layoutTabs();
     virtual QTab * selectTab( const QPoint & p ) const;
+    
+    int alignment() const;
 
 public slots:
     virtual void setCurrentTab( int );
     virtual void setCurrentTab( QTab * );
+    virtual void setAlignment( int );
 
 signals:
     void  selected( int );
