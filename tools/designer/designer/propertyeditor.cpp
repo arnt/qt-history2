@@ -451,7 +451,7 @@ void PropertyItem::notifyValueChange()
 	setChanged( TRUE );
 	if ( hasSubItems() )
 	    initChildren();
-    } else {	
+    } else {
 	propertyParent()->childValueChanged( this );
 	setChanged( TRUE );
     }
@@ -1576,9 +1576,9 @@ void PropertyCoordItem::childValueChanged( PropertyItem *child )
     if ( typ == Rect ) {
 	QRect r = value().toRect();
 	if ( child->name() == tr( "x" ) )
-	    r.setX( child->value().toInt() );
+	    r.moveBy( -r.x() + child->value().toInt(), 0 );
 	else if ( child->name() == tr( "y" ) )
-	    r.setY( child->value().toInt() );
+	    r.moveBy( 0, -r.y() + child->value().toInt() );
 	else if ( child->name() == tr( "width" ) )
 	    r.setWidth( child->value().toInt() );
 	else if ( child->name() == tr( "height" ) )
