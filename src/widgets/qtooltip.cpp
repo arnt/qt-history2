@@ -757,6 +757,17 @@ void QToolTip::setPalette( const QPalette &palette )
     \warning QToolTip is not a subclass of QObject, so the instance of
     QToolTip is not deleted when \a widget is deleted.
 
+    \warning If you delete the tool tip before you have deleted
+    \a widget then you need to make sure you call remove() yourself from 
+    \a widget in your reimplemented QToolTip destructor.
+
+    \code
+	MyToolTip::~MyToolTip()
+	{
+	    remove( widget );
+	}
+    \endcode
+
     \sa maybeTip().
 */
 
