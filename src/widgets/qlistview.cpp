@@ -617,6 +617,9 @@ void QListViewItem::startRename()
     box->show();
 }
 
+/*! This function is called after the user renamed this item in-place
+  and pressed return or enter */
+
 void QListViewItem::okRename()
 {
     QListView *lv = listView();
@@ -628,6 +631,9 @@ void QListViewItem::okRename()
     emit lv->itemRenamed( this );
     emit lv->itemRenamed( this, text( col ) );
 }
+
+/*! This function is called if the user cancels in-place renaming of
+  this item */
 
 void QListViewItem::cancelRename()
 {

@@ -178,12 +178,12 @@ protected:
 #endif
     virtual void dragEntered();
     virtual void dragLeft();
+    virtual void okRename();
+    virtual void cancelRename();
 
 private:
     void init();
     void moveToJustAfter( QListViewItem * );
-    virtual void okRename();
-    virtual void cancelRename();
 
     int ownHeight;
     int maybeTotalHeight;
