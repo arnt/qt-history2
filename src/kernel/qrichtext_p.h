@@ -146,6 +146,7 @@ public:
     } d;
 
     bool isAnchor() const { return ( type & Anchor) != 0; }
+    bool isLink() const { return isAnchor() && !!d.custom->anchorHref; }
     QString anchorName() const;
     QString anchorHref() const;
     void setAnchor( const QString& name, const QString& href );
@@ -268,7 +269,7 @@ public:
 #else
     QTextParagraph *paragraph() const;
 #endif
-    
+
     void setParagraph( QTextParagraph*p ) { gotoPosition(p, 0 ); }
     QTextDocument *document() const;
     int index() const;

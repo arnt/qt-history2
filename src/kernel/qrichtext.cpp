@@ -4378,8 +4378,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    flush |= nextchr->lineStart;
 	    // we flush on format changes
 	    flush |= ( nextchr->format() != chr->format() );
-	    // we flush on anchor changes
-	    flush |= ( nextchr->isAnchor() != chr->isAnchor() );
+	    // we flush on link changes
+	    flush |= ( nextchr->isLink() != chr->isLink() );
 	    // we flush on start of run
 	    flush |= nextchr->startOfRun;
 	    // we flush on bidi changes
