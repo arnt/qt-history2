@@ -149,8 +149,9 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
     if (row >= 0 && row < vertical.count()) {
         emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
         // remove rows
-        int i = tableIndex(row, columnCount() - 1);
-        table.remove(qMax(i, 0), count * columnCount());
+        int i = tableIndex(row - 1, columnCount() - 1);
+        int n = count * columnCount();
+        table.remove(qMax(i, 0), n);
         vertical.remove(row, count);
         // update persistent model indexes
         for (int j = 0; j < persistentIndexesCount(); ++j) {
@@ -402,6 +403,8 @@ QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int r
         return itm->data(role);
     if (role == DisplayRole)
         return QVariant(section);
+    if (role == TextAlignmentRole)
+        return Qt::AlignVCenter;
     return QVariant();
 }
 
