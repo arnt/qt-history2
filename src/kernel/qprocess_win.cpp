@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#35 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -210,7 +210,7 @@ bool QProcess::start()
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based ) {
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
-	    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
 	    0, 0, 0,
@@ -225,8 +225,8 @@ bool QProcess::start()
     } else
 #endif
     {
-	STARTUPINFOA startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
-	    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+	STARTUPINFOA startupInfo = { sizeof( STARTUPINFOA ), 0, 0, 0,
+	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
 	    0, 0, 0,
 	    STARTF_USESTDHANDLES,
 	    0, 0, 0,
