@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#20 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#21 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -16,7 +16,7 @@
 #include "qdatetm.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#20 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#21 $");
 
 
 // If the operation is expected to take this long (as predicted by
@@ -410,10 +410,10 @@ void QProgressDialog::setProgress( int progress )
 
     bar()->setProgress(progress);
 
-    if ( isVisible() ) {
+    if ( d->shown_once ) {
 	if (testWFlags(WType_Modal))
 	    qApp->processEvents();
-    } else if ( !d->shown_once ) {
+    } else {
 	if ( progress == 0 ) {
 	    if ( d->creator ) {
 		d->parentCursor = d->creator->cursor();
@@ -429,9 +429,6 @@ void QProgressDialog::setProgress( int progress )
 		    center();
 		    show();
 		    d->shown_once = TRUE;
-		    if (testWFlags(WType_Modal)) {
-			qApp->processEvents();
-		    }
 		}
 	    }
 	}
