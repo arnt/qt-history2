@@ -419,7 +419,7 @@ void MainWindow::showLinks( const QStringList &links )
     // Initial showing, The tab is empty so update that without creating it first
     if ( tabs->currentBrowser()->source().isEmpty() ) {
 	pendingBrowsers.append(tabs->currentBrowser());
-	tabs->tab->setTabLabel(tabs->currentBrowser(), pendingLinks.first());
+	tabs->setTitle(tabs->currentBrowser(), pendingLinks.first());
     }
     ++it;
 

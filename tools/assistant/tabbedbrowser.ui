@@ -70,14 +70,6 @@
         </widget>
     </grid>
 </widget>
-<connections>
-    <connection>
-        <sender>tab</sender>
-        <signal>currentChanged(QWidget*)</signal>
-        <receiver>TabbedBrowser</receiver>
-        <slot>displayEntireLabel(QWidget*)</slot>
-    </connection>
-</connections>
 <includes>
     <include location="global" impldecl="in declaration">qsettings.h</include>
     <include location="local" impldecl="in implementation">helpwindow.h</include>
@@ -120,7 +112,6 @@
     <slot>setPalette( const QPalette &amp; pal )</slot>
     <slot>copy()</slot>
     <slot>closeTab()</slot>
-    <slot>displayEntireLabel( QWidget *w )</slot>
     <slot>sourceChanged()</slot>
 </slots>
 <functions>
@@ -136,6 +127,7 @@
     <function specifier="non virtual" returnType="QPtrList&lt;HelpWindow&gt;">browsers() const</function>
     <function returnType="HelpWindow*">newBackgroundTab( const QString &amp; url )</function>
     <function returnType="HelpWindow*" access="private">createHelpWindow(const QString &amp;)</function>	
+    <function>setTitle(HelpWindow*, const QString &amp;)</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>

@@ -202,6 +202,8 @@ void TabbedBrowser::transferFocus()
     if( currentBrowser() ) {
 	currentBrowser()->setFocus();
     }
+    mainWindow()->setCaption(Config::configuration()->title()
+			     + " - " + currentBrowser()->documentTitle());
 }
 
 void TabbedBrowser::initHelpWindow( HelpWindow * /*win*/ )
@@ -305,18 +307,6 @@ QStringList TabbedBrowser::sources()
     return lst;
 }
 
-void TabbedBrowser::displayEntireLabel( QWidget *w )
-{
-    HelpWindow *win = (HelpWindow*)lastCurrentTab;
-    if ( win )
-	tab->changeTab( lastCurrentTab, reduceLabelLength( win->documentTitle() ) );
-    win = (HelpWindow*)(tab->currentPage());
-    if (!win->documentTitle().isEmpty())
-	tab->setTabLabel( w, win->documentTitle() );
-    lastCurrentTab = w;
-}
-
-
 QPtrList<HelpWindow> TabbedBrowser::browsers() const
 {
     QPtrList<HelpWindow> list;
@@ -334,6 +324,13 @@ void TabbedBrowser::sourceChanged()
     QString docTitle(win->documentTitle());
     if (docTitle.isEmpty())
 	docTitle = "...";
-    tab->setTabLabel(win, win == currentBrowser() ? docTitle : reduceLabelLength(docTitle));
+    setTitle(win, docTitle);
+}
+
+void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
+{
+    tab->setTabLabel(win, reduceLabelLength(title));
+    if (win == currentBrowser())
+	mainWindow()->setCaption(Config::configuration()->title() + " - " + title);
 }
 
