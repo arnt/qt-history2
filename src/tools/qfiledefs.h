@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledefs.h#25 $
+** $Id: //depot/qt/main/src/tools/qfiledefs.h#26 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -26,7 +26,10 @@
 **
 *****************************************************************************/
 
-#if !defined(_OS_MAC_)
+#if defined(_CC_MWERKS_)
+# include <stdlib.h>
+# include <stat.h>
+#elif !defined(_OS_MAC_)
 # include <sys/types.h>
 # include <sys/stat.h>
 #endif
@@ -43,7 +46,9 @@
 #  include <unistd.h>
 # else
 #  include <io.h>
-#  include <dos.h>
+#  if !defined(_CC_MWERKS_)
+#   include <dos.h>
+#  endif
 #  include <direct.h>
 # endif
 #endif
@@ -155,6 +160,15 @@
 #  define OPEN_TEXT	O_TEXT
 #  define OPEN_BINARY	O_BINARY
 # endif
+#endif
+
+#if defined(_CC_MWERKS_)
+#undef mkdir
+#undef MKDIR
+#define MKDIR _mkdir
+#undef rmdir
+#undef RMDIR
+#define RMDIR _rmdir
 #endif
 
 

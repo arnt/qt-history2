@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#137 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#138 $
 **
 ** Global type declarations and definitions
 **
@@ -68,6 +68,8 @@
 #endif
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #define _OS_WIN32_
+#elif defined(__MWERKS__) && defined(__INTEL__)
+#define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)
 #define _OS_SUN_
 #if defined(_OS_SUN_) && defined(__SVR4)
@@ -125,7 +127,7 @@
 //
 //   SYM	- Symantec C++ for both PC and Macintosh
 //   MPW	- MPW C++
-//   METROWERKS - Metroworks C++
+//   MWERKS	- Metroworks CodeWarrior
 //   MSVC	- Microsoft Visual C/C++
 //   BOR	- Borland/Turbo C++
 //   WAT	- Watcom C++
@@ -144,7 +146,7 @@
 #elif defined(applec)
 #define _CC_MPW_
 #elif defined(__MWERKS__)
-#define _CC_METROWORKS_
+#define _CC_MWERKS_
 #define HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
 #define _CC_MSVC_
@@ -208,7 +210,6 @@
 #if defined(_WS_WIN16_) || defined(_WS_WIN32_)
 #define _WS_WIN_
 #endif
-
 
 
 //
@@ -292,10 +293,9 @@ const bool FALSE = 0;
 const bool TRUE = !0;
 #endif
 
-#if defined(QT_STATIC_CONST)
-#error "what happened?  I am dazed and confused."
-#elif defined(_CC_MSVC_)
-// Can't do it.
+
+#if defined(_CC_MSVC_)
+// Workaround for static const members.
 #define QT_STATIC_CONST static
 #define QT_STATIC_CONST_IMPL
 #else
@@ -390,6 +390,8 @@ Q_EXPORT bool qSysInfo( int *wordSize, bool *bigEndian );
 #pragma warn -ccc
 #pragma warn -rch
 #pragma warn -sig
+#elif defined(_CC_MWERKS_)
+#pragma warn_possunwant off
 #endif
 #endif // NO_WARNINGS
 
