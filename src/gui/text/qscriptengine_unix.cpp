@@ -1835,12 +1835,12 @@ static void thaiWordBreaks(const QChar *string, const int len, QCharAttributes *
         numbreaks = th_brk(cstr.data(),break_positions, numbreaks);
     }
 
-    attributes[0].softBreak = TRUE;
+    attributes[0].softBreak = true;
     for (int i = 1; i < len; ++i)
-        attributes[i].softBreak = FALSE;
+        attributes[i].softBreak = false;
 
     for (int i = 0; i < numbreaks; ++i)
-        attributes[break_positions[i]].softBreak = TRUE;
+        attributes[break_positions[i]].softBreak = true;
 
     if (break_positions != brp)
         delete [] break_positions;
@@ -1859,8 +1859,8 @@ static void thai_attributes( int script, const QString &text, int from, int len,
 	a->charStop = (cat != QChar::Mark_NonSpacing);
         // if we don't know any better, every charstop is a possible line break.
 	a->softBreak = a->charStop;
-	a->wordStop = FALSE;
-	a->invalid = FALSE;
+	a->wordStop = false;
+	a->invalid = false;
 	++uc;
 	++a;
     }

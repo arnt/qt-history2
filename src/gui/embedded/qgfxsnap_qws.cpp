@@ -859,7 +859,7 @@ bool QSNAPScreen::connect(
     // for the second application that is connecting to the server.
     if ((dc = GA_loadDriver(0,true)) == NULL) {
         qDebug("Unable to load the SciTech SNAP driver (%s)", GA_errorMsg(GA_status()));
-        return FALSE;
+        return false;
         }
     init.dwSize = sizeof(init);
     if (!GA_queryFunctions(dc,GA_GET_INITFUNCS,&init)) {
@@ -918,7 +918,7 @@ bool QSNAPScreen::connect(
 
     // Return success!
     initted = true;
-    return TRUE;
+    return true;
 }
 
 /*!
@@ -1380,4 +1380,3 @@ void QSNAPScreen::set(
 }
 
 #endif // QT_NO_QWS_SNAP
-

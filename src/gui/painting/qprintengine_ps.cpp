@@ -1841,8 +1841,8 @@ void QPSPrintEngineFontTTF::drawText(QTextStream &stream, QPSPrintEnginePrivate 
     // cmap (== 0), and the glyphs array contains the shaped string.
     bool useGlyphAsUnicode = (type == QFontEngine::XLFD && fe->cmap() == 0);
 #else  // Q_WS_QWS
-    const bool glyphIndices = FALSE;
-    const bool useGlyphAsUnicode = TRUE;
+    const bool glyphIndices = false;
+    const bool useGlyphAsUnicode = true;
 #endif
     int len;
     len =  (glyphIndices || useGlyphAsUnicode) ? ti.num_glyphs : ti.num_chars;

@@ -2731,7 +2731,6 @@ QInputContext *QWidget::inputContext()
     if (!icWidget->d->ic)
         d->createInputContext();
     return icWidget->d->ic;
-
 }
 
 
@@ -2761,8 +2760,7 @@ void QWidget::setInputContext( const QString& identifierName )
     This function is called to generate an input context
     according to a configuration for default input method
 
-    input context is generated only when WA_InputMethodEnabled is set.
-    returns TRUE.
+    Input context is generated only when WA_InputMethodEnabled is set.
 */
 void QWidgetPrivate::createInputContext()
 {
@@ -2912,4 +2910,3 @@ Qt::HANDLE QWidget::xftDrawHandle() const
 {
     return d->xft_hd;
 }
-

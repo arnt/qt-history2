@@ -205,7 +205,7 @@
   uses this information, together with QPrinter::Orientation and
   QPrinter::setFullPage(), to determine the printable area.
 
-  The defined sizes (with setFullPage(TRUE)) are:
+  The defined sizes (with setFullPage(true)) are:
 
   \value A0 841 x 1189 mm
   \value A1 594 x 841 mm
@@ -240,7 +240,7 @@
   \value Custom
   \omitvalue NPageSize
 
-  With setFullPage(FALSE) (the default), the metrics will be a bit
+  With setFullPage(false) (the default), the metrics will be a bit
   smaller; how much depends on the printer in use.
 */
 
@@ -437,8 +437,8 @@ QString QPrinter::outputFileName() const
   Sets the name of the output file to \a fileName.
 
   Setting a null or empty name (0 or "") disables output to a file,
-  i.e. calls setOutputToFile(FALSE). Setting a non-empty name
-  enables output to a file, i.e. calls setOutputToFile(TRUE).
+  i.e. calls setOutputToFile(false). Setting a non-empty name
+  enables output to a file, i.e. calls setOutputToFile(true).
 
   \warning This function is currently only supported under X11.
 
@@ -825,7 +825,7 @@ void QPrinter::setNumCopies(int numCopies)
 
 /*!
   Sets QPrinter to have the origin of the coordinate system at the
-  top-left corner of the paper if \a fp is TRUE, or where it thinks
+  top-left corner of the paper if \a fp is true, or where it thinks
   the top-left corner of the printable area is if \a fp is false.
 
   The default is false. You can (probably) print on (0,0), and
@@ -1416,8 +1416,8 @@ void QPrinter::setMinMax( int minPage, int maxPage )
 
   \internal
 
-  Returns TRUE if the application should provide the user with the
-  option of choosing a collated printout; otherwise returns FALSE.
+  Returns true if the application should provide the user with the
+  option of choosing a collated printout; otherwise returns false.
 
   Collation means that each page is printed in order, i.e. print the
   first page, then the second page, then the third page and so on, and
@@ -1445,9 +1445,9 @@ bool QPrinter::collateCopiesEnabled() const
 
     \internal
 
-    If \a enable is TRUE (the default) the user is given the choice of
+    If \a enable is true (the default) the user is given the choice of
     whether to print out multiple copies collated in the print dialog.
-    If \a enable is FALSE, then collateCopies() will be ignored.
+    If \a enable is false, then collateCopies() will be ignored.
 
     Collation means that each page is printed in order, i.e. print the
     first page, then the second page, then the third page and so on, and
@@ -1514,7 +1514,7 @@ QPrinter::PrintRange QPrinter::printRange() const
     Use QPrintDialog instead.
 
     Enables the printer option with the identifier \a option if \a
-    enable is TRUE, and disables option \a option if \a enable is FALSE.
+    enable is true, and disables option \a option if \a enable is false.
 
     \sa isOptionEnabled()
 */
@@ -1535,8 +1535,8 @@ void QPrinter::setOptionEnabled( PrinterOption option, bool enable )
 
     Use QPrintDialog instead.
 
-  Returns TRUE if the printer option with identifier \a option is enabled;
-  otherwise returns FALSE.
+  Returns true if the printer option with identifier \a option is enabled;
+  otherwise returns false.
 
   \sa setOptionEnabled()
  */

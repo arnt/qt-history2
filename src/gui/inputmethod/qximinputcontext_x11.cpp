@@ -196,10 +196,10 @@ extern "C" {
 	    return 0;
 	}
 
-	bool send_imstart = FALSE;
+	bool send_imstart = false;
 	if( ! qic->isComposing() && qic->hasFocus() ) {
 	    qic->resetClientState();
-	    send_imstart = TRUE;
+	    send_imstart = true;
 	} else if ( ! qic->isComposing() || ! qic->hasFocus() ) {
 #ifdef QT_XIM_DEBUG
 	    qDebug( "compose event: invalid compose event composing=%d hasFocus=%d",

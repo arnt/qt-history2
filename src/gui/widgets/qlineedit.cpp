@@ -1645,20 +1645,20 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
             mousePos = -1;
 	    // don't send move events outside the preedit area
             if ( e->type() == QEvent::MouseMove )
-                return TRUE;
+                return true;
         }
 
         QInputContext *qic = q->inputContext();
         if ( qic )
             // may be causing reset() in some input methods
             qic->mouseHandler(mousePos, e);
-	return TRUE;
+	return true;
     }
 #else
     Q_UNUSED(e);
 #endif
 
-    return FALSE;
+    return false;
 }
 
 /*! \reimp

@@ -6342,19 +6342,19 @@ QString Q3TextFormat::makeFormatChangeTags(Q3TextFormat* defaultFormat, Q3TextFo
             if (font().underline())
                 textDecoration = "underline";
             else
-                none = TRUE;
+                none = true;
         }
  	if ( font().overline() != defaultFormat->font().overline() ) {
             if (font().overline())
                 textDecoration += " overline";
             else
-                none = TRUE;
+                none = true;
         }
 	if ( font().strikeOut() != defaultFormat->font().strikeOut() ) {
             if (font().strikeOut())
                 textDecoration += " line-through";
             else
-                none = TRUE;
+                none = true;
         }
         if (none && textDecoration.isEmpty())
             textDecoration = "none";

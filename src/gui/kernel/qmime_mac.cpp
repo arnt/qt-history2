@@ -312,17 +312,17 @@ bool QMacMimeAnyMime::loadMimeRegistry()
             if(!openMimeRegistry(false, QIODevice::ReadWrite, library_file)) {
                 qWarning("Failure to open mime resources %s -- %s", library_file.fileName().latin1(),
                          library_file.errorString().latin1());
-                return FALSE;
+                return false;
             }
         }
     }
 
     QFileInfo fi(library_file);
     if(!mime_registry_loaded.isNull() && mime_registry_loaded == fi.lastModified())
-        return TRUE;
+        return true;
     mime_registry_loaded = fi.lastModified();
     ::loadMimeRegistry(library_file, mime_registry, current_max);
-    return TRUE;
+    return true;
 }
 
 int QMacMimeAnyMime::registerMimeType(const QString &mime)

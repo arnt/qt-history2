@@ -231,7 +231,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 //     if (ok && !d->hdc) {
 // 	setup(0);
 // 	if (!hdc)
-// 	    ok = FALSE;
+// 	    ok = false;
 //     }
     Q_ASSERT(d->hdc);
 
@@ -248,7 +248,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	    di.lpszOutput = d->fileName.utf16();
 	if (ok && StartDoc(d->hdc, &di) == SP_ERROR) {
 	    qErrnoWarning("QWin32PrintEngine::begin: StartDoc failed");
-	    ok = FALSE;
+	    ok = false;
 	}
 //     } , {
 // 	DOCINFOA di;
@@ -260,7 +260,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 // 	if (output_file && !output_filename.isEmpty())
 // 	    di.lpszOutput = outfileA.data();
 // 	if (ok && StartDocA(hdc, &di) == SP_ERROR)
-// 	    ok = FALSE;
+// 	    ok = false;
 //     });
 
 //     if (ok) {
@@ -281,7 +281,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 // 	    hdc = 0;
 // 	}
 // 	state = PST_IDLE;
-// 	return FALSE;
+// 	return false;
 //     } else {
 	d->state = QPrinter::Active;
 // 	painter = paint;
@@ -333,12 +333,12 @@ bool QWin32PrintEngine::newPage()
 
     return true;
 
-    bool success = FALSE;
+    bool success = false;
     if (d->hdc && d->state == QPrinter::Active) {
-//         bool restorePainter = FALSE;
+//         bool restorePainter = false;
 //         if ((qWinVersion()& Qt::WV_DOS_based) && painter && painter->isActive()) {
 //             painter->save();               // EndPage/StartPage ruins the DC
-//             restorePainter = TRUE;
+//             restorePainter = true;
 //         }
         if (EndPage(d->hdc) != SP_ERROR) {
 	    // reinitialize the DC before StartPage if needed,
@@ -495,14 +495,14 @@ void QWin32PrintEngine::drawPixmap(const QRect &targetRect,
         bool wxf = paint->matrixEnabled();
         bool vxf = paint->viewTransformEnabled();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-        bool complexWxf = FALSE;
+        bool complexWxf = false;
 #endif
         if ( wxf ) {
             QMatrix m = paint->matrix();
 #ifndef QT_NO_IMAGE_TRANSFORMATION
             complexWxf = m.m12() != 0 || m.m21() != 0;
             if ( complexWxf ) {
-                image.setAlphaBuffer( TRUE );
+                image.setAlphaBuffer( true );
 
                 // When have to scale the image according to the rectangle before
                 // the rotation takes place to avoid shearing the image.
@@ -971,7 +971,7 @@ void QWin32PrintEngine::setPaperSource(QPrinter::PaperSource src)
     if (caps != DWORD(-1) && caps != 0) {
         LPTSTR bins = (LPTSTR)(new WORD[caps]);
         if (DeviceCapabilities((TCHAR*)d->name.utf16(), 0, DC_BINS, bins, 0)) {
-            bool ok = FALSE;
+            bool ok = false;
             int source = mapPaperSourceDevmode(src);
             for (uint i=0; i<caps; i++)
                 ok |= (bins[i] == source);

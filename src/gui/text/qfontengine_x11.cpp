@@ -1353,14 +1353,14 @@ bool QFontEngineXft::canRender(const QChar *string, int len)
         for ( int i = 0; i < len; i++ ) {
             if (!XftCharExists(0, _font, string[i].unicode())
                 && getAdobeCharIndex(_font, _cmap, string[i].unicode()) == 0) {
-                allExist = FALSE;
+                allExist = false;
                 break;
             }
         }
     } else {
         for ( int i = 0; i < len; i++ ) {
             if (!XftCharExists(0, _font, string[i].unicode())) {
-                allExist = FALSE;
+                allExist = false;
                 break;
             }
         }

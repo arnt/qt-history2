@@ -399,7 +399,7 @@ void QCursor::update() const
 	    0x03, 0x80, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
 	d->type = QCursorData::TYPE_CursPtr;
-	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.my_cursor = true;
 	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
 	memcpy(d->curs.cp.hcurs->data, cur_vsplit_bits, sizeof(cur_vsplit_bits));
         memcpy(d->curs.cp.hcurs->mask, mcur_vsplit_bits, sizeof(mcur_vsplit_bits));
@@ -428,7 +428,7 @@ void QCursor::update() const
             0x00, 0xe0, 0x03, 0x00, 0x00, 0xc0, 0x01, 0x00, 0x00, 0x80, 0x00, 0x00,
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	QBitmap bm(32, 32, cur_vsplit_bits, TRUE), bmm(32, 32, mcur_vsplit_bits, TRUE);
+	QBitmap bm(32, 32, cur_vsplit_bits, true), bmm(32, 32, mcur_vsplit_bits, true);
 	setBitmap(bm, bmm, 16, 16);
 #endif
         break; }
@@ -451,7 +451,7 @@ void QCursor::update() const
 	    0x04, 0x80, 0x04, 0x80, 0x04, 0x80, 0x00, 0x00 };
 
 	d->type = QCursorData::TYPE_CursPtr;
-	d->curs.cp.my_cursor = TRUE;
+	d->curs.cp.my_cursor = true;
 	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
 	memcpy(d->curs.cp.hcurs->data, cur_hsplit_bits, sizeof(cur_hsplit_bits));
 	memcpy(d->curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
@@ -480,7 +480,7 @@ void QCursor::update() const
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        QBitmap bm(32, 32, cur_hsplit_bits, TRUE), bmm(32, 32, mcur_hsplit_bits, TRUE);
+        QBitmap bm(32, 32, cur_hsplit_bits, true), bmm(32, 32, mcur_hsplit_bits, true);
 	setBitmap(bm, bmm, 16, 16);
 #endif
         break; }

@@ -1046,7 +1046,7 @@ QFileInfo::detach()
 }
 
 /*!
-    Returns TRUE if caching is enabled; otherwise returns FALSE.
+    Returns true if caching is enabled; otherwise returns false.
 
     \sa setCaching(), refresh()
 */
@@ -1057,8 +1057,8 @@ bool QFileInfo::caching() const
 }
 
 /*!
-    If \a enable is TRUE, enables caching of file information. If \a
-    enable is FALSE caching is disabled.
+    If \a enable is true, enables caching of file information. If \a
+    enable is false caching is disabled.
 
     When caching is enabled, QFileInfo reads the file information from
     the file system the first time it's needed, but generally not

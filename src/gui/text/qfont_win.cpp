@@ -283,7 +283,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 	QFontEngine *engine = d->engineForScript( script );
  	QGlyphLayout glyphs[8];
 	int nglyphs = 7;
-	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+	engine->stringToCMap( &ch, 1, glyphs, &nglyphs, false );
 	width = int(glyphs[0].advance.x());
     }
     return width;

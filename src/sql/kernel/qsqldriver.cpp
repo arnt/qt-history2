@@ -323,7 +323,7 @@ QString QSqlDriver::escapeIdentifier(const QString &identifier) const
 
 /*!
     Returns a SQL statement of type \a type for the table \a tableName
-    with the values from \a rec. If \a preparedStatement is TRUE, the
+    with the values from \a rec. If \a preparedStatement is true, the
     string will contain placeholders instead of values.
 
     This method can be used to manipulate tables without having to worry
@@ -557,4 +557,3 @@ QString QSqlDriver::formatValue(const QSqlField &field, bool trimStrings) const
     Use the other formatValue() overload instead.
 
 */
-

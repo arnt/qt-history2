@@ -282,7 +282,7 @@ void QAquaFocusWidget::drawFocusRect(QPainter *p) const
     if (isQDPainter(p) || QSysInfo::MacintoshVersion < QSysInfo::MV_10_3) {
         qt_mac_set_port(p);
         QRect r(fo, fo,  width() - (fo*2), height() - (fo*2));
-        DrawThemeFocusRect(qt_glb_mac_rect(r, p, TRUE, QRect(1, 1, 1, 1)), true);
+        DrawThemeFocusRect(qt_glb_mac_rect(r, p, true, QRect(1, 1, 1, 1)), true);
     }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     else {
