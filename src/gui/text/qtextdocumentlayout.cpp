@@ -63,9 +63,9 @@ int QTextDocumentLayoutPrivate::hitTest(QTextBlockIterator bl, const QPoint &poi
 
     QRect textrect = bl.layout()->rect();
 
-    if (pos.y() < textrect.top())
+    if (point.y() < textrect.top())
         return bl.position();
-    if (pos.y() > textrect.bottom())
+    if (point.y() > textrect.bottom())
         return bl.position() + bl.length() - 1;
 
     for (int i = 0; i < tl->numLines(); ++i) {
