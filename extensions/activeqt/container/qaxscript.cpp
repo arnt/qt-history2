@@ -205,10 +205,10 @@ HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXC
 	emit scriptManager->finished(VARIANTToQVariant(*result, 0));
     if (exception)
 	emit scriptManager->finished(exception->wCode, 
-					   BSTRToQString(exception->bstrSource),
-					   BSTRToQString(exception->bstrDescription),
-					   BSTRToQString(exception->bstrHelpFile)
-					  );
+				     BSTRToQString(exception->bstrSource),
+				     BSTRToQString(exception->bstrDescription),
+				     BSTRToQString(exception->bstrHelpFile)
+				    );
     return S_OK;
 }
 
@@ -580,7 +580,8 @@ QAxScript::QAxScript(QObject *parent, const char *name)
 }
 
 /*!
-    Returns a list with all functions available.
+    Returns a list with all functions available. Functions provided by
+    script engines that don't support introspection will not be listed.
 */
 QStringList QAxScript::functions() const
 {
@@ -815,6 +816,11 @@ void QAxScript::unload(const QString &name)
 /*!
     Calls \a function passing \a arguments as parameters, and returns
     the result.
+
+    Functions provided by script engines that don't support introspection 
+    are not available and need to be called directly using 
+    \link QAxBase::dynamicCall() dynamicCall \endlink on the respective 
+    \link scriptEngine() script engine \endlink object.
 
     The call returns when the script execution is finished.
 */
