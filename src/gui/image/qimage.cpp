@@ -2167,8 +2167,7 @@ int QImage::pixelIndex(int x, int y) const
     case 16:
 #endif
     case 32:
-        qWarning("QImage::pixelIndex: Not applicable for %d-bpp images "
-                 "(no palette)", depth());
+        qWarning("QImage::pixelIndex: Not applicable for %d-bpp images (no palette)", depth());
         return 0;
 #endif //QT_NO_IMAGE_TRUECOLOR
     }
@@ -2994,11 +2993,6 @@ QImage QImage::xForm(const QMatrix &matrix) const
 #ifndef QT_NO_IMAGE_DITHER_TO_1
 QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 {
-    if (flags == 1) {
-        // Old code is passing "TRUE".
-        flags = Qt::DiffuseAlphaDither;
-    }
-
     if (isNull() || !hasAlphaBuffer())
         return QImage();
 
@@ -4107,6 +4101,86 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 #undef IWX_PIX
 #endif // QT_NO_PIXMAP_TRANSFORMATION
 
+#include <math.h>
+
+static QImage shearX(const QImage &image, double scale, double shear)
+{
+    qDebug("---> shearX: scale=%f, shear=%f", scale, shear);
+    QImage result(qRound(image.width()*scale + QABS(shear*image.height())), image.height(), 32);
+    result.setAlphaBuffer(true);
+    result.fill(0);
+
+    int height = image.height();
+    int width = image.width();
+    double skewoffset = shear < 0 ? -shear*(height-1) : 0;
+
+    const uchar * const *obits = image.jumpTable();
+    uchar **rbits = result.jumpTable();
+
+    if (scale == 1.) {
+        for (int y = 0; y < height; ++y) {
+            const double skew = shear*y + skewoffset;
+            int skewi = (int(skew*256.));
+            int fraction = skewi & 0xff;
+            skewi >>= 8;
+            const QRgb *oline = reinterpret_cast<const QRgb *>(obits[y]);
+            QRgb *rline = reinterpret_cast<QRgb *>(rbits[y]);
+
+            uint lastPixel = 0;
+            for (int x = 0; x < width; ++x) {
+                QRgb pixel = oline[x];
+                QRgb next = pixel;
+                next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24);
+                    qRgba(
+                        (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
+                        (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
+
+                rline[x+skewi] = pixel - next + lastPixel;
+                lastPixel = next;
+            }
+        }
+    } else if (scale > 1.) {
+    }
+
+    return result;
+}
+
+static QImage shearY(const QImage &image, double scale, double shear)
+{
+    qDebug("---> shearY: scale=%f, shear=%f", scale, shear);
+    QImage result(image.width(), qRound(image.height()*scale + QABS(shear*image.width())), 32);
+    result.setAlphaBuffer(true);
+    result.fill(0);
+
+    int height = image.height();
+    int width = image.width();
+    double skewoffset = shear < 0 ? -shear*(width-1) : 0;
+
+    const QRgb *const *obits = reinterpret_cast<const QRgb * const *>(image.jumpTable());
+    QRgb **rbits = reinterpret_cast<QRgb **>(result.jumpTable());
+    for (int x = 0; x < width; ++x) {
+        const double skew = shear*x + skewoffset;
+        int skewi = (int(skew*256.));
+        int fraction = skewi & 0xff;
+        skewi >>= 8;
+//         qDebug("x=%d, skew=%f, skewi=%d, fraction=%d", x, skew, skewi, fraction);
+
+        uint lastPixel = 0;
+        for (int y = 0; y < height; ++y) {
+            QRgb pixel = obits[y][x];
+            QRgb next = pixel;
+            next = //next & 0x00ffffff + ((fraction*qAlpha(next))>>8 <<24
+                qRgba(
+                    (fraction * qRed(pixel)) >> 8, (fraction * qGreen(pixel)) >> 8,
+                    (fraction * qBlue(pixel)) >> 8, fraction * qAlpha(pixel) >> 8);
+            rbits[y+skewi][x] = pixel - next + lastPixel;
+            lastPixel = next;
+        }
+    }
+    return result;
+}
+
+
 QImage QImage::smoothXForm(const QMatrix &matrix) const
 {
     if (depth() != 32)
@@ -4282,13 +4356,12 @@ QImage QImage::smoothXForm(const QMatrix &matrix) const
     */
     Q_ASSERT(mat.det() > 0);
 
-    double s1 = sqrt(mat.m11()*mat.m11() + mat.m12()*mat.m12());
-    double s2 = s1/mat.det();
 
-    QImage result = rotated.smoothScale(qRound(rotated.width()*s1), qRound(rotated.height()*s2));
-    mat = QMatrix(mat.m11()/s1, mat.m12()/s1, mat.m21()/s2, mat.m22()/s2, 0., 0.);
+     QImage result = rotated.smoothScale(qRound(rotated.width()*mat.m11()), qRound(rotated.height()*mat.m22()));
+     mat = QMatrix(1., mat.m12()/mat.m11(), mat.m21()/mat.m22(), 1., 0., 0.);
 
-    result = result.xForm(mat);
+    result = shearX(result, 1., mat.m12());
+    result = shearY(result, 1., mat.m21());
 
     return result;
 }
