@@ -90,12 +90,12 @@ void QProxyModel::setModel(QAbstractItemModel *model)
                    this, SIGNAL(headerDataChanged(Orientation,int,int)));
         disconnect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                    this, SIGNAL(rowsInserted(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                   this, SIGNAL(rowsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
                    this, SIGNAL(columnsInserted(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                   this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                   this, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
     }
 
@@ -107,12 +107,12 @@ void QProxyModel::setModel(QAbstractItemModel *model)
                 this, SIGNAL(headerDataChanged(Orientation,int,int)));
         connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
                 this, SIGNAL(rowsInserted(QModelIndex,int,int)));
-        connect(d->model, SIGNAL(rowsRemoved(QModelIndex,int,int)),
-                this, SIGNAL(rowsRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsInserted(QModelIndex,int,int)),
                 this, SIGNAL(columnsInserted(QModelIndex,int,int)));
-        connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
-                this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
+        connect(d->model, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)),
+                this, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
     } else {
         d->model = &d->empty;
