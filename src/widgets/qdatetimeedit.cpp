@@ -169,7 +169,7 @@ static void readLocaleSettings()
 
 #ifndef Q_WS_WIN
 	QString sep = d.mid( QMIN( dpos, mpos ) + 2, QABS( dpos - mpos ) - 2 );
-	if ( d.contains( sep ) == 2 ) {
+	if ( d.find( sep ) == 2 ) {
 	    *lDateSep = sep;
 	}
 #endif
@@ -315,7 +315,7 @@ public:
 							     cg.base() );
 	QTextFormat *nf = parag->formatCollection()->format( p.font(),
 							     cg.text() );
-	for ( uint i = 0; i < txt.length(); ++i ) {
+	for ( int i = 0; i < txt.length(); ++i ) {
 	    parag->setFormat( i, 1, nf );
 	    if ( inSectionSelection( i ) )
 		continue;
