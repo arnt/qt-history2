@@ -48,15 +48,15 @@ void QBinTree<T>::destroy()
 }
 
 template <class T>
-void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, void *data)
+void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, QBinTree::Data data)
 {
-    leaf.push_back((int)data);
+    leaf.push_back(data.i);
 }
 
 template <class T>
-void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
+void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTree::Data data)
 {
-    int idx = (int)data;
+    int idx = data.i;
     for (int i = 0; i < leaf.count(); ++i) {
         if (leaf[i] == idx) {
             for (; i < leaf.count() - 1; ++i)
@@ -68,12 +68,12 @@ void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, void *data)
 }
 
 template <class T>
-void QBinTree<T>::climbTree(const QRect &area, callback *function, void *data, int index)
+void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTree::Data data, int index)
 {
     int tvs = nodeCount();
     if (index >= tvs) { // leaf
         int idx = index - tvs;
-        if (tvs) // tvs == 0 => leaf is empty
+        if (tvs) // tvs == 0 means that leaf is empty
             function(leaf(idx), area, visited, data);
         return;
     }
@@ -1317,9 +1317,8 @@ void QListView::doDynamicLayout(const QRect &bounds, int first, int last)
     }
 
     // insert items in tree
-    for (int i = insertFrom; i <= last; i++)
-        d->tree.climbTree(d->tree.item(i).rect(), &QBinTree<QListViewItem>::insert,
-                          reinterpret_cast<void *>(i));
+    for (int i = insertFrom; i <= last; ++i)
+        d->tree.climbTree(d->tree.item(i).rect(), &QBinTree<QListViewItem>::insert, i);
 
     QRect changedRect(topLeft, rect.bottomRight());
     if (clipRegion().boundingRect().intersects(changedRect))
@@ -1461,7 +1460,8 @@ void QListViewPrivate::intersectingDynamicSet(const QRect &area) const
 {
     intersectVector.clear();
     QListViewPrivate *that = const_cast<QListViewPrivate*>(this);
-    that->tree.climbTree(area, &QListViewPrivate::addLeaf, static_cast<void*>(that));
+    QBinTree<QListViewItem>::Data data(static_cast<void*>(that));
+    that->tree.climbTree(area, &QListViewPrivate::addLeaf, data);
 }
 
 void QListViewPrivate::createItems(int to)
@@ -1567,10 +1567,10 @@ int QListViewPrivate::itemIndex(const QListViewItem item) const
 }
 
 void QListViewPrivate::addLeaf(QVector<int> &leaf, const QRect &area,
-                                      uint visited, void *data)
+                               uint visited, QBinTree<QListViewItem>::Data data)
 {
     QListViewItem *vi;
-    QListViewPrivate *_this = static_cast<QListViewPrivate *>(data);
+    QListViewPrivate *_this = static_cast<QListViewPrivate *>(data.ptr);
     for (int i = 0; i < (int)leaf.count(); ++i) {
         int idx = leaf.at(i);
         if (idx < 0)

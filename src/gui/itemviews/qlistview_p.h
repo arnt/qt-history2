@@ -29,16 +29,26 @@ public:
         uint type : 2;
     };
 
-    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, void *data);
+    struct Data
+    {
+        Data(void *p) : ptr(p) {}
+        Data(int n) : i(n) {}
+        union {
+            void *ptr;
+            int i;
+        };
+    };
+
+    typedef void callback(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
 
     inline QBinTree() : depth_(6), visited(0) {}
 
     void create(int n);
     void destroy();
-    static void insert(QVector<int> &leaf, const QRect &area, uint visited, void *data);
-    static void remove(QVector<int> &leaf, const QRect &area, uint visited, void *data);
+    static void insert(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
+    static void remove(QVector<int> &leaf, const QRect &area, uint visited, QBinTree::Data data);
 
-    inline void climbTree(const QRect &rect, callback *function, void *data);
+    inline void climbTree(const QRect &rect, callback *function, QBinTree::Data data);
 
     inline void init(const QRect &area, typename QBinTree::Node::Type type);
     inline void reserve(int size);
@@ -67,7 +77,7 @@ public:
     inline int firstChildIndex(int idx) const;
 
 private:
-    void climbTree(const QRect &rect, callback *function, void *data, int index);
+    void climbTree(const QRect &rect, callback *function, QBinTree::Data data, int index);
     void init(const QRect &area, int depth, typename QBinTree::Node::Type type, int index);
 
     uint depth_ : 8;
@@ -78,7 +88,7 @@ private:
 };
 
 template <class T>
-void QBinTree<T>::climbTree(const QRect &rect, callback *function, void *data)
+void QBinTree<T>::climbTree(const QRect &rect, callback *function, QBinTree::Data data)
 {
     ++visited;
     climbTree(rect, function, data, 0);
@@ -249,8 +259,8 @@ public:
     inline QModelIndex listViewItemToIndex(const QListViewItem item) const
     { return q_func()->model()->index(itemIndex(item), 0, q_func()->root()); }
     int itemIndex(const QListViewItem item) const;
-    static void addLeaf(QVector<int> &leaf,
-                        const QRect &area, uint visited, void *data);
+    static void addLeaf(QVector<int> &leaf, const QRect &area,
+                        uint visited, QBinTree<QListViewItem>::Data data);
     void createStaticRow(int &x, int &y, int &dy, int &wraps, int i,
                          const QRect &bounds, int spacing, int delta);
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
