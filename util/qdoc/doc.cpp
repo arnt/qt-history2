@@ -1494,7 +1494,7 @@ QString Doc::htmlSeeAlso() const
     QStringList::ConstIterator s = sa.begin();
     while ( s != sa.end() ) {
 	QString name = *s;
-	QString text = *s;
+	QString text;
 
 	if ( name.left(5) == QString("\\link") ) {
 	    QStringList toks =
@@ -1511,6 +1511,8 @@ QString Doc::htmlSeeAlso() const
 	}
 
 	QString y = href( name, text );
+	if ( text.isEmpty() )
+	    text = name;
 	if ( y.length() == text.length() && text.left(2) != QString("<a") )
 	    warning( 1, location(), "Unresolved '\\sa' to '%s'",
 		     name.latin1() );
