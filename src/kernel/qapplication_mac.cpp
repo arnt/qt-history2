@@ -123,6 +123,7 @@ static enum { QT_MAC_OFFTHESPOT, QT_MAC_ONTHESPOT } qt_mac_input_spot = QT_MAC_O
 #if defined(QT_DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
+static bool qt_mac_press_and_hold_context = FALSE;
 static EventLoopTimerRef mac_context_timer = NULL;
 static EventLoopTimerUPP mac_context_timerUPP = NULL;
 static DMExtendedNotificationUPP mac_display_changeUPP = NULL;
@@ -275,6 +276,8 @@ static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
     }
     return wpc;
 }
+
+void qt_mac_set_press_and_hold_context(bool b) { qt_mac_press_and_hold_context = b; } //backdoor to enable press and hold
 
 bool qt_nograb()				// application no-grab option
 {
@@ -1931,7 +1934,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    break;
 	}
 	case kEventMouseDown:
-	    if(button == QMouseEvent::LeftButton && !mac_context_timer) {
+	    if(button == QMouseEvent::LeftButton && !mac_context_timer && qt_mac_press_and_hold_context) {
 		remove_context_timer = FALSE;
 		if(!mac_context_timerUPP)
 		    mac_context_timerUPP = NewEventLoopTimerUPP(qt_context_timer_callbk);
