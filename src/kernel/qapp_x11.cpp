@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#138 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#139 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -39,7 +39,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#138 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#139 $")
 
 
 /*****************************************************************************
@@ -1871,7 +1871,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
     if ( event->type == MotionNotify ) {	// mouse move
 	XEvent *xevent = (XEvent *)event;
-	while ( XCheckTypedWindowEvent(x11Display(),id(),MotionNotify,xevent) )
+	while ( XCheckTypedWindowEvent(dpy,id(),MotionNotify,xevent) )
 	    ;					// compress motion events
 	type = Event_MouseMove;
 	pos.rx() = xevent->xmotion.x;
@@ -1908,7 +1908,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	else {					// mouse button released
 	    if ( manualGrab ) {			// release manual grab
 		manualGrab = FALSE;
-		XUngrabPointer( x11Display(), CurrentTime );
+		XUngrabPointer( dpy, CurrentTime );
 	    }
 	    if ( !buttonDown )			// unexpected event
 		return FALSE;
@@ -1935,11 +1935,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 	QMouseEvent e( type, pos, button, state );
 	QApplication::sendEvent( popup, &e );
 	if ( popupWidgets )			// still in popup mode
-	    XAllowEvents( x11Display(), SyncPointer, CurrentTime );
+	    XAllowEvents( dpy, SyncPointer, CurrentTime );
 	else {					// left popup mode
 	    if ( type != Event_MouseButtonRelease && state != 0 ) {
 		manualGrab = TRUE;		// need to manually grab
-		XGrabPointer( x11Display(), mouseActWindow, FALSE,
+		XGrabPointer( dpy, mouseActWindow, FALSE,
 			      (uint)(ButtonPressMask | ButtonReleaseMask |
 			      ButtonMotionMask |
 			      EnterWindowMask | LeaveWindowMask),
@@ -2080,7 +2080,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	QWidget *popup = popupWidgets->last();
 	QApplication::sendEvent( popup, &e );	// send event to popup instead
 	if ( popupWidgets )			// still in popup mode
-	    XAllowEvents( x11Display(), SyncKeyboard, CurrentTime );
+	    XAllowEvents( dpy, SyncKeyboard, CurrentTime );
 	return TRUE;
     }
     return QApplication::sendEvent( this, &e );
@@ -2123,10 +2123,9 @@ static Bool isPaintEvent( Display *, XEvent *ev, XPointer a )
 
 bool QETWidget::translatePaintEvent( const XEvent *event )
 {
-    QRect paintRect( event->xexpose.x,	   event->xexpose.y,
-		     event->xexpose.width, event->xexpose.height );
-    Display  *dpy = x11Display();
-    XEvent    xevent;
+    QRect  paintRect( event->xexpose.x,	   event->xexpose.y,
+		      event->xexpose.width, event->xexpose.height );
+    XEvent xevent;
     PaintEventInfo info;
 
     info.window = id();
@@ -2183,7 +2182,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	return TRUE;				// child widget
     Window child;
     int	   x, y;
-    XTranslateCoordinates( x11Display(), id(), DefaultRootWindow(x11Display()),
+    XTranslateCoordinates( dpy, id(), DefaultRootWindow(dpy),
 			   0, 0, &x, &y, &child );
     QPoint newPos( x, y );
     QSize  newSize( event->xconfigure.width, event->xconfigure.height );
