@@ -15,6 +15,12 @@ done
 
 PLATFORM=$1
 
+# Only used with Qt/Embedded currently
+if [ "$PLATFORM" != "qws" ]
+then
+    PLATFORM=
+fi
+
 export TMAKEPATH=$TMAKEDIR/lib/linux-g++ # Any should do
 
 if [ ! -d $QTDIR/configs ]

@@ -10,6 +10,7 @@
 #	mkdists [options] {version}
 #
 # Options:
+#	-local	Use Qt and Tmake from $QTDIR and $TMAKEDIR
 #	-nodoc	Don't generate documentation
 #	-nowin	Don't generate Windows
 #	-nox11	Don't generate X11
@@ -28,7 +29,11 @@ $doc = 1;
 $version = 0;
 
 for $a ( @ARGV ) {
-    if ( $a eq "-nodoc" ) {
+    if ( $a eq "-local" ) {
+	$local_qt = $ENV{QTDIR};
+	$local_tmake = $ENV{TMAKEDIR};
+	print "Using:\n\tQt:    $local_qt\n\tTMake: $local_tmake\n";
+    } elsif ( $a eq "-nodoc" ) {
 	$doc = undef;
 	print "Will not generate documentation.\n";
     } elsif ( $a =~ /^-no(x11|qws|win)$/ ) {
@@ -41,10 +46,14 @@ for $a ( @ARGV ) {
 
 # okay, figure out what version of Qt to look at, and make a directory
 
-if ( $version =~ /(.*)\.\d+/ ) {
-    $branch = $1;
+if ( $local_qt ) {
+    $version = "0.0.0";
 } else {
-    die "could not figure out what branch to use, stopped";
+    if ( $version =~ /(.*)\.\d+/ ) {
+	$branch = $1;
+    } else {
+	die "could not figure out what branch to use, stopped";
+    }
 }
 $label = "qt/$version";
 $version_digits = $version;
@@ -67,50 +76,57 @@ print "Deleted $deleted files from last time\n" if ( $deleted );
 # at this point, we have a directory structure, possibly full of empty
 # directories.  let's fill it.
 
-print "Checking out Qt $version and tmake\n";
+if ( $local_qt ) {
+    print "Copying local Qt and tmake\n";
 
-open( I, "p4 fstat //depot/qt/$branch/doc.conf |" ) ||
-  die "could not run p4 fstat, stopped";
-$_ = <I>;
-close I;
-die "//depot/qt/$branch/... is not in the depot, stopped"
-  unless ( $_ =~ / depotFile /s );
+    copy_source($local_qt,"$distdir/qt");
+    copy_source($local_tmake,"$distdir/tmake");
+} else {
+    print "Checking out Qt $version and tmake\n";
 
-open( I, "p4 labels |" ) || die "could not run p4 labels, stopped";
-$_ = "\n" . <I>;
-close I;
-die "Label $label does not exist, stopped" unless ( $_ =~ /\nLabel $label /s );
+    open( I, "p4 fstat //depot/qt/$branch/doc.conf |" ) ||
+      die "could not run p4 fstat, stopped";
+    $_ = <I>;
+    close I;
+    die "//depot/qt/$branch/... is not in the depot, stopped"
+      unless ( $_ =~ / depotFile /s );
 
-print "Exporting the entire Qt and tmake depots\n";
+    open( I, "p4 labels |" ) || die "could not run p4 labels, stopped";
+    $_ = "\n" . <I>;
+    close I;
+    die "Label $label does not exist, stopped" unless ( $_ =~ /\nLabel $label /s );
 
-$tmpclient="qt-release-tmp-$name-$$";
-open( I, "p4 client -t qt-release -o $tmpclient |" ) ||
-  die "could not run p4 client, stopped";
-$client = <I>;
-close I;
-$client =~ s@\nRoot:[^\n]*@\nRoot: $distdir@s;
-$client =~ s@/qt/X.Y/@/qt/$branch/@gs;
-$client =~ s@(\nClient: )[^\n]*@$1qt-release-tmp-$$@s;
-$client =~ s@\bnomodtime\b@modtime@s;
+    print "Exporting the entire Qt and tmake depots\n";
 
-open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
-print O $client;
-close O;
-open( I1, "p4 -s -c $tmpclient sync $distdir/qt/...\@$label | grep -v '^info:' |" )
-  || die "could not sync qt, stopped";
-open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/... | grep -v '^info:' |" )
-  || die "could not sync tmake, stopped";
-$_ = "\n" . <I1> . <I2>;
-s/\nexit: [^\n]*//g;
-close I1;
-close I2;
+    $tmpclient="qt-release-tmp-$name-$$";
+    open( I, "p4 client -t qt-release -o $tmpclient |" ) ||
+      die "could not run p4 client, stopped";
+    $client = <I>;
+    close I;
+    $client =~ s@\nRoot:[^\n]*@\nRoot: $distdir@s;
+    $client =~ s@/qt/X.Y/@/qt/$branch/@gs;
+    $client =~ s@(\nClient: )[^\n]*@$1qt-release-tmp-$$@s;
+    $client =~ s@\bnomodtime\b@modtime@s;
 
-open( I, "p4 -s client -d $tmpclient |" )
-  || die "could not run p4 client -d $tmpclient, stopped";
-$_ = "\n" . <I>;
-close I;
-s/\ninfo: [^\n]*//g;
-s/\nexit: [^\n]*//g;
+    open O, "| p4 -s client -i | egrep -v '^(info|exit):'";
+    print O $client;
+    close O;
+    open( I1, "p4 -s -c $tmpclient sync $distdir/qt/...\@$label | grep -v '^info:' |" )
+      || die "could not sync qt, stopped";
+    open( I2, "p4 -s -c $tmpclient sync $distdir/tmake/... | grep -v '^info:' |" )
+      || die "could not sync tmake, stopped";
+    $_ = "\n" . <I1> . <I2>;
+    s/\nexit: [^\n]*//g;
+    close I1;
+    close I2;
+
+    open( I, "p4 -s client -d $tmpclient |" )
+      || die "could not run p4 client -d $tmpclient, stopped";
+    $_ = "\n" . <I>;
+    close I;
+    s/\ninfo: [^\n]*//g;
+    s/\nexit: [^\n]*//g;
+}
 
 $qtdir = "$distdir/qt";
 $ENV{ "QTDIR" } = $qtdir;
@@ -315,7 +331,7 @@ $ENV{"PATH"}="$ENV{TMAKEDIR}/bin:$ENV{PATH}";
 
 # copy the tree to new platform-specific trees
 
-for $platform ( "x11", "windows", "qws" ) {
+for $platform ( "x11", "win", "qws" ) {
     next if $notplatform{$platform};
     print "Making $distdir/$platform\n";
     mkdir "$distdir/$platform", 0777;
@@ -343,7 +359,7 @@ for $platform ( "x11", "windows", "qws" ) {
     }
     find( \&populate, "$distdir/qt" );
     print "  ($files files)\n";
-    if ( $undecideds ) {
+    if ( !$local_qt && $undecideds ) { # Local-copied files are full of junk
 	print "Could not decide whether to kill or keep$undecideds\n";
 	die;
     }
@@ -480,9 +496,9 @@ for $platform ( "x11", "qws" ) {
 # windows stuff
 
 if (!$notplatform{win}) {
-    print "Processing Windows ($distdir/windows)\n";
+    print "Processing Windows ($distdir/win)\n";
 
-    $qtdir = "$distdir/windows/qt";
+    $qtdir = "$distdir/win/qt";
     $ENV{ "QTDIR" } = $qtdir;
 
     sub justwinfiles {
@@ -613,7 +629,7 @@ if (!$notplatform{win}) {
 
     find( \&addfile, $qtdir );
 
-    chdir( "$distdir/windows" );
+    chdir( "$distdir/win" );
     open( O, "| zip -r9q@ $distdir/qtwin$version_digits$type.zip" )
       || die "could not zip up $distdir/qtwin$version_digits$type.zip, stopped";
     foreach $_ ( @binaryfiles ) {
@@ -631,14 +647,18 @@ if (!$notplatform{win}) {
 # back to unix - close the tars, and compress the results after the
 # thing is done
 
-for $platform ( "x11", "embedded" ) {
+print "Packing to distribution archives\n";
+
+for $platform ( "x11", "qws" ) {
     next if $notplatform{$platform};
 
-    close "TAR1$platform" if $platform eq "x11";
-    close "TAR2$platform";
+    $platformname = $platform eq "qws" ? "embedded" : $platform;
 
-    system( "gzip -9 $distdir/qt-$platform-$version$type.tar" ) if $platform eq "x11";
-    system( "gzip -9 $distdir/qt-$platform-$version$type-commercial.tar" );
+    close "TAR1$platformname" if $platform eq "x11";
+    close "TAR2$platformname";
+
+    system( "gzip -9 $distdir/qt-$platformname-$version$type.tar" ) if $platform eq "x11";
+    system( "gzip -9 $distdir/qt-$platformname-$version$type-commercial.tar" );
 }
 
 
@@ -842,4 +862,40 @@ sub prunehelp {
 
 sub prune {
     finddepth( \&prunehelp, $_[0] ) if ( -d $_[0] );
+}
+
+sub copy_source {
+    my $ddir;
+    ($sdir,$ddir) = @_;
+    mkdir $ddir, 0755;
+    open CPIO, "| ( cd $sdir; cpio --quiet -o 2>/dev/null ) | ( cd $ddir; cpio -i --make-directories --quiet )";
+    find(
+	sub {
+	    my $d = "$File::Find::dir";
+	    if (
+		   /\.o$/
+		|| /core/
+		|| /\.obj$/
+		|| /~$/
+		|| /\.bak$/
+		|| /\.moc$/
+		|| /moc_/
+		|| /^tests$/
+		|| /^html$/
+		|| /^lex.yy.c$/
+		|| $d =~ /\/bin$/
+		    && !/^syncqt$/
+		|| /^\.../
+		|| /^lib(-[^\/]*)$/
+		|| -s $_ > 300000 && !/^qstring.cpp$/ && !/\.qpf$/
+		|| $d =~ /examples/ && -f $_ && -x $_
+	    ) {
+		$File::Find::prune = 1 if -d $_;
+		return;
+	    }
+	    $d =~ s/^$sdir/./;
+	    print CPIO "$d/$_\n" unless -d $_;
+	}, $sdir
+    );
+    close CPIO;
 }
