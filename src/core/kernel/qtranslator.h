@@ -80,7 +80,9 @@ class Q_CORE_EXPORT QTranslator : public QObject
     Q_DECLARE_PRIVATE(QTranslator)
 public:
     QTranslator(QObject *parent = 0);
-    QTranslator(QObject * parent, const char * name); // deprecated
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QTranslator(QObject * parent, const char * name);
+#endif
     ~QTranslator();
 
     virtual QTranslatorMessage findMessage(const char *, const char *,
