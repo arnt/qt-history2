@@ -131,7 +131,7 @@ struct QWExtra {
     QSizePolicy size_policy;
 };
 
-class QWidgetPrivate : public QObjectPrivate
+class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
 {
     Q_DECL_PUBLIC( QWidget );
 

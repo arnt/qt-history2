@@ -19,6 +19,7 @@
 #include <qmap.h>
 #include <qpixmap.h>
 #include <qevent.h>
+#include <private/qgl_p.h>
 
 #include <windows.h>
 
@@ -899,14 +900,14 @@ void QGLWidget::init( QGLContext *ctx, const QGLWidget* shareWidget )
     setAttribute(WA_NoSystemBackground, true);
 
     if ( isValid() && context()->format().hasOverlay() ) {
-	olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
-        if ( !olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
-	    delete olcx;
-	    olcx = 0;
+	d->olcx = new QGLContext( QGLFormat::defaultOverlayFormat(), this );
+        if ( !d->olcx->create(shareWidget ? shareWidget->overlayContext() : 0) ) {
+	    delete d->olcx;
+	    d->olcx = 0;
 	    d->glcx->glFormat.setOverlay( FALSE );
 	}
     } else {
-	olcx = 0;
+	d->olcx = 0;
     }
 }
 
@@ -933,7 +934,7 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     if ( !d->glcx->initialized() )
 	glInit();
     resizeGL( width(), height() );
-    if ( olcx ) {
+    if ( d->olcx ) {
 	makeOverlayCurrent();
 	resizeOverlayGL( width(), height() );
     }
@@ -942,17 +943,17 @@ void QGLWidget::resizeEvent( QResizeEvent * )
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    return olcx;
+    return d->olcx;
 }
 
 
 void QGLWidget::makeOverlayCurrent()
 {
-    if ( olcx ) {
-	olcx->makeCurrent();
-	if ( !olcx->initialized() ) {
+    if ( d->olcx ) {
+	d->olcx->makeCurrent();
+	if ( !d->olcx->initialized() ) {
 	    initializeOverlayGL();
-	    olcx->setInitialized( TRUE );
+	    d->olcx->setInitialized( TRUE );
 	}
     }
 }
@@ -960,12 +961,12 @@ void QGLWidget::makeOverlayCurrent()
 
 void QGLWidget::updateOverlayGL()
 {
-    if ( olcx ) {
+    if ( d->olcx ) {
 	makeOverlayCurrent();
 	paintOverlayGL();
-	if ( olcx->format().doubleBuffer() ) {
+	if ( d->olcx->format().doubleBuffer() ) {
 	    if ( d->autoSwap )
-		olcx->swapBuffers();
+		d->olcx->swapBuffers();
 	}
 	else {
 	    glFlush();
