@@ -27,6 +27,7 @@
 **
 **********************************************************************/
 
+#include "qcursor.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qpaintdevicemetrics.h"
@@ -1504,7 +1505,8 @@ unsigned char * QWidget::scanLine(int i) const
 {
     // Should add widget x() here, maybe
     unsigned char * base=qwsDisplay()->frameBuffer();
-    base+=i*bytesPerLine();
+    if(base)
+	base+=i*bytesPerLine();
     return base;
 }
 
