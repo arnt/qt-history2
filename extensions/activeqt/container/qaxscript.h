@@ -5,14 +5,14 @@
 #include <qvariant.h>
 
 class QAxScriptSite;
-class QAxScript;
+class QAxScriptInstance;
 
-class QAxScriptManager : public QObject
+class QAxScript : public QObject
 {
     Q_OBJECT
 
 public:
-    QAxScriptManager( QObject *parent = 0, const char *name = 0 );
+    QAxScript( QObject *parent = 0, const char *name = 0 );
 
     enum ScriptState {
 	Uninitialized = 0,
@@ -29,10 +29,8 @@ public:
 
     bool load(const QString &file, const QString &name = QString());
     bool load(const QString &code, const QString &language, const QString &name );
-
     void unload(const QString &name);
 
-public slots:
     QVariant call(const QString &function, QValueList<QVariant> &arguments = QValueList<QVariant>());
 
 signals:
@@ -43,18 +41,16 @@ signals:
     void stateChanged(int state);
     void error(int code, const QString &description, int sourcePosition, const QString &sourceText);
 
-protected:
-    virtual void updateScripts();
-
 private slots:
     void objectDestroyed(QObject *o);
 
 private:
-    void updateScript(QAxScript*);
-    QAxScript *script(const QString &function) const;
+    void updateScripts();
+    void updateScript(QAxScriptInstance*);
+    QAxScriptInstance *script(const QString &function) const;
 
     friend class QAxScriptSite;
-    friend class QAxScript;
+    friend class QAxScriptInstance;
     QAxScriptSite *scriptSite;
 };
 

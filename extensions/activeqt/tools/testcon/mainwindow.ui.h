@@ -137,7 +137,7 @@ void MainWindow::init()
     dlgInvoke = 0;
     dlgProperties = 0;
     dlgAmbient = 0;
-    scriptManager = 0;
+    script = 0;
     debuglog = logDebug;
     oldDebugHandler = qInstallMsgHandler( redirectDebugOutput );
     QHBoxLayout *layout = new QHBoxLayout( Workbase );
@@ -309,33 +309,33 @@ void MainWindow::renderPixmap()
 
 void MainWindow::runMacro()
 {
-    if (!scriptManager)
+    if (!script)
 	return;
 
-    QStringList macroList = scriptManager->functions();
+    QStringList macroList = script->functions();
     QString macro = QInputDialog::getItem("Select Macro", "Macro:", macroList, 0, FALSE, 0, this);
 
     if (macro.isEmpty())
 	return;
 
-    scriptManager->call(macro);
+    script->call(macro);
 }
 
 void MainWindow::loadScript()
 {
-    QString script = QFileDialog::getOpenFileName(QString::null, "Script Files (*.dsm *.js);;"
-								 "Macro Files (*.dsm);;"
-								 "JavaScript (*.js);;"
-								 "All Files (*.*)",
-						  this, 0, "Open Script");
+    QString file = QFileDialog::getOpenFileName(QString::null, "Script Files (*.dsm *.js);;"
+							       "Macro Files (*.dsm);;"
+							       "JavaScript (*.js);;"
+							       "All Files (*.*)",
+						this, 0, "Open Script");
 
-    if (script.isEmpty())
+    if (file.isEmpty())
 	return;
 
-    if (!scriptManager) {
-	scriptManager = new QAxScriptManager(this);
-	connect(scriptManager, SIGNAL(error(int, const QString&, int, const QString&)),
-			 this,   SLOT(macroError(int,  const QString&, int, const QString&)));
+    if (!script) {
+	script = new QAxScript(this);
+	connect(script, SIGNAL(error(int, const QString&, int, const QString&)),
+		this,   SLOT(macroError(int,  const QString&, int, const QString&)));
     }
 
     QWidgetList widgets = workspace->windowList();
@@ -345,10 +345,10 @@ void MainWindow::loadScript()
 	++it;
 	if (!ax)
 	    continue;
-	scriptManager->addObject(ax);
+	script->addObject(ax);
     }
 
-    if (scriptManager->load(script, script))
+    if (script->load(file, file))
 	actionScriptingRun->setEnabled(TRUE);
 }
 

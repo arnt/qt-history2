@@ -10,10 +10,33 @@
 #include <activscp.h>
 #include "..\shared\types.h"
 
-// Template specialization, as ~QAxScript is private
-template <> void QPtrList<QAxScript>::deleteItem(Item)
+/*
+    \class QAxScriptInstance
+    \brief The QAxScriptInstance class provides a wrapper around scripts.
+    \internal
+*/
+class QAxScriptInstance : public QAxObject
 {
-}
+public:
+    QAxScriptInstance(const QString &name, QAxScript *manager);
+    ~QAxScriptInstance();
+
+    bool isValid() const;
+    QStringList functions() const;
+
+    bool initialize(IUnknown** ptr);
+    void addItem(const QString &name);
+    bool load(const QString &code, const QString &language);
+
+private:
+    QAxScript *script_manager;
+    IActiveScript *script;
+
+    QString script_code;
+    QString script_language;
+    QString script_name;
+};
+
 
 /*
     \class QAxScriptSite
@@ -28,7 +51,7 @@ class QAxScriptSite : public IActiveScriptSite,
 		      public IActiveScriptSiteWindow
 {
 public:
-    QAxScriptSite(QAxScriptManager *manager);
+    QAxScriptSite(QAxScript *manager);
 
     ULONG WINAPI AddRef();
     ULONG WINAPI Release();
@@ -47,49 +70,21 @@ public:
     HRESULT WINAPI GetWindow(HWND *phwnd);
     HRESULT WINAPI EnableModeless(BOOL fEnable);
 
-    QPtrList<QAxScript> scriptList;
+    QPtrList<QAxScriptInstance> scriptList;
     QDict<QAxBase> objectDict;
 
 protected:
     QWidget *topLevelWidget() const;
 
 private:
-    QAxScriptManager *scriptManager;
+    QAxScript *scriptManager;
     unsigned long ref;
 };
 
 /*
-    \class QAxScript qaxscript.h
-    \brief The QAxScript class provides a wrapper around scripts.
-    \internal
-*/
-class QAxScript : public QAxObject
-{
-public:
-    QAxScript(const QString &name, QAxScriptManager *manager);
-    ~QAxScript();
-
-    bool isValid() const;
-    QStringList functions() const;
-
-    bool initialize(IUnknown** ptr);
-    void addItem(const QString &name);
-    bool load(const QString &code, const QString &language);
-
-private:
-    QAxScriptManager *script_manager;
-    IActiveScript *script;
-
-    QString script_code;
-    QString script_language;
-    QString script_name;
-};
-
-
-/*
     Constructs the site for the \a manager.
 */
-QAxScriptSite::QAxScriptSite(QAxScriptManager *manager)
+QAxScriptSite::QAxScriptSite(QAxScript *manager)
 : scriptManager(manager), ref(1)
 {
 }
@@ -194,7 +189,7 @@ HRESULT WINAPI QAxScriptSite::GetDocVersionString(BSTR * /*version*/)
     Implements IActiveScriptSite::OnScriptTerminate
 
     This method is usually not called, but if it is it fires
-    QAxScriptManager::finished().
+    QAxScript::finished().
 */
 HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXCEPINFO *exception)
 {
@@ -214,7 +209,7 @@ HRESULT WINAPI QAxScriptSite::OnScriptTerminate(const VARIANT *result, const EXC
 /*
     Implements IActiveScriptSite::OnEnterScript
 
-    Fires QAxScriptManager::entered() to inform the host that the 
+    Fires QAxScript::entered() to inform the host that the 
     scripting engine has begun executing the script code.
 */
 HRESULT WINAPI QAxScriptSite::OnEnterScript()
@@ -226,7 +221,7 @@ HRESULT WINAPI QAxScriptSite::OnEnterScript()
 /*
     Implements IActiveScriptSite::OnLeaveScript
 
-    Fires QAxScriptManager::finished() to inform the host that the 
+    Fires QAxScript::finished() to inform the host that the 
     scripting engine has returned from executing the script code.
 */
 HRESULT WINAPI QAxScriptSite::OnLeaveScript()
@@ -238,7 +233,7 @@ HRESULT WINAPI QAxScriptSite::OnLeaveScript()
 /*
     Implements IActiveScriptSite::OnScriptError
 
-    Fires QAxScriptManager::error() to inform the host that an 
+    Fires QAxScript::error() to inform the host that an 
     that an execution error occurred while the engine was running the script.
 */
 HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
@@ -256,7 +251,7 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
     if (hres == S_OK)
 	lineText = BSTRToQString(bstrLineText);
     else if (context)
-	lineText = ((QAxScript*)context)->name();
+	lineText = ((QAxScriptInstance*)context)->name();
 
     emit scriptManager->error(exception.wCode, BSTRToQString(exception.bstrDescription),
 				    lineNumber, lineText);
@@ -266,7 +261,7 @@ HRESULT WINAPI QAxScriptSite::OnScriptError(IActiveScriptError *error)
 /*
     Implements IActiveScriptSite::OnStateChange
 
-    Fires QAxScriptManager::stateChanged() to inform the
+    Fires QAxScript::stateChanged() to inform the
     the host that the scripting engine has changed states.
 */
 HRESULT WINAPI QAxScriptSite::OnStateChange(SCRIPTSTATE ssScriptState)
@@ -331,12 +326,12 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 }
 
 /*
-    Constructs a QAxScript object with name \a name and registers
-    it in the QAxScriptManager \a manager.
+    Constructs a QAxScriptInstance object with name \a name and registers
+    it in the QAxScript \a manager.
 
     \a name should not be empty.
 */
-QAxScript::QAxScript(const QString &name, QAxScriptManager *manager )
+QAxScriptInstance::QAxScriptInstance(const QString &name, QAxScript *manager )
 : QAxObject(0, manager, name.latin1()), script_manager(manager), 
   script(0), script_name(name)
 {
@@ -348,10 +343,10 @@ QAxScript::QAxScript(const QString &name, QAxScriptManager *manager )
 }
 
 /*
-    Destroys the QAxScript object, releasing all allocated
+    Destroys the QAxScriptInstance object, releasing all allocated
     resources and unregistering the script from its manager.
 */
-QAxScript::~QAxScript()
+QAxScriptInstance::~QAxScriptInstance()
 {
     if (script_manager)
 	script_manager->scriptSite->scriptList.removeRef(this);
@@ -377,7 +372,7 @@ QAxScript::~QAxScript()
     \i Otherwise the code is interpreted as JScript
     \endlist
 */
-bool QAxScript::load(const QString &code, const QString &language)
+bool QAxScriptInstance::load(const QString &code, const QString &language)
 {
     if (script)
 	return FALSE;
@@ -400,7 +395,7 @@ bool QAxScript::load(const QString &code, const QString &language)
 /*
     \reimp
 */
-bool QAxScript::initialize(IUnknown **ptr)
+bool QAxScriptInstance::initialize(IUnknown **ptr)
 {
     *ptr = 0;
 
@@ -459,9 +454,9 @@ bool QAxScript::initialize(IUnknown **ptr)
     Adds an item \a name to the script engine.
     The item can then be addressed in the script code.
 
-    \sa QAxScriptManager::addObject()
+    \sa QAxScript::addObject()
 */
-void QAxScript::addItem(const QString &name)
+void QAxScriptInstance::addItem(const QString &name)
 {
     if (!script)
 	return;
@@ -473,7 +468,7 @@ void QAxScript::addItem(const QString &name)
     Returns TRUE if the script engine has been initialized
     correctly, otherwise returns FALSE.
 */
-bool QAxScript::isValid() const
+bool QAxScriptInstance::isValid() const
 {
     return script != 0;
 }
@@ -481,7 +476,7 @@ bool QAxScript::isValid() const
 /*
     Returns a list of all functions this script can run.
 */
-QStringList QAxScript::functions() const
+QStringList QAxScriptInstance::functions() const
 {
     QStringList functions;
 
@@ -504,24 +499,23 @@ QStringList QAxScript::functions() const
 }
 
 /*!
-    \class QAxScriptManager qaxscript.h
-    \brief The QAxScriptManager class provides an interface to the Windows Script Host.
+    \class QAxScript qaxscript.h
+    \brief The QAxScript class provides an interface to the Windows Script Host.
 
-    The QAxScriptManager acts as a bridge between the COM objects embedded in
-    the Qt application through QAxObject or QAxWidget, and the scripting languages
+    The QAxScript acts as a bridge between the COM objects embedded in the Qt 
+    application through QAxObject or QAxWidget, and the scripting languages
     available through the Windows Script technologies, usually JScript and VBScript.
 
-    Create one QAxScriptManager for each separate document in your application, and
-    add the COM objects the scripts need to use using addObject(). Then call load() to
-    pass the scripts sources to the script engine, and use call() to invoke the 
-    functions provided by the scripts.
+    Create one QAxScript for each separate document in your application, and
+    add the COM objects the script need to access using addObject(). Then load()
+    the script sources and invoke the functions using call().
 
     The scripts provide feedback to the host application through a signal interface.
     The most important signal is error().
 */
 
 /*!
-    \enum QAxScriptManager::ScriptState
+    \enum QAxScript::ScriptState
 
     The ScriptState enumeration defines the different states a script engine can
     be in.
@@ -534,36 +528,36 @@ QStringList QAxScript::functions() const
     \value Closed The script has been closed.
 */
 
-/*! \fn void QAxScriptManager::entered()
+/*! \fn void QAxScript::entered()
 
     This signal is emitted when a script engine has begun executing code.
 */
 
-/*! \fn void QAxScriptManager::finished()
+/*! \fn void QAxScript::finished()
 
     This signal is emitted when a script engine has returned from executing code.
 */
 
-/*! \overload void QAxScriptManager::finished(const QVariant &result)
+/*! \overload void QAxScript::finished(const QVariant &result)
 
-    \a result contains the result of the script execution if appropriate.
+    \a result contains the script's result if appropriate.
 */
 
-/*! \overload void QAxScriptManager::finished(int code, const QString &source,
+/*! \overload void QAxScript::finished(int code, const QString &source,
 				    const QString &description, const QString &help)
 
     \a code, \a source, \a description and \a help contain exception information
     when the script terminated.
 */
 
-/*! \fn void QAxScriptManager::stateChanged(int state);
+/*! \fn void QAxScript::stateChanged(int state);
 
     This signal is emitted when a script engine changes state.
-    \a state can be any of the values in the ScriptState enumeration.
+    \a state can be any value in the ScriptState enumeration.
 */
 
 /*!
-    \fn void QAxScriptManager::error(int code, const QString &description, 
+    \fn void QAxScript::error(int code, const QString &description, 
 				    int sourcePosition, const QString &sourceText)
 
     This signal is emitted when an execution error occured while running a script.
@@ -573,31 +567,28 @@ QStringList QAxScript::functions() const
 */
 
 /*!
-    Creates a QAxScriptManager object. \a parent and \a name 
+    Creates a QAxScript object. \a parent and \a name 
     are propagated to the QObject constructor.
 
-    You usually create one QAxScriptManager for each document in
+    You usually create one QAxScript for each document in
     your application.
 */
-QAxScriptManager::QAxScriptManager(QObject *parent, const char *name)
+QAxScript::QAxScript(QObject *parent, const char *name)
 : QObject( parent, name )
 {
     scriptSite = new QAxScriptSite(this);
 }
 
 /*!
-    Returns a list of all functions known to this manager.
-
-    This is equivalent of calling QAxScript::functions() on
-    all QAxScript objects returns by scripts()
+    Returns a list with all functions known to this manager.
 */
-QStringList QAxScriptManager::functions() const
+QStringList QAxScript::functions() const
 {
     QStringList functions;
 
-    QPtrListIterator<QAxScript> scriptIt(scriptSite->scriptList);
+    QPtrListIterator<QAxScriptInstance> scriptIt(scriptSite->scriptList);
     while (scriptIt.current()) {
-	QAxScript *script = scriptIt.current();
+	QAxScriptInstance *script = scriptIt.current();
 	++scriptIt;
 
 	functions += script->functions();
@@ -614,7 +605,7 @@ QStringList QAxScriptManager::functions() const
 
     You need to add all objects before loading any scripts.
 */
-void QAxScriptManager::addObject(QAxBase *object)
+void QAxScript::addObject(QAxBase *object)
 {
     QObject *obj = object->qObject();
     QString name = QString::fromLatin1(obj->name());
@@ -629,9 +620,9 @@ void QAxScriptManager::addObject(QAxBase *object)
     Loads the source code in \a file and returns TRUE if successful,
     or FALSE if the code could not be loaded into any script engine.
 
-    The script can later be referred to useing \a name.
+    The code can later be referred to useing \a name.
 
-    The script engine used is determined from the extension of \a file:
+    The script engine used is determined from the file extension:
     \list
     \i If the extension is ".js" the contents are interpreted as JScript
     \i Otherwise the contents are interpreted as VBScript
@@ -642,7 +633,7 @@ void QAxScriptManager::addObject(QAxBase *object)
 
     \sa addObject()
 */
-bool QAxScriptManager::load(const QString &file, const QString &name)
+bool QAxScript::load(const QString &file, const QString &name)
 {
     QFile f(file);
     if (!f.open(IO_ReadOnly))
@@ -660,7 +651,7 @@ bool QAxScriptManager::load(const QString &file, const QString &name)
     else
 	language = "VBScript";
 
-    QAxScript *script = new QAxScript(name, this);
+    QAxScriptInstance *script = new QAxScriptInstance(name, this);
     if (script->load(contents, language))
 	return TRUE;
 
@@ -685,9 +676,9 @@ bool QAxScriptManager::load(const QString &file, const QString &name)
     \i Otherwise the code is interpreted as JScript
     \endlist
 */
-bool QAxScriptManager::load(const QString &code, const QString &language, const QString &name)
+bool QAxScript::load(const QString &code, const QString &language, const QString &name)
 {
-    QAxScript *script = new QAxScript(name, this);
+    QAxScriptInstance *script = new QAxScriptInstance(name, this);
     if (script->load(code, language))
 	return TRUE;
 
@@ -698,22 +689,17 @@ bool QAxScriptManager::load(const QString &code, const QString &language, const 
 /*!
     Adds all objects knows to this manager to all scripts handled
     by this manager.
-
-    Reimplementations of this functions should call this 
-    implemenation.
-
-    \sa addObject()
 */
-void QAxScriptManager::updateScripts()
+void QAxScript::updateScripts()
 {
     QDictIterator<QAxBase> objectIt(scriptSite->objectDict);
     while (objectIt.current()) {
 	QString name = objectIt.getKeyString();
 	++objectIt;
 
-	QPtrListIterator<QAxScript> scriptIt(scriptSite->scriptList);
+	QPtrListIterator<QAxScriptInstance> scriptIt(scriptSite->scriptList);
 	while (scriptIt.current()) {
-	    QAxScript *script = scriptIt.current();
+	    QAxScriptInstance *script = scriptIt.current();
 	    ++scriptIt;
 
 	    script->addItem(name);
@@ -725,11 +711,11 @@ void QAxScriptManager::updateScripts()
     Unloads all scripts with the name \a name. The functions
     in those scripts are no longer available.
 */
-void QAxScriptManager::unload(const QString &name)
+void QAxScript::unload(const QString &name)
 {
-    QPtrListIterator<QAxScript> scriptIt(scriptSite->scriptList);
+    QPtrListIterator<QAxScriptInstance> scriptIt(scriptSite->scriptList);
     while (scriptIt.current()) {
-	QAxScript *script = scriptIt.current();
+	QAxScriptInstance *script = scriptIt.current();
 	++scriptIt;
 
 	if (script->name() == name)
@@ -738,13 +724,14 @@ void QAxScriptManager::unload(const QString &name)
 }
 
 /*!
-    Calls the first script knowing about \a function and passes
-    \a arguments as parameters. The result of calling the function
-    is passed back in the return value.
+    Calls \a function passing \a arguments as parameters, and returns
+    the result.
+
+    The call returns when the script execution is finished.
 */
-QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &arguments)
+QVariant QAxScript::call(const QString &function, QValueList<QVariant> &arguments)
 {
-    QAxScript *s = script(function);
+    QAxScriptInstance *s = script(function);
     if (!s)
 	return QVariant();
 
@@ -756,14 +743,14 @@ QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &a
 /*!
     \internal
 
-    Returns a pointer to the first QAxScript object that knows 
+    Returns a pointer to the first QAxScriptInstance that knows 
     about \a function, or 0 if this function is unknown.
 */
-QAxScript *QAxScriptManager::script(const QString &function) const
+QAxScriptInstance *QAxScript::script(const QString &function) const
 {
-    QPtrListIterator<QAxScript> scriptIt(scriptSite->scriptList);
+    QPtrListIterator<QAxScriptInstance> scriptIt(scriptSite->scriptList);
     while (scriptIt.current()) {
-	QAxScript *script = scriptIt.current();
+	QAxScriptInstance *script = scriptIt.current();
 	++scriptIt;
 
 	if (script->functions().contains(function))
@@ -776,7 +763,7 @@ QAxScript *QAxScriptManager::script(const QString &function) const
 /*!
     \internal
 */
-void QAxScriptManager::updateScript(QAxScript *script)
+void QAxScript::updateScript(QAxScriptInstance *script)
 {
     QDictIterator<QAxBase> objectIt(scriptSite->objectDict);
     while (objectIt.current()) {
@@ -790,7 +777,7 @@ void QAxScriptManager::updateScript(QAxScript *script)
 /*!
     \internal
 */
-void QAxScriptManager::objectDestroyed(QObject *o)
+void QAxScript::objectDestroyed(QObject *o)
 {
     QString name = QString::fromLatin1(o->name());
     scriptSite->objectDict.take(name);
