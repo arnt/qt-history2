@@ -224,7 +224,7 @@ void QAquaAnimate::objDestroyed(QObject *o)
 {
     if (o == d->focus)
 	setFocusWidget(0);
-    while (d->progressBars.remove(static_cast<QProgressBar *>(o)));
+    d->progressBars.remove(static_cast<QProgressBar *>(o));
 }
 bool QAquaAnimate::animatable(QAquaAnimate::Animates as, QListViewItem *l)
 {
