@@ -59,13 +59,22 @@ bool Uic::toBool( const QString& s )
     return s == "true" || s.toInt() != 0;
 }
 
-QString Uic::fixString( const QString &str )
+QString Uic::fixString( const QString &str, bool encode )
 {
-    QString s( str );
-    s.replace( "\\", "\\\\" );
-    s.replace( "\"", "\\\"" );
-    s.replace( "\r", "" );
-    s.replace( "\n", "\\n\"\n\"" );
+    QString s;
+    if ( !encode ) {
+	s = str;
+	s.replace( "\\", "\\\\" );
+	s.replace( "\"", "\\\"" );
+	s.replace( "\r", "" );
+	s.replace( "\n", "\\n\"\n\"" );
+    } else {
+	QCString utf8 = str.utf8();
+	const int l = utf8.length();
+	for ( int i = 0; i < l; ++i )
+	    s += "\\x" + QString::number( (uchar)utf8[i], 16 );
+    }
+
     return "\"" + s + "\"";
 }
 
@@ -75,21 +84,23 @@ QString Uic::trcall( const QString& sourceText, const QString& comment )
 	return "QString::null";
 
     QString t = trmacro;
+    bool encode = FALSE;
     if ( t.isNull() ) {
 	t = "tr";
 	for ( int i = 0; i < (int) sourceText.length(); i++ ) {
 	    if ( sourceText[i].unicode() >= 0x80 ) {
 		t = "trUtf8";
+		encode = TRUE;
 		break;
 	    }
 	}
     }
 
     if ( comment.isEmpty() ) {
-	return t + "( " + fixString( sourceText ) + " )";
+	return t + "( " + fixString( sourceText, encode ) + " )";
     } else {
-	return t + "( " + fixString( sourceText ) + ", " +
-	       fixString( comment ) + " )";
+	return t + "( " + fixString( sourceText, encode ) + ", " +
+	       fixString( comment, encode ) + " )";
     }
 }
 
