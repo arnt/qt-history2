@@ -1642,7 +1642,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
 	if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
-	    chr = 0;
+	    if(chr > 127)
+		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
 	    static UInt32 tmp_state = 0L;
@@ -1660,7 +1661,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		tmp_mod |= kEventKeyModifierNumLockMask;
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
-
+	}
+	if(chr) {
 	    static QTextCodec *c = NULL;
 	    if(!c)
 		c = QTextCodec::codecForName("Apple Roman");
