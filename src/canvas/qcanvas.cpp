@@ -1377,9 +1377,11 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
     }
     allvisible.sort();
 
-    if ( double_buffer ) {
-	QPainter painter;
+    if ( double_buffer )
 	ensureOffScrSize( area.width(), area.height() );
+
+    if ( double_buffer && !offscr.isNull() ) {
+	QPainter painter;
 	painter.begin(&offscr);
 	painter.translate(-area.x(),-area.y());
 	if ( p ) {
