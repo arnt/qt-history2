@@ -2184,7 +2184,7 @@ void FormWindow::drawConnectLine()
 
 QString FormWindow::fileName() const
 {
-    return ff->fileName();
+    return ff->absFileName();
 }
 
 void FormWindow::setFileName( const QString &fn )

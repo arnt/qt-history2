@@ -54,6 +54,7 @@ public:
     FormWindow *formWindow() const;
     SourceEditor *editor() const;
     QString fileName() const;
+    QString absFileName() const;
     QString codeFile() const;
     QString code();
     bool isCodeEdited() const;
@@ -79,7 +80,7 @@ public:
 
 signals:
     void somethingChanged( FormFile* );
-    
+
 private slots:
     void formWindowChangedSomehow();
 

@@ -120,6 +120,11 @@ QString FormFile::fileName() const
     return filename;
 }
 
+QString FormFile::absFileName() const
+{
+    return pro->makeAbsolute( filename );
+}
+
 QString FormFile::codeFile() const
 {
     return filename + codeExtension();

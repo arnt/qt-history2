@@ -147,12 +147,12 @@ QWidget *Resource::widget() const
 
 bool Resource::load( FormFile *ff )
 {
-    if ( !ff || ff->fileName().isEmpty() )
+    if ( !ff || ff->absFileName().isEmpty() )
 	return FALSE;
-    currFileName = ff->fileName();
+    currFileName = ff->absFileName();
     mainContainerSet = FALSE;
 
-    QFile f( ff->fileName() );
+    QFile f( ff->absFileName() );
     f.open( IO_ReadOnly );
 
     bool b = load( ff, &f );
