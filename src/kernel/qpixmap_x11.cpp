@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#147 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -26,9 +26,16 @@
 #include "qglobal.h"
 
 // Uncomment the next line to enable the MIT Shared Memory extension
-#define MITSHM
+//
+// WARNING:  This has some problems:
+//
+//    1. Consumes a 800x600 pixmap
+//    2. Qt does not handle the ShmCompletion message, so you will
+//        get strange effects if you xForm() repeatedly.
+//
+// #define MITSHM
 
-#if defined(_OS_WIN32_)
+#if defined(_OS_WIN32_) && defined(MITSHM)
 #undef MITSHM
 #endif
 
