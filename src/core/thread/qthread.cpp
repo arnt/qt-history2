@@ -70,6 +70,24 @@
 */
 
 /*!
+    \fn void QThread::started();
+
+    This signal is emitted when the thread starts executing.
+*/
+
+/*!
+    \fn void QThread::finished();
+
+    This signal is emitted when the thread has finished executing.
+*/
+
+/*!
+    \fn void QThread::terminated();
+
+    This signal is emitted when the thread is terminated.
+*/
+
+/*!
     \enum QThread::Priority
 
     This enum type indicates how the operating system should schedule

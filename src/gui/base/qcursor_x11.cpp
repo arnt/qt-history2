@@ -216,7 +216,12 @@ void QCursor::setPos(int x, int y)
 }
 
 /*!
-    \overload void QCursor::setPos ( const QPoint & )
+    \fn void QCursor::setPos ( const QPoint &p )
+
+    \overload
+
+    Moves the cursor (hot spot) to the global screen position at point
+    \a p.
 */
 
 

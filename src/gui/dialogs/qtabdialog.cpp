@@ -584,9 +584,7 @@ void QTabDialog::setTabEnabled( const char* name, bool enable )
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
@@ -632,9 +630,7 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
 
   When Apply is clicked, the applyButtonPressed() signal is emitted.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */
@@ -675,9 +671,7 @@ void QTabDialog::setApplyButton()
 
   When Help is clicked, the helpButtonPressed() signal is emitted.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setApplyButton() setCancelButton() helpButtonPressed()
 */
@@ -722,9 +716,7 @@ void QTabDialog::setHelpButton()
 
   When Defaults is clicked, the defaultButtonPressed() signal is emitted.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setApplyButton() setCancelButton() defaultButtonPressed()
 */
@@ -771,9 +763,7 @@ void QTabDialog::setDefaultButton()
   When Cancel is clicked, the cancelButtonPressed() signal is emitted.
   The dialog is closed at the same time.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setApplyButton() setDefaultButton() cancelButtonPressed()
 */
@@ -996,9 +986,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
   and the current settings in the dialog box should be applied to
   the application. The dialog then closes.
 
-  If \a text is a
-  \link QString::operator!() null string\endlink,
-  no button is shown.
+  If \a text is a null string, no button is shown.
 
   \sa setCancelButton() setDefaultButton() applyButtonPressed()
 */

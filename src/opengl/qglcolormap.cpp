@@ -71,6 +71,22 @@
     \sa QGLWidget::setColormap(), QGLWidget::colormap()
 */
 
+/*!
+    \fn Qt::HANDLE QGLColormap::handle()
+
+    \internal
+
+    Returns the handle for this color map.
+*/
+
+/*!
+    \fn void QGLColormap::setHandle(Qt::HANDLE handle)
+
+    \internal
+
+    Sets the handle for this color map to \a handle.
+*/
+
 #include "qglcolormap.h"
 
 QGLColormap::QGLColormapData QGLColormap::shared_null = { Q_ATOMIC_INIT(1), 0, 0 };

@@ -863,6 +863,22 @@ QUrl& QUrl::operator=( const QUrl& url )
 }
 
 /*!
+    \fn bool QUrl::operator!=(const QUrl &url) const
+
+    Returns true if this URL and \a url are not equal; otherwise
+    returns false.
+*/
+
+/*!
+    \fn bool QUrl::operator!=(const QString &url) const
+
+    \overload
+
+    Returns true if this URL and \a url are not equal; otherwise
+    returns false.
+*/
+
+/*!
     Compares this URL with \a url and returns TRUE if they are equal;
     otherwise returns FALSE.
 */

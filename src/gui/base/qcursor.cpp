@@ -260,6 +260,8 @@ QCursor::QCursor(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 
 QCursor cursorTable[Qt::LastCursor + 1];
 bool QCursor::initialized = false;
+
+/*! \internal */
 void QCursor::cleanup()
 {
     if(!initialized)
@@ -272,6 +274,7 @@ void QCursor::cleanup()
     initialized = false;
 }
 
+/*! \internal */
 void QCursor::initialize()
 {
 #ifdef Q_WS_MAC

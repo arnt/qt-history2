@@ -201,7 +201,7 @@ QClipboard::~QClipboard()
 
     Common values for \a subtype are "plain" and "html".
 
-    \sa setText(), data(), QString::operator!()
+    \sa setText(), data()
 */
 QString QClipboard::text( QString &subtype, Mode mode ) const
 {
@@ -220,7 +220,7 @@ QString QClipboard::text( QString &subtype, Mode mode ) const
     QClipboard::Selection, the text is retrieved from the global
     mouse selection.
 
-    \sa setText(), data(), QString::operator!()
+    \sa setText(), data()
 */
 QString QClipboard::text( Mode mode ) const
 {

@@ -955,7 +955,10 @@ QWMatrix operator*( const QWMatrix &m1, const QWMatrix &m2 )
 }
 
 /*!
+    \fn QWMatrix &QWMatrix::operator=(const QWMatrix &matrix)
+
     \relates QWMatrix
+
     Assigns matrix \a matrix's values to this matrix.
 */
 QWMatrix &QWMatrix::operator=(const QWMatrix &matrix)

@@ -48,8 +48,8 @@ public:
     band around a given area (or to represent a single line), then
     call setGeometry() to move and size it; hiding the widget will
     make the rubber band disappear.
-### Why hide it rather than delete it?
 */
+//### Why hide it rather than delete it?
 
 //### How about some nice convenience constructors?
 //QRubberBand::QRubberBand(QRubberBand::Type t, const QRect &rect, QWidget *p)
@@ -159,6 +159,38 @@ QRubberBand::changeEvent(QEvent *ev)
     if(ev->type() == QEvent::StyleChange && autoMask()) 
 	updateMask();
 }
+
+/*!
+    \fn void QRubberBand::move(const QPoint &p);
+
+    Moves the rubberband to point \a p.
+*/
+
+/*!
+    \fn void QRubberBand::move(int x, int y);
+
+    Moves the rubberband to point (\a x, \a y).
+*/
+
+/*!
+    \fn void QRubberBand::resize(const QSize &size);
+
+    Resizes the rubberband so that its new size is \a size.
+*/
+
+/*!
+    \fn void QRubberBand::resize(int width, int height);
+
+    Resizes the rubberband so that its width is \a width, and its
+    height is \a height.
+*/
+
+/*!
+    \fn void QRubberBand::setGeometry(const QRect &rect);
+
+    Changes the rubberband's geometry to the geometry of the rectangle
+    \a rect.
+*/
 
 
 void QRubberBand::setGeometry(int x, int y, int w, int h)

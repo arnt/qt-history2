@@ -493,10 +493,12 @@ void QWidget::unsetCursor()
 #endif //QT_NO_CURSOR
 
 /*!
+    \property QWidget::windowModified
+    \brief whether the window's surface has been modified
+
     \internal
-    Notify Qt that the widget's surface has been modified (if \a mod
-    is TRUE), i.e. that it has been drawn on.
 */
+
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(WA_WindowModified, mod);
@@ -504,11 +506,6 @@ void QWidget::setWindowModified(bool mod)
     QApplication::sendEvent(this, &e);
 }
 
-/*!
-    \internal
-    Returns TRUE if the widget's surface has been modified; otherwise
-    returns FALSE.
-*/
 bool QWidget::isWindowModified() const
 {
     return testAttribute(WA_WindowModified);

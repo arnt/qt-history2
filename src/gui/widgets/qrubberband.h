@@ -27,7 +27,7 @@ class Q_GUI_EXPORT QRubberBand : public QWidget
     Q_DECLARE_PRIVATE(QRubberBand);
 public:
     enum Shape { Line, Rectangle };
-    QRubberBand(Shape, QWidget * =0);
+    QRubberBand(QRubberBand::Shape, QWidget * =0);
     ~QRubberBand();
 
     Shape shape() const;

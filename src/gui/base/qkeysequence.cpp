@@ -299,10 +299,10 @@ bool QKeySequence::isEmpty() const
 
 
 /*!
-    Adds the string \a keyseq to the key sequence. \a keyseq may
+    Adds the string \a ks to the key sequence. \a ks may
     contain up to four key codes, provided they are seperated by a
-    comma, e.g. "Alt+X,Ctrl+S,Z"). Returns the number of key codes
-    added.
+    comma, e.g. "Alt+X,Ctrl+S,Z"). The return value is the number of
+    key codes added.
 */
 int QKeySequence::assign(const QString &ks)
 {

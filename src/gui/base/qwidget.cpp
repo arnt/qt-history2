@@ -1768,6 +1768,40 @@ void QWidget::setEnabled_helper(bool enable)
 }
 
 /*!
+    \fn void QWidget::enabledChange(bool)
+
+    \internal
+*/
+
+/*!
+    \fn void QWidget::paletteChange( const QPalette & )
+
+    \internal
+*/
+
+/*!
+    \fn void QWidget::fontChange( const QFont & )
+
+    \internal
+*/
+
+/*!
+    \fn void QWidget::windowActivationChange( bool )
+
+    \internal
+*/
+
+/*!
+    \fn void QWidget::languageChange()
+
+    \internal
+*/
+
+/*!
+    \fn void QWidget::styleChange( QStyle& )
+*/
+
+/*!
     Disables widget input events if \a disable is TRUE; otherwise
     enables input events.
 
@@ -3411,7 +3445,7 @@ QRect QWidget::contentsRect() const
 */
 
 /*!
-    \enum QWidget::FocusPolicy
+    \enum Qt::FocusPolicy
 
     This enum type defines the various policies a widget can have with
     respect to acquiring keyboard focus.
@@ -3536,7 +3570,7 @@ QSize qt_initial_size(QWidget *w) {
     polishEvent().
 
     \sa showEvent(), hide(), showMinimized(), showMaximized(),
-    showNormal(), isVisible(), polish()
+    showNormal(), isVisible()
 */
 
 void QWidget::show()
@@ -4267,6 +4301,22 @@ QSize QWidget::minimumSizeHint() const
   \internal
 
   Returns the current widget state.
+*/
+
+/*!
+    \fn void QWidget::setWState(WState f)
+
+    \internal
+
+    ORs the widget's state with state \a f.
+*/
+
+/*!
+    \fn void QWidget::clearWState(WState f)
+
+    \internal
+
+    ANDs the widget's state with state NOT \a f.
 */
 
 
@@ -5084,6 +5134,9 @@ void QWidget::resizeEvent( QResizeEvent * )
 	updateMask();
 }
 
+/*!
+    \internal
+*/
 void QWidget::actionEvent( QActionEvent * )
 {
 
@@ -5396,7 +5449,7 @@ bool QWidget::qwsEvent( QWSEvent * )
     together seamlessly, you will probably want to use
     setBackgroundOrigin() rather than a mask.
 
-    \sa autoMask() updateMask() setMask() clearMask() setBackgroundOrigin()
+    \sa autoMask() updateMask() setMask() clearMask()
 */
 
 bool QWidget::autoMask() const
@@ -5629,7 +5682,7 @@ void QWidget::setParent(QWidget *parent, WFlags f)
     called from paintEvent(), you may get infinite recursion. The
     update() function never causes recursion.
 
-    \sa update(), paintEvent(), setUpdatesEnabled(), erase()
+    \sa update(), paintEvent(), setUpdatesEnabled()
 */
 
 void QWidget::repaint()
@@ -5690,8 +5743,7 @@ void QWidget::repaint(const QRect &r)
     If the \c WRepaintNoErase widget flag is set, the widget is
     responsible for painting all its pixels itself.
 
-    \sa repaint(), paintEvent(), setUpdatesEnabled(), erase(),
-    setWFlags()
+    \sa repaint() paintEvent(), setUpdatesEnabled(), setWFlags()
 */
 
 /*! \fn void QWidget::update(int x, int y, int w, int h)
@@ -5930,7 +5982,7 @@ const QPixmap *QWidget::icon() const
     Sets the attribute \a attribute on this widget if \a b is true;
     otherwise clears the attribute.
 
-  \sa hasAttribute()
+  \sa testAttribute()
  */
 void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {

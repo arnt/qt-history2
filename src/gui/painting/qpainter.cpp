@@ -209,6 +209,14 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 */
 
 /*!
+    \enum QPainter::RenderHint
+
+    \internal
+
+    \value LineAntialiasing
+*/
+
+/*!
     \enum QPainter::CoordinateMode
     \value CoordDevice
     \value CoordPainter
@@ -223,6 +231,12 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
     \value LTR left to right
 
     \sa drawText()
+*/
+
+/*!
+    \fn QPaintEngine *QPaintDevice::engine() const
+
+    \internal
 */
 
 /*!

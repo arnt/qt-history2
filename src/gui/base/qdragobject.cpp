@@ -273,6 +273,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 }
 
 
+/*! \internal */
 QDragObject::QDragObject(QDragObjectPrivate &dd, QWidget *dragSource)
     : QObject(dd, dragSource)
 {
@@ -669,6 +670,7 @@ QTextDrag::QTextDrag( QWidget * dragSource, const char * name )
 }
 
 
+/*! \internal */
 QTextDrag::QTextDrag(QTextDragPrivate &dd, QWidget *dragSource)
     : QDragObject(dd, dragSource)
 {
@@ -970,6 +972,7 @@ QImageDrag::QImageDrag( QWidget * dragSource, const char * name )
     setObjectNameConst(name);
 }
 
+/*! \internal */
 QImageDrag::QImageDrag(QImageDragPrivate &dd, QWidget *dragSource)
     : QDragObject(dd, dragSource)
 {
@@ -1178,6 +1181,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
     d->fmt = qstrdup(mimeType);
 }
 
+/*! \internal */
 QStoredDrag::QStoredDrag(QStoredDragPrivate &dd,  const char* mimeType, QWidget * dragSource)
     : QDragObject(dd, dragSource)
 {

@@ -62,6 +62,24 @@
 
 */
 
+/*!
+    \enum QMetaMember::Access
+
+    \internal
+*/
+
+/*!
+    \fn QMetaEnum::operator bool() const
+
+    Returns true if this member has a name; otherwise returns false.
+*/
+
+/*!
+    \fn QMetaProperty::operator bool() const
+
+    Returns true if this property is readable; otherwise returns false.
+*/
+
 enum ProperyFlags  {
     Invalid		= 0x00000000,
     Readable		= 0x00000001,
@@ -107,12 +125,6 @@ static inline const QMetaObjectPrivate *priv(const uint* data)
 
     Returns the meta object of the super class or 0 if there is no
     such object.
-*/
-
-/*!
-    \fn const char *QMetaObject::superClassName() const
-
-    \obsolete
 */
 
 /*!
