@@ -1384,10 +1384,12 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(r, p);
 	ttdi.min = scrollbar->minimum();
 	ttdi.max = scrollbar->maximum();
-	ttdi.value = scrollbar->invertedAppearance() ? scrollbar->maximum() - scrollbar->value() : scrollbar->value();
+	ttdi.value = scrollbar->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(scrollbar->orientation() == Qt::Horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
+        if (scrollbar->invertedAppearance())
+            ttdi.attributes |= kThemeTrackRightToLeft;
 	if(!qAquaActive(pal))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!scrollbar->isEnabled())
@@ -1422,10 +1424,7 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	ttdi.bounds = *qt_glb_mac_rect(widget->rect(), p);
 	ttdi.min = sldr->minimum();
 	ttdi.max = sldr->maximum();
-        if ((!horizontal && !invertedAppearance) || (horizontal && invertedAppearance))
-            ttdi.value = sldr->maximum() - sldr->value();
-        else
-            ttdi.value = sldr->value();
+        ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 #if QT_MACOSX_VERSION >= 0x1020
 	if(flags & Style_HasFocus)
@@ -1433,6 +1432,8 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
 #endif
 	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
+        if (!horizontal == !invertedAppearance)
+            ttdi.attributes |= kThemeTrackRightToLeft;
 	if(widget->isEnabled())
 	    ttdi.enableState |= kThemeTrackActive;
 	if(!qAquaActive(pal))
@@ -1775,13 +1776,12 @@ QRect QMacStyleQD::querySubControlMetrics(ComplexControl control,
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minimum();
 	ttdi.max = sldr->maximum();
-        if ((!horizontal && !invertedAppearance) || (horizontal && invertedAppearance))
-            ttdi.value = sldr->maximum() - sldr->value();
-        else
-            ttdi.value = sldr->value();
+        ttdi.value = sldr->value();
 	ttdi.attributes |= kThemeTrackShowThumb;
 	if(horizontal)
 	    ttdi.attributes |= kThemeTrackHorizontal;
+        if (!horizontal == !invertedAppearance)
+            ttdi.attributes |= kThemeTrackRightToLeft;
 	if(!qAquaActive(sldr->palette()))
 	    ttdi.enableState = kThemeTrackInactive;
 	else if(!sldr->isEnabled())

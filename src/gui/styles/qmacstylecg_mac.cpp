@@ -482,10 +482,8 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         tdi.bounds = *qt_glb_mac_rect(r, p);
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-        if (!horizontal == !invertedAppearance)
-            tdi.value = slider->maximum() - slider->sliderPosition();
-        else
-            tdi.value = slider->sliderPosition();
+        tdi.value = slider->sliderPosition();
+
         tdi.reserved = 0;
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR) {
@@ -494,6 +492,8 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
         }
 	if (horizontal)
 	    tdi.attributes |= kThemeTrackHorizontal;
+        if (!horizontal == !invertedAppearance)
+            tdi.attributes |= kThemeTrackRightToLeft;
 	tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
 	if (slider->tickmarks() == QSlider::NoMarks || slider->tickmarks() == QSlider::Both)
 	    tdi.trackInfo.slider.thumbDir = kThemeThumbPlain;
@@ -511,10 +511,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
             HIThemeGetTrackThumbShape(&tdi, &shape);
             HIShapeGetBounds(shape, &macRect);
             CFRelease(shape);
-            if (!horizontal == !invertedAppearance)
-                tdi.value = slider->maximum() - slider->value();
-            else
-                tdi.value = slider->value();
+            tdi.value = slider->value();
 	}
         HIThemeDrawTrack(&tdi, tracking ? 0 : &macRect, static_cast<CGContextRef>(p->handle()),
                          kHIThemeOrientationNormal);
@@ -524,6 +521,20 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                                       kHIThemeOrientationNormal);
         }
         break; }
+//    case CC_ScrollBar: {
+//        const QScrollBar *scrollbar = static_cast<const QScrollBar *>(w);
+//        HIThemeTrackDrawInfo tdi;
+//        tdi.version = qt_mac_hitheme_version;
+//        tdi.kind = qt_aqua_size_constrain(w) == QAquaSizeSmall ? kThemeSmallScrollBar
+//                                                               : kThemeMediumScrollBar;
+//        tdi.bounds = *qt_glb_mac_rect(r, p);
+//        tdi.min = scrollbar->minimum();
+//        tdi.max = scrollbar->maximum();
+//        tdi.value = invertedAppearance() ? scrollbar->maximum() - scrollbar->sliderPosition()
+//                                         : scrollbar->sliderPosition();
+//        tdi.reserved = 0;
+//        
+//        break; }
     default:
         QWindowsStyle::drawComplexControl(control, p, w, r, pal, flags, sub, subActive, opt);
     }
@@ -590,15 +601,14 @@ QRect QMacStyleCG::querySubControlMetrics(ComplexControl control, const QWidget 
         tdi.bounds = *qt_glb_mac_rect(widget->rect());
         tdi.min = slider->minimum();
         tdi.max = slider->maximum();
-        if (!horizontal == !invertedAppearance)
-            tdi.value = slider->maximum() - slider->sliderPosition();
-        else
-            tdi.value = slider->sliderPosition();
+        tdi.value = slider->sliderPosition();
         tdi.attributes = kThemeTrackShowThumb;
         if (qMacVersion() >= Qt::MV_JAGUAR && slider->hasFocus())
             tdi.attributes |= kThemeTrackHasFocus;
         if (horizontal)
             tdi.attributes |= kThemeTrackHorizontal;
+        if (!horizontal == !invertedAppearance)
+            tdi.attributes |= kThemeTrackRightToLeft;
         tdi.enableState = slider->isEnabled() ? kThemeTrackActive : kThemeTrackDisabled;
         if (slider->tickmarks() == QSlider::Above)
             tdi.trackInfo.slider.thumbDir = kThemeThumbUpward;
