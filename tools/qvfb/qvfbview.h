@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-#include <qscrollview.h>
+#include <qwidget.h>
 
 class QImage;
 class QTimer;
@@ -18,12 +18,11 @@ class QAnimationWriter;
 class QLock;
 struct QVFbHeader;
 
-class QVFbView : public QScrollView
+class QVFbView : public QWidget
 {
     Q_OBJECT
 public:
-    QVFbView( int display_id, int w, int h, int d, QWidget *parent = 0,
-		const char *name = 0, Qt::WFlags = 0 );
+    QVFbView( int display_id, int w, int h, int d, QWidget *parent = 0, Qt::WFlags = 0 );
     ~QVFbView();
 
     int displayId() const;
@@ -67,12 +66,11 @@ protected:
     void sendMouseData( const QPoint &pos, int buttons );
     void sendKeyboardData( int unicode, int keycode, int modifiers,
 			   bool press, bool repeat );
-    virtual bool eventFilter( QObject *obj, QEvent *e );
-    virtual void viewportPaintEvent( QPaintEvent *pe );
-    virtual void contentsMousePressEvent( QMouseEvent *e );
-    virtual void contentsMouseDoubleClickEvent( QMouseEvent *e );
-    virtual void contentsMouseReleaseEvent( QMouseEvent *e );
-    virtual void contentsMouseMoveEvent( QMouseEvent *e );
+    virtual void paintEvent( QPaintEvent *pe );
+    virtual void mousePressEvent( QMouseEvent *e );
+    virtual void mouseDoubleClickEvent( QMouseEvent *e );
+    virtual void mouseReleaseEvent( QMouseEvent *e );
+    virtual void mouseMoveEvent( QMouseEvent *e );
     virtual void keyPressEvent( QKeyEvent *e );
     virtual void keyReleaseEvent( QKeyEvent *e );
 
@@ -89,6 +87,8 @@ private:
     int rmax;
     int gmax;
     int bmax;
+    int contentsWidth;
+    int contentsHeight;
     double gred, ggreen, gblue;
     QRgb* gammatable;
     QLock *qwslock;

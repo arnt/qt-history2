@@ -33,6 +33,7 @@
 #include <qcursor.h>
 #include <qdragobject.h>
 #include <qcheckbox.h>
+#include <qwidgetview.h>
 //#include <yet.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *parent,
@@ -49,6 +50,7 @@ QVFb::QVFb( int display_id, int w, int h, int d, const QString &skin, QWidget *p
 #endif
     rateDlg = 0;
     view = 0;
+    scroller = 0;
     init( display_id, w, h, d, skin );
     createActions();
     createMenuBar();
@@ -62,36 +64,36 @@ QVFb::~QVFb()
 void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
 {
     setWindowTitle( QString("Virtual framebuffer %1x%2 %3bpp Display :%4")
-		    .arg(w).arg(h).arg(d).arg(display_id) );
+                    .arg(w).arg(h).arg(d).arg(display_id) );
     delete view;
+    delete scroller;
 
     if ( !skin_name.isEmpty() && QFile::exists(skin_name) ) {
-	bool vis = isVisible();
-	if ( vis ) hide();
-	menuBar()->hide();
-	Skin *skin = new Skin( this, skin_name, w, h );
-	view = new QVFbView( display_id, w, h, d, skin );
-	skin->setView( view );
-//	view->setMargin( 0 );
-	view->setFrameStyle( QFrame::NoFrame );
-	view->setFixedSize( w, h );
-	setCenterWidget( skin );
-	adjustSize();
-	view->show();
-	if ( vis ) show();
+        bool vis = isVisible();
+        if ( vis ) hide();
+        menuBar()->hide();
+        Skin *skin = new Skin( this, skin_name, w, h );
+        view = new QVFbView( display_id, w, h, d, skin );
+        skin->setView( view );
+        view->setFixedSize( w, h );
+        setCenterWidget( skin );
+        scroller = 0;
+        adjustSize();
+        view->show();
+        if ( vis ) show();
     } else {
-	if ( !currentSkin.isEmpty() ) {
-	    clearMask();
-	    setParent(0, 0);
-	    show();
-	}
-	menuBar()->show();
-	view = new QVFbView( display_id, w, h, d, this );
-//	view->setMargin( 0 );
-	view->setFrameStyle( QFrame::NoFrame );
-	setCenterWidget( view );
-	resize( sizeHint() );
-	view->show();
+        if ( !currentSkin.isEmpty() ) {
+            clearMask();
+            setParent(0, 0);
+            show();
+        }
+        menuBar()->show();
+        scroller = new QWidgetView(this);
+        view = new QVFbView( display_id, w, h, d, scroller );
+        scroller->setWidget(view);
+        setCenterWidget(scroller);
+        scroller->show();
+        resize(sizeHint());
     }
 
     currentSkin = skin_name;
@@ -192,7 +194,7 @@ void QVFb::createMenuBar()
 
 void QVFb::enableCursor( bool e )
 {
-    view->viewport()->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
+    view->setCursor( e ? Qt::ArrowCursor : Qt::BlankCursor );
     actions[CursorAct]->setChecked(e);
 }
 

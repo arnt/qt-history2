@@ -17,19 +17,23 @@
 #include <qslider.h>
 #include <qpushbutton.h>
 
-QVFbRateDialog::QVFbRateDialog( int rate, QWidget *parent, const char *name,
-    bool modal )
-    : QDialog( parent, name, modal )
+QVFbRateDialog::QVFbRateDialog(int rate, QWidget *parent)
+    : QDialog(parent)
 {
     oldRate = rate;
 
-    QVBoxLayout *tl = new QVBoxLayout( this, 5 );
+    QVBoxLayout *tl = new QVBoxLayout(this);
+    tl->setMargin(5);
 
     QLabel *label = new QLabel( "Target frame rate:", this );
     tl->addWidget( label );
 
     QHBoxLayout *hl = new QHBoxLayout( tl );
-    rateSlider = new QSlider( 1, 100, 10, rate, Qt::Horizontal, this );
+    rateSlider = new QSlider(Qt::Horizontal, this);
+    rateSlider->setRange(1,100);
+    rateSlider->setPageStep(10);
+    rateSlider->setValue(rate);
+
     hl->addWidget( rateSlider );
     connect( rateSlider, SIGNAL(valueChanged(int)), this, SLOT(rateChanged(int)) );
     rateLabel = new QLabel( QString( "%1fps" ).arg(rate), this );

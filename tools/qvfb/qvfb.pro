@@ -1,6 +1,5 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on debug uic
-QT += compat
 HEADERS         = qvfb.h qvfbview.h qvfbratedlg.h qanimationwriter.h \
                   gammaview.h skin.h config.h
 SOURCES         = qvfb.cpp qvfbview.cpp qvfbratedlg.cpp \

@@ -60,7 +60,7 @@ int main( int argc, char *argv[] )
 
     int displayId = 0;
     QRegExp rx( ":[0-9]" );
-    int m = rx.search( displaySpec, 0 );
+    int m = rx.indexIn(displaySpec, 0);
     if ( m >= 0 ) {
 	displayId = displaySpec.mid( m+1, rx.matchedLength()-1 ).toInt();
     }
