@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#68 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#69 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#68 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#69 $");
 
 static const int autoRepeatPeriod = 200;
 
@@ -33,8 +33,7 @@ static const int autoRepeatPeriod = 200;
   The QButton class implements an abstract button, and lets subclasses
   specify how to reply to user actions and how to draw the button.
 
-  QButton provides both push and toggle buttons; setToggleButton()
-  toggles between toggle and non-toggle buttons.  The QRadioButton and
+  QButton provides both push and toggle buttons.  The QRadioButton and
   QCheckBox classes provide only toggle buttons, QPushButton provides
   both toggle and push buttons.
 
@@ -81,7 +80,7 @@ static const int autoRepeatPeriod = 200;
   </ul>
 
   If the button is a text button with "&" in its text, QButton creates
-  an automatic accelerator key.  This code make a push button labelled
+  an automatic accelerator key.  This code makes a push button labelled
   "Rock & Roll" (where the c is underscored) and an automatic
   accelerator key, Alt-C:
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#107 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#106 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#107 $");
 
 
 Q_DECLARE(QListM, QListBoxItem);
@@ -470,6 +470,16 @@ QListBox::~QListBox()
   index of the selected item.
 
   \sa highlighted()
+*/
+
+/*! \fn void QListBox::selected( int index, bool status )
+
+  This signal is emitted when the user changes the selectedness of an
+  item in a multiple-selection listbox or an extended-selection
+  listbox.
+
+  The arguments are the selected item's index and TRUE if the item is
+  now selected, and FALSE if it is not.
 */
 
 /*! \fn void QListBox::selected( const char * )
