@@ -304,7 +304,10 @@ int main( int argc, char **argv )
 	    run_test(a);
 	}
     }
-    delete painter;
+    if ( painter ) {
+	painter->end();
+	delete painter;
+    }
     delete widget;
     delete pixmap;
     delete perf_dict;
