@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#9 $
 **
 ** Implementation of QSocket class
 **
@@ -689,6 +689,7 @@ int QSocket::writeBlock( const char *data, uint len )
 	memcpy( a->data()+i, data, len );
     } else {					// append new buffer
 	a = new QByteArray( len );
+	memcpy( a->data(), data, len );
 	d->wba.append( a );
     }
     d->wsize += len;
@@ -724,6 +725,7 @@ QString QSocket::readLine()
 	return QString("");
     QByteArray a(256);
     scanNewline( &a );
+    at( a.size() );				// skips the data read
     QString s( a );
     return s;
 }
@@ -813,6 +815,9 @@ void QSocket::sn_write()
 	QByteArray *a = d->wba.first();
 	int nwritten = d->socket->writeBlock( a->data() + d->windex,
 					      a->size() - d->windex );
+#if defined(QSOCKET_DEBUG)
+	QString s(a->data()+d->windex,nwritten);
+#endif
 	if ( nwritten == (int)a->size() - d->windex ) {
 	    d->wba.remove();
 	    d->windex = 0;
@@ -820,6 +825,10 @@ void QSocket::sn_write()
 	    d->windex += nwritten;
 	}
 	d->wsize -= nwritten;
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_write: wrote %d bytes (%s), %d left", nwritten,
+	       s.ascii(), d->wsize );
+#endif
     }
     d->wsn->setEnabled( d->wsize > 0 );		// write if there's data
 }

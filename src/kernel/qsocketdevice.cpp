@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsocketdevice.cpp#7 $
 **
 ** Implementation of QSocketDevice class
 **
@@ -225,9 +225,17 @@ QSocketDevice::QSocketDevice( Type type )
     switch ( type ) {				// create a socket
 	case Stream:
 	    s = ::socket( AF_INET, SOCK_STREAM, 0 );
+#if defined(QSOCKETDEVICE_DEBUG)
+	    debug( "QSocketDevice::QSocketDevice: Created stream socket %x",
+		   s );
+#endif
 	    break;
 	case Datagram:
 	    s = ::socket( AF_INET, SOCK_DGRAM, 0 );
+#if defined(QSOCKETDEVICE_DEBUG)
+	    debug( "QSocketDevice::QSocketDevice: Created datagram socket %x",
+		   s );
+#endif
 	    break;
 	default:
 #if defined(CHECK_RANGE)
@@ -259,8 +267,13 @@ QSocketDevice::QSocketDevice( int socket, Type type )
 }
 
 
+/*!
+  Destroys the socket device and closes the socket if it is open.
+*/
+
 QSocketDevice::~QSocketDevice()
 {
+    close();
 }
 
 
@@ -351,6 +364,9 @@ void QSocketDevice::close()
     ::closesocket( sock_fd );
 #else
     ::close( sock_fd );
+#endif
+#if defined(QSOCKETDEVICE_DEBUG)
+    debug( "QSocketDevice::close: Closed socket %x", sock_fd );
 #endif
     sock_fd = -1;
 }
@@ -672,7 +688,7 @@ int QSocketDevice::bytesAvailable() const
     return nbytes;
 #endif
 #if defined(_OS_WIN32_)
-    u_long nbytes;
+    u_long nbytes = 0;
     if ( ::ioctlsocket(sock_fd, FIONREAD, &nbytes) < 0 )
 	return -1;
     return nbytes;
