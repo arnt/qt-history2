@@ -38,13 +38,13 @@ fi
 
 if [ "$relpath" != `pwd` ]
 then
-    #setup the magic variable
+    # setup the magic variable
     outpath=`pwd`
 
     echo "Preparing build tree..."
     mkdir -p $outpath/bin #make build dir
 
-    #need a top level makefile, prefer gnu internally
+    # need a top level makefile, prefer gnu internally
     if [ -f $relpath/GNUmakefile ]
     then
 	rm -f $outpath/Makefile
@@ -105,14 +105,14 @@ then
     rm -f $outpath/doc
     ln -s $relpath/doc $outpath/doc
 
-    #binaries from qt
+    # binaries from qt
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
-    #hacky src line
+    # hacky src line
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
-    # Override the Windows Makefile
+    # override the Windows Makefile
     if [ -f "$relpath/GNUmakefile" ]
     then
 	rm -f $outpath/Makefile
@@ -250,6 +250,7 @@ then
     Licensee="Trolltech"
     Products="qt-internal"
     EMB="/Embedded"       ### fixme again
+# Commercial edition - needs a license.
 else
     if [ -f $relpath/LICENSE ]
     then
@@ -408,14 +409,14 @@ QMAKE_PROJECTS=""
 QMAKE_IGNORE_PROJECTS=""
 CONCURRENT=0
 
-#qt installs
+# qt installs
 QT_INSTALL_PREFIX=/usr/local/qt
 QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
 QT_INSTALL_BINS=
 
-# Parse the arguments, setting things to "yes" or "no".
+# parse the arguments, setting things to "yes" or "no"
 while [ -n "$1" ]
 do
    case $1 in
@@ -903,7 +904,7 @@ if [ '!' -d "$QMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/compiler not supported: ' $QMAKESPEC
+    echo '   The specified platform/compiler is not supported: ' $QMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
@@ -913,7 +914,7 @@ if [ '!' -d "$XQMAKESPEC" ]
 then
     echo
     echo
-    echo '   The specified platform/xcompiler not supported: ' $XQMAKESPEC
+    echo '   The specified platform/xcompiler is not supported: ' $XQMAKESPEC
     echo '   Please see the PLATFORMS file for a complete list.'
     echo
     echo
@@ -1080,19 +1081,47 @@ then
     #   	we should disable XKB support on Solaris + Xsun only, not on
     #   	Solaris + XFree86. But then how to detect Xsun vs. XFree86?
     #   Work around link-time problems on Tru64
-    if [ `uname -s` = "OSF1" -o `uname -s` = "SunOS" -a `uname -r` = "5.7" ]
-    then
+    case $PLATFORM in
+    solaris-*)
+	UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+	case "$UNAME_RELEASE" in
+	5.7)
+	    if [ "x$VERBOSE" = "xyes" ]
+	    then
+		echo "XKB extension is not supported on this platform."
+	    fi
+	    XKB=no
+	    ;;
+	esac
+	;;
+    tru64-*)
 	if [ "x$VERBOSE" = "xyes" ]
 	then
-	   echo "XKB extension is not supported on this platform."
+	    echo "XKB extension is not supported on this platform."
 	fi
 	XKB=no
-    fi
+	;;
+    esac
     if [ $XKB != no ]
     then
 	XKB=yes
 	$x11tests/xkb.test $XQMAKESPEC $VERBOSE && XKB=no
     fi
+    # Work around broken X11 headers when using GCC 2.95 and better
+    # 	Solaris 2.5.1 and 2.6 with Xsun:
+    #   	Patches are available for Solaris 7 and Solaris 8 but
+    #   	not for earlier versions. Work around by adding flag
+    #   	-fpermissive if Solaris is 2.5 or 2.6 and gcc is 2.95.
+    case $PLATFORM in
+    solaris-g++)
+	UNAME_RELEASE=`(uname -r) 2>/dev/null` || UNAME_RELEASE=unknown
+	case "$UNAME_RELEASE" in
+	5.5*|5.6)
+	    QMAKE_VARS="$QMAKE_VARS QMAKE_CXXFLAGS+=-fpermissive"
+	    ;;
+	esac
+	;;
+    esac
 fi
 
 # Next, emit a usage message if something failed.
