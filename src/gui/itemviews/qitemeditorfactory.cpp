@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include "qitemeditorfactory.h"
 #include <qcombobox.h>
 #include <qdatetimeedit.h>

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <qplatformdefs.h>
 #include <qimageio.h>
 #include <qasyncimageio.h>
 #include <qimage.h>
