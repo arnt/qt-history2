@@ -4,11 +4,9 @@
 # Read PORTING for instructions how to port Qt to a new platform.
 
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
-QMFILE=Makefile
 FORCEDEP=FORCE
 CONTINUEONERROR=/K
 !ELSE
-QMFILE=Makefile.borland
 FORCEDEP=
 CONTINUEONERROR=-i
 !ENDIF
@@ -27,7 +25,7 @@ all: symlinks src-qmake sub-src sub-tools sub-tutorial sub-examples
 
 src-qmake: symlinks
 	cd qmake
-	$(MAKE) -f $(QMFILE)
+	$(MAKE)
 	cd ..
 
 src-moc: src-qmake $(FORCEDEP)
@@ -66,16 +64,24 @@ sub-examples: sub-src $(FORCEDEP)
 
 clean:
 	cd qmake
-	$(MAKE) -f $(QMFILE) $(CONTINUEONERROR) clean
-	cd ..\tools
 	$(MAKE) $(CONTINUEONERROR) clean
-	cd ..\src
+	cd ..
+	cd tools
+	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..
+	cd src
 	$(MAKE) $(CONTINUEONERROR) clean
 	$(MAKE) -f Makefile.main $(CONTINUEONERROR) clean
-	cd ..\tutorial
+	cd ..
+	cd tutorial
 	$(MAKE) $(CONTINUEONERROR) clean
-	cd ..\examples
+	cd ..
+	cd examples
 	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..
+	cd src\codecs\src
+	$(MAKE) $(CONTINUEONERROR) clean
+	cd ..\..\..
 
 distclean: clean
 	-del .qmake.cache
