@@ -990,6 +990,14 @@ then
 else
     AUTOTHREAD=never
 fi
+# common qmake.conf file but dependency on OS version
+if echo $PLATFORM | grep "hpux" >/dev/null 2>1
+then
+    if echo `uname -r` | grep -E "^B\.(09|10)" >/dev/null 2>1
+    then
+	AUTOTHREAD=never
+    fi
+fi
 if [ $AUTOTHREAD = never ]
 then
     if [ $THREAD = yes ]
