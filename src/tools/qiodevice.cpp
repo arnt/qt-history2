@@ -549,7 +549,7 @@ bool QIODevice::at( Offset pos )
 bool QIODevice::atEnd() const
 {
     if ( isSequentialAccess() || isTranslated() ) {
-	QIODevice* that = (QIODevice*)this;
+	QIODevice* that = const_cast<QIODevice*>(this);
 	int c = that->getch();
 	bool result = c < 0;
 	that->ungetch(c);

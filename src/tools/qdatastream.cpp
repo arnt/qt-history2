@@ -16,6 +16,7 @@
 
 #ifndef QT_NO_DATASTREAM
 #include "qbuffer.h"
+#include "qstring.h"
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>

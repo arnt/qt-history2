@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
-#include "qstring.h"
+#include "qbytearray.h"
 #endif // QT_H
 
 

@@ -195,7 +195,7 @@ bool QFile::open( int m )
 	    ok = FALSE;
 	}
     } else {					// buffered file I/O
-	QByteArray perm;
+	const char *perm = 0;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
