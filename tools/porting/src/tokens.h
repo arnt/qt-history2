@@ -17,6 +17,7 @@
 enum Type
 {
     Token_eof = 0,
+    Token_newline = 10,
     Token_identifier = 1000,
     Token_number_literal,
     Token_char_literal,
@@ -24,6 +25,8 @@ enum Type
     Token_whitespaces,
     Token_comment,
     Token_preproc,
+    Token_line_comment,
+    Token_multiline_comment,
 
     Token_assign = 2000,
     Token_ptrmem,
@@ -125,6 +128,9 @@ enum Type
     Token_xor,
     Token_xor_eq,
 
+    Token_left_shift,
+    Token_right_shift,
+
     // preprecessor
     Token_directive_identifier,
     Token_directive_if,
@@ -135,7 +141,11 @@ enum Type
     Token_directive_ifdef,
     Token_directive_ifndef,
     Token_directive_define,
-    Token_directive_include
+    Token_directive_include,
+    Token_directive_line,
+    Token_directive_error,
+    Token_directive_pragma,
+    Token_defined
 };
 
 #endif
