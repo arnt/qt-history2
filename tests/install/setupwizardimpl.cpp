@@ -491,6 +491,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    if( installTutorials->isChecked() )
 		readArchive( "tutorial.arq", installPath->text() );
 #else
+	    operationProgress->setTotalSteps( 3010 );
 	    copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
 	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
@@ -668,7 +669,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    configure.setArguments( args );
 
 	    // Start the configure process
-	    compileProgress->setTotalSteps( filesToCompile );
+	    compileProgress->setTotalSteps( filesToCompile * 1.2 );
 	    if( !configure.start() )
 		logOutput( "Could not start configure process" );
 	}
@@ -908,11 +909,6 @@ void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 	if( fi->fileName()[ 0 ] != '.' ) {
 	    QString entryName = sourcePath + QDir::separator() + fi->fileName();
 	    QString targetName = destPath + QDir::separator() + fi->fileName();
-	    if( app ) {
-		app->processEvents();
-//		operationProgress->setProgress( totalRead );
-		logFiles( targetName + "\n" );
-	    }
 	    if( fi->isDir() ) {
 		if( !dir.exists( targetName ) )
 		    createDir( targetName );
@@ -936,6 +932,11 @@ void SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		copyFiles( entryName, targetName );
 	    }
 	    else {
+		if( app ) {
+		    app->processEvents();
+		    operationProgress->setProgress( operationProgress->progress() + 1 );
+		    logFiles( targetName + "\n" );
+		}
 		if( ( entryName.right( 4 ) == ".cpp" ) || ( entryName.right( 2 ) == ".h" ) )
 		    filesToCompile++;
 		QByteArray buffer( fi->size() );
