@@ -55,7 +55,7 @@ struct QLineEditPrivate {
 	blinkTimer( l, "QLineEdit blink timer" ),
 	dragTimer( l, "QLineEdit drag timer" ),
 	inDoubleClick( FALSE ), offsetDirty( FALSE ),
-	undo(TRUE), needundo( FALSE ) {}
+	undo(TRUE), needundo( FALSE ), ignoreUndoWithDel( FALSE ) {}
 
     bool frame;
     QLineEdit::EchoMode mode;
@@ -73,6 +73,7 @@ struct QLineEditPrivate {
     QValueList<QLineEditUndoItem> redoList;
     bool undo;
     bool needundo;
+    bool ignoreUndoWithDel;
 };
 
 
@@ -437,6 +438,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
     }
     bool needundo = d->needundo;
     d->needundo = TRUE;
+    bool ignoreUndoWithDel = d->ignoreUndoWithDel;
+    d->ignoreUndoWithDel = FALSE;
     int unknown = 0;
     if ( e->state() & ControlButton ) {
 	switch ( e->key() ) {
@@ -450,6 +453,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    copy();
 	    break;
 	case Key_D:
+	    d->ignoreUndoWithDel = ignoreUndoWithDel;
 	    del();
 	    break;
 	case Key_E:
@@ -459,6 +463,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorRight( e->state() & ShiftButton );
 	    break;
 	case Key_H:
+	    d->ignoreUndoWithDel = ignoreUndoWithDel;
 	    backspace();
 	    break;
 	case Key_K:
@@ -505,6 +510,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorRight( e->state() & ShiftButton );
 	    break;
 	case Key_Backspace:
+	    d->ignoreUndoWithDel = ignoreUndoWithDel;
 	    backspace();
 	    break;
 	case Key_Home:
@@ -520,6 +526,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 		break;
 	    }
 #endif	
+	    d->ignoreUndoWithDel = ignoreUndoWithDel;
 	    del();
 	    break;
 #if defined (_WS_WIN_)
@@ -884,6 +891,12 @@ void QLineEdit::backspace()
     if ( hasMarkedText() ) {
 	del();
     } else if ( cursorPos > 0 ) {
+	if ( d->undo && d->needundo && !d->ignoreUndoWithDel ) {
+	    if ( d->undoList.isEmpty() || d->undoList.last().str != tbuf ) {
+		d->undoList += QLineEditUndoItem(tbuf, cursorPos );
+		d->redoList.clear();
+	    }
+	}
 	cursorLeft( FALSE );
 	del();
     }
@@ -898,8 +911,15 @@ void QLineEdit::backspace()
 
 void QLineEdit::del()
 {
-    QString test( tbuf.copy() );
-
+    QString test( tbuf);
+    d->ignoreUndoWithDel = TRUE;
+    if ( d->undo && ( (d->needundo && !d->ignoreUndoWithDel) || hasMarkedText() ) ) {
+	if ( d->undoList.isEmpty() || d->undoList.last().str != tbuf ) {
+	    d->undoList += QLineEditUndoItem(tbuf, cursorPos );
+	    d->redoList.clear();
+	}
+    }
+    
     if ( hasMarkedText() ) {
 	test.remove( minMark(), maxMark() - minMark() );
 	validateAndSet( test, minMark(), minMark(), minMark() );
@@ -1681,7 +1701,7 @@ void QLineEdit::undoInternal()
     if ( d->undoList.count() > 10 )
 	d->undoList.remove( d->undoList.begin() );
     d->undo = TRUE;
-    d->needundo = FALSE;
+    d->needundo = TRUE;
 }
 
 void QLineEdit::redoInternal()
@@ -1694,5 +1714,5 @@ void QLineEdit::redoInternal()
     setCursorPosition( d->redoList.last().pos );
     d->redoList.remove( d->redoList.fromLast() );
     d->undo = TRUE;
-    d->needundo = FALSE;
+    d->needundo = TRUE;
 }
