@@ -23,7 +23,7 @@ public:
 		 bool modal = FALSE, WFlags f = 0 );
     ~OptionsForm() {}
 
-    QFont getFont() const { return m_font; }
+    QFont font() const { return m_font; }
     void setFont( QFont font );
 
     QLabel *chartTypeTextLabel;

@@ -116,9 +116,9 @@ OptionsForm::OptionsForm( QWidget* parent, const char* name,
 void OptionsForm::chooseFont()
 {
     bool ok;
-    QFont newFont = QFontDialog::getFont( &ok, m_font, this );
+    QFont font = QFontDialog::getFont( &ok, m_font, this );
     if ( ok )
-	setFont( newFont );
+	setFont( font );
 }
 
 

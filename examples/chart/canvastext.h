@@ -18,7 +18,7 @@ public:
     CanvasText( int index, const QString& text, QFont font, QCanvas *canvas )
 	: QCanvasText( text, font, canvas ) { m_index = index; }
 
-    int getIndex() const { return m_index; }
+    int index() const { return m_index; }
     void setIndex( int index ) { m_index = index; }
 
     int rtti() const { return CANVAS_TEXT; }

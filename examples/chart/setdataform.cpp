@@ -62,10 +62,10 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
 
     buttonBox = new QHBoxLayout( 0, 0, 6, "button box layout" );
 
-    colourPushButton = new QPushButton( this, "colour button" );
-    colourPushButton->setText( "&Colour..." );
-    colourPushButton->setEnabled( false );
-    buttonBox->addWidget( colourPushButton );
+    colorPushButton = new QPushButton( this, "colour button" );
+    colorPushButton->setText( "&Colour..." );
+    colorPushButton->setEnabled( false );
+    buttonBox->addWidget( colorPushButton );
 
     QSpacerItem *spacer = new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 						 QSizePolicy::Minimum );
@@ -84,12 +84,12 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
     tableButtonBox->addLayout( buttonBox );
 
     connect( table, SIGNAL( clicked(int,int,int,const QPoint&) ),
-	     this, SLOT( setColour(int,int) ) );
+	     this, SLOT( setColor(int,int) ) );
     connect( table, SIGNAL( currentChanged(int,int) ),
 	     this, SLOT( currentChanged(int,int) ) );
     connect( table, SIGNAL( valueChanged(int,int) ),
 	     this, SLOT( valueChanged(int,int) ) );
-    connect( colourPushButton, SIGNAL( clicked() ), this, SLOT( setColour() ) );
+    connect( colorPushButton, SIGNAL( clicked() ), this, SLOT( setColor() ) );
     connect( okPushButton, SIGNAL( clicked() ), this, SLOT( accept() ) );
     connect( cancelPushButton, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
@@ -118,26 +118,26 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
 	if ( element.isValid() )
 	    table->setText(
 		i, 0,
-		QString( "%1" ).arg( element.getValue(), 0, 'f',
+		QString( "%1" ).arg( element.value(), 0, 'f',
 				     m_decimalPlaces ) );
 
-	QColor colour = element.getValueColour();
-	pix.fill( colour );
+	QColor color = element.valueColor();
+	pix.fill( color );
 	table->setPixmap( i, 1, pix );
-	table->setText( i, 1, colour.name() );
+	table->setText( i, 1, color.name() );
 
 	QComboBox *combobox = new QComboBox;
 	for ( int j = 0; j < MAX_PATTERNS; ++j )
 	    combobox->insertItem( patterns[j] );
-	combobox->setCurrentItem( element.getValuePattern() - 1 );
+	combobox->setCurrentItem( element.valuePattern() - 1 );
 	table->setCellWidget( i, 2, combobox );
 
-	table->setText( i, 3, element.getLabel() );
+	table->setText( i, 3, element.label() );
 
-	colour = element.getLabelColour();
-	pix.fill( colour );
+	color = element.labelColor();
+	pix.fill( color );
 	table->setPixmap( i, 4, pix );
-	table->setText( i, 4, colour.name() );
+	table->setText( i, 4, color.name() );
     }
 
 }
@@ -145,7 +145,7 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
 
 void SetDataForm::currentChanged( int row, int col )
 {
-    colourPushButton->setEnabled( col == 1 || col == 4 );
+    colorPushButton->setEnabled( col == 1 || col == 4 );
     if ( col == 2 )
 	((QComboBox*)table->cellWidget( row, col ))->popup();
 }
@@ -166,26 +166,26 @@ void SetDataForm::valueChanged( int row, int col )
 }
 
 
-void SetDataForm::setColour()
+void SetDataForm::setColor()
 {
-    setColour( table->currentRow(), table->currentColumn() );
+    setColor( table->currentRow(), table->currentColumn() );
     table->setFocus();
 }
 
 
-void SetDataForm::setColour( int row, int col )
+void SetDataForm::setColor( int row, int col )
 {
     if ( !( col == 1 || col == 4 ) )
 	return;
 
-    QColor colour = QColorDialog::getColor(
+    QColor color = QColorDialog::getColor(
 			QColor( table->text( row, col ) ),
 			this, "colour dialog" );
-    if ( colour.isValid() ) {
+    if ( color.isValid() ) {
 	QPixmap pix = table->pixmap( row, col );
-	pix.fill( colour );
+	pix.fill( color );
 	table->setPixmap( row, col, pix );
-	table->setText( row, col, colour.name() );
+	table->setText( row, col, color.name() );
     }
 }
 
@@ -200,11 +200,11 @@ void SetDataForm::accept()
 	    element.setValue( d );
 	else
 	    element.setValue( Element::INVALID );
-	element.setValueColour( QColor( table->text( i, 1 ) ) );
+	element.setValueColor( QColor( table->text( i, 1 ) ) );
 	element.setValuePattern(
 		((QComboBox*)table->cellWidget( i, 2 ))->currentItem() + 1 );
 	element.setLabel( table->text( i, 3 ) );
-	element.setLabelColour( QColor( table->text( i, 4 ) ) );
+	element.setLabelColor( QColor( table->text( i, 4 ) ) );
     }
 
     QDialog::accept();

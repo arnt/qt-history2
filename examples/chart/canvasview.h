@@ -28,8 +28,8 @@ protected:
     void contentsContextMenuEvent( QContextMenuEvent *e );
 
 private:
-    QCanvasItem *movingItem;
-    QPoint pos;
+    QCanvasItem *m_movingItem;
+    QPoint m_pos;
     ElementVector *m_elements;
 };
 

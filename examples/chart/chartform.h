@@ -28,8 +28,8 @@ public:
     ChartForm( const QString& filename );
     ~ChartForm();
 
-    int getChartType() { return chartType; }
-    void setChanged( bool change = true ) { changed = change; }
+    int chartType() { return m_chartType; }
+    void setChanged( bool changed = true ) { m_changed = changed; }
     void drawElements();
 
     QPopupMenu *optionsMenu; // Why public? See canvasview.cpp
@@ -47,7 +47,7 @@ private slots:
     void filePrint();
     void fileQuit();
     void optionsSetData();
-    void setChartType( QAction *action );
+    void updateChartType( QAction *action );
     void optionsSetFont();
     void optionsSetOptions();
     void helpHelp();
@@ -66,23 +66,25 @@ private:
     QString valueLabel( const QString& label, double value, double total );
     void updateRecentFiles( const QString& filename );
     void updateRecentFilesMenu();
+    void setChartType( ChartType chartType );
 
     QPopupMenu *fileMenu;
     QAction *optionsPieChartAction;
     QAction *optionsHorizontalBarChartAction;
     QAction *optionsVerticalBarChartAction;
 
-    QString fileName;
-    QStringList recentFiles;
-    QCanvas *canvas;
-    CanvasView *canvasView;
-    bool changed;
-    ElementVector elements;
-    QPrinter *printer;
-    ChartType chartType;
-    AddValuesType addValues;
-    int decimalPlaces;
-    QFont font;
+
+    QString m_filename;
+    QStringList m_recentFiles;
+    QCanvas *m_canvas;
+    CanvasView *m_canvasView;
+    bool m_changed;
+    ElementVector m_elements;
+    QPrinter *m_printer;
+    ChartType m_chartType;
+    AddValuesType m_addValues;
+    int m_decimalPlaces;
+    QFont m_font;
 };
 
 #endif

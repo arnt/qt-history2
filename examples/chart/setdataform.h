@@ -21,8 +21,8 @@ public:
     ~SetDataForm() {}
 
 public slots:
-    void setColour();
-    void setColour( int row, int col );
+    void setColor();
+    void setColor( int row, int col );
     void currentChanged( int row, int col );
     void valueChanged( int row, int col );
 
@@ -31,7 +31,7 @@ protected slots:
 
 private:
     QTable *table;
-    QPushButton *colourPushButton;
+    QPushButton *colorPushButton;
     QPushButton *okPushButton;
     QPushButton *cancelPushButton;
 

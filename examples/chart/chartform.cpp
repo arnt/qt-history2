@@ -183,8 +183,8 @@ ChartForm::ChartForm( const QString& filename )
     helpMenu->insertItem( "About &Qt", this, SLOT(helpAboutQt()) );
 
 
-    printer = 0;
-    elements.resize( MAX_ELEMENTS );
+    m_printer = 0;
+    m_elements.resize( MAX_ELEMENTS );
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, WINDOWS_REGISTRY );
@@ -192,56 +192,47 @@ ChartForm::ChartForm( const QString& filename )
     int windowHeight = settings.readNumEntry( APP_KEY + "WindowHeight", 530 );
     int windowX = settings.readNumEntry( APP_KEY + "WindowX", 0 );
     int windowY = settings.readNumEntry( APP_KEY + "WindowY", 0 );
-    chartType = ChartType(
-		    settings.readNumEntry( APP_KEY + "ChartType", int(PIE) ));
-    addValues = AddValuesType(
+    setChartType( ChartType(
+	    settings.readNumEntry( APP_KEY + "ChartType", int(PIE) ) ) );
+    m_addValues = AddValuesType(
 		    settings.readNumEntry( APP_KEY + "AddValues", int(NO) ));
-    decimalPlaces = settings.readNumEntry( APP_KEY + "Decimals", 2 );
-    font = QFont( "Helvetica", 18, QFont::Bold );
-    font.fromString( settings.readEntry( APP_KEY + "Font", font.toString() ) );
+    m_decimalPlaces = settings.readNumEntry( APP_KEY + "Decimals", 2 );
+    m_font = QFont( "Helvetica", 18, QFont::Bold );
+    m_font.fromString(
+	    settings.readEntry( APP_KEY + "Font", m_font.toString() ) );
     for ( int i = 0; i < MAX_RECENTFILES; ++i ) {
 	QString filename = settings.readEntry( APP_KEY + "File" +
 					       QString::number( i + 1 ) );
 	if ( !filename.isEmpty() )
-	    recentFiles.push_back( filename );
+	    m_recentFiles.push_back( filename );
     }
-    if ( recentFiles.count() )
+    if ( m_recentFiles.count() )
 	updateRecentFilesMenu();
 
-    switch ( chartType ) {
-	case PIE:
-	    optionsPieChartAction->setOn( true );
-	    break;
-	case VERTICAL_BAR:
-	    optionsVerticalBarChartAction->setOn( true );
-	    break;
-	case HORIZONTAL_BAR:
-	    optionsHorizontalBarChartAction->setOn( true );
-	    break;
-    }
+
     // Connect *after* we've set the chart type on so we don't call
     // drawElements() prematurely.
     connect( chartGroup, SIGNAL( selected(QAction*) ),
-	     this, SLOT( setChartType(QAction*) ) );
+	     this, SLOT( updateChartType(QAction*) ) );
 
     resize( windowWidth, windowHeight );
     move( windowX, windowY );
 
-    canvas = new QCanvas( this );
-    canvas->resize( width(), height() );
-    canvasView = new CanvasView( canvas, &elements, this );
-    setCentralWidget( canvasView );
-    canvasView->show();
+    m_canvas = new QCanvas( this );
+    m_canvas->resize( width(), height() );
+    m_canvasView = new CanvasView( m_canvas, &m_elements, this );
+    setCentralWidget( m_canvasView );
+    m_canvasView->show();
 
     if ( !filename.isEmpty() )
 	load( filename );
     else {
 	init();
-	elements[0].set( 20, red,    14, "Red" );
-	elements[1].set( 70, cyan,    2, "Cyan",   darkGreen );
-	elements[2].set( 35, blue,   11, "Blue" );
-	elements[3].set( 55, yellow,  1, "Yellow", darkBlue );
-	elements[4].set( 80, magenta, 1, "Magenta" );
+	m_elements[0].set( 20, red,    14, "Red" );
+	m_elements[1].set( 70, cyan,    2, "Cyan",   darkGreen );
+	m_elements[2].set( 35, blue,   11, "Blue" );
+	m_elements[3].set( 55, yellow,  1, "Yellow", darkBlue );
+	m_elements[4].set( 80, magenta, 1, "Magenta" );
 	drawElements();
     }
 
@@ -251,33 +242,33 @@ ChartForm::ChartForm( const QString& filename )
 
 ChartForm::~ChartForm()
 {
-    delete printer;
+    delete m_printer;
 }
 
 
 void ChartForm::init()
 {
     setCaption( "Chart" );
-    fileName = QString::null;
-    changed = false;
+    m_filename = QString::null;
+    m_changed = false;
 
-    elements[0]  = Element( Element::INVALID, red );
-    elements[1]  = Element( Element::INVALID, cyan );
-    elements[2]  = Element( Element::INVALID, blue );
-    elements[3]  = Element( Element::INVALID, yellow );
-    elements[4]  = Element( Element::INVALID, green );
-    elements[5]  = Element( Element::INVALID, magenta );
-    elements[6]  = Element( Element::INVALID, darkYellow );
-    elements[7]  = Element( Element::INVALID, darkRed );
-    elements[8]  = Element( Element::INVALID, darkCyan );
-    elements[9]  = Element( Element::INVALID, darkGreen );
-    elements[10] = Element( Element::INVALID, darkMagenta );
-    elements[11] = Element( Element::INVALID, darkBlue );
+    m_elements[0]  = Element( Element::INVALID, red );
+    m_elements[1]  = Element( Element::INVALID, cyan );
+    m_elements[2]  = Element( Element::INVALID, blue );
+    m_elements[3]  = Element( Element::INVALID, yellow );
+    m_elements[4]  = Element( Element::INVALID, green );
+    m_elements[5]  = Element( Element::INVALID, magenta );
+    m_elements[6]  = Element( Element::INVALID, darkYellow );
+    m_elements[7]  = Element( Element::INVALID, darkRed );
+    m_elements[8]  = Element( Element::INVALID, darkCyan );
+    m_elements[9]  = Element( Element::INVALID, darkGreen );
+    m_elements[10] = Element( Element::INVALID, darkMagenta );
+    m_elements[11] = Element( Element::INVALID, darkBlue );
     for ( int i = 12; i < MAX_ELEMENTS; ++i ) {
 	double x = (double(i) / MAX_ELEMENTS) * 360;
 	int y = (int(x * 256) % 105) + 151;
 	int z = ((i * 17) % 105) + 151;
-	elements[i] = Element( Element::INVALID, QColor( x, y, z, QColor::Hsv ) );
+	m_elements[i] = Element( Element::INVALID, QColor( x, y, z, QColor::Hsv ) );
     }
 }
 
@@ -320,7 +311,7 @@ void ChartForm::fileSaveAs()
 				arg( filename ),
 			    "&Yes", "&No", QString::null, 1, 1 );
 	if ( answer == 0 ) {
-	    fileName = filename;
+	    m_filename = filename;
 	    updateRecentFiles( filename );
 	    fileSave();
 	    return;
@@ -335,18 +326,18 @@ void ChartForm::fileOpenRecent( int index )
     if ( !okToClear() )
 	return;
 
-    load( recentFiles[index] );
+    load( m_recentFiles[index] );
 }
 
 
 void ChartForm::updateRecentFiles( const QString& filename )
 {
-    if ( recentFiles.find( filename ) != recentFiles.end() )
+    if ( m_recentFiles.find( filename ) != m_recentFiles.end() )
 	return;
 
-    recentFiles.push_back( filename );
-    if ( recentFiles.count() > MAX_RECENTFILES )
-	recentFiles.pop_front();
+    m_recentFiles.push_back( filename );
+    if ( m_recentFiles.count() > MAX_RECENTFILES )
+	m_recentFiles.pop_front();
 
     updateRecentFilesMenu();
 }
@@ -357,9 +348,9 @@ void ChartForm::updateRecentFilesMenu()
     for ( int i = 0; i < MAX_RECENTFILES; ++i ) {
 	if ( fileMenu->findItem( i ) )
 	    fileMenu->removeItem( i );
-	if ( i < int(recentFiles.count()) )
+	if ( i < int(m_recentFiles.count()) )
 	    fileMenu->insertItem( QString( "&%1 %2" ).
-				    arg( i + 1 ).arg( recentFiles[i] ),
+				    arg( i + 1 ).arg( m_recentFiles[i] ),
 				  this, SLOT( fileOpenRecent(int) ),
 				  0, i );
     }
@@ -388,12 +379,12 @@ void ChartForm::closeEvent( QCloseEvent *ce )
 
 bool ChartForm::okToClear()
 {
-    if ( changed ) {
+    if ( m_changed ) {
 	QString msg;
-	if ( fileName.isEmpty() )
+	if ( m_filename.isEmpty() )
 	    msg = "Unnamed chart ";
 	else
-	    msg = QString( "Chart '%1'\n" ).arg( fileName );
+	    msg = QString( "Chart '%1'\n" ).arg( m_filename );
 	msg += "has been changed.";
 	switch( QMessageBox::information( this, "Chart -- Unsaved Changes",
 					  msg, "&Save", "Cancel", "&Abandon",
@@ -422,37 +413,54 @@ void ChartForm::saveOptions()
     settings.writeEntry( APP_KEY + "WindowHeight", height() );
     settings.writeEntry( APP_KEY + "WindowX", x() );
     settings.writeEntry( APP_KEY + "WindowY", y() );
-    settings.writeEntry( APP_KEY + "ChartType", int(chartType) );
-    settings.writeEntry( APP_KEY + "AddValues", int(addValues) );
-    settings.writeEntry( APP_KEY + "Decimals", decimalPlaces );
-    settings.writeEntry( APP_KEY + "Font", font.toString() );
-    for ( int i = 0; i < int(recentFiles.count()); ++i )
+    settings.writeEntry( APP_KEY + "ChartType", int(m_chartType) );
+    settings.writeEntry( APP_KEY + "AddValues", int(m_addValues) );
+    settings.writeEntry( APP_KEY + "Decimals", m_decimalPlaces );
+    settings.writeEntry( APP_KEY + "Font", m_font.toString() );
+    for ( int i = 0; i < int(m_recentFiles.count()); ++i )
 	settings.writeEntry( APP_KEY + "File" + QString::number( i + 1 ),
-			     recentFiles[i] );
+			     m_recentFiles[i] );
 }
 
 
 void ChartForm::optionsSetData()
 {
-    SetDataForm *setDataForm = new SetDataForm( &elements, decimalPlaces, this );
+    SetDataForm *setDataForm = new SetDataForm( &m_elements, m_decimalPlaces, this );
     if ( setDataForm->exec() ) {
-	changed = true;
+	m_changed = true;
 	drawElements();
     }
     delete setDataForm;
 }
 
 
-void ChartForm::setChartType( QAction *action )
+void ChartForm::setChartType( ChartType chartType )
+{
+    m_chartType = chartType;
+    switch ( m_chartType ) {
+	case PIE:
+	    optionsPieChartAction->setOn( true );
+	    break;
+	case VERTICAL_BAR:
+	    optionsVerticalBarChartAction->setOn( true );
+	    break;
+	case HORIZONTAL_BAR:
+	    optionsHorizontalBarChartAction->setOn( true );
+	    break;
+    }
+}
+
+
+void ChartForm::updateChartType( QAction *action )
 {
     if ( action == optionsPieChartAction ) {
-	chartType = PIE;
+	m_chartType = PIE;
     }
     else if ( action == optionsHorizontalBarChartAction ) {
-	chartType = HORIZONTAL_BAR;
+	m_chartType = HORIZONTAL_BAR;
     }
     else if ( action == optionsVerticalBarChartAction ) {
-	chartType = VERTICAL_BAR;
+	m_chartType = VERTICAL_BAR;
     }
 
     drawElements();
@@ -462,9 +470,9 @@ void ChartForm::setChartType( QAction *action )
 void ChartForm::optionsSetFont()
 {
     bool ok;
-    QFont newFont = QFontDialog::getFont( &ok, font, this );
+    QFont font = QFontDialog::getFont( &ok, m_font, this );
     if ( ok ) {
-	font = newFont;
+	m_font = font;
 	drawElements();
     }
 }
@@ -473,9 +481,9 @@ void ChartForm::optionsSetFont()
 void ChartForm::optionsSetOptions()
 {
     OptionsForm *optionsForm = new OptionsForm( this );
-    optionsForm->chartTypeComboBox->setCurrentItem( chartType );
-    optionsForm->setFont( font );
-    switch ( addValues ) {
+    optionsForm->chartTypeComboBox->setCurrentItem( m_chartType );
+    optionsForm->setFont( m_font );
+    switch ( m_addValues ) {
 	case NO:
 	    optionsForm->noRadioButton->setChecked( true );
 	    break;
@@ -486,17 +494,18 @@ void ChartForm::optionsSetOptions()
 	    optionsForm->asPercentageRadioButton->setChecked( true );
 	    break;
     }
-    optionsForm->decimalPlacesSpinBox->setValue( decimalPlaces );
+    optionsForm->decimalPlacesSpinBox->setValue( m_decimalPlaces );
     if ( optionsForm->exec() ) {
-	chartType = ChartType(optionsForm->chartTypeComboBox->currentItem());
-	font = optionsForm->getFont();
+	setChartType( ChartType(
+		optionsForm->chartTypeComboBox->currentItem()) );
+	m_font = optionsForm->font();
 	if ( optionsForm->noRadioButton->isChecked() )
-	    addValues = NO;
+	    m_addValues = NO;
 	else if ( optionsForm->yesRadioButton->isChecked() )
-	    addValues = YES;
+	    m_addValues = YES;
 	else if ( optionsForm->asPercentageRadioButton->isChecked() )
-	    addValues = AS_PERCENTAGE;
-	decimalPlaces = optionsForm->decimalPlacesSpinBox->value();
+	    m_addValues = AS_PERCENTAGE;
+	m_decimalPlaces = optionsForm->decimalPlacesSpinBox->value();
 	drawElements();
     }
     delete optionsForm;
