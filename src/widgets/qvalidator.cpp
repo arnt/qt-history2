@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#35 $
 **
 ** Implementation of validator classes.
 **
@@ -43,7 +43,7 @@
   The class includes two virtual functions, validate() and fixup().
 
   validate() is pure virtual, so it must be implemented by every
-  subclass.  It returns Invalid, Valid or Acceptable depending on
+  subclass.  It returns \c Invalid, \c Valid or \c Acceptable depending on
   whether its argument is valid (for the class' definition of valid).
 
   The three states require some explanation.  An \c Invalid string is
