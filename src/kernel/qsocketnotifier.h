@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#3 $
+** $Id: //depot/qt/main/src/kernel/qsocketnotifier.h#4 $
 **
 ** Definition of QSocketNotifier class
 **
@@ -31,7 +31,7 @@ public:
     bool	isEnabled()	const;
     void	setEnabled( bool );
 #if defined(OBSOLETE)
-    bool	enabled()	const { return isEnabled(); }
+    bool	enabled()	const;
 #endif
 
 signals:
@@ -56,5 +56,9 @@ inline QSocketNotifier::Type QSocketNotifier::type() const
 inline bool QSocketNotifier::isEnabled() const
 { return snenabled; }
 
+#if defined(OBSOLETE)
+inline bool QSocketNotifier::enabled() const
+{ return isEnabled(); }
+#endif
 
 #endif // QSOCKNOT_H
