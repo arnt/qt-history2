@@ -166,6 +166,7 @@ buttons.
 	    For the richedit application we need to create actions for
 	    indicating bold, italic and underlined font attributes, and to
 	    set text alignment.
+	    \P
 
 	    \p
 	    Right click in the Action Editor where the actions are listed,

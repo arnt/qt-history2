@@ -142,6 +142,10 @@ bool createConnections()
 {
     // create the default database connection
     \b[QSqlDatabase] *defaultDB = \b[QSqlDatabase::addDatabase]( &quot;QPSQL6&quot; );
+    if ( ! defaultDB ) {
+        qWarning( "Failed to connect to driver" );
+        return FALSE;
+    }
     defaultDB-&gt;setDatabaseName( &quot;book&quot; );
     defaultDB-&gt;setUserName( &quot;bookuser&quot; );
     defaultDB-&gt;setPassword( &quot;bookpw&quot; );
@@ -320,6 +324,7 @@ bool createConnections()
 		    Move the surname and forename fields into the Sort By
 		    list box and click <guibutton>Next</>.
 		    </para>
+		</listitem>
 
 		<listitem>
 		    <para>
@@ -932,7 +937,7 @@ bool createConnections()
 		between the Displayed Fields and the Available Fields
 		list boxes. The blue up and down arrow buttons are used
 		to select the display order of the displayed fields.
-		<para>
+		</para>
 
 		<para>
 		We don't want to see the authorid foreign key field on
@@ -1376,6 +1381,7 @@ bool createConnections()
 	    \List1
 	\P
 	\List1
+    </para>
 
     \p
     If the author name has changed or been deleted the query will
@@ -1436,10 +1442,6 @@ subclass a cursor and use this for our lookups. This is described in the
 <ulink url="http://doc.trolltech.com/sql.html">Qt SQL Module
 documentation</>, particulary the section on subclassing
 \class[QSqlCursor].
-\P
-
-\p
-
 \P
 
 <para>

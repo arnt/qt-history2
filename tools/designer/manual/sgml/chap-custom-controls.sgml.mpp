@@ -118,47 +118,47 @@ the creation of a container custom widget is described.
 <para>
 Click <guimenuitem>Tools|Custom|Edit Custom Widgets</guimenuitem> to
 invoke the Edit Custom Widgets dialog. 
-<orderedlist numeration="arabic">
-<listitem>
-<para>
-Click <guibutton>New
-Widget</guibutton> so that we are ready to add our new widget.
+    <orderedlist numeration="arabic">
+    <listitem>
+	<para>
+	Click <guibutton>New
+	Widget</guibutton> so that we are ready to add our new widget.
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	Change the Class name from 'MyCustomWidget' to 'Vcr'. 
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	Click the ellipsis (<guibutton>...</guibutton>) button to the right of
+	the Headerfile line edit to invoke the file Open dialog. Locate
+	<filename>vcr.h</filename>, select it, and click
+	<guibutton>Open</guibutton>. It will now appear as the header file. 
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	If you have a pixmap that you want to use to identify your widget on the
+	toolbar click the ellipsis (<guibutton>...</guibutton>) button to the right of
+	Pixmap.
+	</para>
+	<para>
+	In our example we have the file
+	<filename>qt/tools/designer/eg/vcr/play.xpm</filename> which we'll use
+	for this purpose.
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	Since we know the minimum sensible size for our widget we'll put values
+	into the Size Hint spin boxes. Enter a width of 80 (in the left hand spin
+	box), and a height of 20 (in the right hand spin box).
+	</para>
+    </listitem>
+    </orderedlist>
 </para>
-</listitem>
-<listitem>
-<para>
-Change the Class name from 'MyCustomWidget' to 'Vcr'. 
-</para>
-</listitem>
-<listitem>
-<para>
-Click the ellipsis (<guibutton>...</guibutton>) button to the right of
-the Headerfile line edit to invoke the file Open dialog. Locate
-<filename>vcr.h</filename>, select it, and click
-<guibutton>Open</guibutton>. It will now appear as the header file. 
-</para>
-</listitem>
-<listitem>
-<para>
-If you have a pixmap that you want to use to identify your widget on the
-toolbar click the ellipsis (<guibutton>...</guibutton>) button to the right of
-Pixmap.
-</para>
-<para>
-In our example we have the file
-<filename>qt/tools/designer/eg/vcr/play.xpm</filename> which we'll use
-for this purpose.
-</para>
-</listitem>
-<listitem>
-<para>
-Since we know the minimum sensible size for our widget we'll put values
-into the Size Hint spin boxes. Enter a width of 80 (in the left hand spin
-box), and a height of 20 (in the right hand spin box).
-</para>
-</listitem>
-</orderedlist>
-
 <para>
 The remaining items to be completed will depend on the characteristics
 of the widget you've created. If, for example, your widget can be used
@@ -738,7 +738,7 @@ Plugin".
 	    \P
 
 	    \p
-	    The \fn[iconSet()] function returns the name of the pixmap to
+	    The \fn[iconSet()] function returns the pixmap to
 	    use in the toolbar to represent the custom widget. The
 	    \fn[toolTip()] function returns the tooltip text and the
 	    \fn[whatsThis()] function returns the whats this text. Copy

@@ -469,56 +469,57 @@ widget, show it and enter the event loop in the
 <title>Designing the Form </title>
 
 <para>
-<orderedlist numeration="arabic">
-<listitem>
-<para>
-Open the <filename>receiver.pro</filename> project file in \qd. We'll
-create a dialog as our main window which we'll use to invoke the dynamic
-dialog. Press <keycap>Ctrl+N</keycap> to launch the New Form dialog and
-click \ok to get the default which is a dialog. Change the dialog's name
-to 'MainForm' and its caption to 'Main Form'. Add two buttons, one
-called 'creditPushButton' with the text '&amp;Credit Dialog', and the
-other called 'quitPushButton' with the text '&amp;Quit'. (For each
-button click the <guibutton>Push Button</guibutton> toolbar button, then
-click the form. Change the properties in the property window to those
-we've just described.)
+    <orderedlist numeration="arabic">
+    <listitem>
+	<para>
+	Open the <filename>receiver.pro</filename> project file in \qd. We'll
+	create a dialog as our main window which we'll use to invoke the dynamic
+	dialog. Press <keycap>Ctrl+N</keycap> to launch the New Form dialog and
+	click \ok to get the default which is a dialog. Change the dialog's name
+	to 'MainForm' and its caption to 'Main Form'. Add two buttons, one
+	called 'creditPushButton' with the text '&amp;Credit Dialog', and the
+	other called 'quitPushButton' with the text '&amp;Quit'. (For each
+	button click the <guibutton>Push Button</guibutton> toolbar button, then
+	click the form. Change the properties in the property window to those
+	we've just described.)
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	We will now add a couple of labels so that we can show the settings the
+	user chose in the dynamic dialog. Click the <guibutton>Text
+	Label</guibutton> toolbar button, then click the form below the Credit
+	Dialog button. Change the label's text to 'Credit Rating'. Add another
+	text label below the Quit button. Change its name to 'ratingTextLabel'
+	and its text to 'Unrated'. 
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	We'll now lay out the widgets. Click the form then press
+	<keycap>Ctrl+G</keycap> (lay out in a grid).
+	</para>
+    </listitem>
+    <listitem>
+	<para>
+	We'll now handle the signals and slots connections. Press
+	<keycap>F3</keycap> (connect signals/slots). Click the Credit Dialog
+	button, drag to the form and release. Click the
+	<function>clicked()</function> signal. We'll need to implement a custom
+	slot. Click <guibutton>Edit Slots</guibutton> to invoke the Edit Slots
+	dialog. Click <guibutton>New Slot</guibutton> and type in the Slot name
+	'creditDialog()'. Click \ok. The new slot is now in
+	the list of slots; click the <function>creditDialog()</function> slot to
+	make the connection then click \ok. Connect the Quit button's
+	<function>clicked()</function> signal to the
+	dialog's <function>accept()</function> function. (Press
+	<keycap>F3</keycap>. Click the Quit button and drag to the form;
+	release. Click the <function>clicked()</function> signal and the
+	<function>accept()</function> slot, then click \ok.)
+	</para>
+    </listitem>
+    </orderedlist>
 </para>
-</listitem>
-<listitem>
-<para>
-We will now add a couple of labels so that we can show the settings the
-user chose in the dynamic dialog. Click the <guibutton>Text
-Label</guibutton> toolbar button, then click the form below the Credit
-Dialog button. Change the label's text to 'Credit Rating'. Add another
-text label below the Quit button. Change its name to 'ratingTextLabel'
-and its text to 'Unrated'. 
-</para>
-</listitem>
-<listitem>
-<para>
-We'll now lay out the widgets. Click the form then press
-<keycap>Ctrl+G</keycap> (lay out in a grid).
-</para>
-</listitem>
-<listitem>
-<para>
-We'll now handle the signals and slots connections. Press
-<keycap>F3</keycap> (connect signals/slots). Click the Credit Dialog
-button, drag to the form and release. Click the
-<function>clicked()</function> signal. We'll need to implement a custom
-slot. Click <guibutton>Edit Slots</guibutton> to invoke the Edit Slots
-dialog. Click <guibutton>New Slot</guibutton> and type in the Slot name
-'creditDialog()'. Click \ok. The new slot is now in
-the list of slots; click the <function>creditDialog()</function> slot to
-make the connection then click \ok. Connect the Quit button's
-<function>clicked()</function> signal to the
-dialog's <function>accept()</function> function. (Press
-<keycap>F3</keycap>. Click the Quit button and drag to the form;
-release. Click the <function>clicked()</function> signal and the
-<function>accept()</function> slot, then click \ok.)
-</para>
-</listitem>
-</orderedlist>
 <para>
 Save the form and call it <filename>mainform.ui</filename>. (Press
 <keycap>Ctrl+S</keycap> and enter the filename.) In the next section
