@@ -164,7 +164,7 @@ public:
     QPtrList<QToolButton> toolbuttons;
     QPtrList<ComboItem> comboitems;
 
-    enum Update { Icons = 0, Visibility = 1, State = 2, EverythingElse = 4 }; // EverythingElse means everything but icons, state and Visibility.
+    enum Update { Icons = 1, Visibility = 2, State = 4, EverythingElse = 8 };
     void update( uint upd = EverythingElse );
 
     QString menuText() const;
@@ -266,7 +266,7 @@ void QActionPrivate::update( uint upd )
 	    }
 	}
     }
-    for ( QPtrListIterator<QToolButton> it2( toolbuttons); it2.current(); ++it2 ) {
+    for ( QPtrListIterator<QToolButton> it2(toolbuttons); it2.current(); ++it2 ) {
 	QToolButton* btn = it2.current();
 	if ( upd & State ) {
 	    btn->setEnabled( enabled );
@@ -275,9 +275,10 @@ void QActionPrivate::update( uint upd )
 	}
 	if ( upd & Visibility )
 	    visible ? btn->show() : btn->hide();
-	if ( upd & Icons )
+	if ( upd & Icons ) {
 	    if ( iconset )
 		btn->setIconSet( *iconset );
+	}
 	if ( upd & EverythingElse ) {
 	    btn->setToggleButton( toggleaction );
 	    if ( !text.isEmpty() )
