@@ -96,8 +96,7 @@ private:
     friend class QProcess;
 };
 
-//class Q_EXPORT QProcess : public QObject
-class QProcess : public QObject
+class Q_EXPORT QProcess : public QObject
 {
     Q_OBJECT
 public:
