@@ -275,7 +275,7 @@
   compiler transforms <tt>&#92;</tt> characters.  For example, to match a
   <tt>$</tt> character, you must write <tt>"&#92;&#92;$"</tt> in C++
   source, not <tt>"&#92;$"</tt>.  To match a <tt>&#92;</tt> character,
-  you must write <tt>"&#92;&#92;&#92;&#92;</tt>.
+  you must write <tt>"&#92;&#92;&#92;&#92;"</tt>.
 
   If you want to know more about regular expressions, read Jeffrey Friedl's
   <em>Mastering Regular Expressions</em> (O'Reilly).
