@@ -466,52 +466,60 @@ int QSocketDevice::accept()
 	return -1;
     struct sockaddr aa;
     QT_SOCKLEN_T l = sizeof(struct sockaddr);
-    int s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
-    // we'll blithely throw away the stuff accept() wrote to aa
-    if ( s < 0 && e == NoError ) {
-	switch( errno ) {
+    bool done;
+    int s;
+    do {
+	s = qt_socket_accept( fd, (struct sockaddr*)&aa, &l );
+	// we'll blithely throw away the stuff accept() wrote to aa
+	done = TRUE;
+	if ( s < 0 && e == NoError ) {
+	    switch( errno ) {
+	    case EINTR:
+		done = FALSE;
+		break;
 #if defined(EPROTO)
-	case EPROTO:
+	    case EPROTO:
 #endif
 #if defined(ENONET)
-	case ENONET:
+	    case ENONET:
 #endif
-	case ENOPROTOOPT:
-	case EHOSTDOWN:
-	case EOPNOTSUPP:
-	case EHOSTUNREACH:
-	case ENETDOWN:
-	case ENETUNREACH:
-	case ETIMEDOUT:
-	    // in all these cases, an error happened during connection
-	    // setup.  we're not interested in what happened, so we
-	    // just treat it like the client-closed-quickly case.
-	case EPERM:
-	    // firewalling wouldn't let us accept.  we treat it like
-	    // the client-closed-quickly case.
-	case EAGAIN:
+	    case ENOPROTOOPT:
+	    case EHOSTDOWN:
+	    case EOPNOTSUPP:
+	    case EHOSTUNREACH:
+	    case ENETDOWN:
+	    case ENETUNREACH:
+	    case ETIMEDOUT:
+		// in all these cases, an error happened during connection
+		// setup.  we're not interested in what happened, so we
+		// just treat it like the client-closed-quickly case.
+	    case EPERM:
+		// firewalling wouldn't let us accept.  we treat it like
+		// the client-closed-quickly case.
+	    case EAGAIN:
 #if EAGAIN != EWOULDBLOCK
-	case EWOULDBLOCK:
+	    case EWOULDBLOCK:
 #endif
-	    // the client closed the connection before we got around
-	    // to accept()ing it.
-	    break;
-	case EBADF:
-	case ENOTSOCK:
-	    e = Impossible;
-	    break;
-	case EFAULT:
-	    e = InternalError;
-	    break;
-	case ENOMEM:
-	case ENOBUFS:
-	    e = NoResources;
-	    break;
-	default:
-	    e = UnknownError;
-	    break;
+		// the client closed the connection before we got around
+		// to accept()ing it.
+		break;
+	    case EBADF:
+	    case ENOTSOCK:
+		e = Impossible;
+		break;
+	    case EFAULT:
+		e = InternalError;
+		break;
+	    case ENOMEM:
+	    case ENOBUFS:
+		e = NoResources;
+		break;
+	    default:
+		e = UnknownError;
+		break;
+	    }
 	}
-    }
+    } while (!done);
     return s;
 }
 

@@ -394,41 +394,46 @@ int QSocketDevice::accept()
 	return -1;
     struct sockaddr a;
     SOCKLEN_T l = sizeof(struct sockaddr);
-    int s = ::accept( fd, (struct sockaddr*)&a, &l );
-    // we'll blithely throw away the stuff accept() wrote to a
-    if ( s == INVALID_SOCKET && e == NoError ) {
-	switch( WSAGetLastError() ) {
-	    case WSANOTINITIALISED:
-		e = Impossible;
-		break;
-	    case WSAENETDOWN:
-	    case WSAEOPNOTSUPP:
-		// in all these cases, an error happened during connection
-		// setup.  we're not interested in what happened, so we
-		// just treat it like the client-closed-quickly case.
-		break;
-	    case WSAEFAULT:
-		e = InternalError;
-		break;
-	    case WSAEINTR:
-		// ### ?
-		break;
-	    case WSAEMFILE:
-	    case WSAEINPROGRESS:
-	    case WSAENOBUFS:
-		e = NoResources;
-		break;
-	    case WSAEINVAL:
-	    case WSAENOTSOCK:
-		e = Impossible;
-		break;
-	    case WSAEWOULDBLOCK:
-		break;
-	    default:
-		e = UnknownError;
-		break;
+    bool done;
+    int s;
+    do {
+	s = ::accept( fd, (struct sockaddr*)&a, &l );
+	// we'll blithely throw away the stuff accept() wrote to a
+	done = TRUE;
+	if ( s == INVALID_SOCKET && e == NoError ) {
+	    switch( WSAGetLastError() ) {
+		case WSAEINTR:
+		    done = FALSE;
+		    break;
+		case WSANOTINITIALISED:
+		    e = Impossible;
+		    break;
+		case WSAENETDOWN:
+		case WSAEOPNOTSUPP:
+		    // in all these cases, an error happened during connection
+		    // setup.  we're not interested in what happened, so we
+		    // just treat it like the client-closed-quickly case.
+		    break;
+		case WSAEFAULT:
+		    e = InternalError;
+		    break;
+		case WSAEMFILE:
+		case WSAEINPROGRESS:
+		case WSAENOBUFS:
+		    e = NoResources;
+		    break;
+		case WSAEINVAL:
+		case WSAENOTSOCK:
+		    e = Impossible;
+		    break;
+		case WSAEWOULDBLOCK:
+		    break;
+		default:
+		    e = UnknownError;
+		    break;
+	    }
 	}
-    }
+    } while (!done);
     return s;
 }
 
