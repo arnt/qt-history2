@@ -3258,8 +3258,8 @@ void QTextEdit::normalCopy()
 	return;
 #ifndef QT_NO_MIMECLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
-#endif
-#endif //QT_NO_MIME
+#endif // QT_NO_MIMECLIPBOARD
+#endif // QT_NO_MIME
 }
 
 /*!
