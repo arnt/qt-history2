@@ -471,7 +471,7 @@ void QAccel::repairEventFilter()
 
 bool QAccel::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::Reparent && d->watch == o ) {
+    if ( e->type() == QEvent::Reparent && ( d->watch == o || d->tlw == o ) ) {
 	repairEventFilter();
     } else  if ( d->enabled &&
 	 ( e->type() == QEvent::Accel ||
