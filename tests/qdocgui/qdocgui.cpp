@@ -279,36 +279,38 @@ void QDocMainWindow::finished()
 		text = text.right( text.length() - 4 );
 	    else if ( text.startsWith( "tools/designer" ) )
 		text = text.right( text.length() - 6 );
-	    int slashpos = text.find( '/' );
-	    int classfind = text.find( ':' );
-	    int secondcolonpos = text.find( ':', classfind + 1 );
-	    dirText = text.left( slashpos );
-	    classText = text.mid ( slashpos + 1, (classfind - slashpos - 1 ) );
-	    linenumber = text.mid( classfind + 1, (secondcolonpos - classfind - 1 ));
-	    warningText = text.right( text.length() - secondcolonpos - 1 );
-	    if ( warningText.right(1) == '\r' )
-		warningText.truncate( warningText.length() - 1 );
+	    if ( ! text.startsWith( "attic" ) ) {
+		int slashpos = text.find( '/' );
+		int classfind = text.find( ':' );
+		int secondcolonpos = text.find( ':', classfind + 1 );
+		dirText = text.left( slashpos );
+		classText = text.mid ( slashpos + 1, (classfind - slashpos - 1 ) );
+		linenumber = text.mid( classfind + 1, (secondcolonpos - classfind - 1 ));
+		warningText = text.right( text.length() - secondcolonpos - 1 );
+		if ( warningText.right(1) == '\r' )
+		    warningText.truncate( warningText.length() - 1 );
 
-	    if ( !category[dirText] ) {
-		dirItem = new QListViewItem( classList, dirText );
-		category.insert( dirText, dirItem );
-	    }
-	    else {
-		dirItem = category[dirText];
-	    }
+		if ( !category[dirText] ) {
+		    dirItem = new QListViewItem( classList, dirText );
+		    category.insert( dirText, dirItem );
+		}
+		else {
+		    dirItem = category[dirText];
+		}
 
-	    if ( !filename[classText] ) {
-		classItem = new QListViewItem( dirItem, classText );
-		filename.insert( classText, classItem );
-	    }
-	    else {
-		classItem = filename[classText];
-	    }
+		if ( !filename[classText] ) {
+		    classItem = new QListViewItem( dirItem, classText );
+		    filename.insert( classText, classItem );
+		}
+		else {
+		    classItem = filename[classText];
+		}
 
-	    new QDocListItem( classItem,
-				( "Line " + linenumber + " - " + warningText ),
-				linenumber );
-	    count++;
+		new QDocListItem( classItem,
+				    ( "Line " + linenumber + " - " + warningText ),
+				    linenumber );
+		count++;
+	    }
 	}
 	outputText = outputText.right( outputText.length() - ( newLine + 1 ) );
 	classList->sort();
