@@ -711,7 +711,8 @@ bool QSqlDatabase::open()
 bool QSqlDatabase::open( const QString& user, const QString& password )
 {
     setUserName( user );
-    return d->driver->open( d->dbname, user, password, d->port, d->connOptions );
+    return d->driver->open( d->dbname, user, password, d->hname,
+			    d->port, d->connOptions );
 }
 
 /*!
