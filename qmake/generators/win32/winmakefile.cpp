@@ -52,98 +52,33 @@ Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenera
 }
 
 
-struct SubDir
-{
-    QString directory, profile, target, makefile;
-};
-
 void
 Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
-    QPtrList<SubDir> subdirs;
-    {
-	QStringList subdirs_in = project->variables()["SUBDIRS"];
-	for(QStringList::Iterator it = subdirs_in.begin(); it != subdirs_in.end(); ++it) {
-	    QString file = (*it);
-	    fileFixify(file);
-	    SubDir *sd = new SubDir;
-	    subdirs.append(sd);
-	    sd->makefile = "$(MAKEFILE)";
-	    if((*it).right(4) == ".pro") {
-		int slsh = file.findRev(Option::dir_sep);
-		if(slsh != -1) {
-		    sd->directory = file.left(slsh+1);
-		    sd->profile = file.mid(slsh+1);
-		} else {
-		    sd->profile = file;
-		}
-	    } else {
-		sd->directory = file;
-	    }
-	    while(sd->directory.right(1) == Option::dir_sep)
-		sd->directory = sd->directory.left(sd->directory.length() - 1);
-	    if(!sd->profile.isEmpty()) {
-		QString basename = sd->directory;
-		int new_slsh = basename.findRev(Option::dir_sep);
-		if(new_slsh != -1)
-		    basename = basename.mid(new_slsh+1);
-		if(sd->profile != basename + ".pro")
-		    sd->makefile += "." + sd->profile.left(sd->profile.length() - 4); //no need for the .pro
-	    }
-	    sd->target = "sub-" + (*it);
-	    sd->target.replace('/', '-');
-	    sd->target.replace('.', '_');
-	}
-    }
-    QPtrListIterator<SubDir> it(subdirs);
-
     if(!project->isEmpty("MAKEFILE"))
 	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-    t << "SUBTARGETS	= ";
-    for( it.toFirst(); it.current(); ++it) 
-	t << " \\\n\t\t" << it.current()->target;
-    t << endl << endl;
-    t << "all: qmake_all $(SUBTARGETS)" << endl << endl;
+    QStringList &sdirs = project->variables()["SUBDIRS"];
+    fileFixify(sdirs);
+    t << "SUBDIRS	= " << valList(sdirs) << endl;
+    t << "all: qmake_all $(SUBDIRS)" << endl << endl;
 
-    for( it.toFirst(); it.current(); ++it) {
-	bool have_dir = !(*it)->directory.isEmpty();
 
-	//make the makefile
-	QString mkfile = (*it)->makefile;
-	if(have_dir)
-	    mkfile.prepend((*it)->directory + Option::dir_sep);
-	t << mkfile << ":";
+    QStringList::Iterator sdirit;
+
+    t << "### DEBUG" << endl;
+    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	QString subdir = *sdirit;
+	t << subdir << ":";
+	int subLevels = subdir.contains(Option::dir_sep) + 1;
 	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
-	if(have_dir) 
-	    t << "\n\t" << "cd " << (*it)->directory;
-	t << "\n\t" << "$(QMAKE) " << (*it)->profile << " " << buildArgs();
-	if((*it)->makefile != "$(MAKEFILE)")
-	    t << " -o " << (*it)->makefile;
-	if(have_dir) {
-	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
-	    t << "\n\t" << "@cd ..";
-	    for(int i = 1; i < subLevels; i++ )
-		t << Option::dir_sep + "..";
-	}
-	t << endl;
-
-	//now actually build
-	t << (*it)->target << ": " << mkfile;
-	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
-	    t << " FORCE";
-	if(have_dir) 
-	    t << "\n\t" << "cd " << (*it)->directory;
-	t << "\n\t" << "$(MAKE)";
-	if((*it)->makefile != "$(MAKEFILE)")
-	    t << " -f " << (*it)->makefile;
-	if(have_dir) {
-	    int subLevels = it.current()->directory.contains(Option::dir_sep) + 1;
-	    t << "\n\t" << "@cd ..";
-	    for(int i = 1; i < subLevels; i++ )
-		t << Option::dir_sep + "..";
-	}
+	t << "\n\t"
+	  << "cd " << subdir << "\n\t"
+	  << "$(MAKE)" << "\n\t"
+	  << "@cd ..";
+        for(int i = 1; i < subLevels; i++ )
+	    t << Option::dir_sep + "..";
 	t << endl << endl;
     }
 
@@ -152,36 +87,54 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     writeMakeQmake(t);
 
     t << "qmake_all:";
-    for( it.toFirst(); it.current(); ++it) {
-	t << " ";
-	if(!(*it)->directory.isEmpty())
-	    t << (*it)->directory << Option::dir_sep;
-	t << (*it)->makefile;
+    if( sdirs.count() > 0 ) {
+	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+	    QString subdir = *sdirit;
+	    int subLevels = subdir.contains(Option::dir_sep) + 1;
+	    t << "\n\t"
+	      << "cd " << subdir << "\n\t";
+	    int lastSlash = subdir.findRev(Option::dir_sep);
+	    if(lastSlash != -1) 
+		subdir = subdir.mid( lastSlash + 1 );
+	    t << "$(QMAKE) " << subdir << ".pro" 
+	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
+	      << " " << buildArgs() << "\n\t"
+	      << "@cd ..";
+	    for(int i = 1; i < subLevels; i++ ) 
+		t << Option::dir_sep + "..";
+	}
+    } else {
+	// Borland make does not like empty an empty command section, so insert
+	// a dummy command.
+	t << "\n\t" << "@cd .";
     }
-    // Borland make does not like empty an empty command section, so insert
-    // a dummy command.
-    t << "\n\t" << "@cd ." << endl << endl;
+    t << endl << endl;
 
     QString targs[] = { QString("clean"), QString("install"), QString("mocclean"), QString::null };
     for(int x = 0; targs[x] != QString::null; x++) {
-        t << targs[x] << ": qmake_all";
-	if(targs[x] == "clean")
-	    t << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ", "");
-	if (!subdirs.isEmpty()) {
-	    for( it.toFirst(); it.current(); ++it) {
-		bool have_dir = !(*it)->directory.isEmpty();
-		if(have_dir)
-		    t << "\n\t" << "cd " << (*it)->directory;
-		QString in_file;
-		if((*it)->makefile != "$(MAKEFILE)")
-		    in_file = " -f " + (*it)->makefile;
-		t << "\n\t" << "$(MAKE) " << in_file << " " << targs[x];
-		if(have_dir) {
-		    t << "\n\t" << "@cd ..";
-		    int subLevels = (*it)->directory.contains(Option::dir_sep) + 1;
-		    for(int i = 1; i < subLevels; i++ ) 
-			t << Option::dir_sep + "..";
+        t << targs[x] << ":";
+	if(targs[x] == "install")
+	    t << " qmake_all";
+	else if(targs[x] == "clean")
+	    t << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","\n\t");
+	if ( sdirs.count() > 0 ) {
+	    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
+		QString subdir = *sdirit;
+		int subLevels = subdir.contains(Option::dir_sep) + 1;
+		t << "\n\t"
+		    << "cd " << subdir << "\n\t";
+
+		if ( targs[x] == "clean" ) {
+		    int lastSlash = subdir.findRev(Option::dir_sep);
+		    if(lastSlash != -1) 
+			subdir = subdir.mid( lastSlash + 1 );
+		    t << "$(QMAKE) " << subdir << ".pro" << "\n\t";
 		}
+		
+		t << "$(MAKE) " << targs[x] << "\n\t"
+		    << "@cd ..";
+		for(int i = 1; i < subLevels; i++ ) 
+		    t << Option::dir_sep + "..";
 	    }
 	} else {
 	    // Borland make does not like empty an empty command section, so
