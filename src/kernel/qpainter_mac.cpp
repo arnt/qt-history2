@@ -1357,7 +1357,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	fix_neg_rect( &x, &y, &w, &h );
     }
     QPointArray pa;
-    pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+    pa.makeArc( x, y, w, h, a, alen ); // arc polyline
     drawPolyline( pa );
 }
 #else //!QMAC_NO_QUARTZ

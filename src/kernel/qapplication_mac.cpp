@@ -1792,8 +1792,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    special_close = TRUE;
 	    }
 	    if(special_close) { 	    //We will resend this event later, so just return
-		if(widget != popupwidget)  // We've already sent the event to the correct widget
+		if(widget != popupwidget) // We've already sent the event to the correct widget
 		    qt_replay_event = CopyEvent(event);
+		else 
+		    mouse_button_state = after_state;
 		break;
 	    }
 	}
