@@ -327,8 +327,8 @@ void QGPluginManager::addLibraryPath( const QString& path )
 	if ( libList.contains( lib ) )
 	    continue;
 
-	libList.append( lib );
-
+	// use QFileInfo::filePath() to correct backslashes to slashes
+	libList.append( QFileInfo( lib ).filePath() );
     }
 }
 
@@ -348,6 +348,10 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
     int best = 0;
     int worst = 15;
     while ( it != libList.end() ) {
+	if ( (*it).isEmpty() || libDict[*it] ) {
+	    ++it;
+	    continue;
+	}
 	QString basename = QFileInfo(*it).baseName();
 	int s = similarity( feature, basename );
 	if ( s < worst )
@@ -357,6 +361,9 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 	map[s].append( basename + QChar(0xfffd) + *it );
 	++it;
     }
+
+    if ( map.isEmpty() )
+	return 0; // no libraries to add
 
     // Start with the best match to get the library object
     QGPluginManager *that = (QGPluginManager*)this;
@@ -368,8 +375,6 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 	    QString lib = (*git).mid( (*git).find( QChar(0xfffd) ) + 1 );
 	    QString basename = (*git).left( (*git).find( QChar(0xfffd) ) );
 	    ++git;
-	    if ( lib.isEmpty() || libDict[lib] )
-		continue;
 
 	    QStringList sameBasename;
 	    while( git != group.end() &&
@@ -379,7 +384,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 	    }
 
 	    if ( sameBasename.isEmpty() ) {
-		that->addLibrary( new QComLibrary(lib ) );
+		that->addLibrary( new QComLibrary( lib ) );
 	    } else {
 		QPtrList<QComLibrary> same;
 		same.setAutoDelete( TRUE );
@@ -397,7 +402,7 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
 		}
 	    }
 
-	    if ( ( library = plugDict[feature] ) )
+	    if ( ( library = that->plugDict[feature] ) )
 		return library;
 	}
     }
@@ -512,7 +517,6 @@ bool QGPluginManager::addLibrary( QLibrary* lib )
 	    libList.append( plugin->library() );
 	return TRUE;
     }
-    libList.remove( plugin->library() );
     delete plugin;
     return FALSE;
 }
