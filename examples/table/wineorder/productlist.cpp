@@ -20,7 +20,7 @@ struct {
 const int numwines = sizeof( winelist ) / sizeof( winelist[0] );
 
 ProductList::ProductList()
-        :QTable( numwines + 2, 4, 0, "productlist" )
+    : QTable( numwines + 2, 4, 0, "productlist" )
 {
     horizontalHeader()->setLabel( 0, "Quantity" );
     horizontalHeader()->setLabel( 1, "Product" );
@@ -36,7 +36,7 @@ ProductList::ProductList()
 
     setText( numRows() - 2, 1, "Discount" );
     QTableItem * discount = new QTableItem( this, QTableItem::Always,
-                                            "-0.00" );
+					    "-0.00" );
     setItem( numRows() - 2, 3, discount );
 
     processValueChanged( 0, 0 );
@@ -46,7 +46,7 @@ ProductList::ProductList()
     setColumnReadOnly( 3, TRUE );
 
     connect( this, SIGNAL( valueChanged( int, int ) ),
-             this, SLOT( processValueChanged( int, int ) ) );
+	     this, SLOT( processValueChanged( int, int ) ) );
 
     adjustColumn( 1 );
     adjustColumn( 2 );
@@ -57,32 +57,32 @@ QWidget * ProductList::createEditor( int row, int col, bool initFromCell ) const
     QTableItem * i = item( row, col );
 
     if ( ( initFromCell || i && !i->isReplaceable() ) &&
-         ( col != 0 || row >= numwines ) ){
+	 ( col != 0 || row >= numwines ) ){
 	return QTable::createEditor( row, col, initFromCell );
     } else if ( initFromCell ){
 	return 0;
-    } 	
+    }	
     return createMyEditor( row, col );
 }
 
 QWidget * ProductList::createMyEditor( int row, int col ) const
 {
-	QSpinBox * quantities = new QSpinBox( (QTable * ) this, "quantities" );
-	quantities->setSuffix( " btls" );
-	quantities->setMaxValue( 250 );
-	quantities->setValue( winelist[row].quantity );
-        ( (QTable * ) this )->setCellWidget( row, col, quantities );
+    QSpinBox * quantities = new QSpinBox( (QTable * ) this, "quantities" );
+    quantities->setSuffix( " btls" );
+    quantities->setMaxValue( 250 );
+    quantities->setValue( winelist[row].quantity );
+    ( (QTable * ) this )->setCellWidget( row, col, quantities );
 
-        connect( quantities, SIGNAL( valueChanged( int ) ),
-                 this, SLOT( changeQuantity( int ) ) );
-        return quantities;
+    connect( quantities, SIGNAL( valueChanged( int ) ),
+	     this, SLOT( changeQuantity( int ) ) );
+    return quantities;
 }
 
 void ProductList::changeQuantity( int )
 {
     for ( int i = 0; i < numwines; i++ ){
 	setCellContentFromEditor( i, 0 );
-        emit valueChanged( i, 0 );
+	emit valueChanged( i, 0 );
     }	
 }
 
@@ -90,7 +90,7 @@ void ProductList::setCellContentFromEditor( int row, int col )
 {
     QWidget * editor = cellWidget( row, col );	
     if ( editor->inherits( "QSpinBox" ) ){
-        winelist[row].quantity = ((QSpinBox *) editor)->value();
+	winelist[row].quantity = ((QSpinBox *) editor)->value();
     } else {
 	QTable::setCellContentFromEditor( row, col );
     }	
