@@ -1588,7 +1588,8 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
     }
     s.flags |= PWinGravity;
     s.win_gravity = qt_widget_tlw_gravity;	// usually NorthWest
-    qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity : NorthWestGravity;	// reset in case it was set
+    // ### should this be set to NE for right to left languages.
+    qt_widget_tlw_gravity = NorthWestGravity;	// reset in case it was set
     XSetWMNormalHints( widget->x11Display(), widget->winId(), &s );
 }
 

@@ -1739,11 +1739,11 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	    h = QMAX(h,minSize.height());
 	    if ( (m & XNegative) ) {
 		x = desktop()->width()  + x - w;
-		qt_widget_tlw_gravity = 3;
+		qt_widget_tlw_gravity = NorthEastGravity;
 	    }
 	    if ( (m & YNegative) ) {
 		y = desktop()->height() + y - h;
-		qt_widget_tlw_gravity = (m & XNegative) ? 9 : 7;
+		qt_widget_tlw_gravity = (m & XNegative) ? SouthEastGravity : SouthWestGravity;
 	    }
 	    main_widget->setGeometry( x, y, w, h );
 	}
