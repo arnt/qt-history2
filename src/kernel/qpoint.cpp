@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpoint.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qpoint.cpp#31 $
 **
 ** Implementation of QPoint class
 **
@@ -296,7 +296,7 @@ void QPoint::warningDivByZero()
 
 QDataStream &operator<<( QDataStream &s, const QPoint &p )
 {
-    return s << (Q_INT32)p.x() << (INT32)p.y();
+    return s << (Q_INT32)p.x() << (Q_INT32)p.y();
 }
 
 /*!
