@@ -1476,8 +1476,12 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_")))
             val = project->first(var.mid(12));
         if(val.isNull() && !in.isNull()) {
-            if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE"))
-                val = fileInfo(Option::fixPathToLocalOS(in)).completeBaseName();
+            if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
+                QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
+                val = fi.completeBaseName();
+                if(val.isNull())
+                    val = fi.fileName();
+            }
             if(var == QLatin1String("QMAKE_FILE_NAME") || var == QLatin1String("QMAKE_FILE_IN"))
                 val = fileInfo(Option::fixPathToLocalOS(in)).filePath();
         }

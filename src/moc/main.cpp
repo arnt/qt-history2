@@ -206,10 +206,7 @@ int main(int argc, char **argv)
 
     if (autoInclude) {
         int ppos = filename.lastIndexOf('.');
-        if (ppos != -1 && tolower(filename[ppos + 1]) == 'h')
-            moc.noInclude = false;
-        else
-            moc.noInclude = true;
+        moc.noInclude = (ppos >= 0 && tolower(filename[ppos + 1]) != 'h');
     }
     if (moc.includeFiles.isEmpty()) {
         if (moc.includePath.isEmpty()) {
