@@ -343,8 +343,61 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 #define d d_func()
 #define q q_func()
 
-/**********************************************************************
- * class: QPainterPath
+/*!
+    \class QPainterPath
+
+    \brief The QPainterPath class specifies a vectorial graphical shape.
+
+    A painter path is an object composed of a number of graphical
+    building blocks, such as rectangles, ellipses, lines and curves. A
+    painter path can be used for filling, outlining, and for clipping.
+    The main advantage of painter paths over normal drawing operations
+    is that it is possible to build up non-linear shapes which can be
+    drawn later one go.
+
+    Building blocks can be joined in closed sub-paths, such as a
+    rectangle or an ellipse, or they can exist independently as unclosed
+    sub-paths, although an unclosed path will not be filled.
+
+    Below is a code example on how a path can be used. The
+    painter in this case has a pen width of 3 and a light blue brush. We
+    first add a rectangle, which becomes a closed sub-path.  We then add
+    two bezier curves, and finally draw the entire path.
+
+    \code
+    QPainterPath path;
+    path.addRect(20, 20, 60, 60);
+    path.addBezier(0, 0,  99, 0,  50, 50,  99, 99);
+    path.addBezier(99, 99,  0, 99,  50, 50,  0, 0);
+    painter.drawPath(path);
+    \endcode
+*/
+
+/*!
+    \enum QPainterPath::FillMode
+
+    Specifies which method should be used to fill the path.
+
+    \value OddEven Specifies that the region is filled using the odd
+    even fill rule. With this rule, one determines wheter a point is
+    inside the path as follows: Draw a horizontal line from the point
+    to outside the path and count the number of intersections. If the
+    number of intersections is an odd number the point is inside the
+    path. This mode is the default.
+
+    \value Winding Specifies that the region is filled using the non
+    zero winding rule. With this rule, one determines wheter a point
+    is inside the path as follows: Draw a horizontal line from the
+    path to the outside of the path. Determine the direction of the
+    path in each intersection point, up or down. The winding number is
+    determined by summing the direction of each intersection. If the
+    number is non zero, the point is inside the path. This fill mode
+    can also in most cases be considered as the intersection of closed
+    shapes.
+
+
+/*!
+ * Creates a new empty QPainterPath.
  */
 QPainterPath::QPainterPath()
 {
@@ -464,11 +517,22 @@ void QPainterPath::addArc(const QRect &rect, int startAngle, int sweepLength)
     d->subpaths.last().addArc(rect, startAngle, sweepLength);
 }
 
+/*!
+    Returns the fill mode of the painter path. The default fill mode
+    is OddEven.
+
+    \sa FillMode, setFillMode
+*/
 QPainterPath::FillMode QPainterPath::fillMode() const
 {
     return d->fillMode;
 }
 
+/*!
+    Sets the fill mode of the painterpath to \a fillMode.
+
+    \sa FillMode, fillMode
+*/
 void QPainterPath::setFillMode(QPainterPath::FillMode fillMode)
 {
     d->fillMode = fillMode;
