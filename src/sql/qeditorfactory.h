@@ -4,7 +4,6 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qvariant.h"
-#include "qsqlfield.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
@@ -15,7 +14,6 @@ public:
     QEditorFactory ( QObject * parent=0, const char * name=0 );
     ~QEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
-    virtual QWidget * createEditor( QWidget * parent, const QSqlField & f );
     
     static QEditorFactory * defaultFactory();
 };

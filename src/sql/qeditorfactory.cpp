@@ -11,8 +11,8 @@
 
 #ifndef QT_NO_SQL
 
-/*!  Constructs a SQL editor factory
-
+/*!  
+  Constructs a editor factory
 */
 
 QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
@@ -21,8 +21,8 @@ QEditorFactory::QEditorFactory ( QObject * parent, const char * name )
 
 }
 
-/*! Destroys the object and frees any allocated resources.
-
+/*! 
+  Destroys the object and frees any allocated resources.
 */
 
 QEditorFactory::~QEditorFactory()
@@ -33,8 +33,8 @@ QEditorFactory::~QEditorFactory()
 static QEditorFactory * defaultfactory = 0;
 QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
-/*! Destroys the object and frees any allocated resources.
-
+/*! 
+  Destroys the object and frees any allocated resources.
 */
 
 QEditorFactory * QEditorFactory::defaultFactory()
@@ -51,7 +51,6 @@ QEditorFactory * QEditorFactory::defaultFactory()
 
   Creates and returns the appropriate editor for the QVariant \a v.
   If the QVariant is invalid, 0 is returned.
-
 */
 
 QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
@@ -81,10 +80,9 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::Time:
 	    w = new QTimeEdit( parent );
 	    break;
-    case QVariant::DateTime: {
-	w = new QDateTimeEdit( parent );
-	break;
-    }
+	case QVariant::DateTime:
+	    w = new QDateTimeEdit( parent );
+	    break;
 	case QVariant::Pixmap:
 	    w = new QLabel( parent );
 	    break;
@@ -107,24 +105,10 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::ByteArray:
 	default:
 	    w = new QWidget( parent );
-	    //	    w = new QLineEdit( parent );
 	    break;
     }
     return w;
 }
-
-/*!
-
-  Creates and returns the appropriate editor for the field \a f.
-
-*/
-
-QWidget * QEditorFactory::createEditor( QWidget * parent, const QSqlField & f )
-{
-    QVariant v = f.value();
-    return createEditor( parent, v );
-}
-
 #endif // QT_NO_SQL
 
 
