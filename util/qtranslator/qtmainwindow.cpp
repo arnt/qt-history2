@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#1 $
+** $Id: //depot/qt/main/util/qtranslator/qtmainwindow.cpp#2 $
 **
 ** This is a utility program for translating Qt applications
 **
@@ -111,7 +111,7 @@ void QTMainWindow::setupCanvas()
     messages->header()->setMovingEnabled( FALSE );
 
     splitter->setResizeMode( scopes, QSplitter::KeepSize );
-    
+
     connect( scopes, SIGNAL( currentChanged( QListViewItem * ) ),
              this, SLOT ( fillMessageList( QListViewItem * ) ) );
 
@@ -424,7 +424,7 @@ void QTMainWindow::toolsQM()
         //Error message
         return;
     }
-    
+
     if ( messages->firstChild() )
         saveScope();
 
@@ -445,7 +445,7 @@ void QTMainWindow::toolsQM()
     QString filename = preferences->translation.directory + "/" +
                        preferences->translation.prefix + "orig";
     translate( filename + ".pot", filename + ".qm" );
-    
+
 }
 
 void QTMainWindow::fillMessageList( QListViewItem *item )
@@ -497,8 +497,8 @@ void QTMainWindow::addNewLanguage( const QString &lang )
                               tr( "&OK" ) );
         return;
     }
-        
-        
+
+
     if ( FALSE /*configs not ok*/ ) {
         //Error message
         return;
@@ -515,22 +515,24 @@ void QTMainWindow::addNewLanguage( const QString &lang )
 
     QTextStream s( &f );
     QString cont = s.read();
-    
+
     f.close();
-    
+
     if ( !preferences->translation.folders ) {
         filename = preferences->translation.directory + "/" +
                    preferences->translation.prefix + lang + ".po";
     } else {
         bool suffix = preferences->translation.prefix.isEmpty();
-        filename = preferences->translation.directory + "/" + lang + "/" +
-                   preferences->translation.prefix + ( suffix ? lang : QString::null ) + ".po";
+        filename = preferences->translation.directory + "/";
+        QFileInfo( filename ).dir().mkdir( lang );
+        filename += lang + "/" +
+                    preferences->translation.prefix + ( suffix ? lang : QString::null ) + ".po";
     }
-    
+
     QFile out( filename );
     if ( !out.open( IO_WriteOnly ) )
         return;
-    
+
     s.setDevice( &out );
     s << cont;
     out.close();
@@ -545,7 +547,7 @@ void QTMainWindow::setupMessageList()
     QStringList lst;
     for ( int i = 0;i < messages->header()->count(); ++i )
         lst.append( messages->header()->label( i ) );
-    
+
     QStringList::Iterator it = preferences->languages.begin();
     for ( ; it != preferences->languages.end(); ++it )
         if ( lst.find( *it ) == lst.end() )
