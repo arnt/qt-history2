@@ -9,16 +9,6 @@
 #include <private/qtextengine_p.h>
 #include <qpalette.h>
 
-static QImage getImage(const QString &name)
-{
-    QImage img;
-    const QMimeSource *source = QMimeSourceFactory::defaultFactory()->data(name);
-    if (!source)
-        return img;
-    QImageDrag::decode(source, img);
-    return img;
-}
-
 static QPixmap getPixmap(const QTextImageFormat &format)
 {
     QPixmap pm;
@@ -34,7 +24,7 @@ static QPixmap getPixmap(const QTextImageFormat &format)
     QString key = QString("$qt_rt_%1_%2_%3").arg(format.name()).arg(size.width()).arg(size.height());
     if (!QPixmapCache::find(key, pm)) {
 
-        QImage img = getImage(format.name());
+        QImage img = qFromMimeSource_helper(format.name());
 
         if (img.isNull())
             return pm;
