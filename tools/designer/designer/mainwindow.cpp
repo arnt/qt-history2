@@ -1893,7 +1893,11 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 		    siface->checkSyntax( SourceEditor::sourceOfForm( fw ), error, line );
 		    if ( !error.isEmpty() ) {
 			iface->setError( error, line );
-			// #### highlighte line in editor
+			if ( editorPluginManager ) {
+			    EditorInterface *eiface = (EditorInterface*)editorPluginManager->queryInterface( "Editor" );
+			    if ( eiface )
+				eiface->setError( line );
+			}
 			QApplication::restoreOverrideCursor();
 			return 0;
 		    }

@@ -32,6 +32,7 @@ public:
     virtual void splitView() = 0;
     virtual void setContext( QObjectList *toplevels, QObject *this_ ) = 0;
     virtual QMap<QString, QString> functions() const = 0;
+    virtual void setError( int line ) = 0;
 
 };
 
