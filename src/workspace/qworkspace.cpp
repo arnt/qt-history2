@@ -1782,6 +1782,7 @@ void QWorkspace::activatePreviousWindow()
  */
 void QWorkspace::cascade()
 {
+    blockSignals(TRUE);
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
 
@@ -1846,6 +1847,7 @@ void QWorkspace::cascade()
     }
     setUpdatesEnabled( TRUE );
     updateWorkspace();
+    blockSignals(FALSE);
 }
 
 /*!
@@ -1855,6 +1857,7 @@ void QWorkspace::cascade()
  */
 void QWorkspace::tile()
 {
+    blockSignals(TRUE);
     if  ( d->maxWindow )
 	d->maxWindow->showNormal();
 
@@ -1943,6 +1946,7 @@ void QWorkspace::tile()
     }
     delete [] used;
     updateWorkspace();
+    blockSignals(FALSE);
 }
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
