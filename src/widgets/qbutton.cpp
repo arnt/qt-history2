@@ -207,7 +207,6 @@ QTimer *QButton::timer()
   for a subclass of QButton unless you want to take over all drawing.
 
   \sa QButtonGroup
-  <a href="http://www.microsoft.com/win32dev/uiguide/uigui161.htm">Microsoft Style Guide</a>
 */
 
 
@@ -341,7 +340,7 @@ QButton::~QButton()
 
   If the text contains an ampersand, QButton creates an automatic
   acceleror for it, such as  Alt-c for "&Cancel".
-  
+
   \sa text(), setPixmap(), setAccel(), QPixmap::mask()
 */
 
@@ -465,7 +464,7 @@ void QButton::setAccel( int key )
 
 
 /*!\obsolete
-  
+
   Strange pre-layout stuff.
 
   \fn bool QButton::autoResize() const
@@ -479,9 +478,9 @@ void QButton::setAccel( int key )
 
 
 /*!\obsolete
-  
+
   Strange pre-layout stuff.
-  
+
   Enables auto-resizing if \e enable is TRUE, or disables it if \e enable is
   FALSE.
 
