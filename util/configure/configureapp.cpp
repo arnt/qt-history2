@@ -666,15 +666,15 @@ bool Configure::displayHelp()
 	cout << "-big-codecs        " << MARK_OPTION(BIG_CODECS,yes)<< " Enable the building of big codecs." << endl;
 	cout << "-no-big-codecs     " << MARK_OPTION(BIG_CODECS,no) << " Disable the building of big codecs." << endl << endl;
 
-	cout << "-no-dsp            " << MARK_OPTION(DSPFILES,yes)  << " Disable the generation of VC++ .DSP-files." << endl;
-	cout << "-dsp               " << MARK_OPTION(DSPFILES,no)   << " Enable the generation of VC++ .DSP-files." << endl << endl;
+	cout << "-dsp               " << MARK_OPTION(DSPFILES,yes)   << " Enable the generation of VC++ .DSP-files." << endl;
+	cout << "-no-dsp            " << MARK_OPTION(DSPFILES,no)  << " Disable the generation of VC++ .DSP-files." << endl << endl;
 
 	// Only show the VCP generation options for CE users for now
-WCE( {	cout << "-no-vcp            " << MARK_OPTION(VCPFILES,yes)  << " Disable the generation of eMbedded VC++ .VCP-files." << endl;
-	cout << "-vcp               " << MARK_OPTION(VCPFILES,no)   << " Enable the generation of eMbedded VC++ .VCP-files." << endl << endl; } );
+WCE( {	cout << "-vcp               " << MARK_OPTION(VCPFILES,yes)   << " Enable the generation of eMbedded VC++ .VCP-files." << endl;
+	cout << "-no-vcp            " << MARK_OPTION(VCPFILES,no)  << " Disable the generation of eMbedded VC++ .VCP-files." << endl << endl; } );
 
-	cout << "-no-vcproj         " <<MARK_OPTION(VCPROJFILES,yes)<< " Disable the generation of VC++ .VCPROJ-files." << endl;
-	cout << "-vcproj            " <<MARK_OPTION(VCPROJFILES,no) << " Enable the generation of VC++ .VCPROJ-files." << endl << endl;
+	cout << "-vcproj            " <<MARK_OPTION(VCPROJFILES,yes) << " Enable the generation of VC++ .VCPROJ-files." << endl;
+	cout << "-no-vcproj         " <<MARK_OPTION(VCPROJFILES,no)<< " Disable the generation of VC++ .VCPROJ-files." << endl << endl;
 
 	cout << "-no-qmake            Do not build qmake." << endl;
 	cout << "-lean                Only process the Qt core projects." << endl;
