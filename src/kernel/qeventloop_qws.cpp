@@ -106,6 +106,9 @@ void QEventLoop::init()
 {
     // initialize the common parts of the event loop
     pipe( d->thread_pipe );
+    fcntl(d->thread_pipe[0], F_SETFD, FD_CLOEXEC);
+    fcntl(d->thread_pipe[1], F_SETFD, FD_CLOEXEC);
+
     d->sn_highest = -1;
 }
 

@@ -445,8 +445,11 @@ bool qKillTimer(QObject *obj)
 void QEventLoop::init()
 {
 #ifdef Q_OS_UNIX
-    if(!qt_is_gui_used)
+    if(!qt_is_gui_used) {
 	pipe(d->thread_pipe);
+	fcntl(d->thread_pipe[0], F_SETFD, FD_CLOEXEC);
+	fcntl(d->thread_pipe[1], F_SETFD, FD_CLOEXEC);
+    }
     d->select_timer = NULL;
     d->sn_highest = -1;
 #endif
