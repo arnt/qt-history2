@@ -1256,15 +1256,12 @@ void Uic::createFormImpl( const QDomElement &e )
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
-	    out << type << " " << nameOfClass << "::" << (*it) << endl;
-	    bool createWarning = TRUE;
 	    QString fname = Parser::cleanArgs( *it );
-	    if ( createWarning ) {
-		out << "{" << endl;
-		if ( *it != "init()" && *it != "destroy()" )
-		    out << "    qWarning( \"" << nameOfClass << "::" << (*it) << ": Not implemented yet!\" );" << endl;
-		out << "}" << endl;
-	    }
+	    out << type << " " << nameOfClass << "::" << fname << endl;
+	    out << "{" << endl;
+	    if ( *it != "init()" && *it != "destroy()" )
+		out << indent << "qWarning( \"" << nameOfClass << "::" << fname << ": Not implemented yet!\" );" << endl;
+	    out << "}" << endl;
 	    out << endl;
 	}
     }
