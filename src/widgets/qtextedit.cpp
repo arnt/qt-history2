@@ -4216,4 +4216,18 @@ bool QTextEdit::isUndoRedoEnabled() const
     return undoEnabled;
 }
 
+/*! Returns whether undo is available */
+
+bool QTextEdit::isUndoAvailable() const
+{
+    return doc->commands()->isUndoAvailable();
+}
+
+/*! Returns whether redo is available */
+
+bool QTextEdit::isRedoAvailable() const
+{
+    return doc->commands()->isRedoAvailable();
+}
+
 #endif //QT_NO_TEXTEDIT

@@ -174,6 +174,8 @@ public:
 
     bool hasSelectedText() const;
     QString selectedText() const;
+    bool isUndoAvailable() const;
+    bool isRedoAvailable() const;
 
     WordWrap wordWrap() const;
     int wrapColumnOrWidth() const;

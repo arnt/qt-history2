@@ -2141,4 +2141,18 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
     return c.index();
 }
 
+/*! Returns whether undo is available */
+
+bool QLineEdit::isUndoAvailable() const
+{
+    return d->parag->commands()->isUndoAvailable();
+}
+
+/*! Returns whether redo is available */
+
+bool QLineEdit::isRedoAvailable() const
+{
+    return d->parag->commands()->isRedoAvailable();
+}
+
 #endif
