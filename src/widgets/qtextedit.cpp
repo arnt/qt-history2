@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#35 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#36 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -93,22 +93,23 @@ static bool block_set_alignment = FALSE;
     formatting. It is optimized to handle large documents and to respond
     quickly to user input.
 
-    Internally QTextEdit works on paragraphs and characters. A
-    paragraph is a formatted string which is word-wrapped to fit into
-    the width of the widget. Every paragraph has an
-    alinment.. Paragraphs are separated by hard line breaks. Each
-    character has its own attributes, for example, font and color.
+    Internally QTextEdit works on paragraphs and characters. A paragraph
+    is a formatted string which is word-wrapped to fit into the width of
+    the widget. The words in the paragraph are aligned in accordance
+    with the paragraph's alignment(). Paragraphs are separated by hard
+    line breaks. Each character within a paragraph has its own
+    attributes, for example, font and color.
 
-    QTextEdit can also show images (using QMimeSourceFactory), lists
-    and tables. If the text is too large to view within the text
-    view's viewport, scrollbars will appear. The text edit can load
-    both plain text and HTML files (a subset of HTML 4 and CSS1 is
-    supported).  The rendering style and valid tags are defined by a
-    styleSheet().  Currently a subset of HTML 3.2 and 4, and CSS1 is
-    supported, see setStyleSheet() and QStyleSheet for details. The
-    images identified by image tags are displayed if they can be
-    interpreted using the text view's QMimeSourceFactory. (See
-    setMimeSourceFactory() for details.)
+    QTextEdit can display images (using QMimeSourceFactory), lists and
+    tables. If the text is too large to view within the text edit's
+    viewport, scrollbars will appear. The text edit can load both plain
+    text and HTML files (a subset of HTML 3.2 and 4, and CSS1 is
+    supported).  The rendering style and the set of valid tags are
+    defined by a styleSheet(). Change the style sheet with
+    \l{setStyleSheet()}; see QStyleSheet for details. The images
+    identified by image tags are displayed if they can be interpreted
+    using the text edit's \l{QMimeSourceFactory}; see
+    setMimeSourceFactory().
 
     If you want a text browser with more navigation use
     QTextBrowser. If you just need to display a small piece of rich
@@ -118,8 +119,9 @@ static bool block_set_alignment = FALSE;
     rich text, call setTextFormat(Qt::RichText) to ensure that the
     text is treated as rich text. (Rich text uses HTML tags to set
     text formatting attributes. See QStyleSheet for information on the
-    HTML tags that are supported.), else QTextEdit will try to guess
-    from the text if it is rich text or plain text.
+    HTML tags that are supported.). If you don't call setTextFormat()
+    explicitly the text edit will guess from the text itself whether it
+    is rich text or plain text.
 
     The text edit documentation uses the following concepts:
     <ul>
@@ -141,18 +143,21 @@ static bool block_set_alignment = FALSE;
 
     The current format's attributes are set with setItalic(), setBold(),
     setUnderline(), setFamily() (font family), setPointSize(),
-    setColor() and setCurrentFont().  The current
-    paragraph's style is set with setParagType() and its alignment is
-    set with setAlignment().
+    setColor() and setCurrentFont().  The current paragraph's style is
+    set with setParagType() and its alignment is set with
+    setAlignment().
 
-    Use setSelection() to programmatically select text. The
-    setSelectionAttributes() function is used to set how selected text
-    should be displayed. The currently selected text's position is
-    available using getSelection() and the selected text itself is
-    returned by selectedText(). The selection can be copied to the
-    clipboard with copy(), or cut to the clipboard with cut(). It can
-    be deleted with removeSelectedText(). The entire text can be
-    selected (or unselected) using selectAll().
+    Use setSelection() to select text. The setSelectionAttributes()
+    function is used to indicate how selected text should be displayed.
+    Use hasSelectedText() to find out if any text is selected.
+    The currently selected text's position is available using
+    getSelection() and the selected text itself is returned by
+    selectedText(). The selection can be copied to the clipboard with
+    copy(), or cut to the clipboard with cut(). It can be deleted with
+    removeSelectedText(). The entire text can be selected (or
+    unselected) using selectAll(). QTextEdit supports multiple
+    selections. Most of the selection functions operate on the default
+    selection, selection 0.
 
     Set and get the position of the cursor with setCursorPosition() and
     getCursorPosition() respectively. When the cursor is moved, the
@@ -162,9 +167,10 @@ static bool block_set_alignment = FALSE;
 
     If the text changes, the textChanged() signal is emitted, and if the
     user inserts a new line by pressing Return or Enter, returnPressed()
-    is emitted.
+    is emitted. The isModified() function will return TRUE if the text
+    has been modified.
 
-    QTextEdit provides command-based undo/redo. To set the depth of
+    QTextEdit provides command-based undo and redo. To set the depth of
     the command history use setUndoDepth() which defaults to 100
     steps. To undo or redo the last operation call undo() or
     redo(). The signals undoAvailable() and redoAvailable() indicate
@@ -193,7 +199,7 @@ static bool block_set_alignment = FALSE;
   \endcode
 
     By default the text edit wraps words at whitespace to fit within
-    the text view widget. The setWordWrap() function is used to
+    the text edit widget. The setWordWrap() function is used to
     specify the kind of word wrap you want, or \c NoWrap if you don't
     want any wrapping.  Call setWordWrap() to set a fixed pixel width
     \c FixedPixelWidth, or character column (e.g. 80 column) \c
@@ -204,25 +210,26 @@ static bool block_set_alignment = FALSE;
 
     The background color is set differently than other widgets, using
     setPaper(). You specify a brush style which could be a plain color
-    or a complex pixmap. Hypertext links are automatically underlined;
-    this can be changed with setLinkUnderline(). The tab stop width is
-    set with setTabStopWidth(). The zoomIn() and zoomOut() functions
-    can be used to resize the text by increasing (decreasing for
-    zoomOut()) the point size by one point per call. Images are not
-    affected.
+    or a complex pixmap. 
+    
+    Hypertext links are automatically underlined; this can be changed
+    with setLinkUnderline(). The tab stop width is set with
+    setTabStopWidth(). 
+    
+    The zoomIn() and zoomOut() functions can be used to resize the text
+    by increasing (decreasing for zoomOut()) the point size used. Images
+    are not affected by the zoom functions.
 
-    The lines() function returns the number of lines in the text,
+    The lines() function returns the number of lines in the text and
     paragraphs() returns the number of paragraphs. The number of lines
-    within a particular paragraph is returned by
-    linesOfParagraph(). The length of the entire text in characters is
-    returned by length().
+    within a particular paragraph is returned by linesOfParagraph(). The
+    length of the entire text in characters is returned by length().
 
     You can scroll to an anchor in the text, e.g. \c{<a name="anchor">}
     with scrollToAnchor(). The find() function can be used to find and
     select a given string within the text.
 
     The list of key-bindings which are implemented for editing:
-
   <ul>
   <li><i> Backspace </i> -- Delete the character to the left of the cursor
   <li><i> Delete </i> -- Delete the character to the right of the cursor
@@ -274,12 +281,12 @@ static bool block_set_alignment = FALSE;
     of the cursor, using setOverwriteMode().
 
     QTextEdit can also be used as read-only text viewer. Call
-    setReadOnly( TRUE ) to disable editing. QTextEdit offers then the
-    same as QTextView offered in previous Qt releases, QTextView is
-    now obsolete and only provided for compatibility reasons.
+    setReadOnly( TRUE ) to disable editing. A read-only QTextEdit 
+    provides the same functionality as the (obsolete) QTextView.
+    (QTextView is still supplied for compatibility with old code.)
 
-    These is the key-navigation, when QTextEdit is used read-only:
-
+    When QTextEdit is used read-only the key-bindings are limited to
+    navigation:
     <ul>
     <li><i> Up Arrow </i> -- Move one line up
     <li><i> Down Arrow </i> -- Move one line down
@@ -294,22 +301,22 @@ static bool block_set_alignment = FALSE;
     <li><i> Ctrl+Wheel</i> -- Zoom the text
     </ul>
 
-    The text edit may be able to provide some meta-information. The
-    documentTitle() function will return the text from within HTML
-    \c{<title>} tags.
+    The text edit may be able to provide some meta-information. For
+    example, the documentTitle() function will return the text from
+    within HTML \c{<title>} tags.
 
-    The text displayed in a text view has a \e context. The context is
-    a path which the text view's QMimeSourceFactory uses to resolve
+    The text displayed in a text edit has a \e context. The context is
+    a path which the text edit's QMimeSourceFactory uses to resolve
     the locations of files and images. It is passed to the
     mimeSourceFactory() when quering data. (See QTextEdit() and
-    context().)
+    \l{context()}.)
 
     Note that we do not intend to add a full-featured web browser
     widget to Qt (because that would easily double Qt's size and only
-    a few applications would benefit from it). In particular, the rich
+    a few applications would benefit from it). The rich
     text support in Qt is designed to provide a fast, portable and
     efficient way to add reasonable online help facilities to
-    applications.
+    applications, and to provide a basis for rich text editors.
 */
 
 /*! \enum QTextEdit::KeyboardAction
@@ -333,12 +340,12 @@ static bool block_set_alignment = FALSE;
 
 /*!  \fn void QTextEdit::copyAvailable (bool yes)
 
-  This signal is emitted when text is selected or deselected in the text
-  view.
+  This signal is emitted when text is selected or de-selected in the text
+  edit.
 
   When text is selected this signal will be emitted with \a yes set to
   TRUE. If no text has been selected or if the selected text is
-  deselected this signal is emitted with \a yes set to FALSE.
+  de-selected this signal is emitted with \a yes set to FALSE.
 
     If \a yes is TRUE then copy() can be used to copy the selection to the
     clipboard. If \a yes is FALSE then copy() does nothing.
@@ -349,7 +356,7 @@ static bool block_set_alignment = FALSE;
 
 /*!  \fn void QTextEdit::textChanged()
 
-  This signal is emitted whenever the text in the text view changes.
+  This signal is emitted whenever the text in the text edit changes.
 
   \sa setText() append()
  */
@@ -362,26 +369,22 @@ static bool block_set_alignment = FALSE;
 */
 
 /*!  \fn QTextDocument *QTextEdit::document() const
+    \preliminary
 
   This function returns the QTextDocument which is used by the text
-  view.
-
-  QTextDocument is not in the public API and its API might change in an
-  incompatible manner in the future.
+  edit.
 */
 
 /*!  \fn void QTextEdit::setDocument( QTextDocument *doc )
+    \preliminary
 
   This function sets the QTextDocument which should be used by the text
-  view. This can be used, for example, if you want to display a document
+  edit. This can be used, for example, if you want to display a document
   using multiple views. You would create a QTextDocument and set it to
-  the text views which should display it. You would need to connect to
-  the textChanged() and selectionChanged() signals of all the text views
+  the text edits which should display it. You would need to connect to
+  the textChanged() and selectionChanged() signals of all the text edits
   and update them all accordingly (preferably with a slight delay for
   efficiency reasons).
-
-  QTextDocument is not in the public API and its API might change in an
-  incompatible manner in the future.
 */
 
 /*! \enum QTextEdit::CursorAction
@@ -419,10 +422,10 @@ static bool block_set_alignment = FALSE;
   \property QTextEdit::overwriteMode
   \brief the text edit's overwrite mode
 
-  If TRUE, the editor is in overwrite mode, i.e. characters entered by
-  the user overwrite any characters to the right of the cursor position.
   If FALSE characters entered by the user are inserted with any
   characters to the right being moved out of the way.
+  If TRUE, the editor is in overwrite mode, i.e. characters entered by
+  the user overwrite any characters to the right of the cursor position.
 */
 
 /*! \fn void QTextEdit::setCurrentFont( const QFont &f )
@@ -506,15 +509,14 @@ static bool block_set_alignment = FALSE;
 
 /*! \fn void QTextEdit::returnPressed()
 
-  This signal is emitted if the user pressed the RETURN or the ENTER key.
+  This signal is emitted if the user pressed the Return or the Enter key.
 */
 
 /*! \fn QTextCursor *QTextEdit::textCursor() const
+    \preliminary
 
   Returns the text edit's text cursor. QTextCursor is not in the
   public API, but in special circumstances you might wish to use it.
-  Note however that the API might change in an incompatible manner in
-  the future.
 */
 
 /*!  Constructs an empty QTextEdit with parent \a parent and name \a
@@ -528,21 +530,22 @@ QTextEdit::QTextEdit( QWidget *parent, const char *name )
     init();
 }
 
-/*!  Constructs a QTextEdit displaying the text \a text with
-  context \a context, with parent \a parent and name \a name.
+/*!  
+    Constructs a QTextEdit with parent \a parent and name \a name. The
+    text edit will display the text \a text using context \a context. 
 
-    The \a context is a path which the text view's QMimeSourceFactory
+    The \a context is a path which the text edit's QMimeSourceFactory
     uses to resolve the locations of files and images. It is passed to
     the mimeSourceFactory() when quering data.
 
-    For example if the text contains an image tag,
+    For example if the text contains an image tag, 
     \c{<img src="image.png">}, and the context is "path/to/look/in", the
     QMimeSourceFactory will try to load the image from
-    "path/to/look/in/image.png". If the tag was
+    "path/to/look/in/image.png". If the tag was 
     \c{<img src="/image.png">}, the context will not be used (because
-    QMimeSourceFactory recognizes that we have given an absolute path)
+    QMimeSourceFactory recognizes that we have used an absolute path)
     and will try to load "/image.png". The context is applied in exactly
-    the same way to \e hrefs, for example,
+    the same way to \e hrefs, for example, 
     \c{<a href="target.html">Target</a>}, would resolve to
     "path/to/look/in/target.html".
 
@@ -724,8 +727,9 @@ bool QTextEdit::event( QEvent *e )
 
 /*!
     Processes the key event, \a e.
-    By default key events are used to provide keyboard navigation.
- */
+    By default key events are used to provide keyboard navigation and
+    text editing.
+*/
 
 void QTextEdit::keyPressEvent( QKeyEvent *e )
 {
@@ -960,7 +964,7 @@ void QTextEdit::imEndEvent( QIMEvent *e )
 
 
 /*!
-  Executes the keyboard action \a action. This is normally called by
+  Executes keyboard action \a action. This is normally called by
   a key event handler.
 */
 
@@ -1144,8 +1148,8 @@ void QTextEdit::readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QText
 }
 
 /*!
-  Deletes the selected text. If there is no selected text nothing
-  happens.
+  Deletes the selected text (i.e. the default selection's text). If
+  there is no selected text (in selection 0) nothing happens.
 */
 
 
@@ -1200,9 +1204,9 @@ void QTextEdit::removeSelectedText()
     }
 }
 
-/*!  Moves the text cursor according to \a action. As this is normally
+/*!  Moves the text cursor according to \a action. This is normally
   used by some key event handler. \a select specifies whether the text
-  between the current cursor position and the new one should be
+  between the current cursor position and the new position should be
   selected.
 */
 
@@ -1754,9 +1758,9 @@ void QTextEdit::doAutoScroll()
 }
 
 /*!
-  Places the cursor \a c at the character which is closest to \a pos
-  (in contents coordinates). If \a c is 0, the default text cursor is
-  used.
+  Places the cursor \a c at the character which is closest to position
+  \a pos (in contents coordinates). If \a c is 0, the default text
+  cursor is used.
 
   \sa setCursorPosition()
 */
@@ -1863,7 +1867,8 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
   characters in \a text result in hard line breaks (i.e. new
   paragraphs). If \a checkNewLine is FALSE the behaviour of the editor
   is undefined if the \a text contains newlines. If \a removeSelected is
-  TRUE, any selected text is removed before the text is inserted.
+  TRUE, any selected text (in selection 0) is removed before the text is
+  inserted.
 
   \sa paste() pasteSubType()
 */
@@ -2044,7 +2049,7 @@ void QTextEdit::checkUndoRedoInfo( UndoRedoInfo::Type t )
 
 /*! Repaints any paragraphs that have changed.
 
-    Although used extensively internally you shouldn't need to call it
+    Although used extensively internally you shouldn't need to call this
     yourself.
 */
 
@@ -2056,10 +2061,10 @@ void QTextEdit::repaintChanged()
 }
 
 /*!
-    Copies the selected text to the clipboard and deletes it from the
-    text edit.
+    Copies the selected text (from selection 0) to the clipboard and
+    deletes it from the text edit.
 
-    If there is no selected text nothing happens.
+    If there is no selected text (in selection 0) nothing happens.
 
     \sa QTextEdit::copy() paste() pasteSubType()
 */
@@ -2081,7 +2086,7 @@ void QTextEdit::cut()
     }
 }
 
-/*! Copies any selected text to the clipboard.
+/*! Copies any selected text (from selection 0) to the clipboard.
 
     \sa hasSelectedText() copyAvailable()
  */
@@ -2341,8 +2346,8 @@ void QTextEdit::updateCurrentFormat()
 }
 
 /*!
-    If b is TRUE sets the current format to italic; otherwise sets the
-    current format to non-italic.
+    If \a b is TRUE sets the current format to italic; otherwise sets
+    the current format to non-italic.
 
     \sa italic()
 */
@@ -2355,7 +2360,7 @@ void QTextEdit::setItalic( bool b )
 }
 
 /*!
-    If b is TRUE sets the current format to bold; otherwise sets the
+    If \a b is TRUE sets the current format to bold; otherwise sets the
     current format to non-bold.
 
     \sa bold()
@@ -2369,8 +2374,8 @@ void QTextEdit::setBold( bool b )
 }
 
 /*!
-    If b is TRUE sets the current format to underline; otherwise sets the
-    current format to non-underline.
+    If \a b is TRUE sets the current format to underline; otherwise sets
+    the current format to non-underline.
 
     \sa underline()
 */
@@ -2412,9 +2417,9 @@ void QTextEdit::setPointSize( int s )
 }
 
 /*!
-  Sets the color of the current format to \a c.
+  Sets the color of the current format, i.e. of the text, to \a c.
 
-  \sa color()
+  \sa color() setPaper()
 */
 
 void QTextEdit::setColor( const QColor &c )
@@ -2440,7 +2445,7 @@ QString QTextEdit::text() const
 }
 
 /*!
-    Returns the text of the paragraph \a para.
+    Returns the text of paragraph \a para.
 
     If textFormat() is \c RichText the text will contain HTML
     formatting tags.
@@ -2453,16 +2458,16 @@ QString QTextEdit::text( int para ) const
 
 /*!
 
-  Changes the text of the view to the string \a text and the
+  Changes the text of the text edit to the string \a text and the
   context to \a context. Any previous text is removed.
 
   \a text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format from \a text.
+  i.e. the text edit autodetects the format from \a text.
 
-  The optional \a context is a path which the text view's
+  The optional \a context is a path which the text edit's
   QMimeSourceFactory uses to resolve the locations of files and images.
-  (See QTextEdit::QTextEdit().) It is passed to the text view's
+  (See \l{QTextEdit::QTextEdit()}.) It is passed to the text edit's
   QMimeSourceFactory when quering data.
 
   \sa text(), setTextFormat()
@@ -2495,15 +2500,15 @@ void QTextEdit::setText( const QString &text, const QString &context )
 
 /*!
   \property QTextEdit::text
-  \brief the text view's text
+  \brief the text edit's text
 
-  The current text in the text view.
+  The text in the text edit.
 
   On setting, any previous text is deleted.
 
-  The value may be interpreted either as plain text or as rich text,
+  The text may be interpreted either as plain text or as rich text,
   depending on the textFormat(). The default setting is \c AutoText,
-  i.e. the text view autodetects the format of the text.
+  i.e. the text edit autodetects the format of the text.
 
   \sa textFormat
 */
@@ -2513,25 +2518,27 @@ void QTextEdit::setText( const QString &text, const QString &context )
   \property QTextEdit::readOnly
   \brief whether the text edit is read-only
 
-  In a read-only text edit the user can not modify the text, but only
-  scroll and select it.
+  In a read-only text edit the user can only navigate through the text
+  and select text; modifying the text is not possible.
 */
 
-/*!  Finds the next occurrence of the string, \a expr, starting from
-    character position \a index within paragraph \a para.
+/*!  
+    Finds the next occurrence of the string, \a expr, starting from
+    character position \e *\a index within paragraph \e *\a para. Both
+    \a index and \a para must be non-null int pointers.
 
-    If \a para and \a index are both 0 the search begins from the start
-    of the text. If \a cs is TRUE the search is case sensitive,
-    otherwise it is case insensitive. If \a wo is TRUE the search looks
-    for whole word matches only; otherwise it searches for any matching
-    text. If \a forward is TRUE (the default) the search works forward
-    from the starting position to the end of the text, otherwise it
-    works backwards to the beginning of the text.
+    If \e *\a para and \e *\a index are both 0 the search begins from
+    the start of the text. If \a cs is TRUE the search is case
+    sensitive, otherwise it is case insensitive. If \a wo is TRUE the
+    search looks for whole word matches only; otherwise it searches for
+    any matching text. If \a forward is TRUE (the default) the search
+    works forward from the starting position to the end of the text,
+    otherwise it works backwards to the beginning of the text.
 
-    If \a expr is found the function returns TRUE and overwrites \a para
-    with the number of the paragraph in which the first character of the
-    match was found and \a index with the index position of that
-    character within the \a para.
+    If \a expr is found the function returns TRUE and sets \e *\a para
+    to the number of the paragraph in which the first character of the
+    match was found and sets \e *\a index to the index position of that
+    character within the \e *\a para.
 
     If \a expr is not found the function returns FALSE and the contents
     of \a index and \a para are undefined.
@@ -2563,14 +2570,14 @@ void QTextEdit::blinkCursor()
 }
 
 /*!
-  Sets the cursor to position \a index in paragraph \a parag.
+  Sets the cursor to position \a index in paragraph \a para.
 
   \sa getCursorPosition()
 */
 
-void QTextEdit::setCursorPosition( int parag, int index )
+void QTextEdit::setCursorPosition( int para, int index )
 {
-    QTextParag *p = doc->paragAt( parag );
+    QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
 
@@ -2585,52 +2592,52 @@ void QTextEdit::setCursorPosition( int parag, int index )
 }
 
 /*!
-  This function sets the \a parag and \a index parameters to the
+  This function sets the \a para and \a index parameters to the
   current cursor position.
 
   \sa setCursorPosition()
  */
 
-void QTextEdit::getCursorPosition( int &parag, int &index ) const
+void QTextEdit::getCursorPosition( int &para, int &index ) const
 {
-    parag = cursor->parag()->paragId();
+    para = cursor->parag()->paragId();
     index = cursor->index();
 }
 
 /*!
-  Sets a selection which starts at position \a index_from in
-  paragraph \a parag_from and ends position \a index_to in
-  paragraph \a parag_to.
+  Sets a selection which starts at position \a indexFrom in
+  paragraph \a paraFrom and ends at position \a indexTo in
+  paragraph \a paraTo.
 
-  Uses the selection settings of selection \a selNum. If this is 0,
+  Uses the selection settings of selection \a selNum. If \a selNum is 0,
   this is the default selection.
 
   \sa getSelection() QTextEdit::selectedText()
 */
 
-void QTextEdit::setSelection( int parag_from, int index_from,
-			      int parag_to, int index_to, int selNum )
+void QTextEdit::setSelection( int paraFrom, int indexFrom,
+			      int paraTo, int indexTo, int selNum )
 {
     if ( selNum > doc->numSelections() - 1 )
 	doc->addSelection( selNum );
-    QTextParag *p1 = doc->paragAt( parag_from );
+    QTextParag *p1 = doc->paragAt( paraFrom );
     if ( !p1 )
 	return;
-    QTextParag *p2 = doc->paragAt( parag_to );
+    QTextParag *p2 = doc->paragAt( paraTo );
     if ( !p2 )
 	return;
 
-    if ( index_from > p1->length() - 1 )
-	index_from = p1->length() - 1;
-    if ( index_to > p2->length() - 1 )
-	index_to = p2->length() - 1;
+    if ( indexFrom > p1->length() - 1 )
+	indexFrom = p1->length() - 1;
+    if ( indexTo > p2->length() - 1 )
+	indexTo = p2->length() - 1;
 
     drawCursor( FALSE );
     QTextCursor c = *cursor;
     c.setParag( p1 );
-    c.setIndex( index_from );
+    c.setIndex( indexFrom );
     cursor->setParag( p2 );
-    cursor->setIndex( index_to );
+    cursor->setIndex( indexTo );
     doc->setSelectionStart( selNum, &c );
     doc->setSelectionEnd( selNum, cursor );
     repaintChanged();
@@ -2639,18 +2646,21 @@ void QTextEdit::setSelection( int parag_from, int index_from,
 }
 
 /*!
-    If there is a selection \a paraFrom is set to the number of the
-    paragraph in which the selection begins and \a paraTo is set to the
-    number of the paragraph in which the selection ends. (They could be
-    the same.) \a indexFrom is set to the index at which the selection
-    begins within \a paraFrom, and \a indexTo is set to the index at
-    which the selection ends within \a paraTo.
+    If there is a selection, \e *\a paraFrom is set to the number of the
+    paragraph in which the selection begins and \e *\a paraTo is set to
+    the number of the paragraph in which the selection ends. (They could
+    be the same.) \e *\a indexFrom is set to the index at which the
+    selection begins within \e *\a paraFrom, and \e *\a indexTo is set to
+    the index at which the selection ends within \e *\a paraTo.
 
-    If there is no selection, \a paraFrom, \a indexFrom, \a paraTo and
-    \a indexTo are all set to -1.
+    If there is no selection, \e *\a paraFrom, \e *\a indexFrom, \e *\a
+    paraTo and \e *\a indexTo are all set to -1.
 
-    The \a selNum is the number of the selection (since multiple
-    selections are supported). It defaults to 0 (the first selection).
+    \a paraFrom, \a indexFrom, \a paraTo and \a indexTo must be non-null
+    int pointers.
+
+    The \a selNum is the number of the selection (multiple selections
+    are supported). It defaults to 0 (the default selection).
 
     \sa selectedText()
 
@@ -2677,16 +2687,14 @@ void QTextEdit::getSelection( int *paraFrom, int *indexFrom,
   \property QTextEdit::textFormat
   \brief the text format: rich text, plain text or auto text
 
-  The current text format.
-
-  Possible values are:
+  The text format is one of the following:
   <ul>
   <li> \c PlainText - all characters, except newlines, are displayed
   verbatim, including spaces. Whenever a newline appears in the text the
-  text view inserts a hard line break and begins a new paragraph.
+  text edit inserts a hard line break and begins a new paragraph.
   <li> \c RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
-  <li> \c AutoText - this is the default. The text view autodetects
+  <li> \c AutoText - this is the default. The text edit autodetects
   which rendering style is best, \c PlainText or \c RichText. This is
   done by using the QStyleSheet::mightBeRichText() function.
   </ul>
@@ -2721,9 +2729,9 @@ int QTextEdit::linesOfParagraph( int para ) const
     return p->lines();
 }
 
-/*! Returns the number of lines in the text view.
+/*! Returns the number of lines in the text edit.
 
-  WARNING: This function may be slow. Lines change all the time during
+  \warning This function may be slow. Lines change all the time during
   word wrapping, so this function has to iterate over all the paragraphs
   and get the number of lines from each one individually.
 */
@@ -2813,7 +2821,8 @@ bool QTextEdit::bold() const
 }
 
 /*!
-    Returns TRUE if the current format is underlined; otherwise returns FALSE.
+    Returns TRUE if the current format is underlined; otherwise returns
+    FALSE.
 
     \sa setUnderline()
 */
@@ -2849,7 +2858,7 @@ int QTextEdit::pointSize() const
 /*!
   Returns the color of the current format.
 
-  \sa setColor()
+  \sa setColor() setPaper()
 */
 
 QColor QTextEdit::color() const
@@ -2860,7 +2869,7 @@ QColor QTextEdit::color() const
 /*!
   Returns the font of the current format.
 
-  \sa setCurrentFont()
+  \sa setCurrentFont() setFamily() setPointSize()
 
 */
 
@@ -2896,9 +2905,10 @@ void QTextEdit::startDrag()
 }
 
 /*!
-    If \a select is TRUE (the default), all the text is selected.
-    If \a select is FALSE any selected text is deselected (i.e. the
-    selection is cleared).
+    If \a select is TRUE (the default), all the text is selected as
+    selection 0.
+    If \a select is FALSE any selected text is de-selected i.e. the
+    default selection (selection 0) is cleared.
 */
 
 void QTextEdit::selectAll( bool select )
@@ -2939,9 +2949,9 @@ void QTextEdit::UndoRedoInfo::clear()
 
 
 /*!
-    If there is some selected text it is deleted. If there is no
-    selected text the character to the right of the text cursor is
-    deleted.
+    If there is some selected text (in selection 0) it is deleted. If
+    there is no selected text (in selection 0) the character to the
+    right of the text cursor is deleted.
 
     \sa removeSelectedText() cut()
 
@@ -2990,7 +3000,7 @@ void QTextEdit::resetFormat()
     setFormat( doc->formatCollection()->defaultFormat(), QTextFormat::Format );
 }
 
-/*! Returns the QStyleSheet which is currently used in this text view.
+/*! Returns the QStyleSheet which is currently used in this text edit.
 
     \sa setStyleSheet()
  */
@@ -3000,7 +3010,7 @@ QStyleSheet* QTextEdit::styleSheet() const
     return doc->styleSheet();
 }
 
-/*! Sets the stylesheet to use with this text view to \a styleSheet.
+/*! Sets the stylesheet to use with this text edit to \a styleSheet.
 
     \sa styleSheet()
  */
@@ -3015,7 +3025,7 @@ void QTextEdit::setStyleSheet( QStyleSheet* styleSheet )
   \brief the background (paper) brush.
 
   The brush that is currently used to draw the background of the
-  text view. The initial setting is an empty brush.
+  text edit. The initial setting is an empty brush.
  */
 
 void QTextEdit::setPaper( const QBrush& pap )
@@ -3034,9 +3044,9 @@ QBrush QTextEdit::paper() const
 
 /*!
   \property QTextEdit::linkUnderline
-  \brief whether links will be underlined
+  \brief whether hypertext links will be underlined
 
-  If TRUE links will be displayed underlined. If FALSE
+  If TRUE hypertext links will be displayed underlined. If FALSE
   links will not be displayed underlined.
 */
 
@@ -3050,7 +3060,7 @@ bool QTextEdit::linkUnderline() const
     return doc->underlineLinks();
 }
 
-/*! Sets the text view's mimesource factory to \a factory. See
+/*! Sets the text edit's mimesource factory to \a factory. See
     QMimeSourceFactory for further details.
 
     \sa mimeSourceFactory()
@@ -3062,7 +3072,7 @@ void QTextEdit::setMimeSourceFactory( QMimeSourceFactory* factory )
 }
 
 /*! Returns the QMimeSourceFactory which is currently used by this
-  text view.
+  text edit.
 
   \sa setMimeSourceFactory()
 */
@@ -3073,8 +3083,8 @@ QMimeSourceFactory* QTextEdit::mimeSourceFactory() const
 }
 
 /*!
-    Returns how many pixels high the text view needs to be to display
-    the text if the text view is \a w pixels wide.
+    Returns how many pixels high the text edit needs to be to display
+    all the text if the text edit is \a w pixels wide.
 */
 
 int QTextEdit::heightForWidth( int w ) const
@@ -3088,7 +3098,7 @@ int QTextEdit::heightForWidth( int w ) const
     return h;
 }
 
-/*! Appends the text \a text to the end of the text view.
+/*! Appends the text \a text to the end of the text edit.
  */
 
 void QTextEdit::append( const QString &text )
@@ -3113,7 +3123,7 @@ void QTextEdit::append( const QString &text )
 }
 
 /*! \property QTextEdit::hasSelectedText
-  \brief whether some text is selected
+  \brief whether some text is selected in selection 0
  */
 
 bool QTextEdit::hasSelectedText() const
@@ -3122,8 +3132,8 @@ bool QTextEdit::hasSelectedText() const
 }
 
 /*!\property QTextEdit::selectedText
-   \brief The selected text or an empty string if there is no currently
-   selected text.
+   \brief The selected text (from selection 0) or an empty string if
+   there is no currently selected text (in selection 0).
 
    The text is always returned as \c PlainText regardless of the text
    format. In a future version of Qt an HTML subset \e may be returned
@@ -3189,9 +3199,9 @@ void QTextEdit::handleReadOnlyKeyEvent( QKeyEvent *e )
     }
 }
 
-/*!  Returns the context of the view.
+/*!  Returns the context of the edit.
 
-    The context is a path which the text view's QMimeSourceFactory
+    The context is a path which the text edit's QMimeSourceFactory
     uses to resolve the locations of files and images.
 
   \sa text(), setText()
@@ -3204,7 +3214,7 @@ QString QTextEdit::context() const
 
 /*!
   \property QTextEdit::documentTitle
-  \brief the title of the document parsef from the text.
+  \brief the title of the document parsed from the text.
 
   For \c PlainText the title will be an empty string. For \c RichText
   the title will be the text between the \c{<title>} tags, if present,
@@ -3221,7 +3231,7 @@ void QTextEdit::makeParagVisible( QTextParag *p )
     setContentsPos( contentsX(), QMIN( p->rect().y(), contentsHeight() - visibleHeight() ) );
 }
 
-/*! Scrolls the text view to make the text at the anchor called \a name
+/*! Scrolls the text edit to make the text at the anchor called \a name
  visible, if it can be found in the document. If the anchor isn't found
  no scrolling will occur. An anchor is defined using the HTML anchor
  tag, e.g. \c{<a name="target">}.
@@ -3328,8 +3338,8 @@ void QTextEdit::pasteSubType( const QCString& subtype )
 /*!
   Prompts the user to choose a type from a list of text types available,
   then copies text from the clipboard (if there is any) into the text
-  view at the current text cursor position. Any selected (marked) text
-  is first deleted.
+  edit at the current text cursor position. Any selected text (in
+  selection 0) is first deleted.
 */
 void QTextEdit::pasteSpecial( const QPoint& pt )
 {
@@ -3388,7 +3398,7 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   \value FixedColumnWidth Wrap the text at a fixed number of character
   columns from the widget's left side. The number of characters is set
   with wrapColumnOrWidth().
-  This is useful whenever you need formatted text that can also be
+  This is useful if you need formatted text that can also be
   displayed gracefully on devices with monospaced fonts, for example a
   standard VT100 terminal, where you might set wrapColumnOrWidth() to
   80.
@@ -3401,11 +3411,11 @@ QCString QTextEdit::pickSpecial( QMimeSource* ms, bool always_ask, const QPoint&
   \brief the word wrap mode
 
   The default mode is \c WidgetWidth which causes words to be wrapped
-  at the right edge of the text view. Wrapping occurs at spaces,
+  at the right edge of the text edit. Wrapping occurs at whitespace,
   keeping whole words intact. If you want wrapping to occur within
-  words use \l wrapPolicy. If you set a wrap mode of \c
-  FixedPixelWidth or \c FixedColumnWidth you should also set
-  \l wrapColumnOrWidth to the width you want.
+  words use setWrapPolicy(). If you set a wrap mode of \c
+  FixedPixelWidth or \c FixedColumnWidth you should also call 
+  setWrapColumnOrWidth() with the width you want.
 
   \sa QTextEdit::WordWrap, wrapColumnOrWidth, wrapPolicy,
 */
@@ -3446,10 +3456,10 @@ QTextEdit::WordWrap QTextEdit::wordWrap() const
   \brief the position (in pixels or columns depending on the wrap mode) where text will be wrapped
 
   If the wrap mode is \c FixedPixelWidth, the value is the number
-  of pixels from the left edge of the text view at which text should
+  of pixels from the left edge of the text edit at which text should
   be wrapped. If the wrap mode is \c FixedColumnWidth, the value is
   the column number (in character columns) from the left edge of the
-  text view at which text should be wrapped.
+  text edit at which text should be wrapped.
 
   \sa wordWrap
  */
@@ -3482,7 +3492,7 @@ int QTextEdit::wrapColumnOrWidth() const
   This enum defines where text can be wrapped in word wrap mode.
 
   The following values are valid:
-  \value AtWhiteSpace  Break lines at whitespace, i.e. spaces or
+  \value AtWhiteSpace  Break lines at whitespace, e.g. spaces or
   newlines.
   \value Anywhere  Break anywhere, including within words.
 
@@ -3527,7 +3537,7 @@ QTextEdit::WrapPolicy QTextEdit::wrapPolicy() const
 /*!
   Deletes all the text in the text edit.
 
-  \sa cut() removeSelectedText()
+  \sa cut() removeSelectedText() setText()
 
 */
 
@@ -3548,9 +3558,8 @@ int QTextEdit::undoDepth() const
 
 /*!
   \property QTextEdit::length
-  \brief the total number of characters in the text
+  \brief the number of characters in the text
 
-  Returns the total number of characters of the text.
 */
 
 int QTextEdit::length() const
@@ -3558,7 +3567,7 @@ int QTextEdit::length() const
     return document()->length();
 }
 
-/*! Returns the tab width used by the text view.
+/*! Returns the tab width used by the text edit.
 
     \sa setTabStopWidth()
  */
@@ -3573,7 +3582,7 @@ void QTextEdit::setUndoDepth( int d )
     document()->setUndoDepth( d );
 }
 
-/*! Sets the tab width used by the text view to \a ts.
+/*! Sets the tab width used by the text edit to \a ts.
 
     \sa tabStopWidth()
  */
@@ -3607,11 +3616,11 @@ void QTextEdit::clearUndoRedo()
   returns TRUE.
 */
 
-bool QTextEdit::getFormat( int parag, int index, QFont *font, QColor *color )
+bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color )
 {
     if ( !font || !color )
 	return FALSE;
-    QTextParag *p = doc->paragAt( parag );
+    QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return FALSE;
     if ( index < 0 || index >= p->length() )
@@ -3621,11 +3630,11 @@ bool QTextEdit::getFormat( int parag, int index, QFont *font, QColor *color )
     return TRUE;
 }
 
-/*! This function is called to create the popup menu which is shown
-  when the user clicks on the text view with the right mouse button. If
-  you want to create a custom popup menu, reimplement this function
-  and return the created popup menu. Ownership of the popup menu is
-  transferred to the caller.
+/*! 
+    This function is called to create a right mouse button popup menu.
+    If you want to create a custom popup menu, reimplement this function
+    and return the created popup menu. Ownership of the popup menu is
+    transferred to the caller.
 */
 
 QPopupMenu *QTextEdit::createPopupMenu()
@@ -3678,7 +3687,7 @@ void QTextEdit::setFont( const QFont &f )
 
     \overload
 
-    Zooms in on the text by by making the standard font size one
+    Zooms in on the text by by making the base font size one
     point larger and recalculating all font sizes. This does not change
     the size of any images.
 
@@ -3690,7 +3699,7 @@ void QTextEdit::setFont( const QFont &f )
 
     \overload
 
-    Zooms out on the text by by making the standard font size one
+    Zooms out on the text by by making the base font size one
     point smaller and recalculating all font sizes. This does not change
     the size of any images.
 
@@ -3699,7 +3708,7 @@ void QTextEdit::setFont( const QFont &f )
 
 
 /*!
-    Zooms in on the text by by making the standard font size \a range
+    Zooms in on the text by by making the base font size \a range
     points larger and recalculating all font sizes. This does not change
     the size of any images.
 
@@ -3713,7 +3722,7 @@ void QTextEdit::zoomIn( int range )
     setFont( f );
 }
 
-/*! Zooms out on the text by making the standard font size \a range
+/*! Zooms out on the text by making the base font size \a range
     points smaller and recalculating all font sizes. This does not
     change the size of any images.
 
@@ -3766,7 +3775,7 @@ void QTextEdit::setEnabled( bool b )
 }
 
 /*!
-  Sets the background color of selection \a selNum to \a back and
+  Sets the background color of selection number \a selNum to \a back and
   specifies whether the text of this selection should be inverted with \a
   invertText.
 
