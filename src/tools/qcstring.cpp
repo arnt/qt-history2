@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#7 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -717,6 +717,10 @@ int QCString::find( const char *str, int index, bool cs ) const
 {
     if ( (uint)index >= size() )		// index outside string
 	return -1;
+    if ( !str )					// no search string
+	return -1;
+    if ( !*str )				// zero-length search string
+	return index;
     register const char *d;
     if ( cs ) {					// case sensitive
 	d = strstr( data()+index, str );
@@ -1362,7 +1366,7 @@ int QCString::contains( const QRegExp &rx ) const
     QString s = "banana";
     s.replace( QRegExp("^[bn]a"), "" );		// NOTE! becomes ""
   \endcode
-  
+
 */
 
 QCString &QCString::replace( const QRegExp &rx, const char *str )
