@@ -55,7 +55,7 @@ class Q_EXPORT QListBox : public QScrollView
     Q_PROPERTY( QString currentText READ currentText )
     Q_PROPERTY( int topItem READ topItem WRITE setTopItem DESIGNABLE false )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
-    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection )
+    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false )
     Q_PROPERTY( LayoutMode columnMode READ columnMode WRITE setColumnMode )
     Q_PROPERTY( LayoutMode rowMode READ rowMode WRITE setRowMode )
     Q_PROPERTY( int numColumns READ numColumns )

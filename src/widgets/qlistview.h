@@ -176,7 +176,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_OBJECT
     Q_ENUMS( SelectionMode )
     Q_PROPERTY( int columns READ columns )
-    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection )
+    Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
     Q_PROPERTY( int childCount READ childCount )
     Q_PROPERTY( bool allColumnsShowFocus READ allColumnsShowFocus WRITE setAllColumnsShowFocus )
