@@ -56,6 +56,12 @@ public:
 			     SCFlags sub = SC_All,
 			     SCFlags subActive = SC_None,
 			     void **data = 0 ) const;
+    
+    void drawComplexControlMask( ComplexControl control,
+				 QPainter *p,
+				 const QWidget *widget,
+				 const QRect &r,
+				 void **data = 0 ) const;
 
     QRect querySubControlMetrics( ComplexControl control,
 				  const QWidget *widget,
@@ -65,18 +71,6 @@ public:
     int pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
 
     QRect subRect( SubRect r, const QWidget *widget ) const;
-
-
-
-
-    //    QRect comboButtonRect( int x, int y, int w, int h) const;
-    //    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
-    //void drawComboButton( QPainter *p, int x, int y, int w, int h,
-    //				    const QColorGroup &g,
-    //				    bool /* sunken */,
-    //				    bool editable,
-    //				    bool /*enabled */,
-    //				    const QBrush *fb );
 
 
     //    void drawScrollBarControls( QPainter*,  const QScrollBar*, int sliderStart, uint controls, uint activeControl );
