@@ -55,7 +55,7 @@ via the accelerator \e Alt-N (\e &N). As we won't set a special tooltip-text, th
 text \e New with the accelerator \e Ctrl+N in brackets will show up when
 a user holds the mouse over a tool-button and does nothing.
 
-\printline newDoc()
+\printuntil newDoc()
 
 When the action becomes activated (the user chooses the respective 
 menu-entry or clicks an appropriate tool-button), it connects to the
@@ -74,6 +74,7 @@ For the \e fileOpenAction we want to provide "What's This?" help and therefore
 define an appropriate rich-text. 
 
 \printline defaultFactory()
+\printline ( fileopen )
 
 As \e fileOpenText makes use of a pixmap, we have to inform the rich-text
 engine that it should provide <EM>QPixmap( fileopen )</EM> whenever a rich-text
@@ -133,7 +134,7 @@ The same easy procedure applies to \e fileSaveAction and \e filePrintAction.
 
 \printline whatsThisButton
 
-To provide the user with a means to toggle his or her mouse into "What's this?" mode,
+To provide the user with a means to toggle his or her mouse in "What's this?" mode,
 we need a fourth icon in the toolbar: the (predefined) "What's this?" button.
 
 
