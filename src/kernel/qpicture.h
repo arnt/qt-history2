@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#26 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#27 $
 **
 ** Definition of QPicture class
 **
@@ -39,13 +39,15 @@ public:
     bool	isNull() const;
 
     uint	size() const;
-    QString data() const;
-    virtual void	setData( const QString &data, uint size );
+    const char* data() const;
+    virtual void setData( const char* data, uint size );
 
     bool	play( QPainter * );
 
     bool	load( const QString &fileName );
     bool	save( const QString &fileName );
+
+    QPicture& operator= (const QPicture&);
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
@@ -56,11 +58,9 @@ private:
     QBuffer	pictb;
     int		trecs;
     bool	formatOk;
-
-private:	// Disabled copy constructor and operator=
+private:       // Disabled copy constructor
 #if defined(Q_DISABLE_COPY)
     QPicture( const QPicture & );
-    QPicture &operator=( const QPicture & );
 #endif
 };
 
@@ -75,7 +75,7 @@ inline uint QPicture::size() const
     return pictb.buffer().size();
 }
 
-inline QString QPicture::data() const
+inline const char* QPicture::data() const
 {
     return pictb.buffer().data();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#55 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#56 $
 **
 ** Implementation of QPicture class
 **
@@ -99,7 +99,7 @@ static const UINT16 mfhdr_min = 0;		// minor version #
 */
 
 /*!
-  \fn QString QPicture::data() const
+  \fn const char* QPicture::data() const
   Returns a pointer to the picture data.  The returned pointer is null
   if the picture contains no data.
   \sa size(), isNull()
@@ -111,7 +111,7 @@ static const UINT16 mfhdr_min = 0;		// minor version #
   \sa data(), size()
 */
 
-void QPicture::setData( const QString &data, uint size )
+void QPicture::setData( const char* data, uint size )
 {
     QByteArray a( size );
     memcpy( a.data(), data, size );
@@ -674,4 +674,13 @@ int QPicture::metric( int m ) const
 void QPainter::drawPicture( const QPicture &pic )
 {
     ((QPicture*)&pic)->play( (QPainter*)this );
+}
+
+/*!
+  Makes this picture be a deep copy of \a p.
+*/
+QPicture& QPicture::operator= (const QPicture& p)
+{
+    setData(p.data(),p.size());
+    return *this;
 }
