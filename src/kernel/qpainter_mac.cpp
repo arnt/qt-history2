@@ -64,6 +64,7 @@ static void drawTile( QPainter *, int, int, int, int, const QPixmap &, int, int 
 QPoint posInWindow(QWidget *w);
 typedef QIntDict<QPaintDevice> QPaintDeviceDict;
 static QPaintDeviceDict *pdev_dict = 0;
+QRegion make_region(RgnHandle handle);
 void unclippedBitBlt( QPaintDevice *dst, int dx, int dy, 
 		      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 		      Qt::RasterOp rop, bool imask);
@@ -728,10 +729,49 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
     }
     LineTo( a[0].x()+offx, a[0].y()+offy );
     CloseRgn( polyRegion );
-    if ( close && this->brush().style() == SolidPattern ) {
+    if( close && this->brush().style() != NoBrush) {
 	updateBrush();
-	PaintRgn( polyRegion );
+	if( this->brush().style() == SolidPattern ) {
+	    PaintRgn( polyRegion );
+	} else {
+	    //save the clip
+	    bool clipon = testf(ClipOn);
+	    QRegion clip = crgn;
+
+	    //create the region
+	    QPointArray offa = a;
+	    offa.translate(offx, offy);
+	    QRegion newclip(offa);
+	    if(clipon && !clip.isNull())
+		newclip &= clip;
+	    setClipRegion(newclip);
+
+	    //draw the brush
+	    QRect r(offa.boundingRect());
+	    //turn off translation flags
+	    uint save_flags = flags;
+	    flags = IsActive | ClipOn;
+
+	    //draw the brush
+	    QPixmap *pm = cbrush.data->pixmap;
+	    if(pm && !pm->isNull()) 
+		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *pm, 
+				r.x() - bro.x(), r.y() - bro.y());
+	    if(brush_style_pix) 
+		drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), *brush_style_pix, 
+				r.x() - bro.x(), r.y() - bro.y());
+
+	    //restore translation flags
+	    flags = save_flags;
+
+	    //restore the clip
+	    if(clipon) 
+		setClipRegion(clip);
+	    else
+		setClipping(FALSE);
+	}
     }
+
     if ( cpen.style() != NoPen ) {
 	updatePen();
 	FrameRgn( polyRegion );
@@ -914,17 +954,38 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	updateBrush();
 	if( this->brush().style() == SolidPattern ) {
 	    PaintRect( &rect );
-	} else { /* FIXME FIXME this needs to be copied all over the place! */
+	} else {
+	    //save the clip
+	    bool clipon = testf(ClipOn);
+	    QRegion clip = crgn;
+
+	    //create the region
+	    QRect qr(rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top);
+	    QRegion newclip(qr);
+	    if(clipon && !clip.isNull())
+		newclip &= clip;
+	    setClipRegion(newclip);
+
+	    //turn off translation flags
+	    uint save_flags = flags;
+	    flags = IsActive | ClipOn;
+
+	    //draw the brush
 	    QPixmap *pm = cbrush.data->pixmap;
 	    if(pm && !pm->isNull()) 
 		drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
-	    if(brush_style_pix) {
-#if 0
-		if(!pm || pm->isNull()) 
-		    PaintRect( &rect );
-#endif
+	    if(brush_style_pix) 
 		drawTiledPixmap(x, y, w, h, *brush_style_pix, x - bro.x(), y - bro.y());
-	    }
+
+	    //restore translation flags
+	    flags = save_flags;
+
+	    //restore the clip
+	    if(clipon) 
+		setClipRegion(clip);
+	    else
+		setClipping(FALSE);
+
 	}
     }
 
@@ -1109,10 +1170,47 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     initPaintDevice();
     Rect r;
     SetRect( &r, x+offx, y+offy, x + w+offx, y + h+offy );
-    if( this->brush().style() == SolidPattern ) {
+
+    if( this->brush().style() != NoBrush) {
 	updateBrush();
-	PaintOval( &r );
+
+	if( this->brush().style() == SolidPattern ) {
+	    PaintOval( &r );
+	} else {
+
+	    //save the clip
+	    bool clipon = testf(ClipOn);
+	    QRegion clip = crgn;
+
+	    //create the region
+	    QRect qr(r.left, r.top, r.right-r.left, r.bottom-r.top);
+	    QRegion newclip(qr, QRegion::Ellipse);
+	    if(clipon && !clip.isNull())
+		newclip &= clip;
+	    setClipRegion(newclip);
+
+	    //turn off translation flags
+	    uint save_flags = flags;
+	    flags = IsActive | ClipOn;
+
+	    //draw the brush
+	    QPixmap *pm = cbrush.data->pixmap;
+	    if(pm && !pm->isNull()) 
+		drawTiledPixmap(x, y, w, h, *pm, x - bro.x(), y - bro.y());
+	    if(brush_style_pix) 
+		drawTiledPixmap(x, y, w, h, *brush_style_pix, x - bro.x(), y - bro.y());
+
+	    //restore translation flags
+	    flags = save_flags;
+
+	    //restore the clip
+	    if(clipon) 
+		setClipRegion(clip);
+	    else
+		setClipping(FALSE);
+	}
     }
+
     updatePen();
     FrameOval( &r );
 }
