@@ -1,0 +1,43 @@
+/*
+$Id$
+*/
+     
+/*! \page wineorder-example.html
+
+  \ingroup table-examples
+
+  \title A wine order list
+ 
+  The following example demonstrates how to use a QTable
+  but store the table data in a
+  custom data structure instead of using \l{QTableItem}s. 
+
+  This is a very unusual approach and you should think
+  carefully about your implementation aims before applying it.
+  It is useful if you for example want to use a
+  custom database to hold your table data.
+ 
+  The example implements a wine order list 
+  where the user can choose the amount of
+  bottles via \l{QSpinBox}es.
+
+  The other table cells use QTableItems.
+  
+  <hr>
+
+  The API of the ProductList class: 
+ 
+  \include table/wineorder/productlist.h
+
+  <hr>
+ 
+  Its Implementation:
+ 
+  \include table/wineorder/productlist.cpp
+
+  <hr>
+ 
+  The main program:
+ 
+  \include table/wineorder/wineorder.cpp
+*/
