@@ -352,7 +352,7 @@ int QDate::day() const
 
 int QDate::dayOfWeek() const
 {
-    return (((jd+1) % 7) + 6)%7 + 1;
+    return ( jd % 7 ) + 1;
 }
 
 /*!
