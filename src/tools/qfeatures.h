@@ -288,6 +288,10 @@
 # define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
+/*!
+  External process invocation.
+*/
+//#define QT_NO_PROCESS
 
 
 // Qt/Embedded-specific
