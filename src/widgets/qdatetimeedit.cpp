@@ -385,6 +385,7 @@ public:
     void appendSection( const QNumberSection& sec );
     void setSectionSelection( int sec, int selstart, int selend );
     bool eventFilter( QObject *o, QEvent *e );
+    int  sectionAt( const QPoint &p );
 
 protected:
     void init();
@@ -496,6 +497,14 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 }
 
 
+/*! Returns the section index at point \a p.
+*/
+int QDateTimeEditor::sectionAt( const QPoint &p )
+{
+    return d->section( p );
+}
+
+
 /*! \reimp
 
 */
@@ -503,7 +512,7 @@ void QDateTimeEditor::paintEvent( QPaintEvent * )
 void QDateTimeEditor::mousePressEvent( QMouseEvent *e )
 {
     QPoint p( e->pos().x(), 0 );
-    int sec = d->section( p );
+    int sec = sectionAt( p );
     if ( sec != -1 ) {
 	cw->setFocusSection( sec );
 	repaint( rect(), FALSE );
@@ -549,7 +558,7 @@ bool QDateTimeEditor::eventFilter( QObject *o, QEvent *e )
 		QWidget *w = this;
 		bool hadDateEdit = FALSE;
 		while ( w ) {
-		    if ( w->inherits( "QSpinWidget" ) && qstrcmp( w->name(), "qt_spin_widget" ) != 0 ||
+		    if ( w->inherits( "QDateTimeSpinWidget" ) && qstrcmp( w->name(), "qt_spin_widget" ) != 0 ||
 			 w->inherits( "QDateTimeEdit" ) )
 			break;
 		    hadDateEdit = hadDateEdit || w->inherits( "QDateEdit" );
@@ -714,6 +723,29 @@ bool QDateTimeEditor::setFocusSection( int sec )
 
 ////////////////
 
+class QDateTimeSpinWidget : public QSpinWidget
+{
+public:
+    QDateTimeSpinWidget( QWidget *parent, const char *name )
+	: QSpinWidget( parent, name )
+    {
+    }
+    
+protected:
+    void wheelEvent( QWheelEvent *e )
+    {
+	QDateTimeEditor *editor = (QDateTimeEditor*)editWidget()->qt_cast( "QDateTimeEditor" );
+	Q_ASSERT( editor );
+	if ( !editor )
+	    return;
+	
+	int section = editor->sectionAt( e->pos() );
+	editor->setFocusSection( section );
+	
+	QSpinWidget::wheelEvent( e );
+    }
+};
+
 class QDateEditPrivate
 {
 public:
@@ -829,7 +861,7 @@ QDateEdit::QDateEdit( const QDate& date, QWidget * parent, const char * name )
 void QDateEdit::init()
 {
     d = new QDateEditPrivate();
-    d->controls = new QSpinWidget( this, qstrcmp( name(), "qt_datetime_dateedit" ) == 0 ? "qt_spin_widget" : "date edit controls" );
+    d->controls = new QDateTimeSpinWidget( this, qstrcmp( name(), "qt_datetime_dateedit" ) == 0 ? "qt_spin_widget" : "date edit controls" );
     d->ed = new QDateTimeEditor( this, "date editor" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );
@@ -1694,7 +1726,7 @@ void QTimeEdit::init()
 {
     d = new QTimeEditPrivate();
     d->ed = new QDateTimeEditor( this, "time edit base" );
-    d->controls = new QSpinWidget( this, qstrcmp( name(), "qt_datetime_timeedit" ) == 0 ? "qt_spin_widget" : "time edit controls" );
+    d->controls = new QDateTimeSpinWidget( this, qstrcmp( name(), "qt_datetime_timeedit" ) == 0 ? "qt_spin_widget" : "time edit controls" );
     d->controls->setEditWidget( d->ed );
     setFocusProxy( d->ed );
     connect( d->controls, SIGNAL( stepUpPressed() ), SLOT( stepUp() ) );
