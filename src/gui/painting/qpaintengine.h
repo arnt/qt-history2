@@ -79,7 +79,7 @@ public:
     };
     Q_DECLARE_FLAGS(PaintEngineFeatures, PaintEngineFeature)
 
-    enum DirtyFlags {
+    enum DirtyFlag {
         DirtyPen                = 0x0001,
         DirtyBrush              = 0x0002,
         DirtyFont               = 0x0004,
@@ -91,6 +91,7 @@ public:
 
         AllDirty                = 0x00ff
     };
+    Q_DECLARE_FLAGS(DirtyFlags, DirtyFlag)
 
     enum PolygonDrawMode {
         OddEvenMode,
@@ -270,5 +271,6 @@ inline void QPaintEngine::updateState(QPainterState *newState, bool updateGC)
 }
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags);
 #endif // QPAINTENGINE_H
 

@@ -732,8 +732,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &rf, const QPixmap &sourcePm, co
             updateBrush(d->pen.color(), QPointF());
             updatePen(Qt::NoPen);
             drawRect(r);
-            setDirty(DirtyPen);
-            setDirty(DirtyBrush);
+            setDirty(QPaintEngine::DirtyPen|QPaintEngine::DirtyBrush);
         }
         setDirty(DirtyClip);
         return;
