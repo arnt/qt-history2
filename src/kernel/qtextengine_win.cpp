@@ -536,13 +536,26 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     for ( i = 0; i < numItems; i++ ) {
 	int from = usp_items[i].iCharPos;
 	int len = usp_items[i+1].iCharPos - from;
+#if 1
 	// Something I consider a Uniscribe bug: They don't set the softBreak property for asian text (it's just set after
 	// spaces in asian text runs. We work around it by calling our implementation for asian text
-	if (isAsian(text[from].unicode()))
+	if (isAsian(text[from+start].unicode()))
 	    scriptEngines[QFont::Han].charAttributes(QFont::Han, engine->string, from + start, len, charAttributes);
 	else
 	    ScriptBreak( (const WCHAR *)text + from + start, len, &(usp_items[i].a), charAttributes + from + start);
-
+#else
+	// Using Uniscribe for character properties could have some other problems aswell,
+	// this is some testing code to be able to check this easily.
+	QFont::Script s;
+	if (isAsian(text[from+start].unicode())) {
+	    s = QFont::Han;
+	} else {
+	    s = scriptForWinLanguage( script_properties[usp_items[i].a.script]->langid );
+    	    if (s == QFont::NScripts)
+    		s = QFont::Latin;
+	}
+	scriptEngines[s].charAttributes(s, engine->string, from + start, len, charAttributes);
+#endif
     }
 
     if ( usp_items != s_items )
