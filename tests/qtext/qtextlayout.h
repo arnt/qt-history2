@@ -38,10 +38,10 @@ struct QBidiStatus {
     QChar::Direction last		: 5;
 };
 
-class QTextLine {
+class QTextRow {
 public:
-    QTextLine(const QString &text, int from, int length, QTextLine *previous);
-    virtual ~QTextLine();
+    QTextRow(const QString &text, int from, int length, QTextLine *previous);
+    virtual ~QTextRow();
 
     QTextLine *previousLine() const { return prev; }
     QTextLine *nextLine() const { return next; }

@@ -68,7 +68,7 @@ void QBidiContext::deref() const
   used internally.
   Represents one line of text in a Rich Text drawing area
 */
-QTextLine::QTextLine(const QString &t, int from, int length, QTextLine *previous)
+QTextRow::QTextRow(const QString &t, int from, int length, QTextRow *previous)
     :  start(from), len(length), text(t), prev(previous)
 {
     next = 0;
@@ -90,7 +90,7 @@ QTextLine::QTextLine(const QString &t, int from, int length, QTextLine *previous
     bidiReorderLine();
 }
 
-QTextLine::~QTextLine()
+QTextRow::~QTextRow()
 {
     // ### care about previous/next????
 
@@ -98,7 +98,7 @@ QTextLine::~QTextLine()
     endEmbed->deref();
 }
 
-void QTextLine::paint(QPainter *p, int _x, int _y)
+void QTextRow::paint(QPainter *p, int _x, int _y)
 {
     // no rich text formatting....
     // ### no alignment
@@ -106,13 +106,13 @@ void QTextLine::paint(QPainter *p, int _x, int _y)
     p->drawText(xPos + _x, yPos + _y, reorderedText );
 }
 
-void QTextLine::setPosition(int _x, int _y)
+void QTextRow::setPosition(int _x, int _y)
 {
     xPos = _x;
     yPos = _y;
 }
 
-void QTextLine::setBoundingRect(const QRect &r)
+void QTextRow::setBoundingRect(const QRect &r)
 {
     xPos = r.x();
     yPos = r.y();
@@ -120,12 +120,12 @@ void QTextLine::setBoundingRect(const QRect &r)
     h = r.height();
 }
 
-QRect QTextLine::boundingRect()
+QRect QTextRow::boundingRect()
 {
     return QRect(xPos, yPos, w, h);
 }
 
-bool QTextLine::hasComplexText()
+bool QTextRow::hasComplexText()
 {
     complexText = false;
     if(startEmbed->level) {
@@ -178,7 +178,7 @@ struct QBidiRun {
 
 
 // collects one line of the paragraph and transforms it to visual order
-void QTextLine::bidiReorderLine()
+void QTextRow::bidiReorderLine()
 {
     printf("doing BiDi reordering from %d to %d!\n", start, len+start);
 
@@ -605,7 +605,7 @@ void QTextLine::bidiReorderLine()
     uchar levelHigh = 0;
     QBidiRun *r = runs.first();
     while ( r ) {
-	printf("level = %d\n", r->level); 
+	printf("level = %d\n", r->level);
 	if ( r->level > levelHigh )
 	    levelHigh = r->level;
 	if ( r->level < levelLow )
@@ -777,7 +777,7 @@ QParagraph::QParagraph(const QString &t, QTextArea *a, QParagraph *lastPar)
     first = last = 0;
     text = t;
     text.compose();
-    
+
     // get last paragraph so we know where we want to place the next line
     if ( lastPar ) {
 	QPoint p = lastPar->nextLine();
@@ -818,7 +818,7 @@ int QParagraph::findLineBreak(int pos)
     int start = pos;
     QFontMetrics fm(QApplication::font());
 
-    const QChar *ch = text.unicode();                               
+    const QChar *ch = text.unicode();
 
     int x = xPos;
     int y = yPos;
@@ -852,7 +852,7 @@ int QParagraph::findLineBreak(int pos)
 void QParagraph::addLine(int start, int length)
 {
     printf("addline %d %d\n", start, length);
-    QTextLine *line = new QTextLine(text, start, length, last);
+    QTextRow *line = new QTextRow(text, start, length, last);
 
     QFontMetrics fm(QApplication::font());
     int height = fm.height();
@@ -883,7 +883,7 @@ void QParagraph::paint(QPainter *p, int x, int y)
 
     x += xPos;
     y += yPos;
-    QTextLine *line = first;
+    QTextRow *line = first;
     while(line) {
 	line->paint(p, x, y);
 	line = line->nextLine();
