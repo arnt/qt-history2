@@ -28,13 +28,13 @@ AnalogClock::AnalogClock( QWidget *parent, const char *name )
 
 void AnalogClock::mousePressEvent( QMouseEvent *e )
 {
-    //    if ( e->button() == LeftButton )
+    if(isTopLevel())
 	clickPos = e->pos();
 }
 
 void AnalogClock::mouseMoveEvent( QMouseEvent *e )
 {
-    //    if ( e->state() & LeftButton )
+    if(isTopLevel())
 	move( e->globalPos() - clickPos );
 }
 
