@@ -1154,7 +1154,7 @@ void QListViewItem::takeItem( QListViewItem * item )
     item->configured = FALSE;
 
     if ( emit_changed )
-	emit lv->currentChanged( oldCurrent );
+	emit lv->currentChanged( lv->d->focusItem );
     if ( was_selected )
 	emit lv->selectionChanged();
 }
