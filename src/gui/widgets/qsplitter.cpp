@@ -812,13 +812,18 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 {
     QSplitterLayoutStruct *sls = 0;
     int i;
+    int last = list.count();
     for (i = 0; i < list.size(); ++i) {
         QSplitterLayoutStruct *s = d->list.at(i);
         if (s->widget == w) {
             sls = s;
+            --last;
             break;
         }
     }
+    if (index < 0 || index > last)
+        index = last;
+
     if (sls) {
         list.move(i,index);
     } else {
