@@ -91,21 +91,24 @@ protected:
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y,
 			       QCOORD w, QCOORD h );
     void styleChange( QStyle& );
-    int adjustPos( int , int );
+    int adjustPos( int, int );
     virtual void setRubberband( int );
-    void getRange( int id, int*, int* );
+    void getRange( int id, int *, int * );
 
 private:
     void init();
     void recalc( bool update = FALSE );
     void doResize();
     void storeSizes();
+    void getRange( int id, int *, int *, int *, int * );
+    void addContribution( int, int *, int *, bool );
+    int adjustPos( int, int, int *, int *, int *, int * );
     void processChildEvents();
     QSplitterLayoutStruct *addWidget( QWidget*, bool first = FALSE );
     void recalcId();
-    void moveBefore( int pos, int id, bool upLeft );
-    void moveAfter( int pos, int id, bool upLeft );
-    void setG( QWidget *w, int p, int s, bool isSplitter = FALSE );
+    void doMove( bool backwards, int pos, int id, int delta, bool upLeft,
+		 bool maySquash );
+    void setGeo( QWidget *w, int pos, int size, bool splitterMoved );
 
     QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
@@ -127,7 +130,7 @@ private:
     friend Q_EXPORT QTextStream& operator>>( QTextStream&, QSplitter& );
 #endif
 
-private:	// Disabled copy constructor and operator=
+private:
 #if defined(Q_DISABLE_COPY)
     QSplitter( const QSplitter & );
     QSplitter& operator=( const QSplitter & );

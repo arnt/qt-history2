@@ -83,6 +83,33 @@ private:
 static int mouseOffset;
 static int opaqueOldPos = -1; // this assumes that there's only one mouse
 
+static QPoint toggle( QWidget *w, QPoint pos )
+{
+    return -pos - QPoint( w->minimumWidth(), w->minimumHeight() );
+}
+
+static bool inFirstQuadrant( QWidget *w )
+{
+    return w->x() >= 0 && w->y() >= 0;
+}
+
+static QPoint topLeft( QWidget *w )
+{
+    if ( inFirstQuadrant(w) ) {
+	return w->pos();
+    } else {
+	return toggle( w, w->pos() );
+    }
+}
+
+static QPoint bottomRight( QWidget *w )
+{
+    if ( inFirstQuadrant(w) ) {
+	return w->geometry().bottomRight();
+    } else {
+	return toggle( w, w->pos() ) - QPoint( 1, 1 );
+    }
+}
 
 QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 				  QSplitter *parent, const char * name )
@@ -105,39 +132,33 @@ void QSplitterHandle::setOrientation( Qt::Orientation o )
 {
     orient = o;
 #ifndef QT_NO_CURSOR
-    if ( o == QSplitter::Horizontal )
-	setCursor( splitHCursor );
-    else
-	setCursor( splitVCursor );
+    setCursor( o == QSplitter::Horizontal ? splitHCursor : splitVCursor );
 #endif
 }
-
 
 void QSplitterHandle::mouseMoveEvent( QMouseEvent *e )
 {
     if ( !(e->state()&LeftButton) )
 	return;
-    QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+    QCOORD pos = s->pick( parentWidget()->mapFromGlobal(e->globalPos()) )
 		 - mouseOffset;
     if ( opaque() ) {
 	s->moveSplitter( pos, id() );
     } else {
-	int min = pos; int max = pos;
-	s->getRange( id(), &min, &max );
-	s->setRubberband( QMAX( min, QMIN(max, pos )));
+	s->setRubberband( s->adjustPos(pos, id()) );
     }
 }
 
 void QSplitterHandle::mousePressEvent( QMouseEvent *e )
 {
     if ( e->button() == LeftButton )
-	mouseOffset = s->pick(e->pos());
+	mouseOffset = s->pick( e->pos() );
 }
 
 void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     if ( !opaque() && e->button() == LeftButton ) {
-	QCOORD pos = s->pick(parentWidget()->mapFromGlobal(e->globalPos()))
+	QCOORD pos = s->pick( parentWidget()->mapFromGlobal(e->globalPos()) )
 		     - mouseOffset;
 	s->setRubberband( -1 );
 	s->moveSplitter( pos, id() );
@@ -243,7 +264,7 @@ public:
 */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
-    :QFrame(parent,name,WPaintUnclipped)
+    : QFrame( parent, name, WPaintUnclipped )
 {
     orient = Horizontal;
     init();
@@ -256,7 +277,7 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
-    : QFrame(parent,name,WPaintUnclipped)
+    : QFrame( parent, name, WPaintUnclipped )
 {
     orient = o;
     init();
@@ -352,7 +373,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 	tmp += w->name();
 	newHandle = new QSplitterHandle( orientation(), this, tmp );
 	s->wid = newHandle;
-	newHandle->setId(data->list.count());
+	newHandle->setId( data->list.count() );
 	s->isSplitter = TRUE;
 	s->sizer = pick( newHandle->sizeHint() );
 	if ( first )
@@ -369,7 +390,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
     else
 	data->list.append( s );
     if ( newHandle && isVisible() )
-	newHandle->show(); //will trigger sending of post events
+	newHandle->show(); // will trigger sending of post events
     return s;
 }
 
@@ -399,7 +420,7 @@ void QSplitter::childEvent( QChildEvent *c )
     } else if ( c->type() == QEvent::ChildRemoved ) {
 	QSplitterLayoutStruct *p = 0;
 	if ( data->list.count() > 1 )
-	    p = data->list.at(1); //remove handle _after_ first widget.
+	    p = data->list.at( 1 ); // remove handle after first widget
 	QSplitterLayoutStruct *s = data->list.first();
 	while ( s ) {
 	    if ( s->wid == c->child() ) {
@@ -407,7 +428,7 @@ void QSplitter::childEvent( QChildEvent *c )
 		delete s;
 		if ( p && p->isSplitter ) {
 		    data->list.removeRef( p );
-		    delete p->wid; //will call childEvent
+		    delete p->wid; // will call childEvent()
 		    delete p;
 		}
 		recalcId();
@@ -433,8 +454,8 @@ void QSplitter::setRubberband( int p )
     paint.setBrush( gray );
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
-    const int rBord = 3; //Themable????
-    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
+    const int rBord = 3; // customizable?
+    int sw = style().pixelMetric( QStyle::PM_SplitterWidth, this );
     if ( orient == Horizontal ) {
 	if ( opaqueOldPos >= 0 )
 	    paint.drawRect( opaqueOldPos + sw/2 - rBord , r.y(),
@@ -494,7 +515,7 @@ void QSplitter::drawSplitter( QPainter *p,
 
 
 /*!
-    Returns the id of the splitter to the right of or below the widget
+    Returns the ID of the splitter to the right of or below the widget
     \a w, or 0 if there is no such splitter (i.e. it is either not in
     this QSplitter or it is at the end).
 */
@@ -515,7 +536,7 @@ int QSplitter::idAfter( QWidget* w ) const
 
 
 /*!
-    Moves the left/top edge of the splitter handle with id \a id as
+    Moves the left/top edge of the splitter handle with ID \a id as
     close as possible to position \a p, which is the distance from the
     left (or top) edge of the widget.
 
@@ -528,222 +549,193 @@ int QSplitter::idAfter( QWidget* w ) const
 */
 void QSplitter::moveSplitter( QCOORD p, int id )
 {
-    p = adjustPos( p, id );
+    QSplitterLayoutStruct *s = data->list.at( id );
+    int farMin;
+    int min;
+    int max;
+    int farMax;
 
-    QSplitterLayoutStruct *s = data->list.at(id);
-    int oldP = orient == Horizontal ? s->wid->x() : s->wid->y();
-    bool upLeft;
+    p = adjustPos( p, id, &farMin, &min, &max, &farMax );
+    int oldP = pick( s->wid->pos() );
+
     if ( QApplication::reverseLayout() && orient == Horizontal ) {
-	p += s->wid->width();
-	upLeft = p > oldP;
-    } else
-	upLeft = p < oldP;
-
-    moveAfter( p, id, upLeft );
-    moveBefore( p-1, id-1, upLeft );
-
+	int q = p + s->wid->width();
+	doMove( FALSE, q, id - 1, -1, (q > oldP), (p > max) );
+	doMove( TRUE, q, id, -1, (q > oldP), (p < min) );
+    } else {
+	doMove( FALSE, p, id, +1, (p < oldP), (p > max) );
+	doMove( TRUE, p, id - 1, +1, (p < oldP), (p < min) );
+    }
     storeSizes();
 }
 
 
-void QSplitter::setG( QWidget *w, int p, int s, bool isSplitter )
+void QSplitter::setGeo( QWidget *w, int p, int s, bool splitterMoved )
 {
+qDebug( "%ssetGeo( %s, %d, %d )", splitterMoved ? "" : "\t", w->name(), p, s );
+    QRect r;
     if ( orient == Horizontal ) {
-	if ( QApplication::reverseLayout() && orient == Horizontal &&
-	     !isSplitter )
+	if ( QApplication::reverseLayout() && orient == Horizontal
+	     && !splitterMoved )
 	    p = contentsRect().width() - p - s;
-	w->setGeometry( p, contentsRect().y(), s, contentsRect().height() );
-    } else
-	w->setGeometry( contentsRect().x(), p, contentsRect().width(), s );
+	r.setRect( p, contentsRect().y(), s, contentsRect().height() );
+    } else {
+	r.setRect( contentsRect().x(), p, contentsRect().width(), s );
+    }
+
+    /*
+      Hide the child widget, but without calling hide() so that the
+      splitter handle is still shown.
+    */
+    if ( s <= 0 && pick(w->minimumSize()) > 0 )
+	r.moveTopLeft( toggle(w, r.topLeft()) );
+    w->setGeometry( r );
 }
 
 
 /*
-  Places the right/bottom edge of the widget at \a id at position \a pos.
+  Places the right/bottom edge of the widget \a id at position \a pos - 1.
 
   \sa idAfter()
 */
 
-void QSplitter::moveBefore( int pos, int id, bool upLeft )
+void QSplitter::doMove( bool backwards, int pos, int id, int delta, bool upLeft,
+			bool maySquash )
 {
-    if( id < 0 )
+    if ( id < 0 || id >= (int) data->list.count() )
 	return;
-    QSplitterLayoutStruct *s = data->list.at(id);
-    if ( !s )
-	return;
+
+    QSplitterLayoutStruct *s = data->list.at( id );
     QWidget *w = s->wid;
+
+    int nextId = backwards ? id - delta : id + delta;
+
     if ( w->isHidden() ) {
-	moveBefore( pos, id-1, upLeft );
-    } else if ( s->isSplitter ) {
-	int pos1, pos2;
-	int dd = s->getSizer( orient );
-	if ( QApplication::reverseLayout() && orient == Horizontal ) {
-	    pos1 = pos;
-	    pos2 = pos + dd;
-	} else {
-	    pos2 = pos - dd;
-	    pos1 = pos2 + 1;
-	}
-	if ( upLeft ) {
-	    setG( w, pos1, dd, TRUE );
-	    moveBefore( pos2, id-1, upLeft );
-	} else {
-	    moveBefore( pos2, id-1, upLeft );
-	    setG( w, pos1, dd, TRUE );
-	}
+	doMove( backwards, pos, nextId, delta, upLeft, TRUE );
     } else {
-	int dd, newLeft, nextPos;
-	if( QApplication::reverseLayout() && orient == Horizontal ) {
-	    dd = w->geometry().right() - pos;
-	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(w->maximumSize())) );
-	    newLeft = pos+1;
-	    nextPos = newLeft + dd;
+	if ( s->isSplitter ) {
+	    int dd = s->getSizer( orient );
+	    int nextPos = backwards ? pos - dd : pos + dd;
+	    int left = backwards ? pos - dd : pos;
+
+	    if ( upLeft ) {
+		setGeo( w, left, dd, TRUE );
+		doMove( backwards, nextPos, nextId, delta, upLeft, maySquash );
+	    } else {
+		doMove( backwards, nextPos, nextId, delta, upLeft, maySquash );
+		setGeo( w, left, dd, TRUE );
+	    }
 	} else {
-	    dd = pos - pick( w->pos() ) + 1;
-	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(w->maximumSize())) );
-	    newLeft = pos-dd+1;
-	    nextPos = newLeft - 1;
+	    int dd = backwards ? pos - pick( topLeft(w) )
+			       : pick( bottomRight(w) ) - pos + 1;
+	    if ( dd > 0 || (inFirstQuadrant(w) && !maySquash) ) {
+		dd = QMAX( pick(w->minimumSize()),
+			   QMIN(dd, pick(w->maximumSize())) );
+	    } else {
+		dd = 0;
+	    }
+	    setGeo( w, backwards ? pos - dd : pos, dd, TRUE );
+	    doMove( backwards, backwards ? pos - dd : pos + dd, nextId, delta,
+		    upLeft, TRUE );
 	}
-	setG( w, newLeft, dd, TRUE );
-	moveBefore( nextPos, id-1, upLeft );
     }
 }
 
 
-/*
-  Places the left/top edge of the widget at \a id at position \a pos.
-
-  \sa idAfter()
-*/
-
-void QSplitter::moveAfter( int pos, int id, bool upLeft )
+void QSplitter::getRange( int id, int *farMin, int *min, int *max, int *farMax )
 {
-    QSplitterLayoutStruct *s = id < int(data->list.count()) ?
-			       data->list.at(id) : 0;
-    if ( !s )
+    int n = data->list.count();
+    if ( id <= 0 || id >= n - 1 )
 	return;
-    QWidget *w = s->wid;
-    if ( w->isHidden() ) {
-	moveAfter( pos, id+1, upLeft );
-    } else if ( pick( w->pos() ) == pos ) {
-	//No need to do anything if it's already there.
-	return;
-    } else if ( s->isSplitter ) {
-	int dd = s->getSizer( orient );
-	int pos1, pos2;
-	if( QApplication::reverseLayout() && orient == Horizontal ) {
-	    pos2 = pos - dd;
-	    pos1 = pos2 + 1;
-	} else {
-	    pos1 = pos;
-	    pos2 = pos + dd;
-	}
-	if ( upLeft ) {
-	    setG( w, pos1, dd, TRUE );
-	    moveAfter( pos2, id+1, upLeft );
-	} else {
-	    moveAfter( pos2, id+1, upLeft );
-	    setG( w, pos1, dd, TRUE );
-	}
+
+    int minBefore = 0;
+    int minAfter = 0;
+    int maxBefore = 0;
+    int maxAfter = 0;
+    int i;
+
+    for ( i = 0; i < id; i++ )
+	addContribution( i, &minBefore, &maxBefore, i != id - 1 );
+    for ( i = id; i < n; i++ )
+	addContribution( i, &minAfter, &maxAfter, i != id + 1 );
+
+    QRect r = contentsRect();
+    int minVal;
+    int maxVal;
+
+    if ( orient == Horizontal && QApplication::reverseLayout() ) {
+	int splitterWidth = style().pixelMetric( QStyle::PM_SplitterWidth,
+						 this );
+	minVal = r.width() - QMIN( maxBefore, pick(r.size()) - minAfter )
+		 - splitterWidth;
+	maxVal = r.width() - QMAX( minBefore, pick(r.size()) - maxAfter )
+		 - splitterWidth;
     } else {
-	int left = pick( w->pos() );
-	int right, dd,/* newRight,*/ newLeft, nextPos;
-	if ( QApplication::reverseLayout() && orient == Horizontal ) {
-	    dd = pos - left + 1;
-	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(w->maximumSize())) );
-	    newLeft = pos-dd+1;
-	    nextPos = newLeft - 1;
-	} else {
-	    right = pick( w->geometry().bottomRight() );
-	    dd = right - pos + 1;
-	    dd = QMAX( pick(w->minimumSize()),
-		       QMIN(dd, pick(w->maximumSize())) );
-	    /*newRight = pos+dd-1;*/
-	    newLeft = pos;
-	    nextPos = newLeft + dd;
-	}
-	setG( w, newLeft, dd, TRUE );
-	/*if( right != newRight )*/
-	moveAfter( nextPos, id+1, upLeft );
+	minVal = pick( r.topLeft() )
+		 + QMAX( minBefore, pick(r.size()) - maxAfter );
+	maxVal = pick( r.topLeft() )
+		 + QMIN( maxBefore, pick(r.size()) - minAfter );
     }
+
+    if ( farMin )
+	*farMin = minVal - pick( data->list.at(id - 1)->wid->minimumSize() );
+    if ( min )
+	*min = minVal;
+    if ( max )
+	*max = maxVal;
+    if ( farMax )
+	*farMax = maxVal + pick( data->list.at( id + 1 )->wid->minimumSize() );
 }
 
 
 /*!
-    Returns the valid range of the splitter with id \a id in \a *min
+    Returns the valid range of the splitter with ID \a id in \a *min
     and \a *max if \a min and \a max are not 0.
 
     \sa idAfter()
 */
 
+
 void QSplitter::getRange( int id, int *min, int *max )
 {
-    int minB = 0;	//before
-    int maxB = 0;
-    int minA = 0;
-    int maxA = 0;	//after
-    int n = data->list.count();
-    if ( id < 0 || id >= n )
-	return;
-    int i;
-    for ( i = 0; i < id; i++ ) {
-	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->wid->isHidden() ) {
-	    //ignore
-	} else if ( s->isSplitter ) {
-	    minB += s->getSizer( orient );
-	    maxB += s->getSizer( orient );
-	} else {
-	    minB += pick( s->wid->minimumSize() );
-	    maxB += pick( s->wid->maximumSize() );
-	}
-    }
-    for ( i = id; i < n; i++ ) {
-	QSplitterLayoutStruct *s = data->list.at(i);
-	if ( s->wid->isHidden() ) {
-	    //ignore
-	} else if ( s->isSplitter ) {
-	    minA += s->getSizer( orient );
-	    maxA += s->getSizer( orient );
-	} else {
-	    minA += pick( s->wid->minimumSize() );
-	    maxA += pick( s->wid->maximumSize() );
-	}
-    }
-    QRect r = contentsRect();
-    if ( orient == Horizontal && QApplication::reverseLayout() ) {
-	int splitterWidth = style().pixelMetric(QStyle::PM_SplitterWidth, this);
-	if ( min )
-	    *min = pick(r.topRight()) - QMIN( maxB, pick(r.size())-minA ) - splitterWidth;
-	if ( max )
-	    *max = pick(r.topRight()) - QMAX( minB, pick(r.size())-maxA ) - splitterWidth;
-    } else {
-	if ( min )
-	    *min = pick(r.topLeft()) + QMAX( minB, pick(r.size())-maxA );
-	if ( max )
-	    *max = pick(r.topLeft()) + QMIN( maxB, pick(r.size())-minA );
-    }
+    getRange( id, min, 0, 0, max );
 }
 
 
 /*!
-    Returns the closest legal position to \a p of the splitter with id
-    \a id.
+    Returns the closest legal position to \a pos of the splitter with
+    ID \a id.
 
     \sa idAfter()
 */
 
-int QSplitter::adjustPos( int p, int id )
+int QSplitter::adjustPos( int pos, int id )
 {
-    int min = 0;
-    int max = 0;
-    getRange( id, &min, &max );
-    p = QMAX( min, QMIN( p, max ) );
+    int a, b, c, d;
+    return adjustPos( pos, id, &a, &b, &c, &d );
+}
 
-    return p;
+int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
+			  int *farMax )
+{
+    getRange( id, farMin, min, max, farMax );
+    if ( pos >= *min ) {
+	if ( pos <= *max ) {
+	    return pos;
+	} else {
+	    if ( pos - *max > *farMax - pos ) {
+		return *farMax;
+	    } else {
+		return *max;
+	    }
+	}
+    } else {
+	if ( *min - pos > pos - *farMin ) {
+	    return *farMin;
+	} else {
+	    return *min;
+	}
+    }
 }
 
 void QSplitter::doResize()
@@ -751,14 +743,15 @@ void QSplitter::doResize()
     QRect r = contentsRect();
     int n = data->list.count();
     QMemArray<QLayoutStruct> a( n );
-    int numAutoWithStretch = 0;
-    int numAutoWithoutStretch = 0;
 
     for ( int pass = 0; pass < 2; pass++ ) {
+	int numAutoWithStretch = 0;
+	int numAutoWithoutStretch = 0;
+
 	for ( int i = 0; i < n; i++ ) {
 	    a[i].init();
 	    QSplitterLayoutStruct *s = data->list.at( i );
-	    if ( s->wid->isHidden() ) {
+	    if ( s->wid->isHidden() || !inFirstQuadrant(s->wid) ) {
 		a[i].maximumSize = 0;
 	    } else if ( s->isSplitter ) {
 		a[i].sizeHint = a[i].minimumSize = a[i].maximumSize = s->sizer;
@@ -797,7 +790,7 @@ void QSplitter::doResize()
 		if ( mode == Stretch ) {
 		    if ( s->getSizer(orient) > 1 )
 			stretch *= s->getSizer( orient );
-		    // ad-hoc work-around for layout engine limitation
+		    // QMIN(): ad hoc work-around for layout engine limitation
 		    a[i].stretch = QMIN( stretch, 8192 );
 		    a[i].sizeHint = a[i].minimumSize;
 		} else if ( mode == KeepSize ) {
@@ -808,7 +801,7 @@ void QSplitter::doResize()
 	    }
 	}
 
-	// no need for a second pass
+	// a second pass would yield the same results
 	if ( numAutoWithStretch > 0 || numAutoWithoutStretch == 0 )
 	    break;
     }
@@ -817,7 +810,7 @@ void QSplitter::doResize()
 
     for ( int i = 0; i < n; i++ ) {
 	QSplitterLayoutStruct *s = data->list.at(i);
-	setG( s->wid, a[i].pos, a[i].size );
+	setGeo( s->wid, a[i].pos, a[i].size, FALSE );
     }
 }
 
@@ -833,12 +826,11 @@ void QSplitter::recalc( bool update )
     bool first = TRUE;
 
     /*
-      The splitter before a hidden widget is always hidden.
-      The splitter before the first visible widget is hidden.
-      The splitter before any other visible widget is visible.
+      Splitter handles before the first visible widget or right
+      before a hidden widget must be hidden.
     */
     for ( int i = 0; i < n; i++ ) {
-	QSplitterLayoutStruct *s = data->list.at(i);
+	QSplitterLayoutStruct *s = data->list.at( i );
 	if ( !s->isSplitter ) {
 	    QSplitterLayoutStruct *p = ( i > 0 ) ? p = data->list.at( i - 1 )
 					: 0;
@@ -905,9 +897,10 @@ void QSplitter::recalc( bool update )
     This enum type describes how QSplitter will resize each of its
     child widgets.
 
-    \value Auto (internal)
+    \value Auto  The widget will be resized according to the stretch
+    factors set in its sizePolicy().
 
-    \value Stretch  the widget will be resized when the splitter
+    \value Stretch  The widget will be resized when the splitter
     itself is resized.
 
     \value KeepSize  QSplitter will try to keep this widget's size
@@ -918,9 +911,8 @@ void QSplitter::recalc( bool update )
 */
 
 /*!
-    Sets resize mode of widget \a w to \a mode.
-
-    \sa ResizeMode
+    Sets resize mode of widget \a w to \a mode. (The default is \c
+    Auto.)
 */
 
 void QSplitter::setResizeMode( QWidget *w, ResizeMode mode )
@@ -1009,7 +1001,7 @@ void QSplitter::moveToLast( QWidget *w )
 	    data->list.take(); // take s
 	    QSplitterLayoutStruct *p = data->list.current();
 	    if ( p ) { // the splitter handle after s
-		data->list.take(); //take p
+		data->list.take(); // take p
 		data->list.append( p );
 	    }
 	    data->list.append( s );
@@ -1027,9 +1019,9 @@ void QSplitter::recalcId()
 {
     int n = data->list.count();
     for ( int i = 0; i < n; i++ ) {
-	QSplitterLayoutStruct *s = data->list.at(i);
+	QSplitterLayoutStruct *s = data->list.at( i );
 	if ( s->isSplitter )
-	    ((QSplitterHandle*)s->wid)->setId(i);
+	    ((QSplitterHandle*)s->wid)->setId( i );
     }
 }
 
@@ -1091,10 +1083,6 @@ QSize QSplitter::minimumSizeHint() const
 }
 
 
-/*
-  Calculates stretch parameters from current sizes
-*/
-
 void QSplitter::storeSizes()
 {
     QSplitterLayoutStruct *s = data->list.first();
@@ -1102,6 +1090,23 @@ void QSplitter::storeSizes()
 	if ( !s->isSplitter )
 	    s->sizer = pick( s->wid->size() );
 	s = data->list.next();
+    }
+}
+
+
+void QSplitter::addContribution( int id, int *min, int *max,
+				 bool onlyFirstQuadrant )
+{
+    QSplitterLayoutStruct *s = data->list.at( id );
+    if ( !s->wid->isHidden() ) {
+	if ( s->isSplitter ) {
+	    *min += s->getSizer( orient );
+	    *max += s->getSizer( orient );
+	} else {
+	    if ( !onlyFirstQuadrant || inFirstQuadrant(s->wid) )
+		*min += pick( s->wid->minimumSize() );
+	    *max += pick( s->wid->maximumSize() );
+	}
     }
 }
 
@@ -1224,8 +1229,10 @@ QTextStream& operator<<( QTextStream& ts, const QSplitter& splitter )
 
 	    if ( s->wid->isHidden() ) {
 		ts << "H";
-	    } else {
+	    } else if ( inFirstQuadrant(s->wid) ) {
 		ts << s->getSizer( splitter.orientation() );
+	    } else {
+		ts << 0;
 	    }
 	    first = FALSE;
 	}
@@ -1278,6 +1285,8 @@ QTextStream& operator>>( QTextStream& ts, QSplitter& splitter )
 		    i++;
 		}
 		s->sizer = dim;
+		if ( dim == 0 )
+		    splitter.setGeo( s->wid, 0, 0, FALSE );
 	    }
 	    SKIP_SPACES();
 	    if ( line[i] == ',' ) {
