@@ -43,6 +43,7 @@
 #include <qtabwidget.h>
 #include <qfont.h>
 #include <qworkspace.h>
+#include <qwidgetstack.h>
 
 #if defined(QT_MODULE_SQL)
 #include <qsqldatabase.h>
@@ -54,66 +55,259 @@
 #include <qdir.h>
 #endif
 
-QWidget *Frame::createCategory(const QString &cat)
+#include "categoryinterface.h"
+
+class WidgetCategory : public CategoryInterface
 {
-    QTabWidget *tab = 0;
-    QWidget *w = 0;
-    if(cat == "Widgets") {
-	tab = new QTabWidget();
-	w = new WidgetsBase( tab );
-	tab->addTab( w, tr( "Widgets" ) );
-	tab->addTab( new DnDDemo, tr( "Drag and Drop" ) );
+public:
+    WidgetCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "Widgets"; }
+    QIconSet icon() const { return QPixmap( widgeticon ); }
+    int numCategories() const { return 2; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "Widgets" );
+	    break;
+	case 1:
+	    return Frame::tr( "Drag and Drop" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new WidgetsBase( stack ), categoryOffset() + 0 );
+	stack->addWidget( new DnDDemo( stack ), categoryOffset() + 1 );
+    }
+
+    int categoryOffset() const { return 0; }
+
+private:
+    bool created;
+
+};
+
 #if defined(QT_MODULE_SQL)
-    } else if(cat == "Database") {
-	tab = new QTabWidget();
-	tab->addTab( new SqlEx(), tr( "SQL Explorer" ) );
+class DatabaseCategory : public CategoryInterface
+{
+public:
+    DatabaseCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "Database"; }
+    QIconSet icon() const { return QPixmap( dbicon ); }
+    int numCategories() const { return 1; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "SQL Explorer" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new SqlEx( stack ), categoryOffset() + 0 );
+    }
+
+    int categoryOffset() const { return 10; }
+
+private:
+    bool created;
+
+};
 #endif
+
 #if defined(QT_MODULE_CANVAS)
-    } else if(cat == "2D Graphics") {
-	tab = new QTabWidget();
-	w = new GraphWidget( tab );
-	tab->addTab( w, tr( "Graph Drawing" ) );
-	tab->addTab( new DisplayWidget(), tr( "Display" ) );
+class CanvasCategory : public CategoryInterface
+{
+public:
+    CanvasCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "2D Graphics"; }
+    QIconSet icon() const { return QPixmap( twodicon ); }
+    int numCategories() const { return 2; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "Graph Drawing" );
+	    break;
+	case 1:
+	    return Frame::tr( "Display" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new GraphWidget( stack ), categoryOffset() + 0 );
+	stack->addWidget( new DisplayWidget( stack ), categoryOffset() + 1 );
+    }
+
+    int categoryOffset() const { return 100; }
+
+private:
+    bool created;
+
+};
 #endif
+
 #if defined(QT_MODULE_OPENGL)
-    } else if(cat == "3D Graphics") {
-	tab = new QTabWidget();
-	w = new GLWorkspace( tab );
-	tab->addTab( w, "3D Demo" );
-	w = new GLLandscapeViewer( tab );
-	tab->addTab( w, tr( "Fractal landscape" ) );
+class OpenGLCategory : public CategoryInterface
+{
+public:
+    OpenGLCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "3D Graphics"; }
+    QIconSet icon() const { return QPixmap( threedicon ); }
+    int numCategories() const { return 2; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "3D Demo" );
+	    break;
+	case 1:
+	    return Frame::tr( "Fractal landscape" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new GLWorkspace( stack ), categoryOffset() + 0 );
+	stack->addWidget( new GLLandscapeViewer( stack ), categoryOffset() + 1 );
+    }
+    int categoryOffset() const { return 1000; }
+
+private:
+    bool created;
+
+};
 #endif
-    } else if(cat == "Text Drawing/Editing") {
-	tab = new QTabWidget();
-	TextEdit *te = new TextEdit( tab );
+
+class TextCategory : public CategoryInterface
+{
+public:
+    TextCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "Text Drawing/Editing"; }
+    QIconSet icon() const { return QPixmap( texticon ); }
+    int numCategories() const { return 2; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "Richtext Editor" );
+	    break;
+	case 1:
+	    return Frame::tr( "Help Browser" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	TextEdit *te = new TextEdit( stack );
 	te->load( "textdrawing/example.html" );
-//	te->load( "textdrawing/bidi.txt" );
-	w = te;
-	tab->addTab( w, tr( "Richtext Editor" ) );
+	stack->addWidget( te, categoryOffset() + 0 );
 	QString home = QString( qInstallPathDocs() ) + "/html/index.html";
-	// use $QTDIR if it is set
 	const char *qtdirenv = getenv( "QTDIR" );
 	if ( qtdirenv ) {
 	    home = QString( qtdirenv ) + "/doc/html/index.html";
 	}
-	w = new HelpWindow( home, ".", 0, "helpviewer" );
-	tab->addTab( w, tr( "Help Browser" ) );
-    } else if(cat == "Internationalization") {
-	tab = new QTabWidget();
-	w = new I18nDemo(tab);
-	tab->addTab( w, tr( "Internationalization" ) );
-#if defined(QT_MODULE_CANVAS)
-    } else if(cat == "Games") {
-	tab = new QTabWidget();
-	w = new KAstTopLevel(tab);
-	tab->addTab( w, tr( "Asteroids" ) );
-#endif
-    } else {
-	qDebug("Unknown category: %s", cat.latin1());
+	HelpWindow *w = new HelpWindow( home, ".", stack, "helpviewer" );
+	stack->addWidget( w, categoryOffset() + 1 );
     }
-    return tab;
-}
+    int categoryOffset() const { return 10000; }
 
+private:
+    bool created;
+
+};
+
+class I18NCategory : public CategoryInterface
+{
+public:
+    I18NCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "Internationalization"; }
+    QIconSet icon() const { return QPixmap( internicon ); }
+    int numCategories() const { return 1; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "Internationalization" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new I18nDemo( stack ), categoryOffset() + 0 );
+    }
+    int categoryOffset() const { return 100000; }
+
+private:
+    bool created;
+
+};
+
+#if defined(QT_MODULE_CANVAS)
+class GameCategory : public CategoryInterface
+{
+public:
+    GameCategory( QWidgetStack *s ) : CategoryInterface( s ), created( FALSE ) {}
+
+    QString name() const { return "Game"; }
+    QIconSet icon() const { return QPixmap( joyicon ); }
+    int numCategories() const { return 1; }
+    QString categoryName( int i ) const {
+	switch ( i ) {
+	case 0:
+	    return Frame::tr( "Asteroids" );
+	    break;
+	}
+	return QString::null;
+    }
+    QIconSet categoryIcon( int ) const { return QIconSet(); }
+    void setCurrentCategory( int i ) { create(); stack->raiseWidget( i ); }
+    void create() {
+	if ( created )
+	    return;
+	created = TRUE;
+	stack->addWidget( new KAstTopLevel( stack ), categoryOffset() + 0 );
+    }
+    int categoryOffset() const { return 1000000; }
+
+private:
+    bool created;
+
+};
+#endif
 
 int main( int argc, char **argv )
 {
@@ -126,56 +320,20 @@ int main( int argc, char **argv )
     }
 
     Frame::updateTranslators();
-
-    // How about a splash screen?
     Frame frame;
+    QPtrList<CategoryInterface> categories;
+    categories.append( new WidgetCategory( frame.widgetStack() ) );
+    categories.append( new DatabaseCategory( frame.widgetStack() ) );
+    categories.append( new CanvasCategory( frame.widgetStack() ) );
+    categories.append( new OpenGLCategory( frame.widgetStack() ) );
+    categories.append( new TextCategory( frame.widgetStack() ) );
+    categories.append( new I18NCategory( frame.widgetStack() ) );
+    categories.append( new GameCategory( frame.widgetStack() ) );
+    frame.setCategories( categories );
 
-    // example 1
-    QPixmap widgetpix( widgeticon );
-    QPixmap widgetpix_sel( widgeticon_sel );
-    frame.addCategory( NULL, widgetpix, widgetpix_sel, "Widgets" );
-
-#if defined(QT_MODULE_SQL)
-    // Database
-    QPixmap dbpix( dbicon );
-    QPixmap dbpix_sel( dbicon_sel );
-    frame.addCategory( NULL, dbpix, dbpix_sel, "Database" );
-#endif
-
-#if defined(QT_MODULE_CANVAS)
-    // 2D Graphics
-    QPixmap twodpix( twodicon );
-    QPixmap twodpix_sel( twodicon_sel );
-    frame.addCategory( NULL, twodpix, twodpix_sel, "2D Graphics" );
-#endif
-
-#if defined(QT_MODULE_OPENGL)
-    // 3D Graphics
-    QPixmap threedpix( threedicon );
-    QPixmap threedpix_sel( threedicon_sel );
-    frame.addCategory( NULL, threedpix, threedpix_sel, "3D Graphics" );
-#endif
-
-    // example 4
-    QPixmap textpix( texticon );
-    QPixmap textpix_sel( texticon_sel );
-    frame.addCategory( NULL, textpix, textpix_sel, "Text Drawing/Editing" );
-
-    // example 5
-    QPixmap internpix( internicon );
-    QPixmap internpix_sel( internicon_sel );
-    frame.addCategory( NULL, internpix, internpix_sel, "Internationalization");
-
-#if defined(QT_MODULE_CANVAS)
-    // example 6
-    QPixmap joypix( joyicon );
-    QPixmap joypix_sel( joyicon_sel );
-    frame.addCategory( NULL, joypix, joypix_sel, "Games" );
-#endif
-    if( !category.isEmpty() )
-	frame.setCurrentCategory( category );
 
     a.setMainWidget( &frame );
+    frame.resize( 1000, 700 );
     frame.show();
 
     return a.exec();

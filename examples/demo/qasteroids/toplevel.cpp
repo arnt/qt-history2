@@ -63,7 +63,7 @@ const char *soundDefaults[] =
 
 
 KAstTopLevel::KAstTopLevel( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+    : QMainWindow( parent, name, 0 )
 {
     QWidget *border = new QWidget( this );
     border->setBackgroundColor( black );
@@ -358,7 +358,7 @@ void KAstTopLevel::keyReleaseEvent( QKeyEvent *event )
                 return;
             }
             break;
-	
+
 	case NewGame:
 	    slotNewGame();
 	    break;

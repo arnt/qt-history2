@@ -9,10 +9,10 @@
 *****************************************************************************/
 
 #include <qmainwindow.h>
+#include <qintdict.h>
+#include "categoryinterface.h"
 
-class QListBox;
-class QListBoxItem;
-class QHBox;
+class QCategoryBar;
 class QStyle;
 class QWidgetStack;
 
@@ -20,26 +20,25 @@ class Frame : public QMainWindow {
     Q_OBJECT
 public:
     Frame( QWidget *parent=0, const char *name=0 );
-
-    void addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n );
-    void setCurrentCategory( QWidget * );
-    void setCurrentCategory( const QString & );
+    void setCategories( const QPtrList<CategoryInterface> &l );
 
     static void updateTranslators();
 
+    QWidgetStack *widgetStack() const { return stack; }
 
 private slots:
     void setStyle( const QString& );
-    void clickedCategory( QListBoxItem * );
 
 protected:
     bool event( QEvent *e );
 
 private:
-    QWidget *createCategory( const QString& );
+    QWidget *createCategoryPage( CategoryInterface *c );
 
+private:
     QString title;
-    QHBox * hbox;
-    QListBox *categories;
+    QCategoryBar *categoryBar;
     QWidgetStack *stack;
+    QIntDict<QWidget> categoryPages;
+    QPtrList<CategoryInterface> categories;
 };

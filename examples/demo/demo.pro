@@ -1,6 +1,7 @@
 TEMPLATE 	= app
 CONFIG		+= qt warn_off release
 HEADERS		= frame.h \
+		  categoryinterface.h \
 		  qthumbwheel.h \
                   display.h \
 		  textdrawing/textedit.h \

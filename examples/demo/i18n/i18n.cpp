@@ -23,7 +23,7 @@ static bool firstShow = TRUE;
 
 
 I18nDemo::I18nDemo(QWidget *parent, const char *name)
-    : QMainWindow(parent, name), lastwrapper(0)
+    : QMainWindow(parent, name, 0), lastwrapper(0)
 {
     initActions();
     initMenuBar();

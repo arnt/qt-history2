@@ -14,8 +14,7 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qaccel.h>
-#include <qhbox.h>
-#include <qlistbox.h>
+#include <qcategorybar.h>
 #include <qpainter.h>
 #include <qwidgetstack.h>
 #include <qstylefactory.h>
@@ -25,65 +24,11 @@
 #include <qdir.h>
 #include <qtextcodec.h>
 #include <stdlib.h>
+#include <qbuttongroup.h>
+#include <qtoolbutton.h>
 
 static QTranslator *translator = 0;
 static QTranslator *qt_translator = 0;
-
-class CategoryItem : public QListBoxItem {
-public:
-    CategoryItem( QListBox *parent, QWidget *widget, const QPixmap &p1,
-		  const QPixmap &p2, const QString &name, int id );
-    virtual QString key( int, bool ) const;
-    virtual int height( const QListBox * ) const;
-    virtual int width( const QListBox * )  const;
-
-    int id() const { return _id; }
-    void setWidget(QWidget *w) { Q_ASSERT(!_widget); _widget = w; }
-    QWidget *widget() const { return _widget; }
-protected:
-    virtual void paint( QPainter * );
-private:
-    int _id;
-    QWidget *_widget;
-    QPixmap pm_Unsel;
-    QPixmap pm_Sel;
-};
-
-CategoryItem::CategoryItem( QListBox * parent, QWidget *widget,
-			    const QPixmap &p1, const QPixmap &p2,
-			    const QString &name, int id )
-    : QListBoxItem( parent ), _id( id ), _widget( widget ), pm_Unsel( p1 ),
-      pm_Sel( p2 )
-{
-    setText( name );
-}
-
-QString CategoryItem::key( int, bool ) const
-{
-    QString tmp;
-    return tmp.sprintf( "%03d", _id );
-}
-
-int CategoryItem::height( const QListBox * ) const
-{
-    return 100;
-}
-
-int CategoryItem::width( const QListBox * )  const
-{
-    return 150;
-}
-
-void CategoryItem::paint( QPainter *p )
-{
-    int w = width( listBox() );
-    int tx = (w-p->fontMetrics().boundingRect(text()).width())/2;
-    p->drawText( tx, 80, text() );
-    if ( isSelected() )
-	p->drawPixmap( (w-pm_Sel.width())/2, 10, pm_Sel );
-    else
-    	p->drawPixmap( (w-pm_Unsel.width())/2, 10, pm_Unsel );
-}
 
 Frame::Frame( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
@@ -122,7 +67,8 @@ Frame::Frame( QWidget *parent, const char *name )
 	    stylesDict.insert(styleAccel.left(1), (const int *)1);
 	    styleAccel = "&"+styleAccel;
 	}
-	QAction *a = new QAction( style, QIconSet(), styleAccel, 0, ag, 0, ag->isExclusive() );
+	QAction *a = new QAction( style, QIconSet(),
+				  styleAccel, 0, ag, 0, ag->isExclusive() );
 	connect( a, SIGNAL( activated() ), styleMapper, SLOT(map()) );
 	styleMapper->setMapping( a, a->text() );
     }
@@ -131,39 +77,48 @@ Frame::Frame( QWidget *parent, const char *name )
     mainMenu->insertItem( tr( "&File" ), fileMenu );
     mainMenu->insertItem( tr( "St&yle" ), styleMenu );
 
-    // category chooser
-    hbox = new QHBox( this );
-    hbox->setMargin( 11 );
-    hbox->setSpacing( 6 );
-    categories = new QListBox( hbox );
-    QFont f = categories->font();
-    f.setWeight( QFont::Bold );
-    categories->setFont( f );
-    categories->setHScrollBarMode( QScrollView::AlwaysOff );
+    stack = new QWidgetStack( this );
 
-    connect( categories, SIGNAL( clicked( QListBoxItem *) ),
-	     SLOT( clickedCategory( QListBoxItem *) ) );
-    connect( categories, SIGNAL( returnPressed( QListBoxItem *) ),
-	     SLOT( clickedCategory( QListBoxItem *) ) );
-
-    // stack for the demo widgets
-    stack = new QWidgetStack( hbox );
-    stack->setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
-
-    setCentralWidget( hbox );
+    setCentralWidget( stack );
 }
 
-void Frame::addCategory( QWidget *w, const QPixmap &p1, const QPixmap &p2, const QString &n )
+void Frame::setCategories( const QPtrList<CategoryInterface> &l )
 {
-    int i = categories->count();
-    if ( w )
-	stack->addWidget( w, i );
-    CategoryItem *item = new CategoryItem( categories, w, p1, p2, n, i );
-    categories->setFixedWidth( categories->sizeHint().width() );
-    if ( !stack->visibleWidget() ) {
-	categories->setCurrentItem( item );
-	clickedCategory( item );
+    categories = l;
+    QDockWindow *dw = new QDockWindow( QDockWindow::InDock, this );
+    dw->setResizeEnabled( TRUE );
+    dw->setVerticalStretchable( TRUE );
+    addDockWindow( dw, DockLeft );
+    setDockEnabled( dw, DockTop, FALSE );
+    setDockEnabled( dw, DockBottom, FALSE );
+    dw->setCloseMode( QDockWindow::Always );
+
+    categoryBar = new QCategoryBar( dw );
+    dw->setWidget( categoryBar );
+
+    dw->setCaption( tr( "Demo Categories" ) );
+
+    for ( int i = 0; i < categories.count(); ++i )
+	categoryBar->addCategory( categories.at(i)->name(),
+				  categories.at(i)->icon(),
+				  createCategoryPage( categories.at(i) ) );
+}
+
+QWidget *Frame::createCategoryPage( CategoryInterface *c )
+{
+    QButtonGroup *g = new QButtonGroup( 1, Horizontal, categoryBar );
+    g->setFrameStyle( QFrame::NoFrame );
+    for ( int i = 0; i < c->numCategories(); ++i ) {
+	QToolButton *b = new QToolButton( g );
+	b->setTextLabel( c->categoryName( i ) );
+	b->setIconSet( c->categoryIcon( i ) );
+	b->setAutoRaise( TRUE );
+	b->setTextPosition( QToolButton::Right );
+	b->setUsesTextLabel( TRUE );
+	g->insert( b, i + c->categoryOffset() );
+	connect( g, SIGNAL( clicked( int ) ), c, SLOT( setCurrentCategory( int ) ) );
     }
+    return g;
 }
 
 void Frame::setStyle( const QString& style )
@@ -171,24 +126,6 @@ void Frame::setStyle( const QString& style )
     QStyle *s = QStyleFactory::create( style );
     if ( s )
 	QApplication::setStyle( s );
-}
-
-void Frame::clickedCategory( QListBoxItem *item )
-{
-    if ( item ) {
-	CategoryItem *c = (CategoryItem*)item;
-	topLevelWidget()->setCaption( title + " - " + item->text() );
-	if ( !c->widget() ) {
-	    QWidget *w = createCategory(item->text());
-	    if ( w ) {
-		c->setWidget(w);
-		stack->addWidget(w, c->id());
-	    } else {
-		qDebug("Lazy creation of %s failed", item->text().latin1());
-	    }
-	}
-	stack->raiseWidget( c->widget() );
-    }
 }
 
 void Frame::updateTranslators()
@@ -203,27 +140,6 @@ void Frame::updateTranslators()
     QString base = QString( qInstallPathData() ) + "/translations";
     qt_translator->load( QString( "qt_%1" ).arg( QTextCodec::locale() ), base );
     translator->load( QString( "translations/demo_%1" ).arg( QTextCodec::locale() ) );
-}
-
-void Frame::setCurrentCategory( QWidget *w )
-{
-    for(int i = 0; i < (int)categories->count(); i++) {
-	QListBoxItem *item = categories->item(i);
-	if(((CategoryItem*)item)->widget() == w) {
-	    categories->setCurrentItem( i );
-	    clickedCategory( item );
-	    break;
-	}
-    }
-}
-
-void Frame::setCurrentCategory( const QString &s )
-{
-    QListBoxItem *i = categories->findItem( s );
-    if ( i ) {
-	categories->setCurrentItem( i );
-	clickedCategory( i );
-    }
 }
 
 bool Frame::event( QEvent *e )
