@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#149 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#150 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -19,6 +19,7 @@
 *****************************************************************************/
 
 #include "qpainter.h"
+#include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
@@ -393,7 +394,7 @@ void QPainter::updateFont()
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].font = &cfont;
-	if ( !pdev->cmd(PdcSetFont,this,param) || !hdc )
+	if ( !pdev->cmd( QPaintDevice::PdcSetFont, this, param ) || !hdc )
 	    return;
     }
     HANDLE hfont;
@@ -439,7 +440,7 @@ void QPainter::updatePen()
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].pen = &cpen;
-	if ( !pdev->cmd(PdcSetPen,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetPen,this,param) || !hdc )
 	    return;
     }
 
@@ -522,7 +523,7 @@ void QPainter::updateBrush()
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].brush = &cbrush;
-	if ( !pdev->cmd(PdcSetBrush,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetBrush,this,param) || !hdc )
 	    return;
     }
 
@@ -673,7 +674,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     holdpal = 0;
 
     if ( testf(ExtDev) ) {			// external device
-	if ( !pdev->cmd(PdcBegin,this,0) ) {	// could not begin painting
+	if ( !pdev->cmd(QPaintDevice::PdcBegin,this,0) ) {  // could not begin
 	    pdev = 0;
 	    return FALSE;
 	}
@@ -763,8 +764,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	}
     }
     if ( testf(ExtDev) ) {
-	ww = vw = pdev->metric( PDM_WIDTH );
-	wh = vh = pdev->metric( PDM_HEIGHT );
+	ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
+	wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
     }
     if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
@@ -847,7 +848,7 @@ bool QPainter::end()
     }
 
     if ( testf(ExtDev) )
-	pdev->cmd( PdcEnd, this, 0 );
+	pdev->cmd( QPaintDevice::PdcEnd, this, 0 );
 
     if ( pdev->devType() == QInternal::Widget ) {
 	if ( !((QWidget*)pdev)->testWState(Qt::WState_InPaintEvent) ) {
@@ -888,7 +889,7 @@ void QPainter::setBackgroundColor( const QColor &c )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].color = &bg_col;
-	if ( !pdev->cmd(PdcSetBkColor,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetBkColor,this,param) || !hdc )
 	    return;
     }
     SetBkColor( hdc, COLOR_VALUE(c) );
@@ -912,7 +913,7 @@ void QPainter::setBackgroundMode( BGMode m )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = m;
-	if ( !pdev->cmd(PdcSetBkMode,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetBkMode,this,param) || !hdc )
 	    return;
     }
     SetBkMode( hdc, m == TransparentMode ? TRANSPARENT : OPAQUE );
@@ -942,7 +943,7 @@ void QPainter::setRasterOp( RasterOp r )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = r;
-	if ( !pdev->cmd(PdcSetROP,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetROP,this,param) || !hdc )
 	    return;
     }
     SetROP2( hdc, ropCodes[rop] );
@@ -961,7 +962,7 @@ void QPainter::setBrushOrigin( int x, int y )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].point = &bro;
-	if ( !pdev->cmd(PdcSetBrushOrigin,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetBrushOrigin,this,param) || !hdc )
 	    return;
     }
 #if defined(_WS_WIN32_)
@@ -1021,7 +1022,7 @@ void QPainter::setClipping( bool enable )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].ival = enable;
-	if ( !pdev->cmd(PdcSetClip,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetClip,this,param) || !hdc )
 	    return;
     }
     if ( enable )
@@ -1050,7 +1051,7 @@ void QPainter::setClipRegion( const QRegion &rgn )
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rgn = &crgn;
-	if ( !pdev->cmd(PdcSetClipRegion,this,param) || !hdc )
+	if ( !pdev->cmd(QPaintDevice::PdcSetClipRegion,this,param) || !hdc )
 	    return;
     }
     clearf( ClipOn );				// be sure to update clip rgn
@@ -1081,7 +1082,7 @@ void QPainter::drawPoint( int x, int y )
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    if ( !pdev->cmd(PdcDrawPoint,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param) || !hdc )
 		return;
 	}
 	map( x, y, &x, &y );
@@ -1106,7 +1107,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 	    for (int i=0; i<npoints; i++) {
 		QPoint p( pa[index+i].x(), pa[index+i].y() );
 		param[0].point = &p;
-		if ( !pdev->cmd(PdcDrawPoint,this,param))
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPoint,this,param))
 		    return;
 	    }
 	    if ( !hdc ) return;
@@ -1137,7 +1138,7 @@ void QPainter::moveTo( int x, int y )
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    if ( !pdev->cmd(PdcMoveTo,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcMoveTo,this,param) || !hdc )
 		return;
 	}
 	map( x, y, &x, &y );
@@ -1159,7 +1160,7 @@ void QPainter::lineTo( int x, int y )
 	    QPDevCmdParam param[1];
 	    QPoint p( x, y );
 	    param[0].point = &p;
-	    if ( !pdev->cmd(PdcLineTo,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcLineTo,this,param) || !hdc )
 		return;
 	}
 	map( x, y, &x, &y );
@@ -1180,7 +1181,7 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
 	    QPoint p1(x1, y1), p2(x2, y2);
 	    param[0].point = &p1;
 	    param[1].point = &p2;
-	    if ( !pdev->cmd(PdcDrawLine,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawLine,this,param) || !hdc )
 		return;
 	}
 	map( x1, y1, &x1, &y1 );
@@ -1219,7 +1220,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd(PdcDrawRect,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawRect,this,param) || !hdc )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
@@ -1275,7 +1276,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd(PdcDrawRect,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawRect,this,param) || !hdc )
 		return;
 	}
 	map( x, y, w, h, &x, &y, &w, &h );
@@ -1314,7 +1315,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd )
 	    param[0].rect = &r;
 	    param[1].ival = xRnd;
 	    param[2].ival = yRnd;
-	    if ( !pdev->cmd(PdcDrawRoundRect,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawRoundRect,this,param) || !hdc)
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
@@ -1383,7 +1384,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    QPDevCmdParam param[1];
 	    QRect r( x, y, w, h );
 	    param[0].rect = &r;
-	    if ( !pdev->cmd(PdcDrawEllipse,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawEllipse,this,param) || !hdc )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
@@ -1422,7 +1423,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd(PdcDrawArc,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawArc,this,param) || !hdc )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
@@ -1466,7 +1467,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd(PdcDrawPie,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPie,this,param) || !hdc )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
@@ -1524,7 +1525,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	    param[0].rect = &r;
 	    param[1].ival = a;
 	    param[2].ival = alen;
-	    if ( !pdev->cmd(PdcDrawChord,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawChord,this,param) || !hdc )
 		return;
 	}
 	if ( txop == TxRotShear ) {		// rotate/shear
@@ -1587,7 +1588,8 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PdcDrawLineSegments,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param) 
+		 || !hdc )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1648,7 +1650,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PdcDrawPolyline,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolyline,this,param) || !hdc )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1708,7 +1710,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding, int index,
 	    QPDevCmdParam param[2];
 	    param[0].ptarr = (QPointArray*)&pa;
 	    param[1].ival = winding;
-	    if ( !pdev->cmd(PdcDrawPolygon,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawPolygon,this,param) || !hdc )
 		return;
 	}
 	if ( txop != TxNone ) {
@@ -1753,7 +1755,8 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	if ( testf(ExtDev) ) {
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PdcDrawQuadBezier,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawQuadBezier,this,param)
+		 || !hdc )
 		return;
 	}
 	if ( txop != TxNone )
@@ -1813,7 +1816,8 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 		QPoint p(x,y);
 		param[0].point  = &p;
 		param[1].pixmap = &pixmap;
-		if ( !pdev->cmd(PdcDrawPixmap,this,param) || !hdc )
+		if ( !pdev->cmd(QPaintDevice::PdcDrawPixmap,this,param)
+		     || !hdc )
 		    return;
 	    }
 	}
@@ -2039,7 +2043,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    QString newstr = str.left(len);
 	    param[0].point = &p;
 	    param[1].str = &newstr;
-	    if ( !pdev->cmd(PdcDrawText2,this,param) || !hdc )
+	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 		return;
 	}
 	if ( txop >= TxScale && !nat_xf ) {

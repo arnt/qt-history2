@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#64 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#65 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -19,6 +19,7 @@
 *****************************************************************************/
 
 #include "qpaintdevice.h"
+#include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -161,13 +162,13 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( sw <= 0 ) {				// special width
 	if ( sw < 0 )
-	    sw = src->metric( PDM_WIDTH ) - sx;
+	    sw = src->metric( QPaintDeviceMetrics::PdmWidth ) - sx;
 	else
 	    return;
     }
     if ( sh <= 0 ) {				// special height
 	if ( sh < 0 )
-	    sh = src->metric( PDM_HEIGHT ) - sy;
+	    sh = src->metric( QPaintDeviceMetrics::PdmHeight ) - sy;
 	else
 	    return;
     }
@@ -199,7 +200,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	QPoint p(dx,dy);
 	param[0].point	= &p;
 	param[1].pixmap = pm;
-	dst->cmd( PdcDrawPixmap, 0, param );
+	dst->cmd( QPaintDevice::PdcDrawPixmap, 0, param );
 	if ( tmp_pm )
 	    delete pm;
 	return;
