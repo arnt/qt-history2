@@ -999,14 +999,20 @@ opt_bitfield:		  /* empty */
 enum_specifier:		  ENUM enum_tail
 			;
 
-enum_tail:		  IDENTIFIER '{'   enum_list
-			  '}'   { BEGIN QT_DEF;
+/* optional final comma at the end of an enum list. Not really C++ but
+some people still use it */
+opt_komma:		  /*empty*/
+			| ','
+			;
+
+enum_tail:		  IDENTIFIER '{'   enum_list opt_komma
+			  '}'   { BEGIN QT_DEF;	
 				  if ( tmpAccessPerm == _PUBLIC) {
 				      tmpEnum->name = $1;
 				      addEnum();
 				  }
 				}
-			| '{'   enum_list
+			| '{'   enum_list opt_komma
 			  '}'   { tmpEnum->clear();}
 			;
 
