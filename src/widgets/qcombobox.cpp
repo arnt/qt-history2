@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#155 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#156 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -1188,8 +1188,8 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	else
 	    setCurrentItem( 0 );
 	e->accept();
-    } else if ( style() == MotifStyle &&
-		!d->ed && e->key() == Key_Space ) {
+    } else if ( e->key() == Key_F4 ||
+		( !d->ed && e->key() == Key_Space ) ) {
 	e->accept();
 	d->popup->setActiveItem( d->current );
 	popup();
