@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#33 $
 **
 ** Implementation of QScrollView class
 **
@@ -628,7 +628,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 		// Safe to do this, since there is no part of
 		// me visible for the user to otherwise click on.
 		//
-		QMouseEvent *me( (QMouseEvent*)e );
+		QMouseEvent *me = (QMouseEvent*)e;
 		QMouseEvent myme( me->type(),
 				QPoint(me->x() - d->viewport.x(),
 				       me->y() - d->viewport.y()),
@@ -651,9 +651,8 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 
 bool QScrollView::event( QEvent *e )
 {
-    if ( e->type() == Event_ChildRemoved ) {
+    if ( e->type() == Event_ChildRemoved )
 	removeChild(((QChildEvent*)e)->child());
-    }
     return QFrame::event(e);
 }
 
