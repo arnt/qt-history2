@@ -162,11 +162,10 @@ void QCheckBox::setState(ToggleState state)
     } else {
         d->noChange = false;
     }
-    bool checked = (state != Off);
-    if (checked != d->checked)
-        setChecked(checked);
-    else
-        d->refresh();
+    d->blockRefresh = true;
+    setChecked(state != Off);
+    d->blockRefresh = false;
+    d->refresh();
     emit stateChanged(state);
 }
 
