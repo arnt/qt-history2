@@ -16,17 +16,17 @@
 
 #include "qpaintengine_raster_p.h"
 
-#ifdef Q_WS_X11
-#include <qwidget.h>
-#include <qx11info_x11.h>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
-#endif
-
-#ifdef Q_WS_WIN
-#include <qt_windows.h>
-#include <qvarlengtharray.h>
-#include <private/qfontengine_p.h>
+#if defined(Q_WS_X11)
+#  include <qwidget.h>
+#  include <qx11info_x11.h>
+#  include <X11/Xlib.h>
+#  include <X11/Xutil.h>
+#elif defined(Q_WS_WIN)
+#  include <qt_windows.h>
+#  include <qvarlengtharray.h>
+#  include <private/qfontengine_p.h>
+#elif defined(Q_WS_MAC)
+#  include <private/qt_mac_p.h>
 #endif
 
 #ifndef M_PI
@@ -41,7 +41,7 @@ static FT_Raster qt_black_raster;
 
 static void qt_initialize_ft()
 {
-    printf("qt_initialize_ft()\n");
+//    printf("qt_initialize_ft()\n");
     int error;
 
     // The antialiasing raster.
@@ -73,11 +73,15 @@ static void qt_finalize_ft()
 QRegion* paintEventClipRegion = 0;
 QPaintDevice* paintEventDevice = 0;
 
-#ifdef Q_WS_X11
+#if defined(Q_WS_X11) || defined(Q_WS_MAC)
+#if defined(Q_WS_X11)
 extern "C" {
+#endif
     void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
     void qt_clear_paintevent_clipping();
+#if defined(Q_WS_X11)
 }
+#endif
 #else
 void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
 {
@@ -426,7 +430,7 @@ public:
 };
 
 
-#ifndef QT_NO_DEBUG
+#if !defined(QT_NO_DEBUG) && 0
 static void qt_debug_path(const QPainterPath &path)
 {
     const char *names[] = {
@@ -575,10 +579,8 @@ bool QRasterPaintEngine::end()
 {
     Q_D(QRasterPaintEngine);
 
-#ifdef Q_WS_WIN
     if (d->flushOnEnd)
         flush(d->pdev);
-#endif
 
     d->clipEnabled = false;
 
@@ -601,10 +603,10 @@ void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 */
 void QRasterPaintEngine::flush(QPaintDevice *device)
 {
-#ifdef Q_WS_WIN
     Q_D(QRasterPaintEngine);
     Q_ASSERT(device);
 
+#if defined(Q_WS_WIN)
     HDC hdc = device->getDC();
     Q_ASSERT(hdc);
 
@@ -614,6 +616,17 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
            d->rasterBuffer->hdc(), 0, 0,
            SRCCOPY);
     device->releaseDC(hdc);
+#elif defined(Q_WS_MAC)
+#  ifdef QMAC_NO_COREGRAPHICS
+#    warning "unhandled"
+#  else
+    extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+    if(CGContextRef hd = qt_macCreateCGHandle(device)) {
+        CGRect rect = CGRectMake(d->deviceRect.x(), d->deviceRect.y(),
+                                 d->deviceRect.width(), d->deviceRect.height());
+        HIViewDrawCGImage(hd, &rect, d->rasterBuffer->m_data); //top left
+    }
+#endif
 #endif
 }
 
@@ -901,12 +914,16 @@ void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
+#if defined(Q_WS_MAC)
+    return;
+#endif
+
 #ifdef QT_DEBUG_DRAW
-        printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
-               p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
+    printf(" - QWin32PaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
+           p.x(), p.y(), QString::fromRawData(ti.chars, ti.num_chars).toLatin1().data());
 #endif
     Q_D(QRasterPaintEngine);
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
 
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
     QRect devRect = d->matrix.mapRect(logRect).toRect();
@@ -1400,12 +1417,12 @@ void QRasterBuffer::prepareClip(int /*width*/, int height)
 }
 
 
-#ifdef Q_WS_WIN
 void QRasterBuffer::resetBuffer(int val)
 {
     memset(m_buffer, val, m_width*m_height*sizeof(ARGB));
 }
 
+#if defined(Q_WS_WIN)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     BITMAPINFO bmi;
@@ -1440,14 +1457,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 
     ReleaseDC(0, displayDC);
 }
-#endif
-
-#ifdef Q_WS_X11
-void QRasterBuffer::resetBuffer(int val)
-{
-    memset(m_buffer, val, m_width*m_height*sizeof(ARGB));
-}
-
+#elif defined(Q_WS_X11)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
@@ -1467,6 +1477,34 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 			height,
 			32,
 			width * (32/8));
+    memset(m_buffer, 255, width*height*sizeof(ARGB));
+}
+#elif defined(Q_WS_MAC)
+static void qt_mac_raster_data_free(void *, const void *data, size_t)
+{
+    free(const_cast<void *>(data));
+}
+
+void QRasterBuffer::prepareBuffer(int width, int height)
+{
+#ifdef QMAC_NO_COREGRAPHICS
+# warning "Unhandled!!"
+#else
+    if (m_data)
+        CGImageRelease(m_data);
+
+    char *buffer = malloc(width*height*32);
+    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
+    CGDataProviderRef provider = CGDataProviderCreateWithData(0, buffer, width*height,
+                                                              qt_mac_raster_data_free);
+    m_data = CGImageCreate(width, height, 8, 32, width, colorspace,
+                           kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
+    CGColorSpaceRelease(colorspace);
+    CGDataProviderRelease(provider);
+#endif
+
+    delete[] m_buffer;
+    m_buffer = new ARGB[width*height];
     memset(m_buffer, 255, width*height*sizeof(ARGB));
 }
 #endif

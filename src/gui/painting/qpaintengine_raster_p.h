@@ -162,15 +162,20 @@ public:
 class QRasterBuffer
 {
 public:
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
     QRasterBuffer() : m_hdc(0), m_bitmap(0), m_buffer(0), m_width(0), m_height(0) { init(); }
 
     HDC hdc() const { return m_hdc; }
-#endif
-
-#ifdef Q_WS_X11
+#elif defined(Q_WS_X11)
     QRasterBuffer() : m_ximg(0), m_width(0), m_height(0), m_buffer(0) { init(); }
     XImage *m_ximg;
+#elif defined(Q_WS_MAC)
+    QRasterBuffer() : m_data(0), m_width(0), m_height(0), m_buffer(0) { init(); }
+# if defined(QMAC_NO_COREGRAPHICS)
+    GWorldPtr m_data;
+# else
+    CGImageRef m_data;
+#endif
 #endif
 
     void init();
@@ -203,7 +208,7 @@ public:
     ARGB *buffer() const { return m_buffer; }
 
 private:
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
     HDC m_hdc;
     HBITMAP m_bitmap;
 #endif

@@ -17,7 +17,11 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qmatrix.h"
-#include <private/qpaintengine_mac_p.h>
+#ifdef QT_RASTER_PAINTENGINE
+#  include <private/qpaintengine_raster_p.h>
+#else
+#  include <private/qpaintengine_mac_p.h>
+#endif
 #include <private/qt_mac_p.h>
 
 #include <limits.h>
@@ -885,12 +889,16 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode, 
 QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine) {
+#ifdef QT_RASTER_PAINTENGINE
+        data->paintEngine = new QRasterPaintEngine();
+#else
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
             data->paintEngine = new QCoreGraphicsPaintEngine();
         else
 #endif
             data->paintEngine = new QQuickDrawPaintEngine();
+#endif
     }
     return data->paintEngine;
 }

@@ -84,12 +84,10 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region)
     paintevents.push(new paintevent_item(dev, r));
 }
 
-void qt_clear_paintevent_clipping(QPaintDevice *dev)
+void qt_clear_paintevent_clipping()
 {
-    if(paintevents.isEmpty() || !((*paintevents.top()) == dev)) {
-        qWarning("Qt: internal: WH0A, qt_clear_paintevent_clipping mismatch.");
+    if(paintevents.isEmpty())
         return;
-    }
     delete paintevents.pop();
 }
 

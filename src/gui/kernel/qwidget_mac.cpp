@@ -21,7 +21,11 @@
 #include "qevent.h"
 #include "qimage.h"
 #include "qlayout.h"
-#include <private/qpaintengine_mac_p.h>
+#ifdef QT_RASTER_PAINTENGINE
+# include <private/qpaintengine_raster_p.h>
+#else
+# include <private/qpaintengine_mac_p.h>
+#endif
 #include "qpainter.h"
 #include "qstack.h"
 #include "qstyle.h"
@@ -64,7 +68,7 @@ enum {
   Externals
  *****************************************************************************/
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
-extern void qt_clear_paintevent_clipping(QPaintDevice *); //qpaintengine_mac.cpp
+extern void qt_clear_paintevent_clipping(); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
 extern void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
@@ -470,7 +474,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         QPainter::restoreRedirected(widget);
 
                     //cleanup
-                    qt_clear_paintevent_clipping(widget);
+                    qt_clear_paintevent_clipping();
                     widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
@@ -2160,7 +2164,27 @@ qreal QWidget::windowOpacity() const
     return isWindow() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }
 
+#ifdef QT_RASTER_PAINTENGINE
+static QSingleCleanupHandler<QRasterPaintEngine> qt_paintengine_cleanup_handler;
+static QRasterPaintEngine *qt_widget_paintengine = 0;
+QPaintEngine *QWidget::paintEngine() const
+{
+    if (!qt_widget_paintengine) {
+        qt_widget_paintengine = new QRasterPaintEngine();
+        qt_widget_paintengine->setFlushOnEnd(false);
+        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+    }
 
+    if (qt_widget_paintengine->isActive()) {
+        QRasterPaintEngine *extraEngine = new QRasterPaintEngine();
+        extraEngine->setAutoDestruct(true);
+        extraEngine->setFlushOnEnd(false);
+        return extraEngine;
+    }
+
+    return qt_widget_paintengine;
+}
+#else
 static QSingleCleanupHandler<QPaintEngine> qt_paintengine_cleanup_handler;
 static QPaintEngine *qt_widget_paintengine = 0;
 QPaintEngine *QWidget::paintEngine() const
@@ -2186,4 +2210,5 @@ QPaintEngine *QWidget::paintEngine() const
     }
     return qt_widget_paintengine;
 }
+#endif
 
