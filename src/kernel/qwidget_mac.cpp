@@ -97,8 +97,7 @@ static void paint_children(QWidget * p,const QRegion& r, bool now=FALSE)
     if(!p || r.isEmpty())
 	return;
 
-    bool erase = !p->testWFlags(QWidget::WRepaintNoErase);
-    bool painted = FALSE;
+    bool erase = TRUE, painted = FALSE;//!p->testWFlags(QWidget::WRepaintNoErase);
     if(now) {
 	/* this is stupid, probably should just post, I need to ask mathias! FIXME */
 	if(!p->testWState(QWidget::WState_BlockUpdates)) {
