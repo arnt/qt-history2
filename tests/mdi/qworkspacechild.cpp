@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/mdi/qworkspacechild.cpp#4 $
+** $Id: //depot/qt/main/tests/mdi/qworkspacechild.cpp#5 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -330,7 +330,9 @@ class QProtectedWidget : public QWidget
 {
 public:
     WFlags getWFlags() const { return QWidget::getWFlags(); }
-    void reasonableFocus() { (void) focusNextPrevChild( TRUE ); }
+    void reasonableFocus() { if ( !isFocusEnabled() )
+	(void) focusNextPrevChild( TRUE ); 
+    }
 };
 
 
@@ -407,7 +409,6 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     if ( !isActive() ) {
 	if ( e->type() == QEvent::MouseButtonPress/* || e->type() == QEvent::FocusIn */) {
-	    qDebug("focus in %s",  clientw->caption().latin1() );
 	    activate();
 	}
     }
@@ -417,7 +418,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 
     switch ( e->type() ) {
     case QEvent::Show:
-	if ( isVisibleTo( parentWidget() ) )
+	if (( (QShowEvent*)e)->spontaneous() )
 	    break;
 	if ( TRUE ) { // ######### hack for broken layout
 	    QSize cs = clientw->sizeHint();
@@ -596,8 +597,6 @@ void QWorkspaceChild::setActive( bool b)
     if ( b == act || !clientw)
 	return;
 
-    qDebug("setActive for %s => %d",  clientw->caption().latin1(), b );
-
     act = b;
 
     titlebar->setActive( act );
@@ -614,8 +613,7 @@ void QWorkspaceChild::setActive( bool b)
 	}
 	if ( !hasFocus ) {
 	    clientw->setFocus(); // insufficient, need toplevel semantics ########
-	    if ( !clientw->isFocusEnabled() )
-		( (QProtectedWidget*)clientw)->reasonableFocus();
+	    ( (QProtectedWidget*)clientw)->reasonableFocus();
 	}
 	delete ol;
 	
