@@ -11,13 +11,10 @@
 **
 ****************************************************************************/
 
+#include "qplatformdefs.h"
+
 #include "qprocess.h"
 #include "qprocess_p.h"
-
-#include <errno.h>
-#include <fcntl.h>
-#include <sys/ioctl.h>
-#include <wait.h>
 
 #include <qdatetime.h>
 #include <qfile.h>
@@ -26,6 +23,8 @@
 #include <qmutex.h>
 #include <qsignal.h>
 #include <qsocketnotifier.h>
+
+#include <errno.h>
 
 static int qt_qprocess_deadChild_pipe[2];
 static void (*qt_sa_old_sigchld_handler)(int) = 0;
