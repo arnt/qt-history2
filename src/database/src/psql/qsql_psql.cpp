@@ -5,9 +5,9 @@
 #include <qpointarray.h>
 #include <postgres.h>
 #include <libpq-fe.h>
-#include <catalog/pg_type.h>
-#include <utils/geo_decls.h>
-#include <utils/timestamp.h>
+#include <catalog/pg_type.h>  // ### consider getting rid of this dependency
+#include <utils/geo_decls.h>  // ### consider getting rid of this dependency
+#include <utils/timestamp.h>  // ### consider getting rid of this dependency
 
 class QPSQLPrivate
 {
@@ -17,12 +17,12 @@ public:
     PGresult 	*result;
 };
 
-QSqlError makeError( const QString& err, int type, const QPSQLPrivate* p )
+QSqlError qMakeError( const QString& err, int type, const QPSQLPrivate* p )
 {
     return QSqlError("QPSQL: " + err, QString(PQerrorMessage( p->connection )), type);
 }
 
-QVariant::Type decodePSQLType( int t )
+QVariant::Type qDecodePSQLType( int t )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( t ) {
@@ -94,13 +94,13 @@ QVariant::Type decodePSQLType( int t )
     return type;
 }
 
-QSqlField makeFieldInfo( QPSQLPrivate* p, int i )
+QSqlField qMakeField( QPSQLPrivate* p, int i )
 {
-    QVariant::Type type = decodePSQLType( PQftype( p->result, i ) );
+    QVariant::Type type = qDecodePSQLType( PQftype( p->result, i ) );
     return QSqlField( PQfname( p->result, i ), i, type );
 }
 
-QSqlField makeFieldInfo( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
+QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const QString& fieldname )
 {
     QString stmt ( "select a.atttypid, atttypmod, a.attlen "
 		   "from pg_user u, pg_class c, pg_attribute a, pg_type t "
@@ -113,7 +113,7 @@ QSqlField makeFieldInfo( const QSqlDriver* driver, const QString& tablename, con
     QSql fi = driver->createResult();
     fi << stmt.arg( tablename ).arg( fieldname );
     if ( fi.next() )
-	return QSqlField( fieldname, 0, decodePSQLType(fi[0].toInt()) );
+	return QSqlField( fieldname, 0, qDecodePSQLType(fi[0].toInt()) );
     return QSqlField();
 }
 
@@ -181,7 +181,7 @@ QPoint pointFromString( const QString& s)
 
 QVariant QPSQLResult::data( int i )
 {
-    QSqlField info = makeFieldInfo( d, i );
+    QSqlField info = qMakeField( d, i );
     if ( PQbinaryTuples( d->result ) ) {
 	char* rawdata = PQgetvalue( d->result, at(), i );
 	int rawsize = PQfsize( d->result, i );
@@ -200,7 +200,7 @@ QVariant QPSQLResult::data( int i )
 	    }
 	case QVariant::Date:
 	    {
-		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1); 
+		uint dt = *((uint*)rawdata) + QDate::greg2jul(2000,1,1);
  		int y,m,d;
  		QDate::jul2greg( dt, y, m, d );
  		return QVariant( QDate( y, m, d ) );
@@ -218,7 +218,7 @@ QVariant QPSQLResult::data( int i )
 		Timestamp* ts = (Timestamp*)rawdata;
 		// ### need to decode this properly		return QVariant( QDateTime( QDate(y,m,d), QTime() ) );
 		return QVariant( QDateTime() );
-		
+
 	    }
 	case QVariant::Point:
 	    {
@@ -328,7 +328,7 @@ bool QPSQLResult::reset ( const QString& query )
 	setActive( TRUE );
 	return TRUE;
     }
-    setLastError( makeError( "Unable to create query", QSqlError::Statement, d ) );
+    setLastError( qMakeError( "Unable to create query", QSqlError::Statement, d ) );
     return FALSE;
 }
 
@@ -337,7 +337,7 @@ QSqlFieldList QPSQLResult::fields() const
     QSqlFieldList fil;
     int count = PQnfields ( d->result );
     for ( int i = 0; i < count; ++i ) {
-	fil.append( makeFieldInfo( d, i ) );
+	fil.append( qMakeField( d, i ) );
     }
     return fil;
 }
@@ -391,7 +391,7 @@ bool QPSQLDriver::open( const QString & db,
 	connectString += QString("password=%1 ").arg( password );
     d->connection = PQconnectdb( connectString.local8Bit().data() );
     if ( PQstatus( d->connection) == CONNECTION_BAD ) {
-	setLastError( makeError("Unable to connect", QSqlError::Connection, d ) );
+	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
         setOpenError( TRUE );
         return FALSE;
     }
@@ -425,7 +425,7 @@ bool QPSQLDriver::beginTransaction()
     PGresult* res = PQexec( d->connection, "BEGIN" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	PQclear( res );
-	setLastError( makeError( "Could not being transaction", QSqlError::Transaction, d ) );
+	setLastError( qMakeError( "Could not being transaction", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     PQclear( res );
@@ -437,7 +437,7 @@ bool QPSQLDriver::commitTransaction()
     PGresult* res = PQexec( d->connection, "COMMIT" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
 	PQclear( res );
-	setLastError( makeError( "Could not commit transaction", QSqlError::Transaction, d ) );
+	setLastError( qMakeError( "Could not commit transaction", QSqlError::Transaction, d ) );
 	return FALSE;
     }
     PQclear( res );
@@ -448,7 +448,7 @@ bool QPSQLDriver::rollbackTransaction()
 {
     PGresult* res = PQexec( d->connection, "ROLLBACK" );
     if ( !res || PQresultStatus( res ) != PGRES_COMMAND_OK ) {
-    	setLastError( makeError( "Could not rollback transaction", QSqlError::Transaction, d ) );
+    	setLastError( qMakeError( "Could not rollback transaction", QSqlError::Transaction, d ) );
 	PQclear( res );
 	return FALSE;
     }
@@ -481,7 +481,7 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 		  "and a.attrelid = c2.oid;");
     i << stmt.arg( tablename );
     while ( i.isActive() && i.next() ) {
-	QSqlField f = makeFieldInfo( this, tablename,  i[0].toString() );
+	QSqlField f = qMakeField( this, tablename,  i[0].toString() );
 	f.setFieldNumber( i.at() );
 	idx.append( f );
     }
@@ -501,6 +501,6 @@ QSqlFieldList QPSQLDriver::fields( const QString& tablename ) const
     QSql fi = createResult();
     fi << stmt.arg( tablename );
     while ( fi.next() )
-	fil.append( QSqlField( fi[0].toString(), fi.at(), decodePSQLType(fi[1].toInt()) ));
+	fil.append( QSqlField( fi[0].toString(), fi.at(), qDecodePSQLType(fi[1].toInt()) ));
     return fil;
 }
