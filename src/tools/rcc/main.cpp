@@ -67,20 +67,32 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                     if(res.toElement().hasAttribute("name")) 
                         name = res.toElement().attribute("name");
                     if(!file.exists() || file.isDir()) {
+                        bool recursive = false;
+                        if(res.toElement().hasAttribute("recursive")) {
+                            QString s = res.toElement().attribute("recursive");
+                            recursive = s.toLower() == "true";
+                        }
                         QDir dir;
-                        if(!file.exists())
+                        if(!file.exists()) {
                             dir = QDir(file.path(), file.fileName());
-                        else
+                            dir.setFilter(QDir::AllDirs);
+                        } else {
                             dir = QDir(file.filePath(), "*");
+                        }
                         QFileInfoList subFiles = dir.entryInfoList();
                         for(int subFile = 0; subFile < subFiles.count(); subFile++) {
                             if(subFiles[subFile].fileName() == "." || subFiles[subFile].fileName() == "..")
                                 continue;
-                            RCCFileInfo res;
-                            res.name += (name.isNull() ? dir.path() : name) 
-                                        + "/" + subFiles[subFile].fileName();
-                            res.fileinfo = subFiles[subFile];
-                            files.append(res);
+                            if(!subFiles[subFile].isDir()) {
+                                RCCFileInfo res;
+                                res.name += (name.isNull() ? dir.path() : name) 
+                                            + "/" + subFiles[subFile].fileName();
+                                res.fileinfo = subFiles[subFile];
+                                files.append(res);
+                            }
+                            if(recursive) {
+                                //do we want to support recursive?
+                            }
                         }
                     } else {
                         RCCFileInfo res;
@@ -91,10 +103,6 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 }
             }
             for(int file = 0; file < files.count(); file++) {
-                if(files[file].fileinfo.isDir()) { //do we want to get recursive?
-                    continue;
-                }
-
                 //process this resource
                 QFile inputQFile(files[file].fileinfo.filePath());
                 if (!inputQFile.open(IO_ReadOnly)) {

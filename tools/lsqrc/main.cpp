@@ -1,5 +1,19 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <qresource.h>
 #include <qfile.h>
+#include <qfileinfo.h>
 #include <qstack.h>
 
 #ifdef Q_OS_UNIX
@@ -24,15 +38,29 @@ main(int argc, char **argv)
         fprintf(stderr, "%s <binary> [resources]\n", argv[0]);
         return 666;
     }
-    QFile fi(argv[1]);
-    if(!fi.open(IO_ReadOnly)) {
-        fprintf(stderr, "Failure to open: %s\n", argv[1]);
+    QString fileName = argv[1];
+#ifdef Q_OS_MAC
+    if(!QFile::exists(fileName)) {
+        QString exe = fileName + ".app/Contents/MacOS/" + fileName.section('/', -1);
+        if(QFile::exists(exe))
+            fileName = exe;
+    } else if(fileName.endsWith(".app") && QFileInfo(fileName).isDir()) {
+        QString exe = fileName + "/Contents/MacOS/" + 
+                      fileName.left(fileName.length()-4).section('/', -1);
+        if(QFile::exists(exe))
+            fileName = exe;
+    }
+#endif
+    QFile file(fileName);
+    if(!file.open(IO_ReadOnly)) {
+        fprintf(stderr, "Failure to open: %s\n", fileName.latin1());
         return 666;
     }
-    const QByteArray bytes = fi.readAll();
-    fi.close();
+    const QByteArray bytes = file.readAll();
+    file.close();
     for(int i = 0; i <= bytes.size() - 4; i++) {
-        if(bytes[i] == 0x12 && bytes[i+1] == 0x15 && bytes[i+2] == 0x19 && bytes[i+3] == 0x78)
+        if(bytes[i] == 0x12 && bytes[i+1] == 0x15 && 
+           bytes[i+2] == 0x19 && bytes[i+3] == 0x78)
             (void)new QMetaResource((const uchar *)bytes.data()+i);
     }
     if(!QResource::find("/")) {
