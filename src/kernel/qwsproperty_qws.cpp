@@ -17,7 +17,7 @@
 #ifndef QT_NO_QWS_PROPERTIES
 #include "qwscommand_qws.h"
 #include "qwindowsystem_qws.h"
-#include "qintdict.h"
+#include "qhash.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -35,13 +35,13 @@ public:
     };
     Property* find( int winId, int property )
     {
-	QIntDict<Property>* wp = properties.find(winId);
+	QHash<int,Property*>* wp = properties.value(winId);
 	if ( !wp ) return 0;
-	Property* prop = wp->find(property);
+	Property* prop = wp->value(property);
 	return prop;
     }
 
-    QIntDict< QIntDict<Property> > properties;
+    QHash<int,QHash<int,Property*>*> properties;
 };
 
 /*********************************************************************
@@ -124,25 +124,25 @@ bool QWSPropertyManager::removeProperty( int winId, int property )
 #ifdef QWS_PROPERTY_DEBUG
     qDebug( "QWSPropertyManager::removeProperty %d %d (%s)", winId, property, key );
 #endif
-    QIntDict<Data::Property>* wp = d->properties.find(winId);
-    if ( !wp ) return FALSE;
-    Data::Property* prop = wp->find(property);
-    if ( !prop ) return FALSE;
+    QHash<int,Data::Property*>* wp = d->properties.value(winId);
+    if (!wp) return false;
+    Data::Property* prop = wp->value(property);
+    if (!prop) return false;
     wp->remove(property);
-    if ( wp->count() == 0 )
+    if (wp->count() == 0)
 	d->properties.remove(winId);
     return TRUE;
 }
 
 bool QWSPropertyManager::addProperty( int winId, int property )
 {
-    QIntDict<Data::Property>* wp = d->properties.find(winId);
-    if ( !wp ) {
-	d->properties.insert(winId,wp = new QIntDict<Data::Property>);
-	wp->setAutoDelete(TRUE);
+    QHash<int,Data::Property*>* wp = d->properties.value(winId);
+    if (!wp) {
+	d->properties.insert(winId,wp = new QHash<int,Data::Property*>);
+	wp->setAutoDelete(true);
     }
-    Data::Property* prop = wp->find(property);
-    if ( prop ) return FALSE;
+    Data::Property* prop = wp->value(property);
+    if (prop) return false;
     wp->insert(property, prop = new Data::Property);
 
     prop->len = -1;
