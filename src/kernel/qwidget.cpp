@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#237 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#238 $
 **
 ** Implementation of QWidget class
 **
@@ -30,7 +30,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#237 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#238 $");
 
 
 /*!
@@ -2089,8 +2089,8 @@ QWidget *QWidget::focusWidget() const
 {
     QWidget *that = (QWidget *)this;		// mutable
     QFocusData *f = that->focusData( FALSE );
-    if ( f && f->count() && f->it.current() == 0 )
-	f->it.first();
+    if ( f && f->focusWidgets.count() && f->it.current() == 0 )
+	f->it.toFirst();
     return f ? f->it.current() : 0;
 }
 
