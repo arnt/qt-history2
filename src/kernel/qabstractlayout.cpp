@@ -1247,7 +1247,8 @@ possible (e.g. the horizontal direction of a slider).
 widget can make use of extra space, so it should get as much space as
 possible (e.g. the horizontal direction of a slider).
 
-\value Ignored internal.
+\value Ignored the sizeHint() is ignored. The widget will get as much 
+space as possible.
 
 In any case, QLayout never shrinks a widget below the
 QWidget::minimumSizeHint().
@@ -1341,6 +1342,23 @@ otherwise returns FALSE.
 /*! \fn void QSizePolicy::setHeightForWidth( bool b )
 Sets the hasHeightForWidth() flag to \a b.
 */
+
+/*! \fn uint QSizePolicy::horStretch() const
+Returns the horizontal stretch factor of the size policy.
+*/
+
+/*! \fn uint QSizePolicy::verStretch() const
+Returns the vertical stretch factor of the size policy.
+*/
+
+/*! \fn void QSizePolicy::setHorStretch()
+Sets the horizontal stretch factor of the size policy. 
+*/
+
+/*! \fn void QSizePolicy::setVerStretch()
+Sets the vertical stretch factor of the size policy. 
+*/
+
 
 /*! \fn bool QSizePolicy::operator==( const QSizePolicy &s ) const
   Returns TRUE if this policy is equal to \a s; otherwise returns FALSE.
