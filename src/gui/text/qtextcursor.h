@@ -91,6 +91,12 @@ public:
     void deleteChar();
     void deletePreviousChar();
 
+    enum SelectionType {
+        WordUnderCursor,
+        LineUnderCursor
+    };
+    void select(SelectionType selection);
+
     bool hasSelection() const;
     bool hasComplexSelection() const;
     void removeSelectedText();

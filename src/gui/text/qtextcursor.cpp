@@ -910,6 +910,30 @@ void QTextCursor::deletePreviousChar()
     d->setX();
 }
 
+void QTextCursor::select(SelectionType selection)
+{
+    clearSelection();
+    if (selection == LineUnderCursor) {
+        movePosition(StartOfLine);
+        movePosition(EndOfLine, KeepAnchor);
+    } else if (selection == WordUnderCursor) {
+        const QTextBlock b = d->block();
+        const QCharAttributes *attributes = b.layout()->engine()->attributes();
+        const int relativePos = d->position - b.position();
+
+        if (relativePos == 0 || relativePos == b.length() - 1)
+            return;
+
+        // only select if we're right between two selectable characters
+        if (attributes[relativePos].wordStop ||
+            attributes[relativePos - 1].whiteSpace || attributes[relativePos].whiteSpace)
+            return;
+
+        movePosition(StartOfWord);
+        movePosition(EndOfWord, KeepAnchor);
+    }
+}
+
 /*!
     Returns true if the cursor contains a selection; otherwise returns false.
 */
