@@ -68,11 +68,11 @@ QVariant ControlList::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
-    if (index.type() == QModelIndex::HorizontalHeader)
+/*    if (index.type() == QModelIndex::HorizontalHeader)
         return index.column();
     if (index.type() == QModelIndex::VerticalHeader)
         return index.row();
-
+*/
     if (role == ControlList::DisplayRole)
         return controls.at(index.row());
     if (role == ControlList::UserRole)
