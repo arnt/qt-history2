@@ -4045,6 +4045,8 @@ int QTextParag::leftGap() const
 
 void QTextParag::setFormat( int index, int len, QTextFormat *f, bool useCollection, int flags )
 {
+    if ( !f )
+	return;
     if ( index < 0 )
 	index = 0;
     if ( index > str->length() - 1 )
