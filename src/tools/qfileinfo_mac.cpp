@@ -98,8 +98,6 @@ QString QFileInfo::owner() const
     return QString::null;
 }
 
-static const uint nobodyID = (uint) -2;
-
 /*!
   Returns the id of the owner of the file.
 
