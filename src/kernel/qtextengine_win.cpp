@@ -91,6 +91,37 @@ bool hasUsp10 = FALSE;
 const SCRIPT_PROPERTIES **script_properties = 0;
 int num_scripts = 0;
 
+
+const QFont::Script japanese_tryScripts[] = {
+    QFont::Han_Japanese,
+    QFont::Hangul,
+    QFont::Han_SimplifiedChinese,
+    QFont::Han_TraditionalChinese
+};
+
+const QFont::Script korean_tryScripts[] = {
+    QFont::Hangul,
+    QFont::Han_Japanese,
+    QFont::Han_SimplifiedChinese,
+    QFont::Han_TraditionalChinese
+};
+
+const QFont::Script simplifiedChinese_tryScripts[] = {
+    QFont::Han_SimplifiedChinese,
+    QFont::Han_TraditionalChinese,
+    QFont::Han_Japanese,
+    QFont::Hangul
+};
+
+const QFont::Script traditionalChinese_tryScripts[] = {
+    QFont::Han_TraditionalChinese,
+    QFont::Han_SimplifiedChinese,
+    QFont::Han_Japanese,
+    QFont::Hangul
+};
+
+const QFont::Script *tryScripts = japanese_tryScripts;
+
 static void resolveUsp10()
 {
 #ifndef QT_NO_COMPONENT
@@ -124,6 +155,26 @@ static void resolveUsp10()
 	if ( ScriptFreeCache ) {
 	    hasUsp10 = TRUE;
 	    ScriptGetProperties( &script_properties, &num_scripts );
+	}
+
+
+	// initialize tryScripts according to locale
+	LANGID lid = GetUserDefaultLangID();
+	switch( lid&0xff ) {
+	case LANG_CHINESE: // Chinese (Taiwan)
+	    if ( lid == 0x0804 ) // Taiwan
+		tryScripts = traditionalChinese_tryScripts;
+	    else
+	    	tryScripts = simplifiedChinese_tryScripts;
+	    break;
+	case LANG_JAPANESE:
+	    // japanese is already the default
+	    break;
+	case LANG_KOREAN:
+		tryScripts = korean_tryScripts;
+		break;
+	default:
+	    break;
 	}
     }
 #endif
@@ -602,15 +653,12 @@ QShapedItem *QTextEngine::shape( int item ) const
 	    script = scriptForWinLanguage( script_prop->langid );
 	    if ( script == QFont::Latin && script_prop->fAmbiguousCharSet ) {
 		// maybe some asian language
-		const QFont::Script tryScripts[] = {
-		    QFont::Hiragana,
-		    QFont::Han,
-		    QFont::Hangul
-		};
-		for( int i = 0; i < 3; i++ ) {
+		int i;
+		for( i = 0; i < 4; i++ ) {
 		    QFontEngine *fe = fnt->engineForScript( tryScripts[i] );
-		    if ( fe->type() == QFontEngine::Box )
+		    if ( fe->type() == QFontEngine::Box ) 
 			continue;
+
 		    if ( fe->canRender( string.unicode()+from, len ) ) {
 			script = tryScripts[i];
     			break;

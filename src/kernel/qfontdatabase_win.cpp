@@ -159,6 +159,11 @@ static int requiredUnicodeBits[QFont::NScripts][2] = {
 };
 
 
+#define SimplifiedChineseCsbBit 18
+#define TraditionalChineseCsbBit 20
+#define JapaneseCsbBit 17
+
+
 static
 int CALLBACK
 storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/ )
@@ -253,6 +258,7 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/
 		if ( bit != 126 && signature.fsUsb[index] & flag ) {
 		    bit = requiredUnicodeBits[i][1];
 		    index = bit/32;
+
 		    flag =  1 << (bit&31);
 		    if ( bit == 127 || signature.fsUsb[index] & flag ) {
 			family->scripts[i] = TRUE;
@@ -260,6 +266,18 @@ storeFont( ENUMLOGFONTEX* f, NEWTEXTMETRICEX *textmetric, int type, LPARAM /*p*/
 			//qDebug( "i=%d, flag=%8x font supports script %d", index, flag, i );
 		    }
 		}
+	    }
+	    if( signature.fsCsb[0] & (1 << SimplifiedChineseCsbBit) ) {
+		family->scripts[QFont::Han_SimplifiedChinese] = TRUE;
+		//qDebug("font %s supports Simplified Chinese", familyName.latin1() );
+	    }
+	    if( signature.fsCsb[0] & (1 << TraditionalChineseCsbBit) ) {
+		family->scripts[QFont::Han_TraditionalChinese] = TRUE;
+		//qDebug("font %s supports Traditional Chinese", familyName.latin1() );
+	    }
+	    if( signature.fsCsb[0] & (1 << JapaneseCsbBit) ) {
+		family->scripts[QFont::Han_Japanese] = TRUE;
+		//qDebug("font %s supports Japanese", familyName.latin1() );
 	    }
 	}
 	if( !hasScript )
@@ -621,7 +639,7 @@ QFontEngine *loadEngine( QFont::Script script, const QFontDef &request,
 }
 
 
-static const unsigned short sample_chars[QFont::NScripts] =
+static const unsigned short sample_chars[QFont::LastPrivateScript] =
 {
     // European Alphabetic Scripts
     // Latin,
@@ -740,7 +758,22 @@ static const unsigned short sample_chars[QFont::NScripts] =
     // Buhid,
     0x1740,
     // Tagbanwa,
-    0x1770
+    0x1770,
+
+    // KatakanaHalfWidth
+    0xff65,
+
+    // NScripts
+    0x0000,
+    // NoScript
+    0x0000,
+
+    // Han_Japanese
+    0x4e00,
+    // Han_SimplifiedChinese,
+    0x4e00,
+    // Han_TraditionalChinese,
+    0x4e00
 };
 
 // returns a sample unicode character for the specified script
