@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qtl.doc,v 1.1 1999/06/08 17:22:49 weis Exp $
+** $Id: qtl.doc,v 1.2 1999/07/12 19:16:13 warwick Exp $
 **
 ** Qt template library classes documentation
 **
@@ -98,8 +98,8 @@ List::Iterator. You could have used QValueListIterator<int> instead but is not
 as convenient to use with typedefs. To sum it up: The official Qt style of
 coding is the one using the scoping operator.
 
-All QTL classes can be iterator with the same synatx. The following example
-demonstrates that:
+All QTL classes can be iterated over by using the same syntax.
+The following example demonstrates this:
 
 \code
 	typedef QMap<QString,QString> Map;
