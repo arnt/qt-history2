@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#106 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#107 $
 **
 ** Implementation of QScrollView class
 **
@@ -373,7 +373,7 @@ Constructs a QScrollView.
 
 If you intend to add child widgets, you may see improved refresh
 if you include \c WPaintClever in the widgets flags, \a f.  \c WPaintClever
-as well as \c WNorthWestGravity will be propagated to the viewport() widget.
+as well as \c WNorthWestGravity is propagated to the viewport() widget.
 */
 
 QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
