@@ -1614,6 +1614,7 @@ private:
     IDispatch *disp;
     ITypeInfo *typeinfo;
     ITypeLib *typelib;
+    QByteArray current_typelib;
 
     QSettings iidnames;
     QString cacheKey;
@@ -1727,8 +1728,13 @@ MetaObjectGenerator::MetaObjectGenerator(ITypeLib *tlib, ITypeInfo *tinfo)
 
     if (typeinfo)
         typeinfo->AddRef();
-    if (typelib)
+    if (typelib) {
         typelib->AddRef();
+        BSTR bstr;
+        typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
+        current_typelib = BSTRToQString(bstr).latin1();
+        SysFreeString(bstr);
+    }
     readClassInfo();
 }
 
@@ -1755,7 +1761,6 @@ MetaObjectGenerator::~MetaObjectGenerator()
 
 bool qax_dispatchEqualsIDispatch = true;
 QList<QByteArray> qax_qualified_usertypes;
-QByteArray qax_current_typelib;
 
 QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
@@ -1802,7 +1807,7 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                         if (qax_dispatchEqualsIDispatch) {
                             userTypeName = "IDispatch";
                         } else {
-                            if (typeLibName != qax_current_typelib)
+                            if (typeLibName != current_typelib)
                                 userTypeName = typeLibName + "::" + userTypeName;
                             if (!qax_qualified_usertypes.contains(userTypeName))
                                 qax_qualified_usertypes << userTypeName;
@@ -2722,12 +2727,20 @@ QMetaObject *MetaObjectGenerator::metaObject(const QMetaObject *parentObject, co
 {
     if (that) {
         readClassInfo();
+        if (typelib) {
+            BSTR bstr;
+            typelib->GetDocumentation(-1, &bstr, 0, 0, 0);
+            current_typelib = BSTRToQString(bstr).latin1();
+            SysFreeString(bstr);
+        }
         if (d->tryCache && tryCache())
             return d->metaobj;
         readEnumInfo();
         readInterfaceInfo();
         readEventInfo();
     }
+
+    current_typelib = QByteArray();
 
 #ifndef QAX_NO_CLASSINFO
     if (!debugInfo.isEmpty() && d->useClassInfo)
