@@ -38,3 +38,8 @@ QT += xml
 
 target.path=$$bins.path
 INSTALLS += target
+
+RULESXML = rules.xml
+RULESXML.files = rules.xml
+RULESXML.path = $$libs.path/qt3to4
+INSTALLS += RULESXML
