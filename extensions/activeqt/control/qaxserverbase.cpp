@@ -25,6 +25,7 @@
 #include <qptrdict.h>
 #include <qstatusbar.h>
 #include <qwhatsthis.h>
+#include <ocidl.h>
 #include <olectl.h>
 
 #include "qaxfactory.h"

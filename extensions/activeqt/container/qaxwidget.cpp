@@ -27,7 +27,9 @@
 #include <qregexp.h>
 #include <qwhatsthis.h>
 
+#include <ocidl.h>
 #include <olectl.h>
+ 
 
 #include "../shared/types.h"
 

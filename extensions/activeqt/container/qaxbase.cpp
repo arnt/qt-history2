@@ -1358,10 +1358,10 @@ void MetaObjectGenerator::readClassInfo()
 		tlfile = controls.readEntry( "/Classes/CLSID/" + that->control() + "/LocalServer32/." );
 	}
 	if (!tlfile.isEmpty()) {
-	    LoadTypeLib(tlfile.ucs2(), &typelib);
+	    LoadTypeLib((OLECHAR*)tlfile.ucs2(), &typelib);
 	    if (!typelib) {
 		tlfile = tlfile.left(tlfile.findRev('.')) + ".tlb";
-		LoadTypeLib(tlfile.ucs2(), &typelib);
+		LoadTypeLib((OLECHAR*)tlfile.ucs2(), &typelib);
 	    }
 	}
     }
@@ -1499,7 +1499,7 @@ void MetaObjectGenerator::readFuncInfo()
 		    QUuid uuid( typeattr->guid );
 		    QString uuidstr = uuid.toString().upper();
 		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-		    static interfacecount = 0;
+		    static int interfacecount = 0;
 		    infolist.insert( QString("Interface %1").arg(++interfacecount), new QString( uuidstr ) );
 		}
 #endif
@@ -1983,7 +1983,7 @@ void MetaObjectGenerator::readEventInfo()
 		if ( d->useClassInfo ) {
   		    QString uuidstr = connuuid.toString().upper();
   		    uuidstr = iidnames.readEntry( "/Interface/" + uuidstr + "/Default", uuidstr );
-  		    static eventcount = 0;
+  		    static int eventcount = 0;
   		    infolist.insert( QString("Event Interface %1").arg(++eventcount), new QString( uuidstr ) );
 		}
 #endif
@@ -3377,7 +3377,7 @@ class QtPropertyBag : public IPropertyBag
 {
 public:
     QtPropertyBag() :ref( 0 ) {}
-
+   
     HRESULT __stdcall QueryInterface( REFIID iid, LPVOID *iface )
     {
 	*iface = 0;

@@ -1,5 +1,5 @@
 TEMPLATE = subdirs
-SUBDIRS = testcon \
+SUBDIRS += testcon \
 	  webbrowser \
 	  qutlook \
 	  dumpdoc \
@@ -9,5 +9,12 @@ SUBDIRS = testcon \
 	  wrapper \
 	  menus \
 	  hierarchy
-
+ 
 opengl:SUBDIRS += opengl
+
+win32-g++:SUBDIRS -= simple \
+			tetrax \
+			menus \
+			opengl
+
+

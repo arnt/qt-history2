@@ -12,7 +12,9 @@
 **
 ****************************************************************************/
 
+#include <ocidl.h>
 #include <olectl.h>
+
 
 #include "types.h"
 #include <qpixmap.h>
@@ -216,7 +218,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	    qvar.cast( proptype );
     }
 
-    switch ( (int)qvar.type() ) {
+    switch ( qvar.type() ) {
     case QVariant::String:
     case QVariant::CString:
 	arg.vt = VT_BSTR;

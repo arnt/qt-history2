@@ -28,6 +28,7 @@
 #include <actioninterface.h>
 #include <designerinterface.h>
 #include <qdict.h>
+#include <ocidl.h> 
 #include <olectl.h>
 
 #include "qaxwidget.h"

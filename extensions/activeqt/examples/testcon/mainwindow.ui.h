@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include <qt_windows.h>
 #include <oaidl.h>
 #include "../../shared/types.h"
 #include "docuwindow.h"

@@ -57,7 +57,11 @@ static bool registerServer( const QString &input )
     if ( !hdll )
 	return FALSE;
     typedef HRESULT(__stdcall* RegServerProc)();
+#if defined(Q_CC_GNU)
+    RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, (char *)3 );
+#else
     RegServerProc DllRegisterServer = (RegServerProc)GetProcAddress( hdll, "DllRegisterServer" );
+#endif
     if ( !DllRegisterServer )
 	return FALSE;
     return DllRegisterServer() == S_OK;
@@ -74,7 +78,11 @@ static bool unregisterServer( const QString &input )
     if ( !hdll )
 	return FALSE;
     typedef HRESULT(__stdcall* RegServerProc)();
+#if defined(Q_CC_GNU)
+    RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, (char *)4 );
+#else
     RegServerProc DllUnregisterServer = (RegServerProc)GetProcAddress( hdll, "DllUnregisterServer" );
+#endif
     if ( !DllUnregisterServer )
 	return FALSE;
     return DllUnregisterServer() == S_OK;
@@ -194,7 +202,11 @@ int main( int argc, char **argv )
 	    return 3;
 	}
 	typedef HRESULT(__stdcall* DumpIDLProc)(const QString&, const QString&);
+#if defined(Q_CC_GNU)
+	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, (char *)5 );
+#else
 	DumpIDLProc DumpIDL = (DumpIDLProc)GetProcAddress( hdll, "DumpIDL" );
+#endif
 	if ( !DumpIDL ) {
 	    qFatal( "Couldn't resolve 'DumpIDL' symbol in %s", (const char*)input.local8Bit() );
 	    return 3;

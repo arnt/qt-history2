@@ -46,10 +46,7 @@ sub-examples: sub-tools $(FORCEDEP)
 	cd examples && $(MAKE) $(CONTINUEONERROR)
 
 sub-extensions: sub-src $(FORCEDEP)
-	@echo
-	@echo "  Extentions are currently not supported in using win32-g++." 
-	@echo
-#	cd extensions && $(MAKE) $(CONTINUEONERROR)
+	cd extensions && $(MAKE) $(CONTINUEONERROR)
 
 clean:
 	cd tools && $(MAKE) $(CONTINUEONERROR) clean

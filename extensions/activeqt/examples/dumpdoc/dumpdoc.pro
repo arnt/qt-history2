@@ -8,4 +8,4 @@ CONFIG  += console
 # Input
 SOURCES += main.cpp
 
-LIBS += qaxcontainer.lib
+LIBS += -lqaxcontainer
