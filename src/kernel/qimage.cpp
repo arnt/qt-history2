@@ -2883,7 +2883,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
     }
 
     int type;
-    if ( systemByteOrder() == BigEndian ) // ### is this right?
+    if ( bitOrder() == BigEndian )
 	type = QT_XFORM_TYPE_MSBFIRST;
     else
 	type = QT_XFORM_TYPE_LSBFIRST;
