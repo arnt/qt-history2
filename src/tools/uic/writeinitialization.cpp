@@ -742,7 +742,7 @@ void WriteInitialization::initializeListBox(DomWidget *w)
             refreshOut << pixCall(pixmap->elementPixmap());
 
             if (text)
-                output << ", ";
+                refreshOut << ", ";
         }
         refreshOut << trCall(text->elementString(), className) << ");\n";
     }
