@@ -25,6 +25,11 @@ HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
 		  $$KERNEL_H/qbrush.h \
+		  $$WIDGETS_H/qstatusbar.h \
+		  $$WIDGETS_H/qtoolbar.h \
+		  $$WIDGETS_H/qmainwindow.h \
+		  $$WIDGETS_H/qtoolbutton.h \
+		  $$WIDGETS_H/qwidgetstack.h \
 		  $$KERNEL_H/qclipbrd.h \
 		  $$KERNEL_H/qcolor.h \
 		  $$KERNEL_H/qconnect.h \
@@ -140,6 +145,11 @@ SOURCES		= dialogs/qfiledlg.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapp.cpp \
 		  kernel/qasyncimageio.cpp \
+		  widgets/qstatusbar.cpp \
+		  widgets/qtoolbar.cpp \
+		  widgets/qmainwindow.cpp \
+		  widgets/qtoolbutton.cpp \
+		  widgets/qwidgetstack.cpp \
 		  kernel/qasyncio.cpp \
 		  kernel/qbitmap.cpp \
 		  kernel/qclipbrd.cpp \
