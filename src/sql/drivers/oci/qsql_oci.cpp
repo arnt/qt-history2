@@ -276,8 +276,10 @@ QString qOraWarn( const QOCIPrivate* d )
 {
     sb4 errcode;
     text errbuf[1024];
+    errbuf[0] = 0;
+    errbuf[1] = 0;
     
-    OCIErrorGet( (dvoid *)d->err,
+    OCIErrorGet((dvoid *)d->err,
 		(ub4) 1,
 		(text *)NULL,
 		&errcode,
@@ -293,6 +295,7 @@ void qOraWarning( const char* msg, const QOCIPrivate* d )
 {
     unsigned char   errbuf[512];
     sb4             errcode;
+    errbuf[0] = 0;
     OCIErrorGet((dvoid *)d->err,
                 (ub4) 1,
                 (text *) NULL,
