@@ -3045,15 +3045,17 @@ void QTextView::clearUndoRedo()
     emitRedoAvailable( doc->commands()->isRedoAvailable() );
 }
 
-bool QTextView::getFormat( int parag, int index, QFont &font, QColor &color )
+bool QTextView::getFormat( int parag, int index, QFont *font, QColor *color )
 {
+    if ( !font || !color )
+	return FALSE;
     QTextParag *p = doc->paragAt( parag );
     if ( !p )
         return FALSE;
     if ( index < 0 || index >= p->length() )
         return FALSE;
-    font = p->at( index )->format()->font();
-    color = p->at( index )->format()->color();
+    *font = p->at( index )->format()->font();
+    *color = p->at( index )->format()->color();
     return TRUE;
 }
 

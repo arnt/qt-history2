@@ -56,7 +56,7 @@
 
     The text edit documentation uses the following concepts:
     <ul>
-    <li><i>current format</i> -- 
+    <li><i>current format</i> --
     this is the format at the current cursor position, \e and it
     is the format of the selected text if any.
     <li><i>current paragraph</i> -- the paragraph which contains the
@@ -65,7 +65,7 @@
 
     QTextEdit extends QTextView with keyboard and mouse handling for
     user input. QTextEdit provides functions to change the text and its
-    formatting. 
+    formatting.
 
     The text is set or replaced using setText() which deletes any
     existing text and replaces it with the text passed in the setText()
@@ -74,14 +74,14 @@
     with clear() and the selected text is deleted with
     removeSelectedText(). Selected (marked) text can also be deleted
     with del() (which will delete the character to the right of the
-    cursor if no text is selected). 
+    cursor if no text is selected).
 
     The current format's attributes are set with setItalic(), setBold(),
     setUnderline(), setFamily() (font family), setPointSize(),
     setColor() and setCurrentFont().  The current
     paragraph's style is set with setParagType() and its alignment is
     set with setAlignment(). All format attributes can be reset to their
-    original state with resetFormat(). 
+    original state with resetFormat().
 
     Internally QTextEdit works on paragraphs and characters. A paragraph
     is a formatted string which is word-wrapped to fit into the width of
@@ -121,7 +121,7 @@
   example:
   \code
     QFile file( fileName ); // Read the text from a file
-    if ( file.open( IO_ReadOnly ) ) { 
+    if ( file.open( IO_ReadOnly ) ) {
 	QTextStream ts( &file );
 	textEdit->setText( ts.read() );
     }
@@ -324,15 +324,15 @@
   characters in \a text result in hard line breaks (i.e. new
   paragraphs). If \a checkNewLine is FALSE the behaviour of the editor
   is undefined if the \a text contains newlines. If \a removeSelected is
-  TRUE, any selected text is removed before the text is inserted. 
+  TRUE, any selected text is removed before the text is inserted.
 
   \sa paste() pasteSubType()
 */
 
 /*! \fn void QTextEdit::undo()
 
-  Undoes the last operation. 
-  
+  Undoes the last operation.
+
   If there is no operation to undo, e.g. there is no undo step in the
   undo/redo history, nothing happens.
 
@@ -342,7 +342,7 @@
 /*! \fn void QTextEdit::redo()
 
   Redoes the last operation.
-  
+
   If there is no operation to redo, e.g. there is no redo step in the
   undo/redo history, nothing happens.
 
@@ -366,7 +366,7 @@
 
     If there is no text in the clipboard nothing happens.
 
-    \sa pasteSubType() cut() QTextView::copy() 
+    \sa pasteSubType() cut() QTextView::copy()
 */
 
 /*! \fn void QTextEdit::pasteSubType( const QCString &subtype )
@@ -378,7 +378,7 @@
     If there is no text with format \a subtype in the clipboard nothing
     happens.
 
-    \sa paste() cut() QTextView::copy() 
+    \sa paste() cut() QTextView::copy()
 */
 
 /*! \fn void QTextEdit::clear()
@@ -390,10 +390,10 @@
 */
 
 /*! \fn void QTextEdit::del()
-    
+
     If there is some selected text it is deleted. If there is no
     selected text the character to the right of the text cursor is
-    deleted. 
+    deleted.
 
     \sa removeSelectedText() cut()
 
@@ -407,7 +407,7 @@
 /*! \fn void QTextEdit::setItalic( bool b )
 
     If b is TRUE sets the current format to italic; otherwise sets the
-    current format to non-italic. 
+    current format to non-italic.
 
     \sa italic()
 */
@@ -415,7 +415,7 @@
 /*! \fn void QTextEdit::setBold( bool b )
 
     If b is TRUE sets the current format to bold; otherwise sets the
-    current format to non-bold. 
+    current format to non-bold.
 
     \sa bold()
 */
@@ -423,7 +423,7 @@
 /*! \fn void QTextEdit::setUnderline( bool b )
 
     If b is TRUE sets the current format to underline; otherwise sets the
-    current format to non-underline. 
+    current format to non-underline.
 
     \sa underline()
 */
@@ -470,7 +470,7 @@
 
 /*! \fn void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm, QStyleSheetItem::ListStyle listStyle )
 
-  Sets the paragraph style of the current paragraph 
+  Sets the paragraph style of the current paragraph
   to \a dm. If \a dm is QStyleSheetItem::DisplayListItem, the
   type of the list item is set to \a listStyle.
 
@@ -486,8 +486,8 @@
 
 /*! \fn void QTextEdit::setSelection( int parag_from, int index_from, int parag_to, int index_to, int selNum )
 
-  Sets a selection which starts at position \a index_from in 
-  paragraph \a parag_from and ends position \a index_to in 
+  Sets a selection which starts at position \a index_from in
+  paragraph \a parag_from and ends position \a index_to in
   paragraph \a parag_to.
 
   Uses the selection settings of selection \a selNum. If this is 0,
@@ -647,14 +647,14 @@
   the future.
 */
 
-/*! \fn bool QTextEdit::getFormat( int para, int index, QFont &font, QColor &color )
+/*! \fn bool QTextEdit::getFormat( int para, int index, QFont *font, QColor *color )
 
   This function gets the format of the character at position \a index in
   paragraph \a para. Sets \a font to the character's font and \a color
   to the character's color.
 
-    Returns FALSE if \a para or \a index is out of range otherwise
-    returns TRUE.
+  Returns FALSE if \a para or \a index is out of range otherwise
+  returns TRUE.
 */
 
 /*! Constructs a QTextEdit. The \a parent and \a name arguments are as
@@ -677,8 +677,8 @@ QTextEdit::~QTextEdit()
 /*!
     \fn void QTextEdit::setFont( const QFont & )
 
-    \obsolete 
-    
+    \obsolete
+
     Use setCurrentFont() instead.
 */
 

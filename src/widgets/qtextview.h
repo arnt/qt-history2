@@ -339,7 +339,7 @@ private: // these are functions which actually do editing stuff, but
     void insert( const QString &text, bool indent = FALSE, bool checkNewLine = TRUE, bool removeSelected = TRUE );
     void readFormats( QTextCursor &c1, QTextCursor &c2, int oldLen, QTextString &text, bool fillStyles = FALSE );
     void clearUndoRedo();
-    bool getFormat( int parag, int index, QFont &font, QColor &color );
+    bool getFormat( int parag, int index, QFont *font, QColor *color );
     void paintDocument( bool drawAll, QPainter *p, int cx = -1, int cy = -1, int cw = -1, int ch = -1 );
 
 private:
