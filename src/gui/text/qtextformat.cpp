@@ -64,14 +64,6 @@ QDebug &operator<<(QDebug &debug, const QTextFormatProperty &property)
 }
 #endif
 
-class QTextFormatPrivate : public QSharedObject
-{
-public:
-    typedef QMap<int, QTextFormatProperty> PropertyMap;
-
-    PropertyMap properties;
-};
-
 QTextFormatProperty::QTextFormatProperty(const QString &value)
 {
     type = QTextFormat::String;
@@ -117,6 +109,15 @@ bool QTextFormatProperty::operator==(const QTextFormatProperty &rhs) const
 
     return true;
 }
+
+
+class QTextFormatPrivate : public QSharedObject
+{
+public:
+    typedef QMap<int, QTextFormatProperty> PropertyMap;
+
+    PropertyMap properties;
+};
 
 
 /*!
