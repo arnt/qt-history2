@@ -1005,6 +1005,8 @@ const QObjectList *QObject::objectTrees()
     delete l; // delete the list, not the objects
 \endcode
 
+  The QObjectList class is defined in the qobjectlist.h header file.
+
   \warning Delete the list as soon you have finished using it.
   The list contains pointers that may become invalid at almost any
   time without notice (as soon as the user closes a window you may
