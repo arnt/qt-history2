@@ -55,7 +55,7 @@
 #include <os2.h>
 #endif
 
-static const uint FIRST_DAY	= 2361222;	// Julian day for 1752/09/14
+static const uint FIRST_DAY	= 2361222;	// Julian day for 1752-09-14
 static const int  FIRST_YEAR	= 1752;		// ### wrong for many countries
 static const uint SECS_PER_DAY	= 86400;
 static const uint MSECS_PER_DAY = 86400000;
@@ -236,10 +236,10 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
   leapYear() function indicates whether this date is in a leap year.
 
   Note that QDate should not be used for date calculations for dates
-  prior to the introduction of the Gregorian calendar. This calendar was
-  adopted by England from 14<sup><small>th</small></sup> September 1752
-  (hence this is the earliest valid QDate), and subsequently by most
-  other western countries, until 1923.
+  prior to the introduction of the Gregorian calendar. This calendar
+  was adopted by England from 14 September 1752 (hence this is the
+  earliest valid QDate), and subsequently by most other western
+  countries, until 1923.
 
   The end of time is reached around 8000, by which time we expect Qt
   to be obsolete.
@@ -268,8 +268,10 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
   Constructs a date with year \a y, month \a m and day \a d.
 
   \a y must be in the range 1752..8000, \a m must be in the range
-  1..12, and \a d must be in the range 1..31. Exception: if \a y is in
-  the range 0..99, it is interpreted as 1900..1999.
+  1..12, and \a d must be in the range 1..31.
+
+  Exception: if \a y is in the range 0..99, it is interpreted as
+  1900..1999.
 
   \sa isValid()
 */
@@ -317,7 +319,7 @@ int QDate::year() const
 }
 
 /*!
-  Returns the month (January=1..December=12) of this date.
+  Returns the month (1..12) of this date.
 
   \sa year(), day()
 */
@@ -838,7 +840,7 @@ QString QDate::toString( Qt::DateFormat f ) const
 
   All other input characters will be ignored.
 
-  Example format Strings (assumed that the QDate is 21. May 2001)
+  Example format Strings (assumed that the QDate is 21 May 2001)
 
   \list
   \i "dd.MM.yyyy" will result in "21.05.2001"
@@ -858,8 +860,10 @@ QString QDate::toString( const QString& format ) const
   Sets the date's year \a y, month \a m and day \a d.
 
   \a y must be in the range 1752..8000, \a m must be in the range
-  1..12, and \a d must be in the range 1..31. Exception: if \a y is in
-  the range 0..99, it is interpreted as 1900..1999.
+  1..12, and \a d must be in the range 1..31.
+
+  Exception: if \a y is in the range 0..99, it is interpreted as
+  1900..1999.
 
   Returns TRUE if the date is valid, otherwise returns FALSE.
 */
@@ -963,8 +967,8 @@ QDate QDate::addYears( int nyears ) const
 
   Example:
   \code
-    QDate d1( 1995, 5, 17 );  // May 17th 1995
-    QDate d2( 1995, 5, 20 );  // May 20th 1995
+    QDate d1( 1995, 5, 17 );  // 17 May 1995
+    QDate d2( 1995, 5, 20 );  // 20 May 1995
     d1.daysTo( d2 );          // returns 3
     d2.daysTo( d1 );          // returns -3
   \endcode
@@ -1114,13 +1118,13 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 
   Example:
   \code
-    QDate::isValid( 2002, 5, 17 );  // TRUE   May 17th 2002 is valid
-    QDate::isValid( 2002, 2, 30 );  // FALSE  Feb 30th does not exist
-    QDate::isValid( 2004, 2, 29 );  // TRUE   2004 is a leap year
-    QDate::isValid( 1202, 6, 6 );   // FALSE  1202 is pre-Gregorian
+    QDate::isValid( 2002, 5, 17 );  // TRUE: 17 May 2002 is valid
+    QDate::isValid( 2004, 2, 29 );  // TRUE: 2004 is a leap year
+    QDate::isValid( 2002, 2, 30 );  // FALSE: 30 February doesn't exist
+    QDate::isValid( 1202, 6, 6 );   // FALSE: 1202 is too early
   \endcode
 
-  Note that a \a y value in the range 00..99 is interpreted as
+  Note that a \a y value in the range 0..99 is interpreted as
   1900..1999.
 
   \sa isNull(), setYMD()
@@ -1473,8 +1477,8 @@ bool QTime::setHMS( int h, int m, int s, int ms )
     QTime t;
     t = n.addSecs( 70 );                // t == 14:01:10
     t = n.addSecs( -70 );               // t == 13:58:50
-    t = n.addSecs( 10*60*60 + 5 );      // t == 00:00:05
-    t = n.addSecs( -15*60*60 );         // t == 23:00:00
+    t = n.addSecs( 10 * 60 * 60 + 5 );  // t == 00:00:05
+    t = n.addSecs( -15 * 60 * 60 );     // t == 23:00:00
   \endcode
 
   \sa addMSecs(), secsTo(), QDateTime::addSecs()
@@ -1796,7 +1800,7 @@ int QTime::elapsed() const
   clock's time. The date and time can be changed with setDate() and
   setTime(). A datetime can also be set using the setTime_t() function,
   which takes a POSIX-standard "number of seconds since 00:00:00 on
-  January 1, 1970" value. The fromString() function returns a QDate
+  1 January 1970" value. The fromString() function returns a QDate
   given a string and a date format which is used to interpret the date
   within the string.
 
@@ -1901,30 +1905,64 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 
 
 /*!
-  Sets the date and time to local time given the number of seconds that
-  have passed since 00:00:00 on January 1, 1970, Coordinated Universal
-  Time (UTC). On systems that do not support timezones this function
-  will behave as if local time were UTC.
+    Returns the number of seconds that have passed since 00:00:00 on
+    1 January 1970, Coordinated Universal Time (UTC). Returns (uint)
+    -1 if the QDateTime cannot be expressed as a uint or time_t.
 
-  Note that Microsoft Windows supports only a limited range of values for
-  \a secsSince1Jan1970UTC.
+    On systems that do not support timezones, this function will
+    behave as if local time were UTC.
+
+    \sa setTime_t()
+*/
+
+uint QDateTime::toTime_t() const
+{
+    tm brokenDown;
+    brokenDown.tm_sec = t.second();
+    brokenDown.tm_min = t.minute();
+    brokenDown.tm_hour = t.hour();
+    brokenDown.tm_mday = d.day();
+    brokenDown.tm_mon = d.month() - 1;
+    brokenDown.tm_year = d.year() - 1900;
+    brokenDown.tm_isdst = -1;
+    int secsSince1Jan1970UTC = (int) mktime( &brokenDown );
+    if ( secsSince1Jan1970UTC < -1 )
+	secsSince1Jan1970UTC = -1;
+    return (uint) secsSince1Jan1970UTC;
+}
+
+/*!
+    Sets the date and time to local time given the number of seconds
+    that have passed since 00:00:00 on 1 January 1970, Coordinated
+    Universal Time (UTC).
+
+    On systems that do not support timezones, this function will
+    behave as if local time were UTC.
+
+    On Windows, only a subset of \a secsSince1Jan1970UTC values are
+    supported, as Windows starts its reckoning in 1980.
+
+    \sa toTime_t()
 */
 
 void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 {
     time_t tmp = (time_t) secsSince1Jan1970UTC;
-    tm *tM = localtime( &tmp );
-    if ( !tM ) {
-	tM = gmtime( &tmp );
-	if ( !tM ) {
+    tm *brokenDown = localtime( &tmp );
+    if ( !brokenDown ) {
+	brokenDown = gmtime( &tmp );
+	if ( !brokenDown ) {
 	    d.jd = QDate::gregorianToJulian( 1970, 1, 1 );
 	    t.ds = 0;
 	    return;
 	}
     }
-    d.jd = QDate::gregorianToJulian( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
-    t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
-	    1000*tM->tm_sec;
+    d.jd = QDate::gregorianToJulian( brokenDown->tm_year + 1900,
+				     brokenDown->tm_mon + 1,
+				     brokenDown->tm_mday );
+    t.ds = MSECS_PER_HOUR * brokenDown->tm_hour +
+	   MSECS_PER_MIN * brokenDown->tm_min +
+	   1000 * brokenDown->tm_sec;
 }
 
 #ifndef QT_NO_DATESTRING
@@ -1949,7 +1987,6 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
   If the format \a f is invalid, toString() returns a null string.
 
   \sa QDate::toString() QTime::toString()
-
 */
 
 QString QDateTime::toString( Qt::DateFormat f ) const
@@ -2044,7 +2081,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 
   All other input characters will be ignored.
 
-  Example format Strings (assumed that the QDateTime is 21. May 2001 14:13:09)
+  Example format strings (assumed that the QDateTime is 21 May 2001 14:13:09):
 
   \list
   \i "dd.MM.yyyy" will result in "21.05.2001"
@@ -2408,4 +2445,3 @@ QDataStream &operator>>( QDataStream &s, QDateTime &dt )
     return s;
 }
 #endif //QT_NO_DATASTREAM
-

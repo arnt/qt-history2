@@ -190,8 +190,9 @@ public:
 
     QDate  date()	const		{ return d; }
     QTime  time()	const		{ return t; }
-    void   setDate( const QDate &date ) { d=date; }
-    void   setTime( const QTime &time ) { t=time; }
+    uint   toTime_t()	const;
+    void   setDate( const QDate &date ) { d = date; }
+    void   setTime( const QTime &time ) { t = time; }
     void   setTime_t( uint secsSince1Jan1970UTC );
 #ifndef QT_NO_DATESTRING
 #ifndef QT_NO_SPRINTF
