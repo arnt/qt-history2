@@ -108,7 +108,7 @@
 extern bool qt_has_xft;
 #endif
 
-static bool qt_gen_epsf = false;
+static bool qt_gen_epsf = FALSE;
 
 void qt_generate_epsf( bool b )
 {
@@ -1973,7 +1973,7 @@ static void appendReplacements( QStringList &list, const psfont * const * replac
     }
 }
 
-static QStringList makePSFontNameList( const QFont &f, const QString &psname = QString::null, bool useNameForLookup = false )
+static QStringList makePSFontNameList( const QFont &f, const QString &psname = QString::null, bool useNameForLookup = FALSE )
 {
     int i;
     int type;
@@ -2175,7 +2175,7 @@ QPSPrinter::~QPSPrinter()
 }
 
 
-// ========================== FONT FILE CLASSES  ===============
+// ========================== FONT CLASSES  ===============
 
 class QPSPrinterFontPrivate {
 public:
@@ -2212,8 +2212,8 @@ protected:
 QPSPrinterFontPrivate::QPSPrinterFontPrivate()
     : subset( 1009 ), page_subset( 1009 )
 {
-    global_dict = false;
-    downloaded  = false;
+    global_dict = FALSE;
+    downloaded  = FALSE;
     subset.setAutoDelete( TRUE );
     page_subset.setAutoDelete( TRUE );
     // map 0 to .notdef
@@ -2693,7 +2693,7 @@ extern "C" char* getenv(char*);
 QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 {
   data = d;
-  defective = false;
+  defective = FALSE;
 
   BYTE *ptr;
 
@@ -2722,7 +2722,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   /* Load the "head" table and extract information from it. */
   ptr = getTable("head");
   if ( !ptr ) {
-      defective = true;
+      defective = TRUE;
       return;
   }
   MfrRevision = getFixed( ptr + 4 );            /* font revision number */
@@ -2738,12 +2738,12 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   indexToLocFormat = getSHORT( ptr + 50 );      /* size of 'loca' data */
   if(indexToLocFormat != 0 && indexToLocFormat != 1) {
     qWarning("TrueType font is unusable because indexToLocFormat != 0");
-    defective = true;
+    defective = TRUE;
     return;
   }
   if( getSHORT(ptr+52) != 0 ) {
     qWarning("TrueType font is unusable because glyphDataFormat != 0");
-    defective = true;
+    defective = TRUE;
     return;
   }
 
@@ -2758,7 +2758,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 
   BYTE* table_ptr = getTable("name");           /* pointer to table */
   if ( !table_ptr ) {
-      defective = true;
+      defective = TRUE;
       return;
   }
   int numrecords = getUSHORT( table_ptr + 2 );  /* number of names */
@@ -2814,7 +2814,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
   }
   BYTE *maxp = getTable("maxp");
   if ( !maxp ) {
-      defective = true;
+      defective = TRUE;
       return;
   }
   numGlyphs = getUSHORT( maxp + 4 );
@@ -2826,7 +2826,7 @@ QPSPrinterFontTTF::QPSPrinterFontTTF(const QFont &f, QByteArray& d)
 void QPSPrinterFontTTF::download(QTextStream& s,bool global)
 {
   global_dict = global;
-  downloaded  = true;
+  downloaded  = TRUE;
 
     emitPSFontNameList( s, psname, replacementList );
   if (defective) {
@@ -3378,9 +3378,9 @@ void QPSPrinterFontTTF::sfnts_pputBYTE(BYTE n,QTextStream& s,
 
   if(!in_string) {
     s << "<";
-    string_len=0;
+    string_len = 0;
     line_len++;
-    in_string=true;
+    in_string = TRUE;
   }
 
   s << hexdigits[ n / 16 ] ;
@@ -3441,7 +3441,7 @@ void QPSPrinterFontTTF::sfnts_end_string(QTextStream& s,
     line_len++;
   }
 
-  in_string=false;
+  in_string=FALSE;
 }
 
 /*
@@ -3504,7 +3504,7 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
     */
     if( length % 2 ) {
       qWarning("TrueType font contains a 'glyf' table without 2 byte padding");
-      defective = true;
+      defective = TRUE;
       return;
     }
 
@@ -3527,7 +3527,7 @@ void QPSPrinterFontTTF::sfnts_glyf_table(ULONG oldoffset,
   /* Look for unexplainable descrepancies between sizes */
   if( total != correct_total_length ) {
     qWarning("QPSPrinterFontTTF::sfnts_glyf_table: total != correct_total_length");
-    defective = true;
+    defective = TRUE;
     return;
   }
 }
@@ -3600,7 +3600,7 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
 
   s << "/sfnts[<";
 
-  bool in_string=true;
+  bool in_string=TRUE;
   int  string_len=0;
   int  line_len=8;
 
@@ -3656,7 +3656,7 @@ void QPSPrinterFontTTF::download_sfnts(QTextStream& s)
     } else { // other tables should not exceed 64K (not always true; Sivan)
       if( tables[x].length > 65535 ) {
         qWarning("TrueType font has a table which is too long");
-        defective = true;
+        defective = TRUE;
         return;
       }
 
@@ -4116,7 +4116,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
   USHORT glyphIndex;
   charproc_data cd;
 
-  glyphset[charindex] = true;
+  glyphset[charindex] = TRUE;
   //printf("subsetting %s ==> ",glyphName(charindex).latin1());
 
   /* Get a pointer to the data. */
@@ -4140,7 +4140,7 @@ void QPSPrinterFontTTF::subsetGlyph(int charindex,bool* glyphset)
       glyphIndex = getUSHORT(glyph);    /* read the glyphindex word */
       glyph += 2;
 
-      glyphset[ glyphIndex ] = true;
+      glyphset[ glyphIndex ] = TRUE;
       //printf("%s ",glyphName(glyphIndex).latin1());
 
       if(flags & ARG_1_AND_2_ARE_WORDS) {
@@ -4561,7 +4561,7 @@ void QPSPrinterFontNotFound::download(QTextStream& s, bool)
   s << "% No embeddable font for ";
   s << psname;
   s << " found\n";
-  QPSPrinterFontPrivate::download(s, true);
+  QPSPrinterFontPrivate::download(s, TRUE);
 }
 
 // =================== A font file for asian ============
@@ -5861,6 +5861,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
                << pageCount << ' ' << pageCount << endl
                << "%%BeginPageSetup\n"
                << "QI\n";
+        QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
+        while (it.current()) {
+            it.current()->download( stream, FALSE ); // FALSE means its global
+            ++it;
+        }
         // setup page fonts
         // ####
         stream  << "%%EndPageSetup\n";
@@ -6079,7 +6084,7 @@ void QPSPrinter::emitHeader( bool finished )
                    << pageCount << "\n";
         QDictIterator<QPSPrinterFontPrivate> it(d->fonts);
         while (it.current()) {
-          it.current()->download(stream,true); // true means its global
+          it.current()->download(stream,TRUE); // true means its global
           ++it;
                 }
         stream.writeRawBytes( d->fontBuffer->buffer().data(),
