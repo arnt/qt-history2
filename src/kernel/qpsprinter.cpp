@@ -2346,8 +2346,10 @@ unsigned short QPSPrinterFontPrivate::mapUnicode( unsigned short unicode )
 {
     unsigned short *res;
     res = subset[unicode];
-    if ( !res && downloaded )
+    if ( !res && downloaded ) {
         res = page_subset[unicode];
+        res += (subsetCount/256 + 1) * 256;
+    }
     if ( !res ) {
         return insertIntoSubset( unicode );
     }
