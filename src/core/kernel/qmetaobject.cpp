@@ -15,6 +15,7 @@
 #include "qmetaobject.h"
 #include "qobject.h"
 #include <qcoreapplication.h>
+#include <qdatastream.h>
 #include <qstringlist.h>
 #include <qcorevariant.h>
 #include <qhash.h>
@@ -1466,7 +1467,7 @@ const char* QMetaClassInfo::value() const
 */
 
 
-static const struct { const char * typeName; int type; }types[]  = {
+static const struct { const char * typeName; int type; } types[] = {
     {"void*", QMetaType::VoidStar},
     {"long", QMetaType::Long},
     {"int", QMetaType::Int},
@@ -1494,20 +1495,34 @@ static const struct { const char * typeName; int type; }types[]  = {
 class QCustomTypeInfo
 {
 public:
-    QCustomTypeInfo() : typeName(0), copy(0), destr(0) {}
-    void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
+    QCustomTypeInfo() : typeName(0), copy(0), destr(0), saveOp(0), loadOp(0) {}
+    inline void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { typeName = tname; copy = cp; destr = de; }
-    void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
+    inline void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { copy = cp; destr = de; }
+    inline void setOperators(QMetaType::SaveOperator sOp, QMetaType::LoadOperator lOp)
+    { saveOp = sOp; loadOp = lOp; }
 
     QByteArray typeName;
     QMetaType::CopyConstructor copy;
     QMetaType::Destructor destr;
+    QMetaType::SaveOperator saveOp;
+    QMetaType::LoadOperator loadOp;
 };
 
 static QVector<QCustomTypeInfo> customTypes;
 
-/*
+
+void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveOp,
+                                        LoadOperator loadOp)
+{
+    int idx = type(typeName);
+    if (!idx)
+        return;
+    customTypes[idx - User].setOperators(saveOp, loadOp);
+}
+
+/*!
    Returns the type name associated for \a type or 0 if no type was
    found. The returned pointer must not be deleted.
  */
@@ -1580,6 +1595,26 @@ int QMetaType::type(const char *typeName)
         }
     }
     return types[i].type;
+}
+
+bool QMetaType::save(QDataStream &stream, int type, const void *data)
+{
+    if (!data || !isRegistered(type))
+        return false;
+    QMetaType::SaveOperator saveOp = customTypes.at(type - User).saveOp;
+    if (!saveOp)
+        return false;
+    return saveOp(stream, data);
+}
+
+bool QMetaType::load(QDataStream &stream, int type, void *data)
+{
+    if (!data || !isRegistered(type))
+        return false;
+    QMetaType::LoadOperator loadOp = customTypes.at(type - User).loadOp;
+    if (!loadOp)
+        return false;
+    return loadOp(stream, data);
 }
 
 /*

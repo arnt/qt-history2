@@ -111,6 +111,12 @@ private:
     friend struct QMetaObject;
 };
 
+
+//Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPixmap &);
+//Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
+
+class QDataStream;
+
 class Q_CORE_EXPORT QMetaType {
 public:
     enum {
@@ -122,13 +128,20 @@ public:
 
     typedef void (*Destructor)(void *);
     typedef void *(*CopyConstructor)(const void *);
+    typedef bool (*SaveOperator)(QDataStream &, const void *);
+    typedef bool (*LoadOperator)(QDataStream &, void *);
 
-    static int registerType(const char *typeName, Destructor destructor, CopyConstructor copyConstructor);
+    static int registerType(const char *typeName, Destructor destructor,
+                            CopyConstructor copyConstructor);
+    static void registerStreamOperators(const char *typeName, SaveOperator saveOp,
+                                        LoadOperator loadOp);
     static int type(const char *typeName);
     static const char *typeName(int type);
     static bool isRegistered(int type);
     static void *copy(int type, const void *data);
     static void destroy(int type, void *data);
+    static bool save(QDataStream &stream, int type, const void *data);
+    static bool load(QDataStream &stream, int type, void *data);
 };
 
 template <typename T>
@@ -146,7 +159,25 @@ void *qMetaTypeCopyHelper(const T *t)
 }
 
 template <typename T>
-static int qRegisterMetaType(const char *typeName, T* = 0)
+bool qMetaTypeSaveHelper(QDataStream &stream, const T *t)
+{
+    if (!t)
+        return false;
+    stream << *t;
+    return true;
+}
+
+template <typename T>
+bool qMetaTypeLoadHelper(QDataStream &stream, T *t)
+{
+    if (!t)
+        return false;
+    stream >> *t;
+    return true;
+}
+
+template <typename T>
+static int qRegisterMetaType(const char *typeName, T * = 0)
 {
     typedef void*(*CopyPtr)(const T*);
     CopyPtr cptr = qMetaTypeCopyHelper<T>;
@@ -155,6 +186,18 @@ static int qRegisterMetaType(const char *typeName, T* = 0)
 
     return QMetaType::registerType(typeName, (QMetaType::Destructor)dptr,
                                    (QMetaType::CopyConstructor)cptr);
+}
+
+template <typename T>
+static void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
+{
+    typedef bool(*SavePtr)(QDataStream &, const T *);
+    typedef bool(*LoadPtr)(QDataStream &, T *);
+    SavePtr sptr = qMetaTypeSaveHelper<T>;
+    LoadPtr lptr = qMetaTypeLoadHelper<T>;
+
+    QMetaType::registerStreamOperators(typeName, (QMetaType::SaveOperator)sptr,
+                                       (QMetaType::LoadOperator)lptr);
 }
 
 #endif // QMETAOBJECT_H
