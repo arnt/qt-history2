@@ -53,7 +53,7 @@
     \list
 
     \i For a line edit that accepts integers from 0 to 999 inclusive,
-    42 and 666 are \c Acceptable, the empty string and 1114 are \c
+    42 and 123 are \c Acceptable, the empty string and 1114 are \c
     Intermediate and asdf is \c Invalid.
 
     \i For an editable combobox that accepts URLs, any well-formed URL
