@@ -200,13 +200,8 @@ void MainWindow::setupEditActions()
     actionEditPreferences->setWhatsThis( whatsThisFrom( "Edit|Preferences" ) );
     connect( actionEditPreferences, SIGNAL( activated() ), this, SLOT( editPreferences() ) );
 
-#if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "Edit" );
-    tb->setFullSize( FALSE );
-#else
     QToolBar *tb = new QToolBar( this, "Edit" );
     tb->setCloseMode( QDockWindow::Undocked );
-#endif
     QWhatsThis::add( tb, tr( "<b>The Edit toolbar</b>%1").arg(tr(toolbarHelp).arg("")) );
     addToolBar( tb, tr( "Edit" ) );
     actionEditUndo->addTo( tb );
@@ -273,13 +268,8 @@ void MainWindow::setupSearchActions()
     actionSearchGotoLine->setEnabled( FALSE );
     actionSearchGotoLine->setWhatsThis( whatsThisFrom( "Search|Goto line" ) );
 
-#if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "Search" );
-    tb->setFullSize( FALSE );
-#else
     QToolBar *tb = new QToolBar( this, "Search" );
     tb->setCloseMode( QDockWindow::Undocked );
-#endif
     addToolBar( tb, tr( "Search" ) );
 
     actionSearchFind->addTo( tb );
@@ -425,13 +415,8 @@ void MainWindow::setupToolActions()
     actionOrderTool->setStatusTip( tr("Selects the tab order tool") );
     actionOrderTool->setWhatsThis( whatsThisFrom( "Tools|Tab Order" ) );
 
-#if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "Tools" );
-    tb->setFullSize( FALSE );
-#else
     QToolBar *tb = new QToolBar( this, "Tools" );
     tb->setCloseMode( QDockWindow::Undocked );
-#endif
     toolsToolBar = tb;
     QWhatsThis::add( tb, tr( "<b>The Tools toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
 
@@ -467,13 +452,8 @@ void MainWindow::setupToolActions()
 	if ( !WidgetDatabase::isGroupVisible( grp ) ||
 	     WidgetDatabase::isGroupEmpty( grp ) )
 	    continue;
-#if defined(HAVE_KDE)
-	KToolBar *tb = new KToolBar( this, grp.latin1() );
-	tb->setFullSize( FALSE );
-#else
 	QToolBar *tb = new QToolBar( this, grp.latin1() );
 	tb->setCloseMode( QDockWindow::Undocked );
-#endif
 	widgetToolBars.append( tb );
 	bool plural = grp[(int)grp.length()-1] == 's';
 	if ( plural ) {
@@ -540,13 +520,8 @@ void MainWindow::setupToolActions()
     }
 
     if ( !customWidgetToolBar ) {
-#if defined(HAVE_KDE)
-	KToolBar *tb = new KToolBar( this, "Custom Widgets" );
-	tb->setFullSize( FALSE );
-#else
 	QToolBar *tb = new QToolBar( this, "Custom Widgets" );
 	tb->setCloseMode( QDockWindow::Undocked );
-#endif
 	QWhatsThis::add( tb, tr( "<b>The Custom Widgets toolbar</b>%1"
 				 "<p>Click <b>Edit Custom Widgets...</b> in the <b>Tools|Custom</b> menu to "
 				 "add and change custom widgets</p>" ).arg(tr(toolbarHelp).
@@ -574,13 +549,8 @@ void MainWindow::setupToolActions()
 
 void MainWindow::setupFileActions()
 {
-#if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "File" );
-    tb->setFullSize( FALSE );
-#else
     QToolBar* tb  = new QToolBar( this, "File" );
     tb->setCloseMode( QDockWindow::Undocked );
-#endif
     projectToolBar = tb;
 
     QWhatsThis::add( tb, tr( "<b>The File toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
@@ -990,13 +960,8 @@ void MainWindow::setupHelpActions()
     actionHelpWhatsThis->setWhatsThis( whatsThisFrom( "Help|What's This?" ) );
     connect( actionHelpWhatsThis, SIGNAL( activated() ), this, SLOT( whatsThis() ) );
 
-#if defined(HAVE_KDE)
-    KToolBar *tb = new KToolBar( this, "Help" );
-    tb->setFullSize( FALSE );
-#else
     QToolBar *tb = new QToolBar( this, "Help" );
     tb->setCloseMode( QDockWindow::Undocked );
-#endif
     QWhatsThis::add( tb, tr( "<b>The Help toolbar</b>%1" ).arg(tr(toolbarHelp).arg("") ));
     addToolBar( tb, tr( "Help" ) );
     actionHelpWhatsThis->addTo( tb );
@@ -1393,28 +1358,6 @@ void MainWindow::fileSaveAll()
 {
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it )
 	(*it)->save();
-}
-
-static bool inSaveAllTemp = FALSE;
-
-void MainWindow::saveAllTemp()
-{
-    if ( inSaveAllTemp )
-	return;
-    inSaveAllTemp = TRUE;
-    statusBar()->message( tr( "Qt Designer is crashing. Attempting to save files..." ) );
-    QWidgetList windows = qWorkspace()->windowList();
-    QString baseName = QDir::homeDirPath() + "/.designer/saved-form-";
-    int i = 1;
-    for ( QWidget *w = windows.first(); w; w = windows.next() ) {
-	if ( !w->inherits( "FormWindow" ) )
-	    continue;
-
-	QString fn = baseName + QString::number( i++ ) + ".ui";
-	( (FormWindow*)w )->setFileName( fn );
-	( (FormWindow*)w )->formFile()->save();
-    }
-    inSaveAllTemp = FALSE;
 }
 
 void MainWindow::fileCreateTemplate()

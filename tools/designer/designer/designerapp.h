@@ -25,22 +25,14 @@
 
 class QLabel;
 
-#if defined(HAVE_KDE)
-#include <kapp.h>
-class DesignerApplication : public KApplication
-#else
 #include <qapplication.h>
+
 class DesignerApplication : public QApplication
-#endif
 {
 public:
     const char *className() const { return "DesignerApplication"; }
 
-#if defined(HAVE_KDE)
-    DesignerApplication( int &argc, char **argv, const QCString &rAppName );
-#else
     DesignerApplication( int &argc, char **argv );
-#endif
 
     QLabel *showSplash();
     static void closeSplash();

@@ -109,21 +109,6 @@ static void exitHandler( int )
     exit( -1 );
 }
 
-#if 0
-#if defined(QT_NO_DEBUG)
-#if defined(Q_OS_IRIX) && defined(Q_CC_GNU)
-static void crashHandler()
-#else
-static void crashHandler( int )
-#endif
-{
-    if ( MainWindow::self )
-	MainWindow::self->saveAllTemp();
-    ::exit( -1 );
-}
-#endif
-#endif
-
 #if defined(Q_C_CALLBACKS)
 }
 #endif
@@ -135,29 +120,9 @@ static void crashHandler( int )
 
 int main( int argc, char *argv[] )
 {
-#if defined(QT_NO_DEBUG)
-#if 0
-    signal( SIGSEGV, crashHandler );
-#endif
-#endif
-
     QApplication::setColorSpec( QApplication::ManyColor );
 
-#if defined(HAVE_KDE)
-    DesignerApplication a( argc, argv, "Qt Designer" );
-#else
     DesignerApplication a( argc, argv );
-#endif
-
-#if 0 // ###### this is not defined when building designer, even when
- // remote stuff is not built and disabled. Fix the build first,
- // please!
-#ifndef QT_NO_REMOTE
-    // {9A6A9A56-011B-4FEE-9B83-5BAD85071729}
-    static const QUuid id = QUuid( 0x9a6a9a56, 0x011b, 0x4fee, 0x9b, 0x83, 0x5b, 0xad, 0x85, 0x07, 0x17, 0x29 );
-    a.setEnableRemoteControl(TRUE,id);
-#endif
-#endif
 
     DesignerApplication::setOverrideCursor( Qt::WaitCursor );
 

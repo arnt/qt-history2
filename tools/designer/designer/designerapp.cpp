@@ -50,14 +50,6 @@ void set_splash_status( const QString &txt )
     QApplication::flush();
 }
 
-#if defined(HAVE_KDE)
-DesignerApplication::DesignerApplication( int &argc, char **argv, const QCString &rAppName )
-    : KApplication( argc, argv, rAppName ), appIface( 0 )
-{
-}
-
-#else
-
 DesignerApplication::DesignerApplication( int &argc, char **argv )
     : QApplication( argc, argv )
 {
@@ -68,8 +60,6 @@ DesignerApplication::DesignerApplication( int &argc, char **argv )
 	    DESIGNER_OPENFILE = RegisterWindowMessageA("QT_DESIGNER_OPEN_FILE");
 #endif
 }
-
-#endif
 
 QLabel *DesignerApplication::showSplash()
 {

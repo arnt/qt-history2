@@ -34,12 +34,7 @@
 #include "../interfaces/sourcetemplateiface.h"
 #include "sourceeditor.h"
 
-#if defined(HAVE_KDE)
-#include <kmainwindow.h>
-#else
 #include <qmainwindow.h>
-#endif
-
 #include <qmap.h>
 #include <qguardedptr.h>
 #include <private/qpluginmanager_p.h>
@@ -76,10 +71,6 @@ class AssistProc;
 class QToolBar;
 #endif
 class Preferences;
-
-#if defined(HAVE_KDE)
-#define QMainWindow KMainWindow
-#endif
 
 class MainWindow : public QMainWindow
 {
@@ -130,7 +121,6 @@ public:
     QString documentationPath() const;
 
     static MainWindow *self;
-    void saveAllTemp();
 
     QString templatePath() const { return templPath; }
 
@@ -383,11 +373,7 @@ private:
     Workspace *wspace;
     QWidget *lastPressWidget;
     QWorkspace *qworkspace;
-#if defined(HAVE_KDE)
-    KMenuBar *menubar;
-#else
     QMenuBar *menubar;
-#endif
     FormWindow *lastActiveFormWindow;
     bool breakLayout, layoutChilds, layoutSelected;
     QPoint grd;

@@ -40,11 +40,7 @@
 #include "wizardeditorimpl.h"
 #include "outputwindow.h"
 #include <qinputdialog.h>
-#if defined(HAVE_KDE)
-#include <ktoolbar.h>
-#else
 #include <qtoolbar.h>
-#endif
 #include <qfeatures.h>
 #include <qmetaobject.h>
 #include <qaction.h>
@@ -127,11 +123,7 @@ static QString textNoAccel( const QString& text)
 
 
 MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
-#if defined(HAVE_KDE)
-    : KMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
-#else
     : QMainWindow( 0, "designer_mainwindow", WType_TopLevel | (single ? 0 : WDestructiveClose) | WGroupLeader ),
-#endif
       grd( 10, 10 ), sGrid( TRUE ), snGrid( TRUE ), restoreConfig( TRUE ), splashScreen( TRUE ),
       docPath( QString( qInstallPathDocs() ) + "/html" ),
       fileFilter( tr( "Qt User-Interface Files (*.ui)" ) ), client( asClient ),
@@ -189,13 +181,8 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     setupEditActions();
     setupProjectActions();
     setupSearchActions();
-#if defined(HAVE_KDE)
-    layoutToolBar = new KToolBar( this, "Layout" );
-    ( (KToolBar*)layoutToolBar )->setFullSize( FALSE );
-#else
     layoutToolBar = new QToolBar( this, "Layout" );
     layoutToolBar->setCloseMode( QDockWindow::Undocked );
-#endif
     addToolBar( layoutToolBar, tr( "Layout" ) );
     setupToolActions();
     setupLayoutActions();
@@ -2910,13 +2897,8 @@ void MainWindow::setupActionManager()
 	    menuBar()->insertItem( tr( grp ), menu );
 	}
 	if ( !( tb = (QToolBar*)child( grp.latin1(), "QToolBar" ) ) ) {
-#if defined(HAVE_KDE)
-	    KToolBar *tb = new KToolBar( this );
-	    tb->setFullSize( FALSE, grp.latin1() );
-#else
 	    tb = new QToolBar( this, grp.latin1() );
 	    tb->setCloseMode( QDockWindow::Undocked );
-#endif
 	    addToolBar( tb, grp );
 	}
 
