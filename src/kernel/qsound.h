@@ -42,6 +42,10 @@ class Q_EXPORT QSound : public QObject {
 public:
     static bool available();
     static void play(const QString& filename);
+    /* Coming soon...
+    enum { Mono, Stereo } Type;
+    static void play(const ushort* data, int n, int hertz, Type type=Mono);
+    */
 
     QSound(const QString& filename, QObject* parent=0, const char* name=0);
     ~QSound();
