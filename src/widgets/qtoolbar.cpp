@@ -56,6 +56,8 @@ public:
     Orientation orientation() const { return orient; }
 public slots:
    void setOrientation( Orientation );
+protected:
+    void styleChange( QStyle& );
 private:
     Orientation orient;
 };
@@ -86,6 +88,10 @@ void QToolBarSeparator::setOrientation( Orientation o )
     }
 }
 
+void QToolBarSeparator::styleChange( QStyle& )
+{
+    setOrientation( orient );
+}
 
 QSize QToolBarSeparator::sizeHint() const
 {
