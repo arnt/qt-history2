@@ -140,7 +140,7 @@ static Option::QMAKE_MODE default_mode(QString progname)
 	return Option::QMAKE_GENERATE_PROJECT;
     return Option::QMAKE_GENERATE_MAKEFILE;
 }
-	    
+
 
 bool
 Option::parseCommandLine(int argc, char **argv)
@@ -155,7 +155,7 @@ Option::parseCommandLine(int argc, char **argv)
 		if(opt == "project") {
 		    Option::qmake_mode = Option::QMAKE_GENERATE_PROJECT;
 		} else if(opt == "makefile") {
-		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;		
+		    Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
 		} else {
 		    specified = FALSE;
 		    Option::qmake_mode = default_mode(argv[0]);
@@ -180,7 +180,7 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::debug_level++;
 	    } else if(opt == "version" || opt == "v" || opt == "-version") {
 		fprintf(stderr, "Qmake version: %s\n", QMAKE_VERSION);
-		fprintf(stderr, "Qmake is free software from TrollTech AS.\n");
+		fprintf(stderr, "Qmake is free software from Trolltech AS.\n");
 		return FALSE;
 	    } else if(opt == "h" || opt == "help") {
 		return usage(argv[0]);
@@ -218,7 +218,7 @@ Option::parseCommandLine(int argc, char **argv)
 			return usage(argv[0]);
 		    }
 		}
-	    } 
+	    }
 	}
 	else {
 	    if(x == 1)
@@ -235,7 +235,7 @@ Option::parseCommandLine(int argc, char **argv)
 	    }
 	}
     }
-    
+
     if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
 	Option::qmake_mode = default_mode(argv[0]);
 
@@ -244,7 +244,7 @@ Option::parseCommandLine(int argc, char **argv)
 	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty()) {
 	    if(Option::mkfile::do_cache) {
 		QString dir = QDir::convertSeparators(QDir::currentDirPath());
-		while(!QFile::exists((Option::mkfile::cachefile = dir + 
+		while(!QFile::exists((Option::mkfile::cachefile = dir +
 				      QDir::separator() + ".qmake.cache"))) {
 		    dir = dir.left(dir.findRev(QDir::separator()));
 		    if(dir.isEmpty() || dir.find(QDir::separator()) == -1) {
