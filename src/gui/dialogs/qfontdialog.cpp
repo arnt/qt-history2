@@ -294,7 +294,9 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
         d->familyList->setCurrentItem(0);
 
     // grid layout
-    QGridLayout * mainGrid = new QGridLayout(this, 9, 6, 12, 0);
+    QGridLayout * mainGrid = new QGridLayout(this);
+    mainGrid->setMargin(12);
+    mainGrid->setSpacing(0);
 
     mainGrid->addWidget(d->familyAccel, 0, 0);
     mainGrid->addWidget(d->familyEdit, 1, 0);
@@ -308,13 +310,13 @@ QFontDialog::QFontDialog(QWidget *parent, const char *name,
     mainGrid->addWidget(d->sizeEdit, 1, 4);
     mainGrid->addWidget(d->sizeList, 2, 4);
 
-    mainGrid->setColStretch(0, 38);
-    mainGrid->setColStretch(2, 24);
-    mainGrid->setColStretch(4, 10);
+    mainGrid->setColumnStretch(0, 38);
+    mainGrid->setColumnStretch(2, 24);
+    mainGrid->setColumnStretch(4, 10);
 
-    mainGrid->setColSpacing(1, 6);
-    mainGrid->setColSpacing(3, 6);
-    mainGrid->setColSpacing(5, 6);
+    mainGrid->setColumnSpacing(1, 6);
+    mainGrid->setColumnSpacing(3, 6);
+    mainGrid->setColumnSpacing(5, 6);
 
     mainGrid->setRowSpacing(3, 12);
 

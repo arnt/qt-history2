@@ -810,9 +810,9 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     there are equivalent functions for rows.
 
     Each column has a minimum width and a stretch factor. The minimum
-    width is the greatest of that set using setColSpacing() and the
+    width is the greatest of that set using setColumnSpacing() and the
     minimum width of each widget in that column. The stretch factor is
-    set using setColStretch() and determines how much of the available
+    set using setColumnStretch() and determines how much of the available
     space the column will get over and above its necessary minimum.
 
     Normally, each managed widget or layout is put into a cell of its
@@ -833,7 +833,7 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
 
     Columns 0, 2 and 4 in this dialog fragment are made up of a
     QLabel, a QLineEdit, and a QListBox. Columns 1 and 3 are
-    placeholders made with setColSpacing(). Row 0 consists of three
+    placeholders made with setColumnSpacing(). Row 0 consists of three
     QLabel objects, row 1 of three QLineEdit objects and row 2 of
     three QListBox objects. We used placeholder columns (1 and 3) to
     get the right amount of space between the columns.
@@ -841,7 +841,7 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     Note that the columns and rows are not equally wide or tall. If
     you want two columns to have the same width, you must set their
     minimum widths and stretch factors to be the same yourself. You do
-    this using setColSpacing() and setColStretch().
+    this using setColumnSpacing() and setColumnStretch().
 
     If the QGridLayout is not the top-level layout (i.e. does not
     manage all of the widget's area and children), you must add it to
@@ -866,6 +866,49 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
 
 
 /*!
+    Constructs a new QGridLayout with parent widget, \a parent.  The
+    layout has one row and one column initially, and will expand when
+    new items are inserted, or setColumnCount()/setRowCount() is
+    called.
+*/
+QGridLayout::QGridLayout(QWidget *parent)
+    : QLayout(*new QGridLayoutPrivate, 0, parent)
+{
+    d->expand(1, 1);
+}
+
+/*!
+    Constructs a new grid that is placed inside \a parentLayout.  The
+    layout has one row and one column initially, and will expand when
+    new items are inserted, or setColumnCount()/setRowCount() is
+    called.
+
+    This grid is placed according to \a parentLayout's default
+    placement rules.
+*/
+QGridLayout::QGridLayout(QLayout *parentLayout)
+    : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
+{
+    d->expand(1, 1);
+}
+
+/*!
+    Constructs a new grid layout.
+
+    You must insert this grid into another layout. You can insert
+    widgets and layouts into this layout at any time, but laying out
+    will not be performed before this is inserted into another layout.
+*/
+QGridLayout::QGridLayout()
+    : QLayout(*new QGridLayoutPrivate, 0, 0)
+{
+    d->expand(1, 1);
+}
+
+
+#ifdef QT_COMPAT
+/*!
+  \obsolete
     Constructs a new QGridLayout with \a nRows rows, \a nCols columns
     and parent widget, \a  parent. \a parent may not be 0. The grid
     layout is called \a name.
@@ -875,32 +918,17 @@ QRect QGridLayoutPrivate::cellGeometry(int row, int col) const
     between cells. If \a space is -1, the value of \a margin is used.
 */
 QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
-                          int space)
+                          int space, const char *name)
     : QLayout(*new QGridLayoutPrivate, 0, parent)
 {
     d->expand(nRows, nCols);
     setMargin(margin);
-    setSpacing(space);
+    setSpacing(space<0 ? margin : space);
+    setObjectName(name);
 }
 
 /*!
-    Constructs a new grid that is placed inside \a parentLayout with
-    \a nRows rows and \a nCols columns. If \a spacing is -1, this
-    QGridLayout inherits its parent's spacing(); otherwise \a spacing
-    is used. The grid layout is called \a name.
-
-    This grid is placed according to \a parentLayout's default
-    placement rules.
-*/
-QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
-                          int spacing)
-    : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
-{
-    d->expand(nRows, nCols);
-    setSpacing(spacing);
-}
-
-/*!
+  \obsolete
     Constructs a new grid with \a nRows rows and \a nCols columns. If
     \a spacing is -1, this QGridLayout inherits its parent's
     spacing(); otherwise \a spacing is used. The grid layout is called
@@ -910,26 +938,6 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
     widgets and layouts into this layout at any time, but laying out
     will not be performed before this is inserted into another layout.
 */
-QGridLayout::QGridLayout(int nRows, int nCols,
-                          int spacing)
-    : QLayout(*new QGridLayoutPrivate, 0, 0)
-{
-    d->expand(nRows, nCols);
-    setSpacing(spacing);
-}
-
-
-#ifdef QT_COMPAT
-QGridLayout::QGridLayout(QWidget *parent, int nRows, int nCols, int margin,
-                          int space, const char *name)
-    : QLayout(*new QGridLayoutPrivate, 0, parent)
-{
-    d->expand(nRows, nCols);
-    setMargin(margin);
-    setSpacing(space);
-    setObjectName(name);
-}
-
 QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
                           int spacing, const char *name)
     : QLayout(*new QGridLayoutPrivate, parentLayout, 0)
@@ -939,6 +947,17 @@ QGridLayout::QGridLayout(QLayout *parentLayout, int nRows, int nCols,
     setObjectName(name);
 }
 
+/*!
+  \obsolete
+    Constructs a new grid with \a nRows rows and \a nCols columns. If
+    \a spacing is -1, this QGridLayout inherits its parent's
+    spacing(); otherwise \a spacing is used. The grid layout is called
+    \a name.
+
+    You must insert this grid into another layout. You can insert
+    widgets and layouts into this layout at any time, but laying out
+    will not be performed before this is inserted into another layout.
+*/
 QGridLayout::QGridLayout(int nRows, int nCols,
                           int spacing, const char *name)
     : QLayout(*new QGridLayoutPrivate, 0, 0)
@@ -964,7 +983,7 @@ QGridLayout::~QGridLayout()
 /*!
     Returns the number of rows in this grid.
 */
-int QGridLayout::numRows() const
+int QGridLayout::rowCount() const
 {
     return d->numRows();
 }
@@ -972,10 +991,23 @@ int QGridLayout::numRows() const
 /*!
     Returns the number of columns in this grid.
 */
-int QGridLayout::numCols() const
+int QGridLayout::columnCount() const
 {
     return d->numCols();
 }
+
+/*!
+  \fn int numRows()
+  \obsolete
+  Use rowCount() instead.
+*/
+
+/*!
+  \fn int numCols()
+  \obsolete
+  Use columnCount() instead.
+*/
+
 
 /*!
     Returns the preferred size of this grid.
@@ -1035,15 +1067,15 @@ int QGridLayout::minimumHeightForWidth(int w) const
 
 /*!
     Searches for widget \a w in this layout (not including child
-    layouts). If \a w is found, it sets \c *\a row and \c *\a col to
+    layouts). If \a w is found, it sets \c *\a row and \c *\a column to
     the row and column and returns true; otherwise returns false.
 
     Note: if a widget spans multiple rows/columns, the top-left cell
     is returned.
 */
-bool QGridLayout::findWidget(QWidget* w, int *row, int *col)
+bool QGridLayout::findWidget(QWidget* w, int *row, int *column)
 {
-    return d->findWidget(w, row, col);
+    return d->findWidget(w, row, column);
 }
 
 /*!
@@ -1079,20 +1111,21 @@ void QGridLayout::setGeometry(const QRect &r)
 }
 
 /*!
-    Returns the geometry of the cell with row \a row and column \a col
-    in the grid. Returns an invalid rectangle if \a row or \a col is
+    Returns the geometry of the cell with row \a row and column \a column
+    in the grid. Returns an invalid rectangle if \a row or \a column is
     outside the grid.
 
     \warning in the current version of Qt this function does not
     return valid results until setGeometry() has been called, i.e.
     after the parentWidget() is visible.
 */
-QRect QGridLayout::cellGeometry(int row, int col) const
+QRect QGridLayout::cellGeometry(int row, int column) const
 {
-    return d->cellGeometry(row, col);
+    return d->cellGeometry(row, column);
 }
 #ifdef QT_COMPAT
 /*!
+  \obsolete
     Expands this grid so that it will have \a nRows rows and \a nCols
     columns. Will not shrink the grid. You should not need to call
     this function because QGridLayout expands automatically as new
@@ -1117,8 +1150,8 @@ void QGridLayout::addItem(QLayoutItem *item)
 }
 
 /*!
-    Adds \a item at position \a row, \a col, spanning \a rowSpan rows
-    and \a colSpan columns, and aligns it according to \a alignment.
+    Adds \a item at position \a row, \a column, spanning \a rowSpan rows
+    and \a columnSpan columns, and aligns it according to \a alignment.
     If \a rowSpan and/or \a colSpan is -1, then the item will extend to the bottom
     and/or right edge, respectively.
     The layout takes ownership of the \a item.
@@ -1126,11 +1159,11 @@ void QGridLayout::addItem(QLayoutItem *item)
     \warning Do not use this function to add child layouts or child
     widget items. Use addLayout() or addWidget() instead.
 */
-void QGridLayout::addItem(QLayoutItem *item, int row, int col, int rowSpan, int colSpan, Qt::Alignment alignment)
+void QGridLayout::addItem(QLayoutItem *item, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment)
 {
     QGridBox *b = new QGridBox(item);
     b->setAlignment(alignment);
-    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, col, (colSpan < 0) ? -1 : col + colSpan - 1);
+    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, column, (columnSpan < 0) ? -1 : column + columnSpan - 1);
     invalidate();
 }
 
@@ -1149,49 +1182,49 @@ static bool checkWidget(QLayout *l, QWidget *w)
 }
 
 /*!
-    Adds the widget \a w to the cell grid at \a row, \a col. The
+    Adds the widget \a w to the cell grid at \a row, \a column. The
     top-left position is (0, 0) by default.
 
     The alignment is specified by \a alignment. The default
     alignment is 0, which means that the widget fills the entire cell.
 
 */
-void QGridLayout::addWidget(QWidget *w, int row, int col, Qt::Alignment alignment)
+void QGridLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment alignment)
 {
     if (!checkWidget(this, w))
         return;
-    if (row < 0 || col < 0) {
-        qWarning("QGridLayout: Cannot add %s/%s to %s/%s at row %d col %d",
-                  w->metaObject()->className(), w->objectName().local8Bit(), metaObject()->className(), objectName().local8Bit(), row, col);
+    if (row < 0 || column < 0) {
+        qWarning("QGridLayout: Cannot add %s/%s to %s/%s at row %d column %d",
+                  w->metaObject()->className(), w->objectName().local8Bit(), metaObject()->className(), objectName().local8Bit(), row, column);
         return;
     }
     addChildWidget(w);
     QWidgetItem *b = new QWidgetItem(w);
     b->setAlignment(alignment);
-    addItem(b, row, col);
+    addItem(b, row, column);
 }
 
 /*!
   \overload
     This version adds the widget \a w to the cell grid, spanning multiple
-    rows/columns. The cell will start at \a fromRow, \a fromCol spanning \a
-    rowSpan rows and \a colSpan columns.
+    rows/columns. The cell will start at \a fromRow, \a fromColumn spanning \a
+    rowSpan rows and \a columnSpan columns.
 
-    If \a rowSpan and/or \a colSpan is -1, then the widget will extend to the bottom
+    If \a rowSpan and/or \a columnSpan is -1, then the widget will extend to the bottom
     and/or right edge, respectively.
 
 */
-void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
-                             int rowSpan, int colSpan, Qt::Alignment alignment)
+void QGridLayout::addWidget(QWidget *w, int fromRow, int fromColumn,
+                             int rowSpan, int columnSpan, Qt::Alignment alignment)
 {
     if (!checkWidget(this, w))
         return;
     int toRow = (rowSpan < 0) ? -1 : fromRow + rowSpan - 1;
-    int toCol = (colSpan < 0) ? -1 : fromCol + colSpan - 1;
+    int toColumn = (columnSpan < 0) ? -1 : fromColumn + columnSpan - 1;
     addChildWidget(w);
     QGridBox *b = new QGridBox(w);
     b->setAlignment(alignment);
-    d->add(b, fromRow, toRow, fromCol, toCol);
+    d->add(b, fromRow, toRow, fromColumn, toColumn);
 }
 
 /*!
@@ -1201,7 +1234,7 @@ void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
 */
 
 /*!
-    Places the \a layout at position (\a row, \a col) in the grid. The
+    Places the \a layout at position (\a row, \a column) in the grid. The
     top-left position is (0, 0).
 
     The alignment is specified by \a alignment. The default
@@ -1214,30 +1247,30 @@ void QGridLayout::addWidget(QWidget *w, int fromRow, int fromCol,
 
     \a layout becomes a child of the grid layout.
 */
-void QGridLayout::addLayout(QLayout *layout, int row, int col, Qt::Alignment alignment)
+void QGridLayout::addLayout(QLayout *layout, int row, int column, Qt::Alignment alignment)
 {
     addChildLayout(layout);
     QGridBox *b = new QGridBox(layout);
     b->setAlignment(alignment);
-    d->add(b, row, col);
+    d->add(b, row, column);
 }
 
 /*!
   \overload
     This version adds the layout \a layout to the cell grid, spanning multiple
-    rows/columns. The cell will start at \a row, \a col spanning \a
-    rowSpan rows and \a colSpan columns.
+    rows/columns. The cell will start at \a row, \a column spanning \a
+    rowSpan rows and \a columnSpan columns.
 
-    If \a rowSpan and/or \a colSpan is -1, then the layout will extend to the bottom
+    If \a rowSpan and/or \a columnSpan is -1, then the layout will extend to the bottom
     and/or right edge, respectively.
 */
-void QGridLayout::addLayout(QLayout *layout, int row, int col,
-                                      int rowSpan, int colSpan, Qt::Alignment alignment)
+void QGridLayout::addLayout(QLayout *layout, int row, int column,
+                                      int rowSpan, int columnSpan, Qt::Alignment alignment)
 {
     addChildLayout(layout);
     QGridBox *b = new QGridBox(layout);
     b->setAlignment(alignment);
-    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, col, (colSpan < 0) ? -1 : col + colSpan - 1);
+    d->add(b, row, (rowSpan < 0) ? -1 : row + rowSpan - 1, column, (columnSpan < 0) ? -1 : column + columnSpan - 1);
 }
 
 /*!
@@ -1251,7 +1284,7 @@ void QGridLayout::addLayout(QLayout *layout, int row, int col,
     The default stretch factor is 0. If the stretch factor is 0 and no
     other row in this table can grow at all, the row may still grow.
 
-    \sa rowStretch(), setRowSpacing(), setColStretch()
+    \sa rowStretch(), setRowSpacing(), setColumnStretch()
 */
 void QGridLayout::setRowStretch(int row, int stretch)
 {
@@ -1269,17 +1302,17 @@ int QGridLayout::rowStretch(int row) const
 }
 
 /*!
-    Returns the stretch factor for column \a col.
+    Returns the stretch factor for column \a column.
 
-    \sa setColStretch()
+    \sa setColumnStretch()
 */
-int QGridLayout::colStretch(int col) const
+int QGridLayout::columnStretch(int column) const
 {
-    return d->colStretch(col);
+    return d->colStretch(column);
 }
 
 /*!
-    Sets the stretch factor of column \a col to \a stretch. The first
+    Sets the stretch factor of column \a column to \a stretch. The first
     column is number 0.
 
     The stretch factor is relative to the other columns in this grid.
@@ -1293,17 +1326,17 @@ int QGridLayout::colStretch(int col) const
     An alternative approach is to add spacing using addItem() with a
     QSpacerItem.
 
-    \sa colStretch(), setRowStretch()
+    \sa columnStretch(), setRowStretch()
 */
-void QGridLayout::setColStretch(int col, int stretch)
+void QGridLayout::setColumnStretch(int column, int stretch)
 {
-    d->setColStretch(col, stretch);
+    d->setColStretch(column, stretch);
 }
 
 /*!
     Sets the minimum height of row \a row to \a minSize pixels.
 
-    \sa rowSpacing(), setColSpacing()
+    \sa rowSpacing(), setColumnSpacing()
 */
 void QGridLayout::setRowSpacing(int row, int minSize)
 {
@@ -1321,23 +1354,23 @@ int QGridLayout::rowSpacing(int row) const
 }
 
 /*!
-    Sets the minimum width of column \a col to \a minSize pixels.
+    Sets the minimum width of column \a column to \a minSize pixels.
 
-    \sa colSpacing(), setRowSpacing()
+    \sa columnSpacing(), setRowSpacing()
 */
-void QGridLayout::setColSpacing(int col, int minSize)
+void QGridLayout::setColumnSpacing(int column, int minSize)
 {
-    d->setColSpacing(col, minSize);
+    d->setColSpacing(column, minSize);
 }
 
 /*!
-    Returns the column spacing for column \a col.
+    Returns the column spacing for column \a column.
 
-    \sa setColSpacing()
+    \sa setColumnSpacing()
 */
-int QGridLayout::colSpacing(int col) const
+int QGridLayout::columnSpacing(int column) const
 {
-    return d->colSpacing(col);
+    return d->colSpacing(column);
 }
 
 /*!
@@ -1751,7 +1784,7 @@ QBoxLayout::QBoxLayout(QWidget *parent, Direction dir,
     d->dir = dir;
     setMargin(margin);
     setObjectName(name);
-    setSpacing(spacing);
+    setSpacing(spacing<0 ? margin : spacing);
 }
 
 /*!
@@ -2431,7 +2464,7 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
     : QBoxLayout(LeftToRight, parent)
 {
        setMargin(margin);
-       setSpacing(spacing);
+       setSpacing(spacing<0 ? margin : spacing);
        setObjectName(name);
 }
 
@@ -2547,7 +2580,7 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
     : QBoxLayout(TopToBottom, parent)
 {
     setMargin(margin);
-    setSpacing(spacing);
+    setSpacing(spacing<0 ? margin : spacing);
     setObjectName(name);
 }
 

@@ -160,8 +160,8 @@ public:
     int margin() const;
     int spacing() const;
 
-    virtual void setMargin(int);
-    virtual void setSpacing(int);
+    void setMargin(int);
+    void setSpacing(int);
 
     void setResizeMode(ResizeMode);
     ResizeMode resizeMode() const;
@@ -239,7 +239,6 @@ public:
     QT_COMPAT bool autoAdd() const;
     inline QT_COMPAT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
 
-
     inline QT_COMPAT int defaultBorder() const { return spacing(); }
 #endif
 };
@@ -259,18 +258,16 @@ class Q_GUI_EXPORT QGridLayout : public QLayout
     Q_OBJECT
     Q_DECLARE_PRIVATE(QGridLayout)
 public:
-    QGridLayout(QWidget *parent, int nRows = 1, int nCols = 1, int border = 0,
-                int spacing = -1);
-    QGridLayout(int nRows = 1, int nCols = 1, int spacing = -1);
-    QGridLayout(QLayout *parentLayout, int nRows = 1, int nCols = 1,
-                int spacing = -1);
+    QGridLayout(QWidget *parent);
+    QGridLayout(QLayout *parentLayout);
+    QGridLayout();
 
 #ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols, int border,
-                                      int spacing, const char *name);
-    QT_COMPAT_CONSTRUCTOR QGridLayout(int nRows, int nCols, int spacing, const char *name);
-    QT_COMPAT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols, int spacing,
-                                      const char *name);
+    QT_COMPAT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
+                                      int spacing = -1, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QGridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0);
+    QT_COMPAT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols = 1, int spacing = -1,
+                                      const char *name = 0);
 #endif
     ~QGridLayout();
 
@@ -279,18 +276,18 @@ public:
     QSize maximumSize() const;
 
     void setRowStretch(int row, int stretch);
-    void setColStretch(int col, int stretch);
+    void setColumnStretch(int column, int stretch);
     int rowStretch(int row) const;
-    int colStretch(int col) const;
+    int columnStretch(int column) const;
 
     void setRowSpacing(int row, int minSize);
-    void setColSpacing(int col, int minSize);
+    void setColumnSpacing(int column, int minSize);
     int rowSpacing(int row) const;
-    int colSpacing(int col) const;
+    int columnSpacing(int column) const;
 
-    int numRows() const;
-    int numCols() const;
-    QRect cellGeometry(int row, int col) const;
+    int columnCount() const;
+    int rowCount() const;
+    QRect cellGeometry(int row, int column) const;
 
     bool hasHeightForWidth() const;
     int heightForWidth(int) const;
@@ -300,10 +297,10 @@ public:
     void invalidate();
 
     inline void addWidget(QWidget *w) { QLayout::addWidget(w); }
-    void addWidget(QWidget *, int row, int col, Qt::Alignment = 0);
-    void addWidget(QWidget *, int row, int col, int rowSpan, int colSpan, Qt::Alignment = 0);
-    void addLayout(QLayout *, int row, int col, Qt::Alignment = 0);
-    void addLayout(QLayout *, int row, int col, int rowSpan, int colSpan, Qt::Alignment = 0);
+    void addWidget(QWidget *, int row, int column, Qt::Alignment = 0);
+    void addWidget(QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
+    void addLayout(QLayout *, int row, int column, Qt::Alignment = 0);
+    void addLayout(QLayout *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
 
     void setOrigin(Qt::Corner);
     Qt::Corner origin() const;
@@ -311,7 +308,7 @@ public:
     QLayoutItem *takeAt(int);
     void setGeometry(const QRect&);
 
-    void addItem(QLayoutItem *item, int row, int col, int rowSpan = 1, int colSpan = 1, Qt::Alignment = 0);
+    void addItem(QLayoutItem *item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = 0);
 protected:
     bool findWidget(QWidget* w, int *r, int *c);
     void addItem(QLayoutItem *);
@@ -324,15 +321,22 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    void expand(int rows, int cols);
-    inline void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
-    inline void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
-    inline void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    QT_COMPAT void expand(int rows, int cols);
+    inline QT_COMPAT void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
+    inline QT_COMPAT void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
+    inline QT_COMPAT void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addWidget(w, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
-    inline void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    inline QT_COMPAT void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addItem(l, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
-    inline void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    inline QT_COMPAT void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
         { addLayout(layout, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, align); }
+
+    inline QT_COMPAT int numRows() const { return rowCount(); }
+    inline QT_COMPAT int numCols() const { return columnCount(); }
+    inline QT_COMPAT void setColStretch(int col, int stretch) {setColumnStretch(col, stretch); }
+    inline QT_COMPAT int colStretch(int col) const {return columnStretch(col); }
+    inline QT_COMPAT void setColSpacing(int col, int minSize) { setColumnSpacing(col, minSize); }
+    inline QT_COMPAT int colSpacing(int col) const { return columnSpacing(col); }
 #endif
 };
 

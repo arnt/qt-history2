@@ -953,7 +953,8 @@ QGroupBox *QPrintDialogUnix::setupDestination()
     QGroupBox *g = new QGroupBox(tr("Print destination"), this);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
-
+    tll->setMargin(12);
+    tll->setSpacing(0);
     d->printerOrFile = new QPrintDialogUnixButtonGroup(this);
     d->printerOrFile->hide();
     connect(d->printerOrFile, SIGNAL(clicked(int)),
@@ -1120,6 +1121,8 @@ QGroupBox *QPrintDialogUnix::setupOptions()
     QGroupBox *g = new QGroupBox(tr("Options"), this);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
+    lay->setMargin(12);
+    lay->setSpacing(0);
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, lay);
 
     d->printRange = new QPrintDialogUnixButtonGroup(this);

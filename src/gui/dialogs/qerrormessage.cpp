@@ -153,7 +153,9 @@ void jump(QtMsgType t, const char * m)
 QErrorMessage::QErrorMessage(QWidget * parent)
     : QDialog(*new QErrorMessagePrivate, parent)
 {
-    QGridLayout * grid = new QGridLayout(this, 3, 2, 11, 6);
+    QGridLayout * grid = new QGridLayout(this);
+    grid->setMargin(11);
+    grid->setSpacing(6);
     d->icon = new QLabel(this);
 #ifndef QT_NO_MESSAGEBOX
     d->icon->setPixmap(QMessageBox::standardIcon(QMessageBox::Information));
@@ -168,7 +170,7 @@ QErrorMessage::QErrorMessage(QWidget * parent)
     connect(d->ok, SIGNAL(clicked()), this, SLOT(accept()));
     d->ok->setFocus();
     grid->addWidget(d->ok, 2, 0, 1, 2, Qt::AlignCenter);
-    grid->setColStretch(1, 42);
+    grid->setColumnStretch(1, 42);
     grid->setRowStretch(0, 42);
 }
 

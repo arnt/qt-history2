@@ -2293,6 +2293,14 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QWidget *widget) const
     case PM_TabBarScrollButtonWidth:
         ret = 16;
         break;
+
+    case PM_DefaultLayoutMargin:
+        ret = 11;
+        break;
+    case PM_DefaultLayoutSpacing:
+        ret = 6;
+        break;
+
     default:
         ret = 0;
         break;

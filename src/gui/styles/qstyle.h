@@ -31,7 +31,7 @@ class QTab;
 class QCheckListItem;
 class QFontMetrics;
 
-// You'll be going away soon, deary.
+// This class goes away after the tech preview
 class Q3StyleOption {
 public:
     enum StyleOptionDefault { Default };
@@ -497,6 +497,9 @@ public:
         PM_ToolBarItemSpacing,
         PM_SpinBoxSliderHeight,
 
+        PM_DefaultLayoutMargin,
+        PM_DefaultLayoutSpacing,
+
         // do not add any values below/greater than this
         PM_CustomBase = 0xf0000000
     };
@@ -750,7 +753,7 @@ public:
     {
         return pixelMetric(PM_DefaultFrameWidth);
     }
-    
+
     void QT_COMPAT tabbarMetrics(const QWidget* t, int& hf, int& vf, int& ov) const
     {
         hf = pixelMetric(PM_TabBarTabHSpace, t);

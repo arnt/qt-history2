@@ -302,6 +302,7 @@ void QStatusBar::reformat()
     QBoxLayout *vbox;
     if (isSizeGripEnabled()) {
         d->box = new QHBoxLayout(this);
+        d->box->setMargin(0);
         vbox = new QVBoxLayout(d->box);
     } else {
         vbox = d->box = new QVBoxLayout(this);

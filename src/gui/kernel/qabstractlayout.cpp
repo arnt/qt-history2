@@ -20,6 +20,7 @@
 #include "qmenubar.h"
 #include "qtoolbar.h"
 #include "qevent.h"
+#include "qstyle.h"
 #include "qwidget_p.h"
 #include "qlayout_p.h"
 #define d d_func()
@@ -644,7 +645,7 @@ QLayout::QLayout(QLayoutPrivate &dd, QLayout *lay, QWidget *w)
 }
 
 QLayoutPrivate::QLayoutPrivate()
-    : QObjectPrivate(), insideSpacing(0), outsideBorder(0), topLevel(false), enabled(true), frozen(false),
+    : QObjectPrivate(), insideSpacing(-1), outsideBorder(-1), topLevel(false), enabled(true), frozen(false),
       activated(true), autoMinimum(false), autoResizeMode(true), autoNewChild(false)
 #ifndef QT_NO_MENUBAR
       , menubar(0)
@@ -782,21 +783,31 @@ void QLayout::addWidget(QWidget *w)
 
 int QLayout::margin() const
 {
-    return d->outsideBorder;
+    if ( d->outsideBorder >= 0 )
+        return d->outsideBorder;
+    else if (!d->topLevel)
+        return 0;
+    else if (parentWidget())
+        return parentWidget()->style().pixelMetric(QStyle::PM_DefaultLayoutMargin);
+    else
+        return QApplication::style().pixelMetric(QStyle::PM_DefaultLayoutMargin);
 }
 
 
-//#### style settings
 int QLayout::spacing() const
 {
-    if (d->insideSpacing >=0)
+    if (d->insideSpacing >=0) {
         return d->insideSpacing;
-    else if (d->topLevel)
-        return d->outsideBorder; //#### get style settings here
-    else if (parent())
+    } else if (d->topLevel) {
+        if (parentWidget())
+            return parentWidget()->style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+        else
+            return QApplication::style().pixelMetric(QStyle::PM_DefaultLayoutSpacing);
+    } else if (parent()) {
         return static_cast<QLayout*>(parent())->spacing();
-    else
+    } else {
         return -1; //this is a layout that hasn't been inserted yet
+    }
 }
 
 #ifndef QT_NO_MENUBAR

@@ -751,7 +751,7 @@ void QFileDialog::setFileMode(FileMode mode)
     The file mode defines the number and type of items that the user is
     expected to select in the dialog.
 
-    By default, 
+    By default,
 
     \sa FileMode fileMode() setFileMode()
 */
@@ -1232,7 +1232,9 @@ void QFileDialog::showHidden()
 void QFileDialogPrivate::setup()
 {
     q->setSizeGripEnabled(true);
-    QGridLayout *grid = new QGridLayout(q, 4, 6, 11, 6);
+    QGridLayout *grid = new QGridLayout(q);
+    grid->setMargin(11);
+    grid->setSpacing(6);
 
     // model
     QDir dir("/");
@@ -1726,7 +1728,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
-  position the dialog just under the parent's title bar. 
+  position the dialog just under the parent's title bar.
   On Mac OS X, the filter argument is ignored.
 
   ### Under Unix/X11, the normal behavior of the file dialog is to resolve

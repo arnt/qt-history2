@@ -1048,7 +1048,8 @@ QColorShower::QColorShower(QWidget *parent)
     QColIntValidator *val256 = new QColIntValidator(0, 255, this);
     QColIntValidator *val360 = new QColIntValidator(0, 360, this);
 
-    QGridLayout *gl = new QGridLayout(this, 1, 1, 6);
+    QGridLayout *gl = new QGridLayout(this);
+    gl->setMargin(6);
     lab = new QColorShowLabel(this);
     lab->setMinimumWidth(60);
     gl->addWidget(lab, 0, 0, -1, 1);
