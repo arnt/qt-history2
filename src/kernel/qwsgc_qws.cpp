@@ -228,7 +228,7 @@ void QWSGC::updateBrush(QPainterState *ps)
 
 void QWSGC::updateFont(QPainterState *ps)
 {
-    qDebug("QWSGC::updateFont");
+//    qDebug("QWSGC::updateFont");
 }
 void QWSGC::updateRasterOp(QPainterState *ps)
 {
@@ -237,7 +237,7 @@ void QWSGC::updateRasterOp(QPainterState *ps)
 }
 void QWSGC::updateBackground(QPainterState *ps)
 {
-    qDebug("QWSGC::updateBackground");
+//    qDebug("QWSGC::updateBackground");
 }
 void QWSGC::updateXForm(QPainterState */*ps*/)
 {
@@ -262,22 +262,7 @@ void QWSGC::updateClipRegion(QPainterState *ps)
 	QRegion crgn;
 	if (painterClip) {
 	    crgn = ps->clipRegion;
-
-	    QPainter::CoordinateMode m = ps->coordinateMode;
-#ifndef QT_NO_TRANSFORMATIONS
-	    if ( m == QPainter::CoordDevice ) {
-		//#################
-		//if (!redirection_offset.isNull())
-		//  crgn.translate(-redirection_offset);
-	    } else {
-		if (ps->VxF || ps->WxF)
-		    crgn = ps->worldMatrix * crgn;
-	    }
-#else
-	    if ( m == QPainter::CoordPainter )
-		crgn.translate( xlatex, xlatey );
-#endif
-	    if (eventClip)
+	    if (eventClip) 
 		crgn = crgn.intersect(*paintEventClipRegion);
 	} else {
 	    crgn = *paintEventClipRegion;
