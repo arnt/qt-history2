@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#63 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#64 $
 **
 ** Definition of QWidget class
 **
@@ -61,6 +61,9 @@ public:
     void	 setMinimumSize( int w, int h );
     void	 setMaximumSize( int w, int h );
     void	 setSizeIncrement( int w, int h );
+    bool	 minimumSize( int *w, int *h )	 const;
+    bool	 maximumSize( int *w, int *h )   const;
+    bool	 sizeIncrement( int *w, int *h ) const;
 
   // Widget coordinate mapping
 
@@ -76,6 +79,7 @@ public:
     const QColor &backgroundColor() const;
     const QColor &foregroundColor() const;
     virtual void setBackgroundColor( const QColor & );
+    const QPixmap *backgroundPixmap() const;
     virtual void setBackgroundPixmap( const QPixmap & );
 
     const QColorGroup &colorGroup() const;
@@ -89,6 +93,13 @@ public:
 
     const QCursor &cursor() const;
     void	 setCursor( const QCursor & );
+
+    const char  *caption()	const;
+    void    	 setCaption( const char * );
+    const QPixmap *icon()	const;
+    void    	 setIcon( const QPixmap & );
+    const char  *iconText()	const;
+    void    	 setIconText( const char * );
 
     bool	 setMouseTracking( bool enable );
 
@@ -214,6 +225,7 @@ private:
     bool	 create();
     bool	 destroy();
     void	 createExtra();
+    void	 deleteExtra();
     WId		 ident;
     WFlags	 flags;
     QRect	 frect;
