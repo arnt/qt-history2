@@ -1589,13 +1589,35 @@ void QTextEdit::contentsMousePressEvent( QMouseEvent *e )
 #endif
 	}
 #ifndef QT_NO_CLIPBOARD
-    } else if ( e->button() == MidButton ) {
-	if (QApplication::clipboard()->supportsSelection()) {
-	    // only do middle-click pasting on systems that have selections (ie. X11)
-	    QApplication::clipboard()->setSelectionMode(TRUE);
-	    paste();
-	    QApplication::clipboard()->setSelectionMode(FALSE);
-	}
+    } else if ( e->button() == MidButton && !isReadOnly() ) {
+        // only do middle-click pasting on systems that have selections (ie. X11)
+        if (QApplication::clipboard()->supportsSelection()) { 
+            drawCursor( FALSE );
+            placeCursor( e->pos() );
+            ensureCursorVisible();
+            doc->setSelectionStart( QTextDocument::Standard, &c );
+            bool redraw = FALSE;
+            if ( doc->hasSelection( QTextDocument::Standard ) ) {
+                redraw = doc->removeSelection( QTextDocument::Standard );
+                doc->setSelectionStart( QTextDocument::Standard, cursor );
+            } else {
+                doc->setSelectionStart( QTextDocument::Standard, cursor );
+            }
+            // start with 1 as we don't want to remove the Standard-Selection
+            for ( int i = 1; i < doc->numSelections(); ++i ) 
+                redraw = doc->removeSelection( i ) || redraw;
+            if ( !redraw ) {
+                drawCursor( TRUE );
+            } else {
+                repaintChanged();
+#ifndef QT_NO_CURSOR
+                viewport()->setCursor( ibeamCursor );
+#endif
+            }
+            QApplication::clipboard()->setSelectionMode(TRUE);
+            paste();
+            QApplication::clipboard()->setSelectionMode(FALSE);
+        }
 #endif
     }
 
