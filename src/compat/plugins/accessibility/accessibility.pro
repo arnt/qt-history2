@@ -8,6 +8,9 @@ VERSION  = 1.0.0
 QT += compat
 
 SOURCES  += main.cpp \
+            q3simplewidgets.cpp \
             qaccessiblecompat.cpp
 
-HEADERS  += qaccessiblecompat.h
+HEADERS  += qaccessiblecompat.h \
+            q3simplewidgets.h
+

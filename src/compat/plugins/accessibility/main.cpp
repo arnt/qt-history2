@@ -1,4 +1,5 @@
 #include "qaccessiblecompat.h"
+#include "q3simplewidgets.h"
 
 #include <qaccessibleplugin.h>
 #include <qplugin.h>
@@ -26,6 +27,7 @@ QStringList CompatAccessibleFactory::keys() const
 #endif
     list << "Q3ListView";
     list << "QWidgetStack";
+    list << "Q3GroupBox";
 
     return list;
 }
@@ -47,6 +49,8 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
         iface = new QAccessibleListView(widget);
     } else if (classname == "QWidgetStack") {
         iface = new QAccessibleWidgetStack(widget);
+    } else if (classname == "Q3GroupBox") {
+        iface = new Q3AccessibleDisplay(widget, Grouping);
     }
     return iface;
 }
