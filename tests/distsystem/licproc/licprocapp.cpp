@@ -21,55 +21,85 @@ LicProcApp::LicProcApp( int argc, char** argv ) : QApplication( argc, argv )
     cout << "Timer interval is: " << interval << " seconds." << endl; cout.flush();
     syncTimer.start( interval * 1000, false );
     connect( &syncTimer, SIGNAL( timeout() ), this, SLOT( syncLicenses() ) );
-
+    connect( &sock, SIGNAL( connected() ), this, SLOT( sockConnected() ) );
+    connect( &sock, SIGNAL( error( int ) ), this, SLOT( sockError( int ) ) );
+    connect( &sock, SIGNAL( connectionClosed() ), this, SLOT( sockClosed() ) );
+    connect( &sock, SIGNAL( readyRead() ), this, SLOT( readyRead() ) );
     distDB = QSqlDatabase::addDatabase( "QMYSQL3" );
     distDB->setUserName( "distributor" );
     distDB->setDatabaseName( "dist" );
     distDB->setPassword( "sendit" );
     distDB->setHostName( "dist.troll.no" );
 
-    connect( &dns, SIGNAL( resultsReady() ), this, SLOT( dnsReady() ) );
-
     syncLicenses();
 }
 
 void LicProcApp::syncLicenses()
 {
-    QDir dir( "\\\\soma\\licensefiles" );
+    QDir dir( "\\\\lupinella\\axapta\\licensefiles" );
     const QFileInfoList* list = dir.entryInfoList( company + "_*.txt", QDir::Files, QDir::Name );
     QFileInfoListIterator it( *list );
     QFileInfo* fi;
 
     cout << "Syncing licenses for \"" << company.latin1() << "\"" << endl; cout.flush();
     licenseList.clear();
+    tag = "";
+
     while( ( fi = it.current() ) ) {
 	ProcessFile( fi->fileName() );
 	licenseList += fi->fileName().mid( 4, 7 );
 	++it;
     }
     if( !licenseList.isEmpty() )
-	dnsReady();
+	updateDist( tag );
+
     cout << "Waiting" << endl; cout.flush();
 }
 
-void LicProcApp::dnsReady()
+void LicProcApp::sockConnected()
 {
-    QSocketDevice sock;
+    cout << "connected" << endl; cout.flush();
+    stream.setDevice( &sock );
+}
+
+void LicProcApp::readyRead()
+{
+    if( sock.canReadLine() ) {
+	if( !sawGreeting )
+	    stream << tag << endl; sock.flush();
+
+	sawGreeting = true;
+        QString buffer = sock.readLine();
+        cout << ">> " << buffer; cout.flush();
+
+        licenseList.clear();
+    }
+}
+
+void LicProcApp::sockError( int i)
+{
+    cout << "error, code " << i << endl; cout.flush();
+}
+
+void LicProcApp::sockClosed()
+{
+    cout << "Connection closed." << endl; cout.flush();
+}
+
+void LicProcApp::updateDist( QString tag )
+{
+
     QHostAddress addr;
 
-    bool b = addr.setAddress( "213.203.58.43" );
-
-    cout << "Triggering update by connecting to 213.203.58.43:801" << endl; cout.flush();
-    if( sock.connect( addr, port ) ) {
-	cout << "connected" << endl; cout.flush();
-	QTextStream sockStream( &sock );
-	sockStream << licenseList.join( "," ) << endl;
-    }
+    cout << "Triggering update by connecting to dist.troll.no:801" << endl; cout.flush();
+    sawGreeting = false;
+    sock.connectToHost( "dist.troll.no", port );
+    cout << "connecting..." ; cout.flush();
 }
 
 void LicProcApp::ProcessFile( QString fileName )
 {
-    QString licenseShare( "\\\\soma\\licensefiles" );
+    QString licenseShare( "\\\\lupinella\\axapta\\licensefiles" );
 
     cout << "Processing " << fileName.latin1() << endl; cout.flush();
     cout << "Opening database connection to \"dist.troll.no\""; cout.flush();
@@ -84,6 +114,11 @@ void LicProcApp::ProcessFile( QString fileName )
 		if( inFile.open( IO_ReadOnly ) ) {
 		    cout << "Opened " << tmpName.latin1() << endl; cout.flush();
 		    QString currentLine;
+		    if( inFile.readLine( currentLine, 1024 ) != -1 ) {
+			if( ( currentLine != tag ) && !licenseList.isEmpty() )
+			    updateDist( tag );
+			tag = currentLine;
+		    }
 		    while( inFile.readLine( currentLine, 1024 ) != -1 ) {
 			QStringList itemComponents = QStringList::split( ";", currentLine, true );
 			QStringList::Iterator it = itemComponents.begin();
@@ -97,6 +132,7 @@ void LicProcApp::ProcessFile( QString fileName )
 			QString licenseEmail = (*it++);
 			QString login = (*it++);
 			QString password = (*it++);
+			QString usLicense = (*it++);
 			QDate expiryDate = QDate::fromString( *it++, Qt::ISODate );
 
 			/*
@@ -113,7 +149,7 @@ void LicProcApp::ProcessFile( QString fileName )
 			    ** We will also get items of 'zqum' in upgrades, but as these are
 			    ** not connected to any files, they will not matter.
 			    */
-			    if( fileName.mid( 8, 3 ) == "USA" )
+			    if( usLicense == "Y" )
 				itemID += "-us";
 
 			    QSqlCursor licenseCursor( "licenses" );
@@ -123,23 +159,25 @@ void LicProcApp::ProcessFile( QString fileName )
 				// If there are records that pass the filter above, the license already exists
 				licenseExists = true;
 			    }
-			    if( !licenseExists ) {
+			    QSqlRecord* buffer;
+			    if( !licenseExists )
 				// If no license exists, create one
-				QSqlRecord* buffer = licenseCursor.primeInsert();
-				buffer->setValue( "ID", licenseID );
-				buffer->setValue( "CustomerID", custID );
-				buffer->setValue( "Login", login );
-				buffer->setValue( "Password", password );
-				buffer->setValue( "Licensee", licensee );
-				buffer->setValue( "Email", licenseEmail );
-				buffer->setValue( "ExpiryDate", expiryDate );
+				buffer = licenseCursor.primeInsert();
+			    else
+				buffer = licenseCursor.primeUpdate();
+
+			    buffer->setValue( "ID", licenseID );
+			    buffer->setValue( "CustomerID", custID );
+			    buffer->setValue( "Login", login );
+			    buffer->setValue( "Password", password );
+			    buffer->setValue( "Licensee", licensee );
+			    buffer->setValue( "Email", licenseEmail );
+			    buffer->setValue( "ExpiryDate", expiryDate );
+			    if( !licenseExists )
 				licenseCursor.insert();
-			    }
-			    else {
-				QSqlRecord* buffer = licenseCursor.primeUpdate();
-				buffer->setValue( "ExpiryDate", expiryDate );
+			    else
 				licenseCursor.update();
-			    }
+
 			    // The license should have been created now.
 			    // TODO: Add a second test to verify that the license is present in the database
 			    QSqlCursor itemsCursor( "items" );
@@ -197,6 +235,8 @@ void LicProcApp::ProcessFile( QString fileName )
 				QSqlCursor itemsCursor( "items" );
 
 				QSqlRecord* buffer = itemsCursor.primeInsert();
+				if( usLicense == "Y" )
+				    itemID += "-us";
 				QString itemString = itemID;
 				itemString = itemString.replace( QRegExp( "\\d" ), QString::null ).left( 5 ) + "m";
 				buffer->setValue( "LicenseID", licenseID );

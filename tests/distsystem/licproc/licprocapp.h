@@ -1,6 +1,8 @@
 #include <qapplication.h>
 #include <qtimer.h>
 #include <qdns.h>
+#include <qsocket.h>
+#include <qtextstream.h>
 
 class QSqlDatabase;
 
@@ -14,6 +16,7 @@ private:
     QTimer syncTimer;
 
     void ProcessFile( QString fileName );
+    void updateDist( QString tag );
     QSqlDatabase* distDB;
     
     QString company;
@@ -21,7 +24,14 @@ private:
     int port;
     QDns dns;
     QStringList licenseList;
+    QString tag;
+    QSocket sock;
+    QTextStream stream;
+    bool sawGreeting;
 public slots:
     virtual void syncLicenses();
-    virtual void dnsReady();
+    virtual void sockConnected();
+    virtual void sockClosed();
+    virtual void sockError( int );
+    virtual void readyRead();
 };
