@@ -213,7 +213,7 @@ public:
 
 QMoviePrivate::QMoviePrivate()
 {
-    dirty_cache = false;
+    dirty_cache = FALSE;
     buffer = 0;
     pump = 0;
     source = 0;
@@ -378,7 +378,7 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
         if ( !QPixmapCache::find( key, lines ) ) {
             lines.convertFromImage(img);
             QPixmapCache::insert( key, lines );
-            dirty_cache = true;
+            dirty_cache = TRUE;
         }
     }
 
@@ -637,9 +637,9 @@ QMovie::QMovie()
 }
 
 /*!
-  Constructs a QMovie with an external data source. 
+  Constructs a QMovie with an external data source.
   You should later call pushData() to send incoming animation data to
-  the movie. 
+  the movie.
 
   The \a bufsize argument sets the maximum amount of data the movie
   will transfer from the data source per event loop.  The lower this

@@ -1220,9 +1220,9 @@ public:
     void setBreakable( bool b ) { breakable = b; }
     bool isBreakable() const { return breakable; }
 
-    void setBackgroundColor( const QColor &c ) { delete bgcol; bgcol = new QColor( c ); setChanged( TRUE ); }
+    void setBackgroundColor( const QColor &c );
     QColor *backgroundColor() const { return bgcol; }
-    void clearBackgroundColor() { delete bgcol; bgcol = 0; setChanged( TRUE ); }
+    void clearBackgroundColor();
 
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
@@ -1851,6 +1851,18 @@ inline void QTextParag::setChanged( bool b, bool recursive )
 	if ( doc && doc->parentParag() )
 	    doc->parentParag()->setChanged( b, recursive );
     }
+}
+
+inline void QTextParag::setBackgroundColor( const QColor & c )
+{
+    delete bgcol;
+    bgcol = new QColor( c );
+    setChanged( TRUE );
+}
+
+inline void QTextParag::clearBackgroundColor()
+{
+    delete bgcol; bgcol = 0; setChanged( TRUE );
 }
 
 inline void QTextParag::append( const QString &s, bool reallyAtEnd )

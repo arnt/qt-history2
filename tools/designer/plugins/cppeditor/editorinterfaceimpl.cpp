@@ -38,7 +38,7 @@ EditorInterfaceImpl::EditorInterfaceImpl()
 EditorInterfaceImpl::~EditorInterfaceImpl()
 {
     updateTimer->stop();
-    delete viewManager;
+    delete (ViewManager*)viewManager;
     if ( dIface )
 	dIface->release();
 }
