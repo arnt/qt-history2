@@ -220,10 +220,10 @@ QGLFormat::QGLFormat()
     \sa defaultFormat(), setOption()
 */
 
-QGLFormat::QGLFormat(int options, int plane)
+QGLFormat::QGLFormat(GLFormatOptions options, int plane)
 {
     d = new QGLFormatPrivate;
-    uint newOpts = options;
+    GLFormatOptions newOpts = options;
     d->opts = defaultFormat().d->opts;
     d->opts |= (newOpts & 0xffff);
     d->opts &= ~(newOpts >> 16);
@@ -547,7 +547,7 @@ void QGLFormat::setPlane(int plane)
     \sa testOption()
 */
 
-void QGLFormat::setOption(FormatOption opt)
+void QGLFormat::setOption(GLFormatOptions opt)
 {
     if (opt & 0xffff)
         d->opts |= opt;
@@ -563,7 +563,7 @@ void QGLFormat::setOption(FormatOption opt)
     \sa setOption()
 */
 
-bool QGLFormat::testOption(FormatOption opt) const
+bool QGLFormat::testOption(GLFormatOptions opt) const
 {
     if (opt & 0xffff)
        return (d->opts & opt) != 0;
@@ -788,7 +788,7 @@ void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 
 bool operator==(const QGLFormat& a, const QGLFormat& b)
 {
-    return a.d->opts == b.d->opts && a.d->pln == b.d->pln && a.d->alphaSize == b.d->alphaSize
+    return (int) a.d->opts == (int) b.d->opts && a.d->pln == b.d->pln && a.d->alphaSize == b.d->alphaSize
         && a.d->accumSize == b.d->accumSize && a.d->stencilSize == b.d->stencilSize
         && a.d->depthSize == b.d->depthSize;
 }

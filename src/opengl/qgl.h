@@ -54,7 +54,7 @@ class QGLContextPrivate;
 class Q_OPENGL_EXPORT QGL
 {
 public:
-    enum FormatOption {
+    enum GLFormatOption {
         DoubleBuffer            = 0x0001,
         DepthBuffer             = 0x0002,
         Rgba                    = 0x0004,
@@ -74,7 +74,10 @@ public:
         IndirectRendering       = DirectRendering << 16,
         NoOverlay               = HasOverlay << 16
     };
+    Q_DECLARE_FLAGS(GLFormatOptions, GLFormatOption)
 };
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QGL::GLFormatOptions)
 
 
 class QGLFormatPrivate;
@@ -83,7 +86,7 @@ class Q_OPENGL_EXPORT QGLFormat : public QGL
 {
 public:
     QGLFormat();
-    QGLFormat(int options, int plane = 0);
+    QGLFormat(GLFormatOptions options, int plane = 0);
     QGLFormat(const QGLFormat &other);
     QGLFormat operator=(const QGLFormat &other);
     ~QGLFormat();
@@ -122,8 +125,8 @@ public:
     int plane() const;
     void setPlane(int plane);
 
-    void setOption(FormatOption opt);
-    bool testOption(FormatOption opt) const;
+    void setOption(GLFormatOptions opt);
+    bool testOption(GLFormatOptions opt) const;
 
     static QGLFormat defaultFormat();
     static void setDefaultFormat(const QGLFormat& f);
