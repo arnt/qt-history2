@@ -68,7 +68,8 @@ bool StringListModel::isEditable(const QModelIndex &/*index*/) const
     The dataChanged() signal is emitted if the item is changed.
 */
 
-bool StringListModel::setData(const QModelIndex &index, int role, const QVariant &value)
+bool StringListModel::setData(const QModelIndex &index, int role,
+                              const QVariant &value)
 {
     if (index.isValid() && index.type() == QModelIndex::View &&
         role == EditRole) {
@@ -84,7 +85,8 @@ bool StringListModel::setData(const QModelIndex &index, int role, const QVariant
     Inserts a number of rows into the model at the specified position.
 */
 
-bool StringListModel::insertRows(int position, const QModelIndex &/*index*/, int rows)
+bool StringListModel::insertRows(int position, const QModelIndex &/*index*/,
+                                 int rows)
 {
     for (int row = 0; row < rows; ++row) {
         stringList.insert(position, "");
@@ -98,7 +100,8 @@ bool StringListModel::insertRows(int position, const QModelIndex &/*index*/, int
     Removes a number of rows from the model at the specified position.
 */
 
-bool StringListModel::removeRows(int position, const QModelIndex &/*index*/, int rows)
+bool StringListModel::removeRows(int position, const QModelIndex &/*index*/,
+                                 int rows)
 {
     emit rowsRemoved(QModelIndex(), position, position+rows-1);
 
