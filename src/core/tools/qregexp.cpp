@@ -21,8 +21,7 @@
 #include "qstringlist.h"
 #include "qalgorithms.h"
 
-#include "qthreadstorage.h"
-#include "qthread.h"
+#include <private/qspinlock_p.h>
 
 #include <limits.h>
 
@@ -3143,27 +3142,23 @@ struct QRegExpPrivate
 };
 
 typedef QCache<QString, QRegExpEngine> EngineCache;
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+#if !defined(QT_NO_REGEXP_OPTIM)
 Q_GLOBAL_STATIC(EngineCache, globalEngineCache)
-#else
-typedef QThreadStorage<EngineCache *> EngineCacheTLS;
-Q_GLOBAL_STATIC(EngineCacheTLS, globalEngineCacheTLS)
 #endif
 
 static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
                          Qt::CaseSensitivity cs, bool deref)
 {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+#if !defined(QT_NO_REGEXP_OPTIM)
     EngineCache *engineCache = globalEngineCache();
-#else
-    EngineCacheTLS *tls = globalEngineCacheTLS();
-    if (!tls->hasLocalData())
-        tls->setLocalData(new EngineCache);
-    EngineCache *engineCache = tls->localData();
+#endif
+#if !defined(QT_NO_THREAD)
+    static QStaticSpinLock lock = 0;
+    QSpinLockLocker locker(lock);
 #endif
 
     if (!deref) {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+#if !defined(QT_NO_REGEXP_OPTIM)
         eng = engineCache->take(pattern);
         if (eng == 0 || eng->caseSensitivity() != cs) {
             delete eng;
@@ -3177,7 +3172,7 @@ static void regexpEngine(QRegExpEngine *&eng, const QString &pattern,
     }
 
     if (!--eng->ref) {
-#if !defined(QT_NO_REGEXP_OPTIM) || defined(QT_NO_THREAD)
+#if !defined(QT_NO_REGEXP_OPTIM)
         if (!pattern.isNull()) {
             engineCache->insert(pattern, eng, 4 + pattern.length() / 4);
             return;
