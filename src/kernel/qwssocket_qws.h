@@ -27,31 +27,9 @@
 #define QWSSOCKETDEVICE_H
 
 #ifndef QT_H
-#include "qsocketdevice.h"
 #include "qsocket.h"
 #include "qserversocket.h"
 #endif // QT_H
-
-
-class QWSSocket;
-
-class  QWSSocketDevice: public QSocketDevice
-{
-friend class QWSSocket;
-public:
-    QWSSocketDevice( Type type = Stream, bool inet=TRUE );
-    QWSSocketDevice( int socket, Type type );
-   ~QWSSocketDevice();
-
-    virtual bool connect( const QString& localfilename );
-    virtual bool bind( const QString& localfilename );
-
-private:	// Disabled copy constructor and operator=
-#if defined(Q_DISABLE_COPY)
-    QWSSocketDevice( const QWSSocketDevice & );
-    QWSSocketDevice &operator=( const QWSSocketDevice & );
-#endif
-};
 
 
 class QWSSocket : public QSocket
@@ -61,7 +39,6 @@ public:
     QWSSocket( QObject *parent=0, const char *name=0 );
    ~QWSSocket();
 	        
-    virtual void setSocket( int socket, bool inet=TRUE );
     virtual void connectToLocalFile( const QString &file );
 
 private:        // Disabled copy constructor and operator=
@@ -76,7 +53,7 @@ class QWSServerSocket : public QServerSocket
 {
     Q_OBJECT
 public:
-    QWSServerSocket( const QString& localfile, int backlog = 0,
+    QWSServerSocket( const QString& file, int backlog = 0,
 		     QObject *parent=0, const char *name=0 );
    ~QWSServerSocket();
 

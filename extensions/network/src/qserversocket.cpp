@@ -94,6 +94,23 @@ QServerSocket::QServerSocket( const QHostAddress & address, int port,
 
 
 /*!
+  Construct an empty server socket.
+
+  This constructor in combination with setSocket() allows one to use the
+  QServerSocket class as a wrapper for other socket types (e.g. Unix Domain
+  Sockets under Unix).
+
+  \sa setSocket()
+*/
+
+QServerSocket::QServerSocket( QObject *parent, const char *name )
+    : QObject( parent, name )
+{
+    d = new QServerSocketPrivate;
+}
+
+
+/*!
   Tests that the construction succeeded.
 */
 bool QServerSocket::ok() const
@@ -208,43 +225,20 @@ QSocketDevice *QServerSocket::socketDevice()
 
 
 /*!
-  Construct an empty server socket. This makes rarely sense.
-
-  \sa setSocketDevice()
+  Sets the socket to use \a socket. bind() and listen() should already be
+  called For this socket.
+ 
+  This allows one to use the QServerSocket class as a wrapper for other socket
+  types (e.g. Unix Domain Sockets under Unix).
 */
 
-QServerSocket::QServerSocket( QObject *parent, const char *name )
-    : QObject( parent, name )
+void QServerSocket::setSocket( int socket )
 {
+    delete d;
     d = new QServerSocketPrivate;
-}
-
-
-/*!
-  Low level function to set the socket device. There will only be rare
-  situations where you will find this useful. 
-
-  If you call this function, take care that the socket device \a sd is already
-  bound. This function will handle the rest. It returns TRUE on success,
-  otherwise FALSE.
-
-  Attention: This class will delete the socket device if it is no longer
-  needed.
-*/
-
-bool QServerSocket::setSocketDevice( QSocketDevice *sd, int backlog )
-{
-    d->s = sd;
-    if ( d->s->listen( backlog ) )
-    {
-	d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
-				    this, "accepting new connections" );
-	connect( d->n, SIGNAL(activated(int)),
-		 this, SLOT(incomingConnection(int)) );
-    } else {
-	delete d->s;
-	d->s = 0;
-	return FALSE;
-    }
-    return TRUE;
+    d->s = new QSocketDevice( socket, QSocketDevice::Stream );
+    d->n = new QSocketNotifier( d->s->socket(), QSocketNotifier::Read,
+	       this, "accepting new connections" );
+    connect( d->n, SIGNAL(activated(int)),
+	     this, SLOT(incomingConnection(int)) );
 }

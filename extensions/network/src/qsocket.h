@@ -106,7 +106,6 @@ protected slots:
 
 protected:
     QSocketDevice *socketDevice();
-    void        setSocketDevice( QSocketDevice *sd, bool sdConnected );
     void	timerEvent( QTimerEvent * );
 
 private slots:
@@ -119,7 +118,6 @@ private:
     bool	 consumeWriteBuf( int nbytes );
     bool	 scanNewline( QByteArray * = 0 );
     void	 tryConnection();
-    void	 socketDeviceInit( QSocketDevice *sd );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

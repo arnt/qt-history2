@@ -43,20 +43,21 @@ public:
 		   QObject *parent=0, const char *name=0 );
     QServerSocket( const QHostAddress & address, int port, int backlog = 0,
 		   QObject *parent=0, const char *name=0 );
+    QServerSocket( QObject *parent=0, const char *name=0 );
     ~QServerSocket();
 
     bool ok() const;
 
     uint port() const ;
+
     int socket() const ;
+    virtual void setSocket( int socket );
 
     QHostAddress address() const ;
 
     virtual void newConnection( int socket ) = 0;
 
 protected:
-    QServerSocket( QObject *parent=0, const char *name=0 );
-    bool setSocketDevice( QSocketDevice *sd, int backlog = 0 );
     QSocketDevice *socketDevice();
 
 private slots:

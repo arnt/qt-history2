@@ -1108,7 +1108,11 @@ int QSocket::socket() const
 
 
 /*!
-  Sets the socket to use \a socket and the state() to \c Connected.
+  Sets the socket to use \a socket and the state() to \c Connected. The socket
+  should already be connected.
+
+  This allows one to use the QSocket class as a wrapper for other socket types
+  (e.g. Unix Domain Sockets under Unix).
 */
 
 void QSocket::setSocket( int socket )
@@ -1118,7 +1122,39 @@ void QSocket::setSocket( int socket )
 	sd = new QSocketDevice( socket, QSocketDevice::Stream );
     else
 	sd = new QSocketDevice( QSocketDevice::Stream );
-    socketDeviceInit( sd );
+
+    if ( state() != Idle )
+	close();
+    // close may not have actually deleted the thing.  so, we brutally
+    // Act.
+    delete d;
+
+    d = new QSocketPrivate( this );
+    d->socket = sd;
+    d->socket->setBlocking( FALSE );
+    d->socket->setAddressReusable( TRUE );
+    d->state = Connection;
+    d->mode = Binary;
+    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
+				  this, "read" );
+    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
+				  this, "write" );
+    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
+    d->rsn->setEnabled( TRUE );
+    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
+    d->wsn->setEnabled( FALSE );
+    // Initialize the IO device flags
+    setFlags( IO_Direct );
+    setStatus( IO_Ok );
+    open( IO_ReadWrite );
+
+    // 
+    d->host = QString::null;
+    d->port = 0;
+#ifndef QT_NO_DNS
+    delete d->dns;
+    d->dns = 0;
+#endif
 }
 
 
@@ -1184,77 +1220,4 @@ QHostAddress QSocket::peerAddress() const
 QString QSocket::peerName() const
 {
     return d->host;
-}
-
-
-/*!
-  Low level function to set the socket device. There will only be rare
-  situations where you will find this useful.
-
-  The socket device \a sd must already try to connect. If the connect was
-  already successful set \a sdConnected to TRUE. If the socket device stills
-  try to connect set \a sdConnected to FALSE.
-
-  Attention: this class will delete the socket device if it is no longer
-  needed.
-
-  \sa setSocket()
-*/
-void QSocket::setSocketDevice( QSocketDevice *sd, bool sdConnected )
-{
-    socketDeviceInit( sd );
-
-    d->state = Connecting;
-    if ( sdConnected == FALSE ) {
-        if ( d->socket->error() == QSocketDevice::NoError )
-            return; // not serious, try again later
-        d->state = Idle;
-        emit error( ErrConnectionRefused );
-    } else {
-        d->state = Connection;
-        emit connected();
-    }
-    // The socket write notifier will fire when the connection succeeds
-    d->wsn->setEnabled( TRUE );
-}
-
-
-/*!
-  Some initialization that both QSocket::setSocket() and
-  QSocket::setSocketDevice() need.
-*/
-void QSocket::socketDeviceInit( QSocketDevice *sd )
-{
-    if ( state() != Idle )
-	close();
-    // close may not have actually deleted the thing.  so, we brutally
-    // Act.
-    delete d;
-
-    d = new QSocketPrivate( this );
-    d->socket = sd;
-    d->socket->setBlocking( FALSE );
-    d->socket->setAddressReusable( TRUE );
-    d->state = Connection;
-    d->mode = Binary;
-    d->rsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Read,
-				  this, "read" );
-    d->wsn = new QSocketNotifier( d->socket->socket(), QSocketNotifier::Write,
-				  this, "write" );
-    connect( d->rsn, SIGNAL(activated(int)), SLOT(sn_read()) );
-    d->rsn->setEnabled( TRUE );
-    connect( d->wsn, SIGNAL(activated(int)), SLOT(sn_write()) );
-    d->wsn->setEnabled( FALSE );
-    // Initialize the IO device flags
-    setFlags( IO_Direct );
-    setStatus( IO_Ok );
-    open( IO_ReadWrite );
-
-    // 
-    d->host = QString::null;
-    d->port = 0;
-#ifndef QT_NO_DNS
-    delete d->dns;
-    d->dns = 0;
-#endif
 }

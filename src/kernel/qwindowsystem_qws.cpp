@@ -95,7 +95,7 @@ QWSClient::QWSClient( QObject* parent, int socket )
 	
     } else {
 	csocket = new QWSSocket( this );
-	csocket->setSocket(socket,FALSE);
+	csocket->setSocket(socket);
 	isClosed = FALSE;
 
 	// Send some objects - client process probably wants some
