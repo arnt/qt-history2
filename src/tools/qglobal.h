@@ -602,14 +602,8 @@ typedef const char     *pcchar;
 //
 
 #ifndef TRUE
-const bool FALSE = 0;
-const bool TRUE = !0;
-#endif
-#if defined(__WATCOMC__)
-#  if defined(Q_OS_QNX4)
-const bool false = FALSE;
-const bool true = TRUE;
-#  endif
+#define TRUE true
+#define FALSE false
 #endif
 
 //
@@ -958,7 +952,7 @@ enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
 
-Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
+Q_EXPORT void qSuppressObsoleteWarnings( bool = true );
 
 Q_EXPORT void qObsolete( const char *obj, const char *oldfunc,
 		   const char *newfunc );
