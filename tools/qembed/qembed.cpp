@@ -2,7 +2,7 @@
 **
 ** documentation for any purpose and without fee is hereby granted, provided.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** EDITIONS: UNKNOWN
 **

@@ -2,7 +2,7 @@
 **
 ** Miscellaneous documentation that doesn't fit anywhere else.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -294,7 +294,7 @@ THE Q PUBLIC LICENSE
 version 1.0
 </h2>
 <b>
-Copyright (C) 1999-2000 Trolltech AS, Norway.<br>
+Copyright (C) 1999-$THISYEAR$ Trolltech AS, Norway.<br>
 Everyone is permitted to copy and distribute this license document.
 </b>
 </center>
@@ -420,7 +420,7 @@ by Oslo City Court.
 /*! \page gpl.html
 \title GNU General Public License
 
- The Qt GUI Toolkit is Copyright (C) 1994-2003 Trolltech AS.
+ The Qt GUI Toolkit is Copyright (C) 1994-$THISYEAR$ Trolltech AS.
 
  The Qt Free Edition and the Qt/Embedded Free Edition are available
  under the GPL. The Qt Free Edition (for Unix/X11) is also available

@@ -10,7 +10,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <source>Copyright (C) 2000-2001 Trolltech AS</source>
+        <source>Copyright (C) 2000-$THISYEAR$ Trolltech AS</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">

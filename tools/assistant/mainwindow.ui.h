@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the Qt Assistant.
 ** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
@@ -219,7 +219,7 @@ void MainWindow::about()
     QMessageBox box(this);
     box.setText("<center><img src=\"splash.png\">"
 		 "<p>Version " + QString(QT_VERSION_STR) + "</p>"
-		 "<p>Copyright (C) 2000-2003 Trolltech AS. All rights reserved."
+		 "<p>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
 		 "</p></center><p></p>"
 		 "<p>Qt Commercial Edition license holders: This program is"
 		 " licensed to you under the terms of the Qt Commercial License"

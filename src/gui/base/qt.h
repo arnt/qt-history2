@@ -6,7 +6,7 @@
 **
 ** Generated : Fri Jul 18 17:33:23 EST 2003
 **
-** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1995-$THISYEAR$ Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **

@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of Qt/Embedded.
 ** EDITIONS: FREE
@@ -669,7 +669,7 @@ void Main::about()
 	"<p><b><font size=+2>Qt/Embedded build configuration</font></b></p>"
 	"<p></p>"
 	"<p>Version 1.0</p>"
-	"<p>Copyright (C) 2001-2002 Trolltech AS. All rights reserved.</p>"
+	"<p>Copyright (C) 2001-$THISYEAR$ Trolltech AS. All rights reserved.</p>"
 	"<p></p>"
 	"<p>This program is licensed to you under the terms of the GNU General "
 	"Public License Version 2 as published by the Free Software Foundation. This "

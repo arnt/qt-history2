@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-$THISYEAR$ Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **

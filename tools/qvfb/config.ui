@@ -1,7 +1,7 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>Config</class>
 <comment>*********************************************************************
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt/Embedded virtual framebuffer.
 **

@@ -6,7 +6,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copyright (C) 2000-2002 Trolltech AS. All Rights Reserved.</source>
+        <source>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All Rights Reserved.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -2,7 +2,7 @@
 **
 ** Definition of .
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** EDITIONS: UNKNOWN
 **

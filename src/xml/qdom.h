@@ -2,7 +2,7 @@
 **
 ** Definition of QDomDocument and related classes.
 **
-** Copyright (C) 1992-2003 Trolltech AS. All rights reserved.
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
 ** This file is part of the xml module of the Qt GUI Toolkit.
 ** EDITIONS: FREE, ENTERPRISE
