@@ -790,12 +790,7 @@ QQuickDrawPaintEngine::setupQDPen()
     f.blue = d->current.pen.color().blue()*256;
     PixPatHandle pixpat = NewPixPat();
     MakeRGBPat(pixpat, &f);
-    CGrafPtr port;
-    if(d->pdev->devType() == QInternal::Widget)
-        port = GetWindowPort((WindowPtr)d->pdev->handle());
-    else
-        port = (GWorldPtr)d->pdev->handle();
-    SetPortPenPixPat(port, pixpat);
+    PenPixPat(pixpat);
 
     //backcolor
     ::RGBColor b;
@@ -841,12 +836,7 @@ QQuickDrawPaintEngine::setupQDBrush()
     if(bs == SolidPattern) {
         PixPatHandle pixpat = NewPixPat();
         MakeRGBPat(pixpat, &f);
-        CGrafPtr port;
-        if(d->pdev->devType() == QInternal::Widget)
-            port = GetWindowPort((WindowPtr)d->pdev->handle());
-        else
-            port = (GWorldPtr)d->pdev->handle();
-        SetPortPenPixPat(port, pixpat);
+        PenPixPat(pixpat);
     } else {
         Pattern pat;
         GetQDGlobalsBlack(&pat);
