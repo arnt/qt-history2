@@ -59,11 +59,11 @@ void ChartForm::drawElements()
 
 void ChartForm::drawPieChart( const double scales[], double total, int )
 {
-    int width = m_canvas->width();
-    int height = m_canvas->height();
-    int size = width > height ? height : width;
-    int x = width / 2;
-    int y = height / 2;
+    double width = m_canvas->width();
+    double height = m_canvas->height();
+    double size = width > height ? height : width;
+    int x = int(width / 2);
+    int y = int(height / 2);
     int angle = 0;
 
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
@@ -80,23 +80,30 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 	    angle += extent;
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
-		int labelX = m_elements[i].x( PIE );
-		int labelY = m_elements[i].y( PIE );
-		if ( labelX == Element::NO_POSITION ||
-		     labelY == Element::NO_POSITION ) {
-		    QRect rect = arc->boundingRect();
-		    labelX = ( abs( rect.right() - rect.left() ) / 2 ) + rect.x();
-		    labelY = ( abs( rect.top() - rect.bottom() ) / 2 ) + rect.y();
-		}
 		label = valueLabel( label, m_elements[i].value(), total );
 		CanvasText *text = new CanvasText( i, label, m_font, m_canvas );
+		double proX = m_elements[i].proX( PIE );
+		double proY = m_elements[i].proY( PIE );
+		if ( proX < 0 || proY < 0 ) {
+		    // Find the centre of the pie segment
+		    QRect rect = arc->boundingRect();
+		    proX = ( rect.width() / 2 ) + rect.x();
+		    proY = ( rect.height() / 2 ) + rect.y();
+		    // Centre text over the centre of the pie segment
+		    rect = text->boundingRect();
+		    proX -= ( rect.width() / 2 );
+		    proY -= ( rect.height() / 2 );
+		    // Make proportional
+		    proX /= width;
+		    proY /= height;
+		}
 		text->setColor( m_elements[i].labelColor() );
-		text->setX( labelX );
-		text->setY( labelY );
+		text->setX( proX * width );
+		text->setY( proY * height );
 		text->setZ( 1 );
 		text->show();
-		m_elements[i].setX( PIE, labelX );
-		m_elements[i].setY( PIE, labelY );
+		m_elements[i].setProX( PIE, proX );
+		m_elements[i].setProY( PIE, proY );
 	    }
 	}
     }
@@ -106,7 +113,9 @@ void ChartForm::drawPieChart( const double scales[], double total, int )
 void ChartForm::drawVerticalBarChart(
 	const double scales[], double total, int count )
 {
-    int width = m_canvas->width() / count;
+    double width = m_canvas->width();
+    double height = m_canvas->height();
+    int prowidth = int(width / count);
     int x = 0;
     QPen pen;
     pen.setStyle( NoPen );
@@ -114,9 +123,9 @@ void ChartForm::drawVerticalBarChart(
     for ( int i = 0; i < MAX_ELEMENTS; ++i ) {
 	if ( m_elements[i].isValid() ) {
 	    int extent = int(scales[i]);
-	    int y = m_canvas->height() - extent;
+	    int y = int(height - extent);
 	    QCanvasRectangle *rect = new QCanvasRectangle(
-					    x, y, width, extent, m_canvas );
+					    x, y, prowidth, extent, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );
@@ -124,24 +133,23 @@ void ChartForm::drawVerticalBarChart(
 	    rect->show();
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
-		int labelX = m_elements[i].x( VERTICAL_BAR );
-		int labelY = m_elements[i].y( VERTICAL_BAR );
-		if ( labelX == Element::NO_POSITION ||
-		     labelY == Element::NO_POSITION ) {
-		    labelX = x;
-		    labelY = y;
+		double proX = m_elements[i].proX( VERTICAL_BAR );
+		double proY = m_elements[i].proY( VERTICAL_BAR );
+		if ( proX < 0 || proY < 0 ) {
+		    proX = x / width;
+		    proY = y / height;
 		}
 		label = valueLabel( label, m_elements[i].value(), total );
 		CanvasText *text = new CanvasText( i, label, m_font, m_canvas );
 		text->setColor( m_elements[i].labelColor() );
-		text->setX( labelX );
-		text->setY( labelY );
+		text->setX( proX * width );
+		text->setY( proY * height );
 		text->setZ( 1 );
 		text->show();
-		m_elements[i].setX( VERTICAL_BAR, labelX );
-		m_elements[i].setY( VERTICAL_BAR, labelY );
+		m_elements[i].setProX( VERTICAL_BAR, proX );
+		m_elements[i].setProY( VERTICAL_BAR, proY );
 	    }
-	    x += width;
+	    x += prowidth;
 	}
     }
 }
@@ -150,7 +158,9 @@ void ChartForm::drawVerticalBarChart(
 void ChartForm::drawHorizontalBarChart(
 	const double scales[], double total, int count )
 {
-    int height = m_canvas->height() / count;
+    double width = m_canvas->width();
+    double height = m_canvas->height();
+    int proheight = int(height / count);
     int y = 0;
     QPen pen;
     pen.setStyle( NoPen );
@@ -159,7 +169,7 @@ void ChartForm::drawHorizontalBarChart(
 	if ( m_elements[i].isValid() ) {
 	    int extent = int(scales[i]);
 	    QCanvasRectangle *rect = new QCanvasRectangle(
-					    0, y, extent, height, m_canvas );
+					    0, y, extent, proheight, m_canvas );
 	    rect->setBrush( QBrush( m_elements[i].valueColor(),
 				    BrushStyle(m_elements[i].valuePattern()) ) );
 	    rect->setPen( pen );
@@ -167,24 +177,23 @@ void ChartForm::drawHorizontalBarChart(
 	    rect->show();
 	    QString label = m_elements[i].label();
 	    if ( !label.isEmpty() || m_addValues != NO ) {
-		int labelX = m_elements[i].x( HORIZONTAL_BAR );
-		int labelY = m_elements[i].y( HORIZONTAL_BAR );
-		if ( labelX == Element::NO_POSITION ||
-		     labelY == Element::NO_POSITION ) {
-		    labelX = 0;
-		    labelY = y;
+		double proX = m_elements[i].proX( HORIZONTAL_BAR );
+		double proY = m_elements[i].proY( HORIZONTAL_BAR );
+		if ( proX < 0 || proY < 0 ) {
+		    proX = 0;
+		    proY = y / height;
 		}
 		label = valueLabel( label, m_elements[i].value(), total );
 		CanvasText *text = new CanvasText( i, label, m_font, m_canvas );
 		text->setColor( m_elements[i].labelColor() );
-		text->setX( labelX );
-		text->setY( labelY );
+		text->setX( proX * width );
+		text->setY( proY * height );
 		text->setZ( 1 );
 		text->show();
-		m_elements[i].setX( HORIZONTAL_BAR, labelX );
-		m_elements[i].setY( HORIZONTAL_BAR, labelY );
+		m_elements[i].setProX( HORIZONTAL_BAR, proX );
+		m_elements[i].setProY( HORIZONTAL_BAR, proY );
 	    }
-	    y += height;
+	    y += proheight;
 	}
     }
 }

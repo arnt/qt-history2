@@ -20,16 +20,16 @@ class Element
 {
 public:
     enum { INVALID = -1 };
-    enum { NO_POSITION = -1 };
-    enum { MAX_POINTS = 3 }; // One point per chart type
+    enum { NO_PROPORTION = -1 };
+    enum { MAX_PROPOINTS = 3 }; // One proportional point per chart type
 
     Element( double value = INVALID, QColor valueColor = Qt::gray,
 	     int valuePattern = Qt::SolidPattern,
 	     const QString& label = QString::null,
 	     QColor labelColor = Qt::black ) {
 	init( value, valueColor, valuePattern, label, labelColor );
-	for ( int i = 0; i < MAX_POINTS * 2; ++i )
-	    m_points[i] = NO_POSITION;
+	for ( int i = 0; i < MAX_PROPOINTS * 2; ++i )
+	    m_propoints[i] = NO_PROPORTION;
     }
     ~Element() {}
 
@@ -40,8 +40,8 @@ public:
     int valuePattern() const { return m_valuePattern; }
     QString label() const { return m_label; }
     QColor labelColor() const { return m_labelColor; }
-    int x( int index ) const;
-    int y( int index ) const;
+    double proX( int index ) const;
+    double proY( int index ) const;
 
     void set( double value = INVALID, QColor valueColor = Qt::gray,
 	      int valuePattern = Qt::SolidPattern,
@@ -54,8 +54,8 @@ public:
     void setValuePattern( int valuePattern );
     void setLabel( const QString& label ) { m_label = label; }
     void setLabelColor( QColor labelColor ) { m_labelColor = labelColor; }
-    void setX( int index, int value );
-    void setY( int index, int value );
+    void setProX( int index, double value );
+    void setProY( int index, double value );
 
 private:
     void init( double value, QColor valueColor, int valuePattern,
@@ -66,7 +66,7 @@ private:
     int m_valuePattern;
     QString m_label;
     QColor m_labelColor;
-    int m_points[2 * MAX_POINTS];
+    double m_propoints[2 * MAX_PROPOINTS];
 };
 
 
