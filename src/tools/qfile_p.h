@@ -30,7 +30,7 @@
 
 class QOffset
 {
-    friend QDataStream &operator<<( QDataStream &, const QOffset & );
+    friend Q_EXPORT QDataStream &operator<<( QDataStream &, const QOffset & );
 public:
     QOffset() {}
 #if defined(QT_LARGEFILE_SUPPORT)

@@ -17,9 +17,8 @@
 
 #ifndef QT_H
 #include "qptrlist.h"
+#include "qwidget.h"
 #endif // QT_H
-
-class QWidget;
 
 class Q_EXPORT QFocusData {
 public:

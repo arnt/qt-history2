@@ -29,7 +29,6 @@
 #include "qthread.h"
 #include "qwhatsthis.h" // ######## dependency
 #include "qwidget.h"
-#include "qwidgetlist.h"
 #include "qt_windows.h"
 #if defined(QT_NON_COMMERCIAL)
 #include "qnc_win.h"
@@ -2204,7 +2203,7 @@ Q_EXPORT void qt_enter_modal( QWidget *widget )
 
 Q_EXPORT void qt_leave_modal( QWidget *widget )
 {
-    if ( qt_modal_stack && qt_modal_stack->removeRef(widget) ) {
+    if ( qt_modal_stack && qt_modal_stack->remove(widget) ) {
 	if ( qt_modal_stack->isEmpty() ) {
 	    delete qt_modal_stack;
 	    qt_modal_stack = 0;
@@ -2229,7 +2228,7 @@ static bool qt_blocked_modal( QWidget *widget )
     if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
 	return FALSE;
 
-    QWidget *modal=0, *top=qt_modal_stack->getFirst();
+    QWidget *modal=0, *top=qt_modal_stack->first();
 
     widget = widget->topLevelWidget();
     if ( widget->testWFlags(Qt::WShowModal) )	// widget is modal
@@ -2337,7 +2336,7 @@ void QApplication::closePopup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
-    popupWidgets->removeRef( popup );
+    popupWidgets->remove( popup );
     POINT curPos;
     GetCursorPos( &curPos );
     replayPopupMouseEvent = !popup->geometry().contains( QPoint(curPos.x, curPos.y) );
@@ -2361,7 +2360,7 @@ void QApplication::closePopup( QWidget *popup )
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
 	QFocusEvent::setReason( QFocusEvent::Popup );
-	QWidget* aw = popupWidgets->getLast();
+	QWidget* aw = popupWidgets->last();
 	if ( popupWidgets->count() == 1 )
 	    setAutoCapture( aw->winId() );
 	if (aw->focusWidget())
@@ -2723,7 +2722,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 // Keyboard event translation
 //
 
-static const ushort KeyTbl[] = {		// keyboard mapping table
+static const uint KeyTbl[] = {		// keyboard mapping table
     VK_ESCAPE,		Qt::Key_Escape,		// misc keys
     VK_TAB,		Qt::Key_Tab,
     VK_BACK,		Qt::Key_Backspace,

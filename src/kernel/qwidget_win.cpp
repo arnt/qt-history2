@@ -16,7 +16,6 @@
 #include "qapplication_p.h"
 #include "qpainter.h"
 #include "qbitmap.h"
-#include "qwidgetlist.h"
 #include "qwidget_p.h"
 #include "qaccel.h"
 #include "qimage.h"
