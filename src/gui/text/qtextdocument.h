@@ -1,9 +1,11 @@
 #ifndef Q_RTDOCUMENT_H
 #define Q_RTDOCUMENT_H
 
+#ifndef QT_H
 #include <qobject.h>
 #include <qsharedpointer.h>
 #include <private/qtextpiecetable_p.h>
+#endif // QT_H
 
 class QTextFormatCollection;
 class QTextListManager;

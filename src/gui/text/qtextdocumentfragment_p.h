@@ -1,6 +1,7 @@
 #ifndef QTEXTDOCUMENTFRAGMENT_P_H
 #define QTEXTDOCUMENTFRAGMENT_P_H
 
+#ifndef QT_H
 #include <qlist.h>
 #include <qmap.h>
 #include <qpointer.h>
@@ -8,6 +9,7 @@
 #include "qtextdocument.h"
 #include "qtexthtmlparser_p.h"
 #include "qtextpiecetable_p.h"
+#endif // QT_H
 
 class QTextFormatCollectionState
 {

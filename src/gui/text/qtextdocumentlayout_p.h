@@ -1,6 +1,7 @@
 #ifndef QTEXTLAYOUTER_H
 #define QTEXTLAYOUTER_H
 
+#ifndef QT_H
 #include <qpalette.h>
 
 #include "qtextpiecetable_p.h"
@@ -10,6 +11,7 @@
 #include "qtextcursor.h"
 
 #include <private/qtextlayout_p.h>
+#endif // QT_H
 
 class QTextBlockLayouter;
 class QTextListFormat;
