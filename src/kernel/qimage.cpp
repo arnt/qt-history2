@@ -4176,12 +4176,16 @@ QByteArray QImageIO::imageFormat( QIODevice *d )
     if ( d->status() == IO_Ok && rdlen > 0 ) {
 	buf[rdlen - 1] = '\0';
 	QString bufStr = QString::fromLatin1(buf);
+	int bestMatch = -1;
 	for (int i = 0; i < imageHandlers.size(); ++i) {
 	    QImageHandler *p = imageHandlers.at(i);
-	    if ( p->header.search(bufStr) != -1 ) {
-		// try match with headers
-		format = p->format;
-		break;
+	    if ( p->read_image && p->header.search(bufStr) != -1 ) {
+		// try match with header if a read function is available
+		if (p->header.matchedLength() > bestMatch) {
+		    // keep looking for best match
+		    format = p->format;
+		    bestMatch = p->header.matchedLength();
+		}
 	    }
 	}
     }
