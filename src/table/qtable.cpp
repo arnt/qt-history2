@@ -4908,7 +4908,7 @@ QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 
     // the current item in the cell should be edited if possible
     QTableItem *i = item( row, col );
-    if ( initFromCell || i && !i->isReplaceable() ) {
+    if ( initFromCell || ( i && !i->isReplaceable() ) ) {
 	if ( i ) {
 	    if ( i->editType() == QTableItem::Never )
 		return 0;
