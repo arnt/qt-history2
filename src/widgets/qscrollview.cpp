@@ -1,4 +1,4 @@
-x/****************************************************************************
+/****************************************************************************
 ** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#131 $
 **
 ** Implementation of QScrollView class
@@ -271,7 +271,7 @@ struct QScrollViewData {
 		QSize sh = r->child->sizeHint();
 		r->child->resize( QMAX(w,sh.width()), QMAX(h,sh.height()) );
 	    }
-	
+
 	}
     }
 
@@ -518,7 +518,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 {
     WFlags flags = WResizeNoErase | (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity);
     d = new QScrollViewData( this, flags );
-			
+
 #ifndef QT_NO_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
@@ -536,7 +536,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 }
 
 
-/*!  
+/*!
   Destructs the QScrollView.  Any children added with addChild()
   will be destructed.
 */
@@ -1448,7 +1448,7 @@ void QScrollView::viewportResizeEvent( QResizeEvent* )
 }
 
 /*! \internal
-  
+
   To provide simple processing of events on the contents, this
   function receives all mouse press events sent to the viewport,
   translates the event and calls contentsMousePressEvent().
@@ -1463,7 +1463,7 @@ void QScrollView::viewportMousePressEvent( QMouseEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all mouse release events sent to the viewport, translates
   the event and calls contentsMouseReleaseEvent().
@@ -1478,7 +1478,7 @@ void QScrollView::viewportMouseReleaseEvent( QMouseEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all mouse double click events sent to the viewport,
   translates the event and calls contentsMouseDoubleClickEvent().
@@ -1493,7 +1493,7 @@ void QScrollView::viewportMouseDoubleClickEvent( QMouseEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all mouse move events sent to the viewport, translates the
   event and calls contentsMouseMoveEvent().
@@ -1510,7 +1510,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
 #ifndef QT_NO_DRAGANDDROP
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all drag enter events sent to the viewport, translates the
   event and calls contentsDragEnterEvent().
@@ -1525,7 +1525,7 @@ void QScrollView::viewportDragEnterEvent( QDragEnterEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all drag move events sent to the viewport, translates the
   event and calls contentsDragMoveEvent().
@@ -1540,7 +1540,7 @@ void QScrollView::viewportDragMoveEvent( QDragMoveEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all drag leave events sent to the viewport and calls
   contentsDragLeaveEvent().
@@ -1553,7 +1553,7 @@ void QScrollView::viewportDragLeaveEvent( QDragLeaveEvent* e )
 }
 
 /*!\internal
-  
+
   To provide simple processing of events on the contents, this function
   receives all drop events sent to the viewport, translates the event
   and calls contentsDropEvent().
@@ -1569,8 +1569,8 @@ void QScrollView::viewportDropEvent( QDropEvent* e )
 
 #endif // QT_NO_DRAGANDDROP
 
-/*!\internal 
-  
+/*!\internal
+
   To provide simple processing of events on the contents, this function
   receives all wheel events sent to the viewport, translates the the
   event and calls contentsWheelEvent().
