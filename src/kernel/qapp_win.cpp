@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#28 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#28 $")
 
 
 // --------------------------------------------------------------------------
@@ -254,7 +254,7 @@ void qt_cleanup()
 // Platform specific global and internal functions
 //
 
-void msgHandler( QtMsgType, const char *str )	// print Qt message
+static void msgHandler( QtMsgType, const char *str )
 {
     OutputDebugString( str );
     OutputDebugString( "\n" );
@@ -536,12 +536,12 @@ struct QWinConfigRequest {
 };
 
 declare(QQueueM,QWinConfigRequest);
-static QQueue(QWinConfigRequest) *configRequests = 0;
+static QQueueM(QWinConfigRequest) *configRequests = 0;
 
 void qWinRequestConfig( WId id, int req, int x, int y, int w, int h )
 {
     if ( !configRequests )			// create queue
-	configRequests = new QQueue(QWinConfigRequest);
+	configRequests = new QQueueM(QWinConfigRequest);
     QWinConfigRequest *r = new QWinConfigRequest;
     r->id = id;					// create new request
     r->req = req;
