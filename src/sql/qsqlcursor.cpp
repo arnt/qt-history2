@@ -120,7 +120,7 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 #ifdef QT_CHECK_RANGE
 	if ( !count() )
 	    qWarning("QSqlCursor::setName: unable to build record, does %s exist?", name.latin1() );
-#endif	
+#endif
     }
 }
 
@@ -578,12 +578,15 @@ void QSqlCursor::sync()
 	d->lastAt = at();
 	uint i = 0;
 	for ( ; i < count(); ++i ){
-	    if ( field(i)->isCalculated() )
-		QSqlRecord::setValue( i, calculateField( i ) );
-	    else {
+	    if ( !field(i)->isCalculated() ){
 		QSqlRecord::setValue( i, QSqlQuery::value(i) );
 		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( i ) );
 	    }
+	}
+	i = 0;
+	for ( ; i < count(); ++i ){
+	    if ( field(i)->isCalculated() )
+		QSqlRecord::setValue( i, calculateField( i ) );
 	}
     }
 }
