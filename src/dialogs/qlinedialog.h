@@ -3,7 +3,7 @@
 **
 ** Definition of QLineDialog class
 **
-** Created : 950428
+** Created : 991212
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -47,16 +47,35 @@
 
 struct QLineDialogPrivate;
 
+class QLineEdit;
+class QSpinBox;
+class QComboBox;
+
 class Q_EXPORT QLineDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0, bool modal = TRUE );
+    enum Type { LineEdit, SpinBox, ComboBox, EditableComboBox };
+
+    QLineDialog( const QString &label, QWidget* parent = 0, const char* name = 0,
+		 bool modal = TRUE, Type type = LineEdit );
     ~QLineDialog();
-    
-    QString text() const;
-    virtual void setText( const QString &text );
+
+    QLineEdit *lineEdit() const;
+    QSpinBox *spinBox() const;
+    QComboBox *comboBox() const;
+    QComboBox *editableComboBox() const;
+
+    void setType( Type t );
+    Type type() const;
+
     static QString getText( const QString &label, const QString &text = QString::null,
+			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+    static int getInteger( const QString &label, int num = 0, int from = -2147483647, int to = 2147483647,
+			   int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+    static double getDouble( const QString &label, double num = 0, double from = -2147483647, double to = 2147483647,
+			     int step = 1, bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
+    static QString getItem( const QString &label, const QStringList &list, int current = 0, bool editable = TRUE,
 			    bool *ok = 0, QWidget *parent = 0, const char *name = 0 );
 
 private slots:
