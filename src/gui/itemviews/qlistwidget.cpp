@@ -250,8 +250,8 @@ void QListModel::itemChanged(QListWidgetItem *item)
     checked and unchecked with the setChecked() function. The corresponding
     checked() function indicates whether the item is currently checked.
 
-    The isHidden() function can be used to determine whether the item is hidden.
-    Items can be hidden with setHidden().
+    The isItemHidden() function can be used to determine whether the
+    item is hidden.  Items can be hidden with setItemHidden().
 
     \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
 */
@@ -958,7 +958,7 @@ QList<QListWidgetItem*> QListWidget::findItems(const QString &text,
 }
 
 /*!
-  Returns true if the item is explicitly hidden; otherwise returns false.
+  Returns true if the \a item is explicitly hidden; otherwise returns false.
 */
 bool QListWidget::isItemHidden(const QListWidgetItem *item) const
 {
@@ -966,7 +966,7 @@ bool QListWidget::isItemHidden(const QListWidgetItem *item) const
 }
 
 /*!
-  If \a hide is true, the item will be hidden; otherwise it will be shown.
+  If \a hide is true, the \a item will be hidden; otherwise it will be shown.
 */
 void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 {
@@ -982,9 +982,7 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
-    if (rect.isValid())
-        return d->viewport->rect().contains(rect);
-    return false;
+    return rect.isValid() && d->viewport->rect().contains(rect);
 }
 
 /*!

@@ -792,20 +792,6 @@ void QTreeModel::emitRowsRemoved(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn void QTreeWidgetItem::hide()
-
-    Hides the item so that its parent tree widget does not display it.
-
-    \sa QTreeWidget::isHidden()
-*/
-
-/*!
-    \fn void QTreeWidgetItem::show()
-
-    Makes the item visible so that its parent displays it normally.
-*/
-
-/*!
   \internal
   Constructs a tree widget item. The item must be inserted into a tree view.
 
@@ -1466,7 +1452,7 @@ QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text,
 }
 
 /*!
-  Returns true if the item is explicitly hidden, otherwise returns false.
+  Returns true if the \a item is explicitly hidden, otherwise returns false.
 */
 bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 {
@@ -1478,7 +1464,7 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Hides the item if \a hide is true, otherwise shows the item.
+  Hides the \a item if \a hide is true, otherwise shows the item.
 */
 void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 {
@@ -1500,9 +1486,7 @@ bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item));
     QRect rect = itemViewportRect(index);
-    if (rect.isValid())
-        return d->viewport->rect().contains(rect);
-    return false;
+    return rect.isValid() && d->viewport->rect().contains(rect);
 }
 
 /*!
