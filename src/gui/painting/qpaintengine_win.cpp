@@ -1500,11 +1500,16 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
         qSystemWarning("QWin32PaintEngine::drawPath(), begin path failed.");
 
     // Drawing the subpaths
+    int start = -1;
     for (int i=0; i<path.elementCount(); ++i) {
         const QPainterPath::Element &elm = path.elementAt(i);
         switch (elm.type) {
         case QPainterPath::MoveToElement:
-//             CloseFigure(hdc);
+            if (start >= 0
+                && path.elementAt(start).x == path.elementAt(i-1).x
+                && path.elementAt(start).y == path.elementAt(i-1).y)
+                CloseFigure(hdc);
+            start = i;
             MoveToEx(hdc, qRound(elm.x), qRound(elm.y), 0);
             break;
         case QPainterPath::LineToElement:
@@ -1524,6 +1529,11 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
             qFatal("QWin32PaintEngine::drawPath(), unhandled type: %d", elm.type);
         }
     }
+
+    if (start >= 0
+        && path.elementAt(start).x == path.elementAt(path.elementCount()-1).x
+        && path.elementAt(start).y == path.elementAt(path.elementCount()-1).y)
+        CloseFigure(hdc);
 
     if (!EndPath(hdc))
         qSystemWarning("QWin32PaintEngine::drawPath(), end path failed");
@@ -2166,6 +2176,10 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 
 void QGdiplusPaintEngine::drawPath(const QPainterPath &p)
 {
+#ifdef QT_NO_NATIVE_PATH
+    Q_ASSERT(!"QGdiplusPaintEngine::drawPath(), QT_NO_NATIVE_PATH is defined...\n");
+    return;
+#endif
     QtGpPath *path = 0;
     GdipCreatePath(0, &path);
 
