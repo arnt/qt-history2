@@ -425,6 +425,9 @@ void SetupWizardImpl::makeDone()
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
 	logOutput( "The build process failed!\n" );
 	QMessageBox::critical( this, "Error", "The build process failed!" );
+	setBackEnabled( buildPage, true );
+//	removePage( progressPage );
+	setAppropriate( progressPage, false );
     } else {
 	compileProgress->setProgress( compileProgress->totalSteps() );
 
@@ -929,6 +932,8 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    setInstallStep( 1 );
 	else
 	    setInstallStep( 5 );
+
+	setBackEnabled( buildPage, false );
 
     } else if( newPage == progressPage ) {
 	saveSettings();
