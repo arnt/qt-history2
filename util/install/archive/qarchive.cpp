@@ -127,8 +127,8 @@ bool QArchive::setDirectory( const QString& dirName )
 	QString fullName = dirName;
 	QDataStream outStream( &arcFile );
 
-	if( fullName.right( 1 ) != "/" )
-	    fullName += "/";
+	if( fullName.right( 1 ) == "/" )
+	    fullName.truncate(fullName.length()-1);
 
 	outStream << fullName.latin1();
 

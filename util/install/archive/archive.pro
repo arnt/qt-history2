@@ -1,5 +1,5 @@
-
-CONFIG += staticlib qt 
+#CONFIG += staticlib 
+CONFIG += qt 
 CONFIG -= dll
 TARGET = arq
 TEMPLATE = lib

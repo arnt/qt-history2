@@ -1,7 +1,7 @@
 TEMPLATE = app
 HEADERS = generatordlgimpl.h
 SOURCES = main.cpp generatordlgimpl.cpp
-INCLUDEPATH += ../archive
+INCLUDEPATH += ../archive $(QTDIR)/include
 INTERFACES = generatordlg.ui
 TARGET  = package
 CONFIG += qt
