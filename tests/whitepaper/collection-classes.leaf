@@ -115,10 +115,8 @@ useful for storing pointers to \Class {QWidget}s and \Class
 ownership of the objects they contain and automatically delete them
 when the collection is destroyed.
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/qtl.html
-\i \l http://doc.trolltech.com/collections.html
-\i \l http://doc.trolltech.com/shclass.html
-\endlist
+\ONLINES
+\Online qtl.html
+\Online collections.html
+\Online shclass.html
+\ENDONLINES

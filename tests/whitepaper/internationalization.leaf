@@ -231,11 +231,9 @@ More advanced topics:
  * designer
 \endomit
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/i18n.html
-\i \l http://doc.trolltech.com/unicode.html
-\i \l http://doc.trolltech.com/scripts.html
-\i \l http://doc.trolltech.com/linguist-manual.html
-\endlist
+\ONLINES
+\Online i18n.html
+\Online unicode.html
+\Online scripts.html
+\Online linguist-manual.html
+\ENDONLINES

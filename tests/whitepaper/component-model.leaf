@@ -251,8 +251,6 @@ components transparently to the application.
 Makefiles for shared libraries can easily be generated for any
 platform supported by Qt using Trolltech's \l qmake tool.
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/component.html
-\endlist
+\ONLINES
+\Online component.html
+\ENDONLINES

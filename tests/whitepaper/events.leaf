@@ -80,9 +80,7 @@ instance. Such filters are called before any widget-specific filters.
 It is even possible to reimplement \Func QApplication::notify(), the
 event dispatcher, for complete control.
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/eventsandfilters.html
-\i \l http://doc.trolltech.com/qapplication.html#notify
-\endlist
+\ONLINES
+\Online eventsandfilters.html
+\Online qapplication.html#notify
+\ENDONLINES

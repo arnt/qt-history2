@@ -1,6 +1,6 @@
-\omit ### we forgot clipboard and d'n'd ### \endomit
-
 \chapter GUI Applications
+
+\omit ### we forgot clipboard and d'n'd ### \endomit
 
 \quote
 Building modern GUI applications with Qt is fast and simple and can be
@@ -458,3 +458,6 @@ used files by the application Zooper\TRADEMARK by Software Inc.
 Booleans, numbers, Unicode strings and list of Unicode strings can be
 stored.
 
+\ONLINES
+###
+\ENDONLINES

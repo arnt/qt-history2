@@ -196,10 +196,8 @@ In addition to handling signals and slots, \e moc supports Qt's \l
 information. The \e moc also makes the cross-platform introspection
 of C++ programs possible.
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/object.html
-\i \l http://doc.trolltech.com/signalsandslots.html
-\i \l http://doc.trolltech.com/moc.html
-\endlist
+\ONLINES
+\Online object.html
+\Online signalsandslots.html
+\Online moc.html
+\ENDONLINES

@@ -120,8 +120,6 @@ recompiling Qt or \l {Qt Designer}. The style of an existing Qt
 application can be changed using a style plugin without recompiling
 the application.
 
-\section1 Further Reading
-
-\list
-\i http://doc.trolltech.com/customstyle.html
-\endlist
+\ONLINES
+\Online http://doc.trolltech.com/customstyle.html
+\ENDONLINES

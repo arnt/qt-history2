@@ -203,3 +203,7 @@ face and hands in code rather than relying on functionality
 implemented in a base class. This could be achieved by reimplementing
 \Func paintEvent(). The \l 2D... section presents Qt's painting
 interfaces.
+
+\ONLINES
+###
+\ENDONLINES

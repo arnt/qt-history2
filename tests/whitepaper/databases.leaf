@@ -206,8 +206,6 @@ desired, allowing developers to browse, delete and update records. \l
 {Qt Designer} has templates and wizards to make creating database
 forms fast and simple.
 
-\section1 Further Reading
-
-\list
-\i http://doc.trolltech.com/3.0/sql.html
-\endlist
+\ONLINES
+\Online sql.html
+\ENDONLINES

@@ -180,9 +180,7 @@ For complete control, it is also possible to perform layout manually
 in a widget by reimplementing \Func QWidget::resizeEvent() and by
 calling \Func QWidget::setGeometry() on each child widget.
 
-\section1 Further Reading
-
-\list
-\i \l http://doc.trolltech.com/layout.html
-\i \l http://doc.trolltech.com/customlayout.html
-\endlist
+\ONLINES
+\Online layout.html
+\Online customlayout.html
+\ENDONLINES
