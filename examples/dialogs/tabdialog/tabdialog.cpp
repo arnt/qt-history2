@@ -115,8 +115,7 @@ PermissionsTab::PermissionsTab(QWidget *parent, const QFileInfo &fileInfo)
 ApplicationsTab::ApplicationsTab(QWidget *parent, const QFileInfo &fileInfo)
     : QWidget(parent)
 {
-    QLabel *topLabel = new QLabel(tr("Open %1 with:").arg(
-        fileInfo.absoluteFilePath()), this);
+    QLabel *topLabel = new QLabel(tr("Open with:"), this);
 
     QListWidget *applicationsListBox = new QListWidget(this);
     QStringList applications;
