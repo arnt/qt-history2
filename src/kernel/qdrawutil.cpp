@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#44 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#45 $
 **
 ** Implementation of draw utilities
 **
@@ -61,9 +61,12 @@ void qDrawShadeLine( QPainter *p, int x1, int y1, int x2, int y2,
 		     const QColorGroup &g, bool sunken,
 		     int lineWidth, int midLineWidth )
 {
+    if (!( p && lineWidth >= 0 && midLineWidth >= 0 ) )	{
 #if defined(CHECK_RANGE)
-    ASSERT( p && lineWidth >= 0 && midLineWidth >= 0 );
+	warning( "qDrawShadeLine invalid parameters." );
 #endif
+	return;
+    }
     int tlw = lineWidth*2 + midLineWidth;	// total line width
     QPen oldPen = p->pen();			// save pen
     if ( sunken )
@@ -173,9 +176,12 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
 {
     if ( w == 0 || h == 0 )
 	return;
+    if ( ! ( w > 0 && h > 0 && lineWidth >= 0 && midLineWidth >= 0 ) ) {
 #if defined(CHECK_RANGE)
-    ASSERT( w > 0 && h > 0 && lineWidth >= 0 && midLineWidth >= 0 );
+	warning( "qDrawShadeRect() Invalid parameters." );
 #endif
+	return;
+    }
     QPen oldPen = p->pen();			// save pen
     if ( sunken )
 	p->setPen( g.dark() );
@@ -270,9 +276,11 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
 {
     if ( w == 0 || h == 0 )
 	return;
+    if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
 #if defined(CHECK_RANGE)
-    ASSERT( w > 0 && h > 0 && lineWidth >= 0 );
+    	warning( "qDrawShadePanel() Invalid parameters." );
 #endif
+    }
     QPen oldPen = p->pen();			// save pen
     QPointArray a( 4*lineWidth );
     if ( sunken )
@@ -477,9 +485,11 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
 {
     if ( w == 0 || h == 0 )
 	return;
+    if ( !( w > 0 && h > 0 && lineWidth >= 0 ) ) {
 #if defined(CHECK_RANGE)
-    ASSERT( w > 0 && h > 0 && lineWidth >= 0 );
+	warning( "qDrawPlainRect() Invalid parameters." );
 #endif
+    }
     QPen   oldPen   = p->pen();
     QBrush oldBrush = p->brush();
     p->setPen( c );
