@@ -48,10 +48,10 @@ CheckLists::CheckLists( QWidget *parent, const char *name )
     // create a list with 4 ListViewItems which will be parent items of other ListViewItems
     QValueList<QListViewItem *> parentList;
 
-    parentList.append( new QListViewItem( lv1, "Parent Item 1" ) );
-    parentList.append( new QListViewItem( lv1, "Parent Item 2" ) );
-    parentList.append( new QListViewItem( lv1, "Parent Item 3" ) );
-    parentList.append( new QListViewItem( lv1, "Parent Item 4" ) );
+    parentList.append( new QCheckListItem( lv1, "Parent Item 1", QCheckListItem::CheckBoxController ) );
+    parentList.append( new QCheckListItem( lv1, "Parent Item 2", QCheckListItem::CheckBoxController ) );
+    parentList.append( new QCheckListItem( lv1, "Parent Item 3", QCheckListItem::CheckBoxController ) );
+    parentList.append( new QCheckListItem( lv1, "Parent Item 4", QCheckListItem::CheckBoxController ) );
 
     QListViewItem *item = 0;
     unsigned int num = 1;
