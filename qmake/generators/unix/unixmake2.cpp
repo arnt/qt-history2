@@ -1249,7 +1249,7 @@ void UnixMakefileGenerator::init2()
 							       project->first("COMPATIBILITY_VERSION"));
 	}
 	if(!project->isEmpty("QMAKE_LFLAGS_VERSION")) {
-	    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_COMPAT_VERSION") +
+	    project->variables()["QMAKE_LFLAGS"] += QString(project->first("QMAKE_LFLAGS_VERSION") +
 							    project->first("VER_MAJ") + "." +
 							    project->first("VER_MIN") + "." +
 							    project->first("VER_PAT"));
