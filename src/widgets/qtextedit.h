@@ -89,6 +89,7 @@ class Q_EXPORT QTextEdit : public QScrollView
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled )
     Q_PROPERTY( int tabStopWidth READ tabStopWidth WRITE setTabStopWidth )
+    Q_PROPERTY( bool allowTabs READ allowTabs WRITE setAllowTabs )
 
 public:
     enum WordWrap {
@@ -208,6 +209,7 @@ public:
 
     bool isUndoRedoEnabled() const;
     bool eventFilter( QObject *o, QEvent *e );
+    bool allowTabs() const;
 
 public slots:
     void setEnabled( bool );
@@ -288,6 +290,7 @@ public slots:
     virtual void clearParagraphBackground( int para );
 
     virtual void setUndoRedoEnabled( bool b );
+    void setAllowTabs( bool b ); // ### make virtual in 4.0
 
 signals:
     void textChanged();

@@ -82,10 +82,12 @@ public:
     {
 	preeditStart = -1;
 	preeditLength = -1;
+	allowTabs = TRUE;
     }
     int id[ 7 ];
     int preeditStart;
     int preeditLength;
+    bool allowTabs;
 };
 
 static bool block_set_alignment = FALSE;
@@ -935,12 +937,17 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		 ( e->text() == "\t" && !( e->state() & ControlButton ) ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
-		    if ( cursor->index() == 0 && cursor->parag()->style() &&
-			 cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {
-			cursor->parag()->incDepth();
-			drawCursor( FALSE );
-			repaintChanged();
-			drawCursor( TRUE );
+		    if ( d->allowTabs ) {
+			if ( cursor->index() == 0 && cursor->parag()->style() &&
+			     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem ) {
+			    cursor->parag()->incDepth();
+			    drawCursor( FALSE );
+			    repaintChanged();
+			    drawCursor( TRUE );
+			    break;
+			}
+		    } else {
+			e->ignore();
 			break;
 		    }
 		}
@@ -965,7 +972,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    cut();
 		    break;
 		case Key_I: case Key_T: case Key_Tab:
-		    indent();
+		    if ( d->allowTabs )
+			indent();
 		    break;
 		case Key_A:
 #if defined(Q_WS_X11)
@@ -4404,6 +4412,25 @@ void QTextEdit::ensureFormatted( QTextParag *p )
 	    return;
 	formatMore();
     }
+}
+
+/*! \property QTextEdit::allowTabs
+  \brief whether the textedit accepts TAB as input
+
+  In some occasions text edits should not allow the user to input
+  tabulators using the TAB key, as this breaks the focus chain. The
+  default is TRUE.
+
+*/
+
+void QTextEdit::setAllowTabs( bool b )
+{
+    d->allowTabs = b;
+}
+
+bool QTextEdit::allowTabs() const
+{
+    return d->allowTabs;
 }
 
 #endif //QT_NO_TEXTEDIT
