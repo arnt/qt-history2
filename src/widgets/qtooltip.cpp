@@ -522,7 +522,12 @@ void QTipManager::showTip()
 #endif
     QPoint p;
     if ( t->geometry == QRect( -1, -1, -1, -1 ) ) {
-	p = widget->mapToGlobal( pos ) + QPoint( 2, 16 );
+	p = widget->mapToGlobal( pos ) + 
+#ifdef Q_WS_WIN
+	    QPoint( 2, 24 );
+#else
+	    QPoint( 2, 16 );
+#endif
 	if ( p.x() + label->width() > screen.x() + screen.width() )
 	    p.rx() -= 4 + label->width();
 	if ( p.y() + label->height() > screen.y() + screen.height() )
