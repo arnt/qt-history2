@@ -32,8 +32,10 @@
 
 class QSocket;
 class QFtpCommand;
+class QFtpDTP;
+class QFtpProtocol;
 
-class QM_EXPORT_FTP QFtp : public QNetworkProtocol
+class QM_EXPORT_FTP QFtp : public QObject
 {
     Q_OBJECT
 
@@ -41,9 +43,6 @@ public:
     QFtp( QObject *parent = 0, const char *name = 0 );
     virtual ~QFtp();
 
-    int supportedOperations() const;
-
-    // non-QNetworkProtocol functions:
     enum State {
 	Unconnected,
 	HostLookup,
@@ -119,17 +118,8 @@ signals:
     void commandFinished( int, bool );
     void done( bool );
 
-protected:
-    void parseDir( const QString &buffer, QUrlInfo &info ); // ### Qt 4.0: delete this? (not public API)
-    void operationListChildren( QNetworkOperation *op );
-    void operationMkDir( QNetworkOperation *op );
-    void operationRemove( QNetworkOperation *op );
-    void operationRename( QNetworkOperation *op );
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
 
 private:
-    void init();
     int addCommand( QFtpCommand * );
 
     bool checkConnection( QNetworkOperation *op );
@@ -140,25 +130,6 @@ private slots:
     void piError( int, const QString& );
     void piConnectState( int );
     void piFtpReply( int, const QString& );
-
-private slots:
-    void npListInfo( const QUrlInfo & );
-    void npDone( bool );
-    void npStateChanged( int );
-    void npDataTransferProgress( int, int );
-    void npReadyRead();
-
-protected slots:
-    // ### Qt 4.0: delete these
-    void hostFound();
-    void connected();
-    void closed();
-    void dataHostFound();
-    void dataConnected();
-    void dataClosed();
-    void dataReadyRead();
-    void dataBytesWritten( int nbytes );
-    void error( int );
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

@@ -11,10 +11,8 @@ kernel {
 		  $$KERNEL_H/qkernelapplication.h \
 		  $$KERNEL_H/qkernelevent.h \
 		  $$KERNEL_H/qkernelvariant.h \
-		  $$KERNEL_H/qlocalfs.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qnamespace.h \
-		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$KERNEL_H/qobject.h \
 		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobjectdict.h \
@@ -25,8 +23,6 @@ kernel {
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qurl.h \
-		  $$KERNEL_H/qurlinfo.h \
-		  $$KERNEL_H/qurloperator.h \
 		  $$KERNEL_P/qeventloop_p.h \
 		  $$KERNEL_P/qinternal_p.h \
 		  $$KERNEL_P/qkernelapplication_p.h \
@@ -49,9 +45,7 @@ kernel {
 		  $$KERNEL_CPP/qkernelapplication.cpp \
 		  $$KERNEL_CPP/qkernelevent.cpp \
 		  $$KERNEL_CPP/qkernelvariant.cpp \
-		  $$KERNEL_CPP/qlocalfs.cpp \
 		  $$KERNEL_CPP/qmetaobject.cpp \
-		  $$KERNEL_CPP/qnetworkprotocol.cpp \
 		  $$KERNEL_CPP/qobject.cpp \
 		  $$KERNEL_CPP/qobjectcleanuphandler.cpp \
 		  $$KERNEL_CPP/qprocess.cpp \
@@ -60,9 +54,7 @@ kernel {
 		  $$KERNEL_CPP/qsocketnotifier.cpp \
 		  $$KERNEL_CPP/qtimer.cpp \
 		  $$KERNEL_CPP/qtranslator.cpp \
-		  $$KERNEL_CPP/qurl.cpp \
-		  $$KERNEL_CPP/qurlinfo.cpp \
-		  $$KERNEL_CPP/qurloperator.cpp \
+		  $$KERNEL_CPP/qurl.cpp
 	
 
 	embedded:SOURCES += $$KERNEL_CPP/qsharedmemory_p.cpp

@@ -140,7 +140,7 @@ private:
     int minVer;
 };
 
-class QM_EXPORT_HTTP QHttp : public QNetworkProtocol
+class QM_EXPORT_HTTP QHttp : public QObject
 {
     Q_OBJECT
 
@@ -206,16 +206,9 @@ signals:
     void done( bool );
 
 protected:
-    void operationGet( QNetworkOperation *op );
-    void operationPut( QNetworkOperation *op );
-
     void timerEvent( QTimerEvent * );
 
 private slots:
-    void clientReply( const QHttpResponseHeader &rep );
-    void clientDone( bool );
-    void clientStateChanged( int );
-
     void startNextRequest();
     void slotReadyRead();
     void slotConnected();
@@ -225,7 +218,6 @@ private slots:
 
 private:
     QHttpPrivate *d;
-    int bytesRead;
 
     int addRequest( QHttpRequest * );
     void sendRequest();

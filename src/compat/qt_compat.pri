@@ -26,7 +26,10 @@ compat {
 		  $$COMPAT_H/qstrvec.h \
 	          $$COMPAT_H/qvaluelist.h \ 
 		  $$COMPAT_H/qvaluestack.h \
-		  $$COMPAT_H/qvaluevector.h
+		  $$COMPAT_H/qvaluevector.h \
+		  $$COMPAT_H/qurloperator.h \
+		  $$COMPAT_H/qlocalfs.h \
+		  $$COMPAT_H/qnetworkprotocol.h 
 
 	SOURCES += $$COMPAT_CPP/qcstring.cpp \
 		  $$COMPAT_CPP/q3signal.cpp \
@@ -35,5 +38,8 @@ compat {
 		  $$COMPAT_CPP/qgdict.cpp \
 		  $$COMPAT_CPP/qglist.cpp \
 		  $$COMPAT_CPP/qgvector.cpp \
-		  $$COMPAT_CPP/qptrcollection.cpp
+		  $$COMPAT_CPP/qptrcollection.cpp \
+		  $$COMPAT_CPP/qurloperator.cpp \
+		  $$COMPAT_CPP/qlocalfs.cpp \
+		  $$COMPAT_CPP/qnetworkprotocol.cpp 
 }

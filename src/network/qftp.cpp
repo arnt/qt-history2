@@ -959,8 +959,7 @@ public:
     QFtpPrivate() :
 	close_waitForStateChange(FALSE),
 	state( QFtp::Unconnected ),
-	error( QFtp::NoError ),
-	npWaitForLoginDone( FALSE )
+	error( QFtp::NoError )
     { pending.setAutoDelete( TRUE ); }
 
     QFtpPI pi;
@@ -969,8 +968,6 @@ public:
     QFtp::State state;
     QFtp::Error error;
     QString errorString;
-
-    bool npWaitForLoginDone;
 };
 
 static QHash<void *, QFtpPrivate *> *d_ptr = 0;
@@ -991,7 +988,7 @@ static QFtpPrivate* d( const QFtp* foo )
 	ret = new QFtpPrivate;
         d_ptr->insert((void *)foo, ret);
     }
-    
+
     return ret;
 }
 
@@ -1175,12 +1172,7 @@ static void delete_d( const QFtp* foo )
     are passed to the QObject constructor.
 */
 QFtp::QFtp( QObject *parent, const char *name )
-: QNetworkProtocol( parent, name )
-{
-    init();
-}
-
-void QFtp::init()
+    : QObject( parent, name )
 {
     QFtpPrivate *d = ::d( this );
     d->errorString = tr( "Unknown error" );
@@ -2056,293 +2048,6 @@ QFtp::~QFtp()
     delete_d( this );
 }
 
-/**********************************************************************
- *
- * QFtp implementation of the QNetworkProtocol interface
- *
- *********************************************************************/
-/*!  \reimp
-*/
-void QFtp::operationListChildren( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    list();
-    emit start( op );
-}
-
-/*!  \reimp
-*/
-void QFtp::operationMkDir( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    mkdir( op->arg( 0 ) );
-}
-
-/*!  \reimp
-*/
-void QFtp::operationRemove( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    remove( QUrl( op->arg( 0 ) ).path() );
-}
-
-/*!  \reimp
-*/
-void QFtp::operationRename( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    cd( ( url()->path().isEmpty() ? QString( "/" ) : url()->path() ) );
-    rename( op->arg( 0 ), op->arg( 1 ));
-}
-
-/*!  \reimp
-*/
-void QFtp::operationGet( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    QUrl u( op->arg( 0 ) );
-    get( u.path() );
-}
-
-/*!  \reimp
-*/
-void QFtp::operationPut( QNetworkOperation *op )
-{
-    op->setState( StInProgress );
-
-    QUrl u( op->arg( 0 ) );
-    put( op->rawArg(1), u.path() );
-}
-
-/*!  \reimp
-*/
-bool QFtp::checkConnection( QNetworkOperation *op )
-{
-    QFtpPrivate *d = ::d( this );
-    if ( state() == Unconnected && !d->npWaitForLoginDone ) {
-	connect( this, SIGNAL(listInfo(const QUrlInfo &)),
-		this, SLOT(npListInfo(const QUrlInfo &)) );
-	connect( this, SIGNAL(done(bool)),
-		this, SLOT(npDone(bool)) );
-	connect( this, SIGNAL(stateChanged(int)),
-		this, SLOT(npStateChanged(int)) );
-	connect( this, SIGNAL(dataTransferProgress(int,int)),
-		this, SLOT(npDataTransferProgress(int,int)) );
-	connect( this, SIGNAL(readyRead()),
-		this, SLOT(npReadyRead()) );
-
-	d->npWaitForLoginDone = TRUE;
-	switch ( op->operation() ) {
-	    case OpGet:
-	    case OpPut:
-		{
-		    QUrl u( op->arg( 0 ) );
-		    connectToHost( u.host(), u.port() != -1 ? u.port() : 21 );
-		}
-		break;
-	    default:
-		connectToHost( url()->host(), url()->port() != -1 ? url()->port() : 21 );
-		break;
-	}
-	QString user = url()->user().isEmpty() ? QString( "anonymous" ) : url()->user();
-	QString pass = url()->password().isEmpty() ? QString( "anonymous@" ) : url()->password();
-	login( user, pass );
-    }
-
-    if ( state() == LoggedIn )
-	return TRUE;
-    return FALSE;
-}
-
-/*!  \reimp
-*/
-int QFtp::supportedOperations() const
-{
-    return OpListChildren | OpMkDir | OpRemove | OpRename | OpGet | OpPut;
-}
-
-/*! \internal
-    Parses the string, \a buffer, which is one line of a directory
-    listing which came from the FTP server, and sets the values which
-    have been parsed to the url info object, \a info.
-*/
-void QFtp::parseDir( const QString &buffer, QUrlInfo &info )
-{
-    QFtpDTP::parseDir( buffer, url()->user(), &info );
-}
-
-void QFtp::npListInfo( const QUrlInfo & i )
-{
-    if ( url() ) {
-	QRegExp filt( url()->nameFilter(), FALSE, TRUE );
-	if ( i.isDir() || filt.search( i.name() ) != -1 ) {
-	    emit newChild( i, operationInProgress() );
-	}
-    } else {
-	emit newChild( i, operationInProgress() );
-    }
-}
-
-void QFtp::npDone( bool err )
-{
-    QFtpPrivate *d = ::d( this );
-
-    bool emitFinishedSignal = FALSE;
-    QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( err ) {
-	    op->setProtocolDetail( errorString() );
-	    op->setState( StFailed );
-	    if ( error() == HostNotFound ) {
-		op->setErrorCode( (int)ErrHostNotFound );
-	    } else {
-		switch ( op->operation() ) {
-		    case OpListChildren:
-			op->setErrorCode( (int)ErrListChildren );
-			break;
-		    case OpMkDir:
-			op->setErrorCode( (int)ErrMkDir );
-			break;
-		    case OpRemove:
-			op->setErrorCode( (int)ErrRemove );
-			break;
-		    case OpRename:
-			op->setErrorCode( (int)ErrRename );
-			break;
-		    case OpGet:
-			op->setErrorCode( (int)ErrGet );
-			break;
-		    case OpPut:
-			op->setErrorCode( (int)ErrPut );
-			break;
-		}
-	    }
-	    emitFinishedSignal = TRUE;
-	} else if ( !d->npWaitForLoginDone ) {
-	    switch ( op->operation() ) {
-		case OpRemove:
-		    emit removed( op );
-		    break;
-		case OpMkDir:
-		    {
-			QUrlInfo inf( op->arg( 0 ), 0, "", "", 0, QDateTime(),
-				QDateTime(), TRUE, FALSE, FALSE, TRUE, TRUE, TRUE );
-			emit newChild( inf, op );
-			emit createdDirectory( inf, op );
-		    }
-		    break;
-		case OpRename:
-		    emit itemChanged( operationInProgress() );
-		    break;
-		default:
-		    break;
-	    }
-	    op->setState( StDone );
-	    emitFinishedSignal = TRUE;
-	}
-    }
-    d->npWaitForLoginDone = FALSE;
-
-    if ( state() == Unconnected ) {
-	disconnect( this, SIGNAL(listInfo(const QUrlInfo &)),
-		    this, SLOT(npListInfo(const QUrlInfo &)) );
-	disconnect( this, SIGNAL(done(bool)),
-		    this, SLOT(npDone(bool)) );
-	disconnect( this, SIGNAL(stateChanged(int)),
-		    this, SLOT(npStateChanged(int)) );
-	disconnect( this, SIGNAL(dataTransferProgress(int,int)),
-		    this, SLOT(npDataTransferProgress(int,int)) );
-	disconnect( this, SIGNAL(readyRead()),
-		    this, SLOT(npReadyRead()) );
-    }
-
-    // emit the finished() signal at the very end to avoid reentrance problems
-    if ( emitFinishedSignal )
-	emit finished( op );
-}
-
-void QFtp::npStateChanged( int state )
-{
-    if ( url() ) {
-	if ( state == Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-	else if ( state == Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-	else if ( state == Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-    } else {
-	if ( state == Connecting )
-	    emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
-	else if ( state == Connected )
-	    emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-	else if ( state == Unconnected )
-	    emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-    }
-}
-
-void QFtp::npDataTransferProgress( int bDone, int bTotal )
-{
-    emit QNetworkProtocol::dataTransferProgress( bDone, bTotal, operationInProgress() );
-}
-
-void QFtp::npReadyRead()
-{
-    emit data( readAll(), operationInProgress() );
-}
-
-// ### unused -- delete in Qt 4.0
-/*!  \internal
-*/
-void QFtp::hostFound()
-{
-}
-/*!  \internal
-*/
-void QFtp::connected()
-{
-}
-/*!  \internal
-*/
-void QFtp::closed()
-{
-}
-/*!  \internal
-*/
-void QFtp::dataHostFound()
-{
-}
-/*!  \internal
-*/
-void QFtp::dataConnected()
-{
-}
-/*!  \internal
-*/
-void QFtp::dataClosed()
-{
-}
-/*!  \internal
-*/
-void QFtp::dataReadyRead()
-{
-}
-/*!  \internal
-*/
-void QFtp::dataBytesWritten( int )
-{
-}
-/*!  \internal
-*/
-void QFtp::error( int )
-{
-}
 
 #include "qftp.moc"
 

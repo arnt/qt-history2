@@ -1161,7 +1161,7 @@ QString QHttpRequestHeader::toString() const
     are passed on to the QNetworkProtocol constructor.
 */
 QHttp::QHttp( QObject* parent, const char* name )
-: QNetworkProtocol( parent, name )
+: QObject( parent, name )
 {
     init();
 }
@@ -1175,7 +1175,7 @@ QHttp::QHttp( QObject* parent, const char* name )
     \sa setHost()
 */
 QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const char* name )
-: QNetworkProtocol( parent, name )
+: QObject( parent, name )
 {
     init();
 
@@ -1185,7 +1185,6 @@ QHttp::QHttp( const QString &hostname, Q_UINT16 port, QObject* parent, const cha
 
 void QHttp::init()
 {
-    bytesRead = 0;
     d = new QHttpPrivate;
     d->errorString = tr( "Unknown error" );
 
@@ -2173,172 +2172,6 @@ void QHttp::closeConn()
 	if ( d->socket.state() == QSocket::Idle ) {
 	    // Prepare to emit the requestFinished() signal.
 	    d->idleTimer = startTimer( 0 );
-	}
-    }
-}
-
-/**********************************************************************
- *
- * QHttp implementation of the QNetworkProtocol interface
- *
- *********************************************************************/
-/*! \reimp
-*/
-int QHttp::supportedOperations() const
-{
-    return OpGet | OpPut;
-}
-
-/*! \reimp
-*/
-void QHttp::operationGet( QNetworkOperation *op )
-{
-    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
-    connect( this, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    connect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
-
-    bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "GET", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    request( header );
-}
-
-/*! \reimp
-*/
-void QHttp::operationPut( QNetworkOperation *op )
-{
-    connect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
-    connect( this, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    connect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
-
-    bytesRead = 0;
-    op->setState( StInProgress );
-    QUrl u( operationInProgress()->arg( 0 ) );
-    QHttpRequestHeader header( "POST", u.encodedPathAndQuery(), 1, 0 );
-    header.setValue( "Host", u.host() );
-    setHost( u.host(), u.port() != -1 ? u.port() : 80 );
-    request( header, op->rawArg(1) );
-}
-
-void QHttp::clientReply( const QHttpResponseHeader &rep )
-{
-    QNetworkOperation *op = operationInProgress();
-    if ( op ) {
-	if ( rep.statusCode() >= 400 && rep.statusCode() < 600 ) {
-	    op->setState( StFailed );
-	    op->setProtocolDetail(
-		    QString("%1 %2").arg(rep.statusCode()).arg(rep.reasonPhrase())
-						    );
-	    switch ( rep.statusCode() ) {
-		case 401:
-		case 403:
-		case 405:
-		    op->setErrorCode( ErrPermissionDenied );
-		    break;
-		case 404:
-		    op->setErrorCode(ErrFileNotExisting );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	}
-	// ### In cases of an error, should we still emit the data() signals?
-	if ( op->operation() == OpGet && bytesAvailable() > 0 ) {
-	    QByteArray ba = readAll();
-	    emit data( ba, op );
-	    bytesRead += ba.size();
-	    if ( rep.hasContentLength() ) {
-		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
-	    }
-	}
-    }
-}
-
-void QHttp::clientDone( bool err )
-{
-    disconnect( this, SIGNAL(readyRead(const QHttpResponseHeader&)),
-	    this, SLOT(clientReply(const QHttpResponseHeader&)) );
-    disconnect( this, SIGNAL(done(bool)),
-	    this, SLOT(clientDone(bool)) );
-    disconnect( this, SIGNAL(stateChanged(int)),
-	    this, SLOT(clientStateChanged(int)) );
-
-    if ( err ) {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    op->setState( QNetworkProtocol::StFailed );
-	    op->setProtocolDetail( errorString() );
-	    switch ( error() ) {
-		case ConnectionRefused:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		case HostNotFound:
-		    op->setErrorCode( ErrHostNotFound );
-		    break;
-		default:
-		    if ( op->operation() == OpGet )
-			op->setErrorCode( ErrGet );
-		    else
-			op->setErrorCode( ErrPut );
-		    break;
-	    }
-	    emit finished( op );
-	}
-    } else {
-	QNetworkOperation *op = operationInProgress();
-	if ( op ) {
-	    if ( op->state() != StFailed ) {
-		op->setState( QNetworkProtocol::StDone );
-		op->setErrorCode( QNetworkProtocol::NoError );
-	    }
-	    emit finished( op );
-	}
-    }
-
-}
-
-void QHttp::clientStateChanged( int state )
-{
-    if ( url() ) {
-	switch ( (State)state ) {
-	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host %1 found" ).arg( url()->host() ) );
-		break;
-	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host %1" ).arg( url()->host() ) );
-		break;
-	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection to %1 closed" ).arg( url()->host() ) );
-		break;
-	    default:
-		break;
-	}
-    } else {
-	switch ( (State)state ) {
-	    case Connecting:
-		emit connectionStateChanged( ConHostFound, tr( "Host found" ) );
-		break;
-	    case Sending:
-		emit connectionStateChanged( ConConnected, tr( "Connected to host" ) );
-		break;
-	    case Unconnected:
-		emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
-		break;
-	    default:
-		break;
 	}
     }
 }

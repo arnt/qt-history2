@@ -13,6 +13,3 @@ include($$CODECS_CPP/qt_codecs.pri)
 
 mac:LIBS += -framework CoreServices -framework CoreFoundation
 
-#qcompat, once the 4.0 removing of the compat stuff is complete, get this out of here.. (qt.pro too)
-message("Move compat/* files into libqt3compat")
-include($$COMPAT_CPP/qt_compat.pri)
