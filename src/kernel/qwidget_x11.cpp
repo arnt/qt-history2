@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#406 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#407 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -476,6 +476,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     QString capt= caption();
     widget_flags = f;
     clearWState( WState_Created | WState_Visible );
+    if ( extra && extra->topextra )
+	extra->topextra->wmstate = 0;
     create();
     const QObjectList *chlist = children();
     if ( chlist ) {				// reparent children
