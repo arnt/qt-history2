@@ -23,8 +23,13 @@ MainWindow::MainWindow()
 
     QTableWidgetItem *valuesHeaderItem = new QTableWidgetItem(tr("Values"));
     tableWidget->setHorizontalHeaderItem(0, valuesHeaderItem);
+    valuesHeaderItem->setTextAlignment(Qt::AlignVCenter);
     QTableWidgetItem *squaresHeaderItem = new QTableWidgetItem(tr("Squares"));
+    squaresHeaderItem->setIcon(QIcon(QPixmap("squared.png")));
+    squaresHeaderItem->setTextAlignment(Qt::AlignVCenter);
     QTableWidgetItem *cubesHeaderItem = new QTableWidgetItem(tr("Cubes"));
+    cubesHeaderItem->setIcon(QIcon(QPixmap("cubed.png")));
+    cubesHeaderItem->setTextAlignment(Qt::AlignVCenter);
     tableWidget->setHorizontalHeaderItem(1, squaresHeaderItem);
     tableWidget->setHorizontalHeaderItem(2, cubesHeaderItem);
 
@@ -42,9 +47,9 @@ void MainWindow::setupTableItems()
 {
     for (int row = 0; row < tableWidget->rowCount()-1; ++row) {
         for (int column = 0; column < tableWidget->columnCount(); ++column) {
-        QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg(
-            pow(row, column+1)));
-        tableWidget->setItem(row, column, newItem);
+    QTableWidgetItem *newItem = new QTableWidgetItem(tr("%1").arg(
+        pow(row, column+1)));
+    tableWidget->setItem(row, column, newItem);
         }
     }
     for (int column = 0; column < tableWidget->columnCount(); ++column) {

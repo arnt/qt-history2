@@ -15,6 +15,7 @@ public:
     MainWindow();
 
 public slots:
+    void findItems();
     void insertItem();
     void removeItem();
     void sortAscending();

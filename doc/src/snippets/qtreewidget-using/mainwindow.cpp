@@ -19,6 +19,9 @@ MainWindow::MainWindow()
     descendingAction = itemsMenu->addAction(tr("Sort in &Descending Order"));
     autoSortAction = itemsMenu->addAction(tr("&Automatically Sort Items"));
     autoSortAction->setCheckable(true);
+    itemsMenu->addSeparator();
+    QAction *findItemsAction = itemsMenu->addAction(tr("&Find Items"));
+    findItemsAction->setShortcut(tr("Ctrl+F"));
 
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(itemsMenu);
@@ -31,8 +34,9 @@ MainWindow::MainWindow()
 
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
     connect(ascendingAction, SIGNAL(triggered()), this, SLOT(sortAscending()));
-    connect(descendingAction, SIGNAL(triggered()), this, SLOT(sortDescending()));
     connect(autoSortAction, SIGNAL(triggered()), this, SLOT(updateSortItems()));
+    connect(descendingAction, SIGNAL(triggered()), this, SLOT(sortDescending()));
+    connect(findItemsAction, SIGNAL(triggered()), this, SLOT(findItems()));
     connect(insertAction, SIGNAL(triggered()), this, SLOT(insertItem()));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeItem()));
     connect(treeWidget,
@@ -74,14 +78,25 @@ void MainWindow::setupTreeItems()
     (new QTreeWidgetItem(planets))->setText(0, tr("Pluto"));
 }
 
-void MainWindow::sortAscending()
+void MainWindow::findItems()
 {
-    treeWidget->sortItems(0, Qt::AscendingOrder);
-}
+    QString itemText = QInputDialog::getText(this, tr("Insert Item"),
+        tr("Input text for the new item:"));
 
-void MainWindow::sortDescending()
-{
-    treeWidget->sortItems(0, Qt::DescendingOrder);
+    if (itemText.isEmpty())
+        return;
+
+    QTreeWidgetItem *item;
+    foreach (item, treeWidget->selectedItems())
+        treeWidget->setSelected(item, false);
+
+    QList<QTreeWidgetItem *> found = treeWidget->findItems(itemText,
+        QAbstractItemModel::MatchFromStart | QAbstractItemModel::MatchContains);
+
+    foreach (item, found) {
+        treeWidget->setSelected(item, true);
+        qDebug("Item: %s", item->text(0).ascii());
+    }
 }
 
 void MainWindow::insertItem()
@@ -114,6 +129,16 @@ void MainWindow::removeItem()
         index = treeWidget->indexOfTopLevelItem(treeWidget->currentItem());
         treeWidget->takeTopLevelItem(index);
     }
+}
+
+void MainWindow::sortAscending()
+{
+    treeWidget->sortItems(0, Qt::AscendingOrder);
+}
+
+void MainWindow::sortDescending()
+{
+    treeWidget->sortItems(0, Qt::DescendingOrder);
 }
 
 void MainWindow::updateMenus(QTreeWidgetItem *current)
