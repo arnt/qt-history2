@@ -1,0 +1,124 @@
+#!/bin/sh
+#
+# Builds the Qt library, examples and tutorial
+
+# Defaults
+
+DEBUG=no
+GIF=no
+SM=no
+ZLIB=yes
+LIBPNG=yes
+
+# Parse the arguments, setting things to "yes" or "no".
+
+for a in $* ; do
+   case $a in
+   -release)
+       DEBUG=no;;
+   -debug)
+       DEBUG=yes;;
+   -no-gif)
+       GIF=no;;
+   -gif)
+       GIF=yes;;
+   -no-sm)
+       SM=no;;
+   -sm)
+       SM=yes;;
+   -qt-zlib)
+       ZLIB=yes;;
+   -system-zlib)
+       ZLIB=no;;
+   -qt-libpng)
+       LIBPNG=yes;;
+   -system-libpng)
+       LIBPNG=no;;
+   -h | -help | --help)
+       HELP=yes;;
+   *)
+       echo ${a}: unknown argument
+       HELP=yes;
+       ERROR=yes;;
+   esac
+done
+
+
+# Next, emit a usage message if something failed.
+
+if [ "$HELP" = "yes" ]; then
+   [ "x$ERROR" = "xyes" ] && echo
+   cat <<EOF
+Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
+        [-qt-zlib] [-system-zlib] [qt-libpng] [-system-libpng] \\
+
+The defaults (*) are usually acceptable.  Here is a short explanation of
+each option:
+
+    -debug ........... Compile and link Qt with debugging turned on.
+ *  -release ......... Compile and link Qt with debugging turned off.
+
+    -gif ............. Compile in GIF support. Please see qgif.h.
+ *  -no-gif .......... Do not compile in GIF support. Please see qgif.h.
+
+    -sm .............. Support X Session Management, links in -lXSM -lICE.
+ *  -no-sm ........... Do not support X Session Management.
+
+ *  -qt-zlib ......... Use the zlib bundled with Qt.
+    -system-zlib ..... Use a zlib from the operating system
+
+ *  -qt-libpng ....... Use the libpng bundled with Qt.
+    -system-libpng ... Use a libpng from the operating system.
+
+EOF
+   [ "x$ERROR" = "xyes" ] && exit 1
+   exit 0;
+fi
+
+
+# DISABLED: If gif hasn't been set explicitly, ask.
+#while [ "x$GIF" = "x" ]; do
+#   echo 'Compile in GIF support? (yes/no) ' | tr -d '
+#'
+#    read GIF;
+#    case $GIF in
+#    y* | Y*)
+#        GIF=yes;;
+#    n* | N*)
+#        GIF=no;;
+#    *)
+#        GIF="";;
+#    esac
+#done
+
+
+# Build up the variables for output
+
+QT_CXX=""
+
+[ "x$GIF" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_BUILTIN_GIF_READER"
+[ "x$SM" = "xyes" ] && QT_CXX="${QT_CXX} -DQT_SUPPORT_SM"
+[ "x$ZLIB" = "xyes" ] && QT_CXX="${QT_CXX} -I3rdparty/zlib"
+[ "x$LIBPNG" = "xyes" ] && QT_CXX="${QT_CXX} -I3rdparty/libpng"
+
+QT_LIBS=""
+QT_PNG=""
+QT_ZLIB=""
+
+[ "x$SM" = "xyes" ] && QT_LIBS="${QT_LIBS} -lICE -lSM"
+[ "x$ZLIB" = "xyes" ] && QT_PNG=' $(PNG_OBJECTS)'
+[ "x$LIBPNG" = "xyes" ] && QT_ZLIB=' $(ZLIB_OBJECTS)'
+[ "x$ZLIB" = "xno" ] && QT_LIBS="${QT_LIBS} -zlib"
+[ "x$LIBPNG" = "xno" ] && QT_LIBS="${QT_LIBS} -lpng"
+
+
+
+# Create the .buildopts file
+
+cat > .buildopts <<EOF
+QT_CXXFLAGS_OPT =$QT_CXX
+QT_LIBS_OPT	=$QT_LIBS
+QT_PNG_OBJ      =$QT_PNG
+QT_ZLIB_OBJ	=$QT_ZLIB
+
+EOF
