@@ -54,7 +54,7 @@ class QToolBoxButton : public QButton
 {
 public:
     QToolBoxButton( QWidget *parent, const char *name )
-	: QButton( parent, name ), selected( FALSE )
+	: QButton( parent, name, WNoAutoErase ), selected( FALSE )
     {
 	setBackgroundMode(PaletteBackground);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);

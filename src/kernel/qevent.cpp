@@ -133,9 +133,10 @@
     \value DragLeave  A drag-and-drop leaves widget, \l{QDragLeaveEvent}.
     \value Drop  A drag-and-drop is completed, \l{QDropEvent}.
     \value DragResponse  Internal event used by Qt on some platforms.
-    \value ChildInserted  Object gets a child, \l{QChildEvent}.
+    \value ChildAdded  Object gets a child, \l{QChildEvent}.
+    \value ChildPolished  Object child gets polished, \l{QChildEvent}.
     \value ChildRemoved  Object loses a child, \l{QChildEvent}.
-    \value LayoutHint  Widget child has changed layout properties.
+    \value LayoutRequest  Widget layout needs to be redone.
     \value ActivateControl  Internal event used by Qt on some platforms.
     \value DeactivateControl  Internal event used by Qt on some platforms.
     \value LanguageChange  The application translation changed, \l{QTranslator}

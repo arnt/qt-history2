@@ -48,7 +48,7 @@ public:
 	setLineWidth( 1 );
 	setAlignment( AlignAuto | AlignTop );
 	setIndent(0);
-	polish();
+	ensurePolished();
 	setText(text);
 	adjustSize();
     }

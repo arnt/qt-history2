@@ -6947,13 +6947,12 @@ bool QTextEdit::optimFind( const QString & expr, bool cs, bool /*wo*/,
 }
 
 /*! \reimp */
-void QTextEdit::polish()
+void QTextEdit::polishEvent(QEvent*)
 {
     // this will ensure that the last line is visible if text have
     // been added to the widget before it is shown
     if ( d->optimMode )
 	scrollToBottom();
-    QWidget::polish();
 }
 
 /*!

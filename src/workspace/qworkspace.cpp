@@ -2222,8 +2222,7 @@ void QWorkspaceChild::adjustToFullscreen()
 
 void QWorkspaceChild::adjustSize()
 {
-    if ( !testWState(WState_Polished) )
-	polish();
+    ensurePolished();
 
     QSize prefSize = windowWidget()->sizeHint().expandedTo( windowWidget()->minimumSizeHint() );
     prefSize = prefSize.expandedTo( windowWidget()->minimumSize() ).boundedTo( windowWidget()->maximumSize() );

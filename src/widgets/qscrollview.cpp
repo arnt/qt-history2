@@ -1341,14 +1341,6 @@ void QScrollView::removeChild(QWidget* child)
 }
 
 /*!
-    \reimp
-*/
-void QScrollView::removeChild(QObject* child)
-{
-    QFrame::removeChild(child);
-}
-
-/*!
     Inserts the widget, \a child, into the scrolled area positioned at
     (\a x, \a y). The position defaults to (0, 0). If the child is
     already in the view, it is just moved.

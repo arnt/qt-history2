@@ -5559,8 +5559,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		QResizeEvent * e = new QResizeEvent( newSize, oldSize );
-		QApplication::postEvent( this, e );
+		d->hasPendingResize = true;
 	    }
 	}
 
@@ -5572,8 +5571,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		QMoveEvent * e = new QMoveEvent( newCPos, oldPos );
-		QApplication::postEvent( this, e );
+		d->hasPendingMove = true;
 	    }
 	}
     } else {

@@ -48,7 +48,7 @@ QSingleDesktopWidget::~QSingleDesktopWidget()
     QObjectList childs = children();
     for (int i = childs.size(); i > 0 ; ) {
 	--i;
-        removeChild( childs.at(i) );
+        childs.at(i)->reparent(0);
     }
 }
 
@@ -154,15 +154,7 @@ QDesktopWidget::QDesktopWidget()
     : QWidget( 0, "desktop", WType_Desktop )
 {
     d = new QDesktopWidgetPrivate();
-
-    /*
-      we don't call d->init() here, since the initial resize event
-      will end up calling init() a second time, which is inefficient.
-      instead, for the sending of all posted event to the desktop
-      widget (including the initial resize event, which calls
-      d->init()).
-    */
-    QApplication::sendPostedEvents( this, 0 );
+    d->init();
 }
 
 QDesktopWidget::~QDesktopWidget()

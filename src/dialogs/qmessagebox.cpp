@@ -884,8 +884,7 @@ void QMessageBox::buttonClicked()
 */
 void QMessageBox::adjustSize()
 {
-    if ( !testWState(WState_Polished) )
-        polish();
+    ensurePolished();
     resizeButtons();
     label->adjustSize();
     QSize labelSize( label->size() );

@@ -681,12 +681,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
     if ( isTopLevel() || !parent ) // we are toplevel, or reparenting to toplevel
         d->topData()->parentWinId = 0;
 
-    if ( parent != parentObj ) {
-	if ( parentObj )				// remove from parent
-	    parentObj->removeChild( this );
-	if ( parent )				// insert into new parent
-	    parent->insertChild( this );
-    }
+    QObject::reparent(parent);
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
@@ -1907,18 +1902,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    QApplication::sendEvent( this, &e );
 	}
     } else {
-	if ( isMove && pos() != oldPos ) {
-	    if ( ! qt_broken_wm )
-		// pos() is right according to ICCCM 4.1.5
-		QApplication::postEvent( this, new QMoveEvent( pos(), oldPos ) );
-	    else
-		// work around 4Dwm's incompliance with ICCCM 4.1.5
-		QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
-							       oldGeom.topLeft() ) );
-	}
-	if ( isResize )
-	    QApplication::postEvent( this,
-				     new QResizeEvent( size(), oldSize ) );
+	if (isMove && pos() != oldPos)
+	    d->hasPendingMove = true;
+	if (isResize)
+	    d->hasPendingResize = true;
     }
 }
 

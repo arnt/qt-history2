@@ -1167,6 +1167,7 @@ void QGridLayout::add( QLayoutItem *item, int row, int col )
 {
     QGridBox *box = new QGridBox( item );
     data->add( box, row, col );
+    invalidate();
 }
 
 /*!
@@ -1183,6 +1184,7 @@ void QGridLayout::addMultiCell( QLayoutItem *item, int fromRow, int toRow,
     QGridBox *b = new QGridBox( item );
     b->setAlignment( alignment );
     data->add( b, fromRow, toRow, fromCol, toCol );
+    invalidate();
 }
 
 /*
@@ -1481,9 +1483,8 @@ QGridLayout::Corner QGridLayout::origin() const
 */
 void QGridLayout::invalidate()
 {
-    QLayout::invalidate();
-    QLayout::setGeometry( QRect() ); // for binary compatibility (?)
     data->setDirty();
+    QLayout::invalidate();
 }
 
 /*! \reimp */
@@ -1839,8 +1840,8 @@ int QBoxLayout::minimumHeightForWidth( int w ) const
 */
 void QBoxLayout::invalidate()
 {
-    QLayout::invalidate();
     data->setDirty();
+    QLayout::invalidate();
 }
 
 /*!
@@ -2310,11 +2311,6 @@ void QBoxLayout::setDirection( Direction direction )
     }
     dir = direction;
     invalidate();
-    if ( mainWidget() ) {
-	QEvent *lh = new QEvent( QEvent::LayoutHint );
-	QApplication::postEvent( mainWidget(), lh );
-    }
-
 }
 
 /*

@@ -53,7 +53,8 @@ public:
 
     QObjectPrivate()
 	:connections(0),
-	 senders(0)
+	 senders(0),
+	 polished(0)
 	{
 #ifndef QT_NO_USERDATA
 	    userData.setAutoDelete(true);
@@ -107,6 +108,8 @@ public:
 #ifndef QT_NO_USERDATA
     QList<QObjectUserData *> userData;
 #endif
+
+    mutable const QMetaObject *polished;
 };
 
 #define d d_func()

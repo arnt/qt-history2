@@ -929,8 +929,6 @@ public:
     void clear( bool createEmptyParag = FALSE );
 
     virtual QTextParagraph *createParagraph( QTextDocument *d, QTextParagraph *pr = 0, QTextParagraph *nx = 0, bool updateIds = TRUE );
-    void insertChild( QObject *o ) { QObject::insertChild( o ); }
-    void removeChild( QObject *o ) { QObject::removeChild( o ); }
     void insertChild( QTextDocument *d ) { childList.append( d ); }
     void removeChild( QTextDocument *d ) { childList.removeRef( d ); }
     QPtrList<QTextDocument> children() const { return childList; }

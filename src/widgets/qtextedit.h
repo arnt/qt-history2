@@ -367,7 +367,7 @@ public slots:
     virtual void setTabChangesFocus( bool b );
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    void polish();
+    void polishEvent(QEvent*);
     void setMaxLogLines( int numLines );
     int maxLogLines();
 #endif

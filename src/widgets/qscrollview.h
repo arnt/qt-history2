@@ -111,8 +111,6 @@ public:
     QSize	sizeHint() const;
     QSize	minimumSizeHint() const;
 
-    void	removeChild(QObject* child);
-
     bool	isHorizontalSliderPressed();
     bool	isVerticalSliderPressed();
 

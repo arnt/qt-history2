@@ -846,7 +846,7 @@ void QMenuBar::fontChange( const QFont & f )
 */
 int QMenuBar::calculateRects( int max_width )
 {
-    polish();
+    ensurePolished();
     bool update = ( max_width < 0 );
 
     if ( update ) {

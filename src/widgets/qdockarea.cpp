@@ -662,7 +662,10 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
     QValueList<QRect> lines = layout->lineList();
     bool wasAloneInLine = FALSE;
     QPoint pos = mapFromGlobal( p );
-    QRect lr = *lines.at( lineOf( dockWindowIndex ) );
+    int line = lineOf( dockWindowIndex );
+    QRect lr;
+    if (line < lines.size())
+	lr = *lines.at( line );
     if ( dockWindowIndex != -1 ) {
 	if ( lineStarts.find( w ) != -1 &&
 	     ( dockWindowIndex < (int)dockWindows->count() - 1 && lineStarts.find( dockWindows->at( dockWindowIndex + 1 ) ) != -1 ||

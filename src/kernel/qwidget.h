@@ -349,15 +349,10 @@ public slots:
     virtual void	hide();
     void		setShown( bool show );
     void		setHidden( bool hide );
-#ifndef QT_NO_COMPAT
-    void		iconify() { showMinimized(); }
-#endif
     void showMinimized();
     void showMaximized();
     void showFullScreen();
     void showNormal();
-    virtual void	polish();
-    void 		constPolish() const;
     bool		close();
 
     void		raise();
@@ -396,16 +391,22 @@ public:
 
 public:
 #ifndef QT_NO_LAYOUT
-    QLayout *		layout() const { return lay_out; }
+    QLayout *layout() const;
 #endif
     void		updateGeometry();
-    void reparent( QWidget *parent, WFlags, const QPoint &,
-		   bool showIt=FALSE );
-    void		reparent( QWidget *parent, const QPoint &,
-				  bool showIt=FALSE );
+
+    void reparent(QWidget *parent, WFlags f);
+    void reparent(QWidget *parent);
+
 #ifndef QT_NO_COMPAT
-    void		recreate( QWidget *parent, WFlags f, const QPoint & p,
-				  bool showIt=FALSE ) { reparent(parent,f,p,showIt); }
+    void iconify() { showMinimized(); }
+    void constPolish() const { ensurePolished(); }
+    void reparent( QWidget *parent, WFlags f, const QPoint &p, bool showIt=false )
+    { reparent(parent, f); move(p); if (showIt) show(); }
+    void reparent( QWidget *parent, const QPoint &p, bool showIt=false )
+    { reparent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
+    void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
+    { reparent(parent, f, p, showIt); }
 #endif
 
     void		erase();
@@ -589,9 +590,6 @@ private:
     friend class QDragManager;
 #endif
 
-#ifndef QT_NO_LAYOUT
-    void 	 setLayout( QLayout *l );
-#endif
     void	 setWinId( WId );
     void	 showWindow();
     void	 hideWindow();
@@ -600,7 +598,7 @@ private:
     void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 deactivateWidgetCleanup();
     void	 internalSetGeometry( int, int, int, int, bool );
-    void	 internalShow(bool informParent);
+    void	 internalShow();
     void	 internalHide();
     void	 reparentFocusWidgets( QWidget * );
     void         setBackgroundFromMode();
@@ -628,9 +626,6 @@ private:
     QPalette	 pal;
 #endif
     QFont	 fnt;
-#ifndef QT_NO_LAYOUT
-    QLayout 	*lay_out;
-#endif
 #if defined(Q_WS_QWS)
     QRegion	 req_region;			// Requested region
     mutable QRegion	 paintable_region;	// Paintable region
@@ -673,7 +668,7 @@ private:
     friend class QFontInfo;
     friend class QETWidget;
     friend class QLayout;
-
+    friend class QWidgetItem;
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QWidget( const QWidget & );
@@ -852,14 +847,6 @@ inline void QWidget::setWFlags( WFlags f )
 inline void QWidget::clearWFlags( WFlags f )
 { widget_flags &= ~f; }
 
-inline void QWidget::constPolish() const
-{
-    if ( !testWState(WState_Polished) ) {
-	QWidget* that = (QWidget*) this;
-	that->polish();
-        that->setWState(WState_Polished); // be on the safe side...
-    }
-}
 #ifndef QT_NO_CURSOR
 inline bool QWidget::ownCursor() const
 {

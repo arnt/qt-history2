@@ -17,6 +17,7 @@
 #include "qevent.h"
 #include "qregexp.h"
 #include "qmetaobject.h"
+#include "qdesktopwidget.h" // used in reparent()
 
 #ifdef QT_THREAD_SUPPORT
 #include <qmutex.h>
@@ -112,12 +113,11 @@ void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 
     QObjects organize themselves in object trees. When you create a
     QObject with another object as parent, the object will
-    automatically do an insertChild() on the parent and thus show up
-    in the parent's children() list. The parent takes ownership of the
-    object i.e. it will automatically delete its children in its
-    destructor. You can look for an object by name and optionally type
-    using child() or queryList(), and get the list of tree roots using
-    objectTrees().
+    automatically add itself to the parent's children() list. The
+    parent takes ownership of the object i.e. it will automatically
+    delete its children in its destructor. You can look for an object
+    by name and optionally type using child() or queryList(), and get
+    the list of tree roots using objectTrees().
 
     Every object has an object name() and can report its className()
     and whether it inherits() another class in the QObject inheritance
@@ -249,14 +249,14 @@ QObject::QObject( QObject *parent, const char *name )
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
-    parentObj( 0 ),				// no parent yet. It is set by insertChild()
+    parentObj( 0 ),				// no parent yet. It is set by reparent()
     d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
-    if ( parent )				// add object to parent
-	parent->insertChild( this );
+    reparent(parent);
     QEvent e( QEvent::Create );
     QApplication::sendEvent( this, &e );
+    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 
@@ -270,15 +270,33 @@ QObject::QObject(QObjectPrivate *dd, QObject *parent, const char *name)
     wasDeleted( FALSE ),       			// double-delete catcher
     hasPostedEvents( FALSE ),
     objname( name ? qstrdup(name) : 0 ),        // set object name
-    parentObj( 0 ),				// no parent yet. It is set by insertChild()
+    parentObj( 0 ),				// no parent yet. It is set by reparent()
     d_ptr(dd)
 {
     d_ptr->q_ptr = this;
-    if ( parent )				// add object to parent
-	parent->insertChild( this );
+    reparent(parent);
     QEvent e( QEvent::Create );
     QApplication::sendEvent( this, &e );
+    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
+
+QObject::QObject(QWidgetPrivate *dd, QObject *parent, const char *name)
+    :
+    isSignal( FALSE ),				// assume not a signal object
+    isWidget( TRUE ), 				// assume a widget object
+    pendTimer( FALSE ),				// no timers yet
+    blockSig( FALSE ),      			// not blocking signals
+    wasDeleted( FALSE ),       			// double-delete catcher
+    hasPostedEvents( FALSE ),
+    objname( name ? qstrdup(name) : 0 ),        // set object name
+    parentObj( 0 ),				// no parent yet. It is set by reparent()
+    d_ptr((QObjectPrivate*)dd)
+{
+    d_ptr->q_ptr = this;
+    reparent(parent);
+    // no events sent here, this is done at the end of the QWidget constructor
+}
+
 
 /*!
     Destroys the object, deleting all its child objects.
@@ -329,9 +347,8 @@ QObject::~QObject()
     objname = 0;
     if ( pendTimer )				// might be pending timers
 	qKillTimer( this );
-    QApplication::removePostedEvents( this );
     if ( parentObj )				// remove it from parent object
-	parentObj->removeChild( this );
+	reparent(0);
 
     // disconnect senders
     if (d->senders) {
@@ -362,6 +379,7 @@ QObject::~QObject()
 	d->children.setAutoDelete(TRUE);
 	d->children.clear();
     }
+    QApplication::removePostedEvents( this );
 
     delete d;
 }
@@ -572,9 +590,21 @@ bool QObject::event( QEvent *e )
 	timerEvent( (QTimerEvent*)e );
 	return TRUE;
 
+    case QEvent::ChildAdded:
+    case QEvent::ChildPolished:
+#ifndef QT_NO_COMPAT
     case QEvent::ChildInserted:
+#endif
     case QEvent::ChildRemoved:
 	childEvent( (QChildEvent*)e );
+	return TRUE;
+
+    case QEvent::PolishRequest:
+	ensurePolished();
+	return TRUE;
+
+    case QEvent::Polish:
+	polishEvent(e);
 	return TRUE;
 
     case QEvent::DeferredDelete:
@@ -598,7 +628,7 @@ bool QObject::event( QEvent *e )
     QTimer provides a higher-level interface to the timer
     functionality, and also more general information about timers.
 
-    \sa startTimer(), killTimer(), killTimers(), event()
+    \sa startTimer(), killTimer(), event()
 */
 
 void QObject::timerEvent( QTimerEvent * )
@@ -610,31 +640,91 @@ void QObject::timerEvent( QTimerEvent * )
     This event handler can be reimplemented in a subclass to receive
     child events.
 
-    Child events are sent to objects when children are inserted or
-    removed.
+    \c QEvent::ChildAdded and \c QEvent::ChildRemoved events are sent
+    to objects when children are added or removed. In both cases you
+    can only rely on the child being a QObject, or if isWidgetType()
+    returns true, a QWidget (Reason: in the \c ChildAdded case the
+    child is not yet fully constructed, in the \c ChildRemoved case it
+    might have been destructed already ).
 
-    Note that events with QEvent::type() \c QEvent::ChildInserted are
-    posted (with \l{QApplication::postEvent()}) to make sure that the
-    child's construction is completed before this function is called.
+    \c QEvent::ChildPolished events are sent to objects when children
+    are polished, or polished children added. If you receive a child
+    polished event, the child's construction typically is completed.
 
-    If a child is removed immediately after it is inserted, the \c
-    ChildInserted event may be suppressed, but the \c ChildRemoved
-    event will always be sent. In such cases it is possible that there
-    will be a \c ChildRemoved event without a corresponding \c
-    ChildInserted event.
+    For every child widget you receive one \c ChildAdded event, zero
+    or more \c ChildPolished events, and one \c ChildRemoved event.
 
-    If you change state based on \c ChildInserted events, call
-    QWidget::constPolish(), or do
-    \code
-	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    \endcode
-    in functions that depend on the state. One notable example is
-    QWidget::sizeHint().
+    The polished event is omitted if a child is removed immediately
+    after it is added. In turn, if a child is polished several times
+    during construction and destruction, you may receive several child
+    polished events for the same child, each time with a different
+    virtual table.
 
     \sa event(), QChildEvent
 */
 
 void QObject::childEvent( QChildEvent * )
+{
+}
+
+/*!
+    Ensures delayed initialization of an object.
+
+    This function will be called \e after an object has been fully
+    created and \e before it is shown the very first time.
+
+    Polishing is useful for final initialization which depends on
+    having an instantiated object. This is something a constructor
+    cannot guarantee since the initialization of the subclasses might
+    not be finished.
+
+    For widgets, this function makes sure the widget has a proper font
+    and palette and QApplication::polish() has been called.
+
+    If you need to change some settings when an object is polished,
+    use polishEvent().
+
+    \sa polishEvent(), QApplication::polish()
+*/
+void QObject::ensurePolished() const
+{
+    const QMetaObject *m = metaObject();
+    if (m == d->polished)
+	return;
+    d->polished = m;
+
+    if (isWidget) {
+	QWidget *w = (QWidget*)this;
+	if ( !w->ownFont()
+	     && !QApplication::font(w).isCopyOf(QApplication::font()))
+	    w->unsetFont();
+#ifndef QT_NO_PALETTE
+	if ( !w->ownPalette()
+	     && !QApplication::palette(w).isCopyOf(QApplication::palette()))
+	    w->unsetPalette();
+#endif
+	qApp->polish(w);
+#ifndef QT_NO_COMPAT
+	QApplication::sendPostedEvents( w, QEvent::ChildInserted );
+#endif
+    }
+
+    QEvent e(QEvent::Polish);
+    QApplication::sendEvent((QObject*)this, &e);
+    if (parentObj) {
+	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
+	QApplication::sendEvent((QObject*)parentObj, &e);
+    }
+
+}
+
+/*!
+    This event handler can be reimplemented in a subclass to receive
+    object polish events.
+
+    \sa event(), ensurePolished(), QApplication::polish()
+*/
+void QObject::polishEvent(QEvent *)
 {
 }
 
@@ -753,9 +843,9 @@ bool QObject::blockSignals( bool block )
     it could not start a timer.
 
     A timer event will occur every \a interval milliseconds until
-    killTimer() or killTimers() is called. If \a interval is 0, then
-    the timer event occurs once every time there are no more window
-    system events to process.
+    killTimer() is called. If \a interval is 0, then the timer event
+    occurs once every time there are no more window system events to
+    process.
 
     The virtual timerEvent() function is called with the QTimerEvent
     event parameter class when a timer event occurs. Reimplement this
@@ -800,7 +890,7 @@ bool QObject::blockSignals( bool block )
     The QTimer class provides a high-level programming interface with
     one-shot timers and timer signals instead of events.
 
-    \sa timerEvent(), killTimer(), killTimers()
+    \sa timerEvent(), killTimer()
 */
 
 int QObject::startTimer( int interval )
@@ -815,7 +905,7 @@ int QObject::startTimer( int interval )
     The timer identifier is returned by startTimer() when a timer
     event is started.
 
-    \sa timerEvent(), startTimer(), killTimers()
+    \sa timerEvent(), startTimer()
 */
 
 void QObject::killTimer( int id )
@@ -883,7 +973,7 @@ static void objSearch( QObjectList &result,
     in the list, and a widget that is lowered becomes the first object
     in the list.
 
-    \sa child(), queryList(), parent(), insertChild(), removeChild()
+    \sa child(), queryList(), parent(), reparent()
 */
 QObjectList QObject::children() const
 {
@@ -963,62 +1053,42 @@ QObjectList QObject::queryList( const char *inheritsClass,
 
 
 /*!
-    Inserts an object \a obj into the list of child objects.
+    Makes the object a child of \a parent.
 
-    \warning This function cannot be used to make one widget the child
-    widget of another widget. Child widgets can only be created by
-    setting the parent widget in the constructor or by calling
-    QWidget::reparent().
-
-    \sa removeChild(), QWidget::reparent()
+    \sa QWidget::reparent()
 */
 
-void QObject::insertChild( QObject *obj )
+void QObject::reparent(QObject *parent)
 {
-    if ( obj->parentObj && obj->parentObj != this ) {
+    if (parent == parentObj)
+	return;
 #if defined(QT_CHECK_STATE)
-	if ( obj->parentObj != this && obj->isWidgetType() )
-	    qWarning( "QObject::insertChild: Cannot reparent a widget, "
-		     "use QWidget::reparent() instead" );
-#endif
-	obj->parentObj->removeChild( obj );
-    }
-
-    if ( obj->parentObj == this ) {
-#if defined(QT_CHECK_STATE)
-	qWarning( "QObject::insertChild: Object %s::%s already in list",
-		 obj->className(), obj->name( "unnamed" ) );
-#endif
+    if ( isWidget && parent && !parent->isWidget) {
+	qWarning("QObject::reparent: Cannot reparent a widget into an object.");
 	return;
     }
-    obj->parentObj = this;
-    d->children.append( obj );
-
-    QChildEvent *e = new QChildEvent( QEvent::ChildInserted, obj );
-    QApplication::postEvent( this, e );
-}
-
-/*!
-    Removes the child object \a obj from the list of children.
-
-    \warning This function will not remove a child widget from the
-    screen. It will only remove it from the parent widget's list of
-    children.
-
-    \sa insertChild(), QWidget::reparent()
-*/
-
-void QObject::removeChild( QObject *obj )
-{
-    if (d->children.remove(obj)) {
-	obj->parentObj = 0;
-
-	// remove events must be sent, not posted!!!
-	QChildEvent ce( QEvent::ChildRemoved, obj );
-	QApplication::sendEvent( this, &ce );
+#endif
+    if (parentObj && parentObj->d->children.remove(this)) {
+	QChildEvent e(QEvent::ChildRemoved, this);
+	QApplication::sendEvent( parentObj, &e);
+    }
+    parentObj = parent;
+    if (parentObj) {
+	if (isWidget && parentObj->isWidget && qt_cast<QDesktopWidget*>(parent))
+	    return; // QDesktop widget does not take ownership of widget children
+	parentObj->d->children.append(this);
+	const QMetaObject *polished = d->polished;
+	QChildEvent e(QEvent::ChildAdded, this);
+	QApplication::sendEvent(parentObj, &e);
+	if (polished) {
+	    QChildEvent e(QEvent::ChildPolished, this);
+	    QApplication::sendEvent(parentObj, &e);
+	}
+#ifndef QT_NO_COMPAT
+	QApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
+#endif
     }
 }
-
 
 /*!
     \fn void QObject::installEventFilter( const QObject *filterObj )

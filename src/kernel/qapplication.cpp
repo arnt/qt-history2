@@ -46,6 +46,7 @@
 #include <stdlib.h>
 
 #include "qobject_p.h"
+#include "qwidget_p.h"
 
 /*!
   \class QApplication qapplication.h
@@ -482,6 +483,7 @@ struct QPostEvent {
     QEvent   *event;
 };
 typedef QVector<QPostEvent> QPostEventList;
+static uint postEventCounter = 0;
 
 static QPostEventList postedEvents;	// list of posted events
 
@@ -1915,6 +1917,7 @@ void QApplication::polish( QWidget *w )
 #ifndef QT_NO_STYLE
     w->style().polish( w );
 #endif
+    w->setWState(WState_Polished);
 }
 
 
@@ -2232,6 +2235,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	return FALSE;
     }
 
+#ifndef QT_NO_COMPAT
     if ( e->type() == QEvent::ChildRemoved && receiver->hasPostedEvents ) {
 
 #ifdef QT_THREAD_SUPPORT
@@ -2264,6 +2268,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    receiver->hasPostedEvents = postEventsRemaining;
 	}
     }
+#endif // QT_NO_COMPAT
 
     bool res = FALSE;
     if ( !receiver->isWidgetType() )
@@ -2975,8 +2980,6 @@ QString QApplication::translate( const char * context, const char * sourceText,
   QApplication management of posted events
  *****************************************************************************/
 
-//see also notify(), which does the removal of ChildInserted when ChildRemoved.
-
 /*!
   Adds the event \a event with the object \a receiver as the receiver of the
   event, to an event queue and returns immediately.
@@ -3010,11 +3013,14 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 
     // if this is one of the compressible events, do compression
     if (receiver->hasPostedEvents
-	&& (event->type() == QEvent::Paint ||
-	    event->type() == QEvent::LayoutHint ||
-	    event->type() == QEvent::Resize ||
-	    event->type() == QEvent::Move ||
-	    event->type() == QEvent::LanguageChange) ) {
+	&& (event->type() == QEvent::Paint
+#ifndef QT_NO_COMPAT
+	    || event->type() == QEvent::LayoutHint
+#endif
+	    || event->type() == QEvent::LayoutRequest
+	    || event->type() == QEvent::Resize
+	    || event->type() == QEvent::Move
+	    || event->type() == QEvent::LanguageChange) ) {
 	for (int i = 0; i < postedEvents.size(); ++i) {
 	    const QPostEvent &cur = postedEvents.at(i);
 	    if (cur.receiver != receiver || cur.event == 0 || cur.event->type() != event->type() )
@@ -3025,7 +3031,11 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 		    continue;
 		p->reg = p->reg.unite( ((QPaintEvent *)event)->reg );
 		p->rec = p->rec.unite( ((QPaintEvent *)event)->rec );
-	    } else if ( cur.event->type() == QEvent::LayoutHint ) {
+	    } else if ( cur.event->type() == QEvent::LayoutRequest
+#ifndef QT_NO_COMPAT
+			|| cur.event->type() == QEvent::LayoutHint
+#endif
+		) {
 		;
 	    } else if ( cur.event->type() == QEvent::Resize ) {
 		((QResizeEvent *)(cur.event))->s = ((QResizeEvent *)event)->s;
@@ -3044,6 +3054,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
     event->posted = TRUE;
     receiver->hasPostedEvents = true;
     postedEvents.append( QPostEvent( receiver, event ) );
+    ++postEventCounter;
 
     if (eventloop)
 	eventloop->wakeUp();
@@ -3075,10 +3086,13 @@ void QApplication::sendPostedEvents()
 
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
+    static int skipSafely = 0;
+#ifndef QT_NO_COMPAT
     // Make sure the object hierarchy is stable before processing events
     // to avoid endless loops
     if ( receiver == 0 && event_type == 0 )
 	sendPostedEvents( 0, QEvent::ChildInserted );
+#endif
 
     if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
 	return;
@@ -3087,63 +3101,74 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     QMutexLocker locker( postevent_mutex );
 #endif
 
-    bool sent = TRUE;
-    while ( sent ) {
-	sent = FALSE;
+    // okay. here is the tricky loop. be careful about optimizing
+    // this, it looks the way it does for good reasons.
+    int i = skipSafely;
+    while (i < postedEvents.size()) {
+	const QPostEvent &pe = postedEvents.at(i);
+	++i;
 
-	if ( !postedEvents || ( receiver && !receiver->hasPostedEvents ) )
-	    return;
-
-	// okay. here is the tricky loop. be careful about optimizing
-	// this, it looks the way it does for good reasons.
-	for (int i = 0; i < postedEvents.size(); ++i) {
-	    const QPostEvent &pe = postedEvents.at(i);
-	    if ( pe.event // hasn't been sent yet
-		 && ( receiver == 0 // we send to all receivers
-		      || receiver == pe.receiver ) // we send to THAT receiver
-		 && ( event_type == 0 // we send all types
-		      || event_type == pe.event->type() ) ) { // we send THAT type
-		// first, we diddle the event so that we can deliver
-		// it, and that noone will try to touch it later.
-		pe.event->posted = FALSE;
-		QEvent * e = pe.event;
-		QObject * r = pe.receiver;
-		if (!event_type)
-		    r->hasPostedEvents = false;
-
-		// next, update the data structure so that we're ready
-		// for the next event.
-		const_cast<QPostEvent &>(pe).event = 0;
-		const_cast<QPostEvent &>(pe).receiver = 0;
-
-#ifdef QT_THREAD_SUPPORT
-		if ( locker.mutex() ) locker.mutex()->unlock();
-#endif // QT_THREAD_SUPPORT
-		// after all that work, it's time to deliver the event.
-		if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
-		    QWidget * w = (QWidget*)r;
-		    QPaintEvent * p = (QPaintEvent*)e;
-		    if ( w->isVisible() )
-			w->repaint( p->reg, p->erase );
-		} else {
-		    sent = TRUE;
-		    QApplication::sendEvent( r, e );
-		}
-#ifdef QT_THREAD_SUPPORT
-		if ( locker.mutex() ) locker.mutex()->lock();
-#endif // QT_THREAD_SUPPORT
-
-		delete e;
-		// careful when adding anything below this point - the
-		// sendEvent() call might invalidate any invariants this
-		// function depends on.
-	    }
-	}
-
-	// clear the global list, i.e. remove everything that was
-	// delivered.
+	// optimize for recursive calls. In the no-receiver
+	// no-event-type case we know that we process all events.
 	if (!receiver && !event_type)
+	    skipSafely = i;
+
+	if ( pe.event // hasn't been sent yet
+	     && ( receiver == 0 // we send to all receivers
+		  || receiver == pe.receiver ) // we send to THAT receiver
+	     && ( event_type == 0 // we send all types
+		  || event_type == pe.event->type() ) ) { // we send THAT type
+	    // first, we diddle the event so that we can deliver
+	    // it, and that noone will try to touch it later.
+	    pe.event->posted = FALSE;
+	    QEvent * e = pe.event;
+	    QObject * r = pe.receiver;
+
+	    // next, update the data structure so that we're ready
+	    // for the next event.
+	    const_cast<QPostEvent &>(pe).event = 0;
+
+	    // remember postEventCounter, so we know when events get
+	    // posted or removed.
+	    uint backup = postEventCounter;
+#ifdef QT_THREAD_SUPPORT
+	    if ( locker.mutex() ) locker.mutex()->unlock();
+#endif // QT_THREAD_SUPPORT
+	    // after all that work, it's time to deliver the event.
+	    if ( e->type() == QEvent::Paint && r->isWidgetType() ) {
+		QWidget * w = (QWidget*)r;
+		QPaintEvent * p = (QPaintEvent*)e;
+		if ( w->isVisible() )
+		    w->repaint( p->reg, p->erase );
+	    } else {
+		QApplication::sendEvent( r, e );
+	    }
+#ifdef QT_THREAD_SUPPORT
+	    if ( locker.mutex() ) locker.mutex()->lock();
+#endif // QT_THREAD_SUPPORT
+	    if (backup != postEventCounter) // events got posted or removed ...
+		i = skipSafely = 0; // ... so start all over again.
+
+	    delete e;
+	    // careful when adding anything below this point - the
+	    // sendEvent() call might invalidate any invariants this
+	    // function depends on.
+	}
+    }
+
+    // clear the global list, i.e. remove everything that was
+    // delivered and update the hasPostedEvents cache.
+    if (!event_type) {
+	if (!receiver) {
+	    for (i = 0; i < postedEvents.size(); ++i)
+		if ((receiver = postedEvents.at(i).receiver))
+		    receiver->hasPostedEvents = false;
 	    postedEvents.clear();
+	    postEventCounter = 0;
+	    skipSafely = 0;
+	} else {
+	    receiver->hasPostedEvents = false;
+	}
     }
 }
 
@@ -3172,7 +3197,7 @@ void QApplication::removePostedEvents( QObject *receiver )
     // and when we get here, we may not have any more posted events
     // for this object.
     if ( !receiver->hasPostedEvents )
-	return;
+ 	return;
 
     // iterate over the object-specifc list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
@@ -3180,10 +3205,12 @@ void QApplication::removePostedEvents( QObject *receiver )
     receiver->hasPostedEvents = false;
     for (int i = 0; i < postedEvents.size(); ++i) {
 	const QPostEvent &pe = postedEvents.at(i);
-	if ( pe.receiver == receiver ) {
-	    pe.event->posted = false;
-	    delete pe.event;
-	    const_cast<QPostEvent &>(pe).event = 0;
+	if (pe.receiver == receiver) {
+	    if (pe.event) {
+		pe.event->posted = false;
+		delete pe.event;
+		const_cast<QPostEvent &>(pe).event = 0;
+	    }
 	    const_cast<QPostEvent &>(pe).receiver = 0;
 	}
     }
@@ -3295,7 +3322,6 @@ void QApplication::removePostedEvent( QEvent * event )
 	    pe.event->posted = false;
 	    delete pe.event;
 	    const_cast<QPostEvent &>(pe).event = 0;
-	    const_cast<QPostEvent &>(pe).receiver = 0;
 	    return;
 	}
     }

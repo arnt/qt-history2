@@ -51,7 +51,6 @@ QWidgetPrivate::~QWidgetPrivate()
 	deleteExtra();
 }
 
-
 /*!
     \class QWidget qwidget.h
     \brief The QWidget class is the base class of all user interface objects.
@@ -244,7 +243,6 @@ QWidgetPrivate::~QWidgetPrivate()
 	parentWidget(),
 	topLevelWidget(),
 	reparent(),
-	polish(),
 	winId(),
 	find(),
 	metric().
@@ -448,6 +446,8 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     return naturalpalette;
 }
 #endif
+
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -474,8 +474,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \i WState_ConfigPending A configuration (resize/move) event is pending.
   \i WState_Resized The widget has been resized.
   \i WState_AutoMask The widget has an automatic mask, see setAutoMask().
-  \i WState_Polished The widget has been "polished" (i.e. late
-  initialization) by a QStyle.
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
   \i WState_Exposed the widget was finally exposed (X11 only,
       helps avoid paint event doubling).
@@ -673,7 +671,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_ConfigPending
     \value WState_Resized
     \value WState_AutoMask
-    \value WState_Polished
     \value WState_DND
     \value WState_Reserved0
     \value WState_Reserved1
@@ -744,9 +741,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     in_show = 0;
     in_show_maximized = 0;
     im_enabled = FALSE;
-#ifndef QT_NO_LAYOUT
-    lay_out = 0;
-#endif
 #ifndef QT_NO_PALETTE
     bg_col = pal.active().background();		// default background color
 #endif
@@ -762,11 +756,6 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
-    // make sure move/resize events are sent to all widgets
-    QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
-						   crect.topLeft() ) );
-    QApplication::postEvent( this, new QResizeEvent(crect.size(),
-						    crect.size()) );
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -793,6 +782,11 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
+
+    // send and post remaining QObject events
+    QEvent e( QEvent::Create );
+    QApplication::sendEvent( this, &e );
+    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
 }
 
 /*! \internal
@@ -824,9 +818,6 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     in_show = 0;
     in_show_maximized = 0;
     im_enabled = FALSE;
-#ifndef QT_NO_LAYOUT
-    lay_out = 0;
-#endif
 #ifndef QT_NO_PALETTE
     bg_col = pal.active().background();		// default background color
 #endif
@@ -842,11 +833,6 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 
     if ( !isDesktop() )
 	setBackgroundFromMode(); //### parts of this are done in create but not all (see reparent(...) )
-    // make sure move/resize events are sent to all widgets
-    QApplication::postEvent( this, new QMoveEvent( crect.topLeft(),
-						   crect.topLeft() ) );
-    QApplication::postEvent( this, new QResizeEvent(crect.size(),
-						    crect.size()) );
     if ( isTopLevel() ) {
 	setWState(WState_Hidden);
 	d->createTLExtra();
@@ -873,6 +859,12 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 
     if ( ++instanceCounter > maxInstances )
     	maxInstances = instanceCounter;
+
+    // send and post remaining QObject events
+    QEvent e( QEvent::Create );
+    QApplication::sendEvent( this, &e );
+    QApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+
 }
 
 
@@ -889,6 +881,9 @@ QWidget::~QWidget()
     if ( paintingActive() )
 	qWarning( "%s (%s): deleted while being painted", className(), name() );
 #endif
+
+    // delete layout while we still are a valid widget
+    delete d->layout;
 
     // Remove myself focus list
     // ### Focus: maybe remove children aswell?
@@ -1161,7 +1156,7 @@ void QWidget::setStyle( QStyle *style )
     d->createExtra();
     d->extra->style = style;
     if ( !testWFlags(WType_Desktop) // (except desktop)
-	 && testWState(WState_Polished)) { // (and have been polished)
+	 && d->polished) { // (and have been polished)
 	old.unPolish( this );
 	QWidget::style().polish( this );
     }
@@ -3509,7 +3504,7 @@ static inline QSize qt_initial_size(QWidget *w) {
     You almost never have to reimplement this function. If you need to
     change some settings before a widget is shown, use showEvent()
     instead. If you need to do some delayed initialization use
-    polish().
+    polishEvent().
 
     \sa showEvent(), hide(), showMinimized(), showMaximized(),
     showNormal(), isVisible(), polish()
@@ -3521,18 +3516,20 @@ void QWidget::show()
 	return;
 
     // polish if necessary
-    if ( !testWState(WState_Polished) )
-	polish();
+    ensurePolished();
 
     // remember that show was called explicitly
     setWState(WState_ExplicitShowHide);
     // whether we need to inform the parent widget immediately
-    bool informParent = !isTopLevel() && testWState(WState_Hidden);
+    bool needUpdateGeometry = !isTopLevel() && testWState(WState_Hidden);
     // we are no longer hidden
     clearWState(WState_Hidden);
 
+    if (needUpdateGeometry)
+	updateGeometry();
+
     if ( isTopLevel() || parentWidget()->isVisible() )
-	internalShow(informParent);
+	internalShow();
 
     QEvent showToParentEvent( QEvent::ShowToParent );
     QApplication::sendEvent( this, &showToParentEvent );
@@ -3543,13 +3540,48 @@ void QWidget::show()
    Makes the widget visible in the isVisible() meaning of the word.
    It is only called for toplevels or widgets with visible parents.
  */
-void QWidget::internalShow(bool informParent)
+void QWidget::internalShow()
 {
     in_show = true; // qws optimization
 
-    // deliver a bunch of outstanding postevents
+    // polish if necessary
+    ensurePolished();
+
+#ifndef QT_NO_COMPAT
     QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    QApplication::sendPostedEvents(this, QEvent::LayoutHint);
+#endif
+
+    if (!isTopLevel() && parentWidget()->d->layout)
+	parentWidget()->d->layout->activate();
+
+    // activate our layout before we and our children become visible
+    if (d->layout)
+	d->layout->activate();
+
+    // make sure we receive pending move and resize events
+    if (d->hasPendingMove) {
+	QMoveEvent e(crect.topLeft(), crect.topLeft());
+	QApplication::sendEvent(this, &e);
+	d->hasPendingMove = false;
+    }
+    if (d->hasPendingResize) {
+	QResizeEvent e(crect.size(), crect.size());
+	QApplication::sendEvent(this, &e);
+	d->hasPendingResize = false;
+    }
+
+    // become visible before showing all children
+    setWState(WState_Visible);
+
+    // finally show all children recursively
+    showChildren(false);
+
+#ifndef QT_NO_COMPAT
+    if ( parentWidget() )
+	QApplication::sendPostedEvents( parentWidget(),
+					QEvent::ChildInserted );
+#endif
+
     if ( isTopLevel() && !testWState( WState_Resized ) )  {
 #ifndef Q_OS_TEMP
 	// toplevels with layout may need a initial size
@@ -3557,23 +3589,11 @@ void QWidget::internalShow(bool informParent)
 	// do this before sending the posted resize events. Otherwise
 	// the layout would catch the resize event and may expand the
 	// minimum size.
+	qDebug("show internal, give %s initial size = %d/%d", className(), s.width(), s.height());
 	if (!s.isEmpty())
 	    resize(s);
 #endif // Q_OS_TEMP
-    } else if (informParent) {
-	// allow our parent to monitor show events
-	QApplication::sendPostedEvents( parentWidget(), QEvent::ChildInserted );
-	// relayout before we receive our move and resize events.
-	QApplication::sendPostedEvents( parentWidget(), QEvent::LayoutHint );
     }
-    QApplication::sendPostedEvents( this, QEvent::Move );
-    QApplication::sendPostedEvents( this, QEvent::Resize );
-
-    // become visible before showing all children
-    setWState(WState_Visible);
-
-    // finally show all children recursively
-    showChildren(false);
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
@@ -3597,6 +3617,32 @@ void QWidget::internalShow(bool informParent)
     // send the show event before showing the window
     QShowEvent showEvent;
     QApplication::sendEvent( this, &showEvent );
+
+
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    // make sure toplevels have an icon
+    if ( isTopLevel() ) {
+	const QPixmap *pm = icon();
+	if ( !pm || pm->isNull() ) {
+	    QWidget *mw = (QWidget *)parent();
+	    pm = mw ? mw->icon() : 0;
+	    if ( pm && !pm->isNull() )
+		setIcon( *pm );
+	    else {
+		mw = mw ? mw->topLevelWidget() : 0;
+		pm = mw ? mw->icon() : 0;
+		if ( pm && !pm->isNull() )
+		    setIcon( *pm );
+		else {
+		    mw = qApp ? qApp->mainWidget() : 0;
+		    pm = mw ? mw->icon() : 0;
+		    if ( pm && !pm->isNull() )
+			setIcon( *pm );
+		}
+	    }
+	}
+    }
+#endif
 
     if ( testWFlags(WShowModal) )
 	// qt_enter_modal *before* show, otherwise the initial
@@ -3681,11 +3727,13 @@ void QWidget::internalHide()
 	QAccessible::updateAccessibility( this, 0, QAccessible::ObjectHide );
 #endif
 
-    // post layout hint for non toplevels. The parent widget check is
-    // necessary since the function is called in the destructor
-    if ( !isTopLevel() && parentWidget() )
-	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint) );
+    // invalidate layout similar to updateGeometry()
+    if (!isTopLevel() && parentWidget() && parentWidget()->d->layout) {
+	parentWidget()->d->layout->update();
+	if (wasVisible)
+	    QApplication::postEvent(parentWidget(),
+				    new QEvent( QEvent::LayoutRequest));
+    }
 }
 
 void QWidget::setShown( bool show )
@@ -3719,7 +3767,7 @@ void QWidget::showChildren(bool spontaneous)
 	    QApplication::sendSpontaneousEvent(widget, &e);
 	} else {
 	    if (widget->testWState(WState_ExplicitShowHide))
-		widget->internalShow(false);
+		widget->internalShow();
 	    else
 		widget->show();
 	}
@@ -3745,84 +3793,6 @@ void QWidget::hideChildren(bool spontaneous)
 	    QApplication::sendEvent(widget, &e);
     }
 }
-
-
-/*!
-    Delayed initialization of a widget.
-
-    This function will be called \e after a widget has been fully
-    created and \e before it is shown the very first time.
-
-    Polishing is useful for final initialization which depends on
-    having an instantiated widget. This is something a constructor
-    cannot guarantee since the initialization of the subclasses might
-    not be finished.
-
-    After this function, the widget has a proper font and palette and
-    QApplication::polish() has been called.
-
-    Remember to call QWidget's implementation first when reimplementing this
-    function to ensure that your program does not end up in infinite recursion.
-
-    \sa constPolish(), QApplication::polish()
-*/
-
-void QWidget::polish()
-{
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    if ( isTopLevel() ) {
-	const QPixmap *pm = icon();
-	if ( !pm || pm->isNull() ) {
-	    QWidget *mw = (QWidget *)parent();
-	    pm = mw ? mw->icon() : 0;
-	    if ( pm && !pm->isNull() )
-		setIcon( *pm );
-	    else {
-		mw = mw ? mw->topLevelWidget() : 0;
-		pm = mw ? mw->icon() : 0;
-		if ( pm && !pm->isNull() )
-		    setIcon( *pm );
-		else {
-		    mw = qApp ? qApp->mainWidget() : 0;
-		    pm = mw ? mw->icon() : 0;
-		    if ( pm && !pm->isNull() )
-			setIcon( *pm );
-		}
-	    }
-	}
-    }
-#endif
-    if ( !testWState(WState_Polished) ) {
-	if ( ! own_font &&
-	     ! QApplication::font( this ).isCopyOf( QApplication::font() ) )
-	    unsetFont();
-#ifndef QT_NO_PALETTE
-	if ( ! own_palette &&
-	     ! QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
-	    unsetPalette();
-#endif
-	setWState(WState_Polished);
-	qApp->polish( this );
-	QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    }
-}
-
-
-/*!
-    \fn void QWidget::constPolish() const
-
-    Ensures that the widget is properly initialized by calling
-    polish().
-
-    Call constPolish() from functions like sizeHint() that depends on
-    the widget being initialized, and that may be called before
-    show().
-
-    \warning Do not call constPolish() on a widget from inside that
-    widget's constructor.
-
-    \sa polish()
-*/
 
 /*!
     \overload
@@ -4061,10 +4031,7 @@ QRegion QWidget::clipRegion() const
 
 void QWidget::adjustSize()
 {
-    QApplication::sendPostedEvents( 0, QEvent::ChildInserted );
-    QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
-    if ( !testWState(WState_Polished) )
-	polish();
+    ensurePolished();
     QSize s = sizeHint();
     if ( s.isValid() ) {
 	resize( s );
@@ -4095,8 +4062,8 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( layout() )
-	return layout()->totalSizeHint();
+    if ( d->layout )
+	return d->layout->totalSizeHint();
 #endif
     return QSize( -1, -1 );
 }
@@ -4121,8 +4088,8 @@ QSize QWidget::sizeHint() const
 QSize QWidget::minimumSizeHint() const
 {
 #ifndef QT_NO_LAYOUT
-    if ( layout() )
-	return layout()->totalMinimumSize();
+    if ( d->layout )
+	return d->layout->totalMinimumSize();
 #endif
     return QSize( -1, -1 );
 }
@@ -4441,11 +4408,11 @@ bool QWidget::event( QEvent *e )
 
 #ifndef QT_NO_LAYOUT
 	case QEvent::LayoutDirectionChange:
-	    if ( layout() ) {
-		QHBoxLayout *hbox = ::qt_cast<QHBoxLayout*>(layout());
+	    if ( d->layout ) {
+		QHBoxLayout *hbox = ::qt_cast<QHBoxLayout*>(d->layout);
 		if ( hbox )
 		    hbox->setDirection( qApp->reverseLayout() ? QBoxLayout::RightToLeft : QBoxLayout::LeftToRight );
-		layout()->activate();
+		d->layout->activate();
 	    } else {
 		QObjectList llist = queryList( "QLayout", 0, TRUE, TRUE );
 		for (int i = 0; i < llist.size(); ++i) {
@@ -5256,8 +5223,6 @@ QPoint QWidget::backgroundOffset() const
 }
 
 /*!
-    \fn QLayout* QWidget::layout () const
-
     Returns the layout engine that manages the geometry of this
     widget's children.
 
@@ -5265,22 +5230,12 @@ QPoint QWidget::backgroundOffset() const
 
     \sa  sizePolicy()
 */
-
-
-/*  Sets this widget to use layout \a l to manage the geometry of its
-  children.
-
-  If the widget already had a layout, the old layout is
-  forgotten. (Note that it is not deleted.)
-
-  \sa layout() QLayout sizePolicy()
-*/
-#ifndef QT_NO_LAYOUT
-void QWidget::setLayout( QLayout *l )
+QLayout* QWidget::layout() const
 {
-    lay_out = l;
+    return d->layout;
 }
-#endif
+
+
 
 /*!
     \property QWidget::sizePolicy
@@ -5409,7 +5364,6 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
     return childAt( p.x(), p.y(), includeThis );
 }
 
-
 /*!
     Notifies the layout system that this widget has changed and may
     need to change geometry.
@@ -5422,19 +5376,15 @@ QWidget  *QWidget::childAt( const QPoint & p, bool includeThis ) const
 
 void QWidget::updateGeometry()
 {
-    if ( !isTopLevel() && isShown() )
-	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint ) );
+    if (!isTopLevel() && isShown() && parentWidget() && parentWidget()->d->layout)
+	parentWidget()->d->layout->update();
 }
 
 
 /*!
     Reparents the widget. The widget gets a new \a parent, new widget
-    flags (\a f, but as usual, use 0) at a new position in its new
-    parent (\a p).
-
-    If \a showIt is TRUE, show() is called once the widget has been
-    reparented.
+    flags (\a f, but as usual, use 0) and is moved to position (0,0)
+    in its new parent.
 
     If the new parent widget is in a different top-level widget, the
     reparented widget and its children are appended to the end of the
@@ -5455,14 +5405,13 @@ void QWidget::updateGeometry()
     \sa getWFlags()
 */
 
-void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
-			bool showIt )
+void QWidget::reparent(QWidget *parent, WFlags f)
 {
     bool sameFont = parent && font() == parent->font();
 #ifndef QT_NO_PALETTE
     bool samePalette = parent && palette() == parent->palette();
 #endif
-    reparentSys( parent, f, p, showIt );
+    reparentSys( parent, f, QPoint(0,0), false);
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
     if ( ! own_font && ! sameFont )
@@ -5481,15 +5430,12 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     A convenience version of reparent that does not take widget flags
     as argument.
 
-    Calls reparent(\a parent, getWFlags() \& ~\l WType_Mask, \a p, \a
-    showIt).
+    Calls reparent(\a parent, getWFlags() \& ~\l WType_Mask).
 */
-void  QWidget::reparent( QWidget *parent, const QPoint & p,
-			 bool showIt )
+void QWidget::reparent( QWidget *parent)
 {
-    reparent( parent, getWFlags() & ~WType_Mask, p, showIt );
+    reparent( parent, getWFlags() & ~WType_Mask);
 }
-
 
 
 /*!
@@ -5652,12 +5598,3 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 /*! void QWidget::setBackgroundPixmap( const QPixmap &pm )
   \obsolete  Use setPaletteBackgroundPixmap() or setErasePixmap() instead.
 */
-
-
-// documentation in qdesktopwidget_win.cpp
-void QDesktopWidget::insertChild( QObject *obj )
-{
-    if ( obj->isWidgetType() )
-	return;
-    QWidget::insertChild( obj );
-}

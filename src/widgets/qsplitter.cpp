@@ -1084,7 +1084,7 @@ void QSplitter::recalcId()
 */
 QSize QSplitter::sizeHint() const
 {
-    constPolish();
+    ensurePolished();
     int l = 0;
     int t = 0;
     QObjectList childs = children();
@@ -1108,7 +1108,7 @@ QSize QSplitter::sizeHint() const
 
 QSize QSplitter::minimumSizeHint() const
 {
-    constPolish();
+    ensurePolished();
     int l = 0;
     int t = 0;
     QObjectList childs = children();
@@ -1181,8 +1181,7 @@ void QSplitter::addContribution( int id, int *min, int *max,
 
 QList<int> QSplitter::sizes() const
 {
-    if ( !testWState(WState_Polished) )
-	constPolish();
+    ensurePolished();
 
     QList<int> list;
     QSplitterLayoutStruct *s = d->list.first();

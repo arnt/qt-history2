@@ -447,12 +447,7 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	old_winid = 0;
     setWinId( 0 );
 
-    if ( parent != parentObj ) {
-	if ( parentObj )				// remove from parent
-	    parentObj->removeChild( this );
-	if ( parent )					// insert into new parent
-	    parent->insertChild( this );
-    }
+    QObject::reparent(parent);
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
@@ -874,11 +869,11 @@ void QWidget::showWindow()
 	    sm = SW_HIDE;
 #else
 	    sm = SW_SHOWMINIMIZED;
-#endif 
+#endif
 	    break;
 	case 2:
 	    sm = SW_SHOWMAXIMIZED;
-	    break;	
+	    break;
 	default:
 	    sm = SW_SHOW;
 	    break;
@@ -1008,9 +1003,9 @@ void QWidget::showNormal()
 #else
 	if ( d->topData()->normalGeometry.width() > 0 ) {
 	    int val = d->topData()->savedFlags;
-	    int style = WS_OVERLAPPED, 
+	    int style = WS_OVERLAPPED,
 		exsty = 0;
-	    
+
 	    style |= (val & WStyle_DialogBorder ? WS_POPUP : 0);
 	    style |= (val & WStyle_Title	? WS_CAPTION : 0);
 	    style |= (val & WStyle_SysMenu	? WS_SYSMENU : 0);
@@ -1144,12 +1139,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		repaint( visibleRect(), !testWFlags(WResizeNoErase) );
 	}
     } else {
-	if ( isMove && pos() != oldPos )
-	    QApplication::postEvent( this,
-	    new QMoveEvent( pos(), oldPos ) );
-	if ( isResize )
-	    QApplication::postEvent( this,
-	    new QResizeEvent( size(), oldSize ) );
+	if (isMove && pos() != oldPos)
+	    d->hasPendingMove = true;
+	if (isResize)
+	    d->hasPendingResize = true;
     }
 }
 

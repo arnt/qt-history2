@@ -162,7 +162,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	memset(&sip, 0, sizeof(SIPINFO));
 	sip.cbSize = sizeof(SIPINFO);
 	if ( SipGetInfo( &sip ) )
-	    qr = QRect( QPoint( sip.rcVisibleDesktop.left, sip.rcVisibleDesktop.top ), 
+	    qr = QRect( QPoint( sip.rcVisibleDesktop.left, sip.rcVisibleDesktop.top ),
 			QPoint( sip.rcVisibleDesktop.right - 1, sip.rcVisibleDesktop.bottom - 1 ) );
 
 	workrects->resize( screenCount );
@@ -475,10 +475,6 @@ void QDesktopWidget::resizeEvent( QResizeEvent * )
     }
 #endif
 }
-
-/*! \fn void QDesktopWidget::insertChild( QObject *child )
-    \reimp
-*/
 
 /*! \fn void QDesktopWidget::resized( int screen )
     This signal is emitted when the size of \a screen changes.

@@ -91,7 +91,7 @@ bool qt_mac_update_sizer(QWidget *w, int up=0)
     w->d->createTLExtra();
     w->d->topData()->resizer += up;
     if(w->d->topData()->resizer ||
-       (w->d->extraData()->maxw && w->d->extraData()->maxh && w->d->extraData()->maxw == w->d->extraData()->minw && 
+       (w->d->extraData()->maxw && w->d->extraData()->maxh && w->d->extraData()->maxw == w->d->extraData()->minw &&
 	w->d->extraData()->maxh == w->d->extraData()->minh))
 	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
     else
@@ -373,7 +373,7 @@ bool qt_window_rgn(WId id, short wcode, RgnHandle rgn, bool force = FALSE)
 		    y = px.v;
 		}
 
-		QWExtra *extra = widget->d->extraData();		
+		QWExtra *extra = widget->d->extraData();
 		if(extra && !extra->mask.isEmpty()) {
 		    QRegion rpm = extra->mask;
 		    rpm.translate(x, y);
@@ -1015,10 +1015,7 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     reparentFocusWidgets(parent);		// fix focus chains
 
     setWinId(0);
-    if(parentObj) // remove from parent
-	parentObj->removeChild(this);
-    if(parent) // insert into new parent
-	parent->insertChild(this);
+    QObject::reparent(parent);
     bool     dropable = acceptDrops();
     bool     enable = isEnabled();
     bool     owned = own_id;
@@ -1747,10 +1744,10 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 
     if(isMove || isResize) {
 	if(!visible) {
-	    if(isResize)
-		QApplication::postEvent(this, new QResizeEvent(size(), olds));
-	    if(isMove && oldp != pos())
-		QApplication::postEvent(this, new QMoveEvent(pos(), oldp));
+	    if (isMove && pos() != oldp)
+		d->hasPendingMove = true;
+	    if (isResize)
+		d->hasPendingResize = true;
 	} else {
 	    QRegion bltregion, clpreg = clippedRegion(FALSE);
 	    const bool oldreg_empty=oldregion.isEmpty(), newreg_empty = clpreg.isEmpty();

@@ -3663,6 +3663,7 @@ void QListView::resizeEvent( QResizeEvent *e )
     QScrollView::resizeEvent( e );
     d->fullRepaintOnComlumnChange = TRUE;
     d->h->resize( visibleWidth(), d->h->height() );
+    d->h->adjustHeaderSize();
 }
 
 /*! \reimp */
@@ -4713,7 +4714,7 @@ void QListView::focusInEvent( QFocusEvent* )
 	viewport()->repaint( FALSE );
 	d->useDoubleBuffer = db;
     }
-    
+
     QRect mfrect = itemRect( d->focusItem );
     if ( mfrect.isValid() ) {
 	if ( header() && header()->isVisible() )
@@ -4733,8 +4734,8 @@ void QListView::focusOutEvent( QFocusEvent* )
     if ( QFocusEvent::reason() == QFocusEvent::Popup && d->buttonDown )
 	d->buttonDown = FALSE;
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	d->inMenuMode = 
-	    QFocusEvent::reason() == QFocusEvent::Popup 
+	d->inMenuMode =
+	    QFocusEvent::reason() == QFocusEvent::Popup
 	    || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
 	if ( !d->inMenuMode ) {
 	    bool db = d->useDoubleBuffer;

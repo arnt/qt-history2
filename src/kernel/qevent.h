@@ -431,7 +431,11 @@ public:
     QChildEvent( Type type, QObject *child )
 	: QEvent(type), c(child) {}
     QObject *child() const	{ return c; }
+    bool added() const { return type() == ChildAdded; }
+#ifndef QT_NO_COMPAT
     bool inserted() const { return type() == ChildInserted; }
+#endif
+    bool polished() const { return type() == ChildPolished; }
     bool removed() const { return type() == ChildRemoved; }
 protected:
     QObject *c;

@@ -136,7 +136,13 @@ struct QWidgetPrivate : public QObjectPrivate
     Q_DECL_PUBLIC( QWidget );
 
 public:
-    QWidgetPrivate() : QObjectPrivate(), extra(0), focus_child(0) {}
+    QWidgetPrivate() :
+	QObjectPrivate(), extra(0), focus_child(0),
+#ifndef QT_NO_LAYOUT
+	layout(0),
+#endif
+	hasPendingMove(1), hasPendingResize(1)
+	{}
     ~QWidgetPrivate();
 
     QWExtra	*extraData() const;
@@ -161,6 +167,13 @@ public:
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
+
+#ifndef QT_NO_LAYOUT
+    QLayout *layout;
+#endif
+
+    uint hasPendingMove : 1; // will be attribute
+    uint hasPendingResize :1; // will be attribute
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const

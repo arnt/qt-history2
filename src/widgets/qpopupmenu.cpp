@@ -977,7 +977,7 @@ QRect QPopupMenu::itemGeometry( int index )
 
 void QPopupMenu::updateSize()
 {
-    polish();
+    ensurePolished();
     if ( count() == 0 ) {
 	setFixedSize( 50, 8 );
 	badSize = TRUE;

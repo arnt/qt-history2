@@ -117,7 +117,6 @@ public:
     QSize minimumSize() const;
     QLayoutIterator iterator();
     QSizePolicy::ExpandData expanding() const { return QSizePolicy::BothDirections; }
-    void invalidate() {}
 
 protected:
     void setGeometry( const QRect &r ) {

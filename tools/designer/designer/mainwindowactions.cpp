@@ -1128,7 +1128,7 @@ void MainWindow::fileCloseProject()
 	hierarchyView->clear();
 	windows = qWorkspace()->windowList();
 	qWorkspace()->blockSignals( FALSE );
-	actionGroupProjects->removeChild( a );
+	a->reparent(0);
 	projects.remove( a );
 	delete a;
 	currentProject = 0;

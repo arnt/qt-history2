@@ -51,8 +51,6 @@ public:
     const QRect& availableGeometry( const QPoint &point ) const
     { return availableGeometry( screenNumber( point ) ); }
 
-    void insertChild( QObject * );
-
 signals:
     void resized( int );
     void workAreaResized( int );

@@ -361,13 +361,12 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( parentObj != parent ) {
 	QWidget *oldparent = parentWidget();
-	if ( oldparent ) {				// remove from parent
-	    oldparent->removeChild( this );
+	QObject::reparent(parent);
+	if ( oldparent ) {
 	    oldparent->setChildrenAllocatedDirty();
 	    oldparent->paintable_region_dirty = TRUE;
 	}
-	if ( parent ) {				// insert into new parent
-	    parent->insertChild( this );
+	if ( parent ) {
 	    parent->setChildrenAllocatedDirty();
 	    parent->paintable_region_dirty = TRUE;
 	}
@@ -1080,12 +1079,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	isSettingGeometry = FALSE;
 	dirtyChildren = QRegion();
     } else {
-	if ( isMove )
-	    QApplication::postEvent( this,
-				     new QMoveEvent( pos(), oldPos ) );
-	if ( isResize )
-	    QApplication::postEvent( this,
-				     new QResizeEvent(crect.size(), olds) );
+	if (isMove && pos() != oldPos)
+	    d->hasPendingMove = true;
+	if (isResize)
+	    d->hasPendingResize = true;
     }
 }
 

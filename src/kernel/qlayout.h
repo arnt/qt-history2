@@ -89,7 +89,7 @@ public:
     virtual bool isEmpty() const = 0;
     virtual bool hasHeightForWidth() const;
     virtual int heightForWidth( int ) const;
-    // ### add minimumHeightForWidth( int ) in Qt 4.0
+    virtual int minimumHeightForWidth( int ) const;
     virtual void invalidate();
 
     virtual QWidget *widget();
@@ -195,8 +195,9 @@ public:
     void invalidate();
     QRect geometry() const;
     bool activate();
+    void update();
 
-    void add( QWidget *w ) { addItem( new QWidgetItem(w) ); }
+    void add( QWidget *w ) { addItem( new QWidgetItem(w)); }
     virtual void addItem( QLayoutItem * ) = 0;
 
     void remove( QWidget *w );
@@ -230,8 +231,8 @@ protected:
     QRect alignmentRect( const QRect& ) const;
 
 private:
-    void setWidgetLayout( QWidget *, QLayout * );
     void init();
+    static void activateRecursiveHelper(QLayoutItem *item);
     int insideSpacing;
     int outsideBorder;
     uint topLevel : 1;

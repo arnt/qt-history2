@@ -29,6 +29,7 @@
 struct QMetaObject;
 class QVariant;
 struct QObjectPrivate;
+struct QWidgetPrivate;
 #ifndef QT_NO_USERDATA
 class QObjectUserData;
 #endif
@@ -85,9 +86,7 @@ public:
 			  bool recursiveSearch = true) const;
 
   //### make non-virtual
-    virtual void insertChild(QObject *);
-    virtual void removeChild(QObject *);
-
+    void reparent(QObject *);
     void installEventFilter(const QObject *);
     void removeEventFilter(const QObject *);
 
@@ -121,6 +120,8 @@ public:
 
     bool isAncestorOf(const QObject *child) const;
 
+    void ensurePolished() const;
+
 signals:
     void destroyed(QObject * = 0);
 
@@ -139,6 +140,7 @@ protected:
 
     virtual void timerEvent(QTimerEvent *);
     virtual void childEvent(QChildEvent *);
+    virtual void polishEvent(QEvent *);
     virtual void customEvent(QCustomEvent *);
 
     virtual void connectNotify(const char *signal);
@@ -146,6 +148,10 @@ protected:
 
 #ifndef QT_NO_COMPAT
 public:
+    inline void insertChild(QObject *o)
+	{ if (o) o->reparent(this); }
+    inline void removeChild(QObject *o)
+	{ if (o) o->reparent(0); }
     inline bool isA(const char *classname) const
 	{ return qstrcmp(classname, className() ) == 0; }
     inline bool inherits(const char *classname) const
@@ -162,6 +168,7 @@ protected:
 protected:
     explicit QObject(QObjectPrivate *d, QObject *parent, const char *name);
 private:
+    explicit QObject(QWidgetPrivate *d, QObject *parent, const char *name);
     uint isSignal : 1;
     uint isWidget : 1;
     uint pendTimer : 1;
@@ -307,10 +314,17 @@ public:
 	DragLeave = 62,				// drag leaves or is cancelled
 	Drop = 63,				// actual drop
 	DragResponse = 64,			// drag accepted/rejected
-	ChildInserted = 70,			// new child widget
+	ChildAdded = 68,			// new child widget
+	ChildPolished = 69,			// polished child widget
+#ifndef QT_NO_COMPAT
+	ChildInserted = 70,			// compatibility posted insert
+	LayoutHint = 72,			// compatibility relayout request
+#endif
 	ChildRemoved = 71,			// deleted child widget
-	LayoutHint = 72,			// child min/max size changed
 	ShowWindowRequest = 73,			// widget's window should be mapped
+	PolishRequest = 74,			// object should be polished
+	Polish = 75,				// object is polished
+	LayoutRequest = 76,			// widget should be relayouted
 	ActivateControl = 80,			// ActiveX activation
 	DeactivateControl = 81,			// ActiveX deactivation
 	ContextMenu = 82,			// context popup menu
