@@ -82,7 +82,7 @@ Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
 
 //QMAKE_GENERATE_PROJECT stuff
 bool Option::projfile::do_pwd = TRUE;
-bool Option::projfile::do_recursive = FALSE;
+bool Option::projfile::do_recursive = TRUE;
 QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
@@ -143,7 +143,7 @@ bool usage(const char *a0)
 	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
 	    "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
-	    "\t-r             Recursive search            [ project mode only]\n"
+	    "\t-norecursive   Don't do a recursive search [ project mode only]\n"
 	    ,a0);
     return FALSE;
 }
@@ -244,6 +244,8 @@ Option::parseCommandLine(int argc, char **argv)
 			Option::projfile::do_pwd = FALSE;
 		    } else if(opt == "r") {
 			Option::projfile::do_recursive = TRUE;
+		    } else if(opt == "norecursive") {
+			Option::projfile::do_recursive = FALSE;
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
 			return usage(argv[0]);

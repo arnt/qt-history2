@@ -80,8 +80,11 @@ ProjectGenerator::init()
 	    }
 	}
 	QStringList dirs = Option::projfile::project_dirs;
-	if(Option::projfile::do_pwd)
+	if(Option::projfile::do_pwd) {
+	    if(!v["INCLUDEPATH"].contains("."))
+		v["INCLUDEPATH"] += ".";
 	    dirs.prepend(QDir::currentDirPath());
+	}
 
 	for(QStringList::Iterator pd = dirs.begin(); pd != dirs.end(); pd++) {
 	    QString dir, regex;
@@ -140,9 +143,8 @@ ProjectGenerator::init()
 	    }
 	    if(add_depend && !dir.isEmpty() && !v["DEPENDPATH"].contains(dir)) {
 		QFileInfo fi(dir);
-		if(fi.absFilePath() != QDir::currentDirPath()) {
+		if(fi.absFilePath() != QDir::currentDirPath()) 
 		    v["DEPENDPATH"] += fileFixify(dir);
-		}
 	    }
 	}
     }
@@ -241,12 +243,19 @@ ProjectGenerator::init()
 		QStringList &tmp = findDependencies((*val_it));
 		if(!tmp.isEmpty()) {
 		    for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
-			QString file_no_path = (*dep_it).right(
-			    (*dep_it).length() - ((*dep_it).findRev(Option::dir_sep)+1));
+			QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
+			    file_no_path = (*dep_it).section(Option::dir_sep, -1);
+			if(!file_dir.isEmpty()) {
+			    for(MakefileDependDir *mdd = deplist.first(); mdd; mdd = deplist.next()) {
+				if(mdd->local_dir == file_dir && !v["INCLUDEPATH"].contains(mdd->real_dir))
+				    v["INCLUDEPATH"] += mdd->real_dir;
+			    }
+			}
 			if(no_qt_files && file_no_path.find(QRegExp("^q[a-z_0-9].h$")) != -1)
 			    no_qt_files = FALSE;
 			QString h_ext;
-			for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
+			for(QStringList::Iterator hit = Option::h_ext.begin(); 
+			    hit != Option::h_ext.end(); ++hit) {
 			    if((*dep_it).endsWith((*hit))) {
 				h_ext = (*hit);
 				break;
@@ -260,11 +269,13 @@ ProjectGenerator::init()
 			    }
 			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
 				cppit != Option::cpp_ext.end(); ++cppit) {
-				QString src((*dep_it).left((*dep_it).length() - h_ext.length()) + (*cppit));
+				QString src((*dep_it).left((*dep_it).length() - h_ext.length()) + 
+					    (*cppit));
 				if(QFile::exists(src)) {
 				    bool exists = FALSE;
 				    QStringList &srcl = v["SOURCES"];
-				    for(QStringList::Iterator src_it = srcl.begin(); src_it != srcl.end(); ++src_it) {
+				    for(QStringList::Iterator src_it = srcl.begin(); 
+					src_it != srcl.end(); ++src_it) {
 					if((*src_it).lower() == src.lower()) {
 					    exists = TRUE;
 					    break;
@@ -337,7 +348,8 @@ ProjectGenerator::writeMakefile(QTextStream &t)
 	t << getWritableVar("TARGET")
 	  << getWritableVar("CONFIG", FALSE)
 	  << getWritableVar("CONFIG_REMOVE", FALSE)
-	  << getWritableVar("DEPENDPATH") << endl;
+	  << getWritableVar("DEPENDPATH")
+	  << getWritableVar("INCLUDEPATH") << endl;
 
 	t << "# Input" << "\n";
 	t << getWritableVar("HEADERS") 
