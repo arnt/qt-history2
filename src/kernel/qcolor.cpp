@@ -55,9 +55,16 @@
   and value) or set a color name (the names are copied from from the
   X11 color database).
 
-  In addition to the RGB value, a QColor also has a pixel value.  This
-  value is used by the underlying window system to refer to a color.  It
-  can be thought of as an index into the display hardware's color table.
+  In addition to the RGB value, a QColor also has a pixel value and a
+  validity.  The pixel value is used by the underlying window system
+  to refer to a color.  It can be thought of as an index into the
+  display hardware's color table.
+
+  The validity (isValid()) indicates whether the color is legal at
+  all. For example, a RGB color with RGB values out of range is
+  illegal. For performance reasons, QColor mostly disregards illegal
+  colors.  The result of using an invalid color is unspecified and
+  will usually be surprising.
 
   There are 19 predefined QColor objects: \c black, \c white, \c
   darkGray, \c gray, \c lightGray, \c red, \c green, \c blue, \c cyan,
@@ -90,23 +97,34 @@
   The RGB model is hardware-oriented.  Its representation is close to
   what most monitors show.  In contrast, HSV represents color in a way
   more suited to traditional human perception of color.  For example,
-  the relationships "stronger than", "darker than", "the opposite of"
-  are easily expressed in HSV but are much harder to express in RGB.
+  the relationships "stronger than", "darker than" and "the opposite
+  of" are easily expressed in HSV but are much harder to express in
+  RGB.
 
-  HSV, like RGB, has three components:  <ul> <li> H, for
-  hue, is either 0-360 if the color is chromatic (not gray), or
-  meaningless if it is gray.  It represents degrees on the color wheel
-  familiar to most people.  Red is 0 (degrees), green is 120 and blue
-  is 240. <li> S, for saturation, is 0-255, and the bigger it is, the
+  HSV, like RGB, has three components:  <ul>
+
+  <li> H, for hue, is either 0-359 if the color is chromatic (not
+  gray), or meaningless if it is gray.  It represents degrees on the
+  color wheel familiar to most people.  Red is 0 (degrees), green is
+  120 and blue is 240.
+
+  <li> S, for saturation, is 0-255, and the bigger it is, the
   stronger the color is.  Grayish colors have saturation near 0; very
-  strong colors have saturation near 255. <li> V, for value, is 0-255
-  and represents lightness or brightness of the color.  0 is black;
-  255 is far from black as possible. </ul>
+  strong colors have saturation near 255.
+
+  <li> V, for value, is 0-255 and represents lightness or brightness
+  of the color.  0 is black; 255 is far from black as possible.
+
+  </ul>
 
   Here are some examples: Pure red is H=0, S=255, V=255.  A dark red,
   moving slightly towards the magenta, could be H=350 (equivalent to
   -10), S=255, V=180.  A grayish light red could have H about 0 (say
   350-359 or 0-10), S about 50-100, and S=255.
+
+  Qt returns a hue value of -1 for achromatic colors. If you pass a
+  too-big hue value, Qt forces it into range. Hue 360 or 720 is
+  treated as 0; hue 540 is treated as 180.
 
   \sa QPalette, QColorGroup, QApplication::setColorSpec(),
   <a href="http://www.inforamp.net/~poynton/Poynton-color.html">Color FAQ.</a>
@@ -223,8 +241,10 @@ void QColor::initGlobalColors()
 /*!
   \fn QColor::QColor( int r, int g, int b )
 
-  Constructs a color with the RGB value \a (r,g,b).
-  \a r, \a g and \a b must be in the range 0..255.
+  Constructs a color with the RGB value \a r, \a g, \a b, in the same
+  way as setRgb().
+
+  The color is left invalid if any or the arguments are illegal.
 
   \sa setRgb()
 */
@@ -234,8 +254,9 @@ void QColor::initGlobalColors()
   Constructs a color with an RGB value and a custom pixel value.
 
   If the \a pixel = 0xffffffff, then the color uses the RGB value in a
-  standard way.	 If \a pixel is something else, then the pixel value will
-  be set directly to \a pixel (skips the normal allocation procedure).
+  standard way.  If \a pixel is something else, then the pixel value
+  is set directly to \a pixel, skipping the normal allocation
+  procedure.
 */
 
 QColor::QColor( QRgb rgb, uint pixel )
@@ -250,16 +271,16 @@ QColor::QColor( QRgb rgb, uint pixel )
 
 
 /*!
-  Constructs a color with the RGB \e or HSV value \a (x,y,z).
+  Constructs a color with the RGB \e or HSV value \a x, \a y, \a z.
 
-  The \e (x,y,z) triplet defines an RGB value if \a colorSpec == \c
-  QColor::Rgb.	\a x (red), \a y (green), and \a z (blue) must be in the
-  range 0..255.
+  The arguments are an RGB value if \a colorSpec is QColor==Rgb. \a
+  x (red), \a y (green), and \a z (blue). All of them must be in the
+  range 0-255.
 
-  The \a (x,y,z) triplet defines a HSV value if \a colorSpec == \c
-  QColor::Hsv.	\a x (hue) must be in the range -1..360 (-1 means
-  achromatic), and \a y (saturation) and \a z (value) must be in the range
-  0..255.
+  The arguments are an HSV value if \a colorSpec is QColor::Hsv. \a x
+  (hue) must be -1 for achromatic colors and 0-359 for chormatic
+  colors; \a y (saturation) and \a z (value) must be in the range
+  0-255.
 
   \sa setRgb(), setHsv()
 */
@@ -337,8 +358,8 @@ QColor &QColor::operator=( const QColor &c )
 */
 
 
-/*!
-  Returns the name of the color in the format #RRGGBB.
+/*!  Returns the name of the color in the format "#RRGGBB", i.e., a
+  "#" character followed by three two-digit hexadecimal numbers.
 
   \sa setNamedColor()
 */
@@ -367,9 +388,7 @@ static int hex2int( QChar hexchar )
 
 
 /*!
-  Sets the RGB value to that of the named color.
-
-  The color name may be in one of five formats: <ul>
+  Sets the RGB value to \a name, which may be in one of these formats: <ul>
   <li> #RGB (each of R, G and B is a single hex digit)
   <li> #RRGGBB
   <li> #RRRGGGBBB
@@ -378,6 +397,8 @@ static int hex2int( QChar hexchar )
   "steelblue" or "gainsboro").  These color names also work
   under Qt for Windows.
   </ul>
+
+  The color is left invalid if \a name can not be parsed.
 */
 
 void QColor::setNamedColor( const QString& name )
@@ -417,27 +438,25 @@ void QColor::setNamedColor( const QString& name )
 #undef max
 #undef min
 
-/*! 
+/*!
   \fn void QColor::getHsv( int &h, int &s, int &v ) const
-  \obsolete 
+  \obsolete
 */
 
-/*!
-  Returns the current RGB value as HSV.
+/*!  Returns the current RGB value as HSV. \a h, \a s and \a v point
+  to the return values; if any of the three pointers are null, the
+  function does nothing.
 
-  \arg \e *h, hue.
-  \arg \e *s, saturation.
-  \arg \e *v, value.
-
-  The hue defines the color. Its range is 0..359 if the color is chromatic,
-  and -1 if the color is achromatic.  The saturation and value both vary
-  between 0 and 255 inclusive.
+  The hue (which \a h points to) is set to -1 if the color is
+  achromatic.
 
   \sa setHsv(), rgb()
 */
 
 void QColor::hsv( int *h, int *s, int *v ) const
 {
+    if ( !h || !s || !v )
+	return;
     int r = qRed(rgbVal);
     int g = qGreen(rgbVal);
     int b = qBlue(rgbVal);
@@ -484,12 +503,10 @@ void QColor::hsv( int *h, int *s, int *v ) const
 }
 
 
-/*!
-  Sets a HSV color value.
+/*!  Sets a HSV color value.  \a h is the hue, \a s is the saturation
+  and \a v is the value of the HSV color.
 
-  \arg \e h, hue (-1,0..360).  -1 means achromatic.
-  \arg \e s, saturation (0..255).
-  \arg \e v, value (0..255).
+  If \a s or \a v is out of range, the color is not changed.
 
   \sa hsv(), setRgb()
 */
@@ -555,9 +572,10 @@ void QColor::rgb( int *r, int *g, int *b ) const
 }
 
 
-/*!
-  Sets the RGB value to \a (r,g,b).
-  \a r, \a g and \a b must be in the range 0..255.
+/*!  Sets the RGB value to \a r, \a g, \a b. \a r, \a g and \a b must
+  all be in the range 0..255.  If any of them are outside the legal
+  range, the color is not changed.
+
   \sa rgb(), setHsv()
 */
 
@@ -613,17 +631,18 @@ void QColor::setRgb( QRgb rgb )
 */
 
 
-/*!
-  Returns a lighter (or darker) color.
+/*!  Returns a lighter (or darker) color, but does not change this
+  object.
 
-  Returns a lighter color if \e factor is greater than 100.
-  Setting \e factor to 150 returns a color that is 50% brighter.
+  Returns a lighter color if \a factor is greater than 100.  Setting
+  \a factor to 150 returns a color that is 50% brighter.
 
-  Returns a darker color if \e factor is less than 100, equal to
-  dark(10000 / \e factor).
+  Returns a darker color if \a factor is less than 100. We recommend
+  using dark() for this purpose.  If \a factor is 0 or negative, the
+  return value is unspecified.
 
-  This function converts the current RGB color to HSV, multiplies V with
-  \e factor, and converts back to RGB.
+  (This function converts the current RGB color to HSV, multiplies V
+  by \a factor, and converts the result back to RGB.)
 
   \sa dark()
 */
@@ -650,18 +669,18 @@ QColor QColor::light( int factor ) const
 }
 
 
-/*!
-  Returns a darker (or lighter) color.
+/*!  Returns a darker (or lighter) color, but does not change this
+  object.
 
-  Returns a darker color if \e factor is greater than 100.
-  Setting \e factor to 300 returns a color that has
-  one-third the brightness.
+  Returns a darker color if \a factor is greater than 100.  Setting \a
+  factor to 300 returns a color that has one-third the brightness.
 
-  Returns a lighter color if \e factor is less than 100, equal to
-  light(10000 / \e factor).
+  Returns a lighter color if \a factor is less than 100. We recommend
+  using lighter() for this purpose.  If \a factor is 0 or negative,
+  the return value is unspecified.
 
-  This function converts the current RGB color to HSV, divides V by
-  \e factor and converts back to RGB.
+  (This function converts the current RGB color to HSV, divides V by
+  \a factor and converts back to RGB.)
 
   \sa light()
 */
@@ -683,13 +702,13 @@ QColor QColor::dark( int factor ) const
 
 /*!
   \fn bool QColor::operator==( const QColor &c ) const
-  Returns TRUE if this color has the same RGB value as \e c,
+  Returns TRUE if this color has the same RGB value as \a c,
   or FALSE if they have different RGB values.
 */
 
 /*!
   \fn bool QColor::operator!=( const QColor &c ) const
-  Returns TRUE if this color has different RGB value from \e c,
+  Returns TRUE if this color has different RGB value from \a c,
   or FALSE if they have equal RGB values.
 */
 
@@ -704,10 +723,10 @@ QColor QColor::dark( int factor ) const
 /*!
   Enables or disables lazy color allocation.
 
-  If lazy allocation is enabled, colors are allocated the first time they
-  are used (upon calling the pixel() function).	 If lazy allocation is
-  disabled, colors are allocated when they are constructed or when either
-  setRgb() or setHsv() is called.
+  If lazy allocation is enabled, colors are allocated the first time
+  they are used (upon calling the pixel() function).  If lazy
+  allocation is disabled, colors are allocated when they are
+  constructed or when either setRgb() or setHsv() is called.
 
   Lazy color allocation is enabled by default.
 
@@ -776,30 +795,34 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 /*!
   \fn int qRed( QRgb rgb )
   \relates QColor
-  Returns the red component of the RGB triplet \e rgb.
+
+  Returns the red component of the RGB triplet \a rgb.
   \sa qRgb(), QColor::red()
 */
 
 /*!
   \fn int qGreen( QRgb rgb )
   \relates QColor
-  Returns the green component of the RGB triplet \e rgb.
+
+  Returns the green component of the RGB triplet \a rgb.
   \sa qRgb(), QColor::green()
 */
 
 /*!
   \fn int qBlue( QRgb rgb )
   \relates QColor
-  Returns the blue component of the RGB triplet \e rgb.
+
+  Returns the blue component of the RGB triplet \a rgb.
   \sa qRgb(), QColor::blue()
 */
 
 /*!
   \fn QRgb qRgb( int r, int g, int b )
   \relates QColor
+
   Returns the RGB triplet \a (r,g,b).
 
-  The return type \e QRgb is equivalent to \c unsigned \c int.
+  The return type QRgb is equivalent to \c unsigned \c int.
 
   \sa qRgba(), qRed(), qGreen(), qBlue()
 */
@@ -807,9 +830,10 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 /*!
   \fn QRgb qRgba( int r, int g, int b, int a )
   \relates QColor
+
   Returns the RGBA triplet \a (r,g,b,a).
 
-  The return type \e QRgb is equivalent to \c unsigned \c int.
+  The return type QRgba is equivalent to \c unsigned \c int.
 
   \sa qRgb(), qRed(), qGreen(), qBlue()
 */
@@ -817,10 +841,11 @@ QDataStream &operator>>( QDataStream &s, QColor &c )
 /*!
   \fn int qGray( int r, int g, int b )
   \relates QColor
+
   Returns a gray value 0..255 from the \a (r,g,b) triplet.
 
-  The gray value is calculated using the formula:
-  <code>(r*11 + g*16 + b*5)/32</code>.
+  The gray value is calculated using the formula (r*11 + g*16 +
+  b*5)/32.
 */
 
 /*!
