@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#536 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#537 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -228,6 +228,7 @@ XIM	qt_xim = 0;
 XIMStyle qt_xim_style = 0;
 static XIMStyle xim_preferred_style = XIMPreeditPosition | XIMStatusNothing;
 #endif
+static int composingKeycode=0;
 static QTextCodec * input_mapper = 0;
 
 QObject	       *qt_clipboard = 0;
@@ -2118,6 +2119,26 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    qPRCleanup( widget );		// remove from alt mapper
     }
 
+    QETWidget *keywidget=0;
+    bool grabbed=FALSE;
+    if ( event->type==XKeyPress || event->type==XKeyRelease ) {
+        keywidget = (QETWidget*)QWidget::keyboardGrabber();
+	if ( keywidget ) {
+	    grabbed = TRUE;
+	} else {
+	    if ( focus_widget )
+		keywidget = (QETWidget*)focus_widget;
+	    else
+		keywidget = (QETWidget*)widget->topLevelWidget();
+	}
+    }
+    int xkey_keycode = event->xkey.keycode;
+    if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
+	if ( keywidget )
+	    composingKeycode = xkey_keycode; // ### not documented in xlib
+	return 1;
+    }
+
     if ( event->type == MappingNotify ) {	// keyboard mapping changed
 	XRefreshKeyboardMapping( &event->xmapping );
 	return 0;
@@ -2212,15 +2233,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case XKeyPress:				// keyboard event
     case XKeyRelease: {
 	qt_x_clipboardtime = event->xkey.time;
-	QWidget *g = QWidget::keyboardGrabber();
-	if ( g )
-	    widget = (QETWidget*)g;
-	else if ( focus_widget )
-	    widget = (QETWidget*)focus_widget;
-	else
-	    widget = (QETWidget*)widget->topLevelWidget();
-
-	widget->translateKeyEvent( event, g != 0 );
+	if ( keywidget ) // should always exist
+	    keywidget->translateKeyEvent( event, grabbed );
     }
     break;
 
@@ -3454,15 +3468,8 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
 			? QEvent::KeyPress : QEvent::KeyRelease;
     // Implementation for X11R5 and newer, using XIM
 
-    static int composingKeycode;
     int	       keycode = event->xkey.keycode;
     Status     status;
-
-    // Perhaps we should filer ALL events.
-    if ( XFilterEvent( (XEvent*)event, tlw->winId() ) ) {
-	composingKeycode = keycode; // ### not documented in xlib
-	return TRUE;
-    }
 
     if ( type == QEvent::KeyPress ) {
 	bool mb=FALSE;
