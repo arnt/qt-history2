@@ -2985,12 +2985,8 @@ void Resource::loadPopupMenu( PopupMenuEditor *p, const QDomElement &e )
     while ( !n.isNull() ) {
 	if ( n.tagName() == "action" ) {
 	    a = formwindow->findAction( n.attribute( "name" ) );
-	    if ( a ) {
-		if ( a->inherits( "QActionGroup" ) )
-		    p->insert( (QActionGroup *) a );
-		else
- 		    p->insert( a );
-	    }
+	    if ( a )
+		p->insert( a );
 	}
 	if ( n.tagName() == "item" ) {
 	    PopupMenuEditorItem *i = p->at( p->find( a ) );
