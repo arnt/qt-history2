@@ -49,6 +49,7 @@
 #if 0
 Q_OBJECT
 #endif
+//static const int QLAYOUTSIZE_MAX=INT_MAX/256/16; //wait for 3.1
 
 /*
   First comes the definition of QLayout and of related abstract
@@ -192,6 +193,7 @@ public:
     virtual void setMargin( int );
     virtual void setSpacing( int );
 
+    //enum { unlimited = QLAYOUTSIZE_MAX }; //in 3.1
     enum { unlimited = QWIDGETSIZE_MAX };
     int defaultBorder() const { return insideSpacing; }
     void freeze( int w, int h );

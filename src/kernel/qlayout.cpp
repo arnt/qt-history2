@@ -258,7 +258,7 @@ void QGridLayoutData::recalcHFW( int w, int spacing )
     }
     if ( n )
 	h += ( n - 1 ) * spacing;
-    h = QMIN( QWIDGETSIZE_MAX, h );
+    h = QMIN( QLAYOUTSIZE_MAX, h );
 
     hfw_height = h;
     hfw_width = w;
@@ -330,8 +330,8 @@ QSize QGridLayoutData::findSize( QCOORD QLayoutStruct::*size, int spacer ) const
     }
     if ( n )
 	w += ( n - 1 ) * spacer;
-    w = QMIN( QWIDGETSIZE_MAX, w );
-    h = QMIN( QWIDGETSIZE_MAX, h );
+    w = QMIN( QLAYOUTSIZE_MAX, w );
+    h = QMIN( QLAYOUTSIZE_MAX, h );
 
     return QSize( w, h );
 }
@@ -502,14 +502,14 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
 	      Hidden widgets should behave exactly the same as if
 	      there were no widgets at all in the cell. We could have
 	      QWidgetItem::maximumSize() to return
-	      QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX). However, that
+	      QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX). However, that
 	      value is not suitable for QBoxLayouts. So let's fix it
 	      here.
 	    */
 	    if ( c )
-		colData[box->col].maximumSize = QWIDGETSIZE_MAX;
+		colData[box->col].maximumSize = QLAYOUTSIZE_MAX;
 	    if ( r )
-		rowData[box->row].maximumSize = QWIDGETSIZE_MAX;
+		rowData[box->row].maximumSize = QLAYOUTSIZE_MAX;
 	}
     } else {
 	// Empty boxes (i.e. spacers) do not get borders. This is
@@ -1045,11 +1045,11 @@ QSize QGridLayout::maximumSize() const
 {
     QSize s = data->maximumSize( spacing() ) +
 	      QSize( 2 * margin(), 2 * margin() );
-    s = s.boundedTo( QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX) );
+    s = s.boundedTo( QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX) );
     if ( alignment() & Qt::AlignHorizontal_Mask )
-	s.setWidth( QWIDGETSIZE_MAX );
+	s.setWidth( QLAYOUTSIZE_MAX );
     if ( alignment() & Qt::AlignVertical_Mask )
-	s.setHeight( QWIDGETSIZE_MAX );
+	s.setHeight( QLAYOUTSIZE_MAX );
     return s;
 }
 
@@ -1702,11 +1702,11 @@ QSize QBoxLayout::maximumSize() const
 	that->setupGeom();
     }
     QSize s = (data->maxSize + QSize(2 * margin(), 2 * margin()))
-	      .boundedTo(QSize(QWIDGETSIZE_MAX, QWIDGETSIZE_MAX));
+	      .boundedTo(QSize(QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX));
     if ( alignment() & Qt::AlignHorizontal_Mask )
-	s.setWidth( QWIDGETSIZE_MAX );
+	s.setWidth( QLAYOUTSIZE_MAX );
     if ( alignment() & Qt::AlignVertical_Mask )
-	s.setHeight( QWIDGETSIZE_MAX );
+	s.setHeight( QLAYOUTSIZE_MAX );
 
     return s;
 }
@@ -2170,8 +2170,8 @@ void QBoxLayout::setupGeom()
     if ( !data->dirty )
 	return;
 
-    int maxw = horz( dir ) ? 0 : QWIDGETSIZE_MAX;
-    int maxh = horz( dir ) ? QWIDGETSIZE_MAX : 0;
+    int maxw = horz( dir ) ? 0 : QLAYOUTSIZE_MAX;
+    int maxh = horz( dir ) ? QLAYOUTSIZE_MAX : 0;
     int minw = 0;
     int minh = 0;
     int hintw = 0;

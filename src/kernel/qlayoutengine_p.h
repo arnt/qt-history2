@@ -58,10 +58,13 @@
 #endif // QT_H
 
 #ifndef QT_NO_LAYOUT
+
+static const int QLAYOUTSIZE_MAX=INT_MAX/256/16; //remove in 3.1
+
 struct QLayoutStruct
 {
     void initParameters() { minimumSize = sizeHint = 0;
-    maximumSize = QWIDGETSIZE_MAX; expansive = FALSE; empty = TRUE; }
+    maximumSize = QLAYOUTSIZE_MAX; expansive = FALSE; empty = TRUE; }
     void init() { stretch = 0; initParameters(); }
     //permanent storage:
     int stretch;

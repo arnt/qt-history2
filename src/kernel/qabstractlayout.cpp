@@ -41,6 +41,8 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 
+#include "qlayoutengine_p.h" //remove in 3.1
+
 /*!
     \class QLayoutItem
     \ingroup appearance
@@ -363,7 +365,7 @@ static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
 {
     QWidget *w = ( (QWidgetItem*)i )->widget();
     if ( align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask )
-	return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+	return QSize( QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX );
     QSize s = w->maximumSize();
     if ( s.width() == QWIDGETSIZE_MAX && !(align&Qt::AlignHorizontal_Mask) )
 	if ( !w->sizePolicy().mayGrowHorizontally() )
@@ -376,9 +378,9 @@ static QSize smartMaxSize( const QWidgetItem *i, int align = 0 )
     s = s.expandedTo( w->minimumSize() );
 
     if (align & Qt::AlignHorizontal_Mask )
-	s.setWidth( QWIDGETSIZE_MAX );
+	s.setWidth( QLAYOUTSIZE_MAX );
     if (align & Qt::AlignVertical_Mask )
-	s.setHeight( QWIDGETSIZE_MAX );
+	s.setHeight( QLAYOUTSIZE_MAX );
     return s;
 }
 
@@ -538,8 +540,8 @@ QSize QWidgetItem::minimumSize() const
 */
 QSize QSpacerItem::maximumSize() const
 {
-    return QSize( sizeP.mayGrowHorizontally() ? QWIDGETSIZE_MAX : width,
-		  sizeP.mayGrowVertically() ? QWIDGETSIZE_MAX : height );
+    return QSize( sizeP.mayGrowHorizontally() ? QLAYOUTSIZE_MAX : width,
+		  sizeP.mayGrowVertically() ? QLAYOUTSIZE_MAX : height );
 }
 
 /*!
@@ -1068,8 +1070,8 @@ QSize QLayout::totalMaximumSize() const
 #endif
 
     if ( isTopLevel() )
-	s = QSize( QMIN( s.width() + b, QWIDGETSIZE_MAX ),
-		   QMIN( s.height() + h, QWIDGETSIZE_MAX ) );
+	s = QSize( QMIN( s.width() + b, QLAYOUTSIZE_MAX ),
+		   QMIN( s.height() + h, QLAYOUTSIZE_MAX ) );
     return s;
 }
 
@@ -1188,7 +1190,7 @@ QSize QLayout::minimumSize() const
 */
 QSize QLayout::maximumSize() const
 {
-    return QSize( QWIDGETSIZE_MAX, QWIDGETSIZE_MAX );
+    return QSize( QLAYOUTSIZE_MAX, QLAYOUTSIZE_MAX );
 }
 
 /*!
