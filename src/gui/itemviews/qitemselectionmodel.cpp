@@ -242,14 +242,11 @@ void QItemSelectionModel::select(const QItemSelection &selection, int updateMode
 
 void QItemSelectionModel::clear()
 {
-    if (d->ranges.size() == 0 && d->currentSelection.size() == 0)
+    if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
         return;
-    QItemSelection selection;
-    if (d->ranges.size()) {
-        selection = d->ranges;
-        d->ranges.clear();
-    }
-    selection += d->currentSelection;
+    QItemSelection selection = d->ranges;
+    selection.merge(d->currentSelection, d->toggleState ? Toggle : Select);
+    d->ranges.clear();
     d->currentSelection.clear();
     emit selectionChanged(selection, QItemSelection());
 }
