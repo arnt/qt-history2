@@ -63,6 +63,7 @@ struct Option
     static QString prl_ext;
     static QString ui_ext;
     static QString h_ext;
+    static QString hpp_ext;
     static QString moc_ext;
     static QString cpp_ext;
     static QString cc_ext;

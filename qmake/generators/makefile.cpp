@@ -154,11 +154,13 @@ MakefileGenerator::generateMocList(QString fn_target)
 		else if(dir_pos != -1)
 		    mocFile = fn_target.left(dir_pos+1);
 
-		if(fn_target.right(ext_len) == Option::cpp_ext) {
+		if(fn_target.right(ext_len) == Option::cpp_ext || fn_target.right(ext_len) == Option::cc_ext ||
+		   fn_target.right(ext_len) == Option::cxx_ext) {
 		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		    findDependencies(fn_target).append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
-		} else if(fn_target.right(ext_len) == Option::h_ext &&
+		} else if((fn_target.right(ext_len) == Option::h_ext || 
+			   fn_target.right(ext_len) == Option::hpp_ext) &&
 			  project->variables()["HEADERS"].findIndex(fn_target) != -1) {
 		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		    logicWarn(mocFile, "SOURCES");
@@ -215,7 +217,7 @@ MakefileGenerator::generateDependencies(QPtrList<MakefileDependDir> &dirs, QStri
     close(file);
 
     enum { UI_FILE, C_FILE } ftype;
-    if(fn.right(3) == ".ui")
+    if(fn.right(Option::ui_ext.length()) == Option::ui_ext)
 	ftype = UI_FILE;
     else
 	ftype = C_FILE;
@@ -505,7 +507,7 @@ MakefileGenerator::init()
     //Image files
     if(!project->isEmpty("IMAGES")) {
 	if(project->isEmpty("QMAKE_IMAGE_COLLECTION"))
-	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection.cpp");
+	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection" + Option::cpp_ext);
 	QString imgfile = project->first("QMAKE_IMAGE_COLLECTION");
 	Option::fixPathToTargetOS(imgfile);
 	if(!project->isEmpty("UI_DIR")) {
@@ -706,9 +708,9 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	QString deps = findDependencies((*it)).join(" \\\n\t\t"), decl, impl;
 	{
 	    QString tmp = (*it);
-	    decl = tmp.replace(QRegExp("\\.ui$"), Option::h_ext);
+	    decl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::h_ext);
 	    tmp = (*it);
-	    impl = tmp.replace(QRegExp("\\.ui$"), Option::cpp_ext);
+	    impl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::cpp_ext);
 	    if(!project->isEmpty("UI_DIR")) {
 		int dlen = (*it).findRev(Option::dir_sep) + 1;
 		decl = project->first("UI_DIR") + decl.right(decl.length() - dlen);

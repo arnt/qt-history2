@@ -45,6 +45,7 @@
 QString Option::prl_ext;
 QString Option::ui_ext;
 QString Option::h_ext;
+QString Option::hpp_ext;
 QString Option::moc_ext;
 QString Option::cpp_ext;
 QString Option::obj_ext;
@@ -295,6 +296,7 @@ Option::parseCommandLine(int argc, char **argv)
     Option::prl_ext = ".prl";
     Option::ui_ext = ".ui";
     Option::h_ext = ".h";
+    Option::hpp_ext = ".hpp";
     Option::moc_ext = ".moc";
     Option::cpp_ext = ".cpp";
     Option::cc_ext = ".cc";
@@ -322,6 +324,8 @@ bool Option::postProcessProject(QMakeProject *project)
 	Option::ui_ext = project->first("QMAKE_EXT_UI");
     if(!project->isEmpty("QMAKE_EXT_H")) 
 	Option::h_ext = project->first("QMAKE_EXT_H");
+    if(!project->isEmpty("QMAKE_EXT_HPP"))
+	Option::hpp_ext = project->first("QMAKE_EXT_HPP");
     if(!project->isEmpty("QMAKE_EXT_MOC"))
 	Option::moc_ext = project->first("QMAKE_EXT_MOC");
     if(!project->isEmpty("QMAKE_EXT_LEX"))
