@@ -12,7 +12,7 @@
 **
 ** This is a simple QGLWidget demonstrating the use of QImages for textures.
 **
-** Much of the GL code is inspired by the 'spectex' and 'texcyl' 
+** Much of the GL code is inspired by the 'spectex' and 'texcyl'
 ** public domain demo programs by Brian Paul
 **
 ****************************************************************************/
@@ -49,7 +49,7 @@ GLTexobj::~GLTexobj()
 void GLTexobj::paintGL()
 {
     glClear( GL_COLOR_BUFFER_BIT );
-    glPushMatrix();    
+    glPushMatrix();
     transform();
     glCallList( object );
     glPopMatrix();
