@@ -2380,7 +2380,9 @@ void QLineEditPrivate::setText( const QString& txt )
 
 void QLineEditPrivate::setCursorVisible( bool visible )
 {
-    if ( (bool)cursorVisible == visible )
+    if ( (bool)cursorVisible == visible ) 
+	return;
+    else if(visible && q->hasSelectedText() && !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
 	return;
     if ( cursorTimer )
 	cursorVisible = visible;
