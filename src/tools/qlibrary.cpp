@@ -206,7 +206,7 @@ bool QLibraryPrivate::freeLibrary()
 void* QLibraryPrivate::resolveSymbol( const char* f )
 {
     if ( !pHnd )
-	return NULL;
+	return 0;
 
     void* address = GetProcAddress( pHnd, f );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
@@ -257,7 +257,7 @@ bool QLibraryPrivate::freeLibrary()
 void* QLibraryPrivate::resolveSymbol( const char* symbol )
 {
     if ( !pHnd )
-	return NULL;
+	return 0;
 
     void* address;
     if ( shl_findsym( (shl_t*)pHnd, symbol, TYPE_UNDEFINED, address ) < 0 ) {
@@ -292,7 +292,7 @@ enum DYLD_BOOL { DYLD_TRUE=1, DYLD_FALSE=0 };
 #define FALSE OLD_F
 #endif
 
-static QDict<void> *glibs_loaded = NULL;
+static QDict<void> *glibs_loaded = 0;
 
 // Mac
 bool QLibraryPrivate::loadLibrary()
@@ -349,14 +349,14 @@ bool QLibraryPrivate::freeLibrary()
 void* QLibraryPrivate::resolveSymbol( const char *symbol )
 {
     if ( !pHnd )
-	return NULL;
+	return 0;
 
 #ifdef DO_MAC_LIBRARY
     QCString symn2;
     symn2.sprintf("_%s", symbol);
     return NSAddressOfSymbol(NSLookupSymbolInModule(pHnd, symn2));
 #else
-    return NULL;
+    return 0;
 #endif
 }
 
@@ -374,7 +374,7 @@ bool QLibraryPrivate::freeLibrary()
 
 void* QLibraryPrivate::resolveSymbol( const char *symbol )
 {
-    return NULL;
+    return 0;
 }
 
 

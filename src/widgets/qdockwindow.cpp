@@ -503,7 +503,7 @@ private:
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
-    : QTitleBar( NULL, dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
+    : QTitleBar( 0, dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
       closeButton( 0 ), opaque( FALSE )
 {
     setMouseTracking( TRUE );

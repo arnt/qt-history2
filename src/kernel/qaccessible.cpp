@@ -248,7 +248,7 @@ QAccessibleObject::~QAccessibleObject()
 */
 void QAccessibleObject::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    *iface = NULL;
+    *iface = 0;
     if ( uuid == IID_QAccessible )
 	*iface = (QAccessibleInterface*)this;
     else if ( uuid == IID_QUnknown )

@@ -5516,7 +5516,7 @@ void QListView::setOpen( QListViewItem * item, bool open )
 	(open && !item->childCount() && !item->isExpandable()) )
 	return;
 
-    QListViewItem* nextParent = NULL;
+    QListViewItem* nextParent = 0;
     if ( open && !(item->isOpen()) )
 	nextParent = item->itemBelow();
 

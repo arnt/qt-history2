@@ -51,7 +51,7 @@ QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
     *who = 0;
     QPoint gp = widget_->mapToGlobal( QPoint( 0, 0 ) );
     if ( !QRect( gp.x(), gp.y(), widget_->width(), widget_->height() ).contains( x, y ) )
-	return NULL;
+	return 0;
 
     QPoint rp = widget_->mapFromGlobal( QPoint( x, y ) );
     QWidget *w = widget_->childAt( rp, TRUE );
