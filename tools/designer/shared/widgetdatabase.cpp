@@ -32,8 +32,8 @@ static WidgetDatabaseRecord* db[ dbsize ];
 static QHash<QString, int> *className2Id = 0;
 static int dbcount  = 0;
 static int dbcustomcount = 200;
-static QList<const char*> *wGroups;
-static QList<const char*> *invisibleGroups;
+static QStringList *wGroups;
+static QStringList *invisibleGroups;
 static bool whatsThisLoaded = FALSE;
 static QPluginManager<WidgetInterface> *widgetPluginManager = 0;
 static bool plugins_set_up = FALSE;
@@ -103,8 +103,8 @@ void WidgetDatabase::setupDataBase( int id )
 	return;
 #endif
 
-    wGroups = new QList<const char*>;
-    invisibleGroups = new QList<const char*>;
+    wGroups = new QStringList;
+    invisibleGroups = new QStringList;
     invisibleGroups->append( "Forms" );
     invisibleGroups->append( "Temp" );
     className2Id = new QHash<QString, int>;
