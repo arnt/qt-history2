@@ -342,7 +342,7 @@ void QWorkspace::childEvent( QChildEvent * e)
 {
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !w || w->isTopLevel() || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
+	if ( !w || !w->testWFlags( WStyle_Title | WStyle_NormalBorder | WStyle_DialogBorder )
 	     || d->icons.contains( w ) || w == d->vbar || w == d->hbar || w == d->corner )
 	    return;	    // nothing to do
 
@@ -704,7 +704,7 @@ void QWorkspace::minimizeWindow( QWidget* w)
 		topLevelWidget()->setCaption( d->topCaption );
 #endif
 	    inCaptionChange = FALSE;
-	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow ) 
+	    if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow )
 		hideMaximizeControls();
 	    for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 		QWorkspaceChild* c = it.current();
@@ -753,7 +753,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    c->show();
 	}
 
-	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) 
+	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this))
 	    hideMaximizeControls();
 	for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 	    QWorkspaceChild* c = it.current();
