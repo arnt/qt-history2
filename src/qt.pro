@@ -27,7 +27,6 @@ DEFINES += USE_GIF
 
 HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$DIALOGS_H/qfiledialog.h \
-		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
 		  $$DIALOGS_H/qprogressdialog.h \
 		  $$DIALOGS_H/qtabdialog.h \
@@ -53,6 +52,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qfocusdata.h \
 		  $$KERNEL_H/qfont.h \
 		  $$KERNEL_H/qfontdata.h \
+		  $$KERNEL_H/qfontdatabase.h \
 		  $$KERNEL_H/qfontinfo.h \
 		  $$KERNEL_H/qfontmetrics.h \
 		  $$KERNEL_H/qiconset.h \
@@ -177,6 +177,8 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$WIDGETS_H/qvbox.h \
 		  $$WIDGETS_H/qwellarray.h \
 		  $$WIDGETS_H/qwhatsthis.h \
+		  $$WIDGETS_H/qworkspace.h \
+		  $$WIDGETS_H/qworkspacechild.h \
 		  $$WIDGETS_H/qwidgetstack.h
 
 
@@ -258,6 +260,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qevent.cpp \
 		  kernel/qfocusdata.cpp \
 		  kernel/qfont.cpp \
+		  kernel/qfontdatabase.cpp \
 		  kernel/qiconset.cpp \
 		  kernel/qimage.cpp \
 		  kernel/qlayout.cpp \
@@ -330,9 +333,10 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwellarray.cpp \
 		  widgets/qwhatsthis.cpp \
 		  widgets/qwidgetstack.cpp \
+		  widgets/qworkspace.cpp \
+		  widgets/qworkspacechild.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \
-		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
 		  dialogs/qprogressdialog.cpp \
 		  dialogs/qtabdialog.cpp \
