@@ -203,10 +203,8 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
 {
     if(msg == kDMNotifyEvent) {
 	if(QDesktopWidget *dw = qApp->desktop()) {
-	    // ### why post the event?
-	    QApplication::postEvent(dw, new QResizeEvent(dw->size(), dw->size()));
-	    // ### need to send the right screen number
-	    emit desktop()->resized( 0 );
+	    QResizeEvent re(dw->size(), dw->size());
+	    QApplication::sendEvent(dw, &re);
 	}
     }
 }
