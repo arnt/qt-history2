@@ -78,7 +78,7 @@ protected:
     Q3SVGPaintEngine(Q3SVGPaintEnginePrivate &dptr);
 
 private:
-    Q_DISABLE_COPY(Q3SVGPaintEngine);
+    Q_DISABLE_COPY(Q3SVGPaintEngine)
 };
 
 #endif
