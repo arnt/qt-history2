@@ -179,7 +179,7 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw, Project *pro )
     blockNewForms = FALSE;
     bufferEdit = 0;
 //     header()->setMovingEnabled( FALSE );
-//     header()->setStretchEnabled( TRUE );
+    header()->setStretchEnabled( TRUE );
     header()->hide();
     setSorting( -1 );
     setResizePolicy( QScrollView::Manual );
@@ -373,7 +373,7 @@ void Workspace::removeFormFromProject( QListViewItem *i )
 {
     if ( ( (WorkspaceItem*)i )->formWindow() ) {
 	if ( !( (WorkspaceItem*)i )->formWindow()->close() )
-	    return;  
+	    return;
     }
     project->removeUiFile( ( (WorkspaceItem*)i )->text( 1 ), ( (WorkspaceItem*)i )->formWindow() );
     delete i;
