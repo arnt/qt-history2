@@ -26,6 +26,7 @@
 #include "qstack.h"
 #include "qcleanuphandler.h"
 #include "qcolormap.h"
+#include "qdebug.h"
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
@@ -43,11 +44,6 @@ extern bool qt_reuse_double_buffer; // declared in qapplication_x11.cpp
 // defined in qapplication_x11.cpp
 bool qt_wstate_iconified(WId);
 void qt_updated_rootinfo();
-
-// from qpaintengine_x11.cpp
-extern void qt_erase_background(QPaintDevice *pd, int screen,
-                                int x, int y, int width, int height,
-                                const QBrush &brush, int offx, int offy);
 
 
 #if !defined(QT_NO_IM)
@@ -910,28 +906,18 @@ void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
     QBrush brush = q->palette().brush(q->backgroundRole());
-    if (brush.style() == Qt::NoBrush || q->testAttribute(Qt::WA_NoSystemBackground) || q->testAttribute(Qt::WA_UpdatesDisabled)) {
+    if (brush.style() == Qt::NoBrush
+        || q->testAttribute(Qt::WA_NoSystemBackground)
+        || q->testAttribute(Qt::WA_UpdatesDisabled))
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
-    } else if (!brush.texture().isNull()) {
-        QPixmap pix = brush.texture();
-        if (data.wrect.isValid() && !isBackgroundInherited()) {
-            int xoff = data.wrect.x() % pix.width();
-            int yoff = data.wrect.y() % pix.height();
-            if (xoff || yoff) {
-                QPixmap newPix(pix.size(), pix.depth());
-                qt_erase_background(&newPix, newPix.x11Info().screen(), 0,0,pix.width(), pix.height(),
-                                    pix, xoff, yoff);
-                pix = newPix;
-            }
-        }
+    else if (isBackgroundInherited())
+        XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
+    else if (brush.style() == Qt::TexturePattern)
         XSetWindowBackgroundPixmap(X11->display, q->winId(),
-                                   isBackgroundInherited()
-                                   ? ParentRelative
-                                   : pix.data->x11ConvertToDefaultDepth());
-    } else {
+                                   brush.texture().data->x11ConvertToDefaultDepth());
+    else
         XSetWindowBackground(X11->display, q->winId(),
                              QColormap::instance(xinfo.screen()).pixel(brush.color()));
-    }
 }
 
 void QWidget::setCursor(const QCursor &cursor)
@@ -1822,7 +1808,6 @@ void QWidgetPrivate::show_sys()
             || q->palette().brush(q->backgroundRole()).style() == Qt::LinearGradientPattern)) {
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
         XMapWindow(X11->display, q->winId());
-        updateSystemBackground();
         return;
     }
     XMapWindow(X11->display, q->winId());
@@ -2057,10 +2042,8 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
     }
 
 
-    if  (jump) {
-        updateSystemBackground();
+    if  (jump)
         XClearArea(dpy, data.winid, 0, 0, wrect.width(), wrect.height(), True);
-    }
 
     if (mapWindow && !dontShow) {
             q->setAttribute(Qt::WA_Mapped);
