@@ -49,7 +49,7 @@ void DataGrid::removeColumn( uint col )
 {
     if ( col >= (uint)numCols() )
 	return;
-    QHeader* h = horizontalHeader();    
+    QHeader* h = horizontalHeader();
     for ( uint i = col; i < (uint)numCols()-1; ++i )
 	h->setLabel( i, h->label(i+1) );
     setNumCols( numCols()-1 );

@@ -17,6 +17,7 @@
 
 #include "sqlbrowsewindow.h"
 
+class MyDataGrid;
 class ResultWindow : public SqlBrowseWindowBase
 {
     Q_OBJECT
@@ -28,6 +29,7 @@ public slots:
 private:
     QSqlDatabase* db;
     QSqlView* view;
+    //    MyDataGrid* dg;
 };
 
 #endif
