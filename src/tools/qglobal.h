@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#45 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#46 $
 **
 ** Global type declarations and definitions
 **
@@ -145,9 +145,18 @@
 #define HAS_BOOL_TYPE
 #endif
 
+#if defined(_CC_MSVC_)
+#define _CC_BOOL_DEF_
+#endif
+
 #if !defined(HAS_BOOL_TYPE)
+#if defined(_CC_BOOL_DEF_)
+#define bool	        int
+#else
 typedef int		bool;
 #endif
+#endif
+
 typedef unsigned char	uchar;
 typedef unsigned short	ushort;
 typedef unsigned	uint;
