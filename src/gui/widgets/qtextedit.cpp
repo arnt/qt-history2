@@ -141,6 +141,8 @@ public:
 
     void setCursorPosition(int pos, QTextCursor::MoveMode mode = QTextCursor::MoveAnchor);
 
+    void selectionChanged();
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;
@@ -205,11 +207,17 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
         return false;
     }
 
+    const bool hadSelection = cursor.hasSelection();
+
     QTextCursor::MoveMode mode = e->state() & Qt::ShiftButton
 				   ? QTextCursor::KeepAnchor
 				   : QTextCursor::MoveAnchor;
     cursor.movePosition(op, mode);
     ensureCursorVisible();
+
+    if (cursor.hasSelection() != hadSelection)
+        selectionChanged();
+
     return true;
 }
 
@@ -302,6 +310,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment)
 
     cursor.movePosition(QTextCursor::Start);
     updateCurrentCharFormat();
+    selectionChanged();
 }
 
 void QTextEditPrivate::startDrag()
@@ -324,6 +333,7 @@ void QTextEditPrivate::paste(const QMimeSource *source)
 	return;
 
     cursor.insertFragment(fragment);
+    selectionChanged();
 }
 
 void QTextEditPrivate::placeCursor(const QPoint &pos)
@@ -332,6 +342,7 @@ void QTextEditPrivate::placeCursor(const QPoint &pos)
     if (cursorPos == -1)
         return;
     cursor.setPosition(cursorPos);
+    selectionChanged();
 }
 
 void QTextEditPrivate::ensureCursorVisible()
@@ -356,6 +367,12 @@ void QTextEditPrivate::setCursorPosition(int pos, QTextCursor::MoveMode mode)
     cursor.setPosition(pos, mode);
     ensureCursorVisible();
     updateCurrentCharFormat();
+    selectionChanged();
+}
+
+void QTextEditPrivate::selectionChanged()
+{
+    emit q->copyAvailable(cursor.hasSelection());
 }
 
 QTextEdit::QTextEdit( QWidget *parent,  const char * name )
@@ -442,6 +459,7 @@ void QTextEdit::setCursor(const QTextCursor &cursor)
     d->cursor = cursor;
     d->updateCurrentCharFormat();
     d->ensureCursorVisible();
+    d->selectionChanged();
 }
 
 QTextCursor QTextEdit::cursor() const
@@ -518,6 +536,7 @@ void QTextEdit::undo()
 	return;
     d->doc->undo();
     d->updateCurrentCharFormat();
+    d->selectionChanged();
 }
 
 void QTextEdit::redo()
@@ -526,6 +545,7 @@ void QTextEdit::redo()
 	return;
     d->doc->redo();
     d->updateCurrentCharFormat();
+    d->selectionChanged();
 }
 
 void QTextEdit::cut()
@@ -534,6 +554,7 @@ void QTextEdit::cut()
 	return;
     copy();
     d->cursor.removeSelectedText();
+    d->selectionChanged();
 }
 
 void QTextEdit::copy()
@@ -561,6 +582,7 @@ void QTextEdit::selectAll()
 {
     d->cursor.movePosition(QTextCursor::Start);
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    d->selectionChanged();
 }
 
 void QTextEdit::timerEvent(QTimerEvent *ev)
@@ -656,10 +678,12 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
         break;
     case Key_Delete:
         d->cursor.deleteChar();
+        d->selectionChanged();
         break;
     case Key_Return:
     case Key_Enter:
         d->cursor.insertBlock();
+        d->selectionChanged();
         break;
     default:
         {
@@ -700,6 +724,7 @@ void QTextEdit::keyPressEvent ( QKeyEvent *e )
             if (!text.isEmpty()) {
                 d->cursor.insertText(text, d->currentCharFormat);
                 updateCurrentFormat = false;
+                d->selectionChanged();
             } else {
                 e->ignore();
                 return;
@@ -795,6 +820,7 @@ void QTextEdit::contentsMousePressEvent(QMouseEvent *ev)
         d->cursor.clearSelection();
     }
 
+    d->selectionChanged();
     viewport()->update();
 }
 
@@ -843,6 +869,7 @@ void QTextEdit::contentsMouseReleaseEvent(QMouseEvent *ev)
     }
 
     viewport()->update();
+    d->selectionChanged();
 
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
@@ -858,6 +885,7 @@ void QTextEdit::contentsMouseDoubleClickEvent(QMouseEvent *ev)
     d->cursor.movePosition(QTextCursor::PreviousWord);
     d->cursor.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor);
     viewport()->update();
+    d->selectionChanged();
 
     d->trippleClickTimerActive = true;
     d->trippleClickPoint = ev->globalPos();
@@ -1044,6 +1072,7 @@ void QTextEdit::setAutoFormatting(AutoFormatting features)
 void QTextEdit::insertPlainText(const QString &text)
 {
     d->cursor.insertText(text);
+    d->selectionChanged();
 }
 
 /*!
@@ -1061,6 +1090,7 @@ void QTextEdit::insertHtml(const QString &text)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->cursor.insertFragment(fragment);
+    d->selectionChanged();
 }
 
 bool QTextEdit::tabChangesFocus() const
