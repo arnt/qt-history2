@@ -32,7 +32,13 @@ HEADERS += \
     invisible_widget.h \
     treewidget.h \
     sheet_delegate.h \
-    qdesigner_promotedwidget.h
+    qdesigner_promotedwidget.h \
+    qdesigner_customwidget.h \
+    qdesigner_stackedbox.h \
+    qdesigner_tabwidget.h \
+    qdesigner_toolbox.h \
+    widgetfactory.h \
+    widgetdatabase.h
 
 SOURCES += \
     spacer.cpp \
@@ -49,7 +55,13 @@ SOURCES += \
     invisible_widget.cpp \
     treewidget.cpp \
     sheet_delegate.cpp \
-    qdesigner_promotedwidget.cpp
+    qdesigner_promotedwidget.cpp \
+    qdesigner_customwidget.cpp \
+    qdesigner_stackedbox.cpp \
+    qdesigner_tabwidget.cpp \
+    qdesigner_toolbox.cpp \
+    widgetfactory.cpp \
+    widgetdatabase.cpp
 
 FORMS += promotetocustomwidgetdialog.ui
 

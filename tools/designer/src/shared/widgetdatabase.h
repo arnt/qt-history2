@@ -14,7 +14,7 @@
 #ifndef WIDGETDATABASE_H
 #define WIDGETDATABASE_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <abstractformeditor.h>
 #include <abstractwidgetdatabase.h>
@@ -24,7 +24,7 @@
 
 class QObject;
 
-struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
+struct QT_SHARED_EXPORT WidgetDataBaseItem: public AbstractWidgetDataBaseItem
 {
     WidgetDataBaseItem(const QString &name = QString::null,
                        const QString &group = QString::null);
@@ -49,7 +49,7 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
 
     bool isCompat() const;
     void setCompat(bool compat);
-    
+
     bool isContainer() const;
     void setContainer(bool b);
 
@@ -64,7 +64,7 @@ struct WidgetDataBaseItem: public AbstractWidgetDataBaseItem
 
     bool isPromoted() const;
     void setPromoted(bool b);
-    
+
     QString extends() const;
     void setExtends(const QString &s);
 
@@ -84,18 +84,18 @@ private:
     QString m_extends;
 };
 
-class QT_FORMEDITOR_EXPORT WidgetDataBase: public AbstractWidgetDataBase
+class QT_SHARED_EXPORT WidgetDataBase: public AbstractWidgetDataBase
 {
     Q_OBJECT
 public:
     WidgetDataBase(AbstractFormEditor *core, QObject *parent = 0);
     virtual ~WidgetDataBase();
-    
-    virtual AbstractFormEditor *core() const;    
-    
+
+    virtual AbstractFormEditor *core() const;
+
     virtual AbstractWidgetDataBaseItem *item(int index) const;
     int indexOfObject(QObject *o, bool resolveName = true) const;
-    
+
 public slots:
     void loadPlugins();
 

@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_toolbox.h"
-#include "formwindow.h"
+#include "abstractformwindow.h"
 
 #include <qdesigner_command.h>
 
@@ -81,7 +81,7 @@ void QDesignerToolBox::removeCurrentPage()
     if (currentIndex() == -1 || !widget(currentIndex()))
         return;
 
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         DeleteToolBoxPageCommand *cmd = new DeleteToolBoxPageCommand(fw);
         cmd->init(this);
 
@@ -91,7 +91,7 @@ void QDesignerToolBox::removeCurrentPage()
 
 void QDesignerToolBox::addPage()
 {
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         AddToolBoxPageCommand *cmd = new AddToolBoxPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);

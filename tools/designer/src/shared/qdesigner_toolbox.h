@@ -14,13 +14,13 @@
 #ifndef QDESIGNER_TOOLBOX_H
 #define QDESIGNER_TOOLBOX_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <QToolBox>
 
 class QAction;
 
-class QT_FORMEDITOR_EXPORT QDesignerToolBox : public QToolBox
+class QT_SHARED_EXPORT QDesignerToolBox : public QToolBox
 {
     Q_OBJECT
     Q_OVERRIDE(int currentIndex READ currentIndex DESIGNABLE true)

@@ -18,7 +18,7 @@
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_customwidget.h"
 #include "qdesigner_promotedwidget.h"
-#include "formwindow.h"
+#include "abstractformwindow.h"
 #include "layout.h"
 
 // sdk
@@ -66,7 +66,7 @@ void WidgetFactory::loadPlugins()
 
 QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentWidget) const
 {
-    FormWindow *fw = FormWindow::findFormWindow(parentWidget);
+    AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(parentWidget);
 
     QWidget *w = 0;
 
@@ -96,8 +96,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         }
     } else if (widgetName == QLatin1String("QWidget")) {
         if (fw && parentWidget &&
-             (qt_cast<FormWindow*>(parentWidget) || qt_extension<IContainer*>(m_core->extensionManager(), parentWidget))) {
-             w = new QDesignerWidget(fw, qt_cast<FormWindow*>(parentWidget) ? parentWidget : 0);
+             (qt_cast<AbstractFormWindow*>(parentWidget) || qt_extension<IContainer*>(m_core->extensionManager(), parentWidget))) {
+             w = new QDesignerWidget(fw, qt_cast<AbstractFormWindow*>(parentWidget) ? parentWidget : 0);
         } else {
             w = new QWidget(parentWidget);
         }
@@ -265,7 +265,7 @@ QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const
         return w->parentWidget()->parentWidget()->parentWidget();
     while (w) {
         if (core()->widgetDataBase()->isContainer(w) ||
-             w && qt_cast<FormWindow*>(w->parentWidget()))
+             w && qt_cast<AbstractFormWindow*>(w->parentWidget()))
             return w;
         w = w->parentWidget();
     }

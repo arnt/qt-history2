@@ -25,7 +25,7 @@ class QDesignerCustomWidget: public QDesignerWidget
     Q_PROPERTY(bool compat READ isCompat WRITE setCompat STORED false)
     Q_PROPERTY(bool container READ isContainer WRITE setContainer STORED false)
 public:
-    QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent = 0);
+    QDesignerCustomWidget(AbstractFormWindow *formWindow, QWidget *parent = 0);
     virtual ~QDesignerCustomWidget();
     
     AbstractWidgetDataBaseItem *widgetItem() const;

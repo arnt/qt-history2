@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "qdesigner_customwidget.h"
-#include "formwindow.h"
+#include <abstractformwindow.h>
 
 #include <abstractformeditor.h>
 #include "widgetdatabase.h"
 
-QDesignerCustomWidget::QDesignerCustomWidget(FormWindow *formWindow, QWidget *parent)
+QDesignerCustomWidget::QDesignerCustomWidget(AbstractFormWindow *formWindow, QWidget *parent)
     : QDesignerWidget(formWindow, parent),
       m_widgetClassName(QLatin1String("QWidget"))
 {

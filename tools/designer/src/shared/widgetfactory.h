@@ -14,7 +14,7 @@
 #ifndef WIDGETFACTORY_H
 #define WIDGETFACTORY_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 #include "abstractwidgetfactory.h"
 
 #include <pluginmanager.h>
@@ -29,7 +29,7 @@ class QLayout;
 class AbstractFormEditor;
 struct ICustomWidget;
 
-class QT_FORMEDITOR_EXPORT WidgetFactory: public AbstractWidgetFactory
+class QT_SHARED_EXPORT WidgetFactory: public AbstractWidgetFactory
 {
 public:
     WidgetFactory(AbstractFormEditor *core, QObject *parent = 0);

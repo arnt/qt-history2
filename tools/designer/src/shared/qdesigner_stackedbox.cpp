@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qdesigner_stackedbox.h"
-#include "formwindow.h"
+#include "abstractformwindow.h"
 
 #include <abstractformeditor.h>
 #include <abstractpropertyeditor.h>
@@ -68,7 +68,7 @@ void QDesignerStackedWidget::removeCurrentPage()
     if (currentIndex() == -1)
         return;
 
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         DeleteStackedWidgetPageCommand *cmd = new DeleteStackedWidgetPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -77,7 +77,7 @@ void QDesignerStackedWidget::removeCurrentPage()
 
 void QDesignerStackedWidget::addPage()
 {
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         AddStackedWidgetPageCommand *cmd = new AddStackedWidgetPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -101,7 +101,7 @@ void QDesignerStackedWidget::updateButtons()
 
 void QDesignerStackedWidget::prevPage()
 {
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         int newIndex = currentIndex() - 1;
         if (newIndex < 0)
             newIndex = count() -1;
@@ -115,7 +115,7 @@ void QDesignerStackedWidget::prevPage()
 
 void QDesignerStackedWidget::nextPage()
 {
-    if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+    if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
         cmd->init(this, "currentIndex", (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);

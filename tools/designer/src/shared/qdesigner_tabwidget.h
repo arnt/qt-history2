@@ -14,13 +14,13 @@
 #ifndef QDESIGNER_TABWIDGET_H
 #define QDESIGNER_TABWIDGET_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <QTabWidget>
 
 class QAction;
 
-class QT_FORMEDITOR_EXPORT QDesignerTabWidget : public QTabWidget
+class QT_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {
     Q_OBJECT
     Q_OVERRIDE(int currentIndex DESIGNABLE true)

@@ -14,7 +14,7 @@
 #ifndef QDESIGNER_STACKEDBOX_H
 #define QDESIGNER_STACKEDBOX_H
 
-#include "formeditor_global.h"
+#include "shared_global.h"
 
 #include <QStackedWidget>
 #include <QList>
@@ -22,7 +22,7 @@
 class QAction;
 class QToolButton;
 
-class QT_FORMEDITOR_EXPORT QDesignerStackedWidget : public QStackedWidget
+class QT_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 {
     Q_OBJECT
     Q_OVERRIDE(int currentIndex READ currentIndex DESIGNABLE true)
