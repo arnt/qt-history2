@@ -865,7 +865,7 @@ static bool block_set_alignment = false;
 */
 
 Q3TextEdit::Q3TextEdit(QWidget *parent, const char *name)
-    : Q3ScrollView(parent, name, Qt::WStaticContents | Qt::WNoAutoErase),
+    : Q3ScrollView(parent, name, Qt::WStaticContents),
       doc(new Q3TextDocument(0)), undoRedoInfo(doc)
 {
     init();
@@ -1065,7 +1065,6 @@ void Q3TextEdit::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 
 void Q3TextEdit::drawContents(QPainter *p)
 {
-    Q_ASSERT(false);
     if (horizontalScrollBar()->isVisible() &&
          verticalScrollBar()->isVisible()) {
         const QRect verticalRect = verticalScrollBar()->geometry();
