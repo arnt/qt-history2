@@ -21,5 +21,6 @@ network {
 
 	unix:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_unix.cpp
 	win32:NETWORK_SOURCES += $$NETWORK_CPP/qsocketdevice_win.cpp
+	mac:INCLUDEPATH+=3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 	SOURCES    += $$NETWORK_SOURCES
 }
