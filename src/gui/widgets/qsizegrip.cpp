@@ -220,7 +220,7 @@ void QSizeGrip::mouseMoveEvent(QMouseEvent * e)
         w = 1;
     if (h < 1)
         h = 1;
-    QSize ms(tlw->minimumSizeHint());
+    QSize ms(tlw->minimumSize());
     ms = ms.expandedTo(minimumSize());
     if (w < ms.width())
         w = ms.width();
