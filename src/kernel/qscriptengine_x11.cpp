@@ -1024,7 +1024,7 @@ inline void splitMatra( int script, unsigned short *reordered, int matra, int &l
 static void devanagari_shape( int script, const QString &string, int from, int syllableLength,
 			      QTextEngine *engine, QScriptItem *si, QOpenType *openType, bool invalid )
 {
-    assert( script == QFont::Devanagari );
+    assert( script == QFont::Devanagari || script == QFont::Kannada );
     const unsigned short script_base = 0x0900 + 0x80*(script-QFont::Devanagari);
     const unsigned short ra = script_base + 0x30;
     const unsigned short halant = script_base + 0x4d;
@@ -1349,7 +1349,7 @@ static void devanagari_shape( int script, const QString &string, int from, int s
 	advance_t *advances = engine->advances(si)+si->num_glyphs;
 	GlyphAttributes *ga = engine->glyphAttributes(si)+si->num_glyphs;
 
-	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, advances, &si->num_glyphs,
+	int error = si->fontEngine->stringToCMap((QChar *)reordered, len, glyphs, advances, &len,
 						 (si->analysis.bidiLevel %2));
 	assert (!error);
 
@@ -1391,7 +1391,7 @@ IndicShapeFunction indic_shapeFn[QFont::Sinhala - QFont::Devanagari+1] = {
     dummy_shape,
     dummy_shape,
     dummy_shape,
-    dummy_shape,
+    devanagari_shape,
     dummy_shape,
     dummy_shape
 };
