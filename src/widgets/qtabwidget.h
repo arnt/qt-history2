@@ -118,9 +118,7 @@ signals:
 
 private slots:
     void showTab( int );
-#ifdef Q_OS_TEMP
     void relayoutTabs();
-#endif
 
 private:
     QTabWidgetData *d;
