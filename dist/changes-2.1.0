@@ -9,14 +9,16 @@ differences in runtime behaviour - such fixes are marked with a "*".
 New features
 ------------
 
-
 Support for legacy Motif Drag-and-drop.
 Support for Big5 character encoding.
+
 
 General improvements
 --------------------
 
-None.
+* qRgb(r,g,b) now sets an alpha value of 0xff instead of 0x00.  Users
+want an opaque value by default, not a transparent one.  However this
+may have some impact on client code that handles pixel values directly.
 
 
 Windows-specific fixes
