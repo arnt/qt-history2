@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#23 $
 **
 ** Implementation of QLabel widget class
 **
@@ -15,22 +15,22 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#23 $";
 #endif
 
 
 /*----------------------------------------------------------------------------
   \class QLabel qlabel.h
-  \brief The QLabel widget displays a static text.
+  \brief The QLabel widget displays a static text or pixmap.
 
   \ingroup realwidgets
 
-  A label is a text field that can have an optional frame (since QLabel
-  inherits QFrame).
+  A label is a text or pixmap field that can have an optional frame
+  (since QLabel inherits QFrame).
 
   The contents of a label can be specified as a normal text, as a
-  numeric value (which is internally converted to a text) or even as
-  a pixmap.
+  numeric value (which is internally converted to a text) or, as a
+  pixmap.
 
   A label can be aligned in many different ways. The alignment setting
   specifies where to position the contents relative to the frame
@@ -92,7 +92,7 @@ QLabel::QLabel( const char *text, QWidget *parent, const char *name )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa text(), setPixmap(), setAutoResize()
+  \sa text(), setPixmap(), setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setText( const char *text )
@@ -121,7 +121,7 @@ void QLabel::setText( const char *text )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa pixmap(), setText(), setAutoResize()
+  \sa pixmap(), setText(), setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setPixmap( const QPixmap &pixmap )
@@ -159,7 +159,7 @@ void QLabel::setPixmap( const QPixmap &pixmap )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setNum( long num )
@@ -181,7 +181,7 @@ void QLabel::setNum( long num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 void QLabel::setNum( double num )
@@ -204,7 +204,7 @@ void QLabel::setNum( double num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -214,7 +214,7 @@ void QLabel::setNum( double num )
 
   The label resizes itself if auto-resizing is enabled.
 
-  \sa setAutoResize()
+  \sa setAutoResizing()
  ----------------------------------------------------------------------------*/
 
 
