@@ -54,7 +54,6 @@
 #define XMD_H
 #if defined(Q_OS_UNIXWARE)
 #  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
-#  define HAVE_PROTOTYPES
 #endif
 #include <libmng.h>
 #include <stdlib.h>

@@ -55,7 +55,6 @@ extern "C" {
 #define XMD_H           // shut JPEGlib up
 #if defined(Q_OS_UNIXWARE)
 #  define HAVE_BOOLEAN  // libjpeg under Unixware seems to need this
-#  define HAVE_PROTOTYPES
 #endif
 #include <jpeglib.h>
 #ifdef const
