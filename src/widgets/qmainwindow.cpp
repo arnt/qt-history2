@@ -121,6 +121,7 @@ public:
 	    : t(tb), nl(n) {}
 	QToolBar * t;
 	bool nl;
+	QValueList<int> disabledDocks;
     };
 	
     typedef QList<ToolBar> ToolBarDock;
@@ -128,7 +129,7 @@ public:
     QMainWindowPrivate()
 	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ),
-	  justify( FALSE ), moving( 0 )
+	  justify( FALSE )
     {
 	// nothing
     }
@@ -178,7 +179,6 @@ public:
     bool ubp;
     bool justify;
 
-    QToolBar * moving;
     QPoint pos;
     QPoint offset;
 
@@ -594,21 +594,58 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 {
     switch ( dock ) {
     case Top:
-	return d->top != 0 && d->dockable[ (int)dock ];
+	return d->dockable[ (int)dock ];
     case Left:
-	return d->left != 0 && d->dockable[ (int)dock ];
+	return d->dockable[ (int)dock ];
     case Right:
-	return d->right != 0 && d->dockable[ (int)dock ];
+	return d->dockable[ (int)dock ];
     case Bottom:
-	return d->bottom != 0 && d->dockable[ (int)dock ];
+	return  d->dockable[ (int)dock ];
     case TornOff:
-	return d->tornOff != 0 && d->dockable[ (int)dock ];
+	return d->dockable[ (int)dock ];
     case Unmanaged:
-	return d->unmanaged != 0 && d->dockable[ (int)dock ];
+	return d->dockable[ (int)dock ];
     }
     return FALSE; // for illegal values of dock
 }
 
+/*!  
+  Sets \a dock to be available for the toolbar \a tb if \a enable is TRUE, and not
+  available if \a enable is FALSE.
+
+  The user can drag the toolbar to any enabled dock.
+*/
+
+
+void QMainWindow::setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable )
+{
+    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb );
+    if ( !t )
+	return;
+
+    if ( enable ) {
+	if ( t->disabledDocks.contains( (int)dock ) )
+	    t->disabledDocks.remove( (int)dock );
+    } else {
+	if ( !t->disabledDocks.contains( (int)dock ) )
+	    t->disabledDocks.append( (int)dock );
+    }
+}
+
+/*!  
+  Returns TRUE if \a dock is enabled for the toolbar \a tb , or FALSE if it is not.
+
+  \sa setDockEnabled()
+*/
+
+bool QMainWindow::isDockEnabled( QToolBar *tb, ToolBarDock dock ) const
+{
+    QMainWindowPrivate::ToolBar *t = d->findToolbar( tb );
+    if ( !t )
+	return FALSE;
+
+    return !(bool)t->disabledDocks.contains( (int)dock );
+}
 
 
 
@@ -631,6 +668,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
     }
 
     setDockEnabled( edge, TRUE );
+    setDockEnabled( toolBar, edge, TRUE );
 
     QMainWindowPrivate::ToolBarDock * dl = 0;
     if ( edge == Top ) {
@@ -728,18 +766,19 @@ that window to this and set to \e not start a new line.
 
 void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 {
-    if ( !d->dockable[ (int)edge ] )
-	return;
     if ( !toolBar )
 	return;
     bool nl = FALSE;
+    QValueList<int> dd;
     if ( toolBar->mw ) {
 	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar );
-	if ( tb )
+	if ( tb ) {
 	    nl = tb->nl;
+	    dd = tb->disabledDocks;
+	}
 	toolBar->mw->removeToolBar( toolBar );
     }
-    
+
     QMainWindowPrivate::ToolBar * ct;
     ct = takeToolBarFromDock( toolBar, d->top );
     if ( !ct )
@@ -754,6 +793,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 	ct = takeToolBarFromDock( toolBar, d->unmanaged );
     if ( ct ) {
 	setDockEnabled( edge, TRUE );
+	setDockEnabled( toolBar, edge, TRUE );
 
 	QMainWindowPrivate::ToolBarDock * dl = 0;
 	if ( edge == Top ) {
@@ -786,6 +826,9 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 	dl->append( ct );
     } else {
 	addToolBar( toolBar, edge, nl );
+	QMainWindowPrivate::ToolBar *tb = d->findToolbar( toolBar );
+	if ( tb )
+	    tb->disabledDocks = dd;
     }
 
     triggerLayout();
@@ -1049,9 +1092,8 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
     if ( ( e->type() == QEvent::MouseButtonPress ||
 		  e->type() == QEvent::MouseMove ||
 		  e->type() == QEvent::MouseButtonRelease ) &&
-		1 && // 1.4x
-		o && ( d->moving || o->inherits( "QToolBar" ) ) ) {
-	moveToolBar( d->moving ? d->moving : (QToolBar *)o, (QMouseEvent *)e );
+		o && o->inherits( "QToolBar" )  ) {
+	moveToolBar( (QToolBar *)o, (QMouseEvent *)e );
 	return TRUE;
     }
     return QWidget::eventFilter( o, e );
@@ -1298,7 +1340,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 {
     if ( e->type() == QEvent::MouseButtonPress ) {
 	QApplication::setOverrideCursor( Qt::pointingHandCursor );
-	d->moving = 0;
 	d->invisibleDrawArea = new QWidget( this );
 	d->invisibleDrawArea->setBackgroundMode( NoBackground );
 	d->invisibleDrawArea->raise();
@@ -1318,7 +1359,6 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	return;
     } else if ( e->type() == QEvent::MouseButtonRelease ) {
 	QApplication::restoreOverrideCursor();
-	d->moving = 0;
 	if ( d->rectPainter )	
 	    d->rectPainter->end();
 	delete d->invisibleDrawArea;
@@ -1328,21 +1368,22 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	QPoint pos = mapFromGlobal( QCursor::pos() );
 	QRect r;
 	ToolBarDock dock = findDockArea( pos, r, t );
-	if ( dock != Unmanaged )
+	if ( dock != Unmanaged && isDockEnabled( dock ) && 
+	     isDockEnabled( t, dock ) )
 	    moveToolBar( t, dock );
 	return;
     }
 
     QPoint p( QCursor::pos() );
-    if ( !d->moving &&
-	 QABS( p.x() - d->pos.x() ) < 3 && QABS( p.y() - d->pos.y() ) < 3 )
+    if ( QABS( p.x() - d->pos.x() ) < 3 && QABS( p.y() - d->pos.y() ) < 3 )
 	return;
 
     QPoint pos = mapFromGlobal( p );
     QRect r;
     ToolBarDock dock = findDockArea( pos, r, t );
 
-    if ( dock == Unmanaged || !d->dockable[ (int)dock ] )
+    if ( dock == Unmanaged || !isDockEnabled( dock ) || 
+	 !isDockEnabled( t, dock ) )
 	r = d->origPosRect;
 
 

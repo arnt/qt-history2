@@ -57,6 +57,8 @@ public:
 
     virtual void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
+    void setDockEnabled( QToolBar *tb, ToolBarDock dock, bool enable ); // ########### make virtual
+    bool isDockEnabled( QToolBar *tb, ToolBarDock dock ) const;
 
     void addToolBar( QToolBar *, ToolBarDock = Top, bool newLine = FALSE );
     void addToolBar( QToolBar *, const QString &label,
