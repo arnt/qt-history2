@@ -154,12 +154,15 @@ struct SWCursorData {
 //
 #ifndef QT_NO_QWS_VGA_16
 # define QT_NEED_SIMPLE_ALLOC
-# define GFX_8BPP_PIXEL(r,g,b) gfx_screen->alloc(r,g,b)
+# define GFX_8BPP_PIXEL(r,g,b)		gfx_screen->alloc(r,g,b)
+# define GFX_8BPP_PIXEL_CURSOR(r,g,b)   qt_screen->alloc(r,g,b)
 #else
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-# define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
+# define GFX_8BPP_PIXEL(r,g,b)		qGray((r),(g),(b))
+# define GFX_8BPP_PIXEL_CURSOR          GFX_8BPP_PIXEL
 #else
-# define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
+# define GFX_8BPP_PIXEL(r,g,b)		(((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
+# define GFX_8BPP_PIXEL_CURSOR          GFX_8BPP_PIXEL
 #endif
 #endif
 
@@ -720,7 +723,7 @@ void QScreenCursor::drawCursor()
 		    g = ((g-sg) * av) / 256 + sg;
 		    b = ((b-sb) * av) / 256 + sb;
 
-		    *(dptr+col) = GFX_8BPP_PIXEL(r,g,b);
+		    *(dptr+col) = GFX_8BPP_PIXEL_CURSOR(r,g,b);
 		}
 # endif
 	    }
