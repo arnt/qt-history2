@@ -302,8 +302,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
     implementation so no name conflict can occur.
     \P
 
-	<sect2><title>The \class[WidgetInterface] Class's
-	Interface</title>
+	<sect2><title>The \class[WidgetInterface] Implementation</title>
 	\p
 	We have called our header file \f[plugin.h] and we've
 	called our interface class \class[CustomWidgetInterface] since we
@@ -384,7 +383,7 @@ linkend="old-custom-widgets"> "Custom Widgets".)
 	    The \fn[queryInterface] function is called by programs that
 	    load a plugin so that they can determine whether the plugin
 	    provides an implementation for a particular interface. Every
-	    interface implementation has a unique uuid 
+	    interface has a unique uuid 
 	    (\i[univeral unique identifier], also known as 
 	    \i[global unique identifier]), which is passed to the
 	    function as \c[uuid]. The function creates a pointer to a

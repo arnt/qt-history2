@@ -7,12 +7,15 @@ public:
     CustomWidgetInterface();
     virtual ~CustomWidgetInterface() {}
 
+    // From QUnknownInterface
     QUnknownInterface *queryInterface( const QUuid& );
     ulong addRef();
     ulong release();
 
+    // From QFeatureListInterface
     QStringList featureList() const;
 
+    // From WidgetInterface
     QWidget* create( const QString &classname, QWidget* parent = 0, const char* name = 0 );
     QString group( const QString& ) const;
     QString iconSet( const QString& ) const;
