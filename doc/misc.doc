@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.15 1997/09/26 16:43:09 warwick Exp $
+** $Id: misc.doc,v 2.16 1997/09/29 13:43:23 paul Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.15 1997/09/26 16:43:09 warwick Exp $";
+static char ident[] = "$Id: misc.doc,v 2.16 1997/09/29 13:43:23 paul Exp $";
 #endif
 
 
@@ -202,8 +202,8 @@ noticeably.  (<a href="mailto:info@troll.no">Write to us</a> if you
 feel hampered, and we may be able to do something about it.)
 <p>
 <p>
-The <a href="/pricing.html">professional</a> license is much less restrictive
-than this one.
+The <a href="http://www.troll.no/pricing.html">professional</a> license 
+is much less restrictive than this one.
 <p>
 <hr>
 <p>
