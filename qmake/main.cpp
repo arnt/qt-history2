@@ -57,10 +57,11 @@ int main(int argc, char **argv)
             if(!tmp_dir.isEmpty() && QFile::exists(tmp_dir))
                 dir = tmp_dir;
         }
-        if(!dir.isNull() && dir != ".")
+        if(!dir.isNull() && dir != ".") 
             Option::output_dir = dir;
         if(QDir::isRelativePath(Option::output_dir))
             Option::output_dir.prepend(oldpwd);
+        Option::output_dir = QDir::cleanPath(Option::output_dir);
     }
 
     QMakeProperty prop;
