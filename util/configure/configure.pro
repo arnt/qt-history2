@@ -45,5 +45,16 @@ DESTDIR=../../bin
 win32-msvc.net : QMAKE_CXXFLAGS += /EHsc
 win32-g++:LIBS += -luuid
 win32:LIBS += -lole32 -ladvapi32
-
 win32:CONFIG+=console
+
+win32-msvc* {
+    QMAKE_CFLAGS_RELEASE -= -MD
+    QMAKE_CFLAGS_DEBUG -= -MDd
+    QMAKE_CXXFLAGS_RELEASE -= -MD
+    QMAKE_CXXFLAGS_DEBUG -= -MDd
+
+    QMAKE_CFLAGS_RELEASE += -ML
+    QMAKE_CFLAGS_DEBUG += -MLd
+    QMAKE_CXXFLAGS_RELEASE += -ML
+    QMAKE_CXXFLAGS_DEBUG += -MLd
+}
