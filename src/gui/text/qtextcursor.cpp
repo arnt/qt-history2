@@ -769,8 +769,26 @@ int QTextCursor::selectionEnd() const
 
 QString QTextCursor::selectedText() const
 {
-    // ###########
-    return QString();
+    if (!d || !d->pieceTable || d->position == d->anchor)
+        return QString();
+
+    const QString docText = d->pieceTable->buffer();
+    QString text;
+    int pos = selectionStart();
+    const int end = selectionEnd();
+
+    while (pos < end) {
+        QTextDocumentPrivate::FragmentIterator fragIt = d->pieceTable->find(pos);
+        const QTextFragmentData * const frag = fragIt.value();
+
+        const int offsetInFragment = qMax(0, pos - fragIt.position());
+        const int len = qMin(int(frag->size - offsetInFragment), end - pos);
+
+        text += QString::fromRawData(docText.constData() + frag->stringPosition + offsetInFragment, len);
+        pos += len;
+    }
+
+    return text;
 }
 
 QTextDocumentFragment QTextCursor::selection() const
