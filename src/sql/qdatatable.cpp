@@ -254,7 +254,7 @@ void QDataTable::init()
 {
     d = new QDataTablePrivate();
     setAutoEdit( FALSE );
-    setSelectionMode( NoSelection );
+    setSelectionMode( SingleRow );
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
     reset();
@@ -1547,18 +1547,7 @@ void QDataTable::repaintCell( int row, int col )
 void QDataTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 			  bool selected )
 {
-    QTable::paintCell(p,row,col,cr, FALSE);  // empty cell
-
-#if 0 // ### Reggie: This looks ugly, any reason for it?
-    if( hasFocus() && (row == currentRow()) && (col == currentColumn()) ){
-	p->fillRect( 1, 1, cr.width() - 3, cr.height() - 3,
-		     colorGroup().brush( QColorGroup::Highlight ) );
-	p->setPen( colorGroup().highlightedText() );
-	p->drawRect( 1,1, cr.width()-3,cr.height()-3 );
-    } else {
-	p->setPen( colorGroup().text() );
-    }
-#endif
+    QTable::paintCell(p,row,col,cr, selected);  // empty cell
 
     if ( !sqlCursor() )
 	return;
