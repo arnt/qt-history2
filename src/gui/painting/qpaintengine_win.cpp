@@ -913,8 +913,8 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     if (!imask && mask) {
 	if (stretch) {
 	    QImage imageData(pixmap);
-	    QImage imask = imageData.createAlphaMask();
-	    QBitmap tmpbm = imask;
+	    QImage imageMask = imageData.createAlphaMask();
+	    QBitmap tmpbm = imageMask;
 	    QBitmap bm(sr.width(), sr.height());
 	    {
 		QPainter p(&bm);
