@@ -457,6 +457,10 @@ public:
 	{ return (uint)framecount; }
 
 private:
+#if defined(Q_DISABLE_COPY)
+    QCanvasPixmapArray( const QCanvasPixmapArray & );
+    QCanvasPixmapArray &operator=( const QCanvasPixmapArray & );
+#endif
 #ifndef QT_NO_IMAGEIO
     bool readPixmaps(const QString& datafilenamepattern, int framecount, bool maskonly);
 #endif
