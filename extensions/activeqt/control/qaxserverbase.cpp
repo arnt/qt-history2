@@ -457,6 +457,8 @@ public:
 	: cpoints(points), ref(0)
     {
 	InitializeCriticalSection(&refCountSection);
+	for (QAxServerBase::ConnectionPointsIterator i = cpoints.begin(); i != cpoints.end(); ++i)
+	    (*i)->AddRef();
     }
     QAxSignalVec(const QAxSignalVec &old)
     {
@@ -565,7 +567,7 @@ public:
     typedef QList<CONNECTDATA>::Iterator Iterator;
 
     QAxConnection(QAxServerBase *parent, const QUuid &uuid)
-	: that(parent), iid(uuid), ref(2)
+	: that(parent), iid(uuid), ref(1)
     {
 	InitializeCriticalSection(&refCountSection);
     }
