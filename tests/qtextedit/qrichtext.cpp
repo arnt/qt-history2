@@ -18,6 +18,7 @@
 #include <qpaintdevicemetrics.h>
 #include <qpainter.h>
 #include <qdrawutil.h>
+#include "qcursor.h"
 
 #include <stdlib.h>
 
