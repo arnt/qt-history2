@@ -2136,7 +2136,8 @@ HRESULT WINAPI QAxServerBase::GetClassInfo(ITypeInfo** pptinfo)
 {
     if ( !pptinfo )
 	return E_POINTER;
-
+    
+    *pptinfo = 0;
     if ( !qAxTypeLibrary )
 	return DISP_E_BADINDEX;
 
