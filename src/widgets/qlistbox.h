@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#35 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#36 $
 **
 ** Definition of QListBox widget class
 **
@@ -48,6 +48,7 @@ protected:
 private:
     QString txt;
     friend class QListBox;
+    bool selected;
 
 private:	// Disabled copy constructor and operator=
     QListBoxItem( const QListBoxItem & ) {}

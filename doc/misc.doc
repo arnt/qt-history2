@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.21 1996/07/05 21:33:50 agulbra Exp $
+** $Id: misc.doc,v 1.22 1996/09/02 14:21:42 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.21 1996/07/05 21:33:50 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 1.22 1996/09/02 14:21:42 agulbra Exp $";
 #endif
 
 
@@ -38,7 +38,7 @@ commercial license.
 What are the differences between the free and commercial versions of Qt?
 <p> 
 A: You can write commercial software using the commercial license.
-The library itself is the same. You also get 1 year of free support
+The library itself is the same. You also get one year of free support
 when you buy a commercial license.
 <p>
 <li>
@@ -52,6 +52,20 @@ you must upload it to ftp.troll.no before starting to use it, you
 have to allow free distribution and you have to include your source
 code.
 <p>
+<li>What does "suitable for use outside your organization" mean?
+<p>
+A: That the software is as usable outside your organization as inside
+it.  It need not be interesting to everyone, but for interested users
+outside your organization, it must be as usable as for the users
+inside your organization.
+<p>
+The chief implications are that your software cannot rely on
+proprietary libraries or secret data formats, and that it cannot be so
+undocumented as to be usable only by people who've attended internal
+seminars.
+<p>
+If you don't want to write proper documentation, or do need to use
+proprietary libraries, you need a commercial license.
 <li>
 Isn't it a bit too much to demand that we upload our software to
 ftp.troll.no?
@@ -212,18 +226,28 @@ emphasis on paying customers.
 
 <title>Qt License Statement</title>
 </head><body>
+<p>
+
+This is the non-commercial license for Qt version \version; it covers
+private use and development of free software for the free software
+community.  We believe that it does not constrain development of free
+software noticeably.  (<a href="mailto:qt-info@troll.no">Write to
+us</a> if you feel hampered, and we may be able to do something about
+it.)
+
+<p>
+
+The <a href="http://www.troll.no/pricing.html">commercial</a> and <a
+href="http://www.troll.no/shareware.html">shareware</a> licenses are
+much less restrictive than this one.
+
+<hr>
+
 <h1 align=center>TROLL TECH NON-COMMERCIAL LICENSE</h1>
 
 Copyright &copy; 1992-1996 Troll Tech AS.  All rights reserved.
 
 <p>
-
-This is the non-commercial license for Qt version \version; it covers
-private use and development of free software for the free software
-community.
-
-<p>
-
 
 <h2 align=center>COPYRIGHT AND RESTRICTIONS</h1>
 
@@ -271,7 +295,7 @@ AS.  Freely distributable programs may generally use Qt for free, see
 [README.QT] for details.
 </blockquote>
 <li>README.QT is distributed along with your components.
-<li>Qt is not distributed as an integral part of your components.
+<li>Qt is not distributed <em>as an integral part</em> of your components.
 </ul>
 
 
@@ -295,9 +319,6 @@ OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 
 <hr>
 
-<p align=center>
-(Qt is also available under other licenses; send mail to <a
-href="mailto:info@troll.no">info@troll.no</a> for details.)
 <p align=center>
 (The <a href="faq.html">FAQ</a> contains a number of questions related
 to the license.)

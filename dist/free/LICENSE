@@ -17,23 +17,26 @@ archive is distributed unchanged and as a whole, including this notice.
 
 You may use the Qt toolkit to create application programs provided that:
   - You accept this license.
-  - Your software is distributed including source code.
+  - Users of your software can obtain source code for the the software.
   - Your software does not require modifications to Qt.
-  - Third parties may legally modify and/or redistribute your software for
-    no charge.
+  - The license for your software does not grant licensees of your
+    software any rights in exchange for payment.
+  - The license for your software grants licensees some right
+    (conditional or unconditional) to modify or redistribute
+    your software.
 
 If you are paid to develop something with Qt or it is a part of your job
 the following conditions also apply:
-  - Your software must be suitable for use outside your organization.
-  - You must upload your software (including source) to ftp.troll.no
-    before you start using it.
-  - When you change your software in any significant way, you must upload
-    the new version of your software (including source) to ftp.troll.no
-    before you start using it.
+  - Your software must not require libraries, programs, data or
+    documentation that are not available outside your organization in
+    order to compile or use.
+  - You must notify Troll Tech AS of the software's name and purpose,
+    its license, and of your organization's name and purpose, if and
+    when your organization starts using the software.  [...]
 
 You may also use the Qt toolkit to create reusable components (such as
 libraries) provided that you accept the terms above, and in addition that:
-  - Your components' license includes the following text:
+  - Your components' documentation includes the following text:
 	[Your package] requires the Qt library, which is copyright
 	Troll Tech AS.  Freely distributable programs may generally
 	use Qt for free, see [README.QT] for details.
@@ -42,7 +45,7 @@ libraries) provided that you accept the terms above, and in addition that:
 
 
                        LIMITATIONS OF LIABILITY
- 
+
 Troll Tech AS makes no obligation under this license to support or upgrade
 Qt, or assist in the use of Qt.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#77 $
+** $Id: //depot/qt/main/src/kernel/qwindowdefs.h#78 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -230,13 +230,14 @@ const uint WFocusSet		= 0x40000000;
 
 struct QWExtra {
     GUIStyle guistyle;				// GUI Style
-    short    minw, minh;			// minimum size
-    short    maxw, maxh;			// maximum size
-    short    incw, inch;			// size increments
+    short int minw, minh;			// minimum size
+    short int maxw, maxh;			// maximum size
+    short int incw, inch;			// size increments
     char    *caption;				// widget caption
     char    *iconText;				// widget icon text
     QPixmap *icon;				// widget icon
     QPixmap *bg_pix;				// background pixmap
+    short int extraMouseTracking;		// internal mouse tracking
 };
 
 
