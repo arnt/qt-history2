@@ -258,16 +258,18 @@ void QMutex::unlock()
     returns false.
 
     It is generally a bad idea to use this function, because code
-    that uses it generally has a race condition. Use tryLock() and
-    unlock() instead.
+    that uses it has a race condition. Use tryLock() and unlock()
+    instead.
 
     \oldcode
+        bool isLocked = mutex.locked();
     \newcode
+        bool isLocked = true;
+        if (mutex.tryLock()) {
+            mutex.unlock();
+            isLocked = false;
+        }
     \endcode
-
-    \warning Due to differing implementations of recursive mutexes on
-    various platforms, calling this function from the same thread that
-    previously locked the mutex will return undefined results.
 */
 
 /*!
