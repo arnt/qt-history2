@@ -405,19 +405,6 @@ void QApplicationPrivate::createEventDispatcher()
 // Input Method support
 // ************************************************************************
 
-static void changeInputContextForChildren(QWidget *parent, const QString &newIM)
-{
-    QObjectList children = parent->children();
-    for (QObjectList::const_iterator it = children.constBegin(); it != children.constEnd(); ++it) {
-        QWidget *c = qt_cast<QWidget *>(*it);
-        if (!c)
-            continue;
-        if (c->testAttribute(Qt::WA_OwnInputContext))
-            c->setInputContext(newIM);
-        changeInputContextForChildren(c, newIM);
-    }
-}
-
 /*!
     This function replaces all QInputContext instances in the
     application. The function's argument is the identifier name of
@@ -425,12 +412,16 @@ static void changeInputContextForChildren(QWidget *parent, const QString &newIM)
 */
 void QApplication::setInputContext(const QString &identifierName)
 {
-    // #### iterating over all widgets might be a bit slow
-    QWidgetList widgets = qApp->topLevelWidgets();
-    for (QWidgetList::const_iterator it = widgets.constBegin(); it != widgets.constEnd(); ++it) {
-        (*it)->setInputContext(identifierName);
-        changeInputContextForChildren(*it, identifierName);
-    }
+    if (d->inputContext)
+        delete d->inputContext;
+    d->inputContext = QInputContextFactory::create(identifierName, this);
+}
+
+QInputContext *QApplication::inputContext() const
+{
+    if (!d->inputContext)
+        const_cast<QApplication *>(this)->setInputContext(defaultInputMethod());
+    return d->inputContext;
 }
 
 /*!

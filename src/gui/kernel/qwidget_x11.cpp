@@ -755,7 +755,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
 	    // preedit preservation of qic
 	    QInputContext *qic = inputContext();
 	    if (qic)
-		qic->releaseComposingWidget(this);
+		qic->widgetDestroyed(this);
 	}
     }
 }
@@ -786,15 +786,6 @@ void QWidget::setParent_sys(QWidget *parent, Qt::WFlags f)
     XUnmapWindow(X11->display, old_winid);
     XReparentWindow(X11->display, old_winid,
                      RootWindow(X11->display, d->xinfo.screen()), 0, 0);
-
-    if (parent && d->ic && !testAttribute(Qt::WA_OwnInputContext)) {
-	// input contexts are sometimes associated with toplevel widgets, so
-	// we need destroy the context here.  if we are reparenting back to
-	// toplevel, then we may have another context created, otherwise we
-	// will use our new ic holder's context
-        delete d->ic;
-        d->ic = 0;
-    }
 
     if (isTopLevel() || !parent) // we are toplevel, or reparenting to toplevel
         d->topData()->parentWinId = 0;
@@ -2718,61 +2709,40 @@ void QWidget::updateFrameStrut() const
 }
 
 /*!
-    This function returns the QInputContext instance for this widget.
-    This instance is used for text input to this widget, etc.
-    It is simply the accessor function.
+    This function returns the QInputContext for this widget. By
+    default the input context is inherited from the widgets
+    parent. For toplevels it is inherited from QApplication.
+
+    You can override this and set a special input context for this
+    widget by using the setInputContext() method.
+
+    \sa setInputContext()
 */
 QInputContext *QWidget::inputContext()
 {
     if (!testAttribute(Qt::WA_InputMethodEnabled))
         return 0;
 
-    QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
-    if (!icWidget->d->ic)
-        d->createInputContext();
-    return icWidget->d->ic;
+    if (d->ic)
+        return d->ic;
+    return qApp->inputContext();
 }
 
 
 /*!
-    This function replaces the QInputContext instance used for text
-    input to this widget. The \a identifierName is the identifier name
-    of newly choosed input method.
+  This function sets an input context specified by \a
+  identifierName on this widget.
+
+  \sa inputContext()
 */
 void QWidget::setInputContext( const QString& identifierName )
 {
-#ifndef QT_NO_IM
     if (!testAttribute(Qt::WA_InputMethodEnabled))
         return;
-    QWidget *icWidget = testAttribute(Qt::WA_OwnInputContext) ? this : topLevelWidget();
-    if (icWidget->d->ic)
-	delete icWidget->d->ic;
+    if (d->ic)
+	delete d->ic;
     // an input context that has the identifierName is generated.
-    icWidget->d->ic = QInputContextFactory::create( identifierName, icWidget );
-#endif // QT_NO_IM
-}
-
-
-/*!
-  \internal
-    This is an internal function, you should never call this.
-
-    This function is called to generate an input context
-    according to a configuration for default input method
-
-    Input context is generated only when WA_InputMethodEnabled is set.
-*/
-void QWidgetPrivate::createInputContext()
-{
-#ifndef QT_NO_IM
-    if(!q->testAttribute(Qt::WA_InputMethodEnabled))
-	return;
-
-    QWidget *icWidget = q->testAttribute(Qt::WA_OwnInputContext) ? q : q->topLevelWidget();
-    if (icWidget->d->ic)
-        return;
-    q->setInputContext(QApplication::defaultInputMethod());
-#endif // QT_NO_IM
+    d->ic = QInputContextFactory::create(identifierName, this);
 }
 
 
@@ -2818,10 +2788,8 @@ void QWidgetPrivate::focusInputContext()
 #ifndef QT_NO_IM
     QInputContext *qic = q->inputContext();
     if (qic) {
-	if(qic->focusWidget() != q) {
+	if(qic->focusWidget() != q)
 	    qic->setFocusWidget(q);
-	    qic->setFocus();
-	}
     }
 #endif // QT_NO_IM
 }
@@ -2841,8 +2809,6 @@ void QWidgetPrivate::unfocusInputContext()
 #ifndef QT_NO_IM
     QInputContext *qic = q->inputContext();
     if ( qic ) {
-	// may be caused reset() in some input methods
-	qic->unsetFocus();
 	qic->setFocusWidget( 0 );
     }
 #endif // QT_NO_IM

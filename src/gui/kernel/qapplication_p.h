@@ -44,6 +44,7 @@ class QClipboard;
 class QKeyEvent;
 class QMouseEvent;
 class QWheelEvent;
+class QInputContext;
 
 extern Q_GUI_EXPORT bool qt_modal_state();
 extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
@@ -142,6 +143,7 @@ public:
                && qt_dispatchAccelEvent;
     }
 #endif
+    QInputContext *inputContext;
 
     static Qt::MouseButtons mouse_buttons;
     static Qt::KeyboardModifiers modifier_buttons;

@@ -42,6 +42,7 @@
 #include "qglobal.h"
 #include <qinputcontext.h>
 #include <qfont.h>
+#include <qhash.h>
 
 class QKeyEvent;
 class QWidget;
@@ -60,60 +61,51 @@ class QXIMInputContext : public QInputContext
 {
     Q_OBJECT
 public:
-#ifdef Q_WS_X11
+    struct ICData {
+        XIC ic;
+        XFontSet fontset;
+        QWidget *widget;
+        QString text;
+        QBitArray selectedChars;
+        bool composing;
+        void clear();
+    };
+
     QXIMInputContext();
     ~QXIMInputContext();
 
     QString identifierName();
     QString language();
 
-    bool x11FilterEvent( QWidget *keywidget, XEvent *event );
     void reset();
 
-    void setFocus();
-    void unsetFocus();
-    void setMicroFocus( const QRect &rect, const QFont &f );
     void mouseHandler( int x, QMouseEvent *event);
-    bool isPreeditRelocationEnabled();
+    bool isComposing() const;
 
-    void setHolderWidget( QWidget *widget );
+    void setFocusWidget( QWidget *w );
+    void widgetDestroyed(QWidget *w);
 
-    bool hasFocus() const;
-    void resetClientState();
-    void close( const QString &errMsg );
+    void create_xim();
+    void close_xim();
 
-    void sendIMEvent( QEvent::Type type,
-		      const QString &text = QString::null,
-		      int cursorPosition = -1, int selLength = 0 );
-
-    static void init_xim();
-    static void create_xim();
-    static void close_xim();
-
-    void *ic;
-    QString composingText;
-    QFont font;
-    XFontSet fontset;
-    QBitArray selectedChars;
-
+    ICData *icData() const;
 protected:
-    virtual bool isPreeditPreservationEnabled();  // not a QInputContext func
-
-    QString _language;
-
-    static bool isInitialized;
-    static XIM xim;
-    static XIMStyle xim_style;
-    static QList<QXIMInputContext *> *ximContexts;
+    bool x11FilterEvent( QWidget *keywidget, XEvent *event );
 
 private:
-    void setComposePosition(int, int);
-    void setComposeArea(int, int, int, int);
-    void setXFontSet(const QFont &);
+    static XIMStyle xim_style;
 
-    int lookupString(XKeyEvent *, QByteArray &, KeySym *, Status *) const;
+    QString _language;
+    XIM xim;
+    QHash<QWidget *, ICData *> ximData;
 
-#endif // Q_WS_X11
+    ICData *createICData(QWidget *w);
+
+//     void setComposePosition(int, int);
+//     void setComposeArea(int, int, int, int);
+//     void setXFontSet(const QFont &);
+
+//     int lookupString(XKeyEvent *, QByteArray &, KeySym *, Status *) const;
 };
 
 

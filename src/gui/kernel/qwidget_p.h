@@ -182,7 +182,6 @@ public:
     void setWindowIcon_sys(const QPixmap &pixmap);
 
 #if defined(Q_WS_X11)
-    void createInputContext();
     void focusInputContext();
     void unfocusInputContext();
     void checkChildrenDnd();

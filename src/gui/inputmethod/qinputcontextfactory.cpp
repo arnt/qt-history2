@@ -56,27 +56,23 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     name which is in agreement with \a key. \a widget is the client
     widget of QInputContext. \a widget may be null.
 */
-QInputContext *QInputContextFactory::create( const QString& key, QWidget *widget )
+QInputContext *QInputContextFactory::create( const QString& key, QObject *parent )
 {
+    QInputContext *result = 0;
 #ifdef Q_WS_X11
     if (key == QLatin1String("xim")) {
-        QInputContext *result = new QXIMInputContext;
-        result->setParent(widget);
-        result->setHolderWidget(widget);
-        return result;
+        result = new QXIMInputContext;
     }
 #endif
 #ifndef QT_NO_COMPONENT
     if (QInputContextFactoryInterface *factory =
         qt_cast<QInputContextFactoryInterface*>(loader()->instance(key))) {
-        QInputContext *result = factory->create(key);
-        result->setParent(widget);
-        if (result)
-            result->setHolderWidget(widget);
-        return result;
+        result = factory->create(key);
     }
 #endif
-    return 0;
+    if (result)
+        result->setParent(parent);
+    return result;
 }
 
 

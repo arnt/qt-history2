@@ -57,49 +57,18 @@ class QInputContextPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QInputContext)
 public:
     QInputContextPrivate()
-	: holderWidget(0), composingWidget(0), hasFocus(false),
-	  isComposing(false)
-#if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	  , preeditString(QString::null),
-	  cursorPosition(-1), selLength (0)
-#endif
+	: focusWidget(0)
     {}
 
-    QWidget *holderWidget; // widget to which QInputContext instance belongs.
-    QWidget *composingWidget;
-    bool hasFocus;
-    bool isComposing;
+    QWidget *focusWidget;
 
-    void updateComposingState(const QString &text,
-			       int newCursorPosition, int newSelLength) {
-#if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	preeditString = text;
-	cursorPosition = newCursorPosition;
-	selLength = newSelLength;
-#endif
-    }
-
-    void resetComposingState() {
-	isComposing = false;
-#if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	preeditString = QString::null;
-	cursorPosition = -1;
-	selLength = 0;
-#endif
-    }
     void sendIMEventInternal(QEvent::Type type,
 			      const QString &text = QString::null,
 			      int cursorPosition = -1, int selLength = 0);
 
-#if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-    QString preeditString;
-    int cursorPosition;
-    int selLength;
-#endif
 };
 
 
-// UPDATED COMMENT REQUIRED -- 2004-07-08 YamaKen
 /*!
     \class QInputContext qinputcontext.h
     \brief The QInputContext class abstracts the input method dependent data and composing state.
@@ -302,9 +271,6 @@ public:
 
 /*!
     Constructs an input context.
-
-    holderWidget is set immediately after this constructor has been
-    returned on the X11 platform.
 */
 QInputContext::QInputContext(QObject* parent)
     : QObject(*new QInputContextPrivate, parent)
@@ -317,37 +283,6 @@ QInputContext::QInputContext(QObject* parent)
 */
 QInputContext::~QInputContext()
 {
-}
-
-#if defined(Q_WS_X11)
-/*!
-    \internal
-    Returns the owner of this input context. Ordinary input methods
-    should not call this function directly to keep platform
-    independence and flexible configuration possibility.
-
-    The return value may differ from focusWidget() if the input
-    context is shared between several text widgets.
-
-    \sa setHolderWidget(), focusWidget()
-*/
-QWidget *QInputContext::holderWidget() const
-{
-    Q_D(const QInputContext);
-    return d->holderWidget;
-}
-
-/*!
-    \internal
-    Sets the owner of this input context. Ordinary input methods
-    must not call this function directly.
-
-    \sa holderWidget()
-*/
-void QInputContext::setHolderWidget(QWidget *w)
-{
-    Q_D(QInputContext);
-    d->holderWidget = w;
 }
 
 /*!
@@ -365,7 +300,7 @@ void QInputContext::setHolderWidget(QWidget *w)
 QWidget *QInputContext::focusWidget() const
 {
     Q_D(const QInputContext);
-    return d->hasFocus ? d->composingWidget : 0;
+    return d->focusWidget;
 }
 
 
@@ -379,84 +314,23 @@ QWidget *QInputContext::focusWidget() const
 */
 void QInputContext::setFocusWidget(QWidget *w)
 {
+    Q_ASSERT(!w || w->testAttribute(Qt::WA_InputMethodEnabled));
     Q_D(QInputContext);
-    if (w) {
-	bool isFocusingBack = (w == d->composingWidget);
-	bool isPreeditRelocation = (! isFocusingBack  && isComposing() &&
-				     d->composingWidget);
-	// invoke sendIMEventInternal() rather than sendIMEvent() to
-	// avoid altering the composing state
-	if (isPreeditRelocation == true) {
-	    // clear preedit of previously focused text
-	    // widget. preserved preedit may be exist even if
-	    // isPreeditRelocationEnabled() == false.
-	    d->sendIMEventInternal(QEvent::InputMethodEnd);
-	}
-	d->composingWidget = w;  // changes recipient of QInputMethodEvent
-	if (isPreeditRelocation == true) {
-#if !defined(QT_NO_IM_PREEDIT_RELOCATION)
-	    if (isPreeditRelocationEnabled()) {
-		// copy preedit state to the widget that gaining focus
-		d->sendIMEventInternal(QEvent::InputMethodStart);
-		d->sendIMEventInternal(QEvent::InputMethodCompose, d->preeditString,
-                                       d->cursorPosition, d->selLength);
-	    } else
-#endif
-	    {
-		// reset input context when the shared context has
-		// focused on another text widget
-		reset();
-	    }
-	}
-    }
-    d->hasFocus = w ? true : false;
-}
-
-
-/*!
-    \internal
-    This function is called from QWidget to keep input state
-    consistency. Ordinary input method must not call this function
-    directly.
-*/
-void QInputContext::releaseComposingWidget(QWidget *w)
-{
-    Q_D(QInputContext);
-    if (d->composingWidget == w) {
-	d->composingWidget = 0;
-	d->hasFocus = false;
-    }
-}
-#endif  // Q_WS_X11
-
-/*!
-    \internal
-    This function can be reimplemented in a subclass as returning true
-    if you want making your input method enable the preedit
-    relocation. See the description for preedit relocation of
-    QInputContext.
-
-    /sa QInputContext
-*/
-bool QInputContext::isPreeditRelocationEnabled()
-{
-    return false;
+    d->focusWidget = w;
 }
 
 /*!
-    This function indicates whether InputMethodStart event had been sent to the
-    text widget. It is ensured that an input context can send InputMethodCompose
-    or InputMethodEnd event safely if this function returned true.
+  \fn bool QInputContext::isComposing() const
+
+    This function indicates whether InputMethodStart event had been
+    sent to the current focus widget. It is ensured that an input
+    context can send InputMethodCompose or InputMethodEnd event safely
+    if this function returned true.
 
     The state is automatically being tracked through sendIMEvent().
 
     \sa sendIMEvent()
 */
-bool QInputContext::isComposing() const
-{
-    Q_D(const QInputContext);
-    return d->isComposing;
-}
 
 
 /*!
@@ -517,35 +391,25 @@ void QInputContextPrivate::sendIMEventInternal(QEvent::Type type,
                                                 const QString &text,
                                                 int cursorPosition, int selLength)
 {
-    QObject *receiver = 0;
-    QInputMethodEvent *event = 0;
-
-#if defined(Q_WS_X11)
-    receiver = composingWidget;
-#elif defined(Q_WS_QWS)
-    // just a placeholder
-#endif
-    if (!receiver)
+    if (!focusWidget)
 	return;
+    Q_ASSERT(type >= QEvent::InputMethodStart && type <= QEvent::InputMethodEnd);
 
+#ifdef IM_DEBUG
     if (type == QEvent::InputMethodStart) {
-// 	qDebug("sending InputMethodStart with %d chars to %p",
-// 		text.length(), receiver);
-	event = new QInputMethodEvent(type, text, cursorPosition);
+	qDebug("sending InputMethodStart with %d chars to %p",
+		text.length(), receiver);
     } else if (type == QEvent::InputMethodEnd) {
-// 	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
-// 		text.length(), receiver, (const char*)text.local8Bit());
-	event = new QInputMethodEvent(type, text, cursorPosition);
+	qDebug("sending InputMethodEnd with %d chars to %p, text=%s",
+		text.length(), receiver, text.utf8());
     } else if (type == QEvent::InputMethodCompose) {
-// 	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
-// 		receiver, text.length(), cursorPosition, selLength,
-// 		(const char*)text.local8Bit());
-	event = new QInputMethodEvent(type, text, cursorPosition, selLength);
+	qDebug("sending InputMethodCompose to %p with %d chars, cpos=%d, sellen=%d, text=%s",
+		receiver, text.length(), cursorPosition, selLength, text.utf8());
     }
+#endif
 
-    if (event)
-        qApp->sendEvent(receiver, event);
-    delete event;
+    QInputMethodEvent event(type, text, cursorPosition, selLength);
+    qApp->sendEvent(focusWidget, &event);
 }
 
 
@@ -608,82 +472,11 @@ void QInputContext::sendIMEvent(QEvent::Type type, const QString &text,
 
     if (type == QEvent::InputMethodStart) {
 	d->sendIMEventInternal(type, text, cursorPosition, selLength);
-	d->isComposing = true;
     } else if (type == QEvent::InputMethodEnd) {
-	d->resetComposingState();
 	d->sendIMEventInternal(type, text, cursorPosition, selLength);
     } else if (type == QEvent::InputMethodCompose) {
-	d->updateComposingState(text, cursorPosition, selLength);
 	d->sendIMEventInternal(type, text, cursorPosition, selLength);
     }
-}
-
-
-/*!
-    This function can be reimplemented in a subclass to detect
-    that the input context has been focused on.
-
-    The input context will receive input events through
-    x11FilterEvent() and filterEvent() after setFocus() until
-    unsetFocus() has been called.
-
-    an input context is ensured that setFocus() is called exactly once
-    until unsetFocus() has been called even if preedit relocation has
-    occurred. This means that an input focus will survive between
-    several widgets that sharing the input context.
-
-    On the X11 platform, focusWidget is already set before this
-    function has been called.
-
-    \sa unsetFocus()
-*/
-void QInputContext::setFocus()
-{
-}
-
-
-/*!
-    This function can be reimplemented in a subclass to detect
-    that the input context has lost the focus.
-
-    an input context is ensured that unsetFocus() is not called during
-    preedit relocation. This means that an input focus will survive
-    between several widgets that sharing the input context.
-
-    Default implementation that calls reset() is sufficient for simple
-    input methods. You can override this function to alter the
-    behavior. For example, most Japanese input contexts should not be
-    reset on losing focus. The context sometimes contains a whole
-    paragraph and has minutes of lifetime different to ephemeral one
-    in other languages. The piled input context should be survived
-    until focused again since Japanese user naturally expects so.
-
-    On the X11 platform, focusWidget is valid until this function has
-    been returned.
-
-    \sa setFocus()
-*/
-void QInputContext::unsetFocus()
-{
-    reset();
-}
-
-
-/*!
-    This function can be implemented in a subclass to handle
-    microfocus changes.
-
-    'microfocus' stands for the input method focus point in the
-    preedit (XIM "spot" point) for complex language input handling. It
-    can be used to place auxiliary GUI widgets such as candidate
-    selection window.
-
-    \a x, \a y, \a w and \a h represents the position and size of the
-    cursor in the preedit string. \a f is the font on the location of
-    the cursor.
-*/
-void QInputContext::setMicroFocus(const QRect &, const QFont &)
-{
 }
 
 
@@ -710,8 +503,7 @@ void QInputContext::mouseHandler(int /*x*/, QMouseEvent *event)
 {
     // Default behavior for simple ephemeral input contexts. Some
     // complex input contexts should not be reset here.
-    if (event->type() == QEvent::MouseButtonPress ||
-	 event->type() == QEvent::MouseButtonDblClick)
+    if (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseButtonDblClick)
 	reset();
 }
 
@@ -721,14 +513,24 @@ void QInputContext::mouseHandler(int /*x*/, QMouseEvent *event)
  */
 QFont QInputContext::font() const
 {
-    if (!focusWidget())
-        return QApplication::font(); //### absolutely last resort
+    Q_D(const QInputContext);
+    if (!d->focusWidget)
+        return QApplication::font();
 
-    return focusWidget()->font();
+    return d->focusWidget->inputMethodQuery(Qt::ImFont).toFont();
 }
 
 
+void QInputContext::widgetDestroyed(QWidget *w)
+{
+    Q_D(QInputContext);
+    if (w == d->focusWidget)
+        setFocusWidget(0);
+}
+
 /*!
+  \fn void QInputContext::reset()
+
     This function can be reimplemented in a subclass to reset the
     state of the input method.
 
@@ -745,11 +547,6 @@ QFont QInputContext::font() const
     QInputContext::reset() at reimplemented reset(). It will break
     input state consistency.
 */
-void QInputContext::reset()
-{
-    if (isComposing())
-        sendIMEvent(QEvent::InputMethodEnd);
-}
 
 
 /*!
@@ -798,18 +595,6 @@ void QInputContext::reset()
 QList<QAction *> QInputContext::actions()
 {
     return QList<QAction *>();
-}
-
-void QInputContext::addActionsTo(QMenu *menu, MenuAction action)
-{
-    QList<QAction *> acts = actions();
-    if (!acts.isEmpty()) {
-	if (action == InsertSeparator)
-	    menu->addSeparator();
-	foreach (QAction *act, acts) {
-	    menu->addAction(act);
-	}
-    }
 }
 
 #ifdef Q_WS_X11

@@ -50,7 +50,7 @@ class Q_GUI_EXPORT QInputContextFactory
 {
 public:
     static QStringList keys();
-    static QInputContext *create( const QString &key, QWidget *widget ); // should be a toplevel widget
+    static QInputContext *create( const QString &key, QObject *parent ); // should be a toplevel widget
     static QStringList languages( const QString &key );
     static QString displayName( const QString &key );
     static QString description( const QString &key );

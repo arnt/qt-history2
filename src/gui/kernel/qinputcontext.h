@@ -63,39 +63,24 @@ public:
     virtual QString identifierName() = 0;
     virtual QString language() = 0;
 
+    virtual void reset() = 0;
+
+    virtual void mouseHandler( int x, QMouseEvent *event);
+    virtual QFont font() const;
+    virtual bool isComposing() const = 0;
+
+    QWidget *focusWidget() const;
+    virtual void setFocusWidget( QWidget *w );
+
+    virtual void widgetDestroyed(QWidget *w);
+
+    virtual QList<QAction *> actions();
+
 #if defined(Q_WS_X11)
     virtual bool x11FilterEvent( QWidget *keywidget, XEvent *event );
 #endif // Q_WS_X11
     virtual bool filterEvent( const QEvent *event );
-    virtual void reset();
 
-    virtual void setFocus();
-    virtual void unsetFocus();
-    virtual void setMicroFocus( const QRect &rect, const QFont &font );
-    virtual void mouseHandler( int x, QMouseEvent *event);
-    virtual QFont font() const;
-    virtual bool isComposing() const;
-    virtual bool isPreeditRelocationEnabled();
-
-    enum MenuAction {
-	NoSeparator,
-	InsertSeparator
-    };
-    virtual QList<QAction *> actions();
-    void addActionsTo( QMenu *menu, MenuAction action = InsertSeparator );
-
-#if defined(Q_WS_X11)
-    // these functions are not recommended for ordinary use
-    virtual QWidget *focusWidget() const;
-    virtual QWidget *holderWidget() const;
-
-    // these functions must not be used by ordinary input method
-    virtual void setFocusWidget( QWidget *w );
-    virtual void setHolderWidget( QWidget *w );
-    virtual void releaseComposingWidget( QWidget *w );
-#endif
-
-protected:
     virtual void sendIMEvent( QEvent::Type type,
 			      const QString &text = QString::null,
 			      int cursorPosition = -1, int selLength = 0 );
@@ -103,6 +88,7 @@ protected:
 private:
     friend class QWidget;
     friend class QInputContextFactory;
+    friend class QApplication;
 
 private:   // Disabled copy constructor and operator=
     QInputContext( const QInputContext & );

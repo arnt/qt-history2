@@ -1645,20 +1645,20 @@ bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
             mousePos = -1;
 	    // don't send move events outside the preedit area
             if ( e->type() == QEvent::MouseMove )
-                return true;
+                return TRUE;
         }
 
         QInputContext *qic = q->inputContext();
         if ( qic )
             // may be causing reset() in some input methods
             qic->mouseHandler(mousePos, e);
-	return true;
+	return TRUE;
     }
 #else
     Q_UNUSED(e);
 #endif
 
-    return false;
+    return FALSE;
 }
 
 /*! \reimp
@@ -2017,8 +2017,9 @@ QMenu *QLineEdit::createPopupMenu()
 #ifdef Q_WS_X11
 #ifndef QT_NO_IM
     QInputContext *qic = inputContext();
-    if ( qic )
-	qic->addActionsTo(popup);
+    QList<QAction *> imActions = qic->actions();
+    for (int i = 0; i < imActions.size(); ++i)
+        popup->addAction(imActions.at(i));
 #endif
 #endif
     return popup;
