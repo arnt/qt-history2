@@ -56,14 +56,18 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
   \module OpenGL
 
-  Normally you can ignore this class. QGLWidget and the other OpenGL
-  module classes inherit it, so when you make your own QGLWidget subclass
-  you can use the identifiers in the QGL namespace without qualification.
+  Normally you can ignore this class. QGLWidget and the other
+  OpenGL<sup>*</sup> module classes inherit it, so when you make your
+  own QGLWidget subclass you can use the identifiers in the QGL
+  namespace without qualification.
 
   However, you may occasionally find yourself in situations where you
   need to refer to these identifiers from outside the QGL namespace's
   scope, e.g. in static functions. In such cases, simply write e.g. \c
   QGL::DoubleBuffer instead of just \c DoubleBuffer.
+
+    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
+    United States and other countries.
 
 */
 
@@ -97,7 +101,7 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
   \endlist
 
   You create and tell a QGLFormat object what rendering options
-  you want from an OpenGL rendering context.
+  you want from an OpenGL<sup>*</sup> rendering context.
 
   OpenGL drivers or accelerated hardware may or may not support
   advanced features such as alpha channel or stereographic viewing. If
@@ -138,6 +142,9 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 	}
     }
   \endcode
+
+    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
+    United States and other countries.
 
   \sa QGLContext, QGLWidget
 */
@@ -697,7 +704,7 @@ QGLContext* QGLContext::currentCtx = 0;
 
   \module OpenGL
 
-  An OpenGL rendering context is a complete set of OpenGL state
+  An OpenGL<sup>*</sup> rendering context is a complete set of OpenGL state
   variables.
 
   The context's \link QGL::FormatOption format\endlink is set in the
@@ -716,6 +723,8 @@ QGLContext* QGLContext::currentCtx = 0;
   If you're using double buffering you can swap the screen contents with
   the off-screen buffer using swapBuffers().
 
+    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
+    United States and other countries.
 
 */
 
@@ -1031,7 +1040,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 
   \module OpenGL
 
-  QGLWidget provides functionality for displaying OpenGL graphics
+  QGLWidget provides functionality for displaying OpenGL<sup>*</sup> graphics
   integrated into a Qt application. It is very simple to use. You
   inherit from it and use the subclass like any other QWidget, except
   that instead of drawing the widget's contents using QPainter etc.
@@ -1148,6 +1157,8 @@ bool QGLContext::create( const QGLContext* shareContext )
   non-GL Qt windows can also be used for overlays. See the
   examples/opengl/overlay_x11 example program for details.
 
+    <sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
+    United States and other countries.
 */
 
 
@@ -1897,12 +1908,12 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 
 This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
 
-<h2>Introduction</h2>
+\section1 Introduction
 
 OpenGL is a standard API for rendering 3D graphics.
 
 OpenGL only deals with 3D rendering and provides little or no support
-for GUI programming issues. The user interface for an OpenGL
+for GUI programming issues. The user interface for an OpenGL<sup>*</sup>
 application must be created with another toolkit, such as Motif on the
 X platform, Microsoft Foundation Classes (MFC) under Windows - or Qt
 on <i>both</i> platforms.
@@ -1918,7 +1929,7 @@ functionality provided is very similar to Mark Kilgard's GLUT library,
 but with much more non-OpenGL-specific GUI functionality, i.e. the whole
 Qt API.
 
-<h2>Installation</h2>
+\section1 Installation
 
 When you install Qt for X11, the configure script will autodetect if
 OpenGL headers and libraries are installed on your system, and if so, it
@@ -1941,7 +1952,7 @@ do this edit the SYSCONF_LIBS_OPENGL line in the config file you are
 using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run "configure"
 again.
 
-<h2>The QGL Classes</h2>
+\section1 The QGL Classes
 
 The OpenGL support classes in Qt are:
 \list
@@ -1960,6 +1971,10 @@ classes provide advanced features.
 The QGL documentation assumes that you are familiar with OpenGL
 programming. If you're new to the subject a good starting point is
 \l{http://www.opengl.org/}.
+
+
+<sup>*</sup> OpenGL is a trademark of Silicon Graphics, Inc. in the
+United States and other countries.
 
 */
 
