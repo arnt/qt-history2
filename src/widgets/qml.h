@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#3 $
+** $Id: //depot/qt/main/src/widgets/qml.h#4 $
 **
 ** Definition of QML classes
 **
@@ -33,11 +33,12 @@
 #include <qscrollview.h>
 #include <qcolor.h>
 
+class QMLStyleSheet;
 class QMLStyleData;
 class QMLStyle : public Qt
 {
 public:
-    QMLStyle( const QString& name );
+    QMLStyle( QMLStyleSheet* parent, const QString& name );
     ~QMLStyle();
 
     QString name() const;
@@ -73,8 +74,9 @@ public:
     bool isAnchor() const;
     void setAnchor(bool anc);
 
-    int paragraphSeparation() const;
-    void setParagraphSeparation(int);
+    enum Margin { MarginLeft, MarginRight, MarginTop, MarginBottom, MarginAll, MarginVertical, MarginHorizontal };
+    int margin( Margin m) const;
+    void setMargin( Margin, int);
 
     enum ListStyle { ListDisc, ListCircle, ListSquare, ListDecimal, ListLowerAlpha, ListUpperAlpha };
 
@@ -94,7 +96,7 @@ public:
     QMLProvider( QObject *parent=0, const char *name=0 );
     virtual ~QMLProvider();
 
-    static QMLProvider& defaultProvider();
+    static QMLProvider* defaultProvider();
     static void setDefaultProvider( QMLProvider* );
 
     virtual QPixmap image(const QString &name) const;
@@ -123,9 +125,11 @@ public:
     QMLStyleSheet( QObject *parent=0, const char *name=0 );
     virtual ~QMLStyleSheet();
 
-    static QMLStyleSheet& defaultSheet();
+    static QMLStyleSheet* defaultSheet();
     static void setDefaultSheet( QMLStyleSheet* );
 
+    
+    QMLStyle* style( const QString& name);
     void insert( QMLStyle* style);
 
     virtual QMLNode* tag( const QString& name,
@@ -177,8 +181,8 @@ public:
     virtual void setContents( const QString& contents);
     virtual QString contents() const;
 
-    const QMLStyleSheet& styleSheet() const;
-    void setStyleSheet( const QMLStyleSheet* styleSheet );
+    QMLStyleSheet* styleSheet() const;
+    void setStyleSheet( QMLStyleSheet* styleSheet );
 
 
     // convenience functions
@@ -189,7 +193,7 @@ public:
     const QColorGroup &paperColorGroup() const;
 
     void setProvider( const QMLProvider* newProvider );
-    const QMLProvider& provider() const;
+    const QMLProvider* provider() const;
 
     QString documentTitle() const;
 
@@ -267,6 +271,8 @@ public:
     virtual void setDocument(const QString& name);
 
     void setContents( const QString& contents );
+    
+    void scrollToAnchor(const QString& name);
 
 
 public slots:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#10 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#11 $
 **
 ** Implementation of QML classes
 **
@@ -36,8 +36,9 @@
 #include <qbitmap.h>
 #include <qtimer.h>
 
-struct QMLStyleData
+class QMLStyleData
 {
+public:
     QMLStyle::DisplayMode disp;
     int fontitalic;
     int fontweight;
@@ -49,7 +50,7 @@ struct QMLStyleData
     QColor col;
     bool anchor;
     int align;
-    int parsep;
+    int margin[4];
     QMLStyle::ListStyle list;
 };
 
@@ -66,23 +67,25 @@ struct QMLStyleData
 */
 
 /*!
-  Constructs a new style named \a name.
+  Constructs a new style named \a name for the stylesheet \a parent.
 
   All properties in QMLStyle are initially in the "do not change" state,
   except \link QMLStyle::DisplayMode display mode\endlink, which defaults
   to \c DisplayInline.
 */
-QMLStyle::QMLStyle( const QString& name )
+QMLStyle::QMLStyle( QMLStyleSheet* parent, const QString& name )
 {
     d = new QMLStyleData;
     d->stylename = name.lower();
     init();
+    if (parent)
+	parent->insert( this );
 }
 
 
 /*!
   Destroys the style.  Note that QMLStyle objects become owned
-  by QMLStyleSheet when you \link QMLStyleSheet::insert() add them\endlink.
+  by QMLStyleSheet when they are created.
  */
 QMLStyle::~QMLStyle()
 {
@@ -105,7 +108,10 @@ void QMLStyle::init()
     d->col = QColor(); // !isValid()
     d->anchor = FALSE;
     d->align = Undefined;
-    d->parsep = Undefined;
+    d->margin[0] = Undefined;
+    d->margin[1] = Undefined;
+    d->margin[2] = Undefined;
+    d->margin[3] = Undefined;
     d->list = QMLStyle::ListDisc;
 
 }
@@ -353,25 +359,40 @@ void QMLStyle::setAnchor(bool anc)
 
 
 /*!
-  Returns the separation of subparagraphs in pixel.
+  Returns the margin in pixel.
 
-  \sa setParagraphSeparation()
+  \sa setMargin()
  */
-int QMLStyle::paragraphSeparation() const
+int QMLStyle::margin(QMLStyle::Margin m) const
 {
-    return d->parsep;
+    return d->margin[m];
 }
 
 
 /*!
-  Sets the separation of subparagraphs in pixels.
+  Sets the margin in pixels.
   The value must be >= 0.
 
-  \sa paragraphSeparation()
+  \sa border()
  */
-void QMLStyle::setParagraphSeparation(int v)
+void QMLStyle::setMargin(QMLStyle::Margin m, int v)
 {
-    d->parsep = v;
+    if (m == MarginAll ) {
+	d->margin[0] = v;
+	d->margin[1] = v;
+	d->margin[2] = v;
+	d->margin[3] = v;
+    }
+    else if (m == MarginVertical ) {
+	d->margin[MarginTop] = v;
+	d->margin[MarginBottom] = v;
+    }
+    else if (m == MarginHorizontal ) {
+	d->margin[MarginLeft] = v;
+	d->margin[MarginRight] = v;
+    }
+    else 
+	d->margin[m] = v;
 }
 
 
@@ -469,6 +490,19 @@ public:
     int height;
 };
 
+class QMLHorizontalLine : public QMLCustomNode
+{
+public:
+    QMLHorizontalLine(const QDict<QString>&attr, const QMLProvider& provider);
+    ~QMLHorizontalLine();
+
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QBrush* paper = 0);
+};
+
+
+
 class QMLImage : public QMLCustomNode
 {
 public:
@@ -529,7 +563,7 @@ public:
     virtual ~QMLContainer();
     inline QFont font() const;
     inline QColor color(const QColor&) const;
-    inline int paragraphSeparation() const;
+    inline int margin(QMLStyle::Margin) const;
     inline int numberOfColumns() const;
     inline int alignment() const;
 
@@ -551,6 +585,8 @@ public:
     const QDict<QString>* attributes() const;
 
     const QMLContainer* anchor() const;
+    
+    QMLContainer* findAnchor(const QString& name ) const;
 
 protected:
     void setAttributes(const QDict<QString>& attr );
@@ -586,11 +622,12 @@ inline QColor QMLContainer::color(const QColor& c) const
     return parent?parent->color(c):c;
 }
 
-inline int QMLContainer::paragraphSeparation() const
+inline int QMLContainer::margin(QMLStyle::Margin m) const
 {
-    if (style->paragraphSeparation() != QMLStyle::Undefined)
-	return style->paragraphSeparation();
-    return parent?parent->paragraphSeparation():0;
+    if (style->margin(m) != QMLStyle::Undefined)
+	return style->margin(m);
+    return 0;
+    //return parent?parent->margin(m):0;
 
 }
 
@@ -633,14 +670,11 @@ public:
 
     int width;
     int height;
-
-    int border;
-
+    
     //    QMLNode* locate(int x, int y);
     QMLRow*  locate(QPainter* p, QMLNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
 
     QMLNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
-
 
     int numberOfSubBox( QMLBox* subbox);
     QMLStyle::ListStyle listStyle();
@@ -655,12 +689,11 @@ public:
   \class QMLStyleSheet qml.h
   \brief A collection of styles and a generator of tags.
 
-  By \link QMLStyleSheet::insert() inserting\endlink QMLStyle objects
-  into a style sheet, you build a definition of a set of tags.  This
-  definition will be used by the internal QML features to parse and
-  display QML documents to which the style sheet applies. QML is
-  normally visualized in a QMLView or a QMLBrowser. But also QLabel
-  and QWhatsThis support QML contents.
+  By created QMLStyle objects for a style sheet, you build a
+  definition of a set of tags.  This definition will be used by the
+  internal QML features to parse and display QML documents to which
+  the style sheet applies. QML is normally visualized in a QMLView or
+  a QMLBrowser. But also QLabel and QWhatsThis support QML contents.
 
   The default QMLStyleSheet object has the following style bindings:
 
@@ -761,67 +794,76 @@ void QMLStyleSheet::init()
 {
     styles.setAutoDelete( TRUE );
 
-    nullstyle  = new QMLStyle("");
+    nullstyle  = new QMLStyle( this, "");
 
     QMLStyle*  style;
 
-    style = new QMLStyle( "qml" );
+    style = new QMLStyle( this, "qml" );
     style->setDisplayMode( QMLStyle::DisplayBlock );
-    insert(style);
+    style->setMargin( QMLStyle::MarginAll, 8 );
 
-    style = new QMLStyle( "a" );
+    style = new QMLStyle( this, "a" );
     style->setColor( Qt::blue );
     style->setAnchor( TRUE );
-    insert( style );
 
-    style = new QMLStyle( "em" );
+    style = new QMLStyle( this, "em" );
     style->setFontItalic( TRUE );
-    insert(style);
 
-    style = new QMLStyle( "large" );
+    style = new QMLStyle( this, "large" );
     style->setFontSize( 24 );
-    insert(style);
 
-    style = new QMLStyle( "b" );
+    style = new QMLStyle( this, "b" );
     style->setFontWeight( QFont::Bold);
-    insert(style);
 
-    style = new QMLStyle( "h1" );
+    style = new QMLStyle( this, "strong" );
+    style->setFontWeight( QFont::Bold);
+    
+    style = new QMLStyle( this, "h1" );
     style->setFontWeight( QFont::Bold);
     style->setFontSize(24);
     style->setDisplayMode(QMLStyle::DisplayBlock);
-    insert(style);
+    style-> setMargin(QMLStyle::MarginVertical, 12);
 
-    style = new QMLStyle( "p" );
+    style = new QMLStyle( this, "h2" );
+    style->setFontWeight( QFont::Bold);
+    style->setFontSize(16);
     style->setDisplayMode(QMLStyle::DisplayBlock);
-    insert(style);
+    style-> setMargin(QMLStyle::MarginVertical, 10);
 
-    style = new QMLStyle( "center" );
+    style = new QMLStyle( this, "h3" );
+    style->setFontWeight( QFont::Bold);
+    style->setFontSize(14);
+    style->setDisplayMode(QMLStyle::DisplayBlock);
+    style-> setMargin(QMLStyle::MarginVertical, 8);
+
+    style = new QMLStyle( this, "p" );
+    style->setDisplayMode(QMLStyle::DisplayBlock);
+    style-> setMargin(QMLStyle::MarginVertical, 4);
+
+    style = new QMLStyle( this, "center" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
     style->setAlignment( AlignCenter );
-    insert(style);
 
-    style = new QMLStyle( "twocolumn" );
+    style = new QMLStyle( this, "twocolumn" );
     style->setNumberOfColumns( 2 );
-    insert(style);
 
-    style = new QMLStyle( "ul" );
+    style = new QMLStyle( this, "ul" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
-    style->setParagraphSeparation( 4 );
-    insert(style);
 
-    style = new QMLStyle( "ol" );
+    style = new QMLStyle( this, "ol" );
     style->setDisplayMode(QMLStyle::DisplayBlock);
-    style->setParagraphSeparation( 4 );
     style->setListStyle( QMLStyle::ListDecimal );
-    insert(style);
 
-    style = new QMLStyle( "li" );
+    style = new QMLStyle( this, "li" );
     style->setDisplayMode(QMLStyle::DisplayListItem);
-    insert(style);
+    //    style-> setMargin(QMLStyle::MarginVertical, 4);
 
-    insert(new QMLStyle("img"));
-    insert(new QMLStyle("br"));
+    style = new QMLStyle( this, "code" );
+    style->setFontFamily( "courier" );
+    
+    new QMLStyle(this, "img");
+    new QMLStyle(this, "br");
+    new QMLStyle(this, "hr");
 
 }
 
@@ -832,11 +874,11 @@ static QMLStyleSheet* defaultsheet = 0;
 /*!
   Returns the application-wide default style sheet.
 */
-QMLStyleSheet& QMLStyleSheet::defaultSheet()
+QMLStyleSheet* QMLStyleSheet::defaultSheet()
 {
     if (!defaultsheet)
 	defaultsheet = new QMLStyleSheet();
-    return *defaultsheet;
+    return defaultsheet;
 }
 
 /*!
@@ -850,7 +892,7 @@ void QMLStyleSheet::setDefaultSheet( QMLStyleSheet* sheet)
     defaultsheet = sheet;
 }
 
-/*!
+/*!\internal
   Inserts \a style.  Any tags generated after this time will be
   bound to this style.  Note that \a style becomes owned by the
   style sheet and will be deleted when the style sheet destructs.
@@ -858,6 +900,15 @@ void QMLStyleSheet::setDefaultSheet( QMLStyleSheet* sheet)
 void QMLStyleSheet::insert( QMLStyle* style )
 {
     styles.insert(style->name(), style);
+}
+
+
+/*!
+  Returns the style with name \a name or 0 if there is no such style.
+ */
+QMLStyle* QMLStyleSheet::style( const QString& name)
+{
+    return styles[name];
 }
 
 
@@ -879,6 +930,8 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
     // first the empty tags
     if (style->name() == "img")
 	return new QMLImage(attr, provider);
+    else if (style->name() == "hr")
+	return new QMLHorizontalLine(attr, provider);
     else if (style->name() == "br") {
 	QMLNode* result = new QMLNode;
 	result->c = '\n';
@@ -910,7 +963,7 @@ public:
     bool isValid() const;
 
     void dump();
-
+    
 private:
     void init( const QString& doc, const QWidget* w = 0 );
 
@@ -920,9 +973,11 @@ private:
     bool lookAhead(const QString& doc, int& pos, const QChar& c);
     QString parseOpenTag(const QString& doc, int& pos, QDict<QString> &attr);
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
-    QString parseWord(const QString& doc, int& pos, bool lower = FALSE);
+    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
+    QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE);
     QString parsePlainText(const QString& doc, int& pos);
     bool hasPrefix(const QString& doc, int pos, const QChar& c);
+    bool hasPrefix(const QString& doc, int pos, const QString& s);
     bool valid;
     const QMLStyleSheet* sheet_;
     const QMLProvider* provider_;
@@ -973,6 +1028,8 @@ QMLImage::QMLImage(const QDict<QString> &attr, const QMLProvider &provider)
 {
     reg = 0;
     QString* imageName = attr["source"];
+    if (!imageName)
+	imageName = attr["src"];
     if (imageName) {
 	pm = provider.image( *imageName );
 	pm.setMask( pm.createHeuristicMask() );
@@ -1003,6 +1060,37 @@ void QMLImage::draw(QPainter* p, int x, int y,
 	backgroundRegion = backgroundRegion.unite( tmp );
     }
     p->drawPixmap( x-ox , y-oy, pm );
+}
+
+
+
+QMLHorizontalLine::QMLHorizontalLine(const QDict<QString>&, const QMLProvider&)
+{
+    height = 8;
+    width = 4000;
+}
+
+QMLHorizontalLine::~QMLHorizontalLine()
+{
+}
+
+void QMLHorizontalLine::draw(QPainter* p, int x, int y,
+			     int ox, int oy, int cx, int cy, int cw, int /* ch */ ,
+			    QRegion& , const QColorGroup& , const QBrush* paper = 0)
+{
+    QRect rm( x-ox, y-oy, width, height);
+    QRect ra( cx-ox, cy-oy, cw,  cw);
+    QRect r = rm.intersect( ra );
+    if (paper) {
+	if ( paper->pixmap() )
+	    p->drawTiledPixmap( r, *paper->pixmap(), QPoint(ox, oy) );
+	else
+	    p->fillRect(r, *paper );
+    }
+    QPen pen(p->pen());
+    pen.setWidth( 2 );
+    p->setPen( pen );
+    p->drawLine( cx-ox , y-oy+4, cx-ox+cw, y-oy+4 );
 }
 
 
@@ -1517,6 +1605,24 @@ const QMLContainer* QMLContainer::anchor() const
 }
 
 
+QMLContainer* QMLContainer::findAnchor(const QString& name ) const
+{
+    if (style->isAnchor() && attributes() && 
+	attributes()->find("name") && *attributes()->find("name") == name)
+	return (QMLContainer*)this;
+
+    QMLNode* n = child;
+    while( n ) {
+	if (n->isContainer) {
+	    QMLContainer* t = ((QMLContainer*)n)->findAnchor( name );
+	    if (t)
+		return t;
+	}
+	n = n->nextSibling();
+    }
+    return 0;
+}
+
 QMLBox* QMLContainer::box() const
 {
     QMLContainer* result = (QMLContainer*) this;
@@ -1565,8 +1671,7 @@ void QMLContainer::reparentSubtree()
 
 void QMLContainer::createFont()
 {
-    fnt = parent?new QFont(parent->font()) : new QFont( fontFamily() );
-    fnt->setFamily( fontFamily() );
+    fnt = new QFont( fontFamily() );
     fnt->setPointSize( fontSize() );
     fnt->setWeight( fontWeight() );
     if (style-> definesFontItalic() )
@@ -1615,7 +1720,7 @@ QMLBox::QMLBox( const QMLStyle *stl)
     rows.setAutoDelete(true);
     isSimpleNode = 0;
     isBox = 1;
-    border = width = height = 0;
+    width = height = 0;
 }
 
 QMLBox::QMLBox( const QMLStyle *stl, const QDict<QString>& attr )
@@ -1624,7 +1729,7 @@ QMLBox::QMLBox( const QMLStyle *stl, const QDict<QString>& attr )
     rows.setAutoDelete(true);
     isSimpleNode = 0;
     isBox = 1;
-    border = width = height = 0;
+    width = height = 0;
 }
 
 QMLContainer* QMLBox::copy() const
@@ -1760,18 +1865,20 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     QMLRow* row = 0;
 
 
-    int parsep = paragraphSeparation();
-    int h = parsep;
+    int margintop = margin( QMLStyle::MarginTop );
+    int marginbottom = margin( QMLStyle::MarginBottom );
+    int marginleft = margin( QMLStyle::MarginLeft );
+    int marginright = margin( QMLStyle::MarginRight );
+    int marginvertical = marginright + marginleft;
+    int h = margintop;
 
     while (n) {
 	if (n->isBox){
-	    ((QMLBox*)n)->setWidth(p, colwidth-2*border); // todo this can be done in word wrap?!
+	    ((QMLBox*)n)->setWidth(p, colwidth-marginvertical); // todo this can be done in word wrap?!
 	}
-	row = new QMLRow(this, p, n, par, colwidth-2*border - label_offset, alignment() );
+	row = new QMLRow(this, p, n, par, colwidth-marginvertical - label_offset, alignment() );
 	rows.append(row);
 	h += row->height;
-	if ( parsep > 0 && row->start->isBox )
-	    h += parsep;
     }
 
     // do multi columns if required. Also check with the old rows to
@@ -1782,16 +1889,12 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
     height = 0;
     h /= ncols;
     for (int col = 0; col < ncols; col++) {
-	int colheight = parsep;
+	int colheight = margintop;
 	for (; row && colheight < h; row = rows.next()) {
-	    row->x = col  * colwidth + border + label_offset;
+	    row->x = col  * colwidth + marginleft + label_offset;
 	    row->y = colheight;
 	
 	    colheight += row->height;
-	    if ( parsep > 0 && row->start->isBox ) {
-		colheight += parsep;
-	    }
-	
 	
 	    if ( old) {
 		if ( row->start->isBox ) {
@@ -1815,6 +1918,7 @@ void QMLBox::setWidth(QPainter* p, int newWidth, bool forceResize)
 	}
 	height = QMAX( height, colheight );
     }
+    height += marginbottom; //TODO ##### collapsing
 }
 
 
@@ -1897,7 +2001,6 @@ QMLNode* QMLBox::hitTest(QPainter* p, int obx, int oby, int xarg, int yarg)
 }
 
 
-
 int QMLBox::numberOfSubBox( QMLBox* subbox)
 {
     QMLNode* i = child;
@@ -1913,7 +2016,6 @@ int QMLBox::numberOfSubBox( QMLBox* subbox)
 QMLStyle::ListStyle QMLBox::listStyle()
 {
     if ( attributes() ) {
-	debug("have attributes");
 	QString* s =  attributes()->find("type");
 	
 	//#### use a nice and fast dict for that
@@ -2527,13 +2629,13 @@ static void cleanup_provider()
 /*!
   Returns the application-wide default provider.
  */
-QMLProvider& QMLProvider::defaultProvider()
+QMLProvider* QMLProvider::defaultProvider()
 {
     if (!defaultprovider) {
 	defaultprovider = new QMLProvider;
 	qAddPostRoutine(cleanup_provider);
     }
-    return *defaultprovider;
+    return defaultprovider;
 }
 
 /*!
@@ -2629,25 +2731,25 @@ QString QMLProvider::path() const
 
 
 QMLDocument::QMLDocument( const QString &doc, const QWidget* w)
-    :QMLBox( (base = new QMLStyle("")) )
+    :QMLBox( (base = new QMLStyle( 0, "")) )
 {
-    provider_ = &QMLProvider::defaultProvider(); // for access during parsing only
-    sheet_ = &QMLStyleSheet::defaultSheet();// for access during parsing only
+    provider_ = QMLProvider::defaultProvider(); // for access during parsing only
+    sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
     init( doc, w );
     provider_ = 0;
 }
 
 QMLDocument::QMLDocument( const QString &doc, const QMLProvider& provider, const QWidget* w)
-    :QMLBox( (base = new QMLStyle("")) )
+    :QMLBox( (base = new QMLStyle(0, "")) )
 {
     provider_ = &provider; // for access during parsing only
-    sheet_ = &QMLStyleSheet::defaultSheet();// for access during parsing only
+    sheet_ = QMLStyleSheet::defaultSheet();// for access during parsing only
     init( doc, w );
 }
 
 QMLDocument::QMLDocument(const QString &doc,  const QMLProvider& provider,
 			 const QMLStyleSheet& sheet, const QWidget* w )
-    :QMLBox( (base = new QMLStyle("")) )
+    :QMLBox( (base = new QMLStyle(0, "")) )
 {
 
     provider_ = &provider; // for access during parsing only
@@ -2664,6 +2766,7 @@ void QMLDocument::init( const QString& doc, const QWidget* w )
     base->setFontItalic( f.italic() );
     base->setFontWeight( f.weight() );
     base->setFontSize( f.pointSize() );
+    base->setMargin( QMLStyle::MarginAll, 8 );
 
     valid = TRUE;
     int pos = 0;
@@ -2693,8 +2796,8 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
     //     eatSpace(doc, pos);
     while ( valid && pos < int(doc.length() )) {
 	bool sep = FALSE;
-	if (hasPrefix(doc, pos, '<') ){
-	    if (hasPrefix(doc, pos+1, '/')) {
+	if (hasPrefix(doc, pos, QChar('<')) ){
+	    if (hasPrefix(doc, pos+1, QChar('/'))) {
 		if (current->isBox){ // todo this inserts a hitable null character
 		    QMLNode* n = new QMLNode;
 		    n->c = QChar::null;
@@ -2715,55 +2818,60 @@ void QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    QDict<QString> attr;
 	    attr.setAutoDelete( TRUE );
 	    QString tagname = parseOpenTag(doc, pos, attr);
-	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
-	    if (tag->isContainer ) {
-		sep = eatSpace(doc, pos);
-		if (current == this && !attr.isEmpty() ) {
-		    setAttributes( attr );
-		}
-		QMLContainer* ctag = (QMLContainer*) tag;
-		valid &= ctag != 0;
-		if (valid) {
-		    QMLNode* l = lastChild;
-		    if (!l){
-			current->child  = ctag;
-			ctag->isLastSibling = 1;
-		    }
-		    else {
-			l->next = ctag;
-			l->isLastSibling = 0;
-		    }
-		
-		    ctag->parent = current; //TODO
-		    ctag ->next = current;
-		    ctag->isLastSibling = 1;
-		    lastChild = ctag;
-		
-		    parse(ctag, 0, doc, pos);
-		    sep |= eatSpace(doc, pos);
-		    valid = (hasPrefix(doc, pos, '<')
-			     && hasPrefix(doc, pos+1, '/')
-			     && eatCloseTag(doc, pos, tagname) );
-		    if (!valid)
-			return;
-		    if ( ctag->isBox ) // no whitespace between boxes
-			sep |= eatSpace(doc, pos);
-		}
+	    if ( tagname.isEmpty() ){
+		// nothing to do
 	    }
-	    else { // empty tags
-		if (valid) {
-		    QMLNode* l = lastChild;
-		    if (!l){
-			current->child  = tag;
+	    else {
+		QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
+		if (tag->isContainer ) {
+		    sep = eatSpace(doc, pos);
+		    if (current == this && !attr.isEmpty() ) {
+			setAttributes( attr );
+		    }
+		    QMLContainer* ctag = (QMLContainer*) tag;
+		    valid &= ctag != 0;
+		    if (valid) {
+			QMLNode* l = lastChild;
+			if (!l){
+			    current->child  = ctag;
+			    ctag->isLastSibling = 1;
+			}
+			else {
+			    l->next = ctag;
+			    l->isLastSibling = 0;
+			}
+			
+			ctag->parent = current; //TODO
+			ctag ->next = current;
+			ctag->isLastSibling = 1;
+			lastChild = ctag;
+			
+			parse(ctag, 0, doc, pos);
+			sep |= eatSpace(doc, pos);
+			valid = (hasPrefix(doc, pos, QChar('<'))
+				 && hasPrefix(doc, pos+1, QChar('/'))
+				 && eatCloseTag(doc, pos, tagname) );
+			if (!valid)
+			    return;
+			if ( ctag->isBox ) // no whitespace between boxes
+			    sep |= eatSpace(doc, pos);
+		    }
+		}
+		else { // empty tags
+		    if (valid) {
+			QMLNode* l = lastChild;
+			if (!l){
+			    current->child  = tag;
+			    tag->isLastSibling = 1;
+			}
+			else {
+			    l->next = tag;
+			    l->isLastSibling = 0;
+			}
+			tag ->next = current;
 			tag->isLastSibling = 1;
+			lastChild = tag;
 		    }
-		    else {
-			l->next = tag;
-			l->isLastSibling = 0;
-		    }
-		    tag ->next = current;
-		    tag->isLastSibling = 1;
-		    lastChild = tag;
 		}
 	    }
 	}
@@ -2814,7 +2922,27 @@ bool QMLDocument::lookAhead(const QString& doc, int& pos, const QChar& c)
 }
 
 
-QString QMLDocument::parseWord(const QString& doc, int& pos, bool lower)
+QChar QMLDocument::parseHTMLSpecialChar(const QString& doc, int& pos)
+{
+    QString s;
+    pos++;
+    int recoverpos = pos;
+    while ( pos < int(doc.length()) && doc[pos] != ';' ) {
+	s += doc[pos];
+	pos++;
+    }
+    eat( doc, pos, ';' );
+    if ( s == "lt")
+	return '<';
+    if ( s == "gt")
+	return '>';
+    if ( s == "amp")
+	return '&';
+    pos = recoverpos;
+    return '&';
+}
+
+QString QMLDocument::parseWord(const QString& doc, int& pos, bool insideTag)
 {
     QString s;
 
@@ -2828,13 +2956,17 @@ QString QMLDocument::parseWord(const QString& doc, int& pos, bool lower)
     }
     else {
 	while( pos < int(doc.length()) &&
-	       doc[pos] != '>' && doc[pos] != '<'
+	       ( !insideTag || doc[pos] != '>') && doc[pos] != '<'
 	       && doc[pos] != '='
 	       && !doc[pos].isSpace())  {
-	    s += doc[pos];
-	    pos++;
+	    if ( doc[pos] == '&')
+		s += parseHTMLSpecialChar( doc, pos );
+	    else {
+		s += doc[pos];
+		pos++;
+	    }
 	}
-	if (lower)
+	if (insideTag)
 	    s = s.lower();
     }
     valid &= pos <= int(doc.length());
@@ -2846,16 +2978,20 @@ QString QMLDocument::parsePlainText(const QString& doc, int& pos)
 {
     QString s;
     while( pos < int(doc.length()) &&
-	   doc[pos] != '>' && doc[pos] != '<' ) {
+	   doc[pos] != '<' ) {
 	if (doc[pos].isSpace()){
 	    while (pos+1 < int(doc.length() ) && doc[pos+1].isSpace() ){
 		pos++;
 	    }
 	    s += ' ';
+	    pos++;
 	}
-	else
+	else if ( doc[pos] == '&')
+		s += parseHTMLSpecialChar( doc, pos );
+	else {
 	    s += doc[pos];
-	pos++;
+	    pos++;
+	}
     }
     valid &= pos <= int(doc.length());
     return s;
@@ -2867,12 +3003,41 @@ bool QMLDocument::hasPrefix(const QString& doc, int pos, const QChar& c)
     return valid && doc[pos] ==c;
 }
 
+bool QMLDocument::hasPrefix(const QString& doc, int pos, const QString& s)
+{
+    return valid && doc.mid(pos, s.length()) == s;
+}
+
 QString QMLDocument::parseOpenTag(const QString& doc, int& pos,
 				  QDict<QString> &attr)
 {
     pos++;
     QString tag = parseWord(doc, pos, TRUE);
     eatSpace(doc, pos);
+    
+    if (tag[0] == '!') {
+	if (tag.left(3) == "!--") { 
+	    // eat comments
+	    while ( valid && !hasPrefix(doc, pos, "-->" ) && pos < int(doc.length()) )
+		pos++;
+	    if ( valid && hasPrefix(doc, pos, "-->" ) ) {
+		pos += 4; 
+	    }
+	    else
+		valid = FALSE;
+	    return QString::null;
+	}
+	else {
+	    // eat strange internal tags
+	    while ( valid && !hasPrefix(doc, pos, QChar('>')) && pos < int(doc.length()) )
+		pos++;
+	    if ( valid && hasPrefix(doc, pos, QChar('>')) )
+		pos++;
+	    else
+		valid = FALSE;
+	    return QString::null;
+	}
+    }
 
     while (valid && !lookAhead(doc, pos, '>') ) {
 	QString key = parseWord(doc, pos, TRUE);
@@ -2954,6 +3119,7 @@ inline QMLNode* QMLNode::nextLayout(QMLNode* tag, QMLContainer* &parent){
     return t;
 }
 
+
 inline QMLNode* QMLNode::nextLeaf(QMLNode* tag, QMLContainer* &parent){
     do {
 	tag = depthFirstSearch(tag, parent);
@@ -3026,9 +3192,10 @@ inline QMLNode* QMLNode::nextSibling() const
   For even more, see QMLBrowser.
 */
 
-struct QMLViewData
+class QMLViewData
 {
-    const QMLStyleSheet* sheet_;
+public:
+    QMLStyleSheet* sheet_;
     QMLDocument* doc_;
     const QMLProvider* provider_;
     QString txt;
@@ -3085,7 +3252,6 @@ void QMLView::init()
 QMLView::~QMLView()
 {
     delete d->doc_;
-    delete d->sheet_;
     delete d;
 }
 
@@ -3127,8 +3293,7 @@ QString QMLView::contents() const
 void QMLView::createDocument()
 {
     d->papcolgrp = d->mypapcolgrp;
-    d->doc_ = new QMLDocument( d->txt, provider(), styleSheet(), viewport() );
-    d->doc_->border = 5;
+    d->doc_ = new QMLDocument( d->txt, *provider(), *styleSheet(), viewport() );
     if ( !d->doc_->attributes() )
 	return;
     if (d->doc_->attributes()->find("bgcolor")){
@@ -3142,7 +3307,7 @@ void QMLView::createDocument()
 	    d->papcolgrp.setColor( QColorGroup::Text,  col );
     }
     if (d->doc_->attributes()->find("bgpixmap")){
-	QPixmap pm = provider().image(*d->doc_->attributes()->find("bgpixmap"));
+	QPixmap pm = provider()->image(*d->doc_->attributes()->find("bgpixmap"));
 	if (!pm.isNull())
 	    d->papcolgrp.setBrush( QColorGroup::Base, QBrush(d->papcolgrp.base(), pm) );
     }
@@ -3154,12 +3319,12 @@ void QMLView::createDocument()
 
   \sa setStyleSheet()
 */
-const QMLStyleSheet& QMLView::styleSheet() const
+QMLStyleSheet* QMLView::styleSheet() const
 {
     if (!d->sheet_)
 	return QMLStyleSheet::defaultSheet();
     else
-	return *d->sheet_;
+	return d->sheet_;
 
 }
 
@@ -3168,7 +3333,7 @@ const QMLStyleSheet& QMLView::styleSheet() const
 
   \sa styleSheet()
 */
-void QMLView::setStyleSheet( const QMLStyleSheet* styleSheet )
+void QMLView::setStyleSheet( QMLStyleSheet* styleSheet )
 {
     d->sheet_ = styleSheet;
     viewport()->update();
@@ -3180,12 +3345,12 @@ void QMLView::setStyleSheet( const QMLStyleSheet* styleSheet )
 
   \sa setProvider()
 */
-const QMLProvider& QMLView::provider() const
+const QMLProvider* QMLView::provider() const
 {
     if (!d->provider_)
 	return QMLProvider::defaultProvider();
     else
-	return *d->provider_;
+	return d->provider_;
 
 }
 
@@ -3249,7 +3414,7 @@ QString QMLView::documentTitle() const
 */
 int QMLView::heightForWidth( int w ) const
 {
-    QMLDocument doc ( d->txt, provider(), styleSheet(), viewport() );
+    QMLDocument doc ( d->txt, *provider(), *styleSheet(), viewport() );
     {
 	QPainter p( this );
 	doc.setWidth(&p, w);
@@ -3721,8 +3886,9 @@ void QMLEdit::viewportResizeEvent(QResizeEvent* e)
   For simpler QML use, see QMLView or QMLSimpleDocument.
 */
 
-struct QMLBrowserData
+class QMLBrowserData
 {
+public:
     QString searchPath;
     const QMLContainer* buttonDown;
     const QMLContainer* highlight;
@@ -3730,6 +3896,7 @@ struct QMLBrowserData
     QStack<QString> stack;
     QStack<QString> forwardStack;
     QString home;
+    QString curmain;
 };
 
 
@@ -3764,25 +3931,47 @@ QMLBrowser::~QMLBrowser()
 */
 void QMLBrowser::setDocument(const QString& name)
 {
-    if ( d->home.isNull() )
-	d->home = name;
-
-    QString doc = provider().document( name );
-    if ( isVisible() ) {
-	QString firstTag = doc.left( doc.find('>' )+1 );
-	QMLDocument tmp( firstTag );
-	if (tmp.attributes() && tmp.attributes()->find("type") && *tmp.attributes()->find("type") == "detail" ) {
-	    popupDetail( doc, d->lastClick );
-	    return;
+    QString main = name;
+    QString mark;
+    int hash = name.find('#');
+    if ( hash != -1) {
+	main = name.left( hash );
+	mark = name.right( name.length() - hash - 1);
+	if ( main.isEmpty() )
+	    main = d->curmain;
+    }
+    QString url = main;
+    if (!mark.isEmpty()) {
+	url += "#";
+	url += mark;
+    }
+    
+    if ( d->curmain != main ) {
+	d->curmain = main;
+	QString doc = provider()->document( main );
+	if ( isVisible() ) {
+	    QString firstTag = doc.left( doc.find('>' )+1 );
+	    QMLDocument tmp( firstTag );
+	    if (tmp.attributes() && tmp.attributes()->find("type") && *tmp.attributes()->find("type") == "detail" ) {
+		popupDetail( doc, d->lastClick );
+		return;
+	    }
 	}
+	setContents( doc );
     }
-
-    if ( d->stack.isEmpty() || *d->stack.top() != name) {
+    
+    if ( d->stack.isEmpty() || *d->stack.top() != url) {
 	emit backwardAvailable( !d->stack.isEmpty() );
-	d->stack.push(new QString( name ) );
+	d->stack.push(new QString( url ) );
     }
+    if ( d->home.isNull() )
+	d->home = url;
 		
-    setContents( doc );
+    
+    if ( !mark.isEmpty() )
+	scrollToAnchor( mark );
+    else
+	setContentsPos( contentsX(), 0 );
 }
 
 /*!
@@ -3968,7 +4157,7 @@ protected:
 
 void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 {
-    
+
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
     const int leftMargin = 18;   // *3
@@ -3986,7 +4175,7 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 
     QPainter p( popup );
-    
+
     QMLSimpleDocument* qmlDoc = new QMLSimpleDocument( contents, popup );
     qmlDoc->setWidth( &p, w );
     QRect r( 0, 0, qmlDoc->width(), qmlDoc->height() );
@@ -3995,7 +4184,7 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
     w = w + leftMargin + normalMargin;
 
     popup->resize( w + shadowWidth, h + shadowWidth );
-    
+
     // okay, now to find a suitable location
     //###### we need a global fancy popup positioning somewhere
     popup->move(pos - popup->rect().center());
@@ -4012,7 +4201,7 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 
     popup->show();
-    
+
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
@@ -4022,10 +4211,10 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
     p.setBrush( QColor( 255, 255, 240 ) );
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( black );
-    
+
     qmlDoc->draw( &p, leftMargin, normalMargin, r, popup->colorGroup(), 0 );
     delete qmlDoc;
-    
+
     p.drawPoint( w + 5, 6 );
     p.drawLine( w + 3, 6,
 		w + 5, 8 );
@@ -4047,6 +4236,28 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
 
 
 
+void QMLBrowser::scrollToAnchor(const QString& name)
+{
+    int x1,y1,h,ry,rh;
+    
+    QMLContainer* anchor = currentDocument().findAnchor( name );
+    if ( !anchor )
+	return;
+
+    QMLContainer* parent = anchor->parent;
+    QMLNode* node = currentDocument().nextLayout( anchor, parent);
+    if (!node)
+	return;
+    y1 = contentsY();
+    {
+	QPainter p(viewport());
+	(void) node->parent()->box()->locate( &p, node, x1, y1, h, ry, rh );
+    }
+    
+    setContentsPos( contentsX(), y1 );
+}
+
+
 /*!
   \class QMLSimpleDocument qml.h
   \brief A small displayable piece of QML.
@@ -4059,8 +4270,9 @@ void QMLBrowser::popupDetail( const QString& contents, const QPoint& pos )
   \sa QLabel::setQML(), QMLView
 */
 
-struct QMLSimpleDocumentData
+class QMLSimpleDocumentData
 {
+public:
     QMLDocument* doc;
 };
 
