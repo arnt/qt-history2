@@ -582,7 +582,7 @@ void QTextView::doKeyboardAction( KeyboardActionPrivate action )
 	    undoRedoInfo.text = QString::null;
 	}
 	undoRedoInfo.text += "\n";
-	cursor->splitAndInsertEmtyParag();
+	cursor->splitAndInsertEmptyParag();
 	if ( cursor->parag()->prev() )
 	    lastFormatted = cursor->parag()->prev();
 	break;

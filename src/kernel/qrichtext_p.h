@@ -141,7 +141,7 @@ public:
     void gotoWordRight();
 
     void insert( const QString &s, bool checkNewLine );
-    void splitAndInsertEmtyParag( bool ind = TRUE, bool updateIds = TRUE );
+    void splitAndInsertEmptyParag( bool ind = TRUE, bool updateIds = TRUE );
     bool remove();
     void killLine();
     void indent();

@@ -301,7 +301,7 @@ void QTextCursor::insert( const QString &s, bool checkNewLine )
 	int y = string->rect().y() + string->rect().height();
 	for ( ; it != lst.end(); ++it ) {
 	    if ( it != lst.begin() ) {
-		splitAndInsertEmtyParag( FALSE, FALSE );
+		splitAndInsertEmptyParag( FALSE, FALSE );
 		string->setEndState( -1 );
 		string->prev()->format( -1, FALSE );
 	    }
@@ -766,7 +766,7 @@ bool QTextCursor::atParagEnd()
     return idx == string->length() - 1;
 }
 
-void QTextCursor::splitAndInsertEmtyParag( bool ind, bool updateIds )
+void QTextCursor::splitAndInsertEmptyParag( bool ind, bool updateIds )
 {
     if ( !doc )
 	return;
