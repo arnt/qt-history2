@@ -39,11 +39,11 @@ class SourceEditor;
 class WorkspaceItem : public QListViewItem
 {
 public:
-    enum Type { ProjectType, FormFileType, FormUiType, FormSourceType, SourceFileType };
+    enum Type { ProjectType, FormFileType, FormSourceType, SourceFileType };
 
     WorkspaceItem( QListView *parent, Project* p );
     WorkspaceItem( QListViewItem *parent, SourceFile* sf );
-    WorkspaceItem( QListViewItem *parent, FormFile* ff );
+    WorkspaceItem( QListViewItem *parent, FormFile* ff, Type t = FormFileType );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
@@ -61,6 +61,8 @@ public:
     Project* project;
     SourceFile* sourceFile;
     FormFile* formFile;
+    
+    bool autoOpen;
 
 private:
     void init();
@@ -134,6 +136,8 @@ private slots:
 private:
     WorkspaceItem *findItem( FormFile *ff );
     WorkspaceItem *findItem( SourceFile *sf );
+    
+    void closeAutoOpenItems();
 
 private:
     MainWindow *mainWindow;
