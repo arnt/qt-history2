@@ -2121,7 +2121,7 @@ const QPen QVariant::toPen() const
 int QVariant::toInt( bool * ok ) const
 {
     if ( ok )
-	*ok = canCast( UInt ); // ### Int ?
+	*ok = canCast( Int );
 
     switch ( d->typ ) {
     case String:
@@ -2132,6 +2132,10 @@ int QVariant::toInt( bool * ok ) const
 	return d->value.i;
     case UInt:
 	return (int)d->value.u;
+    case LongLong:
+        return (int)d->value.ll;
+    case ULongLong:
+        return (int)d->value.ull;
     case Double:
 	return (int)d->value.d;
     case Bool:
@@ -2165,13 +2169,17 @@ uint QVariant::toUInt( bool * ok ) const
     case CString:
 	return ((QCString*)d->value.ptr)->toUInt( ok );
     case Int:
-	return d->value.i;
+	return (uint)d->value.i;
     case UInt:
-	return (int)d->value.u;
+	return d->value.u;
+    case LongLong:
+        return (uint)d->value.ll;
+    case ULongLong:
+        return (uint)d->value.ull;
     case Double:
-	return (int)d->value.d;
+	return (uint)d->value.d;
     case Bool:
-	return (int)d->value.b;
+	return (uint)d->value.b;
     default:
 	return 0;
     }
