@@ -53,11 +53,12 @@ public:
     void updateClipRegion(const QRegion &region, Qt::ClipOperation op);
 
     virtual void drawLine(const QLineF &line);
-    virtual void drawLines(const QList<QLineF> &a);
+    virtual void drawLines(const QLineF *lines, int lineCount);
     virtual void drawRect(const QRectF &r);
     virtual void drawPoint(const QPointF &p);
     virtual void drawEllipse(const QRectF &r);
-    virtual void drawPolygon(const QPolygonF &p, PolygonDrawMode mode);
+    virtual void drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode);
+    virtual void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     virtual void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
     virtual void drawTextItem(const QPointF &p, const QTextItem &ti);

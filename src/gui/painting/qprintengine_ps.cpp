@@ -5887,26 +5887,25 @@ void QPSPrintEngine::drawEllipse(const QRectF &r)
     d->pageStream << RECT(r) << "E\n";
 }
 
-void QPSPrintEngine::drawLines(const QList<QLineF> &a)
+void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     d->pageStream << "NP\n";
-    for (int i = 0; i < a.size(); ++i) {
-        const QLineF &line = a.at(i);
-        d->pageStream << POINT(line.start()) << "MT "
-                      << POINT(line.end()) << "LT\n";
+    for (int i = 0; i < lineCount; ++i) {
+        d->pageStream << POINT(lines[i].start()) << "MT "
+                      << POINT(lines[i].end()) << "LT\n";
     }
     d->pageStream << "QS\n";
 }
 
-void QPSPrintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
+void QPSPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
 
     if (mode == WindingMode)
         d->pageStream << "/WFi true d\n";
     d->pageStream << "NP\n";
-    d->pageStream << POINT(a.at(0)) << "MT\n";
-    for(int i = 1; i < a.size(); i++) {
-        d->pageStream << POINT(a.at(i)) << "LT\n";
+    d->pageStream << POINT(points[0]) << "MT\n";
+    for(int i = 1; i < pointCount; i++) {
+        d->pageStream << POINT(points[i]) << "LT\n";
     }
     if (mode == PolylineMode)
         d->pageStream << "QS\n";
@@ -5914,6 +5913,15 @@ void QPSPrintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
         d->pageStream << "CP BF QS\n";
     if (mode == WindingMode)
         d->pageStream << "/WFi false d\n";
+}
+
+void QPSPrintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+{
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
+    drawPolygon(p.data(), pointCount, mode);
 }
 
 void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,

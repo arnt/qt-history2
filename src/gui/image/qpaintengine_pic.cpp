@@ -242,18 +242,32 @@ void QPicturePaintEngine::drawEllipse(const QRectF &r)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawPolygon(const QPolygonF &a, PolygonDrawMode mode)
+void QPicturePaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
     int pos;
+    // ### fix me
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
     if (mode == PolylineMode) {
         SERIALIZE_CMD(QPicturePrivate::PdcDrawPolyline);
-        d->s << a;
-        writeCmdLength(pos, a.boundingRect(), true);
+        d->s << p;
+        writeCmdLength(pos, p.boundingRect(), true);
     } else {
         SERIALIZE_CMD(QPicturePrivate::PdcDrawPolygon);
-        d->s << a << (Q_INT8) (mode == WindingMode);
-        writeCmdLength(pos, a.boundingRect(), true);
+        d->s << p << (Q_INT8) (mode == WindingMode);
+        writeCmdLength(pos, p.boundingRect(), true);
     }
+}
+
+void QPicturePaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+{
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
+    drawPolygon(p.data(), pointCount, mode);
 }
 
 // ### Stream out sr

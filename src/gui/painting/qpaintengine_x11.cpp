@@ -1469,6 +1469,15 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
     }
 }
 
+void QX11PaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
+{
+    QPolygonF p;
+    p.reserve(pointCount);
+    for (int i=0; i<pointCount; ++i)
+        p << points[i];
+    drawPolygon(p.data(), pointCount, mode);
+}
+
 //
 // Internal functions for simple GC caching for blt'ing masked pixmaps.
 // This cache is used when the pixmap optimization is set to Normal
