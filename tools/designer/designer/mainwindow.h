@@ -58,6 +58,7 @@ class Preferences;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+    Q_PROPERTY( QString currentFileName READ currentFileName )
 
 #undef QMainWindow
 
@@ -100,6 +101,9 @@ public:
     static MainWindow *self;
     void saveAllTemp();
 
+    // formwindow "interface"
+    QString currentFileName() const;
+    
 public slots:
     void showProperties( QWidget *w );
     void updateProperties( QWidget *w );
@@ -199,7 +203,7 @@ private:
     void setupFormList();
 
     void setupActionManager();
-    
+
     QWidget* previewFormInternal( QStyle* style = 0, QPalette* pal = 0 );
 
     FormWindow *insertFormWindow( int type );
@@ -272,7 +276,7 @@ private:
     QRect propGeom, flGeom, hvGeom;
     bool client;
     ActionPlugInManager *actionPluginManager;
-    
+
 };
 
 #endif

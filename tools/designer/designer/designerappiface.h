@@ -9,12 +9,12 @@ class DesignerApplicationInterface : public QApplicationInterface
 {
 public:
     DesignerApplicationInterface();
-    
+
     QComponentInterface *requestInterface( const QCString &request );
-    
+
 private:
-    QMap<QString, QGuardedPtr<QComponentInterface> > interfaces;
-    
+    QMap<QCString, QGuardedPtr<QComponentInterface> > interfaces;
+
 };
 
 #endif

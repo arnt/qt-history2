@@ -17,7 +17,7 @@ class QToolBar;
 class P4Interface : public QObject, public ActionInterface
 {
     Q_OBJECT
-    
+
 public:
     P4Interface();
     ~P4Interface();
@@ -31,11 +31,11 @@ public:
     QStringList featureList();
     QAction* create( const QString &actionname, QObject* parent = 0 );
     QString group( const QString &actionname );
-    
+
 private slots:
     void p4Edit();
     void p4Submit();
-    
+
 private:
     QGuardedCleanUpHandler<QAction> actions;
     QGuardedPtr<QApplicationInterface> appInterface;
@@ -93,12 +93,22 @@ QString P4Interface::group( const QString & )
 
 void P4Interface::p4Edit()
 {
-    qDebug( "P4Interface::p4Edit" );
+    if ( !appInterface )
+	return;
+    QComponentInterface *i = appInterface->requestInterface( "MainWindowInterface" );
+    if ( !i )
+	return;
+    qDebug( "P4Interface::p4Edit %s", i->requestProperty( "currentFileName" ).toString().latin1() );
 }
 
 void P4Interface::p4Submit()
 {
-    qDebug( "P4Interface::p4Submit" );
+    if ( !appInterface )
+	return;
+    QComponentInterface *i = appInterface->requestInterface( "MainWindowInterface" );
+    if ( !i )
+	return;
+    qDebug( "P4Interface::p4Submit %s", i->requestProperty( "currentFileName" ).toString().latin1() );
 }
 
 #if defined(__cplusplus )

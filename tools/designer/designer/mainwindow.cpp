@@ -161,7 +161,7 @@ MainWindow::MainWindow( bool asClient )
     setupActionManager();
     setupHelpActions();
     setupRMBMenus();
-    
+
     emit hasActiveForm( FALSE );
 
     lastPressWidget = 0;
@@ -3308,7 +3308,7 @@ void MainWindow::setupActionManager()
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
     actionPluginManager = new ActionPlugInManager( dir );
-    
+
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	QString grp = actionPluginManager->group( *it );
@@ -3328,4 +3328,14 @@ void MainWindow::setupActionManager()
 	    menubar->insertItem( tr( grp ), m );
 	}
     }
+}
+
+
+// formwindow "interface"
+
+QString MainWindow::currentFileName() const
+{
+    if ( !( (MainWindow*)this )->formWindow() )
+	return QString::null;
+    return ( (MainWindow*)this )->formWindow()->fileName();
 }

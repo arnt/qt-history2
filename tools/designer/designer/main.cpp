@@ -221,8 +221,6 @@ int main( int argc, char *argv[] )
 	    mw->openFile( arg );
     }
 
-    a.connect( &a, SIGNAL( lastWindowClosed() ),
-	       &a, SLOT( quit() ) );
-
+    a.setMainWidget( mw );
     return a.exec();
 }
