@@ -90,7 +90,7 @@ void Roads::paintEvent(QPaintEvent *)
         p.save();
         p.translate(vec.start().toPoint());
         vec = vec.normalVector();
-        qReal angle = vec.angle(QLineF(0, 0, 1, 0));
+        qreal angle = vec.angle(QLineF(0, 0, 1, 0));
 
         // Shift angle to 360
         if (vec.vy() < 0)
