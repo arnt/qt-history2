@@ -41,6 +41,15 @@ In order to compile the example programs from source you should:
    setenv PATH $QTDIR/bin:$PATH
    setenv DYLD_LIBRARY_PATH $DYLD_LIBRARY_PATH:$QTDIR/lib
 
+   Some versions of tcsh do not understand the expansion of empty
+   variables. If you experience any error messages with the above
+   instructions, you may want to replace them with:
+
+   setenv QTDIR <where_you_installed_Qt>
+   setenv QMAKESPEC macx-g++
+   setenv PATH $QTDIR/bin:$PATH
+   setenv DYLD_LIBRARY_PATH $QTDIR/lib
+
    After you have done this, you will need to login again, or re-source 
    the profile before continuing.
 
