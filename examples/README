@@ -63,12 +63,12 @@
   to see how you can make reusable components such as the TicTacGameBoard
   widget.
 
-- application:
+- application
   This example program looks like a complete modern application.  It
   has a menu bar, it has a tool bar, it has a status bar and works
   like a simple text editor.
 
-- buttons_groups:
+- buttons_groups
   This examples shows different types of Groupboxes (Buttongroups, etc.) and lots
   of different kinds of Buttons (Checkboxes, Radiobuttons, Pushbuttons, etc.)
 
