@@ -172,6 +172,7 @@ public:
     QByteArray &replace(const char *before, const char *after);
     QByteArray &replace(const QByteArray &before, const QByteArray &after);
     QByteArray &replace(const QByteArray &before, const char *after);
+    QByteArray &replace(const char *before, const QByteArray &after);
     QByteArray &replace(char before, char after);
     QByteArray &operator+=(char c);
     QByteArray &operator+=(const char *s);
@@ -473,6 +474,8 @@ inline QByteArray &QByteArray::replace(char before, const char *c)
 { return replace(before, fromRawData(c, qstrlen(c))); }
 inline QByteArray &QByteArray::replace(const QByteArray &before, const char *c)
 { return replace(before, fromRawData(c, qstrlen(c))); }
+inline QByteArray &QByteArray::replace(const char *c, const QByteArray &after)
+{ return replace(fromRawData(c, qstrlen(c)), after); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { return replace(fromRawData(before, qstrlen(before)), fromRawData(after, qstrlen(after))); }
 

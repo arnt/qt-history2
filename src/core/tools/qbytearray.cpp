@@ -1724,6 +1724,15 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     return *this;
 }
 
+
+/*! \fn QByteArray &QByteArray::replace(const char *before, const QByteArray &after)
+    \overload
+
+    Replaces every occurrence of the string \a before with the
+    byte array \a after.
+*/
+
+
 /*! \fn QByteArray &QByteArray::replace(const QByteArray &before, const char *after)
     \overload
 
