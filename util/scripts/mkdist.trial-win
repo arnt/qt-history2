@@ -1,7 +1,0 @@
-#!/bin/sh
-#
-# Creates a new Qt source distribution for Windows
-#
-
-cd ${QTDIR}/util/scripts
-./mkdist.generic $* trial win /tmp/qtdist-`whoami`
