@@ -935,11 +935,24 @@ void QTabWidget::paintEvent(QPaintEvent *)
     opt.rect = d->panelRect;
     p.drawPrimitive(QStyle::PE_FrameTabWidget, opt);
     int tabBarBaseHeight = style()->pixelMetric(QStyle::PM_TabBarBaseHeight, &opt, this);
-    if (d->pos == North)
+    switch (d->pos) {
+    case North:
         opt.rect.setTop(opt.rect.top() - tabBarBaseHeight);
-    else if (d->pos == South)
+        opt.rect.setHeight(tabBarBaseHeight);
+        break;
+    case South:
         opt.rect.setTop(opt.rect.bottom() + tabBarBaseHeight - 1);
-    opt.rect.setHeight(tabBarBaseHeight);
+        opt.rect.setHeight(tabBarBaseHeight);
+        break;
+    case West:
+        opt.rect.setLeft(opt.rect.left() - tabBarBaseHeight);
+        opt.rect.setWidth(tabBarBaseHeight + 1);
+        break;
+    case East:
+        opt.rect.setRight(opt.rect.right() + tabBarBaseHeight);
+        opt.rect.setWidth(tabBarBaseHeight);
+        break;
+    }
     p.drawPrimitive(QStyle::PE_FrameTabBarBase, opt);
 }
 

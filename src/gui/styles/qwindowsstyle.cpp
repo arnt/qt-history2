@@ -1700,21 +1700,28 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
             bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             QRect r2(tab->rect);
-            if (tab->shape == QTabBar::RoundedNorth) {
+            switch (tab->shape) {
+            default:
+                QCommonStyle::drawControl(ce, tab, p, widget);
+                break;
+            case QTabBar::RoundedEast:
+                p->drawRect(tab->rect);
+                break;
+            case QTabBar::RoundedNorth: {
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.bottom() - 1, r2.right(), r2.bottom() - 1);
-                if (r2.x() == 0 && widget->x() == 0)
+                if (r2.x() == 0 && widget && widget->x() == 0)
                     p->drawPoint(tab->rect.bottomLeft());
-
+                
                 if (!selected)
                     r2.setRect(r2.left(), r2.top() + 2, r2.width(), r2.height() - 2);
-
+                
                 p->setPen(tab->palette.light().color());
                 int x1, x2;
                 const int HOFFSET = 2;
                 x1 = r2.left();
                 x2 = r2.right() - 1;
-
+                
                 if (selected) {
                     x1 -= 2;
                     x2 += 2;
@@ -1723,27 +1730,27 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     x1 += 2;
                 if (lastTab || onlyOne)
                     x2 -= 2;
-
+                
                 // Erase the win panel line
                 if (selected) {
                     p->setPen(opt->palette.background().color());
                     p->drawLine(x1, r2.bottom()-1, x2, r2.bottom()-1);
                     p->setPen(opt->palette.light().color());
                 }
-
+                
                 // The initial offset
                 if (firstTab && !selected)
                     p->drawLine(x1 + 1, r2.bottom() - 1, x1 + HOFFSET, r2.bottom() - 1);
-
+                
                 // Draw the left side if previous isn't selected
                 if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected) {
                     p->drawLine(x1, r2.bottom() - 1, x1, r2.top() + 2);
                     p->drawPoint(x1+1, r2.top() + 1);
                 }
-
+                
                 // Draw top line
                 p->drawLine(x1 + 2, r2.top(), x2-1, r2.top());
-
+                
                 // Draw the right side shadow if next isn't selected
                 if (tab->selectedPosition != QStyleOptionTab::NextIsSelected) {
                     p->setPen(tab->palette.dark().color());
@@ -1751,11 +1758,12 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     p->setPen(tab->palette.shadow().color());
                     p->drawPoint(x2, r2.top() + 1);
                     p->drawPoint(x2, r2.top() + 1);
-                    x2++;
+                    ++x2;
                     p->drawLine(x2, r2.top() + 2, x2, r2.bottom() - (selected ? 1 : 2));
                 }
-            } else if (tab->shape == QTabBar::RoundedSouth){
-                bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget)== Qt::AlignRight;
+                break; }
+            case QTabBar::RoundedSouth: {
+                bool rightAligned = styleHint(SH_TabBar_Alignment, tab, widget) == Qt::AlignRight;
                 if (selected) {
                     p->fillRect(QRect(r2.left(), r2.top(), r2.width(), 2),
                                 tab->palette.brush(QPalette::Background));
@@ -1768,32 +1776,78 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                                 r2.right() - 2, r2.top() + 1);
                     p->drawLine(r2.left() + (rightAligned && firstTab ? 0 : 1),
                                 r2.top()+ 1, r2.right() - (lastTab ? 0 : 2), r2.top() + 1);
-
+                    
                     if (rightAligned && lastTab)
                         p->drawPoint(r2.right(), r2.top());
                     p->setPen(tab->palette.dark().color());
                     p->drawLine(r2.left(), r2.top(), r2.right()- 1, r2.top());
                     r2.setRect(r2.left(), r2.top(), r2.width(), r2.height()- 2);
                 }
-
+                
                 p->drawLine(r2.right() - 1, r2.top()+ (selected ? 0: 2),
-                        r2.right() - 1, r2.bottom() - 2);
+                            r2.right() - 1, r2.bottom() - 2);
                 p->drawPoint(r2.right() - 2, r2.bottom() - 2);
                 p->drawLine(r2.right() - 2, r2.bottom() - 1,
-                        r2.left() + 1, r2.bottom() - 1);
-
+                            r2.left() + 1, r2.bottom() - 1);
+                
                 p->setPen(tab->palette.shadow().color());
                 p->drawLine(r2.right(), r2.top()+ (lastTab && rightAligned && selected)? 0 : 1,
                             r2.right(), r2.bottom()- 1);
                 p->drawPoint(r2.right()- 1, r2.bottom()- 1);
                 p->drawLine(r2.right()- 1, r2.bottom(), r2.left()+ 2, r2.bottom());
-
+                
                 p->setPen(tab->palette.light().color());
                 p->drawLine(r2.left(), r2.top()+ (selected ? 0 : 2), r2.left(), r2.bottom()- 2);
-            } else if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::RoundedWest) {
-                p->drawRect(tab->rect);
-            } else {
-                QCommonStyle::drawControl(ce, tab, p, widget);
+                break; }
+            case QTabBar::RoundedWest: {
+                p->setPen(tab->palette.light().color());
+                
+                // The line across the panel
+                p->drawLine(r2.right() - 1, r2.bottom() - 1, r2.right() - 1, r2.top());
+                
+                if (!selected)
+                    r2.setRect(r2.left() + 2, r2.top(), r2.width() - 2, r2.height());
+                
+                const int VOFFSET = 2;
+                int y1 = r2.top();
+                int y2 = r2.bottom() - 1;
+                int rightSide = r2.right() - 1;
+                int leftSide = r2.left();
+                
+                if (selected) {
+                    y1 -= 2;
+                    y2 += 2;
+                }
+                if (firstTab || onlyOne)
+                    y1 += 2;
+                if (lastTab || onlyOne)
+                    y2 -= 2;
+                
+                if (selected) {
+                    p->setPen(opt->palette.background().color());
+                    p->drawLine(rightSide, y1, rightSide, y2);
+                    p->setPen(opt->palette.light().color());
+                }
+                
+                if (firstTab && !selected)
+                    p->drawLine(rightSide, y1 + 1, rightSide, y1 + VOFFSET);
+                
+                if (tab->selectedPosition != QStyleOptionTab::PreviousIsSelected) {
+                    p->drawLine(rightSide, y1, leftSide + 2, y1);
+                    p->drawPoint(leftSide + 1, y1 + 1);
+                }
+                
+                p->drawLine(leftSide, y1 + 2, leftSide, y2 - 1);
+                
+                if (tab->selectedPosition != QStyleOptionTab::NextIsSelected) {
+                    p->setPen(tab->palette.dark().color());
+                    p->drawLine(leftSide + 2, y2, rightSide + (selected ? 0 : -1), y2);
+                    p->setPen(tab->palette.shadow().color());
+                    p->drawPoint(leftSide + 1, y2);
+                    ++y2;
+                    p->drawLine(leftSide + 2, y2, rightSide + (selected ? 0 : -1), y2);
+                }
+                break; }
             }
         }
         break;

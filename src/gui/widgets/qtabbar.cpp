@@ -298,7 +298,7 @@ void QTabBarPrivate::layoutTabs()
         available = size.width();
     } else {
         int y = 0;
-        for (int i = tabList.count()-1; i >=0;  --i) {
+        for (int i = 0; i < tabList.count(); ++i) {
             QSize sz = q->tabSizeHint(i);
             tabList[i].rect = QRect(0, y, sz.width(), sz.height());
             y += sz.height();
@@ -306,32 +306,6 @@ void QTabBarPrivate::layoutTabs()
         last = y;
         available = size.height();
     }
-
-#if 0
-    // align the tabs on the tabbar, luckily AlignLeft is already done for us.
-    int alignment = q->style()->styleHint(QStyle::SH_TabBar_Alignment, 0, q);
-    if (alignment != Qt::AlignLeft && last <= available) {
-        int tabstart;
-        if (alignment == Qt::AlignCenter)
-            tabstart = (available - last) / 2;
-        else if (alignment == Qt::AlignRight)
-            tabstart = available - last;
-        else
-            tabstart = 0;
-        if (!vertTabs) {
-            for (int i = 0; i < tabList.count(); ++i) {
-                tabList[i].rect.setX(tabstart);
-                tabstart += tabList.at(i).rect.width();
-            }
-        } else {
-            for (int i = 0; i < tabList.count(); ++i) {
-                tabList[i].rect.setY(tabstart);
-                tabstart += tabList.at(i).rect.width();
-            }
-        }
-        last = tabstart;
-    }
-#endif
 
     if (tabList.count() && last > available) {
         int extra = extraWidth();
@@ -736,6 +710,7 @@ QSize QTabBar::tabSizeHint(int index) const
                   qMax(fm.height(), iconSize.height()) + vframe);
         if (verticalTabs(d->shape))
             csz.transpose();
+        
         return style()->sizeFromContents(QStyle::CT_TabBarTab, &opt, csz, this);
     }
     return QSize();

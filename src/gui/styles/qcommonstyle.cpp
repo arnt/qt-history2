@@ -642,9 +642,11 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->drawLine(opt->rect.left(), opt->rect.top(),
                             opt->rect.left(), opt->rect.bottom() - 1);
                 p->setPen(opt->palette.shadow().color());
+                p->setPen(Qt::red);
                 p->drawLine(opt->rect.left(), opt->rect.bottom() + 1,
                             opt->rect.right(), opt->rect.bottom() + 1);
                 p->setPen(opt->palette.dark().color());
+                p->setPen(Qt::blue);
                 p->drawLine(opt->rect.left(), opt->rect.bottom(),
                             opt->rect.right() - 1, opt->rect.bottom());
                 p->drawLine(opt->rect.right(), opt->rect.bottom() - 1,
@@ -662,8 +664,8 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 p->drawLine(opt->rect.left() + 1, opt->rect.top(),
                             opt->rect.right() - 1, opt->rect.top());
                 p->setPen(opt->palette.shadow().color());
-                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() + 1,
-                            opt->rect.right(), opt->rect.bottom() + 1);
+                p->drawLine(opt->rect.left() + 1, opt->rect.bottom() - 1,
+                            opt->rect.right(), opt->rect.bottom() - 1);
                 p->setPen(opt->palette.dark().color());
                 p->drawLine(opt->rect.left() + 1, opt->rect.bottom(),
                             opt->rect.right() - 1, opt->rect.bottom());
@@ -700,10 +702,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
                 break;
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
+                p->setPen(opt->palette.shadow().color());
+                p->drawLine(r2.right(), r2.bottom() - 1, r2.left(), r2.bottom() - 1);
+                p->setPen(opt->palette.dark().color());
+                p->drawLine(r2.right(), r2.bottom(), r2.left(), r2.bottom());
                 p->setPen(opt->palette.light().color());
-                p->drawLine(r2.left() + 1, r2.bottom(), r2.left(), r2.bottom());
-                p->drawLine(r2.left(), r2.bottom(), r2.left(), r2.top());
-                p->drawLine(r2.left() + 1, r2.top(), r2.left(), r2.top());
+                p->drawLine(r2.left(), r2.bottom() - 2, r2.left(), r2.top() - 1);
+                p->drawLine(r2.right(), r2.top(), r2.left(), r2.top());
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
@@ -1291,7 +1296,20 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
     case CE_TabBarLabel:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
             QRect tr = tab->rect;
+            bool verticalTabs = tab->shape == QTabBar::RoundedEast
+                                || tab->shape == QTabBar::RoundedWest
+                                || tab->shape == QTabBar::TriangularEast
+                                || tab->shape == QTabBar::TriangularWest;
             bool selected = tab->state & Style_Selected;
+            if (verticalTabs) {
+                p->save();
+                int newY = tr.y() + tr.height();
+                tr.setRect(0, 0, tr.height(), tr.width());
+                QMatrix m;
+                m.translate(0, newY);
+                m.rotate(-90);
+                p->setMatrix(m, true);
+            }
             if (selected) {
                 tr.setBottom(tr.bottom() - pixelMetric(QStyle::PM_TabBarTabShiftVertical,
                              tab, widget));
@@ -1303,6 +1321,9 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
                 alignment |= Qt::TextHideMnemonic;
             drawItem(p, tr, alignment, tab->palette, tab->state & Style_Enabled, tab->text);
+            
+            if (verticalTabs)
+                p->restore();
 
             if (tab->state & Style_HasFocus && !tab->text.isEmpty()) {
                 QStyleOptionFocusRect fropt;
@@ -2637,7 +2658,8 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
 #ifndef QT_NO_TABBAR
     case PM_TabBarTabVSpace: {
         const QStyleOptionTab *tb = qt_cast<const QStyleOptionTab *>(opt);
-        if (tb && (tb->shape == QTabBar::RoundedAbove || tb->shape == QTabBar::RoundedBelow))
+        if (tb && (tb->shape == QTabBar::RoundedNorth || tb->shape == QTabBar::RoundedSouth
+                   || tb->shape == QTabBar::RoundedWest || tb->shape == QTabBar::RoundedEast))
             ret = 10;
         else
             ret = 0;
