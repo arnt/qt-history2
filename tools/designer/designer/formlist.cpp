@@ -38,7 +38,7 @@
 static bool blockNewForms = FALSE;
 
 FormListItem::FormListItem( QListView *parent, const QString &form, const QString &file, FormWindow *fw )
-    : QListViewItem( parent, form, "", file ), formwindow( fw )
+    : QListViewItem( parent, form, file, "" ), formwindow( fw )
 {
     setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
 }
@@ -102,8 +102,8 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     p.setColor( QColorGroup::Base, QColor( backColor2 ) );
     setPalette( p );
     addColumn( tr( "Form" ) );
-    addColumn( tr( "Changed" ) );
     addColumn( tr( "Filename" ) );
+    addColumn( tr( "Changed" ) );
     setAllColumnsShowFocus( TRUE );
     connect( header(), SIGNAL( sizeChange( int, int, int ) ),
 	     this, SLOT( updateHeader() ) );
@@ -123,20 +123,20 @@ void FormList::setProject( Project *pro )
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
 	(void)new FormListItem( this, tr( "<unknown>" ), *it, 0 );
     }
-    
+
     QObjectList *l = mainWindow->workSpace()->queryList( "FormWindow", 0, FALSE, TRUE );
     for ( QObject *o = l->first(); o; o = l->next() ) {
 	if ( ( (FormWindow*)o )->project() != pro )
 	    continue;
 	QListViewItemIterator it( this );
 	while ( it.current() ) {
-	    if ( project->makeAbsolute( ( (FormListItem*)it.current() )->text( 2 ) ) == 
+	    if ( project->makeAbsolute( ( (FormListItem*)it.current() )->text( 1 ) ) ==
 		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) )
 		( (FormListItem*)it.current() )->setFormWindow( ( (FormWindow*)o ) );
 	    ++it;
 	}
     }
-    
+
     updateHeader();
 }
 
@@ -169,7 +169,7 @@ void FormList::modificationChanged( bool m, FormWindow *fw )
       	s = tr( "*" );
       else
         s = tr( "" );
-    	i->setText( 1, s );
+    	i->setText( 2, s );
     }
 }
 
@@ -179,9 +179,9 @@ void FormList::fileNameChanged( const QString &s, FormWindow *fw )
     if ( !i )
 	return;
     if ( s.isEmpty() )
-	i->setText( 2, tr( "(unnamed)" ) );
+	i->setText( 1, tr( "(unnamed)" ) );
     else
-	i->setText( 2, s );
+	i->setText( 1, s );
     if ( project )
 	project->setFormWindowFileName( fw, fw->fileName() );
 }
@@ -228,21 +228,19 @@ void FormList::resizeEvent( QResizeEvent *e )
     QListView::resizeEvent( e );
     QSize vs = viewportSize( 0, contentsHeight() );
 
-    int os = header()->sectionSize( 2 );
-    int ns = vs.width() - header()->sectionSize( 0 ) - header()->sectionSize( 1 );
+    int ns = vs.width() - header()->sectionSize( 0 ) - header()->sectionSize( 2 );
     if ( ns < 16 )
 	ns = 16;
 	
-    header()->resizeSection( 2, ns );
-    header()->repaint( header()->width() - header()->sectionSize( 2 ), 0, header()->sectionSize( 2 ), header()->height() );
+    header()->resizeSection( 1, ns );
+    header()->repaint( FALSE );
 
-    int elipsis = fontMetrics().width("...") + 10;
-    viewport()->repaint( header()->sectionPos( 2 ) + os - elipsis, 0, elipsis, viewport()->height(), FALSE );
+    viewport()->repaint( FALSE );
 }
 
 void FormList::updateHeader()
 {
-    QSize s( header()->sectionPos( 2 ) + header()->sectionSize(1), height() );
+    QSize s( header()->sectionPos( 2 ) + header()->sectionSize( 1 ), height() );
     QResizeEvent e( s, size() );
     resizeEvent( &e );
     viewport()->repaint( s.width(), 0, width() - s.width(), height(), FALSE );
@@ -262,7 +260,7 @@ void FormList::itemClicked( QListViewItem *i )
 	( (FormListItem*)i )->formWindow()->setFocus();
     } else {
 	blockNewForms = TRUE;
-	mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)i )->text( 2 ) ) );
+	mainWindow->openFile( project->makeAbsolute( ( (FormListItem*)i )->text( 1 ) ) );
 	blockNewForms = FALSE;
     }
 }
