@@ -248,11 +248,13 @@ Win32MakefileGenerator::processPrlFiles()
 	QStringList &l = project->variables()[where];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString opt = (*it);
-	    if(opt.left(9) == "/LIBPATH:") {
-		QString r = opt.mid(9), l = r;
-		fixEnvVariables(l);
-		libdirs.append(new MakefileDependDir(r.replace("\"",""),
-						     l.replace("\"","")));
+	    if(opt.left(1) == "/") {
+		if(opt.left(9) == "/LIBPATH:") {
+		    QString r = opt.mid(9), l = r;
+		    fixEnvVariables(l);
+		    libdirs.append(new MakefileDependDir(r.replace("\"",""),
+							 l.replace("\"","")));
+		}
 	    } else {
 		if(!processed[opt]) {
 		    if(processPrlFile(opt)) {
@@ -261,7 +263,7 @@ Win32MakefileGenerator::processPrlFiles()
 		    } else {
 			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
 			    QString prl = mdd->local_dir + Option::dir_sep + opt;
-			    if(processed[opt]) {
+			    if(processed[prl]) {
 				break;
 			    } else if(processPrlFile(prl)) {
 				processed.insert(prl, (void*)1);
