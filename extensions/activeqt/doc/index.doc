@@ -216,27 +216,6 @@
     QAXFACTORY_EXPORT macro if the server provides multiple ActiveX
     controls.
 
-    \section4 "unresolved external symbol _main"
-
-    The application does not provide an entry point function \c
-    main(). Implement a standard Qt main function, and use
-    QAxFactory::isServer() and QAxFactory::startServer() to prevent 
-    or control stand-alone execution of the application.
-    \code
-    int main( int argc, char **argv )
-    {
-        QApplication app( argc, argv );
-
-        if ( !QAxFactory::isServer() ) {
-            QMessageBox::critical( 0, "Cannot run stand-alone!",
-                                      "This executable is a server for ActiveX controls." );
-            return -1;
-        }
-
-        return app.exec();
-    }
-    \endcode
-
     \section4 "cannot open file ... "
 
     The ActiveX server could not shut down properly when the last
@@ -629,8 +608,8 @@
     The \link QAxFactory QAxFactory class documentation \endlink explains 
     how to use this macro, and how to implement and use custom factories.
 
-    For out-of-process executable servers, implement a main()
-    function, instantiate a QApplication object, and enter the event
+    For out-of-process executable servers you can implement a main()
+    function to instantiate a QApplication object and enter the event
     loop just like any normal Qt application. By default the
     application will start as a standard Qt application, but if you
     pass \c -activex on the command line it will start as an ActiveX
@@ -653,7 +632,10 @@
     </pre>
     \endraw
 
-    For in-process servers this is not necessary.
+    This is however not necessary as ActiveQt provides a default implementation
+    of a main function. The default implemenation returns an error code -1 when
+    QAxFactory::isServer() returns FALSE, otherwise it creates a QApplication 
+    instance and calls exec().
 
     To build the ActiveX server executable run \link qmake-manual.book
     qmake\endlink to generate the makefile, and use your compiler's
