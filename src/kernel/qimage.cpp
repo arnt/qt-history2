@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#113 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#114 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#113 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#114 $");
 
 
 /*!
@@ -1097,7 +1097,8 @@ static bool convert_1_to_8( const QImage *src, QImage *dst )
 // dither_to_1:  Uses selected dithering algorithm.
 //
 
-static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, bool fromalpha )
+static bool dither_to_1( const QImage *src, QImage *dst,
+		         int conversion_flags, bool fromalpha )
 {
     if ( !dst->create(src->width(), src->height(), 1, 2, QImage::BigEndian) )
 	return FALSE;				// something failed
@@ -1129,9 +1130,13 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
     bool  use_gray = d == 8;
     if ( use_gray ) {				// make gray map
 	if ( fromalpha ) {
+	    // Alpha 0x00 -> 0 pixels (white)
+	    // Alpha 0xFF -> 1 pixels (black)
 	    for ( int i=0; i<src->numColors(); i++ )
 		gray[i] = (255 - (src->color(i) >> 24));
 	} else {
+	    // Pixel 0x00 -> 1 pixels (black)
+	    // Pixel 0xFF -> 0 pixels (white)
 	    for ( int i=0; i<src->numColors(); i++ )
 		gray[i] = qGray( src->color(i) & 0x00ffffff );
 	}
@@ -1287,7 +1292,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		    }
 		}
 	    }
-	} else if ( d == 8 ) {
+	} else /* ( d == 8 ) */ {
 	    uchar** line = src->jumpTable();
 	    for ( int i=0; i<h; i++ ) {
 		uchar *p = line[i];
@@ -1296,7 +1301,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		int bit = 7;
 		int j = 0;
 		while ( p < end ) {
-		    if ( gray[*p++] >= bm[j++&15][i&15] )
+		    if ( gray[*p++] < bm[j++&15][i&15] )
 			*m |= 1 << bit;
 		    if ( bit == 0 ) {
 			m++;
@@ -1321,7 +1326,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		if ( fromalpha ) {
 		    while ( p < end ) {
 			if ( (*p++ >> 24) >= 128 )
-			    *m |= 1 << bit;
+			    *m |= 1 << bit;  // Set mask "on"
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -1332,7 +1337,7 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		} else {
 		    while ( p < end ) {
 			if ( qGray(*p++) < 128 )
-			    *m |= 1 << bit;
+			    *m |= 1 << bit;  // Set pixel "black"
 			if ( bit == 0 ) {
 			    m++;
 			    bit = 7;
@@ -1350,8 +1355,8 @@ static bool dither_to_1( const QImage *src, QImage *dst, int conversion_flags, b
 		uchar *m = mline[i];
 		int bit = 7;
 		while ( p < end ) {
-		    if ( gray[*p++] >= 128 )
-			*m |= 1 << bit;
+		    if ( gray[*p++] < 128 )
+			*m |= 1 << bit;		// Set mask "on"/ pixel "black"
 		    if ( bit == 0 ) {
 			m++;
 			bit = 7;
