@@ -1378,7 +1378,6 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 	    if ( !validFileName && resource.widget() )
 		( (FormWindow*)resource.widget() )->setFileName( QString::null );
 	    QApplication::restoreOverrideCursor();
-	    qApp->processEvents();
 	    if ( b ) {
 		rebuildCustomWidgetGUI();
 		statusBar()->message( tr( "File %1 opened.").arg( filename ), 3000 );
