@@ -1677,7 +1677,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                 } else {
                     QString sep = arg_list[1], join = QString(Option::field_sep);
                     if(arg_list.count() == 3)
-                        join = arg_list[2];
+                        join = arg_list[2].replace("\"", "");;
                     QStringList var = place[varMap(arg_list.first())];
                     for(QStringList::Iterator vit = var.begin(); vit != var.end(); ++vit) {
                         QStringList lst = (*vit).split(sep);
