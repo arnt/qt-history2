@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#121 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,7 +36,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <unistd.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#120 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#121 $")
 
 
 /*****************************************************************************
@@ -662,7 +662,7 @@ static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
 	while ( it.current() ) {
 	    if ( it.current()->isWidgetType() ) {
 		w = (QWidget*)it.current();
-		if ( w->geometry().contains(pos) ) {
+		if ( w->isVisible() && w->geometry().contains(pos) ) {
 		    QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
 		    return c ? c : w;
 		}
