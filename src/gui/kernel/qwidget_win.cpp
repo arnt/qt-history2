@@ -1789,7 +1789,7 @@ void QWidget::setMask(const QRegion &region)
 
     // Since SetWindowRegion takes ownership, and we need to translate,
     // we take a copy.
-    HRGN wr = CreateRectRgn(0,0,1,1);
+    HRGN wr = CreateRectRgn(0,0,0,0);
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
 
     int fleft = 0, ftop = 0;
