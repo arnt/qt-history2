@@ -62,21 +62,23 @@ QString WhatPhrase::text( const QPoint& p )
 	       .arg( item->text(PhraseLVI::DefinitionText) );
 }
 
-PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase )
-    : QListViewItem( parent )
+PhraseLVI::PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey )
+    : QListViewItem( parent ),
+      akey( accelKey )
 {
     setPhrase( phrase );
 }
 
 QString PhraseLVI::key( int column, bool ascending ) const
 {
-    if ( text( column ) == NewPhrase ) {
+    if ( text(column) == NewPhrase ) {
 	// always first
 	return ascending ? QString( "" ) : QString::null;
     } else {
-	// see Section 5, Exercise 4 in The Art of Computer Programming
-	QString k = text( column ).lower();
-	k.replace( QRegExp(QString("&")), QString("") );
+	QString k = QChar( '0' + akey );
+	// see Section 5, Exercise 4 of The Art of Computer Programming
+	k += text( column ).lower();
+	k.replace( QRegExp(QChar('&')), QString::null );
 	k += QChar::null;
 	k += text( column );
 	return k;
@@ -94,7 +96,8 @@ void PhraseLVI::setPhrase( const Phrase& phrase )
 
 Phrase PhraseLVI::phrase() const
 {
-    return Phrase( text(SourceTextOriginal), text(TargetTextOriginal), text(DefinitionText) );
+    return Phrase( text(SourceTextOriginal), text(TargetTextOriginal),
+		   text(DefinitionText) );
 }
 
 PhraseLV::PhraseLV( QWidget *parent, const char *name )
@@ -113,7 +116,7 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
 
 PhraseLV::~PhraseLV()
 {
-//    delete what;
+// delete what;
 }
 
 QSize PhraseLV::sizeHint() const

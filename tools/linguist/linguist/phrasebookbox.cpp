@@ -156,15 +156,20 @@ void PhraseBookBox::save()
 void PhraseBookBox::sourceChanged( const QString& source )
 {
     if ( lv->currentItem() != 0 ) {
-	lv->currentItem()->setText( PhraseLVI::SourceTextShown, source );
+	lv->currentItem()->setText( PhraseLVI::SourceTextShown,
+				    source.stripWhiteSpace() );
+	lv->currentItem()->setText( PhraseLVI::SourceTextOriginal, source );
 	lv->sort();
     }
 }
 
 void PhraseBookBox::targetChanged( const QString& target )
 {
-    if ( lv->currentItem() != 0 )
-	lv->currentItem()->setText( PhraseLVI::TargetTextShown, target );
+    if ( lv->currentItem() != 0 ) {
+	lv->currentItem()->setText( PhraseLVI::TargetTextShown,
+				    target.stripWhiteSpace() );
+	lv->currentItem()->setText( PhraseLVI::TargetTextOriginal, target );
+    }
 }
 
 void PhraseBookBox::definitionChanged( const QString& definition )

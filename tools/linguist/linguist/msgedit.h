@@ -31,19 +31,18 @@
 #include "phrase.h"
 #include <qtooltip.h>
 
+class QAccel;
+class QDockArea;
+class QDockWindow;
 class QLabel;
+class QListView;
 class QListViewItem;
 class QTextView;
-
-class MED;
-class PhraseLV;
-
 class QVBoxLayout;
 
 class EditorPage;
-class QDockArea;
-class QDockWindow;
-class QListView;
+class MED;
+class PhraseLV;
 
 class PageCurl : public QWidget
 {
@@ -182,18 +181,18 @@ public slots:
     void del();
     void selectAll();
     void startFromSource();
-    void guessAgain();
     void toggleGuessing();
     void finishAndNext();
 
 private slots:
     void emitTranslationChanged();
+    void guessActivated( int accelKey );
     void insertPhraseInTranslation( QListViewItem *item );
     void insertPhraseInTranslationAndLeave( QListViewItem *item );
     void updateButtons();
     void updateCanPaste();
     void toggleFinished();
-    
+
     void updatePageHeight( int height );
     
 protected:
@@ -211,6 +210,7 @@ private:
 
     QLabel * phraseLbl;
     PhraseLV * phraseLv;
+    QAccel * accel;
     bool itemFinished;
     
     ShadowWidget * sw;

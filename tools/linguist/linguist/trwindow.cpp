@@ -372,7 +372,7 @@ static Ending ending( const QString& str )
 
     switch ( ch ) {
     case 0x002e: // full stop
-	if ( str.right(3) == QString("...") )
+	if ( str.endsWith(QString("...")) )
 	    return End_Ellipsis;
 	else
 	    return End_FullStop;
@@ -531,9 +531,22 @@ TrWindow::TrWindow()
 
     setupMenuBar();
     setupToolBars();
+    doneAndNextAccel = new QLabel( QString(" %1: %2 ").arg(tr("Done & Next"))
+						      .arg(tr("Ctrl+N")),
+				   statusBar(), "done and next accel" );
+    statusBar()->addWidget( doneAndNextAccel, 0, FALSE );
+    startFromSourceAccel = new QLabel( QString(" %1: %2 ")
+					       .arg(tr("Start from Source"))
+					       .arg(tr("Ctrl+T")),
+				       statusBar(), "start from source accel" );
+    statusBar()->addWidget( startFromSourceAccel, 0, FALSE );
+    connect( me, SIGNAL(updateActions(bool)), startFromSourceAccel,
+	     SLOT(setEnabled(bool)) );
+
     progress = new QLabel( statusBar(), "progress" );
     statusBar()->addWidget( progress, 0, TRUE );
-    modified = new QLabel( tr(" MOD "), statusBar(), "modified?" );
+    modified = new QLabel( QString(" %1 ").arg(tr("MOD")), statusBar(),
+			   "modified?" );
     statusBar()->addWidget( modified, 0, TRUE );
 
     numFinished = 0;
@@ -665,7 +678,8 @@ void TrWindow::openFile( const QString& name )
 	    dirty = FALSE;
 	    updateCaption();
 	    me->showNothing();
-	    finishedAndNextAct->setEnabled( FALSE );
+	    doneAndNextAct->setEnabled( FALSE );
+	    doneAndNextAccel->setEnabled( FALSE );
 	    messageIsShown = FALSE;
 	    statusBar()->message(
 		    tr("%1 source phrase(s) loaded.").arg(numMessages),
@@ -1132,9 +1146,8 @@ bool TrWindow::maybeSave()
 		return FALSE;
 	    case QMessageBox::Yes:
 		save();
-		// fall-through
+		break;
 	    case QMessageBox::No:
-		// fall-through
 		break;
 	}
     }
@@ -1213,13 +1226,16 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	    danger( m->sourceText(), m->translation(), TRUE );
 	else
 	    statusBar()->clear();
-	finishedAndNextAct->setEnabled( (m->message().type() != MetaTranslatorMessage::Obsolete) );
+	doneAndNextAct->setEnabled( m->message().type() !=
+				    MetaTranslatorMessage::Obsolete );
+	doneAndNextAccel->setEnabled( doneAndNextAct->isEnabled() );
     } else {
 	if ( item == 0 )
 	    me->showNothing();
 	else
 	    me->showContext( c->fullContext(), c->finished() );
-	finishedAndNextAct->setEnabled( FALSE );
+	doneAndNextAct->setEnabled( FALSE );
+	doneAndNextAccel->setEnabled( FALSE );
     }
     
     deleteAct->setEnabled( messageIsShown );
@@ -1263,7 +1279,7 @@ void TrWindow::updateFinished( bool finished )
 	    bool oldDanger = m->danger();
 	    m->setDanger( /*m->finished() &&*/
 			  danger(m->sourceText(), m->translation(),
-			 !oldDanger) );
+			  !oldDanger) );
 	    if ( !oldDanger && m->danger() )
 		qApp->beep();
 	    tor.insert( m->message() );
@@ -1330,7 +1346,7 @@ void TrWindow::nextUnfinished()
 {
     // Select a message to translate, grab the first available if
     // there are no current selection.
-    QListViewItem * cItem = lv->currentItem();  // context item
+    QListViewItem * cItem = lv->currentItem(); // context item
     QListViewItem * mItem = slv->currentItem(); // message item
 
     // Make sure an item is selected from both the context and the
@@ -1703,21 +1719,25 @@ void TrWindow::setupMenuBar()
     exitAct = new Action( filep, tr("E&xit"), this, SLOT(exitApp()),
 			  QAccel::stringToKey(tr("Ctrl+Q")) );
     // Edit menu
-    undoAct = new Action( editp, tr("&Undo"), me, SLOT(undo()), CTRL + Key_Z );
+    undoAct = new Action( editp, tr("&Undo"), me, SLOT(undo()),
+			  QAccel::stringToKey(tr("Ctrl+Z")) );
     undoAct->setEnabled( FALSE );
     connect( me, SIGNAL(undoAvailable(bool)), undoAct, SLOT(setEnabled(bool)) );
-    redoAct = new Action( editp, tr("&Redo"), me, SLOT(redo()), CTRL + Key_Y );
+    redoAct = new Action( editp, tr("&Redo"), me, SLOT(redo()),
+			  QAccel::stringToKey(tr("Ctrl+Y")) );
     redoAct->setEnabled( FALSE );
     connect( me, SIGNAL(redoAvailable(bool)), redoAct, SLOT(setEnabled(bool)) );
     editp->insertSeparator();
-    cutAct = new Action( editp, tr("Cu&t"), me, SLOT(cut()), CTRL + Key_X );
+    cutAct = new Action( editp, tr("Cu&t"), me, SLOT(cut()),
+			 QAccel::stringToKey(tr("Ctrl+X")) );
     cutAct->setEnabled( FALSE );
     connect( me, SIGNAL(cutAvailable(bool)), cutAct, SLOT(setEnabled(bool)) );
-    copyAct = new Action( editp, tr("&Copy"), me, SLOT(copy()), CTRL + Key_C );
+    copyAct = new Action( editp, tr("&Copy"), me, SLOT(copy()),
+			  QAccel::stringToKey(tr("Ctrl+C")) );
     copyAct->setEnabled( FALSE );
     connect( me, SIGNAL(copyAvailable(bool)), copyAct, SLOT(setEnabled(bool)) );
     pasteAct = new Action( editp, tr("&Paste"), me, SLOT(paste()),
-			   CTRL + Key_V );
+			   QAccel::stringToKey(tr("Ctrl+V")) );
     pasteAct->setEnabled( FALSE );
     connect( me, SIGNAL(pasteAvailable(bool)),
 	     pasteAct, SLOT(setEnabled(bool)) );
@@ -1736,21 +1756,28 @@ void TrWindow::setupMenuBar()
     editp->insertSeparator();
 
     // Translation menu
-    startFromSourceAct = new Action( translationp, tr("&Start From Source"),
-				     me, SLOT(startFromSource()), CTRL+Key_T );
+    // when updating the accelerators, remember the status bar
+    startFromSourceAct = new Action( translationp, tr("S&tart from Source"),
+				     me, SLOT(startFromSource()),
+				     QAccel::stringToKey(tr("Ctrl+T")) );
     connect( me, SIGNAL(updateActions(bool)), startFromSourceAct,
 	     SLOT(setEnabled(bool)) );
     prevUnfinishedAct = new Action( translationp, tr("&Prev Unfinished"),
-				    this, SLOT(prevUnfinished()), CTRL+Key_K );
+				    this, SLOT(prevUnfinished()),
+				    QAccel::stringToKey(tr("Ctrl+K")) );
     nextUnfinishedAct = new Action( translationp, tr("&Next Unfinished"),
-				    this, SLOT(nextUnfinished()), CTRL+Key_L );
+				    this, SLOT(nextUnfinished()),
+				    QAccel::stringToKey(tr("Ctrl+L")) );
 
-    prevAct = new Action( translationp, tr("&Prev"),
-			  this, SLOT(prev()), CTRL+SHIFT+Key_K );
-    nextAct = new Action( translationp, tr("&Next"),
-			  this, SLOT(next()), CTRL+SHIFT+Key_L );
-    finishedAndNextAct = new Action( translationp, tr("&Done And Next"),
-				     this, SLOT(doneAndNext()), CTRL+Key_N );
+    prevAct = new Action( translationp, tr("P&rev"),
+			  this, SLOT(prev()),
+			  QAccel::stringToKey(tr("Ctrl+Shift+K")) );
+    nextAct = new Action( translationp, tr("Ne&xt"),
+			  this, SLOT(next()),
+			  QAccel::stringToKey(tr("Ctrl+Shift+L")) );
+    doneAndNextAct = new Action( translationp, tr("Done and &Next"),
+				 this, SLOT(doneAndNext()),
+				 QAccel::stringToKey(tr("Ctrl+N")) );
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
@@ -1854,9 +1881,8 @@ void TrWindow::setupMenuBar()
     prevAct->setWhatsThis( tr("Moves to the previous item.") );
     nextUnfinishedAct->setWhatsThis( tr("Moves to the next unfinished item.") );
     prevUnfinishedAct->setWhatsThis( tr("Moves to the previous unfinished item.") );
-    finishedAndNextAct->setWhatsThis( tr("Marks this item as finished and "
-				       "moves to the next unfinished item.") );
-
+    doneAndNextAct->setWhatsThis( tr("Marks this item as done and moves to the"
+				     " next unfinished item.") );
 }
 
 void TrWindow::setupToolBars()
@@ -1884,16 +1910,16 @@ void TrWindow::setupToolBars()
     editt->addSeparator();
     findAct->addToToolbar( editt, tr("Find"), "search.xpm" );
 
-    startFromSourceAct->addToToolbar( translationst, tr("Start From Source"),
+    startFromSourceAct->addToToolbar( translationst, tr("Start from Source"),
 				      "search.xpm" );
     prevAct->addToToolbar( translationst, tr("Prev"), "search.xpm" );
     nextAct->addToToolbar( translationst, tr("Next"), "search.xpm" );
     prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished"),
-					"search.xpm" );
+				     "search.xpm" );
     nextUnfinishedAct->addToToolbar( translationst, tr("Next Unfinished"),
-					"search.xpm" );
-    finishedAndNextAct->addToToolbar( translationst, tr("Done And Next"),
-				      "search.xpm" );
+				     "search.xpm" );
+    doneAndNextAct->addToToolbar( translationst, tr("Done and Next"),
+				  "search.xpm" );
 
     acceleratorsAct->addToToolbar( validationt, tr("Accelerators"),
 				   "accel.xpm" );
@@ -2131,22 +2157,12 @@ void TrWindow::readConfig()
 	dw->undock();
     dw->setGeometry( r );
     QApplication::sendPostedEvents();
-//
-//     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
-//     QFile f( fn );
-//     if ( f.open( IO_ReadOnly ) ) {
-//	QTextStream ts( &f );
-//	ts >> *this;
-//	f.close();
-//     }
-
 }
 
 void TrWindow::writeConfig()
 {
     QString   keybase("/Qt Linguist/3.0/");
     QSettings config;
-
 
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles, ',' );
@@ -2177,15 +2193,6 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/PhrasewindowY", dw->geometry().y() );
     config.writeEntry( keybase + "Geometry/PhrasewindowWidth", dw->width() );
     config.writeEntry( keybase + "Geometry/PhrasewindowHeight", dw->height() );
-
-//     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
-//     QFile f( fn );
-//     if ( f.open( IO_WriteOnly ) ) {
-//	QTextStream ts( &f );
-//	ts << *this;
-//	f.close();
-//     }
-
 }
 
 void TrWindow::setupRecentFilesMenu()

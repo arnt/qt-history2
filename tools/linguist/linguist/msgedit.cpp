@@ -374,7 +374,6 @@ void EditorPage::fontChange( const QFont & )
     update();
 }
 
-
 /*
    MessageEditor class impl.
 
@@ -392,7 +391,6 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     topDock->setMinimumHeight( 10 );
     topDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
  					 QSizePolicy::Minimum) );
-
 
     topDockWnd = new QDockWindow( QDockWindow::InDock, topDock,
 				  "top dock window" );
@@ -420,6 +418,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     srcTextList->header()->setStretchEnabled( TRUE, 1 );
     srcTextList->setMinimumSize( QSize( 50, 50 ) );
     srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
+    srcTextList->installEventFilter( this );
     topDockWnd->setWidget( srcTextList );
 
     sv = new QScrollView( this, "scroll view" );
@@ -461,14 +460,18 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     QVBoxLayout *vl = new QVBoxLayout( 6 );
 
     phraseLbl = new QLabel( tr("Phrases and guesses:"), w );
-    phraseLv  = new PhraseLV( w, "phrase list view" );
+    phraseLv = new PhraseLV( w, "phrase list view" );
     phraseLv->installEventFilter( this );
     hl->addLayout( vl );
     vl->addWidget( phraseLbl );
     vl->addWidget( phraseLv );
 
-    bottomDockWnd->setWidget( w );
+    accel = new QAccel( this, "accel" );
+    connect( accel, SIGNAL(activated(int)), this, SLOT(guessActivated(int)) );
+    for ( int i = 0; i < 9; i++ )
+	accel->insertItem( CTRL + (Key_1 + i), i + 1 );
 
+    bottomDockWnd->setWidget( w );
 
     v->addWidget( topDock );
     v->addWidget( sv );
@@ -564,11 +567,23 @@ bool MessageEditor::eventFilter( QObject * o, QEvent * e )
 	}
 	doFocusChange = TRUE;
     }
-    // Handle the ESC key in the phrase list view
     if ( o->inherits("QListView") ) {
+	// handle the ESC key in the list views
 	if ( e->type() == QEvent::KeyRelease && 
 	     ((QKeyEvent *) e)->key() == Key_Escape )
 		editorPage->translationMed->setFocus();
+
+	// be nice with people who start typing at the wrong place
+	if ( e->type() == QEvent::KeyPress ) {
+	    QKeyEvent *ke = (QKeyEvent *) e;
+	    if ( ke->key() != Key_PageUp && ke->key() != Key_PageDown &&
+		 ke->key() != Key_Up && ke->key() != Key_Down &&
+		 ke->key() != Key_Tab ) {
+		editorPage->translationMed->setFocus();
+		qApp->notify( editorPage->translationMed, e );
+		return TRUE;
+	    }
+	}
     }
     return FALSE;
 }
@@ -595,7 +610,7 @@ QListView * MessageEditor::phraseList()
 
 void MessageEditor::showNothing()
 {
-    editorPage->srcText->setText("");
+    editorPage->srcText->setText( "" );
     showContext( QString(""), FALSE );
 }
 
@@ -643,7 +658,7 @@ void MessageEditor::showMessage( const QString& text,
     else
 	editorPage->cmtText->setText( "" );
 
-    setTranslation( translation, FALSE);
+    setTranslation( translation, FALSE );
     setFinished( type != MetaTranslatorMessage::Unfinished );
     QValueList<Phrase>::ConstIterator p;
     phraseLv->clear();
@@ -654,9 +669,18 @@ void MessageEditor::showMessage( const QString& text,
 	CandidateList cl = similarTextHeuristicCandidates( tor,
 							   sourceText.latin1(),
 							   MaxCandidates );
+	int n = 0;
 	QValueList<Candidate>::Iterator it = cl.begin();
 	while ( it != cl.end() ) {
-	    (void) new PhraseLVI( phraseLv, Phrase( (*it).source, (*it).target, "Guess" ) );
+	    QString def;
+	    if ( n < 9 )
+		def = tr( "Guess (Ctrl+%1)" ).arg( n + 1 );
+	    else
+		def = tr( "Guess" );
+	    (void) new PhraseLVI( phraseLv,
+				  Phrase((*it).source, (*it).target, def),
+				  n + 1 );
+	    n++;
 	    ++it;
 	}
     }
@@ -731,6 +755,15 @@ void MessageEditor::emitTranslationChanged()
     emit translationChanged( editorPage->translationMed->text() );
 }
 
+void MessageEditor::guessActivated( int accelKey )
+{
+    QListViewItem *item = phraseLv->firstChild();
+    while ( item != 0 && ((PhraseLVI *) item)->accelKey() != accelKey )
+	item = item->nextSibling();
+    if ( item != 0 )
+	insertPhraseInTranslation( item );
+}
+
 void MessageEditor::insertPhraseInTranslation( QListViewItem *item )
 {
     editorPage->translationMed->insert(((PhraseLVI *) item)->phrase().target());
@@ -761,23 +794,6 @@ void MessageEditor::startFromSource()
 	editorPage->setFocus();
 }
 
-void MessageEditor::guessAgain()
-{
-//     setFinished( FALSE );
-//     if ( guesses.isEmpty() )
-// 	guesses = similarTextHeuristicCandidates( tor, sourceText.latin1(),
-// 						  MaxCandidates );
-//     if ( guesses.isEmpty() ) {
-// 	qApp->beep();
-//     } else {
-// 	QString translation = guesses.first();
-// 	mayOverwriteTranslation = TRUE;
-// 	setTranslation( translation, TRUE );
-// 	guesses.remove( guesses.begin() );
-// 	guesses.append( translation );
-//     }
-}
-
 void MessageEditor::finishAndNext()
 {
     setFinished( TRUE );
@@ -797,7 +813,7 @@ void MessageEditor::updateCanPaste()
 
 void MessageEditor::setFinished( bool finished )
 {
-    if ( finished != (itemFinished == TRUE ) )
+    if ( !finished != !itemFinished )
 	toggleFinished();
 }
 

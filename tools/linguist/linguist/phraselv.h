@@ -33,12 +33,16 @@ public:
     enum { SourceTextShown, TargetTextShown, DefinitionText, SourceTextOriginal,
            TargetTextOriginal };
 
-    PhraseLVI( PhraseLV *parent, const Phrase& phrase );
+    PhraseLVI( PhraseLV *parent, const Phrase& phrase, int accelKey = 0 );
 
     virtual QString key( int column, bool ascending ) const;
 
     void setPhrase( const Phrase& phrase );
     Phrase phrase() const;
+    int accelKey() const { return akey; }
+
+private:
+    int akey;
 };
 
 class PhraseLV : public QListView

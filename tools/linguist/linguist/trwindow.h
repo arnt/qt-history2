@@ -132,6 +132,8 @@ private:
     QListView     * lv;
     QListView     * slv;
     MessageEditor * me;
+    QLabel        * doneAndNextAccel;
+    QLabel        * startFromSourceAccel;
     QLabel        * progress;
     QLabel        * modified;
     MetaTranslator tor;
@@ -196,7 +198,7 @@ private:
     Action *nextAct;
     Action *prevUnfinishedAct;
     Action *nextUnfinishedAct;
-    Action *finishedAndNextAct;
+    Action *doneAndNextAct;
     Action *doGuessesAct;
 };
 
