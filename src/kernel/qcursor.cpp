@@ -65,8 +65,8 @@
   time), use QApplication::setOverrideCursor().
 
   To set a cursor shape use QCursor::setShape() or use the QCursor constructor
-  which takes the shape as argument, or you can use one of the \e predefined cursors
-  defined in the CursorShape enum.
+  which takes the shape as argument, or you can use one of the predefined cursors
+  defined in the \l CursorShape enum.
 
   If you want to create a cursor with your own bitmap, either use the
   QCursor constructor which takes a bitmap and a mask or the

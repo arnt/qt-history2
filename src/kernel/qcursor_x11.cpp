@@ -181,27 +181,7 @@ QCursor::QCursor()
 /*!
   Constructs a cursor with the specified \a shape.
 
-  \a shape can be one of
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> \c CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
+  See \l CursorShape for a list of shapes.
 
   \sa setShape()
 */
@@ -290,30 +270,10 @@ QCursor &QCursor::operator=( const QCursor &c )
 
 
 /*!
-  Returns the cursor shape identifer. The return value is one of
-  following values (cast to an int)
+  Returns the cursor shape identifier. The return value is one of
+  following values (casted to an int).
 
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> \c CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c ForbiddenCursor - a slashed circle
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
+  See \l CursorShape for a list of shapes.
 
   \sa setShape()
 */
@@ -328,27 +288,7 @@ int QCursor::shape() const
 /*!
   Sets the cursor to the shape identified by \a shape.
 
-  <ul>
-  <li> \c ArrowCursor - standard arrow cursor
-  <li> \c UpArrowCursor - upwards arrow
-  <li> CrossCursor - crosshair
-  <li> \c WaitCursor - hourglass/watch
-  <li> \c IbeamCursor - ibeam/text entry
-  <li> \c SizeVerCursor - vertical resize
-  <li> \c SizeHorCursor - horizontal resize
-  <li> \c SizeBDiagCursor - diagonal resize (/)
-  <li> \c SizeFDiagCursor - diagonal resize (\)
-  <li> \c SizeAllCursor - all directions resize
-  <li> \c BlankCursor - blank/invisible cursor
-  <li> \c SplitVCursor - vertical splitting
-  <li> \c SplitHCursor - horziontal splitting
-  <li> \c PointingHandCursor - a pointing hand
-  <li> \c ForbiddenCursor - a slashed circle
-  <li> \c BitmapCursor - userdefined bitmap cursor
-  </ul>
-
-  These correspond to the <a href="#cursors">predefined</a>
-  global QCursor objects.
+  See \l CursorShape for a list of shapes.
 
   \sa shape()
 */
