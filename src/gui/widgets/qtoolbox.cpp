@@ -378,8 +378,9 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIconSet &icon,
     connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
     c.sv = new QWidgetView(this);
-    c.sv->hide();
     c.sv->setWidget(widget);
+    c.sv->setWidgetResizable(true);
+    c.sv->hide();
     c.sv->setFrameStyle(QFrame::NoFrame);
 
     c.setText(text);
