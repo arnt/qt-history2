@@ -21,6 +21,19 @@
 #ifndef ACTIONINTERFACE_H
 #define ACTIONINTERFACE_H
 
+//
+//  W A R N I N G  --  PRIVATE INTERFACES
+//  --------------------------------------
+//
+// This file and the interfaces declared in the file are not
+// public. It exists for internal purpose. This header file and
+// interfaces may change from version to version (even binary
+// incompatible) without notice, or even be removed.
+//
+// We mean it.
+//
+//
+
 #include <qcom.h>
 
 class QAction;
