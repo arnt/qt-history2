@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#489 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#490 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -135,7 +135,6 @@ static int	 heartBeat	= 0;		// heatbeat timer
 // Session management
 static bool	sm_blockUserInput    = FALSE;
 static bool	sm_smActive	     = FALSE;
-static bool	sm_interactionActive = FALSE;
 static QSessionManager* win_session_manager = 0;
 static bool	sm_cancel;
 
@@ -1795,7 +1794,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    case WM_CONTEXTMENU:
 		{
 		    // it's not VK_APPS or Shift+F10, but a click in the NC area
-		    if ( lParam != 0xffffffff ) {
+		    if ( lParam != (int)0xffffffff ) {
 			result = FALSE;
 			break;
 		    }

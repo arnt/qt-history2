@@ -4299,11 +4299,11 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
 		return FALSE;
 	}
     } else if (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32)) {
-	if ( d->readBlock( (char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask) )
+	if ( (Q_ULONG)d->readBlock( (char *)&red_mask, sizeof(red_mask) ) != sizeof(red_mask) )
 	    return FALSE;
-	if ( d->readBlock( (char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask) )
+	if ( (Q_ULONG)d->readBlock( (char *)&green_mask, sizeof(green_mask) ) != sizeof(green_mask) )
 	    return FALSE;
-	if ( d->readBlock( (char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask) )
+	if ( (Q_ULONG)d->readBlock( (char *)&blue_mask, sizeof(blue_mask) ) != sizeof(blue_mask) )
 	    return FALSE;
 	red_shift = calc_shift(red_mask);
 	red_scale = 256 / ((red_mask >> red_shift) + 1);
