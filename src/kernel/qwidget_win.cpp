@@ -1066,7 +1066,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
 	} else {
 	    crect.setRect( x, y, w, h );
+	    qDebug( "before" );
 	    MoveWindow( winId(), x, y, w, h, TRUE );
+	    qDebug( "after" );
+	    crect.setRect( x, y, w, h );
 	}
 	clearWState( WState_ConfigPending );
     }
