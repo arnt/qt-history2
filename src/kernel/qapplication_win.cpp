@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#108 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#109 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#108 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#109 $");
 
 
 /*****************************************************************************
@@ -69,6 +69,7 @@ static QVFuncList *postRList = 0;		// list of post routines
 static void	msgHandler( QtMsgType, const char * );
 
 static void	cleanupPostedEvents();
+static void     unregWinClasses();
 
 static void	initTimers();
 static void	cleanupTimers();
@@ -274,6 +275,7 @@ void qt_cleanup()
     KillTimer( 0, heartBeat );
 #endif
     cleanupTimers();
+    unregWinClasses();
     QPixmapCache::clear();
     QPainter::cleanup();
     QCursor::cleanup();
@@ -340,23 +342,23 @@ bool qt_nograb()				// application no-grab option
     return appNoGrab;
 }
 
+static bool widget_class_registered = FALSE;
+static bool popup_class_registered = FALSE;
 
 const char *qt_reg_winclass( int type )		// register window class
 {
-    static bool widget = FALSE;
-    static bool popup  = FALSE;
     const char *className;
     uint style = 0;
     if ( type == 0 ) {
 	className = "QWidget";
-	if ( !widget ) {
-	    widget = TRUE;
+	if ( !widget_class_registered ) {
+	    widget_class_registered = TRUE;
 	    style = CS_DBLCLKS;
 	}
     } else if ( type == 1 ) {
 	className = "QPopup";
-	if ( !popup ) {
-	    popup = TRUE;
+	if ( !popup_class_registered ) {
+	    popup_class_registered = TRUE;
 	    style = CS_DBLCLKS | CS_SAVEBITS;
 	}
     } else {
@@ -380,6 +382,18 @@ const char *qt_reg_winclass( int type )		// register window class
 	RegisterClass( &wc );
     }
     return className;
+}
+
+void unregWinClasses()
+{
+    if ( widget_class_registered ) {
+	widget_class_registered = FALSE;
+	UnregisterClass( "QWidget", qWinAppInst() );
+    }
+    if ( popup_class_registered ) {
+	popup_class_registered = FALSE;
+	UnregisterClass( "QPopup", qWinAppInst() );
+    }
 }
 
 

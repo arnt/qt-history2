@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#83 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#84 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,10 +27,8 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#83 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#84 $");
 
-
-extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
