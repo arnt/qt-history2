@@ -305,9 +305,6 @@ public:
     void setRoot(const QModelIndex &index);
     QModelIndex root() const;
 
-    void setCurrent(const QModelIndex &index);
-    QModelIndex current() const;
-
     void setDirSorting(int spec);
     void setDirFilter(int spec);
 
@@ -971,10 +968,11 @@ void QFileDialog::mkdir()
     if (!index.isValid())
         return;
     if (!index.isValid()) {
-        d->setCurrent(d->model->index(0, 0, d->root()));
+        d->selections->setCurrentItem(d->model->index(0, 0, d->root()),
+                                      QItemSelectionModel::SelectCurrent);
         return;
     }
-    d->setCurrent(index);
+    d->selections->setCurrentItem(index, QItemSelectionModel::SelectCurrent);
     if (d->listMode->isDown())
         d->lview->edit(index);
     else
@@ -1078,7 +1076,7 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
 void QFileDialog::fileNameChanged(const QString &text)
 {
     if (d->fileName->hasFocus() && !text.isEmpty()) {
-        QModelIndex current = d->current();
+        QModelIndex current = d->selections->currentItem();
         if (!current.isValid())
             current = d->model->index(0, 0, d->root());
         QModelIndexList indices = d->model->match(current, QAbstractItemModel::DisplayRole, text);
@@ -1086,7 +1084,7 @@ void QFileDialog::fileNameChanged(const QString &text)
         if (indices.count() <= 0) { // no matches
             d->selections->clear();
         } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
-            d->setCurrent(indices.first());
+            d->selections->setCurrentItem(indices.first(), QItemSelectionModel::SelectCurrent);
             QString completed = d->model->data(indices.first(),
                                                QAbstractItemModel::DisplayRole).toString();
             int start = completed.length();
@@ -1262,7 +1260,7 @@ void QFileDialog::renameCurrent()
     QAbstractItemView *view = d->listMode->isDown()
                               ? static_cast<QAbstractItemView*>(d->lview)
                               : static_cast<QAbstractItemView*>(d->tview);
-    view->edit(d->current());
+    view->edit(d->selections->currentItem());
 }
 
 /*!
@@ -1273,7 +1271,7 @@ void QFileDialog::renameCurrent()
 
 void QFileDialog::deleteCurrent()
 {
-    deletePressed(d->current());
+    deletePressed(d->selections->currentItem());
 }
 
 /*!
@@ -1508,7 +1506,6 @@ void QFileDialogPrivate::setup(const QString &directory,
     fileName = new QFileDialogLineEdit(q);
     QObject::connect(fileName, SIGNAL(textChanged(const QString&)),
                      q, SLOT(fileNameChanged(const QString&)));
-//    QObject::connect(fileName, SIGNAL(returnPressed()), q, SLOT(accept()));
     grid->addWidget(fileName, 2, 2, 1, 3);
 
     fileType = new QComboBox(q);
@@ -1609,25 +1606,15 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     bool block = d->selections->blockSignals(true);
     d->selections->clear();
     d->fileName->clear();
-    setCurrent(d->model->index(0, 0, index));
     lview->setRoot(index);
     tview->setRoot(index);
     d->selections->blockSignals(block);
+    d->selections->setCurrentItem(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
 }
 
 QModelIndex QFileDialogPrivate::root() const
 {
     return lview->root();
-}
-
-void QFileDialogPrivate::setCurrent(const QModelIndex &index)
-{
-    lview->setCurrentItem(index);
-}
-
-QModelIndex QFileDialogPrivate::current() const
-{
-    return lview->currentItem();
 }
 
 void QFileDialogPrivate::setDirSorting(int spec)
