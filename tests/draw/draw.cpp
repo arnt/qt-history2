@@ -632,7 +632,7 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
     static QPoint textPos( 10, 100 );
     static QPoint pos2( 310, 190 );
     static QRect rct( pos1, pos2 );
-    static const char *text = "Yo! Yo! Set yourself free!";
+    static const char *text = "Yo! Yo! Free yourself!";
     static int angle1 = 120*16;
     static int angle2 = 230*16;
     static QCOORD pnts[] = { 10, 190, 160, 10, 310, 190, 10, 100, 310, 100 };
@@ -669,8 +669,14 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
 	    p->drawRoundRect( pnt+rct, 20, 40 );
 	    break;
 	case Text:
-	    p->drawText(pnt+p->xFormDev(QPoint(5,p->fontMetrics().ascent()+2)),
-			text );
+ 	    p->saveWorldMatrix();
+ 	    p->translate(pnt.x() + 10, pnt.y() + p->fontMetrics().ascent()+2 );
+	    p->rotate( 45 );
+	    p->drawText( 0, 0, text);
+	    p->rotate( 45 );
+	    p->drawText( 0, 0, text);
+ 	    p->restoreWorldMatrix();
+	    p->drawText( pnt.x()+10, pnt.y() + p->fontMetrics().ascent()+2, text);
 	    break;
 	case Ellipse:
 	    p->drawEllipse( pnt+rct );
