@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#12 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.h#13 $
 **
 ** Definition of a buttom customized for tool bar use
 **
@@ -43,7 +43,7 @@ class Q_EXPORT QToolButton: public QButton
 {
     Q_OBJECT
 public:
-    QToolButton( QWidget * parent = 0, const char *name = 0 );
+    QToolButton( QWidget * parent, const char *name = 0 );
     QToolButton( const QPixmap & pm, const QString &textLabel,
 		 const QString& grouptext,
 		 QObject * receiver, const char* slot,

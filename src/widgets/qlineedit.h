@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#68 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#69 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -42,7 +42,8 @@ class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
 public:
-    QLineEdit( QWidget *parent=0, const char *name=0 );
+    QLineEdit( QWidget *parent, const char *name=0 );
+    QLineEdit( const QString &, QWidget *parent, const char *name=0 );
    ~QLineEdit();
 
     QString text() const;
@@ -140,6 +141,8 @@ private:
     int		lastCharVisible() const;
     int		minMark() const;
     int		maxMark() const;
+
+    void	init();
 
     QString	tbuf;
     QLineEditPrivate * d;

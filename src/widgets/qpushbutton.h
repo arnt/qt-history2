@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#46 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#47 $
 **
 ** Definition of QPushButton class
 **
@@ -35,8 +35,8 @@ class Q_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
 public:
-    QPushButton( QWidget *parent=0, const char *name=0 );
-    QPushButton( const QString &text, QWidget *parent=0, const char* name=0 );
+    QPushButton( QWidget *parent, const char *name=0 );
+    QPushButton( const QString &text, QWidget *parent, const char* name=0 );
 
     virtual void	setToggleButton( bool );
 

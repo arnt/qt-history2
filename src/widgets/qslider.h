@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.h#34 $
+** $Id: //depot/qt/main/src/widgets/qslider.h#35 $
 **
 ** Definition of QSlider class
 **
@@ -43,10 +43,10 @@ public:
     enum TickSetting { NoMarks = 0, Above = 1, Left = Above,
 		       Below = 2, Right = Below, Both = 3 };
 
-    QSlider( QWidget *parent=0, const char *name=0 );
-    QSlider( Orientation, QWidget *parent=0, const char *name=0 );
+    QSlider( QWidget *parent, const char *name=0 );
+    QSlider( Orientation, QWidget *parent, const char *name=0 );
     QSlider( int minValue, int maxValue, int pageStep, int value, Orientation,
-	     QWidget *parent=0, const char *name=0 );
+	     QWidget *parent, const char *name=0 );
 
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;
