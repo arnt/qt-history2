@@ -367,12 +367,10 @@ void DomTool::fixDocument( QDomDocument& doc )
 
     // in 3.0, we need to fix a spelling error
     if ( e.hasAttribute("version") && e.attribute("version").toDouble() == 3.0 ) {
-	qDebug( "here" );
 	for ( i = 0; i <  (int) nl.length(); i++ ) {
 	    QDomElement el = nl.item(i).toElement();
 	    QString s = el.attribute( "name" );
 	    if ( s == "resizeable" ) {
-		qDebug( "yessa" );
 		el.removeAttribute( "name" );
 		el.setAttribute( "name", "resizable" );
 	    }
