@@ -17,7 +17,9 @@ QListData::Data QListData::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, { 0 } };
 
 static int grow(int size)
 {
-    return qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader)) / sizeof(void *);
+    // dear compiler: don't optimize me out.
+    volatile int x = qAllocMore(size * sizeof(void *), sizeof(QListData::DataHeader)) / sizeof(void *);
+    return x;
 }
 
 QListData::Data *QListData::detach()
