@@ -30,6 +30,14 @@ struct UCOM_EXPORT UUid
     unsigned short data2;
     unsigned short data3;
     unsigned char  data4[ 8 ];
+
+    bool operator==( const UUid &uuid ) const {
+	return !memcmp( this, &uuid, sizeof( UUid ) );
+    }
+
+    bool operator!=( const UUid &uuid ) const {
+	return !( *this == uuid );
+    }
 };
 
 // the mandatory unknown interface
@@ -40,7 +48,12 @@ struct UCOM_EXPORT UUnknownInterface
     virtual unsigned long release() = 0;
 };
 
-//##### TODO: UUid for dispatch interface. UUid for unknown interface
+
+
+// {DE56511E-4E9F-4b76-A3C2-D1E2EF42F1AC} //### number is fake
+extern UCOM_EXPORT const UUid IID_UUnknown;
+// {DE56512E-4E9F-4b76-A3C2-D1E2EF42F1AC}//### number is fake
+extern UCOM_EXPORT const UUid IID_UDispach;
 
 
 // the dispatch interface that inherits the unknown interface.. It is
@@ -204,6 +217,36 @@ struct UCOM_EXPORT UInterfaceDescription
 };
 
 
+// A component description describe one component, that is its name,
+// vendor, release, info, its component uuid and all its interface
+// uuids.
+struct UCOM_EXPORT UComponentDescription
+{
+    const char* name;
+    const char* vendor;
+    const char* release;
+    const char* info;
+    UUid cid;
+    int count;
+    const UUid* interfaces;
+};
+
+
+// A component server description describe one component server, that
+// is its name, vendor, release, info and the descriptions of all
+// components it can instantiate.
+struct UCOM_EXPORT UComponentServerDescription
+{
+    const char* name;
+    const char* vendor;
+    const char* release;
+    const char* info;
+    int count;
+    const UComponentDescription* components;
+};
+
+
+
 struct UCOM_EXPORT UEnumItem 				// - a name/value pair
 {
     const char *key;
@@ -228,7 +271,6 @@ inline bool UType::check( UObject* o, UType* t ) {
     return isEqual( o->type, t ) ||
 	t->convertFrom( o, o->type );
 }
-
 
 
 
