@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#3 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -57,6 +57,8 @@ void FileMainWindow::setup()
              this, SLOT( slotReadNextDir() ) );
     connect( fileview, SIGNAL( readDirDone() ),
              this, SLOT( slotReadDirDone() ) );
+    connect( fileview, SIGNAL( selectionChanged( int ) ),
+             this, SLOT( slotNumItemsSelected( int ) ) );
 
     progress = new QProgressBar( statusBar() );
     statusBar()->addWidget( progress, TRUE );
@@ -86,4 +88,12 @@ void FileMainWindow::slotReadDirDone()
 {
     label->setText( tr( " Reading Directory Done." ) );
     progress->setProgress( progress->totalSteps() );
+}
+
+void FileMainWindow::slotNumItemsSelected( int num )
+{
+    if ( num == 1 )
+        label->setText( tr( " %1 Item Selected" ).arg( num ) );
+    else
+        label->setText( tr( " %1 Items Selected" ).arg( num ) );
 }

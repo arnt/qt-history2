@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#2 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.h#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -37,12 +37,13 @@ protected:
     DirectoryView *dirlist;
     QProgressBar *progress;
     QLabel *label;
-    
+
 protected slots:
     void directoryChanged( const QString & );
     void slotStartReadDir( int dirs );
     void slotReadNextDir();
     void slotReadDirDone();
+    void slotNumItemsSelected( int num );
     
 };
 
