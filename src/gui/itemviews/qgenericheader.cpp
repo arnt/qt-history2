@@ -30,7 +30,7 @@ public:
     QGenericHeader *q;
     enum State { NoState, ResizeSection, MoveSection, SelectSection } state;
     int offset;
-    
+
     Qt::Orientation orientation;
     Qt::SortOrder sortIndicatorOrder;
     int sortIndicatorSection;
@@ -43,7 +43,7 @@ public:
     };
     QVector<HeaderSection> sections; // section = sections.at(index)
     QVector<int> indices; // index = indices.at(section)
-    
+
     int lastPos;
     int section; // used for resizing and moving sections
     int target;
@@ -135,7 +135,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
 
     if (!all)
 	return hint + border;
-    
+
     if (orientation() == Vertical) {
 	for (int i = 0; i < model()->columnCount(root()); ++i) {
 	    QModelIndex index = model()->index(section, i, root());
@@ -177,7 +177,7 @@ void QGenericHeader::drawContents(QPainter *painter, int cx, int cy, int cw, int
     end = qMax(tmp, end);
     start = start == -1 ? 0 : start;
     end = end == -1 ? count() : end;
-    
+
     QModelIndex item;
     if (d->sections.isEmpty())
 	return;
@@ -217,7 +217,7 @@ void QGenericHeader::paintSection(QPainter *painter, QItemDelegate *delegate, QI
 //    painter->translate(2, 0);
     delegate->paint(painter, *options, item); // draw item
 //    painter->translate(-2, 0);
-    
+
     int section = orientation() == Horizontal ? item.column() : item.row();
     if (sortIndicatorSection() == section) {
 	bool allignRight = style().styleHint(QStyle::SH_Header_ArrowAlignment, this) & AlignRight;
@@ -239,7 +239,7 @@ int QGenericHeader::indexAt(int position) const
 {
     if (count() < 1)
 	return -1;
-    
+
     int left = 0;
     int right = count() - 1;
     int idx = (right + 1) / 2;
@@ -439,7 +439,7 @@ void QGenericHeader::resizeSections()
     }
     int position = 0;
     int stretchSectionSize = qMax(stretchSecs > 0 ? stretchSize / stretchSecs : 0, minimum);
-    for (int i; i < d->sections.count(); ++i) {
+    for (int i = 0; i < d->sections.count(); ++i) {
 	secs[i].position = position;
 	mode = secs[i].mode;
 	if (mode == Stretch) {
