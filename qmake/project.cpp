@@ -48,9 +48,9 @@
 #endif
 
 #ifdef Q_OS_WIN32
-#define pOpen _popen
+#define QT_POPEN _popen
 #else
-#define pOpen popen
+#define QT_POPEN popen
 #endif
 
 struct parser_info {
@@ -885,7 +885,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 				parser.file.latin1(), parser.line_no);
 		    } else {
 			char buff[256];
-			FILE *proc = pOpen(args.join(" ").latin1(), "r");
+			FILE *proc = QT_POPEN(args.join(" ").latin1(), "r");
 			while(proc && !feof(proc)) {
 			    int read_in = fread(buff, 1, 255, proc);
 			    if(!read_in)
