@@ -1340,6 +1340,7 @@ void QWidget::showWindow()
 #if QT_MACOSX_VERSION >= 0x1020
 	} else if(qt_mac_is_macdrawer(this)) {
 	    OpenDrawer(window, kWindowEdgeDefault, true);
+        }
 #endif
 	else {
 	    ShowHide((WindowPtr)hd, true);	//now actually show it
