@@ -1638,7 +1638,8 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
             if (stroke->elementAt(stroke->elementCount()-1).isMoveTo()) {
                 stroke->moveTo(offsetCurves[0].pt1());
             } else if (capFirst) {
-                data->joinPoints(QLineF(prev, e), stroke, data->capStyle);
+                data->joinPoints(QLineF(offsetCurves[0].pt1(),
+                                        offsetCurves[0].pt2()), stroke, data->capStyle);
                 capFirst = 0;
             } else {
                 data->joinPoints(QLineF(offsetCurves[0].pt1(),
