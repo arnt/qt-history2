@@ -623,8 +623,14 @@ void QTextCursor::setPosition(int pos, MoveMode m)
     if (m == MoveAnchor) {
         d->anchor = pos;
         d->adjusted_anchor = pos;
+    } else { // keep anchor
+        QTextCursor::MoveOperation op;
+        if (pos < d->anchor)
+            op = QTextCursor::Left;
+        else
+            op = QTextCursor::Right;
+        d->adjustCursor(op);
     }
-    // ##### adjust anchor for KeepAnchor!
     d->setX();
 }
 
