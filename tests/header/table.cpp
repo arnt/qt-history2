@@ -2,6 +2,7 @@
 
 #include <qheader.h>
 #include <qdrawutil.h>
+#include <qscrollbar.h>
 
 Table::Table( QHeader *b, int rows, QWidget *parent,
 			  int flags, const char *name )
@@ -9,9 +10,10 @@ Table::Table( QHeader *b, int rows, QWidget *parent,
 {
     bar = b;
 
-    connect( b, SIGNAL(sizeChange(int,int)), SLOT(rehash()) );
-    connect( b, SIGNAL(moved(int,int)), SLOT(moveCol(int,int)) );
-
+    connect( b, SIGNAL(sizeChange(int,int,int)), this, SLOT(rehash()) );
+    connect( b, SIGNAL(moved(int,int)), this, SLOT(moveCol(int,int)) );
+    connect( horizontalScrollBar(), SIGNAL(valueChanged(int)), b, SLOT(setOffset(int)));
+    
     if ( flags < 0 )
 	setTableFlags( Tbl_clipCellPainting | Tbl_autoHScrollBar);
     else
@@ -19,7 +21,7 @@ Table::Table( QHeader *b, int rows, QWidget *parent,
     setNumRows( rows );
     setNumCols( bar->count() );
     numbers.resize( bar->count() );
-    for ( int i = 0; i < bar->count(); i++ ) 
+    for ( int i = 0; i < bar->count(); i++ )
 	numbers[i] = i;
     setCellWidth(0);
     setCellHeight( fontMetrics().lineSpacing() + 3 );
@@ -41,7 +43,7 @@ int Table::cellWidth( int col )
     return bar->cellSize( col );
 }
 
-void Table::paintCell( QPainter *p, int row, int col ) 
+void Table::paintCell( QPainter *p, int row, int col )
 {
     /*
       qDrawShadePanel( p, 0, 0,
@@ -50,7 +52,8 @@ void Table::paintCell( QPainter *p, int row, int col )
       */
     p->setPen( colorGroup().text() );
     QString str;
-    switch ( numbers[col] ) {
+    int num = numbers[col];
+    switch ( num  ) {
     case 0:
 	str.sprintf( "Paul %d", row );
 	break;
@@ -64,7 +67,12 @@ void Table::paintCell( QPainter *p, int row, int col )
 	str.sprintf( "Styreformann Eirik Eng %d", row );
 	break;
     default:
-	str.sprintf( "Cell %c%d", numbers[col]+'A', row );
+	if ( col < 26 )
+	    str.sprintf( "Cell %c%d", num+'A', row );
+	else if ( col < 26 * 26 )
+	    str.sprintf( "Cell %c%c%d", num/26+'A', num%26+'A', row );
+	else
+	    str.sprintf( "Cell %d, %d", num, row );	
 	break;
     }
     //int yPos = fm.ascent() + fm.leading()/2 - 1;
