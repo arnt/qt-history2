@@ -267,6 +267,7 @@ CFG_NIS=auto
 CFG_CUPS=auto
 CFG_LARGEFILE=auto
 CFG_STL=auto
+CFG_PRECOMPILE=no
 CFG_IPV6=auto
 CFG_NAS=no
 CFG_QWS_DEPTHS=prompted
@@ -352,7 +353,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -707,6 +708,13 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
+    pch)
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	    CFG_PRECOMPILE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+        ;;
     freetype)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_QWS_FREETYPE="$VAL"
@@ -1588,8 +1596,12 @@ done
 #-------------------------------------------------------------------------------
 
 # auto-detect precompiled header support
-if [ "$PLATFORM_MAC" != "yes" ]; then
-    $unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE || QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
+if [ "$CFG_PRECOMPILE" = "auto" ]; then
+    if $unixtests/precomp.test $XQMAKESPEC $OPT_VERBOSE; then
+       CFG_PRECOMPILE=no
+    else
+       CFG_PRECOMPILE=yes
+    fi
 fi
 
 # auto-detect SQL-modules support
@@ -1908,6 +1920,13 @@ if [ "$OPT_HELP" = "yes" ]; then
 	I6Y="*"
 	I6N=" "
     fi
+    if [ "$CFG_PRECOMPILE" = "auto" ]; then
+	PHY=" "
+	PHN="*"
+    else
+	PHY="*"
+	PHN=" "
+    fi
 
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
@@ -1917,7 +1936,7 @@ Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
 	[-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
 	[-qt-libmng] [-system-libmng] [-no-nis] [-nis]
 	[-no-cups] [-cups] [-no-largefile] [-largefile]
-	[-no-stl] [-stl] [-Istring] [-lstring]
+	[-no-stl] [-stl] [-no-pch] [-pch] [-Istring] [-lstring]
 	[-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
 	[-without-<module setting>] [-fast] [-no-fast]
 
@@ -2039,6 +2058,9 @@ fi
 
  $SHN  -no-stl ............... Do not compile STL support.
  $SHY  -stl .................. Compile STL support.
+
+ $PHN  -no-pch ............... Do not use precompiled header support.
+ $PHY  -pch .................. Use precompiled header support.
 
     -no-accessibility ..... Do not compile Accessibility support.
  *  -accessibility ........ Compile Accessibility support.
@@ -2750,6 +2772,7 @@ if [ "$CFG_STL" = "no" ]; then
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
+[ "$CFG_PRECOMPILE" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG precompile_header"
 if [ "$CFG_IPV6" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG ipv6"
 fi
@@ -3284,6 +3307,7 @@ fi
 [ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG $QT_CONFIG"
 echo "STL support ......... $CFG_STL"
+echo "PCH support ......... $CFG_PRECOMPILE"
 echo "IPv6 support ........ $CFG_IPV6"
 echo "Accessibility ....... $CFG_ACCESSIBILITY"
 echo "NIS support ......... $CFG_NIS"
