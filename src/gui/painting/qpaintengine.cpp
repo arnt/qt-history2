@@ -552,7 +552,7 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textF
         }
 
         pm = img;
-        state->painter->drawPixmap(int(p.x()), int(p.y() - ti.ascent), pm);
+        state->painter->drawPixmap(qRound(p.x()), qRound(p.y() - ti.ascent), pm);
     }
 }
 

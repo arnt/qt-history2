@@ -836,11 +836,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2i(xbot1, int(rect.height()));
-	    glVertex2i(xtop1, 0);
+	    glVertex2f(xbot1, rect.height());
+	    glVertex2f(xtop1, 0);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2i(xtop2, 0);
-	    glVertex2i(xbot2, int(rect.height()));
+	    glVertex2f(xtop2, 0);
+	    glVertex2f(xbot2, rect.height());
 	}
 	glEnd();
     } else {
@@ -890,11 +890,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 	glBegin(GL_POLYGON);
 	{
 	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2i(0, yleft1);
-	    glVertex2i(int(rect.width()), yright1);
+	    glVertex2f(0, yleft1);
+	    glVertex2f(rect.width(), yright1);
 	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2i(int(rect.width()), yright2);
-	    glVertex2i(0, yleft2);
+	    glVertex2f(rect.width(), yright2);
+	    glVertex2f(0, yleft2);
 	}
 	glEnd();
     }
@@ -908,6 +908,6 @@ void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int
 #if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     QPaintEngine::drawTextItem(p, ti, 0);
 #else
-    dgl->renderText(int(p.x()), int(p.y()), QString(ti.chars, ti.num_chars), painter()->font());
+    dgl->renderText(qRound(p.x()), qRound((p.y()), QString(ti.chars, ti.num_chars), painter()->font());
 #endif
 }
