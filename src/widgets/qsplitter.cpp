@@ -173,13 +173,13 @@ public:
   dragging the boundary between the children. Any number of widgets
   may be controlled.
 
-  To show a QListBox, a QListView and a QMultiLineEdit side by side:
+  To show a QListBox, a QListView and a QTextEdit side by side:
 
   \code
     QSplitter *split = new QSplitter( parent );
     QListBox *lb = new QListBox( split );
     QListView *lv = new QListView( split );
-    QMultiLineEdit *ed = new QMultiLineEdit( split );
+    QTextEdit *ed = new QTextEdit( split );
   \endcode
 
   In QSplitter the boundary can be either horizontal or vertical.  The

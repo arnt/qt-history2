@@ -65,16 +65,16 @@
   versions. Since Qt 3.0, which comes with a new richtext engine,
   which also supports editing, QMultiLineEdit is obsolete. It is still
   included for compatibility reasons. It is now a subclass of
-  QTextEdit which wrappes the old QMultiLineEdit so that it is mostly
+  QTextEdit which wraps the old QMultiLineEdit so that it is mostly
   source compatible to keep old applications working.
 
   If you implement something new with QMultiLineEdit, rather use
   QTextEdit instead.
 
   Although most of the old QMultiLineEdit API is still available,
-  there is one important difference. Because of a design flaw of the
-  old QMultiLineEdit it operated on lines and not on paragraphs. As
-  lines do change all the time during wordwrap, the new richtext
+  there is one important difference. Because of a design flaw the
+  old QMultiLineEdit used to operate on lines and not on paragraphs.
+  As lines do change all the time during wordwrap, the new richtext
   engine only knows paragraphs as elements in the data structure. So
   all functions (like numLines(), textLine()), which worked on lines,
   now work on paragraphs.

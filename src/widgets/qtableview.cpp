@@ -1398,11 +1398,11 @@ void QTableView::paintEvent( QPaintEvent *e )
     // x pixel updated + 1 and that yPos is the last y pixel updated + 1.
 
     // Note that this needs to be done regardless whether we do
-    // eraseInPaint or not. Reason: a subclass (for example
-    // QMultiLineEdit) may implement flicker-freeness and encourage
-    // the use of repaint(FALSE). The subclass, however, cannot draw
-    // all pixels, just those inside the cells. So QTableView is
-    // reponsible for all pixels outside the cells.
+    // eraseInPaint or not. Reason: a subclass may implement
+    // flicker-freeness and encourage the use of repaint(FALSE).
+    // The subclass, however, cannot draw all pixels, just those
+    // inside the cells. So QTableView is reponsible for all pixels
+    // outside the cells.
 
     QRect viewR = viewRect();
     const QColorGroup g = colorGroup();
