@@ -25,6 +25,7 @@ Test, test and retest.
 
 Update www/dl/index.html
 Update www/dl/locations
+Update www/qtinfo.html
 
 Make the file "changes-xxx" under qt/dist
 
@@ -35,6 +36,14 @@ Distribute to all customers.
 Upload free version to ftp.troll.no
 Upload README and INSTALL files to ftp.troll.no in /qt/source
 
+Update the qt documentation pages from the distribution (www/qt/*,
+www/opengl/*, www/imageio/*, www/nsplugin/*) and add the 'can be
+downloaded' text:
+
+	$ for a in *.html ; do sed 's+</h1>+</h1>\
+	<center>This documentation can be <a href="/dl/">downloaded</a> in full</center>\
+	+' < $a > a && mv a $a ; done
+
 Update the web server with pages from the cvs archive.
 
 Send mail to qt-interest.
@@ -42,3 +51,30 @@ Send mail to qt-interest.
 Make rpms and upload them to ftp.troll.no
 
 Put the distribution files in lupinella.troll.no:/local/qt/dist
+
+Post announcements to qt-announce and qt-interest.  To post to
+qt-announce, write the message including headers:
+
+	To: qt-announce@troll.no
+	From: info@troll.no
+	Subject: Qt 3.14 releaseed
+
+	Troll Tech is proud to announce Qt 3.14, codenamed pi, ...
+
+and do this on nella:
+
+	/local/sbin/resend qt-announce < themesssagefile
+
+Upload RPMs to ftp.redhat.com and tar.gz to sunsite.unc.edu.
+
+Notify Heiko Schlittermann <heiko@datom.de> and Michael Searle
+<searle@longacre.demon.co.uk> so they can build Debian and FreeBSD
+packages.
+
+Run www/dl/locations on the web server regularly for two or three days
+so it picks up mirrors ASAP.
+
+After those two or three days, post an announcement to
+comp.windows.x.announce, comp.os.linux.announce,
+comp.unix.bsd.freebsd.announce, comp.you.name.it.announce and
+talk.bizarre.
