@@ -87,8 +87,22 @@ void QAuServerWindows::play(QSound* s)
 
 void QAuServerWindows::stop(QSound* s)
 {
-    // something needs to be done here...
-    Q_UNUSED(s)
+    if ( !s->isFinished() ) {
+#ifdef UNICODE
+#ifndef Q_OS_TEMP
+	if ( qWinVersion() == Qt::WV_NT ) {
+#endif
+	    PlaySoundW(NULL,0,NULL);
+#ifndef Q_OS_TEMP
+	} else
+#endif
+#endif
+#ifndef Q_OS_TEMP
+	{
+	    PlaySoundA(NULL,0,NULL);
+	}
+#endif
+    }
 }
 
 bool QAuServerWindows::okay()
