@@ -146,8 +146,9 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     if (data && data != &QPersistentModelIndexData::shared_null) {
-        if (data->model)
+        if (data->model) {
             data->model->d_func()->persistentIndexes.removeAll(data);
+        }
         delete data;
     }
 }
@@ -625,7 +626,11 @@ QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *p
 */
 QAbstractItemModel::~QAbstractItemModel()
 {
-    invalidatePersistentIndexes();
+    for (int i = 0; i < d->persistentIndexes.count(); ++i) {
+        Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
+        d->persistentIndexes.at(i)->index = QModelIndex::Null;
+        d->persistentIndexes.at(i)->model = 0;
+    }
 }
 
 /*!
@@ -1187,8 +1192,8 @@ void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
     bool all = !parent.isValid();
     for (int i = 0; i < d->persistentIndexes.count(); ++i) {
         if (all || this->parent(d->persistentIndexes.at(i)->index) == parent) {
-            d->persistentIndexes[i]->index = QModelIndex::Null;
-            d->persistentIndexes[i]->model = 0;
+            Q_ASSERT(d->persistentIndexes.at(i) != &QPersistentModelIndexData::shared_null);
+            d->persistentIndexes.at(i)->index = QModelIndex::Null;
         }
     }
 }
