@@ -44,14 +44,13 @@
 #include <ctype.h>
 
 
-// NOT REVISED
 /*!
   \class QTab qtabbar.h
   \ingroup advanced
   \brief The QTab class provides the structures in a QTabBar.
 
 
-  For custom QTabBar tab headings.
+  This class is used for custom QTabBar tab headings.
 
   \sa QTabBar
 */
@@ -89,37 +88,35 @@ QTab::~QTab()
   \ingroup advanced
 
   The class is quite simple: it draws the tabs in one of four shapes
-  and emits a signal when one is selected.  It can be subclassed to
-  tailor the look and feel.
+  (see QTabBar::Shape) and emits a signal when a tab is selected.  It
+  can be subclassed to tailor the look and feel.
 
-  QTabBar itself supports four possible shapes, described in the
-  QTabBar::Shape documentation.
-
-  The choice of tab shape is still a matter of taste, to a large
-  degree.  Tab dialogs (preferences and the like) invariably use \c
-  RoundedAbove; nobody uses \c TriangularAbove.  Tab controls in
-  windows other than dialogs almost always use either \c RoundedBelow or
-  \c TriangularBelow.  Many spreadsheets and other tab controls in which
+  The choice of tab shape is matter of taste, although tab dialogs
+  (preferences and the like) invariably use \c RoundedAbove, and
+  nobody uses \c TriangularAbove.  Tab controls in windows other than
+  dialogs almost always use either \c RoundedBelow or \c
+  TriangularBelow.  Many spreadsheets and other tab controls in which
   all the pages are essentially similar use \c TriangularBelow,
   whereas \c RoundedBelow is used mostly when the pages are different
-  (e.g., a multi-page tool palette).  There is no strong tradition yet,
-  however, so use your taste and create the tradition!
+  (e.g. a multi-page tool palette).
 
   The most important part of QTabBar's API is the signal selected().
   It is emitted whenever the selected page changes (even at startup,
-  when the selected page changes from 'none').  There are also a slot,
+  when the selected page changes from 'none').  There is also a slot,
   setCurrentTab(), which can be used to select a page
   programmatically.
 
   QTabBar creates automatic accelerator keys in the manner of QButton;
-  e.g., if a tab's label is "\&Graphics", Alt-G becomes an accelerator
+  e.g. if a tab's label is "\&Graphics", Alt+G becomes an accelerator
   key for switching to that tab.
 
-  The following virtual functions may need to be reimplemented: <ul>
-  <li> paint() paints a single tab.  paintEvent() calls paint() for
-  each tab so that any overlap will look right.  <li>
-  addTab() creates a new tab and adds it to the bar. <li> selectTab()
-  decides which, if any, tab the user selects with the mouse. </ul>
+  The following virtual functions may need to be reimplemented:
+  \list
+  \i paint() paints a single tab.  paintEvent() calls paint() for
+  each tab so that any overlap will look right.
+  \i addTab() creates a new tab and adds it to the bar.
+  \i selectTab() decides which tab, if any, the user selects with the mouse.
+  \endlist
 
   <img src=qtabbar-m.png> <img src=qtabbar-w.png>
 */
@@ -153,23 +150,23 @@ struct QTabPrivate {
 
 /* \internal
 */
-class QTabBarToolTip : public QToolTip 
+class QTabBarToolTip : public QToolTip
 {
 public:
-    QTabBarToolTip( QWidget * parent ) 
+    QTabBarToolTip( QWidget * parent )
 	: QToolTip( parent ) {}
     virtual ~QTabBarToolTip() {}
-    
+
     void add( QTab * tab, const QString & tip )
-    {		
+    {
 	tabTips.replace( tab, tip );
     }
-    
+
     void remove( QTab * tab )
     {
 	tabTips.erase( tab );
     }
-    
+
     QString tipForTab( QTab * tab ) const
     {
 	QMapConstIterator<QTab *, QString> it;
@@ -179,14 +176,14 @@ public:
 	else
 	    return QString();
     }
-    
+
 protected:
     void maybeTip( const QPoint & p )
     {
 	QTabBar * tb = (QTabBar *) parentWidget();
 	if ( !tb )
 	    return;
-	
+
 	// check if the scroll buttons in the tab bar are visible -
 	// don't display any tips if the pointer is over one of them
 	QRect rectL, rectR;
@@ -204,7 +201,7 @@ protected:
 		tip( it.key()->rect(), it.data() );
 	}
     }
-    
+
 private:
     QMap<QTab *, QString> tabTips;
 };
@@ -214,7 +211,7 @@ private:
   \fn void QTabBar::selected( int id )
 
   QTabBar emits this signal whenever any tab is selected, whether by
-  the program or the user.  The argument \a id is the id of the tab
+  the program or by the user.  The argument \a id is the id of the tab
   as returned by addTab().
 
   show() is guaranteed to emit this signal; you can display
@@ -223,7 +220,8 @@ private:
 
 
 /*!
-  Constructs a new, empty tab bar with parent \a parent called \a name.
+  Constructs a new, empty tab bar; the \a parent and \a name arguments
+  are passed on to the QWidget constructor.
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
@@ -271,12 +269,16 @@ QTabBar::~QTabBar()
 
 
 /*!
-  Adds \a newTab to the tab control.
+  Adds the tab, \a newTab, to the tab control.
 
-  Allocates a new id, sets \a newTab's id, locates it just to the right of the
-  existing tabs, inserts an accelerator if the tab's label contains the
-  string "&p" for some value of p, adds it to the bar and returns the
-  newly allocated id.
+  Sets \a newTab's id to a new id and places the tab just to the right of the
+  existing tabs. If the tab's label contains an ampersand, the letter
+  following the ampersand is used as an accelerator for the tab, e.g.
+  if the label is "Bro&wse" then Alt+W becomes an accelerator which
+  will take the focus to this tab.
+  Returns the id.
+
+  \sa insertTab()
 */
 
 int QTabBar::addTab( QTab * newTab )
@@ -286,15 +288,18 @@ int QTabBar::addTab( QTab * newTab )
 
 
 /*!
-  Inserts \a newTab to the tab control.
+  Inserts the tab, \a newTab, into the tab control.
 
   If \a index is not specified, the tab is simply added. Otherwise
   it's inserted at the specified position.
 
-  Allocates a new id, sets \a newTab's id, locates it respectively,
-  inserts an accelerator if the tab's label contains the string "&p"
-  for some value of p, adds it to the bar and returns the newly
-  allocated id.
+  Sets \a newTab's id to a new id. If the tab's label contains an
+  ampersand, the letter following the ampersand is used as an
+  accelerator for the tab, e.g. if the label is "Bro&wse" then Alt+W
+  becomes an accelerator which will take the focus to this tab.
+  Returns the id.
+
+  \sa addTab()
 */
 
 int QTabBar::insertTab( QTab * newTab, int index )
@@ -337,7 +342,7 @@ void QTabBar::removeTab( QTab * t )
 
 /*!
   Enables tab \a id if \a enabled is TRUE or disables it if \a enabled is
-  FALSE.  If \a id is currently selected, setTabEnabled() makes
+  FALSE.  If \a id is currently selected, setTabEnabled(FALSE) makes
   another tab selected.
 
   setTabEnabled() updates the display if this causes a
@@ -501,7 +506,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     void *data[1];
     data[0] = (void *) t;
-    style().drawControl( QStyle::CE_TabBarLabel, p, this, r, 
+    style().drawControl( QStyle::CE_TabBarLabel, p, this, r,
 			 t->isEnabled() ? colorGroup(): palette().disabled(),
 			 flags, data );
 }
@@ -1062,7 +1067,7 @@ void QTabBar::updateArrowButtons()
  */
 void QTabBar::removeToolTip( int index )
 {
-    QTab * tab = tabAt( index ); 
+    QTab * tab = tabAt( index );
     if ( !tab || !d->toolTips )
 	return;
     d->toolTips->remove( tab );
@@ -1072,7 +1077,7 @@ void QTabBar::removeToolTip( int index )
  */
 void QTabBar::setToolTip( int index, const QString & tip )
 {
-    QTab * tab = tabAt( index ); 
+    QTab * tab = tabAt( index );
     if ( !tab )
 	return;
     if ( d->toolTips == 0 )
