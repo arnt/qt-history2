@@ -58,11 +58,6 @@ public:
 
     void activateItemAt( int index );
 
-#if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
-    static void initialize();
-    static void cleanup();
-#endif
-
 signals:
     void	activated( int itemId );
     void	highlighted( int itemId );
@@ -132,7 +127,8 @@ private:
 #if defined(Q_WS_MAC) && !defined(QMAC_QMENUBAR_NO_NATIVE)
     friend class QWidget;
     friend class QApplication;
-    friend class Q4MenuBar;
+    friend class Q4MenuBar; //compat
+    friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef event, void *); //compat
     friend void qt_mac_set_modal_state(bool, QMenuBar *);
 
     void macCreateNativeMenubar();

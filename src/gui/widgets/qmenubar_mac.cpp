@@ -717,19 +717,6 @@ void QMenuBar::macDirtyNativeMenubar()
     }
 }
 
-/*!  \internal */
-void QMenuBar::initialize()
-{
-}
-
-/*!
-    \internal
-*/
-void QMenuBar::cleanup()
-{
-    menubars.clear();
-}
-
 /*!
     \internal
 */

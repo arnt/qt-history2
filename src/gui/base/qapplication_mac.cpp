@@ -39,6 +39,7 @@
 #include "qvaluelist.h"
 #include "qvariant.h"
 #include "qwidget.h"
+#include "qmenu.h"
 
 #include "private/qapplication_p.h"
 #include "private/qcolor_p.h"
@@ -49,12 +50,7 @@
 # include "qmainwindow.h"
 #endif
 
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-#  include "qmenu.h"
-#  ifdef QT_COMPAT
-#     include "qmenubar.h"
-#  endif 
-#endif
+
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #  include "qaccessible.h"
@@ -521,9 +517,7 @@ enum {
     //events
     kEventQtRequestSelect = 12,
     kEventQtRequestContext = 13,
-#ifndef QMAC_QMENUBAR_NO_NATIVE
     kEventQtRequestMenubarUpdate = 14,
-#endif
     kEventQtRequestTimer = 15,
     kEventQtRequestWakeup = 16,
     kEventQtRequestShowSheet = 17,
@@ -690,7 +684,6 @@ MacTimerInfo *qt_event_get_timer(EventRef event)
 }
 
 /* menubars */
-#ifndef QMAC_QMENUBAR_NO_NATIVE
 static EventRef request_menubarupdate_pending = 0;
 void qt_event_request_menubarupdate()
 {
@@ -707,7 +700,6 @@ void qt_event_request_menubarupdate()
     PostEventToQueue(GetMainEventQueue(), request_menubarupdate_pending, kEventPriorityHigh);
     ReleaseEvent(request_menubarupdate_pending);
 }
-#endif
 
 //context menu
 static EventRef request_context_pending = 0;
@@ -765,9 +757,7 @@ static EventTypeSpec events[] = {
     { kEventClassQt, kEventQtRequestShowSheet },
     { kEventClassQt, kEventQtRequestContext },
     { kEventClassQt, kEventQtRequestActivate },
-#ifndef QMAC_QMENUBAR_NO_NATIVE
     { kEventClassQt, kEventQtRequestMenubarUpdate },
-#endif
     { kEventClassQt, kEventQtRequestSocketAct },
 
     { kEventClassWindow, kEventWindowInit },
@@ -787,10 +777,6 @@ static EventTypeSpec events[] = {
 
     { kEventClassApplication, kEventAppActivated },
     { kEventClassApplication, kEventAppDeactivated },
-
-    { kEventClassMenu, kEventMenuOpening },
-    { kEventClassMenu, kEventMenuClosed },
-    { kEventClassMenu, kEventMenuTargetItem },
 
     { kEventClassTextInput, kEventTextInputUnicodeForKeyEvent },
     { kEventClassTextInput, kEventTextInputOffsetToPos },
@@ -918,11 +904,7 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
     if(appName)
 	qApp->setObjectName(appName);
     if(qt_is_gui_used) {
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	QMenuBar::initialize();
-#else
 	qt_mac_command_set_enabled(kHICommandQuit, false);
-#endif
 	QColor::initialize();
 	QFont::initialize();
 	QCursor::initialize();
@@ -984,9 +966,6 @@ void qt_cleanup()
 	QQuickDrawPaintEngine::cleanup();
 	QFont::cleanup();
 	QColor::cleanup();
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	QMenuBar::cleanup();
-#endif
 	if(qt_mac_safe_pdev) {
 	    delete qt_mac_safe_pdev;
 	    qt_mac_safe_pdev = 0;
@@ -1301,14 +1280,11 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 
     if(mouse_down_unhandled)
 	(*mouse_down_unhandled) = false;
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(windowPart == inMenuBar) {
 	QMacBlockingFunction block;
 	MenuSelect(*pt); //allow menu tracking
 	return false;
-    } else
-#endif
-    if(!widget) {
+    } else if(!widget) {
 	if(mouse_down_unhandled)
 	    (*mouse_down_unhandled) = true;
 	return false;
@@ -1461,10 +1437,8 @@ void qt_enter_modal(QWidget *widget)
     }
 
     qt_modal_stack->insert(0, widget);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(!app_do_modal)
 	qt_event_request_menubarupdate();
-#endif
     app_do_modal = true;
 }
 
@@ -1485,10 +1459,8 @@ void qt_leave_modal(QWidget *widget)
     else qDebug("Failure to remove %s::%s::%p -- %p", widget->className(), widget->objectName(), widget, qt_modal_stack);
 #endif
     app_do_modal = (qt_modal_stack != 0);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
     if(!app_do_modal)
 	qt_event_request_menubarupdate();
-#endif
 
     if (widget->parentWidget()) {
 	QEvent e(QEvent::WindowUnblocked);
@@ -1612,11 +1584,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 				qt_mac_window_for((HIViewRef)widget->parentWidget()->winId()));
 	} else if(ekind == kEventQtRequestWakeup) {
 	    request_wakeup_pending = 0; 	    //do nothing else, we just woke up!
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	} else if(ekind == kEventQtRequestMenubarUpdate) {
 	    request_menubarupdate_pending = 0;
 	    Q4MenuBar::macUpdateMenuBar();
-#endif
 	} else if(ekind == kEventQtRequestSelect) {
 	    request_select_pending = 0;
 	    QGuiEventLoop *l = 0;
@@ -2269,31 +2239,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			       widget ? widget->className() : "none", widget ? widget->objectName() : "",
 			       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
 #endif
-		    } else {
-			HICommand hic;
-			if(IsMenuKeyEvent(0, event, kNilOptions,
-					  &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
-			    hic.attributes = kHICommandFromMenu;
-			    if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
-						    &hic.commandID))
-				qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
-			    if(QMenuBar::activateCommand(hic.commandID) ||
-			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex,
-						  false, true)) {
-#ifdef DEBUG_KEY_MAPS
-				qDebug("KeyEvent: Consumed by Menubar(1)");
-#endif
-				key_event = false;
-			    } else
-#endif
-				if(0 && !ProcessHICommand(&hic)) {
-#ifdef DEBUG_KEY_MAPS
-				    qDebug("KeyEvent: Consumed by an HICommand(1)");
-#endif
-				    key_event = false;
-				}
-			}
 		    }
 		}
 	    }
@@ -2322,34 +2267,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			     mystr, ekind == kEventRawKeyRepeat,
 			     qMax(1, mystr.length()));
 		QApplication::sendSpontaneousEvent(widget,&ke);
-	    }
-	} else if(etype == QEvent::KeyPress) {
-#ifdef DEBUG_KEY_MAPS
-	    qDebug("KeyEvent: No widget could be found to accept the KeyPress");
-#endif
-	    HICommand hic;
-	    if(IsMenuKeyEvent(0, event, kNilOptions,
-			      &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
-		hic.attributes = kHICommandFromMenu;
-		if(GetMenuItemCommandID(hic.menu.menuRef, hic.menu.menuItemIndex,
-					&hic.commandID))
-		    qDebug("Qt: internal: Unexpected condition reached. %s:%d", __FILE__, __LINE__);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-		if(QMenuBar::activateCommand(hic.commandID) ||
-		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex, false, true)) {
-#ifdef DEBUG_KEY_MAPS
-		    qDebug("KeyEvent: Consumed by Menubar(2)");
-#endif
-		} else
-#endif
-		    if(!ProcessHICommand(&hic)) {
-#ifdef DEBUG_KEY_MAPS
-			qDebug("KeyEvent: Consumed by an HICommand(2)");
-#endif
-			handled_event = false;
-		    }
-	    } else {
-		handled_event = false;
 	    }
 	} else {
 	    handled_event = false;
@@ -2443,9 +2360,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    widget->focusWidget()->setFocus();
 		else
 		    widget->setFocus();
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 		Q4MenuBar::macUpdateMenuBar();
-#endif
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
 	    if(QTSMDocumentWrapper *doc = qt_mac_get_document_id(widget))
@@ -2472,9 +2387,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			app->setActiveWindow(tmp_w);
 		}
 	    }
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	    Q4MenuBar::macUpdateMenuBar();
-#endif
 	} else if(ekind == kEventAppDeactivated) {
 	    while(app->inPopupMode())
 		app->activePopupWidget()->close();
@@ -2483,39 +2396,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	} else {
 	    handled_event = false;
 	}
-	break;
-    case kEventClassMenu:
-#if !defined(QMAC_QMENUBAR_NO_NATIVE)
-	if(ekind == kEventMenuOpening || ekind == kEventMenuClosed) {
-	    MenuRef mr;
-	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
-			      0, sizeof(mr), 0, &mr);
-	    if(ekind == kEventMenuOpening) {
-		Boolean first;
-		GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
-				  0, sizeof(first), 0, &first);
-		if(first && !QMenuBar::macUpdatePopup(mr))
-		    handled_event = false;
-	    }
-	    if(handled_event) {
-		if(!QMenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
-		    handled_event = false;
-	    }
-	} else if(ekind == kEventMenuTargetItem) {
-	    MenuRef mr;
-	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
-			      0, sizeof(mr), 0, &mr);
-	    MenuItemIndex idx;
-	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
-			      0, sizeof(idx), 0, &idx);
-	    if(!QMenuBar::activate(mr, idx, true))
-		handled_event = false;
-	} else {
-	    handled_event = false;
-	}
-#else
-	handled_event = false;
-#endif
 	break;
     case kAppearanceEventClass:
 	if(ekind == kAEAppearanceChanged) {
@@ -2546,42 +2426,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			      0, sizeof(cmd), 0, &cmd);
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-	    if(!QMenuBar::activateCommand(cmd.commandID))
-#endif
-	    {
-		if(cmd.commandID == kHICommandQuit) {
-                    HiliteMenu(0);
-                    if (!qt_modal_state()) {
-                        QCloseEvent ev;
-                        QApplication::sendSpontaneousEvent(app, &ev);
-                        if(ev.isAccepted())
-                            app->quit();
-                    } else {
-                        QApplication::beep();
-                    }
-		} else if(cmd.commandID == kHICommandAbout) {
-		    QMessageBox::aboutQt(0);
-		    HiliteMenu(0);
+	    if(cmd.commandID == kHICommandQuit) {
+		HiliteMenu(0);
+		if (!qt_modal_state()) {
+		    QCloseEvent ev;
+		    QApplication::sendSpontaneousEvent(app, &ev);
+		    if(ev.isAccepted())
+			app->quit();
 		} else {
-#if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-		    bool by_accel = false;
-#if QT_MACOSX_VERSION >= 0x1020
-		    UInt32 command_flags;
-		    if(!GetEventParameter(event, kEventParamMenuContext, typeUInt32,
-					  0, sizeof(command_flags), 0, &command_flags)) {
-			by_accel = (command_flags & kMenuContextKeyMatching);
-		    } else
-#endif
-		    {
-			UInt32 keyc;
-			by_accel = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
-						      0, sizeof(keyc), 0, &keyc) && keyc;
-		    }
-		    if(by_accel || !QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, false, by_accel))
-#endif
-			handled_event = false;
+		    QApplication::beep();
 		}
+	    } else if(cmd.commandID == kHICommandAbout) {
+		QMessageBox::aboutQt(0);
+		HiliteMenu(0);
 	    }
 	} else {
 	    handled_event = false;

@@ -19,16 +19,13 @@
 #include "qapplication.h"
 #include "qdockarea.h"
 #include "qt_mac.h"
+#ifdef QT_COMPAT
+# include "qmenubar.h"
+#endif
 
 #include "private/qmenu_p.h"
 #define d d_func()
 #define q q_func()
-
-struct QMacMenuBind {
-    QMacMenuBind() : qmenubar(0), qmenu(0) { }
-    Q4MenuBar *qmenubar;
-    Q4Menu *qmenu;
-};
 
 /*****************************************************************************
   QMenu debug facilities
@@ -134,10 +131,12 @@ bool qt_mac_activate_action(MenuRef menu, uint command, QAction::ActionEvent act
     return true;
 }
 
-//creation of the MenuRef
+//handling of events for menurefs created by Qt..
 static EventTypeSpec menu_events[] = {
     { kEventClassCommand, kEventCommandProcess },
     { kEventClassMenu, kEventMenuTargetItem },
+    { kEventClassMenu, kEventMenuOpening },
+    { kEventClassMenu, kEventMenuClosed },
 };
 OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 {
@@ -153,6 +152,12 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 			  0, sizeof(context), 0, &context);
 	handled_event = qt_mac_activate_action(cmd.menu.menuRef, cmd.commandID, 
 					       QAction::Trigger, context & kMenuContextKeyMatching);
+#ifdef QT_COMPAT
+	if(!handled_event) {
+	    if(QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, false, context & kMenuContextKeyMatching))
+		handled_event = true;
+	}
+#endif
 	break; }
     case kEventClassMenu: {
 	MenuRef menu;
@@ -162,6 +167,32 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
 	    GetEventParameter(event, kEventParamMenuCommand, typeMenuCommand,
 			      0, sizeof(command), 0, &command);
 	    handled_event = qt_mac_activate_action(menu, command, QAction::Hover, false);
+#ifdef QT_COMPAT
+	    if(!handled_event) {
+		MenuItemIndex idx;
+		GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex,
+				  0, sizeof(idx), 0, &idx);
+		if(!QMenuBar::activate(menu, idx, true))
+		    handled_event = false;
+	    }
+#endif
+#ifdef QT_COMPAT
+	} else if(ekind == kEventMenuOpening || ekind == kEventMenuClosed) {
+	    MenuRef mr;
+	    GetEventParameter(event, kEventParamDirectObject, typeMenuRef,
+			      0, sizeof(mr), 0, &mr);
+	    if(ekind == kEventMenuOpening) {
+		Boolean first;
+		GetEventParameter(event, kEventParamMenuFirstOpen, typeBoolean,
+				  0, sizeof(first), 0, &first);
+		if(first && !QMenuBar::macUpdatePopup(mr))
+		    handled_event = false;
+	    }
+	    if(handled_event) {
+		if(!QMenuBar::macUpdatePopupVisible(mr, ekind == kEventMenuOpening))
+		    handled_event = false;
+	    }
+#endif
 	} else {
 	    handled_event = false;
 	}
@@ -187,23 +218,30 @@ static void qt_mac_cleanup_menu_event()
 	mac_menu_eventUPP = 0;
     }
 }
+static inline void qt_mac_create_menu_event_handler()
+{
+    if(!mac_menu_event_handler) {
+	mac_menu_eventUPP = NewEventHandlerUPP(qt_mac_menu_event);
+	InstallEventHandler(GetApplicationEventTarget(), mac_menu_eventUPP, 
+			    GetEventTypeCount(menu_events), menu_events, 0, 
+			    &mac_menu_event_handler);
+	qAddPostRoutine(qt_mac_cleanup_menu_event);
+    }
+}
+
+//creation of the MenuRef
 static MenuRef qt_mac_create_menu(QWidget *w) 
 {
     MenuRef ret = 0;
     if(CreateNewMenu(0, 0, &ret) == noErr) {
-	if(!mac_menu_event_handler) {
-	    mac_menu_eventUPP = NewEventHandlerUPP(qt_mac_menu_event);
-	    InstallEventHandler(GetApplicationEventTarget(), mac_menu_eventUPP, 
-				GetEventTypeCount(menu_events), menu_events, 0, 
-				&mac_menu_event_handler);
-	    qAddPostRoutine(qt_mac_cleanup_menu_event);
-	}
+	qt_mac_create_menu_event_handler();
 	SetMenuItemProperty(ret, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(w), &w);
     } else {
 	qWarning("This really cannot happen!!");
     }
     return ret;
 }
+
 
 /*****************************************************************************
   Q4Menu bindings
@@ -560,10 +598,6 @@ MenuRef Q4MenuBarPrivate::macMenu()
 }
 MenuRef Q4MenuBar::macMenu() {  return d->macMenu(); }
 
-#ifdef QT_COMPAT
-# include "qmenubar.h"
-#endif
-
 bool Q4MenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
@@ -610,6 +644,7 @@ bool Q4MenuBar::macUpdateMenuBar()
 	SetRootMenu(mb->macMenu());
 #ifdef QT_COMPAT
     } else if(QMenuBar::macUpdateMenuBar()) {
+	qt_mac_create_menu_event_handler();
 #endif
     } else if(first || fall_back_to_empty) {
 	first = false;
