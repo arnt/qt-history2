@@ -10,7 +10,7 @@ Therefore we made our own.
 
 Why use tmake?
  * It lets you create makefiles in just seconds.
- * It offers compiler and OS independence.
+ * It support numerous platforms and compilers.
  * It scans C++ files for Q_OBJECT and generates rules for
    Qt moc processing.
 
@@ -50,7 +50,3 @@ needs.
 tmake is free software and can be downloaded from:
 
 	ftp://ftp.troll.no/freebies/tmake/
-
-You will also need perl version 5 or later. Download perl for Win32 from
-
-	http://www.activestate.com

@@ -1,0 +1,11 @@
+		       IMPORTANT NOTES FOR QT/WIN32
+
+
+For technical reasons, Qt now consists of the two libraries qt.lib and
+qtmain.lib instead of just one library.
+
+To link your applications with this version of Qt, you will need to
+modify your makefiles: add qtmain.lib to the link step.
+
+Alternatively, you can use tmake 1.2 beta which you can download from
+ftp://ftp.troll.no/freebies/tmake
