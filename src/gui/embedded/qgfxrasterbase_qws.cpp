@@ -114,7 +114,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     clutcols = 0;
     gfx_lastop=lastop;
     gfx_optype=optype;
-    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
+    stitchedges=QWSPolygonScanner::Edge(QWSPolygonScanner::Left+QWSPolygonScanner::Top);
 
     src_little_endian=true;
 #if !defined(QT_NO_QWS_DEPTH_8)

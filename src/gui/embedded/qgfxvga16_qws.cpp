@@ -267,7 +267,7 @@ MAKE_VGA16_FUNC(bit_mask,        0x08, 0x3CE)
 
 
 // private QPolygonScanner
-class QGfxVga16 : public QGfxRasterBase , private QPolygonScanner
+class QGfxVga16 : public QGfxRasterBase , private QWSPolygonScanner
 {
 
     public:

@@ -20,7 +20,6 @@ HEADERS += \
 	painting/qpen.h \
 	painting/qpointarray.h \
 	painting/qpolygon.h \
-	painting/qpolygonscanner.h \
 	painting/qprinter.h \
 	painting/qprinter_p.h \
 	painting/qregion.h \
@@ -44,7 +43,6 @@ SOURCES += \
 	painting/qpen.cpp \
 	painting/qpointarray.cpp \
 	painting/qpolygon.cpp \
-	painting/qpolygonscanner.cpp \
 	painting/qprinter.cpp \
         painting/qstylepainter.cpp \
 	painting/qregion.cpp \

@@ -17,7 +17,7 @@
 #include "qgfxrasterbase_qws.h"
 
 template <const int depth, const int type>
-class QGfxRaster : public QGfxRasterBase, protected QPolygonScanner {
+class QGfxRaster : public QGfxRasterBase, protected QWSPolygonScanner {
 public:
     QGfxRaster(unsigned char *, int w, int h);
     ~QGfxRaster();

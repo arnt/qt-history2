@@ -19,7 +19,7 @@
 class QPointArray;
 class QPoint;
 
-class Q_GUI_EXPORT QPolygonScanner {
+class Q_GUI_EXPORT QWSPolygonScanner {
 public:
     // BIC: fix for 3.0
     void scan(const QPointArray& pa, bool winding, int index=0, int npoints=-1);

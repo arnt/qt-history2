@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qpolygonscanner.h"
+#include "qpolygonscanner_qws.h"
 #include "qpointarray.h"
 #include <stdlib.h>
 
@@ -376,7 +376,7 @@ SOFTWARE.
  *     bucket.  Finally, we can insert it.
  *
  */
-bool
+static bool
 miInsertEdgeInET(EdgeTable *ET, EdgeTableEntry *ETE,
         int scanline, ScanLineListBlock **SLLBlock, int *iSLLBlock)
 {
@@ -475,7 +475,7 @@ typedef struct {
 /*
  *     Clean up our act.
  */
-void
+static void
 miFreeStorage(ScanLineListBlock   *pSLLBlock)
 {
     register ScanLineListBlock   *tmpSLLBlock;
@@ -488,7 +488,7 @@ miFreeStorage(ScanLineListBlock   *pSLLBlock)
     }
 }
 
-bool
+static bool
 miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
         EdgeTableEntry *AET, EdgeTableEntry *pETEs, ScanLineListBlock *pSLLBlock)
 {
@@ -579,7 +579,7 @@ miCreateETandAET(int count, DDXPointPtr pts, EdgeTable *ET,
  *
  */
 
-void
+static void
 miloadAET(EdgeTableEntry *AET, EdgeTableEntry *ETEs)
 {
     register EdgeTableEntry *pPrevAET;
@@ -626,7 +626,7 @@ miloadAET(EdgeTableEntry *AET, EdgeTableEntry *ETEs)
  *         V------------------->       V---> ...
  *
  */
-void
+static void
 micomputeWAET(EdgeTableEntry *AET)
 {
     register EdgeTableEntry *pWETE;
@@ -664,7 +664,7 @@ micomputeWAET(EdgeTableEntry *AET)
  *
  */
 
-int
+static int
 miInsertionSort(EdgeTableEntry *AET)
 {
     register EdgeTableEntry *pETEchase;
@@ -700,7 +700,7 @@ miInsertionSort(EdgeTableEntry *AET)
 /*!
     \overload
 */
-void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
+void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints)
 {
     scan(pa, winding, index, npoints, true);
 }
@@ -711,7 +711,7 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
     If \a stitchable is false, the right and bottom edges of the
     polygon are included. This causes adjacent polygons to overlap.
 */
-void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, bool stitchable)
+void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, bool stitchable)
 {
     scan(pa, winding, index, npoints,
         stitchable ? Edge(Left+Top) : Edge(Left+Right+Top+Bottom));
@@ -736,7 +736,7 @@ void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int n
     \warning The edges feature does not work properly.
 
 */
-void QPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, Edge edges)
+void QWSPolygonScanner::scan(const QPointArray& pa, bool winding, int index, int npoints, Edge edges)
 {
 
 

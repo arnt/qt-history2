@@ -17,6 +17,7 @@ embedded {
 		    embedded/qgfxraster_qws.h \
 		    embedded/qlock_p.h \
 		    embedded/qmemorymanager_qws.h \
+		    embedded/qpolygonscanner_qws.h \
 		    embedded/qscreen_qws.h \
 		    embedded/qwindowsystem_qws.h \
 		    embedded/qwscommand_qws.h \
@@ -41,6 +42,7 @@ embedded {
 		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \
 		    embedded/qmemorymanager_qws.cpp \
+		    embedded/qpolygonscanner_qws.cpp \
 		    embedded/qwindowsystem_qws.cpp \
 		    embedded/qwscommand_qws.cpp \
 		    embedded/qwscursor_qws.cpp \

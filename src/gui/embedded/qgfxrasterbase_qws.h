@@ -19,7 +19,7 @@
 #include "qpen.h"
 #include "qbrush.h"
 #include "qwsdisplay_qws.h"
-#include "qpolygonscanner.h"
+#include "qpolygonscanner_qws.h"
 #include "qregion.h"
 
 //===========================================================================
@@ -388,7 +388,7 @@ protected:
     // Drawing, styles, and pixmaps --------------
     bool opaque;
 
-    QPolygonScanner::Edge stitchedges;
+    QWSPolygonScanner::Edge stitchedges;
     QPoint brushorig;
     bool patternedbrush;
     const QPixmap *cbrushpixmap;
