@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#67 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#68 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#67 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#68 $";
 #endif
 
 
@@ -623,6 +623,19 @@ QETWidget *qPRFindWidget( Window oldwin )
 // --------------------------------------------------------------------------
 // Main event loop
 //
+
+/*! Enters the main event loop and waits until quit() is called or \e
+  mainWidget is destroyed. Returns the value that was specified to
+  quit().
+
+  If \e mainWidget is a null pointer, exec will return only when
+  quit() is called.  This is for intended for applications that do not
+  want to quit just because the first window was closed.
+
+  As a special case, modal widgets like QMessageBox can be used before
+  calling exec(), because modal widget have a local event loop. All
+  programs must call exec() to activate other types of widgets. */
+
 
 int QApplication::exec( QWidget *mainWidget )	// enter main event loop
 {
