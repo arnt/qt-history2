@@ -237,17 +237,20 @@
 </includes>
 <forwards>
     <forward>class QFtp;</forward>
+    <forward>class QUrlInfo;</forward>
 </forwards>
 <variables>
     <variable access="private">QFtp *ftp</variable>
 </variables>
 <functions>
     <function type="function" access="private">init()</function>
-    <function type="slot" access="protected">uploadFile()</function>
-    <function type="slot" access="protected">downloadFile()</function>
-    <function type="slot" access="protected">removeFile()</function>
-    <function type="slot" access="protected">connectToHost()</function>
-    <function type="slot" access="protected">changePath( const QString &amp; )</function>
+    <function type="function" access="private">destroy()</function>
+    <function type="slot" access="private">uploadFile()</function>
+    <function type="slot" access="private">downloadFile()</function>
+    <function type="slot" access="private">removeFile()</function>
+    <function type="slot" access="private">connectToHost()</function>
+    <function type="slot" access="private">changePath( const QString &amp; )</function>
+    <function type="slot" access="private">ftp_listInfo( const QUrlInfo &amp; )</function>
 </functions>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
