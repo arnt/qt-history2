@@ -2065,13 +2065,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	break;
     case kEventClassCommand:
 	if(ekind == kEventCommandProcess) {
-	    UInt32 keyc;
 	    HICommand cmd;
 	    GetEventParameter(event, kEventParamDirectObject, typeHICommand,
 			      NULL, sizeof(cmd), NULL, &cmd);
-	    bool gotmod = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
-					     NULL, sizeof(keyc), NULL, &keyc);
-
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
 	    if(!QMenuBar::activateCommand(cmd.commandID))
 #endif
@@ -2087,7 +2083,19 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    HiliteMenu(0);
 		} else {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //offer it to the menubar..
-		    bool by_accel = gotmod && keyc;
+		    bool by_accel = FALSE;
+#ifdef MACOSX_102
+		    UInt32 command_flags;
+		    if(!GetEventParameter(event, kEventParamMenuContext, typeUInt32,
+					  NULL, sizeof(command_flags), NULL, &command_flags)) {
+			by_accel = (command_flags & kMenuContextKeyMatching);
+		    } else 
+#endif
+		    {
+			UInt32 keyc;
+			by_accel = !GetEventParameter(event, kEventParamKeyModifiers, typeUInt32,
+						      NULL, sizeof(keyc), NULL, &keyc) && keyc;
+		    }
 		    if(!QMenuBar::activate(cmd.menu.menuRef, cmd.menu.menuItemIndex, FALSE, by_accel))
 #endif
 			handled_event = FALSE;
