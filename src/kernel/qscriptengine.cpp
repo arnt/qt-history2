@@ -182,7 +182,7 @@ void q_heuristicPosition( QScriptItem *item )
 	}
     }
     item->width = 0;
-    for ( int i = 0; i < shaped->num_glyphs; i++ )
+    for ( i = 0; i < shaped->num_glyphs; i++ )
 	item->width += shaped->advances[i];
 }
 
