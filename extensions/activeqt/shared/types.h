@@ -68,15 +68,8 @@ struct IFontDisp;
 extern IFontDisp *QFontToIFont( const QFont &font );
 extern QFont IFontToQFont( IFont *f );
 
-static uint QColorToOLEColor( const QColor &col )
-{
-    return qRgb( col.blue(), col.green(), col.red() );
-}
-
-static QColor OLEColorToQColor( uint col )
-{
-    return QColor( qBlue(col), qGreen(col), qRed(col) );
-}
+extern uint QColorToOLEColor( const QColor &col );
+extern QColor OLEColorToQColor( uint col );
 
 extern bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type );
 extern bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const QUParameter *param );
