@@ -77,6 +77,7 @@
 #include <qmenubar.h>
 #include <qapplication.h>
 #include <qsplitter.h>
+#include <qtoolbox.h>
 #ifndef QT_NO_SQL
 #include "database.h"
 #endif
@@ -919,6 +920,20 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 	(void)mw->statusBar();
 	dw->show();
 	return mw;
+    } else if ( className == "QToolBox" ) {
+	if ( !init )
+	    return new QToolBox( parent, name );
+	QToolBox *tb = new QToolBox( parent, name );
+	FormWindow *fw = find_formwindow( parent );
+	QWidget *w = fw ? new QDesignerWidget( fw, tb, "page1" ) :
+		     new QWidget( tb, "page1" );
+	tb->addPage( MainWindow::tr("Page 1"), w );
+	MetaDataBase::addEntry( w );
+	w = fw ? new QDesignerWidget( fw, tb, "page2" ) : new QWidget( tb, "page2" );
+	tb->addPage( MainWindow::tr("Page 2"), w );
+	MetaDataBase::addEntry( tb );
+	MetaDataBase::addEntry( w );
+	return tb;
     }
 #ifndef QT_NO_SQL
     else if ( className == "QDataBrowser" ) {

@@ -2046,6 +2046,8 @@ void MainWindow::writeConfig()
     config.writeEntry( keybase + "Grid/Show", sGrid );
     config.writeEntry( keybase + "Grid/x", grid().x() );
     config.writeEntry( keybase + "Grid/y", grid().y() );
+    config.writeEntry( keybase + "LastToolPage",
+		       toolBox->pageLabel( toolBox->currentPage() ) );
 
     config.writeEntry( keybase + "Background/UsePixmap", backPix );
     config.writeEntry( keybase + "Background/Color", (int)qworkspace->backgroundColor().rgb() );
@@ -2161,6 +2163,13 @@ void MainWindow::readConfig()
     }
 
     if ( restoreConfig || readPreviousConfig ) {
+	QString s = config.readEntry( keybase + "LastToolPage" );
+	for ( int i = 0; i < toolBox->count(); ++i ) {
+	    if ( toolBox->pageLabel( toolBox->page( i ) ) == s ) {
+		toolBox->setCurrentPage( i );
+		break;
+	    }
+	}
 	recentlyFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
 	recentlyProjects = config.readListEntry( keybase + "RecentlyOpenedProjects", ',' );
 

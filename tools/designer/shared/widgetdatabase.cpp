@@ -202,6 +202,15 @@ void WidgetDatabase::setupDataBase( int id )
     append( r );
 
     r = new WidgetDatabaseRecord;
+    r->iconSet = "designer_widgetstack.png";
+    r->name = "QToolBox";
+    r->group = widgetGroup( "Containers" );
+    r->toolTip = "Tool Box";
+    r->isContainer = TRUE;
+
+    append( r );
+
+    r = new WidgetDatabaseRecord;
     r->iconSet = "designer_listbox.png";
     r->name = "QListBox";
     r->group = widgetGroup( "Views" );
