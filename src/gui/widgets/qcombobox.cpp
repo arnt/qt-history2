@@ -170,11 +170,11 @@ void ItemViewContainer::updateScrollers()
                        > (view->verticalScrollBar()->minimum() + spacing());
         bool needBottom = view->verticalScrollBar()->value()
                           < (view->verticalScrollBar()->maximum() - spacing()*2);
-        if(needTop)
+        if (needTop)
             top->show();
         else
             top->hide();
-        if(needBottom)
+        if (needBottom)
             bottom->show();
         else
             bottom->hide();
@@ -1450,8 +1450,13 @@ void QComboBox::showPopup()
     int itemHeight = view()->sizeHintForIndex(model()->index(0, 0, rootModelIndex())).height()
                      + container->spacing();
     QRect listRect(rect());
-    listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count())
-                       + 2*container->spacing() + 2);
+
+    QStyleOptionComboBox opt = d->getStyleOption();
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this))
+        listRect.setHeight(itemHeight * count());
+    else
+        listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
+    listRect.setHeight(listRect.height() + 2*container->spacing() + 2);
 
     // make sure the widget fits on screen
     //### do horizontally as well
@@ -1460,7 +1465,13 @@ void QComboBox::showPopup()
     int belowHeight = screen.bottom() - below.y();
     QPoint above = mapToGlobal(rect().topLeft());
     int aboveHeight = above.y() - screen.y();
-    if (listRect.height() <= belowHeight) {
+    if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
+        listRect.moveTopLeft(above);
+        listRect.moveTop(listRect.top() - view()->visualRect(view()->currentIndex()).top());
+        if (listRect.top() < screen.top())
+            listRect.moveTopLeft(below);
+        listRect.setBottom(qMin(screen.bottom(), listRect.bottom()));
+    } else if (listRect.height() <= belowHeight) {
         listRect.moveTopLeft(below);
     } else if (listRect.height() <= aboveHeight) {
         listRect.moveBottomLeft(above);
