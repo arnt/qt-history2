@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qbuilder.cpp#2 $
 **
 ** Implementation of QBuilder class
 **
@@ -30,6 +30,43 @@
 #include "qobjectdict.h"
 #include "qobjectlist.h"
 
+class QBuilderClassItem : public QListViewItem {
+    QBuilderPrivate* d;
+    QMetaObject* meta;
+public:
+    QBuilderClassItem( QListView * parent, QMetaObject* mo, QBuilderPrivate* pd ) :
+	QListViewItem( parent, mo->className() )
+    {
+	d = pd;
+	meta = mo;
+    }
+
+    QBuilderClassItem( QListViewItem * parent, QMetaObject* mo, QBuilderPrivate* pd ) :
+	QListViewItem( parent, mo->className() )
+    {
+	d = pd;
+	meta = mo;
+    }
+
+    QMetaObject* at() { return meta; }
+
+    void setup()
+    {
+	QListViewItem::setup();
+	if ( childCount() )
+	    return;
+	QDictIterator<QMetaObject> it(*objectDict);
+	QMetaObject* child;
+	while ((child = it.current())) {
+	    ++it;
+	    if ( child->superClass() == meta ) {
+		// Subclass of this
+		(void)new QBuilderClassItem(this,child,d);
+	    }
+	}
+    }
+};
+
 class QBuilderPrivate {
 public:
     QBuilderPrivate(QWidget* parent)
@@ -41,6 +78,57 @@ public:
 	classes->addColumn("Class");
 	objects->addColumn("Object");
 	objects->addColumn("Class");
+	objects->addColumn("Address");
+    }
+
+    QBuilderObjectItem* findTopLevel( QObject* o )
+    {
+	QListViewItem* cursor = objects->firstChild();
+	while ( cursor ) {
+	    QBuilderObjectItem* boi = (QBuilderObjectItem*)cursor;
+	    if ( boi->at() == o ) {
+		return boi;
+	    }
+	    cursor = cursor->nextSibling();
+	}
+	return 0;
+    }
+
+    void removeTopLevel( QObject* o )
+    {
+	delete findTopLevel(o);
+    }
+
+    void selectClass( QMetaObject* mo )
+    {
+	QBuilderClassItem* bci = (QBuilderClassItem*)selectClassFrom(mo);
+	classes->setSelected(bci,TRUE);
+	classes->ensureItemVisible(bci);
+    }
+
+    QListViewItem* selectClassFrom( QMetaObject* mo )
+    {
+	if ( mo->superClass() ) {
+	    QListViewItem* cursor = selectClassFrom( mo->superClass() );
+	    cursor = cursor->firstChild();
+	    while ( cursor ) {
+		QBuilderClassItem* bci = (QBuilderClassItem*)cursor;
+		if ( bci->at() == mo ) {
+		    bci->setOpen(TRUE);
+		    bci->setup();
+		    return bci;
+		}
+		cursor = cursor->nextSibling();
+	    }
+	    fatal("Huh?");
+	    return 0;
+	} else {
+	    // QObject
+	    QListViewItem* bci = classes->firstChild();
+	    bci->setOpen(TRUE);
+	    bci->setup();
+	    return bci;
+	}
     }
 
     QSplitter* splitter;
@@ -48,47 +136,40 @@ public:
     QListView* objects;
 };
 
-class QBuilderClassItem : public QListViewItem {
-    QMetaObject* meta;
-public:
-    QBuilderClassItem( QListView * parent, QMetaObject* mo ) :
-	QListViewItem( parent, mo->className() )
-    {
-	meta = mo;
-    }
-
-    QBuilderClassItem( QListViewItem * parent, QMetaObject* mo ) :
-	QListViewItem( parent, mo->className() )
-    {
-	meta = mo;
-    }
-
-    void setup()
-    {
-	QListViewItem::setup();
-	QDictIterator<QMetaObject> it(*objectDict);
-	QMetaObject* child;
-	while ((child = it.current())) {
-	    ++it;
-	    if ( child->superClass() == meta ) {
-		// Subclass of this
-		(void)new QBuilderClassItem(this,child);
-	    }
-	}
-    }
-};
-
-QBuilderObjectItem::QBuilderObjectItem( QListView * parent, QObject* o ) :
-    QListViewItem( parent, o->name(), o->className() )
+static
+QString adrtext(void* a)
 {
+    QString s;
+    s.sprintf("0x%p", a);
+    return s;
+}
+
+static
+bool find( QObject* o, QListViewItem* cursor )
+{
+    while ( cursor ) {
+	QBuilderObjectItem* boi = (QBuilderObjectItem*)cursor;
+	if ( boi->at() == o ) {
+	    return TRUE;
+	}
+	cursor = cursor->nextSibling();
+    }
+    return FALSE;
+}
+
+QBuilderObjectItem::QBuilderObjectItem( QListView * parent, QObject* o, QBuilderPrivate *pd ) :
+    QListViewItem( parent, o->name(), o->className(), adrtext(o) )
+{
+    d = pd;
     object = o;
     object->installEventFilter(this);
     connect(object, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
 }
 
-QBuilderObjectItem::QBuilderObjectItem( QListViewItem * parent, QObject* o ) :
-    QListViewItem( parent, o->name(), o->className() )
+QBuilderObjectItem::QBuilderObjectItem( QListViewItem * parent, QObject* o, QBuilderPrivate *pd ) :
+    QListViewItem( parent, o->name(), o->className(), adrtext(o) )
 {
+    d = pd;
     object = o;
     object->installEventFilter(this);
     connect(object, SIGNAL(destroyed()), this, SLOT(objectDestroyed()));
@@ -100,7 +181,11 @@ bool QBuilderObjectItem::eventFilter(QObject* o, QEvent* e)
 	QChildEvent* ce = (QChildEvent*)e;
 	switch ( e->type() ) {
 	  case QEvent::ChildInserted: {
-		(void)new QBuilderObjectItem( this, ce->child() );
+		d->removeTopLevel( ce->child() );
+		if ( !find(ce->child(), firstChild()) ) {
+		    QBuilderObjectItem* lvi = new QBuilderObjectItem( this, ce->child(), d );
+		    lvi->fillExistingTree();
+		}
 		setExpandable(TRUE);
 	    }
 	    break;
@@ -127,6 +212,10 @@ bool QBuilderObjectItem::eventFilter(QObject* o, QEvent* e)
 void QBuilderObjectItem::setup()
 {
     QListViewItem::setup();
+}
+
+void QBuilderObjectItem::fillExistingTree()
+{
     QObjectList *list = (QObjectList*)object->children();
     if ( !list ) return;
     QObjectListIt it(*list);
@@ -134,7 +223,10 @@ void QBuilderObjectItem::setup()
     while ((child = it.current())) {
 	++it;
 	// Child object of this
-	(void)new QBuilderObjectItem(this,child);
+	if ( !find(child,firstChild()) ) {
+	    QBuilderObjectItem* lvi = new QBuilderObjectItem(this,child,d);
+	    lvi->fillExistingTree();
+	}
     }
     setExpandable(TRUE);
 }
@@ -167,13 +259,17 @@ QBuilder::QBuilder() :
     int nclasses = QMetaObjectInit::init()+1; // +1 for QObject
     if ( nclasses ) {
 	msg.sprintf("Qt Application Builder - %d classes", nclasses);
-	QListViewItem *lvi = new QBuilderClassItem( d->classes, QObject::metaObject() );
+	QListViewItem *lvi = new QBuilderClassItem( d->classes, QObject::metaObject(), d );
 	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
     } else {
 	msg = "Sorry, your compiler/platform is insufficient for "
 		"Qt Application Builder";
     }
     statusBar()->message(msg);
+
+    connect( d->objects, SIGNAL(selectionChanged(QListViewItem*)),
+	     this, SLOT(objectSelected(QListViewItem*)) );
+
 }
 
 QBuilder::~QBuilder()
@@ -182,6 +278,17 @@ QBuilder::~QBuilder()
 
 void QBuilder::addTopLevelWidget(QWidget* tlw)
 {
-    QBuilderObjectItem *lvi = new QBuilderObjectItem( d->objects, tlw );
-    lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
+    if ( !d->findTopLevel(tlw) ) {
+	QBuilderObjectItem *lvi = new QBuilderObjectItem( d->objects, tlw, d );
+	lvi->fillExistingTree();
+	lvi->setOpen(TRUE); // #### WWA: Arnt, why needed?
+    }
+}
+
+void QBuilder::objectSelected( QListViewItem* lvi )
+{
+    if ( lvi->isSelected() ) {
+	QBuilderObjectItem* boi = (QBuilderObjectItem*)lvi;
+	d->selectClass(boi->at()->metaObject());
+    }
 }

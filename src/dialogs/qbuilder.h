@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qbuilder.h#1 $
+** $Id: //depot/qt/main/src/dialogs/qbuilder.h#2 $
 **
 ** Definition of QBuilder class
 **
@@ -43,6 +43,9 @@ private:
     friend QApplication;
     void addTopLevelWidget(QWidget*);
 
+private slots:
+    void objectSelected( QListViewItem* );
+
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QBuilder( const QBuilder & );
@@ -53,12 +56,16 @@ private:	// Disabled copy constructor and operator=
 class QBuilderObjectItem : public QObject, public QListViewItem {
     Q_OBJECT
     QObject* object;
+    QBuilderPrivate* d;
 
 public:
-    QBuilderObjectItem( QListView * parent, QObject* o );
-    QBuilderObjectItem( QListViewItem * parent, QObject* o );
+    QBuilderObjectItem( QListView * parent, QObject* o, QBuilderPrivate* );
+    QBuilderObjectItem( QListViewItem * parent, QObject* o, QBuilderPrivate* );
 
     void setup();
+
+    QObject* at() { return object; }
+    void fillExistingTree();
 
 protected:
     bool eventFilter(QObject*, QEvent*);
