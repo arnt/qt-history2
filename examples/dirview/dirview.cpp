@@ -136,6 +136,11 @@ static const char * pix_file []={
     ".....##aa#......",
     ".......##......."};
 
+QPixmap *folderLocked = 0;
+QPixmap *folderClosed = 0;
+QPixmap *folderOpen = 0;
+QPixmap *fileNormal = 0;
+
 /*****************************************************************************
  *
  * Class Directory
@@ -144,15 +149,16 @@ static const char * pix_file []={
 
 Directory::Directory( Directory * parent, const QString& filename )
     : QListViewItem( parent ), f(filename),
-      showDirsOnly( parent->showDirsOnly )
+      showDirsOnly( parent->showDirsOnly ),
+      pix( 0 )
 {
     p = parent;
     readable = QDir( fullName() ).isReadable();
 
     if ( !readable )
-	setPixmap( 0, QPixmap( folder_locked ) );
+	setPixmap( folderLocked );
     else
-	setPixmap( 0, QPixmap( folder_closed_xpm ) );
+	setPixmap( folderClosed );
 }
 
 
@@ -165,12 +171,29 @@ Directory::Directory( QListView * parent, const QString& filename )
 }
 
 
+void Directory::setPixmap( QPixmap *p )
+{
+    pix = p;
+    setup();
+    widthChanged( 0 );
+    invalidateHeight();
+    repaint();
+}
+
+
+QPixmap *Directory::pixmap( int i ) const
+{
+    if ( i )
+	return 0;
+    return pix;
+}
+
 void Directory::setOpen( bool o )
 {
     if ( o )
-	setPixmap( 0, QPixmap( folder_open_xpm ) );
+	setPixmap( folderOpen );
     else
-	setPixmap( 0, QPixmap( folder_closed_xpm ) );
+	setPixmap( folderClosed );
 
     if ( o && !childCount() ) {
 	QString s( fullName() );
@@ -191,17 +214,17 @@ void Directory::setOpen( bool o )
 		if ( f->fileName() == "." || f->fileName() == ".." )
 		    ; // nothing
 		else if ( f->isSymLink() && !showDirsOnly ) {
-		    QListViewItem *item = new QListViewItem( this, f->fileName(),
-							     "Symbolic Link" );
-		    item->setPixmap( 0, QPixmap( pix_file ) );
+		    FileItem *item = new FileItem( this, f->fileName(),
+						     "Symbolic Link" );
+		    item->setPixmap( fileNormal );
 		}
 		else if ( f->isDir() )
 		    (void)new Directory( this, f->fileName() );
 		else if ( !showDirsOnly ) {
-		    QListViewItem *item
-			= new QListViewItem( this, f->fileName(),
+		    FileItem *item
+			= new FileItem( this, f->fileName(),
 					     f->isFile()?"File":"Special" );
-		    item->setPixmap( 0, QPixmap( pix_file ) );
+		    item->setPixmap( fileNormal );
 		}
 	    }
 	}
@@ -252,6 +275,13 @@ DirectoryView::DirectoryView( QWidget *parent, const char *name, bool sdo )
     : QListView( parent, name ), dirsOnly( sdo ), oldCurrent( 0 ),
       dropItem( 0 ), autoopen_timer( this ), mousePressed( FALSE )
 {
+    if ( !folderLocked ) {
+	folderLocked = new QPixmap( folder_locked );
+	folderClosed = new QPixmap( folder_closed_xpm );
+	folderOpen = new QPixmap( folder_open_xpm );
+	fileNormal = new QPixmap( pix_file );
+    }
+
     connect( this, SIGNAL( doubleClicked( QListViewItem * ) ),
 	     this, SLOT( slotFolderSelected( QListViewItem * ) ) );
     connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
@@ -468,4 +498,21 @@ void DirectoryView::setDir( const QString &s )
 
     if ( item )
 	setCurrentItem( item );
+}
+
+void FileItem::setPixmap( QPixmap *p )
+{
+    pix = p;
+    setup();
+    widthChanged( 0 );
+    invalidateHeight();
+    repaint();
+}
+
+
+QPixmap *FileItem::pixmap( int i ) const
+{
+    if ( i )
+	return 0;
+    return pix;
 }

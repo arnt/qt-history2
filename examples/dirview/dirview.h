@@ -23,10 +23,26 @@ class QDragMoveEvent;
 class QDragLeaveEvent;
 class QDropEvent;
 
+class FileItem : QListViewItem
+{
+public:
+    FileItem( QListViewItem *parent, const QString &s1, const QString &s2 )
+	: QListViewItem( parent, s1, s2 ), pix( 0 ) {}
+    
+    QPixmap *pixmap( int i ) const;
+    void setPixmap( QPixmap *p );
+    
+private:
+    QPixmap *pix;
+    
+};
+
 class Directory : public QListViewItem
 {
 public:
     Directory( QListView * parent, const QString& filename );
+    Directory( Directory * parent, const QString& filename, const QString &col2 )
+	: QListViewItem( parent, filename, col2 ), pix( 0 ) {}
     Directory( Directory * parent, const QString& filename );
 
     QString text( int column ) const;
@@ -36,12 +52,16 @@ public:
     void setOpen( bool );
     void setup();
 
+    QPixmap *pixmap( int i ) const;
+    void setPixmap( QPixmap *p );
+    
 private:
     QFile f;
     Directory * p;
     bool readable;
     bool showDirsOnly;
-
+    QPixmap *pix;
+    
 };
 
 class DirectoryView : public QListView
