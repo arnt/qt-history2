@@ -1122,7 +1122,7 @@ version.
 
 The example tables used can be recreated with the following standard SQL.
 You may need to modify the SQL to match that used by your particular
-database. Note that sequences are not supported in all databases.
+database. 
 
 \code
 create table people (id integer primary key, name char(40));
@@ -1137,13 +1137,16 @@ create table creditors (id integer primary key, forename char(40),
 
 create table prices (id integer primary key, name char(40), price float);
 
-create sequence invoiceitem_seq;
-
 create table invoiceitem (id integer primary key, 
 			  pricesid integer, quantity integer,
 			  paiddate date);
+\endcode 
 
+A sequence was used in the calculateField() example above.  Note that
+sequences are not supported in all databases.
 
+\code
+create sequence invoiceitem_seq;
 \endcode
 
 */
