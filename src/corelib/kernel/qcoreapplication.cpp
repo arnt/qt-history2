@@ -1397,8 +1397,9 @@ void QCoreApplication::addLibraryPath(const QString &path)
     // make sure that library paths is initialized
     libraryPaths();
 
-    if (!self->d->app_libpaths->contains(path))
-        self->d->app_libpaths->prepend(path);
+    QString canonicalPath = QDir(path).canonicalPath();
+    if (!self->d->app_libpaths->contains(canonicalPath))
+        self->d->app_libpaths->prepend(canonicalPath);
 }
 
 /*!
