@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#172 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#173 $
 **
 ** Implementation of QFileDialog class
 **
@@ -408,6 +408,9 @@ const QPixmap *QFileDialogPrivate::MCItem::pixmap() const
 
 int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
+    if ( pixmap() )
+        return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 4;
+    
     return lb->fontMetrics().height() + 4;
 }
 
@@ -417,24 +420,34 @@ int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
     const QFontMetrics & fm = lb->fontMetrics();
     int w = 4;
     if ( pixmap() )
-	w += pixmap()->width();
+        w += pixmap()->width();
     w += fm.width( text() );
+    w += 6;
     return w;
 }
 
 
 void QFileDialogPrivate::MCItem::paint( QPainter * p )
 {
+    QFontMetrics fm = p->fontMetrics();
+
+    int w, h;
+    
+    if ( pixmap() )
+        h = QMAX( fm.height(), pixmap()->height()) + 4;
+    else
+        h = fm.height() + 4;
+    w = 4;
+    if ( pixmap() )
+        w += pixmap()->width();
+    w += fm.width( text() );
+    w += 6;
+    
     const QPixmap * pm = pixmap();
     if ( pm )
-	p->drawPixmap( 2, 2, *pm );
-    QFontMetrics fm = p->fontMetrics();
-    int yPos;			// vertical text position
-    if ( !pm || pm->height() < fm.height() )
-	yPos = fm.ascent() + fm.leading()/2;
-    else
-	yPos = pm->height()/2 - fm.height()/2 + fm.ascent();
-    p->drawText( pm ? pm->width()+4 : 20, yPos, text() );
+        p->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
+
+    p->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2, fm.width( text() ), fm.height(), 0, text() );
 }
 
 
