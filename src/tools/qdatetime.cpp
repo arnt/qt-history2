@@ -69,15 +69,16 @@ static const uint MSECS_PER_HOUR= 3600000;
 static const uint SECS_PER_MIN	= 60;
 static const uint MSECS_PER_MIN = 60000;
 
-static const short monthDays[] ={0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+static const short monthDays[] = {
+    0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 // ##### Localize.
 
-const char * const QDate::monthNames[] = {
+static const char * const qt_monthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
-const char * const QDate::weekdayNames[] ={
+static const char * const qt_weekdayNames[] = {
     "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
 
@@ -289,7 +290,7 @@ QString QDate::monthName( int month ) const
     }
 #endif
     // ### Remove the fromLatin1 during localization
-    return QString::fromLatin1(monthNames[month-1]);
+    return QString::fromLatin1(qt_monthNames[month-1]);
 }
 
 /*!
@@ -309,7 +310,7 @@ QString QDate::dayName( int weekday ) const
     }
 #endif
     // ### Remove the fromLatin1 during localization
-    return QString::fromLatin1(weekdayNames[weekday-1]);
+    return QString::fromLatin1(qt_weekdayNames[weekday-1]);
 }
 
 
@@ -496,7 +497,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    QString monthName( s.mid( 4, 3 ) );
 	    int month = -1;
 	    for ( int i = 0; i < 12; ++i ) {
-		if ( monthName == monthNames[i] ) {
+		if ( monthName == qt_monthNames[i] ) {
 		    month = i+1;
 		    break;
 		}
@@ -1461,7 +1462,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	    QString monthName( s.mid( 4, 3 ) );
 	    int month = -1;
 	    for ( int i = 0; i < 12; ++i ) {
-		if ( monthName == QDate::monthNames[i] ) {
+		if ( monthName == qt_monthNames[i] ) {
 		    month = i+1;
 		    break;
 		}
