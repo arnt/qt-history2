@@ -127,8 +127,8 @@ void drawPathText( QPainter *p )
     int len = strlen(text);
     if ( len == 0 )
         return;
-    int ipos = a.size()/len;
-    int cpos = ipos;
+    int ipos = (a.size()-3)/(len-1); // obviously len > 1
+    int cpos = ipos/2;
 
     for ( int i=0; i<len; i++ ) {		// for each char in text...
         QPoint p1 = a.point( cpos-1 );
