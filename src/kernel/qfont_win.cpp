@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#109 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#110 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -323,7 +323,7 @@ void QFont::initFontInfo() const
     } else {
 	char an[64];
 	GetTextFaceA( f->dc(), 64, an );
-	f->s.family = QString::fromLatin1(an);
+	f->s.family = QString::fromLocal8Bit(an);
     }
     f->s.dirty = FALSE;
 }
@@ -377,6 +377,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
     QString fam = QFont::substitute( d->req.family );
     if ( d->req.rawMode ) {			// will choose a stock font
 	int f, deffnt;
+	// ### why different?
 	if ( qt_winver == Qt::WV_NT || qt_winver == Qt::WV_32s )
 	    deffnt = SYSTEM_FONT;		// Windows NT or Win32s
 	else
@@ -488,8 +489,9 @@ HFONT QFont::create( bool *stockFont, HDC hdc, bool VxF ) const
 	hfont = CreateFontIndirect( &lf );
     } else {
 	// LOGFONTA and LOGFONTW are binary compatible
-	memcpy(lf.lfFaceName,fam.ascii(),
-	    QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
+	QCString lname = fam.local8Bit();
+	memcpy(lf.lfFaceName,lname.data(),
+	    QMIN(lname.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
     }
 
