@@ -37,7 +37,7 @@
 
 class QToolButtonPrivate : public QAbstractButtonPrivate
 {
-    Q_DECLARE_PUBLIC(QToolButton);
+    Q_DECLARE_PUBLIC(QToolButton)
 public:
     void init(bool doMainWindowConnections);
     void popupPressed();

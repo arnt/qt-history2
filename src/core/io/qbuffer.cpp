@@ -21,7 +21,7 @@
 
 class QBufferPrivate : public QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QBuffer);
+    Q_DECLARE_PUBLIC(QBuffer)
 
 public:
     ~QBufferPrivate();

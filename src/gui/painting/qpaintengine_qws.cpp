@@ -93,7 +93,7 @@ void qt_draw_background(QPaintEngine *pe, int/* x*/, int /*y*/, int /*w*/,  int 
 
 class QWSPaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QWSPaintEngine);
+    Q_DECLARE_PUBLIC(QWSPaintEngine)
 public:
     QWSPaintEnginePrivate() :gfx(0) {}
     QGfx *gfx;

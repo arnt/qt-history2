@@ -28,7 +28,7 @@
 
 class QStatusBarPrivate : public QWidgetPrivate
 {
-    Q_DECLARE_PUBLIC(QStatusBar);
+    Q_DECLARE_PUBLIC(QStatusBar)
 public:
     QStatusBarPrivate() {}
 

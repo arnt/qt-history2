@@ -33,7 +33,7 @@ struct Rec
 
 class QSignalMapperPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QSignalMapper);
+    Q_DECLARE_PUBLIC(QSignalMapper)
 public:
     QHash<const QObject *, Rec> hash;
 };

@@ -55,7 +55,7 @@ enum {
 
 class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
-    Q_DECLARE_PUBLIC(QTextDocumentLayout);
+    Q_DECLARE_PUBLIC(QTextDocumentLayout)
 public:
     struct Float {
         QTextBlockIterator block;

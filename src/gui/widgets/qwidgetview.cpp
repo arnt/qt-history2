@@ -19,7 +19,7 @@
 #include "private/qlayoutengine_p.h"
 class QWidgetViewPrivate: public QViewportPrivate
 {
-    Q_DECLARE_PUBLIC(QWidgetView);
+    Q_DECLARE_PUBLIC(QWidgetView)
 
 public:
     QWidgetViewPrivate(): resizable(false){}

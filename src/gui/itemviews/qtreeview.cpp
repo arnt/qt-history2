@@ -305,7 +305,7 @@ void QTreeViewItem::setData(int column, int role, const QVariant &value)
 
 class QTreeViewPrivate : public QGenericTreeViewPrivate
 {
-    Q_DECLARE_PUBLIC(QTreeView);
+    Q_DECLARE_PUBLIC(QTreeView)
 public:
     QTreeViewPrivate() : QGenericTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q->model()); }

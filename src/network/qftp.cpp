@@ -955,7 +955,7 @@ void QFtpPI::dtpConnectState(int s)
 
 class QFtpPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QFtp);
+    Q_DECLARE_PUBLIC(QFtp)
 public:
 
     QFtpPrivate()

@@ -81,7 +81,7 @@ static QMap<QString,QString> *qSvgColMap=0; // recognized color keyword names
 
 class QSVGPaintEnginePrivate : public QPaintEnginePrivate, public QPaintCommands
 {
-    Q_DECLARE_PUBLIC(QSVGPaintEngine);
+    Q_DECLARE_PUBLIC(QSVGPaintEngine)
 
 public:
     QSVGPaintEnginePrivate()

@@ -9,7 +9,7 @@
 
 class QStackedBoxPrivate : public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QStackedBox);
+    Q_DECLARE_PUBLIC(QStackedBox)
 public:
     QStackedLayout *layout;
 };

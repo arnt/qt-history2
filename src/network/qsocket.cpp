@@ -108,7 +108,7 @@ static void hexDump(const char * data, int len)
 
 class QSocketPrivate : public QIODevicePrivate
 {
-    Q_DECLARE_PUBLIC(QSocket);
+    Q_DECLARE_PUBLIC(QSocket)
 
 public:
     QSocketPrivate();

@@ -31,7 +31,7 @@ static const int repeatTime = 100;
 
 class QSliderPrivate : public QAbstractSliderPrivate
 {
-    Q_DECLARE_PUBLIC(QSlider);
+    Q_DECLARE_PUBLIC(QSlider)
 public:
     uint pressedControl;
     int tickInterval;

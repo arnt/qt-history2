@@ -134,7 +134,7 @@
 
 class Q4ButtonGroupPrivate: public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(Q4ButtonGroup);
+    Q_DECLARE_PUBLIC(Q4ButtonGroup)
 
 public:
     Q4ButtonGroupPrivate():exclusive(true){}

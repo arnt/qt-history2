@@ -36,7 +36,7 @@
 
 class QPushButtonPrivate : public QAbstractButtonPrivate
 {
-    Q_DECLARE_PUBLIC(QPushButton);
+    Q_DECLARE_PUBLIC(QPushButton)
 public:
     QPushButtonPrivate():autoDefault(true), defaultButton(false), flat(false){}
     void init();

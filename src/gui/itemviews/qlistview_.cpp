@@ -150,7 +150,7 @@ void QListView_Item::setData(int role, const QVariant &value)
 
 class QListView_Private : public QGenericListViewPrivate
 {
-    Q_DECLARE_PUBLIC(QListView_);
+    Q_DECLARE_PUBLIC(QListView_)
 public:
     QListView_Private() : QGenericListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q->model()); }

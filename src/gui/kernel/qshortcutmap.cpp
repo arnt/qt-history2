@@ -61,7 +61,7 @@ QDebug &operator<<(QDebug &dbg, const QShortcutEntry *se) {
 */
 class QShortcutMapPrivate
 {
-    Q_DECLARE_PUBLIC(QShortcutMap);
+    Q_DECLARE_PUBLIC(QShortcutMap)
 
 public:
     QShortcutMapPrivate(QShortcutMap* parent)

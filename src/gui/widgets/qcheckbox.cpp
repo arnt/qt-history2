@@ -23,7 +23,7 @@
 
 class QCheckBoxPrivate : public QAbstractButtonPrivate
 {
-    Q_DECLARE_PUBLIC(QCheckBox);
+    Q_DECLARE_PUBLIC(QCheckBox)
 public:
     QCheckBoxPrivate():tristate(false), noChange(false){}
     uint tristate : 1;

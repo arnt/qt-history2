@@ -10,7 +10,7 @@
 
 class QGenericHeaderPrivate: public QAbstractItemViewPrivate
 {
-    Q_DECLARE_PUBLIC(QGenericHeader);
+    Q_DECLARE_PUBLIC(QGenericHeader)
 
 public:
     QGenericHeaderPrivate()
@@ -159,7 +159,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QPainter painter(d->viewport);
     QRect area = e->rect();
-    
+
     int offset = this->offset();
 
     QItemOptions options;
@@ -244,7 +244,7 @@ void QGenericHeader::paintSection(QPainter *painter, QItemOptions *options, cons
 }
 
 int QGenericHeader::indexAt(int position) const
-{    
+{
     if (count() < 1)
         return -1;
 
@@ -256,7 +256,7 @@ int QGenericHeader::indexAt(int position) const
     int idx = (end + 1) / 2;
 
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
-    
+
     while (end - start > 0) {
         if (sections[idx].position > position)
             end = idx - 1;
@@ -726,7 +726,7 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
         int left = bottomRight.column();
         int right = 0;
         int rangeLeft, rangeRight;
-        
+
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange r = selection.at(i);
             if (r.parent().isValid())
@@ -742,10 +742,10 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
 
         int leftSec = section(left);
         int rightSec = section(right);
-        
+
         int leftPos = sectionPosition(leftSec) - offset();
         int rightPos = sectionPosition(rightSec) + sectionSize(rightSec) - offset();
-        
+
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Vertical
@@ -768,10 +768,10 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
 
     int topSec = section(top);
     int bottomSec = section(bottom);
-    
+
     int topPos = sectionPosition(topSec) - offset();
     int bottomPos = sectionPosition(bottomSec) + sectionSize(bottomSec) - offset();
-    
+
     return QRect(0, topPos, width(), bottomPos - topPos);
 }
 

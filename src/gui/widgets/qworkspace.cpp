@@ -187,7 +187,7 @@ private:
 
 
 class QWorkspacePrivate : public QWidgetPrivate {
-    Q_DECLARE_PUBLIC(QWorkspace);
+    Q_DECLARE_PUBLIC(QWorkspace)
 public:
     QWorkspaceChild* active;
     QList<QWorkspaceChild *> windows;

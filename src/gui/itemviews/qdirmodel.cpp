@@ -154,14 +154,14 @@ Q4FileIconProvider::Q4FileIconProvider()
 
     QPixmap linkFilePixmap(link_file_xpm);
     linkFile.setPixmap(linkFilePixmap, QIconSet::Small);
-    
+
     QPixmap linkDirPixmap(link_dir_xpm);
     linkDir.setPixmap(linkDirPixmap, QIconSet::Small);
 }
 
 Q4FileIconProvider::~Q4FileIconProvider()
 {
-    
+
 }
 
 QIconSet Q4FileIconProvider::icons(const QFileInfo &fileInfo) const
@@ -178,7 +178,7 @@ QString Q4FileIconProvider::type(const QFileInfo &info) const
 
 class QDirModelPrivate : public QObjectPrivate
 {
-    Q_DECLARE_PUBLIC(QDirModel);
+    Q_DECLARE_PUBLIC(QDirModel)
 public:
     struct QDirNode
     {
@@ -188,7 +188,7 @@ public:
     };
 
     QDirModelPrivate() : iconProvider(&defaultProvider) {}
-    
+
     QDirNode *node(int row, QDirNode *parent) const;
     QDirNode *parent(QDirNode *child) const;
     QVector<QDirNode> children(QDirNode *parent) const;
@@ -196,7 +196,7 @@ public:
 
     QDir root;
     QVector<QDirNode> tree;
-    
+
     Q4FileIconProvider *iconProvider;
     Q4FileIconProvider defaultProvider;
 };
@@ -267,7 +267,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
         qWarning("data: the index was not valid");
         return QVariant();
     }
-    
+
     if (index.type() == QModelIndex::HorizontalHeader) {
 	switch (index.column()) {
         case 0: return "Name";
@@ -279,13 +279,13 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
     } else if (index.type() == QModelIndex::VerticalHeader) {
 	return index.row();
     }
-    
+
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
     if (!node) {
         qWarning("data: the node does not exist");
         return QVariant();
     }
-    
+
     if (role == Display || role == Edit) {
         switch (index.column()) {
         case 0: return node->info.fileName();
@@ -297,7 +297,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
             return QVariant();
         }
     }
-    
+
     if (role == Decoration && index.column() == 0)
         return d->iconProvider->icons(node->info);
     return QVariant();
@@ -362,7 +362,7 @@ bool QDirModel::isSortable() const
 void QDirModel::sort(int column, SortOrder order)
 {
     int spec = (order == Qt::Descending ? QDir::Reversed : 0);
-    
+
     switch (column) {
     case 0:
         spec |= QDir::Name;
@@ -379,7 +379,7 @@ void QDirModel::sort(int column, SortOrder order)
     default:
         break;
     };
-    
+
     setSorting(spec);
 }
 
@@ -399,7 +399,7 @@ bool QDirModel::greater(const QModelIndex &left, const QModelIndex &right) const
 
     QDirModelPrivate::QDirNode *l = static_cast<QDirModelPrivate::QDirNode*>(left.data());
     QDirModelPrivate::QDirNode *r = static_cast<QDirModelPrivate::QDirNode*>(right.data());
-    
+
     // this depends on the sort column
     int spec = sorting();
     if (spec & QDir::Name) // col 0
@@ -425,7 +425,7 @@ Q4FileIconProvider *QDirModel::iconProvider() const
 }
 
 void QDirModel::setNameFilter(const QString &filter)
-{    
+{
     d->root.setNameFilter(filter);
 }
 

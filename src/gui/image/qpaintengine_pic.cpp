@@ -23,7 +23,7 @@
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QPicturePaintEngine);
+    Q_DECLARE_PUBLIC(QPicturePaintEngine)
 public:
     QDataStream s;
     QPainter *pt;
