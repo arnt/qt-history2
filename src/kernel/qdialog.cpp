@@ -545,7 +545,7 @@ void QDialog::setGeometry( const QRect &r )
 
 
 /*!
-  Sets whether the dialog should extend horizontally or vertically,
+  Sets the dialog to extend horizontally or vertically,
   depending on \a orientation.
 
   \sa orientation(), setExtension()
@@ -679,7 +679,7 @@ QSize QDialog::minimumSizeHint() const
 
 
 /*!
-  \fn bool QStatusBar::isSizeGripEnabled() const
+  \fn bool QDialog::isSizeGripEnabled() const
 
   Returns whether the QSizeGrip in the bottom right of the dialog
   is enabled.

@@ -2872,10 +2872,12 @@ bool QRegion::contains( const QRect &r ) const
     return XRectInRegion( (Region)data->rgn, r.left(), r.right(), r.width(), r.height() ) != RectangleOut;
 }
 
+/*
 bool QRegion::fullyContains( const QRect &r ) const
 {
     return XRectInRegion( (Region)data->rgn, r.left(), r.right(), r.width(), r.height() ) == RectangleIn;
 }
+*/
 
 void QRegion::translate( int dx, int dy )
 {

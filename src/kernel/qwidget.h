@@ -447,8 +447,6 @@ protected:
     virtual bool x11Event( XEvent * );		// X11 event
 #elif defined(_WS_QWS_)
     virtual bool qwsEvent( QWSEvent * );
-    virtual unsigned char * scanLine(int) const;
-    virtual int bytesPerLine() const;
 #endif
 
     virtual void updateMask();

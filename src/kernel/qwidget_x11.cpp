@@ -442,7 +442,6 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     }
 }
 
-
 /*!
   Reparents the widget.  The widget gets a new \a parent, new widget
   flags (\a f, but as usual, use 0) at a new position in its new

@@ -111,8 +111,6 @@ public:
 
 #if defined(_WS_QWS_)
     static QWSDisplay *qwsDisplay();
-    virtual unsigned char * scanLine(int) const;
-    virtual int bytesPerLine() const;
     virtual QGfx * graphicsContext() const;
 #endif
 

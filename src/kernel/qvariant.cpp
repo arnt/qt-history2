@@ -1261,7 +1261,7 @@ const QStringList QVariant::toStringList() const
 
   \sa asMap()
 */
-const QMap<QString,QVariant> QVariant::toMap() const
+const QMap<QString, QVariant> QVariant::toMap() const
 {
     if ( d->typ != Map )
 	return QMap<QString,QVariant>();
@@ -1874,7 +1874,7 @@ QValueList<QVariant>& QVariant::asList()
 /*!
   Returns the variant's value as variant map reference.
 */
-QMap<QString,QVariant>& QVariant::asMap()
+QMap<QString, QVariant>& QVariant::asMap()
 {
     if ( d->typ != Map )
 	*this = QVariant( toMap() );

@@ -187,7 +187,7 @@ class Q_EXPORT QListView: public QScrollView
 
 public:
     QListView( QWidget * parent, const char *name, WFlags f );
-    QListView( QWidget * parent = 0, const char *name = 0 ); // ##### remove in 3.0
+    QListView( QWidget * parent = 0, const char *name = 0 ); // ##### merge with above in 3.0
     ~QListView();
 
     int treeStepSize() const;

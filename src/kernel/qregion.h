@@ -62,6 +62,7 @@ public:
 
     QRect   boundingRect() const;
     QArray<QRect> rects() const;
+    void setRects( const QRect *, int );
 
     QRegion operator|( const QRegion & ) const;
     QRegion operator+( const QRegion & ) const;
@@ -87,9 +88,6 @@ public:
 #elif defined(_WS_QWS_)
     // QGfx_QWS needs this for region drawing
     void * handle() const { return data->rgn; }
-    // QWidget::internalSetGeometry needs this
-    bool fullyContains( const QRect &r ) const;
-    void setRects( const QRect *, int );
 #endif
 
 #ifndef QT_NO_DATASTREAM

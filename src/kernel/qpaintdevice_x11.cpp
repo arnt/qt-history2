@@ -217,12 +217,162 @@ QPaintDeviceX11Data* QPaintDevice::getX11Data( bool def ) const
 */
 
 /*!
-  \fn Display *QPaintDevice::x11Display() const
+  \fn HDC QPaintDevice::handle() const
 
-  Returns a pointer to the X display (X11 only).
+  Returns the window system handle of the paint device, for low-level
+  access.  <em>Using this function is not portable.</em>
+
+  The HDC type varies with platform; see qpaintdevice.h and qwindowdefs.h
+  for details.
+*/
+
+/*!
+  \fn Display *QPaintDevice::x11AppDisplay()
+
+  Returns a pointer to the X display
+  global to the application (X11 only).
   <em>Using this function is not portable.</em>
 
   \sa handle()
+*/
+
+/*!
+  \fn int QPaintDevice::x11AppScreen ()
+
+  Returns the screen number on the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+*/
+
+/*!
+  \fn int QPaintDevice::x11AppDepth ()
+
+  Returns the depth of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa QPixmap::defaultDepth()
+*/
+
+/*!
+  \fn int QPaintDevice::x11AppCells ()
+
+  Returns the number of entries in the colormap of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Colormap()
+*/
+
+/*!
+  \fn HANDLE QPaintDevice::x11AppColormap ()
+
+  Returns the colormap of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Cells()
+*/
+
+/*!
+  \fn bool QPaintDevice::x11AppDefaultColormap ()
+
+  Returns the default colormap of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Cells()
+*/
+
+/*!
+  \fn void* QPaintDevice::x11AppVisual ()
+
+  Returns the Visual of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+*/
+
+/*!
+  \fn bool QPaintDevice::x11AppDefaultVisual ()
+
+  Returns the default Visual of the X display
+  global to the application (X11 only).
+  <em>Using this function is not portable.</em>
+*/
+
+
+/*!
+  \fn Display *QPaintDevice::x11Display() const
+
+  Returns a pointer to the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa handle()
+*/
+
+/*!
+  \fn int QPaintDevice::x11Screen () const
+
+  Returns the screen number on the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+*/
+
+/*!
+  \fn int QPaintDevice::x11Depth () const
+
+  Returns the depth of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa QPixmap::defaultDepth()
+*/
+
+/*!
+  \fn int QPaintDevice::x11Cells () const
+
+  Returns the number of entries in the colormap of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Colormap()
+*/
+
+/*!
+  \fn HANDLE QPaintDevice::x11Colormap () const
+
+  Returns the colormap of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Cells()
+*/
+
+/*!
+  \fn bool QPaintDevice::x11DefaultColormap () const
+
+  Returns the default colormap of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+
+  \sa x11Cells()
+*/
+
+/*!
+  \fn void* QPaintDevice::x11Visual () const
+
+  Returns the Visual of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
+*/
+
+/*!
+  \fn bool QPaintDevice::x11DefaultVisual () const
+
+  Returns the default Visual of the X display
+  for the paint device (X11 only).
+  <em>Using this function is not portable.</em>
 */
 
 static int dpiX=0,dpiY=0;

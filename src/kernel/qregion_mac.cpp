@@ -166,6 +166,14 @@ QArray<QRect> QRegion::rects() const
   return foo;
 }
 
+void QRegion::setRects( const QRect *rects, int num )
+{
+    // Could be optimized
+    *this = QRegion();
+    for (int i=0; i<num; i++)
+	*this |= rects[i];
+}
+
 bool QRegion::operator==( const QRegion &r ) const
 {
   if(EqualRgn((RgnHandle)data->rgn,(RgnHandle)r.data->rgn)) {

@@ -353,6 +353,11 @@ bool QBitArray::toggleBit( uint index )
   \sa at()
 */
 
+/*!
+  \fn bool QBitArray::operator[]( int index ) const
+  Implements the [] operator for constant bit arrays.
+*/
+
 
 /*!
   Performs the AND operation between all bits in this bit array and \a a.

@@ -456,6 +456,27 @@ QArray<QRect> QRegion::rects() const
     return a;
 }
 
+/*!
+  Sets the region to be the given set of rectangles.  The rectangles
+  \e must be optimal Y-X sorted bands as follows:
+   <ul>
+    <li> The rectangles must not intersect
+    <li> All rectangles with a given top coordinate must have the same height.
+    <li> No two rectangles may abut horizontally (they should be combined
+		into a single wider rectangle in that case).
+    <li> The rectangles must be sorted accendingly by Y as the major sort key
+		and X as the minor sort key.
+   </ul>
+  \internal
+  Only some platforms have that restriction (QWS).
+*/
+void QRegion::setRects( const QRect *rects, int num )
+{
+    // Could be optimized
+    *this = QRegion();
+    for (int i=0; i<num; i++)
+	*this |= rects[i];
+}
 
 /*!
   Returns TRUE if the region is equal to \a r, or FALSE if the regions are

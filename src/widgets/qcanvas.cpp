@@ -3122,6 +3122,22 @@ void QCanvasLine::setPen(QPen p)
 }
 
 /*!
+  QPoint QCanvasLine::startPoint () const
+
+  Returns the start of the line.
+
+  \sa setPoints(), endPoint()
+*/
+
+/*!
+  QPoint QCanvasLine::endPoint () const
+
+  Returns the end of the line.
+
+  \sa setPoints(), startPoint()
+*/
+
+/*!
   Sets the ends of the line to (\a x1,\a y1) and (\a x2,\a y2).
 */
 void QCanvasLine::setPoints(int x1, int y1, int x2, int y2)

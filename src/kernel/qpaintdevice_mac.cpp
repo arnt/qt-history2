@@ -58,6 +58,10 @@ HANDLE QPaintDevice::handle() const
     return hd;
 }
 
+/*!
+  \internal
+  Set's QuickDraw's ugly global variable.
+*/
 void QPaintDevice::fixport()
 {
     if(handle())

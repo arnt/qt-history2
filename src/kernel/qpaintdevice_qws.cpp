@@ -298,7 +298,7 @@ int QPaintDevice::bytesPerLine() const
 
 QGfx * QPaintDevice::graphicsContext() const
 {
-    qFatal("Eek! Gfx requested from QPaintDevice!");
+    qFatal("QGfx requested for QPaintDevice");
     return 0;
 }
 

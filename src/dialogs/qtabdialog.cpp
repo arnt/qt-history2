@@ -165,8 +165,9 @@
   \sa QDialog
 */
 
-/*! \obsolete
+/*!
   \fn void QTabDialog::selected( const QString &tabLabel );
+  \obsolete
 
   This signal is emitted whenever a tab is selected (raised),
   including during the first show().

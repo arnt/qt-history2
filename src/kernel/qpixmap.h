@@ -141,8 +141,6 @@ public:
 
 #if defined(_WS_QWS_)
     virtual QGfx * graphicsContext() const;
-    virtual unsigned char * scanLine(int) const;
-    virtual int bytesPerLine() const;
     QRgb * clut() const;
     int numCols() const;
 #endif

@@ -334,8 +334,8 @@ void QRegExp::setCaseSensitive( bool enable )
 
 
 /*!
-  \fn void QRegExp::setPattern()
-  Sets the pattern string to \e pattern and returns a reference to this regexp.
+  \fn void QRegExp::setPattern(const QString & pattern)
+  Sets the pattern string to \a pattern and returns a reference to this regexp.
   The case sensitivity or wildcard options do not change.
 */
 
