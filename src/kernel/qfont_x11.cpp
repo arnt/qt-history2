@@ -75,7 +75,7 @@
 
 // This array must be kept in sync with the QFontPrivate::Script enum in
 // qfontdata_p.h
-static char *qt_x11encodings[][QFont::NScripts + 1] = {
+static const char *qt_x11encodings[][QFont::NScripts + 1] = {
     { "iso8859-1"        , 0 }, // BasicLatin
 
     { "iso8859-2"        , 0 }, // LatinExtendedA
@@ -1474,7 +1474,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 
     QCString	matchBuffer( 256 );	// X font name always <= 255 chars
     char **	xFontNames;
-    int		count;
+    int		fcount;
     int		sc;
     float	pointDiff;	// difference in % from requested point size
     int		weightDiff;	// difference from requested weight
@@ -1482,9 +1482,9 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
     bool	smoothScalable = FALSE;
     int		i;
 
-    xFontNames = getXFontNames( pattern, &count );
+    xFontNames = getXFontNames( pattern, &fcount );
 
-    for( i = 0; i < count; i++ ) {
+    for( i = 0; i < fcount; i++ ) {
 	sc = fontMatchScore( xFontNames[i], matchBuffer,
 			     &pointDiff, &weightDiff,
 			     &scalable, &smoothScalable, script );
@@ -1576,7 +1576,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 				  QFont::Script script ) const
 {
     char *tokens[NFontFields];
-    bool   exactMatch = TRUE;
+    bool   exactmatch = TRUE;
     int	   score      = NonUnicodeScore;
     *scalable	      = FALSE;
     *smoothScalable   = FALSE;
@@ -1606,16 +1606,16 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    score |= PitchScore;
 	else {
 	    score |= CJKPitchScore;
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
 	}
     } else if ( request.fixedPitch ) {
 	if ( pitch == 'm' || pitch == 'c' )
 	    score |= PitchScore;
 	else
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
     } else {
 	if ( pitch != 'p' )
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
     }
 
     // ### fix scaled bitmap fonts
@@ -1626,7 +1626,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( *smoothScalable )
 	    score |= SizeScore;
 	else
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
     } else {
 	int pSize;
 	float percentDiff;
@@ -1646,10 +1646,10 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    score |= SizeScore;
 
 	    if ( pSize != request.pointSize ) {
-		exactMatch = FALSE;
+		exactmatch = FALSE;
 	    }
 	} else {
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
 	}
     }
 
@@ -1660,7 +1660,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     if ( weightVal == (int) request.weight )
 	score |= WeightScore;
     else
-	exactMatch = FALSE;
+	exactmatch = FALSE;
 
     *weightDiff = QABS( weightVal - (int) request.weight );
     char slant = tolower( tokens[Slant][0] );
@@ -1669,20 +1669,20 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( slant == 'o' || slant == 'i' )
 	    score |= SlantScore;
 	else
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
     } else {
 	if ( slant == 'r' )
 	    score |= SlantScore;
 	else
-	    exactMatch = FALSE;
+	    exactmatch = FALSE;
     }
 
     if ( qstricmp( tokens[Width], "normal" ) == 0 )
 	score |= WidthScore;
     else
-	exactMatch = FALSE;
+	exactmatch = FALSE;
 
-    return exactMatch ? (exactScore | (score&NonUnicodeScore)) : score;
+    return exactmatch ? (exactScore | (score&NonUnicodeScore)) : score;
 }
 
 
