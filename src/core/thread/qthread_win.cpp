@@ -74,7 +74,7 @@ unsigned int __stdcall QThreadPrivate::start(void *arg)
     TlsSetValue(qt_current_thread_tls_index, arg);
 
     QThread *thr = reinterpret_cast<QThread *>(arg);
-    QThreadData::setCurrent(thr->d->data);
+    QThreadData::setCurrent(&thr->d->data);
 
     emit thr->started();
     thr->run();
