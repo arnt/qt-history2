@@ -702,7 +702,7 @@ QOleDataObject::GetData(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium)
 		wm->convertFromMime(object->encodedData(fmt),
 			    fmt, pformatetc->cfFormat);
 	    if ( data.size() ) {
-		HGLOBAL hData = GlobalAlloc(GMEM_SHARE, data.size());
+		HGLOBAL hData = GlobalAlloc(0, data.size());
 		if (!hData) {
 		    return ResultFromScode(E_OUTOFMEMORY);
 		}

@@ -1290,6 +1290,8 @@ void QUriDrag::setUris( QStrList uris )
 	memcpy(a.data()+c+l,"\r\n",2);
 	c+=l+2;
     }
+    a.resize(c+1);
+    a[c] = 0;
     setEncodedData(a);
 }
 
