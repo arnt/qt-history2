@@ -1956,26 +1956,26 @@ fi
 
 if [ "x$VERBOSE" = "xyes" ]
 then
-    echo "QMake vars....... $QMAKE_VARS"
-    echo "QMake switches... $QMAKE_SWITCHES"
+    echo "QMake vars ...... $QMAKE_VARS"
+    echo "QMake switches .. $QMAKE_SWITCHES"
 fi
 
-[ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
-[ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
-echo "Configuration........ $QMAKE_CONFIG"
-echo "Remote support....... $REMOTE"
-echo "STL support.......... $STL"
-echo "Thread support....... $THREAD"
-echo "GIF support.......... $GIF"
-echo "MNG support.......... $MNG ($LIBMNG)"
-echo "JPEG support......... $JPEG ($LIBJPEG)"
-echo "PNG support.......... $PNG ($LIBPNG)"
-[ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support..... $EMBEDDED"
+[ "x$CONCURRENT" != "x0" ] && echo "Concurrent .......... $CONCURRENT"
+[ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
+echo "Configuration ....... $QMAKE_CONFIG"
+echo "Remote support ...... $REMOTE"
+echo "STL support ......... $STL"
+echo "Thread support ...... $THREAD"
+echo "GIF support ......... $GIF"
+echo "MNG support ......... $MNG ($LIBMNG)"
+echo "JPEG support ........ $JPEG ($LIBJPEG)"
+echo "PNG support ......... $PNG ($LIBPNG)"
+[ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support .... $EMBEDDED"
 if [ "$X11_PLATFORM" = "yes" ]
 then
-    echo "NAS sound support.... $NAS_SOUND"
-    echo "Session management... $SM"
-    echo "Xinerama support..... $XINERAMA"
+    echo "NAS sound support ... $NAS_SOUND"
+    echo "Session management .. $SM"
+    echo "Xinerama support .... $XINERAMA"
     echo "Tablet support ...... $TABLET"
     echo "XRender support ..... $XRENDER"
     echo "XftFreeType support . $XFTFREETYPE"
@@ -1984,7 +1984,7 @@ fi
 echo
 
 QMAKE_ALL_ARGS="\"CONFIG+=$QMAKE_CONFIG\" $QMAKE_VARS $QMAKE_SWITCHES"
-echo Creating makefiles...
+echo "Creating makefiles .."
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
 PROCS=1
 PIPE=""
