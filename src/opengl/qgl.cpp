@@ -44,6 +44,7 @@
 static QGLFormat* qgl_default_format = 0;
 static QGLFormat* qgl_default_overlay_format = 0;
 
+
 static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
 
@@ -53,15 +54,14 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
   \module OpenGL
 
-  Normally, you can ignore this class. QGLWidget and the other OpenGL
-  module classes inherit it, so when you make your own QGLWidget
-  subclass, you can use the identifiers in the QGL namespace without
-  qualification.
+  Normally you can ignore this class. QGLWidget and the other OpenGL
+  module classes inherit it, so when you make your own QGLWidget subclass
+  you can use the identifiers in the QGL namespace without qualification.
 
-  However, occasionally you may find yourself in situations where you
-  need ot refer to these identifiers from outside the QGL namespace
-  scope, e.g. in static utility functions. In such cases, simply write
-  e.g. \c QGL::DoubleBuffer instead just \c DoubleBuffer.
+  However, you may occasionally find yourself in situations where you
+  need to refer to these identifiers from outside the QGL namespace
+  scope, e.g., in static utility functions. In such cases, simply write
+  e.g. \c QGL::DoubleBuffer instead of just \c DoubleBuffer.
 
 */
 
@@ -96,12 +96,12 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
   you want from an OpenGL rendering context.
 
   OpenGL drivers or accelerated hardware may or may not support
-  advanced features like alpha channel or stereographic viewing. If
-  you request some features the driver/hardware does not provide when
-  you create a QGLWidget, you will get the a rendering context with
+  advanced features such as alpha channel or stereographic viewing. If
+  you request some features that the driver/hardware does not provide when
+  you create a QGLWidget, you will get a rendering context with
   the nearest subset of features.
 
-  There are different ways of defining the display characteristics
+  There are different ways to define the display characteristics
   of a rendering context. One is to create a QGLFormat and make
   it default for the entire application:
   \code
@@ -144,14 +144,14 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
   <ul>
   <li> \link setDoubleBuffer() Double buffer:\endlink Enabled.
   <li> \link setDepth() Depth buffer:\endlink Enabled.
-  <li> \link setRgba() RGBA:\endlink Enabled (i.e. color index disabled).
+  <li> \link setRgba() RGBA:\endlink Enabled (i.e., color index disabled).
   <li> \link setAlpha() Alpha channel:\endlink Disabled.
   <li> \link setAccum() Accumulator buffer:\endlink Disabled.
   <li> \link setStencil() Stencil buffer:\endlink Disabled.
   <li> \link setStereo() Stereo:\endlink Disabled.
   <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
   <li> \link setOverlay() Overlay:\endlink Disabled.
-  <li> \link setPlane() Plane:\endlink 0 (i.e. normal plane).
+  <li> \link setPlane() Plane:\endlink 0 (i.e., normal plane).
   </ul>
 */
 
@@ -185,8 +185,8 @@ QGLFormat::QGLFormat()
    }
   \endcode
 
-  Note that there exists FormatOption values for both turning on and
-  off all format settings, e.g. DepthBuffer and NoDepthBuffer,
+  Note that there are FormatOption values to turn format settings both on and
+  off, e.g. DepthBuffer and NoDepthBuffer,
   DirectRendering and IndirectRendering, etc.
 
   \sa defaultFormat(), setOption()
@@ -215,7 +215,7 @@ QGLFormat::QGLFormat( int options, int plane )
 
   Double buffering is enabled by default.
 
-  Double buffering is a technique where graphics is rendered to an off-screen
+  Double buffering is a technique where graphics are rendered to an off-screen
   buffer and not directly to the screen. When the drawing has been
   completed, the program calls a swapBuffers function to exchange the screen
   contents with the buffer. The result is flicker-free drawing and often
@@ -266,7 +266,7 @@ void QGLFormat::setDepth( bool enable )
 */
 
 /*!
-  Sets RGBA mode if \a enable is TRUE, or color index mode if \a enable
+  Sets RGBA mode if \a enable is TRUE or color index mode if \a enable
   is FALSE.
 
   The default color mode is RGBA.
@@ -456,13 +456,13 @@ int QGLFormat::plane() const
 
 /*!
   Sets the requested plane. 0 is the normal plane, 1 is the first
-  overlay plane, 2 is the second overlay plane, etc., and -1, -2,
+  overlay plane, 2 is the second overlay plane, etc.; -1, -2,
   etc. are underlay planes.
 
-  Note that, in contrast to the other format specifications, the plane
+  Note that in contrast to other format specifications, the plane
   specifications will be matched exactly. Thus, if you specify a plane
   that the underlying OpenGL system cannot provide, an \link
-  QGLWidget::isValid() invalid\endlink QGLWidget will be created.
+  QGLWidget::isValid() invalid\endlinkQGLWidget will be created.
 
   \sa plane()
 */
@@ -546,7 +546,7 @@ QGLFormat QGLFormat::defaultFormat()
 /*!
   Sets a new default QGLFormat for the application.
   For example, to set single buffering as default instead
-  of double buffering, your main() can contain:
+  of double buffering, your main() can contain
   \code
     QApplication a(argc, argv);
     QGLFormat f;
@@ -570,18 +570,18 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 /*!
   Returns the default QGLFormat for overlay contexts.
 
-  The factory default overlay format is:
+  The factory default overlay format is
   <ul>
   <li> \link setDoubleBuffer() Double buffer:\endlink Disabled.
   <li> \link setDepth() Depth buffer:\endlink Disabled.
-  <li> \link setRgba() RGBA:\endlink Disabled (i.e. color index enabled).
+  <li> \link setRgba() RGBA:\endlink Disabled (i.e., color index enabled).
   <li> \link setAlpha() Alpha channel:\endlink Disabled.
   <li> \link setAccum() Accumulator buffer:\endlink Disabled.
   <li> \link setStencil() Stencil buffer:\endlink Disabled.
   <li> \link setStereo() Stereo:\endlink Disabled.
   <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
   <li> \link setOverlay() Overlay:\endlink Disabled.
-  <li> \link setPlane() Plane:\endlink 1 (i.e. first overlay plane).
+  <li> \link setPlane() Plane:\endlink 1 (i.e., first overlay plane).
   </ul>
 
   \sa setDefaultFormat()
@@ -600,10 +600,10 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 
 /*!
   Sets a new default QGLFormat for overlay contexts. This format is
-  used whenever a QGLWidget is created with a format with hasOverlay()
+  used whenever a QGLWidget is created with a format that hasOverlay()
   enabled.
 
-  For example, to get a double buffered overlay contexts (if
+  For example, to get a double buffered overlay context (if
   available), the code can do:
 
   \code
@@ -784,7 +784,7 @@ void QGLContext::setFormat( const QGLFormat &format )
   \fn bool QGLContext::isSharing() const
 
   Returns TRUE if display list sharing with another context was
-  requested in the create() call, and the GL system was able to
+  requested in the create() call and the GL system was able to
   fulfill this request. Note that display list sharing may possibly
   not be supported between contexts with different formats.
 */
@@ -825,7 +825,7 @@ void QGLContext::setFormat( const QGLFormat &format )
 /*!
   \fn bool QGLContext::initialized() const
 
-  Returns TRUE if this context has been initialized, i.e. if
+  Returns TRUE if this context has been initialized, i.e., if
   QGLWidget::initializeGL() has been performed on it.
 
   \sa setInitialized()
@@ -834,7 +834,7 @@ void QGLContext::setFormat( const QGLFormat &format )
 /*!
   \fn void QGLContext::setInitialized( bool on )
 
-  Tells the context whether it has been initialized, i.e. whether
+  Tells the context whether it has been initialized, i.e., whether
   QGLWidget::initializeGL() has been performed on it.
 
   \sa initialized()
@@ -843,8 +843,8 @@ void QGLContext::setFormat( const QGLFormat &format )
 /*!
   \fn const QGLContext* QGLContext::currentContext()
 
-  Returns the current context, i.e. the context to which any OpenGL
-  commands will currently be directed to. Returns 0 if no context is
+  Returns the current context, i.e., the context to which any OpenGL
+  commands will currently be directed. Returns 0 if no context is
   current.
 
   \sa makeCurrent()
@@ -861,10 +861,10 @@ void QGLContext::setFormat( const QGLFormat &format )
   the index of the transparent color in the colormap of the overlay
   plane. The color's RGB values are meaningless, of course.
 
-  The returned QColor object will generally only work as expected when
+  The returned QColor object will generally work as expected only when
   passed as the argument to QGLWidget::qglColor() or
   QGLWidget::qglClearColor(). Under certain circumstances it can also
-  be used to draw transparent graphics with a QPainter; see the
+  be used to draw transparent graphics with a QPainter. See the
   "overlay_x11" example for details.
 */
 
@@ -909,7 +909,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   system-dependent OpenGL handle that matches the specified \link
   format() format\endlink as closely as possible.
 
-  <strong>Windows</strong>: Calls choosePixelFormat() which finds a
+  <strong>Windows</strong>: Calls choosePixelFormat(), which finds a
   matching pixel format identifier.
 
   <strong>X11</strong>: Calls chooseVisual() which finds an appropriate
@@ -950,7 +950,7 @@ bool QGLContext::create( const QGLContext* shareContext )
   \fn void QGLContext::doneCurrent()
 
   Makes no GL context the current context. Normally, you do not need
-  to call this function, QGLContext calls it as necessary.
+  to call this function; QGLContext calls it as necessary.
 */
 
 
@@ -976,23 +976,23 @@ bool QGLContext::create( const QGLContext* shareContext )
   \module OpenGL
 
   QGLWidget provides functionality for displaying OpenGL graphics
-  integrated in a Qt application. It is very simple to use: you
-  inherit from it and use the subclass like any other QWidget, only
-  that instead of drawing the widget's contents using QPainter & al.,
+  integrated in a Qt application. It is very simple to use. You
+  inherit from it and use the subclass like any other QWidget, except
+  that instead of drawing the widget's contents using QPainter & al.
   you use the standard OpenGL rendering commands.
 
   QGLWidget provides three convenient virtual functions that you can
   reimplement in your subclass to perform the typical OpenGL tasks:
 
   <ul>
-  <li> paintGL() - Render the OpenGL scene. Gets called whenever the widget
+  <li> paintGL() - Renders the OpenGL scene. Gets called whenever the widget
   needs to be updated.
-  <li> resizeGL() - Set up OpenGL viewport, projection etc. Gets called
+  <li> resizeGL() - Sets up OpenGL viewport, projection, etc. Gets called
   whenever the the widget has been resized (and also when it shown
-  for the first time, since all newly created widgets get a resize
+  for the first time because all newly created widgets get a resize
   event automatically).
-  <li> initializeGL() - Set up the OpenGL rendering context, define display
-  lists etc. Gets called once before the first time resizeGL() or
+  <li> initializeGL() - Sets up the OpenGL rendering context, defines display
+  lists, etc. Gets called once before the first time resizeGL() or
   paintGL() is called.
   </ul>
 
@@ -1044,30 +1044,29 @@ bool QGLContext::create( const QGLContext* shareContext )
     };
   \endcode
 
-  If you need to trigger a repaint from other places than paintGL() (a
+  If you need to trigger a repaint from places other than paintGL() (a
   typical example is when using \link QTimer timers\endlink to animate
   scenes), you should call the widget's updateGL() function.
 
-  When paintGL(), resizeGL() or initializeGL() is called, your
-  widget's OpenGL rendering context has been made current.  If you
+  Your widget's OpenGL rendering context IS made current when paintGL(), resizeGL(), or initializeGL() is called. If you
   need to call the standard OpenGL API functions from other places
-  (e.g. in your widget's constructor), you must call makeCurrent()
+  (e.g., in your widget's constructor), you must call makeCurrent()
   first.
 
   QGLWidget provides advanced functions for requesting a new display
   \link QGLFormat format\endlink, and you can even set a new rendering
   \link QGLContext context\endlink.
 
-  You can achieve sharing of OpenGL display lists between QGLWidgets,
-  see the documentation of the QGLWidget constructors for details.
+  You can achieve sharing of OpenGL display lists between QGLWidgets
+  (see the documentation of the QGLWidget constructors for details).
 
-  <b>About Overlays:</b> The QGLWidget can create a GL overlay context
-  in addition to the normal context, if overlays are supported by the
-  underlying system.
+  <b>About Overlays:</b> The QGLWidget creates a GL overlay context
+  in addition to the normal context if overlays are supported by the
+  underlying system. 
 
   If you want to use overlays, you specify it in the \link QGLFormat
   format\endlink. (Note: Overlay must be requested in the format
-  passed to the QGLWidget constructor). Your GL widget should also
+  passed to the QGLWidget constructor.) Your GL widget should also
   implement some or all of these virtual methods:
 
   <ul>
@@ -1077,17 +1076,17 @@ bool QGLContext::create( const QGLContext* shareContext )
   </ul>
 
   These methods work in the same way as the normal paintGL() &
-  al. functions, only that they will be called when with the overlay
-  context made current. You can explicitly make the overlay context
+  al. functions, except that they will be called when the overlay
+  context is made current. You can explicitly make the overlay context
   current by using makeOverlayCurrent(), and you can access the
-  overlay context directly (e.g. to ask for its transparent color) by
+  overlay context directly (e.g., to ask for its transparent color) by
   calling overlayContext().
 
   Note: QGLWidget overlay support is currently implemented only for
   the X11 window system. The Windows implementation is experimental.
 
-  Note: On X servers where the default visual is in an overlay plane,
-  non-GL Qt windows can also be used for overlays; see the "overlay_x11"
+  Note: On X servers in which the default visual is in an overlay plane,
+  non-GL Qt windows can also be used for overlays. See the "overlay_x11"
   example program for details.
 
 */
@@ -1100,18 +1099,18 @@ bool QGLContext::create( const QGLContext* shareContext )
   used. The widget will be \link isValid() invalid\endlink if the
   system has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-  The \e parent, \e name and \e f arguments are passed to the QWidget
+  The \e parent, \e name, and \e f arguments are passed to the QWidget
   constructor.
 
   If the \a shareWidget parameter points to a valid QGLWidget, this
   widget will share OpenGL display lists with \a shareWidget. Note: If
-  this widget and \a shareWidget has different \link format()
+  this widget and \a shareWidget have different \link format()
   formats\endlink, display list sharing may fail. You can check
   whether display list sharing succeeded by using the isSharing()
   method.
 
-  Note: Initialization of OpenGL rendering state etc. should be done
-  by overriding the initializeGL() function, not in the constructor of
+  Note: Initialization of OpenGL rendering state, etc. should be done
+  by overriding the initializeGL() function, rather than in the constructor of
   your QGLWidget subclass.
 
   \sa QGLFormat::defaultFormat()
@@ -1137,18 +1136,18 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
   The widget will be \link isValid() invalid\endlink if the
   system has no \link QGLFormat::hasOpenGL() OpenGL support\endlink.
 
-  The \e parent, \e name and \e f arguments are passed to the QWidget
+  The \e parent, \e name, and \e f arguments are passed to the QWidget
   constructor.
 
   If the \a shareWidget parameter points to a valid QGLWidget, this
   widget will share OpenGL display lists with \a shareWidget. Note: If
-  this widget and \a shareWidget has different \link format()
+  this widget and \a shareWidget have different \link format()
   formats\endlink, display list sharing may fail. You can check
   whether display list sharing succeeded by using the isSharing()
   method.
 
-  Note: Initialization of OpenGL rendering state etc. should be done
-  by overriding the initializeGL() function, not in the constructor of
+  Note: Initialization of OpenGL rendering state, etc. should be done
+  by overriding the initializeGL() function, rather than in the constructor of
   your QGLWidget subclass.
 
   \sa QGLFormat::defaultFormat(), isValid()
@@ -1253,7 +1252,7 @@ bool QGLWidget::isSharing() const
   \fn void QGLWidget::makeCurrent()
 
   Makes this widget the current widget for OpenGL
-  operations. I.e. makes this widget's rendering context the current
+  operations, i.e., makes the widget's rendering context the current
   OpenGL rendering context.
 */
 
@@ -1267,9 +1266,9 @@ void QGLWidget::makeCurrent()
   Swaps the screen contents with an off-screen buffer. Works only if
   the widget's format specifies double buffer mode.
 
-  Normally, there is no need to explicitly call this function, because
-  it is done automatically after each widget repaint, i.e. after each
-  time paintGL() has been executed.
+  Normally, there is no need to explicitly call this function because
+  it is done automatically after each widget repaint, i.e., each
+  time after paintGL() has been executed.
 
   \sa doubleBuffer(), setAutoBufferSwap(), QGLFormat::setDoubleBuffer()
 */
@@ -1294,7 +1293,7 @@ void QGLWidget::swapBuffers()
   \fn void QGLWidget::makeOverlayCurrent()
   Makes the overlay context of this widget current. Use this if you
   need to issue OpenGL commands to the overlay context outside of
-  initializeOverlayGL(), resizeOverlayGL() and paintOverlayGL().
+  initializeOverlayGL(), resizeOverlayGL(), and paintOverlayGL().
 
   Does nothing if this widget has no overlay.
 
@@ -1431,9 +1430,9 @@ void QGLWidget::resizeGL( int, int )
 
 
 /*!
-  This virtual function is used in the same manner as initializeGL(),
-  only for the widget's overlay context instead of the widget's main
-  context. That is, initializeOverlayGL() is called one time before
+  This virtual function is used in the same manner as initializeGL()
+  except for the widget's overlay context instead of the widget's main
+  context. That is, initializeOverlayGL() is called once before
   the first call to paintOverlayGL() or resizeOverlayGL(). Reimplement
   it in a subclass.
 
@@ -1451,7 +1450,7 @@ void QGLWidget::initializeOverlayGL()
 
 
 /*!
-  This virtual function is used in the same manner as paintGL(), only
+  This virtual function is used in the same manner as paintGL() except
   for the widget's overlay context instead of the widget's main
   context. That is, paintOverlayGL() is called whenever the widget's
   overlay needs to be painted.  Reimplement it in a subclass.
@@ -1466,7 +1465,7 @@ void QGLWidget::paintOverlayGL()
 
 
 /*!
-  This virtual function is used in the same manner as paintGL(), only
+  This virtual function is used in the same manner as paintGL() except
   for the widget's overlay context instead of the widget's main
   context. That is, resizeOverlayGL() is called whenever the widget
   has been resized. Reimplement it in a subclass.
