@@ -178,8 +178,9 @@ void QSize::scale( int w, int h, ScaleMode mode )
 	ht = (QCOORD)h;
     } else {
 	bool useHeight = TRUE;
-	double ratio = (double)width() / height();
-	int rw = (int)( ratio * h );
+	int w0 = width();
+	int h0 = height();
+	int rw = h * w0 / h0;
 
 	if ( mode == ScaleMin ) {
 	    useHeight = ( rw <= w );
@@ -192,7 +193,7 @@ void QSize::scale( int w, int h, ScaleMode mode )
 	    ht = (QCOORD)h;
 	} else {
 	    wd = (QCOORD)w;
-	    ht = (QCOORD)( w / ratio );
+	    ht = (QCOORD)( w * h0 / w0 );
 	}
     }
 }
