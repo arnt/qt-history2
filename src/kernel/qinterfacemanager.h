@@ -44,6 +44,7 @@
 #include "qdir.h"
 #include "qmap.h"
 #include "qstringlist.h"
+#include "qregexp.h"
 #endif // QT_H
 
 #ifndef QT_NO_PLUGIN
