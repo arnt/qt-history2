@@ -51,10 +51,11 @@ class QSessionManagerData;
 class Q_EXPORT  QSessionManager : public QObject
 {
     Q_OBJECT
-    QSessionManager( QApplication *app, QString &session );
+    QSessionManager( QApplication *app, QString &id, QString &key );
     ~QSessionManager();
 public:
     QString sessionId() const;
+    QString sessionKey() const;
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
     void* handle() const;
 #endif

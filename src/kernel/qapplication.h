@@ -253,7 +253,8 @@ public:
 #ifndef QT_NO_SESSIONMANAGER
     // session management
     bool	     isSessionRestored() const;
-    QString	     sessionId() const;
+    QString 	sessionId() const;
+    QString 	sessionKey() const;
     virtual void     commitData( QSessionManager& sm );
     virtual void     saveState( QSessionManager& sm );
 #endif
@@ -282,7 +283,7 @@ public slots:
 #if defined(Q_WS_QWS)
 protected:
         void setArgs(int, char **);
-#endif 
+#endif
 
 private:
     void	     construct( int &argc, char **argv, Type );
@@ -349,7 +350,7 @@ private:
     QPtrList<QTranslator> *translators;
 #ifndef QT_NO_SESSIONMANAGER
     QSessionManager *session_manager;
-    QString	     session_id;
+    QString	     session_id, session_key;
     bool	     is_session_restored;
 #endif
 #if defined(Q_WS_X11) && !defined (QT_NO_STYLE )
@@ -376,7 +377,7 @@ private:
     friend class QETWidget;
     friend class QEvent;
     friend class QTranslator;
-    friend Q_EXPORT void qt_ucm_initialize( QApplication * );    
+    friend Q_EXPORT void qt_ucm_initialize( QApplication * );
 #if defined(Q_WS_WIN)
     friend bool qt_sendSpontaneousEvent( QObject*, QEvent* );
 #endif
@@ -457,6 +458,11 @@ inline bool QApplication::isSessionRestored() const
 inline QString QApplication::sessionId() const
 {
     return session_id;
+}
+
+inline QString QApplication::sessionKey() const
+{
+    return session_key;
 }
 #endif
 inline QSize QApplication::globalStrut()

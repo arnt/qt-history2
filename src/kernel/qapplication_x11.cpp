@@ -6107,6 +6107,19 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 #include <X11/SM/SMlib.h>
 
+class QSessionManagerData
+{
+public:
+    QSessionManagerData( QSessionManager* mgr, QString& id, QString& key )
+	: sm( mgr ), sessionId( id ), sessionKey( key ) {}
+    QSessionManager* sm;
+    QStringList restartCommand;
+    QStringList discardCommand;
+    QString& sessionId;
+    QString& sessionKey;
+    QSessionManager::RestartHint restartHint;
+};
+
 class QSmSocketReceiver : public QObject
 {
     Q_OBJECT
@@ -6148,7 +6161,7 @@ static void sm_dieCallback( SmcConn smcConn, SmPointer clientData ) ;
 static void sm_shutdownCancelledCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_saveCompleteCallback( SmcConn smcConn, SmPointer clientData );
 static void sm_interactCallback( SmcConn smcConn, SmPointer clientData );
-static void sm_performSaveYourself( QSessionManager* );
+static void sm_performSaveYourself( QSessionManagerData* );
 
 static void resetSmState()
 {
@@ -6234,16 +6247,23 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
     if ( sm_isshutdown )
 	( (QT_smcConn*)smcConn )->shutdown_in_progress = TRUE;
 
-    sm_performSaveYourself( (QSessionManager*) clientData );
+    sm_performSaveYourself( (QSessionManagerData*) clientData );
     if ( !sm_isshutdown ) // we cannot expect a confirmation message in that case
 	resetSmState();
 }
 
-static void sm_performSaveYourself( QSessionManager* sm )
+static void sm_performSaveYourself( QSessionManagerData* smd )
 {
     if ( sm_isshutdown )
 	sm_blockUserInput = TRUE;
 
+    QSessionManager* sm = smd->sm;
+
+    // generate a new session key
+    timeval tv;
+    gettimeofday( &tv, 0 );
+    smd->sessionKey  = QString::number( tv.tv_sec ) + "_" + QString::number(tv.tv_usec);
+ 
     // tell the session manager about our program in best POSIX style
     sm_setProperty( SmProgram, QString( qApp->argv()[0] ) );
     // tell the session manager about our user as well.
@@ -6253,7 +6273,7 @@ static void sm_performSaveYourself( QSessionManager* sm )
 
     // generate a restart and discard command that makes sense
     QStringList restart;
-    restart  << qApp->argv()[0] << "-session" << sm->sessionId();
+    restart  << qApp->argv()[0] << "-session" << smd->sessionId + "_" + smd->sessionKey;
     sm->setRestartCommand( restart );
     QStringList discard;
     sm->setDiscardCommand( discard );
@@ -6346,7 +6366,7 @@ static void sm_saveYourselfPhase2Callback( SmcConn smcConn, SmPointer clientData
     if (smcConn != smcConnection )
 	return;
     sm_in_phase2 = TRUE;
-    sm_performSaveYourself( (QSessionManager*) clientData );
+    sm_performSaveYourself( (QSessionManagerData*) clientData );
 }
 
 
@@ -6359,36 +6379,26 @@ void QSmSocketReceiver::socketActivated(int)
 #undef Bool
 #include "qapplication_x11.moc"
 
-class QSessionManagerData
-{
-public:
-    QStringList restartCommand;
-    QStringList discardCommand;
-    QString sessionId;
-    QSessionManager::RestartHint restartHint;
-};
-
-QSessionManager::QSessionManager( QApplication * app, QString &session )
+QSessionManager::QSessionManager( QApplication * app, QString &id, QString& key )
     : QObject( app, "session manager" )
 {
-    d = new QSessionManagerData;
-    d->sessionId = session;
+    d = new QSessionManagerData( this, id, key );
     d->restartHint = RestartIfRunning;
 
     resetSmState();
     char cerror[256];
     char* myId = 0;
-    char* prevId = (char*)session.latin1(); // we know what we are doing
+    char* prevId = (char*)id.latin1(); // we know what we are doing
 
     SmcCallbacks cb;
     cb.save_yourself.callback = sm_saveYourselfCallback;
-    cb.save_yourself.client_data = (SmPointer) this;
+    cb.save_yourself.client_data = (SmPointer) d;
     cb.die.callback = sm_dieCallback;
-    cb.die.client_data = (SmPointer) this;
+    cb.die.client_data = (SmPointer) d;
     cb.save_complete.callback = sm_saveCompleteCallback;
-    cb.save_complete.client_data = (SmPointer) this;
+    cb.save_complete.client_data = (SmPointer) d;
     cb.shutdown_cancelled.callback = sm_shutdownCancelledCallback;
-    cb.shutdown_cancelled.client_data = (SmPointer) this;
+    cb.shutdown_cancelled.client_data = (SmPointer) d;
 
     // avoid showing a warning message below
     const char* session_manager = getenv("SESSION_MANAGER");
@@ -6405,9 +6415,8 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
 				       &myId,
 				       256, cerror );
 
-    d->sessionId = QString::fromLatin1( myId );
+    id = QString::fromLatin1( myId );
     ::free( myId ); // it was allocated by C
-    session = d->sessionId;
 
     QString error = cerror;
     if (!smcConnection ) {
@@ -6431,6 +6440,12 @@ QString QSessionManager::sessionId() const
 {
     return d->sessionId;
 }
+
+QString QSessionManager::sessionKey() const
+{
+    return d->sessionKey;
+}
+
 
 void* QSessionManager::handle() const
 {

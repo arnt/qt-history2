@@ -465,6 +465,11 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
 		session_id = QString::fromLatin1( s );
+		int p = session_id.find( '_' );
+		if ( p >= 0 ) {
+		    session_key = session_id.mid( p +1 );
+		    session_id = session_id.left( p );
+		}
 		is_session_restored = TRUE;
 	    }
 #endif
@@ -813,7 +818,7 @@ void QApplication::initialize( int argc, char **argv )
 
 #ifndef QT_NO_SESSIONMANAGER
     // connect to the session manager
-    session_manager = new QSessionManager( qApp, session_id );
+    session_manager = new QSessionManager( qApp, session_id, session_key );
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
@@ -3190,7 +3195,21 @@ bool QApplication::tryLock()
   The session identifier is guaranteed to be unique both for different
   applications and for different instances of the same application.
 
-  \sa isSessionRestored(), commitData(), saveState()
+  \sa isSessionRestored(), sessionKey(), commitData(), saveState()
+ */
+
+/*!
+  \fn QString QApplication::sessionKey() const
+
+  Returns the session key in the current session.
+
+  If the application has been restored from an earlier session, this
+  key is the same as it was when the previous session ended.
+
+  The session key changes with every call of commitData() or
+  saveState().
+
+  \sa isSessionRestored(), sessionId(), commitData(), saveState()
  */
 
 
@@ -3462,9 +3481,22 @@ bool QApplication::reverseLayout()
   If the application has been restored from an earlier session, this
   identifier is the same as it was in that earlier session.
 
-  \sa QApplication::sessionId()
+  \sa sessionKey(), QApplication::sessionId()
  */
 
+/*!
+  \fn QString QSessionManager::sessionKey() const
+
+  Returns the session key in the current session.
+
+  If the application has been restored from an earlier session, this
+  key is the same as it was when the previous session ended.
+
+  The session key changes with every call of commitData() or
+  saveState().
+
+  \sa sessionId(), QApplication::sessionKey()
+ */
 
 // ### Note: This function is undocumented, since it is #ifdef'd.
 
@@ -3734,15 +3766,17 @@ class QSessionManagerData
 public:
     QStringList restartCommand;
     QStringList discardCommand;
-    QString sessionId;
+    QString& sessionId;
+    QString& sessionKey;
     QSessionManager::RestartHint restartHint;
 };
 
-QSessionManager::QSessionManager( QApplication * app, QString &session )
+QSessionManager::QSessionManager( QApplication * app, QString &id, QString &key )
     : QObject( app, "qt_sessionmanager" )
 {
     d = new QSessionManagerData;
-    d->sessionId = session;
+    d->sessionId = id;
+    d->sessionKey = key;
     d->restartHint = RestartIfRunning;
 }
 
@@ -3755,6 +3789,12 @@ QString QSessionManager::sessionId() const
 {
     return d->sessionId;
 }
+
+QString QSessionManager::sessionKey() const
+{
+    return d->sessionKey;
+}
+
 
 #if defined(Q_WS_X11) || defined(Q_WS_MAC)
 void* QSessionManager::handle() const
