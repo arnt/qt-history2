@@ -23,11 +23,7 @@
 #include "config.h"
 #include "splashloader.h"
 
-#if defined(HAVE_KDE)
-#include <kapp.h>
-#else
-#include <qapplication.h>
-#endif
+#include "designerapp.h"
 
 #include <qlabel.h>
 #include <qfile.h>
@@ -86,76 +82,6 @@ static void signalHandler( int )
 }
 #endif
 
-#if defined(HAVE_KDE)
-#define QDesignerApplication KApplication
-#else
-#define QDesignerApplication QApplication
-#endif
-
-#endif
-
-#if defined(_OS_WIN32_)
-#include <qt_windows.h>
-#include <process.h>
-
-class QDesignerApplication : public QApplication
-{
-public:
-    QDesignerApplication( int argc, char** argv )
-	: QApplication( argc, argv )
-    {
-	DESIGNER_OPENFILE = RegisterWindowMessage(LPCTSTR("QT_DESIGNER_OPEN_FILE"));
-    }
-
-protected:
-    bool winEventFilter( MSG *msg );
-    QDateTime lastMod;
-
-    uint DESIGNER_OPENFILE;
-};
-
-bool QDesignerApplication::winEventFilter( MSG *msg )
-{
-    if ( msg->message == DESIGNER_OPENFILE ) {
-	QFile f( QDir::homeDirPath() + "/.designerargs" );
-	QFileInfo fi(f);
-	if ( fi.lastModified() == lastMod )
-	    return QApplication::winEventFilter( msg );
-	lastMod = fi.lastModified();
-	f.open( IO_ReadOnly );
-	QString args;
-	f.readLine( args, f.size() );
-	QStringList lst = QStringList::split( " ", args );
-
-	for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	    QString arg = (*it).stripWhiteSpace();
-	    if ( arg[0] != '-' ) {
-		QObjectList* l = MainWindow::self->queryList( "FormWindow" );
-		FormWindow* fw = (FormWindow*) l->first();
-		FormWindow* totop;
-		bool haveit = FALSE;
-		while ( fw ) {
-		    haveit = haveit || fw->fileName() == arg;
-		    if ( haveit )
-			totop = fw;
-
-		    fw = (FormWindow*) l->next();
-		}
-		
-		if ( !haveit ) {
-		    FlashWindow( MainWindow::self->winId(), TRUE );
-		    MainWindow::self->openFile( arg );
-		} else {
-		    totop->setFocus();
-		}
-		delete l;
-	    }
-	}
-	return TRUE;
-    }
-    return QApplication::winEventFilter( msg );
-}
-
 #endif
 
 #if defined(Q_C_CALLBACKS)
@@ -181,7 +107,7 @@ static void crashHandler( int )
 {
     if ( MainWindow::self )
 	MainWindow::self->saveAllTemp();
-    ::exit( -1 ); 
+    ::exit( -1 );
 }
 
 #if defined(Q_C_CALLBACKS)
@@ -199,12 +125,12 @@ int main( int argc, char *argv[] )
     QApplication::setColorSpec( QApplication::ManyColor );
 	
 #if defined(HAVE_KDE)
-    QDesignerApplication a( argc, argv, "Qt Designer" );
+    DesignerApplication a( argc, argv, "Qt Designer" );
 #else
-    QDesignerApplication a( argc, argv );
+    DesignerApplication a( argc, argv );
 #endif
 
-    QDesignerApplication::setOverrideCursor( Qt::WaitCursor );
+    DesignerApplication::setOverrideCursor( Qt::WaitCursor );
     bool showSplash = TRUE;
 
     bool creatPid = FALSE;

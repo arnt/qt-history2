@@ -40,7 +40,9 @@ HEADERS	= command.h \
 		  qmodules.h \
 		  splashloader.h \
 		  ../shared/widgetinterface.h \
-		  ../shared/widgetplugin.h
+		  ../shared/widgetplugin.h \
+		  designerapp.h \
+		  designerappiface.h
 
 SOURCES	= command.cpp \
 		  formwindow.cpp \
@@ -80,7 +82,9 @@ SOURCES	= command.cpp \
 		  ../integration/kdevelop/kdewidgets.cpp \
 		  ../shared/domtool.cpp \
 		  splashloader.cpp \
-		  ../shared/widgetplugin.cpp
+		  ../shared/widgetplugin.cpp \
+		  designerapp.cpp \
+		  designerappiface.cpp
 
 INTERFACES	= listboxeditor.ui \
 		  connectioneditor.ui \
