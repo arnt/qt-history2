@@ -394,11 +394,11 @@ int Tokenizer::getTokenAfterPreprocessor()
 
     /*
       Build our regular expressions for matching C or C++ style
-      comment, and for matching the symbol that gives the text for
+      comments, and for matching the symbol that gives the text for
       \version.
     */
     if ( comment == 0 ) {
-	comment = new QRegExp( QString("/(?:\\*.*\\*/|/.*\n)") );
+	comment = new QRegExp( QString("/(?:\\*.*\\*/|/.*\n|/[^\n]*$)") );
 	comment->setMinimal( TRUE );
 	versionX = new QRegExp( QString("won't$match") );
 	if ( !config->versionSymbol().isEmpty() )

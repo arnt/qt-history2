@@ -90,7 +90,7 @@ static void setPattern( QRegExp *rx, const QString& pattern, bool plus )
 }
 
 Config::Config( int argc, char **argv )
-    : maxSim( 16 ), maxAll( 64 ), wlevel( 2 ), bas( "" ), prod( "" ), co( "" ),
+    : maxSim( 10 ), maxAll( 100 ), wlevel( 3 ), bas( "" ), prod( "" ), co( "" ),
       vers( "" ), verssym( "" ), posth( "" ), foot( "" ), addr( "" ),
       styl( "" ), falsesym( QChar('0') ), internal( FALSE ), autoh( TRUE ),
       super( FALSE ), lin( FALSE ), frend( FALSE ), dotHtml( ".html" ),
