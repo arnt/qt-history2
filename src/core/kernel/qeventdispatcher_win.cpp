@@ -79,7 +79,7 @@ Q_CORE_EXPORT bool winPeekMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 
 Q_CORE_EXPORT bool winPostMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-    QT_WA({ return PostMessage(hWnd, msg, wParam, lParam); } , 
+    QT_WA({ return PostMessage(hWnd, msg, wParam, lParam); } ,
           { return PostMessageA(hWnd, msg, wParam, lParam); });
 }
 
@@ -113,7 +113,7 @@ void CALLBACK qt_timer_proc(HWND hwnd, UINT message, UINT timerId, DWORD)
         return;
 
     QTimerEvent e(t->ind);
-    QCoreApplication::sendEvent(t->obj, &e);    
+    QCoreApplication::sendEvent(t->obj, &e);
 }
 
 LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
@@ -124,7 +124,7 @@ LRESULT CALLBACK qt_socketnotifier_proc(HWND hwnd, UINT message, WPARAM wp, LPAR
         else
             return  DefWindowProc(hwnd, message, wp, lp);
     }
-      
+
     // socket notifier message
     MSG msg;
     msg.hwnd = hwnd;
@@ -244,23 +244,22 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
             pHandles[i] = d->winEventNotifierList.at(i)->handle();
         MSG msg;
 
-        bool haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);        
+        bool haveMessage = winPeekMessage(&msg, 0, 0, 0, PM_REMOVE);
         if (!haveMessage) {
             // no message - check for signalled objects
             waitRet = MsgWaitForMultipleObjectsEx(nCount, pHandles, 0, QS_ALLINPUT, MWMO_ALERTABLE);
-            haveMessage = waitRet == WAIT_OBJECT_0 + nCount; 
         }
         if (haveMessage) {
             if (!filterEvent(&msg)) {
                 TranslateMessage(&msg);
-                QT_WA({ 
+                QT_WA({
                     DispatchMessage(&msg);
-                } , { 
-                    DispatchMessageA(&msg); 
+                } , {
+                    DispatchMessageA(&msg);
                 });
             }
         } else if (waitRet >= WAIT_OBJECT_0 && waitRet < WAIT_OBJECT_0 + nCount) {
-            d->activateEventNotifier(d->winEventNotifierList.at(waitRet - WAIT_OBJECT_0));        
+            d->activateEventNotifier(d->winEventNotifierList.at(waitRet - WAIT_OBJECT_0));
         } else {
             // nothing todo so break
             break;
@@ -407,7 +406,7 @@ int QEventDispatcherWin32::registerTimer(int interval, QObject *object)
 {
     Q_D(QEventDispatcherWin32);
 
-    register TimerInfo *t = new TimerInfo;    
+    register TimerInfo *t = new TimerInfo;
     t->ind  = d->timerVec.isEmpty() ? 1 : d->timerVec.last()->ind + 1;
     t->obj  = object;
     t->id = SetTimer(0, 0, (uint) interval, (TIMERPROC) qt_timer_proc);
