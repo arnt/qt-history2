@@ -439,6 +439,8 @@ void QVariant::Private::clear()
     \value Int  an int
     \value KeySequence  a QKeySequence
     \value List  a QValueList<QVariant>
+    \value Long a long long
+    \value ULong an unsigned long long
     \value Map  a QMap<QString,QVariant>
     \value Palette  a QPalette
     \value Pen  a QPen

@@ -3455,6 +3455,9 @@ bool QAxBase::isNull() const
     return !d->ptr;
 }
 
+/*!
+    \internal
+*/
 QVariant QAxBase::asVariant() const
 {
     QVariant var;
