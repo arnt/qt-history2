@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#68 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#69 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#68 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#69 $")
 
 
 /*****************************************************************************
@@ -626,22 +626,37 @@ QImage QPixmap::convertToImage() const
 	uchar *end;
 	uchar  use[256];			// pixel-in-use table
 	uchar  pix[256];			// pixel translation table
-	int    ncols, i;
+	int    ncols, i, bpl;
 	memset( use, 0, 256 );
 	memset( pix, 0, 256 );
-	p = image.bits() - 1;
-	end = p + image.numBytes();
-	while ( ++p < end )			// what pixels are used?
-	    use[*p] = 1;
+	bpl = image.bytesPerLine();
+
+	for ( i=0; i<h; i++ ) {			// which pixels are used?
+	    p = image.scanLine( i );
+	    end = p + bpl;
+	    while ( p < end )
+		use[*p++] = 1;
+	}
 	ncols = 0;
 	for ( i=0; i<256; i++ ) {		// build translation table
 	    if ( use[i] )
 		pix[i] = ncols++;
 	}
-	p = image.bits() - 1;
-	end = p + image.numBytes();
-	while ( ++p < end )			// translate pixels
-	    *p = pix[*p];
+	for ( i=0; i<h; i++ ) {			// translate pixels
+	    p = image.scanLine( i );
+	    end = p + bpl;
+	    while ( p < end ) {
+		*p = pix[*p];
+		p++;
+	    }
+	}
+
+	/*
+	  Todo!!! We can have a function in qcol_x11, qt_xcolortable,
+	  which returns carr and does not delete it in the same events
+	  batch.
+	 */
+
 	Colormap cmap	= DefaultColormap( dpy, scr );
 	int	 ncells = DisplayCells( dpy, scr );
 	XColor *carr = new XColor[ncells];
@@ -899,14 +914,19 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
 	int  i, j;
 	int  pop[256];				// pixel popularity
-	newbits = (uchar *)malloc( nbytes );
+	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
+	for ( i=0; i<h; i++ ) {			// for each scanline...
+	    p = image.scanLine( i );
+	    uchar *end = p + w;
+	    while ( p < end )			// compute popularity
+		pop[*p++]++;
+	}
+
+	newbits = (uchar *)malloc( nbytes );	// copy image into newbits
 	if ( !newbits )				// no memory
 	    return FALSE;
 	p = newbits;
 	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
-	memset( pop, 0, sizeof(int)*256 );	// reset popularity array
-	for ( i=0; i<nbytes; i++ )		// compute popularity
-	    pop[*p++]++;
 
 /*
  * The following lines of code that sort the color table comes from XV 3.10
@@ -920,12 +940,12 @@ bool QPixmap::convertFromImage( const QImage &img, ColorMode mode )
 	    int	  mindist;
 	};
 	int ncols = 0;
-	for ( i=0; i<256; i++ ) {		// compute number of colors
+	for ( i=0; i<image.numColors(); i++ ) {	// compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
 	}
-	if ( ncols > image.numColors() )	// shouldn't happen
-	    ncols = image.numColors();
+	for ( i=image.numColors(); i<256; i++ )	// ignore out-of-range pixels
+	    pop[i] = 0;
 
 	PIX *pixarr	   = new PIX[ncols];	// pixel array
 	PIX *pixarr_sorted = new PIX[ncols];	// pixel array (sorted)
