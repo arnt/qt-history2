@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#84 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#85 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -51,10 +51,10 @@ struct QSpinBoxPrivate
 
   \ingroup realwidgets
 
-  QSpinBox allows the user to choose an integer value, either by
+  QSpinBox allows the user to choose a value, either by
   clicking the up/down buttons to increase/decrease the value
   currently displayed, or by typing the value directly into the spin
-  box.
+  box. Usually the value is an integer.
 
   Every time the value changes, QSpinBox emits the valueChanged()
   signal.  The current value can be fetched with value() and set with
@@ -86,10 +86,31 @@ struct QSpinBoxPrivate
   The default \l QWidget::focusPolicy() is StrongFocus.
 
   QSpinBox can easily be subclassed to allow the user to input other
-  things than a numeric value, as long as the allowed input can be
+  things than an integer value, as long as the allowed input can be
   mapped down to a range of integers.  This can be done by overriding
   the virtual functions mapValueToText() and mapTextToValue() and
-  setting another, suitable validator using setValidator().
+  setting another, suitable validator using setValidator(). For example,
+  these function could be changed so that the user provided values
+  from 0.0 to 10.0 while the range of integers used inside the program
+  would be 0 to 100:
+
+  \code
+  class MySpinBox : public QSpinBox {
+  public:
+    ...
+
+    QString	mapValueToText( int value )
+    {
+      return QString("%1.%2").arg(value/10).arg(value%10);
+    }
+
+    int		mapTextToValue( bool* ok )
+    {
+      return int(currentValueText().toFloat()*10);
+    }
+
+  };
+  \endcode
 
   <img src=qspinbox-m.png> <img src=qspinbox-w.png>
 
