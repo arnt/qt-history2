@@ -4,6 +4,7 @@
 #ifndef QT_NO_PLUGIN
 
 #ifndef QT_H
+#include <qplugin.h>
 #include <qdict.h>
 #include <qdir.h>
 #endif // QT_H
@@ -16,6 +17,7 @@ public:
 	QPlugIn::LibraryPolicy pol = QPlugIn::Default, const char* fn = 0 )
 	: defPol( pol )
     {
+	signalEmitter = new QPlugInManagerSignalEmitter;
 	defFunction = fn;
 	// Every library is unloaded on destruction of the manager
 	libDict.setAutoDelete( TRUE );
@@ -26,6 +28,17 @@ public:
 
     virtual ~QPlugInManager()
     {
+	QDictIterator<Type> it (plugDict);
+	while( it.current() ) {
+	    signalEmitter->emitFeatureRemoved( it.currentKey() );
+	    ++it;
+	}
+	delete signalEmitter;
+    }
+
+    bool connect( const char* signal, QObject* receiver, const char* slot )
+    {
+	return QObject::connect( signalEmitter, signal, receiver, slot );
     }
 
     virtual void addPlugInPath( const QString& path, const QString& filter = "*.dll; *.so" )
@@ -40,6 +53,9 @@ public:
 
     Type* addLibrary( const QString& file )
     {
+	if ( file.isEmpty() )
+	    return 0;
+
 	if ( libDict[file] )
 	    return 0;
 
@@ -51,19 +67,17 @@ public:
 	QStringList al = ((QPlugIn*)plugin)->featureList();
 	for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
 	    useful = TRUE;
-#ifdef CHECK_RANGE
-	    if ( plugDict[*a] )
-		qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
-	    else
-#endif
+	    if ( !plugDict[*a] ) {
 		plugDict.insert( *a, plugin );
+		signalEmitter->emitFeatureAdded( *a );
+	    }
+#ifdef CHECK_RANGE
+	    else
+		qWarning("%s: Feature %s already defined!", plugin->library().latin1(), (*a).latin1() );
+#endif
 	}
 
 	if ( useful ) {
-#ifdef CHECK_RANGE
-	    if ( libDict[plugin->library()] )
-		qWarning( "QPlugInManager: Can't manage library twice! (%s)", plugin->library().latin1() );
-#endif
 	    libDict.replace( plugin->library(), plugin );
 	} else {
 	    delete plugin;
@@ -84,8 +98,10 @@ public:
 
 	{
 	    QStringList al = ((QPlugIn*)plugin)->featureList();
-	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
+	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ ) {
 		plugDict.remove( *a );
+		signalEmitter->emitFeatureRemoved( *a );
+	    }
 	}
 	bool unloaded = plugin->unload();
 
@@ -202,6 +218,7 @@ public:
     }
 
 private:
+    QPlugInManagerSignalEmitter* signalEmitter;
     QDict<Type> plugDict;	    // Dict to match requested feature with plugin
     QDict<Type> libDict;	    // Dict to match library file with plugin
 

@@ -471,6 +471,34 @@ QStringList QPlugIn::featureList()
 */
 
 /*!
+  \fn void QPlugInManager::featureAdded(const QString& feature )
+
+  This signal is emitted whenever a new \a feature is added to this manager.
+*/
+
+/*!
+  \fn void QPlugInManager::featureRemoved(const QString& feature )
+
+  This signal is emitted whenever a new \a feature is removed from this manager.
+*/
+
+/*!
+  \fn bool QPlugInManager::connect( const char* signal, QObject* receiver, const char* slot )
+
+  Use this function instead of the common QObject functions to connect to the signals the
+  QPlugInManager emits.
+  This is necessary as QPlugInManager is a template class and uses an internal class to
+  have signals.
+
+  \code
+  MyPlugInManager manager( ... );
+
+  manager.connect( SIGNAL(featureAdded(const QString& feature), this, SLOT(addFeature(const QString&)) );
+  manager.connect( SIGNAL(featureRemoved(const QString& feature), this, SLOT(removeFeature(const QString&)) );
+  \endcode
+*/
+
+/*!
   \fn void QPlugInManager::setDefaultPolicy( QPlugIn::LibraryPolicy pol )
 
   Sets the current default policy to \a pol, which will be used for all
@@ -612,5 +640,30 @@ QStringList QPlugIn::featureList()
 
   \sa selectFeature, featureList, plugIn
 */
+
+/*!
+  \internal
+*/
+QPlugInManagerSignalEmitter::QPlugInManagerSignalEmitter() 
+: QObject() 
+{}
+
+/*!
+  \internal
+*/
+void QPlugInManagerSignalEmitter::emitFeatureAdded( const QString& feature ) 
+{
+    qDebug( "Emitting featureAdded( %s )", feature.latin1() );
+    emit featureAdded( feature ); 
+}
+
+/*!
+  \internal
+*/
+void QPlugInManagerSignalEmitter::emitFeatureRemoved( const QString& feature ) 
+{ 
+    qDebug( "Emitting featureRemoved( %s )", feature.latin1() );
+    emit featureRemoved( feature ); 
+}
 
 #endif // QT_NO_PLUGIN

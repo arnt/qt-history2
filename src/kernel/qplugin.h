@@ -5,6 +5,7 @@
 #include "qplugininterface.h"
 #include "qstringlist.h"
 #include "qwindowdefs.h"
+#include "qobject.h"
 #endif // QT_H
 
 #ifndef QT_NO_PLUGIN
@@ -56,6 +57,22 @@ private:
     LibraryPolicy libPol;
     QCString function;
 };
+
+#if 1
+class Q_EXPORT QPlugInManagerSignalEmitter : public QObject
+{
+    Q_OBJECT
+public:
+    QPlugInManagerSignalEmitter();
+
+    void emitFeatureAdded( const QString& feature );
+    void emitFeatureRemoved( const QString& feature );
+
+signals:
+    void featureAdded( const QString& );
+    void featureRemoved( const QString& );
+};
+#endif
 
 #endif
 
