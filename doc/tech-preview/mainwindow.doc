@@ -133,9 +133,9 @@ components. To begin with, we add them to the popup menus:
         fileMenu->addAction(saveAsAction);
         fileMenu->addSeparator();
         ...
-        menuBar()->addMenu("&File", fileMenu);
-        menuBar()->addMenu("&Edit", editMenu);
-        menuBar()->addMenu("&Help", helpMenu);
+        menuBar()->addMenu(tr("&File"), fileMenu);
+        menuBar()->addMenu(tr("&Edit"), editMenu);
+        menuBar()->addMenu(tr("&Help"), helpMenu);
         ...
     }
 \endcode
@@ -151,7 +151,7 @@ actions to it:
 
 \code
     QToolBar *toolbar = new QToolBar(this);
-    toolbar->setWindowTitle("Main Tool Bar");
+    toolbar->setWindowTitle(tr("Main Tool Bar"));
 
     toolbar->addAction(openAction);
     toolbar->addAction(saveAction);
@@ -176,7 +176,7 @@ of the dock window:
 
 \code
     QDockWindow *dockwindow = new QDockWindow(this);
-    dockwindow->setWindowTitle("Tools");
+    dockwindow->setWindowTitle(tr("Tools"));
 
     QWidget *widget = new QWidget(dockwindow);
     ...
@@ -236,7 +236,7 @@ Qt 3:
     ...
     openAction->addTo(fileMenu);
     ...
-    menuBar()->insertItem("&File", fileMenu);
+    menuBar()->insertItem(tr("&File"), fileMenu);
 \endcode
 Qt 4:
 \code
@@ -244,7 +244,7 @@ Qt 4:
     ...
     fileMenu->addAction(openAction);
     ...
-    menuBar()->addMenu("&File", fileMenu);
+    menuBar()->addMenu(tr("&File"), fileMenu);
 \endcode
 
 Tool bars follow the same pattern as menus, with the new, more
@@ -259,7 +259,7 @@ Qt 3:
 Qt 4:
 \code
     QToolBar *fileTools = new QToolBar(this);
-    fileTools->setWindowTitle("File Tool Bar");
+    fileTools->setWindowTitle(tr("File Tool Bar"));
     ...
     fileTools->addAction(openAction);
 \endcode
