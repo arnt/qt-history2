@@ -71,7 +71,7 @@ int main(int argc, char **argv)
     QFile outfile;
     if (!outname.isEmpty()) {
         outfile.setFileName(outname);
-        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
             qWarning("dumpdoc: Could not open output file '%s'", outname.data());
         }
     } else {

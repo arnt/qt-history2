@@ -647,8 +647,8 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!nameSpace.isEmpty() && !(category & NoDeclaration)) {
         QFile outfile(nameSpace.toLower() + ".h");
-		if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
+		if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
             return false;
         }
         QTextStream out(&outfile);
@@ -673,8 +673,8 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!(category & NoDeclaration)) {
         QFile outfile(outname + ".h");
-        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
             return false;
         }
         QTextStream out(&outfile);
@@ -712,8 +712,8 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
 
     if (!(category & (NoMetaObject|NoImplementation))) {
         QFile outfile(outname + ".cpp");
-        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().latin1());
+        if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
             return false;
         }
         QTextStream out(&outfile);
@@ -742,7 +742,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     ITypeLib *typelib;
     LoadTypeLibEx(reinterpret_cast<const wchar_t *>(typeLibFile.utf16()), REGKIND_NONE, &typelib);
     if (!typelib) {
-        qWarning("dumpcpp: loading '%s' as a type library failed", typeLibFile.latin1());
+        qWarning("dumpcpp: loading '%s' as a type library failed", typeLibFile.toLatin1());
         return false;
     }
 
@@ -774,8 +774,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QFile implFile(cppFile + ".cpp");
     QTextStream implOut(&implFile);
     if (!(category & (NoMetaObject|NoImplementation))) {
-        if (!implFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
-            qWarning("dumpcpp: Could not open output file '%s'", implFile.fileName().latin1());
+        if (!implFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("dumpcpp: Could not open output file '%s'", implFile.fileName().toLatin1());
             return false;
         }
 
@@ -805,8 +805,8 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QMap<QByteArray, QList<QByteArray> > namespaces;
 
     if(!(category & NoDeclaration)) {
-        if (!declFile.open(QIODevice::WriteOnly | QIODevice::Translate)) {
-            qWarning("dumpcpp: Could not open output file '%s'", declFile.fileName().latin1());
+        if (!declFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
+            qWarning("dumpcpp: Could not open output file '%s'", declFile.fileName().toLatin1());
             return false;
         }
 
@@ -818,7 +818,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         declOut << "****************************************************************************/" << endl;
         declOut << endl;
 
-        writeHeader(declOut, libName.latin1());
+        writeHeader(declOut, libName.toLatin1());
 
         UINT typeCount = typelib->GetTypeInfoCount();
         if (declFile.isOpen()) {
@@ -868,7 +868,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                     refTypeLib = refTypeLib.left(refTypeLib.indexOf("::"));
                     namespaces[refTypeLib].append(refType);
                 } else {
-                    namespaces[libName.latin1()].append(refType);
+                    namespaces[libName.toLatin1()].append(refType);
                 }                
             }
 
@@ -887,9 +887,9 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
             declOut << endl;
         }
-        generateNameSpace(declOut, namespaceObject, libName.latin1());
+        generateNameSpace(declOut, namespaceObject, libName.toLatin1());
 
-        QList<QByteArray> classes = namespaces.value(libName.latin1());
+        QList<QByteArray> classes = namespaces.value(libName.toLatin1());
         if (classes.count())
             declOut << "// forward declarations" << endl;
         for (int c = 0; c < classes.count(); ++c)
@@ -939,17 +939,17 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             QByteArray className(metaObject->className());
             if (declFile.isOpen()) {
                 if (typekind == TKIND_COCLASS) { // write those later...
-                    generateClassDecl(classesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
+                    generateClassDecl(classesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
                     classesOut << endl;
                 } else {
-                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|NoInlines));
+                    generateClassDecl(declOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|NoInlines));
                     declOut << endl;
                 }
-                generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.latin1(), (ObjectCategory)(object_category|OnlyInlines));
+                generateClassDecl(inlinesOut, guid.toString(), metaObject, className, libName.toLatin1(), (ObjectCategory)(object_category|OnlyInlines));
                 inlinesOut << endl;
             }
             if (implFile.isOpen()) {
-                generateClassImpl(implOut, metaObject, className, libName.latin1(), (ObjectCategory)object_category);
+                generateClassImpl(implOut, metaObject, className, libName.toLatin1(), (ObjectCategory)object_category);
                 implOut  << endl;
             }
         }
@@ -1095,7 +1095,7 @@ int main(int argc, char **argv)
                 return -2;
             }
             QUuid uuid(clsid);
-            typeLib = uuid.toString().latin1();
+            typeLib = uuid.toString().toLatin1();
             isObject = true;
         }
 
