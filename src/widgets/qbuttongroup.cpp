@@ -94,14 +94,14 @@
 
   If this property is TRUE, then the buttons in the group are
   toggled, and to untoggle a button you must click on another button in
-  the group.
+  the group. The default value is FALSE.
 */
 
 /*! \property QButtonGroup::radioButtonExclusive
     \brief whether the radiobuttons in the group are exclusive
 
-  If this property is TRUE, the radiobuttons in the group are treated
-  exclusively.
+  If this property is TRUE (the default), the radiobuttons in the
+  group are treated exclusively.
 */
 
 struct QButtonItem

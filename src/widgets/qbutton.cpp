@@ -258,7 +258,7 @@ QTimer *QButton::timer()
 
   If autoRepeat is enabled then the clicked() signal is emitted at
   regular intervals if the button is down.  This property has
-  no effect on toggle buttons.
+  no effect on toggle buttons. autoRepeat is off by default.
 */
 
 /*! \property QButton::autoResize
@@ -274,14 +274,15 @@ QTimer *QButton::timer()
 
   If this property is TRUE, the button is set to be pressed down.  The
   signals pressed() and clicked() are not emitted if you set this
-  property to TRUE.
+  property to TRUE. The default is FALSE.
 */
 
 /*! \property QButton::exclusiveToggle
     \brief whether the button is an exclusive toggle
 
   If this property is TRUE and the button is in a QButtonGroup, the
-  button can only be toggled off by another one being toggled on.
+  button can only be toggled off by another one being toggled on. The
+  default is FALSE.
 */
 
 /*! \property QButton::on
@@ -317,10 +318,14 @@ QTimer *QButton::timer()
   no text.  If the text has an ampersand ('\&') in it, then an
   accelerator is automatically created for it using the
   character after the '\&' as the accelerator key.
+
+  There is no default text.
 */
 
 /*! \property QButton::toggleButton
     \brief whether the button is a toggle button
+
+    The default value is FALSE.
 */
 
 /*! \fn QButton::setToggleButton( bool b )

@@ -375,6 +375,8 @@ int QHeader::count() const
   while the mouse is moved (i.e. when the header is resized), otherwise
   it is only emitted when the mouse button is released at the end of
   resizing.
+
+  Tracking defaults to FALSE.
 */
 
 
@@ -405,7 +407,7 @@ void QHeader::init( int n )
     \brief the header's physical orientation
 
   The orientation is either QHeader::Vertical or
-  QHeader::Horizontal.
+  QHeader::Horizontal (the default).
 
     Call setOrientation() before adding labels if you don't provide a
     size parameter otherwise the sizes will be incorrect.

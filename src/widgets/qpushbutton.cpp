@@ -157,6 +157,8 @@
 
   If this property is set to TRUE then the push button will be the focused
   item in a dialog when the dialog is first shown.
+
+  This property's default is FALSE.
 */
 
 /*! \property QPushButton::autoMask
@@ -170,10 +172,14 @@
 
   If this property is set to TRUE then the push button will be pressed if the
   user hits the Enter key in a dialog.
+
+  This property's default is FALSE.
 */
 
 /*! \property QPushButton::flat
     \brief whether the border is disabled
+
+    This property's default is FALSE.
 */
 
 /*! \property QPushButton::iconSet
@@ -185,7 +191,8 @@
 /*! \property QPushButton::on
     \brief whether the push button is toggled
 
-  This property should only be set for toggle push buttons.
+  This property should only be set for toggle push buttons. The
+  default value is FALSE.
   \sa isOn(), toggle(), toggled(), isToggleButton()
 */
 

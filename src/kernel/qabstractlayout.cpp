@@ -710,7 +710,7 @@ QLayout::QLayout( int spacing, const char *name )
 
   For some layout classes this property has an effect only on
   top-level layouts; QBoxLayout and QGridLayout support margins for
-  child layouts.
+  child layouts. The default value is 0.
 
   \sa spacing
 */
@@ -718,6 +718,9 @@ QLayout::QLayout( int spacing, const char *name )
 /*!
   \property QLayout::spacing
   \brief the spacing between widgets inside the layout
+
+  The default value is -1, which signifies that the layout's spacing
+  should not override the widget's spacing.
 
   \sa margin
 */

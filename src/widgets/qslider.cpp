@@ -308,7 +308,7 @@ void QSlider::setPalette( const QPalette &p )
   \property QSlider::orientation
   \brief the orientation of the slider
 
-  The orientation must be \l Qt::Vertical or \l Qt::Horizontal.
+  The orientation must be \l Qt::Vertical (the default) or \l Qt::Horizontal.
 */
 
 void QSlider::setOrientation( Orientation orientation )

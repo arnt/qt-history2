@@ -1360,6 +1360,7 @@ void QDockWindow::setHorizontallyStretchable( bool b )
 
 /*! \property QDockWindow::verticallyStretchable
   \brief whether the dock window is vertically stretchable.
+
   A dock window is horizontally stretchable if you call
   setVerticallyStretchable(TRUE) or setResizeEnabled(TRUE).
   \sa setResizeEnabled()

@@ -527,7 +527,7 @@ bool QToolBar::event( QEvent * e )
   \brief the label of the toolbar.
 
   If the toolbar is floated the label becomes the toolbar window's
-  caption.
+  caption. There is no default label text.
 */
 
 void QToolBar::setLabel( const QString & label )

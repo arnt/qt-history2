@@ -5895,7 +5895,7 @@ bool QListView::isOpen( const QListViewItem * item ) const
     \brief whether the list view show open/close signs on root items
 
   Open/close signs are small + or - symbols in windows style, or
-  arrows in Motif style.
+  arrows in Motif style. The default is FALSE.
 */
 
 void QListView::setRootIsDecorated( bool enable )

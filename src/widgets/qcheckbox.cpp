@@ -95,6 +95,8 @@
 
 /*! \property QCheckBox::checked
     \brief whether the checkbox is checked
+
+    The default is unchecked, i.e. FALSE.
 */
 
 /*! \property QCheckBox::autoMask
@@ -105,6 +107,8 @@
 
 /*! \property QCheckBox::tristate
     \brief whether the checkbox is a tri-state checkbox
+
+    The default is two-state, i.e. tri-state is FALSE.
 */
 
 /*!

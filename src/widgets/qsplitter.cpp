@@ -292,7 +292,7 @@ void QSplitter::init()
   \brief the orientation of the splitter
 
   By default the orientation is horizontal (the widgets are side by side).
-  The possible orientations are Qt:Vertical and Qt::Horizontal.
+  The possible orientations are Qt:Vertical and Qt::Horizontal (the default).
 
 */
 

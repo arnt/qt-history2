@@ -1108,6 +1108,8 @@ QScrollView::ScrollBarMode QScrollView::vScrollBarMode() const
   \property QScrollView::vScrollBarMode
   \brief the mode for the vertical scroll bar
 
+  The default mode is QScrollView::Auto.
+
   \sa hScrollBarMode
 */
 void  QScrollView::setVScrollBarMode( ScrollBarMode mode )
@@ -1122,6 +1124,8 @@ void  QScrollView::setVScrollBarMode( ScrollBarMode mode )
 /*!
   \property QScrollView::hScrollBarMode
   \brief the mode for the horizontal scroll bar
+
+  The default mode is QScrollView::Auto.
 
   \sa vScrollBarMode
 */

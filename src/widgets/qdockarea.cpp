@@ -488,6 +488,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 /*! \property QDockArea::orientation
     \brief the dock area's orientation
+
+    There is no default value; the orientation is specified in the constructor.
 */
 
 /*!

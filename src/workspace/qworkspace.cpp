@@ -1738,7 +1738,7 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
     case QEvent::WindowDeactivate:
 	titlebar->setActive( FALSE );
 	break;
-	
+
     case QEvent::WindowActivate:
 	titlebar->setActive( act );
 	break;
@@ -1948,7 +1948,7 @@ void QWorkspaceChild::showMinimized()
 
 void QWorkspaceChild::showMaximized()
 {
-    if ( windowWidget()->maximumSize().isValid() && 
+    if ( windowWidget()->maximumSize().isValid() &&
 	( windowWidget()->maximumWidth() < parentWidget()->width() || windowWidget()->maximumHeight() < parentWidget()->height() ) ) {
 	windowWidget()->resize( windowWidget()->maximumSize() );
 	return;
@@ -2098,8 +2098,8 @@ bool QWorkspace::scrollBarsEnabled() const
     windows over the right or the bottom edge out of the visible area
     of the workspace. The workspace shows scrollbars to make it
     possible for the user to access those windows. If this property is
-    set to FALSE, resizing windows out of the visible area of the
-    workspace is not permitted.
+    set to FALSE (the default), resizing windows out of the visible
+    area of the workspace is not permitted.
 */
 void QWorkspace::setScrollBarsEnabled( bool enable )
 {
@@ -2251,7 +2251,7 @@ void QWorkspace::scrollBarChanged()
 void QWorkspace::styleChange( QStyle &olds )
 {
     int fs = style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this);
-    if ( isVisibleTo(0) && d->maxWindow && 
+    if ( isVisibleTo(0) && d->maxWindow &&
 	 fs != olds.styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
 	if( fs )
 	    hideMaximizeControls();

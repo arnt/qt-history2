@@ -257,8 +257,8 @@
   is as follows:
     \list
     \i If the text is not already in the list, the text is inserted.
-  \i If the text is in the list and this property is TRUE, the text is
-  inserted.
+  \i If the text is in the list and this property is TRUE (the
+  default), the text is inserted.
   \i If the text is in the list and this property is FALSE, the text
   is \e not inserted; instead the item which has matching text becomes
   the current item.
@@ -272,6 +272,8 @@
 
 /*! \property QComboBox::editable
     \brief whether the combobox is editable
+
+    This property's default is FALSE.
 */
 
 /*! \property QComboBox::insertionPolicy

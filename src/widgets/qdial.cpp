@@ -606,6 +606,8 @@ void QDial::setWrapping( bool enable )
   If TRUE, wrapping is enabled. This means that the arrow can be turned
   around 360°. Otherwise there is some space at the bottom of the dial
   which is skipped by the arrow.
+
+  This property's default is FALSE.
 */
 
 bool QDial::wrapping() const

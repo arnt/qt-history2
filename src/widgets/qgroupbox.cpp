@@ -240,7 +240,9 @@ void QGroupBox::setTitle( const QString &title )
       g->setTitle( "&User information" );
   \endcode
   This produces "User information" with the U underlined;
-  Alt-U moves the keyboard focus to the group box.
+  Alt+U moves the keyboard focus to the group box.
+
+  There is no default title text.
 
 */
 
@@ -574,7 +576,7 @@ void QGroupBox::fixFocus()
 	QWidget * p = w;
 	while( p && p != this && !p->isTopLevel() )
 	    p = p->parentWidget();
-	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus 
+	if ( p == this && ( w->focusPolicy() & TabFocus ) == TabFocus
 	     && w->isVisibleTo(this) ) {
 	    if ( w->hasFocus()
 #ifndef QT_NO_RADIOBUTTON

@@ -232,6 +232,8 @@ QSpinBox::~QSpinBox()
 
   \brief the text of the spin box, including any prefix() and suffix()
 
+  There is no default text.
+
   \sa value()
 */
 

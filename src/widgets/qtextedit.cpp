@@ -2745,7 +2745,7 @@ void QTextEdit::setText( const QString &text, const QString &context )
   \property QTextEdit::text
   \brief the text edit's text
 
-  The text in the text edit.
+    There is no default text.
 
   On setting, any previous text is deleted.
 
@@ -2763,6 +2763,8 @@ void QTextEdit::setText( const QString &text, const QString &context )
 
   In a read-only text edit the user can only navigate through the text
   and select text; modifying the text is not possible.
+
+  This property's default is FALSE.
 */
 
 /*!

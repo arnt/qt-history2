@@ -417,7 +417,7 @@ bool QSqlDatabase::contains( const QString& connectionName )
 
      The currently available drivers are:
 
-     \list     
+     \list
      \i QODBC3 - ODBC (Open Database Connectivity) Driver
      \i QOCI8 - Oracle Call Interface Driver
      \i QPSQL7 - PostgreSQL v6.x and v7.x Driver
@@ -642,8 +642,10 @@ bool QSqlDatabase::rollback()
 
 /*! \property QSqlDatabase::databaseName
 
-  \brief the name of the database or the TNS Service Name 
-	for the QOCI8 (Oracle) driver. 
+  \brief the name of the database or the TNS Service Name
+	for the QOCI8 (Oracle) driver.
+
+    There is no default value.
 */
 
 void QSqlDatabase::setDatabaseName( const QString& name )
@@ -654,6 +656,8 @@ void QSqlDatabase::setDatabaseName( const QString& name )
 /*! \property QSqlDatabase::userName
 
   \brief the user name connected to the database
+
+    There is no default value.
 
 */
 
@@ -666,6 +670,8 @@ void QSqlDatabase::setUserName( const QString& name )
 
   \brief the password used to connect to the database
 
+    There is no default value.
+
 */
 
 void QSqlDatabase::setPassword( const QString& password )
@@ -677,6 +683,8 @@ void QSqlDatabase::setPassword( const QString& password )
 
   \brief the host name where the database resides
 
+    There is no default value.
+
 */
 
 void QSqlDatabase::setHostName( const QString& host )
@@ -687,6 +695,8 @@ void QSqlDatabase::setHostName( const QString& host )
 /*! \property QSqlDatabase::port
 
   \brief the port used to connect to the database
+
+    There is no default value.
 
 */
 

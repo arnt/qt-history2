@@ -416,7 +416,7 @@ void QFrame::updateFrameWidth()
   not cause a widget update.
 
   If this property is set to a null rectangle (for example
-  <code>QRect(0,0,0,0)</code>), then the frame rectangle is equivalent
+  \c{QRect(0, 0, 0, 0)}), then the frame rectangle is equivalent
   to the \link QWidget::rect() widget rectangle\endlink.
 
   \sa contentsRect()

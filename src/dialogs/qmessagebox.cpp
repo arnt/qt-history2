@@ -684,7 +684,7 @@ void QMessageBox::resizeButtons()
   default setting is \c AutoText, i.e. the message box will try to
   auto-detect the format of the text.
 
-  The initial value of the property is QString::null.
+  The default value of the property is QString::null.
 
   \sa textFormat
 */
@@ -714,7 +714,8 @@ void QMessageBox::setText( const QString &text )
 
   The actual pixmap used for displaying the icon depends on the current
   \link QWidget::style() GUI style\endlink.  You can also set a custom
-  pixmap icon using the \l QMessageBox::iconPixmap property.
+  pixmap icon using the \l QMessageBox::iconPixmap property. The
+  default icon is QMessageBox::NoIcon.
 
   \sa iconPixmap
 */

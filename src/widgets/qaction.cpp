@@ -409,7 +409,7 @@ QAction::~QAction()
   \brief  the action's icon
 
   The icon is used as tool button icon and in the menu to the left of
-  the menu text.
+  the menu text. There is no default icon.
 
   (See the action/toggleaction/toggleaction.cpp example.)
 
@@ -435,9 +435,10 @@ QIconSet QAction::iconSet() const
 /*! \property QAction::text
   \brief the action's descriptive text
 
-  If \l QMainWindow::usesTextLabel is TRUE, the text appears as a label in
-  the relevant toolbutton. It also serves as the default text
-  in menus and tips if these have not been specifically defined.
+  If \l QMainWindow::usesTextLabel is TRUE, the text appears as a
+  label in the relevant toolbutton. It also serves as the default text
+  in menus and tips if these have not been specifically defined. There
+  is no default text.
 
   \sa setMenuText() setToolTip() setStatusTip()
 */
@@ -460,7 +461,7 @@ QString QAction::text() const
     icon (if there is one), the menu text and the accelerator (if there
     is one). If the menu text is not explicitly set in the constructor
     or using setMenuText() the action's description text will be used as
-    the menu text.
+    the menu text. There is no default menu text.
 
   \sa text
 */
@@ -484,6 +485,8 @@ QString QAction::menuText() const
     If no tool tip is specified the action's text and accelerator
     description are used as a default tool tip.
 
+    There is no default tool tip text.
+
   \sa setStatusTip() setAccel()
 */
 void QAction::setToolTip( const QString& tip )
@@ -505,6 +508,8 @@ QString QAction::toolTip() const
 
   If no status tip is defined, the action uses the tool tip text.
 
+  There is no default tooltip text.
+
   \sa setStatusTip() setToolTip()
 */
 //#### Please reimp for QActionGroup!
@@ -524,11 +529,12 @@ QString QAction::statusTip() const
 }
 
 /*!\property QAction::whatsThis
-  \brief the action's "What's This ?" help text
+  \brief the action's "What's This?" help text
 
   The whats this text is used to provide a brief description of the
   action. The text may contain rich text (i.e. HTML tags -- see
-  QStyleSheet for the list of supported tags).
+  QStyleSheet for the list of supported tags). There is no default
+  "What's This" text.
 
   \sa QWhatsThis
 */
@@ -554,7 +560,7 @@ QString QAction::whatsThis() const
   \brief the action's accelerator key
 
   The keycodes can be found in \l Qt::Key and \l
-  Qt::Modifier.
+  Qt::Modifier. There is no default accelerator key.
 
 
 */
@@ -608,8 +614,9 @@ QKeySequence QAction::accel() const
 
     A toggle action is one which has an on/off state. For example a Bold
     toolbar button is either on or off. An action which is not a toggle
-    action is a command action; a command action is simply executed. For
-    example a file open toolbar button would invoke a file open dialog.
+    action is a command action; a command action is simply executed.
+    For example a file open toolbar button would invoke a file open
+    dialog. This property's default is FALSE.
 
   For exclusive toggling, add toggle actions to
   a QActionGroup with the \l QActionGroup::exclusive property set to TRUE.
@@ -650,7 +657,7 @@ void QAction::toggle()
   \brief whether a toggle action is on
 
   This property is always on for command actions and QActionGroups.
-  setOn() has no effect on them.
+  setOn() has no effect on them. This property's default is FALSE.
 
   \sa toggleAction
 */
@@ -1194,7 +1201,7 @@ QActionGroup::~QActionGroup()
     If exclusive is TRUE only one toggle action in the action group can
     ever be active at any one time. If the user chooses another toggle
     action in the group the one they chose becomes active and the one
-    that was active becomes inactive.
+    that was active becomes inactive. By default this property is FALSE.
 
   \sa QAction::toggleAction
 */
@@ -1222,6 +1229,8 @@ bool QActionGroup::isExclusive() const
   submenu.
 
   Changing usesDropDown effects subsequent calls to addTo() only.
+
+  This property's default is FALSE.
 
 */
 void QActionGroup::setUsesDropDown( bool enable )

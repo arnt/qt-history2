@@ -1100,6 +1100,8 @@ void QLabel::fontChange( const QFont & )
   When enabled and the label shows a pixmap, it will scale the pixmap to
   fill the available space.
 
+  This property's default is FALSE.
+
   \sa setScaledContents()
  */
 bool QLabel::hasScaledContents() const

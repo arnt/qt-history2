@@ -358,6 +358,8 @@ void QProgressDialog::setLabel( QLabel *label )
 /*!
   \property QProgressDialog::labelText
   \brief the label's text
+
+  The default text is QString::null.
 */
 
 QString QProgressDialog::labelText() const
@@ -470,6 +472,8 @@ bool QProgressDialog::wasCancelled() const
 /*!
   \property QProgressDialog::totalSteps
   \brief the total number of steps
+
+  The default is 0.
 */
 
 int QProgressDialog::totalSteps() const
@@ -684,7 +688,7 @@ void QProgressDialog::layout()
   progressing task is less than the minimum duration.
 
   If set to 0, the dialog is always shown as soon as any progress
-  is set.
+  is set. The default is 4000.
 */
 void QProgressDialog::setMinimumDuration( int ms )
 {

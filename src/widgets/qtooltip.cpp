@@ -1047,6 +1047,8 @@ QToolTipGroup::~QToolTipGroup()
 /*!
   \property QToolTipGroup::delay
   \brief whether the display of the group text is delayed.
+
+  This property's default is TRUE.
 */
 
 bool QToolTipGroup::delay() const
@@ -1077,6 +1079,8 @@ void QToolTipGroup::setDelay( bool enable )
 /*!
   \property QToolTipGroup::enabled
   \brief whether tool tips in the group are enabled.
+
+  This property's default is TRUE.
 */
 
 void QToolTipGroup::setEnabled( bool enable )

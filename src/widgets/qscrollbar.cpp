@@ -261,7 +261,7 @@ void QScrollBar::init()
   \property QScrollBar::orientation
   \brief the orientation of the scroll bar
 
-  The orientation must be \l Qt::Vertical or \l Qt::Horizontal.
+  The orientation must be \l Qt::Vertical (the default) or \l Qt::Horizontal.
 */
 
 void QScrollBar::setOrientation( Orientation orientation )

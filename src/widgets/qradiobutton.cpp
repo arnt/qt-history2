@@ -86,7 +86,7 @@
     \brief Whether the radio button is checked
 
   This property will not effect any other radio buttons unless they have been
-  placed in the same QButtonGroup.
+  placed in the same QButtonGroup. The default value is FALSE (unchecked).
 */
 
 /*! \property QRadioButton::autoMask

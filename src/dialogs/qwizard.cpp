@@ -619,6 +619,8 @@ void QWizard::setTitle( QWidget *page, const QString &title )
 /*!
   \property QWizard::titleFont
   \brief the font used for page titles
+
+  The default is QApplication::font().
 */
 QFont QWizard::titleFont() const
 {

@@ -369,6 +369,8 @@ QString QDataTable::filter() const
   a new filter, use refresh(). A filter string is an SQL WHERE
   clause without the WHERE keyword.
 
+  There is no default filter.
+
   \sa sort()
 
 */
@@ -388,6 +390,8 @@ void QDataTable::setFilter( const QString& filter )
 
   When examining the sort property, a string list is returned with each
   item having the form 'fieldname order' (e.g., 'id ASC', 'surname DESC').
+
+  There is no default sort.
 
   \sa filter() refresh()
 

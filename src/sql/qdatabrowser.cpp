@@ -237,6 +237,8 @@ bool QDataBrowser::boundaryChecking() const
   When retrieving the sort property, a string list is returned in the
   form 'fieldname order', e.g.  'id ASC', 'surname DESC'.
 
+  There is no default sort.
+
   \sa filter() refresh()
 
 */
@@ -270,6 +272,8 @@ QStringList QDataBrowser::sort() const
   The filter applies to the data shown in the browser. Call refresh() to
   apply the new filter. A filter is a string containing a SQL WHERE
   clause without the WHERE keyword, e.g. "id>1000", "name LIKE 'A%'".
+
+  There is no default filter.
 
   \sa sort()
 

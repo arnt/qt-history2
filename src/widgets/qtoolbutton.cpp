@@ -329,6 +329,8 @@ QSize QToolButton::minimumSizeHint() const
   in the QMainWindow in which it resides.  We strongly recommend that
   you use QMainWindow::setUsesBigPixmaps() instead.
 
+  This property's default is TRUE.
+
   \warning If you set some buttons (in a QMainWindow) to have big pixmaps and
   others to have small pixmaps, QMainWindow may not get the geometry
   right.
@@ -375,7 +377,7 @@ void QToolButton::setUsesTextLabel( bool enable )
   \brief whether this tool button is on.
 
   This property has no effect on \link isToggleButton() non-toggling
-  buttons. \endlink
+  buttons. \endlink The default is FALSE (i.e. off).
 
   \sa isToggleButton() toggle()
 */
@@ -586,6 +588,7 @@ bool QToolButton::uses3D() const
   \brief the label of this button.
 
   Setting this property automatically sets the text as tool tip too.
+  There is no default text.
 */
 
 void QToolButton::setTextLabel( const QString &newLabel )
@@ -687,6 +690,7 @@ void QToolButton::setOffIconSet( const QIconSet& set )
     \brief the icon set providing the icon shown on the button
 
   Setting this property sets \l QToolButton::pixmap to a null pixmap.
+  There is no default iconset.
 
   \sa pixmap(), setToggleButton(), isOn()
 */
