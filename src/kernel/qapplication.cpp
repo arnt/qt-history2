@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#190 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#191 $
 **
 ** Implementation of QApplication class
 **
@@ -248,7 +248,7 @@ void process_cmdline( int* argcptr, char ** argv )
        color cube on a 8-bit display, if the application is using the
        \c QApplication::ManyColor color specification.  If \e count is
        216 then a 6x6x6 color cube is used (ie. 6 levels of red, 6 of green,
-       and 6 of blue); for 108, a 3x3x3, and for other values, a cube
+       and 6 of blue); for other values, a cube
        approximately proportional to a 2x3x1 cube is used.
   <li> \c -cmap, causes the application to install a private color map
        on an 8-bit display.
