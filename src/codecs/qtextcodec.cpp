@@ -200,6 +200,7 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 /*!
   \class QTextCodec qtextcodec.h
+  \reentrant
   \brief The QTextCodec class provides conversion between text encodings.
   \ingroup i18n
 
@@ -410,6 +411,8 @@ QString QTextStatelessDecoder::toUnicode(const char* chars, int len)
 
 
 /*!
+  \nonreentrant
+
   Constructs a QTextCodec, and gives it the highest precedence.
   The QTextCodec should always be constructed on the heap
   (i.e. with new()), and once constructed it becomes the responsibility
@@ -423,6 +426,8 @@ QTextCodec::QTextCodec()
 
 
 /*!
+  \nonreentrant
+
   Destroys the QTextCodec.  Note that you should not delete
   codecs yourself: once created they become Qt's responsibility.
 */
@@ -665,11 +670,11 @@ static const char * const iso8859_13locales[] = {
     "lt", "lt_LT", 0 };
 
 static const char * const iso8859_15locales[] = {
-    "et", "et_EE", 
+    "et", "et_EE",
     // Euro countries
-    "ca_ES", "de", "de_DE", "de_AT", "en_IE", "es", "es_ES", "eu_ES", 
+    "ca_ES", "de", "de_DE", "de_AT", "en_IE", "es", "es_ES", "eu_ES",
     "fi", "fi_FI", "finnish", "fr", "fr_FR", "fr_BE", "fr_LU", "french",
-    "ga_IE", "gl_ES", "it", "it_IT", "nl", "nl_BE", "nl_NL", 
+    "ga_IE", "gl_ES", "it", "it_IT", "nl", "nl_BE", "nl_NL",
     "pt", "pt_PT", "sv_FI",
     0 };
 
@@ -1198,6 +1203,7 @@ bool QTextCodec::canEncode( const QString& s ) const
 
 /*!
   \class QTextEncoder qtextcodec.h
+  \reentrant
     \ingroup i18n
   \brief The QTextEncoder class provides a state-based encoder.
 
@@ -1228,6 +1234,7 @@ QTextEncoder::~QTextEncoder()
 
 /*!
   \class QTextDecoder qtextcodec.h
+  \reentrant
     \ingroup i18n
   \brief The QTextDecoder class provides a state-based decoder.
 
@@ -2614,7 +2621,7 @@ QString QLatin15Codec::toUnicode(const char* chars, int len) const
     return str;
 }
 
-static inline unsigned char latin15CharFromUnicode( unsigned short uc ) 
+static inline unsigned char latin15CharFromUnicode( unsigned short uc )
 {
     uchar c;
     if ( uc < 0x0100 ) {

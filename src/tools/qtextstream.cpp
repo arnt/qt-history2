@@ -52,6 +52,7 @@
 
 /*!
     \class QTextStream qtextstream.h
+    \reentrant
     \brief The QTextStream class provides basic functions for reading
     and writing text using a QIODevice.
 
@@ -2358,6 +2359,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
     \class QTextIStream qtextstream.h
+    \reentrant
     \brief The QTextIStream class is a convenience class for input streams.
 
     \ingroup io
@@ -2396,6 +2398,7 @@ QTextStream &reset( QTextStream &s )
 
 /*!
     \class QTextOStream
+    \reentrant
     \brief The QTextOStream class is a convenience class for output streams.
 
     \ingroup io

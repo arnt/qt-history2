@@ -36,6 +36,7 @@
 **********************************************************************/
 
 /*! \class QJpUnicodeConv qjpunicode.h
+    \reentrant
     \ingroup i18n
 
   \brief The QJpUnicodeConv class provides implementation support for

@@ -42,6 +42,7 @@
 
 /*!
   \class QLNode qglist.h
+  \reentrant
   \ingroup collection
   \brief The QLNode class is an internal class for the QPtrList template collection.
 
@@ -71,6 +72,7 @@
 
 /*!
   \class QGList qglist.h
+  \reentrant
   \ingroup collection
   \brief The QGList class is an internal class for implementing Qt collection classes.
 
@@ -1067,6 +1069,7 @@ QDataStream &QGList::write( QDataStream &s ) const
 
 /*!
   \class QGListIterator qglist.h
+  \reentrant
   \ingroup collection
   \brief The QGListIterator class is an internal class for implementing QPtrListIterator.
 

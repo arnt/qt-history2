@@ -75,6 +75,7 @@
 
 /*!
     \class QRegExp qregexp.h
+    \reentrant
     \brief The QRegExp class provides pattern matching using regular expressions.
 
     \ingroup tools

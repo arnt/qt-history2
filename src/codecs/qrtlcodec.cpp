@@ -356,6 +356,7 @@ static QChar::Direction findBasicDirection(QString str)
 
 
 /*! \class QHebrewCodec qrtlcodec.h
+    \reentrant
     \ingroup i18n
 
   \brief The QHebrewCodec class provides conversion to and from visually ordered Hebrew.

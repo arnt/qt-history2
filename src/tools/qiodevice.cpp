@@ -39,6 +39,7 @@
 
 /*!
     \class QIODevice qiodevice.h
+    \reentrant
 
     \brief The QIODevice class is the base class of I/O devices.
 

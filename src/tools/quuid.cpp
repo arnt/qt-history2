@@ -39,6 +39,7 @@
 
 /*!
   \class QUuid quuid.h
+  \reentrant
   \brief The QUuid class defines a Universally Unique Identifier (UUID).
 
   \internal

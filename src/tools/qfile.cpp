@@ -54,6 +54,7 @@ extern bool qt_file_access( const QString& fn, int t );
 
 /*!
     \class QFile qfile.h
+    \reentrant
     \brief The QFile class is an I/O device that operates on files.
 
     \ingroup io
@@ -559,6 +560,8 @@ QCString QFile::encodeName( const QString &fileName )
 */
 
 /*!
+    \nonreentrant
+
     Sets the function for encoding Unicode file names to \a f. The
     default encodes in the locale-specific 8-bit encoding.
 
@@ -594,6 +597,8 @@ QString QFile::decodeName( const QCString &localFileName )
 */
 
 /*!
+    \nonreentrant
+
     Sets the function for decoding 8-bit file names to \a f. The
     default uses the locale-specific 8-bit encoding.
 

@@ -455,6 +455,7 @@ QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 
 /*!
     \class QByteArray
+    \reentrant
     \brief The QByteArray class provides an array of bytes.
 
     \ingroup collection
@@ -533,6 +534,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
 /*!
     \class QCString qcstring.h
+    \reentrant
     \brief The QCString class provides an abstraction of the classic C
     zero-terminated char array (char *).
 

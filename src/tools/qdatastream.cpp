@@ -45,6 +45,7 @@
 
 /*!
     \class QDataStream qdatastream.h
+    \reentrant
     \brief The QDataStream class provides serialization of binary data
     to a QIODevice.
 

@@ -42,6 +42,7 @@
 
 /*!
   \class QGCache qgcache.h
+  \reentrant
   \ingroup shared
   \ingroup collection
   \brief The QGCache class is an internal class for implementing QCache
@@ -230,9 +231,9 @@ private:
 	{ if ( del_item ) { QCacheItem *d = (QCacheItem*)item; delete d; } }
 };
 
-inline QCDict::~QCDict() 
-{ 
-    clear(); 
+inline QCDict::~QCDict()
+{
+    clear();
 }
 
 /*****************************************************************************
@@ -669,6 +670,7 @@ void QGCache::statistics() const
 
 /*!
   \class QGCacheIterator qgcache.h
+  \reentrant
   \ingroup shared
   \ingroup collection
   \brief The QGCacheIterator class is an internal class for implementing QCacheIterator and

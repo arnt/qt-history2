@@ -40,6 +40,7 @@
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QJisCodec
+    \reentrant
     \ingroup i18n
 
   \brief The QJisCodec class provides conversion to and from JIS character sets.

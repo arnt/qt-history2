@@ -40,6 +40,7 @@
 #include "qtextcodecinterface_p.h"
 
 /*!   \class QTextCodecPlugin qtextcodecplugin.h
+  \reentrant
   \brief The QTextCodecPlugin class provides an abstract base for custom QTextCodec plugins.
   \ingroup plugins
 

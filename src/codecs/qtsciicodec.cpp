@@ -15,6 +15,7 @@
 **********************************************************************/
 
 /*! \class QTsciiCodec qtsciicodec.h
+    \reentrant
     \ingroup i18n
 
   \brief The QTsciiCodec class provides conversion to and from the Tamil TSCII encoding.

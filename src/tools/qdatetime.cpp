@@ -196,6 +196,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
 
 /*!
     \class QDate qdatetime.h
+    \reentrant
     \brief The QDate class provides date functions.
 
     \ingroup time
@@ -1211,6 +1212,7 @@ void QDate::julianToGregorian( uint jd, int &y, int &m, int &d )
 
 /*!
     \class QTime qdatetime.h
+    \reentrant
 
     \brief The QTime class provides clock time functions.
 
@@ -1852,6 +1854,7 @@ int QTime::elapsed() const
 
 /*!
     \class QDateTime qdatetime.h
+    \reentrant
     \brief The QDateTime class provides date and time functions.
 
     \ingroup time

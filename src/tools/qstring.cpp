@@ -11866,6 +11866,7 @@ static uint computeNewMax( uint len )
 
 /*!
     \class QCharRef qstring.h
+    \reentrant
     \brief The QCharRef class is a helper class for QString.
 
     \ingroup text
@@ -11884,6 +11885,7 @@ static uint computeNewMax( uint len )
 
 /*!
     \class QChar qstring.h
+    \reentrant
     \brief The QChar class provides a lightweight Unicode character.
 
     \ingroup text
@@ -12367,6 +12369,8 @@ QChar QChar::mirroredChar() const
 static QString shared_decomp;
 #endif
 /*!
+    \nonreentrant
+
     Decomposes a character into its parts. Returns QString::null if no
     decomposition exists.
 */
@@ -12975,6 +12979,7 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
 
 /*!
     \class QString qstring.h
+    \reentrant
 
     \brief The QString class provides an abstraction of Unicode text
     and the classic C '\0'-terminated char array.
@@ -17342,6 +17347,7 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 
 /*!
   \class QConstString qstring.h
+  \reentrant
   \ingroup text
   \brief The QConstString class provides string objects using constant Unicode data.
 

@@ -67,6 +67,7 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 
 /*!
     \class QLibrary qlibrary.h
+    \reentrant
     \brief The QLibrary class provides a wrapper for handling shared libraries.
 
     \mainclass

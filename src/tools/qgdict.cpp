@@ -43,6 +43,7 @@
 
 /*!
   \class QGDict
+  \reentrant
   \ingroup collection
   \brief The QGDict class is an internal class for implementing QDict template classes.
 
@@ -992,6 +993,7 @@ QDataStream& QGDict::write( QDataStream &s ) const
 
 /*!
   \class QGDictIterator qgdict.h
+  \reentrant
   \ingroup collection
   \brief The QGDictIterator class is an internal class for implementing QDictIterator and QIntDictIterator.
 

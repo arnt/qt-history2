@@ -36,6 +36,7 @@
 **********************************************************************/
 
 /*! \class QEucKrCodec qeuckrcodec.h
+    \reentrant
     \ingroup i18n
 
   \brief The QEucKrCodec class provides conversion to and from EUC-KR character sets.

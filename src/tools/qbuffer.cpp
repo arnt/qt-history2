@@ -40,6 +40,7 @@
 
 /*!
     \class QBuffer qbuffer.h
+    \reentrant
     \brief The QBuffer class is an I/O device that operates on a QByteArray.
 
     \ingroup io

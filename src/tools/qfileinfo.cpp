@@ -50,6 +50,7 @@ extern bool qt_file_access( const QString& fn, int t );
 
 /*!
     \class QFileInfo
+    \reentrant
     \brief The QFileInfo class provides system-independent file information.
 
     \ingroup io

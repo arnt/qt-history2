@@ -39,6 +39,7 @@
 
 /*!
     \class QPtrCollection qptrcollection.h
+    \reentrant
     \brief The QPtrCollection class is the base class of most pointer-based Qt collections.
 
     \ingroup collection

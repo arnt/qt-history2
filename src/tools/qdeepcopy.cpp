@@ -39,6 +39,7 @@
 
 /*!
   \class QDeepCopy qdeepcopy.h
+  \reentrant
 
   \brief The QDeepCopy class is a template class which ensures that
   implicitly shared and explicitly shared classes reference unique data.

@@ -45,6 +45,7 @@
 
 /*!
     \class QStringList qstringlist.h
+    \reentrant
     \brief The QStringList class provides a list of strings.
 
     \ingroup tools

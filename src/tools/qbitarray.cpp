@@ -43,6 +43,7 @@
 
 /*!
     \class QBitVal qbitarray.h
+    \reentrant
     \brief The QBitVal class is an internal class, used with QBitArray.
 
     \ingroup collection
@@ -81,6 +82,7 @@
 
 /*!
     \class QBitArray qbitarray.h
+    \reentrant
     \brief The QBitArray class provides an array of bits.
 
     \ingroup collection

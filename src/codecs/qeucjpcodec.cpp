@@ -40,6 +40,7 @@
 // and the grateful thanks of the Trolltech team.
 
 /*! \class QEucJpCodec qeucjpcodec.h
+    \reentrant
     \ingroup i18n
 
   \brief The QEucJpCodec class provides conversion to and from EUC-JP character sets.

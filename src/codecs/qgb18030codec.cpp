@@ -32,6 +32,7 @@
 **********************************************************************/
 
 /*! \class QGb18030Codec qgb18030codec.h
+  \reentrant
   \ingroup i18n
 
   \brief The QGb18030Codec class provides conversion to and from the Chinese
@@ -387,6 +388,7 @@ QTextDecoder* QGb18030Codec::makeDecoder() const
 }
 
 /*! \class QGbkCodec
+    \reentrant
     \ingroup i18n
 
   \brief The QGbkCodec class provides conversion to and from the Chinese
