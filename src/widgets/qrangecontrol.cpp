@@ -35,9 +35,8 @@
   \ingroup misc
 
   It was originally designed for the QScrollBar widget, but it can
-  also be practical for other purposes.  QSlider, QSpinBox and QDial
-  also inherit QRangeControl.  Here are the five main concepts the
-  class has: <ul>
+  also be practical for other purposes such as QSlider and QSpinBox.
+  Here are the five main concepts in the class: <ul>
 
   <li> The current value.  This is the bounded integer that
   QRangeControl maintains.  value() returns this, and several
