@@ -21,7 +21,13 @@
 
 QMutex::QMutex(bool recursive)
 {
-} 
+    d = new QMutexPrivate;
+    d->recursive = recursive;
+    d->owner = 0;
+    d->count = 0;
+    d->waiters = 0;
+    d->event = CreateEvent(0, FALSE, FALSE, 0);
+}
 
 QMutex::~QMutex()
 {
