@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#62 $
 **
 ** Implementation of movie classes
 **
@@ -72,8 +72,7 @@
   extension is obeyed.
 
   Archives of animated GIFs and tools for building them can be found
-  at <a href=http://www.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/>
-  Yahoo!</a>.
+  at <a href="http://dir.yahoo.com/Arts/Visual_Arts/Animation/Computer_Animation/Animated_GIFs/">Yahoo</a>.
 
   We are required to state: The Graphics Interchange Format(c) is the
   Copyright property of CompuServe Incorporated. GIF(sm) is a Service
@@ -897,7 +896,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMovieFilePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.61 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.62 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

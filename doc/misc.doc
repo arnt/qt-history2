@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.42 1999/06/16 20:02:39 agulbra Exp $
+** $Id: misc.doc,v 2.43 1999/08/17 00:15:45 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.42 1999/06/16 20:02:39 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.43 1999/08/17 00:15:45 agulbra Exp $";
 #endif
 
 
@@ -474,10 +474,6 @@ about e.g. dialog layout.
 <p>This book too is available on the web, but has occasionally been
 hidden in an impenetrable maze of javascript.
 <a href="http://msdn.microsoft.com/developer/userexperience/">Try and see.</a>
-
-<p>The Java Look and Feel guidelines haven't been published yet, but
-are available <a href="http://java.sun.com/products/jlf/dg/index.htm">on the
-web.</a>
 
 <p><b>The Icon Book</b> by William Horton, ISBN 0-471-59900-X, is a
 perhaps the only thorough coverage of icons and icon use in software.

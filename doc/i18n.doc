@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: i18n.doc,v 1.31 1999/07/13 13:23:58 warwick Exp $
+** $Id: i18n.doc,v 1.32 1999/08/17 00:15:44 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -244,7 +244,7 @@ in the following stages:
 
 	For converting Unicode to local 8-bit encodings,
 	a shortcut is available: the
-	\link QString::local8Bit() local8Bit()\endlink method of 
+	\link QString::local8Bit() local8Bit()\endlink method of
 	QString returns such 8-bit data.  Another useful shortcut
 	is the \link QString::utf8() utf8()\endlink method, which
 	returns text in the 8-bit UTF-8 encoding - interesting in
@@ -348,7 +348,7 @@ be too concerned with the actual limitations.
 	  Unicode text files even though that is the order prescribed by
 	  the Unicode Standard in the absence of higher-level protocols.
      <li>Note that unlike programs written with MFC or plain winlib, Qt programs
-	  are portable between Windows 95/98 and Windows NT - 
+	  are portable between Windows 95/98 and Windows NT -
 	  <em>you do not need different binaries to support Unicode</em>.
     </ul>
 </dl>
@@ -395,7 +395,7 @@ The current state of activity is:
 	<a href=ftp://ftp.sra.co.jp/pub/x11/kinput2/>kinput2</a>
 	is the tested input method for X11.
  <dt><b>eucKR</b>
-  <dd>Under external development, 
+  <dd>Under external development,
 	Mizi Research are assisting with this effort.
 	<a href=http://www.mizi.com/>hanIM</a>
        	is the tested input method.
@@ -418,7 +418,7 @@ with new developments like the True Type font servers
 <a href=http://www.dcs.ed.ac.uk/home/jec/programs/xfsft/>xfsft</a>,
 <a href=ftp://sunsite.unc.edu/pub/Linux/X11/fonts>xfstt</a>,
 and
-<a href=http://hawk.ise.chuo-u.ac.jp/student/person/tshiozak/x-tt/>x-tt</a>,
+x-tt,
 as well as
 <a href=http://www.ietf.org/rfc/rfc2279.txt>UTF-8</a>
 (a Unicode encoding) filenames such as with the

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#142 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -737,7 +737,7 @@ QFont::CharSet QFont::charSet() const
   <li> \c QFont::ISO_8859_9, Turkish
   <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
   <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
-       <a href="http://ds.internic.net/rfc/rfc1489.txt">RFC 1489.</a>
+       <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
   <li> \c QFont::AnyCharSet - whatever is handiest.
   </ul>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#31 $
+** $Id: //depot/qt/main/extensions/nsplugin/src/qnp.cpp#32 $
 **
 ** Implementation of Qt extension classes for Netscape Plugin support.
 **
@@ -301,7 +301,7 @@ public:
 	POINT curPos;
 	if ( GetCursorPos( &curPos ) ) {
 	    QPoint p(curPos.x, curPos.y);
-	
+
 	    QNPWidget *newFocussedWidget = 0;
 	    for ( QNPWidget* npw = npwidgets.first();
 		npw; npw = npwidgets.next() )
@@ -315,12 +315,12 @@ public:
 	    }
 	    if (newFocussedWidget != focussedWidget && focussedWidget)
 		focussedWidget->leaveInstance();
-	
+
 	    if (newFocussedWidget) {
 		if (newFocussedWidget != focussedWidget)
 		    newFocussedWidget->enterInstance();
 	    }
-	
+
 	    focussedWidget = newFocussedWidget;
 	}
     }
@@ -1080,7 +1080,7 @@ BOOL   WINAPI   DllMain (HANDLE hInst,
 	case DLL_THREAD_DETACH:
 	    break;
     }
-	
+
     return TRUE;
 }
 
@@ -1873,9 +1873,6 @@ void* QNPlugin::getJavaClass()
   This function is called when the plugin is shutting down,
   with \a jc set to the value returned earlier by getJavaClass().
   The function should \e unuse the Java class and return 0.
-
-  \sa <a href=http://home.netscape.com/eng/mozilla/3.0/handbook/plugins/wr3.htm#Assoc>
-    Netscape: Associating a Class with your Plug-in</a>
 */
 void QNPlugin::unuseJavaClass()
 {
