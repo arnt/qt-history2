@@ -1387,7 +1387,7 @@ bool QFont::fromString(const QString &descrip)
 
     return TRUE;
 }
-#endif QT_NO_STRINGLIST
+#endif // QT_NO_STRINGLIST
 
 #if !defined( Q_WS_QWS ) // && !defined( Q_WS_MAC )
 /*! \internal
@@ -1490,7 +1490,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     return s;
 }
 
-#endif //QT_NO_DATASTREAM
+#endif // QT_NO_DATASTREAM
 
 
 
