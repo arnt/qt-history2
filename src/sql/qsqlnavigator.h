@@ -47,11 +47,36 @@
 
 class QSqlCursor;
 class QSqlForm;
+class QSqlNavigatorBasePrivate;
 
-class Q_EXPORT QSqlNavigator
+class Q_EXPORT QSqlNavigatorBase
+{
+public:
+    QSqlNavigatorBase();
+    virtual ~QSqlNavigatorBase();
+
+    virtual void setSort( const QSqlIndex& sort );
+    virtual void setSort( const QStringList& sort );
+    QStringList  sort() const;
+    virtual void setFilter( const QString& filter );
+    QString filter() const;
+
+    virtual QSqlCursor* defaultCursor();
+
+    virtual bool refresh( const QSqlIndex& idx = QSqlIndex() );
+
+    //## remove static after fixing QSqlTable to inherit from QSqlNavigatorBase
+    static bool relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint );
+private:
+    bool refresh( QSqlCursor* cursor, const QSqlRecord* buf = 0, const QSqlIndex& idx = QSqlIndex() );
+    QSqlNavigatorBasePrivate* d;
+};
+
+class Q_EXPORT QSqlNavigator : public QSqlNavigatorBase
 {
 public:
     QSqlNavigator();
+    ~QSqlNavigator();
 
     enum Boundry {
 	Unknown,
@@ -75,16 +100,7 @@ public:
     virtual void setBoundryChecking( bool active );
     bool boundryChecking() const;
 
-    void setSort( const QSqlIndex& sort );
-    void setSort( const QStringList& sort );
-    QStringList  sort() const;
-    void setFilter( const QString& filter );
-    QString filter() const;
-
-    virtual QSqlCursor* defaultCursor();
     virtual QSqlForm* defaultForm();
-
-    static bool relocate( QSqlCursor* cursor, const QSqlRecord* buf, const QSqlIndex& idx, int atHint );
 
 protected:
     virtual void emitFirstRecordAvailable( bool available );
@@ -97,7 +113,6 @@ protected:
 private:
     void updateBoundry();
     bool boundryCheck;
-
 };
 
 #endif
