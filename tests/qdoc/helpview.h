@@ -19,11 +19,12 @@ public slots:
 
 signals:
     void newSource( const QString & );
-    
+
 private:
     QString docDir;
     QMap<QString, QString> hist;
-
+    bool blockSourceSignal;
+    
 };
 
 

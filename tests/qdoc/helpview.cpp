@@ -6,6 +6,7 @@
 HelpView::HelpView( QWidget *parent, const QString &dd )
     : QTextBrowser( parent )
 {
+    blockSourceSignal = FALSE;
     docDir = dd;
 }
 
@@ -19,11 +20,9 @@ void HelpView::showLink( const QString &link , const QString& title )
     }
 
     setCaption( title );
-    blockSignals( TRUE );
-    setSource( u.path() );
-    blockSignals( FALSE );
-    if ( !u.ref().isEmpty() )
-	scrollToAnchor( u.ref() );
+    blockSourceSignal = TRUE;
+    setSource( u.path() + "#" + u.ref() );
+    blockSourceSignal = FALSE;
 }
 
 void HelpView::setSource( const QString &name )
@@ -34,8 +33,9 @@ void HelpView::setSource( const QString &name )
 							"%1" ).arg( name ) );
 	return;
     }
-    
-    emit newSource( name );
+
+    if ( !blockSourceSignal )
+	emit newSource( name );
     QTextBrowser::setSource( name );
     if ( !caption().isEmpty() && !hist.contains( u.fileName() ) )
 	hist[ u.fileName() ] = caption();
