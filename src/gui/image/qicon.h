@@ -84,4 +84,5 @@ typedef QIcon QIconSet;
 #endif
 
 #endif // QT_NO_ICON
-#endif
+
+#endif // QICON_H

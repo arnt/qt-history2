@@ -54,17 +54,17 @@ public:
     QImage();
     QImage(int width, int height, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
     QImage(const QSize&, int depth, int numColors=0, Endian bitOrder=IgnoreEndian);
-    QImage(const char * const xpm[]);
+    explicit QImage(const char * const xpm[]);
 #ifndef QT_NO_IMAGEIO
-    QImage(const QString &fileName, const char* format=0);
-    QImage(const QByteArray &data);
+    explicit QImage(const QString &fileName, const char *format=0);
+    explicit QImage(const QByteArray &data);
 #endif
-    QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int numColors, Endian bitOrder);
+    QImage(uchar *data, int w, int h, int depth, const QRgb *colortable, int numColors, Endian bitOrder);
 #ifdef Q_WS_QWS
-    QImage(uchar* data, int w, int h, int depth, int pbl, const QRgb* colortable, int numColors, Endian bitOrder);
+    QImage(uchar *data, int w, int h, int depth, int pbl, const QRgb *colortable, int numColors, Endian bitOrder);
 #endif
     QImage(const QImage &);
-   ~QImage();
+    ~QImage();
 
     QImage &operator=(const QImage &);
     bool operator==(const QImage &) const;

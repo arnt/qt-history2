@@ -32,9 +32,9 @@ class QString;
 class Q_GUI_EXPORT QMovie {
 public:
     QMovie();
-    QMovie(int bufsize);
-    QMovie(QIODevice*, int bufsize=1024);
-    QMovie(const QString &fileName, int bufsize=1024);
+    explicit QMovie(int bufsize);
+    explicit QMovie(QIODevice*, int bufsize=1024);
+    explicit QMovie(const QString &fileName, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
 
@@ -92,6 +92,6 @@ private:
     QMoviePrivate *d;
 };
 
-#endif        // QT_NO_MOVIE
+#endif // QT_NO_MOVIE
 
-#endif
+#endif // QMOVIE_H

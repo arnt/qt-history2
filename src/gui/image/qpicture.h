@@ -24,7 +24,7 @@ class Q_GUI_EXPORT QPicture : public QPaintDevice
 {
     Q_DECLARE_PRIVATE(QPicture)
 public:
-    QPicture(int formatVersion = -1);
+    explicit QPicture(int formatVersion = -1);
     QPicture(const QPicture &);
     ~QPicture();
 
@@ -92,8 +92,8 @@ class Q_GUI_EXPORT QPictureIO
 public:
     QPictureIO();
     QPictureIO(QIODevice *ioDevice, const char *format);
-    QPictureIO(const QString &fileName, const char* format);
-   ~QPictureIO();
+    QPictureIO(const QString &fileName, const char *format);
+    ~QPictureIO();
 
     const QPicture &picture() const;
     int status() const;

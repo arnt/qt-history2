@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef QIMAGEIO_H
 #define QIMAGEIO_H
 
@@ -30,10 +31,9 @@ class Q_GUI_EXPORT QImageIO
 {
 public:
     QImageIO();
-    QImageIO(QIODevice         *ioDevice, const char *format);
+    QImageIO(QIODevice *ioDevice, const char *format);
     QImageIO(const QString &fileName, const char* format);
-   ~QImageIO();
-
+    ~QImageIO();
 
     const QImage &image() const { return im; }
     int status() const { return iostat; }
@@ -94,7 +94,6 @@ private:
     QImageIOData *d;
 };
 
-#endif //QT_NO_IMAGEIO
+#endif // QT_NO_IMAGEIO
 
-
-#endif
+#endif // QIMAGEIO_H

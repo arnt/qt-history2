@@ -39,7 +39,7 @@ class Q_GUI_EXPORT QPictureFormatPlugin : public QObject, public QPictureFormatI
     Q_OBJECT
     Q_INTERFACES(QPictureFormatInterface:QFactoryInterface)
 public:
-    QPictureFormatPlugin(QObject *parent = 0);
+    explicit QPictureFormatPlugin(QObject *parent = 0);
     ~QPictureFormatPlugin();
 
     virtual QStringList keys() const = 0;
@@ -49,4 +49,5 @@ public:
 
 };
 #endif // QT_NO_PICTUREFORMATPLUGIN
-#endif // QIMAGEFORMATPLUGIN_H
+
+#endif // QPICTUREFORMATPLUGIN_H

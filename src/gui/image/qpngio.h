@@ -32,7 +32,7 @@ class QIODevice;
 
 class Q_PNGEXPORT QPNGImageWriter {
 public:
-    QPNGImageWriter(QIODevice*);
+    explicit QPNGImageWriter(QIODevice*);
     ~QPNGImageWriter();
 
     enum DisposalMethod { Unspecified, NoDisposal, RestoreBackground, RestoreImage };

@@ -54,7 +54,7 @@ protected:
 class QImageDecoderPrivate;
 class Q_GUI_EXPORT QImageDecoder {
 public:
-    QImageDecoder(QImageConsumer* c);
+    explicit QImageDecoder(QImageConsumer* c);
     ~QImageDecoder();
 
     const QImage& image() { return img; }

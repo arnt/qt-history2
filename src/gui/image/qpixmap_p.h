@@ -108,4 +108,4 @@ struct QPixmapData { // internal pixmap data
 #endif
 };
 
-#endif
+#endif // QPIXMAP_P_H

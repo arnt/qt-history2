@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QImageFormatPlugin : public QObject, public QImageFormatInter
     Q_OBJECT
     Q_INTERFACES(QImageFormatInterface:QFactoryInterface)
 public:
-    QImageFormatPlugin(QObject *parent = 0);
+    explicit QImageFormatPlugin(QObject *parent = 0);
     ~QImageFormatPlugin();
 
     virtual QStringList keys() const = 0;
@@ -47,5 +47,7 @@ public:
     virtual bool installIOHandler(const QString &format) = 0;
 
 };
+
 #endif // QT_NO_IMAGEFORMATPLUGIN
+
 #endif // QIMAGEFORMATPLUGIN_H
