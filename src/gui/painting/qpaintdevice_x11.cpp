@@ -288,20 +288,18 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             return;
     }
 
-#if 0 // ### port
     if (dst->paintingActive() && dst->isExtDev()) {
         QPixmap *pm;                                // output to picture/printer
-        bool         tmp_pm = true;
+        bool tmp_pm = true;
         if (ts == QInternal::Pixmap) {
             pm = (QPixmap*)src;
             if (sx != 0 || sy != 0 ||
                  sw != pm->width() || sh != pm->height() || ignoreMask) {
                 QPixmap *tmp = new QPixmap(sw, sh, pm->depth());
-                bitBlt(tmp, 0, 0, pm, sx, sy, sw, sh, Qt::CopyROP, true);
+                bitBlt(tmp, 0, 0, pm, sx, sy, sw, sh, true);
                 if (pm->mask() && !ignoreMask) {
                     QBitmap mask(sw, sh);
-                    bitBlt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh,
-                            Qt::CopyROP, true);
+                    bitBlt(&mask, 0, 0, pm->mask(), sx, sy, sw, sh, true);
                     tmp->setMask(mask);
                 }
                 pm = tmp;
@@ -315,16 +313,13 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
             qWarning("bitBlt: Cannot bitBlt from device");
             return;
         }
-        QPDevCmdParam param[3];
-        QPoint p(dx,dy);
-        param[0].point        = &p;
-        param[1].pixmap = pm;
-        dst->cmd(QPaintDevice::PdcDrawPixmap, 0, param);
+	if (pm && dst->paintEngine())
+	    dst->paintEngine()->drawPixmap(QRect(dx, dy, -1, -1), *pm, QRect(0, 0, -1, -1));
+
         if (tmp_pm)
             delete pm;
         return;
     }
-#endif
 
     switch (ts) {
     case QInternal::Widget:
@@ -431,7 +426,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
         if (mask->data->maskgc) {
             gc = (GC)mask->data->maskgc;        // we have a premade mask GC
         } else {
-            if (false && src_pm->optimization() == QPixmap::NormalOptim) { // #### cache disabled
+            if (false && src_pm->optimization() == QPixmap::NormalOptim) { // cache disabled
                 // Compete for the global cache
                 gc = cache_mask_gc(dpy, qt_x11Handle(dst),
                                     mask->data->ser_no,
