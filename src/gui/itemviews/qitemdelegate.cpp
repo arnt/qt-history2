@@ -526,25 +526,19 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
     key.sprintf("%d-%d", pixmap.serialNumber(), enabled);
     QPixmap *pm = QPixmapCache::find(key);
     if (!pm) {
-        QImage img = pixmap.toImage();
-        if (img.depth() != 32)
-            img = img.convertToFormat(QImage::Format_ARGB32);
-        img.setAlphaBuffer(true);
+        QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
+
         QColor color = palette.color(enabled
                                      ? QPalette::Normal
                                      : QPalette::Disabled,
                                      QPalette::Highlight);
-        uint rgb = color.rgb();
-        for (int i = 0; i < img.height(); ++i) {
-            uint *p = (uint *)(img.scanLine(i));
-            uint *end = p + img.width();
-            for (; p < end; ++p) {
-                *p = (0xff000000 & *p)
-                     | (0xff & static_cast<int>(qRed(*p) * 0.70 + qRed(rgb) * 0.30)) << 16
-                     | (0xff & static_cast<int>(qGreen(*p) * 0.70 + qGreen(rgb) * 0.30)) << 8
-                     | (0xff & static_cast<int>(qBlue(*p) * 0.70 + qBlue(rgb) * 0.30));
-            }
-        }
+        color.setAlphaF(0.3);
+
+        QPainter painter(&img);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceAtop);
+        painter.fillRect(0, 0, img.width(), img.height(), color);
+        painter.end();
+
         pm = new QPixmap(QPixmap::fromImage(img));
         QPixmapCache::insert(key, pm);
     }
