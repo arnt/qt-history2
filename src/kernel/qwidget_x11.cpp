@@ -566,10 +566,10 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
     }
 }
 
-void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
-			bool showIt )
+void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool showIt )
 {
     extern void qPRCreate( const QWidget *, Window );
+
     Display *dpy = x11Display();
     QCursor oldcurs;
     bool setcurs = testWState(WState_OwnCursor);
@@ -577,14 +577,9 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
 	oldcurs = cursor();
 	unsetCursor();
     }
-    bool topdata_dnd = FALSE;
     bool accept_drops = acceptDrops();
     if ( accept_drops )
 	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
-    if ( isTopLevel() ) {
-	topdata_dnd = topData()->dnd;
-	topData()->dnd = 0; // unregister XDND atom
-    }
 
     QWidget* oldtlw = topLevelWidget();
     WId old_winid = winid;
@@ -668,9 +663,8 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p,
     // re-register dnd
     if ( accept_drops )
 	setAcceptDrops( TRUE );
-    if (topdata_dnd)
-	qt_dnd_enable(this, topdata_dnd);
-
+    else
+	qt_dnd_enable(this, (extra && extra->children_use_dnd));
 }
 
 
@@ -1018,12 +1012,12 @@ void QWidget::grabMouse()
 #if defined(QT_CHECK_STATE)
 	int status =
 #endif
-	XGrabPointer( x11Display(), winId(), True,
-		      (uint)( ButtonPressMask | ButtonReleaseMask |
-			      PointerMotionMask | EnterWindowMask |
-			      LeaveWindowMask ),
-		      GrabModeAsync, GrabModeAsync,
-		      None, None, qt_x_time );
+	    XGrabPointer( x11Display(), winId(), True,
+			  (uint)( ButtonPressMask | ButtonReleaseMask |
+				  PointerMotionMask | EnterWindowMask |
+				  LeaveWindowMask ),
+			  GrabModeAsync, GrabModeAsync,
+			  None, None, qt_x_time );
 #if defined(QT_CHECK_STATE)
 	if ( status ) {
 	    const char *s =
@@ -1031,7 +1025,7 @@ void QWidget::grabMouse()
 		status == AlreadyGrabbed  ? "\"AlreadyGrabbed\"" :
 		status == GrabFrozen      ? "\"GrabFrozen\"" :
 		status == GrabInvalidTime ? "\"GrabInvalidTime\"" :
-					    "<?>";
+		"<?>";
 	    qWarning( "Grabbing the mouse failed with %s", s );
 	}
 #endif
@@ -2120,6 +2114,7 @@ int QWidget::metric( int m ) const
 void QWidget::createSysExtra()
 {
     extra->xDndProxy = 0;
+    extra->children_use_dnd = FALSE;
 }
 
 void QWidget::deleteSysExtra()
@@ -2160,6 +2155,40 @@ void QWidget::setAcceptDrops( bool on )
 		setWState( WState_DND );
 	    else
 		clearWState( WState_DND );
+	}
+
+	// examine the children of our parent up the tree and set the
+	// children_use_dnd extra data appropriately... this is used to keep DND enabled
+	// for widgets that are reparented and don't have DND enabled, BUT *DO* have
+	// children (or children of children ...) with DND enabled...
+       	QWidget *parent = parentWidget();
+	const QObjectList *children;
+	QObject *object;
+	QWidget *child;
+	while (parent) {
+	    // note: the desktop widget has no parent, so this will never be done
+	    // for the desktop widget
+
+	    bool children_use_dnd = FALSE;
+	    children = parent->children();
+	    if ( children ) {
+		QObjectListIt it(*children);
+		while ( (object = it.current()) ) {
+		    ++it;
+		    if ( object->isWidgetType() ) {
+			child = (QWidget *) object;
+			children_use_dnd = (children_use_dnd ||
+					    child->acceptDrops() ||
+					    (child->extra &&
+					     child->extra->children_use_dnd));
+		    }
+		}
+	    }
+
+	    parent->createExtra();
+	    parent->extraData()->children_use_dnd = children_use_dnd;
+
+	    parent = parent->parentWidget();
 	}
     }
 }

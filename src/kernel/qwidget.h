@@ -918,6 +918,7 @@ struct Q_EXPORT QWExtra {
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy;			// XDND forwarding to embedded windows
+    bool children_use_dnd;
 #endif
 #if defined(Q_WS_MAC)
     QMacDndExtra *macDndExtra;
