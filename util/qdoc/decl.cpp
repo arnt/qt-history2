@@ -146,7 +146,8 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    if ( cl == 0 || !cl->isReentrant() )
 			out.printfMeta( "<p><b>Note:</b> This function is"
 					" <a href=\"threads.html#reentrant\">"
-					"reentrant</a>.</p>\n" );
+					"reentrant</a> when Qt is built with"
+					" thread support.</p>\n" );
 		    break;
 		case Tdef:
 		    ;
@@ -164,7 +165,8 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		    if ( cl == 0 || !cl->isThreadSafe() )
 			out.printfMeta( "<p><b>Note:</b> This function is"
 					" <a href=\"threads.html#threadsafe\">"
-					"thread-safe</a>.</p>\n" );
+					"thread-safe</a> when Qt is built with"
+					"thread support.</p>\n" );
 		    break;
 		case Tdef:
 		    ;
@@ -785,13 +787,16 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	    if ( except.isEmpty() ) {
 		out.printfMeta( "<p>All the functions in this class are"
 				" <a href=\"threads.html#reentrant\">"
-				"reentrant</a>.\n" );
+				"reentrant</a> when Qt is built with"
+				" thread support.</p>\n" );
 	    } else {
-		out.printfMeta( "<p>All the functions in this class are"
+		out.printfMeta( "<p>Almost all the functions in this class are"
 				" <a href=\"threads.html#reentrant\">"
-				"reentrant</a> except " );
+				"reentrant</a> when Qt is built with"
+				" thread support. The exception%s ",
+				except.count() == 1 ? " is" : "s are" );
 		QValueStack<QString> seps = separators( except.count(),
-							QString(".\n") );
+							QString(".</p>\n") );
 		QValueList<Decl *>::ConstIterator e = except.begin();
 		while ( e != except.end() ) {
 		    printHtmlShortName( out, *e );
@@ -816,13 +821,16 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 	    if ( except.isEmpty() ) {
 		out.printfMeta( "<p>All the functions in this class are"
 				" <a href=\"threads.html#threadsafe\">"
-				"thread-safe</a>.\n" );
+				"thread-safe</a> when Qt is built with"
+				" thread support.</p>\n" );
 	    } else {
-		out.printfMeta( "<p>All the functions in this class are"
+		out.printfMeta( "<p>Almost all the functions in this class are"
 				" <a href=\"threads.html#threadsafe\">"
-				"thread-safe</a> except" );
+				"thread-safe</a> when Qt is built with"
+				" thread support. The exception%s ",
+				except.count() == 1 ? " is" : "s are" );
 		QValueStack<QString> seps = separators( except.count(),
-							QString(".\n") );
+							QString(".</p>\n") );
 		QValueList<Decl *>::ConstIterator e = except.begin();
 		while ( e != except.end() ) {
 		    printHtmlShortName( out, *e );
