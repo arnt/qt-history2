@@ -212,6 +212,8 @@ private slots:
     void         setCurrentSelection( int row, int col );
     void 	 sliderPressed();
     void 	 sliderReleased();
+    void	 doInsertCurrent();
+    void	 doUpdateCurrent();
     
 private:
     void         init();

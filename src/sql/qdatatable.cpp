@@ -49,6 +49,7 @@
 #include "qsqlmanager_p.h"
 #include "qdatetime.h"
 #include "qcursor.h"
+#include "qtimer.h"
 
 //#define QT_DEBUG_DATATABLE
 
@@ -852,13 +853,13 @@ void QDataTable::endEdit( int row, int col, bool, bool )
 	    switch ( d->dat.mode() ) {
 	    case QSql::Insert:
 		if ( accept )
-		    insertCurrent();
+		    QTimer::singleShot( 0, this, SLOT( doInsertCurrent() ) );
 		else
 		    endInsert();
 		break;
 	    case QSql::Update:
 		if ( accept )
-		    updateCurrent();
+		    QTimer::singleShot( 0, this, SLOT( doUpdateCurrent() ) );
 		else
 		    endUpdate();
 		break;
@@ -873,6 +874,18 @@ void QDataTable::endEdit( int row, int col, bool, bool )
 	viewport()->setFocus();
     updateCell( row, col );
     emit valueChanged( row, col );
+}
+
+/*! \internal */
+void QDataTable::doInsertCurrent()
+{
+    insertCurrent();
+}
+
+/*! \internal */
+void QDataTable::doUpdateCurrent()
+{
+    updateCurrent();
 }
 
 /*! \reimp */
