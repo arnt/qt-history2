@@ -139,47 +139,6 @@ else
     rm -f .test.qt.
 fi
 
-# create the include directory (will hold real qconfig.h and qmodules.h)
-if [ ! -d $outpath/include ]; then
-   mkdir $outpath/include
-fi
-
-qdir="\$(QTDIR)"
-[ "x$relpath" != "x$outpath" ] && qdir="$outpath"
-
-if [ -f $outpath/include/qconfig.h ]
-then
-    mv -f $outpath/include/qconfig.h qconfig.h-hold
-fi
-echo "// All features enabled while configuring" >$outpath/include/qconfig.h
-
-if [ -f $outpath/include/qmodules.h ]
-then
-    mv -f $outpath/include/qmodules.h qmodules.h-hold
-fi
-echo "// All modules enabled while configuring" >$outpath/include/qmodules.h
-
-if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
-then
-    HELP=yes
-else
-
-# Find a make command
-if ( gmake /dev/null ) >/dev/null 2>/dev/null
-then
-    MAKE=gmake
-else
-    if ( make /dev/null ) >/dev/null 2>/dev/null
-    then
-        MAKE=make
-    else
-	echo "You don't seem to have 'make' or 'gmake' in your PATH."
-	echo "Cannot proceed."
-	exit 1
-    fi
-fi
-
-
 # Free edition - may only be used under the terms of the QPL or GPL.
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]
 then
@@ -352,6 +311,45 @@ else
     fi
 fi
 
+# create the include directory (will hold real qconfig.h and qmodules.h)
+if [ ! -d $outpath/include ]; then
+   mkdir $outpath/include
+fi
+
+qdir="\$(QTDIR)"
+[ "x$relpath" != "x$outpath" ] && qdir="$outpath"
+
+if [ -f $outpath/include/qconfig.h ]
+then
+    mv -f $outpath/include/qconfig.h qconfig.h-hold
+fi
+echo "// All features enabled while configuring" >$outpath/include/qconfig.h
+
+if [ -f $outpath/include/qmodules.h ]
+then
+    mv -f $outpath/include/qmodules.h qmodules.h-hold
+fi
+echo "// All modules enabled while configuring" >$outpath/include/qmodules.h
+
+if [ "$1" = -h -o "$1" = -help -o "$1" = --help ]
+then
+    HELP=yes
+else
+
+# Find a make command
+if ( gmake /dev/null ) >/dev/null 2>/dev/null
+then
+    MAKE=gmake
+else
+    if ( make /dev/null ) >/dev/null 2>/dev/null
+    then
+        MAKE=make
+    else
+	echo "You don't seem to have 'make' or 'gmake' in your PATH."
+	echo "Cannot proceed."
+	exit 1
+    fi
+fi
 
 # Remove the build options file
 [ -f $outpath/.qmake.cache ] && rm -f $outpath/.qmake.cache
