@@ -153,7 +153,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		continue;
 	    }
 	    if ( isLine && prop == "orientation" ) {
-		prop = "frameShape";
+		prop = "frameStyle";
 		if ( value.right(10) == "Horizontal" )
 		    value = "QFrame::HLine | QFrame::Sunken";
 		else
