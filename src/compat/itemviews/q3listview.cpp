@@ -356,7 +356,7 @@ static QString qEllipsisText(const QString &org, const QFontMetrics &fm, int wid
     expected, and as usual for \l{QObject}s, if it has any child items
     (to any depth), all these will be deleted too.
 
-    \l{QCheckListItem}s are list view items that have a checkbox or
+    \l{Q3CheckListItem}s are list view items that have a checkbox or
     radio button and can be used in place of plain Q3ListViewItems.
 
     You can traverse the tree as if it were a doubly-linked list using
@@ -423,11 +423,11 @@ static QString qEllipsisText(const QString &org, const QFontMetrics &fm, int wid
 
     \img qlistviewitems.png List View Items
 
-    \sa QCheckListItem Q3ListView
+    \sa Q3CheckListItem Q3ListView
 */
 
 /*!
-    \fn int QCheckListItem::rtti() const
+    \fn int Q3CheckListItem::rtti() const
 
     Returns 1.
 
@@ -1964,7 +1964,7 @@ static QStyleOptionListView getStyleOption(const Q3ListView *lv, const Q3ListVie
         if (item->isVisible())
             lvi.features |= QStyleOptionListViewItem::Visible;
         if (item->parent() && item->parent()->rtti() == 1
-            && static_cast<QCheckListItem *>(item->parent())->type() == QCheckListItem::Controller)
+            && static_cast<Q3CheckListItem *>(item->parent())->type() == Q3CheckListItem::Controller)
             lvi.features |= QStyleOptionListViewItem::ParentControl;
         opt.items.append(lvi);
         if (!firstItem) {
@@ -2375,7 +2375,7 @@ void Q3ListViewItem::ignoreDoubleClick()
 
     The simplest pattern of use is to create a Q3ListView, add some
     column headers using addColumn() and create one or more
-    Q3ListViewItem or QCheckListItem objects with the Q3ListView as
+    Q3ListViewItem or Q3CheckListItem objects with the Q3ListView as
     parent.
 
     Further nodes can be added to the list view object (the root of the
@@ -2524,7 +2524,7 @@ void Q3ListViewItem::ignoreDoubleClick()
     \warning The list view assumes ownership of all list view items
     and will delete them when it does not need them any more.
 
-    \sa Q3ListViewItem QCheckListItem
+    \sa Q3ListViewItem Q3CheckListItem
 */
 
 /*!
@@ -5791,27 +5791,27 @@ void Q3ListView::repaintItem(const Q3ListViewItem * item) const
 }
 
 
-struct QCheckListItemPrivate
+struct Q3CheckListItemPrivate
 {
-    QCheckListItemPrivate():
+    Q3CheckListItemPrivate():
         exclusive(0),
-        currentState(QCheckListItem::Off),
+        currentState(Q3CheckListItem::Off),
         tristate(false) {}
 
-    QCheckListItem *exclusive;
-    QCheckListItem::ToggleState currentState;
-    QHash<QCheckListItem *, QCheckListItem::ToggleState> statesDict;
+    Q3CheckListItem *exclusive;
+    Q3CheckListItem::ToggleState currentState;
+    QHash<Q3CheckListItem *, Q3CheckListItem::ToggleState> statesDict;
     bool tristate;
 };
 
 
 /*!
-    \class QCheckListItem
-    \brief The QCheckListItem class provides checkable list view items.
+    \class Q3CheckListItem
+    \brief The Q3CheckListItem class provides checkable list view items.
 
     \compat
 
-    QCheckListItems are used in \l{Q3ListView}s to provide
+    Q3CheckListItems are used in \l{Q3ListView}s to provide
     \l{Q3ListViewItem}s that are checkboxes, radio buttons or
     controllers.
 
@@ -5830,9 +5830,9 @@ struct QCheckListItemPrivate
 // ### obscenity is warranted.
 
 /*!
-    \enum QCheckListItem::Type
+    \enum Q3CheckListItem::Type
 
-    This enum type specifies a QCheckListItem's type:
+    This enum type specifies a Q3CheckListItem's type:
 
     \value RadioButton
     \value CheckBox
@@ -5842,9 +5842,9 @@ struct QCheckListItemPrivate
 */
 
 /*!
-    \enum QCheckListItem::ToggleState
+    \enum Q3CheckListItem::ToggleState
 
-    This enum specifies a QCheckListItem's toggle state.
+    This enum specifies a Q3CheckListItem's toggle state.
 
     \value Off
     \value NoChange
@@ -5857,7 +5857,7 @@ struct QCheckListItemPrivate
     and of type \a tt. Note that a \c RadioButton must be the child of a
     \c RadioButtonController, otherwise it will not toggle.
 */
-QCheckListItem::QCheckListItem(QCheckListItem *parent, const QString &text,
+Q3CheckListItem::Q3CheckListItem(Q3CheckListItem *parent, const QString &text,
                                 Type tt)
     : Q3ListViewItem(parent, text, QString::null)
 {
@@ -5865,7 +5865,7 @@ QCheckListItem::QCheckListItem(QCheckListItem *parent, const QString &text,
     init();
     if (myType == RadioButton) {
         if (parent->type() != RadioButtonController)
-            qWarning("QCheckListItem::QCheckListItem(), radio button must be "
+            qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
                       "child of a controller");
         else
             d->exclusive = parent;
@@ -5878,7 +5878,7 @@ QCheckListItem::QCheckListItem(QCheckListItem *parent, const QString &text,
     and of type \a tt. Note that a \c RadioButton must be the child of
     a \c RadioButtonController, otherwise it will not toggle.
 */
-QCheckListItem::QCheckListItem(QCheckListItem *parent, Q3ListViewItem *after,
+Q3CheckListItem::Q3CheckListItem(Q3CheckListItem *parent, Q3ListViewItem *after,
                                 const QString &text, Type tt)
     : Q3ListViewItem(parent, after, text)
 {
@@ -5886,7 +5886,7 @@ QCheckListItem::QCheckListItem(QCheckListItem *parent, Q3ListViewItem *after,
     init();
     if (myType == RadioButton) {
         if (parent->type() != RadioButtonController)
-            qWarning("QCheckListItem::QCheckListItem(), radio button must be "
+            qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
                       "child of a controller");
         else
             d->exclusive = parent;
@@ -5899,14 +5899,14 @@ QCheckListItem::QCheckListItem(QCheckListItem *parent, Q3ListViewItem *after,
     RadioButton. Radio buttons must be children of a \c
     RadioButtonController.
 */
-QCheckListItem::QCheckListItem(Q3ListViewItem *parent, const QString &text,
+Q3CheckListItem::Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
                                 Type tt)
     : Q3ListViewItem(parent, text, QString::null)
 {
     myType = tt;
     if (myType == RadioButton) {
-      qWarning("QCheckListItem::QCheckListItem(), radio button must be "
-               "child of a QCheckListItem");
+      qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
+               "child of a Q3CheckListItem");
     }
     init();
 }
@@ -5918,14 +5918,14 @@ QCheckListItem::QCheckListItem(Q3ListViewItem *parent, const QString &text,
     RadioButton. Radio buttons must be children of a \c
     RadioButtonController.
 */
-QCheckListItem::QCheckListItem(Q3ListViewItem *parent, Q3ListViewItem *after,
+Q3CheckListItem::Q3CheckListItem(Q3ListViewItem *parent, Q3ListViewItem *after,
                                 const QString &text, Type tt)
     : Q3ListViewItem(parent, after, text)
 {
     myType = tt;
     if (myType == RadioButton) {
-        qWarning("QCheckListItem::QCheckListItem(), radio button must be "
-                  "child of a QCheckListItem");
+        qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
+                  "child of a Q3CheckListItem");
     }
     init();
 }
@@ -5936,14 +5936,14 @@ QCheckListItem::QCheckListItem(Q3ListViewItem *parent, Q3ListViewItem *after,
     and of type \a tt. Note that \a tt must \e not be \c RadioButton.
     Radio buttons must be children of a \c RadioButtonController.
 */
-QCheckListItem::QCheckListItem(Q3ListView *parent, const QString &text,
+Q3CheckListItem::Q3CheckListItem(Q3ListView *parent, const QString &text,
                                 Type tt)
     : Q3ListViewItem(parent, text)
 {
     myType = tt;
     if (tt == RadioButton)
-        qWarning("QCheckListItem::QCheckListItem(), radio button must be "
-                 "child of a QCheckListItem");
+        qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
+                 "child of a Q3CheckListItem");
     init();
 }
 
@@ -5953,21 +5953,21 @@ QCheckListItem::QCheckListItem(Q3ListView *parent, const QString &text,
     of type \a tt. Note that \a tt must \e not be \c RadioButton.
     Radio buttons must be children of a \c RadioButtonController.
 */
-QCheckListItem::QCheckListItem(Q3ListView *parent, Q3ListViewItem *after,
+Q3CheckListItem::Q3CheckListItem(Q3ListView *parent, Q3ListViewItem *after,
                                 const QString &text, Type tt)
     : Q3ListViewItem(parent, after, text)
 {
     myType = tt;
     if (tt == RadioButton)
-        qWarning("QCheckListItem::QCheckListItem(), radio button must be "
-                  "child of a QCheckListItem");
+        qWarning("Q3CheckListItem::Q3CheckListItem(), radio button must be "
+                  "child of a Q3CheckListItem");
     init();
 }
 
 
 /* \reimp */
 
-int QCheckListItem::rtti() const
+int Q3CheckListItem::rtti() const
 {
     return RTTI;
 }
@@ -5976,7 +5976,7 @@ int QCheckListItem::rtti() const
     Constructs a \c RadioButtonController item with parent \a parent,
     text \a text and pixmap \a p.
 */
-QCheckListItem::QCheckListItem(Q3ListView *parent, const QString &text,
+Q3CheckListItem::Q3CheckListItem(Q3ListView *parent, const QString &text,
                                 const QPixmap & p)
     : Q3ListViewItem(parent, text)
 {
@@ -5989,7 +5989,7 @@ QCheckListItem::QCheckListItem(Q3ListView *parent, const QString &text,
     Constructs a \c RadioButtonController item with parent \a parent,
     text \a text and pixmap \a p.
 */
-QCheckListItem::QCheckListItem(Q3ListViewItem *parent, const QString &text,
+Q3CheckListItem::Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
                                 const QPixmap & p)
     : Q3ListViewItem(parent, text)
 {
@@ -5998,9 +5998,9 @@ QCheckListItem::QCheckListItem(Q3ListViewItem *parent, const QString &text,
     init();
 }
 
-void QCheckListItem::init()
+void Q3CheckListItem::init()
 {
-    d = new QCheckListItemPrivate();
+    d = new Q3CheckListItemPrivate();
     on = false; // ### remove on ver 4
     // CheckBoxControllers by default have tristate set to true
     if (myType == CheckBoxController)
@@ -6011,7 +6011,7 @@ void QCheckListItem::init()
     Destroys the item, and all its children to any depth, freeing up
     all allocated resources.
 */
-QCheckListItem::~QCheckListItem()
+Q3CheckListItem::~Q3CheckListItem()
 {
     if (myType == RadioButton
          && d->exclusive && d->exclusive->d
@@ -6023,13 +6023,13 @@ QCheckListItem::~QCheckListItem()
 }
 
 /*!
-    \fn QCheckListItem::Type QCheckListItem::type() const
+    \fn Q3CheckListItem::Type Q3CheckListItem::type() const
 
     Returns the type of this item.
 */
 
 /*!
-   \fn  bool QCheckListItem::isOn() const
+   \fn  bool Q3CheckListItem::isOn() const
 
     Returns true if the item is toggled on; otherwise returns false.
 */
@@ -6042,10 +6042,10 @@ QCheckListItem::~QCheckListItem()
 
    \sa state() isTristate()
 */
-void QCheckListItem::setTristate(bool b)
+void Q3CheckListItem::setTristate(bool b)
 {
     if ((myType != CheckBoxController) && (myType != CheckBox)) {
-        qWarning("QCheckListItem::setTristate(), has no effect on RadioButton "
+        qWarning("Q3CheckListItem::setTristate(), has no effect on RadioButton "
                   "or RadioButtonController.");
         return;
     }
@@ -6057,7 +6057,7 @@ void QCheckListItem::setTristate(bool b)
 
    \sa setTristate()
 */
-bool QCheckListItem::isTristate() const
+bool Q3CheckListItem::isTristate() const
 {
     return d->tristate;
 }
@@ -6065,9 +6065,9 @@ bool QCheckListItem::isTristate() const
 /*!
     Returns the state of the item.
 
-    \sa QCheckListItem::ToggleState
+    \sa Q3CheckListItem::ToggleState
 */
-QCheckListItem::ToggleState QCheckListItem::state() const
+Q3CheckListItem::ToggleState Q3CheckListItem::state() const
 {
     if (!isTristate() && internalState() == NoChange)
         return Off;
@@ -6079,7 +6079,7 @@ QCheckListItem::ToggleState QCheckListItem::state() const
   Same as the public state() except this one does not mask NoChange into Off
   when tristate is disabled.
 */
-QCheckListItem::ToggleState QCheckListItem::internalState() const
+Q3CheckListItem::ToggleState Q3CheckListItem::internalState() const
 {
     return d->currentState;
 }
@@ -6102,7 +6102,7 @@ QCheckListItem::ToggleState QCheckListItem::internalState() const
     children. If there was no previous stored state the children are
     all set to \c On.
 */
-void QCheckListItem::setState(ToggleState s)
+void Q3CheckListItem::setState(ToggleState s)
 {
     if (myType == CheckBoxController && state() == NoChange)
         updateStoredState(this);
@@ -6114,7 +6114,7 @@ void QCheckListItem::setState(ToggleState s)
   controller / parent controller should be aware of these changes, \a store
   tells if the parent should store its children if certain conditions arise
 */
-void QCheckListItem::setState(ToggleState s, bool update, bool store)
+void Q3CheckListItem::setState(ToggleState s, bool update, bool store)
 {
 
     if (s == internalState())
@@ -6124,8 +6124,8 @@ void QCheckListItem::setState(ToggleState s, bool update, bool store)
         setCurrentState(s);
         stateChange(state());
         if (update && parent() && parent()->rtti() == 1
-             && ((QCheckListItem*)parent())->type() == CheckBoxController)
-            ((QCheckListItem*)parent())->updateController(update, store);
+             && ((Q3CheckListItem*)parent())->type() == CheckBoxController)
+            ((Q3CheckListItem*)parent())->updateController(update, store);
     } else if (myType == CheckBoxController) {
         if (s == NoChange) {
             restoreState(this);
@@ -6134,9 +6134,9 @@ void QCheckListItem::setState(ToggleState s, bool update, bool store)
             int childCount = 0;
             while(item) {
                 if (item->rtti() == 1 &&
-                     (((QCheckListItem*)item)->type() == CheckBox ||
-                       ((QCheckListItem*)item)->type() == CheckBoxController)) {
-                    QCheckListItem *checkItem = (QCheckListItem*)item;
+                     (((Q3CheckListItem*)item)->type() == CheckBox ||
+                       ((Q3CheckListItem*)item)->type() == CheckBoxController)) {
+                    Q3CheckListItem *checkItem = (Q3CheckListItem*)item;
                     checkItem->setState(s, false, false);
                     childCount++;
                 }
@@ -6148,8 +6148,8 @@ void QCheckListItem::setState(ToggleState s, bool update, bool store)
                     updateController(false, false);
                     if (oldState != internalState() &&
                          parent() && parent()->rtti() == 1 &&
-                         ((QCheckListItem*)parent())->type() == CheckBoxController)
-                        ((QCheckListItem*)parent())->updateController(update, store);
+                         ((Q3CheckListItem*)parent())->type() == CheckBoxController)
+                        ((Q3CheckListItem*)parent())->updateController(update, store);
 
                         updateController(update, store);
                 } else {
@@ -6157,8 +6157,8 @@ void QCheckListItem::setState(ToggleState s, bool update, bool store)
                     setCurrentState(s);
                     stateChange(state());
                     if (parent() && parent()->rtti() == 1
-                         && ((QCheckListItem*)parent())->type() == CheckBoxController)
-                        ((QCheckListItem*)parent())->updateController(update, store);
+                         && ((Q3CheckListItem*)parent())->type() == CheckBoxController)
+                        ((Q3CheckListItem*)parent())->updateController(update, store);
                 }
             } else {
                 setCurrentState(s);
@@ -6189,7 +6189,7 @@ void QCheckListItem::setState(ToggleState s, bool update, bool store)
   inline function isOn() needs the "on" bool ### should be changed in
   ver 4
 */
-void QCheckListItem::setCurrentState(ToggleState s)
+void Q3CheckListItem::setCurrentState(ToggleState s)
 {
     ToggleState old = d->currentState;
     d->currentState = s;
@@ -6211,7 +6211,7 @@ void QCheckListItem::setCurrentState(ToggleState s)
 /*
   updates the internally stored state of this item for the parent (key)
 */
-void QCheckListItem::setStoredState(ToggleState newState, QCheckListItem *key)
+void Q3CheckListItem::setStoredState(ToggleState newState, Q3CheckListItem *key)
 {
     if (myType == CheckBox || myType == CheckBoxController)
         d->statesDict[key] = newState;
@@ -6221,9 +6221,9 @@ void QCheckListItem::setStoredState(ToggleState newState, QCheckListItem *key)
   Returns the stored state for this item for the given key.
   If the key is not found it returns Off.
 */
-QCheckListItem::ToggleState QCheckListItem::storedState(QCheckListItem *key) const
+Q3CheckListItem::ToggleState Q3CheckListItem::storedState(Q3CheckListItem *key) const
 {
-    QHash<QCheckListItem *, QCheckListItem::ToggleState>::Iterator it = d->statesDict.find(key);
+    QHash<Q3CheckListItem *, Q3CheckListItem::ToggleState>::Iterator it = d->statesDict.find(key);
     if (it != d->statesDict.end())
         return it.value();
     else
@@ -6232,7 +6232,7 @@ QCheckListItem::ToggleState QCheckListItem::storedState(QCheckListItem *key) con
 
 
 /*!
-    \fn QString QCheckListItem::text() const
+    \fn QString Q3CheckListItem::text() const
 
     Returns the item's text.
 */
@@ -6242,7 +6242,7 @@ QCheckListItem::ToggleState QCheckListItem::storedState(QCheckListItem *key) con
     If this is a \c RadioButtonController that has \c RadioButton
     children, turn off the child that is on.
 */
-void QCheckListItem::turnOffChild()
+void Q3CheckListItem::turnOffChild()
 {
     if (myType == RadioButtonController && d->exclusive)
         d->exclusive->setOn(false);
@@ -6251,7 +6251,7 @@ void QCheckListItem::turnOffChild()
 /*!
     Toggle check box or set radio button to on.
 */
-void QCheckListItem::activate()
+void Q3CheckListItem::activate()
 {
     Q3ListView * lv = listView();
 
@@ -6263,7 +6263,7 @@ void QCheckListItem::activate()
     if (activatedPos(pos)) {
         bool parentControl = false;
         if (parent() && parent()->rtti() == 1  &&
-            ((QCheckListItem*) parent())->type() == RadioButtonController)
+            ((Q3CheckListItem*) parent())->type() == RadioButtonController)
             parentControl = true;
 
         int x = parentControl ? 0 : 3;
@@ -6311,7 +6311,7 @@ void QCheckListItem::activate()
     Sets the button on if \a b is true, otherwise sets it off.
     Maintains radio button exclusivity.
 */
-void QCheckListItem::setOn(bool b )
+void Q3CheckListItem::setOn(bool b )
 {
     if (b)
         setState(On , true, true);
@@ -6321,7 +6321,7 @@ void QCheckListItem::setOn(bool b )
 
 
 /*!
-    \fn void QCheckListItem::stateChange(bool b)
+    \fn void Q3CheckListItem::stateChange(bool b)
 
     This virtual function is called when the item changes its state.
     \a b is true if the state is \c On; otherwise the state is \c Off.
@@ -6330,7 +6330,7 @@ void QCheckListItem::setOn(bool b )
     use state() to determine if the state is actually \c Off or \c
     NoChange.
 */
-void QCheckListItem::stateChange(bool)
+void Q3CheckListItem::stateChange(bool)
 {
 }
 
@@ -6338,7 +6338,7 @@ void QCheckListItem::stateChange(bool)
   Calls the public virtual function if the state is changed to either On, NoChange or Off.
   NoChange reports the same as Off - ### should be fixed in ver4
 */
-void QCheckListItem::stateChange(ToggleState s)
+void Q3CheckListItem::stateChange(ToggleState s)
 {
     stateChange(s == On);
 }
@@ -6347,7 +6347,7 @@ void QCheckListItem::stateChange(ToggleState s)
   sets the state of the CheckBox and CheckBoxController back to
   previous stored state
 */
-void QCheckListItem::restoreState(QCheckListItem *key, int depth)
+void Q3CheckListItem::restoreState(Q3CheckListItem *key, int depth)
 {
     switch (type()) {
     case CheckBox:
@@ -6361,9 +6361,9 @@ void QCheckListItem::restoreState(QCheckListItem *key, int depth)
         while (item) {
             // recursively calling restoreState for children of type CheckBox and CheckBoxController
             if (item->rtti() == 1 &&
-                 (((QCheckListItem*)item)->type() == CheckBox ||
-                   ((QCheckListItem*)item)->type() == CheckBoxController)) {
-                ((QCheckListItem*)item)->restoreState(key , depth+1);
+                 (((Q3CheckListItem*)item)->type() == CheckBox ||
+                   ((Q3CheckListItem*)item)->type() == CheckBoxController)) {
+                ((Q3CheckListItem*)item)->restoreState(key , depth+1);
                 childCount++;
             }
             item = item->nextSibling();
@@ -6390,25 +6390,25 @@ void QCheckListItem::restoreState(QCheckListItem *key, int depth)
   if necessary. If the controllers state change, then his parent again is
   called to update itself.
 */
-void QCheckListItem::updateController(bool update , bool store)
+void Q3CheckListItem::updateController(bool update , bool store)
 {
     if (myType != CheckBoxController)
         return;
 
-    QCheckListItem *controller = 0;
+    Q3CheckListItem *controller = 0;
     // checks if this CheckBoxController has another CheckBoxController as parent
     if (parent() && parent()->rtti() == 1
-         && ((QCheckListItem*)parent())->type() == CheckBoxController)
-        controller = (QCheckListItem*)parent();
+         && ((Q3CheckListItem*)parent())->type() == CheckBoxController)
+        controller = (Q3CheckListItem*)parent();
 
     ToggleState theState = Off;
     bool first = true;
     Q3ListViewItem *item = firstChild();
     while(item && theState != NoChange) {
         if (item->rtti() == 1 &&
-             (((QCheckListItem*)item)->type() == CheckBox ||
-               ((QCheckListItem*)item)->type() == CheckBoxController)) {
-            QCheckListItem *checkItem = (QCheckListItem*)item;
+             (((Q3CheckListItem*)item)->type() == CheckBox ||
+               ((Q3CheckListItem*)item)->type() == CheckBoxController)) {
+            Q3CheckListItem *checkItem = (Q3CheckListItem*)item;
             if (first) {
                 theState = checkItem->internalState();
                 first = false;
@@ -6438,7 +6438,7 @@ void QCheckListItem::updateController(bool update , bool store)
 /*
   Makes all the children CheckBoxes update their storedState
 */
-void QCheckListItem::updateStoredState(QCheckListItem *key)
+void Q3CheckListItem::updateStoredState(Q3CheckListItem *key)
 {
     if (myType != CheckBoxController)
         return;
@@ -6446,7 +6446,7 @@ void QCheckListItem::updateStoredState(QCheckListItem *key)
     Q3ListViewItem *item = firstChild();
     while(item) {
         if (item->rtti() == 1) {
-            QCheckListItem *checkItem = (QCheckListItem*)item;
+            Q3CheckListItem *checkItem = (Q3CheckListItem*)item;
             if (checkItem->type() == CheckBox)
                 checkItem->setStoredState(checkItem->internalState(), key);
             else if (checkItem->type() == CheckBoxController)
@@ -6462,7 +6462,7 @@ void QCheckListItem::updateStoredState(QCheckListItem *key)
 /*!
     \reimp
 */
-void QCheckListItem::setup()
+void Q3CheckListItem::setup()
 {
     Q3ListViewItem::setup();
     int h = height();
@@ -6478,7 +6478,7 @@ void QCheckListItem::setup()
     \reimp
 */
 
-int QCheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int column) const
+int Q3CheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int column) const
 {
     int r = Q3ListViewItem::width(fm, lv, column);
     if (column == 0) {
@@ -6497,7 +6497,7 @@ int QCheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int colu
     The item is in column \a column, has width \a width and has
     alignment \a align. (See \l Qt::Alignment for valid alignments.)
 */
-void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
+void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
                                int column, int width, int align)
 {
     if (!p)
@@ -6521,7 +6521,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
 
     bool parentControl = false;
     if (parent() && parent()->rtti() == 1  &&
-         ((QCheckListItem*) parent())->type() == RadioButtonController)
+         ((Q3CheckListItem*) parent())->type() == RadioButtonController)
         parentControl = true;
 
     QFontMetrics fm(lv->fontMetrics());
@@ -6590,7 +6590,7 @@ void QCheckListItem::paintCell(QPainter * p, const QPalette & pal,
     Draws the focus rectangle \a r using the color group \a pal on the
     painter \a p.
 */
-void QCheckListItem::paintFocus(QPainter *p, const QPalette & pal,
+void Q3CheckListItem::paintFocus(QPainter *p, const QPalette & pal,
                                  const QRect & r)
 {
     bool intersect = true;
@@ -6603,7 +6603,7 @@ void QCheckListItem::paintFocus(QPainter *p, const QPalette & pal,
     }
     bool parentControl = false;
     if (parent() && parent()->rtti() == 1  &&
-         ((QCheckListItem*) parent())->type() == RadioButtonController)
+         ((Q3CheckListItem*) parent())->type() == RadioButtonController)
         parentControl = true;
     if (myType != RadioButtonController && intersect &&
          (lv->rootIsDecorated() || myType == RadioButton ||
@@ -6792,7 +6792,7 @@ void Q3ListView::ensureItemVisible(const Q3ListViewItem * i)
 
 
 /*!
-    \fn QString QCheckListItem::text(int n) const
+    \fn QString Q3CheckListItem::text(int n) const
 
     \reimp
 */
@@ -7580,13 +7580,13 @@ bool Q3ListViewItemIterator::matchesFlags(const Q3ListViewItem *item) const
 }
 
 /*
-  we want the iterator to check QCheckListItems as well, so we provide this convenience function
-  that checks if the rtti() is 1 which means QCheckListItem and if isOn is true, returns false otherwise.
+  we want the iterator to check Q3CheckListItems as well, so we provide this convenience function
+  that checks if the rtti() is 1 which means Q3CheckListItem and if isOn is true, returns false otherwise.
 */
 bool Q3ListViewItemIterator::isChecked(const Q3ListViewItem *item) const
 {
     if (item->rtti() == 1)
-        return ((const QCheckListItem*)item)->isOn();
+        return ((const Q3CheckListItem*)item)->isOn();
     else return false;
 }
 

@@ -26,7 +26,7 @@ class QIcon;
 
 class Q3ListView;
 struct Q3ListViewPrivate;
-struct QCheckListItemPrivate;
+struct Q3CheckListItemPrivate;
 class Q3ListViewItemIterator;
 struct Q3ListViewItemIteratorPrivate;
 class QDragObject;
@@ -202,13 +202,13 @@ private:
     friend class Q3ListView;
 };
 
-class QCheckListItem;
+class Q3CheckListItem;
 
 class Q_COMPAT_EXPORT Q3ListView : public Q3ScrollView
 {
     friend class Q3ListViewItemIterator;
     friend class Q3ListViewItem;
-    friend class QCheckListItem;
+    friend class Q3CheckListItem;
     friend class Q3ListViewToolTip;
 
     Q_OBJECT
@@ -440,7 +440,7 @@ private:
 };
 
 
-class Q_COMPAT_EXPORT QCheckListItem : public Q3ListViewItem
+class Q_COMPAT_EXPORT Q3CheckListItem : public Q3ListViewItem
 {
 public:
     enum Type { RadioButton,
@@ -451,23 +451,23 @@ public:
 
     enum ToggleState { Off, NoChange, On };
 
-    QCheckListItem(QCheckListItem *parent, const QString &text,
+    Q3CheckListItem(Q3CheckListItem *parent, const QString &text,
                     Type = RadioButtonController);
-    QCheckListItem(QCheckListItem *parent, Q3ListViewItem *after,
+    Q3CheckListItem(Q3CheckListItem *parent, Q3ListViewItem *after,
                     const QString &text, Type = RadioButtonController);
-    QCheckListItem(Q3ListViewItem *parent, const QString &text,
+    Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
                     Type = RadioButtonController);
-    QCheckListItem(Q3ListViewItem *parent, Q3ListViewItem *after,
+    Q3CheckListItem(Q3ListViewItem *parent, Q3ListViewItem *after,
                     const QString &text, Type = RadioButtonController);
-    QCheckListItem(Q3ListView *parent, const QString &text,
+    Q3CheckListItem(Q3ListView *parent, const QString &text,
                     Type = RadioButtonController);
-    QCheckListItem(Q3ListView *parent, Q3ListViewItem *after,
+    Q3CheckListItem(Q3ListView *parent, Q3ListViewItem *after,
                     const QString &text, Type = RadioButtonController);
-    QCheckListItem(Q3ListViewItem *parent, const QString &text,
+    Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
                     const QPixmap &);
-    QCheckListItem(Q3ListView *parent, const QString &text,
+    Q3CheckListItem(Q3ListView *parent, const QString &text,
                     const QPixmap &);
-    ~QCheckListItem();
+    ~Q3CheckListItem();
 
     void paintCell(QPainter *,  const QPalette & pal,
                     int column, int width, int alignment);
@@ -498,18 +498,18 @@ protected:
 private:
     void init();
     ToggleState internalState() const;
-    void setStoredState(ToggleState newState, QCheckListItem *key);
-    ToggleState storedState(QCheckListItem *key) const;
+    void setStoredState(ToggleState newState, Q3CheckListItem *key);
+    ToggleState storedState(Q3CheckListItem *key) const;
     void stateChange(ToggleState s);
-    void restoreState(QCheckListItem *key, int depth = 0);
+    void restoreState(Q3CheckListItem *key, int depth = 0);
     void updateController(bool update = true , bool store = false);
-    void updateStoredState(QCheckListItem *key);
+    void updateStoredState(Q3CheckListItem *key);
     void setState(ToggleState s, bool update, bool store);
     void setCurrentState(ToggleState s);
 
     Type myType;
     bool on;
-    QCheckListItemPrivate *d;
+    Q3CheckListItemPrivate *d;
 };
 
 class Q_COMPAT_EXPORT Q3ListViewItemIterator

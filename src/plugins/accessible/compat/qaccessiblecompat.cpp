@@ -182,8 +182,8 @@ QAccessible::State QAccessibleListView::state(int child) const
     if (!listView()->itemRect(item).isValid())
         state |= Invisible;
 
-    if (item->rtti() == QCheckListItem::RTTI) {
-        if (((QCheckListItem*)item)->isOn())
+    if (item->rtti() == Q3CheckListItem::RTTI) {
+        if (((Q3CheckListItem*)item)->isOn())
             state|=Checked;
     }
     return state;
