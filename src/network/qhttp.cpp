@@ -5,6 +5,9 @@
  ****************************************************/
 
 #include "qhttp.h"
+
+#ifndef QT_NO_NETWORKPROTOCOL_HTTP
+
 #include "qsocket.h"
 #include "qtextstream.h"
 
@@ -1163,3 +1166,5 @@ int QHttpConnection::keepAliveTimeout() const
 {
     return m_keepAliveTimeout;
 }
+
+#endif

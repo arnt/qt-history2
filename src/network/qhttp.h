@@ -2,6 +2,9 @@
 #define VV_HTTP_H
 
 #include <qmap.h>
+
+#ifndef QT_NO_NETWORKPROTOCOL_HTTP
+
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qobject.h>
@@ -325,5 +328,7 @@ QTextStream& operator<<( QTextStream&, const QHttpRequestHeader& );
 
 QTextStream& operator>>( QTextStream&, QHttpReplyHeader& );
 QTextStream& operator<<( QTextStream&, const QHttpReplyHeader& );
+
+#endif
 
 #endif
