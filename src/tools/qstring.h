@@ -586,6 +586,8 @@ public:
     uint        toUInt( bool *ok=0, int base=10 )       const;
     long        toLong( bool *ok=0, int base=10 )       const;
     ulong       toULong( bool *ok=0, int base=10 )      const;
+    Q_LLONG     toLongLong( bool *ok=0, int base=10 )   const;
+    Q_ULLONG    toULongLong( bool *ok=0, int base=10 )  const;
     float       toFloat( bool *ok=0 )   const;
     double      toDouble( bool *ok=0 )  const;
 

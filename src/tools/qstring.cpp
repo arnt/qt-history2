@@ -61,6 +61,16 @@
 #include "qcleanuphandler.h"
 #endif
 
+#ifndef LLONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
+#endif
+#ifndef LLONG_MIN
+#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
+#endif
+#ifndef ULLONG_MAX
+#define ULLONG_MAX Q_UINT64_C(18446744073709551615)
+#endif
+
 static int ucstrcmp( const QString &as, const QString &bs )
 {
     const QChar *a = as.unicode();
@@ -4277,10 +4287,37 @@ static bool ok_in_base( QChar c, int base )
 
 long QString::toLong( bool *ok, int base ) const
 {
+    Q_LLONG v = toLongLong( ok, base );
+    // ### <= is used because versions up to 3.1.x rejected it
+    if ( ok && *ok && (v <= LONG_MIN || v > LONG_MAX) ) {
+	*ok = FALSE;
+	v = 0;
+    }
+    return long(v);
+}
+
+/*!
+    Returns the string converted to a \c {long long} value to the base \a
+    base, which is 10 by default and must be between 2 and 36.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+Q_LLONG QString::toLongLong( bool *ok, int base ) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QString::toLongLong: Invalid base %d", base );
+	base = 10;
+    }
+#endif
     const QChar *p = unicode();
-    ulong val = 0;
+    Q_ULLONG val = 0;
     int l = length();
-    const ulong max_mult = LONG_MAX / base;
+    const Q_ULLONG max_mult = LLONG_MAX / base;
     bool is_ok = FALSE;
     int neg = 0;
     if ( !p )
@@ -4298,7 +4335,7 @@ long QString::toLong( bool *ok, int base ) const
 	p++;
     }
 
-    // NOTE: toULong() code is similar
+    // NOTE: toULongLong() code is similar
     if ( !l || !ok_in_base(*p,base) )
 	goto bye;
     while ( l && ok_in_base(*p,base) ) {
@@ -4313,7 +4350,7 @@ long QString::toLong( bool *ok, int base ) const
 		dv = *p - 'A' + 10;
 	}
 	if ( val > max_mult ||
-	    (val == max_mult && dv > (LONG_MAX % base) + neg) )
+	    (val == max_mult && dv > (LLONG_MAX % base) + neg) )
 	    goto bye;
 	val = base * val + dv;
 	p++;
@@ -4325,7 +4362,7 @@ long QString::toLong( bool *ok, int base ) const
 bye:
     if ( ok )
 	*ok = is_ok;
-    return is_ok ? ( neg ? -( (long) val ) : (long) val ) : 0L;
+    return is_ok ? ( neg ? -( (Q_LLONG) val ) : (Q_LLONG) val ) : Q_INT64_C(0);
 }
 
 /*!
@@ -4340,10 +4377,36 @@ bye:
 
 ulong QString::toULong( bool *ok, int base ) const
 {
+    Q_ULLONG v = toULongLong( ok, base );
+    if ( ok && *ok && (v > ULONG_MAX) ) {
+	*ok = FALSE;
+	v = 0;
+    }
+    return ulong(v);
+}
+
+/*!
+    Returns the string converted to an \c {unsigned long long} value to the
+    base \a base, which is 10 by default and must be between 2 and 36.
+
+    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
+    FALSE; otherwise \a *ok is set to TRUE.
+
+    \sa number()
+*/
+
+Q_ULLONG QString::toULongLong( bool *ok, int base ) const
+{
+#if defined(QT_CHECK_RANGE)
+    if ( base < 2 || base > 36 ) {
+	qWarning( "QString::toULongLong: Invalid base %d", base );
+	base = 10;
+    }
+#endif
     const QChar *p = unicode();
-    ulong val = 0;
+    Q_ULLONG val = 0;
     int l = length();
-    const ulong max_mult = ULONG_MAX / base;
+    const Q_ULLONG max_mult = ULLONG_MAX / base;
     bool is_ok = FALSE;
     if ( !p )
 	goto bye;
@@ -4354,7 +4417,7 @@ ulong QString::toULong( bool *ok, int base ) const
     if ( *p == '+' )
 	l--,p++;
 
-    // NOTE: toLong() code is similar
+    // NOTE: toLongLong() code is similar
     if ( !l || !ok_in_base(*p,base) )
 	goto bye;
     while ( l && ok_in_base(*p,base) ) {
@@ -4368,7 +4431,7 @@ ulong QString::toULong( bool *ok, int base ) const
 	    else
 		dv = *p - 'A' + 10;
 	}
-	if ( val > max_mult || (val == max_mult && dv > ULONG_MAX % base) )
+	if ( val > max_mult || (val == max_mult && dv > ULLONG_MAX % base) )
 	    goto bye;
 	val = base * val + dv;
 	p++;
@@ -4394,7 +4457,7 @@ bye:
 
 short QString::toShort( bool *ok, int base ) const
 {
-    long v = toLong( ok, base );
+    Q_LLONG v = toLongLong( ok, base );
     if ( ok && *ok && (v < SHRT_MIN || v > SHRT_MAX) ) {
 	*ok = FALSE;
 	v = 0;
@@ -4413,7 +4476,7 @@ short QString::toShort( bool *ok, int base ) const
 
 ushort QString::toUShort( bool *ok, int base ) const
 {
-    ulong v = toULong( ok, base );
+    Q_ULLONG v = toULongLong( ok, base );
     if ( ok && *ok && (v > USHRT_MAX) ) {
 	*ok = FALSE;
 	v = 0;
@@ -4441,9 +4504,12 @@ ushort QString::toUShort( bool *ok, int base ) const
 
 int QString::toInt( bool *ok, int base ) const
 {
-    long v = toLong( ok, base );
+    Q_LLONG v = toLongLong( ok, base );
     if ( ok && *ok && (v < INT_MIN || v > INT_MAX) ) {
 	*ok = FALSE;
+	// ### why do we do set v = 0 only if ok is set ? the documentation
+	// ### doesn't specify anything but the behaviour is inconsistent
+	// ### applies to other conversions as well.
 	v = 0;
     }
     return (int)v;
@@ -4461,7 +4527,7 @@ int QString::toInt( bool *ok, int base ) const
 
 uint QString::toUInt( bool *ok, int base ) const
 {
-    ulong v = toULong( ok, base );
+    Q_ULLONG v = toULongLong( ok, base );
     if ( ok && *ok && (v > UINT_MAX) ) {
 	*ok = FALSE;
 	v = 0;
@@ -4507,13 +4573,6 @@ float QString::toFloat( bool *ok ) const
 {
     return (float)toDouble( ok );
 }
-
-#ifndef LLONG_MAX
-#define LLONG_MAX Q_INT64_C(9223372036854775807)
-#endif
-#ifndef LLONG_MIN
-#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
-#endif
 
 /*!
     Sets the string to the printed value of \a n in base \a base and
