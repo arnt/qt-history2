@@ -1062,7 +1062,7 @@ public:
 
 // compilers which follow outdated template instantiation rules
 // require a class to have a comparison operator to exist when
-// a QValueList of this type is instantiated. It's not actually
+// a QList of this type is instantiated. It's not actually
 // used in the list, though. Hence the dummy implementation.
 // Just in case other code relies on it we better trigger a warning
 // mandating a real implementation.
