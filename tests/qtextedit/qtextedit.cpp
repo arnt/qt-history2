@@ -38,6 +38,7 @@ static QPixmap *bufferPixmap( const QSize &s, const QColor &fill )
 QTextEdit::QTextEdit( QWidget *parent, QTextEditDocument *d )
     : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), doc( d ), undoRedoInfo( d )
 {
+    setMinimumWidth( 50 );
     doc->setFormatter( new QTextEditFormatterBreakWords( d ) );
     currentFormat = doc->formatCollection()->defaultFormat();
 
