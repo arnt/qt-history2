@@ -44,7 +44,7 @@ public:
             ranges.removeAll(*it);
     }
 
-    const QAbstractItemModel *model;
+    QPointer<QAbstractItemModel> model;
     QItemSelection ranges;
     QItemSelection currentSelection;
     QPersistentModelIndex currentIndex;
