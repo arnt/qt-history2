@@ -950,6 +950,7 @@ void SetupWizardImpl::configDone()
 	connect( &make, SIGNAL( readyReadStderr() ), this, SLOT( readMakeError() ) );
 
 	args << makeCmds[ globalInformation.sysId() ];
+#if !(defined(Q_OS_MACX) && (defined(EVAL) || defined(EDU)))
 	args << "sub-src";
 	args << "sub-plugins";
 	if ( optionsPage->installTools->isChecked() )
@@ -960,6 +961,7 @@ void SetupWizardImpl::configDone()
 	    args << "sub-examples";
 	if ( optionsPage->installExtensions->isChecked() )
 	    args << "sub-extensions";
+#endif
 
 	make.setWorkingDirectory( QEnvironment::getEnv( "QTDIR" ) );
 	make.setArguments( args );
