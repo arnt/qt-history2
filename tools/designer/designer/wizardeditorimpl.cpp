@@ -22,6 +22,7 @@
 #include "formwindow.h"
 #include "mainwindow.h"
 #include "command.h"
+#include "listboxrename.h"
 
 #include <qwizard.h>
 #include <qlistbox.h>
@@ -33,6 +34,9 @@ WizardEditor::WizardEditor( QWidget *parent, QWizard *w, FormWindow *fw )
 {
     connect( buttonHelp, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     fillListBox();
+
+    // Add in-place rename
+    ListBoxRename *listBoxRename = new ListBoxRename( listBox );
 }
 
 WizardEditor::~WizardEditor()
@@ -116,12 +120,12 @@ void WizardEditor::addClicked()
 
 void WizardEditor::removeClicked()
 {
-    if (listBox->count() < 2 ) return;
+    if ( listBox->count() < 2 ) return;
 
     int index = listBox->currentItem();
 
     // update listbox
-    listBox->removeItem( index);
+    listBox->removeItem( index );
 
     // schedule remove command
     DeleteWizardPageCommand *cmd = new DeleteWizardPageCommand( tr( "Delete Page %1 of %2" )
@@ -192,15 +196,12 @@ void WizardEditor::itemHighlighted( int )
 void WizardEditor::itemSelected( int index )
 {
     if ( index < 0 ) return;
-
-    bool ok = FALSE;
-    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, listBox->text( index ), &ok, this );
-    if ( ok ) {
-	QString pn( tr( "Rename page %1 of %2" ).arg( listBox->text( index ) ).arg( wizard->name() ) );
-	RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formwindow, wizard, index, text );
+    qDebug( "itemSelected: %d", index );
+    // Called when Qt::Key_Enter was pressed.
+    // ListBoxRename has renamed the list item, so we only need to rename the page to the same name.
+    QString pn( tr( "Rename page %1 of %2" ).arg( wizard->title( wizard->page( index ) ) ).arg( wizard->name() ) );
+	RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formwindow, wizard, index, listBox->text( index ) );
 	commands.append( cmd );
-	listBox->changeItem( text, index );
-    }
 }
 
 void WizardEditor::updateButtons()
