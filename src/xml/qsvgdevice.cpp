@@ -200,8 +200,9 @@ bool QSvgDevice::play( QPainter *painter )
 		   ? attr.namedItem( "height" ).nodeValue() : QString( "100%" );
     double width = parseLen( wstr, 0, TRUE );
     double height = parseLen( hstr, 0, FALSE );
-    brect.setWidth( int(width) );
-    brect.setHeight( int(height) );
+    // SVG doesn't respect x and y. But we want a proper bounding rect.
+    brect.setWidth( int(width) - x );
+    brect.setHeight( int(height) - y );
     painter->setClipRect( brect, QPainter::CoordPainter );
 
     if ( attr.contains( "viewBox" ) ) {
@@ -294,10 +295,13 @@ bool QSvgDevice::save( const QString &fileName )
     // now we have the info about name and dimensions available
     QDomElement root = doc.documentElement();
     root.setAttribute( "id", svgName );
+    // the standard doesn't take respect x and y. But we want a
+    // proper bounding rect. We make width and height bigger when
+    // writing out and subtract x and y when reading in.
     root.setAttribute( "x", brect.x() );
     root.setAttribute( "y", brect.y() );
-    root.setAttribute( "width", brect.width() );
-    root.setAttribute( "height", brect.height() );
+    root.setAttribute( "width", brect.width() + brect.x() );
+    root.setAttribute( "height", brect.height() + brect.y() );
 
     // ... and know how to name any image files to be written out
     int icount = 0;
