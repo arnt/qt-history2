@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#65 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#66 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -2844,10 +2844,18 @@ void QDomDocumentTypePrivate::save( QTextStream& s, int ) const
 {
     if ( name.isEmpty() )
 	return;
-    s << "<!DOCTYPE " << name << " ";
+    s << "<!DOCTYPE " << name;
+
+    if ( !publicId.isNull() ) {
+	s << " PUBLIC \"" << publicId << "\"";
+	if ( !systemId.isNull() )
+	    s << " \"" << systemId << "\"";
+    } else if ( !systemId.isNull() ) {
+	s << " SYSTEM \"" << systemId << "\"";
+    }
 
     if ( entities->length() > 0 || notations->length() > 0 ) {
-	s << "[ " << endl;
+	s << " [ " << endl;
 
 	QDictIterator<QDomNodePrivate> it2( notations->map );
 	for ( ; it2.current(); ++it2 )
