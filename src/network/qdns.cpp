@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#37 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#38 $
 **
 ** Implementation of QDns class.
 **
@@ -1948,8 +1948,6 @@ QString QDns::canonicalName() const
 // <arpa/nameser.h> are included by <resolv.h> on some systems.
 // But BSDs do not include them automatically. So let's always
 // include them...
-#include <sys/types.h>
-#include <netinet/in.h>
 #if defined (Q_OS_SCO) || defined (Q_OS_FREEBSD)
 // Problem reported on SCO OpenServer 5.0.5, FreeBSD 3.x.
 #  define class c_class
@@ -1958,7 +1956,6 @@ QString QDns::canonicalName() const
 #if defined (Q_OS_SCO) || defined (Q_OS_FREEBSD)
 #  undef class
 #endif
-
 #include <resolv.h>
 
 #if defined (Q_OS_HPUX)
