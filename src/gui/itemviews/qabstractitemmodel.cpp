@@ -95,7 +95,6 @@ bool QAbstractItemModelDrag::decode(QMimeSource *src,
 {
     if (!canDecode(src))
         return false;
-    return false;
 
     QByteArray encoded = src->encodedData(format());
     QDataStream stream(&encoded, IO_ReadOnly);
