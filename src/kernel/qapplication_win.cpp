@@ -2635,6 +2635,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	if ( curWin != winId() ) {		// new current window
 	    qt_dispatchEnterLeave( this, QWidget::find(curWin) );
 	    curWin = winId();
+#ifndef Q_OS_TEMP
 	    static bool trackMouseEventLookup = FALSE;
 	    typedef BOOL (WINAPI *PtrTrackMouseEvent)(LPTRACKMOUSEEVENT);
 	    static PtrTrackMouseEvent ptrTrackMouseEvent = 0;
@@ -2652,6 +2653,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 		tme.dwHoverTime = (DWORD)-1; // HOVER_DEFAULT
 		ptrTrackMouseEvent( &tme );
 	    }
+#endif // Q_OS_TEMP
 	}
 
 	POINT curPos = msg.pt;

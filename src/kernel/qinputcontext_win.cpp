@@ -201,6 +201,7 @@ void QInputContext::init()
 	    aimmpump->Start();
     }
 
+#ifndef Q_OS_TEMP
     // figure out whether a RTL language is installed
     typedef BOOL(WINAPI *PtrIsValidLanguageGroup)(DWORD,DWORD);
     PtrIsValidLanguageGroup isValidLanguageGroup = (PtrIsValidLanguageGroup)QLibrary::resolve( "kernel32", "IsValidLanguageGroup" );
@@ -214,6 +215,9 @@ void QInputContext::init()
 			  || IsValidLocale( MAKELCID( MAKELANGID( LANG_SYRIAC, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED )
 #endif
 			  || IsValidLocale( MAKELCID( MAKELANGID( LANG_FARSI, SUBLANG_DEFAULT ), SORT_DEFAULT ), LCID_INSTALLED );
+#else
+    qt_use_rtl_extensions = FALSE;
+#endif // Q_OS_TEMP
 }
 
 void QInputContext::shutdown()
