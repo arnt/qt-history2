@@ -30,7 +30,7 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		    oldHighlightedParag->format();
 		}
 		oldHighlightedParag = 0;
-		if ( findCursor( c, from, to ) ) {
+		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
 		    QFont fn( qApp->font() );
 		    fn.setUnderline( TRUE );
 		    if ( !highlighteFormat )
