@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 2.10 1999/06/09 10:19:37 paul Exp $
+** $Id: qarray.doc,v 2.11 1999/08/06 17:35:13 aavit Exp $
 **
 ** QArray class documentation
 **
@@ -400,3 +400,19 @@
   It is a pointer.
 */
 
+
+/*****************************************************************************
+  QByteArray documentation
+ *****************************************************************************/
+
+/*!
+  \class QByteArray qcstring.h
+  \brief The QByteArray class provides an array of bytes.
+
+  \ingroup tools
+
+  The QByteArray class provides an explicitly shared array of
+  bytes. It is useful for manipulating memory areas with custom
+  data. QByteArray is implemented as QArray<char>. See the QArray
+  documentation for further information.  
+*/
