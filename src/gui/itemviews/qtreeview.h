@@ -47,6 +47,8 @@ public:
     int columnAt(int x) const;
 
     bool isColumnHidden(int column) const;
+    void setColumnHidden(int column, bool hide);
+
     bool isOpen(const QModelIndex &index) const;
 
     QRect itemViewportRect(const QModelIndex &index) const;

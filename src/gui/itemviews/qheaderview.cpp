@@ -947,30 +947,18 @@ void QHeaderView::resizeSection(int section, int size)
 }
 
 /*!
+  \fn void hideSection(int section)
     Hides the specified \a section.
 
     \sa showSection()
 */
 
-void QHeaderView::hideSection(int section)
-{
-    resizeSection(section, 0);
-    d->sections[index(section)].hidden = true;
-}
-
 /*!
+  \fn void showSection(int section)
    Shows the specified \a section.
 
    \sa hideSection()
 */
-
-void QHeaderView::showSection(int section)
-{
-    int i = index(section);
-    d->sections[i].hidden = false;
-    resizeSection(section, orientation() == Qt::Horizontal ? default_width : default_height);
-    // FIXME: when you show a section, you should get the old section size bach
-}
 
 /*!
     Returns true if the \a section is hidden from the user; otherwise
@@ -981,6 +969,22 @@ bool QHeaderView::isSectionHidden(int section) const
 {
     int i = index(section);
     return d->sections.at(i).hidden;
+}
+
+/*!
+  If \a hide is true the \a section is hidden, otherwise the \a section is shown.
+*/
+
+void QHeaderView::setSectionHidden(int section, bool hide)
+{
+    if (hide) {
+        resizeSection(section, 0);
+        d->sections[index(section)].hidden = true;
+    } else {
+        d->sections[index(section)].hidden = false;
+        resizeSection(section, orientation() == Qt::Horizontal ? default_width : default_height);
+        // FIXME: when you show a section, you should get the old section size bach
+    }
 }
 
 /*!

@@ -270,6 +270,15 @@ bool QTreeView::isColumnHidden(int column) const
 }
 
 /*!
+  If \a hide is true the \a column is hidden, otherwise the \a column is shown.
+*/
+
+void QTreeView::setColumnHidden(int column, bool hide)
+{
+    d->header->setSectionHidden(column, hide);
+}
+
+/*!
   Hides the \a column given.
 
   \sa showColumn() */

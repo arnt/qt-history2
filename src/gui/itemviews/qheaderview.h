@@ -59,9 +59,13 @@ public:
     void moveSection(int from, int to);
     void resizeSection(int section, int size);
 
-    void hideSection(int section);
-    void showSection(int section);
+    inline void hideSection(int section)
+        { setSectionHidden(section, true); }
+    inline void showSection(int section)
+        { setSectionHidden(section, false); }
+
     bool isSectionHidden(int section) const;
+    void setSectionHidden(int section, bool hide);
 
     int count() const;
     int index(int section) const;
