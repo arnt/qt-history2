@@ -705,7 +705,7 @@ void Project::save( bool onlyProjectFile )
 	    contents += *it + "\t= " + val + "\n";
     }
 
-    if ( !f.open( IO_WriteOnly ) ) {
+    if ( !f.open( IO_WriteOnly | IO_Translate ) ) {
 	QMessageBox::warning( MainWindow::self, "Save Project Failed", "Couldn't write project file " + filename );
 	return;
     }
@@ -836,7 +836,7 @@ void Project::saveConnections()
 
     /* .db xml */
     QFile f( makeAbsolute( dbFile ) );
-    if ( f.open( IO_WriteOnly ) ) {
+    if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );
 	ts.setCodec( QTextCodec::codecForName( "UTF-8" ) );
 	ts << "<!DOCTYPE DB><DB version=\"1.0\">" << endl;

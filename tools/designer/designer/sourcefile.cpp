@@ -77,7 +77,7 @@ bool SourceFile::save( bool ignoreModified )
 	QFile f( pro->makeAbsolute( filename ) );
 	if ( f.open( IO_ReadOnly ) ) {
 	    QFile f2( fn );
-	    if ( f2.open( IO_WriteOnly ) ) {
+	    if ( f2.open( IO_WriteOnly | IO_Translate ) ) {
 		QCString data( f.size() );
 		f.readBlock( data.data(), f.size() );
 		f2.writeBlock( data );
@@ -86,7 +86,7 @@ bool SourceFile::save( bool ignoreModified )
     }
 
     QFile f( pro->makeAbsolute( filename ) );
-    if ( !f.open( IO_WriteOnly ) )
+    if ( !f.open( IO_WriteOnly | IO_Translate ) )
 	return saveAs();
 
     QTextStream ts( &f );

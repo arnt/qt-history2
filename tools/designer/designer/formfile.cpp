@@ -172,7 +172,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	    QFile f( pro->makeAbsolute( filename ) );
 	    if ( f.open( IO_ReadOnly ) ) {
 		QFile f2( fn );
-		if ( f2.open( IO_WriteOnly ) ) {
+		if ( f2.open( IO_WriteOnly | IO_Translate ) ) {
 		    QCString data( f.size() );
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );
@@ -195,7 +195,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified, bool exportAsPackage 
 	    QFile f( pro->makeAbsolute( codeFile() ) );
 	    if ( f.open( IO_ReadOnly ) ) {
 		QFile f2( fn );
-		if ( f2.open( IO_WriteOnly ) ) {
+		if ( f2.open( IO_WriteOnly | IO_Translate) ) {
 		    QCString data( f.size() );
 		    f.readBlock( data.data(), f.size() );
 		    f2.writeBlock( data );

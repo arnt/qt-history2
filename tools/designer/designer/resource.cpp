@@ -463,7 +463,7 @@ bool Resource::save( const QString& filename, bool formCodeOnly )
     currFileName = filename;
 
     QFile f( filename );
-    if ( !f.open( IO_WriteOnly ) )
+    if ( !f.open( IO_WriteOnly | IO_Translate ) )
 	return FALSE;
     bool b = save( &f );
     f.close();
@@ -1836,7 +1836,7 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
 {
     QByteArray ba;
     QBuffer buf( ba );
-    buf.open( IO_WriteOnly );
+    buf.open( IO_WriteOnly | IO_Translate );
     QImageIO iio( &buf, "XPM" );
     iio.setImage( img );
     iio.write();
@@ -2649,7 +2649,7 @@ void Resource::saveFormCode()
     if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
 	return;
     QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
-    if ( f.open( IO_WriteOnly ) ) {
+    if ( f.open( IO_WriteOnly | IO_Translate ) ) {
 	QTextStream ts( &f );
 	ts << formwindow->formFile()->code();
     }
