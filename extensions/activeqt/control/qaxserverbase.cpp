@@ -1009,6 +1009,7 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    spSite->OnFocus(TRUE);
 		    spSite->Release();
 		}
+		that->activeqt->setFocus();
 	    }
 	}
 	break;
@@ -1239,7 +1240,11 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
     hmenuShared = ::CreateMenu();
     OLEMENUGROUPWIDTHS menuWidths;
     memset( &menuWidths, 0, sizeof(OLEMENUGROUPWIDTHS) );
-    m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
+    HRESULT hres = m_spInPlaceFrame->InsertMenus( hmenuShared, &menuWidths );
+    if ( FAILED(hres) ) {
+	::DestroyMenu( hmenuShared );
+	return;	   
+    }
 
     for ( uint i = 0; i < menuBar->count(); ++i ) {
 	int qid = menuBar->idAt( i );
@@ -1263,10 +1268,14 @@ void QAxServerBase::createMenu( QMenuBar *menuBar )
 	} );
     }
     menuWidths.width[1] = menuBar->count()+1;
+    m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
 
     HOLEMENU holemenu = OleCreateMenuDescriptor( hmenuShared, &menuWidths );
-    m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
-    m_spInPlaceFrame->GetWindow( &hwndMenuOwner );
+    hres = m_spInPlaceFrame->SetMenu( hmenuShared, holemenu, m_hWnd );
+    if ( FAILED(hres) ) {
+	::DestroyMenu( hmenuShared );
+	OleDestroyMenuDescriptor( holemenu );
+    }
 }
 
 extern bool ignoreSlots( const char *test );
@@ -2632,10 +2641,10 @@ int QAxServerBase::PreTranslateMessage( MSG *pMsg )
 	dwKeyMod += 2;	// KEYMOD_CONTROL
     if (::GetKeyState(VK_MENU) < 0)
 	dwKeyMod += 4;	// KEYMOD_ALT
-    HRESULT hRet = controlSite->TranslateAccelerator(pMsg, dwKeyMod);
+    controlSite->TranslateAccelerator(pMsg, dwKeyMod);
     controlSite->Release();
 
-    return hRet == S_OK;
+    return FALSE;
 }
 
 HRESULT WINAPI QAxServerBase::TranslateAccelerator( MSG *pMsg )
@@ -2846,19 +2855,20 @@ HRESULT QAxServerBase::internalActivate()
 	}
 
 	if ( m_spInPlaceFrame ) {
-	    m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
-	    menuBar = activeqt ? (QMenuBar*)activeqt->child( 0, "QMenuBar" ) : 0;
-	    if ( menuBar ) {
-		createMenu( menuBar );
-		menuBar->hide();
+	    hr = m_spInPlaceFrame->SetActiveObject( this, QStringToBSTR(class_name) );
+	    if ( !FAILED(hr) ) {
+		menuBar = activeqt ? (QMenuBar*)activeqt->child( 0, "QMenuBar" ) : 0;
+		if ( menuBar ) {
+		    createMenu( menuBar );
+		    menuBar->hide();
+		}
+		statusBar = activeqt ? (QStatusBar*)activeqt->child( 0, "QStatusBar" ) : 0;
+		if ( statusBar ) {
+		    const int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
+		    connectInternal( statusBar, index, (QObject*)this, 2, -1 );
+		    statusBar->hide();
+		}
 	    }
-	    statusBar = activeqt ? (QStatusBar*)activeqt->child( 0, "QStatusBar" ) : 0;
-	    if ( statusBar ) {
-		const int index = statusBar->metaObject()->findSignal( "messageChanged(const QString&)" );
-		connectInternal( statusBar, index, (QObject*)this, 2, -1 );
-		statusBar->hide();
-	    }
-
 	    m_spInPlaceFrame->SetBorderSpace(0);
 	}
 	if ( spInPlaceUIWindow ) {
