@@ -47,7 +47,6 @@ public:
     void setEditor( SourceEditor *e );
     void setFileName( const QString &fn );
     void setCode( const QString &c );
-    void setHasFormCode( bool b );
     void setModified( bool m, int who = WAnyOrAll );
     void setCodeEdited( bool b );
 
@@ -91,6 +90,7 @@ private:
     void setCodeModified( bool m );
     QString codeExtension() const;
     bool loadCode();
+    void parseCode( const QString &txt );
 
 private:
     QString filename;
@@ -100,7 +100,6 @@ private:
     SourceEditor *ed;
     QString cod;
     TimeStamp timeStamp;
-    bool hFormCode;
     bool codeEdited;
 
 };

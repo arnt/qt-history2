@@ -275,7 +275,7 @@ void EditSlots::currentTypeChanged( const QString &type )
 void EditSlots::removeSlotFromCode( const QString &slot, FormWindow *formWindow )
 {
     QString code = formWindow->formFile()->code();
-    if ( code.isEmpty() )
+    if ( code.isEmpty() || !formWindow->formFile()->hasFormCode() )
 	return;
     LanguageInterface *iface = MetaDataBase::languageInterface( formWindow->project()->language() );
     if ( !iface )

@@ -50,8 +50,7 @@ static QString make_func_pretty( const QString &s )
 
 FormFile::FormFile( const QString &fn, bool temp, Project *p )
     : filename( fn ), fileNameTemp( temp ), pro( p ), fw( 0 ), ed( 0 ),
-      timeStamp( 0, fn + codeExtension() ), hFormCode( FALSE ),
-      codeEdited( FALSE )
+      timeStamp( 0, fn + codeExtension() ), codeEdited( FALSE )
 {
     pro->addFormFile( this );
     loadCode();
@@ -97,12 +96,7 @@ void FormFile::setFileName( const QString &fn )
 void FormFile::setCode( const QString &c )
 {
     cod = c;
-    hFormCode = TRUE;
-}
-
-void FormFile::setHasFormCode( bool b )
-{
-    hFormCode = b;
+    parseCode( cod );
 }
 
 FormWindow *FormFile::formWindow() const
@@ -183,10 +177,8 @@ bool FormFile::save( bool withMsgBox )
 	return saveAs();
     if ( !isModified() )
 	return TRUE;
-    if ( ed ) {
-	hFormCode = TRUE;
+    if ( ed )
 	ed->save();
-    }
 
     if ( withMsgBox ) {
 	if ( !formWindow()->checkCustomWidgets() )
@@ -360,6 +352,8 @@ void FormFile::showFormWindow()
 void FormFile::showEditor()
 {
     showFormWindow();
+    if ( !hasFormCode() )
+	createFormCode();
     MainWindow::self->editSource();
 }
 
@@ -379,12 +373,17 @@ QString FormFile::codeExtension() const
 
 bool FormFile::hasFormCode() const
 {
-    return hFormCode;
+    QMap<QString, QString> bodies = MetaDataBase::functionBodies( formWindow() );
+    return !bodies.isEmpty();
 }
 
 void FormFile::createFormCode()
 {
-    hFormCode = TRUE;
+    if ( !formWindow() )
+	return;
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( !iface )
+	return;
     cod =
 	"/****************************************************************************\n"
 	"** ui.h extension file, included from the uic-generated form implementation.\n"
@@ -393,18 +392,25 @@ void FormFile::createFormCode()
 	"** update this file, preserving your code. Create an init() slot in place of\n"
 	"** a constructor, and a destroy() slot in place of a destructor.\n"
 	"*****************************************************************************/\n";
+    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formWindow() );
+    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin(); it != slotList.end(); ++it ) {
+	cod += "\n\n" + iface->createFunctionStart( formWindow()->name(), (*it).slot,
+						    (*it).returnType.isEmpty() ?
+						    QString( "void" ) :
+						    (*it).returnType ) +
+	       "\n" + iface->createEmptyFunction();
+    }
+    parseCode( cod );
 }
 
 bool FormFile::loadCode()
 {
     QFile f( pro->makeAbsolute( codeFile() ) );
-    if ( !f.open( IO_ReadOnly ) ) {
-	hFormCode = FALSE;
+    if ( !f.open( IO_ReadOnly ) )
 	return FALSE;
-    }
-    hFormCode = TRUE;
     QTextStream ts( &f );
     cod = ts.read();
+    parseCode( cod );
     timeStamp.update();
     return TRUE;
 }
@@ -419,15 +425,15 @@ void FormFile::setCodeEdited( bool b )
     codeEdited = b;
 }
 
-void FormFile::syncCode()
+void FormFile::parseCode( const QString &txt )
 {
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-    if ( !iface || !editor() )
+    if ( !iface )
 	return;
     QValueList<LanguageInterface::Function> functions;
     QValueList<MetaDataBase::Slot> newSlots, oldSlots;
     oldSlots = MetaDataBase::slotList( formWindow() );
-    iface->functions( editor()->editorInterface()->text(), &functions );
+    iface->functions( txt, &functions );
     QMap<QString, QString> funcs;
     for ( QValueList<LanguageInterface::Function>::Iterator it = functions.begin();
 	  it != functions.end(); ++it ) {
@@ -463,7 +469,15 @@ void FormFile::syncCode()
 
     MetaDataBase::setSlotList( formWindow(), newSlots );
     MetaDataBase::setFunctionBodies( formWindow(), funcs, pro->language(), QString::null );
-    if ( iface->supports( LanguageInterface::StoreFormCodeSeperate ) )
+}
+
+void FormFile::syncCode()
+{
+    if ( !editor() )
+	return;
+    parseCode( editor()->editorInterface()->text() );
+    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
+    if ( iface && iface->supports( LanguageInterface::StoreFormCodeSeperate ) )
 	cod = editor()->editorInterface()->text();
 }
 
@@ -512,8 +526,6 @@ void FormFile::addSlotCode( MetaDataBase::Slot slot )
 
 void FormFile::functionNameChanged( const QString &oldName, const QString &newName )
 {
-    if ( !hFormCode )
-	return;
     if ( !cod.isEmpty() ) {
 	QString funcStart = QString( formWindow()->name() ) + QString( "::" );
 	int i = cod.find( funcStart + oldName );

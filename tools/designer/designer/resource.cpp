@@ -2526,29 +2526,8 @@ void Resource::saveFormCode()
     if ( !iface )
 	return;
     QMap<QString, QString> functionBodies = MetaDataBase::functionBodies( formwindow );
-    if ( functionBodies.isEmpty() ) {
-	if ( formwindow->project()->language() == "C++" &&
-	     formwindow->project()->customSetting( "CPP_ALWAYS_CREATE_SOURCE" ) == "TRUE" ) {
-	    formwindow->initSlots();
-	    QString code = formwindow->formFile()->code();
-	    QValueList<MetaDataBase::Slot> slotList = MetaDataBase::slotList( formwindow );
-	    for ( QValueList<MetaDataBase::Slot>::Iterator it = slotList.begin();
-		  it != slotList.end(); ++it ) {
-		code += "\n\n" + iface->createFunctionStart( formwindow->name(), (*it).slot,
-							     (*it).returnType.isEmpty() ?
-							     QString( "void" ) :
-							     (*it).returnType ) +
-			"\n" + iface->createEmptyFunction();
-	    }
-	    formwindow->formFile()->setCode( code );
-	} else if ( !langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ||
-		    !formwindow->formFile()->hasFormCode() ) {
-	    return;
-	}
-    }
-
     if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	if ( formwindow->formFile()->code().isEmpty() )
+	if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
 	    return;
 	QFile f( formwindow->formFile()->codeFile() );
 	if ( f.open( IO_WriteOnly ) ) {

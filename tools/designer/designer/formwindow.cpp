@@ -215,7 +215,6 @@ void FormWindow::initSlots()
 		"** a constructor, and a destroy() slot in place of a destructor.\n"
 		"*****************************************************************************/\n";
 	    formFile()->setCode( code );
-	    formFile()->setHasFormCode( FALSE );
 	}
     }
 }
