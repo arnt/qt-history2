@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#19 $
 **
 ** Localization database support.
 **
@@ -68,7 +68,7 @@ struct QTranslationDomain {
     QCString scope;
     QCString message;
     uint hash;
-    operator <(const QTranslationDomain& o) const
+    bool operator <(const QTranslationDomain& o) const
     {
 	int r = hash - o.hash;
 	if ( r ) return r < 0;
@@ -491,7 +491,7 @@ QString QTranslator::find( uint h, const char* scope, const char* message ) cons
 }
 
 
-/*!  Returns a hash og \a scope and \a name.  Neither of the two may
+/*!  Returns a hash of \a scope and \a name.  Neither of the two may
   be null (in which case the return value is unspecified).  The result of
   the hash function is never 0.
 
