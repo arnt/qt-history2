@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#149 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#150 $
 **
 ** Definition of QIconView widget class
 **
@@ -266,19 +266,19 @@ void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
   a list of QIconDragItems is used by QIconDrag). Such an item stores
   the data about the geometry of an item of the iconview which is dragged
   around, so that drag shapes can be drawn correctly.
-  
+
   If you extend the DnD functionality of a QIconView, you should use a class
   derived from QIconDrag as dragobject. This class again should contain
   a list of objects which are derived from this class.
-  
+
   So, normally for each iconview item which is dragged, a QIconDragItem
-  class (or a class derived from QIconDragItem) is created and stored 
+  class (or a class derived from QIconDragItem) is created and stored
   in the QIconDrag object.
-  
-  So, in a class derived from that you should reimplement 
+
+  So, in a class derived from that you should reimplement
   QIconDragItem::makeKey(), so that a key containing the data of this
   object + the geometry of the dragged item is created and returned.
-  
+
   You also may add methods to add/get the data you store here.
 
   An example, how to implement this, is in the QtFileIconView example.
@@ -635,7 +635,7 @@ bool QIconDrag::decode( QMimeSource* e, QIconList &list_ )
   destructor of the QIconViewItem does all the work for removing
   it from the iconview.
 
-  As the iconview is designed to use DnD, the iconview item methods for DnD
+  As the iconview is designed to use DnD, the iconview item has methods for DnD
   too which may be reimplemented.
 
   Subclassing QIconViewItem will provide a big flexibility.
@@ -1698,8 +1698,9 @@ void QIconViewItem::calcTmpText()
   The normal way to insert some items is to create QIconViewItems
   and pass the iconview as parent. But using insertItem(), items
   can be inserted manually too. The QIconView offers basic methodes
-  similar to the QListView and QListBox, like removeItem(), clearSelection(),
-  setSelected(), setCurrentItem(), currentItem() and much more.
+  similar to the QListView and QListBox, like QIconView::removeItem(), 
+  QIconView::clearSelection(), QIconView::setSelected(), 
+  QIconView::setCurrentItem(), QIconView::currentItem() and much more.
 
   As the internal structure to store the iconview items is linear, no
   iterator class is needed to iterate over all items. This can be easily
@@ -1737,18 +1738,37 @@ void QIconViewItem::calcTmpText()
   you have to create and return an instance of MyIconDrag which contains a list of
   MyIconDragItems (normally one MyIconDragItem for each selected item
   in the iconview).
-  
+
   Now, when a drag enters the iconview, you should know following:
   If the entered drag is known (the drag object is a class derived from
   QIconDrag) we also know the coordinates of the icons which are
   dragged around. So, we can draw drag shapes of the dragged items.
   For that some stuff has to be initialized. So, when a drag enters, the
   iconview calls QIconView::initDragEnter(). Reimplement this methode
-  to do your initialization. For more information about that, see the 
+  to do your initialization. For more information about that, see the
   documentation of QIconView::initDragEnter().
+
+  Finally you should connect to the QIconView::dropped() signal, which is
+  emitted when a drag is dropped onto the viewport of the iconview. 
+  If it's allowed to drop onto iconview items, you should reimplement
+  QIconViewItem::dropped() in your iconview item subclass, as this method 
+  is called when a drag is dropped onto an iconview item.
   
-  For an example implementation of all the Drag'n'Drop stuff look at the 
+  For an example implementation of all the Drag'n'Drop stuff look at the
   qfileiconview example (QtFileIconView::QtFileIconView())
+
+  The Drag'n'Drop functionality described here may sound a bit complicated. This
+  is only because you have to store the data + the geometry of the dragged
+  items in a dragobject. All this complexity is only needed for drawing the drag
+  shapes of the dragged items. If you don't need or want the QIconView to
+  draw drag shapes of the dragged items during a drag, you don't need to
+  implement all this comlexity. In this case you only need for starting a 
+  drag to reimplement QIconView::dragObject() and return a dragobject there 
+  which contains the data which should be dragged. And for entering drags
+  you don't need to do anything special then.
+  
+  Finally, see also QIconViewItem::setDragEnabled(), QIconViewItem::setDropEnabled(),
+      QIconViewItem::acceptDrop() and QIconViewItem::dropped()
 */
 
 /*! \enum QIconView::ResizeMode
@@ -1897,21 +1917,21 @@ void QIconViewItem::calcTmpText()
 
 /*!
   \fn void QIconView::rightButtonPressed (QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user pressed with the right mouse button on
+  This signal is emitted when the user pressed with the right mouse button on
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
 */
 
 /*!
   \fn void QIconView::rightButtonClicked (QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user clicked (pressed + released) with the right
+  This signal is emitted when the user clicked (pressed + released) with the right
   mouse button on either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a pos the position of the mouse cursor.
 */
 
 /*!
   \fn void QIconView::mouseButtonPressed (int button, QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user pressed with any mouse button on
+  This signal is emitted when the user pressed with any mouse button on
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a button is the number of the mouse button which
   the user pressed, and \a pos the position of the mouse cursor.
@@ -1919,7 +1939,7 @@ void QIconViewItem::calcTmpText()
 
 /*!
   \fn void QIconView::mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos)
-  This signal is emitted wher the user clicked (pressed + released) with any mouse button on
+  This signal is emitted when the user clicked (pressed + released) with any mouse button on
   either and item (then \a item is the item under the mouse cursor) or
   somewhere else (then \a item is NULL). \a button is the number of the mouse button which
   the user clicked, and \a pos the position of the mouse cursor.
@@ -2426,7 +2446,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
   Allign all items in the grid. For the grid the the specified
   values, given by QIconView::setGridX() and QIconView::setGridY()
   are used.
-  
+
   \sa QIconView::setGridX(), QIconView::setGridY()
 */
 
@@ -2453,7 +2473,7 @@ void QIconView::alignItemsInGrid()
 }
 
 /*!
-  Aligns all items in the \a grid; If the grid is invalid 
+  Aligns all items in the \a grid; If the grid is invalid
   (see QSize::isValid(), an invalid size is created when using
   the default constructor of QSize())
   the best fitting grid is calculated first and used then.
@@ -2554,6 +2574,8 @@ QIconView::SelectionMode QIconView::selectionMode() const
 
   The QIconView takes the ownership of the passed pointers. This means
   you must not delete them! The QIconView cares about deleting them.
+
+  \sa QIconView::setUseSingleClickMode()
 */
 
 void QIconView::setSingleClickConfiguration( QFont *normalText, QColor *normalTextCol,
@@ -2594,12 +2616,12 @@ void QIconView::singleClickConfiguration( QFont *normalText, QColor *normalTextC
   it behaves quite like a web page. E.g. a single click on an item lets the
   iconview emit a doubleClicked signal, and the items behave a bit like links
   (can be configures in QIconView::setSingleClickConfiguration()).
-  If \b is FALSE, the normal mode of the iconview is used, with double clicks
+  If \a b is FALSE, the normal mode of the iconview is used, with double clicks
   and so on.
 
   If you use the QIconView you don't have to care about the difference of single
   click or double click modes. For you this is transparent (the QIconView translates
-  the important signals and evets).
+  the important signals and events).
   So you can offer the user to switch between single and doubleclick mode, but
   you don't need to care about the handling of that at all.
 
@@ -2822,7 +2844,7 @@ void QIconView::setGridY( int ry )
 /*!
   Returns the horizonal grid.
 
-  \sa setGridX
+  \sa QIconView::setGridX()
 */
 
 int QIconView::gridX() const
@@ -2833,7 +2855,7 @@ int QIconView::gridX() const
 /*!
   Returns the vertica grid.
 
-  \sa setGridY
+  \sa QIconView::setGridY()
 */
 
 int QIconView::gridY() const
@@ -2967,7 +2989,7 @@ void QIconView::setMaxItemTextLength( int w )
 }
 
 /*!
-  Returns the maximum width, which an item may have.
+  Returns the maximum width (in pixels), which an item may have.
 
   \sa QIconView::setMaxItemWidth()
 */
@@ -2983,7 +3005,7 @@ int QIconView::maxItemWidth() const
 /*!
   Returns the maximum length (in characters), which the
   text of an icon may have.
-  
+
   \sa QIconView::setMaxItemTextLength()
 */
 
@@ -2993,7 +3015,7 @@ int QIconView::maxItemTextLength() const
 }
 
 /*!
-  If \a b is TRUE, the user is allowed to move items around in 
+  If \a b is TRUE, the user is allowed to move items around in
   the iconview.
   if \a b is FALSE, the user is not allowed to do that.
 */
@@ -3004,7 +3026,7 @@ void QIconView::setEnableMoveItems( bool b )
 }
 
 /*!
-  Returns TRUE, if the user is allowed to move items around 
+  Returns TRUE, if the user is allowed to move items around
   in the iconview, else FALSE;
 
   \sa QIconView::setEnableMoveItems()
@@ -3033,7 +3055,7 @@ void QIconView::setAlignItemsWhenInsert( bool b )
 /*!
   Returns TRUE if all items are re-aligned in the grid if a new one is
   inserted, else FALSE.
-  
+
   \sa QIconView::setAlignItemsWhenInsert()
 */
 
@@ -3839,7 +3861,7 @@ void QIconView::drawRubber( QPainter *p )
 /*!
   Returns the QDragObject which should be used for DnD.  Subclasses may reimplement this.
 
-  \sa QIconViewItem::dragObject(), \sa QIconDrag::QIconDrag()
+  \sa QIconDrag::QIconDrag()
 */
 
 QDragObject *QIconView::dragObject()
@@ -4039,20 +4061,24 @@ void QIconView::drawDragShapes( const QPoint &pos )
   initialize it. Initializing means here to get information about
   the drag, this means if the iconview knows enough about
   the drag to be able to draw drag shapes of the drag data
-  (e.g. shapes of icons which are dragged).
-  
-  There are three possibilities: 
+  (e.g. shapes of icons which are dragged). To get this information
+  e.g. try to decode the drag.
+
+  There are three possibilities:
   <ul>
-  <li>Knowing the drag very well: The drag contains all coordinates 
-  of the drag shapes. If this is the case, call QIconView::setDragObjectIsKnown()
-  and specify as argument \a e.
-  <li>Knowing the drag, but not very well: The drag contains a data
-  about a number of dragged items. If this is the case,  set the number
+  <li>Knowing the drag very well: The drag ca nbe decoded and it contains 
+  all coordinates of the drag shapes. If this is the case, call 
+  QIconView::setDragObjectIsKnown() and specify as argument \a e.
+  <li>Knowing the drag, but not very well: The drag contains which can
+  be decoded. So the number of items in the drag is known, but no
+  coordinates. If this is the case,  set the number
   of items using QIconView::setNumDragItems() so that the iconview
   can draw a sort of drag shapes.
-  <li>The drag is completly unknown: Call the base implementation
+  <li>The drag is unknown: The drag can't be decoded. Call the base implementation
   QIconView::initDragEnter().
   </ul>
+
+  See the qfileiconview example for a demonstration of using this method.
   
   \sa QFileIconView::initDragEnter(), QIconView::setDragObjectIsKnown(),
   QIconView::setNumDragItems()
@@ -4074,7 +4100,7 @@ void QIconView::initDragEnter( QDropEvent *e )
   correct drag shapes.
   This method is normally called from QIconView::initDragEnter(),
   \a e is the argument which you got in this method.
-  
+
   \sa QIconView::initDragEnter()
 */
 
@@ -4087,12 +4113,12 @@ void QIconView::setDragObjectIsKnown( QDropEvent *e )
 
 /*!
   If a drag is unknown (you have no information about how to draw the drag
-  shades), but you know enough about it, to know the nunber of items which
-  are dragged around, it's possible to specify using the function the number of items
+  shapes), but you know enough about it, to know the number of items which
+  are dragged around, it's possible to specify using this method the number of items
   of the drag (e.g. the number of URLs), so that the iconview can draw
   some (not totally correcty) drag shapes.
   This method is normally called fro QIconView::initDragEnter()
-  
+
   \sa QIconView::initDragEnter()
 */
 
@@ -4192,7 +4218,7 @@ void QIconView::findItemByName( const QString text )
 
 /*!
   Layouts a row of icons (in AlignMode == South this is a column). Starts
-  layouting with the item \a begin.\a y is the starting coordinate.
+  layouting with the item \a begin. \a y is the starting coordinate.
   Returns the last item of the row and sets the new starting coordinate to \a y.
 */
 
