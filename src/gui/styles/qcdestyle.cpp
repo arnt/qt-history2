@@ -169,7 +169,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
                 p->setPen(opt->palette.dark().color());
             else
                 p->setPen(opt->palette.foreground().color());
-            p->drawLineSegments(a);
+            p->drawPolyline(a);
         }
         if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
             p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
