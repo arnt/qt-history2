@@ -1286,10 +1286,18 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
+    bool showSortIndicator = isSortIndicatorShown() && sortIndicatorSection() == logicalIndex;
+
     QStyle::State state = QStyle::State_None;
+    if (isEnabled())
+        state |= QStyle::State_Enabled;
+
+    if (topLevelWidget()->isActiveWindow())
+        state |= QStyle::State_Active;
+
     if (d->clickableSections) {
         if (logicalIndex == d->pressed) {
-            state = QStyle::State_Down;
+            state |= QStyle::State_Sunken;
         } else if (d->highlightSelected) {
             bool selected = false;
             if (d->orientation == Qt::Horizontal)
@@ -1297,8 +1305,13 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
             else
                 selected = selectionModel()->isRowSelected(logicalIndex, QModelIndex());
             if (selected)
-                state = QStyle::State_Down;
+                state |= QStyle::State_On;
         }
+    }
+    if (showSortIndicator) {
+        state |= (sortIndicatorOrder() == Qt::AscendingOrder
+                     ? QStyle::State_Down : QStyle::State_Up);
+
     }
 
     int textAlignment = d->model->headerData(logicalIndex, orientation(),
@@ -1315,17 +1328,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
     opt.icon = d->model->headerData(logicalIndex, orientation(),
                                     QAbstractItemModel::DecorationRole).toIcon();
 
-    style()->drawPrimitive(QStyle::PE_PanelHeader, &opt, painter, this);
-    opt.rect = style()->subRect(QStyle::SR_HeaderLabel, &opt, this);
-    style()->drawControl(QStyle::CE_HeaderLabel, &opt, painter, this);
-
-    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
-        opt.rect = rect;
-        opt.rect = style()->subRect(QStyle::SR_HeaderArrow, &opt, this);
-        opt.state = (sortIndicatorOrder() == Qt::AscendingOrder
-                     ? QStyle::State_Down : QStyle::State_Up) | QStyle::State_Off;
-        style()->drawPrimitive(QStyle::PE_IndicatorHeaderArrow, &opt, painter, this);
-    }
+    style()->drawControl(QStyle::CE_Header, &opt, painter, this);
 }
 
 /*!

@@ -290,8 +290,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
 
     case PE_PanelButtonCommand:
     case PE_PanelButtonBevel:
-    case PE_PanelButtonTool:
-    case PE_PanelHeader: {
+    case PE_PanelButtonTool: {
         QBrush fill;
         if (opt->state & State_Down)
             fill = opt->palette.brush(QPalette::Mid);
@@ -1075,10 +1074,20 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         QCommonStyle::drawControl(element, opt, p, widget);
         break;  }
 
+    case CE_HeaderSection: {
+        QBrush fill;
+        if (opt->state & State_Sunken)
+            fill = opt->palette.brush(QPalette::Mid);
+        else if (opt->state & State_On)
+            fill = QBrush(opt->palette.mid().color(), Qt::Dense4Pattern);
+        else
+            fill = opt->palette.brush(QPalette::Button);
+        qDrawShadePanel(p, opt->rect, opt->palette, bool(opt->state & State_On),
+                        pixelMetric(PM_DefaultFrameWidth), &fill);
+        break; }
     default:
         QCommonStyle::drawControl(element, opt, p, widget);
-        break;
-    }
+        break; }
 }
 
 static int get_combo_extra_width(int h, int w, int *return_awh=0)

@@ -1486,8 +1486,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
         break; }
     case PE_FrameButtonBevel:
-    case PE_PanelButtonBevel:
-    case PE_PanelHeader: {
+    case PE_PanelButtonBevel: {
         QBrush fill;
         bool panel = pe != PE_FrameButtonBevel;
         if (!(opt->state & State_Down) && (opt->state & State_On))
@@ -1987,6 +1986,20 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             drawPrimitive(PE_PanelButtonBevel, &buttonOpt, p, widget);
         }
         break;
+    case CE_HeaderSection: {
+        QBrush fill;
+        if (!(opt->state & State_Sunken) && (opt->state & State_On))
+            fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+        else
+            fill = opt->palette.brush(QPalette::Button);
+
+        if (opt->state & (State_Raised | State_On | State_Sunken)) {
+            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (State_Sunken | State_On),
+                           &fill);
+        } else {
+            p->fillRect(opt->rect, fill);
+        }
+        break; }
     default:
         QCommonStyle::drawControl(ce, opt, p, widget);
     }

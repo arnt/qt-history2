@@ -359,7 +359,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_PanelButtonBevel:
     case PE_PanelButtonTool:
     case PE_IndicatorButtonDropDown:
-    case PE_PanelHeader:
         qDrawShadePanel(p, opt->rect, opt->palette,
                         opt->state & (State_Sunken | State_Down | State_On), 1,
                         &opt->palette.brush(QPalette::Button));
@@ -617,7 +616,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             pa.setPoint(1, opt->rect.x(), opt->rect.y());
             pa.setPoint(2, opt->rect.x() + opt->rect.width(), opt->rect.y());
             p->drawPolyline(pa);
-        } else {
+        } else if (opt->state & State_Down) {
             QPolygon pa(3);
             p->setPen(opt->palette.light().color());
             pa.setPoint(0, opt->rect.x(), opt->rect.height());
@@ -874,6 +873,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     }
 }
 
+#include <qdebug.h>
 /*!
     Draws the control \a ce, with style options \a opt, on painter \a
     p. The \a widget is optional and may contain a widget that is
@@ -1141,7 +1141,10 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 int pixw = pixmap.width();
                 // "pixh - 1" because of tricky integer division
                 drawItemPixmap(p, rect, header->iconAlignment, header->palette, pixmap);
-                rect.setLeft(rect.left() + pixw + 2);
+                if (header->direction == Qt::LeftToRight)
+                    rect.setLeft(rect.left() + pixw + 2);
+                else
+                    rect.setRight(rect.right() - pixw - 2);
             }
             drawItemText(p, rect, header->textAlignment, header->palette,
                          (header->state & State_Enabled), header->text,
@@ -1477,6 +1480,24 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                              dwOpt->state & State_Enabled, dwOpt->title);
             }
         }
+        break;
+    case CE_Header:
+        if (const QStyleOptionHeader *header = qt_cast<const QStyleOptionHeader *>(opt)) {
+            drawControl(CE_HeaderSection, header, p, widget);
+            QStyleOptionHeader subopt = *header;
+            subopt.rect = visualRect(header->direction, header->rect, subRect(SR_HeaderLabel, header, widget));
+            drawControl(CE_HeaderLabel, &subopt, p, widget);
+            if (header->state & (State_Up | State_Down)) {
+                subopt.rect = visualRect(header->direction, header->rect,
+                                         subRect(SR_HeaderArrow, opt, widget));
+                drawPrimitive(PE_IndicatorHeaderArrow, &subopt, p, widget);
+            }
+        }
+        break;
+    case CE_HeaderSection:
+        qDrawShadePanel(p, opt->rect, opt->palette,
+                        opt->state & State_Sunken, 1,
+                        &opt->palette.brush(QPalette::Button));
         break;
     default:
         break;

@@ -120,7 +120,6 @@ public:
         PE_PanelButtonCommand,
         PE_PanelButtonBevel,
         PE_PanelButtonTool,
-        PE_PanelHeader,
         PE_PanelMenuBar,
         PE_PanelToolBar,
 
@@ -182,9 +181,12 @@ public:
 
         CE_ToolButtonLabel,
 
+        CE_Header,
+        CE_HeaderSection,
+        CE_HeaderLabel,
+
         CE_DockWindowEmptyArea,
         CE_ToolBoxTab,
-        CE_HeaderLabel,
         CE_SpinBoxSlider,
         CE_SizeGrip,
         CE_Splitter,
@@ -198,6 +200,7 @@ public:
         CE_ScrollBarSlider,
         CE_ScrollBarFirst,
         CE_ScrollBarLast,
+
 
         // do not add any values below/greater than this
         CE_CustomBase = 0xf0000000
