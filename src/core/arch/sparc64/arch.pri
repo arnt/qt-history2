@@ -2,7 +2,7 @@
 # sparc64 arch files
 #
 
-ARCH_CPP=$$QT_SOURCE_TREE/arch/sparc64
+ARCH_CPP=$$QT_SOURCE_TREE/src/core/arch/sparc64
 ARCH_H=$$ARCH_CPP/arch
 
 DEPENDPATH += $$ARCH_CPP;$$ARCH_H
