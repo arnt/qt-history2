@@ -2133,8 +2133,6 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		retoff = ( params[0].inOut == QUParameter::Out ) ? 1 : 0;
 		pcount -= retoff;
 	    }
-	    if ( retoff && !pvarResult )
-		return DISP_E_PARAMNOTOPTIONAL;
 	    int argcount = pDispParams->cArgs;
 	    if ( pcount > argcount )
 		return DISP_E_PARAMNOTOPTIONAL;
@@ -2175,7 +2173,8 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		    clearQUObject( objects+p+1, param );
 		}
 		if ( retoff ) {
-		    QUObjectToVARIANT( objects, *pvarResult, params );
+		    if (pvarResult)
+			QUObjectToVARIANT( objects, *pvarResult, params );
 		    clearQUObject( objects, params );
 		}
 	    }

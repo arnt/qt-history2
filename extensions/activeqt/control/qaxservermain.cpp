@@ -261,47 +261,48 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	for ( QStringList::Iterator key = keys.begin(); key != keys.end(); ++key ) {
 	    const QString className = *key;
 	    QObject *object = qAxFactory()->create( className );
-	    if ( !object ) // don't register subobject classes
-		continue;
-	    const QMetaObject *mo = object->metaObject();
+	    const QMetaObject *mo = object ? object->metaObject() : 0;
 
 	    const QString classId = qAxFactory()->classID(className).toString().upper();
 	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
 	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
-	    QString classVersion = mo ? QString(mo->classInfo( "VERSION" )) : QString::null;
-	    if ( classVersion.isNull() )
-		classVersion = "1.0";
-	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
 
-	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
-	    settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId );
-	    //settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
+	    if ( object ) { // don't register subobject classes
+		QString classVersion = mo ? QString(mo->classInfo( "VERSION" )) : QString::null;
+		if ( classVersion.isNull() )
+		    classVersion = "1.0";
+		const QString classMajorVersion = classVersion.left( classVersion.find(".") );
 
-	    settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
-	    settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
-	    settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion );
+		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
+		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/CLSID/.", classId );
+		//settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/Insertable/.", QString::null );
 
-	    settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
-	    if ( file.right( 3 ).lower() == "exe" )
-		settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
-	    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
-	    //settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
-	    if ( file.right( 3 ).lower() == "dll" )
-		settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
-	    else
-		settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
-	    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", "0" );
-	    settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", "131473" );
-	    settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
-	    settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
-	    settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
-	    settings.writeEntry( "/CLSID/" + classId + "/Version/.", classVersion );
-	    settings.writeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className );
-	    settings.writeEntry( "/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1" );
+		settings.writeEntry( "/" + module + "." + className + "/.", className + " Class" );
+		settings.writeEntry( "/" + module + "." + className + "/CLSID/.", classId );
+		settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion );
+
+		settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
+		if ( file.right( 3 ).lower() == "exe" )
+		    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
+		settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
+		//settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
+		if ( file.right( 3 ).lower() == "dll" )
+		    settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
+		else
+		    settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
+		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/.", "0" );
+		settings.writeEntry( "/CLSID/" + classId + "/MiscStatus/1/.", "131473" );
+		settings.writeEntry( "/CLSID/" + classId + "/Programmable/.", QString::null );
+		settings.writeEntry( "/CLSID/" + classId + "/ToolboxBitmap32/.", file + ", 101" );
+		settings.writeEntry( "/CLSID/" + classId + "/TypeLib/.", libId );
+		settings.writeEntry( "/CLSID/" + classId + "/Version/.", classVersion );
+		settings.writeEntry( "/CLSID/" + classId + "/VersionIndependentProgID/.", module + "." + className );
+		settings.writeEntry( "/CLSID/" + classId + "/ProgID/.", module + "." + className + ".1" );
+	    }
 
 	    settings.writeEntry( "/Interface/" + ifaceId + "/.", "I" + className );
-	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020424-0000-0000-C000-000000000046}" );
-	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020424-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid/.", "{00020420-0000-0000-C000-000000000046}" );
+	    settings.writeEntry( "/Interface/" + ifaceId + "/ProxyStubClsid32/.", "{00020420-0000-0000-C000-000000000046}" );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/.", libId );
 	    settings.writeEntry( "/Interface/" + ifaceId + "/TypeLib/Version", "1.0" );
 
