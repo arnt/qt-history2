@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#42 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#43 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -213,14 +213,14 @@ QDragObject::~QDragObject()
 }
 
 /*!
-  Set the pixmap to display while dragging the object.  The platform-specific
+  Set the pixmap \a pm to display while dragging the object.
+  The platform-specific
   implementation will use this in a loose fashion - so provide a small masked
   pixmap, but do not require that the user ever sees it in all its splendour.
+  In particular, cursors on Windows 95 are of limited size.
 
   The \a hotspot is the point on (or off) the pixmap that should be under the
-  cursor as it is dragged.
-
-  In Qt 1.40, the pixmap is never displayed.
+  cursor as it is dragged. It is relative to the top-left pixel of the pixmap.
 */
 void QDragObject::setPixmap(QPixmap pm, QPoint hotspot)
 {
@@ -232,11 +232,13 @@ void QDragObject::setPixmap(QPixmap pm, QPoint hotspot)
 
 /*!
   \overload
-  Uses the hotspot (-8,-8).
+  Uses a hotspot that positions the pixmap below and to the
+  right of the mouse pointer.  This allows the user to clearly
+  see the point on the window which they are dragging the data onto.
 */
 void QDragObject::setPixmap(QPixmap pm)
 {
-    setPixmap(pm,QPoint(-8,-8));
+    setPixmap(pm,QPoint(-10,-10));
 }
 
 /*!
@@ -403,11 +405,11 @@ QWidget * QDragObject::source()
   Support for specific media types is provided by subclasses of
   QDragObject.
   For example, QTextDrag provides
-  support for the <tt>text/plain</tt> MIME type (ordinary unformated
-  text), QImageDrag provides for <tt>image/*</tt> where <tt>*</tt>
-  is all the \link QImageIO image formats that Qt supports\endlink
-  and the QUrlDrag subclass provides <tt>url/url</tt>,
-  a standard web-portable format for transfering a list of filenames.
+  support for the "<tt>text/plain</tt>" MIME type (ordinary unformated
+  text), QImageDrag provides for "<tt>image/*</tt>", where <tt>*</tt>
+  is all the \link QImageIO image formats that Qt supports\endlink,
+  and the QUrlDrag subclass provides "<tt>url/url</tt>",
+  a standard format for transfering a list of filenames.
 
   To implement drag-and-drop of some type of media for which there
   is no available QDragObject subclass, the
