@@ -1657,8 +1657,8 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	explainOption->setText( "Support for MNG images is provided by linking against an existing libmng." );
 #endif
     } else if ( i->text(0) == "MNG" ) {
-	explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either by "
-				"linking against an existing libmng, by compiling the mng sources "
+	explainOption->setText( "Qt supports the \"Multiple-Image Network Graphics\" format either "
+				"by compiling the mng sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == jpegPlugin ) {
 	explainOption->setText( "Support for JPEG images is provided by a plugin that is loaded on demand." );
@@ -1672,12 +1672,15 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 #endif
     } else if ( i->text(0) == "JPEG" ) {
 	explainOption->setText( "Qt supports the \"Joint Photographic Experts Group\" format either "
-				"by linking against an existing libjpeg, by compiling the jpeg sources "
+				"by compiling the jpeg sources "
 				"into Qt, or by loading a plugin on demand." );
     } else if ( i == pngPlugin ) {
 	explainOption->setText( "Support for PNG images is provided by a plugin that is loaded on demand." );
     } else if ( i == pngOff ) {
-	explainOption->setText( "Turn off support for PNG images." );
+	explainOption->setText( "<p>Turn off support for PNG images.<\p>"
+				"<p><font color=\"red\">Qt Designer, Qt Assistant and Qt Linguist use "
+				"the imageformat PNG. If you choose this option, the images in these "
+				"programs will be missing.</font></p>" );
     } else if ( i == pngDirect ) {
 	explainOption->setText( "Support for PNG images is compiled into Qt." );
 #if 0
@@ -1685,8 +1688,8 @@ void SetupWizardImpl::optionSelected( QListViewItem *i )
 	explainOption->setText( "Support for PNG images is provided by linking against an existing libpng." );
 #endif
     } else if ( i->text(0) == "PNG" ) {
-	explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either by "
-				"linking against an existing libpng, by compiling the png support "
+	explainOption->setText( "Qt supports the \"Portable Network Graphics\" format either "
+				"by compiling the png support "
 				"into Qt, or by loading a plugin on demand." );
     }
 }
