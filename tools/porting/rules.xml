@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Rules>
-    <Count>3786</Count>
+    <Count>3795</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -5723,6 +5723,26 @@
         <Qt3>QVariant::IconSet</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::NoFocus</Qt4>
+        <Qt3>QWidget::NoFocus</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::TabFocus</Qt4>
+        <Qt3>QWidget::TabFocus</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::ClickFocus</Qt4>
+        <Qt3>QWidget::ClickFocus</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::StrongFocus</Qt4>
+        <Qt3>QWidget::StrongFocus</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>Qt::WheelFocus</Qt4>
+        <Qt3>QWidget::WheelFocus</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>Qt::AltModifier</Qt4>
         <Qt3>Qt::AltButton</Qt3>
     </item>
@@ -8345,6 +8365,10 @@
     <item Type="RenamedType" >
         <Qt4>QUriDrag</Qt4>
         <Qt3>QUrlDrag</Qt3>
+    </item>
+    <item Type="RenamedType" >
+        <Qt4>Qt::FocusPolicy</Qt4>
+        <Qt3>QWidget::FocusPolicy</Qt3>
     </item>
     <item Type="RenamedType" >
         <Qt4>Q_LONGLONG</Qt4>
@@ -11478,8 +11502,20 @@
         <Class>QGridLayout</Class>
         <Header>QGridLayout</Header>
     </item>
+    <item Type="NeedHeader" >
+        <Class>Q3CString</Class>
+        <Header>Q3CString</Header>
+    </item>
     <item Type="RenamedHeader" >
         <Qt4>q3painter.h</Qt4>
         <Qt3>qpainter.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>qvboxwidget.h</Qt4>
+        <Qt3>qvbox.h</Qt3>
+    </item>
+    <item Type="RenamedHeader" >
+        <Qt4>qhboxwidget.h</Qt4>
+        <Qt3>qhbox.h</Qt3>
     </item>
 </Rules>
