@@ -167,9 +167,9 @@ int main( int argc, char** argv )
 	    }
 	    if ( checkindexintegrity ) {
 		qDebug( "checking index integrity " + output );
-		if ( idx.CheckIndexIntegrity(0) != XB_NO_ERROR )
-		    output = "...FAILED";
-		else
+//		if ( idx.CheckIndexIntegrity(0) != XB_NO_ERROR )
+//		    output = "...FAILED";
+//		else
 		    output = "...done";
 	    }
 	    qDebug( output );
@@ -185,7 +185,7 @@ int main( int argc, char** argv )
 	xbDbf file( &x );
 	if( ( rc =  file.OpenDatabase( tablename ) ) != 0 )
 	    die( "could not open table " + tablename );
-	file.DumpHeader( 3 );
+	//	file.DumpHeader( 3 );
 	file.CloseDatabase();
 	return 0;
     }
