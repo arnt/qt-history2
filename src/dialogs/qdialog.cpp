@@ -797,6 +797,8 @@ void QDialog::showExtension( bool showIt )
 	return;
 
     if ( showIt ) {
+	if ( d->extension->isVisible() )
+	    return;
 	d->size = size();
 	d->min = minimumSize();
 	d->max = maximumSize();
@@ -814,6 +816,8 @@ void QDialog::showExtension( bool showIt )
 	}
 	d->extension->show();
     } else {
+	if ( !d->extension->isVisible() )
+	    return;
 	d->extension->hide();
 	setMinimumSize( d->min );
 	setMaximumSize( d->max );
