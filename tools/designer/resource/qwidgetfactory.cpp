@@ -782,8 +782,7 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 	QPixmap pix = loadPixmap( e );
 	v = QVariant( pix );
     } else if ( e.tagName() == "iconset" ) {
-	QPixmap pix;
-	pix.convertFromImage( loadFromCollection( v.toString() ) );
+	QPixmap pix = loadPixmap( e );
 	v = QVariant( QIconSet( pix ) );
     } else if ( e.tagName() == "image" ) {
 	v = QVariant( loadFromCollection( v.toString() ) );
