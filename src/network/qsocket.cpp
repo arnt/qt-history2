@@ -1169,7 +1169,7 @@ void QSocket::sn_read()
     }
     d->rba.append( a );
     d->rsize += nread;
-    emit readyRead();
+    QTimer::singleShot( 0, this, SIGNAL(readyRead()) );
 
     d->sn_read_alreadyCalled = FALSE;
 }
