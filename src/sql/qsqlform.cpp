@@ -164,13 +164,15 @@ void QSqlForm::remove( QWidget * widget )
 
 /*!
 
-  Clears the values in all widgets/fields in the form.
+  Clears the values in all widgets/fields in the form.  If \a nullify
+  is TRUE (the default is FALSE), each field is also set to null.
+
 */
-void QSqlForm::clearValues()
+void QSqlForm::clearValues( bool nullify )
 {
     QMap< QWidget *, QSqlField * >::Iterator it;
     for( it = map.begin(); it != map.end(); ++it ){
-	(*it)->clear();
+	(*it)->clear( nullify );
     }
     readFields();
 }
@@ -292,7 +294,7 @@ void QSqlForm::readField( QWidget * widget )
 
     field = widgetToField( widget );
     if( field )
-        pmap->setProperty( widget, field->value() );
+	pmap->setProperty( widget, field->value() );
 }
 
 /*!

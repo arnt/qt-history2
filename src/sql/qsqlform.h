@@ -79,9 +79,9 @@ public slots:
     virtual void writeField( QWidget * widget );
     virtual void readFields();
     virtual void writeFields();
-    
+
     virtual void clear();
-    virtual void clearValues();
+    virtual void clearValues( bool nullify = FALSE );
 
 private:
     QMap< QWidget *, QSqlField * > map;
