@@ -224,6 +224,10 @@ QListBox\QScrollView etc (anything that uses a viewport):
   Be able to set a QWhatsThis for the individual items on the viewport.
   (qt-bugs/arc-08/17849)
 
+QDialog:
+  Have a function called setValidator() so that the user can validate the output of the dialog
+  before it hides the dialog.
+
 
 New functionality
 -----------------
