@@ -18,7 +18,6 @@
 #endif
 
 #include <fcntl.h>
-#include <locale.h>
 #include <signal.h>
 #include <stdlib.h>
 #include <stdio.h>

@@ -21,7 +21,6 @@
 #include <dirent.h>
 #include <fcntl.h>
 #include <grp.h>
-#include <locale.h>
 #include <pwd.h>
 #include <signal.h>
 #include <stdlib.h>
