@@ -944,7 +944,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 		break;
 
 	    QScrollBar *scrollbar = (QScrollBar *) widget;
-	    QRect addline, subline, addpage, subpage, slider;
+	    QRect addline, subline, addpage, subpage, slider, first, last;
 	    bool maxedOut = (scrollbar->minValue() == scrollbar->maxValue());
 
 	    subline = querySubControlMetrics(control, widget, SC_ScrollBarSubLine, data);
@@ -952,6 +952,8 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	    subpage = querySubControlMetrics(control, widget, SC_ScrollBarSubPage, data);
 	    addpage = querySubControlMetrics(control, widget, SC_ScrollBarAddPage, data);
 	    slider  = querySubControlMetrics(control, widget, SC_ScrollBarSlider,  data);
+	    first   = querySubControlMetrics(control, widget, SC_ScrollBarFirst,   data);
+	    last    = querySubControlMetrics(control, widget, SC_ScrollBarLast,    data);
 
        	    if ((controls & SC_ScrollBarSubLine) && subline.isValid())
 		drawPrimitive(PO_ScrollBarSubLine, p, subline, cg,
@@ -981,7 +983,21 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			       PStyle_Down : PStyle_Default) |
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       PStyle_Horizontal : PStyle_Vertical));
-	    if ((controls & SC_ScrollBarSlider) && slider.isValid())
+       	    if ((controls & SC_ScrollBarFirst) && first.isValid())
+		drawPrimitive(PO_ScrollBarFirst, p, first, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarFirst) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarLast) && last.isValid())
+		drawPrimitive(PO_ScrollBarLast, p, last, cg,
+			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
+			      ((active == SC_ScrollBarLast) ?
+			       PStyle_Down : PStyle_Default) |
+			      ((scrollbar->orientation() == Qt::Horizontal) ?
+			       PStyle_Horizontal : PStyle_Vertical));
+	    if ((controls & SC_ScrollBarSlider) && slider.isValid()) {
 		drawPrimitive(PO_ScrollBarSlider, p, slider, cg,
 			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
 			      ((active == SC_ScrollBarSlider) ?
@@ -989,11 +1005,12 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 			      ((scrollbar->orientation() == Qt::Horizontal) ?
 			       PStyle_Horizontal : PStyle_Vertical));
 
-	    // ### perhaps this should not be able to accept focus if maxedOut?
-	    if ( scrollbar->hasFocus() && (controls & SC_ScrollBarSlider) ) {
-		QRect fr(slider.x() + 2, slider.y() + 2,
-			 slider.width() - 5, slider.height() - 5);
-		drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
+		// ### perhaps this should not be able to accept focus if maxedOut?
+		if (scrollbar->hasFocus()) {
+		    QRect fr(slider.x() + 2, slider.y() + 2,
+			     slider.width() - 5, slider.height() - 5);
+		    drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default);
+		}
 	    }
 
 	    break;
