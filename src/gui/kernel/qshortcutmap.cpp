@@ -5,7 +5,6 @@
 #include "qevent.h"
 #include "qwidget.h"
 #include "qapplication.h"
-#include "qdockwindow.h"
 #include "qworkspace.h"
 #include "qvector.h"
 

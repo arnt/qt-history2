@@ -24,7 +24,6 @@
 #include <qlist.h>
 #include <qlistbox.h>
 #include <qlistview.h>
-#include <qmainwindow.h>
 #include <qmenubar.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
@@ -725,7 +724,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
         return QAquaSizeUnknown;
     }
     QSize large = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeLarge),
-          small = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeSmall), 
+          small = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeSmall),
           mini  = qt_aqua_get_known_size(ct, widg, szHint, QAquaSizeMini);
     bool guess_size = false;
     QAquaWidgetSize ret = QAquaSizeUnknown;

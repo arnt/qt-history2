@@ -66,7 +66,6 @@ void QMacStyleQDPainter::setport()
 #include <qpointer.h>
 #include <qlayout.h>
 #include <qlineedit.h>
-#include <qmainwindow.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
@@ -76,7 +75,6 @@ void QMacStyleQDPainter::setport()
 #include <qspinbox.h>
 #include <qsplitter.h>
 #include <qtabbar.h>
-#include <qtoolbar.h>
 #include <qtoolbutton.h>
 
 #include <private/qdialogbuttons_p.h>

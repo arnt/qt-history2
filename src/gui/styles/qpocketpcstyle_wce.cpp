@@ -35,23 +35,12 @@
 #include "qlistview.h"
 #include "qbitmap.h"
 #include "qtoolbutton.h"
-#include "qdockwindow.h"
-#include "qdockarea.h"
 #include "qheader.h"
 #include "qslider.h"
-#include "qtoolbar.h"
 #include "q3menubar.h"
 #include "qstatusbar.h"
 #include "qtable.h"
 #include "qtabwidget.h"
-#ifndef Q_OS_TEMP
-    // For use when the PocketPC style is used on non-CE platform
-#   include "qmainwindow.h"
-#else
-    // CE has it's own main window, which does not derive from QMainWindow
-#   include "qcemainwindow.h"
-#endif // Q_OS_TEMP
-
 
 // Private headerfiles
 #include "private/qtitlebar_p.h"

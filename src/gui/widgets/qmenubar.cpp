@@ -1,6 +1,5 @@
 #include <qmenubar.h>
 #include <qstyle.h>
-#include <qmainwindow.h>
 #include <qlayout.h>
 #include <qapplication.h>
 #include "qdesktopwidget.h"
@@ -64,7 +63,7 @@ void QMenuBarPrivate::updateActions()
         for(int j = 0; j < shortcutIndexMap.size(); ++j)
             q->releaseShortcut(shortcutIndexMap.value(j));
         shortcutIndexMap.resize(0); // faster than clear
-        for(int i = 0; i < actionItems.count(); i++) 
+        for(int i = 0; i < actionItems.count(); i++)
             shortcutIndexMap.append(
                 q->grabShortcut(QKeySequence::mnemonic(actionItems.at(i)->action->text())));
     }

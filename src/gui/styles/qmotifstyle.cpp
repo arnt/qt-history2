@@ -34,8 +34,6 @@
 #include "qsplitter.h"
 #include "qslider.h"
 #include "qcombobox.h"
-#include "qdockwindow.h"
-#include "qdockarea.h"
 #include "qprogressbar.h"
 #include "qimage.h"
 #include <limits.h>

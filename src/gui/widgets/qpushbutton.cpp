@@ -28,7 +28,6 @@
 #include "qpushbutton.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
-#include "qtoolbar.h"
 
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"

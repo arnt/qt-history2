@@ -20,7 +20,6 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcheckbox.h"
-#include "qdockarea.h"
 #include "qdrawutil.h"
 #include "qgroupbox.h"
 #include "qheader.h"
@@ -35,7 +34,6 @@
 #include "qspinbox.h"
 #include "qstyleoption.h"
 #include "qtabbar.h"
-#include "qtoolbar.h"
 #include "qtoolbox.h"
 #include "qtoolbutton.h"
 

@@ -12,13 +12,13 @@
 **
 ****************************************************************************/
 
-#include "qtoolbar.h"
+#include "q3toolbar.h"
 #ifndef QT_NO_TOOLBAR
 
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qmainwindow.h"
+#include "q3mainwindow.h"
 #include "qtooltip.h"
 #include "qcursor.h"
 #include "qlayout.h"
@@ -185,7 +185,7 @@ void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
                            palette(), flags);
 }
 
-#include "qtoolbar.moc"
+#include "q3toolbar.moc"
 
 
 /*!

@@ -22,7 +22,7 @@
 #include "qdrawutil.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qmainwindow.h"
+#include "q3mainwindow.h"
 #include "qpainter.h"
 #include "qpointer.h"
 #include "qstyle.h"

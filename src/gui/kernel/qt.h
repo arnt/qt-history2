@@ -150,7 +150,7 @@
 #include "qheader.h"
 #include <qhbuttongroup.h>
 #include <qhttp.h>
-#include "qdockwindow.h"
+#include "q3dockwindow.h"
 #include "qpointarray.h"
 #include "qdragobject.h"
 #include "qvaluelist.h"
@@ -239,12 +239,12 @@
 #include <qtextcodecfactory.h>
 #include <qtextcodecplugin.h>
 #include <qmultilineedit.h>
-#include "qtoolbar.h"
+#include "q3toolbar.h"
 #include <qtextview.h>
 #include <qthreadstorage.h>
 #include <qtimer.h>
 #include <qiconview.h>
-#include <qmainwindow.h>
+#include <q3mainwindow.h>
 #include <qtoolbox.h>
 #include <qtoolbutton.h>
 #include <qtooltip.h>
@@ -256,7 +256,7 @@
 #include <qutfcodec.h>
 #include <quuid.h>
 #include <qvalidator.h>
-#include <qdockarea.h>
+#include <q3dockarea.h>
 #include <qvaluestack.h>
 #include <qvaluevector.h>
 #include <qdatatable.h>

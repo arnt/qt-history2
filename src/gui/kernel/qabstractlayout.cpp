@@ -19,7 +19,6 @@
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
 #include "qevent.h"
-#include "qtoolbar.h"
 #include "qwidget_p.h"
 #include "qlayout_p.h"
 #define d d_func()

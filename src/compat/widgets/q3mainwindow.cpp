@@ -12,14 +12,14 @@
 **
 ****************************************************************************/
 
-#include "qmainwindow.h"
+#include "q3mainwindow.h"
 #ifndef QT_NO_MAINWINDOW
 
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcursor.h"
 #include "qdatetime.h"
-#include "qdockarea.h"
+#include "q3dockarea.h"
 #include "qevent.h"
 #include "qlayout.h"
 #include "qmap.h"
@@ -32,7 +32,7 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtimer.h"
-#include "qtoolbar.h"
+#include "q3toolbar.h"
 #include "qtooltip.h"
 #include "qwhatsthis.h"
 #ifdef Q_WS_MAC
@@ -41,7 +41,7 @@
 
 class QHideDock;
 
-#include <private/qmainwindow_p.h>
+#include <private/q3mainwindow_p.h>
 #define d d_func()
 #define q q_func()
 
@@ -2453,6 +2453,6 @@ QTextStream &operator>>(QTextStream &ts, Q3MainWindow &mainWindow)
 }
 #endif
 
-#include "qmainwindow.moc"
+#include "q3mainwindow.moc"
 
 #endif

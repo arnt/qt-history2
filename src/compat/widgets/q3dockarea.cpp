@@ -12,7 +12,7 @@
 **
 ****************************************************************************/
 
-#include "qdockarea.h"
+#include "q3dockarea.h"
 
 #ifndef QT_NO_MAINWINDOW
 #include "qsplitter.h"
@@ -21,7 +21,7 @@
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qmap.h"
-#include "qmainwindow.h"
+#include "q3mainwindow.h"
 
 //#define QDOCKAREA_DEBUG
 

@@ -33,7 +33,6 @@
 #include "qdrawutil.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
-#include "qtoolbar.h"
 #include "qpointer.h"
 #include "qlayout.h"
 

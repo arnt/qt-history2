@@ -20,7 +20,6 @@
 #include "qbitmap.h"
 #include "qcleanuphandler.h"
 #include "qcombobox.h"
-#include "qdockwindow.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
 #include "qlabel.h"

@@ -12,26 +12,26 @@
 **
 ****************************************************************************/
 
-#include "qdockwindow.h"
+#include "q3dockwindow.h"
 
 #ifndef QT_NO_MAINWINDOW
 #include "qapplication.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
-#include "qdockarea.h"
+#include "q3dockarea.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qmainwindow.h"
+#include "q3mainwindow.h"
 #include "qpainter.h"
 #include "qpointer.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qtimer.h"
-#include "qtitlebar_p.h"
-#include "qtoolbar.h"
+#include "q3toolbar.h"
 #include "qtoolbutton.h"
 #include "qtooltip.h"
-#include "qwidgetresizehandler_p.h"
+#include <private/qtitlebar_p.h>
+#include <private/qwidgetresizehandler_p.h>
 
 #ifdef Q_WS_MAC
 static bool default_opaque = true;
@@ -2069,6 +2069,6 @@ void Q3DockWindow::contextMenuEvent(QContextMenuEvent *e)
         e->ignore();
 }
 
-#include "qdockwindow.moc"
+#include "q3dockwindow.moc"
 
 #endif //QT_NO_MAINWINDOW

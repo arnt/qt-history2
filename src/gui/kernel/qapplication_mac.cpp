@@ -19,7 +19,6 @@
 #include "qdatastream.h"
 #include "qdatetime.h"
 #include "qdesktopwidget.h"
-#include "qdockarea.h"
 #include "qevent.h"
 #include "qpointer.h"
 #include "qhash.h"
@@ -42,12 +41,6 @@
 #include "private/qcolor_p.h"
 #include "private/qguieventloop_p.h"
 #include "private/qwidget_p.h"
-
-#ifndef QT_NO_MAINWINDOW
-# include "qmainwindow.h"
-#endif
-
-
 
 #ifndef QT_NO_ACCESSIBILITY
 #  include "qaccessible.h"
@@ -461,7 +454,7 @@ void qt_mac_update_os_settings()
                 pal.setColor(QPalette::Inactive, QPalette::HighlightedText, qc);
                 pal.setColor(QPalette::Disabled, QPalette::HighlightedText, qc);
             }
-            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu") || 
+            if(!strcmp(mac_widget_colors[i].qt_class, "QMenu") ||
                !strcmp(mac_widget_colors[i].qt_class, "Q3PopupMenu")) {
                 GetThemeTextColor(kThemeTextColorMenuItemActive, 32, true, &c);
                 pal.setBrush(QPalette::ButtonText, QColor(c.red / 256, c.green / 256, c.blue / 256));

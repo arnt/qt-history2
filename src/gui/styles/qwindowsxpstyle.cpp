@@ -36,11 +36,8 @@
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qdesktopwidget.h>
-#include <qdockwindow.h>
-#include <qdockarea.h>
 #include <qwidgetstack.h>
 #include <qtabwidget.h>
-#include <qtoolbar.h>
 #include <qdrawutil.h>
 #include <qmap.h>
 #include <qevent.h>

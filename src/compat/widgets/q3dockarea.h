@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qwidget.h"
 #include "qlist.h"
-#include "qdockwindow.h"
+#include "q3dockwindow.h"
 #include "qlayout.h"
 #include "qpointer.h"
 #endif // QT_H

@@ -30,7 +30,6 @@
 #include "qcombobox.h"
 #include "qslider.h"
 #include "qtextedit.h"
-#include "qtoolbar.h"
 #include "qtoolbutton.h"
 #include "qlineedit.h"
 #include "q3menubar.h"

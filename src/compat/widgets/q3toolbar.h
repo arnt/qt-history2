@@ -16,7 +16,7 @@
 #define QTOOLBAR_H
 
 #ifndef QT_H
-#include "qdockwindow.h"
+#include "q3dockwindow.h"
 #endif // QT_H
 
 #ifndef QT_NO_TOOLBAR

@@ -17,7 +17,7 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qtoolbar.h"
+#include "q3toolbar.h"
 #include "qtextstream.h"
 #endif // QT_H
 

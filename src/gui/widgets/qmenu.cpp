@@ -18,8 +18,6 @@
 #include "qtimer.h"
 #include "qlayout.h"
 #include "qpainter.h"
-#include "qtoolbar.h"
-#include "qmainwindow.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #ifndef QT_NO_ACCESSIBILITY
@@ -693,7 +691,7 @@ QAction *QMenu::addAction(const QString &text, const QObject *receiver, const ch
 
     \sa QWidget::addAction()
 */
-QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver, 
+QAction *QMenu::addAction(const QIconSet &icon, const QString &text, const QObject *receiver,
                           const char* member, const QKeySequence &shortcut)
 {
     QAction *ret = new QAction(icon, text, shortcut, this);

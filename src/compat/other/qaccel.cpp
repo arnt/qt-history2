@@ -23,7 +23,7 @@
 #include "qlist.h"
 #include "qwhatsthis.h"
 #include "qstatusbar.h"
-#include "qdockwindow.h"
+#include "q3dockwindow.h"
 #include "private/qapplication_p.h"
 #define d d_func()
 #define q q_func()

@@ -14,10 +14,7 @@
 
 #include "qmenu.h"
 #include "qhash.h"
-#include "qmainwindow.h"
-#include "qtoolbar.h"
 #include "qapplication.h"
-#include "qdockarea.h"
 #include "qt_mac.h"
 #include "qregexp.h"
 
@@ -69,7 +66,7 @@ inline static QCFString qt_mac_no_ampersands(QString str) {
     return QCFString(str);
 }
 
-bool watchingAboutToShow(QMenu *menu) 
+bool watchingAboutToShow(QMenu *menu)
 {
     return menu && menu->receivers(SIGNAL(aboutToShow()));
 }
@@ -101,7 +98,7 @@ void qt_mac_command_set_enabled(MenuRef menu, UInt32 cmd, bool b)
     short index = qt_mac_menu_find_action(menu, cmd);
     if(index != -1) {
         UInt32 size;
-        if(GetMenuItemPropertySize(menu, index, kMenuCreatorQt, kMenuPropertyQAction, &size) != noErr || size != sizeof(QAction*)) 
+        if(GetMenuItemPropertySize(menu, index, kMenuCreatorQt, kMenuPropertyQAction, &size) != noErr || size != sizeof(QAction*))
             return;
     } else {
         return;
@@ -304,9 +301,9 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
             if(GetMenuItemProperty(mr, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0, &widget) == noErr) {
                 if(QMenu *qmenu = ::qt_cast<QMenu*>(widget)) {
                     handled_event = true;
-                    if(ekind == kEventMenuOpening) 
+                    if(ekind == kEventMenuOpening)
                         emit qmenu->aboutToShow();
-                    else 
+                    else
                         emit qmenu->aboutToHide();
                 }
             }
@@ -594,7 +591,7 @@ QMenuPrivate::macMenu(MenuRef merge)
         SetMenuItemProperty(mac_menu->menu, 0, kMenuCreatorQt, kMenuPropertyMergeMenu, sizeof(merge), &merge);
 
     QList<QAction*> items = q->actions();
-    for(int i = 0; i < items.count(); i++) 
+    for(int i = 0; i < items.count(); i++)
         mac_menu->addAction(items[i]);
     return mac_menu->menu;
 }
@@ -669,8 +666,8 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
         }
 
         if(QMenu *qmenu = action->action->menu()) {
-            if(!qmenu->actions().isEmpty() && !CountMenuItems(qmenu->macMenu(apple_menu)) 
-               && !watchingAboutToShow(qmenu)) 
+            if(!qmenu->actions().isEmpty() && !CountMenuItems(qmenu->macMenu(apple_menu))
+               && !watchingAboutToShow(qmenu))
                 return; // We don't want to add this to the list because it was all "merged" away
         }
     }
