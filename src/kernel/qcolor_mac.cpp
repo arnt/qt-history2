@@ -114,8 +114,23 @@ uint QColor::alloc()
 }
 
 
-void QColor::setSystemNamedColor( const QString& )
+void QColor::setSystemNamedColor( const QString& name )
 {
+    if ( !color_init ) {
+#if defined(QT_CHECK_STATE)
+	qWarning( "QColor::setSystemNamedColor: Cannot perform this operation "
+		 "because QApplication does not exist" );
+#endif
+	alloc();				// makes the color black
+	return;
+    }
+    rgbVal = qt_get_rgb_val( name.latin1() );
+    if ( lazy_alloc ) {
+	rgbVal |= RGB_DIRTY;			// alloc later
+	pix = 0;
+    } else {
+	alloc();				// alloc now
+    }
 }
 
 
