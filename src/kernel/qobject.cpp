@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#104 $
 **
 ** Implementation of QObject class
 **
@@ -14,7 +14,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#104 $");
 
 
 /*!
@@ -204,7 +204,7 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
   Example:
   \code
-    CHILD(myWidget,QListBox,listboxname)->insertItem( "another string" );
+    CHILD(myWidget,QListBox,"listboxname")->insertItem( "another string" );
   \endcode
 */
 
