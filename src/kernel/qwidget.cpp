@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#475 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#476 $
 **
 ** Implementation of QWidget class
 **
@@ -2843,12 +2843,30 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   \c QWidget::NoFocus).
 
   You must enable keyboard focus for a widget if it processes keyboard
-  events. This is normally done from the widget's constructor.  For
+  events.  This is normally done from the widget's constructor.  For
   instance, the QLineEdit constructor calls
   setFocusPolicy(\c QWidget::StrongFocus).
 
   \sa setFocusPolicy(), focusInEvent(), focusOutEvent(), keyPressEvent(),
   keyReleaseEvent(), isEnabled()
+*/
+
+/*! \enum QWidget::FocusPolicy
+
+  This enum type defines the various policies a widget can have with
+  respect to acquiring keyboard focus.
+  
+  The \e policy can be:
+  <ul>
+  <li> \c QWidget::TabFocus, the widget accepts focus by tabbing.
+  <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
+  <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
+  and clicking.
+  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts
+  focus by using the mouse wheel.
+  <li> \c QWidget::NoFocus, the widget does not accept focus
+  </ul>
+
 */
 
 /*!
@@ -2873,17 +2891,6 @@ void QWidget::setGeometry( int x, int y, int w, int h )
   events. This is normally done from the widget's constructor.  For
   instance, the QLineEdit constructor calls
   setFocusPolicy(\c QWidget::StrongFocus).
-
-  The \e policy can be:
-  <ul>
-  <li> \c QWidget::TabFocus, the widget accepts focus by tabbing.
-  <li> \c QWidget::ClickFocus, the widget accepts focus by clicking.
-  <li> \c QWidget::StrongFocus, the widget accepts focus by both tabbing
-  and clicking.
-  <li> \c QWidget::WheelFocus, like StrongFocus plus the widget accepts
-  focus by using the mouse wheel.
-  <li> \c QWidget::NoFocus, the widget does not accept focus
-  </ul>
 
   As a special case to support applications not utilizing focus,
   \link isTopLevel() Top-level widgets \endlink that have
