@@ -39,6 +39,7 @@
 #define QLAYOUT_H
 
 #ifndef QT_H
+#include <limits.h>
 #include "qobject.h"
 #include "qsizepolicy.h"
 #include "qwidget.h"
@@ -49,6 +50,7 @@
 #if 0
 Q_OBJECT
 #endif
+
 static const int QLAYOUTSIZE_MAX=INT_MAX/256/16;
 
 /*
