@@ -344,6 +344,8 @@ following ways:
 Widgets of course offer richer functionality, such as hierarchies,
 events, layout, etc.
 
+<h3>Drawing</h3>
+
 A canvas has a solid background and a foreground. By default, the canvas will
 have a white background, which can be changed with setBackgroundColor().
 If you want an image, use setBackgroundPixmap(). A third option is to use
@@ -363,6 +365,8 @@ update() is called, including creation of new items (which
 are created visible, unlike widgets), movement of item, change of shape,
 change of visibility, and destruction.
 
+<h3>Animation</h3>
+
 QCanvas has some built-in animation features. If you call QCanvasItem::setVelocity() 
 on an item, it will move forward whenever advance() is call.  The advance() function
 also calls update(), so you only need to call one or the other. If no items
@@ -370,6 +374,19 @@ have a velocity, then advance() is the same as update().
 
 You can have advance() or update() called automatically with setAdvancePeriod()
 or setUpdatePeriod() respectively.
+
+<h3>Collision Detection</h3>
+
+Items on the canvas can be tested for collisions with these functions, each of
+which returns a list of items which match the hit, sorted from top to bottom
+(ie. by decreasing QCanvasItem::z() value).
+
+<ul>
+    <li>collisions(QPoint) - items which will collide with a point.
+    <li>collisions(QRect) - items which will collide with a rectangle.
+</ul>
+
+You can also test for item-to-item collisions with QCanvasItem::collisions().
 */
 
 void QCanvas::init(int w, int h, int chunksze, int mxclusters)
@@ -561,13 +578,18 @@ void QCanvas::retune(int chunksze, int mxclusters)
 }
 
 /*!
-\fn int QCanvas::width() const
-Returns the width of the canvas, in pixels.
+  \fn int QCanvas::width() const
+  Returns the width of the canvas, in pixels.
 */
 
 /*!
-\fn int QCanvas::height() const
-Returns the height of the canvas, in pixels.
+  \fn int QCanvas::height() const
+  Returns the height of the canvas, in pixels.
+*/
+
+/*!
+  \fn QSize QCanvas::size() const
+  Returns the size of the canvas, in pixels.
 */
 
 /*!
@@ -725,7 +747,8 @@ void QCanvas::update()
     QCanvasClusterizer clusterizer(viewList.count());
 
     for (QCanvasView* view=viewList.first(); view != 0; view=viewList.next()) {
-	QRect area=view->viewArea();
+	QRect area(view->contentsX(),view->contentsY(),
+		view->contentsWidth(),view->contentsHeight());
 	if (area.width()>0 && area.height()>0) {
 	    clusterizer.add(area);
 	}
@@ -970,8 +993,19 @@ void QCanvas::removeItemFromChunkContaining(QCanvasItem* g, int x, int y)
 }
 
 /*!
+  Returns the color set by setBackgroundColor().
+  By default, this is white.
+
+  \sa setBackgroundColor(), backgroundPixmap()
+*/
+QColor QCanvas::backgroundColor() const
+{
+    return bgcolor;
+}
+
+/*!
   Sets the solid background to be the color \a c.
-  \sa setBackgroundPixmap(), setTiles()
+  \sa backgroundColor(), setBackgroundPixmap(), setTiles()
 */
 void QCanvas::setBackgroundColor( const QColor& c )
 {
@@ -980,10 +1014,22 @@ void QCanvas::setBackgroundColor( const QColor& c )
 }
 
 /*!
+  Returns the pixmap set by setBackgroundPixmap().
+  By default, this is a \link QPixmap::isNull() null\endlink
+  pixmap.
+
+  \sa setBackgroundPixmap(), backgroundColor()
+*/
+QPixmap QCanvas::backgroundPixmap() const
+{
+    return pm;
+}
+
+/*!
   Sets the solid background to be \a p, repeated as necessary to cover
   the entire canvas.
 
-  \sa setBackgroundColor(), setTiles()
+  \sa backgroundPixmap(), setBackgroundColor(), setTiles()
 */
 void QCanvas::setBackgroundPixmap( const QPixmap& p )
 {
@@ -1097,27 +1143,32 @@ void QCanvas::setTiles(QPixmap p,
 }
 
 /*!
-  \fn int tile( int x, int y ) const
-  Returns the tile at (\a x, \a y).
+  \fn int QCanvas::tile( int x, int y ) const
+
+  Returns the tile set at (\a x,\a y). Initially,
+  all tiles are 0.
+
   \warning the parameters must be within range.
+
+  \sa setTile()
 */
 
 /*!
-  \fn int tilesHorizontally() const
+  \fn int QCanvas::tilesHorizontally() const
   Returns the number of tiles horizontally.
 */
 
 /*!
-  \fn int tilesVertically() const
+  \fn int QCanvas::tilesVertically() const
   Returns the number of tiles vertically.
 */
 
 /*!
-  \fn int tileWidth() const
+  \fn int QCanvas::tileWidth() const
   Returns the width of each tile.
 */
 /*!
-  \fn int tileHeight() const
+  \fn int QCanvas::tileHeight() const
   Returns the height of each tile.
 */
 
@@ -1130,6 +1181,8 @@ void QCanvas::setTiles(QPixmap p,
   The images are taken from the pixmap set by setTiles() and
   are arranged in the pixmap left to right, top to bottom, with tile 0
   in the top-left corner, tile 1 next to the right, and so on.
+
+  \sa tile()
 */
 void QCanvas::setTile( int x, int y, int tilenum )
 {
@@ -1162,31 +1215,7 @@ QCanvasItems can be moved, hidden, and tested for collision with
 other items. They have selected, enabled, and active state flags
 which subclasses may use to adjust appearance or behavior.
 
-In most graphic rendering systems, graphic objects are considered to
-have a bounding \e rectangle, and redraw optimization is based on this
-simplification.  This system is not used by QCanvas.  A
-QCanvas considers itself to contain numerous graphic objects, each
-of which covers certain `chunks' in the QCanvas.  For graphic
-objects with a rectangular bias, this has only a minor effect on
-redraw efficiency (although still a major effect on collision
-detection and other area-based indexing).  For other shapes, such as
-lines, the tighter area-bound made possible by chunks can provide
-vast improvements.
-
-Whenever a QCanvasItem moves, it must add and remove itself
-from the chunks of the QCanvas upon which it moves.  If the
-QCanvasItem is much smaller than the chunk size of the
-QCanvas, it will usually be in one, sometimes 2, and occasionally
-3 or 4 chunks.  If the QCanvasItem is larger than the
-chunk size of the QCanvas, it will span a number of chunks.
-Clearly there is a trade-off between tight bounds and excessive
-numbers of chunks a QCanvasItem will have to add and remove
-itself from.
-
-Note that a QCanvasItem may be `on' a QCanvas even if it's
-coordinates place it far off the edge of the area of the QCanvas,
-however, collision detection only works for parts of an item
-that are within the area of the canvas.
+For details of collision detection, see collisions().
 */
 
 /*!
@@ -1226,6 +1255,62 @@ QCanvasItemExtra& QCanvasItem::extra()
 }
 
 /*!
+\fn double QCanvasItem::x() const
+Returns the horizontal position of the item.
+Note that subclasses often have
+an origin other than the top-left corner.
+*/
+
+/*!
+\fn double QCanvasItem::y() const
+Returns the vertical position of the item.
+Note that subclasses often have
+an origin other than the top-left corner.
+*/
+
+/*!
+\fn double QCanvasItem::z() const
+
+Returns the z height of the item,
+which is used for visual order:  higher-z items obscure
+lower-z ones.
+*/
+
+/*!
+  \fn void QCanvasItem::setX(double x)
+
+  Moves the item so that its X-position is \a x;
+  \sa x(), move()
+*/
+
+/*!
+  \fn void QCanvasItem::setY(double y)
+
+  Moves the item so that its Y-position is \a y;
+  \sa y(), move()
+*/
+
+/*!
+  \fn void QCanvasItem::setZ(double z)
+
+  Sets the height of the item to \a z.
+  Higher-z items obscure lower-z ones.
+
+  \sa z(), move()
+*/
+
+/*!
+Moves the item from its current position by the given amounts.
+*/
+void QCanvasItem::moveBy(double dx, double dy)
+{
+    removeFromChunks();
+    myx+=dx;
+    myy+=dy;
+    addToChunks();
+}
+
+/*!
   Returns TRUE is the item is animated.
   \sa setVelocity(), setAnimated()
 */
@@ -1250,6 +1335,18 @@ void QCanvasItem::setAnimated(bool y)
 	}
     }
 }
+
+/*!
+  \fn void QCanvasItem::setXVelocity( double vx )
+
+  Sets the horizontal component of the item's velocity to \a vx.
+*/
+
+/*!
+  \fn void QCanvasItem::setYVelocity( double vy )
+
+  Sets the vertical component of the item's velocity to \a vy.
+*/
 
 /*!
   Sets the item to be animated and moving by
@@ -1297,14 +1394,6 @@ void QCanvasItem::advance(int phase)
 }
 
 /*!
-\fn int QCanvasItem::z() const
-
-Returns the z depth of the item,
-which is used for visual order:  higher-z items obscure
-lower-z ones.
-*/
-
-/*!
 \fn void QCanvasItem::draw(QPainter& painter)
 
 This abstract method should draw the item using \a painter.
@@ -1325,7 +1414,7 @@ void QCanvasItem::setCurrentCanvas(QCanvas* c)
 Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
 Initially this will be the current canvas.
 
-\sa setCurrentCanvas(QCanvas*)
+\sa setCurrentCanvas(QCanvas*), canvas()
 */
 void QCanvasItem::setCanvas(QCanvas* c)
 {
@@ -1342,6 +1431,12 @@ void QCanvasItem::setCanvas(QCanvas* c)
     }
     setVisible(v);
 }
+
+/*!
+  \fn QCanvas* QCanvasItem::canvas() const
+
+  Returns the canvas containing the item.
+*/
 
 /*!
 Shorthand for setVisible(TRUE).
@@ -1625,12 +1720,43 @@ static bool collision_double_dispatch(
     }
 }
 
-// XXX XXX XXX documentation effort up to here (48%)
+/*!
+  \fn bool QCanvasItem::collidesWith( const QCanvasItem* other ) const
 
+  Returns TRUE if the item will collide with the \a other item \i after they
+  have moved by their current velocities.
+
+  \sa collisions()
+*/
+
+
+/*!
+  \class QCanvasSprite qcanvas.h
+  \brief A masked image on a canvas.
+
+  ...
+*/
+
+
+/*!
+  \reimp
+*/
 bool QCanvasSprite::collidesWith( const QCanvasItem* i ) const
 {
     return i->collidesWith(this,0,0,0,0);
 }
+
+/*!
+  \fn bool QCanvasItem::collidesWith(  const QCanvasSprite* s,
+				 const QCanvasPolygonalItem* p,
+				 const QCanvasRectangle* r,
+				 const QCanvasEllipse* e,
+				 const QCanvasText* t ) const
+
+  Returns TRUE if the item collides with any of the given items. The parameters
+  are all the same object, this is just a type resolution trick.
+*/
+
 
 bool QCanvasSprite::collidesWith(  const QCanvasSprite* s,
 				 const QCanvasPolygonalItem* p,
@@ -1641,6 +1767,9 @@ bool QCanvasSprite::collidesWith(  const QCanvasSprite* s,
     return collision_double_dispatch(s,p,r,e,t,this,0,0,0,0);
 }
 
+/*!
+  \reimp
+*/
 bool QCanvasPolygonalItem::collidesWith( const QCanvasItem* i ) const
 {
     return i->collidesWith(0,this,0,0,0);
@@ -1655,6 +1784,9 @@ bool QCanvasPolygonalItem::collidesWith(  const QCanvasSprite* s,
     return collision_double_dispatch(s,p,r,e,t,0,this,0,0,0);
 }
 
+/*!
+  \reimp
+*/
 bool QCanvasRectangle::collidesWith( const QCanvasItem* i ) const
 {
     return i->collidesWith(0,this,this,0,0);
@@ -1670,6 +1802,9 @@ bool QCanvasRectangle::collidesWith(  const QCanvasSprite* s,
 }
 
 
+/*!
+  \reimp
+*/
 bool QCanvasEllipse::collidesWith( const QCanvasItem* i ) const
 {
     return i->collidesWith(0,this,0,this,0);
@@ -1684,6 +1819,9 @@ bool QCanvasEllipse::collidesWith(  const QCanvasSprite* s,
     return collision_double_dispatch(s,p,r,e,t,0,this,0,this,0);
 }
 
+/*!
+  \reimp
+*/
 bool QCanvasText::collidesWith( const QCanvasItem* i ) const
 {
     return i->collidesWith(0,0,0,0,this);
@@ -1698,6 +1836,28 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
     return collision_double_dispatch(s,p,r,e,t,0,0,0,0,this);
 }
 
+/*!
+  Returns the list of items that this item collides with.
+
+  A collision is generally defined as pixels of one item drawing on the
+  pixels of another item, but not all subclasses are so precise. Also,
+  since pixelwise collision detection can be slow, this function
+  works in either exact or inexact mode, according to the \a exact
+  parameter.
+
+  In exact mode, items returned have been accurately tested to collide
+  with the item.
+
+  In inexact mode, the items returned are only \i near the item and
+  should be tested using collidesWith() if they are interesting collision
+  candidates. By using this, you can ignore some items for which collisions
+  are not interesting. rtti() can be useful for such filtering.
+
+  Note that while a QCanvasItem may be `on' a QCanvas even if it's
+  coordinates place it far off the edge of the area of the QCanvas,
+  collision detection only works for parts of an item
+  that are within the area of the canvas.
+*/
 QCanvasItemList QCanvasItem::collisions(bool exact) const
 {
     return canvas()->collisions(chunks(),this,exact);
@@ -1757,6 +1917,10 @@ QCanvasItemList QCanvas::collisions(QPointArray chunks,
     return result;
 }
 
+/*!
+  \internal
+  Adds the item to all the chunks it covers.
+*/
 void QCanvasItem::addToChunks()
 {
     if (visible() && canvas()) {
@@ -1766,6 +1930,10 @@ void QCanvasItem::addToChunks()
     }
 }
 
+/*!
+  \internal
+  Removes the item from all the chunks it covers.
+*/
 void QCanvasItem::removeFromChunks()
 {
     if (visible() && canvas()) {
@@ -1775,6 +1943,11 @@ void QCanvasItem::removeFromChunks()
     }
 }
 
+/*!
+  \internal
+  Sets all the chunks covered by the item to be refreshed with QCanvas::update()
+  is next called.
+*/
 void QCanvasItem::changeChunks()
 {
     if (visible() && canvas()) {
@@ -1784,126 +1957,90 @@ void QCanvasItem::changeChunks()
     }
 }
 
-
-
 /*!
-\class QCanvasPixmap qcanvas.h
-\brief A QCanvasPixmap is a sprite frame image
+  \fn QRect QCanvasItem::boundingRect() const
 
-Note that QCanvasPixmap should be considered an internal class at
-the current time.  This will change (as will the interface) once
-alpha and description support for QImage is clarified.
+  Returns the bounding rectangle of pixels that the item covers.
 
-\sa QCanvasPixmapSequence QCanvasItem QCanvasSprite
+  \sa boundingRectAdvanced()
 */
 
 /*!
-Construct a QCanvasPixmap from two image files.
+  Returns the bounding rectangle of pixels that the item \i will cover
+  after advance(1) is called.
 
-The QCanvasPixmap is a masked QPixmap used internally by
-sprite classes.
-
-The dataname file must be a PPM file of the form:
-
-\code
-P6
-# HOTSPOT x y
-...
-\endcode
-
-That is, it must have an additional comment which gives the (x,y)
-coordinate of the `hotspot' of the image.
-
-The `hotspot' position defines the origin pixel in the image
-For example, if the hotspot is (10,5), it will be displayed
-drawn 10 pixels to the left of and 5 pixels above the actual
-(x,y) coordinate of the sprite.
-
-The maskname can be any monochrome image format, such as PBM.
-No special comments in the file are needed or recognized.
-
-The maskname may also be 0, in which case the sprite has no mask (it is
-a solid rectangle).  This will also be the case if the file maskname
-does not exist.
+  \sa boundingRect()
 */
-QCanvasPixmap::QCanvasPixmap(const char* dataname, const char* maskname) :
-    hotx(0),hoty(0),
-    collision_mask(0),
-    colhotx(0),colhoty(0)
+QRect QCanvasItem::boundingRectAdvanced() const
 {
-    {
-	QFile file(dataname);
-	if (file.open(IO_ReadOnly)) {
-	    char line[128];
-	    file.readLine(line,128); // Skip "P6"/"P3" line
-	    file.readLine(line,128);
+    int dx = int(x()+xVelocity())-int(x());
+    int dy = int(y()+yVelocity())-int(y());
+    QRect r = boundingRect();
+    r.moveBy(dx,dy);
+    return r;
+}
 
-	    while (line[0]=='#') {
-		// Comment line - see if it has additional parameters
-		if (0==strncmp(line,"# HOTSPOT ",10)) {
-		    sscanf(line+10,"%d %d",&hotx,&hoty);
-		    colhotx=hotx;
-		    colhoty=hoty;
-		}
-		file.readLine(line,127);
-	    }
-	}
-    }
 
-    if (!load(dataname)) {
-	fprintf(stderr,"QCanvasPixmap::QCanvasPixmap - Failed to read %s\n",dataname);
-	exit(1);
-    }
 
-    if (maskname) {
-	QImageIO iio;
-	iio.setFileName(maskname);
-	if (iio.read()) {
-	    collision_mask=new QImage(iio.image());
-	    QBitmap m;
-	    m.convertFromImage(*collision_mask);
-	    setMask(m);
-	} else {
-	    collision_mask=0;
-	}
-    } else if ( mask() ) {
+/*!
+  \class QCanvasPixmap qcanvas.h
+  \brief A QCanvasPixmap is a pixmap with an offset.
+
+  QImage has an offset or "hot spot", but QPixmap does not.
+  This class adds the notion of an offset to QPixmap as this
+  is very useful for the canvas sprites where QCanvasPixmap is used.
+  It also keeps a copy of the display mask for use in collision
+  detection.
+
+  Note that PNG format files already have support for an offset.
+
+  \sa QCanvasPixmapArray QCanvasItem QCanvasSprite
+*/
+
+
+/*!
+  Constructs a QCanvasPixmap from an image file by loading it.
+*/
+QCanvasPixmap::QCanvasPixmap(const QString& datafilename)
+{
+    QImage image(datafilename);
+    init(image);
+}
+/*!
+  Constructs a QCanvasPixmap from an image.
+*/
+QCanvasPixmap::QCanvasPixmap(const QImage& image)
+{
+    init(image);
+}
+/*!
+  Constructs a QCanvasPixmap from a pixmap and an offset.
+*/
+QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, QPoint offset)
+{
+    init(pm,offset.x(),offset.y());
+}
+
+void QCanvasPixmap::init(const QImage& image)
+{
+    convertFromImage(image);
+    hotx = image.offset().x();
+    hoty = image.offset().y();
+    if ( image.hasAlphaBuffer() )
+	collision_mask = new QImage(image.createAlphaMask());
+}
+
+void QCanvasPixmap::init(const QPixmap& pixmap, int hx, int hy)
+{
+    (QPixmap&)*this = pixmap;
+    hotx = hx;
+    hoty = hy;
+    if ( pixmap.mask() )
 	collision_mask = new QImage(mask()->convertToImage());
-qDebug("%dx%dx%d mask",collision_mask->width(),collision_mask->height(),collision_mask->depth());
-    } else {
-	collision_mask=0;
-    }
-
-    colw=width();
-    colh=height();
 }
 
 /*!
-Construct a QCanvasPixmap from a QPixmap and a
-\link QCanvasPixmap::setHotSpot() hotspot.\endlink
-
-The QCanvasPixmap is a masked QPixmap used internally by
-sprite classes.
-*/
-QCanvasPixmap::QCanvasPixmap(const QPixmap& pm, QPoint hotspot) :
-    QPixmap(pm),
-    hotx(hotspot.x()),hoty(hotspot.y()),
-    collision_mask(0),
-    colhotx(hotspot.x()),colhoty(hotspot.y())
-{
-    const QBitmap *mask = pm.mask();
-    if (mask) {
-	collision_mask = new QImage(mask->convertToImage());
-    } else {
-	collision_mask=0;
-    }
-
-    colw=width();
-    colh=height();
-}
-
-
-/*!
-Deletes any collision mask.
+  Destructs the pixmap.
 */
 QCanvasPixmap::~QCanvasPixmap()
 {
@@ -1911,210 +2048,179 @@ QCanvasPixmap::~QCanvasPixmap()
 }
 
 /*!
-  \fn int QCanvasPixmap::hotX() const
-  Returns the X-position \link QCanvasPixmap::setHotSpot() hotspot\endlink set
-  for the pixmap.
-*/
-/*!
-  \fn int QCanvasPixmap::hotY() const
-  Returns the Y-position \link QCanvasPixmap::setHotSpot() hotspot\endlink set
-  for the pixmap.
-*/
-/*!
-  \fn void QCanvasPixmap::setHotSpot(int x, int y)
-  Sets the hotspot to (\a x, \a y).
+  \fn int QCanvasPixmap::offsetX() const
+  Returns the X-offset of the pixmap.
 
-  The hotspot position defines the origin pixel in the image
-  For example, if the hotspot is (10,5), it will be displayed
+  \sa setOffset()
+*/
+/*!
+  \fn int QCanvasPixmap::offsetY() const
+  Returns the Y-offset of the pixmap.
+
+  \sa setOffset()
+*/
+/*!
+  \fn void QCanvasPixmap::setOffset(int x, int y)
+  Sets the offset to (\a x, \a y).
+
+  The offset position or "hot spot" defines the origin pixel in the image
+  For example, if the offset is (10,5), it will be displayed
   drawn 10 pixels to the left of and 5 pixels above the actual
   (x,y) coordinate of the sprite.
 */
 
 /*!
-\class QCanvasPixmapSequence qcanvas.h
-\brief A sequence of QCanvasPixmap
-to have multiple frames for animation.
+  \class QCanvasPixmapArray qcanvas.h
+  \brief An array of QCanvasPixmap to have multiple frames for animation.
 
-This allows sprite objects
-to have multiple frames for animation.
+  This allows sprite objects
+  to have multiple frames for animation.
 
-QCanvasPixmaps for sprite objects are collected into
-QCanvasPixmapSequences, which are
-the set of images a sprite will use, indexed by the sprite's
-frame.  This allows sprites to simply have animated forms.
+  QCanvasPixmaps for sprite objects are collected into
+  QCanvasPixmapArrays, which are
+  the set of images a sprite will use, indexed by the sprite's
+  frame.  This allows sprites to simply have animated forms.
 */
 
 /*!
-Construct a QCanvasPixmapSequence from files.
+Construct a QCanvasPixmapArray from files.
 
 The framecount parameter sets the number of frames to be
-loaded for this image.  The filenames should be printf-style
-strings such as "foo%03d.ppm" or "animdir/%4d.pbm".  The actual
-filenames are formed by sprintf-ing a string with each integer
-from 0 to framecount-1, eg. foo000.ppm, foo001.ppm, foo002.ppm, etc.
+loaded for this image.  The filenames should contain a "%1",
+strings such as "foo%1.png".  The actual
+filenames are formed by replaceing the %1 with each integer
+from 0 to framecount-1, with leading zeroes sufficient for 4 digits.
+eg. foo0000.png, foo0001.png, foo0002.png, etc.
 */
-QCanvasPixmapSequence::QCanvasPixmapSequence(const char* datafilenamepattern,
-	const char* maskfilenamepattern, int fc)
+QCanvasPixmapArray::QCanvasPixmapArray(const QString& datafilenamepattern, int fc)
 {
     img = 0;
-    readPixmaps(datafilenamepattern,maskfilenamepattern,fc);
-}
-
-bool QCanvasPixmapSequence::readPixmaps(const char* datafilenamepattern,
-        const char* maskfilenamepattern, int fc)
-{
-    delete [] img;
-    framecount = fc;
-    img  = new QCanvasPixmap*[fc];
-    for (int i=0; i<framecount; i++) {
-	char data[1024],mask[1024];
-	sprintf(data,datafilenamepattern,i);
-	if (maskfilenamepattern) {
-	    sprintf(mask,maskfilenamepattern,i);
-	    img[i]=new QCanvasPixmap(data,mask);
-	} else {
-	    img[i]=new QCanvasPixmap(data,0);
-	}
-    }
-    return TRUE;
+    readPixmaps(datafilenamepattern,fc);
 }
 
 /*!
-Construct a QCanvasPixmapSequence from QPixmaps.
+Construct a QCanvasPixmapArray from QPixmaps.
 */
-QCanvasPixmapSequence::QCanvasPixmapSequence(QList<QPixmap> list, QList<QPoint> hotspots) :
+QCanvasPixmapArray::QCanvasPixmapArray(QList<QPixmap> list, QList<QPoint> hotspots) :
     framecount(list.count()),
     img(new QCanvasPixmap*[list.count()])
 {
-    if (list.count() != hotspots.count())
-	warning("QCanvasPixmapSequence: lists have different lengths");
-    list.first();
-    hotspots.first();
-    for (int i=0; i<framecount; i++) {
-	img[i]=new QCanvasPixmap(*list.current(), *hotspots.current());
-	list.next();
-	hotspots.next();
+    if (list.count() != hotspots.count()) {
+	qWarning("QCanvasPixmapArray: lists have different lengths");
+	delete [] img;
+	img = 0;
+    } else {
+	list.first();
+	hotspots.first();
+	for (int i=0; i<framecount; i++) {
+	    img[i]=new QCanvasPixmap(*list.current(), *hotspots.current());
+	    list.next();
+	    hotspots.next();
+	}
     }
 }
 
 /*!
-  Destructs the pixmap sequence.
+  Destructs the pixmap array.
 */
-QCanvasPixmapSequence::~QCanvasPixmapSequence()
+QCanvasPixmapArray::~QCanvasPixmapArray()
+{
+    reset();
+}
+
+void QCanvasPixmapArray::reset()
 {
     for (int i=0; i<framecount; i++)
 	delete img[i];
-    delete img;
+    delete [] img;
 }
 
 /*!
-Constructor failure check.  Currently not implemented.
-Exceptions would be a better solution.
+  Read new pixmaps into the array.
 */
-int QCanvasPixmapSequence::operator!()
+bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern, int fc)
 {
-    return 0;
+    return readPixmaps(datafilenamepattern,fc);
+}
+/*!
+  When testing sprite collision detection
+  the default is to use the image mask of the sprite.  By using
+  readCollisionMasks(), an alternate mask can be used. The images
+  must be 1-bit deep.
+*/
+bool QCanvasPixmapArray::readCollisionMasks(const QString& fname)
+{
+    return readPixmaps(fname,framecount,TRUE);
 }
 
-/*!
-\fn QCanvasPixmap* QCanvasPixmapSequence::image(int i) const
-Returns the \a i-th pixmap in the sequence.
-*/
 
-/*!
-\fn void QCanvasPixmapSequence::setImage(int i, QCanvasPixmap* p)
-Deletes the \a i-th pixmap and replaces it by \a p.  Note that \a p
-becomes owned by the sequence - it will be deleted later.
-*/
-
-/*!
-\fn int QCanvasPixmapSequence::frameCount() const
-Returns the length of the sequence.
-*/
-
-/*!
-When testing sprite collision detection
-the default is to use the image mask of the sprite.  By using
-readCollisionMasks(const char*), an alternate mask can be used.
-Also, by using QCanvasItem::setPixelCollisionPrecision(int),
-the resolution of the collision mask can be different to the
-resolution of the pixel coordinates of the sprites.
-
-The filename is a printf-style string, as per the constructor
-for QCanvasPixmapSequence.
-
-The image must be a PBM file, with a HOTSPOT comment as described
-in QCanvasPixmap::QCanvasPixmap(const char*, const char*).
-
-\sa QCanvasItem::setPixelCollisionPrecision(int).
-*/
-bool QCanvasPixmapSequence::readCollisionMasks(const char* fname)
+bool QCanvasPixmapArray::readPixmaps(const QString& datafilenamepattern, int fc, bool maskonly)
 {
-    for (int i=0; i<framecount; i++) {
-	char filename[1024];
-	sprintf(filename,fname,i);
-
-	{
-	    QFile file(filename);
-	    if (file.open(IO_ReadOnly)) {
-		char line[128];
-		file.readLine(line,128); // Skip "P1"/"P4" line
-		file.readLine(line,128);
-
-		while (line[0]=='#') {
-		    // Comment line - see if it has additional parameters
-		    if (0==strncmp(line,"# HOTSPOT ",10)) {
-			sscanf(line+10,"%d %d",&img[i]->colhotx,&img[i]->colhoty);
-		    }
-		    file.readLine(line,128);
-		}
-	    }
-	}
-	delete img[i]->collision_mask;
-	QImageIO iio;
-	iio.setFileName(filename);
-	if (!iio.read()) {
-	    qWarning("QCanvasPixmapSequence::readCollisionMasks - Failed to read %s\n",filename);
-	    return FALSE;
-	}
-	img[i]->collision_mask=new QImage(iio.image());
+    if ( !maskonly ) {
+	delete [] img;
+	framecount = fc;
+	img = new QCanvasPixmap*[fc];
     }
-    return TRUE;
+    bool ok = TRUE;
+    for (int i=0; i<framecount; i++) {
+	QString r;
+	r.sprintf("%04d",i);
+	if ( maskonly ) {
+	    img[i]->collision_mask->load(datafilenamepattern.arg(r));
+	    ok &= !img[i]->collision_mask->isNull() && img[i]->collision_mask->depth()==1;
+	} else {
+	    img[i]=new QCanvasPixmap(datafilenamepattern.arg(r));
+	    ok &= !img[i]->isNull();
+	}
+    }
+    if ( !ok ) {
+	reset();
+    }
+    return ok;
 }
 
 /*!
-\class QCanvasItem qcanvas.h
-\brief A QCanvasItem which renders as a masked image.
+  Constructor failure check.
+*/
+int QCanvasPixmapArray::operator!()
+{
+    return img==0;
+}
 
-\sa QCanvasSprite
+/*!
+\fn QCanvasPixmap* QCanvasPixmapArray::image(int i) const
+Returns the \a i-th pixmap in the array.
+*/
+
+/*!
+Replaces the \a i-th pixmap by \a p.  Note that \a p
+becomes owned by the array - it will be deleted later.
+*/
+void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
+{
+    delete img[i]; img[i]=p;
+}
+
+/*!
+\fn int QCanvasPixmapArray::count() const
+Returns the length of the array.
 */
 
 
 /*!
-\fn QCanvasPixmap* QCanvasItem::image() const
-This abstract method should return the pixmap to be drawn
-for the sprite.
+  Moves the item to (\a x,\a y) by calling the moveBy()
+  virtual function.
 */
+void QCanvasItem::move(double x, double y)
+{
+    moveBy(x-myx,y-myy);
+}
+
 
 /*!
-\fn int QCanvasItem::x() const
-This abstract method should return the horizontal location, measured
-from the left edge of the QCanvas, at
-which to draw the pixmap of the sprite.  Note that the hotspot of the
-pixmap will be taken into account.
-*/
-/*!
-\fn int QCanvasItem::y() const
-This abstract method should return the vertical location, measured
-from the top edge of the QCanvas, at
-which to draw the pixmap of the sprite.  Note that the hotspot of the
-pixmap will be taken into account.
-*/
-
-/*!
-The absolute horizontal position of the QCanvasItem.  This is
+The absolute horizontal position of the sprite.  This is
 the pixel position of the left edge of the image, as it takes into
-account the hotspot.
+account the offset.
 */
 int QCanvasSprite::absX() const
 {
@@ -2122,7 +2228,7 @@ int QCanvasSprite::absX() const
 }
 
 /*!
-The absolute horizontal position of the QCanvasItem, if it was moved to
+The absolute horizontal position of the sprite, if it was moved to
 \a nx.
 */
 int QCanvasSprite::absX(int nx) const
@@ -2131,9 +2237,9 @@ int QCanvasSprite::absX(int nx) const
 }
 
 /*!
-The absolute vertical position of the QCanvasItem.  This is
+The absolute vertical position of the sprite.  This is
 the pixel position of the top edge of the image, as it takes into
-account the hotspot.
+account the offset.
 */
 int QCanvasSprite::absY() const
 {
@@ -2141,7 +2247,7 @@ int QCanvasSprite::absY() const
 }
 
 /*!
-The absolute vertical position of the QCanvasItem, if it was
+The absolute vertical position of the sprite, if it was
 moved to \a ny.
 */
 int QCanvasSprite::absY(int ny) const
@@ -2160,7 +2266,7 @@ int QCanvasSprite::absX2() const
 }
 
 /*!
-The right edge of the sprite image, if it was moved to \a nx.
+The right edge of the sprite image, if the sprite was moved to \a nx.
 
 \sa absX()
 */
@@ -2180,7 +2286,7 @@ int QCanvasSprite::absY2() const
 }
 
 /*!
-The bottom edge of the sprite image, \a if it was moved to \a ny.
+The bottom edge of the sprite image, \a if the sprite was moved to \a ny.
 
 \sa absY()
 */
@@ -2189,32 +2295,26 @@ int QCanvasSprite::absY2(int ny) const
     return absY(ny)+image()->height()-1;
 }
 
+/*!
+  The image the sprite \i will have after advance(1) is called.
+  Be default this is the same as image().
+*/
 QCanvasPixmap* QCanvasSprite::imageAdvanced() const
 {
     return image();
 }
 
-QRect QCanvasItem::boundingRectAdvanced() const
-{
-    int dx = int(x()+xVelocity())-int(x());
-    int dy = int(y()+yVelocity())-int(y());
-    QRect r = boundingRect();
-    r.moveBy(dx,dy);
-    return r;
-}
-
+/*
+  Returns the bounding rectangle of pixels covered by the item.
+*/
 QRect QCanvasSprite::boundingRect() const
 {
     return QRect(absX(), absY(), width(), height());
 }
 
 /*!
-Add the sprite to the chunks in its QCanvas which it overlaps.
-
-This must be called as the values of x(), y(), and image() change
-such that the QCanvasItem is removed from chunks it is in,
-the values of x(), y(), and image() change, then it is added
-back into the then covered chunks in the QCanvas.
+  \intenal
+  Returns the chunks covered by the item.
 */
 QPointArray QCanvasItem::chunks() const
 {
@@ -2237,12 +2337,8 @@ QPointArray QCanvasItem::chunks() const
 
 
 /*!
-Add the sprite to the chunks in its QCanvas which it overlaps.
-
-This must be called as the values of x(), y(), and image() change
-such that the QCanvasItem is removed from chunks it is in,
-the values of x(), y(), and image() change, then it is added
-back into the then covered chunks in the QCanvas.
+  \internal
+  Add the sprite to the chunks in its QCanvas which it overlaps.
 */
 void QCanvasSprite::addToChunks()
 {
@@ -2257,9 +2353,10 @@ void QCanvasSprite::addToChunks()
 }
 
 /*!
-Remove the sprite from the chunks in its QCanvas which it overlaps.
+  \internal
+  Remove the sprite from the chunks in its QCanvas which it overlaps.
 
-\sa addToChunks()
+  \sa addToChunks()
 */
 void QCanvasSprite::removeFromChunks()
 {
@@ -2274,7 +2371,8 @@ void QCanvasSprite::removeFromChunks()
 }
 
 /*!
-The width of the sprite, in its current image.
+  The width of the sprite, in its current image.
+  \sa frame()
 */
 int QCanvasSprite::width() const
 {
@@ -2282,7 +2380,8 @@ int QCanvasSprite::width() const
 }
 
 /*!
-The height of the sprite, in its current image.
+  The height of the sprite, in its current image.
+  \sa frame()
 */
 int QCanvasSprite::height() const
 {
@@ -2291,25 +2390,39 @@ int QCanvasSprite::height() const
 
 
 /*!
-(override)
-
-Draws the current image of the sprite at its current position,
-as given by image() and x(), y().
+  Draws the current image of the sprite at its current position,
+  as given by image() and x(), y().
 */
 void QCanvasSprite::draw(QPainter& painter)
 {
     painter.drawPixmap(absX(),absY(),*image());
 }
 
-/*!
-\class QCanvasView qcanvas.h
-\brief An abstraction which views a QCanvas
+// XXX XXX XXX current documentation point
 
-Use one of the derived classes.
+/*!
+  \class QCanvasView qcanvas.h
+  \brief A QWidget which views a QCanvas, and has scrollbars.
+
+  This is where QCanvas meets a QWidget - this class displays
+  a QCanvas.
 */
 
 /*!
-Destructs the view.
+  Construct a QCanvasView which views the given QCanvas.  The
+  usual QWidget parameters may also be passed.
+*/
+QCanvasView::QCanvasView(QCanvas* v, QWidget* parent, const char* name, WFlags f) :
+    QScrollView(parent,name,f)
+{
+    viewing = 0;
+    setCanvas(v);
+    viewport()->setBackgroundColor(v->backgroundColor());
+    connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
+}
+
+/*!
+  Destructs the view.
 */
 QCanvasView::~QCanvasView()
 {
@@ -2317,7 +2430,7 @@ QCanvasView::~QCanvasView()
 }
 
 /*!
-Change the QCanvas which the QCanvasView is viewing.
+  Changes the QCanvas which the QCanvasView is viewing to \a c.
 */
 void QCanvasView::setCanvas(QCanvas* c)
 {
@@ -2330,17 +2443,6 @@ void QCanvasView::setCanvas(QCanvas* c)
     }
     resizeContents(viewing->width(),viewing->height());
 }
-
-/*!
-\fn QRect QCanvasView::viewArea() const
-
-viewArea returns the area of `viewing' which this QCanvasView is
-viewing.
-The tighter this rectangle can
-be defined, the more efficient QCanvas::update will be.
-
-Return zero-width area if nothing viewed.
-*/
 
 /*!
 \fn void  QCanvasView::beginPainter(QPainter & )
@@ -2359,13 +2461,6 @@ If any view viewing an area prefers double-buffering, that area will
 be double buffered for all views.
 */
 
-/*!
-\class QCanvasView qcanvas.h
-\brief A QWidget which views a QCanvas
-
-This is where QCanvas meets a QWidget - this class displays
-a QCanvas.
-*/
 
 static bool repaint_from_moving = FALSE;
 
@@ -2391,33 +2486,6 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
     } else {
         p->eraseRect(r);
     }
-}
-
-/*!
-\class QCanvasView qcanvas.h
-\brief A QWidget which views a QCanvas, and has scrollbars.
-*/
-
-/*!
-Construct a QCanvasView which views the given QCanvas.  The
-usual QWidget parameters may also be passed.
-*/
-QCanvasView::QCanvasView(QCanvas* v, QWidget* parent, const char* name, WFlags f) :
-    QScrollView(parent,name,f)
-{
-    viewing = 0;
-    setCanvas(v);
-    viewport()->setBackgroundColor(v->backgroundColor());
-    connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
-}
-
-/*!
-Returns the area of
-the viewport.
-*/
-QRect QCanvasView::viewArea() const
-{
-    return QRect(contentsX(),contentsY(),contentsWidth(),contentsHeight());
 }
 
 /*!
@@ -2703,10 +2771,10 @@ void QCanvasPolygonalItem::setBrush(QBrush b)
 
 
 /*!
-  \class QPolygon qcanvas.h
+  \class QCanvasPolygon qcanvas.h
   \brief A polygon with a movable reference point.
 
-  Paints a polygon in a QBrush and QPen.
+  Paints a polygon in a QBrush.
 */
 QCanvasPolygon::QCanvasPolygon()
 {
@@ -2926,7 +2994,7 @@ QCanvasText::QCanvasText() :
 
   The text should not contain newlines.
 */
-QCanvasText::QCanvasText(const char* t) :
+QCanvasText::QCanvasText(const QString& t) :
     text(t), flags(0)
 {
     setRect();
@@ -2937,7 +3005,7 @@ QCanvasText::QCanvasText(const char* t) :
 
   The text should not contain newlines.
 */
-QCanvasText::QCanvasText(const char* t, QFont f) :
+QCanvasText::QCanvasText(const QString& t, QFont f) :
     text(t), flags(0),
     font(f)
 {
@@ -3015,7 +3083,7 @@ void QCanvasText::setTextFlags(int f)
 /*!
   Sets the text to be displayed.  The text may contain newlines.
 */
-void QCanvasText::setText( const char* t )
+void QCanvasText::setText( const QString& t )
 {
     removeFromChunks();
     text = t;
@@ -3175,14 +3243,14 @@ int QCanvasEllipse::rtti() const { return 6; }
 
 
 /*!
-\fn QCanvasSprite::QCanvasPositionedSprite(QCanvasPixmapSequence* seq)
+\fn QCanvasSprite::QCanvasPositionedSprite(QCanvasPixmapArray* seq)
 
-Create a QCanvasSprite which uses images from the given sequence.
+Create a QCanvasSprite which uses images from the given array.
 
 The sprite in initially at (0,0) on the current canvas
-(see constructor for QCanvas), using the 0th sequence frame.
+(see constructor for QCanvas), using the 0th array frame.
 */
-QCanvasSprite::QCanvasSprite(QCanvasPixmapSequence* seq) :
+QCanvasSprite::QCanvasSprite(QCanvasPixmapArray* seq) :
     frm(0),
     images(seq)
 {
@@ -3193,12 +3261,12 @@ QCanvasSprite::QCanvasSprite(QCanvasPixmapSequence* seq) :
 /*!
 \fn QCanvasSprite::QCanvasPositionedSprite()
 
-Create a QCanvasSprite without defining its image sequence.
+Create a QCanvasSprite without defining its image array.
 
 The sprite in initially at (0,0) on the current canvas
-(see constructor for QCanvas), using the 0th sequence frame.
+(see constructor for QCanvas), using the 0th array frame.
 
-Note that you must call setSequence(QCanvasPixmapSequence*) before
+Note that you must call setSequence(QCanvasPixmapArray*) before
 doing anything else with the sprite.
 */
 QCanvasSprite::QCanvasSprite() :
@@ -3208,13 +3276,13 @@ QCanvasSprite::QCanvasSprite() :
 }
 
 /*!
-\fn void QCanvasSprite::setSequence(QCanvasPixmapSequence* seq)
+\fn void QCanvasSprite::setSequence(QCanvasPixmapArray* seq)
 
-Set the sequence of images used for displaying the sprite.  Note that
-the sequence should have enough images for the sprites current frame()
+Set the array of images used for displaying the sprite.  Note that
+the array should have enough images for the sprites current frame()
 to be valid.
 */
-void QCanvasSprite::setSequence(QCanvasPixmapSequence* seq)
+void QCanvasSprite::setSequence(QCanvasPixmapArray* seq)
 {
     bool vis=visible();
     if (vis && images) hide();
@@ -3253,34 +3321,10 @@ QCanvasSprite::~QCanvasSprite()
 }
 
 /*!
-\fn int QCanvasSprite::x() const
-
-Returns the stored horizontal position of the sprite.
-*/
-
-/*!
-\fn int QCanvasSprite::y() const
-
-Returns the stored vertical position of the sprite.
-*/
-
-/*!
-\fn int QCanvasSprite::z() const
-
-Returns the stored z of the sprite.
-*/
-
-/*!
-\fn void QCanvasSprite::z(int a)
-
-Sets the stored z of the sprite.
-*/
-
-/*!
 \fn void QCanvasSprite::frame(int f)
 
 Set the animation frame used for displaying the sprite to
-the given index into the QCanvasSprite's QCanvasPixmapSequence.
+the given index into the QCanvasSprite's QCanvasPixmapArray.
 
 \sa move(double,double,int)
 */
@@ -3291,7 +3335,7 @@ void QCanvasSprite::frame(int f)
 
 /*!
 \fn int QCanvasSprite::frame() const
-Returns the index into the QCanvasSprite's QCanvasPixmapSequence
+Returns the index into the QCanvasSprite's QCanvasPixmapArray
 of the current animation frame.
 
 \sa move(double,double,int)
@@ -3299,25 +3343,15 @@ of the current animation frame.
 
 /*!
 \fn int QCanvasSprite::frameCount() const
-Returns the number of frames in the QCanvasSprite's QCanvasPixmapSequence.
+Returns the number of frames in the QCanvasSprite's QCanvasPixmapArray.
 */
+
 
 /*!
-\fn void QCanvasSprite::moveBy(double dx, double dy)
-Move the sprite from its current position by the given amounts.
+  \reimp
+  \internal
+  Keep it visible.
 */
-void QCanvasItem::moveBy(double dx, double dy)
-{
-    removeFromChunks();
-    myx+=dx;
-    myy+=dy;
-    addToChunks();
-}
-
-void QCanvasItem::move(double x, double y)
-{
-    moveBy(x-myx,y-myy);
-}
 void QCanvasSprite::move(double x, double y) { QCanvasItem::move(x,y); }
 
 /*!
