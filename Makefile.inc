@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/Makefile.inc#4 $
+# $Id: //depot/qt/main/Makefile.inc#5 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -35,31 +35,63 @@ dsp: $(PROJECT).dsp
 $(PROJECT).dsp: FORCE
 	tmake $(PROJECT).pro -t $(VCTEMPLATE) -o $(PROJECT).dsp
 
-debug: Makefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
-	$(MAKE) -nologo -f Makefile.debug
-	$(POST_DBG)
+debug: NMakefile.debug $(MORETARGETS) $(MORETARGETS_DEBUG)
+	$(MAKE) -nologo -f NMakefile.debug
 
-release: Makefile.release $(MORETARGETS) $(MORETARGETS_RELEASE)
-	$(MAKE) -nologo -f Makefile.release
-	$(POST_REL)
+release: NMakefile.release $(MORETARGETS) $(MORETARGETS_RELEASE)
+	$(MAKE) -nologo -f NMakefile.release
 
-Makefile.debug: $(PROJECT).pro Makefile
+static-debug: NMakefile.static-debug $(MORETARGETS) $(MORETARGETS_DEBUG)
+	$(MAKE) -nologo -f NMakefile.static-debug
+
+static-release: NMakefile.static-release $(MORETARGETS) $(MORETARGETS_RELEASE)
+	$(MAKE) -nologo -f NMakefile.static-release
+
+NMakefile.debug: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
 	-@mkdir .obj
 	-@mkdir .obj\debug
-	tmake $(PROJECT).pro -o Makefile.debug \
-	    "CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
+!IF "$(PROJECT)" == "qt"
+	tmake $(PROJECT).pro -o NMakefile.debug \
+	    "CONFIG+=debug" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/debug"
+!ELSE
+	tmake $(PROJECT).pro -o NMakefile.debug \
+	    "CONFIG+=debug" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/debug"
+!ENDIF
 
-Makefile.release: $(PROJECT).pro Makefile
+NMakefile.release: $(PROJECT).pro Makefile
 !IF $(LIBTARGET) == 1
 	syncqt
 !ENDIF
 	-@mkdir .obj
 	-@mkdir .obj\release
-	tmake $(PROJECT).pro -o Makefile.release \
-	    "CONFIG+=release" "OBJECTS_DIR=.obj/release"
+!IF "$(PROJECT)" == "qt"
+	tmake $(PROJECT).pro -o NMakefile.release \
+	    "CONFIG+=release" "DEFINES+=QT_MAKEDLL" "OBJECTS_DIR=.obj/release"
+!ELSE
+	tmake $(PROJECT).pro -o NMakefile.release \
+	    "CONFIG+=release" "DEFINES+=QT_DLL" "OBJECTS_DIR=.obj/release"
+!ENDIF
+
+NMakefile.static-debug: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+	-@mkdir .obj
+	-@mkdir .obj\static-debug
+	tmake $(PROJECT).pro -o NMakefile.static-debug \
+	    "CONFIG+=debug" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-debug"
+
+NMakefile.static-release: $(PROJECT).pro Makefile
+!IF $(LIBTARGET) == 1
+	syncqt
+!ENDIF
+	-@mkdir .obj
+	-@mkdir .obj\static-release
+	tmake $(PROJECT).pro -o NMakefile.static-release \
+	    "CONFIG+=release" "DEFINES+=QT_NODLL" "OBJECTS_DIR=.obj/static-release"
 
 
 showfiles:
@@ -84,24 +116,26 @@ updateqt:
 	$(MAKE) update
 
 depend:
-	-del Makefile.debug
-	-del Makefile.release
+	-del NMakefile.*
 !IFDEF MOREDEP
 	-del $(MOREDEP)
 !ENDIF
 
-clean: Makefile.debug
-	$(MAKE) -nologo -f Makefile.debug clean
-	-del Makefile.debug
-	-del Makefile.release
+clean: NMakefile.debug
+	$(MAKE) -nologo -f NMakefile.debug clean
+	-del NMakefile.*
 	-del vc*.pdb
 	-del $(PROJECT).pdb
 	-del $(PROJECT).ilk
 	-del $(PROJECT).exe
 	-del /Q .obj\debug\*
 	-del /Q .obj\release\*
+	-del /Q .obj\static-debug\*
+	-del /Q .obj\static-release\*
 	-rmdir .obj\debug
 	-rmdir .obj\release
+	-rmdir .obj\static-debug
+	-rmdir .obj\static-release
 	-rmdir .obj
 !IFDEF MOREDEP
 	-del $(MOREDEP)

@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#74 $
+# $Id: //depot/qt/main/src/Makefile#75 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -11,7 +11,6 @@ PROJECT		    = qt
 LIBTARGET	    = 1
 MORETARGETS_RELEASE = qtmain-release
 MORETARGETS_DEBUG   = qtmain-debug
-MORECLEAN	    = qtmain.release.mak qtmain.debug.mak
 
 !INCLUDE $(QTDIR)\Makefile.inc
 
@@ -21,16 +20,16 @@ qtmain: qtmain-debug
 qtmain: qtmain-release
 !ENDIF
 
-qtmain-debug: qtmain.debug.mak
-	$(MAKE) -f qtmain.debug.mak
+qtmain-debug: NMakefile.qtmain-debug
+	$(MAKE) -f NMakefile.qtmain-debug
 
-qtmain-release: qtmain.release.mak
-	$(MAKE) -f qtmain.release.mak
+qtmain-release: NMakefile.qtmain-release
+	$(MAKE) -f NMakefile.qtmain-release
 
-qtmain.release.mak: qtmain.pro
-	tmake qtmain.pro -o qtmain.release.mak \
-		"CONFIG+=release" "OBJECTS_DIR=.obj/release"
-
-qtmain.debug.mak: qtmain.pro
-	tmake qtmain.pro -o qtmain.debug.mak \
+NMakefile.qtmain-debug: qtmain.pro
+	tmake qtmain.pro -o NMakefile.qtmain-debug \
 		"CONFIG+=debug" "OBJECTS_DIR=.obj/debug"
+
+NMakefile.qtmain-release: qtmain.pro
+	tmake qtmain.pro -o NMakefile.qtmain-release \
+		"CONFIG+=release" "OBJECTS_DIR=.obj/release"
