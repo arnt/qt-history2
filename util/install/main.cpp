@@ -4,15 +4,27 @@
 
 int main( int argc, char** argv )
 {
-	QApplication app( argc, argv );
-	SetupWizardImpl w;
+    QApplication app( argc, argv );
+    SetupWizardImpl* w;
+    bool reconfig( false );
+    int res( -1 );
 
-	w.show();
+    for( int i = 0; i < app.argc(); i++ ) {
+	if( QString( app.argv()[ i ] ) == "-reconfig" ) {
+	    reconfig = true;
+	    break;
+	}
+    }
 
-	app.setMainWidget( &w );
+    if( w = new SetupWizardImpl( NULL, NULL, false, 0, reconfig ) ) {
+	w->show();
 
-	int res = app.exec();
+	app.setMainWidget( w );
 
-	w.stopProcesses();
-	return res;
+	res = app.exec();
+
+	w->stopProcesses();
+    }
+
+    return res;
 }

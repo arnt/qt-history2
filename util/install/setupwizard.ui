@@ -9,8 +9,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>630</width>
-            <height>390</height>
+            <width>618</width>
+            <height>384</height>
         </rect>
     </property>
     <property name="caption">
@@ -54,6 +54,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -184,6 +186,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -369,6 +373,8 @@
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -413,6 +419,8 @@
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                     </widget>
@@ -424,6 +432,8 @@
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                     </widget>
@@ -435,6 +445,8 @@
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                     </widget>
@@ -463,6 +475,8 @@
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                     </widget>
@@ -474,6 +488,8 @@
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="text">
@@ -621,6 +637,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -731,6 +749,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <sizepolicy>
                                 <hsizetype>5</hsizetype>
                                 <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                         <property name="text">
@@ -791,6 +811,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                             <sizepolicy>
                                 <hsizetype>7</hsizetype>
                                 <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
                             </sizepolicy>
                         </property>
                     </widget>
@@ -833,7 +855,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <attribute name="title">
             <string>Configuration</string>
         </attribute>
-        <hbox>
+        <grid>
             <property name="name">
                 <cstring>unnamed</cstring>
             </property>
@@ -843,7 +865,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
             <property name="spacing">
                 <number>6</number>
             </property>
-            <widget class="QLabel">
+            <widget class="QLabel" row="0" column="0" rowspan="2" colspan="1">
                 <property name="name">
                     <cstring>page5Pixmap</cstring>
                 </property>
@@ -851,6 +873,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -865,7 +889,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                 <property name="vAlign" stdset="0">
                 </property>
             </widget>
-            <widget class="QTabWidget">
+            <widget class="QTabWidget" row="0" column="1">
                 <property name="name">
                     <cstring>configTabs</cstring>
                 </property>
@@ -940,7 +964,7 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     </hbox>
                 </widget>
             </widget>
-            <widget class="QTextView">
+            <widget class="QTextView" row="0" column="2">
                 <property name="name">
                     <cstring>explainOption</cstring>
                 </property>
@@ -948,6 +972,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>5</hsizetype>
                         <vsizetype>5</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="minimumSize">
@@ -1207,7 +1233,64 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     </palette>
                 </property>
             </widget>
-        </hbox>
+            <widget class="QLayoutWidget" row="1" column="1" rowspan="1" colspan="2">
+                <property name="name">
+                    <cstring>Layout7</cstring>
+                </property>
+                <hbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>currentInstLabel</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Active Qt installation</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>currentInstallation</cstring>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>7</hsizetype>
+                                <vsizetype>1</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="frameShape">
+                            <enum>StyledPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>rebuildInstallation</cstring>
+                        </property>
+                        <property name="text">
+                            <string>Rebuild Qt after reconfiguration</string>
+                        </property>
+                        <property name="checked">
+                            <bool>true</bool>
+                        </property>
+                    </widget>
+                </hbox>
+            </widget>
+        </grid>
     </widget>
     <widget class="QWidget">
         <property name="name">
@@ -1234,6 +1317,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -1313,6 +1398,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -1392,6 +1479,8 @@ Alternatively, the installation wizard may read them from a license file.</strin
                     <sizepolicy>
                         <hsizetype>0</hsizetype>
                         <vsizetype>1</vsizetype>
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
                     </sizepolicy>
                 </property>
                 <property name="pixmap">
@@ -1528,19 +1617,19 @@ Alternatively, the installation wizard may read them from a license file.</strin
         <receiver>SetupWizard</receiver>
         <slot>configPageChanged()</slot>
     </connection>
-    <slot access="public" language="C++" returnType="void">clickedDevSysPath()</slot>
-    <slot access="public" language="C++" returnType="void">clickedEnvironmentButton()</slot>
-    <slot access="public" language="C++" returnType="void">clickedFolderPath()</slot>
-    <slot access="public" language="C++" returnType="void">clickedLicenseFile()</slot>
-    <slot access="public" language="C++" returnType="void">clickedPath()</slot>
-    <slot access="public" language="C++" returnType="void">clickedSystem( int )</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="public" language="C++" returnType="void">licenseAction( int )</slot>
-    <slot access="public" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
-    <slot access="protected" language="C++" returnType="void">configPageChanged()</slot>
-    <slot access="public" language="C++" returnType="void">optionClicked(QListViewItem*)</slot>
-    <slot access="public" language="C++" returnType="void">optionSelected(QListViewItem*)</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedDevSysPath()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedEnvironmentButton()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedFolderPath()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedLicenseFile()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedPath()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">clickedSystem( int )</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">destroy()</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">init()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">licenseAction( int )</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">licenseChanged( const QString &amp; )</slot>
+    <slot access="protected" specifier="virtual" language="C++" returnType="void">configPageChanged()</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">optionClicked(QListViewItem*)</slot>
+    <slot access="public" specifier="virtual" language="C++" returnType="void">optionSelected(QListViewItem*)</slot>
 </connections>
 <functions>
     <function name="clickedDevSysPath()" >{

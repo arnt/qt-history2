@@ -40,13 +40,14 @@ static bool createDir( const QString& fullPath )
 
 //#define USE_ARCHIVES 1
 
-SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f ) :
+SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool modal, WFlags f, bool reconfig ) :
     SetupWizard( pParent, pName, modal, f ),
     filesCopied( false ),
     filesToCompile( 0 ),
     filesCompiled( 0 ),
     sysID( 0 ),
-    tmpPath( QEnvironment::getTempPath() )
+    tmpPath( QEnvironment::getTempPath() ),
+    reconfigMode( reconfig )
 {
     totalFiles = 0;
     // Disable the HELP button
@@ -101,6 +102,15 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	folderGroups->setEnabled( true );
     else
 	folderGroups->setDisabled( true );
+
+    if( reconfig ) {
+	removePage( introPage );
+	removePage( licensePage );
+	removePage( foldersPage );
+	removePage( optionsPage );
+	removePage( progressPage );
+	setTitle( configPage, "Reconfigure Qt" );
+    }
 }
 
 void SetupWizardImpl::stopProcesses()
@@ -130,7 +140,7 @@ void SetupWizardImpl::clickedPath()
 
 void SetupWizardImpl::clickedFolderPath()
 {
-    folderPath->setText( shell.selectFolder( folderPath->text(), ( folderGroups->currentItem() == 1 ) ) );
+    folderPath->setText( shell.selectFolder( folderPath->text(), ( folderGroups->currentItem() == 0 ) ) );
 }
 
 void SetupWizardImpl::clickedDevSysPath()
@@ -282,7 +292,8 @@ void SetupWizardImpl::doFinalIntegration()
 {
     compileProgress->setProgress( compileProgress->totalSteps() );
     QString dirName, examplesName, tutorialsName;
-    bool common( folderGroups->currentItem() == 1 );
+    bool common( folderGroups->currentItem() == 0 );
+    QString qtDir = QEnvironment::getEnv( "QTDIR" );
 
     switch( sysID ) {
     case MSVC:
@@ -346,10 +357,11 @@ void SetupWizardImpl::doFinalIntegration()
     ** Then move to the next page.
     */
     dirName = shell.createFolder( folderPath->text(), common );
-    shell.createShortcut( dirName, common, "Designer", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\designer.exe", "GUI designer" );
-    shell.createShortcut( dirName, common, "Reconfigure Qt", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\configurator.exe", "Reconfigure the Qt library" );
-    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + QEnvironment::getEnv( "QTDIR" ) + "\\LICENSE\"" );
-    shell.createShortcut( dirName, common, "On-line documentation", QEnvironment::getEnv( "QTDIR" ) + "\\bin\\assistant.exe", "Browse the On-line documentation" );
+    shell.createShortcut( dirName, common, "Designer", qtDir + "\\bin\\designer.exe", "GUI designer", "", qtDir );
+    shell.createShortcut( dirName, common, "Reconfigure Qt", qtDir + "\\bin\\install.exe", "Reconfigure the Qt library", "-reconfig", qtDir );
+    shell.createShortcut( dirName, common, "License agreement", "notepad.exe", "Review the license agreement", QString( "\"" ) + qtDir + "\\LICENSE\"" );
+    shell.createShortcut( dirName, common, "On-line documentation", qtDir + "\\bin\\assistant.exe", "Browse the On-line documentation", "", qtDir );
+    shell.createShortcut( dirName, common, "Linguist", qtDir + "\\bin\\linguist.exe", "Qt translation utility", "", qtDir );
     if( qWinVersion() & WV_DOS_based )
 	shell.createShortcut( dirName, common, QString( "Build Qt " ) + QT_VERSION_STR, QEnvironment::getEnv( "QTDIR" ) + "\\build.bat", "Build the Qt library" );
 
@@ -405,6 +417,9 @@ void SetupWizardImpl::makeDone()
     QStringList args;
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
 
+    if( reconfigMode )
+	showPage( finishPage );
+
     if( !make.normalExit() || ( make.normalExit() && make.exitStatus() ) ) {
 	logOutput( "The build process failed!\n" );
 	QMessageBox::critical( this, "Error", "The build process failed!" );
@@ -433,6 +448,9 @@ void SetupWizardImpl::configDone()
 {
     QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
     QStringList args;
+
+    if( reconfigMode && !rebuildInstallation->isChecked() )
+	showPage( finishPage );
 
     if( !configure.normalExit() || ( configure.normalExit() && configure.exitStatus() ) )
 	logOutput( "The configure process failed.\n" );
@@ -521,14 +539,68 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	devSysLabel->setText( devSys[ sysID ] );
 	devSysPath->setEnabled( sysID == 0 );
 	devSysPathButton->setEnabled( sysID == 0 );
+	qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
+	if( sysID == 0 )
+	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
+	setInstallStep( 4 );
+    } else if( newPage == configPage ) {
+	// First make sure that the current license information is saved
+	writeLicense( QDir::homeDirPath() + "/.qt-license" );
+
+	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
+	QByteArray pathBuffer;
+	QStringList path;
+	QString qtDir;
+	int envSpec = QEnvironment::LocalEnv;
+
+	if( reconfigMode ) {
+	    qtDir = QEnvironment::getEnv( "QTDIR" );
+	    currentInstLabel->show();
+	    currentInstallation->show();
+	    rebuildInstallation->show();
+	    currentInstallation->setText( qtDir );
+	}
+	else {
+	    qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( installPath->text() ) );
+	    currentInstLabel->hide();
+	    currentInstallation->hide();
+	    rebuildInstallation->hide();
+	}
+
+	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
+	if( path.findIndex( qtDir + "\\bin" ) == -1 ) {
+	    path.prepend( qtDir + "\\bin" );
+	    QEnvironment::putEnv( "PATH", path.join( ";" ) );
+	}
+
+	if( qtDirCheck->isChecked() ) {
+	    envSpec |= QEnvironment::PersistentEnv;
+/*
+	    if( folderGroups->currentItem() == 0 )
+		envSpec |= QEnvironment::GlobalEnv;
+*/
+	    path.clear();
+	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", envSpec ) );
+	    if( path.findIndex( qtDir + "\\bin" ) == -1 ) {
+		path.prepend( qtDir + "\\bin" );
+		QEnvironment::putEnv( "PATH", path.join( ";" ), envSpec );
+	    }
+	}
+
+	QEnvironment::putEnv( "QTDIR", qtDir, envSpec );
+	QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], envSpec );
+
 	if( sysID == 0 ) {
 	    QString devdir = QEnvironment::getEnv( "MSDevDir" );
 	    if( !devdir.length() ) {
-		int envSpec = QEnvironment::LocalEnv;
 		QString vsCommonDir, msDevDir, msVCDir, osDir;
 
 		if( QMessageBox::warning( this, "Environment", "The Visual C++ environment variables has not been set\nDo you want to do this now?", "Yes", "No", QString::null, 0, 1 ) == 0 ) {
 		    envSpec |= QEnvironment::PersistentEnv;
+/*
+		    if( folderGroups->currentItem() == 0 )
+			envSpec |= QEnvironment::GlobalEnv;
+*/
 		    persistentEnv = true;
 		}
 
@@ -561,41 +633,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 		lib.prepend( msVCDir + "\\MFC\\LIB" );
 		QEnvironment::putEnv( "LIB", lib.join( ";" ), envSpec );
 	    }
-	}
-	qtDirCheck->setChecked( ( QEnvironment::getEnv( "QTDIR" ).length() == 0 ) );
-	if( sysID == 0 )
-	    devSysPath->setText( QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ) );
-	setInstallStep( 4 );
-    } else if( newPage == configPage ) {
-	// First make sure that the current license information is saved
-	writeLicense( QDir::homeDirPath() + "/.qt-license" );
-
-	QStringList mkSpecs = QStringList::split( ' ', "win32-msvc win32-borland win32-g++" );
-	QByteArray pathBuffer;
-	QStringList path;
-	QString qtDir = QDir::convertSeparators( QEnvironment::getFSFileName( installPath->text() ) );
-
-	path = QStringList::split( ';', QEnvironment::getEnv( "PATH" ) );
-//	if( path.findIndex( qtDir + "\\lib" ) == -1 )
-//	    path.prepend( qtDir + "\\lib" );
-	if( path.findIndex( qtDir + "\\bin" ) == -1 )
-	    path.prepend( qtDir + "\\bin" );
-	QEnvironment::putEnv( "PATH", path.join( ";" ) );
-
-	if( qtDirCheck->isChecked() ) {
-	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-	    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv | QEnvironment::PersistentEnv );
-
-	    path.clear();
-	    path = QStringList::split( ';', QEnvironment::getEnv( "PATH", QEnvironment::PersistentEnv ) );
-//	    if( path.findIndex( qtDir + "\\lib" ) == -1 )
-//		path.prepend( qtDir + "\\lib" );
-	    if( path.findIndex( qtDir + "\\bin" ) == -1 )
-		path.prepend( qtDir + "\\bin" );
-	    QEnvironment::putEnv( "PATH", path.join( ";" ), QEnvironment::PersistentEnv );
-	} else {
-	    QEnvironment::putEnv( "QTDIR", qtDir, QEnvironment::LocalEnv );
-	    QEnvironment::putEnv( "QMAKESPEC", mkSpecs[ sysID ], QEnvironment::LocalEnv );
 	}
 
 	bool enterprise = licenseInfo[ "PRODUCTS" ] == "qt-enterprise";
@@ -886,7 +923,10 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	bigCodecsOn->setOn( entry == "On" );
 
 	optionSelected( 0 );
-	setInstallStep( 5 );
+	if( reconfigMode )
+	    setInstallStep( 1 );
+	else
+	    setInstallStep( 5 );
 
     } else if( newPage == progressPage ) {
 	saveSettings();
@@ -944,19 +984,21 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    operationProgress->setTotalSteps( FILESTOCOPY );
 	    copySuccessful = copyFiles( QDir::currentDirPath(), installPath->text(), true );
 
-	    QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
-	    QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
-	    QFileInfo fi( inFile );
-	    QByteArray buffer( fi.size() );
+	    {
+		QFile inFile( installPath->text() + "\\bin\\quninstall.exe" );
+		QFile outFile( shell.windowsFolderName + "\\quninstall.exe" );
+		QFileInfo fi( inFile );
+		QByteArray buffer( fi.size() );
 
-	    if( buffer.size() ) {
-		if( inFile.open( IO_ReadOnly ) ) {
-		    if( outFile.open( IO_WriteOnly ) ) {
-			inFile.readBlock( buffer.data(), buffer.size() );
-			outFile.writeBlock( buffer.data(), buffer.size() );
-			outFile.close();
+		if( buffer.size() ) {
+		    if( inFile.open( IO_ReadOnly ) ) {
+			if( outFile.open( IO_WriteOnly ) ) {
+			    inFile.readBlock( buffer.data(), buffer.size() );
+			    outFile.writeBlock( buffer.data(), buffer.size() );
+			    outFile.close();
+			}
+			inFile.close();
 		    }
-		    inFile.close();
 		}
 	    }
 
@@ -969,6 +1011,25 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    operationProgress->setProgress( FILESTOCOPY );
 
 #endif
+	    {
+		QFile inFile( "install.exe" );
+		QFile outFile( installPath->text() + "\\bin\\Install.exe" );
+		QFileInfo fi( inFile );
+		QByteArray buffer( fi.size() );
+
+		if( buffer.size() ) {
+		    if( inFile.open( IO_ReadOnly ) ) {
+			if( outFile.open( IO_WriteOnly ) ) {
+			    inFile.readBlock( buffer.data(), buffer.size() );
+			    outFile.writeBlock( buffer.data(), buffer.size() );
+			    outFile.close();
+			}
+			inFile.close();
+		    }
+		}
+	    }
+
+
 	    createDir( installPath->text() + "\\plugins\\designer" );
 	    filesCopied = copySuccessful;
 
@@ -989,6 +1050,9 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QFile tmpFile;
 	QTextStream tmpStream;
 	bool settingsOK;
+
+	if( reconfigMode )
+	    compileProgress->hide();
 
 	autoContTimer.stop();
 	nextButton()->setText( "Next >" );
@@ -1175,36 +1239,59 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	    QTextStream outStream( &outFile );
 
 	    if( outFile.open( IO_WriteOnly | IO_Translate ) ) {
-		outStream << "set QTDIR=" << QEnvironment::getEnv( "QTDIR" ) << endl;
 		outStream << "cd %QTDIR%" << endl;
 		outStream << args.join( " " ) << endl;
-		QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
-		outStream << makeCmds[ sysID ].latin1() << endl;
-
+		if( !reconfigMode ) {
+		    QStringList makeCmds = QStringList::split( ' ', "nmake make gmake" );
+		    outStream << makeCmds[ sysID ].latin1() << endl;
+		}
 		outFile.close();
 	    }
 	    doFinalIntegration();
 	    compileProgress->setTotalSteps( compileProgress->totalSteps() );
 	    showPage( finishPage );
 	}
-	setInstallStep( 7 );
+	if( reconfigMode )
+	    setInstallStep( 2 );
+	else
+	    setInstallStep( 7 );
+
     } else if( newPage == finishPage ) {
 	autoContTimer.stop();
 	nextButton()->setText( "Next >" );
 	QString finishMsg;
 	if( qWinVersion() & WV_NT_based ) {
-	    finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.\nYou may need to reboot, or open";
-	    finishMsg += " the environment editing dialog to make changes to the environment visible";
-	} else {
-	    finishMsg = QString( "The Qt files have been installed to " ) + installPath->text() + " and is ready to be compiled.\n";
-	    if( persistentEnv ) {
-		finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
-		finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
+	    if( reconfigMode ) {
+		if( !rebuildInstallation->isChecked() )
+		    finishMsg = "Qt has been reconfigured, and is ready to be rebuilt.";
+		else
+		    finishMsg = "Qt has been reconfigured and rebuilt, and is ready for use.";
 	    }
-	    finishMsg += QString( "To build Qt, use the \"Build Qt " ) + QString( QT_VERSION_STR ) + "\" icon which has been installed into your Start-Menu.";
+	    else {
+		finishMsg = QString( "Qt has been installed to " ) + installPath->text() + " and is ready to use.\nYou may need to reboot, or open";
+		finishMsg += " the environment editing dialog to make changes to the environment visible";
+	    }
+	} else {
+	    if( reconfigMode ) {
+		    finishMsg = "The new configuration has been written.\nThe library needs to be rebuilt to activate the ";
+		    finishMsg += "new configuration.  To rebuild it, use the \"Build Qt ";
+		    finishMsg += QString( QT_VERSION_STR );
+		    finishMsg += "\" icon in the Qt program group in the start menu.";
+	    }
+	    else {
+		finishMsg = QString( "The Qt files have been installed to " ) + installPath->text() + " and is ready to be compiled.\n";
+		if( persistentEnv ) {
+		    finishMsg += "The environment variables needed to use Qt have been recorded into your AUTOEXEC.BAT file.\n";
+		    finishMsg += "Please review this file, and take action as appropriate depending on your operating system to get them into the persistent environment. (Windows Me users, run MsConfig)\n\n";
+		}
+		finishMsg += QString( "To build Qt, use the \"Build Qt " ) + QString( QT_VERSION_STR ) + "\" icon which has been installed into your Start-Menu.";
+	    }
 	}
 	finishText->setText( finishMsg );
-	setInstallStep( 8 );
+	if( reconfigMode )
+	    setInstallStep( 3 );
+	else
+	    setInstallStep( 8 );
     }
 }
 
@@ -1746,7 +1833,10 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 
 void SetupWizardImpl::setInstallStep( int step )
 {
-    setCaption( QString( "Qt Installation Wizard - Step %1 of 8" ).arg( step ) );
+    if( reconfigMode )
+	setCaption( QString( "Qt Configuration Wizard - Step %1 of 3" ).arg( step ) );
+    else
+	setCaption( QString( "Qt Installation Wizard - Step %1 of 8" ).arg( step ) );
 }
 
 void SetupWizardImpl::timerFired()

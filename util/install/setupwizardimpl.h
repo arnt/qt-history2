@@ -11,7 +11,7 @@ class SetupWizardImpl : public SetupWizard
 {
     Q_OBJECT
 public:
-    SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0 );
+    SetupWizardImpl( QWidget* pParent = NULL, const char* pName = NULL, bool modal = FALSE, WFlags f = 0, bool reconfig = false );
 
 // Slots reimplementations
     virtual void clickedPath();
@@ -25,6 +25,7 @@ public:
     virtual void showPage( QWidget* );
     void stopProcesses();
 
+    void setReconfigMode( bool );
 protected:
 //    virtual void pageChanged( const QString& );
 private:
@@ -60,7 +61,7 @@ protected slots:
 //    virtual void envDone();
 
 private:
-	bool findFileInPaths( QString fileName, QStringList paths );
+    bool findFileInPaths( QString fileName, QStringList paths );
 
 #if defined (USE_ARCHIVES)
     void readArchive( const QString& arcname, const QString& installPath );
@@ -73,6 +74,7 @@ private:
     bool persistentEnv;
     int filesToCompile;
     int filesCompiled;
+    bool reconfigMode;
 
     QString currentOLine;
     QString currentELine;

@@ -10,8 +10,13 @@
 QString QEnvironment::getEnv( QString varName, int envBlock )
 {
     OSVERSIONINFOA osvi;
-
+    HKEY hkKey;
     bool isWinMe = false;
+
+    if( envBlock & GlobalEnv )
+	hkKey = HKEY_LOCAL_MACHINE;
+    else
+	hkKey = HKEY_CURRENT_USER;
 
     osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFOA );
     GetVersionExA( &osvi );
@@ -27,7 +32,7 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 	    DWORD size( 0 );
 	    QString value;
 
-	    if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
+	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_READ, &env ) == ERROR_SUCCESS ) {
 		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, NULL, &size );
 		buffer.resize( size );
 		RegQueryValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, NULL, (unsigned char*)buffer.data(), &size );
@@ -57,8 +62,13 @@ QString QEnvironment::getEnv( QString varName, int envBlock )
 void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 {
     OSVERSIONINFOA osvi;
-
+    HKEY hkKey;
     bool isWinMe = false;
+
+    if( envBlock & GlobalEnv )
+	hkKey = HKEY_LOCAL_MACHINE;
+    else
+	hkKey = HKEY_CURRENT_USER;
 
     osvi.dwOSVersionInfoSize = sizeof( OSVERSIONINFOA );
     GetVersionExA( &osvi );
@@ -83,7 +93,7 @@ void QEnvironment::putEnv( QString varName, QString varValue, int envBlock )
 	    buffer[ (2*i) ] = 0;
 	    buffer[ (2*i)+1 ] = 0;
 
-	    if( RegOpenKeyExW( HKEY_CURRENT_USER, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
+	    if( RegOpenKeyExW( hkKey, (WCHAR*)qt_winTchar( QString( "Environment" ), true ), 0, KEY_WRITE, &env ) == ERROR_SUCCESS ) {
 		RegSetValueExW( env, (WCHAR*)qt_winTchar( varName, true ), 0, REG_EXPAND_SZ, (const unsigned char*)buffer.data(), buffer.size() );
 		RegCloseKey( env );
 	    }

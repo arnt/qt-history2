@@ -218,7 +218,7 @@ QString WinShell::createFolder( QString folderName, bool common )
 }
 
 
-HRESULT WinShell::createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description, QString arguments )
+HRESULT WinShell::createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description, QString arguments, QString wrkDir )
 {
     IPersistFile* linkFile;
     HRESULT hr;
@@ -233,16 +233,18 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 	if( SUCCEEDED( hr = CoCreateInstance( CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLinkW, (void**)&link ) ) ) {
 	    if( SUCCEEDED( hr = link->QueryInterface( IID_IPersistFile, (void**)&linkFile ) ) ) {
 		link->SetPath( (LPOLESTR)qt_winTchar( target, true ) );
-		QString wrkDir = QDir::convertSeparators( target );
+		QString _wrkDir = wrkDir;
+		if( !_wrkDir.length() ) {
+		    _wrkDir = QDir::convertSeparators( target );
+		    // remove the filename
+		    int pos = _wrkDir.findRev( '\\' );
+		    if ( pos > 0 )
+			_wrkDir = _wrkDir.left( pos );
+		    else
+			_wrkDir = "";
+		}
 
-		// remove the filename
-		int pos = wrkDir.findRev( '\\' );
-		if ( pos > 0 )
-		    wrkDir = wrkDir.left( pos );
-		else
-		    wrkDir = "";
-
-		link->SetWorkingDirectory( (LPOLESTR)qt_winTchar( wrkDir, true ) );
+		link->SetWorkingDirectory( (LPOLESTR)qt_winTchar( _wrkDir, true ) );
 		if( description.length() )
 		    link->SetDescription( (LPOLESTR)qt_winTchar( description, true ) );
 		if( arguments.length() )

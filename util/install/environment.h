@@ -14,7 +14,8 @@ public:
 
     enum {
 	LocalEnv = 1,
-	PersistentEnv = 2
+	PersistentEnv = 2,
+	GlobalEnv = 4
     };
 
     enum {

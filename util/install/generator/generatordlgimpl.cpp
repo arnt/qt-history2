@@ -2,6 +2,7 @@
 #include <qfiledialog.h>
 #include <qlineedit.h>
 #include <qtextview.h>
+#include <qpushbutton.h>
 #include "qarchive.h"
 
 GeneratorDlgImpl::GeneratorDlgImpl( QWidget* pParent, const char* pName, WFlags f ) : GeneratorDlg( pParent, pName, f )
@@ -24,6 +25,8 @@ void GeneratorDlgImpl::clickedGenerate()
 
     connect( &archive, SIGNAL( operationFeedback( const QString& ) ), this, SLOT( updateProgress( const QString& ) ) );
 
+    generateButton->setDisabled( true );
+
     archive.setVerbosity( QArchive::Destination | QArchive::Verbose );
     archive.setPath( destPath->text() + "/docs" );
     if( archive.open( IO_WriteOnly ) ) {
@@ -45,6 +48,7 @@ void GeneratorDlgImpl::clickedGenerate()
 	QStringList dirList;
 	dirList << sourcePath->text() + "/src" << sourcePath->text() + "/include" << sourcePath->text() + "/mkspecs" << sourcePath->text() + "/qmake";
 	dirList << sourcePath->text() + "/tools" << sourcePath->text() + "/bin" << sourcePath->text() + "/lib" << sourcePath->text() + "/extensions";
+	dirList << sourcePath->text() + "/plugins";
 	archive.writeDirList( dirList );
 	QStringList fileList;
 	fileList << sourcePath->text() + "/LICENSE";
@@ -60,6 +64,8 @@ void GeneratorDlgImpl::clickedGenerate()
 	archive.writeFileList( fileList );
 	archive.close();
     }
+
+    generateButton->setDisabled( false );
 }
 
 void GeneratorDlgImpl::updateProgress( const QString& message )
