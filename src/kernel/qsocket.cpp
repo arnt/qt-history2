@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsocket.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qsocket.cpp#8 $
 **
 ** Implementation of QSocket class
 **
@@ -33,7 +33,7 @@
 #include <netinet/in.h>
 #endif
 
-#if defined(_WS_WIN_)
+#if defined(_OS_WIN32_)
 #include "qt_windows.h"
 #endif
 
@@ -80,8 +80,6 @@ QSocketPrivate::~QSocketPrivate()
 
 void QSocketPrivate::reinit()
 {
-    state = QSocket::Idle;
-    mode = QSocket::Binary;
     host = "";
     port = 0;
     if ( rsn ) {
@@ -263,7 +261,10 @@ QSocket::Mode QSocket::mode() const
   The readBlock() and bytesAvailable() functions work just like
   in binary mode.
   
-  \sa mode(), readBlock(), bytesAvailable(), canReadLine(), readLine()
+  The close() function sets the mode to \c QSocket::Binary.
+
+  \sa mode(), readBlock(), bytesAvailable(), canReadLine(), readLine(),
+  close()
 */
 
 void QSocket::setMode( Mode mode )
@@ -307,12 +308,11 @@ void QSocket::connectToHost( const QString &host, int port )
 #if defined(QSOCKET_DEBUG)
     debug( "QSocket: connect to %s on port %d", host.ascii(), port );
 #endif
-    if ( d->mode != Idle )
+    if ( d->state != Idle )
 	close();
     // Re-initialize
     d->reinit();
     d->state = HostLookup;
-    d->mode = Binary;
     d->host = host;
     d->port = port;
     // Host lookup - no async DNS yet
@@ -325,7 +325,7 @@ void QSocket::connectToHost( const QString &host, int port )
 	d->state = Idle;
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket: gethostbyname failed" );
-#if defined(_WS_WIN_)
+#if defined(_OS_WIN32_)
 	debug( "  winsock error code %d", WSAGetLastError() );
 #endif
 #endif
@@ -402,6 +402,7 @@ bool QSocket::open( int m )
 
 /*!
   Closes the socket and sets the connection state to \c QSocket::Idle.
+  Also sets the mode to \c QSocket::Binary.
   \sa state()
 */
 
@@ -424,6 +425,8 @@ void QSocket::close()
 	d->socket->close();
     }
     d->reinit();				// reinitialize
+    d->state = Idle;
+    d->mode = Binary;
 }
 
 
@@ -775,10 +778,18 @@ void QSocket::sn_read()
 
 void QSocket::sn_write()
 {
-    if ( d->state == Connecting ) {		// connection established
+    if ( d->state == Connecting ) {		// connection established?
+#if defined(_OS_WIN32_)
+	// assume we got a connection
+#if defined(QSOCKET_DEBUG)
+	debug( "QSocket: sn_write: Got connection!" );
+#endif
+	d->state = Connection;
+	emit connected();
+#else // _OS_WIN32_
 	if ( d->socket->connect(d->addr) ) {
 #if defined(QSOCKET_DEBUG)
-	    debug( "QSocket: sn_write: Connection!" );
+	    debug( "QSocket: sn_write: Got connection!" );
 #endif
 	    d->state = Connection;
 	    emit connected();
@@ -788,6 +799,7 @@ void QSocket::sn_write()
 #endif
 	    return;
 	}
+#endif
     } else if ( d->state == Connection ) {
 #if defined(QSOCKET_DEBUG)
 	debug( "QSocket: sn_write: Emit readyWrite()" );
