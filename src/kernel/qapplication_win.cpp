@@ -639,10 +639,9 @@ static void qt_set_windows_resources()
 		      QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
 
 	icg = cg;
-    if ( qt_winver != Qt::WV_NT &&
-	 qt_winver != Qt::WV_95 ) {
+	if ( qt_winver != Qt::WV_NT && qt_winver != Qt::WV_95 )
 	    icg.setColor( QColorGroup::ButtonText, icg.dark() );
-	}
+
 	QPalette menu(cg, dcg, icg);
 	QApplication::setPalette( menu, TRUE, "QPopupMenu");
 	QApplication::setPalette( menu, TRUE, "QMenuBar");

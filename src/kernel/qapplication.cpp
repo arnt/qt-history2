@@ -1218,7 +1218,20 @@ QStyle& QApplication::style()
 		!(app_style = QStyleFactory::create( "Compact" ) ) &&
 		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
 		qFatal( "No %s style available!", style.latin1() );
-            setPalette( *app_pal, TRUE );
+
+	    QPalette app_pal_copy ( *app_pal );
+	    app_style->polish( *app_pal );
+	    
+	    if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
+		QEvent e( QEvent::ApplicationPaletteChange );
+		QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+		register QWidget *w;
+		while ( (w=it.current()) ) {		// for all widgets...
+		    ++it;
+		    sendEvent( w, &e );
+		}
+	    }
+
 	    app_style->polish( qApp );
 	}
     } else {
@@ -1614,9 +1627,12 @@ QPalette QApplication::palette(const QWidget* w)
   informWidgets is TRUE, then existing widgets are informed about the
   change and may adjust themselves to the new application
   setting. If \a informWidgets is FALSE, the change only affects newly
-  created widgets. If \a className is passed, the change applies only
-  to classes that inherit \a className (as reported by
-  QObject::inherits()).
+  created widgets. 
+  
+  If \a className is passed, the change applies only to widgets that 
+  inherit \a className (as reported by QObject::inherits()). If 
+  \a className is left 0, the change affects all widgets, thus overriding
+  any previously set class specific palettes.
 
   The palette may be changed according to the current GUI style in
   QStyle::polish().
@@ -1643,7 +1659,7 @@ void QApplication::setPalette( const QPalette &palette, bool informWidgets,
 	all = app_palettes != 0;
 	delete app_palettes;
 	app_palettes = 0;
-	qt_fix_tooltips();		// ### Doesn't (always) work
+	qt_fix_tooltips();
     } else {
 	if ( !app_palettes ) {
 	    app_palettes = new QAsciiDict<QPalette>;
@@ -1764,10 +1780,6 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 void QApplication::polish( QWidget *w )
 {
-#if 0 // ### why is this left in?
-    if ( qdevel && w->isTopLevel() )
-	qdevel->addTopLevelWidget(tlw);
-#endif
 #ifndef QT_NO_STYLE
     w->style().polish( w );
 #endif
