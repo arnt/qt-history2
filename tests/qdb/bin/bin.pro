@@ -2,7 +2,7 @@ TEMPLATE	= app
 CONFIG		= xbase
 include(../include/shared.pri)
 SOURCES	        += main.cpp
-LIBPATH		+= ../lib
+QMAKE_LIBDIR		+= ../lib
 LIBS		+= -lqdb
 INCLUDEPATH	+= ../include
 DESTDIR		= ../bin

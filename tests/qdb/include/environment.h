@@ -19,9 +19,9 @@ class QIODevice;
 
 namespace qdb {
 
-    typedef QValueList<QVariant> List; /* list which may contain other lists */
-    typedef QValueList<QVariant> Record; /* list which only contains non-list datatypes */
-    typedef QValueList<Record> Data; /* list of records */
+    typedef QValueList<QVariant> List; /*! list which may contain other lists */
+    typedef QValueList<QVariant> Record; /*! list which only contains non-list datatypes */
+    typedef QValueList<Record> Data; /*! list of records */
     typedef QMap< QVariant, QValueList<int> > ColumnKey;
     typedef QValueStack<QVariant> Stack;
 
@@ -36,11 +36,28 @@ namespace qdb {
 	virtual bool parse( const QString& commands, Environment* env ) = 0;
     };
 
+
+    /*! \struct DataSet
+
+      An interface which encapsulates data set functionality.
+     */
+
+    struct DataSet
+    {
+	virtual bool next() = 0;
+	virtual uint count() const = 0;
+	virtual uint size() const = 0;
+	virtual QStringList columnNames() const = 0;
+	virtual QValueList<QVariant::Type> columnTypes() const = 0;
+	virtual bool field( uint i, QVariant& v ) = 0;
+    };
+
     /*! \struct ResultSet
 
       An interface which encapsulates a set of result data.
      */
-    struct ResultSet
+
+    struct ResultSet : public DataSet
     {
 	/*! Clears all records in the result
 	 */
@@ -50,15 +67,16 @@ namespace qdb {
 	virtual bool sort( const List& index ) = 0;
 	virtual bool first() = 0;
 	virtual bool last() = 0;
-	virtual bool next() = 0;
 	virtual bool prev() = 0;
 	virtual Record& currentRecord() = 0;
-	virtual uint size() const = 0;
-	virtual uint count() const = 0;
-	virtual QStringList columns() const = 0;
     };
 
-    struct FileDriver
+    /*! \struct FileDriver
+
+      File driver interface.
+     */
+
+    struct FileDriver : public DataSet
     {
 	virtual bool create( const List& data ) = 0;
 	virtual bool open() = 0;
@@ -66,11 +84,9 @@ namespace qdb {
 	virtual bool close() = 0;
 	virtual bool insert( const List& data ) = 0;
 	virtual int at() const = 0;
-	virtual bool next() = 0;
 	virtual bool mark() = 0;
 	virtual bool deleteMarked() = 0;
 	virtual bool commit() = 0;
-	virtual bool field( uint i, QVariant& v ) = 0;
 	virtual bool updateMarked( const List& data ) = 0;
 	virtual bool rewindMarked() = 0;
 	virtual bool nextMarked() = 0;
@@ -81,17 +97,25 @@ namespace qdb {
 	virtual bool fieldDescription( const QString& name, QVariant& v ) = 0;
 	virtual bool fieldDescription( int i, QVariant& v ) = 0;
 	virtual bool clearMarked() = 0;
-	virtual uint fieldCount() const = 0;
     };
 
-    class Op
+
+    /*! \struct Op
+
+      Virtual machine operation interface.
+     */
+
+    struct Op
     {
-    public:
-	virtual ~Op();
 	virtual QVariant& P( int i ) = 0;
 	virtual int exec( Environment* env ) = 0;
 	virtual QString name() const = 0;
     };
+
+    /*! \struct Program
+
+      Virtual machine program interface.
+     */
 
     struct Program
     {
@@ -106,6 +130,11 @@ namespace qdb {
 	virtual Op* next() = 0;
 	virtual QStringList listing() const = 0;
     };
+
+    /*! \struct Environment
+
+      Virtual machine environment interface.
+     */
 
     struct Environment
     {

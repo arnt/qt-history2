@@ -39,7 +39,10 @@ public:
     bool fieldDescription( const QString& name, QVariant& v );
     bool fieldDescription( int i, QVariant& v );
     bool clearMarked();
-    uint fieldCount() const;
+    uint count() const;
+    uint size() const;
+    QStringList columnNames() const;
+    QValueList<QVariant::Type> columnTypes() const;
 
 protected:
     virtual void setName( const QString& name ) { nm = name; }
@@ -77,7 +80,9 @@ public:
     qdb::Record& currentRecord();
     uint size() const { return data.count(); }
     uint count() const;
-    QStringList columns() const;
+    QStringList columnNames() const;
+    bool field( uint i, QVariant& v );
+    QValueList<QVariant::Type> columnTypes() const;
 
 private:
     class Header;

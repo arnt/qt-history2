@@ -4,7 +4,6 @@
 #include "environment.h"
 #include "sqlinterpreter.h"
 #include <qvariant.h>
-#include <qlist.h>
 
 /* Base class for all ops.
 */

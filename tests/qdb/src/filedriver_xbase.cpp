@@ -195,7 +195,28 @@ bool FileDriver::open()
     return TRUE;
 }
 
-uint FileDriver::fieldCount() const
+uint FileDriver::size() const
+{
+    return d->file.NoOfRecords();
+}
+
+QValueList<QVariant::Type> FileDriver::columnTypes() const
+{
+    QValueList<QVariant::Type> types;
+    for ( uint i = 0; i < count(); ++i )
+	types += xbaseTypeToVariant( d->file.GetFieldType( i ) );
+    return types;
+}
+
+QStringList FileDriver::columnNames() const
+{
+    QStringList l;
+    for ( uint i = 0; i < count(); ++i )
+	l += QString( d->file.GetFieldName( i ) );
+    return l;
+}
+
+uint FileDriver::count() const
 {
     return d->file.FieldCount();
 }

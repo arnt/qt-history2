@@ -176,7 +176,7 @@ int main( int argc, char** argv )
 		  << "    Size       " << sep << endl;
 	outstream << sep << "---------------" << sep << "---------------" << sep
 		  << "---------------" << sep << endl;
-	for ( uint i = 0; i < driver->fieldCount(); ++i ) {
+	for ( uint i = 0; i < driver->count(); ++i ) {
 	    QVariant v;
 	    if ( !driver->fieldDescription( i, v ) )
 		die( "unable to find field:" + QString::number( i ) );
@@ -228,7 +228,7 @@ int main( int argc, char** argv )
 	uint fieldcount = rs->count();
 	uint i = 0;
 	QString line = " ";
-	QStringList cols = rs->columns();
+	QStringList cols = rs->columnNames();
 	for ( i = 0; i < fieldcount; ++i )
 	    line += cols[i].rightJustify( 15 ) + " ";
 	outstream << line << endl;

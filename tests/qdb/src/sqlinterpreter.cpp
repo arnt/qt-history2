@@ -253,12 +253,31 @@ uint ResultSet::count() const
     return head->fields.count();
 }
 
-QStringList ResultSet::columns() const
+QValueList<QVariant::Type> ResultSet::columnTypes() const
+{
+    QValueList<QVariant::Type> types;
+    for ( uint i = 0; i < count(); ++i )
+	types += head->fields[i].type;
+    return types;
+}
+
+
+QStringList ResultSet::columnNames() const
 {
     QStringList cols;
     for ( uint i = 0; i < head->fields.count(); ++i )
-	 cols += head->fields[i].name;
+	cols += head->fields[i].name;
     return cols;
+}
+
+bool ResultSet::field( uint i, QVariant& v )
+{
+    if ( i > count() ) {
+	env->setLastError("internal error:ResultSet::field: unknown field number: " + QString::number(i));
+	return 0;
+    }
+    v = currentRecord()[i];
+    return TRUE;
 }
 
 /*!
