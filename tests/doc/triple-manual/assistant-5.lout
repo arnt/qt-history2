@@ -3,7 +3,7 @@
     @Tag { full.text.searching }
 @Begin
 @LP
-From Qt 3.1, @QAT offers a powerfull full text search
+From Qt 3.1, @QAT offers a powerful full text search
 engine. In order to search for certain words or text, go to the
 'Search' tab in the sidebar. Then enter the text you are looking
 for and press @Option{Enter} or click @Option{Search}. The search is always
