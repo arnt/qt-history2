@@ -2272,202 +2272,24 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
     if ( !isActive() )
 	return;
 
-#if 0
-#ifndef Q_OS_TEMP
-    bool nat_xf = ( (qt_winver & WV_NT_based) && txop >= TxScale );
-#else
-    bool nat_xf = FALSE;
-#endif
-
     if ( len < 0 )
 	len = str.length();
     if ( len == 0 )				// empty string
 	return;
 
-    QFontMetrics fm( fontMetrics() );
-
     if ( testf(DirtyFont) )
 	updateFont();
-    QFont *font = pfont;
-    if ( !font )
-	font = &cfont;
 
-    bool force_bitmap = rop != CopyROP;
-    if ( force_bitmap ) {
-	QFontEngine *engine = font->d->engineForScript( QFont::NoScript );
-#ifdef QT_CHECK_STATE
-	Q_ASSERT( engine != 0 );
-#endif // QT_CHECK_STATE
-
-	force_bitmap = QT_WA_INLINE( engine->tm.w.tmPitchAndFamily, engine->tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE);
-    }
-
-    if ( force_bitmap || testf(ExtDev|VxF|WxF) ) {
-	if ( testf(ExtDev) ) {
-	    QPDevCmdParam param[3];
-	    QString string = str.mid( pos, len );
-	    QPoint p( x, y );
-	    param[0].point = &p;
-	    param[1].str = &string;
-	    param[2].ival = QFont::NoScript;
-	    if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
-		return;
-	}
-	if ( force_bitmap || (txop >= TxScale && !nat_xf) ) {
-	    // Draw rotated and sheared text on Windows 95, 98
-	    QConstString csubstr( str.unicode()+pos, len );
-	    QString substr = csubstr.string();
-	    const QFontMetrics &fm = fontMetrics();
-	    QRect bbox = fm.boundingRect( substr, len );
-	    int w=bbox.width(), h=bbox.height();
-	    int aw, ah;
-	    int tx=-bbox.x(),  ty=-bbox.y();    // text position
-	    QWMatrix mat1( m11(), m12(), m21(), m22(), dx(),  dy() );
-	    QFont dfont( cfont );
-	    float pixSize = cfont.pixelSize();
-	    if ( pixSize == -1 )
-		pixSize = cfont.deciPointSize() * QPaintDeviceMetrics( pdev ).logicalDpiY() / 720;
-	    int newSize = (int) (sqrt( QABS(m11()*m22() - m12()*m21()) ) * pixSize);
-	    newSize = QMAX( 6, QMIN( newSize, 256 ) ); // empirical values
-	    dfont.setPixelSize( newSize );
-	    QFontMetrics fm2( dfont );
-	    QRect abbox = fm2.boundingRect( substr, len );
-	    aw = abbox.width();
-	    ah = abbox.height();
-	    tx = -abbox.x();
-	    ty = -abbox.y();        // text position - off-by-one?
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-	    QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-	    QString bm_key = gen_text_bitmap_key( mat2, dfont, str, pos, len );
-	    QBitmap *wx_bm = get_text_bitmap( bm_key );
-	    bool create_new_bm = wx_bm == 0;
-	    if ( create_new_bm ) { 	        // no such cached bitmap
-		QBitmap bm( aw, ah, TRUE, QPixmap::MemoryOptim );
-		QPainter paint;
-		paint.begin( &bm );             // draw text in bitmap
-		if ( pdev->devType() == QInternal::Printer ) {
-		    // Adjust for the difference in lpi of pixmap vs. printer
-		    int dw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
-		    int dh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
-		    bool vxfScale = testf(Qt2Compat) && testf(VxF)
-			 && ( dw != ww || dw != vw || dh != wh || dh != vh );
-		    float fs = dfont.pointSizeFloat();
-		    int prlpy = GetDeviceCaps(hdc,LOGPIXELSY);
-		    int pmlpy = GetDeviceCaps(paint.hdc, LOGPIXELSY);
-		    if ( prlpy && pmlpy && !vxfScale ) {	// Sanity
-			float nfs = fs * (float)prlpy / (float)pmlpy;
-			dfont.setPointSizeFloat( nfs );
-		    }
-		}
-		paint.setFont( dfont );
-		paint.drawText( tx, ty, str, pos, len, dir );
-		paint.end();
-		if ( txop >= TxScale )
-		    wx_bm = new QBitmap( bm.xForm(mat2) ); // transform bitmap
-		else
-		    wx_bm = new QBitmap( bm );
-		if ( wx_bm->isNull() ) {
-		    delete wx_bm;               // nothing to draw
-		    return;
-		}
-            }
-	    if ( bg_mode == OpaqueMode ) {	// opaque fill
-		int fx = x;
-		int fy = y - fm.ascent();
-		int fw = bbox.width();
-		int fh = bbox.height();
-		int m, n;
-		QPointArray a(5);
-		mat1.map( fx,	 fy,	&m, &n );  a.setPoint( 0, m, n );
-						   a.setPoint( 4, m, n );
-		mat1.map( fx+fw, fy,	&m, &n );  a.setPoint( 1, m, n );
-		mat1.map( fx+fw, fy+fh, &m, &n );  a.setPoint( 2, m, n );
-		mat1.map( fx,	 fy+fh, &m, &n );  a.setPoint( 3, m, n );
-		QPen oldPen = cpen;
-		QBrush oldBrush = cbrush;
-		setPen( NoPen );
-		updatePen();
-		setBrush( backgroundColor() );
-		updateBrush();
-		Polygon( hdc, (POINT*)a.data(), a.size() );
-		setPen( oldPen );
-		setBrush( oldBrush );
-	    }
-	    double fx=x, fy=y, nfx, nfy;
-	    mat1.map( fx,fy, &nfx,&nfy );
-	    double tfx=tx, tfy=ty, dx, dy;
-	    mat2.map( tfx, tfy, &dx, &dy );	// compute position of bitmap
-	    x = qRound(nfx-dx);
-	    y = qRound(nfy-dy);
-	    if ( testf(ExtDev) ) {		// to printer
-		QRegion reg( *wx_bm );
-		reg.translate( x, y );
-		HBRUSH brush = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-		FillRgn( hdc, reg.handle(), brush );
-		DeleteObject( brush );
-	    } else if ( force_bitmap ) {
-		uint oldf = flags;
-		flags &= ~(VxF|WxF);
-		drawPixmap( x, y, *wx_bm );
-		flags = oldf;
-	    } else {				// to screen/pixmap
-		// this code is also used in bitBlt() in qpaintdevice_win.cpp
-		// (for the case that you have a selfmask)
-		DWORD ropCodes[] = {
-		    0x00b8074a, // PSDPxax,  CopyROP,
-		    0x00ba0b09, // DPSnao,   OrROP,
-		    0x009a0709, // DPSnax,   XorROP,
-		    0x008a0e06, // DSPnoa,   EraseROP=NotAndROP,
-		    0x008b0666, // DSPDxoxn, NotCopyROP,
-		    0x00ab0889, // DPSono,   NotOrROP,
-		    0x00a90189, // DPSoxn,   NotXorROP,
-		    0x00a803a9, // DPSoa,    NotEraseROP=AndROP,
-		    0x00990066, // DSxn,     NotROP,
-		    0x008800c6, // DSa,      ClearROP,
-		    0x00bb0226, // DSno,     SetROP,
-		    0x00aa0029, // D,        NopROP,
-		    0x00981888, // SDPSonoxn,AndNotROP,
-		    0x00b906e6, // DSPDaoxn, OrNotROP,
-		    0x009b07a8, // SDPSoaxn, NandROP,
-		    0x00891b08  // SDPSnaoxn,NorROP,
-		};
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(cpen.data->color) );
-		COLORREF tc, bc;
-		b = (HBRUSH)SelectObject( hdc, b );
-		tc = SetTextColor( hdc, COLOR_VALUE(black) );
-		bc = SetBkColor( hdc, COLOR_VALUE(white) );
-		HDC wx_dc;
-		int wx_sy;
-		if ( wx_bm->isMultiCellPixmap() ) {
-		    wx_dc = wx_bm->multiCellHandle();
-		    wx_sy = wx_bm->multiCellOffset();
-		} else {
-		    wx_dc = wx_bm->handle();
-		    wx_sy = 0;
-		}
-		BitBlt( hdc, x, y, wx_bm->width(), wx_bm->height(),
-			wx_dc, 0, wx_sy, ropCodes[rop] );
-		SetBkColor( hdc, bc );
-		SetTextColor( hdc, tc );
-		DeleteObject( SelectObject(hdc, b) );
-	    }
-	    if ( create_new_bm )
-		ins_text_bitmap( bm_key, wx_bm );
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[3];
+	QString string = str.mid( pos, len );
+	QPoint p( x, y );
+	param[0].point = &p;
+	param[1].str = &string;
+	param[2].ival = QFont::NoScript;
+	if ( !pdev->cmd(QPaintDevice::PdcDrawText2,this,param) || !hdc )
 	    return;
-	}
-	if ( nat_xf ) {
-	    if( !nativeXForm( TRUE ) ) {
- 		nativeXForm( FALSE );
-		return;
-	    }
-	} else if ( txop == TxTranslate ) {
-	    map( x, y, &x, &y );
-	}
     }
-#endif
 
     // we can't take the complete string here as we would otherwise
     // get quadratic behaviour when drawing long strings in parts.

@@ -6,6 +6,11 @@
 #include <qpaintdevice.h>
 #include <qpainter.h>
 #include <limits.h>
+#include <math.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979
+#endif
 
 // defined in qtextengine_win.cpp
 typedef void *SCRIPT_CACHE;
@@ -196,23 +201,58 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
-    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
-
     HDC hdc = dc();
 
-    if ( p->txop == QPainter::TxTranslate )
-	p->map( x, y, &x, &y );
-    else {
-	QT_WA( { 
-	    p->nativeXForm( TRUE );
-	}, {
-	    // #### fixme for rotations on DOS based
-	} );
+    bool nat_xf = ( (qt_winver & Qt::WV_NT_based) && p->txop >= QPainter::TxScale );
+
+    bool force_bitmap = p->rop != QPainter::CopyROP;
+    if ( force_bitmap ) {
+	force_bitmap = QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE);
     }
-    if ( textFlags & Underline || textFlags & StrikeOut ) {
+
+    double scale = 1.;
+    int angle = 0;
+    bool transform = FALSE;
+
+    if ( force_bitmap || (p->txop >= QPainter::TxScale && !nat_xf) ) {
+	// Draw rotated and sheared text on Windows 95, 98
+
+	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
+	// the hard part is only shearing
+
+	if ( p->m11() != p->m22() && p->m12() != -p->m21() ) {
+	    // shearing transformation
+	    // ######## FIXME
+	}
+
+	// rotation + scale + translation
+	scale = sqrt( p->m11()*p->m22() - p->m12()*p->m21() );
+	angle = 1800*acos( p->m11()/scale )/M_PI;
+	if ( p->m12() < 0 )
+	    angle = 3600 - angle;
+
+	transform = TRUE;
+    } else if ( nat_xf ) {
+	if( !p->nativeXForm( TRUE ) ) {
+ 	    p->nativeXForm( FALSE );
+	    return;
+	}
+    } else if ( p->txop == QPainter::TxTranslate ) {
+	p->map( x, y, &x, &y );
+    }
+
+    if ( textFlags & Underline || textFlags & StrikeOut || scale != 1. || angle ) {
 	LOGFONT lf = logfont;
 	lf.lfUnderline = (textFlags & Underline);
 	lf.lfStrikeOut = (textFlags & StrikeOut);
+	if ( angle ) {
+	    lf.lfOrientation = -angle;
+	    lf.lfEscapement = -angle;
+	}
+	if ( scale != 1. ) {
+	    lf.lfHeight = (int) (lf.lfHeight*scale);
+	    lf.lfWidth = (int) (lf.lfWidth*scale);
+	}
 	HFONT hf = QT_WA_INLINE( CreateFontIndirectW( &lf ), CreateFontIndirectA( (LOGFONTA*)&lf ) );
 	SelectObject( hdc, hf );
     }
@@ -249,10 +289,14 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		w += advances[i];
 	    }
 
-	    if ( haveOffsets ) {
+	    if ( haveOffsets || transform ) {
 		for( int i = 0; i < numGlyphs; i++ ) {
     		    wchar_t chr = *glyphs;
-    		    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
+		    int xp = x + offsets->x;
+		    int yp = y + offsets->y;
+		    if ( transform )
+			p->map( xp, yp, &xp, &yp );
+    		    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
 		    x += *advances;
 		    glyphs++;
 		    offsets++;
@@ -273,7 +317,11 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	    offsets--;
 	    advances--;
     	    wchar_t chr = *glyphs;
-    	    ExtTextOutW( hdc, x + offsets->x, y + offsets->y, options, 0, &chr, 1, 0 );
+	    int xp = x + offsets->x;
+	    int yp = y + offsets->y;
+	    if ( transform )
+		p->map( xp, yp, &xp, &yp );
+    	    ExtTextOutW( hdc, xp, yp, options, 0, &chr, 1, 0 );
 	    x += *advances;
 	}
     }
