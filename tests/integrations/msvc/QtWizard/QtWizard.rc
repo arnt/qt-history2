@@ -165,9 +165,6 @@ IDI_QTWIZARD            ICON    DISCARDABLE     "res\\QtWizard.ico"
 // Bitmap
 //
 
-QTPAGE1                 BITMAP  DISCARDABLE     "res\\qtpage1.bmp"
-QTPAGE2                 BITMAP  DISCARDABLE     "res\\qtpage2.bmp"
-
 /////////////////////////////////////////////////////////////////////////////
 //
 // String Table
