@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#360 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#361 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -101,6 +101,21 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 static inline void bzero( void *s, int n )
 {
     memset( s, 0, n );
+}
+#endif
+
+// Some X libraries are built with setlocale #defined to _Xsetlocale,
+// even though library users are then built WITHOUT such a definition.
+// This creates a problem - Qt might setlocale() one value, but then
+// X looks and doesn't see the value Qt set.  The solution here is to
+// implement _Xsetlocale just in case X calls it - redirecting it to
+// the real libC version.
+//
+#ifndef setlocale
+extern "C" char *_Xsetlocale(int category, const char *locale);
+char *_Xsetlocale(int category, const char *locale)
+{
+    return setlocale(category,locale);
 }
 #endif
 
@@ -3270,6 +3285,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     char       ascii = 0;
     Status     status;
 
+    // Perhaps we should filer ALL events.
+    if ( XFilterEvent( (XEvent*)event, winId() ) ) {
+	composingKeycode = keycode; // ### not documented in xlib
+	return TRUE;
+    }
+
     if ( type == QEvent::KeyPress ) {
 	if ( xim ) {
 	    QWExtra * xd = extraData();
@@ -3296,10 +3317,6 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 				XNStatusAttributes, status_att,
 				0 );
 	    }
-	    if ( XFilterEvent( (XEvent*)event, winId() ) ) {
-		composingKeycode = keycode; // ### not documented in xlib
-		return TRUE;
-	    }
 	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
 				     chars.data(), chars.size(), &key, &status );
 	    if ( status == XBufferOverflow ) {
@@ -3315,7 +3332,8 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
 	    keycode = composingKeycode;
 	    composingKeycode = 0;
 	}
-	keyDict->replace( keycode, (void*)key );
+	if ( key )
+	    keyDict->replace( keycode, (void*)key );
 	if ( count < (int)chars.size()-1 )
 	    chars[count] = '\0';
 	if ( count == 1 ) {
