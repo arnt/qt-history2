@@ -1445,6 +1445,19 @@ void QMainWindow::show()
 {
     if ( !d->tll )
 	setUpLayout();
+
+    // show all floating dock windows not explicitly hidden
+    if (!isVisible()) {
+	QPtrListIterator<QDockWindow> it(d->dockWindows);
+	while ( it.current() ) {
+	    QDockWindow *dw = it.current();
+	    ++it;
+	    if ( dw->isTopLevel() && !dw->isVisible() && !dw->testWState(WState_ForceHide) )
+		dw->show();
+	}
+    }
+
+    // show us last so we get focus
     QWidget::show();
 }
 
@@ -1454,11 +1467,14 @@ void QMainWindow::show()
 void QMainWindow::hide()
 {
     if ( isVisible() ) {
-	QObjectList list = queryList( "QDockWindow" );
-	for (int i = 0; i < list.size(); ++i) {
-	    QDockWindow *dw = qt_cast<QDockWindow*>(list.at(i));
-	    if ( dw && dw->isTopLevel() && dw->isVisible() )
-		dw->hide();
+	QPtrListIterator<QDockWindow> it(d->dockWindows);
+	while ( it.current() ) {
+	    QDockWindow *dw = it.current();
+	    ++it;
+	    if ( dw->isTopLevel() && dw->isVisible() ) {
+		dw->hide(); // implicit hide, so clear forcehide
+		((QMainWindow*)dw)->clearWState(WState_ForceHide);
+	    }
 	}
     }
 
