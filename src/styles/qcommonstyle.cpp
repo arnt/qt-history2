@@ -273,7 +273,7 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
         // WIN2000 is really tricky here!
         bool drawRect = btn->isOn();
         if ( guiStyle() == WindowsStyle && btn->isOn() &&
-             ( qt_winver == Qt::WV_2000 || 
+             ( qt_winver == Qt::WV_2000 ||
 	       qt_winver == Qt::WV_98 ||
 	       qt_winver == Qt::WV_XP ) &&
              btn->uses3D() ) {
@@ -281,8 +281,8 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
             drawRect = FALSE;
         }
         if ( guiStyle() == WindowsStyle &&
-             ( qt_winver == Qt::WV_2000 || 
-	       qt_winver == Qt::WV_98 || 
+             ( qt_winver == Qt::WV_2000 ||
+	       qt_winver == Qt::WV_98 ||
 	       qt_winver == Qt::WV_XP ) &&
              btn->autoRaise() ) {
             drawPanel( p, x, y, w, h, g, sunken, 1, &fill );
@@ -316,8 +316,8 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
 #endif
 }
 
-void QCommonStyle::drawTitleBar( QPainter *p, 
-		       const QRect &r, const QColor &left, const QColor &right, 
+void QCommonStyle::drawTitleBar( QPainter *p,
+		       const QRect &r, const QColor &left, const QColor &right,
 		       bool /*active*/ )
 {
     if ( left != right ) {
@@ -341,8 +341,8 @@ void QCommonStyle::drawTitleBar( QPainter *p,
     }
 }
 
-void QCommonStyle::drawTitleBarLabel( QPainter *p, 
-		       const QRect &r, const QString &text, 
+void QCommonStyle::drawTitleBarLabel( QPainter *p,
+		       const QRect &r, const QString &text,
 		       const QColor &tc, bool /*active*/ )
 {
     p->setPen( tc );
@@ -374,7 +374,7 @@ void QCommonStyle::drawHeaderSection( QPainter *p, const QRect &rect, const QCol
 }
 
 // spinbox
-void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, 
+void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g,
 		    const QSpinBox * /*sp*/, bool /*upDown*/, bool /*enabled*/, bool down )
 {
     drawButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
@@ -391,15 +391,15 @@ void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QCol
 	}
 	else {
 	    length = QMIN( 2*rect.width() / 3, 2*rect.height() / 3 );
-	    p->setPen( QPen( g.buttonText(), 1 ) ); 
+	    p->setPen( QPen( g.buttonText(), 1 ) );
 	}
 	int xmarg = ( rect.width() - length ) / 2;
 	int ymarg = ( rect.height() - length ) / 2;
 
-	p->drawLine( rect.left() + xmarg, ( rect.y() + rect.height() / 2 - 1 ), 
+	p->drawLine( rect.left() + xmarg, ( rect.y() + rect.height() / 2 - 1 ),
 		     rect.right() - xmarg, ( rect.y() + rect.height() / 2 - 1 ) );
 	if ( !downbtn )
-	    p->drawLine( ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg, 
+	    p->drawLine( ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg,
 			 ( rect.x() + rect.width() / 2 ) - 1, rect.bottom() - ymarg );
     } else {
 	int w = rect.width()-4;
@@ -446,7 +446,6 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect & /*rect*/, const
     int			mlwidth = gb->midLineWidth();
 
     switch ( type ) {
-
     case QFrame::Box:
         if ( cstyle == QFrame::Plain )
             qDrawPlainRect( p, r, g.foreground(), lwidth );
@@ -508,6 +507,8 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect & /*rect*/, const
             qDrawShadeLine( p, p1, p2, g, cstyle == QFrame::Sunken,
                             lwidth, mlwidth );
         break;
+    default:
+	break;
     }
 }
 
