@@ -81,7 +81,7 @@ void TeamEditor::addPlayer()
 		     currentPlayer.value("id").toString() + ";" );
 
     if( query.next() && (query.value(0).toInt() == 0) ){
-	QSqlRecord * buf = player2teamCursor.insertBuffer();
+	QSqlRecord * buf = player2teamCursor.editBuffer( TRUE );
 	buf->setValue( "teamid", currentTeam.value("id") );
 	buf->setValue( "playerid", currentPlayer.value("id") );
 	player2teamCursor.insert();

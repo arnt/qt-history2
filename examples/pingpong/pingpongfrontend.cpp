@@ -105,7 +105,7 @@ void PingpongFrontEnd::init()
 
 void PingpongFrontEnd::insertMatch()
 {
-     MatchDialog dlg( matchCursor.insertBuffer(), MatchDialog::Insert, this );
+     MatchDialog dlg( matchCursor.editBuffer(TRUE), MatchDialog::Insert, this );
      if( dlg.exec() == QDialog::Accepted ){
  	matchCursor.insert();
  	matchTable->refresh();
@@ -122,7 +122,7 @@ void PingpongFrontEnd::updateMatch()
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
-	MatchDialog dlg( matchCursor.updateBuffer(), MatchDialog::Update, this );
+	MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Update, this );
 	if( dlg.exec() == QDialog::Accepted ){
 	    matchCursor.update();
 	    matchTable->refresh();
@@ -141,7 +141,7 @@ void PingpongFrontEnd::deleteMatch()
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
-	MatchDialog dlg( matchCursor.updateBuffer(), MatchDialog::Delete, this );
+	MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Delete, this );
 	if( dlg.exec() == QDialog::Accepted ){
 	    matchCursor.del();
 	    matchTable->refresh();
