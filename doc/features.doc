@@ -59,20 +59,27 @@ The available options are:
 
 \row \i QT_NO_IMAGEIO_BMP
      \i The Microsoft Bitmap image file format.
+     \i &nbsp;
 \row \i QT_NO_IMAGEIO_PPM
      \i The Portable Pixmap image file format.
+     \i &nbsp;
 \row \i QT_NO_IMAGEIO_XBM
      \i The X11 Bitmap image file format.
+     \i &nbsp;
 \row \i QT_NO_IMAGEIO_XPM
      \i The X11 Pixmap image file format.
+     \i &nbsp;
 \row \i QT_NO_IMAGEIO_PNG
      \i The Portable Network Graphics image file format.
+     \i &nbsp;
 
 \header \i31 Animation
 \row \i QT_NO_ASYNC_IO
      \i Asynchronous I/O (\l QAsyncIO)
+     \i &nbsp;
 \row \i QT_NO_ASYNC_IMAGE_IO
      \i Asynchronous Image I/O and GIF image support (\l QImageDecoder, ...)
+     \i &nbsp;
 \row \i QT_NO_MOVIE
      \i Animation support (\l QMovie)
      \i QT_NO_ASYNC_IO, QT_NO_ASYNC_IMAGE_IO
@@ -80,23 +87,29 @@ The available options are:
 \header \i31 Fonts
 \row \i QT_NO_TRUETYPE
      \i TrueType (TTF and TTC) font file format, only used by Qt/Embedded.
+     \i &nbsp;
 \row \i QT_NO_BDF
      \i Bitmap Distribution Format (BDF) font file format, only used by Qt/Embedded.
+     \i &nbsp;
 \row \i QT_NO_FONTDATABASE
      \i Font database.
+     \i &nbsp;
 
 \header \i31 Internationalization
 
 \row \i QT_NO_I18N
      \i Conversions between Unicode and 8-bit encodings.
+     \i &nbsp;
 \row \i QT_NO_UNICODETABLES
      \i Large tables defining such things as upper and lowercase conversions
 	for all Unicode characters.
+     \i &nbsp;
 
 \header \i31 MIME
 \row \i QT_NO_MIME
      \i Multipurpose Internet Mail Extensions, an internet standard for encoding
-    and tagging typed data (eg. text, images, colors) (\l QMimeSource)
+	and tagging typed data (eg. text, images, colors) (\l QMimeSource)
+     \i &nbsp;
 \row \i QT_NO_RICHTEXT
      \i HTML-like text (\l QStyleSheet, \l QLabel)
      \i QT_NO_MIME
@@ -110,37 +123,48 @@ The available options are:
 \header \i31 Sound
 \row \i QT_NO_SOUND
      \i Playing audio files (\l QSound)
+     \i &nbsp;
 
 \header \i31 Scipting
 \row \i QT_NO_PROPERTIES
      \i Scripting of Qt-based applications.
+     \i &nbsp;
 
 \header \i31 Qt/Embedded-specific
 
 \row \i QT_NO_QWS_CURSOR
      \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
 	normally need this feature.
+     \i &nbsp;
 \row \i QT_NO_QWS_DEPTH_8GRAYSCALE
-     \i 8 bits per pixel: 256 levels of gray.
+     \i11 8 bits per pixel: 256 levels of gray.
 	Incompatible with QWS_DEPTH_8.
+     \i &nbsp;
 \row \i QT_NO_QWS_DEPTH_8
-     \i 8 bits per pixel: 216-color cube with 40 auxiliary colors.
+     \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
 	Incompatible with QWS_DEPTH_8GRAYSCALE.
+     \i &nbsp;
 \row \i QT_NO_QWS_DEPTH_15
-     \i 15 bits per pixel: 32 levels for each of red, green and blue.
+     \i11 15 bits per pixel: 32 levels for each of red, green and blue.
+     \i &nbsp;
 \row \i QT_NO_QWS_DEPTH_16
-     \i 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
+     \i11 16 bits per pixel: 64 levels of green, 32 levels for red and for blue.
+     \i &nbsp;
 \row \i QT_NO_QWS_DEPTH_32
-     \i 32 bits per pixel: 256 levels for each of red, green and blue.
+     \i11 32 bits per pixel: 256 levels for each of red, green and blue.
+     \i &nbsp;
 \row \i QT_NO_QWS_MACH64
      \i Mach64 accelerated driver (demonstration only).
+     \i &nbsp;
 \row \i QT_NO_QWS_VFB
      \i Virtual framebuffer running on X11 (see reference documentation).
+     \i &nbsp;
 
 \header \i31 Networking
 \row \i QT_NO_NETWORKPROTOCOL
      \i Abstract multi-protocol data retrieval,
 	with local file retrieval included (\l QNetworkProtocol)
+     \i &nbsp;
 \row \i QT_NO_NETWORKPROTOCOL_FTP
      \i FTP-protocol data retrieval.
      \i QT_NO_NETWORKPROTOCOL
@@ -152,20 +176,25 @@ The available options are:
 \row \i QT_NO_COLORNAMES
      \i Color names such as "red", used by some \l QColor constructors
 	and by some HTML documents (\l QColor, \l QStyleSheet)
+     \i &nbsp;
 \row \i QT_NO_TRANSFORMATIONS
      \i Used by a number of classes in Qt. With this, rotation and scaling
 	are possible. Without it, only co-ordinate translation (\l QWMatrix)
+     \i &nbsp;
 \row \i QT_NO_PSPRINTER
-     \i Postscript printer support.
+     \i PostScript printer support.
+     \i &nbsp;
 \row \i QT_NO_PRINTER
      \i Printer support (\l QPrinter)
      \i QT_NO_PSPRINTER (Unix only)
 \row \i QT_NO_PICTURE
      \i Save Qt drawing commands to a files (\l QPicture)
+     \i &nbsp;
 
 \header \i31 Widgets
 \row \i QT_NO_WIDGETS
      \i Disabling this disables all widgets except \l QWidget.
+     \i &nbsp;
 \row \i QT_NO_TEXTVIEW
      \i HTML document viewing (\l QTextView)
      \i QT_NO_WIDGETS, QT_NO_RICHTEXT
