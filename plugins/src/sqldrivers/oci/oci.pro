@@ -6,18 +6,22 @@ SOURCES		= main.cpp \
 
 win32 {
 	OBJECTS_DIR	= obj
-	LIBS	+= oci.lib
+	LIBS	*= oci.lib
+	win32-msvc: { 
+		LIBS *= delayimp.lib
+		QMAKE_LFLAGS += /DELAYLOAD:oci.dll
+	}
+	win32-borland: {
+		QMAKE_LFLAGS += /doci.dll
+	}
 }
-unix:OBJECTS_DIR	= .obj
+unix {
+	OBJECTS_DIR	= .obj
+	LIBS		*= -lclntsh
+	LIBS            *= -lwtc8
+}
 
-!isEmpty(LIBS) {
-	CONFIG += oci_libs_and_headers
-}
-!isEmpty(INCLUDEPATH) {
-	CONFIG += oci_libs_and_headers
-}
-
-REQUIRES	= sql oci_libs_and_headers
+REQUIRES	= sql
 
 DESTDIR		= ../../../sqldrivers
 TARGET		= qsqloci
