@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.cpp#24 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -45,8 +45,9 @@
   \class QDropSite qdropsite.h
   \brief The QDropSite class provides nothing and does nothing.
 
-  This class exists only so that old code will not break.  It does
-  nothing.  If your code uses it, you can safely delete it.
+  \obsolete
+
+  If your code uses it, you can safely delete it.
 
   It was used in Qt 1.x to do some drag and drop; that has since been
   folded into QWidget.
