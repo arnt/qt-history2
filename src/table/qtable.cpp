@@ -4663,7 +4663,7 @@ QWidget *QTable::beginEdit( int row, int col, bool replace )
 	return 0;
     if ( cellWidget( row, col ) )
 	return 0;
-    ensureCellVisible( curRow, curCol );
+    ensureCellVisible( row, col );
     QWidget *e = createEditor( row, col, !replace );
     if ( !e )
 	return 0;
