@@ -23177,14 +23177,14 @@ public:
     };
 };
 static DesignerMimeSourceFactory *designerMimeSourceFactory = 0;
-static void qInitImages()
+void qInitImages()
 {
     if ( designerMimeSourceFactory )
 	return;
     designerMimeSourceFactory = new DesignerMimeSourceFactory;
     QMimeSourceFactory::defaultFactory()->addFactory( designerMimeSourceFactory );
 }
-static void qCleanupImages()
+void qCleanupImages()
 {
     if ( !designerMimeSourceFactory )
 	return;
@@ -23194,11 +23194,4 @@ static void qCleanupImages()
     delete uic_image_dict;
     uic_image_dict = 0;
 }
-class StaticInitImages
-{
-public:
-    StaticInitImages() { qInitImages(); }
-    ~StaticInitImages() { qCleanupImages(); }
-};
-static StaticInitImages staticImages;
 #endif

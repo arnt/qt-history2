@@ -28,10 +28,11 @@
 #endif
 #include "mainwindowwizard.h"
 
-class StandardTemplateWizardInterface : public TemplateWizardInterface
+class StandardTemplateWizardInterface : public TemplateWizardInterface, public QLibraryInterface
 {
 public:
     StandardTemplateWizardInterface();
+    ~StandardTemplateWizardInterface();
 
     QRESULT queryInterface( const QUuid&, QUnknownInterface** );
     unsigned long addRef();
@@ -41,15 +42,42 @@ public:
 
     void setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *aIface );
 
+    bool init();
+    void cleanup();
+    bool canUnload() const;
+
 private:
     unsigned long ref;
-    QUnknownInterface *appIface;
-
+    bool inUse;
 };
 
+extern void qInitImages();
+extern void qCleanupImages();
+
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
-    : ref( 0 ), appIface( 0 )
+    : ref( 0 )
 {
+}
+
+StandardTemplateWizardInterface::~StandardTemplateWizardInterface()
+{
+}
+
+bool StandardTemplateWizardInterface::init()
+{
+    qInitImages();
+
+    return TRUE;
+}
+
+void StandardTemplateWizardInterface::cleanup()
+{
+    qCleanupImages();
+}
+
+bool StandardTemplateWizardInterface::canUnload() const
+{
+    return !inUse;
 }
 
 QStringList StandardTemplateWizardInterface::featureList() const
@@ -66,14 +94,14 @@ QStringList StandardTemplateWizardInterface::featureList() const
 
 void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widget, DesignerFormWindow *fw, QUnknownInterface *aIface )
 {
+    inUse = TRUE;
 #ifndef QT_NO_SQL
-    appIface = aIface;
     if ( templ == "QDesignerDataView" ||
 	 templ == "QDesignerDataBrowser" ||
 	 templ == "QDataView" ||
 	 templ == "QDataBrowser" ||
 	 templ == "QDataTable" ) {
-	SqlFormWizard wizard( appIface, widget, 0, fw, 0, TRUE );
+	SqlFormWizard wizard( aIface, widget, 0, fw, 0, TRUE );
 	wizard.exec();
     }
 #endif
@@ -82,17 +110,20 @@ void StandardTemplateWizardInterface::setup( const QString &templ, QWidget *widg
 	wizard.setAppInterface( aIface, fw, widget );
 	wizard.exec();
     }
+    inUse = FALSE;
 }
 
 QRESULT StandardTemplateWizardInterface::queryInterface( const QUuid& uuid, QUnknownInterface** iface )
 {
     *iface = 0;
     if ( uuid == IID_QUnknown )
-	*iface = (QUnknownInterface*)this;
+	*iface = (QUnknownInterface*)(TemplateWizardInterface*) this;
     else if ( uuid == IID_QFeatureList )
 	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_TemplateWizard )
 	*iface = (TemplateWizardInterface*)this;
+    else if ( uuid == IID_QLibrary )
+	*iface = (QLibraryInterface*)this;
     else
 	return QE_NOINTERFACE;
 
