@@ -115,7 +115,7 @@ public:
 #endif
 
 protected:
-    bool eventFilter( QObject *, QEvent * );
+    bool event( QEvent * );
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

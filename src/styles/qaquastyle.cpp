@@ -315,16 +315,13 @@ void QAquaStyle::unPolish( QWidget * w )
 }
 
 /*! \reimp */
-bool QAquaStyle::eventFilter( QObject * o, QEvent * e )
+bool QAquaStyle::event( QEvent *e )
 {
-    if(o == this) {
 #ifdef Q_WS_MAC
-	if(e->type() == QEvent::Style)
-	    appearanceChanged();
+    if(e->type() == QEvent::Style)
+	appearanceChanged();
 #endif
-	return FALSE;
-    }
-    return FALSE;
+    return QStyle::event(e);
 }
 
 /*! \reimp */
