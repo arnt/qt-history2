@@ -361,13 +361,13 @@ void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
     QRect brect(region(w, w->rect(), type).boundingRect());
     int xoff=2;
     int yoff=2;
-    const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
+    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked))
         xoff++, yoff++;
     if (type != Menu)
         painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15,
                           pal.brush(QPalette::Background));
-    if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, *pm);
+    if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, pm);
 #endif
 }
 

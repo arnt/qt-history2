@@ -218,14 +218,14 @@ void QWSBeOSDecoration::paintButton(QPainter *painter, const QWidget *w,
     int xoff=2;
     int yoff=2;
 
-    const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
+    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     xoff++;
 
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked)) {
-        if (pm) painter->drawPixmap(brect.x()+1+xoff, brect.y()+1+yoff, *pm);
+        if (!pm.isNull()) painter->drawPixmap(brect.x()+1+xoff, brect.y()+1+yoff, pm);
     } else {
-        if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
+        if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, pm);
     }
 #endif
 }

@@ -165,7 +165,7 @@ void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
     int xoff=2;
     int yoff=2;
 
-    const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
+    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     {
 
@@ -175,11 +175,11 @@ void QWSKDEDecoration::paintButton(QPainter *painter, const QWidget *w,
                             brect.height()-1, pal, true, 2,
                             &pal.brush(QPalette::Background));
 #endif
-            if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
+            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, pm);
         } else {
             painter->fillRect(brect.x(), brect.y(), brect.width()-1,
                         brect.height()-1, pal.brush(QPalette::Background));
-            if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
+            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, pm);
         }
     }
 

@@ -187,7 +187,7 @@ const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
 */
 QRegion QDirectPainter::region() const
 {
-    if (d->rgn.isNull()) {
+    if (d->rgn.isEmpty() && numRects()) {
         QRegion r;
         r.setRects(&d->gfx->rect(0), numRects());
         d->rgn = r;

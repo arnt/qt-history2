@@ -201,16 +201,14 @@ const char **QWSDefaultDecoration::normalizePixmap()
 #endif
 
 
-const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
+QPixmap QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::Region type, bool on, int& xoff, int& /*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
-
     static const char** staticMenuPixmapXPM=0;
     static const char** staticClosePixmapXPM=0;
     static const char** staticMinimizePixmapXPM=0;
     static const char** staticMaximizePixmapXPM=0;
     static const char** staticNormalizePixmapXPM=0;
-
     const char** xpm;
 
     // Why don't we just use/extend the enum type...
@@ -241,7 +239,8 @@ const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::
     switch (type) {
         case Menu:
 #ifndef QT_NO_WIDGET_TOPEXTRA
-            pm = w->icon(); //##### will be &windowIcon() when that returns a const QPixmap&;
+            if (!w->windowIcon().isNull())
+                return w->windowIcon();
 #endif
             if (!pm) {
                 xoff = 1;
@@ -263,7 +262,7 @@ const QPixmap* QWSDefaultDecoration::pixmapFor(const QWidget* w, QWSDecoration::
         default:
             break;
     }
-    return pm;
+    return *pm;
 #else
     return 0;
 #endif
@@ -535,7 +534,7 @@ void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
     int xoff=2;
     int yoff=2;
 
-    const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
+    const QPixmap pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
 
     {
 
@@ -545,11 +544,11 @@ void QWSDefaultDecoration::paintButton(QPainter *painter, const QWidget *w,
                         brect.height()-1, pal, true,
                         &pal.brush(QPalette::Background));
 #endif
-            if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, *pm);
+            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff+1, pm);
         } else {
             painter->fillRect(brect.x(), brect.y(), brect.width()-1,
                         brect.height()-1, pal.brush(QPalette::Background));
-            if (pm) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, *pm);
+            if (!pm.isNull()) painter->drawPixmap(brect.x()+xoff, brect.y()+yoff, pm);
         }
     }
 
