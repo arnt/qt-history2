@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.12 1996/09/18 15:10:18 agulbra Exp $
+** $Id: metaobjects.doc,v 1.13 1996/09/20 15:17:25 hanord Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -20,114 +20,101 @@ signal/slot mechanism is a central feature of Qt, and is implemented
 using the <a href="moc.html">moc</a> (Meta Object Compiler) and some
 preprocessor defines.
 
-All classes that contain signals and/or slots must inherit from
-QObject or one of its subclasses, and must mention Q_OBJECT in its
-declaration.
+In most GUI toolkits widgets have a callback for each action they can
+trigger. This callback is a pointer to a function. In Qt, signals and
+slots have taken over for these messy function pointers.
 
-<h2>Usage</h2>
+All classes that contain signals and/or slots must inherit \l QObject or
+one of its subclasses, and must mention Q_OBJECT in its declaration.
 
-Syntactically, signals and slots are categories.  A minimal
-C++ class declaration might read:
+<h2>A Small Example</h2>
+
+A minimal C++ class declaration might read:
 
 \code
     class Foo : public Bar
     {
     public:
 	Foo();
-	void setSomethig(int);
-	int something();
+	int  value() const { return val; }
+	void setValue( int );
     private:
-	int internal;
+	int  val;
     };
 \endcode
 
-This little class has an internal state and public methods to access
-that state.  A small Qt class might read:
+A small Qt class might read:
 
 \code
     class Foo : public QObject
     {
 	Q_OBJECT;
     public:
-	Foo( QObject *parent=0, const char *name=0);
-	int something() { returns internal; }
-    signals:
-	void somethingChanged(int)
+	Foo();
+	int  value() const { return val; }
     public slots:
-	void setSomething(int);
+	void setValue(int);
+    signals:
+	void valueChanged( int )
     private:
-	int internal;
+	int  val;
     };
 \endcode
 
-This class has the same internal state, and also public methods to
-access the state, but in addition it has some support for component
-programming using signals and slots: This class can tell someone that
-its state has changed by emitting a signal,
-<code>somethingChanged()</code>, and it has a slot which other objects
-may send signals to.
+This class has the same internal state, and public methods to access the
+state, but in addition it has support for component programming using
+signals and slots: This class can tell the outside world that its state
+has changed by emitting a signal, <code>valueChanged()</code>, and it has
+a slot which other objects may send signals to.
 
-To emit a signal, you say <code>emit signal(arguments)</code>.	The
-next code fragment shows this.
+To emit a signal, you say <code>emit signal(arguments)</code>.The next
+code fragment shows how.
 
 Slots are implemented by the application programmer (that's you).
-Here is a possible implementation of Foo::setSomething():
+Here is a possible implementation of Foo::setValue():
 
 \code
-    void Foo::setSomething(int s) {
-	if (s != internal) {
-	    internal = s;
-	    emit somethingChanged(s);
+    void Foo::setValue( int v )
+    {
+	if ( v != val ) {
+	    val = v;
+	    emit valueChanged(v);
 	}
     }
 \endcode
 
-The example may appear useless, but anyway, here is one way to connect
-two of these already useless objects together:
+Here is one way to connect two of these already useless objects together:
 
 \code
-    Foo yo, go;
-
-    connect(&yo, SIGNAL(somethingChanged(int)), &go, SLOT(setSomething(int)));
+    Foo a, b;
+    connect(&a, SIGNAL(valueChanged(int)), &b, SLOT(setValue(int)));
+    b.setValue( 11 );
+    a.setValue( 79 );
+    b.value();		// this would now be 79, why?
 \endcode
 
-Then a call to <code>yo.setSomething()</code> will make yo emit a
-signal, which go will receive and act on.  Since this action changes
-go's internal state, it too emits a signal, which nobody receives, so
-it disappears into hyperspace.
+Calling <code>a.setValue(79)</code> will make <code>a</code> emit a
+signal, which <code>b</code> will receive,
+i.e. <code>b.setValue(79)</code> is invoked. <code>b</code> will in turn
+emit the same signal, which nobody receives, so it disappears into
+hyperspace.
 
-In this way two objects can work together without knowing each other,
-as long as there is someone around to set up a connection between
-them initially.
+Note that the <code>setValue()</code> function sets the value and emits
+the signal only if <code>v != val</code>. This prevents infinite looping
+in the case of cyclic connections (if <code>b.valueChanged()</code>
+were connected to <code>a.setValue()</code>).
 
-The preprocessor changes or removes the <code>signals,</code>
-<code>slots</code> and <code>emit</code> keywords so the compiler
-won't see anything it can't digest.
+This example illustrates that objects can work together without knowing
+each other, as long as there is someone around to set up a connection
+between them initially.
 
-Each meta object requires one additional Makefile rule per class and
-one additional C++ source file (generated by the meta object
-compiler).  Inside Qt, we have chosen to name the meta-source files
-m*.cpp, the * is derived from the header file name, this makes it
-possible to make a general rule for generating moc files. So for
-QLCDNumber we have one header file, <code>qlcdnum.h</code>, one
-moc-generated C++ file, <code>mlcdnum.cpp</code> and one real source
-file, <code>qlcdnum.cpp</code>.  <code>mlcdnum.cpp</code> is generated
-by this generic rule which also generates all other meta object files
-internal to Qt:
+The preprocessor changes or removes the <code>signals</code>,
+<code>slots</code> and <code>emit</code> keywords so the compiler won't
+see anything it can't digest.
 
-\code
-m%.cpp: q%.h
-	..somewhere../bin/moc $< -o $@
-\endcode
-
-A specific rule for mlcdnum.cpp would look like this:
-
-\code
-    mlcdnum.cpp: qlcdnum.h
-	..somewhere../bin/moc qlcdnum.h -o mlcdnum.cpp
-\endcode
-
-Both C++ files are compiled and linked in the usual way.
+Run the <a href="moc.html">moc</a> on class definitions that contains
+signals or slots. This produces a C++ source file which should be compiled
+and linked with the other object files for the application.
 
 <h2>Signals</h2>
 
@@ -143,8 +130,8 @@ which item in the list box is currently highlighted.  If the signal is
 interesting to two different objects you just connect the signal to
 slots in both objects.
 
-Signals are automatically implemented by the moc and must not be
-implemented in the .cpp file.  They can never have return types.
+Signals are automatically generated by the moc and must not be implemented
+in the .cpp file. They can never have return types (i.e. use \c void).
 
 A word about arguments: Our experience shows that signals and slots
 are more reusable if they do \e not use special types.  If \l
@@ -183,22 +170,33 @@ the connections right.
 Of course, you can also define slots to be virtual.  We have found
 this to be very useful.
 
-Signals and slots are fairly efficient.	 Of course there's some loss
-of speed compared to "real" callbacks due to the increased
-flexibility, but the loss is fairly small, we measured it to
-approximately 50 microseconds on a SPARC 2, so the simplicity and
-flexibility the mechanism affords is well worth it.
+Signals and slots are fairly efficient. Of course there's some loss of
+speed compared to "real" callbacks due to the increased flexibility, but
+the loss is fairly small, we measured it to approximately 10 microseconds
+on a i586-133 running Linux (less than 1 microsecond when no slot has been
+connected) , so the simplicity and flexibility the mechanism affords is
+well worth it.
 
-<h2>The Qt Meta Object Compiler</h2>
+<h2>Meta Object Information</h2>
 
 The meta object compiler (moc) parses a C++ header file and generates
 C++ code that initializes the meta object. The meta object contains
 names of all signal and slot members, as well as pointers to these
 functions.
 
-<h2>Example</h2>
+The meta object contains additional information such as the object's \link
+QObject::className() class name\endlink. You can also check if an object
+\link QObject::inherits() inherits\endlink a specific class, for example:
 
-Here is a simple commented example (butchered from qlcddum.h).
+\code
+  if ( widget->inherits("QButton") ) {
+	// yes, it is a push button, radio button etc.
+  }
+\endcode
+
+<h2>A Real Example</h2>
+
+Here is a simple commented example (code fragments from \l qlcdnum.h).
 
 \code
     #include "qframe.h"
@@ -255,8 +253,6 @@ will call both (in arbitrary order).
 \code
     public slots:
 	void	display( int num );
-	void	display( long num );
-	void	display( float num );
 	void	display( double num );
 	void	display( const char *str );
 	void    setHexMode();
@@ -275,10 +271,9 @@ Several of the example program connect the newValue signal of a
 QScrollBar to the display slot, so the LCD number continuously shows
 the value of the scroll bar.
 
-(Note that display() is overloaded; Qt will select the appropriate
-version when you connect a signal to the slot.	With callbacks, you'd
-have to find five different names and keep track of the types
-yourself.)
+Note that display() is overloaded; Qt will select the appropriate version
+when you connect a signal to the slot.With callbacks, you'd have to find
+five different names and keep track of the types yourself.
 
 Some more irrelevant member functions have been omitted from this
 example.
@@ -322,11 +317,8 @@ brevity.
     }
 \endcode
 
-One function is generated for each signal, and at present it almost
-always is a single call to activate_signal(), which finds the
-appropriate slot or slots and passes on the call.
-
-Please don't call activate_signal() directly, we may well move some
-code from activate_signal into the generated signal functions before
-1.0.  More generally, don't use knowledge of Qt's intestines, or risk
-unpredictable results now or later. */
+One function is generated for each signal, and at present it almost always
+is a single call to the internal Qt function activate_signal(), which
+finds the appropriate slot or slots and passes on the call.
+It is not recommented to call activated_signal() directly.
+*/
