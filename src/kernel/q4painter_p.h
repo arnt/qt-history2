@@ -24,6 +24,7 @@ public:
 	    bgOrigin = s->bgOrigin;
 	    bgBrush = QBrush(s->bgBrush);
  	    clipRegion = QRegion(s->clipRegion);
+	    coordinateMode = s->coordinateMode;
 	    clipEnabled = s->clipEnabled;
 	    rasterOp = s->rasterOp;
 	    bgMode = s->bgMode;
@@ -49,6 +50,7 @@ public:
 	    bgMode = QPainter::TransparentMode;
 	    rasterOp = Qt::CopyROP;
 	    clipEnabled = false;
+	    coordinateMode = QPainter::CoordDevice;
 	    WxF = false;
 	    VxF = false;
 	    wx = wy = ww = wh = 0;
@@ -62,6 +64,7 @@ public:
     QBrush 	brush;
     QBrush 	bgBrush;		// background brush
     QRegion	clipRegion;
+    QPainter::CoordinateMode coordinateMode;
     QColor      bgColor;
 #ifndef QT_NO_TRANSFORMATIONS
     QWMatrix    worldMatrix; 	    	// World transformation matrix, not window and viewport

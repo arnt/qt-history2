@@ -261,12 +261,13 @@ void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inli
     setClipRegion(QRegion(rect), mode);
 }
 
-void QPainter::setClipRegion( const QRegion &r, CoordinateMode )
+void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
 {
     // ### Properly port coordinatemode
     Q_ASSERT(dgc);
     ds->clipRegion = r;
     ds->clipEnabled = true;
+    ds->coordinateMode = m;
     dgc->updateClipRegion(ds);
 }
 
