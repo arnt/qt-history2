@@ -28,11 +28,15 @@
 #include <shlobj.h>
 #include "qurl.h"
 #include "qregexp.h"
+#include "qtextdocument.h"
 
 #ifndef QT_NO_IMAGEIO_BMP
 extern bool qt_read_dib(QDataStream&, QImage&); // qimage.cpp
 extern bool qt_write_dib(QDataStream&, QImage);   // qimage.cpp
 #endif
+
+
+//#define QMIME_DEBUG
 
 static QList<QWindowsMime*> mimes;
 
@@ -123,6 +127,12 @@ QStringList QWindowsMime::allMimesForFormats(struct IDataObject *pDataObj)
     if (hr == NOERROR) {
         FORMATETC fmtetc;
         while (S_OK == fmtenum->Next(1, &fmtetc, 0)) {
+#ifdef QMIME_DEBUG
+            qDebug("QWindowsMime::allMimesForFormats()");
+            char buf[256] = {0};
+            GetClipboardFormatNameA(fmtetc.cfFormat, buf, 255);
+            qDebug("CF = %d : %s", fmtetc.cfFormat, buf);
+#endif
             for (int i=mimes.size()-1; i>=0; --i) {
                 QString format = mimes.at(i)->mimeForFormat(fmtetc);
                 if (!format.isEmpty() && !formats.contains(format)) {
@@ -560,9 +570,9 @@ QWindowsMime::~QWindowsMime()
 int QWindowsMime::registerMimeType(const QString &mime)
 {
 #ifdef Q_OS_TEMP
-    CLIPFORMAT f = RegisterClipboardFormat(mime.utf16());
+    int f = RegisterClipboardFormat(mime.utf16());
 #else
-    CLIPFORMAT f = RegisterClipboardFormatA(mime.local8Bit());
+    int f = RegisterClipboardFormatA(mime.local8Bit());
 #endif
     if (!f)
         qErrnoWarning("QWindowsMime::registerMimeType: Failed to register clipboard format");
@@ -597,11 +607,12 @@ int QWindowsMimeText::cfFor(const QString &mime)
 
 
 
-static const int CF_HTML = 0xc082; // the one MS apps use....
 
 class QWindowsMimeHtml : public QWindowsMime
 {
 public:
+    QWindowsMimeHtml();
+
     // for converting from Qt
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
@@ -611,7 +622,15 @@ public:
     bool canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const;
     QVariant convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const;
     QString mimeForFormat(const FORMATETC &formatetc) const;
+
+private:
+    int CF_HTML;
 };
+
+QWindowsMimeHtml::QWindowsMimeHtml()
+{
+    CF_HTML = QWindowsMime::registerMimeType("HTML Format");
+}
 
 QVector<FORMATETC> QWindowsMimeHtml::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
@@ -655,30 +674,35 @@ QVariant QWindowsMimeHtml::convertToMime(const QString &mime, QVariant::Type pre
 {
     QVariant result;
     if (canConverToMime(mime, pDataObj)) {
-        /*
-        QByteArray data = getData(CF_HTML, pDataObj);
-        int ms = data.size();
-        int start = data.find("StartFragment:");
-        int end = data.find("EndFragment:");
+        QString html = QString::fromUtf8(getData(CF_HTML, pDataObj));
+#ifdef QMIME_DEBUG
+        qDebug("QWindowsMimeHtml::convertToMime");
+        qDebug("raw :");
+        qDebug(html.latin1());
+#endif
+        //int ms = data.size();
+        int start = html.find("StartFragment:");
+        int end = html.find("EndFragment:");
         if(start != -1)
-            start = data.mid(start+14, 10).toInt();
+            start = html.mid(start+14, 10).toInt();
         if(end != -1)
-            end = data.mid(end+12, 10).toInt();
+            end = html.mid(end+12, 10).toInt();
         if (end > start && start > 0) {
-            result = "<!--StartFragment-->" + data.mid(start, end - start);
-            result += "<!--EndFragment-->";
-            result.replace("\r", "");
-            result.replace("<o:p>", "");
-            result.replace("</o:p>", "");
-        }*/
+            html = "<!--StartFragment-->" + html.mid(start, end - start);
+            html += "<!--EndFragment-->";
+            html.replace("\r", "");
+            //result.replace("<o:p>", "");
+            //result.replace("</o:p>", "");
+            result = html;
         }
+    }
     return result;
 }
 
 bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
-    /*
-    QByteArray data(_data);
+    
+    QByteArray data = mimeData->html().toUtf8();
     QByteArray result =
         "Version 1.0\r\n"                    // 0-12
         "StartHTML:0000000105\r\n"            // 13-35
@@ -688,7 +712,7 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
 
     if (data.find("<!--StartFragment-->") == -1)
         result += "<!--StartFragment-->";
-    result += data.data();
+    result += data;
     if (data.find("<!--EndFragment-->") == -1)
         result += "<!--EndFragment-->";
 
@@ -701,10 +725,8 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
     memcpy((char *)(result.data() + 79 - pos.length()), pos.constData(), pos.length());
     pos = QString::number(result.find("<!--EndFragment-->")).latin1();
     memcpy((char *)(result.data() + 103 - pos.length()), pos.constData(), pos.length());
-    qDebug("text is:\n%s\n", result.data());
-    return result;
-    */
-    return false;
+   
+    return setData(result, pmedium);
 }
 
 
@@ -865,8 +887,25 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, QVariant::Type pr
     QVariant val;
     if (canConverToMime(mimeType, pDataObj)) {
         QByteArray data = getData(formats.key(mimeType), pDataObj);
-        if (!data.isEmpty())
-            val = data; // it should be enough to return the data and let QMimeData do the rest.
+        if (!data.isEmpty()) {
+#ifdef QMIME_DEBUG
+        qDebug("QBuiltInMimes::convertToMime()");      
+#endif
+            if (mimeType == "text/html" && preferredType == QVariant::String) {
+                QTextCodec * codec = QText::codecForHtml(data);
+                // hack to get the right codec for mozillia
+                if (codec) {
+                    if (codec->name() == "ISO-8859-1" && data.size() > 1 && data.at(1) == 0)
+                        val = QString::fromUtf16((const unsigned short*)data.data());
+                    else
+                        val = codec->toUnicode(data);
+                } else {
+                    val = data;
+                }
+            } else {
+                val = data; // it should be enough to return the data and let QMimeData do the rest.
+            }
+        }
     }
     return val;
 }
@@ -880,8 +919,7 @@ QString QBuiltInMimes::mimeForFormat(const FORMATETC &formatetc) const
 class QLastResortMimes : public QWindowsMime
 {
 public:
-    QLatsResortMimes();
-
+    
     // for converting from Qt
     bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const;
     bool convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const;
@@ -932,8 +970,14 @@ QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, con
 
 bool QLastResortMimes::canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const
 {
-    return (!formats.keys(mimeType).isEmpty())
-           && canGetData(formats.key(mimeType), pDataObj);
+    if (formats.keys(mimeType).isEmpty()) {
+        // if it is not in there then register it an see if we can get it
+        int cf = QWindowsMime::registerMimeType(mimeType);
+        return canGetData(cf, pDataObj);
+    } else {
+        return canGetData(formats.key(mimeType), pDataObj); 
+    }
+    return false;
 }
 
 QVariant QLastResortMimes::convertToMime(const QString &mimeType, QVariant::Type preferredType, struct IDataObject *pDataObj) const
@@ -966,10 +1010,11 @@ void cleanup_mimes()
 void QWindowsMime::initialize()
 {
     if (mimes.isEmpty()) {
-        new QLastResortMimes;
+        //new QLastResortMimes;
         new WindowsAnyMime;
         new QWindowsMimeImage;
-        new QBuiltInMimes;
+        new QWindowsMimeHtml;
+       // new QBuiltInMimes;
         qAddPostRoutine(cleanup_mimes);
     }
 }

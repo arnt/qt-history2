@@ -184,6 +184,33 @@ static const char * const link_xpm[] = {
 ".............aXXXXXXXXXa",
 ".............aaaaaaaaaaa"};
 
+/* XPM */
+static const char * const ignore_xpm[] = {
+"20 20 3 1",
+".        c None",
+"a        c #000000",
+"X        c #FFFFFF",
+".......XXXXXX.......",
+".....XXaaaaaaXX.....",
+"....XaaaaaaaaaaX....",
+"...XaaaaXXXXaaaaX...",
+"..XaaaXX....XXaaaX..",
+".XaaaaaX......XaaaX.",
+".XaaXaaaX......XaaX.",
+"XaaaXXaaaX.....XaaaX",
+"XaaX..XaaaX.....XaaX",
+"XaaX...XaaaX....XaaX",
+"XaaX....XaaaX...XaaX",
+"XaaX.....XaaaX..XaaX",
+"XaaaX.....XaaaXXaaaX",
+".XaaX......XaaaXaaX.",
+".XaaaX......XaaaaaX.",
+"..XaaaXX....XXaaaX..",
+"...XaaaaXXXXaaaaX...",
+"....XaaaaaaaaaaX....",
+".....XXaaaaaaXX.....",
+".......XXXXXX......."};
+
 #ifndef QT_NO_DRAGANDDROP
 
 //#define QDND_DEBUG
@@ -251,11 +278,12 @@ QDragManager::QDragManager()
     : QObject(qApp)
 {
     Q_ASSERT(!instance);
-    n_cursor = 3;
+    n_cursor = 4;
     pm_cursor = new QPixmap[n_cursor];
     pm_cursor[0] = QPixmap((const char **)move_xpm);
     pm_cursor[1] = QPixmap((const char **)copy_xpm);
     pm_cursor[2] = QPixmap((const char **)link_xpm);
+    pm_cursor[3] = QPixmap((const char **)ignore_xpm);
     object = 0;
     beingCancelled = false;
     restoreCursor = false;
