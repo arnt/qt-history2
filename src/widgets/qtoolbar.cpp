@@ -87,9 +87,10 @@ class QToolBarExtensionWidget;
 class QToolBarPrivate
 {
 public:
-    QToolBarPrivate() : moving( FALSE ), button( 0 ) {}
+    QToolBarPrivate() : moving( FALSE ), firstShow( TRUE ), button( 0 ) {}
 
     bool moving;
+    bool firstShow;
     QToolBarExtensionWidget *extension;
     QPopupMenu *extensionPopup;
     QIntDict<QButton> hiddenItems;
@@ -435,6 +436,10 @@ bool QToolBar::event( QEvent * e )
 	}
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
+    } else if ( e->type() == QEvent::Show && d->firstShow ) {
+	QWidget::layout()->invalidate();
+	QWidget::layout()->activate();
+	d->firstShow = FALSE;
     }
     return r;
 }
