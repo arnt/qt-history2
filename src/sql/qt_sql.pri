@@ -20,7 +20,8 @@ sql {
 		    $$SQL_H/qsqlerror.h \
 		    $$SQL_H/qsqlresult.h \
 		    $$SQL_H/qsqlindex.h \
-		    $$SQL_H/qsqltable.h
+		    $$SQL_H/qsqltable.h \
+		    $$SQL_H/qdatetimeedit.h
 
 	SOURCES     += $$SQL_CPP/qsql.cpp \
 		    $$SQL_CPP/qsqldatabase.cpp \
@@ -34,6 +35,7 @@ sql {
 		    $$SQL_CPP/qsqlerror.cpp \
 		    $$SQL_CPP/qsqlresult.cpp \
 		    $$SQL_CPP/qsqlindex.cpp \
+		    $$SQL_CPP/qdatetimeedit.cpp \
 		    $$SQL_CPP/qsqltable.cpp
 
 	contains(sql-driver, postgres) {
