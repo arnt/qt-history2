@@ -1,0 +1,520 @@
+<ui version="4.0" stdsetdef="1" >
+  <class>PaletteEditorBase</class>
+  <comment>*********************************************************************
+  **
+  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+  **
+  ** This file is part of the $MODULE$ of the Qt Toolkit.
+  **
+  ** $LICENSE$
+  **
+  ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+  **
+  *********************************************************************</comment>
+  <widget class="QWidget" name="PaletteEditorBase" >
+    <property name="objectName" >
+      <string notr="true" >PaletteEditorBase</string>
+    </property>
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>586</width>
+        <height>343</height>
+      </rect>
+    </property>
+    <property name="windowTitle" >
+      <string>Edit Palette</string>
+    </property>
+    <layout class="QHBoxLayout" >
+      <property name="objectName" >
+        <string notr="true" >unnamed</string>
+      </property>
+      <item>
+        <layout class="QVBoxLayout" >
+          <property name="objectName" >
+            <string notr="true" >unnamed</string>
+          </property>
+          <item>
+            <layout class="QHBoxLayout" >
+              <property name="objectName" >
+                <string notr="true" >unnamed</string>
+              </property>
+              <item>
+                <widget class="QLabel" name="paletteLabel" >
+                  <property name="objectName" >
+                    <string notr="true" >paletteLabel</string>
+                  </property>
+                  <property name="text" >
+                    <string>Select Palette:</string>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QComboBox" name="paletteCombo" >
+                  <property name="objectName" >
+                    <string notr="true" >paletteCombo</string>
+                  </property>
+                  <item>
+                    <property name="text" >
+                      <string>Active Palette</string>
+                    </property>
+                  </item>
+                  <item>
+                    <property name="text" >
+                      <string>Inactive Palette</string>
+                    </property>
+                  </item>
+                  <item>
+                    <property name="text" >
+                      <string>Disabled Palette</string>
+                    </property>
+                  </item>
+                </widget>
+              </item>
+              <item>
+                <spacer name="spacer4" >
+                  <property name="sizeType" >
+                    <enum>MinimumExpanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <widget class="QTabWidget" name="paletteTab" >
+              <property name="objectName" >
+                <string notr="true" >paletteTab</string>
+              </property>
+              <property name="sizePolicy" >
+                <sizepolicy>
+                  <hsizetype>4</hsizetype>
+                  <vsizetype>5</vsizetype>
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                </sizepolicy>
+              </property>
+              <widget class="QWidget" name="tab" >
+                <property name="objectName" >
+                  <string notr="true" >tab</string>
+                </property>
+                <attribute name="title" >
+                  <string>Simple</string>
+                </attribute>
+                <layout class="QVBoxLayout" >
+                  <property name="objectName" >
+                    <string notr="true" >unnamed</string>
+                  </property>
+                  <item>
+                    <widget class="QGroupBox" name="simpleGroup" >
+                      <property name="objectName" >
+                        <string notr="true" >simpleGroup</string>
+                      </property>
+                      <property name="title" >
+                        <string>Build Palette</string>
+                      </property>
+                      <layout class="QGridLayout" >
+                        <property name="objectName" >
+                          <string notr="true" >unnamed</string>
+                        </property>
+                        <item row="0" column="0" >
+                          <widget class="QLabel" name="EffectLabel" >
+                            <property name="objectName" >
+                              <string notr="true" >EffectLabel</string>
+                            </property>
+                            <property name="text" >
+                              <string>3-D Effects:</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="0" >
+                          <widget class="QLabel" name="BackgroundLabel" >
+                            <property name="objectName" >
+                              <string notr="true" >BackgroundLabel</string>
+                            </property>
+                            <property name="text" >
+                              <string>Background:</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="0" column="1" >
+                          <widget class="StyleButton" name="effectButton" >
+                            <property name="objectName" >
+                              <string notr="true" >effectButton</string>
+                            </property>
+                            <property name="sizePolicy" >
+                              <sizepolicy>
+                                <hsizetype>4</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                              </sizepolicy>
+                            </property>
+                            <property name="text" >
+                              <string/>
+                            </property>
+                          </widget>
+                        </item>
+                        <item row="1" column="1" >
+                          <widget class="StyleButton" name="backgroundButton" >
+                            <property name="objectName" >
+                              <string notr="true" >backgroundButton</string>
+                            </property>
+                            <property name="sizePolicy" >
+                              <sizepolicy>
+                                <hsizetype>4</hsizetype>
+                                <vsizetype>0</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                              </sizepolicy>
+                            </property>
+                            <property name="text" >
+                              <string/>
+                            </property>
+                          </widget>
+                        </item>
+                      </layout>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="spacer1" >
+                      <property name="sizeType" >
+                        <enum>MinimumExpanding</enum>
+                      </property>
+                      <property name="orientation" >
+                        <enum>Vertical</enum>
+                      </property>
+                    </spacer>
+                  </item>
+                </layout>
+              </widget>
+              <widget class="QWidget" name="tab" >
+                <property name="objectName" >
+                  <string notr="true" >tab</string>
+                </property>
+                <attribute name="title" >
+                  <string>Advanced</string>
+                </attribute>
+                <layout class="QVBoxLayout" >
+                  <property name="objectName" >
+                    <string notr="true" >unnamed</string>
+                  </property>
+                  <item>
+                    <widget class="QGroupBox" name="autoGroup" >
+                      <property name="objectName" >
+                        <string notr="true" >autoGroup</string>
+                      </property>
+                      <property name="title" >
+                        <string>Auto</string>
+                      </property>
+                      <layout class="QVBoxLayout" >
+                        <property name="objectName" >
+                          <string notr="true" >unnamed</string>
+                        </property>
+                        <item>
+                          <widget class="QCheckBox" name="inactiveCheckBox" >
+                            <property name="objectName" >
+                              <string notr="true" >inactiveCheckBox</string>
+                            </property>
+                            <property name="text" >
+                              <string>Build the inactive palette from active palette.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item>
+                          <widget class="QCheckBox" name="disabledCheckBox" >
+                            <property name="objectName" >
+                              <string notr="true" >disabledCheckBox</string>
+                            </property>
+                            <property name="text" >
+                              <string>Build the disabled palette from active palette.</string>
+                            </property>
+                          </widget>
+                        </item>
+                        <item>
+                          <widget class="QCheckBox" name="buttonCheckBox" >
+                            <property name="objectName" >
+                              <string notr="true" >buttonCheckBox</string>
+                            </property>
+                            <property name="text" >
+                              <string>Build 3-D shadow effects from button color.</string>
+                            </property>
+                          </widget>
+                        </item>
+                      </layout>
+                    </widget>
+                  </item>
+                  <item>
+                    <widget class="QGroupBox" name="rolesGroup" >
+                      <property name="objectName" >
+                        <string notr="true" >rolesGroup</string>
+                      </property>
+                      <property name="title" >
+                        <string>Color Roles</string>
+                      </property>
+                      <layout class="QVBoxLayout" >
+                        <property name="objectName" >
+                          <string notr="true" >unnamed</string>
+                        </property>
+                        <item>
+                          <widget class="QComboBox" name="rolesCombo" >
+                            <property name="objectName" >
+                              <string notr="true" >rolesCombo</string>
+                            </property>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> Background</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> Foreground</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> Base</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> Text</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> Button</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Central Role -> ButtonText</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>3-D Effect -> Light</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>3-D Effect -> Midlight</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>3-D Effect -> Mid</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>3-D Effect -> Dark</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>3-D Effect -> Shadow</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Selected Item -> Highlight</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Selected Item -> HighlightText</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Special Role -> BrightText</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Special Role -> Link</string>
+                              </property>
+                            </item>
+                            <item>
+                              <property name="text" >
+                                <string>Special Role -> LinkVisited</string>
+                              </property>
+                            </item>
+                          </widget>
+                        </item>
+                        <item>
+                          <layout class="QHBoxLayout" >
+                            <property name="objectName" >
+                              <string notr="true" >unnamed</string>
+                            </property>
+                            <item>
+                              <widget class="QLabel" name="colorLabel" >
+                                <property name="objectName" >
+                                  <string notr="true" >colorLabel</string>
+                                </property>
+                                <property name="text" >
+                                  <string>Color:</string>
+                                </property>
+                              </widget>
+                            </item>
+                            <item>
+                              <widget class="StyleButton" name="advColorButton" >
+                                <property name="objectName" >
+                                  <string notr="true" >advColorButton</string>
+                                </property>
+                                <property name="sizePolicy" >
+                                  <sizepolicy>
+                                    <hsizetype>4</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                </property>
+                                <property name="text" >
+                                  <string/>
+                                </property>
+                              </widget>
+                            </item>
+                            <item>
+                              <widget class="QLabel" name="pixmapLabel" >
+                                <property name="objectName" >
+                                  <string notr="true" >pixmapLabel</string>
+                                </property>
+                                <property name="text" >
+                                  <string>Pixmap:</string>
+                                </property>
+                              </widget>
+                            </item>
+                            <item>
+                              <widget class="StyleButton" name="advPixmapButton" >
+                                <property name="objectName" >
+                                  <string notr="true" >advPixmapButton</string>
+                                </property>
+                                <property name="sizePolicy" >
+                                  <sizepolicy>
+                                    <hsizetype>4</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                  </sizepolicy>
+                                </property>
+                                <property name="text" >
+                                  <string/>
+                                </property>
+                              </widget>
+                            </item>
+                          </layout>
+                        </item>
+                      </layout>
+                    </widget>
+                  </item>
+                  <item>
+                    <spacer name="spacer3" >
+                      <property name="sizeType" >
+                        <enum>MinimumExpanding</enum>
+                      </property>
+                      <property name="orientation" >
+                        <enum>Vertical</enum>
+                      </property>
+                    </spacer>
+                  </item>
+                </layout>
+              </widget>
+            </widget>
+          </item>
+          <item>
+            <layout class="QHBoxLayout" >
+              <property name="objectName" >
+                <string notr="true" >unnamed</string>
+              </property>
+              <item>
+                <widget class="QPushButton" name="okButton" >
+                  <property name="objectName" >
+                    <string notr="true" >okButton</string>
+                  </property>
+                  <property name="text" >
+                    <string>OK</string>
+                  </property>
+                  <property name="default" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <spacer name="spacer2" >
+                  <property name="sizeType" >
+                    <enum>MinimumExpanding</enum>
+                  </property>
+                  <property name="orientation" >
+                    <enum>Horizontal</enum>
+                  </property>
+                </spacer>
+              </item>
+              <item>
+                <widget class="QPushButton" name="cancelButton" >
+                  <property name="objectName" >
+                    <string notr="true" >cancelButton</string>
+                  </property>
+                  <property name="text" >
+                    <string>Cancel</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <widget class="QGroupBox" name="previewGroup" >
+          <property name="objectName" >
+            <string notr="true" >previewGroup</string>
+          </property>
+          <property name="sizePolicy" >
+            <sizepolicy>
+              <hsizetype>7</hsizetype>
+              <vsizetype>5</vsizetype>
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+            </sizepolicy>
+          </property>
+          <property name="title" >
+            <string>Preview</string>
+          </property>
+          <layout class="QHBoxLayout" >
+            <property name="objectName" >
+              <string notr="true" >unnamed</string>
+            </property>
+			<property name="margin" >
+				<number>2</number>
+			</property>
+            <item>
+              <widget class="PreviewWidget" name="previewWindow" >
+                <property name="objectName" >
+                  <string notr="true" >previewWindow</string>
+                </property>
+                <property name="minimumSize" >
+                  <size>
+                    <width>100</width>
+                    <height>100</height>
+                  </size>
+                </property>
+              </widget>
+            </item>
+          </layout>
+        </widget>
+      </item>
+    </layout>
+  </widget>
+  <customwidgets>
+      <customwidget>
+          <class>PreviewWidget</class>
+          <header location="local">previewwidget.h</header>
+      </customwidget>
+  </customwidgets>
+  <layoutdefault spacing="6" margin="11" />
+</ui>
