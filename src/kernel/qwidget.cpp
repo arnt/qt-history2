@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#223 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#223 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#224 $");
 
 
 /*!
@@ -1058,7 +1058,7 @@ void QWidget::setEnabled( bool enable )
 
   The default implementation calls repaint(TRUE).
 
-  \sa setEnabled(), enabled(), repaint(), update()
+  \sa setEnabled(), isEnabled(), repaint(), update()
 */
 
 void QWidget::enabledChange( bool )
