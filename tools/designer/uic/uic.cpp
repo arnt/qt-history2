@@ -371,8 +371,10 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "class QVBoxLayout; " << endl;
     out << "class QHBoxLayout; " << endl;
     out << "class QGridLayout; " << endl;
-    if ( objClass == "QMainWindow" )
+    if ( objClass == "QMainWindow" ) {
 	out << "class QAction;" << endl;
+	out << "class QActionGroup;" << endl;
+    }
 
 
     bool dbForm = FALSE;
@@ -501,9 +503,8 @@ void Uic::createFormDecl( const QDomElement &e )
     // actions
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "actions" ) {
-	    nl = n.elementsByTagName( "action" );
-	    for ( i = 0; i < (int) nl.length(); i++ )
-		createActionDecl( nl.item( i ).toElement() );
+	    for ( QDomElement a = n.firstChild().toElement(); !a.isNull(); a = a.nextSibling().toElement() )
+		createActionDecl( a );
 	}
     }
 
@@ -999,7 +1000,7 @@ void Uic::createFormImpl( const QDomElement &e )
     out << endl;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "actions" )
-	    createActionImpl( n );
+	    createActionImpl( n.firstChild().toElement(), "this" );
     }
     out << endl;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
@@ -1416,11 +1417,17 @@ void Uic::createObjectDecl( const QDomElement& e )
 
 void Uic::createActionDecl( const QDomElement& e )
 {
-    QString objClass = "QAction";
+    QString objClass = e.tagName() == "action" ? "QAction" : "QActionGroup";
     QString objName = getObjectName( e );
     if ( objName.isEmpty() )
 	return;
     out << "    " << objClass << "* " << objName << ";" << endl;
+    if ( e.tagName() == "actiongroup" ) {
+	for ( QDomElement n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
+	    if ( n.tagName() == "action" || n.tagName() == "actiongroup" )
+		createActionDecl( n );
+	}
+    }
 }
 
 
@@ -1580,13 +1587,17 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     return objName;
 }
 
-void Uic::createActionImpl( const QDomElement &n )
+void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 {
-    QDomNodeList nl = n.elementsByTagName( "action" );
-    for ( int i = 0; i < (int) nl.length(); i++ ) {
-	QDomElement ae = nl.item( i ).toElement();
+    for ( QDomElement ae = n; !ae.isNull(); ae = ae.nextSibling().toElement() ) {
 	QString objName = registerObject( getObjectName( ae ) );
-	out << indent << objName << " = new QAction( this, \"" << objName << "\" );" << endl;
+	if ( ae.tagName() == "action" )
+	    out << indent << objName << " = new QAction( " << parent << ", \"" << objName << "\" );" << endl;
+	else if ( ae.tagName() == "actiongroup" )
+	    out << indent << objName << " = new QActionGroup( " << parent << ", \"" << objName << "\" );" << endl;
+	else
+	    continue;
+	bool subActionsDone = FALSE;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "property" ) {
 		bool stdset = stdsetdef;
@@ -1602,6 +1613,9 @@ void Uic::createActionImpl( const QDomElement &n )
 		    out << indent << objName << "->" << mkStdSet(prop ) << "( " << value << " );" << endl;
 		else
 		    out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
+	    } else if ( !subActionsDone && ( n2.tagName() == "actiongroup" || n2.tagName() == "action" ) ) {
+		createActionImpl( n2, objName );
+		subActionsDone = TRUE;
 	    }
 	}
     }

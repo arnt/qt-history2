@@ -41,7 +41,7 @@ public:
 
     void createObjectDecl( const QDomElement& e );
     void createActionDecl( const QDomElement& e );
-    void createActionImpl( const QDomElement& e );
+    void createActionImpl( const QDomElement& e, const QString &parent );
     void createToolbarImpl( const QDomElement &e );
     void createMenuBarImpl( const QDomElement &e );
     QString createObjectImpl( const QDomElement &e, const QString& parentClass, const QString& parent, const QString& layout = QString::null );
