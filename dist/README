@@ -1,4 +1,4 @@
-This is the second beta version of Qt 3.0.
+This is the third beta version of Qt 3.0.
 
 This new generation of the Qt application development framework
 contains many new features, improvements and extensions. It also
@@ -8,13 +8,6 @@ Linguist, Qt Assistant and a new multi-platform build tool, qmake.
 The Qt API is very unlikely to undergo any significant changes before
 the final release is made, so we encourage you to begin enjoying Qt
 3.0 right now.
-
-The style engine (QStyle) has been rewritten and has a new API, which
-is incompatible with the old one. This change was required to stay
-flexible enough for the future. Until now only the Windows- and
-Motif-Style have been ported to the new API. The other styles included
-in Qt will be ported to the new API until Qt 3.0 beta 3 and are not
-available in the Qt 3.0 beta 2 release.
 
 Detailed changes information on what's new in Qt 3.0 is included in
 the Online Reference Documentation.  For a brief overview, see
@@ -71,12 +64,13 @@ linux-kcc
 freebsd-g++
 unixware7-g++
 aix-g++
+aix-xlc
 hpux-acc
 
 During the beta period, we will add support for more Unix platforms
-and compilers e.g.  AIX/xlc and HP-UX/gcc. If you test the beta on an a
-yet unsupported Unix, please contact us at support@trolltech.com so
-that we can assist you.
+and compilers e.g. HP-UX/gcc. If you test the beta on an a yet
+unsupported Unix, please contact us at support@trolltech.com so that
+we can assist you.
 
 
 How to get the beta release:
