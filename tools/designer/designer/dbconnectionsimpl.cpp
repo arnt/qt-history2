@@ -28,6 +28,8 @@
 #include <qlineedit.h>
 #include <qpushbutton.h>
 #include <qsqldatabase.h>
+#include <qmessagebox.h>
+#include <qapplication.h>
 
 static bool blockChanges = FALSE;
 
@@ -108,7 +110,10 @@ void DatabaseConnectionsEditor::doConnect()
 	    listConnections->setCurrentItem( listConnections->count() - 1 );
 	    project->saveConnections();
 	} else {
-	    // ### error handling
+	    QMessageBox::warning( 0, QApplication::tr( "Connection" ),
+				     QApplication::tr( "Could not connect to the database.\n"
+						       "Please check whether the server is running and if you typed in all information correctly.\n"
+							    "[ " + conn->lastError() + " ]" ) );
 	    delete conn;
 	}
     } else { // sync // ### should this do something else? right now it just overwrites all info about the connection...

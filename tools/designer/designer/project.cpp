@@ -147,6 +147,7 @@ bool DatabaseConnection::open( bool suppressDialog )
 	    break;
     }
     if ( !success ) {
+	dbErr = conn->lastError().driverText() + "\n" + conn->lastError().databaseText();
 	if ( nm == "(default)" )
 	    QSqlDatabase::removeDatabase( QSqlDatabase::defaultConnection );
 	else

@@ -71,6 +71,7 @@ public:
     QString hostname() const { return hname; }
     void setPort( int p ) { prt = p; }
     int port() const { return prt; }
+    QString lastError() const { return dbErr; }
     void addTable( const QString& t ) { tbls.append(t); }
     void setFields( const QString& t, const QStringList& f ) { flds[t] = f; }
     QStringList tables() const { return tbls; }
@@ -84,6 +85,7 @@ public:
 private:
     QString nm;
     QString drv, dbName, uname, pword, hname;
+    QString dbErr;
     int prt;
     QStringList tbls;
     QMap<QString, QStringList> flds;

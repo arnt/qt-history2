@@ -50,6 +50,7 @@ SqlFormWizard::SqlFormWizard( QUnknownInterface *aIface, QWidget *w,
     : SqlFormWizardBase( parent, name, modal, fl ), widget( w ), appIface( aIface ),
      mode( None )
 {
+
     formWindow = fw;
     setFinishEnabled( finishPage, TRUE );
 
@@ -94,17 +95,23 @@ void SqlFormWizard::connectionSelected( const QString &c )
 	return;
 
     listBoxTable->clear();
-    editTable->clear();
     QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
 	if ( d->name() == c  || ( d->name() == "(default)" || d->name().isEmpty() ) && c == "(default)")
 	    listBoxTable->insertStringList( d->tables() );
     }
+    setNextEnabled( databasePage, ( listBoxTable->currentItem() >= 0 ) );
 }
 
 void SqlFormWizard::tableSelected( const QString & )
 {
-    autoPopulate( TRUE );
+    if ( listBoxTable->currentItem() >= 0 ) {
+	autoPopulate( TRUE );
+	setNextEnabled( databasePage, TRUE );
+    } else {
+	setNextEnabled( databasePage, FALSE );
+    }
+
 }
 
 void SqlFormWizard::autoPopulate( bool populate )
@@ -118,14 +125,14 @@ void SqlFormWizard::autoPopulate( bool populate )
     listBoxSelectedField->clear();
     if ( populate ) {
 	for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
-	    if ( d->name() == editConnection->text() ||
+	    if ( d->name() == listBoxConnection->currentText() ||
 		 ( ( d->name() == "(default)" || d->name().isEmpty() ) &&
-		 editConnection->text() == "(default)" ) ) {
-		QStringList lst = *d->fields().find( editTable->text() );
+		 listBoxConnection->currentText() == "(default)" ) ) {
+		QStringList lst = *d->fields().find( listBoxTable->currentText() );
 		// remove primary index fields, if any
 		d->open( FALSE );
 #ifndef QT_NO_SQL
-		QSqlCursor tab( editTable->text(), TRUE, d->connection() );
+		QSqlCursor tab( listBoxTable->currentText(), TRUE, d->connection() );
 		QSqlIndex pIdx = tab.primaryIndex();
 		for ( uint i = 0; i < pIdx.count(); i++ ) {
 		    listBoxField->insertItem( pIdx.field( i )->name() );
@@ -266,8 +273,6 @@ void SqlFormWizard::setupPage1()
 
     listBoxTable->clear();
     listBoxConnection->clear();
-    editTable->clear();
-    editConnection->clear();
     QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     QStringList lst;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() )
@@ -275,6 +280,8 @@ void SqlFormWizard::setupPage1()
     listBoxConnection->insertStringList( lst );
     if ( lst.count() )
 	listBoxConnection->setCurrentItem( 0 );
+
+    setNextEnabled( databasePage, FALSE );
 }
 
 static QPushButton *create_widget( QWidget *parent, const char *name,
@@ -300,8 +307,8 @@ void SqlFormWizard::accept()
 	return;
     }
 
-    QString conn = editConnection->text();
-    QString table = editTable->text();
+    QString conn = listBoxConnection->currentText();
+    QString table = listBoxTable->currentText();
     QStringList lst;
     lst << conn << table;
 
@@ -326,13 +333,17 @@ void SqlFormWizard::accept()
     QPtrList<DesignerDatabase> databases = proIface->databaseConnections();
     DesignerDatabase *database = 0;
     for ( DesignerDatabase *d = databases.first(); d; d = databases.next() ) {
-	if ( d->name() == editConnection->text() || ( d->name() == "(default)" || d->name().isEmpty() ) && editConnection->text() == "(default)" ) {
+	if ( d->name() == listBoxConnection->currentText() || ( d->name() == "(default)" || d->name().isEmpty() ) && listBoxConnection->currentText() == "(default)" ) {
 	    database = d;
 	    d->open( FALSE );
 	    break;
 	}
     }
-    QSqlCursor tab( editTable->text(), TRUE, database->connection() );
+
+    if (!database) {
+	return;
+    }
+    QSqlCursor tab( listBoxTable->currentText(), TRUE, database->connection() );
     int columns = 2;
 
     QSqlEditorFactory * f = QSqlEditorFactory::defaultFactory();

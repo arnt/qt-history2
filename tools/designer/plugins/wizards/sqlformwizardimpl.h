@@ -52,6 +52,7 @@ protected slots:
     void sortFieldUp();
     void sortFieldDown();
 
+
 private:
     void setupPage1();
 
