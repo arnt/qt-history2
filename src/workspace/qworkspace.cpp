@@ -1459,6 +1459,11 @@ void QWorkspace::showMaximizeControls()
 	QFrame* dmaxcontrols = d->maxcontrols;
 	d->controlId = b->insertItem( dmaxcontrols, -1, b->count() );
     }
+    if ( !d->active && d->becomeActive ) {
+	d->active = (QWorkspaceChild*)d->becomeActive->parentWidget();
+	d->active->setActive( TRUE );
+	d->becomeActive = 0;
+    }
     if ( d->active && ( d->menuId == -1 || b->indexOf( d->menuId ) == -1 ) ) {
 	if ( !d->maxtools ) {
 	    d->maxtools = new QLabel( topLevelWidget(), "qt_maxtools" );
