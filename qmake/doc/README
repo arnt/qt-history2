@@ -202,6 +202,40 @@ will be created upon executing Qmake.
   warn_on   The compiler should emit more warnings than normally, ignored if "warn_off" is specified.
   warn_off  The compiler should emit no warnings or as few as possible.
 
+ *INSTALLS*
+
+  Qmake allows you to define an install target for the output makefile
+  (currently supported only by unix makefile backends). You enable this
+  like the following:
+
+    animals.path = /usr/local/animals
+    animals.files = *.pig *.cow
+    INSTALLS += animals
+
+  This will copy all files that match *.pig and *.cow into /usr/local/animals.
+  Each backend can support builtin INSTALLS (like animals). Currently target is
+  the only supported one, this will allow you to do:
+
+   target.path = /usr/local/myapp/bin
+   INSTALLS += target
+
+  This allows Qmake to define what files get copied in (usually just $$TARGET, but
+  in the case of libs this will include symlinks created to the shared object). If
+  you specify a target.files or a target.extra (described below) the builtin behaviour
+  will not happen and will be overridden by your targets. You can specify as many INSTALLS
+  as you like to install your whole project.
+
+  If .files doesn't allow you enough control you can also use .extra to put literal commands
+  into the makefile like this:
+
+     msgfiles.path = /usr/local/myapp/msgs
+     msgfiles.files = ../msgfiles/*.msg
+     unix:msgfiles.extra = $(QTDIR)/bin/msg2qm $$msgfiles.path/*.msg $$msgfiles.path/msgfile.qm
+     INSTALLS += msgfiles
+
+  This will copy all .msg files from ../msgfiles/ into /usr/local/myapp/msgs
+  after that it will run msg2qm on those files. 
+
  *TEMPLATE*
 
   Although qmake doesn't actually support custom templates, it does allow
@@ -230,7 +264,7 @@ will be created upon executing Qmake.
   RC_FILE      Win32 only: Use a .rc file (compile to temporary .res). 
   RES_FILE     Win32 only: Link with a .res file. 
   VERSION      Lib template only: Will specify the version number of the library
-
+  INSTALLS     This defines values to use as install targets, see *INSTALLS* section.
 
   *Subdirs template*
 
