@@ -42,7 +42,7 @@ Line width: <input type="edit" ID="widthEdit" value = "1">
 */
 
 /*! \page qaxserver-example-multiple.html
-
+    \ingroup qaxserver-examples
   \title Two simple Qt widgets (in-process)
 
 

@@ -43,7 +43,7 @@ function QSimpleAX::ValueChanged( Newvalue )
 */
 
 /*! \page qaxserver-example-simple.html
-
+    \ingroup qaxserver-examples
   \title A simple ActiveQt control (executable)
 
 

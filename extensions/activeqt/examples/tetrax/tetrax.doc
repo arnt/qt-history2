@@ -25,7 +25,7 @@ function QTetrax::gameOver()
 */
 
 /*! \page qaxserver-example-tetrax.html
-
+    \ingroup qaxserver-examples
   \title A Qt example as a scriptable ActiveX control (executable)
 
 

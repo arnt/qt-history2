@@ -1,23 +1,33 @@
 /*! \page activeqt-examples.html
+    \title ActiveQt Examples
 
-  \title The ActiveQt Examples
+    The following pages list example programs for using ActiveX controls
+    in a Qt application, and for writing ActiveX controls using Qt.
 
-  \section1 QAxContainer: Qt applications using ActiveX controls:
+    \list
+    \i \link qaxcontainer-examples.html QAxContainer Examples \endlink
+    \i \link qaxserver-examples.html QAxServer Examples \endlink
+    \endlist
+*/
 
-  \list
-  \i \link qaxcontainer-example-webbrowser.html A Web Browser \endlink
-  \i \link qaxcontainer-example-testcon.html An ActiveX Test Container \endlink
-  \i \link qaxcontainer-example-qutlook.html The Qt address book example in sync with Microsoft Outlook \endlink
-  \endlist
+/*! 
+    \defgroup qaxcontainer-examples
+    \title The QAxContainer Examples
 
-  \section1 QAxServer: ActiveX controls written with Qt:
+    The following example programs illustrate the embedding of ActiveX 
+    controls using the QAxContainer module.
 
-  \list
-  \i \link qaxserver-example-simple.html A Simple widget (executable) \endlink
-  \i \link qaxserver-example-multiple.html Multiple QWidgets (in-process) \endlink
-  \i \link qaxserver-example-wrapper.html Standard Qt widgets (in-process) \endlink
-  \i \link qaxserver-example-tetrax.html A Qt example as an ActiveX server (executable) \endlink
-  \i \link qaxserver-example-opengl.html Qt's OpenGL widget as an ActiveX (executable) \endlink
-  \i \link qaxserver-example-menus.html An application with a menubar (executable) \endlink
-  \endlist
+    For more information see the \link qaxcontainer.html QAxContainer 
+    \endlink documentation.
+*/
+
+/*!
+    \defgroup qaxserver-examples
+    \title The QAxServer Examples
+
+    The following example programs illustrate the development of ActiveX
+    controls using the the QAxServer module.
+
+    For more information see the \link qaxserver.html QAxServer \endlink
+    documentation.
 */

@@ -31,7 +31,7 @@ Z:<input type="edit" name="ZEdit" value="0"><br>
 */
 
 /*! \page qaxserver-example-opengl.html
-
+    \ingroup qaxserver-examples
   \title Qt' OpenGL widgets as an ActiveX (executable)
 
 

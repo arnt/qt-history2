@@ -55,7 +55,7 @@ CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
 */
 
 /*! \page qaxserver-example-wrapper.html
-
+    \ingroup qaxserver-examples
   \title Standard Qt widgets as ActiveX controls (in-process)
 
 

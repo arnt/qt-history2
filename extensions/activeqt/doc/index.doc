@@ -25,7 +25,7 @@
     \section2 Additional Information
 
     \list
-    \i \link activeqt-examples.html Examples\endlink. 
+    \i \link qaxcontainer-examples.html Examples\endlink. 
     \i \link qaxcontainer-faq.html QAxContainer FAQ\endlink.
     \endlist
 
@@ -39,7 +39,7 @@
     \section2 Additional Information
 
     \list
-    \i \link activeqt-examples.html Examples\endlink. 
+    \i \link qaxserver-examples.html Examples\endlink. 
     \i \link qaxserver-faq.html QAxServer FAQ\endlink.
     \endlist
 */
@@ -65,7 +65,7 @@
     \i QAxAggregated can be subclassed to implement additional COM interfaces.
     \endlist
 
-    Some \link activeqt-examples.html example implementations \endlink 
+    Some \link qaxserver-examples.html example implementations \endlink 
     of ActiveX controls are provided.
 
     \section1 Building the library
@@ -463,7 +463,7 @@
     \endcode
 
     If the web browser supports scripting use JavaScript, VBScript and
-    forms to script the control. The \link activeqt-examples.html
+    forms to script the control. The \link qaxserver-examples.html
     examples \endlink include demonstration HTML pages for the
     example controls.
 
@@ -609,7 +609,7 @@
     \i \l QAxWidget is a \l QWidget that wraps an ActiveX control.
     \endlist
 
-    Some \link activeqt-examples.html example applications \endlink
+    Some \link qaxcontainer-examples.html example applications \endlink
     that use standard ActiveX controls to provide high level user
     interface functionality are provided.
 
