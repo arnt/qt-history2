@@ -369,7 +369,7 @@ inline void QList<T>::append(const T &t)
 
 template <typename T>
 inline void QList<T>::prepend(const T &t)
-{ 
+{
     detach();
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
         node_construct(reinterpret_cast<Node *>(p.prepend()), t);
@@ -406,13 +406,13 @@ inline void QList<T>::replace(int i, const T &t)
 
 template <typename T>
 inline void QList<T>::swap(int i, int j)
-{
+{ 
     Q_ASSERT_X(i >= 0 && i < p.size() && j >= 0 && j < p.size(),
-               "QList<T>::swap", "index out of range");
-    detach();
-    void *t = d->array[i];
-    d->array[i] = d->array[j];
-    d->array[j] = t;
+                "QList<T>::swap", "index out of range");
+    detach(); 
+    T t = reinterpret_cast<Node*>(p.at(i))->t();
+    reinterpret_cast<Node*>(p.at(i))->t() = reinterpret_cast<Node*>(p.at(j))->t();
+    reinterpret_cast<Node*>(p.at(j))->t() = t;
 }
 
 template <typename T>
