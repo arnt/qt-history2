@@ -14,65 +14,10 @@
 #include <qsplitter.h>
 #include <qtableview.h>
 #include <qheaderview.h>
-#include <qitemdelegate.h>
-#include <qpainter.h>
 
 #include "plasmamodel.h"
 #include "plasmadelegate.h"
-#include "colorfilter.h"
-
-class HexDelegate : public QItemDelegate
-{
-public:
-    HexDelegate(QObject *parent) 
-        : QItemDelegate(parent)
-    {
-        sz = QSize(2, 2);
-        textHex = "0x";
-        textHex.reserve(8); // fine tuning
-    }
-
-    ~HexDelegate()
-    {
-    }
-
-    QSize sizeHint(const QStyleOptionViewItem &, const QAbstractItemModel *,
-                   const QModelIndex &) const;
-
-    void paint(QPainter *, const QStyleOptionViewItem &, const QAbstractItemModel *,
-               const QModelIndex &) const;
-
-private:
-    mutable QString textHex;
-    QPoint pt;
-    QSize sz;
-};
-
-QSize HexDelegate::sizeHint(const QStyleOptionViewItem &opt,
-                            const QAbstractItemModel *,
-                            const QModelIndex &) const
-{
-    static QString textSize("0xFFFFFFFF");
-    return QFontMetrics(opt.font).size(0, textSize) + sz;
-}
-
-void HexDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                        const QAbstractItemModel *model, const QModelIndex &index) const
-{
-    static QRect emptyRect;
-
-    textHex.resize(2);
-    textHex += QString::number(
-                model->data(index, QAbstractItemModel::DisplayRole).toInt(), 16).toUpper();
-
-    // Layout text
-    QRect textRect(pt, painter->fontMetrics().size(0, textHex) + sz);
-    doLayout(option, &emptyRect, &textRect, false);
-
-    // draw the item
-    drawDisplay(painter, option, textRect, textHex);
-}
-
+#include "hexdelegate.h"
 
 int main(int argc, char *argv[])
 {

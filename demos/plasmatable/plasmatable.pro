@@ -3,11 +3,11 @@ TARGET          = plasmatable
 
 HEADERS         = plasmamodel.h \
                   plasmadelegate.h \
-                  colorfilter.h
+                  hexdelegate.h
 SOURCES         = main.cpp \
                   plasmamodel.cpp \
                   plasmadelegate.cpp \
-                  colorfilter.cpp
+                  hexdelegate.cpp
 RESOURCES	= plasmatable.qrc
 
 build_all:CONFIG += release
