@@ -1364,7 +1364,7 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
             int i;
             if (opt->subControls & SC_Q3ListView)
                 QCommonStyle::drawComplexControl(cc, opt, p, widget);
-            if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(lv)) {
+            if (const QStyleOptionQ3ListView *lv = qt_cast<const QStyleOptionQ3ListView *>(opt)) {
                 QStyleOptionQ3ListViewItem item = lv->items.at(0);
                 int y = opt->rect.y();
                 int c;
