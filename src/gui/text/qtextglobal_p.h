@@ -13,11 +13,6 @@ class QIODevice;
 
 struct QTextDocumentConfig
 {
-    // ### sane defaults?
-    inline QTextDocumentConfig() : indentValue(40) {}
-
-    int indentValue;
-
     QString title;
 };
 
