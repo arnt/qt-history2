@@ -78,6 +78,11 @@ public:
     QImage( uchar* data, int w, int h, int depth,
 		QRgb* colortable, int numColors,
 		Endian bitOrder );
+#ifdef _WS_QWS_
+    QImage( uchar* data, int w, int h, int depth, int pbl,
+		QRgb* colortable, int numColors,
+		Endian bitOrder );
+#endif
     QImage( const QImage & );
    ~QImage();
 

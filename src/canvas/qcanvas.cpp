@@ -1325,7 +1325,7 @@ void QCanvas::setTiles( QPixmap p,
 /*!
   \fn int QCanvas::tile( int x, int y ) const
 
-  Returns the tile at (\a x,\a y). Initially, all tiles are 0.
+  Returns the tile at (\a x, \a y). Initially, all tiles are 0.
 
   \warning The parameters must be within range.
 
@@ -3188,7 +3188,7 @@ void QCanvasLine::setPen(QPen p)
 */
 
 /*!
-  Sets the ends of the line to (\a xa,\a ya) and (\a xb,\a yb).
+  Sets the ends of the line to (\a xa, \a ya) and (\a xb, \a yb).
 */
 void QCanvasLine::setPoints(int xa, int ya, int xb, int yb)
 {

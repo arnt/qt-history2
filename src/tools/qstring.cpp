@@ -14152,8 +14152,8 @@ QString QString::number( uint n, int base )
 }
 
 /*!
-  This static function returns the printed value of \a n, formatted in the \f
-  format with \a prec precision.
+  This static function returns the printed value of \a n, formatted in the
+  \a f format with \a prec precision.
 
   \a f can be 'f', 'F', 'e', 'E', 'g' or 'G', all of which have the
   same meaning as for sprintf().

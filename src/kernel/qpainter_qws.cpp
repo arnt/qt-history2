@@ -889,8 +889,20 @@ void QPainter::drawRect( int x, int y, int w, int h )
     if ( w <= 0 || h <= 0 )
 	fix_neg_rect( &x, &y, &w, &h );
 
-    gfx->setSourceOffset( x-bro.x(), y-bro.y() );
-    gfx->drawRect(x,y,w,h);
+    gfx->setBrushOffset( x-bro.x(), y-bro.y() );
+
+    if ( cpen.style() != NoPen ) {
+	gfx->drawLine(x,y,x+(w-1),y);
+	gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
+	gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
+	gfx->drawLine(x,y,x,y+(h-1));
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+
+    gfx->fillRect(x,y,w,h);
 }
 
 void QPainter::drawWinFocusRect( int x, int y, int w, int h )
@@ -959,7 +971,17 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 
     gfx->setDashes(winfocus_line, 2);
     gfx->setDashedLines(TRUE);
-    gfx->drawRect(x,y,w,h);
+    if ( cpen.style() != NoPen ) {
+	gfx->drawLine(x,y,x+(w-1),y);
+	gfx->drawLine(x+(w-1),y,x+(w-1),y+(h-1));
+	gfx->drawLine(x,y+(h-1),x+(w-1),y+(h-1));
+	gfx->drawLine(x,y,x,y+(h-1));
+	x++;
+	y++;
+	w -= 2;
+	h -= 2;
+    }
+    gfx->fillRect(x,y,w,h);
     gfx->setDashedLines(FALSE);
 
     setRasterOp( old_rop );
@@ -1363,7 +1385,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if(sh>pixmap.height()) {
 	sh=pixmap.height();
     }
-    gfx->setSourceOffset(sx,sy);
     if(pixmap.mask()) {
 	QBitmap * mymask=( (QBitmap *)pixmap.mask() );
 	unsigned char * thebits=mymask->scanLine(0);
@@ -1375,7 +1396,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     } else {
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
     }
-    gfx->blt(x,y,sw,sh);
+    gfx->blt(x,y,sw,sh,sx,sy);
 }
 
 void QPainter::drawTiledPixmap( int x, int y, int w, int h,
@@ -1397,11 +1418,11 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     map( x, y, &x, &y );
 
     gfx->setSource(&pixmap);
-    gfx->setSourceOffset(sx,sy);
     if ( (pixmap.depth() == 32) && (qt_screen->depth()!=32) )
 	gfx->setAlphaType(QGfx::InlineAlpha);
     else
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
+    gfx->setBrushOffset(sx,sy);
     gfx->tiledBlt(x,y,w,h);
 }
 
@@ -1593,16 +1614,14 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    if ( memorymanager->fontSmooth(dfont.handle()) ) {
 		gfx->setAlphaType(QGfx::InlineAlpha);
 		gfx->setSource( tpm );
-		gfx->setSourceOffset(0, 0);
-		gfx->blt(x, y, tpm->width(),tpm->height());
+		gfx->blt(x, y, tpm->width(),tpm->height(), 0, 0);
 		delete tpm;
 		return;
 	    } else {
 		gfx->setSource(wx_bm);
-		gfx->setSourceOffset(0, 0);
 		gfx->setAlphaType(QGfx::LittleEndianMask);
 		gfx->setAlphaSource(wx_bm->scanLine(0), wx_bm->bytesPerLine());
-		gfx->blt(x, y, wx_bm->width(),wx_bm->height());
+		gfx->blt(x, y, wx_bm->width(),wx_bm->height(), 0, 0);
 
 		if ( create_new_bm )
 		    ins_text_bitmap( bm_key, wx_bm );

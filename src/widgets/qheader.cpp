@@ -141,8 +141,8 @@ struct QHeaderData
   \brief The QHeader class provides a table header.
   \ingroup advanced
 
-  This class provides a table header as known from Spreadsheet-like
-  widgets. QHeader can be used vertically or horizontally (see setOrientation()).
+  This class provides a table header as known from spreadsheet-like widgets.
+  QHeader can be used vertically or horizontally (see setOrientation()).
 
   With addLabel() you can add sections, and with removeLabel() you can remove
   them. If you enabled clicking for one or all sections (see setClickEnabled()),

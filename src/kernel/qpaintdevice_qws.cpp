@@ -276,8 +276,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	}
     }
     mygfx->setSource(src);
-    mygfx->setSourceOffset(sx,sy);
-    mygfx->blt(dx,dy,sw,sh);
+    mygfx->blt(dx,dy,sw,sh,sx,sy);
 
     delete mygfx;
 }

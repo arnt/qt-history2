@@ -54,15 +54,22 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <errno.h>
-#include <sys/mount.h>
+
+#ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
+#include <sys/mount.h>
+#endif
 #include <signal.h>
 #include <fcntl.h>
+
+#ifndef QT_NO_SOUND
+#include <sys/ioctl.h>
 #include <sys/soundcard.h>
+#endif
 
 #include <qgfx_qws.h>
 
@@ -96,10 +103,10 @@ static int get_object_id()
 QWSClient::QWSClient( QObject* parent, int socket )
     : QObject( parent), s(socket), command(0)
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( socket == -1 ) {
 	csocket = 0;
 	isClosed = FALSE;
-
     } else {
 	csocket = new QWSSocket( this );
 	csocket->setSocket(socket);
@@ -118,6 +125,9 @@ QWSClient::QWSClient( QObject* parent, int socket )
 	connect( csocket, SIGNAL(connectionClosed()), this, SLOT(closeHandler()) );
 	connect( csocket, SIGNAL(error(int)), this, SLOT(errorHandler(int)) );
     }
+#else
+    isClosed = FALSE;
+#endif //QT_NO_QWS_MULTIPROCESS    
 }
 
 QWSClient::~QWSClient()
@@ -134,6 +144,7 @@ void QWSClient::closeHandler()
 void QWSClient::errorHandler( int err )
 {
     QString s = "Unknown";
+#ifndef QT_NO_QWS_MULTIPROCESS
     switch( err ) {
     case QWSSocket::ErrConnectionRefused:
 	s = "Connection Refused";
@@ -145,10 +156,13 @@ void QWSClient::errorHandler( int err )
 	s = "Socket Read";
 	break;
     }
+#endif    
     qDebug( "Client %p error %d (%s)", this, err, s.ascii() );
     isClosed = TRUE;
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush(); //####We need to clean out the pipes, this in not the the way.
+#endif
     emit connectionClosed();
 }
 
@@ -159,10 +173,14 @@ int QWSClient::socket() const
 
 void QWSClient::sendEvent( QWSEvent* event )
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket ) {
 	event->write( csocket );
 	csocket->flush();
-    } else {
+    } 
+    else 
+#endif
+    {
 	qt_client_enqueue( event );
     }
 }
@@ -546,12 +564,17 @@ static void ignoreSignal( int )
 
 QWSServer::QWSServer( int displayId, int flags,
 		      QObject *parent, const char *name ) :
+#ifndef QT_NO_QWS_MULTIPROCESS
     QWSServerSocket(QString(QTE_PIPE).arg(displayId),16,parent,name),
+#else
+    QObject( parent, name ),
+#endif
     disablePainting(false)
 {
     ASSERT( !qwsServer );
     qwsServer = this;
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     QString pipe = QString(QTE_PIPE).arg(displayId);
 
     if ( !ok() ) {
@@ -565,7 +588,7 @@ QWSServer::QWSServer( int displayId, int flags,
     }
 
     signal(SIGPIPE, ignoreSignal); //we get it when we read
-
+#endif
     focusw = 0;
     mouseGrabber = 0;
     mouseGrabbing = FALSE;
@@ -574,6 +597,8 @@ QWSServer::QWSServer( int displayId, int flags,
     nextCursor = 0;
 #endif
 
+    //#################### remove shmem from NO_MULTIPROCESS 
+    
     if ( !geteuid() ) {
 	if(mount(0,"/var/shm","shm",0,0)) {
 	    /* This just confuses people with 2.2 kernels
@@ -622,7 +647,7 @@ QWSServer::~QWSServer()
     closeKeyboard();
 #endif
 }
-
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSServer::newConnection( int socket )
 {
     client[socket] = new QWSClient(this,socket);
@@ -697,11 +722,12 @@ void QWSServer::clientClosed()
     exposeRegion( exposed );
     syncRegions();
 }
-
+#endif //QT_NO_QWS_MULTIPROCESS
 
 
 QWSCommand* QWSClient::readMoreCommand()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket ) {
 	// read next command
 	if ( !command ) {
@@ -723,9 +749,13 @@ QWSCommand* QWSClient::readMoreCommand()
 
 	// Not finished reading a whole command.
 	return 0;
-    } else {
+    } 
+    else 
+#endif    
+    {
 	return qt_get_server_queue()->dequeue();
     }
+    
 }
 
 
@@ -737,7 +767,7 @@ void QWSServer::processEventQueue()
 }
 
 
-
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSServer::doClient()
 {
     static bool active = FALSE;
@@ -750,6 +780,7 @@ void QWSServer::doClient()
     doClient( client );
     active = FALSE;
 }
+#endif
 
 void QWSServer::doClient( QWSClient *client )
 {
@@ -915,6 +946,9 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	qwsServer->mouseGrabber = win;
     }
 
+    QPoint cursPos = qt_screen->mapFromDevice( pos,
+			QSize(qwsServer->swidth, qwsServer->sheight) );
+
     event.simpleData.x_root=pos.x();
     event.simpleData.y_root=pos.y();
     event.simpleData.state=state;
@@ -939,14 +973,14 @@ QMouseHandler *QWSServer::mouseHandler()
     return qwsServer->mousehandlers.first();
 }
 
-QList<QWSInternalWindowInfo> QWSServer::windowList()
+QList<QWSInternalWindowInfo> * QWSServer::windowList()
 {
-    QList<QWSInternalWindowInfo> ret;
-    ret.setAutoDelete(true);
+    QList<QWSInternalWindowInfo> * ret=new QList<QWSInternalWindowInfo>;
+    ret->setAutoDelete(true);
     QWSWindow * window;
     for(window=qwsServer->windows.first();window!=0;
 	window=qwsServer->windows.next()) {
-	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo;
+	QWSInternalWindowInfo * qwi=new QWSInternalWindowInfo();
 	qwi->winid=window->winId();
 	qwi->clientid=(unsigned int)window->client();
 #ifndef QT_NO_QWS_PROPERTIES
@@ -955,12 +989,21 @@ QList<QWSInternalWindowInfo> QWSServer::windowList()
 	qwsServer->propertyManager.getProperty(qwi->winid,
 					       QT_QWS_PROPERTY_WINDOWNAME,
 					       name,len);
-	qwi->name=name;
+	if(name) {
+	    char * buf=(char *)malloc(len+2);
+	    strncpy(buf,name,len);
+	    buf[len]=0;
+	    qwi->name=buf;
+	    free(buf);
+	} else {
+	    qwi->name="unknown";
+	}
 #else
 	qwi->name="unknown";
 #endif
-	ret.append(qwi);
+	ret->append(qwi);
     }
+
     return ret;
 }
 
@@ -1144,17 +1187,20 @@ void QWSServer::invokeSetAltitude( const QWSChangeAltitudeCommand *cmd,
 	qWarning("Invalid window handle %08x", winId);
 	return;
     }
-    if ( !changingw->forClient(client) ) {
-       qWarning("Disabled: clients changing other client's altitude");
-       return;
-    }
+
     changingw->setNeedAck( TRUE );
+
     if ( fixed && alt == 0)
 	changingw->onTop = TRUE;
     if ( alt < 0 )
 	lowerWindow( changingw, alt );
     else
 	raiseWindow( changingw, alt );
+    
+    if ( !changingw->forClient(client) ) {
+	refresh();
+    }
+    
 }
 #ifndef QT_NO_QWS_PROPERTIES
 void QWSServer::invokeAddProperty( QWSAddPropertyCommand *cmd )
@@ -1171,7 +1217,7 @@ void QWSServer::invokeSetProperty( QWSSetPropertyCommand *cmd )
 				    cmd->rawLen ) ) {
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyNewValue );
-   } 
+   }
 }
 
 void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
@@ -1180,13 +1226,14 @@ void QWSServer::invokeRemoveProperty( QWSRemovePropertyCommand *cmd )
 				       cmd->simpleData.property ) ) {
 	sendPropertyNotifyEvent( cmd->simpleData.property,
 				 QWSPropertyNotifyEvent::PropertyDeleted );
-    } 
+    }
 }
 
 void QWSServer::invokeGetProperty( QWSGetPropertyCommand *cmd, QWSClient *client )
 {
     char *data;
     int len;
+
     if ( manager()->getProperty( cmd->simpleData.windowid,
 				    cmd->simpleData.property,
 				    data, len ) ) {
@@ -1508,10 +1555,16 @@ void QWSServer::moveWindowRegion( QWSWindow *changingw, int dx, int dy )
     // safe to blt now
     QRegion cr( changingw->allocation() );
     cr &= oldAlloc;
+
+    QSize s = QSize(swidth, sheight);
+    cr = qt_screen->mapFromDevice( cr, s );
+    QPoint p1 = qt_screen->mapFromDevice( QPoint(0, 0), s );
+    QPoint p2 = qt_screen->mapFromDevice( QPoint(dx, dy), s );
+    
     QRect br( cr.boundingRect() );
     gfx->setClipRegion( cr );
     gfx->scroll( br.x(), br.y(), br.width(), br.height(),
-		 br.x() - dx, br.y() - dy );
+		 br.x() - (p2.x() - p1.x()), br.y() - (p2.y() - p1.y()) );
     gfx->setClipRegion( screenRegion );
     QWSDisplay::ungrab();
 /*
@@ -1751,8 +1804,8 @@ void QWSServer::openDisplay()
     qt_init_display();
 
     rgnMan = qt_fbdpy->regionManager();
-    swidth = qt_screen->width();
-    sheight = qt_screen->height();
+    swidth = qt_screen->deviceWidth();
+    sheight = qt_screen->deviceHeight();
     gfx = qt_screen->screenGfx();
 }
 
@@ -1772,29 +1825,14 @@ void QWSServer::paintBackground( QRegion r )
     if ( !r.isEmpty() ) {
 	ASSERT ( qt_fbdpy );
 
+	r = qt_screen->mapFromDevice( r, QSize(swidth, sheight) );
+
 	gfx->setClipRegion( r );
 	QRect br( r.boundingRect() );
 	if ( bgImage.isNull() ) {
-	    /*
-	    uint col = 0x20b050;
-	    if (qt_screen->depth() == 16) {
-		//### manual color allocation
-		int r = (col & 0xff0000) >> 16;
-		int g = (col & 0x00ff00) >> 8;
-		int b = (col & 0x0000ff);
-		r=r >> 3;
-		g=g >> 2;
-		b=b >> 3;
-		r=r << 11;
-		g=g << 5;
-		col = r | g | b;
-	    }
-	    gfx->setBrush(QBrush(QColor(col, col)));
-	    */
 	    QColor col(0x20, 0xb0, 0x50);
 	    gfx->setBrush(QBrush(col));
-	    gfx->setPen(QPen::NoPen);
-	    gfx->drawRect( br.x(), br.y(), br.width(), br.height() );
+	    gfx->fillRect( br.x(), br.y(), br.width(), br.height() );
 	} else {
 	    gfx->setSource( &bgImage );
 	    gfx->tiledBlt( br.x(), br.y(), br.width(), br.height() );

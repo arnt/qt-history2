@@ -40,7 +40,7 @@
 
 // This needs to be a multiple of 64 bits
 
-class QGlyphMetrics {
+class Q_PACKED QGlyphMetrics {
 
 public:
     Q_UINT8 linestep;
@@ -51,7 +51,8 @@ public:
     Q_INT8 bearingx;      // Difference from pen position to glyph's left bbox
     Q_UINT8 advance;       // Difference between pen positions
     Q_INT8 bearingy;      // Used for putting characters on baseline
-    Q_INT8 reserved;
+
+    Q_INT8 reserved;      // Do not use
 };
 
 class QGlyph {

@@ -591,9 +591,11 @@ void QApplication::construct( int &argc, char **argv, Type type )
     }
     qt_init( &argc, argv, type );   // Must be called before initialize()
     process_cmdline( &argc, argv );
+
 #if defined(QT_THREAD_SUPPORT)
     qt_mutex = new QMutex(TRUE);
 #endif
+
     initialize( argc, argv );
 }
 

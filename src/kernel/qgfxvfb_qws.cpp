@@ -111,10 +111,10 @@ public:
     virtual void drawPoint( int,int );
     virtual void drawPoints( const QPointArray &,int,int );
     virtual void drawLine( int,int,int,int );
-    virtual void drawRect( int,int,int,int );
+    virtual void fillRect( int,int,int,int );
     virtual void drawPolyline( const QPointArray &,int,int );
     virtual void drawPolygon( const QPointArray &,bool,int,int );
-    virtual void blt( int,int,int,int );
+    virtual void blt( int,int,int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
@@ -163,11 +163,11 @@ void QGfxVFb<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
 }
 
 template <const int depth, const int type>
-void QGfxVFb<depth,type>::drawRect( int x,int y,int w,int h )
+void QGfxVFb<depth,type>::fillRect( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
     qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
-    QGfxRaster<depth,type>::drawRect( x, y, w, h );
+    QGfxRaster<depth,type>::fillRect( x, y, w, h );
     QWSDisplay::ungrab();
 }
 
@@ -190,11 +190,11 @@ void QGfxVFb<depth,type>::drawPolygon( const QPointArray &pa,bool w,int x,int y 
 }
 
 template <const int depth, const int type>
-void QGfxVFb<depth,type>::blt( int x,int y,int w,int h )
+void QGfxVFb<depth,type>::blt( int x,int y,int w,int h, int sx, int sy )
 {
     QWSDisplay::grab( TRUE );
     qvfb_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) );
-    QGfxRaster<depth,type>::blt( x, y, w, h );
+    QGfxRaster<depth,type>::blt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
 
@@ -260,8 +260,8 @@ bool QVFbScreen::connect( const QString & )
     hdr = (QVFbHeader *) shmrgn;
     data = shmrgn + hdr->dataoffset;
 
-    w = hdr->width;
-    h = hdr->height;
+    dw = w = hdr->width;
+    dh = h = hdr->height;
     d = hdr->depth;
     lstep = hdr->linestep;
 

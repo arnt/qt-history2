@@ -82,7 +82,7 @@
 // AIX 4.3 says pthread_mutexattr_setkind_np is provided for compatibility, so
 // we assume that all versions of AIX have it (probably not the best thing to do)
 #  define Q_HAS_RECURSIVE_MUTEX
-#  define Q_USE_PTHREAD_MUTEX_SETKIND
+#  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  define Q_NORMAL_MUTEX_TYPE MUTEX_NONRECURSIVE_NP
 #  define Q_RECURSIVE_MUTEX_TYPE MUTEX_RECURSIVE_NP
 #elif defined(_OS_HPUX_)
@@ -1367,7 +1367,7 @@ int QSemaphore::operator+=(int n)
 
 
 /*!
-  Release \n accesses to the semaphore.
+  Release \a n accesses to the semaphore.
  */
 int QSemaphore::operator-=(int n)
 {

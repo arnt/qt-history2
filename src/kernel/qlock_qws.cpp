@@ -28,6 +28,7 @@
 **********************************************************************/
 
 #include "qlock_qws.h"
+#ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/types.h>
 #include <sys/sem.h>
 #include <sys/ipc.h>
@@ -54,8 +55,11 @@ public:
     int count;
 };
 
+#endif
+
 QLock::QLock( const QString &filename, char id, bool create )
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     data = new QLockData;
     data->count = 0;
     int semkey = ftok(filename, id);
@@ -73,22 +77,30 @@ QLock::QLock( const QString &filename, char id, bool create )
 	    create ? "create" : "get", filename.latin1(), id );
 	qDebug("Error %d %s\n",errno,strerror(errno));
     }
+#endif
 }
 
 QLock::~QLock()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( locked() )
 	unlock();
     delete data;
+#endif
 }
 
 bool QLock::isValid() const
 {
+#ifndef QT_NO_QWS_MULTIPROCESS    
     return (data->id != -1);
+#else
+    return TRUE;
+#endif
 }
 
 void QLock::lock( Type t )
 {
+#ifndef QT_NO_QWS_MULTIPROCESS    
     if ( !data->count ) {
 	sembuf sops;
 	sops.sem_num = 0;
@@ -110,10 +122,12 @@ void QLock::lock( Type t )
 	} while ( rv == -1 && errno == EINTR );
     }
     data->count++;
+#endif
 }
 
 void QLock::unlock()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS    
     if ( data->count ) {
 	data->count--;
 	if ( !data->count ) {
@@ -136,10 +150,15 @@ void QLock::unlock()
     } else {
 	qDebug("Unlock without corresponding lock");
     }
+#endif
 }
 
 bool QLock::locked() const
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     return (data->count > 0);
+#else
+    return FALSE;
+#endif    
 }
 

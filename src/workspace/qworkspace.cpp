@@ -928,8 +928,10 @@ void QWorkspace::resizeEvent( QResizeEvent * )
 void QWorkspace::showEvent( QShowEvent *e )
 {
     QWidget::showEvent( e );
-    if ( d->becomeActive )
+    if ( d->becomeActive ) {
 	activateWindow( d->becomeActive );
+	d->becomeActive = 0;
+    }
     else if ( d->windows.count() > 0 && !d->active )
 	activateWindow( d->windows.first()->windowWidget() );
 }
@@ -1058,6 +1060,8 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     switch ( e->type() ) {
     case QEvent::Hide:
     case QEvent::HideToParent:
+	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() )
+	    break; 
 	d->focus.removeRef( (QWorkspaceChild*)o );
 	if ( d->focus.isEmpty() )
 	    d->active = 0;
@@ -2079,6 +2083,7 @@ void QWorkspaceChild::mouseReleaseEvent( QMouseEvent * e)
 	buttonDown = FALSE;
 	releaseMouse();
 	releaseKeyboard();
+	setCursor( arrowCursor );
     }
 }
 

@@ -407,6 +407,45 @@ QImage::QImage( uchar* yourdata, int w, int h, int depth,
     data->bitordr = bitOrder;
 }
 
+#ifdef _WS_QWS_
+
+/*!
+  Constructs an image that uses an existing memory buffer.
+  The buffer must remain valid for the life of the QImage.  The image
+  will not delete the buffer at destruction.
+
+  \a bpl specifies the number of bytes per line.
+
+  If colortable is 0, a color table sufficient for \a numColors will be
+  allocated (and destructed later).
+*/
+QImage::QImage( uchar* yourdata, int w, int h, int depth,
+		int bpl, QRgb* colortable, int numColors,
+		Endian bitOrder )
+{
+    init();
+    data->w = w;
+    data->h = h;
+    data->d = depth;
+    data->ncols = numColors;
+    data->nbytes = bpl * h;
+    if ( colortable || !numColors ) {
+	data->ctbl = colortable;
+	data->ctbl_mine = FALSE;
+    } else {
+	// calloc since we realloc, etc. later (ick)
+        data->ctbl = (QRgb*)calloc( numColors*sizeof(QRgb), numColors );
+	data->ctbl_mine = TRUE;
+    }
+    uchar** jt = (uchar**)malloc(h*sizeof(uchar*));
+    for (int j=0; j<h; j++) {
+	jt[j] = yourdata+j*bpl;
+    }
+    data->bits = jt;
+    data->bitordr = bitOrder;
+}
+#endif
+
 /*!
   Destructs the image and cleans up.
 */
@@ -5343,7 +5382,9 @@ QGfx * QImage::graphicsContext()
 {
     QGfx * ret=0;
     if(depth()) {
-	ret=QGfx::createGfx(depth(),bits(),width(),height(),bytesPerLine());
+	int w = qt_screen->mapToDevice( QSize(width(),height()) ).width();
+	int h = qt_screen->mapToDevice( QSize(width(),height()) ).height();
+	ret=QGfx::createGfx(depth(),bits(),w,h,bytesPerLine());
     } else {
 	qDebug("Trying to create image for null depth");
 	return 0;

@@ -2701,11 +2701,11 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    else // #### should use 16-bit stuff here
 		tmpC=p[1].str->local8Bit();
 	    uint spaces = 0;
-	    while( spaces < tmpC.length() && tmpC[spaces] == ' ' )
+	    while( spaces < tmpC.length() && tmpC[(int)spaces] == ' ' )
 		spaces++;
 	    if ( spaces )
 		tmpC = tmpC.mid( spaces, tmpC.length() );
-	    while ( tmpC.length() > 0 && isspace(tmpC[tmpC.length()-1]) )
+	    while ( tmpC.length() > 0 && isspace(tmpC[(int)tmpC.length()-1]) )
 		tmpC.truncate( tmpC.length()-1 );
 	    char *tmp = new char[tmpC.length()*2 + 2];
 #if defined(CHECK_NULL)

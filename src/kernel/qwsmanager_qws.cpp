@@ -569,7 +569,10 @@ void QWSManager::paintEvent(QPaintEvent *)
 	QWSDisplay::grab();
 	int *rgnRev = qt_fbdpy->regionManager()->revision( rgnIdx );
 	if ( managed->alloc_region_revision != *rgnRev ) {
-	    r &= qt_fbdpy->regionManager()->region( rgnIdx );
+	    QRegion newRegion = qt_fbdpy->regionManager()->region( rgnIdx );
+	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	    newRegion = qt_screen->mapFromDevice( newRegion, s );
+	    r &= newRegion;
 	}
 	painter.internalGfx()->setGlobalRegionIndex( rgnIdx );
 	QWSDisplay::ungrab();

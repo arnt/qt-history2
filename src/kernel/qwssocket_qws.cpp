@@ -29,6 +29,8 @@
 
 #include "qwssocket_qws.h"
 
+#ifndef QT_NO_QWS_MULTIPROCESS
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -125,3 +127,4 @@ QWSServerSocket::QWSServerSocket( const QString& file, int backlog, QObject *par
 QWSServerSocket::~QWSServerSocket()
 {
 }
+#endif  //QT_NO_QWS_MULTIPROCESS

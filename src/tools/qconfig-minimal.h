@@ -23,8 +23,7 @@
 #define QT_NO_QWS_DEPTH_16
 #define QT_NO_QWS_DEPTH_32
 #define QT_NO_QWS_GFX_SPEED
-#define QT_NO_DNS
-#define QT_NO_NETWORKPROTOCOL
+#define QT_NO_NETWORK
 #define QT_NO_COLORNAMES
 #define QT_NO_TRANSFORMATIONS
 #define QT_NO_PRINTER
@@ -46,3 +45,6 @@
 #define QT_NO_STYLE
 #define QT_NO_IMAGEIO_MNG
 #define QT_NO_EFFECTS
+#define QT_NO_QWS_MACH64
+#define QT_NO_QWS_VOODOO3
+#define QT_NO_QWS_MATROX

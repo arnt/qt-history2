@@ -1575,58 +1575,48 @@ QCString QFont_Private::bestFamilyMember( const QString& foundry,
 // Font Guessing
 bool QFont_Private::fontmapping(const QString& filename)
 {
+    QStringList chsetlst;
 
-	QStringList chsetlst;
-
-	QFile f( filename );
-	if( f.open( IO_ReadOnly ) ){
-		QTextStream t( &f );
-		QString s;
-		while( !t.eof() ){
-  			s = t.readLine();
-
-	  		if (s != NULL && s[0] == '#') continue;
-
-	  		if( s.contains( '[' ) ) {
-				QRegExp sep("[][]");
-				chsetlst = QStringList::split(sep, s);
-	  		}
-	  		else {	  
-				QStringList familylst;
-				QRegExp sep("[ =\t]");
-				familylst = QStringList::split(sep, s);
-				
-	    		if( !chsetlst.isEmpty() && !familylst.isEmpty()){
-					
-					if(!fontGuessingList)
-						fontGuessingList =  new QList<FontGuessingPair>;
-
-					FontGuessingPair *fontGuessingPair;
-
-					fontGuessingPair = new FontGuessingPair;	
-					
-	      			fontGuessingPair->charset = chsetlst;
-	      			fontGuessingPair->family = familylst;
-
-					fontGuessingList->append(fontGuessingPair);
+    QFile f( filename );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream t( &f );
+	QString s;
+	while ( !t.eof() ) {
+  	    s = t.readLine();
+	    if ( s.isEmpty() || s[0] == '#' )
+	        continue;
+	    if ( s.contains('[') ) {
+		QRegExp sep( "[][]" );
+		chsetlst = QStringList::split( sep, s );
+	    } else {
+		QStringList familylst;
+		QRegExp sep( "[ =\t]" );
+		familylst = QStringList::split( sep, s );
+		if ( !chsetlst.isEmpty() && !familylst.isEmpty() ) {
+		    if ( !fontGuessingList )
+			fontGuessingList = new QList<FontGuessingPair>;
+		    FontGuessingPair *fontGuessingPair;
+		    fontGuessingPair = new FontGuessingPair;	
+		    fontGuessingPair->charset = chsetlst;
+		    fontGuessingPair->family = familylst;
+		    fontGuessingList->append(fontGuessingPair);
 #if DBG // to debug
-	      	printf("charset = [%s], from = [%s], to = [%s]\n", 
+		    printf( "charset = [%s], from = [%s], to = [%s]\n", 
 		  		fontGuessingPair->charset[0].ascii(),
-		  		fontGuessingPair->family[1].ascii());
+		  		fontGuessingPair->family[1].ascii() );
 #endif
-	    		}
-	  		}
-		} /* while */
-		f.close();
-		return TRUE;		
-	} 
-      	else return FALSE;
+		}
+	    }
+	} /* while */
+	f.close();
+	return TRUE;		
+    } else
+	return FALSE;
 }
 
 QCString QFont_Private::bestMatchFontSetMember( const QString& family,
 		const char *wt, const char *slant, int size, int xdpi, int ydpi )
 {
-    /* for Font Guessing */
     static int read = 0;
 
     if ( !read ) {
@@ -1639,29 +1629,30 @@ QCString QFont_Private::bestMatchFontSetMember( const QString& family,
         fontmapping(filename);
     }
 
-	QCString bestName;
+    QCString bestName;
 
-	if(fontGuessingList) {
-		FontGuessingPair *fontGuessingPair = fontGuessingList->first();
-		while(fontGuessingPair) {
-			if( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
-				for(int i = 0; i < (int)fontGuessingPair->family.count() - 1; i++) {
-					char s[1024];
-					sprintf(s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
-					fontGuessingPair->family[i+1].latin1(),		
-					wt, slant, size, xdpi, ydpi, fontGuessingPair->charset[i].latin1());
-					bestName.append(s);	
-				}
-				return bestName;
-			}
-			fontGuessingPair =  fontGuessingList->next();
+    if ( fontGuessingList ) {
+	FontGuessingPair *fontGuessingPair = fontGuessingList->first();
+	while ( fontGuessingPair ) {
+	    if ( qstricmp(family, fontGuessingPair->family[0]) == 0 ) {
+		for ( int i = 0; i < (int)(fontGuessingPair->family.count())-1; ++i ) {
+		    char s[1024];
+		    sprintf( s, "-*-%s-%s-%s-*-*-*-%d-%d-%d-*-*-%s,",
+				fontGuessingPair->family[i+1].latin1(),		
+				wt, slant, size, xdpi, ydpi,
+				fontGuessingPair->charset[i].latin1() );
+				bestName.append(s);	
 		}
+		return bestName;
+	    }
+	    fontGuessingPair = fontGuessingList->next();
 	}
+    }
 
     // default font
-	bestName.sprintf("-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,",
-				wt, slant, size, xdpi, ydpi);
-	return bestName;
+    bestName.sprintf("-*-helvetica-%s-%s-*-*-*-%d-%d-%d-*-*-*-*,",
+		wt, slant, size, xdpi, ydpi);
+    return bestName;
 }
 
 // Font Guessing end
@@ -1748,7 +1739,7 @@ QCString QFont_Private::findFont( bool *exact )
 	if ( !(score & NonUnicodeScore) )
 	    setCharSet( Unicode );
 
-	if( score < CharSetScore ) {
+	if ( score < CharSetScore ) {
 	    QString f = substitute( family() );
 	    if( familyName != f ) {
 		familyName = f;                     // try substitution
@@ -1757,7 +1748,7 @@ QCString QFont_Private::findFont( bool *exact )
 	}
 	if ( score < CharSetScore ) {
 	    QString f = defaultFamily();
-	    if( familyName != f ) {
+	    if ( familyName != f ) {
 		familyName = f;			// try default family for style
 		bestName = bestFamilyMember( foundry, familyName, &score );
 	    }
@@ -1904,7 +1895,7 @@ int QFontMetrics::descent() const
     return printerAdjusted(DESCENT(ext->max_ink_extent,ext->max_logical_extent));
 }
 
-inline bool inFont(XFontStruct *f, QChar ch )
+inline bool inFont(XFontStruct *f, QChar ch)
 {
     if ( f->max_byte1 ) {
 	return ch.cell() >= f->min_char_or_byte2
@@ -1928,7 +1919,7 @@ bool QFontMetrics::inFont(QChar ch) const
 {
     XFontStruct *f = FS;
     if ( f && !mapper() ) {
-	return ::inFont(f,ch);
+	return ::inFont( f, ch );
     } else if ( mapper() ) {
 	return mapper()->canEncode(ch);
     }

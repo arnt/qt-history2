@@ -3874,7 +3874,7 @@ void QFileDialog::setMode( Mode newMode )
 	QUrlInfo f( d->url, "." );
 	trySetSelection( f.isDir(), d->url, TRUE );
     }
-    
+
     QString okt = mode() == AnyFile ? tr("Save") : tr("Open");
     okB->setText( okt );
 }

@@ -36,10 +36,10 @@
 
 /********************************************************************
  *
- * Convinient socket functions
+ * Convenient socket functions
  *
  ********************************************************************/
-
+#ifndef QT_NO_QWS_MULTIPROCESS
 inline int qws_read_uint( QWSSocket *socket )
 {
     if ( !socket || socket->size() < sizeof( int ) )
@@ -58,5 +58,5 @@ inline void qws_write_uint( QWSSocket *socket, int i )
 
     socket->writeBlock( (char*)&i, sizeof( i ) );
 }
-
+#endif //QT_NO_QWS_MULTIPROCESS
 #endif

@@ -1334,7 +1334,7 @@ void QTable::setItem( int row, int col, QTableItem *item )
     item->updateEditor( orow, ocol );
 }
 
-/*!  Removes the QTableItem in position \p row, \a col.
+/*!  Removes the QTableItem in position \a row, \a col.
 */
 
 void QTable::clearCell( int row, int col )
@@ -1591,7 +1591,7 @@ QTableSelection QTable::selection( int num ) const
  number or -1 if the selection is invalid. Don't forget
  to call QTableSelection::init() and
  QTableSelection::expandTo() to make it valid (see also
- QTableSelection::isValid()).
+ QTableSelection::isActive()).
 */
 
 int QTable::addSelection( const QTableSelection &s )
@@ -3168,7 +3168,8 @@ void QTable::insertWidget( int row, int col, QWidget *w )
     widgets.insert( indexOf( row, col ), w );
 }
 
-/*!  Returns the widget which has been set to the cell \a row, \a col
+/*!
+  Returns the widget which has been set to the cell \a row, \a col
   of 0 if there is no widget.
 */
 
@@ -3183,8 +3184,8 @@ QWidget *QTable::cellWidget( int row, int col ) const
     return widgets[ indexOf( row, col ) ];
 }
 
-/*!  Removes the widget (if there is any) which is set for the cell \a
-  row, \a col.
+/*!
+  Removes the widget (if there is any) which is set for the cell \a row, \a col.
 */
 
 void QTable::clearCellWidget( int row, int col )

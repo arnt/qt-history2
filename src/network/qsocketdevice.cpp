@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#4 $
+** $Id: //depot/qt/main/src/network/qsocketdevice.cpp#5 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -36,6 +36,8 @@
 **********************************************************************/
 
 #include "qsocketdevice.h"
+#ifndef QT_NO_NETWORK
+
 #include "qwindowdefs.h"
 #include <string.h>
 
@@ -495,3 +497,4 @@ void QSocketDevice::setError( Error err )
 {
     e = err;
 }
+#endif //QT_NO_NETWORK

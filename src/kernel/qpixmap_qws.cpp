@@ -194,7 +194,10 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	}
     }
 
-    data->id=memorymanager->newPixmap(w,h,data->d);
+    data->rw = qt_screen->mapToDevice( QSize(w,h) ).width();
+    data->rh = qt_screen->mapToDevice( QSize(w,h) ).height();
+
+    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d);
 }
 
 
@@ -224,6 +227,8 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     data->w = w;
     data->h = h;
     data->d = 1;
+    data->rw = qt_screen->mapToDevice( QSize(w,h) ).width();
+    data->rh = qt_screen->mapToDevice( QSize(w,h) ).height();
     uchar *flipped_bits;
     if ( isXbitmap ) {
 	flipped_bits = 0;
@@ -231,10 +236,20 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	flipped_bits = flip_bits( bits, ((w+7)/8)*h );
 	bits = flipped_bits;
     }
-    data->id=memorymanager->newPixmap(data->w,data->h,data->d);
+
+    if ( qt_screen->isTransformed() ) {
+	QImage img( (uchar *)bits, w, h, 1, 0, 0, QImage::BigEndian );
+	img = qt_screen->mapToDevice( img );
+	convertFromImage( img, MonoOnly );
+	if ( flipped_bits )
+	    delete [] flipped_bits;
+	return;
+    }
+
+    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d);
     uchar *dest;
     int xoffset,linestep;
-    memorymanager->findPixmap(data->id,data->w,data->d,&dest,&xoffset,&linestep);
+    memorymanager->findPixmap(data->id,data->rw,data->d,&dest,&xoffset,&linestep);
 
     ASSERT((xoffset&7) == 0); // if not, we need to fix this to do a bitblt
     dest += xoffset/8;
@@ -313,29 +328,30 @@ QImage QPixmap::convertToImage() const
 	return image;
     }
 
-    int	    w  = width();
-    int	    h  = height();
-    int	    d  = depth();
-    bool    mono = d == 1;
+    int w  = qt_screen->mapToDevice( QSize(width(), height()) ).width();
+    int h  = qt_screen->mapToDevice( QSize(width(), height()) ).height();
+    int	d  = depth();
+    bool mono = d == 1;
+
 
     if(d==15 || d==16)
 	d=32;
 
-// We can only create little-endian pixmaps
-
+    // We can only create little-endian pixmaps
     image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian );//####### endianness
 
     QGfx * mygfx=image.graphicsContext();
     if(mygfx) {
 	mygfx->setSource(this);
-	mygfx->setSourceOffset(0,0);
 	mygfx->setAlphaType(QGfx::IgnoreAlpha);
 	mygfx->setLineStep(image.bytesPerLine());
-	mygfx->blt(0,0,w,h);
+	mygfx->blt(0,0,width(),height(),0,0);
     } else {
         qFatal("No image gfx for convertToImage!");
     }
     delete mygfx;
+
+    image = qt_screen->mapFromDevice( image );
 
     if ( mono ) {				// bitmap
 	image.setNumColors( 2 );
@@ -432,6 +448,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     	dd=32;
     }
 
+    QImage rimg = qt_screen->mapToDevice( image );
+
     // detach other references and re-init()
     bool ibm = isQBitmap();
     detach();
@@ -440,9 +458,8 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 
     QGfx * mygfx=graphicsContext();
     mygfx->setAlphaType(QGfx::IgnoreAlpha);
-    mygfx->setSource(&image);
-    mygfx->setSourceOffset(0,0);
-    mygfx->blt(0,0,data->w,data->h);
+    mygfx->setSource(&rimg);
+    mygfx->blt(0,0,data->w,data->h,0,0);
     delete mygfx;
 
     if ( image.hasAlphaBuffer() ) {
@@ -466,8 +483,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 	QGfx *gfx=pm.graphicsContext();
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
 	gfx->setSource(widget);
-	gfx->setSourceOffset(x,y);
-	gfx->blt(0,0,w,h);
+	gfx->blt(0,0,w,h,x,y);
 	delete gfx;
     }
     return pm;
@@ -531,7 +547,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	QPixmap pm( w, h, depth(), NormalOptim );
 	QGfx * mygfx=pm.graphicsContext();
 	mygfx->setSource(this);
-	mygfx->setSourceOffset(0,0);
 	mygfx->setAlphaType(QGfx::IgnoreAlpha);
 	mygfx->stretchBlt(0,0,w,h,ws,hs);
 	delete mygfx;
@@ -560,16 +575,32 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	return pm;
     }
 
-    sptr=scanLine(0);
-    sbpl=bytesPerLine();
+    QImage srcImg;
+    if ( qt_screen->isTransformed() ) {
+	srcImg = convertToImage();
+	sptr=srcImg.scanLine(0);
+	sbpl=srcImg.bytesPerLine();
+    } else {
+	sptr=scanLine(0);
+	sbpl=bytesPerLine();
+    }
     ws=width();
     hs=height();
 
-    QPixmap pm( w, h, depth(), data->bitmap, NormalOptim );
+    QImage destImg;
+    QPixmap pm( 1, 1, depth(), data->bitmap, NormalOptim );
     pm.data->uninit = FALSE;
-    dptr=pm.scanLine(0);
-    dbpl=pm.bytesPerLine();
-    bpp=pm.depth();
+    if ( qt_screen->isTransformed() ) {
+	destImg.create( w, h, srcImg.depth(), srcImg.numColors(), srcImg.bitOrder() );
+	dptr=destImg.scanLine(0);
+	dbpl=destImg.bytesPerLine();
+	bpp=destImg.depth();
+    } else {
+	pm.resize( w, h );
+	dptr=pm.scanLine(0);
+	dbpl=pm.bytesPerLine();
+	bpp=pm.depth();
+    }
 
     dbytes = dbpl*h;
 
@@ -578,7 +609,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     else if ( bpp == 8 )
 	memset( dptr, white.pixel(), dbytes );
     else if ( bpp == 32 ) {
-	pm.fill( 0x00FFFFFF );
+	if ( qt_screen->isTransformed() )
+	    destImg.fill( 0x00FFFFFF );
+	else
+	    pm.fill( 0x00FFFFFF );
     } else
 	memset( dptr, 0xff, dbytes );
 
@@ -693,6 +727,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	p += p_inc;
     }
 
+    if ( qt_screen->isTransformed() ) {
+	pm.convertFromImage( destImg );
+    }
+
     if ( depth1 ) {
 	if ( data->mask ) {
 	    if ( data->selfmask )               // pixmap == mask
@@ -745,7 +783,7 @@ QGfx * QPixmap::graphicsContext() const
     }
     uchar * mydata;
     int xoffset,linestep;
-    memorymanager->findPixmap(data->id,data->w,data->d,&mydata,&xoffset,&linestep);
+    memorymanager->findPixmap(data->id,data->rw,data->d,&mydata,&xoffset,&linestep);
 
     QGfx * ret=QGfx::createGfx( depth(), mydata, data->w,data->h, linestep );
     if(data->d<=8) {
@@ -765,7 +803,7 @@ unsigned char * QPixmap::scanLine(int i) const
 {
     uchar * p;
     int xoffset,linestep;
-    memorymanager->findPixmap(data->id,data->w,data->d,&p,&xoffset,&linestep);
+    memorymanager->findPixmap(data->id,data->rw,data->d,&p,&xoffset,&linestep);
     p+=i*linestep;
     return p;
 }
@@ -774,7 +812,7 @@ int QPixmap::bytesPerLine() const
 {
     uchar * p;
     int xoffset,linestep;
-    memorymanager->findPixmap(data->id,data->w,data->d,&p,&xoffset,&linestep);
+    memorymanager->findPixmap(data->id,data->rw,data->d,&p,&xoffset,&linestep);
     return linestep;
 }
 

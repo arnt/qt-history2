@@ -376,7 +376,6 @@ void QMovieFilePrivate::updatePixmapFromImage(const QPoint& off,
 	    xh=xscale*((double)area.left());
 	    yh=yscale*((double)area.top());
 	    mygfx->setSource(&mypixmap);
-	    mygfx->setSourceOffset(0,0);
 	    mygfx->setAlphaType(QGfx::IgnoreAlpha);
 	    mygfx->stretchBlt(0,0,display_widget->width(),
 			      display_widget->height(),mypixmap.width(),

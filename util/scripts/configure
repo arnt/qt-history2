@@ -663,10 +663,10 @@ if [ "$HELP" = "yes" ]; then
     fi
 
     cat <<EOF
-Usage: $0 [-debug] [-release] [-gif] [-no-gif] [-sm] [-no-sm] \\
-        [-qt-zlib] [-system-zlib] [-qt-libpng] [-system-libpng] \\
-        [-no-jpeg] [-system-jpeg] [-no-thread] [-thread] [-kde] \\
-        [-Istring] [-lstring] [-Lstring] [-Rstring] [-no-<module>] \\
+Usage: $0 [-debug] [-release] [-shared] [-static] [-gif] [-no-gif] \\
+        [-sm] [-no-sm] [-thread] [-no-thread] [-qt-zlib] [-system-zlib] \\
+	[-qt-libpng] [-system-libpng] [-no-jpeg] [-system-jpeg] \\
+	[-no-<module>] [-kde] [-Istring] [-Lstring] [-Rstring] [-lstring]
 
 The defaults (*) are usually acceptable.  Here is a short explanation of
 each option:
@@ -706,6 +706,9 @@ each option:
     -system-nas-sound .. Use NAS libaudio from the operating system.
                          See http://radscan.com/nas.html
 
+    -no-<module> ....... Disables a module, where module can
+                         can be one of: $MODULES_HELP
+
     -kde ............... Builds the Qt Designer with KDE2 support, so that
 			 KDE2 widgets can be used directly in
 			 the Qt Designer. \$KDEDIR must be
@@ -723,9 +726,6 @@ each option:
     -Lstring ........... Add an explicit library path.
     -Rstring ........... Add an explicit dynamic library runtime search path.
     -lstring ........... Add an explicit library.
-
-    -no-<module> ....... Disables a module, where module can
-                         can be one of: $MODULES_HELP
 EOF
 
    [ "x$ERROR" = "xyes" ] && exit 1

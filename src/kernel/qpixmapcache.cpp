@@ -250,7 +250,6 @@ bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 
 /*!
   Inserts a copy of the pixmap \a pm associated with \a key into the cache.
-  Returns TRUE if successful, or FALSE if the pixmap is too big for the cache.
 
   All pixmaps inserted by the Qt library have a key starting with "$qt..".
   Use something else for your own pixmaps.

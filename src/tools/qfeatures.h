@@ -235,7 +235,49 @@
 # define QT_NO_PROPERTIES
 #endif
 
+
+
+// Networking
+
+/*!
+  Network support
+*/
+//#define QT_NO_NETWORK
+
+#if defined QT_NO_NETWORK
+   /*!
+     DNS
+   */
+# define QT_NO_DNS
+#endif
+/*!
+    Network file access
+*/
+#if defined(QT_NO_NETWORK) || defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
+# define QT_NO_NETWORKPROTOCOL
+#endif
+#if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
+    /*!
+	FTP file access
+    */
+# define QT_NO_NETWORKPROTOCOL_FTP
+    /*!
+	HTTP file access
+    */
+# define QT_NO_NETWORKPROTOCOL_HTTP
+#endif
+
+
+
 // Qt/Embedded-specific
+
+#if defined(QT_NO_NETWORK)
+    /*!
+      Multi-process support.
+    */
+# define QT_NO_QWS_MULTIPROCESS
+#endif
+
 /*!
     Visible cursor
 */
@@ -247,19 +289,24 @@
 /*!
     Mach64 acceleration
 */
-#define QT_NO_QWS_MACH64
+//#define QT_NO_QWS_MACH64
 /*!
     Voodoo3 acceleration
 */
-#define QT_NO_QWS_VOODOO3
+//#define QT_NO_QWS_VOODOO3
 /*!
     Matrox MGA acceleration (Millennium/Millennium II/Mystique/G200/G400)
 */
-#define QT_NO_QWS_MATROX
+//#define QT_NO_QWS_MATROX
 /*!
     Virtual frame buffer
 */
+                                        
 //#define QT_NO_QWS_VFB
+/*!
+    Transformed frame buffer
+*/
+//#define QT_NO_QWS_TRANSFORMED
 /*!
     Remote frame buffer (VNC)
 */
@@ -302,7 +349,7 @@
 /*!
     Saving of fonts
 */
-#define QT_NO_QWS_SAVEFONTS
+//#define QT_NO_QWS_SAVEFONTS
 
 /*!
     Favour code size over graphics speed
@@ -367,30 +414,6 @@
 	Cursors
     */
 # define QT_NO_CURSOR
-#endif
-
-
-
-// Networking
-/*!
-    DNS
-*/
-//#define QT_NO_DNS
-/*!
-    Network file access
-*/
-#if defined(QT_NO_DIR) || defined(QT_NO_STRINGLIST)
-# define QT_NO_NETWORKPROTOCOL
-#endif
-#if defined(QT_NO_NETWORKPROTOCOL) || defined(QT_NO_DNS)
-    /*!
-	FTP file access
-    */
-# define QT_NO_NETWORKPROTOCOL_FTP
-    /*!
-	HTTP file access
-    */
-# define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
 // Painting

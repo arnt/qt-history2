@@ -84,6 +84,8 @@ protected:
     bool save_under;
     SWCursorData *data;
 
+    int clipWidth;
+    int clipHeight;
     int myoffset;
 
 };
@@ -137,6 +139,8 @@ public:
     int height() const { return h; }
     int depth() const { return d; }
     int linestep() const { return lstep; }
+    int deviceWidth() const { return dw; }
+    int deviceHeight() const { return dh; }
     uchar * base() const { return data; }
     // Ask for memory from card cache with alignment
     virtual uchar * cache(int) { return 0; }
@@ -147,6 +151,18 @@ public:
 
     QRgb * clut() { return screenclut; }
     int numCols() { return screencols; }
+
+    virtual bool isTransformed() const;
+    virtual QSize mapToDevice( const QSize & ) const;
+    virtual QSize mapFromDevice( const QSize & ) const;
+    virtual QPoint mapToDevice( const QPoint &, const QSize & ) const;
+    virtual QPoint mapFromDevice( const QPoint &, const QSize & ) const;
+    virtual QRect mapToDevice( const QRect &, const QSize & ) const;
+    virtual QRect mapFromDevice( const QRect &, const QSize & ) const;
+    virtual QImage mapToDevice( const QImage & ) const;
+    virtual QImage mapFromDevice( const QImage & ) const;
+    virtual QRegion mapToDevice( const QRegion &, const QSize & ) const;
+    virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
 
 protected:
 
@@ -173,6 +189,9 @@ protected:
     int h;
     int d;
 
+    int dw;
+    int dh;
+
     int hotx;
     int hoty;
     QImage cursor;
@@ -197,6 +216,7 @@ public:
     virtual void setFont( const QFont & )=0;
     virtual void setBrush( const QBrush & )=0;
     virtual void setBrushPixmap( const QPixmap * )=0;
+    virtual void setBrushOffset( int, int ) = 0;
     virtual void setClipRect( int,int,int,int )=0;
     virtual void setClipRegion( const QRegion & )=0;
     virtual void setClipping (bool)=0;
@@ -205,6 +225,7 @@ public:
     virtual void setOffset( int,int )=0;
     virtual void setWidgetRect( int,int,int,int )=0;
     virtual void setWidgetRegion( const QRegion & )=0;
+    virtual void setSourceWidgetOffset(int x, int y) = 0;
     virtual void setGlobalRegionIndex( int idx ) = 0;
 
     virtual void setDashedLines(bool d) = 0;
@@ -223,13 +244,13 @@ public:
 
     // Fill operations - these use the current source (pixmap,
     // color, etc), and draws outline
-    virtual void drawRect( int,int,int,int )=0;
+    virtual void fillRect( int,int,int,int )=0;
     virtual void drawPolygon( const QPointArray &,bool,int,int )=0;
 
     virtual void setLineStep(int)=0;
 
     // Special case of rect-with-pixmap-fill for speed/hardware acceleration
-    virtual void blt( int,int,int,int )=0;
+    virtual void blt( int,int,int,int,int,int )=0;
     virtual void scroll( int,int,int,int,int,int )=0;
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
@@ -244,7 +265,6 @@ public:
     virtual void setSource(const QImage *)=0;
     // This one is pen
     virtual void setSourcePen()=0;
-    virtual void setSourceOffset(int,int)=0;
 
     virtual void drawAlpha(int,int,int,int,int,int,int,int) {}
 
@@ -282,7 +302,6 @@ public:
 
 protected:
     bool is_screen_gfx;
-    
 };
 
 // This lives in loadable modules

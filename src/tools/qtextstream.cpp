@@ -701,12 +701,14 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	} else {
 	    if ( (QChar)ungetHack != QEOF )
 		buf[rnum++] = (char)ungetHack;
-	    uint rlen = len - rnum;
-	    char *cbuf = new char[rlen];
-	    rlen = dev->readBlock( cbuf, rlen );
-	    uint i = 0;
-	    while( i < rlen )
-		buf[rnum++] = cbuf[i++];
+	    char *cbuf = new char[len - rnum];
+	    while ( !dev->atEnd() && rnum < len ) {
+		uint rlen = len - rnum;
+		rlen = dev->readBlock( cbuf, rlen );
+		uint i = 0;
+		while( i < rlen )
+		    buf[rnum++] = cbuf[i++];
+	    }
 	    delete[] cbuf;
 	}
     } else { // UCS-2 or UTF-16
@@ -722,29 +724,33 @@ uint QTextStream::ts_getbuf( QChar* buf, uint len )
 	    else
 		buf[rnum++] = QChar( c1, c2 );
 	} else {
-	    uint rlen = 2 * ( len-rnum );
-	    char *cbuf = new char[rlen]; // for paranoids: overflow possible
-	    if ( (QChar)ungetHack != QEOF ) {
-		rlen = 1+dev->readBlock( cbuf+1, rlen-1 );
-		cbuf[0] = (char)ungetHack;
-	    } else {
-		rlen = dev->readBlock( cbuf, rlen );
-	    }
-	    // is this right? we can't use an odd number of bytes, but
-	    // if there -is- an odd number, with this code we'll never
-	    // get to EOF.
-	    if ( (rlen & 1) == 1 )
-		dev->ungetch( cbuf[--rlen] );
-	    uint i = 0;
-	    if ( isNetworkOrder() ) {
-		while( i < rlen ) {
-		    buf[rnum++] = QChar( cbuf[i+1], cbuf[i] );
-		    i+=2;
+	    char *cbuf = new char[ 2*( len - rnum ) ]; // for paranoids: overflow possible
+	    while ( !dev->atEnd() && rnum < len ) {
+		uint rlen = 2 * ( len-rnum );
+		if ( (QChar)ungetHack != QEOF ) {
+		    rlen = 1+dev->readBlock( cbuf+1, rlen-1 );
+		    cbuf[0] = (char)ungetHack;
+		} else {
+		    rlen = dev->readBlock( cbuf, rlen );
 		}
-	    } else {
-		while( i < rlen ) {
-		    buf[rnum++] = QChar( cbuf[i], cbuf[i+1] );
-		    i+=2;
+		// We can't use an odd number of bytes, so put it back. But
+		// do it only if we are capable of reading more -- normally
+		// there should not be an odd number, but the file might be
+		// truncated or not in UTF-16...
+		if ( (rlen & 1) == 1 )
+		    if ( !dev->atEnd() )
+			dev->ungetch( cbuf[--rlen] );
+		uint i = 0;
+		if ( isNetworkOrder() ) {
+		    while( i < rlen ) {
+			buf[rnum++] = QChar( cbuf[i+1], cbuf[i] );
+			i+=2;
+		    }
+		} else {
+		    while( i < rlen ) {
+			buf[rnum++] = QChar( cbuf[i], cbuf[i+1] );
+			i+=2;
+		    }
 		}
 	    }
 	    delete[] cbuf;

@@ -35,6 +35,7 @@
 #include "qserversocket.h"
 #endif // QT_H
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 
 class QWSSocket : public QSocket
 {
@@ -68,5 +69,5 @@ private:        // Disabled copy constructor and operator=
 #endif
 };
 
-
+#endif //QT_NO_QWS_MULTIPROCESS
 #endif // QWSSOCKETDEVICE_H

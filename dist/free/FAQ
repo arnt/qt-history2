@@ -22,12 +22,8 @@ Please note: the latest version of this and other FAQ lists are available at:
    2.Do you have any plans for a graphical designer/dialog
       builder? 
 
-      We are working on one now. There will be further
-      announcements on qt-interest and, as appropriate,
-      qt-announce. 
-
-      You may want to look at the free Qt GUI designers QtEZ and
-      Qt Architect; please see links on www.trolltech.com/qtprogs.html. 
+      Yes, since Qt 2.2.
+      See the tools/designer directory of your Qt distribution.
 
    3.Is there a mailing list or something for Qt? 
 

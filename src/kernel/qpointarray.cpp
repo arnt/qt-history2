@@ -933,9 +933,8 @@ QPointArray QPointArray::quadBezier() const
 	QPointArray pa((len/2)+1); // one extra point for last point on line
 	int j=0;
 	for (i=0; j<len; i++) {
-	    // Don't round - it looks terrible
-	    int x = int(p[j++]);
-	    int y = int(p[j++]);
+	    int x = qRound(p[j++]);
+	    int y = qRound(p[j++]);
 	    pa[i] = QPoint(x,y);
 	}
 	// add last pt on the line, which will be at the last control pt

@@ -42,6 +42,7 @@
 #include "qstring.h"
 #endif // QT_H
 
+#ifndef QT_NO_NETWORK
 class QHostAddressPrivate;
 
 class Q_EXPORT QHostAddress
@@ -70,5 +71,5 @@ private:
     QHostAddressPrivate* d;
 };
 
-
+#endif //QT_NO_NETWORK
 #endif

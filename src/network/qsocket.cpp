@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qsocket.h"
+#ifndef QT_NO_NETWORK
 #include "qlist.h"
 #include "qsocketdevice.h"
 #include "qdns.h"
@@ -1232,3 +1233,4 @@ QString QSocket::peerName() const
 {
     return d->host;
 }
+#endif //QT_NO_NETWORK

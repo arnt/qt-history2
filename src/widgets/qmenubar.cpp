@@ -674,7 +674,7 @@ int QMenuBar::calculateRects( int max_width )
 	
     int i = 0;
     int separator = -1;
-    
+
     while ( i < (int)mitems->count() ) {	// for each menu item...
 	QMenuItem *mi = mitems->at(i);
 	int w=0, h=0;

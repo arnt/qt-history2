@@ -1987,7 +1987,7 @@ void QPainter::drawImage( int x, int y, const QImage & image,
         if(sh<0)
 	    sh=image.height();
 
-	QImage image2=image;
+	QImage image2 = qt_screen->mapToDevice( image );
 
 	// This is a bit dubious
 	if(image2.depth()==1) {
@@ -2000,11 +2000,10 @@ void QPainter::drawImage( int x, int y, const QImage & image,
 	else
 	    gfx->setAlphaType(QGfx::IgnoreAlpha);
 	gfx->setSource(&image2);
-	gfx->setSourceOffset(sx,sy);
 	if ( testf(VxF|WxF) ) {
 	    map( x, y, &x, &y );
 	}
-	gfx->blt(x,y,sw,sh);
+	gfx->blt(x,y,sw,sh,sx,sy);
     }
     return;
 #endif

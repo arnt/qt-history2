@@ -46,6 +46,61 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
     return qt_screen->createGfx( buffer, w, h, depth, offs );
 }
 
+bool QScreen::isTransformed() const
+{
+    return FALSE;
+}
+
+QSize QScreen::mapToDevice( const QSize &s ) const
+{
+    return s;
+}
+
+QSize QScreen::mapFromDevice( const QSize &s ) const
+{
+    return s;
+}
+
+QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const
+{
+    return p;
+}
+
+QPoint QScreen::mapFromDevice( const QPoint &p, const QSize & ) const
+{
+    return p;
+}
+
+QRect QScreen::mapToDevice( const QRect &r, const QSize & ) const
+{
+    return r;
+}
+
+QRect QScreen::mapFromDevice( const QRect &r, const QSize & ) const
+{
+    return r;
+}
+
+QImage QScreen::mapToDevice( const QImage &i ) const
+{
+    return i;
+}
+
+QImage QScreen::mapFromDevice( const QImage &i ) const
+{
+    return i;
+}
+
+QRegion QScreen::mapToDevice( const QRegion &r, const QSize & ) const
+{
+    return r;
+}
+
+QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
+{
+    return r;
+}
+
 #ifdef QT_LOADABLE_MODULES
 
 // ### needs update after driver init changes

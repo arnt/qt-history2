@@ -210,7 +210,7 @@ int QSimpleRichText::height() const
 
 
 /*!
-  Draws the formatted text with \a p, at position (\a x,\a y), clipped
+  Draws the formatted text with \a p, at position (\a x, \a y), clipped
   to \a clipRegion.  Colors from the palette \a pal are used as
   needed, and if not 0, *\a paper is used as the background brush.
 
@@ -225,7 +225,7 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
 }
 
 /*!\overload
-  Draws the formatted text with \a p, at position (\a x,\a y), clipped
+  Draws the formatted text with \a p, at position (\a x, \a y), clipped
   to \a clipRegion.  Colors from the \a cg are used as
   needed, and if not 0, *\a paper is used as the background brush.
 

@@ -222,15 +222,15 @@ to operate on it. So you should reimplement following protected members
     void QNetworkProtocol::operationPut( QNetworkOperation *op );
 \endcode
 
-Some words about how to reimplement these methods: You always
-get a pointer to a \c QNetworkOperation as argument. This pointer holds
-all information about the operation in the current state. If you start
-processing such an operation, set the state to \c QNetworkProtocol::StInProgress.
-If you finished processing the operation, set the state to \cQNetworkProtocol::StDone if it
-was successful or \c QNetworkProtocol::StFailed if an error occurred. If an error occurred
-you have to set an error code (see \c QNetworkOperation::setErrorCode() )
-and if you know some details (e.g. an error message) you can also set this message
-to the operation pointer (see \c QNetworkOperation::setProtocolDetail() ).
+Some words about how to reimplement these methods: You always get a pointer to
+a \c QNetworkOperation as argument.  This pointer holds all information about
+the operation in the current state.  If you start processing such an operation,
+set the state to \c QNetworkProtocol::StInProgress.  If you finished processing
+the operation, set the state to \c QNetworkProtocol::StDone if it was
+successful or \c QNetworkProtocol::StFailed if an error occurred. If an
+error occurred you have to set an error code (see \c QNetworkOperation::setErrorCode() )
+and if you know some details (e.g. an error message) you can also set this
+message to the operation pointer (see \c QNetworkOperation::setProtocolDetail() ).
 Also you get all information (type, arguments, etc.) of the operation
 from this \c QNetworkOperation pointer. For details about which arguments
 you can get and set look at the class documentation of \c QNetworkOperation.

@@ -69,8 +69,8 @@ public:
 
     QGfxMatrox(unsigned char *,int w,int h);
 
-    virtual void drawRect(int,int,int,int);
-    virtual void blt(int,int,int,int);
+    virtual void fillRect(int,int,int,int);
+    virtual void blt(int,int,int,int,int,int);
     virtual void scroll(int,int,int,int,int,int);
     virtual void sync();
 
@@ -204,37 +204,25 @@ QGfxMatrox<depth,type>::QGfxMatrox(unsigned char * a,int b,int c)
 }
 
 template<const int depth,const int type>
-void QGfxMatrox<depth,type>::drawRect(int rx,int ry,int w,int h)
+void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
     if(ncliprect<1) {
 	return;
     }
 
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
 
     QWSDisplay::grab( TRUE );
     if(!checkDest()) {
 	QWSDisplay::ungrab();
-	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
-    // Now draw the lines round the edge if necessary
-
-    if(cpen.style()!=NoPen) {
-	drawLine(rx,ry,rx+(w-1),ry);
-	drawLine(rx+(w-1),ry+1,rx+(w-1),ry+(h-2));
-	drawLine(rx,ry+(h-1),rx+(w-1),ry+(h-1));
-	drawLine(rx,ry+1,rx,ry+(h-1));
-	rx++;
-	ry++;
-	w-=2;
-	h-=2;
-    }
 
     (*optype)=1;
     (*lastop)=LASTOP_RECT;
@@ -290,13 +278,13 @@ void QGfxMatrox<depth,type>::drawRect(int rx,int ry,int w,int h)
 }
 
 template<const int depth,const int type>
-inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h)
+inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 {
     if(ncliprect<1)
 	return;
 
     if(depth!=16 && depth!=32 && depth!=8) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
@@ -308,12 +296,12 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h)
     }
 
     if(srctype==SourceImage && canaccel==false) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
     if(srctype==SourcePen) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
@@ -326,8 +314,8 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h)
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
-	int xp2=srcoffs.x();
-	int yp2=srcoffs.y();
+	int xp2=srcwidgetoffs.x() + sx;
+	int yp2=srcwidgetoffs.y() + sy;
 
 	QRect cursRect(xp, yp, w+1, h+1);
 
@@ -383,7 +371,7 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h)
 	return;
     } else {
 	QWSDisplay::ungrab();
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
 
@@ -410,8 +398,7 @@ void QGfxMatrox<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
     srctype=SourceImage;
     alphatype=IgnoreAlpha;
     ismasking=FALSE;
-    setSourceOffset(sx,sy);
-    blt(rx,ry,w,h);
+    blt(rx,ry,w,h,sx,sy);
 
     GFX_END
 }

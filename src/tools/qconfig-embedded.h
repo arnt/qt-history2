@@ -37,3 +37,6 @@
 //#define QT_NO_TABDIALOG
 #define QT_NO_WIZARD
 #define QT_NO_EFFECTS
+#define QT_NO_QWS_MACH64
+#define QT_NO_QWS_VOODOO3
+#define QT_NO_QWS_MATROX

@@ -38,6 +38,7 @@
 #include "qhostaddress.h"
 #include "qstringlist.h"
 
+#ifndef QT_NO_NETWORK
 class QHostAddressPrivate
 {
 public:
@@ -325,3 +326,4 @@ bool QHostAddress::operator==( const QHostAddress & other ) const
 {
     return  d->a == other.d->a;
 }
+#endif //QT_NO_NETWORK

@@ -1,5 +1,6 @@
 #include "qmemorymanager_qws.h"
 #include "qfontmanager_qws.h"
+#include "qgfx_qws.h"
 #include "qpaintdevice.h"
 #include "qfontdata_p.h"
 #include "qfile.h"
@@ -19,6 +20,8 @@
 #endif
 
 #include "qgfx_qws.h"
+
+#define FM_SMOOTH 1
 
 class QGlyphTree {
     /* Builds up a tree like this:
@@ -78,7 +81,26 @@ public:
 	glyph = new QGlyph[n];
 	for (int i=0; i<n; i++) {
 	    QChar ch(min.unicode()+i);
-	    glyph[i] = renderer->render(ch);
+	    QGlyph tmp = renderer->render(ch);
+	    QGlyph *tmp2 = &tmp;
+	    if ( tmp.metrics->width && tmp.metrics->height &&
+		 qt_screen->isTransformed() ) {
+		int depth = 1;
+		int cols = 0;
+		QImage::Endian end = QImage::BigEndian;
+		if ( renderer->smooth ) {
+		    depth = 8;
+		    cols = 256;
+		    end = QImage::IgnoreEndian;
+		}
+		QImage img( tmp.data, tmp.metrics->width, tmp.metrics->height,
+			    depth, tmp.metrics->linestep, 0, cols, end );
+		img = qt_screen->mapToDevice( img );
+		tmp2 = new QGlyph( tmp.metrics, new uchar [img.numBytes()] );
+		memcpy( tmp2->data, img.bits(), img.numBytes() );
+		tmp2->metrics->linestep = img.bytesPerLine();
+	    }
+	    glyph[i] = *tmp2;
 	}
     }
 
@@ -437,12 +459,9 @@ public:
 	    QGlyphMetrics* m = new QGlyphMetrics;
 	    memset((char*)m, 0, sizeof(QGlyphMetrics));
 	    m->width = fm.maxwidth;
-	    m->linestep = fm.smooth ? m->width : (m->width+7)/8;
+	    m->linestep = (fm.flags & FM_SMOOTH) ? m->width : (m->width+7)/8;
 	    m->height = fm.ascent;
-	    m->padding = 0;
-	    m->bearingx = 0;
 	    m->advance = m->width+1+m->width/8;
-	    m->bearingy = 0;
 	    uchar* d = new uchar[m->linestep*m->height];
 	    memset(d,255,m->linestep*m->height);
 	    default_glyph = new QGlyph(m,d);
@@ -459,7 +478,10 @@ public:
 	Q_INT8 leftbearing,rightbearing;
 	Q_UINT8 maxwidth;
 	Q_UINT8 leading;
-	uint smooth:1;
+	Q_UINT8 flags;
+	Q_UINT8 reserved1;
+	Q_UINT8 reserved2;
+	Q_UINT8 reserved3;
     } fm;
 };
 
@@ -582,11 +604,7 @@ static QString fontKey(const QFontDef& font)
 extern QString qws_topdir();
 static QString fontFilename(const QFontDef& font)
 {
-#ifdef LITTLE_ENDIAN
-    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qlf"; // "Qt Prerendered Font - Little Endian"
-#else
-    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qbf"; // "Qt Prerendered Font - Big Endian"
-#endif
+    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qpf";
 }
 
 QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
@@ -602,7 +620,8 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	mmf->def = font;
 	mmf->tree = 0;
 	QString filename = fontFilename(font);
-	if ( !QFile::exists(filename) ) {
+	// ### disable pre-rendered fonts in transformed mode for now.
+	if ( !QFile::exists(filename) || qt_screen->isTransformed() ) {
 	    mmf->renderer = qt_fontmanager->get(font);
 	    if ( !mmf->renderer ) {
 		QFontDef d = font;
@@ -613,16 +632,13 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
 			qDebug("Doing fallback");
-#ifdef LITTLE_ENDIAN
-			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qlf";
-#else
-			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qbf";
-#endif
+			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qpf";
 		    }
 		}
 	    }
 	}
-	if ( QFile::exists(filename) ) {
+	// ### disable pre-rendered fonts in transformed mode for now.
+	if ( QFile::exists(filename) && !qt_screen->isTransformed() ) {
 	    mmf->renderer = 0;
 #if defined(QT_USE_MMAP)
 	    int f = ::open( QFile::encodeName(filename), O_RDONLY );
@@ -647,13 +663,8 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->tree = new QGlyphTree(f);
 #endif
 	} else {
+	    memset((char*)&mmf->fm, 0, sizeof(mmf->fm));
 	    if(!mmf->renderer) {
-		mmf->fm.ascent=0;
-		mmf->fm.descent=0;
-		mmf->fm.leftbearing=0;
-		mmf->fm.rightbearing=0;
-		mmf->fm.maxwidth=0;
-		mmf->fm.smooth=false;
 		return (FontID)mmf;
 	    }
 	    mmf->fm.ascent = mmf->renderer->fascent;
@@ -661,7 +672,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->fm.leftbearing = mmf->renderer->fleftbearing;
 	    mmf->fm.rightbearing = mmf->renderer->frightbearing;
 	    mmf->fm.maxwidth = mmf->renderer->fmaxwidth;
-	    mmf->fm.smooth = mmf->renderer->smooth;
+	    mmf->fm.flags = mmf->renderer->smooth ? FM_SMOOTH : 0;
 	}
 	font_map[key] = (FontID)mmf;
 #ifndef QT_NO_QWS_SAVEFONTS
@@ -767,7 +778,7 @@ void QMemoryManager::savePrerenderedFont(FontID id, bool all)
 bool QMemoryManager::fontSmooth(FontID id) const
 {
     QMemoryManagerFont* mmf = (QMemoryManagerFont*)id;
-    return mmf->fm.smooth;
+    return mmf->fm.flags & FM_SMOOTH;
 }
 int QMemoryManager::fontAscent(FontID id) const
 {

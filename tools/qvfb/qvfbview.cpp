@@ -116,10 +116,10 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
 QVFbView::~QVFbView()
 {
     stopAnimation();
+    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
     struct shmid_ds shm;
     shmdt( (char*)data );
     shmctl( shmId, IPC_RMID, &shm );
-    sendKeyboardData( 0, 0, 0, TRUE, FALSE ); // magic die key
     ::close( mouseFd );
     ::close( keyboardFd );
     unlink( mousePipe );

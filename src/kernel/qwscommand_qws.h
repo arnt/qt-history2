@@ -41,10 +41,10 @@
  * Functions to read/write commands on/from a socket
  *
  *********************************************************************/
-
+#ifndef QT_NO_QWS_MULTIPROCESS
 void qws_write_command( QWSSocket *socket, int type, char *simpleData, int simpleLen, char *rawData, int rawLen );
 bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen, char *&rawData, int &rawLen, int &bytesRead );
-
+#endif
 /*********************************************************************
  *
  * QWSCommand base class - only use derived classes from that
@@ -68,8 +68,10 @@ struct QWSProtocolItem
     bool deleteRaw;
 
     // functions
+#ifndef QT_NO_QWS_MULTIPROCESS
     void write( QWSSocket *s );
     bool read( QWSSocket *s );
+#endif
     void copyFrom( const QWSProtocolItem *item );
 
     virtual void setData( char *data, int len, bool allocateMem = TRUE );

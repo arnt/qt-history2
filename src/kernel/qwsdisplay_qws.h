@@ -103,7 +103,7 @@ public:
     void removeProperty( int winId, int property );
     bool getProperty( int winId, int property, char *&data, int &len );
 
-    QList<QWSWindowInfo> windowList();
+    QList<QWSWindowInfo> * windowList();
 
     void requestRegion( int winId, QRegion );
     void moveRegion( int winId, int dx, int dy );

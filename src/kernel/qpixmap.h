@@ -193,6 +193,8 @@ protected:
 	int id; // ### should use QPaintDevice::hd, since it is there
 	QRgb * clut;
 	int numcols;
+	int rw;
+	int rh;
 #endif
 	Optimization optim;
     } *data;

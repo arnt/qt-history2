@@ -103,9 +103,11 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     const char* qwssize;
     if((qwssize=getenv("QWS_SIZE"))) {
 	sscanf(qwssize,"%dx%d",&w,&h);
+	dw=w;
+	dh=h;
     } else {
-	w=vinfo.xres;
-	h=vinfo.yres;
+	dw=w=vinfo.xres;
+	dh=h=vinfo.yres;
     }
     d=vinfo.bits_per_pixel;
     lstep=(vinfo.xres_virtual*d+7)/8;

@@ -73,11 +73,12 @@
 #include <stdio.h>
 #include <limits.h>
 #include <sys/types.h>
+#ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/ipc.h>
 #include <sys/shm.h>
 #include <sys/sem.h>
-#include <sys/ioctl.h>
 #include <sys/socket.h>
+#endif
 
 #include <stdlib.h>
 #ifndef QT_NO_SM_SUPPORT
@@ -131,7 +132,7 @@ bool qws_savefonts = FALSE;
 bool qws_shared_memory = FALSE;
 bool qws_sw_cursor = TRUE;
 bool qws_accel = TRUE;	    // ### never set
-const char *qws_display_spec = "LinuxFb:/dev/fb0:0";
+const char *qws_display_spec = ":0";
 int qws_display_id = 0;
 #ifndef QT_NO_QWS_MANAGER
 static QWSDecoration *qws_decoration = 0;
@@ -272,10 +273,12 @@ class QWSDisplayData {
 public:
     QWSDisplayData( QObject* parent, bool singleProcess = FALSE )
     {
+#ifndef QT_NO_QWS_MULTIPROCESS	
 	if ( singleProcess )
 	    csocket = 0;
 	else
 	    csocket = new QWSSocket(parent);
+#endif
 	init();
     }
 
@@ -286,7 +289,9 @@ public:
     int sharedRamSize;
 
 private:
+#ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
+#endif    
     QList<QWSEvent> queue;
 
     QWSConnectedEvent* connected_event;
@@ -320,8 +325,11 @@ public:
     QWSEvent *peek() {
 	return queue.first();
     }
+#ifndef QT_NO_QWS_MULTIPROCESS   
     bool directServerConnection() { return csocket == 0; }
-
+#else
+    bool directServerConnection() { return TRUE; }
+#endif
     void fillQueue();
     void waitForConnection();
     void waitForRegionAck();
@@ -330,17 +338,21 @@ public:
     void create()
     {
 	QWSCreateCommand cmd;
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
+#endif	    
 	    qt_server_enqueue( &cmd );
     }
 
     void sendCommand( QWSCommand & cmd )
     {
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if  ( csocket )
 	    cmd.write( csocket );
 	else
+#endif
 	    qt_server_enqueue( &cmd );
     }
 
@@ -376,38 +388,24 @@ void QWSDisplayData::init()
     region_event = 0;
     current_event = 0;
 
-    QString pipe = QString(QTE_PIPE).arg(qws_display_id);
+    QString pipe = QString(QTE_PIPE).arg(qws_display_id); //########
+
+    
+#ifndef QT_NO_QWS_MULTIPROCESS
     key_t memkey =  ftok( pipe.latin1(), 'm' );
 
-    if ( !csocket ) {
-	// QWS server
-	if ( !QWSDisplay::initLock( pipe, TRUE ) )
-	    qFatal( "Cannot get display lock" );
 
-	sharedRamSize = qwsSharedRamSize;
-
-	key_t memkey = ftok( pipe.latin1(), 'm' );
-	int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
-	if(ramid<0) {
-	    perror("Cannot allocate main ram shared memory\n");
-	}
-	sharedRam=(uchar *)shmat(ramid,0,0);
-	if(sharedRam==(uchar *)-1) {
-	    perror("Cannot attach to main ram shared memory\n");
-	}
-	// Need to zero index count at end of block, might as well zero
-	// the rest too
-	memset(sharedRam,0,sharedRamSize);
-
-	QScreen *s = qt_probe_bus( qws_display_id, qws_display_spec );
-	s->initCard();
-    } else {
+    if ( csocket )    {
 	// QWS client
 	csocket->connectToLocalFile(pipe);
 
-	// now we want to get the exact display spec to use
+	// wait for connect confirmation
 	waitForConnection();
-	qws_display_spec = connected_event->display;
+
+	// now we want to get the exact display spec to use if we haven't
+	// specified anything.
+	if ( qws_display_spec[0] == ':' )
+	    qws_display_spec = connected_event->display;
 
 	if ( !QWSDisplay::initLock( pipe, FALSE ) )
 	    qFatal( "Cannot get display lock" );
@@ -428,11 +426,47 @@ void QWSDisplayData::init()
 	}
 	qt_probe_bus( qws_display_id, qws_display_spec );
     }
+    else
+#endif    
+    {
 
+	// QWS server
+	if ( !QWSDisplay::initLock( pipe, TRUE ) )
+	    qFatal( "Cannot get display lock" );
+
+	sharedRamSize = qwsSharedRamSize;
+
+#ifndef QT_NO_QWS_MULTIPROCESS
+	
+	key_t memkey = ftok( pipe.latin1(), 'm' );
+	int ramid=shmget(memkey,sharedRamSize,IPC_CREAT|0666);
+	if(ramid<0) {
+	    perror("Cannot allocate main ram shared memory\n");
+	}
+	sharedRam=(uchar *)shmat(ramid,0,0);
+	if(sharedRam==(uchar *)-1) {
+	    perror("Cannot attach to main ram shared memory\n");
+	}
+#else
+	sharedRam=(uchar *)malloc(sharedRamSize);
+#endif	
+	// Need to zero index count at end of block, might as well zero
+	// the rest too
+	memset(sharedRam,0,sharedRamSize);
+
+	QScreen *s = qt_probe_bus( qws_display_id, qws_display_spec );
+	s->initCard();
+    }
     int mouseoffset = 0;
 
 #ifndef QT_NO_QWS_CURSOR
-    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize, !csocket );
+    mouseoffset=qt_screen->initCursor(sharedRam + sharedRamSize, 
+#ifndef QT_NO_QWS_MULTIPROCESS
+				      !csocket
+#else
+				      TRUE
+#endif
+				      );
 #endif
 
     sharedRamSize -= mouseoffset;
@@ -443,19 +477,27 @@ void QWSDisplayData::init()
     memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
 	qt_screen->totalSize()-(screensize+4096),0);
 
+#ifndef QT_NO_QWS_MULTIPROCESS
     rgnMan = new QWSRegionManager( pipe, csocket );
-
+#else
+    rgnMan = new QWSRegionManager( pipe, 0 ); //####### not necessary
+#endif
     // Create some object ID's in advance.
     // XXX server should just send some
     for (int o=0; o<10; o++)
 	create();
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
+#endif
 }
 
 
 QWSEvent* QWSDisplayData::readMore()
 {
+#ifdef QT_NO_QWS_MULTIPROCESS
+    return incoming.dequeue();
+#else
     if ( !csocket )
 	return incoming.dequeue();
     // read next event
@@ -478,6 +520,7 @@ QWSEvent* QWSDisplayData::readMore()
 
     // Not finished reading a whole event.
     return 0;
+#endif
 }
 
 
@@ -503,6 +546,11 @@ void QWSDisplayData::fillQueue()
 		}
 	    }
 	    mouse_event = (QWSMouseEvent*)e;
+	    QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	    QPoint p(mouse_event->simpleData.x_root, mouse_event->simpleData.y_root);
+	    p = qt_screen->mapFromDevice( p, s );
+	    mouse_event->simpleData.x_root = p.x();
+	    mouse_event->simpleData.y_root = p.y();
 	} else if ( e->type == QWSEvent::RegionModified ) {
 	    QWSRegionModifiedEvent *re = (QWSRegionModifiedEvent *)e;
 	    if ( re->simpleData.is_ack ) {
@@ -534,28 +582,36 @@ void QWSDisplayData::fillQueue()
 
 void QWSDisplayData::waitForConnection()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
+#endif
     while ( 1 ) {
 	fillQueue();
 	if ( connected_event )
 	    break;
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if ( csocket )
 	    csocket->waitForMore(1000);
+#endif
     }
 }
 
 
 void QWSDisplayData::waitForRegionAck()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
+#endif
     while ( 1 ) {
 	fillQueue();
 	if ( region_ack )
 	    break;
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if ( csocket )
 	    csocket->waitForMore(1000);
+#endif
     }
     queue.prepend(region_ack);
     region_ack = 0;
@@ -563,12 +619,16 @@ void QWSDisplayData::waitForRegionAck()
 
 void QWSDisplayData::waitForCreation()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     if ( csocket )
 	csocket->flush();
+#endif
     fillQueue();
     while ( unused_identifiers.count() == 0 ) {
+#ifndef QT_NO_QWS_MULTIPROCESS
 	if ( csocket )
 	    csocket->waitForMore(1000);
+#endif
 	fillQueue();
     }
 }
@@ -704,6 +764,7 @@ void QWSDisplay::requestFocus(int winId, bool get)
 //### should change signature to requestRegion(QWidget*,QRegion)
 void QWSDisplay::requestRegion(int winId, QRegion r)
 {
+    r = qt_screen->mapToDevice( r, QSize(qt_screen->width(), qt_screen->height()) );
     if ( d->directServerConnection() ) {
 	QWSServer::request_region( winId, r );
     } else {
@@ -733,10 +794,15 @@ void QWSDisplay::moveRegion( int winId, int dx, int dy )
 {
     //UNUSED QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
 
+    QPoint p1 = qt_screen->mapToDevice( QPoint(0, 0),
+		    QSize(qt_screen->width(), qt_screen->height()) );
+    QPoint p2 = qt_screen->mapToDevice( QPoint(dx, dy),
+		    QSize(qt_screen->width(), qt_screen->height()) );
+
     QWSRegionMoveCommand cmd;
     cmd.simpleData.windowid = winId;
-    cmd.simpleData.dx = dx;
-    cmd.simpleData.dy = dy;
+    cmd.simpleData.dx = p2.x() - p1.x();
+    cmd.simpleData.dy = p2.y() - p1.y();
 
     if ( d->directServerConnection() ) {
 	QWSServer::move_region( &cmd );
@@ -853,20 +919,21 @@ void QWSDisplay::grabMouse( QWidget *w, bool grab )
     d->sendCommand( cmd );
 }
 
-QList<QWSWindowInfo> QWSDisplay::windowList()
+QList<QWSWindowInfo> * QWSDisplay::windowList()
 {
-    QList<QWSWindowInfo> ret;
-    ret.setAutoDelete(true);
+    QList<QWSWindowInfo> * ret=new QList<QWSWindowInfo>;
+    ret->setAutoDelete(true);
     if(d->directServerConnection()) {
-	QList<QWSInternalWindowInfo> qin=QWSServer::windowList();
+	QList<QWSInternalWindowInfo> * qin=QWSServer::windowList();
 	QWSInternalWindowInfo * qwi;
-	for(qwi=qin.first();qwi!=0;qwi=qin.next()) {
-	    QWSWindowInfo * tmp=new QWSWindowInfo;
+	for(qwi=qin->first();qwi!=0;qwi=qin->next()) {
+	    QWSWindowInfo * tmp=new QWSWindowInfo();
 	    tmp->winid=qwi->winid;
 	    tmp->clientid=qwi->clientid;
-	    tmp->name=qwi->name;
-	    ret.append(tmp);
+	    tmp->name=QString(qwi->name);
+	    ret->append(tmp);
 	}
+	delete qin;
     }
     return ret;
 }
@@ -2920,6 +2987,8 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     if ( revision != alloc_region_revision ) {
 	alloc_region_revision = revision;
 	QRegion newRegion = rgnMan->region( alloc_region_index );
+	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	newRegion = qt_screen->mapFromDevice( newRegion, s );
 	QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_MANAGER
 	if ( testWFlags(WType_TopLevel) && topData()->qwsManager ) {
@@ -2950,6 +3019,8 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
     {
 	QRegion exposed;
 	exposed.setRects( event->rectangles, event->simpleData.nrectangles );
+	QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+	exposed = qt_screen->mapFromDevice( exposed, s );
 #ifndef QT_NO_QWS_MANAGER
 	exposed |= extraExposed;
 #endif

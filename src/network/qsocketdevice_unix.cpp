@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#4 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#5 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qsocketdevice.h"
+#ifndef QT_NO_NETWORK
 #include "qwindowdefs.h"
 #include <string.h>
 
@@ -111,6 +112,9 @@
 // freebsd
 #define SOCKLEN_T socklen_t
 #elif defined(_OS_UNIXWARE7_)
+#define SOCKLEN_T size_t
+#elif defined(_OS_AIX_)
+// aix 4.3.3 according to the online documentation
 #define SOCKLEN_T size_t
 #else
 // most unixes, including at least irix, osf1/du/tru64, solaris, hp-ux
@@ -908,3 +912,4 @@ void QSocketDevice::fetchConnectionParameters()
 	pa = QHostAddress( ntohl( sa.sin_addr.s_addr ) );
     }
 }
+#endif //QT_NO_NETWORK

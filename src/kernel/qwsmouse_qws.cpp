@@ -55,6 +55,10 @@
 #define QWS_TOUCHPANEL
 #endif
 
+#ifdef QT_QWS_IPAQ
+#include <linux/h3650_ts.h>
+#endif
+
 //#define QWS_CUSTOMTOUCHPANEL
 
 enum MouseProtocol { Unknown = -1, MouseMan = 0, IntelliMouse = 1,
@@ -119,8 +123,8 @@ static void limitToScreen( QPoint &pt )
     static int w = -1;
     static int h;
     if ( w < 0 ) {
-	w = qt_screen->width();
-	h = qt_screen->height();
+	w = qt_screen->deviceWidth();
+	h = qt_screen->deviceHeight();
     }
 
     pt.setX( QMIN( w-1, QMAX( 0, pt.x() )));
@@ -210,8 +214,8 @@ void QMouseHandlerPrivate::handleMouseData()
 		    bstate |= Qt::RightButton;
 		}
 
-		dx=(char)(((mb[0] & 0x03) << 6) | (mb[1] & 0x3f));
-		dy=-(char)(((mb[0] & 0x0c) << 4) | (mb[2] & 0x3f));
+		dx=(signed char)(((mb[0] & 0x03) << 6) | (mb[1] & 0x3f));
+		dy=-(signed char)(((mb[0] & 0x0c) << 4) | (mb[2] & 0x3f));
 		sendEvent=true;
 
 		break;
@@ -523,6 +527,82 @@ void QVrTPanelHandlerPrivate::readMouseData()
 #endif
 }
 
+
+class QIpaqHandlerPrivate : public QMouseHandler {
+     Q_OBJECT
+public:
+    QIpaqHandlerPrivate(MouseProtocol, QString dev);
+    ~QIpaqHandlerPrivate();
+
+private:
+    int mouseFD;
+    QPoint oldmouse;
+    bool waspressed;
+    
+private slots:
+    void readMouseData();   
+};
+
+QIpaqHandlerPrivate::QIpaqHandlerPrivate( MouseProtocol, QString )
+{
+#ifdef QT_QWS_IPAQ
+    if ((mouseFD = open( "/dev/h3600_ts", O_RDONLY)) < 0) {
+        qWarning( "Cannot open /dev/h3600_ts (%s)", strerror(errno));
+	return;
+    } else {
+    }
+
+    QSocketNotifier *mouseNotifier;
+    mouseNotifier = new QSocketNotifier( mouseFD, QSocketNotifier::Read,
+					 this );
+    connect(mouseNotifier, SIGNAL(activated(int)),this, SLOT(readMouseData()));
+    waspressed=false;
+#endif
+}
+
+QIpaqHandlerPrivate::~QIpaqHandlerPrivate()
+{
+#ifdef QT_QWS_IPAQ
+    if (mouseFD >= 0)
+	close(mouseFD);
+#endif
+}
+
+void QIpaqHandlerPrivate::readMouseData()
+{
+#ifdef QT_QWS_IPAQ
+    if(!qt_screen)
+	return;
+    TS_EVENT data;
+    
+    int ret;
+
+    ret=read(mouseFD,&data,sizeof(TS_EVENT));
+
+    if(ret==8) {
+	QPoint q;
+	q.setX(data.x);
+	q.setY(data.y);
+	mousePos=q;
+	if(data.pressure > 0) {
+          emit mouseChanged(mousePos,Qt::LeftButton);
+	  oldmouse=mousePos;
+	  waspressed=true;
+	} else {
+	    if(waspressed) {
+		emit mouseChanged(oldmouse,0);
+		waspressed=false;
+	    }
+	}
+    }
+
+    if(ret<0) {
+	qDebug("Error %s",strerror(errno));
+    }
+#endif
+}
+
+
 class QCustomTPanelHandlerPrivate : public QMouseHandler {
     Q_OBJECT
 public:
@@ -594,7 +674,7 @@ void QCustomTPanelHandlerPrivate::readMouseData()
 	  emit mouseChanged(mousePos,0);
 	}
     }
-    if(ret<0) { 
+    if(ret<0) {
 	qDebug("Error %s",strerror(errno));
     }
 #endif
@@ -724,8 +804,13 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 #ifdef QWS_CUSTOMTOUCHPANEL
     handler=new QCustomTPanelHandlerPrivate(mouseProtocol,mouseDev);
 #endif
+
+#ifdef QT_QWS_IPAQ
+    handler=new QIpaqHandlerPrivate(mouseProtocol,mouseDev);
+#endif
     
 #ifndef QWS_CUSTOMTOUCHPANEL
+#ifndef QT_QWS_IPAQ
     switch ( mouseProtocol ) {
 	case MouseMan:
 	case IntelliMouse:
@@ -744,6 +829,7 @@ QMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	default:
 	    qDebug( "Mouse type %s unsupported", spec.latin1() );
     }
+#endif
 #endif
 
     return handler;

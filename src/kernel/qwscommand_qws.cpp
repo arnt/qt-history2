@@ -34,7 +34,7 @@
  * Functions to read/write commands on/from a socket
  *
  *********************************************************************/
-
+#ifndef QT_NO_QWS_MULTIPROCESS
 void qws_write_command( QWSSocket *socket, int type,
 			       char *simpleData, int simpleLen, char *rawData, int rawLen )
 {
@@ -76,7 +76,7 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
     }
     return FALSE;
 }
-
+#endif
 /*********************************************************************
  *
  * QWSCommand base class - only use derived classes from that
@@ -86,6 +86,7 @@ bool qws_read_command( QWSSocket *socket, char *&simpleData, int &simpleLen,
 
 QWSProtocolItem::~QWSProtocolItem() { if (deleteRaw) delete [] rawDataPtr; }
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 void QWSProtocolItem::write( QWSSocket *s ) {
     //qDebug( "sending type %d", type );
     qws_write_command( s, type, simpleDataPtr, simpleLen, rawDataPtr, rawLen );
@@ -100,7 +101,7 @@ bool QWSProtocolItem::read( QWSSocket *s ) {
     }
     return b;
 }
-
+#endif
 void QWSProtocolItem::copyFrom( const QWSProtocolItem *item ) {
     if ( this == item )
 	return;

@@ -172,8 +172,8 @@ public:
     QGfxMach64(unsigned char *,int w,int h);
 
     virtual void drawLine(int,int,int,int);
-    virtual void drawRect(int,int,int,int);
-    virtual void blt( int,int,int,int );
+    virtual void fillRect(int,int,int,int);
+    virtual void blt( int,int,int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
@@ -409,32 +409,20 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 }
 
 template<const int depth,const int type>
-void QGfxMach64<depth,type>::drawRect(int rx,int ry,int w,int h)
+void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
     if(ncliprect<1) {
 	return;
     }
 
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
-	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
 
     if(!checkDest() || myrop!=CopyROP) {
-	QGfxRaster<depth,type>::drawRect(rx,ry,w,h);
+	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
-    }
-
-    // Now draw the lines round the edge if necessary
-    if(cpen.style()!=NoPen) {
-	drawLine(rx,ry,rx+(w-1),ry);
-	drawLine(rx+(w-1),ry+1,rx+(w-1),ry+(h-2));
-	drawLine(rx,ry+(h-1),rx+(w-1),ry+(h-1));
-	drawLine(rx,ry+1,rx,ry+(h-1));
-	rx++;
-	ry++;
-	w-=2;
-	h-=2;
     }
 
     QWSDisplay::grab( TRUE );
@@ -520,7 +508,7 @@ void QGfxMach64<depth,type>::drawRect(int rx,int ry,int w,int h)
 }
 
 template<const int depth,const int type>
-inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
+inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy)
 {
     if(ncliprect<1)
 	return;
@@ -529,7 +517,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
     // memory at the moment
     if(alphatype==BigEndianMask || alphatype==LittleEndianMask ||
        alphatype==SeparateAlpha || srctype==SourcePen || (myrop!=CopyROP) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 
     bool canaccel=false;
@@ -555,18 +543,18 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
     }
 
     if(srctype==SourceImage && canaccel==false) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
     if(srctype==SourcePen && !(alphatype==BigEndianMask ||
 			       alphatype==LittleEndianMask) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
     if( (srcdepth!=32) && (srcdepth!=16) && (srcdepth!=8) ) {
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
 	return;
     }
 
@@ -590,8 +578,8 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
 
 	int xp=xoffs+rx;
 	int yp=yoffs+ry;
-	int xp2=srcoffs.x();
-	int yp2=srcoffs.y();
+	int xp2=srcwidgetoffs.x() + sx;
+	int yp2=srcwidgetoffs.y() + sy;
 
 	if(srctype==SourceImage) {
 
@@ -672,7 +660,7 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h)
 	return;
     } else {
 	QWSDisplay::ungrab();
-	QGfxRaster<depth,type>::blt(rx,ry,w,h);
+	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
 
@@ -687,8 +675,7 @@ void QGfxMach64<depth,type>::scroll( int rx,int ry,int w,int h,int sx,int sy )
     srctype=SourceImage;
     alphatype=IgnoreAlpha;
     ismasking=false;
-    setSourceOffset(sx,sy);
-    blt(rx,ry,w,h);
+    blt(rx,ry,w,h,sx,sy);
 }
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
@@ -917,8 +904,8 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
     int loopc;
     for(loopc=0;loopc<ncliprect;loopc++) {
-	xp2=srcoffs.x();
-	yp2=srcoffs.y();
+	xp2=srcwidgetoffs.x() + brushoffs.x();
+	yp2=srcwidgetoffs.y() + brushoffs.y();
 
 	QRect r=cliprect[loopc];
 	int myxp=xp > r.left() ? xp : r.left();

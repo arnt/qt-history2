@@ -916,8 +916,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	   r.fullyContains(QRect(b.x(),b.y(),w,h))) {
 	    mygfx->setWidgetRegion(r);
 	    mygfx->setSource(parentWidget());
-	    mygfx->setSourceOffset(oldp.x(),oldp.y());
-	    mygfx->blt(x,y,w,h);
+	    mygfx->blt(x,y,w,h,oldp.x(),oldp.y());
 	    delete mygfx;
 	    QRect rp=QRect(oldp,olds);
 	    parentWidget()->repaint(rp);
@@ -1474,7 +1473,10 @@ QGfx * QWidget::graphicsContext() const
 		// not writing to any regions we don't own anymore.
 		// We'll get a RegionModified event soon that will get our
 		// regions back in sync again.
-		r &= qwsDisplay()->regionManager()->region( rgnIdx );
+		QRegion req = qwsDisplay()->regionManager()->region( rgnIdx );
+		QSize s( qt_screen->deviceWidth(), qt_screen->deviceHeight() );
+		req = qt_screen->mapFromDevice( req, s );
+		r &= req;
 	    }
 	    qgfx_qws->setGlobalRegionIndex( rgnIdx );
 	    QWSDisplay::ungrab();

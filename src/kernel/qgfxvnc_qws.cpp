@@ -380,7 +380,6 @@ void QVNCServer::newConnection( int socket )
     connect(client,SIGNAL(delayedCloseFinished()),this,SLOT(discardClient()));
     connect(client,SIGNAL(connectionClosed()),this,SLOT(discardClient()));
     client->setSocket(socket);
-    client->setMode(QSocket::Binary);
     handleMsg = FALSE;
     encodingsPending = 0;
     cutTextPending = 0;
@@ -911,10 +910,10 @@ public:
     virtual void drawPoint( int,int );
     virtual void drawPoints( const QPointArray &,int,int );
     virtual void drawLine( int,int,int,int );
-    virtual void drawRect( int,int,int,int );
+    virtual void fillRect( int,int,int,int );
     virtual void drawPolyline( const QPointArray &,int,int );
     virtual void drawPolygon( const QPointArray &,bool,int,int );
-    virtual void blt( int,int,int,int );
+    virtual void blt( int,int,int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
@@ -965,11 +964,11 @@ void QGfxVNC<depth,type>::drawLine( int x1,int y1,int x2,int y2 )
 }
 
 template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawRect( int x,int y,int w,int h )
+void QGfxVNC<depth,type>::fillRect( int x,int y,int w,int h )
 {
     QWSDisplay::grab( TRUE );
     qvnc_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) & clipbounds );
-    QGfxRaster<depth,type>::drawRect( x, y, w, h );
+    QGfxRaster<depth,type>::fillRect( x, y, w, h );
     QWSDisplay::ungrab();
 }
 
@@ -996,11 +995,11 @@ void QGfxVNC<depth,type>::drawPolygon( const QPointArray &pa,bool w,int x,int y 
 }
 
 template <const int depth, const int type>
-void QGfxVNC<depth,type>::blt( int x,int y,int w,int h )
+void QGfxVNC<depth,type>::blt( int x,int y,int w,int h, int sx, int sy )
 {
     QWSDisplay::grab( TRUE );
     qvnc_screen->setDirty( QRect( x+xoffs, y+yoffs, w, h ) & clipbounds );
-    QGfxRaster<depth,type>::blt( x, y, w, h );
+    QGfxRaster<depth,type>::blt( x, y, w, h, sx, sy );
     QWSDisplay::ungrab();
 }
 

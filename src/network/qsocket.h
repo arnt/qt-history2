@@ -44,7 +44,7 @@
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-
+#ifndef QT_NO_NETWORK
 class QSocketPrivate;
 class QSocketDevice;
 
@@ -137,5 +137,5 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-
+#endif //QT_NO_NETWORK
 #endif // QSOCKET_H

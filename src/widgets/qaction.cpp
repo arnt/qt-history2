@@ -681,7 +681,6 @@ void QAction::showStatusText( const QString& text )
     QObject* par;
     if ( ( par = parent() ) && par->inherits( "QActionGroup" ) )
 	par = par->parent();
-
     if ( !par || !par->isWidgetType() )
 	return;
     QObjectList* l = ( (QWidget*)par )->topLevelWidget()->queryList("QStatusBar");

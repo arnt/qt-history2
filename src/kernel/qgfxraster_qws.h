@@ -59,6 +59,7 @@ public:
     virtual void setPen( const QPen & );
     virtual void setFont( const QFont & );
     virtual void setBrushPixmap( const QPixmap * p ) { cbrushpixmap=p; }
+    virtual void setBrushOffset( int x, int y );
     virtual void setBrush( const QBrush & );
 
     virtual void setClipRect( int,int,int,int );
@@ -80,8 +81,6 @@ public:
 
     virtual void setOpaqueBackground(bool b) { opaque=b; }
     virtual void setBackgroundColor(QColor c) { backcolor=c; }
-
-    virtual void setSourceOffset(int,int);
 
     virtual void setAlphaType(AlphaType);
     virtual void setAlphaSource(unsigned char *,int);
@@ -123,7 +122,7 @@ protected:
 
     bool inClip(int x, int y, QRect* cr=0, bool know_to_be_outside=FALSE);
 
-    void setSourceWidgetOffset( int x, int y );
+    virtual void setSourceWidgetOffset( int x, int y );
     void useBrush();
     void usePen();
     virtual void setSourcePen();
@@ -158,6 +157,7 @@ protected:
 
     QPen cpen;
     QBrush cbrush;
+    QPoint brushoffs;
     bool patternedbrush;
     const QPixmap * cbrushpixmap;
     bool dashedLines;
@@ -181,9 +181,7 @@ protected:
     int srcdepth;
     int srclinestep;
     int srccol;
-    QPoint srcoffs;
-    int srcwidgetx;		    // Needed when source is widget
-    int srcwidgety;
+    QPoint srcwidgetoffs;	    // Needed when source is widget
     bool src_little_endian;
     bool src_normal_palette;
     unsigned int srcclut[256];	    // Source color table - r,g,b values
@@ -225,7 +223,7 @@ protected:
 };
 
 template <const int depth, const int type>
-class QGfxRaster : public QGfxRasterBase, private QPolygonScanner {
+class QGfxRaster : public QGfxRasterBase, protected QPolygonScanner {
 
 public:
 
@@ -235,10 +233,10 @@ public:
     virtual void drawPoint( int,int );
     virtual void drawPoints( const QPointArray &,int,int );
     virtual void drawLine( int,int,int,int );
-    virtual void drawRect( int,int,int,int );
+    virtual void fillRect( int,int,int,int );
     virtual void drawPolyline( const QPointArray &,int,int );
     virtual void drawPolygon( const QPointArray &,bool,int,int );
-    virtual void blt( int,int,int,int );
+    virtual void blt( int,int,int,int,int,int );
     virtual void scroll( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );

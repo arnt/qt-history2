@@ -4966,7 +4966,7 @@ void QDOM_DocumentPrivate::save( QTextStream& s, int ) const
   QDomElement elem = doc.createElement( "img" );
   elem.setAttribute( "src", "myimage.png" );
 
-  doc.append( elem );
+  doc.appendChild( elem );
   \endcode
 
   Once \c doc and \c elem go out of scode, the whole internal tree representing

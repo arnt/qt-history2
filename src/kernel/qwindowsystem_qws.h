@@ -133,15 +133,20 @@ private:
 
 class QMouseHandler;
 struct QWSCommandStruct;
+#ifndef QT_NO_QWS_MULTIPROCESS
 class QWSServer : private QWSServerSocket
+#else
+class QWSServer : private QObject
+#endif
 {
     Q_OBJECT
 
 public:
     QWSServer( int displayId, int flags = 0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
+#ifndef QT_NO_QWS_MULTIPROCESS
     void newConnection( int socket );
-
+#endif
     enum ServerFlags { DisableKeyboard = 0x01,
 		       DisableMouse = 0x02,
 		       DisableAccel = 0x04 };
@@ -177,7 +182,7 @@ public:
     static void sendDesktopRectEvents();
     static void sendMouseEvent(const QPoint& pos, int state);
     static QMouseHandler *mouseHandler();
-    static QList<QWSInternalWindowInfo> windowList();
+    static QList<QWSInternalWindowInfo> * windowList();
 
     void sendPropertyNotifyEvent( int property, int state );
 #ifndef QT_NO_QWS_PROPERTIES
@@ -256,8 +261,10 @@ private:
     void paintBackground( QRegion );
 
 private slots:
+#ifndef QT_NO_QWS_MULTIPROCESS
     void clientClosed();
     void doClient();
+#endif
     void setMouse(const QPoint& pos,int bstate);
 
 private:
@@ -368,7 +375,9 @@ private slots:
     void errorHandler( int );
 private:
     int s; // XXX csocket->d->socket->socket() is this value
+#ifndef QT_NO_QWS_MULTIPROCESS
     QWSSocket *csocket;
+#endif
     QWSCommand* command;
     uint isClosed : 1;
 };

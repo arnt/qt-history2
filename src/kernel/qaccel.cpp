@@ -394,7 +394,7 @@ void QAccel::setItemEnabled( int id, bool enable )
 
 
 /*!
-  Connects the accelerator item \a id to the slot \member of \a receiver.
+  Connects the accelerator item \a id to the slot \a member of \a receiver.
 
   \code
     a->connectItem( 201, mainView, SLOT(quit()) );

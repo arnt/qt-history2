@@ -1954,11 +1954,11 @@ QString QDns::canonicalName() const
 
 #include <sys/types.h>
 #include <netinet/in.h>
-#if defined (_OS_SCO_) // SCO OpenServer 5.0.5
+#if defined (_OS_SCO_) || defined (_OS_AIX_)
 # define class c_class
 #endif
 #include <arpa/nameser.h>
-#if defined (_OS_SCO_)
+#if defined (_OS_SCO_) || defined (_OS_AIX_)
 # undef class
 #endif
 #include <resolv.h>
@@ -2010,11 +2010,11 @@ static void doResInit()
 	while( !i.atEnd() ) {
 	    line = i.readLine().simplifyWhiteSpace().lower();
 	    uint n = 0;
-	    while( n < line.length() && line[n] != '#' )
+	    while( n < line.length() && line[(int)n] != '#' )
 		n++;
 	    line.truncate( n );
 	    n = 0;
-	    while( n < line.length() && !line[n].isSpace() )
+	    while( n < line.length() && !line[(int)n].isSpace() )
 		n++;
 	    QString ip = line.left( n );
 	    QHostAddress a;
@@ -2023,7 +2023,7 @@ static void doResInit()
 		bool first = TRUE;
 		line = line.mid( n+1 );
 		n = 0;
-		while( n < line.length() && !line[n].isSpace() )
+		while( n < line.length() && !line[(int)n].isSpace() )
 		    n++;
 		QString hostname = line.left( n );
 		// ### in case of bad syntax, hostname is invalid. do we care?
@@ -2130,7 +2130,7 @@ static void doResInit()
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ) {
 	// for 98 and 2000 try the API call GetNetworkParams()
-	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
+	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" ); // we don't need Unicode here
 	if ( hinstLib != 0 ) {
 	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
 	    if ( getNetworkParams != 0 ) {

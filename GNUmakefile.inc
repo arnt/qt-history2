@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/GNUmakefile.inc#33 $
+# $Id: //depot/qt/main/GNUmakefile.inc#34 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #

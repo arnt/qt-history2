@@ -42,7 +42,7 @@
 #include <qglobal.h>
 #include <qfeatures.h>
 #endif // QT_H
-
+#ifndef QT_NO_NETWORK
 Q_EXPORT void qInitNetworkProtocols();
-
+#endif
 #endif

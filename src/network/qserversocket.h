@@ -43,7 +43,7 @@
 #include "qhostaddress.h"
 #include "qsocketdevice.h" // ### remove or keep for users' convenience?
 #endif // QT_H
-
+#ifndef QT_NO_NETWORK
 
 class QServerSocketPrivate;
 
@@ -81,5 +81,5 @@ private:
     void init( const QHostAddress & address, Q_UINT16 port, int backlog );
 };
 
-
+#endif // QT_NO_NETWORK
 #endif // QSERVERSOCKET_H

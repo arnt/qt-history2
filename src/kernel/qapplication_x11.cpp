@@ -95,13 +95,13 @@
 
 #if defined(_OS_UNIX_)
 
-#if defined(_OS_SOLARIS_)
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
 #  define BSD_COMP // needed for FIONREAD
 #endif
 
 #include <sys/ioctl.h>
 
-#if defined(_OS_SOLARIS_)
+#if defined(_OS_SOLARIS_) || defined(_OS_UNIXWARE7_)
 #  undef BSD_COMP
 #endif
 

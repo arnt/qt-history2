@@ -308,7 +308,7 @@ static int tabStopDist( const QFontMetrics &fm )
 
 /*!
   Sets the distance between tab stops for all QMultiLineEdit instances
-  to \ex, which is measured in multiples of the width of a lower case 'x'
+  to \a ex, which is measured in multiples of the width of a lower case 'x'
   in the widget's font. The initial value is 8.
 
   \warning This function does not cause a redraw. It is best to call

@@ -1,9 +1,11 @@
+#include "qwsdisplay_qws.h"
+#include "qwsregionmanager_qws.h"
 
+#ifndef QT_NO_QWS_MULTIPROCESS
 #include <sys/ipc.h>
 #include <sys/types.h>
 #include <sys/shm.h>
-#include "qwsdisplay_qws.h"
-#include "qwsregionmanager_qws.h"
+#endif
 
 #define QT_MAX_REGIONS      400
 #define QT_RECTS_PER_REGION 4
@@ -219,11 +221,12 @@ QRect *QWSRegionManager::rects( int offset )
 }
 
 /*
- Attach to shared memory.  The server attaches with read/write priveliges.
+ Attach to shared memory.  The server attaches with read/write privileges.
  Clients attach with read privileges only.
 */
 bool QWSRegionManager::attach( const QString &filename )
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
     int shmId;
     key_t key = ftok( filename.latin1(), 'r' );
     if ( !client ) {
@@ -241,6 +244,14 @@ bool QWSRegionManager::attach( const QString &filename )
     }
 
     return ( shmId != -1 && (int)data != -1 );
+#else
+	int dataSize = sizeof(QWSRegionHeader)                // header
+		    + sizeof(QWSRegionIndex) * QT_MAX_REGIONS // + index
+		    + sizeof(QRect) * regHdr->maxRects;       // + rects
+
+	data = (unsigned char *)malloc( dataSize );
+	return TRUE;
+#endif
 }
 
 /*
@@ -248,6 +259,10 @@ bool QWSRegionManager::attach( const QString &filename )
 */
 void QWSRegionManager::detach()
 {
+#ifndef QT_NO_QWS_MULTIPROCESS    
     shmdt( data );
+#else
+    free( data );
+#endif    
 }
 

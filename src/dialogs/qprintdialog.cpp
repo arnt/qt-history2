@@ -900,6 +900,9 @@ QGroupBox * QPrintDialog::setupDestination()
     horiz->addSpacing( 6 );
     d->browse = new QPushButton( tr("Browse..."), g, "browse files" );
     d->browse->setAutoDefault( FALSE );
+#ifdef QT_NO_FILEDIALOG
+    d->browse->setEnabled( FALSE );
+#endif    
     connect( d->browse, SIGNAL(clicked()),
 	     this, SLOT(browseClicked()) );
     horiz->addWidget( d->browse );
@@ -1188,9 +1191,11 @@ void QPrintDialog::setNumCopies( int copies )
 
 void QPrintDialog::browseClicked()
 {
+#ifndef QT_NO_FILEDIALOG
     QString fn = QFileDialog::getSaveFileName( QString::null, tr( "Postscript files (*.ps);;All files (*)" ), this );
     if ( !fn.isNull() )
 	d->fileName->setText( fn );
+#endif
 }
 
 

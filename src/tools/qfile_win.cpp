@@ -336,18 +336,31 @@ int QFile::readBlock( char *p, uint len )
 	return -1;
     }
 #endif
-    int nread;					// number of bytes read
-    if ( isRaw() ) {				// raw file
-	nread = READ( fd, p, len );
-	if ( len && nread <= 0 ) {
-	    nread = 0;
-	    setStatus(IO_ReadError);
+    int nread = 0;					// number of bytes read
+    if ( !ungetchBuffer.isEmpty() ) {
+	// need to add these to the returned string.
+	int l = ungetchBuffer.length();
+	while( nread < l ) {
+	    *p = ungetchBuffer[ l - nread - 1 ];
+	    p++;
+	    nread++;
 	}
-    } else {					// buffered file
-	nread = fread( p, 1, len, fh );
-	if ( (uint)nread != len ) {
-	    if ( ferror( fh ) || nread==0 )
+	ungetchBuffer.truncate( l - nread );
+    }
+
+    if( nread < (int)len ) {
+	if ( isRaw() ) {				// raw file
+	    nread += READ( fd, p, len - nread );
+	    if ( len && nread <= 0 ) {
+		nread = 0;
 		setStatus(IO_ReadError);
+	    }
+	} else {					// buffered file
+	    nread += fread( p, 1, len - nread, fh );
+	    if ( (uint)nread != len ) {
+		if ( ferror( fh ) || nread==0 )
+		    setStatus(IO_ReadError);
+	    }
 	}
     }
     ioIndex += nread;

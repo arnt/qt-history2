@@ -10,12 +10,14 @@
 #include <qapplication.h>
 #include <qvbox.h>
 #include <qpushbutton.h>
+#include <qradiobutton.h>
 #include <qcheckbox.h>
 #include <qlabel.h>
 #include <qimage.h>
 #include <qtimer.h>
 #include <qlistbox.h>
 #include <qgroupbox.h>
+#include <qvbuttongroup.h>
 #include <qwindowsystem_qws.h>
 
 #include <stdlib.h>
@@ -184,6 +186,27 @@ to the right invoke additional applications.<p><br><hr>"
 	lb->setMaximumHeight(pb->height()*8);
 	connect(lb, SIGNAL(highlighted(int)), this, SLOT(executeOther(int)));
 	connect(lb, SIGNAL(selected(int)), this, SLOT(executeOther(int)));
+
+#if !defined(QT_NO_QWS_TRANSFORMED)
+	QRadioButton *rb;
+	QVButtonGroup *bg = new QVButtonGroup("Orientation", vb);
+	connect( bg, SIGNAL(pressed(int)), this, SLOT(setRotation(int)) );
+	bg->setBackgroundColor(white);
+	bg->setExclusive( TRUE );
+	rb = new QRadioButton( "No Rotation", bg );
+	rb->setBackgroundColor(white);
+	bg->insert( rb );
+	rb = new QRadioButton( "Rotate 90deg", bg );
+	rb->setBackgroundColor(white);
+	bg->insert( rb );
+	rb = new QRadioButton( "Rotate 180deg", bg );
+	rb->setBackgroundColor(white);
+	bg->insert( rb );
+	rb = new QRadioButton( "Rotate 270deg", bg );
+	rb->setBackgroundColor(white);
+	bg->insert( rb );
+	bg->setButton(0);
+#endif
 	
 	QHBox* hb = new QHBox(vb);
 	hb->setBackgroundColor(white);
@@ -321,6 +344,25 @@ private slots:
 	} else {
 	    setenv("QWS_NOACCEL","1",1);
 	}
+    }
+    void setRotation( int r )
+    {
+#if !defined(QT_NO_QWS_TRANSFORMED)
+	switch ( r ) {
+	    case 0:
+		unsetenv( "QWS_DISPLAY" );
+		break;
+	    case 1:
+		setenv( "QWS_DISPLAY", "Transformed:Rot90:0", 1 );
+		break;
+	    case 2:
+		setenv( "QWS_DISPLAY", "Transformed:Rot180:0", 1 );
+		break;
+	    case 3:
+		setenv( "QWS_DISPLAY", "Transformed:Rot270:0", 1 );
+		break;
+	}
+#endif
     }
 private:
     QLabel* info;

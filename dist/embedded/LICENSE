@@ -1,17 +1,18 @@
-                QT/EMBEDDED COMMERCIAL LICENSE AGREEMENT
+                   Qt/EMBEDDED COMMERCIAL LICENSE AGREEMENT
+                   FOR PROFESSIONAL AND ENTERPRISE EDITIONS
 
 Copyright (C) 1999-2000 Trolltech AS.  All rights reserved.
 
 This non-exclusive non-transferable License Agreement is between you
-("Licensee") and Trolltech AS, and pertains to the Qt/Embedded GUI
-Toolkit ("Software") Beta release, including the source code, example
+("Licensee") and Trolltech AS, and pertains to all files in the
+Qt/Embedded GUI Toolkit ("Software"), including the source code, example
 programs and the documentation.
 
 
                         COPYRIGHT AND RESTRICTIONS
 
-1. All intellectual property rights in the Software are owned by
-Trolltech AS and are protected by Norwegian copyright laws, other applicable
+1. All intellectual property rights in the Software are owned by Trolltech
+AS and are protected by Norwegian copyright laws, other applicable
 copyright laws, and international treaty provisions. Trolltech AS retains
 all rights not expressly granted. No title, property rights or copyright
 in the Software or in any modifications to the Software shall pass to the
@@ -21,15 +22,36 @@ Licensee under any circumstances.
 copy. The Licensee may not alter or remove any details of ownership,
 copyright, trade mark or other property right connected with the
 Software. The Licensee may not disclose any source code or any concepts
-and methods therein for any purpose.
+and methods therein for any purpose other than as specifically provided
+in this Agreement.
 
-3. The Licensee may not distribute the Software in any form.
+3. Some groups of files in the Software are designated as Modules. These
+files contain specific notices defining the Module of which they are a
+part. The Licensed Modules are those Modules of the Software specified
+in the license certificate. The files of the Software which are not part
+of any Module will herein be referred to as the Base Software.
 
-4. The Licensee may use the Software for the purpose of evaluation.
+4. The Licensee may use the Base Software and the Licensed Modules on the
+platform(s) specified in the license certificate, to develop any kind of
+product, except products which would compete with the Software. A product
+that satisfies this section will herein be referred to as the Product.
 
-5. Any rights additional to this license are by written agreement with
+5. The Licensee may not distribute, transfer, assign or otherwise
+dispose of, the Software or any part thereof, solely or as a part of the
+Product, its source code, in binary/compiled, or in any other form,
+except as provided by a separate distribution agreement with Trolltech
+AS. Such an agreement, if any, will be referred to as the Distribution
+Agreement.
+
+6. Notwithstanding the limitation set forth in Article 5, the Licensee
+may distribute the Product in binary/compiled form, dynamically
+linked against the Software, provided the only parts of the
+Software included in the Product are derived from the header files
+of the Software, and that no other parts of the Software are
+distributed in any form.
+
+7. Any rights additional to this license are by written agreement with
 Trolltech AS.
-
 
                          LIMITATION OF LIABILITY
 
@@ -54,7 +76,3 @@ the extent invariable law, if any, provides otherwise.
 
 This license is governed by the Laws of Norway. Disputes shall be settled
 by Oslo City Court.
-
-
-
-

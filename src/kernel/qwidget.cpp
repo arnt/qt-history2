@@ -3395,9 +3395,11 @@ void QWidget::hide()
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
 
+#if defined(_WS_WIN_)
     if ( isTopLevel() && !isPopup() && parentWidget() && isActiveWindow() )
 	parentWidget()->setActiveWindow();	// Activate parent
-
+#endif
+    
     hideWindow();
 
     if ( !testWState(WState_Visible) ) {
