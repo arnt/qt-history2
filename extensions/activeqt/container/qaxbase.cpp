@@ -207,7 +207,7 @@ public:
             return DISP_E_MEMBERNOTFOUND;
         if (!combase)
             return E_UNEXPECTED;
-        
+
         QAxMetaObject *meta = const_cast<QAxMetaObject*>(static_cast<const QAxMetaObject*>(combase->metaObject()));
         QByteArray signame = sigs.value(dispIdMember);
         if (!meta || signame.isEmpty())
@@ -216,7 +216,7 @@ public:
         QObject *qobject = combase->qObject();
         if (qobject->signalsBlocked())
             return S_OK;
-        
+
         // emit the generic signal "as is"
         int index = meta->indexOfSignal("signal(QString,int,void*)");
         if (index != -1) {
@@ -224,7 +224,9 @@ public:
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
             combase->qt_metacall(QMetaObject::EmitSignal, index, argv);
         }
-        
+
+        HRESULT hres = S_OK;
+
         // get the signal information from the metaobject
         index = meta->indexOfSignal(signame);
         if (index != -1 && ((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
@@ -285,9 +287,10 @@ public:
                 delete [] argv;
                 delete [] varp;
             }
-            return res ? S_OK : (ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH);
+            hres = res ? S_OK : (ok ? DISP_E_MEMBERNOTFOUND : DISP_E_TYPEMISMATCH);
         }
-        return S_OK;
+
+        return hres;
     }
     
     // IPropertyNotifySink
