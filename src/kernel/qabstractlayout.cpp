@@ -1211,7 +1211,7 @@ bool QLayout::activate()
 	}
     }
 
-    if ( !ms.isEmpty() )
+    if ( ms.isValid() )
 	mainWidget()->setMinimumSize( ms );
 
     // ideally only if sizeHint() or sizePolicy() has changed
