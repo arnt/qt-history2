@@ -1349,12 +1349,9 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 
     case WM_QUERYENDSESSION:
     case WM_DESTROY:
-	if (that->qt.widget && that->ownObject) {
-	    if (that->aggregatedObject)
-		that->aggregatedObject->the_object = 0;
-	    delete that->qt.widget;
-	    that->qt.widget = 0;
-	}
+        // save the window handle
+	if (that->qt.widget)
+            ::SetParent(that->qt.widget->winId(), 0);
 	break;
 
     case WM_SHOWWINDOW:
