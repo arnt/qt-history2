@@ -73,7 +73,7 @@
     \row \i Qt::UpArrowCursor           \i up_arrow
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait
-    \row \i Qt::BusyCursor		\i busy
+    \row \i Qt::BusyCursor		\i left_ptr_watch
     \row \i Qt::IbeamCursor             \i ibeam
     \row \i Qt::SizeVerCursor           \i size_ver
     \row \i Qt::SizeHorCursor           \i size_hor
