@@ -304,7 +304,7 @@ bool QMYSQLDriver::open( const QString & db,
 				0))
     {
 	if ( mysql_select_db( d->mysql, db )) {
-	    setLastError( qMakeError("Unable to real connect", QSqlError::Connection, d ) );
+	    setLastError( qMakeError("Unable open database '" + db + "'", QSqlError::Connection, d ) );
 	    mysql_close( d->mysql );
 	    setOpenError( TRUE );
 	    return FALSE;
