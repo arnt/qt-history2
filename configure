@@ -1260,6 +1260,17 @@ if [ "$OPT_SHADOW" = "yes" ]; then
 	fi
     done
 
+    # make a syncqt script that can be used in the shadow
+    rm -f "$outpath/bin/syncqt"
+    if [ -x "/usr/bin/perl" ] && [ -x "$relpath/bin/syncqt" ]; then
+	mkdir -p "$outpath/bin"
+	echo "#!/bin/sh" >$outpath/bin/syncqt
+	echo "export QTDIR=$relpath" >>$outpath/bin/syncqt
+	[ "$Edition" = "troll" ] && echo "perl $relpath/bin/syncqt -inc $relpath/include" >>$outpath/bin/syncqt
+	echo "perl $relpath/bin/syncqt -inc $outpath/include" >>$outpath/bin/syncqt
+	chmod 755 $outpath/bin/syncqt
+    fi
+
     # symlink the mkspecs directory
     mkdir -p $outpath/mkspecs
     rm -f $outpath/mkspecs/*
