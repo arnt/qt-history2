@@ -54,10 +54,13 @@ void QTextCursorPrivate::adjustPosition(int positionOfChange, int charsAddedOrRe
         position = positionOfChange;
     else
         position += charsAddedOrRemoved;
-    if (charsAddedOrRemoved < 0 && anchor < positionOfChange - charsAddedOrRemoved)
+    if (charsAddedOrRemoved < 0 && anchor < positionOfChange - charsAddedOrRemoved) {
         anchor = positionOfChange;
-    else
+        adjusted_anchor = positionOfChange;
+    } else {
         anchor += charsAddedOrRemoved;
+        adjusted_anchor += charsAddedOrRemoved;
+    }
 }
 
 void QTextCursorPrivate::setPosition(int newPosition)
@@ -110,7 +113,7 @@ void QTextCursorPrivate::insertBlock(const QTextBlockFormat &format)
     int idx = formats->indexForFormat(format);
     Q_ASSERT(formats->format(idx).isBlockFormat());
 
-    pieceTable->insertBlock(position, idx, pieceTable->formatCollection()->indexForFormat(QTextCharFormat()));
+    pieceTable->insertBlock(position, idx, formats->indexForFormat(QTextCharFormat()));
 }
 
 QTextTable *QTextCursorPrivate::createTable(int rows, int cols, const QTextTableFormat &tableFormat)
@@ -1027,34 +1030,35 @@ QTextFrame *QTextCursor::insertFrame(const QTextFrameFormat &format)
     QTextFrame *frame = qt_cast<QTextFrame *>(c->createGroup(format));
     Q_ASSERT(frame);
 
-    // #### using the default block format below might be wrong
+    // #### using the default block and char format below might be wrong
+    QTextFormatCollection *formats = d->pieceTable->formatCollection();
+    int idx = formats->indexForFormat(QTextBlockFormat());
+    QTextCharFormat cfmt;
+    cfmt.setGroup(frame);
+    int charIdx = formats->indexForFormat(cfmt);
 
     // beginning of frame before pos1 and end after pos2.
     int pos1 = selectionStart();
     QTextPieceTable::FragmentIterator f = d->pieceTable->find(pos1);
     if (pos1 == 0 || pos1 != f.position()
         || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
-        d->insertBlock(d->blockFormat());
+        d->pieceTable->insertBlock(pos1, idx, charIdx);
     }
 
     int cp = d->position;
     int ca = d->anchor;
+    int cadj = d->adjusted_anchor;
 
     int pos2 = selectionEnd();
     f = d->pieceTable->find(pos2);
-    if (pos2+1 == d->pieceTable->length() || pos2 != f.position()
+    if (pos2 != f.position()
         || d->pieceTable->buffer().at(f->stringPosition) != QTextParagraphSeparator) {
-        d->insertBlock(d->blockFormat());
+        d->pieceTable->insertBlock(pos2, idx, charIdx);
     }
 
     d->position = cp;
     d->anchor = ca;
-
-    QTextCharFormat cfmt;
-    cfmt.setGroup(frame);
-
-    d->pieceTable->setCharFormat(pos1, 1, cfmt, QTextPieceTable::MergeFormat);
-    d->pieceTable->setCharFormat(pos2, 1, cfmt, QTextPieceTable::MergeFormat);
+    d->adjusted_anchor = cadj;
 
     frame->d_func()->fragment_start = d->pieceTable->find(pos1).n;
     frame->d_func()->fragment_end = d->pieceTable->find(pos2).n;
