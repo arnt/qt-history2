@@ -5,7 +5,7 @@
 **
 ** Created : 950628
 **
-** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -114,7 +114,7 @@ public:
 
     bool	permission( int permissionSpec ) const;
 
-    uint	size()		const; // ### Qt 4: make it Q_LONG
+    uint	size()		const;
 
     QDateTime	created()	const;
     QDateTime	lastModified()	const;

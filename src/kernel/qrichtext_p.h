@@ -1595,6 +1595,7 @@ private:
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
 template class Q_EXPORT QDict<QTextFormat>;
+template class Q_EXPORT QPtrList<QTextFormat>;
 // MOC_SKIP_END
 #endif
 

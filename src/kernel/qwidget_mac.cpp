@@ -1353,7 +1353,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	    if(isResize)
 		SizeWindow((WindowPtr)hd, w, h, 1);
 	    if(isMove)
-		MoveWindow((WindowPtr)hd, x, y, 1);
+		MoveWindow((WindowPtr)hd, x, y, 0);
 	}
     }
 
