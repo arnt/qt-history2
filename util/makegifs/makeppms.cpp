@@ -100,10 +100,22 @@ public:
 
     void takePicture()
     {
+	const int margin = 8;
+
 	QRect r = includeframe ? widget->frameGeometry() : widget->geometry();
 	QPixmap pm = QPixmap::grabWindow( QApplication::desktop()->winId(),
 	    r.x(), r.y(), r.width(), r.height() );
-	pm.save( filename, "PPM" );
+	if (includeframe) {
+	    pm.save( filename, "PPM" );
+	} else {
+	    QPixmap ppm(r.width()+2*margin, r.height()+2*margin);
+	    ppm.fill(QApplication::palette()->normal().background());
+	    QPainter p;
+	    p.begin(&ppm);
+	    p.drawPixmap(margin,margin,pm);
+	    p.end();
+	    ppm.save( filename, "PPM" );
+	}
     }
 };
 
@@ -518,7 +530,7 @@ public:
 
 	resize(190,160);
 
-	centerOn(150,150);
+	center(150,150);
 	setFrameStyle(WinPanel|Sunken);
     }
 };
