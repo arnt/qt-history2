@@ -521,7 +521,8 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     }
 
     QChar sep;
-    QStringList args = functionParameters( function, sep );
+    QString pre, post;
+    QStringList args = functionParameters( function, sep, pre, post );
     if ( args.isEmpty() )
 	return FALSE;
 
@@ -559,6 +560,8 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
 	    s += " ";
     }
     s += ")";
+    s.prepend( pre );
+    s.append( post );
 
     functionLabel->setText( s );
     if ( functionLabel->isVisible() ) {
@@ -581,7 +584,7 @@ bool EditorCompletion::doArgumentHint( bool useIndex )
     return TRUE;
 }
 
-QStringList EditorCompletion::functionParameters( const QString &, QChar & )
+QStringList EditorCompletion::functionParameters( const QString &, QChar &, QString &prefix, QString &postfix )
 {
     return QStringList();
 }

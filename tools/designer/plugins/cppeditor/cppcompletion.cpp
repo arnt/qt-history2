@@ -101,8 +101,11 @@ bool CppEditorCompletion::doObjectCompletion( const QString &objName )
     return TRUE;
 }
 
-QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar &separator )
+QStringList CppEditorCompletion::functionParameters( const QString &expr, QChar &separator,
+						     QString &prefix, QString &postfix )
 {
+    Q_UNUSED( prefix );
+    Q_UNUSED( postfix );
     separator = ',';
     if ( !ths )
 	return QStringList();

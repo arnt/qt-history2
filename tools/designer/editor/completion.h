@@ -69,7 +69,7 @@ public:
     virtual bool doArgumentHint( bool useIndex );
 
     virtual void addEditor( Editor *e );
-    virtual QStringList functionParameters( const QString &func, QChar & );
+    virtual QStringList functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
 
     virtual void setContext( QObjectList *toplevels, QObject *this_ );
 

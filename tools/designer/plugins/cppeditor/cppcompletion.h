@@ -32,7 +32,7 @@ public:
     CppEditorCompletion( Editor *e );
 
     bool doObjectCompletion( const QString &object );
-    QStringList functionParameters( const QString &func, QChar & );
+    QStringList functionParameters( const QString &func, QChar &, QString &prefix, QString &postfix );
     void setContext( QObjectList *toplevels, QObject *this_ );
 
 private:
