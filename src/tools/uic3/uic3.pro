@@ -1,7 +1,11 @@
 
 TEMPLATE = app
 CONFIG += console
+CONFIG -= resource_fork
+
 QT += xml compat
+
+mac:QT += network sql
 
 DESTDIR = ../../../bin
 
