@@ -64,7 +64,7 @@ bool MainWindow::saveAs()
         return false;
 
     if (QFile::exists(fileName)) {
-        int ret = QMessageBox::showWarning(this, tr("Application"),
+        int ret = QMessageBox::warning(this, tr("Application"),
                      tr("File %1 already exists.\n"
                         "Do you want to overwrite it?")
                      .arg(QDir::convertSeparators(fileName)),
@@ -79,7 +79,7 @@ bool MainWindow::saveAs()
 
 void MainWindow::about()
 {
-   QMessageBox::showAbout(this, tr("About Application"),
+   QMessageBox::about(this, tr("About Application"),
             tr("The <b>Application</b> example demonstrates how to "
                "write modern GUI applications using Qt, with a menu bar, "
                "toolbars, and a status bar."));
@@ -207,7 +207,7 @@ void MainWindow::writeSettings()
 bool MainWindow::maybeSave()
 {
     if (textEdit->document()->isModified()) {
-        int ret = QMessageBox::showWarning(this, tr("Application"),
+        int ret = QMessageBox::warning(this, tr("Application"),
                      tr("The document has been modified.\n"
                         "Do you want to save your changes?"),
                      QMessageBox::Yes | QMessageBox::Default,
@@ -225,7 +225,7 @@ void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::ReadOnly | QFile::Text)) {
-        QMessageBox::showWarning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));
@@ -245,7 +245,7 @@ void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
     if (!file.open(QFile::WriteOnly | QFile::Text)) {
-        QMessageBox::showWarning(this, tr("Application"),
+        QMessageBox::warning(this, tr("Application"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)
                              .arg(file.errorString()));

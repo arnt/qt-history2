@@ -14,7 +14,7 @@ Server::Server(QWidget *parent)
 
     tcpServer = new QTcpServer(this);
     if (!tcpServer->listen()) {
-        QMessageBox::showCritical(this, tr("Fortune Server"),
+        QMessageBox::critical(this, tr("Fortune Server"),
                               tr("Unable to start the server: %1.")
                               .arg(tcpServer->errorString()));
         close();

@@ -134,7 +134,7 @@ void PhraseBookBox::save()
     }
 
     if (!pb.save(fn))
-        QMessageBox::showWarning(this, tr("Qt Linguist"),tr("Cannot save phrase book '%1'.").arg(fn));
+        QMessageBox::warning(this, tr("Qt Linguist"),tr("Cannot save phrase book '%1'.").arg(fn));
 }
 
 void PhraseBookBox::sourceChanged(const QString& source)

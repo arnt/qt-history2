@@ -52,7 +52,7 @@ void Dialog::start()
     bytesReceived = 0;
 
     while (!tcpServer.isListening() && !tcpServer.listen()) {
-        int ret = QMessageBox::showCritical(this, tr("Loopback"),
+        int ret = QMessageBox::critical(this, tr("Loopback"),
                                         tr("Unable to start the test: %1.")
 					.arg(tcpServer.errorString()),
                                         QMessageBox::Retry,
@@ -118,7 +118,7 @@ void Dialog::displayError(QTcpSocket::SocketError socketError)
     if (socketError == QTcpSocket::RemoteHostClosedError)
         return;
 
-    QMessageBox::showInformation(this, tr("Network error"),
+    QMessageBox::information(this, tr("Network error"),
                              tr("The following error occurred: %1.")
                              .arg(tcpClient.errorString()));
 

@@ -51,7 +51,7 @@ BrowserWidget::BrowserWidget(QWidget *parent)
 //    layout->addWidget(hbox);
 
     if (QSqlDatabase::drivers().isEmpty())
-        QMessageBox::showInformation(this, tr("No database drivers found"),
+        QMessageBox::information(this, tr("No database drivers found"),
                                  tr("This demo requires at least one Qt database driver. "
                                     "Please check the documentation how to build the "
                                     "Qt SQL plugins."));
@@ -95,7 +95,7 @@ void BrowserWidget::addConnection()
     db.setPassword(dialog.password());
     db.setPort(dialog.port());
     if (!db.open())
-        QMessageBox::showWarning(this, tr("Unable to open database"), tr("An error occured while "
+        QMessageBox::warning(this, tr("Unable to open database"), tr("An error occured while "
                              "opening the connection: ") + db.lastError().text());
 
     dbc->refresh();

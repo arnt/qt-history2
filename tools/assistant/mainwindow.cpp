@@ -249,7 +249,7 @@ void MainWindow::on_actionAboutApplication_triggered()
 {
     QString url = Config::configuration()->aboutURL();
     if (url == QLatin1String("about_qt")) {
-        QMessageBox::showAboutQt(this, QLatin1String("Qt Assistant"));
+        QMessageBox::aboutQt(this, QLatin1String("Qt Assistant"));
         return;
     }
     QString text;
@@ -316,7 +316,7 @@ QString MainWindow::urlifyFileName(const QString &fileName)
                 name = name.replace("\\", "/");
                 break;
             }
-        }        
+        }
     }
 #else
     if (!url.isValid() || url.scheme().isEmpty())
@@ -436,7 +436,7 @@ void MainWindow::timerEvent(QTimerEvent *e)
 
 void MainWindow::showQtHelp()
 {
-    showLink(QLibraryInfo::location(QLibraryInfo::DocumentationPath) + 
+    showLink(QLibraryInfo::location(QLibraryInfo::DocumentationPath) +
              QLatin1String("/html/index.html"));
 }
 

@@ -59,7 +59,7 @@ void HttpWindow::downloadFile()
     QString fileName = fileInfo.fileName();
 
     if (QFile::exists(fileName)) {
-        QMessageBox::showInformation(this, tr("HTTP"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("There already exists a file called %1 in "
                                     "the current directory.")
                                  .arg(fileName));
@@ -68,7 +68,7 @@ void HttpWindow::downloadFile()
 
     file = new QFile(fileName);
     if (!file->open(QIODevice::WriteOnly)) {
-        QMessageBox::showInformation(this, tr("HTTP"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("Unable to save the file %1: %2.")
                                  .arg(fileName).arg(file->errorString()));
         delete file;
@@ -118,7 +118,7 @@ void HttpWindow::httpRequestFinished(int requestId, bool error)
 
     if (error) {
         file->remove();
-        QMessageBox::showInformation(this, tr("HTTP"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("Download failed: %1.")
                                  .arg(http->errorString()));
     } else {
@@ -134,7 +134,7 @@ void HttpWindow::httpRequestFinished(int requestId, bool error)
 void HttpWindow::readResponseHeader(const QHttpResponseHeader &responseHeader)
 {
     if (responseHeader.statusCode() != 200) {
-        QMessageBox::showInformation(this, tr("HTTP"),
+        QMessageBox::information(this, tr("HTTP"),
                                  tr("Download failed: %1.")
                                  .arg(responseHeader.reasonPhrase()));
         httpRequestAborted = true;

@@ -212,11 +212,7 @@ signals:
 
 public slots:
     void closeAllWindows();
-    static void showAboutQt();
-
-#ifdef QT_COMPAT
-    inline static QT_COMPAT void aboutQt() { showAboutQt(); }
-#endif
+    static void aboutQt();
 
 protected:
 #if defined(Q_WS_QWS)

@@ -64,12 +64,10 @@ public:
     Qt::TextFormat textFormat() const;
     void setTextFormat(Qt::TextFormat);
 
-    QSize sizeHint() const;
-
-    static int showInformation(QWidget *parent, const QString &caption,
+    static int information(QWidget *parent, const QString &caption,
                             const QString& text,
                             int button0, int button1=0, int button2=0);
-    static int showInformation(QWidget *parent, const QString &caption,
+    static int information(QWidget *parent, const QString &caption,
                             const QString& text,
                             const QString& button0Text = QString(),
                             const QString& button1Text = QString(),
@@ -77,10 +75,10 @@ public:
                             int defaultButtonNumber = 0,
                             int escapeButtonNumber = -1);
 
-    static int showQuestion(QWidget *parent, const QString &caption,
+    static int question(QWidget *parent, const QString &caption,
                          const QString& text,
                          int button0, int button1=0, int button2=0);
-    static int showQuestion(QWidget *parent, const QString &caption,
+    static int question(QWidget *parent, const QString &caption,
                          const QString& text,
                          const QString& button0Text = QString(),
                          const QString& button1Text = QString(),
@@ -88,10 +86,10 @@ public:
                          int defaultButtonNumber = 0,
                          int escapeButtonNumber = -1);
 
-    static int showWarning(QWidget *parent, const QString &caption,
+    static int warning(QWidget *parent, const QString &caption,
                         const QString& text,
                         int button0, int button1, int button2=0);
-    static int showWarning(QWidget *parent, const QString &caption,
+    static int warning(QWidget *parent, const QString &caption,
                         const QString& text,
                         const QString& button0Text = QString(),
                         const QString& button1Text = QString(),
@@ -99,10 +97,10 @@ public:
                         int defaultButtonNumber = 0,
                         int escapeButtonNumber = -1);
 
-    static int showCritical(QWidget *parent, const QString &caption,
+    static int critical(QWidget *parent, const QString &caption,
                          const QString& text,
                          int button0, int button1, int button2=0);
-    static int showCritical(QWidget *parent, const QString &caption,
+    static int critical(QWidget *parent, const QString &caption,
                          const QString& text,
                          const QString& button0Text = QString(),
                          const QString& button1Text = QString(),
@@ -110,96 +108,15 @@ public:
                          int defaultButtonNumber = 0,
                          int escapeButtonNumber = -1);
 
-    static void showAbout(QWidget *parent, const QString &caption,
+    static void about(QWidget *parent, const QString &caption,
                        const QString& text);
 
-    static void showAboutQt(QWidget *parent,
+    static void aboutQt(QWidget *parent,
                          const QString& caption=QString());
 
+    QSize sizeHint() const;
+
 #ifdef QT_COMPAT
-    inline static QT_COMPAT int information(QWidget *parent, const QString &caption,
-                            const QString& text,
-                            int button0, int button1=0, int button2=0)
-    {
-        return showInformation(parent, caption, text, button0, button1, button2);
-    }
-    inline static QT_COMPAT int information(QWidget *parent, const QString &caption,
-                            const QString& text,
-                            const QString& button0Text = QString(),
-                            const QString& button1Text = QString(),
-                            const QString& button2Text = QString(),
-                            int defaultButtonNumber = 0,
-                            int escapeButtonNumber = -1)
-    {
-        return showInformation(parent, caption, text, 
-            button0Text, button1Text, button2Text, defaultButtonNumber, escapeButtonNumber);
-    }
-
-    inline static QT_COMPAT int question(QWidget *parent, const QString &caption,
-                         const QString& text,
-                         int button0, int button1=0, int button2=0)
-    {
-        return showQuestion(parent, caption, text, button0, button1, button2);
-    }
-    inline static QT_COMPAT int question(QWidget *parent, const QString &caption,
-                         const QString& text,
-                         const QString& button0Text = QString(),
-                         const QString& button1Text = QString(),
-                         const QString& button2Text = QString(),
-                         int defaultButtonNumber = 0,
-                         int escapeButtonNumber = -1)
-    {
-        return showQuestion(parent, caption, text, 
-            button0Text, button1Text, button2Text, defaultButtonNumber, escapeButtonNumber);
-    }
-
-    inline static QT_COMPAT int warning(QWidget *parent, const QString &caption,
-                        const QString& text,
-                        int button0, int button1, int button2=0)
-    {
-        return showWarning(parent, caption, text, button0, button1, button2);
-    }
-    inline static QT_COMPAT int warning(QWidget *parent, const QString &caption,
-                        const QString& text,
-                        const QString& button0Text = QString(),
-                        const QString& button1Text = QString(),
-                        const QString& button2Text = QString(),
-                        int defaultButtonNumber = 0,
-                        int escapeButtonNumber = -1)
-    {
-        return showWarning(parent, caption, text, 
-            button0Text, button1Text, button2Text, defaultButtonNumber, escapeButtonNumber);
-    }
-
-    inline static QT_COMPAT int critical(QWidget *parent, const QString &caption,
-                         const QString& text,
-                         int button0, int button1, int button2=0)
-    {
-        return showCritical(parent, caption, text, button0, button1, button2);
-    }
-
-    inline static QT_COMPAT int critical(QWidget *parent, const QString &caption,
-                         const QString& text,
-                         const QString& button0Text = QString(),
-                         const QString& button1Text = QString(),
-                         const QString& button2Text = QString(),
-                         int defaultButtonNumber = 0,
-                         int escapeButtonNumber = -1)
-    {
-        return showCritical(parent, caption, text, 
-            button0Text, button1Text, button2Text, defaultButtonNumber, escapeButtonNumber);
-    }
-
-    inline static QT_COMPAT void about(QWidget *parent, const QString &caption, const QString& text)
-    {
-        showAbout(parent, caption, text);
-    }
-
-    inline static QT_COMPAT void aboutQt(QWidget *parent, const QString& caption=QString())
-    {
-        showAboutQt(parent, caption);
-    }
-
     QT_COMPAT_CONSTRUCTOR QMessageBox(const QString &caption, const QString &text, Icon icon,
                                       int button0, int button1, int button2,
                                       QWidget *parent, const char *name, bool modal,
@@ -211,7 +128,7 @@ public:
                                  const QString& text,
                                  const QString& buttonText=QString(),
                                  QWidget *parent=0, const char * =0) {
-        return showInformation(parent, caption, text,
+        return QMessageBox::information(parent, caption, text,
                                         buttonText.isEmpty()
                                      ? tr("OK") : buttonText) == 0;
     }
@@ -220,7 +137,7 @@ public:
                                 const QString& yesButtonText=QString(),
                                 const QString& noButtonText=QString(),
                                 QWidget *parent=0, const char * = 0) {
-        return showInformation(parent, caption, text,
+        return QMessageBox::information(parent, caption, text,
                                      yesButtonText.isEmpty()
                                      ? tr("OK") : yesButtonText,
                                      noButtonText) == 0;

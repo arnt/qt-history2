@@ -175,7 +175,7 @@ bool TsHandler::fatalError( const QXmlParseException& exception )
         if ( qApp == 0 )
             fprintf( stderr, "XML error: %s\n", msg.toLatin1().data() );
         else
-            QMessageBox::showInformation( qApp->mainWidget(),
+            QMessageBox::information( qApp->mainWidget(),
                                       QObject::tr("Qt Linguist"), msg );
     }
     return false;

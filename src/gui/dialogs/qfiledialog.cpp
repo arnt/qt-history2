@@ -794,7 +794,7 @@ void QFileDialog::accept()
             return;
         if (!info.exists() || acceptMode() == AcceptOpen)
             QDialog::accept();
-        else if (QMessageBox::showWarning(this, windowTitle(),
+        else if (QMessageBox::warning(this, windowTitle(),
                                       fn + tr(" already exists.\n"
                                               "Do you want to replace it?"),
                                       QMessageBox::Yes,
@@ -808,7 +808,7 @@ void QFileDialog::accept()
             if (!info.exists()) {
                 QString message = tr("\nFile not found.\nPlease verify the "
                                      "correct file name was given");
-                QMessageBox::showWarning(this, d->acceptButton->text(),
+                QMessageBox::warning(this, d->acceptButton->text(),
                                      info.fileName() + message);
                 return;
             }

@@ -311,7 +311,7 @@ void HelpDialog::loadIndexFile()
         if(lwClosed)
             return;
         if (!indexFile.open(IO_ReadOnly)) {
-            QMessageBox::showWarning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
+            QMessageBox::warning(help, tr("Qt Assistant"), tr("Failed to load keyword index file\n"
                                                               "Assistant will not work!"));
 #if defined Q_WS_WIN || defined Q_WS_MACX
             startTimer(50);
@@ -327,7 +327,7 @@ void HelpDialog::loadIndexFile()
         indexFile.close();
         buildKeywordDB();
         if (!indexFile.open(IO_ReadOnly)) {
-            QMessageBox::showWarning(help, tr("Qt Assistant"),
+            QMessageBox::warning(help, tr("Qt Assistant"),
                 tr("Cannot open the index file %1").arg(QFileInfo(indexFile).absoluteFilePath()));
             return;
         }
@@ -403,7 +403,7 @@ void HelpDialog::buildKeywordDB()
     for(i = addDocuFiles.begin(); i != addDocuFiles.end(); i++){
         QFile file(*i);
         if (!file.exists()) {
-            QMessageBox::showWarning(this, tr("Warning"),
+            QMessageBox::warning(this, tr("Warning"),
                 tr("Documentation file %1 does not exist!\n"
                     "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
@@ -416,7 +416,7 @@ void HelpDialog::buildKeywordDB()
             QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
-            QMessageBox::showCritical(this, tr("Parse Error"), tr(msg));
+            QMessageBox::critical(this, tr("Parse Error"), tr(msg));
             delete handler;
             continue;
         }
@@ -513,7 +513,7 @@ void HelpDialog::buildContentDict()
     for(QStringList::iterator it = docuFiles.begin(); it != docuFiles.end(); it++) {
         QFile file(*it);
         if (!file.exists()) {
-            QMessageBox::showWarning(this, tr("Warning"),
+            QMessageBox::warning(this, tr("Warning"),
             tr("Documentation file %1 does not exist!\n"
                 "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
@@ -521,7 +521,7 @@ void HelpDialog::buildContentDict()
         fileAges += QFileInfo(file).lastModified().toTime_t();
         DocuParser *handler = DocuParser::createParser(*it);
         if(!handler) {
-            QMessageBox::showWarning(this, tr("Warning"),
+            QMessageBox::warning(this, tr("Warning"),
             tr("Documentation file %1 is not compatible!\n"
                 "Skipping file.").arg(QFileInfo(file).absoluteFilePath()));
             continue;
@@ -535,7 +535,7 @@ void HelpDialog::buildContentDict()
             QString msg = QString::fromLatin1("In file %1:\n%2")
                           .arg(QFileInfo(file).absoluteFilePath())
                           .arg(handler->errorProtocol());
-            QMessageBox::showCritical(this, tr("Parse Error"), tr(msg));
+            QMessageBox::critical(this, tr("Parse Error"), tr(msg));
             continue;
         }
     }
@@ -922,7 +922,7 @@ void HelpDialog::setupFullTextIndex()
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
     if (!verifyDirectory(cacheFilesPath)) {
-        QMessageBox::showWarning(help, tr("Qt Assistant"),
+        QMessageBox::warning(help, tr("Qt Assistant"),
                              tr("Failed to save fulltext search index\n"
                                 "Assistant will not work!"));
         return;
@@ -996,7 +996,7 @@ void HelpDialog::startSearch()
                 s = s.toLower();
                 s = s.simplified();
                 if (s.contains(QLatin1Char('*'))) {
-                    QMessageBox::showWarning(this, tr("Full Text Search"),
+                    QMessageBox::warning(this, tr("Full Text Search"),
                         tr("Using a wildcard within phrases is not allowed."));
                     return;
                 }
@@ -1005,7 +1005,7 @@ void HelpDialog::startSearch()
                 beg = str.indexOf(QLatin1Char('\"'), end + 1);
             }
         } else {
-            QMessageBox::showWarning(this, tr("Full Text Search"),
+            QMessageBox::warning(this, tr("Full Text Search"),
                 tr("The closing quotation mark is missing."));
             return;
         }

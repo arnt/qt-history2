@@ -30,7 +30,7 @@
 #include <qlibraryinfo.h>
 
 #ifdef Q_WS_WIN
-#define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::showInformation( 0, "Qt Assistant", text ); return 1; }
+#define INDEX_CHECK( text ) if( i+1 >= argc ) { QMessageBox::information( 0, "Qt Assistant", text ); return 1; }
 #else
 #define INDEX_CHECK( text ) if( i+1 >= argc ) { fprintf( stderr, text "\n" ); return 1; }
 #endif
@@ -101,7 +101,7 @@ AssistantServer::AssistantServer( QObject *parent )
     : Q3ServerSocket( QHostAddress::LocalHost, 0, 1, parent )
 {
     if ( !ok() ) {
-        QMessageBox::showCritical( 0, tr( "Qt Assistant" ),
+        QMessageBox::critical( 0, tr( "Qt Assistant" ),
                 tr( "Failed to bind to port %1" ).arg( port() ) );
         exit( 1 );
     }
@@ -234,7 +234,7 @@ int main( int argc, char ** argv )
                                   " -hideSidebar               assistant will hide the sidebar.\n"
                                   " -help                      shows this help.");
 #ifdef Q_WS_WIN
-                QMessageBox::showInformation( 0, QLatin1String("Qt Assistant"),
+                QMessageBox::information( 0, QLatin1String("Qt Assistant"),
                     QLatin1String("<pre>") + helpText + QLatin1String("</pre>") );
 #else
                 printf( "%s\n", helpText.latin1() );

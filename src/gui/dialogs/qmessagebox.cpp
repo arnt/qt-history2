@@ -177,16 +177,16 @@ static const char * const qtlogo_xpm[] = {
     well without it:
 
     \code
-    QMessageBox::showInformation(this, "Application name",
+    QMessageBox::information(this, "Application name",
     "Unable to find the user preferences file.\n"
     "The factory default will be used instead.");
     \endcode
 
-    showQuestion() is useful for simple yes/no questions:
+    question() is useful for simple yes/no questions:
 
     \code
     if (QFile::exists(filename) &&
-        QMessageBox::showQuestion(
+        QMessageBox::question(
             this,
             tr("Overwrite File? -- Application Name"),
             tr("A file called %1 already exists."
@@ -197,11 +197,11 @@ static const char * const qtlogo_xpm[] = {
         return false;
     \endcode
 
-    showWarning() can be used to tell the user about unusual errors, or
+    warning() can be used to tell the user about unusual errors, or
     errors which can't be easily fixed:
 
     \code
-    switch(QMessageBox::showWarning(this, "Application name",
+    switch(QMessageBox::warning(this, "Application name",
         "Could not connect to the <mumble> server.\n"
         "This program can't function correctly "
         "without the server.\n\n",
@@ -238,7 +238,7 @@ static const char * const qtlogo_xpm[] = {
     save the data. For example:
 
     \code
-    switch(QMessageBox::showInformation(this, "Application name here",
+    switch(QMessageBox::information(this, "Application name here",
         "The document contains unsaved changes\n"
         "Do you want to save the changes before exiting?",
         "&Save", "&Discard", "Cancel",
@@ -264,7 +264,7 @@ static const char * const qtlogo_xpm[] = {
     hard-coded button texts:
 
     \code
-    switch(QMessageBox::showWarning(this, "Application name here",
+    switch(QMessageBox::warning(this, "Application name here",
         "Could not save the user preferences,\n"
         "because the disk is full. You can delete\n"
         "some files and press Retry, or you can\n"
@@ -280,12 +280,12 @@ static const char * const qtlogo_xpm[] = {
     }
     \endcode
 
-    The showCritical() function should be reserved for critical errors. In
+    The critical() function should be reserved for critical errors. In
     this example errorDetails is a QString or const char*, and QString
     is used to concatenate several strings:
 
     \code
-    QMessageBox::showCritical(0, "Application name here",
+    QMessageBox::critical(0, "Application name here",
         QString("An internal error occurred. Please ") +
         "call technical support at 1234-56789 and report\n"+
         "these numbers:\n\n" + errorDetails +
@@ -298,7 +298,7 @@ static const char * const qtlogo_xpm[] = {
     appropriate icon and the string you provide:
 
     \code
-    QMessageBox::showAbout(this, "About <Application>",
+    QMessageBox::about(this, "About <Application>",
         "<Application> is a <one-paragraph blurb>\n\n"
         "Copyright 1991-2003 Such-and-such. "
         "<License words here.>\n\n"
@@ -306,12 +306,12 @@ static const char * const qtlogo_xpm[] = {
         "http://www.such-and-such.com/Application/\n");
     \endcode
 
-    See showAbout() for more information.
+    See about() for more information.
 
     If you want your users to know that the application is built using
     Qt (so they know that you use high quality tools) you might like
     to add an "About Qt" menu option under the Help menu to invoke
-    showAboutQt().
+    aboutQt().
 
     If none of the standard message boxes is suitable, you can create a
     QMessageBox from scratch and use custom button texts:
@@ -342,8 +342,8 @@ static const char * const qtlogo_xpm[] = {
     QMessageBox defines two enum types: Icon and an unnamed button type.
     Icon defines the \c Question, \c Information, \c Warning, and \c
     Critical icons for each GUI style. It is used by the constructor
-    and by the static member functions showQuestion(), showInformation(),
-    showWarning() and showCritical(). A function called standardIcon() gives
+    and by the static member functions question(), information(),
+    warning() and critical(). A function called standardIcon() gives
     you access to the various icons.
 
     The button types are:
@@ -1065,7 +1065,7 @@ void QMessageBox::closeEvent(QCloseEvent *e)
   given \a buttonText (or tr("OK")). The message box is centred over
   its \a parent and is called \a name.
 
-  Use showInformation(), showWarning(), showQuestion(), or showCritical() instead.
+  Use information(), warning(), question(), or critical() instead.
 */
 
 /*!
@@ -1084,7 +1084,7 @@ void QMessageBox::closeEvent(QCloseEvent *e)
   has the \a noButtonText (or isn't shown). The message box is centred
   over its \a parent and is called \a name.
 
-  Use showInformation(), showQuestion(), showWarning(), or showCritical() instead.
+  Use information(), question(), warning(), or critical() instead.
 */
 
 /*!
@@ -1119,10 +1119,10 @@ void QMessageBox::closeEvent(QCloseEvent *e)
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    \sa showQuestion(), showWarning(), showCritical()
+    \sa question(), warning(), critical()
 */
 
-int QMessageBox::showInformation(QWidget *parent, const QString& caption, const QString& text,
+int QMessageBox::information(QWidget *parent, const QString& caption, const QString& text,
                              int button0, int button1, int button2)
 {
     QMessageBox mb(caption, text, Information, button0, button1, button2, parent);
@@ -1161,10 +1161,10 @@ int QMessageBox::showInformation(QWidget *parent, const QString& caption, const 
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    \sa showInformation(), showWarning(), showCritical()
+    \sa information(), warning(), critical()
 */
 
-int QMessageBox::showQuestion(QWidget *parent,
+int QMessageBox::question(QWidget *parent,
                            const QString& caption, const QString& text,
                            int button0, int button1, int button2)
 {
@@ -1205,10 +1205,10 @@ int QMessageBox::showQuestion(QWidget *parent,
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    \sa showInformation(), showQuestion(), showCritical()
+    \sa information(), question(), critical()
 */
 
-int QMessageBox::showWarning(QWidget *parent,
+int QMessageBox::warning(QWidget *parent,
                           const QString& caption, const QString& text,
                           int button0, int button1, int button2)
 {
@@ -1249,10 +1249,10 @@ int QMessageBox::showWarning(QWidget *parent,
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    \sa showInformation(), showQuestion(), showWarning()
+    \sa information(), question(), warning()
 */
 
-int QMessageBox::showCritical(QWidget *parent,
+int QMessageBox::critical(QWidget *parent,
                            const QString& caption, const QString& text,
                            int button0, int button1, int button2)
 {
@@ -1280,7 +1280,7 @@ int QMessageBox::showCritical(QWidget *parent,
     \sa QWidget::windowIcon() QApplication::mainWidget()
 */
 
-void QMessageBox::showAbout(QWidget *parent, const QString &caption,
+void QMessageBox::about(QWidget *parent, const QString &caption,
                          const QString& text)
 {
     QMessageBox mb(caption, text, Information, Ok + Default, 0, 0, parent);
@@ -1383,10 +1383,10 @@ static int textBox(QWidget *parent, QMessageBox::Icon severity,
     button is pressed then -1 will be returned.  It is suggested that
     you specify an Escape button to prevent this from happening.
 
-    \sa showQuestion(), showWarning(), showCritical()
+    \sa question(), warning(), critical()
 */
 
-int QMessageBox::showInformation(QWidget *parent, const QString &caption,
+int QMessageBox::information(QWidget *parent, const QString &caption,
                               const QString& text,
                               const QString& button0Text,
                               const QString& button1Text,
@@ -1426,9 +1426,9 @@ int QMessageBox::showInformation(QWidget *parent, const QString &caption,
     button is pressed then -1 will be returned.  It is suggested that
     you specify an Escape button to prevent this from happening.
 
-    \sa showInformation(), showWarning(), showCritical()
+    \sa information(), warning(), critical()
 */
-int QMessageBox::showQuestion(QWidget *parent, const QString &caption,
+int QMessageBox::question(QWidget *parent, const QString &caption,
                            const QString& text,
                            const QString& button0Text,
                            const QString& button1Text,
@@ -1469,10 +1469,10 @@ int QMessageBox::showQuestion(QWidget *parent, const QString &caption,
     button is pressed then -1 will be returned.  It is suggested that
     you specify an Escape button to prevent this from happening.
 
-    \sa showInformation(), showQuestion(), showCritical()
+    \sa information(), question(), critical()
 */
 
-int QMessageBox::showWarning(QWidget *parent, const QString &caption,
+int QMessageBox::warning(QWidget *parent, const QString &caption,
                                  const QString& text,
                                  const QString& button0Text,
                                  const QString& button1Text,
@@ -1509,10 +1509,10 @@ int QMessageBox::showWarning(QWidget *parent, const QString &caption,
     modal dialog box. If \a parent is a widget, the message box
     becomes modal relative to \a parent.
 
-    \sa showInformation(), showQuestion(), showWarning()
+    \sa information(), question(), warning()
 */
 
-int QMessageBox::showCritical(QWidget *parent, const QString &caption,
+int QMessageBox::critical(QWidget *parent, const QString &caption,
                                   const QString& text,
                                   const QString& button0Text,
                                   const QString& button1Text,
@@ -1540,10 +1540,10 @@ extern void qt_read_xpm_image_or_array(QImageIO *, const char * const *, QImage 
 
     QApplication provides this functionality as a slot.
 
-    \sa QApplication::showAboutQt()
+    \sa QApplication::aboutQt()
 */
 
-void QMessageBox::showAboutQt(QWidget *parent, const QString &caption)
+void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 {
     QMessageBox mb(parent);
 

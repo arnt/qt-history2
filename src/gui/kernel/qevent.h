@@ -331,7 +331,6 @@ protected:
     uint reas : 8;
 };
 
-// ################ add support for string replacement!
 class Q_GUI_EXPORT QInputMethodEvent : public QEvent
 {
 public:

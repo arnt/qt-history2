@@ -142,7 +142,7 @@ public:
 	QString fontdir = fntd + "/fontdir";
 	QFile fd(fontdir);
 	if ( !fd.open(IO_ReadOnly) ) {
-	    QMessageBox::showWarning(this, "Read Error",
+	    QMessageBox::warning(this, "Read Error",
 		"<p>Cannot read "+fontdir);
 	    return;
 	}

@@ -66,22 +66,22 @@ Dialog::Dialog(QWidget *parent)
     criticalLabel = new QLabel(this);
     criticalLabel->setFrameStyle(frameStyle);
     QPushButton *criticalButton =
-            new QPushButton(tr("QMessageBox::showCritica&l()"), this);
+            new QPushButton(tr("QMessageBox::critica&l()"), this);
 
     informationLabel = new QLabel(this);
     informationLabel->setFrameStyle(frameStyle);
     QPushButton *informationButton =
-            new QPushButton(tr("QMessageBox::showI&nformation()"), this);
+            new QPushButton(tr("QMessageBox::i&nformation()"), this);
 
     questionLabel = new QLabel(this);
     questionLabel->setFrameStyle(frameStyle);
     QPushButton *questionButton =
-            new QPushButton(tr("QMessageBox::show&Question()"), this);
+            new QPushButton(tr("QMessageBox::&question()"), this);
 
     warningLabel = new QLabel(this);
     warningLabel->setFrameStyle(frameStyle);
     QPushButton *warningButton =
-            new QPushButton(tr("QMessageBox::show&Warning()"), this);
+            new QPushButton(tr("QMessageBox::&warning()"), this);
 
     errorLabel = new QLabel(this);
     errorLabel->setFrameStyle(frameStyle);
@@ -248,7 +248,7 @@ void Dialog::setSaveFileName()
 
 void Dialog::criticalMessage()
 {
-    int reply = QMessageBox::showCritical(this, tr("QMessageBox::showCritical()"),
+    int reply = QMessageBox::critical(this, tr("QMessageBox::showCritical()"),
                                       MESSAGE,
                                       QMessageBox::Abort,
                                       QMessageBox::Retry,
@@ -263,13 +263,13 @@ void Dialog::criticalMessage()
 
 void Dialog::informationMessage()
 {
-    QMessageBox::showInformation(this, tr("QMessageBox::showInformation()"), MESSAGE);
+    QMessageBox::information(this, tr("QMessageBox::showInformation()"), MESSAGE);
     informationLabel->setText(tr("Closed with OK or Esc"));
 }
 
 void Dialog::questionMessage()
 {
-    int reply = QMessageBox::showQuestion(this, tr("QMessageBox::showQuestion()"),
+    int reply = QMessageBox::question(this, tr("QMessageBox::showQuestion()"),
                                       MESSAGE,
                                       QMessageBox::Yes,
                                       QMessageBox::No,
@@ -284,7 +284,7 @@ void Dialog::questionMessage()
 
 void Dialog::warningMessage()
 {
-    int reply = QMessageBox::showWarning(this, tr("QMessageBox::showWarning()"),
+    int reply = QMessageBox::warning(this, tr("QMessageBox::showWarning()"),
                                      MESSAGE,
                                      tr("Save &Again"),
                                      tr("&Continue"));
