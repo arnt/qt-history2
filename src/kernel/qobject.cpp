@@ -1926,7 +1926,7 @@ void QObject::activate_signal( int signal )
  	c = clist->first();
   	object = c->object();
   	sigSender = this;
-  	r = (RT)*(c->member());
+  	r = (RT)(c->member());
   	(object->*r)();
     } else {
  	QConnectionListIt it(*clist);
@@ -1934,7 +1934,7 @@ void QObject::activate_signal( int signal )
  	    ++it;
  	    object = c->object();
  	    sigSender = this;
- 	    r = (RT)*(c->member());
+ 	    r = (RT)(c->member());
  	    (object->*r)();
  	}
     }
@@ -1976,10 +1976,10 @@ void QObject::FNAME( int signal, TYPE param )				      \
 	object = c->object(); 						      \
 	sigSender = this;					      	      \
 	if ( c->numArgs() ) {						      \
-	    r1 = (RT1)*(c->member());					      \
+	    r1 = (RT1)(c->member());					      \
 	    (object->*r1)( param );					      \
 	} else {							      \
-	    r0 = (RT0)*(c->member());					      \
+	    r0 = (RT0)(c->member());					      \
 	    (object->*r0)();						      \
 	}								      \
     } else { 								      \
@@ -1989,10 +1989,10 @@ void QObject::FNAME( int signal, TYPE param )				      \
 	    object = c->object();					      \
 	    sigSender = this;						      \
 	    if ( c->numArgs() ) {					      \
-	        r1 = (RT1)*(c->member());				      \
+	        r1 = (RT1)(c->member());				      \
 	        (object->*r1)( param );					      \
 	    } else {							      \
-	        r0 = (RT0)*(c->member());				      \
+	        r0 = (RT0)(c->member());				      \
 	        (object->*r0)();					      \
 	    }								      \
         } 								      \

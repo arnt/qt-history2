@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#195 $
+** $Id: //depot/qt/main/src/moc/moc.y#196 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -2456,7 +2456,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#195 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#196 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2741,21 +2741,14 @@ void generateClass()		      // generate C++ source code for a class
 	    fprintf( out, "\tswitch ( c->numArgs() ) {\n" );
 	    for ( i=0; i<=nargs; i++ ) {
 		fprintf( out, "\t    case %d:\n", i );
-		fprintf( out, "#ifdef Q_FP_CCAST_BROKEN\n" );
-		fprintf( out, "\t\tr%d = reinterpret_cast<RT%d>(*(c->member()));\n", i, i );
-		fprintf( out, "#else\n" );
-		fprintf( out, "\t\tr%d = (RT%d)*(c->member());\n", i, i );
-		fprintf( out, "#endif\n" );
+		fprintf( out, "\t\tr%d = (RT%d)(c->member());\n", i, i );
 		fprintf( out, "\t\t(object->*r%d)(%s);\n",
 			 i, (const char*)valvec[i] );
 		fprintf( out, "\t\tbreak;\n" );
 	    }
 	    fprintf( out, "\t}\n" );
 	} else {
-	    fprintf( out, "#ifdef Q_FP_CCAST_BROKEN\n" );
-	    fprintf( out, "\tr = reinterpret_cast<RT>(*(c->member()));\n" );
-	    fprintf( out, "#else\n" );
-	    fprintf( out, "\tr = (RT)*(c->member());\n" );
+	    fprintf( out, "\tr = (RT)(c->member());\n" );
 	    fprintf( out, "\t(object->*r)(%s);\n", (const char*)valstr );
 	    fprintf( out, "#endif\n" );
 	}
