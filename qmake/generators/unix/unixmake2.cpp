@@ -705,7 +705,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
     }
     t << endl << endl;
 
-    t << "first all: " << ofile << " $(SUBTARGETS)" << endl << endl;
+    t << "first: all\n\nall: " << ofile << " $(SUBTARGETS)" << endl << endl;
 
     // generate target rules
     for(it = subdirs.begin(); it != subdirs.end(); ++it) {
@@ -716,7 +716,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	//qmake it
 	t << mkfile << ": " << "\n\t"
 	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << out << endl;
-	//actually compile/
+	//actually compile
 	t << "sub-" << sr << ": " << mkfile << " FORCE" << "\n\t"
 	  << "cd " << *(it) << " && $(MAKE) -f $(MAKEFILE)" << endl << endl;
     }
