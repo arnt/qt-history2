@@ -1134,9 +1134,9 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
 
 void QWidget::setMicroFocusHint(int x, int y, int width, int height, bool, QFont *)
 {
-    if ( QRect( x, y, width, height ) != microFocusHint() ) {
+    if(QRect(x, y, width, height) != microFocusHint()) {
 	d->createExtra();
-	d->extraData()->micro_focus_hint.setRect( x, y, width, height );
+	d->extraData()->micro_focus_hint.setRect(x, y, width, height);
     }
 }
 
@@ -1543,16 +1543,77 @@ void QWidget::setWindowState(uint newstate)
 
     bool needShow = FALSE;
     if (isTopLevel()) {
-	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
-	    // change maximized state
-	}
+	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) 
+	    CollapseWindow((WindowPtr)hd, (newstate & WindowMinimized) ? TRUE : FALSE);
 
 	if ((oldstate & WindowFullScreen) != (newstate & WindowFullScreen)) {
-	    // change fullscreen state
+	    if(newstate & WindowFullScreen) {
+		if(d->topData()->normalGeometry.width() < 0)
+		    d->topData()->normalGeometry = QRect(pos(), size());
+		d->topData()->savedFlags = getWFlags();
+		reparent(0, WType_TopLevel | WStyle_Customize | WStyle_NoBorder |
+			  (getWFlags() & 0xffff0000), 			  // preserve some widget flags
+			  mapToGlobal(QPoint(0, 0)));
+		const QRect screen = qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this));
+		move(screen.topLeft());
+		resize(screen.size());
+	    } else {
+		reparent(0, d->topData()->savedFlags, QPoint(0,0));
+		setGeometry(d->topData()->normalGeometry);
+	    }
 	}
 
-	if ((oldstate & WindowMinimized) != (newstate & WindowMinimized)) {
-	    // change minimized state
+	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
+	    if(newstate & WindowMaximized) {
+		Rect bounds;
+		fstrut_dirty = TRUE;
+		QDesktopWidget *dsk = QApplication::desktop();
+		QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
+		SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
+		if(QWExtra   *extra = d->extraData()) {
+		    if(bounds.right - bounds.left > extra->maxw)
+			bounds.right = bounds.left + extra->maxw;
+		    if(bounds.bottom - bounds.top > extra->maxh)
+			bounds.bottom = bounds.top + extra->maxh;
+		}
+		if(QTLWExtra *tlextra = d->topData()) {
+		    if(tlextra->normalGeometry.width() < 0)
+			tlextra->normalGeometry = geometry();
+		    if(fstrut_dirty)
+			updateFrameStrut();
+		    bounds.left += tlextra->fleft;
+		    bounds.top += tlextra->ftop;
+		    bounds.right -= tlextra->fright;
+		    bounds.bottom -= tlextra->fbottom;
+		}
+		QRect orect(geometry().x(), geometry().y(), width(), height()),
+		    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
+		if(orect.size() != nrect.size()) { // no real point..
+		    Rect oldr;
+		    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
+		    SetWindowUserState((WindowPtr)hd, &oldr);
+
+		    SetWindowStandardState((WindowPtr)hd, &bounds);
+		    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
+		    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
+
+		    crect = nrect;
+		    if(isVisible()) {
+			dirtyClippedRegion(TRUE);
+			//issue a resize
+			QResizeEvent qre(size(), orect.size());
+			QApplication::sendEvent(this, &qre);
+			//issue a move
+			QMoveEvent qme(pos(), orect.topLeft());
+			QApplication::sendEvent(this, &qme);
+		    }
+		}
+	    } else {
+		Rect bounds;
+		ZoomWindow((WindowPtr)hd, inZoomIn, FALSE);
+		GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
+		qt_dirty_wndw_rgn("showNormal",this, &bounds);
+	    }
 	}
     }
 
@@ -1567,102 +1628,6 @@ void QWidget::setWindowState(uint newstate)
     if (needShow)
 	show();
 }
-
-#if 0
-void QWidget::showMinimized()
-{
-    show();
-    if(isTopLevel() && !IsWindowCollapsed((WindowRef)hd))
-	CollapseWindow((WindowPtr)hd, true);
-
-    QEvent e(QEvent::ShowMinimized);
-    QApplication::sendEvent(this, &e);
-    clearWState(WState_Maximized);
-    setWState(WState_Minimized);
-}
-
-void QWidget::showMaximized()
-{
-    if(isDesktop())
-	return;
-    if(!isMaximized() && isTopLevel()) {
-	Rect bounds;
-	fstrut_dirty = true;
-	QDesktopWidget *dsk = QApplication::desktop();
-	QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
-	SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
-	if(QWExtra   *extra = d->extraData()) {
-	    if(bounds.right - bounds.left > extra->maxw)
-		bounds.right = bounds.left + extra->maxw;
-	    if(bounds.bottom - bounds.top > extra->maxh)
-		bounds.bottom = bounds.top + extra->maxh;
-	}
-	if(QTLWExtra *tlextra = d->topData()) {
-	    if(tlextra->normalGeometry.width() < 0)
-		tlextra->normalGeometry = geometry();
-	    if(fstrut_dirty)
-		updateFrameStrut();
-	    bounds.left += tlextra->fleft;
-	    bounds.top += tlextra->ftop;
-	    bounds.right -= tlextra->fright;
-	    bounds.bottom -= tlextra->fbottom;
-	}
-	QRect orect(geometry().x(), geometry().y(), width(), height()),
-	    nrect(bounds.left, bounds.top, bounds.right - bounds.left, bounds.bottom - bounds.top);
-	if(orect.size() != nrect.size()) { // no real point..
-	    Rect oldr;
-	    SetRect(&oldr, orect.x(), orect.y(), orect.right(), orect.bottom());
-	    SetWindowUserState((WindowPtr)hd, &oldr);
-
-	    SetWindowStandardState((WindowPtr)hd, &bounds);
-	    ZoomWindow((WindowPtr)hd, inZoomOut, false);
-	    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
-
-	    crect = nrect;
-	    if(isVisible()) {
-		dirtyClippedRegion(true);
-		//issue a resize
-		QResizeEvent qre(size(), orect.size());
-		QApplication::sendEvent(this, &qre);
-		//issue a move
-		QMoveEvent qme(pos(), orect.topLeft());
-		QApplication::sendEvent(this, &qme);
-	    }
-	}
-    }
-    show();
-    QEvent e(QEvent::ShowMaximized);
-    QApplication::sendEvent(this, &e);
-    clearWState(WState_Minimized);
-    setWState(WState_Maximized);
-}
-
-void QWidget::showNormal()
-{
-    if(isDesktop()) //desktop is always visible
-	return;
-    if(isTopLevel()) {
-	if(d->topData()->fullscreen) {
-	    reparent(0, d->topData()->savedFlags, QPoint(0,0));
-	    setGeometry(d->topData()->normalGeometry);
-	} else if(isMaximized()) {
-	    Rect bounds;
-	    ZoomWindow((WindowPtr)hd, inZoomIn, false);
-	    GetPortBounds(GetWindowPort((WindowPtr)hd), &bounds);
-	    qt_dirty_wndw_rgn("showNormal",this, &bounds);
-	} else {
-	    CollapseWindow((WindowPtr)hd, false);
-	}
-    }
-    if(d->topData())
-	d->topData()->fullscreen = 0;
-    dirtyClippedRegion(true);
-    show();
-    QEvent e(QEvent::ShowNormal);
-    QApplication::sendEvent(this, &e);
-    clearWState(WState_Minimized | WState_Maximized);
-}
-#endif // 0
 
 void QWidget::raise()
 {
