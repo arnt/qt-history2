@@ -400,7 +400,7 @@ void QMainWindow::splitDockWindow(QDockWindow *after, QDockWindow *dockwindow,
     Removes the \a dockwindow from the main window.
 */
 void QMainWindow::removeDockWindow(QDockWindow *dockwindow)
-{ d->layout->removeWidget(dockwindow); }
+{ d->layout->removeRecursive(dockwindow); }
 
 /*!
     Returns the \c Qt::DockWindowArea for \a dockwindow.
