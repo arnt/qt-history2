@@ -77,7 +77,7 @@ void QDockWidgetHandle::mousePressEvent( QMouseEvent *e )
 {
     mousePressed = TRUE;
     offset = e->pos();
-    dockWidget->startRectDraw();
+    dockWidget->startRectDraw( e->pos() );
 }
 
 void QDockWidgetHandle::mouseMoveEvent( QMouseEvent *e )
@@ -87,11 +87,11 @@ void QDockWidgetHandle::mouseMoveEvent( QMouseEvent *e )
     dockWidget->handleMoveOutsideDock( e->globalPos() - offset, e->globalPos() );
 }
 
-void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent * )
+void QDockWidgetHandle::mouseReleaseEvent( QMouseEvent *e )
 {
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    dockWidget->updatePosition();
+    dockWidget->updatePosition( e->globalPos() );
 }
 
 void QDockWidgetHandle::resizeEvent( QResizeEvent * )
@@ -159,7 +159,7 @@ void QDockWidgetTitleBar::mousePressEvent( QMouseEvent *e )
 {
     mousePressed = TRUE;
     offset = e->pos();
-    dockWidget->startRectDraw();
+    dockWidget->startRectDraw( e->pos() );
 }
 
 void QDockWidgetTitleBar::mouseMoveEvent( QMouseEvent *e )
@@ -169,11 +169,11 @@ void QDockWidgetTitleBar::mouseMoveEvent( QMouseEvent *e )
     dockWidget->handleMoveOutsideDock( e->globalPos() - offset, e->globalPos() );
 }
 
-void QDockWidgetTitleBar::mouseReleaseEvent( QMouseEvent * )
+void QDockWidgetTitleBar::mouseReleaseEvent( QMouseEvent *e )
 {
     dockWidget->endRectDraw();
     mousePressed = FALSE;
-    dockWidget->updatePosition();
+    dockWidget->updatePosition( e->globalPos() );
 }
 
 void QDockWidgetTitleBar::paintEvent( QPaintEvent *e )
@@ -226,8 +226,20 @@ void QDockWidget::resizeEvent( QResizeEvent *e )
     updateGui();
 }
 
-void QDockWidget::handleMoveInDock( const QPoint &pos )
+void QDockWidget::handleMoveInDock( const QPoint & )
 {
+}
+
+static void swapRect( QRect &r, Qt::Orientation o, const QPoint &offset )
+{
+    int w = r.width();
+    if ( o == Qt::Horizontal )
+	r.moveBy( -r.height() / 2, 0 );
+    else
+	r.moveBy( 0, -r.width() / 2 );
+    r.moveBy( offset.x(), offset.y() );
+    r.setWidth( r.height() );
+    r.setHeight( w );
 }
 
 void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
@@ -241,6 +253,8 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     QPoint offset( mapFromGlobal( pos ) );
     currRect.moveBy( offset.x(), offset.y() );
     if ( !w || !w->inherits( "QDockArea" ) ) {
+	if ( startOrientation != Horizontal )
+	    swapRect( currRect, Horizontal, startOffset );
 	unclippedPainter->setPen( QPen( gray, 3 ) );
 	unclippedPainter->drawRect( currRect );
 	state = OutsideDock;
@@ -249,6 +263,8 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
 
     state = InDock;
     QDockArea *area = (QDockArea*)w;
+    if ( startOrientation != area->orientation() )
+	    swapRect( currRect, area->orientation(), startOffset );
     unclippedPainter->setPen( QPen( gray, 1 ) );
     unclippedPainter->drawRect( currRect );
     tmpDockArea = area;
@@ -283,16 +299,16 @@ void QDockWidget::updateGui()
     }
 }
 
-void QDockWidget::updatePosition()
+void QDockWidget::updatePosition( const QPoint &globalPos )
 {
     if ( state == InDock ) {
 	if ( dockArea && dockArea != tmpDockArea )
-	    dockArea->removeDockWidget( this, FALSE );
+	    dockArea->removeDockWidget( this, FALSE, FALSE );
 	dockArea = tmpDockArea;
-	dockArea->moveDockWidget( this );
+	dockArea->moveDockWidget( this, globalPos, currRect, startOrientation != dockArea->orientation() );
     } else {
 	if ( dockArea )
-	    dockArea->removeDockWidget( this, TRUE );
+	    dockArea->removeDockWidget( this, TRUE, startOrientation != Horizontal );
 	dockArea = 0;
 	show();
 	move( currRect.topLeft() );
@@ -312,7 +328,7 @@ QWidget *QDockWidget::widget() const
     return wid;
 }
 
-void QDockWidget::startRectDraw()
+void QDockWidget::startRectDraw( const QPoint &so )
 {
     state = place();
     if ( unclippedPainter )
@@ -328,6 +344,9 @@ void QDockWidget::startRectDraw()
 
     currRect = QRect( realWidgetPos( this ), size() );
     unclippedPainter->drawRect( currRect );
+    startRect = currRect;
+    startOrientation = dockArea ? dockArea->orientation() : Horizontal;
+    startOffset = so;
 }
 
 void QDockWidget::endRectDraw()

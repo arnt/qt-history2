@@ -7,7 +7,7 @@ QDockArea::QDockArea( Orientation o, QWidget *parent, const char *name )
     dockWidgets.setAutoDelete( TRUE );
 }
 
-void QDockArea::moveDockWidget( QDockWidget *w /*some other args will come here*/ )
+void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &, const QRect &, bool swap )
 {
     QDockWidgetData *dockData = 0;
     int i = findDockWidget( w );
@@ -17,11 +17,13 @@ void QDockArea::moveDockWidget( QDockWidget *w /*some other args will come here*
 	dockData = new QDockWidgetData;
 	dockData->dockWidget = w;
 	dockData->dockWidget->reparent( this, QPoint( 0, 0 ), TRUE );
+	if ( swap )
+	    dockData->dockWidget->resize( dockData->dockWidget->height(), dockData->dockWidget->width() );
 	dockWidgets.append( dockData );
     }
 }
 
-void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating )
+void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating, bool swap )
 {
     QDockWidgetData *dockData = 0;
     int i = findDockWidget( w );
@@ -30,6 +32,8 @@ void QDockArea::removeDockWidget( QDockWidget *w, bool makeFloating )
     dockData = dockWidgets.at( i );
     if ( makeFloating )
 	dockData->dockWidget->reparent( 0, WStyle_Customize | WStyle_NoBorderEx, QPoint( 0, 0 ), FALSE );
+    if ( swap )
+	dockData->dockWidget->resize( dockData->dockWidget->height(), dockData->dockWidget->width() );
     dockWidgets.remove( i );
 }
 

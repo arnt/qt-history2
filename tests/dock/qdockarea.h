@@ -14,18 +14,18 @@ class QDockArea : public QWidget
 public:
     QDockArea( Orientation o, QWidget *parent = 0, const char *name = 0 );
 
-    void moveDockWidget( QDockWidget *w /*some other args will come here*/ );
-    void removeDockWidget( QDockWidget *w, bool makeFloating );
+    void moveDockWidget( QDockWidget *w, const QPoint &globalPos, const QRect &rect, bool swap );
+    void removeDockWidget( QDockWidget *w, bool makeFloating, bool swap );
 
     Orientation orientation() const { return orient; }
-    
+
 private:
     int findDockWidget( QDockWidget *w );
-    
+
 private:
     Orientation orient;
     QList<QDockWidgetData> dockWidgets;
-    
+
 };
 
 class QDockWidgetData

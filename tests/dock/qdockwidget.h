@@ -26,12 +26,12 @@ public:
 
     virtual void setResizeEnabled( bool b );
     bool isResizeEnabled() const;
-    
+
     virtual void setCloseEnabled( bool b );
     bool isCloseEnabled() const;
 
     QDockArea *area() const;
-    
+
 protected:
     void resizeEvent( QResizeEvent *e );
 
@@ -40,9 +40,9 @@ private:
     void handleMoveOutsideDock( const QPoint &pos, const QPoint &gp );
     void updateGui();
 
-    void startRectDraw();
+    void startRectDraw( const QPoint &so );
     void endRectDraw();
-    void updatePosition();
+    void updatePosition( const QPoint &globalPos  );
 
 private:
     QDockWidgetHandle *handle;
@@ -54,6 +54,9 @@ private:
     Place state;
     QDockArea *dockArea, *tmpDockArea;
     bool closeEnabled, resizeEnabled;
+    Orientation startOrientation;
+    QRect startRect;
+    QPoint startOffset;
     
 };
 
