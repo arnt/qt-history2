@@ -1314,6 +1314,8 @@ void QWidgetFactory::loadToolBars( const QDomElement &e )
 		    QAction *a = findAction( n2.attribute( "name" ) );
 		    if ( a )
 			a->addTo( tb );
+		} else if ( n2.tagName() == "separator" ) {
+		    tb->addSeparator();
 		}
 		n2 = n2.nextSibling().toElement();
 	    }

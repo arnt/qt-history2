@@ -2226,15 +2226,17 @@ bool MainWindow::eventFilter( QObject *o, QEvent *e )
 	    break;
 	if ( o && ( o->inherits( "QDesignerMenuBar" ) ||
 		   o->inherits( "QDesignerToolBar" ) ||
-		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) ) && o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
+		    ( o->inherits( "QComboBox") || o->inherits( "QToolButton" ) || o->inherits( "QDesignerToolBarSeparator" ) ) &&
+		    o->parent() && o->parent()->inherits( "QDesignerToolBar" ) ) ) {
 	    QWidget *w = (QWidget*)o;
-	    if ( w->inherits( "QToolButton" ) || w->inherits( "QComboBox" ) )
+	    if ( w->inherits( "QToolButton" ) || w->inherits( "QComboBox" ) || w->inherits( "QDesignerToolBarSeparator" ) )
 		w = w->parentWidget();
 	    QWidget *pw = w->parentWidget();
 	    while ( pw ) {
 		if ( pw->inherits( "FormWindow" ) ) {
 		    ( (FormWindow*)pw )->emitShowProperties( w );
-		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) && !o->inherits( "QComboBox" );
+		    return !o->inherits( "QToolButton" ) && !o->inherits( "QMenuBar" ) &&
+			!o->inherits( "QComboBox" ) && !o->inherits( "QDesignerToolBarSeparator" );
 		}
 		pw = pw->parentWidget();
 	    }

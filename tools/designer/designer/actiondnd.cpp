@@ -11,6 +11,76 @@
 #include <qdragobject.h>
 #include <qbitmap.h>
 
+
+QDesignerToolBarSeparator::QDesignerToolBarSeparator(Orientation o , QToolBar *parent,
+                                     const char* name )
+    : QWidget( parent, name )
+{
+    connect( parent, SIGNAL(orientationChanged(Orientation)),
+             this, SLOT(setOrientation(Orientation)) );
+    setOrientation( o );
+    setBackgroundMode( parent->backgroundMode() );
+    setBackgroundOrigin( ParentOrigin );
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum ) );
+}
+
+void QDesignerToolBarSeparator::setOrientation( Orientation o )
+{
+    orient = o;
+}
+
+void QDesignerToolBarSeparator::styleChange( QStyle& )
+{
+    setOrientation( orient );
+}
+
+QSize QDesignerToolBarSeparator::sizeHint() const
+{
+    return style().toolBarSeparatorSize( orient );
+}
+
+void QDesignerToolBarSeparator::paintEvent( QPaintEvent * )
+{
+    QPainter p( this );
+
+    style().drawToolBarSeparator( &p, x(), y(), width(), height(),
+                                  colorGroup(), orient );
+}
+
+
+
+QSeparatorAction::QSeparatorAction( QObject *parent )
+    : QAction( parent, "qt_designer_separator" ), wid( 0 )
+{
+}
+
+bool QSeparatorAction::addTo( QWidget *w )
+{
+    if ( w->inherits( "QToolBar" ) ) {
+	QToolBar *tb = (QToolBar*)w;
+	wid = new QDesignerToolBarSeparator( tb->orientation(), tb );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+bool QSeparatorAction::removeFrom( QWidget *w )
+{
+    if ( w->inherits( "QToolBar" ) ) {
+	delete wid;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+QWidget *QSeparatorAction::widget() const
+{
+    return wid;
+}
+
+
+
+
 static bool doReinsert = TRUE;
 
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
@@ -37,12 +107,15 @@ void QDesignerToolBar::addAction( QAction *a )
     actionList.append( a );
     doReinsert = TRUE;
     connect( a, SIGNAL( destroyed() ), this, SLOT( actionRemoved() ) );
-    if ( !a->inherits( "QActionGroup" ) ) {
-	( (QDesignerAction*)a )->widget()->installEventFilter( this );
-	actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
-    } else {
+    if ( a->inherits( "QActionGroup" ) ) {
 	( (QDesignerActionGroup*)a )->widget()->installEventFilter( this );
 	actionMap.insert( ( (QDesignerActionGroup*)a )->widget(), a );
+    } else if ( a->inherits( "QSeparatorAction" ) ) {
+	( (QSeparatorAction*)a )->widget()->installEventFilter( this );
+	actionMap.insert( ( (QSeparatorAction*)a )->widget(), a );
+    } else {
+	( (QDesignerAction*)a )->widget()->installEventFilter( this );
+	actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
     }
 }
 
@@ -70,7 +143,7 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	return;
 
     if ( e->button() == RightButton ) {
-	QPopupMenu menu( this );
+	QPopupMenu menu( 0 );
 	const int ID_DELETE = 1;
 	const int ID_SEP = 2;
 	menu.insertItem( tr( "Delete Item" ), ID_DELETE );
@@ -83,8 +156,10 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 	    actionList.remove( a );
 	    a->removeFrom( this );
 	} else if ( res == ID_SEP ) {
-	    calcIndicatorPos( e->pos() );
-	    QAction *a = new QAction( 0, "qt_separator_action" );
+	    calcIndicatorPos( mapFromGlobal( e->globalPos() ) );
+	    QAction *a = new QSeparatorAction( 0 );
+	    a->addTo( this );
+	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
 	    int index = actionList.findRef( *actionMap.find( insertAnchor ) );
 	    if ( index != -1 && afterAnchor )
 		++index;
@@ -94,6 +169,7 @@ void QDesignerToolBar::buttonMousePressEvent( QMouseEvent *e, QObject *o )
 		actionList.append( a );
 	    else
 		actionList.insert( index, a );
+	    reInsert();
 	}
 	return;
     }
@@ -112,7 +188,8 @@ void QDesignerToolBar::buttonMouseMoveEvent( QMouseEvent *e, QObject *o )
     int idx = actionList.find( a );
     actionList.remove( a );
 
-    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) : QString( "application/x-designer-actions" );
+    QString type = a->inherits( "QActionGroup" ) ? QString( "application/x-designer-actiongroup" ) :
+	a->inherits( "QSeparatorAction" ) ? QString( "application/x-designer-separator" ) : QString( "application/x-designer-actions" );
     QStoredDrag *drag = new QStoredDrag( type, this );
     QString s = QString::number( (long)a ); // #### huha, that is evil
     drag->setEncodedData( QCString( s.latin1() ) );
@@ -129,14 +206,16 @@ void QDesignerToolBar::dragEnterEvent( QDragEnterEvent *e )
 {
     lastIndicatorPos = QPoint( -1, -1 );
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
 }
 
 void QDesignerToolBar::dragMoveEvent( QDragMoveEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
 	return;
@@ -154,21 +233,33 @@ void QDesignerToolBar::dragLeaveEvent( QDragLeaveEvent * )
 void QDesignerToolBar::dropEvent( QDropEvent *e )
 {
     if ( e->provides( "application/x-designer-actions" ) ||
-	 e->provides( "application/x-designer-actiongroup" ) )
+	 e->provides( "application/x-designer-actiongroup" ) ||
+	 e->provides( "application/x-designer-separator" ) )
 	e->accept();
     else
 	return;
     QString s;
     if ( e->provides( "application/x-designer-actiongroup" ) )
 	s = QString( e->encodedData( "application/x-designer-actiongroup" ) );
+    else if ( e->provides( "application/x-designer-separator" ) )
+	s = QString( e->encodedData( "application/x-designer-separator" ) );
     else
 	s = QString( e->encodedData( "application/x-designer-actions" ) );
 
-    if ( e->provides( "application/x-designer-actions" ) ) {
-	QDesignerAction *a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
-	a->addTo( this );
-	actionMap.insert( a->widget(), a );
-	a->widget()->installEventFilter( this );
+    if ( e->provides( "application/x-designer-actions" ) ||
+	 e->provides( "application/x-designer-separator" ) ) {
+	QAction *a = 0;
+	if ( e->provides( "application/x-designer-actions" ) ) {
+	    a = (QDesignerAction*)s.toLong(); // #### huha, that is evil
+	    a->addTo( this );
+	    actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
+	    ( (QDesignerAction*)a )->widget()->installEventFilter( this );
+	} else {
+	    a = (QSeparatorAction*)s.toLong(); // #### huha, that is evil
+	    a->addTo( this );
+	    actionMap.insert( ( (QSeparatorAction*)a )->widget(), a );
+	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
+	}
 	int index = actionList.findRef( *actionMap.find( insertAnchor ) );
 	if ( index != -1 && afterAnchor )
 	    ++index;
@@ -211,7 +302,7 @@ void QDesignerToolBar::dropEvent( QDropEvent *e )
 		++it;
 		if ( !o->inherits( "QAction" ) )
 		    continue;
-		// ### fix for nested actiongroups
+		// ### fix it for nested actiongroups
 		if ( o->inherits( "QDesignerAction" ) ) {
 		    QDesignerAction *ac = (QDesignerAction*)o;
 		    actionMap.insert( ac->widget(), ac );
@@ -244,9 +335,12 @@ void QDesignerToolBar::reInsert()
 	    actionMap.insert( ( (QDesignerActionGroup*)a )->widget(), a );
 	    if ( ( (QDesignerActionGroup*)a )->widget() )
 		( (QDesignerActionGroup*)a )->widget()->installEventFilter( this );
-	} else {
+	} else if ( a->inherits( "QDesignerAction" ) ) {
 	    actionMap.insert( ( (QDesignerAction*)a )->widget(), a );
 	    ( (QDesignerAction*)a )->widget()->installEventFilter( this );
+	} else if ( a->inherits( "QSeparatorAction" ) ) {
+	    actionMap.insert( ( (QSeparatorAction*)a )->widget(), a );
+	    ( (QSeparatorAction*)a )->widget()->installEventFilter( this );
 	}
     }
     boxLayout()->invalidate();
@@ -731,3 +825,4 @@ void QDesignerPopupMenu::actionRemoved()
 {
     actionList.removeRef( (QAction*)sender() );
 }
+

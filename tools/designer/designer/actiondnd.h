@@ -14,7 +14,7 @@ class QDesignerPopupMenu;
 class QDesignerActionGroup : public QActionGroup
 {
     Q_OBJECT
-    
+
 public:
     QDesignerActionGroup( QObject *parent )
 	: QActionGroup( parent ), wid( 0 ), idx( -1 ) {}
@@ -38,7 +38,7 @@ private:
     QWidget *wid;
     QMap<QAction *, QWidget *> widgets;
     int idx;
-    
+
 };
 
 class QDesignerAction : public QAction
@@ -63,6 +63,41 @@ protected:
 private:
     QWidget *wid;
     int idx;
+
+};
+
+class QDesignerToolBarSeparator : public QWidget
+{
+    Q_OBJECT
+
+public:
+    QDesignerToolBarSeparator( Orientation, QToolBar *parent, const char* name=0 );
+
+    QSize sizeHint() const;
+    Orientation orientation() const { return orient; }
+public slots:
+   void setOrientation( Orientation );
+protected:
+    void styleChange( QStyle& );
+    void paintEvent( QPaintEvent * );
+private:
+    Orientation orient;
+};
+
+
+class QSeparatorAction : public QAction
+{
+    Q_OBJECT
+
+public:
+    QSeparatorAction( QObject *parent );
+
+    bool addTo( QWidget *w );
+    bool removeFrom( QWidget *w );
+    QWidget *widget() const;
+
+private:
+    QWidget *wid;
 
 };
 
@@ -94,7 +129,7 @@ private:
     void reInsert();
     void buttonMousePressEvent( QMouseEvent *e, QObject *o );
     void buttonMouseMoveEvent( QMouseEvent *e, QObject *o );
-    
+
 private:
     QPoint lastIndicatorPos;
     QWidget *insertAnchor;
@@ -102,7 +137,7 @@ private:
     QList<QAction> actionList;
     QMap<QWidget*, QAction*> actionMap;
     QPoint dragStartPos;
-    
+
 };
 
 class QDesignerMenuBar : public QMenuBar
@@ -135,14 +170,14 @@ protected:
 private:
     void drawIndicator( const QPoint &pos );
     QPoint calcIndicatorPos( const QPoint &pos );
-    
+
 private:
     int itemNum;
     QPoint dragStartPos;
     bool mousePressed;
     QPoint lastIndicatorPos;
     int insertAt;
-    
+
 };
 
 class QDesignerPopupMenu : public QPopupMenu
@@ -179,7 +214,7 @@ private:
     QList<QAction> actionList;
     QPoint dragStartPos;
     bool mousePressed;
-    
+
 };
 
 #endif
