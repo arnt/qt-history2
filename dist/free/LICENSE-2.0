@@ -44,12 +44,12 @@
 <p>To use this license
 <!-- -->for you own software, add a notice to the software saying
 <!-- -->your software may be distributed under the terms of the Qt
-<!-- -->Public License version 1.0.
+<!-- -->Public License version 0.8.
 <hr>
 <h1 align=center>
 			     THE Qt PUBLIC LICENSE
 <br>
-				  version 1.0
+				  version 0.8
 <br>
 <br>
 <small>
@@ -65,7 +65,7 @@
 <p>
 This license applies to any software containing a notice placed by the
 copyright holder saying it may be distributed under the terms of the Qt
-Public License version 1.0.  Such software is herein referred to as the
+Public License version 0.8.  Such software is herein referred to as the
 Software.  This license covers modification and distribution of the
 Software, use of third-party application programs based on the
 Software, and development of free software which uses the Software.  
