@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#4 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#5 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -13,6 +13,7 @@
 #include <qapplication.h>
 #include <qfile.h>
 #include <qtextstream.h>
+#include <qtextcodec.h>
 #include <qtranslator.h>
 
 static QString* defaultScope = 0;
@@ -73,7 +74,6 @@ QString extractContents( const QString& line )
 void addTranslation( QTranslator* translator, const QString& msgid, const QString& msgstr)
 {
     if (!msgid.isNull() && !msgstr.isNull() ) {
-	//#### add codec crap here for unicode. Beware of the segfaults ;)
 	QString scope = "";
 	QString id = msgid;
 	int coloncolon = msgid.find("::");
@@ -89,7 +89,16 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 	    debug("Error: \"%s\" already in use", msgid.ascii() );
 	}
 	else {
-	    translator->insert( hash, msgstr.ascii() );
+	    // #### TODO: use encoding mentioned in msg file, if any,
+	    // ####       only default to locale if no other choice.
+            QTextCodec *codec = QTextCodec::codecForLocale();
+
+            if ( !codec ) {
+                debug("No QTextCodec for this locale.");
+                exit(1);
+            }
+            QString u_msgstr = codec->toUnicode(msgstr.ascii(), msgstr.length());
+	    translator->insert( hash, u_msgstr );
 	    //debug("'%s':'%s'-->'%s'", scope.ascii(), msgid.ascii(), msgstr.ascii() );
 	}
     }
@@ -108,14 +117,14 @@ void translate( const QString& filename, const QString& qmfile )
     QString msgstr;
     while ( !t.atEnd() || !line.isEmpty() ) {
 	if (line.isEmpty()) {
-	    t.eatWhiteSpace();
+	    t.skipWhiteSpace();
 	    line = t.readLine();
 	}
 	if ( hasHandle( line, "msgid") ) {
 	    msgstr = QString::null;
 	    msgid = extractContents( line );
 	    if (!t.atEnd()) {
-		t.eatWhiteSpace();
+		t.skipWhiteSpace();
 		line = t.readLine();
 	    }
 	    else
@@ -123,7 +132,7 @@ void translate( const QString& filename, const QString& qmfile )
 	    while ( hasHandle( line, "\"") ) {
 		msgid += extractContents( line );
 		if (!t.atEnd()) {
-		    t.eatWhiteSpace();
+		    t.skipWhiteSpace();
 		    line = t.readLine();
 		}
 		else
@@ -133,7 +142,7 @@ void translate( const QString& filename, const QString& qmfile )
 	else if ( hasHandle( line, "msgstr") ) {
 	    msgstr = extractContents( line );
 	    if (!t.atEnd()) {
-		t.eatWhiteSpace();
+		t.skipWhiteSpace();
 		line = t.readLine();
 	    }
 	    else
@@ -141,7 +150,7 @@ void translate( const QString& filename, const QString& qmfile )
 	    while ( hasHandle( line, "\"") ) {
 		msgstr += extractContents( line );
 		if (!t.atEnd()) {
-		    t.eatWhiteSpace();
+		    t.skipWhiteSpace();
 		    line = t.readLine();
 		}
 		else
