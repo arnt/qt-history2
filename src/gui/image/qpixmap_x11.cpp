@@ -317,8 +317,6 @@ void QPixmap::init(int w, int h, int d, bool bitmap)
 QPixmapData::~QPixmapData()
 {
     delete mask;
-    if (ximage)
-        qSafeXDestroyImage((XImage*)ximage);
     if (maskgc)
         XFreeGC(xinfo.display(), (GC)maskgc);
     if (qApp && hd) {
@@ -409,10 +407,6 @@ void QPixmap::detach()
     if (data->hd2) {
         XFreePixmap(data->xinfo.display(), data->hd2);
         data->hd2 = 0;
-    }
-    if (data->ximage) {
-        qSafeXDestroyImage((XImage*)data->ximage);
-        data->ximage = 0;
     }
     if (data->maskgc) {
         XFreeGC(data->xinfo.display(), (GC)data->maskgc);
@@ -548,10 +542,8 @@ QImage QPixmap::toImage() const
     if (d > 8 || trucol)
         d = 32;                                        //   > 8  ==> 32
 
-    XImage *xi = (XImage *)data->ximage;        // any cached ximage?
-    if (!xi)                                        // fetch data from X server
-        xi = XGetImage(data->xinfo.display(), data->hd, 0, 0, w, h, AllPlanes,
-                       mono ? XYPixmap : ZPixmap);
+    XImage *xi = XGetImage(data->xinfo.display(), data->hd, 0, 0, w, h, AllPlanes,
+                           mono ? XYPixmap : ZPixmap);
 
     Q_CHECK_PTR(xi);
     if (!xi)
@@ -565,7 +557,6 @@ QImage QPixmap::toImage() const
 
         // throw away image data
         qSafeXDestroyImage(xi);
-        const_cast<QPixmap *>(this)->data->ximage = 0;
 
         return image;
     }
@@ -805,7 +796,6 @@ QImage QPixmap::toImage() const
     }
 
     qSafeXDestroyImage(xi);
-    ((QPixmap*)this)->data->ximage = 0;
 
     return image;
 }
@@ -1064,7 +1054,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         XFreeGC(dpy, gc);
 
         qSafeXDestroyImage(xi);
-        pixmap.data->ximage = 0;
 
         return pixmap;
     }
@@ -1574,7 +1563,6 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     XFreeGC(dpy, gc);
 
     qSafeXDestroyImage(xi);
-    pixmap.data->ximage = 0;
     pixmap.data->w = w;
     pixmap.data->h = h;
     pixmap.data->d = dd;
@@ -1772,10 +1760,8 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     bool use_mitshm = xshmimg && !depth1 &&
     xshmimg->width >= w && xshmimg->height >= h;
 #endif
-    XImage *xi = (XImage*)data->ximage;                // any cached ximage?
-    if (!xi)
-        xi = XGetImage(data->xinfo.display(), handle(), 0, 0, ws, hs, AllPlanes,
-                       depth1 ? XYPixmap : ZPixmap);
+    XImage *xi = XGetImage(data->xinfo.display(), handle(), 0, 0, ws, hs, AllPlanes,
+                           depth1 ? XYPixmap : ZPixmap);
 
     if (!xi) {                                // error, return null pixmap
         QPixmap pm;
@@ -1854,7 +1840,6 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     }
 
     qSafeXDestroyImage(xi);
-    data->ximage = 0;
 
     if (depth1) {                                // mono bitmap
         QPixmap pm(w, h, dptr, QImage::systemBitOrder() != QImage::BigEndian);

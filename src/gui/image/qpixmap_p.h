@@ -77,7 +77,6 @@ struct QPixmapData { // internal pixmap data
     uchar *ppvBits; // Pointer to DIBSection bits
 #endif
 #elif defined(Q_WS_X11)
-    void *ximage;
     void *maskgc;
     bool alpha;
     QX11Info xinfo;

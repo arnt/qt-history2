@@ -547,7 +547,7 @@ QBitmap QPixmap::mask() const
 
 void QPixmap::setMask(const QBitmap &newmask)
 {
-    // #####################
+    // ##################### PIXMAP
 #if 0
     const QPixmap *tmp = &newmask;                // dec cxx bug
     if (data == tmp->data) {
