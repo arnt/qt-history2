@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#37 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#37 $";
 #endif
 
 
@@ -950,6 +950,12 @@ signal/slot mechanism is a central feature of Qt, and is implemented
 using the <dfn>moc</dfn> (Meta Object Compiler) and some preprocessor
 defines.
 
+<p>
+
+All classes that contain signals and/or slots must inherit from
+QObject or one of its subclasses, and must mention Q_OBJECT in its
+declaration.
+
 <h2>Usage</h2>
 
 Syntactically, signals and slots are categories.  A minimal
@@ -978,8 +984,8 @@ that state.  A small Qt class might read:
     public:
         Foo( QObject *parent=0, const char *name=0);
         ~Foo();
-        int something();
-    protected signals:
+        int something() { returns internal; }
+    signals:
         void somethingChanged(int)
     public slots:
         void setSomething(int);
@@ -997,15 +1003,48 @@ may send signals to.
 
 <p>
 
+To emit a signal, you say <code>emit signal(arguments)</code>.  The
+next code fragment shows this.
+
+<p>
+
+Slots are implemented by the application programmer (that's you).
+Here is a possible implementation of QFoo::setSomething():
+
+<pre>
+    void QFoo::setSomething(int s) {
+	if (s != internal) {
+	    internal = s;
+	    emit somethingChanged(s);
+	}
+    }
+</pre>
+
+The example may appear useless, but anyway, here is one way to connect
+two of these already useless object together:
+
+<pre>
+    QFoo yo, go;
+
+    connect(&yo, SIGNAL(somethingChanged(int)), &go, SLOT(setSomething(int)));
+</pre>
+
+Then a call to <code>yo.setSomething()</code> will make yo emit a
+signal, which go will receive and act on.  Since this action changes
+go's internal state, it too emits a signal, which nobody receives, so
+it disappears into hyperspace.
+
+<p>
+
 In this way two objects can work together without knowing each other,
 as long as there is someone around to set up a connection between
 them initially.
 
 <p>
 
-The preprocessor removes the <code>signals</code> and
-<code>slots</code> keywords so the compiler won't see anything it
-can't digest.
+The preprocessor changes or removes the <code>signals,</code>
+<code>slots</code> and <code>emit</code> keywords so the compiler
+won't see anything it can't digest.
 
 <p>
 
@@ -1031,26 +1070,6 @@ in some way that might be interesting to the object's client or owner.
 
 <p>
 
-The <code>protected signals:</code> section contains signals that
-subclasses may emit, but not anyone.  This is probably the most useful
-type of signal, since subclasses that provide have a different
-internal structure can emit the same signals.
-
-<p>
-
-The <code>private signals:</code> section contains signals that may
-only be emitted by the same class.
-
-<p>
-
-The <code>public signals:</code> section contains signals that may be
-emitted by anyone.  Since a signal means that an object's state has
-changed, allowing anyone to emit signals is almost certainly useless,
-but since C++ allows public member variables we've chosen to allow
-public signals too.
-
-<p>
-
 A scrollbar, for instance, sends out a signal when the user presses
 the mouse button to move the scrollbar by hand.  It isn't always
 interesting, but sometimes it is.  If the signal is interesting to two
@@ -1060,17 +1079,19 @@ widgets.
 <p>
 
 Signals are automatically implemented by the moc and must not be
-implemented in the .cpp file
+implemented in the .cpp file.  They can never have return types.
 
 <h2>Slots</h2>
 
 A slot is called when a signal connected to it is emitted.  Slots are
 normal C++ functions and can be called normally; their only special
-feature is that signals can be connected to them.
+feature is that signals can be connected to them.  Like signals and
+other members, slots have access rights, and a slot's access right
+determines who can connect to it.
 
 <p>
 
-The <code>public slots:</code> contains slots that anyone can connect
+A <code>public slots:</code> section contains slots that anyone can connect
 signals too.  This is very useful for component programming: You
 create objects that know nothing about each other, connect their
 signals and slots so information is passed correctly, and, like a
@@ -1078,17 +1099,17 @@ model railway, turn it on and leave it running.
 
 <p>
 
-The <code>protected slots:</code> contains slots that this class and
-its subclasses may connect signals too.  This is intended for slots
-that are part of the class' implementation rather than its interface
-towards the rest of the world.
+A <code>protected slots:</code> section contains slots that this class
+and its subclasses may connect signals too.  This is intended for
+slots that are part of the class' implementation rather than its
+interface towards the rest of the world.
 
 <p>
 
-The <code>private slots:</code> contains slots that only the class
-itself may connect signals too.  This is intended for very tightly
-connected classes, where even subclasses aren't trusted to get the
-connections right.
+A <code>private slots:</code> section contains slots that only the
+class itself may connect signals too.  This is intended for very
+tightly connected classes, where even subclasses aren't trusted to get
+the connections right.
 
 <p>
 
@@ -1249,9 +1270,9 @@ brevity.
     }
 </pre>
 
-One function is generated for each signal, and at present it just
-calls activate_signal(), which finds the appropriate slot or slots and
-passes on the call.
+One function is generated for each signal, and at present it almost
+always is a single call to activate_signal(), which finds the
+appropriate slot or slots and passes on the call.
 
 <p>
 
