@@ -69,6 +69,7 @@ public:
 
     // non-QNetworkProtocol functions:
     void connectToHost( const QString &host, Q_UINT16 port=21 );
+    int login( const QString &user=QString::null, const QString &password=QString::null );
 
     enum ConnectState {
 	CsHostFound,
@@ -80,6 +81,11 @@ public:
 
 signals:
     void connectState( int );
+    void start( int );
+    void finishedSuccess( int );
+    void finishedError( int, const QString& );
+    void doneSuccess();
+    void doneError();
 
 protected:
     void parseDir( const QString &buffer, QUrlInfo &info ); // ### private in Qt 4.0?
@@ -108,6 +114,27 @@ private:
     void okButNeedMoreInfo( int code, const QCString &data );
     void errorForNow( int code, const QCString &data );
     void errorForgetIt( int code, const QCString &data );
+
+    enum Command {
+//###	ConnectToHost,
+	Login,
+//###	Close,
+//###	Cd,
+//###	Get,
+//###	Put,
+//###	Copy,
+//###	List,
+//###	Remove,
+//###	Mkdir,
+//###	Rename,
+//###	Abort,
+	FtpCommand
+    };
+    int addCommand( Command cmd, const QStringList &rawCmds );
+
+private slots:
+    void startNextCommand();
+    void piFinished( int, const QString& );
 
 protected slots:
     // ### make these private in Qt 4.0

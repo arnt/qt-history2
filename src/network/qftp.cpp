@@ -50,6 +50,7 @@
 
 //#define QFTP_DEBUG
 //#define QFTP_COMMANDSOCKET_DEBUG
+//#define QFTPPI_DEBUG
 
 /*!
   \class QFtp qftp.h
@@ -103,22 +104,22 @@ class QFtpPI : public QObject
     Q_OBJECT
 
 public:
+    enum FinishState {
+	Ok,
+	Error
+    };
+
     QFtpPI( QObject *parent=0 );
 
     void connectToHost( const QString &host, Q_UINT16 port );
 
-    // the states are modelled after the generalized state diagram of RFC 959,
-    // page 58
-    enum State {
-	Begin,
-	Idle,
-	Waiting,
-	Success,
-	Failure
-    };
+    bool sendCommands( const QStringList &cmds );
+    bool sendCommand( const QString &cmd )
+    { return sendCommands( QStringList( cmd ) ); }
 
 signals:
     void connectState( int );
+    void finished( int, const QString& );
 
 private slots:
     void hostFound();
@@ -129,12 +130,24 @@ private slots:
     void error( int );
 
 private:
+    // the states are modelled after the generalized state diagram of RFC 959,
+    // page 58
+    enum State {
+	Begin,
+	Idle,
+	Waiting,
+	Success,
+	Failure
+    };
+
     void processReply();
+    bool startNextCmd();
 
     QSocket commandSocket;
     QString replyText;
     QChar replyCode[3];
     State state;
+    QStringList pendingCommands;
 };
 
 QFtpPI::QFtpPI( QObject *parent ) : QObject( parent ),
@@ -159,6 +172,26 @@ void QFtpPI::connectToHost( const QString &host, Q_UINT16 port )
     commandSocket.connectToHost( host, port );
 }
 
+/*
+  Sends the sequence of commands \a cmds to the FTP server. When the commands
+  are all done or an error occured, the finished() signal is emitted.
+
+  If there are pending commands in the queue this functions returns FALSE and
+  the \a cmds are not added to the queue; otherwise it returns TRUE.
+*/
+bool QFtpPI::sendCommands( const QStringList &cmds )
+{
+    if ( !pendingCommands.isEmpty() )
+	return FALSE;
+    pendingCommands = cmds;
+
+    // ### What if we are not in state Idle; should we rather return FALSE.
+    // Might the actual implementation result in a deadlock?
+    if ( state == Idle )
+	startNextCmd();
+    return TRUE;
+}
+
 void QFtpPI::hostFound()
 {
     emit connectState( QFtp::CsHostFound );
@@ -167,6 +200,9 @@ void QFtpPI::hostFound()
 void QFtpPI::connected()
 {
     state = Begin;
+#if defined(QFTPPI_DEBUG)
+//    qDebug( "QFtpPI state: %d [connected()]", state );
+#endif
     emit connectState( QFtp::CsConnected );
 }
 
@@ -218,6 +254,8 @@ void QFtpPI::readyRead()
 	    lineLeft4 = line.left(4);
 	}
 	replyText += line.mid( 4 ); // strip reply code 'xyz '
+	if ( replyText.endsWith("\r\n") )
+	    replyText.truncate( replyText.length()-2 );
 
 	processReply();
 
@@ -240,6 +278,13 @@ void QFtpPI::processReply()
 	/* 1yz   2yz      3yz   4yz      5yz */
 	Waiting, Success, Idle, Failure, Failure
     };
+#if defined(QFTPPI_DEBUG)
+//    qDebug( "QFtpPI state: %d [processReply() begin]", state );
+    if ( replyText.length() < 400 )
+	qDebug( "QFtpPI recv: %d %s", QString(replyCode,3).toInt(), replyText.latin1() );
+    else
+	qDebug( "QFtpPI recv: %d (text skipped)", QString(replyCode,3).toInt() );
+#endif
     int replyType = replyCode[0].digitValue();
     switch ( state ) {
 	case Begin:
@@ -261,35 +306,75 @@ void QFtpPI::processReply()
 	    // ### spontaneous message
 	    return;
     }
-
+#if defined(QFTPPI_DEBUG)
+//    qDebug( "QFtpPI state: %d [processReply() intermediate]", state );
+#endif
     // react on new state
     switch ( state ) {
 	case Begin:
 	    // ### should never happen
 	    break;
+	case Success:
+	    // ### success handling
+	    state = Idle;
+	    // no break!
 	case Idle:
-	    // ### if pending commands, start
+	    if ( startNextCmd() )
+		state = Waiting;
+	    else
+		emit finished( Ok, replyText );
 	    break;
 	case Waiting:
 	    // ### do nothing
 	    break;
 	case Failure:
-	    // ### error handling
-	    state = Idle;
-	    break;
-	case Success:
-	    // ### success handling
+	    emit finished( Error, replyText );
+	    pendingCommands.clear();
 	    state = Idle;
 	    break;
     }
+#if defined(QFTPPI_DEBUG)
+//    qDebug( "QFtpPI state: %d [processReply()] end", state );
+#endif
+}
+
+bool QFtpPI::startNextCmd()
+{
+    QStringList::iterator nextCmd = pendingCommands.begin();
+    if ( nextCmd == pendingCommands.end() )
+	return FALSE;
+#if defined(QFTPPI_DEBUG)
+    qDebug( "QFtpPI send: %s", (*nextCmd).left( (*nextCmd).length()-2 ).latin1() );
+#endif
+    commandSocket.writeBlock( (*nextCmd).latin1(), (*nextCmd).length() );
+    pendingCommands.remove( nextCmd );
+    return TRUE;
 }
 
 
+class QFtpCommand
+{
+public:
+    QFtpCommand( int i, QFtp::Command cmd, QStringList raw )
+	: id(i), command(cmd), rawCmds(raw)
+    { }
+
+    int id;
+    QFtp::Command command;
+    QStringList rawCmds;
+};
 
 class QFtpPrivate
 {
 public:
+    QFtpPrivate() : idCounter(0)
+    {
+	pending.setAutoDelete( TRUE );
+    }
+
     QFtpPI pi;
+    QPtrList<QFtpCommand> pending;
+    int idCounter;
 };
 
 static QPtrDict<QFtpPrivate> *d_ptr = 0;
@@ -378,7 +463,10 @@ void QFtp::init()
     ///////////////////////////////////////////////////////////
     QFtpPrivate *d = ::d( this );
 
-    connect( &d->pi, SIGNAL(connectState(int)), SIGNAL(connectState(int)) );
+    connect( &d->pi, SIGNAL(connectState(int)),
+	    SIGNAL(connectState(int)) );
+    connect( &d->pi, SIGNAL(finished(int,const QString&)),
+	    SLOT(piFinished(int,const QString&)) );
 }
 
 /*!
@@ -395,6 +483,20 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
     d->pi.connectToHost( host, port );
 }
 
+/*!
+  \enum QFtp::ConnectState
+
+  This enum defines the changes of the connection state:
+
+  \value CsHostFound if the host name lookup was successful
+  \value CsConnected if the connection to the host was successful
+  \value CsClosed if the connection was closed
+  \value CsHostNotFound if the host name lookup failed
+  \value CsConnectionRefused if the connection to the host failed.
+
+  \sa connectState()
+*/
+
 /*!  \fn void QFtp::connectState( int state )
   This signal is emitted when the state of the connection changes. The argument
   \a state is the new state of the connection; it is one of the enum \l
@@ -403,19 +505,80 @@ void QFtp::connectToHost( const QString &host, Q_UINT16 port )
   \sa connectToHost() ConnectState
 */
 
-/*!
-  \enum QFtp::ConnectState
-
-  This enum defines the changes of the connection state:
-
-  \value CsHostFound if the host name lookup was successful
-  \value CsConnected if the connection to the host was successful
-  \value CsClosed if the connection is closed
-  \value CsHostNotFound if the host name lookup failed
-  \value CsConnectionRefused if the connection to the host failed.
-
-  \sa connectState()
+/*!  \fn void QFtp::start( int id )
+  This signal is emitted ###
 */
+/*!  \fn void finishedSuccess( int )
+  This signal is emitted ###
+*/
+/*!  \fn void finishedError( int, const QString& )
+  This signal is emitted ###
+*/
+/*!  \fn void doneSuccess()
+  This signal is emitted ###
+*/
+/*!  \fn void doneError()
+  This signal is emitted ###
+*/
+
+/*!
+  ###
+*/
+int QFtp::login( const QString &user, const QString &password )
+{
+    QStringList cmds;
+    cmds << "USER " + ( user.isNull() ? QString("anonymous") : user ) + "\r\n";
+    cmds << "PASS " + ( password.isNull() ? QString("anonymous@") : password ) + "\r\n";
+    return addCommand( Login, cmds );
+}
+
+int QFtp::addCommand( Command cmd, const QStringList &rawCmds )
+{
+    QFtpPrivate *d = ::d( this );
+    d->idCounter++;
+    d->pending.append( new QFtpCommand(d->idCounter,cmd,rawCmds) );
+
+    if ( d->pending.count() == 1 )
+	// don't emit the start() signal before the id is returned
+	QTimer::singleShot( 0, this, SLOT(startNextCommand()) );
+
+    return d->idCounter;
+}
+
+void QFtp::startNextCommand()
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+    if ( c == 0 )
+	return;
+    emit start( c->id );
+    if ( !d->pi.sendCommands( c->rawCmds ) ) {
+	// ### error handling (this case should not happen)
+    }
+}
+
+void QFtp::piFinished( int status, const QString &text )
+{
+    QFtpPrivate *d = ::d( this );
+    QFtpCommand *c = d->pending.getFirst();
+    if ( c == 0 )
+	return;
+
+    if ( status == QFtpPI::Ok ) {
+	emit finishedSuccess( c->id );
+
+	d->pending.removeFirst();
+	if ( d->pending.isEmpty() )
+	    emit doneSuccess();
+	else
+	    startNextCommand();
+    } else {
+	emit finishedError( c->id, text );
+
+	d->pending.clear();
+	emit doneError();
+    }
+}
 
 //
 //  end of new stuff
@@ -932,7 +1095,7 @@ void QFtp::okGoOn( int code, const QCString &data )
 		qDebug( "QFtp S: LIST" );
 #endif
 		commandSocket->writeBlock( "LIST\r\n", strlen( "LIST\r\n" ) );
-		emit start( operationInProgress() );
+		emit QNetworkProtocol::start( operationInProgress() );
 		passiveMode = TRUE;
 	    }
 	} else if ( operationInProgress() &&
