@@ -10,14 +10,16 @@ HEADERS		= commands.h \
 		  qtexteditintern_p.h \
 		  quickbutton.h \
 		  sourceviewer.h
-SOURCES		= launcher.cpp \
-		  main.cpp \
-		  qcppsyntaxhighlighter.cpp \
-		  qprocess.cpp \
-		  qrichtext.cpp \
-		  qtextedit.cpp \
-		  qtexteditintern.cpp \
-		  quickbutton.cpp \
-		  sourceviewer.cpp
+win32:SOURCES	= qprocess_win.cpp
+unix:SOURCES	= qprocess_unix.cpp
+SOURCES		+= launcher.cpp \
+		   main.cpp \
+		   qcppsyntaxhighlighter.cpp \
+		   qprocess.cpp \
+		   qrichtext.cpp \
+		   qtextedit.cpp \
+		   qtexteditintern.cpp \
+		   quickbutton.cpp \
+		   sourceviewer.cpp
 INTERFACES	= 
 TARGET		= launcher
