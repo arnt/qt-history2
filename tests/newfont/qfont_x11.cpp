@@ -106,7 +106,7 @@ static char *qt_x11encodings[][QFontPrivate::NScripts + 1] = {
     { "gb2312.1980-0"    , 0 }, // BOPOMOFO
 
     { "iso10646-1",
-      "unicode-*"        , 0 }, // UNICODE == ISO-10646-1 (for now)
+      "unicode-*"        , 0 }, // Unicode == ISO-10646-1 (for now)
 
     { "*-*"              , 0 } // UnknownScript
 };
@@ -136,7 +136,7 @@ static int qt_x11indices[QFontPrivate::NScripts + 1] = {
     0, // HANGUL
     0, // BOPOMOFO
 
-    0, // UNICODE
+    0, // Unicode
 
     0  // UnknownScript
 };
@@ -709,7 +709,7 @@ QCString QFontPrivate::findFont(QFontPrivate::Script script, bool *exact) const
     if ( score < exactScore )
 	*exact = FALSE;
 
-    if (script == QFontPrivate::UNICODE) {
+    if (script == QFontPrivate::Unicode) {
 	return bestName;
     } else if (! bestName.isNull()) {
 	return bestName;
@@ -1174,7 +1174,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	return;
     }
 
-    if (script > QFontPrivate::UNICODE) {
+    if (script > QFontPrivate::Unicode) {
 	qDebug("OUT OF RANGE");
 	int *foo = 0; *foo = 0;
     }
@@ -1195,8 +1195,8 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	}
 
 	// dirty unicode also if the font is dirty
-     	qfs = x11data.fontstruct[QFontPrivate::UNICODE];
-	x11data.fontstruct[QFontPrivate::UNICODE] = 0;
+     	qfs = x11data.fontstruct[QFontPrivate::Unicode];
+	x11data.fontstruct[QFontPrivate::Unicode] = 0;
 
 	if (qfs && qfs != (QFontStruct *) -1) {
 	    // only deref here... we will let the cache take care of cleaning up
@@ -1207,7 +1207,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
     // look for a unicode font first, and see if it has the script that we want...
     if (tryUnicode) {
-	QFontStruct *qfs = x11data.fontstruct[QFontPrivate::UNICODE];
+	QFontStruct *qfs = x11data.fontstruct[QFontPrivate::Unicode];
 
 	if (! qfs) {
 
@@ -1215,8 +1215,8 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 	    qDebug("QFP::load: trying to load unicode font");
 #endif // QFONTLOADER_DEBUG
 
-	    load(QFontPrivate::UNICODE, FALSE);
-	    qfs = x11data.fontstruct[QFontPrivate::UNICODE];
+	    load(QFontPrivate::Unicode, FALSE);
+	    qfs = x11data.fontstruct[QFontPrivate::Unicode];
 	}
 
 	if (qfs != (QFontStruct *) -1) {
@@ -1393,7 +1393,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
     if (! (f = XLoadQueryFont(QPaintDevice::x11AppDisplay(),
 			      (const char *) n))) {
-	if (! script == QFontPrivate::UNICODE) {
+	if (! script == QFontPrivate::Unicode) {
 
 #ifdef QFONTLOADER_DEBUG
 	    qDebug("QFontPrivate::load: load failed, trying last resort");
@@ -1427,7 +1427,7 @@ void QFontPrivate::load(QFontPrivate::Script script, bool tryUnicode)
 
     // get unicode -> font encoding codec
     QTextCodec *codec = 0;
-    if (script < QFontPrivate::UNICODE) {
+    if (script < QFontPrivate::Unicode) {
 	codec = QTextCodec::codecForName(qt_x11encodings[script][qt_x11indices[script]]);
     } else {
 	codec = QTextCodec::codecForName("ArabicUnicode");
