@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#162 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#163 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -2758,8 +2758,8 @@ QStrList QImageIO::outputFormats()
     if ( imageHandlers == 0 )
 	init_image_handlers();
 
-    // Include asynchronous loaders first.
-    // ### (None)
+    // Include asynchronous writers (!) first.
+    // (None)
 
     QImageHandler *p = imageHandlers->first();
     while ( p ) {
