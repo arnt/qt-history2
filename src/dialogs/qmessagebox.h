@@ -197,7 +197,7 @@ private:	// Disabled copy constructor and operator=
 QString sq=QString::fromLatin1(qVersion()); if ( (sq.section('.',0,0).toInt()<<16)+\
 (sq.section('.',1,1).toInt()<<8)+sq.section('.',2,2).toInt()<(s.section('.',0,0).toInt()<<16)+\
 (s.section('.',1,1).toInt()<<8)+s.section('.',2,2).toInt() ){if ( !qApp){ int c=0; new \
-QApplication(argc,argv);} QMessageBox::critical( 0, QString::fromLatin1(\
+QApplication(argc,argv);} QMessageBox::critical( 0, QApplication::tr(\
 "Incompatible Qt Library Error" ), QApplication::tr("Executable '%1' requires Qt "\
  "%2, found Qt %3").arg(QString::fromLatin1(qAppName())).arg(QString::fromLatin1(\
 str)).arg(QString::fromLatin1(qVersion()) ), QMessageBox::Abort,0 ); exit(1); }}
