@@ -32,7 +32,7 @@ public:
     ~QVFb();
 
     void enableCursor( bool e );
-    void createPopupMenu();
+    QMenu *createPopupMenu();
 
 protected slots:
     void saveImage();

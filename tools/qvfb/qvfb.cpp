@@ -32,7 +32,6 @@
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qcursor.h>
-#include <qdragobject.h>
 #include <qcheckbox.h>
 #include <qwidgetview.h>
 //#include <yet.h>
@@ -136,7 +135,7 @@ void QVFb::createActions()
     actions[Zoom4Act] = newAction("Zoom scale &4", "Ctrl+Alt+4", SLOT(setZoom4()));
 }
 
-void QVFb::createPopupMenu()
+QMenu *QVFb::createPopupMenu()
 {
     QMenu *file = new QMenu("&File");
     file->addAction(actions[ConfigAct]);
@@ -165,7 +164,7 @@ void QVFb::createPopupMenu()
     menu->addAction(view->menuAction());
     menu->addSeparator();
     menu->addAction(help->menuAction());
-    menu->exec(QCursor::pos());
+    return menu;
 }
 
 void QVFb::createMenuBar()
