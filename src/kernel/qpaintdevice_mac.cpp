@@ -89,6 +89,16 @@ void unclippedScaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
 	     const QPaintDevice *src, int sx, int sy, int sw, int sh, 
 	     Qt::RasterOp rop, bool imask)
 {
+    if(rop == Qt::NotROP) { //this is the only way we can get a NotROP
+	sx = dx;
+	sy = dy;
+	sw = dw;
+	sh = dh;
+	src = dst;
+	rop = Qt::NotCopyROP;
+	imask = TRUE;
+    }
+
     QMacSavedPortInfo savedInfo;
 
     if(sx+sw>src->metric(QPaintDeviceMetrics::PdmWidth)) {
