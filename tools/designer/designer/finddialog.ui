@@ -1,12 +1,5 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>FindDialog</class>
-<include location="global" impldecl="in implementation">qlineedit.h</include>
-<include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
-<include location="local" implDecl="in declaration">finddialog.ui.h</include>
-<forward>struct EditorInterface;</forward>
-<variable>EditorInterface *editor;</variable>
-<variable>QObject *formWindow;</variable>
-<layoutdefaults spacing="6" margin="11"/>
 <widget class="QDialog">
     <property name="name">
         <cstring>FindDialog</cstring>
@@ -16,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>285</width>
-            <height>187</height>
+            <height>189</height>
         </rect>
     </property>
     <property name="caption">
@@ -65,6 +58,8 @@
                         <sizepolicy>
                             <hsizetype>7</hsizetype>
                             <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
                         </sizepolicy>
                     </property>
                     <property name="editable">
@@ -201,7 +196,7 @@
                         <cstring>checkBegin</cstring>
                     </property>
                     <property name="text">
-                        <string>Start at &amp;Beginnig</string>
+                        <string>Start at &amp;Beginning</string>
                     </property>
                 </widget>
             </vbox>
@@ -209,22 +204,18 @@
     </grid>
 </widget>
 <connections>
-    <connection language="C++">
+    <connection>
         <sender>PushButton1</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>doFind()</slot>
     </connection>
-    <connection language="C++">
+    <connection>
         <sender>PushButton2</sender>
         <signal>clicked()</signal>
         <receiver>FindDialog</receiver>
         <slot>reject()</slot>
     </connection>
-    <slot access="protected" language="C++" returnType="void">init()</slot>
-    <slot access="protected" language="C++" returnType="void">destroy()</slot>
-    <slot access="public" language="C++" returnType="void">doFind()</slot>
-    <slot access="public" language="C++" returnType="void">setEditor( EditorInterface * e, QObject * fw )</slot>
 </connections>
 <tabstops>
     <tabstop>comboFind</tabstop>
@@ -236,4 +227,23 @@
     <tabstop>PushButton1</tabstop>
     <tabstop>PushButton2</tabstop>
 </tabstops>
+<includes>
+    <include location="global" impldecl="in implementation">qlineedit.h</include>
+    <include location="local" impldecl="in implementation">../interfaces/editorinterface.h</include>
+    <include location="local" impldecl="in implementation">finddialog.ui.h</include>
+</includes>
+<forwards>
+    <forward>struct EditorInterface;</forward>
+</forwards>
+<variables>
+    <variable>EditorInterface *editor;</variable>
+    <variable>QObject *formWindow;</variable>
+</variables>
+<slots>
+    <slot>init()</slot>
+    <slot>destroy()</slot>
+    <slot>doFind()</slot>
+    <slot>setEditor(EditorInterface * e, QObject * fw)</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
