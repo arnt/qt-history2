@@ -360,7 +360,7 @@ QWSManager::QWSManager(QWidget *w)
 
 QWSManager::~QWSManager()
 {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     if (popup)
 	delete popup;
 #endif
@@ -615,7 +615,7 @@ void QWSManager::paintEvent(QPaintEvent *)
 
 void QWSManager::menu(const QPoint &pos)
 {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     if (!popup) {
 	popup = QApplication::qwsDecorator().menu(managed, managed->pos());
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
@@ -973,7 +973,7 @@ QRegion QWSDefaultDecorator::region(const QWidget *, const QRect &rect, QWSManag
     return region;
 }
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 QPopupMenu *QWSDecorator::menu(const QWidget *, const QPoint &)
 {
     QPopupMenu *m = new QPopupMenu();

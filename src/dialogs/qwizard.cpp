@@ -25,7 +25,7 @@
 
 #include "qwizard.h"
 
-#if QT_FEATURE_WIZARD
+#ifdef QT_FEATURE_WIZARD
 
 #include "qlayout.h"
 #include "qpushbutton.h"

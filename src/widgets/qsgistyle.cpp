@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qsgistyle.h"
-#if QT_FEATURE_STYLE_SGI
+#ifdef QT_FEATURE_STYLE_SGI
 #include "qapplication.h"
 #include "qbutton.h"
 #include "qpainter.h"

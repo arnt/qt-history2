@@ -23,7 +23,7 @@
 
 #include "qmime.h"
 
-#if QT_FEATURE_MIME
+#ifdef QT_FEATURE_MIME
 
 #include "qmap.h"
 #include "qstringlist.h"

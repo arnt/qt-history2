@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qframe.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qframe.h"

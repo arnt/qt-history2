@@ -25,7 +25,7 @@
 
 #include "qfontdatabase.h"
 
-#if QT_FEATURE_FONTDATABASE
+#ifdef QT_FEATURE_FONTDATABASE
 
 #ifdef _WS_QWS_
 #include "qfontmanager_qws.h"

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtextbrowser.h"
-#if QT_FEATURE_TEXTBROWSER
+#ifdef QT_FEATURE_TEXTBROWSER
 #include "../kernel/qrichtext_p.h"
 
 #include "qapplication.h"
@@ -372,7 +372,7 @@ void QTextBrowser::viewportMouseReleaseEvent( QMouseEvent* e )
 */
 void QTextBrowser::viewportMouseMoveEvent( QMouseEvent* e)
 {
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     if ( (e->state() & LeftButton) == LeftButton && !d->buttonDown.isEmpty()  ) {
 	if ( ( e->globalPos() - d->lastClick ).manhattanLength() > QApplication::startDragDistance() ) {
 	    QUrl url ( context(), d->buttonDown, TRUE );

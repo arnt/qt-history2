@@ -48,7 +48,7 @@ public:
     QBitmap &operator=( const QPixmap & );
     QBitmap &operator=( const QImage  & );
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     QBitmap  xForm( const QWMatrix & ) const;
 #endif
 };

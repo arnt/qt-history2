@@ -33,7 +33,7 @@
 #include "qprogressbar.h"
 #endif // QT_H
 
-#if QT_FEATURE_PROGRESSDIALOG
+#ifdef QT_FEATURE_PROGRESSDIALOG
 
 struct QProgressData;
 

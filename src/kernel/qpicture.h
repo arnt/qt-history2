@@ -31,7 +31,7 @@
 #include "qbuffer.h"
 #endif // QT_H
 
-#if QT_FEATURE_PICTURE
+#ifdef QT_FEATURE_PICTURE
 
 class Q_EXPORT QPicture : public QPaintDevice		// picture class
 {

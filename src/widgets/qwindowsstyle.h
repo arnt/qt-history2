@@ -30,7 +30,7 @@
 #include "qcommonstyle.h"
 #endif // QT_H
 
-#if QT_FEATURE_STYLE_WINDOWS
+#ifdef QT_FEATURE_STYLE_WINDOWS
 
 
 class Q_EXPORT QWindowsStyle : public QCommonStyle

@@ -31,7 +31,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 class QTabBar;
 class QTabWidgetData;

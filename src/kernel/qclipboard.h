@@ -31,7 +31,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#if QT_FEATURE_CLIPBOARD 
+#ifdef QT_FEATURE_CLIPBOARD 
 
 class QMimeSource;
 

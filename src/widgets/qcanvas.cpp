@@ -25,7 +25,7 @@
 
 
 #include "qcanvas.h"
-#if QT_FEATURE_CANVAS
+#ifdef QT_FEATURE_CANVAS
 #include <qpainter.h>
 #include <qimage.h>
 #include <qwidget.h>

@@ -23,7 +23,7 @@
 **
 *****************************************************************************/
 #include "qworkspace.h"
-#if QT_FEATURE_WORKSPACE
+#ifdef QT_FEATURE_WORKSPACE
 #include "qapplication.h"
 #include "qobjectlist.h"
 #include "qlayout.h"

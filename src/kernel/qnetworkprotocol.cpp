@@ -25,7 +25,7 @@
 
 #include "qnetworkprotocol.h"
 
-#if QT_FEATURE_NETWORKPROTOCOL
+#ifdef QT_FEATURE_NETWORKPROTOCOL
 
 #include "qlocalfs.h"
 #include "qurloperator.h"

@@ -56,7 +56,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 
 #include "qapplication.h"
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 #include "qwidget.h"
 

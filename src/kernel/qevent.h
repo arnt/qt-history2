@@ -318,7 +318,7 @@ protected:
     bool spont;
 };
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 // This class is rather closed at the moment.  If you need to create your
 // own DND event objects, write to qt-bugs@trolltech.com and we'll try to

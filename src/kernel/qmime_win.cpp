@@ -20,7 +20,7 @@
 
 #include "qmime.h"
 
-#if QT_FEATURE_MIME
+#ifdef QT_FEATURE_MIME
 
 #include "qstrlist.h"
 #include "qimage.h"

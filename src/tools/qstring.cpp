@@ -182,7 +182,7 @@ for $row ( 0..255 ) {
 }
 
 print "// START OF GENERATED DATA\n\n";
-print "#if QT_FEATURE_UNICODETABLES\n\n";
+print "#ifdef QT_FEATURE_UNICODETABLES\n\n";
 
 # Print pages...
 #
@@ -355,7 +355,7 @@ __END__
 
 // START OF GENERATED DATA
 
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
 
 static const Q_UINT8 ui_00[] = {
     10, 10, 10, 10, 10, 10, 10, 10,
@@ -9808,7 +9808,7 @@ static const Q_UINT8 * const direction_info[256] = {
 
 // This is generated too. Script?
 
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
 
 static const Q_UINT16 case_0 [] = {
     0, 0, 0, 0, 0, 0, 0, 0,
@@ -11062,7 +11062,7 @@ bool QChar::isDigit() const
 */
 int QChar::digitValue() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_INT8 *dec_row = decimal_info[row()];
     if( !dec_row )
 	return -1;
@@ -11083,7 +11083,7 @@ int QChar::digitValue() const
 */
 QChar::Category QChar::category() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     return (Category)(unicode_info[row()][cell()]);
 #else
 // ### just ASCII
@@ -11113,7 +11113,7 @@ QChar::Category QChar::category() const
 */
 QChar::Direction QChar::direction() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_UINT8 *rowp = direction_info[row()];
     if(!rowp) return QChar::DirL;
     return (Direction) ( *(rowp+cell()) &0x1f );
@@ -11131,7 +11131,7 @@ QChar::Direction QChar::direction() const
 */
 QChar::Joining QChar::joining() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_UINT8 *rowp = direction_info[row()];
     if ( !rowp )
 	return QChar::OtherJoining;
@@ -11148,7 +11148,7 @@ QChar::Joining QChar::joining() const
 */
 bool QChar::mirrored() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_UINT8 *rowp = direction_info[row()];
     if ( !rowp )
 	return FALSE;
@@ -11164,7 +11164,7 @@ bool QChar::mirrored() const
 */
 QChar QChar::mirroredChar() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     if(!mirrored()) return *this;
 
     int i;
@@ -11185,7 +11185,7 @@ QChar QChar::mirroredChar() const
 */
 QString QChar::decomposition() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_UINT16 *r = decomposition_info[row()];
     if(!r) return QString::null;
 
@@ -11209,7 +11209,7 @@ QString QChar::decomposition() const
 */
 QChar::Decomposition QChar::decompositionTag() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     const Q_UINT16 *r = decomposition_info[row()];
     if(!r) return QChar::Single;
 
@@ -11228,7 +11228,7 @@ QChar::Decomposition QChar::decompositionTag() const
 */
 QChar QChar::lower() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     if(category() != Letter_Uppercase) return *this;
     Q_UINT16 lower = *(case_info[row()]+cell());
     if(lower == 0) return *this;
@@ -11247,7 +11247,7 @@ QChar QChar::lower() const
 */
 QChar QChar::upper() const
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     if(category() != Letter_Lowercase) return *this;
     Q_UINT16 upper = *(case_info[row()]+cell());
     if(upper == 0) return *this;
@@ -11420,7 +11420,7 @@ QChar QChar::upper() const
   character \a ch is greater than that of \a c.
 */
 
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
 
 // small class used internally in QString::Compose()
 class QLigature
@@ -11543,7 +11543,7 @@ static inline bool format(QChar::Decomposition tag, QString & str,
 */
 void QString::compose()
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     unsigned int index=0, len;
     unsigned int cindex = 0;
 
@@ -11619,7 +11619,7 @@ static inline bool is_neutral(unsigned short dir) {
   */
 QChar::Direction QString::basicDirection()
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     // find base direction
     unsigned int pos = 0;
     while ((pos < length()) &&
@@ -11641,7 +11641,7 @@ QChar::Direction QString::basicDirection()
     return QChar::DirL;
 }
 
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
 //
@@ -11703,7 +11703,7 @@ static QChar::Direction resolv[5][5] =
 */
 QString QString::visual(int index, int len)
 {
-#if QT_FEATURE_UNICODETABLES
+#ifdef QT_FEATURE_UNICODETABLES
     // #### This needs much more optimizing - it is called for
     // #### every text operation.
 

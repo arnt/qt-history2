@@ -35,7 +35,7 @@
 #include "qurloperator.h"
 #endif // QT_H
 
-#if QT_FEATURE_NETWORKPROTOCOL_HTTP
+#ifdef QT_FEATURE_NETWORKPROTOCOL_HTTP
 
 class QHttp : public QNetworkProtocol
 {

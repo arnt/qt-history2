@@ -464,7 +464,7 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     return pm;
 }
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
     int	   w, h;				// size of target pixmap

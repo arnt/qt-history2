@@ -40,7 +40,7 @@
 
 #include "qstylesheet.h"
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
 
 #include "qstring.h"
 #include "qpixmap.h"

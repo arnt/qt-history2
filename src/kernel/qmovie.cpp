@@ -34,7 +34,7 @@
 #include "qbuffer.h"
 #include "qshared.h"
 
-#if QT_FEATURE_MOVIE
+#ifdef QT_FEATURE_MOVIE
 
 #ifdef _WS_QWS_
 #include "qgfx_qws.h"

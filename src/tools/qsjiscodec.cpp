@@ -73,7 +73,7 @@
 
 #include "qsjiscodec.h"
 
-#if QT_FEATURE_I18N
+#ifdef QT_FEATURE_I18N
 
 static const uchar Esc = 0x1b;
 

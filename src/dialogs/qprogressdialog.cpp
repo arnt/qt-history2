@@ -25,7 +25,7 @@
 
 #include "qprogressdialog.h"
 
-#if QT_FEATURE_PROGRESSDIALOG
+#ifdef QT_FEATURE_PROGRESSDIALOG
 
 #include "qaccel.h"
 #include "qpainter.h"

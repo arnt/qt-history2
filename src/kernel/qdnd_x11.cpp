@@ -25,7 +25,7 @@
 
 #include "qapplication.h"
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 #include "qwidget.h"
 #include "qintdict.h"

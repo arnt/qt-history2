@@ -25,7 +25,7 @@
 
 #include "qftp.h"
 
-#if QT_FEATURE_NETWORKPROTOCOL_FTP
+#ifdef QT_FEATURE_NETWORKPROTOCOL_FTP
 
 #include "qurlinfo.h"
 #include <stdlib.h>

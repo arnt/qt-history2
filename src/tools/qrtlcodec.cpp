@@ -19,7 +19,7 @@
 
 #include "qrtlcodec.h"
 
-#if QT_FEATURE_I18N
+#ifdef QT_FEATURE_I18N
 
 // NOT REVISED
 

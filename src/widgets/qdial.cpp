@@ -25,7 +25,7 @@
 
 #include "qdial.h"
 
-#if QT_FEATURE_DIAL
+#ifdef QT_FEATURE_DIAL
 
 #include "qpainter.h"
 #include "qpointarray.h"

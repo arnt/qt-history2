@@ -34,7 +34,7 @@ class QTimer;
 #include "qdrawutil.h" // REMOVE THIS IN 3.0
 #endif // QT_H
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 
 class Q_EXPORT QScrollBar : public QWidget, public QRangeControl

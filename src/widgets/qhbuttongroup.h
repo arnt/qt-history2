@@ -30,7 +30,7 @@
 #include "qbuttongroup.h"
 #endif // QT_H
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 class Q_EXPORT QHButtonGroup : public QButtonGroup
 {

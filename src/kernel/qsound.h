@@ -29,7 +29,7 @@
 #include "qobject.h"
 #endif // QT_H
 
-#if QT_FEATURE_SOUND
+#ifdef QT_FEATURE_SOUND
 
 class QSoundData;
 class QAuServer;

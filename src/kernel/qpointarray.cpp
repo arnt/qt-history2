@@ -411,11 +411,10 @@ static inline int fix_angle( int a )
 
 void QPointArray::makeArc( int x, int y, int w, int h, int a1, int a2 )
 {
-#if QT_FEATURE_TRANSFORMATIONS
+#if !defined(QT_OLD_MAKEELLIPSE) && defined(QT_FEATURE_TRANSFORMATIONS)
     QWMatrix unit;
     makeArc(x,y,w,h,a1,a2,unit);
-#endif
-#if QT_OLD_MAKEELLIPSE || !QT_FEATURE_TRANSFORMATIONS
+#else
     a1 = fix_angle( a1 );
     if ( a1 < 0 )
 	a1 += 16*360;
@@ -496,7 +495,7 @@ qtr_elips(QPointArray& a, int& offset, double dxP, double dyP, double dxQ, doubl
 #undef HALF
 }
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 
 /*!
   Sets the points of the array to those describing an arc of an
@@ -617,12 +616,11 @@ void QPointArray::makeArc( int x, int y, int w, int h,
 */
 void QPointArray::makeEllipse( int xx, int yy, int w, int h )
 {						// midpoint, 1/4 ellipse
-#if QT_FEATURE_TRANSFORMATIONS
+#if !defined(QT_OLD_MAKEELLIPSE) && defined(QT_FEATURE_TRANSFORMATIONS)
     QWMatrix unit;
     makeArc(xx,yy,w,h,0,360*16,unit);
     return;
-#endif
-#if QT_OLD_MAKEELLIPSE || !QT_FEATURE_TRANSFORMATIONS
+#else
     if ( w <= 0 || h <= 0 ) {
 	if ( w == 0 || h == 0 ) {
 	    resize( 0 );

@@ -77,7 +77,7 @@
 
 #include "qeuckrcodec.h"
 
-#if QT_FEATURE_I18N
+#ifdef QT_FEATURE_I18N
 
 unsigned int qt_Ksc5601ToUnicode(unsigned int code);
 unsigned int qt_JohabToUnicode(unsigned int code);

@@ -30,7 +30,7 @@
 #include "qfontmanager_qws.h"
 #endif // QT_H
 
-#if QT_FEATURE_BDF
+#ifdef QT_FEATURE_BDF
 
 class QFontFactoryBDF : public QFontFactory {
 

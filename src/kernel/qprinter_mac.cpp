@@ -1,6 +1,6 @@
 #include "qprinter.h"
 
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
 
 #include <stdio.h>
 

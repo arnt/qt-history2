@@ -25,7 +25,7 @@
 
 #include "qvariant.h"
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 
 #include "qstring.h"
 #include "qfont.h"

@@ -25,7 +25,7 @@
 
 #include "qfeatures.h"
 
-#if QT_FEATURE_IMAGEIO_PNG
+#ifdef QT_FEATURE_IMAGEIO_PNG
 
 #include <png.h>
 
@@ -679,7 +679,7 @@ bool QPNGImagePacker::packImage(const QImage& img)
 }
 
 
-#if QT_FEATURE_ASYNC_IMAGE_IO
+#ifdef QT_FEATURE_ASYNC_IMAGE_IO
 
 class Q_EXPORT QPNGFormat : public QImageFormat {
 public:
@@ -1033,7 +1033,7 @@ static QPNGFormatType* globalPngFormatTypeObject = 0;
 
 void qCleanupPngIO()
 {
-#if QT_FEATURE_ASYNC_IMAGE_IO
+#ifdef QT_FEATURE_ASYNC_IMAGE_IO
     if ( globalPngFormatTypeObject ) {
 	delete globalPngFormatTypeObject;
 	globalPngFormatTypeObject = 0;
@@ -1048,7 +1048,7 @@ void qInitPngIO()
 	done = TRUE;
 	QImageIO::defineIOHandler( "PNG", "^.PNG\r", 0, read_png_image,
 				   write_png_image);
-#if QT_FEATURE_ASYNC_IMAGE_IO
+#ifdef QT_FEATURE_ASYNC_IMAGE_IO
 	globalPngFormatTypeObject = new QPNGFormatType;
 #endif
 	qAddPostRoutine( qCleanupPngIO );

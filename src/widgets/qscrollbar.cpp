@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qscrollbar.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qapplication.h"

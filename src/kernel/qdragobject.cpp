@@ -23,7 +23,7 @@
 
 #include "qtextcodec.h"
 
-#if QT_FEATURE_MIME
+#ifdef QT_FEATURE_MIME
 
 #include "qdragobject.h"
 #include "qapplication.h"
@@ -232,7 +232,7 @@ static const char * const link_xpm[] = {
 "............. XXXXXXXXX ",
 ".............           "};
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 // the universe's only drag manager
 static QDragManager * manager = 0;
@@ -278,7 +278,7 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
     : QObject( dragSource, name )
 {
     d = new QDragData();
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     if ( !manager && qApp )
 	(void)new QDragManager();
 #endif
@@ -290,14 +290,14 @@ QDragObject::QDragObject( QWidget * dragSource, const char * name )
 
 QDragObject::~QDragObject()
 {
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     if ( manager && manager->object == this )
 	manager->cancel( FALSE );
 #endif
     delete d;
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 /*!
   Set the pixmap \a pm to display while dragging the object.
   The platform-specific
@@ -1309,7 +1309,7 @@ bool QUriDrag::decodeToUnicodeUris( const QMimeSource* e, QStringList& l )
 }
 
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 /*!
   If the source of the drag operation is a widget in this application,
   this function returns that source, otherwise 0.  The source of the

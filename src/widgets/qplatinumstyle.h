@@ -31,7 +31,7 @@
 #include "qpalette.h"
 #endif // QT_H
 
-#if QT_FEATURE_STYLE_PLATINUM
+#ifdef QT_FEATURE_STYLE_PLATINUM
 
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {

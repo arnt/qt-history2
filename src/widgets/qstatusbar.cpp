@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qstatusbar.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 #include "qlist.h"
 #include "qlayout.h"

@@ -36,7 +36,7 @@
 #include <qqueue.h>
 #endif // QT_H
 
-#if QT_FEATURE_NETWORKPROTOCOL
+#ifdef QT_FEATURE_NETWORKPROTOCOL
 
 class QNetworkProtocol;
 class QNetworkOperation;

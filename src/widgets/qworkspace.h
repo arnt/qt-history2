@@ -31,7 +31,7 @@
 #include <qwidgetlist.h>
 #endif // QT_H
 
-#if QT_FEATURE_WORKSPACE
+#ifdef QT_FEATURE_WORKSPACE
 
 class QWorkspaceChild;
 class QWorkspaceData;

@@ -59,7 +59,7 @@ struct QMetaEnum 				// enumerator meta data
     bool set;					// Wether enum has to be treated as a set
 };
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 class Q_EXPORT QMetaProperty 				// property meta data
 {
 public:
@@ -132,7 +132,7 @@ public:
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 		 QMetaProperty *prop_data, int n_props,
 		 QMetaEnum *enum_data, int n_enums,
 #endif
@@ -164,7 +164,7 @@ public:
     QClassInfo 	*classInfo( int index, bool super = FALSE ) const;
     const char 	*classInfo( const char* name, bool super = FALSE ) const;
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
     const QMetaProperty	*property( const char* name, bool super = FALSE ) const;
     QStrList		propertyNames( bool super = FALSE ) const;
     void		resolveProperty( QMetaProperty* prop );
@@ -176,7 +176,7 @@ public:
     static QMetaObject	*new_metaobject( const char *, const char *,
 					QMetaData *, int,
 					QMetaData *, int,
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 					QMetaProperty *prop_data, int n_props,
 					QMetaEnum *enum_data, int n_enums,
 #endif
@@ -190,7 +190,7 @@ public:
     QMetaData::Access slot_access(int index, bool super = FALSE ); // ### remove in 3.0
     static QMetaEnum 		*new_metaenum( int );
     static QMetaEnum::Item 	*new_metaenum_item( int );
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
     static QMetaProperty 	*new_metaproperty( int );
 #endif
     static QClassInfo 		*new_classinfo( int );
@@ -218,7 +218,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 inline bool QMetaProperty::writeable() const
 { return set != 0; }
 inline bool QMetaProperty::testFlags( uint f ) const

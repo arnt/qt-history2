@@ -30,7 +30,7 @@
 #include "qimage.h"
 #endif // QT_H
 
-#if QT_FEATURE_ASYNC_IMAGE_IO
+#ifdef QT_FEATURE_ASYNC_IMAGE_IO
 
 
 class Q_EXPORT QImageConsumer {

@@ -31,7 +31,7 @@
 #include "qbitarray.h"
 #endif // QT_H
 
-#if QT_FEATURE_LCDNUMBER
+#ifdef QT_FEATURE_LCDNUMBER
 
 
 class QLCDNumberPrivate;

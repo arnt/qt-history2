@@ -463,7 +463,7 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	QAccelItem *item = find_key( d->aitems, key, k->text()[0] );
 	if ( key == Key_unknown )
 	    item = 0;
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 	bool b = QWhatsThis::inWhatsThisMode();
 #else
 	bool b = FALSE;
@@ -471,7 +471,7 @@ bool QAccel::eventFilter( QObject *o, QEvent *e )
 	if ( item && ( item->enabled || b )) {
 	    if (e->type() == QEvent::Accel) {
 		if ( b && !d->ignorewhatsthis ) {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 		    QWhatsThis::leaveWhatsThisMode( item->whatsthis );
 #endif
 		}

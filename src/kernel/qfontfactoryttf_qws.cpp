@@ -25,7 +25,7 @@
 
 #include "qfontfactoryttf_qws.h"
 
-#if QT_FEATURE_TRUETYPE
+#ifdef QT_FEATURE_TRUETYPE
 
 #include "qfontdata_p.h"
 #include <string.h>

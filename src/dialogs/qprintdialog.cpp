@@ -25,7 +25,7 @@
 
 #include "qprintdialog.h"
 
-#if QT_FEATURE_PRINTDIALOG
+#ifdef QT_FEATURE_PRINTDIALOG
 
 #include "qfiledialog.h"
 

@@ -30,7 +30,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
 
 class QString;
 class QCString;

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qtableview.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qscrollbar.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
@@ -1325,7 +1325,7 @@ void QTableView::paintEvent( QPaintEvent *e )
     QRect winR = viewRect();
     QRect cellR;
     QRect cellUR;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     QWMatrix matrix;
 #endif
 
@@ -1349,7 +1349,7 @@ void QTableView::paintEvent( QPaintEvent *e )
 		if ( eraseInPaint )
 		    paint.eraseRect( cellUR );
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 		matrix.translate( xPos, yPos );
 		paint.setWorldMatrix( matrix );
 		if ( testTableFlags(Tbl_clipCellPainting) ||

@@ -25,7 +25,7 @@
 
 #include "qiconview.h"
 
-#if QT_FEATURE_ICONVIEW
+#ifdef QT_FEATURE_ICONVIEW
 
 #include "qpixmap.h"
 #include "qfontmetrics.h"

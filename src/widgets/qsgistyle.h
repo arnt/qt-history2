@@ -32,7 +32,7 @@
 #include "qguardedptr.h"
 #endif // QT_H
 
-#if QT_FEATURE_STYLE_SGI
+#ifdef QT_FEATURE_STYLE_SGI
 
 class QButton;
 

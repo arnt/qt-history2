@@ -25,7 +25,7 @@
 
 #include "qfontfactorybdf_qws.h"
 
-#if QT_FEATURE_BDF
+#ifdef QT_FEATURE_BDF
 
 #include "qfontdata_p.h"
 #include "qtextcodec.h"

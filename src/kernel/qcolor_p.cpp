@@ -35,7 +35,7 @@
 
 #include "qcolor.h"
 
-#if QT_FEATURE_COLORNAMES
+#ifdef QT_FEATURE_COLORNAMES
 
 #include <stdlib.h>
 

@@ -232,7 +232,7 @@ QBitmap &QBitmap::operator=( const QImage &image )
 }
 
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 /*!
   Returns a transformed copy of this bitmap, using \a matrix.
 

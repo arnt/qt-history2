@@ -25,7 +25,7 @@
 
 #include "qurlinfo.h"
 
-#if QT_FEATURE_NETWORKPROTOCOL
+#ifdef QT_FEATURE_NETWORKPROTOCOL
 
 #include "qurloperator.h"
 #include "qdir.h"

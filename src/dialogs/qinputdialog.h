@@ -32,7 +32,7 @@
 #include <qlineedit.h>
 #endif // QT_H
 
-#if QT_FEATURE_INPUTDIALOG
+#ifdef QT_FEATURE_INPUTDIALOG
 
 class QInputDialogPrivate;
 

@@ -30,7 +30,7 @@
 #include "qwindowdefs.h"
 #endif // QT_H
 
-#if QT_FEATURE_MIME
+#ifdef QT_FEATURE_MIME
 
 class Q_EXPORT QMimeSource {
 public:

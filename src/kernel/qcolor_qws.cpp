@@ -58,7 +58,7 @@ static inline int match(QRgb a,QRgb b)
 {
     int ret;
      
-#if QT_FEATURE_QWS_DEPTH_8
+#ifdef QT_FEATURE_QWS_DEPTH_8
     int h1,s1,v1;
     int h2,s2,v2;
     /*
@@ -147,7 +147,7 @@ uint QColor::alloc()
 	return pix=(r^g^b)&0xf;
     } else if(depth==8) {
 	// #### just a hack
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	return pix=qGray(r,g,b);	
 #else
 	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;

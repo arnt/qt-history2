@@ -1,6 +1,6 @@
 #include "qclipboard.h"
 
-#if QT_FEATURE_CLIPBOARD
+#ifdef QT_FEATURE_CLIPBOARD
 
 #include <stdio.h>
 

@@ -53,7 +53,7 @@ typedef unsigned int __u32;
 #include <asm/mtrr.h>
 #endif
 
-#if QT_FEATURE_QWS_VGA_16
+#ifdef QT_FEATURE_QWS_VGA_16
 #include <sys/io.h>
 #endif
 
@@ -101,7 +101,7 @@ struct SWCursorData {
 		    endDraw(); \
 		}
 
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
     #define GFX_8BPP_PIXEL(r,g,b) qGray((r),(g),(b))
 #else
     #define GFX_8BPP_PIXEL(r,g,b) (((r) + 25) / 51 * 36 + ((g) + 25) / 51 * 6 + ((b) + 25) / 51)
@@ -474,7 +474,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     clutcols = 0;
     update_clip();
 
-#if QT_FEATURE_QWS_DEPTH_8 || QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#if defined(QT_FEATURE_QWS_DEPTH_8) || defined(QT_FEATURE_QWS_DEPTH_8GRAYSCALE)
     // default colour map
     setClut( qt_screen->clut(), qt_screen->numCols() );
 #endif
@@ -1023,7 +1023,7 @@ void QGfxRasterBase::paintCursor(const QImage& image, int hotx, int hoty, QPoint
     }
 }
 
-#if QT_FEATURE_QWS_VGA_16
+#ifdef QT_FEATURE_QWS_VGA_16
 static inline void qgfx_vga_io_w_fast(unsigned short port, unsigned char reg,
                                  unsigned char val)
 {
@@ -1757,7 +1757,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*((*srcdata));
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	    if(src_normal_palette) {
 		ret=((val >> 5) << 16)  | ((val >> 6) << 8) | (val >> 5);
 	    } else {
@@ -1843,7 +1843,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*((*srcdata));
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	    if(src_normal_palette) {
 		ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
 	    } else {
@@ -2670,7 +2670,7 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	
         for(loopc=0;loopc<w;loopc++) {
 	    int val = *tempptr++;
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	    alphabuf[loopc] = (val << 16) | (val << 8) | val;
 #else
 	    alphabuf[loopc] = clut[val];
@@ -3666,7 +3666,7 @@ bool QScreen::initCard()
 		  malloc(sizeof(unsigned short int)*256);
 	cmap.transp=(unsigned short int *)
 		    malloc(sizeof(unsigned short int)*256);
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
 	// Build greyscale palette
 	unsigned int loopc;
 	for(loopc=0;loopc<256;loopc++) {
@@ -3791,23 +3791,23 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
     QGfx* ret;
     if(d==1) {
 	ret = new QGfxRaster<1,0>(bytes,w,h);
-#if QT_FEATURE_QWS_DEPTH_16
+#ifdef QT_FEATURE_QWS_DEPTH_16
     } else if(d==16) {
 	ret = new QGfxRaster<16,0>(bytes,w,h);
 #endif
-#if QT_FEATURE_QWS_DEPTH_15
+#ifdef QT_FEATURE_QWS_DEPTH_15
     } else if(d==15) {
 	ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
-#if QT_FEATURE_QWS_DEPTH_8
+#ifdef QT_FEATURE_QWS_DEPTH_8
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
-#if QT_FEATURE_QWS_DEPTH_8GRAYSCALE
+#ifdef QT_FEATURE_QWS_DEPTH_8GRAYSCALE
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif
-#if QT_FEATURE_QWS_DEPTH_32
+#ifdef QT_FEATURE_QWS_DEPTH_32
     } else if(d==32) {
 	ret = new QGfxRaster<32,0>(bytes,w,h);
 #endif
@@ -3846,15 +3846,15 @@ bool QScreen::onCard(unsigned char * p, ulong& offset) const
 // that does accelerated mode stuff and returns accelerated QGfxen where
 // appropriate. This is stored in qt_screen
 
-#if QT_FEATURE_QWS_MACH64
+#if defined(QT_FEATURE_QWS_MACH64)
 
 #include "qgfxmach64_qws.cpp"
 
-#elif QT_FEATURE_QWS_VOODOO
+#elif defined(QT_FEATURE_QWS_VOODOO)
 
 #include "qgfxvoodoo_qws.cpp"
 
-#elif QT_FEATURE_QWS_VFB
+#elif defined(QT_FEATURE_QWS_VFB)
 
 #include "qgfxvfb_qws.cpp"
 

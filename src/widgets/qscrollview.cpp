@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qwidget.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qscrollbar.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
@@ -106,7 +106,7 @@ struct QScrollViewData {
 	clipped_viewport( 0 ),
 	flags( vpwflags ),
 	vx( 0 ), vy( 0 ), vwidth( 1 ), vheight( 1 )
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 	, autoscroll_timer( parent ), drag_autoscroll( TRUE )
 #endif
     {
@@ -256,7 +256,7 @@ struct QScrollViewData {
     QScrollView::ResizePolicy policy;
     QScrollView::ScrollBarMode	vMode;
     QScrollView::ScrollBarMode	hMode;
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     QPoint cpDragStart;
     QTimer autoscroll_timer;
     int autoscroll_time;
@@ -476,7 +476,7 @@ QScrollView::QScrollView( QWidget *parent, const char *name, WFlags f ) :
 {
     d = new QScrollViewData(this,WResizeNoErase |
 	    (f&WPaintClever) | (f&WRepaintNoErase) | (f&WNorthWestGravity) );
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     connect( &d->autoscroll_timer, SIGNAL( timeout() ),
 	     this, SLOT( doDragAutoScroll() ) );
 #endif
@@ -1184,7 +1184,7 @@ bool QScrollView::eventFilter( QObject *obj, QEvent *e )
 	case QEvent::MouseMove:
 	    viewportMouseMoveEvent( (QMouseEvent*)e );
 	    break;
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 	case QEvent::DragEnter:
 	    viewportDragEnterEvent( (QDragEnterEvent*)e );
 	    break;
@@ -1267,7 +1267,7 @@ void QScrollView::contentsMouseMoveEvent( QMouseEvent* )
 {
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 /*!
   This event handler is called whenever the QScrollView receives a
@@ -1430,7 +1430,7 @@ void QScrollView::viewportMouseMoveEvent( QMouseEvent* e )
     contentsMouseMoveEvent(&ce);
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 /*!
   To provide simple processing of events on the contents,
@@ -2283,7 +2283,7 @@ void QScrollView::drawContents( QPainter * )
 {
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 /*!
   \internal

@@ -40,7 +40,7 @@
 #include <qbitmap.h>
 #endif // QT_H
 
-#if QT_FEATURE_ICONVIEW
+#ifdef QT_FEATURE_ICONVIEW
 
 class QIconView;
 class QFontMetrics;

@@ -55,7 +55,7 @@
 #include "qtextcodec.h"
 #endif // QT_H
 
-#if QT_FEATURE_I18N
+#ifdef QT_FEATURE_I18N
 
 class QEucKrCodec : public QTextCodec {
 public:

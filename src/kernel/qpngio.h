@@ -30,7 +30,7 @@
 #include <qimage.h>
 #endif // QT_H
 
-#if QT_FEATURE_IMAGEIO_PNG
+#ifdef QT_FEATURE_IMAGEIO_PNG
 
 void qInitPngIO();
 

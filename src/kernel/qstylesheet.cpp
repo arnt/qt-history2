@@ -25,7 +25,7 @@
 
 #include "qstylesheet.h"
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
 
 #include "qrichtext_p.h"
 #include "qapplication.h"

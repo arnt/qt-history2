@@ -31,7 +31,7 @@
 #include "qpalette.h"
 #endif // QT_H
 
-#if QT_FEATURE_STYLE_MOTIF
+#ifdef QT_FEATURE_STYLE_MOTIF
 
 class Q_EXPORT QMotifStyle : public QCommonStyle
 {

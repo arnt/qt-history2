@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlistview.h"
-#if QT_FEATURE_LISTVIEW
+#ifdef QT_FEATURE_LISTVIEW
 #include "qtimer.h"
 #include "qheader.h"
 #include "qpainter.h"

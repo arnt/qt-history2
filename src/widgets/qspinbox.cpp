@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qspinbox.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 #include "qspinbox.h"
 #include "qpushbutton.h"
@@ -982,7 +982,7 @@ void QSpinBox::updateButtonSymbols()
 	    p.setBrush( color1 );
 	    p.drawPolygon( a );
 	    p.end();
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	    QWMatrix wm;
 	    wm.scale( 1, -1 );
 	    upBm = dnBm.xForm( wm );

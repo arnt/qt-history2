@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlistbox.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"

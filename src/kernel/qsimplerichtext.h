@@ -32,7 +32,7 @@
 #include "qregion.h"
 #endif // QT_H
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
 
 class QPainter;
 class QWidget;

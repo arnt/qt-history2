@@ -63,7 +63,7 @@
 
 #include "qgbkcodec.h"
 
-#if QT_FEATURE_I18N
+#ifdef QT_FEATURE_I18N
 
 #define IsLatin(c)      (((c) <= 0x80))
 #define IsFirstByte(c)  (((c) >= 0x81) && ((c) <= 0xFE))

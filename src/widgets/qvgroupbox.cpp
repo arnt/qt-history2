@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qvgroupbox.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 // NOT REVISED
 /*!

@@ -172,7 +172,7 @@ QDialog::~QDialog()
 
 void QDialog::setDefault( QPushButton *pushButton )
 {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     QObjectList *list = queryList( "QPushButton" );
     QObjectListIt it( *list );
     QPushButton *pb;
@@ -199,7 +199,7 @@ void QDialog::setDefault( QPushButton *pushButton )
  */
 void QDialog::hideDefault()
 {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     QObjectList *list = queryList( "QPushButton" );
     QObjectListIt it( *list );
     QPushButton *pb;
@@ -313,7 +313,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	switch ( e->key() ) {
 	case Key_Enter:
 	case Key_Return: {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 	    QObjectList *list = queryList( "QPushButton" );
 	    QObjectListIt it( *list );
 	    QPushButton *pb;

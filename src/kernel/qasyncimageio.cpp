@@ -25,7 +25,7 @@
 
 #include "qasyncimageio.h"
 
-#if QT_FEATURE_ASYNC_IMAGE_IO
+#ifdef QT_FEATURE_ASYNC_IMAGE_IO
 
 #include "qpainter.h"
 #include "qlist.h"

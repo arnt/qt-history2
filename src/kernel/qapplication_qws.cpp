@@ -375,7 +375,7 @@ void QWSDisplayData::init()
 
     int mouseoffset = 0;
 
-#if QT_FEATURE_QWS_CURSOR
+#ifdef QT_FEATURE_QWS_CURSOR
     mouseoffset=qt_screen->initCursor(offscreenaddress + ramsize);
 #endif
 

@@ -45,7 +45,7 @@
 #include "qtextstream.h"
 #endif // QT_H
 
-#if QT_FEATURE_PSPRINTER
+#ifdef QT_FEATURE_PSPRINTER
 
 struct QPSPrinterPrivate;
 

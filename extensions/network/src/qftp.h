@@ -36,7 +36,7 @@
 #include "qnetworkprotocol.h"
 #endif // QT_H
 
-#if QT_FEATURE_NETWORKPROTOCOL_FTP
+#ifdef QT_FEATURE_NETWORKPROTOCOL_FTP
 
 class QFtp : public QNetworkProtocol
 {

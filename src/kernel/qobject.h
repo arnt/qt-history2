@@ -105,7 +105,7 @@ public:
     void	 dumpObjectTree();
     void	 dumpObjectInfo();
 
-#if QT_FEATURE_PROPERTIES
+#ifdef QT_FEATURE_PROPERTIES
     bool setProperty( const char *name, const QVariant& value ); // virtual in Qt 3.0
     QVariant property( const char *name ) const;    // virtual in Qt 3.0
 #endif // QT_FEATURE_PROPERTIES

@@ -34,7 +34,7 @@
 #include "qtextview.h"
 #endif // QT_H
 
-#if QT_FEATURE_TEXTBROWSER
+#ifdef QT_FEATURE_TEXTBROWSER
 
 class QTextBrowserData;
 

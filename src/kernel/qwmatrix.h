@@ -32,7 +32,7 @@
 #include "qrect.h"
 #endif // QT_H
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 
 
 class Q_EXPORT QWMatrix					// 2D transform matrix

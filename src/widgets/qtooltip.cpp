@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qtooltip.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qlabel.h"
 #include "qptrdict.h"
 #include "qapplication.h"

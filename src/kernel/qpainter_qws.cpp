@@ -216,7 +216,7 @@ void QPainter::init()
     wm_stack = 0;
     pdev = 0;
     penRef = brushRef = 0;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     txop = txinv = 0;
 #else
     xlatex = xlatey = 0;
@@ -424,7 +424,7 @@ bool QPainter::begin( const QPaintDevice *pd )
     if ( reinit ) {
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	wxmat.reset();				// reset world xform matrix
 	txop = txinv = 0;
 #else
@@ -440,7 +440,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    bg_col = white;			// default background color
 	}
     }
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     wx = wy = vx = vy = 0;			// default view origins
 #endif
 
@@ -453,7 +453,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    cbrush = defaultBrush;
 	}
 	bg_col = w->backgroundColor();		// use widget bg color
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
 #endif
@@ -480,17 +480,17 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    bg_col = color0;
 	    cpen.setColor( color1 );
 	}
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	ww = vw = pm->width();			// default view size
 	wh = vh = pm->height();
 #endif
     } else if ( testf(ExtDev) ) {		// external device
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	ww = vw = pdev->metric( QPaintDeviceMetrics::PdmWidth );
 	wh = vh = pdev->metric( QPaintDeviceMetrics::PdmHeight );
 #endif
     }
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( ww == 0 )
 	ww = wh = vw = vh = 1024;
 #endif
@@ -782,7 +782,7 @@ void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 		return;
 	    }
 	    bool tx = FALSE;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	    tx = (txop != TxNone);
 #endif
 	    if ( tx ) {
@@ -858,7 +858,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
     if ( !isActive() )
 	return;
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( testf(VxF|WxF) ) {
 	if ( txop == TxRotShear ) {		// rotate/shear polygon
 	    QPointArray a( QRect(x,y,w,h), TRUE );
@@ -892,7 +892,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
 {
     if ( !isActive() )
         return;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( txop == TxRotShear )
         return;
 #endif
@@ -914,7 +914,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
             setPen( black );
     }
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( testf(ExtDev|VxF|WxF) ) {
         if ( testf(ExtDev) ) {
             QPDevCmdParam param[1];
@@ -1017,7 +1017,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	return;
     }
     QPointArray a;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     a.makeArc( x, y, w, h, 0, 360*16, xmat );
 #else
     map( x, y, &x, &y );
@@ -1041,7 +1041,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
 	return;
     }
     QPointArray pa;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
 #else
     map( x, y, &x, &y );
@@ -1073,7 +1073,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 	return;
     }
     QPointArray pa;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
 #else
     map( x, y, &x, &y );
@@ -1081,7 +1081,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
 #endif
     int n = pa.size();
     int cx, cy;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     xmat.map(x+w/2, y+h/2, &cx, &cy);
 #else
     cx = x+w/2;
@@ -1108,7 +1108,7 @@ void QPainter::drawChord( int x, int y, int w, int h, int a, int alen )
 	return;
     }
     QPointArray pa;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     pa.makeArc( x, y, w-1, h-1, a, alen, xmat ); // arc polygon
 #else
     map( x, y, &x, &y );
@@ -1142,7 +1142,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
 	pdev->cmd(QPaintDevice::PdcDrawLineSegments,this,param);
 	return;
     }
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( txop != TxNone )
 #endif
 	pa = xForm( pa, index, nlines*2 );
@@ -1167,7 +1167,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	return;
     QPointArray pa = a;
     bool tx = TRUE;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     tx = (txop != TxNone);
 #endif
     if ( !testf(ExtDev) && tx ) {
@@ -1208,7 +1208,7 @@ void QPainter::drawPolygon( const QPointArray &a, bool winding,
 	return;
     QPointArray pa = a;
     bool tx = TRUE;
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     tx = (txop != TxNone);
 #endif
     if ( !testf(ExtDev) && tx ) {
@@ -1239,7 +1239,7 @@ void QPainter::drawQuadBezier( const QPointArray &a, int index )
 	for ( int i=0; i<4; i++ )
 	    pa.setPoint( i, a.point(index+i) );
     }
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( !testf(ExtDev) ) {
 	if ( txop != TxNone ) {
 	    pa = xForm( pa );
@@ -1283,7 +1283,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
     if ( sw <= 0 || sh <= 0 )
 	return;
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     if ( testf(ExtDev|VxF|WxF) ) {
 	if ( testf(ExtDev) || txop == TxScale || txop == TxRotShear ) {
 	    if ( sx != 0 || sy != 0 ||
@@ -1384,7 +1384,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 
 }
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 
 //
 // Generate a string that describes a transformed bitmap. This string is used
@@ -1452,7 +1452,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
 	    return;
 	}
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	if ( txop >= TxScale ) {
 	    QFontMetrics fm = fontMetrics();
 	    QFontInfo	 fi = fontInfo();
@@ -1589,7 +1589,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 #endif
     }
 
-#if !QT_FEATURE_TRANSFORMATIONS
+#if !defined(QT_FEATURE_TRANSFORMATIONS)
     map( x, y, &x, &y );
 #endif
 

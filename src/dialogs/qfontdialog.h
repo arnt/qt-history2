@@ -28,7 +28,7 @@
 
 #include "qwindowdefs.h"
 
-#if QT_FEATURE_FONTDIALOG
+#ifdef QT_FEATURE_FONTDIALOG
 
 //
 //  W A R N I N G

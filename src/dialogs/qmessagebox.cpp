@@ -25,7 +25,7 @@
 
 #include "qmessagebox.h"
 
-#if QT_FEATURE_MESSAGEBOX
+#ifdef QT_FEATURE_MESSAGEBOX
 
 #include "qlabel.h"
 #include "qpushbutton.h"

@@ -31,7 +31,7 @@
 #include "qstring.h"
 #endif // QT_H
 
-#if QT_FEATURE_PRINTER
+#ifdef QT_FEATURE_PRINTER
 
 #if defined(B0)
 #undef B0 // Terminal hang-up.  We assume that you do not want that.

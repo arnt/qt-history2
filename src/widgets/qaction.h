@@ -31,7 +31,7 @@
 #include <qstring.h>
 #endif // QT_H
 
-#if QT_FEATURE_ACTION
+#ifdef QT_FEATURE_ACTION
 
 class QActionPrivate;
 class QActionGroupPrivate;

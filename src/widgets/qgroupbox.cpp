@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qgroupbox.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qbitmap.h"

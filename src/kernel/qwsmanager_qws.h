@@ -117,7 +117,7 @@ public:
     virtual ~QWSDecorator() {}
 
     virtual QRegion region(const QWidget *, const QRect &rect, QWSManager::Region r=QWSManager::All) = 0;
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     virtual QPopupMenu *menu(const QWidget *, const QPoint &);
 #endif
     virtual void paint(QPainter *, const QWidget *) = 0;

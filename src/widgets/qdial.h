@@ -32,7 +32,7 @@
 #include "qrangecontrol.h"
 #endif // QT_H
 
-#if QT_FEATURE_DIAL
+#ifdef QT_FEATURE_DIAL
 
 //class QTimer;
 class QDialPrivate;

@@ -20,7 +20,7 @@
 
 #include "qapplication.h"
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 #include "qpainter.h"
 #include "qwidget.h"

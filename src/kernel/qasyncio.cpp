@@ -28,7 +28,7 @@
 #include "qtimer.h"
 #include <stdlib.h>
 
-#if QT_FEATURE_ASYNC_IO
+#ifdef QT_FEATURE_ASYNC_IO
 
 // NOT REVISED
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#175 $
+** $Id: //depot/qt/main/src/moc/moc.y#176 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1900,7 +1900,7 @@ bool isEnumType( const char* type )
 void finishProps()
 {
     int entry = 0;
-    fprintf( out, "#if QT_FEATURE_PROPERTIES\n" );
+    fprintf( out, "#ifdef QT_FEATURE_PROPERTIES\n" );
     for( QListIterator<Property> it( props ); it.current(); ++it ) {
 	if ( !isPropertyType( it.current()->type ) ||
 	     it.current()->override )
@@ -1915,7 +1915,7 @@ int generateEnums()
     if ( enums.count() == 0 )
 	return 0;
 
-    fprintf( out, "#if QT_FEATURE_PROPERTIES\n" );
+    fprintf( out, "#ifdef QT_FEATURE_PROPERTIES\n" );
     fprintf( out, "    QMetaEnum* enum_tbl = QMetaObject::new_metaenum( %i );\n", enums.count() );
 
     int i = 0;
@@ -1949,7 +1949,7 @@ int generateProps()
 	moc_err("The declaration of the class \"%s\" contains properties"
 		" but no Q_OBJECT macro!", className.data());
 
-    fprintf( out, "#if QT_FEATURE_PROPERTIES\n" );
+    fprintf( out, "#ifdef QT_FEATURE_PROPERTIES\n" );
     //
     // Resolve and verify property access functions
     //
@@ -2436,7 +2436,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#175 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#176 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2579,7 +2579,7 @@ void generateClass()		      // generate C++ source code for a class
     else
 	fprintf( out, "\t0, 0,\n" );
 
-    fprintf( out, "#if QT_FEATURE_PROPERTIES\n" );
+    fprintf( out, "#ifdef QT_FEATURE_PROPERTIES\n" );
     if ( n_props )
 	fprintf( out, "\tprops_tbl, %d,\n", n_props );
     else

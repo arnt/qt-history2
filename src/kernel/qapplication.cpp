@@ -344,51 +344,51 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	QCString arg = argv[i];
 	if ( arg == "-qdevel" || arg == "-qdebug") {
 	    makeqdevel = !makeqdevel;
-#if QT_FEATURE_STYLE_WINDOWS
+#ifdef QT_FEATURE_STYLE_WINDOWS
 	} else if ( stricmp(arg, "-style=windows") == 0 ) {
 	    setStyle( new QWindowsStyle );
 #endif
-#if QT_FEATURE_STYLE_MOTIF
+#ifdef QT_FEATURE_STYLE_MOTIF
 	} else if ( stricmp(arg, "-style=motif") == 0 ) {
 	    setStyle( new QMotifStyle );
 #endif
-#if QT_FEATURE_STYLE_PLATINUM
+#ifdef QT_FEATURE_STYLE_PLATINUM
 	} else if ( stricmp(arg, "-style=platinum") == 0 ) {
 	    setStyle( new QPlatinumStyle );
 #endif
-#if QT_FEATURE_STYLE_CDE
+#ifdef QT_FEATURE_STYLE_CDE
 	} else if ( stricmp(arg, "-style=cde") == 0 ) {
 	    setStyle( new QCDEStyle );
 #endif
-#if QT_FEATURE_STYLE_SGI
+#ifdef QT_FEATURE_STYLE_SGI
 	} else if ( stricmp(arg, "-style=sgi") == 0 ) {
 	    setStyle( new QSGIStyle );
 #endif
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 	} else if ( strcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    s = s.lower();
-#if QT_FEATURE_STYLE_WINDOWS
+#ifdef QT_FEATURE_STYLE_WINDOWS
 	    if ( s == "windows" )
 		setStyle( new QWindowsStyle );
 	    else
 #endif
-#if QT_FEATURE_STYLE_MOTIF
+#ifdef QT_FEATURE_STYLE_MOTIF
 	    if ( s == "motif" )
 		setStyle( new QMotifStyle );
 	    else
 #endif
-#if QT_FEATURE_STYLE_PLATINUM
+#ifdef QT_FEATURE_STYLE_PLATINUM
 	    if ( s == "platinum" )
 		setStyle( new QPlatinumStyle );
 	    else
 #endif
-#if QT_FEATURE_STYLE_CDE
+#ifdef QT_FEATURE_STYLE_CDE
 	    if ( s == "cde" )
 		setStyle( new QCDEStyle );
 	    else
 #endif
-#if QT_FEATURE_STYLE_SGI
+#ifdef QT_FEATURE_STYLE_SGI
 	    if ( s == "sgi" )
 		setStyle( new QSGIStyle );
 	    else
@@ -591,46 +591,46 @@ void QApplication::initialize( int argc, char **argv )
     (void) palette();  // trigger creation of application palette
     is_app_running = TRUE; // no longer starting up
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     if (!app_style) {
 
 // Somewhat complicated compile-time search for default style
 //
-#if defined(_WS_WIN_) && QT_FEATURE_STYLE_WINDOWS
+#if defined(_WS_WIN_) && defined(QT_FEATURE_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
-#elif defined(_WS_X11_) && defined(_OS_IRIX_) && QT_FEATURE_STYLE_SGI
+#elif defined(_WS_X11_) && defined(_OS_IRIX_) && defined(QT_FEATURE_STYLE_SGI)
 	app_style = new QSGIStyle; // default comment
-#elif defined(_WS_X11_) && QT_FEATURE_STYLE_MOTIF
+#elif defined(_WS_X11_) && defined(QT_FEATURE_STYLE_MOTIF)
 	app_style = new QMotifStyle; // default style for X Windows
-#elif defined(_WS_MAC_) && QT_FEATURE_STYLE_PLATINUM
+#elif defined(_WS_MAC_) && defined(QT_FEATURE_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
-#elif QT_FEATURE_STYLE_WINDOWS
+#elif defined(QT_FEATURE_STYLE_WINDOWS)
 	app_style = new QWindowsStyle; // default style for Windows
-#elif QT_FEATURE_STYLE_MOTIF
+#elif defined(QT_FEATURE_STYLE_MOTIF)
 	app_style = new QMotifStyle; // default style for X Windows
-#elif QT_FEATURE_STYLE_PLATINUM
+#elif defined(QT_FEATURE_STYLE_PLATINUM)
 	app_style = new QPlatinumStyle;
-#elif QT_FEATURE_STYLE_CDE
+#elif defined(QT_FEATURE_STYLE_CDE)
 	app_style = new QCDEStyle;
-#elif QT_FEATURE_STYLE_SGI
+#elif defined(QT_FEATURE_STYLE_SGI)
 	app_style = new QSGIStyle;
 #else
-#error "Toto... I have a feeling we're not in Kansas anymore."
+#error "No styles defined"
 #endif
 
     }
 #endif
 
-#if QT_FEATURE_IMAGEIO_PNG
+#ifdef QT_FEATURE_IMAGEIO_PNG
     qInitPngIO();
 #endif
 #ifdef _WS_QWS_
-#if QT_FEATURE_NETWORKPROTOCOL
+#ifdef QT_FEATURE_NETWORKPROTOCOL
     qInitNetworkProtocols();
 #endif
 #endif
 
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     app_style->polish( *app_pal );
     app_style->polish( qApp ); //##### wrong place, still inside the qapplication constructor...grmbl....
 #endif
@@ -822,7 +822,7 @@ QApplication::~QApplication()
 
 void QApplication::setStyle( QStyle *style )
 {
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     QStyle* old = app_style;
     app_style = style;
 
@@ -1216,7 +1216,7 @@ void QApplication::polish( QWidget *w )
     if ( qdevel && w->isTopLevel() )
 	qdevel->addTopLevelWidget(tlw);
 #endif
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
     w->style().polish( w );
 #endif
 }

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qcdestyle.h"
-#if QT_FEATURE_STYLE_CDE
+#ifdef QT_FEATURE_STYLE_CDE
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qdrawutil.h" // for now

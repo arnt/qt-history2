@@ -25,7 +25,7 @@
 
 
 #include "qvbox.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qlayout.h"
 
 // NOT REVISED

@@ -31,7 +31,7 @@
 #include "qdialog.h"
 #endif // QT_H
 
-#if QT_FEATURE_WIZARD
+#ifdef QT_FEATURE_WIZARD
 
 class QWizardPrivate;
 class QWizardPagePrivate;

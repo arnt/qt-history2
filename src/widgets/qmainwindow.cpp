@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qmainwindow.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 #include "qtimer.h"
 #include "qlayout.h"

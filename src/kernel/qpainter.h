@@ -105,7 +105,7 @@ public:
     bool	hasViewXForm() const;
     bool	hasWorldXForm() const;
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     void	setViewXForm( bool );		// set xform on/off
     QRect	window()       const;		// get window
     void	setWindow( const QRect & );	// set window
@@ -205,7 +205,7 @@ public:
     void	drawTiledPixmap( const QRect &, const QPixmap &,
 				 const QPoint & );
     void	drawTiledPixmap( const QRect &, const QPixmap & );
-#if QT_FEATURE_PICTURE
+#ifdef QT_FEATURE_PICTURE
     void	drawPicture( const QPicture & );
 #endif
 
@@ -256,7 +256,7 @@ private:
     void	updateFont();
     void	updatePen();
     void	updateBrush();
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     void	updateXForm();
     void	updateInvXForm();
 #endif
@@ -295,7 +295,7 @@ private:
     int		tabarraylen;
 
     // Transformations
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     QCOORD	wx, wy, ww, wh;
     QCOORD	vx, vy, vw, vh;
     QWMatrix	wxmat;
@@ -434,7 +434,7 @@ inline const QPoint &QPainter::brushOrigin() const
 
 inline bool QPainter::hasViewXForm() const
 {
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     return testf(VxF);
 #else
     return xlatex || xlatey;
@@ -443,7 +443,7 @@ inline bool QPainter::hasViewXForm() const
 
 inline bool QPainter::hasWorldXForm() const
 {
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
     return testf(WxF);
 #else
     return xlatex || xlatey;
@@ -487,7 +487,7 @@ inline void QPainter::setBrushOrigin( const QPoint &p )
     setBrushOrigin( p.x(), p.y() );
 }
 
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 inline void QPainter::setWindow( const QRect &r )
 {
     setWindow( r.x(), r.y(), r.width(), r.height() );

@@ -24,7 +24,7 @@
 *****************************************************************************/
 
 #include "qlcdnumber.h"
-#if QT_FEATURE_LCDNUMBER
+#ifdef QT_FEATURE_LCDNUMBER
 #include "qbitarray.h"
 #include "qpainter.h"
 

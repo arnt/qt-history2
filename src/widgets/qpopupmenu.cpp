@@ -25,7 +25,7 @@
 
 #define	 INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 #include "qmenubar.h"
 #include "qaccel.h"
 #include "qpainter.h"

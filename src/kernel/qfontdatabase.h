@@ -35,7 +35,7 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
-#if QT_FEATURE_FONTDATABASE
+#ifdef QT_FEATURE_FONTDATABASE
 
 class QStringList;
 class QFontStylePrivate;

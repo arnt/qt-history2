@@ -1,6 +1,6 @@
 #include "qdragobject.h"
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 
 #include <stdio.h>
 

@@ -25,7 +25,7 @@
 
 #include "qcolordialog.h"
 
-#if QT_FEATURE_COLORDIALOG
+#ifdef QT_FEATURE_COLORDIALOG
 
 #include "qpainter.h"
 #include "qlayout.h"
@@ -570,7 +570,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dragMoveEvent( QDragMoveEvent *e );
@@ -607,7 +607,7 @@ void QColorWell::mousePressEvent( QMouseEvent *e )
 void QColorWell::mouseMoveEvent( QMouseEvent *e )
 {
     QWellArray::mouseMoveEvent( e );
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     if ( !mousePressed )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
@@ -627,7 +627,7 @@ void QColorWell::mouseMoveEvent( QMouseEvent *e )
 #endif
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 void QColorWell::dragEnterEvent( QDragEnterEvent *e )
 {
     setFocus();
@@ -1038,7 +1038,7 @@ protected:
     void mousePressEvent( QMouseEvent *e );
     void mouseMoveEvent( QMouseEvent *e );
     void mouseReleaseEvent( QMouseEvent *e );
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     void dragEnterEvent( QDragEnterEvent *e );
     void dragLeaveEvent( QDragLeaveEvent *e );
     void dropEvent( QDropEvent *e );
@@ -1075,7 +1075,7 @@ void QColorShowLabel::mousePressEvent( QMouseEvent *e )
 
 void QColorShowLabel::mouseMoveEvent( QMouseEvent *e )
 {
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
     if ( !mousePressed )
 	return;
     if ( ( pressPos - e->pos() ).manhattanLength() > QApplication::startDragDistance() ) {
@@ -1092,7 +1092,7 @@ void QColorShowLabel::mouseMoveEvent( QMouseEvent *e )
 #endif
 }
 
-#if QT_FEATURE_DRAGANDDROP
+#ifdef QT_FEATURE_DRAGANDDROP
 void QColorShowLabel::dragEnterEvent( QDragEnterEvent *e )
 {
     if ( QColorDrag::canDecode( e ) )

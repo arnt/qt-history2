@@ -25,7 +25,7 @@
 
 #include "qprinter.h"
 
-#if QT_FEATURE_PSPRINTER
+#ifdef QT_FEATURE_PSPRINTER
 
 #include "qpaintdevicemetrics.h"
 #include "qfile.h"

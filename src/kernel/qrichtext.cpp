@@ -25,7 +25,7 @@
 
 #include "qrichtext_p.h"
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
 
 #include "qpainter.h"
 #include "qfile.h"
@@ -199,7 +199,7 @@ void QTextImage::draw(QPainter* p, int x, int y,
     }
 
     if ( p->device()->devType() == QInternal::Printer ) {
-#if QT_FEATURE_TRANSFORMATIONS
+#ifdef QT_FEATURE_TRANSFORMATIONS
 	p->saveWorldMatrix();
 	QPaintDeviceMetrics metrics(p->device());
 	p->translate( x-ox, y-oy );

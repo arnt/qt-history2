@@ -22,7 +22,7 @@
 *****************************************************************************/
 
 #include "qwhatsthis.h"
-#if QT_FEATURE_WIDGETS
+#ifdef QT_FEATURE_WIDGETS
 
 #include "qapplication.h"
 #include "qpaintdevicemetrics.h"
@@ -452,7 +452,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	return;
 
     QRect r;
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
     QSimpleRichText* doc = 0;
 
     if ( QStyleSheet::mightBeRichText( currentText ) ) {
@@ -558,7 +558,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
     p.drawRect( 1, 1, w-2, h-2 );
     p.setPen( whatsThat->colorGroup().foreground() );
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
     if ( doc ) {
 	doc->draw( &p, hMargin, vMargin, r, whatsThat->colorGroup(), 0 );
 	delete doc;

@@ -25,7 +25,7 @@
 
 #include "qrichtext_p.h"
 
-#if QT_FEATURE_RICHTEXT
+#ifdef QT_FEATURE_RICHTEXT
 
 #include "qsimplerichtext.h"
 #include "qpainter.h"

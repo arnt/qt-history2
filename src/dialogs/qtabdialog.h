@@ -31,7 +31,7 @@
 #include "qiconset.h"
 #endif // QT_H
 
-#if QT_FEATURE_TABDIALOG
+#ifdef QT_FEATURE_TABDIALOG
 
 class  QTabBar;
 struct QTabPrivate;
