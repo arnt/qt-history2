@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#107 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#108 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#107 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#108 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -314,22 +314,25 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 /*----------------------------------------------------------------------------
   Sets the background color of this widget.
 
-  The background color is independent of the widget color group.<br>
-  Notice that the background color will be overwritten when setting
-  a new palette.
+  The background color is independent of the widget color group.
+  Setting a new palette overwrites the background color.
 
   \code
     QWidget w;
     w.setBackgroundColor( yellow );
   \endcode
 
-  \sa backgroundColor(), setPalette(), setBackgroundPixmap() QColor
+  \sa backgroundColor(), setPalette(), setBackgroundPixmap()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
     bg_col = color;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
+    if ( extra && extra->bg_pix ) {		// kill the background pixmap
+	delete extra->bg_pix;
+	extra->bg_pix = 0;
+    }
     update();
 }
 
@@ -345,6 +348,10 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
     if ( pixmap.isNull() ) {
 	XSetWindowBackground( dpy, ident, bg_col.pixel() );
+	if ( extra && extra->bg_pix ) {
+	    delete extra->bg_pix;
+	    extra->bg_pix = 0;
+	}
     }
     else {
 	QPixmap pm = pixmap;
@@ -360,8 +367,8 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
-	update();
     }
+    update();
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#21 $
 **
 ** Implementation of QWidget and QWindow classes for Windows
 **
@@ -19,7 +19,7 @@
 #include "qobjcoll.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#21 $")
 
 
 const char *qt_reg_winclass( int type );	// defined in qapp_win.cpp
@@ -198,12 +198,29 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 void QWidget::setBackgroundColor( const QColor &color )
 {
     bg_col = color;
+    if ( extra && extra->bg_pix ) {		// kill the background pixmap
+	delete extra->bg_pix;
+	extra->bg_pix = 0;
+    }
     update();
 }
 
 void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 {
-    warning( "QWidget::setBackgroundPixmap: Not implemented" );
+    debug( "QWidget::setBackgroundPixmap: Not implemented" );
+    if ( pixmap.isNull() ) {
+	if ( extra && extra->bg_pix ) {
+	    delete extra->bg_pix;
+	    extra->bg_pix = 0;
+	}
+    }
+    else {
+	if ( extra && extra->bg_pix )
+	    delete extra->bg_pix;
+	else
+	    createExtra();
+	extra->bg_pix = new QPixmap( pixmap );
+    }
     update();
 }
 
