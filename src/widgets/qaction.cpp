@@ -741,7 +741,7 @@ bool QAction::isOn() const
 */
 void QAction::setEnabled( bool enable )
 {
-    if ( d->enabled == enable )
+    if ( (bool)d->enabled == enable )
 	return;
     d->enabled = enable;
     d->update( QActionPrivate::State );
@@ -760,7 +760,7 @@ bool QAction::isEnabled() const
 */
 void QAction::setVisible( bool visible )
 {
-    if ( d->visible == visible )
+    if ( (bool)d->visible == visible )
 	return;
     d->visible = visible;
     d->update( QActionPrivate::Visibility );
