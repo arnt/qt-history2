@@ -1546,6 +1546,9 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
     if ( !signal && !stockEvent )
 	return FALSE;
     int signalcount = signal ? signal->method->count : 0;
+    bool retValue = signalcount ? ( signal->method->parameters->inOut == QUParameter::Out ) : FALSE;
+    if ( retValue )
+	signalcount--;
     if ( stockEvent ) {
 	switch( isignal ) {
 	case DISPID_KEYDOWN:
@@ -1603,6 +1606,9 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 		    const QUParameter *param = signal ? signal->method->parameters + p : 0;
 		    QUObjectToVARIANT( obj, *arg, param );
 		}
+		VARIANT retval;
+		VariantInit( &retval );
+		VARIANT *pretval = retValue ? &retval : 0;
 		// call listeners (through IDispatch)
 		GUID IID_QAxEvents = qAxFactory()->eventsID( class_name );
 		while ( cc ) {
@@ -1610,15 +1616,19 @@ bool QAxServerBase::qt_emit( int isignal, QUObject* _o )
 			IDispatch *disp = 0;
 			c->pUnk->QueryInterface( IID_QAxEvents, (void**)&disp );
 			if ( disp ) {
-			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, 0, 0, &argErr );
-			    if ( signal && signal->method ) for ( p = 0; p < signalcount; ++p ) {
-				const QUParameter *param = signal->method->parameters + p;
-				if ( param->inOut & QUParameter::Out ) {
-				    QUObject *obj = _o + p + 1;
-				    if ( obj->type )
-					obj->type->clear( obj );
-				    VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj, param );
+			    disp->Invoke( eventId, IID_NULL, LOCALE_USER_DEFAULT, DISPATCH_METHOD, &dispParams, pretval, 0, &argErr );
+			    if ( signal && signal->method ) {
+				for ( p = 0; p < signalcount; ++p ) {
+				    const QUParameter *param = signal->method->parameters + p;
+				    if ( param->inOut & QUParameter::Out ) {
+					QUObject *obj = _o + p + 1;
+					if ( obj->type )
+					    obj->type->clear( obj );
+					VARIANTToQUObject( dispParams.rgvarg[ signalcount - p - 1 ], obj, param );
+				    }
 				}
+				if ( pretval )
+				    VARIANTToQUObject( retval, _o, signal->method->parameters );
 			    }
 			    disp->Release();
 			}
