@@ -50,9 +50,11 @@ static void qAppendWhereClause(QString &query, const QString &clause1, const QSt
 
 void QSqlRelationalTableModelPrivate::clearChanges()
 {
-    for (int i = 0; i < relations.count(); ++i)
-        delete relations.at(i).model;
-    relations.clear();
+    for (int i = 0; i < relations.count(); ++i) {
+        Relation &rel = relations[i];
+        delete rel.model;
+        rel.displayValues.clear();
+    }
 }
 
 /*!
@@ -235,6 +237,7 @@ void QSqlRelationalTableModel::revertRow(int row)
 void QSqlRelationalTableModel::clear()
 {
     d->clearChanges();
+    d->relations.clear();
     QSqlTableModel::clear();
 }
 
