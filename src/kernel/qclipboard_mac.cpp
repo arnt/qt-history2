@@ -396,6 +396,18 @@ bool QClipboard::supportsSelection() const
     return FALSE; //nei takk
 }
 
+bool QClipboard::ownsSelection() const
+{
+    return FALSE;
+}
+
+
+bool QClipboard::ownsClipboard() const
+{
+    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
+    return FALSE;
+}
+
 void QClipboard::loadScrap(bool)
 {
     LoadScrap();

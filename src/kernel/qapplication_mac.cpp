@@ -518,6 +518,10 @@ bool qt_wstate_iconified( WId )
     return FALSE;
 }
 
+const char *qAppName()				// get application name
+{
+    return appName;
+}
 
 /*****************************************************************************
   Platform specific QApplication members
