@@ -243,9 +243,9 @@ STRING		{ALMOSTSTRING}\"
 <QT_DEF>"double"		{ X;return DOUBLE; }
 <QT_DEF>"void"			{ X;return VOID; }
 <QT_DEF>"enum"			{ X;return ENUM; }
-<QT_DEF>"class"			{ X;return CLASS; }
-<QT_DEF>"struct"		{ X;return STRUCT; }
-<QT_DEF>"union"			{ X;return UNION; }
+<QT_DEF>"class"			{ if ( expLevel == 0 ) { X; return CLASS; } }
+<QT_DEF>"struct"		{ if ( expLevel == 0 ) { X; return STRUCT; } }
+<QT_DEF>"union"			{ if ( expLevel == 0 ) { X; return UNION; } }
 <QT_DEF>"asm"			{ X;return ASM; }
 <QT_DEF>"private"		{ X;return PRIVATE; }
 <QT_DEF>"protected"		{ X;return PROTECTED; }
