@@ -6150,6 +6150,38 @@ QPSPrinter::~QPSPrinter()
 }
 
 
+
+static void ignoreSigPipe(bool b)
+{
+    static struct sigaction *users_sigpipe_handler = 0;
+
+    if (b) {
+	if (users_sigpipe_handler != 0)
+    	    return; // already ignoring sigpipe
+
+	users_sigpipe_handler = new struct sigaction;
+	struct sigaction tmp_sigpipe_handler;
+	tmp_sigpipe_handler.sa_handler = SIG_IGN;
+	sigemptyset(&tmp_sigpipe_handler.sa_mask);
+	tmp_sigpipe_handler.sa_flags = 0;
+
+	if (sigaction(SIGPIPE, &tmp_sigpipe_handler, users_sigpipe_handler) == -1) {
+    	    delete users_sigpipe_handler;
+	    users_sigpipe_handler = 0;
+	}
+    }
+    else {
+	if (users_sigpipe_handler == 0)
+    	    return; // not ignoring sigpipe
+
+	if (sigaction(SIGPIPE, users_sigpipe_handler, 0) == -1)
+	    qWarning("QPSPrinter: could not restore SIGPIPE handler");
+
+	delete users_sigpipe_handler;
+	users_sigpipe_handler = 0;
+    }
+}
+
 bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 {
     if ( c == PdcBegin ) {              // start painting
@@ -6179,13 +6211,18 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 
     if ( c == PdcEnd ) {                        // painting done
         bool pageCountAtEnd = (d->buffer != 0);
-        d->flushPage( TRUE );
 
+    	// we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
+	// if lp/lpr dies
+	ignoreSigPipe(TRUE);
+        d->flushPage( TRUE );
         d->outStream << "%%Trailer\n";
         if ( pageCountAtEnd )
             d->outStream << "%%Pages: " << d->pageCount - 1 << "\n" <<
 		wrapDSC( "%%DocumentFonts: " + d->fontsUsed );
         d->outStream << "%%EOF\n";
+	ignoreSigPipe(FALSE);
+
         d->outStream.unsetDevice();
 	if ( d->outDevice )
 	    d->outDevice->close();
@@ -6458,7 +6495,12 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
         d->dirtyClipping = TRUE;
         break;
     case NewPage:
+    	// we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
+	// if lp/lpr dies
+    	ignoreSigPipe(TRUE);
         d->flushPage();
+	ignoreSigPipe(FALSE);
+
         d->dirtyNewPage = TRUE;
         break;
     case AbortPrinting:
