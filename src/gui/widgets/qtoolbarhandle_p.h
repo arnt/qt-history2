@@ -31,6 +31,8 @@ class QToolBar;
 
 class QToolBarHandle : public QWidget
 {
+    Q_OBJECT
+
 public:
     QToolBarHandle(QToolBar *parent);
 

@@ -29,6 +29,7 @@
 
 class QToolBarExtension : public QToolButton
 {
+    Q_OBJECT
     Qt::Orientation orientation;
 
 public:
