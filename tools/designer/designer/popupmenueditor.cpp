@@ -553,7 +553,7 @@ void PopupMenuEditor::showLineEdit( int index )
     lineEdit->setFocus();
 }
 
-void PopupMenuEditor::setAccelerator( int key, const Qt::ButtonState state, int index )
+void PopupMenuEditor::setAccelerator( int key, Qt::ButtonState state, int index )
 {
     // FIXME: make this a command
 
