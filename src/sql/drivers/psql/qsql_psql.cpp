@@ -662,6 +662,15 @@ QStringList QPSQLDriver::tables(QSql::TableType type) const
     return tl;
 }
 
+static void qSplitTableName(QString &tablename, QString &schema)
+{
+    int dot = tablename.indexOf(QLatin1Char('.'));
+    if (dot == -1)
+        return;
+    schema = tablename.left(dot);
+    tablename = tablename.mid(dot + 1);
+}
+
 QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
 {
     QSqlIndex idx(tablename);
@@ -669,6 +678,10 @@ QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
         return idx;
     QSqlQuery i(createResult());
     QString stmt;
+
+    QString tbl = tablename;
+    QString schema;
+    qSplitTableName(tbl, schema);
 
     switch(d->pro) {
     case QPSQLDriver::Version6:
@@ -696,16 +709,21 @@ QSqlIndex QPSQLDriver::primaryIndex(const QString& tablename) const
         stmt = QLatin1String("SELECT pg_attribute.attname, pg_attribute.atttypid::int, "
                 "pg_class.relname "
                 "FROM pg_attribute, pg_class "
-                "WHERE pg_class.oid = "
+                "WHERE %1 pg_class.oid = "
                 "(SELECT indexrelid FROM pg_index WHERE indisprimary = true AND indrelid = "
-                " (SELECT oid FROM pg_class WHERE lower(relname) = '%1')) "
+                " (SELECT oid FROM pg_class WHERE lower(relname) = '%2')) "
                 "AND pg_attribute.attrelid = pg_class.oid "
                 "AND pg_attribute.attisdropped = false "
                 "ORDER BY pg_attribute.attnum");
+        if (schema.isEmpty())
+            stmt = stmt.arg(QLatin1String(""));
+        else
+            stmt = stmt.arg(QString::fromLatin1("pg_class.relnamespace = (select oid from "
+                   "pg_namespace where pg_namespace.nspname = '%1') AND ").arg(schema.toLower()));
         break;
     }
 
-    i.exec(stmt.arg(tablename.toLower()));
+    i.exec(stmt.arg(tbl.toLower()));
     while (i.isActive() && i.next()) {
         QSqlField f(i.value(0).toString(), qDecodePSQLType(i.value(1).toInt()));
         idx.append(f);
@@ -719,6 +737,10 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
     QSqlRecord info;
     if (!isOpen())
         return info;
+
+    QString tbl = tablename;
+    QString schema;
+    qSplitTableName(tbl, schema);
 
     QString stmt;
     switch(d->pro) {
@@ -759,16 +781,22 @@ QSqlRecord QPSQLDriver::record(const QString& tablename) const
                 "from pg_class, pg_attribute "
                 "left join pg_attrdef on (pg_attrdef.adrelid = "
                 "pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
-                "where lower(pg_class.relname) = '%1' "
+                "where %1 "
+                "lower(pg_class.relname) = '%2' "
                 "and pg_attribute.attnum > 0 "
                 "and pg_attribute.attrelid = pg_class.oid "
                 "and pg_attribute.attisdropped = false "
                 "order by pg_attribute.attnum ");
+        if (schema.isEmpty())
+            stmt = stmt.arg(QLatin1String(""));
+        else
+            stmt = stmt.arg(QString::fromLatin1("pg_class.relnamespace = (select oid from "
+                   "pg_namespace where pg_namespace.nspname = '%1') and ").arg(schema.toLower()));
         break;
     }
 
     QSqlQuery query(createResult());
-    query.exec(stmt.arg(tablename.toLower()));
+    query.exec(stmt.arg(tbl.toLower()));
     if (d->pro >= QPSQLDriver::Version71) {
         while (query.next()) {
             int len = query.value(3).toInt();
