@@ -70,7 +70,7 @@ QDesignerServer *QDesigner::server() const
 void QDesigner::initialize()
 {
     // initialize the sub components
-    int arg = 1;
+    QStringList files;
 
     QString resourceDir = QLibraryInfo::location(QLibraryInfo::TranslationsPath);
 
@@ -87,7 +87,7 @@ void QDesigner::initialize()
                 // issue a warning
             }
         } else {
-            break;
+            files.append(QString::fromLocal8Bit(argv()[i]));
         }
     }
 
@@ -103,12 +103,12 @@ void QDesigner::initialize()
 
     emit initialized();
 
-    if (arg >= argc()) {
+    if (files.isEmpty()) {
         if (QDesignerSettings().showNewFormOnStartup())
             m_workbench->actionManager()->createForm();
     } else {
-        for ( ; arg < argc(); ++arg)
-            m_workbench->readInForm(QString::fromLocal8Bit(argv()[arg]));
+        for (int arg = 0; arg < files.count(); ++arg)
+            m_workbench->readInForm(files.at(arg));
     }
 }
 
