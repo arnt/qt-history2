@@ -28,7 +28,11 @@
 
 QString buddyString(const QWidget *widget)
 {
+    if (!widget)
+	return QString();
     const QWidget *parent = widget->parentWidget();
+    if (!parent)
+	return QString();
     QObjectList ol = parent->queryList("QLabel", 0, FALSE, FALSE);
     for (int i = 0; i < ol.count(); ++i) {
 	QLabel *label = static_cast<QLabel*>(ol.at(i));
