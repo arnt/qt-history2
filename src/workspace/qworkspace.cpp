@@ -2436,6 +2436,9 @@ void QWorkspaceChild::showMinimized()
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
     if ( titlebar )
 	titlebar->setMovable( TRUE );
+    QWorkspace *workspace = (QWorkspace*)parentWidget()->qt_cast( "QWorkspace" );
+    if ( workspace )
+	workspace->hideMaximizeControls();
     widgetResizeHandler->setActive( FALSE );
 }
 
