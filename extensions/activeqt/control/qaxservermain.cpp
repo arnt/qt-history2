@@ -42,6 +42,9 @@ extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
 extern HRESULT GetClassObject(const GUID &clsid, const GUID &iid, void **ppUnk);
 extern ulong qAxLockCount();
+typedef bool (*QWinEventFilter) (MSG*, long&);
+extern bool qax_winEventFilter(MSG *pMsg, long&);
+extern Q_CORE_EXPORT QWinEventFilter qt_set_win_event_filter(QWinEventFilter filter);
 
 #if defined(Q_CC_BOR)
 extern "C" __stdcall HRESULT DumpIDL(const QString &outfile, const QString &ver);
@@ -120,6 +123,7 @@ bool qax_startServer(QAxFactory::ServerType type)
             p->Release();
     }
     
+    qt_set_win_event_filter(qax_winEventFilter);
     qAxIsServer = true;
     return true;
 }

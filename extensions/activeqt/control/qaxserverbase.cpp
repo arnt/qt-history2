@@ -745,38 +745,30 @@ LRESULT CALLBACK axs_FilterProc(int nCode, WPARAM wParam, LPARAM lParam)
     return CallNextHookEx(qax_hhook, nCode, wParam, lParam);
 }
 
-// QApplication subclass that can handle native window messages
-class QAxApplication : public QApplication
+bool qax_winEventFilter(MSG *pMsg, long &res)
 {
-public:
-    QAxApplication(int &argc) : QApplication(argc, 0)
-    {}
+    if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
+	return false;
 
-    bool winEventFilter(MSG *pMsg)
-    {
-        if (!ax_ServerMapper || pMsg->message < WM_KEYFIRST || pMsg->message > WM_KEYLAST)
-	    return false;
+    bool ret = false;
+    QWidget *aqt = QWidget::find(pMsg->hwnd);
+    if (!aqt)
+	return ret;
 
-        bool ret = false;
-        QWidget *aqt = QWidget::find(pMsg->hwnd);
-        if (!aqt)
-	    return ret;
-
-        HWND baseHwnd = ::GetParent(aqt->winId());
-        QAxServerBase *axbase = 0;
-        while (!axbase && baseHwnd) {
-	    axbase = (*axServerMapper())[baseHwnd];
-	    baseHwnd = ::GetParent(baseHwnd);
-        }
-        if (!axbase)
-	    return ret;
-
-        HRESULT hres = axbase->TranslateAcceleratorW(pMsg);
-        if (hres == S_OK)
-	    return 1;
-        return 0;
+    HWND baseHwnd = ::GetParent(aqt->winId());
+    QAxServerBase *axbase = 0;
+    while (!axbase && baseHwnd) {
+	axbase = (*axServerMapper())[baseHwnd];
+	baseHwnd = ::GetParent(baseHwnd);
     }
-};
+    if (!axbase)
+	return ret;
+
+    HRESULT hres = axbase->TranslateAcceleratorW(pMsg);
+    if (hres == S_OK)
+	return 1;
+    return 0;
+}
 
 // COM Factory class, mapping COM requests to ActiveQt requests.
 // One instance of this class for each ActiveX the server can provide.
@@ -796,18 +788,6 @@ public:
 		break;
 	    }
 	}
-
-    	// Make sure a QApplication instance is present (inprocess case)
-        if (!qApp) {
-            qax_ownQApp = true;
-            int argc = 0;
-            (void)new QAxApplication(argc);
-            QT_WA({
-                qax_hhook = SetWindowsHookExW(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
-            }, {
-                qax_hhook = SetWindowsHookExA(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
-            });
-        }
 
 	const QMetaObject *mo = qAxFactory()->metaObject(className);
 	if (mo) {
@@ -866,6 +846,18 @@ public:
 	    if (mo && QString(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value()) == "no")
 		return CLASS_E_NOAGGREGATION;
 	}
+
+    	// Make sure a QApplication instance is present (inprocess case)
+        if (!qApp) {
+            qax_ownQApp = true;
+            int argc = 0;
+            (void)new QApplication(argc, 0);
+            QT_WA({
+                qax_hhook = SetWindowsHookExW(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
+            }, {
+                qax_hhook = SetWindowsHookExA(WH_GETMESSAGE, axs_FilterProc, 0, GetCurrentThreadId());
+            });
+        }
 
 	HRESULT res;
 	// Create the ActiveX wrapper - aggregate if requested
@@ -1278,6 +1270,11 @@ class HackMenuData : public QMenuData
     friend class QAxServerBase;
 };
 */
+
+class HackWidget : public QWidget
+{
+    friend class QAxServerBase;
+};
 /*
     Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget.
     \a uMsg is handled as follows
@@ -1367,22 +1364,20 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
 		    spSite->OnFocus(true);
 		    spSite->Release();
 		}
-		if (that->qt.widget->focusWidget() && !that->inDesignMode)
-		    that->qt.widget->focusWidget()->setFocus();
-		else {
-/* ###
-		    QFocusData *focusData = ((HackWidget*)that->qt.widget)->focusData();
-		    QWidget *candidate = 0;
-		    if (::GetKeyState(VK_SHIFT) < 0)
-			candidate = focusData->last();
-		    else
-			candidate = focusData->first();
-		    if (candidate->focusPolicy() != QWidget::NoFocus)
-			candidate->setFocus();
-		    else
-			((HackWidget*)candidate)->focusNextPrevChild(true);
-*/
-		}
+                QWidget *candidate = that->qt.widget;
+                while (!(candidate->focusPolicy() & QWidget::TabFocus)) {
+                    candidate = candidate->nextInFocusChain();
+                    if (candidate == that->qt.widget) {
+                        candidate = 0;
+                        break;
+                    }
+                }
+                if (candidate) {
+                    candidate->setFocus();
+                    HackWidget *widget = (HackWidget*)that->qt.widget;
+                    if (::GetKeyState(VK_SHIFT) < 0)
+                        widget->focusNextPrevChild(false);
+                }
 	    }
 	}
 	break;
@@ -3168,21 +3163,40 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
     case VK_TAB:
 	if (isUIActive) {
 	    bool shift = ::GetKeyState(VK_SHIFT) < 0;
-/* ###
-	    QFocusData *data = ((HackWidget*)qt.widget)->focusData();
 	    bool giveUp = true;
+            QWidget *curFocus = qt.widget->focusWidget();
 	    if (shift) {
-		if (qt.widget->focusWidget() != data->first()) {
-		    giveUp = false;
-		    ((HackWidget*)qt.widget)->focusNextPrevChild(false);
-		    if (qt.widget->focusWidget() == data->last())
-			giveUp = true;
-		}
+                if (!curFocus->isTopLevel()) {
+                    QWidget *nextFocus = curFocus->nextInFocusChain();
+                    QWidget *prevFocus = 0;
+                    QWidget *topLevel = 0;
+                    while (nextFocus != curFocus) {
+                        if (nextFocus->focusPolicy() & QWidget::TabFocus) {
+                            prevFocus = nextFocus;
+                            topLevel = 0;
+                        } else if (nextFocus->isTopLevel()) {
+                            topLevel = nextFocus;
+                        }
+                        nextFocus = nextFocus->nextInFocusChain();
+                    }
+
+                    if (!topLevel) {
+                        giveUp = false;
+                        ((HackWidget*)curFocus)->focusNextPrevChild(false);
+                    }
+                }
 	    } else {
-		if (qt.widget->focusWidget() != data->last()) {
-		    giveUp = false;
-		    ((HackWidget*)qt.widget)->focusNextPrevChild(true);
-		}
+                QWidget *nextFocus = curFocus;
+                while (1) {
+                    nextFocus = nextFocus->nextInFocusChain();
+                    if (nextFocus->isTopLevel())
+                        break;
+                    if (nextFocus->focusPolicy() & QWidget::TabFocus) {
+                        giveUp = false;
+                        ((HackWidget*)curFocus)->focusNextPrevChild(true);
+                        break;
+                    }
+                }
 	    }
 	    if (giveUp) {
 		HWND hwnd = ::GetParent(m_hWndCD);
@@ -3190,7 +3204,7 @@ HRESULT WINAPI QAxServerBase::TranslateAcceleratorW(MSG *pMsg)
 	    } else {
 		return S_OK;
 	    }
-*/
+
 	}
 	break;
 
