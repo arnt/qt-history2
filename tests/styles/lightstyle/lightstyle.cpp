@@ -744,10 +744,12 @@ void LightStyle::drawControl( ControlElement control,
 
 	    if ( mi && mi->isSeparator() ) {
 		// draw separator
+		p->fillRect(r, cg.brush(QColorGroup::Button));
 		p->setPen(cg.dark());
-		p->drawLine(r.left(), r.top(), r.right(), r.top());
-		p->setPen(cg.light());
-		p->drawLine(r.left(), r.top() + 1, r.right(), r.top() + 1);
+		if (r.width() > 18)
+		    p->drawLine(r.left() + 8, r.top() + 1, r.right() - 8, r.top() + 1);
+		else
+		    p->drawLine(r.left(), r.top() + 1, r.right(), r.top() + 1);
 		break;
 	    }
 
@@ -1370,7 +1372,7 @@ QSize LightStyle::sizeFromContents( ContentsType contents,
 
 	    QMenuItem *mi = (QMenuItem *) data[0];
 	    if (mi->isSeparator()) {
-		ret = QSize(10, 2);
+		ret = QSize(10, 3);
 		break;
 	    }
 

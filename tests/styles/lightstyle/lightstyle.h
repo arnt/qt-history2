@@ -7,11 +7,12 @@
 #include <qwindowsstyle.h>
 #endif // QT_H
 
-#ifdef QT_PLUGIN_STYLE_LIGHT
+
+#ifdef QT_PLUGIN
 #  define Q_EXPORT_STYLE_LIGHT
 #else
 #  define Q_EXPORT_STYLE_LIGHT Q_EXPORT
-#endif // QT_PLUGIN_STYLE_LIGHT
+#endif // QT_PLUGIN
 
 
 class Q_EXPORT_STYLE_LIGHT LightStyle : public QWindowsStyle
