@@ -23,6 +23,8 @@
 
 #include "actioneditor.h"
 
+class QAction;
+
 class ActionEditor : public ActionEditorBase
 {
     Q_OBJECT
@@ -53,6 +55,12 @@ protected slots:
 signals:
     void hidden();
 
+private:
+    void enableAll( bool enable );
+
+private:
+    QAction *currentAction;
+    
 };
 
 #endif // ACTIONEDITOR_H

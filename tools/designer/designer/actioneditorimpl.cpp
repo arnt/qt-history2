@@ -19,10 +19,18 @@
 **********************************************************************/
 
 #include "actioneditorimpl.h"
+#include <qaction.h>
+#include <qlineedit.h>
+#include <qlabel.h>
+#include <qtoolbutton.h>
+#include <qlistview.h>
+#include <qcheckbox.h>
+#include <qpushbutton.h>
 
 ActionEditor::ActionEditor( QWidget* parent,  const char* name, WFlags fl )
-    : ActionEditorBase( parent, name, fl )
+    : ActionEditorBase( parent, name, fl ), currentAction( 0 )
 {
+	enableAll( FALSE );
 }
 
 void ActionEditor::closeEvent( QCloseEvent *e )
@@ -39,8 +47,13 @@ void ActionEditor::connectionsClicked()
 {
 }
 
-void ActionEditor::currentActionChanged( QListViewItem * )
+void ActionEditor::currentActionChanged( QListViewItem *i )
 {
+    if ( !i ) {
+	enableAll( FALSE );
+	return;
+    }
+    enableAll( TRUE );
 }
 
 void ActionEditor::deleteAction()
@@ -89,4 +102,21 @@ void ActionEditor::whatsThisChanged( const QString & )
 
 void ActionEditor::chooseIcon()
 {
+}
+
+void ActionEditor::enableAll( bool enable )
+{
+    editAccel->setEnabled( enable );
+    editText->setEnabled( enable );
+    editName->setEnabled( enable );
+    labelIcon->setEnabled( enable );
+    buttonIcon->setEnabled( enable );
+    editToolTip->setEnabled( enable );
+    editMenuText->setEnabled( enable );
+    editWhatsThis->setEnabled( enable );
+    listActions->setEnabled( enable );
+    checkToggle->setEnabled( enable );
+    checkOn->setEnabled( enable );
+    checkEnabled->setEnabled( enable );
+    buttonConnections->setEnabled( enable );
 }
