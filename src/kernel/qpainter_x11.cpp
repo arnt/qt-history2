@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#73 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#74 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#73 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#74 $";
 #endif
 
 
@@ -36,6 +36,41 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#73 $";
 // QPen member functions
 //
 
+/*!
+\class QPen qpen.h
+\brief The QPen class defines how the QPainter should draw lines and outlines
+of shapes.
+
+A pen has a style, a width and a color.
+
+The pen style defines the line type. The default pen style is \c SolidPen.
+Setting the style to \c NoPen tells the painter to not draw lines or outlines.
+
+The pen width defines the line width. The default line width is 0, which
+draws a 1-pixel line very fast, but not so accurate.  Setting the line
+width to 1 or more draws lines that are precise, but drawing is slower.
+
+The line color defines the color of lines and text. The default line
+color is black.  The QColor documentation contains a list of standard colors.
+
+Use the QBrush class for specifying fill styles.
+
+Example of how to use a pen:
+\code
+  QPainter painter;
+  QPen     pen( red );			\/ red solid line, 0 width
+  painter.begin( &anyPaintDevice );	\/ paint widget, pixmap etc.
+  painter.setPen( pen );		\/ sets the red pen
+  painter.drawRect( 40,30, 200,100 );	\/ draw 200x100 rect at (40,30)
+  painter.pen().setColor( blue );	\/ change pen color to blue
+  painter.drawLine( 40,30, 240,130 );	\/ draw diagonal in rectangle
+  painter.end();			\/ painting done
+\endcode
+
+The setStyle() function has a list of pen styles.
+*/
+
+
 void QPen::init( const QColor &color, uint width, PenStyle style )
 {
     data = new QPenData;
@@ -45,20 +80,38 @@ void QPen::init( const QColor &color, uint width, PenStyle style )
     data->color = color;
 }
 
+/*!
+Constructs a default black solid line pen with 0 width.
+*/
+
 QPen::QPen()
 {
     init( black, 0, SolidLine );		// default pen
 }
+
+/*!
+Constructs a  pen black with 0 width and a specified style.
+
+\sa setStyle().
+*/
 
 QPen::QPen( PenStyle style )
 {
     init( black, 0, style );
 }
 
+/*!
+Constructs a pen with a specified color, width and style.
+*/
+
 QPen::QPen( const QColor &color, uint width, PenStyle style )
 {
     init( color, width, style );
 }
+
+/*!
+Constructs a pen which is a shallow copy of \e p.
+*/
 
 QPen::QPen( const QPen &p )
 {
@@ -66,11 +119,37 @@ QPen::QPen( const QPen &p )
     data->ref();
 }
 
+/*!
+Destroys the pen.
+*/
+
 QPen::~QPen()
 {
     if ( data->deref() )
 	delete data;
 }
+
+
+/*!
+Detaches from shared pen data to makes sure that this pen is the only
+one referring the data.
+
+If multiple pens share common data, this pen dereferences the
+data and gets a copy of the data. Nothing will be done if there is just
+a single reference.
+*/
+
+void QPen::detach()
+{
+    if ( data->count != 1 )
+	*this = copy();
+}
+
+
+/*!
+Assigns a shallow copy of \e p to the pen and returns a reference to this
+pen.
+*/
 
 QPen &QPen::operator=( const QPen &p )
 {
@@ -82,6 +161,10 @@ QPen &QPen::operator=( const QPen &p )
 }
 
 
+/*!
+Returns a deep copy of the pen.
+*/
+
 QPen QPen::copy() const
 {
     QPen p( data->color, data->width, data->style );
@@ -89,30 +172,100 @@ QPen QPen::copy() const
 }
 
 
+/*!
+\fn PenStyle QPen::style() const
+Returns the pen style.
+
+\sa setStyle().
+*/
+
+/*!
+\fn uint QPen::width() const
+Returns the pen width.
+
+\sa setWidth().
+*/
+
+/*!
+\fn QColor QPen::color() const
+Returns the pen color.
+
+\sa setColor().
+*/
+
+
+/*!
+Sets the pen style to \e s.
+
+The pen styles are:
+<dl compact>
+<dt> NoPen <dd> no outline will be drawn.
+<dt> SolidLine <dd> solid line (default).
+<dt> DashLine <dd> - - - (dashes) line.
+<dt> DotLine <dd> * * * (dots) line.
+<dt> DashDotLine <dd> - * - * line.
+<dt> DashDotDotLine <dd> -- * -- * line.
+</dl>
+
+\sa style().
+*/
+
 void QPen::setStyle( PenStyle s )		// set pen style
 {
     if ( data->style == s )
 	return;
+    detach();
     data->style = s;
     QPainter::changedPen( this, CHANGE_ALL );
 }
+
+/*!
+Sets the pen width to \e w.
+
+\sa width().
+*/
 
 void QPen::setWidth( uint w )			// set pen width
 {
     if ( data->width == w )
 	return;
+    detach();
     data->width = w;
     QPainter::changedPen( this, CHANGE_ALL );
 }
 
+/*!
+Sets the pen color to \e c.
+
+\sa color().
+*/
+
 void QPen::setColor( const QColor & c )		// set pen color
 {
+    if ( data->color == c )
+	return;
+    detach();
     ulong pixel = data->color.pixel();
     data->color = c;
     if ( pixel != c.pixel() )
 	QPainter::changedPen( this, CHANGE_COLOR );
 }
 
+
+/*!
+\fn bool QPen::operator!=( const QPen &p ) const
+Returns TRUE if the pen is different from \e p, or FALSE if the pens are
+equal.
+
+Two pens are different if they have different styles, widths and colors.
+*/
+
+/*!
+Returns TRUE if the pen is equal to \e p, or FALSE if the pens are
+different.
+
+Two pens are equal if they have equal styles, widths and colors.
+*/
 
 bool QPen::operator==( const QPen &p ) const
 {
@@ -125,13 +278,49 @@ bool QPen::operator==( const QPen &p ) const
 // QBrush member functions
 //
 
+/*!
+\class QBrush qbrush.h
+\brief The QBrush class defines the fill pattern of shapes drawn using the
+QPainter.
+
+A brush has a style and a color.  One of the brush styles is a custom
+pattern, which is defined by a QBitmap.
+
+The brush style defines the fill pattern. The default brush style is \c
+NoBrush (depends on how you construct a brush).  This style tells the
+painter to not fill shapes. The standard style for filling is called \c
+SolidPattern.
+
+The brush color defines the color of the fill pattern.
+The QColor documentation contains a list of standard colors.
+
+Use the QPen class for specifying line/outline styles.
+
+Example of how to use a brush:
+\code
+  QPainter painter;
+  QBrush   brush( yellow );		\/ yellow solid pattern
+  QPen     pen( red );			\/ red solid line, 0 width
+  painter.begin( &anyPaintDevice );	\/ paint widget, pixmap etc.
+  painter.setBrush( brush );		\/ sets the yellow brush
+  painter.setPen( pen );		\/ sets the red pen
+  painter.drawRect( 40,30, 200,100 );	\/ draw 200x100 rect at (40,30)
+  painter.brush().setStyle( NoBrush );	\/ do not fill
+  painter.drawrect( 10,10, 30,20 );	\/ draw rectangle outline
+  painter.end();			\/ painting done
+\endcode
+
+The setStyle() function has a list of brush styles.
+*/
+
+
 void QBrush::init( const QColor &color, BrushStyle style )
 {
     data = new QBrushData;
     CHECK_PTR( data );
-    data->style = style;
-    data->color = color;
-    data->dpy = 0;
+    data->style  = style;
+    data->color  = color;
+    data->dpy	 = 0;
     data->pixmap = 0;
     data->bitmap = 0;
 }
@@ -146,20 +335,37 @@ void QBrush::reset()
 }
 
 
+/*!
+Constructs a default black brush with the style \c NoBrush (will not fill
+shapes).
+*/
+
 QBrush::QBrush()
 {
     init( black, NoBrush );
 }
+
+/*!
+Constructs a black brush with the specified style.
+*/
 
 QBrush::QBrush( BrushStyle style )
 {
     init( black, style );
 }
 
+/*!
+Constructs a brush with a specified color and style.
+*/
+
 QBrush::QBrush( const QColor &color, BrushStyle style )
 {
     init( color, style );
 }
+
+/*!
+Constructs a brush with a specified color and a custom pattern.
+*/
 
 QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
 {
@@ -167,11 +373,19 @@ QBrush::QBrush( const QColor &color, const QBitmap &bitmap )
     data->bitmap = new QBitmap( bitmap );
 }
 
-QBrush::QBrush( const QBrush &p )
+/*!
+Constructs a brush which is a shallow copy of \e b.
+*/
+
+QBrush::QBrush( const QBrush &b )
 {
-    data = p.data;
+    data = b.data;
     data->ref();
 }
+
+/*!
+Destroys the brush.
+*/
 
 QBrush::~QBrush()
 {
@@ -179,41 +393,142 @@ QBrush::~QBrush()
 	reset();
 }
 
-QBrush &QBrush::operator=( const QBrush &p )
+
+/*!
+Detaches from shared brush data to makes sure that this brush is the only
+one referring the data.
+
+If multiple brushes share common data, this pen dereferences the
+data and gets a copy of the data. Nothing will be done if there is just
+a single reference.
+*/
+
+void QBrush::detach()
 {
-    p.data->ref();				// beware of p = p
+    if ( data->count != 1 )
+	*this = copy();
+}
+
+
+/*!
+Assigns a shallow copy of \e b to the brush and returns a reference to
+this brush.
+*/
+
+QBrush &QBrush::operator=( const QBrush &b )
+{
+    b.data->ref();				// beware of b = b
     if ( data->deref() )
 	reset();
-    data = p.data;
+    data = b.data;
     return *this;
 }
 
 
+/*!
+Returns a deep copy of the brush.
+*/
+
 QBrush QBrush::copy() const
 {
-    QBrush b( data->color, data->style );	// NOTE: !!! Copies not bitmap
-    return b;
+    if ( data->style == CustomPattern ) {	// brush has bitmap
+	QBrush b( data->color, *data->bitmap );
+	return b;
+    }
+    else {					// brush has std pattern
+	QBrush b( data->color, data->style );
+	return b;
+    }
 }
 
+
+/*!
+\fn BrushStyle QBrush::style() const
+Returns the brush style.
+
+\sa setStyle().
+*/
+
+/*!
+\fn QColor QBrush::color() const
+Returns the brush color.
+
+\sa setColor().
+*/
+
+/*!
+\fn QBitmap *QBrush::bitmap() const
+Returns a pointer to the custom brush pattern.
+
+A null pointer is returned if no custom brush pattern has been set.
+
+\sa setBitmap().
+*/
+
+
+/*!
+Sets the brush style to \e s.
+
+The brush styles are:
+<dl compact>
+  <dt> NoBrush <dd> will not fill shapes (default).
+<dt> SolidPattern <dd> solid (100%) fill pattern.
+<dt> Dense1Pattern <dd> 94% fill pattern.
+<dt> Dense2Pattern <dd> 88% fill pattern.
+<dt> Dense3Pattern <dd> 63% fill pattern.
+<dt> Dense4Pattern <dd> 50% fill pattern.
+<dt> Dense5Pattern <dd> 37% fill pattern.
+<dt> Dense6Pattern <dd> 12% fill pattern.
+<dt> Dense7Pattern <dd> 6% fill pattern.
+<dt> HorPattern <dd> horizontal lines pattern.
+<dt> VerPattern <dd> vertical lines pattern.
+<dt> CrossPattern <dd> crossing lines pattern.
+<dt> BDiagPattern <dd> diagonal lines (directed / ) pattern.
+<dt> FDiagPattern <dd> diagonal lines (directed \ ) pattern.
+<dt> DiagCrossPattern <dd> diagonal crossing lines pattern.
+<dt> CustomPattern <dd> internal: set when a bitmap pattern is being used.
+</dl>
+
+\sa style().
+*/
 
 void QBrush::setStyle( BrushStyle s )		// set brush style
 {
     if ( data->style == s )
 	return;
+#if defined(CHECK_RANGE)
+    if ( s == CustomPattern )
+	warning( "QBrush::setStyle: CustomPattern is for internal use" );
+#endif
+    detach();
     data->style = s;
     QPainter::changedBrush( this, CHANGE_ALL );
 }
 
+/*!
+Sets the brush color to \e c.
+
+\sa color().
+*/
+
 void QBrush::setColor( const QColor &c )	// set brush color
 {
-    ulong pixel = data->color.pixel();
+    if ( data->color == c )
+	return;
+    detach();
     data->color = c;
-    if ( pixel != c.pixel() )
-	QPainter::changedBrush( this, CHANGE_COLOR );
+    QPainter::changedBrush( this, CHANGE_COLOR );
 }
+
+/*!
+Sets the brush bitmap.  The style is set to \c CustomPattern.
+
+\sa bitmap().
+*/
 
 void QBrush::setBitmap( const QBitmap &bitmap )	// set brush bitmap
 {
+    detach();
     data->style = CustomPattern;
     if ( data->bitmap )
 	delete data->bitmap;
@@ -221,6 +536,21 @@ void QBrush::setBitmap( const QBitmap &bitmap )	// set brush bitmap
     QPainter::changedBrush( this, CHANGE_ALL );
 }
 
+
+/*!
+\fn bool QBrush::operator!=( const QBrush &b ) const
+Returns TRUE if the brush is different from \e b, or FALSE if the brushes are
+equal.
+
+Two brushes are different if they have different styles, colors or bitmaps.
+*/
+
+/*!
+Returns TRUE if the brush is equal to \e b, or FALSE if the brushes are
+different.
+
+Two brushes are equal if they have equal styles, colors and bitmaps.
+*/
 
 bool QBrush::operator==( const QBrush &b ) const
 {
@@ -249,9 +579,9 @@ const double Q_3PI2 = 4.71238898038468985769;	// 3*pi/2
 
 double qsincos( double a, bool calcCos=FALSE )
 {
-#if defined(_CC_GNU_)
+#if 0
     return calcCos ? __builtin_cos(a) : __builtin_sin(a);
-#else
+#endif
     if ( calcCos )				// calculate cosine
 	a -= Q_PI2;
     if ( a >= Q_2PI || a <= -Q_2PI ) {		// fix range: -2*pi < a < 2*pi
@@ -274,7 +604,6 @@ double qsincos( double a, bool calcCos=FALSE )
     double a9  = a7*a2;
     double a11 = a9*a2;
     return (a-a3/6+a5/120-a7/5040+a9/362880-a11/39916800)*sign;
-#endif
 }
 
 inline double qsin( double a ) { return qsincos(a,FALSE); }
@@ -2159,15 +2488,10 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		wx_bm = new QPixmap( bm.xForm( mat ) );	// transform bitmap
 	    }
 	    mat = QPixmap::trueMatrix( mat, w, h );
-#if 1
 	    WXFORM_P( x, y );
 	    int dx, dy;
 	    mat.map( tx, ty, &dx, &dy );	// compute position of bitmap
 	    x -= dx;  y -= dy;
-#else
-            QWorldMatrix wm = mat * eff_mat;
-	    wm.map( x, y, &x, &y );
-#endif
 	    if ( bg_mode == OpaqueMode ) {	// opaque fill
 		QPointArray a(5);
 		int m, n;
@@ -2346,10 +2670,6 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     memset( charwidth, -1, 255*sizeof(short) );
 
 #define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
-#undef  MIN
-#undef  MAX
-#define MIN(x,y) ((x) < (y) ? (x) : (y))
-#define MAX(x,y) ((x) > (y) ? (x) : (y))
 
     bool wordbreak  = (tf & WordBreak)  == WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
@@ -2416,7 +2736,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    }
 		    if ( cw == 0 && tabstops )	// use fixed tab stops
 			cw = tabstops - tw%tabstops;
-		    cc = TABSTOP | MIN(tw+cw,MAXWIDTH);
+		    cc = TABSTOP | QMIN(tw+cw,MAXWIDTH);
 		}
 		else {				// convert TAB to space
 		    cc = ' ';
@@ -2443,8 +2763,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		cw = 0;
 	    }
 	    else {				// break at breakindex
-		codes[begline] = BEGLINE | MIN(breakwidth,MAXWIDTH);
-		maxwidth = MAX(maxwidth,breakwidth);
+		codes[begline] = BEGLINE | QMIN(breakwidth,MAXWIDTH);
+		maxwidth = QMAX(maxwidth,breakwidth);
 		begline = breakindex;
 		nlines++;
 		tw -= breakwidth + bcwidth;
@@ -2455,8 +2775,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	tw += cw;				// increment text width
 
 	if ( cc == BEGLINE ) {
-	    codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
-	    maxwidth = MAX(maxwidth,tw);
+	    codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
+	    maxwidth = QMAX(maxwidth,tw);
 	    begline = index;
 	    nlines++;
 	    tw = 0;
@@ -2492,8 +2812,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	codes	 = (ushort *)(data + sizeof(text_info));
     }
     else {
-	codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
-	maxwidth = MAX(maxwidth,tw);
+	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
+	maxwidth = QMAX(maxwidth,tw);
 	nlines++;
 	codes[index++] = 0;
 	codelen = index;
