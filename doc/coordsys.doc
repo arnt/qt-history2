@@ -165,28 +165,28 @@ recommend compiling and running the example before you read any
 further.  In particular, try resizing the window to different shapes.
 
 \dontinclude aclock/aclock.cpp
-\skip ::drawClock
-\line ::drawClock
-\line {
-\line save
+\skipto ::drawClock
+\printline ::drawClock
+\printline {
+\printline save
 
 First off, we save the painter's state, so that the calling function
 is guaranteed not to be disturbed by the transformations we're going
 to use.
 
-\line setWindow
+\printline setWindow
 
 We set the model coordinate system we want: A 1000*1000 window where
 0,0 is in the middle.
 
-\line viewport
-\line QMIN
+\printline viewport
+\printline QMIN
 
 The device may not be square and we want the clock to be, so we find
 its current viewport and compute its shortest side.
 
-\line setViewport
-\line height
+\printline setViewport
+\printline height
 
 Then we set a new square viewport, centered in the old one.
 
@@ -196,8 +196,8 @@ possible square that'll fit in the output device.
 
 Time to start drawing.
 
-\line currentTime
-\line pts
+\printline currentTime
+\printline pts
 
 Since we'll draw a clock, we'll need to know the time.  \e pts is just
 a utility variable to hold some points.
@@ -206,48 +206,48 @@ Next comes three drawing blocks, one for the hour hand, one for the
 minute hand and finally one for the clock face itself.  First we draw
 the hour hand:
 
-\line save
-\line rotate
+\printline save
+\printline rotate
 
 We save the painter and then rotate it so that one axis points along
 the hour hand.
 
-\line setPoints
-\line drawPolygon
+\printline setPoints
+\printline drawPolygon
 
 We set \e pts to a four-point polygon that looks like the hour hand at
 three o'clock, and draw it.  Because of the rotation, it's drawn
 pointed in the right direction.
 
-\line restore
+\printline restore
 
 We restore the saved painter, undoing the rotation.  We could also
 call rotate( -30 ) but that might introduce rounding errors, so it's
 better to use save() and restore().  Next, the minute hand, drawn
 almost the same way:
 
-\line save
-\line rotate
-\line setPoints
-\line drawPolygon
-\line restore
+\printline save
+\printline rotate
+\printline setPoints
+\printline drawPolygon
+\printline restore
 
 The only differences are how the rotation angle is computed and the
 shape of the polygon.
 
 The last part to be drawn is the clock face itself.
 
-\line for
-\line drawLine
-\line rotate
-\line }
+\printline for
+\printline drawLine
+\printline rotate
+\printline }
 
 Twelve short hour lines at thirty-degree intervals.  At the end of
 that, the painter is rotated in a way which isn't very useful, but
 we're done with painting so that doesn't matter.
 
-\line restore
-\line }
+\printline restore
+\printline }
 
 The final line of the function restores the painter, so that the
 caller won't be bothered by all the transformations we've done.
