@@ -43,7 +43,7 @@ SYSCONF_MOC		= $(QTDIR)/bin/moc
 SYSCONF_LINK_SHLIB	= #$ Expand('TMAKE_LINK_SHLIB');
 SYSCONF_LINK_TARGET_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
-	$text .= 'lib$(TARGET).sl';
+	$text .= 'lib$(TARGET).$(VER_MAJ)';
     } else {
 	$text .= 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN).$(VER_PATCH)';
     }
@@ -54,10 +54,16 @@ SYSCONF_LINK_LIB_SHARED	= #${
 		       . Project('TMAKE_LFLAGS_SHLIB') . ' '
 		       . ( Project('TMAKE_LFLAGS_SONAME')
 			     ? Project('TMAKE_LFLAGS_SONAME') . '$(SYSCONF_LINK_TARGET_SHARED)'
-			     : '' )
-		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED) $(OBJECTS) '
-		       . ' $(OBJMOC) $(LIBS) &&'
-		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);';
+			     : '' ) . " \\\n\t\t\t\t"
+		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
+		       . ' $(OBJECTS) $(OBJMOC) $(LIBS) &&' . " \\\n\t\t\t\t"
+		       . ' chmod 555 $(SYSCONF_LINK_TARGET_SHARED) &&';
+
+	$text .= " \\\n\t\t\t\t";
+	$text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
+		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
+		    . ' rm -f lib$(TARGET).sl lib$(TARGET).$(VER_MAJ);' . " \\\n\t\t\t\t"
+		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).sl';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
 	    $text .= Project('TMAKE_LINK_SHLIB_CMD');
