@@ -237,7 +237,11 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
     for(int i = 0; i < si.num_glyphs; i++) {
         const QGlyphLayout *g = glyphs + (si.flags & QTextItem::RightToLeft ? -i : i);
         const QGlyph *glyph = rendered_glyphs[g->glyph];
-        Q_ASSERT(glyph);
+        if (!glyph) {
+            FT_UInt gi = glyphs[i].glyph;
+            glyph = rendered_glyphs[gi] = new QGlyph;
+            render(face, gi, rendered_glyphs[gi], smooth);
+        }
         int myw = glyph->width;
         int myx = x + qRound(g->offset.x() + glyph->bearingx);
         int myy = y + qRound(g->offset.y() - glyph->bearingy);
