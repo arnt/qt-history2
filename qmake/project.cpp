@@ -899,131 +899,166 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps, QMap<QString, QStringL
 QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
-    if(str.find("$$") == -1)
-	return str;
-    for(int x = 0, rep; x < 5; x++) {
-	int jump_to = 0;
-	QRegExp reg_var;
-	reg_var.setMinimal(TRUE);
-	if( x == 0 ) //function blocked out by {}'s
-	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\{([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)\\}");
-	else if( x == 1 ) //variables blocked out by {}'s
-	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\{([a-zA-Z0-9_\\.-]*)\\}");
-	else if(x == 2) //environment
-	    reg_var = QRegExp("(^|\\\\*)\\$\\$\\(([a-zA-Z0-9_\\.-]*)\\)");
-	else if(x == 3) //function
-	    reg_var = QRegExp("(^|\\\\*)\\$\\$([a-zA-Z0-9_]*)\\((\\(.|(.*)\\)*)\\)");
-	else if(x == 4) //normal variable
-	    reg_var = QRegExp("(^|\\\\*)\\$\\$([a-zA-Z0-9_\\.-]*)");
-	while((rep = reg_var.search(str, jump_to)) != -1) {
-	    QString prefix = reg_var.cap(1);
-	    if(!prefix.isEmpty()) { //escaping
-		prefix = prefix.left(prefix.length()-1);
-		if(!(prefix.length() % 2)) {
-		    str.replace(rep, reg_var.matchedLength(), reg_var.cap(0).mid(1));
-		    jump_to = rep + reg_var.matchedLength();
-		    continue;
-		}
-	    }
+    for(int var_begin, var_last=0; (var_begin = str.find("$$", var_last)) != -1; var_last = var_begin) {
+	if(var_begin >= str.length() + 2)
+	    break;
+	else if(var_begin != 0 && str[var_begin-1] == '\\')
+	    continue;
 
-	    QString replacement;
-	    if(x == 2) {//environment
-		replacement = getenv(reg_var.cap(2));
-	    } else if(x == 0 || x == 3) { //function
-		QStringList args = split_arg_list(reg_var.cap(3));
-		for(QStringList::Iterator arit = args.begin(); arit != args.end(); ++arit) {
-		    (*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
-		    doVariableReplace((*arit), place);
-		}
-		debug_msg(1, "Running function: %s( %s )", reg_var.cap(2).latin1(), args.join("::").latin1());
-		if(reg_var.cap(2).lower() == "member") {
-		    if(args.count() < 1 || args.count() > 2) {
-			fprintf(stderr, "%s:%d: member(var, place) requires two arguments.\n",
-				parser.file.latin1(), parser.line_no);
-		    } else {
-			uint pos = 0;
-			if(args.count() == 2)
-			    pos = args[1].toInt();
-			const QStringList &var = place[varMap(args.first())];
-			if(var.count() >= pos)
-			    replacement = var[pos];
-		    }
-		} else if(reg_var.cap(2).lower() == "list") {
-		    if(args.count() != 1) {
-			fprintf(stderr, "%s:%d: list(vals) requires one"
-				"argument.\n", parser.file.latin1(), parser.line_no);
-		    } else {
-			static int x = 0;
-			replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
-			(*((QMap<QString, QStringList>*)&place))[replacement] = split_value_list(args.first());
-		    }
-		} else if(reg_var.cap(2).lower() == "join") {
-		    if(args.count() < 1 || args.count() > 4) {
-			fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
-				"arguments.\n", parser.file.latin1(), parser.line_no);
-		    } else {
-			QString glue, before, after;
-			if(args.count() >= 2)
-			    glue = args[1].replace("\"", "" );
-			if(args.count() >= 3)
-			    before = args[2].replace("\"", "" );
-			if(args.count() == 4)
-			    after = args[3].replace("\"", "" );
-			const QStringList &var = place[varMap(args.first())];
-			if(!var.isEmpty())
-			    replacement = before + var.join(glue) + after;
-		    }
-		} else if(reg_var.cap(2).lower() == "find") {
-		    if(args.count() != 2) {
-			fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
-				parser.file.latin1(), parser.line_no);
-		    } else {
-			QRegExp regx(args[1]);
-			const QStringList &var = place[varMap(args.first())];
-			for(QStringList::ConstIterator vit = var.begin();
-			    vit != var.end(); ++vit) {
-			    if(regx.search(*vit) != -1) {
-				if(!replacement.isEmpty())
-				    replacement += " ";
-				replacement += (*vit);
-			    }
-			}
-		    }
-		} else if(reg_var.cap(2).lower() == "system") {
-		    if(args.count() != 1) {
-			fprintf(stderr, "%s:%d system(execut) requires one argument\n",
-				parser.file.latin1(), parser.line_no);
-		    } else {
-			char buff[256];
-			FILE *proc = QT_POPEN(args.join(" ").latin1(), "r");
-			while(proc && !feof(proc)) {
-			    int read_in = fread(buff, 1, 255, proc);
-			    if(!read_in)
-				break;
-			    for(int i = 0; i < read_in; i++) {
-				if(buff[i] == '\n' || buff[i] == '\t')
-				    buff[i] = ' ';
-			    }
-			    buff[read_in] = '\0';
-			    replacement += buff;
-			}
-		    }
-		} else {
-		    fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
-			    parser.file.latin1(), parser.line_no, reg_var.cap(2).latin1());
-		}
-	    } else { //variable
-		if(reg_var.cap(2).left(1) == ".")
-		    replacement = "";
-		else if(reg_var.cap(2) == "LITERAL_WHITESPACE")
-		    replacement = "\t";
-		else
-		    replacement = place[varMap(reg_var.cap(2))].join(" ");
-	    }
-	    debug_msg(2, "Project parser: %d (%s) :: %s -> %s", x, str.latin1(),
-		      reg_var.capturedTexts().join("::").latin1(), replacement.latin1());
-	    str.replace(rep, reg_var.matchedLength(), prefix + replacement);
+	int var_incr = var_begin + 2;
+	bool in_braces = FALSE, environ = FALSE;
+	if(str[var_incr] == '{') {
+	    in_braces = TRUE;
+	    var_incr++;
+	    while(var_incr < str.length() && 
+		  (str[var_incr] == ' ' || str[var_incr] == '\t' || str[var_incr] == '\n'))
+		var_incr++;
 	}
+	if(str[var_incr] == '(') {
+	    environ = TRUE;
+	    var_incr++;
+	}
+	QString val, args;
+	while(var_incr < str.length() && 
+	      (str[var_incr].isLetter() || str[var_incr].isNumber() || str[var_incr] == '.' || str[var_incr] == '_'))
+	    val += str[var_incr++];
+	if(environ) {
+	    if(str[var_incr] != ')') {
+		var_incr++;
+		warn_msg(WarnParser, "%s:%d: Unterminated env-variable replacement '%s' (%s)",
+			 parser.file.latin1(), parser.line_no, 
+			 str.mid(var_begin, QMAX(var_incr - var_begin, str.length())).latin1(), str.latin1());
+		var_begin += var_incr;
+		continue;
+	    }
+	    var_incr++;
+	} else if(str[var_incr] == '(') { //args
+	    for(int parens = 0; var_incr < str.length(); var_incr++) {
+		if(str[var_incr] == '(') {
+		    parens++;
+		    if(parens == 1) 
+			continue;
+		} else if(str[var_incr] == ')') {
+		    parens--;
+		    if(!parens) {
+			var_incr++;
+			break;
+		    }
+		}
+		args += str[var_incr];
+	    }
+	}
+	if(var_incr > str.length() || (in_braces && str[var_incr] != '}')) {
+	    var_incr++;
+	    warn_msg(WarnParser, "%s:%d: Unterminated variable replacement '%s' (%s)",
+		     parser.file.latin1(), parser.line_no, 
+		     str.mid(var_begin, QMAX(var_incr - var_begin, str.length())).latin1(), str.latin1());
+	    var_begin += var_incr;
+	    continue;
+	} else if(in_braces) {
+	    var_incr++;
+	}
+
+	QString replacement;
+	if(environ) {
+	    replacement = getenv(val);
+	} else if(args.isEmpty()) {
+	    if(val.left(1) == ".")
+		replacement = "";
+	    else if(val == "LITERAL_WHITESPACE")
+		replacement = "\t";
+	    else
+		replacement = place[varMap(val)].join(" ");
+	} else {
+	    QStringList arg_list = split_arg_list(args);
+	    for(QStringList::Iterator arit = arg_list.begin(); arit != arg_list.end(); ++arit) {
+		(*arit) = (*arit).stripWhiteSpace(); // blah, get rid of space
+		doVariableReplace((*arit), place);
+	    }
+	    debug_msg(1, "Running function: %s( %s )", val.latin1(), arg_list.join("::").latin1());
+	    if(val.lower() == "member") {
+		if(arg_list.count() < 1 || arg_list.count() > 2) {
+		    fprintf(stderr, "%s:%d: member(var, place) requires two arguments.\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    uint pos = 0;
+		    if(arg_list.count() == 2)
+			pos = arg_list[1].toInt();
+		    const QStringList &var = place[varMap(arg_list.first())];
+		    if(var.count() >= pos)
+			replacement = var[pos];
+		}
+	    } else if(val.lower() == "list") {
+		if(arg_list.count() != 1) {
+		    fprintf(stderr, "%s:%d: list(vals) requires one"
+			    "argument.\n", parser.file.latin1(), parser.line_no);
+		} else {
+		    static int x = 0;
+		    replacement.sprintf(".QMAKE_INTERNAL_TMP_VAR_%d", x++);
+		    (*((QMap<QString, QStringList>*)&place))[replacement] = split_value_list(arg_list.first());
+		}
+	    } else if(val.lower() == "join") {
+		if(arg_list.count() < 1 || arg_list.count() > 4) {
+		    fprintf(stderr, "%s:%d: join(var, glue, before, after) requires four"
+			    "arguments.\n", parser.file.latin1(), parser.line_no);
+		} else {
+		    QString glue, before, after;
+		    if(arg_list.count() >= 2)
+			glue = arg_list[1].replace("\"", "" );
+		    if(arg_list.count() >= 3)
+			before = arg_list[2].replace("\"", "" );
+		    if(arg_list.count() == 4)
+			after = arg_list[3].replace("\"", "" );
+		    const QStringList &var = place[varMap(arg_list.first())];
+		    if(!var.isEmpty())
+			replacement = before + var.join(glue) + after;
+		}
+	    } else if(val.lower() == "find") {
+		if(arg_list.count() != 2) {
+		    fprintf(stderr, "%s:%d find(var, str) requires two arguments\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    QRegExp regx(arg_list[1]);
+		    const QStringList &var = place[varMap(arg_list.first())];
+		    for(QStringList::ConstIterator vit = var.begin();
+			vit != var.end(); ++vit) {
+			if(regx.search(*vit) != -1) {
+			    if(!replacement.isEmpty())
+				replacement += " ";
+			    replacement += (*vit);
+			}
+		    }
+		}
+	    } else if(val.lower() == "system") {
+		if(arg_list.count() != 1) {
+		    fprintf(stderr, "%s:%d system(execut) requires one argument\n",
+			    parser.file.latin1(), parser.line_no);
+		} else {
+		    char buff[256];
+		    FILE *proc = QT_POPEN(arg_list.join(" ").latin1(), "r");
+		    while(proc && !feof(proc)) {
+			int read_in = fread(buff, 1, 255, proc);
+			if(!read_in)
+			    break;
+			for(int i = 0; i < read_in; i++) {
+			    if(buff[i] == '\n' || buff[i] == '\t')
+				buff[i] = ' ';
+			}
+			buff[read_in] = '\0';
+			replacement += buff;
+		    }
+		}
+	    } else {
+		fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
+			parser.file.latin1(), parser.line_no, val.latin1());
+	    }
+	}
+	//actually do replacement now..
+	int mlen = var_incr - var_begin;
+	debug_msg(2, "Project parser: '%s' :: %s -> %s", str.latin1(),
+		  str.mid(var_begin, mlen).latin1(), replacement.latin1());
+	str.replace(var_begin, mlen, replacement);
+	var_begin += replacement.length();
     }
     return str;
 }
