@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#32 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#32 $";
 #endif
 
 
@@ -110,8 +110,8 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting );	// don't clip when painting tbl
-    setMargins( motifPopupFrame, motifPopupFrame,
-		motifPopupFrame, motifPopupFrame ); // reserve space for frame
+    setFrameStyle( QFrame::Panel | QFrame::Raised ); // standard menu frame
+    setLineWidth( motifPopupFrame );
     autoaccel	  = 0;
     accelDisabled = FALSE;
     popupActive	  = -1;
@@ -686,28 +686,6 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
 // ---------------------------------------------------------------------------
 // Event handlers
 //
-
-void QPopupMenu::paintEvent( QPaintEvent *e )	// paint popup menu
-{
-    QPainter	paint;
-    QColorGroup g = colorGroup();
-    QRect	r = rect();
-    paint.begin( this );			// draw the popup frame
-    switch ( style() ) {
-	case MacStyle:
-	    paint.drawShadePanel( r, g.foreground(), g.foreground(),
-				  macPopupFrame );
-	    break;
-	case MotifStyle:
-	    paint.drawShadePanel( r, g.light(), g.dark(), motifPopupFrame );
-	    break;
-	default:
-	    break;
-    }
-    paint.end();
-    QTableWidget::paintEvent( e );		// will draw the menu items
-}
-
 
 void QPopupMenu::mousePressEvent( QMouseEvent *e )
 {
