@@ -803,3 +803,4 @@ rm -f ${TMP_FILE}
 cp -a $MANIFEST_FILE $OUT_TREE/manifest >/dev/null 2>&1
 [ "x$CREATED_MANIFEST" = "xyes" ] && rm -f ${MANIFEST_FILE}
 status "mkdists done"
+exit 0
