@@ -22,6 +22,7 @@
 #include "qpixmap.h"
 #include "qpointer.h"
 #include "qtimer.h"
+#include "qdebug.h"
 
 /*
   Internal class to get access to protected QWidget-members
@@ -365,7 +366,9 @@ void QRollEffect::paintEvent(QPaintEvent*)
     int y = orientation & DownScroll ? qMin(0, currentHeight - totalHeight) : 0;
 
     QPainter p(this);
-    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::CopyPixmapNoMask);
+    p.drawPixmap(x, y, pm);
+    // ### this is how it was, but arthur can't do it
+//    p.drawPixmap(x, y, pm, 0, 0, pm.width(), pm.height(), Qt::CopyPixmapNoMask);
 }
 
 /*
