@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#229 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#230 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -612,6 +612,7 @@ void QLineEdit::resizeEvent( QResizeEvent * )
 {
     delete d->pm;
     d->pm = 0;
+    updateOffset();
 }
 
 
