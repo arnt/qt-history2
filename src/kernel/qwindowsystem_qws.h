@@ -43,6 +43,7 @@
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws.h"
 #include "qwsevent_qws.h"
+#include "qkeyboard_qws.h"
 #endif // QT_H
 
 struct SWCursorData;
@@ -105,14 +106,6 @@ private:
     QRegion exposed;
     int last_focus_time;
 };
-#ifndef QT_NO_QWS_KEYBOARD
-class QWSKeyboardHandler : public QObject {
-    Q_OBJECT
-public:
-    QWSKeyboardHandler();
-    virtual ~QWSKeyboardHandler();
-};
-#endif
 #ifndef QT_NO_SOUND
 class QWSSoundServer;
 #ifdef QT_USE_OLD_QWS_SOUND
@@ -138,7 +131,7 @@ private:
  *
  *********************************************************************/
 
-class QMouseHandler;
+class QWSMouseHandler;
 struct QWSCommandStruct;
 #ifndef QT_NO_QWS_MULTIPROCESS
 class QWSServer : private QWSServerSocket
@@ -147,18 +140,17 @@ class QWSServer : private QObject
 #endif
 {
     friend class QCopChannel;
-    friend class QMouseHandler;
+    friend class QWSMouseHandler;
     Q_OBJECT
 
 public:
-    QWSServer( int displayId, int flags = 0, QObject *parent=0, const char *name=0 );
+    QWSServer( int flags = 0, QObject *parent=0, const char *name=0 );
     ~QWSServer();
 #ifndef QT_NO_QWS_MULTIPROCESS
     void newConnection( int socket );
 #endif
     enum ServerFlags { DisableKeyboard = 0x01,
-		       DisableMouse = 0x02,
-		       DisableAccel = 0x04 };
+		       DisableMouse = 0x02 };
 
 
     enum GUIMode { NoGui = FALSE, NormalGUI = TRUE, Server };
@@ -195,7 +187,13 @@ public:
 
     static void setDesktopBackground( const QImage &img );
     static void setDesktopBackground( const QColor & );
-    static QMouseHandler *mouseHandler();
+    static QWSMouseHandler *mouseHandler();
+    static void setMouseHandler(QWSMouseHandler*);
+#ifndef QT_NO_QWS_KEYBOARD    
+    static QWSKeyboardHandler* keyboardHandler();
+    static void setKeyboardHandler(QWSKeyboardHandler* kh);
+#endif
+
     static QList<QWSInternalWindowInfo> * windowList();
 
     void sendPropertyNotifyEvent( int property, int state );
@@ -224,12 +222,16 @@ public:
     void enablePainting(bool);
 
     static void processEventQueue();
+    static void setScreenSaverInterval(int);
+    static bool screenSaverActive();
+    static void screenSaverActivate(bool);
 
+public:
     static void move_region( const QWSRegionMoveCommand * );
     static void set_altitude( const QWSChangeAltitudeCommand * );
     static void request_region( int, QRegion );
-    static void startup( int display_id, int flags );
-    static void closedown( int display_id );
+    static void startup( int flags );
+    static void closedown();
 
     static void emergency_cleanup();
 
@@ -273,7 +275,7 @@ private:
 
 #endif
 
-    QMouseHandler* newMouseHandler(const QString& spec);
+    QWSMouseHandler* newMouseHandler(const QString& spec);
 #ifndef QT_NO_QWS_KEYBOARD
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
 #endif
@@ -286,12 +288,16 @@ private:
     void paintServerRegion();
     void paintBackground( QRegion );
     void refreshBackground();
+
 private slots:
 #ifndef QT_NO_QWS_MULTIPROCESS
     void clientClosed();
     void doClient();
 #endif
     void setMouse(const QPoint& pos,int bstate);
+
+    void screenSaverWake();
+    void screenSaverSleep();
 
 private:
     void doClient( QWSClient * );
@@ -317,6 +323,8 @@ private:
 	} time;
     } selectionOwner;
     QTime timer;
+    QTimer* screensavertimer;
+    int screensaverinterval;
 
     QWSWindow *focusw;
     QWSWindow *mouseGrabber;
@@ -331,7 +339,7 @@ private:
     QRegion serverRegion;
     QRegion dirtyBackground;
     bool disablePainting;
-    QList<QMouseHandler> mousehandlers;
+    QList<QWSMouseHandler> mousehandlers;
 #ifndef QT_NO_QWS_KEYBOARD
     QList<QWSKeyboardHandler> keyboardhandlers;
 #endif

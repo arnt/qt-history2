@@ -82,6 +82,8 @@ public:
     int		    argc()	const;
     char	  **argv()	const;
 
+    Type type() const;
+
 #ifndef QT_NO_STYLE
     static QStyle  &style();
     static void	    setStyle( QStyle* );

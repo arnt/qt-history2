@@ -47,9 +47,9 @@
 #include "qregion.h"
 #endif // QT_H
 
+#include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <math.h>
 
 class QGfxRasterBase : public QGfx {
@@ -155,9 +155,11 @@ protected:
 
 protected:
     SourceType srctype;
+    PixelType srcpixeltype;
     unsigned char * srcbits;
     unsigned char * const buffer;
 
+    PixelType pixeltype;
     int width;
     int height;
     int xoffs;
@@ -181,7 +183,6 @@ protected:
 
     bool regionClip;
     QRegion widgetrgn;
-    QRegion setrgn;
     QRegion cliprgn;
     QRect clipbounds;
 
@@ -230,6 +231,8 @@ protected:
     RasterOp myrop;
 
     unsigned long int pixel; // == cpen.pixel() or cbrush.pixel()
+
+    QPolygonScanner::Edge stitchedges;
 
     friend class QScreenCursor;
 };

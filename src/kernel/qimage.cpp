@@ -4822,7 +4822,7 @@ static void write_pbm_image( QImageIO *iio )
     format = format.left(3);			// ignore RAW part
     bool gray = format == "PGM";
 
-    if ( format == "PBM" && image.depth() != 1 ) {
+    if ( format == "PBM" ) {
 	image = image.convertDepth(1);
     } else if ( image.depth() == 1 ) {
 	image = image.convertDepth(8);
@@ -4872,12 +4872,12 @@ static void write_pbm_image( QImageIO *iio )
 		return;
 	    }
 	    QRgb  *color = image.colorTable();
-	    uchar *buf   = new uchar[w*3];
-	    const int channels = gray ? 1 : 3;
+	    uint bpl = w*(gray ? 1 : 3);
+	    uchar *buf   = new uchar[bpl];
 	    for (uint y=0; y<h; y++) {
 		uchar *b = image.scanLine(y);
 		uchar *p = buf;
-		uchar *end = buf+w*3;
+		uchar *end = buf+bpl;
 		if ( gray ) {
 		    while ( p < end ) {
 			uchar g = (uchar)qGray(color[*b++]);
@@ -4891,7 +4891,7 @@ static void write_pbm_image( QImageIO *iio )
 			*p++ = qBlue(rgb);
 		    }
 		}
-		if ( w*channels != (uint)out->writeBlock((char*)buf, w*channels) ) {
+		if ( bpl != (uint)out->writeBlock((char*)buf, bpl) ) {
 		    iio->setStatus(1);
 		    return;
 		}
@@ -4901,22 +4901,21 @@ static void write_pbm_image( QImageIO *iio )
 	    break;
 
 	case 32: {
-	    str.insert(1, '6');
+	    str.insert(1, gray ? '5' : '6');
 	    str.append("255\n");
 	    if ((uint)out->writeBlock(str, str.length()) != str.length()) {
 		iio->setStatus(1);
 		return;
 	    }
-	    uchar *buf = new uchar[w*3];
+	    uint bpl = w*(gray ? 1 : 3);
+	    uchar *buf = new uchar[bpl];
 	    for (uint y=0; y<h; y++) {
 		QRgb  *b = (QRgb*)image.scanLine(y);
 		uchar *p = buf;
-		uchar *end = buf+w*3;
+		uchar *end = buf+bpl;
 		if ( gray ) {
 		    while ( p < end ) {
 			uchar g = (uchar)qGray(*b++);
-			*p++ = g;
-			*p++ = g;
 			*p++ = g;
 		    }
 		} else {
@@ -4927,7 +4926,7 @@ static void write_pbm_image( QImageIO *iio )
 			*p++ = qBlue(rgb);
 		    }
 		}
-		if ( w*3 != (uint)out->writeBlock((char*)buf, w*3) ) {
+		if ( bpl != (uint)out->writeBlock((char*)buf, bpl) ) {
 		    iio->setStatus(1);
 		    return;
 		}

@@ -4,7 +4,7 @@
 **
 ** This header file efficiently includes all Qt GUI Toolkit functionality.
 **
-** Generated : Mon Mar 12 17:25:32 EST 2001
+** Generated : Tue Mar 13 17:51:09 EST 2001
 
 **
 ** Copyright (C) 1995-2000 Trolltech AS.  All rights reserved.
@@ -107,6 +107,7 @@
 #include <qintcache.h>
 #include "qintdict.h"
 #include <quuid.h>
+#include "qmotifstyle.h"
 #include <qpicture.h>
 #include <qjiscodec.h>
 #include <qeucjpcodec.h>
@@ -121,7 +122,7 @@
 #include <qscrollview.h>
 #include "qdir.h"
 #include "qtextstream.h"
-#include "qmotifstyle.h"
+#include <qaquastyle.h>
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include <qmessagebox.h>
@@ -210,7 +211,7 @@
 #include <qiconview.h>
 #include <qasyncimageio.h>
 #include <qstrvec.h>
-#include <qaquastyle.h>
+#include <qinterlacestyle.h>
 #include <qstylefactory.h>
 #include <qstyleinterface.h>
 #include "qstylesheet.h"
@@ -285,8 +286,10 @@
 #include <qfontfactorybdf_qws.h>
 #include <qgfxvoodoodefs_qws.h>
 #include <qgfxmatroxdefs_qws.h>
+#include "qkeyboard_qws.h"
 #include <qfontfactoryttf_qws.h>
 #include <qlock_qws.h>
+#include <qcopchannel_qws.h>
 #include <qdirectpainter_qws.h>
 #include "qmemorymanager_qws.h"
 #include <qgfxvnc_qws.h>
@@ -294,9 +297,10 @@
 #include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include <qwssocket_qws.h>
-#include "qwsmanager_qws.h"
+#include "qwsdecoration_qws.h"
 #include "qwsutils_qws.h"
 #include <qwscursor_qws.h>
+#include "qwsmanager_qws.h"
 #include "qwsdefaultdecoration_qws.h"
 #include <qgfxraster_qws.h>
 #include "qwscommand_qws.h"

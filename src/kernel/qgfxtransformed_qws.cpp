@@ -37,12 +37,11 @@
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-
-#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
@@ -78,6 +77,7 @@ public:
     virtual QImage mapFromDevice( const QImage & ) const;
     virtual QRegion mapToDevice( const QRegion &, const QSize & ) const;
     virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
+    virtual int transformOrientation() const;
 
 private:
     Transformation trans;
@@ -395,6 +395,16 @@ QRegion QTransformedScreen::mapFromDevice( const QRegion &rgn, const QSize &s ) 
     return trgn;
 }
 
+/*!
+  0 = none
+  1..3 = rotates 90..270
+  4..7 = mirrored 0..3
+*/
+int QTransformedScreen::transformOrientation() const
+{
+    return (int)trans;
+}
+
 #ifndef QT_NO_QWS_CURSOR
 
 class QTransformedScreenCursor : public QT_TRANS_CURSOR_BASE
@@ -553,7 +563,7 @@ void QGfxTransformedRaster<depth,type>::fillRect( int x, int y, int w, int h )
     if ( w == 0 || h == 0 )
 	return;
     QRect r( x, y, w, h );
-    if ( cbrush.style() == QBrush::SolidPattern ) {
+    if ( cbrush.style() == SolidPattern ) {
 	r.setCoords( tx(x,y), ty(x,y), tx(x+w-1,y+h-1), ty(x+w-1,y+h-1) );
 	r = r.normalize();
     }
@@ -563,6 +573,20 @@ void QGfxTransformedRaster<depth,type>::fillRect( int x, int y, int w, int h )
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool w, int idx, int num )
 {
+    switch ( qt_trans_screen->transformation() ) {
+	case QTransformedScreen::Rot90:
+	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Bottom+QPolygonScanner::Left);
+	    break;
+	case QTransformedScreen::Rot180:
+	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Bottom+QPolygonScanner::Right);
+	    break;
+	case QTransformedScreen::Rot270:
+	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Top+QPolygonScanner::Right);
+	    break;
+	default:
+	    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
+	    break;
+    }
     if ( inDraw ) {
 	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( a, w, idx, num );
     } else {
@@ -578,6 +602,7 @@ void QGfxTransformedRaster<depth,type>::drawPolygon( const QPointArray &a, bool 
 	QT_TRANS_GFX_BASE<depth,type>::drawPolygon( na, w, 0, num );
 	inDraw = FALSE;
     }
+    stitchedges=QPolygonScanner::Edge(QPolygonScanner::Left+QPolygonScanner::Top);
 }
 
 template <const int depth, const int type>

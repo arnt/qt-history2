@@ -739,7 +739,7 @@ int QGIFFormat::decode(QImage& img, QImageConsumer* consumer,
 		//UNUSED: bpchan=(((hold[4]&0x70)>>3)+1);
 		//UNUSED: gcmsortflag=!!(hold[4]&0x08);
 		gncols=2<<(hold[4]&0x7);
-		bgcol=(gcmap && hold[5]) ? hold[5] : -1;
+		bgcol=(gcmap) ? hold[5] : -1;
 		//aspect=hold[6] ? double(hold[6]+15)/64.0 : 1.0;
 
 		trans = -1;

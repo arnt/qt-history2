@@ -1,7 +1,7 @@
 /*****************************************************************************
 ** $Id: //depot/qt/main/src/kernel/qpaintdevice.h#73 $
 **
-** Implementation of QGfxRaster (unaccelerated graphics context) class for
+** Implementation of QLinuxFbScreen (unaccelerated Linux framebuffer) class for
 ** Embedded Qt
 ** Created : 940721
 **
@@ -33,33 +33,65 @@
 #include "qgfxraster_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
+#include "qpixmap.h"
 #include "qregexp.h"
 
+#include <unistd.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
-
-#include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
 
 #include "qgfxlinuxfb_qws.h"
 
+// Used when there's no hardware acceleration, since there's no point
+// in storing the state in shared memory
 static int dummy_optype = 0;
 static int dummy_lastop = 0;
 
+/*!
+  \class QLinuxFbScreen
+  \brief QLinuxFbScreen manages the Linux framebuffer. Accelerated drivers
+  for Linux should inherit from it; it contains code for reading information
+  about the framebuffer from the Linux framebuffer interface, managing
+  the color palette, managing offscreen graphics memory and mapping the 
+  framebuffer interface itself, removing the need for drivers to do this.
+  It also acts as a factory for the unaccelerated screen cursor and
+  unaccelerated QGfxes. QLinuxFbScreen is a descendant of QScreen;
+  there is precisely one per Qt/Embedded application.
+*/
+
 // Unaccelerated screen/driver setup. Can be overridden by accelerated
 // drivers
+
+/*!
+  \fn QLinuxFbScreen::QLinuxFbScreen( int display_id 
+  Constructs a QLinuxFbScreen.
+*/
 
 QLinuxFbScreen::QLinuxFbScreen( int display_id ) : QScreen( display_id )
 {
     canaccel=false;
 }
 
+/*!
+  \fn QLinuxFbScreen::~QLinuxFbScreen()
+  Destroys a QLinuxFbScreen.
+*/
+
 QLinuxFbScreen::~QLinuxFbScreen()
 {
 }
+
+/*!
+  \fn bool QLinuxFbScreen::connect( const QString &displaySpec )
+  This is called by Qt/Embedded clients to map in the framebuffer.
+  It should be reimplemented by accelerated drivers to map in graphics
+  card registers; those drivers should then call this method in order to set 
+  up offscreen memory management.
+*/
 
 bool QLinuxFbScreen::connect( const QString &displaySpec )
 {
@@ -187,6 +219,11 @@ bool QLinuxFbScreen::connect( const QString &displaySpec )
     return TRUE;
 }
 
+/*!
+\fn void QLinuxFbScreen::disconnect()
+This simply unmaps the framebuffer
+*/
+
 void QLinuxFbScreen::disconnect()
 {
     data -= dataoffset;
@@ -210,6 +247,13 @@ static void writeTerm(const char* termctl, int sizeof_termctl)
     }
 }
 
+/*!
+\fn bool QLinuxFbScreen::initDevice()
+This is called by the Qt/Embedded server at startup time.
+It turns off console blinking, sets up the color palette, enables
+write combining on the framebuffer and initialises the offscreen
+memory manager.
+*/
 
 bool QLinuxFbScreen::initDevice()
 {
@@ -450,6 +494,21 @@ bool QLinuxFbScreen::initDevice()
     return true;
 }
 
+/*
+  The offscreen memory manager's list of entries is stored at the bottom
+  of the offscreen memory area and consistes of a series of QPoolEntry's,
+  each of which keep track of a block of allocated memory. Unallocated memory
+  is implicitly indicated by the gap between blocks indicated by QPoolEntry's.
+  The memory manager looks through any unallocated memory before the end
+  of currently-allocated memory to see if a new block will fit in the gap;
+  if it doesn't it allocated it from the end of currently-allocated memory.
+  Memory is allocated from the top of the framebuffer downwards; if it hits
+  the list of entries then offscreen memory is full and further allocations
+  are made from main RAM (and hence unaccelerated). Allocated memory can
+  be seen as a sort of upside-down stack; lowest keeps track of the
+  bottom of the stack.
+*/
+
 void QLinuxFbScreen::delete_entry(int pos)
 {
     if(pos>*entryp || pos<0) {
@@ -492,9 +551,23 @@ void QLinuxFbScreen::insert_entry(int pos,int start,int end)
     entries[pos].end=end;
 }
 
-uchar * QLinuxFbScreen::cache(int amount)
+/*!
+  Requests a block of offscreen graphics card memory from the memory
+  manager; it will be aligned at pixmapOffsetAlignment(). If no memory
+  is free 0 will be returned, otherwise a pointer to the data within
+  the framebuffer. QScreen::onCard can be used to retrieve a byte offset
+  from the start of graphics card memory from this pointer. The display
+  is locked while memory is allocated and unallocated in order to
+  preserve the memory pool's integrity, so cache and uncache should not
+  be called if the screen is locked.
+
+  \amount is the amount of memory to allocate, \a optim gives the optimization
+  level (same values as QPixmap::Optimization).
+*/
+
+uchar * QLinuxFbScreen::cache(int amount, int optim)
 {
-    if(!canaccel || entryp==0) {
+    if(!canaccel || entryp==0 || optim == int(QPixmap::NoOptim) ) {
 	return 0;
     }
 
@@ -550,6 +623,11 @@ uchar * QLinuxFbScreen::cache(int amount)
     return data+newlowest;
 }
 
+/*!
+\fn void QLinuxFbScreen::uncache(uchar * c)
+Delete a block of memory allocated from graphics card memory.
+*/
+
 void QLinuxFbScreen::uncache(uchar * c)
 {
     qt_fbdpy->grab();
@@ -566,6 +644,14 @@ void QLinuxFbScreen::uncache(uchar * c)
     qt_fbdpy->ungrab();
     qDebug("Attempt to delete unknown offset %ld",pos);
 }
+
+/*!
+\fn void QLinuxFbScreen::shutdownDevice()
+This is called by the Qt/Embedded server when it shuts down, and should
+be inherited if you need to do any card-specific shutting down.
+The default version hides the screen cursor and reenables the blinking cursor
+and screen blanking.
+*/
 
 void QLinuxFbScreen::shutdownDevice()
 {
@@ -593,6 +679,11 @@ void QLinuxFbScreen::shutdownDevice()
     writeTerm(termctl,sizeof(termctl));
 }
 
+/*!
+\fn void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
+In paletted graphics modes, this sets color index i to the specified RGB
+value.
+*/
 
 void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
 {
@@ -619,6 +710,14 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
     screenclut[i] = qRgb( r, g, b );
 }
 
+/*!
+\fn void QLinuxFbScreen::setMode(int nw,int nh,int nd)
+Sets the framebuffer to a new resolution and bit depth. After doing this
+any currently-existing gfx's will be invalid and the screen should be
+completely redrawn. In a multiple-process Embedded Qt situation you will
+need to signal all other applications to also setMode() to the same mode
+and redraw.
+*/
 
 void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 {
@@ -656,10 +755,24 @@ void QLinuxFbScreen::setMode(int nw,int nh,int nd)
 // save the state of the graphics card
 // This is needed so that e.g. we can restore the palette when switching
 // between linux virtual consoles.
+
+/*!
+\fn void QLinuxFbScreen::save()
+This doesn't do anything; accelerated drivers may wish to reimplement
+it to save graphics cards registers. It's called by the Qt/Embedded server
+when the virtual console is switched.
+*/
+
 void QLinuxFbScreen::save()
 {
     // nothing to do.
 }
+
+/*!
+\fn void QLinuxFbScreen::restore()
+This is called when the virtual console is switched back to Qt/Embedded
+and restores the palette.
+*/
 
 // restore the state of the graphics card.
 void QLinuxFbScreen::restore()
@@ -690,6 +803,18 @@ void QLinuxFbScreen::restore()
     }
 }
 
+void QLinuxFbScreen::blank(bool on)
+{
+// Some old kernel versions don't have this.  These defines should go
+// away eventually
+#if defined(FBIOBLANK)
+#if defined(VESA_POWERDOWN) && defined(VESA_NO_BLANKING)
+    ioctl(fd, FBIOBLANK, on ? VESA_POWERDOWN : VESA_NO_BLANKING);
+#else
+    ioctl(fd, FBIOBLANK, on ? 1 : 0);
+#endif
+#endif
+}
 
 extern "C" QScreen * qt_get_screen_linuxfb(int display_id)
 {

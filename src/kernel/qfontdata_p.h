@@ -56,6 +56,9 @@
 //
 //
 
+#ifndef QT_H
+#endif // QT_H
+
 #ifdef Q_WS_WIN
 #include <qt_windows.h>
 #endif

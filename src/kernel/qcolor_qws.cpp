@@ -153,9 +153,17 @@ uint QColor::alloc()
 	const int red_mask   = 0xff0000;
 	const int green_mask = 0x00ff00;
 	const int blue_mask  = 0x0000ff;
-	const int tr = r << red_shift;
 	const int tg = g << green_shift;
-	pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
+#ifndef QT_NO_QWS_DEPTH_32_BGR
+	if ( qt_screen->pixelType() == QGfx::BGRPixel ) {
+	    const int tb = b << red_shift;
+	    pix = (r & blue_mask) | (tg & green_mask) | (tb & red_mask);
+	} else 
+#endif
+	{
+	    const int tr = r << red_shift;
+	    pix = (b & blue_mask) | (tg & green_mask) | (tr & red_mask);
+	}
 	return 0xff000000 | pix;
      } default: {
 	GET

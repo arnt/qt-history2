@@ -47,11 +47,11 @@ public:
     QPoint screenPoints[5];
 };
 
-class QMouseHandler : public QObject {
+class QWSMouseHandler : public QObject {
     Q_OBJECT
 public:
-    QMouseHandler();
-    virtual ~QMouseHandler();
+    QWSMouseHandler();
+    virtual ~QWSMouseHandler();
 
     virtual void clearCalibration() {}
     virtual void calibrate( QWSPointerCalibrationData * ) {}
@@ -60,7 +60,7 @@ signals:
     void mouseChanged(const QPoint& pos, int bstate);
 };
 
-class QCalibratedMouseHandler : public QMouseHandler
+class QCalibratedMouseHandler : public QWSMouseHandler
 {
     Q_OBJECT
 public:

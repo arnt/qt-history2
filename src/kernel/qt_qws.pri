@@ -11,6 +11,7 @@ embedded {
 	jpeg:SUBLIBS += jpeg
 
 	HEADERS += $$STYLES_H/qcompactstyle.h \
+		    $$KERNEL_H/qcopchannel_qws.h \
 		    $$KERNEL_H/qdirectpainter_qws.h \
 		    $$KERNEL_H/qfontfactorybdf_qws.h \
 		    $$KERNEL_H/qfontfactoryttf_qws.h \
@@ -29,6 +30,7 @@ embedded {
 		    $$KERNEL_H/qwsbeosdecoration_qws.h \
 		    $$KERNEL_H/qwscommand_qws.h \
 		    $$KERNEL_H/qwscursor_qws.h \
+		    $$KERNEL_H/qwsdecoration_qws.h \
 		    $$KERNEL_H/qwsdefaultdecoration_qws.h \
 		    $$KERNEL_H/qwsdisplay_qws.h \
 		    $$KERNEL_H/qwsevent_qws.h \
@@ -46,6 +48,7 @@ embedded {
          SOURCES +=  $$KERNEL_CPP/qapplication_qws.cpp \
 		    $$KERNEL_CPP/qclipboard_qws.cpp \
 		    $$KERNEL_CPP/qcolor_qws.cpp \
+		    $$KERNEL_CPP/qcopchannel_qws.cpp \
 		    $$KERNEL_CPP/qcursor_qws.cpp \
 		    $$KERNEL_CPP/qdesktopwidget_qws.cpp \
 		    $$KERNEL_CPP/qdirectpainter_qws.cpp \
@@ -70,6 +73,7 @@ embedded {
 		    $$KERNEL_CPP/qwsbeosdecoration_qws.cpp \
 		    $$KERNEL_CPP/qwscommand_qws.cpp \
 		    $$KERNEL_CPP/qwscursor_qws.cpp \
+		    $$KERNEL_CPP/qwsdecoration_qws.cpp \
 		    $$KERNEL_CPP/qwsdefaultdecoration_qws.cpp \
 		    $$KERNEL_CPP/qwsevent_qws.cpp \
 		    $$KERNEL_CPP/qwshydrodecoration_qws.cpp \

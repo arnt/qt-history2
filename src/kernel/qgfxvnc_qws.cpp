@@ -44,6 +44,8 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxvnc_qws.h"
 
+extern QString qws_qtePipeFilename();
+
 #define MAP_TILE_SIZE	    16
 #define MAP_WIDTH	    1280/MAP_TILE_SIZE
 #define MAP_HEIGHT	    1024/MAP_TILE_SIZE
@@ -1058,31 +1060,39 @@ bool QVNCScreen::connect( const QString &displaySpec )
 {
     int vsize = 0;
 
-    virtualBuffer = TRUE;
-    d = 16;
-    const char* qwssize;
-    if((qwssize=getenv("QWS_SIZE"))) {
-	sscanf(qwssize,"%dx%d",&w,&h);
-	dw=w;
-	dh=h;
-    } else {
-	dw=w=640;
-	dh=h=480;
-    }
-    lstep = ( dw * d + 7 ) / 8;
-    dataoffset = 0;
-    size = h * lstep;
-    vsize = size;
-    mapsize = size;
-    canaccel = FALSE;
-    optype = &dummy_optype;
-    lastop = &dummy_lastop;
-    initted = TRUE;
-    // We handle mouse and keyboard here
-    QWSServer::setDefaultMouse( "None" );
-    QWSServer::setDefaultKeyboard( "None" );
+    if ( displaySpec.find( ":LinuxFb" ) >= 0 )
+	virtualBuffer = FALSE;
+    else
+	virtualBuffer = TRUE;
 
-    key_t key = ftok( QString(QTE_PIPE).arg(displayId).latin1(), 'v' );
+    if ( virtualBuffer ) {
+	d = 16;
+	const char* qwssize;
+	if((qwssize=getenv("QWS_SIZE"))) {
+	    sscanf(qwssize,"%dx%d",&w,&h);
+	    dw=w;
+	    dh=h;
+	} else {
+	    dw=w=640;
+	    dh=h=480;
+	}
+	lstep = ( dw * d + 7 ) / 8;
+	dataoffset = 0;
+	size = h * lstep;
+	vsize = size;
+	mapsize = size;
+	canaccel = FALSE;
+	optype = &dummy_optype;
+	lastop = &dummy_lastop;
+	initted = TRUE;
+	// We handle mouse and keyboard here
+	QWSServer::setDefaultMouse( "None" );
+	QWSServer::setDefaultKeyboard( "None" );
+    } else {
+	QLinuxFbScreen::connect( displaySpec );
+    }
+
+    key_t key = ftok( qws_qtePipeFilename().latin1(), 'v' );
      
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
@@ -1090,7 +1100,7 @@ bool QVNCScreen::connect( const QString &displaySpec )
     else {
 	struct shmid_ds shm;
 	shmctl( shmId, IPC_RMID, &shm );
-	shmId = shmget( key, sizeof(QVNCHeader) + vsize + 8, IPC_CREAT|0666);
+	shmId = shmget( key, sizeof(QVNCHeader) + vsize + 8, IPC_CREAT|0600);
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#165 $
+** $Id: qpixmap_x11.cpp,v 1.24 2000/12/17 02:58:06 mueller Exp $
 **
 ** Implementation of QPixmap class for X11
 **

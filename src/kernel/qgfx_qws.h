@@ -184,6 +184,7 @@ public:
     virtual QGfx * screenGfx();
     virtual void save();
     virtual void restore();
+    virtual void blank(bool on);
 
     virtual int pixmapOffsetAlignment() { return 64; }
     virtual int pixmapLinestepAlignment() { return 64; }
@@ -200,12 +201,13 @@ public:
     int height() const { return h; }
     int depth() const { return d; }
     virtual int pixmapDepth() const;
+    int pixelType() const { return pixeltype; }
     int linestep() const { return lstep; }
     int deviceWidth() const { return dw; }
     int deviceHeight() const { return dh; }
     uchar * base() const { return data; }
     // Ask for memory from card cache with alignment
-    virtual uchar * cache(int) { return 0; }
+    virtual uchar * cache(int,int) { return 0; }
     virtual void uncache(uchar *) {}
 
     int screenSize() const { return size; }
@@ -214,8 +216,6 @@ public:
     QRgb * clut() { return screenclut; }
     int numCols() { return screencols; }
 
-    virtual bool isTransformed() const;
-    virtual bool isInterlaced() const;
     virtual QSize mapToDevice( const QSize & ) const;
     virtual QSize mapFromDevice( const QSize & ) const;
     virtual QPoint mapToDevice( const QPoint &, const QSize & ) const;
@@ -226,6 +226,10 @@ public:
     virtual QImage mapFromDevice( const QImage & ) const;
     virtual QRegion mapToDevice( const QRegion &, const QSize & ) const;
     virtual QRegion mapFromDevice( const QRegion &, const QSize & ) const;
+    virtual int transformOrientation() const;
+    virtual bool isTransformed() const;
+
+    virtual bool isInterlaced() const;
 
 protected:
 
@@ -251,7 +255,8 @@ protected:
     int lstep;
     int h;
     int d;
-
+    int pixeltype;
+    
     int dw;
     int dh;
 
@@ -324,8 +329,9 @@ public:
 #endif
     virtual void tiledBlt( int,int,int,int )=0;
 
-    enum SourceType { SourcePen, SourceImage };
-
+    enum SourceType { SourcePen, SourceImage, SourceAccel };
+    enum PixelType { NormalPixel, BGRPixel };
+    
     // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QPaintDevice *)=0;
     virtual void setSource(const QImage *)=0;
@@ -371,6 +377,7 @@ public:
 protected:
     bool is_screen_gfx;
 };
+
 
 // This lives in loadable modules
 

@@ -67,31 +67,33 @@ public:
     const QFontDef *spec()  const;
     void	    reset();
     bool	    dirty() const;
-    QMemoryManager::FontID handle() const { return id; }
+    QMemoryManager::FontID handle() const
+    {
+	if ( !id )
+	    return ((QFontStruct*)this)->id = memorymanager->refFont(s);
+	return id;
+    }
 
-    int ascent() const { return memorymanager->fontAscent(id); }
-    int descent() const { return memorymanager->fontDescent(id); }
-    int minLeftBearing() const { return memorymanager->fontMinLeftBearing(id); }
-    int minRightBearing() const { return memorymanager->fontMinRightBearing(id); }
-    int leading() const { return memorymanager->fontLeading(id); }
-    int maxWidth() const { return memorymanager->fontMaxWidth(id); }
-    int underlinePos() const { return memorymanager->fontUnderlinePos(id); }
-    int lineWidth() const { return memorymanager->fontLineWidth(id); }
+    int ascent() const { return memorymanager->fontAscent(handle()); }
+    int descent() const { return memorymanager->fontDescent(handle()); }
+    int minLeftBearing() const { return memorymanager->fontMinLeftBearing(handle()); }
+    int minRightBearing() const { return memorymanager->fontMinRightBearing(handle()); }
+    int leading() const { return memorymanager->fontLeading(handle()); }
+    int maxWidth() const { return memorymanager->fontMaxWidth(handle()); }
+    int underlinePos() const { return memorymanager->fontUnderlinePos(handle()); }
+    int lineWidth() const { return memorymanager->fontLineWidth(handle()); }
 
     QFontDef s;
     QMemoryManager::FontID id;
     int cache_cost;
 };
 
-
-extern bool qws_smoothfonts; //in qapplication_qws.cpp
-
 inline QFontStruct::QFontStruct( const QFontDef& d )
 {
     s = d;
     if ( s.pointSize == -1 )
 	s.pointSize = s.pixelSize*10; // effectively sets the resolution of the display to 72dpi
-    id = memorymanager->findFont(d);
+    id = 0;
 }
 
 inline bool QFontStruct::dirty() const
@@ -106,6 +108,10 @@ inline const QFontDef *QFontStruct::spec() const
 
 inline void QFontStruct::reset()
 {
+    if ( id ) {
+	memorymanager->derefFont(id);
+	id = 0;
+    }
 }
 
 inline QFontStruct::~QFontStruct()

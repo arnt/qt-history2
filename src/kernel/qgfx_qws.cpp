@@ -111,6 +111,11 @@ QRegion QScreen::mapFromDevice( const QRegion &r, const QSize & ) const
     return r;
 }
 
+int QScreen::transformOrientation() const
+{
+    return 0;
+}
+
 int QScreen::pixmapDepth() const
 {
     return depth();

@@ -19,9 +19,6 @@ If you are new to Qt it is a good idea to read the tutorial. It is located
 in doc/html/tutorial.html. The tutorial directory contains the programs
 used in the tutorial.
 
-All documentation is available as postscript from our web server, see
-http://www.trolltech.com/dl/ or ftp://ftp.trolltech.com/qt/postscript/
-
 The example programs in the examples directory demonstrate some Qt
 features. You can study these examples to get an overview of how Qt
 programs can be written, or look at doc/html/examples.html with your

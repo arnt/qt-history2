@@ -51,7 +51,7 @@
 #define QT_QWS_SOUND_STEREO 1 // or 0, or undefined for always 0
 
 static int sound_speed = 44100;
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
 static int sound_port = 4992;
 #endif
 
@@ -62,7 +62,7 @@ struct QRiffChunk {
     char data[4/*size*/];
 };
 
-static const int sound_fragment_size = 8;
+static const int sound_fragment_size = 11;
 static const int sound_buffer_size=1<<sound_fragment_size;
 
 #ifdef QT_QWS_SOUND_STEREO
@@ -76,8 +76,7 @@ static bool sound_16bit=QT_QWS_SOUND_16BIT;
 static const bool sound_16bit=FALSE;
 #endif
 
-
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
 QWSSoundServerClient::QWSSoundServerClient(int s, QObject* parent) :
     QSocket(parent)
 {
@@ -239,7 +238,7 @@ private:
     int samples_due;
 };
 
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
 QWSSoundServerSocket::QWSSoundServerSocket(QObject* parent, const char* name) :
     QServerSocket(sound_port, 0, parent, name)
 {
@@ -261,12 +260,12 @@ public:
     Data(QObject* parent=0, const char* name=0) :
 	QObject(parent, name)
     {
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
 	server = new QWSSoundServerSocket(this);
 	connect(server, SIGNAL(playFile(const QString&)),
 		this, SLOT(playFile(const QString&)));
 #endif
-	sn = 0;
+	fd = -1;
 	active.setAutoDelete(TRUE);
 	unwritten = 0;
     }
@@ -276,8 +275,8 @@ public slots:
     {
 	QFile* f = new QFile(filename);
 	if ( f->open(IO_ReadOnly) ) {
-	    active.append(new QWSSoundServerBucket(f));
-	    openDevice();
+	    if ( openDevice() )
+		active.append(new QWSSoundServerBucket(f));
 	} else {
 	    qDebug("Failed opening \"%s\"",filename.latin1());
 	}
@@ -285,142 +284,142 @@ public slots:
 
     void feedDevice(int fd)
     {
-	if ( !unwritten ) {
-	    QWSSoundServerBucket* bucket;
-	    int blank = sound_buffer_size;
-	    int left[sound_buffer_size];
-	    memset(left,0,sound_buffer_size*sizeof(int));
-	    int right[sound_buffer_size];
-	    if ( sound_stereo )
-		memset(right,0,sound_buffer_size*sizeof(int));
-	    for (bucket = active.first(); bucket; bucket = active.next()) {
-		int unused = bucket->add(left,right,sound_buffer_size);
-		if ( unused < blank )
-		    blank = unused;
-	    }
-	    int available = sound_buffer_size - blank;
-#ifdef QT_QWS_SOUND_16BIT
-	    short *d = d16;
-	    for (int i=0; i<available; i++) {
-		int l = left[i];
-		if ( l > 32767 ) l = 32767;
-		if ( l < -32768 ) l = -32768;
-		*d++ = (short)l;
-		if ( sound_stereo ) {
-		    int r = right[i];
-		    if ( r > 32767 ) r = 32767;
-		    if ( r < -32768 ) r = -32768;
-		    *d++ = (short)r;
+	audio_buf_info info;
+	ioctl(fd,SNDCTL_DSP_GETOSPACE,&info);
+	if ( info.fragments > 0 ) {
+	    if ( !unwritten ) {
+		QWSSoundServerBucket* bucket;
+		int blank = sound_buffer_size;
+		int left[sound_buffer_size];
+		memset(left,0,sound_buffer_size*sizeof(int));
+		int right[sound_buffer_size];
+		if ( sound_stereo )
+		    memset(right,0,sound_buffer_size*sizeof(int));
+		for (bucket = active.first(); bucket; bucket = active.next()) {
+		    int unused = bucket->add(left,right,sound_buffer_size);
+		    if ( unused < blank )
+			blank = unused;
+		}
+		int available = sound_buffer_size - blank;
+		if ( sound_16bit ) {
+		    short *d = d16;
+		    for (int i=0; i<available; i++) {
+			int l = left[i];
+			if ( l > 32767 ) l = 32767;
+			if ( l < -32768 ) l = -32768;
+			*d++ = (short)l;
+			if ( sound_stereo ) {
+			    int r = right[i];
+			    if ( r > 32767 ) r = 32767;
+			    if ( r < -32768 ) r = -32768;
+			    *d++ = (short)r;
+			}
+		    }
+		    unwritten = available*2*(sound_stereo+1);
+		    cursor = (char*)d16;
+		} else {
+		    signed char *d = d8;
+		    for (int i=0; i<available; i++) {
+			int l = left[i] / 256;
+			if ( l > 127 ) l = 127;
+			if ( l < -128 ) l = -128;
+			*d++ = (signed char)l+128;
+			if ( sound_stereo ) {
+			    int r = right[i] / 256;
+			    if ( r > 127 ) r = 127;
+			    if ( r < -128 ) r = -128;
+			    *d++ = (signed char)r+128;
+			}
+		    }
+		    unwritten = available*(sound_stereo+1);
+		    cursor = (char*)d8;
+		}
+		QListIterator<QWSSoundServerBucket> it(active);
+		for (; (bucket = *it);) {
+		    ++it;
+		    if ( bucket->finished() )
+			active.removeRef(bucket);
 		}
 	    }
-	    unwritten = available*2*(sound_stereo+1);
-	    cursor = (char*)d16;
-#else
-	    signed char *d = d8;
-	    for (int i=0; i<available; i++) {
-		int l = left[i] / 256;
-		if ( l > 127 ) l = 127;
-		if ( l < -128 ) l = -128;
-		*d++ = (signed char)l+128;
-		if ( sound_stereo ) {
-		    int r = right[i] / 256;
-		    if ( r > 127 ) r = 127;
-		    if ( r < -128 ) r = -128;
-		    *d++ = (signed char)r+128;
-		}
-	    }
-	    unwritten = available*(sound_stereo+1);
-	    cursor = (char*)d8;
-#endif
-	    QListIterator<QWSSoundServerBucket> it(active);
-	    for (; (bucket = *it);) {
-		++it;
-		if ( bucket->finished() )
-		    active.removeRef(bucket);
-	    }
+
+	    int w = ::write(fd,cursor,unwritten);
+
+	    if ( w < 0 )
+		return;
+
+	    cursor += w;
+	    unwritten -= w;
+
+	    if ( !unwritten && active.count() == 0 )
+		closeDevice();
 	}
-
-	int w = ::write(fd,cursor,unwritten);
-
-	if ( w < 0 )
-	    return;
-
-	cursor += w;
-	unwritten -= w;
-
-	if ( !unwritten && active.count() == 0 )
-	    closeDevice();
     }
 
 protected:
     void timerEvent(QTimerEvent* event)
     {
-	if ( sn )
-	    feedDevice(sn->socket());
-	if ( !sn )
+	if ( fd >= 0 )
+	    feedDevice(fd);
+	if ( fd < 0 )
 	    killTimer(event->timerId());
     }
 
 private:
-    void openDevice()
+    bool openDevice()
     {
-	if ( !sn ) {
-	    int fd = ::open("/dev/dsp",O_WRONLY|O_NONBLOCK);
-	    if ( fd < 0 ) {
-		// For debugging purposes - defined QT_NO_SOUND if you
-		// don't have sound hardware!
-		fd = ::open("/tmp/dsp",O_WRONLY);
-	    }
+	if ( fd < 0 ) {
+	    fd = ::open("/dev/dsp",O_WRONLY);
+	    if ( fd < 0 )
+		return FALSE;
 
 	    // Setup soundcard at 16 bit mono
 	    int v;
-	    v=0x00040000+sound_fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
+	    v=0x00010000+sound_fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
 #ifdef QT_QWS_SOUND_16BIT
 	    v=AFMT_S16_LE; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
 		qWarning("Could not set format %d",v);
-	    qDebug("Want format %d got %d", AFMT_S16_LE, v);
+	    if ( AFMT_S16_LE != v )
+		qDebug("Want format %d got %d", AFMT_S16_LE, v);
 #else
 	    v=AFMT_U8; if ( ioctl(fd, SNDCTL_DSP_SETFMT, &v) )
 		qWarning("Could not set format %d",v);
-	    qDebug("Want format %d got %d", AFMT_U8, v);
+	    if ( AFMT_U8 != v )
+		qDebug("Want format %d got %d", AFMT_U8, v);
 #endif
 	    v=sound_stereo; if ( ioctl(fd, SNDCTL_DSP_STEREO, &v) )
 		qWarning("Could not set stereo %d",v);
-	    qDebug("Want stereo %d got %d", sound_stereo, v);
+	    if ( sound_stereo != v )
+		qDebug("Want stereo %d got %d", sound_stereo, v);
 #ifdef QT_QWS_SOUND_STEREO
 	    sound_stereo=v;
 #endif
 	    v=sound_speed; if ( ioctl(fd, SNDCTL_DSP_SPEED, &sound_speed) )
 		qWarning("Could not set speed %d",v);
-	    qDebug("Want speed %d got %d", v, sound_speed);
+	    if ( v != sound_speed )
+		qDebug("Want speed %d got %d", v, sound_speed);
 
-	    sn = new QSocketNotifier(fd,QSocketNotifier::Write,this);
-	    QObject::connect(sn,SIGNAL(activated(int)),this,SLOT(feedDevice(int)));
-#ifdef QT_QWS_IPAQ
-	    startTimer(0);
-#endif
+	    int delay = 1000*(sound_buffer_size>>(sound_stereo+sound_16bit))
+			/sound_speed/2;
+	    startTimer(delay);
 	}
+	return TRUE;
     }
 
     void closeDevice()
     {
-	if ( sn ) {
-	    ::close(sn->socket());
-	    delete sn;
-	    sn = 0;
+	if ( fd >= 0 ) {
+	    ::close(fd);
+	    fd = -1;
 	}
     }
 
     QList<QWSSoundServerBucket> active;
-    QSocketNotifier* sn;
+    int fd;
     int unwritten;
     char* cursor;
-#ifdef QT_QWS_SOUND_16BIT
     short d16[sound_buffer_size*2];
-#else
     signed char d8[sound_buffer_size*2];
-#endif
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
     QWSSoundServerSocket *server;
 #endif
 };
@@ -440,7 +439,7 @@ QWSSoundServer::~QWSSoundServer()
 {
 }
 
-#ifndef QT_NO_NETWORK
+#ifndef QT_NO_SOUNDSERVER
 QWSSoundClient::QWSSoundClient( QObject* parent ) :
     QSocket(parent)
 {

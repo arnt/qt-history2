@@ -32,7 +32,6 @@
 #ifndef __QWS_BEOS_DECORATION_QWS_H__
 #define __QWS_BEOS_DECORATION_QWS_H__
 
-
 #ifndef QT_H
 #include "qwsdefaultdecoration_qws.h"
 #endif // QT_H

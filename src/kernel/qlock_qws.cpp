@@ -60,6 +60,22 @@ public:
 
 #endif
 
+/*!
+  \class QLock qlock_qws.h
+  \brief A QLock is a wrapper round a System V shared semaphore;
+  it is used by Qt/Embedded for synchronising access to the graphics
+  card and shared memory region between processes.
+*/
+
+/*!
+  \fn QLock::QLock( const QString &filename, char id, bool create )
+  Creates a lock. filename is the file path of the Unix-domain socket
+  the Qt/Embedded client is using. Id is the name of the particular lock
+  to be created on that socket. create is true if it is to be created
+  (as the Qt/Embedded server does), false if it is expected to already
+  exist (as the Qt/Embedded client does).
+*/
+
 QLock::QLock( const QString &filename, char id, bool create )
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -83,6 +99,11 @@ QLock::QLock( const QString &filename, char id, bool create )
 #endif
 }
 
+/*!
+\fn QLock::~QLock()
+Destroys a lock
+*/
+
 QLock::~QLock()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
@@ -92,6 +113,12 @@ QLock::~QLock()
 #endif
 }
 
+/*!
+\fn bool QLock::isValid() const
+Returns true if the lock constructor was succesful, false if the lock
+could not be created or was not available to connect to.
+*/
+
 bool QLock::isValid() const
 {
 #ifndef QT_NO_QWS_MULTIPROCESS    
@@ -100,6 +127,16 @@ bool QLock::isValid() const
     return TRUE;
 #endif
 }
+
+/*!
+  Locks the semaphore. Locks can either be Read or Write. If a lock is
+  Read, attempts to lock by other processes as Read will succeed, Write
+  attempts will block until the lock is unlocked. If locked as Write,
+  all attempts to lock by other processes will lock until the lock is
+  unlocked. Locks are recursive; that is a given QLock can be locked
+  multiple times by the same process without blocking, and will only be
+  unlocked after a corresponding number of unlock() calls.
+*/
 
 void QLock::lock( Type t )
 {
@@ -128,6 +165,12 @@ void QLock::lock( Type t )
 #endif
 }
 
+/*!
+\fn void QLock::unlock()
+Unlocks the semaphore. If other processes were blocking waiting to lock()
+the semaphore, one of them will wake up and succeed in lock()ing.
+*/
+
 void QLock::unlock()
 {
 #ifndef QT_NO_QWS_MULTIPROCESS    
@@ -155,6 +198,11 @@ void QLock::unlock()
     }
 #endif
 }
+
+/*!
+\fn bool QLock::locked() const
+Returns true if the lock is currently held by the current process.
+*/
 
 bool QLock::locked() const
 {

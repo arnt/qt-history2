@@ -35,6 +35,7 @@
 #include "qpaintdevice.h"
 #include "qfontdata_p.h"
 #include "qfile.h"
+#include "qdir.h"
 
 #if defined(Q_OS_UNIX) // always for now
 #define QT_USE_MMAP
@@ -42,12 +43,12 @@
 
 #ifdef QT_USE_MMAP
 // for mmap
+#include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
-#include <unistd.h>
 #endif
 
 #include "qgfx_qws.h"
@@ -133,53 +134,6 @@ public:
 		tmp2->metrics->linestep = img.bytesPerLine();
 		delete [] tmp.data;
 	    } 
-#ifndef QT_NO_QWS_INTERLACE
-	    if ( tmp2->metrics->width && tmp2->metrics->height &&
-		 qt_screen->isInterlaced() ) {
-		//we should probably hack on the font even if it is not smooth
-		int height = tmp2->metrics->height + 1;
-		int width = tmp2->metrics->width;
-		int pitch = tmp2->metrics->linestep;
-		if ( !renderer->smooth ) {
-		    pitch=(width+3) & -4;
-		}
-		uchar *newdata = new uchar[height*pitch];
-		uchar *olddata = tmp2->data;
-		memset(newdata,0,height*pitch);
-
-		if (renderer->smooth) {
-		for(int y=0; y<height; y++) {
-		    unsigned char *src1 = y == height-1 ? 0 :olddata+y*pitch;
-		    unsigned char *src2 = y == 0 ? 0 :olddata+(y-1)*pitch;
-		    unsigned char *dst = newdata+y*pitch;
-
-		    for(int x=0;x<width;x++) {
-			*dst++ = (2*(src1?*src1++:0) + (src2?*src2++:0))/3;
-		    }
-		}
-		} else {
-		    QRgb colTable[2] = {0, 1};
-		    QImage img( tmp2->data, width, height,
-				1, tmp.metrics->linestep, 
-				colTable, 2, QImage::BigEndian);
-		    for(int y=0; y<height; y++) {
-			unsigned char *dst = newdata+y*pitch;
-
-			for(int x=0;x<width;x++) {
-			    *dst++ = ( y!=height-1 && img.pixel(x,y)? 170 :0)
-			     + ( y!=0 && img.pixel(x,y-1)? 85 :0);
-			}
-		    }
-		    
-		
-		}
-		
-		delete tmp2->data;
-		tmp2->data = newdata;
-		tmp2->metrics->height = height;
-		tmp2->metrics->linestep = pitch;
-	    }
-#endif //QT_NO_QWS_INTERLACE	    
 	    glyph[i] = *tmp2;
 	}
     }
@@ -521,20 +475,21 @@ void QGlyphTree::compress()
     }
 }
 
-class QMemoryManagerFont {
+class QMemoryManagerFont : public QShared {
     QGlyph* default_glyph;
 public:
     QMemoryManagerFont() : default_glyph(0) { }
     ~QMemoryManagerFont()
     {
-	delete default_glyph->metrics;
-	delete [] default_glyph->data;
-	delete default_glyph;
-#if defined(QT_USE_MMAP) // otherwise always delete since not mmap'ed
-	if ( renderer ) // not pre-rendered
-#endif
-	{
-	    tree->clear();
+	if ( default_glyph ) {
+	    delete default_glyph->metrics;
+	    delete [] default_glyph->data;
+	    delete default_glyph;
+	}
+	if ( tree ) {
+	    if ( renderer ) {
+		tree->clear();
+	    }
 	    delete tree;
 	}
     }
@@ -604,7 +559,8 @@ inline static const int calcLineStep( int w, int d, bool vram )
 }
 
 // Pixmaps
-QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
+QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d,
+						   int optim )
 {
     uchar* data;
     PixmapID id;
@@ -615,9 +571,9 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 
     int siz = calcLineStep( w, d, TRUE ) * h;
 
-    // Aggressively find space in vram.
+    // Find space in vram.
 
-    data=qt_screen->cache(siz);
+    data=qt_screen->cache(siz, optim);
 
     if ( data ) {
 	xoffset = 0; // XXX
@@ -625,6 +581,7 @@ QMemoryManager::PixmapID QMemoryManager::newPixmap(int w, int h, int d)
 	// use an ODD next_pixmap_id
 	id = ++next_pixmap_id;
 	next_pixmap_id++; // stay even
+	//	qDebug( "pixmap in VRAM %d", id );
     } else { 	// No vram left - use main memory
 	// Possibly different alignment if it's in main ram
 	siz = calcLineStep( w, d, FALSE ) * h;
@@ -689,18 +646,36 @@ static QString fontKey(const QFontDef& font)
 	QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
 	key += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
     }
-    if ( qt_screen->isInterlaced() ) {
-	key += "_I";
-    }
     return key;
 }
-extern QString qws_topdir();
-static QString fontFilename(const QFontDef& font)
+
+static QFontDef fontFilenameDef( const QString& key )
 {
-    return qws_topdir()+"/etc/fonts/"+fontKey(font)+".qpf";
+    QFontDef result;
+    int u0 = key.find('_');
+    int u1 = key.find('_',u0+1);
+    int u2 = key.find('_',u1+1);
+    result.family = key.left(u0);
+    result.pointSize = key.mid(u0+1,u1-u0-1).toInt();
+    result.weight = key.mid(u1+1,u2-u1-1).toInt();
+    result.italic = key.mid(u2-1,1) == "i";
+    // #### ignores _t and _I fields
+    return result;
 }
 
-QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
+extern QString qws_topdir();
+
+static QString fontDir()
+{
+    return qws_topdir()+"/etc/fonts/";
+}
+
+static QString fontFilename(const QFontDef& font)
+{
+    return fontDir()+fontKey(font)+".qpf";
+}
+
+QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
 {
     QString key = fontKey(font);
 
@@ -712,29 +687,53 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	mmf = new QMemoryManagerFont;
 	mmf->def = font;
 	mmf->tree = 0;
+	mmf->renderer = 0;
 	QString filename = fontFilename(font);
 	if ( !QFile::exists(filename) ) {
-	    mmf->renderer = qt_fontmanager->get(font);
-	    if ( !mmf->renderer ) {
-		QFontDef d = font;
-		d.family = "helvetica";
-		filename = fontFilename(d);
-		if ( !QFile::exists(filename) ) {
-		    d.pointSize = 120;
+	    filename = QString::null;
+            int bestmatch = -999;
+	    QDiskFont* qdf = qt_fontmanager->get(font);
+#ifndef QT_NO_DIR
+	    // QPF close-font matching
+	    if ( qdf )
+		bestmatch = QFontManager::cmpFontDef(font, qdf->fontDef());
+	    QDir dir(fontDir(),"*.qpf");
+            for (int i=0; i<(int)dir.count(); i++) {
+                QFontDef d = fontFilenameDef(dir[i]);
+                int match = QFontManager::cmpFontDef(font,d);
+                if ( match >= bestmatch ) {
+		    QString ff = fontFilename(d);
+		    if ( QFile::exists(ff) ) {
+			 filename = ff;
+			 bestmatch = match;
+		    }
+                }
+	    }
+#endif
+	    if ( filename.isNull() ) {
+		if ( qdf ) {
+		    mmf->renderer = qdf->load(font);
+		} else {
+		    // last-ditch attempt to find a font...
+		    QFontDef d = font;
+		    d.family = "helvetica";
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
-			d.italic = FALSE;
+			d.pointSize = 120;
 			filename = fontFilename(d);
 			if ( !QFile::exists(filename) ) {
-			    d.weight = 50;
+			    d.italic = FALSE;
 			    filename = fontFilename(d);
+			    if ( !QFile::exists(filename) ) {
+				d.weight = 50;
+				filename = fontFilename(d);
+			    }
 			}
 		    }
 		}
 	    }
 	}
-	if ( QFile::exists(filename) ) {
-	    mmf->renderer = 0;
+	if ( !mmf->renderer && QFile::exists(filename) ) {
 #if defined(QT_USE_MMAP)
 	    int f = ::open( QFile::encodeName(filename), O_RDONLY );
 	    Q_ASSERT(f>=0);
@@ -770,8 +769,7 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 	    mmf->fm.leading = mmf->renderer->fleading;
 	    mmf->fm.underlinepos = mmf->renderer->funderlinepos;
 	    mmf->fm.underlinewidth = mmf->renderer->funderlinewidth;
-	    mmf->fm.flags = (mmf->renderer->smooth||qt_screen->isInterlaced())
-			    ? FM_SMOOTH : 0;
+	    mmf->fm.flags = (mmf->renderer->smooth) ? FM_SMOOTH : 0;
 	}
 	font_map[key] = (FontID)mmf;
 #ifndef QT_NO_QWS_SAVEFONTS
@@ -781,8 +779,19 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 #endif
     } else {
 	mmf = (QMemoryManagerFont*)*i;
+	mmf->ref();
     }
     return (FontID)mmf;
+}
+
+void QMemoryManager::derefFont(FontID id)
+{
+    QMemoryManagerFont* font = (QMemoryManagerFont*)id;
+    if ( font->deref() ) {
+	QString key = fontKey(font->def);
+	font_map.remove(key);
+	delete font;
+    }
 }
 
 QRenderedFont* QMemoryManager::fontRenderer(FontID id)
@@ -831,7 +840,7 @@ void QMemoryManager::unlockGlyph(FontID, const QChar&)
 #ifndef QT_NO_QWS_SAVEFONTS
 void QMemoryManager::savePrerenderedFont(const QFontDef& f, bool all)
 {
-    QMemoryManagerFont* mmf = (QMemoryManagerFont*)findFont(f);
+    QMemoryManagerFont* mmf = (QMemoryManagerFont*)refFont(f);
     savePrerenderedFont((FontID)mmf,all);
 }
 

@@ -117,218 +117,6 @@ QWSDecoration *QWSManager::newDefaultDecoration()
 }
 
 
-/*!
-  \class QWSDecoration qwsmanager_qws.h
-  \brief The QWSDecoration class allows the appearance of the Qt/Embedded Window
-  Manager to be customized.
-
-  Qt/Embedded provides window management to top level windows.  The
-  appearance of the borders and buttons (the decoration) around the
-  managed windows can be customized by creating your own class derived
-  from QWSDecoration and overriding a few methods.
-
-  This class is non-portable.  It is available \e only in Qt/Embedded.
-
-  \sa QApplication::qwsSetDecoration()
-*/
-
-/*!
-  \fn QWSDecoration::QWSDecoration()
-
-  Constructs a decorator.
-*/
-
-/*!
-  \fn QWSDecoration::~QWSDecoration()
-
-  Destructs a decorator.
-*/
-
-/*!
-  \enum QWSDecoration::Region
-
-  This enum describes the regions in the window decorations.
-
-  \value None  used internally.
-  \value All  the entire region used by the window decoration.
-  \value Title  Displays the window title and allows the window to be
-	  moved by dragging.
-  \value Top  allows the top of the window to be resized.
-  \value Bottom  allows the bottom of the window to be resized.
-  \value Left  allows the left edge of the window to be resized.
-  \value Right  allows the right edge of the window to be resized.
-  \value TopLeft  allows the top-left of the window to be resized.
-  \value TopRight  allows the top-right of the window to be resized.
-  \value BottomLeft  allows the bottom-left of the window to be resized.
-  \value BottomRight  allows the bottom-right of the window to be resized.
-  \value Close  clicking in this region closes the window.
-  \value Minimize  clicking in this region minimizes the window.
-  \value Maximize  clicking in this region maximizes the window.
-  \value Normalize  returns a maximized window to previous size.
-  \value Menu  clicking in this region opens the window operations menu.
-*/
-
-/*!
-  \fn QRegion QWSDecoration::region( const QWidget *widget, const QRect &rect, Region type )
-
-  Returns the requested region \a type which will contain \a widget
-  with geometry \a rect.
-*/
-
-/*!
-  Called when the user clicks in the \c Close region.
-
-  \a widget is the QWidget to be closed.
-
-  The default behaviour is to close the widget.
-*/
-void QWSDecoration::close( QWidget *widget )
-{
-    widget->close(FALSE);
-}
-
-
-#include <qdialog.h>
-
-/*
-
-#include <qbitmap.h>
-
-class MinimisedWindow : public QWidget
-{
-public:
-    MinimisedWindow( QWidget *restore ) :
-	QWidget( (QWidget *)restore->parent(), restore->caption(), WStyle_Customize | WStyle_NoBorder ),
-	w(restore)
-    {
-	w->hide();
-	QPixmap p( "../pics/tux.png" );
-	setBackgroundPixmap( p );
-	setFixedSize( p.size() );
-	setMask( p.createHeuristicMask() );
-	show();
-    }
-
-    void mouseDoubleClickEvent( QMouseEvent * ) { w->show(); delete this; }
-    void mousePressEvent( QMouseEvent *e ) { clickPos = e->pos(); }
-    void mouseMoveEvent( QMouseEvent *e ) { move( e->globalPos() - clickPos ); }
-
-    QWidget *w;
-    QPoint clickPos;
-};
-
-*/
-
-
-/*!
-  Called when the user clicks in the \c Minimize region.
-
-  \a widget is the QWidget to be minimized.
-
-  The default behaviour is to ignore this action.
-*/
-void QWSDecoration::minimize( QWidget * )
-{
-//      new MinimisedWindow( w );
-
-    //    qDebug("No minimize functionality provided");
-}
-
-
-/*!
-  Called when the user clicks in the \c Maximize region.
-
-  \a widget is the QWidget to be maximized.
-
-  The default behaviour is to resize the widget to be full-screen.
-  This method can be overridden to, e.g. avoid launch panels.
-*/
-void QWSDecoration::maximize( QWidget *widget )
-{
-    QRect nr;
-
-    // find out how much space the decoration needs
-    extern QRect qt_maxWindowRect;
-    QRect desk = qt_maxWindowRect;
-
-/*
-#ifdef QPE_WM_LOOK_AND_FEEL
-    if (wmStyle == QtEmbedded_WMStyle) {
-        QRect dummy( 0, 0, desk.width(), 1 );
-	QRegion r = region(widget, dummy, Title);
-        QRect rect = r.boundingRect();
-        nr = QRect(desk.x(), desk.y()-rect.y(),
-            desk.width(), desk.height() - rect.height());
-    } else
-#endif
-*/
-    {
-        QRect dummy;
-        QRegion r = region(widget, dummy);
-        QRect rect = r.boundingRect();
-        nr = QRect(desk.x()-rect.x(), desk.y()-rect.y(),
-	    desk.width() - rect.width(),
-	    desk.height() - rect.height());
-    }
-    widget->setGeometry(nr);
-}
-
-/*!
-  Called to create a QPopupMenu containing the valid menu operations.
-
-  The default implementation adds all possible window operations.
-*/
-
-#ifndef QT_NO_POPUPMENU
-QPopupMenu *QWSDecoration::menu(QWSManager *manager, const QWidget *, const QPoint &)
-{
-    QPopupMenu *m = new QPopupMenu();
-
-    m->insertItem(QObject::tr("&Restore"), (int)Normalize);
-    m->insertItem(QObject::tr("&Move"), (int)Title);
-    m->insertItem(QObject::tr("&Size"), (int)BottomRight);
-    m->insertItem(QObject::tr("Mi&nimize"), (int)Minimize);
-    m->insertItem(QObject::tr("Ma&ximize"), (int)Maximize);
-    m->insertSeparator();
-
-    // Style Menu
-    QPopupMenu *styleMenu = new QPopupMenu();
-    for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
-	styleMenu->insertItem( QObject::tr(WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
-    styleMenu->connect(styleMenu, SIGNAL(activated(int)), manager, SLOT(styleMenuActivated(int)));
-    m->insertItem(QObject::tr("Style"), styleMenu);
-    m->insertSeparator();
-
-    m->insertItem(QObject::tr("Close"), (int)Close);
-
-    return m;
-}
-#endif
-
-/*!
-  \fn void QWSDecoration::paint( QPainter *painter, const QWidget *widget )
-
-  Override to paint the border and title decoration around \a widget using
-  \a painter.
-
-*/
-
-/*!
-  \fn void QWSDecoration::paintButton( QPainter *painter, const QWidget *widget, Region type, int state )
-
-  Override to paint a button \a type using \a painter.
-
-  \a widget is the widget whose button is to be drawn.
-  \a state is the state of the button.  It can be a combination of the
-  following ORed together:
-  <ul>
-  <li> \c QWSButton::MouseOver
-  <li> \c QWSButton::Clicked
-  <li> \c QWSButton::On
-  </ul>
-*/
-
-
 QWidget *QWSManager::active = 0;
 QPoint QWSManager::mousePos;
 
@@ -622,7 +410,16 @@ void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
     if (!popup) {
-	popup = QApplication::qwsDecoration().menu(this, managed, managed->pos());
+	popup = QApplication::qwsDecoration().menu(managed, managed->pos());
+
+	// Add Style menu
+	QPopupMenu *styleMenu = new QPopupMenu();
+	for (int i = 0; WMStyleList[i].WMStyleName != NULL; i++)
+	    styleMenu->insertItem( QObject::tr(WMStyleList[i].WMStyleName), WMStyleList[i].WMStyleType );
+	styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
+	popup->insertSeparator();
+	popup->insertItem(QObject::tr("Style"), styleMenu);
+
 	connect(popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
     }
     popup->setItemEnabled(QWSDecoration::Maximize, normalSize.isNull());

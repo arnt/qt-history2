@@ -38,6 +38,13 @@
 
 #include "qimage.h"
 
+// This is the least featureful of the accelerated drivers - use the
+// Voodoo3 or Mach64 drivers as better examples. The main interesting
+// feature of this driver is the rather primitive way Matrox cards
+// (at least early ones) handle providing the offset and linestep of
+// data. Since this seems to differ from card to card in ways I've not
+// yet deciphered, on-card pixmaps are not supported
+
 static unsigned char *matrox_regbase=0;
 
 //#define DEBUG_INIT
@@ -77,7 +84,6 @@ public:
 
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
-    virtual void scroll(int,int,int,int,int,int);
     virtual void sync();
 
 private:
@@ -194,7 +200,7 @@ inline bool QGfxMatrox<depth,type>::checkSourceDest()
 	if (srclinestep==0) {
 	    srcstep=(width*srcdepth)/8;
 	} else {
-	    srcstep=srclinestep;;
+	    srcstep=srclinestep;
 	}
 
 	src_pixel_offset=(src_buffer_offset * 8)/depth;
@@ -323,6 +329,15 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
 	int xp2=srcwidgetoffs.x() + sx;
 	int yp2=srcwidgetoffs.y() + sy;
 
+	int mx = QMIN(xp,xp2);
+	if ( mx < 0 ) {
+	    //Matrox does not like blt to/from negative X coords
+	    //so we clip against left edge of screen.
+	    xp -= mx;
+	    xp2 -= mx;
+	    w += mx;
+	}
+	
 	QRect cursRect(xp, yp, w+1, h+1);
 
 	GFX_START(cursRect)
@@ -406,33 +421,6 @@ inline void QGfxMatrox<depth,type>::blt(int rx,int ry,int w,int h,int sx,int sy)
     }
 }
 
-template <const int depth, const int type>
-void QGfxMatrox<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
-{
-    if (!w || !h)
-	return;
-
-    int dy = sy - ry;
-    int dx = sx - rx;
-
-    if (dx == 0 && dy == 0)
-	return;
-
-    GFX_START(QRect(QMIN(rx+xoffs,sx+xoffs), QMIN(ry+yoffs,sy+yoffs), w+QABS(dx)+1, h+QABS(dy)+1))
-
-    srcbits=buffer;
-
-    srclinestep=linestep();
-    srcdepth=depth;
-    if(srcdepth==0)
-	abort();
-    srctype=SourceImage;
-    alphatype=IgnoreAlpha;
-    ismasking=FALSE;
-    blt(rx,ry,w,h,sx,sy);
-
-    GFX_END
-}
 
 class QMatroxScreen : public QLinuxFbScreen {
 
@@ -524,9 +512,9 @@ bool QMatroxScreen::connect( const QString &spec )
 	}
 	matrox_regbase=membase;
     }
-
+#ifdef DEBUG_INIT
     qDebug("Detected Matrox card");
-
+#endif
     canaccel=true;
 
     return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#417 $
+** $Id: qwidget_x11.cpp,v 1.24 2000/12/17 02:58:06 mueller Exp $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1451,7 +1451,7 @@ void QWidget::showWindow()
 		XFree( (char *)h );
 	    topData()->showMode = sm == 1?3:0; // trigger reset to normal state next time
 	}
-	if ( topData()->parentWinId && topData()->parentWinId != qt_xrootwin() ) {
+	if ( topData()->parentWinId && topData()->parentWinId != qt_xrootwin() && !isMinimized() ) {
 	    qt_deferred_map_add( this );
 	    return;
 	}

@@ -38,9 +38,22 @@
 
 #include "qimage.h"
 
+// This is intended as an example of an accelerated driver, as is
+// Mach64 driver. The Mach64 driver implements more functionality;
+// this is a simpler driver which may be easier to follow. This driver
+// should work with 3dfx Voodoo 3 and Voodoo Banshee cards (PCI or AGP)
+// Note that the register-level specifications for these cards are freely
+// available from the 3dfx web site
+
+// Pointer to Voodoo 3 registers
 static unsigned char *voodoo_regbase=0;
 
 //#define DEBUG_INIT
+
+// An integer, lastop, is stored in shared memory and is set to one
+// of these values. The reason for this is that if an accelerated
+// LASTOP_RECT is followed by another LASTOP_RECT, for example,
+// some register setup can be avoided
 
 #define LASTOP_LINE 1
 #define LASTOP_RECT 2
@@ -55,6 +68,7 @@ static unsigned char *voodoo_regbase=0;
 #define LASTOP_TILEDBLTPEN 11
 #define LASTOP_SYNC 12
 
+// Read a 32-bit graphics card register from 2d engine register block
 inline unsigned int voodoo_regr(volatile unsigned int regindex)
 {
     unsigned long int val;
@@ -62,10 +76,16 @@ inline unsigned int voodoo_regr(volatile unsigned int regindex)
     return val;
 }
 
+// Write a 32-bit graphics card register to 2d engine register block
 inline void voodoo_regw(volatile unsigned int regindex,unsigned long val)
 {
     *((volatile unsigned long int *)(voodoo_regbase+regindex))=val;
 }
+
+// Wait <entry> FIFO entries. <entry> FIFO entries must be free
+// before making <entry> regw's or regw2's, or you'll lock up the
+// graphics card and your computer. The total number of FIFO entries
+// varies from card to card.
 
 inline void voodoo_wait_for_fifo(short entries)
 {
@@ -76,9 +96,6 @@ inline void voodoo_wait_for_fifo(short entries)
 	fifoval=fifoval & 0x1f;
 	if(fifoval>=entries) {
 	    return;
-	}
-	if(trycount>10) {
-	    qDebug("Resetting engine");
 	}
     }
 }
@@ -96,7 +113,6 @@ public:
     virtual void stretchBlt(int,int,int,int,int,int);
 #endif
     virtual void drawLine(int,int,int,int);
-    virtual void scroll(int,int,int,int,int,int);
     virtual void sync();
 
 private:
@@ -121,6 +137,8 @@ inline void QGfxVoodoo<depth,type>::sync()
     // NOP to avoid documented deadlock
     (*lastop)=LASTOP_SYNC;
     voodoo_regw(COMMAND,0x100);
+
+    // Now wait until we're told graphics engine is idle
     int loopc;
     for(loopc=0;loopc<1000;loopc++) {
         unsigned int stat=voodoo_regr(VOODOOSTATUS);
@@ -131,6 +149,7 @@ inline void QGfxVoodoo<depth,type>::sync()
     qDebug("Idle timeout!");
 }
 
+// Figures out the 3-bit code for different depths
 inline int voodoo_depthcode(int d)
 {
     int ret;
@@ -147,7 +166,10 @@ inline int voodoo_depthcode(int d)
     return ret;
 }
 
-
+// Set up DST_OFF_PITCH, return false if it's not on the card
+// For lines, filled rects etc
+// This is similar to checkSourceDest but is used when there is no
+// source image data
 template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkDest()
 {
@@ -165,6 +187,8 @@ inline bool QGfxVoodoo<depth,type>::checkDest()
     return TRUE;
 }
 
+// Sets up the graphics engine's idea of bits-per-pixel for destination
+// and source, used for, example, blt's
 template<const int depth,const int type>
 inline bool QGfxVoodoo<depth,type>::checkSourceDest()
 {
@@ -206,21 +230,30 @@ QGfxVoodoo<depth,type>::QGfxVoodoo(unsigned char * a,int b,int c)
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
 {
+    // No point going any further if the window isn't visible
     if(ncliprect<1) {
 	return;
     }
 
+    // Only handle 'norma' rectangles
     if( (cbrush.style()!=NoBrush) && (cbrush.style()!=SolidPattern) ) {
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
 
+    // Stop anyone else trying to access optype/lastop/the graphics engine
+    // to avoid synchronization problems with other processes
     QWSDisplay::grab( TRUE );
     if(!checkDest()) {
 	QWSDisplay::ungrab();
 	QGfxRaster<depth,type>::fillRect(rx,ry,w,h);
 	return;
     }
+
+    // This is used by the software mouse cursor to prevent corruption
+    // of the cursor if a drawing operation is performed under it.
+    // GFX_START/END can be omitted if you know you'll only ever use
+    // the hardware cursor
 
     GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
 
@@ -239,6 +272,9 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     if((*lastop)!=LASTOP_RECT) {
 	voodoo_wait_for_fifo(2);
 	voodoo_regw(SRCFORMAT,3 << 16);
+	// With the Voodoo 3 you write the command code into COMMAND
+	// and then write parameters (usually x/y coordinates of some sort)
+	// into LAUNCHAREA to kick off the operation
 	voodoo_regw(COMMAND,0x5 | (0xcc << 24));
     }
 
@@ -248,13 +284,19 @@ void QGfxVoodoo<depth,type>::fillRect(int rx,int ry,int w,int h)
     voodoo_wait_for_fifo(1);
     voodoo_regw(COLORFORE,srccol);
 
+    // We clip in software here because rectangle-rectangle intersections
+    // are very fast, probably much more so than writing graphics card
+    // registers to set up the clip
+
     if(cbrush.style()!=NoBrush) {
 	int p=ncliprect;
 	if(p<8) {
 	    // We can wait for all our fifos at once
+	    // (slight performance optimisation)
 	    voodoo_wait_for_fifo(p*2);
 	    for(loopc=0;loopc<p;loopc++) {
 		QRect r=cliprect[loopc];
+		// Clip rectangle to current clip rectangle
 		if(xp<=r.right() && yp<=r.bottom() &&
 		   x2>=r.left() && y2>=r.top()) {
 		    x3=r.left() > xp ? r.left() : xp;
@@ -328,6 +370,11 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 
         unsigned int dirmask=0;
 
+	// Tell the engine whether to copy bits from left to right,
+	// top to bottom, right to left, bottom to top - this is
+	// important for getting the right results with an overlapping
+	// blt
+
 	if(yp>yp2) {
 	    // Down, reverse
 	    if(xp>xp2) {
@@ -386,6 +433,7 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
 	return;
     } else {
 	QWSDisplay::ungrab();
+	// software fallback
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
@@ -395,6 +443,13 @@ template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 					       int sw,int sh)
 {
+    // On Voodoo3's, as opposed to Mach64, stretchBlt is a normal 2d operation
+    // and not part of a separate pipeline
+    // Hence optype is set to 1, since a sequence like blt/stretchBlt/blt
+    // is guaranteed to be performed in that order; on Mach64 without a
+    // sync() before the second blt the stretchBlt and second blt might overlap
+    // and both write to the same area simultaneously
+ 
     if(ncliprect)
 	return;
 
@@ -479,6 +534,9 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	dx=abs(x2-x1);
 	dy=abs(y2-y1);
 
+	// On the Voodoo3, unlike the Mach64, Bresenham parameters
+	// for the line are calculated automatically
+
         GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
 
 	QColor tmp=cpen.color();
@@ -511,29 +569,8 @@ void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     }
 }
 
-template <const int depth, const int type>
-void QGfxVoodoo<depth,type>::scroll( int rx,int ry,int w,int h,int sx, int sy )
-{
-     if (!w || !h)
-	return;
-
-    int dy = sy - ry;
-    int dx = sx - rx;
-
-    if (dx == 0 && dy == 0)
-	return;
-
-    srcbits=buffer;
-
-    srclinestep=linestep();
-    srcdepth=depth;
-    if(srcdepth==0)
-	abort();
-    srctype=SourceImage;
-    alphatype=IgnoreAlpha;
-    ismasking=FALSE;
-    blt(rx,ry,w,h,sx,sy);
-}
+// This does card-specific setup and constructs accelerated gfx's and
+// the accelerated cursor
 
 class QVoodooScreen : public QLinuxFbScreen {
 
@@ -594,6 +631,13 @@ bool QVoodooScreen::connect( const QString &spec )
 
     canaccel=false;
 
+    // This is the 256-byte PCI config space information for the
+    // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
+    // (or in theory from a PCI bus scan - there is some code for this
+    // but it's not how Qt/Embedded would normally work)
+    // It only tests the vendor ID - so don't use it with other 3dfx
+    // graphics cards, such as Voodoo 4/5, or Bad Things
+    // May Happen
     const unsigned char* config = qt_probe_bus();
 
     unsigned short int * manufacturer=(unsigned short int *)config;
@@ -606,7 +650,10 @@ bool QVoodooScreen::connect( const QString &spec )
 
     const unsigned char * bar=config+0x10;
     const unsigned long int * addr=(const unsigned long int *)bar;
-    unsigned long int s=*(addr+0);
+    // We expect the address pointer for the registers in config space
+    // (the 1st address specified) to be a memory one, so we do a simple 
+    // sanity check
+    unsigned long int s=*(addr+0); // First registers pointer
     unsigned long int olds=s;
     if(s & 0x1) {
 #ifdef DEBUG_INIT
@@ -622,6 +669,10 @@ bool QVoodooScreen::connect( const QString &spec )
 	s=olds;
 	unsigned char * membase;
 	int aperturefd;
+	// We map in the registers from /dev/mem, which is memory
+	// as seen from a physical-address point of view (rather than
+	// the application's virtual address space) but including PCI-mapped
+	// memory
 	aperturefd=open("/dev/mem",O_RDWR);
 	if(aperturefd==-1) {
 #ifdef DEBUG_INIT
@@ -649,6 +700,8 @@ bool QVoodooScreen::connect( const QString &spec )
 
     qDebug("Detected Voodoo 3");
 
+    // Yes, we detected the card correctly so can safely make accelerated
+    // gfxen
     canaccel=true;
 
     return TRUE;
@@ -658,6 +711,10 @@ bool QVoodooScreen::connect( const QString &spec )
 QVoodooScreen::~QVoodooScreen()
 {
 }
+
+// Set up some known values; unlike the Mach64 driver we rely more on
+// the Linux framebuffer driver or Video BIOS to set up sensible default
+// values; it seems to work
 
 bool QVoodooScreen::initDevice()
 {
@@ -733,9 +790,11 @@ void QVoodooCursor::init(SWCursorData *,bool)
     fb_start=qt_screen->base();
 }
 
+// Encode RGB values into 2-bit cursor encoding - similar to
+// Mach64, but the actual values are different
+
 int voodoo_ngval(QRgb r)
 {
-    // 1,2,0
     if(qAlpha(r)<255) {
 	return 1;        // Transparent
     } else if(qBlue(r)>240) {
@@ -777,6 +836,10 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
 	}
     }
 
+    // Write the cursor data in the image into the weird format
+    // that Voodoo3 expects for cursors, which is some truly weird
+    // planar format (hence the two inner loops)
+    // We assume cursors are multiples of 8 pixels wide
     for(loopc=0;loopc<cursor->height();loopc++) {
 	tmp=fb_start+offset+(loopc*16);
         for(loopc2=0;loopc2<(cursor->width()/8);loopc2++) {
@@ -828,6 +891,7 @@ void QVoodooCursor::set(const QImage& image,int hx,int hy)
     show();
 }
 
+// Make the accelerated cursor disappear
 void QVoodooCursor::hide()
 {
     unsigned int cntlstat=voodoo_regr(VIDPROCCFG);
@@ -836,6 +900,7 @@ void QVoodooCursor::hide()
     voodoo_regw(VIDPROCCFG,cntlstat);
 }
 
+// Make it come back
 void QVoodooCursor::show()
 {
     unsigned int cntlstat=voodoo_regr(VIDPROCCFG);
@@ -845,6 +910,7 @@ void QVoodooCursor::show()
     voodoo_regw(VIDPROCCFG,cntlstat);
 }
 
+// Move it to x,y, such that the hotspot is at x,y
 void QVoodooCursor::move(int x,int y)
 {
     x-=hotx;

@@ -62,37 +62,7 @@ public:
     {
 	QDiskFontFT *df = (QDiskFontFT*)(f->p);
 	myface=df->face;
-
-	int psize=(ptsize<<6)/10;
-
-	// Assume 72 dpi for now
-	const int dpi=72;
-	FT_Error err;
-	err=FT_Set_Char_Size(myface, psize,psize,dpi,dpi);
-	if (err) {
-	    if (FT_IS_SCALABLE(myface) ) {
-		qWarning("Set char size error %x for size %d",err,ptsize);
-	    } else {
-		int best=-1;
-		int bdh=99;
-		for (int i=0; i<myface->num_fixed_sizes; i++) {
-		    FT_Bitmap_Size& sz=myface->available_sizes[i];
-		    int dh = sz.height - ptsize*dpi/72/10;
-		    dh = QABS(dh);
-		    if ( dh < bdh ) {
-			bdh=dh;
-			best=i;
-		    }
-		}
-		if ( best >= 0 )
-		    err=FT_Set_Pixel_Sizes(myface,
-			myface->available_sizes[best].width,
-			myface->available_sizes[best].height);
-		if ( err )
-		    qWarning("Set char size error %x for size %d",err,ptsize);
-	    }
-	}
-
+	selectThisSize();
 	// A 1-pixel baseline is excluded in Qt/Windows/X11 fontmetrics
 	// (see QFontMetrics::height())
 	//
@@ -135,7 +105,7 @@ public:
 
     QGlyph render(QChar ch)
     {
-	int psize=(ptsize<<6)/10;
+	selectThisSize();
 
 	int index = ch.unicode();
 	if ( !unicode(index) )
@@ -197,6 +167,40 @@ public:
     }
 
     FT_Face myface;
+
+private:
+    void selectThisSize()
+    {
+	int psize=(ptsize<<6)/10;
+
+	// Assume 72 dpi for now
+	const int dpi=72;
+	FT_Error err;
+	err=FT_Set_Char_Size(myface, psize,psize,dpi,dpi);
+	if (err) {
+	    if (FT_IS_SCALABLE(myface) ) {
+		qWarning("Set char size error %x for size %d",err,ptsize);
+	    } else {
+		int best=-1;
+		int bdh=99;
+		for (int i=0; i<myface->num_fixed_sizes; i++) {
+		    FT_Bitmap_Size& sz=myface->available_sizes[i];
+		    int dh = sz.height - ptsize*dpi/72/10;
+		    dh = QABS(dh);
+		    if ( dh < bdh ) {
+			bdh=dh;
+			best=i;
+		    }
+		}
+		if ( best >= 0 )
+		    err=FT_Set_Pixel_Sizes(myface,
+			myface->available_sizes[best].width,
+			myface->available_sizes[best].height);
+		if ( err )
+		    qWarning("Set char size error %x for size %d",err,ptsize);
+	    }
+	}
+    }
 };
 
 QFontFactoryFT::QFontFactoryFT()

@@ -47,7 +47,11 @@ class QPoint;
 
 class Q_EXPORT QPolygonScanner {
 public:
+    // BIC: fix for 3.0
     void scan( const QPointArray& pa, bool winding, int index=0, int npoints=-1 );
+    void scan( const QPointArray& pa, bool winding, int index, int npoints, bool stitchable );
+    enum Edge { Left=1, Right=2, Top=4, Bottom=8 };
+    void scan( const QPointArray& pa, bool winding, int index, int npoints, Edge edges );
     virtual void processSpans( int n, QPoint* point, int* width )=0;
 };
 

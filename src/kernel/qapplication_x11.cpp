@@ -1228,6 +1228,8 @@ static void qt_set_input_encoding()
 	if( !input_mapper )
 	    input_mapper = QTextCodec::codecForName( "ISO 8859-1" );
     }
+    if ( input_mapper->mibEnum() == 11 ) // 8859-8
+	input_mapper = QTextCodec::codecForName( "ISO 8859-8-I");
     if( data )
 	XFree( (unsigned char *) data );
 }
@@ -4887,7 +4889,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     // Qt keycodes between 128 and 255, but should rather use the
     // QKeyEvent::text().
     //
-    if ( key < 128 || key < 256 && (!input_mapper || input_mapper->mibEnum()==4) ) {
+    if ( key < 128 || (key < 256 && (!input_mapper || input_mapper->mibEnum()==4)) ) {
 	code = isprint((int)key) ? toupper((int)key) : 0; // upper-case key, if known
 	chars[0] = key;
 	chars[1] = '\0';

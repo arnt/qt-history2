@@ -44,7 +44,6 @@ public:
 
     void beginTransaction(const QRect& r) { gfxdata=QGfxRasterBase::beginTransaction(r); }
     void endTransaction() { QGfxRasterBase::endTransaction(gfxdata); }
-    QRegion region() const { return setrgn; }
     unsigned char * memory() { return buffer; }
     int numRects() const { return ncliprect; }
     const QRect& rect(int i) const { return cliprect[i]; }
@@ -101,7 +100,7 @@ public:
 
   The platform-specific code has access to the display, but should
   only modify graphics in the rectangles specified by numRects()
-  and rect(), or region() if you prefer. Note that these rectangles
+  and rect(). Note that these rectangles
   are relative to the entire display.
 
   The offset() function returns the position of the widget relative to
@@ -154,15 +153,6 @@ uchar* QDirectPainter::frameBuffer() { return d->gfx->memory(); }
   Returns the spacing in bytes from one framebuffer line to the next.
 */
 int QDirectPainter::lineStep() { return d->gfx->linestep(); }
-
-/*!
-  Returns the clip region allocated as paintable for the widget the
-  painter is on. This is the same as the combination of rectangles
-  provided by rect().
-
-  \sa numRects(), rect()
-*/
-QRegion QDirectPainter::region() { return d->gfx->region(); }
 
 /*
   Returns the number of rectangles in the clip region.

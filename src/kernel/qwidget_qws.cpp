@@ -709,8 +709,8 @@ void QWidget::showWindow()
 	qwsDisplay()->requestRegion(winId(), r);
 	if ( !testWFlags(WStyle_Tool) )
 	    qwsDisplay()->requestFocus(winId(),TRUE);
-	if ( testWFlags(WStyle_StaysOnTop) )
-	    qwsDisplay()->setAltitude( winId(), 0, TRUE );
+	qwsDisplay()->setAltitude( winId(),
+	    testWFlags(WStyle_StaysOnTop) ? 1 : 0, TRUE );
     } else if ( !topLevelWidget()->in_show ) {
 	QWidget *p = parentWidget();
 	p->setChildrenAllocatedDirty();

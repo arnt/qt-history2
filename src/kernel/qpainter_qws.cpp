@@ -40,6 +40,7 @@
 #include "qcomplextext_p.h"
 #include "qtextcodec.h"
 #include "qmemorymanager_qws.h"
+#include "qwsdisplay_qws.h"
 #include <ctype.h>
 #include <stdlib.h>
 #include "qpaintdevicemetrics.h"
@@ -514,8 +515,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	cpen = QPen( copyFrom->foregroundColor() );
 	bg_col = copyFrom->backgroundColor();
     }
+    setBackgroundColor( bg_col );		// default background color
     if ( testf(ExtDev) ) {			// external device
-	setBackgroundColor( bg_col );		// default background color
 	setBackgroundMode( TransparentMode );	// default background mode
 	setRasterOp( CopyROP );			// default raster operation
     }
@@ -637,7 +638,7 @@ void QPainter::setRasterOp( RasterOp r )
 	updateBrush();				// get non-cached brush GC
 
     gfx->setRop(r);
-    
+
 }
 
 void QPainter::setBrushOrigin( int x, int y )
@@ -1080,7 +1081,12 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
     map( x, y, &x, &y );
     a.makeArc( x, y, w, h, 0, 360*16 );
 #endif
+    QPen oldpen=pen();
+    QPen tmppen=oldpen;
+    tmppen.setJoinStyle(BevelJoin);
+    setPen(tmppen);
     drawPolyInternal( a );
+    setPen(oldpen);
 }
 
 
@@ -1442,10 +1448,17 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
     map( x, y, &x, &y );
 
     gfx->setSource(&pixmap);
-    if ( pixmap.data->hasAlpha )
+    if (pixmap.mask()) {
+        QBitmap * mymask=( (QBitmap *)pixmap.mask() );
+        unsigned char * thebits=mymask->scanLine(0);
+        int ls=mymask->bytesPerLine();
+        gfx->setAlphaType(QGfx::LittleEndianMask);
+        gfx->setAlphaSource(thebits,ls);
+    } else if ( pixmap.data->hasAlpha ) {
 	gfx->setAlphaType(QGfx::InlineAlpha);
-    else
+    } else {
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
+    }
     gfx->setBrushOffset(sx,sy);
     gfx->tiledBlt(x,y,w,h);
 }
@@ -1564,23 +1577,24 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	    QBitmap *wx_bm = 0;
 	    bool create_new_bm = FALSE;
 	    QString bm_key;
-	    if ( memorymanager->fontSmooth(dfont.handle()) ) {
+	    if ( memorymanager->fontSmooth(dfont.handle()) &&
+			QPaintDevice::qwsDisplay()->supportsDepth(32) )
+	    {
 		QPixmap pm(aw, ah, 32);
 		QPainter paint(&pm);
-		paint.setPen(QPen(Qt::white));
-		paint.setBrush(QBrush(Qt::black));
+		paint.fillRect(pm.rect(),Qt::black);
 		paint.setFont( dfont );
+		paint.setPen(QPen(Qt::white));
 		paint.drawText( tx, ty, shaped, len );
 		paint.end();
 		// Now we have an image with r,g,b gray scale set.
 		// Put this in alpha channel and set pixmap to pen color.
-		// Not the best but it works.
+		QRgb bg = cpen.color().rgb() & 0x00FFFFFF;
 		for ( int y = 0; y < ah; y++ ) {
 		    uint *p = (uint *)pm.scanLine(y);
 		    for ( int x = 0; x < aw; x++ ) {
 			int a = *p & 0xFF;
-			*p = cpen.color().rgb() & 0x00FFFFFF;
-			*p |= (a << 24);
+			*p = bg | (a << 24);
 			p++;
 		    }
 		}
@@ -1641,8 +1655,8 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	    y = qRound(nfy-dy);
 
 	    if ( memorymanager->fontSmooth(dfont.handle()) ) {
-		gfx->setAlphaType(QGfx::InlineAlpha);
 		gfx->setSource( tpm );
+		gfx->setAlphaType(QGfx::InlineAlpha);
 		gfx->blt(x, y, tpm->width(),tpm->height(), 0, 0);
 		delete tpm;
 		return;

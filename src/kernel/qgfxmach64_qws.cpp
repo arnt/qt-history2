@@ -30,28 +30,33 @@
 **
 **********************************************************************/
 
-#include <sys/types.h>
-#include <dirent.h>
-#include <stdio.h>
 #include <unistd.h>
-#include <sys/mman.h>
-#include <fcntl.h>
+#include <stdio.h>
+#include <stdlib.h>
 #include <errno.h>
 #include <string.h>
-#include <stdlib.h>
-#include <unistd.h>
+#include <dirent.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/mman.h>
 
 #include <qapplication.h>
 
 //#define DEBUG_INIT
 
+#ifndef __sparc__    
 #include <sys/io.h>
-#include <unistd.h>
-#include <stdio.h>
+#endif
 
 #include "qgfxraster_qws.h"
 #include "qgfxlinuxfb_qws.h"
 #include "qgfxmach64defs_qws.h"
+
+
+// An integer, lastop, is stored in shared memory and is set to one
+// of these values. The reason for this is that if an accelerated
+// LASTOP_RECT is followed by another LASTOP_RECT, for example,
+// some register setup can be avoided
 
 #define LASTOP_LINE 1
 #define LASTOP_RECT 2
@@ -65,10 +70,12 @@
 #define LASTOP_TILEDBLT 10
 #define LASTOP_TILEDBLTPEN 11
 
-
+// regbase points to the first set of Mach64 registers (the 2d drawing engine)
+// regbase2 points to the second set (3d engine/scaler pipeline)
 static unsigned char * regbase=0;
 static unsigned char * regbase2=0;
 
+// Read a 32-bit graphics card register from 2d engine register block
 inline unsigned int regr(volatile unsigned int regindex)
 {
     unsigned long int val;
@@ -76,16 +83,19 @@ inline unsigned int regr(volatile unsigned int regindex)
     return val;
 }
 
+// Write a 32-bit graphics card register to 2d engine register block
 inline void regw(volatile unsigned int regindex,unsigned long val)
 {
     *((volatile unsigned long int *)(regbase+regindex))=val;
 }
 
+// Write a 32-bit graphics card register to 3d engine register block
 inline void regw2(volatile unsigned int regindex,unsigned long val)
 {
     *((volatile unsigned long int *)(regbase2+regindex))=val;
 }
 
+// Write a 32-bit floating point value to 3d engine register block
 inline void regwf2(volatile unsigned int regindex,float val)
 {
     unsigned int writeval;
@@ -93,12 +103,19 @@ inline void regwf2(volatile unsigned int regindex,float val)
     *((volatile unsigned long int *)(regbase2+regindex))=writeval;
 }
 
+// Read a 32-bit value from 3d engine register block
 inline unsigned int regr2(volatile unsigned int regindex)
 {
     unsigned long int val;
     val=*((volatile unsigned long *)(regbase2+regindex));
     return val;
 }
+
+// Wait <entry> FIFO entries. <entry> FIFO entries must be free
+// before making <entry> regw's or regw2's, or you'll lock up the
+// graphics card and your computer. The total number of FIFO entries
+// varies from card to card. There's some code to attempt to recover
+// from engine lockups
 
 inline void wait_for_fifo(short entries)
 {
@@ -139,6 +156,7 @@ inline void wait_for_fifo(short entries)
     }
 }
 
+// Reset the graphics engine
 inline void reset_engine()
 {
     (*lastop)=LASTOP_RESET;
@@ -151,6 +169,10 @@ inline void reset_engine()
     wait_for_fifo(1);
     regw(BUS_CNTL,regr(BUS_CNTL) | 0x08a00000);
 }
+
+// Wait for all FIFO entries to become free (so we know no commands are
+// going to be queued up) then wait for the currently executing graphics
+// command to finish. Used by sync()
 
 inline void wait_for_idle()
 {
@@ -177,7 +199,6 @@ public:
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
     virtual void blt( int,int,int,int,int,int );
-    virtual void scroll( int,int,int,int,int,int );
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt( int,int,int,int,int,int );
 #endif
@@ -201,8 +222,6 @@ private:
     bool checkSourceDest();
     bool checkDest();
 
-    QGfx * proxygfx;
-
 };
 
 #define vgabase 0x1000
@@ -213,6 +232,9 @@ QGfxMach64<depth,type>::QGfxMach64(unsigned char * a,int b,int c)
 {
 }
 
+// Sets up the graphics engine hardware scissors - these cut off
+// hardware graphics operations that go outside their borders and 
+// can be used to implement clipping
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::do_scissors(QRect & r)
 {
@@ -222,6 +244,12 @@ inline void QGfxMach64<depth,type>::do_scissors(QRect & r)
     regw(SC_RIGHT,r.right());
     regw(SC_BOTTOM,r.bottom());
 }
+
+// Sets up the graphics engine's idea of bits-per-pixel for destination
+// and different sources (normal 2d source and scaler/3d engine source)
+// Can also handle different endianness - that isn't really used by the
+// current example but could be useful for a LinuxPPC port of the driver,
+// for example
 
 template<const int depth,const int type>
 inline void QGfxMach64<depth,type>::setPixWidth(int d,int s,int sc,bool b)
@@ -265,6 +293,11 @@ inline void QGfxMach64<depth,type>::setPixWidth(int d,int s,int sc,bool b)
 
 // Set up SRC_OFF_PITCH and DST_OFF_PITCH
 // Return true if they're both on the card
+// (That's the source and destination's offset from graphics memory
+// start and linestep) - both are specified as multiples of 64 bits
+// This is also used to verify that both the source and destination
+// of the operation are on the graphics card - if not then a fallback
+// to the software rasterising code is necessary
 
 template<const int depth,const int type>
 inline bool QGfxMach64<depth,type>::checkSourceDest()
@@ -297,6 +330,8 @@ inline bool QGfxMach64<depth,type>::checkSourceDest()
 
 // Set up DST_OFF_PITCH, return false if it's not on the card
 // For lines, filled rects etc
+// This is similar to checkSourceDest but is used when there is no
+// source image data
 
 template<const int depth,const int type>
 inline bool QGfxMach64<depth,type>::checkDest()
@@ -315,14 +350,18 @@ inline bool QGfxMach64<depth,type>::checkDest()
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 {
+    // No point going any further if the window isn't visible
     if(ncliprect<1)
         return;
 
+    // Only handle 'normal' lines
     if ( cpen.style() != SolidLine || myrop!=CopyROP ) {
 	QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
 	return;
     }
 
+    // Stop anyone else trying to access optype/lastop/the graphics engine
+    // to avoid synchronization problems with other processes
     QWSDisplay::grab( TRUE );
     if((*optype)!=1 || (*lastop)!=LASTOP_LINE) {
 	if(!checkDest()) {
@@ -330,9 +369,12 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	    QGfxRaster<depth,type>::drawLine(x1,y1,x2,y2);
 	    return;
 	}
+	// The scaler engine operates independently of the 2d engine
+	// so we need to wait for it to finish if it's doing something
 	if((*optype)>1)
 	    wait_for_idle();
 
+	// This is avoided if the last operation was a line
 	wait_for_fifo(2);
 	regw(DP_SRC,0x00000100);
 	regw(DP_MIX,(MIX_SRC << 16) | MIX_DST);
@@ -340,16 +382,20 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	(*lastop)=LASTOP_LINE;
     }
 
+    // Note that the last operation used the 2d engine
     (*optype)=1;
 
     int loopc;
 
+    // Add the offset of the gfx - used to make the origin the right
+    // place for windows
     x1=x1+xoffs;
     y1=y1+yoffs;
     x2=x2+xoffs;
     y2=y2+yoffs;
 
-
+    // Only cope with lines going from left to right
+    // - swap them round if this isn't true
     if(x1>x2) {
       int x3,y3;
       x3=x2;
@@ -365,14 +411,24 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
     wait_for_fifo(1);
     regw(DP_FRGD_CLR,cpen.color().pixel());
 
+    // Figure out distance between endpoints
     int dx,dy;
     dx=abs(x2-x1);
     dy=abs(y2-y1);
 
+    // This does maintenance needed by the software mouse cursor
+    // If you're /always/ going to use a hardware cursor you can
+    // omit GFX_START/END for a small performance advantage
     GFX_START(QRect(x1, y1 < y2 ? y1 : y2, dx+1, QABS(dy)+1))
+
+    // The clip region is defined as a series of rectangles
+    // We repeatedly set up the hardware clip rectangle to one of
+    // these rectangles and re-draw the line - an alternative approach
+    // would be to clip to the rectangle in software
 
     for(loopc=0;loopc<ncliprect;loopc++) {
 	// Code taken from Mach64 Programmer's Manual
+        // Sets up Bresenham parameters
 	int mindelta,maxdelta;
 	int xdir,ydir,ymajor;
 
@@ -405,8 +461,11 @@ void QGfxMach64<depth,type>::drawLine(int x1,int y1,int x2,int y2)
 	regw(DST_BRES_LNTH,maxdelta+1);
     }
 
+    // Software mouse cursor stuff
     GFX_END
 
+    // Release display again - not doing so will cause Qt/Embedded applications
+    // to deadlock
     QWSDisplay::ungrab();
 
 }
@@ -436,6 +495,8 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 	wait_for_fifo(7);
 
 	// probably not needed
+	// we reset the clip rectangle because we do our own software
+	// clipping (rectangle<->rectangle intersections are fast)
 	regw(SC_LEFT,0);
 	regw(SC_TOP,0);
 	regw(SC_RIGHT,width);
@@ -472,9 +533,11 @@ void QGfxMach64<depth,type>::fillRect(int rx,int ry,int w,int h)
 	int p=ncliprect;
 	if(p<8) {
 	    // We can wait for all our fifos at once
+	    // (slight performance optimisation)
 	    wait_for_fifo(p*2);
 	    for(loopc=0;loopc<p;loopc++) {
 		QRect r=cliprect[loopc];
+		// Clip rectangle to current clip rectangle
 		if(xp<=r.right() && yp<=r.bottom() &&
 		   x2>=r.left() && y2>=r.top()) {
 		    x3=r.left() > xp ? r.left() : xp;
@@ -525,6 +588,10 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 
     bool canaccel=false;
 
+    // We can only handle inline/solid alpha values using the 3d pipeline
+    // and a texture. Textures have to be a power of 2 in sizes so the
+    // pixmap has to be the right size in order for this to be accelerated.
+    // Also, only 32 bit source textures are alpha-blended in hardware
     if(srcdepth==32) {
 	if(alphatype==IgnoreAlpha || alphatype==SolidAlpha ||
 	   alphatype==InlineAlpha) {
@@ -550,6 +617,9 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	return;
     }
 
+    // We can't handle 'real' alpha blending with a solid pen source
+    // (this would be a separate alpha channel, as in anti-aliased text,
+    // or possibly a solid alpha value)
     if(srctype==SourcePen && !(alphatype==BigEndianMask ||
 			       alphatype==LittleEndianMask) ) {
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
@@ -570,11 +640,15 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	int x2=(rx+w)-1;
 	int y2=(ry+h)-1;
 	QWSDisplay::ungrab();
+	// This is special handling for using the 3d engine for
+	// hardware accelerated alpha blending
 	drawAlpha(rx,ry,x2,ry,rx,y2,x2,y2);
 	return;
     }
 
     if(check_result) {
+
+        // This is now a normal 2d engine blt
 
 	QRect cursRect(rx, ry, w+1, h+1);
 	GFX_START(cursRect);
@@ -589,14 +663,22 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	    if((*optype)!=1 || (*lastop)!=LASTOP_BLT) {
 		(*lastop)=LASTOP_BLT;
 		wait_for_fifo(8);
+		// Write to all bits of the pixel
 		regw(DP_WRITE_MASK,0xffffffff);
+		// CopyROP
 		regw(DP_MIX,0x00070003);
 		regw(DP_SRC,0x00000300);
 		regw(CLR_CMP_CNTL,0x00000000);
 		regw(DP_FRGD_CLR,0xffffffff);
 	    }
 
+	    // Set up graphics engine's idea of source and destination
+	    // pixel sizes
 	    setPixWidth(depth,srcdepth);
+	    // Tell the engine whether to copy bits from left to right,
+	    // top to bottom, right to left, bottom to top - this is
+	    // important for getting the right results with an overlapping
+	    // blt
 	    if(yp>yp2) {
 		// Down, reverse
 		if(xp>xp2) {
@@ -628,6 +710,8 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	    regw(SRC_CNTL,0x00000000);
 	    regw(SRC_Y_X,(xp2 << 16) | yp2);
 	} else {
+	    // This is used for drawing a solid colour with a mask -
+	    // used for brushes
 	    if((*optype)!=1 || (*lastop)!=LASTOP_BLTPEN) {
 		setPixWidth(depth,srcdepth,16,alphatype==LittleEndianMask);
 		QColor tmp=cpen.color();
@@ -649,6 +733,8 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	int loopc;
 	for(loopc=0;loopc<ncliprect;loopc++) {
 
+  	    // Now it's all set up, repeatedly set the scissors
+	    // and perform the blt
 	    do_scissors(cliprect[loopc]);
 
 	    wait_for_fifo(3);
@@ -663,23 +749,14 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 	return;
     } else {
 	QWSDisplay::ungrab();
+	// software fallback
 	QGfxRaster<depth,type>::blt(rx,ry,w,h,sx,sy);
     }
 }
 
-template <const int depth, const int type>
-void QGfxMach64<depth,type>::scroll( int rx,int ry,int w,int h,int sx,int sy )
-{
-    srclinestep=linestep();
-    srcdepth=depth;
-    srcbits=buffer;
-    if(srcdepth==0)
-        abort();
-    srctype=SourceImage;
-    alphatype=IgnoreAlpha;
-    ismasking=false;
-    blt(rx,ry,w,h,sx,sy);
-}
+// A blt from one rectangle to another where each rectangle can be a different
+// size - the image is stretched or shrunk to fit
+// Overlapping is forbidden, so are clever alpha blending modes
 
 #if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
@@ -719,6 +796,8 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	if(srclinestep<1)
 	    abort();
 
+	// We need the offset from the start of video memory for a
+	// different register than SRC_BUFFER_OFFSET
 	unsigned long my_src_buffer_offset;
 	if (!qt_screen->onCard(srcbits,my_src_buffer_offset))
 	    qFatal("checkSourceDest() lied!");
@@ -746,8 +825,10 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 	unsigned long int h2=(unsigned long int)tmp3;
 
 	// This is a workaround for a bug with hardware clipping -
-	// if the stretchblt starts outside the hardware clip
+	// if the stretchblt starts above the hardware clip
 	// rectangle /none/ of it is drawn
+	// therefore we twiddle the y starting position of the buffer
+	// to put it inside the clip rectangle
 
 	int sy1=cliprect[loopc].top();
 
@@ -810,12 +891,22 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
 #endif
 
 
-
+// This is called by the software renderer when it's about to draw
+// something - it needs to be sure that the hardware engine has finished
+// drawing since otherwise the two graphics operations could collide
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::sync()
 {
     wait_for_idle();
 }
+
+// Like scroll, this is here for special optimisation. This time we
+// make use of the hardware to handle it - this saves calling blt()
+// for each individual tile. It might be possible to get even cleverer
+// with hardware that supports a tiled blt in hardware
+// We also support it for solid-colour-with-mask, this accelerates
+// filled rectangles with a patterned brush, used for, e.g.,
+// Windows scrollbars
 
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
@@ -955,6 +1046,11 @@ void QGfxMach64<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 
 }
 
+// Wait for horizontal sync at line i - can be used to reduce flickering
+// (once the CRT gun reaches line i you have almost a whole vsync period
+// to do things to the part of the framebuffer just above before it gets
+// updated on screen)
+
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::hsync(int i)
 {
@@ -967,6 +1063,13 @@ void QGfxMach64<depth,type>::hsync(int i)
 	    return;
     }
 }
+
+// Draw a quadrilateral at the following arbitrary coordinates
+// filled with the texture of your choice, possibly
+// alpha-blended - basically used for hardware alpha blending acceleration,
+// could also be used for special effects, speeding up QPixmap::xForm
+// and other cool things. This is implemented as two textured triangles
+// using the Mach64 3d engine
 
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
@@ -981,6 +1084,8 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	QWSDisplay::ungrab();
 	return;
     }
+
+    // Used the 3d/scaler pipeline, like stretchBlt
 
     (*optype)=2;
     (*lastop)=LASTOP_ALPHA;
@@ -1026,8 +1131,9 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
 	do_scissors(cliprect[loopc]);
 
-	// Used for one-over-area
-	float ooa,ooa2;
+	// Used for one-over-area - magic needed by the triangle
+	// setup engine
+ 	float ooa,ooa2;
 
 	ooa = 0.25 * 0.25 * ( ( xx[1] - xx[0] ) * ( yy[0] - yy[2] ) +
 			      ( yy[1] - yy[0] ) * ( xx[2] - xx[0] ) );
@@ -1099,6 +1205,7 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
 	int p=srclinestep/4;
 
+	// Pitch must be a power of 2 (in pixels)
 	int logpitch;
 	if(p==1024) {
 	    logpitch=0xa;
@@ -1135,6 +1242,8 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 	if (!qt_screen->onCard(srcbits,foffset))
 	    qFatal("checkSourceDest() lied!");
 
+	// These registers are used for mip-mapping on Mach64. We don't need
+	// that so we just set them all to the same texture
 	regw(TEX_0_OFFSET,foffset);
 	regw(TEX_1_OFFSET,foffset);
 	regw(TEX_2_OFFSET,foffset);
@@ -1215,6 +1324,9 @@ void QGfxMach64<depth,type>::drawAlpha(int x1,int y1,int x2,int y2,
 
 }
 
+// This does card-specific setup and constructs accelerated gfx's and
+// the accelerated cursor
+
 class QMachScreen : public QLinuxFbScreen {
 
 public:
@@ -1278,6 +1390,13 @@ bool QMachScreen::connect( const QString &displaySpec )
 
     canaccel=false;
 
+    // This is the 256-byte PCI config space information for the
+    // card pointed to by QWS_CARD_SLOT, as read from /proc/bus/pci
+    // (or in theory from a PCI bus scan - there is some code for this
+    // but it's not how Qt/Embedded would normally work)
+    // It only tests the vendor ID - so don't use it with other ATI
+    // graphics cards, such as Rage128 or Radion variants, or Bad Things
+    // May Happen
     const unsigned char* config = qt_probe_bus();
 
     unsigned short int * manufacturer=(unsigned short int *)config;
@@ -1288,9 +1407,12 @@ bool QMachScreen::connect( const QString &displaySpec )
 	return FALSE;
     }
 
+    // We expect the address pointer for the registers in config space
+    // (the 3rd address specified) to be a memory one, so we do a simple 
+    // sanity check
     const unsigned char * bar=config+0x10;
     const unsigned long int * addr=(const unsigned long int *)bar;
-    unsigned long int s=*(addr+2);
+    unsigned long int s=*(addr+2);  // Registers pointer 3
     unsigned long int olds=s;
     if(s & 0x1) {
 #ifdef DEBUG_INIT
@@ -1299,13 +1421,17 @@ bool QMachScreen::connect( const QString &displaySpec )
 	return FALSE;
     } else {
 #ifdef DEBUG_INIT
-	qDebug("First address thing look right");
+	qDebug("First address looks right");
 #endif
 	s=s >> 1;
 	s=s >> 2;
 	s=olds;
 	unsigned char * membase;
 	int aperturefd;
+	// We map in the registers from /dev/mem, which is memory
+	// as seen from a physical-address point of view (rather than
+	// the application's virtual address space) but including PCI-mapped
+	// memory
 	aperturefd=open("/dev/mem",O_RDWR);
 	if(aperturefd==-1) {
 #ifdef DEBUG_INIT
@@ -1314,6 +1440,7 @@ bool QMachScreen::connect( const QString &displaySpec )
 	    return FALSE;
 	}
 	s=(s >> 4) << 4;
+	// The registers block is 4k
 	membase=(unsigned char *)mmap(0,4096,PROT_READ |
 				      PROT_WRITE,MAP_SHARED,
 				      aperturefd,s);
@@ -1325,12 +1452,16 @@ bool QMachScreen::connect( const QString &displaySpec )
 	    close(aperturefd);
 	    return FALSE;
 	}
+	// 2d engine block is the second 1k block
 	regbase=membase+1024;
+	// 3d engine block is the first 1k block
 	regbase2=membase;
     }
 
     qDebug("Detected Mach64");
 
+    // Yes, we detected the card correctly so can safely make accelerated
+    // gfxen
     canaccel=true;
 
     return TRUE;
@@ -1340,15 +1471,25 @@ QMachScreen::~QMachScreen()
 {
 }
 
+// This is called when the Qt/Embedded server starts up but not when
+// individual clients do. This is when you set the device to a known
+// state
+
 bool QMachScreen::initDevice()
 {
-    // Disable register reading in main aperture
-    // Frees up 8k or so and is safer
-    // (and enable register block 1)
+    // Disable register reading in main aperture - normally the last
+    // few k of the main framebuffer space is a duplication of the register
+    // block - the accelerated Mach64 kernel framebuffer driver doesn't fix 
+    // this 
+    // Frees up 8k or so and is safer (if we scribble over the end of
+    // our framebuffer area into this block then it won't be interpreted
+    // as graphics commands)
+    // Also enable register block 1 for the 3d engine
     wait_for_fifo(1);
     regw(BUS_CNTL,regr(BUS_CNTL) | 0x08000001);
 
-    // However, that doesn't always work, so make sure it isn't mapped anyway
+    // However, that doesn't always work, so make sure it isn't mapped
+    // anyway
     mapsize-=(1024*8);
     QLinuxFbScreen::initDevice();
 
@@ -1437,6 +1578,9 @@ bool QMachScreen::initDevice()
     return true;
 }
 
+// Create a hardware cursor if a software one wasn't explicitly requested
+// via the QWS_SW_CURSOR environment variable
+
 int QMachScreen::initCursor(void* e, bool init)
 {
 #ifndef QT_NO_QWS_CURSOR
@@ -1451,19 +1595,24 @@ int QMachScreen::initCursor(void* e, bool init)
     return 0;
 }
 
+// Card shutdown - there's nothing really to do here
+
 void QMachScreen::shutdownDevice()
 {
     QLinuxFbScreen::shutdownDevice();
 }
 
+// Convert from a normal rgb value to the 2-bit encoding used by the
+// Mach64 cursor. XOR isn't handled
+
 int mach64_ngval(QRgb r)
 {
     if(qAlpha(r)<255) {
-        return 2;
+        return 2;    // Transparent
     } else if(qBlue(r)>240) {
-        return 0;
+        return 0;    // White
     } else {
-        return 1;
+        return 1;    // Black
     }
 }
 
@@ -1511,6 +1660,7 @@ void QMachCursor::init(SWCursorData *,bool)
     fb_start=qt_screen->base();
 }
 
+// Set a new cursor image, with hotspot
 void QMachCursor::set(const QImage& image,int hx,int hy)
 {
     cursor=&image;
@@ -1528,6 +1678,8 @@ void QMachCursor::set(const QImage& image,int hx,int hy)
     int loopc,loopc2;
     // 3=invert,binary 1==CLR1, 2==nothing(?), 0=CLR0
 
+    // Write the cursor data in the image into the weird format
+    // that Mach64 expects for cursors
     // We assume cursors are multiples of 8 pixels wide
     memset(tmp,0xaa,(16*64));
     for(loopc=0;loopc<cursor->height();loopc++) {
@@ -1555,6 +1707,7 @@ void QMachCursor::set(const QImage& image,int hx,int hy)
     regw(CUR_OFFSET,offset/8);
 }
 
+// Make cursor disappear
 void QMachCursor::hide()
 {
     unsigned int cntlstat=regr(GEN_TEST_CNTL);
@@ -1563,6 +1716,7 @@ void QMachCursor::hide()
     regw(GEN_TEST_CNTL,cntlstat);
 }
 
+// Make it come back
 void QMachCursor::show()
 {
     unsigned int cntlstat=regr(GEN_TEST_CNTL);
@@ -1571,6 +1725,7 @@ void QMachCursor::show()
     regw(GEN_TEST_CNTL,cntlstat);
 }
 
+// Move the cursor to point x,y - the hotspot should be at point x,y
 void QMachCursor::move(int x,int y)
 {
     x-=hotx;

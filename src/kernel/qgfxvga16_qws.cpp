@@ -1867,6 +1867,19 @@ bool QVga16Screen::connect( const QString &displaySpec )
 {
     BEGIN_PROFILING
     
+    fb_fix_screeninfo finfo;
+    QRegExp r( "/dev/fb[0-9]+" );
+    int len;
+    int m = r.match( displaySpec, 0, &len );
+
+    QString dev = (m>=0) ? displaySpec.mid( m, len ) : QString("/dev/fb0");
+
+    int fd = open( dev, O_RDWR );
+    int res = ioctl(fd, FBIOGET_FSCREENINFO, &finfo);
+    close( fd );
+    if ( res || finfo.type != FB_TYPE_VGA_PLANES )
+	return FALSE;
+	
     if ( !QLinuxFbScreen::connect( displaySpec ) )
 	return FALSE;
 

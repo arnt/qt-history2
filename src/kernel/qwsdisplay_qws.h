@@ -33,6 +33,7 @@
 #ifndef QWSDISPLAY_H
 #define QWSDISPLAY_H
 
+#include "qobject.h"
 #include "qregion.h"
 #include "qlock_qws.h"
 #include "qwindowdefs.h"
@@ -42,6 +43,7 @@
 // Class forward definitions
 class QWSRegionManager;
 class QWSEvent;
+class QWSQCopMessageEvent;
 class QGfx;
 
 class QWSWindowInfo
@@ -57,42 +59,6 @@ public:
 
 #define QT_QWS_PROPERTY_CONVERTSELECTION 999
 #define QT_QWS_PROPERTY_WINDOWNAME 998
-
-#ifndef QT_NO_COP
-
-class QWSClient;
-
-class QCopChannel
-{
-public:
-    QCopChannel( const QCString& channel );
-    virtual ~QCopChannel();
-
-    QCString channel() const;
-
-    static bool isRegistered( const QCString& channel );
-    static bool send( const QCString &channel, const QCString &msg );
-    static bool send( const QCString &channel, const QCString &msg,
-		      const QByteArray &data );
-
-    virtual void receive( const QCString &msg, const QByteArray &data ) = 0;
-private:
-    // server side
-    static void registerChannel( const QString &ch, const QWSClient *cl );
-    static void detach( const QWSClient *cl );
-    static void answer( QWSClient *cl, const QCString &ch,
-			const QCString &msg, const QByteArray &data );
-    // client side
-    static void processEvent(  const QCString &ch, const QCString &msg,
-			       const QByteArray &data );
-    class Private;
-    Private* d;
-
-    friend class QWSServer;
-    friend class QApplication;
-};
-
-#endif
 
 class QWSDisplay
 {
@@ -136,6 +102,12 @@ public:
     void selectCursor( QWidget *w, unsigned int id );
     void grabMouse( QWidget *w, bool grab );
     void playSoundFile( const QString& );
+    void registerChannel( const QCString& channel );
+    void sendMessage(const QCString &channel, const QCString &msg,
+                       const QByteArray &data );
+
+    QWSQCopMessageEvent* waitForQCopResponse();
+
     void setCaption( QWidget *w, const QString & );
 
     // Lock display for access only by this process

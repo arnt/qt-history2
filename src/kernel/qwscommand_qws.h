@@ -37,7 +37,7 @@
 #include "qwsutils_qws.h"
 #endif // QT_H
 
-#define QTE_PIPE "/tmp/.QtEmbedded-%1"
+#define QTE_PIPE "QtEmbedded-%1"
 
 /*********************************************************************
  *

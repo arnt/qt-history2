@@ -281,6 +281,7 @@ bool	  QApplication::fade_menu	= FALSE;
 bool	  QApplication::animate_combo	= FALSE;
 bool	  QApplication::animate_tooltip	= FALSE;
 bool	  QApplication::fade_tooltip	= FALSE;
+QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
 
@@ -573,6 +574,7 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 
 void QApplication::construct( int &argc, char **argv, Type type )
 {
+    qt_appType = type;
     qt_is_gui_used = (type != Tty);
     init_precmdline();
     static const char *empty = "";
@@ -590,6 +592,11 @@ void QApplication::construct( int &argc, char **argv, Type type )
     initialize( argc, argv );
     if ( qt_is_gui_used )
 	qt_maxWindowRect = desktop()->rect();
+}
+
+QApplication::Type QApplication::type() const
+{
+    return qt_appType;
 }
 
 
@@ -3299,7 +3306,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
   Stubbed session management support
  *****************************************************************************/
 
-#if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC )
+#if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
 class QSessionManager::Data
 {

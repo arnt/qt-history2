@@ -65,6 +65,7 @@
 #include "qwsproperty_qws.h"
 #include "qgfx_qws.h"
 #include "qfontmanager_qws.h"
+#include "qcopchannel_qws.h"
 #include "qlock_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsmanager_qws.h"
@@ -73,6 +74,7 @@
 #include "qwsdisplay_qws.h"
 #include "qnetwork.h"
 #include "qcursor.h"
+#include "qinterlacestyle.h"
 #include "qregexp.h"
 
 #include <sys/stat.h>
@@ -132,11 +134,11 @@ static bool servermaxrect=FALSE; // set to TRUE once.
 
 QLock *QWSDisplay::lock = 0;
 
+extern QApplication::Type qt_appType;
 
 //these used to be environment variables, they are initialized from
 //environment variables in
 
-bool qws_smoothfonts = TRUE;
 bool qws_savefonts = FALSE;
 bool qws_screen_is_interlaced=FALSE; //### should be detected
 bool qws_shared_memory = FALSE;
@@ -174,6 +176,51 @@ extern "C" void dumpmem(const char* m)
 */
 #endif
 
+// Get the name of the directory where Qt/Embedded temporary data should
+// live.
+QString qws_dataDir()
+{
+    QString username = "unknown";
+    const char *logname = getenv("LOGNAME");
+    if ( logname )
+	username = logname;
+
+    QString dataDir = "/tmp/qtembedded-" + username;
+    if ( mkdir( dataDir.latin1(), 0700 ) ) {
+	if ( errno != EEXIST ) {
+	    qFatal( QString("Cannot create Qt/Embedded data directory: %1")
+		    .arg( dataDir ) );
+	}
+    }
+
+    struct stat buf;
+    if ( lstat( dataDir.latin1(), &buf ) )
+	qFatal( QString( "stat failed for Qt/Embedded data directory: %1" )
+		.arg( dataDir ) );
+
+    if ( !S_ISDIR( buf.st_mode ) )
+	qFatal( QString( "%1 is not a directory" ).arg( dataDir ) );
+
+    if ( buf.st_uid != getuid() )
+	qFatal( QString( "Qt/Embedded data directory is not owned by user %1" )
+		.arg( getuid() ) );
+
+    if ( (buf.st_mode & 0677) != 0600 )
+	qFatal( QString( "Qt/Embedded data directory has incorrect permissions: %1" )
+		.arg( dataDir ) );
+
+    dataDir += "/";
+
+    return dataDir;
+}
+
+// Get the filename of the pipe Qt/Embedded uses for server/client comms
+QString qws_qtePipeFilename()
+{
+    return (qws_dataDir() + QString(QTE_PIPE).arg(qws_display_id));
+}
+
+
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -206,6 +253,7 @@ static QWidget     *popupButtonFocus = 0;
 static QWidget     *popupOfPopupButtonFocus = 0;
 static bool	    popupCloseDownMode = FALSE;
 static bool	    popupGrabOk;
+static QGuardedPtr<QWidget> *mouseInWidget = 0;
 
 static bool sm_blockUserInput = FALSE;		// session management
 
@@ -217,10 +265,46 @@ typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
+void qt_install_preselect_handler( VFPTR );
+void qt_remove_preselect_handler( VFPTR );
+static QVFuncList *qt_preselect_handler = 0;
+void qt_install_postselect_handler( VFPTR );
+void qt_remove_postselect_handler( VFPTR );
+static QVFuncList *qt_postselect_handler = 0;
+void qt_install_preselect_handler( VFPTR handler )
+{
+    if ( !qt_preselect_handler )
+	qt_preselect_handler = new QVFuncList;
+    qt_preselect_handler->append( handler );
+}
+void qt_remove_preselect_handler( VFPTR handler )
+{
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator it = qt_preselect_handler->find( handler );
+	if ( it != qt_preselect_handler->end() )
+		qt_preselect_handler->remove( it );
+    }
+}
+void qt_install_postselect_handler( VFPTR handler )
+{
+    if ( !qt_postselect_handler )
+	qt_postselect_handler = new QVFuncList;
+    qt_postselect_handler->prepend( handler );
+}
+void qt_remove_postselect_handler( VFPTR handler )
+{
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator it = qt_postselect_handler->find( handler );
+	if ( it != qt_postselect_handler->end() )
+		qt_postselect_handler->remove( it );
+    }
+}
+
 static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
-timeval        *qt_wait_timer();
+timeval		*qt_wait_timer();
+timeval 	*qt_wait_timer_max = 0;
 int	        qt_activate_timers();
 
 QObject	       *qt_clipboard = 0;
@@ -246,17 +330,16 @@ public:
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
     void repaintHierarchy(QRegion r);
     void repaintDecoration(QRegion r);
+
+    bool raiseOnClick()
+    {
+	// With limited windowmanagement/taskbar/etc., raising big windows
+	// (eg. spreadsheet) over the top of everything else (eg. calculator)
+	// is just annoying.
+	return !isMaximized() && !topData()->fullscreen;
+    }
 };
 
-
-#ifndef QT_NO_COP
-// QCOP stuff. This should maybe move into qwindowsystem_qws.cpp
-typedef QMap<QString, QList<QWSClient> > QCopServerMap;
-static QCopServerMap *qcopServerMap = 0;
-
-typedef QMap<QString, QList<QCopChannel> > QCopClientMap;
-static QCopClientMap *qcopClientMap = 0;
-#endif
 
 // Single-process stuff. This should maybe move into qwindowsystem_qws.cpp
 
@@ -307,7 +390,18 @@ public:
 	if ( !csocket && ramid != -1 ) {
 	    shmctl( ramid, IPC_RMID, 0 );
 	}
-	delete csocket;
+	if ( csocket ) {
+	    csocket->flush(); // may be pending QCop message, eg.
+	    delete csocket;
+	}
+#endif
+    }
+
+    void flush()
+    {
+#ifndef QT_NO_QWS_MULTIPROCESS
+	if ( csocket )
+	    csocket->flush();
 #endif
     }
 
@@ -431,8 +525,7 @@ void QWSDisplay::Data::init()
     mouse_event_count = 0;
     ramid = -1;
 
-    QString pipe = QString(QTE_PIPE).arg(qws_display_id); //########
-
+    QString pipe = qws_qtePipeFilename();
 
 #ifndef QT_NO_QWS_MULTIPROCESS
     key_t memkey =  ftok( pipe.latin1(), 'm' );
@@ -753,6 +846,9 @@ QWSRegionManager *QWSDisplay::regionManager() const
 
 bool QWSDisplay::eventPending() const
 {
+#ifndef QT_NO_QWS_MULTIPROCESS
+    d->flush();
+#endif
     d->fillQueue();
     return d->queueNotEmpty();
 }
@@ -872,7 +968,6 @@ void QWSDisplay::requestRegion(int winId, QRegion r)
 	QWSServer::request_region( winId, r );
     } else {
 	//by sending the event, I promise not to paint outside the region
-	QETWidget *widget = (QETWidget*)QWidget::find( (WId)winId );
 
 	QArray<QRect> ra = r.rects();
 
@@ -999,6 +1094,35 @@ void QWSDisplay::playSoundFile(const QString& f)
     d->sendCommand( cmd );
 }
 #endif
+
+#ifndef QT_NO_COP
+void QWSDisplay::registerChannel( const QCString& channel )
+{
+    QWSQCopRegisterChannelCommand reg;
+    reg.setChannel( channel );
+    qt_fbdpy->d->sendCommand( reg );
+}
+
+void QWSDisplay::sendMessage(const QCString &channel, const QCString &msg,
+		   const QByteArray &data )
+{
+    QWSQCopSendCommand com;
+    com.setMessage( channel, msg, data );
+    qt_fbdpy->d->sendCommand( com );
+}
+
+/*
+  caller deletes result
+*/
+QWSQCopMessageEvent* QWSDisplay::waitForQCopResponse()
+{
+    qt_fbdpy->d->waitForQCopResponse();
+    QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
+    ASSERT( e->type == QWSEvent::QCopMessage );
+    return e;
+}
+#endif
+
 
 void QWSDisplay::setCaption( QWidget *w, const QString & )
 {
@@ -1169,8 +1293,8 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 {
     if ( type == QApplication::GuiServer )
 	qt_is_gui_used = FALSE; //we'll turn it on in a second
-    qws_smoothfonts = getenv("QWS_NO_SMOOTH_FONTS") == 0;
     qws_sw_cursor = getenv("QWS_SW_CURSOR") != 0;
+    qws_screen_is_interlaced = getenv("QWS_INTERLACE") != 0;
 
     const char *display = getenv("QWS_DISPLAY");
     if ( display )
@@ -1183,9 +1307,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     char *p;
     int argc = *argcptr;
     int j;
-
-    if ( getenv("QWS_NOACCEL") )
-	flags |= QWSServer::DisableAccel;
 
     // Set application name
 
@@ -1226,14 +1347,6 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 	    qws_shared_memory = TRUE;
 	} else if ( arg == "-noshared" ) {
 	    qws_shared_memory = FALSE;
-	} else if ( arg == "-accel" ) {
-	    flags &= ~QWSServer::DisableAccel;
-	} else if ( arg == "-noaccel" ) {
-	    flags |= QWSServer::DisableAccel;
-	} else if ( arg == "-smoothfonts" ) {
-	    qws_smoothfonts = TRUE;
-	} else if ( arg == "-nosmoothfonts" ) {
-	    qws_smoothfonts = FALSE;
 	} else if ( arg == "-savefonts" ) {
 	    qws_savefonts = TRUE;
 	} else if ( arg == "-nosavefonts" ) {
@@ -1265,6 +1378,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     *argcptr = j;
 
     gettimeofday( &watchtime, 0 );
+    mouseInWidget = new QGuardedPtr<QWidget>;
 
     QRegExp r( ":[0-9]" );  // only supports 10 displays
     int len;
@@ -1275,14 +1389,21 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     }
 
     if ( type == QApplication::GuiServer ) {
+	qt_appType = type;
 	qws_single_process = TRUE;
-	QWSServer::startup(qws_display_id, flags);
+	QWSServer::startup(flags);
 	setenv( "QWS_DISPLAY", qws_display_spec, 0 );
     }
 
     if( qt_is_gui_used )
 	init_display();
 
+#ifndef QT_NO_STYLE_INTERLACE
+    if ( qws_screen_is_interlaced )
+	QApplication::setStyle( new QInterlaceStyle );
+#endif    
+    
+    
 #ifndef QT_NO_NETWORKPROTOCOL
     qInitNetworkProtocols();
 #endif
@@ -1320,7 +1441,7 @@ void qt_cleanup()
     QFontManager::cleanup();
 
     if ( qws_single_process ) {
-	QWSServer::closedown(qws_display_id);
+	QWSServer::closedown();
     }
     if ( qt_is_gui_used ) {
 	delete qt_fbdpy;
@@ -1329,6 +1450,8 @@ void qt_cleanup()
 
     delete activeBeforePopup;
     activeBeforePopup = 0;
+    delete mouseInWidget;
+    mouseInWidget = 0;
 }
 
 
@@ -1988,6 +2111,12 @@ bool QApplication::processNextEvent( bool canWait )
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
 
+    if ( qt_preselect_handler ) {
+	QVFuncList::Iterator end = qt_preselect_handler->end();
+	for ( QVFuncList::Iterator it = qt_preselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
+
 #if defined(Q_OS_WIN32)
 #define FDCAST (fd_set*)
 #else
@@ -1998,7 +2127,7 @@ bool QApplication::processNextEvent( bool canWait )
     qApp->unlock(FALSE);
 #endif
 
-    nsel = select( highest+1,
+    nsel = select( highest + 1,
 		   FDCAST (&app_readfds),
 		   FDCAST (sn_write  ? &app_writefds  : 0),
 		   FDCAST (sn_except ? &app_exceptfds : 0),
@@ -2010,11 +2139,17 @@ bool QApplication::processNextEvent( bool canWait )
 #endif
 
 #if defined(Q_OS_UNIX)&& defined(QT_THREAD_SUPPORT)
-    if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
+    if ( nsel > 0 && FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
-	::read(qt_thread_pipe[0],&c,1);
+	::read(qt_thread_pipe[0], &c, 1);
     }
 #endif
+
+    if ( qt_postselect_handler ) {
+	QVFuncList::Iterator end = qt_postselect_handler->end();
+	for ( QVFuncList::Iterator it = qt_postselect_handler->begin(); it != end; ++it )
+	    (**it)();
+    }
 
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
@@ -2118,7 +2253,8 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		     ( !app_do_modal || QApplication::activeModalWidget() == widget ) &&
 		     !widget->testWFlags(WStyle_NoBorder|WStyle_Tool) ) {
 		    widget->setActiveWindow();
-		    widget->raise();
+		    if ( widget->raiseOnClick() )
+			widget->raise();
 		}
 	    } else if ( !event->asMouse()->simpleData.state && btnstate ) {
 		btnstate = 0;
@@ -2165,6 +2301,11 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		} while ( (popup = qApp->activePopupWidget()) );
 		return 1;
 	    }
+	}
+	if ( *mouseInWidget ) {
+	    QEvent leave( QEvent::Leave );
+	    QApplication::sendEvent( *mouseInWidget, &leave );
+	    (*mouseInWidget) = 0;
 	}
 	return -1;
     }
@@ -2447,11 +2588,13 @@ void QApplication::openPopup( QWidget *popup )
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
+    QFocusEvent::setReason( QFocusEvent::Popup );
     active_window = popup;
     if (active_window->focusWidget())
 	active_window->focusWidget()->setFocus();
     else
 	active_window->setFocus();
+    QFocusEvent::resetReason();
 }
 
 void QApplication::closePopup( QWidget *popup )
@@ -2476,22 +2619,27 @@ void QApplication::closePopup( QWidget *popup )
 	active_window = (*activeBeforePopup);
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
-	if ( active_window )
+	if ( active_window ) {
+	    QFocusEvent::setReason( QFocusEvent::Popup );
 	    if (active_window->focusWidget())
 		active_window->focusWidget()->setFocus();
 	    else
 		active_window->setFocus();
+	    QFocusEvent::resetReason();
+	}
     }
      else {
 	// popups are not focus-handled by the window system (the
 	// first popup grabbed the keyboard), so we have to do that
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
+	 QFocusEvent::setReason( QFocusEvent::Popup );
 	 active_window = popupWidgets->getLast();
 	 if (active_window->focusWidget())
 	     active_window->focusWidget()->setFocus();
 	 else
 	     active_window->setFocus();
+	 QFocusEvent::resetReason();
      }
 }
 
@@ -2622,9 +2770,13 @@ static void repairTimer( const timeval &time )	// repair broken timer
 // Timer activation functions (called from the event loop)
 //
 
+bool qt_disable_lowpriority_timers=FALSE;
+
 /*
   Returns the time to wait for the next timer, or null if no timers are
   waiting.
+
+  The result is bounded to qt_wait_timer_max if this exists.
 */
 
 timeval *qt_wait_timer()
@@ -2632,7 +2784,9 @@ timeval *qt_wait_timer()
     static timeval tm;
     bool first = TRUE;
     timeval currentTime;
-    if ( timerList && timerList->count() ) {	// there are waiting timers
+    if ( !qt_disable_lowpriority_timers && timerList && timerList->count() )
+	// there are waiting timers
+    {
 	getTime( currentTime );
 	if ( first ) {
 	    if ( currentTime < watchtime )	// clock was turned back
@@ -2647,6 +2801,12 @@ timeval *qt_wait_timer()
 	    tm.tv_sec  = 0;			// no time to wait
 	    tm.tv_usec = 0;
 	}
+	if ( qt_wait_timer_max && *qt_wait_timer_max < tm )
+	    tm = *qt_wait_timer_max;
+	return &tm;
+    }
+    if ( qt_wait_timer_max ) {
+	tm = *qt_wait_timer_max;
 	return &tm;
     }
     return 0;					// no timers
@@ -2883,7 +3043,9 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 			while ( w->focusProxy() )
 			    w = w->focusProxy();
 			if ( w->focusPolicy() & QWidget::ClickFocus ) {
+			    QFocusEvent::setReason( QFocusEvent::Mouse);
 			    w->setFocus();
+			    QFocusEvent::resetReason();
 			}
 		    }
 		    if ( mouse.state&button ) { //button press
@@ -3032,12 +3194,26 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	    if (widget->isTopLevel() && widget->topData()->qwsManager
 		&& (widget->topData()->qwsManager->region().contains(globalPos)
 		    || (QWSManager::grabbedMouse() && QWidget::mouseGrabber())) ) {
+		if ( (*mouseInWidget) ) {
+		    QEvent leave( QEvent::Leave );
+		    QApplication::sendEvent( *mouseInWidget, &leave );
+		    (*mouseInWidget) = 0;
+		}
 		QApplication::sendEvent( widget->topData()->qwsManager, &e );
 	    } else
 #endif
-		{
-		    QApplication::sendEvent( widget, &e );
+	    {
+		if ( widget != (*mouseInWidget) ) {
+		    if ( *mouseInWidget ) {
+			QEvent leave( QEvent::Leave );
+			QApplication::sendEvent( *mouseInWidget, &leave );
+		    }
+		    QEvent enter( QEvent::Enter );
+		    QApplication::sendEvent( widget, &enter );
+		    (*mouseInWidget) = widget;
 		}
+		QApplication::sendEvent( widget, &e );
+	    }
 	}
 	// }
     mouseButtonState = state;
@@ -3159,7 +3335,7 @@ bool QETWidget::translateRegionModifiedEvent( const QWSRegionModifiedEvent *even
 	alloc_region_index = rgnMan->find( winId() );
 
 	if ( alloc_region_index < 0 ) {
-	    qFatal( "Cannot find region for window %d", winId() );
+	    qFatal( "Cannot find region for window %ld", winId() );
 	}
     }
 #ifndef QT_NO_QWS_MANAGER
@@ -3248,104 +3424,6 @@ int QApplication::doubleClickInterval()
 }
 
 
-
-/*****************************************************************************
-  Session management support
- *****************************************************************************/
-#ifndef QT_NO_SESSIONMANAGER
-
-class QSessionManager::Data
-{
-public:
-    QStringList restartCommand;
-    QStringList discardCommand;
-    QString sessionId;
-    QSessionManager::RestartHint restartHint;
-};
-
-QSessionManager::QSessionManager( QApplication * app, QString &session )
-    : QObject( app, "session manager" )
-{
-    d = new Data;
-    d->sessionId = session;
-    d->restartHint = RestartIfRunning;
-}
-
-QSessionManager::~QSessionManager()
-{
-    delete d;
-}
-
-QString QSessionManager::sessionId() const
-{
-    return d->sessionId;
-}
-
-bool QSessionManager::allowsInteraction()
-{
-    return TRUE;
-}
-
-bool QSessionManager::allowsErrorInteraction()
-{
-    return TRUE;
-}
-
-void QSessionManager::release()
-{
-}
-
-void QSessionManager::cancel()
-{
-}
-
-void QSessionManager::setRestartHint( QSessionManager::RestartHint hint)
-{
-    d->restartHint = hint;
-}
-
-QSessionManager::RestartHint QSessionManager::restartHint() const
-{
-    return d->restartHint;
-}
-
-void QSessionManager::setRestartCommand( const QStringList& command)
-{
-    d->restartCommand = command;
-}
-
-QStringList QSessionManager::restartCommand() const
-{
-    return d->restartCommand;
-}
-
-void QSessionManager::setDiscardCommand( const QStringList& command)
-{
-    d->discardCommand = command;
-}
-
-QStringList QSessionManager::discardCommand() const
-{
-    return d->discardCommand;
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QString&)
-{
-}
-
-void QSessionManager::setManagerProperty( const QString&, const QStringList& )
-{
-}
-
-bool QSessionManager::isPhase2() const
-{
-    return FALSE;
-}
-
-void QSessionManager::requestPhase2()
-{
-}
-#endif //QT_NO_SESSIONMANAGER
 // Need to add some sort of implementation here?
 
 void QApplication::setWheelScrollLines(int)
@@ -3417,268 +3495,3 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     }
 }
 
-#ifndef QT_NO_COP
-
-class QCopChannel::Private
-{
-public:
-    QCString channel;
-};
-
-/*! \class QCopChannel qwsdisplay_qws.h
-
-  \brief This class provides communication capabilities between several
-  clients.
-
-  The Qt Cop (QCOP) is a COmmunication Protocol, allowing clients to
-  communicate inside of the same address space or between different processes.
-
-  Currently, this facility is only available on Qt/Embedded as on X11
-  and Windows we are exploring the use of existing standard such as
-  DCOP and COM.
-
-  QCopChannel is an abstract base class. Important functions like send()
-  and isRegistered() are static and therefore usable without an object.
-  In order to \e listen to the traffic on channel you have to subclass
-  from QCopChannel and provide an implementation for receive().
- */
-
-/*!
-  Constructs a QCop channel and registers it with the server under the name
-  \a channel.
- */
-
-QCopChannel::QCopChannel( const QCString& channel )
-{
-    d = new Private;
-    d->channel = channel;
-
-    if ( !qt_fbdpy ) {
-	qFatal( "QCopChannel: Must construct a QApplication "
-		"before QCopChannel" );
-	return;
-    }
-
-    if ( !qcopClientMap )
-	qcopClientMap = new QCopClientMap;
-
-    // do we need a new channel list ?
-    QCopClientMap::Iterator it = qcopClientMap->find( channel );
-    if ( it != qcopClientMap->end() ) {
-	it.data().append( this );
-	return;
-    }
-
-    it = qcopClientMap->insert( channel, QList<QCopChannel>() );
-    it.data().append( this );
-
-    // inform server about this channel
-    QWSQCopRegisterChannelCommand reg;
-    reg.setChannel( channel );
-    // ### ugly
-    qt_fbdpy->d->sendCommand( reg );
-}
-
-/*!
-  Destructs the client's side end of the channel and notifies the server
-  about the closing. The server itself keeps the channel open until the
-  last registered client detaches.
-*/
-
-QCopChannel::~QCopChannel()
-{
-    QCopClientMap::Iterator it = qcopClientMap->find( d->channel );
-    Q_ASSERT( it != qcopClientMap->end() );
-    it.data().removeRef( this );
-    // still any clients connected locally ?
-    if ( it.data().isEmpty() ) {
-	QByteArray data;
-	QDataStream s( data, IO_WriteOnly );
-	s << d->channel;
-	send( "", "detach()", data );
-	qcopClientMap->remove( d->channel );
-    }
-
-    delete d;
-}
-
-/*!
-  Returns the name of the channel.
- */
-
-QCString QCopChannel::channel() const
-{
-    return d->channel;
-}
-
-/*!
-  \fn void QCopChannel::receive( const QCString &msg, const QByteArray &data )
-  This abstract virtual function allows subclasses of QCopChannel to
-  process data received from their channel.
-  Note that the format of \a data has to be well defined in order to
-  demarshall the contained information.
-  \sa send()
- */
-
-/*!
-  Queries the server for the existance of \a channel.
-
-  Returns TRUE if \a channel is registered.
- */
-
-bool QCopChannel::isRegistered( const QCString& channel )
-{
-    QByteArray data;
-    QDataStream s( data, IO_WriteOnly );
-    s << channel;
-    if ( !send( "", "isRegistered()", data ) )
-	return FALSE;
-
-    // ### ugly
-    qt_fbdpy->d->waitForQCopResponse();
-    QWSQCopMessageEvent *e = (QWSQCopMessageEvent*)qt_fbdpy->d->dequeue();
-    Q_ASSERT( e->type == QWSEvent::QCopMessage );
-    Q_ASSERT( e->channel == "" );
-
-    return e->message == "known";
-}
-
-/*!
-  Send the message \a msg on \a channel. The message will be distributed
-  to all clients subscribed to the channel.
-
-  \sa receive()
- */
-
-bool QCopChannel::send(const QCString &channel, const QCString &msg )
-{
-    QByteArray data;
-    return send( channel, msg, data );
-}
-
-/*!
-  Same as above function except the additional \a data parameter.
-  QDataStream provides a convenient way to fill the byte array with
-  auxiliary data.
- */
-
-bool QCopChannel::send(const QCString &channel, const QCString &msg,
-		       const QByteArray &data )
-{
-    if ( !qt_fbdpy ) {
-	qFatal( "QCopChannel::send: Must construct a QApplication "
-		"before using QCopChannel" );
-	return FALSE;
-    }
-
-    QWSQCopSendCommand com;
-    com.setMessage( channel, msg, data );
-    qt_fbdpy->d->sendCommand( com );
-
-    return TRUE;
-}
-
-/*!
-  \internal
-  Server side: subscribe client \a cl on channel \a ch.
- */
-
-void QCopChannel::registerChannel( const QString &ch, const QWSClient *cl )
-{
-    if ( !qcopServerMap )
-	qcopServerMap = new QCopServerMap;
-
-    // do we need a new channel list ?
-    QCopServerMap::Iterator it = qcopServerMap->find( ch );
-    if ( it == qcopServerMap->end() )
-	it = qcopServerMap->insert( ch, QList<QWSClient>() );
-
-    it.data().append( cl );
-}
-
-/*!
-  \internal
-  Server side: unsubscribe \a cl from all channels.
- */
-
-void QCopChannel::detach( const QWSClient *cl )
-{
-    if ( !qcopServerMap )
-	return;
-
-    QCopServerMap::Iterator it = qcopServerMap->begin();
-    for ( ; it != qcopServerMap->end(); it++ )
-	it.data().removeRef( cl );
-}
-
-/*!
-  \internal
-  Server side: transmit the message to all clients registered to the
-  specified channel.
- */
-
-void QCopChannel::answer( QWSClient *cl, const QCString &ch,
-			  const QCString &msg, const QByteArray &data )
-{
-    // internal commands
-    if ( ch.isEmpty() ) {
-	if ( msg == "isRegistered()" ) {
-	    QCString c;
-	    QDataStream s( data, IO_ReadOnly );
-	    s >> c;
-	    bool known = qcopServerMap && qcopServerMap->contains( c );
-	    QCString ans = known ? "known" : "unkown";
-	    QWSServer::sendQCopEvent( cl, "", ans, data, TRUE );
-	    return;
-	} else if ( msg == "detach()" ) {
-	    QCString c;
-	    QDataStream s( data, IO_ReadOnly );
-	    s >> c;
-	    ASSERT( qcopServerMap );
-	    QCopServerMap::Iterator it = qcopServerMap->find( c );
-	    if ( it != qcopServerMap->end() ) {
-		Q_ASSERT( it.data().contains( cl ) );
-		it.data().remove( cl );
-		if ( it.data().isEmpty() )
-		    qcopServerMap->remove( it );
-	    }
-	    return;
-	}
-	qWarning( "QCopChannel: unknown internal command %s", msg.data() );
-	QWSServer::sendQCopEvent( cl, "", "bad", data );
-	return;
-    }
-
-    QList<QWSClient> clist = (*qcopServerMap)[ ch ];
-    if ( clist.isEmpty() ) {
-	qWarning( "QCopChannel: no client registered for requested channel" );
-	return;
-    }
-
-    QWSClient *c = clist.first();
-    for (; c != 0; c = clist.next() ) {
-	QWSServer::sendQCopEvent( c, ch, msg, data );
-    }
-}
-
-/*!
-  \internal
-  Client side: distribute received event to the QCop instance managing the
-  channel.
- */
-void QCopChannel::processEvent( const QCString &ch, const QCString &msg,
-				const QByteArray &data )
-{
-    Q_ASSERT( qcopClientMap );
-
-    // filter out internal events
-    if ( ch.isEmpty() )
-	return;
-
-    // feed local clients with received data
-    QList<QCopChannel> clients = (*qcopClientMap)[ ch ];
-    for ( QCopChannel *p = clients.first(); p != 0; p = clients.next() )
-	p->receive( msg, data );
-}
-
-#endif

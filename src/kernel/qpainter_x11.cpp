@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#316 $
+** $Id: qpainter_x11.cpp,v 1.24 2001/01/19 12:57:47 mueller Exp $
 **
 ** Implementation of QPainter class for X11
 **
@@ -492,7 +492,6 @@ static inline void release_gc( void *ref )
     ((QGCC*)ref)->count--;
 }
 
-
 /*****************************************************************************
   QPainter member functions
  *****************************************************************************/
@@ -963,12 +962,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 
     QPixmap::x11SetDefaultScreen( pd->x11Screen() );
 
-    QWidget *copyFrom = 0;
+    const QWidget *copyFrom = 0;
     if ( pdev_dict ) {				// redirected paint device?
 	pdev = pdev_dict->find( (long)pd );
 	if ( pdev ) {
 	    if ( pd->devType() == QInternal::Widget )
-		copyFrom = (QWidget *)pd;	// copy widget settings
+		copyFrom = (const QWidget *)pd;	// copy widget settings
 	} else {
 	    pdev = (QPaintDevice *)pd;
 	}

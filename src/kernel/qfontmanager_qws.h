@@ -124,8 +124,6 @@ public:
     int minRightBearing();
     int maxWidth();
 
-    void save(const QString& filename);
-
     virtual bool inFont(QChar ch) const=0;
     virtual QGlyph render(QChar)=0;
 
@@ -147,6 +145,10 @@ public:
 	loaded=false;
 	p=0;
     }
+
+    QRenderedFont* load(const QFontDef &);
+
+    QFontDef fontDef() const;
 
     QFontFactory *factory;
     QString name;
@@ -173,11 +175,12 @@ public:
 
     // Font definition, type and color
 
-    QRenderedFont * get(const QFontDef &);
+    QDiskFont * get(const QFontDef &);
+
+    static int cmpFontDef(const QFontDef & goal, const QFontDef & choice);
 
     static void initialize();
     static void cleanup();
-
 };
 
 class QFontFactory {

@@ -51,8 +51,9 @@ public:
     virtual void setMode(int,int,int);
     virtual void save();
     virtual void restore();
+    virtual void blank(bool on);
     virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
-    virtual uchar * cache(int);
+    virtual uchar * cache(int,int);
     virtual void uncache(uchar *);
 
 protected:

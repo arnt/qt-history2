@@ -204,7 +204,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->rw = qt_screen->mapToDevice( QSize(w,h) ).width();
     data->rh = qt_screen->mapToDevice( QSize(w,h) ).height();
 
-    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d);
+    data->id=memorymanager->newPixmap(data->rw, data->rh, data->d, optim);
 }
 
 
@@ -254,7 +254,7 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
 	return;
     }
 
-    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d);
+    data->id=memorymanager->newPixmap(data->rw,data->rh,data->d, optimization());
     uchar *dest;
     int xoffset,linestep;
     memorymanager->findPixmap(data->id,data->rw,data->d,&dest,&xoffset,&linestep);
@@ -547,7 +547,10 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
 
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
-	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F ) {
+	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
+	 depth() == defaultDepth() // ### stretchBlt limitation
+	)
+    {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
 	    return *this;			// identity matrix
 

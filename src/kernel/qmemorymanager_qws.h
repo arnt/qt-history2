@@ -56,7 +56,7 @@ public:
 
     // Pixmaps
     typedef int PixmapID;
-    PixmapID newPixmap(int w, int h, int d);
+    PixmapID newPixmap(int w, int h, int d, int optim );
     void deletePixmap(PixmapID);
     bool inVRAM(PixmapID) const;
     void findPixmap(PixmapID,
@@ -65,7 +65,8 @@ public:
 
     // Fonts
     typedef void* FontID;
-    FontID findFont(const QFontDef&);
+    FontID refFont(const QFontDef&);
+    void derefFont(FontID);
     QRenderedFont* fontRenderer(FontID); // XXX JUST FOR METRICS
     bool inFont(FontID, const QChar&) const;
     QGlyph lockGlyph(FontID, const QChar&);

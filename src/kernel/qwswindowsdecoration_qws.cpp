@@ -103,6 +103,7 @@ static const char * const win_maximize_xpm[] = {
 "16 16 4 1",
 "       s None  c None",
 ".      c #000000",
+".      c #000000",
 "X      c #FFFFFF",
 "Y      c #707070",
 "XXXXXXXXXXXXXXXY",
@@ -363,7 +364,8 @@ void QWSWindowsDecoration::paintButton(QPainter *painter, const QWidget *w,
     const QPixmap *pm=pixmapFor(w,type,state & QWSButton::On, xoff, yoff);
     if ((state & QWSButton::MouseOver) && (state & QWSButton::Clicked))
 	xoff++, yoff++;
-    painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15, cg.brush(QColorGroup::Background));
+    if (type != Menu)
+	painter->fillRect(brect.x()+xoff+1, brect.y()+yoff, 16, 15, cg.brush(QColorGroup::Background));
     if (pm) painter->drawPixmap(brect.x()+xoff+1, brect.y()+yoff, *pm);
 #endif
 }
