@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#57 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#56 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#57 $";
 #endif
 
 
@@ -2018,8 +2018,8 @@ void QPainter::drawPixMap( int x, int y, const QPixMap &pixmap )
 	}
     }
     else
-	XCopyArea( dpy, pixmap.hd, hd, gc, 0, 0,
-		   pixmap.sz.width(), pixmap.sz.height(), x, y );
+	XCopyArea( dpy, pixmap.handle(), hd, gc, 0, 0,
+		   pixmap.width(), pixmap.height(), x, y );
 }
 
 
