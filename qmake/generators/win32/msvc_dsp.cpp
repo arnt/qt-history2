@@ -105,9 +105,14 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    beginGroupForFile((*it), t);
 		    t << "# Begin Source File\n\nSOURCE=" << (*it) << endl;
 		    if (usePCH) {
-			QString realPrecomph = fileFixify(precomph, QFileInfo((*it)).dirPath(TRUE), QDir::currentDirPath(), TRUE);
-			t << "# ADD CPP /Y" << (precompcpp == (*it)?'c':'u')
-			<< "\"" << realPrecomph << "\" /Fp" << pch << endl;
+			if (precompcpp == (*it)) {
+			    QString realPrecomph = fileFixify(precomph, QFileInfo((*it)).dirPath(TRUE), QDir::currentDirPath(), TRUE);
+			    t << "# ADD CPP /Yc\"" << realPrecomph << "\" /Fp" << pch << endl;
+			} else {
+			    QString namePCH = QFileInfo(precomph).fileName();
+			    t << "# ADD CPP /FI\"" << namePCH<< "\" /Yu\"" << namePCH
+			    << "\" /Fp" << pch << endl;
+			}
 		    }
 		    if(project->isActiveConfig("moc") && (*it).endsWith(Option::cpp_moc_ext)) {
 			QString base = (*it);
@@ -160,8 +165,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    if (project->isActiveConfig("moc") && !findMocDestination((*it)).isEmpty()) {
 			QString mocpath = var( "QMAKE_MOC" );
 			mocpath = mocpath.replace( QRegExp( "\\..*$" ), "" ) + " ";
-			if (usePCH)
-			    mocpath += " -pch " + precomph + " ";
 			buildCmds += "\t" + mocpath + (*it)  + " -o " + findMocDestination((*it)) + " \\\n";
 			createMOC  = "\"" + findMocDestination((*it)) +	"\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n   $(BuildCmds)\n\n";
 			t << "USERDEP_" << base << "=\"$(QTDIR)\\bin\\moc.exe\"" << endl << endl;
@@ -403,7 +406,6 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString build = "\n\n# Begin Custom Build - Uic'ing " + base + "...\n"
 			"InputPath=.\\" + base + "\n\n" "BuildCmds= \\\n\t" + uicpath + base +
 				    " -o " + uiHeadersDir + fname + ".h \\\n" "\t" + uicpath  + base +
-				    QString((usePCH? " -pch " + precomph: QString(""))) +
 				    " -i " + fname + ".h -o " + uiSourcesDir + fname + ".cpp \\\n"
 				    "\t" + mocpath + QString((usePCH?" -pch " + precomph: QString(""))) + " " + uiHeadersDir +
 				    fname + ".h -o " + mocFile + Option::h_moc_mod + fname + Option::h_moc_ext + " \\\n";
