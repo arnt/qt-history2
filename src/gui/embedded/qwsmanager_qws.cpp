@@ -147,6 +147,9 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 {
     d->mousePos = e->globalPos();
     d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
+    if(cached_region.regionType)
+        previousRegionRepainted |= repaintRegion(cached_region.regionType, QDecoration::Pressed);
+
     if (d->activeRegion == QDecoration::Menu)
         menu(d->managed->geometry().topLeft());
     if (d->activeRegion != QDecoration::None &&
@@ -168,6 +171,14 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 {
     d->managed->releaseMouse();
+    if (cached_region.regionType && previousRegionRepainted && QApplication::mouseButtons() == 0) {
+        bool doesHover = repaintRegion(cached_region.regionType, QDecoration::Hover);
+        if (!doesHover) {
+            repaintRegion(cached_region.regionType, QDecoration::Normal);
+            previousRegionRepainted = false;
+        }
+    }
+
     if (e->button() == Qt::LeftButton) {
         //handleMove();
         int itm = QApplication::qwsDecoration().regionAt(d->managed, e->globalPos());
@@ -225,7 +236,14 @@ static inline Qt::CursorShape regionToShape(int region)
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
-    newCachedRegion(e->globalPos());
+    if (newCachedRegion(e->globalPos())) {
+        if(previousRegionType && previousRegionRepainted)
+            repaintRegion(previousRegionType, QDecoration::Normal);
+        if(cached_region.regionType) {
+            previousRegionRepainted = repaintRegion(cached_region.regionType, QDecoration::Hover);
+        }
+    }
+
 
 #ifndef QT_NO_CURSOR
     QWSDisplay *qwsd = QApplication::desktop()->qwsDisplay();
@@ -333,8 +351,14 @@ void QWSManager::handleMove(QPoint g)
 
 void QWSManager::paintEvent(QPaintEvent *)
 {
+    repaintRegion(QDecoration::All, QDecoration::Normal);
+}
+
+bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
+{
+    bool result = false;
     if (!d->managed->isVisible())
-        return;
+        return result;
     QDecoration &dec = QApplication::qwsDecoration();
     if (d->managed->testWState(Qt::WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
@@ -365,8 +389,10 @@ void QWSManager::paintEvent(QPaintEvent *)
     pe->setWidgetDeviceRegion(r);
 
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
-    dec.paint(&painter, d->managed);
+    result = dec.paint(&painter, d->managed, decorationRegion, state);
+
     d->managed->clearWState(Qt::WState_InPaintEvent);
+    return result;
 }
 
 void QWSManager::menu(const QPoint &pos)
@@ -492,6 +518,7 @@ bool QWSManager::newCachedRegion(const QPoint &pos)
     if (QWidget::mouseGrabber())
         reg = QDecoration::None;
 
+    previousRegionType = cached_region.regionType;
     cached_region.regionType = reg;
     cached_region.region = QApplication::qwsDecoration().region(d->managed, d->managed->geometry(),
                                                                 reg);

@@ -30,7 +30,7 @@ QPixmap *QDecorationDefault::staticNormalizePixmap = 0;
 
 /* XPM */
 
-static int menu_width = 16;
+static int menu_width = 20;
 static const char * const default_menu_xpm[] = {
 /* width height ncolors chars_per_pixel */
 "16 16 11 1",
@@ -65,7 +65,7 @@ static const char * const default_menu_xpm[] = {
 "oooooooooooooooo"
 };
 
-static int help_width = 16;
+static int help_width = 20;
 static const char * const default_help_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -88,7 +88,7 @@ static const char * const default_help_xpm[] = {
 "                ",
 "                "};
 
-static int close_width = 16;
+static int close_width = 20;
 static const char * const default_close_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -111,7 +111,7 @@ static const char * const default_close_xpm[] = {
 "                ",
 "                "};
 
-static int maximize_width = 16;
+static int maximize_width = 20;
 static const char * const default_maximize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -134,7 +134,7 @@ static const char * const default_maximize_xpm[] = {
 "                ",
 "                "};
 
-static int minimize_width = 16;
+static int minimize_width = 20;
 static const char * const default_minimize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -157,7 +157,7 @@ static const char * const default_minimize_xpm[] = {
 "                ",
 "                "};
 
-static int normalize_width = 16;
+static int normalize_width = 20;
 static const char * const default_normalize_xpm[] = {
 "16 16 3 1",
 "       s None  c None",
@@ -236,7 +236,7 @@ const char **QDecorationDefault::normalizePixmap()
 #endif
 
 
-QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion, bool on,
+QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion,
                                       int &xoff, int &/*yoff*/)
 {
 #ifndef QT_NO_IMAGEIO_XPM
@@ -295,7 +295,7 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
             pm = staticClosePixmap;
             break;
         case Maximize:
-            if (on)
+            if (widget->testWState(Qt::WState_Maximized))
                 pm = staticNormalizePixmap;
             else
                 pm = staticMaximizePixmap;
@@ -347,8 +347,9 @@ QRegion QDecorationDefault::region(const QWidget *widget, const QRect &rect, int
             break;
 
         case Title: {
-                QRect r(rect.left() + titleHeight, rect.top() - titleHeight,
-                        rect.width() - 4*titleHeight, titleHeight);
+                QRect r(rect.left() + titleHeight, rect.top() - titleHeight, rect.width()
+                        - menu_width - close_width - maximize_width - minimize_width - help_width,
+                        titleHeight);
                 if (r.width() > 0)
                     region = r;
             }
@@ -512,7 +513,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
     bool paintAll = (decorationRegion == All);
     bool handled = false;
 
-    if (paintAll || decorationRegion & Borders) {
+    if ((paintAll || decorationRegion & Borders) && state == Normal) {
         painter->setClipRegion(oldClipRegion - titleRect); // reduce flicker
         QRect br = QDecoration::region(widget).boundingRect();
         qDrawWinPanel(painter, br.x(), br.y(), br.width(),
@@ -521,7 +522,7 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         handled |= true;
     }
 
-    if (paintAll || decorationRegion & Title && titleWidth > 0) {
+    if ((paintAll || decorationRegion & Title && titleWidth > 0) && state == Normal) {
         painter->setClipRegion(oldClipRegion);
         QBrush titleBrush;
         QPen   titlePen;
@@ -546,34 +547,32 @@ bool QDecorationDefault::paint(QPainter *painter, const QWidget *widget, int dec
         handled |= true;
     }
 
-    if (paintAll || decorationRegion & Menu) {
+    if (state != Hover) {
         painter->setClipRegion(oldClipRegion);
-        paintButton(painter, widget, Menu, state, pal);
-        handled |= true;
-    }
+        if (paintAll || decorationRegion & Menu) {
+            paintButton(painter, widget, Menu, state, pal);
+            handled |= true;
+        }
 
-    if (paintAll || decorationRegion & Help) {
-        painter->setClipRegion(oldClipRegion);
-        paintButton(painter, widget, Help, state, pal);
-        handled |= true;
-    }
+        if (paintAll || decorationRegion & Help) {
+            paintButton(painter, widget, Help, state, pal);
+            handled |= true;
+        }
 
-    if (paintAll || decorationRegion & Minimize) {
-        painter->setClipRegion(oldClipRegion);
-        paintButton(painter, widget, Minimize, state, pal);
-        handled |= true;
-    }
+        if (paintAll || decorationRegion & Minimize) {
+            paintButton(painter, widget, Minimize, state, pal);
+            handled |= true;
+        }
 
-    if (paintAll || decorationRegion & Maximize) {
-        painter->setClipRegion(oldClipRegion);
-        paintButton(painter, widget, Maximize, state, pal);
-        handled |= true;
-    }
+        if (paintAll || decorationRegion & Maximize) {
+            paintButton(painter, widget, Maximize, state, pal);
+            handled |= true;
+        }
 
-    if (paintAll || decorationRegion & Close) {
-        painter->setClipRegion(oldClipRegion);
-        paintButton(painter, widget, Close, state, pal);
-        handled |= true;
+        if (paintAll || decorationRegion & Close) {
+            paintButton(painter, widget, Close, state, pal);
+            handled |= true;
+        }
     }
     return handled;
 }
@@ -584,10 +583,10 @@ void QDecorationDefault::paintButton(QPainter *painter, const QWidget *widget,
     int xoff = 2;
     int yoff = 2;
 
-    const QPixmap pm = pixmapFor(widget, buttonRegion, state, xoff, yoff);
+    const QPixmap pm = pixmapFor(widget, buttonRegion, xoff, yoff);
     QRect brect(QDecoration::region(widget, buttonRegion).boundingRect());
 
-    if ((state & QDecoration::Hover) && (state & QDecoration::Pressed)) {
+    if (state & QDecoration::Pressed) {
         qDrawWinPanel(painter, brect.x(), brect.y(), brect.width()-1, brect.height()-1,
                     pal, true, &pal.brush(QPalette::Background));
         ++xoff;

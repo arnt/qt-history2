@@ -61,6 +61,7 @@ protected:
     virtual void mouseReleaseEvent(QMouseEvent *);
     virtual void mouseDoubleClickEvent(QMouseEvent *) {}
     virtual void paintEvent(QPaintEvent *);
+    bool repaintRegion(int region, QDecoration::DecorationState state);
 
     void menu(const QPoint &);
     void close();
@@ -69,6 +70,8 @@ protected:
 
 
 private:
+    int previousRegionType;
+    bool previousRegionRepainted; // Handled Hover or Pressed?
     struct RegionCaching {
         int regionType;
         QRegion region;

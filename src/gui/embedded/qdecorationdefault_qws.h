@@ -37,8 +37,7 @@ public:
 protected:
     virtual void paintButton(QPainter *painter, const QWidget *widget, int buttonRegion,
                              DecorationState state, const QPalette &pal);
-    virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, bool on, int &xoff,
-                              int &yoff);
+    virtual QPixmap pixmapFor(const QWidget *widget, int decorationRegion, int &xoff, int &yoff);
 
     /* Added these virtual functions to enable other styles to be added more easily */
     virtual int getTitleWidth(const QWidget *widget);
