@@ -292,14 +292,14 @@ bool SourceEditor::saveAs()
 
 SourceFile *SourceEditor::sourceFile() const
 {
-    if ( !qt_cast<SourceFile*>(obj) )
+    if ( !qt_cast<SourceFile*>((QObject *)obj) )
 	return 0;
     return (SourceFile*)(QObject*)obj;
 }
 
 FormWindow *SourceEditor::formWindow() const
 {
-    if ( !qt_cast<FormWindow*>(obj) )
+    if ( !qt_cast<FormWindow*>((QObject *)obj) )
 	return 0;
     return (FormWindow*)(QObject*)obj;
 }
