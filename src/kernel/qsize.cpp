@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#6 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#7 $
 **
 ** Implementation of QSize class
 **
@@ -15,50 +15,139 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qsize.cpp#7 $";
 #endif
 
 /*!
 \class QSize qsize.h
+\brief The QSize class defines the size of a two-dimensional object.
 
-\brief This class is used all over Qt to represent sizes of things and
-nowhere to represent points - QPoint represents points.
+A size is specified by a width and a height.
 
-This is a convenience and type-safety class.  It provides convenient
-operators for doing things to sizes, and it provides safety against
-thinko bugs, since the compiler kan know that you're (I would never do
-anything like that) confusing two variables, for instance a point and
-a size.
+The width/height type is QCOORD (defined as <code>short</code>). The minimum
+value of QCOORD is -32768 and the maximum value is 32767.
+
+\sa QPoint and QRect.
 */
 
 // --------------------------------------------------------------------------
 // QSize member functions
 //
 
-/*! Creates a new QSize with width \e w and height \e h. */
+/*!
+\fn QSize::QSize()
+Constructs a size with undefined width and height.
+*/
+
+/*!
+Constructs a size with width \e w and height \e h.
+*/
+
 QSize::QSize( QCOORD w, QCOORD h )
 {
     wd=w; ht=h;
 }
 
-/*! Multiplies both the width and height with \e c.  There is no
-    overflow checking. */
+/*!
+\fn bool QSize::isNull() const
+Returns TRUE if the width is 0 and the height is 0, otherwise FALSE.
+*/
+
+/*!
+\fn bool QSize::isEmpty() const
+Returns TRUE if the width is less than 0 or the height is less than 0,
+otherwise FALSE.
+*/
+
+/*!
+\fn bool QSize::isValid() const
+Returns TRUE if the width is equal to or greater than 0 and the height is
+equal to or greater than 0, otherwise FALSE.
+*/
+
+/*!
+\fn QCOORD QSize::width() const
+Returns the width.
+
+\sa height().
+*/
+
+/*!
+\fn QCOORD QSize::height() const
+Returns the height.
+
+\sa width().
+*/
+
+/*!
+\fn void QSize::setWidth( QCOORD w )
+Sets the width to \e w.
+
+\sa setHeight().
+*/
+
+/*!
+\fn void QSize::setHeight( QCOORD h )
+Sets the height to \e h.
+
+\sa setWidth().
+*/
+
+/*!
+\fn QCOORD &QSize::rwidth()
+Returns a reference to the width.
+
+Using a reference makes it possible to directly manipulate the width:
+\code
+  QSize s( 100, 10 );
+  s.rwidth() += 20;		\/ s becomes (120,10)
+\endcode
+
+\sa rheight().
+*/
+
+/*!
+\fn QCOORD &QSize::rheight()
+Returns a reference to the height.
+
+Using a reference makes it possible to directly manipulate the height:
+\code
+  QSize s( 100, 10 );
+  s.rheight() += 5;		\/ s becomes (100,15)
+\endcode
+
+\sa rwidth().
+*/
+
+/*!
+Multiplies both the width and height with \e c and returns a reference to
+the size.
+*/
 
 QSize &QSize::operator*=( int c )
 {
     wd*=c; ht*=c; return *this;
 }
 
-/*! Multiplies both the width and height with \e c.  There is no
-    overflow checking. */
+/*!
+Multiplies both the width and height with \e c and returns a reference to
+the size.
+
+Notice that the result is truncated.
+*/
 
 QSize &QSize::operator*=( float c )
 {
     wd=(QCOORD)(wd*c); ht=(QCOORD)(ht*c); return *this;
 }
 
-/*! Divides both the width and height by \e c.  Excep in debug mode, 0
-is equal to 1 (a major mathematical discovery). */
+/*!
+Divides both the width and height by \e c and returns a reference to the
+size.
+
+The division will not be performed if \e c is 0.
+*/
+
 QSize &QSize::operator/=( int c )
 {
     if ( c == 0 ) {
@@ -70,8 +159,15 @@ QSize &QSize::operator/=( int c )
     wd/=c; ht/=c; return *this;
 }
 
-/*! Divides both the width and height by \e c.  Excep in debug mode, 0
-is equal to 1. */
+/*!
+Divides both the width and height by \e c and returns a reference to the
+size.
+
+The division will not be performed if \e c is 0.
+
+Notice that the result is truncated.
+*/
+
 QSize &QSize::operator/=( float c )
 {
     if ( c == 0.0 ) {
@@ -83,44 +179,73 @@ QSize &QSize::operator/=( float c )
     wd=(QCOORD)(wd/c); ht=(QCOORD)(ht/c); return *this;
 }
 
-/*! Nothing remarkable; just simpler than comparing both components */
+/*!
+\relates QSize
+Returns TRUE if \e s1 and \e s2 are equal, or FALSE if they are different.
+*/
+
 bool operator==( const QSize &s1, const QSize &s2 )
 {
     return s1.wd == s2.wd && s1.ht == s2.ht;
 }
 
-/*! Nothing remarkable; just simpler than comparing both components */
+/*!
+\relates QSize
+Returns TRUE if \e s1 and \e s2 are different, or FALSE if they are equal.
+*/
+
 bool operator!=( const QSize &s1, const QSize &s2 )
 {
     return s1.wd != s2.wd || s1.ht != s2.ht;
 }
 
-/*! Multiplies \e s by \e c and returns the result. */
+/*!
+\relates QSize
+Multiplies \e s by \e c and returns the result.
+*/
+
 QSize operator*( const QSize &s, int c )
 {
     return QSize( s.wd*c, s.ht*c );
 }
 
-/*! Multiplies \e s by \e c and returns the result. */
+/*!
+\relates QSize
+Multiplies \e s by \e c and returns the result.
+*/
+
 QSize operator*( int c, const QSize &s )
 {
     return QSize( s.wd*c, s.ht*c );
 }
 
-/*! Multiplies \e s by \e c and returns the result. */
+/*!
+\relates QSize
+Multiplies \e s by \e c and returns the result.
+*/
+
 QSize operator*( const QSize &s, float c )
 {
     return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
-/*! Multiplies \e s by \e c and returns the result. */
+/*!
+\relates QSize
+Multiplies \e s by \e c and returns the result.
+*/
+
 QSize operator*( float c, const QSize &s )
 {
     return QSize( (QCOORD)(s.wd*c), (QCOORD)(s.ht*c) );
 }
 
-/*!  Divides \e s by \e c and returns the result. Division by zero is
-treated like division by one except in debug mode. */
+/*!
+\relates QSize
+Divides \e s by \e c and returns the result.
+
+This function returns \e s if \e c is 0.
+*/
+
 QSize operator/( const QSize &s, int c )
 {
     if ( c == 0 ) {
@@ -132,8 +257,15 @@ QSize operator/( const QSize &s, int c )
     return QSize( s.wd/c, s.ht/c );
 }
 
-/*!  Divides \e s by \e c and returns the result. Division by zero is
-treated like division by one except in debug mode. */
+/*!
+\relates QSize
+Divides \e s by \e c and returns the result.
+
+This function returns \e s if \e c is 0.
+
+Notice that the result is truncated.
+*/
+
 QSize operator/( const QSize &s, float c )
 {
     if ( c == 0.0 ) {
@@ -150,13 +282,23 @@ QSize operator/( const QSize &s, float c )
 // QSize stream functions
 //
 
-/*! Writes the width, then the height to the stream. */
+/*!
+\relates QSize
+Writes the size to the stream.
+
+The output format is two INT16 (first teh width, then the height).
+*/
+
 QDataStream &operator<<( QDataStream &s, const QSize &sz )
 {
     return s << (INT16)sz.width() << (INT16)sz.height();
 }
 
-/*! Reads the width, then the height from the stream. */
+/*!
+\relates QSize
+Reads the size from the stream.
+*/
+
 QDataStream &operator>>( QDataStream &s, QSize &sz )
 {
     INT16 w, h;
@@ -164,4 +306,3 @@ QDataStream &operator>>( QDataStream &s, QSize &sz )
     s >> h;  sz.rheight() = h;
     return s;
 }
-
