@@ -1,0 +1,34 @@
+#!/bin/sh
+
+if [ $# -lt 2 ];
+then
+   echo "Usage: labelchanges p4-label1 p4-label2 [-s]"
+   echo "       -s: Short form; do no not output the diffs of the changes"
+   exit
+fi
+
+label0=$1
+label1=$2
+
+lbfiles0=/tmp/lbch-$$-lb0
+lbfiles1=/tmp/lbch-$$-lb1
+tmpfile1=/tmp/lbch-$$-1
+tmpfile2=/tmp/lbch-$$-2
+tmpfile3=/tmp/lbch-$$-3
+
+trap "rm -f $lbfiles0 $lbfiles1 $tmpfile1 $tmpfile2 $tmpfile3" 0
+
+# generate them here
+
+p4 files @$label0 | sort > $lbfiles0
+p4 files @$label1 | sort > $lbfiles1
+
+sed -e 's/#/ /' $lbfiles0 > $tmpfile1
+
+join -v 2 $lbfiles0 $lbfiles1 | sed -e 's/#/ /' > $tmpfile2
+
+`join -o 1.1,1.2,2.2 $tmpfile1 $tmpfile2 |\
+ awk '{ printf("p4 changes -s submitted %s#%i,%i\n", $1, $2+1, $3) }'` |\
+ awk '{ print $2 }' | sort | uniq > $tmpfile3
+
+p4 describe $3 `cat $tmpfile3`
