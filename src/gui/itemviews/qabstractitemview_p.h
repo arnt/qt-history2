@@ -82,10 +82,10 @@ inline int qBinarySearch(const QVector<T> &vec, const T &item, int start, int en
     return i;
 }
 
-template<typename T>
-inline void qInsertSorted(QVector<T> &vec, const T &item)
+template <typename T>
+inline int qSortedInsert(QVector<T> &vec, const T &item)
 {
-    vec.insert(qBinarySearch(vec, item, 0, vec.count() - 1), item);
+    qDebug("inserting %Ld", item);
 }
 
 template <typename T>

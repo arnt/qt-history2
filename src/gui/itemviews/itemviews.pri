@@ -17,7 +17,8 @@ HEADERS += \
 	itemviews/qabstractitemmodel.h \
 	itemviews/qlistview_.h \
 	itemviews/qtableview.h \
-	itemviews/qtreeview.h
+	itemviews/qtreeview.h \
+	itemviews/qdirmodel.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -31,4 +32,5 @@ SOURCES += \
 	itemviews/qabstractitemmodel.cpp \
 	itemviews/qlistview_.cpp \
 	itemviews/qtableview.cpp \
-	itemviews/qtreeview.cpp
+	itemviews/qtreeview.cpp \
+	itemviews/qdirmodel.cpp

@@ -84,8 +84,8 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(model, SIGNAL(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)),
                      q, SLOT(contentsRemoved(QModelIndex,QModelIndex,QModelIndex)));
 
-    q->setHorizontalFactor(1024);
-    q->setVerticalFactor(1024);
+    q->setHorizontalFactor(256);
+    q->setVerticalFactor(256);
 
     viewport->installEventFilter(q);
     rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
