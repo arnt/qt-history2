@@ -16,7 +16,7 @@
 
 #include <qsqlresult.h>
 #include <qsqldriver.h>
-#include <qsqlcachedresult.h>
+#include <qsqlcachedresult_p.h>
 
 #ifdef Q_OS_WIN32
 #define DBNTWIN32 // indicates 32bit windows dblib

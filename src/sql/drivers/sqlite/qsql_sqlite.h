@@ -18,7 +18,7 @@
 #include <qsqlresult.h>
 #include <qsqlrecord.h>
 #include <qsqlindex.h>
-#include <qsqlcachedresult.h>
+#include <qsqlcachedresult_p.h>
 
 class QSQLiteDriverPrivate;
 class QSQLiteResultPrivate;

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsqlcachedresult.h"
+#include "qsqlcachedresult_p.h"
 
 #include <qcorevariant.h>
 #include <qdatetime.h>
