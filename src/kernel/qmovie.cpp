@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#25 $
 **
 ** Implementation of movie classes
 **
@@ -18,7 +18,6 @@
 #include "qbuffer.h"
 #include "qshared.h"
 
-// For BETA, could #include .h, m*.cpp, and q*.cpp into this source
 #include "qasyncio.h"
 #include "qasyncimageio.h"
 
@@ -480,6 +479,17 @@ QMovie::QMovie(QIODevice* src, int bufsize)
 
 /*!
   \overload
+  Creates a QMovie which reads an image sequence from the named file.
+*/
+QMovie::QMovie(const char* fileName, int bufsize)
+{
+    QFile* file = new QFile(fileName);
+    file->open(IO_ReadOnly);
+    d = new QMoviePrivate(new QIODeviceSource(file), this, bufsize);
+}
+
+/*!
+  \overload
   Creates a QMovie which reads an image sequence from given data.
 */
 QMovie::QMovie(QByteArray data, int bufsize)
@@ -487,17 +497,6 @@ QMovie::QMovie(QByteArray data, int bufsize)
     QBuffer* buffer = new QBuffer(data);
     buffer->open(IO_ReadOnly);
     d = new QMoviePrivate(new QIODeviceSource(buffer), this, bufsize);
-}
-
-/*!
-  \overload
-  Creates a QMovie which reads an image sequence from the named file.
-*/
-QMovie::QMovie(const char* srcfile, int bufsize)
-{
-    QFile* file = new QFile(srcfile);
-    file->open(IO_ReadOnly);
-    d = new QMoviePrivate(new QIODeviceSource(file), this, bufsize);
 }
 
 /*!
@@ -817,7 +816,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Sep 4 15:31:20 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.24 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.25 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

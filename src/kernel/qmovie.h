@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#8 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#9 $
 **
 ** Definition of movie classes
 **
@@ -21,7 +21,7 @@ class QMoviePrivate;
 class QMovie {
 public:
     QMovie();
-    QMovie(const char* filename, int bufsize=1024);
+    QMovie(const char* fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();

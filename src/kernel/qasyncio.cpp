@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#4 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -20,6 +20,14 @@
 
   \internal
 */
+
+
+/*!
+  Destroys the async IO object.
+*/
+QAsyncIO::~QAsyncIO()
+{
+}
 
 /*!
   Ensures only one object can respond to changes in readiness.
