@@ -29,73 +29,30 @@
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
 Q_CORE_EXPORT void qt_set_library_config_file(QString p) { *(qt_library_config_file()) = p; }
 
+class QLibraryInfoPrivate
+{
+private:
 #ifdef QT_NO_QOBJECT
-static QSettings *qt_library_settings = 0;
+    static QSettings *qt_library_settings;
 #else
-static QPointer<QSettings> qt_library_settings = 0;
+    static QPointer<QSettings> qt_library_settings;
+#endif
+    static QSettings *findConfiguration();
+public:
+    ~QLibraryInfoPrivate() { if(qt_library_settings) { delete qt_library_settings; qt_library_settings = 0; } }
+    static QSettings *configuration() {
+        if(!qt_library_settings)
+            qt_library_settings = findConfiguration();
+        return qt_library_settings;
+    }
+};
+#ifdef QT_NO_QOBJECT
+QSettings *QLibraryInfoPrivate::qt_library_settings = 0;
+#else
+QPointer<QSettings> QLibraryInfoPrivate::qt_library_settings = 0;
 #endif
 
-/*! \class QLibraryInfo
-    \brief The QLibraryInfo class provides information about the Qt library.
-
-    \ingroup misc
-    \mainclass
-
-    Many pieces of information are established when Qt is
-    configured. Installation paths, license information, and even a
-    unique build key. This class provides an abstraction for accessing
-    this information.
-*/
-
-/*! \internal
-
-   You cannot create a QLibraryInfo, instead only the static functions are available to query
-   information.
-*/
-
-QLibraryInfo::QLibraryInfo()
-{
-
-}
-
-/*!
-  Returns the person to whom this build of Qt is licensed.
-
-  \sa QLibraryInfo::licensedProducts
-*/
-
-QString
-QLibraryInfo::licensee()
-{
-    return QT_CONFIGURE_LICENSEE;
-}
-
-/*!
-  Returns the products that the license for this build of Qt has access to.
-
-  \sa QLibraryInfo::licensee
-*/
-
-QString
-QLibraryInfo::licensedProducts()
-{
-    return QT_CONFIGURE_LICENSED_PRODUCTS;
-}
-
-/*!
-  Returns a unique key identifying this build of Qt and its
-  configurations. This key is not globally unique, rather only useful
-  for establishing of two configurations are compatible. This can be
-  used to compare with QT_BUILD_KEY.
-*/
-
-QString
-QLibraryInfo::buildKey()
-{
-    return QT_BUILD_KEY;
-}
-
-static QSettings *qt_find_qlibrary_info_config()
+QSettings *QLibraryInfoPrivate::findConfiguration()
 {
     if(!qt_library_config_file()->isNull())
         return (new QSettings(*qt_library_config_file(), QSettings::IniFormat));
@@ -205,6 +162,67 @@ static QSettings *qt_find_qlibrary_info_config()
 #endif
     return 0;     //no luck
 }
+QLibraryInfoPrivate d_data;
+
+/*! \class QLibraryInfo
+    \brief The QLibraryInfo class provides information about the Qt library.
+
+    \ingroup misc
+    \mainclass
+
+    Many pieces of information are established when Qt is
+    configured. Installation paths, license information, and even a
+    unique build key. This class provides an abstraction for accessing
+    this information.
+*/
+
+/*! \internal
+
+   You cannot create a QLibraryInfo, instead only the static functions are available to query
+   information.
+*/
+
+QLibraryInfo::QLibraryInfo()
+{
+
+}
+
+/*!
+  Returns the person to whom this build of Qt is licensed.
+
+  \sa QLibraryInfo::licensedProducts
+*/
+
+QString
+QLibraryInfo::licensee()
+{
+    return QT_CONFIGURE_LICENSEE;
+}
+
+/*!
+  Returns the products that the license for this build of Qt has access to.
+
+  \sa QLibraryInfo::licensee
+*/
+
+QString
+QLibraryInfo::licensedProducts()
+{
+    return QT_CONFIGURE_LICENSED_PRODUCTS;
+}
+
+/*!
+  Returns a unique key identifying this build of Qt and its
+  configurations. This key is not globally unique, rather only useful
+  for establishing of two configurations are compatible. This can be
+  used to compare with QT_BUILD_KEY.
+*/
+
+QString
+QLibraryInfo::buildKey()
+{
+    return QT_BUILD_KEY;
+}
 
 /*!
   Returns the active configuration information settings. This is
@@ -248,9 +266,7 @@ static QSettings *qt_find_qlibrary_info_config()
 QSettings
 *QLibraryInfo::configuration()
 {
-    if(qt_library_settings)
-        return qt_library_settings;
-    return qt_library_settings = qt_find_qlibrary_info_config();
+    return QLibraryInfoPrivate::configuration();
 }
 
 /*!
@@ -262,7 +278,7 @@ QSettings
 QString
 QLibraryInfo::location(LibraryLocation loc)
 {
-    if(!configuration())
+    if(!QLibraryInfoPrivate::configuration())
         return QString();
 
     QString key;
@@ -300,7 +316,7 @@ QLibraryInfo::location(LibraryLocation loc)
 
     QString ret;
     if(!key.isNull()) {
-        QSettings *config = configuration();
+        QSettings *config = QLibraryInfoPrivate::configuration();
         config->beginGroup("Paths");
 
         QString subKey;
