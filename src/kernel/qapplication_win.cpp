@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#457 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#458 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -449,6 +449,10 @@ static void qt_set_windows_resources()
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHT))) );
     cg.setColor( QColorGroup::HighlightedText,
 		 QColor(qt_colorref2qrgb(GetSysColor(COLOR_HIGHLIGHTTEXT))) );
+
+    // ### hardcoded until I find out how to get it from the system settings.
+    cg.setColor( QColorGroup::Link, Qt::blue );
+    cg.setColor( QColorGroup::LinkVisited, Qt::magenta );
 
     if ( qt_winver == Qt::WV_2000 || 
 	 qt_winver == Qt::WV_98 || 
