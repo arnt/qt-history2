@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#118 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#119 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1181,7 +1181,7 @@ void qt_leave_modal( QWidget* );
 
 QString QFileDialog::getOpenFileName( QString startWith,
 				      QString filter,
-				      QWidget *parent, QString name )
+				      QWidget *parent, const char* name )
 {
     makeVariables();
     QString initialSelection;
@@ -1316,7 +1316,7 @@ QString QFileDialog::getOpenFileName( QString startWith,
 
 QString QFileDialog::getSaveFileName( QString startWith,
 				      QString filter,
-				      QWidget *parent, QString name )
+				      QWidget *parent, const char* name )
 {
     makeVariables();
     QString initialSelection;
@@ -1719,7 +1719,7 @@ void QFileDialog::cdUpClicked()
 
 QString QFileDialog::getExistingDirectory( QString dir,
 					   QWidget *parent,
-					   QString name )
+					   const char* name )
 {
     makeVariables();
     QFileDialog *dialog	= new QFileDialog( parent, name, TRUE );
@@ -1900,7 +1900,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 
 /*!  Constructs an empty file icon provider. */
 
-QFileIconProvider::QFileIconProvider( QObject * parent, QString name )
+QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
     : QObject( parent, name )
 {
     // nothing necessary
@@ -2069,7 +2069,7 @@ void QFileDialog::modeButtonsDestroyed()
 QStrList QFileDialog::getOpenFileNames( QString filter,
 					QString dir,
 					QWidget *parent,
-					QString name )
+					const char* name )
 {
     makeVariables();
 

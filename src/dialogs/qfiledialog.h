@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#32 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#33 $
 **
 ** Definition of QFileDialog class
 **
@@ -42,7 +42,7 @@ class QFileIconProvider: public QObject
 {
     Q_OBJECT
 public:
-    QFileIconProvider( QObject * parent = 0, QString name = 0 );
+    QFileIconProvider( QObject * parent = 0, const char* name = 0 );
 
     virtual const QPixmap * pixmap( const QFileInfo & );
 };
@@ -61,17 +61,17 @@ public:
 
     static QString getOpenFileName( QString initially = 0,
 				    QString filter= 0,
-				    QWidget *parent = 0, QString name = 0);
+				    QWidget *parent = 0, const char* name = 0);
     static QString getSaveFileName( QString initially = 0,
 				    QString filter= 0,
-				    QWidget *parent = 0, QString name = 0);
+				    QWidget *parent = 0, const char* name = 0);
     static QString getExistingDirectory( QString dir = 0,
 					 QWidget *parent = 0,
-					 QString name = 0 );
+					 const char* name = 0 );
     static QStrList getOpenFileNames( QString filter= 0,
 				      QString dir = 0,
 				      QWidget *parent = 0,
-				      QString name = 0);
+				      const char* name = 0);
 
     // other static functions
 
