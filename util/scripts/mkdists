@@ -786,6 +786,7 @@ for plat in mac win x11 embedded; do
 
 	    #Some code is specific to platform though..
 	    rm -rf "$PLATDIR/src/3rdparty/gsos"
+	    rm -f "$PLATDIR/src/kernel/qt_windows.h"
 	    if [ "$plat" = "embedded" ]; then
 		rm -rf "$PLATDIR/examples/biff" "$PLATDIR/examples/desktop" "$PLATDIR/examples/overlay_x11"
 		rm -rf "$PLATDIR/extensions/xt" "$PLATDIR/include/qxt.h"
