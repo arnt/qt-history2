@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#230 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#231 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -29,7 +29,7 @@ typedef char *XPointer;
 #undef  X11R4
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#230 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#231 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -741,9 +741,9 @@ void QWidget::setMouseTracking( bool enable )
 
   \warning Grabbing the mouse might lock the terminal.
 
-  It is almost never necessary to grab the mouse when using Qt since Qt
-  grabs and releases it sensibly.	 In particular, Qt grabs the mouse
-  when a button is pressed and keeps it until the last button is
+  It is almost never necessary to grab the mouse when using Qt since
+  Qt grabs and releases it sensibly.  In particular, Qt grabs the
+  mouse when a button is pressed and keeps it until the last button is
   released.
 
   \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
