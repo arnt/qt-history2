@@ -40,26 +40,6 @@
 
 #ifndef QT_NO_PRINTER
 
-static const char* pageSizeNames[QPrinter::NPageSize] = {
-    "A4", "B5", "Letter", "Legal", "Executive", "A0", "A1", "A2", "A3", "A5",
-    "A6", "A7", "A8", "A9", "B0", "B1", "B2", "B3", "B4", "B6", "B7", "B8",
-    "B9", "C5", "Comm10E", "Envelope DL", "Folio", "Ledger", "Tabloid"
-};
-
-QPrinter::PageSize qprinter_pagesize_for_name( const QString &name )
-{
-    for( int i=0; i<QPrinter::NPageSize; i++ ) {
-	if( pageSizeNames[i] == name )
-	    return QPrinter::PageSize( i );
-    }
-    return QPrinter::Custom;
-}
-
-const char *qprinter_name_for_pagesize( QPrinter::PageSize ps )
-{
-    return pageSizeNames[ps];
-}
-
 /*!
     \class QPrinter qprinter.h
     \brief The QPrinter class is a paint device that paints on a printer.
