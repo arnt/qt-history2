@@ -15,6 +15,7 @@
 #include "qbytearray.h"
 #include "qtools_p.h"
 #include "qstring.h"
+#include "qlist.h"
 #include "qlocale.h"
 #include "qlocale_p.h"
 #ifndef QT_NO_DATASTREAM
@@ -1775,6 +1776,26 @@ QByteArray &QByteArray::replace(char before, char after)
                 * i = after;
     }
     return *this;
+}
+
+/*!
+    Splits the byte array into subarrays wherever \a sep occurs, and
+    returns the list of those arrays. If \a sep does not match
+    anywhere in the byte array, split() returns a single-element list
+    containing this byte array.
+*/
+
+QList<QByteArray> QByteArray::split(char sep) const
+{
+    QList<QByteArray> list;
+    int start = 0;
+    int end;
+    while ((end = indexOf(sep, start)) != -1) {
+        list.append(mid(start, end - start));
+        start = end + 1;
+    }
+    list.append(mid(start));
+    return list;
 }
 
 #define REHASH(a) \

@@ -67,6 +67,7 @@ Q_CORE_EXPORT Q_UINT16 qChecksum(const char *s, uint len);
 class QByteRef;
 class QString;
 class QDataStream;
+template <typename T> class QList;
 
 class Q_CORE_EXPORT QByteArray
 {
@@ -177,6 +178,9 @@ public:
     QByteArray &replace(const QString &before, const char *after);
     QByteArray &replace(char c, const QString &after);
     QByteArray &replace(const QString &before, const QByteArray &after);
+
+    QList<QByteArray> split(char sep) const;
+
     QByteArray &operator+=(const QString &s);
     int indexOf(const QString &s, int from = 0) const;
     int lastIndexOf(const QString &s, int from = -1) const;
