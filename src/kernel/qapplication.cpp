@@ -601,7 +601,6 @@ QApplication::QApplication( int &argc, char **argv, Type type )
 
 void QApplication::construct( int &argc, char **argv, Type type )
 {
-    qt_maxWindowRect = QRect();
     qt_is_gui_used = (type != Tty);
     init_precmdline();
     static const char *empty = "";
@@ -615,6 +614,7 @@ void QApplication::construct( int &argc, char **argv, Type type )
     qt_mutex = new QMutex(TRUE);
 #endif
     initialize( argc, argv );
+    qt_maxWindowRect = desktop()->rect();
 }
 
 
