@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qtextedit.cpp#34 $
 **
 ** Implementation of the QTextEdit class
 **
@@ -384,24 +384,30 @@ static bool block_set_alignment = FALSE;
   incompatible manner in the future.
 */
 
-/*! \enum QTextEdit::MoveDirection
+/*! \enum QTextEdit::CursorAction
 
   This enum is used by moveCursor() to specify in which direction
   the cursor should be moved:
 
-  \value MoveLeft  Moves the cursor one character left (or one word left
-  if a Ctrl key is pressed)
+  \value MoveBackward  Moves the cursor one character backward
 
-  \value MoveRight  Moves the cursor one character right (or one word
-  right if a Ctrl key is pressed)
+  \value MoveWordBackward Moves the cursor one word backward
+
+  \value MoveForward  Moves the cursor one character forward
+
+  \value MoveWordForward Moves the cursor one word forward
 
   \value MoveUp  Moves the cursor up one line
 
   \value MoveDown  Moves the cursor down one line
 
-  \value MoveHome  Moves the cursor to the beginning of the line
+  \value MoveLineStart  Moves the cursor to the beginning of the line
 
-  \value MoveEnd Moves the cursor to the end of the line
+  \value MoveLineEnd Moves the cursor to the end of the line
+
+  \value MoveHome  Moves the cursor to the beginning of the document
+
+  \value MoveEnd Moves the cursor to the end of the document
 
   \value MovePgUp  Moves the cursor one page up
 
@@ -1194,11 +1200,10 @@ void QTextEdit::removeSelectedText()
     }
 }
 
-/*!
-  Moves the text cursor in \a direction. As this is normally
-  used by some key event handler, the state of the \c Shift and \c Ctrl
-  keys will influence how the cursor moves. For example, \e{Left Arrow}
-  moves one character left, but \e{Ctrl+Left Arrow} moves one word left.
+/*!  Moves the text cursor according to \a action. As this is normally
+  used by some key event handler. \a select specifies whether the text
+  between the current cursor position and the new one should be
+  selected.
 */
 
 void QTextEdit::moveCursor( CursorAction action, bool select )
