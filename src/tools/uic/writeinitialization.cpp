@@ -136,6 +136,8 @@ void WriteInitialization::accept(DomWidget *node)
 
     if (className == QLatin1String("QListBox")) {
         initializeListBox(node);
+    } else if (className == QLatin1String("QIconView")) {
+        initializeIconView(node);
     } else if (className.mid(1) == QLatin1String("ComboBox")) {
         initializeListBox(node);
     } else if (className.mid(1) == QLatin1String("ListView")) {
@@ -675,11 +677,47 @@ void WriteInitialization::initializeListBox(DomWidget *w)
 
         QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
         DomProperty *text = properties.value("text");
-        if (!text)
+        DomProperty *pixmap = properties.value("pixmap");
+        if (!(text || pixmap))
             continue;
 
-        output << option.indent << varName << "->insertItem("
-            << translate(fixString(text->elementString()), className) << ");\n";
+        output << option.indent << varName << "->insertItem(";
+        if (pixmap) {
+            output << pixCall(pixmap->elementPixmap());
+
+            if (text)
+                output << ", ";
+        }
+        output << translate(fixString(text->elementString()), className) << ");\n";
+    }
+}
+
+void WriteInitialization::initializeIconView(DomWidget *w)
+{
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    QList<DomItem*> items = w->elementItem();
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(item->elementProperty());
+        DomProperty *text = properties.value("text");
+        DomProperty *pixmap = properties.value("pixmap");
+        if (!(text || pixmap))
+            continue;
+
+        QString itemName = driver->findOrInsertName("__item");
+        output << "\n";
+        output << option.indent << "QIconViewItem *" << itemName << " = new QIconViewItem(" << varName << ");\n";
+
+        if (pixmap) {
+            output << option.indent << itemName << "->setPixmap(" << pixCall(pixmap->elementPixmap()) << ");\n";
+        }
+
+        if (text) {
+            output << option.indent << itemName << "->setText(" << translate(fixString(text->elementString()), className) << ");\n";
+        }
     }
 }
 

@@ -73,6 +73,7 @@ private:
     QString translate(const QString &text, const QString &className=QString::null) const;
 
     void initializeListBox(DomWidget *w);
+    void initializeIconView(DomWidget *w);
     void initializeListView(DomWidget *w);
     void initializeListViewItems(const QString &className, const QString &varName, const QList<DomItem*> &items);
 
