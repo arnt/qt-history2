@@ -611,7 +611,6 @@ static QString fontKey(const QFontDef& font)
 	QPoint b = qt_screen->mapToDevice(QPoint(1,1),QSize(2,2));
 	key += QString::number( a.x()*8+a.y()*4+(1-b.x())*2+(1-b.y()) );
     }
-qDebug("font: %s",key.latin1());
 
     return key;
 }
@@ -644,8 +643,12 @@ QMemoryManager::FontID QMemoryManager::findFont(const QFontDef& font)
 		    d.pointSize = 120;
 		    filename = fontFilename(d);
 		    if ( !QFile::exists(filename) ) {
-			qDebug("Doing fallback");
-			filename = qws_topdir()+"/etc/fonts/helvetica_120_50.qpf";
+			d.italic = FALSE;
+			filename = fontFilename(d);
+			if ( !QFile::exists(filename) ) {
+			    d.weight = 50;
+			    filename = fontFilename(d);
+			}
 		    }
 		}
 	    }
