@@ -80,6 +80,10 @@ then
     rm -f $outpath/mkspecs
     ln -s $relpath/mkspecs $outpath/mkspecs
 
+    # symlink the linguist/doc directory (to make the assistant happy)
+    rm -f $outpath/tools/linguist/doc
+    ln -s $relpath/tools/linguist/doc $outpath/tools/linguist/doc
+
     # create the include directory (will hold links and a real qconfig.h)
     if [ ! -d $outpath/include ]
     then
