@@ -45,6 +45,7 @@ class EDITOR_EXPORT EditorCompletion : public QObject
 
 public:
     EditorCompletion( Editor *e );
+    ~EditorCompletion();
 
     virtual void addCompletionEntry( const QString &s, QTextDocument *doc );
     virtual QStringList completionList( const QString &s, QTextDocument *doc ) const;

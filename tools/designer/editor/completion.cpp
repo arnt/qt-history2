@@ -51,6 +51,12 @@ EditorCompletion::EditorCompletion( Editor *e )
     curEditor->installEventFilter( this );
 }
 
+EditorCompletion::EditorCompletion()
+{
+    delete completionPopup;
+    delete functionLabel;
+}
+
 void EditorCompletion::addCompletionEntry( const QString &s, QTextDocument * )
 {
     QChar key( s[ 0 ] );
