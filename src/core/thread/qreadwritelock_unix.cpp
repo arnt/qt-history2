@@ -85,105 +85,122 @@ QReadWriteLock::~QReadWriteLock()
 }
 
 /*!
-    Attempts to lock the lock. This function will block the current thread if
+    Attempts to lock for reading. This function will block the current
+    thread if another thread has locked for writing.
 
-    \list
-    \i \a access is ReadAccess and one thread is writing.
-    \i \a access is WriteAccess and any thread is already reading or writing.
-    \endlist
-
-    \sa unlock() tryLock();
+    \sa unlock() lockForWrite() tryLockForRead()
 */
-void QReadWriteLock::lock(AccessMode mode)
+void QReadWriteLock::lockForRead()
 {
-    if(mode==ReadAccess) {
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
-                if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1))
-                     break;
-            } else {
-                report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
-                ++d->waitingReaders;
-                if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount <= d->maxReaders) {
-                    report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-                    continue;
-                }
-                report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
-                --d->waitingReaders;
+    for (;;) {
+        int localAccessCount(d->accessCount);
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+            if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1))
+                break;
+        } else {
+            report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
+            ++d->waitingReaders;
+            if (d->waitingWriters == 0 && d->accessCount != -1 && d->accessCount <= d->maxReaders) {
                 report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
                 continue;
             }
+            report_error(pthread_cond_wait(&d->readerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
+            --d->waitingReaders;
+            report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
+            continue;
         }
-    } else { //mode==WriteAccess
-        ++d->waitingWriters;
-        for(;;) {
-            int localAccessCount(d->accessCount);
-            if(localAccessCount == 0){
-                if (d->accessCount.testAndSet(0, -1))
-                    break;
-            } else {
-                report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
-                if (d->accessCount == 0) {
-                    report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-                    continue;
-                }
-                report_error(pthread_cond_wait(&d->writerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
-                report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
-                continue;
-            }
-        }
-        --d->waitingWriters;
     }
 }
-/*!
-    Attempt to lock the lock. If the lock was obtained, this function returns true,
-    otherwise it returns false instead of waiting for the lock to become available,
-    i.e. it does not block.
 
-    The lock attempt will fail if one of the following is true:
-    \list
-    \i \a mode is ReadAccess and one thread is writing.
-    \i \a mode is WriteAccess and any thread is already reading or writing.
-    \endlist
+/*!
+    Attempt to lock for reading. If the lock was obtained, this
+    function returns true, otherwise it returns false instead of
+    waiting for the lock to become available, i.e. it does not block.
+
+    The lock attempt will fail if another thread has locked for
+    writing.
 
     If the lock was obtained, the lock must be unlocked with unlock()
     before another thread can successfully lock it.
 
-    \sa unlock() lock();
+    \sa unlock() lockForRead()
 */
-bool QReadWriteLock::tryLock(AccessMode mode)
+bool QReadWriteLock::tryLockForRead()
 {
     bool result;
-    if(mode==ReadAccess) {
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
-                if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1)) {
-                    result=true;
-                    break;
-                }
-            } else {
-                result=false;
+    for(;;){
+        int localAccessCount(d->accessCount);
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+            if (d->accessCount.testAndSet(localAccessCount, localAccessCount + 1)) {
+                result=true;
                 break;
             }
+        } else {
+            result=false;
+            break;
         }
-    } else { //mode==WriteAccess
-        ++d->waitingWriters;
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(localAccessCount == 0){
-                if (d->accessCount.testAndSet(0, -1)) {
-                    result=true;
-                    break;
-                }
-            } else {
-                result=false;
-                break;
-            }
-        }
-        --d->waitingWriters;
     }
+    return result;
+}
+
+ /*!
+    Attempts to lock for writing. This function will block the current
+    thread if any thread has locked for reading or writing.
+
+    \sa unlock() lockForRead() tryLockForWrite()
+ */
+void QReadWriteLock::lockForWrite()
+{
+    ++d->waitingWriters;
+    for(;;) {
+        int localAccessCount(d->accessCount);
+        if(localAccessCount == 0){
+            if (d->accessCount.testAndSet(0, -1))
+                break;
+        } else {
+            report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::lock()", "mutex lock");
+            if (d->accessCount == 0) {
+                report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
+                continue;
+            }
+            report_error(pthread_cond_wait(&d->writerWait, &d->mutex), "QReadWriteLock::lock()", "cv wait");
+            report_error(pthread_mutex_unlock(&d->mutex), "QReadWriteLock::lock()", "mutex unlock");
+            continue;
+        }
+    }
+    --d->waitingWriters;
+}
+
+/*!
+    Attempt to lock for write. If the lock was obtained, this function
+    returns true, otherwise it returns false instead of waiting for
+    the lock to become available, i.e. it does not block.
+
+    The lock attempt will fail if any thread has locked for reading or
+    writing.
+
+    If the lock was obtained, the lock must be unlocked with unlock()
+    before another thread can successfully lock it.
+
+    \sa unlock() lockForWrite()
+*/
+bool QReadWriteLock::tryLockForWrite()
+{
+    bool result;
+    ++d->waitingWriters;
+    for(;;){
+        int localAccessCount(d->accessCount);
+        if(localAccessCount == 0){
+            if (d->accessCount.testAndSet(0, -1)) {
+                result=true;
+                break;
+            }
+        } else {
+            result=false;
+            break;
+        }
+    }
+    --d->waitingWriters;
     return result;
 }
 
@@ -198,14 +215,14 @@ bool QReadWriteLock::tryLock(AccessMode mode)
 void QReadWriteLock::unlock()
 {
     Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
-    
+
     bool unlocked = d->accessCount.testAndSet(-1, 0);
     if (!unlocked) {
         unlocked = !--d->accessCount;
         if (!unlocked)
             return; // still locked, can't wake anyone up
     }
-        
+
     if (d->waitingWriters != 0) {
         report_error(pthread_mutex_lock(&d->mutex), "QReadWriteLock::unlock()", "mutex lock");
         pthread_cond_signal(&d->writerWait);

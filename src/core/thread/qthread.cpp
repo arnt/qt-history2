@@ -87,7 +87,7 @@ QThread *QThreadPrivate::threadForId(int id)
     QThreadIdHash *idHash = threadIdHash();
     if (!idHash)
         return 0;
-    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::ReadAccess);
+    QReadLocker locker(&idHash->lock);
     return idHash->table.value(id);
 }
 
@@ -210,7 +210,7 @@ QThread::QThread(QObject *parent)
 {
     Q_D(QThread);
     QThreadIdHash *idHash = threadIdHash();
-    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::WriteAccess);
+    QWriteLocker locker(&idHash->lock);
     idHash->table.insert(d->data.id, this);
 }
 
@@ -232,7 +232,7 @@ QThread::~QThread()
     }
 
     QThreadIdHash *idHash = threadIdHash();
-    QReadWriteLockLocker locker(&idHash->lock, QReadWriteLock::WriteAccess);
+    QWriteLocker locker(&idHash->lock);
     idHash->table.remove(d->data.id);
 }
 

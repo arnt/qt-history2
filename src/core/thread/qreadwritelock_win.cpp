@@ -34,87 +34,86 @@ QReadWriteLock::~QReadWriteLock()
     delete d;
 }
 
-void QReadWriteLock::lock(AccessMode mode)
+void QReadWriteLock::lockForRead()
 {
-    if(mode==ReadAccess) {
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
-                if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
-                     break;
-            }else {
-                WaitForSingleObject(d->readerWait, INFINITE);
-                continue;
-            }
+    for(;;){
+        int localAccessCount(d->accessCount);
+        if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
+            if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
+                break;
+        }else {
+            WaitForSingleObject(d->readerWait, INFINITE);
+            continue;
         }
-    } else { //mode==WriteAccess
-        ++d->waitingWriters;
-        for(;;) {
-            int localAccessCount(d->accessCount);
-            if(localAccessCount == 0){
-                if (q_atomic_test_and_set_int(&d->accessCount, 0, -1))
-                    break;
-            } else {
-                WaitForSingleObject(d->writerWait, INFINITE);
-            }
-        }
-        --d->waitingWriters;
     }
 }
 
-bool QReadWriteLock::tryLock(AccessMode mode)
+bool QReadWriteLock::tryLockForRead()
 {
     bool result;
-    if(mode==ReadAccess) {
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(d->waitingWriters == 0 && localAccessCount != -1) {
-                if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1)) {
-                    result=true;
-                    break;
-                }
-            } else {
-                result=false;
+    for(;;){
+        int localAccessCount(d->accessCount);
+        if(d->waitingWriters == 0 && localAccessCount != -1) {
+            if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1)) {
+                result=true;
                 break;
             }
+        } else {
+            result=false;
+            break;
         }
-    } else { //mode==WriteAccess
-        ++d->waitingWriters;
-        for(;;){
-            int localAccessCount(d->accessCount);
-            if(localAccessCount == 0){
-                if (q_atomic_test_and_set_int(&d->accessCount, 0, -1)) {
-                    result=true;
-                    break;
-                }
-            } else {
-                result=false;
-                break;
-            }
-        }
-        --d->waitingWriters;
     }
+    return result;
+}
+
+void QReadWriteLock::lockForWrite()
+{
+    ++d->waitingWriters;
+    for(;;) {
+        int localAccessCount(d->accessCount);
+        if(localAccessCount == 0){
+            if (q_atomic_test_and_set_int(&d->accessCount, 0, -1))
+                break;
+        } else {
+            WaitForSingleObject(d->writerWait, INFINITE);
+        }
+    }
+    --d->waitingWriters;
+}
+
+bool QReadWriteLock::tryLockForWrite()
+{
+    bool result;
+    ++d->waitingWriters;
+    for(;;){
+        int localAccessCount(d->accessCount);
+        if(localAccessCount == 0){
+            if (q_atomic_test_and_set_int(&d->accessCount, 0, -1)) {
+                result=true;
+                break;
+            }
+        } else {
+            result=false;
+            break;
+        }
+    }
+    --d->waitingWriters;
     return result;
 }
 
 void QReadWriteLock::unlock()
 {
-    for (;;) {
-        int localAccessCount=d->accessCount;
-        if (localAccessCount==0) {
-            qFatal("QReadWriteLock::unlock(): Trying to unlock a unlocked lock");
-            break;
-        }
-        if (localAccessCount==-1) {
-            if(q_atomic_test_and_set_int(&d->accessCount, -1, 0))
-                break;
-        } else {
-            if(q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount - 1 ))
-                break;
-        }
+    Q_ASSERT_X(d->accessCount != 0, "QReadWriteLock::unlock()", "Cannot unlock an unlocked lock");
+
+    bool unlocked = q_atomic_test_and_set_int(&d->accessCount, -1, 0) != 0;
+    if (!unlocked) {
+        unlocked = q_atomic_decrement(&d->accessCount) == 0;
+        if (!unlocked)
+            return; // still locked, can't wake anyone up
     }
-    if(d->waitingWriters != 0)
+
+    if (d->waitingWriters != 0)
         SetEvent(d->writerWait);
-    else
+    else if (d->waitingReaders != 0)
         SetEvent(d->readerWait);
 }

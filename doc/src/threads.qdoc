@@ -46,8 +46,8 @@
     \o QMutexLocker is a convenience class that automatically locks
        and unlocks a QMutex.
     \o QReadWriteLock provides a lock that allows simultaneous read access.
-    \o QReadWriteLockLocker is a convenience class that automatically
-       locks and unlocks a QReadWriteLock.
+    \o QReadLocker and QWriteLocker are convenience classes that automatically
+       lock and unlock a QReadWriteLock.
     \o QSemaphore provides an integer semaphore (a generalization of a mutex).
     \o QWaitCondition provides a way for threads to go to sleep until
        woken up by another thread.
