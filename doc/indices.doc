@@ -241,7 +241,7 @@ related classes together. Some classes may appear in more than one group.
 \i Classes used to create and handle events.
 
 \row 
-\i \link tools.html  Non-GUI Classes \endlink
+\i \link tools.html  Utility Classes \endlink
 \i Collection classes such as list, queue, stack and string, along
 with other classes that can be used without needing QApplication.
 
