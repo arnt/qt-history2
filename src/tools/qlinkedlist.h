@@ -16,12 +16,20 @@ struct Q_EXPORT QLinkedListData
     static QLinkedListData shared_null;
 };
 
+template <typename T>
+struct QLinkedListNode 
+{
+    inline QLinkedListNode(const T &arg): t(arg) { }
+    QLinkedListNode *n, *p;
+    T t;
+};
+
 template <class T>
 class QLinkedList
 {
-    struct Node { inline Node(const T &t): t(t){} Node *n, *p; T t; };
-    union { QLinkedListData *d; Node *e; };
-
+    typedef QLinkedListNode<T> Node;
+    union { QLinkedListData *d; QLinkedListNode<T> *e; };
+    
 public:
     inline QLinkedList() : d(&QLinkedListData::shared_null) { ++d->ref; };
     inline QLinkedList(const QLinkedList &l):d(l.d) { ++d->ref; }
@@ -190,25 +198,25 @@ void QLinkedList<T>::detach_helper() {
 }
 
 template <typename T>
-void QLinkedList<T>::free(QLinkedListData *d)
+void QLinkedList<T>::free(QLinkedListData *x)
 {
-    Node *e = (Node*)d;
+    Node *y = (Node*)x;
     Node *i = e->n;
-    if (QTypeInfo<T>::isPointer && d->autoDelete == this) {
-    	while(i != e) {
+    if (QTypeInfo<T>::isPointer && x->autoDelete == this) {
+    	while(i != y) {
 	    qDelete(i->t);
 	    i = i->n;
 	}
-	i = e->n;
+	i = y->n;
 	d->autoDelete = 0;
     }
-    if ( d->ref == 0 ) {
-	while(i != e) {
+    if ( x->ref == 0 ) {
+	while(i != y) {
 	    Node *n = i;
 	    i = i->n;
 	    delete n;
 	}
-	delete d;
+	delete x;
     }
 }
 

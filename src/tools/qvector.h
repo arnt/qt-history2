@@ -20,9 +20,20 @@ struct Q_EXPORT QVectorData
 };
 
 template <typename T>
+struct QVectorTypedData
+{ 
+    QAtomic ref;
+    int alloc, size;
+    T array[1];
+};
+
+template <typename T>
 class QVector
 {
- public:
+    typedef QVectorTypedData<T> Data;
+    union { QVectorData *p; QVectorTypedData<T> *d; };
+
+public:
     inline QVector() : p(&QVectorData::shared_null) { ++d->ref; }
     explicit QVector(int size);
     QVector(int size, const T &t);
@@ -128,13 +139,7 @@ class QVector
 private:
     void detach_helper();
     void realloc(int size, int alloc);
-    struct Data {
-	QAtomic ref;
-	int alloc, size;
-	T array[1];
-    };
     void free(Data *d);
-    union { QVectorData* p; Data* d; };
 };
 
 template <typename T>
@@ -208,15 +213,15 @@ QVector<T>::QVector(int size, const T &t)
 }
 
 template <typename T>
-void QVector<T>::free(Data *d)
+void QVector<T>::free(Data *x)
 {
     if (QTypeInfo<T>::isComplex) {
-	T* b = d->array;
-	T* i = b + d->size;
+	T* b = x->array;
+	T* i = b + x->size;
 	while (i-- != b)
 	    i->~T();
     }
-    qFree(d);
+    qFree(x);
 }
 
 template <typename T>
