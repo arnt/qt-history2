@@ -4299,7 +4299,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
 		break;
 	    }
 	}
-	if ( cursor.paragraph() != last || !cursor.atParagEnd()  )
+	if ( cursor.paragraph() == last && cursor.atParagEnd()  )
 	    break;
 	cursor.gotoNextLetter();
     }
