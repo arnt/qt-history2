@@ -184,7 +184,6 @@ QLibrary::~QLibrary()
       return 5 + 8;
   \endcode
 
-  \sa queryInterface()
 */
 void *QLibrary::resolve( const char* symb )
 {
@@ -248,7 +247,7 @@ bool QLibrary::load()
 
   This function is called by the destructor if the policy is not Manual.
 
-  \sa queryInterface(), resolve()
+  \sa resolve()
 */
 bool QLibrary::unload()
 {
