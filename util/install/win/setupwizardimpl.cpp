@@ -1298,8 +1298,8 @@ void SetupWizardImpl::showPageProgress()
 
 	timeCounter = 30;
 	if( copySuccessful ) {
-#if defined(Q_OS_WIN32)
 	    QDir installDir( optionsPage->installPath->text() );
+#if defined(Q_OS_WIN32)
 	    QDir windowsFolderDir( shell.windowsFolderName );
 #  if !defined(EVAL) && !defined(EDU)
 	    {
@@ -1373,12 +1373,13 @@ void SetupWizardImpl::showPageProgress()
 #    if defined(EVAL)
 			licensePage->evalName->text().latin1(),
 			licensePage->evalCompany->text().latin1(),
-			licensePage->serialNumber->text().latin1()
+			licensePage->serialNumber->text().latin1(),
 #    else
 			"",
 			licensePage->university->text().latin1(),
-			licensePage->serialNumber->text().latin1()
+			licensePage->serialNumber->text().latin1(),
 #    endif
+			installDir.absPath()
 			);
 		if ( ret != 0 ) {
 		    copySuccessful = FALSE;
