@@ -480,6 +480,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
 	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
+    t << endl << endl;
 
     if ( !project->isEmpty("PRECOMPH") ) {
 	QString outdir = project->first("MOC_DIR");
