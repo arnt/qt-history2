@@ -290,7 +290,7 @@ void CCommands::addSharedSettings( CComPtr<IConfiguration> pConfig )
     const CComBSTR linker("link.exe");
     const CComBSTR dllDefine("/D QT_DLL");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt220.lib $(QTDIR)\\lib\\qtmain.lib");
+    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt300.lib $(QTDIR)\\lib\\qtmain.lib");
 
     VERIFY_OK(pConfig->AddToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, staticLib, CComVariant(VARIANT_FALSE) ));
@@ -304,7 +304,7 @@ void CCommands::addStaticSettings( CComPtr<IConfiguration> pConfig )
     const CComBSTR linker("link.exe");
     const CComBSTR dllDefine("/D QT_DLL");
     const CComBSTR staticLib("$(QTDIR)\\lib\\qt.lib");
-    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt220.lib $(QTDIR)\\lib\\qtmain.lib");
+    const CComBSTR sharedLib("$(QTDIR)\\lib\\qt300.lib $(QTDIR)\\lib\\qtmain.lib");
 
     VERIFY_OK(pConfig->RemoveToolSettings( compiler, dllDefine, CComVariant(VARIANT_FALSE) ));
     VERIFY_OK(pConfig->RemoveToolSettings( linker, sharedLib, CComVariant(VARIANT_FALSE) ));
