@@ -43,7 +43,7 @@
 #endif // QT_H
 
 
-struct QShared
+struct Q_EXPORT QShared
 {
     QShared() : count( 1 ) { }
     void ref()		{ count++; }
