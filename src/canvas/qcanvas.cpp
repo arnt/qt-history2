@@ -2037,6 +2037,11 @@ void QCanvasItem::setVisible(bool yes)
 	}
     }
 }
+/*!
+    \obsolete
+    \fn bool QCanvasItem::visible() const
+    Use isVisible() instead.
+*/
 /*! \fn bool QCanvasItem::isVisible() const
 
   Returns TRUE if the canvas item is visible otherwise returns FALSE.
@@ -2050,6 +2055,11 @@ void QCanvasItem::setVisible(bool yes)
   \sa setVisible(), z()
 */
 
+/*!
+    \obsolete
+    \fn bool QCanvasItem::selected() const
+    Use isSelected() instead.
+*/
 /*! \fn bool QCanvasItem::isSelected() const
 
   Returns TRUE if the canvas item is selected; otherwise returns FALSE.
@@ -2072,6 +2082,11 @@ void QCanvasItem::setSelected(bool yes)
 }
 
 /*!
+    \obsolete
+    \fn bool QCanvasItem::enabled() const
+    Use isEnabled() instead.
+*/
+/*!
   \fn bool QCanvasItem::isEnabled() const
   Returns TRUE if the QCanvasItem is enabled; otherwise returns FALSE.
 */
@@ -2092,6 +2107,11 @@ void QCanvasItem::setEnabled(bool yes)
     }
 }
 
+/*!
+    \obsolete
+    \fn bool QCanvasItem::active() const
+    Use isActive() instead.
+*/
 /*!
   \fn bool QCanvasItem::isActive() const
   Returns TRUE if the QCanvasItem is active; otherwise returns FALSE.
