@@ -1166,10 +1166,12 @@ void QTextDocumentPrivate::contentsChanged()
         return;
 
     if (lastUnmodifiedUndoStackPos != -1
-        && lastUnmodifiedUndoStackPos == undoPosition)
+        && lastUnmodifiedUndoStackPos == undoPosition) {
+        lastUnmodifiedUndoStackPos = undoPosition;
         setModified(false);
-    else
+    } else {
         setModified(true);
+    }
 
     emit q->contentsChanged();
 }
@@ -1180,9 +1182,6 @@ void QTextDocumentPrivate::setModified(bool m)
         return;
 
     modified = m;
-
-    if (!modified)
-            lastUnmodifiedUndoStackPos = undoPosition;
 
     emit q->modificationChanged(modified);
 }
