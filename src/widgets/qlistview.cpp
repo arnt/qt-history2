@@ -105,11 +105,13 @@ struct QListViewPrivate
 
     class ItemColumnInfo {
       public:
-	ItemColumnInfo(): pm( 0 ), next( 0 ) {}
+	ItemColumnInfo(): pm( 0 ), next( 0 ), truncated( FALSE ), width( 0 ) {}
 	~ItemColumnInfo() { delete pm; delete next; }
-	QString text;
+	QString text, tmpText;
 	QPixmap * pm;
 	ItemColumnInfo * next;
+	bool truncated;
+	int width;
     };
 
     class ViewColumnInfo {
@@ -164,6 +166,8 @@ struct QListViewPrivate
 
     // suggested height for the items
     int fontMetricsHeight;
+    int minLeftBearing, minRightBearing;
+    int ellipsisWidth;
     bool allColumnsShowFocus;
 
     // currently typed prefix for the keyboard interface, and the time
@@ -181,7 +185,6 @@ struct QListViewPrivate
 
     bool clearing;
 
-    int minLeftBearing, minRightBearing;
 };
 
 
@@ -1196,6 +1199,53 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	return;
 
     QListView *lv = listView();
+
+    // hack, but we _need_ the column info for the ellipsis thingy!!!
+    if ( !columns ) {
+	for ( uint i = 0; i < lv->d->column.size(); ++i ) {
+	    setText( i, text( i ) );
+	}
+    }
+
+    QString t = text( column );
+    
+    if ( columns ) {
+	QListViewPrivate::ItemColumnInfo *ci = 0;
+	// try until we have a column info....
+	while ( !ci ) {
+	    ci = (QListViewPrivate::ItemColumnInfo*)columns;
+	    for ( int i = 0; i < column; ++i )
+		ci = ci->next;
+	
+	    if ( !ci ) {
+		setText( column, t );
+		ci = 0;
+	    }
+	}
+	
+	// if the column width changed and this item was not painted since this change
+	if ( ci && ci->width != width || ci->text != t ) {
+	    QFontMetrics fm( lv->fontMetrics() );
+	    ci->width = width;
+	    ci->truncated = FALSE;
+	    // if we have to do the ellipsis thingy calc the truncated text
+	    int pw = pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : lv->itemMargin();
+	    if ( fm.width( t ) + pw > width ) {
+		ci->truncated = TRUE;
+		ci->tmpText = "...";
+		int i = 0;
+		while ( fm.width( ci->tmpText + t[ i ] ) + pw < width )
+		    ci->tmpText += t[ i++ ];
+		ci->tmpText.remove( 0, 3 );
+		ci->tmpText += "...";
+	    }
+	}
+	
+	// if we have to draw the ellipsis thingy, use the truncated text
+	if ( ci && ci->truncated )
+	    t = ci->tmpText;
+    }
+
     int r = lv ? lv->itemMargin() : 1;
     const QPixmap * icon = pixmap( column );
 
@@ -1218,9 +1268,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	r += icon->width() + listView()->itemMargin();
     }
 
-    QString t = text( column );
     if ( !t.isEmpty() ) {
-	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter, t );
     }
@@ -1679,6 +1727,7 @@ QListView::QListView( QWidget * parent, const char *name )
     d->clearing = FALSE;
     d->minLeftBearing = fontMetrics().minLeftBearing();
     d->minRightBearing = fontMetrics().minRightBearing();
+    d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -2471,7 +2520,8 @@ void QListView::handleSizeChange( int section, int os, int ns )
 	left -= dx;
     if ( left < visibleWidth() )
 	viewport()->scroll( dx, 0, QRect( left, 0, visibleWidth() - left, visibleHeight() ) );
-    viewport()->repaint( left-4, 0, 4, visibleHeight(), FALSE ); // border between the items
+    viewport()->repaint( left - 4 - d->ellipsisWidth, 0, 4 + d->ellipsisWidth,
+			 visibleHeight(), FALSE ); // border between the items and ellipses width
 
     if ( columnAlignment( section ) != AlignLeft )
 	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
@@ -3827,6 +3877,7 @@ void QListView::reconfigureItems()
     d->fontMetricsHeight = fontMetrics().height();
     d->minLeftBearing = fontMetrics().minLeftBearing();
     d->minRightBearing = fontMetrics().minRightBearing();
+    d->ellipsisWidth = fontMetrics().width( "..." ) * 2;
     d->r->setOpen( FALSE );
     d->r->setOpen( TRUE );
 }
