@@ -145,6 +145,7 @@ sub classNames {
                 }
             }
             $line =~ s,//.*$,,; #remove c++ comments
+	    $line .= ";" if($line =~ m/^Q_[A-Z_]*\(.*\)$/); #qt macro
             $parsable .= $line if($line);
         }
         close(F);
@@ -180,7 +181,7 @@ sub classNames {
                               $i = $i2 if($end eq ";");
                               $last_definition = $i + 1;
                               last BLOCK;
-                          }
+			  }
                       }
                   }
               }
@@ -188,19 +189,24 @@ sub classNames {
         } elsif($character eq ";") {
             $definition = substr($parsable, $last_definition, $i - $last_definition + 1);
             $last_definition = $i + 1;
-        }
+	}
         if($definition) {
 	    $definition =~ s=[\n\r]==g;
-            my $symbol = 0;
+            my @symbols;
             if($definition =~ m/^ *typedef *.*\(\*([^\)]*)\)\(.*\);$/) {
-                $symbol = $1;
+		push @symbols, $1;
             } elsif($definition =~ m/^ *typedef +(.*) +([^ ]*);$/) {
-                $symbol = $2;
+		push @symbols, $2;
             } elsif($definition =~ m/^ *(template *<.*> *)?(class|struct) +([^ ]* +)?([^<\s]+) ?(<[^>]*> ?)?((,|:) *(public|private) *.*)? *\{\}$/) {
-                $symbol = $4;
-            }
-            if($symbol && $symbol =~ /^Q/) {
-		push @ret, $symbol;
+		push @symbols, $4;
+            } elsif($definition =~ m/^Q_DECLARE_ITERATOR\((.*)\);$/) {
+		push @symbols, $1 . "Iterator";
+		push @symbols, $1 . "MutableIterator";
+	    }
+	    
+	    foreach (@symbols) {
+		my $symbol = $_;
+		push @ret, $symbol if($symbol =~ /^Q/);
             }
         }
     }
