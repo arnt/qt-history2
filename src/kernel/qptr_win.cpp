@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qptr_win.cpp#58 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#57 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_win.cpp#58 $");
 
 
 #define COLOR_VALUE(c) ((flags & RGBColor) ? c.rgb() : c.pixel())
@@ -2046,27 +2046,21 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		cc = UCHAR(*p);
 	    }
 	    cw = CWIDTH( cc & 0xff );
-	}
 
-	else {					// not printable (except ' ')
+	} else {				// not printable (except ' ')
 
 	    if ( *p == 32 ) {			// the space character
 		cc = ' ';
 		cw = spacewidth;
-	    }
-
-	    else if ( *p == '\n' ) {		// newline
+	    } else if ( *p == '\n' ) {		// newline
 		if ( singleline ) {
 		    cc = ' ';			// convert newline to space
 		    cw = spacewidth;
-		}
-		else {
+		} else {
 		    cc = BEGLINE;
 		    cw = 0;
 		}
-	    }
-
-	    else if ( *p == '\t' ) {		// TAB character
+	    } else if ( *p == '\t' ) {		// TAB character
 		if ( expandtabs ) {
 		    cw = 0;
 		    if ( tabarray ) {		// use tab array
@@ -2086,9 +2080,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		    cc = ' ';
 		    cw = spacewidth;
 		}
-	    }
-
-	    else {				// ignore character
+	    } else {				// ignore character
 		k++;
 		p++;
 		continue;
@@ -2105,8 +2097,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	    if ( index == breakindex ) {	// break at current index
 		cc = BEGLINE;
 		cw = 0;
-	    }
-	    else {				// break at breakindex
+	    } else {				// break at breakindex
 		codes[begline] = BEGLINE | QMIN(breakwidth,MAXWIDTH);
 		maxwidth = QMAX(maxwidth,breakwidth);
 		begline = breakindex;
@@ -2129,9 +2120,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	codes[index++] = cc;
 	if ( index >= codelen - 1 ) {		// grow code array
 	    codelen *= 2;
-	    if ( code_alloc )
+	    if ( code_alloc ) {
 		codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
-	    else {
+	    } else {
 		codes = (ushort *)malloc( sizeof(ushort)*codelen );
 		code_alloc = TRUE;
 	    }
@@ -2154,8 +2145,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	nlines	 = ti->nlines;
 	codelen	 = ti->codelen;
 	codes	 = (ushort *)(data + sizeof(text_info));
-    }
-    else {
+    } else {
 	codes[begline] = BEGLINE | QMIN(tw,MAXWIDTH);
 	maxwidth = QMAX(maxwidth,tw);
 	nlines++;
@@ -2224,16 +2214,15 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     if ( (tf & DontClip) == 0 ) {		// clip text
 	QRegion new_rgn;
 	QRect r( x, y, w, h );
-	if ( testf(WxF) ) {			// world xform active
+	if ( txop == TxRotShear ) {		// world xform active
 	    QPointArray a( r );			// complex region
 	    a = xForm( a );
 	    new_rgn = QRegion( a );
-	}
-	else {
+	} else {
 	    r = xForm( r );
 	    new_rgn = QRegion( r );
 	}
-	if ( clip_on )				// add to existing region
+	if ( clip_on )				// combine with existing region
 	    new_rgn = new_rgn.intersect( crgn );
 	setClipRegion( new_rgn );
     }
@@ -2253,8 +2242,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	pp->updatePen();
 	pp->setBrush( QBrush(bg_col, Dense4Pattern) );
 	pp->updateBrush();
-    }
-    else {
+    } else {
 	pm = 0;
 	pp = 0;
     }
@@ -2326,11 +2314,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     }
 
     if ( (tf & DontClip) == 0 ) {		// restore clipping
-	if ( clip_on )				// set original region
+	if ( clip_on ) {			// set original region
 	    setClipRegion( save_rgn );
-	else {					// clipping was off
+	} else {				// clipping was off
 	    crgn = save_rgn;
-	    SelectClipRgn( hdc, 0 );
+	    setClipping( FALSE );
 	}
     }
 
