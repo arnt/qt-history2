@@ -30,8 +30,8 @@ enum {
     CMD_ENDQUOTATION, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
     CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE,
     CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IMAGE, CMD_INCLUDE, CMD_INDEX,
-    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_PART, CMD_PRINTLINE,
-    CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE,
+    CMD_KEYWORD, CMD_L, CMD_LIST, CMD_O, CMD_OMIT, CMD_OMITVALUE, CMD_PART,
+    CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION, CMD_QUOTEFILE,
     CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
     CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE,
     CMD_SKIPTO, CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS,
@@ -80,6 +80,7 @@ static struct {
     { "list", CMD_LIST, 0 },
     { "o", CMD_O, 0 },
     { "omit", CMD_OMIT, 0 },
+    { "omitvalue", CMD_OMITVALUE, 0 },
     { "part", CMD_PART, 0 },
     { "printline", CMD_PRINTLINE, 0 },
     { "printto", CMD_PRINTTO, 0 },
@@ -141,6 +142,7 @@ public:
     Set<QString> *params;
     QValueList<Text> *alsoList;
     Set<QString> *enumItemSet;
+    Set<QString> *omitEnumItemSet;
     Set<QString> *metaCommandSet;
     QMap<QString, QStringList> *metaCommandMap;
     DocPrivateExtra *extra;
@@ -148,7 +150,8 @@ public:
 
 DocPrivate::DocPrivate( const Location& location, const QString& source )
     : loc( location ), src( source ), params( 0 ), alsoList( 0 ),
-      enumItemSet( 0 ), metaCommandSet( 0 ), metaCommandMap( 0 ), extra( 0 )
+      enumItemSet( 0 ), omitEnumItemSet( 0 ), metaCommandSet( 0 ),
+      metaCommandMap( 0 ), extra( 0 )
 {
 }
 
@@ -157,6 +160,7 @@ DocPrivate::~DocPrivate()
     delete params;
     delete alsoList;
     delete enumItemSet;
+    delete omitEnumItemSet;
     delete metaCommandSet;
     delete metaCommandMap;
     delete extra;
@@ -209,7 +213,8 @@ private:
 		    Atom::Type rightType = Atom::ParaRight,
 		    const QString& string = "" );
     void leavePara();
-    void flushValueList();
+    void leaveValue();
+    void leaveValueList();
     CodeMarker *quoteFromFile( int command );
     void expandMacro( const QString& name, const QString& def, int numParams );
     Doc::SectioningUnit getSectioningUnit();
@@ -545,6 +550,16 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		case CMD_OMIT:
 		    getUntilEnd( command );
 		    break;
+		case CMD_OMITVALUE:
+		    leaveValue();
+		    x = getArgument();
+		    if ( priv->enumItemSet == 0 )
+			priv->enumItemSet = new Set<QString>;
+		    priv->enumItemSet->insert( x );
+		    if ( priv->omitEnumItemSet == 0 )
+			priv->omitEnumItemSet = new Set<QString>;
+		    priv->omitEnumItemSet->insert( x );
+		    break;
 		case CMD_PART:
 		    startSection( Doc::Part, command );
 		    break;
@@ -661,17 +676,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		    startFormat( ATOM_FORMATTING_UNDERLINE, command );
 		    break;
 		case CMD_VALUE:
-		    leavePara();
-		    if ( openedLists.isEmpty() ) {
-			openedLists.push( OpenedList(location(),
-						     OpenedList::Value) );
-			append( Atom::ListLeft, ATOM_LIST_VALUE );
-		    } else {
-			append( Atom::ListItemRight, ATOM_LIST_VALUE );
-		    }
-
+		    leaveValue();
 		    if ( openedLists.top().style() == OpenedList::Value ) {
-			QString x = getArgument();
+			x = getArgument();
 			if ( priv->enumItemSet == 0 )
 			    priv->enumItemSet = new Set<QString>;
 			priv->enumItemSet->insert( x );
@@ -780,8 +787,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 	    }
 	}
     }
-    leavePara();
-    flushValueList();
+    leaveValueList();
 
     if ( openedCommands.top() != CMD_OMIT )
 	location().warning( tr("Missing '\\%1'")
@@ -1132,7 +1138,7 @@ void DocParser::enterPara( Atom::Type leftType, Atom::Type rightType,
 			   const QString& string )
 {
     if ( paraState == OutsidePara ) {
-	flushValueList();
+	leaveValueList();
 	append( leftType, string );
 	indexStartedPara = FALSE;
 	pendingParaRightType = rightType;
@@ -1165,8 +1171,21 @@ void DocParser::leavePara()
     }
 }
 
-void DocParser::flushValueList()
+void DocParser::leaveValue()
 {
+    leavePara();
+    if ( openedLists.isEmpty() ) {
+	openedLists.push( OpenedList(location(),
+				     OpenedList::Value) );
+	append( Atom::ListLeft, ATOM_LIST_VALUE );
+    } else {
+	append( Atom::ListItemRight, ATOM_LIST_VALUE );
+    }
+}
+
+void DocParser::leaveValueList()
+{
+    leavePara();
     if ( !openedLists.isEmpty() &&
 	 openedLists.top().style() == OpenedList::Value &&
 	 priv->text.lastAtom()->type() != Atom::ListItemLeft ) {
@@ -1688,6 +1707,11 @@ Doc::SectioningUnit Doc::sectioningUnit() const
 const Set<QString> *Doc::enumItemNames() const
 {
     return priv->enumItemSet;
+}
+
+const Set<QString> *Doc::omitEnumItemNames() const
+{
+    return priv->omitEnumItemSet;
 }
 
 const Set<QString> *Doc::metaCommandsUsed() const

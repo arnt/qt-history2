@@ -182,6 +182,7 @@ public:
     void addItem( const EnumItem& item );
 
     const QValueList<EnumItem>& items() const { return itms; }
+    Access itemAccess( const QString& name ) const;
 
 private:
     QValueList<EnumItem> itms;

@@ -43,6 +43,7 @@ protected:
     virtual void processOtherMetaCommand( const Doc& doc,
 					  const QString& command,
 					  const QString& arg, Node *node );
+    void processOtherMetaCommands( const Doc& doc, Node *node );
 
 private:
     void reset( Tree *tree );

@@ -36,6 +36,7 @@ public:
     const QString& baseName() const;
     SectioningUnit granularity() const;
     const Set<QString> *enumItemNames() const;
+    const Set<QString> *omitEnumItemNames() const;
     const Set<QString> *metaCommandsUsed() const;
     QStringList metaCommandArgs( const QString& metaCommand ) const;
     const QValueList<Text> *alsoList() const;

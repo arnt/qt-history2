@@ -194,7 +194,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 				       " '\\%2'")
 				    .arg(arg).arg(command) );
 	}
-	return quickFunc;
+	return 0;
     } else if ( nodeTypeMap.contains(command) ) {
 	QStringList path = QStringList::split( ".", arg );
 	Node *quickNode = qsTre->findNode( path, nodeTypeMap[command] );
@@ -205,7 +205,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	} else {
 	    setQuickDoc( quickNode, doc );
 	}
-	return quickNode;
+	return 0;
     } else {
 	return CppCodeParser::processTopicCommand( doc, command, arg );
     }
@@ -754,8 +754,10 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc )
 		      (CppCodeParser::topicCommands() + topicCommands() +
 		       CppCodeParser::otherMetaCommands()) << COMMAND_REPLACE );
 	quickNode->setDoc( quickDoc, TRUE );
+	processOtherMetaCommands( quickDoc, quickNode );
     } else if ( !doc.isEmpty() ) {
 	quickNode->setDoc( doc, TRUE );
+	processOtherMetaCommands( doc, quickNode );
     }
 }
 

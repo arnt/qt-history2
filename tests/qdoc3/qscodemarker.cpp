@@ -113,13 +113,16 @@ QString QsCodeMarker::markedUpSynopsis( const Node *node,
 	    synopsis = name;
 	    if ( style == Summary && !enume->items().isEmpty() ) {
 		synopsis += " : ";
+		QString comma;
 		QValueList<EnumItem>::ConstIterator it = enume->items().begin();
 		while ( it != enume->items().end() ) {
-		    if ( it != enume->items().begin() )
-			synopsis += ", ";
-		    synopsis += (*it).name();
-		    if ( (*it).value().find(letterRegExp) != -1 )
-			synopsis += " = " + (*it).value();
+		    if ( enume->itemAccess((*it).name()) == Node::Public ) {
+			synopsis += comma;
+			synopsis += (*it).name();
+			if ( (*it).value().find(letterRegExp) != -1 )
+			    synopsis += " = " + (*it).value();
+			comma = ", ";
+		    }
 		    ++it;
 		}
 	    }

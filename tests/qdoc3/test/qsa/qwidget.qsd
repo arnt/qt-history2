@@ -22,7 +22,7 @@
     This enum is funny. Here are the values:
 
     \value NoFocuss A
-    \value TabFocus B
+    \omitvalue TabFocus
     \value ClickFocus C
     \value StrongFocus D
     \value WheelFocus E

@@ -297,6 +297,16 @@ void EnumNode::addItem( const EnumItem& item )
     itms.append( item );
 }
 
+Node::Access EnumNode::itemAccess( const QString& name ) const
+{
+    if ( doc().omitEnumItemNames() != 0 &&
+	 doc().omitEnumItemNames()->contains(name) ) {
+	return Private;
+    } else {
+	return Public;
+    }
+}
+
 TypedefNode::TypedefNode( InnerNode *parent, const QString& name )
     : LeafNode( Typedef, parent, name )
 {

@@ -246,6 +246,23 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
     }
 }
 
+void CppCodeParser::processOtherMetaCommands( const Doc& doc, Node *node )
+{
+    const Set<QString> *metaCommands = doc.metaCommandsUsed();
+    if ( metaCommands != 0 ) {
+	Set<QString>::ConstIterator c = metaCommands->begin();
+	while ( c != metaCommands->end() ) {
+	    QStringList args = doc.metaCommandArgs( *c );
+	    QStringList::ConstIterator a = args.begin();
+	    while ( a != args.end() ) {
+		processOtherMetaCommand( doc, *c, *a, node );
+		++a;
+	    }
+	    ++c;
+	}
+    }
+}
+
 void CppCodeParser::reset( Tree *tree )
 {
     tre = tree;
@@ -890,24 +907,7 @@ bool CppCodeParser::matchDocsAndStuff()
 	    NodeList::Iterator n = nodes.begin();
 	    QValueList<Doc>::Iterator d = docs.begin();
 	    while ( n != nodes.end() ) {
-		const Set<QString> *metaCommands = (*d).metaCommandsUsed();
-		if ( metaCommands != 0 ) {
-		    Set<QString>::ConstIterator c = metaCommands->begin();
-		    while ( c != metaCommands->end() ) {
-			args = (*d).metaCommandArgs( *c );
-			QStringList::ConstIterator a = args.begin();
-			while ( a != args.end() ) {
-			    processOtherMetaCommand( *d, *c, *a, *n );
-			    ++a;
-			}
-			++c;
-		    }
-		}
-		if ( (*n)->isInnerNode() ) {
-		    InnerNode *inner = (InnerNode *) *n;
-		    if ( inner->includes().isEmpty() )
-			inner->addInclude( inner->location().fileName() );
-		}
+		processOtherMetaCommands( *d, *n );
 		(*n)->setDoc( *d );
 		++d;
 		++n;
