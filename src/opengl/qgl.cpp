@@ -740,6 +740,8 @@ QGLContext::QGLContext( const QGLFormat &format, QPaintDevice *device )
 
 QGLContext::~QGLContext()
 {
+    if ( d )
+	delete d;
     reset();
 }
 

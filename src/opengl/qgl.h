@@ -153,7 +153,6 @@ private:
 Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
 Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
 
-class QGLContext;
 class QGLContextPrivate {
 public:
     bool		valid;
