@@ -678,7 +678,6 @@ QRepeaterScreen::QRepeaterScreen(int)
     QString fn = qws_topdir() + "/lib/fonts/screens";
     FILE * screendef=fopen(fn.local8Bit(),"r");
     if(!screendef) {
-        qDebug("Can't find %s",fn.local8Bit());
 	sw_cursor_exists=false;
         screens.append(new QScreenRec(new QLinuxFbScreen(0),
 				      "/proc/bus/pci/01/00.0",":0",true));
@@ -701,7 +700,7 @@ QRepeaterScreen::QRepeaterScreen(int)
 		   pci,&x,&y);
 	    QScreen * tmp=qt_lookup_screen(num,name);
 	    if(!tmp) {
-		qDebug("Failure to find screen %s",buf);
+		qDebug("Failure to find repeater screen %s",buf);
 	    } else {
 		QScreenRec * tmp2=new QScreenRec(tmp,pci,spec,swcursor==0);
 		tmp2->xoffs=x;
@@ -767,9 +766,7 @@ bool QRepeaterScreen::connect(const QString &)
 
     for(walker=screens.first();walker;walker=screens.next()) {
 	qt_qws_hardcoded_slot=walker->slot;
-	qDebug("Connecting to "+walker->fb);
 	walker->screen->connect(walker->fb);
-	qDebug("Done");
 	if(walker->xoffs==-1) {
 	    walker->xoffs=wcount;
 	    walker->yoffs=0;
