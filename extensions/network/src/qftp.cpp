@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#42 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#43 $
 **
 ** Implementation of Network Extension Library
 **
@@ -122,8 +122,6 @@ bool QFtp::checkConnection( QNetworkOperation *op )
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
 	op->setErrorCode( ErrHostNotFound );
-	emit finished( op );
-	clearOperationQueue();
     }
 
     return FALSE;

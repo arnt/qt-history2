@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#36 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -633,8 +633,10 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 	    d->opStartTimer->start( 1, TRUE );
 	    d->opInProgress = op;
 	} else {
+	    d->opInProgress = op;
+	    d->operationQueue.dequeue();
+	    clearOperationQueue();
 	    emit finished( op );
-	    d->operationQueue.clear();
 	}
 	
 	return;

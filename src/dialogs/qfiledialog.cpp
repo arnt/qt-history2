@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#341 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#342 $
 **
 ** Implementation of QFileDialog class
 **
@@ -3741,7 +3741,7 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
 	int ecode = op->errorCode();
 	if ( ecode == QNetworkProtocol::ErrListChlidren || ecode == QNetworkProtocol::ErrParse ||
 	     ecode == QNetworkProtocol::ErrUnknownProtocol || ecode == QNetworkProtocol::ErrLoginIncorrect ||
-	     ecode == QNetworkProtocol::ErrValid ) {
+	     ecode == QNetworkProtocol::ErrValid || ecode == QNetworkProtocol::ErrHostNotFound ) {
 	    d->url = d->oldUrl;
 	    rereadDir();
 	} else
