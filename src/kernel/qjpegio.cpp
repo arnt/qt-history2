@@ -217,10 +217,6 @@ void read_jpeg_image(QImageIO* iio)
 
 	(void) jpeg_start_decompress(&cinfo);
 
-
-//#define EXPERIMENTAL_JPEG_SCALING
-
-#ifdef EXPERIMENTAL_JPEG_SCALING
 	QString params = iio->parameters();
 	params.simplifyWhiteSpace();
 	int sWidth = 0, sHeight = 0;
@@ -290,9 +286,7 @@ void read_jpeg_image(QImageIO* iio)
 		(void) jpeg_finish_decompress(&cinfo);
 	    }
 
-	} else
-#endif // EXPERIMENTAL_JPEG_SCALING
-	{
+	} else {
 
 	    if ( cinfo.output_components == 3 || cinfo.output_components == 4) {
 		image.create( cinfo.output_width, cinfo.output_height, 32 );
