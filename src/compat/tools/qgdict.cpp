@@ -901,7 +901,7 @@ QDataStream &QGDict::read(QDataStream &s)
                     Q_UINT32 k;
                     s >> k;
                     read(s, d);
-                    // ### cannot insert 0 - this renders the thing
+                    // cannot insert 0 - this renders the thing
                     // useless since all pointers are written as 0,
                     // but hey, serializing pointers?  can it be done
                     // at all, ever?
@@ -936,7 +936,7 @@ QDataStream& QGDict::write(QDataStream &s) const
                     s << (Q_UINT32)((QIntBucket*)n)->getKey();
                     break;
                 case PtrKey:
-                    s << (Q_UINT32)0; // ### cannot serialize a pointer
+                    s << (Q_UINT32)0; // cannot serialize a pointer
                     break;
             }
             write(s, n->getData());                // write data

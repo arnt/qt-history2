@@ -680,7 +680,6 @@ static int cmp_arr(const void *n1, const void *n2)
 {
     return (n1 && n2) ? memcmp(n1, n2, cmp_item_size)
                         : (n1 ? 1 : (n2 ? -1 : 0));
-    // ### Qt 3.0: Add a virtual compareItems() method and call that instead
 }
 
 #if defined(Q_C_CALLBACKS)
