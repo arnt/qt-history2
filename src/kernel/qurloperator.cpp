@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#30 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -275,7 +275,7 @@ QUrlOperator::~QUrlOperator()
 {
     if ( !d )
 	return;
-    
+
     if ( d->networkProtocol )
 	delete d->networkProtocol;
     delete d;
@@ -771,7 +771,30 @@ bool QUrlOperator::parse( const QString &url )
 QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
 {
     QUrl::operator=( url );
+
+    QPtrDict<QNetworkOperation> getOpPutOpMap = d->getOpPutOpMap;
+    QPtrDict<QNetworkProtocol> getOpPutProtMap = d->getOpPutProtMap;
+    QPtrDict<QNetworkProtocol> getOpGetProtMap = d->getOpGetProtMap;
+    QPtrDict<QNetworkOperation> getOpRemoveOpMap = d->getOpRemoveOpMap;
+    
     *d = *url.d;
+    
+    d->getOpPutOpMap = getOpPutOpMap;
+    d->getOpPutProtMap = getOpPutProtMap;
+    d->getOpGetProtMap = getOpGetProtMap;
+    d->getOpRemoveOpMap = getOpRemoveOpMap;
+    
+    getNetworkProtocol();
+    return *this;
+}
+
+/*!
+  \reimp
+*/
+
+QUrlOperator& QUrlOperator::operator=( const QString &url )
+{
+    QUrl::operator=( url );
     getNetworkProtocol();
     return *this;
 }

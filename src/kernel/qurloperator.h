@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#18 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#19 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -68,6 +68,7 @@ public:
     virtual QUrlInfo info( const QString &entry ) const;
 
     QUrlOperator& operator=( const QUrlOperator &url );
+    QUrlOperator& operator=( const QString &url );
 
 public slots:
     void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
