@@ -1187,7 +1187,8 @@ void QComboBox::setItemIcon(const QIcon &icon, int row)
 }
 
 /*!
-    Sets the data \a role for the item on the given \a row in the combobox to the value \a variant.
+    Sets the data \a role for the item on the given \a row in the combobox
+    to the specified \a value.
 */
 void QComboBox::setItemData(int role, const QVariant &value, int row)
 {
@@ -1222,8 +1223,7 @@ QAbstractItemView *QComboBox::itemView() const
 }
 
 /*!
-
-  Sets the view to be used in the combobox popup.
+  Sets the view to be used in the combobox popup to the given \a itemView.
 */
 void QComboBox::setItemView(QAbstractItemView *itemView)
 {
@@ -1611,6 +1611,9 @@ void QComboBox::keyReleaseEvent(QKeyEvent *e)
         d->lineEdit->event(e);
 }
 
+/*!
+    \reimp
+*/
 void QComboBox::wheelEvent(QWheelEvent *e)
 {
     if (!d->container->isVisible()) {

@@ -129,7 +129,7 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     and setMaximum() to define the range of the scroll bar.
 
     QSlider provides methods for controlling tickmarks.
-    You can use setTickmarks() to indicate where
+    You can use setTickPosition() to indicate where
     you want the tickmarks to be, setTickInterval() to indicate how
     many of them you want.
 
@@ -147,7 +147,6 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
     \row \i \l sliderReleased()
     \i the user releases the slider.
     \endtable
-
 
     QSlider only provides integer ranges. Note that although
     QSlider handles very large numbers, it becomes difficult for users
@@ -424,6 +423,20 @@ QSlider::TickPosition QSlider::tickPosition() const
 {
     return d->tickPosition;
 }
+
+/*!
+    \fn TickPosition QSlider::tickmarks() const
+    \compat
+
+    Use tickPosition() instead.
+*/
+
+/*!
+    \fn QSlider::setTickmarks(TickPosition position)
+    \compat
+
+    Use setTickPosition() instead.
+*/
 
 /*!
     \property QSlider::tickInterval

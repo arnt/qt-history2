@@ -156,14 +156,14 @@ public:
 */
 
 /*!
-    \fn void QSpinBox::valueChanged(int i);
+    \fn void QSpinBox::valueChanged(int i)
 
     This signal is emitted whenever the spin box's value is changed.
     The new value's integer value is passed in \a i.
 */
 
 /*!
-    \fn void QSpinBox::valueChanged(QString text);
+    \fn void QSpinBox::valueChanged(const QString &text)
 
     \overload
 
@@ -459,6 +459,8 @@ QString QSpinBox::mapValueToText(int v) const
 }
 
 /*!
+    \fn int QSpinBox::mapTextToValue(QString *text, QValidator::State *state) const
+
     This virtual function is used by the spin box whenever it needs to
     interpret text entered by the user as a value. Note that neither
     prefix() nor suffix() are included when this function is called by
@@ -470,7 +472,7 @@ QString QSpinBox::mapValueToText(int v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    The default implementation tries to interpret \a txt as an integer
+    The default implementation tries to interpret \a text as an integer
     using QString::toInt() and returns the value. When this function
     sets *state to Intermediate it will return the minimum value.
 
@@ -583,11 +585,11 @@ int QSpinBox::mapTextToValue(QString *txt, QValidator::State *state) const
     \fn void QDoubleSpinBox::valueChanged(double d);
 
     This signal is emitted whenever the spin box's value is changed.
-    The new value's double value is passed in \a d.
+    The new value is passed in \a d.
 */
 
 /*!
-    \fn void QDoubleSpinBox::valueChanged(QString text);
+    \fn void QDoubleSpinBox::valueChanged(const QString &text);
 
     \overload
 
@@ -885,6 +887,8 @@ QString QDoubleSpinBox::mapValueToText(double v) const
 }
 
 /*!
+    \fn double QDoubleSpinBox::mapTextToValue(QString *text, QValidator::State *state) const
+
     This virtual function is used by the spin box whenever it needs to
     interpret text entered by the user as a value. Note that neither
     prefix() nor suffix() are included when this function is called by
@@ -896,7 +900,7 @@ QString QDoubleSpinBox::mapValueToText(double v) const
     Note that Qt handles specialValueText() separately; this function
     is only concerned with the other values.
 
-    The default implementation tries to interpret \a txt as an double
+    The default implementation tries to interpret \a text as an double
     using QString::toDouble() and returns the value. When this function
     sets *state to Intermediate it will return the minimum value.
 

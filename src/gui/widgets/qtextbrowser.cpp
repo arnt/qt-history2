@@ -136,6 +136,16 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
     \brief whether the text browser supports undo/redo operations
 */
 
+/*!
+    \enum QTextBrowser::ResourceType
+
+    This enum describes the types of resources that can be loaded by
+    the text browser.
+
+    \value HtmlResource  The resource contains HTML.
+    \value ImageResource The resource contains image data.
+*/
+
 void QTextBrowserPrivate::init()
 {
     Q_Q(QTextBrowser);
@@ -336,7 +346,8 @@ void QTextBrowser::setSource(const QUrl &url)
 /*!  \fn void QTextBrowser::highlighted(const QUrl &link)
 
     This signal is emitted when the user has selected but not
-    activated a link in the document.
+    activated an anchor in the document. The URL referred to by the
+    anchor is passed in \a link.
 */
 
 /*!  \fn void QTextBrowser::highlighted(const QString &link)
@@ -351,7 +362,8 @@ void QTextBrowser::setSource(const QUrl &url)
 /*!
     \fn void QTextBrowser::anchorClicked(const QUrl &link)
 
-    This signal is emitted when the user clicks an anchor.
+    This signal is emitted when the user clicks an anchor. The
+    URL referred to by the anchor is passed in \a link.
 */
 
 /*!

@@ -224,8 +224,9 @@ QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCol
     document fragment. Document fragments can also be created by the
     static functions, fromPlainText() and fromHTML().
 
-    A document fragment's text can be obtained by calling
-    toPlainText().
+    The contents of a document fragment can be obtained as plain text
+    by using the toPlainText() function, or it can be obtained as HTML
+    with toHtml().
 */
 
 
@@ -322,6 +323,8 @@ bool QTextDocumentFragment::isEmpty() const
 /*!
     Returns the document fragment's text as plain text (i.e. with no
     formatting information).
+
+    \sa toHtml()
 */
 QString QTextDocumentFragment::toPlainText() const
 {
@@ -333,6 +336,11 @@ QString QTextDocumentFragment::toPlainText() const
     return result;
 }
 
+/*!
+    Returns the contents of the document fragment as HTML.
+
+    \sa toPlainText()
+*/
 QString QTextDocumentFragment::toHtml() const
 {
     QTextDocument doc;

@@ -1109,7 +1109,7 @@ QFileInfo::setCaching(bool enable)
 */
 
 /*!
-    \enum QFileInfo::PermissionSpec
+    \enum QFileInfo::Permission
 
     \compat
 
@@ -1125,4 +1125,11 @@ QFileInfo::setCaching(bool enable)
     \value ReadOther
     \value WriteOther
     \value ExeOther
+*/
+
+/*!
+    \fn bool QFileInfo::permission(PermissionSpec permissions) const
+    \compat
+
+    Use permission() instead.
 */

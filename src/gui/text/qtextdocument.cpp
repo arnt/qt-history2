@@ -111,7 +111,10 @@ QString Qt::escape(const QString& plain)
     return rich;
 }
 
-/*!  Auxiliary function. Converts the plain text string \a plain to a
+/*!
+    \fn QString Qt::convertFromPlainText(const QString &plain, WhiteSpaceMode mode)
+
+    Auxiliary function. Converts the plain text string \a plain to a
     rich text formatted paragraph while preserving most of its look.
 
     \a mode defines the whitespace mode. Possible values are \c

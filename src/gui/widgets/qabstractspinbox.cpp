@@ -41,7 +41,7 @@ double operator/(const QCoreVariant &arg1, const QCoreVariant &arg2);
 
 /*!
     \class QAbstractSpinBox
-    \brief The QAbstractSpinBox class provides a spinwidget and a lineedit to
+    \brief The QAbstractSpinBox class provides a spinwidget and a line edit to
     display values.
 
     \ingroup abstractwidgets
@@ -417,8 +417,11 @@ QLineEdit *QAbstractSpinBox::lineEdit() const
 }
 
 
-/*! QAbstractSpinBox::setLineEdit(QLineEdit *e)
-    Sets the lineedit of the spinbox to be \a use instead of the current line edit widget. \a e can not be 0.
+/*!
+    \fn void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
+
+    Sets the line edit of the spinbox to be \a lineEdit instead of the
+    current line edit widget.
 */
 
 void QAbstractSpinBox::setLineEdit(QLineEdit *e)

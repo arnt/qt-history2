@@ -241,10 +241,10 @@ bool QProgressBar::isTextVisible() const
 {
     return d->textVisible;
 }
-/*!
-    Sets the allignment for the progressbar.
 
-    \sa Qt::allignment
+/*!
+    \property QProgressBar::alignment
+    \brief the alignment of the progress bar
 */
 void QProgressBar::setAlignment(Qt::Alignment alignment)
 {

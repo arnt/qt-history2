@@ -48,6 +48,10 @@ public:
     Use QAction instead.
 */
 
+/*!
+    \compat
+    Constructs a new menu item.
+*/
 QMenuItem::QMenuItem() : QAction((QWidget*)0)
 {
 }
@@ -57,11 +61,19 @@ void QMenuItem::setId(int id)
     d->param = d->id = id;
 }
 
+/*!
+    \compat
+    Returns the menu item's ID.
+*/
 int QMenuItem::id() const
 {
     return d->id;
 }
 
+/*!
+    \compat
+    Returns the signal emitter for the menu item.
+*/
 QSignalEmitter *QMenuItem::signal() const
 {
     if(!d->act_signal) {
@@ -76,6 +88,10 @@ void QMenuItem::setSignalValue(int param)
     d->param = param;
 }
 
+/*!
+    \compat
+    Returns the signal value for the menu item.
+*/
 int QMenuItem::signalValue() const
 {
     return d->param;

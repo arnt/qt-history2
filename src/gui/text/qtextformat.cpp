@@ -1679,7 +1679,7 @@ QFont QTextCharFormat::font() const
 
 /*!
     \fn void QTextFrameFormat::setHeight(int height)
-    \reimp
+    \overload
 
     Sets the frame's \a height.
 */

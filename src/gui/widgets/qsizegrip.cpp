@@ -305,6 +305,7 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
+/*! \reimp */
 bool QSizeGrip::event(QEvent *e)
 {
     switch(e->type()) {

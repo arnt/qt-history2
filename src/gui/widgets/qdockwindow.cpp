@@ -645,7 +645,7 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
 
     \sa hasFeature() features
 */
-void QDockWindow::setFeature(QDockWindow::DockWindowFeature feature, bool on)
+void QDockWindow::setFeature(DockWindowFeature feature, bool on)
 { setFeatures(on ? d->features | feature : d->features & ~feature); }
 
 
@@ -658,7 +658,7 @@ QDockWindow::DockWindowFeatures QDockWindow::features() const
 
     \sa setFeature() features
 */
-bool QDockWindow::hasFeature(QDockWindow::DockWindowFeature feature) const
+bool QDockWindow::hasFeature(DockWindowFeature feature) const
 { return d->features & feature; }
 
 /*!

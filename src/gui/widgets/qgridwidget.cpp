@@ -130,7 +130,7 @@ void QGridWidget::setMargin(int margin)
 }
 
 /*!
-    Sets the spacing between the child widgets to \a space (expressed
+    Sets the spacing between the child widgets to \a spacing (expressed
     in pixels).
 
     \sa setMargin()
