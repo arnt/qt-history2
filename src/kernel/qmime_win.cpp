@@ -40,6 +40,10 @@
 #include "qapplication_p.h"
 #include <shlobj.h>
 
+#if defined(__MINGW32__)
+#include <ctype.h>
+#endif
+
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
 extern bool qt_write_dib( QDataStream&, QImage );   // qimage.cpp
 

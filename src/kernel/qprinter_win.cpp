@@ -40,6 +40,11 @@
 #include "qpaintdevicemetrics.h"
 #include "qapplication_p.h"
 
+#if defined(__MINGW32__)
+#include <malloc.h>
+#define DOCINFOA DOCINFO
+#endif
+
 // QPrinter states
 
 #define PST_IDLE	0
@@ -530,7 +535,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	    DOCINFOA di;
 	    memset( &di, 0, sizeof(DOCINFO) );
 	    di.cbSize = sizeof(DOCINFO);
-	    di.lpszDocName = doc_name.ascii();
+#if defined(__MINGW32__)
+	    di.lpszDocName = (const TCHAR*)doc_name.unicode();
+#else
+ 	    di.lpszDocName = doc_name.ascii();
+#endif
 	    if ( ok && StartDocA(hdc, &di) == SP_ERROR )
 		ok = FALSE;
 	}

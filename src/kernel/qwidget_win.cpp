@@ -42,6 +42,9 @@
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 
+#if defined(__MINGW32__)
+#include <imm.h>
+#endif
 
 #if !defined(WS_EX_TOOLWINDOW)
 #define WS_EX_TOOLWINDOW 0x00000080
