@@ -38,10 +38,11 @@
 #include "qcomponentinterface.h"
 #ifndef QT_NO_COMPONENT
 #include "qlibrary.h"
-//#define QT_DEBUG_COMPONENT
+#define QT_DEBUG_COMPONENT
 
 #ifndef QT_H
 #include "qstring.h" // char*->QString conversion
+#include "qtimer.h"
 #endif // QT_H
 
 #ifdef Q_OS_WIN32
@@ -289,7 +290,7 @@ static void* qt_resolve_symbol( void* handle, const char* f )
   \sa setPolicy(), load()
 */
 QLibrary::QLibrary( const QString& filename, Policy pol )
-    : pHnd( 0 ), libfile( filename ), libPol( pol ), info( 0 )
+    : pHnd( 0 ), libfile( filename ), libPol( pol ), entry( 0 ), unloadTimer( 0 )
 {
     if ( pol == Immediately )
 	load();
@@ -306,8 +307,8 @@ QLibrary::~QLibrary()
 {
     if ( libPol != Manual ) {
 	if (!unload() ) {
-	    info->release();
-	    info = 0;
+	    entry->release();
+	    entry = 0;
 	}
     }
 }
@@ -330,7 +331,7 @@ QUnknownInterface* QLibrary::load()
     if ( !pHnd )
 	pHnd = qt_load_library( libfile );
 
-    if ( pHnd && !info ) {
+    if ( pHnd && !entry ) {
 #if defined(QT_DEBUG_COMPONENT)
 	qDebug( "%s has been loaded.", libfile.latin1() );
 #endif
@@ -341,20 +342,25 @@ QUnknownInterface* QLibrary::load()
 	if ( !infoProc )
 	    qDebug( "%s: Symbol \"qt_load_interface\" not found.", libfile.latin1() );
 #endif
-	info = infoProc ? infoProc() : 0;
-	if ( info ) {
-	    QLibraryInterface *piface = (QLibraryInterface*)info->queryInterface( IID_QLibraryInterface );
+	entry = infoProc ? infoProc() : 0;
+	if ( entry ) {
+	    QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
 	    if ( piface ) {
 		bool ok = piface->init();
 		piface->release();
 		if ( !ok ) {
-		    info->release();
-		    info = 0;
+		    entry->release();
+		    entry = 0;
 #if defined(QT_DEBUG_COMPONENT)
 		    qDebug( "%s: QLibraryInterface::init() failed.", libfile.latin1() );
 #endif
 		    unload();
 		    return 0;
+		}
+		if ( !unloadTimer ) {
+		    unloadTimer = new QTimer( this );
+		    connect( unloadTimer, SIGNAL( timeout() ), this, SLOT( tryUnload() ) );
+		    unloadTimer->start( 5000, FALSE );
 		}
 	    }
 	}
@@ -370,7 +376,7 @@ QUnknownInterface* QLibrary::load()
     }
 #endif
 
-    return info;
+    return entry;
 }
 
 /*!
@@ -380,7 +386,7 @@ QUnknownInterface* QLibrary::load()
 */
 bool QLibrary::isLoaded() const
 {
-    return info != 0;
+    return entry != 0;
 }
 
 /*!
@@ -400,8 +406,8 @@ bool QLibrary::isLoaded() const
 bool QLibrary::unload( bool force )
 {
     if ( pHnd ) {
-	if ( info ) {
-	    QLibraryInterface *piface = (QLibraryInterface*)info->queryInterface( IID_QLibraryInterface );
+	if ( entry ) {
+	    QLibraryInterface *piface = (QLibraryInterface*)entry->queryInterface( IID_QLibraryInterface );
 	    if ( piface ) {
 		bool can = piface->canUnload();
 		piface->release();
@@ -414,18 +420,18 @@ bool QLibrary::unload( bool force )
 		}
 	    }
 
-	    if ( info->release() ) {
+	    if ( entry->release() ) {
 #if defined(QT_DEBUG_COMPONENT) || defined(QT_CHECK_RANGE)
 		qDebug( "%s is still in use!", libfile.latin1() );
 #endif
 		if ( force )
-		    delete info;
+		    delete entry;
 		else {
-		    info->addRef();
+		    entry->addRef();
 		    return FALSE;
 		}
 	    }
-	    info = 0;
+	    entry = 0;
 	}
 	if ( !qt_free_library( pHnd ) )
 #if defined(QT_DEBUG_COMPONENT)
@@ -433,8 +439,10 @@ bool QLibrary::unload( bool force )
 	    qDebug( "%s could not be unloaded.", libfile.latin1() );
 #endif
 	    return FALSE;
-#if defined(QT_DEBUG_COMPONENT)
 	} else {
+	    delete unloadTimer;
+	    unloadTimer = 0;
+#if defined(QT_DEBUG_COMPONENT)
 	    qDebug( "%s has been unloaded.", libfile.latin1() );
 	}
 #endif
@@ -453,7 +461,7 @@ void QLibrary::setPolicy( Policy pol )
 {
     libPol = pol;
 
-    if ( libPol == Immediately && !info )
+    if ( libPol == Immediately && !entry )
 	load();
 }
 
@@ -483,7 +491,7 @@ QString QLibrary::library() const
 */
 QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
 {
-    if ( !info ) {
+    if ( !entry ) {
 	if ( libPol != Manual )
 	    load();
 	else {
@@ -495,10 +503,21 @@ QUnknownInterface* QLibrary::queryInterface( const QUuid& request )
     }
 
     QUnknownInterface * iface = 0;
-    if( info )
-	iface = info->queryInterface( request );
+    if( entry )
+	iface = entry->queryInterface( request );
 
     return iface;
+}
+
+/*!
+  \internal
+*/
+void QLibrary::tryUnload()
+{
+    // This slot is only called when there is a QLibraryInterface 
+    // implemented in the component, so there won't be accidental unloadings
+    if ( libPol != Manual )
+	unload();
 }
 
 #endif // QT_NO_COMPONENT

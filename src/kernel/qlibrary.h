@@ -48,8 +48,10 @@
 struct QUnknownInterface;
 struct QUuid;
 
-class Q_EXPORT QLibrary
+class Q_EXPORT QLibrary : public QObject
 {
+    Q_OBJECT
+
 public:
     enum Policy
     {
@@ -76,11 +78,15 @@ private:
 #ifdef Q_WS_WIN
     HINSTANCE pHnd;
 #else
-    void* pHnd;
+    void *pHnd;
 #endif
     QString libfile;
     Policy libPol;
-    QUnknownInterface* info;
+    QUnknownInterface *entry;
+    QTimer *unloadTimer;
+
+private slots:
+    void tryUnload();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
