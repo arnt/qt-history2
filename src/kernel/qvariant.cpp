@@ -546,9 +546,11 @@ QVariant& QVariant::operator= ( const QPointArray& v )
   Assigns the value of some \a other variant to this variant.
   This is a deep copy.
 */
-QVariant& QVariant::operator= ( const QVariant& other )
+QVariant& QVariant::operator= ( const QVariant& variant )
 {
     clear();
+
+    QVariant& other( (QVariant&)variant );
 
     switch( other.type() )
 	{
@@ -1170,6 +1172,8 @@ void QVariant::save( QDataStream& s ) const
 {
     s << (Q_UINT32)type();
 
+    QVariant* that = (QVariant*)this;
+
     switch( typ )
 	{
 	case Custom:
@@ -1177,73 +1181,73 @@ void QVariant::save( QDataStream& s ) const
 	    custom_type->save( value.ptr, s );
 	    break;
 	case Bitmap:
-	    s << asBitmap();
+	    s << that->asBitmap();
 	    break;
 	case PointArray:
-	    s << asPointArray();
+	    s << that->asPointArray();
 	    break;
 	case Region:
-	    s << asRegion();
+	    s << that->asRegion();
 	    break;
 	case List:
-	    s << asList();
+	    s << that->asList();
 	    break;
 	case Map:
-	    s << asMap();
+	    s << that->asMap();
 	    break;
 	case String:
-	    s << asString();
+	    s << that->asString();
 	    break;
 	case CString:
-	    s << asCString();
+	    s << that->asCString();
 	    break;
 	case StringList:
-	    s << asStringList();
+	    s << that->asStringList();
 	    break;
 	case Font:
-	    s << asFont();
+	    s << that->asFont();
 	    break;
 	case Pixmap:
-	    s << asPixmap();
+	    s << that->asPixmap();
 	    break;
 	case Image:
-	    s << asImage();
+	    s << that->asImage();
 	    break;
 	case Brush:
-	    s << asBrush();
+	    s << that->asBrush();
 	    break;
 	case Point:
-	    s << asPoint();
+	    s << that->asPoint();
 	    break;
 	case Rect:
-	    s << asRect();
+	    s << that->asRect();
 	    break;
 	case Size:
-	    s << asSize();
+	    s << that->asSize();
 	    break;
 	case Color:
-	    s << asColor();
+	    s << that->asColor();
 	    break;
 	case Palette:
-	    s << asPalette();
+	    s << that->asPalette();
 	    break;
 	case ColorGroup:
-	    s << asColorGroup();
+	    s << that->asColorGroup();
 	    break;
 	case IconSet:
-	    s << asIconSet().pixmap(); //### add stream operator to iconset #ME
+	    s << that->asIconSet().pixmap(); //### add stream operator to iconset #ME
 	    break;
 	case Int:
-	    s << asInt();
+	    s << that->asInt();
 	    break;
 	case UInt:
-	    s << asUInt();
+	    s << that->asUInt();
 	    break;
 	case Bool:
-	    s << (Q_INT8)asBool();
+	    s << (Q_INT8)that->asBool();
 	    break;
 	case Double:
-	    s << asDouble();
+	    s << that->asDouble();
 	    break;
 	case Invalid: // fall through
 	default:
