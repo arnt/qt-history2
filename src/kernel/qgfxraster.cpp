@@ -3073,6 +3073,66 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 	    }
 	    GFX_END
 	    return;
+	} else if(depth==8) {
+	    useBrush();
+	    int x1,y1,x2,y2;
+	    rx+=xoffs;
+	    ry+=yoffs;
+	    x2=rx+w-1;
+	    y2=ry+h-1;
+	    if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
+	       x2<cliprect[0].left() || y2<cliprect[0].top()) {
+		GFX_END
+	        return;
+	    }
+	    x1=cliprect[0].left() > rx ? cliprect[0].left() : rx;
+	    y1=cliprect[0].top() > ry ? cliprect[0].top() : ry;
+	    x2=cliprect[0].right() > x2 ? x2 : cliprect[0].right();
+	    y2=cliprect[0].bottom() > y2 ? y2 : cliprect[0].bottom();
+	    w=(x2-x1)+1;
+	    h=(y2-y1)+1;
+
+	    if(w<1 || h<1) {
+		GFX_END
+		return;
+	    }
+
+	    unsigned char * myptr=(unsigned char *)scanLine(y1);
+
+	    int frontadd;
+	    int backadd;
+	    int count;
+	    calcPacking(myptr,x1,x2,frontadd,backadd,count);
+
+	    int loopc,loopc2;
+	    QuadByte put;
+	    unsigned char * sp=(unsigned char *)&put;
+	    *sp=pixel;
+	    *(sp+1)=pixel;
+	    *(sp+2)=pixel;
+	    *(sp+3)=pixel;
+	    *(sp+4)=pixel;
+	    *(sp+5)=pixel;
+	    *(sp+6)=pixel;
+	    *(sp+7)=pixel;
+	    
+	    int add=linestep();
+	    add-=(frontadd+(count * 8)+backadd);
+
+	    myptr=((char *)scanLine(y1))+x1;
+	    for(loopc=0;loopc<h;loopc++) {
+		for(loopc2=0;loopc2<frontadd;loopc2++)
+		    *(myptr++)=pixel;
+		for(loopc2=0;loopc2<count;loopc2++) {
+		    *((QuadByte *)myptr)=put;
+		    myptr+=8;
+		}
+		for(loopc2=0;loopc2<backadd;loopc2++)
+		    *(myptr++)=pixel;
+		myptr+=add;
+	    }
+	    GFX_END
+	    return;
 	} else {
 
 	}
