@@ -1879,7 +1879,9 @@ void Resource::saveImageData( const QImage &img, QTextStream &ts, int indent )
     ulong len = bazip.size();
     ts << makeIndent( indent ) << "<data format=\"XPM.GZ\" length=\"" << ba.size() << "\">";
     static const char hexchars[] = "0123456789abcdef";
-    for ( int i = 0; i < (int)len; ++i ) {
+    for ( int i = 4; i < (int)len; ++i ) {
+	// The first 4 bytes in qCompress() are the length of the unzipped
+	// format. The XPM.GZ format does not use these.
 	uchar s = (uchar) bazip[i];
 	ts << hexchars[s >> 4];
 	ts << hexchars[s & 0x0f];
