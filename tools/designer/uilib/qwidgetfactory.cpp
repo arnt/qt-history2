@@ -1519,6 +1519,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
     }
 #endif
 
+    setupPluginDir();
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager )
 	widgetInterfaceManager =
