@@ -237,7 +237,7 @@ QTextItem QTextLayout::itemAt( int i )
 
 QTextItem QTextLayout::findItem( int strPos )
 {
-    if ( strPos == 0 )
+    if ( strPos == 0 && d->items.size() )
 	return QTextItem( 0, d );
     // ## TODO use bsearch
     for ( int i = d->items.size()-1; i >= 0; --i ) {
