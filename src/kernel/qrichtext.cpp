@@ -4035,6 +4035,24 @@ int QTextParag::rightMargin() const
     return rm;
 }
 
+int QTextParag::lineSpacing() const
+{
+    QStyleSheetItem *item = style();
+    if ( !item )
+	return 0;
+
+    int ls = item->lineSpacing();
+    if ( ls == QStyleSheetItem::Undefined )
+	return 0;
+    if ( is_printer( painter() ) ) {
+	QPaintDeviceMetrics metrics( painter()->device() );
+	double yscale = scale_factor( metrics.logicalDpiY() );
+	ls = (int)( (double)ls * yscale );
+    }
+
+    return ls;
+}
+
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
@@ -4432,6 +4450,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
     int marg = left + rdiff;
     int minw = 0;
     int tminw = marg;
+    int ls = doc ? parag->lineSpacing() : 0;
 
     start = 0;
     if ( start == 0 )
@@ -4488,7 +4507,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		fullWidth = FALSE;
 	    curLeft = x;
 	    y += QMAX( h, tmph );
-	    tmph = c->height();
+	    tmph = c->height() + ls;
 	    h = tmph;
 	    lineStart->y = y;
 	    lineStart->h = h;
@@ -4531,7 +4550,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
-		tmph = c->height();
+		tmph = c->height() + ls;
 		h = 0;
 		lineStart->y = y;
 		insertLineStart( parag, i, lineStart );
@@ -4558,7 +4577,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		    fullWidth = FALSE;
 		curLeft = x;
 		y += h;
-		tmph = c->height();
+		tmph = c->height() + ls;
 		h = tmph;
 		lineStart->y = y;
 		insertLineStart( parag, i + 1, lineStart );
@@ -4575,7 +4594,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	} else if ( lineStart && ( isBreakable( string, i ) || parag->isNewLinesAllowed() && c->c == '\n' ) ) {
 	    if ( len < 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
-		tmph = QMAX( tmph, c->height() );
+		tmph = QMAX( tmph, c->height() + ls );
 	    }
 	    minw = QMAX( minw, tminw );
 	    tminw = marg + ww;
@@ -4587,7 +4606,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	} else {
 	    tminw += ww;
 	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
-	    tmph = QMAX( tmph, c->height() );
+	    tmph = QMAX( tmph, c->height() + ls );
 	}
 
 	c->x = x;

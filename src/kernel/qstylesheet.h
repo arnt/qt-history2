@@ -149,6 +149,9 @@ public:
     bool selfNesting() const;
     void setSelfNesting( bool );
 
+    void setLineSpacing( int ls );
+    int lineSpacing() const;
+
 private:
     void init();
     class Data;

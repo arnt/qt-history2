@@ -56,6 +56,7 @@ public:
     int fontsize;
     int fontsizelog;
     int fontsizestep;
+    int lineSpacing;
     QString fontfamily;
     QStyleSheetItem *parentstyle;
     QString stylename;
@@ -191,6 +192,7 @@ void QStyleSheetItem::init()
     d->list = QStyleSheetItem::ListDisc;
     d->whitespacemode = QStyleSheetItem::WhiteSpaceNormal;
     d->selfnest = TRUE;
+    d->lineSpacing = Undefined;
 }
 
 /*!
@@ -684,6 +686,19 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     d->selfnest = nesting;
 }
 
+/*! Sets the linespacing to be \a ls pixels */
+
+void QStyleSheetItem::setLineSpacing( int ls )
+{
+    d->lineSpacing = ls;
+}
+
+/*! Returns the linespacing */
+
+int QStyleSheetItem::lineSpacing() const
+{
+    return d->lineSpacing;
+}
 
 //************************************************************************
 
