@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#52 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -104,7 +104,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
   even-odd fill algorithm is used.
 
   This constructor may create complex regions that will slow
-  down painting when used. 
+  down painting when used.
 */
 
 QRegion::QRegion( const QPointArray &a, bool winding )
@@ -212,10 +212,9 @@ Region qt_x11_bitmapToRegion(const QBitmap& bitmap)
   color1, as if each pixel was a 1 by 1 rectangle.
 
   This constructor may create complex regions that will slow
-  down painting when used. Note that if you want to set a clip mask
-  before calling QPainter::drawPixmap(), using QPixmap::setMask() is
-  generally faster.
-  
+  down painting when used. Note that drawing masked pixmaps
+  can be done much faster using QPixmap::setMask().
+
 */
 QRegion::QRegion( const QBitmap & bm )
 {
@@ -238,7 +237,7 @@ QRegion::~QRegion()
 }
 
 
-/*!  
+/*!
   Assigns \a r to this region and returns a reference to the
   region.
 
@@ -350,10 +349,10 @@ void QRegion::translate( int dx, int dy )
 
 
 /*!
-  Returns a region which is the union of this region and \a r. 
+  Returns a region which is the union of this region and \a r.
 
     <img src=runion.png>
-  
+
   The figure shows the union of two elliptical regions.
 */
 
@@ -368,7 +367,7 @@ QRegion QRegion::unite( const QRegion &r ) const
   Returns a region which is the intersection of this region and \a r.
 
   <img src=rintersect.png>
-  
+
   The figure shows the intersection of two elliptical regions.
 */
 
@@ -383,7 +382,7 @@ QRegion QRegion::intersect( const QRegion &r ) const
   Returns a region which is \a r subtracted from this region.
 
   <img src=rsubtract.png>
-  
+
   The figure shows the result when the ellipse on the right is subtracted
   from the ellipse on the left. (\c left-right )
 */
@@ -399,7 +398,7 @@ QRegion QRegion::subtract( const QRegion &r ) const
   Returns a region which is the exclusive or (XOR) of this region and \a r.
 
   <img src=rxor.png>
-  
+
   The figure shows the exclusive or of two elliptical regions.
 */
 
@@ -413,7 +412,7 @@ QRegion QRegion::eor( const QRegion &r ) const
 
 /*!
   Returns the bounding rectangle of this region.
-  An empty region gives a rectangle that is  QRect::isNull(). 
+  An empty region gives a rectangle that is  QRect::isNull().
 */
 
 QRect QRegion::boundingRect() const
@@ -442,7 +441,7 @@ struct _XRegion {
 
 /*!
   Returns an array of non-overlapping rectangles that make up the region.
-  
+
   The union of all the rectangles is equal to the original region.
 */
 
