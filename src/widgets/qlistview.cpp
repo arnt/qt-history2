@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#186 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#187 $
 **
 ** Implementation of QListView widget class
 **
@@ -537,8 +537,10 @@ void QListViewItem::removeItem( QListViewItem * tbg )
 	QListViewItem * c = lv->d->currentSelected;
 	while( c && c != tbg )
 	    c = c->parentItem;
-	if ( c == tbg )
+	if ( c == tbg ) {
 	    lv->d->currentSelected = 0;
+	    emit lv->selectionChanged( 0 );
+	}
     }
 
     if ( lv && lv->d->focusItem ) {
@@ -771,7 +773,9 @@ void QListViewItem::setup()
 {
     widthChanged();
     QListView * v = listView();
-    setHeight( v->d->fontMetricsHeight + 2*v->itemMargin() );
+    int h = v->d->fontMetricsHeight + 2*v->itemMargin();
+    // ### add one here?  conditionally?  debug( "h %d", h );
+    setHeight( h );
 }
 
 /*!
@@ -1281,7 +1285,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 		while( point < end ) {
 		    i = 128;
 		    if ( i+point > end )
-			i = end;
+			i = end-point;
 		    p->drawPixmap( other, point, *verticalLine,
 				   0, 0, 1, i );
 		    point += i;
@@ -2413,8 +2417,11 @@ void QListView::mousePressEvent( QMouseEvent * e )
 	    x1 -= treeStepSize() * (it.current()->l - 1);
 	    if ( x1 >= 0 && ( !i->isSelectable() || x1 < treeStepSize() ) ) {
 		setOpen( i, !i->isOpen() );
-		if ( !d->currentSelected )
+		if ( !d->currentSelected ) {
 		    setCurrentItem( i );
+		    // i may have been deleted here
+		    i = itemAt( e->pos() );
+		}
 		d->buttonDown = FALSE;
 		d->ignoreDoubleClick = TRUE;
 		d->buttonDown = FALSE;
