@@ -770,6 +770,7 @@ void QPainter::restore()
 #else
     xlatex = ps->xlatex;
     xlatey = ps->xlatey;
+    setf( VxF, xlatex || xlatey );
 #endif
     if ( ps->rgn != crgn || hardRestore )
 	setClipRegion( ps->rgn );
