@@ -93,10 +93,13 @@ class QWidgetListIt;
 
 #if defined(Q_WS_MAC)
 
+typedef long int OSStatus;
 typedef struct OpaqueScrapRef *ScrapRef;
 typedef struct OpaqueRgnHandle *RgnHandle;
 typedef struct OpaqueWindowPtr *WindowPtr;
+typedef WindowPtr WindowRef;
 typedef struct OpaqueGrafPtr *GWorldPtr;
+typedef GWorldPtr GrafPtr;
 typedef struct GDevice **GDHandle;
 typedef struct ColorTable ColorTable;
 typedef struct BitMap BitMap;

@@ -155,13 +155,18 @@ static WId qt_root_win() {
     return (WId) ret;
 }
 
-static OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHandle, void *w)
+OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle, RgnHandle, void *w)
 {
     QWidget *widget = (QWidget *)w;
     if(!widget)
 	widget = QWidget::find( (WId)window );
-    if ( widget )
+    if ( widget ) {
+	bool unclipped = widget->testWFlags( Qt::WPaintUnclipped );
+	widget->setWFlags( Qt::WPaintUnclipped );
 	widget->erase(0, 0, widget->width(), widget->height());
+	if ( !unclipped )
+	    widget->clearWFlags( Qt::WPaintUnclipped );
+    }
     return 0;
 }
 
@@ -733,7 +738,6 @@ void QWidget::showWindow()
 		TransitionWindowAndParent((WindowPtr)hd, (WindowPtr)parentWidget()->hd, 
 					  kWindowSheetTransitionEffect, kWindowShowTransitionAction, NULL);
 	}
-
 	ShowHide( (WindowPtr)hd, 1 );
 	setActiveWindow();
     }
@@ -1230,11 +1234,6 @@ void QWidget::propagateUpdates(int , int , int w, int h)
 {
     SetPortWindowPort((WindowPtr)handle());
     QRect paintRect( 0, 0, w, h );
-
-#if 0
-    if(!testWFlags(WRepaintNoErase))
-	erase(paintRect);
-#endif
 
     setWState( WState_InPaintEvent );
     QPaintEvent e( paintRect );
