@@ -13,7 +13,8 @@ dialogs {
 		  $$DIALOGS_H/qsemimodal.h \
 		  $$DIALOGS_H/qtabdialog.h \
 		  $$DIALOGS_H/qwizard.h \
-		  $$DIALOGS_H/qinputdialog.h
+		  $$DIALOGS_H/qinputdialog.h \
+		  $$DIALOGS_H/qpagesetupdialog.h
 
         !embedded:mac:SOURCES  += $$DIALOGS_CPP/qfiledialog_mac.cpp $$DIALOGS_CPP/qcolordialog_mac.cpp
 	win32:SOURCES += $$DIALOGS_CPP/qfiledialog_win.cpp
@@ -29,5 +30,6 @@ dialogs {
 		  $$DIALOGS_CPP/qprogressdialog.cpp \
 		  $$DIALOGS_CPP/qtabdialog.cpp \
 		  $$DIALOGS_CPP/qwizard.cpp \
-		  $$DIALOGS_CPP/qinputdialog.cpp
+		  $$DIALOGS_CPP/qinputdialog.cpp \
+		  $$DIALOGS_CPP/qpagesetupdialog.cpp
 }

@@ -28,6 +28,7 @@ static inline int qt_open(const char *pathname, int flags, mode_t mode)
 #include "qpaintdevicemetrics.h"
 #include "qpsprinter_p.h"
 #include "qprintdialog.h"
+#include "qpagesetupdialog.h"
 #include "qapplication.h"
 #include "qprinter_p.h"
 
@@ -241,6 +242,18 @@ bool QPrinter::setup( QWidget * parent )
 	globalPrinterDefaults->colorMode = colorMode();
     }
     return result;
+}
+
+
+bool QPrinter::pageSetup( QWidget *parent )
+{
+#ifndef QT_NO_PAGESETUPDIALOG
+    QPageSetupDialog dlg( this, parent, "page_setup" );
+    int result = dlg.exec();
+    return result == QDialog::Accepted;
+#else
+    return FALSE;
+#endif
 }
 
 static void closeAllOpenFds()

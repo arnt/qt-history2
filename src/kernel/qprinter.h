@@ -88,7 +88,6 @@ public:
 #endif
 #ifdef Q_WS_MAC
     bool printSetup();
-    bool pageSetup();
 #endif
     virtual void setPageOrder( PageOrder );
     PageOrder   pageOrder() const;
@@ -128,9 +127,7 @@ public:
     bool        aborted()       const;
 
     bool        setup( QWidget *parent = 0 );
-#ifdef Q_WS_WIN
     bool	pageSetup( QWidget *parent = 0 );
-#endif
 
     PaperSource paperSource()   const;
     virtual void setPaperSource( PaperSource );
