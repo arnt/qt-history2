@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#174 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#175 $
 **
 ** Definition of QIconView widget class
 **
@@ -3264,10 +3264,13 @@ bool QIconView::sortDirection() const
 
 void QIconView::setWordWrapIconText( bool b )
 {
+    if ( d->wordWrapIconText == b )
+	return;
+    
     d->wordWrapIconText = b;
     for ( QIconViewItem *item = d->firstItem; item; item = item->next )
 	item->wordWrapDirty = TRUE;
-    viewport()->repaint( FALSE );
+    alignItemsInGrid( TRUE );
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#84 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -560,7 +560,7 @@ void QLCDNumber::setBinMode()
 void QLCDNumber::setMode( Mode m )
 {
     base = m;
- 
+}
 
 
 /*!
