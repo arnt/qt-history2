@@ -139,7 +139,7 @@ QString qax_generateDocumentation(QAxBase *that)
     QString coClass  = mo->classInfo(mo->indexOfClassInfo("CoClass")).value();
 
     stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
-    stream << "<p>The " << coClass << " COM object is a " << that->qObject()->className();
+    stream << "<p>The " << coClass << " COM object is a " << that->qObject()->metaObject()->className();
     stream << " with the CLSID " <<  that->control() << ".</p>" << endl;
 
     stream << "<h3>Interfaces</h3>" << endl;
