@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#321 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#322 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -971,6 +971,12 @@ void QWidget::update( int x, int y, int w, int h )
   \overload void QWidget::repaint( bool erase )
 
   This version repaints the entire widget.
+*/
+
+/*!
+  \overload void QWidget::repaint()
+
+  This version erases and repaints the entire widget.
 */
 
 /*!
