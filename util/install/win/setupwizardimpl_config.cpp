@@ -567,6 +567,22 @@ void SetupWizardImpl::cleanDone()
     else if ( entry == "Off" )
 	args += "-no-sql-db2";
 
+    entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/SQLite", "Off", &settingsOK );
+    if ( entry == "Direct" )
+	args += "-qt-sql-sqlite";
+    else if ( entry == "Plugin" )
+	args += "-plugin-sql-sqlite";
+    else if ( entry == "Off" )
+	args += "-no-sql-sqlite";
+
+    entry = settings.readEntry( "/Trolltech/Qt/SQL Drivers/iBase", "Off", &settingsOK );
+    if ( entry == "Direct" )
+	args += "-qt-sql-ibase";
+    else if ( entry == "Plugin" )
+	args += "-plugin-sql-ibase";
+    else if ( entry == "Off" )
+	args += "-no-sql-ibase";
+
 #  if defined(Q_OS_WIN32)
 //TODO: Win only, remove these options from wizard on mac?
     entry = settings.readEntry( "/Trolltech/Qt/Accessibility", "On", &settingsOK );
