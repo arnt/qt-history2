@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#6 $
 **
 ** Implementation of QTextStream class
 **
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qtextstream.cpp#6 $";
 #endif
 
 
@@ -543,11 +543,13 @@ QTextStream &QTextStream::operator<<( void *ptr )// any pointer
 QTextStream &QTextStream::readRawBytes( char *s, uint len )
 {
     dev->readBlock( s, len );
+    return *this;
 }
 
 QTextStream &QTextStream::writeRawBytes( const char *s, uint len )
 {
     dev->writeBlock( s, len );
+    return *this;
 }
 
 
