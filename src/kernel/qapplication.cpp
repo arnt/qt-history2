@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#102 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#101 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication.cpp#102 $");
 
 
 /*!
@@ -687,6 +687,32 @@ bool QApplication::startingUp()
 bool QApplication::closingDown()
 {
     return is_app_closing;
+}
+
+/*!
+  Processes pending events, for 3 seconds or until there
+  are no more events to process, then return.
+
+  You can call this function occasionally when your program is busy doing a
+  long operation (e.g. copying a file).
+*/
+
+void QApplication::processEvents()
+{
+    processEvents( 3000 );
+}
+
+/*!
+  Waits for an event to occur, processes it, then returns.
+
+  This function is useful for adapting Qt to situations where the event
+  processing must be grafted into existing program loops.  Beware
+  that using this function in new applications may be an indication
+  of design problems.
+*/
+void QApplication::processOneEvent()
+{
+    processNextEvent(TRUE);
 }
 
 

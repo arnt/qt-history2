@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.h#66 $
+** $Id: //depot/qt/main/src/kernel/qapp.h#67 $
 **
 ** Definition of QApplication class
 **
@@ -80,6 +80,8 @@ public:
 
     int		     exec();
     void	     processEvents();
+    void	     processEvents( int maxtime );
+    void	     processOneEvent();
     int		     enter_loop();
     void	     exit_loop();
     static void	     exit( int retcode=0 );

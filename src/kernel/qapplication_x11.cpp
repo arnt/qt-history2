@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#227 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#228 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -67,7 +67,7 @@ extern "C" int select( int, void *, void *, void *, struct timeval * );
 extern "C" void bzero(void *, size_t len);
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#227 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#228 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -1656,23 +1656,22 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
 
 /*!
-  Processes all pending events and returns immediately.
+  Processes pending events, for \a maxtime milliseconds or until there
+  are no more events to process, then return.
 
   You can call this function occasionally when you program is busy doing a
   long operation (e.g. copying a file).
 */
-
-void QApplication::processEvents()
+void QApplication::processEvents( int maxtime )
 {
     QTime start = QTime::currentTime();
     QTime now;
     while ( !quit_now && processNextEvent(FALSE) ) {
 	now = QTime::currentTime();
-	if ( start.msecsTo(now) > 3000 )	// 3 secs or more elapsed
+	if ( start.msecsTo(now) > maxtime )
 	    break;
     }
 }
-
 
 /*!
   This function enters the main event loop (recursively).
