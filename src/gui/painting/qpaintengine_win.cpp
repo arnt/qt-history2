@@ -318,11 +318,15 @@ typedef int (__stdcall *PtrSetWorldTransform)(HDC hdc, const XFORM *);
 typedef int (__stdcall *PtrAlphaBlend)(HDC, int, int, int, int,
                                            HDC, int, int, int, int,
                                            BLENDFUNCTION);
+typedef int (__stdcall *PtrGradientFill)(HDC, PTRIVERTEX, ulong, void *, ulong, ulong);
 
-static PtrAlphaBlend qAlphaBlend = 0;
 static PtrModifyWorldTransform qModifyWorldTransform = 0;
 static PtrSetGraphicsMode qSetGraphicsMode = 0;
 static PtrSetWorldTransform qSetWorldTransform = 0;
+
+static PtrAlphaBlend qAlphaBlend = 0;
+static PtrGradientFill qGradientFill = 0;
+
 
 void qt_resolve_gdi_functions()
 {
@@ -343,6 +347,7 @@ void qt_resolve_gdi_functions()
     img32.load();
     if (img32.isLoaded()) {
         qAlphaBlend = (PtrAlphaBlend) img32.resolve("AlphaBlend");
+        qGradientFill = (PtrGradientFill) img32.resolve("GradientFill");
     }
 
 #ifdef QT_DEBUG_DRAW
@@ -890,20 +895,7 @@ void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const
 
     Q_ASSERT(pm_dc);
 
-    // sanity check...
-    if (GetGraphicsMode(pm_dc) != GM_COMPATIBLE) {
-        XFORM xform;
-        if (!GetWorldTransform(pm_dc, &xform)) {
-            qErrnoWarning("QWin32PaintEngine::drawPixmap: Getting source xform failed (%s)");
-            return;
-        }
-        if (xform.eM12 != 0 || xform.eM21 != 0) {
-            qWarning("QWin32PaintEngine::drawPixmap: Cannot draw pixmap with matrix");
-            return;
-        }
-    }
-
-    if (pixmap.hasAlphaChannel() && mode == Qt::ComposePixmap) {
+    if (qAlphaBlend && pixmap.hasAlphaChannel() && mode == Qt::ComposePixmap) {
         const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                                    0,                 // BlendFlags, must be zero
                                    255,               // SourceConstantAlpha, we use pr pixel
@@ -1617,6 +1609,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 #ifdef QT_NO_NATIVE_GRADIENT
     Q_ASSERT(!"QWin32PaintEnginePrivate::fillGradient()\n");
 #endif
+    Q_ASSERT(qGradientFill);
+
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
 
@@ -1681,7 +1675,7 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
             polygon[polyCount++] = createVertex(0, rh, gcol1);
         GRADIENT_TRIANGLE gtr[] = { { 0, 1, 2 }, { 2, 3, 0 } };
         int gtrCount = polyCount == 4 ? 2 : 1;
-        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
 
         // Fill the area to the right of the gradient
         polyCount = 0;
@@ -1692,13 +1686,13 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 	    polygon[polyCount++] = createVertex(rw, rh, gcol2);
 	polygon[polyCount++] = createVertex(xbot2-1, rh, gcol2);
         gtrCount = polyCount == 4 ? 2 : 1;
-        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
 
         polygon[0] = createVertex(xtop1, 0, gcol1);
         polygon[1] = createVertex(xbot1, rh, gcol1);
         polygon[2] = createVertex(xbot2, rh, gcol2);
         polygon[3] = createVertex(xtop2, 0, gcol2);
-        GradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
 
     } else {
         // Fill Verticallty
@@ -1732,7 +1726,7 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 	polygon[polyCount++] = createVertex(rw, yright1+1, gcol1);
         GRADIENT_TRIANGLE gtr[] = { { 0, 1, 2 }, { 2, 3, 0 } };
         int gtrCount = polyCount == 4 ? 2 : 1;
-        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
 
         polyCount = 0;
 	polygon[polyCount++] = createVertex(0, yleft2-1, gcol2);
@@ -1742,13 +1736,13 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 	    polygon[polyCount++] = createVertex(rw, rh, gcol2);
 	polygon[polyCount++] = createVertex(rw, yright2-1, gcol2);
         gtrCount = polyCount == 4 ? 2 : 1;
-        GradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, polyCount, gtr, gtrCount, GRADIENT_FILL_TRIANGLE);
 
         polygon[0] = createVertex(0, yleft1, gcol1);
         polygon[1] = createVertex(rw, yright1, gcol1);
         polygon[2] = createVertex(rw, yright2, gcol2);
         polygon[3] = createVertex(0, yleft2, gcol2);
-        GradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
+        qGradientFill(memdc, polygon, 4, gtr, 2, GRADIENT_FILL_TRIANGLE);
     }
 
     if (useMemDC) {
@@ -1769,6 +1763,8 @@ void QWin32PaintEnginePrivate::fillAlpha(const QRect &r, const QColor &color)
 #ifdef QT_NO_NATIVE_ALPHA
     Q_ASSERT(!"QWin32PaintEnginePrivate::fillAlpha()\n");
 #endif
+    Q_ASSERT(qAlphaBlend);
+
     HDC memdc = CreateCompatibleDC(hdc);
     HBITMAP bitmap = CreateCompatibleBitmap(hdc, r.width(), r.height());
     SelectObject(memdc, bitmap);
@@ -1873,27 +1869,31 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 
 void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
 {
-    XFORM m;
-    if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
-        m.eM11 = mtx.m11();
-        m.eM12 = mtx.m12();
-        m.eM21 = mtx.m21();
-        m.eM22 = mtx.m22();
-        m.eDx  = mtx.dx();
-        m.eDy  = mtx.dy();
-        qSetGraphicsMode(d->hdc, GM_ADVANCED);
-        if (!SetWorldTransform(d->hdc, &m)) {
-            qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
+    QT_WA( {
+        XFORM m;
+        if (d->txop > QPainterPrivate::TxNone && !d->noNativeXform) {
+            m.eM11 = mtx.m11();
+            m.eM12 = mtx.m12();
+            m.eM21 = mtx.m21();
+            m.eM22 = mtx.m22();
+            m.eDx  = mtx.dx();
+            m.eDy  = mtx.dy();
+            qSetGraphicsMode(d->hdc, GM_ADVANCED);
+            if (!SetWorldTransform(d->hdc, &m)) {
+                qErrnoWarning("QWin32PaintEngine::updateMatrix: SetWorldTransformation failed");
+            }
+            d->advancedMode = true;
+        } else {
+            m.eM11 = m.eM22 = (float)1.0;
+            m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
+            qSetGraphicsMode(d->hdc, GM_ADVANCED);
+            qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
+            qSetGraphicsMode(d->hdc, GM_COMPATIBLE);
+            d->advancedMode = false;
         }
-        d->advancedMode = true;
-    } else {
-        m.eM11 = m.eM22 = (float)1.0;
-        m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
-        qSetGraphicsMode(d->hdc, GM_ADVANCED);
-        qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-        qSetGraphicsMode(d->hdc, GM_COMPATIBLE);
-        d->advancedMode = false;
-    }
+    }, {
+        // ### How about 9x??
+    } );
 }
 
 
