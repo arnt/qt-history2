@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qcstring.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qcstring.cpp#3 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QCString classes
@@ -421,6 +421,18 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 
   \sa \link shclass.html Shared classes\endlink
 */
+
+
+/*
+  Implementation note: The QCString methods for QRegExp searching are
+  implemented by converting the QCString to a QString and performing
+  the search on that. This implies a deep copy of the QCString
+  data. Therefore, if you are giong to perform many QRegExp searches
+  on one and the same, large QCString, you will get better performance
+  by converting the QCString to a QString yourself, and do the
+  searches on that. The results will be of course be identical.
+*/
+
 
 
 /*!

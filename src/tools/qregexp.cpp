@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#62 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#63 $
 **
 ** Implementation of QRegExp class
 **
@@ -31,8 +31,9 @@
   \class QRegExp qregexp.h
   \ingroup tools
   \ingroup misc
-  \brief The QRegExp class provides pattern matching using regular expressions and wildcards.
+  \brief The QRegExp class provides pattern matching using regular expressions or wildcards.
 
+  
   QRegExp knows these regexp primitives:
   <ul plain>
   <li><dfn>c</dfn> matches the character 'c'
@@ -48,7 +49,9 @@
   <li><dfn>\t</dfn> matches the TAB character (9)
   <li><dfn>\n</dfn> matches newline (10)
   <li><dfn>\r</dfn> matches return (13)
-  <li><dfn>\s</dfn> matches white space (9,10,11,12,13,32)
+  <li><dfn>\s</dfn> matches white space (defined as any character
+  where QChar::isSpace() returns TRUE. This includes ASCII characters
+  9 (TAB), 10 (LF), 11 (VT), 12(FF), 13 (CR), and 32 (Space)).
   <li><dfn>\x12</dfn> matches the character 0x12 (18 decimal, 12 hexadecimal).
   <li><dfn>\022</dfn> matches the character 022 (18 decimal, 22 octal).
   </ul>
@@ -63,9 +66,17 @@
     and dot, and [^z] matches everything except lower-case z.
   </ul>
 
+  QRegExp supports Unicode both in the pattern strings and in the
+  strings to be matched.
+
   When writing regular expressions in C++ code, remember that the C++
   preprocessor processes \ characters.  So in order to match e.g. a "."
   character, you must write "\\." in C++ source, not "\.".
+
+  \bug Case insensitive matching is not supported for non-ASCII
+  (non-8bit) characters. Any charcter with a non-zero QChar.row is
+  matched case sensitively even if the QRegExp is in case insensitive
+  mode.
 */
 
 
@@ -78,9 +89,10 @@
 // value:	CCL | n		from | to	from | to
 //
 // where n is the (16-bit) number of following range definitions, and
-// from and to define the ranges inclusive. from <= to is always
-// true. Single characters in the class are coded as from==to.
-// Negated classes (e.g. [^a-z]) use CCN instead of CCL.
+// from and to define the ranges inclusive. from <= to is always true,
+// otherwise it is a built-in charclass (Pxx, eg \s - PWS). Single
+// characters in the class are coded as from==to.  Negated classes
+// (e.g. [^a-z]) use CCN instead of CCL.
 
 const uint END	= 0x00000000;
 const uint PWS	= 0x10010000;		// predef whitespace charclass \s
@@ -312,7 +324,7 @@ void QRegExp::setCaseSensitive( bool enable )
 int QRegExp::match( const QString &str, int index, int *len,
 		    bool indexIsStart ) const
 {
-    if ( error )			// cannot match ##null strings?
+    if ( !isValid() || isEmpty() )
 	return -1;
     if ( str.length() < (uint)index )
 	return -1;
@@ -326,13 +338,14 @@ int QRegExp::match( const QString &str, int index, int *len,
 	ep = matchstr( d, p, pl, indexIsStart ? p : start );
     } else {
 	if ( *d & CHR ) {
-	    if ( cs ) {				// case sensitive
-		while ( pl && *p != (QChar)*d ) {
+	    QChar c( *d );
+	    if ( !cs && !c.row ) {		// case sensitive, # only 8bit
+		while ( pl && ( p->row || tolower(p->cell) != c.cell ) ) {
 		    p++;
 		    pl--;
 		}
 	    } else {				// case insensitive
-		while ( pl && (QChar)tolower(*p) != (QChar)*d ) { //### uc...
+		while ( pl && *p != c ) {
 		    p++;
 		    pl--;
 		}
@@ -356,9 +369,9 @@ int QRegExp::match( const QString &str, int index, int *len,
     }
 }
 
-static inline bool iswordchar( int x ) //###
+static inline bool iswordchar( int x )
 {
-    return isalnum(x) || x == '_';
+    return isalnum(x) || x == '_';	//# Only 8-bit support
 }
 
 
@@ -373,14 +386,14 @@ bool matchcharclass( uint *rxd, QChar c )
     uint clcode = *d & MCD;
     bool neg = clcode == CCN;
     if ( clcode != CCL && clcode != CCN)
-	warning("QRegExp: coding error!");
+	warning("QRegExp: Internal error, please report to qt-bugs@troll.no");
     uint numFields = *d & MVL;
     uint cval = (((uint)(c.row)) << 8) | ((uint)c.cell);
     bool found = FALSE;
     for ( int i = 0; i < (int)numFields; i++ ) {
 	d++;
 	if ( *d == PWS ) {
-	    if ( isspace( c ) ) {
+	    if ( c.isSpace() ) {
 		found = TRUE;
 		break;
 	    }
@@ -415,13 +428,14 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 	if ( *d & CHR ) {			// match char
 	    if ( !pl )
 		return 0;
-	    if ( cs ) {				// case sensitive
-		if ( *p != (QChar)*d )
+	    QChar c( *d );
+	    if ( !cs && !c.row ) {		// case insensitive, #Only 8bit
+		if ( p->row || tolower(p->cell) != c.cell )
 		    return 0;
 		p++;
 		pl--;
 	    } else {				// case insensitive
-		if ( (QChar)tolower(*p) != (QChar)*d ) //### uc...
+		if ( *p != c )
 		    return 0;
 		p++;
 		pl--;
@@ -439,7 +453,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 	}
 	else switch ( *d++ ) {
 	    case PWS:				// match whitespace
-		if ( !pl || !isspace( *p ) )
+		if ( !pl || !p->isSpace() )
 		    return 0;
 		p++;
 		pl--;
@@ -470,14 +484,15 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		{
 		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
-		    if ( cs ) {			// case sensitive
-			while ( pl && *p == (QChar)*d ) {
+		    QChar c( *d );
+		    if ( !cs && !c.row ) {	// case insensitive, #only 8bit
+			while ( pl && !p->row && tolower(p->cell)==c.cell ) {
 			    p++;
 			    pl--;
 			}
 		    }
-		    else {			// case insensitive
-			while ( pl && (QChar)tolower(*p) == (QChar)*d ) { //### uc...
+		    else {			// case sensitive
+			while ( pl && *p == c ) {
 			    p++;
 			    pl--;
 			}
@@ -492,7 +507,7 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		    d += (*d & MVL) + 1;
 		}
 		else if ( *d == PWS ) {
-		    while ( pl && isspace( *p ) ) {
+		    while ( pl && p->isSpace() ) {
 			p ++;
 			pl--;
 		    }
@@ -520,14 +535,15 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		{
 		const QChar *first_p = p;
 		if ( *d & CHR ) {		// match char
-		    if ( cs ) {			// case sensitive
-			if ( pl && *p == (QChar)*d ) {
+		    QChar c( *d );
+		    if ( !cs && !c.row ) {	// case insensitive, #only 8bit
+			if ( pl && !p->row && tolower(p->cell) == c.cell ) {
 			    p++;
 			    pl--;
 			}
 		    }
-		    else {			// case insensitive
-			if ( pl && (QChar)tolower(*p) == (QChar)*d ) { // ### uc...
+		    else {			// case sensitive
+			if ( pl && *p == c ) {
 			    p++;
 			    pl--;
 			}
@@ -542,8 +558,8 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 		    d += (*d & MVL) + 1;
 		}
 		else if ( *d == PWS ) {
-		    if ( pl && isspace( *p ) ) {
-			p ++;
+		    if ( pl && p->isSpace() ) {
+			p++;
 			pl--;
 		    }
 		    d++;
@@ -584,12 +600,10 @@ const QChar *QRegExp::matchstr( uint *rxd, const QChar *str, uint strlength,
 
 static QString wc2rx( const QString &pattern )
 {
-    //const QChar *p = pattern.unicode();
     int patlen = (int)pattern.length();
     QString wcpattern = "^";
 
     QChar c;
-    //while ( (c=*p++) ) {
     for( int i = 0; i < patlen; i++ ) {
 	c = pattern[i];
 	switch ( (char)c ) {
@@ -859,8 +873,7 @@ void QRegExp::compile()
 		}
 		uint numFields = 0;
 		while ( pl ) {
-		    if ( ( pl>2 ) && ((char)*p == (uint)'-') &&
-			 ((char)*(p+1) != (uint)']') ) {
+		    if ((pl>2) && ((char)*p == '-') && ((char)*(p+1) != ']')) {
 			// Found a range
 			uint cch2 = char_val( &p, &pl ); // Read the '-'
 			cch2 = char_val( &p, &pl ); // Read the range end
@@ -880,17 +893,21 @@ void QRegExp::compile()
 			    GEN( (cch << 16) | cch ); // from == to range
 			numFields++;
 		    }
-		    if ( !pl ) {		// At least ']' should be left
-			error = PatSyntax;
-			return;
-		    }
 		    if ( d >= rxarray + maxlen ) {	// pattern too long
 			error = PatOverflow;		
+			return;
+		    }
+		    if ( !pl ) {		// At least ']' should be left
+			error = PatSyntax;
 			return;
 		    }
 		    cch = char_val( &p, &pl );
 		    if ( cch == (uint)']' )
 			break;
+		    if ( !pl ) {		// End, should have seen ']'
+			error = PatSyntax;
+			return;
+		    }
 		}
 		*prev_d |= numFields;		// Store number of fields
 		}
@@ -935,14 +952,14 @@ void QRegExp::compile()
 	    default:
 		{
 		prev_d = d;
-		uint c = char_val( &p, &pl );
-		if ( c & MCD ) {			// It's a code
-		    GEN( c );
+		uint cv = char_val( &p, &pl );
+		if ( cv & MCD ) {			// It's a code
+		    GEN( cv );
 		}
 		else {
-		    if ( !cs && c < 256 )	//### uctolower?
-			c = tolower( c );
-		    GEN( CHR | c );
+		    if ( !cs && cv <= 0xff )		// #only 8bit support
+			cv = tolower( cv );
+		    GEN( CHR | cv );
 		}
 		}
 	}
