@@ -37,7 +37,7 @@ public:
         init();
         data = str;
         if (len == -1)
-            dataSize = strlen(str);
+            dataSize = str ? strlen(str) : 0;
     }
 
     QHexDump(const QByteArray &array, int wrapAt = 16)
