@@ -54,8 +54,6 @@ Win32MakefileGenerator::Win32MakefileGenerator(QMakeProject *p) : MakefileGenera
 void
 Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 {
-    unsigned int subLevels;
-    unsigned int i;
     if(!project->isEmpty("MAKEFILE"))
 	t << "MAKEFILE=	" << var("MAKEFILE") << endl;
     t << "QMAKE =	" << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
@@ -71,20 +69,15 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	QString subdir = *sdirit;
 	t << subdir << ":";
-	subLevels = 1;
-	for( i = 0; i < subdir.length(); i++ ) {
-	    if( subdir.at( i ) == '/' ) subLevels++;
-	}
+	int subLevels = subdir.contains(Option::dir_sep) + 1;
 	if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	    t << " FORCE";
 	t << "\n\t"
 	  << "cd " << subdir << "\n\t"
 	  << "$(MAKE)" << "\n\t"
 	  << "@cd ..";
-        for( i = 1; i < subLevels; i++ )
-        {
+        for(int i = 1; i < subLevels; i++ )
 	    t << "\\..";
-	}
 	t << endl << endl;
     }
 
@@ -96,26 +89,18 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
     if( sdirs.count() > 0 ) {
 	for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 	    QString subdir = *sdirit;
-	    int lastSeparator( 0 );
-	    subLevels = 1;
-	    for( i = 0; i < subdir.length(); i++ ) {
-		if( subdir.at( i ) == '/' ) {
-		    subLevels++;
-		    lastSeparator = i;
-		}
-	    }
+	    int subLevels = subdir.contains(Option::dir_sep) + 1;
 	    t << "\n\t"
 	      << "cd " << subdir << "\n\t";
-	    if( lastSeparator ) {
-		subdir = subdir.mid( lastSeparator + 1 );
-	    }
+	    int lastSlash = subdir.findRev(Option::dir_sep);
+	    if(lastSlash != -1) 
+		subdir = subdir.mid( lastSlash + 1 );
 	    t << "$(QMAKE) " << subdir << ".pro" 
 	      << (!project->isEmpty("MAKEFILE") ? QString(" -o ") + var("MAKEFILE") : QString(""))
 	      << " " << buildArgs() << "\n\t"
 	      << "@cd ..";
-	    for( i = 1; i < subLevels; i++ ) {
+	    for(int i = 1; i < subLevels; i++ ) 
 		t << "\\..";
-	    }
 	}
     } else {
 	// Borland make does not like empty an empty command section, so insert
@@ -134,28 +119,21 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	if ( sdirs.count() > 0 ) {
 	    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 		QString subdir = *sdirit;
-		int lastSeparator( 0 );
-		subLevels = 1;
-		for( i = 0; i < subdir.length(); i++ ) {
-		    if( subdir.at( i ) == '/' ) {
-			subLevels++;
-		        lastSeparator = i;
-		    }
-		}
+		int subLevels = subdir.contains(Option::dir_sep) + 1;
 		t << "\n\t"
 		    << "cd " << subdir << "\n\t";
 
 		if ( targs[x] == "clean" ) {
-		    if( lastSeparator )
-			subdir = subdir.mid( lastSeparator + 1 );
+		    int lastSlash = subdir.findRev(Option::dir_sep);
+		    if(lastSlash != -1) 
+			subdir = subdir.mid( lastSlash + 1 );
 		    t << "$(QMAKE) " << subdir << ".pro" << "\n\t";
 		}
 		
 		t << "$(MAKE) " << targs[x] << "\n\t"
 		    << "@cd ..";
-		for( i = 1; i < subLevels; i++ ) {
+		for(int i = 1; i < subLevels; i++ ) 
 		    t << "\\..";
-		}
 	    }
 	} else {
 	    // Borland make does not like empty an empty command section, so
