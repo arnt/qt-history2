@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#62 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#63 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 #include "qpmcache.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#62 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#63 $")
 
 
 /*----------------------------------------------------------------------------
@@ -30,6 +30,43 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#62 $")
   A default push button in a dialog emits the clicked signal if the user
   presses the Enter key.
  ----------------------------------------------------------------------------*/
+
+const int extraMotifWidth = 10;
+const int extraMotifHeight = 10;
+
+
+static bool extraSize( const QPushButton *b, int &wx, int &hx,
+		       bool onlyWhenDefault )
+{
+    if ( onlyWhenDefault && !b->isDefault() ) {
+	wx = hx = 0;
+	return FALSE;
+    }
+    switch ( b->style() ) {
+	case MotifStyle:			// larger def Motif buttons
+	    wx = extraMotifWidth;
+	    hx = extraMotifHeight;
+	    break;
+	default:
+	    wx = hx = 0;
+	    return FALSE;
+    }
+    return TRUE;
+}
+
+static void resizeDefButton( QPushButton *b )
+{
+    int wx, hx;
+    if ( !extraSize( b, wx, hx, FALSE ) )
+	return;
+    if ( !b->isDefault() ) {			// not default -> shrink
+	wx = -wx;
+	hx = -hx;
+    }
+    QRect r = b->geometry();
+    b->QWidget::setGeometry( r.x()-wx/2, r.y()-hx/2,
+			     r.width()+wx, r.height()+hx );
+}
 
 
 /*----------------------------------------------------------------------------
@@ -163,8 +200,13 @@ void QPushButton::setDefault( bool enable )
     defButton = enable;
     if ( defButton )
 	((QDialog*)p)->setDefault( this );
-    if ( isVisible() )
-	repaint( FALSE );
+    int gs = style();
+    if ( gs != MotifStyle ) {
+	if ( isVisible() )
+	    repaint( FALSE );
+    }
+    else
+	resizeDefButton( (QPushButton*)this );
 }
 
 
@@ -197,6 +239,67 @@ void QPushButton::adjustSize()
 	resize( w, h );
     else
 	repaint(TRUE);
+}
+
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::move() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::move( int x, int y )
+{
+    int wx, hx;
+    extraSize( this, wx, hx, TRUE );
+    QWidget::move( x-wx/2, y-hx/2 );
+}
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::move() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::move( const QPoint &p )
+{
+    move( p.x(), p.y() );
+}
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::resize() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::resize( int w, int h )
+{
+    int wx, hx;
+    extraSize( this, wx, hx, TRUE );
+    QWidget::resize( w+wx, h+hx );
+}
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::resize() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::resize( const QSize &s )
+{
+    resize( s.width(), s.height() );
+}
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::setGeometry() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::setGeometry( int x, int y, int w, int h )
+{
+    int wx, hx;
+    extraSize( this, wx, hx, TRUE );
+    QWidget::setGeometry( x-wx/2, y-hx/2, w+wx, h+hx );
+}
+
+/*----------------------------------------------------------------------------
+  Reimplements QWidget::setGeometry() for internal purposes.
+ ----------------------------------------------------------------------------*/
+
+void QPushButton::setGeometry( const QRect &r )
+{
+    setGeometry( r.x(), r.y(), r.width(), r.height() );
 }
 
 
@@ -288,14 +391,11 @@ void QPushButton::drawButton( QPainter *paint )
     }
     else if ( gs == MotifStyle ) {		// Motif push button
 	if ( defButton ) {			// default Motif button
-	    p->setPen( black );
-	    p->drawRect( x1, y1, x2-x1+1, y2-y1+1 );
-	    p->setPen( g.dark() );
-	    p->drawRect( x1+1, y1+1, x2-x1-1, y2-y1-1 );
-	    x1 += 1;
-	    y1 += 1;
-	    x2 -= 1;
-	    y2 -= 1;
+	    qDrawShadePanel( p, x1, y1, x2-x1+1, y2-y1+1, g, TRUE );
+	    x1 += extraMotifWidth/2;
+	    y1 += extraMotifHeight/2;
+	    x2 -= extraMotifWidth/2;
+	    y2 -= extraMotifHeight/2;
 	}
 	QBrush fill( fillcol );
 	if ( isDown() ) {
