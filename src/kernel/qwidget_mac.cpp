@@ -456,9 +456,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	    wclass = kDocumentWindowClass;
 
 	WindowGroupRef grp = NULL;
-	WindowAttributes wattr = kWindowNoAttributes /*| kWindowLiveResizeAttribute*/;
-	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
-	    wattr |= kWindowNoActivatesAttribute;
+	WindowAttributes wattr = kWindowNoAttributes;
 	if( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder) || testWFlags( WStyle_DialogBorder) ) {
 		if(wclass == kToolbarWindowClass)
@@ -467,11 +465,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
-#ifdef Q_WS_MACX
-		wclass = kSheetWindowClass;
-#else
-		wclass = kToolbarWindowClass;
-#endif
+		wclass = kPlainWindowClass;
 		if( testWFlags( WStyle_Maximize ) ) 
 		    wattr |= kWindowFullZoomAttribute;
 		if( testWFlags( WStyle_Minimize ) ) 
@@ -480,14 +474,18 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 		    wattr |= kWindowCloseBoxAttribute;
 	    }
 	}
+	if(testWFlags(WStyle_Tool) || (wclass == kPlainWindowClass && wattr == kWindowNoAttributes))
+	    use_wdef = 1;
+	//wattr |= kWindowLiveResizeAttribute;
+	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool) )
+	    wattr |= kWindowNoActivatesAttribute;
 
-	if(wclass == kSheetWindowClass || testWFlags(WStyle_Tool)) {
+	if(use_wdef) {
 	    WindowDefSpec wds;
 	    wds.defType = kWindowDefProcPtr;
 	    wds.u.defProc = NewWindowDefUPP(qt_wdef);
 	    if(CreateCustomWindow(&wds, wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
-	    use_wdef = 1;
 	} else {
 	    if(CreateNewWindow(wclass, wattr, &r, (WindowRef *)&id))
 		qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
@@ -1669,8 +1667,7 @@ void QWidget::setMask( const QRegion &region )
     if ( isTopLevel() && use_wdef) {
 	/* We do this because the X/Y seems to move to the first paintable point
 	   (ie the bounding rect of the mask). We must offset everything or else
-	   we have big problems.
-	*/
+	   we have big problems. */
 	QRect r = region.boundingRect();
 	QMacSavedPortInfo mp(this);
 	SetOrigin(r.x(), r.y());
