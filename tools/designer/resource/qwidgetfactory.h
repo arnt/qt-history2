@@ -62,7 +62,8 @@ private:
     QMap<QString, QString> dbControls;
     QMap<QString, QStringList> dbTables;
     QString defConnection, defTable;
-
+    QMap<QString, QString> buddies;
+    
 };
 
 #endif

@@ -183,6 +183,13 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
     }
 
+    for ( QMap<QString, QString>::Iterator it = widgetFactory->buddies.begin(); it != widgetFactory->buddies.end(); ++it ) {
+	QLabel *label = (QLabel*)widgetFactory->toplevel->child( it.key(), "QLabel" );
+	QWidget *buddy = (QWidget*)widgetFactory->toplevel->child( *it, "QWidget" );
+	if ( label && buddy )
+	    label->setBuddy( buddy );
+    }
+    
     delete widgetFactory;
 
     return w;
@@ -668,7 +675,10 @@ void QWidgetFactory::setProperty( QObject* obj, const QString &prop, const QDomE
 		    defConnection = lst[ 0 ];
 		    defTable = lst[ 1 ];
 		}
+	    } else if ( prop == "buddy" ) {
+		buddies.insert( obj->name(), v.toCString() );
 	    }
+    
 	    return;
 	}
     }
