@@ -30,6 +30,7 @@ class QTime;
 class QPoint;
 class QSize;
 class QRect;
+class QUrl;
 
 template <class Key, class Type> class QMap;
 
@@ -71,6 +72,7 @@ class Q_CORE_EXPORT QCoreVariant
         LongLong = 33,
         ULongLong = 34,
         Char = 35,
+        Url = 36,
         UserType = 63,
         LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
 #ifdef QT_COMPAT
@@ -117,6 +119,8 @@ class Q_CORE_EXPORT QCoreVariant
     QCoreVariant(const QRect &rect);
     QCoreVariant(const QPoint &pt);
 
+    QCoreVariant(const QUrl &url);
+
     QCoreVariant& operator=(const QCoreVariant &other);
 
     bool operator==(const QCoreVariant &other) const;
@@ -160,6 +164,8 @@ class Q_CORE_EXPORT QCoreVariant
     QPoint toPoint() const;
     QRect toRect() const;
     QSize toSize() const;
+
+    QUrl toUrl() const;
 
 #ifdef QT_COMPAT
     inline QT_COMPAT int &asInt();
@@ -370,6 +376,7 @@ QVariant_to_helper<QMap<QString,QCoreVariant> >(const QCoreVariant &v, const QMa
 template<> QPoint QVariant_to_helper<QPoint>(const QCoreVariant &v, const QPoint*);
 template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*);
 template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*);
+template<> QUrl QVariant_to_helper<QUrl>(const QCoreVariant &v, const QUrl*);
 #endif
 
 #else
@@ -398,6 +405,7 @@ template<> QMap<QString,QCoreVariant> QVariant_to<QMap<QString,QCoreVariant> >(c
 template<> QPoint QVariant_to<QPoint>(const QCoreVariant &v);
 template<> QRect QVariant_to<QRect>(const QCoreVariant &v);
 template<> QSize QVariant_to<QSize>(const QCoreVariant &v);
+template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v);
 #endif
 
 Q_DECLARE_SHARED(QCoreVariant);

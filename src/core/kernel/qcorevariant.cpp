@@ -25,6 +25,7 @@
 #include "qpoint.h"
 #include "qrect.h"
 #include "qsize.h"
+#include "qurl.h"
 
 #include <float.h>
 
@@ -57,6 +58,8 @@ template<> QRect QVariant_to_helper<QRect>(const QCoreVariant &v, const QRect*)
 { return v.toRect(); }
 template<> QSize QVariant_to_helper<QSize>(const QCoreVariant &v, const QSize*)
 { return v.toSize(); }
+template<> QUrl QVariant_to_helper<QUrl>(const QCoreVariant &v, const QUrl*)
+{ return v.toUrl(); }
 
 #else
 
@@ -79,6 +82,8 @@ template<> QRect QVariant_to<QRect>(const QCoreVariant &v)
 { return v.toRect(); }
 template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
 { return v.toSize(); }
+template<> QUrl QVariant_to<QUrl>(const QCoreVariant &v)
+{ return v.toUrl(); }
 
 #endif
 
@@ -1404,6 +1409,12 @@ QCoreVariant::QCoreVariant(const char *val)
  */
 
 /*!
+  \fn QCoreVariant::QCoreVariant(const QUrl &val)
+
+  Constructs a new variant with a url value of \a val.
+ */
+
+/*!
   \fn QCoreVariant::QCoreVariant(int val)
 
     Constructs a new variant with an integer value, \a val.
@@ -1495,6 +1506,7 @@ QCoreVariant::QCoreVariant(const QMap<QString,QCoreVariant> &map)
 QCoreVariant::QCoreVariant(const QPoint &pt) { create(Point, &pt); }
 QCoreVariant::QCoreVariant(const QRect &r) { create(Rect, &r); }
 QCoreVariant::QCoreVariant(const QSize &s) { create(Size, &s); }
+QCoreVariant::QCoreVariant(const QUrl &u) { create(Url, &u); }
 
 /*!
     Returns the storage type of the value stored in the variant.
@@ -1805,6 +1817,7 @@ Q_VARIANT_TO(Char)
 Q_VARIANT_TO(Rect)
 Q_VARIANT_TO(Size)
 Q_VARIANT_TO(Point)
+Q_VARIANT_TO(Url)
 
 /*!
   \fn QString QCoreVariant::toString() const
@@ -1929,6 +1942,13 @@ QCoreVariantMap QCoreVariant::toMap() const
 
   Returns the variant as a QSize if the variant has type()
   Size; otherwise returns an invalid QSize.
+ */
+
+/*!
+  \fn QSize QCoreVariant::toUrl() const
+
+  Returns the variant as a QUrl if the variant has type()
+  Url; otherwise returns an invalid QUrl.
  */
 
 /*!
