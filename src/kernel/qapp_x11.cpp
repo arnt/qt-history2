@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#14 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -23,7 +23,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#13 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#14 $";
 #endif
 
 
@@ -32,6 +32,8 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#13 $";
 //
 
 static char    *appName;			// application name
+static int	appArgc;			// argument count
+static char   **appArgv;			// argument vector
 static Display *appDpy;				// X11 application display
 static char    *appDpyName = 0;			// X11 display name
 static int	appScreen;			// X11 screen number
@@ -84,6 +86,9 @@ int main( int argc, char **argv )
 #if defined(TRACE_FS)
     startFSTrace();
 #endif
+
+    appArgc = argc;				// save arguments
+    appArgv = argv;
 
     if ( preRList ) {
 	VFPTR_ARG f = (VFPTR_ARG)preRList->first();
@@ -241,6 +246,9 @@ int QApplication::exec( QWidget *mainWidget )	// main event loop
 
     XEvent event;
     main_widget = mainWidget;			// set main widget
+    if ( main_widget )				// give WM command line
+	XSetWMProperties( main_widget->display(), main_widget->id(),
+			  0, 0, appArgv, appArgc, 0, 0, 0 );
 
     while ( quit_now == FALSE ) {		// until qapp->quit() called
 
