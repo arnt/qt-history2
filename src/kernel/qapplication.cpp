@@ -54,7 +54,6 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
-    cursor_list.setAutoDelete( TRUE );
 }
 
 
