@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#83 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -663,9 +663,12 @@ void QSpinBox::updateDisplay()
 
 
 /*!
-  Called after the user has manually edited the contents of the spin
-  box.  Interprets the text using mapTextToValue(), and calls
-  setValue() if successful.
+  QSpinBox calls this after the user has manually edited the contents
+  of the spin box (not using the up/down buttons/keys).
+
+  The default implementation of this function interprets the new text
+  using mapTextToValue().  If mapTextToValue() is successful, it
+  changes the spin box' value.  If not the value if left unchanged.
 */
 
 void QSpinBox::interpretText()
