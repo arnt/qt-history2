@@ -484,8 +484,8 @@ a virtual function.
 
 The global QTextStream manipulators setw(), setfill() and setprecison()
 were renamed to qSetW(), qSetFill() and qSetPrecision() to avoid conflicts
-with the std libs. If you used them, you have to rename the occurences to
-the new name.
+with \c <iostream.h>. If you used them, you have to rename the occurrences to
+the new names.
 
 \section1 QTranslator
 
@@ -495,7 +495,7 @@ new interface.  This interface is used mainly by translation tools (such as
 compatibility, no member function was effectively removed.  The \l QTranslator
 documentation points out which functions are obsolete.
 
-However, the following function is no longer virtual:
+This function is no longer virtual:
 
 \list
 \i QString QTranslator::find( const char * context,
