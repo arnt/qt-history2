@@ -2071,10 +2071,10 @@ ActionEditor *ActionCommand::actionEditor()
 
 RenameActionCommand::RenameActionCommand( const QString &n,
 					  FormWindow *fw,
-					  PopupMenuEditor *m,
 					  QAction *a,
+					  PopupMenuEditor *m,
 					  QString nm )
-    : ActionCommand( n, fw, m, a ), newName( nm )
+    : ActionCommand( n, fw, a ), menu( m ), newName( nm )
 {
     oldName = action->menuText();
 }
@@ -2113,10 +2113,10 @@ void RenameActionCommand::unexecute()
 
 SetActionIconsCommand::SetActionIconsCommand( const QString &n,
 					      FormWindow *fw,
-					      PopupMenuEditor *m,
 					      QAction *a,
+					      PopupMenuEditor *m,
 					      QIconSet &icons )
-    : ActionCommand( n, fw, m, a ), newIcons( icons )
+    : ActionCommand( n, fw, a ), menu( m ), newIcons( icons )
 {
     oldIcons = a->iconSet();
 }

@@ -1051,13 +1051,11 @@ class ActionCommand : public Command
 public:
     ActionCommand( const QString &n,
 		   FormWindow *fw,
-		   PopupMenuEditor *m,
 		   QAction *a )
-	: Command( n, fw ), menu( m ), action( a ) { }
+	: Command( n, fw ), action( a ) { }
     virtual Type type() const = 0;
 protected:
     ActionEditor *actionEditor();
-    PopupMenuEditor *menu;
     QAction *action;
 };
 
@@ -1066,8 +1064,8 @@ class RenameActionCommand : public ActionCommand
 public:
     RenameActionCommand( const QString &n,
 			 FormWindow *fw,
-			 PopupMenuEditor *m,
 			 QAction *a,
+			 PopupMenuEditor *m,
 			 QString nm );
     void execute();
     void unexecute();
@@ -1075,6 +1073,7 @@ public:
 protected:
     QString mangle( QString name );
 private:
+    PopupMenuEditor *menu;
     QString newName;
     QString oldName;
 };
@@ -1084,8 +1083,8 @@ class SetActionIconsCommand : public ActionCommand
 public:
     SetActionIconsCommand( const QString &n,
 			   FormWindow *fw,
-			   PopupMenuEditor *m,
 			   QAction *a,
+			   PopupMenuEditor *m,
 			   QIconSet &icons );
     void execute();
     void unexecute();
@@ -1093,6 +1092,7 @@ public:
 protected:
     void updateActionEditorItem();
 private:
+    PopupMenuEditor *menu;
     QIconSet newIcons;
     QIconSet oldIcons;
 };

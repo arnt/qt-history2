@@ -609,7 +609,7 @@ void PopupMenuEditor::loadIconPixmap( int index )
     }
 
     QIconSet icons( qChoosePixmap( 0, formWnd, 0, 0 ) );
-    SetActionIconsCommand * cmd = new SetActionIconsCommand( "Set icon", formWnd, this, a, icons );
+    SetActionIconsCommand * cmd = new SetActionIconsCommand( "Set icon", formWnd, a, this, icons );
     formWnd->commandHistory()->addCommand( cmd );
     cmd->execute();
 }
@@ -1182,19 +1182,19 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
 									     i );
 		formWnd->commandHistory()->addCommand( cmd );
 		cmd->execute();
-		// Do not put rename on cmd stack
+		// Do not put rename on cmd stack (no undo/redo)
 		RenameActionCommand rename( "Rename Item",
 					    formWnd,
-					    this,
 					    i->anyAction(),
+					    this,
 					    lineEdit->text() );
 		rename.execute();
 	    } else {
 		i = itemList.at( currentIndex );
 		RenameActionCommand * cmd = new RenameActionCommand( "Rename Item",
 								     formWnd,
-								     this,
 								     i->anyAction(),
+								     this,
 								     lineEdit->text() );
 		formWnd->commandHistory()->addCommand( cmd );
 		cmd->execute();
