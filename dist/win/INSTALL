@@ -4,14 +4,14 @@
     following steps:
 
     1. Uncompress the files into the directory you want to use, e.g.
-       C:\Qt\4.0.0-techpreview\
+       C:\Qt\4.0.0-beta
 
     2. Copy the license file from your account on dist.trolltech.com
        into your home directory (this may be known as the userprofile
        environment variable) and rename it to .qt-license 
 
        For example on Windows 2000, %USERPROFILE% should be something
-       like c:\documents and settings\andy
+       like c:\documents and settings\username
 
     3. You need to set up certain environment variables for Qt:
 
@@ -22,6 +22,8 @@
        b. Set QMAKESPEC depending on the compiler you are using to build Qt.
 	    - Microsoft Visual Studio: 		win32-msvc
 	    - Microsoft Visual Studio .NET: 	win32-msvc.net
+	    - Intel C++ Compiler: 		win32-icc
+	    - MingGW: 				win32-g++
           Other compilers are not supported for the tech preview.
 
        c. Extend your PATH variable by %QTDIR%\bin to make sure that the Qt
